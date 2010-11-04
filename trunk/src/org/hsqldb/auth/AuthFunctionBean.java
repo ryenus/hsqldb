@@ -1,9 +1,9 @@
 package org.hsqldb.auth;
 
 /**
- * N.b. AuthFunctionBeans are NOT directly usable as HyperSQL Triggers, they are
- * POJO beans to be managed by AuthBeanMultiplexer (which is a HyperSQL
- * Trigger).
+ * N.b. AuthFunctionBeans are NOT directly usable as HyperSQL Authentication
+ * Function methods, they are POJO beans to be managed by AuthBeanMultiplexer
+ * (which does have a real HyperSQL Authentication Function static method).
  *
  * @see AuthBeanMultiplexer for how these beans are used.
  */

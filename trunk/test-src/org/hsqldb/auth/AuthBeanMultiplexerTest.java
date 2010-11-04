@@ -43,29 +43,29 @@ import org.hsqldb.jdbc.JDBCArrayBasic;
 
 public class AuthBeanMultiplexerTest extends junit.framework.TestCase {
     private static final String[] twoRoles = new String[] { "role1", "role2" };
-    private static final AuthTriggerBean nullPermittingAuthTriggerBean =
-            new AuthTriggerBean() {
+    private static final AuthFunctionBean nullPermittingAuthFunctionBean =
+            new AuthFunctionBean() {
         public String[] authenticate(
                 String dbName, String userName, String password) {
             return null;
         }
     };
-    private static final AuthTriggerBean twoRolePermittingAuthTriggerBean =
-            new AuthTriggerBean() {
+    private static final AuthFunctionBean twoRolePermittingAuthFunctionBean =
+            new AuthFunctionBean() {
         public String[] authenticate(
                 String dbName, String userName, String password) {
             return twoRoles;
         }
     };
-    private static final AuthTriggerBean purposefullyBrokenAuthTriggerBean =
-            new AuthTriggerBean() {
+    private static final AuthFunctionBean purposefullyBrokenAuthFunctionBean =
+            new AuthFunctionBean() {
         public String[] authenticate(
                 String dbName, String userName, String password) {
-            throw new RuntimeException("Emulating broken AuthTriggerBean");
+            throw new RuntimeException("Emulating broken AuthFunctionBean");
         }
     };
-    private static final AuthTriggerBean denyingAuthTriggerBean =
-            new AuthTriggerBean() {
+    private static final AuthFunctionBean denyingAuthFunctionBean =
+            new AuthFunctionBean() {
         public String[] authenticate(
                 String dbName, String userName, String password)
                 throws Exception {
@@ -138,11 +138,11 @@ public class AuthBeanMultiplexerTest extends junit.framework.TestCase {
                     + e.getClass().getName() + " instead of a RTE");
         }
 
-        plexer.setAuthTriggerBeans(Collections.singletonMap("dbNameKey",
-                Arrays.asList(new AuthTriggerBean[] {
-                        twoRolePermittingAuthTriggerBean,
-                        purposefullyBrokenAuthTriggerBean,
-                        denyingAuthTriggerBean})));
+        plexer.setAuthFunctionBeans(Collections.singletonMap("dbNameKey",
+                Arrays.asList(new AuthFunctionBean[] {
+                        twoRolePermittingAuthFunctionBean,
+                        purposefullyBrokenAuthFunctionBean,
+                        denyingAuthFunctionBean})));
         try {
             res = plexer.authenticate("dbNameKey", "u", "p");
         } catch (Exception e) {
@@ -168,28 +168,28 @@ public class AuthBeanMultiplexerTest extends junit.framework.TestCase {
         }
 
         try {
-            plexer.setAuthTriggerBeans(Collections.singletonMap("dbNameKey",
-                    Arrays.asList(new AuthTriggerBean[] {
-                            purposefullyBrokenAuthTriggerBean,
-                            twoRolePermittingAuthTriggerBean,
-                            denyingAuthTriggerBean})));
-            fail("Attempt to set an AuthTriggerBean without first clearing did "
+            plexer.setAuthFunctionBeans(Collections.singletonMap("dbNameKey",
+                    Arrays.asList(new AuthFunctionBean[] {
+                            purposefullyBrokenAuthFunctionBean,
+                            twoRolePermittingAuthFunctionBean,
+                            denyingAuthFunctionBean})));
+            fail("Attempt to set an AuthFunctionBean without first clearing did "
                     + "not throw");
         } catch (IllegalStateException ise) {
             // Purposefully empty.  Expect this.
         } catch (Exception e) {
-            fail("Attempt to set an AuthTriggerBean without first clearing did "
+            fail("Attempt to set an AuthFunctionBean without first clearing did "
                     + "not throw an IllegalStateException, but a "
                     + e.getClass().getName());
         }
 
         plexer.clear();
-        plexer.setAuthTriggerBeans(Collections.singletonMap("dbNameKey",
-                Arrays.asList(new AuthTriggerBean[] {
-                        purposefullyBrokenAuthTriggerBean,
-                        purposefullyBrokenAuthTriggerBean,
-                        twoRolePermittingAuthTriggerBean,
-                        denyingAuthTriggerBean})));
+        plexer.setAuthFunctionBeans(Collections.singletonMap("dbNameKey",
+                Arrays.asList(new AuthFunctionBean[] {
+                        purposefullyBrokenAuthFunctionBean,
+                        purposefullyBrokenAuthFunctionBean,
+                        twoRolePermittingAuthFunctionBean,
+                        denyingAuthFunctionBean})));
         try {
             res = plexer.authenticate("dbNameKey", "u", "p");
         } catch (Exception e) {
@@ -201,12 +201,12 @@ public class AuthBeanMultiplexerTest extends junit.framework.TestCase {
         }
 
         plexer.clear();
-        plexer.setAuthTriggerBeans(Collections.singletonMap("dbNameKey",
-                Arrays.asList(new AuthTriggerBean[] {
-                        purposefullyBrokenAuthTriggerBean,
-                        purposefullyBrokenAuthTriggerBean,
-                        denyingAuthTriggerBean,
-                        twoRolePermittingAuthTriggerBean,
+        plexer.setAuthFunctionBeans(Collections.singletonMap("dbNameKey",
+                Arrays.asList(new AuthFunctionBean[] {
+                        purposefullyBrokenAuthFunctionBean,
+                        purposefullyBrokenAuthFunctionBean,
+                        denyingAuthFunctionBean,
+                        twoRolePermittingAuthFunctionBean,
                 })));
         try {
             plexer.authenticate("dbNameKey", "u", "p");
@@ -218,10 +218,10 @@ public class AuthBeanMultiplexerTest extends junit.framework.TestCase {
         }
 
         plexer.clear();
-        plexer.setAuthTriggerBeans(Collections.singletonMap("dbNameKey",
-                Arrays.asList(new AuthTriggerBean[] {
-                        purposefullyBrokenAuthTriggerBean,
-                        purposefullyBrokenAuthTriggerBean
+        plexer.setAuthFunctionBeans(Collections.singletonMap("dbNameKey",
+                Arrays.asList(new AuthFunctionBean[] {
+                        purposefullyBrokenAuthFunctionBean,
+                        purposefullyBrokenAuthFunctionBean
                 })));
         try {
             plexer.authenticate("dbNameKey", "u", "p");
@@ -268,9 +268,9 @@ public class AuthBeanMultiplexerTest extends junit.framework.TestCase {
                 }
             }
 
-            plexer.setAuthTriggerBeans(Collections.singletonMap("dbNameKey",
-                    Arrays.asList(new AuthTriggerBean[] {
-                            twoRolePermittingAuthTriggerBean,
+            plexer.setAuthFunctionBeans(Collections.singletonMap("dbNameKey",
+                    Arrays.asList(new AuthFunctionBean[] {
+                            twoRolePermittingAuthFunctionBean,
                             })));
             try {
                 authedCon = DriverManager.getConnection(
