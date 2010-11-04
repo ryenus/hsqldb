@@ -2729,10 +2729,10 @@ public static boolean accessMethod(String param) {
 
 // the Java method is defined like this
 public static java.sql.Array accessExternalMethod(String database, String user, String password) {
-    if (extanalCheck(database, user, password) {
+    if (externalCheck(database, user, password) {
         return null;
     }
-    throw new RuntimeExcpetion("failed to authenticate");
+    throw new RuntimeException("failed to authenticate");
 }
 </programlisting>
     </section>
