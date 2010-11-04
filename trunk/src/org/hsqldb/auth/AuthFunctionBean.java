@@ -25,5 +25,5 @@ public interface AuthFunctionBean {
      *         list is returned as a String[] instead of a java.sql.Array.
      */
     public String[] authenticate(
-            String dbName, String userName, String password) throws Exception;
+            String userName, String password) throws Exception;
 }
