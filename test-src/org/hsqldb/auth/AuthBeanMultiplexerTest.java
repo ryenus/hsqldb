@@ -45,29 +45,25 @@ public class AuthBeanMultiplexerTest extends junit.framework.TestCase {
     private static final String[] twoRoles = new String[] { "role1", "role2" };
     private static final AuthFunctionBean nullPermittingAuthFunctionBean =
             new AuthFunctionBean() {
-        public String[] authenticate(
-                String dbName, String userName, String password) {
+        public String[] authenticate(String userName, String password) {
             return null;
         }
     };
     private static final AuthFunctionBean twoRolePermittingAuthFunctionBean =
             new AuthFunctionBean() {
-        public String[] authenticate(
-                String dbName, String userName, String password) {
+        public String[] authenticate(String userName, String password) {
             return twoRoles;
         }
     };
     private static final AuthFunctionBean purposefullyBrokenAuthFunctionBean =
             new AuthFunctionBean() {
-        public String[] authenticate(
-                String dbName, String userName, String password) {
+        public String[] authenticate(String userName, String password) {
             throw new RuntimeException("Emulating broken AuthFunctionBean");
         }
     };
     private static final AuthFunctionBean denyingAuthFunctionBean =
             new AuthFunctionBean() {
-        public String[] authenticate(
-                String dbName, String userName, String password)
+        public String[] authenticate(String userName, String password)
                 throws Exception {
             throw new Exception("Deny!");
         }
@@ -235,7 +231,7 @@ public class AuthBeanMultiplexerTest extends junit.framework.TestCase {
     }
 
     public void testTriggers() throws SQLException {
-        String jdbcUrl = "jdbc:hsqldb:mem:AuthTestDb";
+        String jdbcUrl = "jdbc:hsqldb:mem:dbNameKey";
         Statement st = null;
         AuthBeanMultiplexer plexer = AuthBeanMultiplexer.getSingleton();
         plexer.clear();  // Clear in case a previous test method has popd.

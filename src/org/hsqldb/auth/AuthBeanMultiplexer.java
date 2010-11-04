@@ -159,7 +159,7 @@ public class AuthBeanMultiplexer {
         Exception firstRTE = null;
         String[] beanRet;
         for (AuthFunctionBean nextBean : beanList) try {
-            beanRet = nextBean.authenticate(database, user, password);
+            beanRet = nextBean.authenticate(user, password);
             return (beanRet == null)
                     ? null : new JDBCArrayBasic(beanRet, Type.SQL_VARCHAR);
         } catch (RuntimeException re) {
