@@ -41,6 +41,7 @@ import org.hsqldb.error.ErrorCode;
 import org.hsqldb.jdbc.JDBCArray;
 import org.hsqldb.lib.ArraySort;
 import org.hsqldb.store.ValuePool;
+import org.hsqldb.jdbc.JDBCArrayBasic;
 
 /**
  * Class for ARRAY type objects.<p>
@@ -216,11 +217,53 @@ public class ArrayType extends Type {
         return arrb;
     }
 
+    public Object convertJavaToSQL(SessionInterface session, Object a) {
+
+        Object[] data;
+        boolean  convert = false;
+
+        if (a instanceof Object[]) {
+            data    = (Object[]) a;
+            convert = true;
+        } else if (a instanceof org.hsqldb.jdbc.JDBCArray) {
+            data = ((org.hsqldb.jdbc.JDBCArray) a).getArrayInternal();
+        } else if (a instanceof org.hsqldb.jdbc.JDBCArrayBasic) {
+            data = (Object[]) ((org.hsqldb.jdbc.JDBCArrayBasic) a).getArray();
+            convert = true;
+        } else if (a instanceof java.sql.Array) {
+            try {
+                data    = (Object[]) ((java.sql.Array) a).getArray();
+                convert = true;
+            } catch (Exception e) {
+                throw Error.error(ErrorCode.X_42561);
+            }
+        } else {
+            throw Error.error(ErrorCode.X_42561);
+        }
+
+        if (convert) {
+            Object[] array = new Object[data.length];
+
+            for (int i = 0; i < data.length; i++) {
+                array[i] = dataType.convertJavaToSQL(session, data[i]);
+            }
+
+            return array;
+        }
+
+        return data;
+    }
+
     public Object convertSQLToJava(SessionInterface session, Object a) {
 
-        Object[] data = (Object[]) a;
+        if (a instanceof Object[]) {
+            Object[] data = (Object[]) a;
 
-        return new JDBCArray(data, this.collectionBaseType(), this, session);
+            return new JDBCArray(data, this.collectionBaseType(), this,
+                                 session);
+        }
+
+        throw Error.error(ErrorCode.X_42561);
     }
 
     public Object convertToDefaultType(SessionInterface sessionInterface,

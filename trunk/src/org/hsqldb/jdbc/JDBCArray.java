@@ -516,7 +516,7 @@ public class JDBCArray implements Array {
     }
 
     /**
-     * Constructor reject unsupported types.
+     * Constructor should reject unsupported types.
      */
     JDBCArray(Object[] data, Type type,
               JDBCConnection connection) throws SQLException {
@@ -533,7 +533,7 @@ public class JDBCArray implements Array {
         this.sessionProxy = connection.sessionProxy;
     }
 
-    Object[] getArrayInternal() {
+    public Object[] getArrayInternal() {
         return data;
     }
 

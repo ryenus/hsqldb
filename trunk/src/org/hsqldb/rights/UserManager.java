@@ -43,6 +43,7 @@ import org.hsqldb.error.ErrorCode;
 import org.hsqldb.lib.HashMappedList;
 import org.hsqldb.lib.HsqlArrayList;
 import org.hsqldb.result.Result;
+import org.hsqldb.HsqlException;
 
 /**
  * Manages the User objects for a Database instance.
@@ -246,7 +247,7 @@ public final class UserManager {
             throw Error.error(ErrorCode.X_28501, result.getMainString());
         }
 
-        String[] roles = (String[]) result.getValueObject();
+        Object[] roles = (Object[]) result.getValueObject();
         User     user  = (User) userList.get(name);
 
         if (roles.length == 0) {
@@ -262,7 +263,7 @@ public final class UserManager {
                 granteeManager.database.nameManager.newHsqlName(name, true,
                     SchemaObject.GRANTEE);
 
-            createUser(hsqlName, "");
+            user = createUser(hsqlName, "");
         }
 
         // this clears all existing privileges of the user
@@ -270,9 +271,11 @@ public final class UserManager {
 
         // assigns the roles to the user
         for (int i = 0; i < roles.length; i++) {
-            Grantee role = granteeManager.getRole(roles[i]);
+            try {
+                Grantee role = granteeManager.getRole((String) roles[i]);
 
-            user.grant(role);
+                user.grant(role);
+            } catch (HsqlException e) {}
         }
 
         return user;

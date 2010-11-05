@@ -159,7 +159,7 @@ public class JDBCArrayBasic implements Array {
      * this method
      * @since Java 1.2
      */
-    public Object getArray() throws SQLException {
+    public Object getArray() {
         return data;
     }
 

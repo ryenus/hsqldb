@@ -374,7 +374,7 @@ public class Collation implements SchemaObject {
     public void compile(Session session, SchemaObject parentObject) {}
 
     public String getSQL() {
-        return "";
+        return name.getStatementName();
     }
 
     public long getChangeTimestamp() {
