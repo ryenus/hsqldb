@@ -463,8 +463,12 @@ public class RangeVariableResolver {
                 conditions = rangeVariables[i].joinConditions[0];
 
                 if (hasOuterJoin) {
+                    assignToRangeVariable(rangeVariables[i], rangeVariables[i].whereConditions[0], i,
+                                          whereExpressions[i]);
+/*
                     assignToRangeVariable(rangeVariables[i].whereConditions[0],
                                           whereExpressions[i]);
+*/
                 } else {
                     joinExpressions[i].addAll(whereExpressions[i]);
                 }
