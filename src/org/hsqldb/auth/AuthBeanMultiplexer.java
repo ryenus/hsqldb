@@ -36,6 +36,9 @@ import java.util.List;
 import java.util.HashMap;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.sql.ResultSet;
 import org.hsqldb.jdbc.JDBCArrayBasic;
 import org.hsqldb.types.Type;
 import org.hsqldb.lib.FrameworkLogger;
@@ -46,10 +49,6 @@ import org.hsqldb.lib.FrameworkLogger;
  * Manages a set of AuthFunctionBean implementations
  */
 public class AuthBeanMultiplexer {
-    /* TODO:  Add setters that take either an open connection or a JDBC URL
-     * instead of database name, so user won't have to tangle with the
-     * esoteric unique database names. */
-
     private static FrameworkLogger logger =
             FrameworkLogger.getLog(AuthBeanMultiplexer.class);
 
@@ -99,6 +98,33 @@ public class AuthBeanMultiplexer {
         AuthBeanMultiplexer.beans.putAll(authFunctionBeanMap);
     }
 
+    protected static String getUniqueNameFor(Connection c) throws SQLException {
+        ResultSet rs = c.createStatement().executeQuery("CALL database_name()");
+        try {
+            return rs.getString(1);
+        } finally {
+            if (rs != null) try {
+                rs.close();
+            } catch (SQLException se) {
+                logger.error(
+                        "Failed to close ResultSet for retrieving db name");
+            }
+            rs = null;  // Encourage GC
+        }
+    }
+
+    /**
+     * Wrapper for setAuthFunctioNBeans(String, List<AuthFunctionBean>)
+     *
+     * @param c  An open Connection to the desired database.
+     * @throws SQLException if failed to obtain unique name from given
+     *                      Connection.
+     */
+    public void setAuthFunctionBeans(Connection c,
+            List<AuthFunctionBean> authFunctionBeans) throws SQLException {
+        setAuthFunctionBeans(getUniqueNameFor(c), authFunctionBeans);
+    }
+
     /**
      * This is not an "adder" function, but a "setter" function for the
      * specified dbName , so do not use this to add to a database's
@@ -133,6 +159,16 @@ public class AuthBeanMultiplexer {
                         + "db's AuthFunctionBean list is empty");
         }
         dbsBeans.addAll(authFunctionBeans);
+    }
+
+    /**
+     * Exactly the same as setAUthFunctionBeans(String, List) other than taking
+     * an open Connection to identify the database.
+     */
+    public void setAuthFunctionBean(Connection c,
+            AuthFunctionBean authFunctionBean) throws SQLException {
+        setAuthFunctionBeans(getUniqueNameFor(c),
+                Collections.singletonList(authFunctionBean));
     }
 
     /**
