@@ -31,13 +31,6 @@
 
 package org.hsqldb.auth;
 
-/**
- *  Authenticates to a HyperSQL catalog according to entries in a LDAP
- *  database.
- *
- * @see AuthFunctionBean
- */
-
 import java.io.IOException;
 import java.util.List;
 import java.util.ArrayList;
@@ -60,6 +53,8 @@ import javax.naming.ldap.ExtendedResponse;
 import org.hsqldb.lib.FrameworkLogger;
 
 /**
+ * Authenticates to a HyperSQL catalog according to entries in a LDAP
+ * database.
  * If using LDAP StartTLS and your server has a certificate not trusted by
  * default by your JRE, then set system property 'javax.net.ssl.trustStore' to
  * the path to a trust store containing the cert (as well as any other certs
@@ -72,10 +67,16 @@ import org.hsqldb.lib.FrameworkLogger;
  * This class purposefully does not support LDAPS, because LDAPS is deprecated
  * in favor of StartTLS, which we do support.
  * </P> <P>
+ * This class does not support SASL/External authentication, because the work
+ * involved with securely obtaining user-specific certs would be more complex
+ * than everything else here combined.
+ * Another AuthFunctionBean would have to be written if SASL/External is needed.
+ * </P> <P>
  * To use instances of this class, you must use at least the methods
  * setLdapHost, setParentDn, and initialize.
  * </P>
  *
+ * @see AuthFunctionBean
  * @see #setLdapHost(String)
  * @see #setParentDn(String)
  * @see #initialize()
