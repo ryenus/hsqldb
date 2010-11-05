@@ -547,7 +547,7 @@ public class SqlFile {
         // execute() to block.
         this.reader = reader;
         this.inputStreamLabel = inputStreamLabel;
-        this.baseDir = baseDir;
+        this.baseDir = (baseDir == null) ? new File(".") : baseDir;
     }
 
     public void setConnection(Connection jdbcConn) {
