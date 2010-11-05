@@ -1,8 +1,10 @@
 package org.hsqldb.auth;
 
 /**
- *  A code example to demonstrate how StartTLS works
- *  Note: This example has been tested to work with Active Directory 2003
+ *  Authenticates to a HyperSQL catalog according to entries in a LDAP
+ *  database.
+ *
+ * @see AuthFunctionBean
  */
 
 import java.util.*;

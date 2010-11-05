@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import org.hsqldb.jdbc.JDBCArrayBasic;
 import org.hsqldb.types.Type;
+import org.hsqldb.lib.FrameworkLogger;
 
 /**
  * This class provides a method which can be used directly as a HyperSQL static
@@ -14,6 +15,13 @@ import org.hsqldb.types.Type;
  * Manages a set of AuthFunctionBean implementations
  */
 public class AuthBeanMultiplexer {
+    /* TODO:  Add setters that take either an open connection or a JDBC URL
+     * instead of database name, so user won't have to tangle with the
+     * esoteric unique database names. */
+
+    private static FrameworkLogger logger =
+            FrameworkLogger.getLog(AuthBeanMultiplexer.class);
+
     /**
      * This sole constructor is purposefully private, so users or frameworks
      * that want to work with instances will be forced to use the singleton
@@ -78,6 +86,11 @@ public class AuthBeanMultiplexer {
      */
     public void setAuthFunctionBeans(String dbName,
             List<AuthFunctionBean> authFunctionBeans) {
+        if (dbName == null || dbName.length() != 16) {
+            throw new IllegalArgumentException(
+                    "Database name not exactly 16 characters long: "
+                    + dbName);
+        }
         List<AuthFunctionBean> dbsBeans = AuthBeanMultiplexer.beans.get(dbName);
         if (dbsBeans == null) {
             dbsBeans = new ArrayList<AuthFunctionBean>();
@@ -149,9 +162,21 @@ public class AuthBeanMultiplexer {
     public static java.sql.Array authenticate(
             String database, String user, String password)
             throws Exception {
+        /* This method both logs and throws because due to JDBC requirements,
+         * the Exception messages will not make it to applications.
+         * Though these messages won't make it to the end user, at least the
+         * application adminster will have access to problem details. */
+        if (database == null || database.length() != 16) {
+            throw new IllegalStateException("Internal problem.  "
+                    + "Database name not exactly 16 characters long: "
+                    + database);
+        }
         List<AuthFunctionBean> beanList =
                 AuthBeanMultiplexer.beans.get(database);
         if (beanList == null) {
+            logger.error("Database '" + database
+                    + "' has not been set up with "
+                    + AuthBeanMultiplexer.class.getName());
             throw new IllegalArgumentException("Database '" + database
                     + "' has not been set up with "
                     + AuthBeanMultiplexer.class.getName());
@@ -166,7 +191,9 @@ public class AuthBeanMultiplexer {
             if (firstRTE == null) {
                 firstRTE = re;
             }
-            // TODO:  Write an application log entry and proceed
+            logger.error("System failure of an AuthFunctionBean: "
+                    + ((re.getMessage() == null)
+                      ? re.toString() : re.getMessage()));
         } catch (Exception e) {
             throw e;
         }

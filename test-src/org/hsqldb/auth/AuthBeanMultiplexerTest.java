@@ -40,8 +40,15 @@ import java.util.Collections;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import org.hsqldb.jdbc.JDBCArrayBasic;
+import org.hsqldb.lib.FrameworkLogger;
 
 public class AuthBeanMultiplexerTest extends junit.framework.TestCase {
+    /* TODO:  Turn up application logger level, since we purposefully generate
+     * errors with some of our tests, and don't need to see them on stderr. */
+
+    private static FrameworkLogger logger =
+            FrameworkLogger.getLog(AuthBeanMultiplexerTest.class);
+
     private static final String[] twoRoles = new String[] { "role1", "role2" };
     private static final AuthFunctionBean nullPermittingAuthFunctionBean =
             new AuthFunctionBean() {
@@ -75,6 +82,7 @@ public class AuthBeanMultiplexerTest extends junit.framework.TestCase {
      *         an array of Strings.
      */
     private static String[] toStrings(Array jab) {
+System.err.println("ToStringing");
         if (jab == null) {
             return null;
         }
@@ -94,6 +102,7 @@ public class AuthBeanMultiplexerTest extends junit.framework.TestCase {
             throw new IllegalArgumentException(
                     "JDBCArrayBasic internal data is not a String array, but a "
                     + internalArray.getClass().getName());
+System.err.println("EXIT ToStringing");
         return (String[]) internalArray;
     }
 
@@ -125,7 +134,7 @@ public class AuthBeanMultiplexerTest extends junit.framework.TestCase {
         Array res = null;
 
         try {
-            plexer.authenticate("dbNameKey", "x", "y");
+            plexer.authenticate("DUMMY_NAME_12345", "x", "y");
             fail("Use of uninitialized AuthBeanMultiplexer did not throw");
         } catch (RuntimeException re) {
             // Intentionally empty.  Expect this.
@@ -134,13 +143,13 @@ public class AuthBeanMultiplexerTest extends junit.framework.TestCase {
                     + e.getClass().getName() + " instead of a RTE");
         }
 
-        plexer.setAuthFunctionBeans(Collections.singletonMap("dbNameKey",
+        plexer.setAuthFunctionBeans(Collections.singletonMap("DUMMY_NAME_12345",
                 Arrays.asList(new AuthFunctionBean[] {
                         twoRolePermittingAuthFunctionBean,
                         purposefullyBrokenAuthFunctionBean,
                         denyingAuthFunctionBean})));
         try {
-            res = plexer.authenticate("dbNameKey", "u", "p");
+            res = plexer.authenticate("DUMMY_NAME_12345", "u", "p");
         } catch (Exception e) {
             fail("2-role success test threw: " + e);
         }
@@ -153,7 +162,7 @@ public class AuthBeanMultiplexerTest extends junit.framework.TestCase {
                     + toStrings(res));
         }
         try {
-            res = plexer.authenticate("missingDbName", "u", "p");
+            res = plexer.authenticate("WRONG_NAME123456", "u", "p");
             fail("Authenticating against non-configured DB name did not throw");
         } catch (IllegalArgumentException iae) {
             // Intentionally empty.  Expect this
@@ -164,13 +173,13 @@ public class AuthBeanMultiplexerTest extends junit.framework.TestCase {
         }
 
         try {
-            plexer.setAuthFunctionBeans(Collections.singletonMap("dbNameKey",
+            plexer.setAuthFunctionBeans(Collections.singletonMap("DUMMY_NAME_12345",
                     Arrays.asList(new AuthFunctionBean[] {
                             purposefullyBrokenAuthFunctionBean,
                             twoRolePermittingAuthFunctionBean,
                             denyingAuthFunctionBean})));
-            fail("Attempt to set an AuthFunctionBean without first clearing did "
-                    + "not throw");
+            fail("Attempt to set an AuthFunctionBean without first clearing "
+                    + "did not throw");
         } catch (IllegalStateException ise) {
             // Purposefully empty.  Expect this.
         } catch (Exception e) {
@@ -180,14 +189,14 @@ public class AuthBeanMultiplexerTest extends junit.framework.TestCase {
         }
 
         plexer.clear();
-        plexer.setAuthFunctionBeans(Collections.singletonMap("dbNameKey",
+        plexer.setAuthFunctionBeans(Collections.singletonMap("DUMMY_NAME_12345",
                 Arrays.asList(new AuthFunctionBean[] {
                         purposefullyBrokenAuthFunctionBean,
                         purposefullyBrokenAuthFunctionBean,
                         twoRolePermittingAuthFunctionBean,
                         denyingAuthFunctionBean})));
         try {
-            res = plexer.authenticate("dbNameKey", "u", "p");
+            res = plexer.authenticate("DUMMY_NAME_12345", "u", "p");
         } catch (Exception e) {
             fail("2-role success AFTER RTE test threw: " + e);
         }
@@ -197,7 +206,7 @@ public class AuthBeanMultiplexerTest extends junit.framework.TestCase {
         }
 
         plexer.clear();
-        plexer.setAuthFunctionBeans(Collections.singletonMap("dbNameKey",
+        plexer.setAuthFunctionBeans(Collections.singletonMap("DUMMY_NAME_12345",
                 Arrays.asList(new AuthFunctionBean[] {
                         purposefullyBrokenAuthFunctionBean,
                         purposefullyBrokenAuthFunctionBean,
@@ -205,7 +214,7 @@ public class AuthBeanMultiplexerTest extends junit.framework.TestCase {
                         twoRolePermittingAuthFunctionBean,
                 })));
         try {
-            plexer.authenticate("dbNameKey", "u", "p");
+            plexer.authenticate("DUMMY_NAME_12345", "u", "p");
             fail("Denial test did not throw");
         } catch (RuntimeException e) {
             fail("Denial test threw: " + e);
@@ -214,13 +223,13 @@ public class AuthBeanMultiplexerTest extends junit.framework.TestCase {
         }
 
         plexer.clear();
-        plexer.setAuthFunctionBeans(Collections.singletonMap("dbNameKey",
+        plexer.setAuthFunctionBeans(Collections.singletonMap("DUMMY_NAME_12345",
                 Arrays.asList(new AuthFunctionBean[] {
                         purposefullyBrokenAuthFunctionBean,
                         purposefullyBrokenAuthFunctionBean
                 })));
         try {
-            plexer.authenticate("dbNameKey", "u", "p");
+            plexer.authenticate("DUMMY_NAME_12345", "u", "p");
             fail("RTE test did not throw");
         } catch (RuntimeException e) {
             // Purposefully empty.  Expected.
@@ -231,7 +240,8 @@ public class AuthBeanMultiplexerTest extends junit.framework.TestCase {
     }
 
     public void testTriggers() throws SQLException {
-        String jdbcUrl = "jdbc:hsqldb:mem:dbNameKey";
+        String jdbcUrl = "jdbc:hsqldb:mem:memdb";
+        String dbName = "DB_NAME_12345678";
         Statement st = null;
         AuthBeanMultiplexer plexer = AuthBeanMultiplexer.getSingleton();
         plexer.clear();  // Clear in case a previous test method has popd.
@@ -250,6 +260,8 @@ public class AuthBeanMultiplexerTest extends junit.framework.TestCase {
                 }
             }
             st.executeUpdate(
+                    "SET DATABASE UNIQUE NAME " + dbName);
+            st.executeUpdate(
                     "SET DATABASE AUTHENTICATION FUNCTION EXTERNAL NAME "
                     + "'CLASSPATH:"
                     + "org.hsqldb.auth.AuthBeanMultiplexer.authenticate'");
@@ -264,7 +276,7 @@ public class AuthBeanMultiplexerTest extends junit.framework.TestCase {
                 }
             }
 
-            plexer.setAuthFunctionBeans(Collections.singletonMap("dbNameKey",
+            plexer.setAuthFunctionBeans(Collections.singletonMap(dbName,
                     Arrays.asList(new AuthFunctionBean[] {
                             twoRolePermittingAuthFunctionBean,
                             })));
@@ -272,6 +284,7 @@ public class AuthBeanMultiplexerTest extends junit.framework.TestCase {
                 authedCon = DriverManager.getConnection(
                         jdbcUrl, "zeno", "a password");
             } catch (SQLException se) {
+                logger.error("Multiplexer with single allow rule threw", se);
                 fail("Multiplexer with single allow rule threw: " + se);
             }
             authedCon.close();
