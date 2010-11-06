@@ -37,6 +37,7 @@ import java.util.ArrayList;
 import java.util.regex.Pattern;
 import java.util.regex.Matcher;
 import java.util.Hashtable;
+import javax.naming.AuthenticationException;
 import javax.naming.NamingException;
 import javax.naming.Context;
 import javax.naming.NamingEnumeration;
@@ -74,6 +75,11 @@ import org.hsqldb.lib.FrameworkLogger;
  * </P> <P>
  * To use instances of this class, you must use at least the methods
  * setLdapHost, setParentDn, and initialize.
+ * </P> <P>
+ * For a user to be given HyperSQL catalog access, that user must have a role
+ * (matching the roleSchemaValue pattern here if any).
+ * If what is wanted is to grant access but no role, then assign a dummy role
+ * value, because HyperSQL will ignore unknown roles.
  * </P>
  *
  * @see AuthFunctionBean
@@ -155,11 +161,14 @@ public class LdapAuthBean implements AuthFunctionBean {
      *   <LI>
      *      Values that do not successfully match the pattern will be ignored.
      *   <LI>
-     *      The pattern must use parentheses to specify a single capture group
+     *      Optionally uses parentheses to specify a single capture group
      *      (if you use parentheses to specify more than one matching group, we
      *      will only capture for the first).
      *      What is captured by this group is exactly the role or schema that
      *      HyperSQL will attempt to assign.
+     *      If no capture parens are given then the Pattern is only used for the
+     *      acceptance decision, and the LDAP-provided value will be returned
+     *      verbatim.
      * <P>
      * Together, these two features work great to extract just the needed role
      * and schema names from 'memberof' DNs, and will have no problem if you
@@ -169,9 +178,15 @@ public class LdapAuthBean implements AuthFunctionBean {
      * must match the entire candidate value strings (this is different than
      * the find operation which does not need to satisfy the entire candidate
      * value).
-     * </P><P>Example:<CODE><PRE>
+     * </P><P>Example1 :<CODE><PRE>
      *     cn=([^,]+),ou=dbRole,dc=admc,dc=com
      * </PRE></CODE>
+     *     will extract the CN value from matching attribute values.
+     * </P><P>Example1 :<CODE><PRE>
+     *     cn=[^,]+,ou=dbRole,dc=admc,dc=com
+     * </PRE></CODE>
+     *     will return the entire <CODE>cn...com</CODE> string for matching
+     *     attribute values.
      * </P>
      *
      * @see Matcher#matches()
@@ -221,6 +236,15 @@ public class LdapAuthBean implements AuthFunctionBean {
      * <P>
      * If you supply a principalTemplate that does not contain '${username}',
      * then authentication will be user-independent.
+     * </P> <P>
+     * It is common to authenticate to LDAP servers with the DN of the user's
+     * LDAP entry.  In this situation, set principalTemplate to
+     * <CODE>&lt;RDN_ATTR=&gt;${username},&lt;PARENT_DN&gt;</CODE>.
+     * For example if you use parentDn of
+     * <CODE>"ou=people,dc=admc,dc=com"</CODE> and rdnAttribute of
+     * <CODE>uid</CODE>, then you would set <CODE><PRE>
+     *     "uid=${username},ou=people,dc=admc,dc=com"
+     * </PRE></CODE>
      * </P> <P>
      * By default the user name will be passed exactly as it is, so don't use
      * this setter if that is what you want.  (This works great for OpenLDAP
@@ -288,11 +312,9 @@ public class LdapAuthBean implements AuthFunctionBean {
         rolesSchemaAttribute = attribute;
     }
 
-    private static class DenyException extends Exception {
+    public static class DenyException extends Exception {
         // Intentionally empty
     }
-
-    protected static DenyException denyException = new DenyException();
 
     /**
      * @see AuthFunctionBean#authenticate(String, password)
@@ -342,23 +364,28 @@ public class LdapAuthBean implements AuthFunctionBean {
             // while the TLS connection is still open).
             NamingEnumeration<SearchResult> sRess = null;
             try {
-                ctx.search(parentDn,
+                sRess = ctx.search(parentDn,
                         new BasicAttributes(rdnAttribute, userName),
                         new String[] { rolesSchemaAttribute });
+            } catch (AuthenticationException ae) {
+                throw new DenyException();
             } catch (Exception e) {
-// TODO:  Find out exactly what is caught for wrong user name or password for
-// all security mechanisms, and catch just those exception types.
-logger.severe("Caught " + e, e);
-throw denyException;
+                throw new RuntimeException(e);
             }
             if (!sRess.hasMore()) {
-                throw denyException;
+                throw new DenyException();
             }
             SearchResult sRes = sRess.next();
             if (sRess.hasMore()) {
                 throw new RuntimeException("> 1 result");
             }
             Attributes attrs = sRes.getAttributes();
+            if (attrs.size() == 0) {
+                // If LDAP wants a user to have access, it must return a
+                // role matching the roleSchemaValuePattern.
+                // See Class Javadocs.
+                throw new DenyException();
+            }
             if (attrs.size() != 1) {
                 throw new RuntimeException("Wrong # of attrs: " + attrs.size());
             }
@@ -367,15 +394,24 @@ throw denyException;
             System.err.println("#" + valCount);
             Matcher matcher;
             for (int i = 0; i < valCount; i++) {
+                if (attribute.get(i) == null) {
+                    throw new RuntimeException("Attr value #" + i + " is null");
+                }
                 if (!(attribute.get(i) instanceof String)) {
                     throw new RuntimeException("Attr value #" + i
                             + " not a String: "
                             + attribute.get(i).getClass().getName());
                 }
-                matcher = roleSchemaValuePattern.matcher((String) attribute.get(i));
-                if (matcher.matches()) {
-                    System.err.println("=" + matcher.group(1));
-                    returns.add(matcher.group(1));
+                if (roleSchemaValuePattern == null) {
+                    returns.add((String) attribute.get(i));
+                } else {
+                    matcher = roleSchemaValuePattern.matcher(
+                            (String) attribute.get(i));
+                    if (matcher.matches()) {
+                        returns.add((matcher.groupCount() > 0)
+                                ? matcher.group(1)
+                                : (String) attribute.get(i));
+                    }
                 }
             }
         } catch (DenyException de) {
@@ -399,6 +435,9 @@ throw denyException;
             } catch (NamingException ne) {
                 logger.error("Failed to close LDAP Context", ne);
             }
+        }
+        if (returns.size() < 1) {
+            throw new DenyException();
         }
         return returns.toArray(new String[0]);
     }

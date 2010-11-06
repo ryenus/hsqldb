@@ -162,7 +162,7 @@ public class AuthBeanMultiplexer {
     }
 
     /**
-     * Exactly the same as setAUthFunctionBeans(String, List) other than taking
+     * Exactly the same as setAuthFunctionBeans(String, List) other than taking
      * an open Connection to identify the database.
      */
     public void setAuthFunctionBean(Connection c,
