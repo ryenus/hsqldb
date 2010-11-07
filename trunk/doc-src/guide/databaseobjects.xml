@@ -297,12 +297,33 @@
       <para>The correct way to use a sequence value is the NEXT VALUE FOR
       expression.</para>
 
-      <para>You can query the INFORMATION_SCHEMA.SEQUENCES table for the next
+      <para>HyperSQL adds an extension to Standard SQL to return the last
+      value returned by the NEXT VALUE FOR expression in the current session.
+      After a statement containing NEXT VALUE FOR is executed, the value that
+      was returned for NEXT VALUE FOR is available using the CURRENT VALUE FOR
+      expression. In the example below, the NEXT VALUE FOR expression is used
+      to insert a new row. The value that was returned by NEXT VALUE FOR is
+      retrieved with the CURRENT VALUE FOR in the next insert statements to
+      populate two new rows in a different table that has a parent child
+      relationship with the first table. For example if the value 15 was
+      returned by the sequence, the same value 15 is inserted in the three
+      rows.</para>
+
+      <para><example>
+          <title>using the last value of a sequence</title>
+
+          <programlisting>INSERT INTO mytable VALUES 2, 'John', NEXT VALUE FOR mysequence;
+INSERT INTO chiletable VALUES 4, CURRENT VALUE FOR mysequence;
+INSERT INTO chiletable VALUES 5, CURRENT VALUE FOR mysequence;</programlisting>
+        </example>The INFORMATION_SCHEMA.SEQUENCES table contains the next
       value that will be returned from any of the defined sequences. The
       SEQUENCE_NAME column contains the name and the NEXT_VALUE column
       contains the next value to be returned. Note that this is only for
       getting information and you should not use it for accessing the next
-      sequence value.</para>
+      sequence value. When multiple sessions access the same sequence, the
+      value returned from this table by one session could also be used by a
+      different session, causing a sequence value to be used twice
+      unintentionally.</para>
 
       <simpara><emphasis role="bold">Identity Auto-Increment
       Columns</emphasis></simpara>
@@ -322,15 +343,17 @@
       <para>When you add a new row to such a table using an <literal>INSERT
       INTO &lt;tablename&gt; ... </literal>statement, you can use the DEFAULT
       keyword for the IDENTITY column, which results in an auto-generated
-      value for the column. The <literal>IDENTITY() </literal>function returns
-      the last value inserted into any IDENTITY column by this session. Each
-      session manages this function call separately and is not affected by
-      inserts in other sessions. Use <literal>CALL IDENTITY() </literal>as an
-      SQL statement to retrieve this value. If you want to use the value for a
-      field in a child table, you can use <literal>INSERT INTO
-      &lt;childtable&gt; VALUES (...,IDENTITY(),...);</literal>. Both types of
-      call to<literal> IDENTITY()</literal> must be made before any additional
-      update or insert statements are issued by the session.</para>
+      value for the column.</para>
+
+      <para>The <literal>IDENTITY() </literal>function returns the last value
+      inserted into any IDENTITY column by this session. Each session manages
+      this function call separately and is not affected by inserts in other
+      sessions. Use <literal>CALL IDENTITY() </literal>as an SQL statement to
+      retrieve this value. If you want to use the value for a field in a child
+      table, you can use <literal>INSERT INTO &lt;childtable&gt; VALUES
+      (...,IDENTITY(),...);</literal>. Both types of call to<literal>
+      IDENTITY()</literal> must be made before any additional update or insert
+      statements are issued by the session.</para>
 
       <para>In triggers and routines, the value returned by the
       <literal>IDENTITY()</literal> function is correct for the given context.
@@ -344,9 +367,10 @@
       by specifying the Statement or PreparedStatement object to return the
       generated value.</para>
 
-      <para>The next IDENTITY value to be used can be changed with following
-      statement. Note that this statement is not used in normal operation and
-      is only for special purposes: <programlisting>ALTER TABLE ALTER COLUMN &lt;column name&gt; RESTART WITH &lt;new value&gt;;</programlisting>For
+      <para>The next IDENTITY value to be used can be changed with the
+      following statement. Note that this statement is not used in normal
+      operation and is only for special purposes, for example resetting the
+      identity generator: <programlisting>ALTER TABLE ALTER COLUMN &lt;column name&gt; RESTART WITH &lt;new value&gt;;</programlisting>For
       backward compatibility, support has been retained for <literal>CREATE
       TABLE &lt;tablename&gt;(&lt;colname&gt; IDENTITY, ...)</literal> as a
       shortcut which defines the column both as an IDENTITY column and a
