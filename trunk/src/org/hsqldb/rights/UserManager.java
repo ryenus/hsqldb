@@ -278,6 +278,8 @@ public final class UserManager {
             } catch (HsqlException e) {}
         }
 
+        user.updateAllRights();
+
         return user;
     }
 
