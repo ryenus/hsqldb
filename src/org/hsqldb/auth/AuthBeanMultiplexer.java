@@ -101,6 +101,10 @@ public class AuthBeanMultiplexer {
     protected static String getUniqueNameFor(Connection c) throws SQLException {
         ResultSet rs = c.createStatement().executeQuery("CALL database_name()");
         try {
+            if (!rs.next()) {
+                throw new SQLException(
+                        "Engine did not reveal unique database name");
+            }
             return rs.getString(1);
         } finally {
             if (rs != null) try {
