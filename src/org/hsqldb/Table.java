@@ -2604,7 +2604,7 @@ public class Table extends TableBase implements SchemaObject {
     }
 
     /**
-     * If there is an identity or generated column in the table, sets
+     * If there is an identity column in the table, sets
      * the value and/or adjusts the identiy value for the table.
      */
     protected void setIdentityColumn(Session session, Object[] data) {

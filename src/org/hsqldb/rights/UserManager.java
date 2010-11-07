@@ -232,9 +232,9 @@ public final class UserManager {
         }
 
         /*
-         * Authentication returns String[]. When empty, use the existing
+         * Authentication returns String[]. When null, use the existing
          * user object only, with existing privileges.
-         * When not empty, create a user if necessary or remove all
+         * When not null, create a user if necessary or remove all
          * existing privileges from an existing user. Then assign the list
          * of roles to the user.
          */
@@ -250,7 +250,7 @@ public final class UserManager {
         Object[] roles = (Object[]) result.getValueObject();
         User     user  = (User) userList.get(name);
 
-        if (roles.length == 0) {
+        if (roles == null) {
             if (user == null) {
                 throw Error.error(ErrorCode.X_28501, name);
             }
