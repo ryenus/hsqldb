@@ -319,7 +319,6 @@ examples:
          <classpath>
             <pathelement location="${servletapi.lib}"/>
          </classpath>
-         <include name="*.java"/>
          <include name="org/hsqldb/*.java"/>
          <include name="org/hsqldb/dbinfo/*.java"/>
          <include name="org/hsqldb/index/*.java"/>
@@ -333,6 +332,7 @@ examples:
          <include name="org/hsqldb/server/*.java"/>
          <include name="org/hsqldb/store/*.java"/>
          <include name="org/hsqldb/types/*.java"/>
+         <include name="org/hsqldb/rights/*.java"/>
          <exclude name="org/hsqldb/server/HsqlSocketFactorySecure.java" unless="ant.java.hasjsse"/>
          <exclude name="org/hsqldb/jdbc/JDBCArray.java"/>
          <exclude name="org/hsqldb/jdbc/JDBCBlob.java"/>
@@ -354,6 +354,7 @@ examples:
 <!-- end JDBC 4 -->
          <exclude name="org/hsqldb/persist/NIOLockFile.java"/>
          <exclude name="org/hsqldb/persist/NIOScaledRAFile.java"/>
+         <exclude name="org/hsqldb/rights/Grantee.java"/>
       </javac>
       <fixcrlf destdir="classes" preservelastmodified='true' eol="lf"
                encoding="ISO-8859-1" srcdir="src"
