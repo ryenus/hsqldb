@@ -31,6 +31,9 @@
 
 package org.hsqldb.auth;
 
+import java.util.Set;
+import java.util.HashSet;
+import java.sql.ResultSet;
 import java.sql.Array;
 import java.sql.Statement;
 import java.sql.SQLException;
@@ -49,7 +52,9 @@ public class AuthBeanMultiplexerTest extends junit.framework.TestCase {
     private static FrameworkLogger logger =
             FrameworkLogger.getLog(AuthBeanMultiplexerTest.class);
 
-    private static final String[] twoRoles = new String[] { "role1", "role2" };
+    private static final String[] twoRoles = new String[] { "ROLE1", "ROLE2" };
+    private static final Set<String> twoRolesSet =
+            new HashSet<String>(Arrays.asList(twoRoles));
     private static final AuthFunctionBean nullPermittingAuthFunctionBean =
             new AuthFunctionBean() {
         public String[] authenticate(String userName, String password) {
@@ -77,12 +82,11 @@ public class AuthBeanMultiplexerTest extends junit.framework.TestCase {
     };
 
     /**
-     * @throws RutnimeException if jab
+     * @throws RuntimeException if jab
      *         param is neither null not an instance of JDBCArrayBasic wrapping
      *         an array of Strings.
      */
     private static String[] toStrings(Array jab) {
-System.err.println("ToStringing");
         if (jab == null) {
             return null;
         }
@@ -91,19 +95,30 @@ System.err.println("ToStringing");
                     "Parameter is a " + jab.getClass().getName()
                     + " instead of a " + JDBCArrayBasic.class.getName());
         }
-        Object internalArray = null;
-        try {
-            internalArray = ((JDBCArrayBasic) jab).getArray();
-        } catch (SQLException se) {
-            throw new IllegalArgumentException(
-                    "Failed to get array from JDBCArrayBasic: " + se);
-        }
+        Object internalArray = ((JDBCArrayBasic) jab).getArray();
         if (!(internalArray instanceof String[]))
             throw new IllegalArgumentException(
                     "JDBCArrayBasic internal data is not a String array, but a "
                     + internalArray.getClass().getName());
-System.err.println("EXIT ToStringing");
         return (String[]) internalArray;
+    }
+
+    protected Set getEnabledRoles(Connection c) throws SQLException {
+        Set roles = new HashSet<String>();
+        ResultSet rs = c.createStatement().executeQuery(
+                "SELECT * FROM information_schema.enabled_roles");
+        try {
+            while (rs.next()) roles.add(rs.getString(1));
+        } finally {
+            if (rs != null) try {
+                rs.close();
+            } catch (SQLException se) {
+                logger.error(
+                        "Failed to close ResultSet for retrieving db name");
+            }
+            rs = null;  // Encourage GC
+        }
+        return roles;
     }
 
     private static boolean isWrapperFor(Array array, String[] strings) {
@@ -241,7 +256,6 @@ System.err.println("EXIT ToStringing");
 
     public void testTriggers() throws SQLException {
         String jdbcUrl = "jdbc:hsqldb:mem:memdb";
-        String dbName = "DB_NAME_12345678";
         Statement st = null;
         AuthBeanMultiplexer plexer = AuthBeanMultiplexer.getSingleton();
         plexer.clear();  // Clear in case a previous test method has popd.
@@ -259,8 +273,8 @@ System.err.println("EXIT ToStringing");
                             + " instead of -4001");
                 }
             }
-            st.executeUpdate(
-                    "SET DATABASE UNIQUE NAME " + dbName);
+            st.executeUpdate("CREATE ROLE role1");
+            st.executeUpdate("CREATE ROLE role2");
             st.executeUpdate(
                     "SET DATABASE AUTHENTICATION FUNCTION EXTERNAL NAME "
                     + "'CLASSPATH:"
@@ -276,10 +290,10 @@ System.err.println("EXIT ToStringing");
                 }
             }
 
-            plexer.setAuthFunctionBeans(Collections.singletonMap(dbName,
+            plexer.setAuthFunctionBeans(con,
                     Arrays.asList(new AuthFunctionBean[] {
                             twoRolePermittingAuthFunctionBean,
-                            })));
+                            }));
             try {
                 authedCon = DriverManager.getConnection(
                         jdbcUrl, "zeno", "a password");
@@ -287,6 +301,7 @@ System.err.println("EXIT ToStringing");
                 logger.error("Multiplexer with single allow rule threw", se);
                 fail("Multiplexer with single allow rule threw: " + se);
             }
+            assertEquals(twoRolesSet, getEnabledRoles(authedCon));
             authedCon.close();
             authedCon = null;
         } finally {
