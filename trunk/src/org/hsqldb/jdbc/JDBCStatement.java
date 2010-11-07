@@ -1206,12 +1206,25 @@ public class JDBCStatement extends JDBCStatementBase implements Statement {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Supported in version 2.0 <p>
-     * If columns which represent the auto-generated keys were not specified
-     * the IDENTITY column or GENERATED column(s) of the table are returned.
+     * Starting with version 2.0, HSQLDB supports this feature with single-row
+     * and multi-row insert, update and merge statements. <p>
+
+     * This method returns a result set only if
+     * the executeUpdate methods that was used is one of the three methods that
+     * have the extra parameter indicating return of generated keys<p>
+     *
+     * If the executeUpaged method did not specify the columns which represent
+     * the auto-generated keys the IDENTITY column or GENERATED column(s) of the
+     * table are returned.<p>
+     *
+     * The executeUpdate methods with column indexes or column names return the
+     * post-insert or post-update values of the specified columns, whether the
+     * columns are generated or not. This allows values that have been modified
+     * by execution of triggers to be returned.<p>
      *
      * If column names or indexes provided by the user in the executeUpdate()
-     * method calls are not correct, an empty result is returned.
+     * method calls do not correspond to table columns (incorrect names or
+     * indexes larger than the coloum count), an empty result is returned.
      *
      * </div>
      * <!-- end release-specific documentation -->
