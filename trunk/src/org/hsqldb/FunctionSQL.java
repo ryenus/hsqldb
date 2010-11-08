@@ -257,18 +257,6 @@ public class FunctionSQL extends Expression {
         return function;
     }
 
-    static FunctionSQL newSQLFunction(Session session, int id,
-                                      Expression[] nodes) {
-
-        FunctionSQL function = new FunctionSQL(id);
-
-        function.nodes = nodes;
-
-        function.resolveTypes(session, null);
-
-        return function;
-    }
-
     protected FunctionSQL() {
 
         super(OpTypes.SQL_FUNCTION);
@@ -1614,7 +1602,7 @@ public class FunctionSQL extends Expression {
             case FUNC_SESSION_USER :
             case FUNC_SYSTEM_USER :
             case FUNC_USER :
-                dataType = SqlInvariants.SQL_IDENTIFIER;
+                dataType = TypeInvariants.SQL_IDENTIFIER;
                 break;
 
             case FUNC_VALUE :

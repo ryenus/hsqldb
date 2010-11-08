@@ -31,7 +31,12 @@
 
 package org.hsqldb;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
 
 import org.hsqldb.HsqlNameManager.HsqlName;
 import org.hsqldb.error.Error;
@@ -41,7 +46,6 @@ import org.hsqldb.lib.HashMap;
 import org.hsqldb.lib.Iterator;
 import org.hsqldb.lib.LongKeyHashMap;
 import org.hsqldb.lib.LongKeyLongValueHashMap;
-import org.hsqldb.lib.OrderedHashSet;
 import org.hsqldb.lib.ReaderInputStream;
 import org.hsqldb.navigator.RowSetNavigator;
 import org.hsqldb.navigator.RowSetNavigatorClient;
@@ -52,10 +56,10 @@ import org.hsqldb.result.Result;
 import org.hsqldb.result.ResultLob;
 import org.hsqldb.result.ResultProperties;
 import org.hsqldb.types.BlobData;
-import org.hsqldb.types.ClobData;
-import org.hsqldb.types.LobData;
 import org.hsqldb.types.BlobDataID;
+import org.hsqldb.types.ClobData;
 import org.hsqldb.types.ClobDataID;
+import org.hsqldb.types.LobData;
 
 /*
  * Session semi-persistent data structures
@@ -78,8 +82,8 @@ public class SessionData {
     Object currentValue;
 
     // SEQUENCE
-    HashMap        sequenceMap;
-    OrderedHashSet sequenceUpdateSet;
+    HashMap sequenceMap;
+    HashMap sequenceUpdateMap;
 
     public SessionData(Database database, Session session) {
 
@@ -507,7 +511,71 @@ public class SessionData {
         }
     }
 
-    //
+    ClobData createClobFromFile(String filename, String encoding) {
+
+        File    file   = new File(filename);
+        boolean exists = file.exists();
+
+        if (!exists) {
+            throw Error.error(ErrorCode.FILE_IO_ERROR);
+        }
+
+        long        fileLength = file.length();
+        InputStream is         = null;
+
+        try {
+            ClobData blob = session.createClob(fileLength);
+
+            is = new FileInputStream(file);
+
+            Reader reader = new InputStreamReader(is, encoding);
+
+            is = new ReaderInputStream(reader);
+
+            database.lobManager.setCharsForNewClob(blob.getId(), is,
+                                                   fileLength);
+
+            return blob;
+        } catch (IOException e) {
+            throw Error.error(ErrorCode.FILE_IO_ERROR, e.toString());
+        } finally {
+            try {
+                is.close();
+            } catch (Exception e) {}
+        }
+    }
+
+    BlobData createBlobFromFile(String filename) {
+
+        File    file   = new File(filename);
+        boolean exists = file.exists();
+
+        if (!exists) {
+            throw Error.error(ErrorCode.FILE_IO_ERROR);
+        }
+
+        long        fileLength = file.length();
+        InputStream is         = null;
+
+        try {
+            BlobData blob = session.createBlob(fileLength);
+
+            is = new FileInputStream(file);
+
+            database.lobManager.setBytesForNewBlob(blob.getId(), is,
+                                                   fileLength);
+
+            return blob;
+        } catch (IOException e) {
+            throw Error.error(ErrorCode.FILE_IO_ERROR);
+        } finally {
+            try {
+                is.close();
+            } catch (Exception e) {}
+        }
+    }
+
+    // sequences
     public void startRowProcessing() {
 
         if (sequenceMap != null) {
@@ -519,7 +587,7 @@ public class SessionData {
 
         if (sequenceMap == null) {
             sequenceMap       = new HashMap();
-            sequenceUpdateSet = new OrderedHashSet();
+            sequenceUpdateMap = new HashMap();
         }
 
         HsqlName key   = sequence.getName();
@@ -529,9 +597,14 @@ public class SessionData {
             value = sequence.getValueObject();
 
             sequenceMap.put(key, value);
-            sequenceUpdateSet.add(sequence);
+            sequenceUpdateMap.put(sequence, value);
         }
 
         return value;
+    }
+
+    public Object getSequenceCurrent(NumberSequence sequence) {
+        return sequenceUpdateMap == null ? null
+                                         : sequenceUpdateMap.get(sequence);
     }
 }

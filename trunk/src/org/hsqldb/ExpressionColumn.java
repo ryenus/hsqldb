@@ -152,9 +152,9 @@ public class ExpressionColumn extends Expression {
     /**
      * Creates a OpTypes.SEQUENCE expression
      */
-    ExpressionColumn(NumberSequence sequence) {
+    ExpressionColumn(NumberSequence sequence, int opType) {
 
-        super(OpTypes.SEQUENCE);
+        super(opType);
 
         this.sequence = sequence;
         dataType      = sequence.getDataType();
@@ -592,13 +592,7 @@ public class ExpressionColumn extends Expression {
                 return session.sessionData.getSequenceValue(sequence);
             }
             case OpTypes.SEQUENCE_CURRENT : {
-                if (dataType.typeCode == Types.SQL_INTEGER) {
-                    return ValuePool.getInt((int) sequence.peek());
-                } else {
-                    return dataType.convertToType(
-                        session, ValuePool.getLong(sequence.peek()),
-                        Type.SQL_BIGINT);
-                }
+                return session.sessionData.getSequenceCurrent(sequence);
             }
             case OpTypes.ROWNUM : {
                 return ValuePool.getInt(session.sessionContext.rownum);

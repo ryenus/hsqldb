@@ -1539,16 +1539,23 @@ public class FunctionCustom extends FunctionSQL {
                 return StringConverter.byteArrayToHexString(bytes);
             }
             case FUNC_LOAD_FILE : {
+                String fileName = (String) data[0];
+
+                if (fileName == null) {
+                    return null;
+                }
+
                 switch (dataType.typeCode) {
 
                     case Types.SQL_CLOB :
-                        return "";
+                        return session.sessionData.createClobFromFile(fileName,
+                                (String) data[1]);
 
                     case Types.SQL_BLOB :
-                        return BinaryType.emptyArray;
+                    default :
+                        return session.sessionData.createBlobFromFile(
+                            fileName);
                 }
-
-                return dataType.convertJavaToSQL(session, "");
             }
             default :
                 throw Error.runtimeError(ErrorCode.U_S0500, "FunctionCustom");
@@ -2341,6 +2348,11 @@ public class FunctionCustom extends FunctionSQL {
                     dataType = Type.SQL_BLOB;
                 } else {
                     dataType = Type.SQL_CLOB;
+
+                    if (nodes[1].dataType == null
+                            || !nodes[1].dataType.isCharacterType()) {
+                        throw Error.error(ErrorCode.X_42561);
+                    }
                 }
                 break;
 

@@ -46,9 +46,10 @@ import org.hsqldb.jdbc.JDBCConnection;
 import org.hsqldb.jdbc.JDBCDriver;
 import org.hsqldb.lib.ArrayUtil;
 import org.hsqldb.lib.CountUpDownLatch;
-import org.hsqldb.lib.HashMappedList;
+import org.hsqldb.lib.HashMap;
 import org.hsqldb.lib.HsqlArrayList;
 import org.hsqldb.lib.HsqlDeque;
+import org.hsqldb.lib.Iterator;
 import org.hsqldb.lib.OrderedHashSet;
 import org.hsqldb.lib.java.JavaSystem;
 import org.hsqldb.navigator.RowSetNavigator;
@@ -953,19 +954,12 @@ public class Session implements SessionInterface {
                     }
                 }
 
-                try {
-                    Object[] pvals  = (Object[]) cmd.valueData;
-                    Result   result = executeCompiledStatement(cs, pvals);
+                Object[] pvals  = (Object[]) cmd.valueData;
+                Result   result = executeCompiledStatement(cs, pvals);
 
-                    result = performPostExecute(cmd, result);
+                result = performPostExecute(cmd, result);
 
-                    return result;
-                } catch (Throwable t) {
-                    System.err.println(cs.getSQL());
-                    t.printStackTrace();
-
-                    return Result.newErrorResult(t);
-                }
+                return result;
             }
             case ResultConstants.BATCHEXECUTE : {
                 isBatch = true;
@@ -2071,19 +2065,21 @@ public class Session implements SessionInterface {
     // SEQUENCE current values
     void logSequences() {
 
-        OrderedHashSet set = sessionData.sequenceUpdateSet;
+        HashMap map = sessionData.sequenceUpdateMap;
 
-        if (set == null || set.isEmpty()) {
+        if (map == null || map.isEmpty()) {
             return;
         }
 
-        for (int i = 0, size = set.size(); i < size; i++) {
-            NumberSequence sequence = (NumberSequence) set.get(i);
+        Iterator it = map.keySet().iterator();
+
+        for (int i = 0, size = map.size(); i < size; i++) {
+            NumberSequence sequence = (NumberSequence) it.next();
 
             database.logger.writeSequenceStatement(this, sequence);
         }
 
-        sessionData.sequenceUpdateSet.clear();
+        sessionData.sequenceUpdateMap.clear();
     }
 
     String getStartTransactionSQL() {

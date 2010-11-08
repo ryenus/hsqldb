@@ -43,6 +43,7 @@ import org.hsqldb.RoutineSchema;
 import org.hsqldb.SchemaObject;
 import org.hsqldb.Session;
 import org.hsqldb.SqlInvariants;
+import org.hsqldb.TypeInvariants;
 import org.hsqldb.Table;
 import org.hsqldb.TableBase;
 import org.hsqldb.index.Index;
@@ -146,11 +147,11 @@ import org.hsqldb.types.Types;
  */
 class DatabaseInformationMain extends DatabaseInformation {
 
-    static Type CARDINAL_NUMBER = SqlInvariants.CARDINAL_NUMBER;
-    static Type YES_OR_NO       = SqlInvariants.YES_OR_NO;
-    static Type CHARACTER_DATA  = SqlInvariants.CHARACTER_DATA;
-    static Type SQL_IDENTIFIER  = SqlInvariants.SQL_IDENTIFIER;
-    static Type TIME_STAMP      = SqlInvariants.TIME_STAMP;
+    static Type CARDINAL_NUMBER = TypeInvariants.CARDINAL_NUMBER;
+    static Type YES_OR_NO       = TypeInvariants.YES_OR_NO;
+    static Type CHARACTER_DATA  = TypeInvariants.CHARACTER_DATA;
+    static Type SQL_IDENTIFIER  = TypeInvariants.SQL_IDENTIFIER;
+    static Type TIME_STAMP      = TypeInvariants.TIME_STAMP;
 
     /** The HsqlNames of the system tables. */
     protected static final HsqlName[] sysTableHsqlNames;
@@ -408,14 +409,14 @@ class DatabaseInformationMain extends DatabaseInformation {
 
         right = Right.fullRights;
 
-        gm.grantSystemToPublic(SqlInvariants.YES_OR_NO, right);
-        gm.grantSystemToPublic(SqlInvariants.TIME_STAMP, right);
-        gm.grantSystemToPublic(SqlInvariants.CARDINAL_NUMBER, right);
-        gm.grantSystemToPublic(SqlInvariants.CHARACTER_DATA, right);
-        gm.grantSystemToPublic(SqlInvariants.SQL_CHARACTER, right);
-        gm.grantSystemToPublic(SqlInvariants.SQL_IDENTIFIER_CHARSET, right);
-        gm.grantSystemToPublic(SqlInvariants.SQL_IDENTIFIER, right);
-        gm.grantSystemToPublic(SqlInvariants.SQL_TEXT, right);
+        gm.grantSystemToPublic(TypeInvariants.YES_OR_NO, right);
+        gm.grantSystemToPublic(TypeInvariants.TIME_STAMP, right);
+        gm.grantSystemToPublic(TypeInvariants.CARDINAL_NUMBER, right);
+        gm.grantSystemToPublic(TypeInvariants.CHARACTER_DATA, right);
+        gm.grantSystemToPublic(TypeInvariants.SQL_CHARACTER, right);
+        gm.grantSystemToPublic(TypeInvariants.SQL_IDENTIFIER_CHARSET, right);
+        gm.grantSystemToPublic(TypeInvariants.SQL_IDENTIFIER, right);
+        gm.grantSystemToPublic(TypeInvariants.SQL_TEXT, right);
     }
 
     /**
