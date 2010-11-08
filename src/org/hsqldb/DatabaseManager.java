@@ -193,6 +193,10 @@ public class DatabaseManager {
         return db.databaseID;
     }
 
+    public static Database getDatabase(int id) {
+        return (Database) databaseIDMap.get(id);
+    }
+
     /**
      * This has to be improved once a threading model is in place.
      * Current behaviour:
