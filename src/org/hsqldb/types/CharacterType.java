@@ -183,6 +183,21 @@ public class CharacterType extends Type {
         return sb.toString();
     }
 
+    public boolean hasCollation() {
+
+        // return collation != null && collation != Collation.defaultCollation;
+        return false;
+    }
+
+    public String getCollationDefinition() {
+
+        if (hasCollation()) {
+            return collation.getSQL();
+        }
+
+        return "";
+    }
+
     public boolean isCharacterType() {
         return true;
     }
@@ -564,9 +579,22 @@ public class CharacterType extends Type {
             }
             case Types.OTHER :
                 throw Error.error(ErrorCode.X_42561);
+            case Types.SQL_BLOB :
+                long blobLength = ((BlobData) a).length(session);
+
+                if (precision != 0 && blobLength * 2 > precision) {
+                    throw Error.error(ErrorCode.X_22001);
+                }
+
+                byte[] bytes = ((BlobData) a).getBytes(session, 0,
+                                                       (int) blobLength);
+
+                a = StringConverter.byteArrayToHexString(bytes);
+
+                return convertToTypeLimits(session, a);
+
             case Types.SQL_BIT :
             case Types.SQL_BIT_VARYING :
-            case Types.SQL_BLOB :
             case Types.SQL_BINARY :
             case Types.SQL_VARBINARY :
             default :

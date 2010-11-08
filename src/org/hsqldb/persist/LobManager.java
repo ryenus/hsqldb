@@ -870,9 +870,10 @@ public class LobManager {
         byte[] bytes;
 
         try {
-            bytes =
-                getLobStore().getBlockBytes(blockAddresses[i][LOBS.BLOCK_ADDR]
-                                            + blockOffset, blockCount);
+            bytes = getLobStore().getBlockBytes(
+                blockAddresses[i][LOBS.BLOCK_ADDR]
+                - blockAddresses[i][LOBS.BLOCK_OFFSET]
+                + blockOffset, blockCount);
         } catch (HsqlException e) {
             return Result.newErrorResult(e);
         }
@@ -1115,14 +1116,6 @@ public class LobManager {
 
         long   length = ((Long) data[LOB_IDS.LOB_LENGTH]).longValue();
         byte[] bytes  = ArrayUtil.charArrayToBytes(chars);
-/*
-        HsqlByteArrayOutputStream os =
-            new HsqlByteArrayOutputStream(chars.length * 2);
-
-        os.write(chars, 0, chars.length);
-
-        byte[] bytes = os.getBuffer();
-*/
         Result result = setBytesBA(lobID, bytes, offset * 2, chars.length * 2);
 
         if (result.isError()) {

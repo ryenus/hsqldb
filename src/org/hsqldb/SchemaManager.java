@@ -76,14 +76,14 @@ public class SchemaManager {
         schemaMap.put(schema.getName().name, schema);
 
         try {
-            schema.typeLookup.add(SqlInvariants.CARDINAL_NUMBER);
-            schema.typeLookup.add(SqlInvariants.YES_OR_NO);
-            schema.typeLookup.add(SqlInvariants.CHARACTER_DATA);
-            schema.typeLookup.add(SqlInvariants.SQL_IDENTIFIER);
-            schema.typeLookup.add(SqlInvariants.TIME_STAMP);
-            schema.charsetLookup.add(SqlInvariants.SQL_TEXT);
-            schema.charsetLookup.add(SqlInvariants.SQL_IDENTIFIER_CHARSET);
-            schema.charsetLookup.add(SqlInvariants.SQL_CHARACTER);
+            schema.typeLookup.add(TypeInvariants.CARDINAL_NUMBER);
+            schema.typeLookup.add(TypeInvariants.YES_OR_NO);
+            schema.typeLookup.add(TypeInvariants.CHARACTER_DATA);
+            schema.typeLookup.add(TypeInvariants.SQL_IDENTIFIER);
+            schema.typeLookup.add(TypeInvariants.TIME_STAMP);
+            schema.charsetLookup.add(TypeInvariants.SQL_TEXT);
+            schema.charsetLookup.add(TypeInvariants.SQL_IDENTIFIER_CHARSET);
+            schema.charsetLookup.add(TypeInvariants.SQL_CHARACTER);
         } catch (HsqlException e) {}
     }
 
@@ -972,19 +972,19 @@ public class SchemaManager {
 
             case SchemaObject.CHARSET :
                 if (name.equals("SQL_IDENTIFIER")) {
-                    return SqlInvariants.SQL_IDENTIFIER_CHARSET;
+                    return TypeInvariants.SQL_IDENTIFIER_CHARSET;
                 }
 
                 if (name.equals("SQL_TEXT")) {
-                    return SqlInvariants.SQL_TEXT;
+                    return TypeInvariants.SQL_TEXT;
                 }
 
                 if (name.equals("LATIN1")) {
-                    return SqlInvariants.LATIN1;
+                    return TypeInvariants.LATIN1;
                 }
 
                 if (name.equals("ASCII_GRAPHIC")) {
-                    return SqlInvariants.ASCII_GRAPHIC;
+                    return TypeInvariants.ASCII_GRAPHIC;
                 }
 
                 return schema.charsetLookup.getObject(name);

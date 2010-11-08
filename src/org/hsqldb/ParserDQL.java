@@ -2111,11 +2111,11 @@ public class ParserDQL extends ParserBase {
             return e;
         }
 
+        int position = getPosition();
+
         switch (token.tokenType) {
 
             case Tokens.OPENBRACKET :
-                int position = getPosition();
-
                 read();
 
                 int subqueryPosition = getPosition();
@@ -2233,9 +2233,24 @@ public class ParserDQL extends ParserBase {
             case Tokens.ARRAY_AGG :
                 return readAggregate();
 
-            case Tokens.NEXT :
-                return readSequenceExpression();
+            case Tokens.NEXT : {
+                e = readSequenceExpressionOrNull(OpTypes.SEQUENCE);
 
+                if (e != null) {
+                    return e;
+                }
+
+                break;
+            }
+            case Tokens.CURRENT : {
+                e = readSequenceExpressionOrNull(OpTypes.SEQUENCE_CURRENT);
+
+                if (e != null) {
+                    return e;
+                }
+
+                break;
+            }
             case Tokens.LEFT :
             case Tokens.RIGHT :
 
@@ -5000,9 +5015,18 @@ public class ParserDQL extends ParserBase {
         }
     }
 
-    private Expression readSequenceExpression() {
+    private Expression readSequenceExpressionOrNull(int opType) {
+
+        int position = getPosition();
 
         read();
+
+        if (token.tokenType != Tokens.VALUE) {
+            rewind(position);
+
+            return null;
+        }
+
         readThis(Tokens.VALUE);
         readThis(Tokens.FOR);
         checkIsSchemaObjectName();
@@ -5015,7 +5039,7 @@ public class ParserDQL extends ParserBase {
 
         read();
 
-        Expression e = new ExpressionColumn(sequence);
+        Expression e = new ExpressionColumn(sequence, opType);
 
         recordedToken.setExpression(sequence);
         compileContext.addSequence(sequence);

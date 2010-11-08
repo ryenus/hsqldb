@@ -34,7 +34,7 @@ package org.hsqldb.types;
 import org.hsqldb.HsqlNameManager.HsqlName;
 import org.hsqldb.SchemaObject;
 import org.hsqldb.Session;
-import org.hsqldb.SqlInvariants;
+import org.hsqldb.TypeInvariants;
 import org.hsqldb.Tokens;
 import org.hsqldb.lib.OrderedHashSet;
 import org.hsqldb.rights.Grantee;
@@ -181,6 +181,6 @@ public class Charset implements SchemaObject {
     }
 
     public static Charset getDefaultInstance() {
-        return SqlInvariants.UTF16;
+        return TypeInvariants.UTF16;
     }
 }

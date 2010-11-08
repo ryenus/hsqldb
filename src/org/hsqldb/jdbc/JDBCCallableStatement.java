@@ -315,7 +315,17 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * HSQLDB supports this feature. <p>
+     * HSQLDB supports this feature. This method can be called after a
+     * PrepareCall method. HSQLDB has already determined which paramaters are
+     * OUT or INOUT parameters, therefore this method only checks and
+     * throws an exception if the parameter is not of the correct form.
+     * The data type argument is ignored<p>
+     *
+     * The <code>get</code> method to read the value of the parameter is
+     * determined by the engine based on the data type of the parameter.
+     *
+     * Furthermore, HSQLDB supports multiple OUT and INOUT parameters for
+     * stored procedures.<p>
      * </div>
      * <!-- end release-specific documentation -->
      *
@@ -1024,7 +1034,7 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
             checkClosed();
         }
 
-        Type targetType = resultMetaData.columnTypes[parameterIndex - 1];
+        Type targetType = parameterMetaData.columnTypes[parameterIndex - 1];
 
         switch (targetType.typeCode) {
 
@@ -1174,7 +1184,7 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
 
         checkGetParameterIndex(parameterIndex);
 
-        Type   sourceType = resultMetaData.columnTypes[parameterIndex - 1];
+        Type   sourceType = parameterMetaData.columnTypes[parameterIndex - 1];
         Object o          = getColumnInType(parameterIndex, sourceType);
 
         if (o == null) {
@@ -1221,7 +1231,7 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
 
         checkGetParameterIndex(parameterIndex);
 
-        Type   sourceType = resultMetaData.columnTypes[parameterIndex - 1];
+        Type   sourceType = parameterMetaData.columnTypes[parameterIndex - 1];
         Object o          = getColumnInType(parameterIndex, sourceType);
 
         if (o == null) {
@@ -1268,7 +1278,7 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
 
         checkGetParameterIndex(parameterIndex);
 
-        Type type = resultMetaData.columnTypes[parameterIndex - 1];
+        Type type = parameterMetaData.columnTypes[parameterIndex - 1];
 
         if (!type.isArrayType()) {
             throw Util.sqlException(ErrorCode.X_42561);
@@ -1384,7 +1394,7 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
 
         long millis = DateTimeType.normaliseTime(t.getSeconds()) * 1000;
 
-        if (!resultMetaData.columnTypes[--parameterIndex]
+        if (!parameterMetaData.columnTypes[--parameterIndex]
                 .isDateTimeTypeWithZone()) {
             Calendar calendar = cal == null ? session.getCalendar()
                     : cal;
@@ -1443,7 +1453,7 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
 
         long millis = t.getSeconds() * 1000;
 
-        if (!resultMetaData.columnTypes[--parameterIndex]
+        if (!parameterMetaData.columnTypes[--parameterIndex]
                 .isDateTimeTypeWithZone()) {
             Calendar calendar = cal == null ? session.getCalendar()
                     : cal;
@@ -4229,7 +4239,7 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
 
         checkGetParameterIndex(parameterIndex);
 
-        Type   sourceType = resultMetaData.columnTypes[parameterIndex - 1];
+        Type   sourceType = parameterMetaData.columnTypes[parameterIndex - 1];
         Object o          = getColumnInType(parameterIndex, sourceType);
 
         if (o == null) {

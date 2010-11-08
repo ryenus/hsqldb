@@ -315,6 +315,12 @@ public class Routine implements SchemaObject, Cloneable {
 
             sb.append(' ').append(Tokens.T_SAVEPOINT).append(' ');
             sb.append(Tokens.T_LEVEL).append(' ');
+
+            if (maxDynamicResults != 0) {
+                sb.append(' ').append(Tokens.T_DYNAMIC).append(' ');
+                sb.append(Tokens.T_RESULT).append(' ').append(Tokens.T_SETS);
+                sb.append(' ').append(maxDynamicResults).append(' ');
+            }
         }
 
         if (language == LANGUAGE_JAVA) {
