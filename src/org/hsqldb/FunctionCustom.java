@@ -402,6 +402,10 @@ public class FunctionCustom extends FunctionSQL {
                     function.extractSpec = Tokens.DAY_OF_YEAR;
                     break;
 
+                case Tokens.WEEK :
+                    function.extractSpec = Tokens.WEEK_OF_YEAR;
+                    break;
+
                 default :
                     function.extractSpec = tokenType;
             }

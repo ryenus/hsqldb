@@ -53,6 +53,8 @@ public class User extends GranteeObject {
 
     /** password. */
     private String password;
+    public boolean isLocalOnly;
+    public boolean isExternalOnly;
 
     /** default schema when new Sessions started (defaults to PUBLIC schema) */
     private HsqlName initialSchema = null;
@@ -153,7 +155,7 @@ public class User extends GranteeObject {
         sb.append(getName().getStatementName()).append(' ');
         sb.append(Tokens.T_SET).append(' ');
         sb.append(Tokens.T_PASSWORD).append(' ');
-        sb.append('"').append(password).append('"');
+        sb.append(StringConverter.toQuotedString(password, '\'', true));
 
         return sb.toString();
     }
@@ -174,19 +176,18 @@ public class User extends GranteeObject {
     }
 
     /**
-     * Returns the DDL string
-     * sequence that creates this user.
+     * Returns the DDL string for local authentication.
      *
      */
-    public String getCreateUserSQL() {
+    public String getLocalUserSQL() {
 
         StringBuffer sb = new StringBuffer(64);
 
-        sb.append(Tokens.T_CREATE).append(' ');
+        sb.append(Tokens.T_ALTER).append(' ');
         sb.append(Tokens.T_USER).append(' ');
         sb.append(getName().getStatementName()).append(' ');
-        sb.append(Tokens.T_PASSWORD).append(' ');
-        sb.append(StringConverter.toQuotedString(password, '"', true));
+        sb.append(Tokens.T_SET).append(' ').append(Tokens.T_LOCAL);
+        sb.append(' ').append(Tokens.T_TRUE);
 
         return sb.toString();
     }

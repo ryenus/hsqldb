@@ -210,6 +210,7 @@ public interface StatementTypes {
     int SET_DATABASE_UNIQUE_NAME               = 1051;
 
     // hsqldb user settings
+    int SET_USER_LOCAL          = 1060;
     int SET_USER_INITIAL_SCHEMA = 1061;
     int SET_USER_PASSWORD       = 1062;
 

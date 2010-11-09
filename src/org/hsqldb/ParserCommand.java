@@ -1407,50 +1407,6 @@ public class ParserCommand extends ParserDDL {
     }
 
     /**
-     * Retrieves boolean value corresponding to the next token.
-     *
-     * @return   true if next token is "TRUE"; false if next token is "FALSE"
-     * @throws  HsqlException if the next token is neither "TRUE" or "FALSE"
-     */
-    private boolean processTrueOrFalse() {
-
-        if (token.namePrefix != null) {
-            throw unexpectedToken();
-        }
-
-        if (token.tokenType == Tokens.TRUE) {
-            read();
-
-            return true;
-        } else if (token.tokenType == Tokens.FALSE) {
-            read();
-
-            return false;
-        } else {
-            throw unexpectedToken();
-        }
-    }
-
-    private Boolean processTrueOrFalseObject() {
-
-        if (token.namePrefix != null) {
-            throw unexpectedToken();
-        }
-
-        if (token.tokenType == Tokens.TRUE) {
-            read();
-
-            return Boolean.TRUE;
-        } else if (token.tokenType == Tokens.FALSE) {
-            read();
-
-            return Boolean.FALSE;
-        } else {
-            throw unexpectedToken();
-        }
-    }
-
-    /**
      * Responsible for  handling the execution of COMMIT [WORK]
      *
      * @throws  HsqlException

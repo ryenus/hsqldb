@@ -43,9 +43,10 @@ import org.hsqldb.RoutineSchema;
 import org.hsqldb.SchemaObject;
 import org.hsqldb.Session;
 import org.hsqldb.SqlInvariants;
-import org.hsqldb.TypeInvariants;
 import org.hsqldb.Table;
 import org.hsqldb.TableBase;
+import org.hsqldb.Tokens;
+import org.hsqldb.TypeInvariants;
 import org.hsqldb.index.Index;
 import org.hsqldb.lib.HashSet;
 import org.hsqldb.lib.HsqlArrayList;
@@ -2837,6 +2838,7 @@ class DatabaseInformationMain extends DatabaseInformation {
             addColumn(t, "USER_NAME", SQL_IDENTIFIER);
             addColumn(t, "ADMIN", Type.SQL_BOOLEAN);
             addColumn(t, "INITIAL_SCHEMA", SQL_IDENTIFIER);
+            addColumn(t, "AUTHENTICATION", SQL_IDENTIFIER);
 
             // order: USER
             // true PK
@@ -2869,6 +2871,10 @@ class DatabaseInformationMain extends DatabaseInformation {
             row[1]        = ValuePool.getBoolean(user.isAdmin());
             row[2]        = ((initialSchema == null) ? null
                                                      : initialSchema.name);
+            row[3]        = user.isLocalOnly ? Tokens.T_LOCAL
+                                             : user.isExternalOnly
+                                               ? Tokens.T_EXTERNAL
+                                               : Tokens.T_ANY;
 
             t.insertSys(session, store, row);
         }

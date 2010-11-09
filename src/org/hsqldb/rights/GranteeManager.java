@@ -738,7 +738,15 @@ public class GranteeManager {
             Grantee grantee = (Grantee) it.next();
 
             if (grantee instanceof User) {
+                if (((User) grantee).isExternalOnly) {
+                    continue;
+                }
+
                 list.add(grantee.getSQL());
+
+                if (((User) grantee).isLocalOnly) {
+                    list.add(((User) grantee).getLocalUserSQL());
+                }
             }
         }
 
@@ -760,6 +768,10 @@ public class GranteeManager {
 
             // _SYSTEM user, DBA Role grants not persisted
             if (GranteeManager.isImmutable(name)) {
+                continue;
+            }
+
+            if (grantee instanceof User && ((User) grantee).isExternalOnly) {
                 continue;
             }
 
