@@ -3880,40 +3880,57 @@ public class ParserDDL extends ParserRoutine {
 
         readThis(Tokens.SET);
 
-        if (token.tokenType == Tokens.PASSWORD) {
-            read();
+        switch (token.tokenType) {
 
-            password = readPassword();
+            case Tokens.LOCAL : {
+                read();
 
-            Object[] args = new Object[] {
-                userObject, password
-            };
+                Boolean mode = processTrueOrFalseObject();
 
-            return new StatementCommand(StatementTypes.SET_USER_PASSWORD,
-                                        args);
-        } else if (token.tokenType == Tokens.INITIAL) {
-            read();
-            readThis(Tokens.SCHEMA);
+                Object[] args = new Object[] {
+                    userObject, mode
+                };
 
-            HsqlName schemaName;
-
-            if (token.tokenType == Tokens.DEFAULT) {
-                schemaName = null;
-            } else {
-                schemaName = database.schemaManager.getSchemaHsqlName(
-                    token.tokenString);
+                return new StatementCommand(StatementTypes.SET_USER_LOCAL,
+                                            args);
             }
+            case Tokens.PASSWORD : {
+                read();
 
-            read();
+                password = readPassword();
 
-            Object[] args = new Object[] {
-                userObject, schemaName
-            };
+                Object[] args = new Object[] {
+                    userObject, password
+                };
 
-            return new StatementCommand(StatementTypes.SET_USER_INITIAL_SCHEMA,
-                                        args);
-        } else {
-            throw unexpectedToken();
+                return new StatementCommand(StatementTypes.SET_USER_PASSWORD,
+                                            args);
+            }
+            case Tokens.INITIAL : {
+                read();
+                readThis(Tokens.SCHEMA);
+
+                HsqlName schemaName;
+
+                if (token.tokenType == Tokens.DEFAULT) {
+                    schemaName = null;
+                } else {
+                    schemaName = database.schemaManager.getSchemaHsqlName(
+                        token.tokenString);
+                }
+
+                read();
+
+                Object[] args = new Object[] {
+                    userObject, schemaName
+                };
+
+                return new StatementCommand(
+                    StatementTypes.SET_USER_INITIAL_SCHEMA, args);
+            }
+            default : {
+                throw unexpectedToken();
+            }
         }
     }
 
@@ -4627,6 +4644,35 @@ public class ParserDDL extends ParserRoutine {
         };
 
         return new StatementCommand(StatementTypes.ALTER_SESSION, args);
+    }
+
+    /**
+     * Retrieves boolean value corresponding to the next token.
+     *
+     * @return   true if next token is "TRUE"; false if next token is "FALSE"
+     * @throws  HsqlException if the next token is neither "TRUE" or "FALSE"
+     */
+    boolean processTrueOrFalse() {
+
+        if (token.namePrefix != null) {
+            throw unexpectedToken();
+        }
+
+        if (token.tokenType == Tokens.TRUE) {
+            read();
+
+            return true;
+        } else if (token.tokenType == Tokens.FALSE) {
+            read();
+
+            return false;
+        } else {
+            throw unexpectedToken();
+        }
+    }
+
+    Boolean processTrueOrFalseObject() {
+        return Boolean.valueOf(processTrueOrFalse());
     }
 
     void checkSchemaUpdateAuthorisation(Session session, HsqlName schema) {

@@ -32,8 +32,10 @@
 package org.hsqldb.rights;
 
 import org.hsqldb.Database;
+import org.hsqldb.HsqlException;
 import org.hsqldb.HsqlNameManager.HsqlName;
 import org.hsqldb.Routine;
+import org.hsqldb.Schema;
 import org.hsqldb.SchemaObject;
 import org.hsqldb.Session;
 import org.hsqldb.SqlInvariants;
@@ -43,7 +45,6 @@ import org.hsqldb.error.ErrorCode;
 import org.hsqldb.lib.HashMappedList;
 import org.hsqldb.lib.HsqlArrayList;
 import org.hsqldb.result.Result;
-import org.hsqldb.HsqlException;
 
 /**
  * Manages the User objects for a Database instance.
@@ -223,20 +224,24 @@ public final class UserManager {
             password = "";
         }
 
-        if (extAuthenticationFunction == null) {
-            User user = get(name);
+        User     user  = (User) userList.get(name);
+
+        boolean isLocal = user != null && user.isLocalOnly ;
+
+        if (extAuthenticationFunction == null || isLocal) {
+            user = get(name);
 
             user.checkPassword(password);
 
             return user;
         }
 
+
         /*
          * Authentication returns String[]. When null, use the existing
          * user object only, with existing privileges.
-         * When not null, create a user if necessary or remove all
-         * existing privileges from an existing user. Then assign the list
-         * of roles to the user.
+         * When not null, ignore if user exists. Otherwise create a user and
+         * assign the list of roles to the user.
          */
         Result result =
             extAuthenticationFunction.invokeJavaMethodDirect(new String[] {
@@ -248,7 +253,6 @@ public final class UserManager {
         }
 
         Object[] roles = (Object[]) result.getValueObject();
-        User     user  = (User) userList.get(name);
 
         if (roles == null) {
             if (user == null) {
@@ -263,7 +267,8 @@ public final class UserManager {
                 granteeManager.database.nameManager.newHsqlName(name, true,
                     SchemaObject.GRANTEE);
 
-            user = createUser(hsqlName, "");
+            user            = createUser(hsqlName, "");
+            user.isExternalOnly = true;
         }
 
         // this clears all existing privileges of the user
@@ -279,6 +284,19 @@ public final class UserManager {
         }
 
         user.updateAllRights();
+
+        for (int i = 0; i < roles.length; i++) {
+            Schema schema = granteeManager.database.schemaManager.findSchema(
+                (String) roles[i]);
+
+            if (schema != null) {
+                if (user.hasSchemaUpdateOrGrantRights(schema.getName().name)) {
+                    user.setInitialSchema(schema.getName());
+
+                    break;
+                }
+            }
+        }
 
         return user;
     }

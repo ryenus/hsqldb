@@ -52,7 +52,7 @@ public class Tokens {
     static final String        T_ALLOCATE         = "ALLOCATE";
     public static final String T_ALTER            = "ALTER";
     static final String        T_AND              = "AND";
-    static final String        T_ANY              = "ANY";
+    public static final String T_ANY              = "ANY";
     static final String        T_ARE              = "ARE";
     public static final String T_ARRAY            = "ARRAY";
     public static final String T_ARRAY_AGG        = "ARRAY_AGG";
@@ -151,7 +151,7 @@ public class Tokens {
     public static final String T_EXECUTE           = "EXECUTE";
     static final String        T_EXISTS            = "EXISTS";
     static final String        T_EXP               = "EXP";
-    static final String        T_EXTERNAL          = "EXTERNAL";
+    public static final String T_EXTERNAL          = "EXTERNAL";
     static final String        T_EXTRACT           = "EXTRACT";
     public static final String T_FALSE             = "FALSE";
     static final String        T_FETCH             = "FETCH";

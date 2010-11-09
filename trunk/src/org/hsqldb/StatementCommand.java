@@ -160,6 +160,7 @@ public class StatementCommand extends Statement {
                 isLogged                    = false;
                 break;
 
+            case StatementTypes.SET_USER_LOCAL :
             case StatementTypes.SET_USER_INITIAL_SCHEMA :
             case StatementTypes.SET_USER_PASSWORD :
                 group                       = StatementTypes.X_HSQLDB_SETTING;
@@ -887,6 +888,19 @@ public class StatementCommand extends Statement {
                 } catch (HsqlException e) {
                     return Result.newErrorResult(e, sql);
                 }
+            }
+            case StatementTypes.SET_USER_LOCAL : {
+                User    user = (User) parameters[0];
+                boolean mode = ((Boolean) parameters[1]).booleanValue();
+
+                session.checkAdmin();
+                session.checkDDLWrite();
+
+                user.isLocalOnly = mode;
+
+                session.database.schemaManager.setSchemaChangeTimestamp();
+
+                return Result.updateZeroResult;
             }
             case StatementTypes.SET_USER_INITIAL_SCHEMA : {
                 try {
