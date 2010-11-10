@@ -33,7 +33,6 @@ package org.hsqldb.auth;
 
 import java.util.Set;
 import java.util.HashSet;
-import java.sql.ResultSet;
 import java.sql.Array;
 import java.sql.Statement;
 import java.sql.SQLException;
@@ -42,7 +41,6 @@ import java.util.List;
 import java.util.Collections;
 import java.sql.Connection;
 import java.sql.DriverManager;
-import org.hsqldb.jdbc.JDBCArrayBasic;
 import org.hsqldb.lib.FrameworkLogger;
 
 public class AuthBeanMultiplexerTest extends junit.framework.TestCase {
@@ -81,65 +79,6 @@ public class AuthBeanMultiplexerTest extends junit.framework.TestCase {
         }
     };
 
-    /**
-     * @throws RuntimeException if jab
-     *         param is neither null not an instance of JDBCArrayBasic wrapping
-     *         an array of Strings.
-     */
-    private static String[] toStrings(Array jab) {
-        if (jab == null) {
-            return null;
-        }
-        if (!(jab instanceof JDBCArrayBasic)) {
-            throw new IllegalArgumentException(
-                    "Parameter is a " + jab.getClass().getName()
-                    + " instead of a " + JDBCArrayBasic.class.getName());
-        }
-        Object internalArray = ((JDBCArrayBasic) jab).getArray();
-        if (!(internalArray instanceof String[]))
-            throw new IllegalArgumentException(
-                    "JDBCArrayBasic internal data is not a String array, but a "
-                    + internalArray.getClass().getName());
-        return (String[]) internalArray;
-    }
-
-    protected Set getEnabledRoles(Connection c) throws SQLException {
-        Set roles = new HashSet<String>();
-        ResultSet rs = c.createStatement().executeQuery(
-                "SELECT * FROM information_schema.enabled_roles");
-        try {
-            while (rs.next()) roles.add(rs.getString(1));
-        } finally {
-            if (rs != null) try {
-                rs.close();
-            } catch (SQLException se) {
-                logger.error(
-                        "Failed to close ResultSet for retrieving db name");
-            }
-            rs = null;  // Encourage GC
-        }
-        return roles;
-    }
-
-    private static boolean isWrapperFor(Array array, String[] strings) {
-        if (array == null && strings == null) {
-            return true;
-        }
-        if (array == null || strings == null) {
-            return false;
-        }
-        String[] wrappedStrings = toStrings(array);
-        if (wrappedStrings.length != strings.length) {
-            return false;
-        }
-        for (int i = 0; i < strings.length; i++) {
-            if (!strings[i].equals(wrappedStrings[i])) {
-                return false;
-            }
-        }
-        return true;
-    }
-
     public void testPrecedences() {
         /* This should be more granular, using many different test methods,
          * but I want to spend as little time here as possible.  -- blaine
@@ -168,13 +107,13 @@ public class AuthBeanMultiplexerTest extends junit.framework.TestCase {
         } catch (Exception e) {
             fail("2-role success test threw: " + e);
         }
-        if (!isWrapperFor(res, twoRoles)) {
+        if (!AuthFunctionUtils.isWrapperFor(res, twoRoles)) {
             fail("2-role success test return success with roles: "
-                    + toStrings(res));
+                    + AuthFunctionUtils.toStrings(res));
         }
-        if (!isWrapperFor(res, twoRoles)) {
+        if (!AuthFunctionUtils.isWrapperFor(res, twoRoles)) {
             fail("2-role success test return success with roles: "
-                    + toStrings(res));
+                    + AuthFunctionUtils.toStrings(res));
         }
         try {
             res = plexer.authenticate("WRONG_NAME123456", "u", "p");
@@ -215,9 +154,9 @@ public class AuthBeanMultiplexerTest extends junit.framework.TestCase {
         } catch (Exception e) {
             fail("2-role success AFTER RTE test threw: " + e);
         }
-        if (!isWrapperFor(res, twoRoles)) {
+        if (!AuthFunctionUtils.isWrapperFor(res, twoRoles)) {
             fail("2-role success AFTER RTE test return success with roles: "
-                    + toStrings(res));
+                    + AuthFunctionUtils.toStrings(res));
         }
 
         plexer.clear();
@@ -301,7 +240,8 @@ public class AuthBeanMultiplexerTest extends junit.framework.TestCase {
                 logger.error("Multiplexer with single allow rule threw", se);
                 fail("Multiplexer with single allow rule threw: " + se);
             }
-            assertEquals(twoRolesSet, getEnabledRoles(authedCon));
+            assertEquals(
+                    twoRolesSet, AuthFunctionUtils.getEnabledRoles(authedCon));
             authedCon.close();
             authedCon = null;
         } finally {
