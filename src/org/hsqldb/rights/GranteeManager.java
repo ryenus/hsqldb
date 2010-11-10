@@ -181,11 +181,11 @@ public class GranteeManager {
         rightsStringLookup.put(Tokens.T_TRIGGER, GrantConstants.TRIGGER);
     }
 
-    public GranteeObject getDBARole() {
+    public Grantee getDBARole() {
         return dbaRole;
     }
 
-    public static GranteeObject getSystemRole() {
+    public static Grantee getSystemRole() {
         return systemAuthorisation;
     }
 
@@ -224,7 +224,7 @@ public class GranteeManager {
             name = ((Routine) dbObject).getSpecificName();
         }
 
-        if (!((GranteeObject) grantor).isGrantable(dbObject, right)) {
+        if (!grantor.isGrantable(dbObject, right)) {
             throw Error.error(ErrorCode.X_0L000,
                               grantor.getName().getNameString());
         }
@@ -252,7 +252,7 @@ public class GranteeManager {
         boolean granted = false;
 
         for (int i = 0; i < routines.length; i++) {
-            if (!((GranteeObject) grantor).isGrantable(routines[i], right)) {
+            if (!grantor.isGrantable(routines[i], right)) {
                 continue;
             }
 
@@ -270,8 +270,8 @@ public class GranteeManager {
     public void checkGranteeList(OrderedHashSet granteeList) {
 
         for (int i = 0; i < granteeList.size(); i++) {
-            String        name    = (String) granteeList.get(i);
-            GranteeObject grantee = get(name);
+            String  name    = (String) granteeList.get(i);
+            Grantee grantee = get(name);
 
             if (grantee == null) {
                 throw Error.error(ErrorCode.X_28501, name);
@@ -279,6 +279,10 @@ public class GranteeManager {
 
             if (isImmutable(name)) {
                 throw Error.error(ErrorCode.X_28502, name);
+            }
+
+            if (grantee instanceof User && ((User) grantee).isExternalOnly) {
+                throw Error.error(ErrorCode.X_28000, name);
             }
         }
     }
@@ -319,7 +323,7 @@ public class GranteeManager {
             throw Error.error(ErrorCode.X_0P501, roleName);
         }
 
-        if (!((GranteeObject) grantor).isGrantable(role)) {
+        if (!grantor.isGrantable(role)) {
             throw Error.error(ErrorCode.X_0L000,
                               grantor.getName().getNameString());
         }

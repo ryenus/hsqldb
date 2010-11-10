@@ -538,18 +538,18 @@ public class ExpressionOp extends Expression {
                     for (; i < array.length; i++) {
                         if (array[i] == escapeChar) {
                             if (wasEscape) {
-                                throw Error.error(ErrorCode.X_22025);
+                                continue;
                             }
 
                             wasEscape = true;
-
-                            escapeCount++;
 
                             continue;
                         }
 
                         if (array[i] == '_' || array[i] == '%') {
                             if (wasEscape) {
+                                escapeCount++;
+
                                 wasEscape = false;
 
                                 continue;
@@ -595,48 +595,53 @@ public class ExpressionOp extends Expression {
                     }
 
                     char[]  array       = left.toCharArray();
+                    char[]  newArray    = new char[array.length];
                     boolean wasEscape   = false;
                     int     escapeCount = 0;
                     int     i           = 0;
+                    int     j           = 0;
 
                     for (; i < array.length; i++) {
                         if (array[i] == escapeChar) {
                             if (wasEscape) {
-                                throw Error.error(ErrorCode.X_22025);
+                                escapeCount++;
+
+                                newArray[j++] = array[i];
+                                wasEscape   = false;
+
+                                continue;
                             }
 
                             wasEscape = true;
 
-                            escapeCount++;
+                            if (i == array.length - 1) {
+                                throw Error.error(ErrorCode.X_22025);
+                            }
 
                             continue;
                         }
 
                         if (array[i] == '_' || array[i] == '%') {
                             if (wasEscape) {
-                                wasEscape = false;
+                                escapeCount++;
+
+                                newArray[j++] = array[i];
+                                wasEscape   = false;
 
                                 continue;
                             }
 
                             break;
                         }
-                    }
 
-                    char[] newArray     = new char[i - escapeCount];
-                    int    prefixLength = i;
-
-                    i = 0;
-
-                    for (int j = 0; i < prefixLength; i++) {
-                        if (array[i] != escapeChar) {
-                            newArray[j] = array[i];
-
-                            j++;
+                        if (wasEscape) {
+                            throw Error.error(ErrorCode.X_22025);
                         }
+
+                        newArray[j++] = array[i];
                     }
 
-                    return new String(newArray);
+                    return new String(newArray, 0, j);
                 }
             }
             case OpTypes.SIMPLE_COLUMN : {
