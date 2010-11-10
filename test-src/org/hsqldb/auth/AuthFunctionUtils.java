@@ -74,6 +74,27 @@ public class AuthFunctionUtils {
         return (String[]) internalArray;
     }
 
+    protected static String getInitialSchema(Connection c) throws SQLException {
+        ResultSet rs = c.createStatement().executeQuery(
+                "SELECT initial_schema FROM information_schema.system_users\n"
+                + "WHERE user_name = current_user");
+        try {
+            if (!rs.next()) {
+                throw new IllegalStateException(
+                        "Failed to retrieve initial_schema for current user");
+            }
+            return rs.getString(1);
+        } finally {
+            if (rs != null) try {
+                rs.close();
+            } catch (SQLException se) {
+                logger.error("Failed "
+                        + "to close ResultSet for retrieving initial schema");
+            }
+            rs = null;  // Encourage GC
+        }
+    }
+
     protected static Set getEnabledRoles(Connection c) throws SQLException {
         Set roles = new HashSet<String>();
         ResultSet rs = c.createStatement().executeQuery(
