@@ -96,24 +96,33 @@ public class AuthFunctionTest extends junit.framework.TestCase {
             st.executeUpdate(
                     "SET DATABASE AUTHENTICATION FUNCTION EXTERNAL NAME "
                     + "'CLASSPATH:" + getClass().getName() + ".twoRolesFn'");
+            con.commit();
+            con.close();
+            con = null;
+            st.close();
             try {
-                DriverManager.getConnection(jdbcUrl, "zeno", "a password");
+                authedCon = DriverManager.getConnection(
+                        jdbcUrl, "zeno", "a password");
             } catch (SQLException se) {
                 fail("Access with 'twoRolesFn' failed");
             }
+            st = authedCon.createStatement();
             try {
                 st.executeUpdate("INSERT INTO t1 VALUES(1)");
             } catch (SQLException se) {
                 fail("Positive test failed: " + se);
             }
             try {
-                st.executeUpdate("INSERT 1 INTO t3");
+                st.executeUpdate("INSERT INTO t3 VALUES(3)");
                 fail("Negative test failed");
             } catch (SQLException se) {
                 // Intentionally empty.  Expected.
             }
+            assertEquals(
+                    twoRolesSet, AuthFunctionUtils.getEnabledRoles(authedCon));
         } finally {
             if (authedCon != null) try {
+                authedCon.rollback();
                 authedCon.close();
             } catch (SQLException se) {
                 System.err.println("Close of Authed Conn. failed:" + se);
@@ -128,7 +137,13 @@ public class AuthFunctionTest extends junit.framework.TestCase {
             } finally {
                 st = null;
             }
-            con.close();
+            if (con != null) try {
+                con.close();
+            } catch (SQLException se) {
+                System.err.println("Close of setup Conn. failed:" + se);
+            } finally {
+                con = null;
+            }
         }
     }
 
