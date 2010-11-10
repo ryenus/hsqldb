@@ -1680,6 +1680,20 @@ public class Server implements HsqlSocketRequestHandler {
 
                 break;
             }
+            case ResultConstants.CLOSE_RESULT: {
+                sb.append("HQLCLI:CLOSE_RESULT:RESULT_ID ");
+                sb.append(r.getResultId());
+                break;
+            }
+            case ResultConstants.REQUESTDATA: {
+                sb.append("HQLCLI:REQUESTDATA:RESULT_ID ");
+                sb.append(r.getResultId());
+                sb.append(" ROWOFFSET ");
+                sb.append(r.getUpdateCount());
+                sb.append(" ROWCOUNT ");
+                sb.append(r.getFetchSize());
+                break;
+            }
             default : {
                 sb.append("SQLCLI:MODE:");
                 sb.append(r.getType());
