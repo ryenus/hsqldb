@@ -48,7 +48,7 @@ public class AuthFunctionUtils {
      * Do not instantiate an AuthFunctionUtils, because the only purpose of
      * this class is to provide static methods.
      */
-    AuthFunctionUtils() {
+    private AuthFunctionUtils() {
         // Intentionally empty
     }
 
@@ -74,7 +74,7 @@ public class AuthFunctionUtils {
         return (String[]) internalArray;
     }
 
-    protected static String getInitialSchema(Connection c) throws SQLException {
+    static String getInitialSchema(Connection c) throws SQLException {
         ResultSet rs = c.createStatement().executeQuery(
                 "SELECT initial_schema FROM information_schema.system_users\n"
                 + "WHERE user_name = current_user");
@@ -95,7 +95,7 @@ public class AuthFunctionUtils {
         }
     }
 
-    protected static Set getEnabledRoles(Connection c) throws SQLException {
+    static Set getEnabledRoles(Connection c) throws SQLException {
         Set roles = new HashSet<String>();
         ResultSet rs = c.createStatement().executeQuery(
                 "SELECT * FROM information_schema.enabled_roles");
