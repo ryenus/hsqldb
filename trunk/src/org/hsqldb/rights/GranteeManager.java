@@ -108,22 +108,22 @@ public class GranteeManager {
     /**
      * The PUBLIC role.
      */
-    GranteeObject publicRole;
+    Grantee publicRole;
 
     /**
      * The DBA role.
      */
-    GranteeObject dbaRole;
+    Grantee dbaRole;
 
     /**
      * The role for schema creation rights.
      */
-    GranteeObject schemaRole;
+    Grantee schemaRole;
 
     /**
      * The role for changing authorization rights.
      */
-    GranteeObject changeAuthRole;
+    Grantee changeAuthRole;
 
     /**
      * Construct the GranteeManager for a Database. Construct special Grantee
@@ -236,7 +236,7 @@ public class GranteeManager {
         checkGranteeList(granteeList);
 
         for (int i = 0; i < granteeList.size(); i++) {
-            GranteeObject grantee = get((String) granteeList.get(i));
+            Grantee grantee = get((String) granteeList.get(i));
 
             grantee.grant(name, right, grantor, withGrantOption);
 
@@ -288,11 +288,11 @@ public class GranteeManager {
     }
 
     /**
-     * Grant a role to this GranteeObject.
+     * Grant a role to this Grantee.
      */
     public void grant(String granteeName, String roleName, Grantee grantor) {
 
-        GranteeObject grantee = get(granteeName);
+        Grantee grantee = get(granteeName);
 
         if (grantee == null) {
             throw Error.error(ErrorCode.X_28501, granteeName);
@@ -302,7 +302,7 @@ public class GranteeManager {
             throw Error.error(ErrorCode.X_28502, granteeName);
         }
 
-        GranteeObject role = getRole(roleName);
+        Grantee role = getRole(roleName);
 
         if (role == null) {
             throw Error.error(ErrorCode.X_0P000, roleName);
@@ -339,11 +339,11 @@ public class GranteeManager {
     public void checkRoleList(String granteeName, OrderedHashSet roleList,
                               Grantee grantor, boolean grant) {
 
-        GranteeObject grantee = get(granteeName);
+        Grantee grantee = get(granteeName);
 
         for (int i = 0; i < roleList.size(); i++) {
             String        roleName = (String) roleList.get(i);
-            GranteeObject role     = getRole(roleName);
+            Grantee role     = getRole(roleName);
 
             if (role == null) {
                 throw Error.error(ErrorCode.X_0P000, roleName);
@@ -380,7 +380,7 @@ public class GranteeManager {
     }
 
     /**
-     * Revoke a role from a GranteeObject
+     * Revoke a role from a Grantee
      */
     public void revoke(String granteeName, String roleName, Grantee grantor) {
 
@@ -388,13 +388,13 @@ public class GranteeManager {
             throw Error.error(ErrorCode.X_42507);
         }
 
-        GranteeObject grantee = get(granteeName);
+        Grantee grantee = get(granteeName);
 
         if (grantee == null) {
             throw Error.error(ErrorCode.X_28000, granteeName);
         }
 
-        GranteeObject role = (GranteeObject) roleMap.get(roleName);
+        Grantee role = (Grantee) roleMap.get(roleName);
 
         grantee.revoke(role);
         grantee.updateAllRights();
@@ -441,7 +441,7 @@ public class GranteeManager {
 
         for (int i = 0; i < granteeList.size(); i++) {
             String        granteeName = (String) granteeList.get(i);
-            GranteeObject g           = get(granteeName);
+            Grantee g           = get(granteeName);
 
             if (g == null) {
                 throw Error.error(ErrorCode.X_28501, granteeName);
@@ -454,7 +454,7 @@ public class GranteeManager {
 
         for (int i = 0; i < granteeList.size(); i++) {
             String        granteeName = (String) granteeList.get(i);
-            GranteeObject g           = get(granteeName);
+            Grantee g           = get(granteeName);
 
             g.revoke(dbObject, rights, grantor, grantOption);
             g.updateAllRights();
@@ -478,10 +478,10 @@ public class GranteeManager {
     /**
      * Removes a role without any privileges from all grantees
      */
-    void removeEmptyRole(GranteeObject role) {
+    void removeEmptyRole(Grantee role) {
 
         for (int i = 0; i < map.size(); i++) {
-            GranteeObject grantee = (GranteeObject) map.get(i);
+            Grantee grantee = (Grantee) map.get(i);
 
             grantee.roles.remove(role);
         }
@@ -489,12 +489,12 @@ public class GranteeManager {
 
     /**
      * Removes all rights mappings for the database object identified by
-     * the dbobject argument from all GranteeObject objects in the set.
+     * the dbobject argument from all Grantee objects in the set.
      */
     public void removeDbObject(HsqlName name) {
 
         for (int i = 0; i < map.size(); i++) {
-            GranteeObject g = (GranteeObject) map.get(i);
+            Grantee g = (Grantee) map.get(i);
 
             g.revokeDbObject(name);
         }
@@ -508,7 +508,7 @@ public class GranteeManager {
             HsqlName name = (HsqlName) it.next();
 
             for (int i = 0; i < map.size(); i++) {
-                GranteeObject g = (GranteeObject) map.get(i);
+                Grantee g = (Grantee) map.get(i);
 
                 g.revokeDbObject(name);
             }
@@ -516,13 +516,13 @@ public class GranteeManager {
     }
 
     /**
-     * First updates all ROLE GranteeObject objects. Then updates all USER GranteeObject
+     * First updates all ROLE Grantee objects. Then updates all USER Grantee
      * Objects.
      */
-    void updateAllRights(GranteeObject role) {
+    void updateAllRights(Grantee role) {
 
         for (int i = 0; i < map.size(); i++) {
-            GranteeObject grantee = (GranteeObject) map.get(i);
+            Grantee grantee = (Grantee) map.get(i);
 
             if (grantee.isRole) {
                 grantee.updateNestedRoles(role);
@@ -530,7 +530,7 @@ public class GranteeManager {
         }
 
         for (int i = 0; i < map.size(); i++) {
-            GranteeObject grantee = (GranteeObject) map.get(i);
+            Grantee grantee = (Grantee) map.get(i);
 
             if (!grantee.isRole) {
                 grantee.updateAllRights();
@@ -549,7 +549,7 @@ public class GranteeManager {
             return false;
         }
 
-        GranteeObject g = (GranteeObject) map.remove(name);
+        Grantee g = (Grantee) map.remove(name);
 
         if (g == null) {
             return false;
@@ -581,13 +581,13 @@ public class GranteeManager {
      *        (This will catch attempts to create Reserved grantee names).
      *  </OL>
      */
-    public GranteeObject addRole(HsqlName name) {
+    public Grantee addRole(HsqlName name) {
 
         if (map.containsKey(name.name)) {
             throw Error.error(ErrorCode.X_28503, name.name);
         }
 
-        GranteeObject g = new GranteeObject(name, this);
+        Grantee g = new Grantee(name, this);
 
         g.isRole = true;
 
@@ -637,8 +637,8 @@ public class GranteeManager {
         return rightsStringLookup.get(right, 0);
     }
 
-    public GranteeObject get(String name) {
-        return (GranteeObject) map.get(name);
+    public Grantee get(String name) {
+        return (Grantee) map.get(name);
     }
 
     public Collection getGrantees() {
@@ -701,11 +701,11 @@ public class GranteeManager {
     }
 
     /**
-     * Returns GranteeObject for the named Role
+     * Returns Grantee for the named Role
      */
-    public GranteeObject getRole(String name) {
+    public Grantee getRole(String name) {
 
-        GranteeObject g = (GranteeObject) roleMap.get(name);
+        Grantee g = (Grantee) roleMap.get(name);
 
         if (g == null) {
             throw Error.error(ErrorCode.X_0P000, name);
@@ -767,7 +767,7 @@ public class GranteeManager {
         Iterator      grantees = getGrantees().iterator();
 
         while (grantees.hasNext()) {
-            GranteeObject grantee = (GranteeObject) grantees.next();
+            Grantee grantee = (Grantee) grantees.next();
             String        name    = grantee.getName().getNameString();
 
             // _SYSTEM user, DBA Role grants not persisted

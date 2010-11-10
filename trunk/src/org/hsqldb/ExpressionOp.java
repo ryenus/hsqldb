@@ -33,6 +33,7 @@ package org.hsqldb;
 
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
+import org.hsqldb.lib.ArrayUtil;
 import org.hsqldb.lib.HsqlList;
 import org.hsqldb.store.ValuePool;
 import org.hsqldb.types.BinaryData;
@@ -531,17 +532,28 @@ public class ExpressionOp extends Expression {
                     }
 
                     byte[]  array       = left.getBytes();
+                    byte[]  newArray    = new byte[array.length];
                     boolean wasEscape   = false;
                     int     escapeCount = 0;
                     int     i           = 0;
+                    int     j           = 0;
 
                     for (; i < array.length; i++) {
                         if (array[i] == escapeChar) {
                             if (wasEscape) {
+                                escapeCount++;
+
+                                newArray[j++] = array[i];
+                                wasEscape     = false;
+
                                 continue;
                             }
 
                             wasEscape = true;
+
+                            if (i == array.length - 1) {
+                                throw Error.error(ErrorCode.X_22025);
+                            }
 
                             continue;
                         }
@@ -550,27 +562,24 @@ public class ExpressionOp extends Expression {
                             if (wasEscape) {
                                 escapeCount++;
 
-                                wasEscape = false;
+                                newArray[j++] = array[i];
+                                wasEscape     = false;
 
                                 continue;
                             }
 
                             break;
                         }
-                    }
 
-                    byte[] newArray     = new byte[i - escapeCount];
-                    int    prefixLength = i;
-
-                    i = 0;
-
-                    for (int j = 0; i < prefixLength; i++) {
-                        if (array[i] != escapeChar) {
-                            newArray[j] = array[i];
-
-                            j++;
+                        if (wasEscape) {
+                            throw Error.error(ErrorCode.X_22025);
                         }
+
+                        newArray[j++] = array[i];
                     }
+
+                    newArray =
+                        (byte[]) ArrayUtil.resizeArrayIfDifferent(newArray, j);
 
                     return new BinaryData(newArray, false);
                 } else {
@@ -607,7 +616,7 @@ public class ExpressionOp extends Expression {
                                 escapeCount++;
 
                                 newArray[j++] = array[i];
-                                wasEscape   = false;
+                                wasEscape     = false;
 
                                 continue;
                             }
@@ -626,7 +635,7 @@ public class ExpressionOp extends Expression {
                                 escapeCount++;
 
                                 newArray[j++] = array[i];
-                                wasEscape   = false;
+                                wasEscape     = false;
 
                                 continue;
                             }

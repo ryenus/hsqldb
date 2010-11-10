@@ -49,7 +49,7 @@ import org.hsqldb.lib.StringConverter;
  * @version 2.0.1
  * @since 1.8.0
  */
-public class User extends GranteeObject {
+public class User extends Grantee {
 
     /** password. */
     private String password;
