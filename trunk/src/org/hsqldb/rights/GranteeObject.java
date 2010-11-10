@@ -686,7 +686,7 @@ public class GranteeObject implements Grantee {
         return false;
     }
 
-    boolean isGrantable(SchemaObject object, Right right) {
+    public boolean isGrantable(SchemaObject object, Right right) {
 
         if (isFullyAccessibleByRole(object.getName())) {
             return true;
@@ -697,7 +697,7 @@ public class GranteeObject implements Grantee {
         return grantableRights.contains(right);
     }
 
-    boolean isGrantable(Grantee role) {
+    public boolean isGrantable(Grantee role) {
         return isAdmin;
     }
 

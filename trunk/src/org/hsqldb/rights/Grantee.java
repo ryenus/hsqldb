@@ -49,21 +49,21 @@ public interface Grantee extends SchemaObject {
     /**
      * Returns true if this Grantee can change to a different user.
      */
-    public boolean canChangeAuthorisation();
+    boolean canChangeAuthorisation();
 
-    public void checkAccess(SchemaObject object);
+    void checkAccess(SchemaObject object);
 
     /**
      * Checks whether this Grantee has administrative privs either directly
      * or indirectly. Otherwise it throws.
      */
-    public void checkAdmin();
+    void checkAdmin();
 
-    public void checkDelete(SchemaObject table);
+    void checkDelete(SchemaObject table);
 
-    public void checkInsert(SchemaObject table, boolean[] checkList);
+    void checkInsert(SchemaObject table, boolean[] checkList);
 
-    public void checkReferences(SchemaObject table, boolean[] checkList);
+    void checkReferences(SchemaObject table, boolean[] checkList);
 
     /**
      * Checks if a right represented by the methods
@@ -72,78 +72,82 @@ public interface Grantee extends SchemaObject {
      * This is done by checking that a mapping exists in the rights map
      * from the dbobject argument. Otherwise, it throws.
      */
-    public void checkSelect(SchemaObject table, boolean[] checkList);
+    void checkSelect(SchemaObject table, boolean[] checkList);
 
-    public void checkTrigger(SchemaObject table, boolean[] checkList);
+    void checkTrigger(SchemaObject table, boolean[] checkList);
 
-    public void checkUpdate(SchemaObject table, boolean[] checkList);
+    void checkUpdate(SchemaObject table, boolean[] checkList);
 
     /**
      * Checks if this object can modify schema objects or grant access rights
      * to them.
      */
-    public void checkSchemaUpdateOrGrantRights(String schemaName);
+    void checkSchemaUpdateOrGrantRights(String schemaName);
 
-    public OrderedHashSet getAllDirectPrivileges(SchemaObject object);
+    OrderedHashSet getAllDirectPrivileges(SchemaObject object);
 
-    public OrderedHashSet getAllGrantedPrivileges(SchemaObject object);
+    OrderedHashSet getAllGrantedPrivileges(SchemaObject object);
 
     /**
      * Gets direct and indirect roles.
      */
-    public OrderedHashSet getAllRoles();
+    OrderedHashSet getAllRoles();
 
-    public OrderedHashSet getColumnsForAllPrivileges(SchemaObject object);
+    OrderedHashSet getColumnsForAllPrivileges(SchemaObject object);
 
     /**
      * Gets direct roles, not roles nested within them.
      */
-    public OrderedHashSet getDirectRoles();
+    OrderedHashSet getDirectRoles();
 
-    public OrderedHashSet getGranteeAndAllRoles();
+    OrderedHashSet getGranteeAndAllRoles();
 
-    public OrderedHashSet getGranteeAndAllRolesWithPublic();
+    OrderedHashSet getGranteeAndAllRolesWithPublic();
 
-    public boolean hasNonSelectTableRight(SchemaObject object);
+    boolean hasNonSelectTableRight(SchemaObject object);
 
-    public boolean hasRole(Grantee role);
+    boolean hasRole(Grantee role);
 
     /**
      * Checks if this object can modify schema objects or grant access rights
      * to them.
      */
-    public boolean hasSchemaUpdateOrGrantRights(String schemaName);
+    boolean hasSchemaUpdateOrGrantRights(String schemaName);
 
-    public boolean isAccessible(HsqlName name);
+    boolean isAccessible(HsqlName name);
 
-    public boolean isAccessible(HsqlName name, int privilegeType);
+    boolean isAccessible(HsqlName name, int privilegeType);
 
     /**
      * returns true if grantee has any privilege (to any column) of the object
      */
-    public boolean isAccessible(SchemaObject object);
+    boolean isAccessible(SchemaObject object);
 
     /**
      * Returns true if this Grantee has administrative privs either directly
      * or indirectly.
      */
-    public boolean isAdmin();
+    boolean isAdmin();
 
-    public boolean isFullyAccessibleByRole(HsqlName name);
+    boolean isGrantable(SchemaObject object, Right right);
+
+    boolean isGrantable(Grantee role);
+
+    boolean isFullyAccessibleByRole(HsqlName name);
 
     /**
      * Returns true if this grantee object is for the PUBLIC role.
      */
-    public boolean isPublic();
+    boolean isPublic();
 
-    public boolean isRole();
+    boolean isRole();
 
     /**
      * Returns true if this Grantee can create schemas with own authorization.
      */
-    public boolean isSchemaCreator();
+    boolean isSchemaCreator();
 
-    public boolean isSystem();
+    boolean isSystem();
 
     /**
      * Iteration of all visible grantees, including self. <p>
@@ -152,5 +156,5 @@ public interface Grantee extends SchemaObject {
      * For regular grantees, this is self plus all roles granted directly
      * or indirectly
      */
-    public Set visibleGrantees();
+    Set visibleGrantees();
 }

@@ -2951,6 +2951,11 @@ public class ParserDDL extends ParserRoutine {
         }
 
         if (!session.getGrantee().isSchemaCreator()) {
+            throw Error.error(ErrorCode.X_0L501,
+                              session.getGrantee().getName().getNameString());
+        }
+
+        if (owner instanceof User && ((User)owner).isExternalOnly ) {
             throw Error.error(ErrorCode.X_0L000,
                               session.getGrantee().getName().getNameString());
         }
