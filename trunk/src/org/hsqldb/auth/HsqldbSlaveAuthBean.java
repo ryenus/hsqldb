@@ -31,12 +31,19 @@
 
 package org.hsqldb.auth;
 
+import java.util.Set;
+import java.sql.SQLException;
+import java.sql.Connection;
+import java.sql.DriverManager;
 import org.hsqldb.lib.FrameworkLogger;
 
 /**
  * Delegates authentication decisions, and optionally determination of user
  * roles and schema, to a different HyperSQL catalog, which may be in the same
  * JVM or remote.
+ *
+ * For now, at least, this class uses DriverManager to make the ephemeral
+ * database connections.
  *
  * @see AuthFunctionBean
  * @see #initialize()
@@ -45,16 +52,35 @@ public class HsqldbSlaveAuthBean implements AuthFunctionBean {
     private static FrameworkLogger logger =
             FrameworkLogger.getLog(HsqldbSlaveAuthBean.class);
 
-    private String masterJdbcUrl;
+    private String masterJdbcUrl, validationUser, validationPassword;
     private boolean delegateRolesSchema = true;
     protected boolean initialized;
+
+    /**
+     * Use this method and setValidationPassword if you want access to the
+     * master database to be verified upon instance initialization.
+     */
+    public void setValidationUser(String validationUser) {
+        this.validationUser = validationUser;
+    }
+
+    /**
+     * Use this method and setValidationUser if you want access to the
+     * master database to be verified upon instance initialization.
+     */
+    public void setValidationPassword(String validationPassword) {
+        this.validationPassword = validationPassword;
+    }
 
     public void setMasterJdbcUrl(String masterJdbcUrl) {
         this.masterJdbcUrl = masterJdbcUrl;
     }
 
     /**
-     * Defaults to true
+     * Defaults to true.
+     *
+     * Whether roles and initial schema for the new session will be determined
+     * by what they are for this user in the master database.
      */
     public void setDelegateRolesSchema(boolean doDelegateRolesSchema) {
         delegateRolesSchema = doDelegateRolesSchema;
@@ -66,11 +92,45 @@ public class HsqldbSlaveAuthBean implements AuthFunctionBean {
 
     /**
      * @throws IllegalStateException if any required setting has not been set.
+     * @throws SQLException if properties 'validationUser' and
+     *    'validationPassword' have been set, but we fail to connect to the
+     *    master database.
      */
-    public void init() {
+    public void init() throws SQLException {
         if (masterJdbcUrl == null) {
             throw new IllegalStateException(
                     "Required property 'masterJdbcUrl' not set");
+        }
+        if (validationUser != null || validationPassword != null) {
+            if (validationUser == null || validationPassword == null) {
+                throw new IllegalStateException(
+                        "If you set one property of 'validationUser' or "
+                        + "'validationPassword', then you must set both.");
+            }
+            Connection c = null;
+            SQLException problem = null;
+            try {
+                c = DriverManager.getConnection(
+                        masterJdbcUrl, validationUser, validationPassword);
+            } catch (SQLException se) {
+                logger.error("Master/slave Connection validation failure", se);
+                problem = se;  // Just indicates to let the original exception
+                  // percolate through in the finally block, to prevent an
+                  // exception in the finally block from obscuring the ultimate
+                  // cause of the problem.
+            } finally {
+                if (c != null) try {
+                    c.close();
+                    c = null;  // Encourage GC
+                } catch (SQLException nestedSe) {
+                    logger.error(
+                            "Failed to close test master/slave Connection",
+                            nestedSe);
+                    if (problem == null) {
+                        throw nestedSe;
+                    }
+                }
+            }
         }
         initialized = true;
     }
@@ -85,7 +145,31 @@ public class HsqldbSlaveAuthBean implements AuthFunctionBean {
                 "You must invoke the 'init' method to initialize the "
                 + HsqldbSlaveAuthBean.class.getName() + " instance.");
         }
-        logger.severe("CLASS NOT IMPLEMENTED YET!");
-        throw new DenyException();
+        Connection c = null;
+        try {
+            c = DriverManager.getConnection(
+                    masterJdbcUrl, validationUser, validationPassword);
+            if (delegateRolesSchema) {
+                Set<String> schemaAndRoles = AuthUtils.getEnabledRoles(c);
+                String schemaOnMaster = AuthUtils.getInitialSchema(c);
+                if (schemaOnMaster != null) {
+                    schemaAndRoles.add(schemaOnMaster);
+                }
+                logger.finer("Slave delegating schema+roles: "
+                        + schemaAndRoles);
+                return schemaAndRoles.toArray(new String[0]);
+            }
+            return null;
+        } catch (SQLException se) {
+            throw new DenyException();
+        } finally {
+            if (c != null) try {
+                c.close();
+                c = null;  // Encourage GC
+            } catch (SQLException nestedSe) {
+                logger.severe(
+                        "Failed to close master/slave Connection", nestedSe);
+            }
+        }
     }
 }

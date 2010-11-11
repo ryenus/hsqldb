@@ -870,6 +870,7 @@ examples:
                         src/org/hsqldb/server/ServerAcl.java,
                         src/org/hsqldb/sample/TriggerSample.java,
                         src/org/hsqldb/sample/SqlFileEmbedder.java,
+                        src/org/hsqldb/lib/FrameworkLogger.java,
                         src/org/hsqldb/lib/RCData.java,
                         src/org/hsqldb/lib/tar/DbBackup.java,
                         src/org/hsqldb/test/TestScriptRunner.java,
