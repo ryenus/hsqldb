@@ -216,10 +216,11 @@
 
       <para>There is another option which allows MEMORY tables to be writable,
       but without persisting the changes at SHUTDOWN. This option is activated
-      with the property, value pair, files_readonly= true, which can be added
-      to the .properties file of the database, or included in the URL of the
-      first connection to the database. This option is useful for running
-      application tests which operate on a predefined dataset.</para>
+      with the property, value pair, <literal>files_readonly= true</literal>,
+      which can be added to the .properties file of the database, or included
+      in the URL of the first connection to the database. This option is
+      useful for running application tests which operate on a predefined
+      dataset.</para>
     </section>
   </section>
 
@@ -1578,8 +1579,12 @@
       function that checks the combination of database unique name, user name,
       and password for each connection attempt. The function can use external
       resources to authenticate the user. For example, a directory server may
-      be used. The password may be ignored if the source of the connection can
-      be verified.</para>
+      be used. The password may be ignored if the external resource can verify
+      the user's credential without it.</para>
+
+      <para>You can override external authentication for a user with the ALTER
+      USER statement. See the <link endterm="accesscontrol-title"
+      xlink:href="#accesscontrol-chapt"></link> chapter</para>
     </section>
   </section>
 

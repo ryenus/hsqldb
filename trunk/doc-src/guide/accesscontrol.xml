@@ -387,8 +387,10 @@
     name&gt;</literal></simpara>
 
     <simpara>Drop (destroy) an existing user. If the specified user is the
-    authorization for a schema, the schema is destroyed. Only a user with the
-    DBA role can execute this statement.</simpara>
+    authorization for a schema, the schema is destroyed.</simpara>
+
+    <simpara>Only a user with the DBA role can execute this
+    statement.</simpara>
 
     <indexterm significance="preferred" type="sql">
       <primary>ALTER USER ... SET PASSWORD</primary>
@@ -407,8 +409,9 @@
     name&gt;</literal> is an SQL identifier. If it is double-quoted it is
     case-sensitive, otherwise it is turned to uppercase.
     <literal>&lt;password&gt;</literal> is a string enclosed with single quote
-    characters and is case-sensitive. Only a user with the DBA role can
-    execute this command.</simpara>
+    characters and is case-sensitive.</simpara>
+
+    <simpara>Only a user with the DBA role can execute this command.</simpara>
 
     <indexterm significance="preferred" type="sql">
       <primary>ALTER USER ... SET INITIAL SCHEMA</primary>
@@ -428,8 +431,34 @@
     schema used by default for SQL statements issued during a session. If
     <literal>DEFAULT</literal> is used, the default initial schema for all
     users is used as the initial schema for the user. The SET SCHEMA command
-    allows the user to change the schema for the duration of the session. Only
-    a user with the DBA role can execute this statement.</simpara>
+    allows the user to change the schema for the duration of the
+    session.</simpara>
+
+    <simpara>Only a user with the DBA role can execute this
+    statement.</simpara>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>ALTER USER ... SET LOCAL</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">ALTER USER ... SET
+    LOCAL</emphasis></simpara>
+
+    <simpara><emphasis>set the user authentication as local
+    (HyperSQL)</emphasis></simpara>
+
+    <simpara><literal>&lt;alter user set local&gt; ::= ALTER USER &lt;user
+    name&gt; SET LOCAL { TRUE | FALSE }</literal></simpara>
+
+    <simpara>Sets the authentication method for the user as local. This
+    statement has an effect only when external authentication with role names
+    is enabled. In this method of authentication, users created in the
+    database are ignored and an external authentication mechanism, such as
+    LDAP is used. This statement is used if you want to use local, password
+    authentication for a specific user. </simpara>
+
+    <simpara>Only a user with the DBA role can execute this
+    statement.</simpara>
 
     <indexterm significance="preferred" type="sql">
       <primary>SET PASSWORD</primary>

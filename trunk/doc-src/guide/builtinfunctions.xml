@@ -1860,6 +1860,20 @@ D          I
     so long as they are comparable. (HyperSQL)</para>
 
     <indexterm significance="preferred" type="sql">
+      <primary>LOAD_FILE function</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">LOAD_FILE</emphasis></simpara>
+
+    <para><literal>LOAD_FILE ( &lt;char value expr 1&gt; [, &lt;char value
+    expr 2&gt;] )</literal></para>
+
+    <para>Returns a BLOB or CLOB containing the URL or file path specified in
+    the first argument. If used with a single argument, the function returns a
+    BLOB. If used with two arguments, the function returns a CLOB and the
+    second argument is the character encoding of the file. (HyperSQL)</para>
+
+    <indexterm significance="preferred" type="sql">
       <primary>NULLIF function</primary>
     </indexterm>
 
