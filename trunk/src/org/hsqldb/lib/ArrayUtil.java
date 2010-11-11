@@ -920,6 +920,18 @@ public class ArrayUtil {
     }
 
     /**
+     * Fills part of the array with a value.
+     */
+    public static void fillArray(byte[] array, int offset, byte value) {
+
+        int to = array.length;
+
+        while (--to >= offset) {
+            array[to] = value;
+        }
+    }
+
+    /**
      * Fills the array with a value.
      */
     public static void fillArray(Object[] array, Object value) {

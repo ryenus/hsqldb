@@ -1002,10 +1002,11 @@ public class LobManager {
     }
 
     private Result setBytesIS(long lobID, InputStream inputStream,
-                              long length) {
+                              long length, boolean adjustLength) {
 
-        int blockLimit      = (int) (length / lobBlockSize);
-        int byteLimitOffset = (int) (length % lobBlockSize);
+        long writeLength     = 0;
+        int  blockLimit      = (int) (length / lobBlockSize);
+        int  byteLimitOffset = (int) (length % lobBlockSize);
 
         if (byteLimitOffset == 0) {
             byteLimitOffset = lobBlockSize;
@@ -1026,10 +1027,7 @@ public class LobManager {
                         && j == blockAddresses[i][LOBS.BLOCK_COUNT] - 1) {
                     localLength = byteLimitOffset;
 
-// todo -- use block op
-                    for (int k = localLength; k < lobBlockSize; k++) {
-                        dataBytes[k] = 0;
-                    }
+                    java.util.Arrays.fill(dataBytes, (byte) 0);
                 }
 
                 try {
@@ -1040,7 +1038,14 @@ public class LobManager {
                                                     localLength);
 
                         if (read == -1) {
-                            return Result.newErrorResult(new EOFException());
+                            if (adjustLength) {
+                                read = localLength;
+                            } else {
+                                return Result.newErrorResult(
+                                    new EOFException());
+                            }
+                        } else {
+                            writeLength += read;
                         }
 
                         localLength -= read;
@@ -1063,7 +1068,7 @@ public class LobManager {
             }
         }
 
-        return ResultLob.newLobSetResponse(lobID, 0);
+        return ResultLob.newLobSetResponse(lobID, writeLength);
     }
 
     synchronized public Result setBytes(long lobID, byte[] dataBytes,
@@ -1096,7 +1101,7 @@ public class LobManager {
             return ResultLob.newLobSetResponse(lobID, 0);
         }
 
-        Result result = setBytesIS(lobID, inputStream, length);
+        Result result = setBytesIS(lobID, inputStream, length, false);
 
         return result;
     }
@@ -1134,19 +1139,26 @@ public class LobManager {
     }
 
     synchronized public Result setCharsForNewClob(long lobID,
-            InputStream inputStream, long length) {
+            InputStream inputStream, long length, boolean adjustLength) {
 
         if (length == 0) {
             return ResultLob.newLobSetResponse(lobID, 0);
         }
 
-        Result result = setBytesIS(lobID, inputStream, length * 2);
+        Result result = setBytesIS(lobID, inputStream, length * 2,
+                                   adjustLength);
 
         if (result.isError()) {
             return result;
         }
 
-        return ResultLob.newLobSetResponse(lobID, 0);
+        long newLength = ((ResultLob) result).getBlockLength();
+
+        if (newLength < length) {
+            Result trunc = truncate(lobID, newLength);
+        }
+
+        return result;
     }
 
     synchronized public Result truncate(long lobID, long offset) {
@@ -1157,11 +1169,17 @@ public class LobManager {
             return Result.newErrorResult(Error.error(ErrorCode.X_0F502));
         }
 
-        /** @todo 1.9.0 - double offset for clob */
-        long           length = ((Long) data[LOB_IDS.LOB_LENGTH]).longValue();
-        int            blockOffset = (int) (offset / lobBlockSize);
-        ResultMetaData meta        = deleteLobPartCall.getParametersMetaData();
-        Object         params[]    = new Object[meta.getColumnCount()];
+        long length     = ((Long) data[LOB_IDS.LOB_LENGTH]).longValue();
+        long byteLength = offset;
+
+        if (((Integer) data[LOB_IDS.LOB_TYPE]).intValue() == Types.SQL_CLOB) {
+            byteLength *= 2;
+        }
+
+        int blockOffset = (int) ((byteLength + lobBlockSize - 1)
+                                 / lobBlockSize);
+        ResultMetaData meta     = deleteLobPartCall.getParametersMetaData();
+        Object         params[] = new Object[meta.getColumnCount()];
 
         params[DELETE_BLOCKS.LOB_ID]       = ValuePool.getLong(lobID);
         params[DELETE_BLOCKS.BLOCK_OFFSET] = new Integer(blockOffset);

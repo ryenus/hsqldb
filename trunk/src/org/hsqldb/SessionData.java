@@ -468,7 +468,7 @@ public class SessionData {
 
                 countStream.setCount(clobLength * 2);
                 database.lobManager.setCharsForNewClob(
-                    clobId, countStream, result.getBlockLength());
+                    clobId, countStream, result.getBlockLength(), false);
 
                 break;
             }
@@ -524,7 +524,7 @@ public class SessionData {
         InputStream is         = null;
 
         try {
-            ClobData blob = session.createClob(fileLength);
+            ClobData clob = session.createClob(fileLength);
 
             is = new FileInputStream(file);
 
@@ -532,10 +532,10 @@ public class SessionData {
 
             is = new ReaderInputStream(reader);
 
-            database.lobManager.setCharsForNewClob(blob.getId(), is,
-                                                   fileLength);
+            database.lobManager.setCharsForNewClob(clob.getId(), is,
+                                                   fileLength, true);
 
-            return blob;
+            return clob;
         } catch (IOException e) {
             throw Error.error(ErrorCode.FILE_IO_ERROR, e.toString());
         } finally {
