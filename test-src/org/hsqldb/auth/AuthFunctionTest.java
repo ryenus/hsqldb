@@ -159,8 +159,7 @@ public class AuthFunctionTest extends junit.framework.TestCase {
             assertTrue("Negative test failed",
                     AuthFunctionUtils.updateDoesThrow(
                     st, "INSERT INTO t3 VALUES(3)"));
-            assertEquals(
-                    twoRolesSet, AuthFunctionUtils.getEnabledRoles(authedCon));
+            assertEquals(twoRolesSet, AuthUtils.getEnabledRoles(authedCon));
         } finally {
             if (st != null) try {
                 st.close();
@@ -209,8 +208,7 @@ public class AuthFunctionTest extends junit.framework.TestCase {
             assertTrue("Negative test #4 failed",
                     AuthFunctionUtils.updateDoesThrow(
                     st, "INSERT INTO t4 VALUES(4)"));
-            assertEquals(
-                    twoRolesSet, AuthFunctionUtils.getEnabledRoles(authedCon));
+            assertEquals(twoRolesSet, AuthUtils.getEnabledRoles(authedCon));
         } finally {
             if (st != null) try {
                 st.close();
@@ -259,8 +257,7 @@ public class AuthFunctionTest extends junit.framework.TestCase {
             assertFalse("Positive test #4 failed",
                     AuthFunctionUtils.updateDoesThrow(
                     st, "INSERT INTO t4 VALUES(4)"));
-            assertEquals(
-                    roles34Set, AuthFunctionUtils.getEnabledRoles(authedCon));
+            assertEquals(roles34Set, AuthUtils.getEnabledRoles(authedCon));
         } finally {
             if (st != null) try {
                 st.close();
@@ -309,8 +306,7 @@ public class AuthFunctionTest extends junit.framework.TestCase {
             assertTrue("Negative test #4 failed",
                     AuthFunctionUtils.updateDoesThrow(
                     st, "INSERT INTO t4 VALUES(4)"));
-            assertEquals(
-                    0, AuthFunctionUtils.getEnabledRoles(authedCon).size());
+            assertEquals(0, AuthUtils.getEnabledRoles(authedCon).size());
         } finally {
             if (st != null) try {
                 st.close();

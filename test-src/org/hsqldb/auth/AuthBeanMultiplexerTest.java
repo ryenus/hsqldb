@@ -237,8 +237,7 @@ public class AuthBeanMultiplexerTest extends junit.framework.TestCase {
                 logger.error("Multiplexer with single allow rule threw", se);
                 fail("Multiplexer with single allow rule threw: " + se);
             }
-            assertEquals(
-                    twoRolesSet, AuthFunctionUtils.getEnabledRoles(authedCon));
+            assertEquals(twoRolesSet, AuthUtils.getEnabledRoles(authedCon));
             authedCon.close();
             authedCon = null;
         } finally {
