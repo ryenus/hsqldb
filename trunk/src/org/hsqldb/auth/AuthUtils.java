@@ -41,65 +41,54 @@ import java.util.HashSet;
 import org.hsqldb.jdbc.JDBCArrayBasic;
 import org.hsqldb.lib.FrameworkLogger;
 
-public class AuthFunctionUtils {
+public class AuthUtils {
     private static FrameworkLogger logger =
-            FrameworkLogger.getLog(AuthFunctionUtils.class);
+            FrameworkLogger.getLog(AuthUtils.class);
 
     /**
-     * Do not instantiate an AuthFunctionUtils, because the only purpose of
+     * Do not instantiate an AuthUtils, because the only purpose of
      * this class is to provide static methods.
      */
-    private AuthFunctionUtils() {
+    private AuthUtils() {
         // Intentionally empty
     }
 
-    /**
-     * @throws RuntimeException if jab
-     *         param is neither null not an instance of JDBCArrayBasic wrapping
-     *         an array of Strings.
-     */
-    static String[] toStrings(Array jab) {
-        if (jab == null) {
-            return null;
-        }
-        if (!(jab instanceof JDBCArrayBasic)) {
-            throw new IllegalArgumentException(
-                    "Parameter is a " + jab.getClass().getName()
-                    + " instead of a " + JDBCArrayBasic.class.getName());
-        }
-        Object internalArray = ((JDBCArrayBasic) jab).getArray();
-        if (!(internalArray instanceof String[]))
-            throw new IllegalArgumentException(
-                    "JDBCArrayBasic internal data is not a String array, but a "
-                    + internalArray.getClass().getName());
-        return (String[]) internalArray;
-    }
-
-    static boolean isWrapperFor(Array array, String[] strings) {
-        if (array == null && strings == null) {
-            return true;
-        }
-        if (array == null || strings == null) {
-            return false;
-        }
-        String[] wrappedStrings = toStrings(array);
-        if (wrappedStrings.length != strings.length) {
-            return false;
-        }
-        for (int i = 0; i < strings.length; i++) {
-            if (!strings[i].equals(wrappedStrings[i])) {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    static boolean updateDoesThrow(Statement st, String sql) {
+    static String getInitialSchema(Connection c) throws SQLException {
+        ResultSet rs = c.createStatement().executeQuery(
+                "SELECT initial_schema FROM information_schema.system_users\n"
+                + "WHERE user_name = current_user");
         try {
-            st.executeUpdate(sql);
-            return false;
-        } catch (SQLException se) {
-            return true;
+            if (!rs.next()) {
+                throw new IllegalStateException(
+                        "Failed to retrieve initial_schema for current user");
+            }
+            return rs.getString(1);
+        } finally {
+            if (rs != null) try {
+                rs.close();
+            } catch (SQLException se) {
+                logger.error("Failed "
+                        + "to close ResultSet for retrieving initial schema");
+            }
+            rs = null;  // Encourage GC
         }
+    }
+
+    static Set getEnabledRoles(Connection c) throws SQLException {
+        Set roles = new HashSet<String>();
+        ResultSet rs = c.createStatement().executeQuery(
+                "SELECT * FROM information_schema.enabled_roles");
+        try {
+            while (rs.next()) roles.add(rs.getString(1));
+        } finally {
+            if (rs != null) try {
+                rs.close();
+            } catch (SQLException se) {
+                logger.error(
+                        "Failed to close ResultSet for retrieving db name");
+            }
+            rs = null;  // Encourage GC
+        }
+        return roles;
     }
 }
