@@ -222,6 +222,10 @@ public class ArrayType extends Type {
         Object[] data;
         boolean  convert = false;
 
+        if (a == null) {
+            return null;
+        }
+
         if (a instanceof Object[]) {
             data    = (Object[]) a;
             convert = true;
