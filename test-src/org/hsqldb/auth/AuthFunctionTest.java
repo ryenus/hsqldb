@@ -79,10 +79,27 @@ public class AuthFunctionTest extends junit.framework.TestCase {
     private static final Set<String> twoRolesSet =
             new HashSet<String>(Arrays.asList(twoRoles));
 
+    protected Connection con;
+    protected String jdbcUrl =
+            "jdbc:hsqldb:mem:" + getClass().getName().replaceFirst(".+\\.", "");
+
+    protected void setUp() throws SQLException {
+        con = DriverManager.getConnection(jdbcUrl, "SA", "");
+        con.setAutoCommit(false);
+    }
+
+    protected void tearDown() {
+        if (con != null) try {
+            con.close();
+        } catch (SQLException se) {
+            System.err.println("Close of setup Conn. failed:" + se);
+        } finally {
+            con = null;
+        }
+    }
+
     public void testRemoteAccountRemoteRoles() throws SQLException {
-        String jdbcUrl = "jdbc:hsqldb:mem:mem01";
         Statement st = null;
-        Connection con = DriverManager.getConnection(jdbcUrl, "SA", "");
         Connection authedCon = null;
         try {
             st = con.createStatement();
@@ -136,13 +153,6 @@ public class AuthFunctionTest extends junit.framework.TestCase {
                 System.err.println("Close of Statement failed:" + se);
             } finally {
                 st = null;
-            }
-            if (con != null) try {
-                con.close();
-            } catch (SQLException se) {
-                System.err.println("Close of setup Conn. failed:" + se);
-            } finally {
-                con = null;
             }
         }
     }
