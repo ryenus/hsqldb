@@ -438,10 +438,6 @@ public class LdapAuthBean implements AuthFunctionBean {
         accessAttribute = attribute;
     }
 
-    public static class DenyException extends Exception {
-        // Intentionally empty
-    }
-
     /**
      * @see AuthFunctionBean#authenticate(String, password)
      */
