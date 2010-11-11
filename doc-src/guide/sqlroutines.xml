@@ -1185,6 +1185,23 @@ END
       body of a function is either a RETURN statement, or a compound statement
       that contains a RETURN statement.</para>
 
+      <para>The return value of a FUNCTION can be assigned to a variable, or
+      used inside an SQL statement.</para>
+
+      <para>An SQL/PSM function or an SQL/JRT function can return a single
+      result when the function is defined as RETURNS TABLE ( .. )</para>
+
+      <para>To return a table from a SELECT statement, you should use a return
+      statement such as RETURN TABLE( SELECT ...) in an SQL/PSM function. For
+      an SQL/JRT function, the Java method should return a JDBCResultSet
+      instance.</para>
+
+      <para>To call a function from JDBC, use a java.sql.CallableStatement
+      instance. The <literal>getResultSet()</literal> call can be used to
+      access the ResultSet returned from a function that returns a result set.
+      If the function returns a scalar value, the returned result has a single
+      column and a signle row which contains the scalar returned value.</para>
+
       <indexterm significance="preferred" type="sql">
         <primary>RETURN</primary>
       </indexterm>
@@ -1244,16 +1261,41 @@ CREATE FUNCTION an_hour_before_max (e_type INT)
 
       <simpara><literal>&lt;leave statement&gt; ::= LEAVE &lt;statement
       label&gt;</literal></simpara>
+    </section>
 
-      <simpara>Signal and Resignal Statements</simpara>
+    <section>
+      <title>Raising Exceptions</title>
+
+      <simpara>Signal and Resignal Statements allow the routine to throw an
+      exception. If used with the IF or CASE conditions, the exception is
+      thrown conditionally.</simpara>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>SIGNAL STATEMENT</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">SIGNAL</emphasis></simpara>
+
+      <simpara><emphasis>signal statement</emphasis></simpara>
 
       <para>The SIGNAL statement is used to throw an exception (or force an
       exception). When invoked, any exception handler for the given exception
       is in turn invoked. If there is no handler, the exception is propagated
-      to the enclosing context.</para>
+      to the enclosing context. In its simplest form, when there is no
+      exception handler for the given exception, routine execution is halted,
+      any change of data is rolled back and the routine throws the
+      exception.</para>
 
       <simpara><literal>&lt;signal statement&gt; ::= SIGNAL SQL_STATE
       &lt;state value&gt;</literal></simpara>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>RESIGNAL STATEMENT</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">RESIGNAL</emphasis></simpara>
+
+      <simpara><emphasis>resignal statement</emphasis></simpara>
 
       <para>The RESIGNAL statement is used to throw an exception from an
       exception handler’s <literal>&lt;SQL procedure statement&gt;</literal>,
@@ -1270,14 +1312,16 @@ CREATE FUNCTION an_hour_before_max (e_type INT)
       <para>More than one version of a routine can be created.</para>
 
       <para>For procedures, the different versions must have different
-      parameter counts.  When the procedure is called, the parameter count
+      parameter counts. When the procedure is called, the parameter count
       determines which version is called.</para>
 
       <para>For functions, the different versions can have the same or
       different parameter counts. When the parameter count of two versions of
-      a function is the same, the type of parameters must be different. The
-      best matching version of the function is called, according to both the
-      parameter count and parameter types.</para>
+      a function is the same, the type of parameters must be different. When
+      the function is called, the best matching version of the function is
+      used, according to both the parameter count and parameter types. The
+      return type of different versions of a function can be the same or
+      different.</para>
 
       <para>Two versions of an overloaded function are given below. One
       version accepts TIMESTAMP while the other accepts TIME arguments.</para>
@@ -1303,18 +1347,16 @@ CREATE FUNCTION an_hour_before_or_now(t TIME)
 
 </programlisting>
 
-      <para>more ..</para>
+      <para>It is perfectly possible to have different versions of the routine
+      as SQL/JRT or SQL/PSM routines.</para>
     </section>
 
     <section>
-      <title>Returning Data From Routines</title>
+      <title>Returning Data From Procedures</title>
 
       <para>The OUT or INOUT parameters of a PROCEDURE are used to assign
       simple values to dynamic parameters or to variables in the calling
       context.</para>
-
-      <para>The return value of a FUNCTION can be assigned to a variable, or
-      used inside an SQL statement.</para>
 
       <para>According to the Standard, an SQL/PSM or SQL/JRT procedure may
       also return result sets to the calling context. These result sets are
@@ -1341,26 +1383,20 @@ CREATE FUNCTION an_hour_before_or_now(t TIME)
       the cursors become available as Java ResultSet objects via the
       CallableStatement instance that called the SQL/PSM procedure.</para>
 
-      <para>An SQL/PSM function or an SQL/JRT function can return a single
-      result when the function is defined as RETURNS TABLE ( .. )</para>
-
-      <para>To return a table from a SELECT statement, you should use a return
-      statement such as RETURN TABLE( SELECT ...) in an SQL/PSM function. For
-      an SQL/JRT function, the Java method should return a JDBCResultSet
-      instance.</para>
-
       <para>The JDBC CallableStatement class is used with the SQL statement
       <literal>CALL &lt;routine name&gt; ( &lt;argument 1&gt;, ... )</literal>
-      to call both functions and procedures. The <literal>getXXX()</literal>
-      methods can be used to retrieve INOUT or OUT arguments after the call.
-      The <literal>getResultSet()</literal> call can be used to access the
-      ResultSet returned from a function that returns a result set, or from a
-      procedure that returns one or more result.</para>
+      to call procedures (also to call functions). The
+      <literal>getXXX()</literal> methods can be used to retrieve INOUT or OUT
+      arguments after the call. The <literal>getResultSet()</literal> call can
+      be used to access the ResultSet(s) returned by a procedure that returns
+      one or more results.</para>
 
       <para>In the example below, the procedure inserts a row into the
       customer table. It then performs the SELECT statament to return the
       latest inserted row as a result set. Therefore the definition includes
-      the <code>DYNAMIC RESULT SETS 1</code> clause.</para>
+      the <code>DYNAMIC RESULT SETS 1</code> clause. You must specify
+      correctly the maximum number of result sets that the procedure may
+      return.</para>
 
       <programlisting>CREATE PROCEDURE new_customer(firstname VARCHAR(50), lastname VARCHAR(50))
   MODIFIES SQL DATA DYNAMIC RESULT SETS 1
@@ -1378,8 +1414,8 @@ CREATE FUNCTION an_hour_before_or_now(t TIME)
 
       <para>Routines can be recursive. Recursive functions are often functions
       that return arrays or tables. To create a recursive routine, the routine
-      definition must be created as a dummy. Then the ALTER ROUTINE statement
-      is used to define the routine body.</para>
+      definition must be created first with a dummy body. Then the ALTER
+      ROUTINE statement is used to define the routine body.</para>
 
       <para>In the example below, the table contains a tree of rows each with
       a parent. The routine returns an array containing the id list of all the
@@ -1394,11 +1430,13 @@ CREATE FUNCTION an_hour_before_or_now(t TIME)
       <programlisting>CREATE TABLE ptree (pid INT, id INT);
 INSERT INTO ptree VALUES (NULL, 1) ,(1,2), (1,3),(2,4),(4,5),(3,6),(3,7);
 
+// the function is created and always throws an excption when used
 CREATE FUNCTION child_arr(p_pid INT) RETURNS INT ARRAY
   SPECIFIC child_arr_one
   READS SQL DATA
   SIGNAL SQLSTATE '45000'
 
+// the actual body of the function is defined, replacing the statement that throws the exception
 ALTER SPECIFIC ROUTINE child_arr_one SET BODY
   BEGIN ATOMIC
     DECLARE id_list INT ARRAY DEFAULT ARRAY[];
@@ -1410,6 +1448,7 @@ ALTER SPECIFIC ROUTINE child_arr_one SET BODY
     RETURN id_list;
   END
 
+// the function can now be used in SQL statements
 SELECT * FROM TABLE(child_arr(2))
 </programlisting>
 
@@ -1436,7 +1475,8 @@ ALTER SPECIFIC ROUTINE child_table_one SET BODY
 SELECT * FROM TABLE(child_table(1))
 </programlisting>
 
-      <para></para>
+      <para>Infinite recursion is not possible as the routine is terminated
+      when a given depth is reached.</para>
     </section>
   </section>
 
@@ -2115,8 +2155,8 @@ Susanne Clancy,Michael Clancy,Sylvia Clancy,Bob Clancy,Susanne Clancy,John Clanc
     }
 </programlisting>
 
-      <para>In a select statement, the function is used like built in
-      aggregate functions:</para>
+      <para>In a select statement, the function is used exactly like the
+      built-in aggregate functions:</para>
 
       <programlisting>SELECT geometric_mean(age) FROM  FROM customer
 </programlisting>
