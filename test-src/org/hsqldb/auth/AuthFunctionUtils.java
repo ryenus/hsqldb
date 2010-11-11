@@ -36,6 +36,7 @@ import java.sql.Connection;
 import java.util.Set;
 import java.sql.SQLException;
 import java.sql.ResultSet;
+import java.sql.Statement;
 import java.util.HashSet;
 import org.hsqldb.jdbc.JDBCArrayBasic;
 import org.hsqldb.lib.FrameworkLogger;
@@ -130,5 +131,14 @@ public class AuthFunctionUtils {
             }
         }
         return true;
+    }
+
+    static boolean updateDoesThrow(Statement st, String sql) {
+        try {
+            st.executeUpdate(sql);
+            return false;
+        } catch (SQLException se) {
+            return true;
+        }
     }
 }

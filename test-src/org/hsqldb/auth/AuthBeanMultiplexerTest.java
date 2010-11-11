@@ -44,9 +44,6 @@ import java.sql.DriverManager;
 import org.hsqldb.lib.FrameworkLogger;
 
 public class AuthBeanMultiplexerTest extends junit.framework.TestCase {
-    /* TODO:  Turn up application logger level, since we purposefully generate
-     * errors with some of our tests, and don't need to see them on stderr. */
-
     private static FrameworkLogger logger =
             FrameworkLogger.getLog(AuthBeanMultiplexerTest.class);
 
@@ -248,7 +245,7 @@ public class AuthBeanMultiplexerTest extends junit.framework.TestCase {
             if (authedCon != null) try {
                 authedCon.close();
             } catch (SQLException se) {
-                System.err.println("Close of Authed Conn. failed:" + se);
+                logger.error("Close of Authed Conn. failed:" + se);
             } finally {
                 authedCon = null;
             }
@@ -256,7 +253,7 @@ public class AuthBeanMultiplexerTest extends junit.framework.TestCase {
                 st.executeUpdate("SHUTDOWN");
                 st.close();
             } catch (SQLException se) {
-                System.err.println("Close of Statement failed:" + se);
+                logger.error("Close of Statement failed:" + se);
             } finally {
                 st = null;
             }

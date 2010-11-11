@@ -60,6 +60,7 @@ public class AuthFunctionTest extends junit.framework.TestCase {
             FrameworkLogger.getLog(AuthFunctionTest.class);
 
     private static final String[] twoRoles = new String[] { "ROLE1", "ROLE2" };
+    private static final String[] roles34 = new String[] { "ROLE3", "ROLE4" };
 
     public static Array noRoleFn(
             String database, String user, String password) {
@@ -73,28 +74,65 @@ public class AuthFunctionTest extends junit.framework.TestCase {
 
     public static Array nullFn(
             String database, String user, String password) {
-        return new JDBCArrayBasic(twoRoles, Type.SQL_VARCHAR);
+        return null;
     }
 
     private static final Set<String> twoRolesSet =
             new HashSet<String>(Arrays.asList(twoRoles));
+    private static final Set<String> roles34Set =
+            new HashSet<String>(Arrays.asList(roles34));
 
-    protected Connection con;
+    protected Connection saCon;
+    protected Statement saSt;
     protected String jdbcUrl =
             "jdbc:hsqldb:mem:" + getClass().getName().replaceFirst(".+\\.", "");
 
     protected void setUp() throws SQLException {
-        con = DriverManager.getConnection(jdbcUrl, "SA", "");
-        con.setAutoCommit(false);
+        saCon = DriverManager.getConnection(jdbcUrl, "SA", "");
+        saCon.setAutoCommit(false);
+        saSt = saCon.createStatement();
+        saSt.executeUpdate("CREATE ROLE role1");
+        saSt.executeUpdate("CREATE ROLE role2");
+        saSt.executeUpdate("CREATE ROLE role3");
+        saSt.executeUpdate("CREATE ROLE role4");
+        saSt.executeUpdate("CREATE TABLE t1 (i INTEGER)");
+        saSt.executeUpdate("CREATE TABLE t2 (i INTEGER)");
+        saSt.executeUpdate("CREATE TABLE t3 (i INTEGER)");
+        saSt.executeUpdate("CREATE TABLE t4 (i INTEGER)");
+        saSt.executeUpdate("GRANT ALL ON t1 TO role1");
+        saSt.executeUpdate("GRANT ALL ON t2 TO role2");
+        saSt.executeUpdate("GRANT ALL ON t3 TO role3");
+        saSt.executeUpdate("GRANT ALL ON t4 TO role4");
     }
 
     protected void tearDown() {
-        if (con != null) try {
-            con.close();
+        if (saSt != null) try {
+            saSt.executeUpdate("DROP TABLE t1");
+            saSt.executeUpdate("DROP TABLE t2");
+            saSt.executeUpdate("DROP TABLE t3");
+            saSt.executeUpdate("DROP TABLE t4");
+            saSt.executeUpdate("DROP ROLE role1");
+            saSt.executeUpdate("DROP ROLE role2");
+            saSt.executeUpdate("DROP ROLE role3");
+            saSt.executeUpdate("DROP ROLE role4");
+            saSt.executeUpdate("SET DATABASE AUTHENTICATION FUNCTION NONE");
+            saSt.executeUpdate("SHUTDOWN");
         } catch (SQLException se) {
-            System.err.println("Close of setup Conn. failed:" + se);
+            logger.error("Tear-down of setup Conn. failed:" + se);
+        }
+        if (saSt != null) try {
+            saSt.close();
+        } catch (SQLException se) {
+            logger.error("Close of setup Statement failed:" + se);
         } finally {
-            con = null;
+            saSt = null;
+        }
+        if (saCon != null) try {
+            saCon.close();
+        } catch (SQLException se) {
+            logger.error("Close of setup Conn. failed:" + se);
+        } finally {
+            saCon = null;
         }
     }
 
@@ -102,21 +140,9 @@ public class AuthFunctionTest extends junit.framework.TestCase {
         Statement st = null;
         Connection authedCon = null;
         try {
-            st = con.createStatement();
-            st.executeUpdate("CREATE ROLE role1");
-            st.executeUpdate("CREATE ROLE role2");
-            st.executeUpdate("CREATE ROLE role3");
-            st.executeUpdate("CREATE TABLE t1 (i INTEGER)");
-            st.executeUpdate("CREATE TABLE t3 (i INTEGER)");
-            st.executeUpdate("GRANT ALL ON t1 TO role1");
-            st.executeUpdate("GRANT ALL ON t3 TO role3");
-            st.executeUpdate(
+            saSt.executeUpdate(
                     "SET DATABASE AUTHENTICATION FUNCTION EXTERNAL NAME "
                     + "'CLASSPATH:" + getClass().getName() + ".twoRolesFn'");
-            con.commit();
-            con.close();
-            con = null;
-            st.close();
             try {
                 authedCon = DriverManager.getConnection(
                         jdbcUrl, "zeno", "a password");
@@ -124,35 +150,179 @@ public class AuthFunctionTest extends junit.framework.TestCase {
                 fail("Access with 'twoRolesFn' failed");
             }
             st = authedCon.createStatement();
-            try {
-                st.executeUpdate("INSERT INTO t1 VALUES(1)");
-            } catch (SQLException se) {
-                fail("Positive test failed: " + se);
-            }
-            try {
-                st.executeUpdate("INSERT INTO t3 VALUES(3)");
-                fail("Negative test failed");
-            } catch (SQLException se) {
-                // Intentionally empty.  Expected.
-            }
+            assertFalse("Positive test failed",
+                    AuthFunctionUtils.updateDoesThrow(
+                    st, "INSERT INTO t1 VALUES(1)"));
+            assertTrue("Negative test failed",
+                    AuthFunctionUtils.updateDoesThrow(
+                    st, "INSERT INTO t3 VALUES(3)"));
             assertEquals(
                     twoRolesSet, AuthFunctionUtils.getEnabledRoles(authedCon));
         } finally {
+            if (st != null) try {
+                st.close();
+            } catch (SQLException se) {
+                logger.error("Close of Statement failed:" + se);
+            } finally {
+                st = null;
+            }
             if (authedCon != null) try {
                 authedCon.rollback();
                 authedCon.close();
             } catch (SQLException se) {
-                System.err.println("Close of Authed Conn. failed:" + se);
+                logger.error("Close of Authed Conn. failed:" + se);
             } finally {
                 authedCon = null;
             }
+        }
+    }
+
+    public void testLocalUserAccountLocalRemoteRoles() throws SQLException {
+        Statement st = null;
+        Connection authedCon = null;
+        try {
+            saSt.executeUpdate("CREATE USER tlualrr PASSWORD 'wontuse'");
+            saSt.executeUpdate("GRANT role3 TO tlualrr");
+            saSt.executeUpdate("GRANT role4 TO tlualrr");
+            saSt.executeUpdate(
+                    "SET DATABASE AUTHENTICATION FUNCTION EXTERNAL NAME "
+                    + "'CLASSPATH:" + getClass().getName() + ".twoRolesFn'");
+            try {
+                authedCon = DriverManager.getConnection(
+                        jdbcUrl, "tlualrr", "unusedPassword");
+            } catch (SQLException se) {
+                fail("Access with 'twoRolesFn' failed");
+            }
+            st = authedCon.createStatement();
+            assertFalse("Positive test #1 failed",
+                    AuthFunctionUtils.updateDoesThrow(
+                    st, "INSERT INTO t1 VALUES(1)"));
+            assertFalse("Positive test #2 failed",
+                    AuthFunctionUtils.updateDoesThrow(
+                    st, "INSERT INTO t2 VALUES(2)"));
+            assertTrue("Negative test #3 failed",
+                    AuthFunctionUtils.updateDoesThrow(
+                    st, "INSERT INTO t3 VALUES(3)"));
+            assertTrue("Negative test #4 failed",
+                    AuthFunctionUtils.updateDoesThrow(
+                    st, "INSERT INTO t4 VALUES(4)"));
+            assertEquals(
+                    twoRolesSet, AuthFunctionUtils.getEnabledRoles(authedCon));
+        } finally {
             if (st != null) try {
-                st.executeUpdate("SHUTDOWN");
                 st.close();
             } catch (SQLException se) {
-                System.err.println("Close of Statement failed:" + se);
+                logger.error("Close of Statement failed:" + se);
             } finally {
                 st = null;
+            }
+            if (authedCon != null) try {
+                authedCon.rollback();
+                authedCon.close();
+            } catch (SQLException se) {
+                logger.error("Close of Authed Conn. failed:" + se);
+            } finally {
+                authedCon = null;
+            }
+        }
+    }
+
+    public void testLocalUserAccountLocalRoles() throws SQLException {
+        Statement st = null;
+        Connection authedCon = null;
+        try {
+            saSt.executeUpdate("CREATE USER tlualr PASSWORD 'wontuse'");
+            saSt.executeUpdate("GRANT role3 TO tlualr");
+            saSt.executeUpdate("GRANT role4 TO tlualr");
+            saSt.executeUpdate(
+                    "SET DATABASE AUTHENTICATION FUNCTION EXTERNAL NAME "
+                    + "'CLASSPATH:" + getClass().getName() + ".nullFn'");
+            try {
+                authedCon = DriverManager.getConnection(
+                        jdbcUrl, "tlualr", "unusedPassword");
+            } catch (SQLException se) {
+                fail("Access with 'nullFn' failed");
+            }
+            st = authedCon.createStatement();
+            assertTrue("Negative test #1 failed",
+                    AuthFunctionUtils.updateDoesThrow(
+                    st, "INSERT INTO t1 VALUES(1)"));
+            assertTrue("Negative test #2 failed",
+                    AuthFunctionUtils.updateDoesThrow(
+                    st, "INSERT INTO t2 VALUES(2)"));
+            assertFalse("Positive test #3 failed",
+                    AuthFunctionUtils.updateDoesThrow(
+                    st, "INSERT INTO t3 VALUES(3)"));
+            assertFalse("Positive test #4 failed",
+                    AuthFunctionUtils.updateDoesThrow(
+                    st, "INSERT INTO t4 VALUES(4)"));
+            assertEquals(
+                    roles34Set, AuthFunctionUtils.getEnabledRoles(authedCon));
+        } finally {
+            if (st != null) try {
+                st.close();
+            } catch (SQLException se) {
+                logger.error("Close of Statement failed:" + se);
+            } finally {
+                st = null;
+            }
+            if (authedCon != null) try {
+                authedCon.rollback();
+                authedCon.close();
+            } catch (SQLException se) {
+                logger.error("Close of Authed Conn. failed:" + se);
+            } finally {
+                authedCon = null;
+            }
+        }
+    }
+
+    public void testLocalUserAccountLocalRemote0Roles() throws SQLException {
+        Statement st = null;
+        Connection authedCon = null;
+        try {
+            saSt.executeUpdate("CREATE USER tlualr0r PASSWORD 'wontuse'");
+            saSt.executeUpdate("GRANT role3 TO tlualr0r");
+            saSt.executeUpdate("GRANT role4 TO tlualr0r");
+            saSt.executeUpdate(
+                    "SET DATABASE AUTHENTICATION FUNCTION EXTERNAL NAME "
+                    + "'CLASSPATH:" + getClass().getName() + ".noRoleFn'");
+            try {
+                authedCon = DriverManager.getConnection(
+                        jdbcUrl, "tlualr0r", "unusedPassword");
+            } catch (SQLException se) {
+                fail("Access with 'nullFn' failed");
+            }
+            st = authedCon.createStatement();
+            assertTrue("Negative test #1 failed",
+                    AuthFunctionUtils.updateDoesThrow(
+                    st, "INSERT INTO t1 VALUES(1)"));
+            assertTrue("Negative test #2 failed",
+                    AuthFunctionUtils.updateDoesThrow(
+                    st, "INSERT INTO t2 VALUES(2)"));
+            assertTrue("Negative test #3 failed",
+                    AuthFunctionUtils.updateDoesThrow(
+                    st, "INSERT INTO t3 VALUES(3)"));
+            assertTrue("Negative test #4 failed",
+                    AuthFunctionUtils.updateDoesThrow(
+                    st, "INSERT INTO t4 VALUES(4)"));
+            assertEquals(
+                    0, AuthFunctionUtils.getEnabledRoles(authedCon).size());
+        } finally {
+            if (st != null) try {
+                st.close();
+            } catch (SQLException se) {
+                logger.error("Close of Statement failed:" + se);
+            } finally {
+                st = null;
+            }
+            if (authedCon != null) try {
+                authedCon.rollback();
+                authedCon.close();
+            } catch (SQLException se) {
+                logger.error("Close of Authed Conn. failed:" + se);
+            } finally {
+                authedCon = null;
             }
         }
     }
