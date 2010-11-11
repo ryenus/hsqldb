@@ -88,6 +88,9 @@ public class AuthFunctionTest extends junit.framework.TestCase {
             "jdbc:hsqldb:mem:" + getClass().getName().replaceFirst(".+\\.", "");
 
     protected void setUp() throws SQLException {
+        try {
+            Class.forName("org.hsqldb.jdbc.JDBCDriver");
+        } catch (Exception e) {}
         saCon = DriverManager.getConnection(jdbcUrl, "SA", "");
         saCon.setAutoCommit(false);
         saSt = saCon.createStatement();
@@ -239,7 +242,7 @@ public class AuthFunctionTest extends junit.framework.TestCase {
                     + "'CLASSPATH:" + getClass().getName() + ".nullFn'");
             try {
                 authedCon = DriverManager.getConnection(
-                        jdbcUrl, "tlualr", "unusedPassword");
+                        jdbcUrl, "TLUALR", "unusedPassword");
             } catch (SQLException se) {
                 fail("Access with 'nullFn' failed");
             }
