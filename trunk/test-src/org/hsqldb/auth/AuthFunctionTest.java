@@ -120,15 +120,6 @@ public class AuthFunctionTest extends junit.framework.TestCase {
 
     protected void tearDown() {
         if (saSt != null) try {
-            saSt.executeUpdate("DROP TABLE t1");
-            saSt.executeUpdate("DROP TABLE t2");
-            saSt.executeUpdate("DROP TABLE t3");
-            saSt.executeUpdate("DROP TABLE t4");
-            saSt.executeUpdate("DROP ROLE role1");
-            saSt.executeUpdate("DROP ROLE role2");
-            saSt.executeUpdate("DROP ROLE role3");
-            saSt.executeUpdate("DROP ROLE role4");
-            saSt.executeUpdate("SET DATABASE AUTHENTICATION FUNCTION NONE");
             saSt.executeUpdate("SHUTDOWN");
         } catch (SQLException se) {
             logger.error("Tear-down of setup Conn. failed:" + se);
@@ -403,7 +394,7 @@ public class AuthFunctionTest extends junit.framework.TestCase {
             // role, the user's local initial schema should not be modified.
             try {
                 authedCon = DriverManager.getConnection(
-                        jdbcUrl, "tnps", "unusedPassword");
+                        jdbcUrl, "TNPS", "unusedPassword");
             } catch (SQLException se) {
                 fail("Access with 'nullFn' failed");
             }
@@ -414,7 +405,7 @@ public class AuthFunctionTest extends junit.framework.TestCase {
             assertTrue("Negative test #2 failed",
                     AuthFunctionUtils.updateDoesThrow(
                     st, "INSERT INTO s2t1 VALUES(2)"));
-            assertEquals(0, AuthUtils.getEnabledRoles(authedCon).size());
+            assertEquals(twoRolesSet, AuthUtils.getEnabledRoles(authedCon));
         } finally {
             if (st != null) try {
                 st.close();

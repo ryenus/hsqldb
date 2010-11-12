@@ -147,8 +147,7 @@ public class HsqldbSlaveAuthBean implements AuthFunctionBean {
         }
         Connection c = null;
         try {
-            c = DriverManager.getConnection(
-                    masterJdbcUrl, validationUser, validationPassword);
+            c = DriverManager.getConnection(masterJdbcUrl, userName, password);
             if (delegateRolesSchema) {
                 Set<String> schemaAndRoles = AuthUtils.getEnabledRoles(c);
                 String schemaOnMaster = AuthUtils.getInitialSchema(c);

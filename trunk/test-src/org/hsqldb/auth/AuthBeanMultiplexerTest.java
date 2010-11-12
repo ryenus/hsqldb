@@ -47,6 +47,12 @@ public class AuthBeanMultiplexerTest extends junit.framework.TestCase {
     private static FrameworkLogger logger =
             FrameworkLogger.getLog(AuthBeanMultiplexerTest.class);
 
+    static {
+        try {
+            Class.forName("org.hsqldb.jdbc.JDBCDriver");
+        } catch (Exception e) {}
+    }
+
     private static final String[] twoRoles = new String[] { "ROLE1", "ROLE2" };
     private static final Set<String> twoRolesSet =
             new HashSet<String>(Arrays.asList(twoRoles));
@@ -190,7 +196,7 @@ public class AuthBeanMultiplexerTest extends junit.framework.TestCase {
         }
     }
 
-    public void testTriggers() throws SQLException {
+    public void testFunctions() throws SQLException {
         String jdbcUrl = "jdbc:hsqldb:mem:memdb";
         Statement st = null;
         AuthBeanMultiplexer plexer = AuthBeanMultiplexer.getSingleton();
