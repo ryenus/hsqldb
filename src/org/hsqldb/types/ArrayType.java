@@ -31,6 +31,8 @@
 
 package org.hsqldb.types;
 
+import java.sql.Array;
+
 import org.hsqldb.OpTypes;
 import org.hsqldb.Session;
 import org.hsqldb.SessionInterface;
@@ -39,9 +41,8 @@ import org.hsqldb.Tokens;
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
 import org.hsqldb.jdbc.JDBCArray;
-import org.hsqldb.lib.ArraySort;
-import org.hsqldb.store.ValuePool;
 import org.hsqldb.jdbc.JDBCArrayBasic;
+import org.hsqldb.lib.ArraySort;
 
 /**
  * Class for ARRAY type objects.<p>
@@ -229,14 +230,14 @@ public class ArrayType extends Type {
         if (a instanceof Object[]) {
             data    = (Object[]) a;
             convert = true;
-        } else if (a instanceof org.hsqldb.jdbc.JDBCArray) {
-            data = ((org.hsqldb.jdbc.JDBCArray) a).getArrayInternal();
-        } else if (a instanceof org.hsqldb.jdbc.JDBCArrayBasic) {
-            data = (Object[]) ((org.hsqldb.jdbc.JDBCArrayBasic) a).getArray();
+        } else if (a instanceof JDBCArray) {
+            data = ((JDBCArray) a).getArrayInternal();
+        } else if (a instanceof JDBCArrayBasic) {
+            data = (Object[]) ((JDBCArrayBasic) a).getArray();
             convert = true;
         } else if (a instanceof java.sql.Array) {
             try {
-                data    = (Object[]) ((java.sql.Array) a).getArray();
+                data    = (Object[]) ((Array) a).getArray();
                 convert = true;
             } catch (Exception e) {
                 throw Error.error(ErrorCode.X_42561);
