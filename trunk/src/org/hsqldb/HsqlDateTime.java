@@ -390,18 +390,21 @@ public class HsqlDateTime {
 
             switch (part) {
 
-                case Types.SQL_INTERVAL_YEAR :
-                    tempCalGMT.set(Calendar.MONTH, 0);
-                case Types.SQL_INTERVAL_MONTH :
-                    tempCalGMT.set(Calendar.DAY_OF_MONTH, 1);
-                case Types.SQL_INTERVAL_DAY :
-                    tempCalGMT.set(Calendar.HOUR_OF_DAY, 0);
-                case Types.SQL_INTERVAL_HOUR :
-                    tempCalGMT.set(Calendar.MINUTE, 0);
-                case Types.SQL_INTERVAL_MINUTE :
-                    tempCalGMT.set(Calendar.SECOND, 0);
-                case Types.SQL_INTERVAL_SECOND :
-                    tempCalGMT.set(Calendar.MILLISECOND, 0);
+                case DTIType.WEEK_OF_YEAR : {
+                    int year = tempCalGMT.get(Calendar.YEAR);
+                    int week = tempCalGMT.get(Calendar.WEEK_OF_YEAR);
+
+                    tempCalGMT.clear();
+                    tempCalGMT.set(Calendar.YEAR, year);
+                    tempCalGMT.set(Calendar.WEEK_OF_YEAR, week);
+
+                    break;
+                }
+                default : {
+                    zeroFromPart(tempCalGMT, part);
+
+                    break;
+                }
             }
 
             return tempCalGMT.getTimeInMillis();
@@ -422,67 +425,77 @@ public class HsqlDateTime {
                     if (tempCalGMT.get(Calendar.MONTH) > 6) {
                         tempCalGMT.add(Calendar.YEAR, 1);
                     }
-
-                    tempCalGMT.set(Calendar.MONTH, 0);
-                    tempCalGMT.set(Calendar.DAY_OF_MONTH, 1);
-                    tempCalGMT.set(Calendar.HOUR_OF_DAY, 0);
-                    tempCalGMT.set(Calendar.MINUTE, 0);
-                    tempCalGMT.set(Calendar.SECOND, 0);
-                    tempCalGMT.set(Calendar.MILLISECOND, 0);
                     break;
 
                 case Types.SQL_INTERVAL_MONTH :
                     if (tempCalGMT.get(Calendar.DAY_OF_MONTH) > 15) {
                         tempCalGMT.add(Calendar.MONTH, 1);
                     }
-
-                    tempCalGMT.set(Calendar.DAY_OF_MONTH, 1);
-                    tempCalGMT.set(Calendar.HOUR_OF_DAY, 0);
-                    tempCalGMT.set(Calendar.MINUTE, 0);
-                    tempCalGMT.set(Calendar.SECOND, 0);
-                    tempCalGMT.set(Calendar.MILLISECOND, 0);
                     break;
 
                 case Types.SQL_INTERVAL_DAY :
                     if (tempCalGMT.get(Calendar.HOUR_OF_DAY) > 11) {
                         tempCalGMT.add(Calendar.DAY_OF_MONTH, 1);
                     }
-
-                    tempCalGMT.set(Calendar.HOUR_OF_DAY, 0);
-                    tempCalGMT.set(Calendar.MINUTE, 0);
-                    tempCalGMT.set(Calendar.SECOND, 0);
-                    tempCalGMT.set(Calendar.MILLISECOND, 0);
                     break;
 
                 case Types.SQL_INTERVAL_HOUR :
                     if (tempCalGMT.get(Calendar.MINUTE) > 29) {
                         tempCalGMT.add(Calendar.HOUR_OF_DAY, 1);
                     }
-
-                    tempCalGMT.set(Calendar.MINUTE, 0);
-                    tempCalGMT.set(Calendar.SECOND, 0);
-                    tempCalGMT.set(Calendar.MILLISECOND, 0);
                     break;
 
                 case Types.SQL_INTERVAL_MINUTE :
                     if (tempCalGMT.get(Calendar.SECOND) > 29) {
                         tempCalGMT.add(Calendar.MINUTE, 1);
                     }
-
-                    tempCalGMT.set(Calendar.SECOND, 0);
-                    tempCalGMT.set(Calendar.MILLISECOND, 0);
                     break;
 
                 case Types.SQL_INTERVAL_SECOND :
                     if (tempCalGMT.get(Calendar.MILLISECOND) > 499) {
                         tempCalGMT.add(Calendar.SECOND, 1);
                     }
-
-                    tempCalGMT.set(Calendar.MILLISECOND, 0);
                     break;
+
+                case DTIType.WEEK_OF_YEAR : {
+                    int year = tempCalGMT.get(Calendar.YEAR);
+                    int week = tempCalGMT.get(Calendar.WEEK_OF_YEAR);
+                    int day  = tempCalGMT.get(Calendar.DAY_OF_WEEK);
+
+                    if (day > 3) {
+                        week++;
+                    }
+
+                    tempCalGMT.clear();
+                    tempCalGMT.set(Calendar.YEAR, year);
+                    tempCalGMT.set(Calendar.WEEK_OF_YEAR, week);
+
+                    return tempCalGMT.getTimeInMillis();
+                }
             }
 
+            zeroFromPart(tempCalGMT, part);
+
             return tempCalGMT.getTimeInMillis();
+        }
+    }
+
+    static void zeroFromPart(Calendar cal, int part) {
+
+        switch (part) {
+
+            case Types.SQL_INTERVAL_YEAR :
+                cal.set(Calendar.MONTH, 0);
+            case Types.SQL_INTERVAL_MONTH :
+                cal.set(Calendar.DAY_OF_MONTH, 1);
+            case Types.SQL_INTERVAL_DAY :
+                cal.set(Calendar.HOUR_OF_DAY, 0);
+            case Types.SQL_INTERVAL_HOUR :
+                cal.set(Calendar.MINUTE, 0);
+            case Types.SQL_INTERVAL_MINUTE :
+                cal.set(Calendar.SECOND, 0);
+            case Types.SQL_INTERVAL_SECOND :
+                cal.set(Calendar.MILLISECOND, 0);
         }
     }
 
@@ -518,13 +531,14 @@ public class HsqlDateTime {
     };
 
     private static final int[] sqlIntervalCodes = {
-        -1, DTIType.ISO_YEAR, Types.SQL_INTERVAL_YEAR,
-        DTIType.ISO_YEAR, Types.SQL_INTERVAL_YEAR,
+        -1, -1, Types.SQL_INTERVAL_YEAR,
+        -1, Types.SQL_INTERVAL_YEAR,
         -1, -1, -1, -1,
         Types.SQL_INTERVAL_MONTH, Types.SQL_INTERVAL_MONTH,
-        DTIType.WEEK_OF_YEAR, DTIType.WEEK_OF_YEAR,
-        -1, -1, Types.SQL_INTERVAL_DAY, Types.SQL_INTERVAL_DAY,
-        Types.SQL_INTERVAL_HOUR, Types.SQL_INTERVAL_HOUR, Types.SQL_INTERVAL_HOUR,
+        Types.SQL_INTERVAL_MONTH,
+        -1, -1,
+        DTIType.WEEK_OF_YEAR, -1, Types.SQL_INTERVAL_DAY, Types.SQL_INTERVAL_DAY,
+        Types.SQL_INTERVAL_HOUR, -1, Types.SQL_INTERVAL_HOUR,
         Types.SQL_INTERVAL_MINUTE,
         Types.SQL_INTERVAL_SECOND,
         -1,-1,-1,-1,
@@ -639,7 +653,6 @@ public class HsqlDateTime {
         Tokenizer    tokenizer = new Tokenizer();
 
         for (int i = 0; i <= len; i++) {
-
             ch = (i == len) ? e
                             : format.charAt(i);
 
@@ -647,6 +660,7 @@ public class HsqlDateTime {
                 if (tokenizer.isQuoteChar(ch)) {
                     ch = '\'';
                 } else if (ch == '\'') {
+
                     // double the single quote
                     sb.append(ch);
                 }
@@ -657,35 +671,35 @@ public class HsqlDateTime {
             }
 
             if (!tokenizer.next(ch, dateTokens)) {
-                int     index  = tokenizer.getLastMatch();
+                int     index    = tokenizer.getLastMatch();
                 boolean terminal = false;
-                boolean append = false;
+                boolean append   = false;
 
                 if (tokenizer.isQuoteChar(ch)) {
-                    ch     = '\'';
-                    append = true;
+                    ch       = '\'';
+                    append   = true;
                     terminal = true;
                 } else if (tokenizer.isLiteral(ch)) {
-                    append = true;
+                    append   = true;
                     terminal = true;
                 } else if (ch == e) {
                     terminal = true;
+
                     //
                 }
 
                 //
-                if (index >= 0 ) {
+                if (index >= 0) {
                     if (tokenizer.consumed) {
                         sb.append(javaDateTokens[index]);
                     } else {
                         throw Error.error(ErrorCode.X_22007,
                                           format.substring(0, i));
                     }
-                }  else if (!terminal) {
-                        throw Error.error(ErrorCode.X_22007,
-                                          format.substring(0, i));
+                } else if (!terminal) {
+                    throw Error.error(ErrorCode.X_22007,
+                                      format.substring(0, i));
                 }
-
 
                 if (append) {
                     sb.append(ch);
@@ -704,7 +718,7 @@ public class HsqlDateTime {
         return javaPattern;
     }
 
-    public static int toExtendedIntervalPart(String format) {
+    public static int toStandardIntervalPart(String format) {
 
         int       len = format.length();
         char      ch;
@@ -744,7 +758,7 @@ public class HsqlDateTime {
         private final boolean rejectUnmatched;
         private final char[]  literalChars;
         private static char[] defaultLiterals = new char[] {
-            ' ',',', '-', '.', '/', ':', ';'
+            ' ', ',', '-', '.', '/', ':', ';'
         };
 
         public Tokenizer() {
@@ -851,24 +865,25 @@ public class HsqlDateTime {
         public boolean next(char ch, char[][] tokens) {
 
             // Use local variable for performance
-            int index = ++offset;
-            int len   = offset + 1;
-            int left  = 0;
+            int     index   = ++offset;
+            int     len     = offset + 1;
+            int     left    = 0;
             boolean matched = false;
+
             for (int i = tokens.length; --i >= 0; ) {
                 if (isZeroBit(i)) {
                     if (tokens[i][index] == ch) {
-
                         if (tokens[i].length == len) {
                             setBit(i);
 
-                            last = i;
+                            last     = i;
                             consumed = true;
-                            matched = true;
+                            matched  = true;
                         } else {
                             if (!matched) {
                                 consumed = false;
                             }
+
                             ++left;
                         }
                     } else {
