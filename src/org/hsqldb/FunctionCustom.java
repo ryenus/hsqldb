@@ -982,7 +982,7 @@ public class FunctionCustom extends FunctionSQL {
                             return null;
                         }
 
-                        interval = HsqlDateTime.toExtendedIntervalPart(
+                        interval = HsqlDateTime.toStandardIntervalPart(
                             (String) data[1]);
                     }
 

@@ -2256,11 +2256,23 @@ implements ActionListener, WindowListener, KeyListener, MouseListener {
         int dot = name.indexOf(".");
 
         if (dot < 0) {
+            int bracket = name.indexOf(" (");
+
+            if (bracket >= 0) {
+                name = name.substring(0, bracket);
+            }
+
             return quoteObjectName(name);
         }
 
         String partOne = name.substring(0, dot);
         String partTwo = name.substring(dot + 1);
+
+        int bracket = partTwo.indexOf("  (");
+
+        if (bracket >= 0) {
+            partTwo = partTwo.substring(0, bracket);
+        }
 
         return quoteObjectName(partOne) + '.' + quoteObjectName(partTwo);
     }
@@ -2270,10 +2282,11 @@ implements ActionListener, WindowListener, KeyListener, MouseListener {
      */
     private String quoteObjectName(String name) {
 
+/*
         if (name.toUpperCase().equals(name) && name.indexOf(' ') < 0) {
             return name;
         }
-
+*/
         return "\"" + name + "\"";
     }
 
@@ -2690,8 +2703,8 @@ implements ActionListener, WindowListener, KeyListener, MouseListener {
                     String schemaPart = (String) inSchema.elementAt(i);
 
                     schemaPart = schemaPart == null ? ""
-                                                    : (schemaPart + '.');
-                    name       = schemaPart + (String) inTable.elementAt(i);
+                                                    : ("\"" + schemaPart + "\".\"");
+                    name       = schemaPart + (String) inTable.elementAt(i) + "\"";
 
                     ResultSet resultSet = select.executeQuery(rowCountSelect
                         + name);
