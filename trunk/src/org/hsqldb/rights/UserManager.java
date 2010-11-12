@@ -204,8 +204,10 @@ public final class UserManager {
         HsqlName name =
             granteeManager.database.nameManager.newHsqlName(username,
                 isQuoted, SchemaObject.GRANTEE);
+        User user = createUser(name, password);
 
-        createUser(name, password);
+        user.isLocalOnly = true;
+
         granteeManager.grant(name.name, SqlInvariants.DBA_ADMIN_ROLE_NAME,
                              granteeManager.getDBARole());
     }
@@ -224,9 +226,8 @@ public final class UserManager {
             password = "";
         }
 
-        User     user  = (User) userList.get(name);
-
-        boolean isLocal = user != null && user.isLocalOnly ;
+        User    user    = (User) userList.get(name);
+        boolean isLocal = user != null && user.isLocalOnly;
 
         if (extAuthenticationFunction == null || isLocal) {
             user = get(name);
@@ -235,7 +236,6 @@ public final class UserManager {
 
             return user;
         }
-
 
         /*
          * Authentication returns String[]. When null, use the existing
@@ -267,7 +267,7 @@ public final class UserManager {
                 granteeManager.database.nameManager.newHsqlName(name, true,
                     SchemaObject.GRANTEE);
 
-            user            = createUser(hsqlName, "");
+            user                = createUser(hsqlName, "");
             user.isExternalOnly = true;
         }
 
@@ -290,11 +290,9 @@ public final class UserManager {
                 (String) roles[i]);
 
             if (schema != null) {
-                if (user.hasSchemaUpdateOrGrantRights(schema.getName().name)) {
-                    user.setInitialSchema(schema.getName());
+                user.setInitialSchema(schema.getName());
 
-                    break;
-                }
+                break;
             }
         }
 
