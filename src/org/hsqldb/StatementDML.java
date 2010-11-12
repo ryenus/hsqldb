@@ -685,6 +685,9 @@ public class StatementDML extends StatementDMQL {
             // row matches!
             if (updateExpressions.length != 0) {
                 Row row = it.getCurrentRow();    // this is always the second iterator
+
+                session.sessionData.startRowProcessing();
+
                 Object[] data = getUpdatedData(session, targets, baseTable,
                                                updateColumnMap,
                                                updateExpressions, colTypes,
