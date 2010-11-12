@@ -41,7 +41,6 @@ import org.hsqldb.lib.OrderedHashSet;
 import org.hsqldb.lib.Set;
 import org.hsqldb.store.ValuePool;
 import org.hsqldb.types.Type;
-import org.hsqldb.types.Types;
 
 /**
  * Implementation of column, variable, parameter, etc. access operations.
