@@ -1091,6 +1091,11 @@ public class CharacterType extends Type {
     }
 
     public Type getCharacterType(long length) {
+
+        if (length == precision) {
+            return this;
+        }
+
         return new CharacterType(this.collation, this.typeCode, length);
     }
 

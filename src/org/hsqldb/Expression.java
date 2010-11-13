@@ -925,10 +925,6 @@ public class Expression implements Cloneable {
 
         switch (opType) {
 
-            case OpTypes.CASEWHEN :
-                acceptsSequences = false;
-                break;
-
             case OpTypes.TABLE :
             case OpTypes.VALUELIST : {
                 HsqlList localSet = null;

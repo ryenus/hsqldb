@@ -684,7 +684,7 @@ public class RangeVariable implements Cloneable {
                 HsqlList list =
                     subQuery.queryExpression.getUnresolvedExpressions();
 
-                // todo resove against i ranges
+                // todo resolve against i ranges
                 HsqlList unresolved = Expression.resolveColumnSet(session,
                     rangeVariables, rangeCount, list, null);
 
