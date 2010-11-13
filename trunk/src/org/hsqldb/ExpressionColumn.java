@@ -959,6 +959,8 @@ public class ExpressionColumn extends Expression {
             case OpTypes.COALESCE :
                 return nodes == other.nodes;
 
+            case OpTypes.VARIABLE :
+            case OpTypes.PARAMETER :
             case OpTypes.COLUMN :
                 return column == other.getColumn()
                        && rangeVariable == other.getRangeVariable();

@@ -872,7 +872,7 @@ public class ParserDML extends ParserDQL {
 
         readThis(Tokens.USING);
 
-        sourceRange = readTableOrSubquery();
+        sourceRange = readTableOrSubquery(outerRanges);
 
         // parse ON search conditions
         readThis(Tokens.ON);
@@ -952,6 +952,8 @@ public class ParserDML extends ParserDQL {
 
         unresolved = mergeCondition.resolveColumnReferences(session,
                 fullRangeVars, null);
+        unresolved = Expression.resolveColumnSet(session, outerRanges,
+                outerRanges.length, unresolved, null);
 
         ExpressionColumn.checkColumnsResolved(unresolved);
         mergeCondition.resolveTypes(session, null);
@@ -974,7 +976,10 @@ public class ParserDML extends ParserDQL {
 
         if (insertExpression != null) {
             unresolved = insertExpression.resolveColumnReferences(session,
-                    sourceRangeVars, unresolved);
+                    sourceRangeVars, null);
+
+            unresolved = Expression.resolveColumnSet(session, outerRanges,
+                    outerRanges.length, unresolved, null);
 
             ExpressionColumn.checkColumnsResolved(unresolved);
             insertExpression.resolveTypes(session, null);

@@ -64,6 +64,7 @@ public interface OpTypes {
         DIVIDE               = 35,
         CONCAT               = 36,    // concatenation
         LIKE_ARG             = 37,
+        CASEWHEN_COALESCE    = 38,
         EQUAL                = 41,    // logical - comparison
         GREATER_EQUAL        = 42,
         GREATER              = 43,

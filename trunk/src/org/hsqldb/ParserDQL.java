@@ -1063,7 +1063,7 @@ public class ParserDQL extends ParserBase {
     void XreadTableReference(QuerySpecification select) {
 
         boolean       natural = false;
-        RangeVariable range   = readTableOrSubquery();
+        RangeVariable range   = readTableOrSubquery(null);
 
         select.addRangeVariable(range);
 
@@ -1175,7 +1175,7 @@ public class ParserDQL extends ParserBase {
                 break;
             }
 
-            range = readTableOrSubquery();
+            range = readTableOrSubquery(null);
 
             Expression condition = null;
 
@@ -1612,7 +1612,7 @@ public class ParserDQL extends ParserBase {
     /**
      * Creates a RangeVariable from the parse context. <p>
      */
-    protected RangeVariable readTableOrSubquery() {
+    protected RangeVariable readTableOrSubquery(RangeVariable[] outerRanges) {
 
         Table          table          = null;
         SimpleName     alias          = null;
@@ -1623,7 +1623,7 @@ public class ParserDQL extends ParserBase {
         switch (token.tokenType) {
 
             case Tokens.OPENBRACKET : {
-                table = XreadTableSubqueryOrNull();
+                table = XreadTableSubqueryOrNull(outerRanges);
 
                 if (table == null) {
                     SubQuery sq = XreadJoinedTableAsSubquery();
@@ -3161,14 +3161,14 @@ public class ParserDQL extends ParserBase {
             case Tokens.EXISTS : {
                 read();
 
-                Expression s = XreadTableSubqueryForPredicate(OpTypes.EXISTS);
+                Expression s = XreadTableSubquery(OpTypes.EXISTS);
 
                 return new ExpressionLogical(OpTypes.EXISTS, s);
             }
             case Tokens.UNIQUE : {
                 read();
 
-                Expression s = XreadTableSubqueryForPredicate(OpTypes.UNIQUE);
+                Expression s = XreadTableSubquery(OpTypes.UNIQUE);
 
                 return new ExpressionLogical(OpTypes.UNIQUE, s);
             }
@@ -3575,7 +3575,7 @@ public class ParserDQL extends ParserBase {
 
         int        mode = isUnique ? OpTypes.TABLE_SUBQUERY
                                    : OpTypes.IN;
-        Expression s    = XreadTableSubqueryForPredicate(mode);
+        Expression s    = XreadTableSubquery(mode);
 
         return new ExpressionLogical(matchType, a, s);
     }
@@ -3765,7 +3765,7 @@ public class ParserDQL extends ParserBase {
         return new Expression(OpTypes.ROW_SUBQUERY, sq);
     }
 
-    Expression XreadTableSubqueryForPredicate(int mode) {
+    Expression XreadTableSubquery(int mode) {
 
         readThis(Tokens.OPENBRACKET);
 
@@ -3776,7 +3776,7 @@ public class ParserDQL extends ParserBase {
         return new Expression(OpTypes.TABLE_SUBQUERY, sq);
     }
 
-    Table XreadTableSubqueryOrNull() {
+    Table XreadTableSubqueryOrNull(RangeVariable[] outerRanges) {
 
         boolean joinedTable = false;
         int     position;
@@ -3803,10 +3803,27 @@ public class ParserDQL extends ParserBase {
         if (joinedTable) {
             return null;
         } else {
+            boolean hasOuter = outerRanges != null;
+
             readThis(Tokens.OPENBRACKET);
 
-            SubQuery sq = XreadTableSubqueryBody(true);
+            SubQuery sq = XreadSubqueryBody(!hasOuter, OpTypes.TABLE_SUBQUERY);
 
+            if (hasOuter) {
+                HsqlList unresolved = Expression.resolveColumnSet(session,
+                    outerRanges, outerRanges.length,
+                    sq.queryExpression.getUnresolvedExpressions(), null);
+
+                if (unresolved != null) {
+                    throw Error.error(
+                        ErrorCode.X_42501,
+                        ((Expression) unresolved.get(0)).getSQL());
+                }
+
+                sq.queryExpression.resolveTypes(session);
+            }
+
+            sq.prepareTable(session);
             readThis(Tokens.CLOSEBRACKET);
 
             return sq.getTable();
@@ -4820,7 +4837,7 @@ public class ParserDQL extends ParserBase {
                 current);
             Expression alternatives = new ExpressionOp(OpTypes.ALTERNATIVE,
                 new ExpressionValue((Object) null, (Type) null), current);
-            Expression casewhen = new ExpressionOp(OpTypes.CASEWHEN,
+            Expression casewhen = new ExpressionOp(OpTypes.CASEWHEN_COALESCE,
                                                    condition, alternatives);
 
             if (c == null) {
