@@ -241,13 +241,13 @@
 
     <simpara><emphasis role="bold">LEFT</emphasis></simpara>
 
-    <para><literal>LEFT ( &lt;char value expr&gt;, &lt;length&gt; )
+    <para><literal>LEFT ( &lt;char value expr&gt;, &lt;count&gt; )
     </literal></para>
 
     <para>Returns a character string consisting of the first
-    <literal>&lt;length&gt;</literal> characters of <literal>&lt;char value
+    <literal>&lt;count&gt;</literal> characters of <literal>&lt;char value
     expr&gt;</literal>. Equivalent to SQL/Foundation<literal>
-    SUBSTRING(&lt;char value expr&gt; FROM 0 FOR &lt;length&gt;)</literal>.
+    SUBSTRING(&lt;char value expr&gt; FROM 0 FOR &lt;count&gt;)</literal>.
     (JDBC)</para>
 
     <indexterm significance="preferred" type="sql">
@@ -281,6 +281,23 @@
     2&gt;)</literal>. Without the third argument,<literal> LOCATE</literal> is
     equivalent to the SQL Standard <literal>POSITION</literal> function.
     (JDBC)</para>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>LPAD function</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">LPAD</emphasis></simpara>
+
+    <para><literal>LPAD ( &lt;char value expr 1&gt;, &lt;length&gt; [,
+    &lt;char value expr 2&gt;] ) </literal></para>
+
+    <para>Returns a character string with the length of
+    <literal>&lt;length&gt;</literal> characters. The string contains the
+    characters of <literal>&lt;char value expr 1&gt;</literal> padded to the
+    left with spaces. If <literal>&lt;length&gt;</literal> is smaller than the
+    length of the string argument, the argument is truncated. If the optional
+    <literal>&lt;char value expr 2&gt;</literal> is specified, this string is
+    used for padding, instead of spaces. (HyperSQL)</para>
 
     <indexterm significance="preferred" type="sql">
       <primary>LTRIM function</primary>
@@ -371,6 +388,26 @@
     <para>Returns a character string consisting of the last
     <literal>&lt;count&gt;</literal> characters of <literal>&lt;char value
     expr&gt;</literal>. (JDBC)</para>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>RPAD function</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">RPAD</emphasis></simpara>
+
+    <para><literal>RPAD ( &lt;char value expr 1&gt;, &lt;length&gt; [,
+    &lt;char value expr 2&gt; [, &lt;boolean&gt; ] ) </literal></para>
+
+    <para>Returns a character string with the length of
+    <literal>&lt;length&gt;</literal> characters. The string begins with the
+    characters of <literal>&lt;char value expr 1&gt;</literal> padded to the
+    right with spaces. If <literal>&lt;length&gt;</literal> is smaller than
+    the length of the string argument, the argument is truncated. If the
+    optional <literal>&lt;char value expr 2&gt;</literal> is specified, this
+    string is used for padding, instead of spaces. If the fourth, boolean
+    argument is TRUE, then the string used for padding will be complete at the
+    end of the result string. This has an effect only with padding strings
+    that are longer than one character. (HyperSQL)</para>
 
     <indexterm significance="preferred" type="sql">
       <primary>RTRIM function</primary>
@@ -1361,14 +1398,14 @@
 
     <para>The <literal>&lt;num value expr&gt; </literal>is of DATE, TIME or
     TIMESTAMP type. The <literal>&lt;char value expr&gt;</literal> is a format
-    string for YEAR, MONTH, DAY, HOUR, MINUTE or SECOND as listed in the table
-    for TO_CHAR and TO_DATE format elements (see below). The datetime value is
-    rounded up or down after the specified field and the rest of the fields to
-    the right are set to one for MONTH and DAY, or zero, for the rest of the
-    fields. For example rounding a timestamp value on the DAY field results in
-    midnight the same date or midnight the next day if the time is at or after
-    12 noon. If the second argument is ommitted, the datetime value is rounded
-    to the nearest day. (HyperSQL)</para>
+    string for YEAR, MONTH, WEEK OF YEAR, DAY, HOUR, MINUTE or SECOND as
+    listed in the table for TO_CHAR and TO_DATE format elements (see below).
+    The datetime value is rounded up or down after the specified field and the
+    rest of the fields to the right are set to one for MONTH and DAY, or zero,
+    for the rest of the fields. For example rounding a timestamp value on the
+    DAY field results in midnight the same date or midnight the next day if
+    the time is at or after 12 noon. If the second argument is ommitted, the
+    datetime value is rounded to the nearest day. (HyperSQL)</para>
 
     <indexterm significance="preferred" type="sql">
       <primary>TRUNC function datetime</primary>
@@ -1381,13 +1418,13 @@
 
     <para>Similar to the ROUND function, the <literal>&lt;num value expr&gt;
     </literal>is of DATE, TIME or TIMESTAMP type. The <literal>&lt;char value
-    expr&gt;</literal> is a format string for YEAR, MONTH, DAY, HOUR, MINUTE
-    or SECOND as listed in the table for TO_CHAR and TO_DATE format elements
-    (see below). The datetime value is truncated after the specified field and
-    the rest of the fields to the right are set to one for MONTH and DAY, or
-    zero, for the rest of the fields. For example applying TRUNC to a
-    timestamp value on the DAY field results in midnight the same date.
-    Examples of ROUND and TRUNC functions are given below. If the second
+    expr&gt;</literal> is a format string for YEAR, MONTH, WEEK OF YEAR, DAY,
+    HOUR, MINUTE or SECOND as listed in the table for TO_CHAR and TO_DATE
+    format elements (see below). The datetime value is truncated after the
+    specified field and the rest of the fields to the right are set to one for
+    MONTH and DAY, or zero, for the rest of the fields. For example applying
+    TRUNC to a timestamp value on the DAY field results in midnight the same
+    date. Examples of ROUND and TRUNC functions are given below. If the second
     argument is omitted, the datetime value is truncated to midnight the same
     date. (HyperSQL)</para>
 
@@ -1435,6 +1472,19 @@ TRUNC ( TIMESTAMP'2008-08-01 20:30:40', 'YYYY' )
     <para><literal>TO_DATE ( &lt;char value expr&gt;, &lt;char value expr&gt;
     )</literal></para>
 
+    <para>This function translates a formatted datetime sting to a DATE
+    according to the format given in the second argument. See TO_TIMESTAMP
+    below for further details.</para>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>TO_TIMESTAMP function</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">TO_TIMESTAMP</emphasis></simpara>
+
+    <para><literal>TO_TIMESTAMP ( &lt;char value expr&gt;, &lt;char value
+    expr&gt; )</literal></para>
+
     <para>This function translates a formatted datetime sting to a TIMESTAMP
     according to the format given in the second argument. The format string
     can contain pattern elements from the list given below, plus punctuation
@@ -1443,7 +1493,7 @@ TRUNC ( TIMESTAMP'2008-08-01 20:30:40', 'YYYY' )
     returned timestamp can then be cast into DATE or TIME types if necessary.
     An example, including the result, is given below:</para>
 
-    <programlisting>TO_DATE ( '22/11/2008 20:30:40', 'DD/MM/YYYY HH:MI:SS' )
+    <programlisting>TO_TIMESTAMP ( '22/11/2008 20:30:40', 'DD/MM/YYYY HH:MI:SS' )
 
 TIMESTAMP '2008-11-22 20:30:40.000000'
 </programlisting>
