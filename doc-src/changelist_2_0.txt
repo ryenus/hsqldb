@@ -1,3 +1,7 @@
+14 NOV 2010 - svn 3897
+-- added support for CURRENT VALUE FOR <identity sequence>, same as CURRVAL
+-- added TO_TIMESTAMP, LPAD, RPAD functions
+-- bug fixes
 31 Oct 2010 - SVN 3836 - 2.0.1 RC2
 -- added support for CREATE TABLE ... IF NOT EXISTS ...
 -- added support for ?user=xxxx&password=yyyy connection in URL string
