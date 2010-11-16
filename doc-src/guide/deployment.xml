@@ -564,7 +564,7 @@
       <para>Since you won't be able to access
       <glossterm>in-process</glossterm> database instances from other
       processes, you will often want to run a Listener in your applications
-      that uses embedded databases. You can do this by starting up a Server or
+      that use embedded databases. You can do this by starting up a Server or
       WebServer instance programmatically, but you could also use the class
       <classname>org.hsqldb.util.MainInvoker</classname> to start up your
       application and a HyperSQL Server or WebServer without any programming.
