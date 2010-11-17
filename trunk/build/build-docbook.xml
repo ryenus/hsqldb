@@ -1,4 +1,9 @@
 <?xml version="1.0"?>
+<!--
+  Copyright (c) 2010, The HSQL Development Group. All rights reserved.
+  Released under the HSQL license, available at http://hsqldb.org
+-->
+
 <project name="hsqldb-ant-docbook" default="gen-docs"
          xmlns:ivy="antlib:org.apache.ivy.ant">
   <!--
@@ -54,6 +59,7 @@
   <property name="xml.catalog.allowPI" value="yes"/>
   <property name="xml.catalog.staticCatalog" value="yes"/>
   <property name="ivy.dep.file" value="build/ivy.xml"/>
+  <property name="ivy.settings.file" value="build/ivysettings.xml"/>
   <property name="distro.baseurl" value="http://hsqldb.org/doc/2.0"/>
 
   <property name="docoutput.path" value="doc"/>
@@ -402,13 +408,13 @@ Obtain a 2.x version of an Apache Ivy jar file (perhaps at
 http://ant.apache.org/ivy/), and run a command like the following, changing the
 jar file path to wherever you have it saved.  For any Bourne shell (incl. Bash):
 
-    export ANT_ARGS; ANT_ARGS='-lib $HOME/ivy-2.2.0.jar -noclasspath'
+    export ANT_ARGS; ANT_ARGS='-lib ${basedir}/build/ivy-2.2.0.jar -noclasspath'
 
 OR for any CMD-like Windows shell:
 
-    SET ANT_ARGS=-lib "%HOMEDRIVE%%HOMEPATH%/ivy-2.2.0.jar" -noclasspath</fail>
+    SET ANT_ARGS=-lib "${basedir}/build/ivy-2.2.0.jar" -noclasspath</fail>
 
-    <available property="_ivysettings.present" file="build/ivysettings.xml"
+    <available property="_ivysettings.present" file="${ivy.settings.file}"
                type="file"/>
     <antcall target="-ensure-ivysettings"/>
     <ivy:settings/>
