@@ -1955,7 +1955,7 @@ public class FunctionCustom extends FunctionSQL {
             }
             case FUNC_TO_CHAR : {
                 if (nodes[0].dataType == null) {
-                    throw Error.error(ErrorCode.X_42567);
+                    nodes[1].dataType = Type.SQL_TIMESTAMP;
                 }
 
                 if (nodes[1].dataType == null) {
@@ -1963,11 +1963,10 @@ public class FunctionCustom extends FunctionSQL {
                 }
 
                 if (!nodes[1].dataType.isCharacterType()) {
-                    throw Error.error(ErrorCode.X_42567);
+                    throw Error.error(ErrorCode.X_42563);
                 }
 
-                if (!nodes[0].dataType.isExactNumberType()
-                        && !nodes[0].dataType.isDateTimeType()) {
+                if (!nodes[0].dataType.isDateTimeType()) {
                     throw Error.error(ErrorCode.X_42563);
                 }
 
