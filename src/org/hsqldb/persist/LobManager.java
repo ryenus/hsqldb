@@ -1209,7 +1209,10 @@ public class LobManager {
         return result;
     }
 
-    synchronized public Result adjustUsageCount(Session session, long lobID,
+    /**
+     * Executes in user session. No synchronization
+     */
+    public Result adjustUsageCount(Session session, long lobID,
             int delta) {
 
         ResultMetaData meta     = updateLobUsage.getParametersMetaData();
