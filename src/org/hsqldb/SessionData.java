@@ -415,63 +415,71 @@ public class SessionData {
     public void allocateLobForResult(ResultLob result,
                                      InputStream inputStream) {
 
-        long                 resultLobId = result.getLobID();
-        CountdownInputStream countStream;
+        try {
+            long resultLobId = result.getLobID();
+            CountdownInputStream countStream;
 
-        switch (result.getSubType()) {
+            switch (result.getSubType()) {
 
-            case ResultLob.LobResultTypes.REQUEST_CREATE_BYTES : {
-                long blobId;
-                long blobLength = result.getBlockLength();
+                case ResultLob.LobResultTypes.REQUEST_CREATE_BYTES: {
+                    long blobId;
+                    long blobLength = result.getBlockLength();
 
-                if (inputStream == null) {
-                    blobId      = resultLobId;
-                    inputStream = result.getInputStream();
-                } else {
-                    BlobData blob = session.createBlob(blobLength);
-
-                    blobId = blob.getId();
-
-                    resultLobs.put(resultLobId, blobId);
-                }
-
-                countStream = new CountdownInputStream(inputStream);
-
-                countStream.setCount(blobLength);
-                database.lobManager.setBytesForNewBlob(
-                    blobId, countStream, result.getBlockLength());
-
-                break;
-            }
-            case ResultLob.LobResultTypes.REQUEST_CREATE_CHARS : {
-                long clobId;
-                long clobLength = result.getBlockLength();
-
-                if (inputStream == null) {
-                    clobId = resultLobId;
-
-                    if (result.getReader() != null) {
-                        inputStream =
-                            new ReaderInputStream(result.getReader());
-                    } else {
+                    if (inputStream == null) {
+                        blobId = resultLobId;
                         inputStream = result.getInputStream();
                     }
-                } else {
-                    ClobData clob = session.createClob(clobLength);
+                    else {
+                        BlobData blob = session.createBlob(blobLength);
 
-                    clobId = clob.getId();
+                        blobId = blob.getId();
 
-                    resultLobs.put(resultLobId, clobId);
+                        resultLobs.put(resultLobId, blobId);
+                    }
+
+                    countStream = new CountdownInputStream(inputStream);
+
+                    countStream.setCount(blobLength);
+                    database.lobManager.setBytesForNewBlob(
+                        blobId, countStream, result.getBlockLength());
+
+                    break;
                 }
+                case ResultLob.LobResultTypes.REQUEST_CREATE_CHARS: {
+                    long clobId;
+                    long clobLength = result.getBlockLength();
 
-                countStream = new CountdownInputStream(inputStream);
+                    if (inputStream == null) {
+                        clobId = resultLobId;
 
-                countStream.setCount(clobLength * 2);
-                database.lobManager.setCharsForNewClob(
-                    clobId, countStream, result.getBlockLength(), false);
+                        if (result.getReader() != null) {
+                            inputStream =
+                                new ReaderInputStream(result.getReader());
+                        }
+                        else {
+                            inputStream = result.getInputStream();
+                        }
+                    }
+                    else {
+                        ClobData clob = session.createClob(clobLength);
 
-                break;
+                        clobId = clob.getId();
+
+                        resultLobs.put(resultLobId, clobId);
+                    }
+
+                    countStream = new CountdownInputStream(inputStream);
+
+                    countStream.setCount(clobLength * 2);
+                    database.lobManager.setCharsForNewClob(
+                        clobId, countStream, result.getBlockLength(), false);
+
+                    break;
+                }
             }
+        } catch (Throwable e) {
+            resultLobs.clear();
+            throw Error.error(ErrorCode.GENERAL_ERROR, e);
         }
     }
 
