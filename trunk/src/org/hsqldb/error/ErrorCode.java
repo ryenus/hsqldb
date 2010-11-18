@@ -100,7 +100,7 @@ public interface ErrorCode {
     // HSQLDB Server
     int SERVER_TRANSFER_CORRUPTED    = 401;        // S1000 Transfer corrupted
     int SERVER_DATABASE_DISCONNECTED = 402;        // S0504 database disconnected
-    int SERVER_VERSIONS_INCOMPATIBLE = 403;        // S0504 Client version '$$' incompatible ....
+    int SERVER_VERSIONS_INCOMPATIBLE = 403;        // S0504 Client driver version greater than '$$' is required ....
     int SERVER_UNKNOWN_CLIENT = 404;               // S0504 Network client is not a HSQLDB JDBC driver
     int SERVER_HTTP_NOT_HSQL_PROTOCOL = 405;       // S0504 Client using HSQLDB http protocol instead of hsql
     int SERVER_INCOMPLETE_HANDSHAKE_READ = 406;    // S0504 Incomplete read of handshaking bytes
