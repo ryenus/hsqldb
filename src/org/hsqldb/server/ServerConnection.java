@@ -83,10 +83,12 @@ import org.hsqldb.ColumnBase;
 import org.hsqldb.DatabaseManager;
 import org.hsqldb.HsqlException;
 import org.hsqldb.Session;
+import org.hsqldb.StatementTypes;
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
 import org.hsqldb.lib.DataOutputStream;
 import org.hsqldb.navigator.RowSetNavigator;
+import org.hsqldb.persist.HsqlDatabaseProperties;
 import org.hsqldb.resources.BundleHandler;
 import org.hsqldb.result.Result;
 import org.hsqldb.result.ResultConstants;
@@ -96,7 +98,6 @@ import org.hsqldb.rowio.RowInputBinary;
 import org.hsqldb.rowio.RowOutputBinary;
 import org.hsqldb.rowio.RowOutputInterface;
 import org.hsqldb.types.Type;
-import org.hsqldb.StatementTypes;
 
 // fredt@users 20020215 - patch 461556 by paul-h@users - server factory
 // fredt@users 20020424 - patch 1.7.0 by fredt - shutdown without exit
@@ -271,14 +272,17 @@ class ServerConnection implements Runnable {
                     if (firstInt
                             != ClientConnection
                                 .NETWORK_COMPATIBILITY_VERSION_INT) {
+                        if (firstInt == -1900000) {
+                            firstInt = -2000000;
+                        }
+
                         String verString =
                             ClientConnection.toNetCompVersionString(firstInt);
 
                         throw Error.error(
                             null, ErrorCode.SERVER_VERSIONS_INCOMPATIBLE, 0,
                             new String[] {
-                            verString,
-                            ClientConnection.NETWORK_COMPATIBILITY_VERSION
+                            verString, HsqlDatabaseProperties.hsqldb_version
                         });
                     }
 
@@ -374,8 +378,8 @@ class ServerConnection implements Runnable {
                 break;
             }
             case ResultConstants.EXECUTE_INVALID : {
-                resultOut = Result.newErrorResult(
-                    Error.error(ErrorCode.X_07502));
+                resultOut =
+                    Result.newErrorResult(Error.error(ErrorCode.X_07502));
 
                 break;
             }
