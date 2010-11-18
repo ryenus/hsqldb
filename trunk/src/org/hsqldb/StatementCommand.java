@@ -57,20 +57,20 @@ public class StatementCommand extends Statement {
         this(type, args, null, null);
     }
 
-    StatementCommand(int type, Object[] args, HsqlName readName,
-                     HsqlName writeName) {
+    StatementCommand(int type, Object[] args, HsqlName[] readNames,
+                     HsqlName[] writeNames) {
 
         super(type);
 
         this.isTransactionStatement = true;
         this.parameters             = args;
 
-        if (readName != null && readName != writeName) {
-            this.readTableNames = new HsqlName[]{ readName };
+        if (readNames != null) {
+            this.readTableNames = readNames;
         }
 
-        if (writeName != null) {
-            this.writeTableNames = new HsqlName[]{ writeName };
+        if (writeNames != null) {
+            this.writeTableNames = writeNames;
         }
 
         switch (type) {

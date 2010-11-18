@@ -695,7 +695,7 @@ public class ParserCommand extends ParserDDL {
 
                         return new StatementCommand(
                             StatementTypes.SET_TABLE_READONLY, args, null,
-                            t.getName());
+                            new HsqlName[]{ t.getName() });
                     }
 
                     // deprecated
@@ -708,7 +708,7 @@ public class ParserCommand extends ParserDDL {
 
                         return new StatementCommand(
                             StatementTypes.SET_TABLE_READONLY, args, null,
-                            t.getName());
+                            new HsqlName[]{ t.getName() });
                     }
                     case Tokens.INDEX : {
                         String value;
@@ -723,7 +723,8 @@ public class ParserCommand extends ParserDDL {
                         args[1] = value;
 
                         return new StatementCommand(
-                            StatementTypes.SET_TABLE_INDEX, args);
+                            StatementTypes.SET_TABLE_INDEX, args, null,
+                            new HsqlName[]{ t.getName() });
                     }
                     case Tokens.TYPE : {
                         read();
@@ -744,7 +745,7 @@ public class ParserCommand extends ParserDDL {
 
                         return new StatementCommand(
                             StatementTypes.SET_TABLE_TYPE, args, null,
-                            t.getName());
+                            new HsqlName[]{ t.getName() });
                     }
                     case Tokens.CLUSTERED : {
                         read();
@@ -762,7 +763,7 @@ public class ParserCommand extends ParserDDL {
 
                         return new StatementCommand(
                             StatementTypes.SET_TABLE_CLUSTERED, args, null,
-                            t.getName());
+                            new HsqlName[]{ t.getName() });
                     }
                 }
             }
@@ -875,6 +876,7 @@ public class ParserCommand extends ParserDDL {
         checkDatabaseUpdateAuthorisation();
 
         switch (token.tokenType) {
+
             case Tokens.AUTHENTICATION : {
                 read();
                 readThis(Tokens.FUNCTION);
@@ -886,7 +888,6 @@ public class ParserCommand extends ParserDDL {
                     StatementTypes.SET_DATABASE_AUTHENTICATION, args, null,
                     null);
             }
-
             case Tokens.COLLATION : {
                 read();
                 checkIsSimpleName();
@@ -1094,14 +1095,12 @@ public class ParserCommand extends ParserDDL {
                         break;
                 }
 
+                HsqlName[] names =
+                    database.schemaManager.getCatalogAndBaseTableNames();
                 Object[] args = new Object[]{ ValuePool.getInt(mode) };
                 StatementCommand cs = new StatementCommand(
                     StatementTypes.SET_DATABASE_TRANSACTION_CONTROL, args,
-                    null, null);
-                HsqlName[] names =
-                    database.schemaManager.getCatalogAndBaseTableNames();
-
-                cs.writeTableNames = names;
+                    null, names);
 
                 return cs;
             }
@@ -1302,8 +1301,8 @@ public class ParserCommand extends ParserDDL {
         Object[] args = new Object[]{ flag == null ? (Object) value
                                                    : (Object) flag };
 
-        return new StatementCommand(type, args, database.getCatalogName(),
-                                    null);
+        return new StatementCommand(
+            type, args, database.schemaManager.getCatalogNameArray(), null);
     }
 
     Object[] processTransactionCharacteristics() {
@@ -1841,15 +1840,13 @@ public class ParserCommand extends ParserDDL {
             compression = Boolean.TRUE;
         }
 
+        HsqlName[] names =
+            database.schemaManager.getCatalogAndBaseTableNames();
         Object[] args = new Object[] {
             path, blockingMode, scriptMode, compression,
         };
         Statement cs = new StatementCommand(StatementTypes.DATABASE_BACKUP,
-                                            args);
-        HsqlName[] names =
-            database.schemaManager.getCatalogAndBaseTableNames();
-
-        cs.writeTableNames = names;
+                                            args, null, names);
 
         return cs;
     }
@@ -1882,13 +1879,11 @@ public class ParserCommand extends ParserDDL {
     public static Statement getCheckpointStatement(Database database,
             boolean defrag) {
 
-        Object[] args = new Object[]{ Boolean.valueOf(defrag) };
-        Statement cs = new StatementCommand(StatementTypes.DATABASE_CHECKPOINT,
-                                            args);
         HsqlName[] names =
             database.schemaManager.getCatalogAndBaseTableNames();
-
-        cs.writeTableNames = names;
+        Object[] args = new Object[]{ Boolean.valueOf(defrag) };
+        Statement cs = new StatementCommand(StatementTypes.DATABASE_CHECKPOINT,
+                                            args, null, names);
 
         return cs;
     }
@@ -1941,7 +1936,7 @@ public class ParserCommand extends ParserDDL {
             args[1] = Boolean.TRUE;
 
             return new StatementCommand(StatementTypes.SET_TABLE_SOURCE, args,
-                                        null, t.getName());
+                                        null, new HsqlName[]{ t.getName() });
         } else if (token.tokenType == Tokens.OFF) {
             read();
 
@@ -1950,7 +1945,7 @@ public class ParserCommand extends ParserDDL {
             args[1] = Boolean.FALSE;
 
             return new StatementCommand(StatementTypes.SET_TABLE_SOURCE, args,
-                                        null, t.getName());
+                                        null, new HsqlName[]{ t.getName() });
         } else if (token.tokenType == Tokens.HEADER) {
             read();
 
@@ -1980,6 +1975,7 @@ public class ParserCommand extends ParserDDL {
         int type = isSourceHeader ? StatementTypes.SET_TABLE_SOURCE_HEADER
                                   : StatementTypes.SET_TABLE_SOURCE;
 
-        return new StatementCommand(type, args, null, t.getName());
+        return new StatementCommand(type, args, null,
+                                    new HsqlName[]{ t.getName() });
     }
 }
