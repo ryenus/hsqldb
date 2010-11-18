@@ -60,7 +60,7 @@ public class SchemaManager {
     MultiValueHashMap referenceMap     = new MultiValueHashMap();
     int               defaultTableType = TableBase.MEMORY_TABLE;
     long              schemaChangeTimestamp;
-
+    HsqlName[]        catalogNameArray;
     //
     Table dualTable;
 
@@ -68,7 +68,7 @@ public class SchemaManager {
 
         this.database         = database;
         defaultSchemaHsqlName = SqlInvariants.INFORMATION_SCHEMA_HSQLNAME;
-
+        catalogNameArray = new HsqlName[]{database.getCatalogName()};
         Schema schema =
             new Schema(SqlInvariants.INFORMATION_SCHEMA_HSQLNAME,
                        SqlInvariants.INFORMATION_SCHEMA_HSQLNAME.owner);
@@ -421,6 +421,10 @@ public class SchemaManager {
         return temp.tableList;
     }
 
+    public HsqlName[] getCatalogNameArray() {
+        return catalogNameArray;
+    }
+
     public HsqlName[] getCatalogAndBaseTableNames() {
 
         OrderedHashSet names  = new OrderedHashSet();
@@ -640,8 +644,6 @@ public class SchemaManager {
                                 boolean cascade) {
 
 // ft - concurrent
-        session.commit(false);
-
         if (table.isView()) {
             removeSchemaObject(table.getName(), cascade);
         } else {
