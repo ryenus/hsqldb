@@ -286,6 +286,8 @@ public class RowSetNavigatorDataTable extends RowSetNavigatorData {
 
         iterator.release();
 
+        store.release();
+
         isClosed = true;
     }
 
