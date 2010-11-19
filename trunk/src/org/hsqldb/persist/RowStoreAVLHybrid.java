@@ -348,11 +348,7 @@ public class RowStoreAVLHybrid extends RowStoreAVL implements PersistentStore {
         ArrayUtil.fillArray(accessorList, null);
 
         if (isCached) {
-            cache.storeCount--;
-
-            if (cache.storeCount == 0) {
-                cache.clear();
-            }
+            cache.adjustStoreCount(-1);
 
             cache    = null;
             isCached = false;
@@ -389,7 +385,7 @@ public class RowStoreAVLHybrid extends RowStoreAVL implements PersistentStore {
 
     public void changeToDiskTable(Session session) {
 
-        cache = session.sessionData.getResultCache();
+        cache = ((PersistentStoreCollectionSession) manager).getResultCache();
 
         if (cache != null) {
             RowIterator iterator = table.rowIterator(this);
@@ -398,7 +394,7 @@ public class RowStoreAVLHybrid extends RowStoreAVL implements PersistentStore {
 
             isCached = true;
 
-            cache.storeCount++;
+            cache.adjustStoreCount(1);
 
             while (iterator.hasNext()) {
                 Row row    = iterator.getNextRow();

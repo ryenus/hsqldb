@@ -76,7 +76,6 @@ public class SessionData {
 
     // large results
     LongKeyHashMap       resultMap;
-    DataFileCacheSession resultCache;
 
     // VALUE
     Object currentValue;
@@ -313,41 +312,6 @@ public class SessionData {
         }
 
         resultMap.clear();
-    }
-
-    public DataFileCacheSession getResultCache() {
-
-        if (resultCache == null) {
-            String path = database.logger.getTempDirectoryPath();
-
-            if (path == null) {
-                return null;
-            }
-
-            try {
-                resultCache =
-                    new DataFileCacheSession(database,
-                                             path + "/session_"
-                                             + Long.toString(session.getId()));
-
-                resultCache.open(false);
-            } catch (Throwable t) {
-                return null;
-            }
-        }
-
-        return resultCache;
-    }
-
-    synchronized void closeResultCache() {
-
-        if (resultCache != null) {
-            try {
-                resultCache.close(false);
-            } catch (HsqlException e) {}
-
-            resultCache = null;
-        }
     }
 
     // lobs in results

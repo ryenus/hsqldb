@@ -49,7 +49,7 @@ public class DataFileCacheSession extends DataFileCache {
     // because it is Database-instance specific.
     // If add any static level logging, should instantiate a standard,
     // context-agnostic FrameworkLogger for that purpose.
-    public int storeCount;
+    private int storeCount;
 
     public DataFileCacheSession(Database db, String baseFileName) {
         super(db, baseFileName);
@@ -72,7 +72,7 @@ public class DataFileCacheSession extends DataFileCache {
         int avgRowBytes = 1 << cacheSizeScale;
 
         maxCacheBytes   = maxCacheRows * avgRowBytes;
-        maxDataFileSize = (long) Integer.MAX_VALUE * 4;
+        maxDataFileSize = (long) Integer.MAX_VALUE * cacheFileScale;
         dataFile        = null;
     }
 
@@ -100,7 +100,7 @@ public class DataFileCacheSession extends DataFileCache {
         }
     }
 
-    public synchronized void add(CachedObject object) {
+    public void add(CachedObject object) {
         super.add(object);
     }
 
@@ -108,7 +108,9 @@ public class DataFileCacheSession extends DataFileCache {
      *  Parameter write is always false. The backing file is simply closed and
      *  deleted.
      */
-    public synchronized void close(boolean write) {
+    public void close(boolean write) {
+
+        writeLock.lock();
 
         try {
             if (dataFile != null) {
@@ -125,6 +127,8 @@ public class DataFileCacheSession extends DataFileCache {
                               ErrorCode.M_DataFileCache_close, new Object[] {
                 t.getMessage(), dataFileName
             });
+        } finally {
+            writeLock.unlock();
         }
     }
 
@@ -132,17 +136,44 @@ public class DataFileCacheSession extends DataFileCache {
 
     public void clear() {
 
-        cache.clear();
+        writeLock.lock();
 
-        fileFreePosition = MIN_INITIAL_FREE_POS;
+        try {
+            cache.clear();
+
+            fileFreePosition = MIN_INITIAL_FREE_POS;
+        } finally {
+            writeLock.unlock();
+        }
     }
 
     public void deleteAll() {
 
-        cache.clear();
+        writeLock.lock();
 
-        fileFreePosition = MIN_INITIAL_FREE_POS;
+        try {
+            cache.clear();
 
-        initBuffers();
+            fileFreePosition = MIN_INITIAL_FREE_POS;
+
+            initBuffers();
+        } finally {
+            writeLock.unlock();
+        }
+    }
+
+    public void adjustStoreCount(int adjust) {
+
+        writeLock.lock();
+
+        try {
+            storeCount += adjust;
+
+            if (storeCount == 0) {
+                clear();
+            }
+        } finally {
+            writeLock.unlock();
+        }
     }
 }

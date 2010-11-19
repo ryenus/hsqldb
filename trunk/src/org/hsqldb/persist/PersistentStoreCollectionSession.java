@@ -157,6 +157,7 @@ implements PersistentStoreCollection {
         clearSessionTables();
         clearTransactionTables();
         clearStatementTables();
+        closeResultCache();
     }
 
     public void clearResultTables(long actionTimestamp) {
@@ -311,4 +312,43 @@ implements PersistentStoreCollection {
                                      store);
         }
     }
+
+    DataFileCacheSession resultCache;
+
+
+    public DataFileCacheSession getResultCache() {
+
+        if (resultCache == null) {
+            String path = session.database.logger.getTempDirectoryPath();
+
+            if (path == null) {
+                return null;
+            }
+
+            try {
+                resultCache =
+                    new DataFileCacheSession(session.database,
+                                             path + "/session_"
+                                             + Long.toString(session.getId()));
+
+                resultCache.open(false);
+            } catch (Throwable t) {
+                return null;
+            }
+        }
+
+        return resultCache;
+    }
+
+    public void closeResultCache() {
+
+        if (resultCache != null) {
+            try {
+                resultCache.close(false);
+            } catch (HsqlException e) {}
+
+            resultCache = null;
+        }
+    }
+
 }

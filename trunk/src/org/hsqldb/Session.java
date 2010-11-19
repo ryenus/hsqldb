@@ -220,7 +220,6 @@ public class Session implements SessionInterface {
 
         sessionData.closeAllNavigators();
         sessionData.persistentStoreCollection.clearAllTables();
-        sessionData.closeResultCache();
         statementManager.reset();
         database.sessionManager.removeSession(this);
         database.closeIfLast();
@@ -633,7 +632,6 @@ public class Session implements SessionInterface {
         rollback(false);
         sessionData.closeAllNavigators();
         sessionData.persistentStoreCollection.clearAllTables();
-        sessionData.closeResultCache();
         statementManager.reset();
 
         sessionContext.lastIdentity = ValuePool.INTEGER_0;
