@@ -61,6 +61,7 @@ public class SchemaManager {
     int               defaultTableType = TableBase.MEMORY_TABLE;
     long              schemaChangeTimestamp;
     HsqlName[]        catalogNameArray;
+
     //
     Table dualTable;
 
@@ -68,7 +69,8 @@ public class SchemaManager {
 
         this.database         = database;
         defaultSchemaHsqlName = SqlInvariants.INFORMATION_SCHEMA_HSQLNAME;
-        catalogNameArray = new HsqlName[]{database.getCatalogName()};
+        catalogNameArray      = new HsqlName[]{ database.getCatalogName() };
+
         Schema schema =
             new Schema(SqlInvariants.INFORMATION_SCHEMA_HSQLNAME,
                        SqlInvariants.INFORMATION_SCHEMA_HSQLNAME.owner);
@@ -643,7 +645,6 @@ public class SchemaManager {
     public void dropTableOrView(Session session, Table table,
                                 boolean cascade) {
 
-// ft - concurrent
         if (table.isView()) {
             removeSchemaObject(table.getName(), cascade);
         } else {

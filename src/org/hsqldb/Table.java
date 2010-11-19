@@ -2587,7 +2587,7 @@ public class Table extends TableBase implements SchemaObject {
     public void insertData(Session session, PersistentStore store,
                            Object[] data) {
 
-        Row row = (Row) store.getNewCachedObject(null, data);
+        Row row = (Row) store.getNewCachedObject(session, data);
 
         store.indexRow(session, row);
     }
@@ -2598,7 +2598,7 @@ public class Table extends TableBase implements SchemaObject {
     public void insertSys(Session session, PersistentStore store,
                           Object[] data) {
 
-        Row row = (Row) store.getNewCachedObject(null, data);
+        Row row = (Row) store.getNewCachedObject(session, data);
 
         store.indexRow(session, row);
     }
