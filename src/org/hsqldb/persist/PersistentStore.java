@@ -83,7 +83,8 @@ public interface PersistentStore {
 
     CachedObject getNewInstance(int size);
 
-    CachedObject getNewCachedObject(Session session, Object object);
+    CachedObject getNewCachedObject(Session session, Object object,
+                                    boolean tx);
 
     /** remove the persisted image but not the cached copy */
     void removePersistence(int i);
@@ -107,6 +108,7 @@ public interface PersistentStore {
     void commitRow(Session session, Row row, int changeAction, int txModel);
 
     void rollbackRow(Session session, Row row, int changeAction, int txModel);
+
     //
     void indexRows(Session session);
 

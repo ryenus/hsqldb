@@ -289,13 +289,13 @@ implements PersistentStoreCollection {
 
         if (rowStoreMapStatement.isEmpty()) {
             rowStoreListStatement.add(ValuePool.emptyObjectArray);
+
             return;
         }
 
         Object[] array = rowStoreMapStatement.toArray();
 
         rowStoreListStatement.add(array);
-
         rowStoreMapStatement.clear();
     }
 
@@ -314,7 +314,6 @@ implements PersistentStoreCollection {
     }
 
     DataFileCacheSession resultCache;
-
 
     public DataFileCacheSession getResultCache() {
 
@@ -345,10 +344,10 @@ implements PersistentStoreCollection {
         if (resultCache != null) {
             try {
                 resultCache.close(false);
+                resultCache.deleteFile();
             } catch (HsqlException e) {}
 
             resultCache = null;
         }
     }
-
 }

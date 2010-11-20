@@ -87,7 +87,6 @@ public class RowStoreAVLDiskData extends RowStoreAVLDisk {
         int size = object.getRealSize(cache.rowOut);
 
         object.setStorageSize(size);
-
         cache.add(object);
     }
 
@@ -108,13 +107,14 @@ public class RowStoreAVLDiskData extends RowStoreAVLDisk {
         }
     }
 
-    public CachedObject getNewCachedObject(Session session, Object object) {
+    public CachedObject getNewCachedObject(Session session, Object object,
+                                           boolean tx) {
 
         Row row = new RowAVLDiskData(this, table, (Object[]) object);
 
         add(row);
 
-        if (session != null) {
+        if (tx) {
             RowAction.addInsertAction(session, table, row);
         }
 
@@ -145,12 +145,13 @@ public class RowStoreAVLDiskData extends RowStoreAVLDisk {
     public void set(CachedObject object) {}
 
     public void removeAll() {
+
         elementCount = 0;
+
         ArrayUtil.fillArray(accessorList, null);
     }
 
     public void remove(int i) {
-
         cache.remove(i, this);
     }
 
@@ -159,7 +160,6 @@ public class RowStoreAVLDiskData extends RowStoreAVLDisk {
     }
 
     public void release(int i) {
-
         cache.release(i);
     }
 
@@ -221,7 +221,6 @@ public class RowStoreAVLDiskData extends RowStoreAVLDisk {
 
             case RowAction.ACTION_DELETE :
                 if (txModel == TransactionManager.LOCKS) {
-
                     ((RowAVL) row).setNewNodes();
                     indexRow(session, row);
                 }

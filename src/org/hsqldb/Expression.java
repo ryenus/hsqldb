@@ -1226,7 +1226,7 @@ public class Expression implements Cloneable {
                         nodes[i].nodes[j].dataType);
             }
 
-            Row row = (Row) store.getNewCachedObject(session, data);
+            Row row = (Row) store.getNewCachedObject(session, data, false);
 
             try {
                 store.indexRow(session, row);

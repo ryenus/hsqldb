@@ -481,23 +481,21 @@ class DatabaseInformationMain extends DatabaseInformation {
             return t;
         }
 
-        if (!session.isAdmin()) {
-            session.getUser();
-        }
-
         long dbscts = database.schemaManager.getSchemaChangeTimestamp();
         PersistentStore store = session.sessionData.getRowStore(t);
 
-        if (store.getTimestamp() == dbscts
-                && !nonCachedTablesSet.contains(name)) {
-            return t;
+        synchronized (store) {
+            if (store.getTimestamp() == dbscts
+                    && !nonCachedTablesSet.contains(name)) {
+                return t;
+            }
+
+            // fredt - clear the contents of table and generate
+            store.removeAll();
+            store.setTimestamp(dbscts);
+
+            t = generateTable(session, tableIndex);
         }
-
-        // fredt - clear the contents of table and generate
-        t.clearAllData(session);
-        store.setTimestamp(dbscts);
-
-        t = generateTable(session, tableIndex);
 
         return t;
     }

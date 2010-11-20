@@ -150,13 +150,14 @@ public class RowStoreAVLDisk extends RowStoreAVL {
         return null;
     }
 
-    public CachedObject getNewCachedObject(Session session, Object object) {
+    public CachedObject getNewCachedObject(Session session, Object object,
+                                           boolean tx) {
 
         Row row = new RowAVLDisk(table, (Object[]) object);
 
         add(row);
 
-        if (session != null) {
+        if (tx) {
             RowAction action = new RowAction(session, table,
                                              RowAction.ACTION_INSERT, row,
                                              null);

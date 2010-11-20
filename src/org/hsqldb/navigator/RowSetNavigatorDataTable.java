@@ -183,7 +183,7 @@ public class RowSetNavigatorDataTable extends RowSetNavigatorData {
     public void add(Object[] data) {
 
         try {
-            Row row = (Row) store.getNewCachedObject(session, data);
+            Row row = (Row) store.getNewCachedObject(session, data, false);
 
             store.indexRow(null, row);
 

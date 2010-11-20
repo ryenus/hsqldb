@@ -994,22 +994,7 @@ public class DataFileCache {
 
             // OOo end
             if (fa.isStreamElement(dataFileName)) {
-
-//#ifdef JAVA2FULL
-                try {
-                    File   file = new File(database.getCanonicalPath());
-                    File[] list = file.getParentFile().listFiles();
-
-                    for (int i = 0; i < list.length; i++) {
-                        if (list[i].getName()
-                                .endsWith(Logger.oldFileExtension) && list[i]
-                                .getName().startsWith(file.getName())) {
-                            list[i].delete();
-                        }
-                    }
-                } catch (Throwable t) {}
-
-//#endif JAVA2FULL
+                this.database.logger.log.deleteOldDataFiles();
                 fa.removeElement(dataFileName);
 
                 if (fa.isStreamElement(dataFileName)) {

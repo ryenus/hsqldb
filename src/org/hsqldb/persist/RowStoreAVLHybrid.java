@@ -76,7 +76,7 @@ public class RowStoreAVLHybrid extends RowStoreAVL implements PersistentStore {
         this.table             = table;
         this.maxMemoryRowCount = session.getResultMemoryRowCount();
         this.isTempTable       = table.getTableType() == TableBase.TEMP_TABLE;
-        this.useDisk          = diskBased;
+        this.useDisk           = diskBased;
 
         if (maxMemoryRowCount == 0) {
             this.useDisk = false;
@@ -214,7 +214,8 @@ public class RowStoreAVLHybrid extends RowStoreAVL implements PersistentStore {
         return null;
     }
 
-    public CachedObject getNewCachedObject(Session session, Object object) {
+    public CachedObject getNewCachedObject(Session session, Object object,
+                                           boolean tx) {
 
         int id = rowIdSequence++;
 
@@ -223,7 +224,7 @@ public class RowStoreAVLHybrid extends RowStoreAVL implements PersistentStore {
 
             add(row);
 
-            if (isTempTable) {
+            if (tx) {
                 RowAction.addInsertAction(session, (Table) table, row);
             }
 
@@ -234,12 +235,12 @@ public class RowStoreAVLHybrid extends RowStoreAVL implements PersistentStore {
             if (useDisk && memoryRowCount > maxMemoryRowCount) {
                 changeToDiskTable(session);
 
-                return getNewCachedObject(session, object);
+                return getNewCachedObject(session, object, tx);
             }
 
             Row row = new RowAVL(table, (Object[]) object, id);
 
-            if (isTempTable && session != null) {
+            if (tx) {
                 RowAction action = new RowAction(session, table,
                                                  RowAction.ACTION_INSERT, row,
                                                  null);
@@ -252,7 +253,9 @@ public class RowStoreAVLHybrid extends RowStoreAVL implements PersistentStore {
     }
 
     public void removeAll() {
+
         elementCount = 0;
+
         ArrayUtil.fillArray(accessorList, null);
     }
 
@@ -397,8 +400,15 @@ public class RowStoreAVLHybrid extends RowStoreAVL implements PersistentStore {
             cache.adjustStoreCount(1);
 
             while (iterator.hasNext()) {
-                Row row    = iterator.getNextRow();
-                Row newRow = (Row) getNewCachedObject(session, row.getData());
+                Row row = iterator.getNextRow();
+                Row newRow = (Row) getNewCachedObject(session, row.getData(),
+                                                      false);
+                RowAction action = row.rowAction;
+
+                if (action != null) {
+
+                    // todo - manage actions for cache for temp tables
+                }
 
                 indexRow(session, newRow);
                 row.destroy();

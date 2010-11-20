@@ -109,7 +109,8 @@ public class RowStoreAVLMemory extends RowStoreAVL implements PersistentStore {
         return null;
     }
 
-    public CachedObject getNewCachedObject(Session session, Object object) {
+    public CachedObject getNewCachedObject(Session session, Object object,
+                                           boolean tx) {
 
         int id;
 
@@ -119,7 +120,7 @@ public class RowStoreAVLMemory extends RowStoreAVL implements PersistentStore {
 
         Row row = new RowAVL(table, (Object[]) object, id);
 
-        if (session != null) {
+        if (tx) {
             RowAction action = new RowAction(session, table,
                                              RowAction.ACTION_INSERT, row,
                                              null);

@@ -98,7 +98,7 @@ public abstract class RowStoreAVL implements PersistentStore {
     public abstract CachedObject getNewInstance(int size);
 
     public abstract CachedObject getNewCachedObject(Session session,
-            Object object);
+            Object object, boolean tx);
 
     public abstract void removePersistence(int i);
 
@@ -350,7 +350,7 @@ public abstract class RowStoreAVL implements PersistentStore {
                 table.enforceRowConstraints(session, data);
 
                 // get object without RowAction
-                Row newrow = (Row) getNewCachedObject(null, data);
+                Row newrow = (Row) getNewCachedObject(session, data, false);
 
                 indexRow(session, newrow);
             }
