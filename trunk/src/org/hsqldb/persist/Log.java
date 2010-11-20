@@ -128,6 +128,7 @@ public class Log {
 
             case HsqlDatabaseProperties.FILES_MODIFIED :
                 deleteNewAndOldFiles();
+                deleteOldTempFiles();
                 processScript();
                 processLog();
                 close(false);
@@ -189,7 +190,7 @@ public class Log {
     void close(boolean script) {
 
         closeLog();
-        deleteNewAndOldFiles();
+        deleteOldDataFiles();
         writeScript(script);
         closeAllTextCaches(script);
 
@@ -238,8 +239,7 @@ public class Log {
      */
     void deleteNewAndOldFiles() {
 
-        fa.removeElement(fileName + Logger.dataFileExtension
-                         + Logger.oldFileExtension);
+        deleteOldDataFiles();
         fa.removeElement(fileName + Logger.dataFileExtension
                          + Logger.newFileExtension);
         fa.removeElement(fileName + Logger.backupFileExtension
@@ -377,7 +377,7 @@ public class Log {
 
         database.lobManager.deleteUnusedLobs();
         synchLog();
-        deleteNewAndOldFiles();
+        deleteOldDataFiles();
 
         try {
             writeScript(false);
@@ -489,7 +489,7 @@ public class Log {
 
 //
             synchLog();
-            deleteNewAndOldFiles();
+            deleteOldDataFiles();
 
             DataFileDefrag dfd = cache.defrag();
         } catch (HsqlException e) {
@@ -873,5 +873,37 @@ public class Log {
         }
 
         return false;
+    }
+
+    void deleteOldDataFiles() {
+
+        try {
+            File   file = new File(database.getCanonicalPath());
+            File[] list = file.getParentFile().listFiles();
+
+            for (int i = 0; i < list.length; i++) {
+                if (list[i].getName().startsWith(file.getName())
+                        && list[i].getName().endsWith(
+                            Logger.oldFileExtension)) {
+                    list[i].delete();
+                }
+            }
+        } catch (Throwable t) {}
+    }
+
+    void deleteOldTempFiles() {
+
+        try {
+            if (database.logger.tempDirectoryPath == null) {
+                return;
+            }
+
+            File   file = new File(database.logger.tempDirectoryPath);
+            File[] list = file.listFiles();
+
+            for (int i = 0; i < list.length; i++) {
+                list[i].delete();
+            }
+        } catch (Throwable t) {}
     }
 }

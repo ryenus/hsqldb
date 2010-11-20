@@ -1302,7 +1302,7 @@ public class ParserCommand extends ParserDDL {
                                                    : (Object) flag };
 
         return new StatementCommand(
-            type, args, database.schemaManager.getCatalogNameArray(), null);
+            type, args, null, database.schemaManager.getCatalogNameArray());
     }
 
     Object[] processTransactionCharacteristics() {

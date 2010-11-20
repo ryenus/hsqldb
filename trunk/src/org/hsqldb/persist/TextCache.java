@@ -313,7 +313,7 @@ public class TextCache extends DataFileCache {
         try {
             int type = database.getType() == DatabaseURL.S_RES
                        ? ScaledRAFile.DATA_FILE_JAR
-                       : ScaledRAFile.DATA_FILE_RAF;
+                       : ScaledRAFile.DATA_FILE_TEXT;
 
             dataFile = ScaledRAFile.newScaledRAFile(database, dataFileName,
                     readonly, type);

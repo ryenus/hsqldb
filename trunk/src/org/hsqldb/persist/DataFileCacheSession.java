@@ -64,10 +64,13 @@ public class DataFileCacheSession extends DataFileCache {
         this.database     = database;
         fa                = FileUtil.getFileUtil();
 
-        int cacheSizeScale = 10;
+        cacheFileScale      =
+        cachedRowPadding    = 32;
 
-        cacheFileScale = 8;
         maxCacheRows   = 2048;
+
+
+        int cacheSizeScale = 10;
 
         int avgRowBytes = 1 << cacheSizeScale;
 

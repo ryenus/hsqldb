@@ -193,7 +193,7 @@ public class ExpressionTable extends Expression {
 
             while (nav.hasNext()) {
                 Object[] data = nav.getNext();
-                Row      row  = (Row) store.getNewCachedObject(session, data);
+                Row row = (Row) store.getNewCachedObject(session, data, false);
 
                 try {
                     store.indexRow(session, row);
@@ -213,7 +213,7 @@ public class ExpressionTable extends Expression {
                     data = new Object[]{ array[i] };
                 }
 
-                Row row = (Row) store.getNewCachedObject(session, data);
+                Row row = (Row) store.getNewCachedObject(session, data, false);
 
                 try {
                     store.indexRow(session, row);

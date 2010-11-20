@@ -60,9 +60,10 @@ public class LineReader {
     final String      charsetName;
 
     public LineReader(InputStream stream, String charsetName) {
-        this.stream  = stream;
+
+        this.stream      = stream;
         this.charsetName = charsetName;
-        this.charset = Charset.forName(charsetName);
+        this.charset     = Charset.forName(charsetName);
     }
 
     public String readLine() throws IOException {
@@ -77,7 +78,7 @@ public class LineReader {
             if (c == -1) {
                 finished = true;
 
-                if (wasEOL) {
+                if (baOS.size() == 0) {
                     return null;
                 }
 
@@ -103,8 +104,7 @@ public class LineReader {
                 default : {
                     baOS.write(c);
 
-                    wasCR  = false;
-                    wasEOL = false;
+                    wasCR = false;
 
                     continue;
                 }
@@ -118,8 +118,6 @@ public class LineReader {
                                    charsetName);
 
         baOS.reset();
-
-        wasEOL = true;
 
         return string;
     }

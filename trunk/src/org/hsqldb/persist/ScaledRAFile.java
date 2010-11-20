@@ -59,6 +59,7 @@ final class ScaledRAFile implements RandomAccessInterface {
     static final int DATA_FILE_JAR    = 2;
     static final int DATA_FILE_STORED = 3;
     static final int DATA_FILE_SINGLE = 4;
+    static final int DATA_FILE_TEXT   = 5;
 
     // We are using persist.Logger-instance-specific FrameworkLogger
     // because it is Database-instance specific.
@@ -75,6 +76,7 @@ final class ScaledRAFile implements RandomAccessInterface {
     final HsqlByteArrayInputStream ba;
     long                           bufferOffset;
     long                           fileLength;
+    boolean                        extendLength = true;
 
     //
     long seekPosition;
@@ -119,6 +121,12 @@ final class ScaledRAFile implements RandomAccessInterface {
 
         if (type == DATA_FILE_JAR) {
             return new ScaledRAFileInJar(name);
+        } else if (type == DATA_FILE_TEXT) {
+            ScaledRAFile ra = new ScaledRAFile(database, name, readonly);
+
+            ra.setExtendLength(false);
+
+            return ra;
         } else if (type == DATA_FILE_RAF) {
             return new ScaledRAFile(database, name, readonly);
         } else {
@@ -489,7 +497,9 @@ final class ScaledRAFile implements RandomAccessInterface {
             return true;
         }
 
-        newLength = getExtendLength(newLength);
+        if (extendLength) {
+            newLength = getExtendLength(newLength);
+        }
 
         try {
             extendLength(newLength);
@@ -517,6 +527,10 @@ final class ScaledRAFile implements RandomAccessInterface {
         try {
             fileDescriptor.sync();
         } catch (IOException e) {}
+    }
+
+    public void setExtendLength(boolean extend) {
+        extendLength = extend;
     }
 
     private long getExtendLength(long position) {

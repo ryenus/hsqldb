@@ -142,6 +142,7 @@ public class Logger {
     public final static String dataFileExtension       = ".data";
     public final static String backupFileExtension     = ".backup";
     public final static String lobsFileExtension       = ".lobs";
+    public final static String lockFileExtension       = ".lck";
 
     public Logger(Database database) {
         this.database = database;

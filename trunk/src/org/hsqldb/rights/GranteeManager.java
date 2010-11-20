@@ -342,7 +342,7 @@ public class GranteeManager {
         Grantee grantee = get(granteeName);
 
         for (int i = 0; i < roleList.size(); i++) {
-            String        roleName = (String) roleList.get(i);
+            String  roleName = (String) roleList.get(i);
             Grantee role     = getRole(roleName);
 
             if (role == null) {
@@ -440,7 +440,7 @@ public class GranteeManager {
         }
 
         for (int i = 0; i < granteeList.size(); i++) {
-            String        granteeName = (String) granteeList.get(i);
+            String  granteeName = (String) granteeList.get(i);
             Grantee g           = get(granteeName);
 
             if (g == null) {
@@ -453,7 +453,7 @@ public class GranteeManager {
         }
 
         for (int i = 0; i < granteeList.size(); i++) {
-            String        granteeName = (String) granteeList.get(i);
+            String  granteeName = (String) granteeList.get(i);
             Grantee g           = get(granteeName);
 
             g.revoke(dbObject, rights, grantor, grantOption);
@@ -587,6 +587,11 @@ public class GranteeManager {
             throw Error.error(ErrorCode.X_28503, name.name);
         }
 
+        if (SqlInvariants.isLobsSchemaName(name.name)
+                || SqlInvariants.isSystemSchemaName(name.name)) {
+            throw Error.error(ErrorCode.X_28502, name.name);
+        }
+
         Grantee g = new Grantee(name, this);
 
         g.isRole = true;
@@ -601,6 +606,11 @@ public class GranteeManager {
 
         if (map.containsKey(name.name)) {
             throw Error.error(ErrorCode.X_28503, name.name);
+        }
+
+        if (SqlInvariants.isLobsSchemaName(name.name)
+                || SqlInvariants.isSystemSchemaName(name.name)) {
+            throw Error.error(ErrorCode.X_28502, name.name);
         }
 
         User g = new User(name, this);
@@ -768,7 +778,7 @@ public class GranteeManager {
 
         while (grantees.hasNext()) {
             Grantee grantee = (Grantee) grantees.next();
-            String        name    = grantee.getName().getNameString();
+            String  name    = grantee.getName().getNameString();
 
             // _SYSTEM user, DBA Role grants not persisted
             if (GranteeManager.isImmutable(name)) {
