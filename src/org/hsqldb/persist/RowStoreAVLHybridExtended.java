@@ -117,14 +117,14 @@ public class RowStoreAVLHybridExtended extends RowStoreAVLHybrid {
     void lockIndexes() {
 
         for (int i = 0; i < indexList.length; i++) {
-            indexList[i].lock();
+//            indexList[i].lock();
         }
     }
 
     void unlockIndexes(Index[] array) {
 
         for (int i = 0; i < array.length; i++) {
-            array[i].unlock();
+//            array[i].unlock();
         }
     }
 }
