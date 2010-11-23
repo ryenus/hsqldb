@@ -1386,7 +1386,7 @@ public class ExpressionLogical extends Expression {
                             : Boolean.FALSE;
         } else if (nodes[RIGHT].opType == OpTypes.TABLE_SUBQUERY) {
             PersistentStore store =
-                session.sessionData.getRowStore(nodes[RIGHT].getTable());
+                nodes[RIGHT].getTable().getRowStore(session);
 
             nodes[RIGHT].materialise(session);
             convertToType(session, data, nodes[LEFT].nodeDataTypes,
@@ -1487,7 +1487,7 @@ public class ExpressionLogical extends Expression {
         Index           index = table.getFullIndex();
         RowIterator     it;
         Row             firstrow;
-        PersistentStore store   = session.sessionData.getRowStore(table);
+        PersistentStore store   = table.getRowStore(session);
         Row             lastrow = index.lastRow(session, store).getNextRow();
         Object[]        lastdata;
         Object[]        firstdata;
@@ -1573,7 +1573,7 @@ public class ExpressionLogical extends Expression {
 
                 if (opType == OpTypes.EQUAL) {
                     if (it.hasNext()) {
-                        return subquery.getTable().getRowCount(store) == 1
+                        return store.elementCount(session) == 1
                                ? Boolean.TRUE
                                : Boolean.FALSE;
                     } else {

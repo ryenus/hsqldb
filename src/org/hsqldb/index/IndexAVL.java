@@ -684,7 +684,6 @@ public class IndexAVL implements Index {
 
             if (n == null) {
                 store.setAccessor(this, ((RowAVL) row).getNode(position));
-                store.setElementCount(this, 1, 1);
 
                 return;
             }
@@ -735,7 +734,6 @@ public class IndexAVL implements Index {
             x = x.set(store, isleft, ((RowAVL) row).getNode(position));
 
             balance(store, x, isleft);
-            store.updateElementCount(this, 1, 1);
         } finally {
             store.unlock();
             writeLock.unlock();
@@ -752,7 +750,6 @@ public class IndexAVL implements Index {
 
         if (node != null) {
             delete(store, node);
-            store.updateElementCount(this, -1, -1);
         }
     }
 

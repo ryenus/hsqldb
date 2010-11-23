@@ -78,7 +78,7 @@ implements PersistentStoreCollection {
                 }
                 break;
 
-            // SYSTEM_TABLE
+            // SYSTEM_TABLE + INFO_SCHEMA_TABLE
             case TableBase.SCOPE_FULL :
             case TableBase.SCOPE_TRANSACTION :
                 if (store == null) {
@@ -122,7 +122,7 @@ implements PersistentStoreCollection {
 
                     return store;
 
-                // SYSTEM_TABLE
+                // SYSTEM_TABLE + INFO_SCHEMA_TABLE
                 case TableBase.SCOPE_FULL :
                 case TableBase.SCOPE_TRANSACTION :
                     store = (PersistentStore) rowStoreMapTransaction.get(
@@ -131,6 +131,12 @@ implements PersistentStoreCollection {
                     if (store == null) {
                         store = session.database.logger.newStore(session,
                                 this, table, true);
+
+                        if (table.getTableType()
+                                == TableBase.INFO_SCHEMA_TABLE) {
+                            session.database.dbInfo.setStore(
+                                session, (Table) table, store);
+                        }
                     }
 
                     return store;
@@ -173,6 +179,7 @@ implements PersistentStoreCollection {
 
             if (store.getTimestamp() == actionTimestamp) {
                 store.release();
+                it.remove();
             }
         }
     }
@@ -250,7 +257,7 @@ implements PersistentStoreCollection {
                     table.getPersistenceId());
                 break;
 
-            // SYSTEM_TABLE
+            // SYSTEM_TABLE + INFO_SCHEMA_TABLE
             case TableBase.SCOPE_FULL :
             case TableBase.SCOPE_TRANSACTION :
                 store = (PersistentStore) rowStoreMapTransaction.get(

@@ -33,7 +33,6 @@ package org.hsqldb.persist;
 
 import java.io.IOException;
 
-import org.hsqldb.Database;
 import org.hsqldb.HsqlException;
 import org.hsqldb.Row;
 import org.hsqldb.RowAVL;
@@ -45,8 +44,8 @@ import org.hsqldb.TransactionManager;
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
 import org.hsqldb.index.Index;
-import org.hsqldb.index.IndexAVL;
 import org.hsqldb.index.NodeAVL;
+import org.hsqldb.index.NodeAVLDisk;
 import org.hsqldb.lib.ArrayUtil;
 import org.hsqldb.rowio.RowInputInterface;
 import org.hsqldb.rowio.RowOutputInterface;
@@ -131,6 +130,7 @@ public class RowStoreAVLDisk extends RowStoreAVL {
 
         int size = object.getRealSize(rowOut);
 
+        size += indexList.length * NodeAVLDisk.SIZE_IN_BYTE;
         size = rowOut.getStorageSize(size);
 
         object.setStorageSize(size);
@@ -153,7 +153,7 @@ public class RowStoreAVLDisk extends RowStoreAVL {
     public CachedObject getNewCachedObject(Session session, Object object,
                                            boolean tx) {
 
-        Row row = new RowAVLDisk(table, (Object[]) object);
+        Row row = new RowAVLDisk(table, (Object[]) object, this);
 
         add(row);
 
@@ -246,7 +246,7 @@ public class RowStoreAVLDisk extends RowStoreAVL {
                 if (txModel == TransactionManager.LOCKS) {
                     row = (Row) get(row, true);
 
-                    ((RowAVL) row).setNewNodes();
+                    ((RowAVL) row).setNewNodes(this);
                     row.keepInMemory(false);
                     indexRow(session, row);
                 }
@@ -325,8 +325,7 @@ public class RowStoreAVLDisk extends RowStoreAVL {
 
     public void resetAccessorKeys(Index[] keys) {
 
-        if (indexList.length == 0 || indexList[0] == null
-                || accessorList[0] == null) {
+        if (indexList.length == 0 || accessorList[0] == null) {
             indexList    = keys;
             accessorList = new CachedObject[indexList.length];
 
@@ -334,27 +333,6 @@ public class RowStoreAVLDisk extends RowStoreAVL {
         }
 
         throw Error.runtimeError(ErrorCode.U_S0500, "RowStoreAVLDisk");
-    }
-
-    public int elementCount(Session session) {
-
-        Index index = this.indexList[0];
-
-        if (elementCount < 0) {
-            if (index == null) {
-                elementCount = 0;
-            } else {
-                elementCount = ((IndexAVL) index).getNodeCount(session, this);
-            }
-        }
-
-        if (session != null && index != null
-                && database.txManager.getTransactionControl()
-                   != TransactionManager.LOCKS) {
-            return ((IndexAVL) index).getNodeCount(session, this);
-        }
-
-        return elementCount;
     }
 
     public void lock() {

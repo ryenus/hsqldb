@@ -129,9 +129,7 @@ public class TextTable extends org.hsqldb.Table {
                 systemUpdateIdentityValue(data);
                 enforceRowConstraints(session, data);
 
-                for (int i = 0; i < indexList.length; i++) {
-                    indexList[i].insert(session, store, row);
-                }
+                store.indexRow(session, row);
             }
         } catch (Throwable t) {
             int linenumber = cache == null ? 0

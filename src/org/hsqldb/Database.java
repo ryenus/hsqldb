@@ -63,13 +63,13 @@ import org.hsqldb.types.Type;
  */
 public class Database {
 
-    int                   databaseID;
-    String                databaseUniqueName;
-    String                databaseType;
-    private final String  canonicalPath;
-    public HsqlProperties urlProperties;
-    private final String  path;
-    DatabaseInformation   dbInfo;
+    int                        databaseID;
+    String                     databaseUniqueName;
+    String                     databaseType;
+    private final String       canonicalPath;
+    public HsqlProperties      urlProperties;
+    private final String       path;
+    public DatabaseInformation dbInfo;
 
     /** indicates the state of the database */
     private int   dbState;
@@ -213,6 +213,7 @@ public class Database {
             sessionManager.getSysLobSession().setSchema(
                 SqlInvariants.LOBS_SCHEMA);
             schemaManager.setSchemaChangeTimestamp();
+            schemaManager.createSystemTables();
 
             // completed metadata
             logger.openPersistence();

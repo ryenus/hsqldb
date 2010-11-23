@@ -792,8 +792,7 @@ public final class Constraint implements SchemaObject {
                 return;
 
             case SchemaObject.ConstraintTypes.FOREIGN_KEY :
-                PersistentStore store =
-                    session.sessionData.getRowStore(core.mainTable);
+                PersistentStore store = core.mainTable.getRowStore(session);
 
                 if (ArrayUtil.hasNull(data, core.refCols)) {
                     if (core.matchType == OpTypes.MATCH_SIMPLE) {
@@ -944,7 +943,7 @@ public final class Constraint implements SchemaObject {
             return core.refIndex.emptyIterator();
         }
 
-        PersistentStore store = session.sessionData.getRowStore(core.refTable);
+        PersistentStore store = core.refTable.getRowStore(session);
 
         return core.refIndex.findFirstRow(session, store, row, core.mainCols);
     }

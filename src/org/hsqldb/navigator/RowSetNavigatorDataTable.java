@@ -139,7 +139,7 @@ public class RowSetNavigatorDataTable extends RowSetNavigatorData {
         maxMemoryRowCount  = session.getResultMemoryRowCount();
         this.table         = table;
         visibleColumnCount = table.getColumnCount();
-        store              = session.sessionData.getRowStore(table);
+        store              = table.getRowStore(session);
         mainIndex          = table.getPrimaryIndex();
         fullIndex          = table.getFullIndex();
         this.size          = mainIndex.size(null, store);

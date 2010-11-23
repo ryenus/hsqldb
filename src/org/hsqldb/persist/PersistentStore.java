@@ -135,9 +135,9 @@ public interface PersistentStore {
 
     void setElementCount(Index key, int size, int uniqueSize);
 
-    void updateElementCount(Index key, int size, int uniqueSize);
-
     void resetAccessorKeys(Index[] keys);
+
+    Index[] getAccessorKeys();
 
     void moveData(Session session, PersistentStore other, int colindex,
                   int adjust);

@@ -482,9 +482,11 @@ public class ExpressionOp extends Expression {
         while (expr.opType == OpTypes.CASEWHEN_COALESCE) {
             expr.nodes[LEFT].resolveTypes(session, expr);
 
-            dataType =
-                Type.getAggregateType(expr.nodes[LEFT].nodes[LEFT].dataType,
-                                      dataType);
+            if (expr.nodes[LEFT].nodes.length > 0) {
+                dataType = Type.getAggregateType(
+                    expr.nodes[LEFT].nodes[LEFT].dataType, dataType);
+            }
+
             expr = expr.nodes[RIGHT].nodes[RIGHT];
         }
 
@@ -492,8 +494,10 @@ public class ExpressionOp extends Expression {
 
         while (expr.opType == OpTypes.CASEWHEN
                 || expr.opType == OpTypes.CASEWHEN_COALESCE) {
-            expr.nodes[RIGHT].nodes[LEFT].resolveTypes(session, expr.nodes[RIGHT]);
-            expr.nodes[RIGHT].nodes[RIGHT].resolveTypes(session, expr.nodes[RIGHT]);
+            expr.nodes[RIGHT].nodes[LEFT].resolveTypes(session,
+                    expr.nodes[RIGHT]);
+            expr.nodes[RIGHT].nodes[RIGHT].resolveTypes(session,
+                    expr.nodes[RIGHT]);
 
             dataType =
                 Type.getAggregateType(expr.nodes[RIGHT].nodes[LEFT].dataType,
@@ -507,8 +511,10 @@ public class ExpressionOp extends Expression {
         expr = this;
 
         while (expr.opType == OpTypes.CASEWHEN_COALESCE) {
-            if (expr.nodes[LEFT].nodes[LEFT].dataType == null) {
-                expr.nodes[LEFT].nodes[LEFT].dataType = dataType;
+            if (expr.nodes[LEFT].nodes.length > 0) {
+                if (expr.nodes[LEFT].nodes[LEFT].dataType == null) {
+                    expr.nodes[LEFT].nodes[LEFT].dataType = dataType;
+                }
             }
 
             expr = expr.nodes[RIGHT].nodes[RIGHT];

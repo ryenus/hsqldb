@@ -104,18 +104,19 @@ public class RowAVL extends Row {
      *  Constructor for MEMORY table Row. The result is a Row with Nodes that
      *  are not yet linked with other Nodes in the AVL indexes.
      */
-    public RowAVL(TableBase table, Object[] data, int position) {
+    public RowAVL(TableBase table, Object[] data, int position,
+                  PersistentStore store) {
 
         super(table, data);
 
         this.position = position;
 
-        setNewNodes();
+        setNewNodes(store);
     }
 
-    public void setNewNodes() {
+    public void setNewNodes(PersistentStore store) {
 
-        int indexCount = table.getIndexCount();
+        int indexCount = store.getAccessorKeys().length;
 
         nPrimaryNode = new NodeAVL(this);
 

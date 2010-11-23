@@ -151,8 +151,11 @@ public class Table extends TableBase implements SchemaObject {
                 isSessionBased   = true;
                 break;
 
-            case SYSTEM_TABLE :
             case INFO_SCHEMA_TABLE :
+                isSessionBased = true;
+
+            // fall through
+            case SYSTEM_TABLE :
                 persistenceScope = SCOPE_FULL;
                 isSchemaBased    = true;
                 break;
@@ -251,7 +254,7 @@ public class Table extends TableBase implements SchemaObject {
             this.isReadOnly = true;
         }
 
-        if (isSchemaBased && !isTemp) {
+        if (!isSessionBased) {
             createDefaultStore();
         }
     }
@@ -1504,7 +1507,7 @@ public class Table extends TableBase implements SchemaObject {
     /**
      *  Finds an existing index for a column
      */
-    Index getIndexForColumn(Session session, int col) {
+    synchronized Index getIndexForColumn(Session session, int col) {
 
         int i = bestIndexForColumn[col];
 
@@ -2096,8 +2099,6 @@ public class Table extends TableBase implements SchemaObject {
         return defaultColumnMap;
     }
 
-//
-
     /**
      *  Used to create an index automatically for system and temp tables.
      */
@@ -2117,19 +2118,12 @@ public class Table extends TableBase implements SchemaObject {
 
         switch (tableType) {
 
+            case TableBase.INFO_SCHEMA_TABLE :
             case TableBase.TEMP_TABLE : {
-                Session sessions[] = database.sessionManager.getAllSessions();
 
-                for (int i = 0; i < sessions.length; i++) {
-                    sessions[i].sessionData.persistentStoreCollection
-                        .registerIndex((Table) this);
-                }
-
-                break;
-            }
-            case TableBase.INFO_SCHEMA_TABLE : {
+                // session may be an unregisterd sys session
                 session.sessionData.persistentStoreCollection.registerIndex(
-                    (Table) this);
+                    this);
 
                 break;
             }
@@ -2291,7 +2285,7 @@ public class Table extends TableBase implements SchemaObject {
     /**
      *  Finds an existing index for a column group
      */
-    Index getIndexForColumns(Session session, int[] cols) {
+    synchronized Index getIndexForColumns(Session session, int[] cols) {
 
         int i = bestIndexForColumn[cols[0]];
 
@@ -2333,10 +2327,13 @@ public class Table extends TableBase implements SchemaObject {
 
     /**
      * Finds an existing index for a column set or create one for temporary
-     * tables
+     * tables.
+     *
+     * synchronized required for shared INFORMATION_SCHEMA etc. tables
      */
-    Index getIndexForColumns(Session session, OrderedIntHashSet set,
-                             boolean ordered) {
+    synchronized Index getIndexForColumns(Session session,
+                                          OrderedIntHashSet set,
+                                          boolean ordered) {
 
         int   maxMatchCount = 0;
         Index selected      = null;
@@ -2510,7 +2507,7 @@ public class Table extends TableBase implements SchemaObject {
      */
     void insertIntoTable(Session session, Result result) {
 
-        PersistentStore store = session.sessionData.getRowStore(this);
+        PersistentStore store = getRowStore(session);
         RowSetNavigator nav   = result.initialiseNavigator();
 
         while (nav.hasNext()) {
@@ -2529,8 +2526,8 @@ public class Table extends TableBase implements SchemaObject {
 
         systemUpdateIdentityValue(data);
 
-        PersistentStore store = session.sessionData.getRowStore(this);
-        Row             row   = (Row) store.getNewCachedObject(session, data, true);
+        PersistentStore store = getRowStore(session);
+        Row row = (Row) store.getNewCachedObject(session, data, true);
 
         session.addInsertAction(this, store, row, null);
     }
@@ -2677,7 +2674,7 @@ public class Table extends TableBase implements SchemaObject {
     public void deleteNoCheckFromLog(Session session, Object[] data) {
 
         Row             row   = null;
-        PersistentStore store = session.sessionData.getRowStore(this);
+        PersistentStore store = getRowStore(session);
 
         if (hasPrimaryKey()) {
             RowIterator it = getPrimaryIndex().findFirstRow(session, store,
@@ -2743,7 +2740,7 @@ public class Table extends TableBase implements SchemaObject {
 
     public RowIterator rowIteratorClustered(Session session) {
 
-        PersistentStore store = session.sessionData.getRowStore(this);
+        PersistentStore store = getRowStore(session);
         Index           index = getClusteredIndex();
 
         if (index == null) {
@@ -2783,18 +2780,20 @@ public class Table extends TableBase implements SchemaObject {
     }
 
     /**
-     * Path used for INFORMATION_SCHEMA tables
+     * Path used for all stores
      */
     public PersistentStore getRowStore(Session session) {
 
-        if (tableType == TableBase.INFO_SCHEMA_TABLE) {
-            database.dbInfo.getSystemTable(session, this.getName().name);
-
-            return session.sessionData.getRowStore(this);
+        if (store != null) {
+            return store;
         }
 
-        return store == null ? session.sessionData.getRowStore(this)
-                             : store;
+        if (isSessionBased) {
+            return session.sessionData.persistentStoreCollection.getStore(
+                this);
+        }
+
+        return database.persistentStoreCollection.getStore(this);
     }
 
     public SubQuery getSubQuery() {

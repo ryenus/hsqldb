@@ -37,12 +37,10 @@ import org.hsqldb.RowAVL;
 import org.hsqldb.RowAction;
 import org.hsqldb.Session;
 import org.hsqldb.Table;
-import org.hsqldb.TableBase;
 import org.hsqldb.TransactionManager;
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
 import org.hsqldb.index.Index;
-import org.hsqldb.index.IndexAVL;
 import org.hsqldb.lib.ArrayUtil;
 import org.hsqldb.rowio.RowInputInterface;
 
@@ -118,7 +116,7 @@ public class RowStoreAVLMemory extends RowStoreAVL implements PersistentStore {
             id = rowIdSequence++;
         }
 
-        Row row = new RowAVL(table, (Object[]) object, id);
+        Row row = new RowAVL(table, (Object[]) object, id, this);
 
         if (tx) {
             RowAction action = new RowAction(session, table,
@@ -181,7 +179,7 @@ public class RowStoreAVLMemory extends RowStoreAVL implements PersistentStore {
 
             case RowAction.ACTION_DELETE :
                 if (txModel == TransactionManager.LOCKS) {
-                    ((RowAVL) row).setNewNodes();
+                    ((RowAVL) row).setNewNodes(this);
                     indexRow(session, row);
                 }
                 break;
@@ -211,6 +209,7 @@ public class RowStoreAVLMemory extends RowStoreAVL implements PersistentStore {
     public void setCache(DataFileCache cache) {}
 
     public void release() {
+        setTimestamp(0);
         ArrayUtil.fillArray(accessorList, null);
     }
 
@@ -222,26 +221,4 @@ public class RowStoreAVLMemory extends RowStoreAVL implements PersistentStore {
     }
 
     public void setAccessor(Index key, int accessor) {}
-
-    public int elementCount(Session session) {
-
-        Index index = this.indexList[0];
-
-        if (elementCount < 0) {
-            if (index == null) {
-                elementCount = 0;
-            } else {
-                elementCount = ((IndexAVL) index).getNodeCount(session, this);
-            }
-        }
-
-        if (session != null && index != null
-                && (table.getTableType() == TableBase.INFO_SCHEMA_TABLE
-                    || database.txManager.getTransactionControl()
-                       != TransactionManager.LOCKS)) {
-            return ((IndexAVL) index).getNodeCount(session, this);
-        }
-
-        return elementCount;
-    }
 }
