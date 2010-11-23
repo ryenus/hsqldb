@@ -1349,13 +1349,21 @@ public class Session implements SessionInterface {
         int[]     updateCounts;
         int       count;
 
-        csid = cmd.getStatementID();
-        cs   = statementManager.getStatement(this, csid);
+        cs = cmd.statement;
 
-        if (cs == null) {
+        if (cs == null
+                || cs.compileTimestamp
+                   < database.schemaManager.schemaChangeTimestamp) {
+            csid = cmd.getStatementID();
 
-            // invalid sql has been removed already
-            return Result.newErrorResult(Error.error(ErrorCode.X_07501));
+            cs = statementManager.getStatement(this, csid);
+
+            if (cs == null) {
+
+                // invalid sql has been removed already
+                return Result.newErrorResult(
+                    Error.error(ErrorCode.X_07502));
+            }
         }
 
         count = 0;
