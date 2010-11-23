@@ -92,28 +92,6 @@ public class SessionData {
             new PersistentStoreCollectionSession(session);
     }
 
-    // transitional feature
-    public PersistentStore getRowStore(TableBase table) {
-
-        if (table.tableType == TableBase.INFO_SCHEMA_TABLE) {
-            if (session.isAdmin()) {
-                return table.store;
-            }
-
-            return persistentStoreCollection.getStore(table);
-        }
-
-        if (table.store != null) {
-            return table.store;
-        }
-
-        if (table.isSessionBased) {
-            return persistentStoreCollection.getStore(table);
-        }
-
-        return database.persistentStoreCollection.getStore(table);
-    }
-
     public PersistentStore getSubqueryRowStore(TableBase table) {
 
         PersistentStore store = persistentStoreCollection.getStore(table);

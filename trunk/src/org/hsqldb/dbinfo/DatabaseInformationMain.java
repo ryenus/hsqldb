@@ -122,7 +122,7 @@ import org.hsqldb.types.Types;
  * generateTable(int) for each name in sysTableNames. Some of these
  * table entries may be null if an implementation does not produce them.<p>
  *
- * Calls to getSystemTable(String, Session) return a cached table if various
+ * Calls to setStore(String, Session) return a cached table if various
  * caching rules are met (see below), or it will delete all rows of the table
  * and rebuild the contents via generateTable(int).<p>
  *
@@ -136,9 +136,8 @@ import org.hsqldb.types.Types;
  * If a table has non-cached contents, its contents are cleared and
  * rebuilt. <p>
  *
- * For the rest of the tables, if the sysTableSessions slot is null or if the
- * Session parameter is not the same as the Session object
- * in that slot, the table contents are cleared and rebuilt. <p>
+ * For the rest of the tables, if the table has not been built for the Session
+ * object or it is out of date, the table contents are cleared and rebuilt. <p>
  *
  * (fredt@users) <p>
  * @author Campbell Boucher-Burnett (boucherb@users dot sourceforge.net)
@@ -481,23 +480,26 @@ class DatabaseInformationMain extends DatabaseInformation {
             return t;
         }
 
+        return t;
+    }
+
+    public synchronized final void setStore(Session session, Table table,
+            PersistentStore store) {
+
         long dbscts = database.schemaManager.getSchemaChangeTimestamp();
-        PersistentStore store = session.sessionData.getRowStore(t);
 
-        synchronized (store) {
-            if (store.getTimestamp() == dbscts
-                    && !nonCachedTablesSet.contains(name)) {
-                return t;
-            }
-
-            // fredt - clear the contents of table and generate
-            store.removeAll();
-            store.setTimestamp(dbscts);
-
-            t = generateTable(session, tableIndex);
+        if (store.getTimestamp() == dbscts
+                && !nonCachedTablesSet.contains(table.getName().name)) {
+            return;
         }
 
-        return t;
+        // fredt - clear the contents of table and generate
+        store.removeAll();
+        store.setTimestamp(dbscts);
+
+        int tableIndex = getSysTableID(table.getName().name);
+
+        generateTable(session, tableIndex);
     }
 
     /**
@@ -659,7 +661,7 @@ class DatabaseInformationMain extends DatabaseInformation {
             return t;
         }
 
-        PersistentStore store = session.sessionData.getRowStore(t);
+        PersistentStore store = t.getRowStore(session);
 
         // calculated column values
         Integer scope;           // { temp, transaction, session }
@@ -867,7 +869,7 @@ class DatabaseInformationMain extends DatabaseInformation {
             return t;
         }
 
-        PersistentStore store = session.sessionData.getRowStore(t);
+        PersistentStore store = t.getRowStore(session);
 
         // calculated column values
         String tableCatalog;
@@ -1081,7 +1083,7 @@ class DatabaseInformationMain extends DatabaseInformation {
             return t;
         }
 
-        PersistentStore store = session.sessionData.getRowStore(t);
+        PersistentStore store = t.getRowStore(session);
 
         // calculated column values
         String  pkTableCatalog;
@@ -1285,7 +1287,7 @@ class DatabaseInformationMain extends DatabaseInformation {
             return t;
         }
 
-        PersistentStore store = session.sessionData.getRowStore(t);
+        PersistentStore store = t.getRowStore(session);
 
         // calculated column values
         String  tableCatalog;
@@ -1447,7 +1449,7 @@ class DatabaseInformationMain extends DatabaseInformation {
             return t;
         }
 
-        PersistentStore store = session.sessionData.getRowStore(t);
+        PersistentStore store = t.getRowStore(session);
 
         // calculated column values
         String tableCatalog;
@@ -1635,7 +1637,7 @@ class DatabaseInformationMain extends DatabaseInformation {
             return t;
         }
 
-        PersistentStore store = session.sessionData.getRowStore(t);
+        PersistentStore store = t.getRowStore(session);
 
         // column number mappings
         final int specific_cat            = 0;
@@ -1846,7 +1848,7 @@ class DatabaseInformationMain extends DatabaseInformation {
         final int specific_name     = 8;
 
         //
-        PersistentStore store = session.sessionData.getRowStore(t);
+        PersistentStore store = t.getRowStore(session);
 
         //
         Iterator it = database.schemaManager.databaseObjectIterator(
@@ -1904,7 +1906,7 @@ class DatabaseInformationMain extends DatabaseInformation {
             return t;
         }
 
-        PersistentStore store = session.sessionData.getRowStore(t);
+        PersistentStore store = t.getRowStore(session);
         Object[]        row;
 
         // column number mappings
@@ -1979,7 +1981,7 @@ class DatabaseInformationMain extends DatabaseInformation {
                                String remark, Integer pType,
                                String specificName, String origin) {
 
-        PersistentStore store = session.sessionData.getRowStore(t);
+        PersistentStore store = t.getRowStore(session);
 
         // column number mappings
         final int icat          = 0;
@@ -2073,7 +2075,7 @@ class DatabaseInformationMain extends DatabaseInformation {
                                Integer ordinalPosition, String isNullable,
                                String specificName) {
 
-        PersistentStore store = session.sessionData.getRowStore(t);
+        PersistentStore store = t.getRowStore(session);
 
         // column number mappings
         final int icat       = 0;
@@ -2200,21 +2202,19 @@ class DatabaseInformationMain extends DatabaseInformation {
             return t;
         }
 
-        PersistentStore store = session.sessionData.getRowStore(t);
-        Iterator        schemas;
+        PersistentStore store = t.getRowStore(session);
         Object[]        row;
 
         // Initialization
-        schemas = database.schemaManager.fullSchemaNamesIterator();
-
+        String[] schemas = database.schemaManager.getSchemaNamesArray();
         String defschema =
             database.schemaManager.getDefaultSchemaHsqlName().name;
 
         // Do it.
-        while (schemas.hasNext()) {
+        for (int i = 0; i < schemas.length; i++) {
             row = t.getEmptyRowData();
 
-            String schema = (String) schemas.next();
+            String schema = schemas[i];
 
             row[0] = schema;
             row[1] = database.getCatalogName().name;
@@ -2305,7 +2305,7 @@ class DatabaseInformationMain extends DatabaseInformation {
             return t;
         }
 
-        PersistentStore store = session.sessionData.getRowStore(t);
+        PersistentStore store = t.getRowStore(session);
 
         // intermediate holders
         Iterator    tables;
@@ -2421,7 +2421,7 @@ class DatabaseInformationMain extends DatabaseInformation {
             return t;
         }
 
-        PersistentStore store = session.sessionData.getRowStore(t);
+        PersistentStore store = t.getRowStore(session);
         Object[]        row;
 
         for (int i = 0; i < tableTypes.length; i++) {
@@ -2553,7 +2553,7 @@ class DatabaseInformationMain extends DatabaseInformation {
         // not in JDBC, but in SQL CLI SQLDA / ODBC
         //------------------------------------------
         final int       iinterval_precision = 18;
-        PersistentStore store = session.sessionData.getRowStore(t);
+        PersistentStore store               = t.getRowStore(session);
         Object[]        row;
         Iterator        it           = Type.typeNames.keySet().iterator();
         boolean         translateTTI = database.sqlTranslateTTI;
@@ -2700,7 +2700,7 @@ class DatabaseInformationMain extends DatabaseInformation {
         }
 
         boolean         translateTTI = database.sqlTranslateTTI;
-        PersistentStore store        = session.sessionData.getRowStore(t);
+        PersistentStore store        = t.getRowStore(session);
 
         // column number mappings
         final int type_catalog = 0;
@@ -2849,7 +2849,7 @@ class DatabaseInformationMain extends DatabaseInformation {
             return t;
         }
 
-        PersistentStore store = session.sessionData.getRowStore(t);
+        PersistentStore store = t.getRowStore(session);
 
         // Intermediate holders
         HsqlArrayList users;
@@ -2938,7 +2938,7 @@ class DatabaseInformationMain extends DatabaseInformation {
             return t;
         }
 
-        PersistentStore store = session.sessionData.getRowStore(t);
+        PersistentStore store = t.getRowStore(session);
 
 // calculated column values
         String  tableCatalog;
@@ -3140,7 +3140,7 @@ class DatabaseInformationMain extends DatabaseInformation {
             return t;
         }
 
-        PersistentStore store = session.sessionData.getRowStore(t);
+        PersistentStore store = t.getRowStore(session);
 
         //
         final int sequence_catalog           = 0;
@@ -3247,7 +3247,7 @@ class DatabaseInformationMain extends DatabaseInformation {
             return t;
         }
 
-        PersistentStore store = session.sessionData.getRowStore(t);
+        PersistentStore store = t.getRowStore(session);
 
         //
         final int sequence_catalog           = 0;
@@ -3371,7 +3371,7 @@ class DatabaseInformationMain extends DatabaseInformation {
             return t;
         }
 
-        PersistentStore store = session.sessionData.getRowStore(t);
+        PersistentStore store = t.getRowStore(session);
 
         // calculated column values
         String  tableCatalog;
@@ -3485,7 +3485,7 @@ class DatabaseInformationMain extends DatabaseInformation {
             return t;
         }
 
-        PersistentStore store = session.sessionData.getRowStore(t);
+        PersistentStore store = t.getRowStore(session);
 
         // intermediate holders
         Iterator  tables;
@@ -3595,7 +3595,7 @@ class DatabaseInformationMain extends DatabaseInformation {
             return t;
         }
 
-        PersistentStore store = session.sessionData.getRowStore(t);
+        PersistentStore store = t.getRowStore(session);
         Object[]        row   = t.getEmptyRowData();
 
         row[0] = database.getCatalogName().name;

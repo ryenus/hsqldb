@@ -103,7 +103,7 @@ public class RowAction extends RowActionBase {
         this.type            = type;
         this.actionTimestamp = session.actionTimestamp;
         this.table           = table;
-        this.store           = session.sessionData.getRowStore(table);
+        this.store           = table.getRowStore(session);
         this.isMemory        = row.isMemory();
         this.memoryRow       = row;
         this.rowId           = row.getPos();

@@ -460,7 +460,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         final int ifree_pos        = 7;
 
         //
-        PersistentStore store = session.sessionData.getRowStore(t);
+        PersistentStore store = t.getRowStore(session);
         DataFileCache   cache = null;
         Object[]        row;
         HashSet         cacheSet;
@@ -481,7 +481,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         while (tables.hasNext()) {
             table = (Table) tables.next();
 
-            PersistentStore currentStore = session.sessionData.getRowStore(t);
+            PersistentStore currentStore = table.getRowStore(session);
 
             if (session.getGrantee().isFullyAccessibleByRole(
                     table.getName())) {
@@ -544,7 +544,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
             return t;
         }
 
-        PersistentStore store = session.sessionData.getRowStore(t);
+        PersistentStore store = t.getRowStore(session);
 
         // column number mappings
         final int catalog     = 0;
@@ -599,9 +599,10 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
             row[catalog] = database.getCatalogName().name;
             row[schema]  = table.getSchemaName().name;
             row[name]    = table.getName().name;
-            row[type] = table.isView()
-                        || table.getTableType() == Table.INFO_SCHEMA_TABLE ? "VIEW"
-                                                                      : "TABLE";
+            row[type] =
+                table.isView()
+                || table.getTableType() == Table.INFO_SCHEMA_TABLE ? "VIEW"
+                                                                   : "TABLE";
             row[column_name] = null;
             row[remark]      = ti.getRemark();
 
@@ -721,7 +722,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         final int iclass = 4;
 
         //
-        PersistentStore store = session.sessionData.getRowStore(t);
+        PersistentStore store = t.getRowStore(session);
 
         // calculated column values
         String scope;
@@ -811,7 +812,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
             return t;
         }
 
-        PersistentStore store = session.sessionData.getRowStore(t);
+        PersistentStore store = t.getRowStore(session);
         Object[]        row;
 
         row    = t.getEmptyRowData();
@@ -947,7 +948,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         final int it_waited  = 11;
 
         //
-        PersistentStore store = session.sessionData.getRowStore(t);
+        PersistentStore store = t.getRowStore(session);
 
         // intermediate holders
         Session[] sessions;
@@ -1108,7 +1109,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         final int iid          = 12;
 
         //
-        PersistentStore store = session.sessionData.getRowStore(t);
+        PersistentStore store = t.getRowStore(session);
 
         // intermediate holders
         Iterator tables;
@@ -1123,7 +1124,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         while (tables.hasNext()) {
             table = (Table) tables.next();
 
-            PersistentStore currentStore = session.sessionData.getRowStore(t);
+            PersistentStore currentStore = table.getRowStore(session);
 
             if (!table.isText() || !isAccessibleTable(session, table)) {
                 continue;
@@ -1261,7 +1262,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         final int       grantee      = 0;
         final int       role_name    = 1;
         final int       is_grantable = 2;
-        PersistentStore store        = session.sessionData.getRowStore(t);
+        PersistentStore store        = t.getRowStore(session);
 
         if (isGrantable) {
             Set      roles = database.getGranteeManager().getRoleNames();
@@ -1397,7 +1398,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
             return t;
         }
 
-        PersistentStore store = session.sessionData.getRowStore(t);
+        PersistentStore store = t.getRowStore(session);
 
         // Intermediate holders
         Iterator grantees;
@@ -1458,7 +1459,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         final int default_collate_name    = 7;
 
         //
-        PersistentStore store = session.sessionData.getRowStore(t);
+        PersistentStore store = t.getRowStore(session);
         Iterator it = database.schemaManager.databaseObjectIterator(
             SchemaObject.CHARSET);
 
@@ -1576,7 +1577,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         final int specific_name      = 5;
 
         //
-        PersistentStore store = session.sessionData.getRowStore(t);
+        PersistentStore store = t.getRowStore(session);
 
         // Intermediate holders
         Iterator       constraints;
@@ -1748,7 +1749,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         final int check_clause       = 3;
 
         //
-        PersistentStore store = session.sessionData.getRowStore(t);
+        PersistentStore store = t.getRowStore(session);
 
         // calculated column values
         // Intermediate holders
@@ -1910,7 +1911,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         final int pad_attribute     = 3;
 
         //
-        PersistentStore store = session.sessionData.getRowStore(t);
+        PersistentStore store = t.getRowStore(session);
 
         // Intermediate holders
         Iterator collations;
@@ -2014,7 +2015,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
             return t;
         }
 
-        PersistentStore store = session.sessionData.getRowStore(t);
+        PersistentStore store = t.getRowStore(session);
         Session sys = database.sessionManager.newSysSession(
             SqlInvariants.INFORMATION_SCHEMA_HSQLNAME, session.getUser());
         Result rs = sys.executeDirectStatement(
@@ -2064,7 +2065,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
             return t;
         }
 
-        PersistentStore store = session.sessionData.getRowStore(t);
+        PersistentStore store = t.getRowStore(session);
         Session sys = database.sessionManager.newSysSession(
             SqlInvariants.INFORMATION_SCHEMA_HSQLNAME, session.getUser());
         Result rs = sys.executeDirectStatement(
@@ -2199,7 +2200,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         final int declared_numeric_scale     = 46;
 
         //
-        PersistentStore store = session.sessionData.getRowStore(t);
+        PersistentStore store = t.getRowStore(session);
 
         // intermediate holders
         int            columnCount;
@@ -2437,7 +2438,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         final int constraint_name    = 6;
 
         //
-        PersistentStore store = session.sessionData.getRowStore(t);
+        PersistentStore store = t.getRowStore(session);
 
         // calculated column values
         String constraintCatalog;
@@ -2645,7 +2646,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
             return t;
         }
 
-        PersistentStore store = session.sessionData.getRowStore(t);
+        PersistentStore store = t.getRowStore(session);
 
         //
         Session sys = database.sessionManager.newSysSession(
@@ -2686,7 +2687,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
             return t;
         }
 
-        PersistentStore store = session.sessionData.getRowStore(t);
+        PersistentStore store = t.getRowStore(session);
 
         //
         Session sys = database.sessionManager.newSysSession(
@@ -2827,7 +2828,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         final int initially_deferred = 7;
 
         //
-        PersistentStore store = session.sessionData.getRowStore(t);
+        PersistentStore store = t.getRowStore(session);
 
         //
         Iterator it =
@@ -2946,7 +2947,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         final int declared_numeric_scale     = 23;
 
         //
-        PersistentStore store = session.sessionData.getRowStore(t);
+        PersistentStore store = t.getRowStore(session);
 
         //
         Iterator it =
@@ -3081,7 +3082,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
             return t;
         }
 
-        PersistentStore store = session.sessionData.getRowStore(t);
+        PersistentStore store = t.getRowStore(session);
 
         // Intermediate holders
         Iterator grantees;
@@ -3171,7 +3172,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         final int jar_path    = 3;
 
         //
-        PersistentStore store = session.sessionData.getRowStore(t);
+        PersistentStore store = t.getRowStore(session);
         Iterator        it;
         Object[]        row;
 
@@ -3232,7 +3233,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
             return t;
         }
 
-        PersistentStore store = session.sessionData.getRowStore(t);
+        PersistentStore store = t.getRowStore(session);
 
         // Intermediate holders
         Iterator tables;
@@ -3413,7 +3414,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
             return t;
         }
 
-        PersistentStore store = session.sessionData.getRowStore(t);
+        PersistentStore store = t.getRowStore(session);
 
         // column number mappings
         final int specific_cat             = 0;
@@ -3631,7 +3632,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         final int delete_rule               = 8;
 
         //
-        PersistentStore store = session.sessionData.getRowStore(t);
+        PersistentStore store = t.getRowStore(session);
         Iterator        tables;
         Table           table;
         Constraint[]    constraints;
@@ -3714,7 +3715,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
             return t;
         }
 
-        PersistentStore store = session.sessionData.getRowStore(t);
+        PersistentStore store = t.getRowStore(session);
         Session sys = database.sessionManager.newSysSession(
             SqlInvariants.INFORMATION_SCHEMA_HSQLNAME, session.getUser());
         Result rs = sys.executeDirectStatement(
@@ -3757,7 +3758,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
             return t;
         }
 
-        PersistentStore store = session.sessionData.getRowStore(t);
+        PersistentStore store = t.getRowStore(session);
         Session sys = database.sessionManager.newSysSession(
             SqlInvariants.INFORMATION_SCHEMA_HSQLNAME, session.getUser());
         Result rs = sys.executeDirectStatement(
@@ -3818,7 +3819,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
             return t;
         }
 
-        PersistentStore store = session.sessionData.getRowStore(t);
+        PersistentStore store = t.getRowStore(session);
         Session sys = database.sessionManager.newSysSession(
             SqlInvariants.INFORMATION_SCHEMA_HSQLNAME, session.getUser());
         Result rs = sys.executeDirectStatement(
@@ -3858,7 +3859,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
             return t;
         }
 
-        PersistentStore store = session.sessionData.getRowStore(t);
+        PersistentStore store = t.getRowStore(session);
         Session sys = database.sessionManager.newSysSession(
             SqlInvariants.INFORMATION_SCHEMA_HSQLNAME, session.getUser());
         Result rs = sys.executeDirectStatement(
@@ -3901,7 +3902,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
             return t;
         }
 
-        PersistentStore store = session.sessionData.getRowStore(t);
+        PersistentStore store = t.getRowStore(session);
         Session sys = database.sessionManager.newSysSession(
             SqlInvariants.INFORMATION_SCHEMA_HSQLNAME, session.getUser());
         Result rs = sys.executeDirectStatement(
@@ -3946,7 +3947,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
             return t;
         }
 
-        PersistentStore store = session.sessionData.getRowStore(t);
+        PersistentStore store = t.getRowStore(session);
 
         // column number mappings
         final int specific_catalog = 0;
@@ -4057,7 +4058,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         final int is_grantable     = 9;
 
         //
-        PersistentStore store = session.sessionData.getRowStore(t);
+        PersistentStore store = t.getRowStore(session);
 
         // calculated column values
         Grantee granteeObject;
@@ -4173,7 +4174,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         //
         Iterator        it;
         Object[]        row;
-        PersistentStore store = session.sessionData.getRowStore(t);
+        PersistentStore store = t.getRowStore(session);
 
         it = database.schemaManager.databaseObjectIterator(
             SchemaObject.ROUTINE);
@@ -4247,7 +4248,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         final int routine_name     = 5;
 
         //
-        PersistentStore store = session.sessionData.getRowStore(t);
+        PersistentStore store = t.getRowStore(session);
         Iterator        it;
         Object[]        row;
 
@@ -4329,7 +4330,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         final int sequence_name    = 5;
 
         //
-        PersistentStore store = session.sessionData.getRowStore(t);
+        PersistentStore store = t.getRowStore(session);
         Iterator        it;
         Object[]        row;
 
@@ -4417,7 +4418,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         final int table_name       = 8;
 
         //
-        PersistentStore store = session.sessionData.getRowStore(t);
+        PersistentStore store = t.getRowStore(session);
         Iterator        it;
         Object[]        row;
 
@@ -4669,7 +4670,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         final int result_cast_declared_numeric_scale     = 87;
 
         //
-        PersistentStore store = session.sessionData.getRowStore(t);
+        PersistentStore store = t.getRowStore(session);
         Iterator        it;
         Object[]        row;
 
@@ -4958,10 +4959,10 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
             return t;
         }
 
-        PersistentStore store = session.sessionData.getRowStore(t);
+        PersistentStore store = t.getRowStore(session);
 
         // Intermediate holders
-        Iterator schemas;
+        Schema[] schemas;
         Schema   schema;
         String   dcsSchema = SqlInvariants.INFORMATION_SCHEMA;
         String   dcsName   = ValuePool.getString(Tokens.T_UTF16);
@@ -4979,11 +4980,11 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         final int sql_path                      = 6;
 
         // Initialization
-        schemas = database.schemaManager.allSchemasIterator();
+        schemas = database.schemaManager.getAllSchemas();
 
         // Do it.
-        while (schemas.hasNext()) {
-            schema = (Schema) schemas.next();
+        for (int i = 0; i < schemas.length; i++) {
+            schema = schemas[i];
 
             if (!user.hasSchemaUpdateOrGrantRights(
                     schema.getName().getNameString())) {
@@ -5032,7 +5033,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
             return t;
         }
 
-        PersistentStore store = session.sessionData.getRowStore(t);
+        PersistentStore store = t.getRowStore(session);
         Session sys = database.sessionManager.newSysSession(
             SqlInvariants.INFORMATION_SCHEMA_HSQLNAME, session.getUser());
         String sql = (String) statementMap.get("/*sql_features*/");
@@ -5067,7 +5068,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
             return t;
         }
 
-        PersistentStore store = session.sessionData.getRowStore(t);
+        PersistentStore store = t.getRowStore(session);
         Session sys = database.sessionManager.newSysSession(
             SqlInvariants.INFORMATION_SCHEMA_HSQLNAME, session.getUser());
 
@@ -5103,7 +5104,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
             return t;
         }
 
-        PersistentStore store = session.sessionData.getRowStore(t);
+        PersistentStore store = t.getRowStore(session);
         Session sys = database.sessionManager.newSysSession(
             SqlInvariants.INFORMATION_SCHEMA_HSQLNAME, session.getUser());
         String sql = (String) statementMap.get("/*sql_packages*/");
@@ -5137,7 +5138,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
             return t;
         }
 
-        PersistentStore store = session.sessionData.getRowStore(t);
+        PersistentStore store = t.getRowStore(session);
         Session sys = database.sessionManager.newSysSession(
             SqlInvariants.INFORMATION_SCHEMA_HSQLNAME, session.getUser());
         String sql = (String) statementMap.get("/*sql_parts*/");
@@ -5170,7 +5171,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
             return t;
         }
 
-        PersistentStore store = session.sessionData.getRowStore(t);
+        PersistentStore store = t.getRowStore(session);
         Session sys = database.sessionManager.newSysSession(
             SqlInvariants.INFORMATION_SCHEMA_HSQLNAME, session.getUser());
         String sql = (String) statementMap.get("/*sql_sizing*/");
@@ -5206,7 +5207,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
             return t;
         }
 
-        PersistentStore store = session.sessionData.getRowStore(t);
+        PersistentStore store = t.getRowStore(session);
         Session sys = database.sessionManager.newSysSession(
             SqlInvariants.INFORMATION_SCHEMA_HSQLNAME, session.getUser());
 
@@ -5353,7 +5354,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
             return t;
         }
 
-        PersistentStore store = session.sessionData.getRowStore(t);
+        PersistentStore store = t.getRowStore(session);
 
         // Intermediate holders
         Iterator     tables;
@@ -5504,7 +5505,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
             return t;
         }
 
-        PersistentStore store = session.sessionData.getRowStore(t);
+        PersistentStore store = t.getRowStore(session);
 
         // column number mappings
         final int trigger_catalog = 0;
@@ -5586,7 +5587,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
             return t;
         }
 
-        PersistentStore store = session.sessionData.getRowStore(t);
+        PersistentStore store = t.getRowStore(session);
 
         // column number mappings
         final int trigger_catalog  = 0;
@@ -5663,7 +5664,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
             return t;
         }
 
-        PersistentStore store = session.sessionData.getRowStore(t);
+        PersistentStore store = t.getRowStore(session);
 
         // column number mappings
         final int trigger_catalog  = 0;
@@ -5741,7 +5742,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
             return t;
         }
 
-        PersistentStore store = session.sessionData.getRowStore(t);
+        PersistentStore store = t.getRowStore(session);
 
         // column number mappings
         final int trigger_catalog = 0;
@@ -5830,7 +5831,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
             return t;
         }
 
-        PersistentStore store = session.sessionData.getRowStore(t);
+        PersistentStore store = t.getRowStore(session);
 
         // column number mappings
         final int trigger_catalog            = 0;
@@ -5921,7 +5922,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
             return t;
         }
 
-        PersistentStore store = session.sessionData.getRowStore(t);
+        PersistentStore store = t.getRowStore(session);
 
         // column number mappings
         final int trigger_catalog      = 0;
@@ -6005,7 +6006,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         final int       udt_name       = 4;
         final int       privilege_type = 5;
         final int       is_grantable   = 6;
-        PersistentStore store          = session.sessionData.getRowStore(t);
+        PersistentStore store          = t.getRowStore(session);
         Iterator objects =
             database.schemaManager.databaseObjectIterator(SchemaObject.TYPE);
         OrderedHashSet grantees =
@@ -6189,7 +6190,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         final int       object_type    = 5;
         final int       privilege_type = 6;
         final int       is_grantable   = 7;
-        PersistentStore store          = session.sessionData.getRowStore(t);
+        PersistentStore store          = t.getRowStore(session);
         Iterator objects =
             new WrapperIterator(database.schemaManager
                 .databaseObjectIterator(SchemaObject.SEQUENCE), database
@@ -6310,7 +6311,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
             return t;
         }
 
-        PersistentStore store = session.sessionData.getRowStore(t);
+        PersistentStore store                      = t.getRowStore(session);
         final int       user_defined_type_catalog  = 0;
         final int       user_defined_type_schema   = 1;
         final int       user_defined_type_name     = 2;
@@ -6491,7 +6492,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
             return t;
         }
 
-        PersistentStore store = session.sessionData.getRowStore(t);
+        PersistentStore store = t.getRowStore(session);
 
         // Calculated column values
         String viewCatalog;
@@ -6629,7 +6630,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
             return t;
         }
 
-        PersistentStore store = session.sessionData.getRowStore(t);
+        PersistentStore store = t.getRowStore(session);
 
         // Intermediate holders
         Iterator tables;
@@ -6765,7 +6766,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         final int table_name    = 5;
 
         //
-        PersistentStore store = session.sessionData.getRowStore(t);
+        PersistentStore store = t.getRowStore(session);
         Iterator        tables;
         Table           table;
         Object[]        row;
@@ -6875,7 +6876,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
             return t;
         }
 
-        PersistentStore store = session.sessionData.getRowStore(t);
+        PersistentStore store = t.getRowStore(session);
         Iterator        tables;
         Table           table;
         Object[]        row;
@@ -7039,7 +7040,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
             return t;
         }
 
-        PersistentStore store = session.sessionData.getRowStore(t);
+        PersistentStore store = t.getRowStore(session);
 
         // Intermediate holders
         String   grantorName = SqlInvariants.SYSTEM_AUTHORIZATION_NAME;

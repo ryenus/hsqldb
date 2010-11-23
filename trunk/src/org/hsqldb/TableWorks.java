@@ -361,7 +361,7 @@ public class TableWorks {
                         database.schemaManager.getUserTable(session,
                             c.getMainTableName());
                     c.core.refTable = table;
-                    c.core.refName = c.getName();
+                    c.core.refName  = c.getName();
 
                     boolean isSelf = originalTable == c.core.mainTable;
 
@@ -1259,7 +1259,9 @@ public class TableWorks {
 
     void moveData(Table oldTable, Table newTable, int colIndex, int adjust) {
 
-        if (oldTable.getTableType() == Table.TEMP_TABLE) {
+        int tableType = oldTable.getTableType();
+
+        if (tableType == Table.TEMP_TABLE) {
             Session sessions[] = database.sessionManager.getAllSessions();
 
             for (int i = 0; i < sessions.length; i++) {
@@ -1267,7 +1269,6 @@ public class TableWorks {
                     oldTable, newTable, colIndex, adjust);
             }
         } else {
-
             PersistentStore oldStore =
                 database.persistentStoreCollection.getStore(oldTable);
             PersistentStore newStore =

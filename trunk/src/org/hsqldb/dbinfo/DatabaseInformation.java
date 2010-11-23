@@ -37,6 +37,7 @@ import org.hsqldb.Database;
 import org.hsqldb.Session;
 import org.hsqldb.Table;
 import org.hsqldb.lib.IntValueHashMap;
+import org.hsqldb.persist.PersistentStore;
 
 // fredt@users - 1.7.2 - structural modifications to allow inheritance
 // boucherB@users 20020305 - completed inheritance work, including final access
@@ -53,7 +54,7 @@ import org.hsqldb.lib.IntValueHashMap;
  * DatabaseInformation implementations. <p>
  *
  * @author Campbell Boucher-Burnett (boucherb@users dot sourceforge.net)
- * @version 1.9.0
+ * @version 2.0.1
  * @since 1.7.2
  */
 public class DatabaseInformation {
@@ -355,6 +356,12 @@ public class DatabaseInformation {
     public synchronized Table getSystemTable(Session session, String name) {
         return null;
     }
+
+    /**
+     * Sets the store for the given session, populates the store if necessary.
+     */
+    public synchronized void setStore(Session session, Table table,
+            PersistentStore store) {}
 
     /**
      * Switches this table producer between producing empty (surrogate)

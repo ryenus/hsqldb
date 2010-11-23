@@ -1111,7 +1111,6 @@ public class Logger {
 
             case TableBase.FUNCTION_TABLE :
             case TableBase.MEMORY_TABLE :
-            case TableBase.INFO_SCHEMA_TABLE :
             case TableBase.SYSTEM_TABLE :
                 return new RowStoreAVLMemory(collection, (Table) table);
 
@@ -1126,8 +1125,12 @@ public class Logger {
                 return new RowStoreAVLHybrid(session, collection, table,
                                              diskBased);
 
+            case TableBase.INFO_SCHEMA_TABLE :
             case TableBase.TEMP_TABLE :
                 diskBased = false;
+
+                return new RowStoreAVLHybridExtended(session, collection,
+                                                     table, diskBased);
 
             // fall through
             case TableBase.SYSTEM_SUBQUERY :

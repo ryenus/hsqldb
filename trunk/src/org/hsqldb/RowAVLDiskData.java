@@ -64,7 +64,7 @@ public class RowAVLDiskData extends RowAVL {
 
         super(t, o);
 
-        setNewNodes();
+        setNewNodes(store);
 
         hasDataChanged = true;
         this.store     = store;
@@ -79,7 +79,7 @@ public class RowAVLDiskData extends RowAVL {
 
         super(t, (Object[]) null);
 
-        setNewNodes();
+        setNewNodes(store);
 
         position       = in.getPos();
         storageSize    = in.getSize();
@@ -107,9 +107,9 @@ public class RowAVLDiskData extends RowAVL {
      *  Used when data is read from the disk into the Cache the first time.
      *  New Nodes are created which are then indexed.
      */
-    public void setNewNodes() {
+    public void setNewNodes(PersistentStore store) {
 
-        int index = table.getIndexCount();
+        int index = store.getAccessorKeys().length;
 
         nPrimaryNode = new NodeAVL(this);
 
@@ -142,7 +142,7 @@ public class RowAVLDiskData extends RowAVL {
     }
 
     public int getRealSize(RowOutputInterface out) {
-        return out.getSize((RowAVL) this);
+        return out.getSize(this);
     }
 
     /**

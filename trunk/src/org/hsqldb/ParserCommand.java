@@ -312,15 +312,12 @@ public class ParserCommand extends ParserDDL {
             name = readQuotedString();
         }
 
-        Object[] args = new Object[]{ name };
-        Statement cs = new StatementCommand(StatementTypes.DATABASE_SCRIPT,
-                                            args);
         HsqlName[] names =
             database.schemaManager.getCatalogAndBaseTableNames();
+        Object[] args = new Object[]{ name };
 
-        cs.readTableNames = names;
-
-        return cs;
+        return new StatementCommand(StatementTypes.DATABASE_SCRIPT, args,
+                                    null, names);
     }
 
     private Statement compileConnect() {

@@ -191,7 +191,6 @@ public class IndexAVLMemory extends IndexAVL {
 
             if (n == null) {
                 store.setAccessor(this, ((RowAVL) row).getNode(position));
-                store.setElementCount(this, 1, 1);
 
                 return;
             }
@@ -254,7 +253,6 @@ public class IndexAVLMemory extends IndexAVL {
             x = x.set(store, isleft, ((RowAVL) row).getNode(position));
 
             balance(store, x, isleft);
-            store.updateElementCount(this, 1, 1);
         } finally {
             writeLock.unlock();
         }

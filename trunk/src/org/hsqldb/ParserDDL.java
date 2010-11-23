@@ -1597,17 +1597,15 @@ public class ParserDDL extends ParserRoutine {
         queryExpression.resolve(session);
         view.setStatement(Token.getSQL(tokenisedStatement));
 
-        String          fullSQL = getLastPart();
-        Object[]        args    = new Object[]{ view };
-        int             type    = alter ? StatementTypes.ALTER_VIEW
-                                        : StatementTypes.CREATE_VIEW;
-        StatementSchema cs      = new StatementSchema(fullSQL, type, args);
         StatementQuery s = new StatementQuery(session, queryExpression,
                                               compileContext);
+        String   fullSQL = getLastPart();
+        Object[] args    = new Object[]{ view };
+        int      type    = alter ? StatementTypes.ALTER_VIEW
+                                 : StatementTypes.CREATE_VIEW;
 
-        cs.readTableNames = s.readTableNames;
-
-        return cs;
+        return new StatementSchema(fullSQL, type, args, s.readTableNames,
+                                   null);
     }
 
     StatementSchema compileCreateSequence() {

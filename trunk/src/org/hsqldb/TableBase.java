@@ -163,7 +163,7 @@ public class TableBase {
 
     public final RowIterator rowIterator(Session session) {
 
-        PersistentStore store = session.sessionData.getRowStore(this);
+        PersistentStore store = getRowStore(session);
 
         return getPrimaryIndex().firstRow(session, store);
     }
@@ -510,7 +510,7 @@ public class TableBase {
 
     public void clearAllData(Session session) {
 
-        PersistentStore store = session.sessionData.getRowStore(this);
+        PersistentStore store = getRowStore(session);
 
         store.removeAll();
     }
@@ -530,17 +530,15 @@ public class TableBase {
             return true;
         }
 
-        PersistentStore store = session.sessionData.getRowStore(this);
+        PersistentStore store = getRowStore(session);
 
         return getIndex(0).isEmpty(store);
     }
 
-    public int getRowCount(PersistentStore store) {
-        return getPrimaryIndex().size(null, store);
-    }
-
     public PersistentStore getRowStore(Session session) {
-        return store == null ? session.sessionData.getRowStore(this)
-                             : store;
+
+        return store == null
+               ? session.sessionData.persistentStoreCollection.getStore(this)
+               : store;
     }
 }

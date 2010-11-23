@@ -121,25 +121,10 @@ public class RowStoreAVLDiskData extends RowStoreAVLDisk {
         return row;
     }
 
+
     public void indexRow(Session session, Row row) {
 
-        int i = 0;
-
-        try {
-            for (; i < indexList.length; i++) {
-                indexList[i].insert(session, this, row);
-            }
-        } catch (HsqlException e) {
-
-            // unique index violation - rollback insert
-            for (--i; i >= 0; i--) {
-                indexList[i].delete(session, this, row);
-            }
-
-            remove(row.getPos());
-
-            throw e;
-        }
+        super.indexRow(session, row);
     }
 
     public void set(CachedObject object) {}
@@ -221,7 +206,7 @@ public class RowStoreAVLDiskData extends RowStoreAVLDisk {
 
             case RowAction.ACTION_DELETE :
                 if (txModel == TransactionManager.LOCKS) {
-                    ((RowAVL) row).setNewNodes();
+                    ((RowAVL) row).setNewNodes(this);
                     indexRow(session, row);
                 }
                 break;

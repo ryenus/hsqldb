@@ -130,11 +130,11 @@ public class RowAVLDisk extends RowAVL {
      * @param t table
      * @param o row data
      */
-    public RowAVLDisk(TableBase t, Object[] o) {
+    public RowAVLDisk(TableBase t, Object[] o, PersistentStore store) {
 
         super(t, o);
 
-        setNewNodes();
+        setNewNodes(store);
 
         hasDataChanged = hasNodesChanged = true;
     }
@@ -316,12 +316,9 @@ public class RowAVLDisk extends RowAVL {
         }
     }
 
-    /**
-     * used in CachedDataRow
-     */
-    public void setNewNodes() {
+    public void setNewNodes(PersistentStore store) {
 
-        int indexcount = table.getIndexCount();
+        int indexcount = store.getAccessorKeys().length;
 
         nPrimaryNode = new NodeAVLDisk(this, 0);
 
@@ -334,11 +331,7 @@ public class RowAVLDisk extends RowAVL {
     }
 
     public int getRealSize(RowOutputInterface out) {
-
-        int size = out.getSize((RowAVLDisk) this)
-                   + table.getIndexCount() * NodeAVLDisk.SIZE_IN_BYTE;
-
-        return size;
+        return out.getSize(this);
     }
 
     /**

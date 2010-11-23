@@ -230,7 +230,7 @@ final class DataFileDefrag {
     int[] writeTableToDataFile(Table table) throws IOException {
 
         Session session = database.getSessionManager().getSysSession();
-        PersistentStore    store  = session.sessionData.getRowStore(table);
+        PersistentStore    store  = table.getRowStore(session);
         RowOutputInterface rowOut = cache.rowOut.duplicate();
         DoubleIntIndex pointerLookup =
             new DoubleIntIndex(store.elementCount(session), false);

@@ -246,7 +246,7 @@ implements TransactionManager {
 
         session.rowActionList.add(action);
 
-        PersistentStore store = session.sessionData.getRowStore(table);
+        PersistentStore store = table.getRowStore(session);
 
         store.delete(session, row);
 

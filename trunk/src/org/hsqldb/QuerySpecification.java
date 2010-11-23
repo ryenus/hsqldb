@@ -1263,7 +1263,7 @@ public class QuerySpecification extends QueryExpression {
             Object[]        data  = new Object[indexLimitData];
             Table           table = rangeVariables[0].getTable();
             PersistentStore store = table.getRowStore(session);
-            int             count = table.getIndex(0).size(session, store);
+            int             count = store.elementCount(session);
 
             data[0] = data[indexStartAggregates] = ValuePool.getInt(count);
 

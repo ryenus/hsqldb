@@ -303,10 +303,10 @@ public abstract class ScriptWriterBase implements Runnable {
         // start with blank schema - SET SCHEMA to log
         currentSession.loggedSchema = null;
 
-        Iterator schemas = database.schemaManager.allSchemaNameIterator();
+        String[] schemas = database.schemaManager.getSchemaNamesArray();
 
-        while (schemas.hasNext()) {
-            String schema = (String) schemas.next();
+        for (int i = 0; i < schemas.length; i++) {
+            String schema = schemas[i];
             Iterator tables =
                 database.schemaManager.databaseObjectIterator(schema,
                     SchemaObject.TABLE);
