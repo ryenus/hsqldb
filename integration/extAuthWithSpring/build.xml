@@ -69,6 +69,7 @@
           classpathref="run.ivyrefid" failonerror="true" fork="true">
       <arg value="${authentication.mode}"/>
       <sysproperty key="${truststore.property}" value="${truststore.path}"/>
+      <sysproperty key="java.util.logging.config.file" value="jul.properties"/>
     </java>
           <!--  Log4j logging
       classpath="classes:resources:${hsqldb.jarfile}:${user.home}/lib-repos/log4j-1.2.16.jar:${user.home}/lib-repos/admc-log4j-1.2_3.jar"

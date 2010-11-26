@@ -38,6 +38,7 @@ import java.sql.SQLException;
 import java.sql.ResultSet;
 import java.sql.Statement;
 import java.util.HashSet;
+import org.hsqldb.types.Type;
 import org.hsqldb.jdbc.JDBCArrayBasic;
 import org.hsqldb.lib.FrameworkLogger;
 
@@ -51,6 +52,27 @@ public class AuthFunctionUtils {
      */
     private AuthFunctionUtils() {
         // Intentionally empty
+    }
+
+    public static Array noRoleFn(
+            String database, String user, String password) {
+        return new JDBCArrayBasic(new String[0], Type.SQL_VARCHAR);
+    }
+
+    public static Array dbaFn(
+            String database, String user, String password) {
+        return new JDBCArrayBasic(new String[] { "DBA" }, Type.SQL_VARCHAR);
+    }
+
+    public static Array changeAuthFn(
+            String database, String user, String password) {
+        return new JDBCArrayBasic(
+                new String[] { "CHANGE_AUTHORIZATION" }, Type.SQL_VARCHAR);
+    }
+
+    public static Array nullFn(
+            String database, String user, String password) {
+        return null;
     }
 
     /**
