@@ -62,29 +62,14 @@ public class AuthFunctionTest extends junit.framework.TestCase {
     private static final String[] twoRoles = new String[] { "ROLE1", "ROLE2" };
     private static final String[] roles34 = new String[] { "ROLE3", "ROLE4" };
 
-    public static Array noRoleFn(
-            String database, String user, String password) {
-        return new JDBCArrayBasic(new String[0], Type.SQL_VARCHAR);
-    }
-
     public static Array schemaS2Fn(
             String database, String user, String password) {
         return new JDBCArrayBasic(new String[] { "S2" }, Type.SQL_VARCHAR);
     }
 
-    public static Array dbaFn(
-            String database, String user, String password) {
-        return new JDBCArrayBasic(new String[] { "DBA" }, Type.SQL_VARCHAR);
-    }
-
     public static Array twoRolesFn(
             String database, String user, String password) {
         return new JDBCArrayBasic(twoRoles, Type.SQL_VARCHAR);
-    }
-
-    public static Array nullFn(
-            String database, String user, String password) {
-        return null;
     }
 
     private static final Set<String> twoRolesSet =
@@ -238,7 +223,8 @@ public class AuthFunctionTest extends junit.framework.TestCase {
             saSt.executeUpdate("GRANT role4 TO tlualr");
             saSt.executeUpdate(
                     "SET DATABASE AUTHENTICATION FUNCTION EXTERNAL NAME "
-                    + "'CLASSPATH:" + getClass().getName() + ".nullFn'");
+                    + "'CLASSPATH:"
+                    + AuthFunctionUtils.class.getName() + ".nullFn'");
             try {
                 authedCon = DriverManager.getConnection(
                         jdbcUrl, "TLUALR", "unusedPassword");
@@ -287,12 +273,13 @@ public class AuthFunctionTest extends junit.framework.TestCase {
             saSt.executeUpdate("GRANT role4 TO tlualr0r");
             saSt.executeUpdate(
                     "SET DATABASE AUTHENTICATION FUNCTION EXTERNAL NAME "
-                    + "'CLASSPATH:" + getClass().getName() + ".noRoleFn'");
+                    + "'CLASSPATH:"
+                    + AuthFunctionUtils.class.getName() + ".noRoleFn'");
             try {
                 authedCon = DriverManager.getConnection(
                         jdbcUrl, "TLUALR0R", "unusedPassword");
             } catch (SQLException se) {
-                fail("Access with 'nullFn' failed");
+                fail("Access with 'noRoleFn' failed");
             }
             st = authedCon.createStatement();
             assertTrue("Negative test #1 failed",
@@ -336,7 +323,8 @@ public class AuthFunctionTest extends junit.framework.TestCase {
             saSt.executeUpdate("CREATE USER tloa PASSWORD 'localPassword'");
             saSt.executeUpdate(
                     "SET DATABASE AUTHENTICATION FUNCTION EXTERNAL NAME "
-                    + "'CLASSPATH:" + getClass().getName() + ".nullFn'");
+                    + "'CLASSPATH:"
+                    + AuthFunctionUtils.class.getName() + ".nullFn'");
             try {
                 authedCon = DriverManager.getConnection(
                         jdbcUrl, "TLOA", "unusedPassword");
@@ -422,7 +410,7 @@ public class AuthFunctionTest extends junit.framework.TestCase {
                 authedCon = DriverManager.getConnection(
                         jdbcUrl, "TPS", "unusedPassword");
             } catch (SQLException se) {
-                fail("Access with 'nullFn' failed");
+                fail("Access with 'schemaS2Fn' failed");
             }
             st = authedCon.createStatement();
             assertTrue("Negative test #1 failed",
@@ -472,7 +460,7 @@ public class AuthFunctionTest extends junit.framework.TestCase {
                 authedCon = DriverManager.getConnection(
                         jdbcUrl, "TNPS", "unusedPassword");
             } catch (SQLException se) {
-                fail("Access with 'nullFn' failed");
+                fail("Access with 'twoRolesFn' failed");
             }
             st = authedCon.createStatement();
             assertFalse("Positive test #1 failed",
