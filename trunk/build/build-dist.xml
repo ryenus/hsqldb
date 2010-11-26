@@ -118,8 +118,13 @@ and re-export.</fail>
   </target>
 
   <target name="dist"
-          depends="state-check, clean-all, javadoc, gen-docs, hsqldb, sqltool"
+      depends="state-check, clean-all, javadoc, gen-docs, hsqldb, sqltool, bnd"
           description="Build joint binary + source distribution packages">
+    <!--
+      -  It's ok to run the bnd target repeatedly.  That would just re-set the
+      -  values to what they already were.  Probably just resulting in updating
+      -  the modification timestamp of the jar file node.
+      -->
     <mkdir dir="dist"/>
     <property name="app.basedir" value="hsqldb-${hsqldb.version}"/>
     
@@ -205,5 +210,31 @@ and re-export.</fail>
                   classes/**, dist/**, local*/**, tmp/**, doc-src/images/db/**,
                   build/ivysettings.xml, stylesheets/rng-catalog.xml"/>
     </zip>
+  </target>
+
+  <target name="bnd"
+          description="Write OSGI properties to manifest of 'hsqldb.jar' file">
+    <fail message="Ant property 'bnd.jarpath' required by target 'bnd'"
+           unless="bnd.jarpath"/>
+    <move overwrite="true" failonerror="false"
+           file="lib/hsqldb.jar" tofile="lib/hsqldb.prebnd"/>
+    <available property="injar.present" type="file" file="lib/hsqldb.prebnd"/>
+    <fail message="Can't use target 'bnd' if 'hsqldb.jar' file not build yet"
+           unless="injar.present"/>
+    <!-- Purposefully not using the bndwrap task available for this purpose,
+         because the docs don't explain how to use the attributes clearly enough
+         to figure out how to use it. -->
+    <java failonerror="true" jar="${bnd.jarpath}" fork="true" dir="lib">
+      <sysproperty key="hsqldb.version" value="${hsqldb.version}"/>
+      <sysproperty key="build.vendor" value="${user.name}"/>
+      <sysproperty key="hsqldb.title" value="${hsqldb.title}"/>
+      <arg value="wrap"/>
+      <arg value="-output"/>
+      <arg value="hsqldb.jar"/>
+      <arg value="-properties"/>
+      <arg file="build/hsqldb.bnd"/>
+      <arg value="hsqldb.prebnd"/>
+    </java>
+    <delete file="lib/hsqldb.prebnd"/>
   </target>
 </project>
