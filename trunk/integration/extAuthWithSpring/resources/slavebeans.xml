@@ -12,9 +12,6 @@
   <bean id="slaveSetup" class="org.hsqldb.auth.AuthBeanMultiplexer"
         factory-method="getSingleton">
     <property name="authFunctionBeans"><map>
-        <!--  Pending engine fix:
-        <entry key="AuthSampleDbName">
-          -->
         <entry key="AUTHSAMPLEDBNAME">
           <list>
             <bean class="org.hsqldb.auth.HsqldbSlaveAuthBean"

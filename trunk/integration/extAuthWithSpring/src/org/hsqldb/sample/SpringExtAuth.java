@@ -98,10 +98,6 @@ public class SpringExtAuth {
                     "SET DATABASE AUTHENTICATION FUNCTION EXTERNAL NAME "
                     + "'CLASSPATH:"
                     + "org.hsqldb.auth.AuthBeanMultiplexer.authenticate'");
-            /*  Seems to be a bug in the engine so that names can't use
-             *  lower-case letters.
-            st.executeUpdate("SET DATABASE UNIQUE NAME \"AuthSampleDbName\"");
-            */
             // DB Name here must match that configured in either
             // "ldapbeans.xml" or "slavebean.xml", depending on whether you are
             // running in LDAP or HsqldbSlave mode, correspondingly.

@@ -12,9 +12,6 @@
   <bean id="ldapSetup" class="org.hsqldb.auth.AuthBeanMultiplexer"
         factory-method="getSingleton">
     <property name="authFunctionBeans"><map>
-        <!--  Pending engine fix:
-        <entry key="AuthSampleDbName">
-          -->
         <entry key="AUTHSAMPLEDBNAME">
           <list>
             <bean class="org.hsqldb.auth.LdapAuthBean" init-method="init">
