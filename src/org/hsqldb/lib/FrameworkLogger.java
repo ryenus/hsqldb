@@ -224,6 +224,18 @@ public class FrameworkLogger {
     }
 
     /**
+     * This method just defers to the getLog(String) method unless default
+     * (no local configuration) JDK logging is being used;
+     * In that case, this method assures that the returned logger has an
+     * associated FileHander using the supplied String identifier.
+     */
+    public static FrameworkLogger getLog(String baseId, String contextId) {
+        return (contextId == null)
+                ?  getLog(baseId)
+                :  getLog(contextId + '.' + baseId);
+    }
+
+    /**
      * Alternative entry-point into this logging sytem, for cases where
      * your want to share a single logger instance among multiple classes,
      * or you want to use multiple logger instances from a single class.
