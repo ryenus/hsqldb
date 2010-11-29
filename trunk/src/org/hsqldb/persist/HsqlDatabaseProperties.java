@@ -215,11 +215,11 @@ public class HsqlDatabaseProperties extends HsqlProperties {
         "hsqldb.write_delay_millis";
 
     //
-    public static final String sql_ref_integrity     = "sql.ref_integrity";
+    public static final String sql_ref_integrity       = "sql.ref_integrity";
     public static final String sql_compare_in_locale = "sql.compare_in_locale";
-    public static final String sql_enforce_size      = "sql.enforce_size";
+    public static final String sql_enforce_size        = "sql.enforce_size";
     public static final String sql_enforce_strict_size =
-        "sql.enforce_strict_size";
+        "sql.enforce_strict_size";    // synonym for sql_enforce_size
     public static final String sql_enforce_refs  = "sql.enforce_refs";
     public static final String sql_enforce_names = "sql.enforce_names";
     public static final String sql_enforce_types = "sql.enforce_types";
@@ -232,7 +232,6 @@ public class HsqlDatabaseProperties extends HsqlProperties {
     public static final String sql_syntax_pgs    = "sql.syntax_pgs";
     public static final String sql_syntax_mss    = "sql.syntax_mss";
     public static final String sql_syntax_mys    = "sql.syntax_mys";
-
     public static final String jdbc_translate_tti_types =
         "jdbc.translate_tti_types";
     public static final String sql_identity_is_pk = "sql.identity_is_pk";
@@ -348,9 +347,6 @@ public class HsqlDatabaseProperties extends HsqlProperties {
         dbMeta.put(sql_enforce_size,
                    HsqlProperties.getMeta(sql_enforce_size, SQL_PROPERTY,
                                           true));
-        dbMeta.put(sql_enforce_strict_size,
-                   HsqlProperties.getMeta(sql_enforce_strict_size,
-                                          SQL_PROPERTY, true));
         dbMeta.put(sql_enforce_types,
                    HsqlProperties.getMeta(sql_enforce_types, SQL_PROPERTY,
                                           false));
@@ -378,11 +374,9 @@ public class HsqlDatabaseProperties extends HsqlProperties {
         dbMeta.put(sql_syntax_mys,
                    HsqlProperties.getMeta(sql_syntax_mys, SQL_PROPERTY,
                                           false));
-
         dbMeta.put(sql_syntax_pgs,
                    HsqlProperties.getMeta(sql_syntax_pgs, SQL_PROPERTY,
                                           false));
-
         dbMeta.put(sql_compare_in_locale,
                    HsqlProperties.getMeta(sql_compare_in_locale, SQL_PROPERTY,
                                           false));
@@ -551,6 +545,7 @@ public class HsqlDatabaseProperties extends HsqlProperties {
             if (getIntegerProperty(hsqldb_script_format) == 3) {
                 props.setProperty(hsqldb_script_format, 3);
             }
+
             props.setProperty(hsqldb_version, THIS_VERSION);
             props.setProperty(hsqldb_modified, getProperty(hsqldb_modified));
             props.save(fileName + ".properties" + ".new");
@@ -567,6 +562,12 @@ public class HsqlDatabaseProperties extends HsqlProperties {
     }
 
     void filterLoadedProperties() {
+
+        String val = stringProps.getProperty(sql_enforce_strict_size);
+
+        if (val != null) {
+            stringProps.setProperty(sql_enforce_size, val);
+        }
 
         Enumeration en = stringProps.propertyNames();
 
@@ -590,6 +591,13 @@ public class HsqlDatabaseProperties extends HsqlProperties {
 
         if (p == null) {
             return;
+        }
+
+        String val = p.getProperty(sql_enforce_strict_size);
+
+        if (val != null) {
+            p.setProperty(sql_enforce_size, val);
+            p.removeProperty(sql_enforce_strict_size);
         }
 
         strict = p.isPropertyTrue(url_check_props, false);

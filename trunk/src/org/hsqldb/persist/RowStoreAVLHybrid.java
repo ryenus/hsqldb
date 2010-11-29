@@ -53,7 +53,7 @@ import org.hsqldb.index.NodeAVLDisk;
  * Implementation of PersistentStore for result set and temporary tables.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 1.9.0
+ * @version 2.0.1
  * @since 1.9.0
  */
 public class RowStoreAVLHybrid extends RowStoreAVL implements PersistentStore {
@@ -118,20 +118,6 @@ public class RowStoreAVLHybrid extends RowStoreAVL implements PersistentStore {
         try {
             if (isCached) {
                 return cache.get(i, this, false);
-            } else {
-                throw Error.runtimeError(ErrorCode.U_S0500,
-                                         "RowStoreAVLHybrid");
-            }
-        } catch (HsqlException e) {
-            return null;
-        }
-    }
-
-    public CachedObject getKeep(int i) {
-
-        try {
-            if (isCached) {
-                return cache.get(i, this, true);
             } else {
                 throw Error.runtimeError(ErrorCode.U_S0500,
                                          "RowStoreAVLHybrid");

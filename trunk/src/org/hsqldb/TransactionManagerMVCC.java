@@ -62,6 +62,12 @@ implements TransactionManager {
     Session catalogWriteSession;
 
     //
+    long lockTxTs;
+    long lockSessionId;
+    long unlockTxTs;
+    long unlockSessionId;
+
+    //
     int redoCount = 0;
 
     //
@@ -90,51 +96,7 @@ implements TransactionManager {
     }
 
     public void setTransactionControl(Session session, int mode) {
-
-        writeLock.lock();
-
-        try {
-
-            // statement runs as transaction
-            if (liveTransactionTimestamps.size() == 1) {
-                switch (mode) {
-
-                    case MVCC :
-                        break;
-
-                    case MVLOCKS : {
-                        TransactionManagerMV2PL manager =
-                            new TransactionManagerMV2PL(database);
-
-                        manager.globalChangeTimestamp.set(
-                            globalChangeTimestamp.get());
-                        manager.liveTransactionTimestamps.addLast(
-                            session.transactionTimestamp);
-
-                        database.txManager = manager;
-
-                        break;
-                    }
-                    case LOCKS : {
-                        TransactionManager2PL manager =
-                            new TransactionManager2PL(database);
-
-                        manager.globalChangeTimestamp.set(
-                            globalChangeTimestamp.get());
-
-                        database.txManager = manager;
-
-                        break;
-                    }
-                }
-
-                return;
-            }
-        } finally {
-            writeLock.unlock();
-        }
-
-        throw Error.error(ErrorCode.X_25001);
+        super.setTransactionControl(session, mode);
     }
 
     public void completeActions(Session session) {}
@@ -246,14 +208,18 @@ implements TransactionManager {
                                  session.actionTimestamp);
                 finaliseRows(session, list, 0, limit, true);
             } else {
-                list = session.rowActionList.toArray();
+                if (session.rowActionList.size() > 0) {
+                    list = session.rowActionList.toArray();
 
-                addToCommittedQueue(session, list);
+                    addToCommittedQueue(session, list);
+                }
             }
 
             endTransactionTPL(session);
 
             //
+            session.isTransaction = false;
+
             countDownLatches(session);
         } finally {
             writeLock.unlock();
@@ -276,6 +242,9 @@ implements TransactionManager {
             rollbackPartial(session, 0, session.transactionTimestamp);
             endTransaction(session);
             endTransactionTPL(session);
+
+            session.isTransaction = false;
+
             countDownLatches(session);
         } finally {
             writeLock.unlock();
@@ -792,10 +761,7 @@ implements TransactionManager {
     void endTransaction(Session session) {
 
         long timestamp = session.transactionTimestamp;
-
-        session.isTransaction = false;
-
-        int index = liveTransactionTimestamps.indexOf(timestamp);
+        int  index     = liveTransactionTimestamps.indexOf(timestamp);
 
         if (index >= 0) {
             transactionCount--;
@@ -846,6 +812,8 @@ implements TransactionManager {
                 set.add(sessions[i]);
             } else if (sessions[i].isPreTransaction) {
                 set.add(sessions[i]);
+            } else if (sessions[i].isTransaction) {
+                set.add(sessions[i]);
             }
         }
     }
@@ -856,8 +824,40 @@ implements TransactionManager {
             return;
         }
 
-        catalogWriteSession = null;
-        isLockedMode        = false;
+        Session nextSession = null;
+
+        session.waitingSessions.size();
+
+        for (int i = 0; i < session.waitingSessions.size(); i++) {
+            Session   current = (Session) session.waitingSessions.get(i);
+            Statement st      = current.sessionContext.currentStatement;
+
+            if (st != null && st.isCatalogChange()) {
+                nextSession = current;
+
+                break;
+            }
+        }
+
+        if (nextSession == null) {
+            catalogWriteSession = null;
+            isLockedMode        = false;
+        } else {
+            for (int i = 0; i < session.waitingSessions.size(); i++) {
+                Session current = (Session) session.waitingSessions.get(i);
+
+                if (current != nextSession) {
+                    current.waitedSessions.add(nextSession);
+                    nextSession.waitingSessions.add(current);
+                    current.latch.countUp();
+                }
+            }
+
+            catalogWriteSession = nextSession;
+        }
+
+        unlockTxTs      = session.actionTimestamp;
+        unlockSessionId = session.getId();
     }
 
     boolean beingActionTPL(Session session, Statement cs) {
@@ -874,23 +874,17 @@ implements TransactionManager {
 
         if (cs.isCatalogChange()) {
             if (catalogWriteSession == null) {
+                catalogWriteSession = session;
+                isLockedMode        = true;
+                lockTxTs            = session.actionTimestamp;
+                lockSessionId       = session.getId();
+
                 getTransactionSessions(session.tempSet);
                 session.tempSet.remove(session);
 
-                if (session.tempSet.isEmpty()) {
-                    catalogWriteSession = session;
-                    isLockedMode        = true;
-                } else {
-                    catalogWriteSession = session;
-                    isLockedMode        = true;
-
+                if (!session.tempSet.isEmpty()) {
                     setWaitingSessionTPL(session);
                 }
-
-                return true;
-            } else {
-                catalogWriteSession.waitingSessions.add(session);
-                session.latch.countUp();
 
                 return true;
             }
@@ -920,6 +914,7 @@ implements TransactionManager {
         }
 
         catalogWriteSession.waitingSessions.add(session);
+        session.waitedSessions.add(catalogWriteSession);
         session.latch.countUp();
 
         return true;

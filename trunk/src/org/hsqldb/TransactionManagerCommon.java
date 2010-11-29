@@ -35,6 +35,8 @@ import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import org.hsqldb.HsqlNameManager.HsqlName;
+import org.hsqldb.error.Error;
+import org.hsqldb.error.ErrorCode;
 import org.hsqldb.lib.ArrayUtil;
 import org.hsqldb.lib.DoubleIntIndex;
 import org.hsqldb.lib.HashMap;
@@ -80,6 +82,63 @@ class TransactionManagerCommon {
 
     /** Map : rowID -> RowAction */
     public IntKeyHashMapConcurrent rowActionMap;
+
+    void setTransactionControl(Session session, int mode) {
+
+        TransactionManagerCommon manager = null;
+
+        if (mode == txModel) {
+            return;
+        }
+
+        // statement runs as transaction
+        writeLock.lock();
+
+        switch (txModel) {
+
+            case TransactionManager.MVCC :
+            case TransactionManager.MVLOCKS :
+                if (liveTransactionTimestamps.size() != 1) {
+                    throw Error.error(ErrorCode.X_25001);
+                }
+        }
+
+        try {
+            switch (mode) {
+
+                case TransactionManager.MVCC : {
+                    manager = new TransactionManagerMVCC(database);
+
+                    manager.liveTransactionTimestamps.addLast(
+                        session.transactionTimestamp);
+
+                    break;
+                }
+                case TransactionManager.MVLOCKS : {
+                    manager = new TransactionManagerMV2PL(database);
+
+                    manager.liveTransactionTimestamps.addLast(
+                        session.transactionTimestamp);
+
+                    break;
+                }
+                case TransactionManager.LOCKS : {
+                    manager = new TransactionManager2PL(database);
+
+                    break;
+                }
+            }
+
+            manager.globalChangeTimestamp.set(globalChangeTimestamp.get());
+
+            manager.transactionCount = transactionCount;
+            database.txManager       = (TransactionManager) manager;
+
+            return;
+        } finally {
+            writeLock.unlock();
+        }
+    }
 
     void persistCommit(Session session, Object[] list, int limit) {
 

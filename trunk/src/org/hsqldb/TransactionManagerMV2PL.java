@@ -81,51 +81,7 @@ implements TransactionManager {
     }
 
     public void setTransactionControl(Session session, int mode) {
-
-        writeLock.lock();
-
-        try {
-
-            // statement runs as transaction
-            if (liveTransactionTimestamps.size() == 1) {
-                switch (mode) {
-
-                    case MVCC : {
-                        TransactionManagerMVCC manager =
-                            new TransactionManagerMVCC(database);
-
-                        manager.globalChangeTimestamp.set(
-                            globalChangeTimestamp.get());
-                        manager.liveTransactionTimestamps.addLast(
-                            session.transactionTimestamp);
-
-                        database.txManager = manager;
-
-                        break;
-                    }
-                    case MVLOCKS :
-                        break;
-
-                    case LOCKS : {
-                        TransactionManager2PL manager =
-                            new TransactionManager2PL(database);
-
-                        manager.globalChangeTimestamp.set(
-                            globalChangeTimestamp.get());
-
-                        database.txManager = manager;
-
-                        break;
-                    }
-                }
-
-                return;
-            }
-        } finally {
-            writeLock.unlock();
-        }
-
-        throw Error.error(ErrorCode.X_25001);
+        super.setTransactionControl(session, mode);
     }
 
     public void completeActions(Session session) {
@@ -168,7 +124,7 @@ implements TransactionManager {
         try {
 
             // new actionTimestamp used for commitTimestamp
-            session.actionTimestamp = nextChangeTimestamp();
+            session.actionTimestamp         = nextChangeTimestamp();
             session.transactionEndTimestamp = session.actionTimestamp;
 
             endTransaction(session);
@@ -219,8 +175,8 @@ implements TransactionManager {
         writeLock.lock();
 
         try {
-            session.abortTransaction = false;
-            session.actionTimestamp  = nextChangeTimestamp();
+            session.abortTransaction        = false;
+            session.actionTimestamp         = nextChangeTimestamp();
             session.transactionEndTimestamp = session.actionTimestamp;
 
             rollbackPartial(session, 0, session.transactionTimestamp);

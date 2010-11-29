@@ -67,7 +67,7 @@ import org.hsqldb.store.ObjectCacheHashMap;
  *  A memory buffer contains the rows not yet committed.
  *
  * @author Bob Preston (sqlbob@users dot sourceforge.net)
- * @version 1.9.0
+ * @version 2.0.1
  * @since 1.7.0
  */
 public class TextCache extends DataFileCache {
@@ -344,11 +344,13 @@ public class TextCache extends DataFileCache {
      *  such rows have already been saved, so this method just removes a
      *  source file that has no rows.
      */
-    public synchronized void close(boolean write) {
+    public void close(boolean write) {
 
         if (dataFile == null) {
             return;
         }
+
+        writeLock.lock();
 
         try {
             cache.saveAll();
@@ -370,6 +372,8 @@ public class TextCache extends DataFileCache {
                               new Object[] {
                 t.getMessage(), dataFileName
             });
+        } finally {
+            writeLock.unlock();
         }
     }
 
@@ -378,9 +382,11 @@ public class TextCache extends DataFileCache {
      */
     void purge() {
 
-        uncommittedCache.clear();
+        writeLock.lock();
 
         try {
+            uncommittedCache.clear();
+
             if (cacheReadonly) {
                 close(false);
             } else {
@@ -398,6 +404,8 @@ public class TextCache extends DataFileCache {
                               new Object[] {
                 t.getMessage(), dataFileName
             });
+        } finally {
+            writeLock.unlock();
         }
     }
 
@@ -406,8 +414,14 @@ public class TextCache extends DataFileCache {
      */
     int setFilePos(CachedObject r) {
 
-        int  rowSize         = r.getStorageSize();
-        int  i               = (int) (fileFreePosition);
+        int i = super.setFilePos(r);
+
+        clearRowImage(r);
+
+        return i;
+/*
+        int rowSize = r.getStorageSize();
+        int i       = (int) (fileFreePosition);
 
         if (fileFreePosition + rowSize > maxDataFileSize) {
             throw Error.error(ErrorCode.DATA_FILE_IS_FULL);
@@ -418,32 +432,45 @@ public class TextCache extends DataFileCache {
         r.setPos(i);
 
         return i;
+*/
     }
 
     /**
      *
      */
-    public synchronized void remove(int pos, PersistentStore store) {
+    public void remove(int pos, PersistentStore store) {
 
-        CachedObject row = (CachedObject) uncommittedCache.remove(pos);
+        writeLock.lock();
 
-        if (row != null) {
-            return;
+        try {
+            CachedObject row = (CachedObject) uncommittedCache.remove(pos);
+
+            if (row != null) {
+                return;
+            }
+
+            row = cache.release(pos);
+        } finally {
+            writeLock.unlock();
         }
-
-        row = cache.release(pos);
     }
 
-    public synchronized void removePersistence(int pos,
-            PersistentStore store) {
+    public void removePersistence(int pos, PersistentStore store) {
 
-        CachedObject row = (CachedObject) uncommittedCache.remove(pos);
+        writeLock.lock();
 
-        if (row == null) {
-            row = get(pos, store, false);
+        try {
+            CachedObject row = (CachedObject) uncommittedCache.remove(pos);
+
+            if (row == null) {
+                row = get(pos, store, false);
+
+                // todo - check row is not null
+                clearRowImage(row);
+            }
+        } finally {
+            writeLock.unlock();
         }
-
-        clearRowImage(row);
     }
 
     private void clearRowImage(CachedObject row) {
@@ -465,7 +492,7 @@ public class TextCache extends DataFileCache {
         }
     }
 
-    protected synchronized RowInputInterface readObject(int pos) {
+    protected RowInputInterface readObject(int pos) {
 
         try {
             ByteArray buffer   = new ByteArray(80);
@@ -688,13 +715,19 @@ public class TextCache extends DataFileCache {
         }
     }
 
-    public synchronized void add(CachedObject object) {
+    public void add(CachedObject object) {
 
-        setFilePos(object);
-        uncommittedCache.put(object.getPos(), object);
-        clearRowImage(object);
+        writeLock.lock();
+
+        try {
+            setFilePos(object);
+            uncommittedCache.put(object.getPos(), object);
+        } finally {
+            writeLock.unlock();
+        }
     }
 
+    /** cannot use isInMemory() for text cached object */
     public CachedObject get(CachedObject object, PersistentStore store,
                             boolean keep) {
 
@@ -702,27 +735,30 @@ public class TextCache extends DataFileCache {
             return null;
         }
 
-        CachedObject o = (CachedObject) uncommittedCache.get(object.getPos());
-
-        if (o == null) {
-            o = super.get(object.getPos(), store, keep);
-        }
-
-        return o;
+        return get(object.getPos(), store, keep);
     }
 
-    public synchronized CachedObject get(int i, PersistentStore store,
-                                         boolean keep) {
+    public CachedObject get(int i, PersistentStore store, boolean keep) {
+
+        CachedObject o;
 
         if (i < 0) {
             return null;
         }
 
-        CachedObject o = (CachedObject) uncommittedCache.get(i);
+        readLock.lock();
 
-        if (o == null) {
-            o = super.get(i, store, keep);
+        try {
+            o = (CachedObject) uncommittedCache.get(i);
+
+            if (o != null) {
+                return o;
+            }
+        } finally {
+            readLock.unlock();
         }
+
+        o = super.get(i, store, keep);
 
 /*
         if (o == null) {
@@ -735,8 +771,7 @@ public class TextCache extends DataFileCache {
     /**
      * this is no longer called- fredt
      */
-    protected synchronized void saveRows(CachedObject[] rows, int offset,
-                                         int count) {
+    protected void saveRows(CachedObject[] rows, int offset, int count) {
 
         if (count == 0) {
             return;
@@ -755,11 +790,22 @@ public class TextCache extends DataFileCache {
      * The row is always in uncommittedCache.
      * Saves the row as normal and removes it
      */
-    public synchronized void saveRow(CachedObject row) {
+    public void saveRow(CachedObject row) {
 
-        super.saveRow(row);
-        uncommittedCache.remove(row.getPos());
-        cache.put(row.getPos(), row);
+        writeLock.lock();
+
+        try {
+            setFileModified();
+            saveRowNoLock(row);
+            uncommittedCache.remove(row.getPos());
+            cache.put(row.getPos(), row);
+        } catch (Throwable e) {
+            database.logger.logSevereEvent("saveRow failed", e);
+
+            throw Error.error(ErrorCode.DATA_FILE_ERROR, e);
+        } finally {
+            writeLock.unlock();
+        }
     }
 
     public String getHeader() {

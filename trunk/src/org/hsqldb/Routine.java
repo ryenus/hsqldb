@@ -156,6 +156,11 @@ public class Routine implements SchemaObject, Cloneable {
     }
 
     public HsqlName getSchemaName() {
+
+        if (routineType == SchemaObject.TRIGGER) {
+            return triggerTable.getSchemaName();
+        }
+
         return name.schema;
     }
 
@@ -851,12 +856,14 @@ public class Routine implements SchemaObject, Cloneable {
     }
 
     public Result invokeJavaMethodDirect(Object[] data) {
-        Result   result;
+
+        Result result;
+
         try {
             Object returnValue = javaMethod.invoke(null, data);
-            returnValue = returnType.convertJavaToSQL(null,
-                    returnValue);
-            result = Result.newPSMResult(returnValue);
+
+            returnValue = returnType.convertJavaToSQL(null, returnValue);
+            result      = Result.newPSMResult(returnValue);
         } catch (Throwable e) {
             result = Result.newErrorResult(
                 Error.error(ErrorCode.X_46000, getName().name), null);
@@ -864,7 +871,6 @@ public class Routine implements SchemaObject, Cloneable {
 
         return result;
     }
-
 
     Result invokeJavaMethod(Session session, Object[] data) {
 

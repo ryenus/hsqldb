@@ -131,6 +131,8 @@ public class StatementCommand extends Statement {
 
             case StatementTypes.SET_TABLE_SOURCE_HEADER :
                 isLogged = false;
+
+            // fall through
             case StatementTypes.SET_TABLE_SOURCE :
                 metaDataImpact              = Statement.META_RESET_VIEWS;
                 group = StatementTypes.X_HSQLDB_SCHEMA_MANIPULATION;
@@ -261,6 +263,8 @@ public class StatementCommand extends Statement {
             case StatementTypes.DATABASE_CHECKPOINT : {
                 boolean defrag = ((Boolean) parameters[0]).booleanValue();
 
+                session.database.lobManager.lock();
+
                 try {
                     session.checkAdmin();
                     session.checkDDLWrite();
@@ -269,6 +273,8 @@ public class StatementCommand extends Statement {
                     return Result.updateZeroResult;
                 } catch (HsqlException e) {
                     return Result.newErrorResult(e, sql);
+                } finally {
+                    session.database.lobManager.unlock();
                 }
             }
             case StatementTypes.SET_DATABASE_FILES_BACKUP_INCREMENT : {
@@ -875,14 +881,21 @@ public class StatementCommand extends Statement {
                         session.database.schemaManager.getUserTable(session,
                             name.name, name.schema.name);
 
-                    StatementSchema.checkSchemaUpdateAuthorisation(session,
-                            table.getSchemaName());
+                    if (name.schema != SqlInvariants.LOBS_SCHEMA_HSQLNAME) {
+                        StatementSchema.checkSchemaUpdateAuthorisation(session,
+                                table.getSchemaName());
+                    }
+
                     session.setScripting(true);
 
                     TableWorks tw = new TableWorks(session, table);
 
                     tw.setTableType(session, type);
                     session.database.schemaManager.setSchemaChangeTimestamp();
+
+                    if (name.schema == SqlInvariants.LOBS_SCHEMA_HSQLNAME) {
+                        session.database.lobManager.compileStatements();
+                    }
 
                     return Result.updateZeroResult;
                 } catch (HsqlException e) {

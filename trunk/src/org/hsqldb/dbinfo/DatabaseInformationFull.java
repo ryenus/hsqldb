@@ -51,6 +51,7 @@ import org.hsqldb.SchemaObject;
 import org.hsqldb.SchemaObjectSet;
 import org.hsqldb.Session;
 import org.hsqldb.SqlInvariants;
+import org.hsqldb.Statement;
 import org.hsqldb.Table;
 import org.hsqldb.TextTable;
 import org.hsqldb.Tokens;
@@ -74,7 +75,6 @@ import org.hsqldb.result.Result;
 import org.hsqldb.result.ResultProperties;
 import org.hsqldb.rights.Grantee;
 import org.hsqldb.rights.Right;
-import org.hsqldb.scriptio.ScriptWriterBase;
 import org.hsqldb.store.ValuePool;
 import org.hsqldb.types.CharacterType;
 import org.hsqldb.types.Charset;
@@ -154,227 +154,228 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
      * @param tableIndex index identifying the system table to generate
      * @return the system table corresponding to the specified index
      */
-    protected Table generateTable(Session session, int tableIndex) {
+    protected Table generateTable(Session session, PersistentStore store,
+                                  int tableIndex) {
 
         switch (tableIndex) {
 
             // HSQLDB-specific
             case SYSTEM_CACHEINFO :
-                return SYSTEM_CACHEINFO(session);
+                return SYSTEM_CACHEINFO(session, store);
 
             case SYSTEM_COMMENTS :
-                return SYSTEM_COMMENTS(session);
+                return SYSTEM_COMMENTS(session, store);
 
             case SYSTEM_SESSIONINFO :
-                return SYSTEM_SESSIONINFO(session);
+                return SYSTEM_SESSIONINFO(session, store);
 
             case SYSTEM_PROPERTIES :
-                return SYSTEM_PROPERTIES(session);
+                return SYSTEM_PROPERTIES(session, store);
 
             case SYSTEM_SESSIONS :
-                return SYSTEM_SESSIONS(session);
+                return SYSTEM_SESSIONS(session, store);
 
             case SYSTEM_TEXTTABLES :
-                return SYSTEM_TEXTTABLES(session);
+                return SYSTEM_TEXTTABLES(session, store);
 
             // SQL views
             case ADMINISTRABLE_ROLE_AUTHORIZATIONS :
-                return ADMINISTRABLE_ROLE_AUTHORIZATIONS(session);
+                return ADMINISTRABLE_ROLE_AUTHORIZATIONS(session, store);
 
             case APPLICABLE_ROLES :
-                return APPLICABLE_ROLES(session);
+                return APPLICABLE_ROLES(session, store);
 
             case ASSERTIONS :
-                return ASSERTIONS(session);
+                return ASSERTIONS(session, store);
 
             case AUTHORIZATIONS :
-                return AUTHORIZATIONS(session);
+                return AUTHORIZATIONS(session, store);
 
             case CHARACTER_SETS :
-                return CHARACTER_SETS(session);
+                return CHARACTER_SETS(session, store);
 
             case CHECK_CONSTRAINT_ROUTINE_USAGE :
-                return CHECK_CONSTRAINT_ROUTINE_USAGE(session);
+                return CHECK_CONSTRAINT_ROUTINE_USAGE(session, store);
 
             case CHECK_CONSTRAINTS :
-                return CHECK_CONSTRAINTS(session);
+                return CHECK_CONSTRAINTS(session, store);
 
             case COLLATIONS :
-                return COLLATIONS(session);
+                return COLLATIONS(session, store);
 
             case COLUMN_COLUMN_USAGE :
-                return COLUMN_COLUMN_USAGE(session);
+                return COLUMN_COLUMN_USAGE(session, store);
 
             case COLUMN_DOMAIN_USAGE :
-                return COLUMN_DOMAIN_USAGE(session);
+                return COLUMN_DOMAIN_USAGE(session, store);
 
             case COLUMN_UDT_USAGE :
-                return COLUMN_UDT_USAGE(session);
+                return COLUMN_UDT_USAGE(session, store);
 
             case CONSTRAINT_COLUMN_USAGE :
-                return CONSTRAINT_COLUMN_USAGE(session);
+                return CONSTRAINT_COLUMN_USAGE(session, store);
 
             case CONSTRAINT_TABLE_USAGE :
-                return CONSTRAINT_TABLE_USAGE(session);
+                return CONSTRAINT_TABLE_USAGE(session, store);
 
             case COLUMNS :
-                return COLUMNS(session);
+                return COLUMNS(session, store);
 
             case DATA_TYPE_PRIVILEGES :
-                return DATA_TYPE_PRIVILEGES(session);
+                return DATA_TYPE_PRIVILEGES(session, store);
 
             case DOMAIN_CONSTRAINTS :
-                return DOMAIN_CONSTRAINTS(session);
+                return DOMAIN_CONSTRAINTS(session, store);
 
             case DOMAINS :
-                return DOMAINS(session);
+                return DOMAINS(session, store);
 
             case ENABLED_ROLES :
-                return ENABLED_ROLES(session);
+                return ENABLED_ROLES(session, store);
 
             case JAR_JAR_USAGE :
-                return JAR_JAR_USAGE(session);
+                return JAR_JAR_USAGE(session, store);
 
             case JARS :
-                return JARS(session);
+                return JARS(session, store);
 
             case KEY_COLUMN_USAGE :
-                return KEY_COLUMN_USAGE(session);
+                return KEY_COLUMN_USAGE(session, store);
 
             case METHOD_SPECIFICATIONS :
-                return METHOD_SPECIFICATIONS(session);
+                return METHOD_SPECIFICATIONS(session, store);
 
             case MODULE_COLUMN_USAGE :
-                return MODULE_COLUMN_USAGE(session);
+                return MODULE_COLUMN_USAGE(session, store);
 
             case MODULE_PRIVILEGES :
-                return MODULE_PRIVILEGES(session);
+                return MODULE_PRIVILEGES(session, store);
 
             case MODULE_TABLE_USAGE :
-                return MODULE_TABLE_USAGE(session);
+                return MODULE_TABLE_USAGE(session, store);
 
             case MODULES :
-                return MODULES(session);
+                return MODULES(session, store);
 
             case PARAMETERS :
-                return PARAMETERS(session);
+                return PARAMETERS(session, store);
 
             case REFERENTIAL_CONSTRAINTS :
-                return REFERENTIAL_CONSTRAINTS(session);
+                return REFERENTIAL_CONSTRAINTS(session, store);
 
             case ROLE_AUTHORIZATION_DESCRIPTORS :
-                return ROLE_AUTHORIZATION_DESCRIPTORS(session);
+                return ROLE_AUTHORIZATION_DESCRIPTORS(session, store);
 
             case ROLE_COLUMN_GRANTS :
-                return ROLE_COLUMN_GRANTS(session);
+                return ROLE_COLUMN_GRANTS(session, store);
 
             case ROLE_ROUTINE_GRANTS :
-                return ROLE_ROUTINE_GRANTS(session);
+                return ROLE_ROUTINE_GRANTS(session, store);
 
             case ROLE_TABLE_GRANTS :
-                return ROLE_TABLE_GRANTS(session);
+                return ROLE_TABLE_GRANTS(session, store);
 
             case ROLE_USAGE_GRANTS :
-                return ROLE_USAGE_GRANTS(session);
+                return ROLE_USAGE_GRANTS(session, store);
 
             case ROLE_UDT_GRANTS :
-                return ROLE_UDT_GRANTS(session);
+                return ROLE_UDT_GRANTS(session, store);
 
             case ROUTINE_COLUMN_USAGE :
-                return ROUTINE_COLUMN_USAGE(session);
+                return ROUTINE_COLUMN_USAGE(session, store);
 
             case ROUTINE_JAR_USAGE :
-                return ROUTINE_JAR_USAGE(session);
+                return ROUTINE_JAR_USAGE(session, store);
 
             case ROUTINE_PRIVILEGES :
-                return ROUTINE_PRIVILEGES(session);
+                return ROUTINE_PRIVILEGES(session, store);
 
             case ROUTINE_ROUTINE_USAGE :
-                return ROUTINE_ROUTINE_USAGE(session);
+                return ROUTINE_ROUTINE_USAGE(session, store);
 
             case ROUTINE_SEQUENCE_USAGE :
-                return ROUTINE_SEQUENCE_USAGE(session);
+                return ROUTINE_SEQUENCE_USAGE(session, store);
 
             case ROUTINE_TABLE_USAGE :
-                return ROUTINE_TABLE_USAGE(session);
+                return ROUTINE_TABLE_USAGE(session, store);
 
             case ROUTINES :
-                return ROUTINES(session);
+                return ROUTINES(session, store);
 
             case SCHEMATA :
-                return SCHEMATA(session);
+                return SCHEMATA(session, store);
 
             case SEQUENCES :
-                return SEQUENCES(session);
+                return SEQUENCES(session, store);
 
             case SQL_FEATURES :
-                return SQL_FEATURES(session);
+                return SQL_FEATURES(session, store);
 
             case SQL_IMPLEMENTATION_INFO :
-                return SQL_IMPLEMENTATION_INFO(session);
+                return SQL_IMPLEMENTATION_INFO(session, store);
 
             case SQL_PACKAGES :
-                return SQL_PACKAGES(session);
+                return SQL_PACKAGES(session, store);
 
             case SQL_PARTS :
-                return SQL_PARTS(session);
+                return SQL_PARTS(session, store);
 
             case SQL_SIZING :
-                return SQL_SIZING(session);
+                return SQL_SIZING(session, store);
 
             case SQL_SIZING_PROFILES :
-                return SQL_SIZING_PROFILES(session);
+                return SQL_SIZING_PROFILES(session, store);
 
             case TABLE_CONSTRAINTS :
-                return TABLE_CONSTRAINTS(session);
+                return TABLE_CONSTRAINTS(session, store);
 
             case TABLES :
-                return TABLES(session);
+                return TABLES(session, store);
 
             case TRANSLATIONS :
-                return TRANSLATIONS(session);
+                return TRANSLATIONS(session, store);
 
             case TRIGGERED_UPDATE_COLUMNS :
-                return TRIGGERED_UPDATE_COLUMNS(session);
+                return TRIGGERED_UPDATE_COLUMNS(session, store);
 
             case TRIGGER_COLUMN_USAGE :
-                return TRIGGER_COLUMN_USAGE(session);
+                return TRIGGER_COLUMN_USAGE(session, store);
 
             case TRIGGER_ROUTINE_USAGE :
-                return TRIGGER_ROUTINE_USAGE(session);
+                return TRIGGER_ROUTINE_USAGE(session, store);
 
             case TRIGGER_SEQUENCE_USAGE :
-                return TRIGGER_SEQUENCE_USAGE(session);
+                return TRIGGER_SEQUENCE_USAGE(session, store);
 
             case TRIGGER_TABLE_USAGE :
-                return TRIGGER_TABLE_USAGE(session);
+                return TRIGGER_TABLE_USAGE(session, store);
 
             case TRIGGERS :
-                return TRIGGERS(session);
+                return TRIGGERS(session, store);
 
             case UDT_PRIVILEGES :
-                return UDT_PRIVILEGES(session);
+                return UDT_PRIVILEGES(session, store);
 
             case USAGE_PRIVILEGES :
-                return USAGE_PRIVILEGES(session);
+                return USAGE_PRIVILEGES(session, store);
 
             case USER_DEFINED_TYPES :
-                return USER_DEFINED_TYPES(session);
+                return USER_DEFINED_TYPES(session, store);
 
             case VIEW_COLUMN_USAGE :
-                return VIEW_COLUMN_USAGE(session);
+                return VIEW_COLUMN_USAGE(session, store);
 
             case VIEW_ROUTINE_USAGE :
-                return VIEW_ROUTINE_USAGE(session);
+                return VIEW_ROUTINE_USAGE(session, store);
 
             case VIEW_TABLE_USAGE :
-                return VIEW_TABLE_USAGE(session);
+                return VIEW_TABLE_USAGE(session, store);
 
             case VIEWS :
-                return VIEWS(session);
+                return VIEWS(session, store);
 
             default :
-                return super.generateTable(session, tableIndex);
+                return super.generateTable(session, store, tableIndex);
         }
     }
 
@@ -424,7 +425,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
      * @return a description of the current state of all row caching
      *      objects associated with the accessible tables of the database
      */
-    Table SYSTEM_CACHEINFO(Session session) {
+    Table SYSTEM_CACHEINFO(Session session, PersistentStore store) {
 
         Table t = sysTables[SYSTEM_CACHEINFO];
 
@@ -460,16 +461,15 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         final int ifree_pos        = 7;
 
         //
-        PersistentStore store = t.getRowStore(session);
-        DataFileCache   cache = null;
-        Object[]        row;
-        HashSet         cacheSet;
-        Iterator        caches;
-        Iterator        tables;
-        Table           table;
-        int             iFreeBytes;
-        int             iLargestFreeItem;
-        long            lSmallestFreeItem;
+        DataFileCache cache = null;
+        Object[]      row;
+        HashSet       cacheSet;
+        Iterator      caches;
+        Iterator      tables;
+        Table         table;
+        int           iFreeBytes;
+        int           iLargestFreeItem;
+        long          lSmallestFreeItem;
 
         // Initialization
         cacheSet = new HashSet();
@@ -519,7 +519,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         return t;
     }
 
-    Table SYSTEM_COMMENTS(Session session) {
+    Table SYSTEM_COMMENTS(Session session, PersistentStore store) {
 
         Table t = sysTables[SYSTEM_COMMENTS];
 
@@ -544,8 +544,6 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
             return t;
         }
 
-        PersistentStore store = t.getRowStore(session);
-
         // column number mappings
         final int catalog     = 0;
         final int schema      = 1;
@@ -553,8 +551,10 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         final int type        = 3;
         final int column_name = 4;
         final int remark      = 5;
-        Iterator  it;
-        Object[]  row;
+
+        //
+        Iterator it;
+        Object[] row;
 
         //
         DITableInfo ti = new DITableInfo();
@@ -688,7 +688,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
      * @return table describing database and session operating parameters
      *      and capabilities
      */
-    Table SYSTEM_PROPERTIES(Session session) {
+    Table SYSTEM_PROPERTIES(Session session, PersistentStore store) {
 
         Table t = sysTables[SYSTEM_PROPERTIES];
 
@@ -722,8 +722,6 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         final int iclass = 4;
 
         //
-        PersistentStore store = t.getRowStore(session);
-
         // calculated column values
         String scope;
         String nameSpace;
@@ -793,7 +791,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
      *        attributes of the connection associated
      *        with the current execution context
      */
-    Table SYSTEM_SESSIONINFO(Session session) {
+    Table SYSTEM_SESSIONINFO(Session session, PersistentStore store) {
 
         Table t = sysTables[SYSTEM_SESSIONINFO];
 
@@ -812,8 +810,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
             return t;
         }
 
-        PersistentStore store = t.getRowStore(session);
-        Object[]        row;
+        Object[] row;
 
         row    = t.getEmptyRowData();
         row[0] = "SESSION ID";
@@ -872,6 +869,18 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
 
         t.insertSys(session, store, row);
 
+        row    = t.getEmptyRowData();
+        row[0] = "CURRENT STATEMENT";
+        row[1] = "";
+
+        Statement st = session.sessionContext.currentStatement;
+
+        if (st != null) {
+            row[1] = st.getSQL();
+        }
+
+        t.insertSys(session, store, row);
+
         return t;
     }
 
@@ -900,7 +909,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
      * @return a <code>Table</code> object describing all visible
      *      sessions
      */
-    Table SYSTEM_SESSIONS(Session session) {
+    Table SYSTEM_SESSIONS(Session session, PersistentStore store) {
 
         Table t = sysTables[SYSTEM_SESSIONS];
 
@@ -921,6 +930,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
             addColumn(t, "TRANSACTION_SIZE", CARDINAL_NUMBER);
             addColumn(t, "WAITING_FOR_THIS", CHARACTER_DATA);
             addColumn(t, "THIS_WAITING_FOR", CHARACTER_DATA);
+            addColumn(t, "CURRENT_STATEMENT", CHARACTER_DATA);
 
             // order:  SESSION_ID
             // true primary key
@@ -934,22 +944,21 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         }
 
         // column number mappings
-        final int isid       = 0;
-        final int ict        = 1;
-        final int iuname     = 2;
-        final int iis_admin  = 3;
-        final int iautocmt   = 4;
-        final int ireadonly  = 5;
-        final int ilast_id   = 6;
-        final int it_schema  = 7;
-        final int it_tx      = 8;
-        final int it_size    = 9;
-        final int it_waiting = 10;
-        final int it_waited  = 11;
+        final int isid         = 0;
+        final int ict          = 1;
+        final int iuname       = 2;
+        final int iis_admin    = 3;
+        final int iautocmt     = 4;
+        final int ireadonly    = 5;
+        final int ilast_id     = 6;
+        final int it_schema    = 7;
+        final int it_tx        = 8;
+        final int it_size      = 9;
+        final int it_waiting   = 10;
+        final int it_waited    = 11;
+        final int it_statement = 12;
 
         //
-        PersistentStore store = t.getRowStore(session);
-
         // intermediate holders
         Session[] sessions;
         Session   s;
@@ -1025,6 +1034,11 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
                 row[it_waited] = sb.toString();
             }
 
+            Statement st = session.sessionContext.currentStatement;
+
+            row[it_statement] = st == null ? ""
+                                           : st.getSQL();
+
             t.insertSys(session, store, row);
         }
 
@@ -1060,7 +1074,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
      * of the accessible text tables defined within this database
      *
      */
-    Table SYSTEM_TEXTTABLES(Session session) {
+    Table SYSTEM_TEXTTABLES(Session session, PersistentStore store) {
 
         Table t = sysTables[SYSTEM_TEXTTABLES];
 
@@ -1109,8 +1123,6 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         final int iid          = 12;
 
         //
-        PersistentStore store = t.getRowStore(session);
-
         // intermediate holders
         Iterator tables;
         Table    table;
@@ -1173,7 +1185,8 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
      *
      * @return Table
      */
-    Table ADMINISTRABLE_ROLE_AUTHORIZATIONS(Session session) {
+    Table ADMINISTRABLE_ROLE_AUTHORIZATIONS(Session session,
+            PersistentStore store) {
 
         Table t = sysTables[ADMINISTRABLE_ROLE_AUTHORIZATIONS];
 
@@ -1229,7 +1242,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
      *    TO PUBLIC WITH GRANT OPTION;
      * </pre>
      */
-    Table APPLICABLE_ROLES(Session session) {
+    Table APPLICABLE_ROLES(Session session, PersistentStore store) {
 
         Table t = sysTables[APPLICABLE_ROLES];
 
@@ -1298,7 +1311,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         }
     }
 
-    Table ASSERTIONS(Session session) {
+    Table ASSERTIONS(Session session, PersistentStore store) {
 
         Table t = sysTables[ASSERTIONS];
 
@@ -1378,7 +1391,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
      *
      * @return Table
      */
-    Table AUTHORIZATIONS(Session session) {
+    Table AUTHORIZATIONS(Session session, PersistentStore store) {
 
         Table t = sysTables[AUTHORIZATIONS];
 
@@ -1397,8 +1410,6 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
 
             return t;
         }
-
-        PersistentStore store = t.getRowStore(session);
 
         // Intermediate holders
         Iterator grantees;
@@ -1422,7 +1433,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         return t;
     }
 
-    Table CHARACTER_SETS(Session session) {
+    Table CHARACTER_SETS(Session session, PersistentStore store) {
 
         Table t = sysTables[CHARACTER_SETS];
 
@@ -1459,7 +1470,6 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         final int default_collate_name    = 7;
 
         //
-        PersistentStore store = t.getRowStore(session);
         Iterator it = database.schemaManager.databaseObjectIterator(
             SchemaObject.CHARSET);
 
@@ -1542,7 +1552,8 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
      *
      * @return Table
      */
-    Table CHECK_CONSTRAINT_ROUTINE_USAGE(Session session) {
+    Table CHECK_CONSTRAINT_ROUTINE_USAGE(Session session,
+                                         PersistentStore store) {
 
         Table t = sysTables[CHECK_CONSTRAINT_ROUTINE_USAGE];
 
@@ -1577,8 +1588,6 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         final int specific_name      = 5;
 
         //
-        PersistentStore store = t.getRowStore(session);
-
         // Intermediate holders
         Iterator       constraints;
         Constraint     constraint;
@@ -1719,7 +1728,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
      *
      * @return Table
      */
-    Table CHECK_CONSTRAINTS(Session session) {
+    Table CHECK_CONSTRAINTS(Session session, PersistentStore store) {
 
         Table t = sysTables[CHECK_CONSTRAINTS];
 
@@ -1749,8 +1758,6 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         final int check_clause       = 3;
 
         //
-        PersistentStore store = t.getRowStore(session);
-
         // calculated column values
         // Intermediate holders
         Iterator     tables;
@@ -1881,7 +1888,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
      *
      * @return Table
      */
-    Table COLLATIONS(Session session) {
+    Table COLLATIONS(Session session, PersistentStore store) {
 
         Table t = sysTables[COLLATIONS];
 
@@ -1911,8 +1918,6 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         final int pad_attribute     = 3;
 
         //
-        PersistentStore store = t.getRowStore(session);
-
         // Intermediate holders
         Iterator collations;
         String   collation;
@@ -1946,7 +1951,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
      *
      * @return Table
      */
-    Table COLUMN_COLUMN_USAGE(Session session) {
+    Table COLUMN_COLUMN_USAGE(Session session, PersistentStore store) {
 
         Table t = sysTables[COLUMN_COLUMN_USAGE];
 
@@ -1989,7 +1994,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
      *
      * @return Table
      */
-    Table COLUMN_DOMAIN_USAGE(Session session) {
+    Table COLUMN_DOMAIN_USAGE(Session session, PersistentStore store) {
 
         Table t = sysTables[COLUMN_DOMAIN_USAGE];
 
@@ -2015,7 +2020,6 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
             return t;
         }
 
-        PersistentStore store = t.getRowStore(session);
         Session sys = database.sessionManager.newSysSession(
             SqlInvariants.INFORMATION_SCHEMA_HSQLNAME, session.getUser());
         Result rs = sys.executeDirectStatement(
@@ -2039,7 +2043,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
      *
      * @return Table
      */
-    Table COLUMN_UDT_USAGE(Session session) {
+    Table COLUMN_UDT_USAGE(Session session, PersistentStore store) {
 
         Table t = sysTables[COLUMN_UDT_USAGE];
 
@@ -2065,7 +2069,6 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
             return t;
         }
 
-        PersistentStore store = t.getRowStore(session);
         Session sys = database.sessionManager.newSysSession(
             SqlInvariants.INFORMATION_SCHEMA_HSQLNAME, session.getUser());
         Result rs = sys.executeDirectStatement(
@@ -2082,7 +2085,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
     /**
      * SQL:2008 VIEW<p>
      */
-    Table COLUMNS(Session session) {
+    Table COLUMNS(Session session, PersistentStore store) {
 
         Table t = sysTables[COLUMNS];
 
@@ -2200,8 +2203,6 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         final int declared_numeric_scale     = 46;
 
         //
-        PersistentStore store = t.getRowStore(session);
-
         // intermediate holders
         int            columnCount;
         Iterator       tables;
@@ -2402,7 +2403,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
      *
      * @return Table
      */
-    Table CONSTRAINT_COLUMN_USAGE(Session session) {
+    Table CONSTRAINT_COLUMN_USAGE(Session session, PersistentStore store) {
 
         Table t = sysTables[CONSTRAINT_COLUMN_USAGE];
 
@@ -2438,8 +2439,6 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         final int constraint_name    = 6;
 
         //
-        PersistentStore store = t.getRowStore(session);
-
         // calculated column values
         String constraintCatalog;
         String constraintSchema;
@@ -2621,7 +2620,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
      *
      * @return Table
      */
-    Table CONSTRAINT_TABLE_USAGE(Session session) {
+    Table CONSTRAINT_TABLE_USAGE(Session session, PersistentStore store) {
 
         Table t = sysTables[CONSTRAINT_TABLE_USAGE];
 
@@ -2646,8 +2645,6 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
             return t;
         }
 
-        PersistentStore store = t.getRowStore(session);
-
         //
         Session sys = database.sessionManager.newSysSession(
             SqlInvariants.INFORMATION_SCHEMA_HSQLNAME, session.getUser());
@@ -2663,7 +2660,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         return t;
     }
 
-    Table DATA_TYPE_PRIVILEGES(Session session) {
+    Table DATA_TYPE_PRIVILEGES(Session session, PersistentStore store) {
 
         Table t = sysTables[DATA_TYPE_PRIVILEGES];
 
@@ -2686,8 +2683,6 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
 
             return t;
         }
-
-        PersistentStore store = t.getRowStore(session);
 
         //
         Session sys = database.sessionManager.newSysSession(
@@ -2791,7 +2786,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
      *
      * @return Table
      */
-    Table DOMAIN_CONSTRAINTS(Session session) {
+    Table DOMAIN_CONSTRAINTS(Session session, PersistentStore store) {
 
         Table t = sysTables[DOMAIN_CONSTRAINTS];
 
@@ -2828,8 +2823,6 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         final int initially_deferred = 7;
 
         //
-        PersistentStore store = t.getRowStore(session);
-
         //
         Iterator it =
             database.schemaManager.databaseObjectIterator(SchemaObject.DOMAIN);
@@ -2879,7 +2872,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
      *
      * @return Table
      */
-    Table DOMAINS(Session session) {
+    Table DOMAINS(Session session, PersistentStore store) {
 
         Table t = sysTables[DOMAINS];
 
@@ -2947,8 +2940,6 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         final int declared_numeric_scale     = 23;
 
         //
-        PersistentStore store = t.getRowStore(session);
-
         //
         Iterator it =
             database.schemaManager.databaseObjectIterator(SchemaObject.DOMAIN);
@@ -3063,7 +3054,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
      *    TO PUBLIC WITH GRANT OPTION;
      * </pre>
      */
-    Table ENABLED_ROLES(Session session) {
+    Table ENABLED_ROLES(Session session, PersistentStore store) {
 
         Table t = sysTables[ENABLED_ROLES];
 
@@ -3081,8 +3072,6 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
 
             return t;
         }
-
-        PersistentStore store = t.getRowStore(session);
 
         // Intermediate holders
         Iterator grantees;
@@ -3103,7 +3092,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         return t;
     }
 
-    Table JAR_JAR_USAGE(Session session) {
+    Table JAR_JAR_USAGE(Session session, PersistentStore store) {
 
         Table t = sysTables[JAR_JAR_USAGE];
 
@@ -3143,7 +3132,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         return t;
     }
 
-    Table JARS(Session session) {
+    Table JARS(Session session, PersistentStore store) {
 
         Table t = sysTables[JARS];
 
@@ -3172,9 +3161,8 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         final int jar_path    = 3;
 
         //
-        PersistentStore store = t.getRowStore(session);
-        Iterator        it;
-        Object[]        row;
+        Iterator it;
+        Object[] row;
 
         return t;
     }
@@ -3205,7 +3193,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
      *        primary key and unique columns of each accessible table
      *        defined within this database.
      */
-    Table KEY_COLUMN_USAGE(Session session) {
+    Table KEY_COLUMN_USAGE(Session session, PersistentStore store) {
 
         Table t = sysTables[KEY_COLUMN_USAGE];
 
@@ -3232,8 +3220,6 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
 
             return t;
         }
-
-        PersistentStore store = t.getRowStore(session);
 
         // Intermediate holders
         Iterator tables;
@@ -3326,31 +3312,32 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         return t;
     }
 
-    Table METHOD_SPECIFICATION_PARAMETERS(Session session) {
+    Table METHOD_SPECIFICATION_PARAMETERS(Session session,
+                                          PersistentStore store) {
         return null;
     }
 
-    Table METHOD_SPECIFICATIONS(Session session) {
+    Table METHOD_SPECIFICATIONS(Session session, PersistentStore store) {
         return null;
     }
 
-    Table MODULE_COLUMN_USAGE(Session session) {
+    Table MODULE_COLUMN_USAGE(Session session, PersistentStore store) {
         return null;
     }
 
-    Table MODULE_PRIVILEGES(Session session) {
+    Table MODULE_PRIVILEGES(Session session, PersistentStore store) {
         return null;
     }
 
-    Table MODULE_TABLE_USAGE(Session session) {
+    Table MODULE_TABLE_USAGE(Session session, PersistentStore store) {
         return null;
     }
 
-    Table MODULES(Session session) {
+    Table MODULES(Session session, PersistentStore store) {
         return null;
     }
 
-    Table PARAMETERS(Session session) {
+    Table PARAMETERS(Session session, PersistentStore store) {
 
         Table t = sysTables[PARAMETERS];
 
@@ -3413,8 +3400,6 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
 
             return t;
         }
-
-        PersistentStore store = t.getRowStore(session);
 
         // column number mappings
         final int specific_cat             = 0;
@@ -3592,7 +3577,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
      *
      * @return Table
      */
-    Table REFERENTIAL_CONSTRAINTS(Session session) {
+    Table REFERENTIAL_CONSTRAINTS(Session session, PersistentStore store) {
 
         Table t = sysTables[REFERENTIAL_CONSTRAINTS];
 
@@ -3632,12 +3617,11 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         final int delete_rule               = 8;
 
         //
-        PersistentStore store = t.getRowStore(session);
-        Iterator        tables;
-        Table           table;
-        Constraint[]    constraints;
-        Constraint      constraint;
-        Object[]        row;
+        Iterator     tables;
+        Table        table;
+        Constraint[] constraints;
+        Constraint   constraint;
+        Object[]     row;
 
         tables =
             database.schemaManager.databaseObjectIterator(SchemaObject.TABLE);
@@ -3685,7 +3669,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         return t;
     }
 
-    Table ROLE_COLUMN_GRANTS(Session session) {
+    Table ROLE_COLUMN_GRANTS(Session session, PersistentStore store) {
 
         Table t = sysTables[ROLE_COLUMN_GRANTS];
 
@@ -3715,7 +3699,6 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
             return t;
         }
 
-        PersistentStore store = t.getRowStore(session);
         Session sys = database.sessionManager.newSysSession(
             SqlInvariants.INFORMATION_SCHEMA_HSQLNAME, session.getUser());
         Result rs = sys.executeDirectStatement(
@@ -3729,7 +3712,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         return t;
     }
 
-    Table ROLE_ROUTINE_GRANTS(Session session) {
+    Table ROLE_ROUTINE_GRANTS(Session session, PersistentStore store) {
 
         Table t = sysTables[ROLE_ROUTINE_GRANTS];
 
@@ -3758,7 +3741,6 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
             return t;
         }
 
-        PersistentStore store = t.getRowStore(session);
         Session sys = database.sessionManager.newSysSession(
             SqlInvariants.INFORMATION_SCHEMA_HSQLNAME, session.getUser());
         Result rs = sys.executeDirectStatement(
@@ -3789,7 +3771,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         return t;
     }
 
-    Table ROLE_TABLE_GRANTS(Session session) {
+    Table ROLE_TABLE_GRANTS(Session session, PersistentStore store) {
 
         Table t = sysTables[ROLE_TABLE_GRANTS];
 
@@ -3819,7 +3801,6 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
             return t;
         }
 
-        PersistentStore store = t.getRowStore(session);
         Session sys = database.sessionManager.newSysSession(
             SqlInvariants.INFORMATION_SCHEMA_HSQLNAME, session.getUser());
         Result rs = sys.executeDirectStatement(
@@ -3835,7 +3816,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         return t;
     }
 
-    Table ROLE_UDT_GRANTS(Session session) {
+    Table ROLE_UDT_GRANTS(Session session, PersistentStore store) {
 
         Table t = sysTables[ROLE_UDT_GRANTS];
 
@@ -3859,7 +3840,6 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
             return t;
         }
 
-        PersistentStore store = t.getRowStore(session);
         Session sys = database.sessionManager.newSysSession(
             SqlInvariants.INFORMATION_SCHEMA_HSQLNAME, session.getUser());
         Result rs = sys.executeDirectStatement(
@@ -3875,7 +3855,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         return t;
     }
 
-    Table ROLE_USAGE_GRANTS(Session session) {
+    Table ROLE_USAGE_GRANTS(Session session, PersistentStore store) {
 
         Table t = sysTables[ROLE_USAGE_GRANTS];
 
@@ -3902,7 +3882,6 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
             return t;
         }
 
-        PersistentStore store = t.getRowStore(session);
         Session sys = database.sessionManager.newSysSession(
             SqlInvariants.INFORMATION_SCHEMA_HSQLNAME, session.getUser());
         Result rs = sys.executeDirectStatement(
@@ -3918,7 +3897,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         return t;
     }
 
-    Table ROUTINE_COLUMN_USAGE(Session session) {
+    Table ROUTINE_COLUMN_USAGE(Session session, PersistentStore store) {
 
         Table t = sysTables[ROUTINE_COLUMN_USAGE];
 
@@ -3946,8 +3925,6 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
 
             return t;
         }
-
-        PersistentStore store = t.getRowStore(session);
 
         // column number mappings
         final int specific_catalog = 0;
@@ -4015,7 +3992,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         return t;
     }
 
-    Table ROUTINE_PRIVILEGES(Session session) {
+    Table ROUTINE_PRIVILEGES(Session session, PersistentStore store) {
 
         Table t = sysTables[ROUTINE_PRIVILEGES];
 
@@ -4058,8 +4035,6 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         final int is_grantable     = 9;
 
         //
-        PersistentStore store = t.getRowStore(session);
-
         // calculated column values
         Grantee granteeObject;
         String  privilege;
@@ -4138,7 +4113,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         return t;
     }
 
-    Table ROUTINE_JAR_USAGE(Session session) {
+    Table ROUTINE_JAR_USAGE(Session session, PersistentStore store) {
 
         Table t = sysTables[ROUTINE_JAR_USAGE];
 
@@ -4172,9 +4147,8 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         final int jar_name         = 5;
 
         //
-        Iterator        it;
-        Object[]        row;
-        PersistentStore store = t.getRowStore(session);
+        Iterator it;
+        Object[] row;
 
         it = database.schemaManager.databaseObjectIterator(
             SchemaObject.ROUTINE);
@@ -4214,7 +4188,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
      *
      * needs to provide list of specific referenced routines
      */
-    Table ROUTINE_ROUTINE_USAGE(Session session) {
+    Table ROUTINE_ROUTINE_USAGE(Session session, PersistentStore store) {
 
         Table t = sysTables[ROUTINE_ROUTINE_USAGE];
 
@@ -4248,9 +4222,8 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         final int routine_name     = 5;
 
         //
-        PersistentStore store = t.getRowStore(session);
-        Iterator        it;
-        Object[]        row;
+        Iterator it;
+        Object[] row;
 
         it = database.schemaManager.databaseObjectIterator(
             SchemaObject.ROUTINE);
@@ -4296,7 +4269,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         return t;
     }
 
-    Table ROUTINE_SEQUENCE_USAGE(Session session) {
+    Table ROUTINE_SEQUENCE_USAGE(Session session, PersistentStore store) {
 
         Table t = sysTables[ROUTINE_SEQUENCE_USAGE];
 
@@ -4330,9 +4303,8 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         final int sequence_name    = 5;
 
         //
-        PersistentStore store = t.getRowStore(session);
-        Iterator        it;
-        Object[]        row;
+        Iterator it;
+        Object[] row;
 
         it = database.schemaManager.databaseObjectIterator(
             SchemaObject.ROUTINE);
@@ -4378,7 +4350,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         return t;
     }
 
-    Table ROUTINE_TABLE_USAGE(Session session) {
+    Table ROUTINE_TABLE_USAGE(Session session, PersistentStore store) {
 
         Table t = sysTables[ROUTINE_TABLE_USAGE];
 
@@ -4418,9 +4390,8 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         final int table_name       = 8;
 
         //
-        PersistentStore store = t.getRowStore(session);
-        Iterator        it;
-        Object[]        row;
+        Iterator it;
+        Object[] row;
 
         it = database.schemaManager.databaseObjectIterator(
             SchemaObject.ROUTINE);
@@ -4470,7 +4441,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         return t;
     }
 
-    Table ROUTINES(Session session) {
+    Table ROUTINES(Session session, PersistentStore store) {
 
         Table t = sysTables[ROUTINES];
 
@@ -4670,9 +4641,8 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         final int result_cast_declared_numeric_scale     = 87;
 
         //
-        PersistentStore store = t.getRowStore(session);
-        Iterator        it;
-        Object[]        row;
+        Iterator it;
+        Object[] row;
 
         it = database.schemaManager.databaseObjectIterator(
             SchemaObject.ROUTINE);
@@ -4932,7 +4902,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
      *
      * @return Table
      */
-    Table SCHEMATA(Session session) {
+    Table SCHEMATA(Session session, PersistentStore store) {
 
         Table t = sysTables[SCHEMATA];
 
@@ -4958,8 +4928,6 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
 
             return t;
         }
-
-        PersistentStore store = t.getRowStore(session);
 
         // Intermediate holders
         Schema[] schemas;
@@ -5007,7 +4975,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         return t;
     }
 
-    Table SQL_FEATURES(Session session) {
+    Table SQL_FEATURES(Session session, PersistentStore store) {
 
         Table t = sysTables[SQL_FEATURES];
 
@@ -5033,7 +5001,6 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
             return t;
         }
 
-        PersistentStore store = t.getRowStore(session);
         Session sys = database.sessionManager.newSysSession(
             SqlInvariants.INFORMATION_SCHEMA_HSQLNAME, session.getUser());
         String sql = (String) statementMap.get("/*sql_features*/");
@@ -5046,7 +5013,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         return t;
     }
 
-    Table SQL_IMPLEMENTATION_INFO(Session session) {
+    Table SQL_IMPLEMENTATION_INFO(Session session, PersistentStore store) {
 
         Table t = sysTables[SQL_IMPLEMENTATION_INFO];
 
@@ -5068,7 +5035,6 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
             return t;
         }
 
-        PersistentStore store = t.getRowStore(session);
         Session sys = database.sessionManager.newSysSession(
             SqlInvariants.INFORMATION_SCHEMA_HSQLNAME, session.getUser());
 
@@ -5082,7 +5048,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         return t;
     }
 
-    Table SQL_PACKAGES(Session session) {
+    Table SQL_PACKAGES(Session session, PersistentStore store) {
 
         Table t = sysTables[SQL_PACKAGES];
 
@@ -5104,7 +5070,6 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
             return t;
         }
 
-        PersistentStore store = t.getRowStore(session);
         Session sys = database.sessionManager.newSysSession(
             SqlInvariants.INFORMATION_SCHEMA_HSQLNAME, session.getUser());
         String sql = (String) statementMap.get("/*sql_packages*/");
@@ -5117,7 +5082,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         return t;
     }
 
-    Table SQL_PARTS(Session session) {
+    Table SQL_PARTS(Session session, PersistentStore store) {
 
         Table t = sysTables[SQL_PARTS];
 
@@ -5138,7 +5103,6 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
             return t;
         }
 
-        PersistentStore store = t.getRowStore(session);
         Session sys = database.sessionManager.newSysSession(
             SqlInvariants.INFORMATION_SCHEMA_HSQLNAME, session.getUser());
         String sql = (String) statementMap.get("/*sql_parts*/");
@@ -5151,7 +5115,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         return t;
     }
 
-    Table SQL_SIZING(Session session) {
+    Table SQL_SIZING(Session session, PersistentStore store) {
 
         Table t = sysTables[SQL_SIZING];
 
@@ -5171,7 +5135,6 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
             return t;
         }
 
-        PersistentStore store = t.getRowStore(session);
         Session sys = database.sessionManager.newSysSession(
             SqlInvariants.INFORMATION_SCHEMA_HSQLNAME, session.getUser());
         String sql = (String) statementMap.get("/*sql_sizing*/");
@@ -5184,7 +5147,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         return t;
     }
 
-    Table SQL_SIZING_PROFILES(Session session) {
+    Table SQL_SIZING_PROFILES(Session session, PersistentStore store) {
 
         Table t = sysTables[SQL_SIZING_PROFILES];
 
@@ -5207,7 +5170,6 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
             return t;
         }
 
-        PersistentStore store = t.getRowStore(session);
         Session sys = database.sessionManager.newSysSession(
             SqlInvariants.INFORMATION_SCHEMA_HSQLNAME, session.getUser());
 
@@ -5324,7 +5286,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
      *
      * @return Table
      */
-    Table TABLE_CONSTRAINTS(Session session) {
+    Table TABLE_CONSTRAINTS(Session session, PersistentStore store) {
 
         Table t = sysTables[TABLE_CONSTRAINTS];
 
@@ -5353,8 +5315,6 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
 
             return t;
         }
-
-        PersistentStore store = t.getRowStore(session);
 
         // Intermediate holders
         Iterator     tables;
@@ -5445,7 +5405,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         return t;
     }
 
-    Table TRANSLATIONS(Session session) {
+    Table TRANSLATIONS(Session session, PersistentStore store) {
 
         Table t = sysTables[TRANSLATIONS];
 
@@ -5479,7 +5439,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         return t;
     }
 
-    Table TRIGGER_COLUMN_USAGE(Session session) {
+    Table TRIGGER_COLUMN_USAGE(Session session, PersistentStore store) {
 
         Table t = sysTables[TRIGGER_COLUMN_USAGE];
 
@@ -5505,8 +5465,6 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
             return t;
         }
 
-        PersistentStore store = t.getRowStore(session);
-
         // column number mappings
         final int trigger_catalog = 0;
         final int trigger_schema  = 1;
@@ -5515,8 +5473,10 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         final int table_schema    = 4;
         final int table_name      = 5;
         final int column_name     = 6;
-        Iterator  it;
-        Object[]  row;
+
+        //
+        Iterator it;
+        Object[] row;
 
         it = database.schemaManager.databaseObjectIterator(
             SchemaObject.TRIGGER);
@@ -5562,7 +5522,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         return t;
     }
 
-    Table TRIGGER_ROUTINE_USAGE(Session session) {
+    Table TRIGGER_ROUTINE_USAGE(Session session, PersistentStore store) {
 
         Table t = sysTables[TRIGGER_ROUTINE_USAGE];
 
@@ -5587,8 +5547,6 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
             return t;
         }
 
-        PersistentStore store = t.getRowStore(session);
-
         // column number mappings
         final int trigger_catalog  = 0;
         final int trigger_schema   = 1;
@@ -5596,8 +5554,10 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         final int specific_catalog = 3;
         final int specific_schema  = 4;
         final int specific_name    = 5;
-        Iterator  it;
-        Object[]  row;
+
+        //
+        Iterator it;
+        Object[] row;
 
         it = database.schemaManager.databaseObjectIterator(
             SchemaObject.TRIGGER);
@@ -5639,7 +5599,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         return t;
     }
 
-    Table TRIGGER_SEQUENCE_USAGE(Session session) {
+    Table TRIGGER_SEQUENCE_USAGE(Session session, PersistentStore store) {
 
         Table t = sysTables[TRIGGER_SEQUENCE_USAGE];
 
@@ -5664,8 +5624,6 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
             return t;
         }
 
-        PersistentStore store = t.getRowStore(session);
-
         // column number mappings
         final int trigger_catalog  = 0;
         final int trigger_schema   = 1;
@@ -5673,8 +5631,10 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         final int sequence_catalog = 3;
         final int sequence_schema  = 4;
         final int sequence_name    = 5;
-        Iterator  it;
-        Object[]  row;
+
+        //
+        Iterator it;
+        Object[] row;
 
         it = database.schemaManager.databaseObjectIterator(
             SchemaObject.TRIGGER);
@@ -5717,7 +5677,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         return t;
     }
 
-    Table TRIGGER_TABLE_USAGE(Session session) {
+    Table TRIGGER_TABLE_USAGE(Session session, PersistentStore store) {
 
         Table t = sysTables[TRIGGER_TABLE_USAGE];
 
@@ -5742,8 +5702,6 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
             return t;
         }
 
-        PersistentStore store = t.getRowStore(session);
-
         // column number mappings
         final int trigger_catalog = 0;
         final int trigger_schema  = 1;
@@ -5751,8 +5709,10 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         final int table_catalog   = 3;
         final int table_schema    = 4;
         final int table_name      = 5;
-        Iterator  it;
-        Object[]  row;
+
+        //
+        Iterator it;
+        Object[] row;
 
         it = database.schemaManager.databaseObjectIterator(
             SchemaObject.TRIGGER);
@@ -5796,7 +5756,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         return t;
     }
 
-    Table TRIGGERS(Session session) {
+    Table TRIGGERS(Session session, PersistentStore store) {
 
         Table t = sysTables[TRIGGERS];
 
@@ -5831,8 +5791,6 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
             return t;
         }
 
-        PersistentStore store = t.getRowStore(session);
-
         // column number mappings
         final int trigger_catalog            = 0;
         final int trigger_schema             = 1;
@@ -5851,8 +5809,10 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         final int action_reference_old_row   = 14;
         final int action_reference_new_row   = 15;
         final int created                    = 16;
-        Iterator  it;
-        Object[]  row;
+
+        //
+        Iterator it;
+        Object[] row;
 
         it = database.schemaManager.databaseObjectIterator(
             SchemaObject.TRIGGER);
@@ -5896,7 +5856,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         return t;
     }
 
-    Table TRIGGERED_UPDATE_COLUMNS(Session session) {
+    Table TRIGGERED_UPDATE_COLUMNS(Session session, PersistentStore store) {
 
         Table t = sysTables[TRIGGERED_UPDATE_COLUMNS];
 
@@ -5922,8 +5882,6 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
             return t;
         }
 
-        PersistentStore store = t.getRowStore(session);
-
         // column number mappings
         final int trigger_catalog      = 0;
         final int trigger_schema       = 1;
@@ -5932,8 +5890,10 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         final int event_object_schema  = 4;
         final int event_object_table   = 5;
         final int event_object_column  = 6;
-        Iterator  it;
-        Object[]  row;
+
+        //
+        Iterator it;
+        Object[] row;
 
         it = database.schemaManager.databaseObjectIterator(
             SchemaObject.TRIGGER);
@@ -5973,7 +5933,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         return t;
     }
 
-    Table UDT_PRIVILEGES(Session session) {
+    Table UDT_PRIVILEGES(Session session, PersistentStore store) {
 
         Table t = sysTables[UDT_PRIVILEGES];
 
@@ -5999,14 +5959,15 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
             return t;
         }
 
-        final int       grantor        = 0;
-        final int       grantee        = 1;
-        final int       udt_catalog    = 2;
-        final int       udt_schema     = 3;
-        final int       udt_name       = 4;
-        final int       privilege_type = 5;
-        final int       is_grantable   = 6;
-        PersistentStore store          = t.getRowStore(session);
+        final int grantor        = 0;
+        final int grantee        = 1;
+        final int udt_catalog    = 2;
+        final int udt_schema     = 3;
+        final int udt_name       = 4;
+        final int privilege_type = 5;
+        final int is_grantable   = 6;
+
+        //
         Iterator objects =
             database.schemaManager.databaseObjectIterator(SchemaObject.TYPE);
         OrderedHashSet grantees =
@@ -6148,7 +6109,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
      *
      * @return Table
      */
-    Table USAGE_PRIVILEGES(Session session) {
+    Table USAGE_PRIVILEGES(Session session, PersistentStore store) {
 
         Table t = sysTables[USAGE_PRIVILEGES];
 
@@ -6182,15 +6143,16 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         Object[] row;
 
         //
-        final int       grantor        = 0;
-        final int       grantee        = 1;
-        final int       object_catalog = 2;
-        final int       object_schema  = 3;
-        final int       object_name    = 4;
-        final int       object_type    = 5;
-        final int       privilege_type = 6;
-        final int       is_grantable   = 7;
-        PersistentStore store          = t.getRowStore(session);
+        final int grantor        = 0;
+        final int grantee        = 1;
+        final int object_catalog = 2;
+        final int object_schema  = 3;
+        final int object_name    = 4;
+        final int object_type    = 5;
+        final int privilege_type = 6;
+        final int is_grantable   = 7;
+
+        //
         Iterator objects =
             new WrapperIterator(database.schemaManager
                 .databaseObjectIterator(SchemaObject.SEQUENCE), database
@@ -6257,7 +6219,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         return t;
     }
 
-    Table USER_DEFINED_TYPES(Session session) {
+    Table USER_DEFINED_TYPES(Session session, PersistentStore store) {
 
         Table t = sysTables[USER_DEFINED_TYPES];
 
@@ -6311,39 +6273,40 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
             return t;
         }
 
-        PersistentStore store                      = t.getRowStore(session);
-        final int       user_defined_type_catalog  = 0;
-        final int       user_defined_type_schema   = 1;
-        final int       user_defined_type_name     = 2;
-        final int       user_defined_type_category = 3;
-        final int       is_instantiable            = 4;
-        final int       is_final                   = 5;
-        final int       ordering_form              = 6;
-        final int       ordering_category          = 7;
-        final int       ordering_routine_catalog   = 8;
-        final int       ordering_routine_schema    = 9;
-        final int       ordering_routine_name      = 10;
-        final int       reference_type             = 11;
-        final int       data_type                  = 12;
-        final int       character_maximum_length   = 13;
-        final int       character_octet_length     = 14;
-        final int       character_set_catalog      = 15;
-        final int       character_set_schema       = 16;
-        final int       character_set_name         = 17;
-        final int       collation_catalog          = 18;
-        final int       collation_schema           = 19;
-        final int       collation_name             = 20;
-        final int       numeric_precision          = 21;
-        final int       numeric_precision_radix    = 22;
-        final int       numeric_scale              = 23;
-        final int       datetime_precision         = 24;
-        final int       interval_type              = 25;
-        final int       interval_precision         = 26;
-        final int       source_dtd_identifier      = 27;
-        final int       ref_dtd_identifier         = 28;
-        final int       declared_data_type         = 29;
-        final int       declared_numeric_precision = 30;
-        final int       declared_numeric_scale     = 31;
+        final int user_defined_type_catalog  = 0;
+        final int user_defined_type_schema   = 1;
+        final int user_defined_type_name     = 2;
+        final int user_defined_type_category = 3;
+        final int is_instantiable            = 4;
+        final int is_final                   = 5;
+        final int ordering_form              = 6;
+        final int ordering_category          = 7;
+        final int ordering_routine_catalog   = 8;
+        final int ordering_routine_schema    = 9;
+        final int ordering_routine_name      = 10;
+        final int reference_type             = 11;
+        final int data_type                  = 12;
+        final int character_maximum_length   = 13;
+        final int character_octet_length     = 14;
+        final int character_set_catalog      = 15;
+        final int character_set_schema       = 16;
+        final int character_set_name         = 17;
+        final int collation_catalog          = 18;
+        final int collation_schema           = 19;
+        final int collation_name             = 20;
+        final int numeric_precision          = 21;
+        final int numeric_precision_radix    = 22;
+        final int numeric_scale              = 23;
+        final int datetime_precision         = 24;
+        final int interval_type              = 25;
+        final int interval_precision         = 26;
+        final int source_dtd_identifier      = 27;
+        final int ref_dtd_identifier         = 28;
+        final int declared_data_type         = 29;
+        final int declared_numeric_precision = 30;
+        final int declared_numeric_scale     = 31;
+
+        //
         Iterator it =
             database.schemaManager.databaseObjectIterator(SchemaObject.TYPE);
 
@@ -6466,7 +6429,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
      *
      * @return Table
      */
-    Table VIEW_COLUMN_USAGE(Session session) {
+    Table VIEW_COLUMN_USAGE(Session session, PersistentStore store) {
 
         Table t = sysTables[VIEW_COLUMN_USAGE];
 
@@ -6491,8 +6454,6 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
 
             return t;
         }
-
-        PersistentStore store = t.getRowStore(session);
 
         // Calculated column values
         String viewCatalog;
@@ -6605,7 +6566,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
      *
      * @return Table
      */
-    Table VIEW_ROUTINE_USAGE(Session session) {
+    Table VIEW_ROUTINE_USAGE(Session session, PersistentStore store) {
 
         Table t = sysTables[VIEW_ROUTINE_USAGE];
 
@@ -6629,8 +6590,6 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
 
             return t;
         }
-
-        PersistentStore store = t.getRowStore(session);
 
         // Intermediate holders
         Iterator tables;
@@ -6730,7 +6689,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
      *
      * @return Table
      */
-    Table VIEW_TABLE_USAGE(Session session) {
+    Table VIEW_TABLE_USAGE(Session session, PersistentStore store) {
 
         Table t = sysTables[VIEW_TABLE_USAGE];
 
@@ -6766,10 +6725,9 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         final int table_name    = 5;
 
         //
-        PersistentStore store = t.getRowStore(session);
-        Iterator        tables;
-        Table           table;
-        Object[]        row;
+        Iterator tables;
+        Table    table;
+        Object[] row;
 
         // Initialization
         tables =
@@ -6845,7 +6803,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
      *        <code>View</code> objects accessible to
      *        the user.
      */
-    Table VIEWS(Session session) {
+    Table VIEWS(Session session, PersistentStore store) {
 
         Table t = sysTables[VIEWS];
 
@@ -6876,20 +6834,19 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
             return t;
         }
 
-        PersistentStore store = t.getRowStore(session);
-        Iterator        tables;
-        Table           table;
-        Object[]        row;
-        final int       table_catalog              = 0;
-        final int       table_schema               = 1;
-        final int       table_name                 = 2;
-        final int       view_definition            = 3;
-        final int       check_option               = 4;
-        final int       is_updatable               = 5;
-        final int       insertable_into            = 6;
-        final int       is_trigger_updatable       = 7;
-        final int       is_trigger_deletable       = 8;
-        final int       is_trigger_insertable_into = 9;
+        Iterator  tables;
+        Table     table;
+        Object[]  row;
+        final int table_catalog              = 0;
+        final int table_schema               = 1;
+        final int table_name                 = 2;
+        final int view_definition            = 3;
+        final int check_option               = 4;
+        final int is_updatable               = 5;
+        final int insertable_into            = 6;
+        final int is_trigger_updatable       = 7;
+        final int is_trigger_deletable       = 8;
+        final int is_trigger_insertable_into = 9;
 
         tables = allTables();
 
@@ -7015,7 +6972,8 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
      *
      * @return Table
      */
-    Table ROLE_AUTHORIZATION_DESCRIPTORS(Session session) {
+    Table ROLE_AUTHORIZATION_DESCRIPTORS(Session session,
+                                         PersistentStore store) {
 
         Table t = sysTables[ROLE_AUTHORIZATION_DESCRIPTORS];
 
@@ -7039,8 +6997,6 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
 
             return t;
         }
-
-        PersistentStore store = t.getRowStore(session);
 
         // Intermediate holders
         String   grantorName = SqlInvariants.SYSTEM_AUTHORIZATION_NAME;

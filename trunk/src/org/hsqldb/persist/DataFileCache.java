@@ -866,7 +866,7 @@ public class DataFileCache {
         }
     }
 
-    private void saveRowNoLock(CachedObject row) {
+    protected void saveRowNoLock(CachedObject row) {
 
         try {
             rowOut.reset();
@@ -1083,7 +1083,8 @@ public class DataFileCache {
     }
 
     public int getFreeBlockCount() {
-        return freeBlocks.size();
+        return freeBlocks == null ? 0
+                                  : freeBlocks.size();
     }
 
     public int getTotalFreeBlockSize() {

@@ -80,7 +80,7 @@ public class Row implements CachedObject {
         return !action.canRead(session, TransactionManager.ACTION_READ);
     }
 
-    public void setChanged() {}
+    public void setChanged(boolean changed) {}
 
     public void setStorageSize(int size) {}
 

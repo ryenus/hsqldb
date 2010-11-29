@@ -219,8 +219,8 @@ public class RowAVLDisk extends RowAVL {
     /**
      * Sets flag for row data change.
      */
-    public synchronized void setChanged() {
-        hasDataChanged = true;
+    public synchronized void setChanged(boolean changed) {
+        hasDataChanged = changed;
     }
 
     /**

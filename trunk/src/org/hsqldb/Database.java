@@ -35,6 +35,7 @@ import org.hsqldb.HsqlNameManager.HsqlName;
 import org.hsqldb.dbinfo.DatabaseInformation;
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
+import org.hsqldb.lib.HashMappedList;
 import org.hsqldb.lib.HsqlArrayList;
 import org.hsqldb.persist.HsqlDatabaseProperties;
 import org.hsqldb.persist.HsqlProperties;
@@ -605,6 +606,25 @@ public class Database {
             String name = collation.getName().statementName;
 
             list.add("SET DATABASE COLLATION " + name);
+        }
+
+        HashMappedList lobTables =
+            schemaManager.getTables(SqlInvariants.LOBS_SCHEMA);
+
+        for (int i = 0; i < lobTables.size(); i++) {
+            Table table = (Table) lobTables.get(i);
+
+            if (table.isCached()) {
+                StringBuffer sb = new StringBuffer();
+
+                sb.append(Tokens.T_SET).append(' ').append(Tokens.T_TABLE);
+                sb.append(' ');
+                sb.append(table.getName().getSchemaQualifiedStatementName());
+                sb.append(' ').append(Tokens.T_TYPE).append(' ');
+                sb.append(Tokens.T_CACHED);
+
+                list.add(sb.toString());
+            }
         }
 
         String[] array = new String[list.size()];

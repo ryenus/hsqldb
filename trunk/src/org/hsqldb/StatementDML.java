@@ -868,9 +868,8 @@ public class StatementDML extends StatementDMQL {
             Object value = e.getValue(session);
             Type   type  = colTypes[colIndex];
 
-            if (colTypes[colIndex] != e.dataType) {
-                value = type.convertToType(session, value, e.dataType);
-            }
+            // DYNAMIC_PARAM and PARAMETER expressions may have wider values
+            value = type.convertToType(session, value, e.dataType);
 
             data[colIndex] = value;
         }

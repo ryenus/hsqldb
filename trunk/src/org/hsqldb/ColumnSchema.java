@@ -172,6 +172,12 @@ public final class ColumnSchema extends ColumnBase implements SchemaObject {
 
         sb.append(dataType.getTypeDefinition());
 
+/*
+        if (dataType.hasCollation()) {
+            sb.append(' ').append(Tokens.T_COLLATE).append(' ');
+            sb.append(dataType.getCollationDefinition());
+        }
+*/
         return sb.toString();
     }
 
@@ -335,9 +341,8 @@ public final class ColumnSchema extends ColumnBase implements SchemaObject {
 
     public ColumnSchema duplicate() {
 
-        ColumnSchema copy = new ColumnSchema(columnName, dataType,
-                                             true, isPrimaryKey,
-                                             defaultExpression);
+        ColumnSchema copy = new ColumnSchema(columnName, dataType, true,
+                                             isPrimaryKey, defaultExpression);
 
         copy.setNullability(this.nullability);
         copy.setGeneratingExpression(generatingExpression);
