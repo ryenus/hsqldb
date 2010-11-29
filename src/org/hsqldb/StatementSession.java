@@ -458,7 +458,7 @@ public class StatementSession extends Statement {
                     schema =
                         session.database.schemaManager.getSchemaHsqlName(name);
 
-                    session.setSchema(schema.name);
+                    session.setCurrentSchemaHsqlName(schema);
 
                     return Result.updateZeroResult;
                 } catch (HsqlException e) {

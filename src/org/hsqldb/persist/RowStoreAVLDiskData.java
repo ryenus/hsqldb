@@ -52,14 +52,12 @@ import org.hsqldb.rowio.RowInputInterface;
  * Implementation of PersistentStore for TEXT tables.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 1.9.0
+ * @version 2.0.1
  * @since 1.9.0
  */
 public class RowStoreAVLDiskData extends RowStoreAVLDisk {
 
-    ReentrantReadWriteLock           lock = new ReentrantReadWriteLock(true);
-    ReentrantReadWriteLock.WriteLock writeLock = lock.writeLock();
-    RowAVLDiskData                   currentRow;
+    RowAVLDiskData currentRow;
 
     public RowStoreAVLDiskData(PersistentStoreCollection manager,
                                Table table) {
@@ -68,38 +66,49 @@ public class RowStoreAVLDiskData extends RowStoreAVLDisk {
 
     public CachedObject get(CachedObject object, boolean keep) {
 
-        writeLock.lock();
+        lock();
 
         try {
             currentRow = (RowAVLDiskData) object;
             object     = cache.get(object, this, keep);
+            currentRow = null;
 
             return object;
         } finally {
-            currentRow = null;
-
-            writeLock.unlock();
+            unlock();
         }
     }
 
     public void add(CachedObject object) {
 
-        int size = object.getRealSize(cache.rowOut);
+        lock();
 
-        object.setStorageSize(size);
-        cache.add(object);
+        try {
+            int size = object.getRealSize(cache.rowOut);
+
+            object.setStorageSize(size);
+            cache.add(object);
+        } finally {
+            unlock();
+        }
     }
 
     public CachedObject get(RowInputInterface in) {
 
         try {
-            RowAVLDiskData newRow = new RowAVLDiskData(this, table, in);
+            Object[] data = RowAVLDiskData.getRowData(table, in);
 
             if (currentRow == null) {
-                return newRow;
+                RowAVLDiskData row = new RowAVLDiskData(this, table, data);
+
+                row.setPos(in.getPos());
+                row.setStorageSize(in.getSize());
+                row.setChanged(false);
+
+                return row;
             }
 
-            currentRow.setData(newRow.getData());
+            currentRow.setData(data);
 
             return currentRow;
         } catch (IOException e) {
@@ -121,9 +130,7 @@ public class RowStoreAVLDiskData extends RowStoreAVLDisk {
         return row;
     }
 
-
     public void indexRow(Session session, Row row) {
-
         super.indexRow(session, row);
     }
 

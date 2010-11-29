@@ -597,7 +597,7 @@ public class RowSetNavigatorDataTable extends RowSetNavigatorData {
             Row row = it.getNextRow();
 
             if (isAggregate) {
-                row.setChanged();
+                row.setChanged(true);
             }
 
             return row.getData();

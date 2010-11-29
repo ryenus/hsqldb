@@ -81,10 +81,6 @@ public class RowStoreAVLMemory extends RowStoreAVL implements PersistentStore {
         throw Error.runtimeError(ErrorCode.U_S0500, "RowStoreAVMemory");
     }
 
-    public CachedObject getKeep(int i) {
-        throw Error.runtimeError(ErrorCode.U_S0500, "RowStoreAVLMemory");
-    }
-
     public CachedObject get(int i, boolean keep) {
         throw Error.runtimeError(ErrorCode.U_S0500, "RowStoreAVLMemory");
     }

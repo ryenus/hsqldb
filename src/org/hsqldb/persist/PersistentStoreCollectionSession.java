@@ -131,12 +131,12 @@ implements PersistentStoreCollection {
                     if (store == null) {
                         store = session.database.logger.newStore(session,
                                 this, table, true);
+                    }
 
-                        if (table.getTableType()
-                                == TableBase.INFO_SCHEMA_TABLE) {
-                            session.database.dbInfo.setStore(
-                                session, (Table) table, store);
-                        }
+                    if (table.getTableType()
+                            == TableBase.INFO_SCHEMA_TABLE) {
+                        session.database.dbInfo.setStore(
+                            session, (Table) table, store);
                     }
 
                     return store;

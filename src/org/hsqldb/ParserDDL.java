@@ -3229,7 +3229,9 @@ public class ParserDDL extends ParserRoutine {
             name, newName
         };
 
-        return new StatementSchema(sql, StatementTypes.RENAME_OBJECT, args);
+        return new StatementSchema(
+            sql, StatementTypes.RENAME_OBJECT, args, null,
+            database.schemaManager.getCatalogNameArray());
     }
 
     Statement compileAlterTableAddUniqueConstraint(Table table,

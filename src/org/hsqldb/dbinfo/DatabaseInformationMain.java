@@ -276,7 +276,8 @@ class DatabaseInformationMain extends DatabaseInformation {
      * @param tableIndex int value identifying the system table to generate
      * @return the system table corresponding to the specified tableIndex value
      */
-    protected Table generateTable(Session session, int tableIndex) {
+    protected Table generateTable(Session session, PersistentStore store,
+                                  int tableIndex) {
 
 //        Please note that this class produces non-null tables for
 //        just those absolutely essential to the JDBC 1 spec and the
@@ -314,64 +315,64 @@ class DatabaseInformationMain extends DatabaseInformation {
         switch (tableIndex) {
 
             case SYSTEM_BESTROWIDENTIFIER :
-                return SYSTEM_BESTROWIDENTIFIER(session);
+                return SYSTEM_BESTROWIDENTIFIER(session, store);
 
             case SYSTEM_COLUMNS :
-                return SYSTEM_COLUMNS(session);
+                return SYSTEM_COLUMNS(session, store);
 
             case SYSTEM_CONNECTION_PROPERTIES :
-                return SYSTEM_CONNECTION_PROPERTIES(session);
+                return SYSTEM_CONNECTION_PROPERTIES(session, store);
 
             case SYSTEM_CROSSREFERENCE :
-                return SYSTEM_CROSSREFERENCE(session);
+                return SYSTEM_CROSSREFERENCE(session, store);
 
             case SYSTEM_INDEXINFO :
-                return SYSTEM_INDEXINFO(session);
+                return SYSTEM_INDEXINFO(session, store);
 
             case SYSTEM_PRIMARYKEYS :
-                return SYSTEM_PRIMARYKEYS(session);
+                return SYSTEM_PRIMARYKEYS(session, store);
 
             case SYSTEM_PROCEDURECOLUMNS :
-                return SYSTEM_PROCEDURECOLUMNS(session);
+                return SYSTEM_PROCEDURECOLUMNS(session, store);
 
             case SYSTEM_PROCEDURES :
-                return SYSTEM_PROCEDURES(session);
+                return SYSTEM_PROCEDURES(session, store);
 
             case SYSTEM_SCHEMAS :
-                return SYSTEM_SCHEMAS(session);
+                return SYSTEM_SCHEMAS(session, store);
 
             case SYSTEM_SEQUENCES :
-                return SYSTEM_SEQUENCES(session);
+                return SYSTEM_SEQUENCES(session, store);
 
             case SYSTEM_TABLES :
-                return SYSTEM_TABLES(session);
+                return SYSTEM_TABLES(session, store);
 
             case SYSTEM_TABLETYPES :
-                return SYSTEM_TABLETYPES(session);
+                return SYSTEM_TABLETYPES(session, store);
 
             case SYSTEM_TYPEINFO :
-                return SYSTEM_TYPEINFO(session);
+                return SYSTEM_TYPEINFO(session, store);
 
             case SYSTEM_USERS :
-                return SYSTEM_USERS(session);
+                return SYSTEM_USERS(session, store);
 
             case SYSTEM_UDTS :
-                return SYSTEM_UDTS(session);
+                return SYSTEM_UDTS(session, store);
 
             case SYSTEM_VERSIONCOLUMNS :
-                return SYSTEM_VERSIONCOLUMNS(session);
+                return SYSTEM_VERSIONCOLUMNS(session, store);
 
             case COLUMN_PRIVILEGES :
-                return COLUMN_PRIVILEGES(session);
+                return COLUMN_PRIVILEGES(session, store);
 
             case SEQUENCES :
-                return SEQUENCES(session);
+                return SEQUENCES(session, store);
 
             case TABLE_PRIVILEGES :
-                return TABLE_PRIVILEGES(session);
+                return TABLE_PRIVILEGES(session, store);
 
             case INFORMATION_SCHEMA_CATALOG_NAME :
-                return INFORMATION_SCHEMA_CATALOG_NAME(session);
+                return INFORMATION_SCHEMA_CATALOG_NAME(session, store);
 
             default :
                 return null;
@@ -389,7 +390,7 @@ class DatabaseInformationMain extends DatabaseInformation {
         Table t;
 
         for (int i = 0; i < sysTables.length; i++) {
-            t = sysTables[i] = generateTable(session, i);
+            t = sysTables[i] = generateTable(session, null, i);
 
             if (t != null) {
                 t.setDataReadOnly(true);
@@ -483,13 +484,17 @@ class DatabaseInformationMain extends DatabaseInformation {
         return t;
     }
 
+    public boolean isNonCachedTable(String name) {
+        return nonCachedTablesSet.contains(name);
+    }
+
     public synchronized final void setStore(Session session, Table table,
             PersistentStore store) {
 
         long dbscts = database.schemaManager.getSchemaChangeTimestamp();
 
         if (store.getTimestamp() == dbscts
-                && !nonCachedTablesSet.contains(table.getName().name)) {
+                && !isNonCachedTable(table.getName().name)) {
             return;
         }
 
@@ -499,7 +504,7 @@ class DatabaseInformationMain extends DatabaseInformation {
 
         int tableIndex = getSysTableID(table.getName().name);
 
-        generateTable(session, tableIndex);
+        generateTable(session, store, tableIndex);
     }
 
     /**
@@ -626,7 +631,8 @@ class DatabaseInformationMain extends DatabaseInformation {
      * set of visible columns that uniquely identifies a row
      * for each accessible table defined within this database
      */
-    final Table SYSTEM_BESTROWIDENTIFIER(Session session) {
+    final Table SYSTEM_BESTROWIDENTIFIER(Session session,
+                                         PersistentStore store) {
 
         Table t = sysTables[SYSTEM_BESTROWIDENTIFIER];
 
@@ -660,8 +666,6 @@ class DatabaseInformationMain extends DatabaseInformation {
 
             return t;
         }
-
-        PersistentStore store = t.getRowStore(session);
 
         // calculated column values
         Integer scope;           // { temp, transaction, session }
@@ -820,7 +824,7 @@ class DatabaseInformationMain extends DatabaseInformation {
      *        visible columns of all accessible
      *        tables defined within this database.<p>
      */
-    final Table SYSTEM_COLUMNS(Session session) {
+    final Table SYSTEM_COLUMNS(Session session, PersistentStore store) {
 
         Table t = sysTables[SYSTEM_COLUMNS];
 
@@ -868,8 +872,6 @@ class DatabaseInformationMain extends DatabaseInformation {
 
             return t;
         }
-
-        PersistentStore store = t.getRowStore(session);
 
         // calculated column values
         String tableCatalog;
@@ -1046,7 +1048,7 @@ class DatabaseInformationMain extends DatabaseInformation {
      *      import other accessible tables' primary key and/or unique
      *      constraint columns
      */
-    final Table SYSTEM_CROSSREFERENCE(Session session) {
+    final Table SYSTEM_CROSSREFERENCE(Session session, PersistentStore store) {
 
         Table t = sysTables[SYSTEM_CROSSREFERENCE];
 
@@ -1082,8 +1084,6 @@ class DatabaseInformationMain extends DatabaseInformation {
 
             return t;
         }
-
-        PersistentStore store = t.getRowStore(session);
 
         // calculated column values
         String  pkTableCatalog;
@@ -1248,7 +1248,7 @@ class DatabaseInformationMain extends DatabaseInformation {
      *        <code>Index</code> objects for each accessible
      *        table defined within this database.
      */
-    final Table SYSTEM_INDEXINFO(Session session) {
+    final Table SYSTEM_INDEXINFO(Session session, PersistentStore store) {
 
         Table t = sysTables[SYSTEM_INDEXINFO];
 
@@ -1286,8 +1286,6 @@ class DatabaseInformationMain extends DatabaseInformation {
 
             return t;
         }
-
-        PersistentStore store = t.getRowStore(session);
 
         // calculated column values
         String  tableCatalog;
@@ -1421,7 +1419,7 @@ class DatabaseInformationMain extends DatabaseInformation {
      *        primary key columns of each accessible table
      *        defined within this database.
      */
-    final Table SYSTEM_PRIMARYKEYS(Session session) {
+    final Table SYSTEM_PRIMARYKEYS(Session session, PersistentStore store) {
 
         Table t = sysTables[SYSTEM_PRIMARYKEYS];
 
@@ -1448,8 +1446,6 @@ class DatabaseInformationMain extends DatabaseInformation {
 
             return t;
         }
-
-        PersistentStore store = t.getRowStore(session);
 
         // calculated column values
         String tableCatalog;
@@ -1589,7 +1585,7 @@ class DatabaseInformationMain extends DatabaseInformation {
      *        of the accessible routines defined
      *        within this database.
      */
-    Table SYSTEM_PROCEDURECOLUMNS(Session session) {
+    Table SYSTEM_PROCEDURECOLUMNS(Session session, PersistentStore store) {
 
         Table t = sysTables[SYSTEM_PROCEDURECOLUMNS];
 
@@ -1636,8 +1632,6 @@ class DatabaseInformationMain extends DatabaseInformation {
 
             return t;
         }
-
-        PersistentStore store = t.getRowStore(session);
 
         // column number mappings
         final int specific_cat            = 0;
@@ -1796,7 +1790,7 @@ class DatabaseInformationMain extends DatabaseInformation {
      * @return a <code>Table</code> object describing the accessible
      *        routines defined within the this database
      */
-    Table SYSTEM_PROCEDURES(Session session) {
+    Table SYSTEM_PROCEDURES(Session session, PersistentStore store) {
 
         Table t = sysTables[SYSTEM_PROCEDURES];
 
@@ -1848,9 +1842,6 @@ class DatabaseInformationMain extends DatabaseInformation {
         final int specific_name     = 8;
 
         //
-        PersistentStore store = t.getRowStore(session);
-
-        //
         Iterator it = database.schemaManager.databaseObjectIterator(
             SchemaObject.SPECIFIC_ROUTINE);
 
@@ -1884,7 +1875,8 @@ class DatabaseInformationMain extends DatabaseInformation {
      *                                                  contain information as to where this property is
      *                                                  stored in the database.
      */
-    final Table SYSTEM_CONNECTION_PROPERTIES(Session session) {
+    final Table SYSTEM_CONNECTION_PROPERTIES(Session session,
+            PersistentStore store) {
 
         Table t = sysTables[SYSTEM_CONNECTION_PROPERTIES];
 
@@ -1906,8 +1898,7 @@ class DatabaseInformationMain extends DatabaseInformation {
             return t;
         }
 
-        PersistentStore store = t.getRowStore(session);
-        Object[]        row;
+        Object[] row;
 
         // column number mappings
         final int iname          = 0;
@@ -2180,7 +2171,7 @@ class DatabaseInformationMain extends DatabaseInformation {
      * @return table containing information about schemas defined
      *      within this database
      */
-    final Table SYSTEM_SCHEMAS(Session session) {
+    final Table SYSTEM_SCHEMAS(Session session, PersistentStore store) {
 
         Table t = sysTables[SYSTEM_SCHEMAS];
 
@@ -2202,8 +2193,7 @@ class DatabaseInformationMain extends DatabaseInformation {
             return t;
         }
 
-        PersistentStore store = t.getRowStore(session);
-        Object[]        row;
+        Object[] row;
 
         // Initialization
         String[] schemas = database.schemaManager.getSchemaNamesArray();
@@ -2258,7 +2248,7 @@ class DatabaseInformationMain extends DatabaseInformation {
      * @return a <code>Table</code> object describing the accessible
      *      tables defined within this database
      */
-    final Table SYSTEM_TABLES(Session session) {
+    final Table SYSTEM_TABLES(Session session, PersistentStore store) {
 
         Table t = sysTables[SYSTEM_TABLES];
 
@@ -2304,8 +2294,6 @@ class DatabaseInformationMain extends DatabaseInformation {
 
             return t;
         }
-
-        PersistentStore store = t.getRowStore(session);
 
         // intermediate holders
         Iterator    tables;
@@ -2401,7 +2389,7 @@ class DatabaseInformationMain extends DatabaseInformation {
      * @return a <code>Table</code> object describing the table types
      *        available in this database
      */
-    Table SYSTEM_TABLETYPES(Session session) {
+    Table SYSTEM_TABLETYPES(Session session, PersistentStore store) {
 
         Table t = sysTables[SYSTEM_TABLETYPES];
 
@@ -2421,8 +2409,7 @@ class DatabaseInformationMain extends DatabaseInformation {
             return t;
         }
 
-        PersistentStore store = t.getRowStore(session);
-        Object[]        row;
+        Object[] row;
 
         for (int i = 0; i < tableTypes.length; i++) {
             row    = t.getEmptyRowData();
@@ -2478,7 +2465,7 @@ class DatabaseInformationMain extends DatabaseInformation {
      * @return a <code>Table</code> object describing the
      *      system-defined SQL types supported as table columns
      */
-    final Table SYSTEM_TYPEINFO(Session session) {
+    final Table SYSTEM_TYPEINFO(Session session, PersistentStore store) {
 
         Table t = sysTables[SYSTEM_TYPEINFO];
 
@@ -2552,11 +2539,10 @@ class DatabaseInformationMain extends DatabaseInformation {
         //------------------------------------------
         // not in JDBC, but in SQL CLI SQLDA / ODBC
         //------------------------------------------
-        final int       iinterval_precision = 18;
-        PersistentStore store               = t.getRowStore(session);
-        Object[]        row;
-        Iterator        it           = Type.typeNames.keySet().iterator();
-        boolean         translateTTI = database.sqlTranslateTTI;
+        final int iinterval_precision = 18;
+        Object[]  row;
+        Iterator  it           = Type.typeNames.keySet().iterator();
+        boolean   translateTTI = database.sqlTranslateTTI;
 
         while (it.hasNext()) {
             String typeName = (String) it.next();
@@ -2674,7 +2660,7 @@ class DatabaseInformationMain extends DatabaseInformation {
      * @return a <code>Table</code> object describing the accessible
      *      user-defined types defined in this database
      */
-    Table SYSTEM_UDTS(Session session) {
+    Table SYSTEM_UDTS(Session session, PersistentStore store) {
 
         Table t = sysTables[SYSTEM_UDTS];
 
@@ -2699,8 +2685,7 @@ class DatabaseInformationMain extends DatabaseInformation {
             return t;
         }
 
-        boolean         translateTTI = database.sqlTranslateTTI;
-        PersistentStore store        = t.getRowStore(session);
+        boolean translateTTI = database.sqlTranslateTTI;
 
         // column number mappings
         final int type_catalog = 0;
@@ -2781,7 +2766,7 @@ class DatabaseInformationMain extends DatabaseInformation {
      *        that are automatically updated when any value
      *        in a row is updated
      */
-    Table SYSTEM_VERSIONCOLUMNS(Session session) {
+    Table SYSTEM_VERSIONCOLUMNS(Session session, PersistentStore store) {
 
         Table t = sysTables[SYSTEM_VERSIONCOLUMNS];
 
@@ -2826,7 +2811,7 @@ class DatabaseInformationMain extends DatabaseInformation {
      * @return table containing information about the users defined within
      *      this database
      */
-    Table SYSTEM_USERS(Session session) {
+    Table SYSTEM_USERS(Session session, PersistentStore store) {
 
         Table t = sysTables[SYSTEM_USERS];
 
@@ -2848,8 +2833,6 @@ class DatabaseInformationMain extends DatabaseInformation {
 
             return t;
         }
-
-        PersistentStore store = t.getRowStore(session);
 
         // Intermediate holders
         HsqlArrayList users;
@@ -2911,7 +2894,7 @@ class DatabaseInformationMain extends DatabaseInformation {
      *        all accessible tables defined within this
      *        database
      */
-    final Table COLUMN_PRIVILEGES(Session session) {
+    final Table COLUMN_PRIVILEGES(Session session, PersistentStore store) {
 
         Table t = sysTables[COLUMN_PRIVILEGES];
 
@@ -2937,8 +2920,6 @@ class DatabaseInformationMain extends DatabaseInformation {
 
             return t;
         }
-
-        PersistentStore store = t.getRowStore(session);
 
 // calculated column values
         String  tableCatalog;
@@ -3102,7 +3083,7 @@ class DatabaseInformationMain extends DatabaseInformation {
      *
      * @return Table
      */
-    final Table SEQUENCES(Session session) {
+    final Table SEQUENCES(Session session, PersistentStore store) {
 
         Table t = sysTables[SEQUENCES];
 
@@ -3139,8 +3120,6 @@ class DatabaseInformationMain extends DatabaseInformation {
 
             return t;
         }
-
-        PersistentStore store = t.getRowStore(session);
 
         //
         final int sequence_catalog           = 0;
@@ -3208,7 +3187,7 @@ class DatabaseInformationMain extends DatabaseInformation {
         return t;
     }
 
-    final Table SYSTEM_SEQUENCES(Session session) {
+    final Table SYSTEM_SEQUENCES(Session session, PersistentStore store) {
 
         Table t = sysTables[SYSTEM_SEQUENCES];
 
@@ -3246,8 +3225,6 @@ class DatabaseInformationMain extends DatabaseInformation {
 
             return t;
         }
-
-        PersistentStore store = t.getRowStore(session);
 
         //
         final int sequence_catalog           = 0;
@@ -3344,7 +3321,7 @@ class DatabaseInformationMain extends DatabaseInformation {
      *        access rights for each accessible table
      *        defined within this database
      */
-    final Table TABLE_PRIVILEGES(Session session) {
+    final Table TABLE_PRIVILEGES(Session session, PersistentStore store) {
 
         Table t = sysTables[TABLE_PRIVILEGES];
 
@@ -3370,8 +3347,6 @@ class DatabaseInformationMain extends DatabaseInformation {
 
             return t;
         }
-
-        PersistentStore store = t.getRowStore(session);
 
         // calculated column values
         String  tableCatalog;
@@ -3454,7 +3429,7 @@ class DatabaseInformationMain extends DatabaseInformation {
         return t;
     }
 
-    Table TABLES(Session session) {
+    Table TABLES(Session session, PersistentStore store) {
 
         Table t = sysTables[TABLES];
 
@@ -3484,8 +3459,6 @@ class DatabaseInformationMain extends DatabaseInformation {
 
             return t;
         }
-
-        PersistentStore store = t.getRowStore(session);
 
         // intermediate holders
         Iterator  tables;
@@ -3574,7 +3547,8 @@ class DatabaseInformationMain extends DatabaseInformation {
      * @return a <code>Table</code> object naming the accessible
      *        catalogs defined within this database
      */
-    final Table INFORMATION_SCHEMA_CATALOG_NAME(Session session) {
+    final Table INFORMATION_SCHEMA_CATALOG_NAME(Session session,
+            PersistentStore store) {
 
         Table t = sysTables[INFORMATION_SCHEMA_CATALOG_NAME];
 
@@ -3595,8 +3569,7 @@ class DatabaseInformationMain extends DatabaseInformation {
             return t;
         }
 
-        PersistentStore store = t.getRowStore(session);
-        Object[]        row   = t.getEmptyRowData();
+        Object[] row = t.getEmptyRowData();
 
         row[0] = database.getCatalogName().name;
 

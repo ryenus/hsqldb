@@ -486,7 +486,7 @@ public class SchemaManager {
      *  tables and views. This includes all tables and views registered with
      *  this Database.
      */
-    public HsqlArrayList getAllTables() {
+    public HsqlArrayList getAllTables(boolean withLobTables) {
 
         readLock.lock();
 
@@ -497,7 +497,7 @@ public class SchemaManager {
             for (int i = 0; i < schemas.length; i++) {
                 String name = schemas[i];
 
-                if (SqlInvariants.isLobsSchemaName(name)) {
+                if (!withLobTables && SqlInvariants.isLobsSchemaName(name)) {
                     continue;
                 }
 
@@ -539,7 +539,7 @@ public class SchemaManager {
 
         try {
             OrderedHashSet names  = new OrderedHashSet();
-            HsqlArrayList  tables = getAllTables();
+            HsqlArrayList  tables = getAllTables(false);
 
             for (int i = 0; i < tables.size(); i++) {
                 Table table = (Table) tables.get(i);
@@ -990,7 +990,7 @@ public class SchemaManager {
 
             Session session = database.sessionManager.getSysSession();
 
-            for (int i = 0; i < set.size(); i++) {
+            for (int i = set.size() - 1; i >= 0; i--) {
                 HsqlName name = (HsqlName) set.get(i);
 
                 switch (name.type) {
@@ -1009,7 +1009,7 @@ public class SchemaManager {
                 }
             }
 
-            HsqlArrayList list = getAllTables();
+            HsqlArrayList list = getAllTables(false);
 
             for (int i = 0; i < list.size(); i++) {
                 Table t = (Table) list.get(i);
@@ -2311,7 +2311,7 @@ public class SchemaManager {
         readLock.lock();
 
         try {
-            HsqlArrayList tableList = getAllTables();
+            HsqlArrayList tableList = getAllTables(false);
             HsqlArrayList list      = new HsqlArrayList();
 
             for (int i = 0; i < tableList.size(); i++) {
@@ -2355,7 +2355,7 @@ public class SchemaManager {
         try {
             Session       sysSession = database.sessionManager.getSysSession();
             int[][]       rootsArray = getIndexRoots(sysSession);
-            HsqlArrayList tableList  = getAllTables();
+            HsqlArrayList tableList  = getAllTables(true);
             HsqlArrayList list       = new HsqlArrayList();
 
             for (int i = 0; i < rootsArray.length; i++) {
@@ -2385,7 +2385,7 @@ public class SchemaManager {
         readLock.lock();
 
         try {
-            HsqlArrayList tableList = getAllTables();
+            HsqlArrayList tableList = getAllTables(false);
             HsqlArrayList list      = new HsqlArrayList();
             StringBuffer  sb        = new StringBuffer();
 
@@ -2483,7 +2483,7 @@ public class SchemaManager {
                 return roots;
             }
 
-            HsqlArrayList allTables = getAllTables();
+            HsqlArrayList allTables = getAllTables(true);
             HsqlArrayList list      = new HsqlArrayList();
 
             for (int i = 0, size = allTables.size(); i < size; i++) {
@@ -2516,7 +2516,7 @@ public class SchemaManager {
         readLock.lock();
 
         try {
-            HsqlArrayList allTables = database.schemaManager.getAllTables();
+            HsqlArrayList allTables = database.schemaManager.getAllTables(false);
 
             for (int i = 0, size = allTables.size(); i < size; i++) {
                 Table t = (Table) allTables.get(i);

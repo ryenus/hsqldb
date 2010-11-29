@@ -417,13 +417,6 @@ public class Logger {
             HsqlDatabaseProperties.sql_enforce_refs);
         database.sqlEnforceSize = database.databaseProperties.isPropertyTrue(
             HsqlDatabaseProperties.sql_enforce_size);
-
-        if (!database.sqlEnforceSize) {
-            database.sqlEnforceSize =
-                database.databaseProperties.isPropertyTrue(
-                    HsqlDatabaseProperties.sql_enforce_strict_size);
-        }
-
         database.sqlEnforceTypes = database.databaseProperties.isPropertyTrue(
             HsqlDatabaseProperties.sql_enforce_types);
         database.sqlEnforceTDCD = database.databaseProperties.isPropertyTrue(
@@ -1309,10 +1302,6 @@ public class Logger {
         }
 
         if (HsqlDatabaseProperties.sql_enforce_size.equals(name)) {
-            return String.valueOf(database.sqlEnforceSize);
-        }
-
-        if (HsqlDatabaseProperties.sql_enforce_strict_size.equals(name)) {
             return String.valueOf(database.sqlEnforceSize);
         }
 

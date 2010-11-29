@@ -50,6 +50,13 @@ import org.hsqldb.navigator.RowIterator;
 import org.hsqldb.rowio.RowInputInterface;
 import org.hsqldb.types.Type;
 
+/*
+ * Base implementation of PersistentStore for different table types.
+ *
+ * @author Fred Toussi (fredt@users dot sourceforge.net)
+ * @version 2.0.1
+ * @since 1.9.0
+ */
 public abstract class RowStoreAVL implements PersistentStore {
 
     Database                  database;

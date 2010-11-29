@@ -47,9 +47,9 @@ implements TransactionManager {
 
     public TransactionManager2PL(Database db) {
 
-        database       = db;
-        lobSession     = database.sessionManager.getSysLobSession();
-        txModel        = LOCKS;
+        database   = db;
+        lobSession = database.sessionManager.getSysLobSession();
+        txModel    = LOCKS;
     }
 
     public long getGlobalChangeTimestamp() {
@@ -69,46 +69,7 @@ implements TransactionManager {
     }
 
     public void setTransactionControl(Session session, int mode) {
-
-        writeLock.lock();
-
-        try {
-            switch (mode) {
-
-                case MVCC : {
-                    TransactionManagerMVCC manager =
-                        new TransactionManagerMVCC(database);
-
-                    manager.globalChangeTimestamp.set(
-                        globalChangeTimestamp.get());
-                    manager.liveTransactionTimestamps.addLast(
-                        session.transactionTimestamp);
-
-                    database.txManager = manager;
-
-                    break;
-                }
-                case MVLOCKS : {
-                    TransactionManagerMV2PL manager =
-                        new TransactionManagerMV2PL(database);
-
-                    manager.globalChangeTimestamp.set(
-                        globalChangeTimestamp.get());
-                    manager.liveTransactionTimestamps.addLast(
-                        session.transactionTimestamp);
-
-                    database.txManager = manager;
-
-                    break;
-                }
-                case LOCKS :
-                    break;
-            }
-
-            return;
-        } finally {
-            writeLock.unlock();
-        }
+        super.setTransactionControl(session, mode);
     }
 
     public void completeActions(Session session) {
@@ -134,8 +95,9 @@ implements TransactionManager {
         writeLock.lock();
 
         try {
+
             // new actionTimestamp used for commitTimestamp
-            session.actionTimestamp = nextChangeTimestamp();
+            session.actionTimestamp         = nextChangeTimestamp();
             session.transactionEndTimestamp = session.actionTimestamp;
 
             endTransaction(session);
@@ -159,8 +121,8 @@ implements TransactionManager {
 
     public void rollback(Session session) {
 
-        session.abortTransaction = false;
-        session.actionTimestamp  = nextChangeTimestamp();
+        session.abortTransaction        = false;
+        session.actionTimestamp         = nextChangeTimestamp();
         session.transactionEndTimestamp = session.actionTimestamp;
 
         rollbackPartial(session, 0, session.transactionTimestamp);

@@ -95,7 +95,7 @@ final class DataFileDefrag {
         Error.printSystemOut("transaction count: "
                              + transactionRowLookup.size());
 
-        HsqlArrayList allTables = database.schemaManager.getAllTables();
+        HsqlArrayList allTables = database.schemaManager.getAllTables(true);
 
         rootsList = new int[allTables.size()][];
 
@@ -207,7 +207,7 @@ final class DataFileDefrag {
      */
     void updateTableIndexRoots() {
 
-        HsqlArrayList allTables = database.schemaManager.getAllTables();
+        HsqlArrayList allTables = database.schemaManager.getAllTables(true);
 
         for (int i = 0, size = allTables.size(); i < size; i++) {
             Table t = (Table) allTables.get(i);

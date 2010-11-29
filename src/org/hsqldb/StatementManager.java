@@ -182,6 +182,7 @@ public final class StatementManager {
             try {
                 HsqlName schema = cs.getSchemaName();
 
+                // checks the old schema exists
                 session.setSchema(schema.name);
 
                 StatementDML si = null;
@@ -207,7 +208,7 @@ public final class StatementManager {
 
                 return null;
             } finally {
-                session.setSchema(oldSchema.name);
+                session.setCurrentSchemaHsqlName(oldSchema);
             }
         }
 

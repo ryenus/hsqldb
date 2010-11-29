@@ -213,9 +213,7 @@ public class StatementSchemaDefinition extends StatementSchema {
             } catch (HsqlException e) {}
         }
 
-        try {
-            session.setCurrentSchemaHsqlName(oldSessionSchema);
-        } catch (Exception e) {}
+        session.setCurrentSchemaHsqlName(oldSessionSchema);
 
         return result;
     }

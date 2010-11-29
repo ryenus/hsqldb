@@ -88,19 +88,41 @@ public class RowAVLDiskData extends RowAVL {
         this.store     = store;
     }
 
+    public static Object[] getRowData(TableBase t,
+                                      RowInputInterface in)
+                                      throws IOException {
+        return in.readData(t.getColumnTypes());
+    }
+
     public void setData(Object[] data) {
         this.rowData = data;
     }
 
     public Object[] getData() {
 
-        if (rowData == null) {
-            store.get(this, false);
+        Object[] data = rowData;
+
+        if (data == null) {
+            store.lock();
+
+            try {
+                store.get(this, false);
+
+                data = rowData;
+
+                if (data == null) {
+                    store.get(this, false);
+
+                    data = rowData;
+                }
+            } finally {
+                store.unlock();
+            }
         } else {
             accessCount++;
         }
 
-        return rowData;
+        return data;
     }
 
     /**
@@ -159,6 +181,10 @@ public class RowAVLDiskData extends RowAVL {
         hasDataChanged = false;
     }
 
+    public synchronized void setChanged(boolean changed) {
+        hasDataChanged = changed;
+    }
+
     public boolean hasChanged() {
         return hasDataChanged;
     }
@@ -206,8 +232,9 @@ public class RowAVLDiskData extends RowAVL {
         return obj == this;
     }
 
+    /** used by Index, nodes are always in memory */
     public boolean isInMemory() {
-        return rowData != null;
+        return true;
     }
 
     public boolean isKeepInMemory() {
@@ -218,6 +245,7 @@ public class RowAVLDiskData extends RowAVL {
         return true;
     }
 
+    /** required to purge cache */
     public void setInMemory(boolean in) {
 
         if (!in) {

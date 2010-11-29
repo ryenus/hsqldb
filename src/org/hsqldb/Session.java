@@ -1355,14 +1355,12 @@ public class Session implements SessionInterface {
                 || cs.compileTimestamp
                    < database.schemaManager.schemaChangeTimestamp) {
             csid = cmd.getStatementID();
-
-            cs = statementManager.getStatement(this, csid);
+            cs   = statementManager.getStatement(this, csid);
 
             if (cs == null) {
 
                 // invalid sql has been removed already
-                return Result.newErrorResult(
-                    Error.error(ErrorCode.X_07502));
+                return Result.newErrorResult(Error.error(ErrorCode.X_07502));
             }
         }
 
