@@ -825,7 +825,7 @@ CREATE FUNCTION an_hour_before_max (e_type INT)
 
       <simpara><literal>&lt;handler declaration&gt; ::= DECLARE {UNDO |
       CONTINUE | EXIT} HANDLER FOR {SQLEXCEPTION | SQLWARNING | NOT FOUND} | {
-      SQL_STATE &lt;state value&gt; [, ...]} [&lt;SQL procedure
+      SQLSTATE &lt;state value&gt; [, ...]} [&lt;SQL procedure
       statement&gt;];</literal></simpara>
 
       <para>A handler declaration may specify an SQL procedure statement to be
@@ -1286,8 +1286,8 @@ CREATE FUNCTION an_hour_before_max (e_type INT)
       any change of data is rolled back and the routine throws the
       exception.</para>
 
-      <simpara><literal>&lt;signal statement&gt; ::= SIGNAL SQL_STATE
-      &lt;state value&gt;</literal></simpara>
+      <simpara><literal>&lt;signal statement&gt; ::= SIGNAL SQLSTATE &lt;state
+      value&gt;</literal></simpara>
 
       <indexterm significance="preferred" type="sql">
         <primary>RESIGNAL STATEMENT</primary>
@@ -1302,7 +1302,7 @@ CREATE FUNCTION an_hour_before_max (e_type INT)
       in effect propagating the exception to the enclosing context without
       further action by the currently active handlers.</para>
 
-      <simpara><literal>&lt;resignal statement&gt; ::= RESIGNAL SQL_STATE
+      <simpara><literal>&lt;resignal statement&gt; ::= RESIGNAL SQLSTATE
       &lt;state value&gt;</literal></simpara>
     </section>
 

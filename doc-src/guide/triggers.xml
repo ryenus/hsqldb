@@ -490,14 +490,26 @@
 
     <simpara>The third form specifies a call to a Java method.</simpara>
 
-    <simpara>An example of a trigger with a block is given below. The block
+    <simpara>Two examples of a trigger with a block are given below. The block
     can include elements discussed in the <link endterm="sqlroutines-title"
     ns2:href="#sqlroutines-chapt" ns2:title=""></link> chapter, including
     local variables, loops and conditionals. You can also raise an exception
     in such blocks in order to terminate the execution of the SQL statement
     that caused the trigger to execute.</simpara>
 
-    <programlisting>  CREATE TRIGGER trig AFTER INSERT ON testtrig 
+    <programlisting>/* the trigger throws an exception if a customer with the given last name already exists */
+  CREATE TRIGGER trigone BEFORE INSERT ON customer 
+    REFERENCING NEW ROW AS newrow
+    FOR EACH ROW WHEN (newrow.id &gt; 100)
+    BEGIN ATOMIC
+      IF EXISTS (SELECT * FROM CUSTOMER WHERE CUSTOMER.LASTNAME = NEW.LASTNAME) THEN
+        SIGNAL SQLSTATE '45000';
+      END IF;
+    END
+</programlisting>
+
+    <programlisting>/* for each row inserted into the target, the trigger insert a row into the table used for logging */
+  CREATE TRIGGER trig AFTER INSERT ON testtrig 
     BEFORE othertrigger  
     REFERENCING NEW ROW AS newrow
     FOR EACH ROW WHEN (newrow.id &gt; 1)
