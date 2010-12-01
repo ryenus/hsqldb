@@ -1,3 +1,5 @@
+30 NOV 2010 - svn 3919
+-- added support for cached tables for lob catalog
 14 NOV 2010 - svn 3897
 -- added support for CURRENT VALUE FOR <identity sequence>, same as CURRVAL
 -- added TO_TIMESTAMP, LPAD, RPAD functions
