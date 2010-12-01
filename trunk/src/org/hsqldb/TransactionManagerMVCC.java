@@ -31,7 +31,7 @@
 
 package org.hsqldb;
 
-import java.util.concurrent.locks.ReentrantReadWriteLock;
+import java.util.concurrent.locks.Lock;
 
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
@@ -394,7 +394,7 @@ implements TransactionManager {
                                + session.actionTimestamp);
         }
 
-        if (!row.isMemory()) {
+        if (table.tableType == TableBase.CACHED_TABLE) {
             rowActionMap.put(action.getPos(), action);
         }
 
@@ -717,12 +717,8 @@ implements TransactionManager {
         RowAction action = null;
 
         synchronized (row) {
-            if (row.isMemory()) {
-                action = RowAction.addDeleteAction(session, table, row,
-                                                   colMap);
-            } else {
-                ReentrantReadWriteLock.WriteLock mapLock =
-                    rowActionMap.getWriteLock();
+            if (table.tableType == TableBase.CACHED_TABLE) {
+                Lock mapLock = rowActionMap.getWriteLock();
 
                 mapLock.lock();
 
@@ -746,6 +742,9 @@ implements TransactionManager {
                 } finally {
                     mapLock.unlock();
                 }
+            } else {
+                action = RowAction.addDeleteAction(session, table, row,
+                                                   colMap);
             }
         }
 

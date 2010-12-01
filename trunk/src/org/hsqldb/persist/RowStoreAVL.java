@@ -265,7 +265,7 @@ public abstract class RowStoreAVL implements PersistentStore {
         int            diff         = keys.length - indexList.length;
         int            position     = 0;
 
-        if (diff < -1 ) {
+        if (diff < -1) {
             throw Error.runtimeError(ErrorCode.U_S0500, "RowStoreAV");
         } else if (diff == -1) {
             limit = keys.length;
@@ -281,14 +281,14 @@ public abstract class RowStoreAVL implements PersistentStore {
             }
 
             Index[] tempKeys = (Index[]) ArrayUtil.toAdjustedArray(indexList,
-                    null, position, 1);
+                null, position, 1);
+
             tempKeys[position] = keys[position];
 
             resetAccessorKeys(tempKeys);
-
             resetAccessorKeys(keys);
-            return;
 
+            return;
         }
 
         for (; position < limit; position++) {

@@ -33,6 +33,7 @@ package org.hsqldb.lib;
 
 import org.hsqldb.store.BaseHashMap;
 
+import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 /**
@@ -61,7 +62,7 @@ public class IntKeyHashMapConcurrent extends BaseHashMap {
               BaseHashMap.objectKeyOrValue, false);
     }
 
-    public ReentrantReadWriteLock.WriteLock getWriteLock() {
+    public Lock getWriteLock() {
         return writeLock;
     }
 

@@ -250,7 +250,7 @@ implements TransactionManager {
 
         session.rowActionList.add(action);
 
-        if (newAction && !row.isMemory()) {
+        if (newAction && table.tableType == TableBase.CACHED_TABLE) {
             rowActionMap.put(action.getPos(), action);
         }
 
@@ -268,7 +268,7 @@ implements TransactionManager {
                                + session.actionTimestamp);
         }
 
-        if (!row.isMemory()) {
+        if (table.tableType == TableBase.CACHED_TABLE) {
             rowActionMap.put(action.getPos(), action);
         }
 

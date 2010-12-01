@@ -32,6 +32,7 @@
 package org.hsqldb;
 
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import org.hsqldb.HsqlNameManager.HsqlName;
@@ -218,10 +219,9 @@ class TransactionManagerCommon {
         for (int i = start; i < limit; i++) {
             RowAction action = (RowAction) list[i];
 
-            if (!action.isMemory) {
+            if (action.table.tableType == TableBase.CACHED_TABLE) {
                 if (action.type == RowActionBase.ACTION_NONE) {
-                    ReentrantReadWriteLock.WriteLock mapLock =
-                        rowActionMap.getWriteLock();
+                    Lock mapLock = rowActionMap.getWriteLock();
 
                     mapLock.lock();
 
