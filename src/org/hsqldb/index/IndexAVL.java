@@ -90,6 +90,7 @@ import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
 import org.hsqldb.lib.ArrayUtil;
 import org.hsqldb.lib.OrderedHashSet;
+import org.hsqldb.lib.ReadWriteLockDummy;
 import org.hsqldb.navigator.RowIterator;
 import org.hsqldb.persist.PersistentStore;
 import org.hsqldb.rights.Grantee;
@@ -145,9 +146,9 @@ public class IndexAVL implements Index {
     Object[] nullData;
 
     //
-    ReadWriteLock lock      = new ReentrantReadWriteLock();
-    Lock          readLock  = lock.readLock();
-    Lock          writeLock = lock.writeLock();
+    ReadWriteLock lock;
+    Lock          readLock;
+    Lock          writeLock;
 
     /**
      * Constructor declaration
@@ -202,6 +203,17 @@ public class IndexAVL implements Index {
         isSimpleOrder = simpleOrder;
         isSimple      = isSimpleOrder && colIndex.length == 1;
         nullData      = new Object[colIndex.length];
+
+        //
+        if (table.getTableType() == TableBase.MEMORY_TABLE
+                || table.getTableType() == TableBase.CACHED_TABLE) {
+            lock = new ReentrantReadWriteLock();
+        } else {
+            lock = new ReadWriteLockDummy();
+        }
+
+        readLock  = lock.readLock();
+        writeLock = lock.writeLock();
     }
 
     // SchemaObject implementation

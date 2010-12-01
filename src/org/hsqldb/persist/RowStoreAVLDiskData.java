@@ -71,10 +71,11 @@ public class RowStoreAVLDiskData extends RowStoreAVLDisk {
         try {
             currentRow = (RowAVLDiskData) object;
             object     = cache.get(object, this, keep);
-            currentRow = null;
 
             return object;
         } finally {
+            currentRow = null;
+
             unlock();
         }
     }

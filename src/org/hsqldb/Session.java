@@ -540,7 +540,7 @@ public class Session implements SessionInterface {
             return;
         }
 
-        if (!isTransaction) {
+        if (!isTransaction && rowActionList.size() == 0) {
             sessionContext.isReadOnly = isReadOnlyDefault ? Boolean.TRUE
                                                           : Boolean.FALSE;
 
@@ -583,7 +583,7 @@ public class Session implements SessionInterface {
             return;
         }
 
-        if (!isTransaction) {
+        if (!isTransaction && rowActionList.size() == 0) {
             sessionContext.isReadOnly = isReadOnlyDefault ? Boolean.TRUE
                                                           : Boolean.FALSE;
 
