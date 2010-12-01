@@ -2516,7 +2516,7 @@ public class SchemaManager {
         readLock.lock();
 
         try {
-            HsqlArrayList allTables = database.schemaManager.getAllTables(false);
+            HsqlArrayList allTables = database.schemaManager.getAllTables(true);
 
             for (int i = 0, size = allTables.size(); i < size; i++) {
                 Table t = (Table) allTables.get(i);
