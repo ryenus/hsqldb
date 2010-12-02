@@ -41,6 +41,8 @@ import org.hsqldb.types.DateTimeType;
 import org.hsqldb.types.IntervalType;
 import org.hsqldb.types.Type;
 import org.hsqldb.types.Types;
+import org.hsqldb.types.CharacterType;
+import org.hsqldb.types.BinaryType;
 
 /**
  * Implementation of CAST, CASE, LIMIT and ZONE operations.
@@ -76,6 +78,11 @@ public class ExpressionOp extends Expression {
             case OpTypes.CASEWHEN_COALESCE :
             case OpTypes.LIMIT :
             case OpTypes.ZONE_MODIFIER :
+                return;
+
+            case OpTypes.PREFIX :
+                dataType = left.dataType;
+
                 return;
 
             default :
@@ -382,8 +389,6 @@ public class ExpressionOp extends Expression {
                     if (parent != null) {
                         parent.replaceNode(this, replacement);
                     }
-
-                    break;
                 }
 
                 break;
@@ -710,6 +715,30 @@ public class ExpressionOp extends Expression {
             case OpTypes.ORDER_BY :
                 return nodes[LEFT].getValue(session);
 
+            case OpTypes.PREFIX : {
+                if (nodes[LEFT].dataType.isCharacterType()) {
+                    Object        value = nodes[RIGHT].getValue(session);
+                    CharacterType type = (CharacterType) nodes[RIGHT].dataType;
+                    long length =
+                        ((CharacterType) nodes[RIGHT].dataType).size(session,
+                            value);
+
+                    type  = (CharacterType) nodes[LEFT].dataType;
+                    value = nodes[LEFT].getValue(session);
+
+                    return type.substring(session, value, 0, length, true,
+                                          false);
+                } else {
+                    BinaryData value =
+                        (BinaryData) nodes[RIGHT].getValue(session);
+                    long       length = value.length(session);
+                    BinaryType type   = (BinaryType) nodes[LEFT].dataType;
+
+                    value = (BinaryData) nodes[LEFT].getValue(session);
+
+                    return type.substring(session, value, 0, length, true);
+                }
+            }
             case OpTypes.CAST : {
                 Object value =
                     dataType.castToType(session,

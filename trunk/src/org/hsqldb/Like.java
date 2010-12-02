@@ -365,6 +365,10 @@ class Like {
         return true;
     }
 
+    int getFirstWildCardIndex() {
+        return iFirstWildCard;
+    }
+
     Object getRangeLow() {
         return getStartsWith();
     }
