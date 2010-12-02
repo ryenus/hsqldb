@@ -283,16 +283,19 @@ public final class ExpressionLike extends ExpressionLogical {
 
             prefix.resolveTypes(session, null);
 
-            Expression gte = new ExpressionLogical(OpTypes.GREATER_EQUAL,
-                                                   nodes[LEFT], prefix,
-                                                   newLike);
+            Expression cast = new ExpressionOp(OpTypes.PREFIX, nodes[LEFT],
+                                               prefix);
+            Expression equ = new ExpressionLogical(OpTypes.EQUAL, cast,
+                                                   prefix);
 
-            gte.exprSubType = OpTypes.LIKE;
-            nodes           = new Expression[BINARY];
-            likeObject      = null;
-            nodes[LEFT]     = gte;
-            nodes[RIGHT]    = newLike;
-            opType          = OpTypes.AND;
+            equ = new ExpressionLogical(OpTypes.GREATER_EQUAL, nodes[LEFT],
+                                        prefix, equ);
+            equ.exprSubType = OpTypes.LIKE;
+            nodes        = new Expression[BINARY];
+            likeObject   = null;
+            nodes[LEFT]  = equ;
+            nodes[RIGHT] = newLike;
+            opType       = OpTypes.AND;
         }
     }
 

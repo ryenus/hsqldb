@@ -163,14 +163,14 @@ public class ExpressionLogical extends Expression {
      * Creates a modified LIKE comparison
      */
     ExpressionLogical(int type, Expression left, Expression right,
-                      Expression like) {
+                      Expression end) {
 
         super(type);
 
         nodes        = new Expression[TERNARY];
         nodes[LEFT]  = left;
         nodes[RIGHT] = right;
-        nodes[2]     = like;
+        nodes[2]     = end;
     }
 
     /**
@@ -1573,9 +1573,9 @@ public class ExpressionLogical extends Expression {
 
                 if (opType == OpTypes.EQUAL) {
                     if (it.hasNext()) {
-                        return store.elementCount(session) == 1
-                               ? Boolean.TRUE
-                               : Boolean.FALSE;
+                        return store.elementCount(session) == 1 ? Boolean.TRUE
+                                                                : Boolean
+                                                                .FALSE;
                     } else {
                         return Boolean.FALSE;
                     }
