@@ -1,3 +1,5 @@
+02 DEC 2010 - svn 3924
+-- bug fixes
 30 NOV 2010 - svn 3919
 -- added support for cached tables for lob catalog
 14 NOV 2010 - svn 3897
