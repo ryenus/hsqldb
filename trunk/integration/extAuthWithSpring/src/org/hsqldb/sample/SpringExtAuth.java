@@ -51,21 +51,29 @@ import org.apache.commons.logging.LogFactory;
 public class SpringExtAuth {
     private static Log log = LogFactory.getLog(SpringExtAuth.class);
 
-    private static final String SYNTAX_MSG =
-            "SYNTAX: " + SpringExtAuth.class.getName() + " {LDAP|HsqldbSlave}";
+    private static final String SYNTAX_MSG = "SYNTAX: "
+            + SpringExtAuth.class.getName() + " {LDAP|HsqldbSlave|JAAS_LDAP}";
 
     /**
      * @throws SQLException If Setup of emulation database failed, or if the
      *         application JDBC work fails.
      */
     static public void main(String[] sa) throws SQLException {
-        if (sa.length != 1 ||
-                (!sa[0].equals("LDAP") && !sa[0].equals("HsqldbSlave")))
+        if (sa.length != 1) throw new IllegalArgumentException(SYNTAX_MSG);
+        String authSpringFile = null;
+        if (sa[0].equals("LDAP")) {
+            authSpringFile = "ldapbeans.xml";
+        } else if (sa[0].equals("HsqldbSlave")) {
+            authSpringFile = "slavebeans.xml";
+        } else if (sa[0].equals("JAAS_LDAP")) {
+            authSpringFile = "jaasldapbeans.xml";
+        }
+        if (authSpringFile == null)
             throw new IllegalArgumentException(SYNTAX_MSG);
-        SpringExtAuth.prepMemoryDatabases(sa[0].equals("LDAP"));
+
+        SpringExtAuth.prepMemoryDatabases(!sa[0].equals("HsqldbSlave"));
         ApplicationContext ctx =
-            new ClassPathXmlApplicationContext("beandefs.xml",
-                    sa[0].equals("LDAP") ? "ldapbeans.xml" : "slavebeans.xml");
+            new ClassPathXmlApplicationContext("beandefs.xml", authSpringFile);
         ListableBeanFactory bf = (ListableBeanFactory) ctx;
         JdbcAppClass appBean = bf.getBean("appBean", JdbcAppClass.class);
         appBean.doJdbcWork();
