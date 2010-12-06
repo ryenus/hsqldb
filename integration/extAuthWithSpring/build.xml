@@ -6,7 +6,7 @@
 
   <!--
      You must set Ant property 'authentication.mode' to either
-     "LDAP" or "HsqldbSlave".
+     "LDAP" or "HsqldbSlave" or "JAAS_LDAP".
 
      To use StartTLS, (a) The CN of the LDAP server's cert must have CN of
      thos hostname that you set with property 'ldapHost' in the "beandefs.xml"
@@ -55,7 +55,7 @@
           depends="compile, -set-truststore-property-name">
     <fail unless="authentication.mode">
     You must set Ant property 'authentication.mode' to either
-    "LDAP" or "HsqldbSlave".</fail>
+    "LDAP" or "HsqldbSlave" or "JAAS_LDAP".</fail>
     <fail unless="hsqldb.jarfile">
       Ant property 'hsqldb.jarfile' is required.
       To get it using Ivy, SEE COMMENTS THE BUILD FILE.</fail>
@@ -70,6 +70,8 @@
       <arg value="${authentication.mode}"/>
       <sysproperty key="${truststore.property}" value="${truststore.path}"/>
       <sysproperty key="java.util.logging.config.file" value="jul.properties"/>
+      <sysproperty key="java.security.auth.login.config"
+                   value="file:resources/jaas.cfg"/>
     </java>
           <!--  Log4j logging
       classpath="classes:resources:${hsqldb.jarfile}:${user.home}/lib-repos/log4j-1.2.16.jar:${user.home}/lib-repos/admc-log4j-1.2_3.jar"

@@ -189,8 +189,10 @@ public class JaasAuthBean implements AuthFunctionBean {
             for (Callback cb : callbacks)
                 if (cb instanceof NameCallback) {
                     ((NameCallback) cb).setName("straight");
+                    didSetName = true;
                 } else if (cb instanceof PasswordCallback) {
                     ((PasswordCallback) cb).setPassword("pwd".toCharArray());
+                    didSetPassword = true;
                 } else {
                     throw new UnsupportedCallbackException(cb,
                             "Unsupported Callback type: "
@@ -220,10 +222,12 @@ public class JaasAuthBean implements AuthFunctionBean {
             try {
                 lc.login();
             } catch (LoginException le) {
+                logger.severe("JSSE backend denying access:  " + le);
                 throw new DenyException();
             }
             try {
                 if (roleSchemaValuePattern == null) {
+logger.severe("E");
                     return null;
                 }
                 int i = 0;
@@ -232,24 +236,27 @@ public class JaasAuthBean implements AuthFunctionBean {
                 List<String> rsList = new ArrayList<String>();
                 Subject s = lc.getSubject();
                 if (roleSchemaViaCredential) {
-                    for (Principal p :
-                            new ArrayList<Principal>(s.getPrincipals())) {
-                        rsCandidates.add(p.getName());
-                    }
-                } else {
                     for (Object cred :
                                 new ArrayList(s.getPublicCredentials())) {
                         rsCandidates.add(cred.toString());
+                    }
+                } else {
+                    for (Principal p :
+                            new ArrayList<Principal>(s.getPrincipals())) {
+                        rsCandidates.add(p.getName());
                     }
                 }
                 logger.severe(Integer.toString(rsCandidates.size())
                             + " candidate " + (roleSchemaViaCredential
                             ? "Credentials" : "Principals"));
                 for (String candid : rsCandidates) {
-                    logger.severe("    #" + ++i + ": " + candid);
                     m = roleSchemaValuePattern.matcher(candid);
                     if (m.matches()) {
+                        logger.severe("    +" + ++i + ": "
+                                + ((m.groupCount() > 0) ? m.group(1) : candid));
                         rsList.add((m.groupCount() > 0) ? m.group(1) : candid);
+                    } else {
+                        logger.severe("    -" + ++i + ": " + candid);
                     }
                 }
                 return rsList.toArray(new String[0]);
@@ -257,7 +264,11 @@ public class JaasAuthBean implements AuthFunctionBean {
                 lc.logout();
             }
         } catch (LoginException le) {
+            logger.severe("System JaasAuthBean failure", le);
             throw new RuntimeException(le);  // JAAS System failure
+        } catch (RuntimeException re) {
+            logger.severe("System JaasAuthBean failure", re);
+            throw re;
         }
     }
 }
