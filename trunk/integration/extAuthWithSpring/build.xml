@@ -6,7 +6,7 @@
 
   <!--
      You must set Ant property 'authentication.mode' to either
-     "LDAP" or "HsqldbSlave" or "JAAS_LDAP".
+     "LDAP" or "JAAS" or "HsqldbSlave" or "JAAS_LDAP".
 
      To use StartTLS, (a) The CN of the LDAP server's cert must have CN of
      thos hostname that you set with property 'ldapHost' in the "beandefs.xml"
@@ -35,10 +35,21 @@
     <delete dir="classes"/>
   </target>
 
+  <target name="-mk-jaas-cfg" unless="jaascfg.exists">
+    <copy file="../../sample/jaas.cfg" todir="resources"/>
+  </target>
+
   <target description="Compile" name='compile' depends="-ivy-setup">
+    <available file="resources/jaas.cfg" property="jaascfg.exists"/>
+    <antcall target="-mk-jaas-cfg"/>
     <ivy:cachepath conf="build" pathid="build.ivyrefid"/>
     <mkdir dir="classes"/>
     <javac srcdir="src" destdir="classes" classpathref="build.ivyrefid"
+           source="${javac.sourceVersion}" target="${javac.targetVersion}"
+           deprecation="${javac.deprecation}" debug="${javac.debug}"/>
+         <javac srcdir="../../test-src" destdir="classes"
+           classpath="${hsqldb.jarfile}"
+           includes="org/hsqldb/auth/StartCharModule.java"
            source="${javac.sourceVersion}" target="${javac.targetVersion}"
            deprecation="${javac.deprecation}" debug="${javac.debug}"/>
   </target>
@@ -55,7 +66,7 @@
           depends="compile, -set-truststore-property-name">
     <fail unless="authentication.mode">
     You must set Ant property 'authentication.mode' to either
-    "LDAP" or "HsqldbSlave" or "JAAS_LDAP".</fail>
+    "LDAP" or "JAAS" or "HsqldbSlave" or "JAAS_LDAP".</fail>
     <fail unless="hsqldb.jarfile">
       Ant property 'hsqldb.jarfile' is required.
       To get it using Ivy, SEE COMMENTS THE BUILD FILE.</fail>
