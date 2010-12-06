@@ -86,6 +86,21 @@ public class JaasAuthBean implements AuthFunctionBean {
     }
 
     /**
+     * By default, If roleSchemaValuePattern is set, then role and schema
+     * values are obtained from principle values; otherwise existing account
+     * privileges are used (if any).
+     * If roleSchemaViaCredential is set to true and roleSchemaValuePattern is
+     * set, then credential values will be used instead.
+     * <P>
+     * Do not set roleSchemaViaCredential to true unless roleSchemaValuePattern
+     * is set.
+     * </P>
+     */
+    public void setRoleSchemaViaCredential(boolean roleSchemaViaCredential) {
+        this.roleSchemaViaCredential = roleSchemaViaCredential;
+    }
+
+    /**
      * @throws IllegalStateException if any required setting has not been set.
      */
     public void init() {
@@ -222,6 +237,8 @@ public class JaasAuthBean implements AuthFunctionBean {
             try {
                 lc.login();
             } catch (LoginException le) {
+                // I wish there were a way to distinguish system problems from
+                // purposeful rejections here.  :-(
                 logger.finer("JSSE backend denying access:  " + le);
                 throw new DenyException();
             }
