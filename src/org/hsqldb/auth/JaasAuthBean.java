@@ -222,12 +222,11 @@ public class JaasAuthBean implements AuthFunctionBean {
             try {
                 lc.login();
             } catch (LoginException le) {
-                logger.severe("JSSE backend denying access:  " + le);
+                logger.finer("JSSE backend denying access:  " + le);
                 throw new DenyException();
             }
             try {
                 if (roleSchemaValuePattern == null) {
-logger.severe("E");
                     return null;
                 }
                 int i = 0;
@@ -246,17 +245,17 @@ logger.severe("E");
                         rsCandidates.add(p.getName());
                     }
                 }
-                logger.severe(Integer.toString(rsCandidates.size())
+                logger.finer(Integer.toString(rsCandidates.size())
                             + " candidate " + (roleSchemaViaCredential
                             ? "Credentials" : "Principals"));
                 for (String candid : rsCandidates) {
                     m = roleSchemaValuePattern.matcher(candid);
                     if (m.matches()) {
-                        logger.severe("    +" + ++i + ": "
+                        logger.finer("    +" + ++i + ": "
                                 + ((m.groupCount() > 0) ? m.group(1) : candid));
                         rsList.add((m.groupCount() > 0) ? m.group(1) : candid);
                     } else {
-                        logger.severe("    -" + ++i + ": " + candid);
+                        logger.finer("    -" + ++i + ": " + candid);
                     }
                 }
                 return rsList.toArray(new String[0]);
