@@ -71,6 +71,8 @@ import org.hsqldb.lib.FrameworkLogger;
  * </P> <P>
  * This class purposefully does not support LDAPS, because LDAPS is deprecated
  * in favor of StartTLS, which we do support.
+ * If you need to support LDAPS and are using SE 1.6, use our JaasAuthBean with
+ * Sun's LdapLoginModule.
  * </P> <P>
  * This class does not support SASL/External authentication, because the work
  * involved with securely obtaining user-specific certs would be more complex
@@ -318,7 +320,12 @@ public class LdapAuthBean implements AuthFunctionBean {
      * <P>
      * If using StartTLS, then this host name must match the cn of the LDAP
      * server's certificate.
+     * </P> <P>
+     * If you need to support LDAPS and are using SE 1.6, use our JaasAuthBean
+     * with Sun's LdapLoginModule instead of this class.
      * </P>
+     *
+     * @see JaasAuthBean
      */
     public void setLdapHost(String ldapHost) {
         this.ldapHost = ldapHost;
