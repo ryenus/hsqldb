@@ -513,7 +513,6 @@ public class LdapAuthBean implements AuthFunctionBean {
                 }
                 if (accessValuePattern != null) {
                     Object accessValue = attribute.get(0);
-logger.severe("ACCESS VALUE = (" + accessValue + ')');
                     if (accessValue == null) {
                         throw new RuntimeException(
                                 "Access Attr. value is null");
