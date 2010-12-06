@@ -52,7 +52,8 @@ public class SpringExtAuth {
     private static Log log = LogFactory.getLog(SpringExtAuth.class);
 
     private static final String SYNTAX_MSG = "SYNTAX: "
-            + SpringExtAuth.class.getName() + " {LDAP|HsqldbSlave|JAAS_LDAP}";
+            + SpringExtAuth.class.getName()
+            + " {LDAP|HsqldbSlave|JAAS|JAAS_LDAP}";
 
     /**
      * @throws SQLException If Setup of emulation database failed, or if the
@@ -63,6 +64,8 @@ public class SpringExtAuth {
         String authSpringFile = null;
         if (sa[0].equals("LDAP")) {
             authSpringFile = "ldapbeans.xml";
+        } else if (sa[0].equals("JAAS")) {
+            authSpringFile = "jaasbeans.xml";
         } else if (sa[0].equals("HsqldbSlave")) {
             authSpringFile = "slavebeans.xml";
         } else if (sa[0].equals("JAAS_LDAP")) {
