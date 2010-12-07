@@ -89,6 +89,8 @@ public abstract class RowStoreAVL implements PersistentStore {
         return false;
     }
 
+    public void setMemory(boolean mode) {}
+
     public abstract int getAccessCount();
 
     public abstract void set(CachedObject object);

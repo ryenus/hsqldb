@@ -59,6 +59,8 @@ public interface PersistentStore {
 
     boolean isMemory();
 
+    void setMemory(boolean mode);
+
     int getAccessCount();
 
     void set(CachedObject object);

@@ -254,14 +254,6 @@ public final class UserManager {
 
         Object[] roles = (Object[]) result.getValueObject();
 
-        if (roles == null) {
-            if (user == null) {
-                throw Error.error(ErrorCode.X_28501, name);
-            }
-
-            return user;
-        }
-
         if (user == null) {
             HsqlName hsqlName =
                 granteeManager.database.nameManager.newHsqlName(name, true,
@@ -269,6 +261,11 @@ public final class UserManager {
 
             user                = createUser(hsqlName, "");
             user.isExternalOnly = true;
+        }
+
+        if (roles == null) {
+            user.updateAllRights();
+            return user;
         }
 
         // this clears all existing privileges of the user

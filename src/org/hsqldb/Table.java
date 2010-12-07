@@ -279,7 +279,7 @@ public class Table extends TableBase implements SchemaObject {
 
         store = database.logger.newStore(null,
                                          database.persistentStoreCollection,
-                                         this, true);
+                                         this);
     }
 
     public int getType() {

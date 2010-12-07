@@ -44,7 +44,7 @@ import org.hsqldb.lib.java.JavaSystem;
  * mark() and reset() are not supported.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.0.0
+ * @version 2.0.1
  * @since 1.9.0
  */
 public class BlobInputStream extends InputStream {
@@ -111,7 +111,14 @@ public class BlobInputStream extends InputStream {
     }
 
     public int available() {
-        return (int) (bufferOffset + buffer.length - currentPosition);
+
+        long avail = availableLength - currentPosition;
+
+        if (avail > Integer.MAX_VALUE) {
+            return Integer.MAX_VALUE;
+        }
+
+        return (int) avail;
     }
 
     public void close() throws IOException {
