@@ -58,22 +58,22 @@ import org.hsqldb.index.NodeAVLDisk;
  */
 public class RowStoreAVLHybrid extends RowStoreAVL implements PersistentStore {
 
-    DataFileCacheSession  cache;
-    private int           maxMemoryRowCount;
-    private int           memoryRowCount;
-    private boolean       useDisk;
-    private boolean       isCached;
-    private final boolean isTempTable;
-    int                   rowIdSequence = 0;
+    Session              session;
+    DataFileCacheSession cache;
+    private int          maxMemoryRowCount;
+    private int          memoryRowCount;
+    private boolean      useDisk;
+    boolean              isCached;
+    int                  rowIdSequence = 0;
 
     public RowStoreAVLHybrid(Session session,
                              PersistentStoreCollection manager,
                              TableBase table, boolean diskBased) {
 
+        this.session           = session;
         this.manager           = manager;
         this.table             = table;
         this.maxMemoryRowCount = session.getResultMemoryRowCount();
-        this.isTempTable       = table.getTableType() == TableBase.TEMP_TABLE;
         this.useDisk           = diskBased;
 
         if (maxMemoryRowCount == 0) {
@@ -102,8 +102,21 @@ public class RowStoreAVLHybrid extends RowStoreAVL implements PersistentStore {
         manager.setStore(table, this);
     }
 
+    RowStoreAVLHybrid(Session session, TableBase table) {
+
+        this.session = session;
+        this.table   = table;
+        useDisk = true;
+        isCached = true;
+        resetAccessorKeys(table.getIndexList());
+    }
+
     public boolean isMemory() {
         return !isCached;
+    }
+
+    public void setMemory(boolean mode) {
+        useDisk = !mode;
     }
 
     public synchronized int getAccessCount() {

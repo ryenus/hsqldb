@@ -1034,7 +1034,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
                 row[it_waited] = sb.toString();
             }
 
-            Statement st = session.sessionContext.currentStatement;
+            Statement st = s.sessionContext.currentStatement;
 
             row[it_statement] = st == null ? ""
                                            : st.getSQL();

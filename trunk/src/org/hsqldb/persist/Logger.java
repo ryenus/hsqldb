@@ -1089,7 +1089,7 @@ public class Logger {
 
     public PersistentStore newStore(Session session,
                                     PersistentStoreCollection collection,
-                                    TableBase table, boolean diskBased) {
+                                    TableBase table) {
 
         switch (table.getTableType()) {
 
@@ -1115,15 +1115,15 @@ public class Logger {
                     return null;
                 }
 
-                return new RowStoreAVLHybrid(session, collection, table,
-                                             diskBased);
+                return new RowStoreAVLHybrid(session, collection, table, true);
 
             case TableBase.INFO_SCHEMA_TABLE :
-            case TableBase.TEMP_TABLE :
-                diskBased = false;
-
                 return new RowStoreAVLHybridExtended(session, collection,
-                                                     table, diskBased);
+                                                     table, false);
+
+            case TableBase.TEMP_TABLE :
+                return new RowStoreAVLHybridExtended(session, collection,
+                                                     table, true);
 
             // fall through
             case TableBase.SYSTEM_SUBQUERY :
@@ -1133,8 +1133,7 @@ public class Logger {
                     return null;
                 }
 
-                return new RowStoreAVLHybrid(session, collection, table,
-                                             diskBased);
+                return new RowStoreAVLHybrid(session, collection, table, true);
         }
 
         throw Error.runtimeError(ErrorCode.U_S0500, "Logger");

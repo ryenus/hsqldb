@@ -873,6 +873,10 @@ public class RangeVariableResolver {
                     continue;
                 }
 
+                if (!e.isIndexable(conditions.rangeVar)) {
+                    continue;
+                }
+
                 int offset = ArrayUtil.find(cols,
                                             e.getLeftNode().getColumnIndex());
 

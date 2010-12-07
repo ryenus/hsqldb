@@ -130,7 +130,14 @@ public final class ClobInputStream extends Reader {
     }
 
     public int available() {
-        return (int) (bufferOffset + buffer.length - currentPosition);
+
+        long avail =  availableLength - currentPosition;
+
+        if (avail > Integer.MAX_VALUE )  {
+            return Integer.MAX_VALUE;
+        }
+
+        return (int) avail;
     }
 
     public void close() throws IOException {

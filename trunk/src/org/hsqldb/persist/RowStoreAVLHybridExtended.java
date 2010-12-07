@@ -44,6 +44,7 @@ import java.util.concurrent.locks.ReadWriteLock;
 import org.hsqldb.Row;
 import org.hsqldb.RowAVL;
 import org.hsqldb.index.NodeAVL;
+import org.hsqldb.navigator.RowIterator;
 
 /*
  * Implementation of PersistentStore for information schema and temp tables.
@@ -62,6 +63,11 @@ public class RowStoreAVLHybridExtended extends RowStoreAVLHybrid {
                                      PersistentStoreCollection manager,
                                      TableBase table, boolean diskBased) {
         super(session, manager, table, diskBased);
+    }
+
+    private RowStoreAVLHybridExtended(Session session,  TableBase table) {
+
+        super(session, table);
     }
 
     public CachedObject getNewCachedObject(Session session, Object object,
@@ -106,6 +112,40 @@ public class RowStoreAVLHybridExtended extends RowStoreAVLHybrid {
         return accessorList[position];
     }
 
+    public synchronized void resetAccessorKeys(Index[] keys) {
+
+        if (indexList.length == 0 || accessorList[0] == null) {
+            indexList    = keys;
+            accessorList = new CachedObject[indexList.length];
+
+            return;
+        }
+
+        if (isCached) {
+            resetAccessorKeysForCached();
+        }
+
+        super.resetAccessorKeys(keys);
+    }
+
+    private void resetAccessorKeysForCached() {
+
+        RowStoreAVLHybrid tempStore = new RowStoreAVLHybridExtended(session,
+            table);
+        RowIterator iterator = table.rowIterator(this);
+
+        while (iterator.hasNext()) {
+            Row row = iterator.getNextRow();
+            Row newRow = (Row) tempStore.getNewCachedObject(session,
+                row.getData(), false);
+
+            tempStore.indexRow(session, newRow);
+        }
+
+        indexList    = tempStore.indexList;
+        accessorList = tempStore.accessorList;
+    }
+
     public void lock() {
         writeLock.lock();
     }
@@ -117,6 +157,7 @@ public class RowStoreAVLHybridExtended extends RowStoreAVLHybrid {
     void lockIndexes() {
 
         for (int i = 0; i < indexList.length; i++) {
+
 //            indexList[i].lock();
         }
     }
@@ -124,6 +165,7 @@ public class RowStoreAVLHybridExtended extends RowStoreAVLHybrid {
     void unlockIndexes(Index[] array) {
 
         for (int i = 0; i < array.length; i++) {
+
 //            array[i].unlock();
         }
     }

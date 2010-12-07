@@ -75,7 +75,7 @@ public class SessionData {
     PersistentStoreCollectionSession persistentStoreCollection;
 
     // large results
-    LongKeyHashMap       resultMap;
+    LongKeyHashMap resultMap;
 
     // VALUE
     Object currentValue;
@@ -106,7 +106,11 @@ public class SessionData {
 
         try {
             PersistentStore store = session.database.logger.newStore(session,
-                persistentStoreCollection, table, isCached);
+                persistentStoreCollection, table);
+
+            if (!isCached) {
+                store.setMemory(true);
+            }
 
             return store;
         } catch (HsqlException e) {}
@@ -358,20 +362,19 @@ public class SessionData {
                                      InputStream inputStream) {
 
         try {
-            long resultLobId = result.getLobID();
+            long                 resultLobId = result.getLobID();
             CountdownInputStream countStream;
 
             switch (result.getSubType()) {
 
-                case ResultLob.LobResultTypes.REQUEST_CREATE_BYTES: {
+                case ResultLob.LobResultTypes.REQUEST_CREATE_BYTES : {
                     long blobId;
                     long blobLength = result.getBlockLength();
 
                     if (inputStream == null) {
-                        blobId = resultLobId;
+                        blobId      = resultLobId;
                         inputStream = result.getInputStream();
-                    }
-                    else {
+                    } else {
                         BlobData blob = session.createBlob(blobLength);
 
                         blobId = blob.getId();
@@ -387,7 +390,7 @@ public class SessionData {
 
                     break;
                 }
-                case ResultLob.LobResultTypes.REQUEST_CREATE_CHARS: {
+                case ResultLob.LobResultTypes.REQUEST_CREATE_CHARS : {
                     long clobId;
                     long clobLength = result.getBlockLength();
 
@@ -397,12 +400,10 @@ public class SessionData {
                         if (result.getReader() != null) {
                             inputStream =
                                 new ReaderInputStream(result.getReader());
-                        }
-                        else {
+                        } else {
                             inputStream = result.getInputStream();
                         }
-                    }
-                    else {
+                    } else {
                         ClobData clob = session.createClob(clobLength);
 
                         clobId = clob.getId();
@@ -421,6 +422,7 @@ public class SessionData {
             }
         } catch (Throwable e) {
             resultLobs.clear();
+
             throw Error.error(ErrorCode.GENERAL_ERROR, e);
         }
     }

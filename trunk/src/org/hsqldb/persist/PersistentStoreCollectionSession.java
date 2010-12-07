@@ -117,7 +117,7 @@ implements PersistentStoreCollection {
 
                     if (store == null) {
                         store = session.database.logger.newStore(session,
-                                this, table, true);
+                                this, table);
                     }
 
                     return store;
@@ -130,7 +130,7 @@ implements PersistentStoreCollection {
 
                     if (store == null) {
                         store = session.database.logger.newStore(session,
-                                this, table, true);
+                                this, table);
                     }
 
                     if (table.getTableType()
@@ -147,7 +147,7 @@ implements PersistentStoreCollection {
 
                     if (store == null) {
                         store = session.database.logger.newStore(session,
-                                this, table, true);
+                                this, table);
                     }
 
                     return store;
