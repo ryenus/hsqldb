@@ -158,7 +158,7 @@
              <attribute name='Implementation-Vendor' 
                         value='${test.suite.implementation.vendor}'/>
          </manifest>
-         <include name="**/*"/>
+         <fileset dir="test-src" includes="org/hsqldb/resources/*"/>
       </jar>
    </target>
    

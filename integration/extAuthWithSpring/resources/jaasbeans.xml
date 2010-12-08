@@ -16,7 +16,7 @@
           <list>
             <bean class="org.hsqldb.auth.JaasAuthBean" init-method="init">
               <property name="applicationKey" value="demo"/>
-              <property name="roleSchemaValuePatternString" value=".+"/>
+              <property name="roleSchemaValuePatternString" value="RS:(.+)"/>
               <property name="roleSchemaViaCredential" value="true"/>
             </bean>
           </list>

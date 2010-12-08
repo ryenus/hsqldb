@@ -196,17 +196,25 @@ public class JaasAuthBean implements AuthFunctionBean {
         setRoleSchemaValuePattern(Pattern.compile(patternString));
     }
 
-    private CallbackHandler handler = new CallbackHandler() {
+    public static class UPCallbackHandler implements CallbackHandler {
+        private String u;
+        private char[] p;
+
+        public UPCallbackHandler(String u, String pString) {
+            this.u = u;
+            p = pString.toCharArray();
+        }
+
         public void handle(Callback[] callbacks)
                 throws UnsupportedCallbackException {
             boolean didSetName = false;
             boolean didSetPassword = false;
             for (Callback cb : callbacks)
                 if (cb instanceof NameCallback) {
-                    ((NameCallback) cb).setName("straight");
+                    ((NameCallback) cb).setName(u);
                     didSetName = true;
                 } else if (cb instanceof PasswordCallback) {
-                    ((PasswordCallback) cb).setPassword("pwd".toCharArray());
+                    ((PasswordCallback) cb).setPassword(p);
                     didSetPassword = true;
                 } else {
                     throw new UnsupportedCallbackException(cb,
@@ -220,7 +228,7 @@ public class JaasAuthBean implements AuthFunctionBean {
                 throw new IllegalStateException("Supplied Callbacks "
                         + "does not include a PasswordCallback");
         }
-    };
+    }
 
     /**
      * @see AuthFunctionBean#authenticate(String, password)
@@ -233,7 +241,9 @@ public class JaasAuthBean implements AuthFunctionBean {
                 + JaasAuthBean.class.getName() + " instance.");
         }
         try {
-            LoginContext lc = new LoginContext(applicationKey, handler);
+            LoginContext lc =
+                new LoginContext(applicationKey,
+                        new UPCallbackHandler(userName, password));
             try {
                 lc.login();
             } catch (LoginException le) {
