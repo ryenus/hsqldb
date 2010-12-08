@@ -34,7 +34,6 @@ package org.hsqldb;
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
 import org.hsqldb.lib.HsqlList;
-import org.hsqldb.lib.Set;
 import org.hsqldb.types.BinaryData;
 import org.hsqldb.types.Type;
 import org.hsqldb.types.Types;
@@ -291,11 +290,11 @@ public final class ExpressionLike extends ExpressionLogical {
             equ = new ExpressionLogical(OpTypes.GREATER_EQUAL, nodes[LEFT],
                                         prefix, equ);
             equ.exprSubType = OpTypes.LIKE;
-            nodes        = new Expression[BINARY];
-            likeObject   = null;
-            nodes[LEFT]  = equ;
-            nodes[RIGHT] = newLike;
-            opType       = OpTypes.AND;
+            nodes           = new Expression[BINARY];
+            likeObject      = null;
+            nodes[LEFT]     = equ;
+            nodes[RIGHT]    = newLike;
+            opType          = OpTypes.AND;
         }
     }
 

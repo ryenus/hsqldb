@@ -59,6 +59,7 @@ import org.hsqldb.types.Type;
  */
 public abstract class RowStoreAVL implements PersistentStore {
 
+    Session                   session;
     Database                  database;
     PersistentStoreCollection manager;
     Index[]                   indexList    = Index.emptyArray;
@@ -482,7 +483,7 @@ public abstract class RowStoreAVL implements PersistentStore {
                 // count before inserting
                 rowCount++;
 
-                newIndex.insert(null, this, row);
+                newIndex.insert(session, this, row);
             }
 
             return true;

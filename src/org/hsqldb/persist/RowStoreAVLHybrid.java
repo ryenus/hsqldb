@@ -58,7 +58,6 @@ import org.hsqldb.index.NodeAVLDisk;
  */
 public class RowStoreAVLHybrid extends RowStoreAVL implements PersistentStore {
 
-    Session              session;
     DataFileCacheSession cache;
     private int          maxMemoryRowCount;
     private int          memoryRowCount;
