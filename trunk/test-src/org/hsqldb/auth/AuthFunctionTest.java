@@ -332,7 +332,7 @@ public class AuthFunctionTest extends junit.framework.TestCase {
             st = authedCon.createStatement();
             assertFalse("Virtual user failed to write public-write table",
                     AuthFunctionUtils.updateDoesThrow(
-                    st, "INSERT INTO s2t1 VALUES(2)"));
+                    st, "INSERT INTO t1 VALUES(2)"));
         } finally {
             if (st != null) try {
                 st.close();
