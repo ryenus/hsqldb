@@ -37,12 +37,12 @@ import org.hsqldb.lib.ArrayUtil;
 import org.hsqldb.lib.HsqlList;
 import org.hsqldb.store.ValuePool;
 import org.hsqldb.types.BinaryData;
+import org.hsqldb.types.BinaryType;
+import org.hsqldb.types.CharacterType;
 import org.hsqldb.types.DateTimeType;
 import org.hsqldb.types.IntervalType;
 import org.hsqldb.types.Type;
 import org.hsqldb.types.Types;
-import org.hsqldb.types.CharacterType;
-import org.hsqldb.types.BinaryType;
 
 /**
  * Implementation of CAST, CASE, LIMIT and ZONE operations.

@@ -990,7 +990,7 @@ public class SchemaManager {
 
             Session session = database.sessionManager.getSysSession();
 
-            for (int i = set.size() - 1; i >= 0; i--) {
+            for (int i = 0 ; i < set.size(); i++) {
                 HsqlName name = (HsqlName) set.get(i);
 
                 switch (name.type) {
