@@ -32,6 +32,7 @@
 package org.hsqldb.auth;
 
 import java.io.IOException;
+import java.security.Principal;
 import javax.security.auth.spi.LoginModule;
 import java.util.Map;
 import javax.security.auth.callback.CallbackHandler;
@@ -43,9 +44,11 @@ import javax.security.auth.Subject;
 import org.hsqldb.lib.FrameworkLogger;
 
 /**
- * A trivial sample JAAS Module that allows access with role
- * CHANGE_AUTHORIZATION as long the supplied user name and password both begin
+ * A trivial sample JAAS Module that permits login access
+ * as long the supplied user name and password both begin
  * with (case-sensitive) characters set with the relevant options.
+ * Adds to the Subject credentials "RS:CHANGE_AUTHORIZATION" and "RS:ROLE1"
+ * (both Strings), and principals with names "RS:ROLE2" and "RS:S1".
  *
  * This class is purposefully not secure and takes no pains to protect or clear
  * passwords from memory.
@@ -105,6 +108,26 @@ public class StartCharModule implements LoginModule {
         return true;
     }
 
+    static public class RolePrincipal implements Principal {
+        private String roleName;
+        public RolePrincipal(String roleName) {
+            this.roleName = roleName;
+        }
+        public int hashCode() {
+            return roleName.hashCode();
+        }
+        public String toString() {
+            return roleName;
+        }
+        public String getName() {
+            return roleName;
+        }
+        public boolean equals(Object other) {
+            return (other instanceof RolePrincipal)
+                    && ((RolePrincipal) other).toString().equals(roleName);
+        }
+    }
+
     public boolean commit() throws LoginException {
         if (uName.length() < 1 || password.length() < 1
                 || uName.charAt(0) != nameStart
@@ -116,7 +139,10 @@ public class StartCharModule implements LoginModule {
                         + " and " + password.charAt(0)));
             return false;
         }
-        subject.getPublicCredentials().add("CHANGE_AUTHORIZATION");
+        subject.getPublicCredentials().add("RS:CHANGE_AUTHORIZATION");
+        subject.getPublicCredentials().add("RS:ROLE1");
+        subject.getPrincipals().add(new RolePrincipal("RS:S1"));
+        subject.getPrincipals().add(new RolePrincipal("RS:ROLE2"));
         if (debug) System.err.println("Permitting");
         return true;
     }
