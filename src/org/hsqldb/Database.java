@@ -348,7 +348,7 @@ public class Database {
 
         User user = userManager.getUser(username, password);
         Session session = sessionManager.newSession(this, user,
-            databaseReadOnly, false, zoneString, timeZoneSeconds);
+            databaseReadOnly, true, zoneString, timeZoneSeconds);
 
         return session;
     }

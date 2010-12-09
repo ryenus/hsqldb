@@ -123,14 +123,13 @@ public class ScriptRunner {
         IntKeyHashMap sessionMap = new IntKeyHashMap();
         Session       current    = null;
         int           currentId  = 0;
-
-        database.setReferentialIntegrity(false);
-
-        String statement;
-        int    statementType;
+        String        statement;
+        int           statementType;
         Statement dummy = new StatementDML(StatementTypes.UPDATE_CURSOR,
                                            StatementTypes.X_SQL_DATA_CHANGE,
                                            null);
+
+        database.setReferentialIntegrity(false);
 
         try {
             StopWatch sw = new StopWatch();
@@ -144,9 +143,8 @@ public class ScriptRunner {
 
                     if (current == null) {
                         current =
-                            database.getSessionManager().newSession(database,
-                                database.getUserManager().getSysUser(), false,
-                                true, null, 0);
+                            database.getSessionManager().newSessionForLog(
+                                database);
 
                         sessionMap.put(currentId, current);
                     }
