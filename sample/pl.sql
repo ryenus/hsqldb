@@ -2,7 +2,7 @@
     $Id$
     SQL File to illustrate the use of SqlTool PL features.
     Invoke like
-        java -jar .../hsqldb.jar .../pl.sql mem
+        java -jar .../sqltool.jar .../pl.sql mem
                                                          -- blaine
 */
 
