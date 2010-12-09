@@ -136,14 +136,14 @@ public class TestAllTypes {
         String ddl2 = "CREATE TABLE zip( zip INT IDENTITY );";
         String ddl3 = "CREATE " + (cachedTable ? "CACHED "
                                                : "") + "TABLE test( id INT IDENTITY,"
-                                                   + " firstname VARCHAR, "
-                                                   + " lastname VARCHAR, "
+                                                   + " firstname VARCHAR(20), "
+                                                   + " lastname VARCHAR(20), "
                                                    + " zip INTEGER, "
                                                    + " longfield BIGINT, "
                                                    + " doublefield DOUBLE, "
                                                    + " bigdecimalfield DECIMAL, "
                                                    + " datefield DATE, "
-                                                   + " filler VARCHAR); ";
+                                                   + " filler VARCHAR(20)); ";
 
         // adding extra index will slow down inserts a bit
         String ddl4 = "CREATE INDEX idx1 ON TEST (lastname);";
@@ -201,7 +201,7 @@ public class TestAllTypes {
             PreparedStatement ps = cConnection.prepareStatement(
                 "INSERT INTO test (firstname,lastname,zip,longfield,doublefield,bigdecimalfield,datefield,filler) VALUES (?,?,?,?,?,?,?,?)");
 
-            ps.setString(1, "Julia");
+            ps.setString(1, "Julia                 ");
             ps.setString(2, "Clancy");
 
             for (i = 0; i < bigrows; i++) {
@@ -400,7 +400,7 @@ public class TestAllTypes {
         System.out.println("Update with random zip " + i
                            + " UPDATE commands, " + count + " rows : "
                            + sw.elapsedTime() + " rps: "
-                           + (count * 1000 / sw.elapsedTime()));
+                           + (count * 1000 / (sw.elapsedTime() + 1)));
         sw.zero();
 
         try {

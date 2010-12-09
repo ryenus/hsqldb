@@ -670,39 +670,28 @@ public class HsqlDateTime {
                 continue;
             }
 
-            if (!tokenizer.next(ch, dateTokens)) {
-                int     index    = tokenizer.getLastMatch();
-                boolean terminal = false;
-                boolean append   = false;
+            if (!tokenizer.next(ch, i)) {
+                if (tokenizer.consumed) {
+                    int index = tokenizer.getLastMatch();
 
-                if (tokenizer.isQuoteChar(ch)) {
-                    ch       = '\'';
-                    append   = true;
-                    terminal = true;
-                } else if (tokenizer.isLiteral(ch)) {
-                    append   = true;
-                    terminal = true;
-                } else if (ch == e) {
-                    terminal = true;
+                    sb.append(javaDateTokens[index]);
 
-                    //
-                }
+                    i = tokenizer.matchOffset;
 
-                //
-                if (index >= 0) {
-                    if (tokenizer.consumed) {
-                        sb.append(javaDateTokens[index]);
+                } else {
+                    if (tokenizer.isQuoteChar(ch)) {
+                        ch = '\'';
+
+                        sb.append(ch);
+                    } else if (tokenizer.isLiteral(ch)) {
+                        sb.append(ch);
+                    } else if (ch == e) {
+
+                        //
                     } else {
                         throw Error.error(ErrorCode.X_22007,
-                                          format.substring(0, i));
+                                          format.substring(i));
                     }
-                } else if (!terminal) {
-                    throw Error.error(ErrorCode.X_22007,
-                                      format.substring(0, i));
-                }
-
-                if (append) {
-                    sb.append(ch);
                 }
 
                 tokenizer.reset();
@@ -728,7 +717,7 @@ public class HsqlDateTime {
             ch = (i == len) ? e
                             : format.charAt(i);
 
-            if (!tokenizer.next(ch, dateTokens)) {
+            if (!tokenizer.next(ch, i)) {
                 int index = tokenizer.getLastMatch();
 
                 if (index >= 0) {
@@ -747,34 +736,27 @@ public class HsqlDateTime {
      */
     static class Tokenizer {
 
-        private int     last;
+        private int     lastMatched;
+        private int     matchOffset;
         private int     offset;
         private long    state;
         private boolean consumed;
         private boolean isInQuotes;
+        private boolean matched;
 
         //
         private final char    quoteChar;
-        private final boolean rejectUnmatched;
         private final char[]  literalChars;
         private static char[] defaultLiterals = new char[] {
             ' ', ',', '-', '.', '/', ':', ';'
         };
+        char[][]              tokens;
 
         public Tokenizer() {
 
-            this.rejectUnmatched = true;
-            this.quoteChar       = '\"';
-            this.literalChars    = defaultLiterals;
-
-            reset();
-        }
-
-        public Tokenizer(boolean reject, char quoteChar, char[] literalChars) {
-
-            this.rejectUnmatched = reject;
-            this.quoteChar       = quoteChar;
-            this.literalChars    = literalChars;
+            this.quoteChar    = '\"';
+            this.literalChars = defaultLiterals;
+            tokens            = dateTokens;
 
             reset();
         }
@@ -785,9 +767,11 @@ public class HsqlDateTime {
          */
         public void reset() {
 
-            last   = -1;
-            offset = -1;
-            state  = 0;
+            lastMatched = -1;
+            offset      = -1;
+            state       = 0;
+            consumed    = false;
+            matched     = false;
         }
 
         /**
@@ -801,7 +785,7 @@ public class HsqlDateTime {
          * Returns an index of the last matched token.
          */
         public int getLastMatch() {
-            return last;
+            return lastMatched;
         }
 
         /**
@@ -809,6 +793,13 @@ public class HsqlDateTime {
          */
         public boolean isConsumed() {
             return consumed;
+        }
+
+        /**
+         * Indicates whether the last character has been consumed by the matcher.
+         */
+        public boolean wasMatched() {
+            return matched;
         }
 
         /**
@@ -862,13 +853,13 @@ public class HsqlDateTime {
          * @param ch
          * @param tokens
          */
-        public boolean next(char ch, char[][] tokens) {
+        public boolean next(char ch, int position) {
 
-            // Use local variable for performance
-            int     index   = ++offset;
-            int     len     = offset + 1;
-            int     left    = 0;
-            boolean matched = false;
+            int index = ++offset;
+            int len   = offset + 1;
+            int left  = 0;
+
+            matched = false;
 
             for (int i = tokens.length; --i >= 0; ) {
                 if (isZeroBit(i)) {
@@ -876,14 +867,11 @@ public class HsqlDateTime {
                         if (tokens[i].length == len) {
                             setBit(i);
 
-                            last     = i;
-                            consumed = true;
-                            matched  = true;
+                            lastMatched = i;
+                            consumed    = true;
+                            matched     = true;
+                            matchOffset = position;
                         } else {
-                            if (!matched) {
-                                consumed = false;
-                            }
-
                             ++left;
                         }
                     } else {

@@ -99,14 +99,28 @@ public class SessionManager {
      * @return Session
      */
     public synchronized Session newSession(Database db, User user,
-                                           boolean readonly, boolean forLog,
+                                           boolean readonly,
+                                           boolean autoCommit,
                                            String zoneString,
                                            int timeZoneSeconds) {
 
-        Session s = new Session(db, user, !forLog, readonly, sessionIdCount,
-                                zoneString, timeZoneSeconds);
+        Session s = new Session(db, user, autoCommit, readonly,
+                                sessionIdCount, zoneString, timeZoneSeconds);
 
-        s.isProcessingLog = forLog;
+        sessionMap.put(sessionIdCount, s);
+
+        sessionIdCount++;
+
+        return s;
+    }
+
+    public synchronized Session newSessionForLog(Database db) {
+
+        boolean autoCommit = db.databaseProperties.isVersion18();
+        Session s = new Session(db, db.getUserManager().getSysUser(),
+                                autoCommit, false, sessionIdCount, null, 0);
+
+        s.isProcessingLog = true;
 
         sessionMap.put(sessionIdCount, s);
 
@@ -196,8 +210,8 @@ public class SessionManager {
      * Closes all sessions and system
      */
     synchronized void close() {
-        closeAllSessions();
 
+        closeAllSessions();
         sysSession.close();
         sysLobSession.close();
     }
