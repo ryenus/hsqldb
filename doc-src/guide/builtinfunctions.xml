@@ -289,7 +289,7 @@
     <simpara><emphasis role="bold">LPAD</emphasis></simpara>
 
     <para><literal>LPAD ( &lt;char value expr 1&gt;, &lt;length&gt; [,
-    &lt;char value expr 2&gt;] ) </literal></para>
+    &lt;char value expr 2&gt; ] ) </literal></para>
 
     <para>Returns a character string with the length of
     <literal>&lt;length&gt;</literal> characters. The string contains the
@@ -396,7 +396,7 @@
     <simpara><emphasis role="bold">RPAD</emphasis></simpara>
 
     <para><literal>RPAD ( &lt;char value expr 1&gt;, &lt;length&gt; [,
-    &lt;char value expr 2&gt; [, &lt;boolean&gt; ] ) </literal></para>
+    &lt;char value expr 2&gt; ] ) </literal></para>
 
     <para>Returns a character string with the length of
     <literal>&lt;length&gt;</literal> characters. The string begins with the
@@ -404,10 +404,7 @@
     right with spaces. If <literal>&lt;length&gt;</literal> is smaller than
     the length of the string argument, the argument is truncated. If the
     optional <literal>&lt;char value expr 2&gt;</literal> is specified, this
-    string is used for padding, instead of spaces. If the fourth, boolean
-    argument is TRUE, then the string used for padding will be complete at the
-    end of the result string. This has an effect only with padding strings
-    that are longer than one character. (HyperSQL)</para>
+    string is used for padding, instead of spaces. (HyperSQL)</para>
 
     <indexterm significance="preferred" type="sql">
       <primary>RTRIM function</primary>
