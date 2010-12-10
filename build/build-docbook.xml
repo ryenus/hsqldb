@@ -215,7 +215,7 @@ ${_for.automation.blurb}</fail>
           -->
       <targetfileset dir="tmp/doc-work"/>
       <targetfileset dir="${docoutput.path}"
-             excludes="zaurus/**, apidocs/**, readme*, index.html, *_lic.txt"/>
+             excludes="apidocs/**, readme*, index.html, *_lic.txt"/>
     </dependset>
     <dependset>
       <srcfileset dir="doc-src/${doc.name}" excludes="**/.*"/>
@@ -388,9 +388,7 @@ ${_for.automation.blurb}</fail>
 
   <target name="clean-docs" description="Remove all derived doc artifacts">
     <delete dir="tmp/doc-work"/>
-    <delete includeemptydirs="true">
-      <fileset dir="${docoutput.path}" excludes="zaurus/**"/>
-    </delete>
+    <delete dir="${docoutput.path}"/>
   </target>
 
   <target name="-fop-setup" depends="-ivy-setup">
