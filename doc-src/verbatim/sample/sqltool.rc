@@ -58,9 +58,8 @@ password
 # (which you can get from the directory $ORACLE_HOME/jdbc/lib of any
 # Oracle installation compatible with your server).
 # Since you need to add to the classpath, you can't invoke SqlTool with
-# the jar switch, like "java -jar .../hsqldb.jar..." or 
-# "java -jar .../hsqlsqltool.jar...".
-# Put both the HSQLDB jar and classes12.zip in your classpath (and export!)
+# the jar switch, like "java -jar .../sqltool.jar...".
+# Put both the SqlTool jar and classes12.zip in your classpath (and export!)
 # and run something like "java org.hsqldb.util.SqlTool...".
 
 #urlid cardiff2
