@@ -772,13 +772,19 @@ public final class NumberType extends Type {
             switch (typeCode) {
 
                 case Types.SQL_NUMERIC :
-                case Types.SQL_DECIMAL :
-                    if (otherType.scale == scale
-                            && otherType.precision <= precision) {
-                        return a;
-                    }
-                    break;
+                case Types.SQL_DECIMAL : {
+                    BigDecimal dec = (BigDecimal) a;
 
+                    if (scale != dec.scale()) {
+                        dec = dec.setScale(scale, BigDecimal.ROUND_HALF_DOWN);
+                    }
+
+                    if (JavaSystem.precision(dec) > precision) {
+                        throw Error.error(ErrorCode.X_22003);
+                    }
+
+                    return dec;
+                }
                 default :
                     return a;
             }
@@ -969,9 +975,17 @@ public final class NumberType extends Type {
                     return convertToDouble(a);
 
                 case Types.SQL_NUMERIC :
-                case Types.SQL_DECIMAL :
-                    return convertToDecimal(a);
+                case Types.SQL_DECIMAL : {
+                    a = convertToDecimal(a);
 
+                    BigDecimal dec = (BigDecimal) a;
+
+                    if (scale != dec.scale()) {
+                        dec = dec.setScale(scale, BigDecimal.ROUND_HALF_DOWN);
+                    }
+
+                    return dec;
+                }
                 default :
                     throw Error.error(ErrorCode.X_42561);
             }
@@ -1943,12 +1957,13 @@ public final class NumberType extends Type {
             return null;
         }
 
-
         BigDecimal dec = convertToDecimal(a);
 
         switch (typeCode) {
+
             case Types.SQL_DOUBLE : {
                 dec = dec.setScale(s, BigDecimal.ROUND_HALF_EVEN);
+
                 break;
             }
             case Types.SQL_DECIMAL :
@@ -1956,14 +1971,15 @@ public final class NumberType extends Type {
             default : {
                 dec = dec.setScale(s, BigDecimal.ROUND_HALF_UP);
                 dec = dec.setScale(scale, BigDecimal.ROUND_DOWN);
+
                 break;
             }
         }
+
         a = convertToDefaultType(null, dec);
 
         return convertToTypeLimits(null, a);
     }
-
 
     public static NumberType getNumberType(int type, long precision,
                                            int scale) {

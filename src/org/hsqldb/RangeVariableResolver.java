@@ -122,14 +122,14 @@ public class RangeVariableResolver {
 
         this.session = session;
 
-        decomposeAndConditions(conditions, queryExpressions);
+        decomposeAndConditions(session, conditions, queryExpressions);
 
         for (int i = 0; i < rangeVariables.length; i++) {
             if (rangeVariables[i].joinCondition == null) {
                 continue;
             }
 
-            decomposeAndConditions(rangeVariables[i].joinCondition,
+            decomposeAndConditions(session, rangeVariables[i].joinCondition,
                                    tempJoinExpressions[i]);
         }
 
@@ -149,7 +149,7 @@ public class RangeVariableResolver {
     /**
      * Divides AND and OR conditions and assigns
      */
-    static Expression decomposeAndConditions(Expression e,
+    static Expression decomposeAndConditions(Session session, Expression e,
             HsqlArrayList conditions) {
 
         if (e == null) {
@@ -161,8 +161,8 @@ public class RangeVariableResolver {
         int        type = e.getType();
 
         if (type == OpTypes.AND) {
-            arg1 = decomposeAndConditions(arg1, conditions);
-            arg2 = decomposeAndConditions(arg2, conditions);
+            arg1 = decomposeAndConditions(session, arg1, conditions);
+            arg2 = decomposeAndConditions(session, arg2, conditions);
 
             if (arg1 == Expression.EXPR_TRUE) {
                 return arg2;
@@ -183,7 +183,7 @@ public class RangeVariableResolver {
                     Expression part = new ExpressionLogical(arg1.nodes[i],
                         arg2.nodes[i]);
 
-                    part.resolveTypes(null, null);
+                    part.resolveTypes(session, null);
                     conditions.add(part);
                 }
 
@@ -266,7 +266,7 @@ public class RangeVariableResolver {
         }
 
         for (int i = 0; i < queryExpressions.size(); i++) {
-            assignToWhereLists((Expression) queryExpressions.get(i),
+            assignToJoinLists((Expression) queryExpressions.get(i),
                                whereExpressions, lastRightIndex);
         }
     }
@@ -279,33 +279,6 @@ public class RangeVariableResolver {
      */
     void assignToJoinLists(Expression e, HsqlArrayList[] expressionLists,
                            int first) {
-
-        tempSet.clear();
-        e.collectRangeVariables(rangeVariables, tempSet);
-
-        int index = rangeVarSet.getLargestIndex(tempSet);
-
-        // condition is independent of tables if no range variable is found
-        if (index == -1) {
-            index = 0;
-        }
-
-        // condition is assigned to first non-outer range variable
-        if (index < first) {
-            index = first;
-        }
-
-        expressionLists[index].add(e);
-    }
-
-    /**
-     * Assigns a single condition to the relevant list of conditions
-     *
-     * Parameter first indicates the first range variable to which condition
-     * can be assigned
-     */
-    void assignToWhereLists(Expression e, HsqlArrayList[] expressionLists,
-                            int first) {
 
         tempSet.clear();
         e.collectRangeVariables(rangeVariables, tempSet);
@@ -404,16 +377,16 @@ public class RangeVariableResolver {
 
     void closeJoinChain(HsqlArrayList[] array, Expression e1, Expression e2) {
 
-        int        idx1  = rangeVarSet.getIndex(e1.getRangeVariable());
-        int        idx2  = rangeVarSet.getIndex(e2.getRangeVariable());
-        int        index = idx1 > idx2 ? idx1
-                                       : idx2;
+        int idx1  = rangeVarSet.getIndex(e1.getRangeVariable());
+        int idx2  = rangeVarSet.getIndex(e2.getRangeVariable());
+        int index = idx1 > idx2 ? idx1
+                                : idx2;
 
         if (idx1 == -1 || idx2 == -1) {
             return;
         }
 
-        Expression e     = new ExpressionLogical(e1, e2);
+        Expression e = new ExpressionLogical(e1, e2);
 
         for (int i = 0; i < array[index].size(); i++) {
             if (e.equals(array[index].get(i))) {
@@ -463,8 +436,9 @@ public class RangeVariableResolver {
                 conditions = rangeVariables[i].joinConditions[0];
 
                 if (hasOuterJoin) {
-                    assignToRangeVariable(rangeVariables[i], rangeVariables[i].whereConditions[0], i,
-                                          whereExpressions[i]);
+                    assignToRangeVariable(rangeVariables[i],
+                                          rangeVariables[i].whereConditions[0],
+                                          i, whereExpressions[i]);
 /*
                     assignToRangeVariable(rangeVariables[i].whereConditions[0],
                                           whereExpressions[i]);
@@ -779,7 +753,7 @@ public class RangeVariableResolver {
             HsqlArrayList exprList = new HsqlArrayList();
             Expression    e        = (Expression) orExprList.get(i);
 
-            decomposeAndConditions(e, exprList);
+            decomposeAndConditions(session, e, exprList);
 
             RangeVariableConditions c =
                 new RangeVariableConditions(conditions);
@@ -1072,13 +1046,13 @@ public class RangeVariableResolver {
 
                 conditions.addIndexCondition(exprList, index, indexedColCount);
 
-
                 for (int j = 0; j < set.size(); j++) {
                     int leftIndex  = set.get(j);
                     int rightIndex = j;
                     Expression e = new ExpressionLogical(rangeVar, leftIndex,
                                                          newRangeVar,
                                                          rightIndex);
+
                     conditions.addCondition(e);
                 }
             }
