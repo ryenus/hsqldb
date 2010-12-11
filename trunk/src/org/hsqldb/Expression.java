@@ -1578,7 +1578,7 @@ public class Expression implements Cloneable {
         if (isCheck && nonDeterministic) {
             HsqlArrayList list = new HsqlArrayList();
 
-            RangeVariableResolver.decomposeAndConditions(this, list);
+            RangeVariableResolver.decomposeAndConditions(session, this, list);
 
             for (int i = 0; i < list.size(); i++) {
                 nonDeterministic = true;

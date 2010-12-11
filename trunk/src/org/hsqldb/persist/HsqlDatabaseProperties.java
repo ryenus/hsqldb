@@ -510,12 +510,8 @@ public class HsqlDatabaseProperties extends HsqlProperties {
             throw Error.error(ErrorCode.WRONG_DATABASE_FILE_VERSION);
         }
 
-        // do not open modified databases of 1.8 versions
+        // do not open databases of 1.8 versions if script format is not compatible
         if (check == 0) {
-            if (!MODIFIED_NO.equals(getStringProperty(hsqldb_modified))) {
-                throw Error.error(ErrorCode.SHUTDOWN_REQUIRED);
-            }
-
             if (getIntegerProperty(hsqldb_script_format) != 0) {
                 throw Error.error(ErrorCode.WRONG_DATABASE_FILE_VERSION);
             }
