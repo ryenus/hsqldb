@@ -620,8 +620,7 @@ public class Logger {
             return null;
         }
 
-        fwLogger = FrameworkLogger.getLog(Logger.class,
-                                          database.getUniqueName());
+        fwLogger = FrameworkLogger.getLog("ENGINE", database.getUniqueName());
 
         return fwLogger;
     }
