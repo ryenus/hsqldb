@@ -2912,6 +2912,7 @@ public class ParserDQL extends ParserBase {
 
             case Tokens.NOW :
             case Tokens.TODAY :
+            case Tokens.SYSDATE :
                 function = FunctionCustom.newCustomFunction(token.tokenString,
                         token.tokenType);
                 break;
@@ -4434,7 +4435,7 @@ public class ParserDQL extends ParserBase {
 
         readThis(Tokens.COMMA);
 
-        Expression thenelse = XreadRowValueExpression();
+        Expression thenelse = XreadValueExpression();
 
         readThis(Tokens.COMMA);
 
