@@ -990,7 +990,7 @@ public class SchemaManager {
 
             Session session = database.sessionManager.getSysSession();
 
-            for (int i = 0 ; i < set.size(); i++) {
+            for (int i = 0; i < set.size(); i++) {
                 HsqlName name = (HsqlName) set.get(i);
 
                 switch (name.type) {
@@ -1394,14 +1394,30 @@ public class SchemaManager {
             Iterator objects = new WrapperIterator();
 
             while (it.hasNext()) {
+                int targetType = type;
+
+                if (type == SchemaObject.ROUTINE) {
+                    targetType = SchemaObject.FUNCTION;
+                }
+
                 Schema          temp   = (Schema) it.next();
-                SchemaObjectSet set    = temp.getObjectSet(type);
+                SchemaObjectSet set    = temp.getObjectSet(targetType);
                 Object[]        values = new Object[set.map.size()];
 
                 set.map.valuesToArray(values);
 
                 objects = new WrapperIterator(objects,
                                               new WrapperIterator(values));
+
+                if (type == SchemaObject.ROUTINE) {
+                    set    = temp.getObjectSet(SchemaObject.PROCEDURE);
+                    values = new Object[set.map.size()];
+
+                    set.map.valuesToArray(values);
+
+                    objects = new WrapperIterator(objects,
+                                                  new WrapperIterator(values));
+                }
             }
 
             return objects;
@@ -2516,7 +2532,8 @@ public class SchemaManager {
         readLock.lock();
 
         try {
-            HsqlArrayList allTables = database.schemaManager.getAllTables(true);
+            HsqlArrayList allTables =
+                database.schemaManager.getAllTables(true);
 
             for (int i = 0, size = allTables.size(); i < size; i++) {
                 Table t = (Table) allTables.get(i);
