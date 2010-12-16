@@ -46,7 +46,8 @@ import org.hsqldb.lib.FrameworkLogger;
  * database connections.
  *
  * @see AuthFunctionBean
- * @see #initialize()
+ * @author Blaine Simpson (blaine dot simpson at admc dot com)
+ * @since 2.0.1
  */
 public class HsqldbSlaveAuthBean implements AuthFunctionBean {
     private static FrameworkLogger logger =

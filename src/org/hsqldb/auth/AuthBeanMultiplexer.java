@@ -47,6 +47,9 @@ import org.hsqldb.lib.FrameworkLogger;
  * This class provides a method which can be used directly as a HyperSQL static
  * Java function method.
  * Manages a set of AuthFunctionBean implementations
+ *
+ * @author Blaine Simpson (blaine dot simpson at admc dot com)
+ * @since 2.0.1
  */
 public class AuthBeanMultiplexer {
     private static FrameworkLogger logger =

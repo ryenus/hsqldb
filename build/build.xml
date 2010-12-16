@@ -880,6 +880,7 @@ examples:
                         src/org/hsqldb/auth/AuthBeanMultiplexer.java,
                         src/org/hsqldb/auth/AuthFunctionBean.java,
                         src/org/hsqldb/auth/JaasAuthBean.java,
+                        src/org/hsqldb/auth/HsqldbSlaveAuthBean.java,
                         src/org/hsqldb/auth/LdapAuthBean.java"
            destdir="doc/apidocs"
            stylesheetfile="doc-src/apidocs/javadoc.css"

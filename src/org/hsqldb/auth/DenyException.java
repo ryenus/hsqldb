@@ -31,6 +31,10 @@
 
 package org.hsqldb.auth;
 
+/**
+ * @author Blaine Simpson (blaine dot simpson at admc dot com)
+ * @since 2.0.1
+ */
 public class DenyException extends Exception {
     // Intentionally empty
 }
