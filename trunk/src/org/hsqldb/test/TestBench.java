@@ -317,8 +317,9 @@ class TestBench {
         System.out.println("Time to execute " + transaction_count
                            + " transactions: " + completion_time
                            + " seconds.");
-        System.out.println("Max/Min memory usage: " + MemoryWatcher.max
-                           + " / " + MemoryWatcher.min + " kb");
+        System.out.println("Max/Min memory usage: "
+                           + (MemoryWatcher.max / 1024) + " / "
+                           + (MemoryWatcher.min / 1024) + " kb");
         System.out.println(failed_transactions + " / " + transaction_count
                            + " failed to complete.");
 
@@ -326,7 +327,8 @@ class TestBench {
                       / completion_time;
 
         System.out.println("Transaction rate: " + rate + " txn/sec.");
-        System.out.print(MemoryWatcher.max + ";" + MemoryWatcher.min + ";"
+        System.out.print((MemoryWatcher.max / 1024) + ";"
+                         + (MemoryWatcher.min / 1024) + ";"
                          + failed_transactions + ";" + rate + "\n");
 
         transaction_count   = 0;
@@ -998,12 +1000,14 @@ class TestBench {
                 pstmt1.setInt(3, bid);
                 pstmt1.setInt(4, delta);
                 pstmt1.execute();
+
                 ResultSet rs = pstmt1.getResultSet();
+
                 while (rs.next()) {
                     aBalance = rs.getInt(1);
                 }
-                rs.close();
 
+                rs.close();
                 pstmt1.clearWarnings();
                 Conn.commit();
 
