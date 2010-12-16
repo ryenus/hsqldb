@@ -70,7 +70,8 @@ import org.hsqldb.lib.FrameworkLogger;
  * @see AuthFunctionBean
  * @see NameCallback
  * @see PasswordCallback
- * @see #initialize()
+ * @author Blaine Simpson (blaine dot simpson at admc dot com)
+ * @since 2.0.1
  */
 public class JaasAuthBean implements AuthFunctionBean {
     private static FrameworkLogger logger =

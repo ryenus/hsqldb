@@ -41,6 +41,12 @@ import java.util.HashSet;
 import org.hsqldb.jdbc.JDBCArrayBasic;
 import org.hsqldb.lib.FrameworkLogger;
 
+/**
+ * Static external-auth-related utilities.
+ *
+ * @author Blaine Simpson (blaine dot simpson at admc dot com)
+ * @since 2.0.1
+ */
 public class AuthUtils {
     private static FrameworkLogger logger =
             FrameworkLogger.getLog(AuthUtils.class);

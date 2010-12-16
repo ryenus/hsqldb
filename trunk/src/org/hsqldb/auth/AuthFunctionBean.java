@@ -37,6 +37,8 @@ package org.hsqldb.auth;
  * (which does have a real HyperSQL Authentication Function static method).
  *
  * @see AuthBeanMultiplexer for how these beans are used.
+ * @author Blaine Simpson (blaine dot simpson at admc dot com)
+ * @since 2.0.1
  */
 public interface AuthFunctionBean {
     /**

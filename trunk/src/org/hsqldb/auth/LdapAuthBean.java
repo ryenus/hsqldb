@@ -108,7 +108,9 @@ import org.hsqldb.lib.FrameworkLogger;
  * @see AuthFunctionBean
  * @see #setLdapHost(String)
  * @see #setParentDn(String)
- * @see #initialize()
+ * @see #init()
+ * @author Blaine Simpson (blaine dot simpson at admc dot com)
+ * @since 2.0.1
  */
 public class LdapAuthBean implements AuthFunctionBean {
     private static FrameworkLogger logger =
