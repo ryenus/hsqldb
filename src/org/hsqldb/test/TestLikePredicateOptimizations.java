@@ -70,6 +70,10 @@ public class TestLikePredicateOptimizations extends TestBase {
 
         stmt.execute(sql);
 
+        sql = "create index idx on test(name)";
+
+        stmt.execute(sql);
+
         sql = "create table empty(name varchar(255))";
 
         stmt.execute(sql);
@@ -91,6 +95,29 @@ public class TestLikePredicateOptimizations extends TestBase {
         }
 
         pstmt.executeBatch();
+
+        sql = "select TOP 20 * from test where name like '%me4%' order by name";
+        rs = stmt.executeQuery(sql);
+
+        int countOne = 0;
+        int countTwo = 0;
+
+        while (rs.next()) {
+            countOne++;
+        }
+
+        sql   = "select TOP 20 * from test where name like ? order by name";
+        pstmt = conn.prepareStatement(sql);
+
+        pstmt.setString(1, "%me4%");
+
+        rs = pstmt.executeQuery();
+
+        while (rs.next()) {
+            countTwo++;
+        }
+
+        assertEquals("\"" + sql + "\"", countOne, countTwo );
 
 //
         sql = "select count(*) from test where name = (select max(name) from empty)";
@@ -148,7 +175,9 @@ public class TestLikePredicateOptimizations extends TestBase {
         rs = pstmt.executeQuery();
 
         assertEquals(rs.next(), true);
+
         String actual = rs.getString(1);
+
         assertEquals(actual, "name0");
 
 // --
@@ -204,10 +233,9 @@ public class TestLikePredicateOptimizations extends TestBase {
         assertEquals("\"" + sql + "\"", expectedCount, actualCount);
 
         sql = "select count(*) from test";
-        rs = stmt.executeQuery(sql);
+        rs  = stmt.executeQuery(sql);
 
         rs.next();
-
 
         expectedCount = rs.getInt(1);
         sql           = "select count(*) from test where name like '%'";
@@ -219,6 +247,7 @@ public class TestLikePredicateOptimizations extends TestBase {
         actualCount = rs.getInt(1);
 
         assertEquals("\"" + sql + "\"", expectedCount, actualCount);
+
 // --
         String result  = "true";
         String presult = "false";

@@ -86,8 +86,8 @@ class JDBCBench {
 
                     if (DriverName.equals("org.hsqldb.jdbc.JDBCDriver")
                             || DriverName.equals("org.hsqldb.jdbcDriver")) {
+                        tableExtension = "CREATE CACHED TABLE ";
 
-                        tableExtension  = "CREATE CACHED TABLE ";
 //                        ShutdownCommand = "SHUTDOWN";
                     }
                 }
@@ -337,8 +337,9 @@ class JDBCBench {
         System.out.println("Time to execute " + transaction_count
                            + " transactions: " + completion_time
                            + " seconds.");
-        System.out.println("Max/Min memory usage: " + MemoryWatcher.max
-                           + " / " + MemoryWatcher.min + " kb");
+        System.out.println("Max/Min memory usage: "
+                           + (MemoryWatcher.max / 1024) + " / "
+                           + (MemoryWatcher.min / 1024) + " kb");
         System.out.println(failed_transactions + " / " + transaction_count
                            + " failed to complete.");
 
@@ -348,7 +349,8 @@ class JDBCBench {
         System.out.println("Transaction rate: " + rate + " txn/sec.");
 
         if (TabFile != null) {
-            TabFile.print(MemoryWatcher.max + ";" + MemoryWatcher.min + ";"
+            TabFile.print((MemoryWatcher.max / 1024) + ";"
+                          + (MemoryWatcher.min / 1024) + ";"
                           + failed_transactions + ";" + rate + "\n");
         }
 
