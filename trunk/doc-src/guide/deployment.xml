@@ -624,6 +624,47 @@
     </section>
 
     <section>
+      <title>Bulk Inserts, Updates and Deletes</title>
+
+      <para>Bulk inserts, deletes and updates are performed with the best
+      performance with the following method. The database remains safe and
+      consistent using this method. In the event of a machine crash during the
+      operation, the database can be recovered to the point just before the
+      bulk operation.</para>
+
+      <orderedlist>
+        <listitem>
+          <para>Before the operation, execute the SET FILES LOG FALSE
+          statement.</para>
+        </listitem>
+
+        <listitem>
+          <para>Execute the CHECKPOINT statement.</para>
+        </listitem>
+
+        <listitem>
+          <para>Perform all the bulk operations, using batched prepared
+          statements. A batch size of 1000 to 10000 is adequate.</para>
+        </listitem>
+
+        <listitem>
+          <para>After all the operations are complete, execute the SET FILES
+          LOG TRUE statement.</para>
+        </listitem>
+
+        <listitem>
+          <para>Finally execute the CHECKPOINT statatement.</para>
+        </listitem>
+
+        <listitem>
+          <para>If you have performed many thousands of updates or deletes, it
+          is a good idea to execute CHECKPOINT DEFRAG, instead of CHECKPOINT
+          at the end.</para>
+        </listitem>
+      </orderedlist>
+    </section>
+
+    <section>
       <title>Server Databases</title>
 
       <para>Running databases in a HyperSQL server is the best overall method
@@ -1333,7 +1374,7 @@
         </listitem>
 
         <listitem>
-          <para>In MySQL, older, non-standard, forms of database object
+          <para>In MySQL, older, non-standard, forms of database object name
           case-sensitivity make is difficult to port applications. Use the
           latest form which encloses case-sensitive names in double
           quotes.</para>
@@ -1505,9 +1546,10 @@
 
       <listitem>
         <para>You can define a system property to allow access to files on the
-        file system outside the database directory and its children. See the
-        <link endterm="texttables-title"
-        xlink:href="#texttables-chapt"></link> chapter.</para>
+        file system outside the database directory and its children. This
+        access is only necessary if you use TEXT tables. See the <link
+        endterm="texttables-title" xlink:href="#texttables-chapt"></link>
+        chapter.</para>
       </listitem>
 
       <listitem>
