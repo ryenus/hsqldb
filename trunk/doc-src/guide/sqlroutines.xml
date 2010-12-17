@@ -46,7 +46,7 @@
   Routines written in the SQL language are supported in conformance to SQL/PSM
   (Persistent Stored Modules) specification. Routines written in Java are
   supported in broad conformance to SQL/JRT specification. In addition,
-  HyperSQL’s previous non-standard support for calling Java routines without
+  HyperSQL's previous non-standard support for calling Java routines without
   prior method definition is retained and enhanced in the latest version by
   extending the SQL/JRT specification.</para>
 
@@ -939,8 +939,8 @@ CREATE FUNCTION an_hour_before_max (e_type INT)
       call, this variable will hold the new identity value that was generated
       inside the procedure. If the procedure is called directly, using the
       JDBC CallableStatement interface, then the value of the first, OUT
-      argument can be retreived with a call to
-      <literal>getInt(1)</literal>.after calling the execute() method.</para>
+      argument can be retrieved with a call to
+      <literal>getInt(1)</literal>after calling the execute() method.</para>
 
       <para>In the example below, a session variable,
       <literal>the_new_id</literal> is declared. After the call to
@@ -1200,7 +1200,7 @@ END
       instance. The <literal>getResultSet()</literal> call can be used to
       access the ResultSet returned from a function that returns a result set.
       If the function returns a scalar value, the returned result has a single
-      column and a signle row which contains the scalar returned value.</para>
+      column and a single row which contains the scalar returned value.</para>
 
       <indexterm significance="preferred" type="sql">
         <primary>RETURN</primary>
@@ -1298,7 +1298,7 @@ CREATE FUNCTION an_hour_before_max (e_type INT)
       <simpara><emphasis>resignal statement</emphasis></simpara>
 
       <para>The RESIGNAL statement is used to throw an exception from an
-      exception handler’s <literal>&lt;SQL procedure statement&gt;</literal>,
+      exception handler's <literal>&lt;SQL procedure statement&gt;</literal>,
       in effect propagating the exception to the enclosing context without
       further action by the currently active handlers.</para>
 
@@ -1383,10 +1383,11 @@ CREATE FUNCTION an_hour_before_or_now(t TIME)
       arguments after the call. The <literal>getResultSet()</literal> call can
       be used to access the ResultSet(s) returned by a procedure that returns
       one or more results. If the procedure returns more than one result set,
-      the getMoreResults() call opens the next result.</para>
+      the <literal>getMoreResults()</literal> call opens the next
+      result.</para>
 
       <para>In the example below, the procedure inserts a row into the
-      customer table. It then performs the SELECT statament to return the
+      customer table. It then performs the SELECT statement to return the
       latest inserted row as a result set. Therefore the definition includes
       the <code>DYNAMIC RESULT SETS 1</code> clause. You must specify
       correctly the maximum number of result sets that the procedure may
@@ -1415,7 +1416,7 @@ ResultSet result = call.getResultSet();
 </programlisting>
 
       <para>In the example below a procedure has one IN argument and two OUT
-      arguments. Tthe JDBC CallableStatement is used to retrieve the values
+      arguments. The JDBC CallableStatement is used to retrieve the values
       returned in the OUT arguments.</para>
 
       <programlisting>CREATE PROCEDURE get_customer(IN id INT, OUT firstname VARCHAR(50), OUT lastname VARCHAR(50)) 
@@ -1728,15 +1729,15 @@ CREATE FUNCTION testquery(i INTEGER)
         </listitem>
 
         <listitem>
-          <para>The static method can modify the OUT or INOUT param by
+          <para>The static method can modify the OUT or INOUT argument by
           assigning a value to the sole element of the argument array.</para>
         </listitem>
 
         <listitem>
           <para>A procedure can return one or more result sets. These are
           instantiated as JDBC ResultSet objects by the Java static and
-          returned in array agruments of the method. The signature of the Java
-          method for a procdure that has N declared parameters and returns M
+          returned in array arguments of the method. The signature of the Java
+          method for a procedure that has N declared parameters and returns M
           result sets has the following pattern. The N parameters
           corresponding to the signature of the declared SQL procedure are
           defined first, followed by M parameters as ResultSet arrays.</para>
@@ -1757,7 +1758,7 @@ CREATE FUNCTION testquery(i INTEGER)
 
         <listitem>
           <para>If the procedure contains SQL statements, only statements for
-          data access and manipulation are allowed. The java method should not
+          data access and manipulation are allowed. The Java method should not
           perform commit or rollback. The SQL statements should not change the
           session settings and should not include statements that create or
           alter tables or other database objects. These rules are generally
@@ -1928,13 +1929,13 @@ SPECIFIC P2 LANGUAGE JAVA DETERMINISTIC MODIFIES SQL DATA EXTERNAL NAME 'CLASSPA
       classpath are available to be used. This can compromise security in some
       systems. The optional Java system property
       <literal>hsqldb.method_class_names</literal> allows preventing access to
-      classe other than <literal>java.lang.Math</literal> or specifying a
+      classes other than <literal>java.lang.Math</literal> or specifying a
       semicolon-separated list of allowed classes. A property value that ends
-      with .* is treated as a wild card and allows access to all classe or
+      with .* is treated as a wild card and allows access to all class or
       method names formed by substitution of the * (asterisk).</para>
 
       <para>In the example below, the property has been included as an
-      argument to the java command.</para>
+      argument to the Java command.</para>
 
       <programlisting>    java -Dhsqldb.method_class_names="org.me.MyClass;org.you.YourClass;org.you.lib.*" [the rest of the command line]
 </programlisting>
@@ -2018,11 +2019,10 @@ SPECIFIC P2 LANGUAGE JAVA DETERMINISTIC MODIFIES SQL DATA EXTERNAL NAME 'CLASSPA
       database tables, but it is possible to define the function with READS
       SQL DATA and access the database tables.</para>
 
-      <para>When a SQL statement that uses the aggregate function is
-      executred, HyperSQL invokes the aggregate function, with all the
-      arguments set, once per each row in order to compute the values.
-      Finally, it invokes the function once more to return the final
-      result.</para>
+      <para>When a SQL statement that uses the aggregate function is executed,
+      HyperSQL invokes the aggregate function, with all the arguments set,
+      once per each row in order to compute the values. Finally, it invokes
+      the function once more to return the final result.</para>
 
       <para>In the computation phase, the first argument is the value of the
       user argument as specified in the SQL statement, computed for the
@@ -2138,7 +2138,7 @@ SPECIFIC P2 LANGUAGE JAVA DETERMINISTIC MODIFIES SQL DATA EXTERNAL NAME 'CLASSPA
  END
 </programlisting>
 
-      <para>The same tables and data as for the previous example is ued. Part
+      <para>The same tables and data as for the previous example is used. Part
       of the output is shown. Each row of the output is a comma-separated list
       of names.</para>
 
@@ -2162,7 +2162,7 @@ Susanne Clancy,Michael Clancy,Sylvia Clancy,Bob Clancy,Susanne Clancy,John Clanc
       ...</literal> The Java function signature must follow the rules for both
       nullable and INOUT parameters, therefore:</para>
 
-      <para>No agrument is defined as a primitive or primitive array type.
+      <para>No argument is defined as a primitive or primitive array type.
       This allows nulls to be passed to the function. The second and third
       arguments must be defined as arrays of the JDBC non-primitive types
       listed in the table in the previous section.</para>
