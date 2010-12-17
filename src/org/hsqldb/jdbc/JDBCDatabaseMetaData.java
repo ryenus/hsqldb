@@ -1281,11 +1281,10 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Up to and including 2.0, HSQLDB does not support getting multiple
+     * HSQLDB 2.0 supports getting multiple
      * <code>ResultSet</code> objects from a single call to the method
-     * <code>execute</code>; this method always returns <code>false</code>. <p>
-     *
-     * This behaviour <i>may</i> change in a future release.
+     * <code>execute</code> of the CallableStatement interface;
+     * this method returns <code>true</code>.<p>
      *
      * </div>
      * <!-- end release-specific documentation -->
@@ -1293,7 +1292,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      * @exception SQLException if a database access error occurs
      */
     public boolean supportsMultipleResultSets() throws SQLException {
-        return false;
+        return true;
     }
 
     /**
