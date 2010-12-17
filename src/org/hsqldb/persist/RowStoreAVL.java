@@ -322,6 +322,16 @@ public abstract class RowStoreAVL implements PersistentStore {
         return indexList;
     }
 
+    public int elementCount() {
+        Index index = this.indexList[0];
+
+        if (elementCount < 0) {
+            elementCount = ((IndexAVL) index).getNodeCount(session, this);
+        }
+
+        return elementCount;
+    }
+
     public int elementCount(Session session) {
 
         Index index = this.indexList[0];
@@ -338,7 +348,6 @@ public abstract class RowStoreAVL implements PersistentStore {
 
                     case TableBase.MEMORY_TABLE :
                     case TableBase.CACHED_TABLE :
-                    case TableBase.TEMP_TABLE :
                     case TableBase.TEXT_TABLE :
                         return ((IndexAVL) index).getNodeCount(session, this);
 
