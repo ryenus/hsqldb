@@ -128,6 +128,8 @@ public interface PersistentStore {
 
     void setAccessor(Index key, int accessor);
 
+    int elementCount();
+
     int elementCount(Session session);
 
     int elementCountUnique(Index index);
