@@ -928,6 +928,11 @@
 
       <programlisting>  BACKUP DATABASE TO &lt;directory name&gt; BLOCKING</programlisting>
 
+      <simpara>
+        The <emphasis>directory name</emphasis> must end with a slash to
+        distinguish it as a directory, and the whole string must be in
+        single quotes like so: <literal>'subdir/nesteddir/'</literal>.
+      </simpara>
       <simpara>See the next section under Statements for details about the
       command and its options. See the sections below about restoring a
       backup.</simpara>
