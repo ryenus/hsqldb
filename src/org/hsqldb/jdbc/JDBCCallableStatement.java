@@ -4721,13 +4721,6 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
             for (int i = 0; i < parameterValues.length; i++) {
                 parameterValues[i] = data[i];
             }
-
-            resultIn = resultIn.getChainedResult();
-
-            if (resultIn != null && resultIn.isData()) {
-                currentResultSet = new JDBCResultSet(connection, this, resultIn,
-                resultIn.metaData);
-            }
         }
     }
 

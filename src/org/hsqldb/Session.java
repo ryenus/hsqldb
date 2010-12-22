@@ -858,6 +858,10 @@ public class Session implements SessionInterface {
         extConnection = connection;
     }
 
+    public String getDatabaseUniqueName() {
+        return database.getUniqueName();
+    }
+
 // boucherb@users 20020810 metadata 1.7.2
 //----------------------------------------------------------------
     private final long connectTime = System.currentTimeMillis();
@@ -1122,12 +1126,15 @@ public class Session implements SessionInterface {
 
         if (result.mode == ResultConstants.DATA) {
             result = sessionData.getDataResultHead(command, result, isNetwork);
-        } else if (result.mode == ResultConstants.ERROR) {
+        }
+
+/*
+        else if (result.mode == ResultConstants.ERROR) {
             while (sessionContext.depth > 0) {
                 sessionContext.pop();
             }
         }
-
+*/
         if (sqlWarnings != null && sqlWarnings.size() > 0) {
             if (result.mode == ResultConstants.UPDATECOUNT) {
                 result = new Result(ResultConstants.UPDATECOUNT,

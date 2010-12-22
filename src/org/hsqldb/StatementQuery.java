@@ -54,6 +54,7 @@ public class StatementQuery extends StatementDMQL {
         super(StatementTypes.SELECT_CURSOR, StatementTypes.X_SQL_DATA,
               session.getCurrentSchemaHsqlName());
 
+        this.statementReturnType = StatementTypes.RETURN_RESULT;
         this.queryExpression = queryExpression;
 
         setDatabseObjects(session, compileContext);

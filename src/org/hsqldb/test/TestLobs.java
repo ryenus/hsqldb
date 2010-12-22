@@ -353,7 +353,6 @@ public class TestLobs extends TestBase {
 
             try {
                 ps.setCharacterStream(3, reader, (int) clob3.length());
-                assertTrue(false);
                 ps.executeUpdate();
             } catch (SQLException e) {}
 
@@ -534,7 +533,9 @@ public class TestLobs extends TestBase {
 
             statement.execute(ddl0);
             statement.execute(ddl1);
-        } catch (SQLException e) {}
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
 
         try {
             String dml0 = "INSERT INTO VARIABLE VALUES (?, ?, 'N', ?, ?)";

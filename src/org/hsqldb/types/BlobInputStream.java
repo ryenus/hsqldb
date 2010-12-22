@@ -49,14 +49,14 @@ import org.hsqldb.lib.java.JavaSystem;
  */
 public class BlobInputStream extends InputStream {
 
-    final BlobData   blob;
-    final long       availableLength;
-    long             bufferOffset;
-    long             currentPosition;
-    byte[]           buffer;
-    boolean          isClosed;
-    int              streamBlockSize;
-    SessionInterface session;
+    final BlobData                blob;
+    final long                    availableLength;
+    long                          bufferOffset;
+    long                          currentPosition;
+    byte[]                        buffer;
+    boolean                       isClosed;
+    int                           streamBlockSize;
+    public final SessionInterface session;
 
     public BlobInputStream(SessionInterface session, BlobData blob,
                            long offset, long length) {

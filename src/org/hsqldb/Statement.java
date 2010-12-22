@@ -58,6 +58,8 @@ public abstract class Statement {
     boolean   isLogged = true;
     boolean   isValid  = true;
 
+    int statementReturnType = StatementTypes.RETURN_COUNT;
+
     /** the default schema name used to resolve names in the sql */
     HsqlName schemaName;
 
@@ -233,5 +235,9 @@ public abstract class Statement {
 
     public int getResultProperties() {
         return ResultProperties.defaultPropsValue;
+    }
+
+    public int getStatementReturnType() {
+        return statementReturnType;
     }
 }
