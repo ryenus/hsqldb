@@ -636,7 +636,7 @@ public class JDBCStatement extends JDBCStatementBase implements Statement {
         fetchResult(sql, StatementTypes.RETURN_ANY,
                     JDBCStatementBase.NO_GENERATED_KEYS, null, null);
 
-        return resultIn.isData();
+        return currentResultSet != null;
     }
 
     /**
@@ -1829,6 +1829,8 @@ public class JDBCStatement extends JDBCStatementBase implements Statement {
         if (resultIn.isData()) {
             currentResultSet = new JDBCResultSet(connection, this, resultIn,
                     resultIn.metaData);
+        } else if (resultIn.getStatementType() == StatementTypes.RETURN_RESULT ) {
+            getMoreResults();
         }
     }
 }

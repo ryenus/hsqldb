@@ -31,23 +31,23 @@
 
 package org.hsqldb.test;
 
+import java.sql.CallableStatement;
 import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.sql.Statement;
 
 import junit.framework.TestCase;
 import junit.framework.TestResult;
 
-import java.sql.DriverManager;
-import java.sql.CallableStatement;
-import java.sql.SQLException;
-
 /**
  * Tests for stored procedures.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 1.7.2
- * @since 1.7.2
+ * @version 2.0.1
+ * @since 2.0.1
  */
 public class TestStoredProcedure extends TestBase {
 
@@ -96,7 +96,9 @@ public class TestStoredProcedure extends TestBase {
 
             c = conn.prepareCall("call func1(1,2)");
 
-            c.execute();
+            boolean isResult = c.execute();
+
+            assertTrue(isResult);
 
             ResultSet rs = c.getResultSet();
 
@@ -136,6 +138,7 @@ public class TestStoredProcedure extends TestBase {
                 "create function func2(varchar(20)) returns boolean "
                 + "SPECIFIC F2 LANGUAGE JAVA DETERMINISTIC NO SQL CALLED ON NULL INPUT EXTERNAL NAME 'CLASSPATH:org.hsqldb.test.TestStoredProcedure.funcTest2'");
 
+
             rs = statement.executeQuery("call func2('test')");
 
             rs.next();
@@ -155,6 +158,18 @@ public class TestStoredProcedure extends TestBase {
             assertTrue("test result not correct", count == 3);
             statement.execute(
                 "grant execute on specific function public.f2 to testuser");
+
+            boolean isResult = statement.execute("call func2('test')");
+            assertTrue(isResult);
+
+            rs = statement.getResultSet();
+
+            rs.next();
+
+            b = rs.getBoolean(1);
+
+            assertTrue("test result not correct", b);
+
         } catch (Exception e) {
             assertTrue("unable to execute call to procedure", false);
         } finally {
@@ -175,7 +190,11 @@ public class TestStoredProcedure extends TestBase {
         CallableStatement cs =
             conn.prepareCall("call proc_inout_result(varone)");
 
-        cs.execute();
+        boolean isResult = cs.execute();
+
+        assertFalse(isResult);
+
+        cs.getMoreResults();
 
         ResultSet rs = cs.getResultSet();
 
@@ -194,10 +213,11 @@ public class TestStoredProcedure extends TestBase {
             "create function func_table (in namep varchar(128)) returns table(cola varchar(128), colb varchar(128)) "
             + "return table(select schema_name, schema_owner from information_schema.schemata where schema_owner=namep);");
 
-        CallableStatement cs =
-            conn.prepareCall("call func_table('_SYSTEM')");
+        CallableStatement cs = conn.prepareCall("call func_table('_SYSTEM')");
 
-        cs.execute();
+        boolean isResult = cs.execute();
+
+        assertTrue(isResult);
 
         ResultSet rs = cs.getResultSet();
 
@@ -205,6 +225,105 @@ public class TestStoredProcedure extends TestBase {
         assertEquals(rs.getString(1), "INFORMATION_SCHEMA");
         assertEquals(rs.getString(2), "_SYSTEM");
         rs.close();
+
+        //
+
+
+        isResult = st.execute("call func_table('_SYSTEM')");
+        assertTrue(isResult);
+
+        rs = st.getResultSet();
+
+        rs.next();
+        assertEquals(rs.getString(1), "INFORMATION_SCHEMA");
+        assertEquals(rs.getString(2), "_SYSTEM");
+        rs.close();
+
+    }
+
+    public void testFive() throws SQLException {
+
+        Connection conn = newConnection();
+        Statement  st   = conn.createStatement();
+
+        st.execute(
+            "CREATE PROCEDURE get_columns_and_table(tname VARCHAR(128), sname VARCHAR(128)) "
+            + "READS SQL DATA DYNAMIC RESULT SETS 2 " + "BEGIN ATOMIC "
+            + "DECLARE result1 CURSOR FOR SELECT * FROM information_schema.columns "
+            + "WHERE table_name = tname AND table_schema = sname; "
+            + "DECLARE result2 CURSOR FOR SELECT * FROM information_schema.tables "
+            + "WHERE table_name = tname AND table_schema = sname; "
+            + "OPEN result1; " + "OPEN result2; " + "END");
+
+        CallableStatement cs = conn.prepareCall(
+            "call get_columns_and_table('TABLES', 'INFORMATION_SCHEMA')");
+
+        boolean isResult = cs.execute();
+
+        assertFalse(isResult);
+
+        cs.getMoreResults();
+        ResultSet rs = cs.getResultSet();
+
+        rs.next();
+        assertEquals("INFORMATION_SCHEMA", rs.getString(2));
+        rs.close();
+
+        boolean more = cs.getMoreResults();
+
+        if (more) {
+            rs = cs.getResultSet();
+
+            rs.next();
+            assertEquals("INFORMATION_SCHEMA",rs.getString(2));
+        }
+
+        st = conn.createStatement();
+
+        isResult = st.execute( "call get_columns_and_table('TABLES', 'INFORMATION_SCHEMA')");
+
+
+        assertFalse(isResult);
+
+        st.getMoreResults();
+
+        rs = st.getResultSet();
+
+        rs.next();
+        assertEquals("INFORMATION_SCHEMA", rs.getString(2));
+        rs.close();
+
+        more = st.getMoreResults();
+
+        if (more) {
+            rs = st.getResultSet();
+
+            rs.next();
+            assertEquals("INFORMATION_SCHEMA",rs.getString(2));
+        }
+
+        PreparedStatement ps = conn.prepareStatement( "call get_columns_and_table('TABLES', 'INFORMATION_SCHEMA')");
+
+        isResult = ps.execute();
+
+        assertFalse(isResult);
+
+        ps.getMoreResults();
+        rs = ps.getResultSet();
+
+        rs.next();
+        assertEquals("INFORMATION_SCHEMA", rs.getString(2));
+        rs.close();
+
+        more = ps.getMoreResults();
+
+        if (more) {
+            rs = ps.getResultSet();
+
+            rs.next();
+            assertEquals("INFORMATION_SCHEMA",rs.getString(2));
+        }
+
     }
 
     public static void procWithResultOne(Integer[] intparam,

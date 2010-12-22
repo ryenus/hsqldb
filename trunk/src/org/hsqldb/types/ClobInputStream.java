@@ -49,14 +49,14 @@ import org.hsqldb.lib.java.JavaSystem;
  */
 public final class ClobInputStream extends Reader {
 
-    final ClobData   clob;
-    final long       availableLength;
-    long             bufferOffset;
-    long             currentPosition;
-    char[]           buffer;
-    boolean          isClosed;
-    int              streamBlockSize;
-    SessionInterface session;
+    final ClobData                clob;
+    final long                    availableLength;
+    long                          bufferOffset;
+    long                          currentPosition;
+    char[]                        buffer;
+    boolean                       isClosed;
+    int                           streamBlockSize;
+    public final SessionInterface session;
 
     public ClobInputStream(SessionInterface session, ClobData clob,
                            long offset, long length) {
@@ -131,9 +131,9 @@ public final class ClobInputStream extends Reader {
 
     public int available() {
 
-        long avail =  availableLength - currentPosition;
+        long avail = availableLength - currentPosition;
 
-        if (avail > Integer.MAX_VALUE )  {
+        if (avail > Integer.MAX_VALUE) {
             return Integer.MAX_VALUE;
         }
 

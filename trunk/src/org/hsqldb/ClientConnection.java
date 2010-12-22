@@ -83,8 +83,8 @@ public class ClientConnection implements SessionInterface {
      * are multiplied by 100 to power p and added up, then negated, to form the
      * integer representation of version string.
      */
-    public static final String NETWORK_COMPATIBILITY_VERSION     = "2.0.0.0";
-    public static final int    NETWORK_COMPATIBILITY_VERSION_INT = -2000000;
+    public static final String NETWORK_COMPATIBILITY_VERSION     = "2.1.0.0";
+    public static final int    NETWORK_COMPATIBILITY_VERSION_INT = -2010000;
 
     //
     static final int             BUFFER_SIZE = 0x1000;
@@ -97,7 +97,7 @@ public class ClientConnection implements SessionInterface {
     protected RowInputBinary     rowIn;
     private Result               resultOut;
     private long                 sessionID;
-    private long                 lobIDSequence;
+    private long                 lobIDSequence = -1;
 
     //
     private boolean  isReadOnlyDefault = false;
@@ -117,6 +117,7 @@ public class ClientConnection implements SessionInterface {
     int            databaseID;
     String         clientPropertiesString;
     HsqlProperties clientProperties;
+    String         databaseUniqueName;
 
     /**
      * Establishes a connection to the server.
@@ -148,6 +149,7 @@ public class ClientConnection implements SessionInterface {
 
         sessionID              = resultIn.getSessionId();
         databaseID             = resultIn.getDatabaseId();
+        databaseUniqueName     = resultIn.getDatabaseName();
         clientPropertiesString = resultIn.getMainString();
     }
 
@@ -505,7 +507,7 @@ public class ClientConnection implements SessionInterface {
     }
 
     public synchronized long getLobId() {
-        return lobIDSequence++;
+        return lobIDSequence--;
     }
 
     public BlobDataID createBlob(long length) {
@@ -585,6 +587,11 @@ public class ClientConnection implements SessionInterface {
     public void setJDBCConnection(JDBCConnection connection) {
         this.connection = connection;
     }
+
+    public String getDatabaseUniqueName() {
+        return databaseUniqueName;
+    }
+
 
     /**
      * Converts specified encoded integer to a Network Compatibility Version

@@ -392,9 +392,10 @@ public class Result {
                 break;
 
             case ResultConstants.CONNECTACKNOWLEDGE :
-                result.databaseID = in.readInt();
-                result.sessionID  = in.readLong();
-                result.mainString = in.readString();
+                result.databaseID   = in.readInt();
+                result.sessionID    = in.readLong();
+                result.databaseName = in.readString();
+                result.mainString   = in.readString();
                 break;
 
             case ResultConstants.UPDATECOUNT :
@@ -454,12 +455,13 @@ public class Result {
                 break;
 
             case ResultConstants.CALL_RESPONSE :
-                result.updateCount  = in.readInt();
-                result.fetchSize    = in.readInt();
-                result.statementID  = in.readLong();
-                result.rsProperties = in.readByte();
-                result.metaData     = new ResultMetaData(in);
-                result.valueData    = readSimple(in, result.metaData);
+                result.updateCount         = in.readInt();
+                result.fetchSize           = in.readInt();
+                result.statementID         = in.readLong();
+                result.statementReturnType = in.readByte();
+                result.rsProperties        = in.readByte();
+                result.metaData            = new ResultMetaData(in);
+                result.valueData           = readSimple(in, result.metaData);
                 break;
 
             case ResultConstants.EXECUTE :
@@ -476,8 +478,9 @@ public class Result {
                 if (statement == null) {
 
                     // invalid statement
-                    result.mode = ResultConstants.EXECUTE_INVALID;
+                    result.mode      = ResultConstants.EXECUTE_INVALID;
                     result.valueData = ValuePool.emptyObjectArray;
+
                     break;
                 }
 
@@ -746,8 +749,9 @@ public class Result {
 
         Result result = newResult(ResultConstants.CONNECTACKNOWLEDGE);
 
-        result.sessionID  = sessionID;
-        result.databaseID = databaseID;
+        result.sessionID    = sessionID;
+        result.databaseID   = databaseID;
+        result.databaseName = database.getUniqueName();
         result.mainString =
             database.getProperties().getClientPropertiesAsString();
 
@@ -834,10 +838,8 @@ public class Result {
 
         int csType = statement.getType();
 
-        r.statementReturnType =
-            (csType == StatementTypes.SELECT_CURSOR || csType == StatementTypes
-                .CALL) ? StatementTypes.RETURN_RESULT
-                       : StatementTypes.RETURN_COUNT;
+        r.statementReturnType = statement.getStatementReturnType();
+
         r.metaData          = statement.getResultMetaData();
         r.parameterMetaData = statement.getParametersMetaData();
 
@@ -1142,6 +1144,7 @@ public class Result {
             case ResultConstants.CONNECTACKNOWLEDGE :
                 rowOut.writeInt(databaseID);
                 rowOut.writeLong(sessionID);
+                rowOut.writeString(databaseName);
                 rowOut.writeString(mainString);
                 break;
 
@@ -1185,6 +1188,7 @@ public class Result {
                 rowOut.writeInt(updateCount);
                 rowOut.writeInt(fetchSize);
                 rowOut.writeLong(statementID);
+                rowOut.writeByte(statementReturnType);
                 rowOut.writeByte(rsProperties);
                 metaData.write(rowOut);
                 writeSimple(rowOut, metaData, (Object[]) valueData);

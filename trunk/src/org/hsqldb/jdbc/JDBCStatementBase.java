@@ -234,17 +234,20 @@ class JDBCStatementBase {
             return false;
         }
 
-        if (!resultIn.isData()) {
-            resultIn = null;
-
-            return false;
-        }
+        resultIn = resultIn.getChainedResult();
 
         if (currentResultSet != null && current != KEEP_CURRENT_RESULT) {
             currentResultSet.close();
         }
 
-        resultIn = null;
+
+        if (resultIn != null) {
+            currentResultSet = new JDBCResultSet(connection,
+                                                 this, resultIn,
+                                                 resultIn.metaData);
+
+            return true;
+        }
 
         return false;
     }

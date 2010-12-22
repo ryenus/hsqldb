@@ -141,4 +141,6 @@ public interface SessionInterface {
     JDBCConnection getJDBCConnection();
 
     void setJDBCConnection(JDBCConnection connection);
+
+    String getDatabaseUniqueName();
 }

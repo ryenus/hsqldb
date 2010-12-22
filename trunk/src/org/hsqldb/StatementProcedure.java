@@ -71,6 +71,8 @@ public class StatementProcedure extends StatementDMQL {
         super(StatementTypes.CALL, StatementTypes.X_SQL_DATA,
               session.getCurrentSchemaHsqlName());
 
+        statementReturnType = StatementTypes.RETURN_RESULT;
+
         if (expression.opType == OpTypes.FUNCTION) {
             FunctionSQLInvoked f = (FunctionSQLInvoked) expression;
 
@@ -101,6 +103,10 @@ public class StatementProcedure extends StatementDMQL {
         super(StatementTypes.CALL, StatementTypes.X_SQL_DATA,
               session.getCurrentSchemaHsqlName());
 
+        if (procedure.maxDynamicResults > 0) {
+            statementReturnType = StatementTypes.RETURN_ANY;
+        }
+
         this.procedure = procedure;
         this.arguments = arguments;
 
@@ -110,8 +116,13 @@ public class StatementProcedure extends StatementDMQL {
     }
 
     Result getResult(Session session) {
-        return expression == null ? getProcedureResult(session)
-                                  : getExpressionResult(session);
+
+        Result result = expression == null ? getProcedureResult(session)
+                                           : getExpressionResult(session);
+
+        result.setStatementType(statementReturnType);
+
+        return result;
     }
 
     Result getProcedureResult(Session session) {
