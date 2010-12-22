@@ -549,26 +549,28 @@ public class FunctionCustom extends FunctionSQL {
             case FUNC_TIMESTAMPADD :
                 name      = Tokens.T_TIMESTAMPADD;
                 parseList = new short[] {
-                    Tokens.OPENBRACKET, Tokens.X_KEYSET, 9,
-                    Tokens.SQL_TSI_FRAC_SECOND, Tokens.SQL_TSI_SECOND,
-                    Tokens.SQL_TSI_MINUTE, Tokens.SQL_TSI_HOUR,
-                    Tokens.SQL_TSI_DAY, Tokens.SQL_TSI_WEEK,
-                    Tokens.SQL_TSI_MONTH, Tokens.SQL_TSI_QUARTER,
-                    Tokens.SQL_TSI_YEAR, Tokens.COMMA, Tokens.QUESTION,
-                    Tokens.COMMA, Tokens.QUESTION, Tokens.CLOSEBRACKET
+                    Tokens.OPENBRACKET, Tokens.X_KEYSET, 10,
+                    Tokens.SQL_TSI_FRAC_SECOND, Tokens.SQL_TSI_MILLI_SECOND,
+                    Tokens.SQL_TSI_SECOND, Tokens.SQL_TSI_MINUTE,
+                    Tokens.SQL_TSI_HOUR, Tokens.SQL_TSI_DAY,
+                    Tokens.SQL_TSI_WEEK, Tokens.SQL_TSI_MONTH,
+                    Tokens.SQL_TSI_QUARTER, Tokens.SQL_TSI_YEAR, Tokens.COMMA,
+                    Tokens.QUESTION, Tokens.COMMA, Tokens.QUESTION,
+                    Tokens.CLOSEBRACKET
                 };
                 break;
 
             case FUNC_TIMESTAMPDIFF :
                 name      = Tokens.T_TIMESTAMPDIFF;
                 parseList = new short[] {
-                    Tokens.OPENBRACKET, Tokens.X_KEYSET, 9,
-                    Tokens.SQL_TSI_FRAC_SECOND, Tokens.SQL_TSI_SECOND,
-                    Tokens.SQL_TSI_MINUTE, Tokens.SQL_TSI_HOUR,
-                    Tokens.SQL_TSI_DAY, Tokens.SQL_TSI_WEEK,
-                    Tokens.SQL_TSI_MONTH, Tokens.SQL_TSI_QUARTER,
-                    Tokens.SQL_TSI_YEAR, Tokens.COMMA, Tokens.QUESTION,
-                    Tokens.COMMA, Tokens.QUESTION, Tokens.CLOSEBRACKET
+                    Tokens.OPENBRACKET, Tokens.X_KEYSET, 10,
+                    Tokens.SQL_TSI_FRAC_SECOND, Tokens.SQL_TSI_MILLI_SECOND,
+                    Tokens.SQL_TSI_SECOND, Tokens.SQL_TSI_MINUTE,
+                    Tokens.SQL_TSI_HOUR, Tokens.SQL_TSI_DAY,
+                    Tokens.SQL_TSI_WEEK, Tokens.SQL_TSI_MONTH,
+                    Tokens.SQL_TSI_QUARTER, Tokens.SQL_TSI_YEAR, Tokens.COMMA,
+                    Tokens.QUESTION, Tokens.COMMA, Tokens.QUESTION,
+                    Tokens.CLOSEBRACKET
                 };
                 break;
 
@@ -830,6 +832,15 @@ public class FunctionCustom extends FunctionSQL {
 
                         return dataType.add(source, o, t);
                     }
+                    case Tokens.SQL_TSI_MILLI_SECOND : {
+                        long seconds = units / 1000;
+                        int  nanos   = (int) (units % 1000) * 1000000;
+
+                        t = Type.SQL_INTERVAL_SECOND_MAX_FRACTION;
+                        o = new IntervalSecondData(seconds, nanos, t);
+
+                        return dataType.add(source, o, t);
+                    }
                     case Tokens.SQL_TSI_SECOND :
                         t = Type.SQL_INTERVAL_SECOND_MAX_PRECISION;
                         o = IntervalSecondData.newIntervalSeconds(units, t);
@@ -906,7 +917,7 @@ public class FunctionCustom extends FunctionSQL {
 
                 switch (part) {
 
-                    case Tokens.SQL_TSI_FRAC_SECOND :
+                    case Tokens.SQL_TSI_FRAC_SECOND : {
                         t = Type.SQL_INTERVAL_SECOND_MAX_PRECISION;
 
                         IntervalSecondData interval =
@@ -915,7 +926,16 @@ public class FunctionCustom extends FunctionSQL {
                         return new Long(
                             DTIType.limitNanoseconds * interval.getSeconds()
                             + interval.getNanos());
+                    }
+                    case Tokens.SQL_TSI_MILLI_SECOND : {
+                        t = Type.SQL_INTERVAL_SECOND_MAX_PRECISION;
 
+                        IntervalSecondData interval =
+                            (IntervalSecondData) t.subtract(a, b, null);
+
+                        return new Long(1000 * interval.getSeconds()
+                                        + interval.getNanos() / 1000000);
+                    }
                     case Tokens.SQL_TSI_SECOND :
                         t = Type.SQL_INTERVAL_SECOND_MAX_PRECISION;
 
@@ -1718,31 +1738,7 @@ public class FunctionCustom extends FunctionSQL {
                     throw Error.error(ErrorCode.X_42561);
                 }
 
-                if ("yy".equalsIgnoreCase((String) nodes[0].valueData)) {
-                    part = Tokens.SQL_TSI_YEAR;
-                } else if ("mm".equalsIgnoreCase(
-                        (String) nodes[0].valueData)) {
-                    part = Tokens.SQL_TSI_MONTH;
-                } else if ("dd".equalsIgnoreCase(
-                        (String) nodes[0].valueData)) {
-                    part = Tokens.SQL_TSI_DAY;
-                } else if ("hh".equalsIgnoreCase(
-                        (String) nodes[0].valueData)) {
-                    part = Tokens.SQL_TSI_HOUR;
-                } else if ("mi".equalsIgnoreCase(
-                        (String) nodes[0].valueData)) {
-                    part = Tokens.SQL_TSI_MINUTE;
-                } else if ("ss".equalsIgnoreCase(
-                        (String) nodes[0].valueData)) {
-                    part = Tokens.SQL_TSI_SECOND;
-                } else if ("ms".equalsIgnoreCase(
-                        (String) nodes[0].valueData)) {
-                    part = Tokens.SQL_TSI_FRAC_SECOND;
-                } else {
-                    throw Error.error(ErrorCode.X_42566,
-                                      (String) nodes[0].valueData);
-                }
-
+                part               = getTSIToken((String) nodes[0].valueData);
                 nodes[0].valueData = ValuePool.getInt(part);
                 nodes[0].dataType  = Type.SQL_INTEGER;
                 funcType           = FUNC_TIMESTAMPADD;
@@ -1780,31 +1776,7 @@ public class FunctionCustom extends FunctionSQL {
                     throw Error.error(ErrorCode.X_42563);
                 }
 
-                if ("yy".equalsIgnoreCase((String) nodes[0].valueData)) {
-                    part = Tokens.SQL_TSI_YEAR;
-                } else if ("mm".equalsIgnoreCase(
-                        (String) nodes[0].valueData)) {
-                    part = Tokens.SQL_TSI_MONTH;
-                } else if ("dd".equalsIgnoreCase(
-                        (String) nodes[0].valueData)) {
-                    part = Tokens.SQL_TSI_DAY;
-                } else if ("hh".equalsIgnoreCase(
-                        (String) nodes[0].valueData)) {
-                    part = Tokens.SQL_TSI_HOUR;
-                } else if ("mi".equalsIgnoreCase(
-                        (String) nodes[0].valueData)) {
-                    part = Tokens.SQL_TSI_MINUTE;
-                } else if ("ss".equalsIgnoreCase(
-                        (String) nodes[0].valueData)) {
-                    part = Tokens.SQL_TSI_SECOND;
-                } else if ("ms".equalsIgnoreCase(
-                        (String) nodes[0].valueData)) {
-                    part = Tokens.SQL_TSI_FRAC_SECOND;
-                } else {
-                    throw Error.error(ErrorCode.X_22511,
-                                      (String) nodes[0].valueData);
-                }
-
+                part               = getTSIToken((String) nodes[0].valueData);
                 nodes[0].valueData = ValuePool.getInt(part);
                 nodes[0].dataType  = Type.SQL_INTEGER;
                 funcType           = FUNC_TIMESTAMPDIFF;
@@ -2684,5 +2656,30 @@ public class FunctionCustom extends FunctionSQL {
         }
 
         return b;
+    }
+
+    int getTSIToken(String string) {
+
+        int part;
+
+        if ("yy".equalsIgnoreCase(string)) {
+            part = Tokens.SQL_TSI_YEAR;
+        } else if ("mm".equalsIgnoreCase(string)) {
+            part = Tokens.SQL_TSI_MONTH;
+        } else if ("dd".equalsIgnoreCase(string)) {
+            part = Tokens.SQL_TSI_DAY;
+        } else if ("hh".equalsIgnoreCase(string)) {
+            part = Tokens.SQL_TSI_HOUR;
+        } else if ("mi".equalsIgnoreCase(string)) {
+            part = Tokens.SQL_TSI_MINUTE;
+        } else if ("ss".equalsIgnoreCase(string)) {
+            part = Tokens.SQL_TSI_SECOND;
+        } else if ("ms".equalsIgnoreCase(string)) {
+            part = Tokens.SQL_TSI_MILLI_SECOND;
+        } else {
+            throw Error.error(ErrorCode.X_42566, string);
+        }
+
+        return part;
     }
 }
