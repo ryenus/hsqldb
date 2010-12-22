@@ -1,8 +1,11 @@
-16 DEC 2010 - SVN 3946
+22 Dec 2010 
+-- improvements to lob use with PreparedStatement 
+-- improvements to calling procedures with JDBC
+16 Dec 2010 - SVN 3946
 -- added support for upgrading databases whithout explicit SHUTDOWN
-10 DEC 2010 - SVN 3940 - 2.0.1 RC3 
+10 Dec 2010 - SVN 3940 - 2.0.1 RC3 
 -- added support for cached tables for lob catalog
-14 NOV 2010 - SVN 3897
+14 Nov 2010 - SVN 3897
 -- added support for CURRENT VALUE FOR <identity sequence>, same as CURRVAL
 -- added TO_TIMESTAMP, LPAD, RPAD functions
 31 Oct 2010 - SVN 3836 - 2.0.1 RC2
@@ -30,7 +33,7 @@
 -- added support for clustered indexes
 -- added enhancement for column visibility in nested joins
 -- addedd support for datetime ROUND and TRUNC functions
-4 Sept 2010  - SVN 3775
+04 Sept 2010  - SVN 3775
 -- additional connection propertie
 -- added support for FOR loops in routines
 11 Aug 2010  - SVN 3750
@@ -77,15 +80,15 @@
 -- improvement to TO_CHAR function
 -- some relaxation of DECIMAL dynamic params
 16 June 2010 - SVN 3658
-- fixed bug #3016375 Server remote open with no initial database
-- fixed bugs #3016397 - multiple UNION CORRESPONDING did not work
-- fixed bugs #3016481 - TABLE T did not work with views
-- minor improvement to MVCC transactions
+-- fixed bug #3016375 Server remote open with no initial database
+-- fixed bugs #3016397 - multiple UNION CORRESPONDING did not work
+-- fixed bugs #3016481 - TABLE T did not work with views
+-- minor improvement to MVCC transactions
 13 June 2010 - SVN 3654
-- fixed issue with third parameter of LOCATE function
-- added TRUNC and changed return type of TRUNCATE function to reduce decimal scale
-- added synchronized blocks to allow mass creation of mem: databases
-- added support for jdbc:default:connection for Java functions
+-- fixed issue with third parameter of LOCATE function
+-- added TRUNC and changed return type of TRUNCATE function to reduce decimal scale
+-- added synchronized blocks to allow mass creation of mem: databases
+-- added support for jdbc:default:connection for Java functions
 07 June 2010 - SVN 3646
-- fixed bug - SET FILES LOB SCALE did not change the store without a shutdown
-- fixed bug #3012585 - multi-column FOREIGN KEY with mismatched order of PK columns did not work correctly
+-- fixed bug - SET FILES LOB SCALE did not change the store without a shutdown
+-- fixed bug #3012585 - multi-column FOREIGN KEY with mismatched order of PK columns did not work correctly
