@@ -1378,12 +1378,13 @@ CREATE FUNCTION an_hour_before_or_now(t TIME)
 
       <para>The JDBC CallableStatement class is used with the SQL statement
       <literal>CALL &lt;routine name&gt; ( &lt;argument 1&gt;, ... )</literal>
-      to call procedures (also to call functions). The
-      <literal>getXXX()</literal> methods can be used to retrieve INOUT or OUT
-      arguments after the call. The <literal>getResultSet()</literal> call can
-      be used to access the ResultSet(s) returned by a procedure that returns
-      one or more results. If the procedure returns more than one result set,
-      the <literal>getMoreResults()</literal> call opens the next
+      to call procedures (also to call functions). After the call to
+      execute(), the <literal>getXXX()</literal> methods can be used to
+      retrieve INOUT or OUT arguments after the call. The getMoreResults()
+      method and the <literal>getResultSet()</literal> method can be used to
+      access the ResultSet(s) returned by a procedure that returns one or more
+      results. If the procedure returns more than one result set, the
+      <literal>getMoreResults()</literal> call moves to the next
       result.</para>
 
       <para>In the example below, the procedure inserts a row into the
@@ -1411,7 +1412,8 @@ CallableStatement call = conn.prepareCall("call new_customer(?, ?)");
 call.setString(1, "Paul");
 call.setString(2, "Smith");
 call.execute();
-ResultSet result = call.getResultSet();
+if (call.getMoreResults())
+    ResultSet result = call.getResultSet();
 
 </programlisting>
 
@@ -1438,6 +1440,15 @@ String lastname = call.getString(3);
       <para>SQL/JRT procedures are discussed in the Java Language Procedures
       section below. Those routines are called exactly the same way as SQL/PSM
       procedures, using the JDBC CallableStatement interface.</para>
+
+      <para>It is also possible to use a JDBC Statement or PreparedStatement
+      object to call a procedure if the procedure arguments are constant.
+      These objects should not be used as routine for calling
+      procedures.</para>
+
+      <para>Java functions are called from JDBC similar to procedures. With
+      functions, the getMoreResuls() method should not be called at all.
+      </para>
     </section>
 
     <section>
