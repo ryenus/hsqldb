@@ -128,6 +128,7 @@ public class Expression implements Cloneable {
         subqueryAggregateExpressionSet.add(OpTypes.VAR_SAMP);
         subqueryAggregateExpressionSet.add(OpTypes.GROUP_CONCAT);
         subqueryAggregateExpressionSet.add(OpTypes.ARRAY_AGG);
+        subqueryAggregateExpressionSet.add(OpTypes.MEDIAN);
         subqueryAggregateExpressionSet.add(OpTypes.USER_AGGREGATE);
 
         //
