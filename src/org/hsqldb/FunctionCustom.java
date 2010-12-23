@@ -104,80 +104,81 @@ public class FunctionCustom extends FunctionSQL {
     //
     private final static int FUNC_ACOS                     = 71;
     private final static int FUNC_ACTION_ID                = 72;
-    private final static int FUNC_ASCII                    = 73;
-    private final static int FUNC_ASIN                     = 74;
-    private final static int FUNC_ATAN                     = 75;
-    private final static int FUNC_ATAN2                    = 76;
-    private final static int FUNC_BITAND                   = 77;
-    private final static int FUNC_BITOR                    = 78;
-    private final static int FUNC_BITXOR                   = 79;
-    private final static int FUNC_CHAR                     = 80;
-    private final static int FUNC_CONCAT                   = 81;
-    private final static int FUNC_COS                      = 82;
-    private final static int FUNC_COT                      = 83;
-    private final static int FUNC_CRYPT_KEY                = 84;
-    private final static int FUNC_DATABASE                 = 85;
-    private final static int FUNC_DATABASE_ISOLATION_LEVEL = 86;
-    private final static int FUNC_DATABASE_NAME            = 87;
-    private final static int FUNC_DATABASE_TIMEZONE        = 88;
-    private final static int FUNC_DATABASE_VERSION         = 89;
-    private final static int FUNC_DATEADD                  = 90;
-    private final static int FUNC_DATEDIFF                 = 91;
-    private final static int FUNC_DEGREES                  = 92;
-    private final static int FUNC_DIFFERENCE               = 93;
-    private final static int FUNC_HEXTORAW                 = 94;
-    private final static int FUNC_IDENTITY                 = 95;
-    private final static int FUNC_ISAUTOCOMMIT             = 96;
-    private final static int FUNC_ISOLATION_LEVEL          = 97;
-    private final static int FUNC_ISREADONLYDATABASE       = 98;
-    private final static int FUNC_ISREADONLYDATABASEFILES  = 99;
-    private final static int FUNC_ISREADONLYSESSION        = 100;
-    private final static int FUNC_LEFT                     = 101;
-    private final static int FUNC_LOAD_FILE                = 102;
-    private final static int FUNC_LOB_ID                   = 103;
-    private final static int FUNC_LOCATE                   = 104;
-    private final static int FUNC_LOG10                    = 105;
-    private final static int FUNC_LPAD                     = 106;
-    private final static int FUNC_LTRIM                    = 107;
-    private final static int FUNC_PI                       = 108;
-    private final static int FUNC_RADIANS                  = 109;
-    private final static int FUNC_RAND                     = 110;
-    private final static int FUNC_RAWTOHEX                 = 111;
-    private final static int FUNC_REGEXP_MATCHES           = 112;
-    private final static int FUNC_REPEAT                   = 113;
-    private final static int FUNC_REPLACE                  = 114;
-    private final static int FUNC_REVERSE                  = 115;
-    private final static int FUNC_RIGHT                    = 116;
-    private final static int FUNC_ROUND                    = 117;
-    private final static int FUNC_ROUNDMAGIC               = 118;
-    private final static int FUNC_RPAD                     = 119;
-    private final static int FUNC_RTRIM                    = 120;
-    private final static int FUNC_SECONDS_MIDNIGHT         = 121;
-    private final static int FUNC_SEQUENCE_ARRAY           = 122;
-    private final static int FUNC_SESSION_ID               = 123;
-    private final static int FUNC_SESSION_ISOLATION_LEVEL  = 124;
-    private final static int FUNC_SESSION_TIMEZONE         = 125;
-    private final static int FUNC_SIGN                     = 126;
-    private final static int FUNC_SIN                      = 127;
-    private final static int FUNC_SOUNDEX                  = 128;
-    private final static int FUNC_SPACE                    = 129;
-    private final static int FUNC_SUBSTR                   = 130;
-    private final static int FUNC_SYSDATE                  = 131;
-    private final static int FUNC_TAN                      = 132;
-    private final static int FUNC_TIMESTAMP                = 133;
-    private final static int FUNC_TIMESTAMPADD             = 134;
-    private final static int FUNC_TIMESTAMPDIFF            = 135;
-    private final static int FUNC_TIMEZONE                 = 136;
-    private final static int FUNC_TO_CHAR                  = 137;
-    private final static int FUNC_TO_DATE                  = 138;
-    private final static int FUNC_TO_TIMESTAMP             = 139;
-    private final static int FUNC_TRANSACTION_CONTROL      = 140;
-    private final static int FUNC_TRANSACTION_ID           = 141;
-    private final static int FUNC_TRANSACTION_SIZE         = 142;
-    private final static int FUNC_TRUNC                    = 143;
-    private final static int FUNC_TRUNCATE                 = 144;
-    private final static int FUNC_UUID                     = 145;
-    private final static int FUNC_UNIX_TIMESTAMP           = 146;
+    private final static int FUNC_ARRAY_SORT               = 73;
+    private final static int FUNC_ASCII                    = 74;
+    private final static int FUNC_ASIN                     = 75;
+    private final static int FUNC_ATAN                     = 76;
+    private final static int FUNC_ATAN2                    = 77;
+    private final static int FUNC_BITAND                   = 78;
+    private final static int FUNC_BITOR                    = 79;
+    private final static int FUNC_BITXOR                   = 80;
+    private final static int FUNC_CHAR                     = 81;
+    private final static int FUNC_CONCAT                   = 82;
+    private final static int FUNC_COS                      = 83;
+    private final static int FUNC_COT                      = 84;
+    private final static int FUNC_CRYPT_KEY                = 85;
+    private final static int FUNC_DATABASE                 = 86;
+    private final static int FUNC_DATABASE_ISOLATION_LEVEL = 87;
+    private final static int FUNC_DATABASE_NAME            = 88;
+    private final static int FUNC_DATABASE_TIMEZONE        = 89;
+    private final static int FUNC_DATABASE_VERSION         = 90;
+    private final static int FUNC_DATEADD                  = 91;
+    private final static int FUNC_DATEDIFF                 = 92;
+    private final static int FUNC_DEGREES                  = 93;
+    private final static int FUNC_DIFFERENCE               = 94;
+    private final static int FUNC_HEXTORAW                 = 95;
+    private final static int FUNC_IDENTITY                 = 96;
+    private final static int FUNC_ISAUTOCOMMIT             = 97;
+    private final static int FUNC_ISOLATION_LEVEL          = 98;
+    private final static int FUNC_ISREADONLYDATABASE       = 99;
+    private final static int FUNC_ISREADONLYDATABASEFILES  = 100;
+    private final static int FUNC_ISREADONLYSESSION        = 101;
+    private final static int FUNC_LEFT                     = 102;
+    private final static int FUNC_LOAD_FILE                = 103;
+    private final static int FUNC_LOB_ID                   = 104;
+    private final static int FUNC_LOCATE                   = 105;
+    private final static int FUNC_LOG10                    = 106;
+    private final static int FUNC_LPAD                     = 107;
+    private final static int FUNC_LTRIM                    = 108;
+    private final static int FUNC_PI                       = 109;
+    private final static int FUNC_RADIANS                  = 110;
+    private final static int FUNC_RAND                     = 111;
+    private final static int FUNC_RAWTOHEX                 = 112;
+    private final static int FUNC_REGEXP_MATCHES           = 113;
+    private final static int FUNC_REPEAT                   = 114;
+    private final static int FUNC_REPLACE                  = 115;
+    private final static int FUNC_REVERSE                  = 116;
+    private final static int FUNC_RIGHT                    = 117;
+    private final static int FUNC_ROUND                    = 118;
+    private final static int FUNC_ROUNDMAGIC               = 119;
+    private final static int FUNC_RPAD                     = 120;
+    private final static int FUNC_RTRIM                    = 121;
+    private final static int FUNC_SECONDS_MIDNIGHT         = 122;
+    private final static int FUNC_SEQUENCE_ARRAY           = 123;
+    private final static int FUNC_SESSION_ID               = 124;
+    private final static int FUNC_SESSION_ISOLATION_LEVEL  = 125;
+    private final static int FUNC_SESSION_TIMEZONE         = 126;
+    private final static int FUNC_SIGN                     = 127;
+    private final static int FUNC_SIN                      = 128;
+    private final static int FUNC_SOUNDEX                  = 129;
+    private final static int FUNC_SPACE                    = 130;
+    private final static int FUNC_SUBSTR                   = 131;
+    private final static int FUNC_SYSDATE                  = 132;
+    private final static int FUNC_TAN                      = 133;
+    private final static int FUNC_TIMESTAMP                = 134;
+    private final static int FUNC_TIMESTAMPADD             = 135;
+    private final static int FUNC_TIMESTAMPDIFF            = 136;
+    private final static int FUNC_TIMEZONE                 = 137;
+    private final static int FUNC_TO_CHAR                  = 138;
+    private final static int FUNC_TO_DATE                  = 139;
+    private final static int FUNC_TO_TIMESTAMP             = 140;
+    private final static int FUNC_TRANSACTION_CONTROL      = 141;
+    private final static int FUNC_TRANSACTION_ID           = 142;
+    private final static int FUNC_TRANSACTION_SIZE         = 143;
+    private final static int FUNC_TRUNC                    = 144;
+    private final static int FUNC_TRUNCATE                 = 145;
+    private final static int FUNC_UUID                     = 146;
+    private final static int FUNC_UNIX_TIMESTAMP           = 147;
 
     //
     static final IntKeyIntValueHashMap customRegularFuncMap =
@@ -211,6 +212,7 @@ public class FunctionCustom extends FunctionSQL {
         //
         customRegularFuncMap.put(Tokens.ACOS, FUNC_ACOS);
         customRegularFuncMap.put(Tokens.ACTION_ID, FUNC_ACTION_ID);
+        customRegularFuncMap.put(Tokens.ARRAY_SORT, FUNC_ARRAY_SORT);
         customRegularFuncMap.put(Tokens.ASCII, FUNC_ASCII);
         customRegularFuncMap.put(Tokens.ASIN, FUNC_ASIN);
         customRegularFuncMap.put(Tokens.ATAN, FUNC_ATAN);
@@ -465,6 +467,7 @@ public class FunctionCustom extends FunctionSQL {
                 break;
 
             case FUNC_ACOS :
+            case FUNC_ARRAY_SORT :
             case FUNC_ASCII :
             case FUNC_ASIN :
             case FUNC_ATAN :
@@ -1593,7 +1596,7 @@ public class FunctionCustom extends FunctionSQL {
                 }
             }
             case FUNC_LPAD :
-            case FUNC_RPAD :
+            case FUNC_RPAD : {
                 if (data[0] == null || data[1] == null) {
                     return null;
                 }
@@ -1630,6 +1633,23 @@ public class FunctionCustom extends FunctionSQL {
                 } else {
                     return value;
                 }
+            }
+            case FUNC_ARRAY_SORT : {
+                if (data[0] == null) {
+                    return null;
+                }
+
+                ArrayType    dt       = (ArrayType) dataType;
+                SortAndSlice exprSort = new SortAndSlice();
+
+                exprSort.prepareSingleColumn(1);
+
+                Object array = ArrayUtil.duplicateArray(data[0]);
+
+                dt.sort(session, array, exprSort);
+
+                return array;
+            }
             default :
                 throw Error.runtimeError(ErrorCode.U_S0500, "FunctionCustom");
         }
@@ -2284,7 +2304,7 @@ public class FunctionCustom extends FunctionSQL {
                 break;
             }
             case FUNC_LEFT :
-            case FUNC_RIGHT :
+            case FUNC_RIGHT : {
                 if (nodes[0].dataType == null) {
                     nodes[0].dataType = Type.SQL_VARCHAR;
                 }
@@ -2305,9 +2325,10 @@ public class FunctionCustom extends FunctionSQL {
                            ? Type.SQL_VARCHAR_DEFAULT
                            : ((CharacterType) nodes[0].dataType)
                                .getCharacterType(nodes[0].dataType.precision);
-                break;
 
-            case FUNC_SPACE :
+                break;
+            }
+            case FUNC_SPACE : {
                 if (nodes[0].dataType == null) {
                     nodes[0].dataType = Type.SQL_INTEGER;
                 }
@@ -2317,9 +2338,10 @@ public class FunctionCustom extends FunctionSQL {
                 }
 
                 dataType = Type.SQL_VARCHAR_DEFAULT;
-                break;
 
-            case FUNC_REVERSE :
+                break;
+            }
+            case FUNC_REVERSE : {
                 if (nodes[0].dataType == null) {
                     nodes[0].dataType = Type.SQL_VARCHAR_DEFAULT;
                 }
@@ -2329,9 +2351,10 @@ public class FunctionCustom extends FunctionSQL {
                 if (!dataType.isCharacterType() || dataType.isLobType()) {
                     throw Error.error(ErrorCode.X_42561);
                 }
-                break;
 
-            case FUNC_REGEXP_MATCHES :
+                break;
+            }
+            case FUNC_REGEXP_MATCHES : {
                 if (nodes[0].dataType == null) {
                     nodes[0].dataType = Type.SQL_VARCHAR_DEFAULT;
                 }
@@ -2347,9 +2370,10 @@ public class FunctionCustom extends FunctionSQL {
                 }
 
                 dataType = Type.SQL_BOOLEAN;
-                break;
 
-            case FUNC_CRYPT_KEY :
+                break;
+            }
+            case FUNC_CRYPT_KEY : {
                 for (int i = 0; i < nodes.length; i++) {
                     if (nodes[i].dataType == null) {
                         nodes[i].dataType = Type.SQL_VARCHAR;
@@ -2359,9 +2383,10 @@ public class FunctionCustom extends FunctionSQL {
                 }
 
                 dataType = Type.SQL_VARCHAR_DEFAULT;
-                break;
 
-            case FUNC_LOAD_FILE :
+                break;
+            }
+            case FUNC_LOAD_FILE : {
                 if (nodes[0].dataType == null) {
                     nodes[0].dataType = Type.SQL_VARCHAR_DEFAULT;
                 }
@@ -2380,10 +2405,11 @@ public class FunctionCustom extends FunctionSQL {
                         throw Error.error(ErrorCode.X_42561);
                     }
                 }
-                break;
 
+                break;
+            }
             case FUNC_LPAD :
-            case FUNC_RPAD :
+            case FUNC_RPAD : {
                 if (nodes[0].dataType == null) {
                     nodes[0].dataType = Type.SQL_VARCHAR_DEFAULT;
                 }
@@ -2420,8 +2446,22 @@ public class FunctionCustom extends FunctionSQL {
                             value.longValue());
                     }
                 }
-                break;
 
+                break;
+            }
+            case FUNC_ARRAY_SORT : {
+                if (nodes[0].dataType == null) {
+                    throw Error.error(ErrorCode.X_42567);
+                }
+
+                if (!nodes[0].dataType.isArrayType()) {
+                    throw Error.error(ErrorCode.X_42563);
+                }
+
+                dataType = nodes[0].dataType;
+
+                break;
+            }
             default :
                 throw Error.runtimeError(ErrorCode.U_S0500, "FunctionCustom");
         }
@@ -2538,8 +2578,9 @@ public class FunctionCustom extends FunctionSQL {
 
                 return sb.toString();
             }
-            case FUNC_ASCII :
             case FUNC_ACOS :
+            case FUNC_ARRAY_SORT :
+            case FUNC_ASCII :
             case FUNC_ASIN :
             case FUNC_ATAN :
             case FUNC_CHAR :

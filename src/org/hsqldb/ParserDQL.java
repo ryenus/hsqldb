@@ -1459,20 +1459,11 @@ public class ParserDQL extends ParserBase {
 
         if (e1.isUnresolvedParam()) {
             e1.setDataType(session, Type.SQL_INTEGER);
-        } else {
-            valid = (e1.getDataType().typeCode == Types.SQL_INTEGER
-                     && ((Integer) e1.getValue(null)).intValue() >= 0);
         }
 
         if (e2 != null) {
             if (e2.isUnresolvedParam()) {
                 e2.setDataType(session, Type.SQL_INTEGER);
-            } else {
-                valid &= (e2.getDataType().typeCode == Types.SQL_INTEGER);
-
-                Integer value = ((Integer) e2.getValue(null));
-
-                valid &= (value.intValue() >= 0);
             }
         }
 
@@ -1829,6 +1820,10 @@ public class ParserDQL extends ParserBase {
                 return new ExpressionArrayAggregate(type, distinct, e, sort,
                                                     separator);
             }
+            case OpTypes.MEDIAN : {
+                return new ExpressionArrayAggregate(type, distinct, e, sort,
+                                                    separator);
+            }
             default :
                 if (e.getType() == OpTypes.ASTERISK) {
                     throw unexpectedToken();
@@ -2008,10 +2003,13 @@ public class ParserDQL extends ParserBase {
             case Tokens.X_DELIMITED_IDENTIFIER :
                 checkValidCatalogName(token.namePrePrePrefix);
 
-                return new ExpressionColumn(token.namePrePrefix,
-                                            token.namePrefix,
-                                            token.tokenString,
-                                            database.sqlEnforceRefs);
+                e = new ExpressionColumn(token.namePrePrefix,
+                                         token.namePrefix, token.tokenString,
+                                         database.sqlEnforceRefs);
+
+                read();
+
+                return e;
 
             default :
                 return null;
@@ -2231,6 +2229,7 @@ public class ParserDQL extends ParserBase {
             case Tokens.VAR_SAMP :
             case Tokens.GROUP_CONCAT :
             case Tokens.ARRAY_AGG :
+            case Tokens.MEDIAN :
                 return readAggregate();
 
             case Tokens.NEXT : {

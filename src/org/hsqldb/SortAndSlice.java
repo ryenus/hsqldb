@@ -55,7 +55,7 @@ public final class SortAndSlice {
     public boolean[] sortNullsLast;
     boolean          sortUnion;
     HsqlArrayList    exprList = new HsqlArrayList();
-    Expression       limitCondition;
+    ExpressionOp     limitCondition;
     int              columnCount;
     boolean          hasNullsLast;
     public boolean   skipSort       = false;    // true when result can be used as is
@@ -86,18 +86,20 @@ public final class SortAndSlice {
         exprList.add(e);
     }
 
-    public void addLimitCondition(Expression expression) {
+    public void addLimitCondition(ExpressionOp expression) {
         limitCondition = expression;
     }
 
     public void prepareSingleColumn(int colIndex) {
+
         sortOrder      = new int[1];
         sortDescending = new boolean[1];
         sortNullsLast  = new boolean[1];
-        sortOrder[0] = colIndex;
+        sortOrder[0]   = colIndex;
     }
 
     public void prepare(int degree) {
+
         columnCount = exprList.size();
 
         if (columnCount == 0) {
@@ -109,6 +111,7 @@ public final class SortAndSlice {
         sortNullsLast  = new boolean[columnCount + degree];
 
         ArrayUtil.fillSequence(sortOrder);
+
         for (int i = 0; i < columnCount; i++) {
             ExpressionOrderBy sort = (ExpressionOrderBy) exprList.get(i);
 
