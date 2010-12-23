@@ -716,6 +716,10 @@ public class QuerySpecification extends QueryExpression {
                 throw Error.error(ErrorCode.X_42568);
             }
         }
+
+        if (sortAndSlice.limitCondition != null) {
+            sortAndSlice.limitCondition.resolveTypes(session, null);
+        }
     }
 
     private void resolveAggregates() {
