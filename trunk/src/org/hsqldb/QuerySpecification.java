@@ -242,7 +242,7 @@ public class QuerySpecification extends QueryExpression {
         resolveRangeVariables(session, outerRanges);
         resolveColumnReferencesForAsterisk();
         finaliseColumns();
-        resolveColumnReferences(session);
+        resolveColumnReferences(session, outerRanges);
 
         unionColumnTypes = new Type[indexLimitVisible];
 
@@ -254,7 +254,8 @@ public class QuerySpecification extends QueryExpression {
      * Replaces any alias column expression in the ORDER BY cluase
      * with the actual select column expression.
      */
-    private void resolveColumnReferences(Session session) {
+    private void resolveColumnReferences(Session session,
+                                         RangeVariable[] outerRanges) {
 
         if (isDistinctSelect || isGrouped) {
             acceptsSequences = false;
@@ -295,10 +296,11 @@ public class QuerySpecification extends QueryExpression {
                                                rangeVariables.length, false);
         }
 
-        resolveColumnRefernecesInOrderBy(session, sortAndSlice);
+        resolveColumnRefernecesInOrderBy(session, outerRanges, sortAndSlice);
     }
 
     void resolveColumnRefernecesInOrderBy(Session session,
+                                          RangeVariable[] outerRanges,
                                           SortAndSlice sortAndSlice) {
 
         // replace the aliases with expressions
@@ -334,6 +336,11 @@ public class QuerySpecification extends QueryExpression {
                     throw Error.error(ErrorCode.X_42576);
                 }
             }
+        }
+
+        if (sortAndSlice.limitCondition != null) {
+            sortAndSlice.limitCondition.resolveColumnReferences(session,
+                    outerRanges, unresolvedExpressions);
         }
 
         sortAndSlice.prepare(this);

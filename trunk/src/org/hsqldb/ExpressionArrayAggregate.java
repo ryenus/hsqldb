@@ -38,6 +38,7 @@ import org.hsqldb.lib.ArrayUtil;
 import org.hsqldb.lib.HsqlArrayList;
 import org.hsqldb.lib.HsqlList;
 import org.hsqldb.types.ArrayType;
+import org.hsqldb.types.NumberType;
 import org.hsqldb.types.RowType;
 import org.hsqldb.types.Type;
 
@@ -67,6 +68,11 @@ public class ExpressionArrayAggregate extends Expression {
 
         if (separator != null) {
             this.separator = separator;
+        }
+
+        if (type == OpTypes.MEDIAN) {
+            nodes = new Expression[]{ e };
+            return;
         }
 
         if (sort == null) {
@@ -106,6 +112,11 @@ public class ExpressionArrayAggregate extends Expression {
                 sb.append(left).append(')');
                 break;
 
+            case OpTypes.MEDIAN :
+                sb.append(' ').append(Tokens.T_MEDIAN).append('(');
+                sb.append(left).append(')');
+                break;
+
             default :
                 throw Error.runtimeError(ErrorCode.U_S0500,
                                          "ExpressionAggregate");
@@ -132,6 +143,11 @@ public class ExpressionArrayAggregate extends Expression {
 
             case OpTypes.GROUP_CONCAT :
                 sb.append(Tokens.T_GROUP_CONCAT).append(' ');
+                break;
+
+            case OpTypes.MEDIAN :
+                sb.append(Tokens.T_MEDIAN).append(' ');
+                break;
         }
 
         if (getLeftNode() != null) {
@@ -193,20 +209,33 @@ public class ExpressionArrayAggregate extends Expression {
             throw Error.error(ErrorCode.X_42534);
         }
 
+        if (opType == OpTypes.MEDIAN ) {
+            if (!exprType.isNumberType()) {
+                throw Error.error(ErrorCode.X_42534);
+            }
+        }
         Type rowDataType = new RowType(nodeDataTypes);
 
-        arrayDataType = new ArrayType(rowDataType,
-                                      ArrayType.defaultArrayCardinality);
 
         switch (opType) {
 
             case OpTypes.ARRAY_AGG :
+                arrayDataType = new ArrayType(rowDataType,
+                                              ArrayType.defaultArrayCardinality);
                 dataType = new ArrayType(exprType,
                                          ArrayType.defaultArrayCardinality);
                 break;
 
             case OpTypes.GROUP_CONCAT :
+                arrayDataType = new ArrayType(rowDataType,
+                                              ArrayType.defaultArrayCardinality);
                 dataType = Type.SQL_VARCHAR_DEFAULT;
+                break;
+
+            case OpTypes.MEDIAN:
+                arrayDataType = new ArrayType(nodeDataTypes[0],
+                                              ArrayType.defaultArrayCardinality);
+                dataType = exprType;
                 break;
         }
 
@@ -237,15 +266,30 @@ public class ExpressionArrayAggregate extends Expression {
             return currValue;
         }
 
-        Object[] row = new Object[nodes.length];
+        Object currentVal = null;
 
-        for (int i = 0; i < nodes.length; i++) {
-            row[i] = nodes[i].getValue(session);
+        switch (opType) {
+            case OpTypes.ARRAY_AGG:
+            case OpTypes.GROUP_CONCAT:
+
+                Object[] row = new Object[nodes.length];
+
+                for (int i = 0; i < nodes.length; i++) {
+                    row[i] = nodes[i].getValue(session);
+                }
+
+                if (opType == OpTypes.GROUP_CONCAT && row[row.length - 1] == null) {
+                    return currValue;
+                }
+
+                currentVal = row;
+                break;
+
+            case OpTypes.MEDIAN:
+                currentVal = nodes[0].getValue(session);
+                break;
         }
 
-        if (opType == OpTypes.GROUP_CONCAT && row[row.length - 1] == null) {
-            return currValue;
-        }
 
         HsqlArrayList list = (HsqlArrayList) currValue;
 
@@ -253,7 +297,7 @@ public class ExpressionArrayAggregate extends Expression {
             list = new HsqlArrayList();
         }
 
-        list.add(row);
+        list.add(currentVal);
 
         return list;
     }
@@ -284,7 +328,7 @@ public class ExpressionArrayAggregate extends Expression {
 
         switch (opType) {
 
-            case OpTypes.ARRAY_AGG :
+            case OpTypes.ARRAY_AGG : {
                 Object[] resultArray = new Object[array.length];
 
                 for (int i = 0; i < list.size(); i++) {
@@ -294,8 +338,8 @@ public class ExpressionArrayAggregate extends Expression {
                 }
 
                 return resultArray;
-
-            case OpTypes.GROUP_CONCAT :
+            }
+            case OpTypes.GROUP_CONCAT : {
                 StringBuffer sb = new StringBuffer(16 * list.size());
 
                 for (int i = 0; i < array.length; i++) {
@@ -311,6 +355,30 @@ public class ExpressionArrayAggregate extends Expression {
                 }
 
                 return sb.toString();
+            }
+            case OpTypes.MEDIAN: {
+
+                SortAndSlice exprSort = new SortAndSlice();
+
+                exprSort.prepareSingleColumn(1);
+
+                arrayDataType.sort(session, array, exprSort);
+
+                boolean even = array.length % 2 == 0;
+
+                if (even) {
+                    Object val1 = array[(array.length / 2) - 1];
+                    Object val2 = array[array.length / 2];
+                    Object val3 = ((NumberType) exprType).add(val1, val2, exprType);
+
+                    return ((NumberType) exprType).divide(val3, Integer.valueOf(2));
+
+                } else {
+                    return array[array.length / 2];
+                }
+
+            }
+
         }
 
         return null;

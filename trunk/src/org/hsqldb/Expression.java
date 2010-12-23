@@ -92,6 +92,7 @@ public class Expression implements Cloneable {
         aggregateFunctionSet.add(OpTypes.VAR_SAMP);
         aggregateFunctionSet.add(OpTypes.GROUP_CONCAT);
         aggregateFunctionSet.add(OpTypes.ARRAY_AGG);
+        aggregateFunctionSet.add(OpTypes.MEDIAN);
         aggregateFunctionSet.add(OpTypes.USER_AGGREGATE);
     }
 
