@@ -453,6 +453,25 @@ public class ExpressionOp extends Expression {
                 break;
 
             case OpTypes.LIMIT :
+                if (nodes[LEFT] != null) {
+                    if (nodes[LEFT].dataType == null) {
+                        throw Error.error(ErrorCode.X_42567);
+                    }
+
+                    if (!nodes[LEFT].dataType.isIntegralType()) {
+                        throw Error.error(ErrorCode.X_42563);
+                    }
+                }
+
+                if (nodes[RIGHT] != null) {
+                    if (nodes[RIGHT].dataType == null) {
+                        throw Error.error(ErrorCode.X_42567);
+                    }
+
+                    if (!nodes[RIGHT].dataType.isIntegralType()) {
+                        throw Error.error(ErrorCode.X_42563);
+                    }
+                }
                 break;
 
             default :
