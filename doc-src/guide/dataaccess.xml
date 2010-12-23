@@ -330,7 +330,7 @@ st.execute(); // exception is thrown when HyperSQL checks the value for update
     </section>
 
     <section>
-      <title>JDBC and Data Change Statements </title>
+      <title>JDBC and Data Change Statements</title>
 
       <para>Data change statements, also called data manipulation statements
       (DML) such as INSERT, UPDATE, MERGE can be called with different
@@ -2014,7 +2014,7 @@ invoice_date &lt; ALL (SELECT holiday_date FROM holidays)
 
       <simpara><literal>&lt;computational operation&gt; ::= AVG | MAX | MIN |
       SUM | EVERY | ANY | SOME | COUNT | STDDEV_POP | STDDEV_SAMP | VAR_SAMP |
-      VAR_POP</literal></simpara>
+      VAR_POP | MEDIAN</literal></simpara>
 
       <simpara><literal>&lt;set quantifier&gt; ::= DISTINCT |
       ALL</literal></simpara>
@@ -2057,10 +2057,10 @@ invoice_date &lt; ALL (SELECT holiday_date FROM holidays)
       returns the sum of values for <literal>acolumn</literal> in each
       group.</simpara>
 
-      <simpara>The AVG and SUM operations can be performed on numeric
+      <simpara>The AVG, SUM and MEDIAN operations can be performed on numeric
       expressions only. AVG returns the average value, while SUM returns the
-      sum of all values. If all values are NULL, the operations return
-      NULL.</simpara>
+      sum of all values. If all values are NULL, the operations return NULL.
+      MEDIAN returns the middle value in the sorted list of values.</simpara>
 
       <simpara>MAX and MIN can be performed on all types of expressions and
       return the minimum or the maximum value. If all values are NULL, the
@@ -2080,6 +2080,11 @@ invoice_date &lt; ALL (SELECT holiday_date FROM holidays)
       STDDEV_POP, STDDEV_SAMP, VAR_SAMP, VAR_POP on numeric values. NULL
       values are ignored in calculations.</simpara>
 
+      <simpara>User defined aggregate functions can be defined and used
+      instead of the built-in aggregate functions. Syntax and examples are
+      given in the <link endterm="sqlroutines-title"
+      xlink:href="#sqlroutines-chapt"></link> chapter.</simpara>
+
       <simpara>The <code>&lt;filter clause&gt;</code> allows you to add a
       search condition. When the search condition evaluates to TRUE for a row,
       the row is included in aggregation. Otherwise the row is not included.
@@ -2088,11 +2093,6 @@ invoice_date &lt; ALL (SELECT holiday_date FROM holidays)
 
       <programlisting>SELECT COUNT(ITEM) FILTER (WHERE GENDER = 'F') AS "FEMALE COUNT", COUNT(ITEM) FILTER (WHERE GENDER = 'M') AS "MALE COUNT" FROM PEOPLE
 </programlisting>
-
-      <simpara>User defined aggregate functions can be defined and used
-      instead of the built-in aggregate functions. The FILTER Syntax and
-      examples are given in the <link endterm="sqlroutines-title"
-      xlink:href="#sqlroutines-chapt"></link> chapter.</simpara>
 
       <simpara>ARRAY_AGG is different from all other aggregate functions, as
       it does not ignore the NULL values. This set function returns an array
@@ -3056,7 +3056,10 @@ SELECT x, y, z FROM atable AS t (u, v, w, x, y, z)  WHERE u + v = w</programlist
       <para>A slicing operation takes the result set that has been already
       processed and ordered. It then discards the specified number of rows
       from the start of the result set and returns the specified number of
-      rows after the discarded rows.</para>
+      rows after the discarded rows. The &lt;offset row count&gt; and
+      &lt;fetch first row count&gt; can be constants, dynamic variables,
+      routine parameters, or routine variables. The type of the contants must
+      be INTEGER.</para>
 
       <programlisting>SELECT a, b FROM atable WHERE d &lt; 5 ORDER BY absum OFFSET 3 FETCH 2 ROWS ONLY 
 SELECT a, b FROM atable WHERE d &lt; 5 ORDER BY absum OFFSET 3 LIMIT 2 /* alternative keyword */ </programlisting>

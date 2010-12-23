@@ -1,4 +1,7 @@
-22 Dec 2010 
+23 Dec 2010 
+-- added MEDIAN aggregate function
+-- added ARRAY_SORT function
+-- routine variables and parameters can be used in LIMIT / FETCH / OFFSET clauses
 -- improvements to lob use with PreparedStatement 
 -- improvements to calling procedures with JDBC
 16 Dec 2010 - SVN 3946

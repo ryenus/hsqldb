@@ -1698,6 +1698,16 @@ TIMESTAMP '2008-11-22 20:30:40.000000'
     chapter.</para>
 
     <indexterm significance="preferred" type="sql">
+      <primary>ARRAY_SORT function</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">ARRAY_SORT</emphasis></simpara>
+
+    <para><literal>ARRAY_SORT( &lt;array value expr&gt; )</literal></para>
+
+    <para>Returns a sorted copy of the array. (HyperSQL)</para>
+
+    <indexterm significance="preferred" type="sql">
       <primary>CARDINALITY function</primary>
     </indexterm>
 
