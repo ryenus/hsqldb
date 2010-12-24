@@ -1390,10 +1390,10 @@ CURRENT_DATE - 2 DAY /* the date of the day before yesterday */
       <para>In the example below, the table contains a column of integer
       arrays and a column of varchar arrays. The VARCHAR array has an explicit
       maximum size of 10, which means each array can have between 0 and 10
-      elements. The INTEGER array has the default maximum size of 1024. The id
-      column has a default clause with an empty array. The default clause can
-      be defined only as DEFAULT NULL or DEFAULT ARRAY[] and does not allow
-      arrays containing elements.</para>
+      elements. The INTEGER array has the default maximum size of 1024. The
+      scores column has a default clause with an empty array. The default
+      clause can be defined only as DEFAULT NULL or DEFAULT ARRAY[] and does
+      not allow arrays containing elements.</para>
 
       <informalexample>
         <programlisting>CREATE TABLE t (id INT PRIMARY KEY, scores INT ARRAY DEFAULT ARRAY[], names VARCHAR(20) ARRAY[10])</programlisting>
@@ -1430,7 +1430,7 @@ ARRAY (SELECT lastname FROM namestable ORDER BY id)
     <section>
       <title>Array Reference</title>
 
-      <para>The most common operations on an array element reference and
+      <para>The most common operations on an array are element reference and
       assignment, which are used when reading or writing an element of the
       array. Unlike Java and many other languages, arrays are extended if an
       element is assigned to an index beyond the current length. This can
@@ -1490,7 +1490,7 @@ UPDATE t SET scores[2] = 123, names[2] = 'Reds' WHERE id = 10
 
       <para><emphasis>FUNCTIONS</emphasis></para>
 
-      <para>Three functions operate on arrays. Details are described in the
+      <para>Four functions operate on arrays. Details are described in the
       <link endterm="builtinfunctions-title"
       xlink:href="#builtinfunctions-chapt"></link> chapter.</para>
 
@@ -1512,6 +1512,13 @@ UPDATE t SET scores[2] = 123, names[2] = 'Reds' WHERE id = 10
       specified number of elements removed from the end of the array. The
       <literal>&lt;array value expression&gt;</literal> can be any expression
       that evaluates to an array.</para>
+
+      <para><literal>SORT_ARRAY &lt;left paren&gt; &lt;array value
+      expression&gt; &lt;right paren&gt;</literal></para>
+
+      <para>The SORT_ARRAY function returns a sorted copy of an array. NULL
+      elements apprear at the beginning of the new array. This function is a
+      HyperSQL extension and not part of the SQL Standard.</para>
 
       <para><emphasis>CAST</emphasis></para>
 
