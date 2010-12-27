@@ -269,6 +269,28 @@ public class Result {
                                       RowInputBinary in)
                                       throws IOException, HsqlException {
 
+        Result currentResult = this;
+
+        setSession(session);
+
+        while (true) {
+            int addedResultMode = inputStream.readByte();
+
+            if (addedResultMode == ResultConstants.NONE) {
+                return;
+            }
+
+            currentResult = newResult(null, inputStream, in, addedResultMode);
+
+            addChainedResult(currentResult);
+        }
+    }
+
+    public void readLobResults(SessionInterface session,
+                               DataInputStream inputStream,
+                               RowInputBinary in)
+                               throws IOException, HsqlException {
+
         Result  currentResult = this;
         boolean hasLob        = false;
 
@@ -283,30 +305,22 @@ public class Result {
                 if (session instanceof Session) {
                     ((Session) session).allocateResultLob(resultLob,
                                                           inputStream);
+                } else {
+                    currentResult.addLobResult(resultLob);
                 }
-
-                currentResult.addLobResult(resultLob);
 
                 hasLob = true;
 
                 continue;
+            } else if (addedResultMode == ResultConstants.NONE) {
+                break;
+            } else {
+                throw Error.runtimeError(ErrorCode.U_S0500, "Result");
             }
+        }
 
-            if (hasLob) {
-                hasLob = false;
-
-                if (session instanceof Session) {
-                    ((Session) session).registerResultLobs(currentResult);
-                }
-            }
-
-            if (addedResultMode == ResultConstants.NONE) {
-                return;
-            }
-
-            currentResult = newResult(null, inputStream, in, addedResultMode);
-
-            addChainedResult(currentResult);
+        if (hasLob) {
+            ((Session) session).registerResultLobs(currentResult);
         }
     }
 
@@ -839,9 +853,8 @@ public class Result {
         int csType = statement.getType();
 
         r.statementReturnType = statement.getStatementReturnType();
-
-        r.metaData          = statement.getResultMetaData();
-        r.parameterMetaData = statement.getParametersMetaData();
+        r.metaData            = statement.getResultMetaData();
+        r.parameterMetaData   = statement.getParametersMetaData();
 
         return r;
     }
@@ -1067,7 +1080,7 @@ public class Result {
         return result;
     }
 
-    public void write(DataOutputStream dataOut,
+    public void write(SessionInterface session, DataOutputStream dataOut,
                       RowOutputInterface rowOut)
                       throws IOException, HsqlException {
 
@@ -1284,7 +1297,7 @@ public class Result {
         for (int i = 0; i < count; i++) {
             ResultLob lob = current.lobResults;
 
-            lob.writeBody(dataOut);
+            lob.writeBody(session, dataOut);
 
             current = current.lobResults;
         }
@@ -1292,7 +1305,7 @@ public class Result {
         if (chainedResult == null) {
             dataOut.writeByte(ResultConstants.NONE);
         } else {
-            chainedResult.write(dataOut, rowOut);
+            chainedResult.write(session, dataOut, rowOut);
         }
 
         dataOut.flush();

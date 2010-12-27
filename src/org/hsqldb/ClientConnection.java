@@ -485,7 +485,7 @@ public class ClientConnection implements SessionInterface {
     }
 
     protected void write(Result r) throws IOException, HsqlException {
-        r.write(dataOutput, rowOut);
+        r.write(this, dataOutput, rowOut);
     }
 
     protected Result read() throws IOException, HsqlException {

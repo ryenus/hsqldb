@@ -922,18 +922,6 @@ public class LobManager {
         byte[] bytes = ((ResultLob) result).getByteArray();
         char[] chars = ArrayUtil.byteArrayToChars(bytes);
 
-/*
-        HsqlByteArrayInputStream be    = new HsqlByteArrayInputStream(bytes);
-        char[]                   chars = new char[bytes.length / 2];
-
-        try {
-            for (int i = 0; i < chars.length; i++) {
-                chars[i] = be.readChar();
-            }
-        } catch (Exception e) {
-            return Result.newErrorResult(e);
-        }
-*/
         return ResultLob.newLobGetCharsResponse(lobID, offset, chars);
     }
 
@@ -1197,7 +1185,7 @@ public class LobManager {
         return ResultLob.newLobSetResponse(lobID, writeLength);
     }
 
-    public Result setBytes(long lobID, byte[] dataBytes, long offset) {
+    public Result setBytes(long lobID, long offset, byte[] dataBytes) {
 
         if (dataBytes.length == 0) {
             return ResultLob.newLobSetResponse(lobID, 0);

@@ -113,6 +113,23 @@ public class TestJDBCGeneratedColumns extends TestBase {
             }
 
             ps.close();
+
+            ps = c.prepareStatement(s, new String[]{ "I", "C" });
+
+            ps.execute();
+
+            rs = ps.getGeneratedKeys();
+
+            while (rs.next()) {
+                System.out.println("" + rs.getInt(1));
+
+                successPrepared &= rs.getInt(1) == 37;
+                successPrepared &= rs.getBigDecimal(1).intValue() == 37;
+
+                successPrepared &= rs.getString(2).startsWith("TEST");
+            }
+
+            ps.close();
         } catch (Exception e) {
             System.out.print(e);
         }

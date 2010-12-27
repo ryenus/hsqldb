@@ -363,7 +363,7 @@ class WebServerConnection implements Runnable {
                         Error.error(ErrorCode.SERVER_DATABASE_DISCONNECTED));
                 } else {
                     resultIn.setSession(session);
-                    resultIn.readAdditionalResults(session, dataIn, rowIn);
+                    resultIn.readLobResults(session, dataIn, rowIn);
 
                     resultOut = session.execute(resultIn);
                 }
@@ -384,7 +384,7 @@ class WebServerConnection implements Runnable {
 
             dataOut.write(header.getBytes(ENCODING));
             dataOut.flush();
-            resultOut.write(dataOut, rowOut);
+            resultOut.write(session, dataOut, rowOut);
             dataOut.close();
         } catch (Exception e) {
             server.printStackTrace(e);

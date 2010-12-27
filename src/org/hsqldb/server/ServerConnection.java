@@ -294,7 +294,7 @@ class ServerConnection implements Runnable {
 
                     resultOut = setDatabase(resultIn);
 
-                    resultOut.write(dataOutput, rowOut);
+                    resultOut.write(session, dataOutput, rowOut);
                     break;
 
                 case ODBC_STREAM_PROTOCOL :
@@ -352,7 +352,7 @@ class ServerConnection implements Runnable {
         Result resultIn = Result.newResult(session, resultMode, dataInput,
                                            rowIn);
 
-        resultIn.readAdditionalResults(session, dataInput, rowIn);
+        resultIn.readLobResults(session, dataInput, rowIn);
         server.printRequest(mThread, resultIn);
 
         Result resultOut = null;
@@ -390,7 +390,7 @@ class ServerConnection implements Runnable {
             }
         }
 
-        resultOut.write(dataOutput, rowOut);
+        resultOut.write(session, dataOutput, rowOut);
         rowOut.setBuffer(mainBuffer);
         rowIn.resetRow(mainBuffer.length);
 
