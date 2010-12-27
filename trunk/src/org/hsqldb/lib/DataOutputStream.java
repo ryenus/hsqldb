@@ -130,7 +130,7 @@ public class DataOutputStream extends java.io.BufferedOutputStream {
 
         countStream.setCount(length);
 
-        byte[] data = new byte[128];
+        byte[] data = new byte[1024];
 
         while (true) {
             int count = countStream.read(data);

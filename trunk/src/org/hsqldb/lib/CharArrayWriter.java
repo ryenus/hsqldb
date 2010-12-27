@@ -47,6 +47,10 @@ public class CharArrayWriter {
     protected char[] buffer;
     protected int    count;
 
+    public CharArrayWriter(int size) {
+        this.buffer = new char[size];
+    }
+
     public CharArrayWriter(char[] buffer) {
         this.buffer = buffer;
     }
@@ -101,6 +105,24 @@ public class CharArrayWriter {
         buffer[count++] = (char) c;
     }
 
+    public int write(Reader reader, int length) throws IOException {
+
+        int left = length;
+
+        while (left > 0) {
+            int read = reader.read(buffer, count, left);
+
+            if (read == -1) {
+                break;
+            }
+
+            left  -= read;
+            count += read;
+        }
+
+        return length - left;
+    }
+
     void ensureRoom(int size) {
 
         if (size <= buffer.length) {
@@ -144,6 +166,10 @@ public class CharArrayWriter {
         System.arraycopy(buffer, 0, newBuffer, 0, count);
 
         return (char[]) newBuffer;
+    }
+
+    public char[] getBuffer() {
+        return buffer;
     }
 
     public int size() {

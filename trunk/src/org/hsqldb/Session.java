@@ -1837,8 +1837,8 @@ public class Session implements SessionInterface {
                     id, cmd.getOffset(), (int) cmd.getBlockLength());
             }
             case ResultLob.LobResultTypes.REQUEST_SET_BYTES : {
-                return database.lobManager.setBytes(id, cmd.getByteArray(),
-                                                    cmd.getOffset());
+                return database.lobManager.setBytes(id, cmd.getOffset(),
+                                                    cmd.getByteArray());
             }
             case ResultLob.LobResultTypes.REQUEST_GET_CHARS : {
                 return database.lobManager.getChars(

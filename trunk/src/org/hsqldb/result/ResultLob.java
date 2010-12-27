@@ -39,7 +39,9 @@ import java.io.Reader;
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
 import org.hsqldb.lib.DataOutputStream;
+import org.hsqldb.lib.HsqlByteArrayOutputStream;
 import org.hsqldb.rowio.RowOutputInterface;
+import org.hsqldb.*;
 
 /**
  * Sub-class of Result for communicating Blob and Clob operations.<p>
@@ -300,8 +302,7 @@ public final class ResultLob extends Result {
     }
 
     public static ResultLob newLob(DataInput dataInput,
-                                   boolean readTerminate)
-                                   throws IOException {
+                                   boolean readTerminate) throws IOException {
 
         ResultLob result = new ResultLob();
 
@@ -393,17 +394,42 @@ public final class ResultLob extends Result {
         return result;
     }
 
-    public void write(DataOutputStream dataOut,
-                      RowOutputInterface rowOut)
-                      throws IOException {
+    public void write(SessionInterface session, DataOutputStream dataOut,
+                      RowOutputInterface rowOut) throws IOException {
 
-        writeBody(dataOut);
+        writeBody(session, dataOut);
         dataOut.writeByte(ResultConstants.NONE);
         dataOut.flush();
     }
 
-    public void writeBody(DataOutputStream dataOut)
-    throws IOException {
+    public void writeBody(SessionInterface session,
+                          DataOutputStream dataOut) throws IOException {
+
+        switch (subType) {
+
+            case LobResultTypes.REQUEST_CREATE_BYTES :
+                if (blockLength >= 0) {
+                    writeCreate(session, dataOut);
+
+                    return;
+                }
+
+                writeCreateByteSegments(session, dataOut);
+
+                return;
+
+            case LobResultTypes.REQUEST_CREATE_CHARS : {
+                if (blockLength >= 0) {
+                    writeCreate(session, dataOut);
+
+                    return;
+                }
+
+                writeCreateCharSegments(session, dataOut);
+
+                return;
+            }
+        }
 
         dataOut.writeByte(mode);
         dataOut.writeInt(databaseID);
@@ -412,18 +438,6 @@ public final class ResultLob extends Result {
         dataOut.writeInt(subType);
 
         switch (subType) {
-
-            case LobResultTypes.REQUEST_CREATE_BYTES :
-                dataOut.writeLong(blockOffset);
-                dataOut.writeLong(blockLength);
-                dataOut.write(stream, blockLength);
-                break;
-
-            case LobResultTypes.REQUEST_CREATE_CHARS :
-                dataOut.writeLong(blockOffset);
-                dataOut.writeLong(blockLength);
-                dataOut.write(reader, blockLength);
-                break;
 
             case LobResultTypes.REQUEST_SET_BYTES :
             case LobResultTypes.REQUEST_GET_BYTE_PATTERN_POSITION :
@@ -479,6 +493,141 @@ public final class ResultLob extends Result {
 
             default :
                 throw Error.runtimeError(ErrorCode.U_S0500, "ResultLob");
+        }
+    }
+
+    private void writeCreate(SessionInterface session,
+                             DataOutputStream dataOut) throws IOException {
+
+        dataOut.writeByte(mode);
+        dataOut.writeInt(databaseID);
+        dataOut.writeLong(sessionID);
+        dataOut.writeLong(lobID);
+        dataOut.writeInt(subType);
+        dataOut.writeLong(blockOffset);
+        dataOut.writeLong(blockLength);
+
+        switch (subType) {
+
+            case LobResultTypes.REQUEST_CREATE_BYTES :
+                dataOut.write(stream, blockLength);
+                break;
+
+            case LobResultTypes.REQUEST_CREATE_CHARS :
+                dataOut.write(reader, blockLength);
+                break;
+        }
+    }
+
+    private void writeCreateByteSegments(SessionInterface session,
+                                         DataOutputStream dataOut)
+                                         throws IOException {
+
+        //
+        int  bufferLength  = session.getStreamBlockSize();
+        long currentOffset = blockOffset;
+
+        dataOut.writeByte(mode);
+        dataOut.writeInt(databaseID);
+        dataOut.writeLong(sessionID);
+        dataOut.writeLong(lobID);
+        dataOut.writeInt(subType);
+
+        HsqlByteArrayOutputStream byteArrayOS =
+            new HsqlByteArrayOutputStream(bufferLength);
+
+        byteArrayOS.reset();
+        byteArrayOS.write(stream, bufferLength);
+        dataOut.writeLong(currentOffset);
+        dataOut.writeLong(byteArrayOS.size());
+        dataOut.write(byteArrayOS.getBuffer(), 0, byteArrayOS.size());
+
+        currentOffset += byteArrayOS.size();
+
+        if (byteArrayOS.size() < bufferLength) {
+            return;
+        }
+
+        //
+        while (true) {
+            byteArrayOS.reset();
+            byteArrayOS.write(stream, bufferLength);
+
+            if (byteArrayOS.size() == 0) {
+                break;
+            }
+            //
+            dataOut.writeByte(mode);
+            dataOut.writeInt(databaseID);
+            dataOut.writeLong(sessionID);
+            dataOut.writeLong(lobID);
+            dataOut.writeInt(LobResultTypes.REQUEST_SET_BYTES);
+            dataOut.writeLong(currentOffset);
+            dataOut.writeLong(byteArrayOS.size());
+            dataOut.write(byteArrayOS.getBuffer(), 0, byteArrayOS.size());
+
+            currentOffset += byteArrayOS.size();
+
+            if (byteArrayOS.size() < bufferLength) {
+                break;
+            }
+        }
+    }
+
+    private void writeCreateCharSegments(SessionInterface session,
+                                         DataOutputStream dataOut)
+                                         throws IOException {
+
+        //
+        int  bufferLength  = session.getStreamBlockSize();
+        long currentOffset = blockOffset;
+
+        dataOut.writeByte(mode);
+        dataOut.writeInt(databaseID);
+        dataOut.writeLong(sessionID);
+        dataOut.writeLong(lobID);
+        dataOut.writeInt(subType);
+
+        HsqlByteArrayOutputStream byteArrayOS =
+            new HsqlByteArrayOutputStream(bufferLength);
+
+        byteArrayOS.reset();
+        byteArrayOS.write(reader, bufferLength / 2);
+
+        //
+        dataOut.writeLong(currentOffset);
+        dataOut.writeLong(byteArrayOS.size() / 2);
+        dataOut.write(byteArrayOS.getBuffer(), 0, byteArrayOS.size());
+
+        currentOffset += byteArrayOS.size() / 2;
+
+        if (byteArrayOS.size() < bufferLength) {
+            return;
+        }
+
+        //
+        while (true) {
+            byteArrayOS.reset();
+            byteArrayOS.write(reader, bufferLength / 2);
+
+            if (byteArrayOS.size() == 0) {
+                break;
+            }
+            //
+            dataOut.writeByte(mode);
+            dataOut.writeInt(databaseID);
+            dataOut.writeLong(sessionID);
+            dataOut.writeLong(lobID);
+            dataOut.writeInt(LobResultTypes.REQUEST_SET_CHARS);
+            dataOut.writeLong(currentOffset);
+            dataOut.writeLong(byteArrayOS.size() / 2);
+            dataOut.write(byteArrayOS.getBuffer(), 0, byteArrayOS.size());
+
+            currentOffset += byteArrayOS.size() / 2;
+
+            if (byteArrayOS.size() < bufferLength) {
+                break;
+            }
         }
     }
 

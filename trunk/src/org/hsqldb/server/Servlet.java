@@ -287,7 +287,7 @@ public class Servlet extends javax.servlet.http.HttpServlet {
 
                     session = DatabaseManager.getSession(dbId, sessionId);
 
-                    resultIn.readAdditionalResults(session, inStream, rowIn);
+                    resultIn.readLobResults(session, inStream, rowIn);
 
                     resultOut = session.execute(resultIn);
                 }
@@ -299,7 +299,7 @@ public class Servlet extends javax.servlet.http.HttpServlet {
                 //
                 dataOut = new DataOutputStream(response.getOutputStream());
 
-                resultOut.write(dataOut, rowOut);
+                resultOut.write(session, dataOut, rowOut);
 
                 iQueries++;
             } catch (HsqlException e) {}
