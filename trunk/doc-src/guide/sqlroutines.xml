@@ -1442,13 +1442,14 @@ String lastname = call.getString(3);
       procedures, using the JDBC CallableStatement interface.</para>
 
       <para>It is also possible to use a JDBC Statement or PreparedStatement
-      object to call a procedure if the procedure arguments are constant.
-      These objects should not be used as routine for calling
-      procedures.</para>
+      object to call a procedure if the procedure arguments are constant. If
+      the procedure returns one or more result sets, the
+      Statement#getMoreResults() method should be called before retrieving the
+      ResultSet.</para>
 
       <para>Java functions are called from JDBC similar to procedures. With
-      functions, the getMoreResuls() method should not be called at all.
-      </para>
+      functions, the getMoreResuls() method should not be called at
+      all.</para>
     </section>
 
     <section>
