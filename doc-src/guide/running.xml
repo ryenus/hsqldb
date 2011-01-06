@@ -630,6 +630,6 @@
     these properties on the URL or in the connection properties for the first
     connection that creates the database. See the <link
     endterm="dbproperties-title" xlink:arcrole=""
-    xlink:href="#deployment-chapt"></link> chapter.</para>
+    xlink:href="#dbproperties-chapt"></link> chapter.</para>
   </section>
 </chapter>
