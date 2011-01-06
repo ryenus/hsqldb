@@ -165,15 +165,18 @@
 
       <para>LOB data is not duplicated in the database when a lob is copied
       from one table to another. The disk space is reused when a LOB is
-      deleted and is not contained in any table.</para>
+      deleted and is no longer contained in any table.</para>
 
       <para>By using a dedicated LOB store, HyperSQL achieves consistently
       high speeds (usually over 20MB / s) for both storage and retrieval of
       LOBs.</para>
 
-      <para>The LOB catalog is stored in the database as a memory table.
-      Therefore the amount of JVM memory should be increased when more than
-      tens of thousands of LOBs are stored in the database.</para>
+      <para>By default, the internal LOB schema is stored in the database as
+      MEMORY tables. Therefore the amount of JVM memory should be increased
+      when more than tens of thousands of LOBs are stored in the database. If
+      your database contains more than a few hundreds of thousands of LOBs and
+      memory use becomes an issue, you can change one or all LOB schema tables
+      to CACHED tables. See the next section for details.</para>
     </section>
 
     <section>
@@ -373,14 +376,26 @@
 
       <para>Access to lobs is always performed in chunks, so it is perfectly
       possible to store and access a CLOB or BLOB that is larger than the JVM
-      memory allocation. Early versions of HyperSQL 2.0 use memory-based
-      tables for the lob catalog (not the data). Therefore it is practical to
-      store about 100,000 individual lobs in the database with the default JVM
+      memory allocation. The actual total size of lobs is almost unlimited. We
+      have tested with over 100 GB of lobs without any loss of performance.
+      </para>
+
+      <para>By default, HyperSQL 2.0 uses memory-based tables for the lob
+      schema (not the actual lob data). Therefore it is practical to store
+      about 100,000 individual lobs in the database with the default JVM
       memory allocation. More lobs can be stored with larger JVM memory
-      allocations. The realistic maximum number of lobs stored in the database
-      is probably about a million. The actual total size of lobs is almost
-      unlimited. We have tested with over 100 GB of lobs without any loss of
-      performance.</para>
+      allocations. In order to store more than a few hundreds of thousands of
+      lobs, you can change the lob schema storage to CACHED tables with the
+      following statements:</para>
+
+      <example>
+        <title>Using CACHED tables for the LOB schema</title>
+
+        <screen>  SET TABLE SYSTEM_LOBS.BLOCKS TYPE CACHED
+  SET TABLE SYSTEM_LOBS.LOBS TYPE CACHED
+  SET TABLE SYSTEM_LOBS.LOB_IDS TYPE CACHED
+</screen>
+      </example>
     </section>
 
     <section>
