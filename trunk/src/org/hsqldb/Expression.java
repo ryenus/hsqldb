@@ -807,8 +807,8 @@ public class Expression implements Cloneable {
         nodes[RIGHT] = e;
     }
 
-    void setSubType(int i) {
-        exprSubType = i;
+    void setSubType(int subType) {
+        exprSubType = subType;
     }
 
     /**

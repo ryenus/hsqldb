@@ -289,7 +289,7 @@ public final class ExpressionLike extends ExpressionLogical {
 
             equ = new ExpressionLogical(OpTypes.GREATER_EQUAL, nodes[LEFT],
                                         prefix, equ);
-            equ.exprSubType = OpTypes.LIKE;
+            equ.setSubType(OpTypes.LIKE);
             nodes           = new Expression[BINARY];
             likeObject      = null;
             nodes[LEFT]     = equ;

@@ -509,6 +509,22 @@ public class ArrayUtil {
         return k;
     }
 
+    public static int countCommonElements(Object[] arra, int alen,
+                                          Object[] arrb) {
+
+        int k = 0;
+
+        for (int i = 0; i < alen; i++) {
+            for (int j = 0; j < arrb.length; j++) {
+                if (arra[i] == arrb[j]) {
+                    k++;
+                }
+            }
+        }
+
+        return k;
+    }
+
     /**
      * Returns the count of elements in arra from position start that are
      * sequentially equal to the elements of arrb.

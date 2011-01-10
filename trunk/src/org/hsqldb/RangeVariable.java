@@ -942,6 +942,9 @@ public class RangeVariable implements Cloneable {
             currentData        = rangeVar.emptyData;
             isBeforeFirst      = true;
 
+            whereConditions = rangeVar.whereConditions;
+            joinConditions  = rangeVar.joinConditions;
+
             if (rangeVar.isRightJoin) {
                 lookup = new OrderedIntHashSet();
             }
@@ -951,9 +954,6 @@ public class RangeVariable implements Cloneable {
             if (rangeVar.whereConditions[0].hasIndexCondition()) {
                 conditions = rangeVar.whereConditions;
             }
-
-            whereConditions = rangeVar.whereConditions;
-            joinConditions  = rangeVar.joinConditions;
         }
 
         public boolean isBeforeFirst() {
