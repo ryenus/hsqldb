@@ -1068,7 +1068,7 @@ public class ParserDQL extends ParserBase {
         select.addRangeVariable(range);
 
         while (true) {
-            int     type  = token.tokenType;
+            int     type;
             boolean left  = false;
             boolean right = false;
             boolean end   = false;

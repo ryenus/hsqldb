@@ -36,12 +36,12 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.Reader;
 
+import org.hsqldb.SessionInterface;
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
 import org.hsqldb.lib.DataOutputStream;
 import org.hsqldb.lib.HsqlByteArrayOutputStream;
 import org.hsqldb.rowio.RowOutputInterface;
-import org.hsqldb.*;
 
 /**
  * Sub-class of Result for communicating Blob and Clob operations.<p>
