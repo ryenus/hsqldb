@@ -1281,8 +1281,7 @@ public class Session implements SessionInterface {
             try {
                 latch.await();
             } catch (InterruptedException e) {
-
-                // System.out.println("interrupted");
+                abortTransaction = true;
             }
 
             if (abortTransaction) {
@@ -1318,9 +1317,7 @@ public class Session implements SessionInterface {
                 try {
                     latch.await();
                 } catch (InterruptedException e) {
-
-                    //
-                    System.out.println("interrupted");
+                    abortTransaction = true;
                 }
             } else {
                 break;

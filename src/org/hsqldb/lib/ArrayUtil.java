@@ -502,6 +502,7 @@ public class ArrayUtil {
             for (int j = 0; j < arrb.length; j++) {
                 if (arra[i] == arrb[j]) {
                     k++;
+                    break;
                 }
             }
         }
@@ -518,6 +519,7 @@ public class ArrayUtil {
             for (int j = 0; j < arrb.length; j++) {
                 if (arra[i] == arrb[j]) {
                     k++;
+                    break;
                 }
             }
         }

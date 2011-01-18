@@ -1595,10 +1595,10 @@ public final class DateTimeType extends DTIType {
                 }
 
                 months += years * 12;
+            }
 
-                if (negate) {
-                    months = -months;
-                }
+            if (negate) {
+                months = -months;
             }
 
             return months;
