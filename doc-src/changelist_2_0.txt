@@ -1,4 +1,4 @@
-10 Jan 2011
+10 Jan 2011 - SVN 3971
 -- fixed minor query bug
 23 Dec 2010 
 -- added MEDIAN aggregate function

@@ -1424,7 +1424,35 @@ ARRAY (SELECT lastname FROM namestable ORDER BY id)
 </programlisting>
       </informalexample>
 
-      <para></para>
+      <para>Inserting and updating a table with an ARRAY column can use array
+      constructors, not only for updated column values, but also in equality
+      search conditions:</para>
+
+      <informalexample>
+        <programlisting>INSERT INTO t VALUES 10, ARRAY[1,2,3], ARRAY['HOT', 'COLD']
+UPDATE t SET names = ARRAY['LARGE', 'SMALL'] WHERE id = 12
+UPDATE t SET names = ARRAY['LARGE', 'SMALL'] WHERE id &lt; 12 AND scores = ARRAY[3,4]
+</programlisting>
+
+        <para>When using a PreparedStatement with an ARRAY parameter, an
+        object of the type java.sql.Array must be used to set the parameter.
+        The org.hsqldb.jdbc.JDBCArrayBasic class can be used for constructing
+        a java.sql.Array object in the user's application. Code fragment
+        below:</para>
+
+        <informalexample>
+          <programlisting>    String sql = "UPDATE t SET names = ? WHERE id = ?";
+    PreparedStatement ps = connection.prepareStatement(sql)
+    Object[] data = new Object[]{"one", "two"};
+    // default types defined in org.hsqldb.types.Type can be used
+    org.hsqldb.types.Type type = org.hsqldb.types.Type.SQL_VARCHAR_DEFAULT;
+    JDBCArrayBasic array = new JDBCArrayBasic(data, type);
+    ps.setArray(1, array);
+    ps.setInt(2, 1000);
+    ps.executeUpdate();
+</programlisting>
+        </informalexample>
+      </informalexample>
     </section>
 
     <section>
@@ -1513,10 +1541,10 @@ UPDATE t SET scores[2] = 123, names[2] = 'Reds' WHERE id = 10
       <literal>&lt;array value expression&gt;</literal> can be any expression
       that evaluates to an array.</para>
 
-      <para><literal>SORT_ARRAY &lt;left paren&gt; &lt;array value
+      <para><literal>ARRAY_SORT &lt;left paren&gt; &lt;array value
       expression&gt; &lt;right paren&gt;</literal></para>
 
-      <para>The SORT_ARRAY function returns a sorted copy of an array. NULL
+      <para>The ARRAY_SORT function returns a sorted copy of an array. NULL
       elements apprear at the beginning of the new array. This function is a
       HyperSQL extension and not part of the SQL Standard.</para>
 

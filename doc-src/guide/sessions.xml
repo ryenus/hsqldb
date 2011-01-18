@@ -324,25 +324,35 @@
       <para>In the MVCC model, there are no shared, read locks. Exclusive
       locks are used on individual rows, but their use is different.
       Transactions can read and modify the same table simultaneously,
-      generally without waiting for other transactions.</para>
+      generally without waiting for other transactions. The SQL Standard
+      isolation levels are used by the user's application, but these isolation
+      levels are translated to the MVCC isolation levels READ CONSISTENCY or
+      SNAPSHOT ISOLATION.</para>
 
       <para>When transactions are running at READ COMMITTED level, no conflict
       will normally occur. If a transaction that runs at this level wants to
       modify a row that has been modified by another uncommitted transaction,
       then the engine puts the transaction in wait, until the other
       transaction has committed. The transaction then continues automatically.
-      (Conflict is possible if each transaction is waiting for a different row
-      modified by the other transaction, in which case, one of the
-      transactions is immediately terminated). This isolation level is called
-      READ CONSISTENCY.</para>
+      This isolation level is called READ CONSISTENCY.</para>
+
+      <para>Conflict is possible if each transaction is waiting for a
+      different row modified by the other transaction. In this case, one of
+      the transactions is immediately terminated unless the connection
+      property hsqldb.tx_deadlock_rollback=false has been set.</para>
 
       <para>When transactions are running in REPEATABLE READ or SERIALIZABLE
       isolation levels, conflict is more likely to happen. There is no
-      difference in operation between these two isolation levels. If a
-      transaction that runs at these levels wants to modify a row that has
-      been modified by another uncommitted transaction, the engine will
-      invalidate the current transaction and roll back all its changes. This
+      difference in operation between these two isolation levels. This
       isolation level is called SNAPSHOT ISOLATION.</para>
+
+      <para>When the duration of two transactions overlaps, if one of the
+      transactions has modified a row and the second transaction wants to
+      modify the same row, the action of the second transaction will fail. The
+      engine will invalidate the second transaction and roll back all its
+      changes. The default behaviour can be changed for the whole database if
+      the connection property hsqldb.tx_deadlock_rollback=false has been
+      set.</para>
 
       <para>In the MVCC model, READ UNCOMMITTED is promoted to READ COMMITTED,
       as the new architecture is based on multi-version rows for uncommitted
