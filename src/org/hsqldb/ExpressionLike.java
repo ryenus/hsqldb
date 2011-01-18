@@ -117,7 +117,7 @@ public final class ExpressionLike extends ExpressionLogical {
 
     public void resolveTypes(Session session, Expression parent) {
 
-        if (nodes.length < ESCAPE + 1) {
+        if (opType != OpTypes.LIKE) {
             return;
         }
 
