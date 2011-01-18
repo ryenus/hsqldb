@@ -1436,9 +1436,9 @@ UPDATE t SET names = ARRAY['LARGE', 'SMALL'] WHERE id &lt; 12 AND scores = ARRAY
 
         <para>When using a PreparedStatement with an ARRAY parameter, an
         object of the type java.sql.Array must be used to set the parameter.
-        The org.hsqldb.jdbc.JDBCArrayBasic class can be used for constructing
-        a java.sql.Array object in the user's application. Code fragment
-        below:</para>
+        The <classname>org.hsqldb.jdbc.JDBCArrayBasic</classname> class can be
+        used for constructing a java.sql.Array object in the user's
+        application. Code fragment below:</para>
 
         <informalexample>
           <programlisting>    String sql = "UPDATE t SET names = ? WHERE id = ?";
