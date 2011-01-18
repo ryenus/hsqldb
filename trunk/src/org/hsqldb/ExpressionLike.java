@@ -117,6 +117,10 @@ public final class ExpressionLike extends ExpressionLogical {
 
     public void resolveTypes(Session session, Expression parent) {
 
+        if (nodes.length < ESCAPE + 1) {
+            return;
+        }
+
         for (int i = 0; i < nodes.length; i++) {
             if (nodes[i] != null) {
                 nodes[i].resolveTypes(session, this);
@@ -289,12 +293,14 @@ public final class ExpressionLike extends ExpressionLogical {
 
             equ = new ExpressionLogical(OpTypes.GREATER_EQUAL, nodes[LEFT],
                                         prefix, equ);
+
             equ.setSubType(OpTypes.LIKE);
-            nodes           = new Expression[BINARY];
-            likeObject      = null;
-            nodes[LEFT]     = equ;
-            nodes[RIGHT]    = newLike;
-            opType          = OpTypes.AND;
+
+            nodes        = new Expression[BINARY];
+            likeObject   = null;
+            nodes[LEFT]  = equ;
+            nodes[RIGHT] = newLike;
+            opType       = OpTypes.AND;
         }
     }
 

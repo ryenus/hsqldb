@@ -233,7 +233,7 @@ final class DataFileDefrag {
         PersistentStore    store  = table.getRowStore(session);
         RowOutputInterface rowOut = cache.rowOut.duplicate();
         DoubleIntIndex pointerLookup =
-            new DoubleIntIndex(store.elementCount(session), false);
+            new DoubleIntIndex(store.elementCount(), false);
         int[] rootsArray = table.getIndexRootsArray();
         long  pos        = fileOffset;
         int   count      = 0;

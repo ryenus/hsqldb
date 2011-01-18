@@ -474,6 +474,9 @@ public class ExpressionOp extends Expression {
                 }
                 break;
 
+            case OpTypes.PREFIX :
+                break;
+
             default :
                 throw Error.runtimeError(ErrorCode.U_S0500, "ExpressionOp");
         }

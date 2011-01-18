@@ -36,10 +36,10 @@ import java.util.concurrent.CountDownLatch;
 public class CountUpDownLatch {
 
     CountDownLatch latch;
-    int            count;
+    volatile int   count;
 
     public CountUpDownLatch() {
-        latch      = new CountDownLatch(1);
+        latch = new CountDownLatch(1);
     }
 
     public void await() throws InterruptedException {

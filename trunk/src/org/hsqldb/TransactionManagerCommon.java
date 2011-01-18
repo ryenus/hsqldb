@@ -523,6 +523,8 @@ class TransactionManagerCommon {
         }
 
         session.waitingSessions.clear();
+        session.waitedSessions.clear();
+        session.latch.setCount(0);
     }
 
     void resetLatchesMidTransaction(Session session) {

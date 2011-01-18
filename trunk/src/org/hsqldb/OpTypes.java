@@ -33,7 +33,8 @@ package org.hsqldb;
 
 public interface OpTypes {
 
-    int VALUE                = 1,     // constant value
+    int NONE                 = 0,
+        VALUE                = 1,     // constant value
         COLUMN               = 2,     // references
         COALESCE             = 3,
         DEFAULT              = 4,
