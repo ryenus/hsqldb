@@ -89,7 +89,7 @@ public class JDBCResultSetMetaDataTest extends BaseJdbcTestCase {
                "c_varchar_ignorecase as varchar_ignorecase_column, " +
                "c_blob          as blob_column, " +
                "c_clob          as clob_column, " +
-               "c_array         as array_column " +               
+               "c_array         as array_column " +
           "from all_types";
 
     protected JDBCResultSetMetaData newJdbcResultSetMetaData() throws Exception {
@@ -156,6 +156,8 @@ public class JDBCResultSetMetaDataTest extends BaseJdbcTestCase {
         for (int i = 1; i <= columnCount; i++) {
             switch(i) {
                 case 13 : // object
+                case 22 : // blob
+                case 23 : // clob
                 //case 24 : // array
                 {
                     assertEquals("column: " + i, false,  rsmd.isSearchable(i));

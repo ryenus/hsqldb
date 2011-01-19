@@ -46,7 +46,7 @@ public class DatabaseURLTest extends junit.framework.TestCase {
         DatabaseURL.parseURL("JDBC:hsqldb:HSQL://localhost:9000/mydb", true,
                              false);
         DatabaseURL.parseURL(
-            "JDBC:hsqldb:Http://localhost:8080/servlet/org.hsqldb.Servlet/mydb;ifexists=true",
+            "JDBC:hsqldb:Http://localhost:8080/servlet/org.hsqldb.Servlet/mydb;get_column_names=true",
             true, false);
         DatabaseURL.parseURL(
             "JDBC:hsqldb:Http://localhost/servlet/org.hsqldb.Servlet/", true,
@@ -60,6 +60,13 @@ public class DatabaseURLTest extends junit.framework.TestCase {
         assertEquals(props.getProperty("hsqldb.crypt_provider"),
                      "org.crypt.Provider");
         assertEquals(props.getProperty("database"), "//com.anorg.APath");
+
+        System.setProperty("mypath", "/opt/mydir");
+        props = DatabaseURL.parseURL(
+            "jdbc:hsqldb:file:${ mypath}/mydata",
+            true, false);
+
+        assertEquals("/opt/mydir/mydata", props.getProperty("database"));
     }
 
     /**
