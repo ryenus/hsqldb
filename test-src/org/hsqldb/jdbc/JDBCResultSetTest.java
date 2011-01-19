@@ -2703,6 +2703,7 @@ public class JDBCResultSetTest extends BaseJdbcTestCase {
             rs.updateBlob("c_blob", blob.getBinaryStream());
             rs.updateBlob("c_blob", blob.getBinaryStream(),1);
             rs.updateBlob("c_blob", blob);
+            rs.updateRow();
 
         } catch (Exception e) {
             fail(e.getMessage());
@@ -2734,6 +2735,7 @@ public class JDBCResultSetTest extends BaseJdbcTestCase {
             reader = new StringReader("Clob");
 
             rs.updateClob("clob_column", reader, "Clob".length());
+            rs.updateRow();
         } catch (Exception e) {
             fail(e.getMessage());
         }
@@ -2910,6 +2912,7 @@ public class JDBCResultSetTest extends BaseJdbcTestCase {
             reader = new StringReader("NClob");
 
             rs.updateNClob("clob_column", reader, "NClob".length());
+            rs.updateRow();
 
         } catch (Exception e) {
             fail(e.getMessage());

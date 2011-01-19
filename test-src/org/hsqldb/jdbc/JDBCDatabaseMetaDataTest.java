@@ -75,44 +75,44 @@ public class JDBCDatabaseMetaDataTest extends BaseJdbcTestCase {
 
     protected int getExpectedDriverMinorVersion(){
         return getIntProperty(
-                "driver.minor.version",
+                "dbmd.driver.minor.version",
                 DefaultDriverMinorVersion);
     }
 
     protected String getExpectedDriverName() {
         return getProperty(
-                "driver.name",
+                "dbmd.driver.name",
                 DefaultDriverName);
     }
 
     protected String getExpectedDriverVersion() {
         return getProperty(
-                "driver.version",
+                "dbmd.driver.version",
                 DefaultDriverVersion);
     }
 
     protected int getExpectedDatabaseMajorVersion() {
         return getIntProperty(
-                "database.major.version",
+                "dbmd.database.major.version",
                 DefaultDatabaseMajorVersion);
     }
 
     protected int getExpectedDatabaseMinorVersion() {
         return getIntProperty(
-                "database.minor.version",
+                "dbmd.database.minor.version",
                 DefaultDatabaseMinorVersion);
     }
 
     protected String getExpectedDatabaseProductName() {
         return getProperty(
-                "database.product.name",
+                "dbmd.database.product.name",
                 DefaultDatabaseProductName);
     }
 
     protected String getExpectedDatabaseProductVersion()
     {
         return getProperty(
-                "database.product.version",
+                "dbmd.database.product.version",
                 DefaultDatabaseProductVersion);
     }
 

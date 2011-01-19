@@ -45,27 +45,27 @@ import org.hsqldb.resources.BundleHandler;
  * 2-character class value followed by a 3-character subclass value, each
  * with an implementation-defined character set that has a one-octet character
  * encoding form and is restricted to *lt;digit&gt;s and &lt;simple Latin upper
- * case letter&gt;s. 5CD2-02-Foundation-2006-01, Subclause 24.1, â€œSQLSTATEâ€?,
- * Table 33, â€œSQLSTATE class and subclass valuesâ€?, specifies the class value for
+ * case letter&gt;s. 5CD2-02-Foundation-2006-01, Subclause 24.1, “SQLSTATE”,
+ * Table 33, “SQLSTATE class and subclass values”, specifies the class value for
  * each condition and the subclass value or values for each class value.<p>
  *
  * Table 33 is modified by:<p>
  *
  * <ul>
- * <li>Table 3, â€œSQLSTATE class and subclass valuesâ€? in Subclause 20.1,
- *     â€œSQLSTATEâ€?, of 6WD2-04-PSM-2007-12 (ISO/IEC 9075-4).<p>
+ * <li>Table 3, “SQLSTATE class and subclass values” in Subclause 20.1,
+ *     “SQLSTATE”, of 6WD2-04-PSM-2007-12 (ISO/IEC 9075-4).<p>
  * </li>
- * <li>Table 37, â€œSQLSTATE class and subclass valuesâ€? in Subclause 26.1,
- *     â€œSQLSTATEâ€?, of 6WD2-09-MED-2007-12 (ISO/IEC 9075-09).<p>
+ * <li>Table 37, “SQLSTATE class and subclass values” in Subclause 26.1,
+ *     “SQLSTATE”, of 6WD2-09-MED-2007-12 (ISO/IEC 9075-09).<p>
  * </li>
- * <li>Table 21, â€œSQLSTATE class and subclass valuesâ€? in Subclause 15.1,
- *     â€œSQLSTATEâ€?, of 6WD2-10-MED-2007-12 (ISO/IEC 9075-10).<p>
+ * <li>Table 21, “SQLSTATE class and subclass values” in Subclause 15.1,
+ *     “SQLSTATE”, of 6WD2-10-MED-2007-12 (ISO/IEC 9075-10).<p>
  * </li>
- * <li>Table 2, â€œSQLSTATE class and subclass valuesâ€? in Subclause 15.1,
- *     â€œSQLSTATEâ€?, of 6WD2-13-JRT-2007-12 (ISO/IEC 9075-13).<p>
+ * <li>Table 2, “SQLSTATE class and subclass values” in Subclause 15.1,
+ *     “SQLSTATE”, of 6WD2-13-JRT-2007-12 (ISO/IEC 9075-13).<p>
  * </li>
- * <li>Table 14, â€œSQLSTATE class and subclass valuesâ€? in Subclause 23.1,
- *     â€œSQLSTATEâ€?, of 6WD2-14-XML-2007-12 (ISO/IEC 9075-14).
+ * <li>Table 14, “SQLSTATE class and subclass values” in Subclause 23.1,
+ *     “SQLSTATE”, of 6WD2-14-XML-2007-12 (ISO/IEC 9075-14).
  * </li>
  * </ul><p>
  *
@@ -108,7 +108,7 @@ import org.hsqldb.resources.BundleHandler;
  * including implementation-defined exception conditions, are raised, then it
  * is implementation-dependent which of the corresponding SQLSTATE values is
  * returned in the SQLSTATE status parameter, provided that the precedence
- * rules in 6WD2-02-Foundation-2007-12, Subclause 4.29.2, â€œStatus parametersâ€?,
+ * rules in 6WD2-02-Foundation-2007-12, Subclause 4.29.2, “Status parameters”,
  * are obeyed. Any number of applicable conditions values in addition to the
  * one returned in the SQLSTATE status parameter, may be returned in the
  * diagnostics area. <p>
@@ -122,16 +122,16 @@ import org.hsqldb.resources.BundleHandler;
  * The {@link #Category} value has the following meanings:
  *
  * <ul>
- * <li>â€œSâ€? denotes the {@link #Class} value corresponds to successful
+ * <li>“S” denotes the {@link #Class} value corresponds to successful
  *     completion and is a completion condition;<p>
  * </li>
- * <li>â€œWâ€? denotes the {@link #Class} value corresponds to a successful
+ * <li>“W” denotes the {@link #Class} value corresponds to a successful
  *     completion but with a warning and is a completion condition;<p>
  * </li>
- * <li>â€œNâ€? denotes the {@link #Class} value corresponds to a no-data situation
+ * <li>“N” denotes the {@link #Class} value corresponds to a no-data situation
  *     and is a completion condition;</p>
  * </li>
- * <li>â€œXâ€? denotes the {@link #Class} value corresponds to an exception
+ * <li>“X” denotes the {@link #Class} value corresponds to an exception
  *     condition.
  * </li>
  * </ul>
@@ -145,32 +145,32 @@ public abstract class SqlState implements Serializable {
      * Has the following meanings:
      *
      * <ul>
-     * <li>â€œSâ€? denotes the {@link #Class} value corresponds to successful 
+     * <li>“S” denotes the {@link #Class} value corresponds to successful 
      *     completion and is a completion condition;<p>
      * </li>
-     * <li>â€œWâ€? denotes the {@link #Class} value corresponds to a successful
+     * <li>“W” denotes the {@link #Class} value corresponds to a successful
      *     completion but with a warning and is a completion condition;<p>
      * </li>
-     * <li>â€œNâ€? denotes the {@link #Class} value corresponds to a no-data 
+     * <li>“N” denotes the {@link #Class} value corresponds to a no-data 
      *     situation and is a completion condition;</p>
      * </li>
-     * <li>â€œXâ€? denotes the {@link #Class} value corresponds to an exception
+     * <li>“X” denotes the {@link #Class} value corresponds to an exception
      *     condition.</li>
      * </ul>
      */
     public transient final char Category;
     /**
-     * As defined in the â€œConditionâ€? column of 6WD2-02-Foundation-2007-12,
-     * Subclause 24.1, â€œSQLSTATEâ€?, Table 33, â€œSQLSTATE class and subclass
-     * valuesâ€? or modifications thereof.<p>
+     * As defined in the “Condition” column of 6WD2-02-Foundation-2007-12,
+     * Subclause 24.1, “SQLSTATE”, Table 33, “SQLSTATE class and subclass
+     * values” or modifications thereof.<p>
      *
      * May be a localized version.
      */
     public transient final String Condition;
     /**
-     * As defined in the â€œClassâ€? column of 6WD2-02-Foundation-2007-12,
-     * Subclause 24.1, â€œSQLSTATEâ€?, Table 33, â€œSQLSTATE class and subclass
-     * valuesâ€? or modifications thereof.<p>
+     * As defined in the “Class” column of 6WD2-02-Foundation-2007-12,
+     * Subclause 24.1, “SQLSTATE”, Table 33, “SQLSTATE class and subclass
+     * values” or modifications thereof.<p>
      */
     public transient final String Class;
     /**
@@ -189,17 +189,17 @@ public abstract class SqlState implements Serializable {
      */
     public transient final boolean ClassIsImplemenationDefined;
     /**
-     * As defined in the â€œSubconditionâ€? column of 5CD2-02-Foundation-2006-01,
-     * Subclause 24.1, â€œSQLSTATEâ€?, Table 33, â€œSQLSTATE class and subclass
-     * valuesâ€? or modifications thereof.<p>
+     * As defined in the “Subcondition” column of 5CD2-02-Foundation-2006-01,
+     * Subclause 24.1, “SQLSTATE”, Table 33, “SQLSTATE class and subclass
+     * values” or modifications thereof.<p>
      *
      * May be a localized version.
      */
     public transient final String Subcondition;
     /**
-     * As defined in the â€œSubclassâ€? column of 5CD2-02-Foundation-2006-01,
-     * Subclause 24.1, â€œSQLSTATEâ€?, Table 33, â€œSQLSTATE class and subclass
-     * valuesâ€? or modifications thereof.<p>
+     * As defined in the “Subclass” column of 5CD2-02-Foundation-2006-01,
+     * Subclause 24.1, “SQLSTATE”, Table 33, “SQLSTATE class and subclass
+     * values” or modifications thereof.<p>
      */
     public final String Subclass;
     /**
