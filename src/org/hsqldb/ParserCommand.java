@@ -332,9 +332,12 @@ public class ParserCommand extends ParserDDL {
         userName = token.tokenString;
 
         read();
-        readThis(Tokens.PASSWORD);
 
-        password = readPassword();
+        if (!session.isProcessingLog) {
+            readThis(Tokens.PASSWORD);
+
+            password = readPassword();
+        }
 
         Expression[] args = new Expression[] {
             new ExpressionValue(userName, Type.SQL_VARCHAR),

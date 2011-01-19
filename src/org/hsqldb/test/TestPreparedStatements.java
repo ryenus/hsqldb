@@ -36,6 +36,7 @@ import java.sql.PreparedStatement;
 import java.sql.Statement;
 
 import junit.framework.TestCase;
+
 import java.sql.ResultSet;
 
 /**
@@ -60,7 +61,8 @@ public class TestPreparedStatements extends TestCase {
     }
 
     private sqlStmt[] stmtArray = {
-        new sqlStmt("drop table public.dttest if exists cascade", false, false),
+        new sqlStmt("drop table public.dttest if exists cascade", false,
+                    false),
         new sqlStmt(
             "create cached table dttest(adate date not null, "
             + "atime time not null,bg int, primary key(adate,atime))", false,
@@ -74,9 +76,8 @@ public class TestPreparedStatements extends TestCase {
         new sqlStmt(
             "insert into dttest values(current_date - 7 day, current_time - 4 hour, 3)",
             false, true),
-        new sqlStmt(
-            "insert into dttest values(current_date, '12:44:31', 4)",
-            false, true),
+        new sqlStmt("insert into dttest values(current_date, '12:44:31', 4)",
+                    false, true),
         new sqlStmt(
             "insert into dttest values(current_date + 3 day, current_time - 12 hour, 5)",
             false, true),
@@ -86,10 +87,12 @@ public class TestPreparedStatements extends TestCase {
         new sqlStmt(
             "select atime adate from dttest where atime =  ? and adate = ?",
             true, false),
+        new sqlStmt("script", true, false),
     };
     private Object[][] stmtArgs = {
-        {}, {}, {}, {}, {}, {}, {}, {},
-        new Object[]{  "12:44:31", new java.sql.Date(System.currentTimeMillis()) }
+        {}, {}, {}, {}, {}, {}, {}, {}, new Object[] {
+            "12:44:31", new java.sql.Date(System.currentTimeMillis())
+        }, {}
     };
 
     public TestPreparedStatements(String name) {
@@ -143,16 +146,19 @@ public class TestPreparedStatements extends TestCase {
                         System.out.println(" ***** ps.executeUpdate gave me "
                                            + r);
                     } else {
-                        boolean b = ps.execute();
-                        int count = 0;
-                        if (b) {
+                        boolean b     = ps.execute();
+                        int     count = 0;
 
+                        if (b) {
                             ResultSet rs = ps.getResultSet();
-                            while(rs.next()) {
+
+                            while (rs.next()) {
                                 count++;
                             }
-                            System.out.print(" ***** ps.execute returned result row count " + count);
 
+                            System.out.print(
+                                " ***** ps.execute returned result row count "
+                                + count);
                         } else {
                             System.out.print(" ***** ps.execute gave me " + b);
                         }
@@ -169,7 +175,7 @@ public class TestPreparedStatements extends TestCase {
             }
         } catch (Exception e) {
             System.out.println(" ?? Caught Exception " + e);
-            assertTrue(false);
+            super.fail();
         }
 
         assertTrue(true);

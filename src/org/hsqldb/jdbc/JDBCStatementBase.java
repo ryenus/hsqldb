@@ -240,6 +240,7 @@ class JDBCStatementBase {
             currentResultSet.close();
         }
 
+        currentResultSet = null;
 
         if (resultIn != null) {
             currentResultSet = new JDBCResultSet(connection,
@@ -285,6 +286,7 @@ class JDBCStatementBase {
         generatedResultSet = null;
         generatedResult    = null;
         resultIn           = null;
+        currentResultSet   = null;
     }
 
     /**

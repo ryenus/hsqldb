@@ -165,6 +165,8 @@ public class Logger {
         String fileaccess_class_name =
             (String) database.getURLProperties().getProperty(
                 HsqlDatabaseProperties.url_fileaccess_class_name);
+        boolean hasFileProps = false;
+        boolean hasScript    = false;
 
         if (fileaccess_class_name != null) {
             String storagekey = database.getURLProperties().getProperty(
@@ -197,17 +199,27 @@ public class Logger {
         database.databaseProperties = new HsqlDatabaseProperties(database);
 
         if (propIsFileDatabase) {
-            boolean exists = fileAccess.isStreamElement(database.getPath()
-                + scriptFileExtension);
+            hasFileProps = database.databaseProperties.load();
+            hasScript = fileAccess.isStreamElement(database.getPath()
+                                                   + scriptFileExtension);
 
-            if (!exists) {
-                exists = fileAccess.isStreamElement(database.getPath()
-                                                    + scriptFileExtension
-                                                    + Logger.newFileExtension);
+            boolean exists;
 
-                if (exists) {
-                    database.databaseProperties.setDBModified(
-                        HsqlDatabaseProperties.FILES_MODIFIED_NEW);
+            if (database.databaseProperties.isVersion18()) {
+                exists = hasFileProps;
+            } else {
+                exists = hasScript;
+
+                if (!exists) {
+                    exists =
+                        fileAccess.isStreamElement(database.getPath()
+                                                   + scriptFileExtension
+                                                   + Logger.newFileExtension);
+
+                    if (exists) {
+                        database.databaseProperties.setDBModified(
+                            HsqlDatabaseProperties.FILES_MODIFIED_NEW);
+                    }
                 }
             }
 
@@ -221,13 +233,14 @@ public class Logger {
 
             database.setUniqueName(name);
 
-            boolean checkExists =
-                database
-                    .isFilesInJar() || (database.urlProperties
-                        .isPropertyTrue(HsqlDatabaseProperties
-                            .url_ifexists) || !database.urlProperties
-                                .isPropertyTrue(HsqlDatabaseProperties
-                                    .url_create, true));
+            boolean checkExists = database.isFilesInJar();
+
+            checkExists |=
+                (database.urlProperties
+                    .isPropertyTrue(HsqlDatabaseProperties
+                        .url_ifexists) || !database.urlProperties
+                            .isPropertyTrue(HsqlDatabaseProperties
+                                .url_create, true));
 
             if (checkExists) {
                 throw Error.error(ErrorCode.DATABASE_NOT_EXISTS,
@@ -237,9 +250,7 @@ public class Logger {
             database.databaseProperties.setURLProperties(
                 database.urlProperties);
         } else {
-            boolean props = database.databaseProperties.load();
-
-            if (!props) {
+            if (!hasFileProps) {
                 database.databaseProperties.setDBModified(
                     HsqlDatabaseProperties.FILES_MODIFIED);
             }
@@ -284,14 +295,22 @@ public class Logger {
             acquireLock(database.getPath());
         }
 
+        boolean version18 = database.databaseProperties.isVersion18();
+
+        if (version18) {
+            database.setUniqueName(newUniqueName());
+
+            if (!hasScript) {
+                database.schemaManager.createPublicSchema();
+            }
+        }
+
         log = new Log(database);
 
         log.open();
 
         logsStatements = true;
         loggingEnabled = propLogData && !database.isFilesReadOnly();
-
-        boolean version18 = database.databaseProperties.isVersion18();
 
         if (version18) {
             HsqlName name = database.schemaManager.findSchemaHsqlName(
@@ -301,7 +320,6 @@ public class Logger {
                 database.schemaManager.setDefaultSchemaHsqlName(name);
             }
 
-            database.setUniqueName(newUniqueName());
             checkpoint(false);
         }
 

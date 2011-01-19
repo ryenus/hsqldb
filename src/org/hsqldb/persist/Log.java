@@ -53,6 +53,9 @@ import org.hsqldb.scriptio.ScriptReaderText;
 import org.hsqldb.scriptio.ScriptWriterBase;
 import org.hsqldb.scriptio.ScriptWriterEncode;
 import org.hsqldb.scriptio.ScriptWriterText;
+import org.hsqldb.HsqlNameManager;
+import org.hsqldb.SqlInvariants;
+import org.hsqldb.HsqlNameManager.HsqlName;
 
 /**
  *  This class is responsible for managing some of the database files.
@@ -129,7 +132,24 @@ public class Log {
             case HsqlDatabaseProperties.FILES_MODIFIED :
                 deleteNewAndOldFiles();
                 deleteOldTempFiles();
-                processScript();
+
+                if (properties.isVersion18()) {
+                    if (fa.isStreamElement(scriptFileName)) {
+                        processScript();
+                    } else {
+                        database.schemaManager.createPublicSchema();
+                    }
+
+                    HsqlName name = database.schemaManager.findSchemaHsqlName(
+                        SqlInvariants.PUBLIC_SCHEMA);
+
+                    if (name != null) {
+                        database.schemaManager.setDefaultSchemaHsqlName(name);
+                    }
+                } else {
+                    processScript();
+                }
+
                 processLog();
                 close(false);
 
@@ -876,6 +896,10 @@ public class Log {
     }
 
     void deleteOldDataFiles() {
+
+        if (database.logger.isStoredFileAccess()) {
+            return;
+        }
 
         try {
             File   file = new File(database.getCanonicalPath());
