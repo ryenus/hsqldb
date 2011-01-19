@@ -1358,7 +1358,7 @@ public class JDBCConnection implements Connection {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * HSQLDB 2.0 supports all isolation levels. <code>Connection.TRANSACTION_READ_UNCOMMITED</code>
+     * HSQLDB 2.0 accepts all isolation levels. <code>Connection.TRANSACTION_READ_UNCOMMITED</code>
      * is promoted to <code>Connection.TRANSACTION_READ_COMMITED, but the transactions become read only</code>.
      * Calling this method during a transaction always fails.<p>
      *
@@ -2790,6 +2790,13 @@ public class JDBCConnection implements Connection {
      * <p>
      * The query submitted by the driver to validate the connection shall be
      * executed in the context of the current transaction.
+     * <h3>HSQLDB-Specific Information:</h3> <p>
+     *
+     * HSQLDB uses a maximum timeout of 60 seconds if timeout has be specified
+     * as zero.
+     *
+     * </div> <!-- end release-specific documentation -->
+
      *
      * @param timeout -         The time in seconds to wait for the database operation
      *                                          used to validate the connection to complete.  If
@@ -2818,40 +2825,49 @@ public class JDBCConnection implements Connection {
             return !this.isClosed();
         } else if (this.isClosed()) {
             return false;
-        } else {
-            Thread t = new Thread() {
+        }
 
-                public void run() {
+        final boolean[] flag = new boolean[] {true};
 
-                    try {
-                        getMetaData().getDatabaseMajorVersion();
-                    } catch (Exception e) {
-                        throw new RuntimeException();
-                    }
-                }
-            };
+        Thread t = new Thread() {
 
-            // Remember:  parm is in *seconds*
-            timeout *= 1000;
-
-            try {
-                t.start();
-
-                final long start = System.currentTimeMillis();
-
-                t.join(timeout);
+            public void run() {
 
                 try {
-                    t.setContextClassLoader(null);
-                } catch (Throwable th) {
+                    getMetaData().getDatabaseMajorVersion();
+                } catch (Throwable e) {
+                    flag[0] = false;
                 }
-
-                return (timeout > 0)
-                       ? (System.currentTimeMillis() - start) < timeout
-                       : true;
-            } catch (Exception e) {
-                return false;
             }
+        };
+
+        if (timeout > 60) {
+            timeout = 60;
+        }
+
+        // Remember:  parm is in *seconds*
+        timeout *= 1000;
+
+        try {
+            t.start();
+
+            final long start = System.currentTimeMillis();
+
+            t.join(timeout);
+
+            try {
+                t.setContextClassLoader(null);
+            } catch (Throwable th) {
+            }
+
+
+            if (timeout == 0) {
+                return flag[0];
+            }
+
+            return flag[0] && (System.currentTimeMillis() - start) < timeout;
+        } catch (Throwable e) {
+            return false;
         }
     }
 

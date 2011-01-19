@@ -2735,8 +2735,10 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
     private void setCharStream(int parameterIndex, java.io.Reader reader,
                                long length) throws SQLException {
 
+        checkSetParameterIndex(parameterIndex, false);
 
         if (parameterTypes[parameterIndex - 1].typeCode == Types.SQL_CLOB) {
+            parameterSet[parameterIndex - 1]    = false;
             setClobParameter(parameterIndex, reader, length);
             return;
         }

@@ -80,8 +80,15 @@ public class StatementCommand extends Statement {
                 isLogged = false;
                 break;
 
+            case StatementTypes.DATABASE_SCRIPT : {
+                String name = (String) parameters[0];
+                if (name == null) {
+                    this.statementReturnType = StatementTypes.RETURN_RESULT;
+                }
+                group    = StatementTypes.X_HSQLDB_DATABASE_OPERATION;
+                isLogged = false;
+            }
             case StatementTypes.DATABASE_BACKUP :
-            case StatementTypes.DATABASE_SCRIPT :
                 group    = StatementTypes.X_HSQLDB_DATABASE_OPERATION;
                 isLogged = false;
                 break;
@@ -247,7 +254,7 @@ public class StatementCommand extends Statement {
                             null);
                     }
 
-                    if (session.database.logger.isStoredFileAccess) {
+                    if (session.database.logger.isStoredFileAccess()) {
                         return Result.newErrorResult(
                             Error.error(ErrorCode.DATABASE_IS_NON_FILE), null);
                     }
