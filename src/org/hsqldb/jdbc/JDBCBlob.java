@@ -103,7 +103,7 @@ import org.hsqldb.lib.java.JavaSystem;
  * data (as implemented in this class).  In particular, when the product is built
  * under JDK 1.6+ and the Blob instance is constructed as a result of calling
  * JDBCConnection.createBlob(), then the resulting Blob instance is initially
- * disconnected (is not bound to the tranaction scope of the vending Connection
+ * disconnected (is not bound to the transaction scope of the vending Connection
  * object), the data is contained directly and all interface methods for
  * updating the BLOB value are supported for local use until the first
  * invocation of free(); otherwise, an HSQLDB Blob's implementation is
@@ -162,14 +162,15 @@ public class JDBCBlob implements Blob {
      * @param pos the ordinal position of the first byte in the
      *        <code>BLOB</code> value to be extracted; the first byte is at
      *        position 1
-     * @param length the number of consecutive bytes to be copied
+     * @param length the number of consecutive bytes to be copied; JDBC 4.1[the value
+     * for length must be 0 or greater]
      * @return a byte array containing up to <code>length</code>
      *         consecutive bytes from the <code>BLOB</code> value designated
      *         by this <code>Blob</code> object, starting with the
      *         byte at position <code>pos</code>
-     * @exception SQLException  if there is an error accessing the BLOB value;
-     *            if <code>pos</code> is less than 1 or <code>length</code> is
-     *            less than 0.
+     * @exception SQLException if there is an error accessing the
+     *            <code>BLOB</code> value; if pos is less than 1 or length is
+     * less than 0
      * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
      * this method
      * @see #setBytes
@@ -370,7 +371,7 @@ public class JDBCBlob implements Blob {
      * in the <code>Blob</code> object starting at the position
      * <code>pos</code>.  If the end of the <code>Blob</code> value is reached
      * while writing the array of bytes, then the length of the <code>Blob</code>
-     * value will be increased to accomodate the extra bytes.
+     * value will be increased to accommodate the extra bytes.
      * <p>
      * <b>Note:</b> If the value specified for <code>pos</code>
      * is greater then the length+1 of the <code>BLOB</code> value then the
@@ -388,7 +389,7 @@ public class JDBCBlob implements Blob {
      * result of calling JDBCConnection.createBlob(), this operation affects
      * only the client-side value; it has no effect upon a value stored in a
      * database because JDBCConnection.createBlob() constructs disconnected,
-     * initially empty Blob instances. To propogate the Blob value to a database
+     * initially empty Blob instances. To propagate the Blob value to a database
      * in this case, it is required to supply the Blob instance to an updating
      * or inserting setXXX method of a Prepared or Callable Statement, or to
      * supply the Blob instance to an updateXXX method of an updateable
@@ -442,7 +443,7 @@ public class JDBCBlob implements Blob {
      * in the <code>Blob</code> object starting at the position
      * <code>pos</code>.  If the end of the <code>Blob</code> value is reached
      * while writing the array of bytes, then the length of the <code>Blob</code>
-     * value will be increased to accomodate the extra bytes.
+     * value will be increased to accommodate the extra bytes.
      * <p>
      * <b>Note:</b> If the value specified for <code>pos</code>
      * is greater then the length+1 of the <code>BLOB</code> value then the
@@ -460,7 +461,7 @@ public class JDBCBlob implements Blob {
      * result of calling JDBCConnection.createBlob(), this operation affects
      * only the client-side value; it has no effect upon a value stored in a
      * database because JDBCConnection.createBlob() constructs disconnected,
-     * initially empty Blob instances. To propogate the Blob value to a database
+     * initially empty Blob instances. To propagate the Blob value to a database
      * in this case, it is required to supply the Blob instance to an updating
      * or inserting setXXX method of a Prepared or Callable Statement, or to
      * supply the Blob instance to an updateXXX method of an updateable
@@ -563,7 +564,7 @@ public class JDBCBlob implements Blob {
      * in the <code>Blob</code> object starting at the position
      * <code>pos</code>.  If the end of the <code>Blob</code> value is reached
      * while writing to the stream, then the length of the <code>Blob</code>
-     * value will be increased to accomodate the extra bytes.
+     * value will be increased to accommodate the extra bytes.
      * <p>
      * <b>Note:</b> If the value specified for <code>pos</code>
      * is greater then the length+1 of the <code>BLOB</code> value then the
@@ -581,7 +582,7 @@ public class JDBCBlob implements Blob {
      * result of calling JDBCConnection.createBlob(), this operation affects
      * only the client-side value; it has no effect upon a value stored in a
      * database because JDBCConnection.createBlob() constructs disconnected,
-     * initially empty Blob instances. To propogate the Blob value to a database
+     * initially empty Blob instances. To propagate the Blob value to a database
      * in this case, it is required to supply the Blob instance to an updating
      * or inserting setXXX method of a Prepared or Callable Statement, or to
      * supply the Blob instance to an updateXXX method of an updateable
@@ -672,7 +673,7 @@ public class JDBCBlob implements Blob {
      * result of calling JDBCConnection.createBlob(), this operation affects
      * only the client-side value; it has no effect upon a value stored in a
      * database because JDBCConnection.createBlob() constructs disconnected,
-     * initially empty Blob instances. To propogate the truncated Blob value to
+     * initially empty Blob instances. To propagate the truncated Blob value to
      * a database in this case, it is required to supply the Blob instance to
      * an updating or inserting setXXX method of a Prepared or Callable
      * Statement, or to supply the Blob instance to an updateXXX method of an
