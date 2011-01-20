@@ -1517,4 +1517,8 @@ public class StatementSchema extends Statement {
     public String describe(Session session) {
         return sql;
     }
+
+    public Object[] getArguments() {
+        return arguments;
+    }
 }

@@ -400,13 +400,11 @@ public class DataFileCache {
                 return;
             }
 
-            database.logger.logInfoEvent("DataFileCache.close(" + write
-                                         + ") : start");
+            database.logger.logInfoEvent("dataFileCache close start");
 
             if (write) {
                 cache.saveAll();
-                database.logger.logInfoEvent(
-                    "DataFileCache.close() : save data");
+                database.logger.logDetailEvent("dataFileCache save data");
 
                 if (fileModified || freeBlocks.isModified()) {
 
@@ -427,15 +425,15 @@ public class DataFileCache {
 
                     dataFile.seek(FLAGS_POS);
                     dataFile.writeInt(flags);
-                    database.logger.logInfoEvent(
-                        "DataFileCache.close() : flags");
+                    database.logger.logDetailEvent(
+                        "DataFileCache flags");
                 }
             }
 
             if (dataFile != null) {
                 dataFile.synch();
                 dataFile.close();
-                database.logger.logInfoEvent("DataFileCache.close() : close");
+                database.logger.logDetailEvent("dataFileCache file close");
 
                 dataFile = null;
             }
@@ -453,7 +451,7 @@ public class DataFileCache {
                 deleteBackup();
             }
         } catch (Throwable t) {
-            database.logger.logSevereEvent("Close failed", t);
+            database.logger.logSevereEvent("dataFileCache close failed", t);
 
             throw Error.error(t, ErrorCode.FILE_IO_ERROR,
                               ErrorCode.M_DataFileCache_close, new Object[] {
@@ -1063,7 +1061,7 @@ public class DataFileCache {
 
                     dataFile = null;
                 } catch (IOException e) {
-                    database.logger.logWarningEvent("Failed to close RA file",
+                    database.logger.logWarningEvent("error closing RA file",
                                                     e);
                 }
             }
@@ -1136,6 +1134,7 @@ public class DataFileCache {
                 dataFile.seek(FLAGS_POS);
                 dataFile.writeInt(flags);
                 dataFile.synch();
+
                 Error.printSystemOut(
                     cache.saveAllTimer.currentElapsedTimeToMessage(
                         "flags set time: "));

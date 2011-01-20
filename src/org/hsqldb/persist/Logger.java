@@ -638,12 +638,17 @@ public class Logger {
             return null;
         }
 
-        fwLogger = FrameworkLogger.getLog("ENGINE", database.getUniqueName());
+        fwLogger = FrameworkLogger.getLog(SimpleLog.logTypeNameEngine,
+                                          database.getUniqueName());
 
         return fwLogger;
     }
 
     public void setEventLogLevel(int level) {
+
+        if (level < SimpleLog.LOG_NONE || level > SimpleLog.LOG_DETAIL) {
+            throw Error.error(ErrorCode.X_42556);
+        }
 
         propEventLogLevel = level;
 
@@ -659,7 +664,7 @@ public class Logger {
         }
 
         if (appLog != null) {
-            appLog.logContext(t, message);
+            appLog.logContext(t, message, SimpleLog.LOG_ERROR);
         }
     }
 
@@ -671,7 +676,7 @@ public class Logger {
             fwLogger.warning(message, t);
         }
 
-        appLog.logContext(t, message);
+        appLog.logContext(t, message, SimpleLog.LOG_ERROR);
     }
 
     public void logInfoEvent(String message) {
@@ -683,6 +688,19 @@ public class Logger {
         }
 
         appLog.logContext(SimpleLog.LOG_NORMAL, message);
+    }
+
+    public void logDetailEvent(String message) {
+
+        getEventLogger();
+
+        if (fwLogger != null) {
+            fwLogger.finest(message);
+        }
+
+        if (appLog != null) {
+            appLog.logContext(SimpleLog.LOG_DETAIL, message);
+        }
     }
 
     /**

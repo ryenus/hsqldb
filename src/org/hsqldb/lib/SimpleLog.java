@@ -46,7 +46,7 @@ import org.hsqldb.HsqlDateTime;
  * and minor errors.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 1.9.0
+ * @version 2.0.0
  * @since 1.8.0
  */
 public class SimpleLog {
@@ -54,10 +54,17 @@ public class SimpleLog {
     public static final int LOG_NONE   = 0;
     public static final int LOG_ERROR  = 1;
     public static final int LOG_NORMAL = 2;
-    private PrintWriter     writer;
-    private int             level;
-    private boolean         isSystem;
-    private String          filePath;
+    public static final int LOG_DETAIL = 3;
+
+    //
+    public static final String logTypeNameEngine = "ENGINE";
+    public static final String[] logTypeNames  = { "", "ERROR ","NORMAL","DETAIL"};
+
+    //
+    private PrintWriter writer;
+    private int         level;
+    private boolean     isSystem;
+    private String      filePath;
 
     public SimpleLog(String path, int level) {
 
@@ -114,68 +121,51 @@ public class SimpleLog {
         return writer;
     }
 
-    public synchronized void sendLine(int atLevel, String message) {
-
-        if (level >= atLevel) {
-            writer.println(HsqlDateTime.getSytemTimeString() + " " + message);
-        }
-    }
-
     public synchronized void logContext(int atLevel, String message) {
 
         if (level < atLevel) {
             return;
         }
 
-        String info = HsqlDateTime.getSytemTimeString();
+        StringBuffer sb = new StringBuffer(128);
+        sb.append(HsqlDateTime.getSytemTimeString()).append(' ');
 
-//#ifdef JAVA4
-        Throwable           temp     = new Throwable();
-        StackTraceElement[] elements = temp.getStackTrace();
-
-        if (elements.length > 1) {
-            info += " " + elements[1].getClassName() + "."
-                    + elements[1].getMethodName();
-        }
-
-//#endif JAVA4
-        writer.println(info + " " + message);
+        sb.append(logTypeNames[atLevel]).append(' ').append(message);
+        writer.println(sb.toString());
     }
 
-    public synchronized void logContext(Throwable t, String inMessage) {
-
-        String message = inMessage;    // We may change this
+    public synchronized void logContext(Throwable t, String inMessage, int atLevel) {
 
         if (level == LOG_NONE) {
             return;
         }
 
-        String info = HsqlDateTime.getSytemTimeString();
+        if (writer == null) {
+            return;
+        }
+
+        StringBuffer sb = new StringBuffer(128);
+        sb.append(HsqlDateTime.getSytemTimeString()).append(' ');
 
 //#ifdef JAVA4
         Throwable           temp     = new Throwable();
         StackTraceElement[] elements = temp.getStackTrace();
 
         if (elements.length > 1) {
-            info += " " + elements[1].getClassName() + "."
-                    + elements[1].getMethodName();
+            sb.append(elements[1].getClassName()).append('.');
+            sb.append(elements[1].getMethodName());
         }
 
         elements = t.getStackTrace();
 
         if (elements.length > 0) {
-            info += " " + elements[0].getClassName() + "."
-                    + elements[0].getMethodName();
+            sb.append(elements[0].getClassName()).append('.');
+            sb.append(' ').append(elements[0].getMethodName());
         }
 
 //#endif JAVA4
-        if (message == null) {
-            message = "";
-        }
-
-        if (writer != null) {
-            writer.println(info + " " + t.toString() + " " + message);
-        }
+        sb.append(' ').append(t.toString()).append(' ').append(inMessage);
+        writer.println(sb.toString());
     }
 
     public void flush() {

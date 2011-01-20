@@ -4251,7 +4251,15 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
                 } catch (HsqlException e) {
                     Util.throwError(e);
                 }
+            case Types.SQL_VARCHAR : {
 
+                if (o instanceof String) {
+                    break;
+                } else {
+                    o = outType.convertToDefaultType(session, o);
+                    break;
+                }
+            }
             case Types.SQL_CHAR :
                 if (outType.precision == 1 && o instanceof Character) {
                     o = new String(new char[] {((Character) o).charValue()});

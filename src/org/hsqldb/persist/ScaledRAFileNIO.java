@@ -127,10 +127,11 @@ final class ScaledRAFileNIO implements RandomAccessInterface {
                                           : FileChannel.MapMode.READ_WRITE, 0,
                                           bufferLength);
 
-            Error.printSystemOut("NIO file instance created. mode: "
-                                 + readOnly);
+            database.logger.logDetailEvent("NIO file instance, size "
+                                           + bufferLength);
         } catch (Throwable e) {
-            Error.printSystemOut("NIO constructor failed:  " + bufferLength);
+            database.logger.logDetailEvent("No NIO file instance, size "
+                                           + bufferLength);
 
             buffer  = null;
             channel = null;
@@ -335,8 +336,8 @@ final class ScaledRAFileNIO implements RandomAccessInterface {
     public void close() throws IOException {
 
         try {
-            Error.printSystemOut("NIO close() start - fileLength = "
-                                 + bufferLength);
+            database.logger.logDetailEvent("NIO file close, size: "
+                                           + bufferLength);
 
             if (buffer != null && bufferModified) {
                 try {
@@ -345,9 +346,8 @@ final class ScaledRAFileNIO implements RandomAccessInterface {
                     try {
                         buffer.force();
                     } catch (Throwable t1) {
-                        database.logger.logWarningEvent(JVM_ERROR + " "
-                                                        + "length: "
-                                                        + bufferLength, t);
+                        database.logger.logWarningEvent(
+                            "NIO buffer force error " + JVM_ERROR + " ", t);
                     }
                 }
             }
@@ -359,7 +359,8 @@ final class ScaledRAFileNIO implements RandomAccessInterface {
 
             // System.gc();
         } catch (Throwable e) {
-            database.logger.logWarningEvent("length: " + bufferLength, e);
+            database.logger.logWarningEvent("NIO buffer close error "
+                                           + JVM_ERROR + " ", e);
 
             IOException io = new IOException(e.getMessage());
 
