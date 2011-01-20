@@ -337,7 +337,8 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      *        <code>registerOutParameter</code> that accepts a scale value
      *        should be used.
      *
-     * @exception SQLException if a database access error occurs or
+     * @exception SQLException JDBC 4.1 [if the parameterIndex is not valid;]
+     * if a database access error occurs or
      * this method is called on a closed <code>CallableStatement</code>
      * @exception SQLFeatureNotSupportedException if <code>sqlType</code> is
      * a <code>ARRAY</code>, <code>BLOB</code>, <code>CLOB</code>,
@@ -391,7 +392,8 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * @param sqlType the SQL type code defined by <code>java.sql.Types</code>.
      * @param scale the desired number of digits to the right of the
      * decimal point.  It must be greater than or equal to zero.
-     * @exception SQLException if a database access error occurs or
+     * @exception SQLException JDBC 4.1[if the parameterIndex is not valid;]
+     * if a database access error occurs or
      * this method is called on a closed <code>CallableStatement</code>
      * @exception SQLFeatureNotSupportedException if <code>sqlType</code> is
      * a <code>ARRAY</code>, <code>BLOB</code>, <code>CLOB</code>,
@@ -468,7 +470,8 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * @return the parameter value. If the value is SQL <code>NULL</code>,
      *         the result
      *         is <code>null</code>.
-     * @exception SQLException if a database access error occurs or
+     * @exception SQLException JDBC 4.1[if the parameterIndex is not valid;]
+     * if a database access error occurs or
      * this method is called on a closed <code>CallableStatement</code>
      * @see #setString
      */
@@ -500,7 +503,8 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      *        and so on
      * @return the parameter value.  If the value is SQL <code>NULL</code>,
      *         the result is <code>false</code>.
-     * @exception SQLException if a database access error occurs or
+     * @exception SQLException JDBC 4.1[if the parameterIndex is not valid;]
+     * if a database access error occurs or
      * this method is called on a closed <code>CallableStatement</code>
      * @see #setBoolean
      */
@@ -534,7 +538,8 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * and so on
      * @return the parameter value.  If the value is SQL <code>NULL</code>, the result
      * is <code>0</code>.
-     * @exception SQLException if a database access error occurs or
+     * @exception SQLException JDBC 4.1[if the parameterIndex is not valid;]
+     * if a database access error occurs or
      * this method is called on a closed <code>CallableStatement</code>
      * @see #setByte
      */
@@ -567,7 +572,8 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * and so on
      * @return the parameter value.  If the value is SQL <code>NULL</code>, the result
      * is <code>0</code>.
-     * @exception SQLException if a database access error occurs or
+     * @exception SQLException JDBC 4.1[if the parameterIndex is not valid;]
+     * if a database access error occurs or
      * this method is called on a closed <code>CallableStatement</code>
      * @see #setShort
      */
@@ -601,7 +607,8 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * and so on
      * @return the parameter value.  If the value is SQL <code>NULL</code>, the result
      * is <code>0</code>.
-     * @exception SQLException if a database access error occurs or
+     * @exception SQLException JDBC 4.1[if the parameterIndex is not valid;]
+     * if a database access error occurs or
      * this method is called on a closed <code>CallableStatement</code>
      * @see #setInt
      */
@@ -634,7 +641,8 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * and so on
      * @return the parameter value.  If the value is SQL <code>NULL</code>, the result
      * is <code>0</code>.
-     * @exception SQLException if a database access error occurs or
+     * @exception SQLException JDBC 4.1[if the parameterIndex is not valid;]
+     * if a database access error occurs or
      * this method is called on a closed <code>CallableStatement</code>
      * @see #setLong
      */
@@ -667,7 +675,8 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      *        and so on
      * @return the parameter value.  If the value is SQL <code>NULL</code>, the result
      *         is <code>0</code>.
-     * @exception SQLException if a database access error occurs or
+     * @exception SQLException JDBC 4.1[if the parameterIndex is not valid;]
+     * if a database access error occurs or
      * this method is called on a closed <code>CallableStatement</code>
      * @see #setFloat
      */
@@ -701,7 +710,8 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      *        and so on
      * @return the parameter value.  If the value is SQL <code>NULL</code>, the result
      *         is <code>0</code>.
-     * @exception SQLException if a database access error occurs or
+     * @exception SQLException JDBC 4.1[if the parameterIndex is not valid;]
+     * if a database access error occurs or
      * this method is called on a closed <code>CallableStatement</code>
      * @see #setDouble
      */
@@ -737,7 +747,8 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * @param scale the number of digits to the right of the decimal point
      * @return the parameter value.  If the value is SQL <code>NULL</code>, the result
      *         is <code>null</code>.
-     * @exception SQLException if a database access error occurs or
+     * @exception SQLException JDBC 4.1[if the parameterIndex is not valid;]
+     * if a database access error occurs or
      * this method is called on a closed <code>CallableStatement</code>
      * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
      * this method
@@ -790,7 +801,8 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      *        and so on
      * @return the parameter value.  If the value is SQL <code>NULL</code>, the result
      *         is <code>null</code>.
-     * @exception SQLException if a database access error occurs or
+     * @exception SQLException JDBC 4.1[if the parameterIndex is not valid;]
+     * if a database access error occurs or
      * this method is called on a closed <code>CallableStatement</code>
      * @see #setBytes
      */
@@ -826,7 +838,8 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      *        and so on
      * @return the parameter value.  If the value is SQL <code>NULL</code>, the result
      *         is <code>null</code>.
-     * @exception SQLException if a database access error occurs or
+     * @exception SQLException JDBC 4.1[if the parameterIndex is not valid;]
+     * if a database access error occurs or
      * this method is called on a closed <code>CallableStatement</code>
      * @see #setDate
      */
@@ -863,7 +876,8 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      *        and so on
      * @return the parameter value.  If the value is SQL <code>NULL</code>, the result
      *         is <code>null</code>.
-     * @exception SQLException if a database access error occurs or
+     * @exception SQLException JDBC 4.1[if the parameterIndex is not valid;]
+     * if a database access error occurs or
      * this method is called on a closed <code>CallableStatement</code>
      * @see #setTime
      */
@@ -1168,8 +1182,7 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * </div>
      * <!-- end release-specific documentation -->
      *
-     * @param parameterIndex the first parameter is 1, the second is 2,
-     * and so on
+     * @param parameterIndex the first parameter is 1, the second is 2, and so on
      * @return the parameter value as a <code>Blob</code> object in the
      * Java programming language.  If the value was SQL <code>NULL</code>, the value
      * <code>null</code> is returned.
@@ -4661,6 +4674,73 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
     }
 
 //#endif JAVA6
+
+    //------------------------- JDBC 4.1 -----------------------------------
+
+
+    /**
+     *<p>Returns an object representing the value of OUT parameter
+     * {@code parameterIndex} and will convert from the
+     * SQL type of the parameter to the requested Java data type, if the
+     * conversion is supported. If the conversion is not
+     * supported or null is specified for the type, a
+     * <code>SQLException</code> is thrown.
+     *<p>
+     * At a minimum, an implementation must support the conversions defined in
+     * Appendix B, Table B-3 and conversion of appropriate user defined SQL
+     * types to a Java type which implements {@code SQLData}, or {@code Struct}.
+     * Additional conversions may be supported and are vendor defined.
+     *
+     * @param parameterIndex the first parameter is 1, the second is 2, and so on
+     * @param type Class representing the Java data type to convert the
+     * designated parameter to.
+     * @return an instance of {@code type} holding the OUT parameter value
+     * @throws SQLException if conversion is not supported, type is null or
+     *         another error occurs. The getCause() method of the
+     * exception may provide a more detailed exception, for example, if
+     * a conversion error occurs
+     * @throws SQLFeatureNotSupportedException if the JDBC driver does not support
+     * this method
+     * @since 1.7
+     */
+//ifdef JAVA5
+     public <T> T getObject(int parameterIndex, Class<T> type) throws SQLException {
+         return (T) this.getObject(parameterIndex);
+     }
+//#endif
+
+    /**
+     *<p>Returns an object representing the value of OUT parameter
+     * {@code parameterName} and will convert from the
+     * SQL type of the parameter to the requested Java data type, if the
+     * conversion is supported. If the conversion is not
+     * supported  or null is specified for the type, a
+     * <code>SQLException</code> is thrown.
+     *<p>
+     * At a minimum, an implementation must support the conversions defined in
+     * Appendix B, Table B-3 and conversion of appropriate user defined SQL
+     * types to a Java type which implements {@code SQLData}, or {@code Struct}.
+     * Additional conversions may be supported and are vendor defined.
+     *
+     * @param parameterName the name of the parameter
+     * @param type Class representing the Java data type to convert
+     * the designated parameter to.
+     * @return an instance of {@code type} holding the OUT parameter
+     * value
+     * @throws SQLException if conversion is not supported, type is null or
+     *         another error occurs. The getCause() method of the
+     * exception may provide a more detailed exception, for example, if
+     * a conversion error occurs
+     * @throws SQLFeatureNotSupportedException if the JDBC driver does not support
+     * this method
+     * @since 1.7
+     */
+//ifdef JAVA5
+     public <T> T getObject(String parameterName, Class<T> type) throws SQLException {
+         return getObject(this.findParameterIndex(parameterName),type);
+     }
+//#endif
+
 // --------------------------- Internal Implementation -------------------------
 
     /** parameter name => parameter index */
@@ -4848,5 +4928,13 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
 
     private boolean trackNull(Object o) {
         return (wasNullValue = (o == null));
+    }
+
+    public void closeOnCompletion() throws SQLException {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    public boolean isCloseOnCompletion() throws SQLException {
+        throw new UnsupportedOperationException("Not supported yet.");
     }
 }

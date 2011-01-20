@@ -6939,6 +6939,74 @@ public class JDBCResultSet implements ResultSet {
     }
 
 //#endif JAVA6
+
+//------------------------- JDBC 4.1 -----------------------------------
+
+
+    /**
+     *<p>Retrieves the value of the designated column in the current row
+     * of this <code>ResultSet</code> object and will convert from the
+     * SQL type of the column to the requested Java data type, if the
+     * conversion is supported. If the conversion is not
+     * supported  or null is specified for the type, a
+     * <code>SQLException</code> is thrown.
+     *<p>
+     * At a minimum, an implementation must support the conversions defined in
+     * Appendix B, Table B-3 and conversion of appropriate user defined SQL
+     * types to a Java type which implements {@code SQLData}, or {@code Struct}.
+     * Additional conversions may be supported and are vendor defined.
+     *
+     * @param columnIndex the first column is 1, the second is 2, ...
+     * @param type Class representing the Java data type to convert the designated
+     * column to.
+     * @return an instance of {@code type} holding the column value
+     * @throws SQLException if conversion is not supported, type is null or
+     *         another error occurs. The getCause() method of the
+     * exception may provide a more detailed exception, for example, if
+     * a conversion error occurs
+     * @throws SQLFeatureNotSupportedException if the JDBC driver does not support
+     * this method
+     * @since 1.7
+     */
+//#ifdef JAVA5
+     public <T> T getObject(int columnIndex, Class<T> type) throws SQLException {
+         return (T) getObject(columnIndex);
+     }
+//#endif
+
+    /**
+     *<p>Retrieves the value of the designated column in the current row
+     * of this <code>ResultSet</code> object and will convert from the
+     * SQL type of the column to the requested Java data type, if the
+     * conversion is supported. If the conversion is not
+     * supported  or null is specified for the type, a
+     * <code>SQLException</code> is thrown.
+     *<p>
+     * At a minimum, an implementation must support the conversions defined in
+     * Appendix B, Table B-3 and conversion of appropriate user defined SQL
+     * types to a Java type which implements {@code SQLData}, or {@code Struct}.
+     * Additional conversions may be supported and are vendor defined.
+     *
+     * @param columnLabel the label for the column specified with the SQL AS clause.
+     * If the SQL AS clause was not specified, then the label is the name
+     * of the column
+     * @param type Class representing the Java data type to convert the designated
+     * column to.
+     * @return an instance of {@code type} holding the column value
+     * @throws SQLException if conversion is not supported, type is null or
+     *         another error occurs. The getCause() method of the
+     * exception may provide a more detailed exception, for example, if
+     * a conversion error occurs
+     * @throws SQLFeatureNotSupportedException if the JDBC driver does not support
+     * this method
+     * @since 1.7
+     */
+//#ifdef JAVA5
+     public <T> T getObject(String columnLabel, Class<T> type) throws SQLException {
+         return getObject(findColumn(columnLabel), type);
+     }
+//#endif
+
 //------------------------ Internal Implementation -----------------------------
 
     /** The internal representation. */

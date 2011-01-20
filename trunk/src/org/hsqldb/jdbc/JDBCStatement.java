@@ -1716,6 +1716,7 @@ public class JDBCStatement extends JDBCStatementBase implements Statement {
     }
 
 //#endif JAVA6
+
     // ------------------- java.sql.Wrapper implementation ---------------------
 
     /**

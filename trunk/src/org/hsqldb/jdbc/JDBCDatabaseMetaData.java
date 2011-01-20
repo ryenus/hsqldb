@@ -5810,6 +5810,92 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
     }
 
 //#endif JAVA6
+
+
+    //--------------------------JDBC 4.1 -----------------------------
+
+    /**
+     * Retrieves a description of the pseudo or hidden columns available
+     * in a given table within the specified catalog and schema.
+     * Pseudo or hidden columns may not always be stored within
+     * a table and are not visible in a ResultSet unless they are
+     * specified in the query's outermost SELECT list. Pseudo or hidden
+     * columns may not necessarily be able to be modified. If there are
+     * no pseudo or hidden columns, an empty ResultSet is returned.
+     *
+     * <P>Only column descriptions matching the catalog, schema, table
+     * and column name criteria are returned.  They are ordered by
+     * <code>TABLE_CAT</code>,<code>TABLE_SCHEM</code>, <code>TABLE_NAME</code>
+     * and <code>COLUMN_NAME</code>.
+     *
+     * <P>Each column description has the following columns:
+     *  <OL>
+     *  <LI><B>TABLE_CAT</B> String => table catalog (may be <code>null</code>)
+     *  <LI><B>TABLE_SCHEM</B> String => table schema (may be <code>null</code>)
+     *  <LI><B>TABLE_NAME</B> String => table name
+     *  <LI><B>COLUMN_NAME</B> String => column name
+     *  <LI><B>DATA_TYPE</B> int => SQL type from java.sql.Types
+     *  <LI><B>COLUMN_SIZE</B> int => column size.
+     *  <LI><B>DECIMAL_DIGITS</B> int => the number of fractional digits. Null is returned for data types where
+     * DECIMAL_DIGITS is not applicable.
+     *  <LI><B>NUM_PREC_RADIX</B> int => Radix (typically either 10 or 2)
+     *  <LI><B>COLUMN_USAGE</B> String => The allowed usage for the column.  The
+     *  value returned will correspond to the enum name returned by {@link PseudoColumnUsage#name PseudoColumnUsage.name()}
+     *  <LI><B>REMARKS</B> String => comment describing column (may be <code>null</code>)
+     *  <LI><B>CHAR_OCTET_LENGTH</B> int => for char types the
+     *       maximum number of bytes in the column
+     *  <LI><B>IS_NULLABLE</B> String  => ISO rules are used to determine the nullability for a column.
+     *       <UL>
+     *       <LI> YES           --- if the column can include NULLs
+     *       <LI> NO            --- if the column cannot include NULLs
+     *       <LI> empty string  --- if the nullability for the column is unknown
+     *       </UL>
+     *  </OL>
+     *
+     * <p>The COLUMN_SIZE column specifies the column size for the given column.
+     * For numeric data, this is the maximum precision.  For character data, this is the length in characters.
+     * For datetime datatypes, this is the length in characters of the String representation (assuming the
+     * maximum allowed precision of the fractional seconds component). For binary data, this is the length in bytes.  For the ROWID datatype,
+     * this is the length in bytes. Null is returned for data types where the
+     * column size is not applicable.
+     *
+     * @param catalog a catalog name; must match the catalog name as it
+     *        is stored in the database; "" retrieves those without a catalog;
+     *        <code>null</code> means that the catalog name should not be used to narrow
+     *        the search
+     * @param schemaPattern a schema name pattern; must match the schema name
+     *        as it is stored in the database; "" retrieves those without a schema;
+     *        <code>null</code> means that the schema name should not be used to narrow
+     *        the search
+     * @param tableNamePattern a table name pattern; must match the
+     *        table name as it is stored in the database
+     * @param columnNamePattern a column name pattern; must match the column
+     *        name as it is stored in the database
+     * @return <code>ResultSet</code> - each row is a column description
+     * @exception SQLException if a database access error occurs
+     * @see PseudoColumnUsage
+     * @since 1.7
+     */
+    public ResultSet getPseudoColumns(String catalog, String schemaPattern,
+                         String tableNamePattern, String columnNamePattern)
+        throws SQLException {
+        throw new java.sql.SQLFeatureNotSupportedException();
+    }
+
+    /**
+     * Retrieves whether a generated key will always be returned if the column
+     * name(s) or index(es) specified for the auto generated key column(s)
+     * are valid and the statement succeeds.  The key that is returned may or
+     * may not be based on the column(s) for the auto generated key.
+     * Consult your JDBC driver documentation for additional details.
+     * @return <code>true</code> if so; <code>false</code> otherwise
+     * @exception SQLException if a database access error occurs
+     * @since 1.7
+     */
+    public boolean  generatedKeyAlwaysReturned() throws SQLException {
+        return false;
+    }
+
     //----------------------- Internal Implementation --------------------------
 
     /** Used by getBestRowIdentifier to avoid extra object construction */
@@ -6059,7 +6145,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      * An SQL statement executor that knows how to create a "SELECT
      * * FROM" statement, given a table name and a <em>where</em> clause.<p>
      *
-     *  If the <em>where</em> clause is null, it is ommited.  <p>
+     *  If the <em>where</em> clause is null, it is omitted.  <p>
      *
      *  It is assumed that the table name is non-null, since this is a private
      *  method.  No check is performed. <p>
@@ -6123,25 +6209,41 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
         return (s != null && s.length() == 0);
     }
 
+    String getDefaultSchema() throws SQLException {
+        final  ResultSet rs = executeSelect("SYSTEM_SCHEMAS", "IS_DEFAULT=TRUE");
+
+        return rs.next() ? rs.getString(1) : null;
+    }
+
+    void setDefaultSchema(String schemaName) throws SQLException {
+        execute("SET SCHEMA " + org.hsqldb.lib.StringConverter.toQuotedString(schemaName, '"', true));
+    }
+
     /**
      * For compatibility, when the connection property "default_schema=true"
      * is present, any DatabaseMetaData call with an empty string as the
-     * schema parameter will use the default schema (noramlly "PUBLIC").
+     * schema parameter will use the default schema (normally "PUBLIC").
      */
     private String translateSchema(String schemaName) throws SQLException {
 
         if (useSchemaDefault && schemaName != null
                 && schemaName.length() == 0) {
-            ResultSet rs = executeSelect("SYSTEM_SCHEMAS", "IS_DEFAULT=TRUE");
 
-            if (rs.next()) {
-                return rs.getString(1);
+
+            final String result = getDefaultSchema();
+
+            if (result != null) {
+                schemaName = result;
             }
-
-            return schemaName;
         }
 
         return schemaName;
+    }
+
+    String getDefaultCatalog() throws SQLException {
+         final ResultSet rs = executeSelect("SYSTEM_SCHEMAS", "IS_DEFAULT=TRUE");
+
+           return rs.next() ? rs.getString(2) : null;
     }
 
     /**
@@ -6153,10 +6255,11 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
 
         if (useSchemaDefault && catalogName != null
                 && catalogName.length() == 0) {
-            ResultSet rs = executeSelect("SYSTEM_SCHEMAS", "IS_DEFAULT=TRUE");
 
-            if (rs.next()) {
-                return rs.getString(2);
+            String result = getDefaultCatalog();
+
+            if (result != null) {
+                catalogName = result;
             }
         }
 
