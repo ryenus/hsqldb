@@ -191,8 +191,8 @@ public abstract class ScriptWriterBase implements Runnable {
 
                     syncCount++;
                 } catch (IOException e) {
-                    Error.printSystemOut("flush() or sync() error: "
-                                         + e.toString());
+                    database.logger.logWarningEvent(
+                        "ScriptWriter synch error: ", e);
                 }
 
                 needsSync = false;
@@ -214,8 +214,8 @@ public abstract class ScriptWriterBase implements Runnable {
 
                 syncCount++;
             } catch (IOException e) {
-                Error.printSystemOut("flush() or sync() error: "
-                                     + e.toString());
+                database.logger.logWarningEvent(
+                    "ScriptWriter save error: ", e);
             }
 
             needsSync = false;

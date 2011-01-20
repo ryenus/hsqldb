@@ -35,8 +35,8 @@ import java.util.concurrent.CountDownLatch;
 
 public class CountUpDownLatch {
 
-    CountDownLatch latch;
-    volatile int   count;
+    volatile CountDownLatch latch;
+    volatile int            count;
 
     public CountUpDownLatch() {
         latch = new CountDownLatch(1);

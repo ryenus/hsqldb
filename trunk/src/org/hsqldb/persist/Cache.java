@@ -283,7 +283,10 @@ public class Cache extends BaseHashMap {
             return;
         }
 
+        long startTime = saveAllTimer.elapsedTime();
+
         rowComparator.setType(CachedObjectComparator.COMPARE_POSITION);
+        sortTimer.zero();
         sortTimer.start();
         ArraySort.sort(rowTable, 0, count, rowComparator);
         sortTimer.stop();
@@ -299,6 +302,9 @@ public class Cache extends BaseHashMap {
                 } catch (IOException e){}
         */
         saveAllTimer.stop();
+
+        //
+        logSaveRowsEvent(count, startTime);
     }
 
     /**
@@ -324,13 +330,21 @@ public class Cache extends BaseHashMap {
         }
 
         saveRows(savecount);
-        Error.printSystemOut(
-            saveAllTimer.elapsedTimeToMessage(
-                "Cache.saveRows() total row save time"));
-        Error.printSystemOut("Cache.saveRow() total row save count = "
-                             + saveRowCount);
-        Error.printSystemOut(
-            sortTimer.elapsedTimeToMessage("Cache.sort() total time"));
+    }
+
+    void logSaveRowsEvent(int saveCount, long startTime) {
+
+        StringBuffer sb = new StringBuffer();
+
+        sb.append("cache save rows [count,time] totals ");
+        sb.append(saveRowCount);
+        sb.append(',').append(saveAllTimer.elapsedTime()).append(' ');
+        sb.append("operation ").append(saveCount).append(',');
+        sb.append(saveAllTimer.elapsedTime() - startTime).append(' ');
+//
+        sb.append(dataFileCache.database.txManager.getGlobalChangeTimestamp());
+//
+        dataFileCache.database.logger.logDetailEvent(sb.toString());
     }
 
     /**

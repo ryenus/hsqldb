@@ -37,9 +37,12 @@ import java.io.IOException;
 import org.hsqldb.Database;
 import org.hsqldb.DatabaseURL;
 import org.hsqldb.HsqlException;
+import org.hsqldb.HsqlNameManager;
+import org.hsqldb.HsqlNameManager.HsqlName;
 import org.hsqldb.NumberSequence;
 import org.hsqldb.Row;
 import org.hsqldb.Session;
+import org.hsqldb.SqlInvariants;
 import org.hsqldb.Table;
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
@@ -53,9 +56,6 @@ import org.hsqldb.scriptio.ScriptReaderText;
 import org.hsqldb.scriptio.ScriptWriterBase;
 import org.hsqldb.scriptio.ScriptWriterEncode;
 import org.hsqldb.scriptio.ScriptWriterText;
-import org.hsqldb.HsqlNameManager;
-import org.hsqldb.SqlInvariants;
-import org.hsqldb.HsqlNameManager.HsqlName;
 
 /**
  *  This class is responsible for managing some of the database files.

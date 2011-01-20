@@ -32,13 +32,17 @@
 package org.hsqldb.persist;
 
 import java.io.EOFException;
+import java.io.InputStream;
 
+import org.hsqldb.ColumnSchema;
 import org.hsqldb.Database;
 import org.hsqldb.HsqlNameManager.HsqlName;
 import org.hsqldb.Session;
 import org.hsqldb.Statement;
 import org.hsqldb.StatementDML;
+import org.hsqldb.StatementSchema;
 import org.hsqldb.StatementTypes;
+import org.hsqldb.Table;
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
 import org.hsqldb.lib.IntKeyHashMap;
@@ -48,8 +52,8 @@ import org.hsqldb.result.ResultProperties;
 import org.hsqldb.scriptio.ScriptReaderBase;
 import org.hsqldb.scriptio.ScriptReaderDecode;
 import org.hsqldb.scriptio.ScriptReaderText;
-
-import java.io.InputStream;
+import org.hsqldb.store.ValuePool;
+import org.hsqldb.types.Type;
 
 /**
  * Restores the state of a Database instance from an SQL log file. <p>
@@ -164,8 +168,39 @@ public class ScriptRunner {
 
                     case ScriptReaderBase.ANY_STATEMENT :
                         statement = scr.getLoggedStatement();
-                        result = current.executeDirectStatement(statement,
-                                ResultProperties.defaultPropsValue);
+
+                        Statement cs;
+
+                        try {
+                            cs = current.compileStatement(
+                                statement, ResultProperties.defaultPropsValue);
+
+                            if (database.getProperties().isVersion18()) {
+
+                                // convert BIT columns in .log to BOOLEAN
+                                if (cs.getType()
+                                        == StatementTypes.CREATE_TABLE) {
+                                    Table table =
+                                        (Table) ((StatementSchema) cs)
+                                            .getArguments()[0];
+
+                                    for (int i = 0; i < table.getColumnCount();
+                                            i++) {
+                                        ColumnSchema column =
+                                            table.getColumn(i);
+
+                                        if (column.getDataType().isBitType()) {
+                                            column.setType(Type.SQL_BOOLEAN);
+                                        }
+                                    }
+                                }
+                            }
+
+                            result = current.executeCompiledStatement(cs,
+                                    ValuePool.emptyObjectArray);
+                        } catch (Throwable e) {
+                            result = Result.newErrorResult(e);
+                        }
 
                         if (result != null && result.isError()) {
                             if (result.getException() != null) {

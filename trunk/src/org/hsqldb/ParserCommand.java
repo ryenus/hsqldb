@@ -1113,7 +1113,6 @@ public class ParserCommand extends ParserDDL {
 
                 read();
 
-                /** @todo - only digits, letters and underscore */
                 if (name.length() != 16) {
                     throw Error.error(ErrorCode.X_42555);
                 }
