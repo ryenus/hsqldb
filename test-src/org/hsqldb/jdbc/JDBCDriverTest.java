@@ -36,11 +36,14 @@ import java.sql.DriverPropertyInfo;
 import java.util.Properties;
 import junit.framework.Test;
 import junit.framework.TestSuite;
+import org.hsqldb.testbase.ForSubject;
+import org.hsqldb.testbase.OfMethod;
 
 /**
  *
  * @author boucherb@users
  */
+@ForSubject(JDBCDriver.class)
 public class JDBCDriverTest extends BaseJdbcTestCase {
 
     public JDBCDriverTest(String testName) {
@@ -87,6 +90,7 @@ public class JDBCDriverTest extends BaseJdbcTestCase {
     /**
      * Test of connect method, of interface java.sql.Driver.
      */
+    @OfMethod("connect()")
     public void testConnect() throws Exception {
         String     url    = getUrl();
         Properties info   = new Properties();
@@ -101,6 +105,7 @@ public class JDBCDriverTest extends BaseJdbcTestCase {
     /**
      * Test of acceptsURL method, of interface java.sql.Driver.
      */
+    @OfMethod("acceptsURL()")
     public void testAcceptsURL() throws Exception {
         String url    = getUrl();
         Driver driver = newDriver();
@@ -117,6 +122,7 @@ public class JDBCDriverTest extends BaseJdbcTestCase {
     /**
      * Test of getPropertyInfo method, of interface java.sql.Driver.
      */
+    @OfMethod("getPropertyInfo()")
     public void testGetPropertyInfo() throws Exception {
         String               url      = getUrl();
         Properties           info     = new Properties();
@@ -135,6 +141,7 @@ public class JDBCDriverTest extends BaseJdbcTestCase {
     /**
      * Test of getMajorVersion method, of interface java.sql.Driver.
      */
+    @OfMethod("getMajorVersion()")
     public void testGetMajorVersion() throws Exception {
         Driver driver = newDriver();
         int expResult = getExpectedMajorVersion();
@@ -146,6 +153,7 @@ public class JDBCDriverTest extends BaseJdbcTestCase {
     /**
      * Test of getMinorVersion method, of interface java.sql.Driver.
      */
+     @OfMethod("getMinorVersion()")
     public void testGetMinorVersion() throws Exception {
         Driver driver = newDriver();
         int expResult = getExpectedMinorVersion();
@@ -157,6 +165,7 @@ public class JDBCDriverTest extends BaseJdbcTestCase {
     /**
      * Test of jdbcCompliant method, of interface java.sql.Driver.
      */
+     @OfMethod("jdbcCompliant()")
     public void testJdbcCompliant() throws Exception {
         Driver  driver    = newDriver();
         boolean expResult = getExpectedJdbcCompliant();
