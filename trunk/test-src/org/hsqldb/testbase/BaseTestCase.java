@@ -119,6 +119,7 @@ public abstract class BaseTestCase extends junit.framework.TestCase {
                     org.hsqldb.DatabaseManager.closeDatabases(-1);
                 }
             };
+    //
     private static final String LINE_SEPARATOR =
             PropertyGetter.getProperty("line.separator", "\n");
     //
@@ -767,6 +768,10 @@ public abstract class BaseTestCase extends junit.framework.TestCase {
         return isPrint() && getBooleanProperty("print.test.warnings", true);
     }
 
+    protected boolean isFailStubTestCase() {
+        return getBooleanProperty("fail.stubbed.testcase", true);
+    }
+
     protected final void printWarning(Throwable t) {
         if (isPrintWarnings()) {
             print(MessageFormat.format(
@@ -1082,5 +1087,11 @@ public abstract class BaseTestCase extends junit.framework.TestCase {
         }
 
         return prefix + key;
+    }
+
+    protected void stubTestResult() {
+        if (isFailStubTestCase()) {
+            fail("The test case is only a stub.");
+        }
     }
 }

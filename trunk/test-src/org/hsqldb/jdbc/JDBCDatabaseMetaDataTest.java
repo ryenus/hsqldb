@@ -38,11 +38,14 @@ import java.sql.RowIdLifetime;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 import org.hsqldb.jdbc.testbase.BaseJdbcTestCase;
+import org.hsqldb.testbase.ForSubject;
+import org.hsqldb.testbase.OfMethod;
 
 /**
  *
  * @author boucherb@users
  */
+@ForSubject(JDBCDatabaseMetaData.class)
 public class JDBCDatabaseMetaDataTest extends BaseJdbcTestCase {
 
     public static final int StandardMaxIdentifierLength = 128;
@@ -143,6 +146,7 @@ public class JDBCDatabaseMetaDataTest extends BaseJdbcTestCase {
     /**
      * Test of allProceduresAreCallable method, of interface java.sql.DatabaseMetaData.
      */
+    @OfMethod("allProceduresAreCallable()")
     public void testAllProceduresAreCallable() throws Exception {
         DatabaseMetaData dbmd = getMetaData();
 
@@ -157,6 +161,7 @@ public class JDBCDatabaseMetaDataTest extends BaseJdbcTestCase {
     /**
      * Test of allTablesAreSelectable method, of interface java.sql.DatabaseMetaData.
      */
+    @OfMethod("allTablesAreSelectable()")
     public void testAllTablesAreSelectable() throws Exception {
         DatabaseMetaData dbmd = getMetaData();
 

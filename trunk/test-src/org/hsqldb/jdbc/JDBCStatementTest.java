@@ -494,7 +494,7 @@ public class JDBCStatementTest extends BaseJdbcTestCase {
      */
     public void testGetGeneratedKeys() throws Exception {
         // TODO
-        prototypeResult();
+        stubTestResult();
     }
 
     /**
@@ -544,10 +544,6 @@ public class JDBCStatementTest extends BaseJdbcTestCase {
         assertEquals("stmt.isWrapperFor(" + wcls + ")",
                       true,
                       stmt.isWrapperFor(wcls));
-    }
-
-    private void prototypeResult() {
-//        fail("The test case is a prototype.");
     }
 
     public static void main(java.lang.String[] argList) {
