@@ -1,5 +1,7 @@
-10 Jan 2011 - SVN 3971
--- fixed minor query bug
+20 Jan 2011 - SVN 3980
+-- added support for opening most 1.8.0 database that are not closed properly
+-- event logging format has changed slightly, and new level 3 allows more detail in the log
+-- fixed reported bugs
 23 Dec 2010 
 -- added MEDIAN aggregate function
 -- added ARRAY_SORT function
