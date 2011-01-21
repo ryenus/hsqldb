@@ -3216,7 +3216,7 @@ public class JDBCConnection implements Connection {
     * @exception SQLException if a database access error occurs
     * or this method is called on a closed connection
     * @see #getSchema
-    * @since 1.7
+    * @since JDK 1.7, HSQLDB 2.0.1
     */
     public void setSchema(String schema) throws SQLException {
         checkClosed();
@@ -3237,7 +3237,7 @@ public class JDBCConnection implements Connection {
      * @exception SQLException if a database access error occurs
      * or this method is called on a closed connection
      * @see #setSchema
-     * @since 1.7
+     * @since JDK 1.7 M11 2010/09/10 (b123), HSQLDB 2.0.1
      */
     public String getSchema() throws SQLException {
         checkClosed();
@@ -3278,8 +3278,8 @@ public class JDBCConnection implements Connection {
      * @throws java.lang.SecurityException if a security manager exists and its
      *    <code>checkPermission</code> method denies calling <code>abort</code>
      * @see SecurityManager#checkPermission
-     * @see Executor
-     * @since 1.7
+     * @see java.util.concurrent.Executor
+     * @since JDK 1.7, HSQLDB 2.0.1
      */
 //#ifdef JAVA5
     public void abort(java.util.concurrent.Executor executor) throws SQLException {
@@ -3377,8 +3377,8 @@ public class JDBCConnection implements Connection {
      * @see Statement#setQueryTimeout
      * @see #getNetworkTimeout
      * @see #abort
-     * @see Executor
-     * @since 1.7
+     * @see java.util.concurrent.Executor
+     * @since JDK 1.7 M11 2010/09/10 (b123), HSQLDB 2.0.1
      */
 //#ifdef JAVA5
     public void setNetworkTimeout(java.util.concurrent.Executor executor, int milliseconds) throws SQLException {
@@ -3400,7 +3400,7 @@ public class JDBCConnection implements Connection {
      * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
      * this method
      * @see #setNetworkTimeout
-     * @since 1.7
+     * @since JDK 1.7 M11 2010/09/10 (b123), HSQLDB 2.0.1
      */
     public int getNetworkTimeout() throws SQLException {
         return 0;

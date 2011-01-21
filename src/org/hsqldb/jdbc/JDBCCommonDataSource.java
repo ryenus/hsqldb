@@ -172,16 +172,16 @@ public abstract class JDBCCommonDataSource {
     }
 
     /**
-     * Retrieves the jdbc database connection url attribute. <p>
+     * Retrieves the server name attribute. <p>
      *
-     * @return the jdbc database connection url attribute
+     * @return the server name attribute
      */
     public String getServerName() {
         return serverName;
     }
 
     /**
-     * Retrieves the jdbc database connection url attribute. <p>
+     * Synonym for getUrl().
      *
      * @return the jdbc database connection url attribute
      */
@@ -190,7 +190,7 @@ public abstract class JDBCCommonDataSource {
     }
 
     /**
-     * Retrieves the jdbc database connection url attribute. <p>
+     * Synonym for getUrl().
      *
      * @return the jdbc database connection url attribute
      */
@@ -217,55 +217,54 @@ public abstract class JDBCCommonDataSource {
     }
 
     /**
-     * Sets the description of the data source. <p>
+     * Sets the description attribute of the data source. <p>     
      *
-     * @return the description
+     * @param description the new value for the attribute
      */
     public void setDescription(String description) {
         this.description = description;
     }
 
     /**
-     * Sets the name of the data source. <p>
+     * Sets the data source name attribute of the data source. <p>
      *
-     * @return the description
+     * @param dataSourceName the new value for the attribute
      */
     public void setDataSourceName(String dataSourceName) {
         this.dataSourceName = dataSourceName;
     }
 
     /**
-     * Sets the network protocol of the data source. <p>
+     * Sets the network protocol attribute of the data source. <p>
      *
-     * @return the network protocol
+     * @param networkProtocol the new value for the attribute
      */
     public void setNetworkProtocol(String networkProtocol) {
         this.networkProtocol = networkProtocol;
     }
 
     /**
-     * Sets the jdbc database connection url attribute. <p>
+     * Sets the server name attribute of the data source <p>
      *
-     * @return the jdbc database connection url attribute
+     * @param serverName the new value for the property
      */
     public void setServerName(String serverName) {
         this.serverName = serverName;
     }
 
     /**
-     * Sets the jdbc database connection url attribute. <p>
+     * Synonym for setUrl(String). <p>
      *
-     * @return the jdbc database connection url attribute
+     * @param databaseName the new value for the attribute
      */
     public void setDatabaseName(String databaseName) {
         this.url = databaseName;
     }
 
     /**
-     * Sets the jdbc database URL. <p>
+     * Synonym for setUrl(String). <p>
      *
-     * @param database the new value of this object's jdbc database connection
-     *      url attribute
+     * @param database the new value for the attribute
      */
     public void setDatabase(String database) {
         this.url = database;
@@ -282,7 +281,8 @@ public abstract class JDBCCommonDataSource {
     }
 
     /**
-     * Sets the password for the user name
+     * Sets the password for the user name.
+     * 
      * @param password the password
      */
     public void setPassword(String password) {
@@ -291,7 +291,8 @@ public abstract class JDBCCommonDataSource {
     }
 
     /**
-     * Sets the user name
+     * Sets the user name.
+     * 
      * @param user the user id
      */
     public void setUser(String user) {
@@ -335,7 +336,7 @@ public abstract class JDBCCommonDataSource {
      *
      * @return the parent Logger for this data source
      * @throws SQLFeatureNotSupportedException if the data source does not use <code>java.util.logging<code>.
-     * @since 1.7
+     * @since JDK 1.7 M11 2010/09/10 (b123), HSQLDB 2.0.1
      */
 //#ifdef JAVA6
     public java.util.logging.Logger getParentLogger() throws java.sql.SQLFeatureNotSupportedException {

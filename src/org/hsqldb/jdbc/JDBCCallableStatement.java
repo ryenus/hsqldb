@@ -4701,9 +4701,9 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * a conversion error occurs
      * @throws SQLFeatureNotSupportedException if the JDBC driver does not support
      * this method
-     * @since 1.7
+     * @since JDK 1.7 M11 2010/09/10 (b123), HSQLDB 2.0.1
      */
-//ifdef JAVA5
+//#ifdef JAVA5
      public <T> T getObject(int parameterIndex, Class<T> type) throws SQLException {
          return (T) this.getObject(parameterIndex);
      }
@@ -4733,9 +4733,9 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * a conversion error occurs
      * @throws SQLFeatureNotSupportedException if the JDBC driver does not support
      * this method
-     * @since 1.7
+     * @since JDK 1.7 M11 2010/09/10 (b123), HSQLDB 2.0.1
      */
-//ifdef JAVA5
+//#ifdef JAVA5
      public <T> T getObject(String parameterName, Class<T> type) throws SQLException {
          return getObject(this.findParameterIndex(parameterName),type);
      }

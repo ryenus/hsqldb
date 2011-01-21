@@ -543,7 +543,7 @@ public class JDBCDriver implements Driver {
      *
      * @return the parent Logger for this driver
      * @throws SQLFeatureNotSupportedException if the driver does not use <code>java.util.logging<code>.
-     * @since 1.7
+     * @since JDK 1.7 M11 2010/09/10 (b123), HSQLDB 2.0.1
      */
 //#ifdef JAVA6
     public java.util.logging.Logger getParentLogger() throws java.sql.SQLFeatureNotSupportedException {
