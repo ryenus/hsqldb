@@ -4625,7 +4625,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
      * Deletes made to the rows of the ResultSet are not detected by
-     * calling the <code>ResultSet.rowDeleted/code>.
+     * calling the <code>ResultSet.rowDeleted</code>.
      * </div>
      * <!-- end release-specific documentation -->
      *
@@ -5179,7 +5179,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      * <!-- end release-specific documentation -->
      * @param holdability one of the following constants:
      *          <code>ResultSet.HOLD_CURSORS_OVER_COMMIT</code> or
-     *          <code>ResultSet.CLOSE_CURSORS_AT_COMMIT<code>
+     *          <code>ResultSet.CLOSE_CURSORS_AT_COMMIT</code>
      * @return <code>true</code> if so; <code>false</code> otherwise
      * @exception SQLException if a database access error occurs
      * @see JDBCConnection
@@ -5840,7 +5840,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      * DECIMAL_DIGITS is not applicable.
      *  <LI><B>NUM_PREC_RADIX</B> int => Radix (typically either 10 or 2)
      *  <LI><B>COLUMN_USAGE</B> String => The allowed usage for the column.  The
-     *  value returned will correspond to the enum name returned by {@link PseudoColumnUsage#name PseudoColumnUsage.name()}
+     *  value returned will correspond to the enum name returned by {@link java.sql.PseudoColumnUsage#name PseudoColumnUsage.name()}
      *  <LI><B>REMARKS</B> String => comment describing column (may be <code>null</code>)
      *  <LI><B>CHAR_OCTET_LENGTH</B> int => for char types the
      *       maximum number of bytes in the column
@@ -5873,8 +5873,8 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      *        name as it is stored in the database
      * @return <code>ResultSet</code> - each row is a column description
      * @exception SQLException if a database access error occurs
-     * @see PseudoColumnUsage
-     * @since 1.7
+     * @see java.sql.PseudoColumnUsage
+     * @since JDK 1.7 M11 2010/09/10 (b123), HSQLDB 2.0.1
      */
     public ResultSet getPseudoColumns(String catalog, String schemaPattern,
                          String tableNamePattern, String columnNamePattern)
@@ -5890,7 +5890,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      * Consult your JDBC driver documentation for additional details.
      * @return <code>true</code> if so; <code>false</code> otherwise
      * @exception SQLException if a database access error occurs
-     * @since 1.7
+     * @since JDK 1.7 M11 2010/09/10 (b123), HSQLDB 2.0.1
      */
     public boolean  generatedKeyAlwaysReturned() throws SQLException {
         return false;

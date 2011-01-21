@@ -315,7 +315,7 @@ class JDBCStatementBase {
      *
      * @throws SQLException if this method is called on a closed
      * {@code Statement}
-     * @since 1.7
+     * @since JDK 1.7 M11 2010/09/10 (b123), HSQLDB 2.0.1
      */
     public void closeOnCompletion() throws SQLException {
         checkClosed();
@@ -328,7 +328,7 @@ class JDBCStatementBase {
      * of its dependent result sets are closed; {@code false} otherwise
      * @throws SQLException if this method is called on a closed
      * {@code Statement}
-     * @since 1.7
+     * @since JDK 1.7 M11 2010/09/10 (b123), HSQLDB 2.0.1
      */
     public boolean isCloseOnCompletion() throws SQLException {
         checkClosed();
