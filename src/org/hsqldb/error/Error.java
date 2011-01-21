@@ -164,7 +164,7 @@ public class Error {
      * $$ markers for each context variable. Context variables are supplied in
      * the add parameters.
      *
-     * @see HsqlException#HsqlException(String, String, int)
+     * @see HsqlException#HsqlException(Throwable,String, String, int)
      * @return an <code>HsqlException</code>
      */
     public static HsqlException error(String message, String sqlState, int i) {
