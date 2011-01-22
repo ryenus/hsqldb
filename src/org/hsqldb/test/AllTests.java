@@ -79,4 +79,8 @@ public class AllTests extends TestCase {
         suite.addTestSuite(org.hsqldb.test.TestTriggers.class);
         return suite;
     }
+
+    public static void main(String[] args) {
+        junit.textui.TestRunner.run(suite());
+    }
 }

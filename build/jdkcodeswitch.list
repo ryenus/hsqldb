@@ -17,6 +17,7 @@ org/hsqldb/jdbc/JDBCPreparedStatement.java
 org/hsqldb/jdbc/JDBCResultSet.java
 org/hsqldb/jdbc/JDBCResultSetMetaData.java
 org/hsqldb/jdbc/JDBCStatement.java
+org/hsqldb/jdbc/JDBCStatementBase.java
 org/hsqldb/jdbc/Util.java
 org/hsqldb/jdbc/pool/JDBCPooledDataSource.java
 org/hsqldb/jdbc/pool/JDBCPooledConnection.java
