@@ -3033,7 +3033,7 @@ class DatabaseInformationMain extends DatabaseInformation {
      *      START_WITH           VARCHAR NOT NULL,
      *      DECLARED_DATA_TYPE   CHARACTER_DATA
      *      DECLARED_NUMERIC_PRECISION CARDINAL_NUMBER
-     *      DECLARED_NUMERIC_SCLAE     CARDINAL_NUMBER
+     *      DECLARED_NUMERIC_SCALE     CARDINAL_NUMBER
      *
      * </pre>
      *
@@ -3103,7 +3103,7 @@ class DatabaseInformationMain extends DatabaseInformation {
             addColumn(t, "CYCLE_OPTION", YES_OR_NO);
             addColumn(t, "DECLARED_DATA_TYPE", CHARACTER_DATA);
             addColumn(t, "DECLARED_NUMERIC_PRECISION", CARDINAL_NUMBER);
-            addColumn(t, "DECLARED_NUMERIC_SCLAE", CARDINAL_NUMBER);
+            addColumn(t, "DECLARED_NUMERIC_SCALE", CARDINAL_NUMBER);
 
             // HSQLDB-specific
             addColumn(t, "START_WITH", CHARACTER_DATA);
@@ -3207,7 +3207,7 @@ class DatabaseInformationMain extends DatabaseInformation {
             addColumn(t, "CYCLE_OPTION", YES_OR_NO);
             addColumn(t, "DECLARED_DATA_TYPE", CHARACTER_DATA);
             addColumn(t, "DECLARED_NUMERIC_PRECISION", CARDINAL_NUMBER);
-            addColumn(t, "DECLARED_NUMERIC_SCLAE", CARDINAL_NUMBER);
+            addColumn(t, "DECLARED_NUMERIC_SCALE", CARDINAL_NUMBER);
 
             // HSQLDB-specific
             addColumn(t, "START_WITH", CHARACTER_DATA);
