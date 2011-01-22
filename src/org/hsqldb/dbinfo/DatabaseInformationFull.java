@@ -2728,7 +2728,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
             addColumn(t, "NUMERIC_SCALE", CARDINAL_NUMBER);
             addColumn(t, "DECLARED_DATA_TYPE", CHARACTER_DATA);
             addColumn(t, "DECLARED_NUMERIC_PRECISION", CARDINAL_NUMBER);
-            addColumn(t, "DECLARED_NUMERIC_SCLAE", CARDINAL_NUMBER);
+            addColumn(t, "DECLARED_NUMERIC_SCALE", CARDINAL_NUMBER);
             addColumn(t, "DATETIME_PRECISION", CARDINAL_NUMBER);
             addColumn(t, "INTERVAL_TYPE", CHARACTER_DATA);
             addColumn(t, "INTERVAL_PRECISION", CARDINAL_NUMBER);
@@ -2902,7 +2902,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
             addColumn(t, "DTD_IDENTIFIER", SQL_IDENTIFIER);
             addColumn(t, "DECLARED_DATA_TYPE", CHARACTER_DATA);
             addColumn(t, "DECLARED_NUMERIC_PRECISION", CARDINAL_NUMBER);
-            addColumn(t, "DECLARED_NUMERIC_SCLAE", CARDINAL_NUMBER);
+            addColumn(t, "DECLARED_NUMERIC_SCALE", CARDINAL_NUMBER);
 
             HsqlName name = HsqlNameManager.newInfoSchemaObjectName(
                 sysTableHsqlNames[DOMAINS].name, false, SchemaObject.INDEX);
