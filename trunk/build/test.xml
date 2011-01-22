@@ -21,7 +21,7 @@
    <!-- D E F A U L T  B U I L D  P R O P E R T I E S                        -->
    <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
    <property name="test.suite.version" 
-             value="1.9.0"/>
+             value="2.0.1"/>
                  
    <property name="test.suite.title"
              value="HSQLDB Test Suite"/>
@@ -30,7 +30,7 @@
              value="The HSQL Development Group"/>
    
    <property name="test.suite.implementation.title"
-             value="JDBC 4 Test Cases and Utilities"/>
+             value="JDBC 4.1 Test Cases and Utilities"/>
              
    <property name="test.suite.implementation.label"
              value="private-${_tmpstamp}"/>
@@ -42,13 +42,13 @@
              value="${basedir}/lib/sqltool.jar" />
              
    <property name="hsqldb.jar"
-             value="${basedir}/lib/hsqldb.jar" />
-             
-   <property name="hsqldbtest.jar"
-             value="${basedir}/lib/hsqldbtest.jar" />             
+             value="${basedir}/lib/hsqldb.jar" />          
              
    <property name="junit.jar"
              value="${basedir}/lib/junit.jar" />
+			 
+   <property name="preprocessor.jar"
+             value="${basedir}/lib/preprocessor.jar" />			 
              
    <property name="test.suite.jar"
              value="${basedir}/lib/testsuite.jar" /> 
@@ -73,14 +73,10 @@
    <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
    <path id="test.suite.javac.classpath">
         <pathelement location="${hsqldb.jar}"/>
+        <pathelement location="${preprocessor.jar}"/>
         <pathelement location="${sqltool.jar}"/>
         <pathelement location="${junit.jar}" />
    </path>
-   
-   <path id="test.all.classpath">
-        <pathelement location="${hsqldbtest.jar}"/>
-        <pathelement location="${junit.jar}" />
-   </path>   
 
    <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
    <!-- S H A R E D  I N I T I A L I Z A T I O N                             -->
@@ -90,7 +86,7 @@
                    property="ant.java.iscjava16"/>
 
         <fail unless='ant.java.iscjava16'
-              message="JDK must be 1.6 or greater"/> 
+              message="JDK must be 1.6 or greater"/>
 
         <available file="${hsqldb.jar}" 
                    type='file' 
@@ -98,6 +94,13 @@
 
         <fail unless='hsqldb.available'
               message="'hsqldb.jar' must reside at ${hsqldb.jar}"/>
+			  
+        <available file="${preprocessor.jar}" 
+                   type='file' 
+                   property="preprocessor.available"/>
+
+        <fail unless='preprocessor.available'
+              message="'preprocessor.jar' must reside at ${preprocessor.jar}"/>			  
 
         <available file="${sqltool.jar}" 
                    type='file' 
@@ -175,6 +178,8 @@
                    
       <fail unless='test.suite.jar.available'
             message="The test suite jar must reside at ${test.suite.jar}"/>
+			
+      <delete dir="${test.results.dir}"/>
 
       <mkdir dir="${test.results.dir}"/> 
       <mkdir dir="${test.results.dir}/resources"/>
@@ -223,6 +228,8 @@
       <copy todir="${test.results.dir}/resources/org/hsqldb/resources">
 	     <fileset dir="${test.src.dir}/org/hsqldb/resources" includes="*.*"/>
       </copy>  
+	  
+	  <echo>Starting JUnit Tests...</echo>
 
 	  <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
       <!-- U S E R  T E S T  P R O P E R T I E S                                -->
@@ -251,11 +258,25 @@
              errorproperty="tests.failed" >
           <batchtest todir="${test.results.dir}">
               <fileset dir="${test.src.dir}" 
-                       includes="**/*Test.java"/>
+                       includes="org/hsqldb/jdbc/**/*Test.java"/>
+              <fileset dir="${test.src.dir}" 
+                       includes="org/hsqldb/lib/**/*Test.java"/>
+              <fileset dir="${test.src.dir}" 
+                       includes="org/hsqldb/persist/**/*Test.java"/>
+              <fileset dir="${test.src.dir}" 
+                       includes="org/hsqldb/store/**/*Test.java"/>		
+              <fileset dir="${test.src.dir}" 
+                       includes="org/hsqldb/types/**/*Test.java"/>	
+					                 <fileset dir="${test.src.dir}" 
+                       includes="org/hsqldb/util/**/*Test.java"/>	
           </batchtest>
           <classpath>
+		      <!-- Placed first to avoid issues with JAR resource URL handling -->
+			  <!-- e.g. relative system id XML DTD, XSD and entites -->
               <pathelement location="${test.results.dir}/resources"/>
               <path path="${hsqldb.jar}"/>
+              <path path="${preprocessor.jar}"/>
+	          <path path="${sqltool.jar}"/>
               <path path="${junit.jar}"/>
               <path path="${test.suite.jar}"/>
           </classpath>
@@ -264,6 +285,8 @@
           </syspropertyset>
           <formatter type="xml"/>
       </junit>
+	  
+	  <echo>Generating Test Reports...</echo>
 
       <mkdir dir="${test.results.dir}/reports"/>
       <mkdir dir="${test.results.dir}/reports/html"/>
@@ -276,23 +299,7 @@
           <report format="frames" 
                   todir="${test.results.dir}/reports/html"/>
       </junitreport>
-   </target>
-   
-   <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
-   <!-- R U N  T E S T  A L L                                                -->
-   <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->   
-   <target name="run.test.all"
-           description="Runs the org.hsqldb.test.TestAll set of tests.">
-       
-      <available file="${hsqldbtest.jar}" 
-                 type='file' 
-                 property="hsqldbtest.jar.available"/>
-                 
-       <java classname="org.hsqldb.test.TestAll" 
-             classpathref="test.all.classpath" 
-             dir="${basedir}/testrun/hsqldb" 
-             fork="true"/>
-   </target>   
+   </target>  
    
    <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
    <!-- C L E A N  T E S T  S U I T E                                        -->
