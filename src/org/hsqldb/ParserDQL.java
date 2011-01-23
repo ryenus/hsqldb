@@ -2195,6 +2195,7 @@ public class ParserDQL extends ParserBase {
 
             case Tokens.COALESCE :
             case Tokens.IFNULL :
+            case Tokens.ISNULL :
                 return readCoalesceExpression();
 
             case Tokens.CAST :
@@ -4452,30 +4453,44 @@ public class ParserDQL extends ParserBase {
      */
     private Expression readCastExpression() {
 
-        boolean isConvert = token.tokenType == Tokens.CONVERT;
+        boolean    isConvert = token.tokenType == Tokens.CONVERT;
+        Expression e;
+        Type       typeObject;
 
         read();
         readThis(Tokens.OPENBRACKET);
 
-        Expression l = this.XreadValueExpressionOrNull();
-
         if (isConvert) {
-            readThis(Tokens.COMMA);
+            if (database.sqlSyntaxMss) {
+                typeObject = readTypeDefinition(false, true);
+
+                readThis(Tokens.COMMA);
+
+                e = this.XreadValueExpressionOrNull();
+            } else {
+                e = this.XreadValueExpressionOrNull();
+
+                readThis(Tokens.COMMA);
+
+                typeObject = readTypeDefinition(false, true);
+            }
         } else {
+            e = this.XreadValueExpressionOrNull();
+
             readThis(Tokens.AS);
+
+            typeObject = readTypeDefinition(false, true);
         }
 
-        Type typeObject = readTypeDefinition(false, true);
-
-        if (l.isUnresolvedParam()) {
-            l.setDataType(session, typeObject);
+        if (e.isUnresolvedParam()) {
+            e.setDataType(session, typeObject);
         } else {
-            l = new ExpressionOp(l, typeObject);
+            e = new ExpressionOp(e, typeObject);
         }
 
         readThis(Tokens.CLOSEBRACKET);
 
-        return l;
+        return e;
     }
 
     /**

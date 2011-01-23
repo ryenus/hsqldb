@@ -1497,6 +1497,27 @@ public class Logger {
                                               : Tokens.T_FALSE);
         list.add(sb.toString());
         sb.setLength(0);
+
+        if (database.sqlSyntaxMss) {
+            sb.append("SET DATABASE ").append(Tokens.T_SQL).append(' ');
+            sb.append(Tokens.T_SYNTAX).append(' ');
+            sb.append(Tokens.T_MSS).append(' ');
+            sb.append(database.sqlSyntaxOra ? Tokens.T_TRUE
+                                            : Tokens.T_FALSE);
+            list.add(sb.toString());
+            sb.setLength(0);
+        }
+
+        if (database.sqlSyntaxOra) {
+            sb.append("SET DATABASE ").append(Tokens.T_SQL).append(' ');
+            sb.append(Tokens.T_SYNTAX).append(' ');
+            sb.append(Tokens.T_ORA).append(' ');
+            sb.append(database.sqlSyntaxOra ? Tokens.T_TRUE
+                                            : Tokens.T_FALSE);
+            list.add(sb.toString());
+            sb.setLength(0);
+        }
+
         sb.append("SET DATABASE ").append(Tokens.T_TRANSACTION);
         sb.append(' ').append(Tokens.T_CONTROL).append(' ');
 
@@ -1533,6 +1554,12 @@ public class Logger {
                 break;
         }
 
+        list.add(sb.toString());
+        sb.setLength(0);
+        sb.append("SET DATABASE ").append(Tokens.T_TEXT).append(' ');
+        sb.append(Tokens.T_TABLE).append(' ').append(Tokens.T_DEFAULTS);
+        sb.append(' ').append('\'');
+        sb.append(propTextSourceDefault).append('\'');
         list.add(sb.toString());
         sb.setLength(0);
 
@@ -1620,12 +1647,6 @@ public class Logger {
                 sb.setLength(0);
             }
             */
-            sb.append("SET DATABASE ").append(Tokens.T_TEXT).append(' ');
-            sb.append(Tokens.T_TABLE).append(' ').append(Tokens.T_DEFAULTS);
-            sb.append(' ').append('\'');
-            sb.append(propTextSourceDefault).append('\'');
-            list.add(sb.toString());
-            sb.setLength(0);
         }
 
         String[] array = new String[list.size()];

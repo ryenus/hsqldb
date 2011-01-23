@@ -36,6 +36,7 @@ import org.hsqldb.HsqlNameManager.HsqlName;
 import org.hsqldb.Tokens;
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
+import org.hsqldb.lib.MD5;
 import org.hsqldb.lib.StringConverter;
 
 /**
@@ -77,8 +78,8 @@ public class User extends Grantee {
 
         sb.append(Tokens.T_CREATE).append(' ').append(Tokens.T_USER);
         sb.append(' ').append(granteeName.statementName).append(' ');
-        sb.append(Tokens.T_PASSWORD).append(' ');
-        sb.append('\'').append(password).append('\'');
+        sb.append(Tokens.T_PASSWORD).append(' ').append(Tokens.T_DIGEST);
+        sb.append(' ').append('\'').append(password).append('\'');
 
         return sb.toString();
     }
@@ -87,9 +88,16 @@ public class User extends Grantee {
         return 0;
     }
 
-    public void setPassword(String password) {
+    public String getPasswordDigest() {
+        return password;
+    }
 
-        // requires: UserManager.createSAUser(), UserManager.createPublicUser()
+    public void setPassword(String password, boolean isDigest) {
+
+        if (!isDigest) {
+            password = MD5.encode(password, null);
+        }
+
         this.password = password;
     }
 
@@ -99,7 +107,9 @@ public class User extends Grantee {
      */
     public void checkPassword(String value) {
 
-        if (!value.equals(password)) {
+        String digest = MD5.encode(value, null);
+
+        if (!digest.equals(password)) {
             throw Error.error(ErrorCode.X_28000);
         }
     }
@@ -138,26 +148,6 @@ public class User extends Grantee {
      */
     public void setInitialSchema(HsqlName schema) {
         initialSchema = schema;
-    }
-
-    /**
-     * Returns the ALTER USER DDL character sequence that preserves the
-     * this user's current password value and mode. <p>
-     *
-     * @return  the DDL
-     */
-    public String getAlterUserSQL() {
-
-        StringBuffer sb = new StringBuffer();
-
-        sb.append(Tokens.T_ALTER).append(' ');
-        sb.append(Tokens.T_USER).append(' ');
-        sb.append(getName().getStatementName()).append(' ');
-        sb.append(Tokens.T_SET).append(' ');
-        sb.append(Tokens.T_PASSWORD).append(' ');
-        sb.append(StringConverter.toQuotedString(password, '\'', true));
-
-        return sb.toString();
     }
 
     public String getInitialSchemaSQL() {

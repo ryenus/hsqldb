@@ -82,9 +82,11 @@ public class StatementCommand extends Statement {
 
             case StatementTypes.DATABASE_SCRIPT : {
                 String name = (String) parameters[0];
+
                 if (name == null) {
                     this.statementReturnType = StatementTypes.RETURN_RESULT;
                 }
+
                 group    = StatementTypes.X_HSQLDB_DATABASE_OPERATION;
                 isLogged = false;
             }
@@ -119,7 +121,7 @@ public class StatementCommand extends Statement {
             case StatementTypes.SET_DATABASE_PROPERTY :
             case StatementTypes.SET_DATABASE_RESULT_MEMORY_ROWS :
             case StatementTypes.SET_DATABASE_SQL_REFERENTIAL_INTEGRITY :
-            case StatementTypes.SET_DATABASE_SQL_STRICT :
+            case StatementTypes.SET_DATABASE_SQL :
             case StatementTypes.SET_DATABASE_TRANSACTION_CONTROL :
             case StatementTypes.SET_DATABASE_DEFAULT_ISOLATION_LEVEL :
             case StatementTypes.SET_DATABASE_GC :
@@ -535,7 +537,7 @@ public class StatementCommand extends Statement {
 
                 return Result.updateZeroResult;
             }
-            case StatementTypes.SET_DATABASE_SQL_STRICT : {
+            case StatementTypes.SET_DATABASE_SQL : {
                 String  property = (String) parameters[0];
                 boolean mode     = ((Boolean) parameters[1]).booleanValue();
 
@@ -574,6 +576,8 @@ public class StatementCommand extends Statement {
                     session.database.setConvertTrunc(mode);
                 } else if (property == HsqlDatabaseProperties.sql_syntax_ora) {
                     session.database.setSyntaxOra(mode);
+                } else if (property == HsqlDatabaseProperties.sql_syntax_mss) {
+                    session.database.setSyntaxMss(mode);
                 }
 
                 return Result.updateZeroResult;

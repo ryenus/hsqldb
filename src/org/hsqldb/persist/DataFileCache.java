@@ -425,8 +425,7 @@ public class DataFileCache {
 
                     dataFile.seek(FLAGS_POS);
                     dataFile.writeInt(flags);
-                    database.logger.logDetailEvent(
-                        "DataFileCache flags");
+                    database.logger.logDetailEvent("DataFileCache flags");
                 }
             }
 
@@ -1125,6 +1124,9 @@ public class DataFileCache {
             if (!fileModified) {
 
                 // unset saved flag;
+                long start = cache.saveAllTimer.elapsedTime();
+
+                cache.saveAllTimer.start();
                 dataFile.seek(FLAGS_POS);
 
                 int flags = dataFile.readInt();
@@ -1134,10 +1136,9 @@ public class DataFileCache {
                 dataFile.seek(FLAGS_POS);
                 dataFile.writeInt(flags);
                 dataFile.synch();
-
-                Error.printSystemOut(
-                    cache.saveAllTimer.currentElapsedTimeToMessage(
-                        "flags set time: "));
+                cache.saveAllTimer.stop();
+                database.logger.logDetailEvent(
+                    "flags set " + cache.saveAllTimer.elapsedTime());
 
                 fileModified = true;
             }
