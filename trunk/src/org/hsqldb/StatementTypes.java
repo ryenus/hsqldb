@@ -203,7 +203,7 @@ public interface StatementTypes {
     int SET_DATABASE_SQL_COLLATION             = 1041;
     int SET_SESSION_SQL_IGNORECASE             = 1042;
     int SET_DATABASE_SQL_REFERENTIAL_INTEGRITY = 1046;
-    int SET_DATABASE_SQL_STRICT                = 1047;
+    int SET_DATABASE_SQL                       = 1047;
     int SET_DATABASE_TEXT_SOURCE               = 1048;
     int SET_DATABASE_TRANSACTION_CONTROL       = 1049;
     int SET_DATABASE_DEFAULT_ISOLATION_LEVEL   = 1050;

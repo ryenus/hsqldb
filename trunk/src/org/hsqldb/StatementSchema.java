@@ -973,12 +973,12 @@ public class StatementSchema extends Statement {
                 String   password = (String) arguments[1];
                 Grantee  grantor  = (Grantee) arguments[2];
                 boolean  admin    = ((Boolean) arguments[3]).booleanValue();
-
+                boolean  isDigest = ((Boolean) arguments[4]).booleanValue();
                 try {
                     session.checkAdmin();
                     session.checkDDLWrite();
                     session.database.getUserManager().createUser(name,
-                            password);
+                            password, isDigest);
 
                     if (admin) {
                         session.database.getGranteeManager().grant(name.name,

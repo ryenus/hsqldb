@@ -3150,7 +3150,8 @@ public class ParserDDL extends ParserRoutine {
 
         HsqlName name;
         String   password;
-        boolean  admin   = false;
+        Boolean  admin   = Boolean.FALSE;
+        Boolean  isDigest = Boolean.FALSE;
         Grantee  grantor = session.getGrantee();
 
         read();
@@ -3158,6 +3159,10 @@ public class ParserDDL extends ParserRoutine {
         name = readNewUserIdentifier();
 
         readThis(Tokens.PASSWORD);
+
+        if (readIfThis(Tokens.DIGEST)) {
+            isDigest = Boolean.TRUE;
+        }
 
         password = readPassword();
 
@@ -3171,7 +3176,7 @@ public class ParserDDL extends ParserRoutine {
 
         String   sql  = getLastPart();
         Object[] args = new Object[] {
-            name, password, grantor, Boolean.valueOf(admin)
+            name, password, grantor, admin, isDigest
         };
 
         return new StatementSchema(sql, StatementTypes.CREATE_USER, args);

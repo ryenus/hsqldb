@@ -107,13 +107,13 @@ public final class UserManager {
      *        (This will catch attempts to create Reserved grantee names).
      *  </OL>
      */
-    public User createUser(HsqlName name, String password) {
+    public User createUser(HsqlName name, String password, boolean isDigest) {
 
         // This will throw an appropriate exception if grantee already exists,
         // regardless of whether the name is in any User, Role, etc. list.
         User user = granteeManager.addUser(name);
 
-        user.setPassword(password);
+        user.setPassword(password, isDigest);
 
         boolean success = userList.add(name.name, user);
 
@@ -131,7 +131,7 @@ public final class UserManager {
         }
 
         // requires: UserManager.createSAUser(), UserManager.createPublicUser()
-        user.setPassword(password);
+        user.setPassword(password, false);
     }
 
     public boolean checkComplexity(Session session, String password) {
@@ -204,7 +204,7 @@ public final class UserManager {
         HsqlName name =
             granteeManager.database.nameManager.newHsqlName(username,
                 isQuoted, SchemaObject.GRANTEE);
-        User user = createUser(name, password);
+        User user = createUser(name, password, false);
 
         user.isLocalOnly = true;
 
@@ -259,7 +259,7 @@ public final class UserManager {
                 granteeManager.database.nameManager.newHsqlName(name, true,
                     SchemaObject.GRANTEE);
 
-            user                = createUser(hsqlName, "");
+            user                = createUser(hsqlName, "", false);
             user.isExternalOnly = true;
         }
 

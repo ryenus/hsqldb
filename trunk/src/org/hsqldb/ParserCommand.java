@@ -952,7 +952,7 @@ public class ParserCommand extends ParserDDL {
             case Tokens.SQL : {
                 read();
 
-                int     type     = StatementTypes.SET_DATABASE_SQL_STRICT;
+                int     type     = StatementTypes.SET_DATABASE_SQL;
                 Boolean flag     = null;
                 String  property = null;
 
@@ -1039,12 +1039,17 @@ public class ParserCommand extends ParserDDL {
 
                         if (token.tokenString.equals(Tokens.T_ORA)) {
                             read();
+
+                            property = HsqlDatabaseProperties.sql_syntax_ora;
+                        } else if (token.tokenString.equals(Tokens.T_MSS)) {
+                            read();
+
+                            property = HsqlDatabaseProperties.sql_syntax_mss;
                         } else {
                             throw unexpectedToken();
                         }
 
-                        flag     = processTrueOrFalseObject();
-                        property = HsqlDatabaseProperties.sql_syntax_ora;
+                        flag = processTrueOrFalseObject();
                         break;
 
                     default :

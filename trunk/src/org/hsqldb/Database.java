@@ -464,6 +464,10 @@ public class Database {
         sqlConvertTruncate = mode;
     }
 
+    public void setSyntaxMss(boolean mode) {
+        sqlSyntaxMss = mode;
+    }
+
     public void setSyntaxOra(boolean mode) {
         sqlSyntaxOra = mode;
     }
@@ -622,7 +626,6 @@ public class Database {
                 sb.append(table.getName().getSchemaQualifiedStatementName());
                 sb.append(' ').append(Tokens.T_TYPE).append(' ');
                 sb.append(Tokens.T_CACHED);
-
                 list.add(sb.toString());
             }
         }

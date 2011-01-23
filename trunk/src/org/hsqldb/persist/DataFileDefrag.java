@@ -88,12 +88,12 @@ final class DataFileDefrag {
 
         boolean complete = false;
 
-        Error.printSystemOut("Defrag process begins");
+        database.logger.logDetailEvent("Defrag process begins");
 
         transactionRowLookup = database.txManager.getTransactionIDList();
 
-        Error.printSystemOut("transaction count: "
-                             + transactionRowLookup.size());
+        database.logger.logDetailEvent("transaction count "
+                                       + transactionRowLookup.size());
 
         HsqlArrayList allTables = database.schemaManager.getAllTables(true);
 
@@ -125,8 +125,8 @@ final class DataFileDefrag {
                     rootsList[i] = null;
                 }
 
-                Error.printSystemOut("table: " + t.getName().name
-                                     + " complete");
+                database.logger.logDetailEvent("table complete "
+                                               + t.getName().name);
             }
 
             fileStreamOut.flush();
@@ -166,7 +166,7 @@ final class DataFileDefrag {
                 int[] roots = rootsList[i];
 
                 if (roots != null) {
-                    Error.printSystemOut(
+                    database.logger.logDetailEvent(
                         "roots: "
                         + org.hsqldb.lib.StringUtil.getList(roots, ",", ""));
                 }
@@ -198,8 +198,8 @@ final class DataFileDefrag {
             }
         }
 
-        Error.printSystemOut("Defrag transfer complete: "
-                             + stopw.elapsedTime());
+        database.logger.logDetailEvent("Defrag transfer complete: "
+                                       + stopw.elapsedTime());
     }
 
     /**
@@ -232,14 +232,15 @@ final class DataFileDefrag {
         Session session = database.getSessionManager().getSysSession();
         PersistentStore    store  = table.getRowStore(session);
         RowOutputInterface rowOut = cache.rowOut.duplicate();
-        DoubleIntIndex pointerLookup =
-            new DoubleIntIndex(store.elementCount(), false);
+        DoubleIntIndex pointerLookup = new DoubleIntIndex(store.elementCount(),
+            false);
         int[] rootsArray = table.getIndexRootsArray();
         long  pos        = fileOffset;
         int   count      = 0;
 
         pointerLookup.setKeysSearchTarget();
-        Error.printSystemOut("lookup begins: " + stopw.elapsedTime());
+        database.logger.logDetailEvent("lookup begins " + table.getName().name
+                                       + " " + stopw.elapsedTime());
 
         // all rows
         RowIterator it = table.rowIteratorClustered(store);
@@ -249,16 +250,17 @@ final class DataFileDefrag {
 
             pointerLookup.addUnsorted(row.getPos(), (int) (pos / scale));
 
-            if (count % 50000 == 0) {
-                Error.printSystemOut("pointer pair for row " + count + " "
-                                     + row.getPos() + " " + pos);
+            if (count != 0 && count % 50000 == 0) {
+                database.logger.logDetailEvent("pointer pair for row " + count
+                                               + " " + row.getPos() + " "
+                                               + pos);
             }
 
             pos += row.getStorageSize();
         }
 
-        Error.printSystemOut("table: " + table.getName().name + " list done: "
-                             + stopw.elapsedTime());
+        database.logger.logDetailEvent("table done " + table.getName().name
+                                       + " " + stopw.elapsedTime());
 
         count = 0;
         it    = table.rowIterator(store);
@@ -273,8 +275,9 @@ final class DataFileDefrag {
 
             fileOffset += row.getStorageSize();
 
-            if ((count) % 50000 == 0) {
-                Error.printSystemOut(count + " rows " + stopw.elapsedTime());
+            if (count != 0 && count % 100000 == 0) {
+                database.logger.logDetailEvent("rows count " + count + " "
+                                               + stopw.elapsedTime());
             }
         }
 
@@ -294,8 +297,8 @@ final class DataFileDefrag {
         }
 
         setTransactionRowLookups(pointerLookup);
-        Error.printSystemOut("table: " + table.getName().name
-                             + " : table converted");
+        database.logger.logDetailEvent("table converted "
+                                       + table.getName().name);
 
         return rootsArray;
     }

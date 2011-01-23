@@ -2822,6 +2822,7 @@ class DatabaseInformationMain extends DatabaseInformation {
             addColumn(t, "ADMIN", Type.SQL_BOOLEAN);
             addColumn(t, "INITIAL_SCHEMA", SQL_IDENTIFIER);
             addColumn(t, "AUTHENTICATION", SQL_IDENTIFIER);
+            addColumn(t, "PASSWORD_DIGEST", SQL_IDENTIFIER);
 
             // order: USER
             // true PK
@@ -2856,6 +2857,7 @@ class DatabaseInformationMain extends DatabaseInformation {
                                              : user.isExternalOnly
                                                ? Tokens.T_EXTERNAL
                                                : Tokens.T_ANY;
+            row[4] = user.getPasswordDigest();
 
             t.insertSys(session, store, row);
         }
