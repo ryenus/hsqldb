@@ -83,7 +83,6 @@ public class TriggerDef implements Runnable, SchemaObject {
     boolean                   hasTransitionTables;
     boolean                   hasTransitionRanges;
     String                    conditionSQL;
-    String                    procedureSQL;
     Routine                   routine;
     int[]                     updateColumns;
 
@@ -400,7 +399,7 @@ public class TriggerDef implements Runnable, SchemaObject {
     }
 
     public String getProcedureSQL() {
-        return procedureSQL;
+        return routine == null ? null : routine.getSQLBodyDefinition();
     }
 
     public int[] getUpdateColumnIndexes() {
