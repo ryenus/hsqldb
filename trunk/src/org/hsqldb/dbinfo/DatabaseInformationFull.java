@@ -4762,10 +4762,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
                                     == Routine.LANGUAGE_JAVA ? "EXTERNAL"
                                                              : "SQL";
                 row[routine_definition] = specific.getSQL();
-                row[external_name] =
-                    specific.getLanguage() == Routine.LANGUAGE_JAVA
-                    ? specific.getMethod().getName()
-                    : null;
+                row[external_name]      = specific.getExternalName();
                 row[external_language] = specific.getLanguage()
                                          == Routine.LANGUAGE_JAVA ? "JAVA"
                                                                   : null;

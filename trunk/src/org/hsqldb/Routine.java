@@ -344,7 +344,7 @@ public class Routine implements SchemaObject, Cloneable {
         return sb.toString();
     }
 
-    public String getSQLDefinition() {
+    public String getSQLBodyDefinition() {
 
         StringBuffer sb = new StringBuffer();
 
@@ -356,6 +356,15 @@ public class Routine implements SchemaObject, Cloneable {
         }
 
         return sb.toString();
+    }
+
+    public String getExternalName() {
+
+        if (language == LANGUAGE_JAVA) {
+            return methodName;
+        } else {
+            return null;
+        }
     }
 
     public long getChangeTimestamp() {

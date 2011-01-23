@@ -1483,7 +1483,7 @@ public class ParserDDL extends ParserRoutine {
                         case Tokens.DEFAULT : {
                             read();
 
-                            deleteAction =
+                            updateAction =
                                 SchemaObject.ReferentialAction.SET_DEFAULT;
 
                             break;
@@ -1491,7 +1491,7 @@ public class ParserDDL extends ParserRoutine {
                         case Tokens.NULL :
                             read();
 
-                            deleteAction =
+                            updateAction =
                                 SchemaObject.ReferentialAction.SET_NULL;
                             break;
 
