@@ -56,8 +56,8 @@ public class JDBCDataSourceFactory implements ObjectFactory {
      * Static method to create a JDBCDataSource instance using the
      * given properties for url, user, password, etc.
      */
-    public static DataSource createDataSource(Properties props)
-    throws Exception {
+    public static DataSource createDataSource(
+            Properties props) throws Exception {
 
         JDBCDataSource ds =
             (JDBCDataSource) Class.forName(bdsClassName).newInstance();
@@ -66,7 +66,6 @@ public class JDBCDataSourceFactory implements ObjectFactory {
         if (value == null) {
             value = props.getProperty(urlName);
         }
-
         ds.setDatabase(value);
 
         value = props.getProperty(userName);
@@ -74,7 +73,6 @@ public class JDBCDataSourceFactory implements ObjectFactory {
         if (value == null) {
             value = props.getProperty(userNameName);
         }
-
         ds.setUser(value);
 
         value = props.getProperty(passwordName);
@@ -89,7 +87,8 @@ public class JDBCDataSourceFactory implements ObjectFactory {
             if (value.length() > 0) {
                 try {
                     ds.setLoginTimeout(Integer.parseInt(value));
-                } catch (NumberFormatException nfe) {}
+                } catch (NumberFormatException nfe) {
+                }
             }
         }
 
@@ -135,13 +134,11 @@ public class JDBCDataSourceFactory implements ObjectFactory {
             if (refAddr == null) {
                 throw new Exception(className + ": RefAddr not set: database");
             }
-
             value = refAddr.getContent();
 
             if (!(value instanceof String)) {
                 throw new Exception(className + ": invalid RefAddr: database");
             }
-
             ds.setDatabase((String) value);
 
             refAddr = ref.get("user");
@@ -149,13 +146,11 @@ public class JDBCDataSourceFactory implements ObjectFactory {
             if (refAddr == null) {
                 throw new Exception(className + ": RefAddr not set: user");
             }
-
             value = ref.get("user").getContent();
 
             if (!(value instanceof String)) {
                 throw new Exception(className + ": invalid RefAddr: user");
             }
-
             ds.setUser((String) value);
 
             refAddr = ref.get("password");
@@ -170,7 +165,6 @@ public class JDBCDataSourceFactory implements ObjectFactory {
                                         + ": invalid RefAddr: password");
                 }
             }
-
             ds.setPassword((String) value);
 
             refAddr = ref.get("loginTimeout");
@@ -185,7 +179,8 @@ public class JDBCDataSourceFactory implements ObjectFactory {
                         try {
                             ds.setLoginTimeout(
                                 Integer.parseInt(loginTimeoutContent));
-                        } catch (NumberFormatException nfe) {}
+                        } catch (NumberFormatException nfe) {
+                        }
                     }
                 }
             }
@@ -216,5 +211,6 @@ public class JDBCDataSourceFactory implements ObjectFactory {
     private final static String xdsClassName =
         "org.hsqldb.jdbc.pool.JDBCXADataSource";
 
-    public JDBCDataSourceFactory() {}
+    public JDBCDataSourceFactory() {
+    }
 }

@@ -1291,6 +1291,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
 
             return;
         }
+
         final long length = x.length();
 
         if (length > Integer.MAX_VALUE) {
@@ -1298,7 +1299,6 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
 
             throw Util.sqlException(ErrorCode.JDBC_INPUTSTREAM_ERROR, msg);
         }
-
         checkSetParameterIndex(parameterIndex, true);
 
         try {
@@ -1308,7 +1308,8 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
 
             setParameter(parameterIndex, out.toByteArray());
         } catch (Throwable e) {
-            parameterSet[parameterIndex - 1]    = false;
+            parameterSet[parameterIndex - 1] = false;
+
             throw Util.sqlException(ErrorCode.JDBC_INPUTSTREAM_ERROR,
                                     e.toString());
         }
@@ -1392,7 +1393,6 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
 
             throw Util.sqlException(ErrorCode.JDBC_INPUTSTREAM_ERROR, msg);
         }
-
         checkSetParameterIndex(parameterIndex, false);
 
         try {
@@ -1401,7 +1401,8 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
 
             setParameter(parameterIndex, writer.toString());
         } catch (Throwable e) {
-            parameterSet[parameterIndex - 1]    = false;
+            parameterSet[parameterIndex - 1] = false;
+
             throw Util.sqlException(ErrorCode.SERVER_TRANSFER_CORRUPTED,
                                     e.toString());
         }
@@ -2243,8 +2244,8 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
      * @see #execute
      */
 //#ifdef JAVA4
-    public synchronized boolean getMoreResults(int current)
-        throws SQLException {
+    public synchronized boolean getMoreResults(
+            int current) throws SQLException {
         return super.getMoreResults(current);
     }
 
@@ -2664,9 +2665,9 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
     private void setBinStream(int parameterIndex, java.io.InputStream x,
                               long length) throws SQLException {
 
-
         if (parameterTypes[parameterIndex - 1].typeCode == Types.SQL_BLOB) {
             setBlobParameter(parameterIndex, x, length);
+
             return;
         }
 
@@ -2677,7 +2678,6 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
         }
 
         try {
-
             HsqlByteArrayOutputStream output;
 
             if (length < 0) {
@@ -2687,7 +2687,8 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
             }
             setParameter(parameterIndex, output.toByteArray());
         } catch (Throwable e) {
-            parameterSet[parameterIndex - 1]    = false;
+            parameterSet[parameterIndex - 1] = false;
+
             throw Util.sqlException(ErrorCode.JDBC_INPUTSTREAM_ERROR,
                                     e.toString());
         }
@@ -2738,8 +2739,10 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
         checkSetParameterIndex(parameterIndex, false);
 
         if (parameterTypes[parameterIndex - 1].typeCode == Types.SQL_CLOB) {
-            parameterSet[parameterIndex - 1]    = false;
+            parameterSet[parameterIndex - 1] = false;
+
             setClobParameter(parameterIndex, reader, length);
+
             return;
         }
 
@@ -2750,7 +2753,6 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
         }
 
         try {
-
             CharArrayWriter writer;
 
             if (length < 0) {
@@ -2760,7 +2762,8 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
             }
             setParameter(parameterIndex, writer.toString());
         } catch (Throwable e) {
-            parameterSet[parameterIndex - 1]    = false;
+            parameterSet[parameterIndex - 1] = false;
+
             throw Util.sqlException(ErrorCode.JDBC_INPUTSTREAM_ERROR,
                                     e.toString());
         }
@@ -4252,18 +4255,19 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
                     Util.throwError(e);
                 }
             case Types.SQL_VARCHAR : {
-
                 if (o instanceof String) {
                     break;
                 } else {
                     o = outType.convertToDefaultType(session, o);
+
                     break;
                 }
             }
             case Types.SQL_CHAR :
                 if (outType.precision == 1 && o instanceof Character) {
-                    o = new String(new char[] {((Character) o).charValue()});
+                    o = new String(new char[] { ((Character) o).charValue() });
                 }
+
             // fall through
             default :
                 try {
@@ -4288,23 +4292,27 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
         setClobParameter(i, o, 0);
     }
 
-    void setClobParameter(int i, Object o, long streamLength) throws SQLException {
+    void setClobParameter(int i, Object o,
+                          long streamLength) throws SQLException {
 
         if (o instanceof JDBCClobClient) {
-            JDBCClobClient clob =(JDBCClobClient) o;
-            if ( !clob.session.getDatabaseUniqueName().equals(session.getDatabaseUniqueName()) ) {
+            JDBCClobClient clob = (JDBCClobClient) o;
+
+            if (!clob.session.getDatabaseUniqueName().equals(
+                    session.getDatabaseUniqueName())) {
                 streamLength = clob.length();
 
                 Reader is = clob.getCharacterStream();
 
                 parameterValues[i - 1] = is;
                 parameterStream[i - 1] = true;
-                streamLengths[i - 1] = streamLength;
+                streamLengths[i - 1]   = streamLength;
+
                 return;
             }
-
             parameterValues[i - 1] = o;
             parameterSet[i - 1]    = true;
+
             return;
         } else if (o instanceof Clob) {
             parameterValues[i - 1] = o;
@@ -4314,20 +4322,20 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
         } else if (o instanceof ClobInputStream) {
             ClobInputStream is = (ClobInputStream) o;
 
-            if ( is.session.getDatabaseUniqueName().equals(session.getDatabaseUniqueName()) ) {
+            if (is.session.getDatabaseUniqueName().equals(
+                    session.getDatabaseUniqueName())) {
                 throw Util.sqlException(ErrorCode.JDBC_INVALID_ARGUMENT,
                                         "invalid Reader");
             }
-
             parameterValues[i - 1] = o;
             parameterStream[i - 1] = true;
-            streamLengths[i - 1] = streamLength;
+            streamLengths[i - 1]   = streamLength;
 
             return;
         } else if (o instanceof Reader) {
             parameterValues[i - 1] = o;
             parameterStream[i - 1] = true;
-            streamLengths[i - 1] = streamLength;
+            streamLengths[i - 1]   = streamLength;
 
             return;
         } else if (o instanceof String) {
@@ -4352,28 +4360,29 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
         setBlobParameter(i, o, 0);
     }
 
-    void setBlobParameter(int i, Object o, long streamLength) throws SQLException {
-
+    void setBlobParameter(int i, Object o,
+                          long streamLength) throws SQLException {
 
         if (o instanceof JDBCBlobClient) {
-
             JDBCBlobClient blob = (JDBCBlobClient) o;
 
-            if ( !blob.session.getDatabaseUniqueName().equals(session.getDatabaseUniqueName()) ) {
+            if (!blob.session.getDatabaseUniqueName().equals(
+                    session.getDatabaseUniqueName())) {
                 streamLength = blob.length();
 
                 InputStream is = blob.getBinaryStream();
 
                 parameterValues[i - 1] = is;
                 parameterStream[i - 1] = true;
-                streamLengths[i - 1] = streamLength;
+                streamLengths[i - 1]   = streamLength;
+
                 return;
             }
 
             // in the same database
-
             parameterValues[i - 1] = o;
             parameterSet[i - 1]    = true;
+
             return;
         } else if (o instanceof Blob) {
             parameterValues[i - 1] = o;
@@ -4383,7 +4392,8 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
         } else if (o instanceof BlobInputStream) {
             BlobInputStream is = (BlobInputStream) o;
 
-            if ( is.session.getDatabaseUniqueName().equals(session.getDatabaseUniqueName()) ) {
+            if (is.session.getDatabaseUniqueName().equals(
+                    session.getDatabaseUniqueName())) {
                 throw Util.sqlException(ErrorCode.JDBC_INVALID_ARGUMENT,
                                         "invalid Reader");
             }
@@ -4391,13 +4401,13 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
             // in the same database ? see if it blocks in
             parameterValues[i - 1] = o;
             parameterStream[i - 1] = true;
-            streamLengths[i - 1] = streamLength;
+            streamLengths[i - 1]   = streamLength;
 
             return;
         } else if (o instanceof InputStream) {
             parameterValues[i - 1] = o;
             parameterStream[i - 1] = true;
-            streamLengths[i - 1] = streamLength;
+            streamLengths[i - 1]   = streamLength;
 
             return;
         } else if (o instanceof byte[]) {
@@ -4616,7 +4626,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
         if (resultIn.isData()) {
             currentResultSet = new JDBCResultSet(connection, this, resultIn,
                     resultIn.metaData);
-        } else if (statementRetType == StatementTypes.RETURN_RESULT ) {
+        } else if (statementRetType == StatementTypes.RETURN_RESULT) {
             getMoreResults();
         }
     }

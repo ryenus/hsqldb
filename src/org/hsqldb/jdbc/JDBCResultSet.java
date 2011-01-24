@@ -4452,8 +4452,7 @@ public class JDBCResultSet implements ResultSet {
 
         checkColumn(columnIndex);
 
-        Type type = resultMetaData.columnTypes[columnIndex - 1];
-
+        Type     type = resultMetaData.columnTypes[columnIndex - 1];
         Object[] data = (Object[]) getCurrent()[columnIndex - 1];
 
         if (!type.isArrayType()) {
@@ -6939,18 +6938,16 @@ public class JDBCResultSet implements ResultSet {
     }
 
 //#endif JAVA6
-
 //------------------------- JDBC 4.1 -----------------------------------
 
-
     /**
-     *<p>Retrieves the value of the designated column in the current row
+     * <p>Retrieves the value of the designated column in the current row
      * of this <code>ResultSet</code> object and will convert from the
      * SQL type of the column to the requested Java data type, if the
      * conversion is supported. If the conversion is not
      * supported  or null is specified for the type, a
      * <code>SQLException</code> is thrown.
-     *<p>
+     * <p>
      * At a minimum, an implementation must support the conversions defined in
      * Appendix B, Table B-3 and conversion of appropriate user defined SQL
      * types to a Java type which implements {@code SQLData}, or {@code Struct}.
@@ -6969,19 +6966,20 @@ public class JDBCResultSet implements ResultSet {
      * @since JDK 1.7 M11 2010/09/10 (b123), HSQLDB 2.0.1
      */
 //#ifdef JAVA5
-     public <T> T getObject(int columnIndex, Class<T> type) throws SQLException {
-         return (T) getObject(columnIndex);
-     }
+    public <T>T getObject(int columnIndex, Class<T> type) throws SQLException {
+        return (T) getObject(columnIndex);
+    }
+
 //#endif
 
     /**
-     *<p>Retrieves the value of the designated column in the current row
+     * <p>Retrieves the value of the designated column in the current row
      * of this <code>ResultSet</code> object and will convert from the
      * SQL type of the column to the requested Java data type, if the
      * conversion is supported. If the conversion is not
      * supported  or null is specified for the type, a
      * <code>SQLException</code> is thrown.
-     *<p>
+     * <p>
      * At a minimum, an implementation must support the conversions defined in
      * Appendix B, Table B-3 and conversion of appropriate user defined SQL
      * types to a Java type which implements {@code SQLData}, or {@code Struct}.
@@ -7001,10 +6999,13 @@ public class JDBCResultSet implements ResultSet {
      * this method
      * @since JDK 1.7 M11 2010/09/10 (b123), HSQLDB 2.0.1
      */
+
 //#ifdef JAVA5
-     public <T> T getObject(String columnLabel, Class<T> type) throws SQLException {
-         return getObject(findColumn(columnLabel), type);
-     }
+    public <T>T getObject(String columnLabel,
+                          Class<T> type) throws SQLException {
+        return getObject(findColumn(columnLabel), type);
+    }
+
 //#endif
 
 //------------------------ Internal Implementation -----------------------------
@@ -7201,7 +7202,7 @@ public class JDBCResultSet implements ResultSet {
      *    invalid, or the conversion cannot be performed
      */
     protected Object getColumnInType(int columnIndex,
-                                   Type targetType) throws SQLException {
+                                     Type targetType) throws SQLException {
 
         Object[] rowData = getCurrent();
         Type     sourceType;
@@ -7412,7 +7413,8 @@ public class JDBCResultSet implements ResultSet {
     public JDBCResultSet(JDBCConnection conn, JDBCStatementBase s, Result r,
                          ResultMetaData metaData) {
 
-        this.session    = conn == null ? null : conn.sessionProxy;
+        this.session    = conn == null ? null
+                                       : conn.sessionProxy;
         this.statement  = s;
         this.result     = r;
         this.connection = conn;
@@ -7441,7 +7443,8 @@ public class JDBCResultSet implements ResultSet {
     public JDBCResultSet(JDBCConnection conn, Result r,
                          ResultMetaData metaData) {
 
-        this.session    = conn == null ? null : conn.sessionProxy;
+        this.session    = conn == null ? null
+                                       : conn.sessionProxy;
         this.result     = r;
         this.connection = conn;
         rsProperties    = 0;
@@ -7461,17 +7464,19 @@ public class JDBCResultSet implements ResultSet {
      * @param metaData the connection properties
      */
     public static JDBCResultSet newJDBCResultSet(Result r,
-                 ResultMetaData metaData) {
+            ResultMetaData metaData) {
         return new JDBCResultSetBasic(r, metaData);
     }
 
     static class JDBCResultSetBasic extends JDBCResultSet {
+
         JDBCResultSetBasic(Result r, ResultMetaData metaData) {
             super(null, r, metaData);
         }
 
         protected Object getColumnInType(int columnIndex,
-                                       Type targetType) throws SQLException {
+                Type targetType) throws SQLException {
+
             Object[] rowData = getCurrent();
             Type     sourceType;
             Object   value;
@@ -7554,7 +7559,8 @@ public class JDBCResultSet implements ResultSet {
             throw Util.sqlException(ErrorCode.X_42561);
         }
 
-        public Time getTime(int columnIndex, Calendar cal) throws SQLException {
+        public Time getTime(int columnIndex,
+                            Calendar cal) throws SQLException {
             throw Util.notSupported();
         }
 

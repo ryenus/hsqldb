@@ -34,10 +34,13 @@ package org.hsqldb.jdbc;
 import java.io.Serializable;
 import java.sql.Connection;
 import java.sql.SQLException;
+
 //#ifdef JAVA6
 import java.sql.Wrapper;
+
 //#endif JAVA6
 import java.util.Properties;
+
 import javax.naming.NamingException;
 import javax.naming.Reference;
 import javax.naming.Referenceable;
@@ -89,12 +92,14 @@ import javax.sql.DataSource;
  * @version 2.0.1
  * @since 1.7.2
  */
+
 //#ifdef JAVA6
 @SuppressWarnings("serial")
 
 //#endif JAVA6
-public class JDBCDataSource extends JDBCCommonDataSource
-    implements DataSource, Serializable, Referenceable
+public class JDBCDataSource extends JDBCCommonDataSource implements DataSource,
+        Serializable, Referenceable
+
 //#ifdef JAVA6
 , Wrapper
 
@@ -122,6 +127,7 @@ public class JDBCDataSource extends JDBCCommonDataSource
             if (password == null) {
                 throw Util.invalidArgument("password");
             }
+
             return getConnection(user, password);
         }
 
@@ -155,19 +161,23 @@ public class JDBCDataSource extends JDBCCommonDataSource
         }
 
         Properties props = new Properties();
+
         props.setProperty("user", username);
         props.setProperty("password", password);
 
         return getConnection(url, props);
     }
 
-    private Connection getConnection(String url, Properties props) throws SQLException {
+    private Connection getConnection(String url,
+                                     Properties props) throws SQLException {
+
         if (!url.startsWith("jdbc:hsqldb:")) {
             url = "jdbc:hsqldb:" + url;
         }
 
         return JDBCDriver.getConnection(url, props);
     }
+
     //------------------------- JDBC 4.0 -----------------------------------
     // ------------------- java.sql.Wrapper implementation ---------------------
 
@@ -188,9 +198,10 @@ public class JDBCDataSource extends JDBCCommonDataSource
      * @throws java.sql.SQLException If no object found that implements the interface
      * @since JDK 1.6, HSQLDB 2.0
      */
+
 //#ifdef JAVA6
     @SuppressWarnings("unchecked")
-    public <T> T unwrap(java.lang.Class<T> iface) throws java.sql.SQLException {
+    public <T>T unwrap(java.lang.Class<T> iface) throws java.sql.SQLException {
 
         if (isWrapperFor(iface)) {
             return (T) this;
@@ -221,6 +232,7 @@ public class JDBCDataSource extends JDBCCommonDataSource
             java.lang.Class<?> iface) throws java.sql.SQLException {
         return (iface != null && iface.isAssignableFrom(this.getClass()));
     }
+
 //#endif JAVA6
 
     /**
@@ -228,7 +240,7 @@ public class JDBCDataSource extends JDBCCommonDataSource
      *
      * @return The non-null Reference of this object.
      * @exception NamingException If a naming exception was encountered
-     *		while retrieving the reference.
+     *          while retrieving the reference.
      */
     public Reference getReference() throws NamingException {
 
@@ -238,11 +250,14 @@ public class JDBCDataSource extends JDBCCommonDataSource
         ref.add(new StringRefAddr("database", getDatabase()));
         ref.add(new StringRefAddr("user", getUser()));
         ref.add(new StringRefAddr("password", password));
-        ref.add(new StringRefAddr("loginTimeout", Integer.toString(loginTimeout)));
+        ref.add(new StringRefAddr("loginTimeout",
+                                  Integer.toString(loginTimeout)));
 
         return ref;
     }
+
     // ------------------------ custom public methods ------------------------
 
-    public JDBCDataSource() {}
+    public JDBCDataSource() {
+    }
 }

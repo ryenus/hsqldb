@@ -4674,18 +4674,16 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
     }
 
 //#endif JAVA6
-
     //------------------------- JDBC 4.1 -----------------------------------
 
-
     /**
-     *<p>Returns an object representing the value of OUT parameter
+     * <p>Returns an object representing the value of OUT parameter
      * {@code parameterIndex} and will convert from the
      * SQL type of the parameter to the requested Java data type, if the
      * conversion is supported. If the conversion is not
      * supported or null is specified for the type, a
      * <code>SQLException</code> is thrown.
-     *<p>
+     * <p>
      * At a minimum, an implementation must support the conversions defined in
      * Appendix B, Table B-3 and conversion of appropriate user defined SQL
      * types to a Java type which implements {@code SQLData}, or {@code Struct}.
@@ -4704,19 +4702,21 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * @since JDK 1.7 M11 2010/09/10 (b123), HSQLDB 2.0.1
      */
 //#ifdef JAVA5
-     public <T> T getObject(int parameterIndex, Class<T> type) throws SQLException {
-         return (T) this.getObject(parameterIndex);
-     }
+    public <T>T getObject(int parameterIndex,
+                          Class<T> type) throws SQLException {
+        return (T) this.getObject(parameterIndex);
+    }
+
 //#endif
 
     /**
-     *<p>Returns an object representing the value of OUT parameter
+     * <p>Returns an object representing the value of OUT parameter
      * {@code parameterName} and will convert from the
      * SQL type of the parameter to the requested Java data type, if the
      * conversion is supported. If the conversion is not
      * supported  or null is specified for the type, a
      * <code>SQLException</code> is thrown.
-     *<p>
+     * <p>
      * At a minimum, an implementation must support the conversions defined in
      * Appendix B, Table B-3 and conversion of appropriate user defined SQL
      * types to a Java type which implements {@code SQLData}, or {@code Struct}.
@@ -4735,10 +4735,13 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * this method
      * @since JDK 1.7 M11 2010/09/10 (b123), HSQLDB 2.0.1
      */
+
 //#ifdef JAVA5
-     public <T> T getObject(String parameterName, Class<T> type) throws SQLException {
-         return getObject(this.findParameterIndex(parameterName),type);
-     }
+    public <T>T getObject(String parameterName,
+                          Class<T> type) throws SQLException {
+        return getObject(this.findParameterIndex(parameterName), type);
+    }
+
 //#endif
 
 // --------------------------- Internal Implementation -------------------------

@@ -2632,6 +2632,27 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      * @see JDBCConnection
      */
     public int getDefaultTransactionIsolation() throws SQLException {
+
+        ResultSet rs = execute("CALL DATABASE_ISOLATION_LEVEL()");
+
+        rs.next();
+
+        String result = rs.getString(1);
+
+        rs.close();
+
+        if (result.startsWith("READ COMMITTED")) {
+            return Connection.TRANSACTION_READ_COMMITTED;
+        }
+
+        if (result.startsWith("READ UNCOMMITTED")) {
+            return Connection.TRANSACTION_READ_UNCOMMITTED;
+        }
+
+        if (result.startsWith("SERIALIZABLE")) {
+            return Connection.TRANSACTION_SERIALIZABLE;
+        }
+
         return Connection.TRANSACTION_READ_COMMITTED;
     }
 
@@ -5810,8 +5831,6 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
     }
 
 //#endif JAVA6
-
-
     //--------------------------JDBC 4.1 -----------------------------
 
     /**
@@ -5876,9 +5895,9 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      * @see java.sql.PseudoColumnUsage
      * @since JDK 1.7 M11 2010/09/10 (b123), HSQLDB 2.0.1
      */
-    public ResultSet getPseudoColumns(String catalog, String schemaPattern,
-                         String tableNamePattern, String columnNamePattern)
-        throws SQLException {
+    public ResultSet getPseudoColumns(
+            String catalog, String schemaPattern, String tableNamePattern,
+            String columnNamePattern) throws SQLException {
         throw new java.sql.SQLFeatureNotSupportedException();
     }
 
@@ -5892,8 +5911,8 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      * @exception SQLException if a database access error occurs
      * @since JDK 1.7 M11 2010/09/10 (b123), HSQLDB 2.0.1
      */
-    public boolean  generatedKeyAlwaysReturned() throws SQLException {
-        return false;
+    public boolean generatedKeyAlwaysReturned() throws SQLException {
+        return true;
     }
 
     //----------------------- Internal Implementation --------------------------
@@ -6209,14 +6228,33 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
         return (s != null && s.length() == 0);
     }
 
-    String getDefaultSchema() throws SQLException {
-        final  ResultSet rs = executeSelect("SYSTEM_SCHEMAS", "IS_DEFAULT=TRUE");
+    String getDatabaseDefaultSchema() throws SQLException {
 
-        return rs.next() ? rs.getString(1) : null;
+        final ResultSet rs = executeSelect("SYSTEM_SCHEMAS",
+            "IS_DEFAULT=TRUE");
+
+        return rs.next() ? rs.getString(1)
+                         : null;
     }
 
-    void setDefaultSchema(String schemaName) throws SQLException {
-        execute("SET SCHEMA " + org.hsqldb.lib.StringConverter.toQuotedString(schemaName, '"', true));
+    String getConnectionDefaultSchema() throws SQLException {
+
+        ResultSet rs = execute("CALL CURRENT_SCHEMA");
+
+        rs.next();
+
+        String result = rs.getString(1);
+
+        rs.close();
+
+        return result;
+    }
+
+    void setConnectionDefaultSchema(String schemaName) throws SQLException {
+
+        execute("SET SCHEMA "
+                + org.hsqldb.lib.StringConverter.toQuotedString(schemaName,
+                    '"', true));
     }
 
     /**
@@ -6228,9 +6266,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
 
         if (useSchemaDefault && schemaName != null
                 && schemaName.length() == 0) {
-
-
-            final String result = getDefaultSchema();
+            final String result = getDatabaseDefaultSchema();
 
             if (result != null) {
                 schemaName = result;
@@ -6240,10 +6276,13 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
         return schemaName;
     }
 
-    String getDefaultCatalog() throws SQLException {
-         final ResultSet rs = executeSelect("SYSTEM_SCHEMAS", "IS_DEFAULT=TRUE");
+    String getDatabaseDefaultCatalog() throws SQLException {
 
-           return rs.next() ? rs.getString(2) : null;
+        final ResultSet rs = executeSelect("SYSTEM_SCHEMAS",
+            "IS_DEFAULT=TRUE");
+
+        return rs.next() ? rs.getString(2)
+                         : null;
     }
 
     /**
@@ -6255,8 +6294,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
 
         if (useSchemaDefault && catalogName != null
                 && catalogName.length() == 0) {
-
-            String result = getDefaultCatalog();
+            String result = getDatabaseDefaultCatalog();
 
             if (result != null) {
                 catalogName = result;

@@ -58,6 +58,7 @@ import java.util.Properties;
 //#endif JAVA6
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
 import org.hsqldb.DatabaseManager;
 import org.hsqldb.DatabaseURL;
 import org.hsqldb.ClientConnection;
@@ -1114,16 +1115,17 @@ public class JDBCConnection implements Connection {
         if (isInternal || isClosed) {
             return;
         }
-
         isClosed       = true;
         rootWarning    = null;
         connProperties = null;
 
         if (isPooled) {
             poolEventListener.connectionClosed();
+
             poolEventListener = null;
         } else if (sessionProxy != null) {
             sessionProxy.close();
+
             sessionProxy = null;
         }
     }
@@ -2798,7 +2800,7 @@ public class JDBCConnection implements Connection {
      * as zero.
      *
      * </div> <!-- end release-specific documentation -->
-
+     *
      *
      * @param timeout -         The time in seconds to wait for the database operation
      *                                          used to validate the connection to complete.  If
@@ -2829,9 +2831,8 @@ public class JDBCConnection implements Connection {
             return false;
         }
 
-        final boolean[] flag = new boolean[] {true};
-
-        Thread t = new Thread() {
+        final boolean[] flag = new boolean[] { true };
+        Thread          t    = new Thread() {
 
             public void run() {
 
@@ -2861,7 +2862,6 @@ public class JDBCConnection implements Connection {
                 t.setContextClassLoader(null);
             } catch (Throwable th) {
             }
-
 
             if (timeout == 0) {
                 return flag[0];
@@ -3158,7 +3158,7 @@ public class JDBCConnection implements Connection {
      */
 //#ifdef JAVA6
     @SuppressWarnings("unchecked")
-    public <T> T unwrap(java.lang.Class<T> iface) throws java.sql.SQLException {
+    public <T>T unwrap(java.lang.Class<T> iface) throws java.sql.SQLException {
 
         checkClosed();
 
@@ -3196,29 +3196,29 @@ public class JDBCConnection implements Connection {
     }
 
 //#endif JAVA6
+    //--------------------------JDBC 4.1 -----------------------------
 
- //--------------------------JDBC 4.1 -----------------------------
-
-   /**
-    * Sets the given schema name to access.
-    * <P>
-    * If the driver does not support schemas, it will
-    * silently ignore this request.
-    * <p>
-    * Calling {@code setSchema} has no effect on previously created or prepared
-    * {@code Statement} objects. It is implementation defined whether a DBMS
-    * prepare operation takes place immediately when the {@code Connection}
-    * method {@code prepareStatement} or {@code prepareCall} is invoked.
-    * For maximum portability, {@code setSchema} should be called before a
-    * {@code Statement} is created or prepared.
-    *
-    * @param schema the name of a schema  in which to work
-    * @exception SQLException if a database access error occurs
-    * or this method is called on a closed connection
-    * @see #getSchema
-    * @since JDK 1.7, HSQLDB 2.0.1
-    */
+    /**
+     * Sets the given schema name to access.
+     * <P>
+     * If the driver does not support schemas, it will
+     * silently ignore this request.
+     * <p>
+     * Calling {@code setSchema} has no effect on previously created or prepared
+     * {@code Statement} objects. It is implementation defined whether a DBMS
+     * prepare operation takes place immediately when the {@code Connection}
+     * method {@code prepareStatement} or {@code prepareCall} is invoked.
+     * For maximum portability, {@code setSchema} should be called before a
+     * {@code Statement} is created or prepared.
+     *
+     * @param schema the name of a schema  in which to work
+     * @exception SQLException if a database access error occurs
+     * or this method is called on a closed connection
+     * @see #getSchema
+     * @since JDK 1.7, HSQLDB 2.0.1
+     */
     public void setSchema(String schema) throws SQLException {
+
         checkClosed();
 
         if (schema == null) {
@@ -3226,7 +3226,8 @@ public class JDBCConnection implements Connection {
         } else if (schema.length() == 0) {
             Util.invalidArgument("Zero-length schema");
         } else {
-            (new JDBCDatabaseMetaData(this)).setDefaultSchema(schema);
+            (new JDBCDatabaseMetaData(this)).setConnectionDefaultSchema(
+                schema);
         }
     }
 
@@ -3240,9 +3241,10 @@ public class JDBCConnection implements Connection {
      * @since JDK 1.7 M11 2010/09/10 (b123), HSQLDB 2.0.1
      */
     public String getSchema() throws SQLException {
+
         checkClosed();
 
-        return (new JDBCDatabaseMetaData(this)).getDefaultSchema();
+        return (new JDBCDatabaseMetaData(this)).getConnectionDefaultSchema();
     }
 
     /**
@@ -3281,13 +3283,17 @@ public class JDBCConnection implements Connection {
      * @see java.util.concurrent.Executor
      * @since JDK 1.7, HSQLDB 2.0.1
      */
+
 //#ifdef JAVA5
-    public void abort(java.util.concurrent.Executor executor) throws SQLException {
+    public void abort(
+            java.util.concurrent.Executor executor) throws SQLException {
+
         if (executor == null) {
             throw Util.nullArgument("executor");
         }
         close();
     }
+
 //#endif
 
     /**
@@ -3342,7 +3348,7 @@ public class JDBCConnection implements Connection {
      * problems, the connection will be marked as closed, any resources held by
      * the connection will be released and both the connection and
      * statement will be unusable.
-     *<p>
+     * <p>
      * When the driver determines that the {@code setNetworkTimeout} timeout
      * value has expired, the JDBC driver marks the connection
      * closed and releases any resources held by the connection.
@@ -3380,11 +3386,16 @@ public class JDBCConnection implements Connection {
      * @see java.util.concurrent.Executor
      * @since JDK 1.7 M11 2010/09/10 (b123), HSQLDB 2.0.1
      */
+
 //#ifdef JAVA5
-    public void setNetworkTimeout(java.util.concurrent.Executor executor, int milliseconds) throws SQLException {
+    public void setNetworkTimeout(java.util.concurrent.Executor executor,
+                                  int milliseconds) throws SQLException {
+
         checkClosed();
+
         throw new java.sql.SQLFeatureNotSupportedException();
     }
+
 //#endif
 
     /**
@@ -3447,9 +3458,10 @@ public class JDBCConnection implements Connection {
     private int savepointIDSequence;
 
     /** reuse count in ConnectionPool */
-    int     incarnation;
-    boolean isPooled;
+    int                         incarnation;
+    boolean                     isPooled;
     JDBCConnectionEventListener poolEventListener;
+
     /**
      * Constructs a new external <code>Connection</code> to an HSQLDB
      * <code>Database</code>. <p>
@@ -3510,8 +3522,8 @@ public class JDBCConnection implements Connection {
                         user, password, props, null, zoneSeconds);
             } else if (connType == DatabaseURL.S_HSQL
                        || connType == DatabaseURL.S_HSQLS) {
-                sessionProxy = new ClientConnection(host, port,
-                        path, database, isTLS, user, password, zoneSeconds);
+                sessionProxy = new ClientConnection(host, port, path,
+                        database, isTLS, user, password, zoneSeconds);
                 isNetConn = true;
             } else if (connType == DatabaseURL.S_HTTP
                        || connType == DatabaseURL.S_HTTPS) {
@@ -3521,12 +3533,10 @@ public class JDBCConnection implements Connection {
             } else {    // alias: type not yet implemented
                 throw Util.invalidArgument(connType);
             }
-
             sessionProxy.setJDBCConnection(this);
 
             connProperties   = props;
             clientProperties = sessionProxy.getClientProperties();
-
         } catch (HsqlException e) {
             throw Util.sqlException(e);
         }
@@ -3584,15 +3594,16 @@ public class JDBCConnection implements Connection {
     /**
      * Constructor for use with connection pooling and XA.
      */
-    public JDBCConnection(JDBCConnection c, JDBCConnectionEventListener eventListener) {
+    public JDBCConnection(JDBCConnection c,
+                          JDBCConnectionEventListener eventListener) {
 
-        sessionProxy = c.sessionProxy;
-
+        sessionProxy      = c.sessionProxy;
         connProperties    = c.connProperties;
         clientProperties  = c.clientProperties;
         isPooled          = true;
         poolEventListener = eventListener;
     }
+
     /**
      *  The default implementation simply attempts to silently {@link
      *  #close() close()} this <code>Connection</code>
@@ -3685,21 +3696,26 @@ public class JDBCConnection implements Connection {
      * Completely closes a pooled connection
      */
     public void closeFully() {
+
         try {
             close();
         } catch (Throwable t) {
+
             //
         }
 
         try {
             if (sessionProxy != null) {
                 sessionProxy.close();
+
                 sessionProxy = null;
             }
         } catch (Throwable t) {
+
             //
         }
     }
+
     /**
      * provides cross-package access to the proprietary (i.e. non-JDBC)
      * HSQLDB session interface. <P>
