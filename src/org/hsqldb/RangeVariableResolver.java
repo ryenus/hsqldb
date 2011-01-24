@@ -311,12 +311,11 @@ public class RangeVariableResolver {
 
     void expandConditions() {
 
-        expandConditions(joinExpressions, true);
-
         if (hasOuterJoin) {
             return;
         }
 
+        expandConditions(joinExpressions, true);
         expandConditions(whereExpressions, false);
     }
 
