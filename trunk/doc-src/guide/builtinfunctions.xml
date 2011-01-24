@@ -33,7 +33,7 @@
     </keywordset>
 
     <legalnotice>
-      <para>Copyright 2010 Fred Toussi. Permission is granted to distribute
+      <para>Copyright 2010-11 Fred Toussi. Permission is granted to distribute
       this document without any alteration under the terms of the HSQLDB
       license. Additional permission is granted to the HSQL Development Group
       to distribute this document with or without alterations under the terms
@@ -1705,7 +1705,8 @@ TIMESTAMP '2008-11-22 20:30:40.000000'
 
     <para><literal>ARRAY_SORT( &lt;array value expr&gt; )</literal></para>
 
-    <para>Returns a sorted copy of the array. (HyperSQL)</para>
+    <para>Returns a sorted copy of the array. NULL elements are sorted first.
+    (HyperSQL)</para>
 
     <indexterm significance="preferred" type="sql">
       <primary>CARDINALITY function</primary>
@@ -1849,7 +1850,10 @@ D          I
     and is often needed for DECIMAL and NUMERIC. Therefore, HyperSQL allows
     the use of precision, scale or length for the type definition when they
     are valid for the type definition. HyperSQL also allows the use of real
-    type names (without the <literal>SQL_</literal> prefix). (JDBC)</para>
+    type names (without the <literal>SQL_</literal> prefix). </para>
+
+    <para>When MS SQL Server compatibility mode is on, the parameters of
+    CONVERT are switched. (JDBC)</para>
 
     <indexterm significance="preferred" type="sql">
       <primary>DECODE function</primary>
@@ -1893,8 +1897,14 @@ D          I
 
     <simpara><emphasis role="bold">IFNULL</emphasis></simpara>
 
-    <para><literal>IFNULL( &lt;value expr 1&gt;, &lt;value expr 2&gt;
-    )</literal></para>
+    <indexterm significance="preferred" type="sql">
+      <primary>ISNULL function</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">ISNULL</emphasis></simpara>
+
+    <para><literal>IFNULL | ISNULL ( &lt;value expr 1&gt;, &lt;value expr
+    2&gt; )</literal></para>
 
     <para>Returns <literal>&lt;value expr 1&gt;</literal> if it is not null,
     otherwise returns <literal>&lt;value expr 2&gt;</literal>. The type of
