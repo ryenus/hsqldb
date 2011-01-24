@@ -243,10 +243,10 @@ public class JDBCDriver implements Driver {
      * @exception SQLException if a database access error occurs
      */
     public Connection connect(String url,
-            Properties info) throws SQLException {
+                              Properties info) throws SQLException {
 
         if (url.regionMatches(true, 0, DatabaseURL.S_URL_INTERNAL, 0,
-                DatabaseURL.S_URL_INTERNAL.length())) {
+                              DatabaseURL.S_URL_INTERNAL.length())) {
             JDBCConnection conn = (JDBCConnection) threadConnection.get();
 
             if (conn == null) {
@@ -306,7 +306,6 @@ public class JDBCDriver implements Driver {
                 }
             }
         }
-
         props.addProperties(info);
 
         if (timeout == 0) {
@@ -317,6 +316,7 @@ public class JDBCDriver implements Driver {
         //         on network connections regarless of user
         //         specification?
         if (timeout == 0) {
+
             // no timeout restriction
             return new JDBCConnection(props);
         }
@@ -397,12 +397,12 @@ public class JDBCDriver implements Driver {
         }
 
         if (url.regionMatches(true, 0, DatabaseURL.S_URL_PREFIX, 0,
-                DatabaseURL.S_URL_PREFIX.length())) {
+                              DatabaseURL.S_URL_PREFIX.length())) {
             return true;
         }
 
         if (url.regionMatches(true, 0, DatabaseURL.S_URL_INTERNAL, 0,
-                DatabaseURL.S_URL_INTERNAL.length())) {
+                              DatabaseURL.S_URL_INTERNAL.length())) {
             return true;
         }
 
@@ -531,7 +531,7 @@ public class JDBCDriver implements Driver {
     public boolean jdbcCompliant() {
         return true;
     }
-    
+
     //------------------------- JDBC 4.1 -----------------------------------
 
     /**
@@ -546,9 +546,12 @@ public class JDBCDriver implements Driver {
      * @since JDK 1.7 M11 2010/09/10 (b123), HSQLDB 2.0.1
      */
 //#ifdef JAVA6
-    public java.util.logging.Logger getParentLogger() throws java.sql.SQLFeatureNotSupportedException {
+    public java.util.logging
+            .Logger getParentLogger() throws java.sql
+                .SQLFeatureNotSupportedException {
         throw (java.sql.SQLFeatureNotSupportedException) Util.notSupported();
     }
+
 //#endif
 
     public static JDBCDriver driverInstance;
@@ -571,10 +574,13 @@ public class JDBCDriver implements Driver {
      */
 
 //#ifdef JAVA6
-    public final ThreadLocal<JDBCConnection> threadConnection = new ThreadLocal<JDBCConnection>();
+    public final ThreadLocal<JDBCConnection> threadConnection =
+        new ThreadLocal<JDBCConnection>();
+
 //#else
 /*
     public final ThreadLocal threadConnection = new ThreadLocal();
 */
+
 //#endif JAVA6
 }

@@ -106,7 +106,9 @@ public class JDBCArray implements Array {
      * @since 1.2
      */
     public String getBaseTypeName() throws SQLException {
+
         checkClosed();
+
         return elementType.getNameString();
     }
 
@@ -124,7 +126,9 @@ public class JDBCArray implements Array {
      * @since 1.2
      */
     public int getBaseType() throws SQLException {
+
         checkClosed();
+
         return elementType.getJDBCTypeCode();
     }
 
@@ -162,6 +166,7 @@ public class JDBCArray implements Array {
      * @since Java 1.2
      */
     public Object getArray() throws SQLException {
+
         checkClosed();
 
         Object[] array = new Object[data.length];
@@ -250,6 +255,7 @@ public class JDBCArray implements Array {
      * @since 1.2
      */
     public Object getArray(long index, int count) throws SQLException {
+
         checkClosed();
 
         if (!JDBCClobClient.isInLimits(data.length, index - 1, count)) {
@@ -343,6 +349,7 @@ public class JDBCArray implements Array {
      * @since 1.2
      */
     public ResultSet getResultSet() throws SQLException {
+
         checkClosed();
 
         Result result = this.newColumnResult(0, data.length);
@@ -414,6 +421,7 @@ public class JDBCArray implements Array {
      * @since 1.2
      */
     public ResultSet getResultSet(long index, int count) throws SQLException {
+
         checkClosed();
 
         Result result = this.newColumnResult(index - 1, count);
@@ -492,9 +500,10 @@ public class JDBCArray implements Array {
      * @since 1.6
      */
     public void free() throws SQLException {
+
         if (!closed) {
-            closed = true;
-            connection = null;
+            closed       = true;
+            connection   = null;
             sessionProxy = null;
         }
     }
@@ -526,10 +535,10 @@ public class JDBCArray implements Array {
     JDBCArray(Object[] data, Type type, Type arrayType,
               JDBCConnection connection) {
 
-        this.data        = data;
-        this.elementType = type;
-        this.arrayType   = arrayType;
-        this.connection  = connection;
+        this.data         = data;
+        this.elementType  = type;
+        this.arrayType    = arrayType;
+        this.connection   = connection;
         this.sessionProxy = connection.sessionProxy;
     }
 
@@ -589,6 +598,7 @@ public class JDBCArray implements Array {
     }
 
     private void checkClosed() throws SQLException {
+
         if (closed) {
             throw Util.sqlException(ErrorCode.X_07501);
         }

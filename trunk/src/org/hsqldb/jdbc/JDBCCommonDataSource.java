@@ -120,9 +120,11 @@ public abstract class JDBCCommonDataSource {
      * @since 1.4
      */
     public void setLoginTimeout(int seconds) throws SQLException {
+
         loginTimeout = seconds;
-        connectionProps.setProperty(
-                "loginTimeout", Integer.toString(loginTimeout));
+
+        connectionProps.setProperty("loginTimeout",
+                                    Integer.toString(loginTimeout));
     }
 
     /**
@@ -217,7 +219,7 @@ public abstract class JDBCCommonDataSource {
     }
 
     /**
-     * Sets the description attribute of the data source. <p>     
+     * Sets the description attribute of the data source. <p>
      *
      * @param description the new value for the attribute
      */
@@ -282,21 +284,25 @@ public abstract class JDBCCommonDataSource {
 
     /**
      * Sets the password for the user name.
-     * 
+     *
      * @param password the password
      */
     public void setPassword(String password) {
+
         this.password = password;
+
         connectionProps.setProperty("password", password);
     }
 
     /**
      * Sets the user name.
-     * 
+     *
      * @param user the user id
      */
     public void setUser(String user) {
+
         this.user = user;
+
         connectionProps.setProperty("user", user);
     }
 
@@ -309,8 +315,9 @@ public abstract class JDBCCommonDataSource {
      *                           cleared/replaced.
      */
     public void setProperties(Properties props) {
-        connectionProps = (props == null)
-                        ? new Properties() : (Properties) props.clone();
+
+        connectionProps = (props == null) ? new Properties()
+                : (Properties) props.clone();
 
         if (user != null) {
             props.setProperty("user", user);
@@ -324,7 +331,7 @@ public abstract class JDBCCommonDataSource {
             props.setProperty("loginTimeout", Integer.toString(loginTimeout));
         }
     }
-    
+
     //------------------------- JDBC 4.1 -----------------------------------
 
     /**
@@ -339,9 +346,12 @@ public abstract class JDBCCommonDataSource {
      * @since JDK 1.7 M11 2010/09/10 (b123), HSQLDB 2.0.1
      */
 //#ifdef JAVA6
-    public java.util.logging.Logger getParentLogger() throws java.sql.SQLFeatureNotSupportedException {
+    public java.util.logging
+            .Logger getParentLogger() throws java.sql
+                .SQLFeatureNotSupportedException {
         throw (java.sql.SQLFeatureNotSupportedException) Util.notSupported();
     }
+
 //#endif    
 
     // ------------------------ internal implementation ------------------------

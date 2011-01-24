@@ -1208,7 +1208,7 @@ public class JDBCStatement extends JDBCStatementBase implements Statement {
      *
      * Starting with version 2.0, HSQLDB supports this feature with single-row
      * and multi-row insert, update and merge statements. <p>
-
+     *
      * This method returns a result set only if
      * the executeUpdate methods that was used is one of the three methods that
      * have the extra parameter indicating return of generated keys<p>
@@ -1355,7 +1355,8 @@ public class JDBCStatement extends JDBCStatementBase implements Statement {
             throw Util.invalidArgument("columnIndexes");
         }
         fetchResult(sql, StatementTypes.RETURN_COUNT,
-                    ResultConstants.RETURN_GENERATED_KEYS_COL_INDEXES, columnIndexes, null);
+                    ResultConstants.RETURN_GENERATED_KEYS_COL_INDEXES,
+                    columnIndexes, null);
 
         return resultIn.getUpdateCount();
     }
@@ -1409,7 +1410,8 @@ public class JDBCStatement extends JDBCStatementBase implements Statement {
             throw Util.invalidArgument("columnIndexes");
         }
         fetchResult(sql, StatementTypes.RETURN_COUNT,
-                    ResultConstants.RETURN_GENERATED_KEYS_COL_NAMES, null, columnNames);
+                    ResultConstants.RETURN_GENERATED_KEYS_COL_NAMES, null,
+                    columnNames);
 
         return resultIn.getUpdateCount();
     }
@@ -1545,7 +1547,8 @@ public class JDBCStatement extends JDBCStatementBase implements Statement {
             throw Util.invalidArgument("columnIndexes");
         }
         fetchResult(sql, StatementTypes.RETURN_ANY,
-                    ResultConstants.RETURN_GENERATED_KEYS_COL_INDEXES, columnIndexes, null);
+                    ResultConstants.RETURN_GENERATED_KEYS_COL_INDEXES,
+                    columnIndexes, null);
 
         return resultIn.isData();
     }
@@ -1611,7 +1614,8 @@ public class JDBCStatement extends JDBCStatementBase implements Statement {
             throw Util.invalidArgument("columnIndexes");
         }
         fetchResult(sql, StatementTypes.RETURN_ANY,
-                    ResultConstants.RETURN_GENERATED_KEYS_COL_NAMES, null, columnNames);
+                    ResultConstants.RETURN_GENERATED_KEYS_COL_NAMES, null,
+                    columnNames);
 
         return resultIn.isData();
     }
@@ -1716,7 +1720,6 @@ public class JDBCStatement extends JDBCStatementBase implements Statement {
     }
 
 //#endif JAVA6
-
     // ------------------- java.sql.Wrapper implementation ---------------------
 
     /**
@@ -1830,7 +1833,8 @@ public class JDBCStatement extends JDBCStatementBase implements Statement {
         if (resultIn.isData()) {
             currentResultSet = new JDBCResultSet(connection, this, resultIn,
                     resultIn.metaData);
-        } else if (resultIn.getStatementType() == StatementTypes.RETURN_RESULT ) {
+        } else if (resultIn.getStatementType()
+                   == StatementTypes.RETURN_RESULT) {
             getMoreResults();
         }
     }

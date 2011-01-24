@@ -1189,10 +1189,9 @@ public class JDBCSQLXML implements SQLXML {
         }
 
         if (this.domResult != null) {
-            DOMSource source = new DOMSource(
-                    domResult.getNode(),
-                    domResult.getSystemId());
-            OutputStream os = setBinaryStreamImpl();
+            DOMSource source = new DOMSource(domResult.getNode(),
+                domResult.getSystemId());
+            OutputStream os     = setBinaryStreamImpl();
             StreamResult result = new StreamResult(os);
 
             try {
@@ -1200,6 +1199,7 @@ public class JDBCSQLXML implements SQLXML {
             } catch (TransformerException ex) {
                 throw Exceptions.transformFailed(ex);
             }
+
             try {
                 os.close();
             } catch (IOException ex) {
