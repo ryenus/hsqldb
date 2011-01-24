@@ -45,20 +45,18 @@ import org.hsqldb.rights.Grantee;
 // fredt@users 20030727 - signature and other alterations
 // fredt@users 20040430 - changes by mattshaw@users to allow termination of the
 // trigger thread -
-
+// fredt@users - updated for v. 2.x
 /**
  *  Represents an HSQLDB Trigger definition. <p>
  *
- *  Provides services regarding HSLDB Trigger execution and metadata. <p>
+ *  Provides services regarding HSQLDB Trigger execution and metadata. <p>
  *
  *  Development of the trigger implementation sponsored by Logicscope
  *  Realisations Ltd
  *
- * @author Peter Hudson - Logicscope Realisations Ltd
- * @version  2.0.0 (1.0.0.3)
- *      Revision History: 1.0.0.1 First release in hsqldb 1.61
- *      1.0.0.2 'nowait' support to prevent deadlock 1.0.0.3 multiple row
- *      queue for each trigger
+ * @author Peter Hudson (peterhudson@users dot sourceforge.net)- Logicscope Realisations Ltd
+ * @version  2.0.1
+ * @since hsqldb 1.61
  */
 public class TriggerDef implements Runnable, SchemaObject {
 
@@ -399,7 +397,8 @@ public class TriggerDef implements Runnable, SchemaObject {
     }
 
     public String getProcedureSQL() {
-        return routine == null ? null : routine.getSQLBodyDefinition();
+        return routine == null ? null
+                               : routine.getSQLBodyDefinition();
     }
 
     public int[] getUpdateColumnIndexes() {

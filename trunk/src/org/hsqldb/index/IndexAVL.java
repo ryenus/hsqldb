@@ -135,7 +135,6 @@ public class IndexAVL implements Index {
     protected final boolean  isConstraint;
     private final boolean    isForward;
     private boolean          isClustered;
-    private int              depth;
     private static final IndexRowIterator emptyIterator =
         new IndexRowIterator(null, (PersistentStore) null, null, null, 0,
                              false, false);
@@ -436,13 +435,6 @@ public class IndexAVL implements Index {
         } finally {
             readLock.unlock();
         }
-    }
-
-    public int sizeEstimate(PersistentStore store) {
-
-        firstRow(null, store);
-
-        return (int) (1L << depth);
     }
 
     public boolean isEmpty(PersistentStore store) {
@@ -1060,8 +1052,6 @@ public class IndexAVL implements Index {
      */
     public RowIterator firstRow(Session session, PersistentStore store) {
 
-        int tempDepth = 0;
-
         readLock.lock();
 
         try {
@@ -1071,8 +1061,6 @@ public class IndexAVL implements Index {
             while (l != null) {
                 x = l;
                 l = x.getLeft(store);
-
-                tempDepth++;
             }
 
             while (session != null && x != null) {
@@ -1093,15 +1081,11 @@ public class IndexAVL implements Index {
             return new IndexRowIterator(session, store, this, x, 0, false,
                                         false);
         } finally {
-            depth = tempDepth;
-
             readLock.unlock();
         }
     }
 
     public RowIterator firstRow(PersistentStore store) {
-
-        int tempDepth = 0;
 
         readLock.lock();
 
@@ -1112,8 +1096,6 @@ public class IndexAVL implements Index {
             while (l != null) {
                 x = l;
                 l = x.getLeft(store);
-
-                tempDepth++;
             }
 
             if (x == null) {
@@ -1122,8 +1104,6 @@ public class IndexAVL implements Index {
 
             return new IndexRowIterator(null, store, this, x, 0, false, false);
         } finally {
-            depth = tempDepth;
-
             readLock.unlock();
         }
     }
