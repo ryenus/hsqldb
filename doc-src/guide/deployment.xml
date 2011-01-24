@@ -34,7 +34,7 @@
     </keywordset>
 
     <legalnotice>
-      <para>Copyright 2002-2010 Fred Toussi. Permission is granted to
+      <para>Copyright 2002-2011 Fred Toussi. Permission is granted to
       distribute this document without any alteration under the terms of the
       HSQLDB license. Additional permission is granted to the HSQL Development
       Group to distribute this document with or without alterations under the
@@ -377,8 +377,8 @@
       <para>Access to lobs is always performed in chunks, so it is perfectly
       possible to store and access a CLOB or BLOB that is larger than the JVM
       memory allocation. The actual total size of lobs is almost unlimited. We
-      have tested with over 100 GB of lobs without any loss of performance.
-      </para>
+      have tested with over 100 GB of lobs without any loss of
+      performance.</para>
 
       <para>By default, HyperSQL 2.0 uses memory-based tables for the lob
       schema (not the actual lob data). Therefore it is practical to store
@@ -731,13 +731,40 @@
     </indexterm>
 
     <para>Any database that is not produced with the release version of
-    HyperSQL 2.0 must be upgraded to this version. Most catalogs created with
-    1.8.x can be upgraded simply by opening with HyperSQL 2.0. After opening
-    with version 2.0, perform a SHTUDOWN COMPACT to rewrite the database in
-    the latest format.</para>
+    HyperSQL 2.0 must be upgraded to this version.</para>
 
-    <para>When this is not possible due to errors, the rest of the procedures
-    below should be followed.</para>
+    <procedure>
+      <title>Upgrading Databases Created with Version 1.8.x</title>
+
+      <step>
+        <para>Open the database with the jar that created it and perform the
+        SHUTDOWN statement as an SQL statement.</para>
+      </step>
+
+      <step>
+        <para>Open the database with the HyperSQL 2.0 jar.</para>
+      </step>
+
+      <step>
+        <para>Perform the SHUTDOWN COMPACT statement..</para>
+      </step>
+    </procedure>
+
+    <para>Most catalogs created with 1.8.x can be upgraded simply by opening
+    with HyperSQL 2.0. After opening with version 2.0, perform a SHTUDOWN
+    COMPACT to rewrite the database in the latest format.</para>
+
+    <para>In large scale deployed apps undergoing upgrades, it is sometimes
+    not practical to perform the first step of this procedure (with the old
+    jar). You can ignore the first step but you may lose part of the database
+    statements that are stored in the .log file. Therefore you need test with
+    databases created with your application to make sure typcial statements
+    that are logged in the .log file are compatible with the new version.
+    Examples of known incompatible statements are those used for changing the
+    data type or default values of column.</para>
+
+    <para>When this method is not possible due to errors, the rest of the
+    procedures below should be followed.</para>
 
     <para>A note about SHUTDOWN modes. SHUTDOWN COMPACT is equivalent to
     SHUTDOWN SCRIPT plus openning the database and then performing a simple
@@ -943,11 +970,10 @@
 
       <programlisting>  BACKUP DATABASE TO &lt;directory name&gt; BLOCKING</programlisting>
 
-      <simpara>
-        The <emphasis>directory name</emphasis> must end with a slash to
-        distinguish it as a directory, and the whole string must be in
-        single quotes like so: <literal>'subdir/nesteddir/'</literal>.
-      </simpara>
+      <simpara>The <emphasis>directory name</emphasis> must end with a slash
+      to distinguish it as a directory, and the whole string must be in single
+      quotes like so: <literal>'subdir/nesteddir/'</literal>.</simpara>
+
       <simpara>See the next section under Statements for details about the
       command and its options. See the sections below about restoring a
       backup.</simpara>
@@ -1518,7 +1544,7 @@
     </section>
 
     <section>
-      <title>MS SQLServer Compatibility</title>
+      <title>MS SQLServer and Sybase Compatibility</title>
 
       <para>SQLServer has some incompatibilities with the Standard syntax. The
       most significant is the use of square brackets instead of double quotes
@@ -1534,6 +1560,17 @@
           <para>If you use the non-standard concatenation of possibly NULL
           values in your select statements, you may need to change the setting
           for &lt;set database sql concat nulls statement&gt;.</para>
+        </listitem>
+
+        <listitem>
+          <para>HyperSQL supports + for string concatenation. It also supports
+          many functions supported by these dialects.</para>
+        </listitem>
+
+        <listitem>
+          <para>Use &lt;set database sql syntax MSS statement&gt; to enable
+          support for the CONVERT(&lt;type definition&gt;, &lt;expression)
+          function with switched order of arguments</para>
         </listitem>
 
         <listitem>
