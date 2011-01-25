@@ -562,9 +562,9 @@ public class JDBCConnectionTest extends BaseJdbcTestCase {
 
                 if (warning == null)
                 {
-                    assertEquals(
+                    super.assertTrue(
                             "Reported Isolation:",
-                            levels[i],
+                            levels[i] <=
                             conn.getTransactionIsolation());
                 }
                 else
