@@ -22,7 +22,7 @@
   -->
 
    <property file='build/build.properties'/>
-   <property name="hsqldb.version" value="2.0.1-rc4SNAPSHOT"/>
+   <property name="hsqldb.version" value="2.1.0-rc4SNAPSHOT"/>
 
    <tstamp>
        <format property="_tmpstamp" pattern="yyyy/MM/dd-HH:mm:ss"
@@ -112,7 +112,7 @@ examples:
       <available classname="java.nio.Buffer" property="ant.java.iscjava14"/>
       <available classname="java.util.EnumSet" property="ant.java.iscjava15"/>
       <available classname="java.net.IDN" property="ant.java.iscjava16"/>
-	  <available classname="java.sql.PseudoColumnUsage" property="ant.java.iscjava17"/>
+      <available classname="java.sql.PseudoColumnUsage" property="ant.java.iscjava17"/>
    </target>
 
    <target name="-prepare" depends="init,-set-jvmvars">
@@ -241,7 +241,7 @@ examples:
           <arg value="+JAVA4"/>
           <arg value="-JAVA5"/>
           <arg value="-JAVA6"/>
-		  <arg value="-JAVA7"/>
+          <arg value="-JAVA7"/>
           <arg value="--pathlist=${basedir}/build/jdkcodeswitch.list"/>
           <arg value="--basedir=${swsrc}"/>
           <!-- Since these paths are interpreted by the JVM, not ant,
@@ -273,7 +273,7 @@ examples:
           <arg value="+JAVA4"/>
           <arg value="+JAVA5"/>
           <arg value="+JAVA6"/>
-		  <arg value="-JAVA7"/>
+          <arg value="-JAVA7"/>
           <arg value="--pathlist=${basedir}/build/jdkcodeswitch.list"/>
           <arg value="--basedir=${swsrc}"/>
           <!-- Since these paths are interpreted by the JVM, not ant,
@@ -281,7 +281,7 @@ examples:
                Ant basedir -->
        </java>
     </target>
-	
+
     <target name="switchtojdk17" depends="switches"
             description="self explanatory" if="ant.java.iscjava17">
       <java classname="org.hsqldb.util.CodeSwitcher" classpath="classes" >
@@ -289,14 +289,14 @@ examples:
           <arg value="+JAVA4"/>
           <arg value="+JAVA5"/>
           <arg value="+JAVA6"/>
-		  <arg value="+JAVA7"/>
+          <arg value="+JAVA7"/>
           <arg value="--pathlist=jdkcodeswitch.list"/>
           <arg value="--basedir=${swsrc}"/>
           <!-- Since these paths are interpreted by the JVM, not ant,
                the path must be relative to run dir (build), not the
                Ant basedir -->
        </java>
-    </target>	
+    </target>
 
     <target name="store" description="compiles the /store folder"
             depends="switchtojdk12,switchtojdk14,
@@ -476,7 +476,7 @@ examples:
           <fileset dir="src/org/hsqldb/util" includes='*.gif, *.png'/>
       </copy>
     </target>
-	
+
     <target name="-preprocessor">
       <javac srcdir="src"
              destdir="classes"
@@ -485,7 +485,7 @@ examples:
       >
          <include name="org/hsqldb/util/preprocessor/**"/>
       </javac>
-    </target>	
+    </target>
 
     <target name="-cmdline" if="ant.java.iscjava15"
             description="compiles the cmdline classes">
@@ -816,9 +816,9 @@ examples:
          <fileset refid='sqltoolres'/>
        </jar>
     </target>
-	
-	<fileset id='preprocessorclasses' dir='classes' includes='org/hsqldb/util/preprocessor/*.class'/>
-	
+
+        <fileset id='preprocessorclasses' dir='classes' includes='org/hsqldb/util/preprocessor/*.class'/>
+
     <target name="preprocessor" depends="-prepare,-prep-license-files,-preprocessor"
             description="Build 'preprocessor.jar' file">
        <jar jarfile="lib/preprocessor.jar" compress="true" filesonly="true">
@@ -829,11 +829,11 @@ examples:
              <attribute name='Specification-Vendor' value='${hsqldb.vendor}'/>
              <attribute name='Implementation-Title' value='HSQLDB Java Source Preprocessor Library'/>
              <attribute name='Implementation-Version' value='${build.label}'/>
-             <attribute name='Implementation-Vendor' value='${build.vendor}'/>           
+             <attribute name='Implementation-Vendor' value='${build.vendor}'/>
          </manifest>
          <fileset refid='preprocessorclasses' />
        </jar>
-    </target>	
+    </target>
 
 <!-- classes referenced by the org.hsqldb.jdbc package classes -->
 <!-- or the org.hsqldb.jdbcDriver class are included here with some -->
@@ -877,35 +877,35 @@ examples:
          <fileset refid='sqltoolres'/>
       </jar>
     </target>
-	
-    <target name="-doclink-1.7" 
-	        if="ant.java.iscjava17">
-			<!-- TODO: update to final release api docs url when available -->
+
+    <target name="-doclink-1.7"
+                if="ant.java.iscjava17">
+                        <!-- TODO: update to final release api docs url when available -->
         <property name="jse.doc.link"
                   value="http://download.java.net/jdk7/docs/api/"/>
         <property name="jee.doc.link"
                   value="http://download.oracle.com/javaee/6/api/"/>
-    </target>	
+    </target>
 
     <target name="-doclink-1.6"
-	        depends="-doclink-1.7"
-		    if="ant.java.iscjava16"
+                depends="-doclink-1.7"
+                    if="ant.java.iscjava16"
             unless="ant.java.iscjava17">
         <property name="jse.doc.link"
                   value="http://java.sun.com/javase/6/docs/api/"/>
         <property name="jee.doc.link"
                   value="http://download.oracle.com/javaee/6/api/"/>
     </target>
-	
-    <target name="-doclink-1.5"	       
-		    depends="-doclink-1.6"
-		    if="ant.java.iscjava15"
+
+    <target name="-doclink-1.5"
+                    depends="-doclink-1.6"
+                    if="ant.java.iscjava15"
             unless="ant.java.iscjava16">
         <property name="jse.doc.link"
                   value="http://java.sun.com/javase/5/docs/api/"/>
         <property name="jee.doc.link"
                   value="http://download.oracle.com/javaee/5/api/"/>
-    </target>	
+    </target>
 
     <target name="-doclink-1.4"
             depends="-doclink-1.5"
