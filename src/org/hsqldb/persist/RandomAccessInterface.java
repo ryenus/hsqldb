@@ -33,9 +33,35 @@ package org.hsqldb.persist;
 
 import java.io.IOException;
 
-import org.hsqldb.lib.Storage;
+public interface RandomAccessInterface {
 
-public interface RandomAccessInterface extends Storage {
+    long length() throws IOException;
+
+    void seek(long position) throws IOException;
+
+    long getFilePointer() throws IOException;
+
+    int read() throws IOException;
+
+    void read(byte[] b, int offset, int length) throws IOException;
+
+    void write(byte[] b, int offset, int length) throws IOException;
+
+    int readInt() throws IOException;
+
+    void writeInt(int i) throws IOException;
+
+    long readLong() throws IOException;
+
+    void writeLong(long i) throws IOException;
+
+    void close() throws IOException;
+
+    boolean isReadOnly();
+
+    boolean wasNio();
+
+    void synch();
 
     boolean ensureLength(long newLong);
 

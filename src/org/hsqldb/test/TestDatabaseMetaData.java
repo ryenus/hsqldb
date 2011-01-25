@@ -215,7 +215,7 @@ public class TestDatabaseMetaData extends TestBase {
     public void testTwo() throws Exception {
 
         Connection conn = newConnection();
-        int updateCount;
+        int        updateCount;
 
         try {
             TestUtil.testScript(conn, "testrun/hsqldb/TestSelf.txt");
@@ -224,7 +224,8 @@ public class TestDatabaseMetaData extends TestBase {
 
             dbmeta.allProceduresAreCallable();
             dbmeta.getBestRowIdentifier(null, null, "T_1",
-                                        DatabaseMetaData.bestRowTransaction, true);
+                                        DatabaseMetaData.bestRowTransaction,
+                                        true);
             dbmeta.getCatalogs();
             dbmeta.getColumnPrivileges(null, "PUBLIC", "T_1", "%");
             dbmeta.getColumns("PUBLIC", "PUBLIC", "T_1", "%");
@@ -239,16 +240,36 @@ public class TestDatabaseMetaData extends TestBase {
             dbmeta.getProcedures("PUBLIC", "%", "%");
             dbmeta.getSchemas(null, "#");
             dbmeta.getTablePrivileges(null, "%", "%");
-            dbmeta.getUDTs(null, "%", "%", new int[] {Types.DISTINCT});
-
-        }
-        catch (Exception e) {
+            dbmeta.getUDTs(null, "%", "%", new int[]{ Types.DISTINCT });
+        } catch (Exception e) {
             assertTrue("unable to prepare or execute DDL", false);
-        }
-        finally {
+        } finally {
             conn.close();
         }
     }
+
+    /**
+     * Basic test of DatabaseMetaData functions that access functions
+     */
+    public void testThree() throws Exception {
+
+        Connection conn = newConnection();
+        int        updateCount;
+
+        try {
+            TestUtil.testScript(conn, "testrun/hsqldb/TestSelf.txt");
+
+            DatabaseMetaData dbmeta     = conn.getMetaData();
+            int txIsolation = dbmeta.getDefaultTransactionIsolation();
+            String           userName   = dbmeta.getUserName();
+            boolean          isReadOnly = dbmeta.isReadOnly();
+        } catch (Exception e) {
+            assertTrue("unable to prepare or execute DDL", false);
+        } finally {
+            conn.close();
+        }
+    }
+
     public static void main(String[] args) throws Exception {
 
         TestResult            result;
