@@ -47,7 +47,7 @@ import javax.transaction.xa.Xid;
  * ds.setPassword(password);
  * ds.setUrl(jdbcUrl);
  *
- * XAConnection xaCon = ds.getXAConnection();
+ * XAConnection xaCon = ds.getConnection();
  * Connection con = xaCon.getConnection();
  * Xid xid = JDBCXID.getUniqueXid((int)Thread.currentThread().getId());
  * XAResource xaRes = xaCon.getXAResource();
