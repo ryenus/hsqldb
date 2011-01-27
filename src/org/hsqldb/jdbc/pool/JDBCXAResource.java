@@ -230,13 +230,13 @@ public class JDBCXAResource implements XAResource {
         /** @todo - probably all flags can be ignored */
         if (flags == XAResource.TMSUCCESS) {}
 
+        state = XA_STATE_ENDED;
+
         try {
             connection.setAutoCommit(originalAutoCommitMode);    // real/phys.
         } catch (SQLException se) {
             throw new XAException(se.getMessage());
         }
-
-        state = XA_STATE_ENDED;
     }
 
     /**
