@@ -153,7 +153,18 @@ public class JDBCXAConnectionWrapper extends JDBCConnection {
     public JDBCXAConnectionWrapper(JDBCXAResource xaResource,
                                    JDBCConnection databaseConnection)
                                    throws SQLException {
-
+        // TODO: Review JDBCXADataSource and this class.
+        //       Under current implementation, because we do not pass a
+        //       JDBCXAConnection instance to the constructor to pick
+        //       up the connectionClosed event listener callback, calling
+        //       close() on this wrapper connection does not reset the
+        //       physical connection or set the inUse flag to false until
+        //       the vending JDBCXAConnection itself is closed, which marks
+        //       the end of its useful life.
+        //
+        //       In other words, due to this current implementation detail,
+        //       JDBCXADataSource cannot cooperate with a pooling implementation
+        //       to reuse physical connections.
         super(databaseConnection, null);
 
         xaResource.setConnection(this);

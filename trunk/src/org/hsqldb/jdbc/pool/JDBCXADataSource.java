@@ -32,7 +32,6 @@
 package org.hsqldb.jdbc.pool;
 
 import java.io.Serializable;
-import java.sql.DriverManager;
 import java.sql.SQLException;
 
 import javax.naming.NamingException;
@@ -52,6 +51,7 @@ import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
 import org.hsqldb.jdbc.JDBCCommonDataSource;
 import org.hsqldb.jdbc.JDBCConnection;
+import org.hsqldb.jdbc.JDBCDriver;
 import org.hsqldb.jdbc.Util;
 import org.hsqldb.lib.HashMap;
 import org.hsqldb.lib.HashSet;
@@ -88,8 +88,8 @@ implements XADataSource, Serializable, Referenceable
         System.err.print("Executing " + getClass().getName()
                          + ".getXAConnection()...");
 */
-        JDBCConnection connection =
-            (JDBCConnection) DriverManager.getConnection(url, user, password);
+        // Use JDBCDriver directly so there is no need to regiser with DriverManager
+        JDBCConnection connection = (JDBCConnection) JDBCDriver.getConnection(url, connectionProps);
         JDBCXAConnection xaConnection = new JDBCXAConnection(this, connection);
 
         return xaConnection;
