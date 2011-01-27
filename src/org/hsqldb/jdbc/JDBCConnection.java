@@ -1120,9 +1120,11 @@ public class JDBCConnection implements Connection {
         connProperties = null;
 
         if (isPooled) {
-            poolEventListener.connectionClosed();
+            if (poolEventListener != null) {
+                poolEventListener.connectionClosed();
 
-            poolEventListener = null;
+                poolEventListener = null;
+            }
         } else if (sessionProxy != null) {
             sessionProxy.close();
 
