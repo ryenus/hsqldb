@@ -1011,8 +1011,14 @@ public abstract class BaseTestCase extends junit.framework.TestCase {
     /**
      * Unless overridden in subclass, this method is invoked
      * before the main teardown behavior occurs.
+     *
+     * Note that the default teardown implementation simply records
+     * and exception thrown in the course of invoking this method and
+     * re-throws it only if all other tear down work succeeds.
+     *
+     * @throws Exception
      */
-    protected void preTearDown() {
+    protected void preTearDown() throws Exception {
         activateEmbeddedDatabaseCloser();
     }
 
