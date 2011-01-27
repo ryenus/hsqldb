@@ -100,7 +100,6 @@ public class JDBCXID implements Xid {
         this.txBranch = txBranch;
     }
 
-    @Override
     public int hashCode() {
         if (!hashComputed) {
             hash = 7;
