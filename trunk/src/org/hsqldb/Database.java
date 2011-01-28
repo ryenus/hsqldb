@@ -92,20 +92,20 @@ public class Database {
      * Defaults are used in version upgrades, but overridden by
      *  databaseProperties or URL properties for new databases.
      */
-    public boolean                sqlEnforceTypes    = false;
-    public boolean                sqlEnforceRefs     = false;
-    public boolean                sqlEnforceSize     = true;
-    public boolean                sqlEnforceNames    = false;
-    public boolean                sqlEnforceTDCD     = true;
-    public boolean                sqlEnforceTDCU     = true;
-    public boolean                sqlTranslateTTI    = true;
-    public boolean                sqlConcatNulls     = true;
-    public boolean                sqlUniqueNulls     = true;
-    public boolean                sqlConvertTruncate = true;
-    public boolean                sqlSyntaxMss;
-    public boolean                sqlSyntaxMys;
-    public boolean                sqlSyntaxOra;
-    public boolean                sqlSyntaxPgs;
+    public boolean                sqlEnforceTypes        = false;
+    public boolean                sqlEnforceRefs         = false;
+    public boolean                sqlEnforceSize         = true;
+    public boolean                sqlEnforceNames        = false;
+    public boolean                sqlEnforceTDCD         = true;
+    public boolean                sqlEnforceTDCU         = true;
+    public boolean                sqlTranslateTTI        = true;
+    public boolean                sqlConcatNulls         = true;
+    public boolean                sqlUniqueNulls         = true;
+    public boolean                sqlConvertTruncate     = true;
+    public boolean                sqlSyntaxMss           = false;
+    public boolean                sqlSyntaxMys           = false;
+    public boolean                sqlSyntaxOra           = false;
+    public boolean                sqlSyntaxPgs           = false;
     private boolean               isReferentialIntegrity = true;
     public HsqlDatabaseProperties databaseProperties;
     private final boolean         shutdownOnNoConnection;

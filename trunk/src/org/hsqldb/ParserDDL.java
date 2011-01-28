@@ -267,10 +267,26 @@ public class ParserDDL extends ParserRoutine {
             case Tokens.SPECIFIC : {
                 return compileAlterSpecificRoutine();
             }
+            case Tokens.ROUTINE : {
+                return compileAlterRoutine();
+            }
             default : {
                 throw unexpectedToken();
             }
         }
+    }
+
+    Statement compileAlterRoutine() {
+        readThis(Tokens.ROUTINE);
+
+        RoutineSchema routine =
+            (RoutineSchema) readSchemaObjectName(SchemaObject.ROUTINE);
+
+        readThis(Tokens.RENAME);
+        readThis(Tokens.TO);
+
+        return compileRenameObject(routine.getName(), routine.getName().type);
+
     }
 
 /*
