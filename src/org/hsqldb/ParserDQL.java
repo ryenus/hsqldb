@@ -1253,7 +1253,7 @@ public class ParserDQL extends ParserBase {
         for (int i = 0; i < elements.length; i++) {
             String name = (String) columnNames.get(i);
 
-            elements[i] = new ExpressionColumn(null, null, name, false);
+            elements[i] = new ExpressionColumn(null, null, name);
         }
 
         return new Expression(OpTypes.ROW, elements);
@@ -2004,8 +2004,7 @@ public class ParserDQL extends ParserBase {
                 checkValidCatalogName(token.namePrePrePrefix);
 
                 e = new ExpressionColumn(token.namePrePrefix,
-                                         token.namePrefix, token.tokenString,
-                                         database.sqlEnforceRefs);
+                                         token.namePrefix, token.tokenString);
 
                 read();
 
@@ -4549,8 +4548,7 @@ public class ParserDQL extends ParserBase {
         if (token.tokenType != Tokens.OPENBRACKET) {
             checkValidCatalogName(prePrePrefix);
 
-            Expression column = new ExpressionColumn(prePrefix, prefix, name,
-                database.sqlEnforceRefs);
+            Expression column = new ExpressionColumn(prePrefix, prefix, name);
 
             return column;
         }

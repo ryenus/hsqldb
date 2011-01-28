@@ -47,17 +47,24 @@ DROP FUNCTION function_test
 
 -- Simple select
 CREATE FUNCTION function_test() RETURNS INTEGER
+  READS SQL DATA
   RETURN (SELECT id FROM tt2)
 INSERT INTO tt2(ID) VALUES(1);
 /*r1*/call function_test()
 DROP FUNCTION function_test
 
 CREATE FUNCTION test( in x INT)
- returns table(i INT, v VARCHAR(100))
- begin atomic
-   declare y int;
-   set y= x;
-   return TABLE(select id, firstname from customer where id > y);
- end
+  returns table(i INT, v VARCHAR(100))
+  READS SQL DATA
+  begin atomic
+    declare y int;
+    set y= x;
+    return TABLE(select id, firstname from customer where id > y);
+  end
 
 call test(10)
+/*c50*/select * from table(test(-1))
+create table testtt(i INT, v VARCHAR(100))
+insert into testtt select * from table(test(-1))
+/*c50*/select * from testtt
+

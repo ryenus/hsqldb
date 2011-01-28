@@ -1,3 +1,15 @@
+drop table main if exists;
+drop table ref if exists;
+create table main (id int primary key, data varchar(20))
+create table ref (id int primary key, data varchar(20) unique, ref int references main(id))
+insert into main values 10, 'data'
+insert into ref values 1, 'data', 10
+alter table ref drop column ref cascade
+alter table ref drop column data
+drop table ref
+create table ref (id int primary key, data varchar(20) unique, ref int references main(id))
+alter table main drop column id cascade
+
 drop table "testac" if exists;
 drop table "testacc" if exists;
 -- tests for various column definition statements

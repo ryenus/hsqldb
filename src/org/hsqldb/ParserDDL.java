@@ -2227,6 +2227,11 @@ public class ParserDDL extends ParserRoutine {
 
         startRecording();
 
+        StatementCompound parent =
+            new StatementCompound(StatementTypes.BEGIN_END, null);
+
+        parent.rangeVariables = ranges;
+
         Statement statement = compileSQLProcedureStatementOrNull(routine,
             null);
 
@@ -3150,9 +3155,9 @@ public class ParserDDL extends ParserRoutine {
 
         HsqlName name;
         String   password;
-        Boolean  admin   = Boolean.FALSE;
+        Boolean  admin    = Boolean.FALSE;
         Boolean  isDigest = Boolean.FALSE;
-        Grantee  grantor = session.getGrantee();
+        Grantee  grantor  = session.getGrantee();
 
         read();
 

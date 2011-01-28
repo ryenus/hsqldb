@@ -414,6 +414,10 @@ public class TestStoredProcedure extends TestBase {
         return false;
     }
 
+    public static void procTest3(Integer value)
+                                    throws java.sql.SQLException {
+    }
+
     public static void main(String[] args) throws Exception {
 
         TestResult            result;

@@ -69,20 +69,17 @@ public class ExpressionColumn extends Expression {
     boolean isParam;
 
     //
-    boolean strictReference;
 
     /**
      * Creates a OpTypes.COLUMN expression
      */
-    ExpressionColumn(String schema, String table, String column,
-                     boolean strictReference) {
+    ExpressionColumn(String schema, String table, String column) {
 
         super(OpTypes.COLUMN);
 
-        this.schema          = schema;
-        this.tableName       = table;
-        this.columnName      = column;
-        this.strictReference = strictReference;
+        this.schema     = schema;
+        this.tableName  = table;
+        this.columnName = column;
     }
 
     ExpressionColumn(ColumnSchema column) {
@@ -329,8 +326,8 @@ public class ExpressionColumn extends Expression {
                     }
 
                     if (resolved) {
-                        if (resolvesDuplicateColumnReference(rangeVar)) {
-                            if (strictReference) {
+                        if (session.database.sqlEnforceRefs) {
+                            if (resolvesDuplicateColumnReference(rangeVar)) {
                                 String message = getColumnName();
 
                                 if (alias != null) {
@@ -417,53 +414,72 @@ public class ExpressionColumn extends Expression {
 
     private boolean resolveColumnReference(RangeVariable rangeVar) {
 
-        if (tableName == null) {
-            Expression e = rangeVar.getColumnExpression(columnName);
+        Expression e = rangeVar.getColumnExpression(columnName);
 
-            if (e != null) {
-                opType   = e.opType;
-                nodes    = e.nodes;
-                dataType = e.dataType;
+        if (e != null) {
+            opType   = e.opType;
+            nodes    = e.nodes;
+            dataType = e.dataType;
 
-                return true;
-            }
-
-            switch (rangeVar.rangeType) {
-
-                case RangeVariable.PARAMETER_RANGE :
-                case RangeVariable.VARIALBE_RANGE :
-                    int colIndex = rangeVar.findColumn(columnName);
-
-                    if (colIndex == -1) {
-                        return false;
-                    }
-
-                    ColumnSchema column = rangeVar.getColumn(colIndex);
-
-                    if (column.getParameterMode()
-                            == SchemaObject.ParameterModes.PARAM_OUT) {
-                        return false;
-                    } else {
-                        opType =
-                            rangeVar.rangeType == RangeVariable.VARIALBE_RANGE
-                            ? OpTypes.VARIABLE
-                            : OpTypes.PARAMETER;
-
-                        setAttributesAsColumn(rangeVar, colIndex);
-
-                        return true;
-                    }
-            }
+            return true;
         }
 
-        int colIndex = rangeVar.findColumn(this);
+        int colIndex = rangeVar.findColumn(columnName);
 
         if (colIndex == -1) {
             return false;
         }
 
-        if (rangeVar.rangeType == RangeVariable.TRANSITION_RANGE) {
-            opType = OpTypes.TRANSITION_VARIABLE;
+        switch (rangeVar.rangeType) {
+
+            case RangeVariable.PARAMETER_RANGE :
+            case RangeVariable.VARIALBE_RANGE : {
+                if (tableName != null) {
+                    return false;
+                }
+
+                ColumnSchema column = rangeVar.getColumn(colIndex);
+
+                if (column.getParameterMode()
+                        == SchemaObject.ParameterModes.PARAM_OUT) {
+                    return false;
+                } else {
+                    opType = rangeVar.rangeType
+                             == RangeVariable.VARIALBE_RANGE ? OpTypes.VARIABLE
+                                                             : OpTypes
+                                                             .PARAMETER;
+                }
+
+                break;
+            }
+            case RangeVariable.TRANSITION_RANGE : {
+                if (tableName == null) {
+                    return false;
+                }
+
+                if (schema != null) {
+                    return false;
+                }
+
+                if (!rangeVar.resolvesTableName(tableName)) {
+                    return false;
+                }
+
+                opType = OpTypes.TRANSITION_VARIABLE;
+
+                break;
+            }
+            default : {
+                if (!rangeVar.resolvesSchemaName(schema)) {
+                    return false;
+                }
+
+                if (!rangeVar.resolvesTableName(tableName)) {
+                    return false;
+                }
+
+                break;
+            }
         }
 
         setAttributesAsColumn(rangeVar, colIndex);
@@ -484,30 +500,17 @@ public class ExpressionColumn extends Expression {
 
                 case RangeVariable.PARAMETER_RANGE :
                 case RangeVariable.VARIALBE_RANGE :
-                    int colIndex = rangeVar.findColumn(columnName);
+                case RangeVariable.TRANSITION_RANGE :
+                    return false;
 
-                    if (colIndex == -1) {
-                        return false;
-                    }
+                default :
+                    int colIndex = rangeVar.findColumn(this);
 
-                    ColumnSchema column = rangeVar.getColumn(colIndex);
-
-                    if (column.getParameterMode()
-                            == SchemaObject.ParameterModes.PARAM_OUT) {
-                        return false;
-                    } else {
-                        return true;
-                    }
+                    return colIndex != -1;
             }
         }
 
-        int colIndex = rangeVar.findColumn(this);
-
-        if (colIndex == -1) {
-            return false;
-        }
-
-        return true;
+        return false;
     }
 
     public void resolveTypes(Session session, Expression parent) {
