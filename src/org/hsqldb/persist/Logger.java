@@ -1563,92 +1563,90 @@ public class Logger {
         list.add(sb.toString());
         sb.setLength(0);
 
-        if (isFileDatabase()) {
-            if (database.schemaManager.getDefaultTableType()
-                    == TableBase.CACHED_TABLE) {
-                list.add("SET DATABASE DEFAULT TABLE TYPE CACHED");
-            }
-
-            int     delay  = propWriteDelay;
-            boolean millis = delay > 0 && delay < 1000;
-
-            if (millis) {
-                if (delay < 20) {
-                    delay = 20;
-                }
-            } else {
-                delay /= 1000;
-            }
-
-            sb.setLength(0);
-            sb.append("SET FILES ").append(Tokens.T_WRITE).append(' ');
-            sb.append(Tokens.T_DELAY).append(' ').append(delay);
-
-            if (millis) {
-                sb.append(' ').append(Tokens.T_MILLIS);
-            }
-
-            list.add(sb.toString());
-            sb.setLength(0);
-            sb.append("SET FILES ").append(Tokens.T_BACKUP);
-            sb.append(' ').append(Tokens.T_INCREMENT).append(' ');
-            sb.append(propIncrementBackup ? Tokens.T_TRUE
-                                          : Tokens.T_FALSE);
-            list.add(sb.toString());
-            sb.setLength(0);
-            sb.append("SET FILES ").append(Tokens.T_CACHE);
-            sb.append(' ').append(Tokens.T_SIZE).append(' ');
-            sb.append(propCacheMaxSize / 1024);
-            list.add(sb.toString());
-            sb.setLength(0);
-            sb.append("SET FILES ").append(Tokens.T_CACHE);
-            sb.append(' ').append(Tokens.T_ROWS).append(' ');
-            sb.append(propCacheMaxRows);
-            list.add(sb.toString());
-            sb.setLength(0);
-            sb.append("SET FILES ").append(Tokens.T_SCALE);
-            sb.append(' ').append(propCacheFileScale);
-            list.add(sb.toString());
-            sb.setLength(0);
-            sb.append("SET FILES ").append(Tokens.T_LOB).append(' ').append(
-                Tokens.T_SCALE);
-            sb.append(' ').append(getLobFileScale());
-            list.add(sb.toString());
-            sb.setLength(0);
-            sb.append("SET FILES ").append(Tokens.T_DEFRAG);
-            sb.append(' ').append(propCacheDefragLimit);
-            list.add(sb.toString());
-            sb.setLength(0);
-            sb.append("SET FILES ").append(Tokens.T_NIO);
-            sb.append(' ').append(propNioDataFile ? Tokens.T_TRUE
-                                                  : Tokens.T_FALSE);
-            list.add(sb.toString());
-            sb.setLength(0);
-            sb.append("SET FILES ").append(Tokens.T_NIO).append(' ').append(
-                Tokens.T_SIZE);
-            sb.append(' ').append(propNioMaxSize / (1024 * 1024));
-            list.add(sb.toString());
-            sb.setLength(0);
-            sb.append("SET FILES ").append(Tokens.T_LOG).append(' ');
-            sb.append(propLogData ? Tokens.T_TRUE
-                                  : Tokens.T_FALSE);
-            list.add(sb.toString());
-            sb.setLength(0);
-            sb.append("SET FILES ").append(Tokens.T_LOG).append(' ');
-            sb.append(Tokens.T_SIZE).append(' ').append(propLogSize);
-            list.add(sb.toString());
-            sb.setLength(0);
-            /*
-            if (propTempDirectoryPath != null) {
-                sb.append("SET FILES ").append(Tokens.T_TEMP).append(' ');
-                sb.append(Tokens.T_PATH).append(' ');
-                sb.append(propTempDirectoryPath);
-                list.add(sb.toString());
-                sb.setLength(0);
-            }
-            */
+        if (database.schemaManager.getDefaultTableType()
+                == TableBase.CACHED_TABLE) {
+            list.add("SET DATABASE DEFAULT TABLE TYPE CACHED");
         }
 
+        int     delay  = propWriteDelay;
+        boolean millis = delay > 0 && delay < 1000;
+
+        if (millis) {
+            if (delay < 20) {
+                delay = 20;
+            }
+        } else {
+            delay /= 1000;
+        }
+
+        sb.setLength(0);
+        sb.append("SET FILES ").append(Tokens.T_WRITE).append(' ');
+        sb.append(Tokens.T_DELAY).append(' ').append(delay);
+
+        if (millis) {
+            sb.append(' ').append(Tokens.T_MILLIS);
+        }
+
+        list.add(sb.toString());
+        sb.setLength(0);
+        sb.append("SET FILES ").append(Tokens.T_BACKUP);
+        sb.append(' ').append(Tokens.T_INCREMENT).append(' ');
+        sb.append(propIncrementBackup ? Tokens.T_TRUE
+                                      : Tokens.T_FALSE);
+        list.add(sb.toString());
+        sb.setLength(0);
+        sb.append("SET FILES ").append(Tokens.T_CACHE);
+        sb.append(' ').append(Tokens.T_SIZE).append(' ');
+        sb.append(propCacheMaxSize / 1024);
+        list.add(sb.toString());
+        sb.setLength(0);
+        sb.append("SET FILES ").append(Tokens.T_CACHE);
+        sb.append(' ').append(Tokens.T_ROWS).append(' ');
+        sb.append(propCacheMaxRows);
+        list.add(sb.toString());
+        sb.setLength(0);
+        sb.append("SET FILES ").append(Tokens.T_SCALE);
+        sb.append(' ').append(propCacheFileScale);
+        list.add(sb.toString());
+        sb.setLength(0);
+        sb.append("SET FILES ").append(Tokens.T_LOB).append(' ').append(
+            Tokens.T_SCALE);
+        sb.append(' ').append(getLobFileScale());
+        list.add(sb.toString());
+        sb.setLength(0);
+        sb.append("SET FILES ").append(Tokens.T_DEFRAG);
+        sb.append(' ').append(propCacheDefragLimit);
+        list.add(sb.toString());
+        sb.setLength(0);
+        sb.append("SET FILES ").append(Tokens.T_NIO);
+        sb.append(' ').append(propNioDataFile ? Tokens.T_TRUE
+                                              : Tokens.T_FALSE);
+        list.add(sb.toString());
+        sb.setLength(0);
+        sb.append("SET FILES ").append(Tokens.T_NIO).append(' ').append(
+            Tokens.T_SIZE);
+        sb.append(' ').append(propNioMaxSize / (1024 * 1024));
+        list.add(sb.toString());
+        sb.setLength(0);
+        sb.append("SET FILES ").append(Tokens.T_LOG).append(' ');
+        sb.append(propLogData ? Tokens.T_TRUE
+                              : Tokens.T_FALSE);
+        list.add(sb.toString());
+        sb.setLength(0);
+        sb.append("SET FILES ").append(Tokens.T_LOG).append(' ');
+        sb.append(Tokens.T_SIZE).append(' ').append(propLogSize);
+        list.add(sb.toString());
+        sb.setLength(0);
+
+        /*
+        if (propTempDirectoryPath != null) {
+            sb.append("SET FILES ").append(Tokens.T_TEMP).append(' ');
+            sb.append(Tokens.T_PATH).append(' ');
+            sb.append(propTempDirectoryPath);
+            list.add(sb.toString());
+            sb.setLength(0);
+        }
+        */
         String[] array = new String[list.size()];
 
         list.toArray(array);
