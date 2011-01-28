@@ -27,6 +27,8 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+
+
 package org.hsqldb.jdbc.pool;
 
 import java.net.Inet4Address;
@@ -70,6 +72,7 @@ import javax.transaction.xa.Xid;
  * </pre>
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
+ * @author Campbell Boucher-Burnett (boucherb@users dot sourceforge.net)
  * @version 2.1
  */
 public class JDBCXID implements Xid {
@@ -185,7 +188,7 @@ public class JDBCXID implements Xid {
      *
      * @param threadId can be a real thread id or just some convenient
      *        tracking value.
-     * 
+     *
      * @return a randomly generated JDBCXID
      */
     public static Xid getUniqueXid(final int threadId) {

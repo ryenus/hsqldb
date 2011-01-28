@@ -124,12 +124,12 @@ insert into place values(3000,'Langenthal\t1','CH')
 insert into place values(0,'\\\\Heaven',null)
 insert into place values(8000,'Zürich','CH')
 insert into place values(-1,'NULL','null')
-create table invoice(addressnr integer,total decimal)
-insert into invoice values(4,1003834.05)
-insert into invoice values(2,-4987770.01)
-insert into invoice select * from invoice where not total>=0.
-update invoice set total=10 where total < 0
-insert into invoice values(2,10)
+create table invoices(addressnr integer,total decimal)
+insert into invoices values(4,1003834.05)
+insert into invoices values(2,-4987770.01)
+insert into invoices select * from invoices where not total>=0.
+update invoices set total=10 where total < 0
+insert into invoices values(2,10)
 set schema INFORMATION_SCHEMA
 select * from system_tables
 select * from SYSTEM_SESSIONINFO
@@ -168,7 +168,7 @@ DROP TABLE HLO
 /*c6*/ select * from address
 /*c0*/ select * from address where nr in(-1)
 /*c4*/ select * from place
-/*c4*/ select * from invoice
+/*c4*/ select * from invoices
 /*c1*/ select nr from address where nr<0
 /*c0*/ select * from address where nr>=0 and nr<=0
 /*c1*/ select count(*) from address where nr=-99
@@ -176,15 +176,15 @@ DROP TABLE HLO
 /*c1*/ select * from address,place p where (nr=4) and p.zip=placezip
 /*c1*/ select * from address,place p where (nr=4 or nr>3 and nr<2) and
   p.zip=placezip or (p.zip>0 and p.zip<-1 or p.zip=-2)
-/*c1*/select * from address a,place p,invoice i where
+/*c1*/select * from address a,place p,invoices i where
   a.placezip=p.zip and a.nr=i.addressnr and i.addressnr=4
-/*c1*/ select p.zip,p.*,country from address a,place p,invoice i where
+/*c1*/ select p.zip,p.*,country from address a,place p,invoices i where
   a.placezip=p.zip and a.nr=i.addressnr and i.addressnr=4
 /*c7*/ select * from address union all select * from address where nr=4
 /*c1*/ select max(place.zip) x from place
 /*c0*/ select * from address where name like 'Wal_' escape 'l'
 /*c2*/ select * from address where name like 'Wal_' escape '+'
-/*c4*/ select total as x from invoice order by addressnr desc,total asc
+/*c4*/ select total as x from invoices order by addressnr desc,total asc
 /*c3*/ select place.* from place where not country = 'NULL' and
   not name is null and not name is NULL and
   not name = 'null' and not country = 'NULL' order by zip
@@ -236,7 +236,7 @@ create table "t6"("x" char(6),s smallint not null,b bigint, c binary);
 /*u1*/ insert into "t6" values(null,100, 1000000000000, null);
 /*u1*/ delete from "t6"
 -- Finish
-drop table address drop table place drop table invoice
+drop table address drop table place drop table invoices
 drop table t_double;drop table t_date drop table t_bit
 drop table problem; drop table class
 
@@ -332,7 +332,7 @@ drop table test_maxrows
 -- test functions
 CREATE TABLE Product(ID INTEGER PRIMARY KEY,Name VARCHAR(255),Cost DECIMAL(10,4))
 insert into product values (0,'Test',10.3444)
-/*r10.34E0*/select round(cost,2) from product
+/*r10.34*/select round(cost,2) from product
 /*r10.3444*/select cost from product
 drop table product
 
@@ -433,10 +433,10 @@ DROP TABLE ADDRESS IF EXISTS
 CREATE TABLE CUSTOMER(ID INTEGER PRIMARY KEY,FIRSTNAME VARCHAR(255),
     LASTNAME VARCHAR(255),STREET VARCHAR(255),CITY VARCHAR(255))
 CREATE TABLE PRODUCT(ID INTEGER PRIMARY KEY,NAME VARCHAR(255),COST DECIMAL)
-CREATE TABLE INVOICE(ID INTEGER PRIMARY KEY,ADDRESSID INTEGER,TOTAL DECIMAL)
-CREATE TABLE ITEM(DOCUMENTID INTEGER,POS INTEGER,PRODUCTID INTEGER,
+CREATE TABLE INVOICE(ID INTEGER PRIMARY KEY, CUSTOMERID INTEGER,TOTAL DECIMAL)
+CREATE TABLE ITEM(INVOICEID INTEGER,POS INTEGER,PRODUCTID INTEGER,
     QUANTITY INTEGER,PRICE DECIMAL,
-    CONSTRAINT SYSTEM_PK PRIMARY KEY(DOCUMENTID,POS))
+    CONSTRAINT SYSTEM_PK PRIMARY KEY(INVOICEID,POS))
 INSERT INTO CUSTOMER VALUES(0,'Laura','Steel','429 Seventh Av.','Dallas')
 INSERT INTO CUSTOMER VALUES(1,'Susanne','King','366 - 20th Ave.','Olten')
 INSERT INTO CUSTOMER VALUES(2,'Anne','Miller','20 Upland Pl.','Lyon')
@@ -1238,13 +1238,13 @@ INSERT INTO ITEM VALUES(49,14,23,5,11.40)
 INSERT INTO ITEM VALUES(49,15,19,24,16.50)
 INSERT INTO ITEM VALUES(49,16,24,18,10.80)
 CREATE VIEW DOC_ADDR AS SELECT D.ID,D.TOTAL,A.CITY FROM INVOICE D, CUSTOMER A
-    WHERE D.ADDRESSID=A.ID AND A.ID < 10
-/*c88*/SELECT * FROM DOC_ADDR D, ITEM P WHERE P.DOCUMENTID = D.ID
+    WHERE D.CUSTOMERID=A.ID AND A.ID < 10
+/*c88*/SELECT * FROM DOC_ADDR D, ITEM P WHERE P.INVOICEID = D.ID
 
 -- correlated subquery together with group and aggregates
 SELECT max(city), count(firstname) , max(lastname),
- (SELECT count(*) from item where item.documentid = customer.id)
- FROM Customer  join invoice on invoice.addressid = customer.id
+ (SELECT count(*) from item where item.invoiceid = customer.id)
+ FROM Customer  join invoice on invoice.customerid = customer.id
  group by customer.id
 
 

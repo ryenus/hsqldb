@@ -151,12 +151,12 @@ insert into tident values (10, default);
 insert into tident values (11, default);
 insert into tident values (12, default);
 /*e*/insert into tident values (10, default);
+/*c3*/select * from tident
 /*r
  10,0
  11,1
  12,2
-*/select * from tident
-
+*/select * from tident order by cola
 -- SHUTDOWN is necessary for test1
 
 SHUTDOWN IMMEDIATELY;

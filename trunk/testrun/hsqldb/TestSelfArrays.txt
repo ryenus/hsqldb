@@ -26,11 +26,11 @@ INSERT INTO iarray VALUES (3, array [21, 22]);
 /*c1*/SELECT count(*) FROM iarray WHERE i = 1 AND ar[3] = 13;
 
 -- using customer and invoice tables defined in TestSelf.txt
-select firstname, lastname, a.c from customer, unnest(array[(select sum(total) from invoice where addressid = customer.id)]) a (c)
+select firstname, lastname, a.c from customer, unnest(array[(select sum(total) from invoice where customerid = customer.id)]) a (c)
 alter table customer add column arr varchar(40) array
 update customer set arr = array[firstname, lastname, street, city]
 SELECT id, w, y FROM customer, unnest (arr) with ordinality j(w,y)
 
 --
-select * from customer, lateral(select sum(invoice.total) from invoice where invoice.addressid = customer.id)
+select * from customer, lateral(select sum(invoice.total) from invoice where invoice.customerid = customer.id)
 explain plan for select * from customer where firstname in(unnest(?))

@@ -809,13 +809,19 @@ public class StatementCompound extends Statement {
 
         scopeVariables = list;
 
+        RangeVariable[] parameterRangeVariables =
+            root.getParameterRangeVariables();
         RangeVariable range = new RangeVariable(list, null, true,
             RangeVariable.VARIALBE_RANGE);
 
-        rangeVariables     = new RangeVariable[] {
-            root.getParameterRangeVariables()[0], range
-        };
-        root.variableCount = list.size();
+        rangeVariables = new RangeVariable[parameterRangeVariables.length + 1];
+
+        for (int i = 0; i < parameterRangeVariables.length; i++) {
+            rangeVariables[i] = parameterRangeVariables[i];
+        }
+
+        rangeVariables[parameterRangeVariables.length] = range;
+        root.variableCount                             = list.size();
     }
 
     private void setHandlers() {

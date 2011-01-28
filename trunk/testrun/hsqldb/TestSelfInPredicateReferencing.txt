@@ -174,3 +174,42 @@ insert into test_trips (agencyId, id,route_agencyId,route_id) values
  ('a','1','a','r1'),('a','2','a','r2');
 /*c1*/select * from test_trips where (route_agencyId, route_id) in (('a','r1'));
 /*c2*/select * from test_trips where (route_agencyId, route_id) in (values('a','r1'), ('a','r2'));
+
+create table inv_txn (id bigint primary key, inv_account_target bigint);
+create table inv_element (id bigint primary key, inv_txn bigint, product bigint, quantity bigint);
+
+insert into inv_txn values (1, 1);
+insert into inv_txn values(2, 2);
+
+insert into inv_element values (1, 1, 1, 25);
+insert into inv_element values (2, 1, 1, 10);
+insert into inv_element values (3, 1, 2, 15);
+insert into inv_element values (4, 1, 2, 5);
+insert into inv_element values (5, 1, 3, 50);
+insert into inv_element values (6, 1, 3, 30);
+insert into inv_element values (7, 1, 4, 5);
+insert into inv_element values (8, 1, 4, 15);
+insert into inv_element values (9, 1, 5, 100);
+insert into inv_element values (10, 1, 6, 75);
+insert into inv_element values (11, 2, 1, 25);
+insert into inv_element values (12, 2, 1, 10);
+insert into inv_element values (13, 2, 2, 15);
+insert into inv_element values (14, 2, 2, 5);
+insert into inv_element values (15, 2, 3, 50);
+insert into inv_element values (16, 2, 3, 30);
+insert into inv_element values (17, 2, 4, 5);
+insert into inv_element values (18, 2, 4, 15);
+insert into inv_element values (19, 2, 5, 100);
+insert into inv_element values (20, 2, 6, 75);
+-- query must show the same values in columns using equality or IN predicates
+select
+        inv_element.product,
+        sum(casewhen(inv_txn.inv_account_target in (1), quantity, 0)) as badtarget1qty,
+        sum(casewhen(inv_txn.inv_account_target = 1, quantity, 0)) as goodtarget1qty,
+        sum(casewhen(inv_txn.inv_account_target in (2), quantity, 0)) as badtarget2qty,
+        sum(casewhen(inv_txn.inv_account_target = 2, quantity, 0)) as goodtarget2qty,
+        sum(casewhen(inv_txn.inv_account_target in (1, 2), quantity, 0)) as badtotalqty,
+        sum(casewhen(inv_txn.inv_account_target = 1 or inv_txn.inv_account_target = 2, quantity, 0)) as goodtotalqty
+  from inv_txn
+        inner join inv_element on inv_txn.id = inv_element.inv_txn
+  group by product;

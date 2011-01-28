@@ -128,4 +128,7 @@ insert into
 create table element (deadline timestamp);
 SELECT DISTINCT convert(element.deadline,Date) FROM element ORDER BY
  convert(element.deadline,Date) ASC
-
+SET DATABASE SQL SYNTAX MSS TRUE
+SELECT DISTINCT convert(DATE, element.deadline) FROM element ORDER BY
+ convert(DATE, element.deadline) ASC
+SET DATABASE SQL SYNTAX MSS FALSE
