@@ -43,7 +43,7 @@ import org.hsqldb.testbase.OfMethod;
 
 /**
  *
- * @author boucherb@users
+ * @author Campbell Boucher-Burnet (boucherb@users dot sourceforge.net)
  */
 @ForSubject(JDBCDatabaseMetaData.class)
 public class JDBCDatabaseMetaDataTest extends BaseJdbcTestCase {

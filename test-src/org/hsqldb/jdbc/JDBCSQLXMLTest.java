@@ -61,7 +61,7 @@ import org.w3c.dom.NodeList;
 
 /**
  *
- * @author boucherb@users
+ * @author Campbell Boucher-Burnet (boucherb@users dot sourceforge.net)
  */
 public class JDBCSQLXMLTest extends BaseJdbcTestCase {
 

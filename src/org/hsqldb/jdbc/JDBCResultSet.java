@@ -311,7 +311,7 @@ import org.hsqldb.types.Types;
  * @see JDBCStatement#getResultSet
  * @see java.sql.ResultSetMetaData
  *
- * @author Campbell Boucher-Burnett (boucherb@users dot sourceforge.net)
+ * @author Campbell Boucher-Burnet (boucherb@users dot sourceforge.net)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
  * @version 2.0
  * @since 1.9.0

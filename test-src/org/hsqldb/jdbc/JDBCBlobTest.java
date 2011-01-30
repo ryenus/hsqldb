@@ -45,7 +45,7 @@ import org.hsqldb.testbase.OfMethod;
 /**
  * Test of interface java.sql.Blob.
  *
- * @author boucherb@users
+ * @author Campbell Boucher-Burnet (boucherb@users dot sourceforge.net)
  */
 @ForSubject(JDBCBlob.class)
 public class JDBCBlobTest extends BaseJdbcTestCase {

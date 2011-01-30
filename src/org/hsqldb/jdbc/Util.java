@@ -60,7 +60,7 @@ import org.hsqldb.result.Result;
  * Provides driver constants and a gateway from internal HsqlExceptions to
  * external SQLExceptions.
  *
- * @author Campbell Boucher-Burnett (boucherb@users dot sourceforge.net)
+ * @author Campbell Boucher-Burnet (boucherb@users dot sourceforge.net)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
  * @version 1.9.0
  * @since 1.7.2

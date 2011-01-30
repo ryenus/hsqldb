@@ -352,7 +352,7 @@ import org.hsqldb.lib.StringConverter;
  * <tt>NIOLockFile</tt> to the hsqldb.jar if such features are reported
  * present. <p>
  *
- * @author Campbell Boucher-Burnett (boucherb@users dot sourceforge.net)
+ * @author Campbell Boucher-Burnet (boucherb@users dot sourceforge.net)
  * @version 1.8.1.2
  * @since 1.7.2
  */

@@ -67,7 +67,7 @@ import org.hsqldb.types.Type;
  *  comunicating all such requests and responses across the network.
  *  Uses a navigator for data.
  *
- * @author Campbell Boucher-Burnett (boucherb@users dot sourceforge.net)
+ * @author Campbell Boucher-Burnet (boucherb@users dot sourceforge.net)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
  * @version 2.0.1
  * @since 1.9.0

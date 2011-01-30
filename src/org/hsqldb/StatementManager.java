@@ -66,7 +66,7 @@ import org.hsqldb.result.Result;
  * memory leaks. Modified further to support schemas. Changed implementation
  * in 1.9 as a session object<p>
  *
- * @author Campbell Boucher-Burnett (boucherb@users dot sourceforge.net)
+ * @author Campbell Boucher-Burnet (boucherb@users dot sourceforge.net)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
  *
  * @version 1.9.0

@@ -52,7 +52,7 @@ import org.hsqldb.types.Types;
  * This reduces temporary Object creation by SUM and AVG functions for
  * INTEGER and narrower types.
  *
- * @author Campbell Boucher-Burnett (boucherb@users dot sourceforge.net)
+ * @author Campbell Boucher-Burnet (boucherb@users dot sourceforge.net)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
  * @version 1.9.0
  * @since 1.7.2

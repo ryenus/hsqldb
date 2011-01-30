@@ -38,7 +38,7 @@ import junit.framework.TestSuite;
 /**
  * Base test case for HSQLDB JDBC 4 test suite.
  *
- * @author boucherb@users
+ * @author Campbell Boucher-Burnet (boucherb@users dot sourceforge.net)
  */
 public class JdbcSuite extends TestCase {
 

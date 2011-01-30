@@ -72,7 +72,7 @@ import javax.transaction.xa.Xid;
  * </pre>
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @author Campbell Boucher-Burnett (boucherb@users dot sourceforge.net)
+ * @author Campbell Boucher-Burnet (boucherb@users dot sourceforge.net)
  * @version 2.1
  */
 public class JDBCXID implements Xid {

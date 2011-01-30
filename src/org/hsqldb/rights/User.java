@@ -43,7 +43,7 @@ import org.hsqldb.lib.StringConverter;
  * A User Object extends Grantee with password for a
  * particular database user.<p>
  *
- * @author Campbell Boucher-Burnett (boucherb@users dot sourceforge.net)
+ * @author Campbell Boucher-Burnet (boucherb@users dot sourceforge.net)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
  * @author Blaine Simpson (blaine dot simpson at admc dot com)
  *

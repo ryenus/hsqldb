@@ -6,7 +6,7 @@ import org.hsqldb.jdbc.testbase.BaseJdbcTestCase;
 
 /**
  *
- * @author boucherb@users
+ * @author Campbell Boucher-Burnet (boucherb@users dot sourceforge.net)
  */
 public class JDBCXIDTest extends BaseJdbcTestCase {
 

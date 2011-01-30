@@ -41,7 +41,7 @@ import org.hsqldb.jdbc.testbase.BaseJdbcTestCase;
 /**
  * Test of class org.hsqldb.jdbc.jdbcRowId.
  *
- * @author boucherb@users
+ * @author Campbell Boucher-Burnet (boucherb@users dot sourceforge.net)
  */
 public class JDBCRowIdTest extends BaseJdbcTestCase {
 

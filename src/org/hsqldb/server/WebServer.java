@@ -111,7 +111,7 @@ import org.hsqldb.resources.BundleHandler;
  *   <li>File extensions for mime types must be lowercase and start with '.'
  * </ul>
  *
- * @author Campbell Boucher-Burnett (boucherb@users dot sourceforge.net)
+ * @author Campbell Boucher-Burnet (boucherb@users dot sourceforge.net)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
  * @version 1.7.2
  * @since 1.7.2

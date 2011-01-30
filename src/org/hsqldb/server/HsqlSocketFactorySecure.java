@@ -55,7 +55,7 @@ import org.hsqldb.lib.StringConverter;
 /**
  * The default secure socket factory implementation.
  *
- * @author Campbell Boucher-Burnett (boucherb@users dot sourceforge.net)
+ * @author Campbell Boucher-Burnet (boucherb@users dot sourceforge.net)
  * @author Blaine Simpson (blaine dot simpson at admc dot com)
  *
  * @version 1.7.2

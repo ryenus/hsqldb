@@ -40,7 +40,7 @@ import org.hsqldb.lib.Set;
 /**
  * Abstract JDBC-focused Junit test case. <p>
  *
- * @author  boucherb@users
+ * @author Campbell Boucher-Burnet (boucherb@users dot sourceforge.net)
  * @version 1.9.0
  * @since 1.7.2
  */

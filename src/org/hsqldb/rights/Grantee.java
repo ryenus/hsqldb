@@ -70,7 +70,7 @@ import org.hsqldb.types.Type;
  * and method "isAdminDirect()) to mean this Grantee has admin priv
  * directly.
  *
- * @author Campbell Boucher-Burnett (boucherb@users dot sourceforge.net)
+ * @author Campbell Boucher-Burnet (boucherb@users dot sourceforge.net)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
  * @author Blaine Simpson (blaine dot simpson at admc dot com)
  *
