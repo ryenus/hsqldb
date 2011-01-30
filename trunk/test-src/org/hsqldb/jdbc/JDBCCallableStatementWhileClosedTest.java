@@ -55,7 +55,7 @@ import org.hsqldb.testbase.ForSubject;
 
 /**
  *
- * @author boucherb@users
+ * @author Campbell Boucher-Burnet (boucherb@users dot sourceforge.net)
  */
 @ForSubject(JDBCCallableStatement.class)
 public class JDBCCallableStatementWhileClosedTest extends BaseJdbcTestCase {

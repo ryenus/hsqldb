@@ -38,7 +38,7 @@
 //
 ///**
 // *
-// * @author boucherb@users
+// * @author Campbell Boucher-Burnet (boucherb@users dot sourceforge.net)
 // */
 //public interface CustomerDao extends BaseQuery {
 //    @Select("select id, firstname, lastname, street, city from customer order by 1")

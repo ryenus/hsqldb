@@ -38,7 +38,7 @@ import org.hsqldb.StatementTypes;
  * between the client and the engine when sending Result objects back
  * and forth.
  *
- * @author Campbell Boucher-Burnett (boucherb@users dot sourceforge.net)
+ * @author Campbell Boucher-Burnet (boucherb@users dot sourceforge.net)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
  * @since 1.9.0
  * @version 1.7.2

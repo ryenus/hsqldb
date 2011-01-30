@@ -36,7 +36,7 @@ import org.hsqldb.testbase.BaseScriptedTestCase;
 
 /**
  *
- * @author boucherb@users
+ * @author Campbell Boucher-Burnet (boucherb@users dot sourceforge.net)
  */
 public class ScriptedTest extends BaseScriptedTestCase {
 

@@ -50,7 +50,7 @@ import org.hsqldb.result.Result;
  * Implements {@link org.hsqldb.lib.ObjectComparator ObjectComparator} to
  * provide the correct order of materialization for nested views / subqueries.
  *
- * @author Campbell Boucher-Burnett (boucherb@users dot sourceforge.net)
+ * @author Campbell Boucher-Burnet (boucherb@users dot sourceforge.net)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
  */
 class SubQuery implements Comparator {

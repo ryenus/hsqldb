@@ -51,7 +51,7 @@ import org.hsqldb.testbase.OfMethod;
 /**
  * Test of class org.hsqldb.jdbc.JDBCCallableStatement.
  *
- * @author boucherb@users
+ * @author Campbell Boucher-Burnet (boucherb@users dot sourceforge.net)
  */
 @ForSubject(JDBCCallableStatement.class)
 public class JDBCCallableStatementTest extends BaseJdbcTestCase {

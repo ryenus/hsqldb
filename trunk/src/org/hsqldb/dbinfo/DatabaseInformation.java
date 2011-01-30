@@ -53,7 +53,7 @@ import org.hsqldb.persist.PersistentStore;
  * This class has been developed from scratch to replace the previous
  * DatabaseInformation implementations. <p>
  *
- * @author Campbell Boucher-Burnett (boucherb@users dot sourceforge.net)
+ * @author Campbell Boucher-Burnet (boucherb@users dot sourceforge.net)
  * @version 2.0.1
  * @since 1.7.2
  */

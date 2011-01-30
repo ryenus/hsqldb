@@ -39,7 +39,7 @@ import org.hsqldb.jdbc.testbase.BaseJdbcTestCase;
  * Exhautively tests the supportsConvert(int,int) method of
  * interface java.sql.DatabaseMetaData.
  *
- * @author boucherb@users
+ * @author Campbell Boucher-Burnet (boucherb@users dot sourceforge.net)
  */
 public class JDBCDatabaseMetaDataSupportsConvertTest
         extends BaseJdbcTestCase {

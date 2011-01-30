@@ -97,7 +97,7 @@ import org.hsqldb.types.Types;
  * </div>
  * <!-- end release-specific documentation -->
  *
- * @author Campbell Boucher-Burnett (boucherb@users dot sourceforge.net)
+ * @author Campbell Boucher-Burnet (boucherb@users dot sourceforge.net)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
  * @version 2.0
  * @revised JDK 1.6, HSQLDB 2.0

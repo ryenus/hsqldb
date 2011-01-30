@@ -44,7 +44,7 @@ import org.hsqldb.testbase.OfMethod;
 
 /**
  *
- * @author boucherb@users
+ * @author Campbell Boucher-Burnet (boucherb@users dot sourceforge.net)
  */
 @ForSubject(JDBCArray.class)
 public class JDBCArrayTest extends BaseJdbcTestCase {

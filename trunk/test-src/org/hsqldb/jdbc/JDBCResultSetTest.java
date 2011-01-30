@@ -52,7 +52,7 @@ import org.hsqldb.jdbc.testbase.SqlState;
 
 /**
  *
- * @author boucherb@users
+ * @author Campbell Boucher-Burnet (boucherb@users dot sourceforge.net)
  */
 public class JDBCResultSetTest extends BaseJdbcTestCase {
 

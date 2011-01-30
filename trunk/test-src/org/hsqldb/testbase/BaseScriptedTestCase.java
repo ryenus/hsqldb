@@ -46,7 +46,7 @@ import org.hsqldb.lib.StringUtil;
 /**
  * Initial port of org.hqldb.test.TestUtil.
  *
- * @author boucherb@users
+ * @author Campbell Boucher-Burnet (boucherb@users dot sourceforge.net)
  */
 public abstract class BaseScriptedTestCase extends BaseTestCase {
 

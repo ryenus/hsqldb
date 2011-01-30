@@ -47,7 +47,7 @@ import junit.framework.TestSuite;
 
 /**
  *
- * @author boucherb@users
+ * @author Campbell Boucher-Burnet (boucherb@users dot sourceforge.net)
  */
 public class PreprocessorTest extends TestCase {
 

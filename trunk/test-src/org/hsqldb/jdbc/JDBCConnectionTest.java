@@ -54,7 +54,7 @@ import org.hsqldb.testbase.ForSubject;
 /**
  * Test of interface java.sql.Connection.
  *
- * @author boucherb@users
+ * @author Campbell Boucher-Burnet (boucherb@users dot sourceforge.net)
  */
 @ForSubject(JDBCConnection.class)
 public class JDBCConnectionTest extends BaseJdbcTestCase {

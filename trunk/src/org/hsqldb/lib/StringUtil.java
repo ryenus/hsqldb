@@ -36,7 +36,7 @@ import java.lang.reflect.Array;
 /** Provides a collection of convenience methods for processing and
  * creating objects with <code>String</code> value components.
  *
- * @author Campbell Boucher-Burnett (boucherb@users dot sourceforge.net)
+ * @author Campbell Boucher-Burnet (boucherb@users dot sourceforge.net)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
  * @author Nitin Chauhan
  * @version 1.9.0

@@ -45,7 +45,7 @@ import org.hsqldb.resources.BundleHandler;
  *   <li>(Properties file) CLASSPATH:/org/hsqldb/resources/test-dbmd-convert(locale_name).properties
  * </ol>
  *
- * @author boucherb@users
+ * @author Campbell Boucher-Burnet (boucherb@users dot sourceforge.net)
  * @version 2.0.1
  * @since 2.0.1
  */

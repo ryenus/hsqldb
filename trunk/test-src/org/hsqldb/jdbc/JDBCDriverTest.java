@@ -41,7 +41,7 @@ import org.hsqldb.testbase.OfMethod;
 
 /**
  *
- * @author boucherb@users
+ * @author Campbell Boucher-Burnet (boucherb@users dot sourceforge.net)
  */
 @ForSubject(JDBCDriver.class)
 public class JDBCDriverTest extends BaseJdbcTestCase {

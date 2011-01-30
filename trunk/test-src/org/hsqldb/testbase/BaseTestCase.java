@@ -59,7 +59,7 @@ import org.hsqldb.lib.OrderedHashSet;
 /**
  * Abstract HSQLDB-targeted JUnit 3.8 test case. <p>
  *
- * @author  boucherb@users
+ * @author Campbell Boucher-Burnet (boucherb@users dot sourceforge.net)
  * @version 2.0.1
  * @since 1.9.0
  */

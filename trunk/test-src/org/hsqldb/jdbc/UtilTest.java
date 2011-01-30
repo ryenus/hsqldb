@@ -50,7 +50,7 @@ import org.hsqldb.error.ErrorCode;
 /**
  * Test of class org.hsqldb.jdbc.Util.
  *
- * @author boucherb@users
+ * @author Campbell Boucher-Burnet (boucherb@users dot sourceforge.net)
  */
 public class UtilTest extends BaseJdbcTestCase {
 

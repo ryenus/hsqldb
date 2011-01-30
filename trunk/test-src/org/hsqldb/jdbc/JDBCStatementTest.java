@@ -43,7 +43,7 @@ import org.hsqldb.jdbc.testbase.BaseJdbcTestCase;
 /**
  * Test of interface java.sql.Statement.
  *
- * @author boucherb@users
+ * @author Campbell Boucher-Burnet (boucherb@users dot sourceforge.net)
  */
 public class JDBCStatementTest extends BaseJdbcTestCase {
 

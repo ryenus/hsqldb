@@ -66,7 +66,7 @@ import org.hsqldb.types.Type;
  * types and properties for each parameter marker in a <code>CallableStatement</code>
  * object.
  *
- * @author Campbell Boucher-Burnett (boucherb@users dot sourceforge.net)
+ * @author Campbell Boucher-Burnet (boucherb@users dot sourceforge.net)
  * @version 2.0
  * @since JDK 1.4, HSQLDB 1.7.2
  * @revised JDK 1.6, HSQLDB 2.0
