@@ -84,7 +84,7 @@ import org.hsqldb.types.Type;
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
  * @version 2.0.1
- * @since 1.2, HSQLDB 2.0
+ * @since JDK 1.2, HSQLDB 2.0
  */
 public class JDBCArray implements Array {
 
@@ -103,7 +103,7 @@ public class JDBCArray implements Array {
      * to access the type name
      * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
      * this method
-     * @since 1.2
+     * @since JDK 1.2
      */
     public String getBaseTypeName() throws SQLException {
 
@@ -123,7 +123,7 @@ public class JDBCArray implements Array {
      * to access the base type
      * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
      * this method
-     * @since 1.2
+     * @since JDK 1.2
      */
     public int getBaseType() throws SQLException {
 
@@ -163,7 +163,7 @@ public class JDBCArray implements Array {
      * access the array
      * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
      * this method
-     * @since Java 1.2
+     * @since JDK 1.2
      */
     public Object getArray() throws SQLException {
 
@@ -213,7 +213,7 @@ public class JDBCArray implements Array {
      *                         access the array
      * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
      * this method
-     * @since 1.2
+     * @since JDK 1.2
      */
     public Object getArray(java.util.Map<String,
             Class<?>> map) throws SQLException {
@@ -252,7 +252,7 @@ public class JDBCArray implements Array {
      * access the array
      * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
      * this method
-     * @since 1.2
+     * @since JDK 1.2
      */
     public Object getArray(long index, int count) throws SQLException {
 
@@ -317,7 +317,7 @@ public class JDBCArray implements Array {
      * access the array
      * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
      * this method
-     * @since 1.2
+     * @since JDK 1.2
      */
     public Object getArray(long index, int count,
                            java.util.Map<String,
@@ -346,7 +346,7 @@ public class JDBCArray implements Array {
      * access the array
      * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
      * this method
-     * @since 1.2
+     * @since JDK 1.2
      */
     public ResultSet getResultSet() throws SQLException {
 
@@ -384,7 +384,7 @@ public class JDBCArray implements Array {
      * access the array
      * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
      * this method
-     * @since 1.2
+     * @since JDK 1.2
      */
     public ResultSet getResultSet(java.util.Map<String,
             Class<?>> map) throws SQLException {
@@ -418,7 +418,7 @@ public class JDBCArray implements Array {
      * access the array
      * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
      * this method
-     * @since 1.2
+     * @since JDK 1.2
      */
     public ResultSet getResultSet(long index, int count) throws SQLException {
 
@@ -462,7 +462,7 @@ public class JDBCArray implements Array {
      * access the array
      * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
      * this method
-     * @since 1.2
+     * @since JDK 1.2
      */
     public ResultSet getResultSet(long index, int count,
                                   java.util.Map<String,
@@ -497,7 +497,7 @@ public class JDBCArray implements Array {
      * the Array's resources
      * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
      * this method
-     * @since 1.6
+     * @since JDK 1.6
      */
     public void free() throws SQLException {
 
