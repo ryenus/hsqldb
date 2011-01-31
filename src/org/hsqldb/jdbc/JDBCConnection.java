@@ -56,8 +56,8 @@ import java.sql.Struct;
 import java.util.Properties;
 
 //#endif JAVA6
-import java.util.logging.Level;
-import java.util.logging.Logger;
+//import java.util.logging.Level;
+// import java.util.logging.Logger;
 
 import org.hsqldb.DatabaseManager;
 import org.hsqldb.DatabaseURL;
@@ -76,9 +76,9 @@ import org.hsqldb.result.ResultConstants;
 import org.hsqldb.result.ResultProperties;
 import org.hsqldb.types.Type;
 
-import java.sql.SQLData;
-import java.sql.SQLOutput;
-import java.sql.SQLInput;
+//import java.sql.SQLData;
+//import java.sql.SQLOutput;
+//import java.sql.SQLInput;
 
 /* $Id$ */
 
@@ -493,7 +493,7 @@ import java.sql.SQLInput;
  * <code>getConnection</code> and <code>getDrivers</code> have been
  * enhanced to support the Java Standard Edition Service Provider mechanism.
  * When built under a Java runtime that supports JDBC 4.0, HSQLDB distribution
- * jars containing the Driver implementatiton also include the file
+ * jars containing the Driver implementation also include the file
  * <code>META-INF/services/java.sql.Driver</code>. This file contains the fully
  * qualified class name ('org.hsqldb.jdbc.JDBCDriver') of the HSQLDB implementation
  * of <code>java.sql.Driver</code>. <p>
@@ -513,6 +513,7 @@ import java.sql.SQLInput;
  * @author Fred Toussi (fredt@users dot sourceforge.net)
  * @version 2.0.1
  * @revised JDK 1.6, HSQLDB 2.0
+ * @revised JDK 1.7, HSQLDB 2.0.1
  * @see JDBCDriver
  * @see JDBCStatement
  * @see JDBCParameterMetaData
