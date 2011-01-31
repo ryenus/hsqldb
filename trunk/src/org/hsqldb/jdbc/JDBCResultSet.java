@@ -313,8 +313,9 @@ import org.hsqldb.types.Types;
  *
  * @author Campbell Boucher-Burnet (boucherb@users dot sourceforge.net)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.0
- * @since 1.9.0
+ * @version 2.0.1
+ * @since HSQLDB 1.9.0
+ * @revised JDK 7, HSQLDB 2.0.1
  */
 public class JDBCResultSet implements ResultSet {
 
