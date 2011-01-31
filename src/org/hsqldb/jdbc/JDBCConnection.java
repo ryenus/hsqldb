@@ -1286,6 +1286,13 @@ public class JDBCConnection implements Connection {
      * (JDBC4 Clarification:)<p>
      * If the driver does not support catalogs, it will
      * silently ignore this request.
+     * JDBC 4.1[<p>
+     * Calling {@code setCatalog} has no effect on previously created or prepared
+     * {@code Statement} objects. It is implementation defined whether a DBMS
+     * prepare operation takes place immediately when the {@code Connection}
+     * method {@code prepareStatement} or {@code prepareCall} is invoked.
+     * For maximum portability, {@code setCatalog} should be called before a
+     * {@code Statement} is created or prepared.]
      *
      * <!-- end generic documentation -->
      * <!-- start release-specific documentation -->
@@ -1352,6 +1359,7 @@ public class JDBCConnection implements Connection {
     /**
      * <!-- start generic documentation -->
      *
+     *  Attempts to change the transaction isolation level for this
      * <code>Connection</code> object to the one given.
      * The constants defined in the interface <code>Connection</code>
      * are the possible transaction isolation levels.
@@ -1737,7 +1745,17 @@ public class JDBCConnection implements Connection {
      * <code>Connection</code> object.
      * Unless the application has added an entry, the type map returned
      * will be empty.
-     *
+     * JDBC 4.1[<p>
+     * You must invoke <code>setTypeMap</code> after making changes to the
+     * <code>Map</code> object returned from
+     *  <code>getTypeMap</code> as a JDBC driver may create an internal
+     * copy of the <code>Map</code> object passed to <code>setTypeMap</code>:
+     * <p>
+     * <pre>
+     *      Map&lt;String,Class&lt;?&gt;&gt; myMap = con.getTypeMap();
+     *      myMap.put("mySchemaName.ATHLETES", Athletes.class);
+     *      con.setTypeMap(myMap);
+     * </pre>]
      * <!-- end generic documentation -->
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
@@ -1756,6 +1774,7 @@ public class JDBCConnection implements Connection {
      * this method
      * @since JDK 1.2 (JDK 1.1.x developers: read the overview
      *     for JDBCConnection)
+     * @see #setTypeMap
      */
 
 //#ifdef JAVA6
@@ -1786,7 +1805,16 @@ public class JDBCConnection implements Connection {
      * Installs the given <code>TypeMap</code> object as the type map for
      * this <code>Connection</code> object.  The type map will be used for the
      * custom mapping of SQL structured types and distinct types.
-     *
+     * JDBC4.1[<p>
+     * You must set the the values for the <code>TypeMap</code> prior to
+     * calling <code>setMap</code> as a JDBC driver may create an internal copy
+     * of the <code>TypeMap</code>:
+     * <p>
+     * <pre>
+     *      Map myMap&lt;String,Class&lt;?&gt;&gt; = new HashMap&lt;String,Class&lt;?&gt;&gt;();
+     *      myMap.put("mySchemaName.ATHLETES", Athletes.class);
+     *      con.setTypeMap(myMap);
+     * </pre>]
      * <!-- end generic documentation -->
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
@@ -1833,6 +1861,7 @@ public class JDBCConnection implements Connection {
 */
 
 //#endif JAVA6
+
     //--------------------------JDBC 3.0-----------------------------
 
     /**
@@ -1930,8 +1959,7 @@ public class JDBCConnection implements Connection {
      * Creates an unnamed savepoint in the current transaction and
      * returns the new <code>Savepoint</code> object that represents it.
      *
-     * <p>(JDBC4 clarification:)
-     * <p> if setSavepoint is invoked outside of an active transaction, a transaction will be started at this newly created
+     * <p> (JDBC4 clarification:) if setSavepoint is invoked outside of an active transaction, a transaction will be started at this newly created
      * savepoint.
      *
      * <!-- end generic documentation -->
@@ -1985,8 +2013,8 @@ public class JDBCConnection implements Connection {
      * Creates a savepoint with the given name in the current transaction
      * and returns the new <code>Savepoint</code> object that represents it.
      *
-     * <p> if setSavepoint is invoked outside of an active transaction, a
-     * transaction will be started at this newly created savepoint.
+     * <p> if setSavepoint is invoked outside of an active transaction, a transaction will be started at this newly created
+     *savepoint.
      *
      * <!-- end generic documentation -->
      *
@@ -2752,7 +2780,6 @@ public class JDBCConnection implements Connection {
      *
      * @since JDK 1.6, HSQLDB 2.0
      */
-
 //#ifdef JAVA6
     public NClob createNClob() throws SQLException {
 
@@ -2789,6 +2816,8 @@ public class JDBCConnection implements Connection {
     /** @todo:  ThreadPool? HsqlTimer with callback? */
 
     /**
+     * <!-- start generic documentation -->
+     *
      * Returns true if the connection has not been closed and is still valid.
      * The driver shall submit a query on the connection or use some other
      * mechanism that positively verifies the connection is still valid when
@@ -2796,6 +2825,10 @@ public class JDBCConnection implements Connection {
      * <p>
      * The query submitted by the driver to validate the connection shall be
      * executed in the context of the current transaction.
+     *
+     * <!-- end generic documentation -->
+     * <!-- start release-specific documentation -->
+     * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
      * HSQLDB uses a maximum timeout of 60 seconds if timeout has be specified
@@ -2803,13 +2836,12 @@ public class JDBCConnection implements Connection {
      *
      * </div> <!-- end release-specific documentation -->
      *
-     *
-     * @param timeout -         The time in seconds to wait for the database operation
-     *                                          used to validate the connection to complete.  If
-     *                                          the timeout period expires before the operation
-     *                                          completes, this method returns false.  A value of
-     *                                          0 indicates a timeout is not applied to the
-     *                                          database operation.
+     * @param timeout -             The time in seconds to wait for the database operation
+     *                                              used to validate the connection to complete.  If
+     *                                              the timeout period expires before the operation
+     *                                              completes, this method returns false.  A value of
+     *                                              0 indicates a timeout is not applied to the
+     *                                              database operation.
      * <p>
      * @return true if the connection is valid, false otherwise
      * @exception SQLException if the value supplied for <code>timeout</code>
@@ -2911,13 +2943,13 @@ public class JDBCConnection implements Connection {
      * properties, the standard property name should be used.
      * <p>
      * <ul>
-     * <li>ApplicationName      -       The name of the application currently utilizing
+     * <li>ApplicationName  -       The name of the application currently utilizing
      *                                                  the connection</li>
      * <li>ClientUser           -       The name of the user that the application using
      *                                                  the connection is performing work for.  This may
      *                                                  not be the same as the user name that was used
      *                                                  in establishing the connection.</li>
-     * <li>ClientHostname       -       The host name of the computer the application
+     * <li>ClientHostname   -       The host name of the computer the application
      *                                                  using the connection is running on.</li>
      * </ul>
      * <p>
@@ -2930,13 +2962,13 @@ public class JDBCConnection implements Connection {
      * </div>
      * <!-- end release-specific documentation -->
      *
-     * @param name              The name of the client info property to set
-     * @param value             The value to set the client info property to.  If the
-     *                                  value is null, the current value of the specified
-     *                                  property is cleared.
+     * @param name          The name of the client info property to set
+     * @param value         The value to set the client info property to.  If the
+     *                                      value is null, the current value of the specified
+     *                                      property is cleared.
      * <p>
-     * @throws  SQLClientInfoException if the database server returns an error while
-     *                  setting the client info value on the database server or this method
+     * @throws      SQLClientInfoException if the database server returns an error while
+     *                      setting the client info value on the database server or this method
      * is called on a closed connection
      * <p>
      * @since JDK 1.6, HSQLDB 2.0
