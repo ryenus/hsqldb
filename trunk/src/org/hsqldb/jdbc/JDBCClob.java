@@ -179,11 +179,13 @@ public class JDBCClob implements Clob {
      *
      * @param pos the first character of the substring to be extracted.
      *            The first character is at position 1.
-     * @param length the number of consecutive characters to be copied
+     * @param length the number of consecutive characters to be copied;
+     * JDBC 4.1[ the value for length must be 0 or greater]
      * @return a <code>String</code> that is the specified substring in
      *         the <code>CLOB</code> value designated by this <code>Clob</code> object
      * @exception SQLException if there is an error accessing the
-     *            <code>CLOB</code> value or if pos is less than 1
+     *            <code>CLOB</code> value; if pos is less than 1 JDBC 4.1[or length is
+     * less than 0]
      * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
      * this method
      * @since JDK 1.2, HSQLDB 1.7.2
