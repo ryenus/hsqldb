@@ -130,127 +130,96 @@ import org.hsqldb.types.Type;
  * <div class="ReleaseSpecificDocumentation">
  * <h3>HSQLDB-Specific Information:</h3> <p>
  *
- * Starting with HSQLDB 1.7.2, an option is provided to allow alternate
- * system table production implementations.  In this distribution, there are
- * three implementations whose behaviour ranges from producing no system
- * tables at all to producing a richer and more complete body of information
- * about an HSQLDB database than was previously available. The information
- * provided through the default implementation is, unlike previous
- * versions, accessible to all database users, regardless of admin status.
- * This is now possible because the table content it produces for each
- * user is pre-filtered, based on the user's access rights. That is, each
- * system table now acts like a security-aware View.<p>
+ * <h4>Metadata Table Production</h4>
  *
- * The process of installing a system table production class is transparent and
- * occurs dynamically at runtime during the opening sequence of a
- * <code>Database</code> instance, in the newDatabaseInformation() factory
- * method of the revised DatabaseInformation class, using the following
- * steps: <p>
+ * Starting with HSQLDB 1.7.2, the metadata (a.k.a system) table production
+ * implementation provided in the default build filters metadata based on each
+ * SQL session user's access rights which turn lifts the pre-HSQLDB 1.7.2
+ * restriction that only users with the DBA role
+ * ('admin' users in older HSQLDB parlance) could expect trouble-free access to
+ * all metadata.<p>
  *
- * <div class="GeneralExample">
- * <ol>
- * <li>If a class whose fully qualified name is org.hsqldb.dbinfo.DatabaseInformationFull
- *     can be found and it has an accesible constructor that takes an
- *     org.hsqldb.Database object as its single parameter, then an instance of
- *     that class is reflectively instantiated and is used by the database
- *     instance to produce its system tables. <p>
+ * Also starting with HSQLDB 1.7.2, the metadata table production implementation
+ * classes are loaded dynamically, using a precedence policy to find and load
+ * the richest producer available at runtime.  In the event that no better
+ * alternative is found, the default minimal (completely restricted) provider
+ * is selected.  Under this scheme, it is possible for third party packagers to
+ * create custom distributions targeted at supporting full (design-time),
+ * custom-written (proprietary / micro environment), minimal (production-time)
+ * or completely-restricted (space-constrained | device embedded | real-time |
+ * hostile environment) metadata table production scenarios. To learn more
+ * about this option, interested parties can review the documentation and source
+ * code for the <code>org.hsqldb.dbinfo.DatabaseInformation class</code>.<p>
  *
- * <li>If 1.) fails, then the process is repeated, attempting to create an
- *     instance of org.hsqldb.dbinfo.DatabaseInformationMain (which provides just the
- *     core set of system tables required to service this class, but now does
- *     so in a more security aware and comprehensive fashion). <p>
+ * Please also note that in addition to the metadata tables produced to
+ * directly support this class, starting with HSQLDB 1.7.2, the default build
+ * provides many additional tables covering all or most HSQLDB features, such
+ * as descriptions of the triggers and aliases defined in the database. <p>
  *
- * <li>If 2.) fails, then an instance of org.hsqldb.dbinfo.DatabaseInformation is
- *     installed (that, by default, produces no system tables, meaning that
- *     calls to all related methods in this class will fail, throwing an
- *     SQLException stating that a required system table is not found). <p>
+ * For instance, in the default build, a fairly comprehensive description of
+ * each INFORMATION_SCHEMA table and each INFORMATION_SCHEMA table
+ * column is included in the REMARKS column of the {@link #getTables(
+ * java.lang.String, java.lang.String, java.lang.String, java.lang.String[])
+ * getTables(...)} and {@link #getColumns(java.lang.String, java.lang.String,
+ * java.lang.String, java.lang.String) getColumns(...)} results, which derive
+ * from INFORMATION_SCHEMA.SYSTEM_TABLES and INFORMATION_SCHEMA.SYSTEM_COLUMNS,
+ * respectively.<p>
  *
- * </ol>
- * </div> <p>
+ * <h4>Schema Metadata</h4>
  *
- * The process of searching for alternate implementations of database
- * support classes, ending with the installation of a minimal but functional
- * default will be refered to henceforth as <i>graceful degradation</i>.
- * This process is advantageous in that it allows developers and administrators
- * to easily choose packaging options, simply by adding to or deleting concerned
- * classes from an  HSQLDB installation, without worry over providing complex
- * initialization properties or disrupting the core operation of the engine.
- * In this particular context, <i>graceful degradation</i> allows easy choices
- * regarding database metadata, spanning the range of full (design-time),
- * custom-written, minimal (production-time) or <CODE>null</CODE>
- * (space-constrained) system table production implementations. <p>
+ * The SQL SCHEMA concept became fully supported in the HSQLDB 1.8.x series and
+ * this fact is reflected in the all subsequent versions of this class.
  *
- * In the default full implementation, a number of new system tables are
- * provided that, although not used directly by this class, present previously
- * unavailable information about the database, such as about its triggers and
- * aliases. <p>
+ * <h4>Catalog Metadata</h4>
  *
- * In order to better support graphical database exploration tools and as an
- * experimental intermediate step toward more fully supporting SQL9n and
- * SQL200n, the default installed DatabaseInformation implementation
- * is also capable of reporting pseudo name space information, such as
- * the catalog (database URI) of database objects. <p>
+ * Starting with HSQLDB 2.0, SQL standards compliance up to SQL:2008 and beyond
+ * is a major theme which is reflected in the provision of the majority of the
+ * standard-defined full-name INFORMATION_SCHEMA views. <p>
  *
- * The catalog reporting feature is turned off by default but
- * can be turned on by providing the appropriate entries in the database
- * properties file (see the advanced topics section of the product
- * documentation). <p>
+ * However, just as CATALOG semantics and handling are still considered to be
+ * implementation defined by the most recent SQL standard (SQL:2008), so is the
+ * HSQLDB CATALOG concept still in the process of being defined and refined in
+ * HSQLDB 2.x. and beyond.<p>
  *
- * When the feature is turned on, catalog is reported using
- * the following conventions: <p>
+ * Previous to HSQLDB 2.x, there were, at various points in time, experimental
+ * features provided to turn on pseudo catalog (and before that, pseudo-schema)
+ * reporting in the system tables, using the database properties
+ * 'hsqldb.catalogs' and 'hsqldb.schemas', respectively.<p>
  *
- * <ol>
- * <li>All objects are reported as having a catalog equal to the URI of the
- *     database, which is equivalent to the catenation of the
- *     <b>&lt;type&gt;</b> and <b>&lt;path&gt;</b> portions of the HSQLDB
- *     internal JDBC connection URL.<p>
+ * However, once the engine fully supported the SQL SCHEMA concept, the
+ * experimental 'hsqldb.schemas' * database property was retired. <p>
  *
- *     Examples: <p>
+ * Similarly, starting with HSQLDB 2.x, the 'hsqldb.catalogs' database property
+ * has been retired and replaced with the convention that, from the perspective
+ * of SQL identification, an HSQLDB JDBC URL connects to a single HSQLDB
+ * database instance which consists of a single, default, unalterable CATALOG
+ * named PUBLIC in which each SCHEMA instance of the database resides. In other
+ * words, HSQLDB presently supports qualification by the containing CATALOG of
+ * database objects at the syntactic level, but does not yet support operations
+ * such as opening, manipulating or querying against multiple database
+ * catalogs within a single session, not even in a one-at-a-time fashion.<p>
  *
- *     <pre class="JavaCodeExample">
- *     <span class="JavaStringLiteral">&quot;jdbc:hsqldb:file:test&quot;</span>      => <span class="JavaStringLiteral">&quot;file:test&quot;</span>
- *     <span class="JavaStringLiteral">&quot;jdbc:hsqldb:mem:.&quot;</span>          => <span class="JavaStringLiteral">&quot;mem:.&quot;</span>
- *     <span class="JavaStringLiteral">&quot;jdbc:hsqldb:hsql:/host/<alias>...&quot;</span> => URI of aliased database
- *     <span class="JavaStringLiteral">&quot;jdbc:hsqldb:http:/host/<alias>...&quot;</span> => URI of aliased database
- *     </pre>
+ * <h4>Index Metadata</h4>
  *
- *     <b>Note:</b> No provision is made for qualifying database objects
- *     by catalog in DML or DDL SQL.  This feature is functional only with
- *     respect to browsing the database through the DatabaseMetaData and system
- *     table interfaces. <p>
+ * It must still be noted that as of the most recent release, HSQLDB continues
+ * to ignore the <code>approximate</code> argument of {@link #getIndexInfo
+ * getIndexInfo()} which continues to be simply indicative of absence of a
+ * statistics-driven cost-based SQL plan optimization facility.  When, if ever,
+ * such a facility is implemented, corresponding improvements to
+ * <code>getIndexInfo</code> will be provided. <p>
  *
- * </ol>
+ * <h4>Notes for developers extending metadata table production</h4>
  *
- * Again, it should be well understood that this feature provide an
- * <i>emulation</i> of catalog support and is intended only
- * as an experimental implementation to enhance the browsing experience
- * when using graphical database explorers and to make a first foray
- * into tackling the issue of implementing true catalog support
- * in the future. <p>
+ * Note that in the absence of an ORDER BY clause, queries against the metadata 
+ * tables that directly support this class are expected return rows in JDBC
+ * contract order.  The reason for this is that results typically come
+ * back much faster when no &quot;ORDER BY&quot; clause is used. <p>
  *
- * Due the nature of the new database system table production process, fewer
- * assumptions can be made by this class about what information is made
- * available in the system tables supporting <code>DatabaseMetaData</code>
- * methods. Because of this, the SQL queries behind the <code>ResultSet</code>
- * producing methods have been cleaned up and made to adhere more strictly to
- * the JDBC contracts specified in relation to the method parameters. <p>
- *
- * One of the remaining assumptions concerns the <code>approximate</code>
- * argument of {@link #getIndexInfo getIndexInfo()}. This parameter is still
- * ignored since there is not yet any process in place to internally gather
- * and persist table and index statistics.  A primitive version of a statistics
- * gathering and reporting subsystem <em>may</em> be introduced at some time in
- * the future. <p>
- *
- * Another assumption is that simple select queries against certain system
- * tables will return rows in JDBC contract order in the absence of an
- * &quot;ORDER BY&quot; clause.  The reason for this is that results
- * come back much faster when no &quot;ORDER BY&quot; clause is used.
- * Developers wishing to extend or replace an existing system table production
- * class should be aware of this, either adding the contract
- * &quot;ORDER BY&quot; clause to the SQL in corresponding methods in this class,
- * or, better, by maintaing rows in the correct order in the underlying
- * system tables, prefereably by creating appropriate primary indices. <p>
+ * As such, when adding, extending or replacing a JDBC database metadata table
+ * production routine, developers need to be aware of this and either add the
+ * contract &quot;ORDER BY&quot; clause to the driving SQL or, when possible,
+ * preferably maintain rows in the contract order by correctly coding the
+ * primary index definition in the table producer class.<p>
  *
  * <hr>
  *
@@ -298,8 +267,9 @@ import org.hsqldb.types.Type;
  *
  * @author Campbell Boucher-Burnet (boucherb@users dot sourceforge.net)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.0
+ * @version 2.0.1
  * @revised JDK 1.6, HSQLDB 2.0
+ * @revised JDK 1.7, HSQLDB 2.0.1
  * @see org.hsqldb.dbinfo.DatabaseInformation
  * @see org.hsqldb.dbinfo.DatabaseInformationMain
  * @see org.hsqldb.dbinfo.DatabaseInformationFull
