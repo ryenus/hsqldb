@@ -2801,7 +2801,8 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      * <P>
      * Only procedure descriptions matching the schema and
      * procedure name criteria are returned.  They are ordered by
-     * <code>PROCEDURE_SCHEM</code>, <code>PROCEDURE_NAME</code> and (new to JDBC4) <code>SPECIFIC_ NAME</code>.
+     * JDBC 4.1[<code>PROCEDURE_CAT</code>,] <code>PROCEDURE_SCHEM</code>,
+     * <code>PROCEDURE_NAME</code> and (new to JDBC4)[<code>SPECIFIC_ NAME</code>].
      *
      * <P>Each procedure description has the the following columns:
      *  <OL>
@@ -2822,7 +2823,8 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      *      <LI> procedureNoResult - (JDBC4 clarification:) Does not return a return value
      *      <LI> procedureReturnsResult - (JDBC4 clarification:) Returns a return value
      *      </UL>
-     *  <LI><B>SPECIFIC_NAME</B> String  => (JDBC4 new:) The name which uniquely identifies this procedure within its schema
+     *  <LI><B>SPECIFIC_NAME</B> String  => (JDBC4 new:) The name which uniquely identifies this
+     * procedure within its schema.
      *  </OL>
      * <p>
      * A user may not have permissions to execute any of the procedures that are
@@ -2916,7 +2918,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      *
      * <P>Only descriptions matching the schema, procedure and
      * parameter name criteria are returned.  They are ordered by
-     * PROCEDURE_SCHEM, PROCEDURE_NAME and SPECIFIC_NAME. Within this, the return value,
+     * JDBC 4.1[PROCEDURE_CAT,] PROCEDURE_SCHEM, PROCEDURE_NAME and SPECIFIC_NAME. Within this, the return value,
      * if any, is first. Next are the parameter descriptions in call
      * order. The column descriptions follow in column number order.
      *
@@ -2972,13 +2974,16 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      *  <LI><B>CHAR_OCTET_LENGTH</B> int  => (JDBC4 new:) the maximum length of binary and character based columns.  For any other datatype the returned value is a
      * NULL
      *  <LI><B>ORDINAL_POSITION</B> int  => (JDBC4 new:) the ordinal position, starting from 1, for the input and output parameters for a procedure. A value of 0
-     * is returned if this row describes the procedure's return value.
+     * is returned if this row describes the procedure's return value. JDBC 4.1[For result set columns, it is the
+     * ordinal position of the column in the result set starting from 1.  If there are
+     * multiple result sets, the column ordinal positions are implementation
+     * defined.]
      *  <LI><B>IS_NULLABLE</B> String  => ISO rules are used to determine the nullability for a column.
      *       <UL>
-     *       <LI> YES           --- if the parameter can include NULLs
-     *       <LI> NO            --- if the parameter cannot include NULLs
+     *       <LI> YES           --- if the parameter or result column can include NULLs
+     *       <LI> NO            --- if the parameter or result column cannot include NULLs
      *       <LI> empty string  --- if the nullability for the
-     * parameter is unknown
+     * parameter or result column is unknown
      *       </UL>
      *  <LI><B>SPECIFIC_NAME</B> String  => (JDBC4 new:) the name which uniquely identifies this procedure within its schema.
      * </OL>
@@ -2992,7 +2997,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      * For numeric data, this is the maximum precision.  For character data, this is the [declared or implicit maximum] length in characters.
      * For datetime datatypes, this is the [maximum] length in characters of the String representation (assuming the
      * maximum allowed precision of the fractional seconds component). For binary data, this is the [maximum] length in bytes.  For the ROWID datatype,
-     * this is the length in bytes[, as returned by the implementation-specific java.sql.RowId.getBytes() method]. 0 is returned for data types where the
+     * this is the length in bytes[, as returned by the implementation-specific java.sql.RowId.getBytes() method]. JDBC 4.1 Deleted[0] JDBC 4.1 Added[Null] is returned for data types where the
      * column size is not applicable.
      *
      * <!-- start release-specific documentation -->
@@ -3058,7 +3063,8 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      * Retrieves a description of the tables available in the given catalog.
      * Only table descriptions matching the catalog, schema, table
      * name and type criteria are returned.  They are ordered by
-     * TABLE_TYPE, TABLE_SCHEM and TABLE_NAME.
+     * <code>TABLE_TYPE</code>, JDBC 4.1[<code>TABLE_CAT</code>,]
+     * <code>TABLE_SCHEM</code> and <code>TABLE_NAME</code>.
      * <P>
      * Each table description has the following columns:
      *  <OL>
@@ -3189,7 +3195,8 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
 
     /**
      * Retrieves the schema names available in this database.  The results
-     * are ordered by schema name.
+     * are ordered by JDBC 4.1[<code>TABLE_CATALOG</code>] and
+     * <code>TABLE_SCHEM</code>.
      *
      * <P>The schema columns are:
      *  <OL>
@@ -3289,8 +3296,8 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      *
      * <P>Only column descriptions matching the catalog, schema, table
      * and column name criteria are returned.  They are ordered by
-     * <code>TABLE_SCHEM</code>, <code>TABLE_NAME</code>, and
-     * <code>ORDINAL_POSITION</code>.
+     * JDBC 4.1[<code>TABLE_CAT</code>, ]<code>TABLE_SCHEM</code>,
+     * <code>TABLE_NAME</code>, and <code>ORDINAL_POSITION</code>.
      *
      * <P>Each column description has the following columns:
      *  <OL>
@@ -3329,17 +3336,17 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      *      (starting at 1)
      *  <LI><B>IS_NULLABLE</B> String  => ISO rules are used to determine the nullability for a column.
      *       <UL>
-     *       <LI> YES           --- if the parameter can include NULLs
-     *       <LI> NO            --- if the parameter cannot include NULLs
+     *       <LI> YES           --- if the column can include NULLs
+     *       <LI> NO            --- if the column cannot include NULLs
      *       <LI> empty string  --- if the nullability for the
-     * parameter is unknown
+     * column is unknown
      *       </UL>
-     *  <LI><B>SCOPE_CATLOG</B> String => catalog of table that is the scope
+     *  <LI>JDBC 4.1 Deleted[<B>SCOPE_CATLOG</B>] JDBC 4.1 Added[<B>SCOPE_CATALOG</B>] String => catalog of table that is the scope
      *      of a reference attribute (<code>null</code> if DATA_TYPE isn't REF)
      *  <LI><B>SCOPE_SCHEMA</B> String => schema of table that is the scope
      *      of a reference attribute (<code>null</code> if the DATA_TYPE isn't REF)
      *  <LI><B>SCOPE_TABLE</B> String => table name that this the scope
-     *      of a reference attribure (<code>null</code> if the DATA_TYPE isn't REF)
+     *      of a reference attribute (<code>null</code> if the DATA_TYPE isn't REF)
      *  <LI><B>SOURCE_DATA_TYPE</B> short => source type of a distinct type or user-generated
      *      Ref type, SQL type from java.sql.Types (<code>null</code> if DATA_TYPE
      *      isn't DISTINCT or user-generated REF)
@@ -3348,7 +3355,12 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      *       <LI> YES           --- if the column is auto incremented
      *       <LI> NO            --- if the column is not auto incremented
      *       <LI> empty string  --- if it cannot be determined whether the column is auto incremented
-     * parameter is unknown
+     *       </UL>
+     *   <LI(JDBC 4.1 New:)<B>IS_GENERATEDCOLUMN</B> String  => Indicates whether this is a generated column
+     *       <UL>
+     *       <LI> YES           --- if this a generated column
+     *       <LI> NO            --- if this not a generated column
+     *       <LI> empty string  --- if it cannot be determined whether this is a generated column
      *       </UL>
      *  </OL>
      *
@@ -3356,7 +3368,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      * For numeric data, this is the maximum precision.  For character data, this is the [declared or implicit maximum] length in characters.
      * For datetime datatypes, this is the [maximum] length in characters of the String representation (assuming the
      * maximum allowed precision of the fractional seconds component). For binary data, this is the [maximum] length in bytes.  For the ROWID datatype,
-     * this is the length in bytes[, as returned by the implementation-specific java.sql.RowId.getBytes() method]. 0 is returned for data types where the
+     * this is the length in bytes[, as returned by the implementation-specific java.sql.RowId.getBytes() method]. JDBC 4.1 Deleted[0] JDBC 4.1 Added[Null] is returned for data types where the
      * column size is not applicable. <p>
      *
      * <!-- start release-specific documentation -->
@@ -3428,7 +3440,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      *  <LI><B>TABLE_SCHEM</B> String => table schema (may be <code>null</code>)
      *  <LI><B>TABLE_NAME</B> String => table name
      *  <LI><B>COLUMN_NAME</B> String => column name
-     *  <LI><B>GRANTOR</B> => grantor of access (may be <code>null</code>)
+     *  <LI><B>GRANTOR</B> String => grantor of access (may be <code>null</code>)
      *  <LI><B>GRANTEE</B> String => grantee of access
      *  <LI><B>PRIVILEGE</B> String => name of access (SELECT,
      *      INSERT, UPDATE, REFRENCES, ...)
@@ -3508,15 +3520,17 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      * some systems but is not true for all.)
      *
      * <P>Only privileges matching the schema and table name
-     * criteria are returned.  They are ordered by TABLE_SCHEM,
-     * TABLE_NAME, and PRIVILEGE.
+     * criteria are returned.  They are ordered by
+     * JDBC 4.1[<code>TABLE_CAT</code>,]
+     * <code>TABLE_SCHEM</code>, <code>TABLE_NAME</code>,
+     * and <code>PRIVILEGE</code>.
      *
-     * <P>Each privilige description has the following columns:
+     * <P>Each privilege description has the following columns:
      *  <OL>
      *  <LI><B>TABLE_CAT</B> String => table catalog (may be <code>null</code>)
      *  <LI><B>TABLE_SCHEM</B> String => table schema (may be <code>null</code>)
      *  <LI><B>TABLE_NAME</B> String => table name
-     *  <LI><B>GRANTOR</B> => grantor of access (may be <code>null</code>)
+     *  <LI><B>GRANTOR</B> String => grantor of access (may be <code>null</code>)
      *  <LI><B>GRANTEE</B> String => grantee of access
      *  <LI><B>PRIVILEGE</B> String => name of access (SELECT,
      *      INSERT, UPDATE, REFRENCES, ...)
@@ -3613,12 +3627,12 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      *      </UL>
      *  </OL>
      *
-     * <p>(JDBC4 clarification:)<p>
-     * The COLUMN_SIZE column represents the specified column size for the given column.
+     * <p>(JDBC4 clarification:)
+     * <p>The COLUMN_SIZE column represents the specified column size for the given column.
      * For numeric data, this is the maximum precision.  For character data, this is the [declared or implicit maximum] length in characters.
      * For datetime datatypes, this is the [maximum] length in characters of the String representation (assuming the
      * maximum allowed precision of the fractional seconds component). For binary data, this is the [maximum] length in bytes.  For the ROWID datatype,
-     * this is the length in bytes[, as returned by the implementation-specific java.sql.RowId.getBytes() method]. 0 is returned for data types where the
+     * this is the length in bytes[, as returned by the implementation-specific java.sql.RowId.getBytes() method]. JDBC 4.1 Deleted[0] JDBC 4.1 Added[Null] is returned for data types where the
      * column size is not applicable. <p>
      *
      * <!-- start release-specific documentation -->
@@ -3734,12 +3748,11 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      *  </OL>
      *
      * <p>(JDBC4 clarification:)
-     *
      * <p>The COLUMN_SIZE column represents the specified column size for the given column.
      * For numeric data, this is the maximum precision.  For character data, this is the [declared or implicit maximum] length in characters.
      * For datetime datatypes, this is the [maximum] length in characters of the String representation (assuming the
      * maximum allowed precision of the fractional seconds component). For binary data, this is the [maximum] length in bytes.  For the ROWID datatype,
-     * this is the length in bytes[, as returned by the implementation-specific java.sql.RowId.getBytes() method]. 0 is returned for data types where the
+     * this is the length in bytes[, as returned by the implementation-specific java.sql.RowId.getBytes() method]. JDBC 4.1 Deleted[0], JDBC 4.1 Added[Null] is returned for data types where the
      * column size is not applicable.
      *
      * <!-- start release-specific documentation -->
@@ -4290,7 +4303,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      * For numeric data, this is the maximum precision.  For character data, this is the [maximum] length in characters.
      * For datetime datatypes, this is the [maximum] length in characters of the String representation (assuming the
      * maximum allowed precision of the fractional seconds component). For binary data, this is the [maximum] length in bytes.  For the ROWID datatype,
-     * this is the length in bytes[, as returned by the implementation-specific java.sql.RowId.getBytes() method]. 0 is returned for data types where the
+     * this is the length in bytes[, as returned by the implementation-specific java.sql.RowId.getBytes() method]. JDBC 4.1 Deleted[0] JDBC 4.1 Added[Null] is returned for data types where the
      * column size is not applicable.
      *
      * <!-- start release-specific documentation -->
@@ -4719,8 +4732,9 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      * or <code>DISTINCT</code>.
      *
      * <P>Only types matching the catalog, schema, type name and type
-     * criteria are returned.  They are ordered by DATA_TYPE, TYPE_SCHEM
-     * and TYPE_NAME.  The type name parameter may be a fully-qualified
+     * criteria are returned.  They are ordered by <code>DATA_TYPE</code>,
+     * JDBC 4.1[<code>TYPE_CAT</code>,] <code>TYPE_SCHEM</code>  and
+     * <code>TYPE_NAME</code>.  The type name parameter may be a fully-qualified
      * name.  In this case, the catalog and schemaPattern parameters are
      * ignored.
      *
@@ -4914,9 +4928,9 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      * @return <code>true</code> if auto-generated keys can be retrieved
      *         after a statement has executed; <code>false</code> otherwise
      * <p>(JDBC4 Clarification:)
-     * <p>If <code>true</code> is returned, the JDBC driver must support the
+     *<p>If <code>true</code> is returned, the JDBC driver must support the
      * returning of auto-generated keys for at least SQL INSERT statements
-     * <p>
+     *<p>
      * @exception SQLException if a database access error occurs
      * @since JDK 1.4, HSQLDB 1.7
      */
@@ -4929,7 +4943,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
 
     /**
      * Retrieves a description of the user-defined type (UDT) hierarchies defined in a
-     * particular schema in this database. Only the immediate super type
+     * particular schema in this database. Only the immediate super type/
      * sub type relationship is modeled.
      * <P>
      * Only supertype information for UDTs matching the catalog,
@@ -5085,7 +5099,8 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      * <P>
      * Descriptions are returned only for attributes of UDTs matching the
      * catalog, schema, type, and attribute name criteria. They are ordered by
-     * TYPE_SCHEM, TYPE_NAME and ORDINAL_POSITION. This description
+     * JDBC 4.1[<code>TYPE_CAT</code>, ]<code>TYPE_SCHEM</code>,
+     * <code>TYPE_NAME</code> and <code>ORDINAL_POSITION</code>. This description
      * does not contain inherited attributes.
      * <P>
      * The <code>ResultSet</code> object that is returned has the following
@@ -5117,14 +5132,15 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      *  <LI><B>SQL_DATETIME_SUB</B> int => unused
      *  <LI><B>CHAR_OCTET_LENGTH</B> int => for char types the
      *       maximum number of bytes in the column
-     *  <LI><B>ORDINAL_POSITION</B> int => index of column in table
+     *  <LI><B>ORDINAL_POSITION</B> int => index of JDBC 4.1 correction[the attribute in the UDT]
      *      (starting at 1)
-     *  <LI><B>IS_NULLABLE</B> String  => ISO rules are used to determine the nullability for a column.
+     *  <LI><B>IS_NULLABLE</B> String  => ISO rules are used to determine
+     * the nullability for a column.
      *       <UL>
-     *       <LI> YES           --- if the parameter can include NULLs
-     *       <LI> NO            --- if the parameter cannot include NULLs
+     *       <LI> YES           --- if the JDBC 4.1 correction[attribute] can include NULLs
+     *       <LI> NO            --- if the JDBC 4.1 correction[attribute] cannot include NULLs
      *       <LI> empty string  --- if the nullability for the
-     * parameter is unknown
+     * JDBC 4.1 correction[attribute] is unknown
      *       </UL>
      *  <LI><B>SCOPE_CATALOG</B> String => catalog of table that is the
      *      scope of a reference attribute (<code>null</code> if DATA_TYPE isn't REF)
@@ -5452,7 +5468,8 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
 
     /**
      * Retrieves the schema names available in this database.  The results
-     * are ordered by schema name.
+     * are ordered by JDBC 4.1[<code>TABLE_CATALOG</code>] and
+     * <code>TABLE_SCHEM</code>.
      *
      * <P>The schema columns are:
      *  <OL>
@@ -5556,8 +5573,8 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
 //#endif JAVA6
 
     /**
-     * Retrieves a description of the user functions available in the given
-     * catalog.
+     * Retrieves a description of the JDBC 4.1[ system and ]user functions available
+     * in the given catalog.
      * <P>
      * Only system and user function descriptions matching the schema and
      * function name criteria are returned.  They are ordered by
