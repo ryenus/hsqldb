@@ -46,6 +46,7 @@ import javax.sql.CommonDataSource;
  * @author Fred Toussi (fredt@users dot sourceforge.net)
  * @version 2.0.1
  * @since JDK 1.2, HSQLDB 2.0
+ * @revised JDK 1.7, HSQLDB 2.0.1
  */
 //#ifdef JAVA6
 public abstract class JDBCCommonDataSource implements CommonDataSource {
