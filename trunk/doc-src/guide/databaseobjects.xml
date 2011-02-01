@@ -2413,10 +2413,12 @@ INSERT INTO t (id, firstname, lastname, fullname) VALUES (2, 'Pink', 'Panther', 
       body&gt;</literal></simpara>
 
       <simpara>Alter the characteristic and the body of an SQL-invoked
-      routine. Altering the routine changes the implementation without
-      changing the parameters. Defining recursive SQL/PSM SQL functions is
-      only possible by altering a non-recursive routine body. An example is
-      given in the <link endterm="sqlroutines-title" os=""
+      routine. If RESTRICT is specified and the routine is already used in a a
+      different routine or view definition, an exception is raised. Altering
+      the routine changes the implementation without changing the parameters.
+      Defining recursive SQL/PSM SQL functions is only possible by altering a
+      non-recursive routine body. An example is given in the <link
+      endterm="sqlroutines-title" os=""
       xlink:href="#sqlroutines-chapt"></link> chapter. </simpara>
 
       <simpara>An example is given below for a function defined as a Java
