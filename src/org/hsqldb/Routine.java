@@ -97,7 +97,6 @@ public class Routine implements SchemaObject, Cloneable {
     boolean          isNewSavepointLevel = true;
     int              maxDynamicResults   = 0;
     boolean          isRecursive;
-    boolean          isPSM;
     boolean          returnsTable;
     Statement        statement;
 
@@ -112,8 +111,7 @@ public class Routine implements SchemaObject, Cloneable {
 
     //
     HashMappedList  parameterList = new HashMappedList();
-    int             scopeVariableCount;
-    RangeVariable[] ranges;
+    RangeVariable[] ranges        = RangeVariable.emptyArray;
 
     //
     int variableCount;
@@ -384,7 +382,6 @@ public class Routine implements SchemaObject, Cloneable {
 
     public void setLanguage(int lang) {
         language = lang;
-        isPSM    = language == LANGUAGE_SQL;
     }
 
     public int getLanguage() {
@@ -392,7 +389,7 @@ public class Routine implements SchemaObject, Cloneable {
     }
 
     boolean isPSM() {
-        return isPSM;
+        return language == LANGUAGE_SQL;
     }
 
     public void setDataImpact(int impact) {
@@ -544,17 +541,17 @@ public class Routine implements SchemaObject, Cloneable {
 
         if (language == Routine.LANGUAGE_SQL) {
             if (dataImpact == NO_SQL) {
-                throw Error.error(ErrorCode.X_42604);
+                throw Error.error(ErrorCode.X_42604, "CONTAINS SQL");
             }
 
             if (parameterStyle == PARAM_STYLE_JAVA) {
-                throw Error.error(ErrorCode.X_42604);
+                throw Error.error(ErrorCode.X_42604, "PARAMETER STYLE");
             }
         }
 
         if (language == Routine.LANGUAGE_SQL) {
             if (parameterStyle != 0 && parameterStyle != PARAM_STYLE_SQL) {
-                throw Error.error(ErrorCode.X_42604);
+                throw Error.error(ErrorCode.X_42604, "PARAMETER STYLE");
             }
         }
 
@@ -645,6 +642,8 @@ public class Routine implements SchemaObject, Cloneable {
         if (statement != null) {
             set.addAll(statement.getReferences());
         }
+
+        isRecursive = false;
 
         if (set.contains(getSpecificName())) {
             set.remove(this.getSpecificName());
@@ -784,13 +783,44 @@ public class Routine implements SchemaObject, Cloneable {
         return statement.getTableNamesForWrite();
     }
 
+    public void resetAlteredRoutineSettings() {
+
+        if (isPSM()) {
+            methodName               = null;
+            javaMethod               = null;
+            javaMethodWithConnection = false;
+            parameterStyle           = PARAM_STYLE_SQL;
+
+            if (dataImpact == NO_SQL) {
+                dataImpact = CONTAINS_SQL;
+            }
+        } else {
+            statement     = null;
+            references    = null;
+            variableCount = 0;
+            ranges        = RangeVariable.emptyArray;
+        }
+    }
+
     public void setAsAlteredRoutine(Routine routine) {
 
-        javaMethod    = routine.javaMethod;
-        statement     = routine.statement;
-        references    = routine.references;
-        isRecursive   = routine.isRecursive;
-        variableCount = routine.variableCount;
+        language          = routine.language;
+        dataImpact        = routine.dataImpact;
+        parameterStyle    = routine.parameterStyle;
+        isDeterministic   = routine.isDeterministic;
+        isNullInputOutput = routine.isNullInputOutput;
+        maxDynamicResults = routine.maxDynamicResults;
+        isRecursive       = routine.isRecursive;
+        javaMethod        = routine.javaMethod;
+
+        //
+        isRecursive              = routine.isRecursive;
+        javaMethodWithConnection = routine.javaMethodWithConnection;
+        methodName               = routine.methodName;
+        statement                = routine.statement;
+        references               = routine.references;
+        variableCount            = routine.variableCount;
+        ranges                   = routine.ranges;
     }
 
     Object[] convertArgsToJava(Session session, Object[] callArguments) {

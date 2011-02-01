@@ -376,15 +376,15 @@ public class ParserRoutine extends ParserDML {
 
         routine = routine.duplicate();
 
-        if (routine.language == Routine.LANGUAGE_JAVA) {
-            readThis(Tokens.NAME);
-            checkIsValue(Types.SQL_CHAR);
-            routine.setMethodURL((String) token.tokenValue);
+        readRoutineCharacteristics(routine);
+
+        if (token.tokenType == Tokens.BODY) {
             read();
-        } else {
-            readThis(Tokens.BODY);
-            readRoutineBody(routine);
         }
+
+        readRoutineBody(routine);
+        routine.resetAlteredRoutineSettings();
+        routine.resolve(session);
 
         Object[] args = new Object[]{ routine };
         String   sql  = getLastPart();
