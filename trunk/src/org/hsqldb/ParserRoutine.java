@@ -368,6 +368,8 @@ public class ParserRoutine extends ParserDML {
 
     StatementSchema compileAlterSpecificRoutine() {
 
+        boolean restrict = false;
+
         readThis(Tokens.SPECIFIC);
         readThis(Tokens.ROUTINE);
 
@@ -378,8 +380,16 @@ public class ParserRoutine extends ParserDML {
 
         readRoutineCharacteristics(routine);
 
-        if (token.tokenType == Tokens.BODY) {
-            read();
+        restrict = readIfThis(Tokens.RESTRICT);
+
+        if (restrict) {
+            OrderedHashSet set =
+                database.schemaManager.getReferencingObjectNames(
+                    routine.getSpecificName());
+
+            if (!set.isEmpty()) {
+                throw Error.error(ErrorCode.X_42502);
+            }
         }
 
         readRoutineBody(routine);
