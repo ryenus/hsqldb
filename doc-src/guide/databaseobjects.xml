@@ -601,9 +601,9 @@ INSERT INTO movies (starid, movieid, title) VALUES (IDENTITY(), 10, 'Felix in Ho
       or view, additional actions are taken by the triggers that have been
       declared on the table or view.</simpara>
 
-      <simpara>Triggers are discussed in detail in chapter <link
+      <simpara>Triggers are discussed in detail in <link
       endterm="triggers-title" os="" xlink:href="#triggers-chapt"></link>
-      .</simpara>
+      chapter.</simpara>
     </section>
 
     <section>
@@ -2383,7 +2383,11 @@ INSERT INTO t (id, firstname, lastname, fullname) VALUES (2, 'Pink', 'Panther', 
       <simpara><literal>&lt;maximum returned result sets&gt; ::= &lt;unsigned
       integer&gt;</literal></simpara>
 
-      <simpara>Define an SQL-invoked routine.</simpara>
+      <simpara>Define an SQL-invoked routine. A few of the options are not
+      used by HyperSQL and have default behaviours. See the <link
+      endterm="sqlroutines-title" os=""
+      xlink:href="#sqlroutines-chapt"></link> chapter for more details of
+      various options and examples.</simpara>
 
       <indexterm significance="preferred" type="sql">
         <primary>ALTER routine</primary>
@@ -2394,8 +2398,8 @@ INSERT INTO t (id, firstname, lastname, fullname) VALUES (2, 'Pink', 'Panther', 
       <simpara><emphasis>alter routine statement</emphasis></simpara>
 
       <simpara><literal>&lt;alter routine statement&gt; ::= ALTER &lt;specific
-      routine designator&gt; { &lt;alter routine characteristics&gt; RESTRICT
-      | &lt;alter routine body&gt; }</literal></simpara>
+      routine designator&gt; [ &lt;alter routine characteristics&gt; ] [
+      RESTRICT ] &lt;routine body&gt; </literal></simpara>
 
       <simpara><literal>&lt;alter routine characteristics&gt; ::= &lt;alter
       routine characteristic&gt;...</literal></simpara>
@@ -2403,17 +2407,37 @@ INSERT INTO t (id, firstname, lastname, fullname) VALUES (2, 'Pink', 'Panther', 
       <simpara><literal>&lt;alter routine characteristic&gt; ::= &lt;language
       clause&gt; | &lt;parameter style clause&gt; | &lt;SQL-data access
       indication&gt; | &lt;null-call clause&gt; | &lt;returned result sets
-      characteristic&gt; | NAME &lt;external routine
-      name&gt;</literal></simpara>
+      characteristic&gt;</literal></simpara>
 
-      <simpara><literal>&lt;alter routine body&gt; ::= BODY &lt;SQL routine
+      <simpara><literal>&lt;alter routine body&gt; ::= &lt;SQL routine
       body&gt;</literal></simpara>
 
-      <simpara>Alter a characteristic of an SQL-invoked routine. Early
-      releases of HyperSQL 2.0 do not support altering the characteristics.
-      Altering the routine body changes the implementation without changing
-      the parameters. Defining recursive SQL/PSM is only possible by altering
-      a non-recursive routine body.</simpara>
+      <simpara>Alter the characteristic and the body of an SQL-invoked
+      routine. Altering the routine changes the implementation without
+      changing the parameters. Defining recursive SQL/PSM SQL functions is
+      only possible by altering a non-recursive routine body. An example is
+      given in the <link endterm="sqlroutines-title" os=""
+      xlink:href="#sqlroutines-chapt"></link> chapter. </simpara>
+
+      <simpara>An example is given below for a function defined as a Java
+      method, then redefined as an SQL function.</simpara>
+
+      <programlisting>create function zero_pad(x bigint, digits int, maxsize int)
+ returns char varying(100)
+ specific zero_pad_01
+ no sql deterministic
+ language java parameter style java
+ external name 'CLASSPATH:org.hsqldb.lib.StringUtil.toZeroPaddedString';
+
+alter specific routine zero_pad_01
+ language sql
+ begin atomic
+ declare str varchar(128);
+ set str = cast(x as varchar(128));
+ set str = substring('0000000000000' from 1 for digits - char_length(str)) + str;
+ return str;
+ end
+</programlisting>
 
       <indexterm significance="preferred" type="sql">
         <primary>DROP routine</primary>
@@ -3278,7 +3302,7 @@ INSERT INTO t (id, firstname, lastname, fullname) VALUES (2, 'Pink', 'Panther', 
 
         <para>SQL_IMPLEMENTATION_INFO</para>
 
-        <para></para>
+        <para>This table is empty</para>
 
         <indexterm significance="preferred" type="sql">
           <primary>SQL_PACKAGES</primary>
