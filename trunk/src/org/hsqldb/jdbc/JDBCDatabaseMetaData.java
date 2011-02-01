@@ -132,9 +132,9 @@ import org.hsqldb.types.Type;
  *
  * <h4>Metadata Table Production</h4>
  *
- * Starting with HSQLDB 1.7.2, the metadata (a.k.a system) table production
+ * Starting with HSQLDB 1.7.2, the metadata table (a.k.a system table) production
  * implementation provided in the default build filters metadata based on each
- * SQL session user's access rights which turn lifts the pre-HSQLDB 1.7.2
+ * SQL session user's access rights which in turn lifts the pre-HSQLDB 1.7.2
  * restriction that only users with the DBA role
  * ('admin' users in older HSQLDB parlance) could expect trouble-free access to
  * all metadata.<p>
@@ -192,9 +192,10 @@ import org.hsqldb.types.Type;
  * Similarly, starting with HSQLDB 2.x, the 'hsqldb.catalogs' database property
  * has been retired and replaced with the convention that, from the perspective
  * of SQL identification, an HSQLDB JDBC URL connects to a single HSQLDB
- * database instance which consists of a single, default, unalterable CATALOG
- * named PUBLIC in which each SCHEMA instance of the database resides. In other
- * words, HSQLDB presently supports qualification by the containing CATALOG of
+ * database instance which consists of a single, default CATALOG
+ * named PUBLIC in which each SCHEMA instance of the database resides. The name of
+ * this catalog can be changed with the ALTER CATALOG <name> RENAME TO statement.
+ * As of version 2.1.0, HSQLDB supports qualification by the containing CATALOG of
  * database objects at the syntactic level, but does not yet support operations
  * such as opening, manipulating or querying against multiple database
  * catalogs within a single session, not even in a one-at-a-time fashion.<p>
@@ -203,20 +204,20 @@ import org.hsqldb.types.Type;
  *
  * It must still be noted that as of the most recent release, HSQLDB continues
  * to ignore the <code>approximate</code> argument of {@link #getIndexInfo
- * getIndexInfo()} which continues to be simply indicative of absence of a
- * statistics-driven cost-based SQL plan optimization facility.  When, if ever,
+ * getIndexInfo()} which continues to be simply indicative of absence of a fully
+ * statistics-driven cost-based SQL plan optimization facility.  When,
  * such a facility is implemented, corresponding improvements to
  * <code>getIndexInfo</code> will be provided. <p>
  *
  * <h4>Notes for developers extending metadata table production</h4>
  *
  * Note that in the absence of an ORDER BY clause, queries against the metadata 
- * tables that directly support this class are expected return rows in JDBC
+ * tables that directly support this class are expected to return rows in JDBC
  * contract order.  The reason for this is that results typically come
  * back much faster when no &quot;ORDER BY&quot; clause is used. <p>
  *
  * As such, when adding, extending or replacing a JDBC database metadata table
- * production routine, developers need to be aware of this and either add the
+ * production routine, developers need to be aware of this fact and either add the
  * contract &quot;ORDER BY&quot; clause to the driving SQL or, when possible,
  * preferably maintain rows in the contract order by correctly coding the
  * primary index definition in the table producer class.<p>
