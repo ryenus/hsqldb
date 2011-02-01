@@ -1,5 +1,9 @@
+1 Feb 2011 - SVN 4033
+-- added MS SqlServer function compatibility
+-- added more extensive support for ALTER SPECIFIC ROUTINE
+-- initial support for JDBC 4.1 - Java 1.7
 20 Jan 2011 - SVN 3980
--- added support for opening most 1.8.0 database that are not closed properly
+-- added support for opening most 1.8.0 databases that are not closed properly
 -- event logging format has changed slightly, and new level 3 allows more detail in the log
 -- fixed reported bugs
 23 Dec 2010 
@@ -9,7 +13,7 @@
 -- improvements to lob use with PreparedStatement 
 -- improvements to calling procedures with JDBC
 16 Dec 2010 - SVN 3946
--- added support for upgrading databases whithout explicit SHUTDOWN
+-- added support for upgrading databases without explicit SHUTDOWN
 10 Dec 2010 - SVN 3940 - 2.0.1 RC3 
 -- added support for cached tables for lob catalog
 14 Nov 2010 - SVN 3897
