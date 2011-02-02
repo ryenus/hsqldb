@@ -614,6 +614,9 @@ public final class Right {
             case GrantConstants.TRIGGER :
                 return isFullTrigger;
 
+            case GrantConstants.EXECUTE :
+                return isFull;
+
             default :
                 throw Error.runtimeError(ErrorCode.U_S0500, "Right");
         }
@@ -668,6 +671,9 @@ public final class Right {
                 }
 
                 return triggerColumnSet != null && !triggerColumnSet.isEmpty();
+
+            case GrantConstants.EXECUTE :
+                return isFull;
 
             default :
                 throw Error.runtimeError(ErrorCode.U_S0500, "Right");
