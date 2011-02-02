@@ -392,6 +392,12 @@ public class ParserRoutine extends ParserDML {
             }
         }
 
+        if (token.tokenType == Tokens.BODY) {
+            read();
+        } else if (token.tokenType == Tokens.NAME) {
+            read();
+        }
+
         readRoutineBody(routine);
         routine.resetAlteredRoutineSettings();
         routine.resolve(session);

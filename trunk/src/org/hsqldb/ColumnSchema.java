@@ -58,6 +58,7 @@ public final class ColumnSchema extends ColumnBase implements SchemaObject {
     private Expression     generatingExpression;
     private NumberSequence sequence;
     private OrderedHashSet references = new OrderedHashSet();
+    private OrderedHashSet generatedColumnReferences;
     private Expression     accessor;
 
     /**
@@ -360,9 +361,17 @@ public final class ColumnSchema extends ColumnBase implements SchemaObject {
         return accessor;
     }
 
+    public OrderedHashSet getGeneratedColumnReferences() {
+        return generatedColumnReferences;
+    }
+
     private void setReferences() {
 
         references.clear();
+
+        if (generatedColumnReferences != null) {
+            generatedColumnReferences.clear();
+        }
 
         if (dataType.isDomainType() || dataType.isDistinctType()) {
             HsqlName name = ((SchemaObject) dataType).getName();
@@ -381,6 +390,14 @@ public final class ColumnSchema extends ColumnBase implements SchemaObject {
                 if (name.type == SchemaObject.COLUMN
                         || name.type == SchemaObject.TABLE) {
                     it.remove();
+
+                    if (generatedColumnReferences == null) {
+                        generatedColumnReferences = new OrderedHashSet();
+                    }
+
+                    if (name.type == SchemaObject.COLUMN) {
+                        generatedColumnReferences.add(name);
+                    }
                 }
             }
         }

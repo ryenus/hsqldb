@@ -478,7 +478,13 @@ public class Grantee {
             return set;
         }
 
-        Iterator rights = directRightsMap.get(object.getName());
+        HsqlName name = object.getName();
+
+        if (object instanceof Routine) {
+            name = ((Routine) object).getSpecificName();
+        }
+
+        Iterator rights = directRightsMap.get(name);
 
         if (rights.hasNext()) {
             OrderedHashSet set = new OrderedHashSet();
@@ -495,7 +501,13 @@ public class Grantee {
 
     public OrderedHashSet getAllGrantedPrivileges(SchemaObject object) {
 
-        Iterator rights = grantedRightsMap.get(object.getName());
+        HsqlName name = object.getName();
+
+        if (object instanceof Routine) {
+            name = ((Routine) object).getSpecificName();
+        }
+
+        Iterator rights = grantedRightsMap.get(name);
 
         if (rights.hasNext()) {
             OrderedHashSet set = new OrderedHashSet();
@@ -771,9 +783,9 @@ public class Grantee {
      * For regular grantees, this is self plus all roles granted directly
      * or indirectly
      */
-    public Set visibleGrantees() {
+    public OrderedHashSet visibleGrantees() {
 
-        HashSet        grantees = new HashSet();
+        OrderedHashSet        grantees = new OrderedHashSet();
         GranteeManager gm       = granteeManager;
 
         if (isAdmin()) {
