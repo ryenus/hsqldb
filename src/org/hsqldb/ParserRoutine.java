@@ -1308,15 +1308,27 @@ public class ParserRoutine extends ParserDML {
                     if (routine.isTrigger()) {
                         if (routine.triggerOperation
                                 == StatementTypes.DELETE_WHERE) {
-                            throw unexpectedToken();
+                            cs = compileSetStatement(rangeVariables);
+
+                            break;
                         }
 
                         if (routine.triggerType != TriggerDef.BEFORE) {
-                            throw unexpectedToken();
+                            cs = compileSetStatement(rangeVariables);
+
+                            break;
                         }
 
-                        cs = compileTriggerSetStatement(routine.triggerTable,
-                                                        rangeVariables);
+                        int position = super.getPosition();
+
+                        try {
+                            cs = compileTriggerSetStatement(
+                                routine.triggerTable, rangeVariables);
+                        } catch (HsqlException e) {
+                            rewind(position);
+
+                            cs = compileSetStatement(rangeVariables);
+                        }
                     } else {
                         cs = compileSetStatement(rangeVariables);
                     }

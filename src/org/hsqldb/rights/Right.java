@@ -37,9 +37,9 @@ import org.hsqldb.Table;
 import org.hsqldb.Tokens;
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
+import org.hsqldb.lib.HashSet;
 import org.hsqldb.lib.HsqlArrayList;
 import org.hsqldb.lib.OrderedHashSet;
-import org.hsqldb.lib.HashSet;
 
 /**
  * Represents the set of rights on a database object
