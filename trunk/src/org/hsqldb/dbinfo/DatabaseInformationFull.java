@@ -3595,27 +3595,63 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         return t;
     }
 
+    /**
+     * SQL:2008 VIEW<p>
+     *
+     * The METHOD_SPECIFICATION_PARAMETERS view is not implemented.<p>
+     *
+     */
     Table METHOD_SPECIFICATION_PARAMETERS(Session session,
                                           PersistentStore store) {
         return null;
     }
 
+    /**
+     * SQL:2008 VIEW<p>
+     *
+     * The METHOD_SPECIFICATIONS view is not implemented.<p>
+     *
+     */
     Table METHOD_SPECIFICATIONS(Session session, PersistentStore store) {
         return null;
     }
 
+    /**
+     * SQL:2008 VIEW<p>
+     *
+     * The MODULE_COLUMN_USAGE view is not implemented.<p>
+     *
+     */
     Table MODULE_COLUMN_USAGE(Session session, PersistentStore store) {
         return null;
     }
 
+    /**
+     * SQL:2008 VIEW<p>
+     *
+     * The MODULE_PRIVILEGES view is not implemented.<p>
+     *
+     */
     Table MODULE_PRIVILEGES(Session session, PersistentStore store) {
         return null;
     }
 
+    /**
+     * SQL:2008 VIEW<p>
+     *
+     * The MODULE_TABLE_USAGE view is not implemented.<p>
+     *
+     */
     Table MODULE_TABLE_USAGE(Session session, PersistentStore store) {
         return null;
     }
 
+    /**
+     * SQL:2008 VIEW<p>
+     *
+     * The MODULES view is not implemented.<p>
+     *
+     */
     Table MODULES(Session session, PersistentStore store) {
         return null;
     }
@@ -6189,7 +6225,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
      *      reference in the trigger body.<>
      *
      * <1i> Columns are reported only if the user or one of its roles is
-     *      the authorization (owner) of the table.
+     *      the authorization (owner) of the TRIGGER.
      *
      * </ol>
      *
@@ -6240,7 +6276,8 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         while (it.hasNext()) {
             TriggerDef trigger = (TriggerDef) it.next();
 
-            if (!session.getGrantee().isAccessible(trigger)) {
+            if (!session.getGrantee().isFullyAccessibleByRole(
+                    trigger.getName())) {
                 continue;
             }
 
@@ -6307,7 +6344,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
      *      that is referenced. <p>
      *
      * <1i> Referenced routines are reported only if the user or one of its roles is
-     *      the authorization (owner) of the referenced routine.
+     *      the authorization (owner) of the TRIGGER.
      *
      * </ol>
      *
@@ -6356,7 +6393,8 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         while (it.hasNext()) {
             TriggerDef trigger = (TriggerDef) it.next();
 
-            if (!session.getGrantee().isAccessible(trigger)) {
+            if (!session.getGrantee().isFullyAccessibleByRole(
+                    trigger.getName())) {
                 continue;
             }
 
@@ -6366,10 +6404,6 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
                 HsqlName refName = (HsqlName) set.get(i);
 
                 if (refName.type != SchemaObject.SPECIFIC_ROUTINE) {
-                    continue;
-                }
-
-                if (!session.getGrantee().isAccessible(refName)) {
                     continue;
                 }
 
@@ -6419,7 +6453,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
      *      that is referenced. <p>
      *
      * <1i> Referenced sequences are reported only if the user or one of its roles is
-     *      the authorization (owner) of the referenced SEQUENCE.
+     *      the authorization (owner) of the TRIGGER.
      *
      * </ol>
      *
@@ -6468,7 +6502,8 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         while (it.hasNext()) {
             TriggerDef trigger = (TriggerDef) it.next();
 
-            if (!session.getGrantee().isAccessible(trigger)) {
+            if (!session.getGrantee().isFullyAccessibleByRole(
+                    trigger.getName())) {
                 continue;
             }
 
@@ -6478,10 +6513,6 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
                 HsqlName refName = (HsqlName) set.get(i);
 
                 if (refName.type != SchemaObject.SEQUENCE) {
-                    continue;
-                }
-
-                if (!session.getGrantee().isAccessible(refName)) {
                     continue;
                 }
 
@@ -6532,7 +6563,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
      *      that is referenced. <p>
      *
      * <1i> Referenced tables are reported only if the user or one of its roles is
-     *      the authorization (owner) of the referenced TABLE.
+     *      the authorization (owner) of the TRIGGER.
      *
      * </ol>
      *
@@ -6581,7 +6612,8 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         while (it.hasNext()) {
             TriggerDef trigger = (TriggerDef) it.next();
 
-            if (!session.getGrantee().isAccessible(trigger)) {
+            if (!session.getGrantee().isFullyAccessibleByRole(
+                    trigger.getName())) {
                 continue;
             }
 
@@ -6592,10 +6624,6 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
 
                 if (refName.type != SchemaObject.TABLE
                         && refName.type != SchemaObject.VIEW) {
-                    continue;
-                }
-
-                if (!session.getGrantee().isAccessible(refName)) {
                     continue;
                 }
 
@@ -6660,7 +6688,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
      *      ACTION_ORIENTATION and ACTION_TIMING.
      * <li> The value of ACTION_CONDITION is the text of the SQL expression in
      *     t he optional WHEN condition.
-     * <li> The value of ACTION_STATEMENT is the text of the SQL expression
+     * <li> The value of ACTION_STATEMENT is the text of the SQL statement(s)
      *      executed by the trigger.
      * <li> The value of ACTION_ORIENTATION indicates whether the trigger is
      *      fired once per each 'STATEMENT' or per each 'ROW'.
@@ -6675,7 +6703,12 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
      * <li> The value of ACTION_REFERENCING_NEW_ROW contains the name of the
      *      NEW ROW.
      * <li> The value of CREATED contains the timestamp of the creation of the
-     *      trigger.
+     *      trigger. Currently NULL.
+     * <1i> Triggers are reported only if the user or one of its roles has
+     *      some privilege on at least one column of the trigger table.
+     * <li> The ACTION_CONDITION and ACTION_STATEMENT columns show the SQL only
+     *      if the user or one of its roles is the authorization (owner) of the
+     *      trigger table.
      * </ol>
      *
      * @return Table
@@ -6743,8 +6776,12 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
 
         while (it.hasNext()) {
             TriggerDef trigger = (TriggerDef) it.next();
+            boolean isFullAccess =
+                session.getGrantee().isFullyAccessibleByRole(
+                    trigger.getName());
 
-            if (!session.getGrantee().isAccessible(trigger)) {
+            if (!session.getGrantee().hasNonSelectTableRight(
+                    trigger.getTable())) {
                 continue;
             }
 
@@ -6761,8 +6798,10 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
                 trigger.getTable().getTriggerIndex(trigger.getName().name);
 
             row[action_order]       = ValuePool.getLong(order);
-            row[action_condition]   = trigger.getConditionSQL();
-            row[action_statement]   = trigger.getProcedureSQL();
+            row[action_condition]   = isFullAccess ? trigger.getConditionSQL()
+                                                   : null;
+            row[action_statement]   = isFullAccess ? trigger.getProcedureSQL()
+                                                   : null;
             row[action_orientation] = trigger.getActionOrientationString();
             row[action_timing]      = trigger.getActionTimingString();
             row[action_reference_old_table] =
@@ -7156,11 +7195,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
             database.schemaManager.databaseObjectIterator(
                 SchemaObject.DOMAIN));
 
-/*
-        objects = new WrapperIterator(
-            objects,
-            database.schemaManager.databaseObjectIterator(SchemaObject.TYPE));
-*/
+        // TYPE objects are covered in separate UDT_PRIVILEGES view
         OrderedHashSet grantees =
             session.getGrantee().getGranteeAndAllRolesWithPublic();
 
@@ -7860,9 +7895,16 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         while (tables.hasNext()) {
             table = (Table) tables.next();
 
-            if ((table.getSchemaName() != SqlInvariants
-                    .INFORMATION_SCHEMA_HSQLNAME && !table
-                        .isView()) || !isAccessibleTable(session, table)) {
+            if (!table.isView()) {
+                continue;
+            }
+
+            if (table.getSchemaName()
+                    == SqlInvariants.INFORMATION_SCHEMA_HSQLNAME) {
+                continue;
+            }
+
+            if (!isAccessibleTable(session, table)) {
                 continue;
             }
 
@@ -7894,14 +7936,20 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
                 }
             }
 
-            row[check_option]         = check;
-            row[is_updatable]         = table.isUpdatable() ? Tokens.T_YES
-                                                            : Tokens.T_NO;
-            row[insertable_into]      = table.isInsertable() ? Tokens.T_YES
-                                                             : Tokens.T_NO;
-            row[is_trigger_updatable] = null;    // only applies to INSTEAD OF triggers
-            row[is_trigger_deletable]       = null;
-            row[is_trigger_insertable_into] = null;
+            row[check_option]    = check;
+            row[is_updatable]    = table.isUpdatable() ? Tokens.T_YES
+                                                       : Tokens.T_NO;
+            row[insertable_into] = table.isInsertable() ? Tokens.T_YES
+                                                        : Tokens.T_NO;
+            row[is_trigger_updatable] = ((View) table).isTriggerUpdatable()
+                                        ? Tokens.T_YES
+                                        : Tokens.T_NO;;
+            row[is_trigger_deletable] = ((View) table).isTriggerDeletable()
+                                        ? Tokens.T_YES
+                                        : Tokens.T_NO;;
+            row[is_trigger_insertable_into] =
+                ((View) table).isTriggerInsertable() ? Tokens.T_YES
+                                                     : Tokens.T_NO;;
 
             t.insertSys(session, store, row);
         }

@@ -357,8 +357,7 @@ public class Grantee {
         if (!grantor.isSystem()) {
 
             // based on assumption that there is no need to access
-            ((Grantee) grantor).grantedRightsMap.put(name,
-                    existingRight);
+            ((Grantee) grantor).grantedRightsMap.put(name, existingRight);
         }
 
         updateAllRights();
@@ -452,7 +451,6 @@ public class Grantee {
     public OrderedHashSet getColumnsForAllPrivileges(SchemaObject object) {
 
         if (object instanceof Table) {
-
             Table table = (Table) object;
 
             if (isFullyAccessibleByRole(table.getName())) {
@@ -462,7 +460,7 @@ public class Grantee {
             Right right = (Right) fullRightsMap.get(table.getName());
 
             return right == null ? Right.emptySet
-                : right.getColumnsForAllRights(table);
+                                 : right.getColumnsForAllRights(table);
         }
 
         return Right.emptySet;
@@ -532,7 +530,6 @@ public class Grantee {
     public void checkSelect(SchemaObject object, boolean[] checkList) {
 
         if (object instanceof Table) {
-
             Table table = (Table) object;
 
             if (isFullyAccessibleByRole(table.getName())) {
@@ -545,13 +542,13 @@ public class Grantee {
                 return;
             }
         }
+
         throw Error.error(ErrorCode.X_42501, object.getName().name);
     }
 
     public void checkInsert(SchemaObject object, boolean[] checkList) {
 
         if (object instanceof Table) {
-
             Table table = (Table) object;
 
             if (isFullyAccessibleByRole(table.getName())) {
@@ -564,14 +561,15 @@ public class Grantee {
                 return;
             }
         }
+
         throw Error.error(ErrorCode.X_42501, object.getName().name);
     }
 
     public void checkUpdate(SchemaObject object, boolean[] checkList) {
 
         if (object instanceof Table) {
-
             Table table = (Table) object;
+
             if (isFullyAccessibleByRole(table.getName())) {
                 return;
             }
@@ -582,14 +580,15 @@ public class Grantee {
                 return;
             }
         }
+
         throw Error.error(ErrorCode.X_42501, object.getName().name);
     }
 
     public void checkReferences(SchemaObject object, boolean[] checkList) {
 
         if (object instanceof Table) {
-
             Table table = (Table) object;
+
             if (isFullyAccessibleByRole(table.getName())) {
                 return;
             }
@@ -600,14 +599,15 @@ public class Grantee {
                 return;
             }
         }
+
         throw Error.error(ErrorCode.X_42501, object.getName().name);
     }
 
     public void checkTrigger(SchemaObject object, boolean[] checkList) {
 
         if (object instanceof Table) {
-
             Table table = (Table) object;
+
             if (isFullyAccessibleByRole(table.getName())) {
                 return;
             }
@@ -618,12 +618,13 @@ public class Grantee {
                 return;
             }
         }
+
         throw Error.error(ErrorCode.X_42501, object.getName().name);
     }
 
     public void checkDelete(SchemaObject object) {
-        if (object instanceof Table) {
 
+        if (object instanceof Table) {
             Table table = (Table) object;
 
             if (isFullyAccessibleByRole(table.getName())) {
@@ -636,6 +637,7 @@ public class Grantee {
                 return;
             }
         }
+
         throw Error.error(ErrorCode.X_42501, object.getName().name);
     }
 
@@ -715,15 +717,19 @@ public class Grantee {
 
     public boolean isFullyAccessibleByRole(HsqlName name) {
 
+        Grantee owner;
+
         if (isAdmin) {
             return true;
         }
 
-        if (name.schema == null) {
+        if (name.type == SchemaObject.SCHEMA) {
+            owner = name.owner;
+        } else if (name.schema == null) {
             return false;
+        } else {
+            owner = name.schema.owner;
         }
-
-        Grantee owner = name.schema.owner;
 
         if (owner == this) {
             return true;
@@ -785,7 +791,7 @@ public class Grantee {
      */
     public OrderedHashSet visibleGrantees() {
 
-        OrderedHashSet        grantees = new OrderedHashSet();
+        OrderedHashSet grantees = new OrderedHashSet();
         GranteeManager gm       = granteeManager;
 
         if (isAdmin()) {
