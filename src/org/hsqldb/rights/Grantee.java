@@ -815,9 +815,22 @@ public class Grantee {
             return false;
         }
 
-        return right.isFull || right.isFullDelete || right.isFullInsert
-               || right.isFullUpdate || right.isFullReferences
-               || right.isFullTrigger;
+        return right.canAcesssNonSelect();
+    }
+
+    public boolean hasColumnRights(SchemaObject table, int[] columnMap) {
+
+        if (isFullyAccessibleByRole(table.getName())) {
+            return true;
+        }
+
+        Right right = (Right) fullRightsMap.get(table.getName());
+
+        if (right == null) {
+            return false;
+        }
+
+        return right.canAccess((Table) table, columnMap);
     }
 
     /**
