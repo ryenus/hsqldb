@@ -1,3 +1,5 @@
+3 Feb 2011 - SVN 4037
+-- additions and improvements to INFORMATION_SCHEMA
 1 Feb 2011 - SVN 4033
 -- added MS SqlServer function compatibility
 -- added more extensive support for ALTER SPECIFIC ROUTINE
