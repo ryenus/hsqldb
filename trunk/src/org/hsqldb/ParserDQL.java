@@ -129,8 +129,9 @@ public class ParserDQL extends ParserBase {
                 checkIsSchemaObjectName();
 
                 String schemaName = session.getSchemaName(token.namePrefix);
-                Type type = database.schemaManager.getDomain(token.tokenString,
-                    schemaName, false);
+                Type type =
+                    database.schemaManager.getDomainOrUDT(token.tokenString,
+                        schemaName, false);
 
                 if (type != null) {
                     getRecordedToken().setExpression(type);

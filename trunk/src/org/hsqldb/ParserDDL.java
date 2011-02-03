@@ -277,6 +277,7 @@ public class ParserDDL extends ParserRoutine {
     }
 
     Statement compileAlterRoutine() {
+
         readThis(Tokens.ROUTINE);
 
         RoutineSchema routine =
@@ -286,7 +287,6 @@ public class ParserDDL extends ParserRoutine {
         readThis(Tokens.TO);
 
         return compileRenameObject(routine.getName(), routine.getName().type);
-
     }
 
 /*
@@ -4169,13 +4169,22 @@ public class ParserDDL extends ParserRoutine {
                         }
 
                     // fall through
-                    case Tokens.DELETE :
                     case Tokens.TRIGGER :
                         if (right == null) {
                             right = new Right();
                         }
 
                         right.set(rightType, columnSet);
+
+                        isTable = true;
+                        break;
+
+                    case Tokens.DELETE :
+                        if (right == null) {
+                            right = new Right();
+                        }
+
+                        right.set(rightType, null);
 
                         isTable = true;
                         break;
