@@ -1,4 +1,4 @@
-3 Feb 2011 - SVN 4037
+3 Feb 2011 - SVN 4040
 -- additions and improvements to INFORMATION_SCHEMA
 1 Feb 2011 - SVN 4033
 -- added MS SqlServer function compatibility
