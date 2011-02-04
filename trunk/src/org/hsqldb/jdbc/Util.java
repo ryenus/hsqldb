@@ -154,7 +154,15 @@ public class Util {
     }
 
     static final SQLException notSupported() {
+//#ifdef JAVA6
+        return new SQLFeatureNotSupportedException();
+
+//#else
+/*
         return sqlException(Error.error(ErrorCode.X_0A000));
+*/
+
+//#endif JAVA6
     }
 
     static SQLException notUpdatableColumn() {

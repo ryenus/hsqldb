@@ -3428,7 +3428,7 @@ public class JDBCConnection implements Connection {
 
         checkClosed();
 
-        throw new java.sql.SQLFeatureNotSupportedException();
+        throw Util.notSupported();
     }
 
 //#endif

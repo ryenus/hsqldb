@@ -211,7 +211,7 @@ import org.hsqldb.types.Type;
  *
  * <h4>Notes for developers extending metadata table production</h4>
  *
- * Note that in the absence of an ORDER BY clause, queries against the metadata 
+ * Note that in the absence of an ORDER BY clause, queries against the metadata
  * tables that directly support this class are expected to return rows in JDBC
  * contract order.  The reason for this is that results typically come
  * back much faster when no &quot;ORDER BY&quot; clause is used. <p>
@@ -5886,7 +5886,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
     public ResultSet getPseudoColumns(
             String catalog, String schemaPattern, String tableNamePattern,
             String columnNamePattern) throws SQLException {
-        throw new java.sql.SQLFeatureNotSupportedException();
+        throw Util.notSupported();
     }
 
     /**
