@@ -255,12 +255,7 @@ public class DataFileCache {
                     fileFreePosition = initialFreePos;
                 }
 
-                if (database.logger.propIncrementBackup
-                        && fileFreePosition != initialFreePos) {
-                    shadowFile = new RAShadowFile(database, dataFile,
-                                                  backupFileName,
-                                                  fileFreePosition, 1 << 14);
-                }
+                openShadowFile();
             } else {
                 initNewFile();
             }
@@ -302,6 +297,15 @@ public class DataFileCache {
         dataFile.seek(FLAGS_POS);
         dataFile.writeInt(flags);
         dataFile.synch();
+    }
+
+    void openShadowFile() {
+
+        if (database.logger.propIncrementBackup
+                && fileFreePosition != initialFreePos) {
+            shadowFile = new RAShadowFile(database, dataFile, backupFileName,
+                                          fileFreePosition, 1 << 14);
+        }
     }
 
     void setIncrementBackup(boolean value) {

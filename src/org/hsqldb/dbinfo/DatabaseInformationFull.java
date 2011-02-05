@@ -2737,19 +2737,13 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
                     }
                     case SchemaObject.ConstraintTypes.UNIQUE :
                     case SchemaObject.ConstraintTypes.PRIMARY_KEY :
-                    case SchemaObject.ConstraintTypes.FOREIGN_KEY :
-                    case SchemaObject.ConstraintTypes.MAIN : {
+                    case SchemaObject.ConstraintTypes.FOREIGN_KEY : {
                         Table target = table;
                         int[] cols   = constraint.getMainColumns();
 
                         if (constraint.getConstraintType()
                                 == SchemaObject.ConstraintTypes.FOREIGN_KEY) {
                             cols = constraint.getRefColumns();
-                        } else if (constraint.getConstraintType()
-                                   == SchemaObject.ConstraintTypes.MAIN) {
-                            constraintSchema =
-                                constraint.getRefName().schema.name;
-                            constraintName = constraint.getRefName().name;
                         }
 
                         for (int j = 0; j < cols.length; j++) {
@@ -7895,12 +7889,9 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         while (tables.hasNext()) {
             table = (Table) tables.next();
 
-            if (!table.isView()) {
-                continue;
-            }
-
-            if (table.getSchemaName()
-                    == SqlInvariants.INFORMATION_SCHEMA_HSQLNAME) {
+            if (!table.isView()
+                    && table.getSchemaName()
+                       != SqlInvariants.INFORMATION_SCHEMA_HSQLNAME) {
                 continue;
             }
 
@@ -7941,15 +7932,15 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
                                                        : Tokens.T_NO;
             row[insertable_into] = table.isInsertable() ? Tokens.T_YES
                                                         : Tokens.T_NO;
-            row[is_trigger_updatable] = ((View) table).isTriggerUpdatable()
+            row[is_trigger_updatable] = table.isTriggerUpdatable()
                                         ? Tokens.T_YES
                                         : Tokens.T_NO;;
-            row[is_trigger_deletable] = ((View) table).isTriggerDeletable()
+            row[is_trigger_deletable] = table.isTriggerDeletable()
                                         ? Tokens.T_YES
                                         : Tokens.T_NO;;
-            row[is_trigger_insertable_into] =
-                ((View) table).isTriggerInsertable() ? Tokens.T_YES
-                                                     : Tokens.T_NO;;
+            row[is_trigger_insertable_into] = table.isTriggerInsertable()
+                                              ? Tokens.T_YES
+                                              : Tokens.T_NO;;
 
             t.insertSys(session, store, row);
         }
