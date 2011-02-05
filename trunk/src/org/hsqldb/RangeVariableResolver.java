@@ -73,6 +73,8 @@ public class RangeVariableResolver {
 
     //
     boolean hasOuterJoin = false;
+    int     firstLeftJoinIndex;
+    int     firstRightJoinIndex;
 
     //
     OrderedIntHashSet     colIndexSetEqual = new OrderedIntHashSet();
@@ -83,16 +85,28 @@ public class RangeVariableResolver {
     RangeVariableResolver(RangeVariable[] rangeVars, Expression conditions,
                           CompileContext compileContext) {
 
-        this.rangeVariables = rangeVars;
-        this.conditions     = conditions;
-        this.compileContext = compileContext;
+        this.rangeVariables      = rangeVars;
+        this.conditions          = conditions;
+        this.compileContext      = compileContext;
+        this.firstLeftJoinIndex  = rangeVars.length;
+        this.firstRightJoinIndex = rangeVars.length;
 
         for (int i = 0; i < rangeVars.length; i++) {
             RangeVariable range = rangeVars[i];
 
-            rangeVarSet.add(range);
+            if (range.isLeftJoin) {
+                if (firstLeftJoinIndex == rangeVars.length) {
+                    firstLeftJoinIndex = i;
+                }
 
-            if (range.isLeftJoin || range.isRightJoin) {
+                hasOuterJoin = true;
+            }
+
+            if (range.isRightJoin) {
+                if (firstRightJoinIndex == rangeVars.length) {
+                    firstRightJoinIndex = i;
+                }
+
                 hasOuterJoin = true;
             }
         }
@@ -134,6 +148,10 @@ public class RangeVariableResolver {
         }
 
         conditions = null;
+
+        for (int i = 0; i < rangeVariables.length; i++) {
+            rangeVarSet.add(rangeVariables[i]);
+        }
 
         assignToLists();
 
@@ -683,6 +701,11 @@ public class RangeVariableResolver {
                     }
                 } else if (e.getType() == OpTypes.EQUAL
                            && e.exprSubType == OpTypes.ANY_QUANTIFIED) {
+                    if (rangeVarIndex >= firstLeftJoinIndex
+                            || firstRightJoinIndex != rangeVariables.length) {
+                        continue;
+                    }
+
                     if (e.getRightNode().isCorrelated()) {
                         continue;
                     }

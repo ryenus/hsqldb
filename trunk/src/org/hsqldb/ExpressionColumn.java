@@ -424,7 +424,7 @@ public class ExpressionColumn extends Expression {
             return true;
         }
 
-        int colIndex = rangeVar.findColumn(columnName);
+        int colIndex = rangeVar.findColumn(this);
 
         if (colIndex == -1) {
             return false;
