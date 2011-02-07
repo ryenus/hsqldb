@@ -1405,7 +1405,7 @@ public class LockFile {
      *      acquisition of a cooperative lock condition using the specified
      *      <tt>path</tt>, else <tt>false</tt>
      */
-    public final static boolean isLocked(final String path) {
+    public static final boolean isLocked(final String path) {
 
         boolean locked = true;
 

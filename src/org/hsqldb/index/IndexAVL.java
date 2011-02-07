@@ -204,11 +204,14 @@ public class IndexAVL implements Index {
         nullData      = new Object[colIndex.length];
 
         //
-        if (table.getTableType() == TableBase.MEMORY_TABLE
-                || table.getTableType() == TableBase.CACHED_TABLE) {
-            lock = new ReentrantReadWriteLock();
-        } else {
-            lock = new ReadWriteLockDummy();
+        switch (table.getTableType()) {
+
+            case TableBase.MEMORY_TABLE :
+            case TableBase.CACHED_TABLE :
+            case TableBase.TEXT_TABLE :
+                lock = new ReentrantReadWriteLock();
+            default :
+                lock = new ReadWriteLockDummy();
         }
 
         readLock  = lock.readLock();

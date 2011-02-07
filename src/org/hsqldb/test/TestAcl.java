@@ -243,7 +243,7 @@ public class TestAcl extends junit.framework.TestCase {
      * This method allows to easily run this unit test independent of the other
      * unit tests, and without dealing with Ant or unrelated test suites.
      */
-    static public void main(String[] sa) {
+    public static void main(String[] sa) {
             junit.textui.TestRunner runner = new junit.textui.TestRunner();
             junit.framework.TestResult result =
                 runner.run(runner.getTest(TestAcl.class.getName()));
@@ -403,7 +403,7 @@ public class TestAcl extends junit.framework.TestCase {
         }
     }
 
-    static public Test suite()
+    public static Test suite()
     throws IOException, ServerAcl.AclFormatException {
 
         TestSuite newSuite = new TestSuite();

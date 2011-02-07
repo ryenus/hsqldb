@@ -53,7 +53,7 @@ import org.hsqldb.lib.java.JavaSystem;
  */
 public class CharacterType extends Type {
 
-    final static int  defaultCharPrecision = 32 * 1024;
+    static final int  defaultCharPrecision = 32 * 1024;
     static final long maxCharPrecision     = Integer.MAX_VALUE;
     Collation         collation;
     Charset           charset;
@@ -1111,7 +1111,7 @@ public class CharacterType extends Type {
         return endindex;
     }
 
-    private final static int fixedTypesLength = 32;
+    private static final int fixedTypesLength = 32;
     static CharacterType[]   charArray = new CharacterType[fixedTypesLength];
 
     static {

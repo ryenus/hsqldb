@@ -112,7 +112,7 @@ public final class Constraint implements SchemaObject {
     OrderedHashSet refColSet;
 
     //
-    final public static Constraint[] emptyArray = new Constraint[]{};
+    public static final Constraint[] emptyArray = new Constraint[]{};
 
     private Constraint() {}
 

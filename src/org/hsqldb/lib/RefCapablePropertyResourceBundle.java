@@ -330,7 +330,7 @@ public class RefCapablePropertyResourceBundle {
      *           Otherwise returns a copy of inString, with all \n's
      *           transformed to the platform's line separators.
      */
-    static public String toNativeLs(String inString) {
+    public static String toNativeLs(String inString) {
         return LS.equals("\n") ? inString : inString.replaceAll("\\Q\n", LS);
     }
 

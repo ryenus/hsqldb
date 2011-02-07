@@ -53,8 +53,8 @@ import org.hsqldb.lib.ArraySort;
  */
 public class ArrayType extends Type {
 
-    public final static int defaultArrayCardinality      = 1024;
-    public final static int defaultLargeArrayCardinality = 1024 * 1024;
+    public static final int defaultArrayCardinality      = 1024;
+    public static final int defaultLargeArrayCardinality = 1024 * 1024;
     final Type              dataType;
     final int               maxCardinality;
 

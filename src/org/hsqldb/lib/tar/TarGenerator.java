@@ -57,7 +57,7 @@ public class TarGenerator {
      * using default blocks-per-record and replacing tar file if it already
      * exists.
      */
-    static public void main(String[] sa)
+    public static void main(String[] sa)
     throws IOException, TarMalformatException {
 
         if (sa.length < 1) {
@@ -349,7 +349,7 @@ public class TarGenerator {
                     newValue, field.getStop() - field.getStart()), target);
         }
 
-        static public String prePaddedOctalString(long val, int width) {
+        public static String prePaddedOctalString(long val, int width) {
             return StringUtil.toPaddedString(Long.toOctalString(val), width,
                                              '0', false);
         }
@@ -684,7 +684,7 @@ public class TarGenerator {
             // other privileges on a file, and this file may contain passwords.
         }
 
-        final static public String DEFAULT_FILE_MODES = "600";
+        public static final String DEFAULT_FILE_MODES = "600";
 
         // Be conservative, because these files contain passwords
     }

@@ -79,7 +79,7 @@ class SubQuery implements Comparator {
     int parsePosition;
 
     //
-    public final static SubQuery[] emptySubqueryArray = new SubQuery[]{};
+    public static final SubQuery[] emptySubqueryArray = new SubQuery[]{};
 
     SubQuery(Database database, int level, QueryExpression queryExpression,
              int mode) {

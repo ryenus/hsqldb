@@ -54,6 +54,9 @@ public class ExpressionLogical extends Expression {
     boolean noOptimisation;
     boolean isQuantified;
 
+    //
+    RangeVariable[] rangeArray = RangeVariable.emptyArray;
+
     /**
      * For LIKE
      */

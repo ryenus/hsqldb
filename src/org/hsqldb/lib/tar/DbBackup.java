@@ -82,7 +82,7 @@ public class DbBackup {
      * </PRE></CODE> for syntax help.
      * </P>
      */
-    static public void main(String[] sa)
+    public static void main(String[] sa)
     throws IOException, TarMalformatException {
 
         try {

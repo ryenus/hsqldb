@@ -49,7 +49,7 @@ import org.hsqldb.types.Types;
  */
 public final class ColumnSchema extends ColumnBase implements SchemaObject {
 
-    public final static ColumnSchema[] emptyArray = new ColumnSchema[]{};
+    public static final ColumnSchema[] emptyArray = new ColumnSchema[]{};
 
     //
     private HsqlName       columnName;

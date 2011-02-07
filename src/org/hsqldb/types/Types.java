@@ -409,7 +409,7 @@ public class Types {
      * @since JDK 1.6, HSQLDB 1.8.x
      *
      */
-    public final static int ROWID = 2008;
+    public static final int ROWID = 2008;
 
     /**
      * The constant in the Java programming language, sometimes referred to
@@ -543,13 +543,13 @@ public class Types {
     };
 
 // lookup for types
-    final static IntValueHashMap javaTypeNumbers;
+    static final IntValueHashMap javaTypeNumbers;
 
 //  boucherb@users - We can't handle method invocations in
 //                   Function.java whose number class is
 //                   narrower than the corresponding internal
 //                   wrapper
-    private final static HashSet illegalParameterClasses;
+    private static final HashSet illegalParameterClasses;
 
     static {
         javaTypeNumbers = new IntValueHashMap(32);

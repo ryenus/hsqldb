@@ -390,7 +390,7 @@ public class TestOdbcService extends AbstractTestOdbc {
         st.executeUpdate("INSERT INTO nullmix (i) values(25)");
     }
 
-    static public void main(String[] sa) {
+    public static void main(String[] sa) {
         staticRunner(TestOdbcService.class, sa);
     }
 }

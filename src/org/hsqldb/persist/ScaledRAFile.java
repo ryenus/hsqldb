@@ -40,6 +40,7 @@ import java.lang.reflect.Constructor;
 
 import org.hsqldb.Database;
 import org.hsqldb.lib.HsqlByteArrayInputStream;
+import org.hsqldb.lib.HsqlByteArrayOutputStream;
 
 // fredt@users 20030111 - patch 1.7.2 by bohgammer@users - pad file before seek() beyond end
 // some incompatible JVM implementations do not allow seek beyond the existing end of file
@@ -61,22 +62,22 @@ final class ScaledRAFile implements RandomAccessInterface {
     static final int DATA_FILE_SINGLE = 4;
     static final int DATA_FILE_TEXT   = 5;
 
-    // We are using persist.Logger-instance-specific FrameworkLogger
-    // because it is Database-instance specific.
-    // If add any static level logging, should instantiate a standard,
-    // context-agnostic FrameworkLogger for that purpose.
-    final Database                 database;
-    final RandomAccessFile         file;
-    final FileDescriptor           fileDescriptor;
-    private final boolean          readOnly;
-    final String                   fileName;
-    boolean                        isNio;
-    boolean                        bufferDirty = true;
-    final byte[]                   buffer;
-    final HsqlByteArrayInputStream ba;
-    long                           bufferOffset;
-    long                           fileLength;
-    boolean                        extendLength = true;
+    //
+    final Database                  database;
+    final RandomAccessFile          file;
+    final FileDescriptor            fileDescriptor;
+    private final boolean           readOnly;
+    final String                    fileName;
+    boolean                         isNio;
+    boolean                         bufferDirty = true;
+    final byte[]                    buffer;
+    final HsqlByteArrayInputStream  ba;
+    final byte[]                    valueBuffer;
+    final HsqlByteArrayOutputStream vbao;
+    final HsqlByteArrayInputStream  vbai;
+    long                            bufferOffset;
+    long                            fileLength;
+    boolean                         extendLength = true;
 
     //
     long seekPosition;
@@ -160,6 +161,9 @@ final class ScaledRAFile implements RandomAccessInterface {
 
         buffer         = new byte[bufferSize];
         ba             = new HsqlByteArrayInputStream(buffer);
+        valueBuffer    = new byte[8];
+        vbao           = new HsqlByteArrayOutputStream(valueBuffer);
+        vbai           = new HsqlByteArrayInputStream(valueBuffer);
         fileDescriptor = file.getFD();
         fileLength     = length();
     }
@@ -237,10 +241,7 @@ final class ScaledRAFile implements RandomAccessInterface {
                 cacheHit++;
             }
 
-            ba.reset();
-            ba.skip(seekPosition - bufferOffset);
-
-            int val = ba.read();
+            int val = buffer[(int) (seekPosition - bufferOffset)];
 
             seekPosition++;
 
@@ -255,80 +256,18 @@ final class ScaledRAFile implements RandomAccessInterface {
 
     public long readLong() throws IOException {
 
-        try {
-            if (bufferDirty || seekPosition < bufferOffset
-                    || seekPosition >= bufferOffset + buffer.length) {
-                readIntoBuffer();
-            } else {
-                cacheHit++;
-            }
+        vbai.reset();
+        read(valueBuffer, 0, 8);
 
-            ba.reset();
-
-            if (seekPosition - bufferOffset
-                    != ba.skip(seekPosition - bufferOffset)) {
-                throw new EOFException();
-            }
-
-            long val;
-
-            try {
-                val = ba.readLong();
-            } catch (EOFException e) {
-                file.seek(seekPosition);
-
-                val          = file.readLong();
-                realPosition = file.getFilePointer();
-            }
-
-            seekPosition += 8;
-
-            return val;
-        } catch (IOException e) {
-            resetPointer();
-            database.logger.logWarningEvent("failed ot read a Long", e);
-
-            throw e;
-        }
+        return vbai.readLong();
     }
 
     public int readInt() throws IOException {
 
-        try {
-            if (bufferDirty || seekPosition < bufferOffset
-                    || seekPosition >= bufferOffset + buffer.length) {
-                readIntoBuffer();
-            } else {
-                cacheHit++;
-            }
+        vbai.reset();
+        read(valueBuffer, 0, 4);
 
-            ba.reset();
-
-            if (seekPosition - bufferOffset
-                    != ba.skip(seekPosition - bufferOffset)) {
-                throw new EOFException();
-            }
-
-            int val;
-
-            try {
-                val = ba.readInt();
-            } catch (EOFException e) {
-                file.seek(seekPosition);
-
-                val          = file.readInt();
-                realPosition = file.getFilePointer();
-            }
-
-            seekPosition += 4;
-
-            return val;
-        } catch (IOException e) {
-            resetPointer();
-            database.logger.logWarningEvent("failed to read an Int", e);
-
-            throw e;
-        }
+        return vbai.readInt();
     }
 
     public void read(byte[] b, int offset, int length) throws IOException {
@@ -421,62 +360,16 @@ final class ScaledRAFile implements RandomAccessInterface {
 
     public void writeInt(int i) throws IOException {
 
-        try {
-            if (realPosition != seekPosition) {
-                file.seek(seekPosition);
-
-                realPosition = seekPosition;
-            }
-
-            if (seekPosition < bufferOffset + buffer.length
-                    && seekPosition + 4 > bufferOffset) {
-                bufferDirty = true;
-            }
-
-            file.writeInt(i);
-
-            seekPosition += 4;
-            realPosition = seekPosition;
-
-            if (realPosition > fileLength) {
-                fileLength = realPosition;
-            }
-        } catch (IOException e) {
-            resetPointer();
-            database.logger.logWarningEvent("failed to write an int", e);
-
-            throw e;
-        }
+        vbao.reset();
+        vbao.writeInt(i);
+        write(valueBuffer, 0, 4);
     }
 
     public void writeLong(long i) throws IOException {
 
-        try {
-            if (realPosition != seekPosition) {
-                file.seek(seekPosition);
-
-                realPosition = seekPosition;
-            }
-
-            if (seekPosition < bufferOffset + buffer.length
-                    && seekPosition + 8 > bufferOffset) {
-                bufferDirty = true;
-            }
-
-            file.writeLong(i);
-
-            seekPosition += 8;
-            realPosition = seekPosition;
-
-            if (realPosition > fileLength) {
-                fileLength = realPosition;
-            }
-        } catch (IOException e) {
-            resetPointer();
-            database.logger.logWarningEvent("failed to write a Long", e);
-
-            throw e;
-        }
+        vbao.reset();
+        vbao.writeLong(i);
+        write(valueBuffer, 0, 8);
     }
 
     public void close() throws IOException {

@@ -59,25 +59,25 @@ import java.util.regex.Pattern;
  */
 public class TarReader {
 
-    final static public int LIST_MODE = 0;
+    public static final int LIST_MODE = 0;
 
     /**
      * EXTRACT_MODE refuses to overwrite existing files.
      */
-    final static public int EXTRACT_MODE = 1;
+    public static final int EXTRACT_MODE = 1;
 
     /**
      * OVERWRITE_MODE is just EXTRACT_MODE where we will silently overwrite
      * existing files upon extraction.
      */
-    final static public int OVERWRITE_MODE = 2;
+    public static final int OVERWRITE_MODE = 2;
 
     /**
      * Reads a specified tar file or stdin in order to either list or extract
      * the file tar entries, depending on the first argument being "t" or "x",
      * using default read buffer blocks.
      */
-    static public void main(String[] sa)
+    public static void main(String[] sa)
     throws IOException, TarMalformatException {
 
         if (sa.length < 1) {
@@ -704,7 +704,7 @@ public class TarReader {
         /**
          * @return index based at 0 == from
          */
-        static public int indexOf(byte[] ba, byte val, int from, int to) {
+        public static int indexOf(byte[] ba, byte val, int from, int to) {
 
             for (int i = from; i < to; i++) {
                 if (ba[i] == val) {

@@ -205,13 +205,13 @@ public abstract class AbstractTestOdbc extends junit.framework.TestCase {
      * unit tests, and without dealing with Ant or unrelated test suites.
      *
      * Invoke like this:<PRE><CODE>
-     *  static public void main(String[] sa) {
+     *  public static void main(String[] sa) {
      *      staticRunner(TestOdbcService.class, sa);
      *  }
      *</CODE></PRE>, but give your subclass name in place of
      * <CODE>TestOdbcService</CODE>
      */
-    static public void staticRunner(Class c, String[] sa) {
+    public static void staticRunner(Class c, String[] sa) {
             junit.textui.TestRunner runner = new junit.textui.TestRunner();
             junit.framework.TestResult result =
                 runner.run(runner.getTest(c.getName()));

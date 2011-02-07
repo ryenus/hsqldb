@@ -88,7 +88,7 @@ public class Scanner {
 
     */
     //J-
-    final static char[] specials = new char[] {
+    static final char[] specials = new char[] {
         '"',
         '%',
         '&',
@@ -116,7 +116,7 @@ public class Scanner {
         '{',
         '}'
     };
-    final static String[] multi = new String[] {
+    static final String[] multi = new String[] {
         "??(",
         "??)",
         "<>",
@@ -131,7 +131,7 @@ public class Scanner {
         "*/",
     };
 
-    final static char[] whitespace = {
+    static final char[] whitespace = {
         // SQL extras
         0x9,
         0xA,
@@ -166,7 +166,7 @@ public class Scanner {
     };
 
 //J+
-    final static OrderedIntHashSet whiteSpaceSet = new OrderedIntHashSet(32);
+    static final OrderedIntHashSet whiteSpaceSet = new OrderedIntHashSet(32);
 
     static {
         for (int i = 0; i < whitespace.length; i++) {

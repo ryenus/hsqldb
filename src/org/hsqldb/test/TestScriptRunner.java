@@ -53,8 +53,8 @@ import org.hsqldb.lib.RCData;
  */
 class TestScriptRunner {
     protected static final String DEFAULT_RCFILE = "testscriptrunner.rc";
-    static public String LS = System.getProperty("line.separator");
-    static public String SYNTAX_MSG =
+    public static String LS = System.getProperty("line.separator");
+    public static String SYNTAX_MSG =
         "java " + TestScriptRunner.class.getName()
         + " [--optionalSwitches...] --urlid=URLID1 [script1.tsql [[--urlid=URLIDX] scriptY.tsql...]...]"
         + LS
@@ -92,7 +92,7 @@ class TestScriptRunner {
      * as the URLID for scripts (and/or SqlTool session) which we want
      * to connect to the same database.
      */
-    static public void main(String[] sa) throws IOException, SQLException {
+    public static void main(String[] sa) throws IOException, SQLException {
         // Make a copy if argv so we can change it safely
         int argIndex = 0;
         boolean threaded = false;
@@ -166,7 +166,7 @@ class TestScriptRunner {
                 System.err.println("SqlTool integration failure: " + e);
                 System.exit(3);
             }
-        } 
+        }
         TestScriptRunner runner = new TestScriptRunner(rcFile, scriptFileMap);
         runner.setVerbose(verbose);
         runner.setThreaded(threaded);
@@ -347,7 +347,7 @@ class TestScriptRunner {
      */
     static protected TestCacheSize populate() {
         TestCacheSize  test  = new TestCacheSize();
-        
+
         /* Use all defaults
         HsqlProperties props = HsqlProperties.argArrayToProps(argv, "test");
 

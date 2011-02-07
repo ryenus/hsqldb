@@ -61,13 +61,13 @@ import org.hsqldb.types.UserTypeModifier;
  */
 public class ParserDDL extends ParserRoutine {
 
-    final static int[]   schemaCommands             = new int[] {
+    static final int[]   schemaCommands             = new int[] {
         Tokens.CREATE, Tokens.GRANT
     };
-    final static short[] startStatementTokens       = new short[] {
+    static final short[] startStatementTokens       = new short[] {
         Tokens.CREATE, Tokens.GRANT, Tokens.ALTER, Tokens.DROP
     };
-    final static short[] startStatementTokensSchema = new short[] {
+    static final short[] startStatementTokensSchema = new short[] {
         Tokens.CREATE, Tokens.GRANT,
     };
 

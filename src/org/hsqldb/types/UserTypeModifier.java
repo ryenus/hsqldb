@@ -199,6 +199,12 @@ public class UserTypeModifier {
             sb.append(name.getSchemaQualifiedStatementName());
             sb.append(' ').append(Tokens.T_AS).append(' ');
             sb.append(dataType.getDefinition());
+/*
+            if (dataType.hasCollation()) {
+                sb.append(' ').append(Tokens.T_COLLATE).append(' ');
+                sb.append(dataType.getCollationDefinition());
+            }
+*/
         } else {
             sb.append(Tokens.T_CREATE).append(' ').append(
                 Tokens.T_DOMAIN).append(' ');

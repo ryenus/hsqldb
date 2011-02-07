@@ -90,9 +90,9 @@ public class ValuePool {
         ValuePool.getBigDecimal(new BigDecimal(1.0));
 
     //
-    public final static String[] emptyStringArray = new String[]{};
-    public final static Object[] emptyObjectArray = new Object[]{};
-    public final static int[]    emptyIntArray    = new int[]{};
+    public static final String[] emptyStringArray = new String[]{};
+    public static final Object[] emptyObjectArray = new Object[]{};
+    public static final int[]    emptyIntArray    = new int[]{};
     public static String         spaceString;
 
     //

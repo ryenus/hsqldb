@@ -46,10 +46,10 @@ import org.hsqldb.store.ValuePool;
  */
 public class LineGroupReader {
 
-    private final static String[] defaultContinuations = new String[] {
+    private static final String[] defaultContinuations = new String[] {
         " ", "*"
     };
-    private final static String[] defaultIgnoredStarts = new String[]{ "--" };
+    private static final String[] defaultIgnoredStarts = new String[]{ "--" };
     static final String LS = System.getProperty("line.separator", "\n");
 
     //

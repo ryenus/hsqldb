@@ -91,10 +91,10 @@ public final class ServerAcl {
         }
     }
 
-    protected final static byte[] ALL_SET_4BYTES  = new byte[] {
+    protected static final byte[] ALL_SET_4BYTES  = new byte[] {
         -1, -1, -1, -1
     };
-    protected final static byte[] ALL_SET_16BYTES = new byte[] {
+    protected static final byte[] ALL_SET_16BYTES = new byte[] {
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1
     };
 
@@ -190,7 +190,7 @@ public final class ServerAcl {
     /**
      * @param uba  Unsigned byte array
      */
-    static public String dottedNotation(byte[] uba) {
+    public static String dottedNotation(byte[] uba) {
 
         StringBuffer sb = new StringBuffer();
 
@@ -208,7 +208,7 @@ public final class ServerAcl {
     /**
      * @param uba  Unsigned byte array
      */
-    static public String colonNotation(byte[] uba) {
+    public static String colonNotation(byte[] uba) {
 
         // TODO:  handle odd byte lengths.
         if ((uba.length / 2) * 2 != uba.length) {

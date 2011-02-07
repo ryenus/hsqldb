@@ -133,16 +133,16 @@ public class Logger {
     public boolean isSingleFile;
 
     //
-    public final static String oldFileExtension        = ".old";
-    public final static String newFileExtension        = ".new";
-    public final static String appLogFileExtension     = ".app.log";
-    public final static String logFileExtension        = ".log";
-    public final static String scriptFileExtension     = ".script";
-    public final static String propertiesFileExtension = ".properties";
-    public final static String dataFileExtension       = ".data";
-    public final static String backupFileExtension     = ".backup";
-    public final static String lobsFileExtension       = ".lobs";
-    public final static String lockFileExtension       = ".lck";
+    public static final String oldFileExtension        = ".old";
+    public static final String newFileExtension        = ".new";
+    public static final String appLogFileExtension     = ".app.log";
+    public static final String logFileExtension        = ".log";
+    public static final String scriptFileExtension     = ".script";
+    public static final String propertiesFileExtension = ".properties";
+    public static final String dataFileExtension       = ".data";
+    public static final String backupFileExtension     = ".backup";
+    public static final String lobsFileExtension       = ".lobs";
+    public static final String lockFileExtension       = ".lck";
 
     public Logger(Database database) {
         this.database = database;

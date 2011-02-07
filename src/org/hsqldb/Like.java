@@ -94,7 +94,7 @@ import org.hsqldb.types.Type;
 // fredt@users 1.9.0 - CompareAt() changes for performance suggested by Gary Frost
 class Like {
 
-    private final static BinaryData maxByteValue =
+    private static final BinaryData maxByteValue =
         new BinaryData(new byte[]{ -128 }, false);
     private char[]   cLike;
     private int[]    wildCardType;

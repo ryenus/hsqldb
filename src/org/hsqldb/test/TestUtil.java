@@ -131,6 +131,7 @@ public class TestUtil {
         try {
             Class.forName("org.hsqldb.jdbc.JDBCDriver");
 
+//            String     url = "jdbc:hsqldb:test1;crypt_key=604a6105889da65326bf35790a923932;crypt_type=blowfish";
             String     url = "jdbc:hsqldb:test1;sql.enforce_strict_size=true";
             String     user        = "sa";
             String     password    = "";
@@ -441,7 +442,7 @@ public class TestUtil {
      *
      * Can't do that until make this entire class OO.
      */
-    static public void setAbortOnErr(boolean aoe) {
+    public static void setAbortOnErr(boolean aoe) {
         abortOnErr = aoe;
     }
 

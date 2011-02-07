@@ -60,9 +60,9 @@ public class StatementSet extends StatementDMQL {
 
     //
     final int               operationType;
-    public final static int TRIGGER_SET  = 1;
-    public final static int SELECT_INTO  = 2;
-    public final static int VARIABLE_SET = 3;
+    public static final int TRIGGER_SET  = 1;
+    public static final int SELECT_INTO  = 2;
+    public static final int VARIABLE_SET = 3;
 
     /**
      * Trigger SET statement.
