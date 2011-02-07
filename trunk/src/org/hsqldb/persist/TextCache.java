@@ -86,10 +86,10 @@ public class TextCache extends DataFileCache {
     private ObjectCacheHashMap uncommittedCache;
 
     //
-    final static char DOUBLE_QUOTE_CHAR = '\"';
-    final static char BACKSLASH_CHAR    = '\\';
-    final static char LF_CHAR           = '\n';
-    final static char CR_CHAR           = '\r';
+    static final char DOUBLE_QUOTE_CHAR = '\"';
+    static final char BACKSLASH_CHAR    = '\\';
+    static final char LF_CHAR           = '\n';
+    static final char CR_CHAR           = '\r';
 
     /**
      *  The source string for a cached table is evaluated and the parameters

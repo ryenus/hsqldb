@@ -205,7 +205,7 @@ public class OdbcUtil {
         return inQuery.replaceAll("\\$\\d+", "?");
     }
 
-    static public int getTableOidForColumn(int colIndex, ResultMetaData md) {
+    public static int getTableOidForColumn(int colIndex, ResultMetaData md) {
         if (!md.isTableColumn(colIndex)) {
             return 0;
         }
@@ -225,7 +225,7 @@ public class OdbcUtil {
      * column.  Here, it will change based on user-specified column label.
      * The int has is also being truncated into a short.
      */
-    static public short getIdForColumn(int colIndex, ResultMetaData md) {
+    public static short getIdForColumn(int colIndex, ResultMetaData md) {
         if (!md.isTableColumn(colIndex)) {
             return 0;
         }
@@ -242,7 +242,7 @@ public class OdbcUtil {
      * @param hexChars A String containing an EVEN number of hex
      *                      characters.
      */
-    static public String hexCharsToOctalOctets(String hexChars) {
+    public static String hexCharsToOctalOctets(String hexChars) {
         int chars = hexChars.length();
         if (chars != (chars / 2) * 2) {
             throw new IllegalArgumentException("Hex character lists contains "
@@ -285,7 +285,7 @@ public class OdbcUtil {
         return sb.toString();
     }
 
-    static public void main(String[] sa) {
+    public static void main(String[] sa) {
         System.out.println("(" + OdbcUtil.hexCharsToOctalOctets(sa[0]) + ')');
     }
 }

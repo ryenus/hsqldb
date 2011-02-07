@@ -1022,7 +1022,7 @@ public class TestSchemaParse extends junit.framework.TestCase {
      * This method allows to easily run this unit test independent of the other
      * unit tests, and without dealing with Ant or unrelated test suites.
      */
-    static public void main(String[] sa) {
+    public static void main(String[] sa) {
             junit.textui.TestRunner runner = new junit.textui.TestRunner();
             junit.framework.TestResult result =
                 runner.run(runner.getTest(TestSchemaParse.class.getName()));

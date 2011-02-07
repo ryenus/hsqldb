@@ -114,7 +114,7 @@ public class Waiter {
      *
      * @return A Waiter instance.  Never returns nul.
      */
-    synchronized static public Waiter getWaiter(String key) {
+    public synchronized static Waiter getWaiter(String key) {
         Waiter waiter = (Waiter) map.get(key);
         if (waiter == null) waiter = new Waiter(key);
         return waiter;

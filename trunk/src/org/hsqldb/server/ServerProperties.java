@@ -71,39 +71,39 @@ import org.hsqldb.persist.HsqlProperties;
 public class ServerProperties extends HsqlProperties {
 
     // types of properties
-    final static int SERVER_PROPERTY       = 0;
-    final static int SERVER_MULTI_PROPERTY = 1;
-    final static int SYSTEM_PROPERTY       = 2;
+    static final int SERVER_PROPERTY       = 0;
+    static final int SERVER_MULTI_PROPERTY = 1;
+    static final int SYSTEM_PROPERTY       = 2;
 
     // keys to properties
-    final static String sc_key_address = "server.address";
-    final static String sc_key_autorestart_server =
+    static final String sc_key_address = "server.address";
+    static final String sc_key_autorestart_server =
         "server.restart_on_shutdown";
-    final static String sc_key_database         = "server.database.";
-    final static String sc_key_dbname           = "server.dbname.";
-    final static String sc_key_no_system_exit   = "server.no_system_exit";
-    final static String sc_key_port             = "server.port";
-    final static String sc_key_http_port        = "server.port";
-    final static String sc_key_silent           = "server.silent";
-    final static String sc_key_tls              = "server.tls";
-    final static String sc_key_trace            = "server.trace";
-    final static String sc_key_web_default_page = "server.default_page";
-    final static String sc_key_web_root         = "server.root";
-    final static String sc_key_max_connections  = "server.maxconnections";
-    final static String sc_key_remote_open_db   = "server.remote_open";
-    final static String sc_key_max_databases    = "server.maxdatabases";
-    final static String sc_key_acl              = "server.acl";
-    final static String sc_key_daemon           = "server.daemon";
-    final static String sc_key_system           = "system.";
+    static final String sc_key_database         = "server.database.";
+    static final String sc_key_dbname           = "server.dbname.";
+    static final String sc_key_no_system_exit   = "server.no_system_exit";
+    static final String sc_key_port             = "server.port";
+    static final String sc_key_http_port        = "server.port";
+    static final String sc_key_silent           = "server.silent";
+    static final String sc_key_tls              = "server.tls";
+    static final String sc_key_trace            = "server.trace";
+    static final String sc_key_web_default_page = "server.default_page";
+    static final String sc_key_web_root         = "server.root";
+    static final String sc_key_max_connections  = "server.maxconnections";
+    static final String sc_key_remote_open_db   = "server.remote_open";
+    static final String sc_key_max_databases    = "server.maxdatabases";
+    static final String sc_key_acl              = "server.acl";
+    static final String sc_key_daemon           = "server.daemon";
+    static final String sc_key_system           = "system.";
 
     // web server page defaults
-    final static String sc_default_web_mime = "text/html";
-    final static String sc_default_web_page = "index.html";
-    final static String sc_default_web_root = ".";
+    static final String sc_default_web_mime = "text/html";
+    static final String sc_default_web_page = "index.html";
+    static final String sc_default_web_root = ".";
 
     //
-    final static HashMap        meta     = new HashMap();
-    final static OrderedHashSet prefixes = new OrderedHashSet();
+    static final HashMap        meta     = new HashMap();
+    static final OrderedHashSet prefixes = new OrderedHashSet();
 
     //
     final int         protocol;

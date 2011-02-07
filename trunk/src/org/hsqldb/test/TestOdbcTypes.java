@@ -1703,7 +1703,7 @@ public class TestOdbcTypes extends AbstractTestOdbc {
     }
     */
 
-    static public void main(String[] sa) {
+    public static void main(String[] sa) {
         staticRunner(TestOdbcTypes.class, sa);
     }
 

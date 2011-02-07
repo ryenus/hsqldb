@@ -51,7 +51,7 @@ import org.hsqldb.types.Type;
  */
 public class StatementCursor extends StatementQuery {
 
-    public final static StatementCursor[] emptyArray = new StatementCursor[]{};
+    public static final StatementCursor[] emptyArray = new StatementCursor[]{};
 
     StatementCursor(Session session, QueryExpression query,
                     CompileContext compileContext) {

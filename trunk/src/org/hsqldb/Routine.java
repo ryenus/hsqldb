@@ -63,21 +63,21 @@ import org.hsqldb.types.Types;
  */
 public class Routine implements SchemaObject, Cloneable {
 
-    public final static int NO_SQL       = 1;
-    public final static int CONTAINS_SQL = 2;
-    public final static int READS_SQL    = 3;
-    public final static int MODIFIES_SQL = 4;
+    public static final int NO_SQL       = 1;
+    public static final int CONTAINS_SQL = 2;
+    public static final int READS_SQL    = 3;
+    public static final int MODIFIES_SQL = 4;
 
     //
-    public final static int LANGUAGE_JAVA = 1;
-    public final static int LANGUAGE_SQL  = 2;
+    public static final int LANGUAGE_JAVA = 1;
+    public static final int LANGUAGE_SQL  = 2;
 
     //
     public static final int PARAM_STYLE_JAVA = 1;
     public static final int PARAM_STYLE_SQL  = 2;
 
     //
-    final static Routine[] emptyArray = new Routine[]{};
+    static final Routine[] emptyArray = new Routine[]{};
 
     //
     RoutineSchema    routineSchema;

@@ -55,7 +55,7 @@ import org.hsqldb.store.ValuePool;
  */
 public abstract class Type implements SchemaObject, Cloneable {
 
-    public final static Type[] emptyArray = new Type[]{};
+    public static final Type[] emptyArray = new Type[]{};
 
     //
     public final int        typeComparisonGroup;
@@ -227,6 +227,15 @@ public abstract class Type implements SchemaObject, Cloneable {
      */
     abstract String getDefinition();
 
+/*
+    public boolean hasCollation() {
+        return false;
+    }
+
+    public String getCollationDefinition() {
+        return "";
+    }
+*/
     public final String getTypeDefinition() {
 
         if (userTypeModifier == null) {

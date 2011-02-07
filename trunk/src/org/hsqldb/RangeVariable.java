@@ -61,10 +61,10 @@ public class RangeVariable implements Cloneable {
     static final RangeVariable[] emptyArray = new RangeVariable[]{};
 
     //
-    public final static int TABLE_RANGE      = 1;
-    public final static int TRANSITION_RANGE = 2;
-    public final static int PARAMETER_RANGE  = 3;
-    public final static int VARIALBE_RANGE   = 4;
+    public static final int TABLE_RANGE      = 1;
+    public static final int TRANSITION_RANGE = 2;
+    public static final int PARAMETER_RANGE  = 3;
+    public static final int VARIALBE_RANGE   = 4;
 
     //
     final Table            rangeTable;

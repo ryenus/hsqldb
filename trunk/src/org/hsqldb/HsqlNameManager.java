@@ -227,7 +227,7 @@ public final class HsqlNameManager {
     /**
      * Column index i is 0 based, returns 1 based numbered column.
      */
-    static public HsqlName getAutoColumnName(int i) {
+    public static HsqlName getAutoColumnName(int i) {
 
         if (i < autoColumnNames.length) {
             return autoColumnNames[i];
@@ -239,7 +239,7 @@ public final class HsqlNameManager {
     /**
      * Column index i is 0 based, returns 1 based numbered column.
      */
-    static public String getAutoColumnNameString(int i) {
+    public static String getAutoColumnNameString(int i) {
 
         if (i < autoColumnNames.length) {
             return autoColumnNames[i].name;
@@ -248,7 +248,7 @@ public final class HsqlNameManager {
         return "C" + (i + 1);
     }
 
-    static public String getAutoNoNameColumnString(int i) {
+    public static String getAutoNoNameColumnString(int i) {
 
         if (i < autoColumnNames.length) {
             return autoNoNameColumnNames[i];
@@ -257,7 +257,7 @@ public final class HsqlNameManager {
         return String.valueOf(i);
     }
 
-    static public String getAutoSavepointNameString(long i, int j) {
+    public static String getAutoSavepointNameString(long i, int j) {
 
         StringBuffer sb = new StringBuffer("S");
 

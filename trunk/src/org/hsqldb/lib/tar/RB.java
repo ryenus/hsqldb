@@ -47,7 +47,7 @@ import org.hsqldb.lib.RefCapableRBInterface;
  * </P> <P>
  * IMPORTANT:  To add a new ResourceBundle element, add two new lines, one
  * like <PRE>
- *    static public final int NEWKEYID = keyCounter++;
+ *    public static final int NEWKEYID = keyCounter++;
  * </PRE> and one line <PRE>
  *      new Integer(KEY2), "key2",
  * </PRE>

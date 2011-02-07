@@ -2015,7 +2015,7 @@ public class JDBCConnection implements Connection {
      * and returns the new <code>Savepoint</code> object that represents it.
      *
      * <p> if setSavepoint is invoked outside of an active transaction, a transaction will be started at this newly created
-     *savepoint.
+     * savepoint.
      *
      * <!-- end generic documentation -->
      *

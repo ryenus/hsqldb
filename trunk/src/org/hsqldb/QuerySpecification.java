@@ -69,7 +69,7 @@ import org.hsqldb.types.Types;
  */
 public class QuerySpecification extends QueryExpression {
 
-    private final static int[] defaultLimits = new int[] {
+    private static final int[] defaultLimits = new int[] {
         0, Integer.MAX_VALUE, Integer.MAX_VALUE
     };
 

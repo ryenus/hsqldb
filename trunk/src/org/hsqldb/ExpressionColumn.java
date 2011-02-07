@@ -51,7 +51,7 @@ import org.hsqldb.types.Type;
  */
 public class ExpressionColumn extends Expression {
 
-    public final static ExpressionColumn[] emptyArray =
+    public static final ExpressionColumn[] emptyArray =
         new ExpressionColumn[]{};
 
     //

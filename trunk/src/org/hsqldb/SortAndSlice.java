@@ -47,7 +47,7 @@ import org.hsqldb.types.Type;
  */
 public final class SortAndSlice {
 
-    final static SortAndSlice noSort = new SortAndSlice();
+    static final SortAndSlice noSort = new SortAndSlice();
 
     //
     public int[]     sortOrder;

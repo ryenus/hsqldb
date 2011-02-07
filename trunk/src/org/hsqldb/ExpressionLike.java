@@ -48,7 +48,7 @@ import org.hsqldb.types.Types;
  */
 public final class ExpressionLike extends ExpressionLogical {
 
-    private final static int ESCAPE = 2;
+    private static final int ESCAPE = 2;
     private Like             likeObject;
     private boolean          isBinary;
 

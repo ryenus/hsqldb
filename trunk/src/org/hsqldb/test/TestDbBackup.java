@@ -209,7 +209,7 @@ public class TestDbBackup extends junit.framework.TestCase {
      * This method allows to easily run this unit test independent of the other
      * unit tests, and without dealing with Ant or unrelated test suites.
      */
-    static public void main(String[] sa) {
+    public static void main(String[] sa) {
         if (sa.length > 0 && !sa[sa.length - 1].equals("-g")) {
             TestDbBackup.baseDir = new File(sa[0]);
 
@@ -572,7 +572,7 @@ public class TestDbBackup extends junit.framework.TestCase {
         }
 
     }
-    static public Test suite() throws IOException, SQLException {
+    public static Test suite() throws IOException, SQLException {
 
         TestSuite newSuite = new TestSuite();
 

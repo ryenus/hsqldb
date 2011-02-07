@@ -51,12 +51,12 @@ import org.hsqldb.lib.ArrayUtil;
  */
 public class BinaryData implements BlobData {
 
-    public final static BinaryData singleBitZero =
+    public static final BinaryData singleBitZero =
         new BinaryData(new byte[]{ 0 }, 1);
-    public final static BinaryData singleBitOne =
+    public static final BinaryData singleBitOne =
         new BinaryData(new byte[]{ -0x80 }, 1);
-    public final static byte[] zeroLengthBytes = new byte[0];
-    public final static BinaryData zeroLengthBinary =
+    public static final byte[] zeroLengthBytes = new byte[0];
+    public static final BinaryData zeroLengthBinary =
         new BinaryData(zeroLengthBytes, false);
     long             id;
     protected byte[] data;

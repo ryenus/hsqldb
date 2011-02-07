@@ -402,7 +402,10 @@ final class ScaledRAFileNIO implements RandomAccessInterface {
 
         try {
             buffer.force();
-        } catch (Throwable t) {}
+        } catch (Throwable t) {
+            database.logger.logWarningEvent(
+                "NIO buffer force error " + JVM_ERROR + " ", t);
+        }
     }
 
     static long newNIOBufferSize(long newSize) {

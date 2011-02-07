@@ -116,7 +116,7 @@ import org.hsqldb.types.Type;
 final class DatabaseInformationFull
 extends org.hsqldb.dbinfo.DatabaseInformationMain {
 
-    final static HashMappedList statementMap;
+    static final HashMappedList statementMap;
 
     static {
         synchronized (DatabaseInformationFull.class) {

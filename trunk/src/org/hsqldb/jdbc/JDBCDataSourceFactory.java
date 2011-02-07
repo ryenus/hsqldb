@@ -194,21 +194,21 @@ public class JDBCDataSourceFactory implements ObjectFactory {
     /**
      * supported properties
      */
-    private final static String urlName          = "url";
-    private final static String databaseName     = "database";
-    private final static String userName         = "user";
-    private final static String userNameName     = "username";
-    private final static String passwordName     = "password";
-    private final static String loginTimeoutName = "loginTimeout";
+    private static final String urlName          = "url";
+    private static final String databaseName     = "database";
+    private static final String userName         = "user";
+    private static final String userNameName     = "username";
+    private static final String passwordName     = "password";
+    private static final String loginTimeoutName = "loginTimeout";
 
     /**
      * class names
      */
-    private final static String bdsClassName =
+    private static final String bdsClassName =
         "org.hsqldb.jdbc.JDBCDataSource";
-    private final static String pdsClassName =
+    private static final String pdsClassName =
         "org.hsqldb.jdbc.pool.JDBCPooledDataSource";
-    private final static String xdsClassName =
+    private static final String xdsClassName =
         "org.hsqldb.jdbc.pool.JDBCXADataSource";
 
     public JDBCDataSourceFactory() {

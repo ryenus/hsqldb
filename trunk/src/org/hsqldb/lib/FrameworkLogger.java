@@ -455,7 +455,7 @@ public class FrameworkLogger {
      * If the JRE-provided config file is not in the expected place, then
      * we return false.
      */
-    static public boolean isDefaultJdkConfig() {
+    public static boolean isDefaultJdkConfig() {
         File globalCfgFile = new File(System.getProperty("java.home"),
                 "lib/logging.properties");
         if (!globalCfgFile.isFile()) {

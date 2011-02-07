@@ -138,7 +138,7 @@ public class BaseHashMap {
     protected static final int PURGE_QUARTER = 3;
 
     //
-    public final static int ACCESS_MAX = Integer.MAX_VALUE - (1 << 20);
+    public static final int ACCESS_MAX = Integer.MAX_VALUE - (1 << 20);
 
     protected BaseHashMap(int initialCapacity, int keyType, int valueType,
                           boolean hasAccessCount)

@@ -706,7 +706,7 @@ public class HsqlDatabaseProperties extends HsqlProperties {
 
 //---------------------
 // new properties to review / persist
-    public final static int NO_MESSAGE = 1;
+    public static final int NO_MESSAGE = 1;
 
     public int getErrorLevel() {
 

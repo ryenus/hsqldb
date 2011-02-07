@@ -51,9 +51,9 @@ import java.util.GregorianCalendar;
  */
 public class TestKarl {
 
-    final static String SHUTDOWN             = "SHUTDOWN";
-    final static String SHUTDOWN_IMMEDIATELY = "SHUTDOWN IMMEDIATELY";
-    final static String SHUTDOWN_COMPACT     = "SHUTDOWN COMPACT";
+    static final String SHUTDOWN             = "SHUTDOWN";
+    static final String SHUTDOWN_IMMEDIATELY = "SHUTDOWN IMMEDIATELY";
+    static final String SHUTDOWN_COMPACT     = "SHUTDOWN COMPACT";
 
     /**
      *

@@ -598,7 +598,7 @@ public class ClientConnection implements SessionInterface {
      * String. The tranmitted integer is negative to distinguish it from
      * 7 bit ASCII characters.
      */
-    static public String toNetCompVersionString(int i) {
+    public static String toNetCompVersionString(int i) {
 
         StringBuffer sb = new StringBuffer();
 

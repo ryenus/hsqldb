@@ -51,7 +51,7 @@ import org.hsqldb.types.Types;
  */
 public final class NumberSequence implements SchemaObject {
 
-    public final static NumberSequence[] emptyArray = new NumberSequence[]{};
+    public static final NumberSequence[] emptyArray = new NumberSequence[]{};
 
     //
     private HsqlName name;

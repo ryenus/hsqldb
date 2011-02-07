@@ -72,7 +72,7 @@ import org.hsqldb.rowio.RowOutputTextLog;
 public class ScriptWriterText extends ScriptWriterBase {
 
     RowOutputTextLog           rowOut;
-    public final static String ISO_8859_1 = "ISO-8859-1";
+    public static final String ISO_8859_1 = "ISO-8859-1";
 
     /** @todo - perhaps move this global into a lib utility class */
     public static byte[] BYTES_LINE_SEP;

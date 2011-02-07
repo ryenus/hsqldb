@@ -47,8 +47,8 @@ import org.hsqldb.error.ErrorCode;
 public class HsqlException extends RuntimeException {
 
     //
-    public final static HsqlException[] emptyArray = new HsqlException[]{};
-    public final static HsqlException noDataCondition =
+    public static final HsqlException[] emptyArray = new HsqlException[]{};
+    public static final HsqlException noDataCondition =
         Error.error(ErrorCode.N_02000);
 
     //

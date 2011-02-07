@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2009, The HSQL Development Group
+/* Copyright (c) 2001-2010, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -41,11 +41,11 @@ package org.hsqldb.result;
 public class ResultProperties {
 
     //
-    final static int idx_returnable = 0;
-    final static int idx_holdable   = 1;
-    final static int idx_scrollable = 2;
-    final static int idx_updatable  = 3;
-    final static int idx_sensitive  = 4;
+    static final int idx_returnable = 0;
+    static final int idx_holdable   = 1;
+    static final int idx_scrollable = 2;
+    static final int idx_updatable  = 3;
+    static final int idx_sensitive  = 4;
 
     //
     public static final int defaultPropsValue   = 0;

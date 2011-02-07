@@ -123,7 +123,7 @@ public class PgType {
                        ? -1 : lpConstraintObject.intValue();
     }
 
-    static public PgType getPgType(Type hType, boolean directColumn)
+    public static PgType getPgType(Type hType, boolean directColumn)
     throws RecoverableOdbcFailure {
         switch (hType.typeCode) {
             case Types.TINYINT:

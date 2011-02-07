@@ -172,7 +172,7 @@ public class Collation implements SchemaObject {
         }
     }
 
-    final static Collation defaultCollation = new Collation(true);
+    static final Collation defaultCollation = new Collation(true);
     final HsqlName         name;
     Collator               collator;
     Locale                 locale;

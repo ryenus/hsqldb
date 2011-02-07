@@ -84,8 +84,8 @@ public class JavaSystem {
 //#endif JAVA6
     }
 
-    final static BigDecimal BD_1  = BigDecimal.valueOf(1L);
-    final static BigDecimal MBD_1 = BigDecimal.valueOf(-1L);
+    static final BigDecimal BD_1  = BigDecimal.valueOf(1L);
+    static final BigDecimal MBD_1 = BigDecimal.valueOf(-1L);
 
     public static int precision(BigDecimal o) {
 
