@@ -210,8 +210,11 @@ public class IndexAVL implements Index {
             case TableBase.CACHED_TABLE :
             case TableBase.TEXT_TABLE :
                 lock = new ReentrantReadWriteLock();
+                break;
+
             default :
                 lock = new ReadWriteLockDummy();
+                break;
         }
 
         readLock  = lock.readLock();
