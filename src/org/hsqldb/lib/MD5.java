@@ -72,7 +72,7 @@ import java.security.NoSuchAlgorithmException;
  * obtained via the java.security.MessageDigest spi
  *
  * @author boucherb@users.sourceforge.net
- * @version 1.9.0
+ * @version 2.0.1
  * @since 1.9.0
  */
 public final class MD5 {

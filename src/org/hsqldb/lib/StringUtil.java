@@ -39,7 +39,7 @@ import java.lang.reflect.Array;
  * @author Campbell Boucher-Burnet (boucherb@users dot sourceforge.net)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
  * @author Nitin Chauhan
- * @version 1.9.0
+ * @version 2.0.1
  * @since 1.7.0
  */
 public class StringUtil {

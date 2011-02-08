@@ -241,7 +241,7 @@ final class ScaledRAFile implements RandomAccessInterface {
                 cacheHit++;
             }
 
-            int val = buffer[(int) (seekPosition - bufferOffset)];
+            int val = buffer[(int) (seekPosition - bufferOffset)] & 0xff;
 
             seekPosition++;
 

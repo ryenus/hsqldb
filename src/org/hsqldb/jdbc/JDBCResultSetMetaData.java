@@ -99,7 +99,7 @@ import org.hsqldb.types.Types;
  *
  * @author Campbell Boucher-Burnet (boucherb@users dot sourceforge.net)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.0
+ * @version 2.0.1
  * @revised JDK 1.6, HSQLDB 2.0
  * @see JDBCStatement#executeQuery
  * @see JDBCStatement#getResultSet

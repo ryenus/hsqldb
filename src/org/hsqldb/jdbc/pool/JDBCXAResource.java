@@ -73,6 +73,7 @@ import org.hsqldb.HsqlException;
  * N.b. The JDBC Spec does not state whether the prepare and forget
  * methods are XAResource-specific or XADataSource-specific.
  *
+ * @version 2.0.1
  * @since HSQLDB v. 1.9.0
  * @author Blaine Simpson (blaine dot simpson at admc dot com)
  * @see javax.transaction.xa.XAResource

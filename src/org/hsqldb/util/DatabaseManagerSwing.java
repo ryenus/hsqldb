@@ -150,7 +150,7 @@ import org.hsqldb.lib.java.JavaSystem;
  *
  * @author dmarshall@users
  * @author Bob Preston (sqlbob@users dot sourceforge.net)
- * @version 1.8.0
+ * @version 2.0.1
  * @since 1.7.0
  */
 public class DatabaseManagerSwing extends JApplet

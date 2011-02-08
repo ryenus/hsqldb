@@ -76,7 +76,7 @@ import java.lang.reflect.Method;
  * </PRE> </CODE>
  *
  * @author Blaine Simpson (blaine dot simpson at admc dot com)
- * @version 1.9.0
+ * @version 2.0.1
  * @since 1.9.0
  */
 public class FrameworkLogger {

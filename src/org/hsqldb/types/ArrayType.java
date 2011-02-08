@@ -48,7 +48,7 @@ import org.hsqldb.lib.ArraySort;
  * Class for ARRAY type objects.<p>
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.0.0
+ * @version 2.0.1
  * @since 2.0.0
  */
 public class ArrayType extends Type {

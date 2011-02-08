@@ -42,6 +42,13 @@ import org.hsqldb.result.Result;
 import org.hsqldb.result.ResultConstants;
 import org.hsqldb.types.Type;
 
+/**
+ * Implementation of Statement for updating result rows.<p>
+ *
+ * @author Fred Toussi (fredt@users dot sourceforge.net)
+ * @version 2.0.1
+ * @since 1.9.0
+ */
 public class StatementResultUpdate extends StatementDML {
 
     int    actionType;

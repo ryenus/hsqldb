@@ -54,7 +54,7 @@ import org.hsqldb.types.Types;
  *  Class for writing the data for a database row in text table format.
  *
  * @author Bob Preston (sqlbob@users dot sourceforge.net)
- * @version 2.0.0
+ * @version 2.0.1
  * @since 1.7.0
  */
 public class RowOutputText extends RowOutputBase {

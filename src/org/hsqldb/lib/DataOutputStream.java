@@ -41,7 +41,7 @@ import java.io.Reader;
  * A wrapper for OutputStream
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 1.9.0
+ * @version 2.0.1
  * @since 1.9.0
  */
 public class DataOutputStream extends java.io.BufferedOutputStream {
