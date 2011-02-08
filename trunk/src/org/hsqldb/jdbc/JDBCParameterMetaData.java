@@ -67,7 +67,7 @@ import org.hsqldb.types.Type;
  * object.
  *
  * @author Campbell Boucher-Burnet (boucherb@users dot sourceforge.net)
- * @version 2.0
+ * @version 2.0.1
  * @since JDK 1.4, HSQLDB 1.7.2
  * @revised JDK 1.6, HSQLDB 2.0
  */

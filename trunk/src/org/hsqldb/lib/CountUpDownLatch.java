@@ -33,6 +33,13 @@ package org.hsqldb.lib;
 
 import java.util.concurrent.CountDownLatch;
 
+/**
+ * Wrapper for CountDownLatch to allow counting up.<p>
+ *
+ * @author Fred Toussi (fredt@users dot sourceforge.net)
+ * @version 2.0.1
+ * @since 1.9.0
+ */
 public class CountUpDownLatch {
 
     volatile CountDownLatch latch;

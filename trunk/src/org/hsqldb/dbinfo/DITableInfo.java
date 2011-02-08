@@ -46,7 +46,7 @@ import org.hsqldb.types.Types;
  * Current version has been reduced in scope.<p>
  *
  * @author boucherb@users
- * @version 1.9.0
+ * @version 2.0.1
  * @since 1.7.2
  */
 final class DITableInfo {

@@ -48,7 +48,7 @@ import org.hsqldb.lib.HsqlByteArrayInputStream;
  * A proof-of-concept prototype was first contributed by winfriedthom@users.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version  1.9.0
+ * @version  2.0.1
  * @since  1.8.0
  */
 final class ScaledRAFileInJar implements RandomAccessInterface {

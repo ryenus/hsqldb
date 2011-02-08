@@ -86,7 +86,7 @@ import org.hsqldb.persist.PersistentStore;
  * New class derived from Hypersonic SQL code and enhanced in HSQLDB.<p>
  *
  * @author Thomas Mueller (Hypersonic SQL Group)
- * @version 1.9.0
+ * @version 2.0.1
  * @since Hypersonic SQL
  */
 public class RowAVL extends Row {

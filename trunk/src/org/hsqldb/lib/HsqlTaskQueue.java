@@ -37,7 +37,7 @@ package org.hsqldb.lib;
  * circular queue implementation with automatic capacity expansion.
  *
  * @author boucherb@users
- * @version 1.7.2
+ * @version 2.0.1
  * @since 1.7.2
  */
 public class HsqlTaskQueue {

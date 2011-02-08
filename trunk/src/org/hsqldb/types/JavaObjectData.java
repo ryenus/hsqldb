@@ -60,7 +60,7 @@ import org.hsqldb.lib.InOutUtil;
  * PreparedStatement variables.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 1.9.0
+ * @version 2.0.1
  * @since 1.7.2
  */
 public class JavaObjectData {

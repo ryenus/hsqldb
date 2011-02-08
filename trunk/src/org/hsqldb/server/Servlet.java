@@ -133,7 +133,7 @@ import org.hsqldb.rowio.RowOutputBinary;
  *
  * @author Thomas Mueller (Hypersonic SQL Group)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 1.9.0
+ * @version 2.0.1
  * @since Hypersonic SQL
  */
 public class Servlet extends javax.servlet.http.HttpServlet {

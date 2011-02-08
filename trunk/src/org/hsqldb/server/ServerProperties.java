@@ -65,7 +65,7 @@ import org.hsqldb.persist.HsqlProperties;
  * If a set of values specified in the Meta record, then the value is checked
  * against the set.<p>
  *
- * @version 1.9.0
+ * @version 2.0.1
  * @since 1.9.0
  */
 public class ServerProperties extends HsqlProperties {

@@ -49,7 +49,7 @@ import org.hsqldb.navigator.RowIterator;
  * data is read from and written to a text format data file.
  *
  * @author Bob Preston (sqlbob@users dot sourceforge.net)
- * @version 1.9.0
+ * @version 2.0.1
  */
 public class TextTable extends org.hsqldb.Table {
 

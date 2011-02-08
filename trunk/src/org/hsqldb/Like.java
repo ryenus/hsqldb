@@ -84,7 +84,7 @@ import org.hsqldb.types.Type;
  * Enhanced in successive versions of HSQLDB.
  *
  * @author Thomas Mueller (Hypersonic SQL Group)
- * @version 1.9.0
+ * @version 2.0.1
  * @since Hypersonic SQL
  */
 

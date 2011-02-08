@@ -43,6 +43,12 @@ import org.hsqldb.jdbc.Util;
 import org.hsqldb.types.Type;
 import org.hsqldb.types.Types;
 
+/**
+ * Postgres types.
+ *
+ * @author Blaine Simpson (blaine dot simpson at admc dot com)
+ * @since 1.9.0
+ */
 public class PgType {
     private int oid;
     private int typeWidth = -1;

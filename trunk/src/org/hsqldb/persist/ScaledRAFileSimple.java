@@ -42,7 +42,7 @@ import org.hsqldb.Database;
  * for backup and lobs.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version  1.9.0
+ * @version  2.0.1
  * @since  1.9.0
  */
 final class ScaledRAFileSimple implements RandomAccessInterface {
@@ -61,11 +61,6 @@ final class ScaledRAFileSimple implements RandomAccessInterface {
         return file.length();
     }
 
-    /**
-     * Some JVM's do not allow seek beyond end of file, so zeros are written
-     * first in that case. Reported by bohgammer@users in Open Disucssion
-     * Forum.
-     */
     public void seek(long position) throws IOException {
         file.seek(position);
     }
