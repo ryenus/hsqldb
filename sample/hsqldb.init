@@ -121,7 +121,7 @@ minsleep() {
     }
     TARGET_PID= TARGET_PATH=
     MAXSECS=$1; shift
-    case "$1" in *[^0-9]*) TARGET_PATH="$1";; *) TARGET_PID="$1";; esac; shift
+    case "$1" in *[!0-9]*) TARGET_PATH="$1";; *) TARGET_PID="$1";; esac; shift
     _secs=0
     while [ $_secs -lt $MAXSECS ]; do
         _secs=`expr $_secs + 1`
@@ -308,7 +308,7 @@ else
         echo "Auth file '$_AUTH_TEST_PATH' not readable" 1>&2
         exit 2
     }
-    ls -ld "$_AUTH_TEST_PATH" | grep '^-..------' > /dev/null 2>&1 || {
+    ls -lLd "$_AUTH_TEST_PATH" | grep '^-..------' > /dev/null 2>&1 || {
         echo "Fix permissions on '$_AUTH_TEST_PATH' like 'chmod 600 $_AUTH_TEST_PATH'" 1>&2
         exit 2
     }
