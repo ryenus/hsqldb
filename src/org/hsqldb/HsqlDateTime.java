@@ -572,7 +572,7 @@ public class HsqlDateTime {
 
             date = format.parse(string);
         } catch (Exception e) {
-            throw Error.error(ErrorCode.X_22007, e.getMessage());
+            throw Error.error(ErrorCode.X_22007, e.toString());
         }
 
         return date;

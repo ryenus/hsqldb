@@ -457,7 +457,7 @@ public final class ServerAcl {
                     throw new AclFormatException("Syntax error at ACL file '"
                                                  + aclFile.getAbsolutePath()
                                                  + "', line " + linenum + ": "
-                                                 + afe.getMessage());
+                                                 + afe.toString());
                 }
             }
         } finally {

@@ -1068,7 +1068,7 @@ public class Result {
         } else {
             result.exception = Error.error(ErrorCode.GENERAL_ERROR, t);
             result.mainString = result.exception.getMessage() + " "
-                                + t.getMessage();
+                                + t.toString();
             result.subString = result.exception.getSQLState();
             result.errorCode = result.exception.getErrorCode();
 

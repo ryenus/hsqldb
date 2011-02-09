@@ -132,7 +132,7 @@ public class ScriptWriterText extends ScriptWriterBase {
             } catch (IOException e) {
                 throw Error.error(e, ErrorCode.FILE_IO_ERROR,
                                   ErrorCode.M_Message_Pair, new Object[] {
-                    e.getMessage(), outFile
+                    e.toString(), outFile
                 });
             }
         }

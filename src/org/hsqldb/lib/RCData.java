@@ -354,7 +354,7 @@ public class RCData {
         try {
             urlString = expandSysPropVars(url);
         } catch (IllegalArgumentException iae) {
-            throw new MalformedURLException(iae.getMessage() + " for URL '"
+            throw new MalformedURLException(iae.toString() + " for URL '"
                                             + url + "'");
         }
 
@@ -363,7 +363,7 @@ public class RCData {
         if (username != null) try {
             userString = expandSysPropVars(username);
         } catch (IllegalArgumentException iae) {
-            throw new MalformedURLException(iae.getMessage()
+            throw new MalformedURLException(iae.toString()
                                             + " for user name '" + username
                                             + "'");
         }
@@ -373,7 +373,7 @@ public class RCData {
         if (password != null) try {
             passwordString = expandSysPropVars(password);
         } catch (IllegalArgumentException iae) {
-            throw new MalformedURLException(iae.getMessage()
+            throw new MalformedURLException(iae.toString()
                                             + " for password");
         }
 
@@ -393,7 +393,7 @@ public class RCData {
         // Debug:
         // System.err.println("TI set to " + ti + "\nPOST: "
         // + SqlTool.tiToString(c.getTransactionIsolation()));
-        
+
         return c;
     }
 

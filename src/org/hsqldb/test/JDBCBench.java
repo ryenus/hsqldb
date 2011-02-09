@@ -173,7 +173,7 @@ class JDBCBench {
             JDBCBench Me = new JDBCBench(DBUrl, DBUser, DBPassword,
                                          initialize_dataset);
         } catch (Exception E) {
-            System.out.println(E.getMessage());
+            System.out.println(E.toString());
             E.printStackTrace();
         }
     }
@@ -222,7 +222,7 @@ class JDBCBench {
             oneRound(url, user, password, transactions, true);
 */
         } catch (Exception E) {
-            System.out.println(E.getMessage());
+            System.out.println(E.toString());
             E.printStackTrace();
         } finally {
             MemoryWatcher.end();
@@ -710,7 +710,7 @@ class JDBCBench {
 
             Stmt.close();
         } catch (Exception E) {
-            System.out.println(E.getMessage());
+            System.out.println(E.toString());
             E.printStackTrace();
         }
 
@@ -759,7 +759,7 @@ class JDBCBench {
 
             return conn;
         } catch (Exception E) {
-            System.out.println(E.getMessage());
+            System.out.println(E.toString());
             E.printStackTrace();
         }
 
@@ -775,7 +775,7 @@ class JDBCBench {
         try {
             c.close();
         } catch (Exception E) {
-            System.out.println(E.getMessage());
+            System.out.println(E.toString());
             E.printStackTrace();
         }
     }
@@ -898,7 +898,7 @@ class JDBCBench {
                     pstmt5 = Conn.prepareStatement(Query);
                 }
             } catch (Exception E) {
-                System.out.println(E.getMessage());
+                System.out.println(E.toString());
                 E.printStackTrace();
             }
         }
@@ -937,7 +937,7 @@ class JDBCBench {
                         pstmt5.close();
                     }
                 } catch (Exception E) {
-                    System.out.println(E.getMessage());
+                    System.out.println(E.toString());
                     E.printStackTrace();
                 }
             }
@@ -1047,7 +1047,7 @@ class JDBCBench {
             } catch (Exception E) {
                 if (verbose) {
                     System.out.println("Transaction failed: "
-                                       + E.getMessage());
+                                       + E.toString());
                     E.printStackTrace();
                 }
 

@@ -1199,7 +1199,7 @@ public class Routine implements SchemaObject, Cloneable {
             } catch (Throwable t) {
                 throw Error.error(t, ErrorCode.X_42501,
                                   ErrorCode.M_Message_Pair, new Object[] {
-                    t.getMessage(), className
+                    t.toString(), className
                 });
             }
         }
@@ -1209,7 +1209,7 @@ public class Routine implements SchemaObject, Cloneable {
         } catch (Throwable t) {
             throw Error.error(t, ErrorCode.X_42501, ErrorCode.M_Message_Pair,
                               new Object[] {
-                t.getMessage(), className
+                t.toString(), className
             });
         }
 

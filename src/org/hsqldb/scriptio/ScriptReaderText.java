@@ -200,7 +200,7 @@ public class ScriptReaderText extends ScriptReaderBase {
             throw Error.error(t, ErrorCode.ERROR_IN_SCRIPT_FILE,
                               ErrorCode.M_DatabaseScriptReader_read,
                               new Object[] {
-                new Integer(lineCount), t.getMessage()
+                new Integer(lineCount), t.toString()
             });
         }
     }

@@ -147,7 +147,7 @@ public class TextTable extends org.hsqldb.Table {
             // At this point table should either have a valid (old) data
             // source and cache or have an empty source and null cache.
             throw Error.error(t, ErrorCode.TEXT_FILE, 0, new Object[] {
-                new Integer(linenumber), t.getMessage()
+                new Integer(linenumber), t.toString()
             });
         }
 

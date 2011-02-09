@@ -132,7 +132,7 @@ public abstract class ScriptWriterBase implements Runnable {
         // start with neutral schema - no SET SCHEMA to log
         schemaToLog = currentSession.loggedSchema =
             currentSession.currentSchema;
-        fileStreamOut = new BufferedOutputStream(outputStream, 2 << 12);
+        fileStreamOut = new BufferedOutputStream(outputStream, 1 << 14);
         outDescriptor = descriptor;
     }
 
@@ -276,11 +276,11 @@ public abstract class ScriptWriterBase implements Runnable {
             outDescriptor = fa.getFileSync(fos);
             fileStreamOut = fos;
 
-//            fileStreamOut = new BufferedOutputStream(fos, 2 << 12);
+            fileStreamOut = new BufferedOutputStream(fos, 1 << 14);
         } catch (IOException e) {
             throw Error.error(e, ErrorCode.FILE_IO_ERROR,
                               ErrorCode.M_Message_Pair, new Object[] {
-                e.getMessage(), outFile
+                e.toString(), outFile
             });
         }
     }
