@@ -773,7 +773,7 @@ public class TarReader {
             } catch (NumberFormatException nfe) {
                 throw new TarMalformatException(
                         RB.bad_numeric_header_value.getString(
-                        field.toString(), nfe.getMessage()));
+                        field.toString(), nfe.toString()));
             }
         }
 

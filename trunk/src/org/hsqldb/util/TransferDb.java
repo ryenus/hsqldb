@@ -81,7 +81,7 @@ class TransferDb extends DataAccessPoint {
 
                 helper.set(this, t, meta.getIdentifierQuoteString());
             } catch (SQLException e) {
-                throw new DataAccessPointException(e.getMessage());
+                throw new DataAccessPointException(e.toString());
             }
         }
     }
@@ -97,7 +97,7 @@ class TransferDb extends DataAccessPoint {
         try {
             result = conn.getAutoCommit();
         } catch (SQLException e) {
-            throw new DataAccessPointException(e.getMessage());
+            throw new DataAccessPointException(e.toString());
         }
 
         return result;
@@ -116,7 +116,7 @@ class TransferDb extends DataAccessPoint {
         try {
             conn.commit();
         } catch (SQLException e) {
-            throw new DataAccessPointException(e.getMessage());
+            throw new DataAccessPointException(e.toString());
         }
     }
 
@@ -133,7 +133,7 @@ class TransferDb extends DataAccessPoint {
         try {
             conn.rollback();
         } catch (SQLException e) {
-            throw new DataAccessPointException(e.getMessage());
+            throw new DataAccessPointException(e.toString());
         }
     }
 
@@ -142,7 +142,7 @@ class TransferDb extends DataAccessPoint {
         try {
             conn.setAutoCommit(flag);
         } catch (SQLException e) {
-            throw new DataAccessPointException(e.getMessage());
+            throw new DataAccessPointException(e.toString());
         }
     }
 
@@ -155,7 +155,7 @@ class TransferDb extends DataAccessPoint {
             stmt   = conn.createStatement();
             result = stmt.execute(statement);
         } catch (SQLException e) {
-            throw new DataAccessPointException(e.getMessage());
+            throw new DataAccessPointException(e.toString());
         } finally {
             if (stmt != null) {
                 try {
@@ -187,7 +187,7 @@ class TransferDb extends DataAccessPoint {
             srcStatement = null;
             rsData       = null;
 
-            throw new DataAccessPointException(e.getMessage());
+            throw new DataAccessPointException(e.toString());
         }
 
         return new TransferResultSet(rsData);
@@ -232,7 +232,7 @@ class TransferDb extends DataAccessPoint {
                 }
             }
         } catch (SQLException e) {
-            throw new DataAccessPointException(e.getMessage());
+            throw new DataAccessPointException(e.toString());
         } finally {
             if (destPrep != null) {
                 try {
@@ -308,7 +308,7 @@ class TransferDb extends DataAccessPoint {
                 result.close();
             }
         } catch (SQLException e) {
-            throw new DataAccessPointException(e.getMessage());
+            throw new DataAccessPointException(e.toString());
         }
 
         return (ret);
@@ -340,7 +340,7 @@ class TransferDb extends DataAccessPoint {
                 result.close();
             }
         } catch (SQLException e) {
-            throw new DataAccessPointException(e.getMessage());
+            throw new DataAccessPointException(e.toString());
         }
 
         return (ret);
@@ -352,7 +352,7 @@ class TransferDb extends DataAccessPoint {
             try {
                 conn.setCatalog(sCatalog);
             } catch (SQLException e) {
-                throw new DataAccessPointException(e.getMessage());
+                throw new DataAccessPointException(e.toString());
             }
         }
     }
@@ -414,7 +414,7 @@ class TransferDb extends DataAccessPoint {
                 }
             }
         } catch (SQLException e) {
-            throw new DataAccessPointException(e.getMessage());
+            throw new DataAccessPointException(e.toString());
         } finally {
             if (result != null) {
                 try {
@@ -590,7 +590,7 @@ class TransferDb extends DataAccessPoint {
                 TTable.Stmts.sDestDrop = alterDrop + TTable.Stmts.sDestDrop;
             }
         } catch (SQLException e) {
-            throw new DataAccessPointException(e.getMessage());
+            throw new DataAccessPointException(e.toString());
         }
 
         boolean   primarykeys           = false;
@@ -633,7 +633,7 @@ class TransferDb extends DataAccessPoint {
                 }
             }
         } catch (SQLException e) {
-            throw new DataAccessPointException(e.getMessage());
+            throw new DataAccessPointException(e.toString());
         }
 
         boolean   indices     = false;
@@ -725,7 +725,7 @@ class TransferDb extends DataAccessPoint {
                 }
             }
         } catch (SQLException e) {
-            throw new DataAccessPointException(e.getMessage());
+            throw new DataAccessPointException(e.toString());
         }
 
         Vector v = new Vector();
@@ -840,7 +840,7 @@ class TransferDb extends DataAccessPoint {
             stmt.close();
             col.close();
         } catch (SQLException e) {
-            throw new DataAccessPointException(e.getMessage());
+            throw new DataAccessPointException(e.toString());
         }
 
         if (primarykeys) {

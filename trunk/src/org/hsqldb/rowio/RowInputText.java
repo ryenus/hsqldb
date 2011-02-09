@@ -170,11 +170,13 @@ public class RowInputText extends RowInputBase implements RowInputInterface {
                 s = null;
             }
         } catch (Exception e) {
+            Object[] messages = new Object[] {
+                new Integer(field), e.toString()
+            };
+
             throw new IOException(
                 Error.getMessage(
-                    ErrorCode.M_TEXT_SOURCE_FIELD_ERROR, 0, new Object[] {
-                new Integer(field), e.toString()
-            }));
+                    ErrorCode.M_TEXT_SOURCE_FIELD_ERROR, 0, messages));
         }
 
         return s;

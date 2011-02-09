@@ -1728,11 +1728,11 @@ public class Logger {
 
             // RENAME tempPath to destPath
         } catch (IllegalArgumentException iae) {
-            throw Error.error(ErrorCode.X_HV00A, iae.getMessage());
+            throw Error.error(ErrorCode.X_HV00A, iae.toString());
         } catch (IOException ioe) {
-            throw Error.error(ErrorCode.FILE_IO_ERROR, ioe.getMessage());
+            throw Error.error(ErrorCode.FILE_IO_ERROR, ioe.toString());
         } catch (TarMalformatException tme) {
-            throw Error.error(ErrorCode.FILE_IO_ERROR, tme.getMessage());
+            throw Error.error(ErrorCode.FILE_IO_ERROR, tme.toString());
         } finally {
             log.checkpointReopen();
         }

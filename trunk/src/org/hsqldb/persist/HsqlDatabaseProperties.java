@@ -492,7 +492,7 @@ public class HsqlDatabaseProperties extends HsqlProperties {
         } catch (Throwable t) {
             throw Error.error(t, ErrorCode.FILE_IO_ERROR,
                               ErrorCode.M_LOAD_SAVE_PROPERTIES, new Object[] {
-                t.getMessage(), fileName
+                t.toString(), fileName
             });
         }
 
@@ -552,7 +552,7 @@ public class HsqlDatabaseProperties extends HsqlProperties {
 
             throw Error.error(t, ErrorCode.FILE_IO_ERROR,
                               ErrorCode.M_LOAD_SAVE_PROPERTIES, new Object[] {
-                t.getMessage(), fileName
+                t.toString(), fileName
             });
         }
     }

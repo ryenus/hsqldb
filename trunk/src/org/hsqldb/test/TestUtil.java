@@ -159,7 +159,7 @@ public class TestUtil {
             }
         } catch (Exception e) {
             e.printStackTrace();
-            print("TestUtil init error: " + e.getMessage());
+            print("TestUtil init error: " + e.toString());
         }
     }
 
@@ -177,7 +177,7 @@ public class TestUtil {
                                 new FileReader(file));
         } catch (Exception e) {
             e.printStackTrace();
-            System.out.println("test script file error: " + e.getMessage());
+            System.out.println("test script file error: " + e.toString());
         }
     }
 
@@ -613,7 +613,7 @@ abstract class ParsedSection {
         try {
             aStatement.execute(getSql());
         } catch (Exception x) {
-            message = x.getMessage();
+            message = x.toString();
 
             return false;
         }
@@ -790,7 +790,7 @@ class ResultSetParsedSection extends ParsedSection {
                                     + " rows.");
             }
         } catch (Exception x) {
-            message = x.getMessage();
+            message = x.toString();
 
             return false;
         }
@@ -863,7 +863,7 @@ class ResultSetOutputParsedSection extends ParsedSection {
 
             throw new Exception(printVal.toString());
         } catch (Exception x) {
-            message = x.getMessage();
+            message = x.toString();
 
             return false;
         }
@@ -917,7 +917,7 @@ class UpdateParsedSection extends ParsedSection {
                                     + aStatement.getUpdateCount() + ".");
             }
         } catch (Exception x) {
-            message = x.getMessage();
+            message = x.toString();
 
             return false;
         }
@@ -1184,7 +1184,7 @@ class CountParsedSection extends ParsedSection {
                                     + " rows.");
             }
         } catch (Exception x) {
-            message = x.getMessage();
+            message = x.toString();
 
             return false;
         }
@@ -1230,11 +1230,11 @@ class ExceptionParsedSection extends ParsedSection {
             }
 
             message = "SQLState '" + sqlX.getSQLState() + "' : "
-                      + sqlX.getMessage() + " instead of '" + expectedState
+                      + sqlX.toString() + " instead of '" + expectedState
                       + "'";
         } catch (Exception x) {
             caught  = x;
-            message = x.getMessage();
+            message = x.toString();
         }
 
         return false;

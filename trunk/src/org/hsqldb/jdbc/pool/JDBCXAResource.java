@@ -205,7 +205,7 @@ public class JDBCXAResource implements XAResource {
              */
             connection.commit();
         } catch (SQLException se) {
-            throw new XAException(se.getMessage());
+            throw new XAException(se.toString());
         }
 
         dispose();
@@ -236,7 +236,7 @@ public class JDBCXAResource implements XAResource {
         try {
             connection.setAutoCommit(originalAutoCommitMode);    // real/phys.
         } catch (SQLException se) {
-            throw new XAException(se.getMessage());
+            throw new XAException(se.toString());
         }
     }
 
@@ -393,7 +393,7 @@ public class JDBCXAResource implements XAResource {
              */
             connection.rollback();    // real/phys.
         } catch (SQLException se) {
-            throw new XAException(se.getMessage());
+            throw new XAException(se.toString());
         }
 
         dispose();
@@ -433,7 +433,7 @@ public class JDBCXAResource implements XAResource {
 
             connection.setAutoCommit(false);                        // real/phys.
         } catch (SQLException se) {
-            throw new XAException(se.getMessage());
+            throw new XAException(se.toString());
         }
 
         this.xid = xid;

@@ -98,7 +98,7 @@ public class DataFileCacheSession extends DataFileCache {
 
             throw Error.error(t, ErrorCode.FILE_IO_ERROR,
                               ErrorCode.M_DataFileCache_open, new Object[] {
-                t.getMessage(), dataFileName
+                t.toString(), dataFileName
             });
         }
     }
@@ -128,7 +128,7 @@ public class DataFileCacheSession extends DataFileCache {
 
             throw Error.error(t, ErrorCode.FILE_IO_ERROR,
                               ErrorCode.M_DataFileCache_close, new Object[] {
-                t.getMessage(), dataFileName
+                t.toString(), dataFileName
             });
         } finally {
             writeLock.unlock();

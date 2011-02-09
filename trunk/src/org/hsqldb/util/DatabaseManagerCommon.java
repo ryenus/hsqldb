@@ -323,7 +323,7 @@ class DatabaseManagerCommon {
 
             return b.toString();
         } catch (IOException e) {
-            return e.getMessage();
+            return e.toString();
         }
     }
 

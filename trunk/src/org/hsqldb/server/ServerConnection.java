@@ -454,7 +454,7 @@ class ServerConnection implements Runnable {
 
             try {
                 OdbcUtil.alertClient(OdbcUtil.ODBC_SEVERITY_FATAL,
-                                     ioe.getMessage(), "08P01", dataOutput);
+                                     ioe.toString(), "08P01", dataOutput);
 
                 // Code here means Protocol Violation
             } catch (Exception e) {
@@ -1457,7 +1457,7 @@ class ServerConnection implements Runnable {
 
             if (errorResult == null) {
                 String stateCode = rf.getSqlStateCode();
-                String svrMsg    = rf.getMessage();
+                String svrMsg    = rf.toString();
                 String cliMsg    = rf.getClientMessage();
 
                 if (svrMsg != null) {
@@ -1740,7 +1740,7 @@ class ServerConnection implements Runnable {
             } catch (RecoverableOdbcFailure rf) {
 
                 // In this case, we do not treat it as recoverable
-                throw new ClientFailure(rf.getMessage(),
+                throw new ClientFailure(rf.toString(),
                                         rf.getClientMessage());
             }
 
@@ -1823,7 +1823,7 @@ class ServerConnection implements Runnable {
                                         "Login attempt rejected");
             }
         } catch (ClientFailure cf) {
-            server.print(cf.getMessage());
+            server.print(cf.toString());
 
             // Code below means CONNECTION FAILURE
             OdbcUtil.alertClient(OdbcUtil.ODBC_SEVERITY_FATAL,
