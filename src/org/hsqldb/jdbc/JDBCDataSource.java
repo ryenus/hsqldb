@@ -164,6 +164,7 @@ public class JDBCDataSource extends JDBCCommonDataSource implements DataSource,
 
         props.setProperty("user", username);
         props.setProperty("password", password);
+        props.setProperty("loginTimeout", Integer.toString(loginTimeout));
 
         return getConnection(url, props);
     }

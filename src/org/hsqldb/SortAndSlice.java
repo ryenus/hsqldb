@@ -58,6 +58,7 @@ public final class SortAndSlice {
     ExpressionOp     limitCondition;
     int              columnCount;
     boolean          hasNullsLast;
+    boolean          strictLimit;
     public boolean   skipSort       = false;    // true when result can be used as is
     public boolean   skipFullResult = false;    // true when result can be sliced as is
     int[]          columnIndexes;
@@ -88,6 +89,10 @@ public final class SortAndSlice {
 
     public void addLimitCondition(ExpressionOp expression) {
         limitCondition = expression;
+    }
+
+    public void setStrictLimit() {
+        strictLimit = true;
     }
 
     public void prepareSingleColumn(int colIndex) {

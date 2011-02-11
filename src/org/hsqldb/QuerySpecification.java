@@ -1186,7 +1186,9 @@ public class QuerySpecification extends QueryExpression {
                     (Integer) sortAndSlice.limitCondition.getRightNode()
                         .getValue(session);
 
-                if (value == null || value.intValue() <= 0) {
+                if (value == null || value.intValue() < 0
+                        || (sortAndSlice.strictLimit
+                            && value.intValue() == 0)) {
                     throw Error.error(ErrorCode.X_2201W);
                 }
 

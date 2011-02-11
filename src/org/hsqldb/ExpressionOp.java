@@ -773,7 +773,7 @@ public class ExpressionOp extends Expression {
 
                     for (int i = 0; i < constraints.length; i++) {
                         constraints[i].checkCheckConstraint(session, null,
-                                                            value);
+                                                            null, value);
                     }
                 }
 

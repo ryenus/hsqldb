@@ -627,7 +627,7 @@ public class Log {
         }
 
         if (maxLogSize > 0 && dbLogWriter.size() > maxLogSize) {
-            database.logger.checkpointRequired = true;
+            database.logger.setCheckpointRequired();
         }
     }
 
@@ -640,7 +640,7 @@ public class Log {
         }
 
         if (maxLogSize > 0 && dbLogWriter.size() > maxLogSize) {
-            database.logger.checkpointRequired = true;
+            database.logger.setCheckpointRequired();
         }
     }
 
@@ -653,7 +653,7 @@ public class Log {
         }
 
         if (maxLogSize > 0 && dbLogWriter.size() > maxLogSize) {
-            database.logger.checkpointRequired = true;
+            database.logger.setCheckpointRequired();
         }
     }
 
@@ -666,7 +666,7 @@ public class Log {
         }
 
         if (maxLogSize > 0 && dbLogWriter.size() > maxLogSize) {
-            database.logger.checkpointRequired = true;
+            database.logger.setCheckpointRequired();
         }
     }
 
@@ -679,7 +679,7 @@ public class Log {
         }
 
         if (maxLogSize > 0 && dbLogWriter.size() > maxLogSize) {
-            database.logger.checkpointRequired = true;
+            database.logger.setCheckpointRequired();
         }
     }
 

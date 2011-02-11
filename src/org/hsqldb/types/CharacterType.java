@@ -53,8 +53,9 @@ import org.hsqldb.lib.java.JavaSystem;
  */
 public class CharacterType extends Type {
 
-    static final int  defaultCharPrecision = 32 * 1024;
-    static final long maxCharPrecision     = Integer.MAX_VALUE;
+    static final int  defaultCharPrecision    = 256;
+    static final int  defaultVarcharPrecision = 32 * 1024;
+    static final long maxCharPrecision        = Integer.MAX_VALUE;
     Collation         collation;
     Charset           charset;
     boolean           isEqualIdentical;

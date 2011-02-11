@@ -1450,6 +1450,7 @@ public class ParserDQL extends ParserBase {
             }
 
             readThis(Tokens.ONLY);
+            sortAndSlice.setStrictLimit();
         }
 
         if (e1 == null) {
@@ -4472,7 +4473,13 @@ public class ParserDQL extends ParserBase {
 
                 readThis(Tokens.COMMA);
 
-                typeObject = readTypeDefinition(false, true);
+                typeObject = Type.getTypeForJDBCConvertToken(token.tokenType);
+
+                if (typeObject == null) {
+                    typeObject = readTypeDefinition(false, true);
+                } else {
+                    read();
+                }
             }
         } else {
             e = this.XreadValueExpressionOrNull();

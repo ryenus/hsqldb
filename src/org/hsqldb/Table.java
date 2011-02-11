@@ -2223,31 +2223,35 @@ public class Table extends TableBase implements SchemaObject {
     public void enforceRowConstraints(Session session, Object[] data) {
 
         for (int i = 0; i < columnCount; i++) {
-            Type type = colTypes[i];
+            Type         type = colTypes[i];
+            ColumnSchema column;
 
             if (hasDomainColumns && type.isDomainType()) {
                 Constraint[] constraints =
                     type.userTypeModifier.getConstraints();
 
+                column = getColumn(i);
+
                 for (int j = 0; j < constraints.length; j++) {
-                    constraints[j].checkCheckConstraint(session, this,
+                    constraints[j].checkCheckConstraint(session, this, column,
                                                         (Object) data[i]);
                 }
             }
 
             if (colNotNull[i] && data[i] == null) {
-                Constraint c = getNotNullConstraintForColumn(i);
+                Constraint c              = getNotNullConstraintForColumn(i);
+                String     constraintName = c == null ? ""
+                                                      : c.getName().name;
 
-                if (c == null) {
-                    c = this.getPrimaryConstraint();
-                }
+                column = getColumn(i);
 
                 String[] info = new String[] {
-                    c.getName().name, tableName.name
+                    constraintName, tableName.statementName,
+                    column.getName().statementName
                 };
 
                 throw Error.error(null, ErrorCode.X_23502,
-                                  ErrorCode.CONSTRAINT, info);
+                                  ErrorCode.COLUMN_CONSTRAINT, info);
             }
         }
     }
