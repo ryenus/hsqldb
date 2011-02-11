@@ -1847,13 +1847,17 @@ D          I
     <para>The definition of CONVERT in the JDBC Standard does not allow the
     precision, scale or length to be specified. This is required by the SQL
     standard for BINARY, BIT, BLOB, CHAR, CLOB, VARBINARY and VARCHAR types
-    and is often needed for DECIMAL and NUMERIC. Therefore, HyperSQL allows
-    the use of precision, scale or length for the type definition when they
-    are valid for the type definition. HyperSQL also allows the use of real
-    type names (without the <literal>SQL_</literal> prefix). </para>
+    and is often needed for DECIMAL and NUMERIC. Defaults are used for
+    precision.</para>
+
+    <para>HyperSQL also allows the use of real type names (without the
+    <literal>SQL_</literal> prefix). In this usage, HyperSQL allows the use of
+    precision, scale or length for the type definition when they are valid for
+    the type definition.</para>
 
     <para>When MS SQL Server compatibility mode is on, the parameters of
-    CONVERT are switched. (JDBC)</para>
+    CONVERT are switched and only the real type names with required precision,
+    scale or length are allowed. (JDBC)</para>
 
     <indexterm significance="preferred" type="sql">
       <primary>DECODE function</primary>
