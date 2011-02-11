@@ -239,7 +239,9 @@ public class RowStoreAVLDiskData extends RowStoreAVLDisk {
         }
     }
 
-    //
+    /**
+     * Does not adjust usage count
+     */
     public void release() {
 
         ArrayUtil.fillArray(accessorList, null);

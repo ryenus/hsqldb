@@ -42,15 +42,12 @@ import org.hsqldb.Database;
 import org.hsqldb.lib.HsqlByteArrayInputStream;
 import org.hsqldb.lib.HsqlByteArrayOutputStream;
 
-// fredt@users 20030111 - patch 1.7.2 by bohgammer@users - pad file before seek() beyond end
-// some incompatible JVM implementations do not allow seek beyond the existing end of file
-
 /**
  * This class is a wapper for a random access file such as that used for
  * CACHED table storage.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version  1.9.0
+ * @version  2.0.1
  * @since  1.7.2
  */
 final class ScaledRAFile implements RandomAccessInterface {
@@ -63,13 +60,16 @@ final class ScaledRAFile implements RandomAccessInterface {
     static final int DATA_FILE_TEXT   = 5;
 
     //
+    static final int  bufferScale = 12;
+    static final int  bufferSize  = 1 << bufferScale;
+    static final long bufferMask  = 0xffffffffffffffffl << bufferScale;
+
+    //
     final Database                  database;
     final RandomAccessFile          file;
     final FileDescriptor            fileDescriptor;
     private final boolean           readOnly;
     final String                    fileName;
-    boolean                         isNio;
-    boolean                         bufferDirty = true;
     final byte[]                    buffer;
     final HsqlByteArrayInputStream  ba;
     final byte[]                    valueBuffer;
@@ -77,11 +77,10 @@ final class ScaledRAFile implements RandomAccessInterface {
     final HsqlByteArrayInputStream  vbai;
     long                            bufferOffset;
     long                            fileLength;
-    boolean                         extendLength = true;
+    final boolean                   extendLength;
 
     //
     long seekPosition;
-    long realPosition;
     int  cacheHit;
 
     /**
@@ -123,19 +122,18 @@ final class ScaledRAFile implements RandomAccessInterface {
         if (type == DATA_FILE_JAR) {
             return new ScaledRAFileInJar(name);
         } else if (type == DATA_FILE_TEXT) {
-            ScaledRAFile ra = new ScaledRAFile(database, name, readonly);
-
-            ra.setExtendLength(false);
+            ScaledRAFile ra = new ScaledRAFile(database, name, readonly,
+                                               false);
 
             return ra;
         } else if (type == DATA_FILE_RAF) {
-            return new ScaledRAFile(database, name, readonly);
+            return new ScaledRAFile(database, name, readonly, true);
         } else {
             java.io.File fi     = new java.io.File(name);
             long         length = fi.length();
 
             if (length > database.logger.propNioMaxSize) {
-                return new ScaledRAFile(database, name, readonly);
+                return new ScaledRAFile(database, name, readonly, true);
             }
 
             try {
@@ -143,22 +141,20 @@ final class ScaledRAFile implements RandomAccessInterface {
 
                 return new ScaledRAFileHybrid(database, name, readonly);
             } catch (Exception e) {
-                return new ScaledRAFile(database, name, readonly);
+                return new ScaledRAFile(database, name, readonly, true);
             }
         }
     }
 
-    ScaledRAFile(Database database, String name,
-                 boolean readonly) throws FileNotFoundException, IOException {
+    ScaledRAFile(Database database, String name, boolean readonly,
+                 boolean extendLengthToBlock)
+                 throws FileNotFoundException, IOException {
 
-        this.database = database;
-        this.readOnly = readonly;
-        this.fileName = name;
-        this.file     = new RandomAccessFile(name, readonly ? "r"
-                                                            : "rw");
-
-        int bufferSize = 1 << 12;
-
+        this.database  = database;
+        this.readOnly  = readonly;
+        this.fileName  = name;
+        this.file      = new RandomAccessFile(name, readonly ? "r"
+                                                             : "rw");
         buffer         = new byte[bufferSize];
         ba             = new HsqlByteArrayInputStream(buffer);
         valueBuffer    = new byte[8];
@@ -166,6 +162,9 @@ final class ScaledRAFile implements RandomAccessInterface {
         vbai           = new HsqlByteArrayInputStream(valueBuffer);
         fileDescriptor = file.getFD();
         fileLength     = length();
+        extendLength   = extendLengthToBlock;
+
+        readIntoBuffer();
     }
 
     public long length() throws IOException {
@@ -196,32 +195,26 @@ final class ScaledRAFile implements RandomAccessInterface {
 
     private void readIntoBuffer() throws IOException {
 
-        long filePos    = seekPosition;
-        long subOffset  = filePos % buffer.length;
-        long readLength = fileLength - (filePos - subOffset);
+        long filePos    = seekPosition & bufferMask;
+        long readLength = fileLength - filePos;
+
+        if (readLength > buffer.length) {
+            readLength = buffer.length;
+        }
+
+        if (readLength < 0) {
+            throw new IOException("read beyond end of file");
+        }
 
         try {
-            if (readLength <= 0) {
-                throw new IOException("read beyond end of file");
-            }
-
-            if (readLength > buffer.length) {
-                readLength = buffer.length;
-            }
-
-            if (realPosition != filePos - subOffset) {
-                file.seek(filePos - subOffset);
-            }
-
+            file.seek(filePos);
             file.readFully(buffer, 0, (int) readLength);
 
-            bufferOffset = filePos - subOffset;
-            realPosition = bufferOffset + readLength;
-            bufferDirty  = false;
+            bufferOffset = filePos;
         } catch (IOException e) {
             resetPointer();
-            database.logger.logWarningEvent(" " + realPosition + " "
-                                            + readLength, e);
+            database.logger.logWarningEvent(" " + filePos + " " + readLength,
+                                            e);
 
             throw e;
         }
@@ -234,7 +227,7 @@ final class ScaledRAFile implements RandomAccessInterface {
                 return -1;
             }
 
-            if (bufferDirty || seekPosition < bufferOffset
+            if (seekPosition < bufferOffset
                     || seekPosition >= bufferOffset + buffer.length) {
                 readIntoBuffer();
             } else {
@@ -273,24 +266,22 @@ final class ScaledRAFile implements RandomAccessInterface {
     public void read(byte[] b, int offset, int length) throws IOException {
 
         try {
+            if (seekPosition + length > fileLength) {
+                throw new EOFException();
+            }
+
             if (length > buffer.length
                     && (seekPosition < bufferOffset
                         || seekPosition >= bufferOffset + buffer.length)) {
-                if (seekPosition != realPosition) {
-                    file.seek(seekPosition);
-
-                    realPosition = seekPosition;
-                }
-
+                file.seek(seekPosition);
                 file.readFully(b, offset, length);
 
                 seekPosition += length;
-                realPosition = seekPosition;
 
                 return;
             }
 
-            if (bufferDirty || seekPosition < bufferOffset
+            if (seekPosition < bufferOffset
                     || seekPosition >= bufferOffset + buffer.length) {
                 readIntoBuffer();
             } else {
@@ -309,16 +300,10 @@ final class ScaledRAFile implements RandomAccessInterface {
             seekPosition += bytesRead;
 
             if (bytesRead < length) {
-                if (seekPosition != realPosition) {
-                    file.seek(seekPosition);
-
-                    realPosition = seekPosition;
-                }
-
+                file.seek(seekPosition);
                 file.readFully(b, offset + bytesRead, length - bytesRead);
 
                 seekPosition += (length - bytesRead);
-                realPosition = seekPosition;
             }
         } catch (IOException e) {
             resetPointer();
@@ -328,28 +313,19 @@ final class ScaledRAFile implements RandomAccessInterface {
         }
     }
 
-    public void write(byte[] b, int off, int len) throws IOException {
+    public void write(byte[] b, int off, int length) throws IOException {
 
         try {
-            if (realPosition != seekPosition) {
-                file.seek(seekPosition);
-
-                realPosition = seekPosition;
-            }
+            file.seek(seekPosition);
 
             if (seekPosition < bufferOffset + buffer.length
-                    && seekPosition + len > bufferOffset) {
-                bufferDirty = true;
+                    && seekPosition + length > bufferOffset) {
+                writeToBuffer(b, off, length);
             }
 
-            file.write(b, off, len);
+            file.write(b, off, length);
 
-            seekPosition += len;
-            realPosition = seekPosition;
-
-            if (realPosition > fileLength) {
-                fileLength = realPosition;
-            }
+            seekPosition += length;
         } catch (IOException e) {
             resetPointer();
             database.logger.logWarningEvent("failed to write a byte array", e);
@@ -390,10 +366,6 @@ final class ScaledRAFile implements RandomAccessInterface {
             return true;
         }
 
-        if (extendLength) {
-            newLength = getExtendLength(newLength);
-        }
-
         try {
             extendLength(newLength);
         } catch (IOException e) {
@@ -403,16 +375,21 @@ final class ScaledRAFile implements RandomAccessInterface {
         return true;
     }
 
-    public void setLength(long newLength) throws IOException {
+    public boolean setLength(long newLength) {
 
-        file.setLength(newLength);
-        file.seek(0);
+        try {
+            file.setLength(newLength);
+            file.seek(0);
 
-        realPosition = 0;
-    }
+            fileLength   = file.length();
+            seekPosition = 0;
 
-    public Database getDatabase() {
-        return null;
+            readIntoBuffer();
+
+            return true;
+        } catch (Throwable t) {
+            return false;
+        }
     }
 
     public void synch() {
@@ -422,18 +399,41 @@ final class ScaledRAFile implements RandomAccessInterface {
         } catch (IOException e) {}
     }
 
-    public void setExtendLength(boolean extend) {
-        extendLength = extend;
+    private void writeToBuffer(byte[] b, int off, int len) throws IOException {
+
+        int copyLength = len;
+        int copyOffset = off;
+        int bufferPos  = (int) (seekPosition - bufferOffset);
+
+        if (bufferPos < 0) {
+            copyOffset -= bufferPos;
+            copyLength += bufferPos;
+            bufferPos  = 0;
+        }
+
+        int maxLength = (int) (bufferOffset + buffer.length - seekPosition);
+
+        if (maxLength < copyLength) {
+            copyLength = maxLength;
+        }
+
+        System.arraycopy(b, copyOffset, buffer, bufferPos, copyLength);
     }
 
     private long getExtendLength(long position) {
 
-        if (position < 1024 * 1024) {
-            position = getBinaryNormalisedValue(position, position / 4);
+        if (!extendLength) {
+            return position;
+        }
+
+        if (position < 256 * 1024) {
+            position = getBinaryNormalisedCeiling(position, bufferScale);
+        } else if (position < 1024 * 1024) {
+            position = getBinaryNormalisedCeiling(position, bufferScale * 16);
         } else if (position < 16 * 1024 * 1024) {
-            position = getBinaryNormalisedValue(position, position / 16);
+            position = getBinaryNormalisedCeiling(position, bufferSize * 128);
         } else {
-            position = getBinaryNormalisedValue(position, 4 * 1024 * 1024);
+            position = getBinaryNormalisedCeiling(position, bufferSize * 1024);
         }
 
         return position;
@@ -441,61 +441,45 @@ final class ScaledRAFile implements RandomAccessInterface {
 
     private void extendLength(long position) throws IOException {
 
-        long tempSize = position - fileLength;
+        long newSize = getExtendLength(position);
 
-        if (tempSize > 1 << 16) {
-            tempSize = 1 << 16;
-        }
+        if (newSize > fileLength) {
+            try {
+                file.seek(position - 1);
+                file.write(0);
 
-        byte[] temp = new byte[(int) tempSize];
+                fileLength = position;
+            } catch (IOException e) {
+                database.logger.logWarningEvent("seek failed", e);
 
-        try {
-            long pos = fileLength;
-
-            for (; pos < position - tempSize; pos += tempSize) {
-                file.seek(pos);
-                file.write(temp, 0, (int) tempSize);
+                throw e;
             }
-
-            file.seek(pos);
-            file.write(temp, 0, (int) (position - pos));
-
-            realPosition = position;
-            fileLength   = position;
-        } catch (IOException e) {
-            database.logger.logWarningEvent("seek failed", e);
-
-            throw e;
         }
     }
 
     private void resetPointer() {
 
         try {
-            bufferDirty = true;
+            seekPosition = 0;
+            fileLength   = length();
 
             file.seek(seekPosition);
-
-            realPosition = seekPosition;
-            fileLength   = length();
+            readIntoBuffer();
         } catch (Throwable e) {}
     }
 
     /**
-     * promotes divisor to 2**n form and returns a multipe of this that is larger or equal to value
+     * uses 2**scale form and returns a multipe of this that is larger or equal to value
      */
-    long getBinaryNormalisedValue(long value, long divisor) {
+    long getBinaryNormalisedCeiling(long value, int scale) {
 
-        long temp = 4 * 1024;
+        long mask    = 0xffffffffffffffffl << scale;
+        long newSize = value & mask;
 
-        while (divisor > temp) {
-            temp = temp << 1;
+        if (newSize != value) {
+            newSize += 1 << scale;
         }
 
-        divisor = temp;
-
-        long quotient = (value / divisor) + 1;
-
-        return divisor * quotient;
+        return newSize;
     }
 }

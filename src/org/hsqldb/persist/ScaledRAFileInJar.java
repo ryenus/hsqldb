@@ -262,7 +262,9 @@ final class ScaledRAFileInJar implements RandomAccessInterface {
         return true;
     }
 
-    public void setLength(long newLength) throws IOException {}
+    public boolean setLength(long newLength) {
+        return false;
+    }
 
     public Database getDatabase() {
         return null;

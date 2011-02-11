@@ -382,6 +382,8 @@ public class Log {
 
         if (result) {
             checkpointReopen();
+        } else {
+            database.logger.checkpointDisabled = true;
         }
     }
 
@@ -410,7 +412,7 @@ public class Log {
 
         try {
             if (cache != null) {
-                cache.close(true);
+                cache.commitChanges();
                 cache.backupFile();
             }
         } catch (Exception ee) {
@@ -455,7 +457,7 @@ public class Log {
 
         try {
             if (cache != null) {
-                cache.open(false);
+                cache.openShadowFile();
             }
 
             if (dbLogWriter != null) {

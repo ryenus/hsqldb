@@ -87,6 +87,7 @@ public class Logger {
     public SimpleLog appLog;
     private Database database;
     public boolean   checkpointRequired;
+    public boolean   checkpointDue;
     public boolean   checkpointDisabled;
     private boolean  logsStatements;    // false indicates Log is being opened
     private boolean  loggingEnabled;
@@ -818,11 +819,19 @@ public class Logger {
     public synchronized void checkpoint(boolean mode) {
 
         if (logsStatements) {
-            database.logger.logInfoEvent("Checkpoint start");
-            log.checkpoint(mode);
-            database.sessionManager.resetLoggedSchemas();
-            database.logger.logInfoEvent("Checkpoint end");
+            database.lobManager.lock();
+
+            try {
+                database.logger.logInfoEvent("Checkpoint start");
+                log.checkpoint(mode);
+                database.sessionManager.resetLoggedSchemas();
+                database.logger.logInfoEvent("Checkpoint end");
+            } finally {
+                database.lobManager.unlock();
+            }
         }
+
+        checkpointDue = false;
     }
 
     /**
@@ -1087,7 +1096,8 @@ public class Logger {
 
     public synchronized boolean needsCheckpointReset() {
 
-        if (checkpointRequired && !checkpointDisabled) {
+        if (checkpointRequired && !checkpointDue && !checkpointDisabled) {
+            checkpointDue      = true;
             checkpointRequired = false;
 
             return true;
