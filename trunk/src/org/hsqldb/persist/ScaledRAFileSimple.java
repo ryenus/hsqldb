@@ -113,8 +113,15 @@ final class ScaledRAFileSimple implements RandomAccessInterface {
         return true;
     }
 
-    public void setLength(long newLength) throws IOException {
-        file.setLength(newLength);
+    public boolean setLength(long newLength) {
+
+        try {
+            file.setLength(newLength);
+
+            return true;
+        } catch (Throwable t) {
+            return false;
+        }
     }
 
     public Database getDatabase() {

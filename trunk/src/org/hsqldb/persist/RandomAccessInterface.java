@@ -65,5 +65,5 @@ public interface RandomAccessInterface {
 
     boolean ensureLength(long newLong);
 
-    void setLength(long newLength) throws IOException;
+    boolean setLength(long newLength);
 }

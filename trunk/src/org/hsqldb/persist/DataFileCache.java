@@ -31,7 +31,6 @@
 
 package org.hsqldb.persist;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
@@ -102,6 +101,7 @@ public class DataFileCache {
     protected int     cachedRowPadding = 8;
     protected int     initialFreePos   = MIN_INITIAL_FREE_POS;
     protected boolean hasRowInfo       = false;
+    protected int     storeCount;
 
     // reusable input / output streams
     protected RowInputInterface rowIn;
@@ -273,7 +273,7 @@ public class DataFileCache {
 
             throw Error.error(t, ErrorCode.FILE_IO_ERROR,
                               ErrorCode.M_DataFileCache_open, new Object[] {
-                t.getMessage(), dataFileName
+                t.toString(), dataFileName
             });
         }
     }
@@ -355,7 +355,7 @@ public class DataFileCache {
         } catch (Throwable t) {
             throw Error.error(t, ErrorCode.FILE_IO_ERROR,
                               ErrorCode.M_Message_Pair, new Object[] {
-                t.getMessage(), backupFileName
+                t.toString(), backupFileName
             });
         }
     }
@@ -394,58 +394,20 @@ public class DataFileCache {
         writeLock.lock();
 
         try {
-            if (cacheReadonly) {
-                if (dataFile != null) {
-                    dataFile.close();
-
-                    dataFile = null;
-                }
-
-                return;
-            }
-
-            database.logger.logInfoEvent("dataFileCache close start");
-
             if (write) {
-                cache.saveAll();
-                database.logger.logDetailEvent("dataFileCache save data");
+                commitChanges();
+            } else {
+                if (shadowFile != null) {
+                    shadowFile.close();
 
-                if (fileModified || freeBlocks.isModified()) {
-
-                    // set empty
-                    dataFile.seek(LONG_EMPTY_SIZE);
-                    dataFile.writeLong(freeBlocks.getLostBlocksSize());
-
-                    // set end
-                    dataFile.seek(LONG_FREE_POS_POS);
-                    dataFile.writeLong(fileFreePosition);
-
-                    // set saved flag;
-                    dataFile.seek(FLAGS_POS);
-
-                    int flags = dataFile.readInt();
-
-                    flags = BitMap.set(flags, FLAG_ISSAVED);
-
-                    dataFile.seek(FLAGS_POS);
-                    dataFile.writeInt(flags);
-                    database.logger.logDetailEvent("DataFileCache flags");
+                    shadowFile = null;
                 }
             }
 
-            if (dataFile != null) {
-                dataFile.synch();
-                dataFile.close();
-                database.logger.logDetailEvent("dataFileCache file close");
+            dataFile.close();
+            database.logger.logDetailEvent("dataFileCache file close");
 
-                dataFile = null;
-            }
-
-            if (shadowFile != null) {
-                shadowFile.close();
-
-                shadowFile = null;
-            }
+            dataFile = null;
 
             boolean empty = fileFreePosition == initialFreePos;
 
@@ -453,12 +415,107 @@ public class DataFileCache {
                 deleteFile();
                 deleteBackup();
             }
+        } catch (HsqlException e) {
+            throw e;
         } catch (Throwable t) {
             database.logger.logSevereEvent("dataFileCache close failed", t);
 
             throw Error.error(t, ErrorCode.FILE_IO_ERROR,
                               ErrorCode.M_DataFileCache_close, new Object[] {
-                t.getMessage(), dataFileName
+                t.toString(), dataFileName
+            });
+        } finally {
+            writeLock.unlock();
+        }
+    }
+
+    public void clear() {
+
+        writeLock.lock();
+
+        try {
+            cache.clear();
+
+            fileFreePosition = MIN_INITIAL_FREE_POS;
+
+            if (freeBlocks != null) {
+                freeBlocks.clear();
+            }
+
+            initBuffers();
+        } finally {
+            writeLock.unlock();
+        }
+    }
+
+    public void adjustStoreCount(int adjust) {
+
+        writeLock.lock();
+
+        try {
+            storeCount += adjust;
+
+            if (storeCount == 0) {
+                clear();
+            }
+        } finally {
+            writeLock.unlock();
+        }
+    }
+
+    /**
+     * Commits all the changes to the file
+     */
+    public void commitChanges() {
+
+        writeLock.lock();
+
+        try {
+            if (cacheReadonly) {
+                return;
+            }
+
+            database.logger.logInfoEvent("dataFileCache commit start");
+            cache.saveAll();
+            database.logger.logDetailEvent("dataFileCache save data");
+
+            if (fileModified || freeBlocks.isModified()) {
+
+                // set empty
+                dataFile.seek(LONG_EMPTY_SIZE);
+                dataFile.writeLong(freeBlocks.getLostBlocksSize());
+
+                // set end
+                dataFile.seek(LONG_FREE_POS_POS);
+                dataFile.writeLong(fileFreePosition);
+
+                // set saved flag;
+                dataFile.seek(FLAGS_POS);
+
+                int flags = dataFile.readInt();
+
+                flags = BitMap.set(flags, FLAG_ISSAVED);
+
+                dataFile.seek(FLAGS_POS);
+                dataFile.writeInt(flags);
+                database.logger.logDetailEvent("DataFileCache flags");
+            }
+
+            dataFile.synch();
+
+            fileModified = false;
+
+            if (shadowFile != null) {
+                shadowFile.close();
+
+                shadowFile = null;
+            }
+        } catch (Throwable t) {
+            database.logger.logSevereEvent("dataFileCache commit failed", t);
+
+            throw Error.error(t, ErrorCode.FILE_IO_ERROR,
+                              ErrorCode.M_DataFileCache_close, new Object[] {
+                t.toString(), dataFileName
             });
         } finally {
             writeLock.unlock();

@@ -74,6 +74,8 @@ public class RowStoreAVLDisk extends RowStoreAVL {
 
         if (cache != null) {
             rowOut = cache.rowOut.duplicate();
+
+            cache.adjustStoreCount(1);
         }
 
         manager.setStore(table, this);
@@ -274,6 +276,7 @@ public class RowStoreAVLDisk extends RowStoreAVL {
     public void release() {
 
         ArrayUtil.fillArray(accessorList, null);
+        cache.adjustStoreCount(-1);
 
         cache = null;
     }

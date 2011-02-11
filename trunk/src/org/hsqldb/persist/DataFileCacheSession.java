@@ -45,12 +45,6 @@ import org.hsqldb.lib.FileUtil;
  */
 public class DataFileCacheSession extends DataFileCache {
 
-    // We are using persist.Logger-instance-specific FrameworkLogger
-    // because it is Database-instance specific.
-    // If add any static level logging, should instantiate a standard,
-    // context-agnostic FrameworkLogger for that purpose.
-    private int storeCount;
-
     public DataFileCacheSession(Database db, String baseFileName) {
         super(db, baseFileName);
     }
@@ -63,16 +57,11 @@ public class DataFileCacheSession extends DataFileCache {
         this.dataFileName = baseFileName + ".data.tmp";
         this.database     = database;
         fa                = FileUtil.getFileUtil();
-
-        cacheFileScale      =
-        cachedRowPadding    = 32;
-
-        maxCacheRows   = 2048;
-
+        cacheFileScale    = cachedRowPadding = 32;
+        maxCacheRows      = 2048;
 
         int cacheSizeScale = 10;
-
-        int avgRowBytes = 1 << cacheSizeScale;
+        int avgRowBytes    = 1 << cacheSizeScale;
 
         maxCacheBytes   = maxCacheRows * avgRowBytes;
         maxDataFileSize = (long) Integer.MAX_VALUE * cacheFileScale;
@@ -103,10 +92,6 @@ public class DataFileCacheSession extends DataFileCache {
         }
     }
 
-    public void add(CachedObject object) {
-        super.add(object);
-    }
-
     /**
      *  Parameter write is always false. The backing file is simply closed and
      *  deleted.
@@ -116,6 +101,8 @@ public class DataFileCacheSession extends DataFileCache {
         writeLock.lock();
 
         try {
+            cache.clear();
+
             if (dataFile != null) {
                 dataFile.close();
 
@@ -130,51 +117,6 @@ public class DataFileCacheSession extends DataFileCache {
                               ErrorCode.M_DataFileCache_close, new Object[] {
                 t.toString(), dataFileName
             });
-        } finally {
-            writeLock.unlock();
-        }
-    }
-
-    void postClose(boolean keep) {}
-
-    public void clear() {
-
-        writeLock.lock();
-
-        try {
-            cache.clear();
-
-            fileFreePosition = MIN_INITIAL_FREE_POS;
-        } finally {
-            writeLock.unlock();
-        }
-    }
-
-    public void deleteAll() {
-
-        writeLock.lock();
-
-        try {
-            cache.clear();
-
-            fileFreePosition = MIN_INITIAL_FREE_POS;
-
-            initBuffers();
-        } finally {
-            writeLock.unlock();
-        }
-    }
-
-    public void adjustStoreCount(int adjust) {
-
-        writeLock.lock();
-
-        try {
-            storeCount += adjust;
-
-            if (storeCount == 0) {
-                clear();
-            }
         } finally {
             writeLock.unlock();
         }

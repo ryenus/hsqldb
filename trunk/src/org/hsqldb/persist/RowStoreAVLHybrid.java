@@ -86,13 +86,8 @@ public class RowStoreAVLHybrid extends RowStoreAVL implements PersistentStore {
 // test code to force use of cache
 /*
         if (diskBased) {
-            cache = session.sessionData.getResultCache();
-
-            if (cache != null) {
-                isCached = diskBased;
-
-                cache.storeCount++;
-            }
+            this.maxMemoryRowCount = 0;
+            this.useDisk           = true;
         }
 */
 
@@ -105,8 +100,9 @@ public class RowStoreAVLHybrid extends RowStoreAVL implements PersistentStore {
 
         this.session = session;
         this.table   = table;
-        useDisk = true;
-        isCached = true;
+        useDisk      = true;
+        isCached     = true;
+
         resetAccessorKeys(table.getIndexList());
     }
 
@@ -372,7 +368,7 @@ public class RowStoreAVLHybrid extends RowStoreAVL implements PersistentStore {
         super.resetAccessorKeys(keys);
     }
 
-    public void changeToDiskTable(Session session) {
+    public final void changeToDiskTable(Session session) {
 
         cache = ((PersistentStoreCollectionSession) manager).getResultCache();
 

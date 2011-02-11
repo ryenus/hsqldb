@@ -45,7 +45,7 @@ import org.hsqldb.Database;
  * closed and a new one opened, up to the maximum size.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version  1.8.0.5
+ * @version 2.0.1
  * @since 1.7.2
  */
 public final class ScaledRAFileHybrid implements RandomAccessInterface {
@@ -53,8 +53,8 @@ public final class ScaledRAFileHybrid implements RandomAccessInterface {
     final Database        database;
     final String          fileName;
     final boolean         isReadOnly;
-    final boolean         wasNio;
-    long                  maxLength;
+    boolean               wasNio;
+    long                  maxLength = Long.MAX_VALUE;
     RandomAccessInterface store;
 
     public ScaledRAFileHybrid(Database database, String name,
@@ -64,9 +64,12 @@ public final class ScaledRAFileHybrid implements RandomAccessInterface {
         this.fileName   = name;
         this.isReadOnly = readOnly;
 
-        newStore(0);
+        long         fileLength;
+        java.io.File fi = new java.io.File(name);
 
-        this.wasNio = store.wasNio();
+        fileLength = fi.length();
+
+        newStore(fileLength);
     }
 
     public long length() throws IOException {
@@ -123,11 +126,11 @@ public final class ScaledRAFileHybrid implements RandomAccessInterface {
 
     public boolean ensureLength(long newLength) {
 
-        if (store.ensureLength(newLength)) {
+        if (newLength < maxLength && store.ensureLength(newLength)) {
             return true;
         }
 
-        if (!store.wasNio()) {
+        if (wasNio) {
             return false;
         }
 
@@ -140,8 +143,8 @@ public final class ScaledRAFileHybrid implements RandomAccessInterface {
         return store.ensureLength(newLength);
     }
 
-    public void setLength(long newLength) throws IOException {
-        store.setLength(newLength);
+    public boolean setLength(long newLength) {
+        return store.setLength(newLength);
     }
 
     public Database getDatabase() {
@@ -159,24 +162,32 @@ public final class ScaledRAFileHybrid implements RandomAccessInterface {
         if (store != null) {
             currentPosition = store.getFilePointer();
 
+            store.synch();
             store.close();
         }
 
         if (requiredPosition <= database.logger.propNioMaxSize) {
-            try {
-                store = new ScaledRAFileNIO(database, fileName, isReadOnly,
-                                            requiredPosition);
+            if (requiredPosition >= ScaledRAFileNIO.largeBufferSize) {
+                try {
+                    store = new ScaledRAFileNIO(database, fileName,
+                                                isReadOnly, requiredPosition);
 
-                store.seek(currentPosition);
+                    store.seek(currentPosition);
 
-                return;
-            } catch (Throwable e) {
+                    return;
+                } catch (Throwable e) {
 
-                // log event
+                    // log event
+                } finally {
+                    wasNio    = true;
+                    maxLength = Long.MAX_VALUE;
+                }
+            } else {
+                maxLength = ScaledRAFileNIO.largeBufferSize;
             }
         }
 
-        store = new ScaledRAFile(database, fileName, isReadOnly);
+        store = new ScaledRAFile(database, fileName, isReadOnly, true);
 
         store.seek(currentPosition);
     }
