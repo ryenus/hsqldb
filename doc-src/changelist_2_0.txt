@@ -1,3 +1,6 @@
+11 Feb 2011 - SVN 4050
+-- changes to avoid creation of new .data files at checkpiont and allow incremental enlargement of this file
+-- various enhancements and improvements
 3 Feb 2011 - SVN 4040
 -- additions and improvements to INFORMATION_SCHEMA
 1 Feb 2011 - SVN 4033
