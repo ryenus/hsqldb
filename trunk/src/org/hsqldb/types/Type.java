@@ -39,8 +39,10 @@ import org.hsqldb.SchemaObject;
 import org.hsqldb.Session;
 import org.hsqldb.SessionInterface;
 import org.hsqldb.SortAndSlice;
+import org.hsqldb.Tokens;
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
+import org.hsqldb.lib.IntKeyHashMap;
 import org.hsqldb.lib.IntValueHashMap;
 import org.hsqldb.lib.OrderedHashSet;
 import org.hsqldb.rights.Grantee;
@@ -588,14 +590,14 @@ public abstract class Type implements SchemaObject, Cloneable {
         new CharacterType(Types.SQL_VARCHAR, 0);
     public static final CharacterType SQL_VARCHAR_DEFAULT =
         new CharacterType(Types.SQL_VARCHAR,
-                          CharacterType.defaultCharPrecision);
+                          CharacterType.defaultVarcharPrecision);
     public static final ClobType SQL_CLOB =
         new ClobType(ClobType.defaultClobSize);
     public static final CharacterType VARCHAR_IGNORECASE =
         new CharacterType(Types.VARCHAR_IGNORECASE, 0);
     public static final CharacterType VARCHAR_IGNORECASE_DEFAULT =
         new CharacterType(Types.VARCHAR_IGNORECASE,
-                          CharacterType.defaultCharPrecision);
+                          CharacterType.defaultVarcharPrecision);
 
     // binary types
     public static final BitType SQL_BIT = new BitType(Types.SQL_BIT, 1);
@@ -1067,6 +1069,7 @@ public abstract class Type implements SchemaObject, Cloneable {
 
     public static final IntValueHashMap typeAliases;
     public static final IntValueHashMap typeNames;
+    public static final IntKeyHashMap   jdbcConvertTypes;
 
     static {
         typeNames = new IntValueHashMap(37);
@@ -1105,6 +1108,33 @@ public abstract class Type implements SchemaObject, Cloneable {
         typeAliases.put("DATETIME", Types.SQL_TIMESTAMP);
         typeAliases.put("LONGVARBINARY", Types.LONGVARBINARY);
         typeAliases.put("OBJECT", Types.OTHER);
+
+        //
+        jdbcConvertTypes = new IntKeyHashMap(37);
+
+        jdbcConvertTypes.put(Tokens.SQL_CHAR, Type.SQL_CHAR_DEFAULT);
+        jdbcConvertTypes.put(Tokens.SQL_VARCHAR, Type.SQL_VARCHAR_DEFAULT);
+        jdbcConvertTypes.put(Tokens.SQL_LONGVARCHAR, Type.SQL_VARCHAR_DEFAULT);
+        jdbcConvertTypes.put(Tokens.SQL_DATE, Type.SQL_DATE);
+        jdbcConvertTypes.put(Tokens.SQL_TIME, Type.SQL_TIME);
+        jdbcConvertTypes.put(Tokens.SQL_TIMESTAMP, Type.SQL_TIMESTAMP);
+        jdbcConvertTypes.put(Tokens.SQL_TINYINT, Type.TINYINT);
+        jdbcConvertTypes.put(Tokens.SQL_SMALLINT, Type.SQL_SMALLINT);
+        jdbcConvertTypes.put(Tokens.SQL_INTEGER, Type.SQL_INTEGER);
+        jdbcConvertTypes.put(Tokens.SQL_BIGINT, Type.SQL_BIGINT);
+        jdbcConvertTypes.put(Tokens.SQL_REAL, Type.SQL_DOUBLE);
+        jdbcConvertTypes.put(Tokens.SQL_FLOAT, Type.SQL_DOUBLE);
+        jdbcConvertTypes.put(Tokens.SQL_DOUBLE, Type.SQL_DOUBLE);
+        jdbcConvertTypes.put(Tokens.SQL_NUMERIC, Type.SQL_NUMERIC);
+        jdbcConvertTypes.put(Tokens.SQL_DECIMAL, Type.SQL_DECIMAL);
+        jdbcConvertTypes.put(Tokens.SQL_BOOLEAN, Type.SQL_BOOLEAN);
+        jdbcConvertTypes.put(Tokens.SQL_BINARY, Type.SQL_BINARY_DEFAULT);
+        jdbcConvertTypes.put(Tokens.SQL_VARBINARY, Type.SQL_VARBINARY_DEFAULT);
+        jdbcConvertTypes.put(Tokens.SQL_LONGVARBINARY,
+                             Type.SQL_VARBINARY_DEFAULT);
+        jdbcConvertTypes.put(Tokens.SQL_CLOB, Type.SQL_CLOB);
+        jdbcConvertTypes.put(Tokens.SQL_BLOB, Type.SQL_BLOB);
+        jdbcConvertTypes.put(Tokens.SQL_BIT, Type.SQL_BIT);
     }
 
     public static int getTypeNr(String name) {
@@ -1116,6 +1146,10 @@ public abstract class Type implements SchemaObject, Cloneable {
         }
 
         return i;
+    }
+
+    public static Type getTypeForJDBCConvertToken(int name) {
+        return (Type) jdbcConvertTypes.get(name);
     }
 
     public static boolean isSupportedSQLType(int typeNumber) {

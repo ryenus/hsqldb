@@ -171,8 +171,6 @@ public class ParserRoutine extends ParserDML {
             resolveOuterReferencesAndTypes(RangeVariable.emptyArray, e);
 
             return e;
-        } else if (dataType.isLobType()) {
-            throw Error.error(ErrorCode.X_42562);
         }
 
         if (e != null) {
@@ -187,8 +185,19 @@ public class ParserRoutine extends ParserDML {
         }
 
         if (token.tokenType == Tokens.X_VALUE) {
-            Object value = dataType.convertToType(session, token.tokenValue,
-                                                  token.dataType);
+            Object value       = token.tokenValue;
+            Type   valueType   = token.dataType;
+            Type   convertType = dataType;
+
+            if (dataType.typeCode == Types.SQL_CLOB) {
+                convertType = Type.getType(Types.SQL_VARCHAR, null,
+                                           dataType.precision, 0);
+            } else if (dataType.typeCode == Types.SQL_BLOB) {
+                convertType = Type.getType(Types.SQL_VARBINARY, null,
+                                           dataType.precision, 0);
+            }
+
+            value = convertType.convertToType(session, value, valueType);
 
             read();
 
@@ -196,7 +205,7 @@ public class ParserRoutine extends ParserDML {
                 value = dataType.negate(value);
             }
 
-            return new ExpressionValue(value, dataType);
+            return new ExpressionValue(value, convertType);
         } else {
             throw unexpectedToken();
         }

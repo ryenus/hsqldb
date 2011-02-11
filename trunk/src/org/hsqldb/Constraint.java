@@ -847,7 +847,8 @@ public final class Constraint implements SchemaObject {
         }
     }
 
-    void checkCheckConstraint(Session session, Table table, Object data) {
+    void checkCheckConstraint(Session session, Table table,
+                              ColumnSchema column, Object data) {
 
         session.sessionData.currentValue = data;
 
@@ -856,16 +857,16 @@ public final class Constraint implements SchemaObject {
         session.sessionData.currentValue = null;
 
         if (nomatch) {
-            if (table == null) {
-                throw Error.error(ErrorCode.X_23513, name.name);
-            } else {
-                String[] info = new String[] {
-                    name.name, table.getName().name
-                };
+            String[] info = new String[] {
+                name.statementName,
+                table == null ? ""
+                              : table.getName().statementName,
+                column == null ? ""
+                               : column.getName().statementName,
+            };
 
-                throw Error.error(null, ErrorCode.X_23513,
-                                  ErrorCode.CONSTRAINT, info);
-            }
+            throw Error.error(null, ErrorCode.X_23513,
+                              ErrorCode.COLUMN_CONSTRAINT, info);
         }
     }
 
@@ -874,7 +875,7 @@ public final class Constraint implements SchemaObject {
         switch (this.constType) {
 
             case SchemaObject.ConstraintTypes.CHECK : {
-                String[] info = new String[]{ name.name };
+                String[] info = new String[]{ name.statementName };
 
                 return Error.error(null, ErrorCode.X_23513,
                                    ErrorCode.CONSTRAINT, info);
@@ -891,8 +892,8 @@ public final class Constraint implements SchemaObject {
                 }
 
                 String[] info = new String[] {
-                    getName().statementName,
-                    core.refTable.getName().statementName, sb.toString()
+                    name.statementName, core.refTable.getName().statementName,
+                    sb.toString()
                 };
 
                 return Error.error(null, ErrorCode.X_23503,
@@ -912,8 +913,8 @@ public final class Constraint implements SchemaObject {
 
                 return Error.error(null, ErrorCode.X_23505,
                                    ErrorCode.CONSTRAINT, new String[] {
-                    getName().statementName,
-                    core.mainTable.getName().statementName, sb.toString()
+                    name.statementName, core.mainTable.getName().statementName,
+                    sb.toString()
                 });
             }
             default :
@@ -1023,7 +1024,7 @@ public final class Constraint implements SchemaObject {
 
             if (r.getNavigator().getSize() != 0) {
                 String[] info = new String[] {
-                    table.getName().name, ""
+                    name.statementName, table.getName().statementName
                 };
 
                 throw Error.error(null, ErrorCode.X_23513,

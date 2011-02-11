@@ -41,8 +41,9 @@ package org.hsqldb.error;
 public interface ErrorCode {
 
     // neutral placeholder strings
-    int TOKEN_REQUIRED = 1;                        // $$ required: $$
-    int CONSTRAINT     = 2;                        // $$ table: $$
+    int TOKEN_REQUIRED    = 1;                     // $$ required: $$
+    int CONSTRAINT        = 2;                     // $$ table: $$
+    int COLUMN_CONSTRAINT = 3;                     // $$ table: $$ column: $$
 
     //
     int M_ERROR_IN_BINARY_SCRIPT_1 = 21;           // \u0020table $$ row count error : $$ read, needed $$
