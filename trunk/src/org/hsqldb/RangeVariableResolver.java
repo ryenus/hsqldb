@@ -797,18 +797,18 @@ public class RangeVariableResolver {
             }
         }
 
-        Expression e = null;
+        Expression exclude = null;
 
         for (int i = 0; i < conditionsArray.length; i++) {
             RangeVariableConditions c = conditionsArray[i];
 
-            conditionsArray[i].excludeConditions = e;
+            conditionsArray[i].excludeConditions = exclude;
 
-            if (i > 1) {
-                Expression lastExpr = conditionsArray[i - 1].excludeConditions;
-
-                e = new ExpressionLogical(OpTypes.OR, e, lastExpr);
+            if ( i == conditionsArray.length - 1) {
+                break;
             }
+
+            Expression e = null;
 
             if (c.indexCond != null) {
                 for (int k = 0; k < c.indexedColumnCount; k++) {
@@ -818,9 +818,11 @@ public class RangeVariableResolver {
 
             e = ExpressionLogical.andExpressions(e, c.indexEndCondition);
             e = ExpressionLogical.andExpressions(e, c.nonIndexCondition);
+
+            exclude = ExpressionLogical.orExpressions(e, exclude);
         }
 
-        if (e != null) {
+        if (exclude != null) {
 
 //            return false;
         }
