@@ -842,7 +842,7 @@ public class Session implements SessionInterface {
 
     void releaseInternalConnection() {
 
-        if (sessionContext.depth == 1) {
+        if (sessionContext.depth == 0) {
             JDBCDriver.driverInstance.threadConnection.set(null);
         }
     }

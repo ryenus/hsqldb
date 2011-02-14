@@ -116,12 +116,12 @@ public class RowAVLDisk extends RowAVL {
     /**
      *  Flag indicating unwritten data.
      */
-    protected boolean hasDataChanged;
+    private boolean hasDataChanged;
 
     /**
      *  Flag indicating Node data has changed.
      */
-    boolean hasNodesChanged;
+    private boolean hasNodesChanged;
 
     /**
      *  Constructor for new Rows.  Variable hasDataChanged is set to true in

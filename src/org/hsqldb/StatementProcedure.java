@@ -31,6 +31,8 @@
 
 package org.hsqldb;
 
+import java.sql.Connection;
+
 import org.hsqldb.ParserDQL.CompileContext;
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
@@ -170,12 +172,18 @@ public class StatementProcedure extends StatementDMQL {
         if (procedure.isPSM()) {
             result = executePSMProcedure(session);
         } else {
-            result = executeJavaProcedure(session);
+            Connection connection = session.getInternalConnection();
+
+            result = executeJavaProcedure(session, connection);
         }
 
         Object[] callArguments = session.sessionContext.routineArguments;
 
         session.sessionContext.pop();
+
+        if (!procedure.isPSM()) {
+            session.releaseInternalConnection();
+        }
 
         if (result.isError()) {
             return result;
@@ -240,12 +248,11 @@ public class StatementProcedure extends StatementDMQL {
         return result;
     }
 
-    Result executeJavaProcedure(Session session) {
+    Result executeJavaProcedure(Session session, Connection connection) {
 
         Result   result        = Result.updateZeroResult;
         Object[] callArguments = session.sessionContext.routineArguments;
         Object[] data = procedure.convertArgsToJava(session, callArguments);
-        Object   connection    = session.getInternalConnection();
 
         if (procedure.javaMethodWithConnection) {
             data[0] = connection;
@@ -253,7 +260,6 @@ public class StatementProcedure extends StatementDMQL {
 
         result = procedure.invokeJavaMethod(session, data);
 
-        session.releaseInternalConnection();
         procedure.convertArgsToSQL(session, callArguments, data);
 
         return result;
