@@ -1716,10 +1716,6 @@ public class IndexAVL implements Index {
         int                   distinctCount;
         boolean               single;
         boolean               reversed;
-        IndexRowIterator      last;
-        IndexRowIterator      next;
-        IndexRowIterator      lastInSession;
-        IndexRowIterator      nextInSession;
 
         /**
          * When session == null, rows from all sessions are returned
