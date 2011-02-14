@@ -133,6 +133,7 @@ public class ScriptRunner {
                                            StatementTypes.X_SQL_DATA_CHANGE,
                                            null);
 
+        dummy.setCompileTimestamp(Long.MAX_VALUE);
         database.setReferentialIntegrity(false);
 
         try {
@@ -172,8 +173,7 @@ public class ScriptRunner {
                         Statement cs;
 
                         try {
-                            cs = current.compileStatement(
-                                statement, ResultProperties.defaultPropsValue);
+                            cs = current.compileStatement(statement);
 
                             if (database.getProperties().isVersion18()) {
 

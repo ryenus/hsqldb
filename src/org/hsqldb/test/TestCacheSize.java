@@ -83,7 +83,7 @@ public class TestCacheSize {
     protected String filepath = "/hsql/testcache/test";
 
     // frequent reporting of progress
-    boolean reportProgress = false;
+    boolean reportProgress = true;
 
     // type of the big table {MEMORY | CACHED | TEXT | ""}
     String  tableType      = "CACHED";
@@ -104,11 +104,11 @@ public class TestCacheSize {
     int     deleteWhileInsertInterval = 10000;
 
     // size of the tables used in test
-    int bigrows = 1024000;
+    int bigrows = 4*256000;
 
     // number of ops
-    int bigops    = 1024000;
-    int smallops  = 256000;
+    int bigops    = 4*256000;
+    int smallops  = 32000;
     int smallrows = 0xfff;
 
     // if the extra table needs to be created and filled up
@@ -171,13 +171,15 @@ public class TestCacheSize {
                         user, password);
                 sStatement = cConnection.createStatement();
 
-                sStatement.execute("SET FILES WRITE DELAY " + 2);
+//                sStatement.execute("SET FILES WRITE DELAY " + 2);
                 sStatement.execute("SET FILES DEFRAG " + 0);
                 sStatement.execute("SET FILES LOG SIZE " + 0);
+
+//                sStatement.execute("SET FILES LOG FALSE");
                 sStatement.execute("SET DATABASE EVENT LOG LEVEL 1");
 
                 int cacheRows = (1 << cacheScale) * 3;
-                int cacheSize = ((1 << cacheSizeScale) / 1024) * cacheRows;
+                int cacheSize = (1 << cacheSizeScale) * cacheRows / 1024;
 
                 sStatement.execute("SET FILES CACHE ROWS " + cacheRows);
                 sStatement.execute("SET FILES CACHE SIZE " + cacheSize);
@@ -645,6 +647,23 @@ public class TestCacheSize {
             System.out.println("count time (index on id) " + rs.getInt(1)
                                + " rows  -- " + time + " ms -- " + rate
                                + " tps");
+
+            sw.zero();
+
+            sStatement.execute("SELECT count(*) from TEST");
+
+            rs = sStatement.getResultSet();
+
+            rs.next();
+
+            time = sw.elapsedTime();
+            rate = (1000L) / (time + 1);
+
+            storeResult("count (index on id)", rs.getInt(1), time, rate);
+            System.out.println("count time (full count) " + rs.getInt(1)
+                               + " rows  -- " + time + " ms -- " + rate
+                               + " tps");
+
         } catch (SQLException e) {}
     }
 

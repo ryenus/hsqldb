@@ -185,7 +185,7 @@ public class TestStoredProcedure extends TestBase {
         st.execute("declare varone int default 0;");
         st.execute(
             "create procedure proc_inout_result (inout intp int) "
-            + " language java reads sql data external name 'CLASSPATH:org.hsqldb.test.Test01JRT.procWithResultOne'");
+            + " language java reads sql data external name 'CLASSPATH:org.hsqldb.test.TestStoredProcedure.procWithResultOne'");
 
         CallableStatement cs =
             conn.prepareCall("call proc_inout_result(varone)");
@@ -205,6 +205,43 @@ public class TestStoredProcedure extends TestBase {
     }
 
     public void testFour() throws SQLException {
+
+        Connection conn = newConnection();
+        Statement  st   = conn.createStatement();
+
+        st.execute("declare varone int default 0;");
+        st.execute(
+            "create procedure proc_inout_result_two (inout intp int) "
+            + " language java reads sql data dynamic result sets 2 external name 'CLASSPATH:org.hsqldb.test.TestStoredProcedure.procWithResultTwo'");
+
+        CallableStatement cs =
+            conn.prepareCall("call proc_inout_result_two(varone)");
+
+        boolean isResult = cs.execute();
+
+        assertFalse(isResult);
+
+        cs.getMoreResults();
+
+        ResultSet rs = cs.getResultSet();
+
+        rs.next();
+        assertEquals(rs.getString(1), "SYSTEM_LOBS");
+        assertEquals(rs.getString(2), "LOB_IDS");
+
+        rs.close();
+
+        if (cs.getMoreResults()) {
+            rs = cs.getResultSet();
+            rs.next();
+            assertEquals(rs.getString(1), "SYSTEM_LOBS");
+            assertEquals(rs.getString(2), "LOBS");
+
+            rs.close();
+        }
+    }
+
+    public void testFive() throws SQLException {
 
         Connection conn = newConnection();
         Statement  st   = conn.createStatement();
@@ -241,7 +278,7 @@ public class TestStoredProcedure extends TestBase {
 
     }
 
-    public void testFive() throws SQLException {
+    public void testSix() throws SQLException {
 
         Connection conn = newConnection();
         Statement  st   = conn.createStatement();
@@ -347,6 +384,28 @@ public class TestStoredProcedure extends TestBase {
 
         resultparam[0] = st.executeQuery(
             "select table_schema, table_name from information_schema.tables where table_name='LOB_IDS' and table_schema='SYSTEM_LOBS'");
+    }
+
+    public static void procWithResultTwo(Connection conn, Integer[] intparam,
+                                         ResultSet[] resultparamOne, ResultSet[] resultparamTwo)
+                                         throws SQLException {
+
+        conn.setTransactionIsolation(Connection.TRANSACTION_READ_COMMITTED);
+
+        Statement st = conn.createStatement();
+        ResultSet rs = st.executeQuery(
+            "select count(*) from information_schema.columns where table_name='LOB_IDS' and table_schema='SYSTEM_LOBS'");
+
+        if (rs.next()) {
+            intparam[0] = rs.getInt(1);
+
+            rs.close();
+        }
+
+        resultparamOne[0] = st.executeQuery(
+            "select table_schema, table_name from information_schema.tables where table_name='LOB_IDS' and table_schema='SYSTEM_LOBS'");
+        resultparamTwo[0] = st.executeQuery(
+            "select table_schema, table_name from information_schema.tables where table_name='LOBS' and table_schema='SYSTEM_LOBS'");
     }
 
     public static void procTest1(Connection conn)

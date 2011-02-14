@@ -83,9 +83,6 @@ public final class StatementManager {
     /** Map: Schema id (int) => {Map: SQL String => Compiled Statement id (long)} */
     private IntKeyHashMap schemaMap;
 
-    /** Map: Compiled Statement id (int) => SQL String */
-    private LongKeyHashMap sqlLookup;
-
     /** Map: Compiled statment id (int) => CompiledStatement object. */
     private LongKeyHashMap csidMap;
 
@@ -105,7 +102,6 @@ public final class StatementManager {
 
         this.database = database;
         schemaMap     = new IntKeyHashMap();
-        sqlLookup     = new LongKeyHashMap();
         csidMap       = new LongKeyHashMap();
         next_cs_id    = 0;
     }
@@ -116,7 +112,6 @@ public final class StatementManager {
     synchronized void reset() {
 
         schemaMap.clear();
-        sqlLookup.clear();
         csidMap.clear();
 
         next_cs_id = 0;
@@ -175,41 +170,78 @@ public final class StatementManager {
 
         if (cs.getCompileTimestamp()
                 < database.schemaManager.getSchemaChangeTimestamp()) {
-            String   sql       = (String) sqlLookup.get(csid);
-            HsqlName oldSchema = session.getCurrentSchemaHsqlName();
+            cs = recompileStatement(session, cs);
 
-            // revalidate with the original schema
-            try {
-                HsqlName schema = cs.getSchemaName();
-
-                // checks the old schema exists
-                session.setSchema(schema.name);
-
-                StatementDML si = null;
-
-                if (cs.generatedResultMetaData() != null) {
-                    si = (StatementDML) cs;
-                }
-
-                cs = session.compileStatement(sql, cs.getResultProperties());
-
-                cs.setID(csid);
-                cs.setCompileTimestamp(
-                    database.txManager.getGlobalChangeTimestamp());
-
-                if (si != null) {
-                    cs.setGeneratedColumnInfo(si.generatedType,
-                                              si.generatedInputMetaData);
-                }
-
-                csidMap.put(csid, cs);
-            } catch (Throwable t) {
+            if (cs == null) {
                 freeStatement(csid);
 
                 return null;
-            } finally {
-                session.setCurrentSchemaHsqlName(oldSchema);
             }
+
+            csidMap.put(csid, cs);
+        }
+
+        return cs;
+    }
+
+    /**
+     * Recompiles a statement
+     */
+    public synchronized Statement getStatement(Session session,
+            Statement statement) {
+
+        long      csid = statement.getID();
+        Statement cs   = (Statement) csidMap.get(csid);
+
+        if (cs != null) {
+            return getStatement(session, csid);
+        }
+
+        if (statement.getCompileTimestamp()
+                < database.schemaManager.getSchemaChangeTimestamp()) {
+            cs = recompileStatement(session, statement);
+
+            if (cs == null) {
+                freeStatement(csid);
+
+                return null;
+            }
+        }
+
+        return cs;
+    }
+
+    private Statement recompileStatement(Session session, Statement cs) {
+
+        HsqlName oldSchema = session.getCurrentSchemaHsqlName();
+
+        // revalidate with the original schema
+        try {
+            HsqlName schema = cs.getSchemaName();
+
+            // checks the old schema exists
+            session.setSchema(schema.name);
+
+            StatementDML si = null;
+
+            if (cs.generatedResultMetaData() != null) {
+                si = (StatementDML) cs;
+            }
+
+            cs = session.compileStatement(cs.getSQL(),
+                                          cs.getResultProperties());
+
+            cs.setCompileTimestamp(
+                database.txManager.getGlobalChangeTimestamp());
+
+            if (si != null) {
+                cs.setGeneratedColumnInfo(si.generatedType,
+                                          si.generatedInputMetaData);
+            }
+        } catch (Throwable t) {
+            return null;
+        } finally {
+            session.setCurrentSchemaHsqlName(oldSchema);
         }
 
         return cs;
@@ -243,7 +275,6 @@ public final class StatementManager {
             }
 
             sqlMap.put(cs.getSQL(), csid);
-            sqlLookup.put(csid, cs.getSQL());
         }
 
         cs.setID(csid);
@@ -276,7 +307,7 @@ public final class StatementManager {
             int schemaid = cs.getSchemaName().hashCode();
             LongValueHashMap sqlMap =
                 (LongValueHashMap) schemaMap.get(schemaid);
-            String sql = (String) sqlLookup.remove(csid);
+            String sql = (String) cs.getSQL();
 
             sqlMap.remove(sql);
         }

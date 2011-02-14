@@ -842,7 +842,7 @@ public class Session implements SessionInterface {
 
     void releaseInternalConnection() {
 
-        if (sessionContext.depth == 0) {
+        if (sessionContext.depth == 1) {
             JDBCDriver.driverInstance.threadConnection.set(null);
         }
     }
@@ -908,6 +908,18 @@ public class Session implements SessionInterface {
         return cs;
     }
 
+    public Statement compileStatement(String sql) {
+
+        parser.reset(sql);
+
+        Statement cs =
+            parser.compileStatement(ResultProperties.defaultPropsValue);
+
+        cs.setCompileTimestamp(Long.MAX_VALUE);
+
+        return cs;
+    }
+
     /**
      * Executes the command encapsulated by the cmd argument.
      *
@@ -947,6 +959,8 @@ public class Session implements SessionInterface {
                     long csid = cmd.getStatementID();
 
                     cs = statementManager.getStatement(this, csid);
+
+                    cmd.setStatement(cs);
 
                     if (cs == null) {
 
@@ -1184,6 +1198,8 @@ public class Session implements SessionInterface {
         for (int i = 0; i < list.size(); i++) {
             Statement cs = (Statement) list.get(i);
 
+            cs.setCompileTimestamp(
+                database.txManager.getGlobalChangeTimestamp());
             cs.setGeneratedColumnInfo(cmd.getGeneratedResultType(),
                                       cmd.getGeneratedResultMetaData());
 
@@ -1197,22 +1213,17 @@ public class Session implements SessionInterface {
         return result;
     }
 
-    public Result executeDirectStatement(String sql, int props) {
-
-        Statement cs;
-
-        parser.reset(sql);
+    public Result executeDirectStatement(String sql) {
 
         try {
-            cs = parser.compileStatement(props);
+            Statement cs = compileStatement(sql);
+            Result result = executeCompiledStatement(cs,
+                ValuePool.emptyObjectArray);
+
+            return result;
         } catch (HsqlException e) {
             return Result.newErrorResult(e);
         }
-
-        Result result = executeCompiledStatement(cs,
-            ValuePool.emptyObjectArray);
-
-        return result;
     }
 
     public Result executeCompiledStatement(Statement cs, Object[] pvals) {
@@ -1269,6 +1280,10 @@ public class Session implements SessionInterface {
             actionIndex = rowActionList.size();
 
             database.txManager.beginAction(this, cs);
+
+            if (sessionContext.currentStatement == null) {
+                return Result.newErrorResult(Error.error(ErrorCode.X_07502));
+            }
 
             if (abortTransaction) {
                 rollback(false);
@@ -1444,8 +1459,7 @@ public class Session implements SessionInterface {
             String   sql  = (String) data[0];
 
             try {
-                in = executeDirectStatement(
-                    sql, ResultProperties.defaultPropsValue);
+                in = executeDirectStatement(sql);
             } catch (Throwable t) {
                 in = Result.newErrorResult(t);
 

@@ -115,8 +115,7 @@ public class ScriptReaderText extends ScriptReaderBase {
             }
 
             try {
-                cs = session.compileStatement(
-                    statement, ResultProperties.defaultPropsValue);
+                cs = session.compileStatement(statement);
                 result = session.executeCompiledStatement(cs,
                         ValuePool.emptyObjectArray);
             } catch (HsqlException e) {

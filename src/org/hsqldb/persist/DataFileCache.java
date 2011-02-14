@@ -642,8 +642,7 @@ public class DataFileCache {
             boolean result = dataFile.ensureLength(newFreePosition);
 
             if (!result) {
-
-                // throw with further database access consequences
+                throw Error.error(ErrorCode.DATA_FILE_IS_FULL);
             }
 
             fileFreePosition = newFreePosition;

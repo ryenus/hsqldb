@@ -673,6 +673,16 @@ implements TransactionManager {
         writeLock.lock();
 
         try {
+            if (cs.getCompileTimestamp()
+                    < database.schemaManager.getSchemaChangeTimestamp()) {
+                cs = session.statementManager.getStatement(session, cs);
+                session.sessionContext.currentStatement = cs;
+
+                if (cs == null) {
+                    return;
+                }
+            }
+
             session.isPreTransaction = true;
 
             if (!isLockedMode && !cs.isCatalogChange()) {

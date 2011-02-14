@@ -275,6 +275,16 @@ implements TransactionManager {
         writeLock.lock();
 
         try {
+            if (cs.getCompileTimestamp()
+                    < database.schemaManager.getSchemaChangeTimestamp()) {
+                cs = session.statementManager.getStatement(session, cs);
+                session.sessionContext.currentStatement = cs;
+
+                if (cs == null) {
+                    return;
+                }
+            }
+
             boolean canProceed = setWaitedSessionsTPL(session, cs);
 
             if (canProceed) {
