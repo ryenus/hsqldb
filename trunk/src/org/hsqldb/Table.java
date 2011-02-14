@@ -2239,11 +2239,18 @@ public class Table extends TableBase implements SchemaObject {
             }
 
             if (colNotNull[i] && data[i] == null) {
-                Constraint c              = getNotNullConstraintForColumn(i);
-                String     constraintName = c == null ? ""
-                                                      : c.getName().name;
+                String     constraintName;
+                Constraint c = getNotNullConstraintForColumn(i);
 
-                column = getColumn(i);
+                if (c == null) {
+                    if (ArrayUtil.find(this.primaryKeyCols, i) > -1) {
+                        c = this.getPrimaryConstraint();
+                    }
+                }
+
+                constraintName = c == null ? ""
+                                           : c.getName().name;
+                column         = getColumn(i);
 
                 String[] info = new String[] {
                     constraintName, tableName.statementName,

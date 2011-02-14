@@ -60,6 +60,7 @@ public class StatementResultUpdate extends StatementDML {
         super();
 
         writeTableNames = new HsqlName[1];
+        setCompileTimestamp(Long.MAX_VALUE);
     }
 
     public String describe(Session session) {

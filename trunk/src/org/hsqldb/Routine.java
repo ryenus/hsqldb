@@ -848,7 +848,7 @@ public class Routine implements SchemaObject, Cloneable {
             }
         }
 
-        for (; i + extraArg < callArguments.length; i++) {
+        for (; i + extraArg < data.length; i++) {
             data[i + extraArg] = new java.sql.ResultSet[1];
         }
 
@@ -874,16 +874,17 @@ public class Routine implements SchemaObject, Cloneable {
             callArguments[i] = types[i].convertJavaToSQL(session, value);
         }
 
+        Result head = null;
         for (; i + extraArg < data.length; i++) {
-            ResultSet rs = ((ResultSet[]) data[i])[0];
+            ResultSet rs = ((ResultSet[]) data[i + extraArg])[0];
 
             if (rs != null) {
                 if (rs instanceof JDBCResultSet) {
-                    Result head = (Result) callArguments[i - extraArg];
                     Result r    = ((JDBCResultSet) rs).result;
 
                     if (head == null) {
-                        callArguments[i - extraArg] = r;
+                        callArguments[i] = r;
+                        head = r;
                     } else {
                         head.addChainedResult(r);
                     }
@@ -1061,9 +1062,8 @@ public class Routine implements SchemaObject, Cloneable {
             if (routine.isProcedure()) {
                 for (int j = offset; j < params.length; j++) {
                     if (params[j].isArray()
-                            && params[j].getComponentType().equals(
-                                java.sql.ResultSet.class)) {
-                        matchedParamCount = j + offset;
+                            && java.sql.ResultSet.class.isAssignableFrom(params[j].getComponentType())) {
+                        matchedParamCount = j - offset;
 
                         break;
                     }
