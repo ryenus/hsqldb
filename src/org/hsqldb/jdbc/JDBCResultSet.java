@@ -1600,6 +1600,8 @@ public class JDBCResultSet implements ResultSet {
 
         switch (sourceType.typeCode) {
 
+            case Types.SQL_ARRAY :
+                return getArray(columnIndex);
             case Types.SQL_DATE :
                 return getDate(columnIndex);
             case Types.SQL_TIME :
