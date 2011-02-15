@@ -977,6 +977,8 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
 
         switch (sourceType.typeCode) {
 
+            case Types.SQL_ARRAY :
+                return getArray(parameterIndex);
             case Types.SQL_DATE :
                 return getDate(parameterIndex);
             case Types.SQL_TIME :
@@ -4045,7 +4047,7 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      *  <code>Writer</code> or <code>OutputStream</code> has not been closed for the <code>SQLXML</code> object
      * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
      * this method
-     * 
+     *
      * @since JDK 1.6, HSQLDB 2.0
      */
 //#ifdef JAVA6

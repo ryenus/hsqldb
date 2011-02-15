@@ -56,6 +56,7 @@ import java.util.Calendar;
 
 //#ifdef JAVA4
 import java.sql.ParameterMetaData;
+import java.util.ArrayList;
 
 //#endif JAVA4
 //#ifdef JAVA6
@@ -4202,6 +4203,27 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
 
                     return;
                 }
+
+                if (o instanceof ArrayList) {
+                    o = ((ArrayList) o).toArray();
+                }
+
+                if (o instanceof Object[]) {
+
+                    Type baseType = outType.collectionBaseType();
+                    Object[] array = (Object[]) o;
+
+                    Object[] data = new Object[array.length];
+
+                    for (int j = 0; j < data.length; j++) {
+                        data[j] = baseType.convertJavaToSQL(session, array[j]);
+                    }
+
+                    parameterValues[i] = data;
+
+                    return;
+                }
+
                 Util.throwError(Error.error(ErrorCode.X_42563));
             case Types.SQL_BLOB :
                 setBlobParameter(i + 1, o);
