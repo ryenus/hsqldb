@@ -32,6 +32,7 @@ package org.hsqldb.testbase;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.io.Reader;
 import java.io.StringWriter;
@@ -115,6 +116,7 @@ public abstract class BaseTestCase extends junit.framework.TestCase {
     private static final ConnectionFactory.EventListener s_embeddedDatabaseCloser =
             new ConnectionFactory.EventListener() {
 
+                @Override
                 public void closedRegisteredObjects(ConnectionFactory source) {
                     org.hsqldb.DatabaseManager.closeDatabases(-1);
                 }
@@ -203,6 +205,7 @@ public abstract class BaseTestCase extends junit.framework.TestCase {
     protected static void assertJavaArrayEquals(Object expected, Object actual) throws Exception {
         switch (getComponentDescriptor(expected)) {
             case 'X': {
+                // null component descriptor
                 if (actual != null) {
                     fail(arraysNotEqualMessage(expected, actual));
                 }
@@ -344,6 +347,7 @@ public abstract class BaseTestCase extends junit.framework.TestCase {
             for (int i = 1; i <= columnCount; i++) {
                 Object expObject = expected.getObject(i);
                 Object actObject = actual.getObject(i);
+                // TODO java.sql.Array, java.sql.Struct, etc.
                 if (expObject != null && expObject.getClass().isArray()) {
                     assertJavaArrayEquals(expObject, actObject);
                 } else if (expObject instanceof Blob) {
@@ -444,7 +448,7 @@ public abstract class BaseTestCase extends junit.framework.TestCase {
             }
         } else {
             // L...; is JMV field descriptor
-            return 'O';
+            return 'O'; // non-array object instance
         }
     }
 
@@ -704,17 +708,22 @@ public abstract class BaseTestCase extends junit.framework.TestCase {
     }
 
     protected boolean isPrint() {
-        return getBooleanProperty("print.test.print", true);
+        return getBooleanProperty("print.test.output", true);
     }
 
     /**
      * to standard output.
      * @param msg to print
      */
-    @SuppressWarnings("UseOfSystemOutOrSystemErr")
     protected void print(Object msg) {
         if (isPrint()) {
-            System.out.print(msg);
+            final PrintStream ps = System.out;
+
+            if (ps != null) {
+                synchronized (ps) {
+                    ps.print(msg);
+                }
+            }
         }
     }
 
@@ -793,7 +802,6 @@ public abstract class BaseTestCase extends junit.framework.TestCase {
 //    protected void printTestLabel(final Object msg) {
 //        printTestLabel0(null, msg);
 //    }
-
     /**
      * to standard output.
      * @param method
