@@ -149,7 +149,7 @@ public class JDBCCallableStatementTest extends BaseJdbcTestCase {
         try {
             stmt.registerOutParameter(parameterIndex, sqlType);
         } catch (Exception e) {
-            fail(e.getMessage());
+            fail(e.toString());
         }
     }
 
@@ -175,7 +175,7 @@ public class JDBCCallableStatementTest extends BaseJdbcTestCase {
 
             assertEquals(expResult, result);
         } catch (Exception e) {
-            fail(e.getMessage());
+            fail(e.toString());
         }
     }
 
@@ -199,7 +199,7 @@ public class JDBCCallableStatementTest extends BaseJdbcTestCase {
 
             result = stmt.getString(1);
         } catch (Exception ex) {
-            fail(ex.getMessage());
+            fail(ex.toString());
         }
 
         assertEquals(expResult, result);
@@ -225,7 +225,7 @@ public class JDBCCallableStatementTest extends BaseJdbcTestCase {
 
             result = stmt.getBoolean(1);
         } catch (Exception ex) {
-            fail(ex.getMessage());
+            fail(ex.toString());
         }
 
         assertEquals(expResult, result);
@@ -251,7 +251,7 @@ public class JDBCCallableStatementTest extends BaseJdbcTestCase {
 
             result = stmt.getByte(1);
         } catch (Exception ex) {
-            fail(ex.getMessage());
+            fail(ex.toString());
         }
 
         assertEquals(expResult, result);
@@ -277,7 +277,7 @@ public class JDBCCallableStatementTest extends BaseJdbcTestCase {
 
             result = stmt.getShort(1);
         } catch (Exception ex) {
-            fail(ex.getMessage());
+            fail(ex.toString());
         }
 
         assertEquals(expResult, result);
@@ -303,7 +303,7 @@ public class JDBCCallableStatementTest extends BaseJdbcTestCase {
 
             result = stmt.getInt(1);
         } catch (Exception ex) {
-            fail(ex.getMessage());
+            fail(ex.toString());
         }
 
         assertEquals(expResult, result);
@@ -329,7 +329,7 @@ public class JDBCCallableStatementTest extends BaseJdbcTestCase {
 
             result = stmt.getLong(1);
         } catch (Exception ex) {
-            fail(ex.getMessage());
+            fail(ex.toString());
         }
 
         assertEquals(expResult, result);
@@ -355,7 +355,7 @@ public class JDBCCallableStatementTest extends BaseJdbcTestCase {
 
             result = stmt.getFloat(1);
         } catch (Exception ex) {
-            fail(ex.getMessage());
+            fail(ex.toString());
         }
 
         assertEquals(expResult, result);
@@ -381,7 +381,7 @@ public class JDBCCallableStatementTest extends BaseJdbcTestCase {
 
             result = stmt.getDouble(1);
         } catch (Exception ex) {
-            fail(ex.getMessage());
+            fail(ex.toString());
         }
 
         assertEquals(expResult, result);
@@ -393,7 +393,7 @@ public class JDBCCallableStatementTest extends BaseJdbcTestCase {
 
             result = stmt.getDouble(1);
         } catch (Exception ex) {
-            fail(ex.getMessage());
+            fail(ex.toString());
         }
 
         assertEquals(expResult, result);
@@ -419,7 +419,7 @@ public class JDBCCallableStatementTest extends BaseJdbcTestCase {
 
             result = stmt.getBigDecimal(1);
         } catch (Exception ex) {
-            fail(ex.getMessage());
+            fail(ex.toString());
         }
 
         assertEquals(expResult, result);
@@ -448,7 +448,7 @@ public class JDBCCallableStatementTest extends BaseJdbcTestCase {
 
             result = stmt.getBytes(1);
         } catch (Exception ex) {
-            fail(ex.getMessage());
+            fail(ex.toString());
         }
 
         assertEquals(expResult, result);
@@ -474,7 +474,7 @@ public class JDBCCallableStatementTest extends BaseJdbcTestCase {
 
             result = stmt.getDate(1);
         } catch (Exception ex) {
-            fail(ex.getMessage());
+            fail(ex.toString());
         }
 
         assertEquals(expResult, result);
@@ -500,7 +500,7 @@ public class JDBCCallableStatementTest extends BaseJdbcTestCase {
 
             result = stmt.getTime(1);
         } catch (Exception ex) {
-            fail(ex.getMessage());
+            fail(ex.toString());
         }
 
         assertEquals(expResult, result);
@@ -526,7 +526,7 @@ public class JDBCCallableStatementTest extends BaseJdbcTestCase {
 
             result = stmt.getTimestamp(1);
         } catch (Exception ex) {
-            fail(ex.getMessage());
+            fail(ex.toString());
         }
 
         assertEquals(expResult, result);
@@ -554,7 +554,7 @@ public class JDBCCallableStatementTest extends BaseJdbcTestCase {
             temp = stmt.getObject(1);
             result = (byte[]) temp;
         } catch (Exception ex) {
-            fail(ex.getMessage());
+            fail(ex.toString());
         }
 
         assertEquals(expResult, result);
@@ -595,7 +595,7 @@ public class JDBCCallableStatementTest extends BaseJdbcTestCase {
 
             result = stmt.getBlob(1);
         } catch (Exception ex) {
-            fail(ex.getMessage());
+            fail(ex.toString());
         }
 
         assertEquals(expResult, result.getBytes(1, (int) result.length()));
@@ -621,7 +621,7 @@ public class JDBCCallableStatementTest extends BaseJdbcTestCase {
 
             result = stmt.getClob(1);
         } catch (Exception ex) {
-            fail(ex.getMessage());
+            fail(ex.toString());
         }
 
         assertEquals(expResult, result.getSubString(1, (int) result.length()));
@@ -652,7 +652,7 @@ public class JDBCCallableStatementTest extends BaseJdbcTestCase {
 
             actResult = stmt.getArray(1).getArray();
         } catch (Exception ex) {
-            fail(ex.getMessage());
+            fail(ex.toString());
         }
 
         assertJavaArrayEquals(expResult, actResult);
@@ -1335,7 +1335,7 @@ public class JDBCCallableStatementTest extends BaseJdbcTestCase {
 
             result = stmt.getNClob(1);
         } catch (Exception ex) {
-            fail(ex.getMessage());
+            fail(ex.toString());
         }
 
         assertEquals(expResult, result);
@@ -1389,7 +1389,7 @@ public class JDBCCallableStatementTest extends BaseJdbcTestCase {
 
             result = stmt.getNString(1);
         } catch (Exception ex) {
-            fail(ex.getMessage());
+            fail(ex.toString());
         }
 
         assertEquals(expResult, result);
@@ -1415,7 +1415,7 @@ public class JDBCCallableStatementTest extends BaseJdbcTestCase {
 
             result = stmt.getNCharacterStream(1);
         } catch (Exception ex) {
-            fail(ex.getMessage());
+            fail(ex.toString());
         }
     }
 
@@ -1439,7 +1439,7 @@ public class JDBCCallableStatementTest extends BaseJdbcTestCase {
 
             result = stmt.getCharacterStream(1);
         } catch (Exception ex) {
-            fail(ex.getMessage());
+            fail(ex.toString());
         }
     }
 

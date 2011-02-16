@@ -147,7 +147,7 @@ public class JDBCBlobTest extends BaseJdbcTestCase {
         try {
             result = blob.setBytes(1, bytes);
         } catch (Exception e) {
-            fail(e.getMessage());
+            fail(e.toString());
         }
 
         assertEquals(1, result);
@@ -173,7 +173,7 @@ public class JDBCBlobTest extends BaseJdbcTestCase {
 
             assertJavaArrayEquals(new byte[10], blob.getBytes(1, 10));
         } catch (SQLException e) {
-            fail(e.getMessage());
+            fail(e.toString());
         }
 
     }

@@ -100,7 +100,7 @@ public class JDBCDataSourceFactoryTest extends BaseJdbcTestCase {
 
             ds.getConnection();
         } catch (Exception ex) {
-            fail(ex.getMessage());
+            fail(ex.toString());
         }
     }
 

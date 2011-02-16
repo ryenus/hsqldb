@@ -910,7 +910,7 @@ public class JDBCResultSetTest extends BaseJdbcTestCase {
             String result = rs.getCursorName();
             assertEquals(expResult, result);
         } catch (Exception e) {
-            fail(e.getMessage());
+            fail(e.toString());
         }
 
         rs.close();
@@ -1798,7 +1798,7 @@ public class JDBCResultSetTest extends BaseJdbcTestCase {
 
             assertEquals(true, rs.rowUpdated());
         } catch (Exception e) {
-            fail(e.getMessage());
+            fail(e.toString());
         }
     }
 
@@ -1842,7 +1842,7 @@ public class JDBCResultSetTest extends BaseJdbcTestCase {
 
             assertEquals(true, rs.rowUpdated());
         } catch (Exception e) {
-            fail(e.getMessage());
+            fail(e.toString());
         }
     }
 
@@ -1861,7 +1861,7 @@ public class JDBCResultSetTest extends BaseJdbcTestCase {
 
             rs.updateBoolean("boolean_column", true);
         } catch (Exception e) {
-            fail(e.getMessage());
+            fail(e.toString());
         }
     }
 
@@ -1880,7 +1880,7 @@ public class JDBCResultSetTest extends BaseJdbcTestCase {
 
             rs.updateByte("tinyint_column", (byte) 1);
         } catch (Exception e) {
-            fail(e.getMessage());
+            fail(e.toString());
         }
     }
 
@@ -1899,7 +1899,7 @@ public class JDBCResultSetTest extends BaseJdbcTestCase {
 
             rs.updateShort("smallint_column", (short) 1);
         } catch (Exception e) {
-            fail(e.getMessage());
+            fail(e.toString());
         }
     }
 
@@ -1918,7 +1918,7 @@ public class JDBCResultSetTest extends BaseJdbcTestCase {
 
             rs.updateInt("integer_column", 1);
         } catch (Exception e) {
-            fail(e.getMessage());
+            fail(e.toString());
         }
     }
 
@@ -1937,7 +1937,7 @@ public class JDBCResultSetTest extends BaseJdbcTestCase {
 
             rs.updateLong("bigint_column", 1L);
         } catch (Exception e) {
-            fail(e.getMessage());
+            fail(e.toString());
         }
     }
 
@@ -1956,7 +1956,7 @@ public class JDBCResultSetTest extends BaseJdbcTestCase {
 
             rs.updateFloat("real_column", 1F);
         } catch (Exception e) {
-            fail(e.getMessage());
+            fail(e.toString());
         }
     }
 
@@ -1976,7 +1976,7 @@ public class JDBCResultSetTest extends BaseJdbcTestCase {
             rs.updateDouble("float_column", 1D);
             rs.updateDouble("double_column", 1D);
         } catch (Exception e) {
-            fail(e.getMessage());
+            fail(e.toString());
         }
     }
 
@@ -1995,7 +1995,7 @@ public class JDBCResultSetTest extends BaseJdbcTestCase {
 
             rs.updateBigDecimal("decimal_column", new BigDecimal("1.0"));
         } catch (Exception e) {
-            fail(e.getMessage());
+            fail(e.toString());
         }
     }
 
@@ -2035,7 +2035,7 @@ public class JDBCResultSetTest extends BaseJdbcTestCase {
             rs.updateString("double_column", "1.7976931348623157E308");
             rs.updateString("decimal_column", "9223372036854775807000.1234567890");
         } catch (Exception e) {
-            fail(e.getMessage());
+            fail(e.toString());
         }
     }
 
@@ -2056,7 +2056,7 @@ public class JDBCResultSetTest extends BaseJdbcTestCase {
             rs.updateBytes("varbinary_column", "updateBytes".getBytes());
             rs.updateBytes("longvarbinary_column", "updateBytes".getBytes());
         } catch (Exception e) {
-            fail(e.getMessage());
+            fail(e.toString());
         }
     }
 
@@ -2075,7 +2075,7 @@ public class JDBCResultSetTest extends BaseJdbcTestCase {
 
             rs.updateDate("date_column", java.sql.Date.valueOf("2005-12-14"));
         } catch (Exception e) {
-            fail(e.getMessage());
+            fail(e.toString());
         }
     }
 
@@ -2094,7 +2094,7 @@ public class JDBCResultSetTest extends BaseJdbcTestCase {
 
             rs.updateTime("time_column", java.sql.Time.valueOf("11:57:02"));
         } catch (Exception e) {
-            fail(e.getMessage());
+            fail(e.toString());
         }
     }
 
@@ -2115,7 +2115,7 @@ public class JDBCResultSetTest extends BaseJdbcTestCase {
                     "timestamp_column",
                     java.sql.Timestamp.valueOf("2005-12-14 11:57:02.1234"));
         } catch (Exception e) {
-            fail(e.getMessage());
+            fail(e.toString());
         }
     }
 
@@ -2137,7 +2137,7 @@ public class JDBCResultSetTest extends BaseJdbcTestCase {
                     new java.io.ByteArrayInputStream(
                     "updateAsciiStream".getBytes()), 10);
         } catch (Exception e) {
-            fail(e.getMessage());
+            fail(e.toString());
         }
     }
 
@@ -2159,7 +2159,7 @@ public class JDBCResultSetTest extends BaseJdbcTestCase {
                     new java.io.ByteArrayInputStream(
                     "updateBinaryStream".getBytes()), 10);
         } catch (Exception e) {
-            fail(e.getMessage());
+            fail(e.toString());
         }
     }
 
@@ -2180,7 +2180,7 @@ public class JDBCResultSetTest extends BaseJdbcTestCase {
                     "char_column",
                     new java.io.StringReader("updateCharacterStream"), 10);
         } catch (Exception e) {
-            fail(e.getMessage());
+            fail(e.toString());
         }
     }
 
@@ -2205,7 +2205,7 @@ public class JDBCResultSetTest extends BaseJdbcTestCase {
 
             rs.updateObject("object_column", value);
         } catch (Exception e) {
-            fail(e.getMessage());
+            fail(e.toString());
         }
     }
 
@@ -2263,7 +2263,7 @@ public class JDBCResultSetTest extends BaseJdbcTestCase {
             rs.close();
 
         } catch (Exception ex) {
-            fail(ex.getMessage());
+            fail(ex.toString());
         }
     }
 
@@ -2288,7 +2288,7 @@ public class JDBCResultSetTest extends BaseJdbcTestCase {
 
             rs.updateRow();
         } catch (Exception ex) {
-            fail(ex.getMessage());
+            fail(ex.toString());
         }
     }
 
@@ -2323,7 +2323,7 @@ public class JDBCResultSetTest extends BaseJdbcTestCase {
 
             rs.deleteRow();
         } catch (Exception ex) {
-            fail(ex.getMessage());
+            fail(ex.toString());
         }
 
     }
@@ -2344,7 +2344,7 @@ public class JDBCResultSetTest extends BaseJdbcTestCase {
             rs.refreshRow();
         } catch (Exception ex) {
            printException(ex);
-           fail(ex.getMessage());
+           fail(ex.toString());
         }
 
         ResultSet rs = newJdbcResultSet(ResultSet.TYPE_SCROLL_SENSITIVE);
@@ -2387,7 +2387,7 @@ public class JDBCResultSetTest extends BaseJdbcTestCase {
 
             rs.cancelRowUpdates();
         } catch (Exception ex) {
-            fail(ex.getMessage());
+            fail(ex.toString());
         }
 
         ResultSet rs = newUpdateableJdbcResultSet();
@@ -2418,7 +2418,7 @@ public class JDBCResultSetTest extends BaseJdbcTestCase {
 
             rs.moveToInsertRow();
         } catch (Exception ex) {
-            fail(ex.getMessage());
+            fail(ex.toString());
         }
 
         ResultSet rs = this.newUpdateableJdbcResultSet();
@@ -2451,7 +2451,7 @@ public class JDBCResultSetTest extends BaseJdbcTestCase {
             rs.moveToInsertRow();
             rs.moveToCurrentRow();
         } catch (Exception ex) {
-            fail(ex.getMessage());
+            fail(ex.toString());
         }
 
         ResultSet rs = this.newUpdateableJdbcResultSet();
@@ -2706,7 +2706,7 @@ public class JDBCResultSetTest extends BaseJdbcTestCase {
             rs.updateRow();
 
         } catch (Exception e) {
-            fail(e.getMessage());
+            fail(e.toString());
         }
     }
 
@@ -2737,7 +2737,7 @@ public class JDBCResultSetTest extends BaseJdbcTestCase {
             rs.updateClob("clob_column", reader, "Clob".length());
             rs.updateRow();
         } catch (Exception e) {
-            fail(e.getMessage());
+            fail(e.toString());
         }
     }
 
@@ -2769,7 +2769,7 @@ public class JDBCResultSetTest extends BaseJdbcTestCase {
 
             rs.updateArray("array_column", array);
         } catch (Exception e) {
-            fail(e.getMessage());
+            fail(e.toString());
         }
     }
 
@@ -2821,7 +2821,7 @@ public class JDBCResultSetTest extends BaseJdbcTestCase {
             rs.updateRowId("id_column",  rowId);
         } catch (Exception e) {
             if (!(e instanceof SQLFeatureNotSupportedException)) {
-                fail(e.getMessage());
+                fail(e.toString());
             }
         }
     }
@@ -2882,7 +2882,7 @@ public class JDBCResultSetTest extends BaseJdbcTestCase {
             rs.updateNString("clob_column", "updateNString");
 
         } catch (Exception e) {
-            fail(e.getMessage());
+            fail(e.toString());
         }
     }
 
@@ -2915,7 +2915,7 @@ public class JDBCResultSetTest extends BaseJdbcTestCase {
             rs.updateRow();
 
         } catch (Exception e) {
-            fail(e.getMessage());
+            fail(e.toString());
         }
     }
 
@@ -3044,7 +3044,7 @@ public class JDBCResultSetTest extends BaseJdbcTestCase {
             rs.updateNCharacterStream("clob_column", new StringReader(value),value.length());
 
         } catch (Exception e) {
-            fail(e.getMessage());
+            fail(e.toString());
         }
     }
 

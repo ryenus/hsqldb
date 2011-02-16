@@ -163,7 +163,7 @@ public class JDBCConnectionTest extends BaseJdbcTestCase {
         try {
             stmt = conn.prepareStatement(sql);
         } catch (SQLException ex) {
-            fail(ex.getMessage());
+            fail(ex.toString());
         }
 
         sql = "select * from customer; select * from item";
@@ -180,7 +180,7 @@ public class JDBCConnectionTest extends BaseJdbcTestCase {
         try {
             stmt = conn.prepareStatement(sql);
         } catch (SQLException ex) {
-            sb.append(ex.getMessage()).append("    ");
+            sb.append(ex.toString()).append("    ");
         }
 
         sql = "create table ? (id int, val varchar)";
@@ -263,7 +263,7 @@ public class JDBCConnectionTest extends BaseJdbcTestCase {
         try {
             conn.setAutoCommit(autoCommit);
         } catch (Exception e) {
-            fail(e.getMessage());
+            fail(e.toString());
         }
 
         autoCommit = true;
@@ -271,7 +271,7 @@ public class JDBCConnectionTest extends BaseJdbcTestCase {
         try {
             conn.setAutoCommit(autoCommit);
         } catch (Exception e) {
-            fail(e.getMessage());
+            fail(e.toString());
         }
     }
 
@@ -349,7 +349,7 @@ public class JDBCConnectionTest extends BaseJdbcTestCase {
         try {
             DatabaseMetaData dbmd = conn.getMetaData();
         } catch (Exception ex) {
-            fail(ex.getMessage());
+            fail(ex.toString());
         }
     }
 
@@ -363,7 +363,7 @@ public class JDBCConnectionTest extends BaseJdbcTestCase {
         try {
             conn.setReadOnly(expResult);
         } catch (SQLException ex) {
-            fail(ex.getMessage());
+            fail(ex.toString());
         }
 
         boolean result = conn.isReadOnly();
@@ -375,7 +375,7 @@ public class JDBCConnectionTest extends BaseJdbcTestCase {
         try {
             conn.setReadOnly(expResult);
         } catch (SQLException ex) {
-            fail(ex.getMessage());
+            fail(ex.toString());
         }
 
         result = conn.isReadOnly();
@@ -519,7 +519,7 @@ public class JDBCConnectionTest extends BaseJdbcTestCase {
                     }
                 }
 
-                failures.append(e.getMessage());
+                failures.append(e.getMessage() == null ? e.toString() : e.getMessage());
             }
         }
 
@@ -718,7 +718,7 @@ public class JDBCConnectionTest extends BaseJdbcTestCase {
         try {
             Savepoint result = conn.setSavepoint("s2");
         } catch (Exception e) {
-             fail("setSavepoint(name): " + e.getMessage());
+             fail("setSavepoint(name): " + e.toString());
         }
 
         conn.setAutoCommit(true);
@@ -734,7 +734,7 @@ public class JDBCConnectionTest extends BaseJdbcTestCase {
         try {
             Savepoint result = conn.setSavepoint();
         } catch (Exception e) {
-             fail("setSavepoint() [no args]: " + e.getMessage());
+             fail("setSavepoint() [no args]: " + e.toString());
         }
     }
 
@@ -805,7 +805,7 @@ public class JDBCConnectionTest extends BaseJdbcTestCase {
         try {
             Clob result = conn.createClob();
         } catch (SQLException ex) {
-            fail(ex.getMessage());
+            fail(ex.toString());
         }
     }
 
@@ -818,7 +818,7 @@ public class JDBCConnectionTest extends BaseJdbcTestCase {
         try {
             Blob result = conn.createBlob();
         } catch (SQLException ex) {
-            fail(ex.getMessage());
+            fail(ex.toString());
         }
     }
 
@@ -831,7 +831,7 @@ public class JDBCConnectionTest extends BaseJdbcTestCase {
         try {
             NClob result = conn.createNClob();
         } catch (SQLException ex) {
-            fail(ex.getMessage());
+            fail(ex.toString());
         }
     }
 
@@ -844,7 +844,7 @@ public class JDBCConnectionTest extends BaseJdbcTestCase {
         try {
             SQLXML result = conn.createSQLXML();
         } catch (SQLException ex) {
-            fail(ex.getMessage());
+            fail(ex.toString());
         }
     }
 
@@ -897,7 +897,7 @@ public class JDBCConnectionTest extends BaseJdbcTestCase {
         try {
             result = conn.getClientInfo(name);
         } catch (SQLException ex) {
-            fail(ex.getMessage());
+            fail(ex.toString());
         }
 
         assertEquals(expResult, result);
