@@ -33,6 +33,7 @@ package org.hsqldb.persist;
 
 import java.io.IOException;
 import java.io.RandomAccessFile;
+import java.io.FileDescriptor;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.channels.FileChannel.MapMode;
@@ -57,6 +58,7 @@ final class ScaledRAFileNIO implements RandomAccessInterface {
     private final boolean    readOnly;
     private long             fileLength;
     private RandomAccessFile file;
+    private FileDescriptor   fileDescriptor;
     private MappedByteBuffer buffer;
     private long             bufferPosition;
     private int              bufferLength;
@@ -93,13 +95,16 @@ final class ScaledRAFileNIO implements RandomAccessInterface {
                 requiredLength = fileLength;
             }
 
-            requiredLength = newNIOBufferSize(requiredLength);
+            requiredLength =
+                ScaledRAFile.getBinaryNormalisedCeiling(requiredLength,
+                    largeBufferScale);
         }
 
-        file          = new RandomAccessFile(name, readOnly ? "r"
-                                                            : "rw");
-        this.readOnly = readOnly;
-        this.channel  = file.getChannel();
+        file                = new RandomAccessFile(name, readOnly ? "r"
+                                                                  : "rw");
+        this.readOnly       = readOnly;
+        this.channel        = file.getChannel();
+        this.fileDescriptor = file.getFD();
 
         if (ensureLength(requiredLength)) {
             buffer          = buffers[0];
@@ -359,20 +364,7 @@ final class ScaledRAFileNIO implements RandomAccessInterface {
                                            + fileLength);
 
             if (buffersModified) {
-                try {
-                    for (int i = 0; i < buffers.length; i++) {
-                        buffers[i].force();
-                    }
-                } catch (Throwable t) {
-                    try {
-                        for (int i = 0; i < buffers.length; i++) {
-                            buffers[i].force();
-                        }
-                    } catch (Throwable t1) {
-                        database.logger.logWarningEvent(
-                            "NIO buffer force error " + JVM_ERROR + " ", t);
-                    }
-                }
+                synch();
             }
 
             buffer  = null;
@@ -484,14 +476,33 @@ final class ScaledRAFileNIO implements RandomAccessInterface {
 
     public void synch() {
 
+        boolean error = false;
+
         for (int i = 0; i < buffers.length; i++) {
             try {
                 buffers[i].force();
             } catch (Throwable t) {
                 database.logger.logWarningEvent("NIO buffer force error "
                                                 + JVM_ERROR + " ", t);
+
+                error = true;
             }
         }
+
+        if (error) {
+            for (int i = 0; i < buffers.length; i++) {
+                try {
+                    buffers[i].force();
+                } catch (Throwable t) {
+                    database.logger.logWarningEvent("NIO buffer force error "
+                                                    + JVM_ERROR + " ", t);
+                }
+            }
+        }
+
+        try {
+            fileDescriptor.sync();
+        } catch (Throwable t) {}
     }
 
     private void positionBufferSeek(long offset) {
@@ -525,20 +536,5 @@ final class ScaledRAFileNIO implements RandomAccessInterface {
 
         buffer         = buffers[bufferIndex];
         bufferPosition = offset &= largeBufferMask;
-    }
-
-    static long newNIOBufferSize(long newSize) {
-
-        long bufSize = 0;
-
-        for (int scale = largeBufferScale; scale < 32; scale++) {
-            bufSize = 1L << scale;
-
-            if (bufSize >= newSize) {
-                break;
-            }
-        }
-
-        return bufSize;
     }
 }

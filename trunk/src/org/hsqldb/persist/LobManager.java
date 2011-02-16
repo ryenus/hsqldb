@@ -56,7 +56,6 @@ import org.hsqldb.navigator.RowSetNavigator;
 import org.hsqldb.result.Result;
 import org.hsqldb.result.ResultLob;
 import org.hsqldb.result.ResultMetaData;
-import org.hsqldb.result.ResultProperties;
 import org.hsqldb.store.ValuePool;
 import org.hsqldb.types.BinaryData;
 import org.hsqldb.types.BlobData;
@@ -77,9 +76,10 @@ public class LobManager {
     static final String[] starters = new String[]{ "/*" };
 
     //
-    Database database;
-    LobStore lobStore;
-    Session  sysLobSession;
+    Database         database;
+    LobStore         lobStore;
+    Session          sysLobSession;
+    volatile boolean storeModified;
 
     //
     //
@@ -488,7 +488,7 @@ public class LobManager {
         }
     }
 
-    synchronized public Result getLength(long lobID) {
+    public Result getLength(long lobID) {
 
         writeLock.lock();
 
@@ -510,7 +510,7 @@ public class LobManager {
         }
     }
 
-    synchronized public int compare(BlobData a, byte[] b) {
+    public int compare(BlobData a, byte[] b) {
 
         writeLock.lock();
 
@@ -801,7 +801,7 @@ public class LobManager {
     /**
      * Used for SUBSTRING
      */
-    synchronized public Result getLob(long lobID, long offset, long length) {
+    public Result getLob(long lobID, long offset, long length) {
         throw Error.runtimeError(ErrorCode.U_S0500, "LobManager");
     }
 
@@ -900,9 +900,11 @@ public class LobManager {
                 break;
             }
         }
+
+        storeModified = true;
     }
 
-    synchronized public Result getChars(long lobID, long offset, int length) {
+    public Result getChars(long lobID, long offset, int length) {
 
         Result result = getBytes(lobID, offset * 2, length * 2);
 
@@ -1100,6 +1102,8 @@ public class LobManager {
                 return Result.newErrorResult(e);
             }
 
+            storeModified = true;
+
             return ResultLob.newLobSetResponse(lobID, 0);
         } finally {
             writeLock.unlock();
@@ -1173,6 +1177,8 @@ public class LobManager {
             }
         }
 
+        storeModified = true;
+
         return ResultLob.newLobSetResponse(lobID, writeLength);
     }
 
@@ -1223,8 +1229,7 @@ public class LobManager {
         }
     }
 
-    synchronized public Result setChars(long lobID, long offset,
-                                        char[] chars) {
+    public Result setChars(long lobID, long offset, char[] chars) {
 
         if (chars.length == 0) {
             return ResultLob.newLobSetResponse(lobID, 0);
@@ -1444,7 +1449,7 @@ public class LobManager {
             sysLobSession.executeCompiledStatement(createLobPartCall, params);
     }
 
-    synchronized public int getLobCount() {
+    public int getLobCount() {
 
         writeLock.lock();
 
@@ -1469,6 +1474,23 @@ public class LobManager {
             return ((Number) data[0]).intValue();
         } finally {
             writeLock.unlock();
+        }
+    }
+
+    public void synch() {
+
+        if (storeModified) {
+            if (lobStore != null) {
+                writeLock.lock();
+
+                try {
+                    lobStore.synch();
+
+                    storeModified = false;
+                } finally {
+                    writeLock.unlock();
+                }
+            }
         }
     }
 }

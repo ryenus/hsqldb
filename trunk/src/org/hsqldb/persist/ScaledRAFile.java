@@ -427,9 +427,9 @@ final class ScaledRAFile implements RandomAccessInterface {
         }
 
         if (position < 256 * 1024) {
-            position = getBinaryNormalisedCeiling(position, bufferScale);
+            position = getBinaryNormalisedCeiling(position, bufferScale * 4);
         } else if (position < 1024 * 1024) {
-            position = getBinaryNormalisedCeiling(position, bufferScale * 16);
+            position = getBinaryNormalisedCeiling(position, bufferScale * 64);
         } else if (position < 16 * 1024 * 1024) {
             position = getBinaryNormalisedCeiling(position, bufferSize * 128);
         } else {
@@ -471,7 +471,7 @@ final class ScaledRAFile implements RandomAccessInterface {
     /**
      * uses 2**scale form and returns a multipe of this that is larger or equal to value
      */
-    long getBinaryNormalisedCeiling(long value, int scale) {
+    static long getBinaryNormalisedCeiling(long value, int scale) {
 
         long mask    = 0xffffffffffffffffl << scale;
         long newSize = value & mask;

@@ -561,7 +561,7 @@ public class Session implements SessionInterface {
 
         if (database != null && database.logger.needsCheckpointReset()) {
             Statement checkpoint =
-                ParserCommand.getCheckpointStatement(database, false);
+                ParserCommand.getAutoCheckpointStatement(database);
 
             executeCompiledStatement(checkpoint, ValuePool.emptyObjectArray);
         }

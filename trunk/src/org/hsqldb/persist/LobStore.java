@@ -45,4 +45,6 @@ public interface LobStore {
     int getBlockSize();
 
     void close();
+
+    public void synch();
 }

@@ -136,4 +136,11 @@ public class LobStoreRAFile implements LobStore {
             throw Error.error(ErrorCode.DATA_FILE_ERROR, t);
         }
     }
+
+    public void synch() {
+
+        if (file != null) {
+            file.synch();
+        }
+    }
 }

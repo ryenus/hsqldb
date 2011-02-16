@@ -1875,19 +1875,25 @@ public class ParserCommand extends ParserDDL {
             throw unexpectedToken();
         }
 
-        String sql = getLastPart();
-
-        return getCheckpointStatement(database, defrag);
-    }
-
-    public static Statement getCheckpointStatement(Database database,
-            boolean defrag) {
-
         HsqlName[] names =
             database.schemaManager.getCatalogAndBaseTableNames();
         Object[] args = new Object[]{ Boolean.valueOf(defrag) };
         Statement cs = new StatementCommand(StatementTypes.DATABASE_CHECKPOINT,
                                             args, null, names);
+
+        return cs;
+    }
+
+    public static Statement getAutoCheckpointStatement(Database database) {
+
+        HsqlName[] names =
+            database.schemaManager.getCatalogAndBaseTableNames();
+        Object[] args = new Object[]{ Boolean.FALSE };
+        Statement cs = new StatementCommand(StatementTypes.DATABASE_CHECKPOINT,
+                                            args, null, names);
+
+        cs.setCompileTimestamp(database.txManager.getGlobalChangeTimestamp());
+        cs.setSQL(Tokens.T_CHECKPOINT);
 
         return cs;
     }

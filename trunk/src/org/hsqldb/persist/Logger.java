@@ -819,16 +819,11 @@ public class Logger {
     public synchronized void checkpoint(boolean mode) {
 
         if (logsStatements) {
-            database.lobManager.lock();
-
-            try {
-                database.logger.logInfoEvent("Checkpoint start");
-                log.checkpoint(mode);
-                database.sessionManager.resetLoggedSchemas();
-                database.logger.logInfoEvent("Checkpoint end");
-            } finally {
-                database.lobManager.unlock();
-            }
+            database.logger.logInfoEvent("Checkpoint start");
+            database.lobManager.synch();
+            log.checkpoint(mode);
+            database.sessionManager.resetLoggedSchemas();
+            database.logger.logInfoEvent("Checkpoint end");
         }
 
         checkpointDue = false;
@@ -1102,8 +1097,6 @@ public class Logger {
 
             return true;
         }
-
-        checkpointRequired = false;
 
         return false;
     }

@@ -156,17 +156,20 @@ public class DatabaseURL {
 
             int endPos = url.indexOf("}", replacePos);
 
-            if (endPos != -1) {
-                String varName  = url.substring(replacePos + 2, endPos);
-                String varValue = System.getProperty(varName);
-
-                if (varValue != null) {
-                    url = url.substring(0, replacePos) + varValue
-                          + url.substring(endPos + 1);
-                }
-
-                urlImage = url.toLowerCase(Locale.ENGLISH);
+            if (endPos == -1) {
+                break;
             }
+
+            String varName  = url.substring(replacePos + 2, endPos);
+            String varValue = System.getProperty(varName);
+
+            if (varValue == null) {
+                break;
+            }
+
+            url = url.substring(0, replacePos) + varValue
+                  + url.substring(endPos + 1);
+            urlImage = url.toLowerCase(Locale.ENGLISH);
         }
 
         props.setProperty("url", url);

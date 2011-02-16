@@ -122,4 +122,6 @@ public class LobStoreMem implements LobStore {
     public void close() {
         byteStoreList.clear();
     }
+
+    public void synch() {}
 }
