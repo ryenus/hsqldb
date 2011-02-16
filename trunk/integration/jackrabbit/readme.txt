@@ -24,7 +24,7 @@ at http://hsqldb.org/doc/2.0/ for different connection URL and other properties 
 </PersistenceManager>
 
 
-A ddl file for older versions of Jackrabbit is also included in the ...core/persistence/ directory.
+A ddl file for older versions of Jackrabbit is also included in the ...core/persistence/db directory.
 
 All files are modified copies of existing Jackrabbit sources.
 
