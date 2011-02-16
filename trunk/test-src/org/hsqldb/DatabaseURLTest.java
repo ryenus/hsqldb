@@ -68,7 +68,7 @@ public class DatabaseURLTest extends junit.framework.TestCase {
         //
         //System.setProperty("mypath", "/opt/mydir");
         //        props = DatabaseURL.parseURL(
-        //            "jdbc:hsqldb:file:${ mypath}/mydata",
+        //            "jdbc:hsqldb:file:${mypath}/mydata",
         //            true, false);
         //assertEquals("/opt/mydir/mydata", props.getProperty("database"));
     }
