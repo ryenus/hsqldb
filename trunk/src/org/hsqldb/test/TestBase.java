@@ -99,7 +99,7 @@ public abstract class TestBase extends TestCase {
             Class.forName("org.hsqldb.jdbc.JDBCDriver");
         } catch (Exception e) {
             e.printStackTrace();
-            System.out.println(this + ".setUp() error: " + e.getMessage());
+            System.out.println(this + ".setUp() error: " + e.toString());
         }
     }
 
