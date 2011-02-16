@@ -27,40 +27,16 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-
 package org.hsqldb.jdbc;
 
-import java.sql.DatabaseMetaData;
+import org.hsqldb.jdbc.testbase.BaseDatabaseMetaDataSupportsConvertTest;
 import junit.framework.Test;
-import junit.framework.TestSuite;
-import org.hsqldb.jdbc.testbase.BaseJdbcTestCase;
 
-/**
- * Exhautively tests the supportsConvert(int,int) method of
- * interface java.sql.DatabaseMetaData.
- *
- * @author Campbell Boucher-Burnet (boucherb@users dot sourceforge.net)
- */
-public class JDBCDatabaseMetaDataSupportsConvertTest
-        extends BaseJdbcTestCase {
+public final class JDBCDatabaseMetaDataSupportsConvertTest
+        extends BaseDatabaseMetaDataSupportsConvertTest {
 
-    /**
-     *  in type_name_value array
-     */
-    protected final int m_toIndex;
-
-    /**
-     * in type_name_value array
-     */
-    protected final int m_fromIndex;
-
-    protected static final String hsqldb_types_fqn = "org.hsqldb.types.Types";
-
-    /**
-     * to test.
-     */
-    protected static final String[][] TYPE_NAME_AND_FIELD = new String[][]
-    {
+    private static final String s_hsqldb_types_fqn = "org.hsqldb.types.Types";
+    private static final String[][] s_type_name_and_field = new String[][]{
         {"array", "java.sql.Types.ARRAY"},
         {"bigint", "java.sql.Types.BIGINT"},
         {"binary", "java.sql.Types.BINARY"},
@@ -69,7 +45,7 @@ public class JDBCDatabaseMetaDataSupportsConvertTest
         {"boolean", "java.sql.Types.BOOLEAN"},
         {"char", "java.sql.Types.CHAR"},
         {"clob", "java.sql.Types.CLOB"},
-        {"datalink","java.sql.Types.DATALINK"},
+        {"datalink", "java.sql.Types.DATALINK"},
         {"date", "java.sql.Types.DATE"},
         {"decimal", "java.sql.Types.DECIMAL"},
         {"distinct", "java.sql.Types.DISTINCT"},
@@ -93,26 +69,35 @@ public class JDBCDatabaseMetaDataSupportsConvertTest
         {"struct", "java.sql.Types.STRUCT"},
         {"time", "java.sql.Types.TIME"},
         {"timestamp", "java.sql.Types.TIMESTAMP"},
-        {"time_with_time_zone", hsqldb_types_fqn + ".SQL_TIME_WITH_TIME_ZONE"},
-        {"timestamp_with_time_zone", hsqldb_types_fqn + ".SQL_TIMESTAMP_WITH_TIME_ZONE"},
+        {"time_with_time_zone", s_hsqldb_types_fqn + ".SQL_TIME_WITH_TIME_ZONE"},
+        {"timestamp_with_time_zone", s_hsqldb_types_fqn + ".SQL_TIMESTAMP_WITH_TIME_ZONE"},
         {"tinyint", "java.sql.Types.TINYINT"},
         {"varbinary", "java.sql.Types.VARBINARY"},
         {"varchar", "java.sql.Types.VARCHAR"},
-        {"varchar_ignorecase", hsqldb_types_fqn + ".VARCHAR_IGNORECASE"},
-        {"interval_year", hsqldb_types_fqn + ".SQL_INTERVAL_YEAR"},
-        {"interval_month", hsqldb_types_fqn + ".SQL_INTERVAL_MONTH"},
-        {"interval_day", hsqldb_types_fqn + ".SQL_INTERVAL_DAY"},
-        {"interval_hour",hsqldb_types_fqn + ".SQL_INTERVAL_HOUR"},
-        {"interval_minute", hsqldb_types_fqn + ".SQL_INTERVAL_MINUTE"},
-        {"interval_second",hsqldb_types_fqn + ".SQL_INTERVAL_SECOND"},
-        {"interval_year_to_month", hsqldb_types_fqn + ".SQL_INTERVAL_YEAR_TO_MONTH"},
-        {"interval_day_to_hour", hsqldb_types_fqn + ".SQL_INTERVAL_DAY_TO_HOUR"},
-        {"interval_day_to_minute", hsqldb_types_fqn + ".SQL_INTERVAL_DAY_TO_MINUTE"},
-        {"interval_day_to_second", hsqldb_types_fqn + ".SQL_INTERVAL_DAY_TO_SECOND"},
-        {"interval_hour_to_minute", hsqldb_types_fqn + ".SQL_INTERVAL_HOUR_TO_MINUTE"},
-        {"interval_hour_to_second", hsqldb_types_fqn + ".SQL_INTERVAL_HOUR_TO_SECOND"},
-        {"interval_minute_to_second", hsqldb_types_fqn + ".SQL_INTERVAL_MINUTE_TO_SECOND"}
+        {"varchar_ignorecase", s_hsqldb_types_fqn + ".VARCHAR_IGNORECASE"},
+        {"interval_year", s_hsqldb_types_fqn + ".SQL_INTERVAL_YEAR"},
+        {"interval_month", s_hsqldb_types_fqn + ".SQL_INTERVAL_MONTH"},
+        {"interval_day", s_hsqldb_types_fqn + ".SQL_INTERVAL_DAY"},
+        {"interval_hour", s_hsqldb_types_fqn + ".SQL_INTERVAL_HOUR"},
+        {"interval_minute", s_hsqldb_types_fqn + ".SQL_INTERVAL_MINUTE"},
+        {"interval_second", s_hsqldb_types_fqn + ".SQL_INTERVAL_SECOND"},
+        {"interval_year_to_month", s_hsqldb_types_fqn + ".SQL_INTERVAL_YEAR_TO_MONTH"},
+        {"interval_day_to_hour", s_hsqldb_types_fqn + ".SQL_INTERVAL_DAY_TO_HOUR"},
+        {"interval_day_to_minute", s_hsqldb_types_fqn + ".SQL_INTERVAL_DAY_TO_MINUTE"},
+        {"interval_day_to_second", s_hsqldb_types_fqn + ".SQL_INTERVAL_DAY_TO_SECOND"},
+        {"interval_hour_to_minute", s_hsqldb_types_fqn + ".SQL_INTERVAL_HOUR_TO_MINUTE"},
+        {"interval_hour_to_second", s_hsqldb_types_fqn + ".SQL_INTERVAL_HOUR_TO_SECOND"},
+        {"interval_minute_to_second", s_hsqldb_types_fqn + ".SQL_INTERVAL_MINUTE_TO_SECOND"}
     };
+    private static final JDBCDatabaseMetaDataSupportsConvertTest s_instance = new JDBCDatabaseMetaDataSupportsConvertTest();
+
+    private static JDBCDatabaseMetaDataSupportsConvertTest getInstance() {
+        return s_instance;
+    }
+
+    private JDBCDatabaseMetaDataSupportsConvertTest() {
+        super();
+    }
 
     /**
      * Constructs a new test case for the given pair of type index values.
@@ -123,87 +108,28 @@ public class JDBCDatabaseMetaDataSupportsConvertTest
     public JDBCDatabaseMetaDataSupportsConvertTest(
             final int toIndex,
             final int fromIndex) {
-        super(computeTestName(toIndex,fromIndex));
-
-        m_toIndex = toIndex;
-        m_fromIndex = fromIndex;
+        super(toIndex, fromIndex);
     }
 
-    /**
-     * for given pair of type index values.
-     *
-     * @param toIndex of target type
-     * @param fromIndex of source type
-     * @return test name.
-     */
-    protected static String computeTestName(
-            int toIndex,
-            int fromIndex) {
-        String toType = TYPE_NAME_AND_FIELD[toIndex][0];
-        String fromType = TYPE_NAME_AND_FIELD[fromIndex][0];
-        String testName =
-                "testSupportsConvert_to_"
-                + toType.toUpperCase()
-                + "_from_"
-                + fromType.toUpperCase();
-
-        return testName;
-    }
-
-    /**
-     * to speed up getMetaData().
-     */
-    private static DatabaseMetaData m_dbmd;
-
-    /**
-     * subject of test.
-     *
-     * @throws java.lang.Exception raised by any internal operation.
-     * @return test subject.
-     */
-    protected DatabaseMetaData getMetaData() throws Exception  {
-        if (m_dbmd == null) {
-            m_dbmd = super.newConnection().getMetaData();
-        }
-
-        return m_dbmd;
-    }
-
-    /**
-     * Overriden to run the test and assert its state.
-     *
-     * @throws java.lang.Throwable if any exception is thrown
-     */
     @Override
-    protected void runTest() throws Throwable {
-        //println(super.getName()); // 2600+ printlns is too slow...
-
-        final String toName = TYPE_NAME_AND_FIELD[m_toIndex][0];
-        final String toField = TYPE_NAME_AND_FIELD[m_toIndex][1];
-        final int    toCode = getFieldValue(toField);
-
-        final String fromName = TYPE_NAME_AND_FIELD[m_fromIndex][0];
-        final String fromField = TYPE_NAME_AND_FIELD[m_fromIndex][1];
-        final int    fromCode = getFieldValue(fromField);
-
-        final String propertyName =
-                "dbmd.supports.convert.to."
-                + toName
-                + ".from."
-                + fromName;
-
-        final boolean expectedResult =
-                getBooleanProperty(
-                propertyName,
-                false);
-        final boolean actualResult = getMetaData().supportsConvert(
-                fromCode,
-                toCode);
-
-        if (expectedResult != actualResult) {
-            System.out.println("CHECK FOR MISSING PROPERTY: " + translatePropertyKey(propertyName) + "=" + actualResult);
+    protected int getSQLTypeCode(int i) {
+        try {
+            return super.getFieldValue(s_type_name_and_field[i][1]);
+        } catch (Exception e) {
+            throw (e instanceof RuntimeException)
+                    ? ((RuntimeException)e)
+                    : new RuntimeException(e.toString(), e);
         }
-        assertEquals(expectedResult, actualResult);
+    }
+
+    @Override
+    protected String getSQLTypeName(int i) {
+        return s_type_name_and_field[i][0];
+    }
+
+    @Override
+    protected int getSQLTypeCount() {
+        return s_type_name_and_field.length;
     }
 
     /**
@@ -212,20 +138,7 @@ public class JDBCDatabaseMetaDataSupportsConvertTest
      * @return the suite of tests for this test case.
      */
     public static Test suite() {
-        final TestSuite suite = new TestSuite(
-                "jdbcDatabaseMetaDataSupportsConvertTest");
-
-        final int len = TYPE_NAME_AND_FIELD.length;
-
-        for(int toIndex = 0; toIndex < len; toIndex++) {
-            for (int fromIndex = 0; fromIndex < len; fromIndex++) {
-                suite.addTest(new JDBCDatabaseMetaDataSupportsConvertTest(
-                        toIndex,
-                        fromIndex));
-            }
-        }
-
-        return suite;
+        return getInstance().createTestSuite("JDBCDatabaseMetaDataSupportsConvertTest");
     }
 
     /**
@@ -236,5 +149,4 @@ public class JDBCDatabaseMetaDataSupportsConvertTest
     public static void main(java.lang.String[] argList) {
         junit.textui.TestRunner.run(suite());
     }
-
 }

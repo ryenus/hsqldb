@@ -27,37 +27,44 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-
 package org.hsqldb.jdbc;
 
-import org.hsqldb.jdbc.testbase.BaseJdbcTestCase;
-import java.sql.Driver;
-import java.sql.DriverPropertyInfo;
-import java.util.Properties;
+import org.hsqldb.jdbc.testbase.BaseDriverTest;
+
 import junit.framework.Test;
 import junit.framework.TestSuite;
+
 import org.hsqldb.testbase.ForSubject;
-import org.hsqldb.testbase.OfMethod;
 
 /**
  *
  * @author Campbell Boucher-Burnet (boucherb@users dot sourceforge.net)
  */
 @ForSubject(JDBCDriver.class)
-public class JDBCDriverTest extends BaseJdbcTestCase {
+public class JDBCDriverTest extends BaseDriverTest {
 
     public JDBCDriverTest(String testName) {
         super(testName);
     }
 
     @Override
-    protected void setUp() throws Exception {
-        super.setUp();
+    protected int getExpectedDriverPropertyInfoCount() {
+        return getIntProperty("driver.property.info.count", 6);
     }
 
     @Override
-    protected void tearDown() throws Exception {
-        super.tearDown();
+    protected int getExpectedMajorVersion() {
+        return getIntProperty("driver.major.version", 2);
+    }
+
+    @Override
+    protected int getExpectedMinorVersion() {
+        return getIntProperty("driver.minor.version", 1);
+    }
+
+    @Override
+    protected boolean getExpectedJdbcCompliant() {
+        return getBooleanProperty("driver.jdbc.compliant", true);
     }
 
     public static Test suite() {
@@ -66,117 +73,8 @@ public class JDBCDriverTest extends BaseJdbcTestCase {
         return suite;
     }
 
-    protected Driver newDriver() throws Exception {
-        return (Driver) Class.forName(getDriver()).newInstance();
-    }
-
-    protected int getExpectedDriverPropertyInfoCount() {
-        return getIntProperty("driver.property.info.count", 6);
-    }
-
-    protected int getExpectedMajorVersion() {
-        return getIntProperty("driver.major.version", 2);
-    }
-
-    protected int getExpectedMinorVersion() {
-       return getIntProperty("driver.minor.version", 1);
-    }
-
-    protected boolean getExpectedJdbcCompliant()
-    {
-        return getBooleanProperty("driver.jdbc.compliant", true);
-    }
-
-    /**
-     * Test of connect method, of interface java.sql.Driver.
-     */
-    @OfMethod("connect()")
-    public void testConnect() throws Exception {
-        String     url    = getUrl();
-        Properties info   = new Properties();
-        Driver     driver = newDriver();
-
-        info.setProperty("user", getUser());
-        info.setProperty("password", getPassword());
-
-        assertNotNull(driver.connect(url, info));
-    }
-
-    /**
-     * Test of acceptsURL method, of interface java.sql.Driver.
-     */
-    @OfMethod("acceptsURL()")
-    public void testAcceptsURL() throws Exception {
-        String url    = getUrl();
-        Driver driver = newDriver();
-
-        assertEquals("driver.acceptsURL(" + url + ")",
-                     true,
-                     driver.acceptsURL(url));
-
-        assertEquals("driver.acceptsURL(xyz:" + url + ")",
-                     false,
-                     driver.acceptsURL("xyz:" + url));
-    }
-
-    /**
-     * Test of getPropertyInfo method, of interface java.sql.Driver.
-     */
-    @OfMethod("getPropertyInfo()")
-    public void testGetPropertyInfo() throws Exception {
-        String               url      = getUrl();
-        Properties           info     = new Properties();
-        Driver               driver   = newDriver();
-        int                  expCount = getExpectedDriverPropertyInfoCount();
-        DriverPropertyInfo[] result   = driver.getPropertyInfo(url, info);
-
-        assertNotNull(result);
-        assertEquals(expCount, result.length);
-
-        for (int i = 0; i < expCount; i++) {
-            assertNotNull(result[i].name);
-        }
-    }
-
-    /**
-     * Test of getMajorVersion method, of interface java.sql.Driver.
-     */
-    @OfMethod("getMajorVersion()")
-    public void testGetMajorVersion() throws Exception {
-        Driver driver = newDriver();
-        int expResult = getExpectedMajorVersion();
-        int result    = driver.getMajorVersion();
-
-        assertEquals(expResult, result);
-    }
-
-    /**
-     * Test of getMinorVersion method, of interface java.sql.Driver.
-     */
-     @OfMethod("getMinorVersion()")
-    public void testGetMinorVersion() throws Exception {
-        Driver driver = newDriver();
-        int expResult = getExpectedMinorVersion();
-        int result    = driver.getMinorVersion();
-
-        assertEquals(expResult, result);
-    }
-
-    /**
-     * Test of jdbcCompliant method, of interface java.sql.Driver.
-     */
-     @OfMethod("jdbcCompliant()")
-    public void testJdbcCompliant() throws Exception {
-        Driver  driver    = newDriver();
-        boolean expResult = getExpectedJdbcCompliant();
-        boolean result    = driver.jdbcCompliant();
-
-        assertEquals(expResult, result);
-    }
-
     public static void main(java.lang.String[] argList) {
 
         junit.textui.TestRunner.run(suite());
     }
-
 }

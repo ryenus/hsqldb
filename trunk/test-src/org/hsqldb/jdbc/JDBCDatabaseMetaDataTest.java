@@ -35,8 +35,10 @@ import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.ResultSet;
 import java.sql.RowIdLifetime;
+import java.sql.SQLException;
 import junit.framework.Test;
 import junit.framework.TestSuite;
+import org.hsqldb.jdbc.testbase.DatabaseMetaDataDefaultValues;
 import org.hsqldb.jdbc.testbase.BaseJdbcTestCase;
 import org.hsqldb.testbase.ForSubject;
 import org.hsqldb.testbase.OfMethod;
@@ -48,75 +50,88 @@ import org.hsqldb.testbase.OfMethod;
 @ForSubject(JDBCDatabaseMetaData.class)
 public class JDBCDatabaseMetaDataTest extends BaseJdbcTestCase {
 
-    public static final int StandardMaxIdentifierLength = 128;
-    public static final int DefaultJDBCMajorVersion = 4;
-    public static final int DefaultJDBCMinorVersion = 0;
-    public static final int DefaultDriverMajorVersion = 2;
-    public static final int DefaultDriverMinorVersion = 0;
-    public static final String DefaultDriverName = "HSQL Database Engine Driver";
-    public static final String DefaultDriverVersion = "2.0.1";
-    public static final int DefaultDatabaseMajorVersion = 2;
-    public static final int DefaultDatabaseMinorVersion = 0;
-    private static final String DefaultDatabaseProductName = "HSQL Database Engine";
-    private static final String DefaultDatabaseProductVersion = "2.0.1";
-
-    protected final int getStandardMaxIdentifierLength() {
-        return StandardMaxIdentifierLength;
+    protected DatabaseMetaDataDefaultValues defaultValueFor() {
+        return DatabaseMetaDataDefaultValues.Instance;
     }
 
-    protected int getDefaultJDBCMajorVersion() {
-        return DefaultJDBCMajorVersion;
+    protected int getExpectedDriverMajorVersion() {
+        int rval = getIntProperty("dbmd.driver.major.version",Integer.MIN_VALUE);
+
+        if (rval == Integer.MIN_VALUE) {
+            throw new RuntimeException("The expected driver major version must be set in the test properties.");
+        }
+
+        return rval;
     }
 
-    protected int getDefaultJDBCMinorVersion() {
-        return DefaultJDBCMinorVersion;
-    }
+    protected int getExpectedDriverMinorVersion() {
+        int rval = getIntProperty("dbmd.driver.minor.version",Integer.MIN_VALUE);
 
-    protected int getDefaultDriverMajorVersion(){
-        return DefaultDriverMajorVersion;
-    }
+        if (rval == Integer.MIN_VALUE) {
+            throw new RuntimeException("The expected driver minor version must be set in the test properties.");
+        }
 
-    protected int getExpectedDriverMinorVersion(){
-        return getIntProperty(
-                "dbmd.driver.minor.version",
-                DefaultDriverMinorVersion);
+        return rval;
     }
 
     protected String getExpectedDriverName() {
-        return getProperty(
-                "dbmd.driver.name",
-                DefaultDriverName);
+        String rval = getProperty("dbmd.driver.name",null);
+
+        if (rval == null) {
+            throw new RuntimeException("The expected driver name must be set in the test properties.");
+        }
+
+        return rval;
     }
 
     protected String getExpectedDriverVersion() {
-        return getProperty(
-                "dbmd.driver.version",
-                DefaultDriverVersion);
+        String rval = getProperty("dbmd.driver.version",null);
+
+        if (rval == null) {
+            throw new RuntimeException("The expected driver version string must be set in the test properties.");
+        }
+
+        return rval;
     }
 
     protected int getExpectedDatabaseMajorVersion() {
-        return getIntProperty(
-                "dbmd.database.major.version",
-                DefaultDatabaseMajorVersion);
+        int rval = getIntProperty("dbmd.database.major.version",Integer.MIN_VALUE);
+
+        if (rval == Integer.MIN_VALUE) {
+            throw new RuntimeException("The expected database major version must be set in the test properties.");
+        }
+
+        return rval;
     }
 
     protected int getExpectedDatabaseMinorVersion() {
-        return getIntProperty(
-                "dbmd.database.minor.version",
-                DefaultDatabaseMinorVersion);
+        int rval = getIntProperty("dbmd.database.minor.version", Integer.MIN_VALUE);
+
+        if (rval == Integer.MIN_VALUE) {
+            throw new RuntimeException("The expected database minor version must be set in the test properties.");
+        }
+
+        return rval;
     }
 
     protected String getExpectedDatabaseProductName() {
-        return getProperty(
-                "dbmd.database.product.name",
-                DefaultDatabaseProductName);
+        String rval = getProperty("dbmd.database.product.name",null);
+
+        if (rval == null) {
+            throw new RuntimeException("The expected database product name must be set in the test properties.");
+        }
+
+        return rval;
     }
 
-    protected String getExpectedDatabaseProductVersion()
-    {
-        return getProperty(
-                "dbmd.database.product.version",
-                DefaultDatabaseProductVersion);
+    protected String getExpectedDatabaseProductVersion() {
+        String rval = getProperty("dbmd.database.product.version",null);
+
+        if (rval == null) {
+            throw new RuntimeException("The expected database product version string must be set in the test properties.");
+        }
+
+        return rval;
     }
 
     public JDBCDatabaseMetaDataTest(String testName) {
@@ -132,6 +147,8 @@ public class JDBCDatabaseMetaDataTest extends BaseJdbcTestCase {
     protected void tearDown() throws Exception {
         super.tearDown();
     }
+
+    protected DatabaseMetaData s_dbmd;
 
     protected DatabaseMetaData getMetaData() throws Exception {
         return newConnection().getMetaData();
@@ -152,7 +169,7 @@ public class JDBCDatabaseMetaDataTest extends BaseJdbcTestCase {
 
         boolean expResult = getBooleanProperty(
                 "dbmd.all.procedures.are.callable",
-                true);
+                defaultValueFor().allProceduresAreCallable()); // true
 
         boolean result = dbmd.allProceduresAreCallable();
         assertEquals(expResult, result);
@@ -167,7 +184,7 @@ public class JDBCDatabaseMetaDataTest extends BaseJdbcTestCase {
 
         boolean expResult = getBooleanProperty(
                 "dbmd.all.tables.are.selectable",
-                true);
+                defaultValueFor().allTablesAreSelectable()); //  true
         boolean result = dbmd.allTablesAreSelectable();
         assertEquals(expResult, result);
     }
@@ -175,6 +192,7 @@ public class JDBCDatabaseMetaDataTest extends BaseJdbcTestCase {
     /**
      * Test of getURL method, of interface java.sql.DatabaseMetaData.
      */
+    @OfMethod("getURL()")
     public void testGetURL() throws Exception {
         DatabaseMetaData dbmd = getMetaData();
 
@@ -186,6 +204,7 @@ public class JDBCDatabaseMetaDataTest extends BaseJdbcTestCase {
     /**
      * Test of getUserName method, of interface java.sql.DatabaseMetaData.
      */
+    @OfMethod("getUserName()")
     public void testGetUserName() throws Exception {
         DatabaseMetaData dbmd = getMetaData();
 
@@ -197,10 +216,11 @@ public class JDBCDatabaseMetaDataTest extends BaseJdbcTestCase {
     /**
      * Test of isReadOnly method, of interface java.sql.DatabaseMetaData.
      */
+    @OfMethod("isReadOnly()")
     public void testIsReadOnly() throws Exception {
         DatabaseMetaData dbmd = getMetaData();
-
-        boolean expResult = getBooleanProperty("dbmd.is.readonly",false);
+        // TODO:  set for and test both cases.
+        boolean expResult = getBooleanProperty("dbmd.is.readonly", false);
         boolean result = dbmd.isReadOnly();
         assertEquals(expResult, result);
     }
@@ -208,12 +228,13 @@ public class JDBCDatabaseMetaDataTest extends BaseJdbcTestCase {
     /**
      * Test of nullsAreSortedHigh method, of interface java.sql.DatabaseMetaData.
      */
+    @OfMethod("nullsAreSortedHigh()")
     public void testNullsAreSortedHigh() throws Exception {
         DatabaseMetaData dbmd = getMetaData();
 
         boolean expResult = getBooleanProperty(
                 "dbmd.nulls.are.sorted.high",
-                false);
+                defaultValueFor().nullsAreSortedHigh()); // false
         boolean result = dbmd.nullsAreSortedHigh();
         assertEquals(expResult, result);
     }
@@ -221,12 +242,13 @@ public class JDBCDatabaseMetaDataTest extends BaseJdbcTestCase {
     /**
      * Test of nullsAreSortedLow method, of interface java.sql.DatabaseMetaData.
      */
+    @OfMethod("(nullsAreSortedLow)")
     public void testNullsAreSortedLow() throws Exception {
         DatabaseMetaData dbmd = getMetaData();
 
         boolean expResult = getBooleanProperty(
                 "dbmd.nulls.are.sorted.low",
-                false);
+                defaultValueFor().nullsAreSortedLow()); // false;
         boolean result = dbmd.nullsAreSortedLow();
         assertEquals(expResult, result);
     }
@@ -234,12 +256,13 @@ public class JDBCDatabaseMetaDataTest extends BaseJdbcTestCase {
     /**
      * Test of nullsAreSortedAtStart method, of interface java.sql.DatabaseMetaData.
      */
+    @OfMethod("nullsAreSortedAtStart()")
     public void testNullsAreSortedAtStart() throws Exception {
         DatabaseMetaData dbmd = getMetaData();
 
         boolean expResult = getBooleanProperty(
                 "dbmd.nulls.are.sorted.at.start",
-                true);
+                defaultValueFor().nullsAreSortedAtStart()); // true
         boolean result = dbmd.nullsAreSortedAtStart();
         assertEquals(expResult, result);
     }
@@ -247,12 +270,13 @@ public class JDBCDatabaseMetaDataTest extends BaseJdbcTestCase {
     /**
      * Test of nullsAreSortedAtEnd method, of interface java.sql.DatabaseMetaData.
      */
+    @OfMethod("nullsAreSortedAtEnd()")
     public void testNullsAreSortedAtEnd() throws Exception {
         DatabaseMetaData dbmd = getMetaData();
 
         boolean expResult = getBooleanProperty(
                 "dbmd.nulls.are.sorted.at.end",
-                false);
+                defaultValueFor().nullsAreSortedAtEnd()); // false
         boolean result = dbmd.nullsAreSortedAtEnd();
         assertEquals(expResult, result);
     }
@@ -260,6 +284,7 @@ public class JDBCDatabaseMetaDataTest extends BaseJdbcTestCase {
     /**
      * Test of getDatabaseProductName method, of interface java.sql.DatabaseMetaData.
      */
+    @OfMethod("getDatabaseProductName()")
     public void testGetDatabaseProductName() throws Exception {
         DatabaseMetaData dbmd = getMetaData();
 
@@ -271,6 +296,7 @@ public class JDBCDatabaseMetaDataTest extends BaseJdbcTestCase {
     /**
      * Test of getDatabaseProductVersion method, of interface java.sql.DatabaseMetaData.
      */
+    @OfMethod("getDatabaseProductVersion()")
     public void testGetDatabaseProductVersion() throws Exception {
         DatabaseMetaData dbmd = getMetaData();
 
@@ -282,6 +308,7 @@ public class JDBCDatabaseMetaDataTest extends BaseJdbcTestCase {
     /**
      * Test of getDriverName method, of interface java.sql.DatabaseMetaData.
      */
+    @OfMethod("getDriverName()")
     public void testGetDriverName() throws Exception {
         DatabaseMetaData dbmd = getMetaData();
 
@@ -293,6 +320,7 @@ public class JDBCDatabaseMetaDataTest extends BaseJdbcTestCase {
     /**
      * Test of getDriverVersion method, of interface java.sql.DatabaseMetaData.
      */
+    @OfMethod("getDriverVersion()")
     public void testGetDriverVersion() throws Exception {
         DatabaseMetaData dbmd = getMetaData();
 
@@ -304,17 +332,20 @@ public class JDBCDatabaseMetaDataTest extends BaseJdbcTestCase {
     /**
      * Test of getDriverMajorVersion method, of interface java.sql.DatabaseMetaData.
      */
+    @OfMethod("getDriverMajorVersion()")
     public void testGetDriverMajorVersion() throws Exception {
         DatabaseMetaData dbmd = getMetaData();
 
-        int expResult = getDefaultDriverMajorVersion();
+        int expResult = getExpectedDriverMajorVersion();
         int result = dbmd.getDriverMajorVersion();
+
         assertEquals(expResult, result);
     }
 
     /**
      * Test of getDriverMinorVersion method, of interface java.sql.DatabaseMetaData.
      */
+    @OfMethod("getDriverMinorVersion()")
     public void testGetDriverMinorVersion() throws Exception {
         DatabaseMetaData dbmd = getMetaData();
 
@@ -326,12 +357,13 @@ public class JDBCDatabaseMetaDataTest extends BaseJdbcTestCase {
     /**
      * Test of usesLocalFiles method, of interface java.sql.DatabaseMetaData.
      */
+    @OfMethod("usesLocalFiles()")
     public void testUsesLocalFiles() throws Exception {
         DatabaseMetaData dbmd = getMetaData();
 
         boolean expResult = getBooleanProperty(
                 "dbmd.uses.local.files",
-                false);
+                defaultValueFor().usesLocalFiles()); // false
         boolean result = dbmd.usesLocalFiles();
         assertEquals(expResult, result);
     }
@@ -339,12 +371,13 @@ public class JDBCDatabaseMetaDataTest extends BaseJdbcTestCase {
     /**
      * Test of usesLocalFilePerTable method, of interface java.sql.DatabaseMetaData.
      */
+    @OfMethod("usesLocalFilePerTable()")
     public void testUsesLocalFilePerTable() throws Exception {
         DatabaseMetaData dbmd = getMetaData();
 
         boolean expResult = getBooleanProperty(
                 "dbmd.uses.local.file.per.table",
-                false);
+                defaultValueFor().usesLocalFilePerTable()); // false
         boolean result = dbmd.usesLocalFilePerTable();
         assertEquals(expResult, result);
     }
@@ -352,12 +385,13 @@ public class JDBCDatabaseMetaDataTest extends BaseJdbcTestCase {
     /**
      * Test of supportsMixedCaseIdentifiers method, of interface java.sql.DatabaseMetaData.
      */
+    @OfMethod("supportsMixedCaseIdentifiers()")
     public void testSupportsMixedCaseIdentifiers() throws Exception {
         DatabaseMetaData dbmd = getMetaData();
 
         boolean expResult = getBooleanProperty(
                 "dbmd.supports.mixed.case.identifiers",
-                false);
+                defaultValueFor().supportsMixedCaseIdentifiers()); // false
         boolean result = dbmd.supportsMixedCaseIdentifiers();
         assertEquals(expResult, result);
     }
@@ -365,12 +399,13 @@ public class JDBCDatabaseMetaDataTest extends BaseJdbcTestCase {
     /**
      * Test of storesUpperCaseIdentifiers method, of interface java.sql.DatabaseMetaData.
      */
+    @OfMethod("storesUpperCaseIdentifiers()")
     public void testStoresUpperCaseIdentifiers() throws Exception {
         DatabaseMetaData dbmd = getMetaData();
 
         boolean expResult = getBooleanProperty(
                 "dbmd.stores.upper.case.identifiers",
-                true);
+                defaultValueFor().storesUpperCaseIdentifiers()); // true
         boolean result = dbmd.storesUpperCaseIdentifiers();
         assertEquals(expResult, result);
     }
@@ -378,12 +413,13 @@ public class JDBCDatabaseMetaDataTest extends BaseJdbcTestCase {
     /**
      * Test of storesLowerCaseIdentifiers method, of interface java.sql.DatabaseMetaData.
      */
+    @OfMethod("storesLowerCaseIdentifiers()")
     public void testStoresLowerCaseIdentifiers() throws Exception {
         DatabaseMetaData dbmd = getMetaData();
 
         boolean expResult = getBooleanProperty(
                 "dbmd.stores.lower.case.identifiers",
-                false);
+                defaultValueFor().storesLowerCaseIdentifiers()); // false
         boolean result = dbmd.storesLowerCaseIdentifiers();
         assertEquals(expResult, result);
     }
@@ -391,12 +427,13 @@ public class JDBCDatabaseMetaDataTest extends BaseJdbcTestCase {
     /**
      * Test of storesMixedCaseIdentifiers method, of interface java.sql.DatabaseMetaData.
      */
+    @OfMethod("storesMixedCaseIdentifiers()")
     public void testStoresMixedCaseIdentifiers() throws Exception {
         DatabaseMetaData dbmd = getMetaData();
 
         boolean expResult = getBooleanProperty(
                 "dbmd.stores.mixed.case.identifiers",
-                false);
+                defaultValueFor().storesMixedCaseIdentifiers()); // false
         boolean result = dbmd.storesMixedCaseIdentifiers();
         assertEquals(expResult, result);
     }
@@ -404,12 +441,13 @@ public class JDBCDatabaseMetaDataTest extends BaseJdbcTestCase {
     /**
      * Test of supportsMixedCaseQuotedIdentifiers method, of interface java.sql.DatabaseMetaData.
      */
+    @OfMethod("supportsMixedCaseQuotedIdentifiers()")
     public void testSupportsMixedCaseQuotedIdentifiers() throws Exception {
         DatabaseMetaData dbmd = getMetaData();
 
         boolean expResult = getBooleanProperty(
                 "dbmd.supports.mixed.case.quoted.identifiers",
-                true);
+                defaultValueFor().supportsMixedCaseQuotedIdentifiers()); // true
         boolean result = dbmd.supportsMixedCaseQuotedIdentifiers();
         assertEquals(expResult, result);
     }
@@ -417,12 +455,13 @@ public class JDBCDatabaseMetaDataTest extends BaseJdbcTestCase {
     /**
      * Test of storesUpperCaseQuotedIdentifiers method, of interface java.sql.DatabaseMetaData.
      */
+    @OfMethod("storesUpperCaseQuotedIdentifiers()")
     public void testStoresUpperCaseQuotedIdentifiers() throws Exception {
         DatabaseMetaData dbmd = getMetaData();
 
         boolean expResult = getBooleanProperty(
                 "dbmd.stores.uppper.case.quoted.identifiers",
-                false);
+                 defaultValueFor().storesUpperCaseQuotedIdentifiers()); // false
         boolean result = dbmd.storesUpperCaseQuotedIdentifiers();
         assertEquals(expResult, result);
     }
@@ -430,12 +469,13 @@ public class JDBCDatabaseMetaDataTest extends BaseJdbcTestCase {
     /**
      * Test of storesLowerCaseQuotedIdentifiers method, of interface java.sql.DatabaseMetaData.
      */
+    @OfMethod("storesLowerCaseQuotedIdentifiers()")
     public void testStoresLowerCaseQuotedIdentifiers() throws Exception {
         DatabaseMetaData dbmd = getMetaData();
 
         boolean expResult = getBooleanProperty(
                 "dbmd.stores.lower.case.quoted.identifiers",
-                false);
+                defaultValueFor().storesLowerCaseQuotedIdentifiers()); // false
         boolean result = dbmd.storesLowerCaseQuotedIdentifiers();
         assertEquals(expResult, result);
     }
@@ -443,12 +483,13 @@ public class JDBCDatabaseMetaDataTest extends BaseJdbcTestCase {
     /**
      * Test of storesMixedCaseQuotedIdentifiers method, of interface java.sql.DatabaseMetaData.
      */
+    @OfMethod("storesMixedCaseQuotedIdentifiers")
     public void testStoresMixedCaseQuotedIdentifiers() throws Exception {
         DatabaseMetaData dbmd = getMetaData();
 
         boolean expResult = getBooleanProperty(
                 "dbmd.stores.mixed.case.quoted.identifiers",
-                false);
+                defaultValueFor().storesMixedCaseQuotedIdentifiers()); // false
         boolean result = dbmd.storesMixedCaseQuotedIdentifiers();
         assertEquals(expResult, result);
     }
@@ -456,12 +497,13 @@ public class JDBCDatabaseMetaDataTest extends BaseJdbcTestCase {
     /**
      * Test of getIdentifierQuoteString method, of interface java.sql.DatabaseMetaData.
      */
+    @OfMethod("getIdentifierQuoteString()")
     public void testGetIdentifierQuoteString() throws Exception {
         DatabaseMetaData dbmd = getMetaData();
 
         String expResult = getProperty(
                 "dbmd.identifier.quote.string",
-                "\"");
+                defaultValueFor().getIdentifierQuoteString());
         String result = dbmd.getIdentifierQuoteString();
         assertEquals(expResult, result);
     }
@@ -469,20 +511,22 @@ public class JDBCDatabaseMetaDataTest extends BaseJdbcTestCase {
     /**
      * Test of getSQLKeywords method, of interface java.sql.DatabaseMetaData.
      */
+    @OfMethod("getSQLKeywords()")
     public void testGetSQLKeywords() throws Exception {
         DatabaseMetaData dbmd = getMetaData();
 
-        String expResult = getProperty("dbmd.sql.keywords", null);
+        String expResult = getProperty(
+                "dbmd.sql.keywords",
+                defaultValueFor().getSQLKeywords());
         String result = null;
 
         try {
-             result = dbmd.getSQLKeywords();
+            result = dbmd.getSQLKeywords();
         } catch (Exception e) {
-            fail(e.getMessage());
+            fail(e.toString());
         }
 
-        if (expResult != null)
-        {
+        if (expResult != null) {
             assertEquals(expResult, result);
         }
     }
@@ -490,20 +534,22 @@ public class JDBCDatabaseMetaDataTest extends BaseJdbcTestCase {
     /**
      * Test of getNumericFunctions method, of interface java.sql.DatabaseMetaData.
      */
+    @OfMethod("getNumericFunctions()")
     public void testGetNumericFunctions() throws Exception {
         DatabaseMetaData dbmd = getMetaData();
 
-        String expResult = getProperty("dbmd.numeric.functions", null);
+        String expResult = getProperty(
+                "dbmd.numeric.functions",
+                defaultValueFor().getNumericFunctions());
         String result = null;
 
         try {
             result = dbmd.getNumericFunctions();
         } catch (Exception e) {
-            fail(e.getMessage());
+            fail(e.toString());
         }
 
-        if (expResult != null)
-        {
+        if (expResult != null) {
             assertEquals(expResult, result);
         }
     }
@@ -511,20 +557,22 @@ public class JDBCDatabaseMetaDataTest extends BaseJdbcTestCase {
     /**
      * Test of getStringFunctions method, of interface java.sql.DatabaseMetaData.
      */
+    @OfMethod("getStringFunctions()")
     public void testGetStringFunctions() throws Exception {
         DatabaseMetaData dbmd = getMetaData();
 
-        String expResult = getProperty("dbmd.string.functions", null);
+        String expResult = getProperty(
+                "dbmd.string.functions",
+                defaultValueFor().getStringFunctions());
         String result = null;
 
         try {
             result = dbmd.getStringFunctions();
         } catch (Exception e) {
-            fail(e.getMessage());
+            fail(e.toString());
         }
 
-        if (expResult != null)
-        {
+        if (expResult != null) {
             assertEquals(expResult, result);
         }
     }
@@ -532,20 +580,22 @@ public class JDBCDatabaseMetaDataTest extends BaseJdbcTestCase {
     /**
      * Test of getSystemFunctions method, of interface java.sql.DatabaseMetaData.
      */
+    @OfMethod("getSystemFunctions()")
     public void testGetSystemFunctions() throws Exception {
         DatabaseMetaData dbmd = getMetaData();
 
-        String expResult = getProperty("dbmd.system.functions", null);
+        String expResult = getProperty(
+                "dbmd.system.functions",
+                defaultValueFor().getSystemFunctions());
         String result = null;
 
         try {
             result = dbmd.getSystemFunctions();
         } catch (Exception e) {
-            fail(e.getMessage());
+            fail(e.toString());
         }
 
-        if (expResult != null)
-        {
+        if (expResult != null) {
             assertEquals(expResult, result);
         }
     }
@@ -553,20 +603,22 @@ public class JDBCDatabaseMetaDataTest extends BaseJdbcTestCase {
     /**
      * Test of getTimeDateFunctions method, of interface java.sql.DatabaseMetaData.
      */
+    @OfMethod("getTimeDateFunctions()")
     public void testGetTimeDateFunctions() throws Exception {
         DatabaseMetaData dbmd = getMetaData();
 
-        String expResult = getProperty("dbmd.timedate.functions", null);
+        String expResult = getProperty(
+                "dbmd.timedate.functions",
+                defaultValueFor().getTimeDateFunctions());
         String result = null;
 
         try {
             result = dbmd.getTimeDateFunctions();
         } catch (Exception e) {
-            fail(e.getMessage());
+            fail(e.toString());
         }
 
-        if (expResult != null)
-        {
+        if (expResult != null) {
             assertEquals(expResult, result);
         }
     }
@@ -574,12 +626,13 @@ public class JDBCDatabaseMetaDataTest extends BaseJdbcTestCase {
     /**
      * Test of getSearchStringEscape method, of interface java.sql.DatabaseMetaData.
      */
+    @OfMethod("getSearchStringEscape()")
     public void testGetSearchStringEscape() throws Exception {
         DatabaseMetaData dbmd = getMetaData();
 
         String expResult = getProperty(
                 "dbmd.search.string.escape",
-                "\\");
+                defaultValueFor().getSearchStringEscape());
         String result = dbmd.getSearchStringEscape();
         assertEquals(expResult, result);
     }
@@ -587,19 +640,21 @@ public class JDBCDatabaseMetaDataTest extends BaseJdbcTestCase {
     /**
      * Test of getExtraNameCharacters method, of interface java.sql.DatabaseMetaData.
      */
+    @OfMethod("getExtraNameCharacters()")
     public void testGetExtraNameCharacters() throws Exception {
         DatabaseMetaData dbmd = getMetaData();
-        String expResult = getProperty("dbmd.extra.name.characters", null);
+        String expResult = getProperty(
+                "dbmd.extra.name.characters",
+                defaultValueFor().getExtraNameCharacters());
         String result = null;
 
         try {
             result = dbmd.getExtraNameCharacters();
         } catch (Exception e) {
-            fail(e.getMessage());
+            fail(e.toString());
         }
 
-        if (expResult != null)
-        {
+        if (expResult != null) {
             assertEquals(expResult, result);
         }
     }
@@ -607,12 +662,13 @@ public class JDBCDatabaseMetaDataTest extends BaseJdbcTestCase {
     /**
      * Test of supportsAlterTableWithAddColumn method, of interface java.sql.DatabaseMetaData.
      */
+    @OfMethod("supportsAlterTableWithAddColumn()")
     public void testSupportsAlterTableWithAddColumn() throws Exception {
         DatabaseMetaData dbmd = getMetaData();
 
         boolean expResult = getBooleanProperty(
                 "dbmd.supports.alter.table.with.add.column",
-                true);
+                defaultValueFor().supportsAlterTableWithAddColumn()); // true
         boolean result = dbmd.supportsAlterTableWithAddColumn();
         assertEquals(expResult, result);
     }
@@ -620,12 +676,13 @@ public class JDBCDatabaseMetaDataTest extends BaseJdbcTestCase {
     /**
      * Test of supportsAlterTableWithDropColumn method, of interface java.sql.DatabaseMetaData.
      */
+    @OfMethod("supportsAlterTableWithDropColumn()")
     public void testSupportsAlterTableWithDropColumn() throws Exception {
         DatabaseMetaData dbmd = getMetaData();
 
         boolean expResult = getBooleanProperty(
                 "dbmd.supports.alter.table.with.drop.column",
-                true);
+                defaultValueFor().supportsAlterTableWithDropColumn()); // true
         boolean result = dbmd.supportsAlterTableWithDropColumn();
         assertEquals(expResult, result);
     }
@@ -633,12 +690,13 @@ public class JDBCDatabaseMetaDataTest extends BaseJdbcTestCase {
     /**
      * Test of supportsColumnAliasing method, of interface java.sql.DatabaseMetaData.
      */
+    @OfMethod("supportsColumnAliasing()")
     public void testSupportsColumnAliasing() throws Exception {
         DatabaseMetaData dbmd = getMetaData();
 
         boolean expResult = getBooleanProperty(
                 "dbmd.supports.column.aliasing",
-                true);
+                defaultValueFor().supportsColumnAliasing()); // true
         boolean result = dbmd.supportsColumnAliasing();
         assertEquals(expResult, result);
     }
@@ -646,12 +704,13 @@ public class JDBCDatabaseMetaDataTest extends BaseJdbcTestCase {
     /**
      * Test of nullPlusNonNullIsNull method, of interface java.sql.DatabaseMetaData.
      */
+    @OfMethod("nullPlusNonNullIsNull()")
     public void testNullPlusNonNullIsNull() throws Exception {
         DatabaseMetaData dbmd = getMetaData();
 
         boolean expResult = getBooleanProperty(
                 "dbmd.null.plus.non.null.is.null",
-                true);
+                defaultValueFor().nullPlusNonNullIsNull()); // true
         boolean result = dbmd.nullPlusNonNullIsNull();
         assertEquals(expResult, result);
     }
@@ -659,26 +718,27 @@ public class JDBCDatabaseMetaDataTest extends BaseJdbcTestCase {
     /**
      * Test of supportsConvert method, of interface java.sql.DatabaseMetaData.
      */
+    @OfMethod("supportsConvert()")
     public void testSupportsConvert() throws Exception {
         DatabaseMetaData dbmd = getMetaData();
 
         boolean expResult = getBooleanProperty(
                 "dbmd.supports.convert",
-                true);
+                defaultValueFor().supportsConvert());  // true
         boolean result = dbmd.supportsConvert();
         assertEquals(expResult, result);
     }
 
-
     /**
      * Test of supportsTableCorrelationNames method, of interface java.sql.DatabaseMetaData.
      */
+    @OfMethod("supportsTableCorrelationNames()")
     public void testSupportsTableCorrelationNames() throws Exception {
         DatabaseMetaData dbmd = getMetaData();
 
         boolean expResult = getBooleanProperty(
                 "dbmd.supports.table.correlation.names",
-                true);
+                defaultValueFor().supportsTableCorrelationNames()); // true
         boolean result = dbmd.supportsTableCorrelationNames();
         assertEquals(expResult, result);
     }
@@ -686,12 +746,13 @@ public class JDBCDatabaseMetaDataTest extends BaseJdbcTestCase {
     /**
      * Test of supportsDifferentTableCorrelationNames method, of interface java.sql.DatabaseMetaData.
      */
+    @OfMethod("supportsDifferentTableCorrelationNames()")
     public void testSupportsDifferentTableCorrelationNames() throws Exception {
         DatabaseMetaData dbmd = getMetaData();
 
         boolean expResult = getBooleanProperty(
                 "dbmd.supports.different.table.correlation.names",
-                true);
+                 defaultValueFor().supportsDifferentTableCorrelationNames()); // true
         boolean result = dbmd.supportsDifferentTableCorrelationNames();
         assertEquals(expResult, result);
     }
@@ -699,12 +760,13 @@ public class JDBCDatabaseMetaDataTest extends BaseJdbcTestCase {
     /**
      * Test of supportsExpressionsInOrderBy method, of interface java.sql.DatabaseMetaData.
      */
+    @OfMethod("supportsExpressionsInOrderBy()")
     public void testSupportsExpressionsInOrderBy() throws Exception {
         DatabaseMetaData dbmd = getMetaData();
 
         boolean expResult = getBooleanProperty(
                 "dbmd.supports.expressions.in.order.by",
-                true);
+                defaultValueFor().supportsExpressionsInOrderBy()); // true
         boolean result = dbmd.supportsExpressionsInOrderBy();
         assertEquals(expResult, result);
     }
@@ -712,12 +774,13 @@ public class JDBCDatabaseMetaDataTest extends BaseJdbcTestCase {
     /**
      * Test of supportsOrderByUnrelated method, of interface java.sql.DatabaseMetaData.
      */
+    @OfMethod("supportsOrderByUnrelated()")
     public void testSupportsOrderByUnrelated() throws Exception {
         DatabaseMetaData dbmd = getMetaData();
 
         boolean expResult = getBooleanProperty(
                 "dbmd.supports.order.by.related",
-                true);
+                defaultValueFor().supportsOrderByUnrelated()); // true
         boolean result = dbmd.supportsOrderByUnrelated();
         assertEquals(expResult, result);
     }
@@ -725,12 +788,13 @@ public class JDBCDatabaseMetaDataTest extends BaseJdbcTestCase {
     /**
      * Test of supportsGroupBy method, of interface java.sql.DatabaseMetaData.
      */
+    @OfMethod("supportsGroupBy()")
     public void testSupportsGroupBy() throws Exception {
         DatabaseMetaData dbmd = getMetaData();
 
         boolean expResult = getBooleanProperty(
                 "dbmd.supports.group.by",
-                true);
+                defaultValueFor().supportsGroupBy()); // true
         boolean result = dbmd.supportsGroupBy();
         assertEquals(expResult, result);
     }
@@ -738,12 +802,13 @@ public class JDBCDatabaseMetaDataTest extends BaseJdbcTestCase {
     /**
      * Test of supportsGroupByUnrelated method, of interface java.sql.DatabaseMetaData.
      */
+    @OfMethod("supportsGroupByUnrelated()")
     public void testSupportsGroupByUnrelated() throws Exception {
         DatabaseMetaData dbmd = getMetaData();
 
         boolean expResult = getBooleanProperty(
                 "dbmd.supports.group.by.unrelated",
-                true);
+                defaultValueFor().supportsGroupByUnrelated()); // true
         boolean result = dbmd.supportsGroupByUnrelated();
         assertEquals(expResult, result);
     }
@@ -751,12 +816,13 @@ public class JDBCDatabaseMetaDataTest extends BaseJdbcTestCase {
     /**
      * Test of supportsGroupByBeyondSelect method, of interface java.sql.DatabaseMetaData.
      */
+    @OfMethod("supportsGroupByBeyondSelect()")
     public void testSupportsGroupByBeyondSelect() throws Exception {
         DatabaseMetaData dbmd = getMetaData();
 
         boolean expResult = getBooleanProperty(
                 "dbmd.supports.group.by.beyond.select",
-                true);
+                defaultValueFor().supportsGroupByBeyondSelect()); // true
         boolean result = dbmd.supportsGroupByBeyondSelect();
         assertEquals(expResult, result);
     }
@@ -764,12 +830,13 @@ public class JDBCDatabaseMetaDataTest extends BaseJdbcTestCase {
     /**
      * Test of supportsLikeEscapeClause method, of interface java.sql.DatabaseMetaData.
      */
+    @OfMethod("supportsLikeEscapeClause")
     public void testSupportsLikeEscapeClause() throws Exception {
         DatabaseMetaData dbmd = getMetaData();
 
         boolean expResult = getBooleanProperty(
                 "dbmd.supports.like.escape.clause",
-                true);
+                defaultValueFor().supportsLikeEscapeClause()); // true
         boolean result = dbmd.supportsLikeEscapeClause();
         assertEquals(expResult, result);
     }
@@ -777,12 +844,13 @@ public class JDBCDatabaseMetaDataTest extends BaseJdbcTestCase {
     /**
      * Test of supportsMultipleResultSets method, of interface java.sql.DatabaseMetaData.
      */
+    @OfMethod("supportsMultipleResultSets")
     public void testSupportsMultipleResultSets() throws Exception {
         DatabaseMetaData dbmd = getMetaData();
 
         boolean expResult = getBooleanProperty(
                 "dbmd.supports.multiple.result.sets",
-                false);
+                defaultValueFor().supportsMultipleResultSets());
         boolean result = dbmd.supportsMultipleResultSets();
         assertEquals(expResult, result);
     }
@@ -790,12 +858,13 @@ public class JDBCDatabaseMetaDataTest extends BaseJdbcTestCase {
     /**
      * Test of supportsMultipleTransactions method, of interface java.sql.DatabaseMetaData.
      */
+    @OfMethod("supportsMultipleTransactions()")
     public void testSupportsMultipleTransactions() throws Exception {
         DatabaseMetaData dbmd = getMetaData();
 
         boolean expResult = getBooleanProperty(
                 "dbmd.supports.multiple.transactions",
-                true);
+                defaultValueFor().supportsMultipleTransactions());
         boolean result = dbmd.supportsMultipleTransactions();
         assertEquals(expResult, result);
     }
@@ -803,12 +872,13 @@ public class JDBCDatabaseMetaDataTest extends BaseJdbcTestCase {
     /**
      * Test of supportsNonNullableColumns method, of interface java.sql.DatabaseMetaData.
      */
+    @OfMethod("supportsNonNullableColumns()")
     public void testSupportsNonNullableColumns() throws Exception {
         DatabaseMetaData dbmd = getMetaData();
 
         boolean expResult = getBooleanProperty(
                 "dbmd.supports.non.nullable.columns",
-                true);
+                defaultValueFor().supportsNonNullableColumns());
         boolean result = dbmd.supportsNonNullableColumns();
         assertEquals(expResult, result);
     }
@@ -816,12 +886,13 @@ public class JDBCDatabaseMetaDataTest extends BaseJdbcTestCase {
     /**
      * Test of supportsMinimumSQLGrammar method, of interface java.sql.DatabaseMetaData.
      */
+    @OfMethod("supportsMinimumSQLGrammar()")
     public void testSupportsMinimumSQLGrammar() throws Exception {
         DatabaseMetaData dbmd = getMetaData();
 
         boolean expResult = getBooleanProperty(
                 "dbmd.supports.minimum.sql.grammar",
-                true);
+                defaultValueFor().supportsMinimumSQLGrammar());
         boolean result = dbmd.supportsMinimumSQLGrammar();
         assertEquals("TODO:", expResult, result);
     }
@@ -829,12 +900,13 @@ public class JDBCDatabaseMetaDataTest extends BaseJdbcTestCase {
     /**
      * Test of supportsCoreSQLGrammar method, of interface java.sql.DatabaseMetaData.
      */
+    @OfMethod("supportsCoreSQLGrammar()")
     public void testSupportsCoreSQLGrammar() throws Exception {
         DatabaseMetaData dbmd = getMetaData();
 
         boolean expResult = getBooleanProperty(
                 "dbmd.supports.core.sql.grammar",
-                true);
+                defaultValueFor().supportsCoreSQLGrammar());
         boolean result = dbmd.supportsCoreSQLGrammar();
         assertEquals("TODO:", expResult, result);
     }
@@ -842,12 +914,13 @@ public class JDBCDatabaseMetaDataTest extends BaseJdbcTestCase {
     /**
      * Test of supportsExtendedSQLGrammar method, of interface java.sql.DatabaseMetaData.
      */
+    @OfMethod("supportsExtendedSQLGrammar()")
     public void testSupportsExtendedSQLGrammar() throws Exception {
         DatabaseMetaData dbmd = getMetaData();
 
         boolean expResult = getBooleanProperty(
                 "dbmd.supports.extended.sql.grammar",
-                true);
+                defaultValueFor().supportsExtendedSQLGrammar());
         boolean result = dbmd.supportsExtendedSQLGrammar();
         assertEquals("TODO:", expResult, result);
     }
@@ -855,12 +928,13 @@ public class JDBCDatabaseMetaDataTest extends BaseJdbcTestCase {
     /**
      * Test of supportsANSI92EntryLevelSQL method, of interface java.sql.DatabaseMetaData.
      */
+    @OfMethod("supportsANSI92EntryLevelSQL()")
     public void testSupportsANSI92EntryLevelSQL() throws Exception {
         DatabaseMetaData dbmd = getMetaData();
 
         boolean expResult = getBooleanProperty(
                 "dbmd.supports.ansi92.entry.level.sql",
-                true);
+                defaultValueFor().supportsANSI92EntryLevelSQL());
         boolean result = dbmd.supportsANSI92EntryLevelSQL();
         assertEquals("TODO:", expResult, result);
     }
@@ -868,12 +942,13 @@ public class JDBCDatabaseMetaDataTest extends BaseJdbcTestCase {
     /**
      * Test of supportsANSI92IntermediateSQL method, of interface java.sql.DatabaseMetaData.
      */
+    @OfMethod("supportsANSI92IntermediateSQL()")
     public void testSupportsANSI92IntermediateSQL() throws Exception {
         DatabaseMetaData dbmd = getMetaData();
 
         boolean expResult = getBooleanProperty(
                 "dbmd.supports.ansi92.intermediate.sql",
-                true);
+                defaultValueFor().supportsANSI92IntermediateSQL());
         boolean result = dbmd.supportsANSI92IntermediateSQL();
         assertEquals("TODO:", expResult, result);
     }
@@ -881,12 +956,13 @@ public class JDBCDatabaseMetaDataTest extends BaseJdbcTestCase {
     /**
      * Test of supportsANSI92FullSQL method, of interface java.sql.DatabaseMetaData.
      */
+    @OfMethod("supportsANSI92FullSQL()")
     public void testSupportsANSI92FullSQL() throws Exception {
         DatabaseMetaData dbmd = getMetaData();
 
         boolean expResult = getBooleanProperty(
                 "dbmd.supports.ansi92.full.sql",
-                true);
+                defaultValueFor().supportsANSI92FullSQL());
         boolean result = dbmd.supportsANSI92FullSQL();
         assertEquals("TODO:", expResult, result);
     }
@@ -894,12 +970,13 @@ public class JDBCDatabaseMetaDataTest extends BaseJdbcTestCase {
     /**
      * Test of supportsIntegrityEnhancementFacility method, of interface java.sql.DatabaseMetaData.
      */
+    @OfMethod("supportsIntegrityEnhancementFacility()")
     public void testSupportsIntegrityEnhancementFacility() throws Exception {
         DatabaseMetaData dbmd = getMetaData();
 
         boolean expResult = getBooleanProperty(
                 "dbmd.supports.integrity.enhancement.facility",
-                true);
+                defaultValueFor().supportsIntegrityEnhancementFacility());
         boolean result = dbmd.supportsIntegrityEnhancementFacility();
         assertEquals(expResult, result);
     }
@@ -907,12 +984,13 @@ public class JDBCDatabaseMetaDataTest extends BaseJdbcTestCase {
     /**
      * Test of supportsOuterJoins method, of interface java.sql.DatabaseMetaData.
      */
+    @OfMethod("supportsOuterJoins()")
     public void testSupportsOuterJoins() throws Exception {
         DatabaseMetaData dbmd = getMetaData();
 
         boolean expResult = getBooleanProperty(
                 "dbmd.supports.outer.joins",
-                true);
+                defaultValueFor().supportsOuterJoins());
         boolean result = dbmd.supportsOuterJoins();
         assertEquals(expResult, result);
     }
@@ -920,12 +998,13 @@ public class JDBCDatabaseMetaDataTest extends BaseJdbcTestCase {
     /**
      * Test of supportsFullOuterJoins method, of interface java.sql.DatabaseMetaData.
      */
+    @OfMethod("supportsFullOuterJoins()")
     public void testSupportsFullOuterJoins() throws Exception {
         DatabaseMetaData dbmd = getMetaData();
 
         boolean expResult = getBooleanProperty(
                 "dbmd.supports.full.outer.joins",
-                true);
+                defaultValueFor().supportsFullOuterJoins());
         boolean result = dbmd.supportsFullOuterJoins();
         assertEquals("TODO:", expResult, result);
     }
@@ -933,6 +1012,7 @@ public class JDBCDatabaseMetaDataTest extends BaseJdbcTestCase {
     /**
      * Test of supportsLimitedOuterJoins method, of interface java.sql.DatabaseMetaData.
      */
+    @OfMethod("supportsLimitedOuterJoins()")
     public void testSupportsLimitedOuterJoins() throws Exception {
         DatabaseMetaData dbmd = getMetaData();
 
@@ -946,12 +1026,13 @@ public class JDBCDatabaseMetaDataTest extends BaseJdbcTestCase {
     /**
      * Test of getSchemaTerm method, of interface java.sql.DatabaseMetaData.
      */
+    @OfMethod("getSchemaTerm()")
     public void testGetSchemaTerm() throws Exception {
         DatabaseMetaData dbmd = getMetaData();
 
         String expResult = getProperty(
                 "dbmd.schema.term",
-                "SCHEMA");
+                defaultValueFor().getSchemaTerm());
         String result = dbmd.getSchemaTerm();
         assertEquals(expResult, result);
     }
@@ -959,12 +1040,13 @@ public class JDBCDatabaseMetaDataTest extends BaseJdbcTestCase {
     /**
      * Test of getProcedureTerm method, of interface java.sql.DatabaseMetaData.
      */
+    @OfMethod("getProcedureTerm()")
     public void testGetProcedureTerm() throws Exception {
         DatabaseMetaData dbmd = getMetaData();
 
         String expResult = getProperty(
                 "dbmd.procedure.term",
-                "");
+                defaultValueFor().getProcedureTerm());
         String result = dbmd.getProcedureTerm();
         assertEquals(expResult, result);
     }
@@ -972,12 +1054,13 @@ public class JDBCDatabaseMetaDataTest extends BaseJdbcTestCase {
     /**
      * Test of getCatalogTerm method, of interface java.sql.DatabaseMetaData.
      */
+    @OfMethod("getCatalogTerm()")
     public void testGetCatalogTerm() throws Exception {
         DatabaseMetaData dbmd = getMetaData();
 
         String expResult = getProperty(
                 "dbmd.catalog.term",
-                "CATALOG");
+                defaultValueFor().getCatalogTerm());
         String result = dbmd.getCatalogTerm();
         assertEquals(expResult, result);
     }
@@ -985,12 +1068,13 @@ public class JDBCDatabaseMetaDataTest extends BaseJdbcTestCase {
     /**
      * Test of isCatalogAtStart method, of interface java.sql.DatabaseMetaData.
      */
+    @OfMethod("isCatalogAtStart()")
     public void testIsCatalogAtStart() throws Exception {
         DatabaseMetaData dbmd = getMetaData();
 
         boolean expResult = getBooleanProperty(
                 "dbmd.is.catalog.at.start",
-                true);
+                defaultValueFor().isCatalogAtStart());
         boolean result = dbmd.isCatalogAtStart();
         assertEquals(expResult, result);
     }
@@ -998,12 +1082,13 @@ public class JDBCDatabaseMetaDataTest extends BaseJdbcTestCase {
     /**
      * Test of getCatalogSeparator method, of interface java.sql.DatabaseMetaData.
      */
+    @OfMethod("getCatalogSeparator()")
     public void testGetCatalogSeparator() throws Exception {
         DatabaseMetaData dbmd = getMetaData();
 
         String expResult = getProperty(
                 "dbmd.catalog.separator",
-                ".");
+                defaultValueFor().getCatalogSeparator());
         String result = dbmd.getCatalogSeparator();
         assertEquals(expResult, result);
     }
@@ -1011,12 +1096,13 @@ public class JDBCDatabaseMetaDataTest extends BaseJdbcTestCase {
     /**
      * Test of supportsSchemasInDataManipulation method, of interface java.sql.DatabaseMetaData.
      */
+    @OfMethod("supportsSchemasInDataManipulation()")
     public void testSupportsSchemasInDataManipulation() throws Exception {
         DatabaseMetaData dbmd = getMetaData();
 
         boolean expResult = getBooleanProperty(
                 "dbmd.supports.schemas.in.data.manipulation",
-                true);
+                defaultValueFor().supportsSchemasInDataManipulation());
         boolean result = dbmd.supportsSchemasInDataManipulation();
         assertEquals("TODO:", expResult, result);
     }
@@ -1024,12 +1110,13 @@ public class JDBCDatabaseMetaDataTest extends BaseJdbcTestCase {
     /**
      * Test of supportsSchemasInProcedureCalls method, of interface java.sql.DatabaseMetaData.
      */
+    @OfMethod("supportsSchemasInProcedureCalls()")
     public void testSupportsSchemasInProcedureCalls() throws Exception {
         DatabaseMetaData dbmd = getMetaData();
 
         boolean expResult = getBooleanProperty(
                 "dbmd.supports.schemas.in.procedure.calls",
-                true);
+                defaultValueFor().supportsSchemasInProcedureCalls());
         boolean result = dbmd.supportsSchemasInProcedureCalls();
         assertEquals("TODO:", expResult, result);
     }
@@ -1037,12 +1124,13 @@ public class JDBCDatabaseMetaDataTest extends BaseJdbcTestCase {
     /**
      * Test of supportsSchemasInTableDefinitions method, of interface java.sql.DatabaseMetaData.
      */
+    @OfMethod("supportsSchemasInTableDefinitions()")
     public void testSupportsSchemasInTableDefinitions() throws Exception {
         DatabaseMetaData dbmd = getMetaData();
 
         boolean expResult = getBooleanProperty(
                 "dbmd.supports.schemas.in.table.definitions",
-                true);
+                defaultValueFor().supportsSchemasInTableDefinitions());
         boolean result = dbmd.supportsSchemasInTableDefinitions();
         assertEquals("TODO:", expResult, result);
     }
@@ -1050,12 +1138,13 @@ public class JDBCDatabaseMetaDataTest extends BaseJdbcTestCase {
     /**
      * Test of supportsSchemasInIndexDefinitions method, of interface java.sql.DatabaseMetaData.
      */
+    @OfMethod("supportsSchemasInIndexDefinitions()")
     public void testSupportsSchemasInIndexDefinitions() throws Exception {
         DatabaseMetaData dbmd = getMetaData();
 
         boolean expResult = getBooleanProperty(
                 "dbmd.supports.schemas.in.index.definitions",
-                true);
+                defaultValueFor().supportsSchemasInIndexDefinitions());
         boolean result = dbmd.supportsSchemasInIndexDefinitions();
         assertEquals("TODO:", expResult, result);
     }
@@ -1063,12 +1152,13 @@ public class JDBCDatabaseMetaDataTest extends BaseJdbcTestCase {
     /**
      * Test of supportsSchemasInPrivilegeDefinitions method, of interface java.sql.DatabaseMetaData.
      */
+    @OfMethod("supportsSchemasInPrivilegeDefinitions()")
     public void testSupportsSchemasInPrivilegeDefinitions() throws Exception {
         DatabaseMetaData dbmd = getMetaData();
 
         boolean expResult = getBooleanProperty(
                 "dbmd.supports.schemas.in.privilege.definitions",
-                true);
+                defaultValueFor().supportsSchemasInPrivilegeDefinitions());
         boolean result = dbmd.supportsSchemasInPrivilegeDefinitions();
         assertEquals("TODO:", expResult, result);
     }
@@ -1076,12 +1166,13 @@ public class JDBCDatabaseMetaDataTest extends BaseJdbcTestCase {
     /**
      * Test of supportsCatalogsInDataManipulation method, of interface java.sql.DatabaseMetaData.
      */
+    @OfMethod("supportsCatalogsInDataManipulation()")
     public void testSupportsCatalogsInDataManipulation() throws Exception {
         DatabaseMetaData dbmd = getMetaData();
 
         boolean expResult = getBooleanProperty(
                 "dbmd.supports.catalogs.in.data.manipulation",
-                true);
+                defaultValueFor().supportsCatalogsInDataManipulation());
         boolean result = dbmd.supportsCatalogsInDataManipulation();
         assertEquals("TODO:", expResult, result);
     }
@@ -1089,12 +1180,13 @@ public class JDBCDatabaseMetaDataTest extends BaseJdbcTestCase {
     /**
      * Test of supportsCatalogsInProcedureCalls method, of interface java.sql.DatabaseMetaData.
      */
+    @OfMethod("supportsCatalogsInProcedureCalls()")
     public void testSupportsCatalogsInProcedureCalls() throws Exception {
         DatabaseMetaData dbmd = getMetaData();
 
         boolean expResult = getBooleanProperty(
                 "dbmd.supports.catalogs.in.procedure.calls",
-                true);
+                defaultValueFor().supportsCatalogsInProcedureCalls());
         boolean result = dbmd.supportsCatalogsInProcedureCalls();
         assertEquals("TODO:", expResult, result);
     }
@@ -1102,12 +1194,13 @@ public class JDBCDatabaseMetaDataTest extends BaseJdbcTestCase {
     /**
      * Test of supportsCatalogsInTableDefinitions method, of interface java.sql.DatabaseMetaData.
      */
+    @OfMethod("supportsCatalogsInTableDefinitions()")
     public void testSupportsCatalogsInTableDefinitions() throws Exception {
         DatabaseMetaData dbmd = getMetaData();
 
         boolean expResult = getBooleanProperty(
                 "dbmd.supports.catalogs.in.table.definitions",
-                true);
+                defaultValueFor().supportsCatalogsInTableDefinitions());
         boolean result = dbmd.supportsCatalogsInTableDefinitions();
         assertEquals("TODO:", expResult, result);
     }
@@ -1115,12 +1208,13 @@ public class JDBCDatabaseMetaDataTest extends BaseJdbcTestCase {
     /**
      * Test of supportsCatalogsInIndexDefinitions method, of interface java.sql.DatabaseMetaData.
      */
+    @OfMethod("supportsCatalogsInIndexDefinitions()")
     public void testSupportsCatalogsInIndexDefinitions() throws Exception {
         DatabaseMetaData dbmd = getMetaData();
 
         boolean expResult = getBooleanProperty(
                 "dbmd.supports.catalogs.in.index.definitions",
-                true);
+                defaultValueFor().supportsCatalogsInIndexDefinitions());
         boolean result = dbmd.supportsCatalogsInIndexDefinitions();
         assertEquals("TODO:", expResult, result);
     }
@@ -1128,12 +1222,13 @@ public class JDBCDatabaseMetaDataTest extends BaseJdbcTestCase {
     /**
      * Test of supportsCatalogsInPrivilegeDefinitions method, of interface java.sql.DatabaseMetaData.
      */
+    @OfMethod("supportsCatalogsInPrivilegeDefinitions()")
     public void testSupportsCatalogsInPrivilegeDefinitions() throws Exception {
         DatabaseMetaData dbmd = getMetaData();
 
         boolean expResult = getBooleanProperty(
                 "dbmd.supports.catalogs.in.privilege.definitions",
-                true);
+                defaultValueFor().supportsCatalogsInPrivilegeDefinitions());
         boolean result = dbmd.supportsCatalogsInPrivilegeDefinitions();
         assertEquals("TODO:", expResult, result);
     }
@@ -1141,12 +1236,13 @@ public class JDBCDatabaseMetaDataTest extends BaseJdbcTestCase {
     /**
      * Test of supportsPositionedDelete method, of interface java.sql.DatabaseMetaData.
      */
+    @OfMethod("supportsPositionedDelete()")
     public void testSupportsPositionedDelete() throws Exception {
         DatabaseMetaData dbmd = getMetaData();
 
         boolean expResult = getBooleanProperty(
                 "dbmd.supports.positioned.delete",
-                true);
+                defaultValueFor().supportsPositionedDelete());
         boolean result = dbmd.supportsPositionedDelete();
         assertEquals("TODO:", expResult, result);
     }
@@ -1154,12 +1250,13 @@ public class JDBCDatabaseMetaDataTest extends BaseJdbcTestCase {
     /**
      * Test of supportsPositionedUpdate method, of interface java.sql.DatabaseMetaData.
      */
+    @OfMethod("supportsPositionedUpdate()")
     public void testSupportsPositionedUpdate() throws Exception {
         DatabaseMetaData dbmd = getMetaData();
 
         boolean expResult = getBooleanProperty(
                 "dbmd.supports.positioned.update",
-                true);
+                defaultValueFor().supportsPositionedUpdate());
         boolean result = dbmd.supportsPositionedUpdate();
         assertEquals("TODO:", expResult, result);
     }
@@ -1167,12 +1264,13 @@ public class JDBCDatabaseMetaDataTest extends BaseJdbcTestCase {
     /**
      * Test of supportsSelectForUpdate method, of interface java.sql.DatabaseMetaData.
      */
+    @OfMethod("supportsSelectForUpdate()")
     public void testSupportsSelectForUpdate() throws Exception {
         DatabaseMetaData dbmd = getMetaData();
 
         boolean expResult = getBooleanProperty(
                 "dbmd.supports.select.for.update",
-                true);
+                defaultValueFor().supportsSelectForUpdate());
         boolean result = dbmd.supportsSelectForUpdate();
         assertEquals("TODO:", expResult, result);
     }
@@ -1180,12 +1278,13 @@ public class JDBCDatabaseMetaDataTest extends BaseJdbcTestCase {
     /**
      * Test of supportsStoredProcedures method, of interface java.sql.DatabaseMetaData.
      */
+    @OfMethod("supportsStoredProcedures()")
     public void testSupportsStoredProcedures() throws Exception {
         DatabaseMetaData dbmd = getMetaData();
 
         boolean expResult = getBooleanProperty(
                 "dbmd.supports.stored.procedures",
-                true);
+                defaultValueFor().supportsStoredProcedures());
         boolean result = dbmd.supportsStoredProcedures();
         assertEquals(expResult, result);
     }
@@ -1193,12 +1292,13 @@ public class JDBCDatabaseMetaDataTest extends BaseJdbcTestCase {
     /**
      * Test of supportsSubqueriesInComparisons method, of interface java.sql.DatabaseMetaData.
      */
+    @OfMethod("supportsSubqueriesInComparisons()")
     public void testSupportsSubqueriesInComparisons() throws Exception {
         DatabaseMetaData dbmd = getMetaData();
 
         boolean expResult = getBooleanProperty(
                 "dbmd.supports.subqueries.in.comparisons",
-                true);
+                defaultValueFor().supportsSubqueriesInComparisons());
         boolean result = dbmd.supportsSubqueriesInComparisons();
         assertEquals(expResult, result);
     }
@@ -1206,12 +1306,13 @@ public class JDBCDatabaseMetaDataTest extends BaseJdbcTestCase {
     /**
      * Test of supportsSubqueriesInExists method, of interface java.sql.DatabaseMetaData.
      */
+    @OfMethod("supportsSubqueriesInExists()")
     public void testSupportsSubqueriesInExists() throws Exception {
         DatabaseMetaData dbmd = getMetaData();
 
         boolean expResult = getBooleanProperty(
                 "dbmd.supports.subqueries.in.exists",
-                true);
+                defaultValueFor().supportsSubqueriesInExists());
         boolean result = dbmd.supportsSubqueriesInExists();
         assertEquals(expResult, result);
     }
@@ -1219,12 +1320,13 @@ public class JDBCDatabaseMetaDataTest extends BaseJdbcTestCase {
     /**
      * Test of supportsSubqueriesInIns method, of interface java.sql.DatabaseMetaData.
      */
+    @OfMethod("supportsSubqueriesInIns()")
     public void testSupportsSubqueriesInIns() throws Exception {
         DatabaseMetaData dbmd = getMetaData();
 
         boolean expResult = getBooleanProperty(
                 "dbmd.supports.subqueries.in.ins",
-                true);
+                defaultValueFor().supportsSubqueriesInIns());
         boolean result = dbmd.supportsSubqueriesInIns();
         assertEquals(expResult, result);
     }
@@ -1232,12 +1334,13 @@ public class JDBCDatabaseMetaDataTest extends BaseJdbcTestCase {
     /**
      * Test of supportsSubqueriesInQuantifieds method, of interface java.sql.DatabaseMetaData.
      */
+    @OfMethod("supportsSubqueriesInQuantifieds()")
     public void testSupportsSubqueriesInQuantifieds() throws Exception {
         DatabaseMetaData dbmd = getMetaData();
 
         boolean expResult = getBooleanProperty(
                 "dbmd.supports.subqueries.in.quantifieds",
-                true);
+                defaultValueFor().supportsSubqueriesInQuantifieds());
         boolean result = dbmd.supportsSubqueriesInQuantifieds();
         assertEquals(expResult, result);
     }
@@ -1245,12 +1348,13 @@ public class JDBCDatabaseMetaDataTest extends BaseJdbcTestCase {
     /**
      * Test of supportsCorrelatedSubqueries method, of interface java.sql.DatabaseMetaData.
      */
+    @OfMethod("supportsCorrelatedSubqueries()")
     public void testSupportsCorrelatedSubqueries() throws Exception {
         DatabaseMetaData dbmd = getMetaData();
 
         boolean expResult = getBooleanProperty(
                 "dbmd.supports.correlated.subqueries",
-                true);
+                defaultValueFor().supportsCorrelatedSubqueries());
         boolean result = dbmd.supportsCorrelatedSubqueries();
         assertEquals(expResult, result);
     }
@@ -1258,12 +1362,13 @@ public class JDBCDatabaseMetaDataTest extends BaseJdbcTestCase {
     /**
      * Test of supportsUnion method, of interface java.sql.DatabaseMetaData.
      */
+    @OfMethod("supportsUnion()")
     public void testSupportsUnion() throws Exception {
         DatabaseMetaData dbmd = getMetaData();
 
         boolean expResult = getBooleanProperty(
                 "dbmd.supports.union",
-                true);
+                defaultValueFor().supportsUnion());
         boolean result = dbmd.supportsUnion();
         assertEquals(expResult, result);
     }
@@ -1271,12 +1376,13 @@ public class JDBCDatabaseMetaDataTest extends BaseJdbcTestCase {
     /**
      * Test of supportsUnionAll method, of interface java.sql.DatabaseMetaData.
      */
+    @OfMethod("supportsUnionAll()")
     public void testSupportsUnionAll() throws Exception {
         DatabaseMetaData dbmd = getMetaData();
 
         boolean expResult = getBooleanProperty(
                 "dbmd.supports.union.all",
-                true);
+                defaultValueFor().supportsUnionAll());
         boolean result = dbmd.supportsUnionAll();
         assertEquals(expResult, result);
     }
@@ -1284,12 +1390,13 @@ public class JDBCDatabaseMetaDataTest extends BaseJdbcTestCase {
     /**
      * Test of supportsOpenCursorsAcrossCommit method, of interface java.sql.DatabaseMetaData.
      */
+    @OfMethod("supportsOpenCursorsAcrossCommit()")
     public void testSupportsOpenCursorsAcrossCommit() throws Exception {
         DatabaseMetaData dbmd = getMetaData();
 
         boolean expResult = getBooleanProperty(
                 "dbmd.open.cursors.across.commit",
-                true);
+                defaultValueFor().supportsOpenCursorsAcrossCommit());
         boolean result = dbmd.supportsOpenCursorsAcrossCommit();
         assertEquals(expResult, result);
     }
@@ -1297,12 +1404,13 @@ public class JDBCDatabaseMetaDataTest extends BaseJdbcTestCase {
     /**
      * Test of supportsOpenCursorsAcrossRollback method, of interface java.sql.DatabaseMetaData.
      */
+    @OfMethod("supportsOpenCursorsAcrossRollback()")
     public void testSupportsOpenCursorsAcrossRollback() throws Exception {
         DatabaseMetaData dbmd = getMetaData();
 
         boolean expResult = getBooleanProperty(
                 "dbmd.supports.open.cursors.across.rollback",
-                false);
+                defaultValueFor().supportsOpenCursorsAcrossRollback());
         boolean result = dbmd.supportsOpenCursorsAcrossRollback();
         assertEquals(expResult, result);
     }
@@ -1310,12 +1418,13 @@ public class JDBCDatabaseMetaDataTest extends BaseJdbcTestCase {
     /**
      * Test of supportsOpenStatementsAcrossCommit method, of interface java.sql.DatabaseMetaData.
      */
+    @OfMethod("supportsOpenStatementsAcrossCommit()")
     public void testSupportsOpenStatementsAcrossCommit() throws Exception {
         DatabaseMetaData dbmd = getMetaData();
 
         boolean expResult = getBooleanProperty(
                 "dbmd.open.statements.across.commit",
-                true);
+                defaultValueFor().supportsOpenStatementsAcrossCommit());
         boolean result = dbmd.supportsOpenStatementsAcrossCommit();
         assertEquals(expResult, result);
     }
@@ -1323,12 +1432,13 @@ public class JDBCDatabaseMetaDataTest extends BaseJdbcTestCase {
     /**
      * Test of supportsOpenStatementsAcrossRollback method, of interface java.sql.DatabaseMetaData.
      */
+    @OfMethod("supportsOpenStatementsAcrossRollback()")
     public void testSupportsOpenStatementsAcrossRollback() throws Exception {
         DatabaseMetaData dbmd = getMetaData();
 
         boolean expResult = getBooleanProperty(
                 "dbmd.open.statements.across.rollback",
-                true);
+                defaultValueFor().supportsOpenStatementsAcrossRollback());
         boolean result = dbmd.supportsOpenStatementsAcrossRollback();
         assertEquals(expResult, result);
     }
@@ -1336,12 +1446,13 @@ public class JDBCDatabaseMetaDataTest extends BaseJdbcTestCase {
     /**
      * Test of getMaxBinaryLiteralLength method, of interface java.sql.DatabaseMetaData.
      */
+    @OfMethod("getMaxBinaryLiteralLength()")
     public void testGetMaxBinaryLiteralLength() throws Exception {
         DatabaseMetaData dbmd = getMetaData();
 
         int expResult = getIntProperty(
                 "dbmd.max.binary.literal.length",
-                0);
+                defaultValueFor().getMaxBinaryLiteralLength());
         int result = dbmd.getMaxBinaryLiteralLength();
         assertEquals(expResult, result);
     }
@@ -1349,12 +1460,13 @@ public class JDBCDatabaseMetaDataTest extends BaseJdbcTestCase {
     /**
      * Test of getMaxCharLiteralLength method, of interface java.sql.DatabaseMetaData.
      */
+    @OfMethod("getMaxCharLiteralLength()")
     public void testGetMaxCharLiteralLength() throws Exception {
         DatabaseMetaData dbmd = getMetaData();
 
         int expResult = getIntProperty(
                 "dbmd.max.char.literal.length",
-                0);
+                defaultValueFor().getMaxCharLiteralLength());
         int result = dbmd.getMaxCharLiteralLength();
         assertEquals(expResult, result);
     }
@@ -1362,12 +1474,13 @@ public class JDBCDatabaseMetaDataTest extends BaseJdbcTestCase {
     /**
      * Test of getMaxColumnNameLength method, of interface java.sql.DatabaseMetaData.
      */
+    @OfMethod("getMaxColumnNameLength()")
     public void testGetMaxColumnNameLength() throws Exception {
         DatabaseMetaData dbmd = getMetaData();
 
         int expResult = getIntProperty(
-                        "dbmd.max.column.name.length",
-                        getStandardMaxIdentifierLength());
+                "dbmd.max.column.name.length",
+                defaultValueFor().getMaxColumnNameLength()); // 128
         int result = dbmd.getMaxColumnNameLength();
         assertEquals(expResult, result);
     }
@@ -1375,12 +1488,13 @@ public class JDBCDatabaseMetaDataTest extends BaseJdbcTestCase {
     /**
      * Test of getMaxColumnsInGroupBy method, of interface java.sql.DatabaseMetaData.
      */
+    @OfMethod("getMaxColumnsInGroupBy()")
     public void testGetMaxColumnsInGroupBy() throws Exception {
         DatabaseMetaData dbmd = getMetaData();
 
         int expResult = getIntProperty(
                 "dbmd.max.columns.in.group.by",
-                0);
+                defaultValueFor().getMaxColumnsInGroupBy()); // 0
         int result = dbmd.getMaxColumnsInGroupBy();
         assertEquals(expResult, result);
     }
@@ -1388,12 +1502,13 @@ public class JDBCDatabaseMetaDataTest extends BaseJdbcTestCase {
     /**
      * Test of getMaxColumnsInIndex method, of interface java.sql.DatabaseMetaData.
      */
+    @OfMethod("getMaxColumnsInIndex()")
     public void testGetMaxColumnsInIndex() throws Exception {
         DatabaseMetaData dbmd = getMetaData();
 
         int expResult = getIntProperty(
                 "dbmd.max.columns.in.index",
-                0);
+                defaultValueFor().getMaxColumnsInIndex()); // 0
         int result = dbmd.getMaxColumnsInIndex();
         assertEquals(expResult, result);
     }
@@ -1401,12 +1516,13 @@ public class JDBCDatabaseMetaDataTest extends BaseJdbcTestCase {
     /**
      * Test of getMaxColumnsInOrderBy method, of interface java.sql.DatabaseMetaData.
      */
+    @OfMethod("getMaxColumnsInOrderBy()")
     public void testGetMaxColumnsInOrderBy() throws Exception {
         DatabaseMetaData dbmd = getMetaData();
 
         int expResult = getIntProperty(
                 "dbmd.max.columns.in.order.by",
-                0);
+                defaultValueFor().getMaxColumnsInOrderBy()); // 0
         int result = dbmd.getMaxColumnsInOrderBy();
         assertEquals(expResult, result);
     }
@@ -1414,12 +1530,13 @@ public class JDBCDatabaseMetaDataTest extends BaseJdbcTestCase {
     /**
      * Test of getMaxColumnsInSelect method, of interface java.sql.DatabaseMetaData.
      */
+    @OfMethod("getMaxColumnsInSelect()")
     public void testGetMaxColumnsInSelect() throws Exception {
         DatabaseMetaData dbmd = getMetaData();
 
         int expResult = getIntProperty(
                 "dbmd.max.columns.in.select",
-                0);
+                defaultValueFor().getMaxColumnsInSelect()); // 0
         int result = dbmd.getMaxColumnsInSelect();
         assertEquals(expResult, result);
     }
@@ -1427,12 +1544,13 @@ public class JDBCDatabaseMetaDataTest extends BaseJdbcTestCase {
     /**
      * Test of getMaxColumnsInTable method, of interface java.sql.DatabaseMetaData.
      */
+    @OfMethod("getMaxColumnsInTable()")
     public void testGetMaxColumnsInTable() throws Exception {
         DatabaseMetaData dbmd = getMetaData();
 
         int expResult = getIntProperty(
                 "dbmd.max.columns.in.table",
-                0);
+                defaultValueFor().getMaxColumnsInTable()); // 0
         int result = dbmd.getMaxColumnsInTable();
         assertEquals(expResult, result);
     }
@@ -1440,12 +1558,13 @@ public class JDBCDatabaseMetaDataTest extends BaseJdbcTestCase {
     /**
      * Test of getMaxConnections method, of interface java.sql.DatabaseMetaData.
      */
+    @OfMethod("getMaxConnections()")
     public void testGetMaxConnections() throws Exception {
         DatabaseMetaData dbmd = getMetaData();
 
         int expResult = getIntProperty(
                 "dbmd.max.connections",
-                0);
+                defaultValueFor().getMaxConnections()); // 0
         int result = dbmd.getMaxConnections();
         assertEquals(expResult, result);
     }
@@ -1453,12 +1572,13 @@ public class JDBCDatabaseMetaDataTest extends BaseJdbcTestCase {
     /**
      * Test of getMaxCursorNameLength method, of interface java.sql.DatabaseMetaData.
      */
+    @OfMethod("getMaxCursorNameLength()")
     public void testGetMaxCursorNameLength() throws Exception {
         DatabaseMetaData dbmd = getMetaData();
 
         int expResult = getIntProperty(
                 "dbmd.max.cursor.name.length",
-                getStandardMaxIdentifierLength());
+                defaultValueFor().getMaxCursorNameLength());
         int result = dbmd.getMaxCursorNameLength();
         assertEquals(expResult, result);
     }
@@ -1466,12 +1586,13 @@ public class JDBCDatabaseMetaDataTest extends BaseJdbcTestCase {
     /**
      * Test of getMaxIndexLength method, of interface java.sql.DatabaseMetaData.
      */
+    @OfMethod("getMaxIndexLength()")
     public void testGetMaxIndexLength() throws Exception {
         DatabaseMetaData dbmd = getMetaData();
 
         int expResult = getIntProperty(
                 "dbmd.max.index.length",
-                0);
+                defaultValueFor().getMaxIndexLength()); // 0
         int result = dbmd.getMaxIndexLength();
         assertEquals(expResult, result);
     }
@@ -1479,12 +1600,13 @@ public class JDBCDatabaseMetaDataTest extends BaseJdbcTestCase {
     /**
      * Test of getMaxSchemaNameLength method, of interface java.sql.DatabaseMetaData.
      */
+    @OfMethod("getMaxSchemaNameLength()")
     public void testGetMaxSchemaNameLength() throws Exception {
         DatabaseMetaData dbmd = getMetaData();
 
         int expResult = getIntProperty(
                 "dbmd.max.schema.name.length",
-                getStandardMaxIdentifierLength());
+                defaultValueFor().getMaxSchemaNameLength());
         int result = dbmd.getMaxSchemaNameLength();
         assertEquals(expResult, result);
     }
@@ -1492,12 +1614,13 @@ public class JDBCDatabaseMetaDataTest extends BaseJdbcTestCase {
     /**
      * Test of getMaxProcedureNameLength method, of interface java.sql.DatabaseMetaData.
      */
+    @OfMethod("getMaxProcedureNameLength()")
     public void testGetMaxProcedureNameLength() throws Exception {
         DatabaseMetaData dbmd = getMetaData();
 
         int expResult = getIntProperty(
                 "dbmd.max.procedure.name.length",
-                getStandardMaxIdentifierLength());
+                defaultValueFor().getMaxProcedureNameLength());
         int result = dbmd.getMaxProcedureNameLength();
         assertEquals(expResult, result);
     }
@@ -1505,12 +1628,13 @@ public class JDBCDatabaseMetaDataTest extends BaseJdbcTestCase {
     /**
      * Test of getMaxCatalogNameLength method, of interface java.sql.DatabaseMetaData.
      */
+    @OfMethod("getMaxCatalogNameLength()")
     public void testGetMaxCatalogNameLength() throws Exception {
         DatabaseMetaData dbmd = getMetaData();
 
         int expResult = getIntProperty(
                 "dbmd.max.catalog.name.length",
-                getStandardMaxIdentifierLength());
+                defaultValueFor().getMaxCatalogNameLength());
         int result = dbmd.getMaxCatalogNameLength();
         assertEquals(expResult, result);
     }
@@ -1518,12 +1642,13 @@ public class JDBCDatabaseMetaDataTest extends BaseJdbcTestCase {
     /**
      * Test of getMaxRowSize method, of interface java.sql.DatabaseMetaData.
      */
+    @OfMethod("getMaxRowSize()")
     public void testGetMaxRowSize() throws Exception {
         DatabaseMetaData dbmd = getMetaData();
 
         int expResult = getIntProperty(
                 "dbmd.max.row.size",
-                0);
+                defaultValueFor().getMaxRowSize()); // 0
         int result = dbmd.getMaxRowSize();
         assertEquals(expResult, result);
     }
@@ -1531,12 +1656,13 @@ public class JDBCDatabaseMetaDataTest extends BaseJdbcTestCase {
     /**
      * Test of doesMaxRowSizeIncludeBlobs method, of interface java.sql.DatabaseMetaData.
      */
+    @OfMethod("doesMaxRowSizeIncludeBlobs()")
     public void testDoesMaxRowSizeIncludeBlobs() throws Exception {
         DatabaseMetaData dbmd = getMetaData();
 
         boolean expResult = getBooleanProperty(
                 "dbmd.does.max.row.size.include.blobs",
-                true);
+                defaultValueFor().doesMaxRowSizeIncludeBlobs()); // true
         boolean result = dbmd.doesMaxRowSizeIncludeBlobs();
         assertEquals(expResult, result);
     }
@@ -1544,12 +1670,13 @@ public class JDBCDatabaseMetaDataTest extends BaseJdbcTestCase {
     /**
      * Test of getMaxStatementLength method, of interface java.sql.DatabaseMetaData.
      */
+    @OfMethod("getMaxStatementLength()")
     public void testGetMaxStatementLength() throws Exception {
         DatabaseMetaData dbmd = getMetaData();
 
         int expResult = getIntProperty(
                 "dbmd.max.statement.length",
-                0);
+                defaultValueFor().getMaxStatementLength()); // 0
         int result = dbmd.getMaxStatementLength();
         assertEquals(expResult, result);
     }
@@ -1557,12 +1684,13 @@ public class JDBCDatabaseMetaDataTest extends BaseJdbcTestCase {
     /**
      * Test of getMaxStatements method, of interface java.sql.DatabaseMetaData.
      */
+    @OfMethod("getMaxStatements()")
     public void testGetMaxStatements() throws Exception {
         DatabaseMetaData dbmd = getMetaData();
 
         int expResult = getIntProperty(
                 "dbmd.max.statements",
-                0);
+                defaultValueFor().getMaxStatements()); // 0
         int result = dbmd.getMaxStatements();
         assertEquals(expResult, result);
     }
@@ -1570,12 +1698,13 @@ public class JDBCDatabaseMetaDataTest extends BaseJdbcTestCase {
     /**
      * Test of getMaxTableNameLength method, of interface java.sql.DatabaseMetaData.
      */
+    @OfMethod("getMaxTableNameLength()")
     public void testGetMaxTableNameLength() throws Exception {
         DatabaseMetaData dbmd = getMetaData();
 
         int expResult = getIntProperty(
                 "dbmd.max.table.name.length",
-                getStandardMaxIdentifierLength());
+                defaultValueFor().getMaxTableNameLength());
         int result = dbmd.getMaxTableNameLength();
         assertEquals(expResult, result);
     }
@@ -1583,12 +1712,13 @@ public class JDBCDatabaseMetaDataTest extends BaseJdbcTestCase {
     /**
      * Test of getMaxTablesInSelect method, of interface java.sql.DatabaseMetaData.
      */
+    @OfMethod("getMaxTablesInSelect()")
     public void testGetMaxTablesInSelect() throws Exception {
         DatabaseMetaData dbmd = getMetaData();
 
         int expResult = getIntProperty(
                 "dbmd.max.tables.in.select",
-                0);
+                defaultValueFor().getMaxTablesInSelect()); // 0
         int result = dbmd.getMaxTablesInSelect();
         assertEquals(expResult, result);
     }
@@ -1596,12 +1726,13 @@ public class JDBCDatabaseMetaDataTest extends BaseJdbcTestCase {
     /**
      * Test of getMaxUserNameLength method, of interface java.sql.DatabaseMetaData.
      */
+    @OfMethod("getMaxUserNameLength()")
     public void testGetMaxUserNameLength() throws Exception {
         DatabaseMetaData dbmd = getMetaData();
 
         int expResult = getIntProperty(
                 "dbmd.max.user.name.length",
-                getStandardMaxIdentifierLength());
+                defaultValueFor().getMaxUserNameLength());
         int result = dbmd.getMaxUserNameLength();
         assertEquals(expResult, result);
     }
@@ -1609,12 +1740,13 @@ public class JDBCDatabaseMetaDataTest extends BaseJdbcTestCase {
     /**
      * Test of getDefaultTransactionIsolation method, of interface java.sql.DatabaseMetaData.
      */
+    @OfMethod("getDefaultTransactionIsolation()")
     public void testGetDefaultTransactionIsolation() throws Exception {
         DatabaseMetaData dbmd = getMetaData();
 
         int expResult = getIntProperty(
                 "dbmd.default.transaction.isolation",
-                Connection.TRANSACTION_READ_COMMITTED);
+                defaultValueFor().getDefaultTransactionIsolation()); // Connection.TRANSACTION_SERIALIZABLE
         int result = dbmd.getDefaultTransactionIsolation();
         assertEquals(expResult, result);
     }
@@ -1622,12 +1754,13 @@ public class JDBCDatabaseMetaDataTest extends BaseJdbcTestCase {
     /**
      * Test of supportsTransactions method, of interface java.sql.DatabaseMetaData.
      */
+    @OfMethod("supportsTransactions()")
     public void testSupportsTransactions() throws Exception {
         DatabaseMetaData dbmd = getMetaData();
 
         boolean expResult = getBooleanProperty(
                 "dbmd.supports.transactions",
-                true);
+                defaultValueFor().supportsTransactions()); // true
         boolean result = dbmd.supportsTransactions();
         assertEquals(expResult, result);
     }
@@ -1635,13 +1768,14 @@ public class JDBCDatabaseMetaDataTest extends BaseJdbcTestCase {
     /**
      * Test of supportsTransactionIsolationLevel method, of interface java.sql.DatabaseMetaData.
      */
+    @OfMethod("supportsTransactionIsolationLevel(int)")
     public void testSupportsTransactionIsolationLevel() throws Exception {
         int level = Connection.TRANSACTION_READ_UNCOMMITTED;
         DatabaseMetaData dbmd = getMetaData();
 
         boolean expResult = getBooleanProperty(
                 "dbmd.supports.transaction.isolation.level.read.uncommited",
-                true);
+                defaultValueFor().supportsTransactionIsolationLevel(level));
         boolean result = dbmd.supportsTransactionIsolationLevel(level);
 
         assertEquals("Supports TRANSACTION_READ_UNCOMMITTED", expResult, result);
@@ -1650,7 +1784,7 @@ public class JDBCDatabaseMetaDataTest extends BaseJdbcTestCase {
 
         expResult = getBooleanProperty(
                 "dbmd.supports.transaction.isolation.level.read.commited",
-                true);
+                defaultValueFor().supportsTransactionIsolationLevel(level));
 
         result = dbmd.supportsTransactionIsolationLevel(level);
 
@@ -1660,7 +1794,7 @@ public class JDBCDatabaseMetaDataTest extends BaseJdbcTestCase {
 
         expResult = getBooleanProperty(
                 "dbmd.supports.transaction.isolation.level.repeatable.read",
-                true);
+                defaultValueFor().supportsTransactionIsolationLevel(level));
 
         result = dbmd.supportsTransactionIsolationLevel(level);
 
@@ -1670,7 +1804,7 @@ public class JDBCDatabaseMetaDataTest extends BaseJdbcTestCase {
 
         expResult = getBooleanProperty(
                 "dbmd.supports.transaction.isolation.level.serializable",
-                true);
+                defaultValueFor().supportsTransactionIsolationLevel(level));
 
         result = dbmd.supportsTransactionIsolationLevel(level);
 
@@ -1680,12 +1814,13 @@ public class JDBCDatabaseMetaDataTest extends BaseJdbcTestCase {
     /**
      * Test of supportsDataDefinitionAndDataManipulationTransactions method, of interface java.sql.DatabaseMetaData.
      */
+    @OfMethod("supportsDataDefinitionAndDataManipulationTransactions()")
     public void testSupportsDataDefinitionAndDataManipulationTransactions() throws Exception {
         DatabaseMetaData dbmd = getMetaData();
 
         boolean expResult = getBooleanProperty(
                 "dbmd.supports.data.definition.and.data.manipulation.transactions",
-                false);
+                defaultValueFor().supportsDataDefinitionAndDataManipulationTransactions()); // false
         boolean result = dbmd.supportsDataDefinitionAndDataManipulationTransactions();
         assertEquals(expResult, result);
     }
@@ -1693,12 +1828,13 @@ public class JDBCDatabaseMetaDataTest extends BaseJdbcTestCase {
     /**
      * Test of supportsDataManipulationTransactionsOnly method, of interface java.sql.DatabaseMetaData.
      */
+    @OfMethod("supportsDataManipulationTransactionsOnly()")
     public void testSupportsDataManipulationTransactionsOnly() throws Exception {
         DatabaseMetaData dbmd = getMetaData();
 
         boolean expResult = getBooleanProperty(
                 "dbmd.supports.data.manipulation.transactions.only",
-                true);
+                defaultValueFor().supportsDataManipulationTransactionsOnly()); // true
         boolean result = dbmd.supportsDataManipulationTransactionsOnly();
         assertEquals(expResult, result);
     }
@@ -1706,12 +1842,13 @@ public class JDBCDatabaseMetaDataTest extends BaseJdbcTestCase {
     /**
      * Test of dataDefinitionCausesTransactionCommit method, of interface java.sql.DatabaseMetaData.
      */
+    @OfMethod("dataDefinitionCausesTransactionCommit()")
     public void testDataDefinitionCausesTransactionCommit() throws Exception {
         DatabaseMetaData dbmd = getMetaData();
 
         boolean expResult = getBooleanProperty(
                 "dbmd.data.definition.causes.transaction.commit",
-                true);
+                defaultValueFor().dataDefinitionCausesTransactionCommit()); // true
         boolean result = dbmd.dataDefinitionCausesTransactionCommit();
         assertEquals(expResult, result);
     }
@@ -1719,37 +1856,48 @@ public class JDBCDatabaseMetaDataTest extends BaseJdbcTestCase {
     /**
      * Test of dataDefinitionIgnoredInTransactions method, of interface java.sql.DatabaseMetaData.
      */
+    @OfMethod("dataDefinitionIgnoredInTransactions()")
     public void testDataDefinitionIgnoredInTransactions() throws Exception {
         DatabaseMetaData dbmd = getMetaData();
 
         boolean expResult = getBooleanProperty(
                 "dbmd.data.definition.ignored.in.transactions",
-                false);
+                defaultValueFor().dataDefinitionIgnoredInTransactions()); // false
         boolean result = dbmd.dataDefinitionIgnoredInTransactions();
         assertEquals(expResult, result);
     }
 
+    protected long readResultSet(final ResultSet rs) throws Exception {
+        long rowCount = 0;
 
-    protected void readResultSet(ResultSet rs) throws Exception
-    {
-        java.sql.ResultSetMetaData rsmd = rs.getMetaData();
+        try {
+            java.sql.ResultSetMetaData rsmd = rs.getMetaData();
 
-        int cols = rsmd.getColumnCount();
+            int cols = rsmd.getColumnCount();
 
-        while(rs.next())
-        {
-            for(int i = 1; i <= cols; i++)
-            {
-                Object o = rs.getObject(i);
+            while (rs.next()) {
+                for (int i = 1; i <= cols; i++) {
+                    Object o = rs.getObject(i);
+                }
+                rowCount++;
+            }
+
+
+        } finally {
+            if (rs != null) {
+                try {
+                    rs.close();
+                } catch (SQLException ex) {}
             }
         }
 
-        rs.close();
+        return rowCount;
     }
 
     /**
      * Test of getProcedures method, of interface java.sql.DatabaseMetaData.
      */
+    @OfMethod("getProcedures(java.lang.String,java.lang.String,java.lang.String)")
     public void testGetProcedures() throws Exception {
         String catalog = null;
         String schemaPattern = null;
@@ -1761,12 +1909,16 @@ public class JDBCDatabaseMetaDataTest extends BaseJdbcTestCase {
                 schemaPattern,
                 procedureNamePattern);
 
-        readResultSet(result);
+        long rowCount = readResultSet(result);
+
+
+        assertTrue("Row Count > 0", rowCount > 0);
     }
 
     /**
      * Test of getProcedureColumns method, of interface java.sql.DatabaseMetaData.
      */
+    @OfMethod("getProcedureColumns(java.lang.String,java.lang.String,java.lang.String,java.lang.String)")
     public void testGetProcedureColumns() throws Exception {
         String catalog = null;
         String schemaPattern = null;
@@ -1780,12 +1932,15 @@ public class JDBCDatabaseMetaDataTest extends BaseJdbcTestCase {
                 procedureNamePattern,
                 columnNamePattern);
 
-        readResultSet(result);
+        long rowCount = readResultSet(result);
+
+        assertTrue("Row Count > 0", rowCount > 0);
     }
 
     /**
      * Test of getTables method, of interface java.sql.DatabaseMetaData.
      */
+    @OfMethod("getTables(java.lang.String,java.lang.String,java.lang.String,java.lang.String[])")
     public void testGetTables() throws Exception {
         String catalog = null;
         String schemaPattern = null;
@@ -1793,51 +1948,79 @@ public class JDBCDatabaseMetaDataTest extends BaseJdbcTestCase {
         String[] types = null;
         DatabaseMetaData dbmd = getMetaData();
 
-        ResultSet result = dbmd.getTables(
+        final ResultSet result = dbmd.getTables(
                 catalog,
                 schemaPattern,
                 tableNamePattern,
                 types);
 
-        readResultSet(result);
+        long rowCount = readResultSet(result);
+
+        assertTrue("Row Count > 0", rowCount > 0);
     }
 
     /**
-     * Test of getSchemas method, of interface java.sql.DatabaseMetaData.
+     * Test of getSchemas() method, of interface java.sql.DatabaseMetaData.
      */
-    public void testGetSchemas() throws Exception {
+    @OfMethod("getSchemas()")
+    public void testGetSchemas_0args() throws Exception {
         DatabaseMetaData dbmd = getMetaData();
 
         ResultSet result = dbmd.getSchemas();
 
-        readResultSet(result);
+        long rowCount = readResultSet(result);
+
+        assertTrue("Row Count > 0", rowCount > 0);
+    }
+
+    /**
+     * Test of getSchemas(java.lang.String,java.lang.String) method, of interface java.sql.DatabaseMetaData.
+     */
+    @OfMethod("getSchemas(java.lang.String,java.lang.String)")
+    public void testGetSchemas_2args() throws Exception {
+        String catalog = null;
+        String schemaPattern = null;
+        DatabaseMetaData dbmd = getMetaData();
+
+        ResultSet result = dbmd.getSchemas(catalog,schemaPattern);
+
+        long rowCount = readResultSet(result);
+
+        assertTrue("Row Count > 0", rowCount > 0);
     }
 
     /**
      * Test of getCatalogs method, of interface java.sql.DatabaseMetaData.
      */
+    @OfMethod("getCatalogs()")
     public void testGetCatalogs() throws Exception {
         DatabaseMetaData dbmd = getMetaData();
 
         ResultSet result = dbmd.getCatalogs();
 
-        readResultSet(result);
+        long rowCount = readResultSet(result);
+
+        assertTrue("Row Count > 0", rowCount > 0);
     }
 
     /**
      * Test of getTableTypes method, of interface java.sql.DatabaseMetaData.
      */
+    @OfMethod("getTableTypes()")
     public void testGetTableTypes() throws Exception {
         DatabaseMetaData dbmd = getMetaData();
 
         ResultSet result = dbmd.getTableTypes();
 
-        readResultSet(result);
+        long rowCount = readResultSet(result);
+
+        assertTrue("Row Count > 0", rowCount > 0);
     }
 
     /**
      * Test of getColumns method, of interface java.sql.DatabaseMetaData.
      */
+    @OfMethod("getColumns(java.lang.String,java.lang.String,java.lang.String,java.lang.String)")
     public void testGetColumns() throws Exception {
         String catalog = null;
         String schemaPattern = null;
@@ -1851,12 +2034,15 @@ public class JDBCDatabaseMetaDataTest extends BaseJdbcTestCase {
                 tableNamePattern,
                 columnNamePattern);
 
-        readResultSet(result);
+        long rowCount = readResultSet(result);
+
+        assertTrue("Row Count > 0", rowCount > 0);
     }
 
     /**
      * Test of getColumnPrivileges method, of interface java.sql.DatabaseMetaData.
      */
+    @OfMethod("getColumnPrivileges(java.lang.String,java.lang.String,java.lang.String,java.lang.String)")
     public void testGetColumnPrivileges() throws Exception {
         String catalog = null;
         String schema = null;
@@ -1870,12 +2056,15 @@ public class JDBCDatabaseMetaDataTest extends BaseJdbcTestCase {
                 table,
                 columnNamePattern);
 
-        readResultSet(result);
+        long rowCount = readResultSet(result);
+
+        assertTrue("Row Count > 0", rowCount > 0);
     }
 
     /**
      * Test of getTablePrivileges method, of interface java.sql.DatabaseMetaData.
      */
+    @OfMethod("getTablePrivileges(java.lang.String,java.lang.String,java.lang.String)")
     public void testGetTablePrivileges() throws Exception {
         String catalog = null;
         String schemaPattern = null;
@@ -1887,12 +2076,15 @@ public class JDBCDatabaseMetaDataTest extends BaseJdbcTestCase {
                 schemaPattern,
                 tableNamePattern);
 
-        readResultSet(result);
+        long rowCount = readResultSet(result);
+
+        assertTrue("Row Count > 0", rowCount > 0);
     }
 
     /**
      * Test of getBestRowIdentifier method, of interface java.sql.DatabaseMetaData.
      */
+    @OfMethod("getBestRowIdentifier(java.lang.String,java.lang.String,java.lang.String,int,boolean)")
     public void testGetBestRowIdentifier() throws Exception {
         String catalog = null;
         String schema = null;
@@ -1914,6 +2106,7 @@ public class JDBCDatabaseMetaDataTest extends BaseJdbcTestCase {
     /**
      * Test of getVersionColumns method, of interface java.sql.DatabaseMetaData.
      */
+    @OfMethod("getVersionColumns(java.lang.String,java.lang.String,java.lang.String)")
     public void testGetVersionColumns() throws Exception {
         String catalog = null;
         String schema = null;
@@ -1928,6 +2121,7 @@ public class JDBCDatabaseMetaDataTest extends BaseJdbcTestCase {
     /**
      * Test of getPrimaryKeys method, of interface java.sql.DatabaseMetaData.
      */
+    @OfMethod("getPrimaryKeys(java.lang.String,java.lang.String,java.lang.String)")
     public void testGetPrimaryKeys() throws Exception {
         String catalog = null;
         String schema = null;
@@ -1942,6 +2136,7 @@ public class JDBCDatabaseMetaDataTest extends BaseJdbcTestCase {
     /**
      * Test of getImportedKeys method, of interface java.sql.DatabaseMetaData.
      */
+    @OfMethod("getImportedKeys(java.lang.String,java.lang.String,java.lang.String)")
     public void testGetImportedKeys() throws Exception {
         String catalog = null;
         String schema = null;
@@ -1956,6 +2151,7 @@ public class JDBCDatabaseMetaDataTest extends BaseJdbcTestCase {
     /**
      * Test of getExportedKeys method, of interface java.sql.DatabaseMetaData.
      */
+    @OfMethod("getExportedKeys(java.lang.String,java.lang.String,java.lang.String)")
     public void testGetExportedKeys() throws Exception {
         String catalog = null;
         String schema = null;
@@ -1970,6 +2166,7 @@ public class JDBCDatabaseMetaDataTest extends BaseJdbcTestCase {
     /**
      * Test of getCrossReference method, of interface java.sql.DatabaseMetaData.
      */
+    @OfMethod("getCrossReference(java.lang.String,java.lang.String,java.lang.String)")
     public void testGetCrossReference() throws Exception {
         String parentCatalog = null;
         String parentSchema = null;
@@ -1993,17 +2190,21 @@ public class JDBCDatabaseMetaDataTest extends BaseJdbcTestCase {
     /**
      * Test of getTypeInfo method, of interface java.sql.DatabaseMetaData.
      */
+    @OfMethod("getTypeInfo()")
     public void testGetTypeInfo() throws Exception {
         DatabaseMetaData dbmd = getMetaData();
 
         ResultSet result = dbmd.getTypeInfo();
 
-        readResultSet(result);
+        long rowCount = readResultSet(result);
+
+        assertTrue("Row Count > 0", rowCount > 0);
     }
 
     /**
      * Test of getIndexInfo method, of interface java.sql.DatabaseMetaData.
      */
+    @OfMethod("getIndexInfo(java.lang.String,java.lang.String,java.lang.String,boolean,boolean)")
     public void testGetIndexInfo() throws Exception {
         String catalog = null;
         String schema = null;
@@ -2025,13 +2226,14 @@ public class JDBCDatabaseMetaDataTest extends BaseJdbcTestCase {
     /**
      * Test of supportsResultSetType method, of interface java.sql.DatabaseMetaData.
      */
+    @OfMethod("supportsResultSetType(int)")
     public void testSupportsResultSetType_TYPE_FORWARD_ONLY() throws Exception {
         int type = ResultSet.TYPE_FORWARD_ONLY;
         DatabaseMetaData dbmd = getMetaData();
 
         boolean expResult = getBooleanProperty(
                 "dbmd.supports.result.set.type.forward.only",
-                true);
+                defaultValueFor().supportsResultSetType(type)); // true
         boolean result = dbmd.supportsResultSetType(type);
         assertEquals(expResult, result);
     }
@@ -2039,13 +2241,14 @@ public class JDBCDatabaseMetaDataTest extends BaseJdbcTestCase {
     /**
      * Test of supportsResultSetType method, of interface java.sql.DatabaseMetaData.
      */
+    @OfMethod("supportsResultSetType(int)")
     public void testSupportsResultSetType_TYPE_SCROLL_INSENSITIVE() throws Exception {
         int type = ResultSet.TYPE_SCROLL_INSENSITIVE;
         DatabaseMetaData dbmd = getMetaData();
 
         boolean expResult = getBooleanProperty(
                 "dbmd.supports.result.set.type.scroll.insensitive",
-                true);
+                defaultValueFor().supportsResultSetType(type)); // true
         boolean result = dbmd.supportsResultSetType(type);
         assertEquals(expResult, result);
     }
@@ -2053,13 +2256,14 @@ public class JDBCDatabaseMetaDataTest extends BaseJdbcTestCase {
     /**
      * Test of supportsResultSetType method, of interface java.sql.DatabaseMetaData.
      */
+    @OfMethod("supportsResultSetType(int)")
     public void testSupportsResultSetType_TYPE_SCROLL_SENSITIVE() throws Exception {
         int type = ResultSet.TYPE_SCROLL_SENSITIVE;
         DatabaseMetaData dbmd = getMetaData();
 
         boolean expResult = getBooleanProperty(
                 "dbmd.supports.result.set.type.scroll.sensitive",
-                true);
+                defaultValueFor().supportsResultSetType(type)); // true
         boolean result = dbmd.supportsResultSetType(type);
         assertEquals(expResult, result);
     }
@@ -2067,6 +2271,7 @@ public class JDBCDatabaseMetaDataTest extends BaseJdbcTestCase {
     /**
      * Test of supportsResultSetConcurrency method, of interface java.sql.DatabaseMetaData.
      */
+    @OfMethod("supportsResultSetConcurrency(int,int)")
     public void testSupportsResultSetConcurrency_TYPE_FORWARD_ONLY_CONCUR_READ_ONLY() throws Exception {
         int type = JDBCResultSet.TYPE_FORWARD_ONLY;
         int concurrency = JDBCResultSet.CONCUR_READ_ONLY;
@@ -2074,7 +2279,7 @@ public class JDBCDatabaseMetaDataTest extends BaseJdbcTestCase {
 
         boolean expResult = getBooleanProperty(
                 "dbmd.supports.result.set.concurrency.forward.only.read.only",
-                true);
+                defaultValueFor().supportsResultSetConcurrency(type, concurrency)); // true
         boolean result = dbmd.supportsResultSetConcurrency(type, concurrency);
 
         assertEquals(expResult, result);
@@ -2083,6 +2288,7 @@ public class JDBCDatabaseMetaDataTest extends BaseJdbcTestCase {
     /**
      * Test of supportsResultSetConcurrency method, of interface java.sql.DatabaseMetaData.
      */
+    @OfMethod("supportsResultSetConcurrency(int,int)")
     public void testSupportsResultSetConcurrency_TYPE_FORWARD_ONLY_CONCUR_UPDATABLE() throws Exception {
         int type = JDBCResultSet.TYPE_FORWARD_ONLY;
         int concurrency = JDBCResultSet.CONCUR_UPDATABLE;
@@ -2090,7 +2296,7 @@ public class JDBCDatabaseMetaDataTest extends BaseJdbcTestCase {
 
         boolean expResult = getBooleanProperty(
                 "dbmd.supports.result.set.concurrency.forward.only.updatable",
-                true);
+                defaultValueFor().supportsResultSetConcurrency(type, concurrency)); // true
         boolean result = dbmd.supportsResultSetConcurrency(type, concurrency);
 
         assertEquals("TODO:", expResult, result);
@@ -2099,6 +2305,7 @@ public class JDBCDatabaseMetaDataTest extends BaseJdbcTestCase {
     /**
      * Test of supportsResultSetConcurrency method, of interface java.sql.DatabaseMetaData.
      */
+    @OfMethod("supportsResultSetConcurrency(int,int)")
     public void testSupportsResultSetConcurrency_TYPE_SCROLL_INSENSITIVE_CONCUR_READ_ONLY() throws Exception {
         int type = JDBCResultSet.TYPE_SCROLL_INSENSITIVE;
         int concurrency = JDBCResultSet.CONCUR_READ_ONLY;
@@ -2106,15 +2313,16 @@ public class JDBCDatabaseMetaDataTest extends BaseJdbcTestCase {
 
         boolean expResult = getBooleanProperty(
                 "dbmd.supports.result.set.concurrency.scroll.insensitive.read.only",
-                true);
+                defaultValueFor().supportsResultSetConcurrency(type, concurrency)); // true
         boolean result = dbmd.supportsResultSetConcurrency(type, concurrency);
 
-         assertEquals(expResult, result);
+        assertEquals(expResult, result);
     }
 
     /**
      * Test of supportsResultSetConcurrency method, of interface java.sql.DatabaseMetaData.
      */
+    @OfMethod("supportsResultSetConcurrency(int,int)")
     public void testSupportsResultSetConcurrency_TYPE_SCROLL_INSENSITIVE_CONCUR_UPDATABLE() throws Exception {
         int type = JDBCResultSet.TYPE_SCROLL_INSENSITIVE;
         int concurrency = JDBCResultSet.CONCUR_UPDATABLE;
@@ -2122,7 +2330,7 @@ public class JDBCDatabaseMetaDataTest extends BaseJdbcTestCase {
 
         boolean expResult = getBooleanProperty(
                 "dbmd.supports.result.set.concurrency.scroll.insensitive.updatable",
-                true);
+                 defaultValueFor().supportsResultSetConcurrency(type, concurrency)); // true
         boolean result = dbmd.supportsResultSetConcurrency(type, concurrency);
 
         assertEquals("TODO:", expResult, result);
@@ -2131,6 +2339,7 @@ public class JDBCDatabaseMetaDataTest extends BaseJdbcTestCase {
     /**
      * Test of supportsResultSetConcurrency method, of interface java.sql.DatabaseMetaData.
      */
+    @OfMethod("supportsResultSetConcurrency(int,int)")
     public void testSupportsResultSetConcurrency_TYPE_SCROLL_SENSITIVE_CONCUR_READ_ONLY() throws Exception {
         int type = JDBCResultSet.TYPE_SCROLL_SENSITIVE;
         int concurrency = JDBCResultSet.CONCUR_READ_ONLY;
@@ -2138,7 +2347,7 @@ public class JDBCDatabaseMetaDataTest extends BaseJdbcTestCase {
 
         boolean expResult = getBooleanProperty(
                 "dbmd.supports.result.set.concurrency.scroll.sensitive.read.only",
-                true);
+                defaultValueFor().supportsResultSetConcurrency(type, concurrency)); // true
         boolean result = dbmd.supportsResultSetConcurrency(type, concurrency);
 
         assertEquals("TODO:", expResult, result);
@@ -2147,6 +2356,7 @@ public class JDBCDatabaseMetaDataTest extends BaseJdbcTestCase {
     /**
      * Test of supportsResultSetConcurrency method, of interface java.sql.DatabaseMetaData.
      */
+    @OfMethod("supportsResultSetConcurrency(int,int)")
     public void testSupportsResultSetConcurrency_TYPE_SCROLL_SENSITIVE_CONCUR_UPDATABLE() throws Exception {
         int type = JDBCResultSet.TYPE_SCROLL_SENSITIVE;
         int concurrency = JDBCResultSet.CONCUR_UPDATABLE;
@@ -2154,7 +2364,7 @@ public class JDBCDatabaseMetaDataTest extends BaseJdbcTestCase {
 
         boolean expResult = getBooleanProperty(
                 "dbmd.supports.result.set.concurrency.scroll.sensitive.updatable",
-                true);
+                defaultValueFor().supportsResultSetConcurrency(type, concurrency)); // true
         boolean result = dbmd.supportsResultSetConcurrency(type, concurrency);
 
         assertEquals("TODO:", expResult, result);
@@ -2163,13 +2373,14 @@ public class JDBCDatabaseMetaDataTest extends BaseJdbcTestCase {
     /**
      * Test of ownUpdatesAreVisible method, of interface java.sql.DatabaseMetaData.
      */
+    @OfMethod("ownUpdatesAreVisible()")
     public void testOwnUpdatesAreVisible() throws Exception {
         int type = JDBCResultSet.TYPE_FORWARD_ONLY;
         DatabaseMetaData dbmd = getMetaData();
 
         boolean expResult = getBooleanProperty(
                 "dbmd.own.updates.are.visible.type.forward.only",
-                false);
+                defaultValueFor().ownUpdatesAreVisible(type)); // false
 
         boolean result = dbmd.ownUpdatesAreVisible(type);
 
@@ -2182,7 +2393,7 @@ public class JDBCDatabaseMetaDataTest extends BaseJdbcTestCase {
 
         expResult = getBooleanProperty(
                 "dbmd.own.updates.are.visible.type.scroll.insensitive",
-                false);
+                defaultValueFor().ownUpdatesAreVisible(type)); // false
 
         result = dbmd.ownUpdatesAreVisible(type);
 
@@ -2195,7 +2406,7 @@ public class JDBCDatabaseMetaDataTest extends BaseJdbcTestCase {
 
         expResult = getBooleanProperty(
                 "dbmd.own.updates.are.visible.type.scroll.sensitive",
-                false);
+                defaultValueFor().ownUpdatesAreVisible(type)); // false
 
         result = dbmd.ownUpdatesAreVisible(type);
 
@@ -2208,13 +2419,14 @@ public class JDBCDatabaseMetaDataTest extends BaseJdbcTestCase {
     /**
      * Test of ownDeletesAreVisible method, of interface java.sql.DatabaseMetaData.
      */
+    @OfMethod("ownDeletesAreVisible()")
     public void testOwnDeletesAreVisible() throws Exception {
         int type = JDBCResultSet.TYPE_FORWARD_ONLY;
         DatabaseMetaData dbmd = getMetaData();
 
         boolean expResult = getBooleanProperty(
                 "dbmd.own.deletes.are.visible.type.forward.only",
-                false);
+                defaultValueFor().ownDeletesAreVisible(type)); // false
 
         boolean result = dbmd.ownDeletesAreVisible(type);
 
@@ -2227,7 +2439,7 @@ public class JDBCDatabaseMetaDataTest extends BaseJdbcTestCase {
 
         expResult = getBooleanProperty(
                 "dbmd.own.deletes.are.visible.type.scroll.insensitive",
-                false);
+                defaultValueFor().ownDeletesAreVisible(type)); // false
 
         result = dbmd.ownDeletesAreVisible(type);
 
@@ -2240,7 +2452,7 @@ public class JDBCDatabaseMetaDataTest extends BaseJdbcTestCase {
 
         expResult = getBooleanProperty(
                 "dbmd.own.deletes.are.visible.type.scroll.sensitive",
-                false);
+                defaultValueFor().ownDeletesAreVisible(type)); // false
 
         result = dbmd.ownDeletesAreVisible(type);
 
@@ -2253,13 +2465,14 @@ public class JDBCDatabaseMetaDataTest extends BaseJdbcTestCase {
     /**
      * Test of ownInsertsAreVisible method, of interface java.sql.DatabaseMetaData.
      */
+    @OfMethod("ownInsertsAreVisible()")
     public void testOwnInsertsAreVisible() throws Exception {
         int type = JDBCResultSet.TYPE_FORWARD_ONLY;
         DatabaseMetaData dbmd = getMetaData();
 
         boolean expResult = getBooleanProperty(
                 "dbmd.own.inserts.are.visible.type.forward.only",
-                false);
+                defaultValueFor().ownInsertsAreVisible(type)); // false
 
         boolean result = dbmd.ownInsertsAreVisible(type);
 
@@ -2272,7 +2485,7 @@ public class JDBCDatabaseMetaDataTest extends BaseJdbcTestCase {
 
         expResult = getBooleanProperty(
                 "dbmd.own.inserts.are.visible.type.scroll.insensitive",
-                false);
+                 defaultValueFor().ownInsertsAreVisible(type)); // false
 
         result = dbmd.ownInsertsAreVisible(type);
 
@@ -2285,7 +2498,7 @@ public class JDBCDatabaseMetaDataTest extends BaseJdbcTestCase {
 
         expResult = getBooleanProperty(
                 "dbmd.own.inserts.are.visible.type.scroll.sensitive",
-                false);
+                 defaultValueFor().ownInsertsAreVisible(type)); // false
 
         result = dbmd.ownInsertsAreVisible(type);
 
@@ -2298,13 +2511,14 @@ public class JDBCDatabaseMetaDataTest extends BaseJdbcTestCase {
     /**
      * Test of othersUpdatesAreVisible method, of interface java.sql.DatabaseMetaData.
      */
+    @OfMethod("othersUpdatesAreVisible()")
     public void testOthersUpdatesAreVisible() throws Exception {
         int type = JDBCResultSet.TYPE_FORWARD_ONLY;
         DatabaseMetaData dbmd = getMetaData();
 
         boolean expResult = getBooleanProperty(
                 "dbmd.others.updates.are.visible.type.forward.only",
-                false);
+                defaultValueFor().othersUpdatesAreVisible(type)); // false
 
         boolean result = dbmd.othersUpdatesAreVisible(type);
 
@@ -2317,7 +2531,7 @@ public class JDBCDatabaseMetaDataTest extends BaseJdbcTestCase {
 
         expResult = getBooleanProperty(
                 "dbmd.others.updates.are.visible.type.scroll.insensitive",
-                false);
+                defaultValueFor().othersUpdatesAreVisible(type)); // false
 
         result = dbmd.othersUpdatesAreVisible(type);
 
@@ -2330,7 +2544,7 @@ public class JDBCDatabaseMetaDataTest extends BaseJdbcTestCase {
 
         expResult = getBooleanProperty(
                 "dbmd.others.updates.are.visible.type.scroll.sensitive",
-                false);
+                defaultValueFor().othersUpdatesAreVisible(type)); // false
 
         result = dbmd.othersUpdatesAreVisible(type);
 
@@ -2343,13 +2557,14 @@ public class JDBCDatabaseMetaDataTest extends BaseJdbcTestCase {
     /**
      * Test of othersDeletesAreVisible method, of interface java.sql.DatabaseMetaData.
      */
+    @OfMethod("othersDeletesAreVisible()")
     public void testOthersDeletesAreVisible() throws Exception {
         int type = JDBCResultSet.TYPE_FORWARD_ONLY;
         DatabaseMetaData dbmd = getMetaData();
 
         boolean expResult = getBooleanProperty(
                 "dbmd.others.deletes.are.visible.type.forward.only",
-                false);
+                defaultValueFor().othersDeletesAreVisible(type)); // false
 
         boolean result = dbmd.othersDeletesAreVisible(type);
 
@@ -2362,7 +2577,7 @@ public class JDBCDatabaseMetaDataTest extends BaseJdbcTestCase {
 
         expResult = getBooleanProperty(
                 "dbmd.others.deletes.are.visible.type.scroll.insensitive",
-                false);
+                defaultValueFor().othersDeletesAreVisible(type)); // false
 
         result = dbmd.othersDeletesAreVisible(type);
 
@@ -2375,7 +2590,7 @@ public class JDBCDatabaseMetaDataTest extends BaseJdbcTestCase {
 
         expResult = getBooleanProperty(
                 "dbmd.others.deletes.are.visible.type.scroll.sensitive",
-                false);
+                defaultValueFor().othersDeletesAreVisible(type)); // false
 
         result = dbmd.othersDeletesAreVisible(type);
 
@@ -2388,13 +2603,14 @@ public class JDBCDatabaseMetaDataTest extends BaseJdbcTestCase {
     /**
      * Test of othersInsertsAreVisible method, of interface java.sql.DatabaseMetaData.
      */
+    @OfMethod("othersInsertsAreVisible()")
     public void testOthersInsertsAreVisible() throws Exception {
         int type = JDBCResultSet.TYPE_FORWARD_ONLY;
         DatabaseMetaData dbmd = getMetaData();
 
         boolean expResult = getBooleanProperty(
                 "dbmd.others.inserts.are.visible.type.forward.only",
-                false);
+                defaultValueFor().othersInsertsAreVisible(type)); // false
 
         boolean result = dbmd.othersInsertsAreVisible(type);
 
@@ -2407,7 +2623,7 @@ public class JDBCDatabaseMetaDataTest extends BaseJdbcTestCase {
 
         expResult = getBooleanProperty(
                 "dbmd.others.inserts.are.visible.type.scroll.insensitive",
-                false);
+                 defaultValueFor().othersInsertsAreVisible(type)); // false
 
         result = dbmd.othersInsertsAreVisible(type);
 
@@ -2420,7 +2636,7 @@ public class JDBCDatabaseMetaDataTest extends BaseJdbcTestCase {
 
         expResult = getBooleanProperty(
                 "dbmd.others.inserts.are.visible.type.scroll.sensitive",
-                false);
+                 defaultValueFor().othersInsertsAreVisible(type)); // false
 
         result = dbmd.othersInsertsAreVisible(type);
 
@@ -2433,13 +2649,14 @@ public class JDBCDatabaseMetaDataTest extends BaseJdbcTestCase {
     /**
      * Test of updatesAreDetected method, of interface java.sql.DatabaseMetaData.
      */
+    @OfMethod("updatesAreDetected()")
     public void testUpdatesAreDetected() throws Exception {
         DatabaseMetaData dbmd = getMetaData();
         //--
         int type = JDBCResultSet.TYPE_FORWARD_ONLY;
         boolean expResult = getBooleanProperty(
                 "dbmd.updates.are.detected.type.forward.only",
-                false);
+                defaultValueFor().updatesAreDetected(type)); // false
         boolean result = dbmd.updatesAreDetected(type);
         assertEquals(
                 "UpdatesAreDetected - TYPE_FORWARD_ONLY",
@@ -2449,7 +2666,7 @@ public class JDBCDatabaseMetaDataTest extends BaseJdbcTestCase {
         type = JDBCResultSet.TYPE_SCROLL_INSENSITIVE;
         expResult = getBooleanProperty(
                 "dbmd.updates.are.detected.type.scroll.insensitive",
-                false);
+                defaultValueFor().updatesAreDetected(type)); // false
         result = dbmd.updatesAreDetected(type);
         assertEquals(
                 "UpdatesAreDetected - TYPE_SCROLL_INSENSITIVE",
@@ -2459,7 +2676,7 @@ public class JDBCDatabaseMetaDataTest extends BaseJdbcTestCase {
         type = JDBCResultSet.TYPE_SCROLL_SENSITIVE;
         expResult = getBooleanProperty(
                 "dbmd.updates.are.detected.type.scroll.sensitive",
-                false);
+                defaultValueFor().updatesAreDetected(type)); // false
         result = dbmd.updatesAreDetected(type);
         assertEquals(
                 "UpdatesAreDetected - TYPE_SCROLL_SENSITIVE",
@@ -2470,13 +2687,14 @@ public class JDBCDatabaseMetaDataTest extends BaseJdbcTestCase {
     /**
      * Test of deletesAreDetected method, of interface java.sql.DatabaseMetaData.
      */
+    @OfMethod("deletesAreDetected()")
     public void testDeletesAreDetected() throws Exception {
         DatabaseMetaData dbmd = getMetaData();
         //--
         int type = JDBCResultSet.TYPE_FORWARD_ONLY;
         boolean expResult = getBooleanProperty(
                 "dbmd.deletes.are.detected.type.forward.only",
-                false);
+                defaultValueFor().deletesAreDetected(type)); // false
         boolean result = dbmd.deletesAreDetected(type);
         assertEquals(
                 "DeletesAreDetected - TYPE_FORWARD_ONLY",
@@ -2486,8 +2704,8 @@ public class JDBCDatabaseMetaDataTest extends BaseJdbcTestCase {
         type = JDBCResultSet.TYPE_SCROLL_INSENSITIVE;
         expResult = getBooleanProperty(
                 "dbmd.deletes.are.detected.type.scroll.insensitive",
-                false);
-        result =dbmd.deletesAreDetected(type);
+                defaultValueFor().deletesAreDetected(type)); // false
+        result = dbmd.deletesAreDetected(type);
         assertEquals(
                 "DeletesAreDetected - TYPE_SCROLL_INSENSITIVE",
                 expResult,
@@ -2496,7 +2714,7 @@ public class JDBCDatabaseMetaDataTest extends BaseJdbcTestCase {
         type = JDBCResultSet.TYPE_SCROLL_SENSITIVE;
         expResult = getBooleanProperty(
                 "dbmd.deletes.are.detected.type.scroll.sensitive",
-                false);
+                defaultValueFor().deletesAreDetected(type)); // false
         result = dbmd.deletesAreDetected(type);
         assertEquals(
                 "DeletesAreDetected - TYPE_SCROLL_SENSITIVE",
@@ -2507,13 +2725,14 @@ public class JDBCDatabaseMetaDataTest extends BaseJdbcTestCase {
     /**
      * Test of insertsAreDetected method, of interface java.sql.DatabaseMetaData.
      */
+    @OfMethod("insertsAreDetected()")
     public void testInsertsAreDetected() throws Exception {
         DatabaseMetaData dbmd = getMetaData();
         //--
         int type = JDBCResultSet.TYPE_FORWARD_ONLY;
         boolean expResult = getBooleanProperty(
                 "dbmd.inserts.are.detected.type.forward.only",
-                false);
+                defaultValueFor().insertsAreDetected(type)); // false
         boolean result = dbmd.insertsAreDetected(type);
         assertEquals(
                 "InsertsAreDetected - TYPE_FORWARD_ONLY",
@@ -2523,8 +2742,8 @@ public class JDBCDatabaseMetaDataTest extends BaseJdbcTestCase {
         type = JDBCResultSet.TYPE_SCROLL_INSENSITIVE;
         expResult = getBooleanProperty(
                 "dbmd.inserts.are.detected.type.scroll.insensitive",
-                false);
-        result =dbmd.insertsAreDetected(type);
+                 defaultValueFor().insertsAreDetected(type)); // false
+        result = dbmd.insertsAreDetected(type);
         assertEquals(
                 "InsertsAreDetected - TYPE_SCROLL_INSENSITIVE",
                 expResult,
@@ -2533,7 +2752,7 @@ public class JDBCDatabaseMetaDataTest extends BaseJdbcTestCase {
         type = JDBCResultSet.TYPE_SCROLL_SENSITIVE;
         expResult = getBooleanProperty(
                 "dbmd.inserts.are.detected.type.scroll.sensitive",
-                false);
+                 defaultValueFor().insertsAreDetected(type)); // false
         result = dbmd.insertsAreDetected(type);
         assertEquals(
                 "InsertsAreDetected - TYPE_SCROLL_SENSITIVE",
@@ -2544,12 +2763,13 @@ public class JDBCDatabaseMetaDataTest extends BaseJdbcTestCase {
     /**
      * Test of supportsBatchUpdates method, of interface java.sql.DatabaseMetaData.
      */
+    @OfMethod("supportsBatchUpdates()")
     public void testSupportsBatchUpdates() throws Exception {
         DatabaseMetaData dbmd = getMetaData();
 
         boolean expResult = getBooleanProperty(
                 "dbmd.supports.batch.updates",
-                true);
+                defaultValueFor().supportsBatchUpdates()); // true
         boolean result = dbmd.supportsBatchUpdates();
         assertEquals(expResult, result);
     }
@@ -2557,6 +2777,7 @@ public class JDBCDatabaseMetaDataTest extends BaseJdbcTestCase {
     /**
      * Test of getUDTs method, of interface java.sql.DatabaseMetaData.
      */
+    @OfMethod("getUDTs(java.lang.String,java.lang.String,java.lang.String,int[])")
     public void testGetUDTs() throws Exception {
         String catalog = null;
         String schemaPattern = null;
@@ -2576,6 +2797,7 @@ public class JDBCDatabaseMetaDataTest extends BaseJdbcTestCase {
     /**
      * Test of getConnection method, of interface java.sql.DatabaseMetaData.
      */
+    @OfMethod("getConnection()")
     public void testGetConnection() throws Exception {
         DatabaseMetaData dbmd = getMetaData();
 
@@ -2586,12 +2808,13 @@ public class JDBCDatabaseMetaDataTest extends BaseJdbcTestCase {
     /**
      * Test of supportsSavepoints method, of interface java.sql.DatabaseMetaData.
      */
+    @OfMethod("supportsSavepoints()")
     public void testSupportsSavepoints() throws Exception {
         DatabaseMetaData dbmd = getMetaData();
 
         boolean expResult = getBooleanProperty(
                 "dbmd.supports.savepoints",
-                true);
+                defaultValueFor().supportsSavepoints()); // true
         boolean result = dbmd.supportsSavepoints();
         assertEquals(expResult, result);
     }
@@ -2599,12 +2822,13 @@ public class JDBCDatabaseMetaDataTest extends BaseJdbcTestCase {
     /**
      * Test of supportsNamedParameters method, of interface java.sql.DatabaseMetaData.
      */
+    @OfMethod("supportsNamedParameters()")
     public void testSupportsNamedParameters() throws Exception {
         DatabaseMetaData dbmd = getMetaData();
 
         boolean expResult = getBooleanProperty(
                 "dbmd.supports.named.parameters",
-                true);
+                defaultValueFor().supportsNamedParameters());
         boolean result = dbmd.supportsNamedParameters();
         assertEquals(expResult, result);
     }
@@ -2612,12 +2836,13 @@ public class JDBCDatabaseMetaDataTest extends BaseJdbcTestCase {
     /**
      * Test of supportsMultipleOpenResults method, of interface java.sql.DatabaseMetaData.
      */
+    @OfMethod("supportsMultipleOpenResults()")
     public void testSupportsMultipleOpenResults() throws Exception {
         DatabaseMetaData dbmd = getMetaData();
 
         boolean expResult = getBooleanProperty(
                 "dbmd.supports.multiple.open.results",
-                true);
+                defaultValueFor().supportsMultipleOpenResults()); // true
         boolean result = dbmd.supportsMultipleOpenResults();
         assertEquals("TODO:", expResult, result);
     }
@@ -2625,12 +2850,13 @@ public class JDBCDatabaseMetaDataTest extends BaseJdbcTestCase {
     /**
      * Test of supportsGetGeneratedKeys method, of interface java.sql.DatabaseMetaData.
      */
+    @OfMethod("supportsGetGeneratedKeys()")
     public void testSupportsGetGeneratedKeys() throws Exception {
         DatabaseMetaData dbmd = getMetaData();
 
         boolean expResult = getBooleanProperty(
                 "dbmd.supports.get.generated.keys",
-                true);
+                defaultValueFor().supportsGetGeneratedKeys()); // true
         boolean result = dbmd.supportsGetGeneratedKeys();
         assertEquals("TODO:", expResult, result);
     }
@@ -2638,6 +2864,7 @@ public class JDBCDatabaseMetaDataTest extends BaseJdbcTestCase {
     /**
      * Test of getSuperTypes method, of interface java.sql.DatabaseMetaData.
      */
+    @OfMethod("getSuperTypes(java.lang.String,java.lang.String,java.lang.String)")
     public void testGetSuperTypes() throws Exception {
         String catalog = null;
         String schemaPattern = null;
@@ -2655,6 +2882,7 @@ public class JDBCDatabaseMetaDataTest extends BaseJdbcTestCase {
     /**
      * Test of getSuperTables method, of interface java.sql.DatabaseMetaData.
      */
+    @OfMethod("getSuperTables(java.lang.String,java.lang.String,java.lang.String)")
     public void testGetSuperTables() throws Exception {
         String catalog = null;
         String schemaPattern = null;
@@ -2672,6 +2900,7 @@ public class JDBCDatabaseMetaDataTest extends BaseJdbcTestCase {
     /**
      * Test of getAttributes method, of interface java.sql.DatabaseMetaData.
      */
+    @OfMethod("getAttributes(java.lang.String,java.lang.String,java.lang.String,java.lang.String)")
     public void testGetAttributes() throws Exception {
         String catalog = null;
         String schemaPattern = null;
@@ -2691,13 +2920,14 @@ public class JDBCDatabaseMetaDataTest extends BaseJdbcTestCase {
     /**
      * Test of supportsResultSetHoldability method, of interface java.sql.DatabaseMetaData.
      */
+    @OfMethod("supportsResultSetHoldability(int)")
     public void testSupportsResultSetHoldability_HOLD_CURSORS_OVER_COMMIT() throws Exception {
         int holdability = JDBCResultSet.HOLD_CURSORS_OVER_COMMIT;
         DatabaseMetaData dbmd = getMetaData();
 
         boolean expResult = getBooleanProperty(
                 "dbmd.supports.result.set.holdability.hold.cursors.over.commit",
-                true);
+                defaultValueFor().supportsResultSetHoldability(holdability)); // true
         boolean result = dbmd.supportsResultSetHoldability(holdability);
         assertEquals(expResult, result);
     }
@@ -2705,13 +2935,14 @@ public class JDBCDatabaseMetaDataTest extends BaseJdbcTestCase {
     /**
      * Test of supportsResultSetHoldability method, of interface java.sql.DatabaseMetaData.
      */
+    @OfMethod("supportsResultSetHoldability(int)")
     public void testSupportsResultSetHoldability_CLOSE_CURSORS_AT_COMMIT() throws Exception {
         int holdability = JDBCResultSet.CLOSE_CURSORS_AT_COMMIT;
         DatabaseMetaData dbmd = getMetaData();
 
         boolean expResult = getBooleanProperty(
                 "dbmd.supports.result.set.holdability.close.cursors.at.commit",
-                true);
+                defaultValueFor().supportsResultSetHoldability(holdability)); // true
         boolean result = dbmd.supportsResultSetHoldability(holdability);
         assertEquals(expResult, result);
     }
@@ -2719,12 +2950,13 @@ public class JDBCDatabaseMetaDataTest extends BaseJdbcTestCase {
     /**
      * Test of getResultSetHoldability method, of interface java.sql.DatabaseMetaData.
      */
+    @OfMethod("supportsResultSetHoldability(int)")
     public void testGetResultSetHoldability() throws Exception {
         DatabaseMetaData dbmd = getMetaData();
 
         int expResult = getIntProperty(
                 "dbmd.result.set.holdability",
-                JDBCResultSet.HOLD_CURSORS_OVER_COMMIT);
+                defaultValueFor().getResultSetHoldability());
         int result = dbmd.getResultSetHoldability();
         assertEquals(expResult, result);
     }
@@ -2732,6 +2964,7 @@ public class JDBCDatabaseMetaDataTest extends BaseJdbcTestCase {
     /**
      * Test of getDatabaseMajorVersion method, of interface java.sql.DatabaseMetaData.
      */
+    @OfMethod("getDatabaseMajorVersion()")
     public void testGetDatabaseMajorVersion() throws Exception {
         DatabaseMetaData dbmd = getMetaData();
 
@@ -2745,6 +2978,7 @@ public class JDBCDatabaseMetaDataTest extends BaseJdbcTestCase {
     /**
      * Test of getDatabaseMinorVersion method, of interface java.sql.DatabaseMetaData.
      */
+    @OfMethod("getDatabaseMinorVersion()")
     public void testGetDatabaseMinorVersion() throws Exception {
         DatabaseMetaData dbmd = getMetaData();
 
@@ -2758,12 +2992,13 @@ public class JDBCDatabaseMetaDataTest extends BaseJdbcTestCase {
     /**
      * Test of getJDBCMajorVersion method, of interface java.sql.DatabaseMetaData.
      */
+    @OfMethod("getJDBCMajorVersion()")
     public void testGetJDBCMajorVersion() throws Exception {
         DatabaseMetaData dbmd = getMetaData();
 
         int expResult = getIntProperty(
                 "dbmd.jdbc.major.version",
-                getDefaultJDBCMajorVersion());
+                defaultValueFor().getJDBCMajorVersion());
         int result = dbmd.getJDBCMajorVersion();
         assertEquals(expResult, result);
     }
@@ -2771,12 +3006,13 @@ public class JDBCDatabaseMetaDataTest extends BaseJdbcTestCase {
     /**
      * Test of getJDBCMinorVersion method, of interface java.sql.DatabaseMetaData.
      */
+    @OfMethod("getJDBCMinorVersion()")
     public void testGetJDBCMinorVersion() throws Exception {
         DatabaseMetaData dbmd = getMetaData();
 
         int expResult = getIntProperty(
                 "dbmd.jdbc.minor.version",
-                getDefaultJDBCMinorVersion());
+                defaultValueFor().getJDBCMinorVersion());
         int result = dbmd.getJDBCMinorVersion();
         assertEquals(expResult, result);
     }
@@ -2784,12 +3020,13 @@ public class JDBCDatabaseMetaDataTest extends BaseJdbcTestCase {
     /**
      * Test of getSQLStateType method, of interface java.sql.DatabaseMetaData.
      */
+    @OfMethod("getSQLStateType()")
     public void testGetSQLStateType() throws Exception {
         DatabaseMetaData dbmd = getMetaData();
 
         int expResult = getIntProperty(
                 "dbmd.sql.state.type",
-                DatabaseMetaData.sqlStateSQL99);
+                defaultValueFor().getSQLStateType()); // DatabaseMetaData.sqlStateSQL99
         int result = dbmd.getSQLStateType();
         assertEquals(expResult, result);
     }
@@ -2797,12 +3034,13 @@ public class JDBCDatabaseMetaDataTest extends BaseJdbcTestCase {
     /**
      * Test of locatorsUpdateCopy method, of interface java.sql.DatabaseMetaData.
      */
+    @OfMethod("locatorsUpdateCopy()")
     public void testLocatorsUpdateCopy() throws Exception {
         DatabaseMetaData dbmd = getMetaData();
 
         boolean expResult = getBooleanProperty(
                 "dbmd.locators.update.copy",
-                false);
+                defaultValueFor().locatorsUpdateCopy()); // false
         boolean result = dbmd.locatorsUpdateCopy();
         assertEquals(expResult, result);
     }
@@ -2810,12 +3048,13 @@ public class JDBCDatabaseMetaDataTest extends BaseJdbcTestCase {
     /**
      * Test of supportsStatementPooling method, of interface java.sql.DatabaseMetaData.
      */
+    @OfMethod("supportsStatementPooling()")
     public void testSupportsStatementPooling() throws Exception {
         DatabaseMetaData dbmd = getMetaData();
 
         boolean expResult = getBooleanProperty(
                 "dbmd.supports.statement.pooling",
-                true);
+                defaultValueFor().supportsStatementPooling()); // true
         boolean result = dbmd.supportsStatementPooling();
         assertEquals("TODO:", expResult, result);
     }
@@ -2823,10 +3062,13 @@ public class JDBCDatabaseMetaDataTest extends BaseJdbcTestCase {
     /**
      * Test of getRowIdLifetime method, of interface java.sql.DatabaseMetaData.
      */
+    @OfMethod("getRowIdLifetime()")
     public void testGetRowIdLifetime() throws Exception {
         DatabaseMetaData dbmd = getMetaData();
 
-        RowIdLifetime expResult = RowIdLifetime.ROWID_UNSUPPORTED;
+        RowIdLifetime expResult = RowIdLifetime.valueOf(
+                getProperty("dbmd.get.row.id.lifetime",
+                defaultValueFor().getRowIdLifetime().name())); // ROWID_UNSUPPORTED;
         RowIdLifetime result = dbmd.getRowIdLifetime();
         assertEquals(expResult, result);
     }
@@ -2834,12 +3076,13 @@ public class JDBCDatabaseMetaDataTest extends BaseJdbcTestCase {
     /**
      * Test of supportsStoredFunctionsUsingCallSyntax method, of interface java.sql.DatabaseMetaData.
      */
+    @OfMethod("supportsStoredFunctionsUsingCallSyntax()")
     public void testSupportsStoredFunctionsUsingCallSyntax() throws Exception {
         DatabaseMetaData dbmd = getMetaData();
 
         boolean expResult = getBooleanProperty(
                 "dbmd.supports.stored.functions.using.call.syntax",
-                true);
+                defaultValueFor().supportsStoredFunctionsUsingCallSyntax()); // true
         boolean result = dbmd.supportsStoredFunctionsUsingCallSyntax();
         assertEquals(expResult, result);
     }
@@ -2847,12 +3090,13 @@ public class JDBCDatabaseMetaDataTest extends BaseJdbcTestCase {
     /**
      * Test of autoCommitFailureClosesAllResultSets method, of interface java.sql.DatabaseMetaData.
      */
+    @OfMethod("autoCommitFailureClosesAllResultSets()")
     public void testAutoCommitFailureClosesAllResultSets() throws Exception {
         DatabaseMetaData dbmd = getMetaData();
 
         boolean expResult = getBooleanProperty(
                 "dbmd.auto.commit.failure.closes.all.result.sets",
-                true);
+                defaultValueFor().autoCommitFailureClosesAllResultSets()); // true
         boolean result = dbmd.autoCommitFailureClosesAllResultSets();
         assertEquals("TODO:", expResult, result);
     }
@@ -2860,13 +3104,14 @@ public class JDBCDatabaseMetaDataTest extends BaseJdbcTestCase {
     /**
      * Test of getClientInfoProperties method, of interface java.sql.DatabaseMetaData.
      */
+    @OfMethod("getClientInfoProperties()")
     public void testGetClientInfoProperties() throws Exception {
         DatabaseMetaData dbmd = getMetaData();
 
         try {
             ResultSet result = dbmd.getClientInfoProperties();
         } catch (Exception e) {
-            fail("TODO: " + e.getMessage());
+            fail("TODO: " + e.toString());
         }
     }
 
@@ -2886,6 +3131,7 @@ public class JDBCDatabaseMetaDataTest extends BaseJdbcTestCase {
     /**
      * Test of unwrap method, of interface java.sql.DatabaseMetaData.
      */
+    @OfMethod("unwrap(Class<?>)")
     public void testUnwrap() throws Exception {
         Class<Object> iface = Object.class;
         DatabaseMetaData dbmd = getMetaData();
@@ -2898,6 +3144,7 @@ public class JDBCDatabaseMetaDataTest extends BaseJdbcTestCase {
     /**
      * Test of isWrapperFor method, of interface java.sql.DatabaseMetaData.
      */
+    @OfMethod("isWrapperFor(Class<?>)")
     public void testIsWrapperFor() throws Exception {
         Class<Object> iface = Object.class;
         DatabaseMetaData dbmd = getMetaData();
@@ -2910,11 +3157,12 @@ public class JDBCDatabaseMetaDataTest extends BaseJdbcTestCase {
     /**
      * Test of getFunctions method, of interface java.sql.DatabaseMetaData.
      */
+    @OfMethod("getFunctions(java.lang.String,java.lang.String,java.lang.String)")
     public void testGetFunctions() throws Exception {
-        String catalog              = "";
-        String schemaPattern        = "%";
-        String functionNamePattern  = "%";
-        DatabaseMetaData dbmd       = getMetaData();
+        String catalog = "";
+        String schemaPattern = "%";
+        String functionNamePattern = "%";
+        DatabaseMetaData dbmd = getMetaData();
 
         ResultSet rs = dbmd.getFunctions(
                 catalog,
@@ -2927,12 +3175,13 @@ public class JDBCDatabaseMetaDataTest extends BaseJdbcTestCase {
     /**
      * Test of getFunctionColumns method, of interface java.sql.DatabaseMetaData.
      */
+    @OfMethod("getFunctions(java.lang.String,java.lang.String,java.lang.String,java.lang.String)")
     public void testGetFunctionColumns() throws Exception {
-        String catalog              = "";
-        String schemaPattern        = "%";
-        String functionNamePattern  = "%";
-        String columnNamePattern    = "%";
-        DatabaseMetaData dbmd       = getMetaData();
+        String catalog = "";
+        String schemaPattern = "%";
+        String functionNamePattern = "%";
+        String columnNamePattern = "%";
+        DatabaseMetaData dbmd = getMetaData();
 
         ResultSet rs = dbmd.getFunctionColumns(
                 catalog,
@@ -2942,7 +3191,6 @@ public class JDBCDatabaseMetaDataTest extends BaseJdbcTestCase {
 
         readResultSet(rs);
     }
-
 
     public static void main(java.lang.String[] argList) {
 
