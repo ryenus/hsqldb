@@ -159,7 +159,7 @@ public class JDBCCallableStatementWhileClosedTest extends BaseJdbcTestCase {
         } else {
             assertEquals(
                     "Error code is not 'statement closed' for exception: "
-                    + ex.getMessage(),
+                    + ex.toString(),
                     getStatementClosedErrorCode(),
                     ex.getErrorCode());
         }

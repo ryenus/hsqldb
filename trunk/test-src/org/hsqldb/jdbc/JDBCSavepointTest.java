@@ -91,7 +91,7 @@ public class JDBCSavepointTest extends BaseJdbcTestCase {
 
             printProgress("savepoint id: " + id);
         } catch (SQLException ex) {
-            fail(ex.getMessage());
+            fail(ex.toString());
         }
     }
 

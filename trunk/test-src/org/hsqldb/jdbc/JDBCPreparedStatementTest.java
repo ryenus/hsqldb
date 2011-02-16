@@ -138,7 +138,7 @@ public class JDBCPreparedStatementTest extends BaseJdbcTestCase {
 
             assertTrue(stmt.executeQuery().next());
         } catch (SQLException ex) {
-            fail(ex.getMessage());
+            fail(ex.toString());
         }
 
         enable = false;
@@ -150,7 +150,7 @@ public class JDBCPreparedStatementTest extends BaseJdbcTestCase {
 
             assertTrue(stmt.executeQuery().next());
         } catch (SQLException ex) {
-            fail(ex.getMessage());
+            fail(ex.toString());
         }
     }
 
@@ -395,7 +395,7 @@ public class JDBCPreparedStatementTest extends BaseJdbcTestCase {
             stmt.setString(parameterIndex, x);
             stmt.executeQuery();
         } catch (SQLException ex) {
-            fail(ex.getMessage());
+            fail(ex.toString());
         }
     }
 
@@ -692,7 +692,7 @@ public class JDBCPreparedStatementTest extends BaseJdbcTestCase {
         try {
             stmt.setRef(1, x);
         } catch (SQLException ex) {
-            fail(ex.getMessage());
+            fail(ex.toString());
         }
 
         stmt.executeQuery();
@@ -746,7 +746,7 @@ public class JDBCPreparedStatementTest extends BaseJdbcTestCase {
         try {
             stmt.setArray(1, x);
         } catch (SQLException ex) {
-            fail(ex.getMessage());
+            fail(ex.toString());
         }
 
         stmt.executeQuery();
@@ -768,7 +768,7 @@ public class JDBCPreparedStatementTest extends BaseJdbcTestCase {
         try {
             stmt.setNull(1, java.sql.Types.ARRAY);
         } catch (SQLException ex) {
-            fail(ex.getMessage());
+            fail(ex.toString());
         }
 
         stmt.executeQuery();
@@ -809,7 +809,7 @@ public class JDBCPreparedStatementTest extends BaseJdbcTestCase {
                 rsmd.isWritable(i);
             }
         } catch (Exception ex) {
-            fail(ex.getMessage());
+            fail(ex.toString());
         }
 
         stmt.close();
@@ -841,7 +841,7 @@ public class JDBCPreparedStatementTest extends BaseJdbcTestCase {
                 rsmd.isWritable(i);
             }
         } catch (Exception ex) {
-            fail(ex.getMessage());
+            fail(ex.toString());
         }
 
         println(rsmd);
@@ -862,7 +862,7 @@ public class JDBCPreparedStatementTest extends BaseJdbcTestCase {
         try {
             stmt.setURL(1, x);
         } catch (SQLException ex) {
-            fail("TODO: " + ex.getMessage());
+            fail("TODO: " + ex.toString());
         }
 
         stmt.executeQuery();
@@ -911,7 +911,7 @@ public class JDBCPreparedStatementTest extends BaseJdbcTestCase {
         try {
             stmt.setRowId(1, x);
         } catch (SQLException ex) {
-            fail(ex.getMessage());
+            fail(ex.toString());
         }
     }
 
@@ -964,7 +964,7 @@ public class JDBCPreparedStatementTest extends BaseJdbcTestCase {
         try {
             stmt.setSQLXML(1, xmlObject);
         } catch (SQLException ex) {
-            fail(ex.getMessage());
+            fail(ex.toString());
         }
     }
 

@@ -565,7 +565,7 @@ public abstract class BaseScriptedTestCase extends BaseTestCase {
                     stmt.execute(getSql());
                 } catch (SQLException s) {
                     throw new Exception(
-                            "Expected a ResultSet, but got the error: " + s.getMessage());
+                            "Expected a ResultSet, but got the error: " + s.toString());
                 }
 
                 //check that update count != -1
@@ -687,7 +687,7 @@ public abstract class BaseScriptedTestCase extends BaseTestCase {
                 try {
                     stmt.execute(getSql());
                 } catch (SQLException se) {
-                    throw new Exception("Expected an update count of " + getExpectedUpdateCount() + ", but got the error: " + se.getMessage());
+                    throw new Exception("Expected an update count of " + getExpectedUpdateCount() + ", but got the error: " + se.toString());
                 }
 
                 if (stmt.getUpdateCount() != getExpectedUpdateCount()) {
@@ -794,7 +794,7 @@ public abstract class BaseScriptedTestCase extends BaseTestCase {
                             "Expected a ResultSet containing "
                             + getExpectedRowCount()
                             + " rows, but got an error: "
-                            + se.getMessage());
+                            + se.toString());
                 }
 
                 if (stmt.getUpdateCount() != -1) {

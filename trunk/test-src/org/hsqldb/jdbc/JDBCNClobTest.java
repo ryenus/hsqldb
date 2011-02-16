@@ -142,7 +142,7 @@ public class JDBCNClobTest extends BaseJdbcTestCase {
             assertEquals(4L, clob.length());
             assertEquals("Task", clob.getSubString(1L, 4));
         } catch (Exception e) {
-            fail(e.getMessage());
+            fail(e.toString());
         }
     }
 
@@ -170,7 +170,7 @@ public class JDBCNClobTest extends BaseJdbcTestCase {
 
             assertEquals("Task", clob.getSubString(1, 4));
         } catch (Exception e) {
-            fail(e.getMessage());
+            fail(e.toString());
         }
 
     }
@@ -199,7 +199,7 @@ public class JDBCNClobTest extends BaseJdbcTestCase {
 
             assertEquals("Task", clob.getSubString(1, 4));
         } catch (Exception e) {
-            fail(e.getMessage());
+            fail(e.toString());
         }
     }
 
@@ -213,7 +213,7 @@ public class JDBCNClobTest extends BaseJdbcTestCase {
             nclob.truncate(2);
             assertEquals(2L, nclob.length());
         } catch (Exception e) {
-            fail(e.getMessage());
+            fail(e.toString());
         }
     }
 
@@ -226,7 +226,7 @@ public class JDBCNClobTest extends BaseJdbcTestCase {
         try {
             nclob.free();
         } catch (Exception e) {
-            fail(e.getMessage());
+            fail(e.toString());
         }
 
         try {
