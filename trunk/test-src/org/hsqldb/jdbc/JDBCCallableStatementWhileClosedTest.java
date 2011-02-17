@@ -50,6 +50,7 @@ import junit.framework.TestSuite;
 import org.hsqldb.error.ErrorCode;
 import org.hsqldb.jdbc.testbase.BaseJdbcTestCase;
 import org.hsqldb.testbase.ForSubject;
+import java.io.ByteArrayInputStream;
 
 // TODO:  See if this can be done reflectively.
 
@@ -1104,14 +1105,14 @@ public class JDBCCallableStatementWhileClosedTest extends BaseJdbcTestCase {
         CallableStatement instance = newClosedCall();
 
         try {
-            instance.setAsciiStream(getParameterName(), null);
+            instance.setAsciiStream(getParameterName(),  new ByteArrayInputStream(new byte[]{}));
             fail("Allowed set ascii stream by parameter name after close.");
         } catch (SQLException ex) {
             checkException(ex);
         }
 
         try {
-            instance.setAsciiStream(getParameterIndex(), null);
+            instance.setAsciiStream(getParameterIndex(),  new ByteArrayInputStream(new byte[]{}));
             fail("Allowed set ascii stream by parameter index after close.");
         } catch (SQLException ex) {
             checkException(ex);
@@ -1126,14 +1127,14 @@ public class JDBCCallableStatementWhileClosedTest extends BaseJdbcTestCase {
         CallableStatement instance = newClosedCall();
 
         try {
-            instance.setBinaryStream(getParameterName(), null);
+            instance.setBinaryStream(getParameterName(), new ByteArrayInputStream(new byte[]{}));
             fail("Allowed set binary stream by parameter name after close.");
         } catch (SQLException ex) {
             checkException(ex);
         }
 
         try {
-            instance.setAsciiStream(getParameterIndex(), null);
+            instance.setAsciiStream(getParameterIndex(), new ByteArrayInputStream(new byte[]{}));
             fail("Allowed set ascii stream by parameter index after close.");
         } catch (SQLException ex) {
             checkException(ex);

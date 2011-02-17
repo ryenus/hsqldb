@@ -73,7 +73,7 @@ public class SqltoolRBTest extends BaseTestCase {
      * This method allows to easily run this unit test independent of the other
      * unit tests, and without dealing with Ant or unrelated test suites.
      */
-    static public void main(String[] sa) {
+    public static void main(String[] sa) {
         if (sa.length > 0 && sa[0].startsWith("-g")) {
             junit.swingui.TestRunner.run(SqltoolRBTest.class);
         } else {
