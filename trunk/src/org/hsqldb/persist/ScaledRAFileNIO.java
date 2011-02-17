@@ -56,6 +56,7 @@ final class ScaledRAFileNIO implements RandomAccessInterface {
 
     private final Database   database;
     private final boolean    readOnly;
+    private final long       maxLength;
     private long             fileLength;
     private RandomAccessFile file;
     private FileDescriptor   fileDescriptor;
@@ -79,9 +80,10 @@ final class ScaledRAFileNIO implements RandomAccessInterface {
                                         << largeBufferScale;
 
     ScaledRAFileNIO(Database database, String name, boolean readOnly,
-                    long requiredLength) throws Throwable {
+                    long requiredLength, long maxLength) throws Throwable {
 
-        this.database = database;
+        this.database  = database;
+        this.maxLength = maxLength;
 
         long         fileLength;
         java.io.File fi = new java.io.File(name);
@@ -401,6 +403,10 @@ final class ScaledRAFileNIO implements RandomAccessInterface {
 
     public boolean ensureLength(long newLength) {
 
+        if (newLength > maxLength) {
+            return false;
+        }
+
         while (newLength > fileLength) {
             if (!enlargeFile(newLength)) {
                 return false;
@@ -502,6 +508,8 @@ final class ScaledRAFileNIO implements RandomAccessInterface {
 
         try {
             fileDescriptor.sync();
+
+            buffersModified = false;
         } catch (Throwable t) {}
     }
 
