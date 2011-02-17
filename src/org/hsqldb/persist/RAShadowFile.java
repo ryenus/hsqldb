@@ -147,7 +147,7 @@ public class RAShadowFile {
             dest = ScaledRAFile.newScaledRAFile(database, pathName, false,
                                                 ScaledRAFile.DATA_FILE_STORED);
         } else {
-            dest = new ScaledRAFileSimple(pathName, "rwd");
+            dest = new ScaledRAFileSimple(pathName, "rws");
         }
     }
 

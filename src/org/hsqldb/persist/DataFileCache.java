@@ -1108,7 +1108,7 @@ public class DataFileCache {
         }
 
         try {
-            dataFile = new ScaledRAFileSimple(dataFileName, "rw");
+            dataFile = new ScaledRAFileSimple(dataFileName, "rws");
 
             initNewFile();
         } catch (IOException e) {

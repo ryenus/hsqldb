@@ -130,7 +130,7 @@ public final class ScaledRAFileHybrid implements RandomAccessInterface {
             return true;
         }
 
-        if (wasNio) {
+        if (wasNio && !store.wasNio()) {
             return false;
         }
 
@@ -169,17 +169,20 @@ public final class ScaledRAFileHybrid implements RandomAccessInterface {
         if (requiredPosition <= database.logger.propNioMaxSize) {
             if (requiredPosition >= ScaledRAFileNIO.largeBufferSize) {
                 try {
-                    store = new ScaledRAFileNIO(database, fileName,
-                                                isReadOnly, requiredPosition);
+                    store =
+                        new ScaledRAFileNIO(database, fileName, isReadOnly,
+                                            requiredPosition,
+                                            database.logger.propNioMaxSize);
 
                     store.seek(currentPosition);
+
+                    wasNio = true;
 
                     return;
                 } catch (Throwable e) {
 
                     // log event
                 } finally {
-                    wasNio    = true;
                     maxLength = Long.MAX_VALUE;
                 }
             } else {
