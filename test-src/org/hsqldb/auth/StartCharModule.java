@@ -108,7 +108,7 @@ public class StartCharModule implements LoginModule {
         return true;
     }
 
-    static public class RolePrincipal implements Principal {
+    public static class RolePrincipal implements Principal {
         private String roleName;
         public RolePrincipal(String roleName) {
             this.roleName = roleName;

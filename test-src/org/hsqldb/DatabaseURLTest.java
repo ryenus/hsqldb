@@ -63,14 +63,12 @@ public class DatabaseURLTest extends junit.framework.TestCase {
                      "org.crypt.Provider");
         assertEquals(props.getProperty("database"), "//com.anorg.APath");
 
-        // shell expansion from system properties is currently broken
-        // and leads to an infinite loop.
-        //
-        //System.setProperty("mypath", "/opt/mydir");
-        //        props = DatabaseURL.parseURL(
-        //            "jdbc:hsqldb:file:${mypath}/mydata",
-        //            true, false);
-        //assertEquals("/opt/mydir/mydata", props.getProperty("database"));
+        System.setProperty("mypath", "/opt/mydir");
+        props = DatabaseURL.parseURL(
+            "jdbc:hsqldb:file:${mypath}/mydata",
+            true, false);
+
+        assertEquals("/opt/mydir/mydata", props.getProperty("database"));
     }
 
     public static Test suite() {

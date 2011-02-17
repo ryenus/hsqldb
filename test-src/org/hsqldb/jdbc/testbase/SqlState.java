@@ -135,7 +135,7 @@ import org.hsqldb.resources.BundleHandler;
  *     condition.
  * </li>
  * </ul>
- * 
+ *
  * @author Campbell Boucher-Burnet &lt;boucherb at users.sourceforge.net&gt;
  */
 public abstract class SqlState implements Serializable {
@@ -356,7 +356,7 @@ public abstract class SqlState implements Serializable {
         public static final NoData NoSubclass = new NoData(
                 Constant.SqlStateSubclass.NoSubclass);
         /**
-         * 
+         *
          */
         public static final NoData NoAdditionalResultSetsReturned =
                 new NoData(Constant.SqlStateSubclass.NoData.NoAdditionalResultSetsReturned);
@@ -476,7 +476,7 @@ public abstract class SqlState implements Serializable {
         private static final long serialVersionUID = 1L;
 
         /**
-         * 
+         *
          * @param sqlStateClass
          * @param sqlStateSubclass
          */
@@ -499,7 +499,7 @@ public abstract class SqlState implements Serializable {
             private static final long serialVersionUID = 1L;
 
             /**
-             * 
+             *
              * @param sqlStateSubclass
              */
             public AmbiguousCursorName(final String sqlStateSubclass) {
@@ -507,7 +507,7 @@ public abstract class SqlState implements Serializable {
                         sqlStateSubclass);
             }
             /**
-             * 
+             *
              */
             public static final AmbiguousCursorName NoSubclass =
                     new AmbiguousCursorName(
@@ -537,7 +537,7 @@ public abstract class SqlState implements Serializable {
         }
 
         /**
-         * 
+         *
          */
         public static final class AttemptToAssignToOrderingColumn extends Exception {
 
@@ -905,7 +905,7 @@ public abstract class SqlState implements Serializable {
         }
     }
 
-    final static class Routine {
+    static final class Routine {
 
         /**
          *

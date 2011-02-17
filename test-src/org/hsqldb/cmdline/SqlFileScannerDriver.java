@@ -50,7 +50,7 @@ public class SqlFileScannerDriver {
             Pattern.compile("(?i)foreach\\s+(\\S+)\\s*\\(\\s*([^)]+)*\\)\\s*");
 
     @SuppressWarnings("ResultOfObjectAllocationIgnored")
-    static public void main(String[] sa) throws IOException {
+    public static void main(String[] sa) throws IOException {
         if (sa.length > 1) {
             System.err.println("SYNTAX:  java SqlFileScannerDriver [filename]");
             System.exit(2);
