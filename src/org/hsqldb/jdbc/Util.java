@@ -155,7 +155,8 @@ public class Util {
 
     static final SQLException notSupported() {
 //#ifdef JAVA6
-        return new SQLFeatureNotSupportedException();
+        HsqlException e = Error.error(ErrorCode.X_0A000);
+        return new SQLFeatureNotSupportedException(e.getMessage(), e.getSQLState(), -ErrorCode.X_0A000);
 
 //#else
 /*

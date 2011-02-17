@@ -5086,10 +5086,6 @@ public class JDBCResultSet implements ResultSet {
     public void updateBlob(int columnIndex,
                            java.sql.Blob x) throws SQLException {
 
-        if (x instanceof JDBCBlobClient) {
-            throw Util.sqlException(ErrorCode.JDBC_INVALID_ARGUMENT,
-                                    "invalid Blob");
-        }
         startUpdate(columnIndex);
         preparedStatement.setBlobParameter(columnIndex, x);
     }
@@ -5163,10 +5159,6 @@ public class JDBCResultSet implements ResultSet {
     public void updateClob(int columnIndex,
                            java.sql.Clob x) throws SQLException {
 
-        if (x instanceof JDBCClobClient) {
-            throw Util.sqlException(ErrorCode.JDBC_INVALID_ARGUMENT,
-                                    "invalid Clob");
-        }
         startUpdate(columnIndex);
         preparedStatement.setClobParameter(columnIndex, x);
     }
