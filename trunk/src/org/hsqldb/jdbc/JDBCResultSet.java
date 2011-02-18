@@ -444,6 +444,26 @@ public class JDBCResultSet implements ResultSet {
      *            called on a closed result set
      */
     public String getString(int columnIndex) throws SQLException {
+        checkColumn(columnIndex);
+
+        Type   sourceType = resultMetaData.columnTypes[columnIndex - 1];
+
+        if (sourceType.typeCode == Types.SQL_CLOB ) {
+            ClobDataID x = (ClobDataID) getColumnInType(columnIndex, sourceType);
+
+            if (x == null) {
+                return null;
+            }
+
+            long length = x.length(session);
+
+            if (length > Integer.MAX_VALUE ) {
+                Util.throwError(Error.error(ErrorCode.X_42561));
+            }
+
+            return x.getSubString(session, 0, (int) length);
+        }
+
         return (String) getColumnInType(columnIndex, Type.SQL_VARCHAR);
     }
 
@@ -746,6 +766,26 @@ public class JDBCResultSet implements ResultSet {
      *            called on a closed result set
      */
     public byte[] getBytes(int columnIndex) throws SQLException {
+
+        checkColumn(columnIndex);
+
+        Type   sourceType = resultMetaData.columnTypes[columnIndex - 1];
+
+        if (sourceType.typeCode == Types.SQL_BLOB ) {
+            BlobDataID x = (BlobDataID) getColumnInType(columnIndex, sourceType);
+
+            if (x == null) {
+                return null;
+            }
+
+            long length = x.length(session);
+
+            if (length > Integer.MAX_VALUE ) {
+                Util.throwError(Error.error(ErrorCode.X_42561));
+            }
+
+            return x.getBytes(session, 0, (int) length);
+        }
 
         Object x = getColumnInType(columnIndex, Type.SQL_VARBINARY);
 
