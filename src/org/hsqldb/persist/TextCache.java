@@ -411,29 +411,28 @@ public class TextCache extends DataFileCache {
     }
 
     /**
-     * Does not extend the end of file yet. Must extend with spaces instead of 0s
+     * Does not extend the end of file.
      */
     int setFilePos(CachedObject r) {
 
-        int i = super.setFilePos(r);
+        int  rowSize         = r.getStorageSize();
+        long newFreePosition = fileFreePosition + rowSize;
 
-        clearRowImage(r);
+        if (newFreePosition > maxDataFileSize) {
+            database.logger.logSevereEvent("data file reached maximum size "
+                                           + this.dataFileName, null);
 
-        return i;
-/*
-        int rowSize = r.getStorageSize();
-        int i       = (int) (fileFreePosition);
-
-        if (fileFreePosition + rowSize > maxDataFileSize) {
             throw Error.error(ErrorCode.DATA_FILE_IS_FULL);
         }
 
-        fileFreePosition += rowSize;
+        int i = (int) fileFreePosition;
 
         r.setPos(i);
+        clearRowImage(r);
+
+        fileFreePosition = newFreePosition;
 
         return i;
-*/
     }
 
     /**
@@ -466,8 +465,9 @@ public class TextCache extends DataFileCache {
             if (row == null) {
                 row = get(pos, store, false);
 
-                // todo - check row is not null
-                clearRowImage(row);
+                if (row != null) {
+                    clearRowImage(row);
+                }
             }
         } finally {
             writeLock.unlock();

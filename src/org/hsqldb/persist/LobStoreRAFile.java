@@ -69,7 +69,7 @@ public class LobStoreRAFile implements LobStore {
 
         try {
             String  name     = database.getPath() + ".lobs";
-            boolean readonly = database.isReadOnly();
+            boolean readonly = database.isFilesReadOnly();
 
             if (database.logger.isStoredFileAccess()) {
                 file = ScaledRAFile.newScaledRAFile(

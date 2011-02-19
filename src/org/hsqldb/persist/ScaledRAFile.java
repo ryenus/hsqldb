@@ -150,11 +150,16 @@ final class ScaledRAFile implements RandomAccessInterface {
                  boolean extendLengthToBlock)
                  throws FileNotFoundException, IOException {
 
-        this.database  = database;
-        this.readOnly  = readonly;
-        this.fileName  = name;
-        this.file      = new RandomAccessFile(name, readonly ? "r"
-                                                             : "rw");
+        this.database     = database;
+        this.fileName     = name;
+        this.readOnly     = readonly;
+        this.extendLength = extendLengthToBlock;
+
+        String accessMode = readonly ? "r"
+                                     : extendLength ? "rw"
+                                                    : "rws";
+
+        this.file      = new RandomAccessFile(name, accessMode);
         buffer         = new byte[bufferSize];
         ba             = new HsqlByteArrayInputStream(buffer);
         valueBuffer    = new byte[8];
@@ -162,7 +167,6 @@ final class ScaledRAFile implements RandomAccessInterface {
         vbai           = new HsqlByteArrayInputStream(valueBuffer);
         fileDescriptor = file.getFD();
         fileLength     = length();
-        extendLength   = extendLengthToBlock;
 
         readIntoBuffer();
     }
@@ -171,19 +175,10 @@ final class ScaledRAFile implements RandomAccessInterface {
         return file.length();
     }
 
-    /**
-     * Some JVM's do not allow seek beyond end of file, so zeros are written
-     * first in that case. Reported by bohgammer@users in Open Disucssion
-     * Forum.
-     */
     public void seek(long position) throws IOException {
 
-        if (fileLength < position) {
-            if (readOnly) {
-                throw new IOException("read beyond end of file");
-            }
-
-            extendLength(position);
+        if (readOnly && fileLength < position) {
+            throw new IOException("read beyond end of file");
         }
 
         seekPosition = position;
@@ -326,6 +321,10 @@ final class ScaledRAFile implements RandomAccessInterface {
             file.write(b, off, length);
 
             seekPosition += length;
+
+            if (!extendLength && fileLength < seekPosition) {
+                fileLength = seekPosition;
+            }
         } catch (IOException e) {
             resetPointer();
             database.logger.logWarningEvent("failed to write a byte array", e);
@@ -427,30 +426,36 @@ final class ScaledRAFile implements RandomAccessInterface {
         }
 
         if (position < 256 * 1024) {
-            position = getBinaryNormalisedCeiling(position, bufferScale * 4);
+            position = getBinaryNormalisedCeiling(position, bufferScale + 2);
         } else if (position < 1024 * 1024) {
-            position = getBinaryNormalisedCeiling(position, bufferScale * 64);
+            position = getBinaryNormalisedCeiling(position, bufferScale + 6);
         } else if (position < 16 * 1024 * 1024) {
-            position = getBinaryNormalisedCeiling(position, bufferSize * 128);
+            position = getBinaryNormalisedCeiling(position, bufferSize + 7);
         } else {
-            position = getBinaryNormalisedCeiling(position, bufferSize * 1024);
+            position = getBinaryNormalisedCeiling(position, bufferSize + 10);
         }
 
         return position;
     }
 
+    /**
+     * Some old JVM's do not allow seek beyond end of file, so zeros must be written
+     * first in that case. Reported by bohgammer@users in Open Disucssion
+     * Forum.
+     */
     private void extendLength(long position) throws IOException {
 
         long newSize = getExtendLength(position);
 
         if (newSize > fileLength) {
             try {
-                file.seek(position - 1);
+                file.seek(newSize - 1);
                 file.write(0);
 
-                fileLength = position;
+                fileLength = newSize;
             } catch (IOException e) {
-                database.logger.logWarningEvent("seek failed", e);
+                database.logger.logWarningEvent("data file enlarge failed ",
+                                                e);
 
                 throw e;
             }
@@ -463,7 +468,6 @@ final class ScaledRAFile implements RandomAccessInterface {
             seekPosition = 0;
             fileLength   = length();
 
-            file.seek(seekPosition);
             readIntoBuffer();
         } catch (Throwable e) {}
     }

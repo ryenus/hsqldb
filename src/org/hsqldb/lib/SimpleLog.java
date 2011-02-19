@@ -134,7 +134,7 @@ public class SimpleLog {
         writer.println(sb.toString());
     }
 
-    public synchronized void logContext(Throwable t, String inMessage, int atLevel) {
+    public synchronized void logContext(Throwable t, String message, int atLevel) {
 
         if (level == LOG_NONE) {
             return;
@@ -146,6 +146,8 @@ public class SimpleLog {
 
         StringBuffer sb = new StringBuffer(128);
         sb.append(HsqlDateTime.getSytemTimeString()).append(' ');
+
+        sb.append(logTypeNames[atLevel]).append(' ').append(message);
 
 //#ifdef JAVA4
         Throwable           temp     = new Throwable();
@@ -164,7 +166,7 @@ public class SimpleLog {
         }
 
 //#endif JAVA4
-        sb.append(' ').append(t.toString()).append(' ').append(inMessage);
+        sb.append(' ').append(t.toString());
         writer.println(sb.toString());
     }
 

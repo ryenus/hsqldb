@@ -187,7 +187,6 @@ public class ScriptWriterText extends ScriptWriterBase {
                                   String s) throws IOException {
 
         schemaToLog = session.currentSchema;
-        busyWriting = true;
 
         writeSessionIdAndSchema(session);
         rowOut.reset();
@@ -195,20 +194,14 @@ public class ScriptWriterText extends ScriptWriterBase {
         rowOut.write(BYTES_LINE_SEP);
         writeRowOutToFile();
 
-        byteCount   += rowOut.size();
-        needsSync   = true;
-        busyWriting = false;
-
-        if (forceSync) {
-            sync();
-        }
+        byteCount += rowOut.size();
+        needsSync = true;
     }
 
     protected void writeRow(Session session, Row row,
                             Table table) throws IOException {
 
         schemaToLog = table.getName().schema;
-        busyWriting = true;
 
         writeSessionIdAndSchema(session);
         rowOut.reset();
@@ -221,12 +214,7 @@ public class ScriptWriterText extends ScriptWriterBase {
         rowOut.write(BYTES_LINE_SEP);
         writeRowOutToFile();
 
-        byteCount   += rowOut.size();
-        busyWriting = false;
-
-        if (forceSync) {
-            sync();
-        }
+        byteCount += rowOut.size();
     }
 
     protected void writeTableInit(Table t) throws IOException {
@@ -246,8 +234,8 @@ public class ScriptWriterText extends ScriptWriterBase {
         currentSession.loggedSchema = schemaToLog;
     }
 
-    public void writeInsertStatement(Session session, Row row, Table table
-                                     ) throws IOException {
+    public void writeInsertStatement(Session session, Row row,
+                                     Table table) throws IOException {
 
         schemaToLog = table.getName().schema;
 
@@ -258,7 +246,6 @@ public class ScriptWriterText extends ScriptWriterBase {
                                      Object[] data) throws IOException {
 
         schemaToLog = table.getName().schema;
-        busyWriting = true;
 
         writeSessionIdAndSchema(session);
         rowOut.reset();
@@ -271,19 +258,13 @@ public class ScriptWriterText extends ScriptWriterBase {
         rowOut.write(BYTES_LINE_SEP);
         writeRowOutToFile();
 
-        byteCount   += rowOut.size();
-        busyWriting = false;
-
-        if (forceSync) {
-            sync();
-        }
+        byteCount += rowOut.size();
     }
 
     public void writeSequenceStatement(Session session,
                                        NumberSequence seq) throws IOException {
 
         schemaToLog = seq.getName().schema;
-        busyWriting = true;
 
         writeSessionIdAndSchema(session);
         rowOut.reset();
@@ -296,18 +277,11 @@ public class ScriptWriterText extends ScriptWriterBase {
         rowOut.write(BYTES_LINE_SEP);
         writeRowOutToFile();
 
-        byteCount   += rowOut.size();
-        needsSync   = true;
-        busyWriting = false;
-
-        if (forceSync) {
-            sync();
-        }
+        byteCount += rowOut.size();
+        needsSync = true;
     }
 
     public void writeCommitStatement(Session session) throws IOException {
-
-        busyWriting = true;
 
         writeSessionIdAndSchema(session);
         rowOut.reset();
@@ -315,11 +289,10 @@ public class ScriptWriterText extends ScriptWriterBase {
         rowOut.write(BYTES_LINE_SEP);
         writeRowOutToFile();
 
-        byteCount   += rowOut.size();
-        needsSync   = true;
-        busyWriting = false;
+        byteCount += rowOut.size();
+        needsSync = true;
 
-        if (forceSync || writeDelay == 0) {
+        if (writeDelay == 0) {
             sync();
         }
     }
