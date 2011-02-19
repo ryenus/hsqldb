@@ -244,8 +244,6 @@ public class Log {
      */
     void shutdown() {
 
-        synchLog();
-
         if (cache != null) {
             cache.close(false);
         }
@@ -383,6 +381,7 @@ public class Log {
         if (result) {
             checkpointReopen();
         } else {
+            database.logger.logSevereEvent("checkpoint failed - autocheckpoint disabled", null);
             database.logger.checkpointDisabled = true;
         }
     }
@@ -688,7 +687,7 @@ public class Log {
     void synchLog() {
 
         if (dbLogWriter != null) {
-            dbLogWriter.sync();
+            dbLogWriter.forceSync();
         }
     }
 

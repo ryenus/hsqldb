@@ -636,12 +636,20 @@ public class DataFileCache {
             long newFreePosition = fileFreePosition + rowSize;
 
             if (newFreePosition > maxDataFileSize) {
+                database.logger.logSevereEvent(
+                    "data file reached maximum size " + this.dataFileName,
+                    null);
+
                 throw Error.error(ErrorCode.DATA_FILE_IS_FULL);
             }
 
             boolean result = dataFile.ensureLength(newFreePosition);
 
             if (!result) {
+                database.logger.logSevereEvent(
+                    "data file cannot be enlarged - disk spacee "
+                    + this.dataFileName, null);
+
                 throw Error.error(ErrorCode.DATA_FILE_IS_FULL);
             }
 

@@ -664,7 +664,11 @@ public class Logger {
         }
 
         if (appLog != null) {
-            appLog.logContext(t, message, SimpleLog.LOG_ERROR);
+            if (t == null) {
+                appLog.logContext(SimpleLog.LOG_ERROR, message);
+            } else {
+                appLog.logContext(t, message, SimpleLog.LOG_ERROR);
+            }
         }
     }
 
@@ -778,7 +782,6 @@ public class Logger {
 
         if (loggingEnabled) {
             log.writeCommitStatement(session);
-            synchLog();
         }
     }
 
@@ -789,16 +792,6 @@ public class Logger {
 
         if (loggingEnabled) {
             log.writeStatement(session, "ROLLBACK");
-        }
-    }
-
-    /**
-     * Called after commits or after each statement when autocommit is on
-     */
-    private synchronized void synchLog() {
-
-        if (loggingEnabled && syncFile) {
-            log.synchLog();
         }
     }
 

@@ -107,8 +107,6 @@ public abstract class ScriptWriterBase implements Runnable {
     boolean          includeCachedData;
     long             byteCount;
     volatile boolean needsSync;
-    volatile boolean forceSync;
-    volatile boolean busyWriting;
     private int      syncCount;
     static final int INSERT             = 0;
     static final int INSERT_WITH_SCHEMA = 1;
@@ -179,24 +177,7 @@ public abstract class ScriptWriterBase implements Runnable {
 
         synchronized (fileStreamOut) {
             if (needsSync) {
-                if (busyWriting) {
-                    forceSync = true;
-
-                    return;
-                }
-
-                try {
-                    fileStreamOut.flush();
-                    outDescriptor.sync();
-
-                    syncCount++;
-                } catch (IOException e) {
-                    database.logger.logWarningEvent(
-                        "ScriptWriter synch error: ", e);
-                }
-
-                needsSync = false;
-                forceSync = false;
+                forceSync();
             }
         }
     }
@@ -207,19 +188,23 @@ public abstract class ScriptWriterBase implements Runnable {
             return;
         }
 
+        needsSync = false;
+
         synchronized (fileStreamOut) {
             try {
                 fileStreamOut.flush();
                 outDescriptor.sync();
 
                 syncCount++;
+/*
+                System.out.println(
+                    this.outFile + " FD.sync done at "
+                    + new java.sql.Timestamp(System.currentTimeMillis()));
+*/
             } catch (IOException e) {
-                database.logger.logWarningEvent(
-                    "ScriptWriter save error: ", e);
+                database.logger.logWarningEvent("ScriptWriter synch error: ",
+                                                e);
             }
-
-            needsSync = false;
-            forceSync = false;
         }
     }
 
@@ -233,12 +218,8 @@ public abstract class ScriptWriterBase implements Runnable {
 
         try {
             synchronized (fileStreamOut) {
-                needsSync = false;
-                isClosed  = true;
-
                 finishStream();
-                fileStreamOut.flush();
-                outDescriptor.sync();
+                forceSync();
                 fileStreamOut.close();
             }
         } catch (IOException e) {
@@ -275,7 +256,6 @@ public abstract class ScriptWriterBase implements Runnable {
 
             outDescriptor = fa.getFileSync(fos);
             fileStreamOut = fos;
-
             fileStreamOut = new BufferedOutputStream(fos, 1 << 14);
         } catch (IOException e) {
             throw Error.error(e, ErrorCode.FILE_IO_ERROR,
@@ -412,7 +392,7 @@ public abstract class ScriptWriterBase implements Runnable {
                 sync();
             }
 
-            /** @todo: try to do Cache.cleanUp() here, too */
+            /** @todo: can do Cache.cleanUp() here, too */
         } catch (Exception e) {
 
             // ignore exceptions
