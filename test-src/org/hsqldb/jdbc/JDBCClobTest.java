@@ -27,19 +27,13 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-
-
 package org.hsqldb.jdbc;
 
-import java.io.ByteArrayInputStream;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.StringReader;
-import java.io.Reader;
-import java.io.Writer;
+import org.hsqldb.jdbc.testbase.BaseClobTest;
+import java.sql.Clob;
+import java.sql.SQLException;
 import junit.framework.Test;
 import junit.framework.TestSuite;
-import org.hsqldb.jdbc.testbase.BaseJdbcTestCase;
 import org.hsqldb.testbase.ForSubject;
 
 /**
@@ -48,243 +42,23 @@ import org.hsqldb.testbase.ForSubject;
  * @author Campbell Boucher-Burnet (boucherb@users dot sourceforge.net)
  */
 @ForSubject(JDBCClob.class)
-public class JDBCClobTest extends BaseJdbcTestCase {
+public class JDBCClobTest extends BaseClobTest {
 
+    static class TestSubject extends JDBCClob {
+        TestSubject() {
+            super();
+        }
+    }
     public JDBCClobTest(String testName) {
         super(testName);
     }
 
-    @Override
-    protected void setUp() throws Exception {
-        super.setUp();
-    }
-
-    @Override
-    protected void tearDown() throws Exception {
-        super.tearDown();
+    protected Clob handleCreateClob() throws SQLException {
+        return new TestSubject();
     }
 
     public static Test suite() {
-        TestSuite suite = new TestSuite(JDBCClobTest.class);
-
-        return suite;
-    }
-
-    /**
-     * Test of length method, of class org.hsqldb.jdbc.jdbcClob.
-     */
-    public void testLength() throws Exception {
-        JDBCClob clob       = new JDBCClob("Test");
-        long     expResult  = "Test".length();
-        long     result     = clob.length();
-
-        assertEquals(expResult, result);
-    }
-
-    /**
-     * Test of getSubString method, of class org.hsqldb.jdbc.jdbcClob.
-     */
-    public void testGetSubString() throws Exception {
-        JDBCClob clob      = new JDBCClob("Test");
-        String   result    = clob.getSubString(2, 2);
-
-        assertEquals("es", result);
-    }
-
-    /**
-     * Test of getCharacterStream method, of class org.hsqldb.jdbc.jdbcClob.
-     */
-    public void testGetCharacterStream() throws Exception {
-        JDBCClob clob      = new JDBCClob("Test");
-        Reader   expResult = new StringReader("Test");
-        Reader   result    = clob.getCharacterStream();
-
-        assertReaderEquals(expResult, result);
-    }
-
-    /**
-     * Test of getAsciiStream method, of class org.hsqldb.jdbc.jdbcClob.
-     */
-    public void testGetAsciiStream() throws Exception {
-        StringBuffer sb = new StringBuffer();
-
-        for (int i = Character.MAX_VALUE; i <= Character.MAX_VALUE; i++) {
-            sb.append((char)i);
-        }
-
-        String      testVal   = sb.toString();
-        JDBCClob    clob      = new JDBCClob(testVal);
-        InputStream expResult = new ByteArrayInputStream(
-                testVal.getBytes("US-ASCII"));
-        InputStream result    = clob.getAsciiStream();
-
-        assertStreamEquals(expResult, result);
-    }
-
-    /**
-     * Test of position method, of class org.hsqldb.jdbc.jdbcClob.
-     */
-    public void testPosition() throws Exception {
-        JDBCClob clob   = new JDBCClob("Test");
-        long     result = clob.position("est", 1);
-
-        assertEquals(2L, result);
-    }
-
-    /**
-     * Test of setString method, of class org.hsqldb.jdbc.jdbcClob.
-     */
-    public void testSetString() throws Exception {
-        JDBCClob clob = (JDBCClob) newConnection().createClob();
-
-        try {
-            clob.setString(1, "T");
-
-            assertEquals(1L, clob.length());
-            assertEquals(3, clob.setString(2L, "ask"));
-            assertEquals(4L, clob.length());
-            assertEquals("Task", clob.getSubString(1L, 4));
-        } catch (Exception e) {
-            fail(e.toString());
-        }
-    }
-
-    /**
-     * Test of setAsciiStream method, of class org.hsqldb.jdbc.jdbcClob.
-     */
-    public void testSetAsciiStream() throws Exception {
-        JDBCClob clob = (JDBCClob) newConnection().createClob();
-
-        try {
-            clob.setString(1L, "T");
-
-            assertEquals(1L, clob.length());
-
-            OutputStream result = clob.setAsciiStream(2);
-
-            result.write("ask".getBytes("US-ASCII"));
-            result.flush();
-
-            assertEquals(1L, clob.length());
-
-            result.close();
-
-            assertEquals(4L, clob.length());
-
-            assertEquals("Task", clob.getSubString(1, 4));
-        } catch (Exception e) {
-            fail(e.toString());
-        }
-    }
-
-    /**
-     * Test of setCharacterStream method, of class org.hsqldb.jdbc.jdbcClob.
-     */
-    public void testSetCharacterStream() throws Exception {
-        JDBCClob clob = (JDBCClob) newConnection().createClob();
-
-        try {
-            clob.setString(1L, "T");
-
-            assertEquals(1L, clob.length());
-
-            Writer result = clob.setCharacterStream(2);
-
-            result.write("ask");
-            result.flush();
-
-            assertEquals(1L, clob.length());
-
-            result.close();
-
-            assertEquals(4L, clob.length());
-
-            assertEquals("Task", clob.getSubString(1, 4));
-        } catch (Exception e) {
-            fail(e.toString());
-        }
-    }
-
-    /**
-     * Test of truncate method, of class org.hsqldb.jdbc.jdbcClob.
-     */
-    public void testTruncate() throws Exception {
-        JDBCClob clob = new JDBCClob("Test");
-
-        try {
-            clob.truncate(2);
-            assertEquals(2L, clob.length());
-        } catch (Exception e) {
-            fail(e.toString());
-        }
-    }
-
-    /**
-     * Test of free method, of class org.hsqldb.jdbc.jdbcClob.
-     */
-    public void testFree() throws Exception {
-        JDBCClob clob = new JDBCClob("Test");
-
-        try {
-            clob.free();
-        } catch (Exception e) {
-            fail(e.toString());
-        }
-
-        try {
-            clob.getCharacterStream();
-            assertTrue("getCharacterStream operation allowed after free", false);
-        } catch (Exception e){ }
-
-        try {
-            clob.getCharacterStream(1,2);
-            assertTrue("getCharacterStream(pos, len) operation allowed after free", false);
-        } catch (Exception e){ }
-
-        try {
-            clob.getSubString(1,2);
-            assertTrue("getSubString operation allowed after free", false);
-        } catch (Exception e){ }
-
-        try {
-            clob.length();
-            assertTrue("length operation allowed after free", false);
-        } catch (Exception e){ }
-
-        try {
-            clob.position("est",1);
-            assertTrue("position(String,long) operation allowed after free", false);
-        } catch (Exception e){ }
-
-        try {
-            clob.position(new JDBCClob("est"),1);
-            assertTrue("position(Clob,long) operation allowed after free", false);
-        } catch (Exception e){ }
-
-        try {
-            clob.setAsciiStream(1);
-            assertTrue("setAsciiStream operation allowed after free", false);
-        } catch (Exception e){ }
-
-        try {
-            clob.setCharacterStream(1);
-            assertTrue("setCharacterStream operation allowed after free", false);
-        } catch (Exception e){ }
-
-        try {
-            clob.setString(2, "est");
-            assertTrue("setString(long,String) operation allowed after free", false);
-        } catch (Exception e){ }
-
-        try {
-            clob.setString(2, "est", 0, 3);
-            assertTrue("setString(long,String,int,int) operation allowed after free", false);
-        } catch (Exception e){ }
-
-        try {
-            clob.truncate(1);
-            assertTrue("truncate operation allowed after free", false);
-        } catch (Exception e){ }
+       return new TestSuite(JDBCClobTest.class);
     }
 
     public static void main(java.lang.String[] argList) {

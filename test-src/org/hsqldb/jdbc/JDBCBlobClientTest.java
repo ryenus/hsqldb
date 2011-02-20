@@ -29,66 +29,60 @@
  */
 package org.hsqldb.jdbc;
 
-import java.io.IOException;
+import org.hsqldb.jdbc.testbase.BaseBlobTest;
+import java.sql.Blob;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.Statement;
+
 import junit.framework.Test;
 import junit.framework.TestSuite;
-import org.hsqldb.testbase.BaseScriptedTestCase;
+
+import org.hsqldb.testbase.ForSubject;
 
 /**
+ * Test of org.hsqldb.jdbc.JDBCBlobClient
  *
  * @author Campbell Boucher-Burnet (boucherb@users dot sourceforge.net)
  */
-public class ScriptedTest extends BaseScriptedTestCase {
+@ForSubject(JDBCBlobClient.class)
+public class JDBCBlobClientTest extends BaseBlobTest {
 
-    private static final ScriptedTest instance = new ScriptedTest();
-
-    private ScriptedTest() {
-        super();
+    public JDBCBlobClientTest(String testName) {
+        super(testName);
     }
 
-    public ScriptedTest(String script) {
-        super(script);
+
+    @Override
+    protected Blob handleCreateBlob() throws Exception {
+        Connection conn = newConnection();
+
+        Statement stmt = connectionFactory().createStatement(conn);
+
+        stmt.execute("drop table blob_client_test if exists");
+        stmt.execute("create table blob_client_test(id int, blob_value blob)");
+        stmt.execute("insert into blob_client_test(id ,blob_value) values(1, null)");
+
+        Blob blob = conn.createBlob();
+        PreparedStatement pstmt = connectionFactory().prepareStatement("update blob_client_test set blob_value = ?", conn);
+
+        pstmt.setBlob(1, blob);
+
+        pstmt.execute();
+
+        ResultSet rs = stmt.executeQuery("select blob_value from blob_client_test where id = 1 ");
+
+        rs.next();
+
+        return rs.getBlob(1);
     }
 
-    public String getUrl() {
-        return "jdbc:hsqldb:file:scripted-test";
-    }
-
-    /**
-     *
-     * @return
-     */
     public static Test suite() {
-        return instance.getSuite();
+        return new TestSuite(JDBCBlobTest.class);
     }
 
-    /**
-     * 
-     * @return
-     */
-    protected Test getSuite() {
-        TestSuite suite = new TestSuite("ScriptTest");
-
-        try {
-
-            String[] resources = getResoucesInPackage(
-                    "org.hsqldb.jdbc.resources.sql");
-
-            for (int i = 0; i < resources.length; i++) {
-                suite.addTest(new ScriptedTest(resources[i]));
-            }
-        } catch (IOException ex) {
-            ex.printStackTrace();
-        }
-
-        return suite;
-    }
-
-    /**
-     * @param args
-     * @throws java.lang.Exception 
-     */
-    public static void main(String[] args) throws Exception {
+    public static void main(java.lang.String[] argList) {
         junit.textui.TestRunner.run(suite());
     }
 }
