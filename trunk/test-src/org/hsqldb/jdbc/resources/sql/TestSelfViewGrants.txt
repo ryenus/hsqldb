@@ -1,4 +1,4 @@
--- $Id: TestSelfViewGrants.txt 62 2007-04-17 01:48:22Z unsaved $
+-- $Id: TestSelfViewGrants.txt 610 2008-12-22 15:54:18Z unsaved $
 -- Tests viw grants
 
 -- These two users are for sanity tests

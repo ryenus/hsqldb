@@ -39,6 +39,31 @@ create trigger trigfour after insert on testtrig2 referencing new row as newrow
 insert into testtrig2 values 10, 'felix', current_date
 /*c1*/select * from triglog where data='felix'
 
+drop trigger trigone;
+drop trigger trigtwo;
+drop trigger trigthree;
+drop trigger trigfour;
+
+drop table testtrig;
+drop table testtrig2;
+
+create cached table testtrig(id integer, data varchar(20), updated date);
+create cached table testtrig2(id integer, data varchar(20), updated date);
+
+CREATE PROCEDURE test_proc_three(pCount INT)
+ NO SQL LANGUAGE JAVA
+ EXTERNAL NAME 'CLASSPATH:org.hsqldb.test.TestStoredProcedure.procTest3'
+
+CREATE TRIGGER trigfive AFTER INSERT ON testtrig
+ referencing NEW ROW AS newrow
+ FOR EACH ROW WHEN (newrow.data IS NOT NULL)
+ BEGIN ATOMIC
+ DECLARE cwExists int DEFAULT 0;
+ select count(*) into cwExists from testtrig2 where data = 'action1';
+ call test_proc_three(cwExists);
+ insert into testtrig2 values cwExists, newrow.data, current_date;
+ END
+
 delete from testtrig;
 create view vtrig as select id, data, updated, 'fixed string' fixed from testtrig;
 
