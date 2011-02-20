@@ -228,12 +228,12 @@ public class JDBCClobFile implements java.sql.Clob {
     }
 
     /**
-     * Retrieves the character position at which the specified substring
-     * <code>searchstr</code> appears in the SQL <code>CLOB</code> value
+     * Retrieves the character position at which the specified char[]
+     * <code>pattern</code> appears in the <code>CLOB</code> value
      * represented by this <code>Clob</code> object.  The search
      * begins at position <code>start</code>.
      *
-     * @param searchstr the substring for which to search
+     * @param pattern the substring for which to search
      * @param start the position at which to begin searching; the first position
      *              is 1
      * @return the position at which the substring appears or -1 if it is not
@@ -242,7 +242,6 @@ public class JDBCClobFile implements java.sql.Clob {
      *            <code>CLOB</code> value or if pos is less than 1
      * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
      * this method
-     * @since 1.2
      */
     public long position(final char[] pattern, final long start) throws SQLException {
         if (start < 1) {
@@ -849,7 +848,7 @@ public class JDBCClobFile implements java.sql.Clob {
     }
 
     /**
-     * To be Called by the garbage collector when there are no more references
+     * To be called by the garbage collector when there are no more references
      * to this object.
      */
     protected void finalize() throws Throwable {
@@ -982,7 +981,7 @@ public class JDBCClobFile implements java.sql.Clob {
         return charsCopied;
     }
 
-    class WriterAdapter extends Writer {
+    protected class WriterAdapter extends Writer {
 
         private final RandomAccessFile m_randomAccessFile;
 
