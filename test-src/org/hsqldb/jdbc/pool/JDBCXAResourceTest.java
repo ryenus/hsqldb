@@ -23,6 +23,10 @@ public class JDBCXAResourceTest extends BaseJdbcTestCase {
         return suite;
     }
 
+    public static void main(java.lang.String[] args) {
+        junit.textui.TestRunner.run(suite());
+    }
+
     @Override
     protected void setUp() throws Exception {
         super.setUp();

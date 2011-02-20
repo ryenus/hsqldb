@@ -26,6 +26,10 @@ public class JDBCXAConnectionWrapperTest extends BaseJdbcTestCase {
         TestSuite suite = new TestSuite(JDBCXAConnectionWrapperTest.class);
         return suite;
     }
+    
+    public static void main(java.lang.String[] args) {
+        junit.textui.TestRunner.run(suite());
+    }
 
     @Override
     protected void setUp() throws Exception {
@@ -72,7 +76,7 @@ public class JDBCXAConnectionWrapperTest extends BaseJdbcTestCase {
 
         try {
             connection.setAutoCommit(true);
-            fail("Action not allowed while in global transaction");
+            fail("Action should not be allowed while in global transaction");
         } catch (SQLException sQLException) {
         }
 
@@ -104,7 +108,7 @@ public class JDBCXAConnectionWrapperTest extends BaseJdbcTestCase {
 
         try {
             connection.commit();
-            fail("Action not allowed while in global transaction");
+            fail("Action should not be allowed while in global transaction");
         } catch (SQLException sQLException) {
         }
 
@@ -132,7 +136,7 @@ public class JDBCXAConnectionWrapperTest extends BaseJdbcTestCase {
 
         try {
             connection.rollback();
-            fail("Action not allowed while in global transaction");
+            fail("Action should not be allowed while in global transaction");
         } catch (SQLException sQLException) {
         }
 
@@ -164,7 +168,7 @@ public class JDBCXAConnectionWrapperTest extends BaseJdbcTestCase {
 
         try {
             connection.rollback(sp);
-            fail("Action not allowed while in global transaction");
+            fail("Action should not be allowed while in global transaction");
         } catch (SQLException sQLException) {
         }
 
@@ -194,7 +198,7 @@ public class JDBCXAConnectionWrapperTest extends BaseJdbcTestCase {
 
         try {
             Savepoint sp = connection.setSavepoint();
-            fail("Action not allowed while in global transaction");
+            fail("Action should not be  allowed while in global transaction");
         } catch (SQLException sQLException) {
         }
 
@@ -224,7 +228,7 @@ public class JDBCXAConnectionWrapperTest extends BaseJdbcTestCase {
 
         try {
             Savepoint sp = connection.setSavepoint("SP1");
-            fail("Action not allowed while in global transaction");
+            fail("Action should not be  allowed while in global transaction");
         } catch (SQLException sQLException) {
         }
 
@@ -254,7 +258,7 @@ public class JDBCXAConnectionWrapperTest extends BaseJdbcTestCase {
 
         try {
             connection.setTransactionIsolation(Connection.TRANSACTION_READ_COMMITTED);
-            fail("Action not allowed while in global transaction");
+            fail("Action should not be  allowed while in global transaction");
         } catch (SQLException sQLException) {
         }
 

@@ -3,7 +3,6 @@ package org.hsqldb.jdbc.pool;
 import java.sql.SQLException;
 import javax.naming.Reference;
 import javax.sql.XAConnection;
-import javax.transaction.xa.Xid;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 import org.hsqldb.jdbc.testbase.BaseJdbcTestCase;
@@ -21,6 +20,10 @@ public class JDBCXADataSourceTest extends BaseJdbcTestCase {
     public static Test suite() {
         TestSuite suite = new TestSuite(JDBCXADataSourceTest.class);
         return suite;
+    }
+
+    public static void main(java.lang.String[] args) {
+        junit.textui.TestRunner.run(suite());
     }
 
     @Override
