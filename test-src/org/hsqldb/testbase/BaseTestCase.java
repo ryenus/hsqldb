@@ -113,14 +113,8 @@ public abstract class BaseTestCase extends junit.framework.TestCase {
         }
     };
     //
-    private static final ConnectionFactory.EventListener s_embeddedDatabaseCloser =
-            new ConnectionFactory.EventListener() {
+    private static final ConnectionFactory.EventListener s_embeddedDatabaseCloser = HsqldbEmbeddedDatabaseCloser.Instance;
 
-                @Override
-                public void closedRegisteredObjects(ConnectionFactory source) {
-                    org.hsqldb.DatabaseManager.closeDatabases(-1);
-                }
-            };
     //
     private static final String LINE_SEPARATOR =
             PropertyGetter.getProperty("line.separator", "\n");

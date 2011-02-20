@@ -29,6 +29,7 @@
  */
 package org.hsqldb.testbase;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.LineNumberReader;
@@ -40,8 +41,15 @@ import java.sql.Statement;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import junit.framework.TestCase;
+import org.hsqldb.DatabaseURL;
 import org.hsqldb.lib.StringUtil;
+import org.hsqldb.persist.HsqlProperties;
+import org.hsqldb.persist.LockFile;
+import org.hsqldb.persist.LockFile.FileSecurityException;
+import org.hsqldb.persist.LockFile.UnexpectedFileIOException;
 
 /**
  * Initial port of org.hqldb.test.TestUtil.
