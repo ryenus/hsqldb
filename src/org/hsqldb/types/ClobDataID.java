@@ -165,7 +165,7 @@ public class ClobDataID implements ClobData {
 
         System.arraycopy(chars, offset, newChars, 0, len);
 
-        ResultLob resultOut = ResultLob.newLobSetCharsRequest(id, pos, chars);
+        ResultLob resultOut = ResultLob.newLobSetCharsRequest(id, pos, newChars);
         Result    resultIn  = session.execute(resultOut);
 
         if (resultIn.isError()) {

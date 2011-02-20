@@ -63,10 +63,18 @@ public final class ClobInputStream extends Reader {
 
         this.session         = session;
         this.clob            = clob;
-        this.availableLength = offset + length;
+        final long clobLength = clob.length(session);
+        // TODO:  After chaing this to the correct formulation, it turns out
+        //        the lob handling code in Session does the wrong thing.
+        //
+        this.availableLength = offset + Math.min(length, clobLength - offset);
         this.currentPosition = offset;
         this.streamBlockSize = session.getStreamBlockSize();
     }
+
+    // TODO: Reverse this so that read(char[],int,int) does the real work
+    //       It is a wast to call read() a million times to read a million
+    //       characters, even though it is backed by a bufer.
 
     public int read() throws IOException {
 
@@ -86,7 +94,7 @@ public final class ClobInputStream extends Reader {
             }
         }
 
-        int val = buffer[(int) (currentPosition - bufferOffset)] & 0xff;
+        int val = buffer[(int) (currentPosition - bufferOffset)]; // why? & 0xff;
 
         currentPosition++;
 
@@ -106,7 +114,7 @@ public final class ClobInputStream extends Reader {
         }
 
         for (int i = off; i < len; i++) {
-            cbuf[i] = (char) read();
+            cbuf[i] = (char)read();
         }
 
         return len;

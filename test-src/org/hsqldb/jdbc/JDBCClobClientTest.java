@@ -27,6 +27,8 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+
+
 package org.hsqldb.jdbc;
 
 import java.sql.Clob;
@@ -46,7 +48,7 @@ import org.hsqldb.testbase.ForSubject;
  *
  * @author Campbell Boucher-Burnet (boucherb@users dot sourceforge.net)
  */
-@ForSubject(JDBCClob.class)
+@ForSubject(JDBCClobClient.class)
 public class JDBCClobClientTest extends BaseClobTest {
 
     public JDBCClobClientTest(String testName) {
