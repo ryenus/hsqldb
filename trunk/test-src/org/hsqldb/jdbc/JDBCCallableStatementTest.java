@@ -91,6 +91,7 @@ public class JDBCCallableStatementTest extends BaseJdbcTestCase {
     }
 
     void setObjectTest(String typeName, Object x, int type) throws Exception {
+        setUpDualTable();
         CallableStatement stmt = prepareCall("select cast(? as " + typeName + ") from dual");
 
         stmt.setObject("@p1", x, type);
