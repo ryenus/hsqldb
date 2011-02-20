@@ -1,4 +1,4 @@
--- $Id: TestSelfSeqRightsC.txt 62 2007-04-17 01:48:22Z unsaved $
+-- $Id: TestSelfSeqRightsC.txt 610 2008-12-22 15:54:18Z unsaved $
 -- Test .script persistence of Sequence rights
 
 CONNECT USER blaine PASSWORD "b";

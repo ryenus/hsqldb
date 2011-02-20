@@ -1,4 +1,4 @@
--- $Id: TestSelfSeqRightsA.txt 62 2007-04-17 01:48:22Z unsaved $
+-- $Id: TestSelfSeqRightsA.txt 610 2008-12-22 15:54:18Z unsaved $
 -- Test Grants/Revokes for Sequences (not ALTER/CREATE/DROP rights, as
 -- tested in the general schema object test scripts).
 -- We are not testing TABLE rights here.  We know that if the table of the

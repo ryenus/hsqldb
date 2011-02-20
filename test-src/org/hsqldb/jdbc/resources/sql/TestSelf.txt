@@ -20,6 +20,11 @@ set database transaction control locks
 
 -- Referential integrity with cascading delete
 -- identity column
+
+drop table main if exists;
+drop table ref if exists;
+drop table ref2 if exists;
+
 create table main(id int identity,name varchar(10))
 create table ref(id int identity,idMain int,
   foreign key(idMain)references main(id) on delete cascade)
@@ -46,8 +51,15 @@ create table ref2(id int identity,idMain int,
 drop table ref2;drop table ref;drop table main
 
 -- Data Definition
-drop table T1 if exists
-drop table T2 if exists
+drop table T1 if exists;
+drop table T2 if exists;
+drop table T3 if exists;
+drop table T4 if exists;
+drop table T5 if exists;
+drop table T6 if exists;
+drop table T7 if exists;
+drop table T8 if exists;
+
 create table T1(Nr integer)
 create table T2(Nr integer primary Key)
 create table T3(Nr integer,dbl double,vc varchar(10),cc char(1))
@@ -122,7 +134,7 @@ update address set nr=5, name='What' where nr=1 and name='Boss'
 create table place(zip smallint,name longvarchar(100),country char(4))
 insert into place values(3000,'Langenthal\t1','CH')
 insert into place values(0,'\\\\Heaven',null)
-insert into place values(8000,'Zürich','CH')
+insert into place values(8000,'Zï¿½rich','CH')
 insert into place values(-1,'NULL','null')
 create table invoices(addressnr integer,total decimal)
 insert into invoices values(4,1003834.05)
