@@ -27,8 +27,6 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-
-
 package org.hsqldb.jdbc;
 
 import java.io.ByteArrayInputStream;
@@ -37,11 +35,12 @@ import java.io.Reader;
 import java.io.StringReader;
 import java.sql.Clob;
 import java.sql.SQLException;
+import org.hsqldb.error.ErrorCode;
+import org.hsqldb.lib.KMPSearchAlgorithm;
 
 import org.hsqldb.lib.java.JavaSystem;
 
 /* $Id$ */
-
 // boucherb@users 2004-03/04-xx - doc 1.7.2 - javadocs updated; methods put in
 //                                            correct (historical, interface
 //                                            declared) order
@@ -59,7 +58,6 @@ import org.hsqldb.lib.java.JavaSystem;
 // patch 1.9.0
 // - full synch up to Mustang b90
 // - better bounds checking
-
 /**
  * The mapping in the Java<sup><font size=-2>TM</font></sup> programming language
  * for the SQL <code>CLOB</code> type.
@@ -137,12 +135,7 @@ public class JDBCClob implements Clob {
      * @since JDK 1.2, HSQLDB 1.7.2
      */
     public long length() throws SQLException {
-
-        final String ldata = data;
-
-        checkValid(ldata);
-
-        return ldata.length();
+        return getData().length();
     }
 
     /**
@@ -191,13 +184,10 @@ public class JDBCClob implements Clob {
      * @since JDK 1.2, HSQLDB 1.7.2
      */
     public String getSubString(long pos,
-                               final int length) throws SQLException {
+            final int length) throws SQLException {
 
-        final String ldata = data;
-
-        checkValid(ldata);
-
-        final int dlen = ldata.length();
+        final String data = getData();
+        final int dlen = data.length();
 
         if (pos < MIN_POS || pos > dlen) {
             Util.outOfRangeArgument("pos: " + pos);
@@ -208,8 +198,8 @@ public class JDBCClob implements Clob {
             throw Util.outOfRangeArgument("length: " + length);
         }
 
-        return (pos == 0 && length == dlen) ? ldata
-                : ldata.substring((int) pos, (int) pos + length);
+        return (pos == 0 && length == dlen) ? data
+                : data.substring((int) pos, (int) pos + length);
     }
 
     /**
@@ -227,12 +217,7 @@ public class JDBCClob implements Clob {
      * @since JDK 1.2, HSQLDB 1.7.2
      */
     public java.io.Reader getCharacterStream() throws SQLException {
-
-        final String ldata = data;
-
-        checkValid(ldata);
-
-        return new StringReader(ldata);
+        return new StringReader(getData());
     }
 
     /**
@@ -249,11 +234,8 @@ public class JDBCClob implements Clob {
      * @since JDK 1.2, HSQLDB 1.7.2
      */
     public java.io.InputStream getAsciiStream() throws SQLException {
-
-        checkValid(data);
-
         try {
-            return new ByteArrayInputStream(data.getBytes("US-ASCII"));
+            return new ByteArrayInputStream(getData().getBytes("US-ASCII"));
         } catch (IOException e) {
             return null;
         }
@@ -277,11 +259,9 @@ public class JDBCClob implements Clob {
      * @since JDK 1.2, HSQLDB 1.7.2
      */
     public long position(final String searchstr,
-                         long start) throws SQLException {
+            long start) throws SQLException {
 
-        final String ldata = data;
-
-        checkValid(ldata);
+        final String data = getData();
 
         if (start < MIN_POS) {
             throw Util.outOfRangeArgument("start: " + start);
@@ -291,10 +271,10 @@ public class JDBCClob implements Clob {
             return -1;
         }
 
-        final int pos = ldata.indexOf(searchstr, (int) --start);
+        final int position = KMPSearchAlgorithm.search(data, searchstr, null,
+                (int) start);
 
-        return (pos < 0) ? -1
-                         : pos + 1;
+        return (position == -1) ? -1 : position + 1;
     }
 
     /**
@@ -315,11 +295,9 @@ public class JDBCClob implements Clob {
      * @since JDK 1.2, HSQLDB 1.7.2
      */
     public long position(final Clob searchstr,
-                         long start) throws SQLException {
+            long start) throws SQLException {
 
-        final String ldata = data;
-
-        checkValid(ldata);
+        final String data = getData();
 
         if (start < MIN_POS) {
             throw Util.outOfRangeArgument("start: " + start);
@@ -329,7 +307,7 @@ public class JDBCClob implements Clob {
             return -1;
         }
 
-        final long dlen  = ldata.length();
+        final long dlen = data.length();
         final long sslen = searchstr.length();
 
         start--;
@@ -343,22 +321,20 @@ public class JDBCClob implements Clob {
         }
 
         // by now, we know sslen and start are both < Integer.MAX_VALUE
-        String s;
+        String pattern;
 
         if (searchstr instanceof JDBCClob) {
-            s = ((JDBCClob) searchstr).data();
+            pattern = ((JDBCClob) searchstr).data();
         } else {
-            s = searchstr.getSubString(1L, (int) sslen);
+            pattern = searchstr.getSubString(1L, (int) sslen);
         }
 
-        final int pos = ldata.indexOf(s, (int) start);
+        final int position = KMPSearchAlgorithm.search(data, pattern, null, (int) start);
 
-        return (pos < 0) ? -1
-                         : pos + 1;
+        return (position == -1) ? -1 : position + 1;
     }
 
     //---------------------------- jdbc 3.0 -----------------------------------
-
     /**
      * Writes the given Java <code>String</code> to the <code>CLOB</code>
      * value that this <code>Clob</code> object designates at the position
@@ -499,17 +475,15 @@ public class JDBCClob implements Clob {
      * @revised JDK 1.6, HSQLDB 2.0
      */
     public int setString(long pos, String str, int offset,
-                         int len) throws SQLException {
+            int len) throws SQLException {
 
-        if (!this.createdByConnection) {
+        if (!m_createdByConnection) {
 
             /** @todo - better error message */
             throw Util.notSupported();
         }
 
-        String ldata = this.data;
-
-        checkValid(ldata);
+        String data = getData();
 
         if (str == null) {
             throw Util.nullArgument("str");
@@ -529,23 +503,23 @@ public class JDBCClob implements Clob {
             throw Util.outOfRangeArgument("pos: " + pos);
         }
 
-        final int    dlen = ldata.length();
-        final int    ipos = (int) (pos - 1);
+        final int dlen = data.length();
+        final int ipos = (int) (pos - 1);
         StringBuffer sb;
 
         if (ipos > dlen - len) {
             sb = new StringBuffer(ipos + len);
 
-            sb.append(ldata.substring(0, ipos));
+            sb.append(data.substring(0, ipos));
 
-            ldata = null;
+            data = null;
 
             sb.append(str.substring(offset, offset + len));
 
             str = null;
         } else {
-            sb    = new StringBuffer(ldata);
-            ldata = null;
+            sb = new StringBuffer(data);
+            data = null;
 
             for (int i = ipos, j = 0; j < len; i++, j++) {
                 sb.setCharAt(i, str.charAt(offset + j));
@@ -553,10 +527,7 @@ public class JDBCClob implements Clob {
             str = null;
         }
 
-        // paranoia, in case somone free'd us during the copies.
-        checkValid(this.data);
-
-        this.data = sb.toString();
+        setData(sb.toString());
 
         return len;
     }
@@ -633,12 +604,13 @@ public class JDBCClob implements Clob {
     public java.io.OutputStream setAsciiStream(
             final long pos) throws SQLException {
 
-        if (!this.createdByConnection) {
+        if (!m_createdByConnection) {
 
             /** @todo - Better error message */
             throw Util.notSupported();
         }
-        checkValid(this.data);
+        
+        checkClosed();
 
         if (pos < MIN_POS || pos > MAX_POS) {
             throw Util.outOfRangeArgument("pos: " + pos);
@@ -733,12 +705,13 @@ public class JDBCClob implements Clob {
     public java.io.Writer setCharacterStream(
             final long pos) throws SQLException {
 
-        if (!this.createdByConnection) {
+        if (!m_createdByConnection) {
 
             /** @todo - better error message */
             throw Util.notSupported();
         }
-        checkValid(this.data);
+
+        checkClosed();
 
         if (pos < MIN_POS || pos > MAX_POS) {
             throw Util.outOfRangeArgument("pos: " + pos);
@@ -752,8 +725,6 @@ public class JDBCClob implements Clob {
                     JDBCClob.this.setString(pos, toString());
                 } catch (SQLException se) {
                     throw JavaSystem.toIOException(se);
-                } finally {
-                    super.close();
                 }
             }
         };
@@ -806,26 +777,22 @@ public class JDBCClob implements Clob {
      */
     public void truncate(final long len) throws SQLException {
 
-        final String ldata = this.data;
+        final String data = getData();
 
-        this.checkValid(ldata);
-
-        final long dlen = ldata.length();
+        final long dlen = data.length();
 
         if (len == dlen) {
-
             // nothing has changed, so there's nothing to be done
         } else if (len < 0 || len > dlen) {
             throw Util.outOfRangeArgument("len: " + len);
         } else {
 
             // no need to get rid of slack
-            data = ldata.substring(0, (int) len);
+            setData(data.substring(0, (int) len));
         }
     }
 
     //------------------------- JDBC 4.0 -----------------------------------
-
     /**
      * This method frees the <code>Clob</code> object and releases the resources the resources
      * that it holds.  The object is invalid once the <code>free</code> method
@@ -843,8 +810,9 @@ public class JDBCClob implements Clob {
      * this method
      * @since JDK 1.6, HSQLDB 2.0
      */
-    public void free() throws SQLException {
-        this.data = null;
+    public synchronized void free() throws SQLException {
+        m_closed = true;
+        m_data = null;
     }
 
     /**
@@ -864,7 +832,7 @@ public class JDBCClob implements Clob {
      * @since JDK 1.6, HSQLDB 2.0
      */
     public Reader getCharacterStream(long pos,
-                                     long length) throws SQLException {
+            long length) throws SQLException {
 
         if (length > Integer.MAX_VALUE) {
             throw Util.outOfRangeArgument("length: " + length);
@@ -872,12 +840,12 @@ public class JDBCClob implements Clob {
 
         return new StringReader(getSubString(pos, (int) length));
     }
-
     // ---------------------- internal implementation --------------------------
     private static final long MIN_POS = 1L;
     private static final long MAX_POS = 1L + (long) Integer.MAX_VALUE;
-    private volatile String   data;
-    private final boolean     createdByConnection;
+    private boolean m_closed;
+    private String m_data;
+    private final boolean m_createdByConnection;
 
     /**
      * Constructs a new JDBCClob object wrapping the given character
@@ -897,38 +865,36 @@ public class JDBCClob implements Clob {
      * @throws SQLException if the argument is null
      */
     public JDBCClob(final String data) throws SQLException {
+        if (data == null) {
+            throw Util.nullArgument();
+        }
 
-        this.init(data);
-
-        this.createdByConnection = false;
+        m_data = data;
+        m_createdByConnection = false;
     }
 
     protected JDBCClob() {
-        this.data                = "";
-        this.createdByConnection = true;
+        m_data = "";
+        m_createdByConnection = true;
     }
 
-    protected final void init(String data) throws SQLException {
-
-        if (data == null) {
-            throw Util.nullArgument("data");
-        }
-        this.data = data;
-    }
-
-    protected void checkValid(final Object data) {
-
-        if (data == null) {
-            throw new RuntimeException("null data");
+    protected synchronized void checkClosed() throws SQLException {
+        if (m_closed) {
+            throw Util.sqlException(ErrorCode.X_07501);
         }
     }
 
     protected String data() throws SQLException {
+        return getData();
+    }
 
-        final String ldata = data;
+    private synchronized String getData() throws SQLException {
+        checkClosed();
+        return m_data;
+    }
 
-        checkValid(ldata);
-
-        return ldata;
+    private synchronized void setData(String data) throws SQLException {
+        checkClosed();
+        m_data = data;
     }
 }
