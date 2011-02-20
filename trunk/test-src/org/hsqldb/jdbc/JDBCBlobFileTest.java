@@ -29,66 +29,36 @@
  */
 package org.hsqldb.jdbc;
 
-import java.io.IOException;
+import java.sql.Blob;
+
 import junit.framework.Test;
 import junit.framework.TestSuite;
-import org.hsqldb.testbase.BaseScriptedTestCase;
+
+import org.hsqldb.jdbc.testbase.BaseBlobTest;
+import org.hsqldb.testbase.ForSubject;
 
 /**
+ * Test of org.hsqldb.jdbc.JDBCBlobFile
  *
  * @author Campbell Boucher-Burnet (boucherb@users dot sourceforge.net)
  */
-public class ScriptedTest extends BaseScriptedTestCase {
+@ForSubject(JDBCBlobFile.class)
+public class JDBCBlobFileTest extends BaseBlobTest {
 
-    private static final ScriptedTest instance = new ScriptedTest();
-
-    private ScriptedTest() {
-        super();
+    public JDBCBlobFileTest(String testName) {
+        super(testName);
     }
 
-    public ScriptedTest(String script) {
-        super(script);
+    @Override
+    protected Blob handleCreateBlob() throws Exception {
+        return new JDBCBlobFile();
     }
 
-    public String getUrl() {
-        return "jdbc:hsqldb:file:scripted-test";
-    }
-
-    /**
-     *
-     * @return
-     */
     public static Test suite() {
-        return instance.getSuite();
+        return new TestSuite(JDBCBlobFileTest.class);
     }
 
-    /**
-     * 
-     * @return
-     */
-    protected Test getSuite() {
-        TestSuite suite = new TestSuite("ScriptTest");
-
-        try {
-
-            String[] resources = getResoucesInPackage(
-                    "org.hsqldb.jdbc.resources.sql");
-
-            for (int i = 0; i < resources.length; i++) {
-                suite.addTest(new ScriptedTest(resources[i]));
-            }
-        } catch (IOException ex) {
-            ex.printStackTrace();
-        }
-
-        return suite;
-    }
-
-    /**
-     * @param args
-     * @throws java.lang.Exception 
-     */
-    public static void main(String[] args) throws Exception {
+    public static void main(java.lang.String[] argList) {
         junit.textui.TestRunner.run(suite());
     }
 }

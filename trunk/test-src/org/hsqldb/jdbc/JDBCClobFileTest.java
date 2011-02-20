@@ -29,66 +29,35 @@
  */
 package org.hsqldb.jdbc;
 
-import java.io.IOException;
+import org.hsqldb.jdbc.testbase.BaseClobTest;
+import java.sql.Clob;
+import java.sql.SQLException;
 import junit.framework.Test;
 import junit.framework.TestSuite;
-import org.hsqldb.testbase.BaseScriptedTestCase;
+import org.hsqldb.testbase.ForSubject;
 
 /**
+ * Test of class org.hsqldb.jdbc.jdbcClob.
  *
  * @author Campbell Boucher-Burnet (boucherb@users dot sourceforge.net)
  */
-public class ScriptedTest extends BaseScriptedTestCase {
+@ForSubject(JDBCClob.class)
+public class JDBCClobFileTest extends BaseClobTest {
 
-    private static final ScriptedTest instance = new ScriptedTest();
-
-    private ScriptedTest() {
-        super();
+    public JDBCClobFileTest(String testName) {
+        super(testName);
     }
 
-    public ScriptedTest(String script) {
-        super(script);
+    protected Clob handleCreateClob() throws SQLException {
+        return new JDBCClobFile(null,getEncoding(),/*temp*/true);
     }
 
-    public String getUrl() {
-        return "jdbc:hsqldb:file:scripted-test";
-    }
-
-    /**
-     *
-     * @return
-     */
     public static Test suite() {
-        return instance.getSuite();
+       return new TestSuite(JDBCClobFileTest.class);
     }
 
-    /**
-     * 
-     * @return
-     */
-    protected Test getSuite() {
-        TestSuite suite = new TestSuite("ScriptTest");
+    public static void main(java.lang.String[] argList) {
 
-        try {
-
-            String[] resources = getResoucesInPackage(
-                    "org.hsqldb.jdbc.resources.sql");
-
-            for (int i = 0; i < resources.length; i++) {
-                suite.addTest(new ScriptedTest(resources[i]));
-            }
-        } catch (IOException ex) {
-            ex.printStackTrace();
-        }
-
-        return suite;
-    }
-
-    /**
-     * @param args
-     * @throws java.lang.Exception 
-     */
-    public static void main(String[] args) throws Exception {
         junit.textui.TestRunner.run(suite());
     }
 }
