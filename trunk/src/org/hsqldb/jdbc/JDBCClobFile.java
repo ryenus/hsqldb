@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2010, The HSQL Development Group
+/* Copyright (c) 2001-2011, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -63,6 +63,7 @@ import java.util.List;
 
 import org.hsqldb.error.ErrorCode;
 import org.hsqldb.lib.FileUtil;
+import org.hsqldb.lib.InOutUtil;
 import org.hsqldb.lib.KMPSearchAlgorithm;
 
 /**
@@ -150,11 +151,13 @@ public class JDBCClobFile implements java.sql.Clob {
         CharArrayWriter writer = null;
 
         try {
-            final int initialCapacity = Math.min(
-                    INITIAL_CHARACTER_BUFFER_CAPACTIY, length);
+            final int initialCapacity = 
+                    Math.min(InOutUtil.DEFAULT_COPY_BUFFER_SIZE, length);
+            //
             reader = getCharacterStream(pos, length);
             writer = new CharArrayWriter(initialCapacity);
-            streamCopy(reader, writer, length, initialCapacity);
+            //
+            InOutUtil.copy(reader, writer, length);
         } catch (SQLException ex) {
             throw ex;
         } catch (Exception ex) {
@@ -334,7 +337,7 @@ public class JDBCClobFile implements java.sql.Clob {
 
             try {
                 reader = pattern.getCharacterStream();
-                streamCopy(reader, writer, patternLength, 8192);
+                InOutUtil.copy(reader, writer, patternLength);
             } catch (IOException ex) {
                 throw Util.sqlException(ex);
             } finally {
@@ -782,8 +785,6 @@ public class JDBCClobFile implements java.sql.Clob {
     public static final String TEMP_FILE_PREFIX = "hsql_jdbc_clob_file_";
     public static final String TEMP_FILE_SUFFIX = ".tmp";
     //
-    private static final int INITIAL_CHARACTER_BUFFER_CAPACTIY = 128;
-    //
     private final File m_file;
     //
     private boolean m_closed;
@@ -946,41 +947,6 @@ public class JDBCClobFile implements java.sql.Clob {
         checkIsFile(/*checkExists*/true);
     }
 
-    protected static long streamCopy(
-            final Reader reader,
-            final Writer writer,
-            final long amount,
-            final int bufferSize) throws IOException {
-        //
-        final char[] buffer = new char[bufferSize];
-        long charsCopied = 0;
-        int charsRead;
-        int maxCharsToRead = (int) Math.min((long) bufferSize, amount);
-
-        while ((charsCopied < amount) && -1 != (charsRead =
-                reader.read(buffer, 0, maxCharsToRead))) {
-            //
-            writer.write(buffer, 0, charsRead);
-
-            if (charsRead > Long.MAX_VALUE - charsCopied) {
-                // edge case...
-                // extremely unlikely but included for 'correctness'
-                charsCopied = Long.MAX_VALUE;
-            } else {
-                charsCopied += charsRead;
-            }
-
-            if (charsCopied >= amount) {
-                return charsCopied;
-            }
-
-            maxCharsToRead = (int) Math.min((long) bufferSize,
-                    amount - charsCopied);
-        }
-
-        return charsCopied;
-    }
-
     protected class WriterAdapter extends Writer {
 
         private final RandomAccessFile m_randomAccessFile;
@@ -1039,7 +1005,8 @@ public class JDBCClobFile implements java.sql.Clob {
 
     protected class ReaderAdapter extends Reader {
         //
-
+        private static final int CHARBUFFER_CAPACTIY = 128;
+        //
         private final Reader m_reader;
         private long m_remaining = Long.MAX_VALUE;
         private long m_filePointer;
@@ -1060,7 +1027,7 @@ public class JDBCClobFile implements java.sql.Clob {
 
             //
             if (!m_fixedWidthCharset) {
-                final int charCapacity = INITIAL_CHARACTER_BUFFER_CAPACTIY;
+                final int charCapacity = CHARBUFFER_CAPACTIY;
                 final int byteCapacity = charCapacity * m_maxCharWidth;
 
                 m_charBuffer = CharBuffer.allocate(charCapacity);

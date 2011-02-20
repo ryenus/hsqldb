@@ -49,6 +49,7 @@ import java.util.List;
 import org.hsqldb.error.ErrorCode;
 import org.hsqldb.lib.CountdownInputStream;
 import org.hsqldb.lib.FileUtil;
+import org.hsqldb.lib.InOutUtil;
 import org.hsqldb.lib.KMPSearchAlgorithm;
 
 /**
@@ -106,13 +107,13 @@ public class JDBCBlobFile implements java.sql.Blob {
         InputStream is = null;
         ByteArrayOutputStream baos = null;
 
-        final int initialBufferSize = (int) Math.min(INITIAL_BUFFER_CAPACITY,
+        final int initialBufferSize = (int) Math.min(COPY_BUFFER_CAPACITY,
                 length);
 
         try {
             is = getBinaryStream(pos, length);
             baos = new ByteArrayOutputStream(initialBufferSize);
-            streamCopy(is, baos, length, 8196);
+            InOutUtil.copy(is, baos, length);
         } catch (SQLException ex) {
             throw ex;
         } catch (Exception ex) {
@@ -560,7 +561,7 @@ public class JDBCBlobFile implements java.sql.Blob {
     public static final String TEMP_FILE_PREFIX = "hsql_jdbc_blob_file_";
     public static final String TEMP_FILE_SUFFIX = ".tmp";
     //
-    private static final int INITIAL_BUFFER_CAPACITY = 8192;
+    private static final int COPY_BUFFER_CAPACITY = 8192;
     //
     private final File m_file;
     private boolean m_closed;
@@ -642,41 +643,6 @@ public class JDBCBlobFile implements java.sql.Blob {
         }
 
         checkIsFile();
-    }
-
-    private static long streamCopy(
-            final InputStream inputStream,
-            final OutputStream outputStream,
-            final long amount,
-            final int bufferSize) throws IOException {
-        //
-        final byte[] buffer = new byte[bufferSize];
-        long bytesCopied = 0;
-        int bytesRead;
-        int maxBytesToRead = (int) Math.min((long) bufferSize, amount);
-
-        while ((bytesCopied < amount) && -1 != (bytesRead =
-                inputStream.read(buffer, 0, maxBytesToRead))) {
-            //
-            outputStream.write(buffer, 0, bytesRead);
-
-            if (bytesRead > Long.MAX_VALUE - bytesCopied) {
-                // edge case...
-                // extremely unlikely but included for 'correctness'
-                bytesCopied = Long.MAX_VALUE;
-            } else {
-                bytesCopied += bytesRead;
-            }
-
-            if (bytesCopied >= amount) {
-                return bytesCopied;
-            }
-
-            maxBytesToRead = (int) Math.min((long) bufferSize,
-                    amount - bytesCopied);
-        }
-
-        return bytesCopied;
     }
 
     protected static class OutputStreamAdapter extends OutputStream {

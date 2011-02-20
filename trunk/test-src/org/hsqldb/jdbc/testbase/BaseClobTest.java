@@ -1,19 +1,22 @@
 package org.hsqldb.jdbc.testbase;
 
 import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.FileFilter;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.Reader;
 import java.io.StringReader;
 import java.io.Writer;
 
+import java.net.URL;
+
 import java.sql.Clob;
 
 import org.hsqldb.jdbc.JDBCClob;
+import org.hsqldb.lib.InOutUtil;
 
 import org.hsqldb.testbase.ForSubject;
+import org.hsqldb.testbase.OfMethod;
 
 /**
  * Test of class org.hsqldb.jdbc.jdbcClob.
@@ -25,20 +28,49 @@ public abstract class BaseClobTest extends BaseJdbcTestCase {
 
     private String m_encoding;
 
+    /**
+     * used by default when creating file-backed / file-based Clobs.
+     *
+     * @param encoding to use
+     */
     public void setEncoding(String encoding) {
         m_encoding = encoding;
     }
 
+    /**
+     * used by default when creating file-backed / file-based Clobs.
+     *
+     * @return encoding used
+     */
     public String getEncoding() {
         return m_encoding;
     }
 
+    /**
+     * Standard constructor; delegates directly to base.
+     *
+     * @param name of test.
+     */
     public BaseClobTest(String name) {
         super(name);
     }
 
+    /**
+     * supplies new Clob instances to createClob and hence newClob.
+     *
+     * @return
+     * @throws Exception
+     * @see #createClob()
+     * @see #newClob(java.lang.String)
+     */
     protected abstract Clob handleCreateClob() throws Exception;
 
+    /**
+     * for testing purposes.
+     *
+     * @return a newly created Clob instance.
+     * @throws Exception
+     */
     public final Clob createClob() throws Exception {
         final Clob clob = handleCreateClob();
 
@@ -47,21 +79,64 @@ public abstract class BaseClobTest extends BaseJdbcTestCase {
         return clob;
     }
 
-    protected Clob newClob(String data) throws Exception {
-        Clob clob = createClob();
+    /**
+     * with the given character content.
+     *
+     * @param data
+     * @return
+     * @throws Exception
+     */
+    protected Clob newClobFromString(final String data) throws Exception {
+        final Clob clob = createClob();
         Writer writer = null;
         if (data != null) {
             try {
                 writer = clob.setCharacterStream(1);
                 writer.write(data);
             } finally {
-                // Tmportant - typically must close (not just flush)
+                // Important - typically must close (not just flush)
                 // the stream to ensure all characters are flushed
                 // to the underlying clob.
+                if (writer != null) {
+                    try {
+                        writer.close();
+                    } catch (Exception ex) {
+                    }
+                }
+            }
+        }
+        return clob;
+    }
+
+    /**
+     * with the given character content.
+     *
+     * @param data
+     * @return
+     * @throws Exception
+     */
+    protected Clob newClobFromResource(final String resource) throws Exception {
+        Clob clob = createClob();
+        InputStream inputStream = null;
+        Reader reader = null;
+        Writer writer = null;
+        try {
+            final URL url = getResource(resource);
+            inputStream = url.openStream();
+            reader = new InputStreamReader(inputStream);
+            writer = clob.setCharacterStream(1);
+
+            InOutUtil.copy(reader, writer);
+        } finally {
+            // Important - typically must close (not just flush)
+            // the stream to ensure all characters are flushed
+            // to the underlying clob.
+            if (writer != null) {
                 try {
                     writer.close();
                 } catch (Exception ex) {
                 }
+            } else {
             }
         }
         return clob;
@@ -77,8 +152,9 @@ public abstract class BaseClobTest extends BaseJdbcTestCase {
         super.tearDown();
     }
 
+    @OfMethod("free()")
     public void testFree() throws Exception {
-        Clob clob = newClob("testFree");
+        Clob clob = newClobFromString("testFree");
         try {
             clob.free();
         } catch (Exception e) {
@@ -141,6 +217,11 @@ public abstract class BaseClobTest extends BaseJdbcTestCase {
         }
     }
 
+    /**
+     *
+     * @throws Exception
+     */
+    @OfMethod("getAsciiStream()")
     public void testGetAsciiStream() throws Exception {
         StringBuffer sb = new StringBuffer();
         for (int i = Character.MIN_VALUE; i <= Character.MAX_VALUE; i++) {
@@ -148,25 +229,28 @@ public abstract class BaseClobTest extends BaseJdbcTestCase {
         }
         String testVal = sb.toString();
         this.setEncoding("US-ASCII");
-        Clob clob = newClob(testVal);
+        Clob clob = newClobFromString(testVal);
         InputStream expResult = new ByteArrayInputStream(testVal.getBytes("US-ASCII"));
         InputStream result = clob.getAsciiStream();
         assertStreamEquals(expResult, result);
     }
 
+    @OfMethod("getCharacterStream()")
     public void testGetCharacterStream() throws Exception {
-        Clob clob = newClob("testGetCharacterStream()");
+        Clob clob = newClobFromString("testGetCharacterStream()");
         Reader expResult = new StringReader("testGetCharacterStream()");
         Reader result = clob.getCharacterStream();
         assertReaderEquals(expResult, result);
     }
 
+    @OfMethod("getSubString(long,int)")
     public void testGetSubString() throws Exception {
-        Clob clob = newClob("testGetSubString()");
+        Clob clob = newClobFromString("testGetSubString()");
         String result = clob.getSubString(2, 2);
         assertEquals("es", result);
     }
 
+    @OfMethod("length()")
     public void testLength() throws Exception {
         JDBCClob clob = new JDBCClob("testLength()");
         long expResult = "testLength()".length();
@@ -174,28 +258,48 @@ public abstract class BaseClobTest extends BaseJdbcTestCase {
         assertEquals(expResult, result);
     }
 
+    @OfMethod("position(java.lang.String, long)")
     public void testPosition() throws Exception {
-        Clob clob = newClob("testPosition()");
-        long result = clob.position("Pos", 1);
+        Clob clob = newClobFromString("testPosition()");
+        long result = 0;
+        try {
+            result = clob.position("Pos", 1);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            fail(ex.toString());
+        }
         assertEquals(5L, result);
     }
 
+    @OfMethod("setAsciiStream(long)")
     public void testSetAsciiStream() throws Exception {
         setEncoding("US-ASCII");
         Clob clob = handleCreateClob();
+        OutputStream outputStream = null;
         try {
-            clob.setString(1L, "T");
-            assertEquals(1L, clob.length());
-            OutputStream result = clob.setAsciiStream(2);
-            result.write("ask".getBytes("US-ASCII"));
-            result.close();
-            assertEquals(4L, clob.length());
-            assertEquals("Task", clob.getSubString(1, 4));
+            outputStream = clob.setAsciiStream(1);
+
+            byte[] bytes = "testSetAsciiStream()".getBytes("US-ASCII");
+            String expValue = new String(bytes, "US-ASCII");
+            int expLen = expValue.length();
+
+            outputStream.write(bytes);
+            outputStream.close();
+
+            int len = (int) clob.length();
+
+            assertEquals("Clob Length", expLen, len);
+
+            String value = clob.getSubString(1, len);
+
+            assertEquals("Clob Value", expValue, value);
         } catch (Exception e) {
+            e.printStackTrace();
             fail(e.toString());
         }
     }
 
+    @OfMethod("setCharacterStream(long)")
     public void testSetCharacterStream() throws Exception {
         Clob clob = handleCreateClob();
         try {
@@ -207,10 +311,12 @@ public abstract class BaseClobTest extends BaseJdbcTestCase {
             assertEquals(4L, clob.length());
             assertEquals("Task", clob.getSubString(1, 4));
         } catch (Exception e) {
+            e.printStackTrace();
             fail(e.toString());
         }
     }
 
+    @OfMethod("setString(long,java.lang.String)")
     public void testSetString() throws Exception {
         Clob clob = handleCreateClob();
         try {
@@ -224,8 +330,9 @@ public abstract class BaseClobTest extends BaseJdbcTestCase {
         }
     }
 
+    @OfMethod("truncate()")
     public void testTruncate() throws Exception {
-        Clob clob = newClob("testTruncate");
+        Clob clob = newClobFromString("testTruncate");
         try {
             clob.truncate(2);
             assertEquals(2L, clob.length());
@@ -233,5 +340,28 @@ public abstract class BaseClobTest extends BaseJdbcTestCase {
             e.printStackTrace();
             fail(e.toString());
         }
+    }
+
+    @OfMethod("position(java.lang.String,long)")
+    public void testPostionInResource() throws Exception {
+        Clob clob = newClobFromResource("/org/hsqldb/jdbc/resources/sql/TestSelf.txt");
+
+        String pattern = "-- correlated subquery together with group and aggregates";
+
+        long position = 0;
+        long startTime = System.currentTimeMillis();
+
+        for (int i = 0; i < 200; i++) {
+            try {
+                position = clob.position(pattern, i+1);
+            } catch (Exception ex) {
+                ex.printStackTrace();
+                fail(ex.toString());
+            }
+        }
+
+        long elapsed = System.currentTimeMillis() - startTime;
+        System.out.println("position: " + position);
+        System.out.println("elapsed: " + elapsed);
     }
 }

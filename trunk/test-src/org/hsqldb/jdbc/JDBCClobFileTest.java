@@ -41,7 +41,7 @@ import org.hsqldb.testbase.ForSubject;
  *
  * @author Campbell Boucher-Burnet (boucherb@users dot sourceforge.net)
  */
-@ForSubject(JDBCClob.class)
+@ForSubject(JDBCClobFile.class)
 public class JDBCClobFileTest extends BaseClobTest {
 
     public JDBCClobFileTest(String testName) {
