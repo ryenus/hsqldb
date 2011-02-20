@@ -34,7 +34,10 @@ package org.hsqldb.lib;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 import org.hsqldb.testbase.BaseTestCase;
+import org.hsqldb.testbase.ForSubject;
+import org.hsqldb.testbase.OfMethod;
 
+@ForSubject(org.hsqldb.lib.HsqlTimer.class)
 public class HsqlTimerTest extends BaseTestCase {
     /**
      * Computes the system-specific average {@link java.io.FileDescriptor#sync()
@@ -45,7 +48,7 @@ public class HsqlTimerTest extends BaseTestCase {
      * @return the total time to write buff and call sync runs times,
      *    divided by runs
      */
-    static double avgSyncTime(int runs, byte[] buff) {
+    static long syncTime(int runs, byte[] buff) {
         java.io.File             file = null;
         java.io.FileOutputStream fos;
         java.io.FileDescriptor   fd;
@@ -64,7 +67,7 @@ public class HsqlTimerTest extends BaseTestCase {
 
             long elapsed = System.currentTimeMillis() - start;
 
-            return (elapsed/(double)runs);
+            return elapsed;
         } catch (Exception e) {
             throw new RuntimeException(e);
         } finally {
@@ -89,7 +92,7 @@ public class HsqlTimerTest extends BaseTestCase {
         static final byte[] buf = new byte[256];
 
         // instance
-        /** Identifes this task. */
+        /** Identifies this task. */
         String                   name;
         /** The time at which this task was last executed. */
         long                     last;
@@ -290,17 +293,18 @@ public class HsqlTimerTest extends BaseTestCase {
      * Runs the HsqlTimer tests.
      * @param args Currently unused
      */
+    @OfMethod("<<ALL>>")
     public void testHsqlTimer() {
         if (!getBooleanProperty("test.org.hsqldb.lib.HsqlTimer", true)){
             println("DISABLED: org.hsqldb.lib.HsqlTimerTest.");
             return;
         }
         // number of tasks to queue
-        int    taskCount         = 10;
+        int    taskCount         = 100;
         // period, as a multiple of computed system-specific avg. sync time
         double periodMultiplier  = 1.4D;
         // how long to run the timer, in milliseconds
-        long   duration          = 2800;
+        long   duration          = 5000; // millis
 
         test(taskCount, periodMultiplier, duration);
     }
@@ -327,40 +331,76 @@ public class HsqlTimerTest extends BaseTestCase {
         System.out.println("****************************************");
         System.out.println();
 
-        System.out.println("Computing system-specific avg. sync time.");
+        int syncReps = 1024;
+        int syncCapactity = 128*1024;
+        System.out.println("Computing system-specific avg. fsync time...");
+        System.out.println();
+        System.out.println("---------------------------------.");
+        System.out.println("FSync Repetitions                : " + syncReps + ".");
+        System.out.println("Bytes Written Per FSync          : " + syncCapactity + ".");
+        System.out.println("---------------------------------.");
+        System.out.println();
         System.out.println("Please wait...");
+        System.out.println();
 
-        double avgSyncTime   = avgSyncTime(500, new byte[100*1024]);
+        // TODO:  use a number of files located across the entire disk surface.
+        long syncTime = syncTime(syncReps, new byte[syncCapactity]);
+        double avgSyncTime = (syncTime /(double)syncReps);
+        double syncTimeSeconds = syncTime / 1000D;
+        double syncsPerSecond =   syncReps / syncTimeSeconds;
+        double bytesPerSecond = syncCapactity * syncsPerSecond;
         double minAvgPeriod = (taskCount * avgSyncTime);
         long   period        = Math.round(avgSyncTime * periodMultiplier);
-
+        
+        System.out.println("Done.");
         System.out.println();
-        System.out.println("System-specific avg. sync time : " + avgSyncTime + " ms.");
-        System.out.println("Requested task count           : " + taskCount);
-        System.out.println("Requested task period          : " + period + " ms." );
-        System.out.println("Min. avg. period (0 starved)   : " + minAvgPeriod + " ms." );
-        System.out.println("Requested test duration        : " + duration + " ms.");
+        System.out.println("---------------------------------.");
+        System.out.println("Total FSync Time                 : " + syncTime + " ms.");
+        System.out.println("Avg. FSyncs / Second             : " + Math.round(syncsPerSecond) + ".");
+        System.out.println("Avg. Bytes FSync'ed / Second     : " + Math.round(bytesPerSecond) + ".");
+        System.out.println("System-specific FSync Period     : " + avgSyncTime + " ms.");
+        System.out.println("---------------------------------.");
+        System.out.println("Requested Concurrent Timer Tasks : " + taskCount);
+        System.out.println("Requested Task Period Mutiplier  : " + periodMultiplier);
+        System.out.println("Requested Test Duration          : " + duration + " ms.");
+        System.out.println("---------------------------------.");
+        System.out.println("Effective Requested Task Period  : " + period + " ms. (fync period * multiplier)" );
+        System.out.println("Min. Possible Avg. Task Period   : " + minAvgPeriod + " ms. (0 tasks starved)" );
+        System.out.println("---------------------------------.");
+       
 
         if (period <= minAvgPeriod || minAvgPeriod >= duration) {
             double idealAvgRuns = (duration / minAvgPeriod);
 
-            System.out.println("Idealized avg. runs / task     : " + (float)idealAvgRuns);
+            System.out.println("Idealized Avg. Runs / Task       : " + (float)idealAvgRuns + "(no thread/process overhead)");
         } else {
             double remainingDuration = (duration - minAvgPeriod);
             double remainingRuns     = (remainingDuration / period);
             double idealAvgRuns      = (1D + remainingRuns);
 
-            System.out.println("Theoretical first cycle time    : " + minAvgPeriod);
-            System.out.println("Remaining duration              : " + remainingDuration);
-            System.out.println("Remaining runs                  : " + remainingRuns);
-            System.out.println("Idealized avg. runs per task    : " + idealAvgRuns);
+            System.out.println("Theoretical first cycle time      : " + minAvgPeriod);
+            System.out.println("Remaining duration                : " + remainingDuration);
+            System.out.println("Remaining runs                    : " + remainingRuns);
+            System.out.println("Idealized avg. runs per task      : " + idealAvgRuns);
             System.out.println("(1 + (requested duration");
             System.out.println("      - theor. first cycle time");
             System.out.println("      ) / requested period)");
         }
 
-        testJavaUtilTimer(taskCount, period, duration);
+        System.out.println("---------------------------------.");
+        System.out.println();
+        System.out.println("Running Timer Implementation and ");
+        System.out.println("Computing Performance Stats. ");
+        System.out.println();
+        System.out.println("Please Wait...");
+        System.out.println();;
+
+        System.runFinalization();
+        System.gc();
         testHsqlTimer(taskCount, period, duration);
+        System.runFinalization();
+        System.gc();
+        testJavaUtilTimer(taskCount, period, duration);
     }
 
 
@@ -565,6 +605,7 @@ public class HsqlTimerTest extends BaseTestCase {
         System.out.println("Geometric mean          : " + runsGMean);
         System.out.println("Stddev                  : " + runsStddev);
         System.out.println("Range/Stddev            : " + runsStddevR);
+        System.out.println("------------------------");
     }
 
 
