@@ -34,9 +34,13 @@ package org.hsqldb.jdbc;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
+
 import java.sql.Blob;
 import java.sql.SQLException;
 
+import org.hsqldb.error.ErrorCode;
+
+import org.hsqldb.lib.KMPSearchAlgorithm;
 import org.hsqldb.lib.java.JavaSystem;
 
 // boucherb@users 2004-04-xx - patch 1.7.2 - position and truncate methods
@@ -134,12 +138,7 @@ public class JDBCBlob implements Blob {
      * @since JDK 1.2, HSQLDB 1.7.2
      */
     public long length() throws SQLException {
-
-        final byte[] ldata = data;
-
-        checkValid(ldata);
-
-        return ldata.length;
+       return getData().length;
     }
 
     /**
@@ -178,11 +177,9 @@ public class JDBCBlob implements Blob {
      */
     public byte[] getBytes(long pos, final int length) throws SQLException {
 
-        final byte[] ldata = data;
+        final byte[] data = getData();
 
-        checkValid(ldata);
-
-        final int dlen = ldata.length;
+        final int dlen = data.length;
 
         if (pos < MIN_POS || pos > MIN_POS + dlen) {
             throw Util.outOfRangeArgument("pos: " + pos);
@@ -193,11 +190,11 @@ public class JDBCBlob implements Blob {
             throw Util.outOfRangeArgument("length: " + length);
         }
 
-        final byte[] out = new byte[length];
+        final byte[] result = new byte[length];
 
-        System.arraycopy(ldata, (int) pos, out, 0, length);
+        System.arraycopy(data, (int) pos, result, 0, length);
 
-        return out;
+        return result;
     }
 
     /**
@@ -213,12 +210,7 @@ public class JDBCBlob implements Blob {
      * @since JDK 1.2, HSQLDB 1.7.2
      */
     public InputStream getBinaryStream() throws SQLException {
-
-        final byte[] ldata = data;
-
-        checkValid(ldata);
-
-        return new ByteArrayInputStream(ldata);
+        return new ByteArrayInputStream(getData());
     }
 
     /**
@@ -239,52 +231,29 @@ public class JDBCBlob implements Blob {
      * @since JDK 1.2, HSQLDB 1.7.2
      */
     public long position(final byte[] pattern,
-                         long start) throws SQLException {
+            final long start) throws SQLException {
 
-        final byte[] ldata = data;
-
-        checkValid(ldata);
-
-        final int dlen = ldata.length;
+        final byte[] data = getData();
+        final int dlen = data.length;
 
         if (start < MIN_POS) {
             throw Util.outOfRangeArgument("start: " + start);
         } else if (start > dlen || pattern == null) {
             return -1L;
-        } else {
-            start--;
         }
 
+        // by now, we know start <= Integer.MAX_VALUE;
+        final int startIndex = (int) start - 1;
         final int plen = pattern.length;
 
-        if (plen == 0 || start > dlen - plen) {
+        if (plen == 0 || startIndex > dlen - plen) {
             return -1L;
         }
 
-        final int  stop = dlen - plen;
-        final byte b0   = pattern[0];
+        final int result = KMPSearchAlgorithm.search(data, pattern,
+                KMPSearchAlgorithm.computeTable(pattern), startIndex);
 
-        outer_loop:
-        for (int i = (int) start; i <= stop; i++) {
-            if (ldata[i] != b0) {
-                continue;
-            }
-
-            int     len     = plen;
-            int     doffset = i;
-            int     poffset = 0;
-            boolean match   = true;
-
-            while (len-- > 0) {
-                if (ldata[doffset++] != pattern[poffset++]) {
-                    continue outer_loop;
-                }
-            }
-
-            return (i + 1);
-        }
-
-        return -1L;
+        return (result == -1) ? -1 : result + 1;
     }
 
     /**
@@ -306,59 +275,37 @@ public class JDBCBlob implements Blob {
      */
     public long position(final Blob pattern, long start) throws SQLException {
 
-        final byte[] ldata = data;
-
-        checkValid(ldata);
-
-        final int dlen = ldata.length;
+        final byte[] data = getData();
+        final int dlen = data.length;
 
         if (start < MIN_POS) {
             throw Util.outOfRangeArgument("start: " + start);
         } else if (start > dlen || pattern == null) {
             return -1L;
-        } else {
-            start--;
         }
 
+        // by now, we know start <= Integer.MAX_VALUE;
+        final int startIndex = (int) start - 1;
         final long plen = pattern.length();
 
-        if (plen == 0 || start > ((long) dlen) - plen) {
+        if (plen == 0 || startIndex > ((long) dlen) - plen) {
             return -1L;
         }
 
         // by now, we know plen <= Integer.MAX_VALUE
         final int iplen = (int) plen;
-        byte[]    bap;
+        byte[]    bytePattern;
 
         if (pattern instanceof JDBCBlob) {
-            bap = ((JDBCBlob) pattern).data();
+            bytePattern = ((JDBCBlob) pattern).data();
         } else {
-            bap = pattern.getBytes(1L, iplen);
+            bytePattern = pattern.getBytes(1L, iplen);
         }
 
-        final int  stop = dlen - iplen;
-        final byte b0   = bap[0];
+        final int result = KMPSearchAlgorithm.search(data, bytePattern,
+                KMPSearchAlgorithm.computeTable(bytePattern), startIndex);
 
-        outer_loop:
-        for (int i = (int) start; i <= stop; i++) {
-            if (ldata[i] != b0) {
-                continue;
-            }
-
-            int len     = iplen;
-            int doffset = i;
-            int poffset = 0;
-
-            while (len-- > 0) {
-                if (ldata[doffset++] != bap[poffset++]) {
-                    continue outer_loop;
-                }
-            }
-
-            return i + 1;
-        }
-
-        return -1L;
+        return (result == -1) ? -1 : result + 1;
     }
 
     // -------------------------- JDBC 3.0 -----------------------------------
@@ -397,16 +344,17 @@ public class JDBCBlob implements Blob {
      *
      * <b>Implementation Notes:</b><p>
      *
-     * No attempt is made to ensure precise thread safety. Instead, volatile
-     * member field and local variable snapshot isolation semantics are
-     * implemented.  This is expected to eliminate most issues related
-     * to race conditions, with the possible exception of concurrent
-     * invocation of free(). <p>
+     * Starting with HSQLDB 2.1, JDBCBlob no longer utilizes volatile fields
+     * and is effectively thread safe, but still uses local variable
+     * snapshot isolation. <p>
      *
-     * In general, however, if an application may perform concurrent
-     * JDBCBlob modifications and the integrity of the application depends on
-     * total order Blob modification semantics, then such operations
-     * should be synchronized on an appropriate monitor.<p>
+     * As such, the synchronization policy still does not strictly enforce
+     * serialized read/write access to the underlying data  <p>
+     *
+     * So, if an application may perform concurrent JDBCBlob modifications and
+     * the integrity of the application depends on total order Blob modification
+     * semantics, then such operations should be synchronized on an appropriate
+     * monitor. <p>
      *
      * </div>
      * <!-- end release-specific documentation -->
@@ -475,16 +423,17 @@ public class JDBCBlob implements Blob {
      * written octets and the undefined region up to <code>pos</code> is
      * filled with (byte)0. <p>
      *
-     * No attempt is made to ensure precise thread safety. Instead, volatile
-     * member field and local variable snapshot isolation semantics are
-     * implemented.  This is expected to eliminate most issues related
-     * to race conditions, with the possible exception of concurrent
-     * invocation of free(). <p>
+     * Starting with HSQLDB 2.1, JDBCBlob no longer utilizes volatile fields
+     * and is effectively thread safe, but still uses local variable
+     * snapshot isolation. <p>
      *
-     * In general, however, if an application may perform concurrent
-     * JDBCBlob modifications and the integrity of the application depends on
-     * total order Blob modification semantics, then such operations
-     * should be synchronized on an appropriate monitor.<p>
+     * As such, the synchronization policy still does not strictly enforce
+     * serialized read/write access to the underlying data  <p>
+     *
+     * So, if an application may perform concurrent JDBCBlob modifications and
+     * the integrity of the application depends on total order Blob modification
+     * semantics, then such operations should be synchronized on an appropriate
+     * monitor. <p>
      *
      * </div>
      * <!-- end release-specific documentation -->
@@ -507,9 +456,9 @@ public class JDBCBlob implements Blob {
      * @revised JDK 1.6, HSQLDB 2.0
      */
     public int setBytes(long pos, byte[] bytes, int offset,
-                        int len) throws SQLException {
+            int len) throws SQLException {
 
-        if (!this.createdByConnection) {
+        if (!m_createdByConnection) {
 
             /** @todo - better error message */
             throw Util.notSupported();
@@ -532,26 +481,23 @@ public class JDBCBlob implements Blob {
         }
         pos--;
 
-        byte[] ldata = this.data;
-
-        checkValid(ldata);
-
-        final int dlen = ldata.length;
+        byte[] data = getData();
+        final int dlen = data.length;
 
         if ((pos + len) > dlen) {
             byte[] temp = new byte[(int) pos + len];
 
-            System.arraycopy(ldata, 0, temp, 0, dlen);
+            System.arraycopy(data, 0, temp, 0, dlen);
 
-            ldata = temp;
+            data = temp;
             temp  = null;
         }
-        System.arraycopy(bytes, offset, ldata, (int) pos, len);
+        System.arraycopy(bytes, offset, data, (int) pos, len);
 
         // paranoia, in case somone free'd us during the array copies.
-        checkValid(this.data);
+        checkClosed();
 
-        this.data = ldata;
+        setData(data);
 
         return len;
     }
@@ -599,16 +545,17 @@ public class JDBCBlob implements Blob {
      * written octets and the undefined region up to <code>pos</code> is
      * filled with (byte)0. <p>
      *
-     * Also, no attempt is made to ensure precise thread safety. Instead,
-     * volatile member field and local variable snapshot isolation semantics
-     * are implemented.  This is expected to eliminate most issues related
-     * to race conditions, with the possible exception of concurrent
-     * invocation of free(). <p>
+     * Starting with HSQLDB 2.1, JDBCBlob no longer utilizes volatile fields
+     * and is effectively thread safe, but still uses local variable
+     * snapshot isolation. <p>
      *
-     * In general, however, if an application may perform concurrent
-     * JDBCBlob modifications and the integrity of the application depends on
-     * total order Blob modification semantics, then such operations
-     * should be synchronized on an appropriate monitor.<p>
+     * As such, the synchronization policy still does not strictly enforce
+     * serialized read/write access to the underlying data  <p>
+     *
+     * So, if an application may perform concurrent JDBCBlob modifications and
+     * the integrity of the application depends on total order Blob modification
+     * semantics, then such operations should be synchronized on an appropriate
+     * monitor. <p>
      *
      * </div>
      * <!-- end release-specific documentation -->
@@ -627,7 +574,7 @@ public class JDBCBlob implements Blob {
      */
     public OutputStream setBinaryStream(final long pos) throws SQLException {
 
-        if (!this.createdByConnection) {
+        if (!m_createdByConnection) {
 
             /** @todo - Better error message */
             throw Util.notSupported();
@@ -636,7 +583,8 @@ public class JDBCBlob implements Blob {
         if (pos < MIN_POS || pos > MAX_POS) {
             throw Util.outOfRangeArgument("pos: " + pos);
         }
-        checkValid(this.data);
+
+        checkClosed();
 
         return new java.io.ByteArrayOutputStream() {
 
@@ -693,28 +641,26 @@ public class JDBCBlob implements Blob {
      */
     public void truncate(final long len) throws SQLException {
 
-        final byte[] ldata = data;
+        final byte[] data = getData();
 
-        checkValid(ldata);
-
-        if (len < 0 || len > ldata.length) {
+        if (len < 0 || len > data.length) {
             throw Util.outOfRangeArgument("len: " + len);
         }
 
-        if (len == ldata.length) {
+        if (len == data.length) {
             return;
         }
 
         byte[] newData = new byte[(int) len];
 
-        System.arraycopy(ldata, 0, newData, 0, (int) len);
-        checkValid(data);    // limit possible race-condition with free()
+        System.arraycopy(data, 0, newData, 0, (int) len);
 
-        data = newData;
+        checkClosed();    // limit possible race-condition with free()
+
+        setData(newData);
     }
 
     //------------------------- JDBC 4.0 -----------------------------------
-
     /**
      * This method frees the <code>Blob</code> object and releases the resources that
      * it holds. The object is invalid once the <code>free</code>
@@ -732,8 +678,9 @@ public class JDBCBlob implements Blob {
      * this method
      * @since JDK 1.6, HSQLDB 2.0
      */
-    public void free() throws SQLException {
-        this.data = null;
+    public synchronized void free() throws SQLException {
+       m_closed = true;
+       m_data = null;
     }
 
     /**
@@ -753,13 +700,11 @@ public class JDBCBlob implements Blob {
      * @since JDK 1.6, HSQLDB 2.0
      */
     public InputStream getBinaryStream(long pos,
-                                       long length) throws SQLException {
+            long length) throws SQLException {
 
-        final byte[] ldata = data;
+        final byte[] data = getData();
 
-        checkValid(ldata);
-
-        final int dlen = ldata.length;
+        final int dlen = data.length;
 
         if (pos < MIN_POS || pos > dlen) {
             throw Util.outOfRangeArgument("pos: " + pos);
@@ -771,59 +716,22 @@ public class JDBCBlob implements Blob {
         }
 
         if (pos == 0 && length == dlen) {
-            return new ByteArrayInputStream(ldata);
+            return new ByteArrayInputStream(data);
         }
 
-        // Let client decide on policy.
-        //
-        // Zero-copy is (possibly much) faster because it does
-        // not allocate extra memory and does not involve copy
-        // processing.
-        //
-        // However, because it could lead to unexpected memory,
-        // stress, it is not polite to always pass back a stream
-        // whose buffer is the full size required to represent the
-        // underlying BLOB value.
-//        if (isGetBinaryStreamUsesCopy()) {
-        final byte[] out = new byte[(int) length];
+        final byte[] result = new byte[(int) length];
 
-        System.arraycopy(ldata, (int) pos, out, 0, (int) length);
+        System.arraycopy(data, (int) pos, result, 0, (int) length);
 
-        return new ByteArrayInputStream(out);
-
-//        } else {
-//            return new BinaryInputStream(ldata, pos, length);
-//        }
-    }
-
-    /**
-     * Assigns whether getBinaryStream() uses a copy of
-     * the underlying byte[].
-     *
-     * @param b when true, then getBinaryStream() uses a copy of
-     * the underlying byte[]
-     */
-    public void setGetBinaryStreamUsesCopy(boolean b) {
-        getBinaryStreamUsesCopy = b;
-    }
-
-    /**
-     * Retrieves whether getBinaryStream() uses a copy of
-     * the underlying buffer.
-     *
-     * @return true if getBinaryStream() uses a copy of
-     * the underlying buffer; else false
-     */
-    public boolean isGetBinaryStreamUsesCopy() {
-        return getBinaryStreamUsesCopy;
+        return new ByteArrayInputStream(result);
     }
 
     // ---------------------- internal implementation --------------------------
     public static final long MIN_POS = 1L;
     public static final long MAX_POS = 1L + (long) Integer.MAX_VALUE;
-    private volatile byte[]  data;
-    private final boolean    createdByConnection;
-    private boolean          getBinaryStreamUsesCopy;
+    private boolean m_closed;
+    private byte[] m_data;
+    private final boolean m_createdByConnection;
 
     /**
      * Constructs a new JDBCBlob instance wrapping the given octet sequence. <p>
@@ -839,38 +747,36 @@ public class JDBCBlob implements Blob {
      * @throws SQLException if the argument is null
      */
     public JDBCBlob(final byte[] data) throws SQLException {
-
-        init(data);
-
-        this.createdByConnection = false;
-    }
-
-    protected JDBCBlob() {
-        this.data                = new byte[0];
-        this.createdByConnection = true;
-    }
-
-    protected final void init(byte[] data) throws SQLException {
-
         if (data == null) {
             throw Util.nullArgument();
         }
-        this.data = data;    // (byte[]) data.clone();
+
+        m_data = data;
+        m_createdByConnection = false;
     }
 
-    protected void checkValid(final Object data) {
+    protected JDBCBlob() {
+        m_data = new byte[0];
+        m_createdByConnection = true;
+    }
 
-        if (data == null) {
-            throw new RuntimeException("null data");
+    protected synchronized void checkClosed() throws SQLException {
+        if (m_closed) {
+            throw Util.sqlException(ErrorCode.X_07501);
         }
     }
 
     protected byte[] data() throws SQLException {
+        return getData();
+    }
 
-        byte[] ldata = data;
+    private synchronized byte[] getData() throws SQLException {
+        checkClosed();
+        return m_data;
+    }
 
-        checkValid(ldata);
-
-        return ldata;
+    private synchronized void setData(byte[] data) throws SQLException {
+        checkClosed();
+        m_data = data;
     }
 }
