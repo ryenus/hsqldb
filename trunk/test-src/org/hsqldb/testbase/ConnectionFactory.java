@@ -29,11 +29,17 @@
  */
 package org.hsqldb.testbase;
 
+import java.sql.Array;
+import java.sql.Blob;
 import java.sql.CallableStatement;
+import java.sql.Clob;
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.NClob;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.SQLXML;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
@@ -80,6 +86,17 @@ public final class ConnectionFactory {
     private final List<Statement> m_statements = new ArrayList<Statement>();
     @SuppressWarnings("CollectionWithoutInitialCapacity")
     private final List<ResultSet> m_resultSets = new ArrayList<ResultSet>();
+    @SuppressWarnings("CollectionWithoutInitialCapacity")
+    private final List<Blob> m_blobs = new ArrayList<Blob>();
+    @SuppressWarnings("CollectionWithoutInitialCapacity")
+    private final List<Clob> m_clobs = new ArrayList<Clob>();
+    @SuppressWarnings("CollectionWithoutInitialCapacity")
+    private final List<Array> m_arrays = new ArrayList<Array>();
+    @SuppressWarnings("CollectionWithoutInitialCapacity")
+    private final List<SQLXML> m_xmls = new ArrayList<SQLXML>();
+
+
+
     // </editor-fold>
 
     // <editor-fold defaultstate="collapsed" desc="Event Listener Support">    
@@ -151,6 +168,22 @@ public final class ConnectionFactory {
         m_resultSets.add(rs);
     }
 
+    public void registerArray(Array array) {
+        m_arrays.add(array);
+    }
+
+    public void registerBlob(Blob blob) {
+        m_blobs.add(blob);
+    }
+
+    public void registerClob(Clob clob) {
+        m_clobs.add(clob);
+    }
+
+    public void registerSQLXML(SQLXML xml) {
+        m_xmls.add(xml);
+    }
+
     public boolean isRollbackConnectionBeforeClose() {
         return PropertyGetter.getBooleanProperty(
                 getClass().getName() + ".rollback.connection.before.close",
@@ -162,6 +195,38 @@ public final class ConnectionFactory {
      */
     @SuppressWarnings("CallToThreadDumpStack")
     public void closeRegisteredObjects() {
+        for (SQLXML xml : m_xmls) {
+            if (xml != null) {
+                try {
+                    xml.free();
+                } catch (Exception ex) {
+                }
+            }
+        }
+        for (Array array : m_arrays) {
+            if (array != null) {
+                try {
+                    array.free();
+                } catch (Exception ex) {
+                }
+            }
+        }
+        for (Blob blob : m_blobs) {
+            if (blob != null) {
+                try {
+                    blob.free();
+                } catch (Exception ex) {
+                }
+            }
+        }
+       for (Clob clob : m_clobs) {
+            if (clob != null) {
+                try {
+                    clob.free();
+                } catch (Exception ex) {
+                }
+            }
+        }
         for (ResultSet rs : m_resultSets) {
             if (rs != null) {
                 try {
@@ -261,6 +326,30 @@ public final class ConnectionFactory {
         registerStatement(stmt);
 
         return stmt;
+    }
+
+    public Blob createBlob(final Connection conn) throws Exception {
+        final Blob blob = conn.createBlob();
+        registerBlob(blob);
+        return blob;
+    }
+
+    public Clob createClob(final Connection conn) throws Exception {
+        final Clob clob = conn.createClob();
+        registerClob(clob);
+        return clob;
+    }
+
+    public NClob createNClob(final Connection conn) throws Exception {
+        final NClob clob = conn.createNClob();
+        registerClob(clob);
+        return clob;
+    }
+
+    public SQLXML createSQLXML(final Connection conn) throws Exception {
+        final SQLXML xml = conn.createSQLXML();
+        registerSQLXML(xml);
+        return xml;
     }
 
     /**
