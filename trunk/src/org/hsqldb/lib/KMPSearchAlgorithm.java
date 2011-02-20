@@ -221,7 +221,11 @@ public class KMPSearchAlgorithm {
     /**
      * Searches the given octet string for the given octet pattern
      * returning the zero-based offset from given start position
-     * at which the first match is detected.
+     * at which the first match is detected. <p>
+     *
+     * Note that the signature includes a slot for the table so that
+     * searches for a pattern can be performed multiple times without
+     * incurring the overhead of computing the table each time.
      *
      * @param source array in which to search
      * @param pattern to be matched
