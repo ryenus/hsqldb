@@ -16,7 +16,7 @@ public class HsqldbEmbeddedDatabaseDeleter implements ConnectionFactory.EventLis
 
     private static final Logger s_logger = Logger.getLogger(HsqldbEmbeddedDatabaseDeleter.class.getName());
 
-    @Override
+//    @Override
     public void closedRegisteredObjects(ConnectionFactory source) {
         throw new UnsupportedOperationException("Not supported yet.");
     }
