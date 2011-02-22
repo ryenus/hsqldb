@@ -720,6 +720,18 @@ public class Logger {
     }
 
     /**
+     * Returns true if Cache object exists.
+     */
+    private boolean hasCache() {
+
+        if (log == null) {
+            return false;
+        } else {
+            return log.hasCache();
+        }
+    }
+
+    /**
      * Records a Log entry representing start of a session or a new connection
      * action on the specified Session object.
      */
@@ -950,7 +962,7 @@ public class Logger {
             throw Error.error(ErrorCode.X_42556);
         }
 
-        if (getCache() != null) {
+        if (hasCache()) {
             throw Error.error(ErrorCode.DATA_FILE_IN_USE);
         }
 
