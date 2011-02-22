@@ -43,6 +43,7 @@ import org.hsqldb.rights.GranteeManager;
 import org.hsqldb.rights.Right;
 import org.hsqldb.store.ValuePool;
 import org.hsqldb.types.Charset;
+import org.hsqldb.types.Collation;
 import org.hsqldb.types.Type;
 
 /**
@@ -861,7 +862,6 @@ public class StatementSchema extends Statement {
                     switch (schemaObject.getType()) {
 
                         case SchemaObject.CHARSET :
-                            System.out.println("grant charset!");
                             break;
 
                         case SchemaObject.VIEW :
@@ -952,7 +952,17 @@ public class StatementSchema extends Statement {
                 }
             }
             case StatementTypes.CREATE_COLLATION : {
-                return Result.updateZeroResult;
+                Collation collation = (Collation) arguments[0];
+
+                try {
+                    setOrCheckObjectName(session, null, collation.getName(),
+                                         true);
+                    schemaManager.addSchemaObject(collation);
+
+                    break;
+                } catch (HsqlException e) {
+                    return Result.newErrorResult(e, sql);
+                }
             }
             case StatementTypes.CREATE_ROLE : {
                 try {
@@ -974,6 +984,7 @@ public class StatementSchema extends Statement {
                 Grantee  grantor  = (Grantee) arguments[2];
                 boolean  admin    = ((Boolean) arguments[3]).booleanValue();
                 boolean  isDigest = ((Boolean) arguments[4]).booleanValue();
+
                 try {
                     session.checkAdmin();
                     session.checkDDLWrite();

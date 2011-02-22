@@ -190,10 +190,10 @@ public class ParserRoutine extends ParserDML {
             Type   convertType = dataType;
 
             if (dataType.typeCode == Types.SQL_CLOB) {
-                convertType = Type.getType(Types.SQL_VARCHAR, null,
+                convertType = Type.getType(Types.SQL_VARCHAR, null, null,
                                            dataType.precision, 0);
             } else if (dataType.typeCode == Types.SQL_BLOB) {
-                convertType = Type.getType(Types.SQL_VARBINARY, null,
+                convertType = Type.getType(Types.SQL_VARBINARY, null, null,
                                            dataType.precision, 0);
             }
 

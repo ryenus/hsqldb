@@ -35,10 +35,12 @@ import org.hsqldb.HsqlNameManager.HsqlName;
 import org.hsqldb.HsqlNameManager.SimpleName;
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
+import org.hsqldb.index.Index;
 import org.hsqldb.lib.ArrayListIdentity;
 import org.hsqldb.lib.HsqlList;
 import org.hsqldb.lib.OrderedHashSet;
 import org.hsqldb.lib.Set;
+import org.hsqldb.persist.PersistentStore;
 import org.hsqldb.store.ValuePool;
 import org.hsqldb.types.Type;
 
@@ -1009,5 +1011,61 @@ public class ExpressionColumn extends Expression {
 
     boolean isDynamicParam() {
         return isParam;
+    }
+
+    boolean isTargetRangeVariables(RangeVariable range) {
+        return rangeVariable == range;
+    }
+
+    RangeVariable[] getJoinRangeVariables(RangeVariable[] ranges) {
+
+        if (opType == OpTypes.COLUMN) {
+            return new RangeVariable[]{ rangeVariable };
+        }
+
+        return RangeVariable.emptyArray;
+    }
+
+    /**
+     * For normal tables only. We don't want to create an index on
+     * each column that is checked.
+     */
+    double costFactor(Session session, RangeVariable range, int operation) {
+
+        PersistentStore store = range.rangeTable.getRowStore(session);
+        int indexType = range.rangeTable.indexTypeForColumn(session,
+            columnIndex);
+        double factor;
+
+        switch (indexType) {
+
+            case Index.INDEX_UNIQUE :
+                if (operation == OpTypes.EQUAL) {
+                    factor = 1;
+                } else {
+                    factor = store.elementCount() / 2;
+                }
+                break;
+
+            case Index.INDEX_NON_UNIQUE :
+                if (operation == OpTypes.EQUAL) {
+                    factor = store.elementCount() / 8;
+
+                    if (factor > 1024) {
+                        factor = 1024;
+                    }
+                } else {
+                    factor = store.elementCount() / 2;
+                }
+                break;
+
+            case Index.INDEX_NONE :
+            default :
+                factor = store.elementCount();
+                break;
+        }
+
+        return factor < Index.minimumSelectivity ? Index.minimumSelectivity
+                                                 : factor;
     }
 }

@@ -377,8 +377,8 @@ public final class ResultMetaData {
 
         long size  = in.readLong();
         int  scale = in.readInt();
-        Type type = Type.getType(typeCode, Type.SQL_VARCHAR.getCollation(),
-                                 size, scale);
+        Type type = Type.getType(typeCode, Type.SQL_VARCHAR.getCharacterSet(),
+                                 Type.SQL_VARCHAR.getCollation(), size, scale);
 
         if (isArray) {
             type = new ArrayType(type, ArrayType.defaultArrayCardinality);

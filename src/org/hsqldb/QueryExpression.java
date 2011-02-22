@@ -560,7 +560,7 @@ public class QueryExpression {
         }
 
         if (sortAndSlice.hasOrder()) {
-            navigator.sortUnion(session, sortAndSlice);
+            navigator.sortOrderUnion(session, sortAndSlice);
         }
 
         if (sortAndSlice.hasLimit()) {
@@ -758,9 +758,7 @@ public class QueryExpression {
         mainIndex = resultTable.getPrimaryIndex();
 
         if (sortAndSlice.hasOrder()) {
-            orderIndex = resultTable.createAndAddIndexStructure(session, null,
-                    sortAndSlice.sortOrder, sortAndSlice.sortDescending,
-                    sortAndSlice.sortNullsLast, false, false, false);
+            orderIndex = sortAndSlice.getNewIndex(session, resultTable);
         }
 
         int[] fullCols = new int[columnCount];

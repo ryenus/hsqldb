@@ -153,15 +153,181 @@ public class RangeVariableResolver {
             rangeVarSet.add(rangeVariables[i]);
         }
 
-        assignToLists();
+        reorder();
+        rangeVarSet.clear();
 
-        if (!hasOuterJoin) {
-
-//            getIndexableColumn(whereExpressions[0], 0);
+        for (int i = 0; i < rangeVariables.length; i++) {
+            rangeVarSet.add(rangeVariables[i]);
         }
 
+        assignToLists();
         expandConditions();
         assignToRangeVariables();
+    }
+
+    void reorder() {
+
+        if (rangeVariables.length == 1 || firstLeftJoinIndex == 1
+                || firstRightJoinIndex != rangeVariables.length) {
+            return;
+        }
+
+        for (int i = 0; i < rangeVariables.length; i++) {
+            if (!rangeVariables[i].rangeTable.isSchemaBaseTable()) {
+                return;
+            }
+        }
+
+        HsqlArrayList joins  = new HsqlArrayList();
+        HsqlArrayList starts = new HsqlArrayList();
+        HsqlArrayList others = new HsqlArrayList();
+
+        for (int i = 0; i < firstLeftJoinIndex; i++) {
+            HsqlArrayList tempJoins = tempJoinExpressions[i];
+
+            for (int j = 0; j < tempJoins.size(); j++) {
+                Expression e = (Expression) tempJoins.get(j);
+
+                if (e.isColumnEqual) {
+                    joins.add(e);
+                } else if (e.isSingleColumnCondition) {
+                    starts.add(e);
+                } else {
+                    others.add(e);
+                }
+            }
+        }
+
+        for (int i = 0; i < queryExpressions.size(); i++) {
+            Expression      e      = (Expression) queryExpressions.get(i);
+            RangeVariable[] ranges = e.getJoinRangeVariables(rangeVariables);
+            int count =
+                ArrayUtil.countCommonElements((Object[]) rangeVariables,
+                                              firstLeftJoinIndex,
+                                              (Object[]) ranges);
+
+            if (count != ranges.length) {
+                continue;
+            }
+
+            if (e.isColumnEqual) {
+                joins.add(e);
+            } else if (e.isSingleColumnCondition) {
+                starts.add(e);
+            } else {
+                others.add(e);
+            }
+        }
+
+        if (starts.size() == 0) {
+            return;
+        }
+
+        // choose start expressions
+        Expression start = null;
+        double cost =
+            rangeVariables[0].rangeTable.getRowStore(session).elementCount();
+        int           position = 0;
+        RangeVariable range    = null;
+
+        if (cost < Index.minimumSelectivity) {
+            cost = Index.minimumSelectivity;
+        }
+
+        if (rangeVariables[0].rangeTable.getTableType()
+                == TableBase.CACHED_TABLE) {
+            cost *= Index.cachedFactor;
+        }
+
+        for (int i = 0; i < starts.size(); i++) {
+            Expression e = (Expression) starts.get(i);
+
+            range = e.getJoinRangeVariables(rangeVariables)[0];
+
+            double currentCost = e.costFactor(session, range, OpTypes.EQUAL);
+
+            if (range == rangeVariables[0]) {
+                start = null;
+
+                break;
+            }
+
+            if (currentCost < cost) {
+                start = e;
+            }
+        }
+
+        if (start == null) {
+            return;
+        }
+
+        //
+        position = ArrayUtil.find(rangeVariables, range);
+
+        if (position <= 0) {
+            return;
+        }
+
+        rangeVariables[position] = rangeVariables[0];
+        rangeVariables[0]        = range;
+        position                 = 1;
+
+        for (; position < firstLeftJoinIndex - 1; position++) {
+            for (int i = 0; i < joins.size(); i++) {
+                Expression e = (Expression) joins.get(i);
+
+                if (e == null) {
+                    continue;
+                }
+
+                int newPosition = getJoinedRangePosition(e, position);
+
+                if (newPosition > position) {
+                    range                       = rangeVariables[position];
+                    rangeVariables[position]    = rangeVariables[newPosition];
+                    rangeVariables[newPosition] = range;
+
+                    joins.set(i, null);
+
+                    break;
+                }
+            }
+
+            position++;
+        }
+
+        joins.clear();
+
+        for (int i = 0; i < firstLeftJoinIndex; i++) {
+            HsqlArrayList tempJoins = tempJoinExpressions[i];
+
+            joins.addAll(tempJoins);
+            tempJoins.clear();
+        }
+
+        tempJoinExpressions[firstLeftJoinIndex - 1].addAll(joins);
+    }
+
+    int getJoinedRangePosition(Expression e, int position) {
+
+        int             found  = -1;
+        RangeVariable[] ranges = e.getJoinRangeVariables(rangeVariables);
+
+        for (int i = 0; i < ranges.length; i++) {
+            for (int j = 0; j < rangeVariables.length; j++) {
+                if (ranges[i] == rangeVariables[j]) {
+                    if (j > position) {
+                        if (found > 0) {
+                            return -1;
+                        } else {
+                            found = j;
+                        }
+                    }
+                }
+            }
+        }
+
+        return found;
     }
 
     /**
@@ -532,7 +698,8 @@ public class RangeVariableResolver {
 
             int colIndex = e.getColumnIndex();
 
-            if (range.rangeTable.canGetIndexForColumn(session, colIndex)) {
+            if (range.rangeTable.indexTypeForColumn(session, colIndex)
+                    != Index.INDEX_NONE) {
                 return e;
             }
         }
@@ -804,7 +971,7 @@ public class RangeVariableResolver {
 
             conditionsArray[i].excludeConditions = exclude;
 
-            if ( i == conditionsArray.length - 1) {
+            if (i == conditionsArray.length - 1) {
                 break;
             }
 
@@ -816,9 +983,8 @@ public class RangeVariableResolver {
                 }
             }
 
-            e = ExpressionLogical.andExpressions(e, c.indexEndCondition);
-            e = ExpressionLogical.andExpressions(e, c.nonIndexCondition);
-
+            e       = ExpressionLogical.andExpressions(e, c.indexEndCondition);
+            e       = ExpressionLogical.andExpressions(e, c.nonIndexCondition);
             exclude = ExpressionLogical.orExpressions(e, exclude);
         }
 

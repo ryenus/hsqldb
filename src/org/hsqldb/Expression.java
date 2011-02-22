@@ -36,6 +36,7 @@ import org.hsqldb.HsqlNameManager.SimpleName;
 import org.hsqldb.ParserDQL.CompileContext;
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
+import org.hsqldb.index.Index;
 import org.hsqldb.lib.ArrayListIdentity;
 import org.hsqldb.lib.HsqlArrayList;
 import org.hsqldb.lib.HsqlList;
@@ -47,6 +48,7 @@ import org.hsqldb.persist.PersistentStore;
 import org.hsqldb.result.Result;
 import org.hsqldb.types.ArrayType;
 import org.hsqldb.types.CharacterType;
+import org.hsqldb.types.Collation;
 import org.hsqldb.types.NullType;
 import org.hsqldb.types.Type;
 
@@ -187,6 +189,12 @@ public class Expression implements Cloneable {
 
     //
     boolean isColumnEqual;
+
+    //
+    boolean isSingleColumnCondition;
+
+    //
+    Collation collation;
 
     Expression(int type) {
         opType = type;
@@ -1876,6 +1884,18 @@ public class Expression implements Cloneable {
         return targetSet;
     }
 
+    boolean isTargetRangeVariables(RangeVariable range) {
+        return false;
+    }
+
+    RangeVariable[] getJoinRangeVariables(RangeVariable[] ranges) {
+        return RangeVariable.emptyArray;
+    }
+
+    double costFactor(Session session, RangeVariable range, int operation) {
+        return Index.minimumSelectivity;
+    }
+
     Expression getIndexableExpression(RangeVariable rangeVar) {
         return null;
     }
@@ -1932,5 +1952,9 @@ public class Expression implements Cloneable {
 
     public void setCondition(Expression e) {
         throw Error.runtimeError(ErrorCode.U_S0500, "Expression");
+    }
+
+    public void setCollation(Collation collation) {
+        this.collation = collation;
     }
 }

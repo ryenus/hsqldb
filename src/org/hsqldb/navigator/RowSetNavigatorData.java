@@ -144,7 +144,7 @@ implements Comparator {
         reset();
     }
 
-    public void sortUnion(Session session, SortAndSlice sortAndSlice) {
+    public void sortOrderUnion(Session session, SortAndSlice sortAndSlice) {
 
         if (sortAndSlice.index != null) {
             mainIndex = sortAndSlice.index;

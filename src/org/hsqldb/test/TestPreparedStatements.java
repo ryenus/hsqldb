@@ -61,6 +61,11 @@ public class TestPreparedStatements extends TestCase {
     }
 
     private sqlStmt[] stmtArray = {
+        new sqlStmt("drop table public.ivtest if exists cascade", false,
+                    false),
+        new sqlStmt(
+            "create cached table ivtest(interval1 INTERVAL YEAR TO MONTH,"
+            + " interval2 INTERVAL DAY TO SECOND(3))", false, false),
         new sqlStmt("drop table public.dttest if exists cascade", false,
                     false),
         new sqlStmt(
@@ -87,11 +92,19 @@ public class TestPreparedStatements extends TestCase {
         new sqlStmt(
             "select atime adate from dttest where atime =  ? and adate = ?",
             true, false),
+        new sqlStmt("insert into ivtest values ?, ?", true, true),
+        new sqlStmt(
+            "insert into ivtest values CAST (? AS INTERVAL YEAR TO MONTH), CAST (? AS INTERVAL DAY TO SECOND)",
+            true, true),
         new sqlStmt("script", true, false),
     };
     private Object[][] stmtArgs = {
-        {}, {}, {}, {}, {}, {}, {}, {}, new Object[] {
+        {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, new Object[] {
             "12:44:31", new java.sql.Date(System.currentTimeMillis())
+        }, {
+            "1-10", "10 02:15:30.333"
+        }, {
+            "1-10", "10 02:15:30.333"
         }, {}
     };
 
@@ -112,9 +125,9 @@ public class TestPreparedStatements extends TestCase {
 
     public void testA() {
 
-        try {
-            int i = 0;
+        int i = 0;
 
+        try {
             for (i = 0; i < stmtArray.length; i++) {
                 int j;
 
@@ -174,7 +187,7 @@ public class TestPreparedStatements extends TestCase {
                 }
             }
         } catch (Exception e) {
-            System.out.println(" ?? Caught Exception " + e);
+            System.out.println(i + " ?? Caught Exception " + e);
             super.fail();
         }
 

@@ -1557,9 +1557,7 @@ public class QuerySpecification extends QueryExpression {
         mainIndex = resultTable.getPrimaryIndex();
 
         if (sortAndSlice.hasOrder() && !sortAndSlice.skipSort) {
-            orderIndex = resultTable.createAndAddIndexStructure(session, null,
-                    sortAndSlice.sortOrder, sortAndSlice.sortDescending,
-                    sortAndSlice.sortNullsLast, false, false, false);
+            orderIndex = sortAndSlice.getNewIndex(session, resultTable);
         }
 
         if (isDistinctSelect || isFullOrder) {

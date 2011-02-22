@@ -517,9 +517,9 @@ public class HsqlDatabaseProperties extends HsqlProperties {
             }
         }
 
-        check = version.substring(0, 3).compareTo(THIS_VERSION);
+        check = version.substring(0, 2).compareTo(THIS_VERSION);
 
-        // do not open if the database belongs to a later (future) version
+        // do not open if the database belongs to a later (future) version (3.x)
         if (check > 0) {
             throw Error.error(ErrorCode.WRONG_DATABASE_FILE_VERSION);
         }
@@ -709,8 +709,6 @@ public class HsqlDatabaseProperties extends HsqlProperties {
     public static final int NO_MESSAGE = 1;
 
     public int getErrorLevel() {
-
-        //      return 0;
         return NO_MESSAGE;
     }
 

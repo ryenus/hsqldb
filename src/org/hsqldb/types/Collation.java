@@ -40,6 +40,8 @@ import org.hsqldb.HsqlNameManager.HsqlName;
 import org.hsqldb.SchemaObject;
 import org.hsqldb.Session;
 import org.hsqldb.SqlInvariants;
+import org.hsqldb.Tokens;
+import org.hsqldb.TypeInvariants;
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
 import org.hsqldb.lib.HashMap;
@@ -179,6 +181,10 @@ public class Collation implements SchemaObject {
     boolean                equalIsIdentical = true;
     final boolean          isFinal;
 
+    //
+    Charset  charset;
+    HsqlName sourceName;
+
     private Collation(boolean isFinal) {
 
         locale = Locale.ENGLISH;
@@ -187,6 +193,7 @@ public class Collation implements SchemaObject {
 
         name = HsqlNameManager.newInfoSchemaObjectName(language, true,
                 SchemaObject.COLLATION);
+        charset = TypeInvariants.SQL_TEXT;
         this.isFinal = isFinal;
     }
 
@@ -195,9 +202,23 @@ public class Collation implements SchemaObject {
         locale           = new Locale(language, country);
         collator         = Collator.getInstance(locale);
         equalIsIdentical = false;
-        this.name = HsqlNameManager.newInfoSchemaObjectName(name, false,
+        this.name = HsqlNameManager.newInfoSchemaObjectName(name, true,
                 SchemaObject.COLLATION);
+        charset = TypeInvariants.SQL_TEXT;
         this.isFinal = true;
+    }
+
+    public Collation(HsqlName name, Collation source, Charset charset) {
+
+        this.name             = name;
+        this.locale           = source.locale;
+        this.collator         = source.collator;
+        this.equalIsIdentical = source.equalIsIdentical;
+        this.isFinal          = true;
+
+        //
+        this.charset    = charset;
+        this.sourceName = source.name;
     }
 
     public static Collation getDefaultInstance() {
@@ -227,7 +248,11 @@ public class Collation implements SchemaObject {
         String javaName = (String) dbNameToJavaName.get(name);
 
         if (javaName == null) {
-            throw Error.error(ErrorCode.X_42501, javaName);
+            javaName = (String) nameToJavaName.get(name);
+
+            if (javaName == null) {
+                throw Error.error(ErrorCode.X_42501, javaName);
+            }
         }
 
         String[] parts    = StringUtil.split(javaName, "-");
@@ -374,7 +399,18 @@ public class Collation implements SchemaObject {
     public void compile(Session session, SchemaObject parentObject) {}
 
     public String getSQL() {
-        return name.getStatementName();
+
+        StringBuffer sb = new StringBuffer();
+
+        sb.append(Tokens.T_CREATE).append(' ');
+        sb.append(Tokens.T_COLLATION).append(' ');
+        sb.append(name.getSchemaQualifiedStatementName()).append(' ');
+        sb.append(Tokens.T_FOR).append(' ');
+        sb.append(charset.name.getSchemaQualifiedStatementName()).append(' ');
+        sb.append(Tokens.T_FROM).append(' ');
+        sb.append(sourceName.statementName);
+
+        return sb.toString();
     }
 
     public long getChangeTimestamp() {

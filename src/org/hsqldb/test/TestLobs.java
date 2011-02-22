@@ -37,6 +37,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.sql.Blob;
+import java.sql.CallableStatement;
 import java.sql.Clob;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -287,6 +288,8 @@ public class TestLobs extends TestBase {
             rs.next();
 
             Clob clob2 = rs.getClob(2);
+
+            String string = rs.getString(2);
             int data1 = clob1.getSubString(1, data.length()).indexOf("insert");
             int data2 = clob2.getSubString(1, data.length()).indexOf("INSERT");
 
@@ -690,6 +693,25 @@ public class TestLobs extends TestBase {
         } catch (SQLException e) {
             e.printStackTrace();
             fail("test failure");
+        }
+    }
+
+    public void testClobG() {
+        try {
+            String ddl1 = "create procedure PUBLIC.PROC_A(out p1 clob, out p2 int) READS SQL DATA BEGIN ATOMIC SET p1 = 'dafsdfasdfaefafeajfiwejifpjajsidojfakmvkamsdjfadpsjfoajsdifjaos'; SET p2 = 0; end";
+            String dml0 = "call PUBLIC.PROC_A(?, ?)";
+            statement.execute(ddl1);
+            CallableStatement ps    = connection.prepareCall(dml0);
+            ps.registerOutParameter(1, java.sql.Types.CLOB);
+            ps.registerOutParameter(2, java.sql.Types.INTEGER);
+            ps.execute();
+
+            String string = ps.getClob(1).getSubString(1, 10);
+            System.out.println(string);
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+
         }
     }
 

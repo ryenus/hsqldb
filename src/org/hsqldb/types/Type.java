@@ -229,7 +229,6 @@ public abstract class Type implements SchemaObject, Cloneable {
      */
     abstract String getDefinition();
 
-/*
     public boolean hasCollation() {
         return false;
     }
@@ -237,7 +236,15 @@ public abstract class Type implements SchemaObject, Cloneable {
     public String getCollationDefinition() {
         return "";
     }
-*/
+
+    public Collation getCollation() {
+        return null;
+    }
+
+    public Charset getCharacterSet() {
+        return null;
+    }
+
     public final String getTypeDefinition() {
 
         if (userTypeModifier == null) {
@@ -757,7 +764,8 @@ public abstract class Type implements SchemaObject, Cloneable {
     public static Type getDefaultType(int type) {
 
         try {
-            return getType(type, Type.SQL_VARCHAR.getCollation(), 0, 0);
+            return getType(type, Type.SQL_VARCHAR.getCharacterSet(),
+                           Type.SQL_VARCHAR.getCollation(), 0, 0);
         } catch (Exception e) {
             return null;
         }
@@ -963,8 +971,8 @@ public abstract class Type implements SchemaObject, Cloneable {
     /**
      * Enforces precision and scale limits on type
      */
-    public static Type getType(int type, Collation collation, long precision,
-                               int scale) {
+    public static Type getType(int type, Charset charset, Collation collation,
+                               long precision, int scale) {
 
         switch (type) {
 

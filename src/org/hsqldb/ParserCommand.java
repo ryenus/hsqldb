@@ -566,6 +566,75 @@ public class ParserCommand extends ParserDDL {
 
                 return new StatementSession(StatementTypes.SET_SCHEMA, args);
             }
+            case Tokens.NO : {
+                read();
+                readThis(Tokens.COLLATION);
+
+                HsqlArrayList charsets = null;
+
+                if (readIfThis(Tokens.FOR)) {
+                    charsets = new HsqlArrayList();
+
+                    while (true) {
+                        SchemaObject charset =
+                            readSchemaObjectName(SchemaObject.CHARSET);
+
+                        charsets.add(charset);
+
+                        if (token.tokenType == Tokens.COMMA) {
+                            read();
+
+                            continue;
+                        }
+
+                        break;
+                    }
+                }
+
+                Object[] args = new Object[] {
+                    null, Boolean.FALSE, charsets
+                };
+
+                return new StatementSession(StatementTypes.SET_COLLATION,
+                                            args);
+            }
+            case Tokens.COLLATION : {
+                read();
+
+                Expression e = XreadValueSpecificationOrNull();
+
+                if (e == null || !e.getDataType().isCharacterType()) {
+                    throw Error.error(ErrorCode.X_2H000);
+                }
+
+                HsqlArrayList charsets = null;
+
+                if (readIfThis(Tokens.FOR)) {
+                    charsets = new HsqlArrayList();
+
+                    while (true) {
+                        SchemaObject charset =
+                            readSchemaObjectName(SchemaObject.CHARSET);
+
+                        charsets.add(charset);
+
+                        if (token.tokenType == Tokens.COMMA) {
+                            read();
+
+                            continue;
+                        }
+
+                        break;
+                    }
+                }
+
+                Object[] args = new Object[] {
+                    e, Boolean.TRUE, charsets
+                };
+
+                return new StatementSession(StatementTypes.SET_COLLATION,
+                                            args);
+            }
             case Tokens.TIME : {
                 read();
 

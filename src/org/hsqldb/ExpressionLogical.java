@@ -34,6 +34,7 @@ package org.hsqldb;
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
 import org.hsqldb.index.Index;
+import org.hsqldb.lib.OrderedHashSet;
 import org.hsqldb.lib.OrderedIntHashSet;
 import org.hsqldb.navigator.RowIterator;
 import org.hsqldb.persist.PersistentStore;
@@ -110,9 +111,7 @@ public class ExpressionLogical extends Expression {
         nodes[LEFT]  = left;
         nodes[RIGHT] = right;
 
-        if (left.opType == OpTypes.COLUMN && right.opType == OpTypes.COLUMN) {
-            isColumnEqual = true;
-        }
+        setEqualityMode();
 
         dataType = Type.SQL_BOOLEAN;
     }
@@ -131,16 +130,13 @@ public class ExpressionLogical extends Expression {
         switch (opType) {
 
             case OpTypes.EQUAL :
-                if (left.opType == OpTypes.COLUMN
-                        && right.opType == OpTypes.COLUMN) {
-                    isColumnEqual = true;
-                }
-
-            // fall through
             case OpTypes.GREATER_EQUAL :
             case OpTypes.GREATER :
             case OpTypes.SMALLER :
             case OpTypes.SMALLER_EQUAL :
+                setEqualityMode();
+
+            // fall through
             case OpTypes.NOT_EQUAL :
             case OpTypes.OVERLAPS :
             case OpTypes.NOT_DISTINCT :
@@ -215,6 +211,37 @@ public class ExpressionLogical extends Expression {
 
         e           = new ExpressionLogical(OpTypes.IS_NULL, e);
         nodes[LEFT] = e;
+    }
+
+    void setEqualityMode() {
+
+        if (nodes[LEFT].opType == OpTypes.COLUMN) {
+            switch (nodes[RIGHT].opType) {
+
+                case OpTypes.COLUMN :
+                    if (opType == OpTypes.EQUAL) {
+                        isColumnEqual = true;
+                    }
+                    break;
+
+                case OpTypes.VALUE :
+                case OpTypes.DYNAMIC_PARAM :
+                case OpTypes.PARAMETER :
+                case OpTypes.VARIABLE :
+                    isSingleColumnCondition = true;
+                    break;
+            }
+        } else if (nodes[RIGHT].opType == OpTypes.COLUMN) {
+            switch (nodes[LEFT].opType) {
+
+                case OpTypes.VALUE :
+                case OpTypes.DYNAMIC_PARAM :
+                case OpTypes.PARAMETER :
+                case OpTypes.VARIABLE :
+                    isSingleColumnCondition = true;
+                    break;
+            }
+        }
     }
 
     // logical ops
@@ -1326,13 +1353,11 @@ public class ExpressionLogical extends Expression {
 
     private Boolean testMatchCondition(Session session, Object[] data) {
 
-        int nulls;
-
         if (data == null) {
             return Boolean.TRUE;
         }
 
-        nulls = countNulls(data);
+        final int nulls = countNulls(data);
 
         if (nulls != 0) {
             switch (opType) {
@@ -1929,5 +1954,167 @@ public class ExpressionLogical extends Expression {
         }
 
         return true;
+    }
+
+    boolean isTargetRangeVariables(RangeVariable range) {
+
+        if (nodes[LEFT].getRangeVariable() == range) {
+            return true;
+        }
+
+        if (nodes[RIGHT].getRangeVariable() == range) {
+            return true;
+        }
+
+        return false;
+    }
+
+    RangeVariable[] getJoinRangeVariables(RangeVariable[] ranges) {
+
+        OrderedHashSet set = new OrderedHashSet();
+
+        this.collectRangeVariables(ranges, set);
+
+        RangeVariable[] rangeArray = new RangeVariable[set.size()];
+
+        set.toArray(rangeArray);
+
+        this.rangeArray = rangeArray;
+
+        return rangeArray;
+    }
+
+    double costFactor(Session session, RangeVariable rangeVar, int operation) {
+
+        double cost;
+
+        switch (opType) {
+
+            case OpTypes.OR : {
+                return nodes[LEFT].costFactor(session, rangeVar, opType)
+                       + nodes[RIGHT].costFactor(session, rangeVar, opType);
+            }
+            case OpTypes.OVERLAPS :
+            case OpTypes.IN :
+            case OpTypes.MATCH_SIMPLE :
+            case OpTypes.MATCH_PARTIAL :
+            case OpTypes.MATCH_FULL :
+            case OpTypes.MATCH_UNIQUE_SIMPLE :
+            case OpTypes.MATCH_UNIQUE_PARTIAL :
+            case OpTypes.MATCH_UNIQUE_FULL :
+            case OpTypes.NOT_DISTINCT : {
+                PersistentStore store =
+                    rangeVar.rangeTable.getRowStore(session);
+
+                cost = store.elementCount();
+
+                if (cost < Index.minimumSelectivity) {
+                    cost = Index.minimumSelectivity;
+                }
+
+                break;
+            }
+            case OpTypes.IS_NULL :
+            case OpTypes.NOT : {
+                cost = costFactorUnaryColumn(session, rangeVar);
+
+                break;
+            }
+            case OpTypes.EQUAL : {
+                switch (exprSubType) {
+
+                    case OpTypes.ANY_QUANTIFIED : {
+                        if (nodes[LEFT].opType == OpTypes.COLUMN
+                                && nodes[LEFT].getRangeVariable()
+                                   == rangeVar) {
+                            cost = costFactorColumns(session, rangeVar);
+                            cost *= 1024;
+
+                            break;
+                        }
+                    }
+
+                    // fall through
+                    case OpTypes.ALL_QUANTIFIED : {
+                        PersistentStore store =
+                            rangeVar.rangeTable.getRowStore(session);
+
+                        cost = store.elementCount();
+
+                        if (cost < Index.minimumSelectivity) {
+                            cost = Index.minimumSelectivity;
+                        }
+
+                        cost *= 1024;
+
+                        break;
+                    }
+                    default :
+                        cost = costFactorColumns(session, rangeVar);
+                }
+
+                break;
+            }
+            case OpTypes.GREATER :
+            case OpTypes.GREATER_EQUAL :
+            case OpTypes.SMALLER :
+            case OpTypes.SMALLER_EQUAL : {
+                cost = costFactorColumns(session, rangeVar);
+
+                break;
+            }
+            default :
+                throw Error.runtimeError(ErrorCode.U_S0500,
+                                         "ExpressionLogical");
+        }
+
+        return cost;
+    }
+
+    double costFactorUnaryColumn(Session session, RangeVariable rangeVar) {
+
+        if (nodes[LEFT].opType == OpTypes.COLUMN
+                && nodes[LEFT].getRangeVariable() == rangeVar) {
+            return nodes[LEFT].costFactor(session, rangeVar, opType);
+        } else {
+            PersistentStore store = rangeVar.rangeTable.getRowStore(session);
+            double          cost  = store.elementCount();
+
+            return cost < Index.minimumSelectivity ? Index.minimumSelectivity
+                                                   : cost;
+        }
+    }
+
+    double costFactorColumns(Session session, RangeVariable rangeVar) {
+
+        double cost = 0;
+
+        if (nodes[LEFT].opType == OpTypes.COLUMN
+                && nodes[LEFT].getRangeVariable() == rangeVar) {
+            if (!nodes[RIGHT].hasReference(rangeVar)) {
+                cost = nodes[LEFT].costFactor(session, rangeVar, opType);
+            }
+        } else if (nodes[RIGHT].opType == OpTypes.COLUMN
+                   && nodes[RIGHT].getRangeVariable() == rangeVar) {
+            if (!nodes[LEFT].hasReference(rangeVar)) {
+                cost = nodes[RIGHT].costFactor(session, rangeVar, opType);
+            }
+        } else {
+            PersistentStore store = rangeVar.rangeTable.getRowStore(session);
+
+            cost = store.elementCount();
+        }
+
+        if (cost == 0) {
+            PersistentStore store = rangeVar.rangeTable.getRowStore(session);
+
+            cost = store.elementCount();
+        }
+
+        if (cost < Index.minimumSelectivity) {
+            cost = Index.minimumSelectivity;
+        }
+
+        return cost;
     }
 }

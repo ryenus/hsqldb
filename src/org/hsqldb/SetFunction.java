@@ -233,6 +233,7 @@ public class SetFunction implements Serializable {
 
             case OpTypes.USER_AGGREGATE :
                 currentValue = item;
+
                 return;
 
             default :
@@ -427,7 +428,7 @@ public class SetFunction implements Serializable {
 
                     case Types.SQL_NUMERIC :
                     case Types.SQL_DECIMAL :
-                        return Type.getType(type.typeCode, null,
+                        return Type.getType(type.typeCode, null, null,
                                             type.precision * 2, type.scale);
 
                     case Types.SQL_INTERVAL :
@@ -444,6 +445,7 @@ public class SetFunction implements Serializable {
                 if (type.isArrayType() || type.isLobType()) {
                     throw Error.error(ErrorCode.X_42563);
                 }
+
                 return type;
 
             case OpTypes.EVERY :

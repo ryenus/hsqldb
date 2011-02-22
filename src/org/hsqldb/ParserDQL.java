@@ -162,9 +162,10 @@ public class ParserDQL extends ParserBase {
                             read();
 
                             return Type.getType(Types.SQL_VARBINARY, null,
+                                                null,
                                                 BlobType.defaultBlobSize, 0);
                         } else {
-                            return Type.getType(Types.SQL_VARCHAR, null,
+                            return Type.getType(Types.SQL_VARCHAR, null, null,
                                                 ClobType.defaultClobSize, 0);
                         }
                     case Tokens.NUMBER :
@@ -184,7 +185,7 @@ public class ParserDQL extends ParserBase {
 
                             readThis(Tokens.CLOSEBRACKET);
 
-                            return Type.getType(Types.SQL_DECIMAL, null,
+                            return Type.getType(Types.SQL_DECIMAL, null, null,
                                                 precision, scale);
                         } else {
                             return Type.SQL_DECIMAL_DEFAULT;
@@ -467,6 +468,7 @@ public class ParserDQL extends ParserBase {
         }
 
         Collation collation = database.collation;
+        Charset   charset   = null;
 
         if (isCharacter) {
             if (token.tokenType == Tokens.CHARACTER) {
@@ -475,9 +477,9 @@ public class ParserDQL extends ParserBase {
                 checkIsSchemaObjectName();
 
                 String schemaName = session.getSchemaName(token.namePrefix);
-                Charset charset =
-                    (Charset) database.schemaManager.getSchemaObject(
-                        token.tokenString, schemaName, SchemaObject.CHARSET);
+
+                charset = (Charset) database.schemaManager.getSchemaObject(
+                    token.tokenString, schemaName, SchemaObject.CHARSET);
 
                 read();
             }
@@ -486,15 +488,20 @@ public class ParserDQL extends ParserBase {
                 read();
                 checkIsSimpleName();
 
-                collation = Collation.getCollation(token.tokenString);
+                try {
+                    collation = Collation.getCollation(token.tokenString);
+                } catch (HsqlException e) {
+                    collation =
+                        (Collation) database.schemaManager.getSchemaObject(
+                            token.tokenString, null, SchemaObject.COLLATION);
+                }
 
                 read();
-
-                throw unsupportedFeature();
             }
         }
 
-        Type typeObject = Type.getType(typeNumber, collation, length, scale);
+        Type typeObject = Type.getType(typeNumber, charset, collation, length,
+                                       scale);
 
         if (token.tokenType == Tokens.ARRAY) {
             if (typeObject.isLobType()) {
@@ -2400,9 +2407,21 @@ public class ParserDQL extends ParserBase {
             case Tokens.COLLATE : {
                 read();
 
-                SchemaObject collation =
-                    database.schemaManager.getSchemaObject(token.namePrefix,
-                        token.tokenString, SchemaObject.COLLATION);
+                if (token.namePrefix == null) {
+                    Collation collation;
+
+                    try {
+                        collation = Collation.getCollation(token.tokenString);
+                    } catch (HsqlException ex) {
+                        collation =
+                            (Collation) database.schemaManager.getSchemaObject(
+                                session.getSchemaName(token.namePrefix),
+                                token.tokenString, SchemaObject.COLLATION);
+                    }
+
+                    e.setCollation(collation);
+                    read();
+                }
             }
         }
 

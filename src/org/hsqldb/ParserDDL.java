@@ -49,6 +49,7 @@ import org.hsqldb.rights.Right;
 import org.hsqldb.rights.User;
 import org.hsqldb.store.ValuePool;
 import org.hsqldb.types.Charset;
+import org.hsqldb.types.Collation;
 import org.hsqldb.types.Type;
 import org.hsqldb.types.UserTypeModifier;
 
@@ -183,6 +184,9 @@ public class ParserDDL extends ParserRoutine {
 
             case Tokens.CHARACTER :
                 return compileCreateCharacterSet();
+
+            case Tokens.COLLATION :
+                return compileCreateCollation();
 
             // index
             case Tokens.UNIQUE :
@@ -462,6 +466,16 @@ public class ParserDDL extends ParserRoutine {
 
                 statementType = StatementTypes.DROP_CHARACTER_SET;
                 objectType    = SchemaObject.CHARSET;
+                writeName     = catalogName;
+                canCascade    = false;
+                useIfExists   = true;
+                break;
+
+            case Tokens.COLLATION :
+                read();
+
+                statementType = StatementTypes.DROP_COLLATION;
+                objectType    = SchemaObject.COLLATION;
                 writeName     = catalogName;
                 canCascade    = false;
                 useIfExists   = true;
@@ -1766,6 +1780,61 @@ public class ParserDDL extends ParserRoutine {
                                    args);
     }
 
+    StatementSchema compileCreateCollation() {
+
+        read();
+
+        HsqlName name = readNewSchemaObjectName(SchemaObject.COLLATION, false);
+
+        name.setSchemaIfNull(session.getCurrentSchemaHsqlName());
+        readThis(Tokens.FOR);
+
+        HsqlName charsetName = readNewSchemaObjectName(SchemaObject.CHARSET,
+            false);
+
+        charsetName.setSchemaIfNull(session.getCurrentSchemaHsqlName());
+        readThis(Tokens.FROM);
+
+        HsqlName sourceName = readNewSchemaObjectName(SchemaObject.COLLATION,
+            false);
+
+        sourceName.setSchemaIfNull(session.getCurrentSchemaHsqlName());
+
+        if (readIfThis(Tokens.NO)) {
+            readThis(Tokens.PAD);
+        } else if (readIfThis(Tokens.PAD)) {
+            readThis(Tokens.SPACE);
+        }
+
+        Charset charset =
+            (Charset) database.schemaManager.getSchemaObject(charsetName);
+
+        if (charset == null) {
+            throw Error.error(ErrorCode.X_42501,
+                              charsetName.getSchemaQualifiedStatementName());
+        }
+
+        Collation source;
+
+        try {
+            source = Collation.getCollation(sourceName.name);
+        } catch (HsqlException e) {
+            source =
+                (Collation) database.schemaManager.getSchemaObject(sourceName);
+        }
+
+        if (source == null) {
+            throw Error.error(ErrorCode.X_42501,
+                              sourceName.getSchemaQualifiedStatementName());
+        }
+
+        Collation collation = new Collation(name, source, charset);
+        String    sql       = getLastPart();
+        Object[]  args      = new Object[]{ collation };
+
+        return new StatementSchema(sql, StatementTypes.CREATE_COLLATION, args);
+    }
+
     StatementSchema compileCreateAlias() {
 
         HsqlName  name     = null;
@@ -2925,6 +2994,7 @@ public class ParserDDL extends ParserRoutine {
 
         HsqlName schemaName    = null;
         String   authorisation = null;
+        HsqlName characterSetName = null;
 
         read();
 
@@ -2986,6 +3056,14 @@ public class ParserDDL extends ParserRoutine {
         if (schemaName.name.equals(SqlInvariants.LOBS_SCHEMA)) {
             schemaName = SqlInvariants.LOBS_SCHEMA_HSQLNAME;
             owner      = schemaName.owner;
+        }
+
+        if (readIfThis(Tokens.DEFAULT)) {
+            readThis(Tokens.CHARACTER);
+            readThis(Tokens.SET);
+
+            characterSetName = this.readNewSchemaObjectName(SchemaObject.CHARSET, false);
+
         }
 
         String        sql  = getLastPart();

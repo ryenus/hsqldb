@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2011, The HSQL Development Group
+/* Copyright (c) 2001-2010, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -27,6 +27,8 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+
+
 package org.hsqldb.lib;
 
 import java.io.IOException;
@@ -40,7 +42,7 @@ import java.io.Reader;
  * This algorithm is a good choice for searching large, forward-only access
  * streams for repeated search using pre-processed small to medium sized
  * patterns.  <p>
- * 
+ *
  * This is because in addition to the facts that it:
  *
  * <ul>
@@ -63,13 +65,13 @@ import java.io.Reader;
  *     2-3 times better than the naive search algorithm employed by
  *     {@link String.indexOf(java.lang.String,int)}.
  * </ul>
- * 
+ *
  * Note that the Boyer–Moore algorithm is generally considered to be the better
  * practical, all-round exact sub-string search algorithm, but due to its
  * reverse pattern scan order, performance considerations dictate that it
  * requires more space and that is somewhat more complex to implement
  * efficiently for searching forward-only access streams. <p>
- * 
+ *
  * In  particular, its higher average performance is biased toward larger
  * search patterns, due to its ability to skip ahead further and with fewer
  * tests under reverse pattern scan.  But when searching forward-only access
@@ -104,22 +106,27 @@ public class KMPSearchAlgorithm {
      * @return zero-based offset of first match; -1 if no match found.
      * @throws IOException when an error occurs accessing the input stream.
      */
-    public static long search(final InputStream inputStream, final byte[] pattern,
-            int[] table) throws IOException {
+    public static long search(final InputStream inputStream,
+                              final byte[] pattern,
+                              int[] table) throws IOException {
+
         if (inputStream == null || pattern == null || pattern.length == 0) {
             return -1;
         }
+
         //
         final int patternLength = pattern.length;
+
         //
         long streamIndex = -1;
-        int currentByte;
+        int  currentByte;
 
         if (patternLength == 1) {
             final int byteToFind = pattern[0];
 
             while (-1 != (currentByte = inputStream.read())) {
                 streamIndex++;
+
                 if (currentByte == byteToFind) {
                     return streamIndex;
                 }
@@ -170,21 +177,25 @@ public class KMPSearchAlgorithm {
      * @throws IOException when an error occurs accessing the input stream.
      */
     public static long search(final Reader reader, final char[] pattern,
-            int[] table) throws IOException {
+                              int[] table) throws IOException {
+
         if (reader == null || pattern == null || pattern.length == 0) {
             return -1;
         }
+
         //
         final int patternLength = pattern.length;
+
         //
         long streamIndex = -1;
-        int currentCharacter;
+        int  currentCharacter;
 
         if (patternLength == 1) {
             final int characterToFind = pattern[0];
 
             while (-1 != (currentCharacter = reader.read())) {
                 streamIndex++;
+
                 if (currentCharacter == characterToFind) {
                     return streamIndex;
                 }
@@ -235,13 +246,16 @@ public class KMPSearchAlgorithm {
      * @return
      */
     public static int search(final byte[] source, final byte[] pattern,
-            int[] table, final int start) {
+                             int[] table, final int start) {
+
         if (source == null || pattern == null || pattern.length == 0) {
             return -1;
         }
+
         //
-        final int sourceLength = source.length;
+        final int sourceLength  = source.length;
         final int patternLength = pattern.length;
+
         //
         int sourceIndex = start;
 
@@ -256,15 +270,19 @@ public class KMPSearchAlgorithm {
 
             return -1;
         }
+
         //
-        int matchStart = start;
+        int matchStart   = start;
         int patternIndex = 0;
+
         //
         if (table == null) {
             table = computeTable(pattern);
         }
+
         //
-        while ((sourceIndex < sourceLength) && (patternIndex < patternLength)) {
+        while ((sourceIndex < sourceLength)
+                && (patternIndex < patternLength)) {
             if (source[sourceIndex] == pattern[patternIndex]) {
                 patternIndex++;
             } else {
@@ -302,14 +320,15 @@ public class KMPSearchAlgorithm {
      * @return
      */
     public static int search(final char[] source, final char[] pattern,
-            int[] table, final int start) {
+                             int[] table, final int start) {
+
         if (source == null || pattern == null || pattern.length == 0) {
             return -1;
         }
-        final int sourceLength = source.length;
-        final int patternLength = pattern.length;
 
-        int sourceIndex = start;
+        final int sourceLength  = source.length;
+        final int patternLength = pattern.length;
+        int       sourceIndex   = start;
 
         if (patternLength == 1) {
             final int characterToFind = pattern[0];
@@ -322,16 +341,19 @@ public class KMPSearchAlgorithm {
 
             return -1;
         }
+
         //
-        int matchStart = start;
+        int matchStart   = start;
         int patternIndex = 0;
+
         //
         if (table == null) {
             table = computeTable(pattern);
         }
-        //
-        while ((sourceIndex < sourceLength) && (patternIndex < patternLength)) {
 
+        //
+        while ((sourceIndex < sourceLength)
+                && (patternIndex < patternLength)) {
             if (source[sourceIndex] == pattern[patternIndex]) {
                 patternIndex++;
             } else {
@@ -368,28 +390,35 @@ public class KMPSearchAlgorithm {
      * @return
      */
     public static int search(final String source, final String pattern,
-            int[] table, final int start) {
+                             int[] table, final int start) {
+
         if (source == null || pattern == null || pattern.length() == 0) {
             return -1;
         }
+
         final int patternLength = pattern.length();
+
         //
         if (patternLength == 1) {
             return source.indexOf(pattern, start);
         }
+
         //
         final int sourceLength = source.length();
+
         //
-        int matchStart = start;
-        int sourceIndex = start;
+        int matchStart   = start;
+        int sourceIndex  = start;
         int patternIndex = 0;
+
         //
         if (table == null) {
             table = computeTable(pattern);
         }
-        //
-        while ((sourceIndex < sourceLength) && (patternIndex < patternLength)) {
 
+        //
+        while ((sourceIndex < sourceLength)
+                && (patternIndex < patternLength)) {
             if (source.charAt(sourceIndex) == pattern.charAt(patternIndex)) {
                 patternIndex++;
             } else {
@@ -421,37 +450,46 @@ public class KMPSearchAlgorithm {
      * @return the table computed from the octet pattern.
      */
     public static int[] computeTable(final byte[] pattern) {
+
         if (pattern == null) {
             throw new IllegalArgumentException("Pattern must  not be null.");
         } else if (pattern.length < 2) {
             throw new IllegalArgumentException("Pattern length must be > 1.");
         }
+
         //
         final int[] table = new int[pattern.length];
-        int i = 2;
-        int j = 0;
+        int         i     = 2;
+        int         j     = 0;
+
         //
         table[0] = -1;
         table[1] = 0;
+
         //
         while (i < pattern.length) {
             if (pattern[i - 1] == pattern[j]) {
                 table[i] = j + 1;
+
                 j++;
                 i++;
             } else if (j > 0) {
                 j = table[j];
             } else {
                 table[i] = 0;
+
                 i++;
+
                 j = 0;
             }
         }
+
         //
         return table;
     }
 
     public static int[] computeTable(final char[] pattern) {
+
         if (pattern == null) {
             throw new IllegalArgumentException("Pattern must  not be null.");
         } else if (pattern.length < 2) {
@@ -459,21 +497,25 @@ public class KMPSearchAlgorithm {
         }
 
         int[] table = new int[pattern.length];
-        int i = 2;
-        int j = 0;
+        int   i     = 2;
+        int   j     = 0;
+
         table[0] = -1;
         table[1] = 0;
 
         while (i < pattern.length) {
             if (pattern[i - 1] == pattern[j]) {
                 table[i] = j + 1;
+
                 j++;
                 i++;
             } else if (j > 0) {
                 j = table[j];
             } else {
                 table[i] = 0;
+
                 i++;
+
                 j = 0;
             }
         }
@@ -482,6 +524,7 @@ public class KMPSearchAlgorithm {
     }
 
     public static int[] computeTable(final String pattern) {
+
         if (pattern == null) {
             throw new IllegalArgumentException("Pattern must  not be null.");
         } else if (pattern.length() < 2) {
@@ -489,23 +532,28 @@ public class KMPSearchAlgorithm {
         }
 
         final int patternLength = pattern.length();
+
         //
         int[] table = new int[patternLength];
-        int i = 2;
-        int j = 0;
+        int   i     = 2;
+        int   j     = 0;
+
         table[0] = -1;
         table[1] = 0;
 
         while (i < patternLength) {
             if (pattern.charAt(i - 1) == pattern.charAt(j)) {
                 table[i] = j + 1;
+
                 j++;
                 i++;
             } else if (j > 0) {
                 j = table[j];
             } else {
                 table[i] = 0;
+
                 i++;
+
                 j = 0;
             }
         }

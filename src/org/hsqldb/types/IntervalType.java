@@ -617,7 +617,7 @@ public final class IntervalType extends DTIType {
         }
 
         if (a instanceof String) {
-            return convertToType(null, a, Type.SQL_VARCHAR);
+            return convertToType(session, a, Type.SQL_VARCHAR);
         } else {
             throw Error.error(ErrorCode.X_42561);
         }

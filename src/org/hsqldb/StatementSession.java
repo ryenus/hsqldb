@@ -145,6 +145,7 @@ public class StatementSession extends Statement {
                 break;
 
             //
+            case StatementTypes.SET_COLLATION :
             case StatementTypes.SET_CONNECTION :
             case StatementTypes.SET_CONSTRAINT :
             case StatementTypes.SET_DESCRIPTOR :

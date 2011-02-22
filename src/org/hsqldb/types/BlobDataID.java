@@ -49,6 +49,7 @@ import org.hsqldb.result.ResultLob;
 public class BlobDataID implements BlobData {
 
     long id;
+    long length = -1;
 
     public BlobDataID(long id) {
         this.id = id;
@@ -120,6 +121,10 @@ public class BlobDataID implements BlobData {
 
     public long length(SessionInterface session) {
 
+        if (length > -1) {
+            return length;
+        }
+
         ResultLob resultOut = ResultLob.newLobGetLengthRequest(id);
         Result    resultIn  = session.execute(resultOut);
 
@@ -127,7 +132,9 @@ public class BlobDataID implements BlobData {
             throw resultIn.getException();
         }
 
-        return ((ResultLob) resultIn).getBlockLength();
+        length = ((ResultLob) resultIn).getBlockLength();
+
+        return length;
     }
 
     public long bitLength(SessionInterface session) {
