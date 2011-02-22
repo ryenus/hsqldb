@@ -36,6 +36,7 @@ import org.hsqldb.error.ErrorCode;
 import org.hsqldb.index.Index;
 import org.hsqldb.lib.ArrayUtil;
 import org.hsqldb.lib.HsqlArrayList;
+import org.hsqldb.types.Collation;
 import org.hsqldb.types.Type;
 
 /*
@@ -50,17 +51,18 @@ public final class SortAndSlice {
     static final SortAndSlice noSort = new SortAndSlice();
 
     //
-    public int[]     sortOrder;
-    public boolean[] sortDescending;
-    public boolean[] sortNullsLast;
-    boolean          sortUnion;
-    HsqlArrayList    exprList = new HsqlArrayList();
-    ExpressionOp     limitCondition;
-    int              columnCount;
-    boolean          hasNullsLast;
-    boolean          strictLimit;
-    public boolean   skipSort       = false;    // true when result can be used as is
-    public boolean   skipFullResult = false;    // true when result can be sliced as is
+    public int[]       sortOrder;
+    public boolean[]   sortDescending;
+    public boolean[]   sortNullsLast;
+    public Collation[] collations;
+    boolean            sortUnion;
+    HsqlArrayList      exprList = new HsqlArrayList();
+    ExpressionOp       limitCondition;
+    int                columnCount;
+    boolean            hasNullsLast;
+    boolean            strictLimit;
+    public boolean     skipSort       = false;    // true when result can be used as is
+    public boolean     skipFullResult = false;    // true when result can be sliced as is
     int[]          columnIndexes;
     public Index   index;
     public boolean isGenerated;
@@ -150,6 +152,14 @@ public final class SortAndSlice {
             sortDescending[i] = sort.isDescending();
             sortNullsLast[i]  = sort.isNullsLast();
             hasNullsLast      |= sortNullsLast[i];
+
+            if (sort.collation != null) {
+                if (collations == null) {
+                    collations = new Collation[columnCount];
+                }
+
+                collations[i] = sort.collation;
+            }
         }
 
         if (select == null || hasNullsLast) {
@@ -212,6 +222,10 @@ public final class SortAndSlice {
         }
 
         if (columnIndexes == null) {
+            return;
+        }
+
+        if (collations != null) {
             return;
         }
 
@@ -351,12 +365,32 @@ public final class SortAndSlice {
     }
 
     public void setIndex(Session session, TableBase table) {
+        index = getNewIndex(session, table);
+    }
 
-        try {
-            index = table.createAndAddIndexStructure(session, null, sortOrder,
-                    sortDescending, sortNullsLast, false, false, false);
-        } catch (Throwable t) {
-            throw Error.runtimeError(ErrorCode.U_S0500, "SortAndSlice");
+    public Index getNewIndex(Session session, TableBase table) {
+
+        if (hasOrder()) {
+            Index orderIndex = table.createAndAddIndexStructure(session, null,
+                sortOrder, sortDescending, sortNullsLast, false, false, false);
+
+            if (collations != null) {
+                for (int i = 0; i < columnCount; i++) {
+                    if (collations[i] != null) {
+                        Type type = orderIndex.getColumnTypes()[i];
+
+                        type = Type.getType(type.typeCode,
+                                            type.getCharacterSet(),
+                                            collations[i], type.precision,
+                                            type.scale);
+                        orderIndex.getColumnTypes()[i] = type;
+                    }
+                }
+            }
+
+            return orderIndex;
         }
+
+        return null;
     }
 }

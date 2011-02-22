@@ -193,7 +193,7 @@ public class CharacterType extends Type {
     public String getCollationDefinition() {
 
         if (hasCollation()) {
-            return collation.getSQL();
+            return collation.getName().getSchemaQualifiedStatementName();
         }
 
         return "";

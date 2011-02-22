@@ -27,6 +27,8 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+
+
 package org.hsqldb.jdbc;
 
 import java.io.ByteArrayInputStream;
@@ -58,6 +60,7 @@ import org.hsqldb.lib.java.JavaSystem;
 // patch 1.9.0
 // - full synch up to Mustang b90
 // - better bounds checking
+
 /**
  * The mapping in the Java<sup><font size=-2>TM</font></sup> programming language
  * for the SQL <code>CLOB</code> type.
@@ -335,6 +338,7 @@ public class JDBCClob implements Clob {
     }
 
     //---------------------------- jdbc 3.0 -----------------------------------
+
     /**
      * Writes the given Java <code>String</code> to the <code>CLOB</code>
      * value that this <code>Clob</code> object designates at the position

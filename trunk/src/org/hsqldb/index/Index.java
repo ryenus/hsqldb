@@ -47,6 +47,16 @@ import org.hsqldb.types.Type;
  */
 public interface Index extends SchemaObject {
 
+    int INDEX_NONE       = 0;
+    int INDEX_NON_UNIQUE = 1;
+    int INDEX_UNIQUE     = 2;
+
+    //
+    double minimumSelectivity = 16;
+    double cachedFactor       = 8;
+    int    probeDepth         = 4;
+
+    //
     Index[] emptyArray = new Index[]{};
 
     RowIterator emptyIterator();

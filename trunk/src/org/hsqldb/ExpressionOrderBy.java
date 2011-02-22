@@ -52,6 +52,8 @@ public class ExpressionOrderBy extends Expression {
 
         nodes       = new Expression[UNARY];
         nodes[LEFT] = e;
+        collation   = e.collation;
+        e.collation = null;
     }
 
     /**
@@ -95,6 +97,11 @@ public class ExpressionOrderBy extends Expression {
         }
 
         dataType = nodes[LEFT].dataType;
+
+        if (collation != null && !dataType.isCharacterType()) {
+            throw Error.error(ErrorCode.X_2H000,
+                              collation.getName().statementName);
+        }
     }
 
     public String getSQL() {
@@ -107,6 +114,11 @@ public class ExpressionOrderBy extends Expression {
             sb.append(nodes[LEFT].alias.name);
         } else {
             sb.append(nodes[LEFT].getSQL());
+        }
+
+        if (collation != null) {
+            sb.append(' ').append(
+                collation.getName().getSchemaQualifiedStatementName());
         }
 
         if (isDescending) {

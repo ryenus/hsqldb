@@ -293,10 +293,6 @@ public class Table extends TableBase implements SchemaObject {
         return tableName;
     }
 
-    public final void setName(HsqlName name) {
-        tableName = name;
-    }
-
     /**
      * Returns the catalog name or null, depending on a database property.
      */
@@ -413,6 +409,14 @@ public class Table extends TableBase implements SchemaObject {
                 sb.append(' ').append(column.getIdentitySequence().getSQL());
             }
 
+            if (column.isGenerated()) {
+                sb.append(' ').append(Tokens.T_GENERATED).append(' ');
+                sb.append(Tokens.T_ALWAYS).append(' ').append(
+                    Tokens.T_AS).append(Tokens.T_OPENBRACKET);
+                sb.append(column.getGeneratingExpression().getSQL());
+                sb.append(Tokens.T_CLOSEBRACKET);
+            }
+
             if (!column.isNullable()) {
                 Constraint c = getNotNullConstraintForColumn(j);
 
@@ -423,14 +427,6 @@ public class Table extends TableBase implements SchemaObject {
 
                 sb.append(' ').append(Tokens.T_NOT).append(' ').append(
                     Tokens.T_NULL);
-            }
-
-            if (column.isGenerated()) {
-                sb.append(' ').append(Tokens.T_GENERATED).append(' ');
-                sb.append(Tokens.T_ALWAYS).append(' ').append(
-                    Tokens.T_AS).append(Tokens.T_OPENBRACKET);
-                sb.append(column.getGeneratingExpression().getSQL());
-                sb.append(Tokens.T_CLOSEBRACKET);
             }
 
             if (pk.length == 1 && j == pk[0]
@@ -465,6 +461,16 @@ public class Table extends TableBase implements SchemaObject {
 
         return sb.toString();
     }
+
+    public long getChangeTimestamp() {
+        return changeTimestamp;
+    }
+
+
+    public final void setName(HsqlName name) {
+        tableName = name;
+    }
+
 
     String[] getSQL(OrderedHashSet resolved, OrderedHashSet unresolved) {
 
@@ -647,10 +653,6 @@ public class Table extends TableBase implements SchemaObject {
         return sb.toString();
     }
 
-    public long getChangeTimestamp() {
-        return changeTimestamp;
-    }
-
     public boolean isConnected() {
         return true;
     }
@@ -686,6 +688,17 @@ public class Table extends TableBase implements SchemaObject {
      */
     public int getId() {
         return tableName.hashCode();
+    }
+
+    public final boolean isSchemaBaseTable() {
+        switch (tableType) {
+            case TableBase.MEMORY_TABLE :
+            case TableBase.CACHED_TABLE :
+            case TableBase.TEXT_TABLE :
+                return true;
+            default :
+                return false;
+        }
     }
 
     public final boolean isWithDataSource() {
@@ -2270,12 +2283,13 @@ public class Table extends TableBase implements SchemaObject {
         }
     }
 
-    boolean canGetIndexForColumn(Session session, int col) {
+    int indexTypeForColumn(Session session, int col) {
 
         int i = bestIndexForColumn[col];
 
         if (i > -1) {
-            return true;
+            return indexList[i].isUnique() ? Index.INDEX_UNIQUE
+                                           : Index.INDEX_NON_UNIQUE;
         }
 
         switch (tableType) {
@@ -2286,11 +2300,11 @@ public class Table extends TableBase implements SchemaObject {
             case TableBase.INFO_SCHEMA_TABLE :
             case TableBase.VIEW_TABLE :
             case TableBase.TEMP_TABLE : {
-                return true;
+                return Index.INDEX_NON_UNIQUE;
             }
         }
 
-        return false;
+        return Index.INDEX_NONE;
     }
 
     /**

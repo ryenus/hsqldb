@@ -49,6 +49,7 @@ import org.hsqldb.result.ResultLob;
 public class ClobDataID implements ClobData {
 
     long id;
+    long length = -1;
 
     public ClobDataID(long id) {
         this.id = id;
@@ -70,6 +71,9 @@ public class ClobDataID implements ClobData {
 
     public long length(SessionInterface session) {
 
+        if (length > -1) {
+            return length;
+        }
         ResultLob resultOut = ResultLob.newLobGetLengthRequest(id);
         Result    resultIn  = session.execute(resultOut);
 
@@ -77,7 +81,9 @@ public class ClobDataID implements ClobData {
             throw resultIn.getException();
         }
 
-        return ((ResultLob) resultIn).getBlockLength();
+        length = ((ResultLob) resultIn).getBlockLength();
+
+        return length;
     }
 
     public String getSubString(SessionInterface session, long pos,
@@ -157,15 +163,19 @@ public class ClobDataID implements ClobData {
     public int setChars(SessionInterface session, long pos, char[] chars,
                         int offset, int len) {
 
-        if (!isInLimits(chars.length, offset, len)) {
-            throw Error.error(ErrorCode.X_22001);
+        if (offset != 0 || len != chars.length) {
+            if (!isInLimits(chars.length, offset, len)) {
+                throw Error.error(ErrorCode.X_22001);
+            }
+
+            char[] newChars = new char[len];
+
+            System.arraycopy(chars, offset, newChars, 0, len);
+
+            chars = newChars;
         }
 
-        char[] newChars = new char[len];
-
-        System.arraycopy(chars, offset, newChars, 0, len);
-
-        ResultLob resultOut = ResultLob.newLobSetCharsRequest(id, pos, newChars);
+        ResultLob resultOut = ResultLob.newLobSetCharsRequest(id, pos, chars);
         Result    resultIn  = session.execute(resultOut);
 
         if (resultIn.isError()) {

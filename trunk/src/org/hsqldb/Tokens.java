@@ -159,10 +159,10 @@ public class Tokens {
     static final String        T_FIRST_VALUE       = "FIRST_VALUE";
     public static final String T_FLOAT             = "FLOAT";
     static final String        T_FLOOR             = "FLOOR";
-    static final String        T_FOR               = "FOR";
+    public static final String T_FOR               = "FOR";
     public static final String T_FOREIGN           = "FOREIGN";
     static final String        T_FREE              = "FREE";
-    static final String        T_FROM              = "FROM";
+    public static final String T_FROM              = "FROM";
     static final String        T_FULL              = "FULL";
     public static final String T_FUNCTION          = "FUNCTION";
     static final String        T_FUSION            = "FUSION";
@@ -428,7 +428,7 @@ public class Tokens {
     static final String        T_CHARACTERS           = "CHARACTERS";
     static final String        T_CLASS_ORIGIN         = "CLASS_ORIGIN";
     static final String        T_COBOL                = "COBOL";
-    static final String        T_COLLATION            = "COLLATION";
+    public static final String T_COLLATION            = "COLLATION";
     static final String        T_COLLATION_CATALOG    = "COLLATION_CATALOG";
     static final String        T_COLLATION_NAME       = "COLLATION_NAME";
     static final String        T_COLLATION_SCHEMA     = "COLLATION_SCHEMA";
