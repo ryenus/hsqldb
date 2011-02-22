@@ -22,7 +22,7 @@
   -->
 
    <property file='build/build.properties'/>
-   <property name="hsqldb.version" value="2.1.0-rc4SNAPSHOT"/>
+   <property name="hsqldb.version" value="2.1.0-rc4"/>
 
    <tstamp>
        <format property="_tmpstamp" pattern="yyyy/MM/dd-HH:mm:ss"
