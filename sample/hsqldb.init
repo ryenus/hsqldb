@@ -403,6 +403,7 @@ See the comments in the new sample 'hsqldb.cfg' file." 1>&2
             export SERVER_JVMARGS
             export TARGET_CLASS
             export INVOC_ADDL_ARGS
+            export SERVER_ADDL_CLASSPATH
             nohup sh -c '
                 echo $$ > "$PIDFILE" || {
                     echo "Failed to write pid to pid file" 1>&2
