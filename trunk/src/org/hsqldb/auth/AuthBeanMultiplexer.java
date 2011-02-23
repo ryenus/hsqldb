@@ -145,8 +145,8 @@ public class AuthBeanMultiplexer {
      * redundancy purposes.
      * </P>
      *
-     * @see setAuthFunctionBeans(Map)
-     * @see setAuthFunctionBean(String, AuthFunctionBean)
+     * @see #setAuthFunctionBeans(Map)
+     * @see #setAuthFunctionBean(String, AuthFunctionBean)
      */
     public void setAuthFunctionBeans(String dbName,
             List<AuthFunctionBean> authFunctionBeans) {
@@ -188,7 +188,7 @@ public class AuthBeanMultiplexer {
      * purposes, use the method setAuthFunctionBeans(String, List) instead.
      * </P>
      *
-     * @see setAuthFunctionBeans(String, List)
+     * @see #setAuthFunctionBeans(String, List)
      */
     public void setAuthFunctionBean(String dbName,
             AuthFunctionBean authFunctionBean) {
@@ -220,7 +220,7 @@ public class AuthBeanMultiplexer {
      *       resulting in a SQLException for the authenticating application.
      * </OL>
      *
-     * @See HyperSQL User Guide, System Management and Deployment Issues
+     * @see HyperSQL User Guide, System Management and Deployment Issues
      *         chapter, Authentication Settings subsection.
      * @throws IllegalArgumentException if no AuthFunctionBean has been set for
      *         specified dbName.
