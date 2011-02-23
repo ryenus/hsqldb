@@ -232,7 +232,7 @@ public class JaasAuthBean implements AuthFunctionBean {
     }
 
     /**
-     * @see AuthFunctionBean#authenticate(String, password)
+     * @see AuthFunctionBean#authenticate(String, String)
      */
     public String[] authenticate(String userName, String password)
             throws DenyException {

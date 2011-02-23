@@ -409,7 +409,7 @@ public class SqlFile {
      *                     Special commands are enabled, and
      *                     continueOnError defaults to true.
      * @throws IOException
-     * @see #SqlFile(Reader, String, PrintStream, String, boolean)
+     * @see #SqlFile(Reader, String, PrintStream, String, boolean, File)
      */
     public SqlFile(File inputFile, String encoding, boolean interactive)
             throws IOException {
@@ -429,7 +429,7 @@ public class SqlFile {
      *                     Special commands are enabled, and
      *                     continueOnError defaults to true.
      * @throws IOException
-     * @see #SqlFile(Reader, String, PrintStream, String, boolean)
+     * @see #SqlFile(Reader, String, PrintStream, String, boolean, File)
      */
     public SqlFile(String encoding, boolean interactive) throws IOException {
         this((encoding == null)

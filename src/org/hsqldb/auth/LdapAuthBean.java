@@ -308,7 +308,8 @@ public class LdapAuthBean implements AuthFunctionBean {
 
     /**
      * Defaults to "SIMPLE".
-     * @param mechanism.  Either 'SIMPLE' (the default) for LDAP Simple, or
+     *
+     * @param mechanism  Either 'SIMPLE' (the default) for LDAP Simple, or
      *                    one of the LDAP SASL mechamisms, such as 'DIGEST-MD5'.
      */
     public void setSecurityMechanism(String mechanism) {
@@ -448,7 +449,7 @@ public class LdapAuthBean implements AuthFunctionBean {
     }
 
     /**
-     * @see AuthFunctionBean#authenticate(String, password)
+     * @see AuthFunctionBean#authenticate(String, String)
      */
     public String[] authenticate(String userName, String password)
             throws DenyException {
