@@ -67,6 +67,10 @@ public class Error {
     }
 
     public static HsqlException error(int code, String add) {
+        return error((Throwable) null, code, add);
+    }
+
+    public static HsqlException error(Throwable t, int code, String add) {
 
         String s = getMessage(code);
 
@@ -74,7 +78,7 @@ public class Error {
             s += ": " + add.toString();
         }
 
-        return new HsqlException(null, s.substring(SQL_STATE_DIGITS + 1),
+        return new HsqlException(t, s.substring(SQL_STATE_DIGITS + 1),
                                  s.substring(0, SQL_STATE_DIGITS), -code);
     }
 
@@ -89,12 +93,11 @@ public class Error {
 
         if (lineNumber > 1) {
             add = getMessage(ErrorCode.M_parse_line);
-            s = s + " :" + add + String.valueOf(lineNumber);
+            s   = s + " :" + add + String.valueOf(lineNumber);
         }
 
         return new HsqlException(null, s.substring(SQL_STATE_DIGITS + 1),
-                                 s.substring(0, SQL_STATE_DIGITS),
-                                 -code);
+                                 s.substring(0, SQL_STATE_DIGITS), -code);
     }
 
     public static HsqlException error(int code) {
@@ -159,11 +162,7 @@ public class Error {
     }
 
     /**
-     * Compose error
-     * in placeholders within the error message. The message string contains
-     * $$ markers for each context variable. Context variables are supplied in
-     * the add parameters.
-     *
+     * For SIGNAL and RESIGNAL
      * @see HsqlException#HsqlException(Throwable,String, String, int)
      * @return an <code>HsqlException</code>
      */
@@ -223,7 +222,6 @@ public class Error {
      */
     public static String getMessage(final int errorCode) {
         return getResourceString(errorCode);
-
     }
 
     /**

@@ -891,12 +891,9 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
             checkClosed();
         }
         ArrayUtil.fillArray(parameterValues, null);
-        ArrayUtil.clearArray(ArrayUtil.CLASS_CODE_BOOLEAN, parameterSet, 0,
-                             parameterSet.length);
-        ArrayUtil.clearArray(ArrayUtil.CLASS_CODE_BOOLEAN, parameterStream, 0,
-                             parameterStream.length);
+        ArrayUtil.fillArray(parameterSet, null);
         ArrayUtil.clearArray(ArrayUtil.CLASS_CODE_LONG, streamLengths, 0,
-                             parameterStream.length);
+                             streamLengths.length);
     }
 
     //----------------------------------------------------------------------
@@ -2031,7 +2028,6 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
         }
         parameterValues   = null;
         parameterSet      = null;
-        parameterStream   = null;
         parameterTypes    = null;
         parameterModes    = null;
         resultMetaData    = null;
@@ -3915,8 +3911,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
         int paramCount = parameterMetaData.getColumnCount();
 
         parameterValues = new Object[paramCount];
-        parameterSet    = new boolean[paramCount];
-        parameterStream = new boolean[paramCount];
+        parameterSet    = new Boolean[paramCount];
         streamLengths   = new long[paramCount];
 
         //
@@ -3955,8 +3950,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
         parameterTypes    = result.metaData.columnTypes;
         parameterModes    = new byte[paramCount];
         parameterValues   = new Object[paramCount];
-        parameterSet      = new boolean[paramCount];
-        parameterStream   = new boolean[paramCount];
+        parameterSet      = new Boolean[paramCount];
         streamLengths     = new long[paramCount];
 
         //
@@ -4028,47 +4022,6 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
 
             throw Util.invalidArgument(msg);
         }
-
-    }
-    /**
-     * Checks if the specified parameter index value is valid in terms of
-     * setting an IN or IN OUT parameter value. <p>
-     *
-     * Also sets the flag to indicate a parameter was set<p>
-     *
-     * @param i The parameter index to check
-     * @param isStream true if parameter is a stream
-     * @throws SQLException if the specified parameter index is invalid
-     */
-    protected void checkSetParameterIndex(int i,
-            boolean isStream) throws SQLException {
-
-        if (isClosed || connection.isClosed) {
-            checkClosed();
-        }
-
-        if (i < 1 || i > parameterValues.length) {
-            String msg = "parameter index out of range: " + i;
-
-            throw Util.outOfRangeArgument(msg);
-        }
-        i--;
-
-        if (parameterModes[i] == SchemaObject.ParameterModes.PARAM_OUT) {
-            i++;
-
-            String msg = "Not IN or INOUT mode for parameter: " + i;
-
-            throw Util.invalidArgument(msg);
-        }
-
-        if (isStream) {
-            parameterStream[i] = true;
-            parameterSet[i]    = false;
-        } else {
-            parameterStream[i] = false;
-            parameterSet[i]    = true;
-        }
     }
 
     /**
@@ -4126,7 +4079,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
 
         for (int i = 0; i < parameterSet.length; i++) {
             if (parameterModes[i] != SchemaObject.ParameterModes.PARAM_OUT) {
-                if (!parameterSet[i] && !parameterStream[i]) {
+                if (parameterSet[i] == null) {
                     throw Util.sqlException(ErrorCode.JDBC_PARAMETER_NOT_SET);
                 }
             }
@@ -4328,7 +4281,6 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
         }
         parameterValues[i] = o;
         parameterSet[i] = true;
-        parameterStream[i] = false;
     }
 
     /**
@@ -4355,7 +4307,6 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
                 Reader is = clob.getCharacterStream();
 
                 parameterValues[i - 1] = is;
-                parameterStream[i - 1] = true;
                 streamLengths[i - 1]   = streamLength;
                 parameterSet[i - 1] = false;
 
@@ -4363,13 +4314,11 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
             }
             parameterValues[i - 1] = o;
             parameterSet[i - 1]    = true;
-            parameterStream[i - 1] = false;
 
             return;
         } else if (o instanceof Clob) {
             parameterValues[i - 1] = o;
             parameterSet[i - 1]    = true;
-            parameterStream[i - 1] = false;
 
             return;
         } else if (o instanceof ClobInputStream) {
@@ -4381,14 +4330,12 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
                                         "invalid Reader");
             }
             parameterValues[i - 1] = o;
-            parameterStream[i - 1] = true;
             streamLengths[i - 1]   = streamLength;
             parameterSet[i - 1] = false;
 
             return;
         } else if (o instanceof Reader) {
             parameterValues[i - 1] = o;
-            parameterStream[i - 1] = true;
             streamLengths[i - 1]   = streamLength;
             parameterSet[i - 1] = false;
 
@@ -4397,7 +4344,6 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
             JDBCClob clob = new JDBCClob((String) o);
 
             parameterValues[i - 1] = clob;
-            parameterStream[i - 1] = true;
             parameterSet[i - 1] = false;
 
             return;
@@ -4429,7 +4375,6 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
                 InputStream is = blob.getBinaryStream();
 
                 parameterValues[i - 1] = is;
-                parameterStream[i - 1] = true;
                 streamLengths[i - 1]   = streamLength;
                 parameterSet[i - 1]    = false;
 
@@ -4443,7 +4388,6 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
             return;
         } else if (o instanceof Blob) {
             parameterValues[i - 1] = o;
-            parameterStream[i - 1] = true;
             parameterSet[i - 1]    = false;
 
             return;
@@ -4458,14 +4402,12 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
 
             // in the same database ? see if it blocks in
             parameterValues[i - 1] = o;
-            parameterStream[i - 1] = true;
             streamLengths[i - 1]   = streamLength;
             parameterSet[i - 1]    = false;
 
             return;
         } else if (o instanceof InputStream) {
             parameterValues[i - 1] = o;
-            parameterStream[i - 1] = true;
             streamLengths[i - 1]   = streamLength;
             parameterSet[i - 1]    = false;
 
@@ -4475,7 +4417,6 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
 
             parameterValues[i - 1] = blob;
             parameterSet[i - 1]    = true;
-            parameterStream[i - 1] = false;
 
             return;
         }
@@ -4698,7 +4639,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
     boolean isAnyParameterSet() {
 
         for (int i = 0; i < parameterValues.length; i++) {
-            if (parameterSet[i]) {
+            if (parameterSet[i] != null) {
                 return true;
             }
         }
@@ -4717,10 +4658,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
     protected Object[] parameterValues;
 
     /** Flags for bound variables. */
-    protected boolean[] parameterSet;
-
-    /** Flags for bound stream variables. */
-    protected boolean[] parameterStream;
+    protected Boolean[] parameterSet;
 
     /** The SQL types of the parameters. */
     protected Type[] parameterTypes;

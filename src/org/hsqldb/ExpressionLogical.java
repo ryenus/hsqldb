@@ -1870,7 +1870,7 @@ public class ExpressionLogical extends Expression {
         nodes[RIGHT] = e;
     }
 
-    boolean reorderComparison(Session session) {
+    boolean reorderComparison(Session session, Expression parent) {
 
         Expression colExpression    = null;
         Expression nonColExpression = null;
@@ -1926,7 +1926,7 @@ public class ExpressionLogical extends Expression {
             newArg = new ExpressionArithmetic(operation, otherExpression,
                                               nonColExpression);
 
-            newArg.resolveTypesForArithmetic(session);
+            newArg.resolveTypesForArithmetic(session, parent);
         }
 
         if (left) {
@@ -1935,7 +1935,7 @@ public class ExpressionLogical extends Expression {
                 nodes[LEFT].nodes[RIGHT] = otherExpression;
 
                 ((ExpressionArithmetic) nodes[LEFT]).resolveTypesForArithmetic(
-                    session);
+                    session, parent);
             } else {
                 nodes[LEFT]  = colExpression;
                 nodes[RIGHT] = newArg;
@@ -1946,7 +1946,7 @@ public class ExpressionLogical extends Expression {
                 nodes[RIGHT].nodes[RIGHT] = otherExpression;
 
                 ((ExpressionArithmetic) nodes[RIGHT])
-                    .resolveTypesForArithmetic(session);
+                    .resolveTypesForArithmetic(session, parent);
             } else {
                 nodes[RIGHT] = colExpression;
                 nodes[LEFT]  = newArg;

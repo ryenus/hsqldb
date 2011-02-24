@@ -7360,8 +7360,7 @@ public class JDBCResultSet implements ResultSet {
             getCurrent()[columnCount];
 
         for (int i = 0; i < columnCount; i++) {
-            boolean set = preparedStatement.parameterSet[i]
-                          || preparedStatement.parameterStream[i];
+            boolean set = preparedStatement.parameterSet[i] != null;
 
             preparedStatement.resultOut.metaData.columnTypes[i] = set
                     ? preparedStatement.parameterTypes[i]
@@ -7384,8 +7383,7 @@ public class JDBCResultSet implements ResultSet {
         checkUpdatable();
 
         for (int i = 0; i < columnCount; i++) {
-            boolean set = preparedStatement.parameterSet[i]
-                          || preparedStatement.parameterStream[i];
+            boolean set = preparedStatement.parameterSet[i] != null;
 
             if (!set) {
                 throw Util.sqlException(ErrorCode.X_24515);

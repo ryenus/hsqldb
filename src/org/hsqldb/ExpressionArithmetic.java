@@ -297,7 +297,7 @@ public class ExpressionArithmetic extends Expression {
             case OpTypes.SUBTRACT :
             case OpTypes.MULTIPLY :
             case OpTypes.DIVIDE :
-                resolveTypesForArithmetic(session);
+                resolveTypesForArithmetic(session, parent);
                 break;
 
             case OpTypes.CONCAT :
@@ -309,7 +309,7 @@ public class ExpressionArithmetic extends Expression {
         }
     }
 
-    void resolveTypesForArithmetic(Session session) {
+    void resolveTypesForArithmetic(Session session, Expression parent) {
 
         if (nodes[LEFT].isUnresolvedParam()
                 && nodes[RIGHT].isUnresolvedParam()) {
@@ -324,7 +324,37 @@ public class ExpressionArithmetic extends Expression {
             if (nodes[RIGHT].dataType.isDecimalType()) {
                 nodes[LEFT].dataType = Type.SQL_DECIMAL_DEFAULT;
             } else {
-                nodes[LEFT].dataType = nodes[RIGHT].dataType;
+                if (nodes[RIGHT].dataType.isIntervalType()) {
+                    if (parent != null) {
+                        switch (parent.opType) {
+
+                            case OpTypes.EQUAL :
+                            case OpTypes.GREATER_EQUAL :
+                            case OpTypes.SMALLER_EQUAL :
+                            case OpTypes.SMALLER :
+                            case OpTypes.GREATER :
+                                for (int i = 0; i < parent.nodes.length; i++) {
+                                    if (parent.nodes[i] != this) {
+                                        if (parent.nodes[i].dataType != null
+                                                && parent.nodes[i].dataType
+                                                    .isDateTimeType()) {
+                                            nodes[LEFT].dataType =
+                                                parent.nodes[i].dataType;
+                                        }
+
+                                        break;
+                                    }
+                                }
+                                break;
+
+                            default :
+                        }
+                    }
+                }
+
+                if (nodes[LEFT].dataType == null) {
+                    nodes[LEFT].dataType = nodes[RIGHT].dataType;
+                }
             }
         } else if (nodes[RIGHT].isUnresolvedParam()) {
             if (nodes[LEFT].dataType == null) {

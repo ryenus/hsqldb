@@ -372,23 +372,24 @@ public class ExpressionOp extends Expression {
                 break;
             }
             case OpTypes.CAST : {
-                Type type = nodes[LEFT].dataType;
+                Expression node     = nodes[LEFT];
+                Type       nodeType = node.dataType;
 
-                if (type != null && !dataType.canConvertFrom(type)) {
+                if (nodeType != null && !dataType.canConvertFrom(nodeType)) {
                     throw Error.error(ErrorCode.X_42561);
                 }
 
-                if (nodes[LEFT].opType == OpTypes.VALUE) {
-                    Expression replacement = nodes[LEFT];
-
+                if (node.opType == OpTypes.VALUE) {
                     setAsConstantValue(session);
 
-                    replacement.dataType  = dataType;
-                    replacement.valueData = valueData;
+                    node.dataType  = dataType;
+                    node.valueData = valueData;
 
                     if (parent != null) {
-                        parent.replaceNode(this, replacement);
+                        parent.replaceNode(this, node);
                     }
+                } else if (nodes[LEFT].opType == OpTypes.DYNAMIC_PARAM) {
+                    node.dataType = dataType;
                 }
 
                 break;

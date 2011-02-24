@@ -3350,15 +3350,6 @@ public class ParserDQL extends ParserBase {
         readThis(Tokens.AND);
 
         Expression right = XreadRowValuePredicand();
-
-        if (a.isUnresolvedParam() && left.isUnresolvedParam()) {
-            throw Error.error(ErrorCode.X_42567);
-        }
-
-        if (a.isUnresolvedParam() && right.isUnresolvedParam()) {
-            throw Error.error(ErrorCode.X_42567);
-        }
-
         Expression l = new ExpressionLogical(OpTypes.GREATER_EQUAL, a, left);
         Expression r = new ExpressionLogical(OpTypes.SMALLER_EQUAL, a, right);
         ExpressionLogical leftToRight = new ExpressionLogical(OpTypes.AND, l,

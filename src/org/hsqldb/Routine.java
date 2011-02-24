@@ -889,7 +889,7 @@ public class Routine implements SchemaObject, Cloneable {
                         head.addChainedResult(r);
                     }
                 } else {
-                    Error.error(ErrorCode.X_46000);
+                    Error.error(ErrorCode.X_46000, "ResultSet no native");
                 }
             }
         }
@@ -904,9 +904,9 @@ public class Routine implements SchemaObject, Cloneable {
 
             returnValue = returnType.convertJavaToSQL(null, returnValue);
             result      = Result.newPSMResult(returnValue);
-        } catch (Throwable e) {
+        } catch (Throwable t) {
             result = Result.newErrorResult(
-                Error.error(ErrorCode.X_46000, getName().name), null);
+                Error.error(t, ErrorCode.X_46000, getName().name), null);
         }
 
         return result;
@@ -948,13 +948,13 @@ public class Routine implements SchemaObject, Cloneable {
             }
         } catch (InvocationTargetException e) {
             result = Result.newErrorResult(
-                Error.error(ErrorCode.X_46000, getName().name), null);
+                Error.error(e, ErrorCode.X_46000, getName().name), null);
         } catch (IllegalAccessException e) {
             result = Result.newErrorResult(
-                Error.error(ErrorCode.X_46000, getName().name), null);
+                Error.error(e, ErrorCode.X_46000, getName().name), null);
         } catch (Throwable e) {
             result = Result.newErrorResult(
-                Error.error(ErrorCode.X_46000, getName().name), null);
+                Error.error(e, ErrorCode.X_46000, getName().name), null);
         }
 
         session.setCurrentSchemaHsqlName(oldSessionSchema);
