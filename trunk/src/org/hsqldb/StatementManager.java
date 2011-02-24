@@ -36,6 +36,7 @@ import org.hsqldb.lib.IntKeyHashMap;
 import org.hsqldb.lib.LongKeyHashMap;
 import org.hsqldb.lib.LongValueHashMap;
 import org.hsqldb.result.Result;
+import org.hsqldb.result.ResultMetaData;
 
 /**
  * This class manages the reuse of Statement objects for prepared
@@ -213,7 +214,8 @@ public final class StatementManager {
 
     private Statement recompileStatement(Session session, Statement cs) {
 
-        HsqlName oldSchema = session.getCurrentSchemaHsqlName();
+        HsqlName  oldSchema = session.getCurrentSchemaHsqlName();
+        Statement newStatement;
 
         // revalidate with the original schema
         try {
@@ -222,21 +224,31 @@ public final class StatementManager {
             // checks the old schema exists
             session.setSchema(schema.name);
 
-            StatementDML si = null;
+            boolean setGenerated = cs.generatedResultMetaData() != null;
 
-            if (cs.generatedResultMetaData() != null) {
-                si = (StatementDML) cs;
+            newStatement = session.compileStatement(cs.getSQL(),
+                    cs.getResultProperties());
+
+            if (!cs.getResultMetaData().areTypesCompatible(
+                    newStatement.getResultMetaData())) {
+                return null;
             }
 
-            cs = session.compileStatement(cs.getSQL(),
-                                          cs.getResultProperties());
+            if (!cs.getParametersMetaData().areTypesCompatible(
+                    newStatement.getParametersMetaData())) {
+                return null;
+            }
 
-            cs.setCompileTimestamp(
+            ResultMetaData newMeta = newStatement.getResultMetaData();
+
+            newStatement.setCompileTimestamp(
                 database.txManager.getGlobalChangeTimestamp());
 
-            if (si != null) {
-                cs.setGeneratedColumnInfo(si.generatedType,
-                                          si.generatedInputMetaData);
+            if (setGenerated) {
+                StatementDML si = (StatementDML) cs;
+
+                newStatement.setGeneratedColumnInfo(si.generatedType,
+                                                    si.generatedInputMetaData);
             }
         } catch (Throwable t) {
             return null;
@@ -244,7 +256,7 @@ public final class StatementManager {
             session.setCurrentSchemaHsqlName(oldSchema);
         }
 
-        return cs;
+        return newStatement;
     }
 
     /**

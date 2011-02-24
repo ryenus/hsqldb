@@ -140,8 +140,9 @@ public class StatementSimple extends Statement {
             /** @todo - check sqlState against allowed values */
             case StatementTypes.SIGNAL :
             case StatementTypes.RESIGNAL :
-                HsqlException ex = Error.error("sql routine error", sqlState,
-                                               -1);
+                HsqlException ex =
+                    Error.error("sql routine SIGNAL or RESIGNAL", sqlState,
+                                -1);
 
                 return Result.newErrorResult(ex);
 

@@ -494,4 +494,15 @@ public final class ResultMetaData {
 
         return newMeta;
     }
+
+    public boolean areTypesCompatible(ResultMetaData newMeta) {
+
+        if (type == PARAM_METADATA) {
+            return columnCount == newMeta.columnCount;
+        } else if (type == RESULT_METADATA) {
+            return columnCount == newMeta.columnCount;
+        }
+
+        return true;
+    }
 }
