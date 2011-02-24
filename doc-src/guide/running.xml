@@ -150,7 +150,7 @@
     test data or as sophisticated caches for an application. These databases
     do not have any files.</para>
 
-    <para>A <glossterm>file</glossterm>: catalog consists of between 2 to 5
+    <para>A <glossterm>file</glossterm>: catalog consists of between 2 to 6
     files, all named the same but with different extensions, located in the
     same directory. For example, the database named "test" consists of the
     following files:</para>
@@ -202,10 +202,12 @@
     <note>
       <para>When the engine closes the database at a shutdown, it creates
       temporary files with the extension <literal>.new</literal> which it then
-      renames to those listed above. In some circumstances, a
-      <filename>test.data.old</filename> is created and deleted afterwards.
-      These files should not be deleted by the user. At the time of the next
-      startup, all such files will be deleted by the database engine.</para>
+      renames to those listed above. These files should not be deleted by the
+      user. At the time of the next startup, all such files will be deleted by
+      the database engine. In some circumstances, a
+      <filename>test.data.xxx.old</filename> is created and deleted afterwards
+      by the database engine. The user can delete these
+      <filename>test.data.xxx.old</filename> files. </para>
     </note>
 
     <para>A <glossterm>res:</glossterm> catalog consists of the files for a
