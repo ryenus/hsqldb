@@ -472,6 +472,14 @@ public class Database {
         sqlSyntaxOra = mode;
     }
 
+    public void setSyntaxMys(boolean mode) {
+        sqlSyntaxMys = mode;
+    }
+
+    public void setSyntaxPgs(boolean mode) {
+        sqlSyntaxPgs = mode;
+    }
+
     /**
      *  Called by the garbage collector on this Databases object when garbage
      *  collection determines that there are no more references to it.

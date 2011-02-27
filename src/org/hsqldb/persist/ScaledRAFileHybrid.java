@@ -166,8 +166,10 @@ public final class ScaledRAFileHybrid implements RandomAccessInterface {
             store.close();
         }
 
-        if (requiredPosition <= database.logger.propNioMaxSize) {
-            if (requiredPosition >= ScaledRAFileNIO.largeBufferSize) {
+        if (wasNio) {
+            maxLength = Long.MAX_VALUE;
+        } else if (requiredPosition <= database.logger.propNioMaxSize) {
+            if (requiredPosition >= ScaledRAFileNIO.largeBufferSize / 2) {
                 try {
                     store =
                         new ScaledRAFileNIO(database, fileName, isReadOnly,
@@ -186,7 +188,7 @@ public final class ScaledRAFileHybrid implements RandomAccessInterface {
                     maxLength = Long.MAX_VALUE;
                 }
             } else {
-                maxLength = ScaledRAFileNIO.largeBufferSize;
+                maxLength = ScaledRAFileNIO.largeBufferSize / 2;
             }
         }
 

@@ -570,6 +570,7 @@ public class RangeVariable implements Cloneable {
      */
     void setForCheckConstraint() {
         joinConditions[0].rangeIndex = null;
+        rangePosition                = 0;
     }
 
     /**
@@ -941,9 +942,8 @@ public class RangeVariable implements Cloneable {
             this.rangeVar      = rangeVar;
             currentData        = rangeVar.emptyData;
             isBeforeFirst      = true;
-
-            whereConditions = rangeVar.whereConditions;
-            joinConditions  = rangeVar.joinConditions;
+            whereConditions    = rangeVar.whereConditions;
+            joinConditions     = rangeVar.joinConditions;
 
             if (rangeVar.isRightJoin) {
                 lookup = new OrderedIntHashSet();

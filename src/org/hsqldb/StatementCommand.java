@@ -578,6 +578,10 @@ public class StatementCommand extends Statement {
                     session.database.setSyntaxOra(mode);
                 } else if (property == HsqlDatabaseProperties.sql_syntax_mss) {
                     session.database.setSyntaxMss(mode);
+                } else if (property == HsqlDatabaseProperties.sql_syntax_mys) {
+                    session.database.setSyntaxMys(mode);
+                } else if (property == HsqlDatabaseProperties.sql_syntax_pgs) {
+                    session.database.setSyntaxPgs(mode);
                 }
 
                 return Result.updateZeroResult;

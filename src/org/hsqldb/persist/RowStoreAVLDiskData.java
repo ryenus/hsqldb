@@ -66,7 +66,7 @@ public class RowStoreAVLDiskData extends RowStoreAVLDisk {
 
     public CachedObject get(CachedObject object, boolean keep) {
 
-        lock();
+        writeLock();
 
         try {
             currentRow = (RowAVLDiskData) object;
@@ -76,13 +76,13 @@ public class RowStoreAVLDiskData extends RowStoreAVLDisk {
         } finally {
             currentRow = null;
 
-            unlock();
+            writeUnlock();
         }
     }
 
     public void add(CachedObject object) {
 
-        lock();
+        writeLock();
 
         try {
             int size = object.getRealSize(cache.rowOut);
@@ -90,7 +90,7 @@ public class RowStoreAVLDiskData extends RowStoreAVLDisk {
             object.setStorageSize(size);
             cache.add(object);
         } finally {
-            unlock();
+            writeUnlock();
         }
     }
 

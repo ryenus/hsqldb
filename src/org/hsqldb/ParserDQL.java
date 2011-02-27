@@ -201,6 +201,16 @@ public class ParserDQL extends ParserBase {
                 }
             }
 
+            if (database.sqlSyntaxMys || database.sqlSyntaxPgs) {
+                switch (token.tokenType) {
+
+                    case Tokens.TEXT :
+                        typeNumber     = Types.LONGVARCHAR;
+                        readByteOrChar = true;
+                        break;
+                }
+            }
+
             if (typeNumber == Integer.MIN_VALUE) {
                 throw Error.error(ErrorCode.X_42509, token.tokenString);
             }
@@ -956,7 +966,7 @@ public class ParserDQL extends ParserBase {
                 }
 
                 select = new QuerySpecification(session, table,
-                                                compileContext);
+                                                compileContext, false);
 
                 break;
             }
@@ -966,7 +976,7 @@ public class ParserDQL extends ParserBase {
                 SubQuery sq = XreadRowValueExpressionList();
 
                 select = new QuerySpecification(session, sq.getTable(),
-                                                compileContext);
+                                                compileContext, true);
 
                 break;
             }
@@ -987,7 +997,9 @@ public class ParserDQL extends ParserBase {
 
         QuerySpecification select = XreadSelect();
 
-        XreadTableExpression(select);
+        if (!select.isValueList) {
+            XreadTableExpression(select);
+        }
 
         return select;
     }
@@ -1045,6 +1057,41 @@ public class ParserDQL extends ParserBase {
 
             if (readIfThis(Tokens.COMMA)) {
                 continue;
+            }
+
+            if (token.tokenType == Tokens.CLOSEBRACKET
+                    || token.tokenType == Tokens.X_ENDPARSE) {
+                if (database.sqlSyntaxMss || database.sqlSyntaxMys
+                        || database.sqlSyntaxPgs) {
+                    Expression[] exprList =
+                        new Expression[select.exprColumnList.size()];
+
+                    select.exprColumnList.toArray(exprList);
+
+                    Expression valueList = new Expression(OpTypes.VALUELIST,
+                                                          exprList);
+
+                    for (int i = 0; i < valueList.nodes.length; i++) {
+                        if (valueList.nodes[i].opType != OpTypes.ROW) {
+                            valueList.nodes[i] =
+                                new Expression(OpTypes.ROW,
+                                               new Expression[]{
+                                                   valueList.nodes[i] });
+                        }
+                    }
+
+                    compileContext.subqueryDepth++;
+
+                    SubQuery sq = prepareSubquery(valueList);
+
+                    select = new QuerySpecification(session, sq.getTable(),
+                                                    compileContext, true);
+
+                    compileContext.subqueryDepth--;
+
+
+                    return select;
+                }
             }
 
             throw unexpectedToken();
@@ -4043,7 +4090,16 @@ public class ParserDQL extends ParserBase {
 
         compileContext.subqueryDepth++;
 
-        Expression e = XreadRowValueExpressionListBody();
+        Expression e  = XreadRowValueExpressionListBody();
+        SubQuery   sq = prepareSubquery(e);
+
+        compileContext.subqueryDepth--;
+
+        return sq;
+    }
+
+    private SubQuery prepareSubquery(Expression e) {
+
         HsqlList unresolved = e.resolveColumnReferences(session,
             RangeVariable.emptyArray, null);
 
@@ -4055,8 +4111,6 @@ public class ParserDQL extends ParserBase {
                                    OpTypes.VALUELIST);
 
         sq.prepareTable(session);
-
-        compileContext.subqueryDepth--;
 
         return sq;
     }

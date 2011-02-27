@@ -74,7 +74,7 @@ final class ScaledRAFileNIO implements RandomAccessInterface {
     private static final String JVM_ERROR = "JVM threw unsupported Exception";
 
     //
-    static final int largeBufferScale = 23;
+    static final int largeBufferScale = 24;
     static final int largeBufferSize  = 1 << largeBufferScale;
     static final long largeBufferMask = 0xffffffffffffffffl
                                         << largeBufferScale;
@@ -445,7 +445,7 @@ final class ScaledRAFileNIO implements RandomAccessInterface {
             fileLength                 += newBufferLength;
 
             database.logger.logDetailEvent("NIO buffer instance, file size "
-                                           + newFileLength);
+                                           + fileLength);
         } catch (Throwable e) {
             database.logger.logDetailEvent(
                 "NOI buffer allocate failed, file size " + newFileLength);

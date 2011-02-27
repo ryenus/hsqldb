@@ -143,7 +143,7 @@ public interface PersistentStore {
     void moveData(Session session, PersistentStore other, int colindex,
                   int adjust);
 
-    void lock();
+    void writeLock();
 
-    void unlock();
+    void writeUnlock();
 }
