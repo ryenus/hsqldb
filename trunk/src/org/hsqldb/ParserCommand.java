@@ -1114,6 +1114,14 @@ public class ParserCommand extends ParserDDL {
                             read();
 
                             property = HsqlDatabaseProperties.sql_syntax_mss;
+                        } else if (token.tokenString.equals(Tokens.T_MYS)) {
+                            read();
+
+                            property = HsqlDatabaseProperties.sql_syntax_mys;
+                        } else if (token.tokenString.equals(Tokens.T_PGS)) {
+                            read();
+
+                            property = HsqlDatabaseProperties.sql_syntax_pgs;
                         } else {
                             throw unexpectedToken();
                         }

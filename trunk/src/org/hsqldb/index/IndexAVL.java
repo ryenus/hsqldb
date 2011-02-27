@@ -686,7 +686,7 @@ public class IndexAVL implements Index {
         boolean compareRowId = !isUnique || hasNulls(session, row.getData());
 
         writeLock.lock();
-        store.lock();
+        store.writeLock();
 
         try {
             n = getAccessor(store);
@@ -745,7 +745,7 @@ public class IndexAVL implements Index {
 
             balance(store, x, isleft);
         } finally {
-            store.unlock();
+            store.writeUnlock();
             writeLock.unlock();
         }
     }
@@ -772,7 +772,7 @@ public class IndexAVL implements Index {
         NodeAVL n;
 
         writeLock.lock();
-        store.lock();
+        store.writeLock();
 
         try {
             if (x.getLeft(store) == null) {
@@ -933,7 +933,7 @@ public class IndexAVL implements Index {
                 n      = x.getParent(store);
             }
         } finally {
-            store.unlock();
+            store.writeUnlock();
             writeLock.unlock();
         }
     }
@@ -1164,37 +1164,31 @@ public class IndexAVL implements Index {
             return null;
         }
 
-        readLock.lock();
+        while (true) {
+            if (distinctCount == 0) {
+                x = next(store, x);
+            } else {
+                Object[] baseData = x.getData(store);
 
-        try {
-            while (true) {
-                if (distinctCount == 0) {
-                    x = next(store, x);
-                } else {
-                    Object[] baseData = x.getData(store);
-
-                    return findNode(session, store, baseData, colIndex,
-                                    distinctCount, OpTypes.GREATER,
-                                    TransactionManager.ACTION_READ, false);
-                }
-
-                if (x == null) {
-                    return x;
-                }
-
-                if (session == null) {
-                    return x;
-                }
-
-                Row row = x.getRow(store);
-
-                if (session.database.txManager.canRead(
-                        session, row, TransactionManager.ACTION_READ, null)) {
-                    return x;
-                }
+                return findNode(session, store, baseData, colIndex,
+                                distinctCount, OpTypes.GREATER,
+                                TransactionManager.ACTION_READ, false);
             }
-        } finally {
-            readLock.unlock();
+
+            if (x == null) {
+                return x;
+            }
+
+            if (session == null) {
+                return x;
+            }
+
+            Row row = x.getRow(store);
+
+            if (session.database.txManager.canRead(
+                    session, row, TransactionManager.ACTION_READ, null)) {
+                return x;
+            }
         }
     }
 
@@ -1205,37 +1199,31 @@ public class IndexAVL implements Index {
             return null;
         }
 
-        readLock.lock();
+        while (true) {
+            if (distinctCount == 0) {
+                x = last(store, x);
+            } else {
+                Object[] baseData = x.getData(store);
 
-        try {
-            while (true) {
-                if (distinctCount == 0) {
-                    x = last(store, x);
-                } else {
-                    Object[] baseData = x.getData(store);
-
-                    return findNode(session, store, baseData, colIndex,
-                                    distinctCount, OpTypes.SMALLER,
-                                    TransactionManager.ACTION_READ, false);
-                }
-
-                if (x == null) {
-                    return x;
-                }
-
-                if (session == null) {
-                    return x;
-                }
-
-                Row row = x.getRow(store);
-
-                if (session.database.txManager.canRead(
-                        session, row, TransactionManager.ACTION_READ, null)) {
-                    return x;
-                }
+                return findNode(session, store, baseData, colIndex,
+                                distinctCount, OpTypes.SMALLER,
+                                TransactionManager.ACTION_READ, false);
             }
-        } finally {
-            readLock.unlock();
+
+            if (x == null) {
+                return x;
+            }
+
+            if (session == null) {
+                return x;
+            }
+
+            Row row = x.getRow(store);
+
+            if (session.database.txManager.canRead(
+                    session, row, TransactionManager.ACTION_READ, null)) {
+                return x;
+            }
         }
     }
 
@@ -1755,10 +1743,21 @@ public class IndexAVL implements Index {
 
             if (single) {
                 nextnode = null;
-            } else if (reversed) {
-                nextnode = index.last(session, store, nextnode, distinctCount);
             } else {
-                nextnode = index.next(session, store, nextnode, distinctCount);
+                index.readLock.lock();
+                store.writeLock();
+                try {
+                    if (reversed) {
+                        nextnode = index.last(session, store, nextnode,
+                                              distinctCount);
+                    } else {
+                        nextnode = index.next(session, store, nextnode,
+                                              distinctCount);
+                    }
+                } finally {
+                    store.writeUnlock();
+                    index.readLock.unlock();
+                }
             }
 
             lastrow = lastnode.getRow(store);

@@ -889,7 +889,7 @@ public class Routine implements SchemaObject, Cloneable {
                         head.addChainedResult(r);
                     }
                 } else {
-                    Error.error(ErrorCode.X_46000, "ResultSet no native");
+                    Error.error(ErrorCode.X_46000, "ResultSet not native");
                 }
             }
         }

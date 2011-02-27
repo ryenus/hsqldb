@@ -2356,78 +2356,137 @@ public class ParserDDL extends ParserRoutine {
         Type           typeObject      = null;
         NumberSequence sequence        = null;
 
-        if (token.tokenType == Tokens.GENERATED) {
-            read();
-            readThis(Tokens.ALWAYS);
+        switch (token.tokenType) {
 
-            isGenerated     = true;
-            generatedAlways = true;
-
-            // not yet
-            throw unexpectedToken(Tokens.T_GENERATED);
-        } else if (token.tokenType == Tokens.IDENTITY) {
-            read();
-
-            isIdentity   = true;
-            isPKIdentity = true;
-            typeObject   = Type.SQL_INTEGER;
-            sequence     = new NumberSequence(null, 0, 1, typeObject);
-        } else if (token.tokenType == Tokens.COMMA) {
-            return null;
-        } else if (token.tokenType == Tokens.CLOSEBRACKET) {
-            return null;
-        } else {
-            typeObject = readTypeDefinition(true, true);
-        }
-
-        if (isGenerated || isIdentity) {
-
-            //
-        } else if (token.tokenType == Tokens.DEFAULT) {
-            read();
-
-            defaultExpr = readDefaultClause(typeObject);
-        } else if (token.tokenType == Tokens.GENERATED && !isIdentity) {
-            read();
-
-            if (token.tokenType == Tokens.BY) {
+            case Tokens.GENERATED : {
                 read();
-                readThis(Tokens.DEFAULT);
-            } else {
                 readThis(Tokens.ALWAYS);
 
+                isGenerated     = true;
                 generatedAlways = true;
+
+                // not yet
+                throw unexpectedToken(Tokens.T_GENERATED);
             }
-
-            readThis(Tokens.AS);
-
-            if (token.tokenType == Tokens.IDENTITY) {
+            case Tokens.IDENTITY : {
                 read();
 
-                sequence = new NumberSequence(null, typeObject);
+                isIdentity   = true;
+                isPKIdentity = true;
+                typeObject   = Type.SQL_INTEGER;
+                sequence     = new NumberSequence(null, 0, 1, typeObject);
 
-                sequence.setAlways(generatedAlways);
-
-                if (token.tokenType == Tokens.OPENBRACKET) {
-                    read();
-                    readSequenceOptions(sequence, false, false);
-                    readThis(Tokens.CLOSEBRACKET);
-                }
-
-                isIdentity = true;
-            } else if (token.tokenType == Tokens.OPENBRACKET) {
-                if (!generatedAlways) {
-                    throw super.unexpectedTokenRequire(Tokens.T_ALWAYS);
-                }
-
-                isGenerated = true;
+                break;
             }
-        } else if (token.tokenType == Tokens.IDENTITY && !isIdentity) {
-            read();
+            case Tokens.COMMA : {
+                return null;
+            }
+            case Tokens.CLOSEBRACKET : {
+                return null;
+            }
+            default : {
+                if (token.isUndelimitedIdentifier
+                        && Tokens.T_SERIAL.equals(token.tokenString)) {
+                    if (database.sqlSyntaxMys) {
+                        read();
 
-            isIdentity   = true;
-            isPKIdentity = true;
-            sequence     = new NumberSequence(null, 0, 1, typeObject);
+                        isIdentity   = true;
+                        isPKIdentity = true;
+                        typeObject   = Type.SQL_BIGINT;
+                        sequence = new NumberSequence(null, 0, 1, typeObject);
+
+                        break;
+                    } else if (database.sqlSyntaxPgs) {
+                        read();
+
+                        isIdentity = true;
+                        typeObject = Type.SQL_INTEGER;
+                        sequence = new NumberSequence(null, 0, 1, typeObject);
+
+                        break;
+                    }
+                }
+
+                typeObject = readTypeDefinition(true, true);
+            }
+        }
+
+        if (!isGenerated && !isIdentity) {
+            if (database.sqlSyntaxMys) {
+                switch (token.tokenType) {
+
+                    case Tokens.NULL :
+                        read();
+                        break;
+
+                    case Tokens.NOT :
+                        read();
+                        readThis(Tokens.NULL);
+
+                        isNullable = false;
+                        break;
+
+                    default :
+                }
+            }
+
+            switch (token.tokenType) {
+
+                case Tokens.DEFAULT : {
+                    read();
+
+                    defaultExpr = readDefaultClause(typeObject);
+
+                    break;
+                }
+                case Tokens.GENERATED : {
+                    read();
+
+                    if (token.tokenType == Tokens.BY) {
+                        read();
+                        readThis(Tokens.DEFAULT);
+                    } else {
+                        readThis(Tokens.ALWAYS);
+
+                        generatedAlways = true;
+                    }
+
+                    readThis(Tokens.AS);
+
+                    if (token.tokenType == Tokens.IDENTITY) {
+                        read();
+
+                        sequence = new NumberSequence(null, typeObject);
+
+                        sequence.setAlways(generatedAlways);
+
+                        if (token.tokenType == Tokens.OPENBRACKET) {
+                            read();
+                            readSequenceOptions(sequence, false, false);
+                            readThis(Tokens.CLOSEBRACKET);
+                        }
+
+                        isIdentity = true;
+                    } else if (token.tokenType == Tokens.OPENBRACKET) {
+                        if (!generatedAlways) {
+                            throw super.unexpectedTokenRequire(
+                                Tokens.T_ALWAYS);
+                        }
+
+                        isGenerated = true;
+                    }
+
+                    break;
+                }
+                case Tokens.IDENTITY : {
+                    read();
+
+                    isIdentity   = true;
+                    isPKIdentity = true;
+                    sequence     = new NumberSequence(null, 0, 1, typeObject);
+                }
+                break;
+            }
         }
 
         if (isGenerated) {
@@ -2436,6 +2495,18 @@ public class ParserDDL extends ParserRoutine {
             generateExpr = XreadValueExpression();
 
             readThis(Tokens.CLOSEBRACKET);
+        }
+
+        if (!isGenerated && !isIdentity) {
+            if (database.sqlSyntaxMys) {
+                if (token.isUndelimitedIdentifier
+                        && Tokens.T_AUTO_INCREMENT.equals(token.tokenString)) {
+                    read();
+
+                    isIdentity = true;
+                    sequence   = new NumberSequence(null, 0, 1, typeObject);
+                }
+            }
         }
 
         ColumnSchema column = new ColumnSchema(hsqlName, typeObject,
@@ -2992,8 +3063,8 @@ public class ParserDDL extends ParserRoutine {
 
     StatementSchema compileCreateSchema() {
 
-        HsqlName schemaName    = null;
-        String   authorisation = null;
+        HsqlName schemaName       = null;
+        String   authorisation    = null;
         HsqlName characterSetName = null;
 
         read();
@@ -3062,8 +3133,8 @@ public class ParserDDL extends ParserRoutine {
             readThis(Tokens.CHARACTER);
             readThis(Tokens.SET);
 
-            characterSetName = this.readNewSchemaObjectName(SchemaObject.CHARSET, false);
-
+            characterSetName =
+                this.readNewSchemaObjectName(SchemaObject.CHARSET, false);
         }
 
         String        sql  = getLastPart();

@@ -576,6 +576,7 @@ public class Tokens {
     static final String        T_SECURITY             = "SECURITY";
     static final String        T_SELF                 = "SELF";
     public static final String T_SEQUENCE             = "SEQUENCE";
+    static final String        T_SERIAL               = "SERIAL";
     public static final String T_SERIALIZABLE         = "SERIALIZABLE";
     public static final String T_SERVER               = "SERVER";
     static final String        T_SERVER_NAME          = "SERVER_NAME";
@@ -630,6 +631,7 @@ public class Tokens {
     static final String        T_ALIAS                = "ALIAS";
     static final String        T_AGGREGATE            = "AGGREGATE";
     public static final String T_AUTHENTICATION       = "AUTHENTICATION";
+    static final String        T_AUTO_INCREMENT       = "AUTO_INCREMENT";
     static final String        T_AUTOCOMMIT           = "AUTOCOMMIT";
     public static final String T_BACKUP               = "BACKUP";
     static final String        T_BINARY_DOUBLE        = "BINARY_DOUBLE";
@@ -688,6 +690,7 @@ public class Tokens {
     public static final String T_MSS                  = "MSS";
     public static final String T_MVCC                 = "MVCC";
     public static final String T_MVLOCKS              = "MVLOCKS";
+    public static final String T_MYS                  = "MYS";
     public static final String T_NIO                  = "NIO";
     static final String        T_NOWAIT               = "NOWAIT";
     static final String        T_NVL                  = "NVL";
@@ -697,6 +700,7 @@ public class Tokens {
     public static final String T_ORA                  = "ORA";
     public static final String T_PASSWORD             = "PASSWORD";
     static final String        T_PLAN                 = "PLAN";
+    public static final String T_PGS                  = "PGS";
     static final String        T_PROPERTY             = "PROPERTY";
     static final String        T_QUEUE                = "QUEUE";
     static final String        T_RAW                  = "RAW";

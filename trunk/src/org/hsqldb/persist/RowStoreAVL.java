@@ -323,6 +323,7 @@ public abstract class RowStoreAVL implements PersistentStore {
     }
 
     public int elementCount() {
+
         Index index = this.indexList[0];
 
         if (elementCount < 0) {
@@ -454,9 +455,9 @@ public abstract class RowStoreAVL implements PersistentStore {
         }
     }
 
-    public void lock() {}
+    public void writeLock() {}
 
-    public void unlock() {}
+    public void writeUnlock() {}
 
     void dropIndexFromRows(Index primaryIndex, Index oldIndex) {
 

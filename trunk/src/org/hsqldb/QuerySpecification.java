@@ -75,6 +75,7 @@ public class QuerySpecification extends QueryExpression {
 
     //
     public int            resultRangePosition;
+    public boolean        isValueList;
     public boolean        isDistinctSelect;
     public boolean        isAggregated;
     public boolean        isGrouped;
@@ -85,7 +86,7 @@ public class QuerySpecification extends QueryExpression {
     private Expression    havingCondition;
     Expression            rowExpression;
     Expression[]          exprColumns;
-    private HsqlArrayList exprColumnList;
+    HsqlArrayList         exprColumnList;
     public int            indexLimitVisible;
     private int           indexLimitRowId;
     private int           groupByColumnCount;    // columns in 'group by'
@@ -127,9 +128,11 @@ public class QuerySpecification extends QueryExpression {
 
     //
     QuerySpecification(Session session, Table table,
-                       CompileContext compileContext) {
+                       CompileContext compileContext, boolean isValueList) {
 
         this(compileContext);
+
+        this.isValueList = isValueList;
 
         RangeVariable range = new RangeVariable(table, null, null, null,
             compileContext);

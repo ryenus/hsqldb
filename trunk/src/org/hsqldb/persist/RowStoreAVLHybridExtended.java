@@ -146,11 +146,11 @@ public class RowStoreAVLHybridExtended extends RowStoreAVLHybrid {
         accessorList = tempStore.accessorList;
     }
 
-    public void lock() {
+    public void writeLock() {
         writeLock.lock();
     }
 
-    public void unlock() {
+    public void writeUnlock() {
         writeLock.unlock();
     }
 
