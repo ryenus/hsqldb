@@ -2470,10 +2470,26 @@ public class ParserDDL extends ParserRoutine {
                     } else if (token.tokenType == Tokens.OPENBRACKET) {
                         if (!generatedAlways) {
                             throw super.unexpectedTokenRequire(
-                                Tokens.T_ALWAYS);
+                                Tokens.T_IDENTITY);
                         }
 
                         isGenerated = true;
+                    } else if (token.tokenType == Tokens.SEQUENCE) {
+                        read();
+
+                        if (token.namePrefix != null) {
+                            if (!token.namePrefix.equals(
+                                    session.getSchemaName(null))) {
+                                throw super.unexpectedToken(token.namePrefix);
+                            }
+                        }
+
+                        sequence = database.schemaManager.getSequence(
+                            token.tokenString, session.getSchemaName(null),
+                            true);
+                        isIdentity = true;
+
+                        read();
                     }
 
                     break;
