@@ -324,6 +324,10 @@ public class Table extends TableBase implements SchemaObject {
             }
         }
 
+        if (identitySequence != null && identitySequence.getName() != null) {
+            set.add(identitySequence.getName());
+        }
+
         return set;
     }
 
@@ -406,7 +410,8 @@ public class Table extends TableBase implements SchemaObject {
             }
 
             if (column.isIdentity()) {
-                sb.append(' ').append(column.getIdentitySequence().getSQL());
+                sb.append(' ').append(
+                    column.getIdentitySequence().getSQLColumnDefinition());
             }
 
             if (column.isGenerated()) {
@@ -466,11 +471,9 @@ public class Table extends TableBase implements SchemaObject {
         return changeTimestamp;
     }
 
-
     public final void setName(HsqlName name) {
         tableName = name;
     }
-
 
     String[] getSQL(OrderedHashSet resolved, OrderedHashSet unresolved) {
 
@@ -691,11 +694,14 @@ public class Table extends TableBase implements SchemaObject {
     }
 
     public final boolean isSchemaBaseTable() {
+
         switch (tableType) {
+
             case TableBase.MEMORY_TABLE :
             case TableBase.CACHED_TABLE :
             case TableBase.TEXT_TABLE :
                 return true;
+
             default :
                 return false;
         }
@@ -2634,11 +2640,19 @@ public class Table extends TableBase implements SchemaObject {
         if (identityColumn != -1) {
             Number id = (Number) data[identityColumn];
 
-            if (id == null) {
-                id = (Number) identitySequence.getValueObject();
-                data[identityColumn] = id;
+            if (identitySequence.getName() == null) {
+                if (id == null) {
+                    id = (Number) identitySequence.getValueObject();
+                    data[identityColumn] = id;
+                } else {
+                    identitySequence.userUpdate(id.longValue());
+                }
             } else {
-                identitySequence.userUpdate(id.longValue());
+                if (id == null) {
+                    id = (Number) session.sessionData.getSequenceValue(
+                        identitySequence);
+                    data[identityColumn] = id;
+                }
             }
 
             if (session != null) {

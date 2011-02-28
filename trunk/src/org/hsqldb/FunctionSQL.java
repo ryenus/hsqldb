@@ -739,8 +739,11 @@ public class FunctionSQL extends Expression {
                 }
 
                 // result type is the same as nodes[1]
-                return ((NumberType) dataType).modulo(data[0], data[1],
-                                                      nodes[0].dataType);
+                Object value = ((NumberType) nodes[0].dataType).modulo(data[0],
+                    data[1], nodes[0].dataType);
+
+                return dataType.convertToType(session, value,
+                                              nodes[0].dataType);
             }
             case FUNC_LN : {
                 if (data[0] == null) {

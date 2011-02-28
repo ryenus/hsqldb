@@ -1089,7 +1089,6 @@ public class ParserDQL extends ParserBase {
 
                     compileContext.subqueryDepth--;
 
-
                     return select;
                 }
             }
@@ -2301,6 +2300,71 @@ public class ParserDQL extends ParserBase {
                 e = readSequenceExpressionOrNull(OpTypes.SEQUENCE_CURRENT);
 
                 if (e != null) {
+                    return e;
+                }
+
+                break;
+            }
+            case Tokens.CURRVAL : {
+                if (database.sqlSyntaxPgs) {
+                    read();
+                    readThis(Tokens.OPENBRACKET);
+
+                    String  spec    = readQuotedString();
+                    Scanner scanner = session.getScanner();
+
+                    scanner.reset(spec);
+                    scanner.scanNext();
+
+                    String schemaName =
+                        session.getSchemaName(scanner.token.namePrefix);
+                    NumberSequence sequence =
+                        database.schemaManager.getSequence(
+                            scanner.token.tokenString, schemaName, true);
+
+                    e = new ExpressionColumn(sequence,
+                                             OpTypes.SEQUENCE_CURRENT);
+
+                    readThis(Tokens.CLOSEBRACKET);
+
+                    return e;
+                }
+
+                break;
+            }
+            case Tokens.LASTVAL : {
+                if (database.sqlSyntaxPgs) {
+                    read();
+                    readThis(Tokens.OPENBRACKET);
+                    readThis(Tokens.CLOSEBRACKET);
+
+                    return FunctionCustom.newCustomFunction(Tokens.T_IDENTITY,
+                            Tokens.IDENTITY);
+                }
+
+                break;
+            }
+            case Tokens.NEXTVAL : {
+                if (database.sqlSyntaxPgs) {
+                    read();
+                    readThis(Tokens.OPENBRACKET);
+
+                    String  spec    = readQuotedString();
+                    Scanner scanner = session.getScanner();
+
+                    scanner.reset(spec);
+                    scanner.scanNext();
+
+                    String schemaName =
+                        session.getSchemaName(scanner.token.namePrefix);
+                    NumberSequence sequence =
+                        database.schemaManager.getSequence(
+                            scanner.token.tokenString, schemaName, true);
+
+                    e = new ExpressionColumn(sequence, OpTypes.SEQUENCE);
+
+                    readThis(Tokens.CLOSEBRACKET);
+
                     return e;
                 }
 
