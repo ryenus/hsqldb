@@ -1,3 +1,6 @@
+28 Feb 2011 - SVN 4105 
+-- extension of MySQL and PostgreSQL compatibility modes. Includes type conversion and sequence functions
+-- extension to IDENTITY column support allows the use of a named SEQUENCE
 22 Feb 2011 - SVN 4096 - 2.0.1 rc4
 11 Feb 2011 - SVN 4050
 -- changes to avoid creation of new .data files at checkpiont and allow incremental enlargement of this file
@@ -11,7 +14,6 @@
 20 Jan 2011 - SVN 3980
 -- added support for opening most 1.8.0 databases that are not closed properly
 -- event logging format has changed slightly, and new level 3 allows more detail in the log
--- fixed reported bugs
 23 Dec 2010 
 -- added MEDIAN aggregate function
 -- added ARRAY_SORT function
