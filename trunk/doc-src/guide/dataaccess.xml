@@ -1967,8 +1967,8 @@ invoice_date &lt; ALL (SELECT holiday_date FROM holidays)
       <simpara><literal>&lt;collate clause&gt; ::= COLLATE &lt;collation
       name&gt;</literal></simpara>
 
-      <simpara>Specify a default collation. This is not currently supported by
-      HyperSQL</simpara>
+      <simpara>Specify a default collation for a column or for an ORDER BY
+      expression. This is supported by HyperSQL from version 2.1.</simpara>
 
       <indexterm significance="preferred" type="sql">
         <primary>CONSTRAINT</primary>
@@ -3030,7 +3030,20 @@ SELECT x, y, z FROM atable AS t (u, v, w, x, y, z)  WHERE u + v = w</programlist
       ]</literal></para>
 
       <para><literal>&lt;sort specification&gt; ::= &lt;value expression&gt; [
-      ASC | DESC ] [ NULLS FIRST | NULLS LAST ]</literal></para>
+      &lt;collate clause&gt; ] [ ASC | DESC ] [ NULLS FIRST | NULLS LAST
+      ]</literal></para>
+
+      <para>The defaults are ASC and NULLS FIRST.</para>
+
+      <para>For character columns of an ORDER BY expression, if a
+      <literal>&lt;collate clause&gt;</literal> is not specified then the
+      collation of the column, or the default collation of the database is
+      used.</para>
+
+      <para>An ORDER BY operation can sometimes be optimised by the engine
+      when it can use the same index for accessing the table data and
+      ordering. Optimisation can happen both with DESC + NULLS LAST and ASC +
+      NULLS FIRST.</para>
     </section>
 
     <section>
