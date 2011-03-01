@@ -1544,7 +1544,7 @@ public final class NumberType extends Type {
         }
     }
 
-    public Object divide(Object a, Object b) {
+    public Object divide(Session session, Object a, Object b) {
 
         if (a == null || b == null) {
             return null;
@@ -1558,7 +1558,9 @@ public final class NumberType extends Type {
                 double ad = ((Number) a).doubleValue();
                 double bd = ((Number) b).doubleValue();
 
-                if (bd == 0) {
+                if (bd == 0
+                        && (session == null
+                            || session.database.sqlDoubleNaN)) {
                     throw Error.error(ErrorCode.X_22012);
                 }
 
@@ -1618,7 +1620,7 @@ public final class NumberType extends Type {
             throw Error.error(ErrorCode.X_42561);
         }
 
-        Object temp = divide(a, b);
+        Object temp = divide(null, a, b);
 
         temp = multiply(temp, b);
         temp = convertToDefaultType(null, temp);

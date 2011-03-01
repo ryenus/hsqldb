@@ -574,6 +574,9 @@ public class StatementCommand extends Statement {
                 } else if (property
                            == HsqlDatabaseProperties.sql_convert_trunc) {
                     session.database.setConvertTrunc(mode);
+                } else if (property
+                           == HsqlDatabaseProperties.sql_double_nan) {
+                    session.database.setDoubleNaN(mode);
                 } else if (property == HsqlDatabaseProperties.sql_syntax_ora) {
                     session.database.setSyntaxOra(mode);
                 } else if (property == HsqlDatabaseProperties.sql_syntax_mss) {

@@ -450,6 +450,9 @@ public class Logger {
         database.sqlConvertTruncate =
             database.databaseProperties.isPropertyTrue(
                 HsqlDatabaseProperties.sql_convert_trunc);
+        database.sqlDoubleNaN =
+            database.databaseProperties.isPropertyTrue(
+                HsqlDatabaseProperties.sql_double_nan);
         database.sqlSyntaxMss = database.databaseProperties.isPropertyTrue(
             HsqlDatabaseProperties.sql_syntax_mss);
         database.sqlSyntaxMys = database.databaseProperties.isPropertyTrue(
@@ -1505,6 +1508,16 @@ public class Logger {
                                               : Tokens.T_FALSE);
         list.add(sb.toString());
         sb.setLength(0);
+
+
+        sb.append("SET DATABASE ").append(Tokens.T_SQL).append(' ');
+        sb.append(Tokens.T_DOUBLE).append(' ');
+        sb.append(Tokens.T_NAN).append(' ');
+        sb.append(database.sqlDoubleNaN ? Tokens.T_TRUE
+                                              : Tokens.T_FALSE);
+        list.add(sb.toString());
+        sb.setLength(0);
+
 
         if (database.sqlSyntaxMss) {
             sb.append("SET DATABASE ").append(Tokens.T_SQL).append(' ');

@@ -102,6 +102,7 @@ public class Database {
     public boolean                sqlConcatNulls         = true;
     public boolean                sqlUniqueNulls         = true;
     public boolean                sqlConvertTruncate     = true;
+    public boolean                sqlDoubleNaN           = true;
     public boolean                sqlSyntaxMss           = false;
     public boolean                sqlSyntaxMys           = false;
     public boolean                sqlSyntaxOra           = false;
@@ -462,6 +463,10 @@ public class Database {
 
     public void setConvertTrunc(boolean mode) {
         sqlConvertTruncate = mode;
+    }
+
+    public void setDoubleNaN(boolean mode) {
+        sqlDoubleNaN = mode;
     }
 
     public void setSyntaxMss(boolean mode) {

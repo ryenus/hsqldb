@@ -524,7 +524,7 @@ public abstract class Type implements SchemaObject, Cloneable {
         throw Error.runtimeError(ErrorCode.U_S0500, "Type");
     }
 
-    public Object divide(Object a, Object b) {
+    public Object divide(Session session, Object a, Object b) {
         throw Error.runtimeError(ErrorCode.U_S0500, "Type");
     }
 
