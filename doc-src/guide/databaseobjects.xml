@@ -222,8 +222,10 @@
       <simpara>Collations for a large number of languages are supported by
       HyperSQL.</simpara>
 
-      <simpara>Early releases of HyperSQL version 2.0 only support a single
-      collation for the whole database.</simpara>
+      <simpara>HyperSQL version 2.1 support a single collation for the whole
+      database. Optionally, a different collation can be specified for each
+      table column that is defined as CHAR or VARCHAR. Also, a different
+      collation can be used in an ORDER BY clause.</simpara>
     </section>
 
     <section>
@@ -1084,6 +1086,11 @@ INSERT INTO movies (starid, movieid, title) VALUES (CURRENT VALUE FOR seq, 10, '
       table constraint. A name is automatically generated for the constraint
       and assigned to it.</simpara>
 
+      <simpara>If a <literal>&lt;collate clause&gt;</literal> is specified,
+      then a UNIQUE or PRIMARY KEY constraint or an INDEX on the column will
+      use the specified collation. Otherwise the specified default collation
+      for the database is used.</simpara>
+
       <indexterm significance="preferred" type="sql">
         <primary>generated column specification</primary>
       </indexterm>
@@ -1120,7 +1127,7 @@ INSERT INTO movies (starid, movieid, title) VALUES (CURRENT VALUE FOR seq, 10, '
 
       <simpara>The <literal>&lt;identity column specification&gt;</literal> or
       <literal>&lt;identity column sequence specification&gt;</literal> can be
-      specified for only a single column of the table. </simpara>
+      specified for only a single column of the table.</simpara>
 
       <simpara>The <literal>&lt;identity column specification&gt;</literal> is
       used for special columns which represent values based on an unnamed
@@ -2837,8 +2844,8 @@ alter specific routine zero_pad_01
       <simpara>Define a collation. A new collation is based on an existing
       COLLATION and applies to an existing CHARACTER SET. The <literal>&lt;pad
       characteristic&gt;</literal> specifies whether strings are padded with
-      spaces for comparison. This feature may be supported in a future
-      versions of HyperSQL.</simpara>
+      spaces for comparison. In HyperSQL 2.1 the padding information is
+      ignored, but it may be supported in future versions.</simpara>
 
       <indexterm significance="preferred" type="sql">
         <primary>DROP COLLATION</primary>
@@ -2854,8 +2861,7 @@ alter specific routine zero_pad_01
       <simpara>Destroy a collation. If the <literal>&lt;drop
       behavior&gt;</literal> is <literal>CASCADE</literal>, then all
       references to the collation revert to the default collation that would
-      be in force if the dropped collation was not specified. This feature may
-      be supported in a future versions of HyperSQL.</simpara>
+      be in force if the dropped collation was not specified.</simpara>
 
       <indexterm significance="preferred" type="sql">
         <primary>CREATE TRANSLATION</primary>
