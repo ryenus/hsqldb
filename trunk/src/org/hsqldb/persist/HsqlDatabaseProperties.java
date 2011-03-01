@@ -228,6 +228,7 @@ public class HsqlDatabaseProperties extends HsqlProperties {
     public static final String sql_concat_nulls  = "sql.concat_nulls";
     public static final String sql_unique_nulls  = "sql.unique_nulls";
     public static final String sql_convert_trunc = "sql.convert_trunc";
+    public static final String sql_double_nan    = "sql.double_nan";
     public static final String sql_syntax_ora    = "sql.syntax_ora";
     public static final String sql_syntax_pgs    = "sql.syntax_pgs";
     public static final String sql_syntax_mss    = "sql.syntax_mss";
@@ -364,6 +365,9 @@ public class HsqlDatabaseProperties extends HsqlProperties {
                                           true));
         dbMeta.put(sql_convert_trunc,
                    HsqlProperties.getMeta(sql_convert_trunc, SQL_PROPERTY,
+                                          true));
+        dbMeta.put(sql_double_nan,
+                   HsqlProperties.getMeta(sql_double_nan, SQL_PROPERTY,
                                           true));
         dbMeta.put(sql_syntax_ora,
                    HsqlProperties.getMeta(sql_syntax_ora, SQL_PROPERTY,

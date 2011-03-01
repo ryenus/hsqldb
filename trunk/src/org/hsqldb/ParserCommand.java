@@ -1103,6 +1103,14 @@ public class ParserCommand extends ParserDDL {
                         property = HsqlDatabaseProperties.sql_convert_trunc;
                         break;
 
+                    case Tokens.DOUBLE :
+                        read();
+                        readThis(Tokens.NAN);
+
+                        flag     = processTrueOrFalseObject();
+                        property = HsqlDatabaseProperties.sql_double_nan;
+                        break;
+
                     case Tokens.SYNTAX :
                         read();
 

@@ -72,6 +72,7 @@ public class ExpressionArrayAggregate extends Expression {
 
         if (type == OpTypes.MEDIAN) {
             nodes = new Expression[]{ e };
+
             return;
         }
 
@@ -209,32 +210,35 @@ public class ExpressionArrayAggregate extends Expression {
             throw Error.error(ErrorCode.X_42534);
         }
 
-        if (opType == OpTypes.MEDIAN ) {
+        if (opType == OpTypes.MEDIAN) {
             if (!exprType.isNumberType()) {
                 throw Error.error(ErrorCode.X_42534);
             }
         }
-        Type rowDataType = new RowType(nodeDataTypes);
 
+        Type rowDataType = new RowType(nodeDataTypes);
 
         switch (opType) {
 
             case OpTypes.ARRAY_AGG :
-                arrayDataType = new ArrayType(rowDataType,
-                                              ArrayType.defaultArrayCardinality);
+                arrayDataType =
+                    new ArrayType(rowDataType,
+                                  ArrayType.defaultArrayCardinality);
                 dataType = new ArrayType(exprType,
                                          ArrayType.defaultArrayCardinality);
                 break;
 
             case OpTypes.GROUP_CONCAT :
-                arrayDataType = new ArrayType(rowDataType,
-                                              ArrayType.defaultArrayCardinality);
+                arrayDataType =
+                    new ArrayType(rowDataType,
+                                  ArrayType.defaultArrayCardinality);
                 dataType = Type.SQL_VARCHAR_DEFAULT;
                 break;
 
-            case OpTypes.MEDIAN:
-                arrayDataType = new ArrayType(nodeDataTypes[0],
-                                              ArrayType.defaultArrayCardinality);
+            case OpTypes.MEDIAN :
+                arrayDataType =
+                    new ArrayType(nodeDataTypes[0],
+                                  ArrayType.defaultArrayCardinality);
                 dataType = exprType;
                 break;
         }
@@ -269,27 +273,27 @@ public class ExpressionArrayAggregate extends Expression {
         Object currentVal = null;
 
         switch (opType) {
-            case OpTypes.ARRAY_AGG:
-            case OpTypes.GROUP_CONCAT:
 
+            case OpTypes.ARRAY_AGG :
+            case OpTypes.GROUP_CONCAT :
                 Object[] row = new Object[nodes.length];
 
                 for (int i = 0; i < nodes.length; i++) {
                     row[i] = nodes[i].getValue(session);
                 }
 
-                if (opType == OpTypes.GROUP_CONCAT && row[row.length - 1] == null) {
+                if (opType == OpTypes.GROUP_CONCAT
+                        && row[row.length - 1] == null) {
                     return currValue;
                 }
 
                 currentVal = row;
                 break;
 
-            case OpTypes.MEDIAN:
+            case OpTypes.MEDIAN :
                 currentVal = nodes[0].getValue(session);
                 break;
         }
-
 
         HsqlArrayList list = (HsqlArrayList) currValue;
 
@@ -356,12 +360,10 @@ public class ExpressionArrayAggregate extends Expression {
 
                 return sb.toString();
             }
-            case OpTypes.MEDIAN: {
-
+            case OpTypes.MEDIAN : {
                 SortAndSlice exprSort = new SortAndSlice();
 
                 exprSort.prepareSingleColumn(1);
-
                 arrayDataType.sort(session, array, exprSort);
 
                 boolean even = array.length % 2 == 0;
@@ -369,16 +371,15 @@ public class ExpressionArrayAggregate extends Expression {
                 if (even) {
                     Object val1 = array[(array.length / 2) - 1];
                     Object val2 = array[array.length / 2];
-                    Object val3 = ((NumberType) exprType).add(val1, val2, exprType);
+                    Object val3 = ((NumberType) exprType).add(val1, val2,
+                        exprType);
 
-                    return ((NumberType) exprType).divide(val3, Integer.valueOf(2));
-
+                    return ((NumberType) exprType).divide(session, val3,
+                                                          Integer.valueOf(2));
                 } else {
                     return array[array.length / 2];
                 }
-
             }
-
         }
 
         return null;

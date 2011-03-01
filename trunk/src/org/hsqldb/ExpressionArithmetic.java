@@ -537,7 +537,7 @@ public class ExpressionArithmetic extends Expression {
                 return dataType.multiply(a, b);
 
             case OpTypes.DIVIDE :
-                return dataType.divide(a, b);
+                return dataType.divide(session, a, b);
 
             case OpTypes.CONCAT :
                 if (!session.database.sqlConcatNulls

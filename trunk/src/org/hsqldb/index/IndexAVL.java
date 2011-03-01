@@ -1746,6 +1746,7 @@ public class IndexAVL implements Index {
             } else {
                 index.readLock.lock();
                 store.writeLock();
+
                 try {
                     if (reversed) {
                         nextnode = index.last(session, store, nextnode,

@@ -910,7 +910,7 @@ public final class IntervalType extends DTIType {
         return multiplyOrDivide(a, b, false);
     }
 
-    public Object divide(Object a, Object b) {
+    public Object divide(Session session, Object a, Object b) {
         return multiplyOrDivide(a, b, true);
     }
 
@@ -948,7 +948,8 @@ public final class IntervalType extends DTIType {
         }
 
         BigDecimal result = divide
-                            ? (BigDecimal) factorType.divide(units, factor)
+                            ? (BigDecimal) factorType.divide(null, units,
+                                factor)
                             : (BigDecimal) factorType.multiply(units, factor);
 
         if (!NumberType.isInLongLimits(result)) {
