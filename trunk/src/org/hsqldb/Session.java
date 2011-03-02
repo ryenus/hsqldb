@@ -559,7 +559,8 @@ public class Session implements SessionInterface {
 
         endTransaction(true);
 
-        if (database != null && database.logger.needsCheckpointReset()) {
+        if (database != null && !sessionUser.isSystem()
+                && database.logger.needsCheckpointReset()) {
             Statement checkpoint =
                 ParserCommand.getAutoCheckpointStatement(database);
 
@@ -614,6 +615,8 @@ public class Session implements SessionInterface {
         setIsolation(isolationLevelDefault);
 
         lockStatement = null;
+
+        logSequences();
 /* debug 190
         tempActionHistory.add("commit ends " + actionTimestamp);
         tempActionHistory.clear();

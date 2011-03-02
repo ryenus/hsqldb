@@ -472,8 +472,7 @@ public class LobManager {
 
         try {
             if (!usageCountChanged) {
-
-//            return Result.updateZeroResult;
+                return Result.updateZeroResult;
             }
 
             Result result =
