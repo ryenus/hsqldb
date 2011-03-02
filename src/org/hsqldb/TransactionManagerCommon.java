@@ -203,8 +203,6 @@ class TransactionManagerCommon {
         }
 
         try {
-            session.logSequences();
-
             if (limit > 0) {
                 database.logger.writeCommitStatement(session);
             }
