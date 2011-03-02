@@ -36,6 +36,7 @@ import org.hsqldb.ParserDQL.CompileContext;
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
 import org.hsqldb.index.Index;
+import org.hsqldb.lib.ArrayUtil;
 import org.hsqldb.lib.HashMap;
 import org.hsqldb.lib.HashMappedList;
 import org.hsqldb.lib.HashSet;
@@ -243,6 +244,10 @@ public class RangeVariable implements Cloneable {
     boolean setDistinctColumnsOnIndex(int[] colMap) {
 
         int[] indexColMap = joinConditions[0].rangeIndex.getColumns();
+
+        if (colMap.length != ArrayUtil.countTrueElements(usedColumns)) {
+            return false;
+        }
 
         if (colMap.length == 1 && colMap[0] == indexColMap[0]) {
             indexDistinctCount = 1;
