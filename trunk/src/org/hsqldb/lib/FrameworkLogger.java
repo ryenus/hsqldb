@@ -237,7 +237,7 @@ public class FrameworkLogger {
 
     /**
      * Alternative entry-point into this logging sytem, for cases where
-     * your want to share a single logger instance among multiple classes,
+     * you want to share a single logger instance among multiple classes,
      * or you want to use multiple logger instances from a single class.
      *
      * @see #getLog(Class)
