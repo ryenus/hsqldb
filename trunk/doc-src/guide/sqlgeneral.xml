@@ -143,19 +143,25 @@
         the maximum length of VARCHAR(L). If the strings are larger than a few
         kilobytes, consider using CLOB. The CLOB types is for very large
         strings. Do not use this type for short strings as there are
-        performance implications. LONGVARCHAR is a synonym for a long VARCHAR.
-        The CLOB type is a better choice for the storage of long
-        strings.</para>
+        performance implications. The CLOB type is a better choice for the
+        storage of long strings. By default LONGVARCHAR is a synonym for a
+        long VARCHAR and can be used without specifying the size. You can set
+        LONGVARCHAR to map to CLOB, with the
+        <literal>sql.longvar_is_lob</literal> connection property or the SET
+        DATABASE SQL LONGVAR IS LOB TRUE statement.</para>
       </listitem>
 
       <listitem>
-        <para>Binary string types are BINARY(L), VARBINARY(L) and BLOB.
-        LONGVARBINARY is also supported as a synonym for a long VARBINARY. Do
-        not use BINARY(L) unless you are storing keys such as UUID. This type
-        pads short binary strings with zero bytes. BINARY without the length L
+        <para>Binary string types are BINARY(L), VARBINARY(L) and BLOB. Do not
+        use BINARY(L) unless you are storing keys such as UUID. This type pads
+        short binary strings with zero bytes. BINARY without the length L
         means a single byte. Use VARBINARY(L) for general binary strings, and
         BLOB for large binary objects. You should apply the same
-        considerations as with the character string types.</para>
+        considerations as with the character string types. By default
+        LONGVARBINARY is a synonym for a long VARCHAR and can be used without
+        specifying the size. You can set LONGVARBINARY to map to BLOB, with
+        the <literal>sql.longvar_is_lob</literal> connection property or the
+        SET DATABASE SQL LONGVAR IS LOB TRUE statement.</para>
       </listitem>
 
       <listitem>
@@ -197,6 +203,11 @@
         memory allocation can support.</para>
       </listitem>
     </itemizedlist>
+
+    <para>HyperSQL 2.1 has several compatibility modes which allow the type
+    names that are used by other RDBM's to be accepted and translated into the
+    closest SQL Standard type. For example the type TEXT, supported by MySQL
+    and PostgreSQL is translated in these compatibility modes.</para>
   </section>
 
   <section xml:id="sqlgeneral_tabletypes-sect">
@@ -218,7 +229,7 @@
       <para>HyperSQL supports two types of temporary tables.</para>
 
       <para>The <literal>GLOBAL TEMPORARY</literal> type is a schema object.
-      It is created with the <literal>CREATE LOCAL TEMPORARY TABLE</literal>
+      It is created with the <literal>CREATE GLOBAL TEMPORARY TABLE</literal>
       statement. The definition of the table persists, and each session has
       access to the table. But each session sees its own copy of the table,
       which is empty at the beginning of the session.</para>
@@ -236,8 +247,9 @@
       place.</para>
 
       <para>The rows in temporary tables are stored in memory by default. If
-      the hsqldb.max_result_memory_rows has been specified, tables with row
-      count above the setting are stored on disk.</para>
+      the <literal>hsqldb.result_max_memory_rows</literal> ( SET SESSION
+      RESULT MEMORY ROWS &lt;row count&gt; ) has been specified, tables with
+      row count above the setting are stored on disk.</para>
     </section>
 
     <section>
@@ -487,9 +499,12 @@
       NaN and +-Infinity are also stored and supported. These values can be
       submitted to the database via JDBC
       <classname>PreparedStatement</classname> methods and are returned in
-      <classname>ResultSet</classname> objects. The result can be retrieved
-      from a <classname>ResultSet</classname> in the required type so long as
-      it can be represented. When
+      <classname>ResultSet</classname> objects. In order to allow division by
+      zero of DOUBLE values in SQL statements (which returns NaN or
+      +-Infinity) you should set the property hsqldb.double_nan as false (SET
+      DATABASE SQL DOUBLE NAN FALSE). The double values can be retrieved from
+      a <classname>ResultSet</classname> in the required type so long as they
+      can be represented. For setting the values, when
       <methodname>PreparedStatement.setDouble()</methodname> or
       <methodname>setFloat()</methodname> is used, the value is treated as a
       DOUBLE automatically.</para>
@@ -563,9 +578,9 @@
       Standard character string types. CHAR, VARCHAR and CHARACTER LARGE
       OBJECT are synonyms for these types. HyperSQL also supports LONGVARCHAR
       as a synonym for VARCHAR. If LONGVARCHAR is used without a length, then
-      a length of 16M is assigned. If the property
-      <literal>sql.longvar_is_lob</literal> has been set true, then
-      LONGVARCHAR is translated to CLOB.</para>
+      a length of 16M is assigned. You can set LONGVARCHAR to map to CLOB,
+      with the <literal>sql.longvar_is_lob</literal> connection property or
+      the SET DATABASE SQL LONGVAR IS LOB TRUE statement..</para>
 
       <para>HyperSQL's default character set is Unicode, therefore all
       possible character strings can be represented by these types.</para>
@@ -645,7 +660,9 @@ LONGVARCHAR
       <para>The BINARY, BINARY VARYING and BLOB types are the SQL Standard
       binary string types. VARBINARY and BINARY LARGE OBJECT are synonyms for
       BINARY VARYING and BLOB types. HyperSQL also supports LONGVARBINARY as a
-      synonym for VARBINARY.</para>
+      synonym for VARBINARY. You can set LONGVARBINARY to map to BLOB, with
+      the <literal>sql.longvar_is_lob</literal> connection property or the SET
+      DATABASE SQL LONGVAR IS LOB TRUE statement.</para>
 
       <para>Binary string types are used in a similar way to character string
       types. There are several built-in functions that are overloaded to
@@ -1687,7 +1704,8 @@ UPDATE t SET scores[2] = 123, names[2] = 'Reds' WHERE id = 10
     </informalexample>
 
     <para>The general rule is to put first the table that has a narrowing
-    condition on one of its columns.</para>
+    condition on one of its columns. HyperSQL 2.1 reorders the joined tables
+    if it is obvious that this will introduce a narrowing condition.</para>
 
     <para>HyperSQL features automatic, on-the-fly indexes for views and
     subselects that are used in a query.</para>
@@ -1702,9 +1720,10 @@ UPDATE t SET scores[2] = 123, names[2] = 'Reds' WHERE id = 10
   <section>
     <title>Query Processing and Optimisation</title>
 
-    <para>HyperSQL does not change the order of tables in a query in order to
-    optimise processing. As mentioned in the previous section, the table that
-    has a narrowing condition should be the first table in the query.</para>
+    <para>HyperSQL 2.1 changes the order of tables in a query in order to
+    optimise processing. This happens only when one of the tables has a
+    narrowing condition and reordering does not change the result of the
+    query.</para>
 
     <section>
       <title>Indexes and Conditions</title>

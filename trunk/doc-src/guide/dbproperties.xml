@@ -980,7 +980,7 @@
 
               <entry><literal>true</literal></entry>
 
-              <entry>behaviour expressions returning of DOUBLE NaN </entry>
+              <entry>behaviour expressions returning of DOUBLE NaN</entry>
             </row>
 
             <row>
@@ -1468,7 +1468,7 @@
 
           <tbody valign="top">
             <row>
-              <entry><property>hsqldb.max_result_memory_rows</property></entry>
+              <entry><property>hsqldb.result_max_memory_rows</property></entry>
 
               <entry><literal>0</literal></entry>
 
