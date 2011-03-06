@@ -266,6 +266,12 @@ public class Logger {
                 database.databaseProperties.setProperty(
                     HsqlDatabaseProperties.hsqldb_readonly, true);
             }
+
+            if (!database.urlProperties.isPropertyTrue(
+                    HsqlDatabaseProperties.hsqldb_lock_file, true)) {
+                database.databaseProperties.setProperty(
+                    HsqlDatabaseProperties.hsqldb_lock_file, false);
+            }
         }
 
         setVariables();
@@ -450,9 +456,10 @@ public class Logger {
         database.sqlConvertTruncate =
             database.databaseProperties.isPropertyTrue(
                 HsqlDatabaseProperties.sql_convert_trunc);
-        database.sqlDoubleNaN =
-            database.databaseProperties.isPropertyTrue(
-                HsqlDatabaseProperties.sql_double_nan);
+        database.sqlDoubleNaN = database.databaseProperties.isPropertyTrue(
+            HsqlDatabaseProperties.sql_double_nan);
+        database.sqlLongvarIsLob = database.databaseProperties.isPropertyTrue(
+            HsqlDatabaseProperties.sql_longvar_is_lob);
         database.sqlSyntaxMss = database.databaseProperties.isPropertyTrue(
             HsqlDatabaseProperties.sql_syntax_mss);
         database.sqlSyntaxMys = database.databaseProperties.isPropertyTrue(
@@ -832,6 +839,8 @@ public class Logger {
             log.checkpoint(mode);
             database.sessionManager.resetLoggedSchemas();
             database.logger.logInfoEvent("Checkpoint end");
+        } else if (!isFileDatabase()) {
+            database.lobManager.deleteUnusedLobs();
         }
 
         checkpointDue = false;
@@ -1508,16 +1517,21 @@ public class Logger {
                                               : Tokens.T_FALSE);
         list.add(sb.toString());
         sb.setLength(0);
-
-
         sb.append("SET DATABASE ").append(Tokens.T_SQL).append(' ');
         sb.append(Tokens.T_DOUBLE).append(' ');
         sb.append(Tokens.T_NAN).append(' ');
         sb.append(database.sqlDoubleNaN ? Tokens.T_TRUE
-                                              : Tokens.T_FALSE);
+                                        : Tokens.T_FALSE);
         list.add(sb.toString());
         sb.setLength(0);
-
+        sb.append("SET DATABASE ").append(Tokens.T_SQL).append(' ');
+        sb.append(Tokens.T_LONGVAR).append(' ');
+        sb.append(Tokens.T_IS).append(' ');
+        sb.append(Tokens.T_LOB).append(' ');
+        sb.append(database.sqlLongvarIsLob ? Tokens.T_TRUE
+                                           : Tokens.T_FALSE);
+        list.add(sb.toString());
+        sb.setLength(0);
 
         if (database.sqlSyntaxMss) {
             sb.append("SET DATABASE ").append(Tokens.T_SQL).append(' ');
@@ -1595,6 +1609,14 @@ public class Logger {
                 break;
         }
 
+        list.add(sb.toString());
+        sb.setLength(0);
+        sb.append("SET DATABASE ").append(Tokens.T_TRANSACTION);
+        sb.append(' ').append(Tokens.T_ROLLBACK).append(' ');
+        sb.append(Tokens.T_ON).append(' ');
+        sb.append(Tokens.T_DEADLOCK).append(' ');
+        sb.append(database.defaultDeadlockRollback ? Tokens.T_TRUE
+                                                   : Tokens.T_FALSE);
         list.add(sb.toString());
         sb.setLength(0);
         sb.append("SET DATABASE ").append(Tokens.T_TEXT).append(' ');

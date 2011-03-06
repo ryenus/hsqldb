@@ -408,8 +408,7 @@ public class ParserDQL extends ParserBase {
         switch (typeNumber) {
 
             case Types.LONGVARCHAR : {
-                if (database.databaseProperties.isPropertyTrue(
-                        HsqlDatabaseProperties.sql_longvar_is_lob)) {
+                if (database.sqlLongvarIsLob) {
                     typeNumber = Types.SQL_CLOB;
                 } else {
                     typeNumber = Types.SQL_VARCHAR;
@@ -422,8 +421,7 @@ public class ParserDQL extends ParserBase {
                 break;
             }
             case Types.LONGVARBINARY : {
-                if (database.databaseProperties.isPropertyTrue(
-                        HsqlDatabaseProperties.sql_longvar_is_lob)) {
+                if (database.sqlLongvarIsLob) {
                     typeNumber = Types.SQL_BLOB;
                 } else {
                     typeNumber = Types.SQL_VARBINARY;

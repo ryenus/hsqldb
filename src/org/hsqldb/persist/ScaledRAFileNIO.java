@@ -365,10 +365,6 @@ final class ScaledRAFileNIO implements RandomAccessInterface {
             database.logger.logDetailEvent("NIO file close, size: "
                                            + fileLength);
 
-            if (buffersModified) {
-                synch();
-            }
-
             buffer  = null;
             channel = null;
 

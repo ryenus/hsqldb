@@ -103,6 +103,7 @@ public class Database {
     public boolean                sqlUniqueNulls         = true;
     public boolean                sqlConvertTruncate     = true;
     public boolean                sqlDoubleNaN           = true;
+    public boolean                sqlLongvarIsLob        = true;
     public boolean                sqlSyntaxMss           = false;
     public boolean                sqlSyntaxMys           = false;
     public boolean                sqlSyntaxOra           = false;
@@ -467,6 +468,10 @@ public class Database {
 
     public void setDoubleNaN(boolean mode) {
         sqlDoubleNaN = mode;
+    }
+
+    public void setLongVarIsLob(boolean mode) {
+        sqlLongvarIsLob = mode;
     }
 
     public void setSyntaxMss(boolean mode) {

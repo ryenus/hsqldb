@@ -124,6 +124,7 @@ public class StatementCommand extends Statement {
             case StatementTypes.SET_DATABASE_SQL :
             case StatementTypes.SET_DATABASE_TRANSACTION_CONTROL :
             case StatementTypes.SET_DATABASE_DEFAULT_ISOLATION_LEVEL :
+            case StatementTypes.SET_DATABASE_TRANSACTION_DEADLOCK :
             case StatementTypes.SET_DATABASE_GC :
 
 //
@@ -577,6 +578,9 @@ public class StatementCommand extends Statement {
                 } else if (property
                            == HsqlDatabaseProperties.sql_double_nan) {
                     session.database.setDoubleNaN(mode);
+                } else if (property
+                           == HsqlDatabaseProperties.sql_longvar_is_lob) {
+                    session.database.setLongVarIsLob(mode);
                 } else if (property == HsqlDatabaseProperties.sql_syntax_ora) {
                     session.database.setSyntaxOra(mode);
                 } else if (property == HsqlDatabaseProperties.sql_syntax_mss) {
@@ -636,6 +640,19 @@ public class StatementCommand extends Statement {
                     session.checkAdmin();
 
                     session.database.defaultIsolationLevel = mode;
+
+                    return Result.updateZeroResult;
+                } catch (HsqlException e) {
+                    return Result.newErrorResult(e, sql);
+                }
+            }
+            case StatementTypes.SET_DATABASE_TRANSACTION_DEADLOCK : {
+                try {
+                    boolean mode = ((Boolean) parameters[0]).booleanValue();
+
+                    session.checkAdmin();
+
+                    session.database.defaultDeadlockRollback = mode;
 
                     return Result.updateZeroResult;
                 } catch (HsqlException e) {
