@@ -395,7 +395,7 @@ public class RefCapablePropertyResourceBundle {
             new PrivilegedAction() {
 
             public InputStream run() {
-                return getClass().getResourceAsStream(filePath);
+                return loader.getResourceAsStream(filePath);
             }
         });
         // N.b.  If were using Class.getRes... instead of ClassLoader.getRes...
