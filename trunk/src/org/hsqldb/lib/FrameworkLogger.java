@@ -42,6 +42,8 @@ import java.io.FileInputStream;
 import java.util.Properties;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.Set;
+import java.util.HashSet;
 import java.lang.reflect.Method;
 
 /**
@@ -80,6 +82,19 @@ import java.lang.reflect.Method;
  * @since 1.9.0
  */
 public class FrameworkLogger {
+    /**
+     * Utility method for integrators.
+     * Returns a string representation of the active Logger instance keys.
+     * <p>
+     * Not named similar to 'toString' to avoid ambiguity with instance method
+     * toString.
+     * </p>
+     */
+    public static String report() {
+        return new StringBuilder().append(loggerInstances.size())
+                .append(" logger instances:  ").append(loggerInstances.keySet())
+                .toString();
+    }
 
     static private Map     loggerInstances  = new HashMap();
     static private Map     jdkToLog4jLevels = new HashMap();
@@ -93,6 +108,26 @@ public class FrameworkLogger {
 
     static {
         reconfigure();
+    }
+
+    /**
+     * Frees Logger(s), if any, with the specified category, or that begins with
+     * the specified prefix + dot.
+     */
+    public static synchronized void clearLoggers(String prefixToZap) {
+        Set targetKeys = new HashSet();
+        java.util.Iterator it = loggerInstances.keySet().iterator();
+        String k;
+        String dottedPrefix = prefixToZap + '.';
+        while (it.hasNext()) {
+            k = (String) it.next();
+            if (k.equals(prefixToZap) || k.startsWith(dottedPrefix)) {
+                targetKeys.add(k);
+            }
+        }
+        // No removeAllKeys method for Map
+        it = targetKeys.iterator();
+        while (it.hasNext()) loggerInstances.remove(it.next());
     }
 
     static void reconfigure() {
