@@ -48,6 +48,7 @@ import org.hsqldb.rights.User;
 import org.hsqldb.rights.UserManager;
 import org.hsqldb.types.Collation;
 import org.hsqldb.types.Type;
+import org.hsqldb.lib.FrameworkLogger;
 
 // incorporates following contributions
 // boucherb@users - javadoc comments
@@ -580,6 +581,8 @@ public class Database {
         if (he != null) {
             throw he;
         }
+
+        FrameworkLogger.clearLoggers("hsqldb.db." + getUniqueName());
     }
 
     private synchronized void setState(int state) {

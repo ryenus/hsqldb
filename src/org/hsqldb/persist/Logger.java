@@ -649,7 +649,8 @@ public class Logger {
         }
 
         fwLogger = FrameworkLogger.getLog(SimpleLog.logTypeNameEngine,
-                                          database.getUniqueName());
+                                          "hsqldb.db."
+                                          + database.getUniqueName());
 
         return fwLogger;
     }
