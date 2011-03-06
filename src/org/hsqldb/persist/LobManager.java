@@ -36,6 +36,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.LineNumberReader;
+import java.security.AccessController;
+import java.security.PrivilegedAction;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
@@ -207,7 +209,13 @@ public class LobManager {
 
         sysLobSession = database.sessionManager.getSysLobSession();
 
-        InputStream fis = getClass().getResourceAsStream(resourceFileName);
+        InputStream fis = (InputStream) AccessController.doPrivileged(
+            new PrivilegedAction() {
+
+            public InputStream run() {
+                return getClass().getResourceAsStream(resourceFileName);
+            }
+        });
         InputStreamReader reader = null;
 
         try {

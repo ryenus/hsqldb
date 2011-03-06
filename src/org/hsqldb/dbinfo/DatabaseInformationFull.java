@@ -34,6 +34,8 @@ package org.hsqldb.dbinfo;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.LineNumberReader;
+import java.security.AccessController;
+import java.security.PrivilegedAction;
 
 import org.hsqldb.ColumnSchema;
 import org.hsqldb.Constraint;
@@ -72,7 +74,6 @@ import org.hsqldb.persist.HsqlProperties;
 import org.hsqldb.persist.PersistentStore;
 import org.hsqldb.persist.TextCache;
 import org.hsqldb.result.Result;
-import org.hsqldb.result.ResultProperties;
 import org.hsqldb.rights.GrantConstants;
 import org.hsqldb.rights.Grantee;
 import org.hsqldb.rights.Right;
@@ -123,8 +124,14 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
             final String resourceFileName =
                 "/org/hsqldb/resources/information-schema.sql";
             final String[] starters = new String[]{ "/*" };
-            InputStream fis = DatabaseInformation.class.getResourceAsStream(
-                resourceFileName);
+            InputStream fis = (InputStream) AccessController.doPrivileged(
+                new PrivilegedAction() {
+
+                public InputStream run() {
+                    return getClass().getResourceAsStream(resourceFileName);
+                }
+            });
+
             InputStreamReader reader = null;
 
             try {

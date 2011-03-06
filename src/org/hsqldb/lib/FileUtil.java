@@ -38,6 +38,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.security.AccessController;
+import java.security.PrivilegedAction;
 import java.util.Random;
 
 import org.hsqldb.lib.java.JavaSystem;
@@ -319,23 +321,24 @@ public class FileUtil implements FileAccess {
             return getClass().getResource(elementName) != null;
         }
 
-        public InputStream openInputStreamElement(String streamName)
+        public InputStream openInputStreamElement(final String streamName)
         throws IOException {
 
-            InputStream is;
+            InputStream fis;
 
             try {
-                is = getClass().getResourceAsStream(streamName);
+                fis = (InputStream) AccessController.doPrivileged(
+                    new PrivilegedAction() {
 
-                if (is == null) {
-                    is = Thread.currentThread().getContextClassLoader()
-                        .getResourceAsStream(streamName);
-                }
+                    public InputStream run() {
+                        return getClass().getResourceAsStream(streamName);
+                    }
+                });
             } catch (Throwable t) {
                 throw JavaSystem.toIOException(t);
             }
 
-            return is;
+            return fis;
         }
 
         public void createParentDirs(java.lang.String filename) {}

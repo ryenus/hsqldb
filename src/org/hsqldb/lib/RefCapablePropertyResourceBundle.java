@@ -31,6 +31,8 @@
 
 package org.hsqldb.lib;
 
+import java.security.AccessController;
+import java.security.PrivilegedAction;
 import java.util.PropertyResourceBundle;
 import java.util.Map;
 import java.util.HashMap;
@@ -383,13 +385,19 @@ public class RefCapablePropertyResourceBundle {
      */
     private InputStream getMostSpecificStream(
             String key, String l, String c, String v) {
-        String filePath = baseName.replace('.', '/') + '/' + key
+        final String filePath = baseName.replace('.', '/') + '/' + key
                 + ((l == null) ? "" : ("_" + l))
                 + ((c == null) ? "" : ("_" + c))
                 + ((v == null) ? "" : ("_" + v))
                 + ".text";
         // System.err.println("Seeking " + filePath);
-        InputStream is = loader.getResourceAsStream(filePath);
+        InputStream is = (InputStream) AccessController.doPrivileged(
+            new PrivilegedAction() {
+
+            public InputStream run() {
+                return getClass().getResourceAsStream(filePath);
+            }
+        });
         // N.b.  If were using Class.getRes... instead of ClassLoader.getRes...
         // we would need to prefix the path with "/".
         return (is == null && l != null)

@@ -35,6 +35,8 @@ import java.io.DataInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.security.AccessController;
+import java.security.PrivilegedAction;
 
 import org.hsqldb.Database;
 import org.hsqldb.error.Error;
@@ -230,12 +232,13 @@ final class ScaledRAFileInJar implements RandomAccessInterface {
         InputStream fis;
 
         try {
-            fis = getClass().getResourceAsStream(fileName);
+            fis = (InputStream) AccessController.doPrivileged(
+                new PrivilegedAction() {
 
-            if (fis == null) {
-                fis = Thread.currentThread().getContextClassLoader()
-                    .getResourceAsStream(fileName);
-            }
+                public InputStream run() {
+                    return getClass().getResourceAsStream(fileName);
+                }
+            });
         } catch (Throwable t) {
             throw Error.error(ErrorCode.DATABASE_NOT_EXISTS, t);
         }
