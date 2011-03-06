@@ -107,12 +107,23 @@ public class FrameworkLogger {
     // No need for more than one static, since we have only one console
 
     static {
-        reconfigure();
+        String propVal = System.getProperty("org.hsqldb.reconfigLogging");
+        if (propVal == null || !propVal.equalsIgnoreCase("false")) {
+            reconfigure();
+        }
     }
 
     /**
      * Frees Logger(s), if any, with the specified category, or that begins with
      * the specified prefix + dot.
+     * <p>
+     * Note that as of today, this depends on the underlying logging framework
+     * implementation to release the underlying Logger instances.
+     * JUL in Sun's JVM uses weak references, so that should be fine.
+     * Log4j as of today seems to use strong references (and no API hooks to
+     * free anything), so this method will probably have little benefit for
+     * Log4j.
+     * </p>
      */
     public static synchronized void clearLoggers(String prefixToZap) {
         Set targetKeys = new HashSet();
