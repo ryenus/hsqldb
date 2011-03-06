@@ -1471,11 +1471,12 @@
         </listitem>
 
         <listitem>
-          <para>MySQL supports most SQL Standard types, as well as
-          non-standard types, which are also supported by HyperSQL. These
-          include SMALLINT, INT, BIGINT, DOUBLE, FLOAT, DECIMAL, NUMERIC,
-          VARCHAR, CHAR, BINARY, VARBINARY, DATE, TIMESTAMP (all Standard SQL)
-          and TINYINT, DATETIME (non Standard).</para>
+          <para>MySQL supports most SQL Standard types (except INTERVAL
+          types), as well as non-standard types, which are also supported by
+          HyperSQL. Supported types include SMALLINT, INT, BIGINT, DOUBLE,
+          FLOAT, DECIMAL, NUMERIC, VARCHAR, CHAR, BINARY, VARBINARY, BLOB,
+          DATE, TIMESTAMP (all Standard SQL) and TINYINT, DATETIME (non
+          Standard).</para>
         </listitem>
 
         <listitem>
