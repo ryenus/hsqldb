@@ -57,7 +57,7 @@ public class DataFileCacheSession extends DataFileCache {
         this.dataFileName = baseFileName + ".data.tmp";
         this.database     = database;
         fa                = FileUtil.getFileUtil();
-        cacheFileScale    = cachedRowPadding = 32;
+        cacheFileScale    = cachedRowPadding = 64;
         maxCacheRows      = 2048;
 
         int cacheSizeScale = 10;

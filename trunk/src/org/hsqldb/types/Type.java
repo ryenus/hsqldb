@@ -1082,29 +1082,29 @@ public abstract class Type implements SchemaObject, Cloneable {
     static {
         typeNames = new IntValueHashMap(37);
 
-        typeNames.put("CHARACTER", Types.SQL_CHAR);
-        typeNames.put("VARCHAR", Types.SQL_VARCHAR);
-        typeNames.put("VARCHAR_IGNORECASE", Types.VARCHAR_IGNORECASE);
-        typeNames.put("DATE", Types.SQL_DATE);
-        typeNames.put("TIME", Types.SQL_TIME);
-        typeNames.put("TIMESTAMP", Types.SQL_TIMESTAMP);
-        typeNames.put("INTERVAL", Types.SQL_INTERVAL);
-        typeNames.put("TINYINT", Types.TINYINT);
-        typeNames.put("SMALLINT", Types.SQL_SMALLINT);
-        typeNames.put("INTEGER", Types.SQL_INTEGER);
-        typeNames.put("BIGINT", Types.SQL_BIGINT);
-        typeNames.put("REAL", Types.SQL_REAL);
-        typeNames.put("FLOAT", Types.SQL_FLOAT);
-        typeNames.put("DOUBLE", Types.SQL_DOUBLE);
-        typeNames.put("NUMERIC", Types.SQL_NUMERIC);
-        typeNames.put("DECIMAL", Types.SQL_DECIMAL);
-        typeNames.put("BOOLEAN", Types.SQL_BOOLEAN);
-        typeNames.put("BINARY", Types.SQL_BINARY);
-        typeNames.put("VARBINARY", Types.SQL_VARBINARY);
-        typeNames.put("CLOB", Types.SQL_CLOB);
-        typeNames.put("BLOB", Types.SQL_BLOB);
-        typeNames.put("BIT", Types.SQL_BIT);
-        typeNames.put("OTHER", Types.OTHER);
+        typeNames.put(Tokens.T_CHARACTER, Types.SQL_CHAR);
+        typeNames.put(Tokens.T_VARCHAR, Types.SQL_VARCHAR);
+        typeNames.put(Tokens.T_VARCHAR_IGNORECASE, Types.VARCHAR_IGNORECASE);
+        typeNames.put(Tokens.T_DATE, Types.SQL_DATE);
+        typeNames.put(Tokens.T_TIME, Types.SQL_TIME);
+        typeNames.put(Tokens.T_TIMESTAMP, Types.SQL_TIMESTAMP);
+        typeNames.put(Tokens.T_INTERVAL, Types.SQL_INTERVAL);
+        typeNames.put(Tokens.T_TINYINT, Types.TINYINT);
+        typeNames.put(Tokens.T_SMALLINT, Types.SQL_SMALLINT);
+        typeNames.put(Tokens.T_INTEGER, Types.SQL_INTEGER);
+        typeNames.put(Tokens.T_BIGINT, Types.SQL_BIGINT);
+        typeNames.put(Tokens.T_REAL, Types.SQL_REAL);
+        typeNames.put(Tokens.T_FLOAT, Types.SQL_FLOAT);
+        typeNames.put(Tokens.T_DOUBLE, Types.SQL_DOUBLE);
+        typeNames.put(Tokens.T_NUMERIC, Types.SQL_NUMERIC);
+        typeNames.put(Tokens.T_DECIMAL, Types.SQL_DECIMAL);
+        typeNames.put(Tokens.T_BOOLEAN, Types.SQL_BOOLEAN);
+        typeNames.put(Tokens.T_BINARY, Types.SQL_BINARY);
+        typeNames.put(Tokens.T_VARBINARY, Types.SQL_VARBINARY);
+        typeNames.put(Tokens.T_CLOB, Types.SQL_CLOB);
+        typeNames.put(Tokens.T_BLOB, Types.SQL_BLOB);
+        typeNames.put(Tokens.T_BIT, Types.SQL_BIT);
+        typeNames.put(Tokens.T_OTHER, Types.OTHER);
 
         //
         typeAliases = new IntValueHashMap(64);

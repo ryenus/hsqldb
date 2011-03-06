@@ -1111,6 +1111,15 @@ public class ParserCommand extends ParserDDL {
                         property = HsqlDatabaseProperties.sql_double_nan;
                         break;
 
+                    case Tokens.LONGVAR :
+                        read();
+                        readThis(Tokens.IS);
+                        readThis(Tokens.LOB);
+
+                        flag     = processTrueOrFalseObject();
+                        property = HsqlDatabaseProperties.sql_longvar_is_lob;
+                        break;
+
                     case Tokens.SYNTAX :
                         read();
 
@@ -1160,6 +1169,21 @@ public class ParserCommand extends ParserDDL {
             }
             case Tokens.TRANSACTION : {
                 read();
+
+                if (readIfThis(Tokens.ROLLBACK)) {
+                    readThis(Tokens.ON);
+                    readThis(Tokens.DEADLOCK);
+                    Boolean mode = processTrueOrFalseObject();
+
+                    StatementCommand cs = new StatementCommand(
+                        StatementTypes.SET_DATABASE_TRANSACTION_DEADLOCK, new Object[]{mode},
+                        null, null);
+
+                    return cs;
+
+
+                }
+
                 readThis(Tokens.CONTROL);
 
                 int mode = TransactionManager.LOCKS;

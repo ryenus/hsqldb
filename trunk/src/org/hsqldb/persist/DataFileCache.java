@@ -60,7 +60,7 @@ import org.hsqldb.store.BitMap;
  * Rewritten for 1.8.0 together with Cache.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.0.1
+ * @version 2.1.0
  * @since 1.7.2
  */
 public class DataFileCache {
@@ -198,39 +198,41 @@ public class DataFileCache {
                 return;
             }
 
-            boolean preexists = false;
             long    freesize  = 0;
-
-            if (fa.isStreamElement(dataFileName)) {
-                preexists = true;
-            }
-
-            dataFile = ScaledRAFile.newScaledRAFile(database, dataFileName,
-                    readonly, fileType);
+            boolean preexists = fa.isStreamElement(dataFileName);
 
             if (preexists) {
+                int fileTypeTemp = database.logger.isStoredFileAccess()
+                                   ? ScaledRAFile.DATA_FILE_STORED
+                                   : ScaledRAFile.DATA_FILE_RAF;
+
+                dataFile = ScaledRAFile.newScaledRAFile(database,
+                        dataFileName, readonly, fileTypeTemp);
+
                 dataFile.seek(FLAGS_POS);
 
-                int     flags   = dataFile.readInt();
-                boolean isSaved = BitMap.isSet(flags, FLAG_ISSAVED);
+                int     flags         = dataFile.readInt();
+                boolean isSaved       = BitMap.isSet(flags, FLAG_ISSAVED);
+                boolean isIncremental = BitMap.isSet(flags, FLAG_ISSHADOWED);
 
-                database.logger.propIncrementBackup = BitMap.isSet(flags,
-                        FLAG_ISSHADOWED);
                 is180 = !BitMap.isSet(flags, FLAG_190);
+
+                dataFile.close();
 
                 if (BitMap.isSet(flags, FLAG_HX)) {
                     throw Error.error(ErrorCode.WRONG_DATABASE_FILE_VERSION);
                 }
 
-                if (!isSaved) {
+                if (isSaved) {
+                    dataFile = ScaledRAFile.newScaledRAFile(database,
+                            dataFileName, readonly, fileType);
+                } else {
                     boolean restored = true;
 
-                    dataFile.close();
-
-                    if (database.logger.propIncrementBackup) {
-                        restored = restoreBackupIncremental();
+                    if (isIncremental) {
+                        restoreBackupIncremental();
                     } else {
-                        restoreBackup();
+                        restored = restoreBackup();
                     }
 
                     dataFile = ScaledRAFile.newScaledRAFile(database,
@@ -238,8 +240,6 @@ public class DataFileCache {
 
                     if (!restored) {
                         initNewFile();
-
-                        is180 = false;
                     }
                 }
 
@@ -252,11 +252,14 @@ public class DataFileCache {
                 fileFreePosition = dataFile.readLong();
 
                 if (fileFreePosition < initialFreePos) {
-                    fileFreePosition = initialFreePos;
+                    initNewFile();
                 }
 
                 openShadowFile();
             } else {
+                dataFile = ScaledRAFile.newScaledRAFile(database,
+                        dataFileName, readonly, fileType);
+
                 initNewFile();
             }
 
@@ -297,6 +300,8 @@ public class DataFileCache {
         dataFile.seek(FLAGS_POS);
         dataFile.writeInt(flags);
         dataFile.synch();
+
+        is180 = false;
     }
 
     void openShadowFile() {
@@ -326,6 +331,8 @@ public class DataFileCache {
             dataFile.seek(FLAGS_POS);
             dataFile.writeInt(flags);
             dataFile.synch();
+
+            fileModified = true;
         } catch (Throwable t) {
             database.logger.logSevereEvent("backupFile failed", t);
         } finally {

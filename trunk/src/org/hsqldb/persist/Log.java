@@ -151,13 +151,7 @@ public class Log {
                 }
 
                 processLog();
-                close(false);
-
-                if (cache != null) {
-                    cache.open(filesReadOnly);
-                }
-
-                reopenAllTextCaches();
+                checkpoint(false);
                 break;
 
             case HsqlDatabaseProperties.FILES_MODIFIED_NEW :
@@ -179,23 +173,16 @@ public class Log {
                  */
                 processScript();
 
-                if (isAnyCacheModified()) {
+                if (!filesReadOnly && isAnyCacheModified()) {
                     properties.setDBModified(
                         HsqlDatabaseProperties.FILES_MODIFIED);
-                    close(false);
-
-                    if (cache != null) {
-                        cache.open(filesReadOnly);
-                    }
-
-                    reopenAllTextCaches();
+                    checkpoint(false);
                 }
                 break;
         }
 
-        openLog();
-
         if (!filesReadOnly) {
+            openLog();
             properties.setDBModified(HsqlDatabaseProperties.FILES_MODIFIED);
         }
     }
@@ -368,11 +355,8 @@ public class Log {
 
                 return;
             } catch (Exception e) {
-                database.logger.checkpointDisabled = true;
 
-                database.logger.logSevereEvent("defrag failed - recovered", e);
-
-                return;
+                // do normal checkpoint
             }
         }
 
@@ -381,8 +365,8 @@ public class Log {
         if (result) {
             checkpointReopen();
         } else {
-            database.logger.logSevereEvent("checkpoint failed - autocheckpoint disabled", null);
-            database.logger.checkpointDisabled = true;
+            database.logger.logSevereEvent(
+                "checkpoint failed - see previous error", null);
         }
     }
 
@@ -485,27 +469,8 @@ public class Log {
         try {
 
 // test
-/*            {
-                Session session = database.getSessionManager().getSysSession();
-                HsqlArrayList allTables =
-                    database.schemaManager.getAllTables();
-
-                for (int i = 0, tSize = allTables.size(); i < tSize; i++) {
-                    Table t     = (Table) allTables.get(i);
-                    int   count = 0;
-
-                    if (t.getTableType() == TableBase.CACHED_TABLE) {
-                        RowIterator it = t.rowIterator(session);
-
-                        for (; it.hasNext(); count++) {
-                            CachedObject row = it.getNextRow();
-                        }
-
-                        System.out.println("table " + t.getName().name + " "
-                                           + count);
-                    }
-                }
-            }
+/*
+            DataFileDefrag.checkAllTables(database);
 */
 
 //
@@ -514,9 +479,7 @@ public class Log {
 
             DataFileDefrag dfd = cache.defrag();
         } catch (HsqlException e) {
-            database.logger.logSevereEvent("defrag failure", e);
-
-            throw (HsqlException) e;
+            throw e;
         } catch (Throwable e) {
             database.logger.logSevereEvent("defrag failure", e);
 
@@ -525,26 +488,7 @@ public class Log {
 
 // test
 /*
-        {
-            Session session = database.getSessionManager().getSysSession();
-            HsqlArrayList allTables = database.schemaManager.getAllTables();
-
-            for (int i = 0, tSize = allTables.size(); i < tSize; i++) {
-                Table t     = (Table) allTables.get(i);
-                int   count = 0;
-
-                if (t.getTableType() == Table.CACHED_TABLE) {
-                    RowIterator it = t.rowIterator(session);
-
-                    for (; it.hasNext(); count++) {
-                        CachedObject row = it.getNextRow();
-                    }
-
-                    System.out.println("table " + t.getName().name + " "
-                                       + count);
-                }
-            }
-        }
+        DataFileDefrag.checkAllTables(database);
 */
 
 //
@@ -611,8 +555,6 @@ public class Log {
 
         if (cache != null) {
             cache.setIncrementBackup(val);
-
-            cache.fileModified = true;
         }
     }
 
