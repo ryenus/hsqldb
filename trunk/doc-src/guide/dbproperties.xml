@@ -308,7 +308,7 @@
 
     <para>Each JDBC Connection to a database can specify connection
     properties. The properties <property>user</property> and
-    <property>password</property> are always required. In 2.0 the following
+    <property>password</property> are always required. In 2.1 the following
     optional properties can also be used.</para>
 
     <para>Connection properties are specified either by establishing the
@@ -316,6 +316,61 @@
     the full Connection URL.</para>
 
     <programlisting>    DriverManager.getConnection (String url, Properties info);</programlisting>
+
+    <table frame="all" pgwide="1" tocentry="1">
+      <title>User and Password</title>
+
+      <tgroup align="left" cols="3">
+        <colspec colname="c1" colwidth="6.5cm" />
+
+        <colspec colname="c2" colwidth="1.5cm" />
+
+        <colspec colname="c3" />
+
+        <thead>
+          <row>
+            <entry>Name</entry>
+
+            <entry>Default</entry>
+
+            <entry>Description</entry>
+          </row>
+        </thead>
+
+        <tbody valign="top">
+          <row>
+            <entry><property>user</property></entry>
+
+            <entry><literal>SA</literal></entry>
+
+            <entry>user name</entry>
+          </row>
+
+          <row>
+            <entry nameend="c3" namest="c1"><para>Standard property. This
+            property is case sensitive. Example below:</para><programlisting>    jdbc:hsqldb:file:enrollments;user=aUserName;ifexists=true</programlisting></entry>
+          </row>
+
+          <row>
+            <entry><property>password</property></entry>
+
+            <entry><literal>empty string</literal></entry>
+
+            <entry>password for the user</entry>
+          </row>
+
+          <row>
+            <entry nameend="c3" namest="c1"><para>Standard property. This
+            property is case sensitive. Example below:</para><programlisting>    jdbc:hsqldb:file:enrollments;user=aUserName;password=3xLVz</programlisting><para>For
+            compatibility with other engines, a non-standard form of
+            specifying user and password is also supported. In this form, user
+            name and password appear at the end of the URL string, prefixed
+            respectively with the question mark and the
+            ampersand:</para><programlisting>    jdbc:hsqldb:file:enrollments;create=false?user=aUserName&amp;password=3xLVz</programlisting></entry>
+          </row>
+        </tbody>
+      </tgroup>
+    </table>
 
     <table frame="all" pgwide="1" tocentry="1">
       <title>Column Names in JDBC ResultSet</title>
@@ -829,7 +884,7 @@
               true, causes type declarations using LONGVARCHAR and
               LONGVARBINARY to be translated to CLOB and BLOB respectively. By
               default, they are translated to VARCHAR and
-              VARBINARY.</para><para><programlisting>this property cannot be set with an SQL statement</programlisting></para></entry>
+              VARBINARY.</para><para><programlisting>SET DATABASE SQL LONGVAR IS LOB { TRUE | FALSE }</programlisting></para></entry>
             </row>
           </tbody>
         </tgroup>
@@ -1312,7 +1367,7 @@
               an alternative statement and complete the transaction. It is
               provided for compatibility with other database engines which do
               not roll back the transaction upon
-              deadlock.</para><para><programlisting>this property cannot be set with an SQL statement</programlisting></para></entry>
+              deadlock.</para><para><programlisting>SET DATABASE TRANSACTION ROLLBACK ON DEADLOCK { TRUE | FALSE }</programlisting></para></entry>
             </row>
           </tbody>
         </tgroup>
@@ -1776,7 +1831,8 @@
               write. This property can be specified with the value false to
               prevent the lock file from being created. This usage is not
               recommended but may be desirable when flash type storage is
-              used.</para><para><programlisting>this property cannot be set with an SQL statement</programlisting></para></entry>
+              used. This property applies existing databases as well as new
+              databases.</para><para><programlisting>this property cannot be set with an SQL statement</programlisting></para></entry>
             </row>
           </tbody>
         </tgroup>
