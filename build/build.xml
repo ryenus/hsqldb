@@ -640,8 +640,8 @@ examples:
          <exclude name="org/hsqldb/auth/**"/>
          <exclude name="org/hsqldb/test/**"/>
          <exclude name="org/hsqldb/sample/**"/>
-         <exclude name="**/*.properties"/>
-         <include name="org/hsqldb/resources/sql-error-messages.properties"/>
+         <exclude name="org/hsqldb/resources/org_hsqldb_Server_messages.properties"/>
+         <exclude name="org/hsqldb/resources/webserver.properties"/>
          <exclude name="hsqlServlet.class"/>
          <exclude name="org/hsqldb/Servlet.class"/>
          <exclude name="org/hsqldb/Server.class"/>
@@ -769,7 +769,7 @@ examples:
                   org/hsqldb/SessionInterface*,
                   org/hsqldb/types/Types*,
                   org/hsqldb/resources/BundleHandler*,
-                  org/hsqldb/resources/sql-error-messages*
+                  org/hsqldb/resources/sql-state-messages*
                   '/>
 
     <fileset id='utilclasses' dir='classes' includes='
