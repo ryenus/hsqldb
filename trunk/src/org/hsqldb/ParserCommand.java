@@ -1173,15 +1173,13 @@ public class ParserCommand extends ParserDDL {
                 if (readIfThis(Tokens.ROLLBACK)) {
                     readThis(Tokens.ON);
                     readThis(Tokens.DEADLOCK);
-                    Boolean mode = processTrueOrFalseObject();
 
+                    Boolean mode = processTrueOrFalseObject();
                     StatementCommand cs = new StatementCommand(
-                        StatementTypes.SET_DATABASE_TRANSACTION_DEADLOCK, new Object[]{mode},
-                        null, null);
+                        StatementTypes.SET_DATABASE_TRANSACTION_DEADLOCK,
+                        new Object[]{ mode }, null, null);
 
                     return cs;
-
-
                 }
 
                 readThis(Tokens.CONTROL);

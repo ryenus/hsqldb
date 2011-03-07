@@ -377,6 +377,7 @@ public class ExpressionColumn extends Expression {
                                 schema     = null;
                                 tableName  = null;
                                 columnName = null;
+                                resolved   = true;
                             }
                         } else if (Tokens.T_NEXTVAL.equals(columnName)) {
                             NumberSequence seq =
@@ -391,6 +392,7 @@ public class ExpressionColumn extends Expression {
                                 schema     = null;
                                 tableName  = null;
                                 columnName = null;
+                                resolved   = true;
                             }
                         }
                     }
@@ -400,7 +402,12 @@ public class ExpressionColumn extends Expression {
                         opType     = OpTypes.ROWNUM;
                         dataType   = Type.SQL_INTEGER;
                         columnName = null;
+                        resolved   = true;
                     }
+                }
+
+                if (resolved) {
+                    return unresolvedSet;
                 }
 
                 if (unresolvedSet == null) {

@@ -35,6 +35,7 @@ import org.hsqldb.HsqlNameManager.HsqlName;
 import org.hsqldb.dbinfo.DatabaseInformation;
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
+import org.hsqldb.lib.FrameworkLogger;
 import org.hsqldb.lib.HashMappedList;
 import org.hsqldb.lib.HsqlArrayList;
 import org.hsqldb.persist.HsqlDatabaseProperties;
@@ -48,7 +49,6 @@ import org.hsqldb.rights.User;
 import org.hsqldb.rights.UserManager;
 import org.hsqldb.types.Collation;
 import org.hsqldb.types.Type;
-import org.hsqldb.lib.FrameworkLogger;
 
 // incorporates following contributions
 // boucherb@users - javadoc comments
@@ -577,12 +577,11 @@ public class Database {
         // DatabaseManager repository if there are pending getDatabase()
         // calls
         DatabaseManager.removeDatabase(this);
+        FrameworkLogger.clearLoggers("hsqldb.db." + getUniqueName());
 
         if (he != null) {
             throw he;
         }
-
-        FrameworkLogger.clearLoggers("hsqldb.db." + getUniqueName());
     }
 
     private synchronized void setState(int state) {
