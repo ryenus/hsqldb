@@ -34,12 +34,11 @@ package org.hsqldb.lib;
 import java.io.File;
 import java.io.FileDescriptor;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.security.AccessController;
-import java.security.PrivilegedAction;
 import java.util.Random;
 
 import org.hsqldb.lib.java.JavaSystem;
@@ -321,21 +320,29 @@ public class FileUtil implements FileAccess {
             return getClass().getResource(elementName) != null;
         }
 
-        public InputStream openInputStreamElement(final String streamName)
+        public InputStream openInputStreamElement(final String fileName)
         throws IOException {
 
-            InputStream fis;
+            InputStream fis = null;
 
             try {
-                fis = (InputStream) AccessController.doPrivileged(
-                    new PrivilegedAction() {
+                fis = getClass().getResourceAsStream(fileName);
 
-                    public InputStream run() {
-                        return getClass().getResourceAsStream(streamName);
+                if (fis == null) {
+                    ClassLoader cl =
+                        Thread.currentThread().getContextClassLoader();
+
+                    if (cl != null) {
+                        fis = cl.getResourceAsStream(fileName);
                     }
-                });
+                }
             } catch (Throwable t) {
-                throw JavaSystem.toIOException(t);
+
+                //
+            } finally {
+                if (fis == null) {
+                    throw new FileNotFoundException(fileName);
+                }
             }
 
             return fis;
