@@ -791,7 +791,7 @@ public class ParserDML extends ParserDQL {
             if (token.tokenType == Tokens.SELECT) {
                 rewind(position);
 
-                SubQuery sq = XreadSubqueryBody(false, OpTypes.ROW_SUBQUERY);
+                SubQuery sq = XreadSubqueryBody(OpTypes.ROW_SUBQUERY);
 
                 if (degree != sq.queryExpression.getColumnCount()) {
                     throw Error.error(ErrorCode.X_42546);

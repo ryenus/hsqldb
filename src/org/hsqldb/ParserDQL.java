@@ -2181,8 +2181,7 @@ public class ParserDQL extends ParserBase {
                         rewind(subqueryPosition);
 
                         try {
-                            sq = XreadSubqueryBody(false,
-                                                   OpTypes.SCALAR_SUBQUERY);
+                            sq = XreadSubqueryBody(OpTypes.SCALAR_SUBQUERY);
 
                             readThis(Tokens.CLOSEBRACKET);
                         } catch (HsqlException ex) {
@@ -2378,7 +2377,7 @@ public class ParserDQL extends ParserBase {
                 read();
                 readThis(Tokens.OPENBRACKET);
 
-                SubQuery sq = XreadTableSubqueryBody(false);
+                SubQuery sq = XreadSubqueryBody(OpTypes.TABLE_SUBQUERY);
 
                 readThis(Tokens.CLOSEBRACKET);
 
@@ -3512,7 +3511,7 @@ public class ParserDQL extends ParserBase {
             case Tokens.SELECT :
                 rewind(position);
 
-                SubQuery sq = XreadSubqueryBody(false, OpTypes.IN);
+                SubQuery sq = XreadSubqueryBody(OpTypes.IN);
 
                 e = new Expression(OpTypes.TABLE_SUBQUERY, sq);
 
@@ -3561,7 +3560,7 @@ public class ParserDQL extends ParserBase {
             case Tokens.SELECT : {
                 rewind(position);
 
-                SubQuery sq = XreadSubqueryBody(false, OpTypes.IN);
+                SubQuery sq = XreadSubqueryBody(OpTypes.IN);
 
                 e = new Expression(OpTypes.TABLE_SUBQUERY, sq);
 
@@ -3809,8 +3808,7 @@ public class ParserDQL extends ParserBase {
                     case Tokens.SELECT :
                         rewind(position);
 
-                        SubQuery sq = XreadSubqueryBody(false,
-                                                        OpTypes.ROW_SUBQUERY);
+                        SubQuery sq = XreadSubqueryBody(OpTypes.ROW_SUBQUERY);
 
                         readThis(Tokens.CLOSEBRACKET);
 
@@ -3875,22 +3873,11 @@ public class ParserDQL extends ParserBase {
         throw Error.error(ErrorCode.X_0A000);
     }
 
-    Expression XreadRowSubquery() {
-
-        readThis(Tokens.OPENBRACKET);
-
-        SubQuery sq = XreadSubqueryBody(false, OpTypes.ROW_SUBQUERY);
-
-        readThis(Tokens.CLOSEBRACKET);
-
-        return new Expression(OpTypes.ROW_SUBQUERY, sq);
-    }
-
     Expression XreadTableSubquery(int mode) {
 
         readThis(Tokens.OPENBRACKET);
 
-        SubQuery sq = XreadSubqueryBody(false, mode);
+        SubQuery sq = XreadSubqueryBody(mode);
 
         readThis(Tokens.CLOSEBRACKET);
 
@@ -3928,22 +3915,18 @@ public class ParserDQL extends ParserBase {
 
             readThis(Tokens.OPENBRACKET);
 
-            SubQuery sq = XreadSubqueryBody(!hasOuter, OpTypes.TABLE_SUBQUERY);
+            SubQuery sq = XreadSubqueryBody(OpTypes.TABLE_SUBQUERY);
+            HsqlList unresolved =
+                sq.queryExpression.getUnresolvedExpressions();
 
-            if (hasOuter) {
-                HsqlList unresolved = Expression.resolveColumnSet(session,
-                    outerRanges, outerRanges.length,
-                    sq.queryExpression.getUnresolvedExpressions(), null);
-
-                if (unresolved != null) {
-                    throw Error.error(
-                        ErrorCode.X_42501,
-                        ((Expression) unresolved.get(0)).getSQL());
-                }
-
-                sq.queryExpression.resolveTypes(session);
+            if (hasOuter && unresolved != null) {
+                unresolved = Expression.resolveColumnSet(session, outerRanges,
+                        outerRanges.length,
+                        sq.queryExpression.getUnresolvedExpressions(), null);
             }
 
+            ExpressionColumn.checkColumnsResolved(unresolved);
+            sq.queryExpression.resolveTypes(session);
             sq.prepareTable(session);
             readThis(Tokens.CLOSEBRACKET);
 
@@ -3994,25 +3977,17 @@ public class ParserDQL extends ParserBase {
     SubQuery XreadTableNamedSubqueryBody(HsqlName name,
                                          HsqlName[] columnNames) {
 
-        SubQuery sq = XreadSubqueryBody(true, OpTypes.TABLE_SUBQUERY);
+        SubQuery sq = XreadSubqueryBody(OpTypes.TABLE_SUBQUERY);
 
+        ExpressionColumn.checkColumnsResolved(
+            sq.queryExpression.unresolvedExpressions);
+        sq.queryExpression.resolveTypes(session);
         sq.prepareTable(session, name, columnNames);
 
         return sq;
     }
 
-    SubQuery XreadTableSubqueryBody(boolean resolve) {
-
-        SubQuery sq = XreadSubqueryBody(resolve, OpTypes.TABLE_SUBQUERY);
-
-        if (resolve) {
-            sq.prepareTable(session);
-        }
-
-        return sq;
-    }
-
-    SubQuery XreadSubqueryBody(boolean resolve, int mode) {
+    SubQuery XreadSubqueryBody(int mode) {
 
         int position = getPosition();
 
@@ -4020,12 +3995,7 @@ public class ParserDQL extends ParserBase {
 
         QueryExpression queryExpression = XreadQueryExpression();
 
-        if (resolve) {
-            queryExpression.resolve(session);
-        } else {
-            queryExpression.resolveReferences(session,
-                                              RangeVariable.emptyArray);
-        }
+        queryExpression.resolveReferences(session, RangeVariable.emptyArray);
 
         SubQuery sq = new SubQuery(database, compileContext.subqueryDepth,
                                    queryExpression, mode);
