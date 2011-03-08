@@ -2700,7 +2700,7 @@ alter specific routine zero_pad_01
 
       <simpara><literal>&lt;create index statement&gt; ::= CREATE INDEX
       &lt;index name&gt; ON &lt;table name&gt; &lt;left paren&gt; {&lt;column
-      name&gt; [ASC | DESC]}, ... &lt;left paren&gt;</literal></simpara>
+      name&gt; [ASC | DESC]}, ... &lt;right paren&gt;</literal></simpara>
 
       <simpara>Creates an index on a group of columns of a table. The optional
       [ASC | DESC] specifies if the column is indexed in the ascending or
@@ -2723,6 +2723,22 @@ alter specific routine zero_pad_01
       EXISTS ] &lt;index name&gt; [ IF EXISTS ]</literal></simpara>
 
       <simpara>Destroy an index.</simpara>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>ALTER INDEX</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">ALTER INDEX</emphasis></simpara>
+
+      <simpara><emphasis>change the columns of an index</emphasis></simpara>
+
+      <simpara><literal>&lt;alter index statement&gt; ::= ALTER INDEX
+      &lt;index name&gt; &lt;left paren&gt; {&lt;column name&gt;} , ...
+      &lt;right paren&gt;</literal></simpara>
+
+      <simpara>Redefine an index with a new column list. This statement is
+      more efficient than dropping an existing index and creating a new
+      one.</simpara>
 
       <indexterm significance="preferred" type="sql">
         <primary>CREATE TYPE</primary>
