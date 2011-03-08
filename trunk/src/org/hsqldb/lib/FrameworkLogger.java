@@ -107,7 +107,7 @@ public class FrameworkLogger {
     // No need for more than one static, since we have only one console
 
     static {
-        String propVal = System.getProperty("org.hsqldb.reconfigLogging");
+        String propVal = System.getProperty("hsqldb.reconfig_logging");
         if (propVal == null || !propVal.equalsIgnoreCase("false")) {
             reconfigure();
         }
