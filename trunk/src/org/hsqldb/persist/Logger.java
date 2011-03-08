@@ -57,6 +57,7 @@ import org.hsqldb.error.ErrorCode;
 import org.hsqldb.index.Index;
 import org.hsqldb.index.IndexAVL;
 import org.hsqldb.index.IndexAVLMemory;
+import org.hsqldb.lib.ArrayUtil;
 import org.hsqldb.lib.FileAccess;
 import org.hsqldb.lib.FileUtil;
 import org.hsqldb.lib.FrameworkLogger;
@@ -1221,6 +1222,32 @@ public class Logger {
                 return new IndexAVL(name, id, table, columns, descending,
                                     nullsLast, colTypes, pk, unique,
                                     constraint, forward);
+        }
+
+        throw Error.runtimeError(ErrorCode.U_S0500, "Logger");
+    }
+
+    public Index newIndex(Table table, Index index, int[] columns) {
+
+        boolean[] modeFlags = new boolean[columns.length];
+        Type[]    colTypes  = new Type[columns.length];
+
+        ArrayUtil.projectRow(table.getColumnTypes(), columns, colTypes);
+
+        switch (table.getTableType()) {
+
+            case TableBase.MEMORY_TABLE :
+                return new IndexAVLMemory(index.getName(),
+                                          index.getPersistenceId(), table,
+                                          columns, modeFlags, modeFlags,
+                                          colTypes, false, false, false,
+                                          false);
+
+            case TableBase.CACHED_TABLE :
+            case TableBase.TEXT_TABLE :
+                return new IndexAVL(index.getName(), index.getPersistenceId(),
+                                    table, columns, modeFlags, modeFlags,
+                                    colTypes, false, false, false, false);
         }
 
         throw Error.runtimeError(ErrorCode.U_S0500, "Logger");

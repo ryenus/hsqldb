@@ -62,10 +62,10 @@ public class TestAllTypes {
     Connection cConnection;
 
     // prameters
-    boolean reportProgress  = false;
+    boolean reportProgress  = true;
     boolean cachedTable     = true;
     int     cacheScale      = 12;
-    int     logType         = 3;
+    int     logType         = 1;
     int     writeDelay      = 60;
     boolean indexZip        = true;
     boolean indexLastName   = false;
@@ -78,7 +78,7 @@ public class TestAllTypes {
     int     deleteWhileInsertInterval = 10000;
 
     //
-    int bigrows = 1000;
+    int bigrows = 1024 * 1024;
 
     protected void setUp() {
 
@@ -136,14 +136,14 @@ public class TestAllTypes {
         String ddl2 = "CREATE TABLE zip( zip INT IDENTITY );";
         String ddl3 = "CREATE " + (cachedTable ? "CACHED "
                                                : "") + "TABLE test( id INT IDENTITY,"
-                                                   + " firstname VARCHAR(20), "
-                                                   + " lastname VARCHAR(20), "
+                                                   + " firstname VARCHAR(128), "
+                                                   + " lastname VARCHAR(128), "
                                                    + " zip INTEGER, "
                                                    + " longfield BIGINT, "
                                                    + " doublefield DOUBLE, "
                                                    + " bigdecimalfield DECIMAL, "
                                                    + " datefield DATE, "
-                                                   + " filler VARCHAR(20)); ";
+                                                   + " filler VARCHAR(128)); ";
 
         // adding extra index will slow down inserts a bit
         String ddl4 = "CREATE INDEX idx1 ON TEST (lastname);";
@@ -423,7 +423,7 @@ public class TestAllTypes {
 
         System.out.println("Update with random id " + i + " rows : "
                            + sw.elapsedTime() + " rps: "
-                           + (i * 1000 / sw.elapsedTime()));
+                           + (i * 1000 / (sw.elapsedTime() + 1)));
     }
 
     int nextIntRandom(Random r, int range) {
@@ -446,7 +446,7 @@ public class TestAllTypes {
 
         test.setUp();
         test.testFillUp();
-        test.tearDown();
+//        test.tearDown();
         test.checkResults();
         System.out.println("Total Test Time: " + sw.elapsedTime());
     }

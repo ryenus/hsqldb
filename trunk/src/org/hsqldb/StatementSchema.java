@@ -34,6 +34,7 @@ package org.hsqldb;
 import org.hsqldb.HsqlNameManager.HsqlName;
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
+import org.hsqldb.index.Index;
 import org.hsqldb.lib.HsqlArrayList;
 import org.hsqldb.lib.OrderedHashSet;
 import org.hsqldb.navigator.RowIterator;
@@ -99,6 +100,7 @@ public class StatementSchema extends Statement {
                 break;
 
             case StatementTypes.ALTER_DOMAIN :
+            case StatementTypes.ALTER_INDEX :
             case StatementTypes.ALTER_ROUTINE :
             case StatementTypes.ALTER_SEQUENCE :
             case StatementTypes.ALTER_TYPE :
@@ -374,6 +376,26 @@ public class StatementSchema extends Statement {
                         default :
                             schemaManager.renameSchemaObject(name, newName);
                     }
+
+                    break;
+                } catch (HsqlException e) {
+                    return Result.newErrorResult(e, sql);
+                }
+            }
+            case StatementTypes.ALTER_INDEX : {
+                Table    table        = (Table) arguments[0];
+                int[]    indexColumns = (int[]) arguments[1];
+                HsqlName name         = (HsqlName) arguments[2];
+                Index    index;
+
+                try {
+                    index =
+                        (Index) session.database.schemaManager.getSchemaObject(
+                            name);
+
+                    TableWorks tableWorks = new TableWorks(session, table);
+
+                    tableWorks.alterIndex(index, indexColumns);
 
                     break;
                 } catch (HsqlException e) {
