@@ -1,3 +1,5 @@
+08 Mar 2011 - SVN 4126
+-- added support for ALTER INDEX <name> AS (<new column name list>) to change the indexed column list of an index
 28 Feb 2011 - SVN 4105 
 -- extension of MySQL and PostgreSQL compatibility modes. Includes type conversion and sequence functions
 -- extension to IDENTITY column support allows the use of a named SEQUENCE
