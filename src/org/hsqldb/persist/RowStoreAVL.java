@@ -460,6 +460,20 @@ public abstract class RowStoreAVL implements PersistentStore {
         }
     }
 
+    public void reindex(Session session, Index index) {
+
+        setAccessor(index, null);
+
+        RowIterator it = table.rowIterator(this);
+
+        while (it.hasNext()) {
+            RowAVL row = (RowAVL) it.getNextRow();
+
+            row.getNode(index.getPosition()).delete();
+            index.insert(session, this, row);
+        }
+    }
+
     public void writeLock() {}
 
     public void writeUnlock() {}
@@ -525,22 +539,5 @@ public abstract class RowStoreAVL implements PersistentStore {
         }
 
         throw error;
-    }
-
-    /**
-     * for result tables
-     */
-    void reindex(Session session, Index index) {
-
-        setAccessor(index, null);
-
-        RowIterator it = table.rowIterator(this);
-
-        while (it.hasNext()) {
-            Row row = it.getNextRow();
-
-            // may need to clear the node before insert
-            index.insert(session, this, row);
-        }
     }
 }

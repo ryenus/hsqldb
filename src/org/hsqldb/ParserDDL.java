@@ -221,10 +221,35 @@ public class ParserDDL extends ParserRoutine {
                 HsqlName name = readNewSchemaObjectName(SchemaObject.INDEX,
                     true);
 
-                readThis(Tokens.RENAME);
-                readThis(Tokens.TO);
+                name.setSchemaIfNull(session.getCurrentSchemaHsqlName());
 
-                return compileRenameObject(name, SchemaObject.INDEX);
+                if (token.tokenType == Tokens.RENAME) {
+                    read();
+                    readThis(Tokens.TO);
+
+                    return compileRenameObject(name, SchemaObject.INDEX);
+                }
+
+                readThis(Tokens.AS);
+
+                Index index =
+                    (Index) database.schemaManager.getSchemaObject(name);
+
+                if (index == null) {
+                    throw Error.error(ErrorCode.X_42501);
+                }
+
+                Table table = (Table) database.schemaManager.getSchemaObject(
+                    index.getName().parent);
+                int[]    indexColumns = readColumnList(table, true);
+                String   sql          = getLastPart();
+                Object[] args         = new Object[] {
+                    table, indexColumns, index.getName()
+                };
+
+                return new StatementSchema(sql, StatementTypes.ALTER_INDEX,
+                                           args, null,
+                                           new HsqlName[]{ table.getName() });
             }
             case Tokens.SCHEMA : {
                 read();

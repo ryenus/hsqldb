@@ -521,6 +521,25 @@ public class TableWorks {
         table = tn;
     }
 
+    void alterIndex(Index index, int[] cols) {
+
+        Index newIndex = database.logger.newIndex(table, index, cols);
+        int   position = index.getPosition();
+        PersistentStore store =
+            database.persistentStoreCollection.getStore(table);
+        Index[] indexes = store.getAccessorKeys();
+
+        newIndex.setPosition(position);
+
+        table.getIndexList()[position] = newIndex;
+
+        table.setBestRowIdentifiers();
+
+        indexes[position] = newIndex;
+
+        store.reindex(session, newIndex);
+    }
+
     /**
      * Because of the way indexes and column data are held in memory and on
      * disk, it is necessary to recreate the table when an index is added to a
