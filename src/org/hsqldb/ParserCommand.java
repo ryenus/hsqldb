@@ -85,7 +85,16 @@ public class ParserCommand extends ParserDDL {
                 break;
             }
 
-            cs = compilePart(cmd.getExecuteProperties());
+            try {
+                lastError = null;
+                cs        = compilePart(cmd.getExecuteProperties());
+            } catch (HsqlException e) {
+                if (lastError != null && lastError.getLevel() > e.getLevel()) {
+                    throw lastError;
+                }
+
+                throw e;
+            }
 
             if (!cs.isExplain
                     && cs.getParametersMetaData().getColumnCount() > 0) {

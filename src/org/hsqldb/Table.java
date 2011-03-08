@@ -2661,7 +2661,7 @@ public class Table extends TableBase implements SchemaObject {
         }
     }
 
-    protected void setGeneratedColumns(Session session, Object[] data) {
+    public void setGeneratedColumns(Session session, Object[] data) {
 
         if (hasGeneratedValues) {
             for (int i = 0; i < colGenerated.length; i++) {

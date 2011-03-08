@@ -410,6 +410,11 @@ public abstract class RowStoreAVL implements PersistentStore {
                 ArrayUtil.copyAdjustArray(olddata, data, colvalue, colindex,
                                           adjust);
                 table.systemSetIdentityColumn(session, data);
+
+                if (table.hasGeneratedColumn()) {
+                    ((Table) table).setGeneratedColumns(session, data);
+                }
+
                 table.enforceTypeLimits(session, data);
                 table.enforceRowConstraints(session, data);
 
