@@ -43,7 +43,6 @@ import org.hsqldb.lib.Iterator;
 import org.hsqldb.lib.LongDeque;
 import org.hsqldb.lib.OrderedHashSet;
 import org.hsqldb.lib.OrderedIntKeyHashMap;
-import org.hsqldb.persist.HsqlDatabaseProperties;
 import org.hsqldb.result.ResultConstants;
 import org.hsqldb.result.ResultProperties;
 import org.hsqldb.store.BitMap;
@@ -3095,11 +3094,12 @@ public class ParserDQL extends ParserBase {
         } catch (HsqlException ex) {
             ex.setLevel(compileContext.subqueryDepth);
 
-            if (lastError == null || lastError.getLevel() < ex.getLevel()) {
-                lastError = ex;
+            if (lastError != null && lastError.getLevel() >= ex.getLevel()) {
+                ex = lastError;
+                lastError = null;
             }
 
-            throw lastError;
+            throw ex;
         }
     }
 
@@ -4988,6 +4988,7 @@ public class ParserDQL extends ParserBase {
 
         try {
             readExpression(exprList, parseList, 0, parseList.length, false);
+            lastError = null;
         } catch (HsqlException e) {
             if (!isOpenBracket) {
                 rewind(position);
@@ -5006,6 +5007,7 @@ public class ParserDQL extends ParserBase {
             exprList  = new HsqlArrayList();
 
             readExpression(exprList, parseList, 0, parseList.length, false);
+            lastError = null;
         }
 
         Expression[] expr = new Expression[exprList.size()];
