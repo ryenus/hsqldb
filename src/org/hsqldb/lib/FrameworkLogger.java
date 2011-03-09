@@ -136,9 +136,7 @@ public class FrameworkLogger {
                 targetKeys.add(k);
             }
         }
-        // No removeAllKeys method for Map
-        it = targetKeys.iterator();
-        while (it.hasNext()) loggerInstances.remove(it.next());
+        loggerInstances.keySet().removeAll(targetKeys);
     }
 
     static void reconfigure() {
