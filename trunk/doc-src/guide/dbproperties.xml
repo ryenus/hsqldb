@@ -2337,4 +2337,130 @@
       built-in hsqldb instance.</simpara>
     </section>
   </section>
+
+  <section>
+    <title>System Properties</title>
+
+    <para>A few system properties are used by HyperSQL. These are set on the
+    Java command line or by calling System.setProperty() from the user's
+    program. They are not valid as URL or connection properties.</para>
+
+    <table frame="all" pgwide="1" tocentry="1">
+      <title>Logging Framework</title>
+
+      <tgroup align="left" cols="3">
+        <colspec colname="c1" colwidth="6.5cm" />
+
+        <colspec colname="c2" colwidth="1.5cm" />
+
+        <colspec colname="c3" />
+
+        <thead>
+          <row>
+            <entry>Name</entry>
+
+            <entry>Default</entry>
+
+            <entry>Description</entry>
+          </row>
+        </thead>
+
+        <tbody valign="top">
+          <row>
+            <entry><property>hsqldb.reconfig_logging</property></entry>
+
+            <entry><literal>none</literal></entry>
+
+            <entry>configurign the framework logging</entry>
+          </row>
+
+          <row>
+            <entry nameend="c3" namest="c1"><para>Setting this system property
+            false avoids reconfigurign the framework logging system such as
+            Log4J or java.util.Logging. If the property does not exist or is
+            true, reconfiguration takes place.</para></entry>
+          </row>
+        </tbody>
+      </tgroup>
+    </table>
+
+    <table frame="all" pgwide="1" tocentry="1">
+      <title>Text Tables</title>
+
+      <tgroup align="left" cols="3">
+        <colspec colname="c1" colwidth="6.5cm" />
+
+        <colspec colname="c2" colwidth="1.5cm" />
+
+        <colspec colname="c3" />
+
+        <thead>
+          <row>
+            <entry>Name</entry>
+
+            <entry>Default</entry>
+
+            <entry>Description</entry>
+          </row>
+        </thead>
+
+        <tbody valign="top">
+          <row>
+            <entry><property>textdb.allow_full_path</property></entry>
+
+            <entry><literal>none</literal></entry>
+
+            <entry>text table file locations</entry>
+          </row>
+
+          <row>
+            <entry nameend="c3" namest="c1"><para>Setting this system property
+            true allows text table sources to be opened on all available
+            paths. By default, only the database directory and its
+            subdirectories are allowed. See the Text Tables
+            chapter.</para></entry>
+          </row>
+        </tbody>
+      </tgroup>
+    </table>
+
+    <table frame="all" pgwide="1" tocentry="1">
+      <title>Java Functions</title>
+
+      <tgroup align="left" cols="3">
+        <colspec colname="c1" colwidth="6.5cm" />
+
+        <colspec colname="c2" colwidth="1.5cm" />
+
+        <colspec colname="c3" />
+
+        <thead>
+          <row>
+            <entry>Name</entry>
+
+            <entry>Default</entry>
+
+            <entry>Description</entry>
+          </row>
+        </thead>
+
+        <tbody valign="top">
+          <row>
+            <entry><property>hsqldb.method_class_names</property></entry>
+
+            <entry><literal>none</literal></entry>
+
+            <entry>allowed Java classes</entry>
+          </row>
+
+          <row>
+            <entry nameend="c3" namest="c1"><para>This property needs to be
+            set with the names (including wildcards) of Java classes that can
+            be used for routines based on Java static methods. See the SQL
+            Invoked Routines chapter.</para></entry>
+          </row>
+        </tbody>
+      </tgroup>
+    </table>
+  </section>
 </chapter>
