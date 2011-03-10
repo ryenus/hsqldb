@@ -1291,6 +1291,14 @@ public class Table extends TableBase implements SchemaObject {
         tn.triggerList  = triggerList;
         tn.triggerLists = triggerLists;
 
+        for (int i = 0; i < tn.constraintList.length; i++) {
+            tn.constraintList[i].compile(session, tn);
+        }
+
+        for (int i = 0; i < tn.columnCount; i++) {
+            tn.getColumn(i).compile(session, tn);
+        }
+
         return tn;
     }
 
