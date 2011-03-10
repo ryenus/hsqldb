@@ -418,12 +418,24 @@ CREATE FUNCTION an_hour_before_max (e_type INT)
 
       <para>The <literal>&lt;SQL-data access indication&gt;</literal>  clause
       indicates the extent to which a routine interacts with the database or
-      the data stored in the database tables (SQL data).  NO SQL means no SQL
-      command is issued in the routine body and can be used only for SQL/JRT
-      functions. <literal>CONTAINS SQL</literal> means some SQL commands are
-      used, but they do not read or modify the SQL data. <literal>READS SQL
+      the data stored in the database tables in different schemas (SQL DATA).
+      </para>
+
+      <para>NO SQL means no SQL command is issued in the routine body and can
+      be used only for SQL/JRT functions.</para>
+
+      <para><literal>CONTAINS SQL</literal> means some SQL commands are used,
+      but they do not read or modify the SQL data. <literal>READS SQL
       DATA</literal> and <literal>MODIFIES SQL DATA</literal> are self
       explanatory.</para>
+
+      <para>A <literal>CREATE PROCEDURE</literal> definition can use
+      <literal>MODIFIES SQL DATA</literal>. This is not allowed in
+      <literal>CREATE FUNCTION</literal>. Note that a PROCEDURE or a FUNCTION
+      may have internal tables or return a table which are populated by the
+      routine's statements. These tables are not considered SQL DATA,
+      therefore there is no need to specify <literal>MODIFIES SQL
+      DATA</literal> for such routines.</para>
 
       <simpara><literal>&lt;SQL-data access indication&gt; ::= NO SQL |
       CONTAINS SQL | READS SQL DATA | MODIFIES SQL DATA</literal></simpara>
@@ -538,6 +550,49 @@ CREATE FUNCTION an_hour_before_max (e_type INT)
     <para>Please note carefully the use of
     <literal>&lt;semicolon&gt;</literal>, which is required at the end of some
     statements but not accepted at the end of others.</para>
+
+    <section>
+      <title>Advantages and Disadvantages</title>
+
+      <para>SQL Language Routines (PSM) have certain advantages over Java
+      Language Routines (SQL/JRT) and a couple of disadvantages.</para>
+
+      <itemizedlist>
+        <listitem>
+          <para>SQL language routines (PSM) do not rely on custom Java classes
+          to be present on the classpath. The databases that use them are
+          therefore more portable.</para>
+        </listitem>
+
+        <listitem>
+          <para>For routines that access SQL DATA, all the SQL statements in
+          an SQL routines are known and monitored by the engine. The engine
+          will not allow a table, routine or sequence that is referenced in an
+          SQL routine to be dropped, or its structure modified in a way that
+          will break the routine execution. The engine does not keep this
+          information about a Java routine.</para>
+        </listitem>
+
+        <listitem>
+          <para>Because the statements in an SQL routine are known to the
+          engine, the execution of an SQL routine locks all the database
+          objects it needs to access before the actual execution. With Java
+          routines locks are obtained during execution and this may cause
+          additional delays in multi threaded access to the database.</para>
+        </listitem>
+
+        <listitem>
+          <para>For routines that do not access SQL DATA, Java routines
+          (SQL/JRT) may be faster if they perform extensive
+          calculations.</para>
+        </listitem>
+
+        <listitem>
+          <para>Only Java routines can access external programs and resources
+          directly.</para>
+        </listitem>
+      </itemizedlist>
+    </section>
 
     <section>
       <title>Routine Statements</title>
