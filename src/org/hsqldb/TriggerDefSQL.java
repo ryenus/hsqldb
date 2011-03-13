@@ -88,10 +88,6 @@ public class TriggerDefSQL extends TriggerDef {
 
         Result result = Result.updateZeroResult;
 
-        if (session.sessionContext.depth > 128) {
-            throw Error.error(ErrorCode.GENERAL_ERROR);
-        }
-
         session.sessionContext.push();
 
         if (rangeVars[OLD_ROW] != null || rangeVars[NEW_ROW] != null) {

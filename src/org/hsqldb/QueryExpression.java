@@ -511,6 +511,7 @@ public class QueryExpression {
             }
 
             rowSet.copy(navigator, leftQueryExpression.unionColumnMap);
+            navigator.close();
 
             navigator = rowSet;
 
@@ -525,6 +526,7 @@ public class QueryExpression {
             }
 
             rowSet.copy(rightNavigator, rightQueryExpression.unionColumnMap);
+            navigator.close();
 
             rightNavigator = rowSet;
         }

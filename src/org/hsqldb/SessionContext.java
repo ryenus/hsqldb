@@ -118,6 +118,10 @@ public class SessionContext {
 
     public void push() {
 
+        if (session.sessionContext.depth > 256) {
+            throw Error.error(ErrorCode.GENERAL_ERROR);
+        }
+
         session.sessionData.persistentStoreCollection.push();
 
         if (stack == null) {

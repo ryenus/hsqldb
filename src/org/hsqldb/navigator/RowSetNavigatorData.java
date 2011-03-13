@@ -318,8 +318,6 @@ implements Comparator {
 
             addAdjusted(currentData, rightColumnIndexes);
         }
-
-        other.close();
     }
 
     public void union(Session session, RowSetNavigatorData other) {
@@ -328,6 +326,8 @@ implements Comparator {
 
         removeDuplicates(session);
         other.removeDuplicates(session);
+
+        mainIndex = queryExpression.fullIndex;
 
         while (other.hasNext()) {
             currentData = other.getNext();

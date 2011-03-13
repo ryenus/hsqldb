@@ -80,7 +80,7 @@ public class Tokens {
     static final String        T_CAST             = "CAST";
     static final String        T_CEIL             = "CEIL";
     static final String        T_CEILING          = "CEILING";
-    static final String        T_CHAR             = "CHAR";
+    public static final String T_CHAR             = "CHAR";
     static final String        T_CHAR_LENGTH      = "CHAR_LENGTH";
     public static final String T_CHARACTER        = "CHARACTER";
     static final String        T_CHARACTER_LENGTH = "CHARACTER_LENGTH";
@@ -123,7 +123,7 @@ public class Tokens {
     public static final String T_DATE              = "DATE";
     public static final String T_DAY               = "DAY";
     static final String        T_DEALLOCATE        = "DEALLOCATE";
-    static final String        T_DEC               = "DEC";
+    public static final String T_DEC               = "DEC";
     public static final String T_DECIMAL           = "DECIMAL";
     static final String        T_DECLARE           = "DECLARE";
     public static final String T_DEFAULT           = "DEFAULT";
@@ -184,7 +184,7 @@ public class Tokens {
     static final String        T_INOUT             = "INOUT";
     static final String        T_INSENSITIVE       = "INSENSITIVE";
     public static final String T_INSERT            = "INSERT";
-    static final String        T_INT               = "INT";
+    public static final String T_INT               = "INT";
     public static final String T_INTEGER           = "INTEGER";
     static final String        T_INTERSECT         = "INTERSECT";
     static final String        T_INTERSECTION      = "INTERSECTION";
@@ -652,6 +652,7 @@ public class Tokens {
     static final String        T_CURRVAL              = "CURRVAL";
     static final String        T_CURTIME              = "CURTIME";
     public static final String T_DATABASE             = "DATABASE";
+    public static final String T_DATETIME             = "DATETIME";
     public static final String T_DEADLOCK             = "DEADLOCK";
     public static final String T_DEFRAG               = "DEFRAG";
     public static final String T_DELAY                = "DELAY";
@@ -684,6 +685,8 @@ public class Tokens {
     public static final String T_LOCKS                = "LOCKS";
     public static final String T_LONG                 = "LONG";
     public static final String T_LONGVAR              = "LONGVAR";
+    public static final String T_LONGVARBINARY        = "LONGVARBINARY";
+    public static final String T_LONGVARCHAR          = "LONGVARCHAR";
     static final String        T_MAXROWS              = "MAXROWS";
     static final String        T_MEDIAN               = "MEDIAN";
     public static final String T_MEMORY               = "MEMORY";
@@ -697,6 +700,7 @@ public class Tokens {
     static final String        T_NEXTVAL              = "NEXTVAL";
     public static final String T_NIO                  = "NIO";
     static final String        T_NOWAIT               = "NOWAIT";
+    public static final String T_NVARCHAR             = "NVARCHAR";
     static final String        T_NVL                  = "NVL";
     static final String        T_OCTETLENGTH          = "OCTETLENGTH";
     static final String        T_OFF                  = "OFF";

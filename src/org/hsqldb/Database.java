@@ -541,6 +541,12 @@ public class Database {
         setState(DATABASE_CLOSING);
         sessionManager.closeAllSessions();
 
+        if (getState() == DATABASE_SHUTDOWN) {
+
+            // shutdown because closeIfLast has been called when session closed
+            return;
+        }
+
         if (filesReadOnly) {
             closemode = CLOSEMODE_IMMEDIATELY;
         }
