@@ -575,6 +575,55 @@ public class QueryExpression {
         return first;
     }
 
+    Result getResultRecursive(Session session, TableDerived table) {
+
+        Result tempResult;
+        RowSetNavigatorData tempNavigator;
+        RowSetNavigatorData rowSet = new RowSetNavigatorData(session, this);
+        Result              result = Result.newResult(rowSet);
+
+        rowSet.copy(table.getSubQuery().getNavigator(session), unionColumnMap);
+
+        result.metaData = resultMetaData;
+
+        for (int round = 0; ; round++) {
+            tempResult    = rightQueryExpression.getResult(session, 0);
+            tempNavigator = (RowSetNavigatorData) tempResult.getNavigator();
+
+            if (tempNavigator.isEmpty()) {
+                break;
+            }
+
+            switch (unionType) {
+
+                case UNION :
+                    rowSet.union(session, tempNavigator);
+                    break;
+
+                case UNION_ALL :
+                    rowSet.unionAll(session, tempNavigator);
+                    break;
+
+                default :
+                    throw Error.runtimeError(ErrorCode.U_S0500,
+                                             "QueryExpression");
+            }
+
+            table.clearAllData(session);
+            tempNavigator.reset();
+            table.insertIntoTable(session, tempResult);
+
+            if (round > 256) {
+                throw Error.error(ErrorCode.GENERAL_ERROR);
+            }
+        }
+
+        table.clearAllData(session);
+        rowSet.reset();
+
+        return result;
+    }
+
     public OrderedHashSet getSubqueries() {
 
         OrderedHashSet subqueries = leftQueryExpression.getSubqueries();

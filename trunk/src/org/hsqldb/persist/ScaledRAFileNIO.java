@@ -34,6 +34,8 @@ package org.hsqldb.persist;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.io.FileDescriptor;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.channels.FileChannel.MapMode;
@@ -369,6 +371,7 @@ final class ScaledRAFileNIO implements RandomAccessInterface {
             channel = null;
 
             for (int i = 0; i < buffers.length; i++) {
+                unmap(buffers[i]);
                 buffers[i] = null;
             }
 
@@ -540,5 +543,31 @@ final class ScaledRAFileNIO implements RandomAccessInterface {
 
         buffer         = buffers[bufferIndex];
         bufferPosition = offset &= largeBufferMask;
+    }
+
+    /**
+     * Non-essential unmap method - see http://bugs.sun.com/view_bug.do?bug_id=4724038
+     * reported by joel_turkel at users.sourceforge.net
+     */
+    private void unmap(MappedByteBuffer buffer) throws IOException {
+
+        if (buffer == null) {
+            return;
+        }
+
+        try {
+            Method cleanerMethod = buffer.getClass().getMethod("cleaner");
+
+            cleanerMethod.setAccessible(true);
+
+            Object cleaner     = cleanerMethod.invoke(buffer);
+            Method clearMethod = cleaner.getClass().getMethod("clean");
+
+            clearMethod.invoke(cleaner);
+        } catch (InvocationTargetException e) {
+        } catch (NoSuchMethodException e) {
+
+            // Means we're not dealing with a Sun JVM?
+        } catch (Throwable e) {}
     }
 }

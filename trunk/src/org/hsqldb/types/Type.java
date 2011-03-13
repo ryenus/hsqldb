@@ -1085,6 +1085,7 @@ public abstract class Type implements SchemaObject, Cloneable {
         typeNames.put(Tokens.T_CHARACTER, Types.SQL_CHAR);
         typeNames.put(Tokens.T_VARCHAR, Types.SQL_VARCHAR);
         typeNames.put(Tokens.T_VARCHAR_IGNORECASE, Types.VARCHAR_IGNORECASE);
+        typeNames.put(Tokens.T_NVARCHAR, Types.SQL_VARCHAR);
         typeNames.put(Tokens.T_DATE, Types.SQL_DATE);
         typeNames.put(Tokens.T_TIME, Types.SQL_TIME);
         typeNames.put(Tokens.T_TIMESTAMP, Types.SQL_TIMESTAMP);
@@ -1109,13 +1110,13 @@ public abstract class Type implements SchemaObject, Cloneable {
         //
         typeAliases = new IntValueHashMap(64);
 
-        typeAliases.put("CHAR", Types.SQL_CHAR);
-        typeAliases.put("INT", Types.SQL_INTEGER);
-        typeAliases.put("DEC", Types.SQL_DECIMAL);
-        typeAliases.put("LONGVARCHAR", Types.LONGVARCHAR);
-        typeAliases.put("DATETIME", Types.SQL_TIMESTAMP);
-        typeAliases.put("LONGVARBINARY", Types.LONGVARBINARY);
-        typeAliases.put("OBJECT", Types.OTHER);
+        typeAliases.put(Tokens.T_CHAR, Types.SQL_CHAR);
+        typeAliases.put(Tokens.T_INT, Types.SQL_INTEGER);
+        typeAliases.put(Tokens.T_DEC, Types.SQL_DECIMAL);
+        typeAliases.put(Tokens.T_LONGVARCHAR, Types.LONGVARCHAR);
+        typeAliases.put(Tokens.T_DATETIME, Types.SQL_TIMESTAMP);
+        typeAliases.put(Tokens.T_LONGVARBINARY, Types.LONGVARBINARY);
+        typeAliases.put(Tokens.T_OBJECT, Types.OTHER);
 
         //
         jdbcConvertTypes = new IntKeyHashMap(37);
@@ -1123,6 +1124,7 @@ public abstract class Type implements SchemaObject, Cloneable {
         jdbcConvertTypes.put(Tokens.SQL_CHAR, Type.SQL_CHAR_DEFAULT);
         jdbcConvertTypes.put(Tokens.SQL_VARCHAR, Type.SQL_VARCHAR_DEFAULT);
         jdbcConvertTypes.put(Tokens.SQL_LONGVARCHAR, Type.SQL_VARCHAR_DEFAULT);
+        jdbcConvertTypes.put(Tokens.SQL_NVARCHAR, Type.SQL_VARCHAR_DEFAULT);
         jdbcConvertTypes.put(Tokens.SQL_DATE, Type.SQL_DATE);
         jdbcConvertTypes.put(Tokens.SQL_TIME, Type.SQL_TIME);
         jdbcConvertTypes.put(Tokens.SQL_TIMESTAMP, Type.SQL_TIMESTAMP);

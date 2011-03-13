@@ -200,6 +200,7 @@ public class DataFileCache {
 
             long    freesize  = 0;
             boolean preexists = fa.isStreamElement(dataFileName);
+            boolean isIncremental;
 
             if (preexists) {
                 int fileTypeTemp = database.logger.isStoredFileAccess()
@@ -211,11 +212,11 @@ public class DataFileCache {
 
                 dataFile.seek(FLAGS_POS);
 
-                int     flags         = dataFile.readInt();
-                boolean isSaved       = BitMap.isSet(flags, FLAG_ISSAVED);
-                boolean isIncremental = BitMap.isSet(flags, FLAG_ISSHADOWED);
+                int     flags   = dataFile.readInt();
+                boolean isSaved = BitMap.isSet(flags, FLAG_ISSAVED);
 
-                is180 = !BitMap.isSet(flags, FLAG_190);
+                isIncremental = BitMap.isSet(flags, FLAG_ISSHADOWED);
+                is180         = !BitMap.isSet(flags, FLAG_190);
 
                 dataFile.close();
 
@@ -224,23 +225,34 @@ public class DataFileCache {
                 }
 
                 if (isSaved) {
+                    if (isIncremental) {
+                        deleteBackup();
+                    } else {
+                        boolean existsBackup =
+                            fa.isStreamElement(backupFileName);
+
+                        if (!existsBackup) {
+                            backupFile();
+                        }
+                    }
+
                     dataFile = ScaledRAFile.newScaledRAFile(database,
                             dataFileName, readonly, fileType);
                 } else {
-                    boolean restored = true;
+                    boolean restored;
 
                     if (isIncremental) {
-                        restoreBackupIncremental();
+                        restored = restoreBackupIncremental();
                     } else {
                         restored = restoreBackup();
                     }
 
+                    if (!restored) {
+                        throw Error.error(ErrorCode.DATA_FILE_BACKUP_MISMATCH);
+                    }
+
                     dataFile = ScaledRAFile.newScaledRAFile(database,
                             dataFileName, readonly, fileType);
-
-                    if (!restored) {
-                        initNewFile();
-                    }
                 }
 
                 dataFile.seek(LONG_EMPTY_SIZE);
@@ -257,10 +269,26 @@ public class DataFileCache {
 
                 openShadowFile();
             } else {
+                boolean restored = false;
+
+                isIncremental = database.logger.propIncrementBackup;
+
+                if (isIncremental) {
+
+                    // incremental needs .data file to restore - delete in case there is a stale backup
+                    deleteBackup();
+                } else {
+
+                    // .data file may have been deleted - can restore from full backup
+                    restored = restoreBackup();
+                }
+
                 dataFile = ScaledRAFile.newScaledRAFile(database,
                         dataFileName, readonly, fileType);
 
-                initNewFile();
+                if (!restored) {
+                    initNewFile();
+                }
             }
 
             initBuffers();
@@ -295,6 +323,7 @@ public class DataFileCache {
             flags = BitMap.set(flags, FLAG_ISSHADOWED);
         }
 
+        flags = BitMap.set(flags, FLAG_ISSAVED);
         flags = BitMap.set(flags, FLAG_190);
 
         dataFile.seek(FLAGS_POS);
@@ -415,6 +444,10 @@ public class DataFileCache {
             database.logger.logDetailEvent("dataFileCache file close");
 
             dataFile = null;
+
+            if (!write) {
+                return;
+            }
 
             boolean empty = fileFreePosition == initialFreePos;
 
@@ -580,8 +613,8 @@ public class DataFileCache {
             database.logger.log.closeLog();
             database.logger.log.deleteLog();
             database.logger.log.renameNewScript();
-            renameDataFile();
             renameBackupFile();
+            renameDataFile();
             database.getProperties().setDBModified(
                 HsqlDatabaseProperties.FILES_NOT_MODIFIED);
             open(false);
@@ -892,6 +925,10 @@ public class DataFileCache {
     }
 
     protected void saveRows(CachedObject[] rows, int offset, int count) {
+
+        if (count == 0) {
+            return;
+        }
 
         try {
             copyShadow(rows, offset, count);

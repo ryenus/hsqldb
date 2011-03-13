@@ -1293,7 +1293,13 @@ public class TableWorks {
             PersistentStore newStore =
                 database.persistentStoreCollection.getStore(newTable);
 
-            newStore.moveData(session, oldStore, colIndex, adjust);
+            try {
+                newStore.moveData(session, oldStore, colIndex, adjust);
+            } catch (HsqlException e) {
+                newStore.release();
+                database.persistentStoreCollection.setStore(newTable, null);
+            }
+
             database.persistentStoreCollection.releaseStore(oldTable);
         }
     }

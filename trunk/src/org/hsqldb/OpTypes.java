@@ -52,6 +52,7 @@ public interface OpTypes {
         SCALAR_SUBQUERY      = 21,    // query based row or table
         ROW_SUBQUERY         = 22,
         TABLE_SUBQUERY       = 23,
+        RECURSIVE_SUBQUERY   = 24,
         ROW                  = 25,    // rows
         VALUELIST            = 26,
         FUNCTION             = 27,
