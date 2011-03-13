@@ -645,7 +645,7 @@ public class StatementSession extends Statement {
                     session.sessionContext.addSessionTable(table);
 
                     if (table.hasLobColumn) {
-                        throw Error.error(ErrorCode.X_07000);
+                        throw Error.error(ErrorCode.X_42534);
                     }
 
                     if (statement != null) {

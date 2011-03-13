@@ -119,7 +119,7 @@ public interface ErrorCode {
     int LOCK_FILE_ACQUISITION_FAILURE = 451;       // S1000 Database lock acquisition failure
     int FILE_IO_ERROR               = 452;         // S1000 File input/output error
     int WRONG_DATABASE_FILE_VERSION = 453;         // S1000 unsupported database file version
-    int SHUTDOWN_REQUIRED           = 454;         // S1000 old version database must be shutdown
+    int DATA_FILE_BACKUP_MISMATCH   = 454;         // S1000 Data file modified, no backup
     int DATABASE_IS_READONLY        = 455;         // S1000 The database is in read only mode
     int DATA_IS_READONLY            = 456;         // S1000 The table data is read only
     int ACCESS_IS_DENIED            = 457;         // S1000 Access is denied

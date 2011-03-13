@@ -45,7 +45,7 @@ import org.hsqldb.types.Type;
  * Implementation of table conversion.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.0.1
+ * @version 2.1.0
  * @since 2.0.0
  */
 public class ExpressionTable extends Expression {
@@ -187,38 +187,47 @@ public class ExpressionTable extends Expression {
                                        PersistentStore store) {
 
         if (isTable) {
-            Result          result = nodes[LEFT].getResult(session);
-            RowSetNavigator nav    = result.navigator;
-            int             size   = nav.getSize();
-
-            while (nav.hasNext()) {
-                Object[] data = nav.getNext();
-                Row row = (Row) store.getNewCachedObject(session, data, false);
-
-                try {
-                    store.indexRow(session, row);
-                } catch (HsqlException e) {}
-            }
+            insertTableValues(session, store);
         } else {
-            Object[] array = (Object[]) nodes[LEFT].getValue(session);
-
-            for (int i = 0; i < array.length; i++) {
-                Object[] data;
-
-                if (ordinality) {
-                    data = new Object[] {
-                        array[i], ValuePool.getInt(i + 1)
-                    };
-                } else {
-                    data = new Object[]{ array[i] };
-                }
-
-                Row row = (Row) store.getNewCachedObject(session, data, false);
-
-                try {
-                    store.indexRow(session, row);
-                } catch (HsqlException e) {}
-            }
+            insertArrayValues(session, store);
         }
     }
+
+    private void insertTableValues(Session session, PersistentStore store) {
+        Result          result = nodes[LEFT].getResult(session);
+        RowSetNavigator nav    = result.navigator;
+        int             size   = nav.getSize();
+
+        while (nav.hasNext()) {
+            Object[] data = nav.getNext();
+            Row row = (Row) store.getNewCachedObject(session, data, false);
+
+            try {
+                store.indexRow(session, row);
+            } catch (HsqlException e) {}
+        }
+    }
+
+    private void insertArrayValues(Session session, PersistentStore store) {
+        Object[] array = (Object[]) nodes[LEFT].getValue(session);
+
+        for (int i = 0; i < array.length; i++) {
+            Object[] data;
+
+            if (ordinality) {
+                data = new Object[] {
+                    array[i], ValuePool.getInt(i + 1)
+                };
+            } else {
+                data = new Object[]{ array[i] };
+            }
+
+            Row row = (Row) store.getNewCachedObject(session, data, false);
+
+            try {
+                store.indexRow(session, row);
+            } catch (HsqlException e) {}
+        }
+    }
+
 }
