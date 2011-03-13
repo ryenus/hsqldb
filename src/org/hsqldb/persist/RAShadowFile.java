@@ -116,13 +116,14 @@ public class RAShadowFile {
             readSize = (int) (maxSize - position);
         }
 
-        try {
-            if (dest == null) {
-                open();
-            }
+        if (dest == null) {
+            open();
+        }
 
-            long   writePos = dest.length();
-            byte[] buffer   = new byte[pageSize + 12];
+        long writePos = dest.length();
+
+        try {
+            byte[] buffer = new byte[pageSize + 12];
 
             byteArrayOutputStream.setBuffer(buffer);
             byteArrayOutputStream.writeInt(pageSize);
@@ -133,6 +134,8 @@ public class RAShadowFile {
             dest.write(buffer, 0, buffer.length);
         } catch (Throwable t) {
             bitMap.unset(pageOffset);
+            dest.seek(0);
+            dest.setLength(writePos);
             close();
             database.logger.logWarningEvent("pos" + position + " " + readSize,
                                             t);

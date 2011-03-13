@@ -59,6 +59,7 @@ class SubQuery implements Comparator {
     private boolean      isResolved;
     private boolean      isCorrelated;
     private boolean      isExistsPredicate;
+    private boolean      isRecursive;
     private boolean      uniqueRows;
     private boolean      fullOrder;
     QueryExpression      queryExpression;
@@ -68,9 +69,12 @@ class SubQuery implements Comparator {
     View                 parentView;
     String               sql;
 
-    // IN condition optimisation
+    //
     Expression dataExpression;
     boolean    isDataExpression;
+
+    //
+    SubQuery recursiveSubQuery;
 
     //
     SimpleName[] columnNames;
@@ -108,7 +112,18 @@ class SubQuery implements Comparator {
                 if (queryExpression != null) {
                     queryExpression.setFullOrder();
                 }
+                break;
         }
+    }
+
+    SubQuery(Database database, int level, QueryExpression queryExpression,
+             SubQuery sq) {
+
+        this.level             = level;
+        this.queryExpression   = queryExpression;
+        this.database          = database;
+        this.isRecursive       = true;
+        this.recursiveSubQuery = sq;
     }
 
     SubQuery(Database database, int level, Expression dataExpression,
@@ -182,6 +197,10 @@ class SubQuery implements Comparator {
         table.columnList  = queryExpression.getColumns();
 
         if (columns != null) {
+            if (columns.length != table.columnList.size()) {
+                throw Error.error(ErrorCode.X_42593);
+            }
+
             for (int i = 0; i < table.columnCount; i++) {
                 table.columnList.setKey(i, columns[i].name);
 
@@ -269,9 +288,14 @@ class SubQuery implements Comparator {
             return;
         }
 
-        Result result = queryExpression.getResult(session,
-            isExistsPredicate ? 1
-                              : 0);
+        Result result;
+
+        if (isRecursive) {
+            result = queryExpression.getResultRecursive(session, recursiveSubQuery.table);
+        } else {
+            result = queryExpression.getResult(session, isExistsPredicate ? 1
+                                                                          : 0);
+        }
 
         if (uniqueRows) {
             RowSetNavigatorData navigator =

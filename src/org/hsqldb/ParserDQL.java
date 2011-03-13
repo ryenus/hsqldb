@@ -800,9 +800,7 @@ public class ParserDQL extends ParserBase {
         if (token.tokenType == Tokens.WITH) {
             read();
 
-            if (token.tokenType == Tokens.RECURSIVE) {
-                throw super.unsupportedFeature();
-            }
+            boolean recursive = readIfThis(Tokens.RECURSIVE);
 
             compileContext.initSubqueryNames();
 
@@ -821,15 +819,87 @@ public class ParserDQL extends ParserBase {
 
                 if (token.tokenType == Tokens.OPENBRACKET) {
                     nameList = readColumnNames(queryName);
+                } else if (recursive) {
+                    super.unexpectedTokenRequire(Tokens.T_OPENBRACKET);
                 }
 
                 readThis(Tokens.AS);
                 readThis(Tokens.OPENBRACKET);
 
-                SubQuery subQuery = XreadTableNamedSubqueryBody(queryName,
-                    nameList);
+                SubQuery subQuery;
+
+                subQuery =
+                    XreadTableNamedSubqueryBody(queryName, nameList,
+                                                recursive
+                                                ? OpTypes.RECURSIVE_SUBQUERY
+                                                : OpTypes.TABLE_SUBQUERY);
 
                 readThis(Tokens.CLOSEBRACKET);
+
+                if (token.tokenType == Tokens.CYCLE) {
+                    throw super.unsupportedFeature();
+                }
+
+                if (recursive && token.tokenType == Tokens.CYCLE) {
+                    Table    table           = subQuery.getTable();
+                    int[]    cycleColumnList = readColumnList(table, false);
+                    HsqlName name;
+
+                    readThis(Tokens.SET);
+                    checkIsSimpleName();
+
+                    name = database.nameManager.newColumnHsqlName(
+                        table.getName(), token.tokenString,
+                        token.isDelimitedIdentifier);
+
+                    ColumnSchema cycleMarkColumn = new ColumnSchema(name,
+                        null, true, false, null);
+
+                    if (table.getColumnIndex(name.name) != -1) {
+                        throw Error.error(ErrorCode.X_42578,
+                                          token.tokenString);
+                    }
+
+                    read();
+                    readThis(Tokens.TO);
+
+                    String cycleMarkValue = readQuotedString();
+
+                    if (cycleMarkValue.length() != 1) {
+                        throw unexpectedToken(cycleMarkValue);
+                    }
+
+                    readThis(Tokens.DEFAULT);
+
+                    String noncycleMarkValue = readQuotedString();
+
+                    if (noncycleMarkValue.length() != 1) {
+                        throw unexpectedToken(noncycleMarkValue);
+                    }
+
+                    if (cycleMarkValue.equals(noncycleMarkValue)) {
+                        throw unexpectedToken(cycleMarkValue);
+                    }
+
+                    readThis(Tokens.USING);
+                    checkIsSimpleName();
+                    checkIsSimpleName();
+
+                    name = database.nameManager.newColumnHsqlName(
+                        table.getName(), token.tokenString,
+                        token.isDelimitedIdentifier);
+
+                    if (table.getColumnIndex(name.name) != -1) {
+                        throw Error.error(ErrorCode.X_42578,
+                                          token.tokenString);
+                    }
+
+                    read();
+
+                    ColumnSchema pathColumn = new ColumnSchema(name, null,
+                        true, false, null);
+                }
+
                 compileContext.registerSubquery(queryName.name, subQuery);
 
                 if (token.tokenType == Tokens.COMMA) {
@@ -3111,7 +3181,7 @@ public class ParserDQL extends ParserBase {
             ex.setLevel(compileContext.subqueryDepth);
 
             if (lastError != null && lastError.getLevel() >= ex.getLevel()) {
-                ex = lastError;
+                ex        = lastError;
                 lastError = null;
             }
 
@@ -3991,19 +4061,83 @@ public class ParserDQL extends ParserBase {
     }
 
     SubQuery XreadTableNamedSubqueryBody(HsqlName name,
-                                         HsqlName[] columnNames) {
+                                         HsqlName[] columnNames, int type) {
 
-        SubQuery sq = XreadSubqueryBody(OpTypes.TABLE_SUBQUERY);
+        switch (type) {
 
-        ExpressionColumn.checkColumnsResolved(
-            sq.queryExpression.unresolvedExpressions);
-        sq.queryExpression.resolveTypes(session);
+            case OpTypes.RECURSIVE_SUBQUERY : {
+                SubQuery sq = XreadRecursiveSubqueryBody(name, columnNames);
+
+                return sq;
+            }
+            case OpTypes.TABLE_SUBQUERY : {
+                SubQuery sq = XreadSubqueryBody(type);
+
+                ExpressionColumn.checkColumnsResolved(
+                    sq.queryExpression.unresolvedExpressions);
+                sq.queryExpression.resolveTypes(session);
+                sq.prepareTable(session, name, columnNames);
+
+                return sq;
+            }
+            default :
+                throw super.unexpectedToken();
+        }
+    }
+
+    SubQuery XreadRecursiveSubqueryBody(HsqlName name,
+                                        HsqlName[] columnNames) {
+
+        int position = getPosition();
+
+        compileContext.subqueryDepth++;
+        compileContext.subqueryDepth++;
+
+        QueryExpression queryExpression = XreadSimpleTable();
+
+        queryExpression.resolve(session);
+
+        SubQuery sq = new SubQuery(database, compileContext.subqueryDepth,
+                                   queryExpression, OpTypes.TABLE_SUBQUERY);
+
+        compileContext.subqueryDepth--;
+
         sq.prepareTable(session, name, columnNames);
+        compileContext.initSubqueryNames();
+        compileContext.registerSubquery(name.name, sq);
+
+        RangeVariable range = new RangeVariable(sq.getTable(),
+            compileContext.getNextRangeVarIndex());
+        RangeVariable[] ranges = new RangeVariable[]{ range };
+
+        if (token.tokenType == Tokens.UNION) {
+            int             unionType            = XreadUnionType();
+            QueryExpression rightQueryExpression = XreadSimpleTable();
+
+            queryExpression = new QueryExpression(compileContext,
+                                                  queryExpression);
+
+            rightQueryExpression.resolveReferences(session, ranges);
+            queryExpression.addUnion(rightQueryExpression, unionType);
+            queryExpression.resolve(session);
+            queryExpression.createTable(session);
+
+            sq = new SubQuery(database, compileContext.subqueryDepth,
+                              queryExpression, sq);
+
+            sq.prepareTable(session, name, columnNames);
+        } else {
+            throw unexpectedTokenRequire(Tokens.T_UNION);
+        }
+
+        sq.sql = getLastPart(position);
+
+        compileContext.subqueryDepth--;
 
         return sq;
     }
 
-    SubQuery XreadSubqueryBody(int mode) {
+    SubQuery XreadSubqueryBody(int type) {
 
         int position = getPosition();
 
@@ -4014,7 +4148,7 @@ public class ParserDQL extends ParserBase {
         queryExpression.resolveReferences(session, RangeVariable.emptyArray);
 
         SubQuery sq = new SubQuery(database, compileContext.subqueryDepth,
-                                   queryExpression, mode);
+                                   queryExpression, type);
 
         sq.sql = getLastPart(position);
 
@@ -5004,6 +5138,7 @@ public class ParserDQL extends ParserBase {
 
         try {
             readExpression(exprList, parseList, 0, parseList.length, false);
+
             lastError = null;
         } catch (HsqlException e) {
             if (!isOpenBracket) {
@@ -5023,6 +5158,7 @@ public class ParserDQL extends ParserBase {
             exprList  = new HsqlArrayList();
 
             readExpression(exprList, parseList, 0, parseList.length, false);
+
             lastError = null;
         }
 

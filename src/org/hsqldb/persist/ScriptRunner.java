@@ -275,8 +275,9 @@ public class ScriptRunner {
             } else {
 
                 // stop processing on bad script line
-                database.logger.logSevereEvent(databaseFile + " log line: "
-                                               + scr.getLineNumber(), e);
+                database.logger.logSevereEvent(
+                    "statement error processing log " + databaseFile
+                    + "line: " + scr.getLineNumber(), e);
             }
         } finally {
             if (scr != null) {

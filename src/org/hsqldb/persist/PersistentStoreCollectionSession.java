@@ -133,10 +133,9 @@ implements PersistentStoreCollection {
                                 this, table);
                     }
 
-                    if (table.getTableType()
-                            == TableBase.INFO_SCHEMA_TABLE) {
-                        session.database.dbInfo.setStore(
-                            session, (Table) table, store);
+                    if (table.getTableType() == TableBase.INFO_SCHEMA_TABLE) {
+                        session.database.dbInfo.setStore(session,
+                                                         (Table) table, store);
                     }
 
                     return store;
@@ -284,7 +283,15 @@ implements PersistentStoreCollection {
 
         PersistentStore newStore = getStore(newTable);
 
-        newStore.moveData(session, oldStore, colIndex, adjust);
+        try {
+            newStore.moveData(session, oldStore, colIndex, adjust);
+        } catch (HsqlException e) {
+            newStore.release();
+            setStore(newTable, null);
+
+            throw e;
+        }
+
         setStore(oldTable, null);
     }
 
