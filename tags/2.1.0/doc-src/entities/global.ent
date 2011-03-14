@@ -1,0 +1,26 @@
+<!-- Project-specific entities which should be loaded into every source file -->
+<!-- $Id$ -->
+
+<!ENTITY % dummy33 PUBLIC
+           "-//HSQLDB/ENTITIES/DocSpecificDynamicEntities"
+           "validation_only.ent"> %dummy33;
+<!-- validation_only.ent contains dummy values. Catalog-switched by XSLT. -->
+
+<!-- These two settings are used by some of OASIS's multi-language
+     documents.  If you are only using entity files that you have written,
+     you won't need to set these. -->
+<!ENTITY % sgml.features "IGNORE">
+<!ENTITY % xml.features "INCLUDE">
+
+<!ENTITY % dummy31 PUBLIC
+           "-//OASIS/ENTITIES DocBook Character Entities V4.5//EN"
+           "http://www.docbook.org/xml/4.5/dbcentx.mod"> %dummy31;
+<!-- Load a named resource.  Where these are loaded from may be dynamically
+     overridden with "catalogs".
+     Since these entities are needed both for validation and for XSLT
+     transformation, we must specify the overriding value both in our catalog
+     file and in the xmlcatalog element in build.xml.
+     The example here is rather useful, because this pulls in the standard
+     DocBook character entities, and allows to dynamically pull the entities
+     from a http server or a local DocBook installation, for example.
+-->
