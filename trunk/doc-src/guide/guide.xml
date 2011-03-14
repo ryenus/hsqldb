@@ -19,7 +19,7 @@
   <info>
     <title>HyperSQL User Guide</title>
 
-    <subtitle>HyperSQL Database Engine (HSQLDB) Version &HyperSQL_ver;</subtitle>
+    <subtitle>HyperSQL Database Engine (HSQLDB) &HyperSQL_ver;</subtitle>
 
     <authorgroup>
       <editor>
