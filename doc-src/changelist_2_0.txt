@@ -1,11 +1,12 @@
-08 Mar 2011 - SVN 4126
+14 Mar 2011 - Version 2.1.0
+-- added support for WITH RECURSIVE
 -- added support for ALTER INDEX <name> AS (<new column name list>) to change the indexed column list of an index
 28 Feb 2011 - SVN 4105 
 -- extension of MySQL and PostgreSQL compatibility modes. Includes type conversion and sequence functions
 -- extension to IDENTITY column support allows the use of a named SEQUENCE
-22 Feb 2011 - SVN 4096 - 2.0.1 rc4
+22 Feb 2011 - SVN 4096 - 2.1.0 rc4
 11 Feb 2011 - SVN 4050
--- changes to avoid creation of new .data files at checkpiont and allow incremental enlargement of this file
+-- changes to avoid creation of new .data files at checkpoint and allow incremental enlargement of this file
 -- various enhancements and improvements
 3 Feb 2011 - SVN 4040
 -- additions and improvements to INFORMATION_SCHEMA
@@ -41,7 +42,7 @@
 14 Oct 2010 - SVN 3814
 -- added support for recursive SQL functions and local table variables
 04 Oct 2010 - SVN 3808
--- added support for translation of Oracle types VARCHAR2, NUMBER, RAW, etc. wih SET DATABASE SQL SYNTAX ORA TRUE
+-- added support for translation of Oracle types VARCHAR2, NUMBER, RAW, etc. with SET DATABASE SQL SYNTAX ORA TRUE
 -- added support for more procedural statements in SQL triggers
 -- added support for variables in database URL's
 24 Sept 2010 - SVN 3794
@@ -53,9 +54,9 @@
 10 Sept 2010  - SVN 3782
 -- added support for clustered indexes
 -- added enhancement for column visibility in nested joins
--- addedd support for datetime ROUND and TRUNC functions
+-- added support for datetime ROUND and TRUNC functions
 04 Sept 2010  - SVN 3775
--- additional connection propertie
+-- additional connection properties
 -- added support for FOR loops in routines
 11 Aug 2010  - SVN 3750
 -- extended getGeneratedKeys to UPDATE and MERGE operations
@@ -94,7 +95,7 @@
 -- added property sql.enforce_types and related SQL statement
 -- added ALTER SESSION statement
 -- fixed bug #3021175 with setFetchSize()
--- relaxtion of type comparison and null types - controlled by sql.enforce_type
+-- relaxation of type comparison and null types - controlled by sql.enforce_type
 22 June 2010 - SVN 3667
 -- changed names of three system functions ISDATABASEREADONLY() to IS_DATABASE_READONLY(), etc.
 -- fixed bug with Clob.getInputStream()
