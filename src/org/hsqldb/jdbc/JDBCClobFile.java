@@ -307,7 +307,7 @@ public class JDBCClobFile implements java.sql.Clob {
      * <code>Clob</code> object.  The search begins at position
      * <code>start</code>.
      *
-     * @param searchstr the <code>Clob</code> object for which to search
+     * @param pattern the <code>Clob</code> object for which to search
      * @param start the position at which to begin searching; the first
      *              position is 1
      * @return the position at which the <code>Clob</code> object appears
