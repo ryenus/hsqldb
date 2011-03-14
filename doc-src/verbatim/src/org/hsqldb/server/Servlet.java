@@ -1,7 +1,7 @@
 /*
  * For work developed by the HSQL Development Group:
  *
- * Copyright (c) 2001-2010, The HSQL Development Group
+ * Copyright (c) 2001-2011, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -133,7 +133,7 @@ import org.hsqldb.rowio.RowOutputBinary;
  *
  * @author Thomas Mueller (Hypersonic SQL Group)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 1.9.0
+ * @version 2.0.1
  * @since Hypersonic SQL
  */
 public class Servlet extends javax.servlet.http.HttpServlet {
@@ -287,7 +287,7 @@ public class Servlet extends javax.servlet.http.HttpServlet {
 
                     session = DatabaseManager.getSession(dbId, sessionId);
 
-                    resultIn.readAdditionalResults(session, inStream, rowIn);
+                    resultIn.readLobResults(session, inStream, rowIn);
 
                     resultOut = session.execute(resultIn);
                 }
@@ -299,7 +299,7 @@ public class Servlet extends javax.servlet.http.HttpServlet {
                 //
                 dataOut = new DataOutputStream(response.getOutputStream());
 
-                resultOut.write(dataOut, rowOut);
+                resultOut.write(session, dataOut, rowOut);
 
                 iQueries++;
             } catch (HsqlException e) {}
