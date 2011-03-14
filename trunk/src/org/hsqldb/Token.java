@@ -209,8 +209,6 @@ public class Token {
                 sb.append('"');
             } else {
                 sb.append(namePrePrefix);
-
-                isDelimiter = false;
             }
 
             sb.append('.');
@@ -223,8 +221,6 @@ public class Token {
                 sb.append('"');
             } else {
                 sb.append(namePrefix);
-
-                isDelimiter = false;
             }
 
             sb.append('.');
@@ -234,7 +230,8 @@ public class Token {
             sb.append('"');
             sb.append(tokenString);
             sb.append('"');
-            sb.append(' ');
+
+            isDelimiter = false;
         } else {
             sb.append(tokenString);
         }
