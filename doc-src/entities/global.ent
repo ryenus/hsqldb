@@ -18,7 +18,7 @@
 <!-- Load a named resource.  Where these are loaded from may be dynamically
      overridden with "catalogs".
      Since these entities are needed both for validation and for XSLT
-     transormation, we must specify the overriding value both in our catalog
+     transformation, we must specify the overriding value both in our catalog
      file and in the xmlcatalog element in build.xml.
      The example here is rather useful, because this pulls in the standard
      DocBook character entities, and allows to dynamically pull the entities

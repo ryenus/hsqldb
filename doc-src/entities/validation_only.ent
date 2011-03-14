@@ -4,9 +4,6 @@
      These settings are fine for GUI editors and Validation, but this file
      should definitely be overridden with a catalog for generating
      production-ready output documents.
-
-     The real, document-specific, production values for these entities are set
-     at "tmp/doc-work/<DOCNAME>/dyanamic.ent".
 -->
 
 <!-- These entities are "project global", in that the entities may be used in
