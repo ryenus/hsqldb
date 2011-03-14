@@ -2933,16 +2933,16 @@ SELECT x, y, z FROM atable AS t (u, v, w, x, y, z)  WHERE u + v = w</programlist
     </section>
 
     <section>
-      <title>Query Expression</title>
+      <title>With Clause and Recursive Queries</title>
 
-      <para>A query expression consists of an optional WITH clause and a query
-      expression body. The WITH clause lists one or more named ephemeral
-      tables that can be referenced in the query expression body.</para>
+      <para>The optional WITH clause can be used in a query expression. The
+      WITH clause lists one or more named ephemeral tables that can be
+      referenced in the query expression body. The ephemeral tables are
+      created and populated before the rest of the query expression is
+      executed. Their contents do not change during the execution of the
+      <literal>&lt;query expression body&gt;</literal>.</para>
 
-      <para><literal>&lt;query expression&gt; ::= [ &lt;with clause&gt; ]
-      &lt;query expression body&gt;</literal></para>
-
-      <para><literal>&lt;with clause&gt; ::= WITH &lt;with
+      <para><literal>&lt;with clause&gt; ::= WITH [ RECURSIVE ] &lt;with
       list&gt;</literal></para>
 
       <para><literal>&lt;with list&gt; ::= &lt;with list element&gt; [ {
@@ -2958,6 +2958,70 @@ SELECT x, y, z FROM atable AS t (u, v, w, x, y, z)  WHERE u + v = w</programlist
 
       <para>An example of the use of the WITH clause is given above under
       UNNEST.</para>
+
+      <para>The RECURSIVE keyword changes the way the elements of the
+      <literal>&lt;with list&gt;</literal> are interpreted. The
+      <literal>&lt;query expression&gt;</literal> contained in the
+      <literal>&lt;with list element&gt;</literal> must be the UNION or UNION
+      ALL of two &lt;query expression body&gt; elements (simple VALUES or
+      SELECT statements). The left element of the UNION is evaluated first and
+      its result becomes the result of the <literal>&lt;with list
+      element&gt;</literal>. After this step, the current result of the
+      &lt;with list element&gt; is referenced in the right element (a SELECT
+      statement) of the UNION, the UNION is performed between the result and
+      previous result of the <literal>&lt;with list element&gt;</literal>,
+      which is enlarged by this operation. The UNION operation is performed
+      again and again, until the result of the <literal>&lt;with list
+      element&gt;</literal> stops changing. The result of the
+      <literal>&lt;with list element&gt;</literal> is now complete and is
+      later used in the execution of the <literal>&lt;query expression
+      body&gt;</literal>.</para>
+
+      <para>HyperSQL limits recursion to 265 rounds. If this is exceeded, an
+      error is raised.</para>
+
+      <para>A trivial example of a recursive query is given below. Note the
+      first column GEN. For example, if each row of the table represents a
+      member of a family of dogs, together with its parent, the first column
+      of the result indicates the calculate generation of each dog, ranging
+      from first to fourth generation.</para>
+
+      <programlisting>CREATE TABLE pptree (pid INT, id INT);
+INSERT INTO pptree VALUES (NULL, 1) ,(1,2), (1,3),(2,4),(4,5),(3,6),(3,7);
+
+WITH RECURSIVE tree (gen, par, child) AS (
+  VALUES(1, CAST(null as int), 1)
+  UNION
+  SELECT gen + 1, pid, id FROM pptree, tree WHERE pid = child
+  ) SELECT * FROM tree;
+
+GEN PAR    CHILD 
+--- ------ ----- 
+1   (null) 1     
+2   1      2     
+2   1      3     
+3   2      4     
+3   3      6     
+3   3      7     
+4   4      5</programlisting>
+
+      <para>if recursive queries become complex they also become very
+      difficult to develop and debug. HyperSQL provides an alternative to this
+      with user-defined SQL functions which return tables. Functions can
+      perform any complex, repetitive task with better control, using loops,
+      variables and, if necessary, recursion.</para>
+    </section>
+
+    <section>
+      <title>Query Expression</title>
+
+      <para>A query expression consists of an optional WITH clause and a query
+      expression body. The optional WITH clause lists one or more named
+      ephemeral tables that can be referenced, just like the database tables
+      in the query expression body.</para>
+
+      <para><literal>&lt;query expression&gt; ::= [ &lt;with clause&gt; ]
+      &lt;query expression body&gt;</literal></para>
 
       <para>A query expression body refers to a table formed by using UNION
       and other set operations. The query expression body is evaluated from

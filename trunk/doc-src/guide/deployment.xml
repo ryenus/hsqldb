@@ -751,9 +751,14 @@
       </step>
     </procedure>
 
-    <para>Most catalogs created with 1.8.x can be upgraded simply by opening
-    with HyperSQL 2.0. After opening with version 2.0, perform a SHTUDOWN
-    COMPACT to rewrite the database in the latest format.</para>
+    <para>The first step is to guarantee there is no .log file for the
+    database. You may upgrade without the first step, but may lose part of the
+    logged statements. This has been allowed due to requests from some of our
+    deployers who have been able to test the databases created by their
+    applications and found there was no data loss. But this is not recommended
+    for general use. Most catalogs created with 1.8.x can be upgraded simply
+    by opening with HyperSQL 2.0. After opening with version 2.0, perform a
+    SHUTDOWN COMPACT to rewrite the database in the latest format.</para>
 
     <para>In large scale deployed apps undergoing upgrades, it is sometimes
     not practical to perform the first step of this procedure (with the old
@@ -770,6 +775,10 @@
     <para>A note about SHUTDOWN modes. SHUTDOWN COMPACT is equivalent to
     SHUTDOWN SCRIPT plus openning the database and then performing a simple
     SHUTDOWN.</para>
+
+    <para>After upgrading a database, you may want to change some of its
+    settings. For example, the new SET FILES BACKUP INCREMENT TRUE statement
+    can improve the shutdown and checkpoint times of larger databases.</para>
 
     <para>Once a database is upgraded to 2.0, it can no longer be used with
     previous versions of HyperSQL.</para>
@@ -1171,9 +1180,9 @@
       <para>HyperSQL also supports log4J and JDK logging. The same event
       information that is passed to the internal log, is passed to external
       logging frameworks. These frameworks are configured outside HyperSQL.
-      The log messages include the unique id of the database that generated
-      the message, so it can be identified in a multi-database server
-      context.</para>
+      The log messages include the string "hsqldb.db." followed by the unique
+      id (a 16 character string) of the database that generated the message,
+      so they can be identified in a multi-database server context.</para>
     </section>
 
     <section>
@@ -1446,12 +1455,12 @@
         <listitem>
           <para>Unlike MySQL, HyperSQL allows you to modify a table with an
           INSERT, UPDATE or DELETE statement which selects from the same table
-          in a subquery. </para>
+          in a subquery.</para>
         </listitem>
       </itemizedlist>
 
       <para>Follow the guidelines below for converting MySQL databases and
-      applications. </para>
+      applications.</para>
 
       <itemizedlist>
         <listitem>
