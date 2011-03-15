@@ -1167,13 +1167,6 @@ public class Logger {
             case TableBase.TEXT_TABLE :
                 return new RowStoreAVLDiskData(collection, (Table) table);
 
-            case TableBase.RESULT_TABLE :
-                if (session == null) {
-                    return null;
-                }
-
-                return new RowStoreAVLHybrid(session, collection, table, true);
-
             case TableBase.INFO_SCHEMA_TABLE :
                 return new RowStoreAVLHybridExtended(session, collection,
                                                      table, false);
@@ -1182,7 +1175,7 @@ public class Logger {
                 return new RowStoreAVLHybridExtended(session, collection,
                                                      table, true);
 
-            // fall through
+            case TableBase.RESULT_TABLE :
             case TableBase.SYSTEM_SUBQUERY :
             case TableBase.VIEW_TABLE :
             case TableBase.TRANSITION_TABLE :
