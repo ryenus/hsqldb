@@ -430,6 +430,10 @@ public class DataFileCache {
         writeLock.lock();
 
         try {
+            if (dataFile == null) {
+                return;
+            }
+
             if (write) {
                 commitChanges();
             } else {
