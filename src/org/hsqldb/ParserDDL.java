@@ -1613,7 +1613,18 @@ public class ParserDDL extends ParserRoutine {
         HsqlName[] colList = null;
 
         if (token.tokenType == Tokens.OPENBRACKET) {
-            colList = readColumnNames(name);
+            try {
+                colList = readColumnNames(name);
+            } catch (HsqlException e) {
+                if (session.isProcessingScript()
+                        && database.getProperties().isVersion18()) {
+                    while (token.tokenType != Tokens.AS) {
+                        read();
+                    }
+                } else {
+                    throw e;
+                }
+            }
         }
 
         readThis(Tokens.AS);
