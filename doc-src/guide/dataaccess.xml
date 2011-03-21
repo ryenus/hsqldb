@@ -2957,7 +2957,10 @@ SELECT x, y, z FROM atable AS t (u, v, w, x, y, z)  WHERE u + v = w</programlist
       list&gt;</literal></para>
 
       <para>An example of the use of the WITH clause is given above under
-      UNNEST.</para>
+      UNNEST. The <literal>&lt;query expression&gt;</literal> in the WITH
+      clause is evaluated once and its result table can be referenced in the
+      body of the main <literal>&lt;query expression body&gt;</literal> using
+      the specified &lt;query name&gt;.</para>
 
       <para>The RECURSIVE keyword changes the way the elements of the
       <literal>&lt;with list&gt;</literal> are interpreted. The
@@ -2975,7 +2978,8 @@ SELECT x, y, z FROM atable AS t (u, v, w, x, y, z)  WHERE u + v = w</programlist
       element&gt;</literal> stops changing. The result of the
       <literal>&lt;with list element&gt;</literal> is now complete and is
       later used in the execution of the <literal>&lt;query expression
-      body&gt;</literal>.</para>
+      body&gt;</literal>. When RECURSIVE is used, the <literal>&lt;with column
+      list&gt;</literal> must be defined.</para>
 
       <para>HyperSQL limits recursion to 265 rounds. If this is exceeded, an
       error is raised.</para>
