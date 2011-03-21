@@ -85,7 +85,7 @@ public class StatementSchemaDefinition extends StatementSchema {
         Result          result      = statements[0].execute(session);
         HsqlArrayList   constraints = new HsqlArrayList();
         StatementSchema log = new StatementSchema(null,
-            StatementTypes.LOG_SCHEMA_STATEMENT, null);
+            StatementTypes.LOG_SCHEMA_STATEMENT);
 
         if (statements.length == 1 || result.isError()) {
             return result;

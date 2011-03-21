@@ -1201,8 +1201,6 @@ public class Session implements SessionInterface {
         for (int i = 0; i < list.size(); i++) {
             Statement cs = (Statement) list.get(i);
 
-            cs.setCompileTimestamp(
-                database.txManager.getGlobalChangeTimestamp());
             cs.setGeneratedColumnInfo(cmd.getGeneratedResultType(),
                                       cmd.getGeneratedResultMetaData());
 
@@ -1284,7 +1282,9 @@ public class Session implements SessionInterface {
 
             database.txManager.beginAction(this, cs);
 
-            if (sessionContext.currentStatement == null) {
+            cs = sessionContext.currentStatement;
+
+            if (cs == null) {
                 return Result.newErrorResult(Error.error(ErrorCode.X_07502));
             }
 

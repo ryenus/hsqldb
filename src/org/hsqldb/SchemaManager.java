@@ -1075,6 +1075,7 @@ public class SchemaManager {
     }
 
     public Type getDomainOrUDT(String name, String schemaName, boolean raise) {
+
         readLock.lock();
 
         try {

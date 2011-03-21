@@ -101,6 +101,8 @@ public class ParserCommand extends ParserDDL {
                 throw Error.error(ErrorCode.X_42575);
             }
 
+            cs.setCompileTimestamp(
+                database.txManager.getGlobalChangeTimestamp());
             list.add(cs);
         }
 
@@ -307,6 +309,11 @@ public class ParserCommand extends ParserDDL {
         }
 
         cs = compileDeclareCursor(false, null);
+
+        if (cs == null) {
+            throw lastError == null ? unexpectedToken()
+                                    : lastError;
+        }
 
         return cs;
     }

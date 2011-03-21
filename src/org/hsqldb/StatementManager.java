@@ -221,8 +221,11 @@ public final class StatementManager {
         try {
             HsqlName schema = cs.getSchemaName();
 
-            // checks the old schema exists
-            session.setSchema(schema.name);
+            if (schema != null) {
+
+                // checks the old schema exists
+                session.setSchema(schema.name);
+            }
 
             boolean setGenerated = cs.generatedResultMetaData() != null;
 
