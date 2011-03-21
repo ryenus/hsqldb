@@ -48,7 +48,6 @@ import org.hsqldb.error.ErrorCode;
 import org.hsqldb.lib.IntKeyHashMap;
 import org.hsqldb.lib.StopWatch;
 import org.hsqldb.result.Result;
-import org.hsqldb.result.ResultProperties;
 import org.hsqldb.scriptio.ScriptReaderBase;
 import org.hsqldb.scriptio.ScriptReaderDecode;
 import org.hsqldb.scriptio.ScriptReaderText;

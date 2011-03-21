@@ -414,7 +414,8 @@ public class ParserRoutine extends ParserDML {
         Object[] args = new Object[]{ routine };
         String   sql  = getLastPart();
         StatementSchema cs = new StatementSchema(sql,
-            StatementTypes.ALTER_ROUTINE, args);
+            StatementTypes.ALTER_ROUTINE, args, null,
+            database.schemaManager.getCatalogNameArray());
 
         return cs;
     }
@@ -496,7 +497,8 @@ public class ParserRoutine extends ParserDML {
         Object[] args = new Object[]{ routine };
         String   sql  = getLastPart();
         StatementSchema cs = new StatementSchema(sql,
-            StatementTypes.CREATE_ROUTINE, args);
+            StatementTypes.CREATE_ROUTINE, args, null,
+            database.schemaManager.getCatalogNameArray());
 
         return cs;
     }
@@ -980,7 +982,7 @@ public class ParserRoutine extends ParserDML {
             }
 
             type = readTypeDefinition(false, true);
-        } catch (Exception e) {
+        } catch (HsqlException e) {
 
             // may be cursor
             rewind(position);
