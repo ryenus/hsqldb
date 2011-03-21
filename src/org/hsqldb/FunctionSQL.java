@@ -43,6 +43,7 @@ import org.hsqldb.types.BlobData;
 import org.hsqldb.types.CharacterType;
 import org.hsqldb.types.DTIType;
 import org.hsqldb.types.DateTimeType;
+import org.hsqldb.types.IntervalType;
 import org.hsqldb.types.NumberType;
 import org.hsqldb.types.Type;
 import org.hsqldb.types.Types;
@@ -816,7 +817,82 @@ public class FunctionSQL extends Expression {
                 return ((NumberType) dataType).ceiling(data[0]);
             }
             case FUNC_WIDTH_BUCKET : {
-                return null;
+                for (int i = 0; i < data.length; i++) {
+                    if (data[i] == null) {
+                        return null;
+                    }
+                }
+
+                if (((NumberType) nodes[3].dataType).isNegative(data[3])) {
+                    throw Error.error(ErrorCode.X_2201G);
+                }
+
+                int compare = nodes[1].dataType.compare(session, data[1],
+                    data[2]);
+                Type   subType;
+                Object temp;
+                Object temp2;
+
+                switch (compare) {
+
+                    case 0 :
+                        throw Error.error(ErrorCode.X_2201G);
+                    case -1 : {
+                        if (nodes[0].dataType.compare(
+                                session, data[0], data[1]) < 0) {
+                            return ValuePool.INTEGER_0;
+                        }
+
+                        if (nodes[0].dataType.compare(
+                                session, data[0], data[2]) >= 0) {
+                            return dataType.add(data[3], ValuePool.INTEGER_1,
+                                                Type.SQL_INTEGER);
+                        }
+
+                        subType = nodes[0].dataType.getCombinedType(
+                            nodes[0].dataType, OpTypes.SUBTRACT);
+                        temp = subType.subtract(data[0], data[1],
+                                                nodes[0].dataType);
+                        temp2 = subType.subtract(data[2], data[1],
+                                                 nodes[0].dataType);
+
+                        break;
+                    }
+                    case 1 : {
+                        if (nodes[0].dataType.compare(
+                                session, data[0], data[1]) > 0) {
+                            return ValuePool.INTEGER_0;
+                        }
+
+                        if (nodes[0].dataType.compare(
+                                session, data[0], data[2]) <= 0) {
+                            return dataType.add(data[3], ValuePool.INTEGER_1,
+                                                Type.SQL_INTEGER);
+                        }
+
+                        subType = nodes[0].dataType.getCombinedType(
+                            nodes[0].dataType, OpTypes.SUBTRACT);
+                        temp = subType.subtract(data[1], data[0],
+                                                nodes[0].dataType);
+                        temp2 = subType.subtract(data[1], data[2],
+                                                 nodes[0].dataType);
+
+                        break;
+                    }
+                    default :
+                        throw Error.runtimeError(ErrorCode.U_S0500, "");
+                }
+
+                temp = IntervalType.factorType.convertToType(session, temp,
+                        subType);
+                temp2 = IntervalType.factorType.convertToType(session, temp2,
+                        subType);
+                temp = IntervalType.factorType.multiply(temp, data[3]);
+                temp = IntervalType.factorType.divide(session, temp, temp2);
+                temp = dataType.convertToDefaultType(session, temp);
+
+                return dataType.add(temp, ValuePool.INTEGER_1,
+                                    Type.SQL_INTEGER);
             }
             case FUNC_SUBSTRING_CHAR : {
                 if (data[0] == null || data[1] == null) {
@@ -1366,16 +1442,28 @@ public class FunctionSQL extends Expression {
                 break;
             }
             case FUNC_WIDTH_BUCKET : {
-                if (nodes[0].dataType == null || nodes[1].dataType == null
-                        || nodes[2].dataType == null
-                        || nodes[3].dataType == null) {
+                nodes[0].dataType = Type.getAggregateType(nodes[0].dataType,
+                        nodes[1].dataType);
+                nodes[0].dataType = Type.getAggregateType(nodes[0].dataType,
+                        nodes[2].dataType);
+
+                if (nodes[0].dataType == null) {
                     throw Error.error(ErrorCode.X_42567);
                 }
 
                 if (!nodes[0].dataType.isNumberType()
-                        || !nodes[1].dataType.isNumberType()
-                        || !nodes[2].dataType.isNumberType()
-                        || !nodes[3].dataType.isIntegralType()) {
+                        && !nodes[0].dataType.isDateTimeType()) {
+                    throw Error.error(ErrorCode.X_42563);
+                }
+
+                nodes[1].dataType = nodes[0].dataType;
+                nodes[2].dataType = nodes[0].dataType;
+
+                if (nodes[3].dataType == null) {
+                    nodes[3].dataType = Type.SQL_INTEGER;
+                }
+
+                if (!nodes[3].dataType.isIntegralType()) {
                     throw Error.error(ErrorCode.X_42563);
                 }
 
