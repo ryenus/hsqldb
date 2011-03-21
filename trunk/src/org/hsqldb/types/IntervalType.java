@@ -52,6 +52,8 @@ public final class IntervalType extends DTIType {
 
     public final boolean defaultPrecision;
     public final boolean isYearMonth;
+    public final static NumberType factorType =
+        NumberType.getNumberType(Types.SQL_DECIMAL, 40, maxFractionPrecision);
 
     private IntervalType(int typeGroup, int type, long precision, int scale,
                          int startIntervalType, int endIntervalType,
@@ -402,6 +404,13 @@ public final class IntervalType extends DTIType {
             case OpTypes.DIVIDE :
                 if (other.isNumberType()) {
                     return this;
+                } else if (other.isIntervalType()) {
+                    IntervalType otherType = (IntervalType) other;
+
+                    if (isYearMonth == otherType.isYearMonth) {
+                        return isYearMonth ? Type.SQL_BIGINT
+                                           : factorType;
+                    }
                 }
                 break;
 
@@ -920,6 +929,8 @@ public final class IntervalType extends DTIType {
             return null;
         }
 
+        boolean isNumberDiv;
+
         if (a instanceof Number) {
             Object temp = a;
 
@@ -927,12 +938,26 @@ public final class IntervalType extends DTIType {
             b = temp;
         }
 
-        if (divide && NumberType.isZero(b)) {
-            throw Error.error(ErrorCode.X_22012);
+        isNumberDiv = b instanceof Number;
+
+        if (divide) {
+            if (isNumberDiv) {
+                if (NumberType.isZero(b)) {
+                    throw Error.error(ErrorCode.X_22012);
+                }
+            } else {
+                if (isYearMonth) {
+                    if (((IntervalMonthData) b).units == 0) {
+                        throw Error.error(ErrorCode.X_22012);
+                    }
+                } else {
+                    if (((IntervalSecondData) b).units == 0) {
+                        throw Error.error(ErrorCode.X_22012);
+                    }
+                }
+            }
         }
 
-        NumberType factorType = NumberType.getNumberType(Types.SQL_DECIMAL,
-            40, maxFractionPrecision);
         BigDecimal factor = (BigDecimal) factorType.convertToDefaultType(null,
             b);
         BigDecimal units;
@@ -956,14 +981,23 @@ public final class IntervalType extends DTIType {
             throw Error.error(ErrorCode.X_22015);
         }
 
-        if (isYearMonth) {
-            return new IntervalMonthData(result.longValue(), this);
+        if (isNumberDiv) {
+            if (isYearMonth) {
+                return new IntervalMonthData(result.longValue(), this);
+            }
+
+            int nanos = (int) NumberType.scaledDecimal(result,
+                DTIType.maxFractionPrecision);
+
+            return new IntervalSecondData(result.longValue(), nanos, this,
+                                          true);
+        } else {
+            if (isYearMonth) {
+                return result.longValue();
+            } else {
+                return result;
+            }
         }
-
-        int nanos = (int) NumberType.scaledDecimal(result,
-            DTIType.maxFractionPrecision);
-
-        return new IntervalSecondData(result.longValue(), nanos, this, true);
     }
 
     String intervalMonthToString(Object a) {

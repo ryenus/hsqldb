@@ -346,6 +346,17 @@ public final class DateTimeType extends DTIType {
                     }
 
                     return this;
+                } else if (other.isDateTimeType()) {
+                    if (operation == OpTypes.SUBTRACT) {
+                        if (other.typeComparisonGroup == typeComparisonGroup) {
+                            if (typeCode == Types.SQL_DATE) {
+                                return Type.SQL_INTERVAL_DAY_MAX_PRECISION;
+                            } else {
+                                return Type
+                                    .SQL_INTERVAL_SECOND_MAX_FRACTION_MAX_PRECISION;
+                            }
+                        }
+                    }
                 }
                 break;
 
@@ -1106,7 +1117,7 @@ public final class DateTimeType extends DTIType {
             return null;
         }
 
-        long millis       = getMillis(a);
+        long millis = getMillis(a);
 
         millis = HsqlDateTime.getTruncatedPart(millis, part);
 
@@ -1135,7 +1146,7 @@ public final class DateTimeType extends DTIType {
             return null;
         }
 
-        long millis       = getMillis(a);
+        long millis = getMillis(a);
 
         millis = HsqlDateTime.getRoundedPart(millis, part);
 
