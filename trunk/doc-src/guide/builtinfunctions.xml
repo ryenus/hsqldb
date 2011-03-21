@@ -985,6 +985,46 @@
     column reference) then the type of the return value is always the same as
     the type of the first argument. In this case, the discarded digits are
     replaced with zeros. (JDBC)</para>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>WIDTH_BUCKET function</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">WIDTH_BUCKET</emphasis></simpara>
+
+    <para><literal>WIDTH_BUCKET ( &lt;value expr 1&gt; , &lt;value expr 2&gt;,
+    &lt;value expr 3&gt;, &lt;int value expr&gt; ) </literal></para>
+
+    <para>Returns an integer value between 0 and <literal>&lt;int value
+    expr&gt; + 1</literal>. The initial three parameters are of the same
+    numeric or datetime type. The range, ( <literal>&lt;value expr 2&gt; ,
+    &lt;value expr 3&gt;</literal> ) is divided into <literal>&lt;int value
+    expr&gt;</literal> equal sections (buckets). The returned integer value
+    indicates the index of the bucket where <literal>&lt;value expr
+    1&gt;</literal> can be placed. If the <literal>&lt;value expr
+    1&gt;</literal> falls before or after the range, the return value is 0 or
+    <literal>&lt;value expr 1&gt; + 1</literal> respectively.</para>
+
+    <para>This function can be used with numeric or datetime values. Invalid
+    arguments, including <literal>&lt;int value expr&gt;</literal> smaller
+    than 1, or equal values for <literal>&lt;value expr 2&gt;</literal> and
+    <literal>&lt;value expr 3&gt;</literal> will cause an exception.
+    (Foundation)</para>
+
+    <para>An example is given below:</para>
+
+    <programlisting>WIDTH_BUCKET( 5, 10, 110, 10)
+0
+
+WIDTH_BUCKET( 23, 10, 110, 10)
+2
+
+WIDTH_BUCKET( 100, 10, 110, 10)
+10
+
+WIDTH_BUCKET( 200, 10, 110, 10)
+11
+</programlisting>
   </section>
 
   <section xml:id="builtin_functions_datetime-sect">
