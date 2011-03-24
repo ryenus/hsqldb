@@ -418,8 +418,8 @@ CREATE FUNCTION an_hour_before_max (e_type INT)
 
       <para>The <literal>&lt;SQL-data access indication&gt;</literal>  clause
       indicates the extent to which a routine interacts with the database or
-      the data stored in the database tables in different schemas (SQL DATA).
-      </para>
+      the data stored in the database tables in different schemas (SQL
+      DATA).</para>
 
       <para>NO SQL means no SQL command is issued in the routine body and can
       be used only for SQL/JRT functions.</para>
@@ -1587,7 +1587,17 @@ SELECT * FROM TABLE(child_table(1))
 
     <para>The body of a Java language routine is a static method of a Java
     class, specified with a fully qualified method name in the routine
-    definition.</para>
+    definition. A simple CREATE FUNCTION example is given below, which defines
+    the function to call the <literal>java.lang.Math.sinh(double d)</literal>
+    Java method. The function can be called in SQL statements just like any
+    built-in function.</para>
+
+    <programlisting>CREATE FUNCTION sinh(v DOUBLE) RETURNS DOUBLE
+  LANGUAGE JAVA DETERMINISTIC NO SQL
+  EXTERNAL NAME 'CLASSPATH:java.lang.Math.sinh'
+
+SELECT sinh(doublecolumn) FROM mytable
+</programlisting>
 
     <para>In the example below, the static method named
     <methodname>toZeroPaddedString</methodname> is specified to be called when
@@ -1595,11 +1605,8 @@ SELECT * FROM TABLE(child_table(1))
 
     <programlisting>CREATE FUNCTION zero_pad(x BIGINT, digits INT, maxsize INT)
   RETURNS CHAR VARYING(100)
-  NO SQL
-  LANGUAGE JAVA PARAMETER STYLE JAVA
-  EXTERNAL NAME
-  'CLASSPATH:org.hsqldb.lib.StringUtil.toZeroPaddedString'
-
+  LANGUAGE JAVA DETERMINISTIC NO SQL
+  EXTERNAL NAME 'CLASSPATH:org.hsqldb.lib.StringUtil.toZeroPaddedString'
 </programlisting>
 
     <para>The signature of the Java method (used in the Java code but not in
