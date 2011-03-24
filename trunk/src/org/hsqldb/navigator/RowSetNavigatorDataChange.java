@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2010, The HSQL Development Group
+/* Copyright (c) 2001-2011, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -50,25 +50,25 @@ import org.hsqldb.types.Type;
  * operations.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.0.1
+ * @version 2.1.1
  * @since 1.9.0
  */
 public class RowSetNavigatorDataChange extends RowSetNavigator {
 
     OrderedLongKeyHashMap list;
     boolean               enforceDeleteOrUpdate;
-    boolean               enforceSingeUpdate;
+    boolean               enforceSingleUpdate;
 
     public RowSetNavigatorDataChange() {
         list = new OrderedLongKeyHashMap(8, true);
     }
 
     public RowSetNavigatorDataChange(boolean enforceDeleteOrUpdate,
-                                     boolean enforceSingeUpdate) {
+                                     boolean enforceSingleUpdate) {
 
         list                       = new OrderedLongKeyHashMap(8, true);
         this.enforceDeleteOrUpdate = enforceDeleteOrUpdate;
-        this.enforceSingeUpdate    = enforceSingeUpdate;
+        this.enforceSingleUpdate   = enforceSingleUpdate;
     }
 
     /**
@@ -206,7 +206,9 @@ public class RowSetNavigatorDataChange extends RowSetNavigator {
                 if (types[j].compare(session, data[j], currentData[j]) != 0) {
                     if (types[j].compare(session, rowData[j], currentData[j])
                             != 0) {
-                        throw Error.error(ErrorCode.X_27000);
+                        if (enforceSingleUpdate) {
+                            throw Error.error(ErrorCode.X_27000);
+                        }
                     } else {
                         currentData[j] = data[j];
                     }
