@@ -39,6 +39,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.URL;
 import java.util.Random;
 
 import org.hsqldb.lib.java.JavaSystem;
@@ -50,7 +51,7 @@ import org.hsqldb.lib.java.JavaSystem;
  * @author Campbell Boucher-Burnet (boucherb@users dot sourceforge.net)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
  * @author Ocke Janssen oj@openoffice.org
- * @version 1.9.0
+ * @version 2.1.1
  * @since 1.7.2
  */
 public class FileUtil implements FileAccess {
@@ -316,8 +317,27 @@ public class FileUtil implements FileAccess {
 
     public static class FileAccessRes implements FileAccess {
 
-        public boolean isStreamElement(String elementName) {
-            return getClass().getResource(elementName) != null;
+        public boolean isStreamElement(String fileName) {
+
+            URL url = null;
+
+            try {
+                url = getClass().getResource(fileName);
+
+                if (url == null) {
+                    ClassLoader cl =
+                        Thread.currentThread().getContextClassLoader();
+
+                    if (cl != null) {
+                        url = cl.getResource(fileName);
+                    }
+                }
+            } catch (Throwable t) {
+
+                //
+            }
+
+            return url != null;
         }
 
         public InputStream openInputStreamElement(final String fileName)

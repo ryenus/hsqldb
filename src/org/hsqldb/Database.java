@@ -60,7 +60,7 @@ import org.hsqldb.types.Type;
  * It holds the data structures that form an HSQLDB database instance.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.0.1
+ * @version 2.1.1
  * @since 1.9.0
  */
 public class Database {
@@ -557,6 +557,7 @@ public class Database {
          */
         logger.closePersistence(closemode);
         lobManager.close();
+        sessionManager.close();
 
         try {
             if (closemode == CLOSEMODE_COMPACT) {
@@ -570,11 +571,10 @@ public class Database {
             if (t instanceof HsqlException) {
                 he = (HsqlException) t;
             } else {
-                he = Error.error(ErrorCode.GENERAL_ERROR, t.toString());
+                he = Error.error(ErrorCode.GENERAL_ERROR, t);
             }
         }
 
-        sessionManager.close();
         logger.releaseLock();
         setState(DATABASE_SHUTDOWN);
         clearStructures();

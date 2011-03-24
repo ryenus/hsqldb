@@ -49,7 +49,7 @@ import org.hsqldb.types.Types;
  * Parser for session and management statements
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.0.1
+ * @version 2.1.1
  * @since 1.9.0
  */
 public class ParserCommand extends ParserDDL {
