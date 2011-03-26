@@ -57,13 +57,12 @@ public class DataFileCacheSession extends DataFileCache {
         this.dataFileName = baseFileName + ".data.tmp";
         this.database     = database;
         fa                = FileUtil.getFileUtil();
-        cacheFileScale    = cachedRowPadding = 64;
+        cacheFileScale    = 64;
+        cachedRowPadding  = cacheFileScale;
+        initialFreePos    = cacheFileScale;
         maxCacheRows      = 2048;
 
-        int cacheSizeScale = 10;
-        int avgRowBytes    = 1 << cacheSizeScale;
-
-        maxCacheBytes   = maxCacheRows * avgRowBytes;
+        maxCacheBytes   = maxCacheRows * 1024;
         maxDataFileSize = (long) Integer.MAX_VALUE * cacheFileScale;
         dataFile        = null;
     }
@@ -76,7 +75,7 @@ public class DataFileCacheSession extends DataFileCache {
         try {
             dataFile = ScaledRAFile.newScaledRAFile(database, dataFileName,
                     false, ScaledRAFile.DATA_FILE_RAF);
-            fileFreePosition = MIN_INITIAL_FREE_POS;
+            fileFreePosition = initialFreePos;
 
             initBuffers();
 

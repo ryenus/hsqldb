@@ -60,7 +60,6 @@ public class RowStoreAVLHybrid extends RowStoreAVL implements PersistentStore {
 
     DataFileCacheSession cache;
     private int          maxMemoryRowCount;
-    private int          memoryRowCount;
     private boolean      useDisk;
     boolean              isCached;
     int                  rowIdSequence = 0;
@@ -210,7 +209,11 @@ public class RowStoreAVLHybrid extends RowStoreAVL implements PersistentStore {
     public CachedObject getNewCachedObject(Session session, Object object,
                                            boolean tx) {
 
-        int id = rowIdSequence++;
+        if (!isCached) {
+            if (useDisk && elementCount >= maxMemoryRowCount) {
+                changeToDiskTable(session);
+            }
+        }
 
         if (isCached) {
             Row row = new RowAVLDisk(table, (Object[]) object, this);
@@ -223,14 +226,7 @@ public class RowStoreAVLHybrid extends RowStoreAVL implements PersistentStore {
 
             return row;
         } else {
-            memoryRowCount++;
-
-            if (useDisk && memoryRowCount > maxMemoryRowCount) {
-                changeToDiskTable(session);
-
-                return getNewCachedObject(session, object, tx);
-            }
-
+            int id  = rowIdSequence++;
             Row row = new RowAVL(table, (Object[]) object, id, this);
 
             if (tx) {
@@ -377,7 +373,8 @@ public class RowStoreAVLHybrid extends RowStoreAVL implements PersistentStore {
 
             ArrayUtil.fillArray(accessorList, null);
 
-            isCached = true;
+            elementCount = 0;
+            isCached     = true;
 
             cache.adjustStoreCount(1);
 

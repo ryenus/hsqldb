@@ -194,13 +194,16 @@ public class RowAVL extends Row {
 
     public void restore() {}
 
+    /**
+     * Helps GC, removing secondary node links.
+     */
     public void destroy() {
 
         JavaSystem.memoryRecords++;
 
         clearNonPrimaryNodes();
 
-        NodeAVL n = nPrimaryNode.nNext;
+        NodeAVL n = nPrimaryNode;
 
         while (n != null) {
             NodeAVL last = n;
@@ -208,7 +211,5 @@ public class RowAVL extends Row {
             n          = n.nNext;
             last.nNext = null;
         }
-
-        nPrimaryNode = null;
     }
 }

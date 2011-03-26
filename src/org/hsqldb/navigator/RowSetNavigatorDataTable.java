@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2010, The HSQL Development Group
+/* Copyright (c) 2001-2011, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -514,8 +514,9 @@ public class RowSetNavigatorDataTable extends RowSetNavigatorData {
 
         Object[] lastRowData = null;
 
-        while (hasNext()) {
-            Object[] currentData = getNext();
+        while (next()) {
+
+            Object[] currentData = getCurrent();
 
             if (lastRowData != null
                     && fullIndex.compareRow(session, lastRowData, currentData)

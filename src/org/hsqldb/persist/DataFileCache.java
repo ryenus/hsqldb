@@ -218,6 +218,10 @@ public class DataFileCache {
                 isIncremental = BitMap.isSet(flags, FLAG_ISSHADOWED);
                 is180         = !BitMap.isSet(flags, FLAG_190);
 
+                dataFile.seek(LONG_FREE_POS_POS);
+
+                fileFreePosition = dataFile.readLong();
+
                 dataFile.close();
 
                 if (BitMap.isSet(flags, FLAG_HX)) {
@@ -247,7 +251,7 @@ public class DataFileCache {
                         restored = restoreBackup();
                     }
 
-                    if (!restored) {
+                    if (!restored && fileFreePosition > initialFreePos) {
                         throw Error.error(ErrorCode.DATA_FILE_BACKUP_MISMATCH);
                     }
 
@@ -263,7 +267,7 @@ public class DataFileCache {
 
                 fileFreePosition = dataFile.readLong();
 
-                if (fileFreePosition < initialFreePos) {
+                if (fileFreePosition <= initialFreePos) {
                     initNewFile();
                 }
 
@@ -480,7 +484,7 @@ public class DataFileCache {
         try {
             cache.clear();
 
-            fileFreePosition = MIN_INITIAL_FREE_POS;
+            fileFreePosition = initialFreePos;
 
             if (freeBlocks != null) {
                 freeBlocks.clear();
