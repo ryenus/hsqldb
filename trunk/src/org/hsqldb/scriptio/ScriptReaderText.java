@@ -188,7 +188,8 @@ public class ScriptReaderText extends ScriptReaderBase {
                     currentTable.insertFromScript(session, currentStore,
                                                   rowData);
                 } else {
-                    throw Error.error(ErrorCode.ERROR_IN_SCRIPT_FILE);
+                    throw Error.error(ErrorCode.ERROR_IN_SCRIPT_FILE,
+                                      statement);
                 }
             }
 
