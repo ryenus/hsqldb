@@ -221,7 +221,7 @@ public class Util {
     public static SQLException sqlException(Result r) {
 
 //#ifdef JAVA6
-        return new SQLException(r.getMainString(), r.getSubString(),
+        return sqlException(r.getMainString(), r.getSubString(),
                                 r.getErrorCode(), r.getException());
 
 //#else
