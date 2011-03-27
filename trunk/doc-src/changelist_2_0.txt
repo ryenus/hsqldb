@@ -1,4 +1,5 @@
-26 Mar 2011 - SVN 4162
+26 Mar 2011 - SVN 4164
+-- fixed reported minor issues
 -- fixed issues with disk based result sets
 -- added support for WIDTH_BUCKET function
 -- improved table and database locking for DDL statements
