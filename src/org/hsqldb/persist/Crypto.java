@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2010, The HSQL Development Group
+/* Copyright (c) 2001-2011, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -58,6 +58,7 @@ public class Crypto {
     Cipher        outCipher;
     Cipher        inCipher;
     Cipher        inStreamCipher;
+    Cipher        outStreamCipher;
 
     public Crypto(String keyString, String cipherName, String provider) {
 
@@ -71,6 +72,12 @@ public class Crypto {
                                          provider);
 
             outCipher.init(Cipher.ENCRYPT_MODE, key);
+
+            outStreamCipher = provider == null ? Cipher.getInstance(cipherName)
+                                         : Cipher.getInstance(cipherName,
+                                         provider);
+
+            outStreamCipher.init(Cipher.ENCRYPT_MODE, key);
 
             inCipher = provider == null ? Cipher.getInstance(cipherName)
                                         : Cipher.getInstance(cipherName,
@@ -120,9 +127,9 @@ public class Crypto {
         }
 
         try {
-            outCipher.init(Cipher.ENCRYPT_MODE, key);
+            outStreamCipher.init(Cipher.ENCRYPT_MODE, key);
 
-            return new CipherOutputStream(out, outCipher);
+            return new CipherOutputStream(out, outStreamCipher);
         } catch (java.security.InvalidKeyException e) {
             throw Error.error(ErrorCode.X_S0531, e);
         }

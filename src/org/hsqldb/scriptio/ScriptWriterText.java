@@ -127,6 +127,8 @@ public class ScriptWriterText extends ScriptWriterBase {
         super(db, file, includeCachedData, true, false);
 
         if (compressed) {
+            isCompressed = true;
+
             try {
                 fileStreamOut = new GZIPOutputStream(fileStreamOut);
             } catch (IOException e) {
@@ -160,8 +162,6 @@ public class ScriptWriterText extends ScriptWriterBase {
             currentSession = session;
 
             writeRowOutToFile();
-
-            byteCount += rowOut.size();
         }
 
         if (schemaToLog != session.loggedSchema) {
@@ -171,8 +171,6 @@ public class ScriptWriterText extends ScriptWriterBase {
             session.loggedSchema = schemaToLog;
 
             writeRowOutToFile();
-
-            byteCount += rowOut.size();
         }
     }
 
@@ -194,7 +192,6 @@ public class ScriptWriterText extends ScriptWriterBase {
         rowOut.write(BYTES_LINE_SEP);
         writeRowOutToFile();
 
-        byteCount += rowOut.size();
         needsSync = true;
     }
 
@@ -213,8 +210,6 @@ public class ScriptWriterText extends ScriptWriterBase {
         rowOut.write(BYTES_TERM);
         rowOut.write(BYTES_LINE_SEP);
         writeRowOutToFile();
-
-        byteCount += rowOut.size();
     }
 
     protected void writeTableInit(Table t) throws IOException {
@@ -257,8 +252,6 @@ public class ScriptWriterText extends ScriptWriterBase {
                          table.columnList, table.getPrimaryKey());
         rowOut.write(BYTES_LINE_SEP);
         writeRowOutToFile();
-
-        byteCount += rowOut.size();
     }
 
     public void writeSequenceStatement(Session session,
@@ -277,7 +270,6 @@ public class ScriptWriterText extends ScriptWriterBase {
         rowOut.write(BYTES_LINE_SEP);
         writeRowOutToFile();
 
-        byteCount += rowOut.size();
         needsSync = true;
     }
 
@@ -289,7 +281,6 @@ public class ScriptWriterText extends ScriptWriterBase {
         rowOut.write(BYTES_LINE_SEP);
         writeRowOutToFile();
 
-        byteCount += rowOut.size();
         needsSync = true;
 
         if (writeDelay == 0) {
@@ -297,10 +288,21 @@ public class ScriptWriterText extends ScriptWriterBase {
         }
     }
 
+    protected void finishStream() throws IOException {
+
+        if (isCompressed) {
+            ((GZIPOutputStream) fileStreamOut).finish();
+        }
+    }
+
     void writeRowOutToFile() throws IOException {
 
         synchronized (fileStreamOut) {
             fileStreamOut.write(rowOut.getBuffer(), 0, rowOut.size());
+
+            byteCount += rowOut.size();
+
+            lineCount++;
         }
     }
 }
