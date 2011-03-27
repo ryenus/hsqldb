@@ -99,6 +99,10 @@ public abstract class ScriptWriterBase implements Runnable {
     HsqlName            schemaToLog;
     boolean             isClosed;
 
+    //
+    boolean isCompressed;
+    boolean isCrypt;
+
     /**
      * this determines if the script is the normal script (false) used
      * internally by the engine or a user-initiated snapshot of the DB (true)
@@ -106,6 +110,7 @@ public abstract class ScriptWriterBase implements Runnable {
     boolean          isDump;
     boolean          includeCachedData;
     long             byteCount;
+    long             lineCount;
     volatile boolean needsSync;
     private int      syncCount;
     static final int INSERT             = 0;
@@ -221,12 +226,14 @@ public abstract class ScriptWriterBase implements Runnable {
                 finishStream();
                 forceSync();
                 fileStreamOut.close();
+                isClosed = true;
             }
         } catch (IOException e) {
             throw Error.error(ErrorCode.FILE_IO_ERROR);
         }
 
         byteCount = 0;
+        lineCount = 0;
     }
 
     public long size() {
@@ -265,10 +272,6 @@ public abstract class ScriptWriterBase implements Runnable {
         }
     }
 
-    /**
-     * This is not really useful in the current usage but may be if this
-     * class is used in a different way.
-     */
     protected void finishStream() throws IOException {}
 
     protected void writeDDL() throws IOException {
