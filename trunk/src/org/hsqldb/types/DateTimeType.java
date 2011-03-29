@@ -773,8 +773,10 @@ public final class DateTimeType extends DTIType {
                             session.getCalendar(),
                             ((java.util.Date) a).getTime());
                     } else {
-                        millis      = ((java.util.Date) a).getTime();
-                        zoneSeconds = session.getZoneSeconds();
+                        millis = ((java.util.Date) a).getTime();
+                        zoneSeconds =
+                            HsqlDateTime.getZoneMillis(session.getCalendar(),
+                                                       millis) / 1000;
                     }
 
                     if (a instanceof java.sql.Timestamp) {

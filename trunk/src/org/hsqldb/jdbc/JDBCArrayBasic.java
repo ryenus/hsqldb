@@ -104,7 +104,9 @@ public class JDBCArrayBasic implements Array {
      * @since JDK 1.2
      */
     public String getBaseTypeName() throws SQLException {
+
         checkClosed();
+
         return elementType.getNameString();
     }
 
@@ -122,7 +124,9 @@ public class JDBCArrayBasic implements Array {
      * @since JDK 1.2
      */
     public int getBaseType() throws SQLException {
+
         checkClosed();
+
         return elementType.getJDBCTypeCode();
     }
 
@@ -240,6 +244,7 @@ public class JDBCArrayBasic implements Array {
      * @since JDK 1.2
      */
     public Object getArray(long index, int count) throws SQLException {
+
         checkClosed();
 
         if (!JDBCClobClient.isInLimits(data.length, index - 1, count)) {
@@ -332,6 +337,7 @@ public class JDBCArrayBasic implements Array {
      * @since JDK 1.2
      */
     public ResultSet getResultSet() throws SQLException {
+
         checkClosed();
 
         Result result = this.newColumnResult(0, data.length);
@@ -403,6 +409,7 @@ public class JDBCArrayBasic implements Array {
      * @since JDK 1.2
      */
     public ResultSet getResultSet(long index, int count) throws SQLException {
+
         checkClosed();
 
         Result result = this.newColumnResult(index - 1, count);
@@ -481,13 +488,14 @@ public class JDBCArrayBasic implements Array {
      * @since JDK 1.6
      */
     public void free() throws SQLException {
+
         //
     }
 
     //-------------
-    Type             arrayType;
-    Type             elementType;
-    Object[]         data;
+    Type     arrayType;
+    Type     elementType;
+    Object[] data;
 
     public JDBCArrayBasic(Object[] data, Type type) {
         this.data        = data;
@@ -520,7 +528,7 @@ public class JDBCArrayBasic implements Array {
         };
         meta.columns      = new ColumnBase[2];
 
-        for (int i = 0 ; i < meta.columns.length ; i++) {
+        for (int i = 0; i < meta.columns.length; i++) {
             ColumnBase column = new ColumnBase("", "", "", "");
 
             column.setType(types[i]);
@@ -546,5 +554,6 @@ public class JDBCArrayBasic implements Array {
         return result;
     }
 
-    private void checkClosed() throws SQLException {}
+    private void checkClosed() throws SQLException {
+    }
 }

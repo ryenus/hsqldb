@@ -415,7 +415,8 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
         if (parameterTypes[parameterIndex - 1].typeCode
                 == Types.SQL_SMALLINT) {
             parameterValues[--parameterIndex] = Integer.valueOf(x);
-            parameterSet[parameterIndex] = true;
+            parameterSet[parameterIndex]      = true;
+
             return;
         }
         setIntParameter(parameterIndex, x);
@@ -443,7 +444,8 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
 
         if (parameterTypes[parameterIndex - 1].typeCode == Types.SQL_INTEGER) {
             parameterValues[--parameterIndex] = Integer.valueOf(x);
-            parameterSet[parameterIndex] = true;
+            parameterSet[parameterIndex]      = true;
+
             return;
         }
         setIntParameter(parameterIndex, x);
@@ -471,7 +473,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
 
         if (parameterTypes[parameterIndex - 1].typeCode == Types.SQL_BIGINT) {
             parameterValues[--parameterIndex] = Long.valueOf(x);
-            parameterSet[parameterIndex] = true;
+            parameterSet[parameterIndex]      = true;
 
             return;
         }
@@ -1306,7 +1308,6 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
 
             setParameter(parameterIndex, out.toByteArray());
         } catch (Throwable e) {
-
             throw Util.sqlException(ErrorCode.JDBC_INPUTSTREAM_ERROR,
                                     e.toString());
         }
@@ -1397,7 +1398,6 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
 
             setParameter(parameterIndex, writer.toString());
         } catch (Throwable e) {
-
             throw Util.sqlException(ErrorCode.SERVER_TRANSFER_CORRUPTED,
                                     e.toString());
         }
@@ -1466,9 +1466,9 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
                 throw Util.notSupported();
             }
         }
-
         parameterValues[parameterIndex - 1] = data;
-        parameterSet[parameterIndex - 1] = true;
+        parameterSet[parameterIndex - 1]    = true;
+
         return;
     }
 
@@ -1570,25 +1570,34 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
 
         if (x == null) {
             parameterValues[i] = null;
-            parameterSet[i] = true;
+            parameterSet[i]    = true;
 
             return;
         }
 
-        Type outType    = parameterTypes[i];
-        long millis = HsqlDateTime.convertToNormalisedDate(x.getTime(), cal);
-        int  zoneOffset = HsqlDateTime.getZoneMillis(cal, millis);
+        Type outType = parameterTypes[i];
+        long millis  = HsqlDateTime.convertMillisFromCalendar(cal,
+            x.getTime());
+
+        millis = HsqlDateTime.getNormalisedDate(millis);
 
         switch (outType.typeCode) {
 
             case Types.SQL_DATE :
             case Types.SQL_TIMESTAMP :
+                parameterValues[i] = new TimestampData(millis / 1000);
+
+                break;
             case Types.SQL_TIMESTAMP_WITH_TIME_ZONE :
+                int zoneOffset = HsqlDateTime.getZoneMillis(cal, millis);
+
+                parameterValues[i] = new TimestampData(millis / 1000, 0,
+                        zoneOffset / 1000);
+
                 break;
             default :
                 throw Util.sqlException(ErrorCode.X_42561);
         }
-        parameterValues[i] = new TimestampData((millis + zoneOffset) / 1000);
         parameterSet[i] = true;
     }
 
@@ -1632,7 +1641,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
 
         if (x == null) {
             parameterValues[i] = null;
-            parameterSet[i] = true;
+            parameterSet[i]    = true;
 
             return;
         }
@@ -1707,7 +1716,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
 
         if (x == null) {
             parameterValues[i] = null;
-            parameterSet[i] = true;
+            parameterSet[i]    = true;
 
             return;
         }
@@ -1727,11 +1736,12 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
 
             // fall through
             case Types.SQL_TIMESTAMP :
-                parameterValues[i] = new TimestampData(millis / 1000, x.getNanos(),
-                        zoneOffset / 1000);
+                parameterValues[i] = new TimestampData(millis / 1000,
+                        x.getNanos(), zoneOffset / 1000);
 
                 break;
             case Types.SQL_TIME :
+                millis = HsqlDateTime.getNormalisedTime(millis);
                 parameterValues[i] = new TimeData((int) (millis / 1000),
                         x.getNanos(), 0);
 
@@ -1740,6 +1750,11 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
                 zoneOffset = HsqlDateTime.getZoneMillis(calendar, millis);
                 parameterValues[i] = new TimeData((int) (millis / 1000),
                         x.getNanos(), zoneOffset / 1000);
+
+                break;
+            case Types.SQL_DATE :
+                millis             = HsqlDateTime.getNormalisedDate(millis);
+                parameterValues[i] = new TimestampData(millis / 1000);
 
                 break;
             default :
@@ -2685,7 +2700,6 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
             }
             setParameter(parameterIndex, output.toByteArray());
         } catch (Throwable e) {
-
             throw Util.sqlException(ErrorCode.JDBC_INPUTSTREAM_ERROR,
                                     e.toString());
         }
@@ -2736,7 +2750,6 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
         checkSetParameterIndex(parameterIndex);
 
         if (parameterTypes[parameterIndex - 1].typeCode == Types.SQL_CLOB) {
-
             setClobParameter(parameterIndex, reader, length);
 
             return;
@@ -2758,7 +2771,6 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
             }
             setParameter(parameterIndex, writer.toString());
         } catch (Throwable e) {
-
             throw Util.sqlException(ErrorCode.JDBC_INPUTSTREAM_ERROR,
                                     e.toString());
         }
@@ -4007,6 +4019,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
      * @throws SQLException if the specified parameter index is invalid
      */
     protected void checkSetParameterIndex(int i) throws SQLException {
+
         if (isClosed || connection.isClosed) {
             checkClosed();
         }
@@ -4102,7 +4115,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
 
         if (o == null) {
             parameterValues[i] = null;
-            parameterSet[i] = true;
+            parameterSet[i]    = true;
 
             return;
         }
@@ -4121,7 +4134,6 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
                 } catch (HsqlException e) {
                     Util.throwError(e);
                 }
-
                 Util.throwError(Error.error(ErrorCode.X_42563));
             case Types.SQL_BIT :
             case Types.SQL_BIT_VARYING :
@@ -4152,7 +4164,6 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
                 } catch (HsqlException e) {
                     Util.throwError(e);
                 }
-
                 Util.throwError(Error.error(ErrorCode.X_42563));
 
             // fall through
@@ -4173,7 +4184,6 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
                 } catch (HsqlException e) {
                     Util.throwError(e);
                 }
-
                 Util.throwError(Error.error(ErrorCode.X_42563));
 
                 break;
@@ -4189,21 +4199,17 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
                 }
 
                 if (o instanceof Object[]) {
-
-                    Type baseType = outType.collectionBaseType();
-                    Object[] array = (Object[]) o;
-
-                    Object[] data = new Object[array.length];
+                    Type     baseType = outType.collectionBaseType();
+                    Object[] array    = (Object[]) o;
+                    Object[] data     = new Object[array.length];
 
                     for (int j = 0; j < data.length; j++) {
                         data[j] = baseType.convertJavaToSQL(session, array[j]);
                     }
-
                     o = data;
 
                     break;
                 }
-
                 Util.throwError(Error.error(ErrorCode.X_42563));
             case Types.SQL_BLOB :
                 setBlobParameter(i + 1, o);
@@ -4232,7 +4238,6 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
                     Util.throwError(e);
                 }
             }
-
             case Types.TINYINT :
             case Types.SQL_SMALLINT :
             case Types.SQL_INTEGER :
@@ -4248,6 +4253,11 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
                                 Type.SQL_VARCHAR);
 
                         break;
+                    } else if (o instanceof Boolean) {
+                        boolean value = ((Boolean) o).booleanValue();
+
+                        o = value ? Integer.valueOf(1)
+                                  : Integer.valueOf(0);
                     }
                     o = outType.convertToDefaultType(session, o);
 
@@ -4280,7 +4290,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
                 }
         }
         parameterValues[i] = o;
-        parameterSet[i] = true;
+        parameterSet[i]    = true;
     }
 
     /**
@@ -4308,7 +4318,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
 
                 parameterValues[i - 1] = is;
                 streamLengths[i - 1]   = streamLength;
-                parameterSet[i - 1] = false;
+                parameterSet[i - 1]    = false;
 
                 return;
             }
@@ -4331,20 +4341,20 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
             }
             parameterValues[i - 1] = o;
             streamLengths[i - 1]   = streamLength;
-            parameterSet[i - 1] = false;
+            parameterSet[i - 1]    = false;
 
             return;
         } else if (o instanceof Reader) {
             parameterValues[i - 1] = o;
             streamLengths[i - 1]   = streamLength;
-            parameterSet[i - 1] = false;
+            parameterSet[i - 1]    = false;
 
             return;
         } else if (o instanceof String) {
             JDBCClob clob = new JDBCClob((String) o);
 
             parameterValues[i - 1] = clob;
-            parameterSet[i - 1] = false;
+            parameterSet[i - 1]    = false;
 
             return;
         }
@@ -4444,7 +4454,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
                 Object o = Integer.valueOf(value);
 
                 parameterValues[i - 1] = o;
-                parameterSet[i - 1] = true;
+                parameterSet[i - 1]    = true;
 
                 break;
             }
@@ -4452,7 +4462,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
                 Object o = Long.valueOf(value);
 
                 parameterValues[i - 1] = o;
-                parameterSet[i - 1] = true;
+                parameterSet[i - 1]    = true;
 
                 break;
             }
@@ -4485,7 +4495,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
                 Object o = new Long(value);
 
                 parameterValues[i - 1] = o;
-                parameterSet[i - 1] = true;
+                parameterSet[i - 1]    = true;
 
                 break;
             case Types.SQL_BINARY :

@@ -1056,15 +1056,14 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
 
         Type from =
             Type.getDefaultTypeWithSize(Type.getHSQLDBTypeCode(fromType));
-
         Type to = Type.getDefaultTypeWithSize(Type.getHSQLDBTypeCode(toType));
 
         if (from == null || to == null) {
             return false;
         }
 
-        if (fromType == java.sql.Types.NULL &&
-                toType == java.sql.Types.ARRAY ) {
+        if (fromType == java.sql.Types.NULL
+                && toType == java.sql.Types.ARRAY) {
             return true;
         }
 
@@ -4905,9 +4904,9 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      * @return <code>true</code> if auto-generated keys can be retrieved
      *         after a statement has executed; <code>false</code> otherwise
      * <p>(JDBC4 Clarification:)
-     *<p>If <code>true</code> is returned, the JDBC driver must support the
+     * <p>If <code>true</code> is returned, the JDBC driver must support the
      * returning of auto-generated keys for at least SQL INSERT statements
-     *<p>
+     * <p>
      * @exception SQLException if a database access error occurs
      * @since JDK 1.4, HSQLDB 1.7
      */
@@ -4920,7 +4919,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
 
     /**
      * Retrieves a description of the user-defined type (UDT) hierarchies defined in a
-     * particular schema in this database. Only the immediate super type/
+     * particular schema in this database. Only the immediate super type
      * sub type relationship is modeled.
      * <P>
      * Only supertype information for UDTs matching the catalog,

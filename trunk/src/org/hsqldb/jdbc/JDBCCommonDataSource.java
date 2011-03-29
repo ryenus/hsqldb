@@ -354,7 +354,6 @@ public abstract class JDBCCommonDataSource {
     }
 
 //#endif    
-
     // ------------------------ internal implementation ------------------------
     protected Properties connectionProps = new Properties();
 

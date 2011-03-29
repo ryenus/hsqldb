@@ -58,7 +58,6 @@ import java.util.Properties;
 //#endif JAVA6
 //import java.util.logging.Level;
 // import java.util.logging.Logger;
-
 import org.hsqldb.DatabaseManager;
 import org.hsqldb.DatabaseURL;
 import org.hsqldb.ClientConnection;
@@ -1862,7 +1861,6 @@ public class JDBCConnection implements Connection {
 */
 
 //#endif JAVA6
-
     //--------------------------JDBC 3.0-----------------------------
 
     /**
@@ -2781,6 +2779,7 @@ public class JDBCConnection implements Connection {
      *
      * @since JDK 1.6, HSQLDB 2.0
      */
+
 //#ifdef JAVA6
     public NClob createNClob() throws SQLException {
 
@@ -3421,7 +3420,6 @@ public class JDBCConnection implements Connection {
      * @see java.util.concurrent.Executor
      * @since JDK 1.7 M11 2010/09/10 (b123), HSQLDB 2.0.1
      */
-
 //#ifdef JAVA5
     public void setNetworkTimeout(java.util.concurrent.Executor executor,
                                   int milliseconds) throws SQLException {

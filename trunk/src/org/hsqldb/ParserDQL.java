@@ -194,6 +194,7 @@ public class ParserDQL extends ParserBase {
                         break;
 
                     case Tokens.VARCHAR2 :
+                    case Tokens.NVARCHAR2 :
                         typeNumber     = Types.VARCHAR;
                         readByteOrChar = true;
                         break;

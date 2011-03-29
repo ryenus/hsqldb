@@ -34,12 +34,10 @@ package org.hsqldb.jdbc;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
-
 import java.sql.Blob;
 import java.sql.SQLException;
 
 import org.hsqldb.error.ErrorCode;
-
 import org.hsqldb.lib.KMPSearchAlgorithm;
 import org.hsqldb.lib.java.JavaSystem;
 
@@ -138,7 +136,7 @@ public class JDBCBlob implements Blob {
      * @since JDK 1.2, HSQLDB 1.7.2
      */
     public long length() throws SQLException {
-       return getData().length;
+        return getData().length;
     }
 
     /**
@@ -178,8 +176,7 @@ public class JDBCBlob implements Blob {
     public byte[] getBytes(long pos, final int length) throws SQLException {
 
         final byte[] data = getData();
-
-        final int dlen = data.length;
+        final int    dlen = data.length;
 
         if (pos < MIN_POS || pos > MIN_POS + dlen) {
             throw Util.outOfRangeArgument("pos: " + pos);
@@ -231,10 +228,10 @@ public class JDBCBlob implements Blob {
      * @since JDK 1.2, HSQLDB 1.7.2
      */
     public long position(final byte[] pattern,
-            final long start) throws SQLException {
+                         final long start) throws SQLException {
 
         final byte[] data = getData();
-        final int dlen = data.length;
+        final int    dlen = data.length;
 
         if (start < MIN_POS) {
             throw Util.outOfRangeArgument("start: " + start);
@@ -244,16 +241,17 @@ public class JDBCBlob implements Blob {
 
         // by now, we know start <= Integer.MAX_VALUE;
         final int startIndex = (int) start - 1;
-        final int plen = pattern.length;
+        final int plen       = pattern.length;
 
         if (plen == 0 || startIndex > dlen - plen) {
             return -1L;
         }
 
         final int result = KMPSearchAlgorithm.search(data, pattern,
-                KMPSearchAlgorithm.computeTable(pattern), startIndex);
+            KMPSearchAlgorithm.computeTable(pattern), startIndex);
 
-        return (result == -1) ? -1 : result + 1;
+        return (result == -1) ? -1
+                              : result + 1;
     }
 
     /**
@@ -276,7 +274,7 @@ public class JDBCBlob implements Blob {
     public long position(final Blob pattern, long start) throws SQLException {
 
         final byte[] data = getData();
-        final int dlen = data.length;
+        final int    dlen = data.length;
 
         if (start < MIN_POS) {
             throw Util.outOfRangeArgument("start: " + start);
@@ -285,8 +283,8 @@ public class JDBCBlob implements Blob {
         }
 
         // by now, we know start <= Integer.MAX_VALUE;
-        final int startIndex = (int) start - 1;
-        final long plen = pattern.length();
+        final int  startIndex = (int) start - 1;
+        final long plen       = pattern.length();
 
         if (plen == 0 || startIndex > ((long) dlen) - plen) {
             return -1L;
@@ -303,9 +301,10 @@ public class JDBCBlob implements Blob {
         }
 
         final int result = KMPSearchAlgorithm.search(data, bytePattern,
-                KMPSearchAlgorithm.computeTable(bytePattern), startIndex);
+            KMPSearchAlgorithm.computeTable(bytePattern), startIndex);
 
-        return (result == -1) ? -1 : result + 1;
+        return (result == -1) ? -1
+                              : result + 1;
     }
 
     // -------------------------- JDBC 3.0 -----------------------------------
@@ -456,7 +455,7 @@ public class JDBCBlob implements Blob {
      * @revised JDK 1.6, HSQLDB 2.0
      */
     public int setBytes(long pos, byte[] bytes, int offset,
-            int len) throws SQLException {
+                        int len) throws SQLException {
 
         if (!m_createdByConnection) {
 
@@ -481,7 +480,7 @@ public class JDBCBlob implements Blob {
         }
         pos--;
 
-        byte[] data = getData();
+        byte[]    data = getData();
         final int dlen = data.length;
 
         if ((pos + len) > dlen) {
@@ -490,13 +489,12 @@ public class JDBCBlob implements Blob {
             System.arraycopy(data, 0, temp, 0, dlen);
 
             data = temp;
-            temp  = null;
+            temp = null;
         }
         System.arraycopy(bytes, offset, data, (int) pos, len);
 
         // paranoia, in case somone free'd us during the array copies.
         checkClosed();
-
         setData(data);
 
         return len;
@@ -583,7 +581,6 @@ public class JDBCBlob implements Blob {
         if (pos < MIN_POS || pos > MAX_POS) {
             throw Util.outOfRangeArgument("pos: " + pos);
         }
-
         checkClosed();
 
         return new java.io.ByteArrayOutputStream() {
@@ -654,13 +651,12 @@ public class JDBCBlob implements Blob {
         byte[] newData = new byte[(int) len];
 
         System.arraycopy(data, 0, newData, 0, (int) len);
-
         checkClosed();    // limit possible race-condition with free()
-
         setData(newData);
     }
 
     //------------------------- JDBC 4.0 -----------------------------------
+
     /**
      * This method frees the <code>Blob</code> object and releases the resources that
      * it holds. The object is invalid once the <code>free</code>
@@ -679,8 +675,8 @@ public class JDBCBlob implements Blob {
      * @since JDK 1.6, HSQLDB 2.0
      */
     public synchronized void free() throws SQLException {
-       m_closed = true;
-       m_data = null;
+        m_closed = true;
+        m_data   = null;
     }
 
     /**
@@ -700,11 +696,10 @@ public class JDBCBlob implements Blob {
      * @since JDK 1.6, HSQLDB 2.0
      */
     public InputStream getBinaryStream(long pos,
-            long length) throws SQLException {
+                                       long length) throws SQLException {
 
         final byte[] data = getData();
-
-        final int dlen = data.length;
+        final int    dlen = data.length;
 
         if (pos < MIN_POS || pos > dlen) {
             throw Util.outOfRangeArgument("pos: " + pos);
@@ -729,9 +724,9 @@ public class JDBCBlob implements Blob {
     // ---------------------- internal implementation --------------------------
     public static final long MIN_POS = 1L;
     public static final long MAX_POS = 1L + (long) Integer.MAX_VALUE;
-    private boolean m_closed;
-    private byte[] m_data;
-    private final boolean m_createdByConnection;
+    private boolean          m_closed;
+    private byte[]           m_data;
+    private final boolean    m_createdByConnection;
 
     /**
      * Constructs a new JDBCBlob instance wrapping the given octet sequence. <p>
@@ -747,20 +742,21 @@ public class JDBCBlob implements Blob {
      * @throws SQLException if the argument is null
      */
     public JDBCBlob(final byte[] data) throws SQLException {
+
         if (data == null) {
             throw Util.nullArgument();
         }
-
-        m_data = data;
+        m_data                = data;
         m_createdByConnection = false;
     }
 
     protected JDBCBlob() {
-        m_data = new byte[0];
+        m_data                = new byte[0];
         m_createdByConnection = true;
     }
 
     protected synchronized void checkClosed() throws SQLException {
+
         if (m_closed) {
             throw Util.sqlException(ErrorCode.X_07501);
         }
@@ -771,12 +767,16 @@ public class JDBCBlob implements Blob {
     }
 
     private synchronized byte[] getData() throws SQLException {
+
         checkClosed();
+
         return m_data;
     }
 
     private synchronized void setData(byte[] data) throws SQLException {
+
         checkClosed();
+
         m_data = data;
     }
 }
