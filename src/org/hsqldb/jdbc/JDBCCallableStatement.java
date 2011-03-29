@@ -4640,6 +4640,7 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
             java.io.Reader reader) throws SQLException {
         super.setCharacterStream(findParameterIndex(parameterName), reader);
     }
+
 //#endif JAVA6
 
     /**
@@ -4665,6 +4666,7 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * @throws SQLFeatureNotSupportedException  if the JDBC driver does not support this method
      * JDK 1.6, HSQLDB 2.0
      */
+
 //#ifdef JAVA6
     public synchronized void setNCharacterStream(String parameterName,
             Reader value) throws SQLException {
@@ -4764,7 +4766,6 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
 //#endif JAVA6
     //------------------------- JDBC 4.1 -----------------------------------
 
-
     /**
      * <p>Returns an object representing the value of OUT parameter
      * {@code parameterIndex} and will convert from the
@@ -4831,7 +4832,6 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
     }
 
 //#endif
-
 // --------------------------- Internal Implementation -------------------------
 
     /** parameter name => parameter index */

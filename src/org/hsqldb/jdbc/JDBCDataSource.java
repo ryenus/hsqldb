@@ -199,7 +199,6 @@ public class JDBCDataSource extends JDBCCommonDataSource implements DataSource,
      * @throws java.sql.SQLException If no object found that implements the interface
      * @since JDK 1.6, HSQLDB 2.0
      */
-
 //#ifdef JAVA6
     @SuppressWarnings("unchecked")
     public <T>T unwrap(java.lang.Class<T> iface) throws java.sql.SQLException {
@@ -258,7 +257,6 @@ public class JDBCDataSource extends JDBCCommonDataSource implements DataSource,
     }
 
     // ------------------------ custom public methods ------------------------
-
     public JDBCDataSource() {
     }
 }

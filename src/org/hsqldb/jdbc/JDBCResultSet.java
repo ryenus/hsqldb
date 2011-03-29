@@ -444,12 +444,14 @@ public class JDBCResultSet implements ResultSet {
      *            called on a closed result set
      */
     public String getString(int columnIndex) throws SQLException {
+
         checkColumn(columnIndex);
 
-        Type   sourceType = resultMetaData.columnTypes[columnIndex - 1];
+        Type sourceType = resultMetaData.columnTypes[columnIndex - 1];
 
-        if (sourceType.typeCode == Types.SQL_CLOB ) {
-            ClobDataID x = (ClobDataID) getColumnInType(columnIndex, sourceType);
+        if (sourceType.typeCode == Types.SQL_CLOB) {
+            ClobDataID x = (ClobDataID) getColumnInType(columnIndex,
+                sourceType);
 
             if (x == null) {
                 return null;
@@ -457,7 +459,7 @@ public class JDBCResultSet implements ResultSet {
 
             long length = x.length(session);
 
-            if (length > Integer.MAX_VALUE ) {
+            if (length > Integer.MAX_VALUE) {
                 Util.throwError(Error.error(ErrorCode.X_42561));
             }
 
@@ -769,10 +771,11 @@ public class JDBCResultSet implements ResultSet {
 
         checkColumn(columnIndex);
 
-        Type   sourceType = resultMetaData.columnTypes[columnIndex - 1];
+        Type sourceType = resultMetaData.columnTypes[columnIndex - 1];
 
-        if (sourceType.typeCode == Types.SQL_BLOB ) {
-            BlobDataID x = (BlobDataID) getColumnInType(columnIndex, sourceType);
+        if (sourceType.typeCode == Types.SQL_BLOB) {
+            BlobDataID x = (BlobDataID) getColumnInType(columnIndex,
+                sourceType);
 
             if (x == null) {
                 return null;
@@ -780,7 +783,7 @@ public class JDBCResultSet implements ResultSet {
 
             long length = x.length(session);
 
-            if (length > Integer.MAX_VALUE ) {
+            if (length > Integer.MAX_VALUE) {
                 Util.throwError(Error.error(ErrorCode.X_42561));
             }
 
@@ -5125,7 +5128,6 @@ public class JDBCResultSet implements ResultSet {
 //#ifdef JAVA4
     public void updateBlob(int columnIndex,
                            java.sql.Blob x) throws SQLException {
-
         startUpdate(columnIndex);
         preparedStatement.setBlobParameter(columnIndex, x);
     }
@@ -5198,7 +5200,6 @@ public class JDBCResultSet implements ResultSet {
 //#ifdef JAVA4
     public void updateClob(int columnIndex,
                            java.sql.Clob x) throws SQLException {
-
         startUpdate(columnIndex);
         preparedStatement.setClobParameter(columnIndex, x);
     }
@@ -7034,7 +7035,6 @@ public class JDBCResultSet implements ResultSet {
      * this method
      * @since JDK 1.7 M11 2010/09/10 (b123), HSQLDB 2.0.1
      */
-
 //#ifdef JAVA5
     public <T>T getObject(String columnLabel,
                           Class<T> type) throws SQLException {
@@ -7042,7 +7042,6 @@ public class JDBCResultSet implements ResultSet {
     }
 
 //#endif
-
 //------------------------ Internal Implementation -----------------------------
 
     /** The internal representation. */

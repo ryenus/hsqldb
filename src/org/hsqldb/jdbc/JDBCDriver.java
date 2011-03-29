@@ -554,7 +554,6 @@ public class JDBCDriver implements Driver {
     }
 
 //#endif
-
     public static JDBCDriver driverInstance;
 
     static {
