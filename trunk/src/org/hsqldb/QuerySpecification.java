@@ -81,6 +81,8 @@ public class QuerySpecification extends QueryExpression {
     public boolean        isGrouped;
     RangeVariable[]       rangeVariables;
     private HsqlArrayList rangeVariableList;
+    int                   startInnerRange = -1;
+    int                   endInnerRange   = -1;
     Expression            queryCondition;
     Expression            checkQueryCondition;
     private Expression    havingCondition;
@@ -181,6 +183,30 @@ public class QuerySpecification extends QueryExpression {
         for (int i = 0; i < rangeVariables.length; i++) {
             rangeVariables[i].resolveRangeTable(session, rangeVariables, i,
                                                 outerRanges);
+
+            rangeVariables[i].rangePositionInJoin = i;
+
+            if (rangeVariables[i].isLeftJoin) {
+                if (endInnerRange == -1) {
+                    endInnerRange = i;
+                }
+            }
+
+            if (rangeVariables[i].isRightJoin) {
+                startInnerRange = i;
+            }
+        }
+
+        if (startInnerRange < 0) {
+            startInnerRange = 0;
+        }
+
+        if (endInnerRange < 0) {
+            endInnerRange = rangeVariables.length;
+        }
+
+        if (startInnerRange > endInnerRange) {
+            endInnerRange = rangeVariables.length;
         }
     }
 
@@ -1537,10 +1563,16 @@ public class QuerySpecification extends QueryExpression {
                 ColumnBase column = e.getColumn();
 
                 if (column != null) {
-                    resultMetaData.columns[i]      = column;
-                    resultMetaData.columnLabels[i] = e.getAlias();
+                    RangeVariable range = e.getRangeVariable();
 
-                    continue;
+                    if (range != null
+                            && range.rangePositionInJoin >= startInnerRange
+                            && range.rangePositionInJoin < endInnerRange) {
+                        resultMetaData.columns[i]      = column;
+                        resultMetaData.columnLabels[i] = e.getAlias();
+
+                        continue;
+                    }
                 }
 
                 column = new ColumnBase();
@@ -1744,6 +1776,13 @@ public class QuerySpecification extends QueryExpression {
             }
 
             sb.append(b).append(exprColumns[index].describe(session, 2));
+
+            if (resultMetaData.columns[i].getNullability()
+                    == SchemaObject.Nullability.NO_NULLS) {
+                sb.append(" not nullable");
+            } else {
+                sb.append(" nullable");
+            }
         }
 
         sb.append("\n");
