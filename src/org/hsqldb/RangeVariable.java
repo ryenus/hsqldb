@@ -101,6 +101,9 @@ public class RangeVariable implements Cloneable {
     int indexDistinctCount;
 
     //
+    int rangePositionInJoin;
+
+    //
     int rangePosition;
 
     //

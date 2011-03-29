@@ -50,7 +50,7 @@ public class ColumnBase {
     private boolean   isSearchable;
     protected byte    parameterMode;
     protected boolean isIdentity;
-    protected byte    nullability;
+    protected byte    nullability = SchemaObject.Nullability.NULLABLE;
     protected Type    dataType;
 
     ColumnBase() {}
