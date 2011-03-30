@@ -139,8 +139,9 @@ public class ParserDML extends ParserDQL {
                     }
 
                     OrderedHashSet columnNames = new OrderedHashSet();
+                    boolean        withPrefix  = database.sqlSyntaxOra;
 
-                    readSimpleColumnNames(columnNames, table);
+                    readSimpleColumnNames(columnNames, table, withPrefix);
                     readThis(Tokens.CLOSEBRACKET);
 
                     colCount  = columnNames.size();
@@ -977,7 +978,6 @@ public class ParserDML extends ParserDQL {
         if (insertExpression != null) {
             unresolved = insertExpression.resolveColumnReferences(session,
                     sourceRangeVars, null);
-
             unresolved = Expression.resolveColumnSet(session, outerRanges,
                     outerRanges.length, unresolved, null);
 
