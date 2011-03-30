@@ -473,6 +473,18 @@
       row cache is updated more frequently than when one operation is
       performed after the other operation has finished.</para>
     </section>
+
+    <section>
+      <title>Viewing Sessions</title>
+
+      <para>As HyperSQL is multithreaded, you can view the current sessions
+      and their state from any admin session. The
+      <literal>INFORMATION_SCHEMA.SYSTEM_SESSIONS</literal> table contains the
+      list of open sessions, their unique ids and the statement currently
+      executed or waiting to be executed by each session. For each session, it
+      displays the list of sessions that are waiting for it to commit, or the
+      session that this session is waiting for.</para>
+    </section>
   </section>
 
   <section>
@@ -501,7 +513,7 @@
 
     <simpara>The session ID is used as a <literal>&lt;numeric
     literal&gt;</literal> in this statement. The administrator can use the
-    <literal>INFORMATION_SCHEMA.SYSTEM_SESSIONS</literal> tables to find the
+    <literal>INFORMATION_SCHEMA.SYSTEM_SESSIONS</literal> table to find the
     session IDs of other sessions.</simpara>
 
     <simpara>The &lt;alter current session statement&gt; is used to clear and
