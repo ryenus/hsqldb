@@ -839,7 +839,7 @@ public class ParserCommand extends ParserDDL {
                         OrderedHashSet set = new OrderedHashSet();
 
                         readThis(Tokens.OPENBRACKET);
-                        readSimpleColumnNames(set, t);
+                        readSimpleColumnNames(set, t, false);
                         readThis(Tokens.CLOSEBRACKET);
 
                         int[] colIndex = t.getColumnIndexes(set);

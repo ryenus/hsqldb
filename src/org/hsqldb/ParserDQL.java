@@ -606,10 +606,11 @@ public class ParserDQL extends ParserBase {
         return table.getColumnIndexes(set);
     }
 
-    void readSimpleColumnNames(OrderedHashSet columns, Table table) {
+    void readSimpleColumnNames(OrderedHashSet columns, Table table,
+                               boolean withPrefix) {
 
         while (true) {
-            ColumnSchema col = readSimpleColumnName(table);
+            ColumnSchema col = readSimpleColumnName(table, withPrefix);
 
             if (!columns.add(col.getName().name)) {
                 throw Error.error(ErrorCode.X_42577, col.getName().name);
@@ -5559,11 +5560,16 @@ public class ParserDQL extends ParserBase {
         throw Error.error(ErrorCode.X_42501, token.tokenString);
     }
 
-    ColumnSchema readSimpleColumnName(Table table) {
+    ColumnSchema readSimpleColumnName(Table table, boolean withPrefix) {
 
         checkIsIdentifier();
 
-        if (token.namePrefix != null) {
+        if (withPrefix) {
+            if (token.namePrefix != null
+                    && !table.getName().name.equals(token.namePrefix)) {
+                throw Error.error(ErrorCode.X_42501, token.namePrefix);
+            }
+        } else if (token.namePrefix != null) {
             throw tooManyIdentifiers();
         }
 
