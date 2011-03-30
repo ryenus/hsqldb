@@ -180,14 +180,12 @@ public abstract class ScriptWriterBase implements Runnable {
             return;
         }
 
-        synchronized (fileStreamOut) {
-            if (needsSync) {
-                forceSync();
-            }
+        if (needsSync) {
+            forceSync();
         }
     }
 
-    public synchronized void forceSync() {
+    public void forceSync() {
 
         if (isClosed) {
             return;
@@ -226,6 +224,7 @@ public abstract class ScriptWriterBase implements Runnable {
                 finishStream();
                 forceSync();
                 fileStreamOut.close();
+
                 isClosed = true;
             }
         } catch (IOException e) {
