@@ -668,7 +668,7 @@ public class Database {
      */
     public Result getScript(boolean indexRoots) {
 
-        Result r = Result.newSingleColumnResult("COMMAND", Type.SQL_VARCHAR);
+        Result r = Result.newSingleColumnResult("COMMAND");
 
         // properties
         String[] list = logger.getPropertiesSQL();

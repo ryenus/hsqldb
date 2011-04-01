@@ -39,6 +39,7 @@ import org.hsqldb.lib.java.JavaSystem;
 import org.hsqldb.persist.HsqlDatabaseProperties;
 import org.hsqldb.persist.HsqlProperties;
 import org.hsqldb.result.Result;
+import org.hsqldb.result.ResultMetaData;
 import org.hsqldb.rights.User;
 import org.hsqldb.scriptio.ScriptWriterText;
 
@@ -75,6 +76,13 @@ public class StatementCommand extends Statement {
 
         switch (type) {
 
+            case StatementTypes.EXPLAIN_PLAN :
+                group                  = StatementTypes.X_SQL_DIAGNOSTICS;
+                statementReturnType    = StatementTypes.RETURN_RESULT;
+                isTransactionStatement = false;
+                isLogged               = false;
+                break;
+
             case StatementTypes.DATABASE_CHECKPOINT :
                 group    = StatementTypes.X_HSQLDB_DATABASE_OPERATION;
                 isLogged = false;
@@ -84,7 +92,7 @@ public class StatementCommand extends Statement {
                 String name = (String) parameters[0];
 
                 if (name == null) {
-                    this.statementReturnType = StatementTypes.RETURN_RESULT;
+                    statementReturnType = StatementTypes.RETURN_RESULT;
                 }
 
                 group    = StatementTypes.X_HSQLDB_DATABASE_OPERATION;
@@ -98,8 +106,8 @@ public class StatementCommand extends Statement {
             case StatementTypes.SET_DATABASE_UNIQUE_NAME :
             case StatementTypes.SET_DATABASE_FILES_WRITE_DELAY :
             case StatementTypes.SET_DATABASE_FILES_TEMP_PATH :
-                this.isTransactionStatement = false;
-                group                       = StatementTypes.X_HSQLDB_SETTING;
+                isTransactionStatement = false;
+                group                  = StatementTypes.X_HSQLDB_SETTING;
                 break;
 
 //
@@ -131,8 +139,8 @@ public class StatementCommand extends Statement {
             case StatementTypes.SET_DATABASE_SQL_COLLATION :
             case StatementTypes.SET_DATABASE_FILES_BACKUP_INCREMENT :
             case StatementTypes.SET_DATABASE_TEXT_SOURCE :
-                group                       = StatementTypes.X_HSQLDB_SETTING;
-                this.isTransactionStatement = true;
+                group                  = StatementTypes.X_HSQLDB_SETTING;
+                isTransactionStatement = true;
                 break;
 
             case StatementTypes.SET_TABLE_CLUSTERED :
@@ -144,44 +152,44 @@ public class StatementCommand extends Statement {
 
             // fall through
             case StatementTypes.SET_TABLE_SOURCE :
-                metaDataImpact              = Statement.META_RESET_VIEWS;
+                metaDataImpact         = Statement.META_RESET_VIEWS;
                 group = StatementTypes.X_HSQLDB_SCHEMA_MANIPULATION;
-                this.isTransactionStatement = true;
+                isTransactionStatement = true;
                 break;
 
             case StatementTypes.SET_TABLE_READONLY :
-                metaDataImpact              = Statement.META_RESET_VIEWS;
+                metaDataImpact         = Statement.META_RESET_VIEWS;
                 group = StatementTypes.X_HSQLDB_SCHEMA_MANIPULATION;
-                this.isTransactionStatement = true;
+                isTransactionStatement = true;
                 break;
 
             case StatementTypes.DATABASE_SHUTDOWN :
-                isLogged                    = false;
+                isLogged               = false;
                 group = StatementTypes.X_HSQLDB_DATABASE_OPERATION;
-                this.isTransactionStatement = false;
+                isTransactionStatement = false;
                 break;
 
             case StatementTypes.SET_TABLE_TYPE :
                 group = StatementTypes.X_HSQLDB_SCHEMA_MANIPULATION;
-                this.isTransactionStatement = true;
+                isTransactionStatement = true;
                 break;
 
             case StatementTypes.SET_TABLE_INDEX :
-                group                       = StatementTypes.X_HSQLDB_SETTING;
-                this.isTransactionStatement = false;
-                isLogged                    = false;
+                group                  = StatementTypes.X_HSQLDB_SETTING;
+                isTransactionStatement = false;
+                isLogged               = false;
                 break;
 
             case StatementTypes.SET_USER_LOCAL :
             case StatementTypes.SET_USER_INITIAL_SCHEMA :
             case StatementTypes.SET_USER_PASSWORD :
-                group                       = StatementTypes.X_HSQLDB_SETTING;
-                this.isTransactionStatement = false;
+                group                  = StatementTypes.X_HSQLDB_SETTING;
+                isTransactionStatement = false;
                 break;
 
             case StatementTypes.ALTER_SESSION :
-                group                       = StatementTypes.X_HSQLDB_SESSION;
-                this.isTransactionStatement = false;
+                group                  = StatementTypes.X_HSQLDB_SESSION;
+                isTransactionStatement = false;
                 break;
 
             default :
@@ -226,8 +234,14 @@ public class StatementCommand extends Statement {
 
         switch (type) {
 
+            case StatementTypes.EXPLAIN_PLAN : {
+                Statement statement = (Statement) parameters[0];
+
+                return Result.newSingleColumnStringResult("OPERATION",
+                        statement.describe(session));
+            }
             case StatementTypes.DATABASE_BACKUP : {
-                String  path       = ((String) parameters[0]);
+                String  path       = (String) parameters[0];
                 boolean blocking   = ((Boolean) parameters[1]).booleanValue();
                 boolean script     = ((Boolean) parameters[2]).booleanValue();
                 boolean compressed = ((Boolean) parameters[3]).booleanValue();
@@ -575,8 +589,7 @@ public class StatementCommand extends Statement {
                 } else if (property
                            == HsqlDatabaseProperties.sql_convert_trunc) {
                     session.database.setConvertTrunc(mode);
-                } else if (property
-                           == HsqlDatabaseProperties.sql_double_nan) {
+                } else if (property == HsqlDatabaseProperties.sql_double_nan) {
                     session.database.setDoubleNaN(mode);
                 } else if (property
                            == HsqlDatabaseProperties.sql_longvar_is_lob) {
@@ -1046,6 +1059,22 @@ public class StatementCommand extends Statement {
             }
             default :
                 throw Error.runtimeError(ErrorCode.U_S0500, "StatemntCommand");
+        }
+    }
+
+    public ResultMetaData getResultMetaData() {
+
+        switch (type) {
+
+            case StatementTypes.EXPLAIN_PLAN :
+                return ResultMetaData.newSingleColumnMetaData("OPERATION");
+
+            case StatementTypes.DATABASE_SCRIPT :
+                if (statementReturnType == StatementTypes.RETURN_RESULT) {
+                    return ResultMetaData.newSingleColumnMetaData("COMMANDS");
+                }
+            default :
+                return super.getResultMetaData();
         }
     }
 

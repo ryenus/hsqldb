@@ -1445,6 +1445,12 @@ public class QuerySpecification extends QueryExpression {
             if (!isGrouped && navigator.getSize() == 0) {
                 Object[] data = new Object[exprColumns.length];
 
+                for (int i = 0; i < indexStartAggregates; i++) {
+                    if (!aggregateCheck[i]) {
+                        data[i] = exprColumns[i].getValue(session);
+                    }
+                }
+
                 navigator.add(data);
             }
 

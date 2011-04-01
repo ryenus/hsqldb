@@ -2430,26 +2430,7 @@ public class ParserDQL extends ParserBase {
             }
             case Tokens.NEXTVAL : {
                 if (database.sqlSyntaxPgs) {
-                    read();
-                    readThis(Tokens.OPENBRACKET);
-
-                    String  spec    = readQuotedString();
-                    Scanner scanner = session.getScanner();
-
-                    scanner.reset(spec);
-                    scanner.scanNext();
-
-                    String schemaName =
-                        session.getSchemaName(scanner.token.namePrefix);
-                    NumberSequence sequence =
-                        database.schemaManager.getSequence(
-                            scanner.token.tokenString, schemaName, true);
-
-                    e = new ExpressionColumn(sequence, OpTypes.SEQUENCE);
-
-                    readThis(Tokens.CLOSEBRACKET);
-
-                    return e;
+                    return readNextvalFunction();
                 }
 
                 break;
@@ -2481,6 +2462,29 @@ public class ParserDQL extends ParserBase {
         if (e.isAggregate()) {
             readFilterClause(e);
         }
+
+        return e;
+    }
+
+    Expression readNextvalFunction() {
+        read();
+        readThis(Tokens.OPENBRACKET);
+
+        String  spec    = readQuotedString();
+        Scanner scanner = session.getScanner();
+
+        scanner.reset(spec);
+        scanner.scanNext();
+
+        String schemaName =
+            session.getSchemaName(scanner.token.namePrefix);
+        NumberSequence sequence =
+            database.schemaManager.getSequence(
+                scanner.token.tokenString, schemaName, true);
+
+        Expression e = new ExpressionColumn(sequence, OpTypes.SEQUENCE);
+
+        readThis(Tokens.CLOSEBRACKET);
 
         return e;
     }

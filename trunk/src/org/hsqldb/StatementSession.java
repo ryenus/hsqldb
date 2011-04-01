@@ -109,7 +109,7 @@ public class StatementSession extends Statement {
             case StatementTypes.ALLOCATE_DESCRIPTOR :
             case StatementTypes.DEALLOCATE_DESCRIPTOR :
             case StatementTypes.DEALLOCATE_PREPARE :
-                group = StatementTypes.X_DYNAMIC;
+                group = StatementTypes.X_SQL_DYNAMIC;
                 break;
 
             //
@@ -136,7 +136,7 @@ public class StatementSession extends Statement {
             case StatementTypes.PREPARABLE_DYNAMIC_DELETE_CURSOR :
             case StatementTypes.PREPARABLE_DYNAMIC_UPDATE_CURSOR :
             case StatementTypes.PREPARE :
-                group = StatementTypes.X_DYNAMIC;
+                group = StatementTypes.X_SQL_DYNAMIC;
                 break;
 
             // logged by session
