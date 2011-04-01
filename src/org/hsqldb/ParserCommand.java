@@ -264,10 +264,15 @@ public class ParserCommand extends ParserDDL {
                 cs = compileCheckpoint();
                 break;
 
-            case Tokens.EXPLAIN :
-                cs = compileExplainPlan();
-                break;
+            case Tokens.EXPLAIN : {
+                int position = getPosition();
 
+                cs = compileExplainPlan();
+
+                cs.setSQL(super.getLastPart(position));
+
+                return cs;
+            }
             case Tokens.DECLARE :
                 cs = compileDeclare();
                 break;
@@ -2044,7 +2049,8 @@ public class ParserCommand extends ParserDDL {
 
         cs.setDescribe();
 
-        return cs;
+        return new StatementCommand(StatementTypes.EXPLAIN_PLAN,
+                                    new Object[]{ cs });
     }
 
     private Statement compileTableSource(Table t) {

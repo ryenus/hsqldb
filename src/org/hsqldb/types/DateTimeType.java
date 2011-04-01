@@ -775,8 +775,8 @@ public final class DateTimeType extends DTIType {
                     } else {
                         millis = ((java.util.Date) a).getTime();
                         zoneSeconds =
-                            HsqlDateTime.getZoneMillis(session.getCalendar(),
-                                                       millis) / 1000;
+                            HsqlDateTime.getZoneMillis(
+                                session.getCalendar(), millis) / 1000;
                     }
 
                     if (a instanceof java.sql.Timestamp) {
@@ -810,6 +810,7 @@ public final class DateTimeType extends DTIType {
             case Types.SQL_TIME :
             case Types.SQL_TIME_WITH_TIME_ZONE :
                 millis = ((TimeData) a).getSeconds() * 1000;
+                millis += ((TimeData) a).getNanos() / 1000000;
 
                 return new java.sql.Time(millis);
 

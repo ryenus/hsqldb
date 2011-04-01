@@ -802,17 +802,11 @@ public class Result {
         return result;
     }
 
-    public static Result newSingleColumnResult(String colName, Type type) {
+    public static Result newSingleColumnResult(String colName) {
 
         Result result = newResult(ResultConstants.DATA);
 
-        result.metaData            = ResultMetaData.newResultMetaData(1);
-        result.metaData.columns[0] = new ColumnBase(null, null, null, colName);
-
-        result.metaData.columns[0].setType(type);
-        result.metaData.prepareData();
-
-        //
+        result.metaData  = ResultMetaData.newSingleColumnMetaData(colName);
         result.navigator = new RowSetNavigatorClient(8);
 
         return result;
@@ -821,8 +815,7 @@ public class Result {
     public static Result newSingleColumnStringResult(String colName,
             String contents) {
 
-        Result result = Result.newSingleColumnResult("OPERATION",
-            Type.SQL_VARCHAR);
+        Result result = Result.newSingleColumnResult(colName);
         LineNumberReader lnr =
             new LineNumberReader(new StringReader(contents));
 

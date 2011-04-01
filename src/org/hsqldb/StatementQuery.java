@@ -55,7 +55,7 @@ public class StatementQuery extends StatementDMQL {
               session.getCurrentSchemaHsqlName());
 
         this.statementReturnType = StatementTypes.RETURN_RESULT;
-        this.queryExpression = queryExpression;
+        this.queryExpression     = queryExpression;
 
         setDatabseObjects(session, compileContext);
         checkAccessRights(session);
@@ -82,9 +82,8 @@ public class StatementQuery extends StatementDMQL {
                 return queryExpression.getMetaData();
 
             default :
-                throw Error.runtimeError(
-                    ErrorCode.U_S0500,
-                    "CompiledStatement.getResultMetaData()");
+                throw Error.runtimeError(ErrorCode.U_S0500,
+                                         "StatementQuery.getResultMetaData()");
         }
     }
 
