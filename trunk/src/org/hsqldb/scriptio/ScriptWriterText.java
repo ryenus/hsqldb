@@ -229,6 +229,16 @@ public class ScriptWriterText extends ScriptWriterBase {
         currentSession.loggedSchema = schemaToLog;
     }
 
+    public void writeAnyStatement(Session session,
+                                  String s) throws IOException {
+
+        writeLogStatement(session, s);
+
+        if (writeDelay == 0) {
+            sync();
+        }
+    }
+
     public void writeInsertStatement(Session session, Row row,
                                      Table table) throws IOException {
 

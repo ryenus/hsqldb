@@ -112,6 +112,10 @@ public class ParserRoutine extends ParserDML {
                 read();
 
                 minus = true;
+            } else {
+                if (database.sqlSyntaxPgs && token.tokenType == Tokens.NEXTVAL) {
+                    return readNextvalFunction();
+                }
             }
         } else if (dataType.isCharacterType()) {
             switch (token.tokenType) {

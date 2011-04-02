@@ -64,7 +64,7 @@ import org.hsqldb.types.Types;
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
  *
- * @version 2.0.1
+ * @version 2.1.1
  * @since 1.9.0
  */
 public class QuerySpecification extends QueryExpression {

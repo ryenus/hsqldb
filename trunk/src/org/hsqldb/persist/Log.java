@@ -78,7 +78,7 @@ import org.hsqldb.scriptio.ScriptWriterText;
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
  * @author Bob Preston (sqlbob@users dot sourceforge.net) - text table support
- * @version 2.0.1
+ * @version 2.1.1
  * @since 1.8.0
  */
 public class Log {
@@ -564,7 +564,7 @@ public class Log {
     void writeStatement(Session session, String s) {
 
         try {
-            dbLogWriter.writeLogStatement(session, s);
+            dbLogWriter.writeAnyStatement(session, s);
         } catch (IOException e) {
             throw Error.error(ErrorCode.FILE_IO_ERROR, logFileName);
         }

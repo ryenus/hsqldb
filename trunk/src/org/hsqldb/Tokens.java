@@ -40,7 +40,7 @@ import org.hsqldb.lib.OrderedIntHashSet;
  *
  * @author  Nitin Chauhan (initial work)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.0.1
+ * @version 2.1.1
  * @since 1.7.2
  */
 public class Tokens {
@@ -634,6 +634,7 @@ public class Tokens {
     static final String        T_AUTO_INCREMENT       = "AUTO_INCREMENT";
     static final String        T_AUTOCOMMIT           = "AUTOCOMMIT";
     public static final String T_BACKUP               = "BACKUP";
+    static final String        T_BIGSERIAL            = "BIGSERIAL";
     static final String        T_BINARY_DOUBLE        = "BINARY_DOUBLE";
     static final String        T_BINARY_FLOAT         = "BINARY_FLOAT";
     static final String        T_BODY                 = "BODY";
