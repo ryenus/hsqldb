@@ -86,7 +86,7 @@ import org.hsqldb.result.Result;
  * DatabaseScriptReader and its subclasses read back the data at startup time.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.0.1
+ * @version 2.1.1
  * @since 1.7.2
  */
 public abstract class ScriptWriterBase implements Runnable {
@@ -367,6 +367,9 @@ public abstract class ScriptWriterBase implements Runnable {
     throws IOException;
 
     public abstract void writeLogStatement(Session session,
+                                           String s) throws IOException;
+
+    public abstract void writeAnyStatement(Session session,
                                            String s) throws IOException;
 
     public abstract void writeInsertStatement(Session session, Row row,

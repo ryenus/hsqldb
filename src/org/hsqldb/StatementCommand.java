@@ -47,7 +47,7 @@ import org.hsqldb.scriptio.ScriptWriterText;
  * Implementation of Statement for SQL commands.<p>
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.0.1
+ * @version 2.1.1
  * @since 1.9.0
  */
 public class StatementCommand extends Statement {
@@ -1001,11 +1001,12 @@ public class StatementCommand extends Statement {
                     User   user = parameters[0] == null ? session.getUser()
                                                         : (User) parameters[0];
                     String password = (String) parameters[1];
+                    boolean isDigest = (Boolean) parameters[2];
 
                     session.checkDDLWrite();
                     session.setScripting(true);
                     session.database.userManager.setPassword(session, user,
-                            password);
+                            password, isDigest);
 
                     return Result.updateZeroResult;
                 } catch (HsqlException e) {

@@ -43,7 +43,7 @@ import org.hsqldb.result.ResultProperties;
  * Implementation of Statement for query expressions.<p>
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.0.1
+ * @version 2.1.1
  * @since 1.9.0
  */
 public class StatementQuery extends StatementDMQL {

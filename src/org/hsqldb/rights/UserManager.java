@@ -57,7 +57,7 @@ import org.hsqldb.result.Result;
  * @author Campbell Boucher-Burnet (boucherb@users dot sourceforge.net)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
  *
- * @version 2.0.1
+ * @version 2.1.1
  * @since 1.7.2
  * @see  User
  */
@@ -124,14 +124,15 @@ public final class UserManager {
         return user;
     }
 
-    public void setPassword(Session session, User user, String password) {
+    public void setPassword(Session session, User user, String password,
+                            boolean isDigest) {
 
-        if (!checkComplexity(session, password)) {
+        if (!isDigest && !checkComplexity(session, password)) {
             throw Error.error(ErrorCode.PASSWORD_COMPLEXITY);
         }
 
         // requires: UserManager.createSAUser(), UserManager.createPublicUser()
-        user.setPassword(password, false);
+        user.setPassword(password, isDigest);
     }
 
     public boolean checkComplexity(Session session, String password) {
@@ -265,6 +266,7 @@ public final class UserManager {
 
         if (roles == null) {
             user.updateAllRights();
+
             return user;
         }
 

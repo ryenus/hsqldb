@@ -47,7 +47,7 @@ import org.hsqldb.lib.StringConverter;
  * @author Fred Toussi (fredt@users dot sourceforge.net)
  * @author Blaine Simpson (blaine dot simpson at admc dot com)
  *
- * @version 2.0.1
+ * @version 2.1.1
  * @since 1.8.0
  */
 public class User extends Grantee {
@@ -178,6 +178,44 @@ public class User extends Grantee {
         sb.append(getName().getStatementName()).append(' ');
         sb.append(Tokens.T_SET).append(' ').append(Tokens.T_LOCAL);
         sb.append(' ').append(Tokens.T_TRUE);
+
+        return sb.toString();
+    }
+
+    /**
+     * Returns the SQL string for setting password digest.
+     *
+     */
+    public String getSetPasswordDigestSQL() {
+
+        StringBuffer sb = new StringBuffer(64);
+
+        sb.append(Tokens.T_ALTER).append(' ');
+        sb.append(Tokens.T_USER).append(' ');
+        sb.append(getName().getStatementName()).append(' ');
+        sb.append(Tokens.T_SET).append(' ');
+        sb.append(Tokens.T_PASSWORD).append(' ').append(Tokens.T_DIGEST);
+        sb.append(' ').append('\'').append(password).append('\'');
+
+        return sb.toString();
+    }
+
+    /**
+     * Returns the SQL string for setting password digest.
+     *
+     */
+    public static String getSetCurrentPasswordDigestSQL(String password,
+            boolean isDigest) {
+
+        if (!isDigest) {
+            password = MD5.encode(password, null);
+        }
+
+        StringBuffer sb = new StringBuffer(64);
+
+        sb.append(Tokens.T_SET).append(' ');
+        sb.append(Tokens.T_PASSWORD).append(' ').append(Tokens.T_DIGEST);
+        sb.append(' ').append('\'').append(password).append('\'');
 
         return sb.toString();
     }

@@ -47,7 +47,7 @@ import org.hsqldb.types.Types;
  * Metadata for a result set.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.0.1
+ * @version 2.1.1
  * @since 1.8.0
  */
 public final class ResultMetaData {

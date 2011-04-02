@@ -2377,25 +2377,40 @@ public class ParserDDL extends ParserRoutine {
                 return null;
             }
             default : {
-                if (token.isUndelimitedIdentifier
-                        && Tokens.T_SERIAL.equals(token.tokenString)) {
-                    if (database.sqlSyntaxMys) {
-                        read();
+                if (token.isUndelimitedIdentifier) {
+                    if (Tokens.T_SERIAL.equals(token.tokenString)) {
+                        if (database.sqlSyntaxMys) {
+                            read();
 
-                        isIdentity   = true;
-                        isPKIdentity = true;
-                        typeObject   = Type.SQL_BIGINT;
-                        sequence = new NumberSequence(null, 0, 1, typeObject);
+                            isIdentity   = true;
+                            isPKIdentity = true;
+                            typeObject   = Type.SQL_BIGINT;
+                            sequence = new NumberSequence(null, 1, 1,
+                                                          typeObject);
 
-                        break;
-                    } else if (database.sqlSyntaxPgs) {
-                        read();
+                            break;
+                        } else if (database.sqlSyntaxPgs) {
+                            read();
 
-                        isIdentity = true;
-                        typeObject = Type.SQL_INTEGER;
-                        sequence = new NumberSequence(null, 0, 1, typeObject);
+                            isIdentity = true;
+                            typeObject = Type.SQL_INTEGER;
+                            sequence = new NumberSequence(null, 1, 1,
+                                                          typeObject);
 
-                        break;
+                            break;
+                        }
+                    } else if (Tokens.T_BIGSERIAL.equals(token.tokenString)) {
+                        if (database.sqlSyntaxPgs) {
+                            read();
+
+                            isIdentity   = true;
+                            isPKIdentity = true;
+                            typeObject   = Type.SQL_BIGINT;
+                            sequence = new NumberSequence(null, 1, 1,
+                                                          typeObject);
+
+                            break;
+                        }
                     }
                 }
 
@@ -2428,6 +2443,15 @@ public class ParserDDL extends ParserRoutine {
                     read();
 
                     defaultExpr = readDefaultClause(typeObject);
+
+                    if (defaultExpr.opType == OpTypes.SEQUENCE) {
+                        if (database.sqlSyntaxPgs) {
+                            sequence =
+                                ((ExpressionColumn) defaultExpr).sequence;
+                            defaultExpr = null;
+                            isIdentity  = true;
+                        }
+                    }
 
                     break;
                 }
@@ -4102,14 +4126,25 @@ public class ParserDDL extends ParserRoutine {
             case Tokens.PASSWORD : {
                 read();
 
+                boolean isDigest = false;
+
+                if (readIfThis(Tokens.DIGEST)) {
+                    isDigest = Boolean.TRUE;
+                }
+
                 password = readPassword();
 
                 Object[] args = new Object[] {
-                    userObject, password
+                    userObject, password, isDigest
                 };
+                Statement cs =
+                    new StatementCommand(StatementTypes.SET_USER_PASSWORD,
+                                         args);
+                String sql = userObject.getSetPasswordDigestSQL();
 
-                return new StatementCommand(StatementTypes.SET_USER_PASSWORD,
-                                            args);
+                cs.setSQL(sql);
+
+                return cs;
             }
             case Tokens.INITIAL : {
                 read();

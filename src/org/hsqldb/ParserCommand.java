@@ -40,6 +40,7 @@ import org.hsqldb.lib.OrderedHashSet;
 import org.hsqldb.persist.HsqlDatabaseProperties;
 import org.hsqldb.result.Result;
 import org.hsqldb.result.ResultProperties;
+import org.hsqldb.rights.User;
 import org.hsqldb.store.ValuePool;
 import org.hsqldb.types.Charset;
 import org.hsqldb.types.Type;
@@ -281,7 +282,8 @@ public class ParserCommand extends ParserDDL {
                 throw unexpectedToken();
         }
 
-        if (cs.type != StatementTypes.SET_SESSION_AUTHORIZATION) {
+        if (cs.type != StatementTypes.SET_SESSION_AUTHORIZATION
+                && cs.type != StatementTypes.SET_USER_PASSWORD) {
             cs.setSQL(getLastPart());
         }
 
@@ -857,19 +859,6 @@ public class ParserCommand extends ParserDDL {
                     }
                 }
             }
-/*
-            case Tokens.CHECKPOINT : {
-                read();
-                readThis(Tokens.DEFRAG);
-
-                int      size = readInteger();
-                Object[] args = new Object[]{ new Integer(size) };
-
-                return new StatementCommand(
-                    StatementTypes.SET_DATABASE_FILES_DEFRAG, args, null,
-                    null);
-            }
-*/
             case Tokens.WRITE_DELAY : {
                 read();
 
@@ -904,18 +893,27 @@ public class ParserCommand extends ParserDDL {
                     null);
             }
             case Tokens.PASSWORD : {
-                String password;
+                String  password;
+                boolean isDigest = false;
 
                 read();
+
+                if (readIfThis(Tokens.DIGEST)) {
+                    isDigest = Boolean.TRUE;
+                }
 
                 password = readPassword();
 
                 Object[] args = new Object[] {
-                    null, password
+                    null, password, isDigest
                 };
+                Statement cs =
+                    new StatementCommand(StatementTypes.SET_USER_PASSWORD,
+                                         args);
+                String sql = User.getSetCurrentPasswordDigestSQL(password, isDigest);
+                cs.setSQL(sql);
 
-                return new StatementCommand(StatementTypes.SET_USER_PASSWORD,
-                                            args);
+                return cs;
             }
             case Tokens.INITIAL : {
                 read();
