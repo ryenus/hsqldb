@@ -316,8 +316,8 @@
           <title>using the last value of a sequence</title>
 
           <programlisting>INSERT INTO mytable VALUES 2, 'John', NEXT VALUE FOR mysequence;
-INSERT INTO chiletable VALUES 4, CURRENT VALUE FOR mysequence;
-INSERT INTO chiletable VALUES 5, CURRENT VALUE FOR mysequence;</programlisting>
+INSERT INTO childtable VALUES 4, CURRENT VALUE FOR mysequence;
+INSERT INTO childtable VALUES 5, CURRENT VALUE FOR mysequence;</programlisting>
         </example>The INFORMATION_SCHEMA.SEQUENCES table contains the next
       value that will be returned from any of the defined sequences. The
       SEQUENCE_NAME column contains the name and the NEXT_VALUE column
@@ -584,6 +584,11 @@ INSERT INTO movies (starid, movieid, title) VALUES (CURRENT VALUE FOR seq, 10, '
           <member>NULL</member>
         </simplelist>
       </example>
+
+      <para>If the SET DATABASE SQL UNIQUE NULLS FALSE has been set, then if
+      not all the values set of columns are null, the not null values are
+      compared and it is disallowed to insert identical rows that contain at
+      least one not-null value. </para>
 
       <simpara><emphasis role="bold">PRIMARY KEY</emphasis></simpara>
 
