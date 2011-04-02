@@ -108,108 +108,6 @@
     <classname>org.hsqldb.jdbc.*</classname> classes.</para>
   </section>
 
-  <section>
-    <title>Short Guide to Types</title>
-
-    <para>Most other RDBMS's do not conform to the SQL Standard in all areas,
-    but they are gradually moving towards Standard conformance. When switching
-    from another SQL dialect, the following should be considered:</para>
-
-    <itemizedlist>
-      <listitem>
-        <para>Numeric types TINYINT, SMALLINT, INTEGER and BIGINT are types
-        with fixed binary precision. These types are more efficient to store
-        and retrieve. NUMERIC and DECIMAL are types with user-defined decimal
-        precision. They can be used with zero scale to store very large
-        integers, or with a non-zero scale to store decimal fractions. The
-        DOUBLE type is a 64 bit, approximate floating point types. HyperSQL
-        even allows you to store infinity in this type.</para>
-      </listitem>
-
-      <listitem>
-        <para>The BOOLEAN type is for logical values and can hold TRUE, FALSE
-        or UNKNOWN. Although HyperSQL allows you to use one and zero in
-        assignment or comparison, you should use the standard values for this
-        type.</para>
-      </listitem>
-
-      <listitem>
-        <para>Character string types are CHAR(L), VARCHAR(L) and CLOB. CHAR is
-        for fixed width strings and any string that is assigned to this type
-        is padded with spaces at the end. Do not use this type for general
-        storage of strings. If you use CHAR without the length L, then it is
-        interpreted as a single character string. Use VARCHAR(L) for general
-        strings. There are only memory limits and performance implications for
-        the maximum length of VARCHAR(L). If the strings are larger than a few
-        kilobytes, consider using CLOB. The CLOB types is for very large
-        strings. Do not use this type for short strings as there are
-        performance implications. The CLOB type is a better choice for the
-        storage of long strings. By default LONGVARCHAR is a synonym for a
-        long VARCHAR and can be used without specifying the size. You can set
-        LONGVARCHAR to map to CLOB, with the
-        <literal>sql.longvar_is_lob</literal> connection property or the SET
-        DATABASE SQL LONGVAR IS LOB TRUE statement.</para>
-      </listitem>
-
-      <listitem>
-        <para>Binary string types are BINARY(L), VARBINARY(L) and BLOB. Do not
-        use BINARY(L) unless you are storing keys such as UUID. This type pads
-        short binary strings with zero bytes. BINARY without the length L
-        means a single byte. Use VARBINARY(L) for general binary strings, and
-        BLOB for large binary objects. You should apply the same
-        considerations as with the character string types. By default
-        LONGVARBINARY is a synonym for a long VARCHAR and can be used without
-        specifying the size. You can set LONGVARBINARY to map to BLOB, with
-        the <literal>sql.longvar_is_lob</literal> connection property or the
-        SET DATABASE SQL LONGVAR IS LOB TRUE statement.</para>
-      </listitem>
-
-      <listitem>
-        <para>The BIT(L) and BITVARYING(L) types are for bit maps. Do not use
-        them for other types of data. BIT without the length L argument means
-        a single bit and is sometimes used as a logical type. Use BOOLEAN
-        instead of this type.</para>
-      </listitem>
-
-      <listitem>
-        <para>The datetime types DATE, TIME and TIMESTAMP, together with their
-        WITH TIME ZONE variations are available. Read the details in this
-        chapter on how to use these types.</para>
-      </listitem>
-
-      <listitem>
-        <para>The INTERVAL type is very powerful when used together with the
-        datetime types. This is very easy to use, but is supported mainly by
-        "big iron" database systems. Note that functions that add days or
-        months to datetime values are not really a substitute for the INTERVAL
-        type. Expressions such as <literal>(datecol - 7 DAY) &gt;
-        CURRENT_DATE</literal> are optimised to use indexes when it is
-        possible, while the equivalent function calls are not
-        optimised.</para>
-      </listitem>
-
-      <listitem>
-        <para>The OTHER type is for storage of Java objects. If your objects
-        are large, serialize them in your application and store them as BLOB
-        in the database.</para>
-      </listitem>
-
-      <listitem>
-        <para>The ARRAY type supports all base types except LOB and OTHER
-        types. ARRAY data objects are held in memory while being processed. It
-        is therefore not recommended to store more than about a thousand
-        objects in an ARRAY in normal operations with disk based databases.
-        For specialised applications, use ARRAY with as many elements as your
-        memory allocation can support.</para>
-      </listitem>
-    </itemizedlist>
-
-    <para>HyperSQL 2.1 has several compatibility modes which allow the type
-    names that are used by other RDBM's to be accepted and translated into the
-    closest SQL Standard type. For example the type TEXT, supported by MySQL
-    and PostgreSQL is translated in these compatibility modes.</para>
-  </section>
-
   <section xml:id="sqlgeneral_tabletypes-sect">
     <title>SQL Data and Tables</title>
 
@@ -321,8 +219,110 @@
     </section>
   </section>
 
+  <section>
+    <title>Short Guide to Data Types</title>
+
+    <para>Most other RDBMS's do not conform to the SQL Standard in all areas,
+    but they are gradually moving towards Standard conformance. When switching
+    from another SQL dialect, the following should be considered:</para>
+
+    <itemizedlist>
+      <listitem>
+        <para>Numeric types TINYINT, SMALLINT, INTEGER and BIGINT are types
+        with fixed binary precision. These types are more efficient to store
+        and retrieve. NUMERIC and DECIMAL are types with user-defined decimal
+        precision. They can be used with zero scale to store very large
+        integers, or with a non-zero scale to store decimal fractions. The
+        DOUBLE type is a 64 bit, approximate floating point types. HyperSQL
+        even allows you to store infinity in this type.</para>
+      </listitem>
+
+      <listitem>
+        <para>The BOOLEAN type is for logical values and can hold TRUE, FALSE
+        or UNKNOWN. Although HyperSQL allows you to use one and zero in
+        assignment or comparison, you should use the standard values for this
+        type.</para>
+      </listitem>
+
+      <listitem>
+        <para>Character string types are CHAR(L), VARCHAR(L) and CLOB. CHAR is
+        for fixed width strings and any string that is assigned to this type
+        is padded with spaces at the end. Do not use this type for general
+        storage of strings. If you use CHAR without the length L, then it is
+        interpreted as a single character string. Use VARCHAR(L) for general
+        strings. There are only memory limits and performance implications for
+        the maximum length of VARCHAR(L). If the strings are larger than a few
+        kilobytes, consider using CLOB. The CLOB types is for very large
+        strings. Do not use this type for short strings as there are
+        performance implications. The CLOB type is a better choice for the
+        storage of long strings. By default LONGVARCHAR is a synonym for a
+        long VARCHAR and can be used without specifying the size. You can set
+        LONGVARCHAR to map to CLOB, with the
+        <literal>sql.longvar_is_lob</literal> connection property or the SET
+        DATABASE SQL LONGVAR IS LOB TRUE statement.</para>
+      </listitem>
+
+      <listitem>
+        <para>Binary string types are BINARY(L), VARBINARY(L) and BLOB. Do not
+        use BINARY(L) unless you are storing keys such as UUID. This type pads
+        short binary strings with zero bytes. BINARY without the length L
+        means a single byte. Use VARBINARY(L) for general binary strings, and
+        BLOB for large binary objects. You should apply the same
+        considerations as with the character string types. By default
+        LONGVARBINARY is a synonym for a long VARCHAR and can be used without
+        specifying the size. You can set LONGVARBINARY to map to BLOB, with
+        the <literal>sql.longvar_is_lob</literal> connection property or the
+        SET DATABASE SQL LONGVAR IS LOB TRUE statement.</para>
+      </listitem>
+
+      <listitem>
+        <para>The BIT(L) and BITVARYING(L) types are for bit maps. Do not use
+        them for other types of data. BIT without the length L argument means
+        a single bit and is sometimes used as a logical type. Use BOOLEAN
+        instead of this type.</para>
+      </listitem>
+
+      <listitem>
+        <para>The datetime types DATE, TIME and TIMESTAMP, together with their
+        WITH TIME ZONE variations are available. Read the details in this
+        chapter on how to use these types.</para>
+      </listitem>
+
+      <listitem>
+        <para>The INTERVAL type is very powerful when used together with the
+        datetime types. This is very easy to use, but is supported mainly by
+        "big iron" database systems. Note that functions that add days or
+        months to datetime values are not really a substitute for the INTERVAL
+        type. Expressions such as <literal>(datecol - 7 DAY) &gt;
+        CURRENT_DATE</literal> are optimised to use indexes when it is
+        possible, while the equivalent function calls are not
+        optimised.</para>
+      </listitem>
+
+      <listitem>
+        <para>The OTHER type is for storage of Java objects. If your objects
+        are large, serialize them in your application and store them as BLOB
+        in the database.</para>
+      </listitem>
+
+      <listitem>
+        <para>The ARRAY type supports all base types except LOB and OTHER
+        types. ARRAY data objects are held in memory while being processed. It
+        is therefore not recommended to store more than about a thousand
+        objects in an ARRAY in normal operations with disk based databases.
+        For specialised applications, use ARRAY with as many elements as your
+        memory allocation can support.</para>
+      </listitem>
+    </itemizedlist>
+
+    <para>HyperSQL 2.1 has several compatibility modes which allow the type
+    names that are used by other RDBM's to be accepted and translated into the
+    closest SQL Standard type. For example the type TEXT, supported by MySQL
+    and PostgreSQL is translated in these compatibility modes.</para>
+  </section>
+
   <section xml:id="sqlgeneral_types_ops-sect">
-    <title>Basic Types and Operations</title>
+    <title>Data Types and Operations</title>
 
     <para>HyperSQL supports all the types defined by SQL-92, plus BOOLEAN,
     BINARY and LOB types that were added later to the SQL Standard. It also
@@ -1641,9 +1641,9 @@ UPDATE t SET scores[2] = 123, names[2] = 'Reds' WHERE id = 10
     capable of internal processing of queries at over 100,000 rows per second.
     Any query that runs into several seconds is clearly accessing thousands of
     rows. The query should be checked and indexes should be added to the
-    relevant columns of the tables if necessary. The EXPLAIN PLAN
-    &lt;query&gt; statement can be used to see which indexes are used to
-    process the query.</para>
+    relevant columns of the tables if necessary. The <literal>EXPLAIN PLAN FOR
+    &lt;query&gt;</literal> statement can be used to see which indexes are
+    used to process the query.</para>
 
     <para>When executing a DELETE or UPDATE statement, the engine needs to
     find the rows that are to be deleted or updated. If there is an index on
@@ -1704,8 +1704,9 @@ UPDATE t SET scores[2] = 123, names[2] = 'Reds' WHERE id = 10
     </informalexample>
 
     <para>The general rule is to put first the table that has a narrowing
-    condition on one of its columns. HyperSQL 2.1 reorders the joined tables
-    if it is obvious that this will introduce a narrowing condition.</para>
+    condition on one of its columns. In certain cases, HyperSQL 2.1 reorders
+    the joined tables if it is obvious that this will introduce a narrowing
+    condition.</para>
 
     <para>HyperSQL features automatic, on-the-fly indexes for views and
     subselects that are used in a query.</para>
