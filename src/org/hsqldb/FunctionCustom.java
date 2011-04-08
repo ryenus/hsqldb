@@ -1964,7 +1964,7 @@ public class FunctionCustom extends FunctionSQL {
 
                 // fixed maximum as format is a variable
                 dataType = CharacterType.getCharacterType(Types.SQL_VARCHAR,
-                        40);
+                        64);
 
                 return;
             }

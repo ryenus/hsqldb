@@ -61,10 +61,9 @@ public class StatementSchema extends Statement {
     boolean  isSchemaDefinition;
     Token[]  statementTokens;
 
-    StatementSchema() {
+    StatementSchema(int type, int group) {
 
-        super(StatementTypes.CREATE_SCHEMA,
-              StatementTypes.X_SQL_SCHEMA_DEFINITION);
+        super(type, group);
 
         isTransactionStatement = true;
     }

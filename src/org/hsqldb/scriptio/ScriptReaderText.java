@@ -32,8 +32,10 @@
 package org.hsqldb.scriptio;
 
 import java.io.BufferedInputStream;
+import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.zip.GZIPInputStream;
 
 import org.hsqldb.Database;
 import org.hsqldb.HsqlException;
@@ -44,14 +46,10 @@ import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
 import org.hsqldb.lib.LineReader;
 import org.hsqldb.lib.StringConverter;
-import org.hsqldb.lib.java.JavaSystem;
 import org.hsqldb.result.Result;
-import org.hsqldb.result.ResultProperties;
 import org.hsqldb.rowio.RowInputTextLog;
 import org.hsqldb.store.ValuePool;
 import org.hsqldb.types.Type;
-
-import java.util.zip.GZIPInputStream;
 
 /**
  * Handles operations involving reading back a script or log file written
@@ -59,7 +57,7 @@ import java.util.zip.GZIPInputStream;
  * corresponds to ScriptWriterText.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- *  @version 2.0.1
+ *  @version 2.1.1
  *  @since 1.7.2
  */
 public class ScriptReaderText extends ScriptReaderBase {
@@ -102,7 +100,7 @@ public class ScriptReaderText extends ScriptReaderBase {
         rowIn = new RowInputTextLog(db.databaseProperties.isVersion18());
     }
 
-    protected void readDDL(Session session) throws IOException {
+    protected void readDDL(Session session) {
 
         for (; readLoggedStatement(session); ) {
             Statement cs     = null;
@@ -157,7 +155,7 @@ public class ScriptReaderText extends ScriptReaderBase {
         }
     }
 
-    protected void readExistingData(Session session) throws IOException {
+    protected void readExistingData(Session session) {
 
         try {
             String tablename = null;
@@ -205,12 +203,20 @@ public class ScriptReaderText extends ScriptReaderBase {
         }
     }
 
-    public boolean readLoggedStatement(Session session) throws IOException {
+    public boolean readLoggedStatement(Session session) {
 
         if (!sessionChanged) {
 
             //fredt temporary solution - should read bytes directly from buffer
-            String s = dataStreamIn.readLine();
+            String s;
+
+            try {
+                s = dataStreamIn.readLine();
+            } catch (EOFException e) {
+                return false;
+            } catch (IOException e) {
+                throw Error.error(e, ErrorCode.FILE_IO_ERROR, null);
+            }
 
             lineCount++;
 
@@ -227,72 +233,65 @@ public class ScriptReaderText extends ScriptReaderBase {
         return true;
     }
 
-    void processStatement(Session session) throws IOException {
+    void processStatement(Session session) {
+
+        if (statement.startsWith("/*C")) {
+            int endid = statement.indexOf('*', 4);
+
+            sessionNumber  = Integer.parseInt(statement.substring(3, endid));
+            statement      = statement.substring(endid + 2);
+            sessionChanged = true;
+            statementType  = SESSION_ID;
+
+            return;
+        }
+
+        sessionChanged = false;
+
+        rowIn.setSource(statement);
+
+        statementType = rowIn.getStatementType();
+
+        if (statementType == ANY_STATEMENT) {
+            rowData      = null;
+            currentTable = null;
+
+            return;
+        } else if (statementType == COMMIT_STATEMENT) {
+            rowData      = null;
+            currentTable = null;
+
+            return;
+        } else if (statementType == SET_SCHEMA_STATEMENT) {
+            rowData       = null;
+            currentTable  = null;
+            currentSchema = rowIn.getSchemaName();
+
+            return;
+        }
+
+        String name   = rowIn.getTableName();
+        String schema = session.getCurrentSchemaHsqlName().name;
+
+        currentTable = database.schemaManager.getUserTable(session, name,
+                schema);
+        currentStore =
+            database.persistentStoreCollection.getStore(currentTable);
+
+        Type[] colTypes;
+
+        if (statementType == INSERT_STATEMENT) {
+            colTypes = currentTable.getColumnTypes();
+        } else if (currentTable.hasPrimaryKey()) {
+            colTypes = currentTable.getPrimaryKeyTypes();
+        } else {
+            colTypes = currentTable.getColumnTypes();
+        }
 
         try {
-            if (statement.startsWith("/*C")) {
-                int endid = statement.indexOf('*', 4);
-
-                sessionNumber = Integer.parseInt(statement.substring(3,
-                        endid));
-                statement      = statement.substring(endid + 2);
-                sessionChanged = true;
-                statementType  = SESSION_ID;
-
-                return;
-            }
-
-            sessionChanged = false;
-
-            rowIn.setSource(statement);
-
-            statementType = rowIn.getStatementType();
-
-            if (statementType == ANY_STATEMENT) {
-                rowData      = null;
-                currentTable = null;
-
-                return;
-            } else if (statementType == COMMIT_STATEMENT) {
-                rowData      = null;
-                currentTable = null;
-
-                return;
-            } else if (statementType == SET_SCHEMA_STATEMENT) {
-                rowData       = null;
-                currentTable  = null;
-                currentSchema = rowIn.getSchemaName();
-
-                return;
-            }
-
-            String name   = rowIn.getTableName();
-            String schema = session.getCurrentSchemaHsqlName().name;
-
-            currentTable = database.schemaManager.getUserTable(session, name,
-                    schema);
-            currentStore =
-                database.persistentStoreCollection.getStore(currentTable);
-
-            Type[] colTypes;
-
-            if (statementType == INSERT_STATEMENT) {
-                colTypes = currentTable.getColumnTypes();
-            } else if (currentTable.hasPrimaryKey()) {
-                colTypes = currentTable.getPrimaryKeyTypes();
-            } else {
-                colTypes = currentTable.getColumnTypes();
-            }
-
-            try {
-                rowData = rowIn.readData(colTypes);
-            } catch (Exception e) {
-                throw e;
-            }
-        } catch (Exception e) {
-            System.out.println(statement);
-
-            throw JavaSystem.toIOException(e);
+            rowData = rowIn.readData(colTypes);
+        } catch (IOException e) {
+            throw Error.error(e, ErrorCode.FILE_IO_ERROR, null);
         }
     }
 

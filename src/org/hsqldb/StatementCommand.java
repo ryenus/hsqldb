@@ -392,11 +392,12 @@ public class StatementCommand extends Statement {
             }
             case StatementTypes.SET_DATABASE_FILES_EVENT_LOG : {
                 try {
-                    int value = ((Integer) parameters[0]).intValue();
+                    int     value = ((Integer) parameters[0]).intValue();
+                    boolean isSql = ((Boolean) parameters[1]).booleanValue();
 
                     session.checkAdmin();
                     session.checkDDLWrite();
-                    session.database.logger.setEventLogLevel(value);
+                    session.database.logger.setEventLogLevel(value, isSql);
 
                     return Result.updateZeroResult;
                 } catch (HsqlException e) {
@@ -998,9 +999,9 @@ public class StatementCommand extends Statement {
             }
             case StatementTypes.SET_USER_PASSWORD : {
                 try {
-                    User   user = parameters[0] == null ? session.getUser()
-                                                        : (User) parameters[0];
-                    String password = (String) parameters[1];
+                    User    user = parameters[0] == null ? session.getUser()
+                                                         : (User) parameters[0];
+                    String  password = (String) parameters[1];
                     boolean isDigest = (Boolean) parameters[2];
 
                     session.checkDDLWrite();

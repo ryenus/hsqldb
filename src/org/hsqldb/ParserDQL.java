@@ -161,7 +161,7 @@ public class ParserDQL extends ParserBase {
                             read();
 
                             return Type.getType(Types.SQL_VARBINARY, null,
-                                                null,
+                                                database.collation,
                                                 BlobType.defaultBlobSize, 0);
                         } else {
                             return Type.getType(Types.SQL_VARCHAR, null, null,

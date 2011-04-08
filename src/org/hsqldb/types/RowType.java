@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2010, The HSQL Development Group
+/* Copyright (c) 2001-2011, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -399,5 +399,38 @@ public class RowType extends Type {
         }
 
         return 0;
+    }
+
+    public static String convertToSQLString(Object[] array, Type[] types,
+            int maxUnitLength) {
+
+        if (array == null) {
+            return Tokens.T_NULL;
+        }
+
+        StringBuffer sb = new StringBuffer();
+
+        sb.append('(');
+
+        for (int i = 0; i < array.length; i++) {
+            String value;
+
+            if (i > 0) {
+                sb.append(',');
+            }
+
+            value = types[i].convertToSQLString(array[i]);
+
+            if (maxUnitLength > 7 && value.length() > maxUnitLength) {
+                sb.append(value.substring(0, maxUnitLength - 4));
+                sb.append(" ...");
+            } else {
+                sb.append(value);
+            }
+        }
+
+        sb.append(')');
+
+        return sb.toString();
     }
 }

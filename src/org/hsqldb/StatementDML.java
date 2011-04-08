@@ -48,12 +48,13 @@ import org.hsqldb.result.Result;
 import org.hsqldb.result.ResultConstants;
 import org.hsqldb.result.ResultMetaData;
 import org.hsqldb.types.Type;
+import org.hsqldb.types.Types;
 
 /**
  * Implementation of Statement for DML statements.<p>
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.0.1
+ * @version 2.1.1
  * @since 1.9.0
  */
 
@@ -868,8 +869,29 @@ public class StatementDML extends StatementDMQL {
             Object value = e.getValue(session);
             Type   type  = colTypes[colIndex];
 
-            // DYNAMIC_PARAM and PARAMETER expressions may have wider values
-            value = type.convertToType(session, value, e.dataType);
+            if (session.database.sqlSyntaxMys
+                    || session.database.sqlSyntaxPgs) {
+                try {
+                    value = type.convertToType(session, value, e.dataType);
+                } catch (HsqlException ex) {
+                    if (type.typeCode == Types.SQL_DATE) {
+                        value = Type.SQL_TIMESTAMP.convertToType(session,
+                                value, e.dataType);
+                        value = type.convertToType(session, value,
+                                                   Type.SQL_TIMESTAMP);
+                    } else if (type.typeCode == Types.SQL_TIMESTAMP) {
+                        value = Type.SQL_DATE.convertToType(session,
+                                value, e.dataType);
+                        value = type.convertToType(session, value,
+                                                   Type.SQL_DATE);
+                    } else {
+                        throw ex;
+                    }
+                }
+            } else {
+                // DYNAMIC_PARAM and PARAMETER expressions may have wider values
+                value = type.convertToType(session, value, e.dataType);
+            }
 
             data[colIndex] = value;
         }

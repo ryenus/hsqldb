@@ -151,7 +151,7 @@ public class Log {
                 }
 
                 processLog();
-                checkpoint(false);
+                checkpoint();
                 break;
 
             case HsqlDatabaseProperties.FILES_MODIFIED_NEW :
@@ -176,7 +176,7 @@ public class Log {
                 if (!filesReadOnly && isAnyCacheModified()) {
                     properties.setDBModified(
                         HsqlDatabaseProperties.FILES_MODIFIED);
-                    checkpoint(false);
+                    checkpoint();
                 }
                 break;
         }
@@ -333,6 +333,22 @@ public class Log {
         return isAnyTextCacheModified();
     }
 
+    void checkpoint() {
+
+        if (filesReadOnly) {
+            return;
+        }
+
+        boolean result = checkpointClose();
+
+        if (result) {
+            checkpointReopen();
+        } else {
+            database.logger.logSevereEvent(
+                "checkpoint failed - see previous error", null);
+        }
+    }
+
     /**
      * Performs checkpoint including pre and post operations. Returns to the
      * same state as before the checkpoint.
@@ -352,6 +368,7 @@ public class Log {
         if (defrag) {
             try {
                 defrag();
+                database.sessionManager.resetLoggedSchemas();
 
                 return;
             } catch (Exception e) {
@@ -360,14 +377,7 @@ public class Log {
             }
         }
 
-        boolean result = checkpointClose();
-
-        if (result) {
-            checkpointReopen();
-        } else {
-            database.logger.logSevereEvent(
-                "checkpoint failed - see previous error", null);
-        }
+        checkpoint();
     }
 
     /**
@@ -437,6 +447,8 @@ public class Log {
         if (filesReadOnly) {
             return true;
         }
+
+        database.sessionManager.resetLoggedSchemas();
 
         try {
             if (cache != null) {
@@ -561,10 +573,10 @@ public class Log {
     /**
      * Various writeXXX() methods are used for logging statements.
      */
-    void writeStatement(Session session, String s) {
+    void writeOtherStatement(Session session, String s) {
 
         try {
-            dbLogWriter.writeAnyStatement(session, s);
+            dbLogWriter.writeOtherStatement(session, s);
         } catch (IOException e) {
             throw Error.error(ErrorCode.FILE_IO_ERROR, logFileName);
         }

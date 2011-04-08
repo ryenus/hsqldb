@@ -131,7 +131,6 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
                     return getClass().getResourceAsStream(resourceFileName);
                 }
             });
-
             InputStreamReader reader = null;
 
             try {
@@ -912,6 +911,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
      * TRANSACTION_SIZE   BIGINT    # of undo items in current transaction
      * WAITING_FOR_THIS   VARCHAR   comma separated list of sessions waiting for this one
      * THIS_WAITING_FOR   VARCHAR   comma separated list of sessions this session is waiting for
+     * LATCH_COUNT        INTEGER   latch count for session
      * </pre> <p>
      *
      * @return a <code>Table</code> object describing all visible
@@ -939,6 +939,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
             addColumn(t, "WAITING_FOR_THIS", CHARACTER_DATA);
             addColumn(t, "THIS_WAITING_FOR", CHARACTER_DATA);
             addColumn(t, "CURRENT_STATEMENT", CHARACTER_DATA);
+            addColumn(t, "LATCH_COUNT", CARDINAL_NUMBER);
 
             // order:  SESSION_ID
             // true primary key
@@ -952,19 +953,20 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         }
 
         // column number mappings
-        final int isid         = 0;
-        final int ict          = 1;
-        final int iuname       = 2;
-        final int iis_admin    = 3;
-        final int iautocmt     = 4;
-        final int ireadonly    = 5;
-        final int ilast_id     = 6;
-        final int it_schema    = 7;
-        final int it_tx        = 8;
-        final int it_size      = 9;
-        final int it_waiting   = 10;
-        final int it_waited    = 11;
-        final int it_statement = 12;
+        final int isid           = 0;
+        final int ict            = 1;
+        final int iuname         = 2;
+        final int iis_admin      = 3;
+        final int iautocmt       = 4;
+        final int ireadonly      = 5;
+        final int ilast_id       = 6;
+        final int it_schema      = 7;
+        final int it_tx          = 8;
+        final int it_size        = 9;
+        final int it_waiting     = 10;
+        final int it_waited      = 11;
+        final int it_statement   = 12;
+        final int it_latch_count = 13;
 
         //
         // intermediate holders
@@ -1046,6 +1048,8 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
 
             row[it_statement] = st == null ? ""
                                            : st.getSQL();
+
+            row[it_latch_count] = new Long(s.latch.getCount());
 
             t.insertSys(session, store, row);
         }

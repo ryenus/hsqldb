@@ -31,8 +31,6 @@
 
 package org.hsqldb.scriptio;
 
-import java.io.IOException;
-
 import org.hsqldb.Database;
 import org.hsqldb.NumberSequence;
 import org.hsqldb.Session;
@@ -61,18 +59,16 @@ public abstract class ScriptReaderBase {
         this.database = db;
     }
 
-    public void readAll(Session session) throws IOException {
+    public void readAll(Session session) {
         readDDL(session);
         readExistingData(session);
     }
 
-    protected abstract void readDDL(Session session) throws IOException;
+    protected abstract void readDDL(Session session);
 
-    protected abstract void readExistingData(Session session)
-    throws IOException;
+    protected abstract void readExistingData(Session session);
 
-    public abstract boolean readLoggedStatement(Session session)
-    throws IOException;
+    public abstract boolean readLoggedStatement(Session session);
 
     int             statementType;
     int             sessionNumber;

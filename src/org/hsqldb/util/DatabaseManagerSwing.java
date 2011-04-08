@@ -712,8 +712,10 @@ implements ActionListener, WindowListener, KeyListener, MouseListener {
         try {
             prefs = new DBMPrefs(fMain instanceof JApplet);
         } catch (Exception e) {
+/*
             System.err.println(
                 "Failed to load preferences.  Proceeding with defaults:\n");
+*/
         }
 
         if (prefs == null) {
@@ -2305,13 +2307,13 @@ implements ActionListener, WindowListener, KeyListener, MouseListener {
 
         Font fFont = new Font("Dialog", Font.PLAIN, 12);
 
-        txtCommand = new JTextArea(5, 40);
+        txtCommand = new JTextArea(7, 40);
 
         txtCommand.setMargin(new Insets(5, 5, 5, 5));
         txtCommand.addKeyListener(this);
 
         txtCommandScroll = new JScrollPane(txtCommand);
-        txtResult        = new JTextArea(20, 40);
+        txtResult        = new JTextArea(25, 40);
 
         txtResult.setMargin(new Insets(5, 5, 5, 5));
 
@@ -2346,9 +2348,9 @@ implements ActionListener, WindowListener, KeyListener, MouseListener {
 
         // System.out.println("Adding mouse listener");
         tTree.addMouseListener(this);
-        tScrollPane.setPreferredSize(new Dimension(120, 400));
+        tScrollPane.setPreferredSize(new Dimension(200, 400));
         tScrollPane.setMinimumSize(new Dimension(70, 100));
-        txtCommandScroll.setPreferredSize(new Dimension(360, 100));
+        txtCommandScroll.setPreferredSize(new Dimension(560, 100));
         txtCommandScroll.setMinimumSize(new Dimension(180, 100));
         gScrollPane.setPreferredSize(new Dimension(460, 300));
 

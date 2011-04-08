@@ -51,6 +51,7 @@ import org.hsqldb.lib.HsqlArrayList;
 import org.hsqldb.lib.HsqlDeque;
 import org.hsqldb.lib.Iterator;
 import org.hsqldb.lib.OrderedHashSet;
+import org.hsqldb.lib.SimpleLog;
 import org.hsqldb.lib.java.JavaSystem;
 import org.hsqldb.navigator.RowSetNavigator;
 import org.hsqldb.navigator.RowSetNavigatorClient;
@@ -90,27 +91,27 @@ public class Session implements SessionInterface {
     private Grantee    role;
 
     // transaction support
-    public boolean        isReadOnlyDefault;
-    int isolationLevelDefault            = SessionInterface.TX_READ_COMMITTED;
-    int                   isolationLevel = SessionInterface.TX_READ_COMMITTED;
-    boolean               isReadOnlyIsolation;
-    int                   actionIndex;
-    long                  actionTimestamp;
-    long                  transactionTimestamp;
-    long                  transactionEndTimestamp;
-    boolean               deadlockRollback;
-    boolean               isPreTransaction;
-    boolean               isTransaction;
-    boolean               isBatch;
-    volatile boolean      abortTransaction;
-    volatile boolean      redoAction;
-    HsqlArrayList         rowActionList;
-    volatile boolean      tempUnlocked;
-    public OrderedHashSet waitedSessions;
-    public OrderedHashSet waitingSessions;
-    OrderedHashSet        tempSet;
-    CountUpDownLatch      latch = new CountUpDownLatch();
-    Statement             lockStatement;
+    public boolean          isReadOnlyDefault;
+    int isolationLevelDefault = SessionInterface.TX_READ_COMMITTED;
+    int isolationLevel        = SessionInterface.TX_READ_COMMITTED;
+    boolean                 isReadOnlyIsolation;
+    int                     actionIndex;
+    long                    actionTimestamp;
+    long                    transactionTimestamp;
+    long                    transactionEndTimestamp;
+    boolean                 deadlockRollback;
+    boolean                 isPreTransaction;
+    boolean                 isTransaction;
+    boolean                 isBatch;
+    volatile boolean        abortTransaction;
+    volatile boolean        redoAction;
+    HsqlArrayList           rowActionList;
+    volatile boolean        tempUnlocked;
+    public OrderedHashSet   waitedSessions;
+    public OrderedHashSet   waitingSessions;
+    OrderedHashSet          tempSet;
+    public CountUpDownLatch latch = new CountUpDownLatch();
+    Statement               lockStatement;
 
     // current settings
     final String       zoneString;
@@ -617,6 +618,14 @@ public class Session implements SessionInterface {
         lockStatement = null;
 
         logSequences();
+
+        Statement endTX = commit ? StatementSession.commitNoChainStatement
+                                 : StatementSession.rollbackNoChainStatement;
+
+        if (database.logger.getSqlEventLogLevel() > 0) {
+            database.logger.logStatementEvent(this, endTX, null,
+                                              SimpleLog.LOG_NORMAL);
+        }
 /* debug 190
         tempActionHistory.add("commit ends " + actionTimestamp);
         tempActionHistory.clear();
@@ -1261,7 +1270,7 @@ public class Session implements SessionInterface {
 
         boolean isTX = cs.isTransactionStatement();
 
-        if (database.txManager.isMVCC()) {
+        if (isTX && database.txManager.isMVCC()) {
             if (cs.readTableNames.length == 0
                     && cs.writeTableNames.length == 0) {
                 isTX = false;
@@ -1269,7 +1278,14 @@ public class Session implements SessionInterface {
         }
 
         if (!isTX) {
-            sessionContext.setDynamicArguments(pvals);
+            if (database.logger.getSqlEventLogLevel() > 0) {
+                sessionContext.setDynamicArguments(pvals);
+            }
+
+            if (database.logger.getSqlEventLogLevel() > 0) {
+                database.logger.logStatementEvent(this, cs, pvals,
+                                                  SimpleLog.LOG_DETAIL);
+            }
 
             r                               = cs.execute(this);
             sessionContext.currentStatement = null;
@@ -1314,6 +1330,11 @@ public class Session implements SessionInterface {
 
             //        tempActionHistory.add("sql execute " + cs.sql + " " + actionTimestamp + " " + rowActionList.size());
             sessionContext.setDynamicArguments(pvals);
+
+            if (database.logger.getSqlEventLogLevel() > 0) {
+                database.logger.logStatementEvent(this, cs, pvals,
+                                                  SimpleLog.LOG_DETAIL);
+            }
 
             r             = cs.execute(this);
             lockStatement = sessionContext.currentStatement;

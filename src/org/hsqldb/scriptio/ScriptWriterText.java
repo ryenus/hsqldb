@@ -229,7 +229,7 @@ public class ScriptWriterText extends ScriptWriterBase {
         currentSession.loggedSchema = schemaToLog;
     }
 
-    public void writeAnyStatement(Session session,
+    public void writeOtherStatement(Session session,
                                   String s) throws IOException {
 
         writeLogStatement(session, s);

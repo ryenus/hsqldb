@@ -706,7 +706,10 @@ public class SchemaManager {
         Table t = findUserTable(session, name, schema);
 
         if (t == null) {
-            throw Error.error(ErrorCode.X_42501, name);
+            String longName = schema == null ? name
+                                             : schema + '.' + name;
+
+            throw Error.error(ErrorCode.X_42501, longName);
         }
 
         return t;

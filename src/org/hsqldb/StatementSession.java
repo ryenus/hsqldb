@@ -51,6 +51,31 @@ import org.hsqldb.types.Type;
  */
 public class StatementSession extends Statement {
 
+    public final static StatementSession commitNoChainStatement =
+        new StatementSession(StatementTypes.COMMIT_WORK,
+                             new Object[]{ Boolean.FALSE });
+    public final static StatementSession rollbackNoChainStatement =
+        new StatementSession(StatementTypes.ROLLBACK_WORK,
+                             new Object[]{ Boolean.FALSE });
+    public final static StatementSession commitAndChainStatement =
+        new StatementSession(StatementTypes.COMMIT_WORK,
+                             new Object[]{ Boolean.TRUE });
+    public final static StatementSession rollbackAndChainStatement =
+        new StatementSession(StatementTypes.ROLLBACK_WORK,
+                             new Object[]{ Boolean.TRUE });
+
+    static {
+        commitNoChainStatement.sql   = Tokens.T_COMMIT;
+        commitAndChainStatement.sql  = Tokens.T_COMMIT + ' ' + Tokens.T_CHAIN;
+        rollbackNoChainStatement.sql = Tokens.T_ROLLBACK;
+        rollbackAndChainStatement.sql = Tokens.T_ROLLBACK + ' '
+                                        + Tokens.T_CHAIN;
+        commitNoChainStatement.compileTimestamp    = Long.MAX_VALUE;
+        commitAndChainStatement.compileTimestamp   = Long.MAX_VALUE;
+        rollbackNoChainStatement.compileTimestamp  = Long.MAX_VALUE;
+        rollbackAndChainStatement.compileTimestamp = Long.MAX_VALUE;
+    }
+
     Expression[] expressions;
     Object[]     parameters;
 
@@ -246,7 +271,7 @@ public class StatementSession extends Statement {
             //
             case StatementTypes.COMMIT_WORK : {
                 try {
-                    boolean chain = parameters != null;
+                    boolean chain = ((Boolean) parameters[0]).booleanValue();
 
                     session.commit(chain);
 
@@ -497,6 +522,7 @@ public class StatementSession extends Statement {
                         throw Error.error(ErrorCode.X_28501);
                     }
 
+                    // override the actual SQL at runtime
                     sql = userObject.getConnectUserSQL();
 
                     if (userObject == session.getGrantee()) {

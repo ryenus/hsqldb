@@ -270,9 +270,9 @@ public class ParserCommand extends ParserDDL {
 
                 cs = compileExplainPlan();
 
-                cs.setSQL(super.getLastPart(position));
+                cs.setSQL(getLastPart(position));
 
-                return cs;
+                break;
             }
             case Tokens.DECLARE :
                 cs = compileDeclare();
@@ -282,9 +282,17 @@ public class ParserCommand extends ParserDDL {
                 throw unexpectedToken();
         }
 
-        if (cs.type != StatementTypes.SET_SESSION_AUTHORIZATION
-                && cs.type != StatementTypes.SET_USER_PASSWORD) {
-            cs.setSQL(getLastPart());
+        // SET_SESSION_AUTHORIZATION is translated dynamically at runtime for logging
+        switch (cs.type) {
+
+            // these are set at compile time for logging
+            case StatementTypes.COMMIT_WORK :
+            case StatementTypes.ROLLBACK_WORK :
+            case StatementTypes.SET_USER_PASSWORD :
+                break;
+
+            default :
+                cs.setSQL(getLastPart());
         }
 
         if (token.tokenType == Tokens.SEMICOLON) {
@@ -910,7 +918,9 @@ public class ParserCommand extends ParserDDL {
                 Statement cs =
                     new StatementCommand(StatementTypes.SET_USER_PASSWORD,
                                          args);
-                String sql = User.getSetCurrentPasswordDigestSQL(password, isDigest);
+                String sql = User.getSetCurrentPasswordDigestSQL(password,
+                    isDigest);
+
                 cs.setSQL(sql);
 
                 return cs;
@@ -996,10 +1006,15 @@ public class ParserCommand extends ParserDDL {
             case Tokens.EVENT : {
                 read();
                 readThis(Tokens.LOG);
+
+                boolean sqlLog = readIfThis(Tokens.SQL);
+
                 readThis(Tokens.LEVEL);
 
                 Integer  value = readIntegerObject();
-                Object[] args  = new Object[]{ value };
+                Object[] args  = new Object[] {
+                    value, sqlLog
+                };
 
                 return new StatementCommand(
                     StatementTypes.SET_DATABASE_FILES_EVENT_LOG, args, null,
@@ -1559,11 +1574,8 @@ public class ParserCommand extends ParserDDL {
             readThis(Tokens.CHAIN);
         }
 
-        String    sql  = getLastPart();
-        Object[]  args = new Object[]{ Boolean.valueOf(chain) };
-        Statement cs = new StatementSession(StatementTypes.COMMIT_WORK, args);
-
-        return cs;
+        return chain ? StatementSession.commitAndChainStatement
+                     : StatementSession.commitNoChainStatement;
     }
 
     private Statement compileStartTransaction() {
@@ -1671,12 +1683,8 @@ public class ParserCommand extends ParserDDL {
             }
         }
 
-        String   sql  = getLastPart();
-        Object[] args = new Object[]{ Boolean.valueOf(chain) };
-        Statement cs = new StatementSession(StatementTypes.ROLLBACK_WORK,
-                                            args);
-
-        return cs;
+        return chain ? StatementSession.rollbackAndChainStatement
+                     : StatementSession.rollbackNoChainStatement;
     }
 
     private Statement compileSavepoint() {

@@ -46,6 +46,7 @@ import org.hsqldb.Row;
 import org.hsqldb.Session;
 import org.hsqldb.SessionInterface;
 import org.hsqldb.SqlInvariants;
+import org.hsqldb.Statement;
 import org.hsqldb.Table;
 import org.hsqldb.TableBase;
 import org.hsqldb.Tokens;
@@ -67,6 +68,7 @@ import org.hsqldb.lib.StringUtil;
 import org.hsqldb.lib.tar.DbBackup;
 import org.hsqldb.lib.tar.TarMalformatException;
 import org.hsqldb.scriptio.ScriptWriterBase;
+import org.hsqldb.types.RowType;
 import org.hsqldb.types.Type;
 
 // boucherb@users 20030510 - patch 1.7.2 - added cooperative file locking
@@ -86,6 +88,13 @@ import org.hsqldb.types.Type;
 public class Logger {
 
     public SimpleLog appLog;
+    public SimpleLog sqlLog;
+
+    //
+    FrameworkLogger fwLogger;
+    FrameworkLogger sqlLogger;
+
+    //
     private Database database;
     public boolean   checkpointRequired;
     public boolean   checkpointDue;
@@ -113,6 +122,7 @@ public class Logger {
     int            propLogSize;
     boolean        propLogData = true;
     int            propEventLogLevel;
+    int            propSqlLogLevel;
     int            propGC;
     int            propTxMode       = TransactionManager.LOCKS;
     boolean        propRefIntegrity = true;
@@ -137,6 +147,7 @@ public class Logger {
     public static final String oldFileExtension        = ".old";
     public static final String newFileExtension        = ".new";
     public static final String appLogFileExtension     = ".app.log";
+    public static final String sqlLogFileExtension     = ".sql.log";
     public static final String logFileExtension        = ".log";
     public static final String scriptFileExtension     = ".script";
     public static final String propertiesFileExtension = ".properties";
@@ -256,6 +267,7 @@ public class Logger {
                     HsqlDatabaseProperties.FILES_MODIFIED);
             }
 
+            // properties that also apply to existing database
             if (database.urlProperties.isPropertyTrue(
                     HsqlDatabaseProperties.hsqldb_files_readonly)) {
                 database.databaseProperties.setProperty(
@@ -273,18 +285,37 @@ public class Logger {
                 database.databaseProperties.setProperty(
                     HsqlDatabaseProperties.hsqldb_lock_file, false);
             }
+
+            int value = database.urlProperties.getIntegerProperty(
+                HsqlDatabaseProperties.hsqldb_applog, 0);
+
+            if (value > 0) {
+                database.databaseProperties.setProperty(
+                    HsqlDatabaseProperties.hsqldb_applog, value);
+            }
+
+            value = database.urlProperties.getIntegerProperty(
+                HsqlDatabaseProperties.hsqldb_sqllog, 0);
+
+            if (value > 0) {
+                database.databaseProperties.setProperty(
+                    HsqlDatabaseProperties.hsqldb_sqllog, value);
+            }
         }
 
         setVariables();
 
-        String logPath = null;
+        String appLogPath = null;
+        String sqlLogPath = null;
 
         if (DatabaseURL.isFileBasedDatabaseType(database.getType())
                 && !database.isFilesReadOnly()) {
-            logPath = database.getPath() + appLogFileExtension;
+            appLogPath = database.getPath() + appLogFileExtension;
+            sqlLogPath = database.getPath() + sqlLogFileExtension;
         }
 
-        this.appLog = new SimpleLog(logPath, propEventLogLevel);
+        appLog = new SimpleLog(appLogPath, propEventLogLevel);
+        sqlLog = new SimpleLog(sqlLogPath, this.propSqlLogLevel);
 
         database.setReferentialIntegrity(propRefIntegrity);
 
@@ -477,6 +508,8 @@ public class Logger {
 
         propEventLogLevel = database.databaseProperties.getIntegerProperty(
             HsqlDatabaseProperties.hsqldb_applog);
+        propEventLogLevel = database.databaseProperties.getIntegerProperty(
+            HsqlDatabaseProperties.hsqldb_sqllog);
         propFilesReadOnly = database.databaseProperties.isPropertyTrue(
             HsqlDatabaseProperties.hsqldb_files_readonly);
         propDatabaseReadOnly = database.databaseProperties.isPropertyTrue(
@@ -613,8 +646,6 @@ public class Logger {
                && !database.isFilesReadOnly();
     }
 
-    FrameworkLogger fwLogger;
-
     /**
      * All usage of FrameworkLogger should call this method before using an
      * instance.
@@ -632,10 +663,10 @@ public class Logger {
      * This tactic avoids usage of file-based jdk logging for the time being.
      *
      */
-    private FrameworkLogger getEventLogger() {
+    private void getEventLogger() {
 
         if (fwLogger != null) {
-            return fwLogger;
+            return;
         }
 
         String name = database.getUniqueName();
@@ -646,25 +677,34 @@ public class Logger {
             // depending on upgraded / exiting / new databases.
             // Therefore FrameworkLogger is not used until the unique
             // name is known.
-            return null;
+            return;
         }
 
         fwLogger = FrameworkLogger.getLog(SimpleLog.logTypeNameEngine,
                                           "hsqldb.db."
                                           + database.getUniqueName());
-
-        return fwLogger;
+        /*
+        sqlLogger = FrameworkLogger.getLog(SimpleLog.logTypeNameEngine,
+                                           "hsqldb.sql."
+                                           + database.getUniqueName());
+        */
     }
 
-    public void setEventLogLevel(int level) {
+    public void setEventLogLevel(int level, boolean sqlLog) {
 
         if (level < SimpleLog.LOG_NONE || level > SimpleLog.LOG_DETAIL) {
             throw Error.error(ErrorCode.X_42556);
         }
 
-        propEventLogLevel = level;
+        if (sqlLog) {
+            propSqlLogLevel = level;
 
-        appLog.setLevel(level);
+            this.sqlLog.setLevel(level);
+        } else {
+            propEventLogLevel = level;
+
+            appLog.setLevel(level);
+        }
     }
 
     public void logSevereEvent(String message, Throwable t) {
@@ -719,6 +759,41 @@ public class Logger {
         }
     }
 
+    public void logStatementEvent(Session session, Statement statement,
+                                  Object[] paramValues, int level) {
+
+        getEventLogger();
+
+        if (sqlLogger != null) {
+            sqlLogger.finest(statement.getSQL());
+        }
+
+        if (sqlLog != null && level <= propSqlLogLevel) {
+            String sessionId = Long.toString(session.getId());
+            String sql       = statement.getSQL();
+            String values    = "";
+
+            if (sql.length() > 100) {
+                sql.substring(0, 100);
+            }
+
+            if (level == SimpleLog.LOG_DETAIL) {
+                if (paramValues != null && paramValues.length > 0) {
+                    values = RowType.convertToSQLString(
+                        paramValues,
+                        statement.getParametersMetaData().getParameterTypes(),
+                        32);
+                }
+            }
+
+            sqlLog.logContext(SimpleLog.LOG_DETAIL, sessionId, sql, values);
+        }
+    }
+
+    public int getSqlEventLogLevel() {
+        return propEventLogLevel;
+    }
+
     /**
      * Returns the Cache object or null if one doesn't exist.
      */
@@ -750,7 +825,8 @@ public class Logger {
     public synchronized void writeStartSession(Session session) {
 
         if (loggingEnabled) {
-            log.writeStatement(session, session.getUser().getConnectUserSQL());
+            log.writeOtherStatement(session,
+                                    session.getUser().getConnectUserSQL());
         }
     }
 
@@ -762,7 +838,7 @@ public class Logger {
             String statement) {
 
         if (loggingEnabled) {
-            log.writeStatement(session, statement);
+            log.writeOtherStatement(session, statement);
         }
     }
 
@@ -815,7 +891,7 @@ public class Logger {
     public synchronized void writeRollbackStatement(Session session) {
 
         if (loggingEnabled) {
-            log.writeStatement(session, "ROLLBACK");
+            log.writeOtherStatement(session, "ROLLBACK");
         }
     }
 
