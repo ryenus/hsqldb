@@ -1509,7 +1509,7 @@ public class FunctionSQL extends Expression {
                     if (dataType.typeCode == Types.SQL_CHAR) {
                         dataType =
                             CharacterType.getCharacterType(Types.SQL_VARCHAR,
-                                                           dataType.precision);
+                                                           dataType.precision, dataType.getCollation());
                     }
                 } else if (dataType.isBinaryType()) {
                     funcType = FUNC_SUBSTRING_BINARY;
@@ -1571,7 +1571,7 @@ public class FunctionSQL extends Expression {
                     if (dataType.typeCode == Types.SQL_CHAR) {
                         dataType =
                             CharacterType.getCharacterType(Types.SQL_VARCHAR,
-                                                           dataType.precision);
+                                                           dataType.precision, dataType.getCollation());
                     }
 
                     if (nodes[1] == null) {
@@ -1626,12 +1626,12 @@ public class FunctionSQL extends Expression {
                         dataType = CharacterType.getCharacterType(
                             Types.SQL_CLOB,
                             nodes[0].dataType.precision
-                            + nodes[1].dataType.precision);
+                            + nodes[1].dataType.precision, nodes[0].dataType.getCollation());
                     } else {
                         dataType = CharacterType.getCharacterType(
                             Types.SQL_VARCHAR,
                             nodes[0].dataType.precision
-                            + nodes[1].dataType.precision);
+                            + nodes[1].dataType.precision, nodes[0].dataType.getCollation());
                     }
                 } else if (nodes[0].dataType.isBinaryType()
                            && nodes[1].dataType.isBinaryType()) {

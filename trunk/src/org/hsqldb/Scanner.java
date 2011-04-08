@@ -62,7 +62,7 @@ import org.hsqldb.types.Types;
  * Scans for SQL tokens.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.0.1
+ * @version 2.1.1
  * @since 1.9.0
  */
 public class Scanner {
@@ -2025,7 +2025,7 @@ public class Scanner {
                         throw Error.error(ErrorCode.X_22007);
                     }
                 } else {
-                    if (currentDigits != 2) {
+                    if (currentDigits == 0 || currentDigits > 2) {
                         throw Error.error(ErrorCode.X_22007);
                     }
                 }
@@ -2194,7 +2194,7 @@ public class Scanner {
                         throw Error.error(ErrorCode.X_22015);
                     }
 
-                    if (currentDigits != 2) {
+                    if (currentDigits == 0 || currentDigits > 2) {
                         throw Error.error(ErrorCode.X_22006);
                     }
 

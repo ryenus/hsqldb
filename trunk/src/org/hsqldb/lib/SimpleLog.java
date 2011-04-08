@@ -46,7 +46,7 @@ import org.hsqldb.HsqlDateTime;
  * and minor errors.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.0.1
+ * @version 2.1.1
  * @since 1.8.0
  */
 public class SimpleLog {
@@ -57,19 +57,23 @@ public class SimpleLog {
     public static final int LOG_DETAIL = 3;
 
     //
-    public static final String logTypeNameEngine = "ENGINE";
-    public static final String[] logTypeNames  = { "", "ERROR ","NORMAL","DETAIL"};
+    public static final String   logTypeNameEngine = "ENGINE";
+    public static final String[] logTypeNames      = {
+        "", "ERROR ", "NORMAL", "DETAIL"
+    };
 
     //
-    private PrintWriter writer;
-    private int         level;
-    private boolean     isSystem;
-    private String      filePath;
+    private PrintWriter  writer;
+    private int          level;
+    private boolean      isSystem;
+    private String       filePath;
+    private StringBuffer sb;
 
     public SimpleLog(String path, int level) {
 
         this.isSystem = path == null;
         this.filePath = path;
+        sb            = new StringBuffer(256);
 
         setLevel(level);
     }
@@ -127,14 +131,28 @@ public class SimpleLog {
             return;
         }
 
-        StringBuffer sb = new StringBuffer(128);
         sb.append(HsqlDateTime.getSytemTimeString()).append(' ');
-
         sb.append(logTypeNames[atLevel]).append(' ').append(message);
         writer.println(sb.toString());
+        sb.setLength(0);
     }
 
-    public synchronized void logContext(Throwable t, String message, int atLevel) {
+    public synchronized void logContext(int atLevel, String prefix,
+                                        String message, String suffix) {
+
+        if (level < atLevel) {
+            return;
+        }
+
+        sb.append(HsqlDateTime.getSytemTimeString()).append(' ');
+        sb.append(logTypeNames[atLevel]).append(' ').append(prefix);
+        sb.append(' ').append(message).append(' ').append(suffix);
+        writer.println(sb.toString());
+        sb.setLength(0);
+    }
+
+    public synchronized void logContext(Throwable t, String message,
+                                        int atLevel) {
 
         if (level == LOG_NONE) {
             return;
@@ -144,9 +162,7 @@ public class SimpleLog {
             return;
         }
 
-        StringBuffer sb = new StringBuffer(128);
         sb.append(HsqlDateTime.getSytemTimeString()).append(' ');
-
         sb.append(logTypeNames[atLevel]).append(' ').append(message);
 
 //#ifdef JAVA4
@@ -168,6 +184,7 @@ public class SimpleLog {
 //#endif JAVA4
         sb.append(' ').append(t.toString());
         writer.println(sb.toString());
+        sb.setLength(0);
     }
 
     public void flush() {

@@ -65,6 +65,10 @@ public class CharacterType extends Type {
 
         super(Types.SQL_VARCHAR, type, precision, 0);
 
+        if (collation == null) {
+            collation = Collation.defaultCollation;
+        }
+
         this.collation = collation;
         this.charset   = Charset.getDefaultInstance();
         isEqualIdentical = this.collation.isEqualAlwaysIdentical()
@@ -266,7 +270,8 @@ public class CharacterType extends Type {
             case Types.SQL_CHAR :
                 return precision >= other.precision ? this
                                                     : getCharacterType(
-                                                    typeCode, other.precision);
+                                                    typeCode, other.precision,
+                                                    other.getCollation());
 
             case Types.SQL_VARCHAR :
                 if (typeCode == Types.SQL_CLOB
@@ -274,29 +279,34 @@ public class CharacterType extends Type {
                     return precision >= other.precision ? this
                                                         : getCharacterType(
                                                         typeCode,
-                                                        other.precision);
+                                                        other.precision,
+                                                    other.getCollation());
                 } else {
                     return other.precision >= precision ? other
                                                         : getCharacterType(
                                                         other.typeCode,
-                                                        precision);
+                                                        precision,
+                                                    other.getCollation());
                 }
             case Types.VARCHAR_IGNORECASE :
                 if (typeCode == Types.SQL_CLOB) {
                     return precision >= other.precision ? this
                                                         : getCharacterType(
                                                         typeCode,
-                                                        other.precision);
+                                                        other.precision,
+                                                    getCollation());
                 } else {
                     return other.precision >= precision ? other
                                                         : getCharacterType(
                                                         other.typeCode,
-                                                        precision);
+                                                        precision,
+                                                    other.getCollation());
                 }
             case Types.SQL_CLOB :
                 return other.precision >= precision ? other
                                                     : getCharacterType(
-                                                    other.typeCode, precision);
+                                                    other.typeCode, precision,
+                other.getCollation());
 
             case Types.SQL_BIT :
             case Types.SQL_BIT_VARYING :
@@ -367,13 +377,14 @@ public class CharacterType extends Type {
             if (typeCode == Types.SQL_BINARY) {
 
                 // Standard disallows type length reduction
-                throw Error.error(ErrorCode.X_42570);
+                // throw Error.error(ErrorCode.X_42570);
+                newPrecision = maxCharPrecision;
             } else if (typeCode == Types.SQL_CHAR) {
                 newPrecision = maxCharPrecision;
             }
         }
 
-        return getCharacterType(newType.typeCode, precision + other.precision);
+        return getCharacterType(newType.typeCode, newPrecision);
     }
 
     public int compare(Session session, Object a, Object b) {
@@ -1142,7 +1153,11 @@ public class CharacterType extends Type {
     }
 
     public static CharacterType getCharacterType(int type, long precision,
-            Collation collation) {
+                                          Collation collation) {
+
+        if (collation == null) {
+            collation = Collation.defaultCollation;
+        }
 
         switch (type) {
 

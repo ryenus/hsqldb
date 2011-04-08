@@ -36,6 +36,7 @@ import java.io.InputStream;
 
 import org.hsqldb.ColumnSchema;
 import org.hsqldb.Database;
+import org.hsqldb.HsqlException;
 import org.hsqldb.HsqlNameManager.HsqlName;
 import org.hsqldb.Session;
 import org.hsqldb.Statement;
@@ -131,6 +132,7 @@ public class ScriptRunner {
         Statement dummy = new StatementDML(StatementTypes.UPDATE_CURSOR,
                                            StatementTypes.X_SQL_DATA_CHANGE,
                                            null);
+        String databaseFile = database.getPath();
 
         dummy.setCompileTimestamp(Long.MAX_VALUE);
         database.setReferentialIntegrity(false);
@@ -258,26 +260,26 @@ public class ScriptRunner {
                     sessionMap.remove(currentId);
                 }
             }
-        } catch (Throwable e) {
-            String databaseFile = database.getPath();
+        } catch (HsqlException e) {
+
+            // stop processing on bad log line
+            database.logger.logSevereEvent("statement error processing log "
+                                           + databaseFile + "line: "
+                                           + scr.getLineNumber(), e);
+
+        } catch (OutOfMemoryError e) {
 
             // catch out-of-memory errors and terminate
-            if (e instanceof EOFException) {
+            database.logger.logSevereEvent("out of memory processing log"
+                                           + databaseFile + " line: "
+                                           + scr.getLineNumber(), e);
 
-                // end of file - normal end
-            } else if (e instanceof OutOfMemoryError) {
-                database.logger.logSevereEvent("out of memory processing log"
-                                               + databaseFile + " line: "
-                                               + scr.getLineNumber(), e);
-
-                throw Error.error(ErrorCode.OUT_OF_MEMORY);
-            } else {
-
-                // stop processing on bad script line
-                database.logger.logSevereEvent(
-                    "statement error processing log " + databaseFile
-                    + "line: " + scr.getLineNumber(), e);
-            }
+            throw Error.error(ErrorCode.OUT_OF_MEMORY);
+        } catch (Throwable e) {
+            // stop processing on bad script line
+            database.logger.logSevereEvent("statement error processing log "
+                                           + databaseFile + "line: "
+                                           + scr.getLineNumber(), e);
         } finally {
             if (scr != null) {
                 scr.close();

@@ -113,7 +113,8 @@ public class ParserRoutine extends ParserDML {
 
                 minus = true;
             } else {
-                if (database.sqlSyntaxPgs && token.tokenType == Tokens.NEXTVAL) {
+                if (database.sqlSyntaxPgs
+                        && token.tokenType == Tokens.NEXTVAL) {
                     return readNextvalFunction();
                 }
             }
@@ -194,7 +195,8 @@ public class ParserRoutine extends ParserDML {
             Type   convertType = dataType;
 
             if (dataType.typeCode == Types.SQL_CLOB) {
-                convertType = Type.getType(Types.SQL_VARCHAR, null, null,
+                convertType = Type.getType(Types.SQL_VARCHAR, null,
+                                           database.collation,
                                            dataType.precision, 0);
             } else if (dataType.typeCode == Types.SQL_BLOB) {
                 convertType = Type.getType(Types.SQL_VARBINARY, null, null,

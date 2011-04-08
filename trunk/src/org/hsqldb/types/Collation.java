@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2010, The HSQL Development Group
+/* Copyright (c) 2001-2011, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -174,18 +174,23 @@ public class Collation implements SchemaObject {
         }
     }
 
-    static final Collation defaultCollation = new Collation(true);
-    final HsqlName         name;
-    Collator               collator;
-    Locale                 locale;
-    boolean                equalIsIdentical = true;
-    final boolean          isFinal;
+    static final Collation defaultCollation = new Collation();
+
+    static {
+        defaultCollation.charset = TypeInvariants.SQL_TEXT;
+    }
+
+    final HsqlName name;
+    Collator       collator;
+    Locale         locale;
+    boolean        equalIsIdentical = true;
+    boolean        isFinal;
 
     //
     Charset  charset;
     HsqlName sourceName;
 
-    private Collation(boolean isFinal) {
+    private Collation() {
 
         locale = Locale.ENGLISH;
 
@@ -193,8 +198,7 @@ public class Collation implements SchemaObject {
 
         name = HsqlNameManager.newInfoSchemaObjectName(language, true,
                 SchemaObject.COLLATION);
-        charset = TypeInvariants.SQL_TEXT;
-        this.isFinal = isFinal;
+        this.isFinal = true;
     }
 
     private Collation(String name, String language, String country) {
@@ -204,7 +208,7 @@ public class Collation implements SchemaObject {
         equalIsIdentical = false;
         this.name = HsqlNameManager.newInfoSchemaObjectName(name, true,
                 SchemaObject.COLLATION);
-        charset = TypeInvariants.SQL_TEXT;
+        charset      = TypeInvariants.SQL_TEXT;
         this.isFinal = true;
     }
 
@@ -226,7 +230,12 @@ public class Collation implements SchemaObject {
     }
 
     public static Collation getDatabaseInstance() {
-        return new Collation(false);
+
+        Collation collation = new Collation();
+
+        collation.isFinal = false;
+
+        return collation;
     }
 
     public static org.hsqldb.lib.Iterator getCollationsIterator() {

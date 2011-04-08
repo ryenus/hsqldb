@@ -50,7 +50,8 @@ public class StatementSchemaDefinition extends StatementSchema {
 
     StatementSchemaDefinition(StatementSchema[] statements) {
 
-        super();
+        super(StatementTypes.CREATE_SCHEMA,
+              StatementTypes.X_SQL_SCHEMA_DEFINITION);
 
         this.statements = statements;
     }
@@ -208,8 +209,8 @@ public class StatementSchemaDefinition extends StatementSchema {
             try {
                 session.database.schemaManager.dropSchema(session,
                         schemaDefinitionName.name, true);
-                session.database.logger.writeOtherStatement(
-                    session, getDropSchemaStatement(schemaDefinitionName));
+                session.database.logger.writeOtherStatement(session,
+                        getDropSchemaStatement(schemaDefinitionName));
             } catch (HsqlException e) {}
         }
 

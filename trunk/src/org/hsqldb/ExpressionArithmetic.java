@@ -475,7 +475,8 @@ public class ExpressionArithmetic extends Expression {
             }
 
             Type newType = CharacterType.getCharacterType(Types.SQL_VARCHAR,
-                nodes[RIGHT].dataType.displaySize());
+                nodes[RIGHT].dataType.displaySize(),
+                nodes[LEFT].dataType.getCollation());
 
             nodes[RIGHT] = ExpressionOp.getCastExpression(session,
                     nodes[RIGHT], newType);
@@ -488,7 +489,8 @@ public class ExpressionArithmetic extends Expression {
             }
 
             Type newType = CharacterType.getCharacterType(Types.SQL_VARCHAR,
-                nodes[LEFT].dataType.displaySize());
+                nodes[LEFT].dataType.displaySize(),
+                nodes[RIGHT].dataType.getCollation());
 
             nodes[LEFT] = ExpressionOp.getCastExpression(session, nodes[LEFT],
                     newType);

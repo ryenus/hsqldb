@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2010, The HSQL Development Group
+/* Copyright (c) 2001-2011, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -35,10 +35,13 @@ import java.io.BufferedInputStream;
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
 import java.util.zip.GZIPInputStream;
 
 import org.hsqldb.Database;
 import org.hsqldb.Session;
+import org.hsqldb.error.Error;
+import org.hsqldb.error.ErrorCode;
 import org.hsqldb.lib.LineReader;
 import org.hsqldb.lib.StringConverter;
 import org.hsqldb.persist.Crypto;
@@ -83,7 +86,7 @@ public class ScriptReaderDecode extends ScriptReaderText {
         }
     }
 
-    public boolean readLoggedStatement(Session session) throws IOException {
+    public boolean readLoggedStatement(Session session) {
 
         if (dataInput == null) {
             return super.readLoggedStatement(session);
@@ -105,7 +108,13 @@ public class ScriptReaderDecode extends ScriptReaderText {
 
         count = crypto.decode(buffer, 0, count, buffer, 0);
 
-        String s = new String(buffer, 0, count, "ISO-8859-1");
+        String s;
+
+        try {
+            s = new String(buffer, 0, count, "ISO-8859-1");
+        } catch (UnsupportedEncodingException e) {
+            throw Error.error(e, ErrorCode.FILE_IO_ERROR, null);
+        }
 
         lineCount++;
 

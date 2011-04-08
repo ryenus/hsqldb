@@ -1298,6 +1298,7 @@ public class TableWorks {
             } catch (HsqlException e) {
                 newStore.release();
                 database.persistentStoreCollection.setStore(newTable, null);
+                return;
             }
 
             database.persistentStoreCollection.releaseStore(oldTable);
