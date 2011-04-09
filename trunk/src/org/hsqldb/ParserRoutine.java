@@ -189,6 +189,14 @@ public class ParserRoutine extends ParserDML {
             return e;
         }
 
+        boolean inParens = false;
+
+        if (database.sqlSyntaxMss && token.tokenType == Tokens.OPENBRACKET) {
+            read();
+
+            inParens = true;
+        }
+
         if (token.tokenType == Tokens.X_VALUE) {
             Object value       = token.tokenValue;
             Type   valueType   = token.dataType;
@@ -209,6 +217,10 @@ public class ParserRoutine extends ParserDML {
 
             if (minus) {
                 value = dataType.negate(value);
+            }
+
+            if (inParens) {
+                readThis(Tokens.CLOSEBRACKET);
             }
 
             return new ExpressionValue(value, convertType);
