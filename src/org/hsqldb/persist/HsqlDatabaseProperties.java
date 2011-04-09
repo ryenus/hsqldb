@@ -429,7 +429,7 @@ public class HsqlDatabaseProperties extends HsqlProperties {
                                           0, 1000));
         dbMeta.put(hsqldb_defrag_limit,
                    HsqlProperties.getMeta(hsqldb_defrag_limit, SQL_PROPERTY,
-                                          20, 0, 100));
+                                          0, 0, 100));
         dbMeta.put(runtime_gc_interval,
                    HsqlProperties.getMeta(runtime_gc_interval, SQL_PROPERTY,
                                           0, 0, 1000000));
