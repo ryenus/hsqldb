@@ -1184,7 +1184,7 @@ class DatabaseInformationMain extends DatabaseInformation {
             refCols        = constraint.getRefColumns();
             columnCount    = refCols.length;
             fkName         = constraint.getRefName().name;
-            pkName         = constraint.getMainName().name;
+            pkName         = constraint.getUniqueName().name;
             deferrability  = ValuePool.getInt(constraint.getDeferability());
 
             //pkName = constraint.getMainIndex().getName().name;

@@ -226,8 +226,9 @@ public class ParserDQL extends ParserBase {
 
                     typeNumber = Types.SQL_VARCHAR;
                 } else if (token.tokenType == Tokens.LARGE) {
-                    readThis(Tokens.OBJECT);
                     read();
+
+                    readThis(Tokens.OBJECT);
 
                     typeNumber = Types.SQL_CLOB;
                 }
@@ -245,8 +246,9 @@ public class ParserDQL extends ParserBase {
 
                     typeNumber = Types.SQL_VARBINARY;
                 } else if (token.tokenType == Tokens.LARGE) {
-                    readThis(Tokens.OBJECT);
                     read();
+
+                    readThis(Tokens.OBJECT);
 
                     typeNumber = Types.SQL_BLOB;
                 }

@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2009, The HSQL Development Group
+/* Copyright (c) 2001-2011, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -94,6 +94,14 @@ public class OrderedLongKeyHashMap extends BaseHashMap {
 
     public Object getThirdValueByIndex(int index) {
         return objectValueTable2[index];
+    }
+
+    public Object setSecondValueByIndex(int index, Object value) {
+        Object oldValue = objectValueTable[index];
+
+        objectValueTable[index] = value;
+
+        return oldValue;
     }
 
     public Object setThirdValueByIndex(int index, Object value) {

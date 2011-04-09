@@ -1483,7 +1483,7 @@ public class StatementDML extends StatementDMQL {
 
                 try {
                     refData = navigator.addRow(session, refRow, refData,
-                                               table.getColumnTypes(),
+                                               c.core.refTable.getColumnTypes(),
                                                c.core.refCols);
                 } catch (HsqlException e) {
                     String[] info = getConstraintInfo(c);
@@ -1492,6 +1492,11 @@ public class StatementDML extends StatementDMQL {
 
                     throw Error.error(null, ErrorCode.X_27000,
                                       ErrorCode.CONSTRAINT, info);
+                }
+
+                if (refData == null) {
+                    // happens only with enforceDeleteOrUpdate=false and updated row is already deleted
+                    continue;
                 }
 
                 if (!path.add(c)) {
