@@ -1,3 +1,8 @@
+09 Apr 2011 - SVN 4177
+-- fixed regression in 2.1.0 with alter table operation failures causing loss of table data 
+-- fixed regression in 2.1.0 with database log created after a backup is completed not used for revovery
+-- added support for SQL execution logging
+-- minor improvements and bug fixes
 26 Mar 2011 - SVN 4164
 -- fixed reported minor issues
 -- fixed issues with disk based result sets
