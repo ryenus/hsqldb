@@ -572,7 +572,7 @@
     statement is retained to simplify application upgrades.</para>
 
     <para>In the example URL below, two properties are set for the first
-    connection to a new database. </para>
+    connection to a new database.</para>
 
     <programlisting>    jdbc:hsqldb:file:enrollments;hsqldb.cache_rows=10000;hsqldb.nio_data_file=false</programlisting>
 
@@ -1966,6 +1966,49 @@
               before an automatic checkpoint occurs. A checkpoint rewrites the
               <literal>.script</literal> file and clears the
               <literal>.log</literal> file.</para><para><programlisting>SET FILES LOG SIZE &lt;numeric value&gt;</programlisting></para></entry>
+            </row>
+          </tbody>
+        </tgroup>
+      </table>
+
+      <table frame="all" pgwide="1" tocentry="1">
+        <title>Automatic Defrag at Checkpoint</title>
+
+        <tgroup align="left" cols="3">
+          <colspec colname="c1" colwidth="6.5cm" />
+
+          <colspec colname="c2" colwidth="1.5cm" />
+
+          <colspec colname="c3" />
+
+          <thead>
+            <row>
+              <entry>Name</entry>
+
+              <entry>Default</entry>
+
+              <entry>Description</entry>
+            </row>
+          </thead>
+
+          <tbody valign="top">
+            <row>
+              <entry><property>hsqldb.defrag_limit</property></entry>
+
+              <entry><literal>0</literal></entry>
+
+              <entry>percentage of unused space causing a defrag at
+              checkpoint</entry>
+            </row>
+
+            <row>
+              <entry nameend="c3" namest="c1"><para>When a checkpoint is
+              performed, the percentage of wasted space in the .data file is
+              calculated. If the wasted space is above the specified limit, a
+              defrag operation is performed. The default is 0, which means no
+              automatic checkpoint. The numeric value must be between 0 and
+              100 and is interpreted as a percentage of the current size of
+              the .data file.</para><para><programlisting>SET FILES CHECKPOINT DEFRAG &lt;numeric value&gt;</programlisting></para></entry>
             </row>
           </tbody>
         </tgroup>
