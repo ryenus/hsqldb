@@ -536,6 +536,10 @@
       when the connection commits. The write delay also has an effect on how
       soon the statements are written out.</para>
 
+      <para>The new SQL logging feature in version 2.1.1 and later records all
+      executed statements and can be used for debugging your
+      application.</para>
+
       <para>Some types of tests start with a database that already contains
       the tables and data, and perform various operations on it during the
       tests. You can create and populate the initial database then set the
@@ -562,11 +566,11 @@
       application, connecting to an embedded HyperSQL instance. In this usage,
       the database is often accessed heavily, therefore performance and
       latency is a consideration. If the database is updated heavily, the
-      default value of the WRITE DELAY property (1 sec) is often enough, as it
-      is assumed the server or the application does not go down frequently. If
-      it is necessary, you can reduce the WRITE DELAY to a small value (20 ms)
-      without impacting the update speed. If you reduce WRITE DELAY to zero,
-      performance drops to the speed of disk file sync operation.</para>
+      default value of the WRITE DELAY property (0.5 sec) is often enough, as
+      it is assumed the server or the application does not go down frequently.
+      If it is necessary, you can reduce the WRITE DELAY to a small value (20
+      ms) without impacting the update speed. If you reduce WRITE DELAY to
+      zero, performance drops to the speed of disk file sync operation.</para>
 
       <para>Alternatively, a server application can use an all-in-mem database
       instance for fast access, while sending the data changes to a
@@ -664,8 +668,8 @@
         </listitem>
 
         <listitem>
-          <para>After all the operations are complete, execute the SET FILES
-          LOG TRUE statement.</para>
+          <para>After all the bulk operations are complete, execute the SET
+          FILES LOG TRUE statement.</para>
         </listitem>
 
         <listitem>
@@ -711,7 +715,8 @@
         </listitem>
 
         <listitem>
-          <para>All files are now synced just before closing.</para>
+          <para>All files are synced at checkpoints and also just before
+          closing.</para>
         </listitem>
       </itemizedlist>
 
@@ -1141,7 +1146,7 @@
     internal HyperSQL capabilities or add-ons.</para>
 
     <section>
-      <title>Statement Level Monitoring</title>
+      <title>External Statement Level Monitoring</title>
 
       <para>Statement level monitoring allows you to gather statistics about
       executed statements. HyperSQL is supported by the monitoring tool JAMon
@@ -1155,6 +1160,16 @@
       <para>Early versions of JAMon were developed with HSQLDB and had to be
       integrated into HSQLDB at code level. The latest versions can be added
       on as a proxy in a much simpler fashion.</para>
+    </section>
+
+    <section>
+      <title>Internal Statement Level Monitoring</title>
+
+      <para>The internally-generated, individual sql log for the database can
+      be enabled with the <literal>SET DATABASE EVENT LOG SQL LEVEL</literal>
+      s tatement, described in the next section. As all the executed
+      statements are logged, there is an impact on speed. So you should only
+      use this for debugging. Two levels of sql logging are supported.</para>
     </section>
 
     <section>
@@ -1519,7 +1534,7 @@
         <listitem>
           <para>For fine control over type conversion, check the settings for
           <literal>&lt;set database sql convert truncate
-          statement&gt;</literal> </para>
+          statement&gt;</literal></para>
         </listitem>
 
         <listitem>
@@ -2068,14 +2083,32 @@
       statement</emphasis></simpara>
 
       <simpara><literal>&lt;set database event log level&gt; ::= SET DATABASE
-      EVENT LOG LEVEL { 0 | 1 | 2 }</literal></simpara>
+      EVENT LOG [ SQL ] LEVEL { 0 | 1 | 2 | 3 }</literal></simpara>
 
-      <simpara>Sets the amount of information logged in the internal,
-      database-specific event log. Level 0 means no log. Level 1 means only
-      important (error) events. Level 2 means more events, including both
-      important and less important (normal) events. For readonly and
+      <simpara>When the SQL option is not used, this statement sets the amount
+      of information logged in the internal, database-specific event log.
+      Level 0 means no log. Level 1 means only important (error) events. Level
+      2 means more events, including both important and less important
+      (normal) events. Level 3 includes even more details. For readonly and
       <glossterm>mem:</glossterm> databases, if the level is set above 0, the
       log messages are directed to stderr.</simpara>
+
+      <simpara>The events are logged in a file with the extension
+      <literal>.app.log</literal> alongside the main database files.</simpara>
+
+      <simpara>This is equivalent to the connection property
+      <literal>hsqldb.applog</literal>.</simpara>
+
+      <simpara>When the SQL option is used, this statement logs the SQL
+      statements as they are executed. Each log line contains the timestamp
+      and the session number, followed by the SQL statement and JDBC arguments
+      if any. </simpara>
+
+      <simpara>Levels 1 and 2 are supported. Level 1 only logs commits and
+      rollbacks, while Level 2 logs all statements.</simpara>
+
+      <simpara>The logged lines are stored in a file with the extension
+      <literal>.sql.log</literal> alongside the main database files.</simpara>
 
       <simpara>This is equivalent to the connection property
       <literal>hsqldb.applog</literal>.</simpara>
