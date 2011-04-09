@@ -280,13 +280,13 @@ public class CharacterType extends Type {
                                                         : getCharacterType(
                                                         typeCode,
                                                         other.precision,
-                                                    other.getCollation());
+                                                        other.getCollation());
                 } else {
                     return other.precision >= precision ? other
                                                         : getCharacterType(
                                                         other.typeCode,
                                                         precision,
-                                                    other.getCollation());
+                                                        other.getCollation());
                 }
             case Types.VARCHAR_IGNORECASE :
                 if (typeCode == Types.SQL_CLOB) {
@@ -294,19 +294,19 @@ public class CharacterType extends Type {
                                                         : getCharacterType(
                                                         typeCode,
                                                         other.precision,
-                                                    getCollation());
+                                                        getCollation());
                 } else {
                     return other.precision >= precision ? other
                                                         : getCharacterType(
                                                         other.typeCode,
                                                         precision,
-                                                    other.getCollation());
+                                                        other.getCollation());
                 }
             case Types.SQL_CLOB :
                 return other.precision >= precision ? other
                                                     : getCharacterType(
                                                     other.typeCode, precision,
-                other.getCollation());
+                                                    other.getCollation());
 
             case Types.SQL_BIT :
             case Types.SQL_BIT_VARYING :
@@ -399,6 +399,11 @@ public class CharacterType extends Type {
 
         if (b == null) {
             return 1;
+        }
+
+        if (b instanceof ClobData) {
+            return -session.database.lobManager.compare((ClobData) b,
+                    (String) a);
         }
 
         String as = (String) a;
@@ -1153,7 +1158,7 @@ public class CharacterType extends Type {
     }
 
     public static CharacterType getCharacterType(int type, long precision,
-                                          Collation collation) {
+            Collation collation) {
 
         if (collation == null) {
             collation = Collation.defaultCollation;

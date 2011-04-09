@@ -2143,6 +2143,7 @@ public class Tokens {
         commandSet.put(T_NULLS, NULLS);
         commandSet.put(T_NUMBER, NUMBER);
         commandSet.put(T_NVARCHAR2, NVARCHAR2);
+        commandSet.put(T_OBJECT, OBJECT);
         commandSet.put(T_OCTETS, OCTETS);
         commandSet.put(T_OFF, OFF);
         commandSet.put(T_OPTION, OPTION);

@@ -170,6 +170,11 @@ public class RowSetNavigatorDataChange extends RowSetNavigator {
                 if (enforceDeleteOrUpdate) {
                     throw Error.error(ErrorCode.X_27000);
                 }
+
+                list.setSecondValueByIndex(lookup, null);
+                list.setThirdValueByIndex(lookup, null);
+
+                return true;
             }
 
             return false;
@@ -197,6 +202,8 @@ public class RowSetNavigatorDataChange extends RowSetNavigator {
             if (currentData == null) {
                 if (enforceDeleteOrUpdate) {
                     throw Error.error(ErrorCode.X_27000);
+                } else {
+                    return null;
                 }
             }
 

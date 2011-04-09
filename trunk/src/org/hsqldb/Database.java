@@ -104,7 +104,7 @@ public class Database {
     public boolean                sqlUniqueNulls         = true;
     public boolean                sqlConvertTruncate     = true;
     public boolean                sqlDoubleNaN           = true;
-    public boolean                sqlLongvarIsLob        = true;
+    public boolean                sqlLongvarIsLob        = false;
     public boolean                sqlSyntaxMss           = false;
     public boolean                sqlSyntaxMys           = false;
     public boolean                sqlSyntaxOra           = false;

@@ -2794,12 +2794,12 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
      * <b>Definition:</b> <p>
      *
      * <pre class="SqlCodeExample">
-     *      CONSTRAINT_CATALOG      VARCHAR
-     *      CONSTRAINT_SCHEMA       VARCHAR
-     *      CONSTRAINT_NAME         VARCHAR
      *      TABLE_CATALOG           VARCHAR
      *      TABLE_SCHEMA            VARCHAR
      *      TABLE_NAME              VARCHAR
+     *      CONSTRAINT_CATALOG      VARCHAR
+     *      CONSTRAINT_SCHEMA       VARCHAR
+     *      CONSTRAINT_NAME         VARCHAR
      * </pre>
      *
      * <b>Description:</b> <p>
@@ -2830,12 +2830,12 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         if (t == null) {
             t = createBlankTable(sysTableHsqlNames[CONSTRAINT_TABLE_USAGE]);
 
-            addColumn(t, "CONSTRAINT_CATALOG", SQL_IDENTIFIER);
-            addColumn(t, "CONSTRAINT_SCHEMA", SQL_IDENTIFIER);
-            addColumn(t, "CONSTRAINT_NAME", SQL_IDENTIFIER);    // not null
             addColumn(t, "TABLE_CATALOG", SQL_IDENTIFIER);
             addColumn(t, "TABLE_SCHEMA", SQL_IDENTIFIER);
             addColumn(t, "TABLE_NAME", SQL_IDENTIFIER);         // not null
+            addColumn(t, "CONSTRAINT_CATALOG", SQL_IDENTIFIER);
+            addColumn(t, "CONSTRAINT_SCHEMA", SQL_IDENTIFIER);
+            addColumn(t, "CONSTRAINT_NAME", SQL_IDENTIFIER);    // not null
 
             HsqlName name = HsqlNameManager.newInfoSchemaObjectName(
                 sysTableHsqlNames[CONSTRAINT_TABLE_USAGE].name, false,
@@ -2852,8 +2852,8 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         Session sys = database.sessionManager.newSysSession(
             SqlInvariants.INFORMATION_SCHEMA_HSQLNAME, session.getUser());
         Result rs = sys.executeDirectStatement(
-            "select DISTINCT CONSTRAINT_CATALOG, CONSTRAINT_SCHEMA, "
-            + "CONSTRAINT_NAME, TABLE_CATALOG, TABLE_SCHEMA, TABLE_NAME "
+            "select DISTINCT TABLE_CATALOG, TABLE_SCHEMA, TABLE_NAME, "
+            + "CONSTRAINT_CATALOG, CONSTRAINT_SCHEMA, CONSTRAINT_NAME "
             + "from INFORMATION_SCHEMA.CONSTRAINT_COLUMN_USAGE");
 
         t.insertSys(session, store, rs);
