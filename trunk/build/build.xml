@@ -810,7 +810,7 @@ examples:
              <attribute name='Implementation-Vendor' value='${build.vendor}'/>
              <attribute name='Main-Class' value='org.hsqldb.cmdline.SqlTool'/>
              <attribute name='Class-Path'
-              value='hsqldb-2.0.0.jar hsqljdbc-2.0.0.jar hsqldbmain.jar-2.0.0.jar hsqldb.jar hsqljdbc.jar hsqldbmain.jar'/>
+               value='hsqldb-${hsqldb.version}.jar hsqljdbc-${hsqldb.version}.jar hsqldbmain.jar-${hsqldb.version}.jar hsqldb.jar hsqljdbc.jar hsqldbmain.jar'/>
          </manifest>
          <fileset refid='sqltoolclasses'/>
          <fileset refid='sqltoolres'/>
