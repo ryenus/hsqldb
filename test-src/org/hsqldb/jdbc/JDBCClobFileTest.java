@@ -49,7 +49,7 @@ public class JDBCClobFileTest extends BaseClobTest {
     }
 
     protected Clob handleCreateClob() throws SQLException {
-        return new JDBCClobFile(null,getEncoding(),/*temp*/true);
+        return new JDBCClobFile(getEncoding());
     }
 
     public static Test suite() {
