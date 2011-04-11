@@ -71,7 +71,7 @@ import org.hsqldb.lib.KMPSearchAlgorithm;
  * </div>
  * <!-- end release-specific documentation -->
  * @author boucherb@users
- * @version 2.1
+ * @version 2.1.1
  * @since HSQLDB 2.1
  */
 public class JDBCBlobFile implements java.sql.Blob {
