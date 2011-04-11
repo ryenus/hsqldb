@@ -40,8 +40,6 @@ import java.sql.SQLXML;
 import javax.xml.transform.Result;
 import javax.xml.transform.Source;
 import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerConfigurationException;
-import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMResult;
 import javax.xml.transform.dom.DOMSource;
@@ -175,22 +173,14 @@ public class JDBCSQLXMLTest extends BaseJdbcTestCase {
     private static Transformer transformer;
     private static TransformerFactory transformerFactory;
 
-    protected void identityTransform(Source source, Result result) {
+    protected void identityTransform(Source source, Result result) throws Exception {
         if (transformer == null) {
             if (transformerFactory == null) {
                 transformerFactory = TransformerFactory.newInstance();
             }
-            try {
-                transformer = transformerFactory.newTransformer();
-            } catch (TransformerConfigurationException ex) {
-                throw new RuntimeException(ex);
-            }
+            transformer = transformerFactory.newTransformer();
         }
-        try {
-            transformer.transform(source, result);
-        } catch (TransformerException ex) {
-            throw new RuntimeException(ex);
-        }
+        transformer.transform(source, result);        
     }
 
     public static Test suite() {
