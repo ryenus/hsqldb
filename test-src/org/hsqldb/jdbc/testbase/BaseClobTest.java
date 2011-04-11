@@ -136,7 +136,6 @@ public abstract class BaseClobTest extends BaseJdbcTestCase {
                     writer.close();
                 } catch (Exception ex) {
                 }
-            } else {
             }
         }
         return clob;
