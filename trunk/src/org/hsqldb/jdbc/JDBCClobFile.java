@@ -78,12 +78,19 @@ import org.hsqldb.lib.KMPSearchAlgorithm;
  * to expose efficient, relatively high-performance CLOB operations over client
  * accessible files.<p>
  *
- * <b>Design Notes</b>
- * Although a transactional version of this class is in the works,
+ * <b>Design Notes</b><p>
+ *
+ * Although it is possible to implement a transactional version of this class,
+ * the present implementation directly propagates changes to the underlying
+ * file such that changes become visible as soon as they are either
+ * implicitly or explicitly flushed to disk.
  * <p>
  *
  * </div>
  * <!-- end release-specific documentation -->
+ * @author boucherb@users
+ * @version 2.1.1
+ * @since HSQLDB 2.1
  */
 public class JDBCClobFile implements java.sql.Clob {
 
@@ -97,7 +104,7 @@ public class JDBCClobFile implements java.sql.Clob {
      *            length of the <code>CLOB</code> value
      * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
      * this method
-     * @since 1.2
+     * @since JDK 1.2
      */
     public long length() throws SQLException {
         checkClosed();
@@ -153,7 +160,7 @@ public class JDBCClobFile implements java.sql.Clob {
         CharArrayWriter writer = null;
 
         try {
-            final int initialCapacity = 
+            final int initialCapacity =
                     Math.min(InOutUtil.DEFAULT_COPY_BUFFER_SIZE, length);
             //
             reader = getCharacterStream(pos, length);
@@ -188,7 +195,7 @@ public class JDBCClobFile implements java.sql.Clob {
      * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
      * this method
      * @see #setCharacterStream
-     * @since 1.2
+     * @since JDK 1.2
      */
     public Reader getCharacterStream() throws SQLException {
         return getCharacterStream(1, Long.MAX_VALUE);
@@ -205,7 +212,7 @@ public class JDBCClobFile implements java.sql.Clob {
      * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
      * this method
      * @see #setAsciiStream
-     * @since 1.2
+     * @since JDK 1.2
      */
     public InputStream getAsciiStream() throws SQLException {
 
@@ -295,7 +302,7 @@ public class JDBCClobFile implements java.sql.Clob {
      *            <code>CLOB</code> value or if start is less than 1
      * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
      * this method
-     * @since 1.2
+     * @since JDK 1.2
      */
     public long position(String searchstr, long start) throws SQLException {
         return position(searchstr == null ? null : searchstr.toCharArray(), start);
@@ -316,7 +323,7 @@ public class JDBCClobFile implements java.sql.Clob {
      *            <code>CLOB</code> value or if start is less than 1
      * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
      * this method
-     * @since 1.2
+     * @since JDK 1.2
      */
     public long position(final Clob pattern, final long start) throws SQLException {
         long patternLength;
@@ -365,7 +372,7 @@ public class JDBCClobFile implements java.sql.Clob {
      * in the <code>Clob</code> object starting at the position
      * <code>pos</code>.  If the end of the <code>Clob</code> value is reached
      * while writing the given string, then the length of the <code>Clob</code>
-     * value will be increased to accomodate the extra characters.
+     * value will be increased to accommodate the extra characters.
      * <p>
      * <b>Note:</b> If the value specified for <code>pos</code>
      * is greater then the length+1 of the <code>CLOB</code> value then the
@@ -384,7 +391,7 @@ public class JDBCClobFile implements java.sql.Clob {
      *
      * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
      * this method
-     * @since 1.4
+     * @since JDK 1.4
      */
     public int setString(final long pos, final String str) throws SQLException {
         return setString(pos, str, 0, str == null ? 0 : str.length());
@@ -397,7 +404,7 @@ public class JDBCClobFile implements java.sql.Clob {
      * in the <code>Clob</code> object starting at the position
      * <code>pos</code>.  If the end of the <code>Clob</code> value is reached
      * while writing the given string, then the length of the <code>Clob</code>
-     * value will be increased to accomodate the extra characters.
+     * value will be increased to accommodate the extra characters.
      * <p>
      * <b>Note:</b> If the value specified for <code>pos</code>
      * is greater then the length+1 of the <code>CLOB</code> value then the
@@ -418,7 +425,7 @@ public class JDBCClobFile implements java.sql.Clob {
      *
      * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
      * this method
-     * @since 1.4
+     * @since JDK 1.4
      */
     public int setString(final long pos, final String str, final int offset,
             final int len) throws SQLException {
@@ -454,7 +461,7 @@ public class JDBCClobFile implements java.sql.Clob {
      * in the <code>Clob</code> object starting at the position
      * <code>pos</code>.  If the end of the <code>Clob</code> value is reached
      * while writing characters to the stream, then the length of the <code>Clob</code>
-     * value will be increased to accomodate the extra characters.
+     * value will be increased to accommodate the extra characters.
      * <p>
      * <b>Note:</b> If the value specified for <code>pos</code>
      * is greater then the length+1 of the <code>CLOB</code> value then the
@@ -471,7 +478,7 @@ public class JDBCClobFile implements java.sql.Clob {
      * this method
      * @see #getAsciiStream
      *
-     * @since 1.4
+     * @since JDK 1.4
      */
     public OutputStream setAsciiStream(long pos) throws SQLException {
         if (pos < 1) {
@@ -511,7 +518,7 @@ public class JDBCClobFile implements java.sql.Clob {
      * in the <code>Clob</code> object starting at the position
      * <code>pos</code>.  If the end of the <code>Clob</code> value is reached
      * while writing characters to the stream, then the length of the <code>Clob</code>
-     * value will be increased to accomodate the extra characters.
+     * value will be increased to accommodate the extra characters.
      * <p>
      * <b>Note:</b> If the value specified for <code>pos</code>
      * is greater then the length+1 of the <code>CLOB</code> value then the
@@ -529,7 +536,7 @@ public class JDBCClobFile implements java.sql.Clob {
      * this method
      * @see #getCharacterStream
      *
-     * @since 1.4
+     * @since JDK 1.4
      */
     public Writer setCharacterStream(final long pos) throws SQLException {
         if (pos < 1) {
@@ -581,7 +588,7 @@ public class JDBCClobFile implements java.sql.Clob {
      *
      * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
      * this method
-     * @since 1.4
+     * @since JDK 1.4
      */
     public void truncate(long len) throws SQLException {
         if (len < 0) {
@@ -637,7 +644,7 @@ public class JDBCClobFile implements java.sql.Clob {
      *
      * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
      * this method
-     * @since 1.6
+     * @since JDK 1.4
      */
     public synchronized void free() throws SQLException {
         if (m_closed) {
@@ -646,58 +653,35 @@ public class JDBCClobFile implements java.sql.Clob {
 
         m_closed = true;
 
-        if (m_temp) {
-            try {
-                m_file.delete();
-            } catch (Exception e) {
-            }
-        }
-
-
-        if (m_streams.isEmpty()) {
-
-            m_streams = null;
-            return;
-        }
-
         final List streams = new ArrayList();
 
         streams.addAll(m_streams);
 
-        m_streams.clear();
+        m_streams = null;
 
-        try {
-            final Class[] signature = new Class[0];
-            final Object[] arguments = new Object[0];
-            for (Iterator itr = streams.iterator(); itr.hasNext();) {
-                final Object stream = itr.next();
+        for (Iterator itr = streams.iterator(); itr.hasNext();) {
+            final Object stream = itr.next();
 
+            if (stream instanceof InputStream) {
                 try {
-                    final Method m = stream.getClass().getMethod(
-                            "close", signature);
-                    m.invoke(stream, arguments);
-                } catch (IllegalAccessException ex) {
-                } catch (IllegalArgumentException ex) {
-                } catch (NoSuchMethodException ex) {
-                } catch (SecurityException ex) {
-                } catch (InvocationTargetException ex) {
-                    final Throwable t = ex.getTargetException();
-                    t.printStackTrace();
-                    if (t instanceof SQLException) {
-                        // - don't care.
-                    } else if (t instanceof RuntimeException) {
-                        //throw (RuntimeException) t;
-                    } else if (t instanceof Exception) {
-                        //throw Util.sqlException(t);
-                    } else if (t instanceof Error) {
-                        throw (Error) t;
-                    } else {
-                        // throw new RuntimeException(t.toString(), t);
-                    }
+                    ((InputStream) stream).close();
+                } catch (Exception ex) {
+                    //
+                }
+            } else if (stream instanceof OutputStream) {
+                try {
+                    ((OutputStream) stream).close();
+                } catch (Exception ex) {
+                    //
                 }
             }
-        } finally {
-            m_streams = null;
+        }
+
+        if (m_deleteOnFree) {
+            try {
+                m_file.delete();
+            } catch (Exception e) {
+            }
         }
     }
 
@@ -761,17 +745,6 @@ public class JDBCClobFile implements java.sql.Clob {
     }
 
     /**
-     * Retrieves whether this Clob is backed by a temporary file that will be
-     * deleted when this object is freed, finalized or the hosting Java process
-     * exists.
-     *
-     * @return true if backed by a tempt file; otherwise false.
-     */
-    public boolean isTemp() {
-        return m_temp;
-    }
-
-    /**
      *
      * @return the name of the character encoding used to read and write
      *         character data in the underlying files, as well as to determine
@@ -781,78 +754,31 @@ public class JDBCClobFile implements java.sql.Clob {
     public String getEncoding() {
         return m_encoding;
     }
-    //--------------------------------------------------------------------------
-    // Internal Implementation
-    //--------------------------------------------------------------------------
-    public static final String TEMP_FILE_PREFIX = "hsql_jdbc_clob_file_";
-    public static final String TEMP_FILE_SUFFIX = ".tmp";
-    //
-    private final File m_file;
-    //
-    private boolean m_closed;
-    private boolean m_temp;
-    private String m_encoding;
-    private Charset m_charset;
-    private CharsetEncoder m_encoder;
-    private boolean m_fixedWidthCharset;
-    private int m_maxCharWidth;
-    private List m_streams = new ArrayList();
+
 
     /**
-     * Convenience constructor for {@link
-     * #JDBCClobFile(java.io.File, java.lang.String, boolean)
-     * JDBCClobFile(null,null,true)}. <p>
+     * Retrieves whether an attempt to delete the backing file
+     * is made in response to invocation of {@link #free()}.
      *
-     * @throws SQLException if the platform encoding is unsupported,
-     *         the temp file cannot be created or some other
-     *         error occurs that prevents the construction of a
-     *         valid instance of this class.
+     * @return true if backing file deletion is attempted; otherwise false.
      */
-    public JDBCClobFile() throws SQLException {
-        this(null, null, true);
+    public boolean isDeleteOnFree() {
+        return m_deleteOnFree;
     }
 
     /**
-     * Constructs a new instance backed by the given File object. <p>
+     * Assigns whether an attempt to delete the backing file
+     * is made in response to invocation of {@link #free()}.
      *
-     * @param file that is to back the new CLOB instance. The parameter is
-     *        required unless <tt>temp</tt> is <tt>true</tt>, in which case a
-     *        null <tt>file</tt> value denotes that a uniquely named backing
-     *        file is created in the default temporary-file directory.
-     * @param encoding the name of the character encoding used to read and write
-     *         character data in the underlying file, as well as to determine
-     *         the character length of and character offsets into the underlying
-     *         file. Specify null to denote the platform encoding.
-     * @param temp when true; the backing file is deleted when this object is
-     *        freed, finalized or the hosting Java process exists.
-     * @throws SQLException if an unsupported encoding is specified,
-     *         the file is a directory, cannot be used as a backing file,
-     *         cannot be created, is inaccessible or some other error occurs
-     *         that prevents the construction of a valid instance of this class.
+     * @param deleteOnFree the new value to assign
      */
-    public JDBCClobFile(final File file,
-            final String encoding, boolean temp) throws SQLException {
-        if (!temp && file == null) {
-            throw Util.nullArgument("file");
-        }
-        try {
-            setEncoding(encoding);
-            m_file = (temp)
-                    ? File.createTempFile(TEMP_FILE_PREFIX, TEMP_FILE_SUFFIX)
-                    : file.getCanonicalFile();
-            checkIsFile(/*checkExists*/false);
-            if (temp) {
-                FileUtil.getFileUtil().deleteOnExit(m_file);
-            }
-        } catch (Exception ex) {
-            throw Util.sqlException(ex);
-        }
-        m_temp = temp;
+    public void setDeleteOnFree(boolean deleteOnFree) {
+        m_deleteOnFree = deleteOnFree;
     }
 
+
     /**
-     * To be called by the garbage collector when there are no more references
-     * to this object.
+     * Ensures this object is freed in response to finalization.
      */
     protected void finalize() throws Throwable {
         try {
@@ -862,6 +788,113 @@ public class JDBCClobFile implements java.sql.Clob {
                 this.free();
             } catch (Throwable throwable) {
             }
+        }
+    }
+
+    //--------------------------------------------------------------------------
+    // Internal Implementation
+    //--------------------------------------------------------------------------
+    public static final String TEMP_FILE_PREFIX = "hsql_jdbc_clob_file_";
+    public static final String TEMP_FILE_SUFFIX = ".tmp";
+    //
+    private final File m_file;
+    //
+    private boolean m_closed;
+    private boolean m_deleteOnFree;
+    private String m_encoding;
+    private Charset m_charset;
+    private CharsetEncoder m_encoder;
+    private boolean m_fixedWidthCharset;
+    private int m_maxCharWidth;
+    private List m_streams = new ArrayList();
+
+    /**
+     * Convenience constructor for {@link
+     * #JDBCClobFile(java.lang.String)
+     * JDBCClobFile((String)null)}. <p>
+     *
+     * @throws SQLException if the platform encoding is unsupported,
+     *         the temp file cannot be created or some other
+     *         error occurs that prevents the construction of a
+     *         valid instance of this class.
+     */
+    public JDBCClobFile() throws SQLException {
+        this((String) null);
+    }
+
+    /**
+     * Constructs a new JDBCClobFile instance backed by an File object
+     * created by File.createTempFile(TEMP_FILE_PREFIX, TEMP_FILE_SUFFIX),
+     * using the given encoding to read and write file content.<p>
+     *
+     * @param encoding the name of the character encoding used to read and write
+     *         character data in the underlying file, as well as to determine
+     *         the character length of and character offsets into the underlying
+     *         file. Specify null to denote the platform encoding.
+     *
+     * @throws SQLException if the given encoding is unsupported,
+     *         the backing temp file could not be created or if a security
+     *         manager exists and its <code>{@link
+     *         java.lang.SecurityManager#checkWrite(java.lang.String)}</code>
+     *         method does not allow a file to be created.
+     */
+    public JDBCClobFile(String encoding) throws SQLException {
+        try {
+            setEncoding(encoding);
+            m_file = File.createTempFile(TEMP_FILE_PREFIX, TEMP_FILE_SUFFIX);
+            m_deleteOnFree = true;
+        } catch (Exception ex) {
+            throw Util.sqlException(ex);
+        }
+    }
+
+    /**
+     * Convenience constructor for {@link
+     * #JDBCClobFile(java.io.File, java.lang.String)
+     * JDBCClobFile(file,null}. <p>
+     *
+     * @param file that is to back the new CLOB instance.
+     *
+     * @throws SQLException if an I/O error occurs, which is possible because the
+     *         construction of the canonical pathname may require
+     *         file-system queries; a required system property value
+     *         cannot be accessed; a security manager exists and its
+     *         <code>{@linkjava.lang.SecurityManager#checkRead}</code>
+     *         method denies read access to the file
+     */
+    public JDBCClobFile(File file) throws SQLException {
+        this(file, null);
+    }
+
+    /**
+     * Constructs a new JDBCClobFile instance backed by the given File object
+     * using the given encoding to read and write file content.<p>
+     *
+     * @param file that is to back the new CLOB instance.
+     * @param encoding the name of the character encoding used to read and write
+     *         character data in the underlying file, as well as to determine
+     *         the character length of and character offsets into the underlying
+     *         file. Specify null to denote the platform encoding.
+     *
+     * @throws SQLException if the given encoding is unsupported;
+     *         an I/O error occurs, which is possible because the
+     *         construction of the canonical pathname may require
+     *         file-system queries; a required system property value
+     *         cannot be accessed; a security manager exists and its
+     *         <code>{@linkjava.lang.SecurityManager#checkRead}</code>
+     *         method denies read access to the file
+     */
+    public JDBCClobFile(File file, String encoding) throws SQLException {
+        if (file == null) {
+            throw Util.nullArgument("file");
+        }
+        try {
+            setEncoding(encoding);
+            m_file = file.getCanonicalFile();
+            checkIsFile(/*checkExists*/false);
+            m_deleteOnFree = false;
+        } catch (Exception ex) {
+            throw Util.sqlException(ex);
         }
     }
 
@@ -903,35 +936,34 @@ public class JDBCClobFile implements java.sql.Clob {
     }
 
     protected final void checkIsFile(boolean checkExists) throws SQLException {
-        boolean isFile;
+        boolean exists = false;
+        boolean isFile = false;
 
         try {
-            isFile = m_file.isFile();
+            exists = m_file.exists();
         } catch (Exception ex) {
             throw Util.sqlException(ex);
         }
 
-        if (!isFile) {
-            throw Util.invalidArgument("Is not a file: " + m_file);
-        }
-
-        if (checkExists) {
-            boolean exists;
-
+        if (exists) {
             try {
-                exists = isFile || m_file.exists();
+                isFile = m_file.isFile();
             } catch (Exception ex) {
                 throw Util.sqlException(ex);
             }
-            if (!exists) {
-                throw Util.invalidArgument("Does not exist: " + m_file);
-            }
         }
 
+        if (exists) {
+            if (!isFile) {
+                throw Util.invalidArgument("Is not a file: " + m_file);
+            }
+        } else if (checkExists) {
+            throw Util.invalidArgument("Does not exist: " + m_file);
+        }
     }
 
     protected void checkClosed() throws SQLException {
-        if (m_closed || JDBCClobFile.this.m_closed) {
+        if (m_closed) {
             throw Util.sqlException(ErrorCode.X_07501);
         }
     }
@@ -1007,6 +1039,7 @@ public class JDBCClobFile implements java.sql.Clob {
 
     protected class ReaderAdapter extends Reader {
         //
+
         private static final int CHARBUFFER_CAPACTIY = 128;
         //
         private final Reader m_reader;
