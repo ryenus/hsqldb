@@ -97,9 +97,9 @@ public class OrderedLongKeyHashMap extends BaseHashMap {
     }
 
     public Object setSecondValueByIndex(int index, Object value) {
-        Object oldValue = objectValueTable[index];
+        Object oldValue = objectKeyTable[index];
 
-        objectValueTable[index] = value;
+        objectKeyTable[index] = value;
 
         return oldValue;
     }

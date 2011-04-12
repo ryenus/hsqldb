@@ -171,14 +171,15 @@ public class FunctionCustom extends FunctionSQL {
     private static final int FUNC_TIMEZONE                 = 137;
     private static final int FUNC_TO_CHAR                  = 138;
     private static final int FUNC_TO_DATE                  = 139;
-    private static final int FUNC_TO_TIMESTAMP             = 140;
-    private static final int FUNC_TRANSACTION_CONTROL      = 141;
-    private static final int FUNC_TRANSACTION_ID           = 142;
-    private static final int FUNC_TRANSACTION_SIZE         = 143;
-    private static final int FUNC_TRUNC                    = 144;
-    private static final int FUNC_TRUNCATE                 = 145;
-    private static final int FUNC_UUID                     = 146;
-    private static final int FUNC_UNIX_TIMESTAMP           = 147;
+    private static final int FUNC_TO_NUMBER                = 140;
+    private static final int FUNC_TO_TIMESTAMP             = 141;
+    private static final int FUNC_TRANSACTION_CONTROL      = 142;
+    private static final int FUNC_TRANSACTION_ID           = 143;
+    private static final int FUNC_TRANSACTION_SIZE         = 144;
+    private static final int FUNC_TRUNC                    = 145;
+    private static final int FUNC_TRUNCATE                 = 146;
+    private static final int FUNC_UUID                     = 147;
+    private static final int FUNC_UNIX_TIMESTAMP           = 148;
 
     //
     static final IntKeyIntValueHashMap customRegularFuncMap =
@@ -298,6 +299,7 @@ public class FunctionCustom extends FunctionSQL {
         customRegularFuncMap.put(Tokens.TIMEZONE, FUNC_TIMEZONE);
         customRegularFuncMap.put(Tokens.TO_CHAR, FUNC_TO_CHAR);
         customRegularFuncMap.put(Tokens.TO_DATE, FUNC_TO_DATE);
+        customRegularFuncMap.put(Tokens.TO_NUMBER, FUNC_TO_NUMBER);
         customRegularFuncMap.put(Tokens.TO_TIMESTAMP, FUNC_TO_TIMESTAMP);
         customRegularFuncMap.put(Tokens.TRANSACTION_CONTROL, FUNC_TRANSACTION_CONTROL);
         customRegularFuncMap.put(Tokens.TRANSACTION_ID, FUNC_TRANSACTION_ID);
@@ -487,6 +489,7 @@ public class FunctionCustom extends FunctionSQL {
             case FUNC_SOUNDEX :
             case FUNC_SPACE :
             case FUNC_TAN :
+            case FUNC_TO_NUMBER :
                 parseList = singleParamList;
                 break;
 
@@ -1056,6 +1059,14 @@ public class FunctionCustom extends FunctionSQL {
 
                 return HsqlDateTime.toFormattedDate(date, (String) data[1],
                                                     format);
+            }
+            case FUNC_TO_NUMBER : {
+                if (data[0] == null) {
+                    return null;
+                }
+
+                return dataType.convertToType(session, data[0],
+                                              nodes[0].dataType);
             }
             case FUNC_TO_DATE :
             case FUNC_TO_TIMESTAMP : {
@@ -1947,7 +1958,7 @@ public class FunctionCustom extends FunctionSQL {
             }
             case FUNC_TO_CHAR : {
                 if (nodes[0].dataType == null) {
-                    nodes[1].dataType = Type.SQL_TIMESTAMP;
+                    nodes[0].dataType = Type.SQL_TIMESTAMP;
                 }
 
                 if (nodes[1].dataType == null) {
@@ -1965,6 +1976,31 @@ public class FunctionCustom extends FunctionSQL {
                 // fixed maximum as format is a variable
                 dataType = CharacterType.getCharacterType(Types.SQL_VARCHAR,
                         64);
+
+                return;
+            }
+            case FUNC_TO_NUMBER : {
+                if (nodes[0].dataType == null) {
+                    nodes[0].dataType = Type.SQL_VARCHAR_DEFAULT;
+                }
+
+/*
+                if (nodes[1] != null) {
+                    if (nodes[1].dataType == null) {
+                        nodes[1].dataType = Type.SQL_VARCHAR_DEFAULT;
+                    }
+
+                    if (!nodes[1].dataType.isCharacterType()) {
+                        throw Error.error(ErrorCode.X_42563);
+                    }
+                }
+*/
+                if (!nodes[0].dataType.isCharacterType()) {
+                    throw Error.error(ErrorCode.X_42563);
+                }
+
+                // fixed maximum as format is a variable
+                dataType = Type.SQL_DECIMAL_DEFAULT;
 
                 return;
             }
@@ -2563,6 +2599,7 @@ public class FunctionCustom extends FunctionSQL {
                 return sb.toString();
             }
             case FUNC_LOAD_FILE :
+            case FUNC_TO_NUMBER :
             case FUNC_ROUND :
             case FUNC_TRUNC :
             case FUNC_TRUNCATE : {

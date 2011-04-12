@@ -1432,7 +1432,7 @@ public class Logger {
 
         if (HsqlDatabaseProperties.hsqldb_result_max_memory_rows.equals(
                 name)) {
-            return String.valueOf(this.propCacheDefragLimit);
+            return String.valueOf(database.getResultMaxMemoryRows());
         }
 
         if (HsqlDatabaseProperties.hsqldb_write_delay.equals(name)) {

@@ -848,6 +848,7 @@ public class Tokens {
     static final String        T_TAN              = "TAN";
     static final String        T_TO_CHAR          = "TO_CHAR";
     static final String        T_TO_DATE          = "TO_DATE";
+    static final String        T_TO_NUMBER        = "TO_NUMBER";
     static final String        T_TO_TIMESTAMP     = "TO_TIMESTAMP";
     static final String        T_TRANSACTION_SIZE = "TRANSACTION_SIZE";
     static final String        T_TRANSACTION_ID   = "TRANSACTION_ID";
@@ -1589,18 +1590,19 @@ public class Tokens {
     static final int        TIMEZONE                   = 730;
     static final int        TO_CHAR                    = 731;
     static final int        TO_DATE                    = 732;
-    static final int        TO_TIMESTAMP               = 733;
-    static final int        TODAY                      = 734;
-    static final int        TOP                        = 735;
-    static final int        TRANSACTION_CONTROL        = 736;
-    static final int        TRANSACTION_ID             = 737;
-    static final int        TRANSACTION_SIZE           = 738;
-    static final int        TRUNC                      = 739;
-    static final int        UCASE                      = 740;
-    static final int        UNIX_TIMESTAMP             = 741;
-    static final int        UUID                       = 742;
-    static final int        WEEK                       = 743;
-    public static final int WEEK_OF_YEAR               = 744;
+    static final int        TO_NUMBER                  = 733;
+    static final int        TO_TIMESTAMP               = 734;
+    static final int        TODAY                      = 735;
+    static final int        TOP                        = 736;
+    static final int        TRANSACTION_CONTROL        = 737;
+    static final int        TRANSACTION_ID             = 738;
+    static final int        TRANSACTION_SIZE           = 739;
+    static final int        TRUNC                      = 740;
+    static final int        UCASE                      = 741;
+    static final int        UNIX_TIMESTAMP             = 742;
+    static final int        UUID                       = 743;
+    static final int        WEEK                       = 744;
+    public static final int WEEK_OF_YEAR               = 755;
 
     //
     static final int        ASTERISK         = 771;
@@ -2318,6 +2320,7 @@ public class Tokens {
         commandSet.put(T_TAN, TAN);
         commandSet.put(T_TO_CHAR, TO_CHAR);
         commandSet.put(T_TO_DATE, TO_DATE);
+        commandSet.put(T_TO_NUMBER, TO_NUMBER);
         commandSet.put(T_TO_TIMESTAMP, TO_TIMESTAMP);
         commandSet.put(T_TODAY, TODAY);
         commandSet.put(T_TRUNC, TRUNC);

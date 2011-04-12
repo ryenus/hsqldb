@@ -102,7 +102,7 @@ public class SimpleLog {
         try {
             FileUtil.getFileUtil().makeParentDirectories(file);
 
-            writer = new PrintWriter(new FileWriter(file.getPath(), true),
+            writer = new PrintWriter(new FileWriter(file, true),
                                      true);
         } catch (Exception e) {
             isSystem = true;
@@ -197,6 +197,7 @@ public class SimpleLog {
     public void close() {
 
         if (writer != null && !isSystem) {
+            writer.flush();
             writer.close();
         }
 

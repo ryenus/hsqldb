@@ -244,7 +244,11 @@ public interface ResultConstants {
      * Indicates that the Result encapsulates a response to a procedure call via CallableStatement
      */
     int CALL_RESPONSE    = HSQL_API_BASE + 43;
-    int MODE_UPPER_LIMIT = HSQL_API_BASE + 44;
+
+    /**
+     * Constants above this limit are handled as non-HSQLDB results
+     */
+    int MODE_UPPER_LIMIT = HSQL_API_BASE + 48;
 
 //    /** The offset at which the standard SQL API Result mode values start. */
 //    int SQL_API_BASE = 0x00010000;
