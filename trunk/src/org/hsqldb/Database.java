@@ -48,7 +48,6 @@ import org.hsqldb.rights.GranteeManager;
 import org.hsqldb.rights.User;
 import org.hsqldb.rights.UserManager;
 import org.hsqldb.types.Collation;
-import org.hsqldb.types.Type;
 
 // incorporates following contributions
 // boucherb@users - javadoc comments
@@ -74,8 +73,8 @@ public class Database {
     public DatabaseInformation dbInfo;
 
     /** indicates the state of the database */
-    private int   dbState;
-    public Logger logger;
+    private volatile int dbState;
+    public Logger        logger;
 
     /** true means that all tables are readonly. */
     boolean databaseReadOnly;
@@ -537,6 +536,11 @@ public class Database {
     public void close(int closemode) {
 
         HsqlException he = null;
+
+        // multiple simultaneous close
+        if (getState() != DATABASE_ONLINE) {
+            return;
+        }
 
         setState(DATABASE_CLOSING);
         sessionManager.closeAllSessions();
