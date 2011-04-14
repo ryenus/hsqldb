@@ -47,16 +47,12 @@ import java.io.RandomAccessFile;
 import java.io.Reader;
 import java.io.UnsupportedEncodingException;
 import java.io.Writer;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.nio.charset.Charset;
 import java.nio.charset.CharsetEncoder;
 import java.nio.charset.CodingErrorAction;
 import java.nio.charset.IllegalCharsetNameException;
-
 import java.sql.Clob;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -107,6 +103,7 @@ public class JDBCClobFile implements java.sql.Clob {
      * @since JDK 1.2
      */
     public long length() throws SQLException {
+
         checkClosed();
 
         if (m_fixedWidthCharset) {
@@ -127,8 +124,7 @@ public class JDBCClobFile implements java.sql.Clob {
             if (adapter != null) {
                 try {
                     adapter.close();
-                } catch (Exception ex) {
-                }
+                } catch (Exception ex) {}
             }
         }
     }
@@ -155,16 +151,19 @@ public class JDBCClobFile implements java.sql.Clob {
      * @since JDK 1.2
      */
     public String getSubString(final long pos,
-            final int length) throws SQLException {
-        Reader reader = null;
+                               final int length) throws SQLException {
+
+        Reader          reader = null;
         CharArrayWriter writer = null;
 
         try {
             final int initialCapacity =
-                    Math.min(InOutUtil.DEFAULT_COPY_BUFFER_SIZE, length);
+                Math.min(InOutUtil.DEFAULT_COPY_BUFFER_SIZE, length);
+
             //
             reader = getCharacterStream(pos, length);
             writer = new CharArrayWriter(initialCapacity);
+
             //
             InOutUtil.copy(reader, writer, length);
         } catch (SQLException ex) {
@@ -175,8 +174,7 @@ public class JDBCClobFile implements java.sql.Clob {
             if (reader != null) {
                 try {
                     reader.close();
-                } catch (Exception ex) {
-                }
+                } catch (Exception ex) {}
             }
         }
 
@@ -219,10 +217,11 @@ public class JDBCClobFile implements java.sql.Clob {
         InputStream stream;
 
         try {
-            stream = new JDBCBlobFile.InputStreamAdapter(
-                    m_file, 0, Long.MAX_VALUE) {
+            stream = new JDBCBlobFile.InputStreamAdapter(m_file, 0,
+                    Long.MAX_VALUE) {
 
                 public void close() throws IOException {
+
                     try {
                         super.close();
                     } finally {
@@ -255,12 +254,13 @@ public class JDBCClobFile implements java.sql.Clob {
      * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
      * this method
      */
-    public long position(final char[] pattern, final long start) throws SQLException {
+    public long position(final char[] pattern,
+                         final long start) throws SQLException {
+
         if (start < 1) {
             throw Util.outOfRangeArgument("start: " + start);
-        } else if (pattern == null
-                || pattern.length == 0
-                || start > length()) {
+        } else if (pattern == null || pattern.length == 0
+                   || start > length()) {
             return -1L;
         }
 
@@ -269,10 +269,11 @@ public class JDBCClobFile implements java.sql.Clob {
         try {
             reader = getCharacterStream(start, Long.MAX_VALUE);
 
-            final long matchOffset = KMPSearchAlgorithm.search(reader, pattern,
-                    KMPSearchAlgorithm.computeTable(pattern));
+            final long matchOffset = KMPSearchAlgorithm.search(reader,
+                pattern, KMPSearchAlgorithm.computeTable(pattern));
 
-            return matchOffset == -1 ? -1 : start + matchOffset;
+            return matchOffset == -1 ? -1
+                                     : start + matchOffset;
         } catch (SQLException ex) {
             throw ex;
         } catch (Exception ex) {
@@ -281,8 +282,7 @@ public class JDBCClobFile implements java.sql.Clob {
             if (reader != null) {
                 try {
                     reader.close();
-                } catch (Exception ex) {
-                }
+                } catch (Exception ex) {}
             }
         }
     }
@@ -305,7 +305,8 @@ public class JDBCClobFile implements java.sql.Clob {
      * @since JDK 1.2
      */
     public long position(String searchstr, long start) throws SQLException {
-        return position(searchstr == null ? null : searchstr.toCharArray(), start);
+        return position(searchstr == null ? null
+                                          : searchstr.toCharArray(), start);
     }
 
     /**
@@ -325,15 +326,19 @@ public class JDBCClobFile implements java.sql.Clob {
      * this method
      * @since JDK 1.2
      */
-    public long position(final Clob pattern, final long start) throws SQLException {
+    public long position(final Clob pattern,
+                         final long start) throws SQLException {
+
         long patternLength;
 
         if (start < 1) {
             throw Util.outOfRangeArgument("start: " + start);
-        } else if ((patternLength = pattern == null ? 0 : pattern.length()) == 0) {
+        } else if ((patternLength = pattern == null ? 0
+                                                    : pattern.length()) == 0) {
             return -1L;
         } else if (patternLength > Integer.MAX_VALUE) {
-            throw Util.outOfRangeArgument("pattern.length(): " + patternLength);
+            throw Util.outOfRangeArgument("pattern.length(): "
+                                          + patternLength);
         }
 
         char[] charPattern;
@@ -341,11 +346,12 @@ public class JDBCClobFile implements java.sql.Clob {
         if (pattern instanceof JDBCClob) {
             charPattern = ((JDBCClob) pattern).data().toCharArray();
         } else {
-            Reader reader = null;
+            Reader          reader = null;
             CharArrayWriter writer = new CharArrayWriter();
 
             try {
                 reader = pattern.getCharacterStream();
+
                 InOutUtil.copy(reader, writer, patternLength);
             } catch (IOException ex) {
                 throw Util.sqlException(ex);
@@ -353,8 +359,7 @@ public class JDBCClobFile implements java.sql.Clob {
                 if (reader != null) {
                     try {
                         reader.close();
-                    } catch (IOException ex) {
-                    }
+                    } catch (IOException ex) {}
                 }
             }
 
@@ -365,6 +370,7 @@ public class JDBCClobFile implements java.sql.Clob {
     }
 
     //---------------------------- jdbc 3.0 -----------------------------------
+
     /**
      * Writes the given Java <code>String</code> to the <code>CLOB</code>
      * value that this <code>Clob</code> object designates at the position
@@ -393,8 +399,10 @@ public class JDBCClobFile implements java.sql.Clob {
      * this method
      * @since JDK 1.4
      */
-    public int setString(final long pos, final String str) throws SQLException {
-        return setString(pos, str, 0, str == null ? 0 : str.length());
+    public int setString(final long pos,
+                         final String str) throws SQLException {
+        return setString(pos, str, 0, str == null ? 0
+                                                  : str.length());
     }
 
     /**
@@ -428,7 +436,8 @@ public class JDBCClobFile implements java.sql.Clob {
      * @since JDK 1.4
      */
     public int setString(final long pos, final String str, final int offset,
-            final int len) throws SQLException {
+                         final int len) throws SQLException {
+
         if (str == null) {
             throw Util.nullArgument("str");
         }
@@ -445,8 +454,7 @@ public class JDBCClobFile implements java.sql.Clob {
             if (writer != null) {
                 try {
                     writer.close();
-                } catch (Exception ex) {
-                }
+                } catch (Exception ex) {}
             }
         }
 
@@ -481,6 +489,7 @@ public class JDBCClobFile implements java.sql.Clob {
      * @since JDK 1.4
      */
     public OutputStream setAsciiStream(long pos) throws SQLException {
+
         if (pos < 1) {
             throw Util.invalidArgument("pos: " + pos);
         }
@@ -494,6 +503,7 @@ public class JDBCClobFile implements java.sql.Clob {
             stream = new JDBCBlobFile.OutputStreamAdapter(m_file, pos - 1) {
 
                 public void close() throws IOException {
+
                     try {
                         super.close();
                     } finally {
@@ -539,6 +549,7 @@ public class JDBCClobFile implements java.sql.Clob {
      * @since JDK 1.4
      */
     public Writer setCharacterStream(final long pos) throws SQLException {
+
         if (pos < 1) {
             throw Util.invalidArgument("pos: " + pos);
         }
@@ -552,6 +563,7 @@ public class JDBCClobFile implements java.sql.Clob {
             final WriterAdapter adapter = new WriterAdapter(m_file, pos - 1) {
 
                 public void close() throws IOException {
+
                     try {
                         super.close();
                     } finally {
@@ -591,19 +603,19 @@ public class JDBCClobFile implements java.sql.Clob {
      * @since JDK 1.4
      */
     public void truncate(long len) throws SQLException {
+
         if (len < 0) {
             throw Util.invalidArgument("len: " + len);
         }
 
         checkClosed();
 
-        ReaderAdapter adapter = null;
+        ReaderAdapter    adapter          = null;
         RandomAccessFile randomAccessFile = null;
-        long filePointer;
+        long             filePointer;
 
         try {
-            adapter = new ReaderAdapter(m_file, len, Long.MAX_VALUE);
-
+            adapter     = new ReaderAdapter(m_file, len, Long.MAX_VALUE);
             filePointer = adapter.getFilePointer();
 
             adapter.close();
@@ -617,14 +629,13 @@ public class JDBCClobFile implements java.sql.Clob {
             if (adapter != null) {
                 try {
                     adapter.close();
-                } catch (Exception ex) {
-                }
+                } catch (Exception ex) {}
             }
+
             if (randomAccessFile != null) {
                 try {
                     randomAccessFile.close();
-                } catch (Exception ex) {
-                }
+                } catch (Exception ex) {}
             }
         }
     }
@@ -647,6 +658,7 @@ public class JDBCClobFile implements java.sql.Clob {
      * @since JDK 1.4
      */
     public synchronized void free() throws SQLException {
+
         if (m_closed) {
             return;
         }
@@ -659,19 +671,21 @@ public class JDBCClobFile implements java.sql.Clob {
 
         m_streams = null;
 
-        for (Iterator itr = streams.iterator(); itr.hasNext();) {
+        for (Iterator itr = streams.iterator(); itr.hasNext(); ) {
             final Object stream = itr.next();
 
             if (stream instanceof InputStream) {
                 try {
                     ((InputStream) stream).close();
                 } catch (Exception ex) {
+
                     //
                 }
             } else if (stream instanceof OutputStream) {
                 try {
                     ((OutputStream) stream).close();
                 } catch (Exception ex) {
+
                     //
                 }
             }
@@ -680,8 +694,7 @@ public class JDBCClobFile implements java.sql.Clob {
         if (m_deleteOnFree) {
             try {
                 m_file.delete();
-            } catch (Exception e) {
-            }
+            } catch (Exception e) {}
         }
     }
 
@@ -701,7 +714,9 @@ public class JDBCClobFile implements java.sql.Clob {
      * this method
      * @since 1.6
      */
-    public Reader getCharacterStream(long pos, long length) throws SQLException {
+    public Reader getCharacterStream(long pos,
+                                     long length) throws SQLException {
+
         if (pos < 1) {
             throw Util.outOfRangeArgument("pos: " + pos);
         }
@@ -718,6 +733,7 @@ public class JDBCClobFile implements java.sql.Clob {
             reader = new ReaderAdapter(m_file, pos, length) {
 
                 public void close() throws IOException {
+
                     try {
                         super.close();
                     } finally {
@@ -755,7 +771,6 @@ public class JDBCClobFile implements java.sql.Clob {
         return m_encoding;
     }
 
-
     /**
      * Retrieves whether an attempt to delete the backing file
      * is made in response to invocation of {@link #free()}.
@@ -776,18 +791,17 @@ public class JDBCClobFile implements java.sql.Clob {
         m_deleteOnFree = deleteOnFree;
     }
 
-
     /**
      * Ensures this object is freed in response to finalization.
      */
     protected void finalize() throws Throwable {
+
         try {
             super.finalize();
         } finally {
             try {
                 this.free();
-            } catch (Throwable throwable) {
-            }
+            } catch (Throwable throwable) {}
         }
     }
 
@@ -796,17 +810,19 @@ public class JDBCClobFile implements java.sql.Clob {
     //--------------------------------------------------------------------------
     public static final String TEMP_FILE_PREFIX = "hsql_jdbc_clob_file_";
     public static final String TEMP_FILE_SUFFIX = ".tmp";
+
     //
     private final File m_file;
+
     //
-    private boolean m_closed;
-    private boolean m_deleteOnFree;
-    private String m_encoding;
-    private Charset m_charset;
+    private boolean        m_closed;
+    private boolean        m_deleteOnFree;
+    private String         m_encoding;
+    private Charset        m_charset;
     private CharsetEncoder m_encoder;
-    private boolean m_fixedWidthCharset;
-    private int m_maxCharWidth;
-    private List m_streams = new ArrayList();
+    private boolean        m_fixedWidthCharset;
+    private int            m_maxCharWidth;
+    private List           m_streams = new ArrayList();
 
     /**
      * Convenience constructor for {@link
@@ -839,8 +855,10 @@ public class JDBCClobFile implements java.sql.Clob {
      *         method does not allow a file to be created.
      */
     public JDBCClobFile(String encoding) throws SQLException {
+
         try {
             setEncoding(encoding);
+
             m_file = File.createTempFile(TEMP_FILE_PREFIX, TEMP_FILE_SUFFIX);
             m_deleteOnFree = true;
         } catch (Exception ex) {
@@ -885,57 +903,65 @@ public class JDBCClobFile implements java.sql.Clob {
      *         method denies read access to the file
      */
     public JDBCClobFile(File file, String encoding) throws SQLException {
+
         if (file == null) {
             throw Util.nullArgument("file");
         }
+
         try {
             setEncoding(encoding);
+
             m_file = file.getCanonicalFile();
-            checkIsFile(/*checkExists*/false);
+
+            checkIsFile( /*checkExists*/false);
+
             m_deleteOnFree = false;
         } catch (Exception ex) {
             throw Util.sqlException(ex);
         }
     }
 
-    protected final void setEncoding(
-            final String encoding) throws UnsupportedEncodingException {
+    protected final void setEncoding(final String encoding)
+    throws UnsupportedEncodingException {
 
         final Charset charSet = charsetForName(encoding);
         final CharsetEncoder encoder = charSet.newEncoder().onMalformedInput(
-                CodingErrorAction.REPLACE).onUnmappableCharacter(
-                CodingErrorAction.REPLACE);
-
-        final float maxBytesPerChar = encoder.maxBytesPerChar();
+            CodingErrorAction.REPLACE).onUnmappableCharacter(
+            CodingErrorAction.REPLACE);
+        final float maxBytesPerChar     = encoder.maxBytesPerChar();
         final float averageBytesPerChar = encoder.averageBytesPerChar();
         final boolean fixedWidthCharset =
-                (maxBytesPerChar == Math.round(maxBytesPerChar))
-                && (maxBytesPerChar == averageBytesPerChar);
+            (maxBytesPerChar == Math.round(maxBytesPerChar))
+            && (maxBytesPerChar == averageBytesPerChar);
+
         //
         m_fixedWidthCharset = fixedWidthCharset;
-        m_maxCharWidth = Math.round(maxBytesPerChar);
-        m_charset = charSet;
-        m_encoder = encoder;
-        m_encoding = m_charset.name();
+        m_maxCharWidth      = Math.round(maxBytesPerChar);
+        m_charset           = charSet;
+        m_encoder           = encoder;
+        m_encoding          = m_charset.name();
     }
 
-    protected static Charset charsetForName(
-            final String charsetName) throws UnsupportedEncodingException {
+    protected static Charset charsetForName(final String charsetName)
+    throws UnsupportedEncodingException {
+
         String csn = charsetName;
 
         if (csn == null) {
             csn = Charset.defaultCharset().name();
         }
+
         try {
             if (Charset.isSupported(csn)) {
                 return Charset.forName(csn);
             }
-        } catch (IllegalCharsetNameException x) {
-        }
+        } catch (IllegalCharsetNameException x) {}
+
         throw new UnsupportedEncodingException(csn);
     }
 
     protected final void checkIsFile(boolean checkExists) throws SQLException {
+
         boolean exists = false;
         boolean isFile = false;
 
@@ -963,12 +989,14 @@ public class JDBCClobFile implements java.sql.Clob {
     }
 
     protected void checkClosed() throws SQLException {
+
         if (m_closed) {
             throw Util.sqlException(ErrorCode.X_07501);
         }
     }
 
     protected void createFile() throws SQLException {
+
         try {
             if (!m_file.exists()) {
                 FileUtil.getFileUtil().makeParentDirectories(m_file);
@@ -978,7 +1006,7 @@ public class JDBCClobFile implements java.sql.Clob {
             throw Util.sqlException(ex);
         }
 
-        checkIsFile(/*checkExists*/true);
+        checkIsFile( /*checkExists*/true);
     }
 
     protected class WriterAdapter extends Writer {
@@ -986,34 +1014,34 @@ public class JDBCClobFile implements java.sql.Clob {
         private final RandomAccessFile m_randomAccessFile;
 
         public WriterAdapter(final File file,
-                final long pos) throws FileNotFoundException, IOException {
+                             final long pos)
+                             throws FileNotFoundException, IOException {
+
             if (file == null) {
                 throw new NullPointerException("file");
             }
+
             if (pos < 0) {
                 throw new IllegalArgumentException("pos: " + pos);
             }
 
             ReaderAdapter reader = null;
-            long filePointer;
+            long          filePointer;
 
             try {
-                reader = new ReaderAdapter(file, pos, Long.MAX_VALUE);
-
+                reader      = new ReaderAdapter(file, pos, Long.MAX_VALUE);
                 filePointer = reader.getFilePointer();
             } finally {
                 if (reader != null) {
                     try {
                         reader.close();
-                    } catch (Exception ex) {
-                    }
+                    } catch (Exception ex) {}
                 }
             }
 
             m_randomAccessFile = new RandomAccessFile(file, "rw");
 
             m_randomAccessFile.seek(filePointer);
-
         }
 
         public void flush() throws IOException {
@@ -1025,37 +1053,43 @@ public class JDBCClobFile implements java.sql.Clob {
         }
 
         public void write(char[] cbuf, int off, int len) throws IOException {
+
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
             OutputStreamWriter writer = m_encoding == null
-                    ? new OutputStreamWriter(baos)
-                    : new OutputStreamWriter(baos, m_charset);
+                                        ? new OutputStreamWriter(baos)
+                                        : new OutputStreamWriter(baos,
+                                            m_charset);
 
             writer.write(cbuf, off, len);
             writer.close();
-
             m_randomAccessFile.write(baos.toByteArray());
         }
     }
 
     protected class ReaderAdapter extends Reader {
-        //
 
+        //
         private static final int CHARBUFFER_CAPACTIY = 128;
+
         //
         private final Reader m_reader;
-        private long m_remaining = Long.MAX_VALUE;
-        private long m_filePointer;
-        private ByteBuffer m_byteBuffer;
-        private CharBuffer m_charBuffer;
+        private long         m_remaining = Long.MAX_VALUE;
+        private long         m_filePointer;
+        private ByteBuffer   m_byteBuffer;
+        private CharBuffer   m_charBuffer;
 
         public ReaderAdapter(final File file, final long pos,
-                final long length) throws FileNotFoundException, IOException {
+                             final long length)
+                             throws FileNotFoundException, IOException {
+
             if (file == null) {
                 throw new NullPointerException("file");
             }
+
             if (pos < 0) {
                 throw new IllegalArgumentException("pos: " + pos);
             }
+
             if (length < 0) {
                 throw new IllegalArgumentException("length: " + length);
             }
@@ -1069,9 +1103,10 @@ public class JDBCClobFile implements java.sql.Clob {
                 m_byteBuffer = ByteBuffer.allocate(byteCapacity);
             }
 
-            final FileInputStream fis = new FileInputStream(file);
+            final FileInputStream     fis = new FileInputStream(file);
             final BufferedInputStream bis = new BufferedInputStream(fis);
-            final InputStreamReader isr = new InputStreamReader(bis, m_charset);
+            final InputStreamReader isr = new InputStreamReader(bis,
+                m_charset);
 
             m_reader = isr;
 
@@ -1089,7 +1124,8 @@ public class JDBCClobFile implements java.sql.Clob {
         }
 
         public int read(final char[] cbuf, final int off,
-                int len) throws IOException {
+                        int len) throws IOException {
+
             final long l_remaining = m_remaining;
 
             if (l_remaining <= 0) {
@@ -1103,7 +1139,7 @@ public class JDBCClobFile implements java.sql.Clob {
             if (charsRead == -1) {
                 return -1;
             } else if (charsRead > l_remaining) {
-                charsRead = (int) l_remaining;
+                charsRead   = (int) l_remaining;
                 m_remaining = 0;
             } else {
                 m_remaining -= charsRead;
@@ -1114,13 +1150,16 @@ public class JDBCClobFile implements java.sql.Clob {
             if (m_fixedWidthCharset) {
                 bytesRead = (m_maxCharWidth * charsRead);
             } else {
-                final boolean reallocate = (charsRead > m_charBuffer.capacity());
+                final boolean reallocate = (charsRead
+                                            > m_charBuffer.capacity());
                 final CharBuffer cb = reallocate
-                        ? CharBuffer.allocate(charsRead)
-                        : m_charBuffer;
+                                      ? CharBuffer.allocate(charsRead)
+                                      : m_charBuffer;
                 final ByteBuffer bb = reallocate
-                        ? ByteBuffer.allocate(charsRead * m_maxCharWidth)
-                        : m_byteBuffer;
+                                      ? ByteBuffer.allocate(charsRead
+                                          * m_maxCharWidth)
+                                      : m_byteBuffer;
+
                 //
                 cb.clear();
                 bb.clear();
@@ -1128,6 +1167,7 @@ public class JDBCClobFile implements java.sql.Clob {
                 cb.flip();
                 m_encoder.encode(cb, bb, /*endOfinput*/ true);
                 bb.flip();
+
                 bytesRead = bb.limit();
 
                 if (reallocate) {
