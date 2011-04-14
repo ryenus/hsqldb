@@ -54,7 +54,7 @@ import java.io.InputStream;
  */
 public final class CountdownInputStream extends InputStream {
 
-    private long m_count;
+    private long        m_count;
     private InputStream m_input;
 
     public CountdownInputStream(final InputStream is) {
@@ -77,9 +77,12 @@ public final class CountdownInputStream extends InputStream {
     }
 
     public int read(final byte[] buf) throws IOException {
+
         if (buf == null) {
             throw new NullPointerException();
-        } else if (m_count <= 0) {
+        } 
+
+        if (m_count <= 0) {
             return -1;
         }
 
@@ -99,14 +102,13 @@ public final class CountdownInputStream extends InputStream {
     }
 
     public int read(final byte[] buf, final int off,
-            int len) throws IOException {
+                    int len) throws IOException {
+
         if (buf == null) {
             throw new NullPointerException();
-        } else if (off < 0 || len < 0 || len > buf.length - off) {
-            throw new IndexOutOfBoundsException();
-        } else if (len == 0) {
-            return 0;
-        } else if (m_count <= 0) {
+        } 
+
+        if (m_count <= 0) {
             return -1;
         }
 
@@ -128,11 +130,13 @@ public final class CountdownInputStream extends InputStream {
     }
 
     public int available() throws IOException {
-        return Math.min(m_input.available(), (int) Math.min(Integer.MAX_VALUE, m_count));
+        return Math.min(m_input.available(),
+                        (int) Math.min(Integer.MAX_VALUE, m_count));
     }
 
     public long skip(long count) throws IOException {
-        return (count <= 0) ? 0 : m_input.skip(Math.min(m_count, count));
+        return (count <= 0) ? 0
+                            : m_input.skip(Math.min(m_count, count));
     }
 
     public long getCount() {

@@ -328,7 +328,7 @@ public class Database {
     /**
      *  Returns true if database has been shut down, false otherwise
      */
-    synchronized boolean isShutdown() {
+    boolean isShutdown() {
         return dbState == DATABASE_SHUTDOWN;
     }
 
@@ -538,18 +538,15 @@ public class Database {
         HsqlException he = null;
 
         // multiple simultaneous close
-        if (getState() != DATABASE_ONLINE) {
-            return;
+        synchronized (this) {
+            if (getState() != DATABASE_ONLINE) {
+                return;
+            }
+
+            setState(DATABASE_CLOSING);
         }
 
-        setState(DATABASE_CLOSING);
         sessionManager.closeAllSessions();
-
-        if (getState() == DATABASE_SHUTDOWN) {
-
-            // shutdown because closeIfLast has been called when session closed
-            return;
-        }
 
         if (filesReadOnly) {
             closemode = CLOSEMODE_IMMEDIATELY;
@@ -587,6 +584,8 @@ public class Database {
         // DatabaseManager repository if there are pending getDatabase()
         // calls
         DatabaseManager.removeDatabase(this);
+
+        // todo - when hsqldb.sql. logging is supported, add another call
         FrameworkLogger.clearLoggers("hsqldb.db." + getUniqueName());
 
         if (he != null) {
@@ -594,11 +593,11 @@ public class Database {
         }
     }
 
-    private synchronized void setState(int state) {
+    private void setState(int state) {
         dbState = state;
     }
 
-    synchronized int getState() {
+    int getState() {
         return dbState;
     }
 
