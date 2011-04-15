@@ -6221,6 +6221,9 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
         return (s != null && s.length() == 0);
     }
 
+    /**
+     * Returns the name of the default schema for database.
+     */
     String getDatabaseDefaultSchema() throws SQLException {
 
         final ResultSet rs = executeSelect("SYSTEM_SCHEMAS",
@@ -6269,6 +6272,9 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
         return schemaName;
     }
 
+    /**
+     * Returns the name of the catalog of the default schema.
+     */
     String getDatabaseDefaultCatalog() throws SQLException {
 
         final ResultSet rs = executeSelect("SYSTEM_SCHEMAS",

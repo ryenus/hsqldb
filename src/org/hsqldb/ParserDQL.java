@@ -227,7 +227,6 @@ public class ParserDQL extends ParserBase {
                     typeNumber = Types.SQL_VARCHAR;
                 } else if (token.tokenType == Tokens.LARGE) {
                     read();
-
                     readThis(Tokens.OBJECT);
 
                     typeNumber = Types.SQL_CLOB;
@@ -247,7 +246,6 @@ public class ParserDQL extends ParserBase {
                     typeNumber = Types.SQL_VARBINARY;
                 } else if (token.tokenType == Tokens.LARGE) {
                     read();
-
                     readThis(Tokens.OBJECT);
 
                     typeNumber = Types.SQL_BLOB;
@@ -1483,6 +1481,9 @@ public class ParserDQL extends ParserBase {
                 return null;
             }
 
+            // optional comma
+            readIfThis(Tokens.COMMA);
+
             e2 = XreadSimpleValueSpecificationOrNull();
 
             if (e2 == null) {
@@ -1509,16 +1510,20 @@ public class ParserDQL extends ParserBase {
 
         if (e1.isUnresolvedParam()) {
             e1.setDataType(session, Type.SQL_INTEGER);
-        } else {
+        } else if (e1.opType == OpTypes.VALUE) {
             valid = (e1.getDataType().typeCode == Types.SQL_INTEGER
                      && ((Integer) e1.getValue(null)).intValue() >= 0);
+        } else {
+            throw Error.error(ErrorCode.X_42563, ErrorCode.M_INVALID_LIMIT);
         }
 
         if (e2.isUnresolvedParam()) {
             e2.setDataType(session, Type.SQL_INTEGER);
-        } else {
+        } else if (e2.opType == OpTypes.VALUE) {
             valid &= (e2.getDataType().typeCode == Types.SQL_INTEGER
                       && ((Integer) e2.getValue(null)).intValue() >= 0);
+        } else {
+            throw Error.error(ErrorCode.X_42563, ErrorCode.M_INVALID_LIMIT);
         }
 
         if (valid) {
@@ -1564,10 +1569,21 @@ public class ParserDQL extends ParserBase {
                                   ErrorCode.M_INVALID_LIMIT);
             }
 
-            if (e1 == null && token.tokenType == Tokens.OFFSET) {
-                read();
+            if (e1 == null) {
+                if (token.tokenType == Tokens.COMMA) {
+                    read();
 
-                e1 = XreadSimpleValueSpecificationOrNull();
+                    e1 = e2;
+                    e2 = XreadSimpleValueSpecificationOrNull();
+                } else if (token.tokenType == Tokens.OFFSET) {
+                    read();
+
+                    e1 = XreadSimpleValueSpecificationOrNull();
+                }
+            }
+
+            if (database.sqlSyntaxPgs || database.sqlSyntaxMys) {
+                sortAndSlice.setZeroLimit();
             }
         } else if (token.tokenType == Tokens.FETCH) {
             read();
@@ -2469,6 +2485,7 @@ public class ParserDQL extends ParserBase {
     }
 
     Expression readNextvalFunction() {
+
         read();
         readThis(Tokens.OPENBRACKET);
 
@@ -2478,12 +2495,10 @@ public class ParserDQL extends ParserBase {
         scanner.reset(spec);
         scanner.scanNext();
 
-        String schemaName =
-            session.getSchemaName(scanner.token.namePrefix);
+        String schemaName = session.getSchemaName(scanner.token.namePrefix);
         NumberSequence sequence =
-            database.schemaManager.getSequence(
-                scanner.token.tokenString, schemaName, true);
-
+            database.schemaManager.getSequence(scanner.token.tokenString,
+                                               schemaName, true);
         Expression e = new ExpressionColumn(sequence, OpTypes.SEQUENCE);
 
         readThis(Tokens.CLOSEBRACKET);

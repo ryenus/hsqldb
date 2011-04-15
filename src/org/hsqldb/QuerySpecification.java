@@ -1221,7 +1221,7 @@ public class QuerySpecification extends QueryExpression {
                     throw Error.error(ErrorCode.X_2201W);
                 }
 
-                if (value.intValue() == 0) {
+                if (value.intValue() == 0 && !sortAndSlice.zeroLimit) {
                     limitRows = Integer.MAX_VALUE;
                 } else {
                     limitRows = value.intValue();

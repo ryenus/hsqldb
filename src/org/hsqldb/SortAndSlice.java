@@ -61,6 +61,7 @@ public final class SortAndSlice {
     int                columnCount;
     boolean            hasNullsLast;
     boolean            strictLimit;
+    boolean            zeroLimit;
     public boolean     skipSort       = false;    // true when result can be used as is
     public boolean     skipFullResult = false;    // true when result can be sliced as is
     int[]          columnIndexes;
@@ -95,6 +96,10 @@ public final class SortAndSlice {
 
     public void setStrictLimit() {
         strictLimit = true;
+    }
+
+    public void setZeroLimit() {
+        zeroLimit = true;
     }
 
     public void prepareSingleColumn(int colIndex) {
