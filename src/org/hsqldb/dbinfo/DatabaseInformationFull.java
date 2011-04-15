@@ -170,6 +170,9 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
             case SYSTEM_CACHEINFO :
                 return SYSTEM_CACHEINFO(session, store);
 
+            case SYSTEM_COLUMN_SEQUENCE_USAGE :
+                return SYSTEM_COLUMN_SEQUENCE_USAGE(session, store);
+
             case SYSTEM_COMMENTS :
                 return SYSTEM_COMMENTS(session, store);
 
@@ -521,6 +524,103 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
             row[ifree_pos]   = ValuePool.getLong(cache.getFileFreePos());
 
             t.insertSys(session, store, row);
+        }
+
+        return t;
+    }
+
+    Table SYSTEM_COLUMN_SEQUENCE_USAGE(Session session,
+                                       PersistentStore store) {
+
+        Table t = sysTables[SYSTEM_COLUMN_SEQUENCE_USAGE];
+
+        if (t == null) {
+            t = createBlankTable(
+                sysTableHsqlNames[SYSTEM_COLUMN_SEQUENCE_USAGE]);
+
+            addColumn(t, "TABLE_CATALOG", SQL_IDENTIFIER);    //0
+            addColumn(t, "TABLE_SCHEMA", SQL_IDENTIFIER);
+            addColumn(t, "TABLE_NAME", SQL_IDENTIFIER);
+            addColumn(t, "COLUMN_NAME", SQL_IDENTIFIER);
+            addColumn(t, "SEQUENCE_CATALOG", SQL_IDENTIFIER);
+            addColumn(t, "SEQUENCE_SCHEMA", SQL_IDENTIFIER);
+            addColumn(t, "SEQUENCE_NAME", SQL_IDENTIFIER);
+
+            HsqlName name = HsqlNameManager.newInfoSchemaObjectName(
+                sysTableHsqlNames[SYSTEM_COLUMN_SEQUENCE_USAGE].name, false,
+                SchemaObject.INDEX);
+
+            t.createPrimaryKeyConstraint(name, new int[] {
+                0, 1, 2, 3, 4
+            }, false);
+
+            return t;
+        }
+
+        final int table_cat        = 0;
+        final int table_schem      = 1;
+        final int table_name       = 2;
+        final int column_name      = 3;
+        final int sequence_catalog = 4;
+        final int sequence_schema  = 5;
+        final int sequence_name    = 6;
+
+        //
+        // intermediate holders
+        int            columnCount;
+        Iterator       tables;
+        Table          table;
+        Object[]       row;
+        OrderedHashSet columnList;
+        NumberSequence sequence;
+
+        // Initialization
+        tables = allTables();
+
+        while (tables.hasNext()) {
+            table = (Table) tables.next();
+
+            if (!table.hasIdentityColumn()) {
+                continue;
+            }
+
+            columnList =
+                session.getGrantee().getColumnsForAllPrivileges(table);
+
+            if (columnList.isEmpty()) {
+                continue;
+            }
+
+            columnCount = table.getColumnCount();
+
+            for (int i = 0; i < columnCount; i++) {
+                ColumnSchema column = table.getColumn(i);
+
+                if (!column.isIdentity()) {
+                    continue;
+                }
+
+                sequence = column.getIdentitySequence();
+
+                if (sequence.getName() == null) {
+                    continue;
+                }
+
+                if (!columnList.contains(column.getName())) {
+                    continue;
+                }
+
+                row                   = t.getEmptyRowData();
+                row[table_cat]        = database.getCatalogName().name;
+                row[table_schem]      = table.getSchemaName().name;
+                row[table_name]       = table.getName().name;
+                row[column_name]      = column.getName().name;
+                row[sequence_catalog] = database.getCatalogName().name;
+                row[sequence_schema]  = sequence.getSchemaName().name;
+                row[sequence_name]    = sequence.getName().name;
+
+                t.insertSys(session, store, row);
+            }
         }
 
         return t;
@@ -1046,9 +1146,8 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
 
             Statement st = s.sessionContext.currentStatement;
 
-            row[it_statement] = st == null ? ""
-                                           : st.getSQL();
-
+            row[it_statement]   = st == null ? ""
+                                             : st.getSQL();
             row[it_latch_count] = new Long(s.latch.getCount());
 
             t.insertSys(session, store, row);
