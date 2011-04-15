@@ -3499,8 +3499,10 @@ class DatabaseInformationMain extends DatabaseInformation {
 
                 case TableBase.INFO_SCHEMA_TABLE :
                 case TableBase.VIEW_TABLE :
-                    row[table_type]         = "VIEW";
-                    row[is_insertable_into] = "NO";
+                    row[table_type] = "VIEW";
+                    row[is_insertable_into] = table.isInsertable()
+                                              ? Tokens.T_YES
+                                              : Tokens.T_NO;
                     break;
 
                 case TableBase.TEMP_TABLE :
@@ -3510,9 +3512,10 @@ class DatabaseInformationMain extends DatabaseInformation {
                     break;
 
                 default :
-                    row[table_type]         = "BASE TABLE";
-                    row[is_insertable_into] = table.isWritable() ? "YES"
-                                                                 : "NO";
+                    row[table_type] = "BASE TABLE";
+                    row[is_insertable_into] = table.isInsertable()
+                                              ? Tokens.T_YES
+                                              : Tokens.T_NO;
                     break;
             }
 
