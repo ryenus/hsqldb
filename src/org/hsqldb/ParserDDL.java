@@ -2575,6 +2575,21 @@ public class ParserDDL extends ParserRoutine {
             column.setPrimaryKey(true);
         }
 
+        if (database.sqlSyntaxPgs && token.tokenType == Tokens.DEFAULT
+                && column.getDefaultExpression() == null
+                && column.getIdentitySequence() == null) {
+            read();
+            defaultExpr = readDefaultClause(typeObject);
+
+            if (defaultExpr.opType == OpTypes.SEQUENCE) {
+                sequence    = ((ExpressionColumn) defaultExpr).sequence;
+                defaultExpr = null;
+            }
+
+            column.setDefaultExpression(defaultExpr);
+            column.setIdentity(sequence);
+        }
+
         return column;
     }
 
