@@ -51,7 +51,7 @@ import org.hsqldb.store.ValuePool;
  * allow saving and loading.<p>
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.0.1
+ * @version 2.1.1
  * @since 1.7.0
  */
 public class HsqlProperties {
@@ -59,6 +59,7 @@ public class HsqlProperties {
     //
     public static final int NO_VALUE_FOR_KEY = 1;
     protected String        fileName;
+    protected String        fileExtension = "";
     protected Properties    stringProps;
     protected int[]         errorCodes = ValuePool.emptyIntArray;
     protected String[]      errorKeys  = ValuePool.emptyStringArray;
@@ -73,18 +74,20 @@ public class HsqlProperties {
 
     public HsqlProperties(String fileName) {
 
-        stringProps   = new Properties();
-        this.fileName = fileName;
-        fa            = FileUtil.getFileUtil();
+        stringProps        = new Properties();
+        this.fileName      = fileName;
+        this.fileExtension = ".properties";
+        fa                 = FileUtil.getFileUtil();
     }
 
     public HsqlProperties(HashMap meta, String fileName, FileAccess accessor,
                           boolean b) {
 
-        stringProps   = new Properties();
-        this.fileName = fileName;
-        fa            = accessor;
-        metaData      = meta;
+        stringProps        = new Properties();
+        this.fileName      = fileName;
+        this.fileExtension = ".properties";
+        fa                 = accessor;
+        metaData           = meta;
     }
 
     public HsqlProperties(Properties props) {
@@ -186,24 +189,28 @@ public class HsqlProperties {
 // oj@openoffice.org
     public boolean propertiesFileExists() {
 
-        String propFilename = fileName + ".properties";
+        if (fileName == null) {
+            return false;
+        }
+
+        String propFilename = fileName + fileExtension;
 
         return fa.isStreamElement(propFilename);
     }
 
     public boolean load() throws Exception {
 
-        if (!propertiesFileExists()) {
-            return false;
-        }
-
         if (fileName == null || fileName.length() == 0) {
             throw new FileNotFoundException(
                 Error.getMessage(ErrorCode.M_HsqlProperties_load));
         }
 
+        if (!propertiesFileExists()) {
+            return false;
+        }
+
         InputStream fis           = null;
-        String      propsFilename = fileName + ".properties";
+        String      propsFilename = fileName + fileExtension;
 
 // oj@openoffice.org
         try {
@@ -229,7 +236,7 @@ public class HsqlProperties {
                 Error.getMessage(ErrorCode.M_HsqlProperties_load));
         }
 
-        String filestring = fileName + ".properties";
+        String filestring = fileName + fileExtension;
 
         save(filestring);
     }

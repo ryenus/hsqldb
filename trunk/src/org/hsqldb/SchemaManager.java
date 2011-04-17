@@ -840,7 +840,16 @@ public class SchemaManager {
 
         // only columns with refs
         OrderedHashSet childReferences = table.getReferences();
-        SchemaObject[] triggers        = table.getTriggers();
+
+        for (int i = childReferences.size() - 1; i >= 0; i--) {
+            HsqlName name = (HsqlName) childReferences.get(i);
+
+            if (name.type == SchemaObject.SEQUENCE) {
+                childReferences.remove(i);
+            }
+        }
+
+        SchemaObject[] triggers = table.getTriggers();
 
         for (int i = 0; i < triggers.length; i++) {
             childReferences.add(triggers[i].getName());

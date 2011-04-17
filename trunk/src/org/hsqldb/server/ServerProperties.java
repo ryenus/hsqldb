@@ -31,6 +31,9 @@
 
 package org.hsqldb.server;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.util.Enumeration;
 
 import org.hsqldb.lib.HashMap;
@@ -65,7 +68,8 @@ import org.hsqldb.persist.HsqlProperties;
  * If a set of values specified in the Meta record, then the value is checked
  * against the set.<p>
  *
- * @version 2.0.1
+ * @author Fred Toussi (fredt@users dot sourceforge.net)
+ * @version 2.1.1
  * @since 1.9.0
  */
 public class ServerProperties extends HsqlProperties {
@@ -117,6 +121,23 @@ public class ServerProperties extends HsqlProperties {
     //
     HsqlArrayList errorList = new HsqlArrayList();
 
+    public ServerProperties(int protocol, File file) throws IOException {
+
+        FileInputStream fis = null;
+
+        try {
+            fis = new FileInputStream(file);
+
+            stringProps.load(fis);
+        } finally {
+            if (fis != null) {
+                fis.close();
+            }
+        }
+
+        this.protocol = protocol;
+    }
+
     ServerProperties(int protocol) {
         this.protocol = protocol;
     }
@@ -132,7 +153,7 @@ public class ServerProperties extends HsqlProperties {
      * Validates according to Meta map, and sets System Properties for those
      * properties with names matching the requisite pattern.
      */
-    void validate() {
+    public void validate() {
 
         Enumeration en = stringProps.propertyNames();
 
@@ -296,7 +317,8 @@ public class ServerProperties extends HsqlProperties {
                  getMeta(sc_key_remote_open_db, SERVER_PROPERTY, false));
         meta.put(sc_key_no_system_exit,
                  getMeta(sc_key_no_system_exit, SERVER_PROPERTY, false));
-        meta.put(sc_key_daemon, getMeta(sc_key_daemon, SERVER_PROPERTY, false));
+        meta.put(sc_key_daemon,
+                 getMeta(sc_key_daemon, SERVER_PROPERTY, false));
 
         //
         prefixes.add(sc_key_database);

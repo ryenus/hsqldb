@@ -86,6 +86,17 @@ import javax.sql.DataSource;
  * object is identical to a connection obtained through the
  * <code>DriverManager</code> facility.
  *
+ * <!-- start Release-specific documentation -->
+ * <div class="ReleaseSpecificDocumentation">
+ * <h3>HSQLDB-Specific Information:</h3> <p>
+ *
+ * This implementation of data source is a basic implementation and does not
+ * perform connection pooling.<p>
+ *
+ * The getter and setter methods of the parent class, JDBCCommonDataSource,
+ * can be used.<p>
+ * </div>
+ * <!-- end Release-specific documentation -->
  * @since JDK 1.4
  * @author Campbell Boucher-Burnet (boucherb@users dot sourceforge.net)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
