@@ -40,7 +40,7 @@ import org.hsqldb.StatementTypes;
  *
  * @author Campbell Boucher-Burnet (boucherb@users dot sourceforge.net)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @since 2.0.1
+ * @since 2.1.1
  * @version 1.7.2
  */
 
@@ -243,7 +243,12 @@ public interface ResultConstants {
     /**
      * Indicates that the Result encapsulates a response to a procedure call via CallableStatement
      */
-    int CALL_RESPONSE    = HSQL_API_BASE + 43;
+    int CALL_RESPONSE = HSQL_API_BASE + 43;
+
+    /**
+     * Indicates that the Result encapsulates a data change set
+     */
+    int CHANGE_SET = HSQL_API_BASE + 44;
 
     /**
      * Constants above this limit are handled as non-HSQLDB results

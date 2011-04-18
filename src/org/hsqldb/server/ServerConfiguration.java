@@ -96,19 +96,24 @@ public final class ServerConfiguration implements ServerConstants {
      * @return a new properties object loaded from the specified file
      */
     public static ServerProperties getPropertiesFromFile(int protocol,
-            String path) {
+            String path, String extension) {
+
+        boolean result;
 
         if (StringUtil.isEmpty(path)) {
             return null;
         }
 
-        ServerProperties p = new ServerProperties(protocol, path);
+        ServerProperties p = new ServerProperties(protocol, path, extension);
 
         try {
-            p.load();
-        } catch (Exception e) {}
+            result = p.load();
+        } catch (Exception e) {
+            return null;
+        }
 
-        return p;
+        return result ? p
+                      : null;
     }
 
     /**
