@@ -93,6 +93,7 @@ public interface ServerConstants {
     String SC_KEY_REMOTE_OPEN_DB     = SC_KEY_PREFIX + ".remote_open";
     String SC_KEY_MAX_DATABASES      = SC_KEY_PREFIX + ".maxdatabases";
     String SC_KEY_ACL_FILEPATH       = SC_KEY_PREFIX + ".acl_filepath";
+    String SC_KEY_PROPS              = SC_KEY_PREFIX + ".props";
 
     // web server page defaults
     String SC_DEFAULT_WEB_MIME = "text/html";

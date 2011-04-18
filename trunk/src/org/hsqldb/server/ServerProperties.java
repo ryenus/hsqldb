@@ -142,9 +142,9 @@ public class ServerProperties extends HsqlProperties {
         this.protocol = protocol;
     }
 
-    ServerProperties(int protocol, String path) {
+    ServerProperties(int protocol, String path, String extension) {
 
-        super(path);
+        super(path, extension);
 
         this.protocol = protocol;
     }

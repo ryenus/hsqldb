@@ -43,10 +43,10 @@ package org.hsqldb;
  * timestamps are not in any order
  *
  * @author Fred Toussi (fredt@users dot sourceforge dot net)
- * @version 2.0.0
+ * @version 2.1.1
  * @since 2.0.0
  */
-class RowActionBase {
+public class RowActionBase {
 
     public static final byte ACTION_NONE          = 0;
     public static final byte ACTION_INSERT        = 1;

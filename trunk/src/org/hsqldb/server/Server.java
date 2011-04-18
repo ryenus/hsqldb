@@ -118,8 +118,9 @@ import org.hsqldb.result.ResultConstants;
  * | --silent        | true|false  | true     | false => display all queries |
  * | --trace         | true|false  | false    | display JDBC trace messages  |
  * | --tls           | true|false  | false    | TLS/SSL (secure) sockets     |
- * | --no_system_exit| true|false  | false    | do not issue System.exit()  |
+ * | --no_system_exit| true|false  | false    | do not issue System.exit()   |
  * | --remote_open   | true|false  | false    | can open databases remotely  |
+ * | --props         | filepath    |          | file path of properties file |
  * +-----------------+-------------+----------+------------------------------+
  * </pre>
  *
@@ -867,6 +868,19 @@ public class Server implements HsqlSocketRequestHandler {
      *   description="(optional) returns false if path is empty"
      */
     public boolean putPropertiesFromFile(String path) {
+        return putPropertiesFromFile(path, ".properties");
+    }
+
+    /**
+     * Attempts to put properties from the file with given extension.
+     *
+     * @param path the path of the desired properties file.
+     * @param extension extension to add to parth
+     * @throws HsqlException if this server is running
+     * @return true if the indicated file was read sucessfully, else false
+     *
+     */
+    public boolean putPropertiesFromFile(String path, String extension) {
 
         if (getState() != ServerConstants.SERVER_STATE_SHUTDOWN) {
             throw Error.error(ErrorCode.GENERAL_ERROR, "server properties");
@@ -875,7 +889,7 @@ public class Server implements HsqlSocketRequestHandler {
         path = FileUtil.getFileUtil().canonicalOrAbsolutePath(path);
 
         HsqlProperties p = ServerConfiguration.getPropertiesFromFile(
-            ServerConstants.SC_PROTOCOL_HSQL, path);
+            ServerConstants.SC_PROTOCOL_HSQL, path, extension);
 
         if (p == null || p.isEmpty()) {
             return false;
@@ -1680,18 +1694,20 @@ public class Server implements HsqlSocketRequestHandler {
 
                 break;
             }
-            case ResultConstants.CLOSE_RESULT: {
+            case ResultConstants.CLOSE_RESULT : {
                 sb.append("HQLCLI:CLOSE_RESULT:RESULT_ID ");
                 sb.append(r.getResultId());
+
                 break;
             }
-            case ResultConstants.REQUESTDATA: {
+            case ResultConstants.REQUESTDATA : {
                 sb.append("HQLCLI:REQUESTDATA:RESULT_ID ");
                 sb.append(r.getResultId());
                 sb.append(" ROWOFFSET ");
                 sb.append(r.getUpdateCount());
                 sb.append(" ROWCOUNT ");
                 sb.append(r.getFetchSize());
+
                 break;
             }
             default : {
@@ -2379,14 +2395,6 @@ public class Server implements HsqlSocketRequestHandler {
      */
     public static void main(String[] args) {
 
-        String propsPath =
-            FileUtil.getFileUtil().canonicalOrAbsolutePath("server");
-        ServerProperties fileProps = ServerConfiguration.getPropertiesFromFile(
-            ServerConstants.SC_PROTOCOL_HSQL, propsPath);
-        ServerProperties props =
-            fileProps == null
-            ? new ServerProperties(ServerConstants.SC_PROTOCOL_HSQL)
-            : fileProps;
         HsqlProperties stringProps = null;
 
         stringProps = HsqlProperties.argArrayToProps(args,
@@ -2397,6 +2405,24 @@ public class Server implements HsqlSocketRequestHandler {
 
             return;
         }
+
+        String propsPath =
+            stringProps.getProperty(ServerConstants.SC_KEY_PROPS);
+        String propsExtension = "";
+
+        if (propsPath == null) {
+            propsPath      = "server";
+            propsExtension = ".properties";
+        }
+
+        propsPath = FileUtil.getFileUtil().canonicalOrAbsolutePath(propsPath);
+
+        ServerProperties fileProps = ServerConfiguration.getPropertiesFromFile(
+            ServerConstants.SC_PROTOCOL_HSQL, propsPath, propsExtension);
+        ServerProperties props =
+            fileProps == null
+            ? new ServerProperties(ServerConstants.SC_PROTOCOL_HSQL)
+            : fileProps;
 
         props.addProperties(stringProps);
         ServerConfiguration.translateDefaultDatabaseProperty(props);

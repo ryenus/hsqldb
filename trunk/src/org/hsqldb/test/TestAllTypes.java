@@ -49,13 +49,10 @@ import org.hsqldb.lib.StopWatch;
  */
 public class TestAllTypes {
 
-    protected String url = "jdbc:hsqldb:";
+    protected String url = "jdbc:hsqldb:/hsql/testalltypes/test;hsqldb.sqllog=3";
 
-//    protected String filepath = ".";
-    protected String filepath = "/hsql/testalltypes/test";
-
-//    protected String filepath = "hsql://localhost/yourtest";
-    boolean    network = true;
+//    protected String url = "jdbc:hsqldb:hsql://localhost/yourtest";
+    boolean    network = false;
     String     user;
     String     password;
     Statement  sStatement;
@@ -91,29 +88,22 @@ public class TestAllTypes {
 
             Class.forName("org.hsqldb.jdbc.JDBCDriver");
 
-            boolean createDatabase = false;
-
-            if (!network) {
-                File file = new File(filepath);
-
-                createDatabase = !file.exists();
-            }
+            boolean createDatabase = true;
 
             if (createDatabase) {
-                cConnection = DriverManager.getConnection(url + filepath,
-                        user, password);
-                sStatement = cConnection.createStatement();
+                cConnection = DriverManager.getConnection(url, user, password);
+                sStatement  = cConnection.createStatement();
 
-                sStatement.execute("SET SCRIPTFORMAT " + logType);
-                sStatement.execute("SET LOGSIZE " + 400);
-                sStatement.execute("SET WRITE_DELAY " + writeDelay);
-                sStatement.execute("SET PROPERTY \"hsqldb.cache_scale\" 16;");
+                sStatement.execute("SET DATABASE EVENT LOG LEVEL 2");
+                sStatement.execute("SET FILES LOG SIZE " + 400);
+                sStatement.execute("SET FILES LOG FALSE");
+                sStatement.execute("SET FILES WRITE DELAY " + writeDelay);
+                sStatement.execute("SET FILES CACHE SIZE 100000");
                 sStatement.execute("SHUTDOWN");
                 cConnection.close();
 
-                cConnection = DriverManager.getConnection(url + filepath,
-                        user, password);
-                sStatement = cConnection.createStatement();
+                cConnection = DriverManager.getConnection(url, user, password);
+                sStatement  = cConnection.createStatement();
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -162,8 +152,7 @@ public class TestAllTypes {
 
             cConnection = null;
             sStatement  = null;
-            cConnection = DriverManager.getConnection(url + filepath, user,
-                    password);
+            cConnection = DriverManager.getConnection(url, user, password);
 
             System.out.println("connected: " + sw.elapsedTime());
             sw.zero();
@@ -199,7 +188,7 @@ public class TestAllTypes {
             }
 
             PreparedStatement ps = cConnection.prepareStatement(
-                "INSERT INTO test (firstname,lastname,zip,longfield,doublefield,bigdecimalfield,datefield,filler) VALUES (?,?,?,?,?,?,?,?)");
+                "INSERT INTO test (firstname,lastname,zip,longfield,doublefield,bigdecimalfield,datefield) VALUES (?,?,?,?,?,?,?)");
 
             ps.setString(1, "Julia                 ");
             ps.setString(2, "Clancy");
@@ -220,7 +209,7 @@ public class TestAllTypes {
 
                 String varfiller = filler.substring(0, randomlength);
 
-                ps.setString(8, nextrandom + varfiller);
+//                ps.setString(8, nextrandom + varfiller);
                 ps.execute();
 
                 if (reportProgress && (i + 1) % 10000 == 0) {
@@ -277,15 +266,15 @@ public class TestAllTypes {
             StopWatch sw = new StopWatch();
             ResultSet rs;
 
-            cConnection = DriverManager.getConnection(url + filepath, user,
-                    password);
+            cConnection = DriverManager.getConnection(url, user, password);
 
             System.out.println("Reopened database: " + sw.elapsedTime());
             sw.zero();
 
             sStatement = cConnection.createStatement();
 
-            sStatement.execute("SET WRITE_DELAY " + writeDelay);
+            sStatement.execute("SET FILES WRITE DELAY " + writeDelay);
+//            sStatement.execute("SET DATABASE EVENT LOG SQL LEVEL 3");
 
             // the tests use different indexes
             // use primary index
@@ -325,7 +314,7 @@ public class TestAllTypes {
         boolean          slow      = false;
 
         try {
-            for (; i < bigrows; i++) {
+            for (; i < bigrows / 4; i++) {
                 PreparedStatement ps = cConnection.prepareStatement(
                     "SELECT TOP 1 firstname,lastname,zip,filler FROM test WHERE zip = ?");
 
@@ -351,7 +340,7 @@ public class TestAllTypes {
         sw.zero();
 
         try {
-            for (i = 0; i < bigrows; i++) {
+            for (i = 0; i < bigrows / 4; i++) {
                 PreparedStatement ps = cConnection.prepareStatement(
                     "SELECT firstname,lastname,zip,filler FROM test WHERE id = ?");
 
@@ -404,7 +393,7 @@ public class TestAllTypes {
         sw.zero();
 
         try {
-            for (i = 0; i < bigrows; i++) {
+            for (i = 0; i < bigrows / 8; i++) {
                 PreparedStatement ps = cConnection.prepareStatement(
                     "UPDATE test SET zip = zip + 1 WHERE id = ?");
                 int random = nextIntRandom(randomgen, bigrows - 1);
@@ -446,6 +435,7 @@ public class TestAllTypes {
 
         test.setUp();
         test.testFillUp();
+
 //        test.tearDown();
         test.checkResults();
         System.out.println("Total Test Time: " + sw.elapsedTime());

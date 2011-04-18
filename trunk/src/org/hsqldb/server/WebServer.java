@@ -138,14 +138,6 @@ public class WebServer extends Server {
      */
     public static void main(String[] args) {
 
-        String propsPath =
-            FileUtil.getFileUtil().canonicalOrAbsolutePath("webserver");
-        ServerProperties fileProps = ServerConfiguration.getPropertiesFromFile(
-            ServerConstants.SC_PROTOCOL_HTTP, propsPath);
-        ServerProperties props =
-            fileProps == null
-            ? new ServerProperties(ServerConstants.SC_PROTOCOL_HTTP)
-            : fileProps;
         HsqlProperties stringProps = null;
 
         stringProps = HsqlProperties.argArrayToProps(args,
@@ -156,6 +148,24 @@ public class WebServer extends Server {
 
             return;
         }
+
+        String propsPath =
+            stringProps.getProperty(ServerConstants.SC_KEY_PROPS);
+        String propsExtension = "";
+
+        if (propsPath == null) {
+            propsPath      = "webserver";
+            propsExtension = ".properties";
+        }
+
+        propsPath = FileUtil.getFileUtil().canonicalOrAbsolutePath(propsPath);
+
+        ServerProperties fileProps = ServerConfiguration.getPropertiesFromFile(
+            ServerConstants.SC_PROTOCOL_HTTP, propsPath, propsExtension);
+        ServerProperties props =
+            fileProps == null
+            ? new ServerProperties(ServerConstants.SC_PROTOCOL_HTTP)
+            : fileProps;
 
         props.addProperties(stringProps);
         ServerConfiguration.translateDefaultDatabaseProperty(props);
