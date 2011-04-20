@@ -293,6 +293,64 @@ public class ParserRoutine extends ParserDML {
     }
 
     /**
+     * Creates GET DIAGNOSTICS.
+     */
+    Statement compileGetStatement(RangeVariable rangeVars[]) {
+
+        read();
+
+        readThis(Tokens.DIAGNOSTICS);
+
+        OrderedHashSet targetSet    = new OrderedHashSet();
+        HsqlArrayList  exprList     = new HsqlArrayList();
+        LongDeque      colIndexList = new LongDeque();
+
+        readGetClauseList(rangeVars, targetSet, colIndexList, exprList);
+
+        if (exprList.size() > 1) {
+            throw Error.error(ErrorCode.X_42602);
+        }
+
+        Expression expression = (Expression) exprList.get(0);
+
+        if (expression.getDegree() != targetSet.size()) {
+            throw Error.error(ErrorCode.X_42546, Tokens.T_SET);
+        }
+
+        int[] columnMap = new int[colIndexList.size()];
+
+        colIndexList.toArray(columnMap);
+
+        Expression[] targets = new Expression[targetSet.size()];
+
+        targetSet.toArray(targets);
+
+        for (int i = 0; i < targets.length; i++) {
+            this.resolveOuterReferencesAndTypes(rangeVars, targets[i]);
+        }
+
+        resolveOuterReferencesAndTypes(rangeVars, expression);
+
+        for (int i = 0; i < targets.length; i++) {
+            if (targets[i].getColumn().getParameterMode()
+                    == SchemaObject.ParameterModes.PARAM_IN) {
+
+                // todo - use more specific error message
+                throw Error.error(ErrorCode.X_0U000);
+            }
+
+            if (!targets[i].getDataType().canBeAssignedFrom(
+                    expression.getNodeDataType(i))) {
+                throw Error.error(ErrorCode.X_42561);
+            }
+        }
+
+        StatementSet cs = new StatementSet(session, targets, expression,
+                                           columnMap, compileContext);
+
+        return cs;
+    }
+    /**
      * Creates SET Statement for PSM or session variables from this parse context.
      */
     Statement compileSetStatement(RangeVariable rangeVars[]) {

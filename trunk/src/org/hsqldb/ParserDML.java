@@ -38,13 +38,14 @@ import org.hsqldb.lib.HsqlArrayList;
 import org.hsqldb.lib.HsqlList;
 import org.hsqldb.lib.LongDeque;
 import org.hsqldb.lib.OrderedHashSet;
+import org.hsqldb.store.ValuePool;
 import org.hsqldb.types.Type;
 
 /**
  * Parser for DML statements
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.0.1
+ * @version 2.1.1
  * @since 1.9.0
  */
 public class ParserDML extends ParserDQL {
@@ -834,6 +835,47 @@ public class ParserDML extends ParserDQL {
                 Expression e = XreadValueExpressionWithContext();
 
                 expressions.add(e);
+            }
+
+            if (token.tokenType == Tokens.COMMA) {
+                read();
+
+                continue;
+            }
+
+            break;
+        }
+    }
+
+    void readGetClauseList(RangeVariable[] rangeVars, OrderedHashSet targets,
+                           LongDeque colIndexList, HsqlArrayList expressions) {
+
+        while (true) {
+            Expression target = XreadTargetSpecification(rangeVars,
+                colIndexList);
+
+            if (!targets.add(target)) {
+                ColumnSchema col = target.getColumn();
+
+                throw Error.error(ErrorCode.X_42579, col.getName().name);
+            }
+
+            readThis(Tokens.EQUALS);
+
+            switch (token.tokenType) {
+
+                case Tokens.ROW_COUNT :
+                case Tokens.MORE :
+                    int columnIndex =
+                        ExpressionColumn.diagnosticsList.getIndex(
+                            token.tokenString);
+                    Expression e =
+                        new ExpressionColumn(OpTypes.DIAGNOSTICS_VARIABLE,
+                                             columnIndex);
+
+                    expressions.add(e);
+                    read();
+                    break;
             }
 
             if (token.tokenType == Tokens.COMMA) {

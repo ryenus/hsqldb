@@ -46,7 +46,7 @@ import org.hsqldb.store.ValuePool;
  * Session execution context and temporary data structures
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.0.1
+ * @version 2.1.1
  * @since 1.9.0
  */
 public class SessionContext {
@@ -65,10 +65,11 @@ public class SessionContext {
 
     //
     private HsqlArrayList stack;
-    Object[]              routineArguments = ValuePool.emptyObjectArray;
-    Object[]              routineVariables = ValuePool.emptyObjectArray;
-    Object[]              dynamicArguments = ValuePool.emptyObjectArray;
-    Object[][]            triggerArguments = null;
+    Object[]              diagnosticsVariables = ValuePool.emptyObjectArray;
+    Object[]              routineArguments     = ValuePool.emptyObjectArray;
+    Object[]              routineVariables     = ValuePool.emptyObjectArray;
+    Object[]              dynamicArguments     = ValuePool.emptyObjectArray;
+    Object[][]            triggerArguments     = null;
     public int            depth;
 
     //
@@ -96,6 +97,8 @@ public class SessionContext {
     HashSet               constraintPath;
     StatementResultUpdate rowUpdateStatement = new StatementResultUpdate();
 
+    //
+
     /**
      * Creates a new instance of CompiledStatementExecutor.
      *
@@ -104,6 +107,7 @@ public class SessionContext {
     SessionContext(Session session) {
 
         this.session          = session;
+        diagnosticsVariables = new Object[ExpressionColumn.diagnosticsVariableTokens.length];
         rangeIterators        = new RangeIterator[8];
         savepoints            = new HashMappedList(4);
         savepointTimestamps   = new LongDeque();
@@ -128,6 +132,7 @@ public class SessionContext {
             stack = new HsqlArrayList(true);
         }
 
+        stack.add(diagnosticsVariables);
         stack.add(dynamicArguments);
         stack.add(routineArguments);
         stack.add(triggerArguments);
@@ -142,6 +147,7 @@ public class SessionContext {
         stack.add(ValuePool.getInt(currentMaxRows));
         stack.add(ValuePool.getInt(rownum));
 
+        diagnosticsVariables = new Object[ExpressionColumn.diagnosticsVariableTokens.length];
         rangeIterators      = new RangeIterator[8];
         savepoints          = new HashMappedList(4);
         savepointTimestamps = new LongDeque();
@@ -157,17 +163,18 @@ public class SessionContext {
 
         rownum = ((Integer) stack.remove(stack.size() - 1)).intValue();
         currentMaxRows = ((Integer) stack.remove(stack.size() - 1)).intValue();
-        noSQL               = (Boolean) stack.remove(stack.size() - 1);
-        isReadOnly          = (Boolean) stack.remove(stack.size() - 1);
-        isAutoCommit        = (Boolean) stack.remove(stack.size() - 1);
-        lastIdentity        = (Number) stack.remove(stack.size() - 1);
-        savepointTimestamps = (LongDeque) stack.remove(stack.size() - 1);
-        savepoints          = (HashMappedList) stack.remove(stack.size() - 1);
-        rangeIterators      = (RangeIterator[]) stack.remove(stack.size() - 1);
-        routineVariables    = (Object[]) stack.remove(stack.size() - 1);
-        triggerArguments    = ((Object[][]) stack.remove(stack.size() - 1));
-        routineArguments    = (Object[]) stack.remove(stack.size() - 1);
-        dynamicArguments    = (Object[]) stack.remove(stack.size() - 1);
+        noSQL                = (Boolean) stack.remove(stack.size() - 1);
+        isReadOnly           = (Boolean) stack.remove(stack.size() - 1);
+        isAutoCommit         = (Boolean) stack.remove(stack.size() - 1);
+        lastIdentity         = (Number) stack.remove(stack.size() - 1);
+        savepointTimestamps  = (LongDeque) stack.remove(stack.size() - 1);
+        savepoints           = (HashMappedList) stack.remove(stack.size() - 1);
+        rangeIterators = (RangeIterator[]) stack.remove(stack.size() - 1);
+        routineVariables     = (Object[]) stack.remove(stack.size() - 1);
+        triggerArguments     = ((Object[][]) stack.remove(stack.size() - 1));
+        routineArguments     = (Object[]) stack.remove(stack.size() - 1);
+        dynamicArguments     = (Object[]) stack.remove(stack.size() - 1);
+        diagnosticsVariables = (Object[]) stack.remove(stack.size() - 1);
 
         depth--;
     }
@@ -257,13 +264,12 @@ public class SessionContext {
 
     public void pushRoutineTables(HashMappedList map) {
         popSessionTables = sessionTables;
-        sessionTables = map;
+        sessionTables    = map;
     }
 
     public void popRoutineTables() {
         sessionTables = popSessionTables;
     }
-
 
     public void addSessionTable(Table table) {
 
