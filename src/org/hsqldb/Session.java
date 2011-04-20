@@ -478,6 +478,16 @@ public class Session implements SessionInterface {
                 actionTimestamp);
             database.txManager.rollbackAction(this);
         } else {
+            if (result.mode == ResultConstants.UPDATECOUNT) {
+                sessionContext
+                    .diagnosticsVariables[ExpressionColumn.idx_row_count] =
+                        result.getUpdateCount();
+            } else {
+                sessionContext
+                    .diagnosticsVariables[ExpressionColumn.idx_row_count] =
+                        ValuePool.INTEGER_0;
+            }
+
             database.txManager.completeActions(this);
         }
 

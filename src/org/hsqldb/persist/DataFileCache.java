@@ -57,10 +57,10 @@ import org.hsqldb.store.BitMap;
  * This contains the top level functionality. Provides file management services
  * and access.<p>
  *
- * Rewritten for 1.8.0 together with Cache.
+ * Rewritten for 1.8.0 and 2.x
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.1.0
+ * @version 2.1.1
  * @since 1.7.2
  */
 public class DataFileCache {
@@ -192,6 +192,20 @@ public class DataFileCache {
             if (readonly || database.isFilesInJar()) {
                 dataFile = ScaledRAFile.newScaledRAFile(database,
                         dataFileName, readonly, fileType);
+
+                dataFile.seek(FLAGS_POS);
+
+                int     flags   = dataFile.readInt();
+
+                is180         = !BitMap.isSet(flags, FLAG_190);
+
+                if (BitMap.isSet(flags, FLAG_HX)) {
+                    throw Error.error(ErrorCode.WRONG_DATABASE_FILE_VERSION);
+                }
+
+                dataFile.seek(LONG_FREE_POS_POS);
+
+                fileFreePosition = dataFile.readLong();
 
                 initBuffers();
 

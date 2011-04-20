@@ -37,6 +37,7 @@ import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
 import org.hsqldb.index.Index;
 import org.hsqldb.lib.ArrayListIdentity;
+import org.hsqldb.lib.HashMappedList;
 import org.hsqldb.lib.HsqlList;
 import org.hsqldb.lib.OrderedHashSet;
 import org.hsqldb.lib.Set;
@@ -48,13 +49,39 @@ import org.hsqldb.types.Type;
  * Implementation of column, variable, parameter, etc. access operations.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.0.1
+ * @version 2.1.1
  * @since 1.9.0
  */
 public class ExpressionColumn extends Expression {
 
     public static final ExpressionColumn[] emptyArray =
         new ExpressionColumn[]{};
+
+    //
+    public final static HashMappedList diagnosticsList = new HashMappedList();
+    final static String[] diagnosticsVariableTokens    = new String[] {
+        Tokens.T_NUMBER, Tokens.T_MORE, Tokens.T_ROW_COUNT
+    };
+    public final static int            idx_number      = 0;
+    public final static int            idx_more        = 1;
+    public final static int            idx_row_count   = 2;
+
+    static {
+        for (int i = 0; i < diagnosticsVariableTokens.length; i++) {
+            HsqlName name = HsqlNameManager.newSystemObjectName(
+                diagnosticsVariableTokens[i], SchemaObject.VARIABLE);
+            Type type = Type.SQL_INTEGER;
+
+            if (diagnosticsVariableTokens[i] == Tokens.T_MORE) {
+                type = Type.SQL_CHAR;
+            }
+
+            ColumnSchema col = new ColumnSchema(name, type, false, false,
+                                                null);
+
+            diagnosticsList.add(diagnosticsVariableTokens[i], col);
+        }
+    }
 
     //
     ColumnSchema  column;
@@ -126,6 +153,18 @@ public class ExpressionColumn extends Expression {
         if (type == OpTypes.DYNAMIC_PARAM) {
             isParam = true;
         }
+    }
+
+    /**
+     * For diagnostics vars
+     */
+    ExpressionColumn(int type, int columnIndex) {
+
+        super(type);
+
+        this.column      = (ColumnSchema) diagnosticsList.get(columnIndex);
+        this.columnIndex = columnIndex;
+        this.dataType    = column.dataType;
     }
 
     ExpressionColumn(Expression[] nodes, String name) {
@@ -308,6 +347,7 @@ public class ExpressionColumn extends Expression {
             case OpTypes.ASTERISK :
             case OpTypes.SIMPLE_COLUMN :
             case OpTypes.COALESCE :
+            case OpTypes.DIAGNOSTICS_VARIABLE :
                 break;
 
             case OpTypes.COLUMN :
@@ -553,6 +593,9 @@ public class ExpressionColumn extends Expression {
             case OpTypes.DEFAULT :
                 return null;
 
+            case OpTypes.DIAGNOSTICS_VARIABLE : {
+                return getDiagnosticsVariable(session);
+            }
             case OpTypes.VARIABLE : {
                 return session.sessionContext.routineVariables[columnIndex];
             }
@@ -616,6 +659,10 @@ public class ExpressionColumn extends Expression {
         }
     }
 
+    private Object getDiagnosticsVariable(Session session) {
+        return session.sessionContext.diagnosticsVariables[columnIndex];
+    }
+
     public String getSQL() {
 
         switch (opType) {
@@ -632,8 +679,11 @@ public class ExpressionColumn extends Expression {
             case OpTypes.COALESCE :
                 return alias.getStatementName();
 
+            case OpTypes.DIAGNOSTICS_VARIABLE :
             case OpTypes.VARIABLE :
             case OpTypes.PARAMETER :
+                return column.getName().statementName;
+
             case OpTypes.COLUMN : {
                 if (column == null) {
                     if (alias != null) {

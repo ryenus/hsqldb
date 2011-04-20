@@ -193,6 +193,12 @@ public class ParserCommand extends ParserDDL {
                 cs = compileSet();
                 break;
 
+            // diagnostic
+            case Tokens.GET :
+                cs = compileGetStatement(
+                    session.sessionContext.sessionVariablesRange);
+                break;
+
             case Tokens.START :
                 cs = compileStartTransaction();
                 break;
