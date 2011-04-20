@@ -2987,7 +2987,7 @@ SELECT x, y, z FROM atable AS t (u, v, w, x, y, z)  WHERE u + v = w</programlist
       <para>A trivial example of a recursive query is given below. Note the
       first column GEN. For example, if each row of the table represents a
       member of a family of dogs, together with its parent, the first column
-      of the result indicates the calculate generation of each dog, ranging
+      of the result indicates the calculated generation of each dog, ranging
       from first to fourth generation.</para>
 
       <programlisting>CREATE TABLE pptree (pid INT, id INT);
@@ -3534,5 +3534,46 @@ MERGE INTO t USING (VALUES(CAST(? AS INT))) AS vals(x) ON t.id = vals.x
    WHEN NOT MATCHED THEN INSERT VALUES vals.x, ?
 </programlisting>
     </section>
+  </section>
+
+  <section>
+    <title>Diagnostics and State</title>
+
+    <para>HyperSQL supports some SQL statements, expressions, functions and
+    Java methods that report on the most recently executed statement.</para>
+
+    <para>The <literal>IDENTITY()</literal> function returns the last inserted
+    identity value for the current session.</para>
+
+    <para>The <literal>GET DIAGNOSTICS</literal> statement is supported to a
+    limited extent. The built-in function <literal>DIAGNOSTICS()</literal> is
+    an alternative. These are normally used in SQL/PSM routines to check the
+    result of the last data update operation.</para>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>GET DIAGNOSTICS</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">GET DIAGNOSTICS</emphasis></simpara>
+
+    <simpara><emphasis>get diagnostics statement</emphasis></simpara>
+
+    <simpara><literal>&lt;get diagnostics statement&gt; ::= GET DIAGNOSTICS
+    &lt;simple target value specification&gt; = ROW_COUNT</literal></simpara>
+
+    <para>The <literal>&lt;simple target value specification&gt;</literal> is
+    a session variable, or a routine variable or OUT parameter.</para>
+
+    <para>The keyword <literal>ROW_COUNT</literal> specifies the row count
+    returned by the last executed statement. For INSERT, UPDATE, DELETE and
+    MERGE statements, this is the number of rows affected by the statement.
+    This is the same value as returned by JDBC execute() methods. For all
+    other statements, zero is returned.</para>
+
+    <para>The value of <literal>ROW_COUNT</literal> is stored in the specified
+    target.</para>
+
+    <para>In future versions, more options will be supported for diagnostics
+    values.</para>
   </section>
 </chapter>

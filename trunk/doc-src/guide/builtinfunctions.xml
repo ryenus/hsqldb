@@ -1738,17 +1738,6 @@ TIMESTAMP '2008-11-22 20:30:40.000000'
     chapter.</para>
 
     <indexterm significance="preferred" type="sql">
-      <primary>ARRAY_SORT function</primary>
-    </indexterm>
-
-    <simpara><emphasis role="bold">ARRAY_SORT</emphasis></simpara>
-
-    <para><literal>ARRAY_SORT( &lt;array value expr&gt; )</literal></para>
-
-    <para>Returns a sorted copy of the array. NULL elements are sorted first.
-    (HyperSQL)</para>
-
-    <indexterm significance="preferred" type="sql">
       <primary>CARDINALITY function</primary>
     </indexterm>
 
@@ -1770,6 +1759,33 @@ TIMESTAMP '2008-11-22 20:30:40.000000'
 
     <para>Returns the maximum allowed element count for the given array
     argument. (Foundation)</para>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>POSITION_ARRAY function</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">POSITION_ARRAY</emphasis></simpara>
+
+    <para><literal>POSITION_ARRAY( &lt;value expression&gt; IN &lt;array value
+    expr&gt; [ FROM &lt;int value expr&gt; ] )</literal></para>
+
+    <para>Returns the position of the first match for the <literal>&lt;value
+    expression&gt;</literal> in the array. By default the search starts from
+    the begining of the array. The optional <literal>&lt;int value
+    expr&gt;</literal> specifies the start position. Positions are counted
+    from 1. Returns zero if no match is found. (HyperSQL)</para>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>SORT_ARRAY function</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">SORT_ARRAY</emphasis></simpara>
+
+    <para><literal>SORT_ARRAY( &lt;array value expr&gt; [ { ASC | DESC } ] [
+    NULLS { FIRST | LAST } ] )</literal></para>
+
+    <para>Returns a sorted copy of the array. By default, sort is performed in
+    ascending order and NULL elements are sorted first. (HyperSQL)</para>
 
     <indexterm significance="preferred" type="sql">
       <primary>TRIM_ARRAY function</primary>
@@ -2048,6 +2064,23 @@ D          I
     <literal>&lt;value expr 2&gt;</literal>. To use the default provider,
     specify null for <literal>&lt;value expr 2&gt;</literal>.
     (HyperSQL)</para>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>DIAGNOSTICS function</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">DIAGNOSTICS</emphasis></simpara>
+
+    <para><literal>DIAGNOSTICS ( ROW_COUNT )</literal></para>
+
+    <para>This is a convenience function for use instead of the <literal>GET
+    DIAGNOSTICS ...</literal> statement. The agrument specifies the name of
+    the diagnostics variable. Currently the only supported variable is the
+    <literal>ROW_COUNT</literal> variable. The function returns the row count
+    returned by the last executed statement. The return value is 0 after most
+    statements. Calling this function immediately after executing an INSERT,
+    UPDATE, DELETE or MERGE statement returns the row count for the last
+    statement, as it is returned by the JDBC statement. (HyperSQL)</para>
 
     <indexterm significance="preferred" type="sql">
       <primary>IDENTITY function</primary>

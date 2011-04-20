@@ -1,7 +1,10 @@
+21 Apr 2011 - SVN 4199
+-- added support for GET DIAGNOSTICS statement and DIAGNOSTICS function
+-- added support for POSITION_ARRAY and enhancements to SORT_ARRAY (also ARRAY_SORT)
 18 Apr 2011 - SVN 4196
 -- fixed regression in 2.1.0 with alter table operation failures causing loss of table data 
--- fixed regression in 2.1.0 with database log created after a backup is completed not used for revovery
--- added support for SQL execution logging
+-- fixed regression in 2.1.0 with database log created after a backup is completed not used for recovery
+-- added support for SQL execution logging SET DATABASE EVENT LOG SQL LEVEL 3
 -- minor improvements and bug fixes
 26 Mar 2011 - SVN 4164
 -- fixed reported minor issues
@@ -16,7 +19,6 @@
 -- extension of MySQL and PostgreSQL compatibility modes. Includes type conversion and sequence functions
 -- extension to IDENTITY column support allows the use of a named SEQUENCE
 22 Feb 2011 - SVN 4096 - 2.1.0 rc4
-11 Feb 2011 - SVN 4050
 -- changes to avoid creation of new .data files at checkpoint and allow incremental enlargement of this file
 -- various enhancements and improvements
 3 Feb 2011 - SVN 4040
