@@ -41,7 +41,6 @@ import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Vector;
-
 import java.awt.BorderLayout;
 import java.awt.Button;
 import java.awt.Color;
@@ -248,6 +247,7 @@ implements ActionListener, WindowListener, KeyListener {
         System.getProperties().put("sun.java2d.noddraw", "true");
 
         // (ulrivo): read all arguments from the command line
+        String  currentArg;
         String  lowerArg;
         String  urlid        = null;
         String  rcFile       = null;
@@ -257,19 +257,22 @@ implements ActionListener, WindowListener, KeyListener {
         bMustExit = true;
 
         for (int i = 0; i < arg.length; i++) {
-            lowerArg = arg[i].toLowerCase();
+            currentArg = arg[i];
+            lowerArg   = arg[i].toLowerCase();
 
             if (lowerArg.startsWith("--")) {
                 lowerArg = lowerArg.substring(1);
             }
 
-            i++;
+            if (lowerArg.equals("-noexit") || lowerArg.equals("-help")) {
 
-            if (i == arg.length) {
-                showUsage();
-
-                return;
+                //
+            } else if (i == arg.length - 1) {
+                throw new IllegalArgumentException("No value for argument "
+                                                   + currentArg);
             }
+
+            i++;
 
             if (lowerArg.equals("-driver")) {
                 defDriver   = arg[i];
@@ -308,8 +311,8 @@ implements ActionListener, WindowListener, KeyListener {
                  * determine that there was an invocation problem).
                  */
                 throw new IllegalArgumentException(
-                    "Try:  java... " + DatabaseManagerSwing.class.getName()
-                    + " --help");
+                    "invalid argrument " + currentArg + " try:  java... "
+                    + DatabaseManagerSwing.class.getName() + " --help");
 
                 // No reason to localize, since the main syntax message is
                 // not localized.
