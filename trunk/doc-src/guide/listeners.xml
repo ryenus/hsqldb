@@ -83,6 +83,17 @@
 
       <screen>    java -cp ../lib/hsqldb.jar org.hsqldb.server.Server</screen>
 
+      <para>Alternatively, you can specify the path of the server.properties
+      file on the command line. In this case, the properties file can have any
+      name or extension, but it should be a valid properties file.</para>
+
+      <screen>    java -cp ../lib/hsqldb.jar org.hsqldb.server.Server --props myserver.props</screen>
+
+      <para>Use the --help argument to see the list of available
+      arguments.</para>
+
+      <screen>    java -cp ../lib/hsqldb.jar org.hsqldb.server.Server --help</screen>
+
       <para>The contents of the server.properties file is described in the
       next section.</para>
     </section>
@@ -431,6 +442,8 @@
     p.setProperty("server.database.0","file:/opt/db/accounts");
     p.setProperty("server.dbname.0","an_alias");
     // set up the rest of properties
+
+    // alternative to the above is
     Server server = new Server();
     server.setProperties(p);
     server.setLogWriter(null); // can use custom writer
