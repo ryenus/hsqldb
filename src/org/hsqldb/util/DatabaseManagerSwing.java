@@ -466,6 +466,7 @@ implements ActionListener, WindowListener, KeyListener, MouseListener {
         System.getProperties().put("sun.java2d.noddraw", "true");
 
         // (ulrivo): read all arguments from the command line
+        String  currentArg;
         String  lowerArg;
         String  urlid        = null;
         String  rcFile       = null;
@@ -475,18 +476,22 @@ implements ActionListener, WindowListener, KeyListener, MouseListener {
         bMustExit = true;
 
         for (int i = 0; i < arg.length; i++) {
+            currentArg = arg[i];
             lowerArg = arg[i].toLowerCase();
 
             if (lowerArg.startsWith("--")) {
                 lowerArg = lowerArg.substring(1);
             }
 
-            i++;
+            if (lowerArg.equals("-noexit") || lowerArg.equals("-help")) {
 
-            if (i == arg.length) {
+                //
+            } else if (i == arg.length - 1) {
                 throw new IllegalArgumentException("No value for argument "
-                                                   + lowerArg);
+                                                   + currentArg);
             }
+
+            i++;
 
             if (lowerArg.equals("-driver")) {
                 defDriver   = arg[i];
@@ -525,8 +530,8 @@ implements ActionListener, WindowListener, KeyListener, MouseListener {
                  * determine that there was an invocation problem).
                  */
                 throw new IllegalArgumentException(
-                    "Try:  java... " + DatabaseManagerSwing.class.getName()
-                    + " --help");
+                    "invalid argrument " + currentArg + " try:  java... "
+                    + DatabaseManagerSwing.class.getName() + " --help");
 
                 // No reason to localize, since the main syntax message is
                 // not localized.
@@ -2269,8 +2274,7 @@ implements ActionListener, WindowListener, KeyListener, MouseListener {
 
         String partOne = name.substring(0, dot);
         String partTwo = name.substring(dot + 1);
-
-        int bracket = partTwo.indexOf("  (");
+        int    bracket = partTwo.indexOf("  (");
 
         if (bracket >= 0) {
             partTwo = partTwo.substring(0, bracket);
@@ -2705,8 +2709,9 @@ implements ActionListener, WindowListener, KeyListener, MouseListener {
                     String schemaPart = (String) inSchema.elementAt(i);
 
                     schemaPart = schemaPart == null ? ""
-                                                    : ("\"" + schemaPart + "\".\"");
-                    name       = schemaPart + (String) inTable.elementAt(i) + "\"";
+                                                    : ("\"" + schemaPart
+                                                       + "\".\"");
+                    name = schemaPart + (String) inTable.elementAt(i) + "\"";
 
                     ResultSet resultSet = select.executeQuery(rowCountSelect
                         + name);
