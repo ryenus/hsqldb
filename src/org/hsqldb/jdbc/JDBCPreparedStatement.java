@@ -415,7 +415,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
         if (parameterTypes[parameterIndex - 1].typeCode
                 == Types.SQL_SMALLINT) {
             parameterValues[--parameterIndex] = Integer.valueOf(x);
-            parameterSet[parameterIndex]      = true;
+            parameterSet[parameterIndex]      = Boolean.TRUE;
 
             return;
         }
@@ -444,7 +444,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
 
         if (parameterTypes[parameterIndex - 1].typeCode == Types.SQL_INTEGER) {
             parameterValues[--parameterIndex] = Integer.valueOf(x);
-            parameterSet[parameterIndex]      = true;
+            parameterSet[parameterIndex]      = Boolean.TRUE;
 
             return;
         }
@@ -473,7 +473,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
 
         if (parameterTypes[parameterIndex - 1].typeCode == Types.SQL_BIGINT) {
             parameterValues[--parameterIndex] = Long.valueOf(x);
-            parameterSet[parameterIndex]      = true;
+            parameterSet[parameterIndex]      = Boolean.TRUE;
 
             return;
         }
@@ -1467,7 +1467,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
             }
         }
         parameterValues[parameterIndex - 1] = data;
-        parameterSet[parameterIndex - 1]    = true;
+        parameterSet[parameterIndex - 1]    = Boolean.TRUE;
 
         return;
     }
@@ -1570,7 +1570,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
 
         if (x == null) {
             parameterValues[i] = null;
-            parameterSet[i]    = true;
+            parameterSet[i]    = Boolean.TRUE;
 
             return;
         }
@@ -1598,7 +1598,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
             default :
                 throw Util.sqlException(ErrorCode.X_42561);
         }
-        parameterSet[i] = true;
+        parameterSet[i] = Boolean.TRUE;
     }
 
     /**
@@ -1641,7 +1641,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
 
         if (x == null) {
             parameterValues[i] = null;
-            parameterSet[i]    = true;
+            parameterSet[i]    = Boolean.TRUE;
 
             return;
         }
@@ -1668,7 +1668,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
         }
         parameterValues[i] = new TimeData((int) (millis / 1000), 0,
                 zoneOffset / 1000);
-        parameterSet[i] = true;
+        parameterSet[i] = Boolean.TRUE;
     }
 
     /**
@@ -1716,7 +1716,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
 
         if (x == null) {
             parameterValues[i] = null;
-            parameterSet[i]    = true;
+            parameterSet[i]    = Boolean.TRUE;
 
             return;
         }
@@ -1760,7 +1760,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
             default :
                 throw Util.sqlException(ErrorCode.X_42561);
         }
-        parameterSet[i] = true;
+        parameterSet[i] = Boolean.TRUE;
     }
 
     /**
@@ -4115,7 +4115,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
 
         if (o == null) {
             parameterValues[i] = null;
-            parameterSet[i]    = true;
+            parameterSet[i]    = Boolean.TRUE;
 
             return;
         }
@@ -4290,7 +4290,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
                 }
         }
         parameterValues[i] = o;
-        parameterSet[i]    = true;
+        parameterSet[i]    = Boolean.TRUE;
     }
 
     /**
@@ -4318,17 +4318,17 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
 
                 parameterValues[i - 1] = is;
                 streamLengths[i - 1]   = streamLength;
-                parameterSet[i - 1]    = false;
+                parameterSet[i - 1]    = Boolean.FALSE;
 
                 return;
             }
             parameterValues[i - 1] = o;
-            parameterSet[i - 1]    = true;
+            parameterSet[i - 1]    = Boolean.TRUE;
 
             return;
         } else if (o instanceof Clob) {
             parameterValues[i - 1] = o;
-            parameterSet[i - 1]    = true;
+            parameterSet[i - 1]    = Boolean.TRUE;
 
             return;
         } else if (o instanceof ClobInputStream) {
@@ -4341,13 +4341,13 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
             }
             parameterValues[i - 1] = o;
             streamLengths[i - 1]   = streamLength;
-            parameterSet[i - 1]    = false;
+            parameterSet[i - 1]    = Boolean.FALSE;
 
             return;
         } else if (o instanceof Reader) {
             parameterValues[i - 1] = o;
             streamLengths[i - 1]   = streamLength;
-            parameterSet[i - 1]    = false;
+            parameterSet[i - 1]    = Boolean.FALSE;
 
             return;
         } else if (o instanceof String) {
@@ -4386,19 +4386,19 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
 
                 parameterValues[i - 1] = is;
                 streamLengths[i - 1]   = streamLength;
-                parameterSet[i - 1]    = false;
+                parameterSet[i - 1]    = Boolean.FALSE;
 
                 return;
             }
 
             // in the same database
             parameterValues[i - 1] = o;
-            parameterSet[i - 1]    = true;
+            parameterSet[i - 1]    = Boolean.TRUE;
 
             return;
         } else if (o instanceof Blob) {
             parameterValues[i - 1] = o;
-            parameterSet[i - 1]    = false;
+            parameterSet[i - 1]    = Boolean.FALSE;
 
             return;
         } else if (o instanceof BlobInputStream) {
@@ -4413,20 +4413,20 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
             // in the same database ? see if it blocks in
             parameterValues[i - 1] = o;
             streamLengths[i - 1]   = streamLength;
-            parameterSet[i - 1]    = false;
+            parameterSet[i - 1]    = Boolean.FALSE;
 
             return;
         } else if (o instanceof InputStream) {
             parameterValues[i - 1] = o;
             streamLengths[i - 1]   = streamLength;
-            parameterSet[i - 1]    = false;
+            parameterSet[i - 1]    = Boolean.FALSE;
 
             return;
         } else if (o instanceof byte[]) {
             JDBCBlob blob = new JDBCBlob((byte[]) o);
 
             parameterValues[i - 1] = blob;
-            parameterSet[i - 1]    = true;
+            parameterSet[i - 1]    = Boolean.TRUE;
 
             return;
         }
@@ -4454,7 +4454,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
                 Object o = Integer.valueOf(value);
 
                 parameterValues[i - 1] = o;
-                parameterSet[i - 1]    = true;
+                parameterSet[i - 1]    = Boolean.TRUE;
 
                 break;
             }
@@ -4462,7 +4462,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
                 Object o = Long.valueOf(value);
 
                 parameterValues[i - 1] = o;
-                parameterSet[i - 1]    = true;
+                parameterSet[i - 1]    = Boolean.TRUE;
 
                 break;
             }
@@ -4495,7 +4495,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
                 Object o = new Long(value);
 
                 parameterValues[i - 1] = o;
-                parameterSet[i - 1]    = true;
+                parameterSet[i - 1]    = Boolean.TRUE;
 
                 break;
             case Types.SQL_BINARY :
