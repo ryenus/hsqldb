@@ -221,6 +221,10 @@ public class StatementHandler extends Statement {
         return sb.toString();
     }
 
+    public boolean isCatalogLock() {
+        return false;
+    }
+
     public boolean isCatalogChange() {
         return false;
     }
