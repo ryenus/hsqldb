@@ -2491,17 +2491,21 @@ public class ParserDDL extends ParserRoutine {
 
                         isGenerated = true;
                     } else if (token.tokenType == Tokens.SEQUENCE) {
+                        if (generatedAlways) {
+                            throw unexpectedToken();
+                        }
+
                         read();
 
                         if (token.namePrefix != null) {
                             if (!token.namePrefix.equals(
-                                    session.getSchemaName(null))) {
+                                    table.getSchemaName().name)) {
                                 throw super.unexpectedToken(token.namePrefix);
                             }
                         }
 
                         sequence = database.schemaManager.getSequence(
-                            token.tokenString, session.getSchemaName(null),
+                            token.tokenString, table.getSchemaName().name,
                             true);
                         isIdentity = true;
 
@@ -2579,6 +2583,7 @@ public class ParserDDL extends ParserRoutine {
                 && column.getDefaultExpression() == null
                 && column.getIdentitySequence() == null) {
             read();
+
             defaultExpr = readDefaultClause(typeObject);
 
             if (defaultExpr.opType == OpTypes.SEQUENCE) {

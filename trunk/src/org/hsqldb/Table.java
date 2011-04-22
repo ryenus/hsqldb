@@ -494,7 +494,8 @@ public class Table extends TableBase implements SchemaObject {
 
         list.add(getSQL());
 
-        if (!isTemp && !isText && hasIdentityColumn()) {
+        if (!isTemp && !isText && identitySequence != null
+                && identitySequence.getName() == null) {
             list.add(NumberSequence.getRestartSQL(this));
         }
 
