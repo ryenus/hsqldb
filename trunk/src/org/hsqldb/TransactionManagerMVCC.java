@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2010, The HSQL Development Group
+/* Copyright (c) 2001-2011, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -685,7 +685,7 @@ implements TransactionManager {
 
             session.isPreTransaction = true;
 
-            if (!isLockedMode && !cs.isCatalogChange()) {
+            if (!isLockedMode && !cs.isCatalogLock()) {
                 return;
             }
 
@@ -841,7 +841,7 @@ implements TransactionManager {
             Session   current = (Session) session.waitingSessions.get(i);
             Statement st      = current.sessionContext.currentStatement;
 
-            if (st != null && st.isCatalogChange()) {
+            if (st != null && st.isCatalogLock()) {
                 nextSession = current;
 
                 break;
@@ -881,7 +881,7 @@ implements TransactionManager {
 
         session.tempSet.clear();
 
-        if (cs.isCatalogChange()) {
+        if (cs.isCatalogLock()) {
             if (catalogWriteSession == null) {
                 catalogWriteSession = session;
                 isLockedMode        = true;

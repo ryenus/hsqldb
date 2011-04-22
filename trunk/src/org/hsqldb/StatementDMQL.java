@@ -796,7 +796,11 @@ public abstract class StatementDMQL extends Statement {
         return rangeVariables;
     }
 
-    public final boolean isCatalogChange() {
+    public final boolean isCatalogLock() {
+        return false;
+    }
+
+    public boolean isCatalogChange() {
         return false;
     }
 }

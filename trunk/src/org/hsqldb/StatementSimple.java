@@ -207,6 +207,10 @@ public class StatementSimple extends Statement {
         return "";
     }
 
+    public boolean isCatalogLock() {
+        return false;
+    }
+
     public boolean isCatalogChange() {
         return false;
     }

@@ -55,10 +55,9 @@ public abstract class Statement {
     //
     final int type;
     int       group;
-    boolean   isLogged = true;
-    boolean   isValid  = true;
-
-    int statementReturnType = StatementTypes.RETURN_COUNT;
+    boolean   isLogged            = true;
+    boolean   isValid             = true;
+    int       statementReturnType = StatementTypes.RETURN_COUNT;
 
     /** the default schema name used to resolve names in the sql */
     HsqlName schemaName;
@@ -190,7 +189,7 @@ public abstract class Statement {
         return writeTableNames;
     }
 
-    public boolean isCatalogChange() {
+    public boolean isCatalogLock() {
 
         switch (group) {
 
@@ -200,6 +199,20 @@ public abstract class Statement {
                 return true;
 
             case StatementTypes.X_HSQLDB_DATABASE_OPERATION :
+                return true;
+
+            default :
+                return false;
+        }
+    }
+
+    public boolean isCatalogChange() {
+
+        switch (group) {
+
+            case StatementTypes.X_SQL_SCHEMA_DEFINITION :
+            case StatementTypes.X_SQL_SCHEMA_MANIPULATION :
+            case StatementTypes.X_HSQLDB_SCHEMA_MANIPULATION :
                 return true;
 
             default :

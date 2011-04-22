@@ -717,6 +717,10 @@ public class StatementSession extends Statement {
         return sql;
     }
 
+    public boolean isCatalogLock() {
+        return false;
+    }
+
     public boolean isCatalogChange() {
         return false;
     }
