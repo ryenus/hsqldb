@@ -1906,7 +1906,7 @@ public class Expression implements Cloneable {
 
         try {
             e       = (Expression) super.clone();
-            e.nodes = nodes.clone();
+            e.nodes = (Expression[]) nodes.clone();
 
             for (int i = 0; i < nodes.length; i++) {
                 if (nodes[i] != null) {

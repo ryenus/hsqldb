@@ -913,7 +913,7 @@ public class ParserCommand extends ParserDDL {
                 read();
 
                 if (readIfThis(Tokens.DIGEST)) {
-                    isDigest = Boolean.TRUE;
+                    isDigest = true;
                 }
 
                 password = readPassword();

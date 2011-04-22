@@ -3377,7 +3377,7 @@ public class ParserDDL extends ParserRoutine {
         if (token.tokenType == Tokens.ADMIN) {
             read();
 
-            admin = true;
+            admin = Boolean.TRUE;
         }
 
         checkDatabaseUpdateAuthorisation();

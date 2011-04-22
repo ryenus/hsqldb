@@ -481,7 +481,7 @@ public class Session implements SessionInterface {
             if (result.mode == ResultConstants.UPDATECOUNT) {
                 sessionContext
                     .diagnosticsVariables[ExpressionColumn.idx_row_count] =
-                        result.getUpdateCount();
+                        Integer.valueOf(result.getUpdateCount());
             } else {
                 sessionContext
                     .diagnosticsVariables[ExpressionColumn.idx_row_count] =
@@ -1257,7 +1257,8 @@ public class Session implements SessionInterface {
         }
 
         if (sessionContext.depth > 0) {
-            if (sessionContext.noSQL || cs.isAutoCommitStatement()) {
+            if (sessionContext.noSQL.booleanValue()
+                    || cs.isAutoCommitStatement()) {
                 return Result.newErrorResult(Error.error(ErrorCode.X_46000));
             }
         }

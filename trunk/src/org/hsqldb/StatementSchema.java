@@ -421,7 +421,7 @@ public class StatementSchema extends Statement {
             }
             case StatementTypes.ALTER_DOMAIN :
                 try {
-                    int  subType = (Integer) arguments[0];
+                    int  subType = ((Integer) arguments[0]).intValue();
                     Type domain  = (Type) arguments[1];
 
                     switch (subType) {
@@ -464,7 +464,7 @@ public class StatementSchema extends Statement {
                 }
             case StatementTypes.ALTER_TABLE :
                 try {
-                    int   subType = (Integer) arguments[0];
+                    int   subType = ((Integer) arguments[0]).intValue();
                     Table table   = (Table) arguments[1];
 
                     switch (subType) {
@@ -514,7 +514,7 @@ public class StatementSchema extends Statement {
                         }
                         case StatementTypes.ADD_COLUMN : {
                             ColumnSchema  column = (ColumnSchema) arguments[2];
-                            int           colIndex = (Integer) arguments[3];
+                            int           colIndex = ((Integer) arguments[3]).intValue();
                             HsqlArrayList list = (HsqlArrayList) arguments[4];
                             TableWorks tableWorks = new TableWorks(session,
                                                                    table);
@@ -554,7 +554,7 @@ public class StatementSchema extends Statement {
                         }
                         case StatementTypes.ALTER_COLUMN_SEQUENCE : {
                             ColumnSchema column = (ColumnSchema) arguments[2];
-                            int          columnIndex = (Integer) arguments[3];
+                            int          columnIndex = ((Integer) arguments[3]).intValue();
                             NumberSequence sequence =
                                 (NumberSequence) arguments[4];
 
@@ -569,7 +569,7 @@ public class StatementSchema extends Statement {
                         }
                         case StatementTypes.ALTER_COLUMN_NULL : {
                             ColumnSchema column = (ColumnSchema) arguments[2];
-                            boolean      nullable = (Boolean) arguments[3];
+                            boolean      nullable = ((Boolean) arguments[3]).booleanValue();
                             TableWorks   tw = new TableWorks(session, table);
 
                             tw.setColNullability(column, nullable);
@@ -578,7 +578,7 @@ public class StatementSchema extends Statement {
                         }
                         case StatementTypes.ALTER_COLUMN_DEFAULT : {
                             ColumnSchema column = (ColumnSchema) arguments[2];
-                            int          columnIndex = (Integer) arguments[3];
+                            int          columnIndex = ((Integer) arguments[3]).intValue();
                             Expression   e = (Expression) arguments[4];
                             TableWorks   tw = new TableWorks(session, table);
 
@@ -588,7 +588,7 @@ public class StatementSchema extends Statement {
                         }
                         case StatementTypes.ALTER_COLUMN_DROP_DEFAULT : {
                             ColumnSchema column = (ColumnSchema) arguments[2];
-                            int          columnIndex = (Integer) arguments[3];
+                            int          columnIndex = ((Integer) arguments[3]).intValue();
                             TableWorks   tw = new TableWorks(session, table);
 
                             tw.setColDefaultExpression(columnIndex, null);
@@ -598,7 +598,7 @@ public class StatementSchema extends Statement {
                         }
                         case StatementTypes.ALTER_COLUMN_DROP_GENERATED : {
                             ColumnSchema column = (ColumnSchema) arguments[2];
-                            int          columnIndex = (Integer) arguments[3];
+                            int          columnIndex = ((Integer) arguments[3]).intValue();
 
                             column.setIdentity(null);
                             table.setColumnTypeVars(columnIndex);

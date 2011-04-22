@@ -44,7 +44,6 @@ import org.hsqldb.Session;
 import org.hsqldb.SessionInterface;
 import org.hsqldb.SqlInvariants;
 import org.hsqldb.Statement;
-import org.hsqldb.StatementTypes;
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
 import org.hsqldb.lib.ArrayUtil;

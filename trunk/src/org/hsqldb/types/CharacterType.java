@@ -1082,13 +1082,13 @@ public class CharacterType extends Type {
 
             if (match) {
                 if (offset + array[i].length() > string.length()) {
-                    return false;
+                    return Boolean.FALSE;
                 }
 
                 s = string.substring(offset, offset + array[i].length());
 
                 if (collation.compare(s, array[i]) != 0) {
-                    return false;
+                    return Boolean.FALSE;
                 }
 
                 offset += array[i].length();
@@ -1096,7 +1096,7 @@ public class CharacterType extends Type {
                 int index = string.indexOf(array[i], offset);
 
                 if (index < 0) {
-                    return false;
+                    return Boolean.FALSE;
                 }
 
                 offset = index + array[i].length();
@@ -1104,7 +1104,7 @@ public class CharacterType extends Type {
             }
         }
 
-        return true;
+        return Boolean.TRUE;
     }
 
     public Type getCharacterType(long length) {
