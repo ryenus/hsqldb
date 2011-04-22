@@ -39,8 +39,10 @@ import java.sql.Savepoint;
 import java.sql.Statement;
 
 import org.hsqldb.server.WebServer;
+
 import junit.framework.TestCase;
 import junit.framework.TestResult;
+
 import org.hsqldb.server.Server;
 
 /**
@@ -55,9 +57,10 @@ public class TestJDBCSavepoints extends TestCase {
 
 //  You change the url and serverProps to reflect your preferred settings
     // String serverProps = "database.0=mem:test;dbname.0=;silent=false;trace=true" // debugging
-    String serverProps = "database.0=mem:test;dbname.0=;silent=true;trace=false";
+    String serverProps =
+        "database.0=mem:test;dbname.0=;silent=true;trace=false";
+    String url = "jdbc:hsqldb:hsql://localhost";
 
-    String     url         = "jdbc:hsqldb:hsql://localhost";
     // String     url = "jdbc:hsqldb:http://localhost";
     String     user;
     String     password;
@@ -82,10 +85,9 @@ public class TestJDBCSavepoints extends TestCase {
         stmt     = null;
         conn1    = null;
         conn2    = null;
-
         server   = new Server();
-//        server = new WebServer();
 
+//        server = new WebServer();
         server.putPropertiesFromString(serverProps);
         server.start();
 
@@ -480,6 +482,60 @@ public class TestJDBCSavepoints extends TestCase {
             assertTrue(msg, false);
         } catch (Exception e) {}
 */
+    }
+
+    public void testJDBCAutoSavepoints() throws Exception {
+
+        String            sql;
+        int               i;
+        PreparedStatement ps;
+        ResultSet         rs;
+        Savepoint         sp1;
+        int               rowcount = 0;
+
+        sql = "drop table t if exists";
+
+        stmt.executeUpdate(sql);
+
+        sql = "create table t(id int, fn varchar(40), ln varchar(40), zip int)";
+
+        stmt.executeUpdate(sql);
+
+        //-- setup for following tests
+        conn1.setAutoCommit(false);
+
+        sql = "insert into t values(?,?,?,?)";
+        ps  = conn1.prepareStatement(sql);
+
+        ps.setString(2, "Mary");
+        ps.setString(3, "Peterson-Clancy");
+
+        i = 0;
+
+        for (; i < 10; i++) {
+            ps.setInt(1, i);
+            ps.setInt(4, i);
+            ps.executeUpdate();
+        }
+
+        sp1 = conn1.setSavepoint();
+
+        for (; i < 12; i++) {
+            ps.setInt(1, i);
+            ps.setInt(4, i);
+            ps.executeUpdate();
+        }
+
+        conn1.rollback(sp1);
+
+        rs = stmt.executeQuery("select count(*) from t");
+
+        rs.next();
+
+        rowcount = rs.getInt(1);
+
+        assertEquals(10, rowcount);
+        rs.close();
     }
 
     /**
