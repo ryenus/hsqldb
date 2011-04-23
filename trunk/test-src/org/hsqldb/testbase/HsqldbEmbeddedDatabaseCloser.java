@@ -12,7 +12,7 @@ public class HsqldbEmbeddedDatabaseCloser implements ConnectionFactory.EventList
 
 //    @Override
     public void closedRegisteredObjects(ConnectionFactory source) {
-        org.hsqldb.DatabaseManager.closeDatabases(-1);
+        org.hsqldb.DatabaseManager.closeDatabases(org.hsqldb.Database.CLOSEMODE_IMMEDIATELY);
     }
 
 }
