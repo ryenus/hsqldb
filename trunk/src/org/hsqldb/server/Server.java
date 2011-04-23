@@ -2242,6 +2242,49 @@ public class Server implements HsqlSocketRequestHandler {
     }
 
     /**
+     * Shuts down all the database served by this server. As a consequence,
+     * this server and any other server that is serving a subset of the
+     * databases will be shutdown, unless the server was started with
+     * server.remote_open property.
+     *
+     * The shutdownMode must be one of:
+     *
+     * <ul>
+     * <li>org.hsqldb.Database.CLOSEMODE_IMMEDIATELY
+     * <li>org.hsqldb.Database.CLOSEMODE_NORMAL
+     * <li>org.hsqldb.Database.CLOSEMODE_COMPACT
+     * <li>org.hsqldb.Database.CLOSEMODE_SCRIPT
+     * </ul>
+     * @param shutdownMode a value between 0-4, usually 0 or 1.
+     */
+    public void shutdownCatalogs(int shutdownMode) {
+        DatabaseManager.shutdownDatabases(this, shutdownMode);
+    }
+
+    /**
+     * Shuts down this server and all the database served by this server. As a
+     * consequence, any other server that is serving a subset of the databases
+     * will be shutdown, unless the server was started with server.remote_open
+     * property.
+     *
+     * The shutdownMode must be one of:
+     *
+     * <ul>
+     * <li>org.hsqldb.Database.CLOSEMODE_IMMEDIATELY
+     * <li>org.hsqldb.Database.CLOSEMODE_NORMAL
+     * <li>org.hsqldb.Database.CLOSEMODE_COMPACT
+     * <li>org.hsqldb.Database.CLOSEMODE_SCRIPT
+     * </ul>
+     * @param shutdownMode a value between 0-4, usually 0 or 1.
+     */
+    public void shutdownWithCatalogs(int shutdownMode) {
+        // make handleConnection() reject new connection attempts
+
+        DatabaseManager.shutdownDatabases(this, shutdownMode);
+        shutdown(false);
+    }
+
+    /**
      * External method to shut down this server.
      */
     public void shutdown() {
