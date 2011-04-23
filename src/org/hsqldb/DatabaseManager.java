@@ -103,10 +103,10 @@ public class DatabaseManager {
     /**
      * Closes all the databases using the given mode.<p>
      *
-     * CLOSEMODE_IMMEDIATELY = -1;
-     * CLOSEMODE_NORMAL      = 0;
-     * CLOSEMODE_COMPACT     = 1;
-     * CLOSEMODE_SCRIPT      = 2;
+     * CLOSEMODE_IMMEDIATELY = 1;
+     * CLOSEMODE_NORMAL      = 2;
+     * CLOSEMODE_COMPACT     = 3;
+     * CLOSEMODE_SCRIPT      = 4;
      */
     public static void closeDatabases(int mode) {
 
@@ -182,7 +182,6 @@ public class DatabaseManager {
     /**
      * Used by server to open or create a database
      */
-
     public static int getDatabase(String type, String path, Server server,
                                   HsqlProperties props) {
 
@@ -195,6 +194,18 @@ public class DatabaseManager {
 
     public static Database getDatabase(int id) {
         return (Database) databaseIDMap.get(id);
+    }
+
+    public static void shutdownDatabases(Server server, int shutdownMode) {
+
+        HashSet    databases = (HashSet) serverMap.get(server);
+        Database[] dbArray   = new Database[databases.size()];
+
+        databases.toArray(dbArray);
+
+        for (int i = 0; i < dbArray.length; i++) {
+            dbArray[i].close(shutdownMode);
+        }
     }
 
     /**
@@ -211,7 +222,6 @@ public class DatabaseManager {
      * the db can be reopened for the new connection).
      *
      */
-
     public static Database getDatabase(String type, String path,
                                        HsqlProperties props) {
 
