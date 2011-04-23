@@ -72,6 +72,10 @@ public class HsqlProperties {
         fileName    = null;
     }
 
+    public HsqlProperties(String fileName) {
+        this(fileName, ".properties");
+    }
+
     public HsqlProperties(String fileName, String fileExtension) {
 
         stringProps        = new Properties();
