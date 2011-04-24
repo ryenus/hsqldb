@@ -2499,12 +2499,16 @@ SELECT d + e, SUM(f) FROM atable WHERE a + b = c GROUP BY d + e HAVING SUM(f) &g
       way a query is written. For example, the two queries below are
       equivalent, but with different forms. The query with LATERAL is
       evaluated separately for each row of the first table that satisfies the
-      WHERE condition.</para>
+      WHERE condition. The example below uses the tables that are created and
+      populated in DatabaseManagerSwing with the "Insert test data" menu
+      option. The first query uses a scalar subquery to comput the sum of
+      invoice values for each customer. The second query is equivalent and
+      uses a join with a LATERAL table. </para>
 
-      <programlisting>CREATE TABLE atable (a INT, b INT, c INT, d INT, e INT, f INT);
+      <programlisting>SELECT firstname, lastname, (SELECT SUM(total) FROM invoice WHERE customerid = customer.id) s FROM customer
 
-SELECT a, b, ( SELECT SUM(g) FROM btable WHERE btable.h = atable.a ) AS s FROM atable WHERE atable.c = 10
-SELECT a, b FROM atable LEFT OUTER JOIN LATERAL ( SELECT SUM(g) AS s FROM btable WHERE btable.h = atable.a ) WHERE atable.c = 10</programlisting>
+SELECT firstname, lastname, a.c FROM customer, LATERAL(SELECT SUM(total) FROM invoice WHERE customerid = customer.id) a (c)
+</programlisting>
 
       <indexterm significance="preferred" type="sql">
         <primary>UNNEST</primary>
@@ -2513,15 +2517,18 @@ SELECT a, b FROM atable LEFT OUTER JOIN LATERAL ( SELECT SUM(g) AS s FROM btable
       <simpara><emphasis role="bold">UNNEST</emphasis></simpara>
 
       <para>UNNEST is similar to LATERAL, but instead of a query expression,
-      an expression that returns an array is used. This expression is
-      converted into a table which has one column that contains the elements
-      of the array, and, if WITH ORDINALITY is used, a second column that
-      contains the index of each element. The array expression can contain
-      references to any column of the table references preceding the current
-      table reference.</para>
+      one or more expressions that return an array are used. These expressions
+      are converted into a table which has one column for each expression and
+      contains the elements of the array. If WITH ORDINALITY is used, an extra
+      column that contains the index of each element is added to this table.
+      The number or rows in the table equals the length of the largest arrays.
+      The smaller arrays are padded with NULL values. If an &lt;array value
+      expression&gt; evaluates to NULL, an empty array is used in its place.
+      The array expression can contain references to any column of the table
+      references preceding the current table reference.</para>
 
       <para><literal>&lt;collection derived table&gt; ::= UNNEST &lt;left
-      paren&gt; &lt;array value expression&gt; &lt;right paren&gt; [ WITH
+      paren&gt; &lt;array value expression&gt;, ... &lt;right paren&gt; [ WITH
       ORDINALITY ]</literal></para>
 
       <para>The <literal>&lt;array value expression&gt;</literal> can be the
@@ -2529,12 +2536,12 @@ SELECT a, b FROM atable LEFT OUTER JOIN LATERAL ( SELECT SUM(g) AS s FROM btable
       values from the tables on the left of the UNNEST, then the function is
       called for each row of table.</para>
 
-      <para>In the first example below, UNNEST is used with the built in
-      function SEQUENCE_ARRAY to build a table containing dates for the last
-      seven days and their ordinal position. In the second example, a select
-      statement returns costs for the last seven days . In the third example,
-      the WITH clause turns the two selects into named subqueries which are
-      used in a SELECT statement that uses a LEFT join.</para>
+      <para>In the first example below, UNNEST is used with the built
+      in-function SEQUENCE_ARRAY to build a table containing dates for the
+      last seven days and their ordinal position. In the second example, a
+      select statement returns costs for the last seven days . In the third
+      example, the WITH clause turns the two selects into named subqueries
+      which are used in a SELECT statement that uses a LEFT join.</para>
 
       <programlisting>SELECT * FROM UNNEST(SEQUENCE_ARRAY(CURRENT_DATE - 7 DAY, CURRENT_DATE - 1 DAY, 1 DAY)) WITH ORDINALITY AS T(D, I)  
 
@@ -2579,11 +2586,12 @@ I D          S
 
       <simpara><emphasis role="bold">TABLE</emphasis></simpara>
 
-      <para>When TABLE is used in this context, it also converts an array
-      value expression to a table, but this array must be the result of a
-      function call. A function that returns a MULTISET can also be used in
-      this context and each row of the multiset is expanded into a row of the
-      table.</para>
+      <para>When TABLE is used in this context, the &lt;collection value
+      expression&gt; must be the result of a function call to a built-in
+      function or user-defined function that returns an array or a table. When
+      the function returns an array, this array is converted into a table,
+      similar to the way UNNEST operates. When the function returns a table,
+      the result is a MULTISET and is used as is.</para>
 
       <para><literal>&lt;table function derived table&gt; ::= TABLE &lt;left
       paren&gt; &lt;collection value expression&gt; &lt;right
