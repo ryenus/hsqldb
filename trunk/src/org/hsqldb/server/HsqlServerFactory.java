@@ -57,8 +57,10 @@ public class HsqlServerFactory {
     public static HsqlSocketRequestHandler createHsqlServer(String dbFilePath,
             boolean debugMessages, boolean silentMode) throws SQLException {
 
-        HsqlProperties props = new HsqlProperties();
+        ServerProperties props =
+            new ServerProperties(ServerConstants.SC_PROTOCOL_HSQL);
 
+        props.setProperty("server.dbname.0", "");
         props.setProperty("server.database.0", dbFilePath);
         props.setProperty("server.trace", debugMessages);
         props.setProperty("server.silent", silentMode);
@@ -77,7 +79,6 @@ public class HsqlServerFactory {
             if (t instanceof HsqlException) {
                 throw Util.sqlException((HsqlException) t);
             } else {
-
                 throw Util.sqlException(Error.error(ErrorCode.GENERAL_ERROR));
             }
         }

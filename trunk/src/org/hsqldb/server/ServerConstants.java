@@ -36,7 +36,7 @@ package org.hsqldb.server;
  * HSQLDB servers
  *
  * @author  boucherb@users
- * @version 1.9.0
+ * @version 2.1.1
  * @since 1.7.2
  */
 public interface ServerConstants {
@@ -74,26 +74,6 @@ public interface ServerConstants {
     int SC_PROTOCOL_HTTP = 0;
     int SC_PROTOCOL_HSQL = 1;
     int SC_PROTOCOL_BER  = 2;
-
-    // keys to properties
-    String SC_KEY_PREFIX             = "server";
-    String SC_KEY_ADDRESS            = SC_KEY_PREFIX + ".address";
-    String SC_KEY_AUTORESTART_SERVER = SC_KEY_PREFIX + ".restart_on_shutdown";
-    String SC_KEY_DATABASE           = SC_KEY_PREFIX + ".database";
-    String SC_KEY_DBNAME             = SC_KEY_PREFIX + ".dbname";
-    String SC_KEY_NO_SYSTEM_EXIT     = SC_KEY_PREFIX + ".no_system_exit";
-    String SC_KEY_PORT               = SC_KEY_PREFIX + ".port";
-    String SC_KEY_SILENT             = SC_KEY_PREFIX + ".silent";
-    String SC_KEY_TLS                = SC_KEY_PREFIX + ".tls";
-    String SC_KEY_TRACE              = SC_KEY_PREFIX + ".trace";
-    String SC_KEY_DAEMON             = SC_KEY_PREFIX + ".daemon";
-    String SC_KEY_WEB_DEFAULT_PAGE   = SC_KEY_PREFIX + ".default_page";
-    String SC_KEY_WEB_ROOT           = SC_KEY_PREFIX + ".root";
-    String SC_KEY_MAX_CONNECTIONS    = SC_KEY_PREFIX + ".maxconnections";
-    String SC_KEY_REMOTE_OPEN_DB     = SC_KEY_PREFIX + ".remote_open";
-    String SC_KEY_MAX_DATABASES      = SC_KEY_PREFIX + ".maxdatabases";
-    String SC_KEY_ACL_FILEPATH       = SC_KEY_PREFIX + ".acl_filepath";
-    String SC_KEY_PROPS              = SC_KEY_PREFIX + ".props";
 
     // web server page defaults
     String SC_DEFAULT_WEB_MIME = "text/html";
