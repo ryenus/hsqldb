@@ -4440,7 +4440,23 @@ public class ParserDQL extends ParserBase {
 
         compileContext.subqueryDepth++;
 
-        Expression e = XreadValueExpression();
+        HsqlArrayList list = new HsqlArrayList();
+
+        while (true) {
+            Expression e = XreadValueExpression();
+
+            list.add(e);
+
+            if (token.tokenType == Tokens.COMMA) {
+                read();
+            } else {
+                break;
+            }
+        }
+
+        Expression[] array = new Expression[list.size()];
+
+        list.toArray(array);
 
         compileContext.subqueryDepth--;
 
@@ -4453,8 +4469,7 @@ public class ParserDQL extends ParserBase {
             ordinality = true;
         }
 
-        e = new ExpressionTable(e, null, ordinality);
-
+        Expression e = new ExpressionTable(array, null, ordinality);
         SubQuery sq = new SubQuery(database, compileContext.subqueryDepth, e,
                                    OpTypes.TABLE_SUBQUERY);
 
@@ -4485,7 +4500,7 @@ public class ParserDQL extends ParserBase {
 
         readThis(Tokens.CLOSEBRACKET);
 
-        e = new ExpressionTable(e, null, false);
+        e = new ExpressionTable(new Expression[]{ e }, null, false);
 
         SubQuery sq = new SubQuery(database, compileContext.subqueryDepth, e,
                                    OpTypes.TABLE_SUBQUERY);
