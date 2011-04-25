@@ -232,7 +232,7 @@ import org.hsqldb.result.ResultConstants;
  * is started as part of a larger framework. <p>
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.0.1
+ * @version 2.1.1
  * @since 1.7.2
  *
  * @jmx.mbean
@@ -428,7 +428,7 @@ public class Server implements HsqlSocketRequestHandler {
     public String getAddress() {
 
         return socket == null
-               ? serverProperties.getProperty(ServerConstants.SC_KEY_ADDRESS)
+               ? serverProperties.getProperty(ServerProperties.sc_key_address)
                : socket.getInetAddress().getHostAddress();
     }
 
@@ -461,7 +461,7 @@ public class Server implements HsqlSocketRequestHandler {
     public String getDatabaseName(int index, boolean asconfigured) {
 
         if (asconfigured) {
-            return serverProperties.getProperty(ServerConstants.SC_KEY_DBNAME
+            return serverProperties.getProperty(ServerProperties.sc_key_dbname
                                                 + "." + index);
         } else if (getState() == ServerConstants.SERVER_STATE_ONLINE) {
             return (dbAlias == null || index < 0 || index >= dbAlias.length)
@@ -502,8 +502,8 @@ public class Server implements HsqlSocketRequestHandler {
     public String getDatabasePath(int index, boolean asconfigured) {
 
         if (asconfigured) {
-            return serverProperties.getProperty(ServerConstants.SC_KEY_DATABASE
-                                                + "." + index);
+            return serverProperties.getProperty(
+                ServerProperties.sc_key_database + "." + index);
         } else if (getState() == ServerConstants.SERVER_STATE_ONLINE) {
             return (dbPath == null || index < 0 || index >= dbPath.length)
                    ? null
@@ -570,8 +570,10 @@ public class Server implements HsqlSocketRequestHandler {
      *  description="At which ServerSocket listens for connections"
      */
     public int getPort() {
-        return serverProperties.getIntegerProperty(ServerConstants.SC_KEY_PORT,
-                ServerConfiguration.getDefaultPort(serverProtocol, isTls()));
+
+        return serverProperties.getIntegerProperty(
+            ServerProperties.sc_key_port,
+            ServerConfiguration.getDefaultPort(serverProtocol, isTls()));
     }
 
     /**
@@ -786,7 +788,7 @@ public class Server implements HsqlSocketRequestHandler {
      */
     public boolean isNoSystemExit() {
         return serverProperties.isPropertyTrue(
-            ServerConstants.SC_KEY_NO_SYSTEM_EXIT);
+            ServerProperties.sc_key_no_system_exit);
     }
 
     /**
@@ -800,7 +802,7 @@ public class Server implements HsqlSocketRequestHandler {
      */
     public boolean isRestartOnShutdown() {
         return serverProperties.isPropertyTrue(
-            ServerConstants.SC_KEY_AUTORESTART_SERVER);
+            ServerProperties.sc_key_autorestart_server);
     }
 
     /**
@@ -829,7 +831,7 @@ public class Server implements HsqlSocketRequestHandler {
      *  description="Use TLS/SSL sockets?"
      */
     public boolean isTls() {
-        return serverProperties.isPropertyTrue(ServerConstants.SC_KEY_TLS);
+        return serverProperties.isPropertyTrue(ServerProperties.sc_key_tls);
     }
 
     /**
@@ -843,7 +845,7 @@ public class Server implements HsqlSocketRequestHandler {
      *  description="JDBC trace messages to System.out?"
      */
     public boolean isTrace() {
-        return serverProperties.isPropertyTrue(ServerConstants.SC_KEY_TRACE);
+        return serverProperties.isPropertyTrue(ServerProperties.sc_key_trace);
     }
 
     /**
@@ -888,7 +890,7 @@ public class Server implements HsqlSocketRequestHandler {
 
         path = FileUtil.getFileUtil().canonicalOrAbsolutePath(path);
 
-        HsqlProperties p = ServerConfiguration.getPropertiesFromFile(
+        ServerProperties p = ServerConfiguration.getPropertiesFromFile(
             ServerConstants.SC_PROTOCOL_HSQL, path, extension);
 
         if (p == null || p.isEmpty()) {
@@ -940,7 +942,7 @@ public class Server implements HsqlSocketRequestHandler {
         printWithThread("putPropertiesFromString(): [" + s + "]");
 
         HsqlProperties p = HsqlProperties.delimitedArgPairsToProps(s, "=",
-            ";", ServerConstants.SC_KEY_PREFIX);
+            ";", ServerProperties.sc_key_prefix);
 
         try {
             setProperties(p);
@@ -974,7 +976,7 @@ public class Server implements HsqlSocketRequestHandler {
         }
 
         printWithThread("setAddress(" + address + ")");
-        serverProperties.setProperty(ServerConstants.SC_KEY_ADDRESS, address);
+        serverProperties.setProperty(ServerProperties.sc_key_address, address);
     }
 
     /**
@@ -1004,7 +1006,7 @@ public class Server implements HsqlSocketRequestHandler {
 
         checkRunning(false);
         printWithThread("setDatabaseName(" + index + "," + name + ")");
-        serverProperties.setProperty(ServerConstants.SC_KEY_DBNAME + "."
+        serverProperties.setProperty(ServerProperties.sc_key_dbname + "."
                                      + index, name);
     }
 
@@ -1036,7 +1038,7 @@ public class Server implements HsqlSocketRequestHandler {
 
         checkRunning(false);
         printWithThread("setDatabasePath(" + index + "," + path + ")");
-        serverProperties.setProperty(ServerConstants.SC_KEY_DATABASE + "."
+        serverProperties.setProperty(ServerProperties.sc_key_database + "."
                                      + index, path);
     }
 
@@ -1056,7 +1058,7 @@ public class Server implements HsqlSocketRequestHandler {
             return;
         }
 
-        serverProperties.setProperty(ServerConstants.SC_KEY_WEB_DEFAULT_PAGE,
+        serverProperties.setProperty(ServerProperties.sc_key_web_default_page,
                                      file);
     }
 
@@ -1071,7 +1073,7 @@ public class Server implements HsqlSocketRequestHandler {
 
         checkRunning(false);
         printWithThread("setPort(" + port + ")");
-        serverProperties.setProperty(ServerConstants.SC_KEY_PORT, port);
+        serverProperties.setProperty(ServerProperties.sc_key_port, port);
     }
 
     /**
@@ -1106,7 +1108,7 @@ public class Server implements HsqlSocketRequestHandler {
     public void setNoSystemExit(boolean noExit) {
 
         printWithThread("setNoSystemExit(" + noExit + ")");
-        serverProperties.setProperty(ServerConstants.SC_KEY_NO_SYSTEM_EXIT,
+        serverProperties.setProperty(ServerProperties.sc_key_no_system_exit,
                                      noExit);
     }
 
@@ -1120,8 +1122,8 @@ public class Server implements HsqlSocketRequestHandler {
     public void setRestartOnShutdown(boolean restart) {
 
         printWithThread("setRestartOnShutdown(" + restart + ")");
-        serverProperties.setProperty(ServerConstants.SC_KEY_AUTORESTART_SERVER,
-                                     restart);
+        serverProperties.setProperty(
+            ServerProperties.sc_key_autorestart_server, restart);
     }
 
     /**
@@ -1135,7 +1137,7 @@ public class Server implements HsqlSocketRequestHandler {
     public void setSilent(boolean silent) {
 
         printWithThread("setSilent(" + silent + ")");
-        serverProperties.setProperty(ServerConstants.SC_KEY_SILENT, silent);
+        serverProperties.setProperty(ServerProperties.sc_key_silent, silent);
 
         isSilent = silent;
     }
@@ -1152,7 +1154,7 @@ public class Server implements HsqlSocketRequestHandler {
 
         checkRunning(false);
         printWithThread("setTls(" + tls + ")");
-        serverProperties.setProperty(ServerConstants.SC_KEY_TLS, tls);
+        serverProperties.setProperty(ServerProperties.sc_key_tls, tls);
     }
 
     /**
@@ -1166,7 +1168,7 @@ public class Server implements HsqlSocketRequestHandler {
     public void setTrace(boolean trace) {
 
         printWithThread("setTrace(" + trace + ")");
-        serverProperties.setProperty(ServerConstants.SC_KEY_TRACE, trace);
+        serverProperties.setProperty(ServerProperties.sc_key_trace, trace);
         JavaSystem.setLogToSystem(trace);
     }
 
@@ -1182,7 +1184,7 @@ public class Server implements HsqlSocketRequestHandler {
 
         checkRunning(false);
         printWithThread("setDaemon(" + daemon + ")");
-        serverProperties.setProperty(ServerConstants.SC_KEY_DAEMON, daemon);
+        serverProperties.setProperty(ServerProperties.sc_key_daemon, daemon);
     }
 
     /**
@@ -1205,7 +1207,7 @@ public class Server implements HsqlSocketRequestHandler {
             return;
         }
 
-        serverProperties.setProperty(ServerConstants.SC_KEY_WEB_ROOT, root);
+        serverProperties.setProperty(ServerProperties.sc_key_web_root, root);
     }
 
     /**
@@ -1217,30 +1219,37 @@ public class Server implements HsqlSocketRequestHandler {
      * @throws IOException
      *          ACL list was requested but I/O problem loading ACL.
      */
-    public void setProperties(HsqlProperties p)
+    public void setProperties(HsqlProperties props)
     throws IOException, ServerAcl.AclFormatException {
 
         checkRunning(false);
 
-        if (p != null) {
-            serverProperties.addProperties(p);
-            ServerConfiguration.translateAddressProperty(serverProperties);
+        if (props != null) {
+            props.validate();
+
+            String[] errors = props.getErrorKeys();
+
+            if (errors.length > 0) {
+                throw Error.error(ErrorCode.SERVER_NO_DATABASE, errors[0]);
+            }
+
+            serverProperties.addProperties(props);
         }
 
         maxConnections = serverProperties.getIntegerProperty(
-            ServerConstants.SC_KEY_MAX_CONNECTIONS, 16);
+            ServerProperties.sc_key_max_connections, 16);
 
         JavaSystem.setLogToSystem(isTrace());
 
         isSilent =
-            serverProperties.isPropertyTrue(ServerConstants.SC_KEY_SILENT);
+            serverProperties.isPropertyTrue(ServerProperties.sc_key_silent);
         isRemoteOpen = serverProperties.isPropertyTrue(
-            ServerConstants.SC_KEY_REMOTE_OPEN_DB);
+            ServerProperties.sc_key_remote_open_db);
         isDaemon =
-            serverProperties.isPropertyTrue(ServerConstants.SC_KEY_DAEMON);
+            serverProperties.isPropertyTrue(ServerProperties.sc_key_daemon);
 
         String aclFilepath =
-            serverProperties.getProperty(ServerConstants.SC_KEY_ACL_FILEPATH);
+            serverProperties.getProperty(ServerProperties.sc_key_acl);
 
         if (aclFilepath != null) {
             acl = new ServerAcl(new File(aclFilepath));;
@@ -1911,9 +1920,9 @@ public class Server implements HsqlSocketRequestHandler {
         int           maxDatabases = dbNumberMap.size();
 
         if (serverProperties.isPropertyTrue(
-                ServerConstants.SC_KEY_REMOTE_OPEN_DB)) {
+                ServerProperties.sc_key_remote_open_db)) {
             int max = serverProperties.getIntegerProperty(
-                ServerConstants.SC_KEY_MAX_DATABASES,
+                ServerProperties.sc_key_max_databases,
                 ServerConstants.SC_DEFAULT_MAX_DATABASES);
 
             if (maxDatabases < max) {
@@ -1964,7 +1973,7 @@ public class Server implements HsqlSocketRequestHandler {
      */
     private IntKeyHashMap getDBNameArray() {
 
-        final String  prefix       = ServerConstants.SC_KEY_DBNAME + ".";
+        final String  prefix       = ServerProperties.sc_key_dbname + ".";
         final int     prefixLen    = prefix.length();
         IntKeyHashMap idToAliasMap = new IntKeyHashMap();
         Enumeration   en           = serverProperties.propertyNames();
@@ -2278,8 +2287,8 @@ public class Server implements HsqlSocketRequestHandler {
      * @param shutdownMode a value between 0-4, usually 0 or 1.
      */
     public void shutdownWithCatalogs(int shutdownMode) {
-        // make handleConnection() reject new connection attempts
 
+        // make handleConnection() reject new connection attempts
         DatabaseManager.shutdownDatabases(this, shutdownMode);
         shutdown(false);
     }
@@ -2438,19 +2447,21 @@ public class Server implements HsqlSocketRequestHandler {
      */
     public static void main(String[] args) {
 
-        HsqlProperties stringProps = null;
+        HsqlProperties argProps = null;
 
-        stringProps = HsqlProperties.argArrayToProps(args,
-                ServerConstants.SC_KEY_PREFIX);
+        argProps = HsqlProperties.argArrayToProps(args,
+                ServerProperties.sc_key_prefix);
 
-        if (stringProps.getErrorKeys().length != 0) {
+        String[] errors = argProps.getErrorKeys();
+
+        if (errors.length != 0) {
+            System.out.println("no value for argument:" + errors[0]);
             printHelp("server.help");
 
             return;
         }
 
-        String propsPath =
-            stringProps.getProperty(ServerConstants.SC_KEY_PROPS);
+        String propsPath = argProps.getProperty(ServerProperties.sc_key_props);
         String propsExtension = "";
 
         if (propsPath == null) {
@@ -2467,7 +2478,7 @@ public class Server implements HsqlSocketRequestHandler {
             ? new ServerProperties(ServerConstants.SC_PROTOCOL_HSQL)
             : fileProps;
 
-        props.addProperties(stringProps);
+        props.addProperties(argProps);
         ServerConfiguration.translateDefaultDatabaseProperty(props);
 
         // Standard behaviour when started from the command line
@@ -2475,16 +2486,13 @@ public class Server implements HsqlSocketRequestHandler {
         // course, be overridden by whatever, if any, security policy
         // is in place.
         ServerConfiguration.translateDefaultNoSystemExitProperty(props);
+        ServerConfiguration.translateAddressProperty(props);
 
         // finished setting up properties;
         Server server = new Server();
 
         try {
             server.setProperties(props);
-            props.validate();
-
-            // This must be called after setProperties, because stringProps
-            // isn't populated until then.
         } catch (Exception e) {
             server.printError("Failed to set properties");
             server.printStackTrace(e);

@@ -193,16 +193,19 @@ public final class ServerConfiguration implements ServerConstants {
 
         ServerProperties p = new ServerProperties(protocol);
 
-        p.setProperty(SC_KEY_AUTORESTART_SERVER,
+        p.setProperty(ServerProperties.sc_key_autorestart_server,
                       SC_DEFAULT_SERVER_AUTORESTART);
-        p.setProperty(SC_KEY_ADDRESS, SC_DEFAULT_ADDRESS);
-        p.setProperty(SC_KEY_NO_SYSTEM_EXIT, SC_DEFAULT_NO_SYSTEM_EXIT);
-        p.setProperty(SC_KEY_MAX_DATABASES, SC_DEFAULT_MAX_DATABASES);
-        p.setProperty(SC_KEY_SILENT, SC_DEFAULT_SILENT);
-        p.setProperty(SC_KEY_TLS, SC_DEFAULT_TLS);
-        p.setProperty(SC_KEY_TRACE, SC_DEFAULT_TRACE);
-        p.setProperty(SC_KEY_WEB_DEFAULT_PAGE, SC_DEFAULT_WEB_PAGE);
-        p.setProperty(SC_KEY_WEB_ROOT, SC_DEFAULT_WEB_ROOT);
+        p.setProperty(ServerProperties.sc_key_address, SC_DEFAULT_ADDRESS);
+        p.setProperty(ServerProperties.sc_key_no_system_exit,
+                      SC_DEFAULT_NO_SYSTEM_EXIT);
+        p.setProperty(ServerProperties.sc_key_max_databases,
+                      SC_DEFAULT_MAX_DATABASES);
+        p.setProperty(ServerProperties.sc_key_silent, SC_DEFAULT_SILENT);
+        p.setProperty(ServerProperties.sc_key_tls, SC_DEFAULT_TLS);
+        p.setProperty(ServerProperties.sc_key_trace, SC_DEFAULT_TRACE);
+        p.setProperty(ServerProperties.sc_key_web_default_page,
+                      SC_DEFAULT_WEB_PAGE);
+        p.setProperty(ServerProperties.sc_key_web_root, SC_DEFAULT_WEB_ROOT);
 
         // Purposefully do not set a default Port because the default is
         // derived from TLS, which is runtime-configurable.
@@ -224,10 +227,10 @@ public final class ServerConfiguration implements ServerConstants {
             return;
         }
 
-        String address = p.getProperty(SC_KEY_ADDRESS);
+        String address = p.getProperty(ServerProperties.sc_key_address);
 
         if (StringUtil.isEmpty(address)) {
-            p.setProperty(SC_KEY_ADDRESS, SC_DEFAULT_ADDRESS);
+            p.setProperty(ServerProperties.sc_key_address, SC_DEFAULT_ADDRESS);
         }
     }
 
@@ -243,20 +246,24 @@ public final class ServerConfiguration implements ServerConstants {
             return;
         }
 
-        if (!p.isPropertyTrue(SC_KEY_REMOTE_OPEN_DB)) {
-            if (p.getProperty(SC_KEY_DATABASE + "." + 0) == null) {
-                String defaultdb = p.getProperty(SC_KEY_DATABASE);
+        if (!p.isPropertyTrue(ServerProperties.sc_key_remote_open_db)) {
+            if (p.getProperty(ServerProperties.sc_key_database + "." + 0)
+                    == null) {
+                String defaultdb =
+                    p.getProperty(ServerProperties.sc_key_database);
 
                 if (defaultdb == null) {
                     defaultdb = SC_DEFAULT_DATABASE;
                 }
 
-                p.setProperty(SC_KEY_DATABASE + ".0", defaultdb);
-                p.setProperty(SC_KEY_DBNAME + ".0", "");
+                p.setProperty(ServerProperties.sc_key_database + ".0",
+                              defaultdb);
+                p.setProperty(ServerProperties.sc_key_dbname + ".0", "");
             }
 
-            if (p.getProperty(SC_KEY_DBNAME + "." + 0) == null) {
-                p.setProperty(SC_KEY_DBNAME + ".0", "");
+            if (p.getProperty(ServerProperties.sc_key_dbname + "." + 0)
+                    == null) {
+                p.setProperty(ServerProperties.sc_key_dbname + ".0", "");
             }
         }
     }
@@ -273,6 +280,7 @@ public final class ServerConfiguration implements ServerConstants {
             return;
         }
 
-        p.setPropertyIfNotExists(SC_KEY_NO_SYSTEM_EXIT, "false");
+        p.setPropertyIfNotExists(ServerProperties.sc_key_no_system_exit,
+                                 "false");
     }
 }

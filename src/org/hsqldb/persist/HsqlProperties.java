@@ -57,6 +57,7 @@ import org.hsqldb.store.ValuePool;
 public class HsqlProperties {
 
     //
+    public static final int ANY_ERROR = 0;
     public static final int NO_VALUE_FOR_KEY = 1;
     protected String        fileName;
     protected String        fileExtension = "";
@@ -272,7 +273,7 @@ public class HsqlProperties {
      * is populated during construction or addition of elements and is used
      * outside this class to act upon the errors.
      */
-    private void addError(int code, String key) {
+    protected void addError(int code, String key) {
 
         errorCodes = (int[]) ArrayUtil.resizeArray(errorCodes,
                 errorCodes.length + 1);
@@ -393,6 +394,7 @@ public class HsqlProperties {
         return errorKeys;
     }
 
+    public void validate() {}
     // column number mappings
     public static final int indexName         = 0;
     public static final int indexType         = 1;

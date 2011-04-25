@@ -56,6 +56,8 @@ public class ExpressionColumn extends Expression {
 
     public static final ExpressionColumn[] emptyArray =
         new ExpressionColumn[]{};
+    static final SimpleName rownumName =
+        HsqlNameManager.getSimpleName("ROWNUM", false);
 
     //
     public final static HashMappedList diagnosticsList = new HashMappedList();
@@ -152,6 +154,9 @@ public class ExpressionColumn extends Expression {
 
         if (type == OpTypes.DYNAMIC_PARAM) {
             isParam = true;
+        } else if (type == OpTypes.ROWNUM) {
+            columnName = rownumName.name;
+            dataType   = Type.SQL_INTEGER;
         }
     }
 
@@ -240,6 +245,8 @@ public class ExpressionColumn extends Expression {
 
         if (opType == OpTypes.COALESCE) {
             return nodes[LEFT].getSimpleName();
+        } else if (opType == OpTypes.ROWNUM ) {
+            return rownumName;
         }
 
         return null;
@@ -251,12 +258,12 @@ public class ExpressionColumn extends Expression {
             return alias.name;
         }
 
-        if (opType == OpTypes.COLUMN) {
-            return columnName;
-        }
+        switch (opType) {
 
-        if (opType == OpTypes.COALESCE) {
-            return columnName;
+            case OpTypes.COLUMN :
+            case OpTypes.COALESCE :
+            case OpTypes.ROWNUM :
+                return columnName;
         }
 
         return "";
@@ -342,6 +349,7 @@ public class ExpressionColumn extends Expression {
                 }
                 break;
 
+            case OpTypes.ROWNUM :
             case OpTypes.MULTICOLUMN :
             case OpTypes.DYNAMIC_PARAM :
             case OpTypes.ASTERISK :
@@ -435,14 +443,6 @@ public class ExpressionColumn extends Expression {
                                 resolved   = true;
                             }
                         }
-                    }
-
-                    if (tableName == null
-                            && Tokens.T_ROWNUM.equals(columnName)) {
-                        opType     = OpTypes.ROWNUM;
-                        dataType   = Type.SQL_INTEGER;
-                        columnName = null;
-                        resolved   = true;
                     }
                 }
 
@@ -684,6 +684,11 @@ public class ExpressionColumn extends Expression {
             case OpTypes.PARAMETER :
                 return column.getName().statementName;
 
+            case OpTypes.ROWNUM : {
+                StringBuffer sb = new StringBuffer(Tokens.T_ROWNUM);
+
+                sb.append('(').append(')');
+            }
             case OpTypes.COLUMN : {
                 if (column == null) {
                     if (alias != null) {

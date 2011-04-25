@@ -80,11 +80,12 @@ public class ServerProperties extends HsqlProperties {
     static final int SYSTEM_PROPERTY       = 2;
 
     // keys to properties
+    static final String sc_key_prefix  = "server";
     static final String sc_key_address = "server.address";
     static final String sc_key_autorestart_server =
         "server.restart_on_shutdown";
-    static final String sc_key_database         = "server.database.";
-    static final String sc_key_dbname           = "server.dbname.";
+    static final String sc_key_database         = "server.database";
+    static final String sc_key_dbname           = "server.dbname";
     static final String sc_key_no_system_exit   = "server.no_system_exit";
     static final String sc_key_port             = "server.port";
     static final String sc_key_http_port        = "server.port";
@@ -98,6 +99,7 @@ public class ServerProperties extends HsqlProperties {
     static final String sc_key_max_databases    = "server.maxdatabases";
     static final String sc_key_acl              = "server.acl";
     static final String sc_key_daemon           = "server.daemon";
+    static final String sc_key_props            = "server.props";
     static final String sc_key_system           = "system.";
 
     // web server page defaults
@@ -114,12 +116,8 @@ public class ServerProperties extends HsqlProperties {
     protected boolean initialised = false;
 
     //
-    IntKeyHashMap  idToAliasMap = new IntKeyHashMap();
-    IntKeyHashMap  idToPathMap  = new IntKeyHashMap();
-    HashMappedList databases    = new HashMappedList();
-
-    //
-    HsqlArrayList errorList = new HsqlArrayList();
+    IntKeyHashMap idToAliasMap = new IntKeyHashMap();
+    IntKeyHashMap idToPathMap  = new IntKeyHashMap();
 
     public ServerProperties(int protocol, File file) throws IOException {
 
@@ -168,7 +166,7 @@ public class ServerProperties extends HsqlProperties {
             if (metadata == null) {
                 String error = "unsupported property: " + key;
 
-                errorList.add(error);
+                super.addError(ANY_ERROR, error);
 
                 continue;
             }
@@ -198,7 +196,7 @@ public class ServerProperties extends HsqlProperties {
             }
 
             if (error != null) {
-                errorList.add(error);
+                super.addError(ANY_ERROR, error);
             }
         }
 
@@ -208,7 +206,7 @@ public class ServerProperties extends HsqlProperties {
             int number = it.nextInt();
 
             if (!idToPathMap.containsKey(number)) {
-                errorList.add("no path for database id: " + number);
+                addError(ANY_ERROR, "no path for database id: " + number);
             }
         }
 
@@ -218,7 +216,7 @@ public class ServerProperties extends HsqlProperties {
             int number = it.nextInt();
 
             if (!idToAliasMap.containsKey(number)) {
-                errorList.add("no alias for database id: " + number);
+                addError(ANY_ERROR, "no alias for database id: " + number);
             }
         }
 
@@ -248,18 +246,13 @@ public class ServerProperties extends HsqlProperties {
         String prefix = (String) meta[indexName];
 
         try {
-            dbNumber = Integer.parseInt(key.substring(prefix.length()));
+            dbNumber = Integer.parseInt(key.substring(prefix.length() + 1));
         } catch (NumberFormatException e1) {
             return ("maformed database enumerator: " + key);
         }
 
         if (meta[indexName].equals(sc_key_dbname)) {
-            String alias = stringProps.getProperty(key).toLowerCase();
-
-            if (databases.containsKey(alias)) {
-                return "duplicate alias: " + alias;
-            }
-
+            String alias    = stringProps.getProperty(key).toLowerCase();
             Object existing = idToAliasMap.put(dbNumber, alias);
 
             if (existing != null) {
@@ -284,7 +277,7 @@ public class ServerProperties extends HsqlProperties {
     String validateSystemProperty(String key, Object[] meta) {
 
         String prefix      = (String) meta[indexName];
-        String specificKey = key.substring(prefix.length());
+        String specificKey = key.substring(prefix.length() + 1);
         String value       = stringProps.getProperty(key);
 
         if (value == null) {
@@ -319,13 +312,6 @@ public class ServerProperties extends HsqlProperties {
                  getMeta(sc_key_no_system_exit, SERVER_PROPERTY, false));
         meta.put(sc_key_daemon,
                  getMeta(sc_key_daemon, SERVER_PROPERTY, false));
-
-        //
-        prefixes.add(sc_key_database);
-        prefixes.add(sc_key_dbname);
-        prefixes.add(sc_key_system);
-
-        //
         meta.put(sc_key_address,
                  getMeta(sc_key_address, SERVER_PROPERTY, null));
         meta.put(sc_key_port, getMeta(sc_key_port, 0, 9001, 0, 65535));
@@ -334,5 +320,10 @@ public class ServerProperties extends HsqlProperties {
                  getMeta(sc_key_max_connections, 0, 100, 1, 10000));
         meta.put(sc_key_max_databases,
                  getMeta(sc_key_max_databases, 0, 10, 1, 1000));
+
+        //
+        prefixes.add(sc_key_database);
+        prefixes.add(sc_key_dbname);
+        prefixes.add(sc_key_system);
     }
 }

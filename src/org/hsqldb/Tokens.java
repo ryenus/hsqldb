@@ -1486,17 +1486,18 @@ public class Tokens {
     static final int REFERENTIAL    = 617;
     static final int RENAME         = 618;
     static final int RESET          = 619;
-    static final int SCRIPT         = 620;
-    static final int SEPARATOR      = 621;
-    static final int SHUTDOWN       = 622;
-    static final int SYNTAX         = 623;
-    static final int TDC            = 624;
-    static final int TEMP           = 625;
-    static final int TEXT           = 626;
-    static final int TTI            = 627;
-    static final int TYPES          = 628;
-    static final int VARCHAR2       = 629;
-    static final int WRITE_DELAY    = 630;
+    static final int ROWNUM         = 620;
+    static final int SCRIPT         = 621;
+    static final int SEPARATOR      = 622;
+    static final int SHUTDOWN       = 623;
+    static final int SYNTAX         = 624;
+    static final int TDC            = 625;
+    static final int TEMP           = 626;
+    static final int TEXT           = 627;
+    static final int TTI            = 628;
+    static final int TYPES          = 629;
+    static final int VARCHAR2       = 630;
+    static final int WRITE_DELAY    = 631;
 
     //
     static final int        ACOS                       = 640;
@@ -2178,6 +2179,7 @@ public class Tokens {
         commandSet.put(T_ROLE, ROLE);
         commandSet.put(T_ROUTINE, ROUTINE);
         commandSet.put(T_ROW_COUNT, ROW_COUNT);
+        commandSet.put(T_ROWNUM, ROWNUM);
         commandSet.put(T_SCALE, SCALE);
         commandSet.put(T_SCHEMA, SCHEMA);
         commandSet.put(T_SCRIPT, SCRIPT);

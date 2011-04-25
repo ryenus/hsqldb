@@ -2453,6 +2453,25 @@ public class ParserDQL extends ParserBase {
 
                 break;
             }
+            case Tokens.ROWNUM : {
+                read();
+
+                if (token.tokenType == Tokens.OPENBRACKET) {
+                    read();
+                    if (token.tokenType == Tokens.CLOSEBRACKET) {
+                        read();
+                    } else {
+                        rewind(position);
+                        break;
+                    }
+                } else if (!database.sqlSyntaxOra) {
+                    rewind(position);
+
+                    break;
+                }
+
+                return new ExpressionColumn(OpTypes.ROWNUM);
+            }
             case Tokens.LEFT :
             case Tokens.RIGHT :
 
