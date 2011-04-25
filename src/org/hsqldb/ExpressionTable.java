@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2010, The HSQL Development Group
+/* Copyright (c) 2001-2011, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -56,11 +56,11 @@ public class ExpressionTable extends Expression {
     /**
      * Creates an UNNEST ARRAY or MULTISET expression
      */
-    ExpressionTable(Expression e, SubQuery sq, boolean ordinality) {
+    ExpressionTable(Expression[] e, SubQuery sq, boolean ordinality) {
 
         super(OpTypes.TABLE);
 
-        nodes           = new Expression[]{ e };
+        nodes           = e;
         this.subQuery   = sq;
         this.ordinality = ordinality;
     }
@@ -103,30 +103,46 @@ public class ExpressionTable extends Expression {
             }
         }
 
-        if (nodes[LEFT].dataType.isRowType()) {
-            isTable       = true;
-            nodeDataTypes = ((RowType) nodes[LEFT].dataType).getTypesArray();
+        if (nodes.length == 1) {
+            if (nodes[LEFT].dataType.isRowType()) {
+                if (ordinality) {
+                    throw Error.error(ErrorCode.X_42581, Tokens.T_ORDINALITY);
+                }
 
-            subQuery.prepareTable(session);
+                nodeDataTypes =
+                    ((RowType) nodes[LEFT].dataType).getTypesArray();
 
-            subQuery.getTable().columnList =
-                ((FunctionSQLInvoked) nodes[LEFT]).routine.getTable()
-                    .columnList;
-        } else {
-            isTable = false;
+                subQuery.prepareTable(session);
 
-            int columnCount = ordinality ? 2
-                                         : 1;
+                subQuery.getTable().columnList =
+                    ((FunctionSQLInvoked) nodes[LEFT]).routine.getTable()
+                        .columnList;
+                isTable = true;
 
-            nodeDataTypes       = new Type[columnCount];
-            nodeDataTypes[LEFT] = nodes[LEFT].dataType.collectionBaseType();
-
-            if (ordinality) {
-                nodeDataTypes[RIGHT] = Type.SQL_INTEGER;
+                return;
             }
-
-            subQuery.prepareTable(session);
         }
+
+        for (int i = 0; i < nodes.length; i++) {
+            if (!nodes[i].dataType.isArrayType()) {
+                throw Error.error(ErrorCode.X_42563, Tokens.T_UNNEST);
+            }
+        }
+
+        int columnCount = ordinality ? nodes.length + 1
+                                     : nodes.length;
+
+        nodeDataTypes = new Type[columnCount];
+
+        for (int i = 0; i < nodes.length; i++) {
+            nodeDataTypes[i] = nodes[i].dataType.collectionBaseType();
+        }
+
+        if (ordinality) {
+            nodeDataTypes[nodes.length] = Type.SQL_INTEGER;
+        }
+
+        subQuery.prepareTable(session);
     }
 
     public Result getResult(Session session) {
@@ -194,6 +210,7 @@ public class ExpressionTable extends Expression {
     }
 
     private void insertTableValues(Session session, PersistentStore store) {
+
         Result          result = nodes[LEFT].getResult(session);
         RowSetNavigator nav    = result.navigator;
         int             size   = nav.getSize();
@@ -209,25 +226,41 @@ public class ExpressionTable extends Expression {
     }
 
     private void insertArrayValues(Session session, PersistentStore store) {
-        Object[] array = (Object[]) nodes[LEFT].getValue(session);
+
+        Object[][] array = new Object[nodes.length][];
 
         for (int i = 0; i < array.length; i++) {
-            Object[] data;
+            Object[] data = (Object[]) nodes[i].getValue(session);
+
+            if (data == null) {
+                data = ValuePool.emptyObjectArray;
+            }
+
+            array[i] = data;
+        }
+
+        for (int i = 0; ; i++) {
+            boolean  isRow = false;
+            Object[] data  = new Object[nodeDataTypes.length];
+
+            for (int arrayIndex = 0; arrayIndex < array.length; arrayIndex++) {
+                if (i < array[arrayIndex].length) {
+                    data[arrayIndex] = array[arrayIndex][i];
+                    isRow            = true;
+                }
+            }
+
+            if (!isRow) {
+                break;
+            }
 
             if (ordinality) {
-                data = new Object[] {
-                    array[i], ValuePool.getInt(i + 1)
-                };
-            } else {
-                data = new Object[]{ array[i] };
+                data[nodes.length] = ValuePool.getInt(i + 1);
             }
 
             Row row = (Row) store.getNewCachedObject(session, data, false);
 
-            try {
-                store.indexRow(session, row);
-            } catch (HsqlException e) {}
+            store.indexRow(session, row);
         }
     }
-
 }
