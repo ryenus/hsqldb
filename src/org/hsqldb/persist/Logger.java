@@ -791,7 +791,7 @@ public class Logger {
     }
 
     public int getSqlEventLogLevel() {
-        return propEventLogLevel;
+        return propSqlLogLevel;
     }
 
     /**
