@@ -286,6 +286,7 @@ public class Server implements HsqlSocketRequestHandler {
     private PrintWriter        logWriter;
     private PrintWriter        errWriter;
     private ServerAcl          acl = null;    // null means no access tests
+    private volatile boolean   isShuttingDown;
 
 //
 
@@ -1343,13 +1344,14 @@ public class Server implements HsqlSocketRequestHandler {
 
     /**
      * Retrieves whether the specified socket should be allowed
-     * to make a connection.  By default, this method always returns
-     * true, but it can be overidden to implement hosts allow-deny
-     * functionality.
+     * to make a connection.
      *
      * @param socket the socket to test.
      */
     protected boolean allowConnection(Socket socket) {
+        if (isShuttingDown) {
+            return false;
+        }
 
         return (acl == null) ? true
                              : acl.permitAccess(
@@ -2216,6 +2218,8 @@ public class Server implements HsqlSocketRequestHandler {
         setState(ServerConstants.SERVER_STATE_ONLINE);
         print(sw.elapsedTimeToMessage("Startup sequence completed"));
         printServerOnlineMessage();
+        // isShuttingDown is only read after socket connections are 'accept'ed.
+        isShuttingDown = false;  // In case shutdown was aborted previously.
 
         try {
             /*
@@ -2288,9 +2292,13 @@ public class Server implements HsqlSocketRequestHandler {
      */
     public void shutdownWithCatalogs(int shutdownMode) {
 
+        // If a RTE or Error is thrown, isShuttingDown will be left true, which
+        // is good from a security standpoint.
+        isShuttingDown = true;
         // make handleConnection() reject new connection attempts
         DatabaseManager.shutdownDatabases(this, shutdownMode);
         shutdown(false);
+        isShuttingDown = false;
     }
 
     /**
