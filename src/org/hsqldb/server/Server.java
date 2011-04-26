@@ -2292,8 +2292,8 @@ public class Server implements HsqlSocketRequestHandler {
      */
     public void shutdownWithCatalogs(int shutdownMode) {
 
-        // If a RTE or Error is thrown, isShuttingDown will be left true, which
-        // is good from a security standpoint.
+        // If an uncheck exception is trown, isShuttingDown will be left true,
+        // which is good from a security standpoint.
         isShuttingDown = true;
         // make handleConnection() reject new connection attempts
         DatabaseManager.shutdownDatabases(this, shutdownMode);
