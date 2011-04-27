@@ -110,6 +110,12 @@ public class StatementCommand extends Statement {
                 group                  = StatementTypes.X_HSQLDB_SETTING;
                 break;
 
+            case StatementTypes.SET_DATABASE_FILES_EVENT_LOG :
+                isTransactionStatement = false;
+                group                  = StatementTypes.X_HSQLDB_SETTING;
+                isLogged               = false;
+                break;
+
 //
             case StatementTypes.SET_DATABASE_DEFAULT_INITIAL_SCHEMA :
             case StatementTypes.SET_DATABASE_DEFAULT_TABLE_TYPE :
@@ -117,7 +123,6 @@ public class StatementCommand extends Statement {
             case StatementTypes.SET_DATABASE_FILES_CACHE_SIZE :
             case StatementTypes.SET_DATABASE_FILES_SCALE :
             case StatementTypes.SET_DATABASE_FILES_DEFRAG :
-            case StatementTypes.SET_DATABASE_FILES_EVENT_LOG :
             case StatementTypes.SET_DATABASE_FILES_LOBS_SCALE :
             case StatementTypes.SET_DATABASE_FILES_LOCK :
             case StatementTypes.SET_DATABASE_FILES_LOG :

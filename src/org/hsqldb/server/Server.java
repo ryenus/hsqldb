@@ -1349,6 +1349,7 @@ public class Server implements HsqlSocketRequestHandler {
      * @param socket the socket to test.
      */
     protected boolean allowConnection(Socket socket) {
+
         if (isShuttingDown) {
             return false;
         }
@@ -2292,12 +2293,14 @@ public class Server implements HsqlSocketRequestHandler {
      */
     public void shutdownWithCatalogs(int shutdownMode) {
 
-        // If an uncheck exception is trown, isShuttingDown will be left true,
+        // If an unchecked exception is thrown, isShuttingDown will be left true,
         // which is good from a security standpoint.
         isShuttingDown = true;
+
         // make handleConnection() reject new connection attempts
         DatabaseManager.shutdownDatabases(this, shutdownMode);
         shutdown(false);
+
         isShuttingDown = false;
     }
 
