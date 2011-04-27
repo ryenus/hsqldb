@@ -469,8 +469,6 @@ public class ParserCommand extends ParserDDL {
                         throw unexpectedToken();
                 }
 
-                read();
-
                 Object[] args = new Object[]{ ValuePool.getInt(level) };
 
                 return new StatementCommand(
