@@ -96,7 +96,7 @@ public class DataFileBlockManager {
      */
     int get(int rowSize) {
 
-        if (lookup.size() == 0) {
+        if (capacity == 0) {
             return -1;
         }
 

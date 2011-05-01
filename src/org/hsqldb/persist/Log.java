@@ -676,6 +676,8 @@ public class Log {
     synchronized void closeLog() {
 
         if (dbLogWriter != null) {
+            database.logger.logDetailEvent("log close size: "
+                                           + dbLogWriter.size());
             dbLogWriter.close();
         }
     }

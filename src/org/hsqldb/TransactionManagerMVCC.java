@@ -223,9 +223,8 @@ implements TransactionManager {
             countDownLatches(session);
         } finally {
             writeLock.unlock();
+            session.tempSet.clear();
         }
-
-        session.tempSet.clear();
 
         return true;
     }
@@ -689,7 +688,7 @@ implements TransactionManager {
                 return;
             }
 
-            beingActionTPL(session, cs);
+            beginActionTPL(session, cs);
         } finally {
             writeLock.unlock();
         }
@@ -869,7 +868,7 @@ implements TransactionManager {
         unlockSessionId = session.getId();
     }
 
-    boolean beingActionTPL(Session session, Statement cs) {
+    boolean beginActionTPL(Session session, Statement cs) {
 
         if (cs == null) {
             return true;
@@ -877,6 +876,10 @@ implements TransactionManager {
 
         if (session.abortTransaction) {
             return false;
+        }
+
+        if (session == catalogWriteSession) {
+            return true;
         }
 
         session.tempSet.clear();
@@ -903,13 +906,6 @@ implements TransactionManager {
             return true;
         }
 
-        boolean needsLock = cs.getTableNamesForRead().length > 0
-                            || cs.getTableNamesForWrite().length > 0;
-
-        if (!needsLock) {
-            return true;
-        }
-
         if (cs.getTableNamesForWrite().length > 0) {
             if (cs.getTableNamesForWrite()[0].schema
                     == SqlInvariants.LOBS_SCHEMA_HSQLNAME) {
@@ -920,11 +916,14 @@ implements TransactionManager {
                     == SqlInvariants.LOBS_SCHEMA_HSQLNAME) {
                 return true;
             }
+        } else {
+            return true;
         }
 
-        catalogWriteSession.waitingSessions.add(session);
-        session.waitedSessions.add(catalogWriteSession);
-        session.latch.countUp();
+        if (catalogWriteSession.waitingSessions.add(session)) {
+            session.waitedSessions.add(catalogWriteSession);
+            session.latch.countUp();
+        }
 
         return true;
     }

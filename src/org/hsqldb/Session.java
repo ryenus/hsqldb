@@ -1281,13 +1281,6 @@ public class Session implements SessionInterface {
 
         boolean isTX = cs.isTransactionStatement();
 
-        if (isTX && database.txManager.isMVCC()) {
-            if (cs.readTableNames.length == 0
-                    && cs.writeTableNames.length == 0) {
-                isTX = false;
-            }
-        }
-
         if (!isTX) {
             if (database.logger.getSqlEventLogLevel() > 0) {
                 sessionContext.setDynamicArguments(pvals);
