@@ -315,7 +315,7 @@ public class Logger {
         }
 
         appLog = new SimpleLog(appLogPath, propEventLogLevel);
-        sqlLog = new SimpleLog(sqlLogPath, this.propSqlLogLevel);
+        sqlLog = new SimpleLog(sqlLogPath, propSqlLogLevel);
 
         database.setReferentialIntegrity(propRefIntegrity);
 
@@ -508,7 +508,7 @@ public class Logger {
 
         propEventLogLevel = database.databaseProperties.getIntegerProperty(
             HsqlDatabaseProperties.hsqldb_applog);
-        propEventLogLevel = database.databaseProperties.getIntegerProperty(
+        propSqlLogLevel = database.databaseProperties.getIntegerProperty(
             HsqlDatabaseProperties.hsqldb_sqllog);
         propFilesReadOnly = database.databaseProperties.isPropertyTrue(
             HsqlDatabaseProperties.hsqldb_files_readonly);
@@ -921,7 +921,8 @@ public class Logger {
             database.lobManager.deleteUnusedLobs();
         }
 
-        checkpointDue = false;
+        checkpointRequired = false;
+        checkpointDue      = false;
     }
 
     /**
