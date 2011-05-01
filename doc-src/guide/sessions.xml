@@ -221,15 +221,15 @@
 
       <para>The two-phase locking model is the default mode. It is referred to
       by the keyword, LOCKS. In the 2PL model, each table that is read by a
-      transaction is locked with a shared lock, and each table that is written
-      to is locked with an exclusive lock. If two sessions read and modify
-      different tables then both go through simultaneously. If one session
-      tries to lock a table that has been locked by the other, if both locks
-      are shared locks, it will go ahead. If either of the locks is an
-      exclusive lock, the engine will put the session in wait until the other
-      session commits or rolls back its transaction. In some cases the engine
-      will invalidate the transaction of the current session, if the action
-      would result in deadlock.</para>
+      transaction is locked with a shared lock (read lock), and each table
+      that is written to is locked with an exclusive lock (write lock). If two
+      sessions read and modify different tables then both go through
+      simultaneously. If one session tries to lock a table that has been
+      locked by the other, if both locks are shared locks, it will go ahead.
+      If either of the locks is an exclusive lock, the engine will put the
+      session in wait until the other session commits or rolls back its
+      transaction. In some cases the engine will invalidate the transaction of
+      the current session, if the action would result in deadlock.</para>
 
       <para>HyperSQL also supports explicit locking of a group of tables for
       the duration of the current transaction. Use of this command blocks
@@ -316,6 +316,18 @@
       <para>HyperSQL is fully multi threaded. It therefore allows different
       transactions to execute concurrently so long as they are not waiting to
       lock the same table for write.</para>
+    </section>
+
+    <section>
+      <title>Locks in SQL Routines and Triggers</title>
+
+      <para>In both LOCKS and MVLOCKS models, SQL routines (functions and
+      procedures) and triggers obtain all the read and write locks at the
+      beginning of the routine execution. SQL statements contained in the
+      routine or trigger are all executed without deadlock as all the locks
+      have already been obtained. At the end of execution of the routine or
+      trigger, read locks are released if the session isolation level is READ
+      COMMITTED.</para>
     </section>
 
     <section>
@@ -671,12 +683,23 @@
     are in progress, it may be necessary to ensure a transaction consisting of
     several statements is completed, without being terminated due to possible
     deadlock. When this statement is executed, it waits until it can obtain
-    all the listed locks, then returns. The SQL statements following this
+    all the listed locks, then returns. If obtaining the locks would result in
+    a deadlock an error is raised. The SQL statements following this
     statements use the locks already obtained (and obtain new locks if
     necessary) and can proceed without waiting. All the locks are released
-    when a COMMIT or ROLLBACK statement is issued. Currently, this command
-    does not have any effect when the database transaction control model is
-    MVCC.</simpara>
+    when a COMMIT or ROLLBACK statement is issued.</simpara>
+
+    <simpara>When the isolation level of a session is READ COMMITTED, read
+    locks are released immediately after the execution of the statement,
+    therefore you should use only WRITE locks in this mode. Alternatively, you
+    can switch to the SERIALIZABLE isolation mode before locking the tables
+    for the specific transaction that needs to finish consistently and without
+    a deadlock. It is best to execute this statement at the beginning of the
+    transaction with the complete list of required read and write
+    locks.</simpara>
+
+    <simpara>Currently, this command does not have any effect when the
+    database transaction control model is MVCC.</simpara>
 
     <example>
       <title>Locking Tables</title>
