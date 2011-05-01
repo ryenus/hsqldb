@@ -1,3 +1,5 @@
+-- added support for ROWNUM() function
+-- improvements to Server, including new shutdown methods and properties file name argument
 21 Apr 2011 - SVN 4199
 -- added support for GET DIAGNOSTICS statement and DIAGNOSTICS function
 -- added support for POSITION_ARRAY and enhancements to SORT_ARRAY (also ARRAY_SORT)
