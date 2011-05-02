@@ -4739,11 +4739,11 @@ public class ParserDQL extends ParserBase {
 
         readThis(Tokens.COMMA);
 
-        Expression thenelse = XreadValueExpression();
+        Expression then = XreadValueExpression();
 
         readThis(Tokens.COMMA);
 
-        thenelse = new ExpressionOp(OpTypes.ALTERNATIVE, thenelse,
+        Expression thenelse = new ExpressionOp(OpTypes.ALTERNATIVE, then,
                                     XreadValueExpression());
         l = new ExpressionOp(OpTypes.CASEWHEN, l, thenelse);
 
@@ -5161,7 +5161,7 @@ public class ParserDQL extends ParserBase {
                 current);
             Expression alternatives = new ExpressionOp(OpTypes.ALTERNATIVE,
                 new ExpressionValue((Object) null, (Type) null), current);
-            Expression casewhen = new ExpressionOp(OpTypes.CASEWHEN_COALESCE,
+            Expression casewhen = new ExpressionOp(OpTypes.CASEWHEN,
                                                    condition, alternatives);
 
             if (c == null) {
