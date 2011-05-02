@@ -75,7 +75,6 @@ public class ExpressionOp extends Expression {
             case OpTypes.LIKE_ARG :
             case OpTypes.ALTERNATIVE :
             case OpTypes.CASEWHEN :
-            case OpTypes.CASEWHEN_COALESCE :
             case OpTypes.LIMIT :
             case OpTypes.ZONE_MODIFIER :
                 return;
@@ -200,7 +199,6 @@ public class ExpressionOp extends Expression {
                 return sb.toString();
 
             case OpTypes.CASEWHEN :
-            case OpTypes.CASEWHEN_COALESCE :
                 sb.append(' ').append(Tokens.T_CASEWHEN).append('(');
                 sb.append(left).append(',').append(right).append(')');
 
@@ -288,7 +286,6 @@ public class ExpressionOp extends Expression {
                 break;
 
             case OpTypes.CASEWHEN :
-            case OpTypes.CASEWHEN_COALESCE :
                 sb.append(Tokens.T_CASEWHEN).append(' ');
                 break;
         }
@@ -319,7 +316,6 @@ public class ExpressionOp extends Expression {
         switch (opType) {
 
             case OpTypes.CASEWHEN :
-            case OpTypes.CASEWHEN_COALESCE :
                 acceptsSequences = false;
                 break;
         }
@@ -342,7 +338,6 @@ public class ExpressionOp extends Expression {
         switch (opType) {
 
             case OpTypes.CASEWHEN :
-            case OpTypes.CASEWHEN_COALESCE :
                 break;
 
             default :
@@ -438,7 +433,6 @@ public class ExpressionOp extends Expression {
                 break;
 
             case OpTypes.CASEWHEN :
-            case OpTypes.CASEWHEN_COALESCE :
 
                 // We use CASEWHEN as parent type.
                 // In the parent, left node is the condition, and right node is
@@ -502,17 +496,12 @@ public class ExpressionOp extends Expression {
                 expr.nodes[LEFT].dataType = Type.SQL_BOOLEAN;
             }
 
-            expr = expr.nodes[RIGHT].nodes[RIGHT];
-        }
+            expr.nodes[RIGHT].nodes[LEFT].resolveTypes(session,
+                    expr.nodes[RIGHT]);
 
-        expr = this;
-
-        while (expr.opType == OpTypes.CASEWHEN_COALESCE) {
-            expr.nodes[LEFT].resolveTypes(session, expr);
-
-            if (expr.nodes[LEFT].nodes.length > 0) {
-                dataType = Type.getAggregateType(
-                    expr.nodes[LEFT].nodes[LEFT].dataType, dataType);
+            if (expr.nodes[RIGHT].nodes[RIGHT].opType != OpTypes.CASEWHEN) {
+                expr.nodes[RIGHT].nodes[RIGHT].resolveTypes(session,
+                        expr.nodes[RIGHT]);
             }
 
             expr = expr.nodes[RIGHT].nodes[RIGHT];
@@ -520,38 +509,20 @@ public class ExpressionOp extends Expression {
 
         expr = this;
 
-        while (expr.opType == OpTypes.CASEWHEN
-                || expr.opType == OpTypes.CASEWHEN_COALESCE) {
-            expr.nodes[RIGHT].nodes[LEFT].resolveTypes(session,
-                    expr.nodes[RIGHT]);
-            expr.nodes[RIGHT].nodes[RIGHT].resolveTypes(session,
-                    expr.nodes[RIGHT]);
-
+        while (expr.opType == OpTypes.CASEWHEN) {
             dataType =
                 Type.getAggregateType(expr.nodes[RIGHT].nodes[LEFT].dataType,
                                       dataType);
             dataType =
                 Type.getAggregateType(expr.nodes[RIGHT].nodes[RIGHT].dataType,
                                       dataType);
-            expr = expr.nodes[RIGHT].nodes[RIGHT];
-        }
-
-        expr = this;
-
-        while (expr.opType == OpTypes.CASEWHEN_COALESCE) {
-            if (expr.nodes[LEFT].nodes.length > 0) {
-                if (expr.nodes[LEFT].nodes[LEFT].dataType == null) {
-                    expr.nodes[LEFT].nodes[LEFT].dataType = dataType;
-                }
-            }
 
             expr = expr.nodes[RIGHT].nodes[RIGHT];
         }
 
         expr = this;
 
-        while (expr.opType == OpTypes.CASEWHEN
-                || expr.opType == OpTypes.CASEWHEN_COALESCE) {
+        while (expr.opType == OpTypes.CASEWHEN) {
             if (expr.nodes[RIGHT].nodes[LEFT].dataType == null) {
                 expr.nodes[RIGHT].nodes[LEFT].dataType = dataType;
             }
@@ -780,7 +751,6 @@ public class ExpressionOp extends Expression {
 
                 return value;
             }
-            case OpTypes.CASEWHEN_COALESCE :
             case OpTypes.CASEWHEN : {
                 Boolean result = (Boolean) nodes[LEFT].getValue(session);
 
