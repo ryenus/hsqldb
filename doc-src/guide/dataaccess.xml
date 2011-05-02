@@ -1080,11 +1080,15 @@ ALTER SEQUENCE MYCAT.MYSCHEMA.MYSEQUENCE RESTART WITH 100
       always a value. All the values introduced with THEN must be of the same
       type.</simpara>
 
-      <simpara>An (simple) example of the CASE statement is given below. It
-      returns 'Britain', 'Germany', or 'Other country' depending on the value
-      of dialcode'</simpara>
+      <simpara>Some simple examples of the CASE expression are given below.
+      The first two examples return 'Britain', 'Germany', or 'Other country'
+      depending on the value of dialcode. The third example uses IN and
+      smaller-than predicates.</simpara>
 
-      <programlisting>CASE dialcode WHEN 44 THEN 'Britain' WHEN 49 THEN 'Germany' ELSE 'Other country' END</programlisting>
+      <programlisting>CASE dialcode WHEN 44 THEN 'Britain' WHEN 49 THEN 'Germany' ELSE 'Other country' END
+CASE WHEN dialcode=44 THEN 'Britain' WHEN dialcode=49 THEN 'Germany' WHEN dialcode &lt; 0 THEN 'bad dial code' ELSE 'Other country' END
+CASE dialcode WHEN IN (44, 49,30) THEN 'Europe' WHEN IN (86,91,91) THEN 'Asia' WHEN &lt; 0 THEN 'bad dial code' ELSE 'Other continent' END
+</programlisting>
 
       <simpara>The case statement can be far more complex and involve several
       conditions.</simpara>
@@ -2503,7 +2507,7 @@ SELECT d + e, SUM(f) FROM atable WHERE a + b = c GROUP BY d + e HAVING SUM(f) &g
       populated in DatabaseManagerSwing with the "Insert test data" menu
       option. The first query uses a scalar subquery to comput the sum of
       invoice values for each customer. The second query is equivalent and
-      uses a join with a LATERAL table. </para>
+      uses a join with a LATERAL table.</para>
 
       <programlisting>SELECT firstname, lastname, (SELECT SUM(total) FROM invoice WHERE customerid = customer.id) s FROM customer
 
