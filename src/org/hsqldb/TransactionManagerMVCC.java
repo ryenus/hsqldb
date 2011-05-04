@@ -920,6 +920,10 @@ implements TransactionManager {
             return true;
         }
 
+        if (session.waitingSessions.contains(catalogWriteSession)) {
+            return true;
+        }
+
         if (catalogWriteSession.waitingSessions.add(session)) {
             session.waitedSessions.add(catalogWriteSession);
             session.latch.countUp();
