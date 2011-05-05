@@ -538,11 +538,11 @@ public class ParserDQL extends ParserBase {
         return typeObject;
     }
 
-    void readSimpleColumnNames(OrderedHashSet columns,
-                               RangeVariable rangeVar) {
+    void readSimpleColumnNames(OrderedHashSet columns, RangeVariable rangeVar,
+                               boolean withPrefix) {
 
         while (true) {
-            ColumnSchema col = readSimpleColumnName(rangeVar);
+            ColumnSchema col = readSimpleColumnName(rangeVar, withPrefix);
 
             if (!columns.add(col.getName().name)) {
                 throw Error.error(ErrorCode.X_42579, col.getName().name);
@@ -1356,7 +1356,7 @@ public class ParserDQL extends ParserBase {
                         OrderedHashSet columns = new OrderedHashSet();
 
                         readThis(Tokens.OPENBRACKET);
-                        readSimpleColumnNames(columns, range);
+                        readSimpleColumnNames(columns, range, false);
                         readThis(Tokens.CLOSEBRACKET);
 
                         condition = select.getEquiJoinExpressions(columns,
@@ -2458,10 +2458,12 @@ public class ParserDQL extends ParserBase {
 
                 if (token.tokenType == Tokens.OPENBRACKET) {
                     read();
+
                     if (token.tokenType == Tokens.CLOSEBRACKET) {
                         read();
                     } else {
                         rewind(position);
+
                         break;
                     }
                 } else if (!database.sqlSyntaxOra) {
@@ -4744,7 +4746,8 @@ public class ParserDQL extends ParserBase {
         readThis(Tokens.COMMA);
 
         Expression thenelse = new ExpressionOp(OpTypes.ALTERNATIVE, then,
-                                    XreadValueExpression());
+                                               XreadValueExpression());
+
         l = new ExpressionOp(OpTypes.CASEWHEN, l, thenelse);
 
         readThis(Tokens.CLOSEBRACKET);
@@ -5591,20 +5594,25 @@ public class ParserDQL extends ParserBase {
         return table;
     }
 
-    ColumnSchema readSimpleColumnName(RangeVariable rangeVar) {
+    ColumnSchema readSimpleColumnName(RangeVariable rangeVar,
+                                      boolean withPrefix) {
 
         ColumnSchema column = null;
 
         checkIsIdentifier();
 
-        if (token.namePrefix != null) {
+        if (withPrefix) {
+            if (!rangeVar.resolvesTableName(token.namePrefix)
+                    || !rangeVar.resolvesSchemaName(token.namePrePrefix)) {
+                throw Error.error(ErrorCode.X_42501, token.namePrefix);
+            }
+        } else if (token.namePrefix != null) {
             throw tooManyIdentifiers();
         }
 
         int index = rangeVar.findColumn(token.tokenString);
 
-        if (index > -1 && rangeVar.resolvesTableName(token.namePrefix)
-                && rangeVar.resolvesSchemaName(token.namePrePrefix)) {
+        if (index > -1) {
             column = rangeVar.getTable().getColumn(index);
 
             read();

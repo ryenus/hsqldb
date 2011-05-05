@@ -1009,9 +1009,11 @@ public class ParserDML extends ParserDQL {
             throw Error.error(ErrorCode.X_42568);
         }
 
+        fullRangeVars[1].addJoinCondition(mergeCondition);
+        fullRangeVars[0].setJoinType(true, false);
+
         RangeVariableResolver resolver =
-            new RangeVariableResolver(fullRangeVars, mergeCondition,
-                                      compileContext);
+            new RangeVariableResolver(fullRangeVars, null, compileContext);
 
         resolver.processConditions(session);
 
@@ -1084,7 +1086,10 @@ public class ParserDML extends ParserDQL {
             int brackets = readOpenBrackets();
 
             if (brackets == 1) {
-                readSimpleColumnNames(insertColumnNames, targetRangeVars[0]);
+                boolean withPrefix = database.sqlSyntaxOra;
+
+                readSimpleColumnNames(insertColumnNames, targetRangeVars[0],
+                                      withPrefix);
 
                 columnCount = insertColumnNames.size();
 

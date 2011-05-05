@@ -4360,7 +4360,6 @@ public class ParserDDL extends ParserRoutine {
 
                 isGrantOption = true;
 
-                // throw not suppoerted
             } else if (token.tokenType == Tokens.HIERARCHY) {
                 throw unsupportedFeature();
 /*
