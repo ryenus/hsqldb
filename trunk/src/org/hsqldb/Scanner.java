@@ -816,10 +816,14 @@ public class Scanner {
                 token.isDelimiter = false;
         }
 
+        scanWhitespace();
+
         c = charAt(currentPosition);
 
         if (c == '.') {
             currentPosition++;
+
+            scanWhitespace();
 
             c = charAt(currentPosition);
 
@@ -2092,9 +2096,9 @@ public class Scanner {
 
     public Object newInterval(String s, IntervalType type) {
 
-        intervalPosition = 0;
+        intervalPosition  = 0;
         fractionPrecision = 0;
-        intervalString   = s;
+        intervalString    = s;
 
         boolean negate   = scanIntervalSign();
         long    units    = scanIntervalValue(type);

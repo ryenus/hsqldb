@@ -62,25 +62,22 @@ public class ParserDML extends ParserDQL {
         read();
         readThis(Tokens.INTO);
 
-        boolean[] columnCheckList;
-        int[]     columnMap;
-        int       colCount;
-        Table     table             = readTableName();
-        boolean   overridingUser    = false;
-        boolean   overridingSystem  = false;
-        boolean   assignsToIdentity = false;
+        boolean[]     columnCheckList;
+        int[]         columnMap;
+        int           colCount;
+        Table         table;
+        RangeVariable range;
+        boolean       overridingUser    = false;
+        boolean       overridingSystem  = false;
+        boolean       assignsToIdentity = false;
 
+        range           = readSimpleRangeVariable(StatementTypes.INSERT);
+        table           = range.getTable();
         columnCheckList = null;
         columnMap       = table.getColumnMap();
         colCount        = table.getColumnCount();
 
-        int position = getPosition();
-
-        if (!table.isInsertable() && !table.isTriggerInsertable()
-                && !session.isProcessingScript) {
-            throw Error.error(ErrorCode.X_42545);
-        }
-
+        int   position  = getPosition();
         Table baseTable = table.isTriggerInsertable() ? table
                                                       : table.getBaseTable();
 
@@ -142,7 +139,7 @@ public class ParserDML extends ParserDQL {
                     OrderedHashSet columnNames = new OrderedHashSet();
                     boolean        withPrefix  = database.sqlSyntaxOra;
 
-                    readSimpleColumnNames(columnNames, table, withPrefix);
+                    readSimpleColumnNames(columnNames, range, withPrefix);
                     readThis(Tokens.CLOSEBRACKET);
 
                     colCount  = columnNames.size();

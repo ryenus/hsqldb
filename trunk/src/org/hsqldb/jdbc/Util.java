@@ -75,8 +75,12 @@ public class Util {
 
 //#else
 /*
-        throw new SQLException(e.getMessage(), e.getSQLState(),
-                               e.getErrorCode());
+        SQLException se = new SQLException(e.getMessage(), e.getSQLState(),
+                                           e.getErrorCode());
+
+        se.initCause(e);
+
+        throw se;
 */
 
 //#endif JAVA6
@@ -90,8 +94,14 @@ public class Util {
 
 //#else
 /*
-        throw new SQLException(r.getMainString(), r.getSubString(),
-                               r.getErrorCode());
+        SQLException se = new SQLException(r.getMainString(),
+                                           r.getSubString(), r.getErrorCode());
+
+        if (r.getException() != null) {
+            se.initCause(r.getException());
+        }
+
+        throw se;
 */
 
 //#endif JAVA6
@@ -105,8 +115,12 @@ public class Util {
 
 //#else
 /*
-        return new SQLException(e.getMessage(), e.getSQLState(),
-                                e.getErrorCode());
+        SQLException se = new SQLException(e.getMessage(), e.getSQLState(),
+                                           e.getErrorCode());
+
+        se.initCause(e);
+
+        return se;
 */
 
 //#endif JAVA6
@@ -121,8 +135,14 @@ public class Util {
 
 //#else
 /*
-        return new SQLException(e.getMessage(), e.getSQLState(),
-                                e.getErrorCode());
+        SQLException se = new SQLException(e.getMessage(), e.getSQLState(),
+                                           e.getErrorCode());
+
+        if (cause != null) {
+            se.initCause(cause);
+        }
+
+        return se;
 */
 
 //#endif JAVA6
@@ -229,13 +249,18 @@ public class Util {
 
 //#else
 /*
-        return new SQLException(r.getMainString(), r.getSubString(),
-                                r.getErrorCode());
-*/
+        SQLException se = new SQLException(r.getMainString(),
+                                           r.getSubString(), r.getErrorCode());
 
-//#endif JAVA6
+        if (r.getException() != null) {
+            se.initCause(r.getException());
+        }
+
+        return se;
+*/
     }
 
+//#endif JAVA6
 // TODO: Needs review.
 //
 //  Connection exception subclass may be an insufficient discriminator

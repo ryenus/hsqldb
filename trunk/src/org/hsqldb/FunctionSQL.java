@@ -1560,7 +1560,7 @@ public class FunctionSQL extends Expression {
                 }
 
                 if (nodes[2].dataType == null) {
-                    throw Error.error(ErrorCode.X_42567);
+                    nodes[2].dataType = Type.SQL_VARCHAR_DEFAULT;
                 }
 
                 dataType = nodes[2].dataType;

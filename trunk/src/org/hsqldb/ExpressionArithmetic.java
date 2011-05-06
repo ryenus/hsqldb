@@ -385,7 +385,9 @@ public class ExpressionArithmetic extends Expression {
                     nodes[LEFT].dataType.getCombinedType(nodes[RIGHT].dataType,
                         opType);
 
-                if (type == null) {}
+                if (type == null) {
+                    throw Error.error(ErrorCode.X_42562);
+                }
 
                 if (type.isIntervalType()) {
                     if (type.typeCode != dataType.typeCode) {
@@ -416,7 +418,12 @@ public class ExpressionArithmetic extends Expression {
 
                     nodes[LEFT]  = nodes[RIGHT];
                     nodes[RIGHT] = temp;
+                } else if (nodes[RIGHT].dataType.isNumberType()) {
+                    if(!session.database.sqlSyntaxOra) {
+                        throw Error.error(ErrorCode.X_42562);
+                    }
                 }
+
             }
         }
 

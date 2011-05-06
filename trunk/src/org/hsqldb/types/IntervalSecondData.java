@@ -43,6 +43,10 @@ import org.hsqldb.error.ErrorCode;
  */
 public class IntervalSecondData {
 
+    public final static IntervalSecondData oneDay = newIntervalDay(1,
+        Type.SQL_INTERVAL_DAY);
+
+    //
     public final long units;
     public final int  nanos;
 

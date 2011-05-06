@@ -357,6 +357,8 @@ public final class DateTimeType extends DTIType {
                             }
                         }
                     }
+                } else if (other.isNumberType()) {
+                    return this;
                 }
                 break;
 
@@ -1041,6 +1043,15 @@ public final class DateTimeType extends DTIType {
             return null;
         }
 
+        if (otherType.isNumberType()) {
+            if (typeCode == Types.SQL_DATE) {
+                b = ((NumberType) otherType).floor(b);
+            }
+
+            b = Type.SQL_INTERVAL_SECOND_MAX_PRECISION.multiply(
+                IntervalSecondData.oneDay, b);
+        }
+
         switch (typeCode) {
 
             /** @todo -  range checks for units added */
@@ -1079,6 +1090,15 @@ public final class DateTimeType extends DTIType {
 
         if (a == null || b == null) {
             return null;
+        }
+
+        if (otherType.isNumberType()) {
+            if (typeCode == Types.SQL_DATE) {
+                b = ((NumberType) otherType).floor(b);
+            }
+
+            b = Type.SQL_INTERVAL_SECOND_MAX_PRECISION.multiply(
+                IntervalSecondData.oneDay, b);
         }
 
         switch (typeCode) {
