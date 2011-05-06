@@ -224,15 +224,40 @@ public class StatementDML extends StatementDMQL {
             for (int i = 0; i < baseTable.fkConstraints.length; i++) {
                 Constraint constraint = baseTable.fkConstraints[i];
 
-                if (type == StatementTypes.UPDATE_WHERE
-                        || type == StatementTypes.MERGE) {
-                    if (ArrayUtil.haveCommonElement(constraint.getRefColumns(),
-                                                    updateColumnMap)) {
+                switch (type) {
+
+                    case StatementTypes.UPDATE_WHERE : {
+                        if (ArrayUtil.haveCommonElement(
+                                constraint.getRefColumns(), updateColumnMap)) {
+                            set.add(baseTable.fkConstraints[i].getMain()
+                                .getName());
+                        }
+
+                        break;
+                    }
+                    case StatementTypes.INSERT : {
                         set.add(
                             baseTable.fkConstraints[i].getMain().getName());
+
+                        break;
                     }
-                } else if (type == StatementTypes.INSERT) {
-                    set.add(baseTable.fkConstraints[i].getMain().getName());
+                    case StatementTypes.MERGE : {
+                        if (updateColumnMap != null) {
+                            if (ArrayUtil.haveCommonElement(
+                                    constraint.getRefColumns(),
+                                    updateColumnMap)) {
+                                set.add(baseTable.fkConstraints[i].getMain()
+                                    .getName());
+                            }
+                        }
+
+                        if (insertExpression != null) {
+                            set.add(baseTable.fkConstraints[i].getMain()
+                                .getName());
+                        }
+
+                        break;
+                    }
                 }
             }
 
@@ -282,7 +307,9 @@ public class StatementDML extends StatementDMQL {
 
             if (type == StatementTypes.UPDATE_WHERE
                     || type == StatementTypes.MERGE) {
-                baseTable.collectFKWriteLocks(updateColumnMap, set);
+                if (updateExpressions.length != 0) {
+                    baseTable.collectFKWriteLocks(updateColumnMap, set);
+                }
             } else if (type == StatementTypes.DELETE_WHERE) {
                 baseTable.collectFKWriteLocks(null, set);
             }
@@ -880,8 +907,8 @@ public class StatementDML extends StatementDMQL {
                         value = type.convertToType(session, value,
                                                    Type.SQL_TIMESTAMP);
                     } else if (type.typeCode == Types.SQL_TIMESTAMP) {
-                        value = Type.SQL_DATE.convertToType(session,
-                                value, e.dataType);
+                        value = Type.SQL_DATE.convertToType(session, value,
+                                                            e.dataType);
                         value = type.convertToType(session, value,
                                                    Type.SQL_DATE);
                     } else {
@@ -889,6 +916,7 @@ public class StatementDML extends StatementDMQL {
                     }
                 }
             } else {
+
                 // DYNAMIC_PARAM and PARAMETER expressions may have wider values
                 value = type.convertToType(session, value, e.dataType);
             }
@@ -1482,9 +1510,10 @@ public class StatementDML extends StatementDMQL {
                 }
 
                 try {
-                    refData = navigator.addRow(session, refRow, refData,
-                                               c.core.refTable.getColumnTypes(),
-                                               c.core.refCols);
+                    refData =
+                        navigator.addRow(session, refRow, refData,
+                                         c.core.refTable.getColumnTypes(),
+                                         c.core.refCols);
                 } catch (HsqlException e) {
                     String[] info = getConstraintInfo(c);
 
@@ -1495,6 +1524,7 @@ public class StatementDML extends StatementDMQL {
                 }
 
                 if (refData == null) {
+
                     // happens only with enforceDeleteOrUpdate=false and updated row is already deleted
                     continue;
                 }
