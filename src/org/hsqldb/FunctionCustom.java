@@ -558,8 +558,7 @@ public class FunctionCustom extends FunctionSQL {
 
             case FUNC_DIAGNOSTICS :
                 parseList = new short[] {
-                    Tokens.OPENBRACKET, Tokens.ROW_COUNT,
-                    Tokens.CLOSEBRACKET
+                    Tokens.OPENBRACKET, Tokens.ROW_COUNT, Tokens.CLOSEBRACKET
                 };
                 break;
 
@@ -1381,7 +1380,7 @@ public class FunctionCustom extends FunctionSQL {
                     }
                 }
 
-                if (nodes[0].dataType.isIntegralType()) {
+                if (dataType.isNumberType()) {
                     data[0] = Type.SQL_BIGINT.convertToType(session, data[0],
                             nodes[0].getDataType());
                     data[1] = Type.SQL_BIGINT.convertToType(session, data[1],
@@ -2289,6 +2288,9 @@ public class FunctionCustom extends FunctionSQL {
 
                 switch (dataType.typeCode) {
 
+                    case Types.SQL_DOUBLE :
+                    case Types.SQL_DECIMAL :
+                    case Types.SQL_NUMERIC :
                     case Types.SQL_BIGINT :
                     case Types.SQL_INTEGER :
                     case Types.SQL_SMALLINT :

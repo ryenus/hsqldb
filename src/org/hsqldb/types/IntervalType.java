@@ -929,8 +929,6 @@ public final class IntervalType extends DTIType {
             return null;
         }
 
-        boolean isNumberDiv;
-
         if (a instanceof Number) {
             Object temp = a;
 
@@ -938,7 +936,7 @@ public final class IntervalType extends DTIType {
             b = temp;
         }
 
-        isNumberDiv = b instanceof Number;
+        boolean isNumberDiv = b instanceof Number;
 
         if (divide) {
             if (isNumberDiv) {

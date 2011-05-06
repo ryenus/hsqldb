@@ -1701,7 +1701,7 @@ public class ParserDQL extends ParserBase {
 
                 case StatementTypes.MERGE :
                     if (table.isTriggerUpdatable()
-                            && table.isTriggerDeletable()) {
+                            && table.isTriggerInsertable()) {
                         break;
                     }
 
@@ -1730,6 +1730,21 @@ public class ParserDQL extends ParserBase {
                     }
 
                     throw Error.error(ErrorCode.X_42545);
+                case StatementTypes.INSERT :
+                    if (table.isTriggerInsertable()) {
+                        break;
+                    }
+
+                    if (table.isInsertable()) {
+                        break;
+                    }
+
+                    if (session.isProcessingScript) {
+                        break;
+                    }
+
+                    throw Error.error(ErrorCode.X_42545);
+
             }
 
             table = ((View) table).getSubqueryTable();
