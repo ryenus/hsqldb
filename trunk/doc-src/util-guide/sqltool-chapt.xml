@@ -693,6 +693,14 @@
             section.
             </simpara>
         </section>
+        <section><title>Compound commands or commands with semi-colons</title>
+          <simpara>
+            See the
+            <link xlink:href='#sqltool_chunk-sect' endterm='chunk-title'/>
+            section if you need to execute any compound SQL commands or SQL
+            commands containing non-escaped/quoted semi-colons.
+          </simpara>
+        </section>
         <section><title>Desktop shortcuts</title>
             <simpara>
                 Desktop shortcuts and quick launch icons are useful, especially
@@ -3014,6 +3022,15 @@ java -jar $HSQLDB_HOME/lib/sqltool.jar urlid > /tmp/log.html 2>&1]]></screen>
             That's because these commands are universally used to define
             stored procedures or functions, and these commands require raw mode
             (as explained in the previous section).
+            You can always switch to raw mode explicitly instead of depending on
+            the automatic switching.
+            Raw mode always requires you to indicate where the raw input ends,
+            regardless of raw mode was entered explicitly or automatically.
+            Trigger definition statements do not automatically switch to raw
+            mode, because there are many trigger definitions where raw mode is
+            not necessary--
+            therefore, you must explicitly use raw mode to define triggers
+            which contain semi-colons.
         </simpara>
         <para>
           <example><title>Interactive Raw Mode example</title>
