@@ -178,7 +178,7 @@ public class TextCache extends DataFileCache {
             tableprops.getProperty(HsqlDatabaseProperties.textdb_encoding,
                                    stringEncoding);
 
-        //-- Get size and scale
+        //-- get size and scale
         int cacheScale = tableprops.getIntegerProperty(
             HsqlDatabaseProperties.textdb_cache_scale,
             dbProps.getIntegerProperty(
@@ -187,11 +187,16 @@ public class TextCache extends DataFileCache {
             HsqlDatabaseProperties.textdb_cache_size_scale,
             dbProps.getIntegerProperty(
                 HsqlDatabaseProperties.textdb_cache_size_scale));
-        int lookupTableLength = 1 << cacheScale;
-        int avgRowBytes       = 1 << cacheSizeScale;
 
-        maxCacheRows     = lookupTableLength * 3;
-        maxCacheBytes    = maxCacheRows * avgRowBytes;
+        maxCacheRows     = (1 << cacheScale) * 3;
+
+        maxCacheRows = tableprops.getIntegerProperty(            HsqlDatabaseProperties.textdb_cache_size_scale,
+            maxCacheRows);
+
+        maxCacheBytes    = (1 << cacheSizeScale) * maxCacheRows;
+
+        //-- Get size and scale
+
         maxDataFileSize  = Integer.MAX_VALUE;
         cachedRowPadding = 1;
         cacheFileScale   = 1;

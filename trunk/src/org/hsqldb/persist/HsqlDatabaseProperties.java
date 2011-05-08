@@ -243,6 +243,8 @@ public class HsqlDatabaseProperties extends HsqlProperties {
     public static final String textdb_cache_scale = "textdb.cache_scale";
     public static final String textdb_cache_size_scale =
         "textdb.cache_size_scale";
+    public static final String textdb_cache_rows = "textdb.cache_rows";
+    public static final String textdb_cache_size = "textdb.cache_size";
     public static final String textdb_all_quoted = "textdb.all_quoted";
     public static final String textdb_allow_full_path =
         "textdb.allow_full_path";
@@ -283,6 +285,12 @@ public class HsqlDatabaseProperties extends HsqlProperties {
         textMeta.put(textdb_cache_size_scale,
                      HsqlProperties.getMeta(textdb_cache_size_scale,
                                             SQL_PROPERTY, 10, 6, 20));
+        textMeta.put(textdb_cache_rows,
+                     HsqlProperties.getMeta(textdb_cache_rows, SQL_PROPERTY,
+                                            1000, 100, 1000000));
+        textMeta.put(textdb_cache_size,
+                     HsqlProperties.getMeta(textdb_cache_size, SQL_PROPERTY,
+                                            100, 10, 1000000));
         dbMeta.putAll(textMeta);
 
         // string defaults for protected props
@@ -368,8 +376,7 @@ public class HsqlDatabaseProperties extends HsqlProperties {
                    HsqlProperties.getMeta(sql_convert_trunc, SQL_PROPERTY,
                                           true));
         dbMeta.put(sql_double_nan,
-                   HsqlProperties.getMeta(sql_double_nan, SQL_PROPERTY,
-                                          true));
+                   HsqlProperties.getMeta(sql_double_nan, SQL_PROPERTY, true));
         dbMeta.put(sql_syntax_ora,
                    HsqlProperties.getMeta(sql_syntax_ora, SQL_PROPERTY,
                                           false));
@@ -607,17 +614,20 @@ public class HsqlDatabaseProperties extends HsqlProperties {
         strict = p.isPropertyTrue(url_check_props, false);
 
         for (Enumeration e = p.propertyNames(); e.hasMoreElements(); ) {
-            String   propertyName = (String) e.nextElement();
-            Object[] row          = (Object[]) dbMeta.get(propertyName);
-            boolean  valid        = false;
-            boolean  validVal     = false;
+            String   propertyName  = (String) e.nextElement();
+            String   propertyValue = p.getProperty(propertyName);
+            boolean  valid         = false;
+            boolean  validVal      = false;
+            String   error         = null;
+            Object[] meta          = (Object[]) dbMeta.get(propertyName);
 
-            if (row != null
-                    && ((Integer) row[HsqlProperties.indexType]).intValue()
+            if (meta != null
+                    && ((Integer) meta[HsqlProperties.indexType]).intValue()
                        == SQL_PROPERTY) {
                 valid = true;
-                validVal = setDatabaseProperty(propertyName,
-                                               p.getProperty(propertyName));
+                error = HsqlProperties.validateProperty(propertyName,
+                        propertyValue, meta);
+                validVal = error == null;
             }
 
             if (propertyName.startsWith("sql.")
@@ -630,6 +640,17 @@ public class HsqlDatabaseProperties extends HsqlProperties {
                 if (strict && !validVal) {
                     throw Error.error(ErrorCode.X_42556, propertyName);
                 }
+            }
+        }
+
+        for (Enumeration e = p.propertyNames(); e.hasMoreElements(); ) {
+            String   propertyName = (String) e.nextElement();
+            Object[] meta         = (Object[]) dbMeta.get(propertyName);
+
+            if (meta != null
+                    && ((Integer) meta[HsqlProperties.indexType]).intValue()
+                       == SQL_PROPERTY) {
+                setDatabaseProperty(propertyName, p.getProperty(propertyName));
             }
         }
     }

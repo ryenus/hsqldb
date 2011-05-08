@@ -150,9 +150,9 @@ public class StatementDML extends StatementDMQL {
         this.targets     = targets;
         this.sourceTable = targetRangeVars[0].rangeTable;
         this.targetTable = targetRangeVars[1].rangeTable;
-        this.baseTable   = targetTable.getBaseTable() == null ? targetTable
-                                                              : targetTable
-                                                              .getBaseTable();
+        this.baseTable   = targetTable.isTriggerUpdatable() ? targetTable
+                                                            : targetTable
+                                                            .getBaseTable();
         this.insertCheckColumns   = checkColumns;
         this.insertColumnMap      = insertColMap;
         this.updateColumnMap      = updateColMap;
@@ -990,6 +990,10 @@ public class StatementDML extends StatementDMQL {
             int[]    changedColumns = navigator.getCurrentChangedColumns();
             Table    currentTable   = ((Table) row.getTable());
 
+            if (currentTable instanceof TableDerived) {
+               currentTable = ((TableDerived) currentTable).view;
+            }
+
             if (currentTable.triggerLists[Trigger.UPDATE_BEFORE_ROW].length
                     > 0) {
                 currentTable.fireTriggers(session, Trigger.UPDATE_BEFORE_ROW,
@@ -1188,6 +1192,10 @@ public class StatementDML extends StatementDMQL {
             Object[] changedData    = navigator.getCurrentChangedData();
             int[]    changedColumns = navigator.getCurrentChangedColumns();
             Table    currentTable   = ((Table) row.getTable());
+
+            if (currentTable instanceof TableDerived) {
+               currentTable = ((TableDerived) currentTable).view;
+            }
 
             if (changedData == null) {
                 currentTable.fireTriggers(session, Trigger.DELETE_BEFORE_ROW,

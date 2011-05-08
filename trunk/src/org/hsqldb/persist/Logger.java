@@ -104,30 +104,29 @@ public class Logger {
     private boolean  syncFile = false;
 
     //
-    boolean        propIsFileDatabase;
-    boolean        propFilesReadOnly;
-    boolean        propDatabaseReadOnly;
-    boolean        propIncrementBackup;
-    boolean        propNioDataFile;
-    long           propNioMaxSize = 256 * 1024 * 1024L;
-    int            propMaxFreeBlocks;
-    int            propCacheMaxRows;
-    int            propCacheMaxSize;
-    int            propCacheFileScale;
-    int            propCacheDefragLimit;
-    String         propTextSourceDefault = "";
-    HsqlProperties propTextSourceProps;
-    boolean        propTextAllowFullPath;
-    int            propWriteDelay;
-    int            propLogSize;
-    boolean        propLogData = true;
-    int            propEventLogLevel;
-    int            propSqlLogLevel;
-    int            propGC;
-    int            propTxMode       = TransactionManager.LOCKS;
-    boolean        propRefIntegrity = true;
-    int            propLobBlockSize = 32 * 1024;
-    int            propScriptFormat = 0;
+    boolean propIsFileDatabase;
+    boolean propFilesReadOnly;
+    boolean propDatabaseReadOnly;
+    boolean propIncrementBackup;
+    boolean propNioDataFile;
+    long    propNioMaxSize = 256 * 1024 * 1024L;
+    int     propMaxFreeBlocks;
+    int     propCacheMaxRows;
+    int     propCacheMaxSize;
+    int     propCacheFileScale;
+    int     propCacheDefragLimit;
+    String  propTextSourceDefault = "";
+    boolean propTextAllowFullPath;
+    int     propWriteDelay;
+    int     propLogSize;
+    boolean propLogData = true;
+    int     propEventLogLevel;
+    int     propSqlLogLevel;
+    int     propGC;
+    int     propTxMode       = TransactionManager.LOCKS;
+    boolean propRefIntegrity = true;
+    int     propLobBlockSize = 32 * 1024;
+    int     propScriptFormat = 0;
 
     //
     Log               log;
@@ -1114,8 +1113,11 @@ public class Logger {
 
     public void setDefaultTextTableProperties(String source,
             HsqlProperties props) {
+
+        props.setProperty(HsqlDatabaseProperties.url_check_props, true);
+        database.getProperties().setURLProperties(props);
+
         this.propTextSourceDefault = source;
-        this.propTextSourceProps   = props;
     }
 
     public void setNioDataFile(boolean value) {

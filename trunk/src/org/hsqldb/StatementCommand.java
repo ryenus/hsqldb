@@ -738,10 +738,10 @@ public class StatementCommand extends Statement {
                             throw Error.error(ErrorCode.TEXT_TABLE_SOURCE,
                                               props.getErrorKeys()[0]);
                         }
-                    }
 
-                    session.database.logger.setDefaultTextTableProperties(
-                        source, props);
+                        session.database.logger.setDefaultTextTableProperties(
+                            source, props);
+                    }
 
                     return Result.updateZeroResult;
                 } catch (HsqlException e) {

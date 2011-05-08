@@ -1705,7 +1705,11 @@ public class ParserDQL extends ParserBase {
                         break;
                     }
 
-                    if (table.isUpdatable() && table.isInsertable()) {
+                    if (table.isTriggerUpdatable()
+                            || table.isTriggerInsertable()) {
+
+                        // all or nothing
+                    } else if (table.isUpdatable() && table.isInsertable()) {
                         break;
                     }
 
@@ -1744,10 +1748,7 @@ public class ParserDQL extends ParserBase {
                     }
 
                     throw Error.error(ErrorCode.X_42545);
-
             }
-
-            table = ((View) table).getSubqueryTable();
         }
 
         RangeVariable range = new RangeVariable(table, alias, null, null,

@@ -816,11 +816,19 @@ public class Scanner {
                 token.isDelimiter = false;
         }
 
-        scanWhitespace();
+        boolean hasPreSpace = scanWhitespace();
 
         c = charAt(currentPosition);
 
         if (c == '.') {
+            if (hasPreSpace) {
+                int cNext = charAt(currentPosition + 1);
+
+                if (cNext >= '0' && cNext <= '9') {
+                    return;
+                }
+            }
+
             currentPosition++;
 
             scanWhitespace();
