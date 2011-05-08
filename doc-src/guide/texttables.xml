@@ -314,14 +314,19 @@
 
       <para>Text table source files are cached in memory. The maximum number
       of rows of data that are in memory at any time is controlled by the
-      <varname>textdb.cache_scale</varname> property. The default value for
-      <varname>textdb.cache_scale</varname> is 10 and can be changed by
-      setting the property in the .properties file for the database. The
-      number of rows in memory is calculated as 3*(2**scale), which translates
-      to 3072 rows for the default textdb.cache_scale setting (10). The
-      property can also be set for individual text tables:</para>
+      <varname>cache_rows</varname> property. The default value for
+      <varname>cache_rows</varname> is 1000 and can be changed by setting the
+      default database property .The <varname>cache_size</varname> property
+      sets the maximum amout of memory used for each text table. The default
+      is 100 KB. The properties can be set for individual text tables. These
+      properties do not control the maximum size of each text table, which can
+      be much larger. An example is given below:</para>
 
-      <programlisting>    SET TABLE mytable SOURCE "myfile;ignore_first=true;all_quoted=true;cache_scale=12"</programlisting>
+      <programlisting>    SET TABLE mytable SOURCE "myfile;ignore_first=true;all_quoted=true;cache_rows=10000;cache_size=1000"</programlisting>
+
+      <para>The properties used in earlier versions, namely the
+      <varname>textdb.cache_scale</varname> and the
+      <varname>textdb.cache_size_scale</varname> can still be used.</para>
     </section>
 
     <section xml:id="disconnecting_text_tables">
@@ -419,40 +424,53 @@
   <section xml:id="texttables_globalprops-sect">
     <title>Text File Global Properties</title>
 
+    <para>The database engine uses a set of defaults for text table
+    properties. Each table's data source may override these defaults. It is
+    also possible to override the defaults globally, so they apply to all text
+    tables. The statement SET DATABASE TEXT TABLE DEFAULTS &lt;properties
+    string&gt; can be used to override the default global properties. An
+    example is given below:</para>
+
+    <para><programlisting>    SET DATABASE TEXT TABLE DEFAULTS 'all_quoted=true;encoding=UTF-8;cache_rows=10000;cache_size=2000'</programlisting></para>
+
     <itemizedlist>
-      <title>Complete list of supported global properties in *.properties
-      files</title>
+      <title>List of supported global properties</title>
 
       <listitem>
-        <para><varname>textdb.fs</varname></para>
+        <para><literal>fs=,</literal></para>
       </listitem>
 
       <listitem>
-        <para><varname>textdb.vs</varname></para>
+        <para><literal>vs=,</literal></para>
       </listitem>
 
       <listitem>
-        <para><varname>textdb.quoted</varname></para>
+        <para><literal>quoted=false</literal></para>
       </listitem>
 
       <listitem>
-        <para><varname>textdb.all_quoted</varname></para>
+        <para><literal>all_quoted=false</literal></para>
       </listitem>
 
       <listitem>
-        <para><varname>textdb.ignore_first</varname></para>
+        <para><literal>ignore_first=false</literal></para>
       </listitem>
 
       <listitem>
-        <para><varname>textdb.encoding</varname></para>
+        <para><literal>encoding=ASCII</literal></para>
       </listitem>
 
       <listitem>
-        <para><varname>textdb.cache_scale</varname></para>
+        <para><literal>cache_rows=1000</literal></para>
       </listitem>
 
       <listitem>
-        <para><varname>textdb.allow_full_path</varname></para>
+        <para><literal>cache_size=100</literal></para>
+      </listitem>
+
+      <listitem>
+        <para><literal>textdb.allow_full_path=false (a system
+        property)</literal></para>
       </listitem>
     </itemizedlist>
   </section>
