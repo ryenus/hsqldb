@@ -226,6 +226,23 @@ public class ExpressionColumn extends Expression {
         }
     }
 
+    public byte getNullability() {
+
+        switch (opType) {
+
+            case OpTypes.COLUMN :
+                return column.getNullability();
+
+            case OpTypes.SEQUENCE :
+            case OpTypes.COALESCE :
+            case OpTypes.ROWNUM :
+                return SchemaObject.Nullability.NO_NULLS;
+
+            default :
+                return SchemaObject.Nullability.NULLABLE_UNKNOWN;
+        }
+    }
+
     void setAttributesAsColumn(ColumnSchema column, boolean isWritable) {
 
         this.column     = column;
@@ -245,7 +262,7 @@ public class ExpressionColumn extends Expression {
 
         if (opType == OpTypes.COALESCE) {
             return nodes[LEFT].getSimpleName();
-        } else if (opType == OpTypes.ROWNUM ) {
+        } else if (opType == OpTypes.ROWNUM) {
             return rownumName;
         }
 

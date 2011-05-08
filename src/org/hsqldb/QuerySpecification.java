@@ -1561,33 +1561,51 @@ public class QuerySpecification extends QueryExpression {
                 columnMap, indexLimitVisible, indexLimitRowId);
 
         for (int i = 0; i < indexLimitVisible; i++) {
-            Expression e = exprColumns[i];
+            byte       nullability = SchemaObject.Nullability.NULLABLE_UNKNOWN;
+            Expression e           = exprColumns[i];
+            ColumnBase column;
 
             resultMetaData.columnTypes[i] = e.getDataType();
 
-            if (i < indexLimitVisible) {
-                ColumnBase column = e.getColumn();
+            switch (e.getType()) {
 
-                if (column != null) {
-                    RangeVariable range = e.getRangeVariable();
+                case OpTypes.COLUMN :
+                    column = e.getColumn();
 
-                    if (range != null
-                            && range.rangePositionInJoin >= startInnerRange
-                            && range.rangePositionInJoin < endInnerRange) {
-                        resultMetaData.columns[i]      = column;
-                        resultMetaData.columnLabels[i] = e.getAlias();
+                    if (column != null) {
+                        RangeVariable range = e.getRangeVariable();
 
-                        continue;
+                        if (range != null && range
+                                .rangePositionInJoin >= startInnerRange && range
+                                .rangePositionInJoin < endInnerRange) {
+                            resultMetaData.columns[i]      = column;
+                            resultMetaData.columnLabels[i] = e.getAlias();
+
+                            continue;
+                        }
                     }
-                }
+                    break;
 
-                column = new ColumnBase();
+                case OpTypes.SEQUENCE :
+                case OpTypes.COALESCE :
+                case OpTypes.ROWNUM :
+                    nullability = SchemaObject.Nullability.NO_NULLS;
+                    break;
 
-                column.setType(e.getDataType());
-
-                resultMetaData.columns[i]      = column;
-                resultMetaData.columnLabels[i] = e.getAlias();
+                case OpTypes.VALUE :
+                    nullability = e.valueData == null
+                                  ? SchemaObject.Nullability.NULLABLE
+                                  : SchemaObject.Nullability.NO_NULLS;
+                    break;
             }
+
+            column = new ColumnBase();
+
+            column.setType(e.getDataType());
+            column.setNullability(nullability);
+
+            resultMetaData.columns[i]      = column;
+            resultMetaData.columnLabels[i] = e.getAlias();
         }
     }
 

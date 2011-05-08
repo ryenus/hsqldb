@@ -265,13 +265,13 @@ public class JDBCResultSetMetaData implements ResultSetMetaData {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * HSQLDB 2.0 fully supports this feature.  <p>
+     * HSQLDB 2.2 fully supports this feature.  <p>
      *
      * <tt>columnNoNulls</tt> is always returned for result set columns
-     * that do not directly represent table column values (i.e. are calculated),
-     * while the corresponding value in [INFORMATION_SCHEMA.]SYSTEM_COLUMNS.NULLABLE
-     * is returned for result set columns that do directly represent table
-     * column values. <p>
+     * that represent constants, sequences or table columns known
+     * to be not null. <tt>columnNullable</tt> is returned for NULL constants,
+     * or nullable table columns. <tt>columnNullableUnknown</tt> is returned
+     * for all other columns such as aggregates and computed values.<p>
      *
      * To determine the nullable status of a table column in isolation from
      * ResultSetMetaData and in a DBMS-independent fashion, the
