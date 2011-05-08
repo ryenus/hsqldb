@@ -75,7 +75,10 @@ import org.hsqldb.error.ErrorCode;
 import org.hsqldb.lib.HsqlByteArrayOutputStream;
 import org.hsqldb.lib.StringUtil;
 import org.hsqldb.types.BinaryData;
+import org.hsqldb.types.BlobData;
 import org.hsqldb.types.CharacterType;
+import org.hsqldb.types.ClobData;
+import org.hsqldb.types.LobData;
 import org.hsqldb.types.Type;
 
 /**
@@ -164,11 +167,18 @@ class Like {
             return null;
         }
 
+        int length = getLength(session, o);
+
         if (isIgnoreCase) {
             o = ((CharacterType) dataType).upper(session, o);
         }
 
-        return compareAt(o, 0, 0, iLen, getLength(session, o), cLike, wildCardType)
+        if (o instanceof ClobData) {
+            o = ((ClobData) o).getChars(session, 0,
+                                        (int) ((ClobData) o).length(session));
+        }
+
+        return compareAt(o, 0, 0, iLen, length, cLike, wildCardType)
                ? Boolean.TRUE
                : Boolean.FALSE;
     }
@@ -178,9 +188,13 @@ class Like {
         char c;
 
         if (isBinary) {
-            c = (char) ((BinaryData) o).getBytes()[i];
+            c = (char) ((BlobData) o).getBytes()[i];
         } else {
-            c = ((String) o).charAt(i);
+            if (o instanceof char[]) {
+                c = ((char[]) o)[i];
+            } else {
+                c = ((String) o).charAt(i);
+            }
         }
 
         return c;
@@ -190,8 +204,8 @@ class Like {
 
         int l;
 
-        if (isBinary) {
-            l = (int) ((BinaryData) o).length(session);
+        if (o instanceof LobData) {
+            l = (int) ((LobData) o).length(session);
         } else {
             l = ((String) o).length();
         }

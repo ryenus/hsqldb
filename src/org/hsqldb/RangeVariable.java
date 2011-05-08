@@ -68,7 +68,7 @@ public class RangeVariable implements Cloneable {
     public static final int VARIALBE_RANGE   = 4;
 
     //
-    final Table            rangeTable;
+    Table                  rangeTable;
     final SimpleName       tableAlias;
     private OrderedHashSet columnAliases;
     private SimpleName[]   columnAliasNames;
@@ -169,6 +169,11 @@ public class RangeVariable implements Cloneable {
             new RangeVariableConditions(this, true) };
         whereConditions = new RangeVariableConditions[]{
             new RangeVariableConditions(this, false) };
+    }
+
+    public void resetViewRageTableAsSubquery() {
+        rangeTable = ((View) rangeTable).getSubqueryTable();
+        joinConditions[0].rangeIndex = rangeTable.getPrimaryIndex();
     }
 
     public void setRangeTableVariables() {

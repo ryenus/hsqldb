@@ -225,13 +225,22 @@ public class View extends TableDerived {
         return isTriggerDeletable;
     }
 
+    public boolean isInsertable() {
+        return isTriggerInsertable ? false : super.isInsertable();
+    }
+
+    public boolean isUpdatable() {
+        return isTriggerUpdatable ? false : super.isUpdatable();
+    }
+
+
     void addTrigger(TriggerDef td, HsqlName otherName) {
 
         switch (td.operationType) {
 
             case StatementTypes.INSERT :
                 if (isTriggerInsertable) {
-                    throw Error.error(ErrorCode.X_42545);
+                    throw Error.error(ErrorCode.X_42538);
                 }
 
                 isTriggerInsertable = true;
@@ -239,7 +248,7 @@ public class View extends TableDerived {
 
             case StatementTypes.DELETE_WHERE :
                 if (isTriggerDeletable) {
-                    throw Error.error(ErrorCode.X_42545);
+                    throw Error.error(ErrorCode.X_42538);
                 }
 
                 isTriggerDeletable = true;
@@ -247,7 +256,7 @@ public class View extends TableDerived {
 
             case StatementTypes.UPDATE_WHERE :
                 if (isTriggerUpdatable) {
-                    throw Error.error(ErrorCode.X_42545);
+                    throw Error.error(ErrorCode.X_42538);
                 }
 
                 isTriggerUpdatable = true;

@@ -38,7 +38,6 @@ import org.hsqldb.lib.HsqlArrayList;
 import org.hsqldb.lib.HsqlList;
 import org.hsqldb.lib.LongDeque;
 import org.hsqldb.lib.OrderedHashSet;
-import org.hsqldb.store.ValuePool;
 import org.hsqldb.types.Type;
 
 /**
@@ -375,16 +374,15 @@ public class ParserDML extends ParserDQL {
         RangeVariable[] rangeVariables = {
             readSimpleRangeVariable(statementType) };
         Table table     = rangeVariables[0].getTable();
-        Table baseTable = table.getBaseTable();
+        Table baseTable = table.isTriggerDeletable() ? table
+                                                     : table.getBaseTable();
+
+        if (table.isTriggerDeletable()) {
+            rangeVariables[0].resetViewRageTableAsSubquery();
+        }
 
         if (truncate) {
-            if (table != baseTable) {
-                throw Error.error(ErrorCode.X_42545);
-            }
-
-            if (table.isTriggerDeletable()) {
-
-                // redundant
+            if (table.isView()) {
                 throw Error.error(ErrorCode.X_42545);
             }
 
@@ -434,10 +432,7 @@ public class ParserDML extends ParserDQL {
             }
         }
 
-        if (baseTable == null) {
-
-            //
-        } else if (table != baseTable) {
+        if (table != baseTable) {
             QuerySpecification baseSelect =
                 ((TableDerived) table).getQueryExpression().getMainSelect();
             RangeVariable[] newRangeVariables =
@@ -513,7 +508,12 @@ public class ParserDML extends ParserDQL {
         RangeVariable[] rangeVariables = {
             readSimpleRangeVariable(StatementTypes.UPDATE_WHERE) };
         Table table     = rangeVariables[0].rangeTable;
-        Table baseTable = table.getBaseTable();
+        Table baseTable = table.isTriggerUpdatable() ? table
+                                                     : table.getBaseTable();
+
+        if (table.isTriggerDeletable()) {
+            rangeVariables[0].resetViewRageTableAsSubquery();
+        }
 
         readThis(Tokens.SET);
         readSetClauseList(rangeVariables, targetSet, colIndexList, exprList);
@@ -622,7 +622,7 @@ public class ParserDML extends ParserDQL {
             rangeVariables = resolver.rangeVariables;
         }
 
-        if (baseTable != null && table != baseTable) {
+        if (table != baseTable) {
             int[] baseColumnMap = table.getBaseTableColumnMap();
             int[] newColumnMap  = new int[columnMap.length];
 
@@ -973,7 +973,8 @@ public class ParserDML extends ParserDQL {
         }
 
         if (updateExpressions.length != 0) {
-            Table baseTable = table.getBaseTable();
+            Table baseTable = table.isTriggerUpdatable() ? table
+                                                         : table.getBaseTable();
 
             baseUpdateColumnMap = updateColumnMap;
 
