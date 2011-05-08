@@ -2102,7 +2102,7 @@
       <simpara>When the SQL option is used, this statement logs the SQL
       statements as they are executed. Each log line contains the timestamp
       and the session number, followed by the SQL statement and JDBC arguments
-      if any. </simpara>
+      if any.</simpara>
 
       <simpara>Levels 1 and 2 are supported. Level 1 only logs commits and
       rollbacks, while Level 2 logs all statements.</simpara>
@@ -2203,6 +2203,29 @@
 
       <simpara>This is equivalent to the connection property
       <literal>hsqldb.tx_level</literal>.</simpara>
+
+      <simpara>Only a user with the DBA role can execute this
+      statement.</simpara>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>SET DATABASE TEXT TABLE DEFAULTS</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">SET DATABASE TEXT TABLE
+      DEFAULTS</emphasis></simpara>
+
+      <simpara><emphasis>set database text table defaults
+      statement</emphasis></simpara>
+
+      <simpara><literal>&lt;set database text table defaults statement&gt; ::=
+      SET DATABASE TEXT TABLE DEFAULTS &lt;character
+      literal&gt;</literal></simpara>
+
+      <simpara>An optional property to override default text table settings.
+      The string literal has the same format as the string used for setting
+      the data source of a text table, but without the file name. See the
+      <link endterm="texttables-title" xlink:href="#texttables-chapt"></link>
+      chapter.</simpara>
 
       <simpara>Only a user with the DBA role can execute this
       statement.</simpara>
