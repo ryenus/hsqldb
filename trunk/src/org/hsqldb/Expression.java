@@ -1271,6 +1271,10 @@ public class Expression implements Cloneable {
         return dataType;
     }
 
+    byte getNullability() {
+        return SchemaObject.Nullability.NULLABLE_UNKNOWN;
+    }
+
     Type getNodeDataType(int i) {
 
         if (nodeDataTypes == null) {

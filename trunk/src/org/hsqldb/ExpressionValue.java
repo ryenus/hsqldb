@@ -57,6 +57,11 @@ public class ExpressionValue extends Expression {
         valueData = o;
     }
 
+    public byte getNullability() {
+        return valueData == null ? SchemaObject.Nullability.NULLABLE
+                                 : SchemaObject.Nullability.NO_NULLS;
+    }
+
     public String getSQL() {
 
         switch (opType) {
