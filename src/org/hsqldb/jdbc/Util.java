@@ -258,9 +258,10 @@ public class Util {
 
         return se;
 */
-    }
 
 //#endif JAVA6
+    }
+
 // TODO: Needs review.
 //
 //  Connection exception subclass may be an insufficient discriminator
