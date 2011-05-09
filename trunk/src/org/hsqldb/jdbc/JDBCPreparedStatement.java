@@ -4275,8 +4275,17 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
                 }
             }
             case Types.SQL_CHAR :
-                if (outType.precision == 1 && o instanceof Character) {
-                    o = new String(new char[] { ((Character) o).charValue() });
+                if (outType.precision == 1) {
+                   if( o instanceof Character) {
+                       o = new String(new char[] { ( (Character) o).charValue()});
+
+                       break;
+                   } else if (o instanceof Boolean) {
+                       o = ((Boolean) o).booleanValue() ? "1"
+                                                        : "0";
+
+                       break;
+                   }
                 }
 
             // fall through
