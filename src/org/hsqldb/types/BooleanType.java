@@ -219,7 +219,7 @@ public final class BooleanType extends Type {
 
                 if (otherType.isCharacterType()) {
                     if ("0".equals(a)) {
-                        return Boolean.TRUE;
+                        return Boolean.FALSE;
                     } else if ("1".equals(a)) {
                         return Boolean.TRUE;
                     }
