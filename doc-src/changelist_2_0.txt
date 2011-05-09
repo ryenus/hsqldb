@@ -1,5 +1,12 @@
+09 May 2011 - SVN 4234
+-- reserved keywords now include DEFAULT and exclude ADMIN
+-- improved column nullability reporting in ResultSetMetaData
+-- improved BOOLEAN type support in compatibility modes
 -- added support for ROWNUM() function
 -- improvements to Server, including new shutdown methods and properties file name argument
+-- improvements to MVCC transaction management
+-- improvements to text table properties support
+-- minor improvements and bug fixes
 21 Apr 2011 - SVN 4199
 -- added support for GET DIAGNOSTICS statement and DIAGNOSTICS function
 -- added support for POSITION_ARRAY and enhancements to SORT_ARRAY (also ARRAY_SORT)
@@ -7,7 +14,6 @@
 -- fixed regression in 2.1.0 with alter table operation failures causing loss of table data 
 -- fixed regression in 2.1.0 with database log created after a backup is completed not used for recovery
 -- added support for SQL execution logging SET DATABASE EVENT LOG SQL LEVEL 3
--- minor improvements and bug fixes
 26 Mar 2011 - SVN 4164
 -- fixed reported minor issues
 -- fixed issues with disk based result sets
