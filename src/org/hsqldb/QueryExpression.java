@@ -414,6 +414,44 @@ public class QueryExpression {
         rightQueryExpression.resolveTypesPartTwo(session);
 
         //
+        ResultMetaData leftMeta  = leftQueryExpression.getMetaData();
+        ResultMetaData rightMeta = rightQueryExpression.getMetaData();
+
+        for (int i = 0; i < leftQueryExpression.unionColumnMap.length; i++) {
+            int        leftIndex  = leftQueryExpression.unionColumnMap[i];
+            int        rightIndex = rightQueryExpression.unionColumnMap[i];
+            ColumnBase column     = leftMeta.columns[leftIndex];
+            byte leftNullability =
+                leftMeta.columns[leftIndex].getNullability();
+            byte rightNullability =
+                rightMeta.columns[rightIndex].getNullability();
+
+            if (column instanceof ColumnSchema
+                    && rightMeta.columns[rightIndex] instanceof ColumnBase) {
+                column = new ColumnBase();
+
+                column.setType(leftQueryExpression.unionColumnTypes[i]);
+                column.setNullability(leftMeta.columns[leftIndex].getNullability());
+
+                leftMeta.columns[leftIndex] = column;
+            }
+
+            if (rightNullability == SchemaObject.Nullability
+                    .NULLABLE || (rightNullability == SchemaObject.Nullability
+                        .NULLABLE_UNKNOWN && leftNullability == SchemaObject
+                        .Nullability.NO_NULLS)) {
+                if (column instanceof ColumnSchema) {
+                    column = new ColumnBase();
+
+                    column.setType(leftQueryExpression.unionColumnTypes[i]);
+
+                    leftMeta.columns[leftIndex] = column;
+                }
+
+                column.setNullability(rightNullability);
+            }
+        }
+
         if (unionCorresponding) {
             resultMetaData = leftQueryExpression.getMetaData().getNewMetaData(
                 leftQueryExpression.unionColumnMap);
@@ -436,10 +474,10 @@ public class QueryExpression {
                 queryExpression = queryExpression.leftQueryExpression;
             }
         }
-
-        ResultMetaData meta = getMetaData();
 /*
         // disallow lobs
+        ResultMetaData meta = getMetaData();
+
         for (int i = 0, count = meta.getColumnCount(); i < count; i++) {
             Type dataType = meta.columnTypes[i];
 
@@ -577,7 +615,7 @@ public class QueryExpression {
 
     Result getResultRecursive(Session session, TableDerived table) {
 
-        Result tempResult;
+        Result              tempResult;
         RowSetNavigatorData tempNavigator;
         RowSetNavigatorData rowSet = new RowSetNavigatorData(session, this);
         Result              result = Result.newResult(rowSet);
