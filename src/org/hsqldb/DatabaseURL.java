@@ -161,7 +161,11 @@ public class DatabaseURL {
             }
 
             String varName  = url.substring(replacePos + 2, endPos);
-            String varValue = System.getProperty(varName);
+            String varValue = null;
+
+            try {
+                varValue = System.getProperty(varName);
+            } catch (SecurityException e) {}
 
             if (varValue == null) {
                 break;
@@ -356,7 +360,11 @@ public class DatabaseURL {
                 database = url.substring(pos, postUrlPos);
 
                 if (database.startsWith("~")) {
-                    String userHome = System.getProperty("user.home");
+                    String userHome = "~";
+
+                    try {
+                        userHome = System.getProperty("user.home");
+                    } catch (SecurityException e) {}
 
                     database = userHome + database.substring(1);
                 }

@@ -815,7 +815,9 @@ public class HsqlDatabaseProperties extends HsqlProperties {
             == SYSTEM_PROPERTY;
 
         if (prop == null && isSystem) {
-            prop = System.getProperty(key);
+            try {
+                prop = System.getProperty(key);
+            } catch (SecurityException e) {}
         }
 
         if (prop == null) {
@@ -848,7 +850,9 @@ public class HsqlDatabaseProperties extends HsqlProperties {
             == SYSTEM_PROPERTY;
 
         if (isSystem) {
-            prop = System.getProperty(key);
+            try {
+                prop = System.getProperty(key);
+            } catch (SecurityException e) {}
         } else {
             prop = stringProps.getProperty(key);
         }

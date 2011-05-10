@@ -342,6 +342,7 @@ public class Cache extends BaseHashMap {
         sb.append("operation ").append(saveCount).append(',');
         sb.append(saveAllTimer.elapsedTime() - startTime).append(' ');
 //
+        sb.append("txts ");
         sb.append(dataFileCache.database.txManager.getGlobalChangeTimestamp());
 //
         dataFileCache.database.logger.logDetailEvent(sb.toString());
