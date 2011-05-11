@@ -877,7 +877,7 @@ public class JDBCClobFile implements java.sql.Clob {
      *         construction of the canonical pathname may require
      *         file-system queries; a required system property value
      *         cannot be accessed; a security manager exists and its
-     *         <code>{@linkjava.lang.SecurityManager#checkRead}</code>
+     *         <code>{@link java.lang.SecurityManager#checkRead}</code>
      *         method denies read access to the file
      */
     public JDBCClobFile(File file) throws SQLException {
@@ -899,7 +899,7 @@ public class JDBCClobFile implements java.sql.Clob {
      *         construction of the canonical pathname may require
      *         file-system queries; a required system property value
      *         cannot be accessed; a security manager exists and its
-     *         <code>{@linkjava.lang.SecurityManager#checkRead}</code>
+     *         <code>{@link java.lang.SecurityManager#checkRead}</code>
      *         method denies read access to the file
      */
     public JDBCClobFile(File file, String encoding) throws SQLException {

@@ -1214,7 +1214,7 @@ public class Server implements HsqlSocketRequestHandler {
     /**
      * Sets server properties using the specified properties object
      *
-     * @param p The object containing properties to set
+     * @param props The object containing properties to set
      * @throws ServerAcl.AclFormatException
      *          ACL list was requested but problem loading ACL.
      * @throws IOException
