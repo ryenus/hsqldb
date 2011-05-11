@@ -1,0 +1,8 @@
+/?                     Display this help
+/=                     Display all macros
+/= name command...     Define a macro equal to the specified SQL command
+                         (do not type the terminating ";").
+/= name :[appendage]   Define a macro equal to the current buffer contents
+/name [appendage]      Expand macro to buffer
+/name [appendage];     Execute macro
+

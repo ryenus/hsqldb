@@ -1,0 +1,190 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- $Id: openoffice-app.xml 847 2009-01-19 22:24:49Z unsaved $ -->
+<!DOCTYPE book [
+<!ENTITY % dummy22 SYSTEM "../entities/global.ent">
+%dummy22;
+]>
+<appendix version="5.0" xml:id="lists-app"
+          xmlns="http://docbook.org/ns/docbook"
+          xmlns:xlink="http://www.w3.org/1999/xlink"
+          xmlns:xi="http://www.w3.org/2001/XInclude"
+          xmlns:ns5="http://www.w3.org/1999/xhtml"
+          xmlns:ns4="http://www.w3.org/1998/Math/MathML"
+          xmlns:ns3="http://www.w3.org/2000/svg"
+          xmlns:ns="http://docbook.org/ns/docbook">
+  <!-- We declare the default namespace + those for prefixes xlink: and xi: in
+       the root element, so we can use them anywhere in this file. -->
+
+  <info>
+    <title xml:id="lists-title">Lists of Keywords</title>
+
+    <subtitle>List of SQL Keywords</subtitle>
+
+    <author>
+      <personname><firstname>Fred</firstname>
+      <surname>Toussi</surname></personname>
+
+      <affiliation>
+        <orgname>The HSQL Development Group</orgname>
+      </affiliation>
+    </author>
+
+    <releaseinfo>$Revision: 847 $</releaseinfo>
+
+    <pubdate>$Date: 2009-01-19 22:24:49 +0000 (Mon, 19 Jan 2009) $</pubdate>
+
+    <keywordset>
+      <keyword>HSQLDB</keyword>
+
+      <keyword>HyperSQL</keyword>
+
+      <keyword>SQL Keywords SQL STAT</keyword>
+    </keywordset>
+  </info>
+
+  <section>
+    <title>List of SQL Standard Keywords</title>
+
+    <para>According to the SQL Standard, the SQL Language keywords cannot be
+    used as identifiers (names of database objects such as columns and
+    tables). HyperSQL has two modes of operation, which are selected with the
+    SET DATABASE SQL NAMES { TRUE | FALSE } to allow or disallow the keywords
+    as identifiers. The default mode is FALSE and allows the use of most
+    keywords as identifiers. Even in this mode, keywords cannot be used as
+    USER or ROLE identifiers.</para>
+
+    <simpara>ABS • ALL • ALLOCATE • ALTER • AND • ANY • ARE • ARRAY • AS •
+    ASENSITIVE • ASYMMETRIC • AT • ATOMIC • AUTHORIZATION • AVG</simpara>
+
+    <simpara>BEGIN • BETWEEN • BIGINT • BINARY • BLOB • BOOLEAN • BOTH •
+    BY</simpara>
+
+    <simpara>CALL • CALLED • CARDINALITY • CASCADED • CASE • CAST • CEIL •
+    CEILING • CHAR • CHAR_LENGTH • CHARACTER • CHARACTER_LENGTH • CHECK • CLOB
+    • CLOSE • COALESCE • COLLATE • COLLECT • COLUMN • COMMIT • COMPARABLE •
+    CONDITION • CONNECT • CONSTRAINT • CONVERT • CORR • CORRESPONDING • COUNT
+    • COVAR_POP • COVAR_SAMP • CREATE • CROSS • CUBE • CUME_DIST • CURRENT •
+    CURRENT_CATALOG • CURRENT_DATE • CURRENT_DEFAULT_TRANSFORM_GROUP •
+    CURRENT_PATH • CURRENT_ROLE • CURRENT_SCHEMA • CURRENT_TIME •
+    CURRENT_TIMESTAMP • CURRENT_TRANSFORM_GROUP_FOR_TYPE • CURRENT_USER •
+    CURSOR • CYCLE</simpara>
+
+    <simpara>DATE • DAY • DEALLOCATE • DEC • DECIMAL • DECLARE • DEFAULT •
+    DELETE • DENSE_RANK • DEREF • DESCRIBE • DETERMINISTIC • DISCONNECT •
+    DISTINCT • DO • DOUBLE • DROP • DYNAMIC</simpara>
+
+    <simpara>EACH • ELEMENT • ELSE • ELSEIF • END • END_EXEC • ESCAPE • EVERY
+    • EXCEPT • EXEC • EXECUTE • EXISTS • EXIT • EXP • EXTERNAL •
+    EXTRACT</simpara>
+
+    <simpara>FALSE • FETCH • FILTER • FIRST_VALUE • FLOAT • FLOOR • FOR •
+    FOREIGN • FREE • FROM • FULL • FUNCTION • FUSION</simpara>
+
+    <simpara>GET • GLOBAL • GRANT • GROUP • GROUPING</simpara>
+
+    <simpara>HANDLER • HAVING • HOLD • HOUR</simpara>
+
+    <simpara>IDENTITY • IN • INDICATOR • INNER • INOUT • INSENSITIVE • INSERT
+    • INT • INTEGER • INTERSECT • INTERSECTION • INTERVAL • INTO • IS •
+    ITERATE</simpara>
+
+    <simpara>JOIN</simpara>
+
+    <simpara>LAG</simpara>
+
+    <simpara>LANGUAGE • LARGE • LAST_VALUE • LATERAL • LEAD • LEADING • LEAVE
+    • LEFT • LIKE • LIKE_REGEX • LN • LOCAL • LOCALTIME • LOCALTIMESTAMP •
+    LOOP • LOWER</simpara>
+
+    <simpara>MATCH • MAX • MAX_CARDINALITY • MEMBER • MERGE • METHOD • MIN •
+    MINUTE • MOD • MODIFIES • MODULE • MONTH • MULTISET</simpara>
+
+    <simpara>NATIONAL • NATURAL • NCHAR • NCLOB • NEW • NO • NONE • NORMALIZE
+    • NOT • NTH_VALUE • NTILE • NULL • NULLIF • NUMERIC</simpara>
+
+    <simpara>OCCURRENCES_REGEX • OCTET_LENGTH • OF • OFFSET • OLD • ON • ONLY
+    • OPEN • OR • ORDER • OUT • OUTER • OVER • OVERLAPS • OVERLAY</simpara>
+
+    <simpara>PARAMETER • PARTITION • PERCENT_RANK • PERCENTILE_CONT •
+    PERCENTILE_DISC • POSITION • POSITION_REGEX • POWER • PRECISION • PREPARE
+    • PRIMARY • PROCEDURE</simpara>
+
+    <simpara>RANGE • RANK • READS • REAL • RECURSIVE • REF • REFERENCES •
+    REFERENCING • REGR_AVGX • REGR_AVGY • REGR_COUNT • REGR_INTERCEPT •
+    REGR_R2 • REGR_SLOPE • REGR_SXX • REGR_SXY • REGR_SYY • RELEASE • REPEAT •
+    RESIGNAL • RESULT • RETURN • RETURNS • REVOKE • RIGHT • ROLLBACK • ROLLUP
+    • ROW • ROW_NUMBER • ROWS</simpara>
+
+    <simpara>SAVEPOINT • SCOPE • SCROLL • SEARCH • SECOND • SELECT • SENSITIVE
+    • SESSION_USER • SET • SIGNAL • SIMILAR • SMALLINT • SOME • SPECIFIC •
+    SPECIFICTYPE • SQL • SQLEXCEPTION • SQLSTATE • SQLWARNING • SQRT • STACKED
+    • START • STATIC • STDDEV_POP • STDDEV_SAMP • SUBMULTISET • SUBSTRING •
+    SUBSTRING_REGEX • SUM • SYMMETRIC • SYSTEM • SYSTEM_USER</simpara>
+
+    <simpara>TABLE • TABLESAMPLE • THEN • TIME • TIMESTAMP • TIMEZONE_HOUR •
+    TIMEZONE_MINUTE • TO • TRAILING • TRANSLATE • TRANSLATE_REGEX •
+    TRANSLATION • TREAT • TRIGGER • TRIM • TRIM_ARRAY • TRUE •
+    TRUNCATE</simpara>
+
+    <simpara>UESCAPE • UNDO • UNION • UNIQUE • UNKNOWN • UNNEST • UNTIL •
+    UPDATE • UPPER • USER • USING</simpara>
+
+    <simpara>VALUE • VALUES • VAR_POP • VAR_SAMP • VARBINARY • VARCHAR •
+    VARYING</simpara>
+
+    <simpara>WHEN • WHENEVER • WHERE • WIDTH_BUCKET • WINDOW • WITH • WITHIN •
+    WITHOUT • WHILE</simpara>
+
+    <simpara>YEAR</simpara>
+  </section>
+
+  <section>
+    <title>List of SQL Keywords Disallowed as HyperSQL Identifiers</title>
+
+    <para>A subset of SQL Standard keywords cannot be used at all as HyperSQL
+    identifiers. The keywords are as follows:</para>
+
+    <simpara>ADMIN • AND • ALL • ANY • AS • AT • AVG</simpara>
+
+    <simpara>BETWEEN • BOTH • BY</simpara>
+
+    <simpara>CALL • CASE • CAST • COALESCE • CORRESPONDING • CONVERT • COUNT •
+    CREATE • CROSS</simpara>
+
+    <simpara>DISTINCT • DROP</simpara>
+
+    <simpara>ELSE • END • EVERY • EXISTS • EXCEPT</simpara>
+
+    <simpara>FOR • FROM • FULL</simpara>
+
+    <simpara>GRANT • GROUP</simpara>
+
+    <simpara>HAVING</simpara>
+
+    <simpara>IN • INNER • INTERSECT • INTO • IS</simpara>
+
+    <simpara>JOIN</simpara>
+
+    <simpara>LEFT • LEADING • LIKE</simpara>
+
+    <simpara>MAX • MIN</simpara>
+
+    <simpara>NATURAL • NOT • NULLIF</simpara>
+
+    <simpara>ON • ORDER • OR • OUTER</simpara>
+
+    <simpara>PRIMARY</simpara>
+
+    <simpara>REFERENCES • RIGHT</simpara>
+
+    <simpara>SELECT • SET • SOME • STDDEV_POP • STDDEV_SAMP • SUM</simpara>
+
+    <simpara>TABLE • THEN • TO • TRAILING • TRIGGER</simpara>
+
+    <simpara>UNION • UNIQUE • USING</simpara>
+
+    <simpara>VALUES • VAR_POP • VAR_SAMP</simpara>
+
+    <simpara>WHEN • WHERE • WITH</simpara>
+  </section>
+</appendix>
