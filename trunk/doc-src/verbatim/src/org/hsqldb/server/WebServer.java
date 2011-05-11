@@ -138,26 +138,38 @@ public class WebServer extends Server {
      */
     public static void main(String[] args) {
 
-        String propsPath =
-            FileUtil.getFileUtil().canonicalOrAbsolutePath("webserver");
-        ServerProperties fileProps = ServerConfiguration.getPropertiesFromFile(
-            ServerConstants.SC_PROTOCOL_HTTP, propsPath);
-        ServerProperties props =
-            fileProps == null
-            ? new ServerProperties(ServerConstants.SC_PROTOCOL_HTTP)
-            : fileProps;
-        HsqlProperties stringProps = null;
+        HsqlProperties argProps = null;
 
-        stringProps = HsqlProperties.argArrayToProps(args,
-                ServerConstants.SC_KEY_PREFIX);
+        argProps = HsqlProperties.argArrayToProps(args,
+                ServerProperties.sc_key_prefix);
 
-        if (stringProps.getErrorKeys().length != 0) {
+        String[] errors = argProps.getErrorKeys();
+
+        if (errors.length != 0) {
+            System.out.println("no value for argument:" + errors[0]);
             printHelp("webserver.help");
 
             return;
         }
 
-        props.addProperties(stringProps);
+        String propsPath = argProps.getProperty(ServerProperties.sc_key_props);
+        String propsExtension = "";
+
+        if (propsPath == null) {
+            propsPath      = "webserver";
+            propsExtension = ".properties";
+        }
+
+        propsPath = FileUtil.getFileUtil().canonicalOrAbsolutePath(propsPath);
+
+        ServerProperties fileProps = ServerConfiguration.getPropertiesFromFile(
+            ServerConstants.SC_PROTOCOL_HTTP, propsPath, propsExtension);
+        ServerProperties props =
+            fileProps == null
+            ? new ServerProperties(ServerConstants.SC_PROTOCOL_HTTP)
+            : fileProps;
+
+        props.addProperties(argProps);
         ServerConfiguration.translateDefaultDatabaseProperty(props);
 
         // Standard behaviour when started from the command line
@@ -166,15 +178,13 @@ public class WebServer extends Server {
         // is in place.
         ServerConfiguration.translateDefaultNoSystemExitProperty(props);
 
+        ServerConfiguration.translateAddressProperty(props);
+
         // finished setting up properties;
         Server server = new WebServer();
 
         try {
             server.setProperties(props);
-            props.validate();
-
-            // This must be called after setProperties, because stringProps
-            // isn't populated until then.
         } catch (Exception e) {
             server.printError("Failed to set properties");
             server.printStackTrace(e);
@@ -208,7 +218,7 @@ public class WebServer extends Server {
      */
     public String getDefaultWebPage() {
         return serverProperties.getProperty(
-            ServerConstants.SC_KEY_WEB_DEFAULT_PAGE);
+            ServerProperties.sc_key_web_default_page);
     }
 
     /**
@@ -265,6 +275,6 @@ public class WebServer extends Server {
      *  description="Context (directory)"
      */
     public String getWebRoot() {
-        return serverProperties.getProperty(ServerConstants.SC_KEY_WEB_ROOT);
+        return serverProperties.getProperty(ServerProperties.sc_key_web_root);
     }
 }
