@@ -207,7 +207,7 @@
       the database engine. In some circumstances, a
       <filename>test.data.xxx.old</filename> is created and deleted afterwards
       by the database engine. The user can delete these
-      <filename>test.data.xxx.old</filename> files. </para>
+      <filename>test.data.xxx.old</filename> files.</para>
     </note>
 
     <para>A <glossterm>res:</glossterm> catalog consists of the files for a
@@ -453,8 +453,8 @@
       <para>HyperSQL provides two optional security mechanisms. The <link
       xlink:href="#listeners_tls-sect">encrypted SSL protocol</link>, and
       <link xlink:href="#listeners_acl-sect">Access Control Lists</link>. Both
-      mechanisms can be specified when running the Server or WebServer. From
-      the client, the URL's co connect to an SSL server is slightly
+      mechanisms can be specified when running the Server or WebServer. On the
+      client, the URL to connect to an SSL server is slightly
       different:</para>
 
       <para><example>
