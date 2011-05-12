@@ -2008,7 +2008,7 @@
               defrag operation is performed. The default is 0, which means no
               automatic checkpoint. The numeric value must be between 0 and
               100 and is interpreted as a percentage of the current size of
-              the .data file.</para><para><programlisting>SET FILES CHECKPOINT DEFRAG &lt;numeric value&gt;</programlisting></para></entry>
+              the .data file.</para><para><programlisting>SET FILES DEFRAG &lt;numeric value&gt;</programlisting></para></entry>
             </row>
           </tbody>
         </tgroup>
