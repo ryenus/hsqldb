@@ -96,14 +96,12 @@ import org.hsqldb.lib.java.JavaSystem;
  * Originally in HypersonicSQL. Extended in various versions of HSQLDB.
  *
  * @author Thomas Mueller (Hypersonic SQL Group)
- * @version 2.0.1
+ * @version 2.1.1
  * @since Hypersonic SQL
  */
 public class DatabaseManager extends Applet
 implements ActionListener, WindowListener, KeyListener {
 
-    private static final String DEFAULT_RCFILE =
-        System.getProperty("user.home") + "/dbmanager.rc";
     static final String    NL           = System.getProperty("line.separator");
     static final int       iMaxRecent   = 24;
     private static boolean TT_AVAILABLE = false;
@@ -343,7 +341,7 @@ implements ActionListener, WindowListener, KeyListener {
                 autoConnect = true;
 
                 if (rcFile == null) {
-                    rcFile = DEFAULT_RCFILE;
+                    rcFile = System.getProperty("user.home") + "/dbmanager.rc";
                 }
 
                 c = new RCData(new File(rcFile), urlid).getConnection(null,

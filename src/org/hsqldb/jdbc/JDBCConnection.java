@@ -3155,7 +3155,7 @@ public class JDBCConnection implements Connection {
         try {
             for (int i = 0; i < elements.length; i++) {
                 Object o = type.convertJavaToSQL(sessionProxy, elements[i]);
-                newData[i] = type.convertToDefaultType(sessionProxy, o);
+                newData[i] = type.convertToTypeLimits(sessionProxy, o);
             }
         } catch (HsqlException e) {
             throw Util.sqlException(e);
