@@ -111,7 +111,7 @@ import org.hsqldb.types.Type;
  *
  * @author Campbell Boucher-Burnet (boucherb@users dot sourceforge.net)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.0.1
+ * @version 2.2.1
  * @since 1.7.2
  */
 final class DatabaseInformationFull
@@ -5836,7 +5836,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         if (t == null) {
             t = createBlankTable(sysTableHsqlNames[SQL_IMPLEMENTATION_INFO]);
 
-            addColumn(t, "IMPLEMENTATION_INFO_ID", CHARACTER_DATA);
+            addColumn(t, "IMPLEMENTATION_INFO_ID", CARDINAL_NUMBER);
             addColumn(t, "IMPLEMENTATION_INFO_NAME", CHARACTER_DATA);
             addColumn(t, "INTEGER_VALUE", CARDINAL_NUMBER);
             addColumn(t, "CHARACTER_VALUE", CHARACTER_DATA);
@@ -5853,14 +5853,10 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
 
         Session sys = database.sessionManager.newSysSession(
             SqlInvariants.INFORMATION_SCHEMA_HSQLNAME, session.getUser());
-
-/*
-        Result rs = sys.executeDirectStatement(
-            "VALUES "
-            + ";");
+        String sql = (String) statementMap.get("/*sql_implementation_info*/");
+        Result rs  = sys.executeDirectStatement(sql);
 
         t.insertSys(session, store, rs);
-*/
         return t;
     }
 

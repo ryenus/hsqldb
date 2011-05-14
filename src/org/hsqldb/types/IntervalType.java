@@ -45,7 +45,7 @@ import org.hsqldb.lib.ArrayUtil;
  * Type subclass for various typs of INTERVAL.<p>
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.1.1
+ * @version 2.2.1
  * @since 1.9.0
  */
 public final class IntervalType extends DTIType {
@@ -636,6 +636,10 @@ public final class IntervalType extends DTIType {
         } else {
             throw Error.error(ErrorCode.X_42561);
         }
+    }
+
+    public Object convertJavaToSQL(SessionInterface session, Object a) {
+        return convertToDefaultType(session, a);
     }
 
     public String convertToString(Object a) {

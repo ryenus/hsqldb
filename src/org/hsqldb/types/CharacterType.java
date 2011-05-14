@@ -33,6 +33,7 @@ package org.hsqldb.types;
 
 import java.math.BigDecimal;
 
+import org.hsqldb.HsqlDateTime;
 import org.hsqldb.OpTypes;
 import org.hsqldb.Session;
 import org.hsqldb.SessionInterface;
@@ -48,7 +49,7 @@ import org.hsqldb.lib.java.JavaSystem;
  * Type subclass for CHARACTER, VARCHAR, etc.<p>
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.0.1
+ * @version 2.2.1
  * @since 1.9.0
  */
 public class CharacterType extends Type {
@@ -676,6 +677,8 @@ public class CharacterType extends Type {
             s = ((java.sql.Time) a).toString();
         } else if (a instanceof java.sql.Timestamp) {
             s = ((java.sql.Timestamp) a).toString();
+        } else if (a instanceof java.util.Date) {
+            s = HsqlDateTime.getTimestampString(((java.sql.Date) a).getTime());
         } else {
             throw Error.error(ErrorCode.X_42561);
         }
@@ -683,6 +686,10 @@ public class CharacterType extends Type {
         return s;
 
         // return convertToType(session, a, Type.SQL_VARCHAR);
+    }
+
+    public Object convertJavaToSQL(SessionInterface session, Object a) {
+        return convertToDefaultType(session, a);
     }
 
     public String convertToString(Object a) {

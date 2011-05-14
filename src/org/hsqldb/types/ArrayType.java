@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2010, The HSQL Development Group
+/* Copyright (c) 2001-2011, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -48,7 +48,7 @@ import org.hsqldb.lib.ArraySort;
  * Class for ARRAY type objects.<p>
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.0.1
+ * @version 2.2.1
  * @since 2.0.0
  */
 public class ArrayType extends Type {
@@ -251,6 +251,7 @@ public class ArrayType extends Type {
 
             for (int i = 0; i < data.length; i++) {
                 array[i] = dataType.convertJavaToSQL(session, data[i]);
+                array[i] = dataType.convertToTypeLimits(session, data[i]);
             }
 
             return array;
