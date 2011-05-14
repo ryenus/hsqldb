@@ -47,7 +47,7 @@ import org.hsqldb.persist.HsqlProperties;
  * HsqlServerFactory
  *
  * @author paul-h@users
- * @version 1.7.2
+ * @version 2.2.0
  * @since 1.7.0
  */
 public class HsqlServerFactory {

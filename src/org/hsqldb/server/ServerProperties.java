@@ -37,8 +37,6 @@ import java.io.IOException;
 import java.util.Enumeration;
 
 import org.hsqldb.lib.HashMap;
-import org.hsqldb.lib.HashMappedList;
-import org.hsqldb.lib.HsqlArrayList;
 import org.hsqldb.lib.IntKeyHashMap;
 import org.hsqldb.lib.Iterator;
 import org.hsqldb.lib.OrderedHashSet;
@@ -69,7 +67,7 @@ import org.hsqldb.persist.HsqlProperties;
  * against the set.<p>
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.1.1
+ * @version 2.2.1
  * @since 1.9.0
  */
 public class ServerProperties extends HsqlProperties {
@@ -100,7 +98,7 @@ public class ServerProperties extends HsqlProperties {
     static final String sc_key_acl              = "server.acl";
     static final String sc_key_daemon           = "server.daemon";
     static final String sc_key_props            = "server.props";
-    static final String sc_key_system           = "system.";
+    static final String sc_key_system           = "system";
 
     // web server page defaults
     static final String sc_default_web_mime = "text/html";
