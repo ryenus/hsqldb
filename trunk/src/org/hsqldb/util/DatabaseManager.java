@@ -96,7 +96,7 @@ import org.hsqldb.lib.java.JavaSystem;
  * Originally in HypersonicSQL. Extended in various versions of HSQLDB.
  *
  * @author Thomas Mueller (Hypersonic SQL Group)
- * @version 2.1.1
+ * @version 2.2.1
  * @since Hypersonic SQL
  */
 public class DatabaseManager extends Applet

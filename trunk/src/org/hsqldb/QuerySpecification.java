@@ -64,7 +64,7 @@ import org.hsqldb.types.Types;
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
  *
- * @version 2.1.1
+ * @version 2.2.1
  * @since 1.9.0
  */
 public class QuerySpecification extends QueryExpression {
@@ -881,7 +881,7 @@ public class QuerySpecification extends QueryExpression {
         checkLobUsage();
         setMergeability();
         setUpdatability();
-        createResultMetaData();
+        createResultMetaData(session);
         createTable(session);
 
         if (isMergeable) {
@@ -1533,7 +1533,7 @@ public class QuerySpecification extends QueryExpression {
         }
     }
 
-    private void createResultMetaData() {
+    private void createResultMetaData(Session session) {
 
         columnTypes = new Type[indexLimitData];
 
@@ -1561,24 +1561,25 @@ public class QuerySpecification extends QueryExpression {
                 columnMap, indexLimitVisible, indexLimitRowId);
 
         for (int i = 0; i < indexLimitVisible; i++) {
-            byte       nullability = SchemaObject.Nullability.NULLABLE_UNKNOWN;
-            Expression e           = exprColumns[i];
-            ColumnBase column;
+            byte nullability = SchemaObject.Nullability.NULLABLE_UNKNOWN;
+            Expression   e           = exprColumns[i];
+            ColumnSchema tableColumn = null;
+            ColumnBase   column;
 
             resultMetaData.columnTypes[i] = e.getDataType();
 
             switch (e.getType()) {
 
                 case OpTypes.COLUMN :
-                    column = e.getColumn();
+                    tableColumn = e.getColumn();
 
-                    if (column != null) {
+                    if (tableColumn != null) {
                         RangeVariable range = e.getRangeVariable();
 
                         if (range != null && range
                                 .rangePositionInJoin >= startInnerRange && range
                                 .rangePositionInJoin < endInnerRange) {
-                            resultMetaData.columns[i]      = column;
+                            resultMetaData.columns[i]      = tableColumn;
                             resultMetaData.columnLabels[i] = e.getAlias();
 
                             continue;
@@ -1599,7 +1600,14 @@ public class QuerySpecification extends QueryExpression {
                     break;
             }
 
-            column = new ColumnBase();
+            if (tableColumn == null) {
+                column = new ColumnBase();
+            } else {
+                column = new ColumnBase(session.database.getCatalogName().name,
+                                        tableColumn.getSchemaNameString(),
+                                        tableColumn.getTableNameString(),
+                                        tableColumn.getNameString());
+            }
 
             column.setType(e.getDataType());
             column.setNullability(nullability);

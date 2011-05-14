@@ -50,7 +50,7 @@ import org.hsqldb.lib.StringConverter;
  * Type subclass for DATE, TIME and TIMESTAMP.<p>
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.1.1
+ * @version 2.2.1
  * @since 1.9.0
  */
 public final class DateTimeType extends DTIType {
@@ -698,7 +698,11 @@ public final class DateTimeType extends DTIType {
     }
 
     public Object convertToDefaultType(SessionInterface session, Object a) {
-        throw Error.error(ErrorCode.X_42561);
+
+        Type otherType = a instanceof TimeData ? Type.SQL_TIME
+                                               : Type.SQL_TIMESTAMP;
+
+        return convertToType(session, a, otherType);
     }
 
     /** @todo - check the time zone conversion */

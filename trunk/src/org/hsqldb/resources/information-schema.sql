@@ -1,4 +1,4 @@
--- author Fred Toussi (fredt@users dot sourceforge.net) version 2.0.1
+-- author Fred Toussi (fredt@users dot sourceforge.net) version 2.2.1
 /*system_procedures*/
 SELECT ROUTINE_CATALOG AS PROCEDURE_CAT, ROUTINE_SCHEMA AS PROCEDURE_SCHEM,
 ROUTINE_NAME AS PROCEDURE_NAME, 0, 0, 0,
@@ -548,3 +548,17 @@ VALUES
 ( 25004, 'MAXIMUM SESSION USER LENGTH', 128, NULL),
 ( 25005, 'MAXIMUM SYSTEM USER LENGTH', 128, NULL);
 
+/*sql_implementation_info*/
+VALUES
+( 10003, 'CATALOG NAME', NULL, 'Y', 'CHAR: ''Y'' if supported, otherwise ''N''' ),
+( 10004, 'COLLATING SEQUENCE', NULL, 'English', 'CHAR: default collation name' ),
+( 23, 'CURSOR COMMIT BEHAVIOR', 2, NULL, 'INT: 0: close cursors & delete prepared stmts 1: close cursors & retain prepared stmts 2: leave cursors open & retain stmts' ),
+( 2, 'DATA SOURCE NAME', NULL, '', 'CHAR: <connection name> on CONNECT statement' ),
+( 17, 'DBMS NAME', NULL, 'HSQLDB', 'CHAR: Name of the implementation software' ),
+( 18, 'DBMS VERSION', NULL, '2.2.1', 'CHAR: Version of the implementation software The format is: <part1>.<part2>.<part3>[<part4>] where: <part1> ::= <digit><digit> <part2> ::= <digit><digit> <part3> ::= <digit><digit><digit><digit> <part4> ::= <character representation>' ),
+( 26, 'DEFAULT TRANSACTION ISOLATION', 2, NULL, 'INT: 1: READ UNCOMMITTED 2: READ COMMITTED 3: REPEATABLE READ 4: SERIALIZABLE' ),
+( 28, 'IDENTIFIER CASE', 3, NULL, 'The case in which identifiers are stored in the Definition Schema INT: 1: stored in upper case 2: stored in lower case 3: stored in mixed case - case sensitive 4: stored in mixed case - case insensitive' ),
+( 85, 'NULL COLLATION', 1, NULL, 'INT: 0: nulls higher than non-nulls 1: nulls lower than non-nulls' ),
+( 13, 'SERVER NAME', NULL, '', 'CHAR: <SQL server name> on CONNECT statement' ),
+( 94, 'SPECIAL CHARACTERS', NULL, '', 'CHAR: All special chars OK in non-delimited ids' ),
+( 46, 'TRANSACTION CAPABLE', 3, NULL, 'INT: 0: not supported 1: DML only - error if DDL 2: both DML and DDL 3: DML only - commit before DDL 4: DML only - ignore DDL' );

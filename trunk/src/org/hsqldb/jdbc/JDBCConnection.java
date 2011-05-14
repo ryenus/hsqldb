@@ -510,7 +510,7 @@ import org.hsqldb.types.Type;
  * </div> <!-- end release-specific documentation -->
  * @author Campbell Boucher-Burnet (boucherb@users dot sourceforge.net)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.1.1
+ * @version 2.2.1
  * @revised JDK 1.6, HSQLDB 2.0
  * @revised JDK 1.7, HSQLDB 2.1.0
  * @see JDBCDriver
