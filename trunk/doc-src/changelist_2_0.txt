@@ -1,3 +1,9 @@
+16 May 2012 - version 2.2.1
+-- fixed regression in 2.2.0 with server TLS
+-- fixed regression in 2.2.0 with ResultSetMetaData schema names
+-- fixed type limitations of Connection#createArrayOf
+-- fixed DatabaseManager running as Applet
+-- added contents to INFORMATION_SCHEMA.SQL_IMPLEMENTATION_INFO
 10 May 2011 - version 2.2.0
 -- reserved keywords now include DEFAULT and exclude ADMIN
 -- improved column nullability reporting in ResultSetMetaData
