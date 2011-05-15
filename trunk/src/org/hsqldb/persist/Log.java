@@ -198,6 +198,8 @@ public class Log {
 
         closeLog();
         deleteOldDataFiles();
+        deleteOldTempFiles();
+        deleteTempFileDirectory();
         writeScript(script);
         closeAllTextCaches(script);
 
@@ -885,6 +887,19 @@ public class Log {
             for (int i = 0; i < list.length; i++) {
                 list[i].delete();
             }
+        } catch (Throwable t) {}
+    }
+
+    void deleteTempFileDirectory() {
+
+        try {
+            if (database.logger.tempDirectoryPath == null) {
+                return;
+            }
+
+            File file = new File(database.logger.tempDirectoryPath);
+
+            file.delete();
         } catch (Throwable t) {}
     }
 }
