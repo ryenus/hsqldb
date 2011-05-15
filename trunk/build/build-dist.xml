@@ -12,13 +12,15 @@ $Id$
      that is the purpose of several targets in the main build file.
 
      PREP:  Before building a public distribution, you must:
-        1: Update property 'hsqldb.version' in file 'build.xml'.
-        2: Execute target 'refresh-verbatim' to update code in our docs.
-        3: Execute target 'update-readme' to substitute updated variables into
+        1: Run targets 'javadoc' and 'javadocdev', watching for JavaDoc
+           authoring mistakes, and fix them.
+        2: Update property 'hsqldb.version' in file 'build.xml'.
+        3: Execute target 'refresh-verbatim' to update code in our docs.
+        4: Execute target 'update-readme' to substitute updated variables into
            some doc file(s).
-        4: Commit all of the work above.
-        5: Verify that docs build successfully.
-        6. Make a release tag.
+        5: Commit all of the work above.
+        6: Verify that docs build successfully.
+        7. Make a release tag.
 
      USAGE:
          1: Set up your desired build environment (Ant in search path,
