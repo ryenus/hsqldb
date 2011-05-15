@@ -327,20 +327,26 @@ public class RCData {
                                            SQLException {
 
         // Local vars to satisfy compiler warnings
-        String curDriver = curDriverIn;
-        String curTrustStore = curTrustStoreIn;
+        String curDriver = null;
+        String curTrustStore = null;
 
         Properties sysProps = System.getProperties();
 
-        if (curDriver == null) {
+        if (curDriverIn == null) {
 
             // If explicit driver not specified
             curDriver = ((driver == null) ? DEFAULT_JDBC_DRIVER
                                           : driver);
+        } else {
+            curDriver = expandSysPropVars(curDriverIn);
         }
 
-        if (curTrustStore == null && truststore != null) {
-            curTrustStore = truststore;
+        if (curTrustStoreIn == null) {
+            if (truststore != null) {
+                curTrustStore = expandSysPropVars(truststore);
+            }
+        } else {
+            curTrustStore = expandSysPropVars(curTrustStoreIn);
         }
 
         if (curTrustStore == null) {
