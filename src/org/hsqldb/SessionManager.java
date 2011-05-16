@@ -162,18 +162,22 @@ public class SessionManager {
     }
 
     /**
-     * Retrieves the common SYS Session.
+     * Retrieves a transient transaction session.
      */
-    public Session getSysSession(String schema, User user) {
+    public Session newSysSession() {
 
-        sysSession.currentSchema =
-            sysSession.database.schemaManager.getSchemaHsqlName(schema);
-        sysSession.isProcessingScript = false;
-        sysSession.isProcessingLog    = false;
+        Session session = new Session(sysSession.database,
+                                      sysSession.getUser(), false, false,
+                                      sessionIdCount, null, 0);
 
-        sysSession.setUser(user);
+        session.currentSchema =
+            sysSession.database.schemaManager.getDefaultSchemaHsqlName();
 
-        return sysSession;
+        sessionMap.put(sessionIdCount, session);
+
+        sessionIdCount++;
+
+        return session;
     }
 
     public Session newSysSession(HsqlName schema, User user) {
