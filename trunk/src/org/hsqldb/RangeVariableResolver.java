@@ -601,7 +601,15 @@ public class RangeVariableResolver {
             boolean                 hasIndex = false;
             RangeVariableConditions conditions;
 
-            if (hasOuterJoin) {
+            if (i < firstLeftJoinIndex
+                    && firstRightJoinIndex == rangeVariables.length) {
+                conditions = rangeVariables[i].joinConditions[0];
+
+                joinExpressions[i].addAll(whereExpressions[i]);
+                assignToRangeVariable(rangeVariables[i], conditions, i,
+                                      joinExpressions[i]);
+                assignToRangeVariable(conditions, joinExpressions[i]);
+            } else {
                 conditions = rangeVariables[i].whereConditions[0];
 
                 // assign to all range variables to the right
@@ -630,13 +638,6 @@ public class RangeVariableResolver {
                                           joinExpressions[i]);
                 }
 
-                assignToRangeVariable(conditions, joinExpressions[i]);
-            } else {
-                conditions = rangeVariables[i].joinConditions[0];
-
-                joinExpressions[i].addAll(whereExpressions[i]);
-                assignToRangeVariable(rangeVariables[i], conditions, i,
-                                      joinExpressions[i]);
                 assignToRangeVariable(conditions, joinExpressions[i]);
             }
         }
