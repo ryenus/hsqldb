@@ -6,6 +6,7 @@
 -- added contents to INFORMATION_SCHEMA.SQL_IMPLEMENTATION_INFO
 -- added auto checkpoints execution in separate session
 -- improved query speed for some LEFT OUTER joins
+-- added deletion of the temp directory at shutdown
 10 May 2011 - version 2.2.0
 -- reserved keywords now include DEFAULT and exclude ADMIN
 -- improved column nullability reporting in ResultSetMetaData
