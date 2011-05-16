@@ -1750,7 +1750,7 @@ public class Session implements SessionInterface {
                         ((Integer) row[SessionInterface.INFO_INTEGER])
                             .intValue();
 
-                    this.setIsolation(value);
+                    this.setIsolationDefault(value);
 
                     break;
                 }
