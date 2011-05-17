@@ -38,7 +38,6 @@ import org.hsqldb.error.ErrorCode;
 import org.hsqldb.lib.FrameworkLogger;
 import org.hsqldb.lib.HashMappedList;
 import org.hsqldb.lib.HsqlArrayList;
-import org.hsqldb.lib.HsqlTimer;
 import org.hsqldb.persist.HsqlDatabaseProperties;
 import org.hsqldb.persist.HsqlProperties;
 import org.hsqldb.persist.LobManager;
@@ -48,7 +47,6 @@ import org.hsqldb.result.Result;
 import org.hsqldb.rights.GranteeManager;
 import org.hsqldb.rights.User;
 import org.hsqldb.rights.UserManager;
-import org.hsqldb.store.ValuePool;
 import org.hsqldb.types.Collation;
 
 // incorporates following contributions
@@ -61,7 +59,7 @@ import org.hsqldb.types.Collation;
  * It holds the data structures that form an HSQLDB database instance.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.2.1
+ * @version 2.1.1
  * @since 1.9.0
  */
 public class Database {
@@ -72,7 +70,6 @@ public class Database {
     private final String       canonicalPath;
     public HsqlProperties      urlProperties;
     private final String       path;
-    public Collation           collation;
     public DatabaseInformation dbInfo;
 
     /** indicates the state of the database */
@@ -135,9 +132,7 @@ public class Database {
 
     //
     public LobManager lobManager;
-
-    //
-    public CheckpointRunner checkpointRunner;
+    public Collation  collation;
 
     //
     public static final int DATABASE_ONLINE       = 1;
@@ -240,8 +235,6 @@ public class Database {
 
             lobManager.open();
             dbInfo.setWithContent(true);
-
-            checkpointRunner = new CheckpointRunner();
         } catch (Throwable e) {
             logger.closePersistence(Database.CLOSEMODE_IMMEDIATELY);
             logger.releaseLock();
@@ -270,13 +263,12 @@ public class Database {
             schemaManager.clearStructures();
         }
 
-        granteeManager   = null;
-        userManager      = null;
-        nameManager      = null;
-        schemaManager    = null;
-        sessionManager   = null;
-        dbInfo           = null;
-        checkpointRunner = null;
+        granteeManager = null;
+        userManager    = null;
+        nameManager    = null;
+        schemaManager  = null;
+        sessionManager = null;
+        dbInfo         = null;
     }
 
     /**
@@ -584,7 +576,6 @@ public class Database {
             }
         }
 
-        checkpointRunner.stop();
         logger.releaseLock();
         setState(DATABASE_SHUTDOWN);
         clearStructures();
@@ -760,55 +751,5 @@ public class Database {
 
     public HsqlProperties getURLProperties() {
         return urlProperties;
-    }
-
-    class CheckpointRunner implements Runnable {
-
-        private volatile boolean waiting;
-        private Object           timerTask;
-
-        public void run() {
-
-            try {
-                Session sysSession = sessionManager.newSysSession();
-                Statement checkpoint =
-                    ParserCommand.getAutoCheckpointStatement(Database.this);
-
-                sysSession.executeCompiledStatement(
-                    checkpoint, ValuePool.emptyObjectArray);
-                sysSession.close();
-
-                waiting = false;
-            } catch (Exception e) {
-
-                // ignore exceptions
-                // may be InterruptedException or IOException
-            }
-        }
-
-        public void start() {
-
-            if (!logger.isLogged()) {
-                return;
-            }
-
-            synchronized (this) {
-                if (waiting) {
-                    return;
-                }
-
-                waiting = true;
-            }
-
-            timerTask = DatabaseManager.getTimer().scheduleAfter(0, this);
-        }
-
-        public void stop() {
-
-            HsqlTimer.cancel(timerTask);
-
-            timerTask = null;
-            waiting   = false;
-        }
     }
 }

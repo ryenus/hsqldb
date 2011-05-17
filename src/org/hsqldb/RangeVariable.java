@@ -172,7 +172,7 @@ public class RangeVariable implements Cloneable {
     }
 
     public void resetViewRageTableAsSubquery() {
-        rangeTable                   = ((View) rangeTable).getSubqueryTable();
+        rangeTable = ((View) rangeTable).getSubqueryTable();
         joinConditions[0].rangeIndex = rangeTable.getPrimaryIndex();
     }
 
@@ -726,8 +726,9 @@ public class RangeVariable implements Cloneable {
      */
     public String describe(Session session, int blanks) {
 
-        StringBuffer sb;
-        String       b = ValuePool.spaceString.substring(0, blanks);
+        RangeVariableConditions[] conditionsArray = joinConditions;
+        StringBuffer              sb;
+        String b = ValuePool.spaceString.substring(0, blanks);
 
         sb = new StringBuffer();
 
@@ -751,26 +752,22 @@ public class RangeVariable implements Cloneable {
             sb.append(b).append("alias=").append(tableAlias.name).append("\n");
         }
 
-        RangeVariableConditions[] conditions = joinConditions;
-
-        if (whereConditions[0].hasIndexCondition()) {
-            conditions = whereConditions;
-        }
-
-        boolean fullScan = !conditions[0].hasIndexCondition();
+        boolean fullScan = !conditionsArray[0].hasIndexCondition();
 
         sb.append(b).append("access=").append(fullScan ? "FULL SCAN"
                                                        : "INDEX PRED").append(
                                                        "\n");
 
-        for (int i = 0; i < conditions.length; i++) {
+        for (int i = 0; i < conditionsArray.length; i++) {
+            RangeVariableConditions conditions = this.joinConditions[i];
+
             if (i > 0) {
                 sb.append(b).append("OR condition = [");
             } else {
                 sb.append(b).append("condition = [");
             }
 
-            sb.append(conditions[i].describe(session, blanks + 2));
+            sb.append(conditions.describe(session, blanks + 2));
             sb.append(b).append("]\n");
         }
 
