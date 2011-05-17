@@ -572,7 +572,10 @@ public class Session implements SessionInterface {
 
         if (database != null && !sessionUser.isSystem()
                 && database.logger.needsCheckpointReset()) {
-            database.checkpointRunner.start();
+            Statement checkpoint =
+                ParserCommand.getAutoCheckpointStatement(database);
+
+            executeCompiledStatement(checkpoint, ValuePool.emptyObjectArray);
         }
     }
 
@@ -1747,7 +1750,7 @@ public class Session implements SessionInterface {
                         ((Integer) row[SessionInterface.INFO_INTEGER])
                             .intValue();
 
-                    this.setIsolationDefault(value);
+                    this.setIsolation(value);
 
                     break;
                 }
