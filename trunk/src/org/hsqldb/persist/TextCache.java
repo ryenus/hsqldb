@@ -179,24 +179,35 @@ public class TextCache extends DataFileCache {
                                    stringEncoding);
 
         //-- get size and scale
-        int cacheScale = tableprops.getIntegerProperty(
-            HsqlDatabaseProperties.textdb_cache_scale,
-            dbProps.getIntegerProperty(
-                HsqlDatabaseProperties.textdb_cache_scale));
-        int cacheSizeScale = tableprops.getIntegerProperty(
-            HsqlDatabaseProperties.textdb_cache_size_scale,
-            dbProps.getIntegerProperty(
-                HsqlDatabaseProperties.textdb_cache_size_scale));
+        int cacheScale = dbProps.getIntegerProperty(
+            HsqlDatabaseProperties.textdb_cache_scale);
 
-        maxCacheRows     = (1 << cacheScale) * 3;
+        cacheScale = tableprops.getIntegerProperty(
+            HsqlDatabaseProperties.textdb_cache_scale, cacheScale);
 
-        maxCacheRows = tableprops.getIntegerProperty(            HsqlDatabaseProperties.textdb_cache_size_scale,
-            maxCacheRows);
+        int cacheSizeScale = dbProps.getIntegerProperty(
+            HsqlDatabaseProperties.textdb_cache_size_scale);
 
-        maxCacheBytes    = (1 << cacheSizeScale) * maxCacheRows;
+        cacheSizeScale = tableprops.getIntegerProperty(
+            HsqlDatabaseProperties.textdb_cache_size_scale, cacheSizeScale);
+        maxCacheRows = (1 << cacheScale) * 3;
+        maxCacheRows = dbProps.getIntegerProperty(
+            HsqlDatabaseProperties.textdb_cache_rows, maxCacheRows);
+        maxCacheRows = tableprops.getIntegerProperty(
+            HsqlDatabaseProperties.textdb_cache_rows, maxCacheRows);
+        maxCacheBytes = ((1 << cacheSizeScale) * maxCacheRows) / 1024;
+
+        if (maxCacheBytes < 4) {
+            maxCacheBytes = 4;
+        }
+
+        maxCacheBytes = dbProps.getIntegerProperty(
+            HsqlDatabaseProperties.textdb_cache_size, (int) maxCacheBytes);
+        maxCacheBytes = tableprops.getIntegerProperty(
+            HsqlDatabaseProperties.textdb_cache_size, (int) maxCacheBytes);
+        maxCacheBytes *= 1024;
 
         //-- Get size and scale
-
         maxDataFileSize  = Integer.MAX_VALUE;
         cachedRowPadding = 1;
         cacheFileScale   = 1;
