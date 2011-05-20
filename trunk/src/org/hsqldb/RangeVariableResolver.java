@@ -268,11 +268,17 @@ public class RangeVariableResolver {
             return;
         }
 
-        rangeVariables[position] = rangeVariables[0];
-        rangeVariables[0]        = range;
-        position                 = 1;
+        RangeVariable[] newRanges = new RangeVariable[rangeVariables.length];
 
-        for (; position < firstLeftJoinIndex - 1; position++) {
+        ArrayUtil.copyArray(rangeVariables, newRanges, rangeVariables.length);
+
+        newRanges[position] = newRanges[0];
+        newRanges[0]        = range;
+        position            = 1;
+
+        for (; position < firstLeftJoinIndex; position++) {
+            boolean found = false;
+
             for (int i = 0; i < joins.size(); i++) {
                 Expression e = (Expression) joins.get(i);
 
@@ -282,20 +288,29 @@ public class RangeVariableResolver {
 
                 int newPosition = getJoinedRangePosition(e, position);
 
-                if (newPosition > position) {
-                    range                       = rangeVariables[position];
-                    rangeVariables[position]    = rangeVariables[newPosition];
-                    rangeVariables[newPosition] = range;
+                if (newPosition >= position) {
+                    range                  = newRanges[position];
+                    newRanges[position]    = newRanges[newPosition];
+                    newRanges[newPosition] = range;
 
                     joins.set(i, null);
+
+                    found = true;
 
                     break;
                 }
             }
 
-            position++;
+            if (!found) {
+                break;
+            }
         }
 
+        if (position != firstLeftJoinIndex) {
+            return;
+        }
+
+        ArrayUtil.copyArray(newRanges, rangeVariables, rangeVariables.length);
         joins.clear();
 
         for (int i = 0; i < firstLeftJoinIndex; i++) {
@@ -316,7 +331,7 @@ public class RangeVariableResolver {
         for (int i = 0; i < ranges.length; i++) {
             for (int j = 0; j < rangeVariables.length; j++) {
                 if (ranges[i] == rangeVariables[j]) {
-                    if (j > position) {
+                    if (j >= position) {
                         if (found > 0) {
                             return -1;
                         } else {
@@ -610,9 +625,22 @@ public class RangeVariableResolver {
                                       joinExpressions[i]);
                 assignToRangeVariable(conditions, joinExpressions[i]);
             } else {
+                conditions = rangeVariables[i].joinConditions[0];
+
+                assignToRangeVariable(rangeVariables[i], conditions, i,
+                                      joinExpressions[i]);
+
+                conditions = rangeVariables[i].joinConditions[0];
+
+                if (conditions.hasIndexCondition()) {
+                    hasIndex = true;
+                }
+
+                assignToRangeVariable(conditions, joinExpressions[i]);
+
                 conditions = rangeVariables[i].whereConditions[0];
 
-                // assign to all range variables to the right
+                // assign to all right range variables to the right
                 for (int j = i + 1; j < rangeVariables.length; j++) {
                     if (rangeVariables[j].isRightJoin) {
                         assignToRangeVariable(
@@ -621,24 +649,13 @@ public class RangeVariableResolver {
                     }
                 }
 
-                // assign to current
-                assignToRangeVariable(rangeVariables[i], conditions, i,
-                                      whereExpressions[i]);
-                assignToRangeVariable(conditions, whereExpressions[i]);
-
                 // index only on one condition -- right and full can have index
-                if (conditions.hasIndexCondition()) {
-                    hasIndex = true;
-                }
-
-                conditions = rangeVariables[i].joinConditions[0];
-
                 if (!hasIndex) {
                     assignToRangeVariable(rangeVariables[i], conditions, i,
-                                          joinExpressions[i]);
+                                          whereExpressions[i]);
                 }
 
-                assignToRangeVariable(conditions, joinExpressions[i]);
+                assignToRangeVariable(conditions, whereExpressions[i]);
             }
         }
 
