@@ -423,11 +423,11 @@ public class HsqlDatabaseProperties extends HsqlProperties {
             1, 2, 4, 8, 16, 32
         }));
 
-        // this property is normally either 1 or 8 - 8 for new databases
+        // this property is normally 8 - or 1 for old databases from early versions
         dbMeta.put(hsqldb_cache_file_scale,
                    HsqlProperties.getMeta(hsqldb_cache_file_scale,
                                           SQL_PROPERTY, 8, new int[] {
-            1, 8, 16, 32, 64, 128
+            1, 8, 16, 32, 64, 128, 256, 512, 1024
         }));
 
         // integral defaults for user defined props - ranges
