@@ -13,12 +13,12 @@ A sample configuration is given below. The DDL table definitions use BLOBs, whic
 are stored on disk.
 
 If you are storing no more than several thousand objects, the non-blob fields can be stored in
-memory for quicker access with hsqldb.default_table_type=false. See the hsqldb documentation
+memory for quicker access with hsqldb.default_table_type=memory. See the hsqldb documentation
 at http://hsqldb.org/doc/2.0/ for different connection URL and other properties that can be used.
 
 <PersistenceManager class="org.apache.jackrabbit.core.persistence.pool.BundleDbPersistenceManager">
 <param name="driver" value="org.hsqldb.jdbcDriver"/>
-<param name="url" value="jdbc:hsqldb:file:${wsp.home}/db;hsqldb.default_table_type=true"/>
+<param name="url" value="jdbc:hsqldb:file:${wsp.home}/db;hsqldb.default_table_type=cached"/>
 <param name="schemaObjectPrefix" value="${wsp.name}_"/>
 <param name="databaseType" value="hsqldb"/>
 </PersistenceManager>
