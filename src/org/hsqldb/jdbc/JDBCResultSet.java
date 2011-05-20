@@ -4505,7 +4505,7 @@ public class JDBCResultSet implements ResultSet {
             throw Util.sqlException(ErrorCode.X_42561);
         }
 
-        if (data == null) {
+        if (trackNull(data)) {
             return null;
         }
 
