@@ -1046,7 +1046,7 @@ public class Logger {
             return;
         }
 
-        checkPower(value, 8);
+        checkPower(value, 11);
 
         if (value < 8 && value != 1) {
             throw Error.error(ErrorCode.X_42556);
@@ -1061,7 +1061,7 @@ public class Logger {
 
     public void setCacheFileScaleNoCheck(int value) {
 
-        checkPower(value, 8);
+        checkPower(value, 11);
 
         if (value < 8 && value != 1) {
             throw Error.error(ErrorCode.X_42556);
