@@ -1,3 +1,9 @@
+22 May 2012 - version 2.2.2
+-- improved EXPLAIN PLAN
+-- improved query speed for some joins
+-- improved TRUNCATE statement
+-- added support for text tables in mem: databases
+-- minor improvements
 16 May 2012 - version 2.2.1
 -- fixed regression in 2.2.0 with server TLS
 -- fixed regression in 2.2.0 with ResultSetMetaData schema names
