@@ -82,7 +82,7 @@ public class TestUtil {
         System.out.println(sw.currentElapsedTimeToMessage("Total time :"));
     }
 
-    static void deleteDatabase(String path) {
+    public static void deleteDatabase(String path) {
 
         delete(path + ".backup");
         delete(path + ".properties");
@@ -91,6 +91,8 @@ public class TestUtil {
         delete(path + ".log");
         delete(path + ".lck");
         delete(path + ".lobs");
+        delete(path + ".sql.log");
+        delete(path + ".app.log");
     }
 
     static void delete(String file) {

@@ -143,15 +143,6 @@ class TestScripts extends TestUtil {
         } catch (Exception e) {}
     }
 
-    static void deleteDatabase(String path) {
-
-        delete(path + ".backup");
-        delete(path + ".properties");
-        delete(path + ".script");
-        delete(path + ".data");
-        delete(path + ".log");
-    }
-
     static String DEF_DB = "test3";
     static String DEF_URL = "jdbc:hsqldb:" + DEF_DB
                             + ";sql.enforce_strict_size=true";
