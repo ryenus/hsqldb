@@ -376,6 +376,12 @@
       </listitem>
 
       <listitem>
+        <para>All-in-memory databases cannot create text tables, unless the
+        <varname>textdb.allow_full_path</varname> property is set true as a
+        Java system property. These text tables are always read only.</para>
+      </listitem>
+
+      <listitem>
         <para>Blank lines are allowed anywhere in the text file, and are
         ignored.</para>
       </listitem>
