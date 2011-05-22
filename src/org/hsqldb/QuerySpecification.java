@@ -1866,7 +1866,6 @@ public class QuerySpecification extends QueryExpression {
                 sb.append(b).append(
                     ((Expression) sortAndSlice.exprList.get(i)).describe(
                         session, blanks));
-                sb.append(b).append("\n]");
             }
 
             sb.append(b).append("]\n");

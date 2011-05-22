@@ -759,19 +759,49 @@ public class RangeVariable implements Cloneable {
 
         boolean fullScan = !conditions[0].hasIndexCondition();
 
-        sb.append(b).append("access=").append(fullScan ? "FULL SCAN"
-                                                       : "INDEX PRED").append(
-                                                       "\n");
+        sb.append(b);
+
+        if (conditions == whereConditions) {
+            if (joinConditions[0].nonIndexCondition != null) {
+                sb.append("join condition = [");
+                sb.append(joinConditions[0].nonIndexCondition.describe(session,
+                        blanks));
+                sb.append(b).append("]\n");
+                sb.append(b);
+            }
+        }
+
+        sb.append("access=").append(fullScan ? "FULL SCAN"
+                                             : "INDEX PRED").append("\n");
 
         for (int i = 0; i < conditions.length; i++) {
             if (i > 0) {
                 sb.append(b).append("OR condition = [");
             } else {
-                sb.append(b).append("condition = [");
+                sb.append(b);
+
+                if (conditions == whereConditions) {
+                    sb.append("where condition = [");
+                } else {
+                    sb.append("join condition = [");
+                }
             }
 
             sb.append(conditions[i].describe(session, blanks + 2));
             sb.append(b).append("]\n");
+        }
+
+        if (conditions == joinConditions) {
+            sb.append(b);
+
+            if (whereConditions[0].nonIndexCondition != null) {
+                sb.append("where condition = [");
+                sb.append(
+                    whereConditions[0].nonIndexCondition.describe(
+                        session, blanks));
+                sb.append(b).append("]\n");
+                sb.append(b);
+            }
         }
 
         return sb.toString();
@@ -1639,7 +1669,7 @@ public class RangeVariable implements Cloneable {
             StringBuffer sb = new StringBuffer();
             String       b  = ValuePool.spaceString.substring(0, blanks);
 
-            sb.append(b).append("index=").append(
+            sb.append("index=").append(
                 rangeIndex.getName().name).append("\n");
 
             if (hasIndexCondition()) {

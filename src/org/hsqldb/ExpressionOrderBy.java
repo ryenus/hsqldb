@@ -132,8 +132,6 @@ public class ExpressionOrderBy extends Expression {
 
         StringBuffer sb = new StringBuffer();
 
-        sb.append('\n');
-
         for (int i = 0; i < blanks; i++) {
             sb.append(' ');
         }
