@@ -39,6 +39,7 @@ import java.util.Locale;
 
 import org.hsqldb.Database;
 import org.hsqldb.DatabaseURL;
+import org.hsqldb.HsqlException;
 import org.hsqldb.HsqlNameManager;
 import org.hsqldb.HsqlNameManager.HsqlName;
 import org.hsqldb.NumberSequence;
@@ -62,7 +63,9 @@ import org.hsqldb.lib.ArrayUtil;
 import org.hsqldb.lib.FileAccess;
 import org.hsqldb.lib.FileUtil;
 import org.hsqldb.lib.FrameworkLogger;
+import org.hsqldb.lib.HashMap;
 import org.hsqldb.lib.HsqlArrayList;
+import org.hsqldb.lib.Iterator;
 import org.hsqldb.lib.SimpleLog;
 import org.hsqldb.lib.StringUtil;
 import org.hsqldb.lib.tar.DbBackup;
@@ -208,6 +211,8 @@ public class Logger {
         propIsFileDatabase =
             DatabaseURL.isFileBasedDatabaseType(database.getType());
         database.databaseProperties = new HsqlDatabaseProperties(database);
+        propTextAllowFullPath = database.databaseProperties.isPropertyTrue(
+            HsqlDatabaseProperties.textdb_allow_full_path);
 
         if (propIsFileDatabase) {
             hasFileProps = database.databaseProperties.load();
@@ -307,8 +312,7 @@ public class Logger {
         String appLogPath = null;
         String sqlLogPath = null;
 
-        if (DatabaseURL.isFileBasedDatabaseType(database.getType())
-                && !database.isFilesReadOnly()) {
+        if (propIsFileDatabase && !database.isFilesReadOnly()) {
             appLogPath = database.getPath() + appLogFileExtension;
             sqlLogPath = database.getPath() + sqlLogFileExtension;
         }
@@ -538,8 +542,6 @@ public class Logger {
         propMaxFreeBlocks = database.databaseProperties.getIntegerProperty(
             HsqlDatabaseProperties.hsqldb_cache_free_count_scale);
         propMaxFreeBlocks = 1 << propMaxFreeBlocks;
-        propTextAllowFullPath = database.databaseProperties.isPropertyTrue(
-            HsqlDatabaseProperties.textdb_allow_full_path);
         propWriteDelay = database.databaseProperties.getIntegerProperty(
             HsqlDatabaseProperties.hsqldb_write_delay_millis);
 
@@ -641,8 +643,11 @@ public class Logger {
      *      else false
      */
     public boolean isLogged() {
-        return DatabaseURL.isFileBasedDatabaseType(database.getType())
-               && !database.isFilesReadOnly();
+        return propIsFileDatabase && !database.isFilesReadOnly();
+    }
+
+    public boolean isAllowedFullPath() {
+        return this.propTextAllowFullPath;
     }
 
     /**
@@ -1166,21 +1171,6 @@ public class Logger {
         }
 
         throw Error.error(ErrorCode.X_42556);
-    }
-
-    /**
-     *  Opens the TextCache object.
-     */
-    public DataFileCache openTextFilePersistence(Table table, String source,
-            boolean readOnlyData, boolean reversed) {
-        return log.openTextCache(table, source, readOnlyData, reversed);
-    }
-
-    /**
-     *  Closes the TextCache object.
-     */
-    public void closeTextCache(Table table) {
-        log.closeTextCache(table);
     }
 
     public synchronized void setCheckpointRequired() {
@@ -1899,5 +1889,83 @@ public class Logger {
         } finally {
             log.checkpointReopen();
         }
+    }
+
+    // fredt@users 20020221 - patch 513005 by sqlbob@users (RMP) - text tables
+    private HashMap textCacheList = new HashMap();
+
+    /**
+     *  Opens the TextCache object.
+     */
+    public DataFileCache openTextFilePersistence(Table table, String source,
+            boolean readOnlyData, boolean reversed) {
+
+        closeTextCache(table);
+
+        if (database.getType() != DatabaseURL.S_RES
+                && !database.logger.propTextAllowFullPath) {
+            if (source.indexOf("..") != -1) {
+                throw (Error.error(ErrorCode.ACCESS_IS_DENIED, source));
+            }
+
+            String path = new File(
+                new File(
+                    database.getPath()
+                    + ".properties").getAbsolutePath()).getParent();
+
+            if (path != null) {
+                source = path + File.separator + source;
+            }
+        }
+
+        TextCache c = new TextCache(table, source);
+
+        c.open(readOnlyData || database.isFilesReadOnly());
+        textCacheList.put(table.getName(), c);
+
+        return c;
+    }
+
+    /**
+     *  Closes the TextCache object.
+     */
+    public void closeTextCache(Table table) {
+
+        TextCache c = (TextCache) textCacheList.remove(table.getName());
+
+        if (c != null) {
+            try {
+                c.close(true);
+            } catch (HsqlException e) {}
+        }
+    }
+
+    void closeAllTextCaches(boolean script) {
+
+        Iterator it = textCacheList.values().iterator();
+
+        while (it.hasNext()) {
+            TextCache textCache = ((TextCache) it.next());
+
+            // use textCache.table to cover both cach and table readonly
+            if (script && !textCache.table.isDataReadOnly()) {
+                textCache.purge();
+            } else {
+                textCache.close(true);
+            }
+        }
+    }
+
+    boolean isAnyTextCacheModified() {
+
+        Iterator it = textCacheList.values().iterator();
+
+        while (it.hasNext()) {
+            if (((TextCache) it.next()).isFileModified()) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }
