@@ -162,7 +162,7 @@ public class Table extends TableBase implements SchemaObject {
                 break;
 
             case CACHED_TABLE :
-                if (DatabaseURL.isFileBasedDatabaseType(database.getType())) {
+                if (database.logger.isFileDatabase()) {
                     persistenceScope = SCOPE_FULL;
                     isSchemaBased    = true;
                     isCached         = true;
@@ -190,7 +190,7 @@ public class Table extends TableBase implements SchemaObject {
             case TEMP_TEXT_TABLE :
                 persistenceScope = SCOPE_SESSION;
 
-                if (!DatabaseURL.isFileBasedDatabaseType(database.getType())) {
+                if (!database.logger.isFileDatabase()) {
                     throw Error.error(ErrorCode.DATABASE_IS_MEMORY_ONLY);
                 }
 
@@ -204,8 +204,12 @@ public class Table extends TableBase implements SchemaObject {
             case TEXT_TABLE :
                 persistenceScope = SCOPE_FULL;
 
-                if (!DatabaseURL.isFileBasedDatabaseType(database.getType())) {
-                    throw Error.error(ErrorCode.DATABASE_IS_MEMORY_ONLY);
+                if (!database.logger.isFileDatabase()) {
+                    if (!database.logger.isAllowedFullPath()) {
+                        throw Error.error(ErrorCode.DATABASE_IS_MEMORY_ONLY);
+                    }
+
+                    isReadOnly = true;
                 }
 
                 isSchemaBased = true;
@@ -772,8 +776,12 @@ public class Table extends TableBase implements SchemaObject {
 
         // Changing the Read-Only mode for the table is only allowed if the
         // the database can realize it.
-        if (!value && database.isFilesReadOnly() && isFileBased()) {
-            throw Error.error(ErrorCode.DATA_IS_READONLY);
+        if (!value) {
+            if (database.isFilesReadOnly() && isFileBased()) {
+                throw Error.error(ErrorCode.DATA_IS_READONLY);
+            } else if (database.getType() == DatabaseURL.S_MEM && isText) {
+                throw Error.error(ErrorCode.DATA_IS_READONLY);
+            }
         }
 
         isReadOnly = value;

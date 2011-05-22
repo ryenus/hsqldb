@@ -35,7 +35,6 @@ import java.io.File;
 import java.io.IOException;
 
 import org.hsqldb.Database;
-import org.hsqldb.DatabaseURL;
 import org.hsqldb.HsqlException;
 import org.hsqldb.HsqlNameManager;
 import org.hsqldb.HsqlNameManager.HsqlName;
@@ -48,8 +47,6 @@ import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
 import org.hsqldb.lib.FileAccess;
 import org.hsqldb.lib.FileArchiver;
-import org.hsqldb.lib.HashMap;
-import org.hsqldb.lib.Iterator;
 import org.hsqldb.scriptio.ScriptReaderBase;
 import org.hsqldb.scriptio.ScriptReaderDecode;
 import org.hsqldb.scriptio.ScriptReaderText;
@@ -201,7 +198,7 @@ public class Log {
         deleteOldTempFiles();
         deleteTempFileDirectory();
         writeScript(script);
-        closeAllTextCaches(script);
+        database.logger.closeAllTextCaches(script);
 
         if (cache != null) {
             cache.close(true);
@@ -237,7 +234,7 @@ public class Log {
             cache.close(false);
         }
 
-        closeAllTextCaches(false);
+        database.logger.closeAllTextCaches(false);
         closeLog();
     }
 
@@ -332,7 +329,7 @@ public class Log {
             return true;
         }
 
-        return isAnyTextCacheModified();
+        return database.logger.isAnyTextCacheModified();
     }
 
     void checkpoint() {
@@ -745,7 +742,7 @@ public class Log {
                     cache.close(false);
                 }
 
-                closeAllTextCaches(false);
+                database.logger.closeAllTextCaches(false);
             }
 
             database.logger.logWarningEvent("Script processing failure", e);
@@ -770,88 +767,6 @@ public class Log {
         if (fa.isStreamElement(logFileName)) {
             ScriptRunner.runScript(database, logFileName);
         }
-    }
-
-// fredt@users 20020221 - patch 513005 by sqlbob@users (RMP) - text tables
-    private HashMap textCacheList = new HashMap();
-
-    DataFileCache openTextCache(Table table, String source,
-                                boolean readOnlyData, boolean reversed) {
-
-        closeTextCache(table);
-
-        if (database.getType() != DatabaseURL.S_RES
-                && !properties.isPropertyTrue(
-                    HsqlDatabaseProperties.textdb_allow_full_path)) {
-            if (source.indexOf("..") != -1) {
-                throw (Error.error(ErrorCode.ACCESS_IS_DENIED, source));
-            }
-
-            String path = new File(
-                new File(
-                    database.getPath()
-                    + ".properties").getAbsolutePath()).getParent();
-
-            if (path != null) {
-                source = path + File.separator + source;
-            }
-        }
-
-        TextCache c = new TextCache(table, source);
-
-        c.open(readOnlyData || filesReadOnly);
-        textCacheList.put(table.getName(), c);
-
-        return c;
-    }
-
-    void closeTextCache(Table table) {
-
-        TextCache c = (TextCache) textCacheList.remove(table.getName());
-
-        if (c != null) {
-            try {
-                c.close(true);
-            } catch (HsqlException e) {}
-        }
-    }
-
-    private void closeAllTextCaches(boolean script) {
-
-        Iterator it = textCacheList.values().iterator();
-
-        while (it.hasNext()) {
-            TextCache textCache = ((TextCache) it.next());
-
-            // use textCache.table to cover both cach and table readonly
-            if (script && !textCache.table.isDataReadOnly()) {
-                textCache.purge();
-            } else {
-                textCache.close(true);
-            }
-        }
-    }
-
-    private void reopenAllTextCaches() {
-
-        Iterator it = textCacheList.values().iterator();
-
-        while (it.hasNext()) {
-            ((TextCache) it.next()).reopen();
-        }
-    }
-
-    private boolean isAnyTextCacheModified() {
-
-        Iterator it = textCacheList.values().iterator();
-
-        while (it.hasNext()) {
-            if (((TextCache) it.next()).isFileModified()) {
-                return true;
-            }
-        }
-
-        return false;
     }
 
     void deleteOldDataFiles() {
