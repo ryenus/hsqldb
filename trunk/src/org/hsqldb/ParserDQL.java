@@ -1748,6 +1748,8 @@ public class ParserDQL extends ParserBase {
                     }
 
                     throw Error.error(ErrorCode.X_42545);
+                case StatementTypes.TRUNCATE :
+                    throw Error.error(ErrorCode.X_42545);
             }
         }
 

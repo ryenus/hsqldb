@@ -695,7 +695,13 @@ public abstract class StatementDMQL extends Statement {
         for (int i = 0; i < subqueries.length; i++) {
             sb.append("\n[level=").append(subqueries[i].level).append('\n');
 
-            if (subqueries[i].queryExpression != null) {
+            if (subqueries[i].queryExpression == null) {
+                for (int j = 0; j < blanks; j++) {
+                    sb.append(' ');
+                }
+
+                sb.append("value expression");
+            } else {
                 sb.append(subqueries[i].queryExpression.describe(session,
                         blanks));
             }
