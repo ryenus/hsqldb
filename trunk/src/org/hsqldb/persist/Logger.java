@@ -140,6 +140,9 @@ public class Logger {
     String            tempDirectoryPath;
 
     //
+    private HashMap textCacheList = new HashMap();
+
+    //
     public boolean isNewDatabase;
 
     //
@@ -586,6 +589,8 @@ public class Logger {
     public boolean closePersistence(int closemode) {
 
         if (log == null) {
+            closeAllTextCaches(false);
+
             return true;
         }
 
@@ -1892,7 +1897,6 @@ public class Logger {
     }
 
     // fredt@users 20020221 - patch 513005 by sqlbob@users (RMP) - text tables
-    private HashMap textCacheList = new HashMap();
 
     /**
      *  Opens the TextCache object.
@@ -1947,7 +1951,7 @@ public class Logger {
         while (it.hasNext()) {
             TextCache textCache = ((TextCache) it.next());
 
-            // use textCache.table to cover both cach and table readonly
+            // use textCache.table to cover both cache and table readonly
             if (script && !textCache.table.isDataReadOnly()) {
                 textCache.purge();
             } else {
