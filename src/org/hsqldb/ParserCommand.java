@@ -50,7 +50,7 @@ import org.hsqldb.types.Types;
  * Parser for session and management statements
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.1.1
+ * @version 2.2.2
  * @since 1.9.0
  */
 public class ParserCommand extends ParserDDL {
@@ -175,7 +175,7 @@ public class ParserCommand extends ParserDDL {
                 break;
             }
             case Tokens.TRUNCATE : {
-                cs = compileDeleteStatement(RangeVariable.emptyArray);
+                cs = compileTruncateStatement();
 
                 break;
             }

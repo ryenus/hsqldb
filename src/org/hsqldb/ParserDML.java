@@ -31,6 +31,7 @@
 
 package org.hsqldb;
 
+import org.hsqldb.HsqlNameManager.HsqlName;
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
 import org.hsqldb.lib.ArrayUtil;
@@ -44,7 +45,7 @@ import org.hsqldb.types.Type;
  * Parser for DML statements
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.1.1
+ * @version 2.2.1
  * @since 1.9.0
  */
 public class ParserDML extends ParserDQL {
@@ -338,53 +339,27 @@ public class ParserDML extends ParserDQL {
         }
     }
 
-    /**
-     * Creates a DELETE-type Statement from this parse context.
-     */
-    StatementDMQL compileDeleteStatement(RangeVariable[] outerRanges) {
+    Statement compileTruncateStatement() {
 
-        Expression condition       = null;
-        boolean    truncate        = false;
-        boolean    restartIdentity = false;
-        int        statementType;
+        boolean         isTable         = false;
+        boolean         withCommit      = false;
+        boolean         noCheck         = false;
+        boolean         restartIdentity = false;
+        HsqlName        objectName      = null;
+        RangeVariable[] rangeVariables  = null;
+        Table           table           = null;
+        HsqlName[]      writeTableNames = null;
 
-        switch (token.tokenType) {
+        readThis(Tokens.TRUNCATE);
 
-            case Tokens.TRUNCATE : {
-                read();
-                readThis(Tokens.TABLE);
+        if (token.tokenType == Tokens.TABLE) {
+            readThis(Tokens.TABLE);
 
-                truncate      = true;
-                statementType = StatementTypes.TRUNCATE;
-
-                break;
-            }
-            case Tokens.DELETE : {
-                read();
-                readThis(Tokens.FROM);
-
-                statementType = StatementTypes.DELETE_WHERE;
-
-                break;
-            }
-            default :
-                throw unexpectedToken();
-        }
-
-        RangeVariable[] rangeVariables = {
-            readSimpleRangeVariable(statementType) };
-        Table table     = rangeVariables[0].getTable();
-        Table baseTable = table.isTriggerDeletable() ? table
-                                                     : table.getBaseTable();
-
-        if (table.isTriggerDeletable()) {
-            rangeVariables[0].resetViewRageTableAsSubquery();
-        }
-
-        if (truncate) {
-            if (table.isView()) {
-                throw Error.error(ErrorCode.X_42545);
-            }
+            rangeVariables = new RangeVariable[]{
+                readSimpleRangeVariable(StatementTypes.TRUNCATE) };
+            table      = rangeVariables[0].getTable();
+            objectName = table.getName();
+            isTable    = true;
 
             switch (token.tokenType) {
 
@@ -403,13 +378,105 @@ public class ParserDML extends ParserDQL {
                     break;
                 }
             }
+        } else {
+            readThis(Tokens.SCHEMA);
 
-            if (table.fkMainConstraints.length > 0) {
-                throw Error.error(ErrorCode.X_23504);
+            objectName = readSchemaName();
+
+            checkIsThis(Tokens.AND);
+        }
+
+        if (readIfThis(Tokens.AND)) {
+            readThis(Tokens.COMMIT);
+
+            withCommit = true;
+
+            if (readIfThis(Tokens.NO)) {
+                readThis(Tokens.CHECK);
+
+                noCheck = true;
             }
         }
 
-        if (!truncate && token.tokenType == Tokens.WHERE) {
+        if (isTable) {
+            writeTableNames = new HsqlName[]{ table.getName() };
+        } else {
+            writeTableNames =
+                session.database.schemaManager.getCatalogAndBaseTableNames();
+        }
+
+        if (isTable && !noCheck) {
+            for (int i = 0; i < table.fkMainConstraints.length; i++) {
+                if (table.fkMainConstraints[i].getRef() != table) {
+                    String tableName =
+                        table.fkMainConstraints[i].getRef().getName().name;
+
+                    throw Error.error(ErrorCode.X_23504, tableName);
+                }
+            }
+        }
+
+        if (!isTable && !noCheck) {
+            OrderedHashSet set = new OrderedHashSet();
+
+            session.database.schemaManager.getCascadingSchemaReferences(
+                objectName, set);
+
+            for (int i = 0; i < set.size(); i++) {
+                HsqlName name = (HsqlName) set.get(i);
+
+                if (name.type == SchemaObject.CONSTRAINT) {
+                    if (name.parent.type == SchemaObject.TABLE) {
+                        Table refTable =
+                            (Table) session.database.schemaManager
+                                .getUserTable(session, name.parent);
+
+                        throw Error.error(ErrorCode.X_23504,
+                                          refTable.getName().name);
+                    }
+                }
+            }
+        }
+
+        if (withCommit) {
+            Object[] args = new Object[] {
+                objectName, restartIdentity
+            };
+
+            return new StatementCommand(StatementTypes.TRUNCATE, args, null,
+                                        writeTableNames);
+        }
+
+        Statement cs = new StatementDML(session, table, rangeVariables,
+                                        compileContext, restartIdentity,
+                                        StatementTypes.TRUNCATE);
+
+        return cs;
+    }
+
+    /**
+     * Creates a DELETE-type Statement from this parse context.
+     */
+    Statement compileDeleteStatement(RangeVariable[] outerRanges) {
+
+        Expression condition       = null;
+        boolean    restartIdentity = false;
+
+        readThis(Tokens.DELETE);
+        readThis(Tokens.FROM);
+
+        RangeVariable[] rangeVariables = null;
+        Table           table          = null;
+
+        rangeVariables = new RangeVariable[]{
+            readSimpleRangeVariable(StatementTypes.DELETE_WHERE) };
+        table = rangeVariables[0].getTable();
+
+        if (table.isTriggerDeletable()) {
+            rangeVariables[0].resetViewRageTableAsSubquery();
+        }
+
+        if (token.tokenType == Tokens.WHERE) {
             read();
 
             condition = XreadBooleanValueExpression();
@@ -431,6 +498,9 @@ public class ParserDML extends ParserDQL {
                 throw Error.error(ErrorCode.X_42568);
             }
         }
+
+        Table baseTable = table.isTriggerDeletable() ? table
+                                                     : table.getBaseTable();
 
         if (table != baseTable) {
             QuerySpecification baseSelect =
@@ -485,9 +555,9 @@ public class ParserDML extends ParserDQL {
             rangeVariables = resolver.rangeVariables;
         }
 
-        StatementDMQL cs = new StatementDML(session, table, rangeVariables,
-                                            compileContext, restartIdentity,
-                                            statementType);
+        Statement cs = new StatementDML(session, table, rangeVariables,
+                                        compileContext, restartIdentity,
+                                        StatementTypes.DELETE_WHERE);
 
         return cs;
     }

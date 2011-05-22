@@ -35,9 +35,11 @@ import org.hsqldb.HsqlNameManager.HsqlName;
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
 import org.hsqldb.index.Index;
+import org.hsqldb.lib.HashMappedList;
 import org.hsqldb.lib.java.JavaSystem;
 import org.hsqldb.persist.HsqlDatabaseProperties;
 import org.hsqldb.persist.HsqlProperties;
+import org.hsqldb.persist.PersistentStore;
 import org.hsqldb.result.Result;
 import org.hsqldb.result.ResultMetaData;
 import org.hsqldb.rights.User;
@@ -47,7 +49,7 @@ import org.hsqldb.scriptio.ScriptWriterText;
  * Implementation of Statement for SQL commands.<p>
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.1.1
+ * @version 2.2.2
  * @since 1.9.0
  */
 public class StatementCommand extends Statement {
@@ -75,6 +77,11 @@ public class StatementCommand extends Statement {
         }
 
         switch (type) {
+
+            case StatementTypes.TRUNCATE :
+                group = StatementTypes.X_HSQLDB_DATABASE_OPERATION;
+                isTransactionStatement = true;
+                break;
 
             case StatementTypes.EXPLAIN_PLAN :
                 group                  = StatementTypes.X_SQL_DIAGNOSTICS;
@@ -113,7 +120,6 @@ public class StatementCommand extends Statement {
             case StatementTypes.SET_DATABASE_FILES_EVENT_LOG :
                 isTransactionStatement = false;
                 group                  = StatementTypes.X_HSQLDB_SETTING;
-                isLogged               = false;
                 break;
 
 //
@@ -169,9 +175,9 @@ public class StatementCommand extends Statement {
                 break;
 
             case StatementTypes.DATABASE_SHUTDOWN :
-                isLogged               = false;
                 group = StatementTypes.X_HSQLDB_DATABASE_OPERATION;
                 isTransactionStatement = false;
+                isLogged               = false;
                 break;
 
             case StatementTypes.SET_TABLE_TYPE :
@@ -195,6 +201,7 @@ public class StatementCommand extends Statement {
             case StatementTypes.ALTER_SESSION :
                 group                  = StatementTypes.X_HSQLDB_SESSION;
                 isTransactionStatement = false;
+                isLogged               = false;
                 break;
 
             default :
@@ -239,6 +246,50 @@ public class StatementCommand extends Statement {
 
         switch (type) {
 
+            case StatementTypes.TRUNCATE : {
+                try {
+                    HsqlName name            = (HsqlName) parameters[0];
+                    boolean  restartIdentity = (Boolean) parameters[1];
+                    Table[]  tables;
+
+                    if (name.type == SchemaObject.TABLE) {
+                        Table table =
+                            session.database.schemaManager.getUserTable(
+                                session, name);
+
+                        tables = new Table[]{ table };
+
+                        StatementSchema.checkSchemaUpdateAuthorisation(session,
+                                name.schema);
+                    } else {
+                        HashMappedList list =
+                            session.database.schemaManager.getTables(
+                                name.name);
+
+                        tables = new Table[list.size()];
+
+                        list.toValuesArray(tables);
+                        StatementSchema.checkSchemaUpdateAuthorisation(session,
+                                name);
+                    }
+
+                    for (int i = 0; i < tables.length; i++) {
+                        Table           table = tables[i];
+                        PersistentStore store = table.getRowStore(session);
+
+                        store.removeAll();
+
+                        if (restartIdentity
+                                && table.identitySequence != null) {
+                            table.identitySequence.reset();
+                        }
+                    }
+
+                    return Result.updateZeroResult;
+                } catch (HsqlException e) {
+                    return Result.newErrorResult(e, sql);
+                }
+            }
             case StatementTypes.EXPLAIN_PLAN : {
                 Statement statement = (Statement) parameters[0];
 
