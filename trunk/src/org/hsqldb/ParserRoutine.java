@@ -298,7 +298,6 @@ public class ParserRoutine extends ParserDML {
     Statement compileGetStatement(RangeVariable rangeVars[]) {
 
         read();
-
         readThis(Tokens.DIAGNOSTICS);
 
         OrderedHashSet targetSet    = new OrderedHashSet();
@@ -350,6 +349,7 @@ public class ParserRoutine extends ParserDML {
 
         return cs;
     }
+
     /**
      * Creates SET Statement for PSM or session variables from this parse context.
      */
@@ -1371,12 +1371,19 @@ public class ParserRoutine extends ParserDML {
                     break;
 
                 case Tokens.DELETE :
-                case Tokens.TRUNCATE :
                     if (label != null) {
                         throw unexpectedToken();
                     }
 
                     cs = compileDeleteStatement(rangeVariables);
+                    break;
+
+                case Tokens.TRUNCATE :
+                    if (label != null) {
+                        throw unexpectedToken();
+                    }
+
+                    cs = compileTruncateStatement();
                     break;
 
                 case Tokens.MERGE :

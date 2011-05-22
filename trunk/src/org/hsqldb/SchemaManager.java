@@ -1597,8 +1597,7 @@ public class SchemaManager {
         }
     }
 
-    //
-    private void getCascadingSchemaReferences(HsqlName schema,
+    public void getCascadingSchemaReferences(HsqlName schema,
             OrderedHashSet set) {
 
         Iterator mainIterator = referenceMap.keySet().iterator();
