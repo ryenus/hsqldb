@@ -3213,26 +3213,60 @@ DELETE FROM T AS TT WHERE TT.A = (SELECT MAX(A) FROM T)
       <simpara><emphasis>truncate table statement</emphasis></simpara>
 
       <simpara><literal>&lt;truncate table statement&gt; ::= TRUNCATE TABLE
-      &lt;target table&gt; [ &lt;identity column restart option&gt;
-      ]</literal></simpara>
+      &lt;target table&gt; [ &lt;identity column restart option&gt; ] [
+      &lt;truncate options&gt;</literal></simpara>
 
       <simpara><literal>&lt;identity column restart option&gt; ::= CONTINUE
       IDENTITY | RESTART IDENTITY</literal></simpara>
 
+      <simpara><literal>&lt;truncate options&gt; ::= AND COMMIT [ NO CHECK
+      ]</literal></simpara>
+
       <simpara>Delete all rows of a table without firing its triggers. This
       statement can only be used on base tables (not views). If the table is
-      referenced in a FOREIGN KEY constraint, the statement causes an
-      exception. Triggers defined on the table are not executed with this
-      statement. The default for <literal>&lt;identity column restart
-      option&gt;</literal> is <literal>CONTINUE IDENTITY</literal>. This means
-      no change to the IDENTITY sequence of the table. If <literal>RESTART
-      IDENTITY</literal> is specified, then the sequence is reset to its start
-      value.</simpara>
+      referenced in a FOREIGN KEY constraint defined on another table, the
+      statement causes an exception. Triggers defined on the table are not
+      executed with this statement. The default for <literal>&lt;identity
+      column restart option&gt;</literal> is <literal>CONTINUE
+      IDENTITY</literal>. This means no change to the IDENTITY sequence of the
+      table. If <literal>RESTART IDENTITY</literal> is specified, then the
+      sequence is reset to its start value.</simpara>
 
       <simpara>TRUNCATE is faster than ordinary DELETE. The TRUNCATE statement
       is an SQL Standard data change statement, therefore it is performed
       under transaction control and can be rolled back if the connection is
       not in the auto-commit mode.</simpara>
+
+      <simpara>HyperSQL also supports the optional AND COMMIT and NO CHECK
+      options. If AND COMMIT is used, then the transaction is committed with
+      the execution of the TRUNCATE statement. The action cannot be rolled
+      back. If the additional NO CHECK option is also specified, then the
+      TRUNCATE statement is executed even if the table is referenced in a
+      FOREIGN KEY constraint defined on another table. This form of TRUNCATE
+      is faster than the default form and does not use much memory.</simpara>
+
+      <simpara>Use of the AND COMMIT option requires schema ownership or
+      administrative privileges.</simpara>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>TRUNCATE SCHEMA</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">TRUNCATE SCHEMA</emphasis></simpara>
+
+      <simpara><emphasis>truncate schema statement</emphasis></simpara>
+
+      <simpara><literal>&lt;truncate schema statement&gt; ::= TRUNCATE SCHEMA
+      &lt;target schema&gt; AND COMMIT [ NO CHECK ]</literal></simpara>
+
+      <simpara>Performs the equivalent of a TRANCATE TABLE ... AND COMMIT on
+      all the table in the schema. If the additional NO CHECK option is also
+      specified, then the TRUNCATE statement is executed even if any of the
+      tables in the schema is referenced in a FOREIGN KEY constraint defined
+      on table in a different schema.</simpara>
+
+      <simpara>Use of this statement requires schema ownership or
+      administrative privileges.</simpara>
     </section>
 
     <section>
