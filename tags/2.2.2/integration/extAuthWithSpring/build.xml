@@ -1,0 +1,91 @@
+<project name="extAuthWithSpring" default="run" xmlns:ivy="antlib:org.apache.ivy.ant">
+<!--
+  Copyright (c) 2010, The HSQL Development Group. All rights reserved.
+  Released under the HSQL license, available at http://hsqldb.org
+-->
+
+  <!--
+     You must set Ant property 'authentication.mode' to either
+     "LDAP" or "JAAS" or "HsqldbSlave" or "JAAS_LDAP".
+
+     To use StartTLS, (a) The CN of the LDAP server's cert must have CN of
+     thos hostname that you set with property 'ldapHost' in the "beandefs.xml"
+     file; and (b) if the LDAP server's cert is not trusted by the JVM (which a
+     commercial cert should be), you must set Ant property 'truststore.path'.
+
+     If you want to use this as a template for a real application, then you
+     should use Ivy to pull in the hsqldb jar file, instead of directly with
+     the 'hsqldb.jarfile' ant property.  To do that, just wipe out all uses
+     of 'hsqldb.jarfile' from this file, and enable the hsqldb jar file
+     dependency in the "ivy.xml" file.
+  -->
+  <property name="javac.debug" value="true"/>
+  <property name="javac.deprecation" value="false"/>
+  <property name="javac.targetVersion" value="1.6"/>
+  <property name="javac.sourceVersion" value="${javac.targetVersion}"/>
+  <property name="target.class" value="org.hsqldb.sample.SpringExtAuth"/>
+  <property name="hsqldb.jarfile" value="${basedir}/../../lib/hsqldb.jar"/>
+
+  <import file="ivy-projsetup.xml" />
+
+  <target name='recompile' description="Recompile" depends="clean, compile"/>
+  <target name='rerun' depends="clean, run"/>
+
+  <target name='clean'>
+    <delete dir="classes"/>
+  </target>
+
+  <target name="-mk-jaas-cfg" unless="jaascfg.exists">
+    <copy file="../../sample/jaas.cfg" todir="resources"/>
+  </target>
+
+  <target description="Compile" name='compile' depends="-ivy-setup">
+    <available file="resources/jaas.cfg" property="jaascfg.exists"/>
+    <antcall target="-mk-jaas-cfg"/>
+    <ivy:cachepath conf="build" pathid="build.ivyrefid"/>
+    <mkdir dir="classes"/>
+    <javac srcdir="src" destdir="classes" classpathref="build.ivyrefid"
+           source="${javac.sourceVersion}" target="${javac.targetVersion}"
+           deprecation="${javac.deprecation}" debug="${javac.debug}"/>
+         <javac srcdir="../../test-src" destdir="classes"
+           classpath="${hsqldb.jarfile}"
+           includes="org/hsqldb/auth/StartCharModule.java"
+           source="${javac.sourceVersion}" target="${javac.targetVersion}"
+           deprecation="${javac.deprecation}" debug="${javac.debug}"/>
+  </target>
+
+  <target name='-set-truststore-property-name' if="truststore.path">
+    <available property="truststore.available" file="${truststore.path}"
+               type="file"/>
+    <fail unless="truststore.available"
+     message="Specified truststore file is not available: ${truststore.path}"/>
+    <property name="truststore.property" value="javax.net.ssl.trustStore"/>
+  </target>
+
+  <target name='run' description="Run program"
+          depends="compile, -set-truststore-property-name">
+    <fail unless="authentication.mode">
+    You must set Ant property 'authentication.mode' to either
+    "LDAP" or "JAAS" or "HsqldbSlave" or "JAAS_LDAP".</fail>
+    <fail unless="hsqldb.jarfile">
+      Ant property 'hsqldb.jarfile' is required.
+      To get it using Ivy, SEE COMMENTS THE BUILD FILE.</fail>
+    <property name="truststore.property" value="DUMMY"/>
+    <available property="_hsqldb.present" file="${hsqldb.jarfile}" type="file"/>
+    <fail unless="_hsqldb.present"
+          message="HyperSQL jar file missing: ${hsqldb.jarfile}"/>
+    <ivy:cachepath conf="run" pathid="run.ivyrefid"/>
+    <java classname="${target.class}"
+          classpath="classes:resources:${hsqldb.jarfile}"
+          classpathref="run.ivyrefid" failonerror="true" fork="true">
+      <arg value="${authentication.mode}"/>
+      <sysproperty key="${truststore.property}" value="${truststore.path}"/>
+      <sysproperty key="java.util.logging.config.file" value="jul.properties"/>
+      <sysproperty key="java.security.auth.login.config"
+                   value="file:resources/jaas.cfg"/>
+    </java>
+          <!--  Log4j logging
+      classpath="classes:resources:${hsqldb.jarfile}:${user.home}/lib-repos/log4j-1.2.16.jar:${user.home}/lib-repos/admc-log4j-1.2_3.jar"
+      -->
+  </target>
+</project>
