@@ -1996,13 +1996,16 @@ public class JDBCConnection implements Connection {
             throw Util.sqlException(ErrorCode.X_3B001);
         }
 
+        Savepoint savepoint = new JDBCSavepoint(this);
+
         try {
-            sessionProxy.savepoint("SYSTEM_SAVEPOINT");
+            sessionProxy.savepoint(savepoint.getSavepointName());
         } catch (HsqlException e) {
             Util.throwError(e);
         }
 
-        return new JDBCSavepoint(this);
+        return savepoint;
+
     }
 
 //#endif JAVA4
@@ -2057,7 +2060,7 @@ public class JDBCConnection implements Connection {
             throw Util.nullArgument();
         }
 
-        if ("SYSTEM_SAVEPOINT".equals(name)) {
+        if (name.startsWith("SYSTEM_SAVEPOINT_")) {
             throw Util.invalidArgument();
         }
 

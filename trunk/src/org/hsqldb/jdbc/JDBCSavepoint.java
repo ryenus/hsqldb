@@ -94,8 +94,8 @@ public class JDBCSavepoint implements Savepoint {
             throw Util.nullArgument("conn");
         }
 
-        this.name       = "SYSTEM_SAVEPOINT";
         this.id         = conn.getSavepointID();
+        this.name       = "SYSTEM_SAVEPOINT_" + id;
         this.connection = conn;
     }
 
