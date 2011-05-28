@@ -1887,6 +1887,9 @@ public class Session implements SessionInterface {
             case ResultLob.LobResultTypes.REQUEST_TRUNCATE : {
                 throw Error.error(ErrorCode.X_0A501);
             }
+            case ResultLob.LobResultTypes.REQUEST_GET_TRUNCATE_LENGTH : {
+                return database.lobManager.getTruncateLength(id);
+            }
             case ResultLob.LobResultTypes.REQUEST_CREATE_BYTES :
             case ResultLob.LobResultTypes.REQUEST_CREATE_CHARS :
             case ResultLob.LobResultTypes.REQUEST_GET_BYTE_PATTERN_POSITION :

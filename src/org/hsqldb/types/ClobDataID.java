@@ -43,7 +43,7 @@ import org.hsqldb.result.ResultLob;
  * Locator for CLOB.<p>
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.0.1
+ * @version 2.2.3
  * @since 1.9.0
  */
 public class ClobDataID implements ClobData {
@@ -201,11 +201,26 @@ public class ClobDataID implements ClobData {
 
     public long position(SessionInterface session, ClobData searchstr,
                          long start) {
-        return 0L;
+        ResultLob resultOut = ResultLob.newLobGetCharPatternPositionRequest(id,
+            searchstr.getId(), start);
+        Result resultIn = session.execute(resultOut);
+
+        if (resultIn.isError()) {
+            throw resultIn.getException();
+        }
+
+        return ((ResultLob) resultIn).getOffset();
     }
 
     public long nonSpaceLength(SessionInterface session) {
-        return 0;
+        ResultLob resultOut = ResultLob.newLobGetTruncateLength(id);
+        Result resultIn = session.execute(resultOut);
+
+        if (resultIn.isError()) {
+            throw resultIn.getException();
+        }
+
+        return ((ResultLob) resultIn).getBlockLength();
     }
 
     public Reader getCharacterStream(SessionInterface session, long pos,
@@ -219,10 +234,6 @@ public class ClobDataID implements ClobData {
 
     public void setId(long id) {
         this.id = id;
-    }
-
-    public long getRightTrimSize(SessionInterface session) {
-        return 0;
     }
 
     static boolean isInLimits(long fullLength, long pos, long len) {

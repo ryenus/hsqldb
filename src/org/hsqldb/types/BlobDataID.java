@@ -43,7 +43,7 @@ import org.hsqldb.result.ResultLob;
  * Locator for BLOB.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.0.1
+ * @version 2.2.3
  * @since 1.9.0
  */
 public class BlobDataID implements BlobData {
@@ -138,7 +138,7 @@ public class BlobDataID implements BlobData {
     }
 
     public long bitLength(SessionInterface session) {
-        return 0;
+        return length(session) * 8;
     }
 
     public boolean isBits() {
@@ -147,7 +147,15 @@ public class BlobDataID implements BlobData {
 
     public long position(SessionInterface session, BlobData pattern,
                          long start) {
-        return 0L;
+        ResultLob resultOut = ResultLob.newLobGetCharPatternPositionRequest(id,
+            pattern.getId(), start);
+        Result resultIn = session.execute(resultOut);
+
+        if (resultIn.isError()) {
+            throw resultIn.getException();
+        }
+
+        return ((ResultLob) resultIn).getOffset();
     }
 
     public long position(SessionInterface session, byte[] pattern,
@@ -157,11 +165,22 @@ public class BlobDataID implements BlobData {
             pattern, start);
         ResultLob resultIn = (ResultLob) session.execute(resultOut);
 
+        if (resultIn.isError()) {
+            throw resultIn.getException();
+        }
+
         return resultIn.getOffset();
     }
 
     public long nonZeroLength(SessionInterface session) {
-        return 0;
+        ResultLob resultOut = ResultLob.newLobGetTruncateLength(id);
+        Result resultIn = session.execute(resultOut);
+
+        if (resultIn.isError()) {
+            throw resultIn.getException();
+        }
+
+        return ((ResultLob) resultIn).getBlockLength();
     }
 
     public OutputStream setBinaryStream(SessionInterface session, long pos) {
