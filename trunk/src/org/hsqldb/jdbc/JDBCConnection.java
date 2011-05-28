@@ -1996,10 +1996,10 @@ public class JDBCConnection implements Connection {
             throw Util.sqlException(ErrorCode.X_3B001);
         }
 
-        Savepoint savepoint = new JDBCSavepoint(this);
+        JDBCSavepoint savepoint = new JDBCSavepoint(this);
 
         try {
-            sessionProxy.savepoint(savepoint.getSavepointName());
+            sessionProxy.savepoint(savepoint.name);
         } catch (HsqlException e) {
             Util.throwError(e);
         }
