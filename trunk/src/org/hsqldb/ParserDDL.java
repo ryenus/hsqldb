@@ -3719,8 +3719,6 @@ public class ParserDDL extends ParserRoutine {
                                 true);
                     }
                     case Tokens.GENERATED : {
-                        read();
-
                         return compileAlterColumnAddSequence(table, column,
                                                              columnIndex);
                     }
@@ -3731,8 +3729,6 @@ public class ParserDDL extends ParserRoutine {
                 }
             }
             case Tokens.GENERATED :
-                read();
-
                 return compileAlterColumnAddSequence(table, column,
                                                      columnIndex);
 
@@ -3781,18 +3777,28 @@ public class ParserDDL extends ParserRoutine {
         } else {
             type = readTypeDefinition(false, true);
 
-            if (token.tokenType == Tokens.IDENTITY) {
-                read();
+            switch (token.tokenType) {
 
-                if (!type.isIntegralType()) {
-                    throw Error.error(ErrorCode.X_42561);
-                }
+                case Tokens.IDENTITY : {
+                    if (!type.isIntegralType()) {
+                        throw Error.error(ErrorCode.X_42561);
+                    }
 
-                if (sequence == null) {
-                    sequence = new NumberSequence(null, type);
+                    read();
+
+                    if (sequence == null) {
+                        sequence = new NumberSequence(null, type);
+                    }
+
+                    break;
                 }
-            } else {
-                sequence = null;
+                case Tokens.GENERATED : {
+                    sequence = readSequence(column);
+
+                    break;
+                }
+                default :
+                    sequence = null;
             }
         }
 
@@ -3898,6 +3904,22 @@ public class ParserDDL extends ParserRoutine {
             throw Error.error(ErrorCode.X_42525);
         }
 
+        NumberSequence sequence = readSequence(column);
+        String         sql      = getLastPart();
+        Object[]       args     = new Object[] {
+            StatementTypes.ALTER_COLUMN_SEQUENCE, table, column, colIndex,
+            sequence
+        };
+        HsqlName[] writeLockNames = new HsqlName[]{ table.getName() };
+
+        return new StatementSchema(sql, StatementTypes.ALTER_TABLE, args,
+                                   null, writeLockNames);
+    }
+
+    NumberSequence readSequence(ColumnSchema column) {
+
+        readThis(Tokens.GENERATED);
+
         NumberSequence sequence;
 
         sequence = new NumberSequence(null, column.getDataType());
@@ -3925,15 +3947,7 @@ public class ParserDDL extends ParserRoutine {
 
         sequence.checkValues();
 
-        String   sql  = getLastPart();
-        Object[] args = new Object[] {
-            StatementTypes.ALTER_COLUMN_SEQUENCE, table, column, colIndex,
-            sequence
-        };
-        HsqlName[] writeLockNames = new HsqlName[]{ table.getName() };
-
-        return new StatementSchema(sql, StatementTypes.ALTER_TABLE, args,
-                                   null, writeLockNames);
+        return sequence;
     }
 
     StatementSchema compileAlterColumnSequenceOptions(Table table,
@@ -4359,7 +4373,6 @@ public class ParserDDL extends ParserRoutine {
                 readThis(Tokens.FOR);
 
                 isGrantOption = true;
-
             } else if (token.tokenType == Tokens.HIERARCHY) {
                 throw unsupportedFeature();
 /*
