@@ -1,10 +1,14 @@
-22 May 2012 - version 2.2.2
+29 May 2011 - version 2.2.2
+-- fixed issue with limit offset with indexed IN predicate
+-- minor improvements
+22 May 2011 - version 2.2.2
+-- increased .data file limit to 2TB
 -- improved EXPLAIN PLAN
 -- improved query speed for some joins
 -- improved TRUNCATE statement
 -- added support for text tables in mem: databases
 -- minor improvements
-16 May 2012 - version 2.2.1
+16 May 2011 - version 2.2.1
 -- fixed regression in 2.2.0 with server TLS
 -- fixed regression in 2.2.0 with ResultSetMetaData schema names
 -- fixed type limitations of Connection#createArrayOf
