@@ -809,10 +809,15 @@ public class LobManager {
      * Used for SUBSTRING
      */
     public Result getLob(long lobID, long offset, long length) {
+
+        if (offset == 0) {
+            return createDuplicateLob(lobID, length);
+        }
+
         throw Error.runtimeError(ErrorCode.U_S0500, "LobManager");
     }
 
-    public Result createDuplicateLob(long lobID) {
+    public Result createDuplicateLob(long lobID, long newLength) {
 
         writeLock.lock();
 
@@ -821,6 +826,12 @@ public class LobManager {
 
             if (data == null) {
                 return Result.newErrorResult(Error.error(ErrorCode.X_0F502));
+            }
+
+            long length = ((Long) data[LOB_IDS.LOB_LENGTH]).longValue();
+
+            if (length <= newLength) {
+                return ResultLob.newLobCreateBlobResponse(lobID);
             }
 
             long   newLobID = getNewLobID();
@@ -838,15 +849,14 @@ public class LobManager {
                 return result;
             }
 
-            long length     = ((Long) data[1]).longValue();
-            long byteLength = length;
-            int  lobType    = ((Integer) data[1]).intValue();
+            long byteLength = newLength;
+            int  lobType    = ((Integer) data[LOB_IDS.LOB_TYPE]).intValue();
 
             if (lobType == Types.SQL_CLOB) {
                 byteLength *= 2;
             }
 
-            int newBlockCount = (int) byteLength / lobBlockSize;
+            int newBlockCount = (int) (byteLength / lobBlockSize);
 
             if (byteLength % lobBlockSize != 0) {
                 newBlockCount++;
@@ -866,9 +876,43 @@ public class LobManager {
                 return Result.newErrorResult(e);
             }
 
+            // clear the end block unused space
+            int endOffset = (int) (byteLength % lobBlockSize);
+
+            if (endOffset != 0) {
+                int[] block = targetBlocks[targetBlocks.length - 1];
+                int blockOffset = block[LOBS.BLOCK_ADDR]
+                                  + block[LOBS.BLOCK_COUNT] - 1;
+                byte[] bytes = getLobStore().getBlockBytes(blockOffset, 1);
+
+                ArrayUtil.fillArray(bytes, endOffset, (byte) 0);
+                getLobStore().setBlockBytes(bytes, blockOffset, 1);
+            }
+
             usageCountChanged = true;
 
-            return ResultLob.newLobSetResponse(newLobID, length);
+            return ResultLob.newLobSetResponse(newLobID, newLength);
+        } finally {
+            writeLock.unlock();
+        }
+    }
+
+    // todo - currently returns whole length
+    public Result getTruncateLength(long lobID) {
+
+        writeLock.lock();
+
+        try {
+            Object[] data = getLobHeader(lobID);
+
+            if (data == null) {
+                throw Error.error(ErrorCode.X_0F502);
+            }
+
+            long length = ((Long) data[LOB_IDS.LOB_LENGTH]).longValue();
+            int  type   = ((Integer) data[LOB_IDS.LOB_TYPE]).intValue();
+
+            return ResultLob.newLobSetResponse(lobID, length);
         } finally {
             writeLock.unlock();
         }
@@ -904,6 +948,10 @@ public class LobManager {
             }
 
             if (sourceIndex == source.length) {
+                break;
+            }
+
+            if (targetIndex == target.length) {
                 break;
             }
         }

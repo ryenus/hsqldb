@@ -66,6 +66,9 @@ public final class ResultLob extends Result {
         int REQUEST_GET_LENGTH                = 10;
         int REQUEST_GET_LOB                   = 11;
 
+        // non-network
+        int REQUEST_GET_TRUNCATE_LENGTH = 12;
+
         //
         int RESPONSE_GET_BYTES                 = 21;
         int RESPONSE_SET                       = 22;
@@ -218,6 +221,18 @@ public final class ResultLob extends Result {
         return result;
     }
 
+    public static ResultLob newLobGetBytePatternPositionRequest(long id,
+            long otherId, long offset) {
+
+        ResultLob result = new ResultLob();
+
+        result.subType     = LobResultTypes.REQUEST_GET_BYTE_PATTERN_POSITION;
+        result.lobID       = id;
+        result.blockOffset = offset;
+
+        return result;
+    }
+
     public static ResultLob newLobGetCharPatternPositionRequest(long id,
             char[] pattern, long offset) {
 
@@ -228,6 +243,19 @@ public final class ResultLob extends Result {
         result.blockOffset = offset;
         result.charBlock   = pattern;
         result.blockLength = pattern.length;
+
+        return result;
+    }
+
+    public static ResultLob newLobGetCharPatternPositionRequest(long id,
+            long otherId, long offset) {
+
+        ResultLob result = new ResultLob();
+
+        result.subType     = LobResultTypes.REQUEST_GET_CHAR_PATTERN_POSITION;
+        result.lobID       = id;
+        result.blockOffset = offset;
+        result.blockLength = otherId;
 
         return result;
     }
@@ -254,6 +282,16 @@ public final class ResultLob extends Result {
         result.subType     = LobResultTypes.REQUEST_CREATE_CHARS;
         result.blockLength = length;
         result.reader      = reader;
+
+        return result;
+    }
+
+    public static ResultLob newLobGetTruncateLength(long id) {
+
+        ResultLob result = new ResultLob();
+
+        result.subType = LobResultTypes.REQUEST_GET_TRUNCATE_LENGTH;
+        result.lobID   = id;
 
         return result;
     }
@@ -556,6 +594,7 @@ public final class ResultLob extends Result {
             if (byteArrayOS.size() == 0) {
                 break;
             }
+
             //
             dataOut.writeByte(mode);
             dataOut.writeInt(databaseID);
@@ -613,6 +652,7 @@ public final class ResultLob extends Result {
             if (byteArrayOS.size() == 0) {
                 break;
             }
+
             //
             dataOut.writeByte(mode);
             dataOut.writeInt(databaseID);

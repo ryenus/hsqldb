@@ -49,7 +49,7 @@ import org.hsqldb.lib.java.JavaSystem;
  * Type subclass for CHARACTER, VARCHAR, etc.<p>
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.2.1
+ * @version 2.2.3
  * @since 1.9.0
  */
 public class CharacterType extends Type {
@@ -814,6 +814,10 @@ public class CharacterType extends Type {
                 return -1;
             }
 
+            if (otherLength > Integer.MAX_VALUE) {
+                throw Error.error(ErrorCode.X_22026);
+            }
+
             String otherString = ((ClobData) otherData).getSubString(session,
                 0, (int) otherLength);
 
@@ -882,6 +886,10 @@ public class CharacterType extends Type {
                                              (int) (offset + length));
         } else if (data instanceof ClobData) {
             ClobData clob = session.createClob(length);
+
+            if (length > Integer.MAX_VALUE) {
+                throw Error.error(ErrorCode.X_22001);
+            }
 
             /** @todo - change to support long strings */
             String result = ((ClobData) data).getSubString(session, offset,
@@ -952,8 +960,13 @@ public class CharacterType extends Type {
         String s;
 
         if (typeCode == Types.SQL_CLOB) {
-            s = ((ClobData) data).getSubString(
-                session, 0, (int) ((ClobData) data).length(session));
+            long length = ((ClobData) data).length(session);
+
+            if (length > Integer.MAX_VALUE) {
+                throw Error.error(ErrorCode.X_22026);
+            }
+
+            s = ((ClobData) data).getSubString(session, 0, (int) length);
         } else {
             s = (String) data;
         }

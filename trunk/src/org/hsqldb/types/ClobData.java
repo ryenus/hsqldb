@@ -81,6 +81,4 @@ public interface ClobData extends LobData {
     long getId();
 
     void setId(long id);
-
-    long getRightTrimSize(SessionInterface session);
 }
