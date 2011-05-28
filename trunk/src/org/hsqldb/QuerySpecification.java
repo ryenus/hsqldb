@@ -923,9 +923,15 @@ public class QuerySpecification extends QueryExpression {
                         break;
                     }
 
-                    if (rangeVariables.length == 1 && queryCondition == null
-                            && e.getLeftNode().getType() == OpTypes.ASTERISK) {
-                        isSimpleCount = true;
+                    if (rangeVariables.length == 1 && queryCondition == null) {
+                        Expression expr = e.getLeftNode();
+
+                        if (expr.getType() == OpTypes.ASTERISK) {
+                            isSimpleCount = true;
+                        } else if (expr.getNullability()
+                                   == SchemaObject.Nullability.NO_NULLS) {
+                            isSimpleCount = true;
+                        }
                     }
 
                     break;
