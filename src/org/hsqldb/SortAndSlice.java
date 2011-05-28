@@ -166,34 +166,6 @@ public final class SortAndSlice {
                 collations[i] = sort.collation;
             }
         }
-
-        if (select == null || hasNullsLast) {
-            return;
-        }
-
-        if (select.isDistinctSelect || select.isGrouped
-                || select.isAggregated) {
-            return;
-        }
-
-        int[] colIndexes = new int[columnCount];
-
-        for (int i = 0; i < columnCount; i++) {
-            Expression e = ((Expression) exprList.get(i)).getLeftNode();
-
-            if (e.getType() != OpTypes.COLUMN) {
-                return;
-            }
-
-            if (((ExpressionColumn) e).getRangeVariable()
-                    != select.rangeVariables[0]) {
-                return;
-            }
-
-            colIndexes[i] = e.columnIndex;
-        }
-
-        this.columnIndexes = colIndexes;
     }
 
     void setSortRange(QuerySpecification select) {
@@ -226,6 +198,34 @@ public final class SortAndSlice {
             }
         }
 
+        if (select == null || hasNullsLast) {
+            return;
+        }
+
+        if (select.isDistinctSelect || select.isGrouped
+                || select.isAggregated) {
+            return;
+        }
+
+        int[] colIndexes = new int[columnCount];
+
+        for (int i = 0; i < columnCount; i++) {
+            Expression e = ((Expression) exprList.get(i)).getLeftNode();
+
+            if (e.getType() != OpTypes.COLUMN) {
+                return;
+            }
+
+            if (((ExpressionColumn) e).getRangeVariable()
+                    != select.rangeVariables[0]) {
+                return;
+            }
+
+            colIndexes[i] = e.columnIndex;
+        }
+
+        this.columnIndexes = colIndexes;
+
         if (columnIndexes == null) {
             return;
         }
@@ -234,7 +234,6 @@ public final class SortAndSlice {
             return;
         }
 
-        int[] colIndexes;
         Index rangeIndex = select.rangeVariables[0].getSortIndex();
 
         if (rangeIndex == null) {
