@@ -107,7 +107,7 @@ public class JDBCClobFile implements java.sql.Clob {
         checkClosed();
 
         if (m_fixedWidthCharset) {
-            return m_file.length() * m_maxCharWidth;
+            return m_file.length() / m_maxCharWidth;
         }
 
         ReaderAdapter adapter = null;
@@ -869,7 +869,7 @@ public class JDBCClobFile implements java.sql.Clob {
     /**
      * Convenience constructor for {@link
      * #JDBCClobFile(java.io.File, java.lang.String)
-     * JDBCClobFile(file,null}. <p>
+     * JDBCClobFile(file,null)}. <p>
      *
      * @param file that is to back the new CLOB instance.
      *

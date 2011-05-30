@@ -251,10 +251,16 @@ public abstract class BaseClobTest extends BaseJdbcTestCase {
 
     @OfMethod("length()")
     public void testLength() throws Exception {
-        JDBCClob clob = new JDBCClob("testLength()");
-        long expResult = "testLength()".length();
-        long result = clob.length();
-        assertEquals(expResult, result);
+        String[] encodings = new String[]{"UTF-16BE","US-ASCII","UTF-8",null};
+        String data = "testLength()\u00a1\u2002";
+        long expResult = data.length();
+
+        for (int i = 0; i < encodings.length; i++) {
+            setEncoding(encodings[i]);
+            Clob clob = newClobFromString(data);
+            long result = clob.length();
+            assertEquals(expResult, result);
+        }
     }
 
     @OfMethod("position(java.lang.String, long)")
