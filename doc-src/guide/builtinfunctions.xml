@@ -1967,10 +1967,11 @@ D          I
     2&gt; )</literal></para>
 
     <para>Returns <literal>&lt;value expr 1&gt;</literal> if it is not null,
-    otherwise returns <literal>&lt;value expr 2&gt;</literal>. The type of
-    both arguments must be the same. Equivalent to SQL Standard
-    <literal>COALESCE(&lt;value expr 1&gt;, &lt;value expr 2&gt;)</literal>
-    function. (JDBC)</para>
+    otherwise returns <literal>&lt;value expr 2&gt;</literal>. The type of the
+    return value is the type of <literal>&lt;value expr 1&gt;</literal>.
+    Almost equivalent to SQL Standard <literal>COALESCE(&lt;value expr 1&gt;,
+    &lt;value expr 2&gt;)</literal> function, but without type modification.
+    (JDBC)</para>
 
     <indexterm significance="preferred" type="sql">
       <primary>LEAST function</primary>
@@ -2025,10 +2026,25 @@ D          I
 
     <para>Returns <literal>&lt;value expr 1&gt;</literal> if it is not null,
     otherwise returns <literal>&lt;value expr 2&gt;</literal>. The type of the
-    return value is the combined type of the two value expressions. For
-    example, if &lt;value expr 1&gt; is an INTEGER column and
-    <literal>&lt;value expr 2&gt;</literal> is a DOUBLE constant, the return
-    type is DOUBLE. This function is the same as IFNULL and COALESCE
+    return value is the type of <literal>&lt;value expr 1&gt;</literal>. For
+    example, if <literal>&lt;value expr 1&gt;</literal> is an INTEGER column
+    and <literal>&lt;value expr 2&gt;</literal> is a DOUBLE constant, the
+    return type is cast into INTEGER. This function is similar to IFNULL.
+    (HyperSQL)</para>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>NVL2 function</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">NVL2</emphasis></simpara>
+
+    <para><literal>NVL2( &lt;value expr 1&gt;, &lt;value expr 2&gt;, &lt;value
+    expr 3&gt; )</literal></para>
+
+    <para>If <literal>&lt;value expr 1&gt;</literal> is not null, returns
+    <literal>&lt;value expr 2&gt;</literal>, otherwise returns
+    <literal>&lt;value expr 3&gt;</literal>. The type of the return value is
+    the type of <literal>&lt;value expr 2&gt;</literal> unless it is null.
     (HyperSQL)</para>
 
     <indexterm significance="preferred" type="sql">
