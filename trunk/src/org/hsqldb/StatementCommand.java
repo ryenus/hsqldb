@@ -372,10 +372,18 @@ public class StatementCommand extends Statement {
             }
             case StatementTypes.SET_DATABASE_FILES_CACHE_ROWS : {
                 try {
-                    int value = ((Integer) parameters[0]).intValue();
+                    int     value = ((Integer) parameters[0]).intValue();
+                    boolean check = parameters[1] == null;
 
                     session.checkAdmin();
                     session.checkDDLWrite();
+
+                    if (check && !session.database.getProperties()
+                            .validateProperty(HsqlDatabaseProperties
+                                .hsqldb_cache_rows, value)) {
+                        throw Error.error(ErrorCode.X_42556);
+                    }
+
                     session.database.logger.setCacheMaxRows(value);
 
                     return Result.updateZeroResult;
@@ -385,10 +393,18 @@ public class StatementCommand extends Statement {
             }
             case StatementTypes.SET_DATABASE_FILES_CACHE_SIZE : {
                 try {
-                    int value = ((Integer) parameters[0]).intValue();
+                    int     value = ((Integer) parameters[0]).intValue();
+                    boolean check = parameters[1] == null;
 
                     session.checkAdmin();
                     session.checkDDLWrite();
+
+                    if (check && !session.database.getProperties()
+                            .validateProperty(HsqlDatabaseProperties
+                                .hsqldb_cache_size, value)) {
+                        throw Error.error(ErrorCode.X_42556);
+                    }
+
                     session.database.logger.setCacheSize(value);
 
                     return Result.updateZeroResult;
@@ -439,6 +455,13 @@ public class StatementCommand extends Statement {
 
                     session.checkAdmin();
                     session.checkDDLWrite();
+
+                    if (!session.database.getProperties().validateProperty(
+                            HsqlDatabaseProperties.hsqldb_defrag_limit,
+                            value)) {
+                        throw Error.error(ErrorCode.X_42556);
+                    }
+
                     session.database.logger.setDefagLimit(value);
 
                     return Result.updateZeroResult;

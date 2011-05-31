@@ -1292,6 +1292,7 @@ public class ParserCommand extends ParserDDL {
         int     type  = 0;
         Boolean flag  = null;
         Integer value = null;
+        Boolean mode  = null;
 
         checkDatabaseUpdateAuthorisation();
 
@@ -1316,6 +1317,12 @@ public class ParserCommand extends ParserDDL {
 
                     value = readIntegerObject();
                     type  = StatementTypes.SET_DATABASE_FILES_CACHE_ROWS;
+                }
+
+                if (readIfThis(Tokens.NO)) {
+                    readThis(Tokens.CHECK);
+
+                    mode = Boolean.TRUE;
                 }
 
                 break;
@@ -1447,8 +1454,11 @@ public class ParserCommand extends ParserDDL {
                 throw unexpectedToken();
         }
 
-        Object[] args = new Object[]{ flag == null ? (Object) value
-                                                   : (Object) flag };
+        Object[] args = new Object[2];
+
+        args[0] = flag == null ? (Object) value
+                               : (Object) flag;
+        args[1] = mode;
 
         return new StatementCommand(
             type, args, null, database.schemaManager.getCatalogNameArray());

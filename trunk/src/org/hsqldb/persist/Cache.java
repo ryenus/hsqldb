@@ -325,7 +325,8 @@ public class Cache extends BaseHashMap {
             CachedObject r = (CachedObject) it.next();
 
             if (r.hasChanged()) {
-                rowTable[savecount++] = r;
+                rowTable[savecount] = r;
+                savecount++;
             }
         }
 
