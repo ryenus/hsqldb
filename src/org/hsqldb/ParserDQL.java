@@ -2346,21 +2346,51 @@ public class ParserDQL extends ParserBase {
 
                 return e;
 
-            case Tokens.LEAST :
-                return readLeastExpression();
+            case Tokens.LEAST : {
+                e = readLeastExpressionOrNull();
 
-            case Tokens.GREATEST :
-                return readGreatestExpression();
+                if (e != null) {
+                    return e;
+                }
 
-            case Tokens.DECODE :
-                return readDecodeExpression();
+                break;
+            }
+            case Tokens.GREATEST : {
+                e = readGreatestExpressionOrNull();
 
-            case Tokens.CONCAT_WORD :
-                return readConcatExpression();
+                if (e != null) {
+                    return e;
+                }
 
-            case Tokens.CASEWHEN :
-                return readCaseWhenExpression();
+                break;
+            }
+            case Tokens.DECODE : {
+                e = readDecodeExpressionOrNull();
 
+                if (e != null) {
+                    return e;
+                }
+
+                break;
+            }
+            case Tokens.CONCAT_WORD : {
+                e = readConcatExpressionOrNull();
+
+                if (e != null) {
+                    return e;
+                }
+
+                break;
+            }
+            case Tokens.CASEWHEN : {
+                e = readCaseWhenExpressionOrNull();
+
+                if (e != null) {
+                    return e;
+                }
+
+                break;
+            }
             case Tokens.CASE :
                 return readCaseExpression();
 
@@ -2368,14 +2398,37 @@ public class ParserDQL extends ParserBase {
                 return readNullIfExpression();
 
             case Tokens.COALESCE :
-            case Tokens.IFNULL :
-            case Tokens.ISNULL :
                 return readCoalesceExpression();
 
-            case Tokens.CAST :
-            case Tokens.CONVERT :
-                return readCastExpression();
+            case Tokens.IFNULL :
+            case Tokens.ISNULL : {
+                e = readIfNullExpressionOrNull();
 
+                if (e != null) {
+                    return e;
+                }
+
+                break;
+            }
+            case Tokens.NVL2 : {
+                e = readIfNull2ExpressionOrNull();
+
+                if (e != null) {
+                    return e;
+                }
+
+                break;
+            }
+            case Tokens.CAST :
+            case Tokens.CONVERT : {
+                e = readCastExpressionOrNull();
+
+                if (e != null) {
+                    return e;
+                }
+
+                break;
+            }
             case Tokens.DATE :
             case Tokens.TIME :
             case Tokens.TIMESTAMP :
@@ -4748,12 +4801,18 @@ public class ParserDQL extends ParserBase {
     /**
      * reads a CASEWHEN expression
      */
-    private Expression readCaseWhenExpression() {
+    private Expression readCaseWhenExpressionOrNull() {
 
-        Expression l = null;
+        Expression l        = null;
+        int        position = getPosition();
 
         read();
-        readThis(Tokens.OPENBRACKET);
+
+        if (!readIfThis(Tokens.OPENBRACKET)) {
+            rewind(position);
+
+            return null;
+        }
 
         l = XreadBooleanValueExpression();
 
@@ -4776,16 +4835,22 @@ public class ParserDQL extends ParserBase {
     /**
      * Reads a CAST or CONVERT expression
      */
-    private Expression readCastExpression() {
+    private Expression readCastExpressionOrNull() {
 
         boolean    isConvert = token.tokenType == Tokens.CONVERT;
         Expression e;
         Type       typeObject;
+        int        position = getPosition();
 
         read();
-        readThis(Tokens.OPENBRACKET);
 
         if (isConvert) {
+            if (!readIfThis(Tokens.OPENBRACKET)) {
+                rewind(position);
+
+                return null;
+            }
+
             if (database.sqlSyntaxMss) {
                 typeObject = readTypeDefinition(false, true);
 
@@ -4806,6 +4871,8 @@ public class ParserDQL extends ParserBase {
                 }
             }
         } else {
+            readThis(Tokens.OPENBRACKET);
+
             e = this.XreadValueExpressionOrNull();
 
             readThis(Tokens.AS);
@@ -4986,11 +5053,17 @@ public class ParserDQL extends ParserBase {
         }
     }
 
-    private Expression readDecodeExpression() {
+    private Expression readDecodeExpressionOrNull() {
 
-        // turn into a CASEWHEN
+        int position = getPosition();
+
         read();
-        readThis(Tokens.OPENBRACKET);
+
+        if (!readIfThis(Tokens.OPENBRACKET)) {
+            rewind(position);
+
+            return null;
+        }
 
         Expression casewhen    = null;
         Expression alternative = null;
@@ -5040,14 +5113,21 @@ public class ParserDQL extends ParserBase {
         return casewhen;
     }
 
-    private Expression readConcatExpression() {
+    private Expression readConcatExpressionOrNull() {
 
         Expression root;
         Expression r;
 
         // turn into a concatenation
+        int position = getPosition();
+
         read();
-        readThis(Tokens.OPENBRACKET);
+
+        if (!readIfThis(Tokens.OPENBRACKET)) {
+            rewind(position);
+
+            return null;
+        }
 
         root = XreadValueExpression();
 
@@ -5069,11 +5149,17 @@ public class ParserDQL extends ParserBase {
         return root;
     }
 
-    private Expression readLeastExpression() {
+    private Expression readLeastExpressionOrNull() {
 
-        // turn into a CASEWHEN
+        int position = getPosition();
+
         read();
-        readThis(Tokens.OPENBRACKET);
+
+        if (!readIfThis(Tokens.OPENBRACKET)) {
+            rewind(position);
+
+            return null;
+        }
 
         Expression casewhen = null;
 
@@ -5092,11 +5178,17 @@ public class ParserDQL extends ParserBase {
         return casewhen;
     }
 
-    private Expression readGreatestExpression() {
+    private Expression readGreatestExpressionOrNull() {
 
-        // turn into a CASEWHEN
+        int position = getPosition();
+
         read();
-        readThis(Tokens.OPENBRACKET);
+
+        if (!readIfThis(Tokens.OPENBRACKET)) {
+            rewind(position);
+
+            return null;
+        }
 
         Expression casewhen = null;
 
@@ -5134,7 +5226,6 @@ public class ParserDQL extends ParserBase {
      */
     private Expression readNullIfExpression() {
 
-        // turn into a CASEWHEN
         read();
         readThis(Tokens.OPENBRACKET);
 
@@ -5142,13 +5233,11 @@ public class ParserDQL extends ParserBase {
 
         readThis(Tokens.COMMA);
 
-        Expression thenelse =
-            new ExpressionOp(OpTypes.ALTERNATIVE,
-                             new ExpressionValue((Object) null, (Type) null),
-                             c);
+        Expression alternative = new ExpressionOp(OpTypes.ALTERNATIVE,
+            new ExpressionValue((Object) null, (Type) null), c);
 
         c = new ExpressionLogical(c, XreadValueExpression());
-        c = new ExpressionOp(OpTypes.CASEWHEN, c, thenelse);
+        c = new ExpressionOp(OpTypes.CASEWHEN, c, alternative);
 
         readThis(Tokens.CLOSEBRACKET);
 
@@ -5156,13 +5245,78 @@ public class ParserDQL extends ParserBase {
     }
 
     /**
-     * Reads a COALESE or IFNULL expression
+     * Reads a ISNULL or ISNULL of NVL expression
+     */
+    private Expression readIfNullExpressionOrNull() {
+
+        int position = getPosition();
+
+        read();
+
+        if (!readIfThis(Tokens.OPENBRACKET)) {
+            rewind(position);
+
+            return null;
+        }
+
+        Expression c = XreadValueExpression();
+
+        readThis(Tokens.COMMA);
+
+        Expression e           = XreadValueExpression();
+        Expression condition   = new ExpressionLogical(OpTypes.IS_NULL, c);
+        Expression alternative = new ExpressionOp(OpTypes.ALTERNATIVE, e, c);
+
+        c = new ExpressionOp(OpTypes.CASEWHEN, condition, alternative);
+
+        c.setSubType(OpTypes.CAST);
+        readThis(Tokens.CLOSEBRACKET);
+
+        return c;
+    }
+
+    /**
+     * Reads a NVL2 expression
+     */
+    private Expression readIfNull2ExpressionOrNull() {
+
+        int position = getPosition();
+
+        read();
+
+        if (!readIfThis(Tokens.OPENBRACKET)) {
+            rewind(position);
+
+            return null;
+        }
+
+        Expression c = XreadValueExpression();
+
+        readThis(Tokens.COMMA);
+
+        Expression e1 = XreadValueExpression();
+
+        readThis(Tokens.COMMA);
+
+        Expression e2          = XreadValueExpression();
+        Expression condition   = new ExpressionLogical(OpTypes.IS_NULL, c);
+        Expression alternative = new ExpressionOp(OpTypes.ALTERNATIVE, e2, e1);
+
+        c = new ExpressionOp(OpTypes.CASEWHEN, condition, alternative);
+
+        c.setSubType(OpTypes.CAST);
+        readThis(Tokens.CLOSEBRACKET);
+
+        return c;
+    }
+
+    /**
+     * Reads a COALESE expression
      */
     private Expression readCoalesceExpression() {
 
         Expression c = null;
 
-        // turn into a CASEWHEN
         read();
         readThis(Tokens.OPENBRACKET);
 

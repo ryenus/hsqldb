@@ -507,6 +507,21 @@ public class ExpressionOp extends Expression {
             expr = expr.nodes[RIGHT].nodes[RIGHT];
         }
 
+        if (exprSubType == OpTypes.CAST) {
+            if (nodes[RIGHT].nodes[RIGHT].dataType != null
+                    && nodes[RIGHT].nodes[RIGHT].dataType
+                       != nodes[RIGHT].nodes[LEFT].dataType) {
+                Type castType = nodes[RIGHT].nodes[RIGHT].dataType;
+
+                if (castType.isCharacterType()) {
+                    castType = Type.SQL_VARCHAR_DEFAULT;
+                }
+
+                nodes[RIGHT].nodes[LEFT] =
+                    new ExpressionOp(nodes[RIGHT].nodes[LEFT], castType);
+            }
+        }
+
         expr = this;
 
         while (expr.opType == OpTypes.CASEWHEN) {
@@ -516,7 +531,6 @@ public class ExpressionOp extends Expression {
             dataType =
                 Type.getAggregateType(expr.nodes[RIGHT].nodes[RIGHT].dataType,
                                       dataType);
-
             expr = expr.nodes[RIGHT].nodes[RIGHT];
         }
 
