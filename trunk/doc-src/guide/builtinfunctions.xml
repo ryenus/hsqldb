@@ -334,9 +334,41 @@
     <para><literal>REGEXP_MATCHES ( &lt;char value expr&gt;, &lt;regular
     expression&gt; ) </literal></para>
 
-    <para>Returns true if the &lt;char value expr&gt; matches the &lt;regular
-    expression&gt;. The &lt;regular expression&gt; is defined according to
-    Java language rules. (HyperSQL)</para>
+    <para>Returns true if the <literal>&lt;char value expr&gt;</literal>
+    matches the <literal>&lt;regular expression&gt;</literal> as a whole. The
+    <literal>&lt;regular expression&gt;</literal> is defined according to Java
+    language regular expression rules. (HyperSQL)</para>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>REGEXP_SUBSTRING function</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">REGEXP_SUBSTRING</emphasis></simpara>
+
+    <para><literal>REGEXP_SUBSTRING ( &lt;char value expr&gt;, &lt;regular
+    expression&gt; ) </literal></para>
+
+    <para>Returns the first region in the <literal>&lt;char value
+    expr&gt;</literal> that matches the <literal>&lt;regular
+    expression&gt;</literal>. The <literal>&lt;regular
+    expression&gt;</literal> is defined according to Java language regular
+    expression rules. (HyperSQL)</para>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>REGEXP_SUBSTRING_ARRAY function</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">REGEXP_SUBSTRING_ARRAY</emphasis></simpara>
+
+    <para><literal>REGEXP_SUBSTRING_ARRAY ( &lt;char value expr&gt;,
+    &lt;regular expression&gt; ) </literal></para>
+
+    <para>Returns all the reqions in the the <literal>&lt;char value
+    expr&gt;</literal> that match the <literal>&lt;regular
+    expression&gt;</literal>. The <literal>&lt;regular
+    expression&gt;</literal> is defined according to Java language regular
+    expression rules. Returns an array containing the matching regions
+    (HyperSQL)</para>
 
     <indexterm significance="preferred" type="sql">
       <primary>REPEAT function</primary>
