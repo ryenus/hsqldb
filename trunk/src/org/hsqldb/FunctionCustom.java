@@ -146,42 +146,44 @@ public class FunctionCustom extends FunctionSQL {
     private static final int FUNC_RAND                     = 112;
     private static final int FUNC_RAWTOHEX                 = 113;
     private static final int FUNC_REGEXP_MATCHES           = 114;
-    private static final int FUNC_REPEAT                   = 115;
-    private static final int FUNC_REPLACE                  = 116;
-    private static final int FUNC_REVERSE                  = 117;
-    private static final int FUNC_RIGHT                    = 118;
-    private static final int FUNC_ROUND                    = 119;
-    private static final int FUNC_ROUNDMAGIC               = 120;
-    private static final int FUNC_RPAD                     = 121;
-    private static final int FUNC_RTRIM                    = 122;
-    private static final int FUNC_SECONDS_MIDNIGHT         = 123;
-    private static final int FUNC_SEQUENCE_ARRAY           = 124;
-    private static final int FUNC_SESSION_ID               = 125;
-    private static final int FUNC_SESSION_ISOLATION_LEVEL  = 126;
-    private static final int FUNC_SESSION_TIMEZONE         = 127;
-    private static final int FUNC_SIGN                     = 128;
-    private static final int FUNC_SIN                      = 129;
-    private static final int FUNC_SOUNDEX                  = 130;
-    private static final int FUNC_SORT_ARRAY               = 131;
-    private static final int FUNC_SPACE                    = 132;
-    private static final int FUNC_SUBSTR                   = 133;
-    private static final int FUNC_SYSDATE                  = 134;
-    private static final int FUNC_TAN                      = 135;
-    private static final int FUNC_TIMESTAMP                = 136;
-    private static final int FUNC_TIMESTAMPADD             = 137;
-    private static final int FUNC_TIMESTAMPDIFF            = 138;
-    private static final int FUNC_TIMEZONE                 = 139;
-    private static final int FUNC_TO_CHAR                  = 140;
-    private static final int FUNC_TO_DATE                  = 141;
-    private static final int FUNC_TO_NUMBER                = 142;
-    private static final int FUNC_TO_TIMESTAMP             = 143;
-    private static final int FUNC_TRANSACTION_CONTROL      = 144;
-    private static final int FUNC_TRANSACTION_ID           = 145;
-    private static final int FUNC_TRANSACTION_SIZE         = 146;
-    private static final int FUNC_TRUNC                    = 147;
-    private static final int FUNC_TRUNCATE                 = 148;
-    private static final int FUNC_UUID                     = 149;
-    private static final int FUNC_UNIX_TIMESTAMP           = 150;
+    private static final int FUNC_REGEXP_SUBSTRING         = 115;
+    private static final int FUNC_REGEXP_SUBSTRING_ARRAY   = 116;
+    private static final int FUNC_REPEAT                   = 117;
+    private static final int FUNC_REPLACE                  = 118;
+    private static final int FUNC_REVERSE                  = 119;
+    private static final int FUNC_RIGHT                    = 120;
+    private static final int FUNC_ROUND                    = 121;
+    private static final int FUNC_ROUNDMAGIC               = 122;
+    private static final int FUNC_RPAD                     = 123;
+    private static final int FUNC_RTRIM                    = 124;
+    private static final int FUNC_SECONDS_MIDNIGHT         = 125;
+    private static final int FUNC_SEQUENCE_ARRAY           = 126;
+    private static final int FUNC_SESSION_ID               = 127;
+    private static final int FUNC_SESSION_ISOLATION_LEVEL  = 128;
+    private static final int FUNC_SESSION_TIMEZONE         = 129;
+    private static final int FUNC_SIGN                     = 130;
+    private static final int FUNC_SIN                      = 131;
+    private static final int FUNC_SOUNDEX                  = 132;
+    private static final int FUNC_SORT_ARRAY               = 133;
+    private static final int FUNC_SPACE                    = 134;
+    private static final int FUNC_SUBSTR                   = 135;
+    private static final int FUNC_SYSDATE                  = 136;
+    private static final int FUNC_TAN                      = 137;
+    private static final int FUNC_TIMESTAMP                = 138;
+    private static final int FUNC_TIMESTAMPADD             = 139;
+    private static final int FUNC_TIMESTAMPDIFF            = 140;
+    private static final int FUNC_TIMEZONE                 = 141;
+    private static final int FUNC_TO_CHAR                  = 142;
+    private static final int FUNC_TO_DATE                  = 143;
+    private static final int FUNC_TO_NUMBER                = 144;
+    private static final int FUNC_TO_TIMESTAMP             = 145;
+    private static final int FUNC_TRANSACTION_CONTROL      = 146;
+    private static final int FUNC_TRANSACTION_ID           = 147;
+    private static final int FUNC_TRANSACTION_SIZE         = 148;
+    private static final int FUNC_TRUNC                    = 149;
+    private static final int FUNC_TRUNCATE                 = 150;
+    private static final int FUNC_UUID                     = 151;
+    private static final int FUNC_UNIX_TIMESTAMP           = 152;
 
     //
     static final IntKeyIntValueHashMap customRegularFuncMap =
@@ -277,6 +279,8 @@ public class FunctionCustom extends FunctionSQL {
         customRegularFuncMap.put(Tokens.RAND, FUNC_RAND);
         customRegularFuncMap.put(Tokens.RAWTOHEX, FUNC_RAWTOHEX);
         customRegularFuncMap.put(Tokens.REGEXP_MATCHES, FUNC_REGEXP_MATCHES);
+        customRegularFuncMap.put(Tokens.REGEXP_SUBSTRING, FUNC_REGEXP_SUBSTRING);
+        customRegularFuncMap.put(Tokens.REGEXP_SUBSTRING_ARRAY, FUNC_REGEXP_SUBSTRING_ARRAY);
         customRegularFuncMap.put(Tokens.REPEAT, FUNC_REPEAT);
         customRegularFuncMap.put(Tokens.REPLACE, FUNC_REPLACE);
         customRegularFuncMap.put(Tokens.REVERSE, FUNC_REVERSE);
@@ -329,7 +333,6 @@ public class FunctionCustom extends FunctionSQL {
     }
 
     private int     extractSpec;
-    private String  matchPattern;
     private Pattern pattern;
 
     public static FunctionSQL newCustomFunction(String token, int tokenType) {
@@ -508,6 +511,8 @@ public class FunctionCustom extends FunctionSQL {
             case FUNC_BITXOR :
             case FUNC_DIFFERENCE :
             case FUNC_REGEXP_MATCHES :
+            case FUNC_REGEXP_SUBSTRING :
+            case FUNC_REGEXP_SUBSTRING_ARRAY :
             case FUNC_REPEAT :
             case FUNC_CRYPT_KEY :
             case FUNC_RIGHT :
@@ -1595,22 +1600,51 @@ public class FunctionCustom extends FunctionSQL {
 
                 return sb.toString();
             }
-            case FUNC_REGEXP_MATCHES : {
+            case FUNC_REGEXP_MATCHES :
+            case FUNC_REGEXP_SUBSTRING :
+            case FUNC_REGEXP_SUBSTRING_ARRAY : {
                 for (int i = 0; i < data.length; i++) {
                     if (data[i] == null) {
                         return null;
                     }
                 }
 
-                if (!data[1].equals(matchPattern)) {
-                    matchPattern = (String) data[1];
-                    pattern      = Pattern.compile(matchPattern);
+                Pattern currentPattern = pattern;
+
+                if (currentPattern == null) {
+                    String matchPattern = (String) data[1];
+
+                    currentPattern = Pattern.compile(matchPattern);
                 }
 
-                Matcher matcher = pattern.matcher((String) data[0]);
+                Matcher matcher = currentPattern.matcher((String) data[0]);
 
-                return matcher.matches() ? Boolean.TRUE
-                                         : Boolean.FALSE;
+                switch (funcType) {
+
+                    case FUNC_REGEXP_MATCHES : {
+                        boolean match = matcher.matches();
+
+                        return Boolean.valueOf(match);
+                    }
+                    case FUNC_REGEXP_SUBSTRING : {
+                        boolean match = matcher.find();
+
+                        if (match) {
+                            return matcher.group();
+                        } else {
+                            return null;
+                        }
+                    }
+                    case FUNC_REGEXP_SUBSTRING_ARRAY : {
+                        HsqlArrayList list = new HsqlArrayList();
+
+                        while (matcher.find()) {
+                            list.add(matcher.group());
+                        }
+
+                        return list.toArray();
+                    }
+                }
             }
             case FUNC_CRYPT_KEY : {
                 byte[] bytes = Crypto.getNewKey((String) data[0],
@@ -2464,7 +2498,9 @@ public class FunctionCustom extends FunctionSQL {
 
                 break;
             }
-            case FUNC_REGEXP_MATCHES : {
+            case FUNC_REGEXP_MATCHES :
+            case FUNC_REGEXP_SUBSTRING :
+            case FUNC_REGEXP_SUBSTRING_ARRAY : {
                 if (nodes[0].dataType == null) {
                     nodes[0].dataType = Type.SQL_VARCHAR_DEFAULT;
                 }
@@ -2479,7 +2515,28 @@ public class FunctionCustom extends FunctionSQL {
                     throw Error.error(ErrorCode.X_42561);
                 }
 
-                dataType = Type.SQL_BOOLEAN;
+                if (nodes[1].exprSubType == OpTypes.VALUE) {
+                    String matchPattern = (String) nodes[1].getValue(session);
+
+                    pattern = Pattern.compile(matchPattern);
+                }
+
+                switch (funcType) {
+
+                    case FUNC_REGEXP_MATCHES :
+                        dataType = Type.SQL_BOOLEAN;
+                        break;
+
+                    case FUNC_REGEXP_SUBSTRING :
+                        dataType = Type.SQL_VARCHAR_DEFAULT;
+                        break;
+
+                    case FUNC_REGEXP_SUBSTRING_ARRAY : {
+                        dataType = Type.getDefaultArrayType(Types.SQL_VARCHAR);
+
+                        break;
+                    }
+                }
 
                 break;
             }
@@ -2807,7 +2864,9 @@ public class FunctionCustom extends FunctionSQL {
             case FUNC_TO_CHAR :
             case FUNC_TO_DATE :
             case FUNC_TO_TIMESTAMP :
-            case FUNC_REGEXP_MATCHES : {
+            case FUNC_REGEXP_MATCHES :
+            case FUNC_REGEXP_SUBSTRING :
+            case FUNC_REGEXP_SUBSTRING_ARRAY : {
                 return new StringBuffer(name).append('(')                   //
                     .append(nodes[0].getSQL()).append(Tokens.T_COMMA)       //
                     .append(nodes[1].getSQL()).append(')').toString();
