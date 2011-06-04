@@ -389,6 +389,7 @@ public class Log {
             return true;
         }
 
+        database.logger.logInfoEvent("checkpointClose start");
         database.lobManager.deleteUnusedLobs();
         synchLog();
         deleteOldDataFiles();
@@ -437,6 +438,8 @@ public class Log {
             properties.setDBModified(
                 HsqlDatabaseProperties.FILES_NOT_MODIFIED);
         } catch (Exception e) {}
+
+        database.logger.logInfoEvent("checkpointClose end");
 
         return true;
     }

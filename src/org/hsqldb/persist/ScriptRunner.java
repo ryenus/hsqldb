@@ -62,7 +62,7 @@ import org.hsqldb.types.Type;
  * logged to the application log. If memory runs out, an exception is thrown.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.1.1
+ * @version 2.2.3
  * @since 1.7.2
  */
 public class ScriptRunner {
@@ -133,6 +133,8 @@ public class ScriptRunner {
                                            StatementTypes.X_SQL_DATA_CHANGE,
                                            null);
         String databaseFile = database.getPath();
+        boolean fullReplay = database.getURLProperties().isPropertyTrue(
+            HsqlDatabaseProperties.hsqldb_full_log_replay);
 
         dummy.setCompileTimestamp(Long.MAX_VALUE);
         database.setReferentialIntegrity(false);
@@ -263,23 +265,33 @@ public class ScriptRunner {
         } catch (HsqlException e) {
 
             // stop processing on bad log line
-            database.logger.logSevereEvent("statement error processing log "
-                                           + databaseFile + "line: "
-                                           + scr.getLineNumber(), e);
+            String error = "statement error processing log " + databaseFile
+                           + "line: " + scr.getLineNumber();
 
+            database.logger.logSevereEvent(error, e);
+
+            if (fullReplay) {
+                throw Error.error(e, ErrorCode.ERROR_IN_SCRIPT_FILE, error);
+            }
         } catch (OutOfMemoryError e) {
+            String error = "out of memory processing log" + databaseFile
+                           + " line: " + scr.getLineNumber();
 
             // catch out-of-memory errors and terminate
-            database.logger.logSevereEvent("out of memory processing log"
-                                           + databaseFile + " line: "
-                                           + scr.getLineNumber(), e);
+            database.logger.logSevereEvent(error, e);
 
             throw Error.error(ErrorCode.OUT_OF_MEMORY);
         } catch (Throwable e) {
+
             // stop processing on bad script line
-            database.logger.logSevereEvent("statement error processing log "
-                                           + databaseFile + "line: "
-                                           + scr.getLineNumber(), e);
+            String error = "statement error processing log " + databaseFile
+                           + "line: " + scr.getLineNumber();
+
+            database.logger.logSevereEvent(error, e);
+
+            if (fullReplay) {
+                throw Error.error(e, ErrorCode.ERROR_IN_SCRIPT_FILE, error);
+            }
         } finally {
             if (scr != null) {
                 scr.close();
