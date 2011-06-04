@@ -2181,6 +2181,50 @@
       </table>
 
       <table frame="all" pgwide="1" tocentry="1">
+        <title>Recovery Log Processing</title>
+
+        <tgroup align="left" cols="3">
+          <colspec colname="c1" colwidth="6.5cm" />
+
+          <colspec colname="c2" colwidth="1.5cm" />
+
+          <colspec colname="c3" />
+
+          <thead>
+            <row>
+              <entry>Name</entry>
+
+              <entry>Default</entry>
+
+              <entry>Description</entry>
+            </row>
+          </thead>
+
+          <tbody valign="top">
+            <row>
+              <entry><property>hsqldb.full_log_replay</property></entry>
+
+              <entry><literal>false</literal></entry>
+
+              <entry>recovery log processing</entry>
+            </row>
+
+            <row>
+              <entry nameend="c3" namest="c1"><para>The .log file is processed
+              during recovery after a forced shutwon. Out of memory conditions
+              always abort the startup. Any other exception stops the
+              processing of the .log file and by default, continues the
+              startup process. If this property is true, the startup process
+              is stopped if any exception occurs. Exceptions are usually
+              caused by incomplete lines of SQL statements in the .log file,
+              which were not fully synced to disk when an abnormal shutdown
+              occured.</para><para><programlisting>This property cannot be set with an SQL statement</programlisting></para></entry>
+            </row>
+          </tbody>
+        </tgroup>
+      </table>
+
+      <table frame="all" pgwide="1" tocentry="1">
         <title>Default Properties for TEXT Tables</title>
 
         <tgroup align="left" cols="3">

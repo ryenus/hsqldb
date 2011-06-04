@@ -1,5 +1,9 @@
-29 May 2011 - version 2.2.2
+4 Jun 2011 - version 2.2.3
 -- fixed issue with limit offset with indexed IN predicate
+-- added hsqldb.full_log_replay property
+-- added REGEXPR_SUBSTRING and REGEXPR_SUBSTRING_ARRAY functions
+-- added support for multiple unnamed savepoints
+-- improved IFNULL etc. functions that are based on CASE WHEN expressions
 -- minor improvements
 22 May 2011 - version 2.2.2
 -- increased .data file limit to 2TB
