@@ -424,6 +424,11 @@ public class TableWorks {
                     if (c.isNotNull()) {
                         column.setNullable(false);
                         table.setColumnTypeVars(colIndex);
+
+                        if (!originalTable.isEmpty(session)
+                                && !column.hasDefault()) {
+                            throw Error.error(ErrorCode.X_42531);
+                        }
                     }
                     break;
             }
@@ -572,7 +577,6 @@ public class TableWorks {
                                             null, newindex, -1, 0, emptySet,
                                             emptySet);
 
-            // for all sessions move the data
             moveData(table, tn, -1, 0);
 
             table = tn;
@@ -1298,7 +1302,8 @@ public class TableWorks {
             } catch (HsqlException e) {
                 newStore.release();
                 database.persistentStoreCollection.setStore(newTable, null);
-                return;
+
+                throw e;
             }
 
             database.persistentStoreCollection.releaseStore(oldTable);
