@@ -214,6 +214,8 @@ public class HsqlDatabaseProperties extends HsqlProperties {
     public static final String hsqldb_write_delay = "hsqldb.write_delay";
     public static final String hsqldb_write_delay_millis =
         "hsqldb.write_delay_millis";
+    public static final String hsqldb_full_log_replay =
+        "hsqldb.full_log_replay";
 
     //
     public static final String sql_ref_integrity       = "sql.ref_integrity";
@@ -341,6 +343,9 @@ public class HsqlDatabaseProperties extends HsqlProperties {
         dbMeta.put(hsqldb_nio_data_file,
                    HsqlProperties.getMeta(hsqldb_nio_data_file, SQL_PROPERTY,
                                           true));
+        dbMeta.put(hsqldb_full_log_replay,
+                   HsqlProperties.getMeta(hsqldb_full_log_replay,
+                                          SQL_PROPERTY, false));
         dbMeta.put(sql_ref_integrity,
                    HsqlProperties.getMeta(sql_ref_integrity, SQL_PROPERTY,
                                           true));
