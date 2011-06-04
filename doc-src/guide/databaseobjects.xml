@@ -3388,7 +3388,8 @@ alter specific routine zero_pad_01
 
         <para>SQL_IMPLEMENTATION_INFO</para>
 
-        <para>This table is empty</para>
+        <para>Information on name, capabilities and defaults of the database
+        engine software.</para>
 
         <indexterm significance="preferred" type="sql">
           <primary>SQL_PACKAGES</primary>
@@ -3630,8 +3631,9 @@ alter specific routine zero_pad_01
 
         <para>SYSTEM_CROSSREFERENCE</para>
 
-        <para>For DatabaseMetaData.getCrossReference, getExportedKeys and
-        getImportedKeys, contains the FOREIGN KEY columns</para>
+        <para>Full list of all columns referenced by FOREIGN KEY constraints.
+        For DatabaseMetaData.getCrossReference, getExportedKeys and
+        getImportedKeys.</para>
 
         <indexterm significance="preferred" type="sql">
           <primary>SYSTEM_INDEXINFO</primary>
@@ -3718,7 +3720,8 @@ alter specific routine zero_pad_01
 
         <para>SYSTEM_TABLES</para>
 
-        <para>For DatabaseMetaData.getTables</para>
+        <para>Information on tables and views for
+        DatabaseMetaData.getTables</para>
 
         <indexterm significance="preferred" type="sql">
           <primary>SYSTEM_TABLETYPES</primary>
@@ -3734,7 +3737,7 @@ alter specific routine zero_pad_01
 
         <para>SYSTEM_TEXTTABLES</para>
 
-        <para>Cotains information on the settings of each text table.</para>
+        <para>Information on the settings of each text table.</para>
 
         <indexterm significance="preferred" type="sql">
           <primary>SYSTEM_TYPEINFO</primary>
