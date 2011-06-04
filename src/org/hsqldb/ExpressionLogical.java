@@ -936,9 +936,17 @@ public class ExpressionLogical extends Expression {
         }
 
         if (b.opType == OpTypes.VALUE && b.dataType.isCharacterType()) {
-            b.valueData = a.dataType.castToType(session, b.valueData,
-                                                b.dataType);
-            b.dataType = a.dataType;
+            try {
+                b.valueData = a.dataType.castToType(session, b.valueData,
+                                                    b.dataType);
+                b.dataType = a.dataType;
+            } catch (HsqlException e) {
+                if (a.dataType == Type.SQL_DATE) {
+                    b.valueData = Type.SQL_TIMESTAMP.castToType(session,
+                            b.valueData, b.dataType);
+                    b.dataType = Type.SQL_TIMESTAMP;
+                }
+            }
 
             return true;
         }
