@@ -930,7 +930,22 @@ public class QuerySpecification extends QueryExpression {
                             isSimpleCount = true;
                         } else if (expr.getNullability()
                                    == SchemaObject.Nullability.NO_NULLS) {
-                            isSimpleCount = true;
+                            if (((ExpressionAggregate) e)
+                                    .isDistinctAggregate) {
+                                if (expr.opType == OpTypes.COLUMN) {
+                                    Table t =
+                                        expr.getRangeVariable().getTable();
+
+                                    if (t.getPrimaryKey().length == 1) {
+                                        if (t.getColumn(t.getPrimaryKey()[0])
+                                                == expr.getColumn()) {
+                                            isSimpleCount = true;
+                                        }
+                                    }
+                                }
+                            } else {
+                                isSimpleCount = true;
+                            }
                         }
                     }
 
