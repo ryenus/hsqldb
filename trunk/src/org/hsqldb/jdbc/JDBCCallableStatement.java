@@ -997,6 +997,10 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
                                  : b ? Boolean.TRUE
                                      : Boolean.FALSE;
             }
+            case Types.SQL_CLOB :
+                return getClob(parameterIndex);
+            case Types.SQL_BLOB :
+                return getBlob(parameterIndex);
             case Types.OTHER :
             case Types.JAVA_OBJECT : {
                 Object o = getColumnInType(parameterIndex, sourceType);

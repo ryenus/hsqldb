@@ -1663,6 +1663,10 @@ public class JDBCResultSet implements ResultSet {
                                  : b ? Boolean.TRUE
                                      : Boolean.FALSE;
             }
+            case Types.SQL_CLOB :
+                return getClob(columnIndex);
+            case Types.SQL_BLOB :
+                return getBlob(columnIndex);
             case Types.OTHER :
             case Types.JAVA_OBJECT : {
                 Object o = getColumnInType(columnIndex, sourceType);
