@@ -357,14 +357,14 @@ public class DatabaseInformation {
      * @return a table corresponding to the name and session arguments, or
      *      <code>null</code> if there is no such table to be produced
      */
-    public synchronized Table getSystemTable(Session session, String name) {
+    public Table getSystemTable(Session session, String name) {
         return null;
     }
 
     /**
      * Sets the store for the given session, populates the store if necessary.
      */
-    public synchronized void setStore(Session session, Table table,
+    public void setStore(Session session, Table table,
                                       PersistentStore store) {}
 
     /**
@@ -374,7 +374,7 @@ public class DatabaseInformation {
      * @param withContent if true, then produce contentful tables, else
      *        produce emtpy (surrogate) tables
      */
-    public synchronized final void setWithContent(boolean withContent) {
+    public final void setWithContent(boolean withContent) {
         this.withContent = withContent;
     }
 }

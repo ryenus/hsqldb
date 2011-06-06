@@ -455,7 +455,7 @@ class DatabaseInformationMain extends DatabaseInformation {
      * @return a system table corresponding to the <code>name</code> and
      *      <code>session</code> arguments
      */
-    public synchronized final Table getSystemTable(Session session,
+    public final Table getSystemTable(Session session,
             String name) {
 
         Table t;
@@ -488,7 +488,7 @@ class DatabaseInformationMain extends DatabaseInformation {
         return nonCachedTablesSet.contains(name);
     }
 
-    public synchronized final void setStore(Session session, Table table,
+    public final void setStore(Session session, Table table,
             PersistentStore store) {
 
         long dbscts = database.schemaManager.getSchemaChangeTimestamp();
