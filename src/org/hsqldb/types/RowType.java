@@ -101,7 +101,7 @@ public class RowType extends Type {
                 sb.append(',');
             }
 
-            sb.append(dataTypes[i].getNameString());
+            sb.append(dataTypes[i].getDefinition());
         }
 
         sb.append(')');
@@ -109,7 +109,7 @@ public class RowType extends Type {
         return sb.toString();
     }
 
-    String getDefinition() {
+    public String getDefinition() {
         return getNameString();
     }
 
@@ -399,6 +399,35 @@ public class RowType extends Type {
         }
 
         return 0;
+    }
+
+    public boolean equals(Object other) {
+
+        if (other == this) {
+            return true;
+        }
+
+        if (other instanceof Type) {
+            if (((Type) other).typeCode != Types.SQL_ROW) {
+                return false;
+            }
+
+            Type[] otherTypes = ((RowType) other).dataTypes;
+
+            if (otherTypes.length != dataTypes.length) {
+                return false;
+            }
+
+            for (int i = 0; i < dataTypes.length; i++) {
+                if (!dataTypes[i].equals(otherTypes[i])) {
+                    return false;
+                }
+
+                return true;
+            }
+        }
+
+        return false;
     }
 
     public static String convertToSQLString(Object[] array, Type[] types,

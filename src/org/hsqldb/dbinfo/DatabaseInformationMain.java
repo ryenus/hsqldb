@@ -961,6 +961,10 @@ class DatabaseInformationMain extends DatabaseInformation {
                 row[icolumn_size]       = ValuePool.INTEGER_0;
                 row[ichar_octet_length] = ValuePool.INTEGER_0;
 
+                if (type.isArrayType()) {
+                    row[itype_name]         = type.getDefinition();
+                }
+
                 if (type.isCharacterType()) {
                     row[icolumn_size] =
                         ValuePool.getInt(type.getJDBCPrecision());

@@ -385,6 +385,10 @@ public abstract class StatementDMQL extends Statement {
     void checkAccessRights(Session session) {
 
         if (targetTable != null && !targetTable.isTemp()) {
+            if (!session.isProcessingScript) {
+                targetTable.checkDataReadOnly();
+            }
+
             Grantee owner = targetTable.getOwner();
 
             if (owner != null && owner.isSystem()) {
@@ -392,10 +396,6 @@ public abstract class StatementDMQL extends Statement {
                     throw Error.error(ErrorCode.X_42501,
                                       targetTable.getName().name);
                 }
-            }
-
-            if (!session.isProcessingScript) {
-                targetTable.checkDataReadOnly();
             }
 
             session.checkReadWrite();
