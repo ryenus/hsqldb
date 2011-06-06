@@ -754,7 +754,9 @@ class TransferDb extends DataAccessPoint {
                     col = meta.getColumns(TTable.Stmts.sDatabaseToConvert,
                                           null, TTable.Stmts.sSourceTable,
                                           null);
-                } catch (SQLException eSchema1) {}
+                } catch (SQLException eSchema1) {
+                    eSchema1.printStackTrace();
+                }
             }
         }
 
@@ -813,7 +815,7 @@ class TransferDb extends DataAccessPoint {
                             || type == Types.BINARY || type == Types.DATE
                             || type == Types.TIME || type == Types.TIMESTAMP) {
                         if (!DefaultVal.startsWith("'")) {
-                            DefaultVal = "\'" + DefaultVal + "\'";
+//                            DefaultVal = "\'" + DefaultVal + "\'";
                         }
                     }
 

@@ -34,6 +34,9 @@ package org.hsqldb.util;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
+import java.sql.Clob;
+import java.sql.Blob;
+import java.sql.Types;
 import java.util.Hashtable;
 
 /**
@@ -83,7 +86,7 @@ class TransferHelper {
             return id;
         }
 
-        if (!id.toLowerCase().equals(id) && !id.toUpperCase().equals(id)) {
+        if (!id.toUpperCase().equals(id)) {
             return (quote + id + quote);
         }
 
@@ -167,6 +170,23 @@ class TransferHelper {
     }
 
     Object convertColumnValue(Object value, int column, int type) {
+
+        if (value == null) {
+            return value;
+        }
+
+        try {
+            if (value instanceof Clob) {
+                return ((Clob) value).getSubString(
+                    1, (int) ((Clob) value).length());
+            } else if (value instanceof Blob) {
+                return ((Blob) value).getBytes(
+                    1, (int) ((Blob) value).length());
+            }
+        } catch (SQLException e) {
+            return null;
+        }
+
         return (value);
     }
 
