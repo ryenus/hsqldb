@@ -1,0 +1,8 @@
+# File for use by 'bnd' utility for generating OSGi Bundle descriptions.
+# http://www.aqute.biz/Code/Bnd
+
+Bundle-Version: ${hsqldb.version}
+Build-Vendor: ${build.vendor}
+Bundle-Description: HyperSQL Database
+Bundle-Name: ${hsqldb.title}
+Bundle-SymbolicName: org.hsqldb.hsqldb
