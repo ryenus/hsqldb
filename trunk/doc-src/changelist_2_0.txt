@@ -1,3 +1,5 @@
+7 Jun 2011 - version 2.2.4
+-- fixed issue and improved INFORMATION_SCHEMA concurrency
 6 Jun 2011 - version 2.2.3
 -- fixed issue with limit offset with indexed IN predicate
 -- added INFORMATION_SCHEMA.ELEMENT_TYPES view and related enhancements
