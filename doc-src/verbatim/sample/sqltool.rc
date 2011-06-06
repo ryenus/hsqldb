@@ -102,7 +102,9 @@ password
 # Note that "databases" in SQL Server and Sybase are traditionally used for
 # the same purpose as "schemas" with more SQL-compliant databases.
 
-# Template for a Microsoft SQL Server database
+# Template for a Microsoft SQL Server database using Microsoft's Driver
+# (I find that the JTDS driver is much more responsive than Microsoft's).
+# OLDER JDBC Driver:
 #urlid msprojsvr
 #url jdbc:microsoft:sqlserver://hostname;DatabaseName=DbName;SelectMethod=Cursor
 # The SelectMethod setting is required to do more than one thing on a JDBC
@@ -113,6 +115,18 @@ password
 #driver com.microsoft.jdbc.sqlserver.SQLServerDriver
 #username myuser
 #password hiddenpwd
+# Current 2011 JDBC Driver for Microsoft SQL Server:
+# Requires just the new sqljdbc4.jar.  (Microsoft just loves back-slashes)
+#url jdbc:sqlserver://hostname\instanceName;DatabaseName=dbname
+#driver com.microsoft.jdbc.sqlserver.SQLServerDriver
+
+# Template for Microsoft SQL Server database using the JTDS Driver
+# http://jtds.sourceforge.net  Jar file has name like "jtds-1.2.5.jar".
+#urlid nlyte
+#username myuser
+#password hiddenpwd
+#url jdbc:jtds:sqlserver://myhost/nlyte;instance=MSSQLSERVER
+#driver net.sourceforge.jtds.jdbc.Driver
 
 # Template for a Sybase database
 #urlid sybase
