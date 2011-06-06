@@ -1417,9 +1417,15 @@ public class SchemaManager {
 
     public Iterator databaseObjectIterator(String schemaName, int type) {
 
-        Schema schema = (Schema) schemaMap.get(schemaName);
+        readLock.lock();
 
-        return schema.schemaObjectIterator(type);
+        try {
+            Schema schema = (Schema) schemaMap.get(schemaName);
+
+            return schema.schemaObjectIterator(type);
+        } finally {
+            readLock.unlock();
+        }
     }
 
     public Iterator databaseObjectIterator(int type) {
