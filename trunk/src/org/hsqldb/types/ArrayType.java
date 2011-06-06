@@ -108,7 +108,21 @@ public class ArrayType extends Type {
         return sb.toString();
     }
 
-    String getDefinition() {
+    public String getFullNameString() {
+
+        StringBuffer sb = new StringBuffer();
+
+        sb.append(dataType.getFullNameString()).append(' ');
+        sb.append(Tokens.T_ARRAY);
+
+        if (maxCardinality != defaultArrayCardinality) {
+            sb.append('[').append(maxCardinality).append(']');
+        }
+
+        return sb.toString();
+    }
+
+    public String getDefinition() {
 
         StringBuffer sb = new StringBuffer();
 
@@ -233,7 +247,7 @@ public class ArrayType extends Type {
         } else if (a instanceof JDBCArray) {
             data = ((JDBCArray) a).getArrayInternal();
         } else if (a instanceof JDBCArrayBasic) {
-            data = (Object[]) ((JDBCArrayBasic) a).getArray();
+            data    = (Object[]) ((JDBCArrayBasic) a).getArray();
             convert = true;
         } else if (a instanceof java.sql.Array) {
             try {
@@ -437,6 +451,24 @@ public class ArrayType extends Type {
                          ((Object[]) b).length);
 
         return array;
+    }
+
+    public boolean equals(Object other) {
+
+        if (other == this) {
+            return true;
+        }
+
+        if (other instanceof Type) {
+            if (((Type) other).typeCode != Types.SQL_ARRAY) {
+                return false;
+            }
+
+            return maxCardinality == ((ArrayType) other).maxCardinality
+                   && dataType.equals(((ArrayType) other).dataType);
+        }
+
+        return false;
     }
 
     public void sort(Session session, Object a, SortAndSlice sort) {

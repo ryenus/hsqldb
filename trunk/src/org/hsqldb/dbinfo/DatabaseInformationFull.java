@@ -78,6 +78,7 @@ import org.hsqldb.rights.GrantConstants;
 import org.hsqldb.rights.Grantee;
 import org.hsqldb.rights.Right;
 import org.hsqldb.store.ValuePool;
+import org.hsqldb.types.ArrayType;
 import org.hsqldb.types.CharacterType;
 import org.hsqldb.types.Charset;
 import org.hsqldb.types.Collation;
@@ -239,6 +240,9 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
 
             case DOMAINS :
                 return DOMAINS(session, store);
+
+            case ELEMENT_TYPES :
+                return ELEMENT_TYPES(session, store);
 
             case ENABLED_ROLES :
                 return ENABLED_ROLES(session, store);
@@ -2626,6 +2630,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
                 } else if (type.isArrayType()) {
                     row[maximum_cardinality] =
                         ValuePool.getLong(type.arrayLimitCardinality());
+                    row[data_type] = "ARRAY";
                 }
 
                 if (type.isDomainType()) {
@@ -2643,7 +2648,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
                 row[scope_catalog]       = null;
                 row[scope_schema]        = null;
                 row[scope_name]          = null;
-                row[dtd_identifier]      = null;
+                row[dtd_identifier]      = type.getDefinition();
                 row[is_self_referencing] = null;
                 row[is_identity]         = column.isIdentity() ? "YES"
                                                                : "NO";
@@ -3374,7 +3379,11 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
             } else if (type.isArrayType()) {
                 row[maximum_cardinality] =
                     ValuePool.getLong(type.arrayLimitCardinality());
+                row[data_type] = "ARRAY";
             }
+
+            row[dtd_identifier] = type.getDefinition();
+            row[declared_data_type]    = row[data_type];
 
             // end common block
             Expression defaultExpression =
@@ -3388,6 +3397,318 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         }
 
         return t;
+    }
+
+    /**
+     * SQL:2008 VIEW<p>
+     *
+     * The type attributes of elements of array. <p>
+     *
+     * The ELEMENT_TYPES view is empty.<p>
+     *
+     * @return Table
+     */
+    Table ELEMENT_TYPES(Session session, PersistentStore store) {
+
+        Table t = sysTables[ELEMENT_TYPES];
+
+        if (t == null) {
+            t = createBlankTable(sysTableHsqlNames[ELEMENT_TYPES]);
+
+            addColumn(t, "OBJECT_CATALOG", SQL_IDENTIFIER);
+            addColumn(t, "OBJECT_SCHEMA", SQL_IDENTIFIER);
+            addColumn(t, "OBJECT_NAME", SQL_IDENTIFIER);
+            addColumn(t, "OBJECT_TYPE", SQL_IDENTIFIER);
+            addColumn(t, "COLLECTION_TYPE_IDENTIFIER", SQL_IDENTIFIER);
+            addColumn(t, "DATA_TYPE", SQL_IDENTIFIER);
+            addColumn(t, "CHARACTER_MAXIMUM_LENGTH", CARDINAL_NUMBER);
+            addColumn(t, "CHARACTER_OCTET_LENGTH", CARDINAL_NUMBER);
+            addColumn(t, "CHARACTER_SET_CATALOG", SQL_IDENTIFIER);
+            addColumn(t, "CHARACTER_SET_SCHEMA", SQL_IDENTIFIER);
+            addColumn(t, "CHARACTER_SET_NAME", SQL_IDENTIFIER);
+            addColumn(t, "COLLATION_CATALOG", SQL_IDENTIFIER);
+            addColumn(t, "COLLATION_SCHEMA", SQL_IDENTIFIER);
+            addColumn(t, "COLLATION_NAME", SQL_IDENTIFIER);
+            addColumn(t, "NUMERIC_PRECISION", CARDINAL_NUMBER);
+            addColumn(t, "NUMERIC_PRECISION_RADIX", CARDINAL_NUMBER);
+            addColumn(t, "NUMERIC_SCALE", CARDINAL_NUMBER);
+            addColumn(t, "DATETIME_PRECISION", CARDINAL_NUMBER);
+            addColumn(t, "INTERVAL_TYPE", CHARACTER_DATA);
+            addColumn(t, "INTERVAL_PRECISION", CARDINAL_NUMBER);
+            addColumn(t, "UDT_CATALOG", SQL_IDENTIFIER);
+            addColumn(t, "UDT_SCHEMA", SQL_IDENTIFIER);
+            addColumn(t, "UDT_NAME", SQL_IDENTIFIER);
+            addColumn(t, "SCOPE_CATALOG", SQL_IDENTIFIER);
+            addColumn(t, "SCOPE_SCHEMA", SQL_IDENTIFIER);
+            addColumn(t, "SCOPE_NAME", SQL_IDENTIFIER);
+            addColumn(t, "MAXIMUM_CARDINALITY", CARDINAL_NUMBER);
+            addColumn(t, "DTD_IDENTIFIER", SQL_IDENTIFIER);
+            addColumn(t, "DECLARED_DATA_TYPE", CHARACTER_DATA);
+            addColumn(t, "DECLARED_NUMERIC_PRECISION", CARDINAL_NUMBER);
+            addColumn(t, "DECLARED_NUMERIC_SCALE", CARDINAL_NUMBER);
+
+            HsqlName name = HsqlNameManager.newInfoSchemaObjectName(
+                sysTableHsqlNames[ELEMENT_TYPES].name, false,
+                SchemaObject.INDEX);
+
+            t.createPrimaryKeyConstraint(name, new int[] {
+                0, 1, 2, 4, 5, 6
+            }, false);
+
+            return t;
+        }
+
+        final int object_catalog             = 0;
+        final int object_schema              = 1;
+        final int object_name                = 2;
+        final int object_type                = 3;
+        final int collection_type_identifier = 4;
+
+        //
+        final int udt_catalog   = 20;
+        final int udt_schema    = 21;
+        final int udt_name      = 22;
+        final int scope_catalog = 23;
+        final int scope_schema  = 24;
+        final int scope_name    = 25;
+
+        //
+        // intermediate holders
+        int            columnCount;
+        Iterator       tables;
+        Table          table;
+        Object[]       row;
+        OrderedHashSet columnList;
+        Type           type;
+
+        // Initialization
+        tables = allTables();
+
+        while (tables.hasNext()) {
+            table = (Table) tables.next();
+            columnList =
+                session.getGrantee().getColumnsForAllPrivileges(table);
+
+            if (columnList.isEmpty()) {
+                continue;
+            }
+
+            columnCount = table.getColumnCount();
+
+            for (int i = 0; i < columnCount; i++) {
+                ColumnSchema column = table.getColumn(i);
+
+                if (!columnList.contains(column.getName())) {
+                    continue;
+                }
+
+                type = column.getDataType();
+
+                if (type.isDistinctType() || type.isDomainType()
+                        || !type.isArrayType()) {
+                    continue;
+                }
+
+                row                             = t.getEmptyRowData();
+                row[object_catalog] = database.getCatalogName().name;
+                row[object_schema]              = table.getSchemaName().name;
+                row[object_name]                = table.getName().name;
+                row[object_type]                = "TABLE";
+                row[collection_type_identifier] = type.getDefinition();
+
+                addTypeInfo(row, ((ArrayType) type).collectionBaseType());
+                t.insertSys(session, store, row);
+            }
+        }
+
+        Iterator it =
+            database.schemaManager.databaseObjectIterator(SchemaObject.DOMAIN);
+
+        while (it.hasNext()) {
+            type = (Type) it.next();
+
+            if (!type.isDomainType() || !type.isArrayType()) {
+                continue;
+            }
+
+            if (!session.getGrantee().isAccessible(type)) {
+                continue;
+            }
+
+            row                             = t.getEmptyRowData();
+            row[object_catalog]             = database.getCatalogName().name;
+            row[object_schema]              = type.getSchemaName().name;
+            row[object_name]                = type.getName().name;
+            row[object_type]                = "DOMAIN";
+            row[collection_type_identifier] = type.getDefinition();
+
+            addTypeInfo(row, ((ArrayType) type).collectionBaseType());
+            t.insertSys(session, store, row);
+        }
+
+        it = database.schemaManager.databaseObjectIterator(SchemaObject.TYPE);
+
+        while (it.hasNext()) {
+            type = (Type) it.next();
+
+            if (!type.isDistinctType()) {
+                continue;
+            }
+
+            if (!session.getGrantee().isAccessible(type)) {
+                continue;
+            }
+
+            row                             = t.getEmptyRowData();
+            row[object_catalog]             = database.getCatalogName().name;
+            row[object_schema]              = type.getSchemaName().name;
+            row[object_name]                = type.getName().name;
+            row[object_type]                = "USER-DEFINED TYPE";
+            row[collection_type_identifier] = type.getDefinition();
+
+            addTypeInfo(row, ((ArrayType) type).collectionBaseType());
+            t.insertSys(session, store, row);
+        }
+
+        it = database.schemaManager.databaseObjectIterator(
+            SchemaObject.SPECIFIC_ROUTINE);
+
+        while (it.hasNext()) {
+            Routine routine = (Routine) it.next();
+
+            if (!session.getGrantee().isAccessible(routine)) {
+                continue;
+            }
+
+            type = routine.isProcedure() ? null
+                                         : routine.getReturnType();
+
+            if (type == null || type.isDistinctType() || type.isDomainType()
+                    || !type.isArrayType()) {
+
+                //
+            } else {
+                row                             = t.getEmptyRowData();
+                row[object_catalog] = database.getCatalogName().name;
+                row[object_schema]              = routine.getSchemaName().name;
+                row[object_name]                = routine.getName().name;
+                row[object_type]                = "ROUTINE";
+                row[collection_type_identifier] = type.getDefinition();
+
+                addTypeInfo(row, ((ArrayType) type).collectionBaseType());
+                t.insertSys(session, store, row);
+            }
+
+            Type returnType = type;
+            int  paramCount = routine.getParameterCount();
+
+            for (int i = 0; i < paramCount; i++) {
+                ColumnSchema param = routine.getParameter(i);
+
+                type = param.getDataType();
+
+                if (type.isDistinctType() || type.isDomainType()
+                        || !type.isArrayType()) {
+                    continue;
+                }
+
+                if (type.equals(returnType)) {
+                    continue;
+                }
+
+                row                             = t.getEmptyRowData();
+                row[object_catalog] = database.getCatalogName().name;
+                row[object_schema]              = routine.getSchemaName().name;
+                row[object_name]                = routine.getName().name;
+                row[object_type]                = "ROUTINE";
+                row[collection_type_identifier] = type.getDefinition();
+
+                addTypeInfo(row, ((ArrayType) type).collectionBaseType());
+                t.insertSys(session, store, row);
+            }
+        }
+
+        return t;
+    }
+
+    void addTypeInfo(Object[] row, Type type) {
+
+        final int data_type                = 5;
+        final int character_maximum_length = 6;
+        final int character_octet_length   = 7;
+        final int character_set_catalog    = 8;
+        final int character_set_schema     = 9;
+        final int character_set_name       = 10;
+        final int collation_catalog        = 11;
+        final int collation_schema         = 12;
+        final int collation_name           = 13;
+        final int numeric_precision        = 14;
+        final int numeric_precision_radix  = 15;
+        final int numeric_scale            = 16;
+        final int datetime_precision       = 17;
+        final int interval_type            = 18;
+        final int interval_precision       = 19;
+
+        //
+        final int maximum_cardinality        = 26;
+        final int dtd_identifier             = 27;
+        final int declared_data_type         = 28;
+        final int declared_numeric_precision = 29;
+        final int declared_numeric_scale     = 30;
+
+        row[data_type] = type.getFullNameString();
+
+        if (type.isCharacterType()) {
+            row[character_maximum_length] = ValuePool.getLong(type.precision);
+            row[character_octet_length] = ValuePool.getLong(type.precision
+                    * 2);
+            row[character_set_catalog] = database.getCatalogName().name;
+            row[character_set_schema] =
+                ((CharacterType) type).getCharacterSet().getSchemaName().name;
+            row[character_set_name] =
+                ((CharacterType) type).getCharacterSet().getName().name;
+            row[collation_catalog] = database.getCatalogName().name;
+            row[collation_schema] =
+                ((CharacterType) type).getCollation().getSchemaName().name;
+            row[collation_name] =
+                ((CharacterType) type).getCollation().getName().name;
+        } else if (type.isNumberType()) {
+            row[numeric_precision] = ValuePool.getLong(
+                ((NumberType) type).getNumericPrecisionInRadix());
+            row[declared_numeric_precision] = ValuePool.getLong(
+                ((NumberType) type).getNumericPrecisionInRadix());
+
+            if (type.isExactNumberType()) {
+                row[numeric_scale] = row[declared_numeric_scale] =
+                    ValuePool.getLong(type.scale);
+            }
+
+            row[numeric_precision_radix] =
+                ValuePool.getLong(type.getPrecisionRadix());
+        } else if (type.isBooleanType()) {
+
+            //
+        } else if (type.isDateTimeType()) {
+            row[datetime_precision] = ValuePool.getLong(type.scale);
+        } else if (type.isIntervalType()) {
+            row[data_type] = "INTERVAL";
+            row[interval_type] =
+                ((IntervalType) type).getQualifier(type.typeCode);
+            row[interval_precision] = ValuePool.getLong(type.precision);
+            row[datetime_precision] = ValuePool.getLong(type.scale);
+        } else if (type.isBinaryType()) {
+            row[character_maximum_length] = ValuePool.getLong(type.precision);
+            row[character_octet_length]   = ValuePool.getLong(type.precision);
+        } else if (type.isBitType()) {
+            row[character_maximum_length] = ValuePool.getLong(type.precision);
+            row[character_octet_length]   = ValuePool.getLong(type.precision);
+        } else if (type.isArrayType()) {
+            row[maximum_cardinality] =
+                ValuePool.getLong(type.arrayLimitCardinality());
+        }
+
+        row[dtd_identifier] = type.getDefinition();
+        row[declared_data_type]    = row[data_type];
     }
 
     /**
@@ -3999,6 +4320,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
                     } else if (type.isArrayType()) {
                         row[maximum_cardinality] =
                             ValuePool.getLong(type.arrayLimitCardinality());
+                        row[data_type] = "ARRAY";
                     }
 
                     if (type.isDistinctType()) {
@@ -4006,6 +4328,8 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
                         row[udt_schema]  = type.getSchemaName().name;
                         row[udt_name]    = type.getName().name;
                     }
+
+                    row[dtd_identifier] = type.getDefinition();
 
                     // end common block
                     t.insertSys(session, store, row);
@@ -5573,7 +5897,11 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
                 } else if (type.isArrayType()) {
                     row[maximum_cardinality] =
                         ValuePool.getLong(type.arrayLimitCardinality());
+                    row[data_type] = "ARRAY";
                 }
+
+                row[dtd_identifier] = type.getDefinition();
+                row[declared_data_type]    = row[data_type];
 
                 // end common block
             }
@@ -5584,7 +5912,6 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
             row[scope_catalog]    = null;
             row[scope_schema]     = null;
             row[scope_name]       = null;
-            row[dtd_identifier]   = null;    //**
             row[routine_body] = routine.getLanguage() == Routine.LANGUAGE_JAVA
                                 ? "EXTERNAL"
                                 : "SQL";
@@ -5857,6 +6184,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         Result rs  = sys.executeDirectStatement(sql);
 
         t.insertSys(session, store, rs);
+
         return t;
     }
 
@@ -7403,6 +7731,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
             addColumn(t, "DECLARED_DATA_TYPE", CHARACTER_DATA);
             addColumn(t, "DECLARED_NUMERIC_PRECISION", CARDINAL_NUMBER);
             addColumn(t, "DECLARED_NUMERIC_SCALE", CARDINAL_NUMBER);
+            addColumn(t, "MAXIMUM_CARDINALITY", CARDINAL_NUMBER);
             addColumn(t, "EXTERNAL_NAME", CHARACTER_DATA);
             addColumn(t, "EXTERNAL_LANGUAGE", CHARACTER_DATA);
             addColumn(t, "JAVA_INTERFACE", CHARACTER_DATA);
@@ -7450,6 +7779,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         final int declared_data_type         = 29;
         final int declared_numeric_precision = 30;
         final int declared_numeric_scale     = 31;
+        final int maximum_cardinality        = 32;
 
         //
         Iterator it =
@@ -7468,7 +7798,6 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
             row[user_defined_type_schema]   = type.getSchemaName().name;
             row[user_defined_type_name]     = type.getName().name;
             row[data_type]                  = type.getFullNameString();
-            row[declared_data_type]         = type.getFullNameString();
             row[user_defined_type_category] = "DISTINCT";
             row[is_instantiable]            = "YES";
             row[is_final]                   = "YES";
@@ -7523,10 +7852,15 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
                     ValuePool.getLong(type.precision);
                 row[character_octet_length] =
                     ValuePool.getLong(type.precision);
+            } else if (type.isArrayType()) {
+                row[maximum_cardinality] =
+                    ValuePool.getLong(type.arrayLimitCardinality());
+                row[data_type] = "ARRAY";
             }
 
             // end common block
-            row[source_dtd_identifier] = row[user_defined_type_name];
+            row[source_dtd_identifier] = type.getDefinition();
+            row[declared_data_type]    = row[data_type];
 
             t.insertSys(session, store, row);
         }

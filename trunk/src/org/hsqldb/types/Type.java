@@ -226,7 +226,7 @@ public abstract class Type implements SchemaObject, Cloneable {
     /**
      * Returns the full definition of the type, including parameters
      */
-    abstract String getDefinition();
+    public abstract String getDefinition();
 
     public boolean hasCollation() {
         return false;
@@ -542,6 +542,14 @@ public abstract class Type implements SchemaObject, Cloneable {
         }
 
         if (other instanceof Type) {
+            if (((Type) other).typeCode == Types.SQL_ARRAY) {
+                return false;
+            }
+
+            if (((Type) other).typeCode == Types.SQL_ROW) {
+                return false;
+            }
+
             return ((Type) other).typeCode == typeCode
                    && ((Type) other).precision == precision
                    && ((Type) other).scale == scale
