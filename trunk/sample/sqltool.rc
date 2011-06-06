@@ -121,7 +121,7 @@ password
 #driver com.microsoft.jdbc.sqlserver.SQLServerDriver
 
 # Template for Microsoft SQL Server database using the JTDS Driver
-# http://jtds.sourceforge.net
+# http://jtds.sourceforge.net  Jar file has name like "jtds-1.2.5.jar".
 #urlid nlyte
 #username myuser
 #password hiddenpwd
