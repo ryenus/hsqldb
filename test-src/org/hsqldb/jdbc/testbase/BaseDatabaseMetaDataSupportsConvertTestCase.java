@@ -46,13 +46,13 @@ import org.hsqldb.testbase.OfMethod;
  * @since HSQLDB 2.1.0
  */
 @ForSubject(java.sql.DatabaseMetaData.class)
-public abstract class BaseDatabaseMetaDataSupportsConvertTest extends BaseJdbcTestCase {
+public abstract class BaseDatabaseMetaDataSupportsConvertTestCase extends BaseJdbcTestCase {
 
     private final int m_toIndex;
     private final int m_fromIndex;
 
     // for subclasses
-    protected BaseDatabaseMetaDataSupportsConvertTest() {
+    protected BaseDatabaseMetaDataSupportsConvertTestCase() {
         this(0, 0);
     }
 
@@ -62,7 +62,7 @@ public abstract class BaseDatabaseMetaDataSupportsConvertTest extends BaseJdbcTe
      * @param toIndex of target type
      * @param fromIndex of source type
      */
-    protected BaseDatabaseMetaDataSupportsConvertTest(
+    protected BaseDatabaseMetaDataSupportsConvertTestCase(
             final int toIndex,
             final int fromIndex) {
         setName(computeTestName(toIndex, fromIndex));

@@ -29,7 +29,7 @@
  */
 package org.hsqldb.jdbc;
 
-import org.hsqldb.jdbc.testbase.BaseBlobTest;
+import org.hsqldb.jdbc.testbase.BaseBlobTestCase;
 import java.sql.Blob;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -47,7 +47,7 @@ import org.hsqldb.testbase.ForSubject;
  * @author Campbell Boucher-Burnet (boucherb@users dot sourceforge.net)
  */
 @ForSubject(JDBCBlobClient.class)
-public class JDBCBlobClientTest extends BaseBlobTest {
+public class JDBCBlobClientTest extends BaseBlobTestCase {
 
     public JDBCBlobClientTest(String testName) {
         super(testName);

@@ -34,7 +34,7 @@ import java.sql.Blob;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 
-import org.hsqldb.jdbc.testbase.BaseBlobTest;
+import org.hsqldb.jdbc.testbase.BaseBlobTestCase;
 import org.hsqldb.testbase.ForSubject;
 
 /**
@@ -43,7 +43,7 @@ import org.hsqldb.testbase.ForSubject;
  * @author Campbell Boucher-Burnet (boucherb@users dot sourceforge.net)
  */
 @ForSubject(JDBCBlobFile.class)
-public class JDBCBlobFileTest extends BaseBlobTest {
+public class JDBCBlobFileTest extends BaseBlobTestCase {
 
     public JDBCBlobFileTest(String testName) {
         super(testName);

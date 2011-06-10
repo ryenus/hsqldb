@@ -29,7 +29,7 @@
  */
 package org.hsqldb.jdbc;
 
-import org.hsqldb.jdbc.testbase.BaseClobTest;
+import org.hsqldb.jdbc.testbase.BaseClobTestCase;
 import java.sql.Clob;
 import java.sql.SQLException;
 import junit.framework.Test;
@@ -42,7 +42,7 @@ import org.hsqldb.testbase.ForSubject;
  * @author Campbell Boucher-Burnet (boucherb@users dot sourceforge.net)
  */
 @ForSubject(JDBCClobFile.class)
-public class JDBCClobFileTest extends BaseClobTest {
+public class JDBCClobFileTest extends BaseClobTestCase {
 
     public JDBCClobFileTest(String testName) {
         super(testName);

@@ -32,7 +32,6 @@ package org.hsqldb.types;
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
-import org.hsqldb.types.Types;
 
 public class IntervalTypeTest extends TestCase {
     /*

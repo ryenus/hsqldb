@@ -33,6 +33,7 @@ import java.io.IOException;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 import org.hsqldb.testbase.BaseScriptedTestCase;
+import org.hsqldb.testbase.HsqldbEmbeddedDatabaseDeleter;
 
 /**
  *
@@ -42,6 +43,8 @@ public class ScriptedTest extends BaseScriptedTestCase {
 
     private static final ScriptedTest instance = new ScriptedTest();
 
+    private HsqldbEmbeddedDatabaseDeleter m_deleter = new HsqldbEmbeddedDatabaseDeleter(getUrl());
+
     private ScriptedTest() {
         super();
     }
@@ -50,8 +53,21 @@ public class ScriptedTest extends BaseScriptedTestCase {
         super(script);
     }
 
+    @Override
     public String getUrl() {
         return "jdbc:hsqldb:file:scripted-test";
+    }
+
+    @Override
+    protected void preTearDown() throws Exception {
+        super.preTearDown();
+        this.connectionFactory().addDatabaseEventListener(m_deleter);
+    }
+
+    @Override
+    protected void postTearDown() throws Exception {
+        super.postTearDown();
+        this.connectionFactory().removeDatabaseEventListener(m_deleter);
     }
 
     /**

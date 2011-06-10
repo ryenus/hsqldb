@@ -27,6 +27,8 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+
+
 package org.hsqldb.testbase;
 
 import java.io.File;
@@ -947,10 +949,16 @@ public abstract class BaseTestCase extends junit.framework.TestCase {
         try {
             runMethod.invoke(this);
         } catch (InvocationTargetException e) {
-            e.fillInStackTrace();
-            throw e.getTargetException();
+            Throwable t = e.getTargetException();
+
+            // fillInStackTrace does not produce the desired result
+            // (i.e. without this, resulting failure trace *does not* include
+            // the line that caused the assertion failure)
+            t.setStackTrace(t.getStackTrace());
+
+            throw t;
         } catch (IllegalAccessException e) {
-            e.fillInStackTrace();
+            e.setStackTrace(e.getStackTrace());
             throw e;
         }
     }

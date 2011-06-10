@@ -45,13 +45,13 @@ import org.hsqldb.testbase.OfMethod;
  * @author Campbell Boucher-Burnet (boucherb@users dot sourceforge.net)
  */
 @ForSubject(java.sql.Blob.class)
-public abstract class BaseBlobTest extends BaseJdbcTestCase {
+public abstract class BaseBlobTestCase extends BaseJdbcTestCase {
 
     private static final byte[] s_data = new byte[]{0, 1, 2, 1, 2, 3, 2, 3, 4, 2, 3, 4, 5, 2, 3, 4, 5, 0, 1, 2, 1, 2, 3, 2, 3, 4, 2, 3, 4, 5, 2, 3, 4};
     private static final byte[] s_pattern = new byte[]{2, 3, 4, 5};
     private static final int[] s_expectedPosition = new int[]{10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 14, 14, 14, 14, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, -1, -1, -1, -1, -1, -1, -1, -1};
 
-    public BaseBlobTest(String name) {
+    public BaseBlobTestCase(String name) {
         super(name);
     }
 
