@@ -32,7 +32,7 @@ package org.hsqldb.jdbc;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 
-import org.hsqldb.jdbc.testbase.BaseArrayTest;
+import org.hsqldb.jdbc.testbase.BaseArrayTestCase;
 
 import org.hsqldb.testbase.ForSubject;
 /**
@@ -40,7 +40,7 @@ import org.hsqldb.testbase.ForSubject;
  * @author Campbell Boucher-Burnet (boucherb@users dot sourceforge.net)
  */
 @ForSubject(JDBCArray.class)
-public class JDBCArrayTest extends BaseArrayTest {
+public class JDBCArrayTest extends BaseArrayTestCase {
 
     public JDBCArrayTest(String testName) {
         super(testName);

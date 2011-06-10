@@ -29,7 +29,7 @@
  */
 package org.hsqldb.jdbc;
 
-import org.hsqldb.jdbc.testbase.BaseBlobTest;
+import org.hsqldb.jdbc.testbase.BaseBlobTestCase;
 import java.sql.Blob;
 
 import junit.framework.Test;
@@ -43,7 +43,7 @@ import org.hsqldb.testbase.ForSubject;
  * @author Campbell Boucher-Burnet (boucherb@users dot sourceforge.net)
  */
 @ForSubject(JDBCBlob.class)
-public class JDBCBlobTest extends BaseBlobTest {
+public class JDBCBlobTest extends BaseBlobTestCase {
 
     // saves on creating/destroying database instances and connections
     // without sacrificing test accuracy.

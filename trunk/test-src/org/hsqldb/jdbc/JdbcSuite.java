@@ -68,9 +68,13 @@ public class JdbcSuite extends TestCase {
     public static Test suite() {
         TestSuite suite = new TestSuite("JdbcSuite");    
          suite.addTest(org.hsqldb.jdbc.JDBCArrayTest.suite());
+        suite.addTest(org.hsqldb.jdbc.JDBCBlobClientTest.suite());
+        suite.addTest(org.hsqldb.jdbc.JDBCBlobFileTest.suite());
         suite.addTest(org.hsqldb.jdbc.JDBCBlobTest.suite());
         suite.addTest(org.hsqldb.jdbc.JDBCCallableStatementTest.suite());
         suite.addTest(org.hsqldb.jdbc.JDBCCallableStatementWhileClosedTest.suite());
+        suite.addTest(org.hsqldb.jdbc.JDBCClobClientTest.suite());
+        suite.addTest(org.hsqldb.jdbc.JDBCClobFileTest.suite());
         suite.addTest(org.hsqldb.jdbc.JDBCClobTest.suite());
         suite.addTest(org.hsqldb.jdbc.JDBCConnectionCreateStatementTest.suite());
         suite.addTest(org.hsqldb.jdbc.JDBCConnectionPrepareCallTest.suite());
@@ -90,7 +94,7 @@ public class JdbcSuite extends TestCase {
         suite.addTest(org.hsqldb.jdbc.JDBCSQLXMLTest.suite());
         suite.addTest(org.hsqldb.jdbc.JDBCSavepointTest.suite());
         suite.addTest(org.hsqldb.jdbc.JDBCStatementTest.suite());
-        suite.addTest(org.hsqldb.jdbc.ScriptedTest.suite());
+        //suite.addTest(org.hsqldb.jdbc.ScriptedTest.suite());
         suite.addTest(org.hsqldb.jdbc.UtilTest.suite());
         // TODO:
         //suite.addTest(org.hsqldb.jdbc.jdbcConflictingRowTest.suite());

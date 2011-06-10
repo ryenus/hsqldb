@@ -29,7 +29,7 @@
  */
 package org.hsqldb.jdbc;
 
-import org.hsqldb.jdbc.testbase.BaseDriverTest;
+import org.hsqldb.jdbc.testbase.BaseDriverTestCase;
 
 import junit.framework.Test;
 import junit.framework.TestSuite;
@@ -41,7 +41,7 @@ import org.hsqldb.testbase.ForSubject;
  * @author Campbell Boucher-Burnet (boucherb@users dot sourceforge.net)
  */
 @ForSubject(JDBCDriver.class)
-public class JDBCDriverTest extends BaseDriverTest {
+public class JDBCDriverTest extends BaseDriverTestCase {
 
     public JDBCDriverTest(String testName) {
         super(testName);

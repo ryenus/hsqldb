@@ -40,7 +40,7 @@ import java.sql.Statement;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 
-import org.hsqldb.jdbc.testbase.BaseClobTest;
+import org.hsqldb.jdbc.testbase.BaseClobTestCase;
 import org.hsqldb.testbase.ForSubject;
 
 /**
@@ -49,7 +49,7 @@ import org.hsqldb.testbase.ForSubject;
  * @author Campbell Boucher-Burnet (boucherb@users dot sourceforge.net)
  */
 @ForSubject(JDBCClobClient.class)
-public class JDBCClobClientTest extends BaseClobTest {
+public class JDBCClobClientTest extends BaseClobTestCase {
 
     public JDBCClobClientTest(String testName) {
         super(testName);

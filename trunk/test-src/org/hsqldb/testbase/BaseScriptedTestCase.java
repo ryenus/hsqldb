@@ -27,9 +27,10 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+
+
 package org.hsqldb.testbase;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.LineNumberReader;
@@ -41,15 +42,8 @@ import java.sql.Statement;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import junit.framework.TestCase;
-import org.hsqldb.DatabaseURL;
 import org.hsqldb.lib.StringUtil;
-import org.hsqldb.persist.HsqlProperties;
-import org.hsqldb.persist.LockFile;
-import org.hsqldb.persist.LockFile.FileSecurityException;
-import org.hsqldb.persist.LockFile.UnexpectedFileIOException;
 
 /**
  * Initial port of org.hqldb.test.TestUtil.
@@ -252,6 +246,7 @@ public abstract class BaseScriptedTestCase extends BaseTestCase {
          * @param list
          * @return
          */
+        @Override
         public BaseSection createSection(List list) {
             char sectionType = ' ';
             String[] lines = null;
@@ -543,6 +538,7 @@ public abstract class BaseScriptedTestCase extends BaseTestCase {
          *
          * @return
          */
+        @Override
         protected String getResultString() {
 
             final StringBuffer sb = new StringBuffer();
@@ -672,6 +668,7 @@ public abstract class BaseScriptedTestCase extends BaseTestCase {
          *
          * @return
          */
+        @Override
         protected String getResultString() {
             return Integer.toString(getExpectedUpdateCount());
         }
@@ -730,6 +727,7 @@ public abstract class BaseScriptedTestCase extends BaseTestCase {
          *
          * @return
          */
+        @Override
         protected String getResultString() {
             return null;
         }
@@ -775,6 +773,7 @@ public abstract class BaseScriptedTestCase extends BaseTestCase {
          *
          * @return
          */
+        @Override
         protected String getResultString() {
             return Integer.toString(getExpectedRowCount());
         }
@@ -856,6 +855,7 @@ public abstract class BaseScriptedTestCase extends BaseTestCase {
          *
          * @return
          */
+        @Override
         protected String getResultString() {
             return "SQLException";
         }
@@ -901,6 +901,7 @@ public abstract class BaseScriptedTestCase extends BaseTestCase {
          *
          * @return
          */
+        @Override
         protected String getResultString() {
             return "No result specified for this section";
         }
@@ -926,6 +927,7 @@ public abstract class BaseScriptedTestCase extends BaseTestCase {
          *
          * @return
          */
+        @Override
         protected String getResultString() {
             return "This section, of type '" + getType() + "' was ignored";
         }
@@ -950,6 +952,7 @@ public abstract class BaseScriptedTestCase extends BaseTestCase {
          *
          * @return
          */
+        @Override
         protected String getResultString() {
 
             StringBuilder sb = new StringBuilder();

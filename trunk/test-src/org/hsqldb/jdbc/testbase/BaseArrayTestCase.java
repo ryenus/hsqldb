@@ -51,7 +51,7 @@ import org.hsqldb.testbase.OfMethod;
  * @since HSQLDB 2.1.0
  */
 @ForSubject(java.sql.Array.class)
-public abstract class BaseArrayTest extends BaseJdbcTestCase {
+public abstract class BaseArrayTestCase extends BaseJdbcTestCase {
 
     private static final String[] s_colNames = new String[]{
         "C_BIGINT",
@@ -147,7 +147,7 @@ public abstract class BaseArrayTest extends BaseJdbcTestCase {
         return s_toString[i];
     }
 
-    public BaseArrayTest(String name) {
+    public BaseArrayTestCase(String name) {
         super(name);
     }
 

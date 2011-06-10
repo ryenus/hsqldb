@@ -27,6 +27,8 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+
+
 package org.hsqldb.testbase;
 
 import java.sql.Array;
@@ -38,7 +40,6 @@ import java.sql.DriverManager;
 import java.sql.NClob;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.sql.SQLXML;
 import java.sql.Statement;
 import java.util.ArrayList;
@@ -48,12 +49,13 @@ import java.util.List;
  * For creating, tracking and closing the 
  * JDBC objects used by this test suite. <p>
  *
- * Note that a facility is provided to notify parties interested in the
- * closeRegisteredObjects event. <p>
+ * Note that a facility is provided to notify parties interested in the {@link
+ * EventListener#closedRegisteredObjects(org.hsqldb.testbase.ConnectionFactory)}
+ * event. <p>
  * 
- * For example, this facility is used by the org.hsqldb.testbase.BaseTestCase
+ * For example, this facility is used by the {@link BaseTestCase}
  * class to optionally register an action to close all embedded HSQLDB database
- * instances in response to test fixture tear down. <p>
+ * instances in response to test fixture tear down completion. <p>
  * 
  * @author Campbell Boucher-Burnet (boucherb@users dot sourceforge.net)
  * @version 2.0.1

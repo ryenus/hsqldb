@@ -44,6 +44,7 @@ public class HsqlArrayHeapTest extends TestCase {
 
         Comparator oc = new Comparator() {
 
+            @Override
             public int compare(Object a, Object b) {
 
                 if (a == b) {
@@ -102,9 +103,7 @@ public class HsqlArrayHeapTest extends TestCase {
     }
 
     public static Test suite() {
-        TestSuite suite = new TestSuite(HsqlArrayHeapTest.class);
-
-        return suite;
+        return new TestSuite(HsqlArrayHeapTest.class);
     }
 
     public static void main(String[] args) {

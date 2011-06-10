@@ -29,11 +29,11 @@
  */
 package org.hsqldb.jdbc;
 
-import org.hsqldb.jdbc.testbase.BaseDatabaseMetaDataSupportsConvertTest;
+import org.hsqldb.jdbc.testbase.BaseDatabaseMetaDataSupportsConvertTestCase;
 import junit.framework.Test;
 
 public final class JDBCDatabaseMetaDataSupportsConvertTest
-        extends BaseDatabaseMetaDataSupportsConvertTest {
+        extends BaseDatabaseMetaDataSupportsConvertTestCase {
 
     private static final String s_hsqldb_types_fqn = "org.hsqldb.types.Types";
     private static final String[][] s_type_name_and_field = new String[][]{

@@ -45,9 +45,9 @@ import org.hsqldb.testbase.OfMethod;
  * @since HSQLDB 2.1.0
  */
 @ForSubject(java.sql.Driver.class)
-public abstract class BaseDriverTest extends BaseJdbcTestCase {
+public abstract class BaseDriverTestCase extends BaseJdbcTestCase {
 
-    public BaseDriverTest(String name) {
+    public BaseDriverTestCase(String name) {
         super(name);
     }
 

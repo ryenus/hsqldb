@@ -128,6 +128,7 @@ public class HsqlTimerTest extends BaseTestCase {
          * Does the average period accounting and
          * invokes the writeAndSync method.
          */
+        @Override
         public void run() {
             final long now = System.currentTimeMillis();
 
@@ -293,7 +294,7 @@ public class HsqlTimerTest extends BaseTestCase {
      * Runs the HsqlTimer tests.
      * @param args Currently unused
      */
-    @OfMethod("<<ALL>>")
+    @OfMethod("<<ALL_METHODS>>")
     public void testHsqlTimer() {
         if (!getBooleanProperty("test.org.hsqldb.lib.HsqlTimer", true)){
             println("DISABLED: org.hsqldb.lib.HsqlTimerTest.");
@@ -393,7 +394,7 @@ public class HsqlTimerTest extends BaseTestCase {
         System.out.println("Computing Performance Stats. ");
         System.out.println();
         System.out.println("Please Wait...");
-        System.out.println();;
+        System.out.println();
 
         System.runFinalization();
         System.gc();

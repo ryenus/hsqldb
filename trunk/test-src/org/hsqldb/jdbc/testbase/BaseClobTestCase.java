@@ -24,7 +24,7 @@ import org.hsqldb.testbase.OfMethod;
  * @author Campbell Boucher-Burnet (boucherb@users dot sourceforge.net)
  */
 @ForSubject(java.sql.Clob.class)
-public abstract class BaseClobTest extends BaseJdbcTestCase {
+public abstract class BaseClobTestCase extends BaseJdbcTestCase {
 
     private String m_encoding;
 
@@ -51,7 +51,7 @@ public abstract class BaseClobTest extends BaseJdbcTestCase {
      *
      * @param name of test.
      */
-    public BaseClobTest(String name) {
+    public BaseClobTestCase(String name) {
         super(name);
     }
 
