@@ -21,7 +21,7 @@
    <!-- D E F A U L T  B U I L D  P R O P E R T I E S                        -->
    <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
    <property name="test.suite.version" 
-             value="2.0.1"/>
+             value="2.2.3"/>
                  
    <property name="test.suite.title"
              value="HSQLDB Test Suite"/>
@@ -30,7 +30,7 @@
              value="The HSQL Development Group"/>
    
    <property name="test.suite.implementation.title"
-             value="JDBC 4.1 Test Cases and Utilities"/>
+             value="SQL:2008 / JDBC 4.1 Conformance and Supporing Library Test Cases"/>
              
    <property name="test.suite.implementation.label"
              value="private-${_tmpstamp}"/>
