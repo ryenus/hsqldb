@@ -3551,7 +3551,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         while (it.hasNext()) {
             type = (Type) it.next();
 
-            if (!type.isDistinctType()) {
+            if (!type.isDistinctType() || !type.isArrayType()) {
                 continue;
             }
 
