@@ -3363,7 +3363,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      * This feature is supported by default. If the jar is
      * compiled without org.hsqldb.dbinfo.DatabaseInformationMain, the feature is
      * not supported. The default implementation is
-     * {@link org.hsqldb.dbinfo.DatabaseInformation}.
+     * {@link org.hsqldb.dbinfo.DatabaseInformationMain}.
      * </div>
      * <!-- end release-specific documentation -->
      *
@@ -3735,19 +3735,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * HSQLDB supports the SQL Standard. It treats unquoted identifiers as
-     * case insensitive in SQL and stores
-     * them in upper case; it treats quoted identifiers as case sensitive and
-     * stores them verbatim. All JDBCDatabaseMetaData methods perform
-     * case-sensitive comparison between name (pattern) arguments and the
-     * corresponding identifier values as they are stored in the database.
-     * Therefore, care must be taken to specify name arguments precisely
-     * (including case) as they are stored in the database. <p>
-     *
-     * Since 1.7.2, this feature is supported by default. If the jar is
-     * compiled without org.hsqldb.dbinfo.DatabaseInformationMain, the feature is
-     * not supported. The default implementation is
-     * {@link org.hsqldb.dbinfo.DatabaseInformationMain}.
+     * HSQLDB does not support version columns. This returns an empty result set.
      * </div>
      * <!-- end release-specific documentation -->
      *
@@ -5037,7 +5025,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      *
      * This method is intended for tables of structured types.
      * From 2.0 this method returns an empty ResultSet.
-     * {@link org.hsqldb.dbinfo.DatabaseInformationFull}.
+     * {@link org.hsqldb.dbinfo.DatabaseInformationMain}.
      * </div>
      * <!-- end release-specific documentation -->
      *

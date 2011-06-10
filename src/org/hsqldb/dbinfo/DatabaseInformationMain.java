@@ -455,8 +455,7 @@ class DatabaseInformationMain extends DatabaseInformation {
      * @return a system table corresponding to the <code>name</code> and
      *      <code>session</code> arguments
      */
-    public final Table getSystemTable(Session session,
-            String name) {
+    public final Table getSystemTable(Session session, String name) {
 
         Table t;
         int   tableIndex;
@@ -489,7 +488,7 @@ class DatabaseInformationMain extends DatabaseInformation {
     }
 
     public final void setStore(Session session, Table table,
-            PersistentStore store) {
+                               PersistentStore store) {
 
         long dbscts = database.schemaManager.getSchemaChangeTimestamp();
 
@@ -849,7 +848,7 @@ class DatabaseInformationMain extends DatabaseInformation {
             addColumn(t, "CHAR_OCTET_LENGTH", Type.SQL_INTEGER);    // 15
             addColumn(t, "ORDINAL_POSITION", Type.SQL_INTEGER);     // not null
             addColumn(t, "IS_NULLABLE", YES_OR_NO);                 // not null
-            addColumn(t, "SCOPE_CATLOG", SQL_IDENTIFIER);           // 18
+            addColumn(t, "SCOPE_CATALOG", SQL_IDENTIFIER);          // 18
             addColumn(t, "SCOPE_SCHEMA", SQL_IDENTIFIER);           // 19
             addColumn(t, "SCOPE_TABLE", SQL_IDENTIFIER);            // 20
             addColumn(t, "SOURCE_DATA_TYPE", SQL_IDENTIFIER);       // 21
@@ -858,6 +857,11 @@ class DatabaseInformationMain extends DatabaseInformation {
             // JDBC 4.0 - added Mustang b86
             // ----------------------------------------------------------------
             addColumn(t, "IS_AUTOINCREMENT", YES_OR_NO);            // 22
+
+            // ----------------------------------------------------------------
+            // JDBC 4.1
+            // ----------------------------------------------------------------
+            addColumn(t, "IS_GENERATEDCOLUMN", YES_OR_NO);          // 23
 
             // order: TABLE_SCHEM, TABLE_NAME, ORDINAL_POSITION
             // added for unique: TABLE_CAT
@@ -907,12 +911,13 @@ class DatabaseInformationMain extends DatabaseInformation {
         final int iscope_cat         = 18;
         final int iscope_schem       = 19;
         final int iscope_table       = 20;
+        final int isource_data_type  = 21;
 
         // JDBC 4.0
         final int iis_autoinc = 22;
 
-        // HSQLDB-specific
-        final int itype_sub = 23;
+        // JDBC 4.1
+        final int iis_generated = 23;
 
         // Initialization
         tables = allTables();
@@ -962,7 +967,7 @@ class DatabaseInformationMain extends DatabaseInformation {
                 row[ichar_octet_length] = ValuePool.INTEGER_0;
 
                 if (type.isArrayType()) {
-                    row[itype_name]         = type.getDefinition();
+                    row[itype_name] = type.getDefinition();
                 }
 
                 if (type.isCharacterType()) {
@@ -1008,9 +1013,16 @@ class DatabaseInformationMain extends DatabaseInformation {
                 row[iis_nullable]      = column.isNullable() ? "YES"
                                                              : "NO";
 
+                if (type.isDistinctType()) {
+                    row[isource_data_type] =
+                        type.getName().getSchemaQualifiedStatementName();
+                }
+
                 // JDBC 4.0
-                row[iis_autoinc] = column.isIdentity() ? "YES"
-                                                       : "NO";
+                row[iis_autoinc]   = column.isIdentity() ? "YES"
+                                                         : "NO";
+                row[iis_generated] = column.isGenerated() ? "YES"
+                                                          : "NO";
 
                 t.insertSys(session, store, row);
             }
