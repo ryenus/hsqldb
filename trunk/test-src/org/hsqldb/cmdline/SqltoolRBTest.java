@@ -34,11 +34,11 @@ import org.hsqldb.testbase.BaseTestCase;
 public class SqltoolRBTest extends BaseTestCase {
     private static final String[] testParams = {"one", "two", "three", "four"};
 
-    static private final String RAW_CONN_MSG = 
+    static private final String RAW_CONN_MSG =
             "JDBC Connection established to a %{1} v. %{2} database" +
             System.getProperty("line.separator") +
             "as \"%{3}\" with %{4} Isolation.";
-    static private final String SUBSTITUTED_CONN_MSG = 
+    static private final String SUBSTITUTED_CONN_MSG =
             "JDBC Connection established to a one v. two database"  +
             System.getProperty("line.separator") +
             "as \"three\" with four Isolation.";
@@ -74,15 +74,11 @@ public class SqltoolRBTest extends BaseTestCase {
      * unit tests, and without dealing with Ant or unrelated test suites.
      */
     public static void main(String[] sa) {
-        if (sa.length > 0 && sa[0].startsWith("-g")) {
-            junit.swingui.TestRunner.run(SqltoolRBTest.class);
-        } else {
-            junit.textui.TestRunner runner = new junit.textui.TestRunner();
-            junit.framework.TestResult result =
-                junit.textui.TestRunner.run(runner.getTest(
-                SqltoolRBTest.class.getName()));
+        junit.textui.TestRunner runner = new junit.textui.TestRunner();
+        junit.framework.TestResult result =
+            junit.textui.TestRunner.run(runner.getTest(
+            SqltoolRBTest.class.getName()));
 
-            System.exit(result.wasSuccessful() ? 0 : 1);
-        }
+        System.exit(result.wasSuccessful() ? 0 : 1);
     }
 }
