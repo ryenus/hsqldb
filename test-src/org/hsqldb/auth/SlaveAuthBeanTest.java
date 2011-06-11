@@ -187,14 +187,10 @@ public class SlaveAuthBeanTest extends junit.framework.TestCase {
      * unit tests, and without dealing with Ant or unrelated test suites.
      */
     public static void main(String[] sa) {
-        if (sa.length > 0 && sa[0].startsWith("-g")) {
-            junit.swingui.TestRunner.run(SlaveAuthBeanTest.class);
-        } else {
-            junit.textui.TestRunner runner = new junit.textui.TestRunner();
-            junit.framework.TestResult result =
-                runner.run(runner.getTest(SlaveAuthBeanTest.class.getName()));
+        junit.textui.TestRunner runner = new junit.textui.TestRunner();
+        junit.framework.TestResult result =
+            runner.run(runner.getTest(SlaveAuthBeanTest.class.getName()));
 
-            System.exit(result.wasSuccessful() ? 0 : 1);
-        }
+        System.exit(result.wasSuccessful() ? 0 : 1);
     }
 }

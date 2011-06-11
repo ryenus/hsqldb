@@ -69,6 +69,10 @@ public class DatabaseURLTest extends junit.framework.TestCase {
             true, false);
 
         assertEquals("/opt/mydir/mydata", props.getProperty("database"));
+
+        props = DatabaseURL.parseURL("JDBC:hsqldb:hsql://localhost:9000/mydb;file:data/hsqldb/XYZTEST;hsqldb.default_table_type=cached", true,
+                             false);
+
     }
 
     public static Test suite() {
