@@ -2244,6 +2244,30 @@ SELECT * FROM atable WHERE a + b = c ORDER BY a FETCH 5 ROWS ONLY
     operations involved in data access statements.</para>
 
     <section>
+      <title>Select Statement</title>
+
+      <para>The SELECT statement itself does not cover all types of data
+      access statements, which may combine multiple SELECT statements. The
+      <literal>&lt;query specification&gt;</literal> is the most common data
+      access statement and begins with the SELECT keyword.</para>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>SELECT</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">SELECT STATEMENT</emphasis></simpara>
+
+      <simpara><emphasis>select statement (general)</emphasis></simpara>
+
+      <para>Users generally refer to the SELECT statement when they mean a
+      <literal>&lt;query specification&gt;</literal> or <literal>&lt;query
+      expression&gt;</literal>. If a statement begins with SELECT and has no
+      UNION or other set operations, then it is a <literal>&lt;query
+      specification&gt;</literal>. Otherwise it is a <literal>&lt;query
+      expression&gt;</literal>.</para>
+    </section>
+
+    <section>
       <title>Table</title>
 
       <para>In data access statements, a table can be a database table (or
@@ -2312,12 +2336,12 @@ SELECT * FROM atable UNION SELECT * FROM anothertable
     <section>
       <title>Query Specification</title>
 
-      <para>A query specification is a SELECT statement. It is the most common
-      form of <literal>&lt;derived table&gt;</literal> . A <literal>&lt;table
-      expression&gt;</literal> is a base table, a view or any form of allowed
-      derived table. The SELECT statement performs projection, naming,
-      computing or aggregation on the rows of the <literal>&lt;table
-      expression&gt;</literal> .</para>
+      <para>A query specification is also known as a SELECT statement. It is
+      the most common form of <literal>&lt;derived table&gt;</literal> . A
+      <literal>&lt;table expression&gt;</literal> is a base table, a view or
+      any form of allowed derived table. The SELECT statement performs
+      projection, naming, computing or aggregation on the rows of the
+      <literal>&lt;table expression&gt;</literal> .</para>
 
       <simpara><literal>&lt;query specification&gt; ::= SELECT [ DISTINCT |
       ALL ] &lt;select list&gt; &lt;table expression&gt;</literal></simpara>
@@ -2357,7 +2381,13 @@ SELECT * FROM atable UNION SELECT * FROM anothertable
       the <literal>&lt;table expression&gt;</literal> are included, in the
       same order as they appear in the <literal>&lt;table
       expression&gt;</literal>. An asterisk qualified by a table name means
-      all the columns of the qualifier table name are included.</para>
+      all the columns of the qualifier table name are included. If an
+      unqualified asterisk is used, then no other items are allowed in the
+      <literal>&lt;select list&gt;</literal>. When the the <literal>&lt;table
+      expression&gt;</literal> is the direct result of NATURAL or USING joins,
+      the use of <literal>&lt;asterisk&gt;</literal> includes the columns used
+      for the join before the other columns. A qualified asterisk does not
+      cover the join columns.</para>
 
       <para>A derived column is a <literal>&lt;value expression&gt;</literal>,
       optionally named with the <literal>&lt;as clause&gt;</literal>. A
@@ -2712,10 +2742,10 @@ I D          S
       procedures: In JOIN ... USING the shared columns are added to the joined
       table in the same order as they appear in the column name list. In
       NATURAL JOIN the shared columns are added to the joined table in the
-      same order as they appear in the first table. In bother forms of join,
-      the non-shared columns of the first table are added in the order they
-      appear in the first table, finally the non-shared columns of the second
-      table are added in the order they appear in the second table.</para>
+      same order as they appear in the first table. In both forms of join, the
+      non-shared columns of the first table are added in the order they appear
+      in the first table, finally the non-shared columns of the second table
+      are added in the order they appear in the second table.</para>
 
       <para>The type of each shared column of the joined table is based on the
       type of the columns in the original tables. If the original types are
