@@ -2778,6 +2778,12 @@
       This is equivalent to the connection property
       <literal>hsqldb.inc_backup</literal>.</simpara>
 
+      <simpara>Warning: The old, non-incremental setting, FALSE, shouldn't be
+      used at all when the data file is larger than 4GB. If it is used, the
+      data file is not fully backed up and can result in corruption. The zip
+      compression method is used in this mode and it is limited to 4GB
+      size.</simpara>
+
       <simpara>Only a user with the DBA role can execute this
       statement.</simpara>
 
