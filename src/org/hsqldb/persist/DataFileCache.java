@@ -500,10 +500,7 @@ public class DataFileCache {
 
             fileFreePosition = initialFreePos;
 
-            if (freeBlocks != null) {
-                freeBlocks.clear();
-            }
-
+            freeBlocks.clear();
             initBuffers();
         } finally {
             writeLock.unlock();
@@ -518,7 +515,11 @@ public class DataFileCache {
             storeCount += adjust;
 
             if (storeCount == 0) {
-                clear();
+                if (shadowFile == null) {
+                    clear();
+                } else {
+                    cache.clear();
+                }
             }
         } finally {
             writeLock.unlock();
@@ -688,9 +689,8 @@ public class DataFileCache {
      */
     int setFilePos(CachedObject r) {
 
-        int rowSize = r.getStorageSize();
-        int i       = freeBlocks == null ? -1
-                                         : freeBlocks.get(rowSize);
+        int  rowSize = r.getStorageSize();
+        int  i       = freeBlocks.get(rowSize);
 
         if (i == -1) {
             i = (int) (fileFreePosition / cacheFileScale);
@@ -1214,8 +1214,7 @@ public class DataFileCache {
     }
 
     public int getFreeBlockCount() {
-        return freeBlocks == null ? 0
-                                  : freeBlocks.size();
+        return freeBlocks.size();
     }
 
     public int getTotalFreeBlockSize() {
