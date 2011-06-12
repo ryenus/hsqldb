@@ -3244,7 +3244,7 @@ DELETE FROM T AS TT WHERE TT.A = (SELECT MAX(A) FROM T)
 
       <simpara><literal>&lt;truncate table statement&gt; ::= TRUNCATE TABLE
       &lt;target table&gt; [ &lt;identity column restart option&gt; ] [
-      &lt;truncate options&gt;</literal></simpara>
+      &lt;truncate options&gt; ]</literal></simpara>
 
       <simpara><literal>&lt;identity column restart option&gt; ::= CONTINUE
       IDENTITY | RESTART IDENTITY</literal></simpara>
