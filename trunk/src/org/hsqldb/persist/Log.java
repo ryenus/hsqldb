@@ -557,7 +557,7 @@ public class Log {
 
         writeDelay = delay;
 
-        if (dbLogWriter != null) {
+        if (dbLogWriter != null && dbLogWriter.getWriteDelay() != delay) {
             dbLogWriter.forceSync();
             dbLogWriter.stop();
             dbLogWriter.setWriteDelay(delay);
