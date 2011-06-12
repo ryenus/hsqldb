@@ -195,9 +195,9 @@ public class DataFileCache {
 
                 dataFile.seek(FLAGS_POS);
 
-                int     flags   = dataFile.readInt();
+                int flags = dataFile.readInt();
 
-                is180         = !BitMap.isSet(flags, FLAG_190);
+                is180 = !BitMap.isSet(flags, FLAG_190);
 
                 if (BitMap.isSet(flags, FLAG_HX)) {
                     throw Error.error(ErrorCode.WRONG_DATABASE_FILE_VERSION);
@@ -689,8 +689,8 @@ public class DataFileCache {
      */
     int setFilePos(CachedObject r) {
 
-        int  rowSize = r.getStorageSize();
-        int  i       = freeBlocks.get(rowSize);
+        int rowSize = r.getStorageSize();
+        int i       = freeBlocks.get(rowSize);
 
         if (i == -1) {
             i = (int) (fileFreePosition / cacheFileScale);
