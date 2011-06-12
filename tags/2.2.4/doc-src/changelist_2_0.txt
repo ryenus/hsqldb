@@ -1,0 +1,163 @@
+7 Jun 2011 - version 2.2.4
+-- fixed issue and improved INFORMATION_SCHEMA concurrency
+6 Jun 2011 - version 2.2.3
+-- fixed issue with limit offset with indexed IN predicate
+-- added INFORMATION_SCHEMA.ELEMENT_TYPES view and related enhancements
+-- added hsqldb.full_log_replay property
+-- added REGEXPR_SUBSTRING and REGEXPR_SUBSTRING_ARRAY functions
+-- added support for multiple unnamed savepoints
+-- improved IFNULL etc. functions that are based on CASE WHEN expressions
+-- improved Transfer Tool in HSQLDB transfers
+-- minor improvements
+22 May 2011 - version 2.2.2
+-- increased .data file limit to 2TB
+-- improved EXPLAIN PLAN
+-- improved query speed for some joins
+-- improved TRUNCATE statement
+-- added support for text tables in mem: databases
+-- minor improvements
+16 May 2011 - version 2.2.1
+-- fixed regression in 2.2.0 with server TLS
+-- fixed regression in 2.2.0 with ResultSetMetaData schema names
+-- fixed type limitations of Connection#createArrayOf
+-- fixed DatabaseManager running as Applet
+-- added contents to INFORMATION_SCHEMA.SQL_IMPLEMENTATION_INFO
+-- added auto checkpoints execution in separate session
+-- improved query speed for some LEFT OUTER joins
+-- added deletion of the temp directory at shutdown
+10 May 2011 - version 2.2.0
+-- reserved keywords now include DEFAULT and exclude ADMIN
+-- improved column nullability reporting in ResultSetMetaData
+-- improved BOOLEAN type support in compatibility modes
+-- added support for ROWNUM() function
+-- improvements to Server, including new shutdown methods and properties file name argument
+-- improvements to MVCC transaction management
+-- improvements to text table properties support
+-- minor improvements and bug fixes
+21 Apr 2011 - SVN 4199
+-- added support for GET DIAGNOSTICS statement and DIAGNOSTICS function
+-- added support for POSITION_ARRAY and enhancements to SORT_ARRAY (also ARRAY_SORT)
+18 Apr 2011 - SVN 4196
+-- fixed regression in 2.1.0 with alter table operation failures causing loss of table data 
+-- fixed regression in 2.1.0 with database log created after a backup is completed not used for recovery
+-- added support for SQL execution logging SET DATABASE EVENT LOG SQL LEVEL 3
+26 Mar 2011 - SVN 4164
+-- fixed issues with disk based result sets
+-- added support for WIDTH_BUCKET function
+-- improved table and database locking for DDL statements
+-- fixed issue with multiple ALTER TABLE statements used as a single statement
+14 Mar 2011 - Version 2.1.0
+-- added support for WITH RECURSIVE
+-- added support for ALTER INDEX <name> AS (<new column name list>) to change the indexed column list of an index
+28 Feb 2011 - SVN 4105 
+-- extension of MySQL and PostgreSQL compatibility modes. Includes type conversion and sequence functions
+-- extension to IDENTITY column support allows the use of a named SEQUENCE
+22 Feb 2011 - SVN 4096 - 2.1.0 rc4
+-- changes to avoid creation of new .data files at checkpoint and allow incremental enlargement of this file
+-- various enhancements and improvements
+3 Feb 2011 - SVN 4040
+-- additions and improvements to INFORMATION_SCHEMA
+1 Feb 2011 - SVN 4033
+-- added MS SqlServer function compatibility
+-- added more extensive support for ALTER SPECIFIC ROUTINE
+-- initial support for JDBC 4.1 - Java 1.7
+20 Jan 2011 - SVN 3980
+-- added support for opening most 1.8.0 databases that are not closed properly
+-- event logging format has changed slightly, and new level 3 allows more detail in the log
+23 Dec 2010 
+-- added MEDIAN aggregate function
+-- added ARRAY_SORT function
+-- routine variables and parameters can be used in LIMIT / FETCH / OFFSET clauses
+-- improvements to lob use with PreparedStatement 
+-- improvements to calling procedures with JDBC
+16 Dec 2010 - SVN 3946
+-- added support for upgrading databases without explicit SHUTDOWN
+10 Dec 2010 - SVN 3940 - 2.0.1 RC3 
+-- added support for cached tables for lob catalog
+14 Nov 2010 - SVN 3897
+-- added support for CURRENT VALUE FOR <identity sequence>, same as CURRVAL
+-- added TO_TIMESTAMP, LPAD, RPAD functions
+31 Oct 2010 - SVN 3836 - 2.0.1 RC2
+-- added support for CREATE TABLE ... IF NOT EXISTS ...
+-- added support for ?user=xxxx&password=yyyy connection in URL string
+-- improved query optimisation for LIKE
+-- added support for password complexity check functions
+-- added support for external user authentication
+-- added UUID functions
+19 Oct 2010 - SVN 3824 - 2.0.1 RC1
+-- added support for compressed scripts
+14 Oct 2010 - SVN 3814
+-- added support for recursive SQL functions and local table variables
+04 Oct 2010 - SVN 3808
+-- added support for translation of Oracle types VARCHAR2, NUMBER, RAW, etc. with SET DATABASE SQL SYNTAX ORA TRUE
+-- added support for more procedural statements in SQL triggers
+-- added support for variables in database URL's
+24 Sept 2010 - SVN 3794
+-- fixed issue with new sql compatibility properties applied to older databases
+23 Sept 2010 - SVN 3792
+-- added support for Oracle syntax elements including DUAL, ROWNUM, NEXTVAL, CURRVAL with sql.syntax_ora=true property
+-- fixed bug with IN predicates in arguments of aggregate functions
+-- fixed bug with table functions used in subqueries
+10 Sept 2010  - SVN 3782
+-- added support for clustered indexes
+-- added enhancement for column visibility in nested joins
+-- added support for datetime ROUND and TRUNC functions
+04 Sept 2010  - SVN 3775
+-- additional connection properties
+-- added support for FOR loops in routines
+11 Aug 2010  - SVN 3750
+-- extended getGeneratedKeys to UPDATE and MERGE operations
+-- extended ALTER SESSION statement
+-- added SEQUENCE_ARRAY and SESSION_ID function
+28 July 2010 - SVN 3725
+-- improved changing type of columns
+-- added support for adding GENERATED ... AS IDENTITY to an existing column
+23 July 2010 - SVN 3721
+-- added FILTER clause support to aggregate functions
+-- added functions ACTION_ID, TRANSACTION_ID, TRANSACTION_SIZE, UNIX_TIMESTAMP
+22 July 2010 - SVN 3716
+-- improved default reporting of WITH TIME ZONE and INTERVAL types in metadata and system tables
+-- improved getGeneratedKeys with user defined column sets
+-- fixed bug #3032488 - multi-column IN condition without a full index on columns did not work
+19 July 2010 - SVN 3709
+-- added support for procedures returning result sets
+-- additional relaxation of BIT used as BOOLEAN
+13 July 2010 - SVN 3693
+-- added aggregate functions ARRAY_AGG and GROUP_CONCAT
+-- added TO_DATE function
+09 July 2010 - SVN 3688
+-- added function LOB_ID
+-- added BLOB, CLOB, VARBINARY support to Java functions and procedures
+-- fixed bug with OCTET_LENGTH function
+07 July 2010 - SVN 3686
+-- added property sql.longvar_is_lob
+-- added missing CONCAT function
+-- added ARRAY support to Java functions and procedures
+-- added query optimisation for DISTINCT and GROUP BY on indexed columns
+-- speed improvement for some large results
+-- fixed bug related to persistence of lobs after row updates that change the lob
+-- fixed bug #3023253 - multiple count(*) with duplicate tables in outer join
+-- fixed bug #3022106 - mix of IS NULL and other conditions in outer join
+26 June 2010 - SVN 3674
+-- added property sql.enforce_types and related SQL statement
+-- added ALTER SESSION statement
+-- fixed bug #3021175 with setFetchSize()
+-- relaxation of type comparison and null types - controlled by sql.enforce_type
+22 June 2010 - SVN 3667
+-- changed names of three system functions ISDATABASEREADONLY() to IS_DATABASE_READONLY(), etc.
+-- fixed bug with Clob.getInputStream()
+-- improvement to TO_CHAR function
+-- some relaxation of DECIMAL dynamic params
+16 June 2010 - SVN 3658
+-- fixed bug #3016375 Server remote open with no initial database
+-- fixed bugs #3016397 - multiple UNION CORRESPONDING did not work
+-- fixed bugs #3016481 - TABLE T did not work with views
+-- minor improvement to MVCC transactions
+13 June 2010 - SVN 3654
+-- fixed issue with third parameter of LOCATE function
+-- added TRUNC and changed return type of TRUNCATE function to reduce decimal scale
+-- added synchronized blocks to allow mass creation of mem: databases
+-- added support for jdbc:default:connection for Java functions
+07 June 2010 - SVN 3646
+-- fixed bug - SET FILES LOB SCALE did not change the store without a shutdown
+-- fixed bug #3012585 - multi-column FOREIGN KEY with mismatched order of PK columns did not work correctly
