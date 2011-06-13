@@ -1,4 +1,5 @@
-7 Jun 2011 - version 2.2.4
+-- fixed UNNEST in subquery
+12 Jun 2011 - version 2.2.4
 -- fixed issue and improved INFORMATION_SCHEMA concurrency
 6 Jun 2011 - version 2.2.3
 -- fixed issue with limit offset with indexed IN predicate
