@@ -4549,9 +4549,6 @@ public class ParserDQL extends ParserBase {
         Expression[] array = new Expression[list.size()];
 
         list.toArray(array);
-
-        compileContext.subqueryDepth--;
-
         readThis(Tokens.CLOSEBRACKET);
 
         if (token.tokenType == Tokens.WITH) {
@@ -4568,6 +4565,8 @@ public class ParserDQL extends ParserBase {
         sq.createTable();
 
         sq.sql = getLastPart(position);
+
+        compileContext.subqueryDepth--;
 
         return e;
     }
