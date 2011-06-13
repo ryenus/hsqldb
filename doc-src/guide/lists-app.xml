@@ -144,14 +144,14 @@
     <para>A subset of SQL Standard keywords cannot be used at all as HyperSQL
     identifiers. The keywords are as follows:</para>
 
-    <simpara>ADMIN • AND • ALL • ANY • AS • AT • AVG</simpara>
+    <simpara>AND • ALL • ANY • AS • AT • AVG</simpara>
 
     <simpara>BETWEEN • BOTH • BY</simpara>
 
     <simpara>CALL • CASE • CAST • COALESCE • CORRESPONDING • CONVERT • COUNT •
     CREATE • CROSS</simpara>
 
-    <simpara>DISTINCT • DROP</simpara>
+    <simpara>DEFAULT • DISTINCT • DROP</simpara>
 
     <simpara>ELSE • END • EVERY • EXISTS • EXCEPT</simpara>
 
