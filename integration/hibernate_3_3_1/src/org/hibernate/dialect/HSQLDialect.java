@@ -43,6 +43,7 @@ import org.hibernate.dialect.lock.SelectLockingStrategy;
 import org.hibernate.exception.JDBCExceptionHelper;
 import org.hibernate.exception.TemplatedViolatedConstraintNameExtracter;
 import org.hibernate.exception.ViolatedConstraintNameExtracter;
+import org.hibernate.util.ReflectHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -567,22 +568,6 @@ public class HSQLDialect extends Dialect {
          * @since 3.2
          */
 	public LockingStrategy getLockingStrategy(Lockable lockable, LockMode lockMode) {
-                if ( lockMode == LockMode.PESSIMISTIC_FORCE_INCREMENT ) {
-                        return new PessimisticForceIncrementLockingStrategy( lockable, lockMode );
-                }
-                else if ( lockMode == LockMode.PESSIMISTIC_WRITE ) {
-                        return new PessimisticWriteSelectLockingStrategy( lockable, lockMode );
-                }
-                else if ( lockMode == LockMode.PESSIMISTIC_READ ) {
-                        return new PessimisticReadSelectLockingStrategy( lockable, lockMode );
-                }
-                else if ( lockMode == LockMode.OPTIMISTIC ) {
-                        return new OptimisticLockingStrategy( lockable, lockMode );
-                }
-                else if ( lockMode == LockMode.OPTIMISTIC_FORCE_INCREMENT ) {
-                        return new OptimisticForceIncrementLockingStrategy( lockable, lockMode );
-                }
-
                 if ( hsqldbVersion < 20 ) {
 		return new ReadUncommittedLockingStrategy( lockable, lockMode );
 	}
@@ -596,12 +581,12 @@ public class HSQLDialect extends Dialect {
 			super( lockable, lockMode );
 		}
 
-                public void lock(Serializable id, Object version, Object object, int timeout, SessionImplementor session)
+		public void lock(Serializable id, Object version, Object object, SessionImplementor session)
 				throws StaleObjectStateException, JDBCException {
 			if ( getLockMode().greaterThan( LockMode.READ ) ) {
 				log.warn( "HSQLDB supports only READ_UNCOMMITTED isolation" );
 			}
-                        super.lock( id, version, object, timeout, session );
+			super.lock( id, version, object, session );
 		}
 	}
 
