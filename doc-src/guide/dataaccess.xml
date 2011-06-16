@@ -3571,7 +3571,7 @@ UPDATE T SET A = 3, B[3] = 'warm'
       <literal>&lt;target table&gt;</literal> matches more than one row in
       <literal>&lt;table reference&gt;</literal> a cardinality error is
       raised. On the other hand, several rows in the <literal>&lt;target
-      table&gt;</literal> can matches a single row in <literal>&lt;table
+      table&gt;</literal> can match a single row in <literal>&lt;table
       reference&gt;</literal> without any error. The constraints and
       referential actions specified on the database tables are enforced the
       same way as for an update and an insert statement.</simpara>
