@@ -991,7 +991,7 @@ public class StatementDML extends StatementDMQL {
             Table    currentTable   = ((Table) row.getTable());
 
             if (currentTable instanceof TableDerived) {
-               currentTable = ((TableDerived) currentTable).view;
+                currentTable = ((TableDerived) currentTable).view;
             }
 
             if (currentTable.triggerLists[Trigger.UPDATE_BEFORE_ROW].length
@@ -1194,7 +1194,7 @@ public class StatementDML extends StatementDMQL {
             Table    currentTable   = ((Table) row.getTable());
 
             if (currentTable instanceof TableDerived) {
-               currentTable = ((TableDerived) currentTable).view;
+                currentTable = ((TableDerived) currentTable).view;
             }
 
             if (changedData == null) {
@@ -1497,11 +1497,12 @@ public class StatementDML extends StatementDMQL {
                         break;
                     }
                     case SchemaObject.ReferentialAction.NO_ACTION :
-                    case SchemaObject.ReferentialAction.RESTRICT : {
                         if (navigator.containsDeletedRow(refRow)) {
                             continue;
                         }
 
+                    // fall through
+                    case SchemaObject.ReferentialAction.RESTRICT : {
                         int errorCode = c.core.deleteAction
                                         == SchemaObject.ReferentialAction
                                             .NO_ACTION ? ErrorCode.X_23504
