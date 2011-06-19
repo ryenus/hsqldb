@@ -1389,6 +1389,10 @@ public class QuerySpecification extends QueryExpression {
                 continue;
             }
 
+            if (limitcount == 0) {
+                break;
+            }
+
             session.sessionData.startRowProcessing();
 
             Object[] data = new Object[indexLimitData];
