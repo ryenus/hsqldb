@@ -1470,12 +1470,13 @@ public class Logger {
             return String.valueOf(database.sqlTranslateTTI);
         }
 
-/*
-        if (HsqlDatabaseProperties.sql_identity_is_pk.equals(name)) {
-            return null;
+        if (HsqlDatabaseProperties.sql_longvar_is_lob.equals(name)) {
+            return String.valueOf(database.sqlLongvarIsLob);
         }
 
-        if (HsqlDatabaseProperties.sql_longvar_is_lob.equals(name)) {
+
+/*
+        if (HsqlDatabaseProperties.sql_identity_is_pk.equals(name)) {
             return null;
         }
 

@@ -981,6 +981,12 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         t.insertSys(session, store, row);
 
         row    = t.getEmptyRowData();
+        row[0] = "IGNORECASE";
+        row[1] = String.valueOf(session.isIgnorecase());
+
+        t.insertSys(session, store, row);
+
+        row    = t.getEmptyRowData();
         row[0] = "CURRENT STATEMENT";
         row[1] = "";
 
