@@ -288,6 +288,7 @@ public class Session implements SessionInterface {
         return isolationLevel;
     }
 
+
     /**
      * Setter for iLastIdentity attribute.
      *
@@ -760,6 +761,10 @@ public class Session implements SessionInterface {
 
     public void setIgnoreCase(boolean mode) {
         ignoreCase = mode;
+    }
+
+    public boolean isIgnorecase() {
+        return ignoreCase;
     }
 
     /**
