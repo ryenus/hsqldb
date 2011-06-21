@@ -100,7 +100,7 @@ import javax.sql.DataSource;
  * @since JDK 1.4
  * @author Campbell Boucher-Burnet (boucherb@users dot sourceforge.net)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.0.1
+ * @version 2.2.5
  * @since 1.7.2
  */
 
@@ -163,7 +163,7 @@ public class JDBCDataSource extends JDBCCommonDataSource implements DataSource,
     public Connection getConnection(String username,
                                     String password) throws SQLException {
 
-        if (user == null) {
+        if (username == null) {
             throw Util.invalidArgument("user");
         }
 
