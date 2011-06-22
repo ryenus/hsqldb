@@ -288,7 +288,6 @@ public class Session implements SessionInterface {
         return isolationLevel;
     }
 
-
     /**
      * Setter for iLastIdentity attribute.
      *
