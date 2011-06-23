@@ -286,7 +286,8 @@ public class RangeVariableResolver {
                     continue;
                 }
 
-                int newPosition = getJoinedRangePosition(e, position);
+                int newPosition = getJoinedRangePosition(e, position,
+                    newRanges);
 
                 if (newPosition >= position) {
                     range                  = newRanges[position];
@@ -323,14 +324,15 @@ public class RangeVariableResolver {
         tempJoinExpressions[firstLeftJoinIndex - 1].addAll(joins);
     }
 
-    int getJoinedRangePosition(Expression e, int position) {
+    int getJoinedRangePosition(Expression e, int position,
+                               RangeVariable[] currentRanges) {
 
         int             found  = -1;
-        RangeVariable[] ranges = e.getJoinRangeVariables(rangeVariables);
+        RangeVariable[] ranges = e.getJoinRangeVariables(currentRanges);
 
         for (int i = 0; i < ranges.length; i++) {
-            for (int j = 0; j < rangeVariables.length; j++) {
-                if (ranges[i] == rangeVariables[j]) {
+            for (int j = 0; j < currentRanges.length; j++) {
+                if (ranges[i] == currentRanges[j]) {
                     if (j >= position) {
                         if (found > 0) {
                             return -1;
