@@ -1640,7 +1640,9 @@
         </listitem>
 
         <listitem>
-          <para>Many Oracle functions are supported.</para>
+          <para>Many Oracle functions are supported, including no-arg
+          functions such as SYSDATE and SYSTIMESTAMP and more complex ones
+          such as TO_DATE and TO_CHAR.</para>
         </listitem>
 
         <listitem>
@@ -1648,8 +1650,9 @@
           statement&gt;</literal> to enable support for some non-standard
           syntax of Oracle. The DUAL table and the expressions, ROWNUM,
           CURRVAL, NEXTVAL are supported. The non-standard data type
-          definitions such as VARCHAR2, BINARY_DOUBLE, LONG, RAW are
-          translated into the closest HSQLDB equivalent.</para>
+          definitions such as NUMBER, VARCHAR2, NVARCHAR2, BINARY_DOUBLE,
+          BINARY_FLOAT, LONG, RAW are translated into the closest HSQLDB
+          equivalent.</para>
         </listitem>
 
         <listitem>
@@ -1670,6 +1673,17 @@
         <listitem>
           <para>Use MVCC with <literal>&lt;set database transaction control
           statement&gt;</literal> if your application is multi-user.</para>
+        </listitem>
+
+        <listitem>
+          <para>HyperSQL supports almost the entire syntax of DB2 together
+          with many of the functions. Even local temporary tables using the
+          SESSION psudo schema are supported.</para>
+        </listitem>
+
+        <listitem>
+          <para>Those functions or system tables such as DUAL that are in
+          system schemas, can be easily simulated.</para>
         </listitem>
 
         <listitem>

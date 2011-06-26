@@ -1325,8 +1325,9 @@ WIDTH_BUCKET( 200, 10, 110, 10)
 
     <para><literal>NOW ()</literal></para>
 
-    <para>This function is equivalent to
-    <literal>LOCAL_TIMESTAMP.</literal></para>
+    <para>This function is equivalent to <literal>LOCAL_TIMESTAMP. It can be
+    used as a no-arg function as the empty parentheses are optional.
+    (HyperSQL)</literal></para>
 
     <indexterm significance="preferred" type="sql">
       <primary>QUARTER function</primary>
@@ -1363,6 +1364,39 @@ WIDTH_BUCKET( 200, 10, 110, 10)
     <para>This function is equivalent to<literal> EXTRACT (
     SECONDS_SINCE_MIDNIGHT FROM ... ) </literal>Returns an integer in the
     range of 0 - 86399. (HyperSQL)</para>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>SYSDATE function</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">SYSDATE</emphasis></simpara>
+
+    <para><literal>SYSDATE</literal></para>
+
+    <para>This function is equivalent to<literal> LOCAL_TIMESTAMP.
+    </literal>(HyperSQL)</para>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>SYSTIMESTAMP function</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">SYSTIMESTAMP</emphasis></simpara>
+
+    <para><literal>SYSTIMESTAMP</literal></para>
+
+    <para>This no-arg function is equivalent to<literal> CURRENT_TIMESTAMP and
+    is enabled in Oracle syntax mode only. </literal>(HyperSQL)</para>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>TODAY function</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">TODAY</emphasis></simpara>
+
+    <para><literal>TODAY</literal></para>
+
+    <para>This no-arg function is equivalent to<literal> CURRENT_DATE.
+    </literal>(HyperSQL)</para>
 
     <indexterm significance="preferred" type="sql">
       <primary>WEEK function</primary>
@@ -2401,5 +2435,21 @@ D          I
     and never reused. The &lt;column reference&gt; is the name of the column
     (or variable, or argument) which is a CLOB or BLOB. Returns null if the
     value is null. (HyperSQL)</para>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>ROWNUM function</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">ROWNUM</emphasis></simpara>
+
+    <para><literal>ROWNUM()</literal></para>
+
+    <para>Returns the current row number (from 1) being processed in a select
+    statement. This has the same semantics as the ROWNUM pseudo-column in
+    Oracle syntax mode, but can be used in any systax mode. The function is
+    always used in a SELECT statement. The ROWNUM of a row is incremented as
+    the rows are added to the result set. It is therefore possible to use a
+    condition such as WHERE ROWNUM() &lt; 10, but not ROWNUM() &gt; 10 or
+    ROWNUM = 10. (HyperSQL)</para>
   </section>
 </chapter>

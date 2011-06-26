@@ -165,8 +165,8 @@
 
       <para>It is possible to refer to a session table using its name, which
       takes precedence over a schema table of the same name. To distinguish a
-      session table from schema tables, the pseudo schema name, MODULE can be
-      used. An example is given below:</para>
+      session table from schema tables, the pseudo schema names, MODULE or
+      SESSION can be used. An example is given below:</para>
 
       <para><example>
           <title>User-defined Temporary Session Tables</title>
@@ -175,6 +175,8 @@
   INSERT INTO module.buffer SELECT id, firstname || ' ' || lastname FROM customers
   -- do some more work
   DROP TABLE module.buffer
+  -- or use alternative pseudo schema name
+  DROP TABLE session.buffer
 </screen>
         </example>Session tables can be created inside a transaction.
       Automatic indexes are created and used on session tables when necessary

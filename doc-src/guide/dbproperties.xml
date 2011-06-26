@@ -1656,6 +1656,48 @@
 
           <tbody valign="top">
             <row>
+              <entry><property>hsqldb.cache_free_count</property></entry>
+
+              <entry><literal>512</literal></entry>
+
+              <entry>maximum number of unused space recovery</entry>
+            </row>
+
+            <row>
+              <entry nameend="c3" namest="c1"><para>The default indicates 512
+              unused spaces are kept for later use. The value can range
+              between 0 - 8096. </para><para>When rows are deleted, the space
+              is recovered and kept for reuse for new rows. If too many rows
+              are deleted, the smaller recovered spaces are lost and the
+              largest ones are retained for later use. Normally there is no
+              need to set this property.</para><para><programlisting>this property cannot be set with an SQL statement</programlisting></para></entry>
+            </row>
+          </tbody>
+        </tgroup>
+      </table>
+
+      <table frame="all" pgwide="1" tocentry="1">
+        <title>Rows Cached In Memory</title>
+
+        <tgroup align="left" cols="3">
+          <colspec colname="c1" colwidth="6.5cm" />
+
+          <colspec colname="c2" colwidth="1.5cm" />
+
+          <colspec colname="c3" />
+
+          <thead>
+            <row>
+              <entry>Name</entry>
+
+              <entry>Default</entry>
+
+              <entry>Description</entry>
+            </row>
+          </thead>
+
+          <tbody valign="top">
+            <row>
               <entry><property>hsqldb.cache_rows</property></entry>
 
               <entry><literal>50000</literal></entry>
@@ -2216,9 +2258,9 @@
               processing of the .log file and by default, continues the
               startup process. If this property is true, the startup process
               is stopped if any exception occurs. Exceptions are usually
-              caused by incomplete lines of SQL statements in the .log file,
-              which were not fully synced to disk when an abnormal shutdown
-              occured.</para><para><programlisting>This property cannot be set with an SQL statement</programlisting></para></entry>
+              caused by incomplete lines of SQL statements near the end of the
+              .log file, which were not fully synced to disk when an abnormal
+              shutdown occured.</para><para><programlisting>This property cannot be set with an SQL statement</programlisting></para></entry>
             </row>
           </tbody>
         </tgroup>
