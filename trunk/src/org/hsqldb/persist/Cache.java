@@ -295,12 +295,6 @@ public class Cache extends BaseHashMap {
 
         saveRowCount += count;
 
-        /*
-                // not necessary if the full storage size of each object is written out
-                try {
-                    dataFile.file.seek(fileFreePosition);
-                } catch (IOException e){}
-        */
         saveAllTimer.stop();
 
         //
@@ -326,6 +320,7 @@ public class Cache extends BaseHashMap {
 
             if (r.hasChanged()) {
                 rowTable[savecount] = r;
+
                 savecount++;
             }
         }

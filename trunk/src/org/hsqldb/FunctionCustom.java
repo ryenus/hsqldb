@@ -328,6 +328,7 @@ public class FunctionCustom extends FunctionSQL {
 
     static {
         customValueFuncMap.put(Tokens.SYSDATE, FUNC_LOCALTIMESTAMP);
+        customValueFuncMap.put(Tokens.SYSTIMESTAMP, FUNC_CURRENT_TIMESTAMP);
         customValueFuncMap.put(Tokens.TODAY, FUNC_CURRENT_DATE);
         customValueFuncMap.put(Tokens.NOW, FUNC_LOCALTIMESTAMP);
     }
@@ -356,6 +357,7 @@ public class FunctionCustom extends FunctionSQL {
             case Tokens.OCTETLENGTH :
             case Tokens.TODAY :
             case Tokens.SYSDATE :
+            case Tokens.SYSTIMESTAMP :
             case Tokens.UCASE :
                 return new FunctionSQL(id);
 

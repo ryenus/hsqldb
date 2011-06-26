@@ -552,8 +552,10 @@ public class ParserDDL extends ParserRoutine {
                 break;
             }
             case Tokens.TABLE : {
-                boolean isModule = token.namePrePrefix == null
-                                   && Tokens.T_MODULE.equals(token.namePrefix);
+                boolean isModule =
+                    token.namePrePrefix == null
+                    && (Tokens.T_MODULE.equals(token.namePrefix)
+                        || Tokens.T_SESSION.equals(token.namePrefix));
 
                 name = readNewSchemaObjectName(objectType, false);
 
@@ -833,7 +835,8 @@ public class ParserDDL extends ParserRoutine {
 
         if (token.namePrePrefix == null
                 && (token.namePrefix == null
-                    || Tokens.T_MODULE.equals(token.namePrefix))) {
+                    || Tokens.T_MODULE.equals(token.namePrefix)
+                    || Tokens.T_SESSION.equals(token.namePrefix))) {
 
             // valid name
         } else {

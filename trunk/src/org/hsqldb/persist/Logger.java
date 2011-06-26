@@ -112,8 +112,8 @@ public class Logger {
     boolean propDatabaseReadOnly;
     boolean propIncrementBackup;
     boolean propNioDataFile;
-    long    propNioMaxSize = 256 * 1024 * 1024L;
-    int     propMaxFreeBlocks;
+    long    propNioMaxSize    = 256 * 1024 * 1024L;
+    int     propMaxFreeBlocks = 512;
     int     propCacheMaxRows;
     int     propCacheMaxSize;
     int     propCacheFileScale;
@@ -274,7 +274,7 @@ public class Logger {
                     HsqlDatabaseProperties.FILES_MODIFIED);
             }
 
-            // properties that also apply to existing database
+            // properties that also apply to existing database only if they exist
             if (database.urlProperties.isPropertyTrue(
                     HsqlDatabaseProperties.hsqldb_files_readonly)) {
                 database.databaseProperties.setProperty(
@@ -287,6 +287,7 @@ public class Logger {
                     HsqlDatabaseProperties.hsqldb_readonly, true);
             }
 
+            // hsqldb.lock_file=false is applied
             if (!database.urlProperties.isPropertyTrue(
                     HsqlDatabaseProperties.hsqldb_lock_file, true)) {
                 database.databaseProperties.setProperty(
@@ -294,19 +295,28 @@ public class Logger {
             }
 
             int value = database.urlProperties.getIntegerProperty(
-                HsqlDatabaseProperties.hsqldb_applog, 0);
+                HsqlDatabaseProperties.hsqldb_applog, -1);
 
-            if (value > 0) {
+            if (value >= 0) {
                 database.databaseProperties.setProperty(
                     HsqlDatabaseProperties.hsqldb_applog, value);
             }
 
             value = database.urlProperties.getIntegerProperty(
-                HsqlDatabaseProperties.hsqldb_sqllog, 0);
+                HsqlDatabaseProperties.hsqldb_sqllog, -1);
 
-            if (value > 0) {
+            if (value >= 0) {
                 database.databaseProperties.setProperty(
                     HsqlDatabaseProperties.hsqldb_sqllog, value);
+            }
+
+            value = database.urlProperties.getIntegerProperty(
+                HsqlDatabaseProperties.hsqldb_cache_free_count, -1);
+
+            if (value >= 0) {
+                database.databaseProperties.setProperty(
+                    HsqlDatabaseProperties.hsqldb_cache_free_count,
+                    ArrayUtil.getTwoPowerFloor(value));
             }
         }
 
@@ -416,6 +426,10 @@ public class Logger {
             HsqlDatabaseProperties.hsqldb_script_format);
 
         boolean version18 = database.databaseProperties.isVersion18();
+
+        propMaxFreeBlocks = database.databaseProperties.getIntegerProperty(
+            HsqlDatabaseProperties.hsqldb_cache_free_count);
+        propMaxFreeBlocks = ArrayUtil.getTwoPowerFloor(propMaxFreeBlocks);
 
         if (!isNewDatabase && !version18) {
             return;
@@ -542,9 +556,6 @@ public class Logger {
 
         propCacheDefragLimit = database.databaseProperties.getIntegerProperty(
             HsqlDatabaseProperties.hsqldb_defrag_limit);
-        propMaxFreeBlocks = database.databaseProperties.getIntegerProperty(
-            HsqlDatabaseProperties.hsqldb_cache_free_count_scale);
-        propMaxFreeBlocks = 1 << propMaxFreeBlocks;
         propWriteDelay = database.databaseProperties.getIntegerProperty(
             HsqlDatabaseProperties.hsqldb_write_delay_millis);
 
@@ -1056,7 +1067,7 @@ public class Logger {
             return;
         }
 
-        checkPower(value, 11);
+        checkPower(value, 10);
 
         if (value < 8 && value != 1) {
             throw Error.error(ErrorCode.X_42556);
@@ -1071,7 +1082,7 @@ public class Logger {
 
     public void setCacheFileScaleNoCheck(int value) {
 
-        checkPower(value, 11);
+        checkPower(value, 10);
 
         if (value < 8 && value != 1) {
             throw Error.error(ErrorCode.X_42556);
@@ -1090,7 +1101,7 @@ public class Logger {
             return;
         }
 
-        checkPower(value, 6);
+        checkPower(value, 5);
 
         if (database.lobManager.getLobCount() > 0) {
             throw Error.error(ErrorCode.DATA_FILE_IN_USE);
@@ -1104,7 +1115,7 @@ public class Logger {
 
     public void setLobFileScaleNoCheck(int value) {
 
-        checkPower(value, 6);
+        checkPower(value, 5);
 
         propLobBlockSize = value * 1024;
     }
@@ -1136,7 +1147,7 @@ public class Logger {
 
     public void setNioMaxSize(int value) {
 
-        checkPower(value, 12);
+        checkPower(value, 11);
 
         if (value < 8) {
             throw Error.error(ErrorCode.X_42556);
@@ -1161,21 +1172,11 @@ public class Logger {
         return tempDirectoryPath;
     }
 
-    static void checkPower(int n, int limit) {
+    static void checkPower(int n, int max) {
 
-        for (int i = 0; i < limit; i++) {
-            if ((n & 1) != 0) {
-                if ((n | 1) != 1) {
-                    throw Error.error(ErrorCode.X_42556);
-                }
-
-                return;
-            }
-
-            n >>= 1;
+        if (!ArrayUtil.isTwoPower(n, max)) {
+            throw Error.error(ErrorCode.X_42556);
         }
-
-        throw Error.error(ErrorCode.X_42556);
     }
 
     public synchronized void setCheckpointRequired() {
@@ -1371,7 +1372,7 @@ public class Logger {
             return String.valueOf(propCacheFileScale);
         }
 
-        if (HsqlDatabaseProperties.hsqldb_cache_free_count_scale.equals(
+        if (HsqlDatabaseProperties.hsqldb_cache_free_count.equals(
                 name)) {
             return String.valueOf(this.propMaxFreeBlocks);
         }

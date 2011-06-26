@@ -194,8 +194,8 @@ public class HsqlDatabaseProperties extends HsqlProperties {
     public static final String hsqldb_lob_file_scale = "hsqldb.lob_file_scale";
     public static final String hsqldb_cache_file_scale =
         "hsqldb.cache_file_scale";
-    public static final String hsqldb_cache_free_count_scale =
-        "hsqldb.cache_free_count_scale";
+    public static final String hsqldb_cache_free_count =
+        "hsqldb.cache_free_count";
     public static final String hsqldb_cache_rows = "hsqldb.cache_rows";
     public static final String hsqldb_cache_size = "hsqldb.cache_size";
     public static final String hsqldb_default_table_type =
@@ -451,9 +451,9 @@ public class HsqlDatabaseProperties extends HsqlProperties {
         dbMeta.put(hsqldb_cache_rows,
                    HsqlProperties.getMeta(hsqldb_cache_rows, SQL_PROPERTY,
                                           50000, 100, 1000000));
-        dbMeta.put(hsqldb_cache_free_count_scale,
-                   HsqlProperties.getMeta(hsqldb_cache_free_count_scale,
-                                          SQL_PROPERTY, 9, 6, 12));
+        dbMeta.put(hsqldb_cache_free_count,
+                   HsqlProperties.getMeta(hsqldb_cache_free_count,
+                                          SQL_PROPERTY, 512, 0, 4096));
         dbMeta.put(hsqldb_result_max_memory_rows,
                    HsqlProperties.getMeta(hsqldb_result_max_memory_rows,
                                           SQL_PROPERTY, 0, 0, 1000000));

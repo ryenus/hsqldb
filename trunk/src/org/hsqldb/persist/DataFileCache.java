@@ -118,7 +118,6 @@ public class DataFileCache {
     protected volatile long         fileFreePosition;
     protected int                   maxCacheRows;     // number of Rows
     protected long                  maxCacheBytes;    // number of bytes
-    protected int                   maxFreeBlocks;
     protected Cache                 cache;
 
     //
@@ -160,7 +159,6 @@ public class DataFileCache {
         maxCacheRows    = database.logger.propCacheMaxRows;
         maxCacheBytes   = database.logger.propCacheMaxSize;
         maxDataFileSize = (long) Integer.MAX_VALUE * cacheFileScale;
-        maxFreeBlocks   = database.logger.propMaxFreeBlocks;
         dataFile        = null;
         shadowFile      = null;
     }
@@ -312,8 +310,8 @@ public class DataFileCache {
             initBuffers();
 
             fileModified = false;
-            freeBlocks = new DataFileBlockManager(maxFreeBlocks,
-                                                  cacheFileScale, freesize);
+            freeBlocks = new DataFileBlockManager(database.logger.propMaxFreeBlocks,
+                                                  cacheFileScale, 0, freesize);
 
             database.logger.logInfoEvent("open end");
         } catch (Throwable t) {

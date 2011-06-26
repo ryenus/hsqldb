@@ -341,7 +341,7 @@ public class TextCache extends DataFileCache {
 
             initBuffers();
 
-            freeBlocks = new DataFileBlockManager(0, cacheFileScale, 0);
+            freeBlocks = new DataFileBlockManager(0, cacheFileScale, 0, 0);
         } catch (Throwable t) {
             throw Error.error(t, ErrorCode.FILE_IO_ERROR,
                               ErrorCode.M_TextCache_openning_file_error,

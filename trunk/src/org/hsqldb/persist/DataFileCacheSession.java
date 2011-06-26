@@ -79,7 +79,7 @@ public class DataFileCacheSession extends DataFileCache {
 
             initBuffers();
 
-            freeBlocks = new DataFileBlockManager(0, cacheFileScale, 0);
+            freeBlocks = new DataFileBlockManager(0, cacheFileScale, 0, 0);
         } catch (Throwable t) {
             database.logger.logWarningEvent("Failed to open RA file", t);
             close(false);
