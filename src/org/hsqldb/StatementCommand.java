@@ -80,7 +80,6 @@ public class StatementCommand extends Statement {
 
             case StatementTypes.TRUNCATE :
                 group = StatementTypes.X_HSQLDB_DATABASE_OPERATION;
-                isTransactionStatement = true;
                 break;
 
             case StatementTypes.EXPLAIN_PLAN :
@@ -150,8 +149,7 @@ public class StatementCommand extends Statement {
             case StatementTypes.SET_DATABASE_SQL_COLLATION :
             case StatementTypes.SET_DATABASE_FILES_BACKUP_INCREMENT :
             case StatementTypes.SET_DATABASE_TEXT_SOURCE :
-                group                  = StatementTypes.X_HSQLDB_SETTING;
-                isTransactionStatement = true;
+                group = StatementTypes.X_HSQLDB_SETTING;
                 break;
 
             case StatementTypes.SET_TABLE_CLUSTERED :
@@ -163,15 +161,13 @@ public class StatementCommand extends Statement {
 
             // fall through
             case StatementTypes.SET_TABLE_SOURCE :
-                metaDataImpact         = Statement.META_RESET_VIEWS;
-                group = StatementTypes.X_HSQLDB_SCHEMA_MANIPULATION;
-                isTransactionStatement = true;
+                metaDataImpact = Statement.META_RESET_VIEWS;
+                group          = StatementTypes.X_HSQLDB_SCHEMA_MANIPULATION;
                 break;
 
             case StatementTypes.SET_TABLE_READONLY :
-                metaDataImpact         = Statement.META_RESET_VIEWS;
-                group = StatementTypes.X_HSQLDB_SCHEMA_MANIPULATION;
-                isTransactionStatement = true;
+                metaDataImpact = Statement.META_RESET_VIEWS;
+                group          = StatementTypes.X_HSQLDB_SCHEMA_MANIPULATION;
                 break;
 
             case StatementTypes.DATABASE_SHUTDOWN :
@@ -182,7 +178,6 @@ public class StatementCommand extends Statement {
 
             case StatementTypes.SET_TABLE_TYPE :
                 group = StatementTypes.X_HSQLDB_SCHEMA_MANIPULATION;
-                isTransactionStatement = true;
                 break;
 
             case StatementTypes.SET_TABLE_INDEX :
@@ -790,9 +785,6 @@ public class StatementCommand extends Statement {
                 int size = ((Integer) parameters[0]).intValue();
 
                 session.checkAdmin();
-                session.database.getProperties().setProperty(
-                    HsqlDatabaseProperties.hsqldb_result_max_memory_rows,
-                    size);
                 session.database.setResultMaxMemoryRows(size);
 
                 return Result.updateZeroResult;

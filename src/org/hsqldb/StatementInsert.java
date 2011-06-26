@@ -32,15 +32,11 @@
 package org.hsqldb;
 
 import org.hsqldb.ParserDQL.CompileContext;
-import org.hsqldb.error.Error;
-import org.hsqldb.error.ErrorCode;
-import org.hsqldb.lib.ArrayUtil;
 import org.hsqldb.navigator.RowSetNavigator;
 import org.hsqldb.navigator.RowSetNavigatorClient;
 import org.hsqldb.persist.PersistentStore;
 import org.hsqldb.result.Result;
 import org.hsqldb.result.ResultConstants;
-import org.hsqldb.result.ResultMetaData;
 import org.hsqldb.types.Type;
 
 /**

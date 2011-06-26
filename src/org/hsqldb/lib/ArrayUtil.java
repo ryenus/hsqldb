@@ -37,7 +37,7 @@ import java.lang.reflect.Array;
  * Collection of static methods for operations on arrays
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.0.1
+ * @version 2.2.5
  * @since 1.7.2
  */
 public class ArrayUtil {
@@ -502,6 +502,7 @@ public class ArrayUtil {
             for (int j = 0; j < arrb.length; j++) {
                 if (arra[i] == arrb[j]) {
                     k++;
+
                     break;
                 }
             }
@@ -519,6 +520,7 @@ public class ArrayUtil {
             for (int j = 0; j < arrb.length; j++) {
                 if (arra[i] == arrb[j]) {
                     k++;
+
                     break;
                 }
             }
@@ -1471,5 +1473,58 @@ public class ArrayUtil {
         }
 
         return bytes;
+    }
+
+    /**
+     * uses 2**scale form and returns a multipe of this that is larger or equal to value
+     */
+    public static long getBinaryNormalisedCeiling(long value, int scale) {
+
+        long mask    = 0xffffffffffffffffl << scale;
+        long newSize = value & mask;
+
+        if (newSize != value) {
+            newSize += 1 << scale;
+        }
+
+        return newSize;
+    }
+
+    /**
+     * returns true if log2 n is in the range (0, max)
+     */
+    public static boolean isTwoPower(int n, int max) {
+
+        for (int i = 0; i <= max; i++) {
+            if ((n & 1) != 0) {
+                return n == 1;
+            }
+
+            n >>= 1;
+        }
+
+        return false;
+    }
+
+    /**
+     * returns the largest value that is 0 or a power of 2 and is smaller or equal to n
+     */
+    public static int getTwoPowerFloor(int n) {
+
+        int shift = 0;
+
+        if (n == 0) {
+            return 0;
+        }
+
+        for (int i = 0; i < 32; i++) {
+            if ((n & 1) != 0) {
+                shift = i;
+            }
+
+            n >>= 1;
+        }
+
+        return 1 << shift;
     }
 }

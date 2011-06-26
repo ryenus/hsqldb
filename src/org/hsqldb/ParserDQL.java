@@ -363,6 +363,12 @@ public class ParserDQL extends ParserBase {
                     hasScale = true;
                 }
 
+                if (readByteOrChar) {
+                    if (!readIfThis(Tokens.CHAR)) {
+                        readIfThis(Tokens.BYTE);
+                    }
+                }
+
                 readThis(Tokens.CLOSEBRACKET);
             } else if (typeNumber == Types.SQL_BIT) {
                 length = 1;
@@ -467,12 +473,6 @@ public class ParserDQL extends ParserBase {
 
         if (session.ignoreCase && typeNumber == Types.SQL_VARCHAR) {
             typeNumber = Types.VARCHAR_IGNORECASE;
-        }
-
-        if (readByteOrChar) {
-            if (!readIfThis(Tokens.CHAR)) {
-                readIfThis(Tokens.BYTE);
-            }
         }
 
         Collation collation = database.collation;
@@ -3238,6 +3238,10 @@ public class ParserDQL extends ParserBase {
                                                       compileContext);
                 break;
 
+            case Tokens.SYSTIMESTAMP :
+                if (!database.sqlSyntaxOra) {
+                    return null;
+                }
             case Tokens.NOW :
             case Tokens.TODAY :
             case Tokens.SYSDATE :
@@ -4905,9 +4909,16 @@ public class ParserDQL extends ParserBase {
         checkIsIdentifier();
 
         if (isUndelimitedSimpleName()) {
+            int tokenType = token.tokenType;
             FunctionSQL function =
                 FunctionCustom.newCustomFunction(token.tokenString,
                                                  token.tokenType);
+
+            if (function != null && tokenType == Tokens.SYSTIMESTAMP) {
+                if (!database.sqlSyntaxOra) {
+                    function = null;
+                }
+            }
 
             if (function != null) {
                 int pos = getPosition();
@@ -5609,9 +5620,11 @@ public class ParserDQL extends ParserBase {
                     throw unexpectedToken();
                 case SchemaObject.CURSOR : {
                     if (token.namePrePrefix == null
-                            && Tokens.T_MODULE.equals(token.namePrefix)
-                            && !token.isDelimitedPrefix) {}
-                    else {
+                            && !token.isDelimitedPrefix
+                            && (Tokens.T_MODULE.equals(token.namePrefix))) {
+
+                        // local
+                    } else {
                         throw unexpectedTokenRequire(Tokens.T_MODULE);
                     }
 

@@ -402,7 +402,16 @@ public class ExpressionOp extends Expression {
 
                     if (nodes[RIGHT].dataType.typeCode
                             != Types.SQL_INTERVAL_HOUR_TO_MINUTE) {
-                        throw Error.error(ErrorCode.X_42563);
+                        if (nodes[RIGHT].opType == OpTypes.VALUE) {
+                            nodes[RIGHT].valueData =
+                                Type.SQL_INTERVAL_HOUR_TO_MINUTE.castToType(
+                                    session, nodes[RIGHT].valueData,
+                                    nodes[RIGHT].dataType);
+                            nodes[RIGHT].dataType =
+                                Type.SQL_INTERVAL_HOUR_TO_MINUTE;
+                        } else {
+                            throw Error.error(ErrorCode.X_42563);
+                        }
                     }
                 }
 

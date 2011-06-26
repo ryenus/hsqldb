@@ -237,4 +237,8 @@ public class StatementSchemaDefinition extends StatementSchema {
     String getDropSchemaStatement(HsqlName schema) {
         return "DROP SCHEMA " + schema.statementName + " " + Tokens.T_CASCADE;
     }
+
+    public boolean isAutoCommitStatement() {
+        return true;
+    }
 }

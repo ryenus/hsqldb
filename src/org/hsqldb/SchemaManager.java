@@ -649,7 +649,8 @@ public class SchemaManager {
         try {
             Table t = null;
 
-            if (Tokens.T_MODULE.equals(schema)) {
+            if (Tokens.T_MODULE.equals(schema)
+                    || Tokens.T_SESSION.equals(schema)) {
                 t = findSessionTable(session, name);
 
                 if (t == null) {
