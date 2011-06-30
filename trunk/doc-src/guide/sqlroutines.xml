@@ -565,8 +565,8 @@ CREATE FUNCTION an_hour_before_max (e_type INT)
         </listitem>
 
         <listitem>
-          <para>For routines that access SQL DATA, all the SQL statements in
-          an SQL routines are known and monitored by the engine. The engine
+          <para>For a routine that accesses SQL DATA, all the SQL statements
+          in an SQL routine are known and monitored by the engine. The engine
           will not allow a table, routine or sequence that is referenced in an
           SQL routine to be dropped, or its structure modified in a way that
           will break the routine execution. The engine does not keep this
@@ -577,7 +577,7 @@ CREATE FUNCTION an_hour_before_max (e_type INT)
           <para>Because the statements in an SQL routine are known to the
           engine, the execution of an SQL routine locks all the database
           objects it needs to access before the actual execution. With Java
-          routines locks are obtained during execution and this may cause
+          routines, locks are obtained during execution and this may cause
           additional delays in multi threaded access to the database.</para>
         </listitem>
 
