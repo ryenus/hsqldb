@@ -174,18 +174,23 @@ public final class ExpressionLike extends ExpressionLogical {
             }
         }
 
+        if (nodes[LEFT].isUnresolvedParam()
+                && nodes[RIGHT].isUnresolvedParam()) {
+            nodes[LEFT].dataType = Type.SQL_VARCHAR_DEFAULT;
+        }
+
         if (nodes[LEFT].dataType == null && nodes[RIGHT].dataType == null) {
             throw Error.error(ErrorCode.X_42567);
         }
 
         if (nodes[LEFT].isUnresolvedParam()) {
             nodes[LEFT].dataType = nodes[RIGHT].dataType.isBinaryType()
-                                   ? (Type) Type.SQL_VARBINARY_DEFAULT
-                                   : (Type) Type.SQL_VARCHAR_DEFAULT;
+                                   ? Type.SQL_VARBINARY_DEFAULT
+                                   : Type.SQL_VARCHAR_DEFAULT;
         } else if (nodes[RIGHT].isUnresolvedParam()) {
             nodes[RIGHT].dataType = nodes[LEFT].dataType.isBinaryType()
-                                    ? (Type) Type.SQL_VARBINARY_DEFAULT
-                                    : (Type) Type.SQL_VARCHAR_DEFAULT;
+                                    ? Type.SQL_VARBINARY_DEFAULT
+                                    : Type.SQL_VARCHAR_DEFAULT;
         }
 
         if (nodes[LEFT].dataType == null || nodes[RIGHT].dataType == null) {
