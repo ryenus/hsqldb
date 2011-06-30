@@ -1163,15 +1163,26 @@ public class Expression implements Cloneable {
         nodeDataTypes = new Type[degree];
 
         for (int j = 0; j < degree; j++) {
-            Type type = row == null ? null
-                                    : row.nodes[j].dataType;
+            Type    type         = row == null ? null
+                                               : row.nodes[j].dataType;
+            boolean hasParameter = row == null ? false
+                                               : row.nodes[j].isDynamicParam();
 
             for (int i = 0; i < nodes.length; i++) {
                 type = Type.getAggregateType(nodes[i].nodes[j].dataType, type);
+                hasParameter |= nodes[i].nodes[j].isDynamicParam();
             }
 
             if (type == null) {
                 throw Error.error(ErrorCode.X_42567);
+            }
+
+            if (hasParameter && type.isCharacterType()) {
+                if (type.precision < Type.SQL_VARCHAR_DEFAULT.precision) {
+                    type = CharacterType.getCharacterType(
+                        type.typeCode, Type.SQL_VARCHAR_DEFAULT.precision,
+                        type.getCollation());
+                }
             }
 
             nodeDataTypes[j] = type;
