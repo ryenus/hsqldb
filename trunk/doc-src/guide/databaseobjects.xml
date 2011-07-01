@@ -3031,538 +3031,641 @@ alter specific routine zero_pad_01
     <section>
       <title>Views in INFORMATION SCHEMA</title>
 
-      <para>HyperSQL suppost a vast range of views in the INFORMATION_SCHEMA.
-      These include views specified by the SQL Standard, plus views that are
-      specific to HyperSQL and are used for JDBC DatabaseMetaData queries or
-      other information that is not covered by the SQL Standard.</para>
+      <para>HyperSQL supports a vast range of views in the INFORMATION_SCHEMA.
+      These include views specified by the SQL Standard, SQL/Schemata part,
+      plus views that are specific to HyperSQL and are used for JDBC
+      DatabaseMetaData queries, which are based on SQL/CLI part, or other
+      information that is not covered by the SQL Standard. The names of views
+      that are not part of SQL/Schemata start with SYSTEM_.</para>
+
+      <para>The views cover different types of information. These are covered
+      in the next sections.</para>
+    </section>
+
+    <section>
+      <title>Visibility of Information</title>
+
+      <para>Users with the special ADMIN role can see the full information on
+      all database objects. Ordinary, non-admin users can see information on
+      the objects for which they have some privileges.</para>
+
+      <para>The rows returned to a non-admin user exclude objects on which the
+      user has no privilege. The extent of the information in visible rows
+      varies with the user's privilege. For example, the owner of a VIEW can
+      see the text of the view query, but a user of the view cannot see this
+      text. When a user cannot see the contents of some column, null is
+      returned for that column. </para>
+    </section>
+
+    <section>
+      <title>Name Information</title>
+
+      <para>The names of database objects are stored in hierarchical views.
+      The top level view is INFORMATION_SCHEMA_CATALOG_NAME.</para>
+
+      <para>Below this level, there is a group of views that covers
+      authorizations and roles, without referencing schema objects. These are
+      AUTHORIZATIONS and ADMINSTRABLE_ROLE_AUTHORIZATIONS.</para>
+
+      <para>Also below the top level, there is the SCHEMATA view, which lists
+      the schemas in the catalog.</para>
+
+      <para>The views that refer to top-level schema objects are divided by
+      object type. These includes ASSERTIONS, CHARACTER_SETS, COLLATIONS,
+      DOMAINS, ROUTINES, SEQUENCES, TABLES, USER_DEFINED_TYPES and
+      VIEWS.</para>
+
+      <para>There are views that refer to objects that are dependent on the
+      top-level schema objects. These include COLUMNS and PARAMETERS, views
+      for constraints, including CHECK_CONSTRAINTS, REFERENTIAL_CONSTRAINTS
+      and TABLE_CONSTRAINTS, and finally the TRIGGERS view.</para>
 
-      <section>
-        <title>SQL Standard Views</title>
+      <para>The usage of each type of top-level object by another is covered
+      by several views. For example TRIGGER_SEQUENCE_USAGE or
+      ROUTINE_TABLE_USAGE.</para>
 
-        <para>The following views are defined by the SQL Standard and
-        supported by HyperSQL. The columns and contents exactly match the
-        Standard requirements.</para>
+      <para>Several other views list the individual privileges owned or
+      granted to each AUTHORIZATION. For example ROLE_ROUTINE_GRANTS or
+      TABLE_PRIVILEGES.</para>
+    </section>
 
-        <indexterm significance="preferred" type="sql">
-          <primary>ADMINISTRABLE_ROLE_AUTHORIZATIONS</primary>
-        </indexterm>
+    <section>
+      <title>Data Type Information</title>
 
-        <para>ADMINISTRABLE_ROLE_AUTHORIZATIONS</para>
+      <para>The INFORMATION_SCHEMA contains comprehensive information on the
+      data types of each schema object and its elements. For example, the
+      ROUTINES view includes the return data type for each FUNCTION
+      definition. The columns for this information contain nulls for rows that
+      cover PROCEDURE definitions.</para>
 
-        <para>Information on ROLE authorizations, all granted by the admin
-        role.</para>
+      <para>The COLUMNS, PARAMETERS and SEQUENCES views contain the type
+      information in columns with similar names.</para>
 
-        <indexterm significance="preferred" type="sql">
-          <primary>APPLICABLE_ROLES</primary>
-        </indexterm>
+      <para>The type information for ARRAY types is returned in the
+      ELEMENT_TYPES view. When a row of the COLUMNS or other view indicates
+      that the type of the object is an ARRAY type, then there is a
+      corresponding entry for this row in the ELEMENT_TYPES view. The
+      following columns in the ELEMENTS_TYPES view identify the database
+      object whose data type is being described: OBJECT_CATALOG,
+      OBJECT_SCHEMA, OBJECT_NAME, OBJECT_TYPE, COLLECTION_TYPE_IDENTIFIER. The
+      last column's counterpart in the COLUMNS view is named differently as
+      DTD_IDENTIFIER. So in order to determine the array element type of a
+      column, an equi-join between the COLUMNS and ELEMENT_TYPES tables on the
+      six listed columns in the ELEMENT_TYPES view and their counterparts in
+      the COLUMNS view is needed.</para>
+    </section>
 
-        <para>APPLICABLE_ROLES</para>
+    <section>
+      <title>Product Information</title>
 
-        <para>Information on ROLE authorizations for the current user</para>
+      <para>A group of views, including SQL_IMPLEMENTATION_INFO, SQL_FEATURES,
+      SQL_SIZING and others cover the capabilities of HyperSQL in detail.
+      These views hold static data and can be explored even when the database
+      is empty.</para>
+    </section>
 
-        <indexterm significance="preferred" type="sql">
-          <primary>ASSERTIONS</primary>
-        </indexterm>
+    <section>
+      <title>Operations Information</title>
 
-        <para>ASSERTIONS</para>
+      <para>There are some HyperSQL custom views cover the current state of
+      operation of the database. These include SYSTEM_CACHEINFO,
+      SYSTEM_SESSIONINFO and SYSTEM_SESSIONS views.</para>
+    </section>
 
-        <para>Empty view as ASSERTION objects are not yet supported.</para>
+    <section>
+      <title>SQL Standard Views</title>
 
-        <indexterm significance="preferred" type="sql">
-          <primary>AUTHORIZATIONS</primary>
-        </indexterm>
+      <para>The following views are defined by the SQL Standard and supported
+      by HyperSQL. The columns and contents exactly match the Standard
+      requirements.</para>
 
-        <para>AUTHORIZATIONS</para>
+      <indexterm significance="preferred" type="sql">
+        <primary>ADMINISTRABLE_ROLE_AUTHORIZATIONS</primary>
+      </indexterm>
 
-        <para>Top level information on USER and ROLE objects in the
-        database</para>
+      <para>ADMINISTRABLE_ROLE_AUTHORIZATIONS</para>
 
-        <indexterm significance="preferred" type="sql">
-          <primary>CHARACTER_SETS</primary>
-        </indexterm>
+      <para>Information on ROLE authorizations, all granted by the admin
+      role.</para>
 
-        <para>CHARACTER_SETS</para>
+      <indexterm significance="preferred" type="sql">
+        <primary>APPLICABLE_ROLES</primary>
+      </indexterm>
 
-        <para>List of supported CHARACTER SET objects</para>
+      <para>APPLICABLE_ROLES</para>
 
-        <indexterm significance="preferred" type="sql">
-          <primary>CHECK_CONSTRAINTS</primary>
-        </indexterm>
+      <para>Information on ROLE authorizations for the current user</para>
 
-        <para>CHECK_CONSTRAINTS</para>
+      <indexterm significance="preferred" type="sql">
+        <primary>ASSERTIONS</primary>
+      </indexterm>
 
-        <para>Additional information specific to each CHECK constraint,
-        including the search condition</para>
+      <para>ASSERTIONS</para>
 
-        <indexterm significance="preferred" type="sql">
-          <primary>CHECK_CONSTRAINT_ROUTINE_USAGE</primary>
-        </indexterm>
+      <para>Empty view as ASSERTION objects are not yet supported.</para>
 
-        <para>CHECK_CONSTRAINT_ROUTINE_USAGE</para>
+      <indexterm significance="preferred" type="sql">
+        <primary>AUTHORIZATIONS</primary>
+      </indexterm>
 
-        <para>Information on FUNCTION objects referenced in CHECK constraints
-        search conditions</para>
+      <para>AUTHORIZATIONS</para>
 
-        <indexterm significance="preferred" type="sql">
-          <primary>COLLATIONS</primary>
-        </indexterm>
+      <para>Top level information on USER and ROLE objects in the
+      database</para>
 
-        <para>COLLATIONS</para>
+      <indexterm significance="preferred" type="sql">
+        <primary>CHARACTER_SETS</primary>
+      </indexterm>
 
-        <para>Information on collations supported by the database.</para>
+      <para>CHARACTER_SETS</para>
 
-        <indexterm significance="preferred" type="sql">
-          <primary>COLUMNS</primary>
-        </indexterm>
+      <para>List of supported CHARACTER SET objects</para>
 
-        <para>COLUMNS</para>
+      <indexterm significance="preferred" type="sql">
+        <primary>CHECK_CONSTRAINTS</primary>
+      </indexterm>
 
-        <para>Information on COLUMN objects in TABLE and VIEW
-        definitions</para>
+      <para>CHECK_CONSTRAINTS</para>
 
-        <indexterm significance="preferred" type="sql">
-          <primary>COLUMN_COLUMN_USAGE</primary>
-        </indexterm>
+      <para>Additional information specific to each CHECK constraint,
+      including the search condition</para>
 
-        <para>COLUMN_COLUMN_USAGE</para>
+      <indexterm significance="preferred" type="sql">
+        <primary>CHECK_CONSTRAINT_ROUTINE_USAGE</primary>
+      </indexterm>
 
-        <para>Information on references to COLUMN objects from other,
-        GENERATED, COLUMN objects</para>
+      <para>CHECK_CONSTRAINT_ROUTINE_USAGE</para>
 
-        <indexterm significance="preferred" type="sql">
-          <primary>COLUMN_DOMAIN_USAGE</primary>
-        </indexterm>
+      <para>Information on FUNCTION objects referenced in CHECK constraints
+      search conditions</para>
 
-        <para>COLUMN_DOMAIN_USAGE</para>
+      <indexterm significance="preferred" type="sql">
+        <primary>COLLATIONS</primary>
+      </indexterm>
 
-        <para>Information on DOMAIN objects used in type definition of COLUMN
-        objects</para>
+      <para>COLLATIONS</para>
 
-        <indexterm significance="preferred" type="sql">
-          <primary>COLUMN_PRIVILEGES</primary>
-        </indexterm>
+      <para>Information on collations supported by the database.</para>
 
-        <para>COLUMN_PRIVILEGES</para>
+      <indexterm significance="preferred" type="sql">
+        <primary>COLUMNS</primary>
+      </indexterm>
 
-        <para>Information on privileges on each COLUMN object, granted to
-        different ROLE and USER authorizations</para>
+      <para>COLUMNS</para>
 
-        <indexterm significance="preferred" type="sql">
-          <primary>COLUMN_UDT_USAGE</primary>
-        </indexterm>
+      <para>Information on COLUMN objects in TABLE and VIEW definitions</para>
 
-        <para>COLUMN_UDT_USAGE</para>
+      <indexterm significance="preferred" type="sql">
+        <primary>COLUMN_COLUMN_USAGE</primary>
+      </indexterm>
 
-        <para>Information on distinct TYPE objects used in type definition of
-        COLUMN objects</para>
+      <para>COLUMN_COLUMN_USAGE</para>
 
-        <indexterm significance="preferred" type="sql">
-          <primary>CONSTRAINT_COLUMN_USAGE</primary>
-        </indexterm>
+      <para>Information on references to COLUMN objects from other, GENERATED,
+      COLUMN objects</para>
 
-        <para>CONSTRAINT_COLUMN_USAGE</para>
+      <indexterm significance="preferred" type="sql">
+        <primary>COLUMN_DOMAIN_USAGE</primary>
+      </indexterm>
 
-        <para>Information on COLUMN objects referenced by CONSTRAINT objects
-        in the database</para>
+      <para>COLUMN_DOMAIN_USAGE</para>
 
-        <indexterm significance="preferred" type="sql">
-          <primary>CONSTRAINT_TABLE_USAGE</primary>
-        </indexterm>
+      <para>Information on DOMAIN objects used in type definition of COLUMN
+      objects</para>
 
-        <para>CONSTRAINT_TABLE_USAGE</para>
+      <indexterm significance="preferred" type="sql">
+        <primary>COLUMN_PRIVILEGES</primary>
+      </indexterm>
 
-        <para>Information on TABLE and VIEW objects referenced by CONSTRAINT
-        objects in the database</para>
+      <para>COLUMN_PRIVILEGES</para>
 
-        <indexterm significance="preferred" type="sql">
-          <primary>DATA_TYPE_PRIVILEGES</primary>
-        </indexterm>
+      <para>Information on privileges on each COLUMN object, granted to
+      different ROLE and USER authorizations</para>
 
-        <para>DATA_TYPE_PRIVILEGES</para>
+      <indexterm significance="preferred" type="sql">
+        <primary>COLUMN_UDT_USAGE</primary>
+      </indexterm>
 
-        <para>Information on top level schema objects of various kinds that
-        reference TYPE objects</para>
+      <para>COLUMN_UDT_USAGE</para>
 
-        <indexterm significance="preferred" type="sql">
-          <primary>DOMAINS</primary>
-        </indexterm>
+      <para>Information on distinct TYPE objects used in type definition of
+      COLUMN objects</para>
 
-        <para>DOMAINS</para>
+      <indexterm significance="preferred" type="sql">
+        <primary>CONSTRAINT_COLUMN_USAGE</primary>
+      </indexterm>
 
-        <para>Top level information on DOMAIN objects in the database.</para>
+      <para>CONSTRAINT_COLUMN_USAGE</para>
 
-        <indexterm significance="preferred" type="sql">
-          <primary>DOMAIN_CONSTRAINTS</primary>
-        </indexterm>
+      <para>Information on COLUMN objects referenced by CONSTRAINT objects in
+      the database</para>
 
-        <para>DOMAIN_CONSTRAINTS</para>
+      <indexterm significance="preferred" type="sql">
+        <primary>CONSTRAINT_TABLE_USAGE</primary>
+      </indexterm>
 
-        <para>Information on CONSTRAINT definitions used for DOMAIN
-        objects</para>
+      <para>CONSTRAINT_TABLE_USAGE</para>
 
-        <indexterm significance="preferred" type="sql">
-          <primary>ENABLED_ROLES</primary>
-        </indexterm>
+      <para>Information on TABLE and VIEW objects referenced by CONSTRAINT
+      objects in the database</para>
 
-        <para>ENABLED_ROLES</para>
+      <indexterm significance="preferred" type="sql">
+        <primary>DATA_TYPE_PRIVILEGES</primary>
+      </indexterm>
 
-        <para>Information on ROLE privileges enabled for the current
-        session</para>
+      <para>DATA_TYPE_PRIVILEGES</para>
 
-        <indexterm significance="preferred" type="sql">
-          <primary>INFORMATION_SCHEMA_CATALOG_NAME</primary>
-        </indexterm>
+      <para>Information on top level schema objects of various kinds that
+      reference TYPE objects</para>
 
-        <para>INFORMATION_SCHEMA_CATALOG_NAME</para>
+      <indexterm significance="preferred" type="sql">
+        <primary>DOMAINS</primary>
+      </indexterm>
 
-        <para>Information on the single CATALOG object of the database</para>
+      <para>DOMAINS</para>
 
-        <indexterm significance="preferred" type="sql">
-          <primary>KEY_COLUMN_USAGE</primary>
-        </indexterm>
+      <para>Top level information on DOMAIN objects in the database.</para>
 
-        <para>KEY_COLUMN_USAGE</para>
+      <indexterm significance="preferred" type="sql">
+        <primary>DOMAIN_CONSTRAINTS</primary>
+      </indexterm>
 
-        <para>Information on COLUMN objects of tables that are used by PRIMARY
-        KEY, UNIQUE and FOREIGN KEY constraints</para>
+      <para>DOMAIN_CONSTRAINTS</para>
 
-        <indexterm significance="preferred" type="sql">
-          <primary>PARAMETERS</primary>
-        </indexterm>
+      <para>Information on CONSTRAINT definitions used for DOMAIN
+      objects</para>
 
-        <para>PARAMETERS</para>
+      <indexterm significance="preferred" type="sql">
+        <primary>ELEMENT_TYPES</primary>
+      </indexterm>
 
-        <para>Information on parameters of each FUNCTION or PROCEDURE</para>
+      <para>ELEMENT_TYPES</para>
 
-        <indexterm significance="preferred" type="sql">
-          <primary>REFERENTIAL_CONSTRAINTS</primary>
-        </indexterm>
+      <para>Information on the type of elements of ARRAY used in database
+      columns or routine parameters and return valuse</para>
 
-        <para>REFERENTIAL_CONSTRAINTS</para>
+      <indexterm significance="preferred" type="sql">
+        <primary>ENABLED_ROLES</primary>
+      </indexterm>
 
-        <para>Additional information on FOREIGN KEY constraints, including
-        triggered action and name of UNIQUE constraint they refer to</para>
+      <para>ENABLED_ROLES</para>
 
-        <indexterm significance="preferred" type="sql">
-          <primary>ROLE_AUTHORIZATION_DESCRIPTORS</primary>
-        </indexterm>
+      <para>Information on ROLE privileges enabled for the current
+      session</para>
 
-        <para>ROLE_AUTHORIZATION_DESCRIPTORS</para>
+      <indexterm significance="preferred" type="sql">
+        <primary>INFORMATION_SCHEMA_CATALOG_NAME</primary>
+      </indexterm>
 
-        <indexterm significance="preferred" type="sql">
-          <primary>ROLE_COLUMN_GRANTS</primary>
-        </indexterm>
+      <para>INFORMATION_SCHEMA_CATALOG_NAME</para>
 
-        <para>ROLE_COLUMN_GRANTS</para>
+      <para>Information on the single CATALOG object of the database</para>
 
-        <para>Information on privileges on COLUMN objects granted to or by the
-        current session roles</para>
+      <indexterm significance="preferred" type="sql">
+        <primary>KEY_COLUMN_USAGE</primary>
+      </indexterm>
 
-        <indexterm significance="preferred" type="sql">
-          <primary>ROLE_ROUTINE_GRANTS</primary>
-        </indexterm>
+      <para>KEY_COLUMN_USAGE</para>
 
-        <para>ROLE_ROUTINE_GRANTS</para>
+      <para>Information on COLUMN objects of tables that are used by PRIMARY
+      KEY, UNIQUE and FOREIGN KEY constraints</para>
 
-        <para>Information on privileges on FUNCTION and PROCEDURE objects
-        granted to or by the current session roles</para>
+      <indexterm significance="preferred" type="sql">
+        <primary>PARAMETERS</primary>
+      </indexterm>
 
-        <indexterm significance="preferred" type="sql">
-          <primary>ROLE_TABLE_GRANTS</primary>
-        </indexterm>
+      <para>PARAMETERS</para>
 
-        <para>ROLE_TABLE_GRANTS</para>
+      <para>Information on parameters of each FUNCTION or PROCEDURE</para>
 
-        <para>Information on privileges on TABLE and VIEW objects granted to
-        or by the current session roles</para>
+      <indexterm significance="preferred" type="sql">
+        <primary>REFERENTIAL_CONSTRAINTS</primary>
+      </indexterm>
 
-        <indexterm significance="preferred" type="sql">
-          <primary>ROLE_UDT_GRANTS</primary>
-        </indexterm>
+      <para>REFERENTIAL_CONSTRAINTS</para>
 
-        <para>ROLE_UDT_GRANTS</para>
+      <para>Additional information on FOREIGN KEY constraints, including
+      triggered action and name of UNIQUE constraint they refer to</para>
 
-        <para>Information on privileges on TYPE objects granted to or by the
-        current session roles</para>
+      <indexterm significance="preferred" type="sql">
+        <primary>ROLE_AUTHORIZATION_DESCRIPTORS</primary>
+      </indexterm>
 
-        <indexterm significance="preferred" type="sql">
-          <primary>ROLE_USAGE_GRANTS</primary>
-        </indexterm>
+      <para>ROLE_AUTHORIZATION_DESCRIPTORS</para>
 
-        <para>ROLE_USAGE_GRANTS</para>
+      <indexterm significance="preferred" type="sql">
+        <primary>ROLE_COLUMN_GRANTS</primary>
+      </indexterm>
 
-        <para>Information on privileges on USAGE privileges granted to or by
-        the current session roles</para>
+      <para>ROLE_COLUMN_GRANTS</para>
 
-        <indexterm significance="preferred" type="sql">
-          <primary>ROUTINE_COLUMN_USAGE</primary>
-        </indexterm>
+      <para>Information on privileges on COLUMN objects granted to or by the
+      current session roles</para>
 
-        <para>ROUTINE_COLUMN_USAGE</para>
+      <indexterm significance="preferred" type="sql">
+        <primary>ROLE_ROUTINE_GRANTS</primary>
+      </indexterm>
 
-        <para>Information on COLUMN objects of different tables that are
-        referenced in FUNCTION and PROCEDURE definitions</para>
+      <para>ROLE_ROUTINE_GRANTS</para>
 
-        <indexterm significance="preferred" type="sql">
-          <primary>ROUTINE_JAR_USAGE</primary>
-        </indexterm>
+      <para>Information on privileges on FUNCTION and PROCEDURE objects
+      granted to or by the current session roles</para>
 
-        <para>ROUTINE_JAR_USAGE</para>
+      <indexterm significance="preferred" type="sql">
+        <primary>ROLE_TABLE_GRANTS</primary>
+      </indexterm>
 
-        <para>Information on JAR usage by Java language FUNCTION and PROCEDURE
-        objects.</para>
+      <para>ROLE_TABLE_GRANTS</para>
 
-        <indexterm significance="preferred" type="sql">
-          <primary>ROUTINE_PRIVILEGES</primary>
-        </indexterm>
+      <para>Information on privileges on TABLE and VIEW objects granted to or
+      by the current session roles</para>
 
-        <para>ROUTINE_PRIVILEGES</para>
+      <indexterm significance="preferred" type="sql">
+        <primary>ROLE_UDT_GRANTS</primary>
+      </indexterm>
 
-        <para>Information on EXECUTE privileges granted on PROCEDURE and
-        FUNCTION objects</para>
+      <para>ROLE_UDT_GRANTS</para>
 
-        <indexterm significance="preferred" type="sql">
-          <primary>ROUTINE_ROUTINE_USAGE</primary>
-        </indexterm>
+      <para>Information on privileges on TYPE objects granted to or by the
+      current session roles</para>
 
-        <para>ROUTINE_ROUTINE_USAGE</para>
+      <indexterm significance="preferred" type="sql">
+        <primary>ROLE_USAGE_GRANTS</primary>
+      </indexterm>
 
-        <para>Information on PROCEDURE and FUNCTION objects that are
-        referenced in FUNCTION and PROCEDURE definitions</para>
+      <para>ROLE_USAGE_GRANTS</para>
 
-        <indexterm significance="preferred" type="sql">
-          <primary>ROUTINE_SEQUENCE_USAGE</primary>
-        </indexterm>
+      <para>Information on privileges on USAGE privileges granted to or by the
+      current session roles</para>
 
-        <para>ROUTINE_SEQUENCE_USAGE</para>
+      <indexterm significance="preferred" type="sql">
+        <primary>ROUTINE_COLUMN_USAGE</primary>
+      </indexterm>
 
-        <para>Information on SEQUENCE objects that are referenced in FUNCTION
-        and PROCEDURE definitions</para>
+      <para>ROUTINE_COLUMN_USAGE</para>
 
-        <indexterm significance="preferred" type="sql">
-          <primary>ROUTINE_TABLE_USAGE</primary>
-        </indexterm>
+      <para>Information on COLUMN objects of different tables that are
+      referenced in FUNCTION and PROCEDURE definitions</para>
 
-        <para>ROUTINE_TABLE_USAGE</para>
+      <indexterm significance="preferred" type="sql">
+        <primary>ROUTINE_JAR_USAGE</primary>
+      </indexterm>
 
-        <para>Information on TABLE and VIEW objects that are referenced in
-        FUNCTION and PROCEDURE definitions</para>
+      <para>ROUTINE_JAR_USAGE</para>
 
-        <indexterm significance="preferred" type="sql">
-          <primary>ROUTINES</primary>
-        </indexterm>
+      <para>Information on JAR usage by Java language FUNCTION and PROCEDURE
+      objects.</para>
 
-        <para>ROUTINES</para>
+      <indexterm significance="preferred" type="sql">
+        <primary>ROUTINE_PRIVILEGES</primary>
+      </indexterm>
 
-        <para>Top level information on all PROCEDURE and FUNCTION objects in
-        the database</para>
+      <para>ROUTINE_PRIVILEGES</para>
 
-        <indexterm significance="preferred" type="sql">
-          <primary>SCHEMATA</primary>
-        </indexterm>
+      <para>Information on EXECUTE privileges granted on PROCEDURE and
+      FUNCTION objects</para>
 
-        <para>SCHEMATA</para>
+      <indexterm significance="preferred" type="sql">
+        <primary>ROUTINE_ROUTINE_USAGE</primary>
+      </indexterm>
 
-        <para>Information on all the SCHEMA objects in the databese</para>
+      <para>ROUTINE_ROUTINE_USAGE</para>
 
-        <indexterm significance="preferred" type="sql">
-          <primary>SEQUENCES</primary>
-        </indexterm>
+      <para>Information on PROCEDURE and FUNCTION objects that are referenced
+      in FUNCTION and PROCEDURE definitions</para>
 
-        <para>SEQUENCES</para>
+      <indexterm significance="preferred" type="sql">
+        <primary>ROUTINE_SEQUENCE_USAGE</primary>
+      </indexterm>
 
-        <para>Information on SEQUENCE objects</para>
+      <para>ROUTINE_SEQUENCE_USAGE</para>
 
-        <indexterm significance="preferred" type="sql">
-          <primary>SQL_FEATURES</primary>
-        </indexterm>
+      <para>Information on SEQUENCE objects that are referenced in FUNCTION
+      and PROCEDURE definitions</para>
 
-        <para>SQL_FEATURES</para>
+      <indexterm significance="preferred" type="sql">
+        <primary>ROUTINE_TABLE_USAGE</primary>
+      </indexterm>
 
-        <para>List of all SQL:2008 standard features, including information on
-        whether they are supported or not supported by HyperSQL</para>
+      <para>ROUTINE_TABLE_USAGE</para>
 
-        <indexterm significance="preferred" type="sql">
-          <primary>SQL_IMPLEMENTATION_INFO</primary>
-        </indexterm>
+      <para>Information on TABLE and VIEW objects that are referenced in
+      FUNCTION and PROCEDURE definitions</para>
 
-        <para>SQL_IMPLEMENTATION_INFO</para>
+      <indexterm significance="preferred" type="sql">
+        <primary>ROUTINES</primary>
+      </indexterm>
 
-        <para>Information on name, capabilities and defaults of the database
-        engine software.</para>
+      <para>ROUTINES</para>
 
-        <indexterm significance="preferred" type="sql">
-          <primary>SQL_PACKAGES</primary>
-        </indexterm>
+      <para>Top level information on all PROCEDURE and FUNCTION objects in the
+      database</para>
 
-        <para>SQL_PACKAGES</para>
+      <indexterm significance="preferred" type="sql">
+        <primary>SCHEMATA</primary>
+      </indexterm>
 
-        <para>List of the SQL:2008 Standard packages, including information on
-        whether they are supported or not supported by HyperSQL</para>
+      <para>SCHEMATA</para>
 
-        <indexterm significance="preferred" type="sql">
-          <primary>SQL_PARTS</primary>
-        </indexterm>
+      <para>Information on all the SCHEMA objects in the databese</para>
 
-        <para>SQL_PARTS</para>
+      <indexterm significance="preferred" type="sql">
+        <primary>SEQUENCES</primary>
+      </indexterm>
 
-        <para>List of the SQL:2008 Standard parts, including information on
-        whether they are supported or not supported by HyperSQL</para>
+      <para>SEQUENCES</para>
 
-        <indexterm significance="preferred" type="sql">
-          <primary>SQL_SIZING</primary>
-        </indexterm>
+      <para>Information on SEQUENCE objects</para>
 
-        <para>SQL_SIZING</para>
+      <indexterm significance="preferred" type="sql">
+        <primary>SQL_FEATURES</primary>
+      </indexterm>
 
-        <para>List of the SQL:2008 Standard maximum supported sizes for
-        different features as supported by HyperSQL</para>
+      <para>SQL_FEATURES</para>
 
-        <indexterm significance="preferred" type="sql">
-          <primary>SQL_SIZING_PROFILES</primary>
-        </indexterm>
+      <para>List of all SQL:2008 standard features, including information on
+      whether they are supported or not supported by HyperSQL</para>
 
-        <para>SQL_SIZING_PROFILES</para>
+      <indexterm significance="preferred" type="sql">
+        <primary>SQL_IMPLEMENTATION_INFO</primary>
+      </indexterm>
 
-        <indexterm significance="preferred" type="sql">
-          <primary>TABLES</primary>
-        </indexterm>
+      <para>SQL_IMPLEMENTATION_INFO</para>
 
-        <para>TABLES</para>
+      <para>Information on name, capabilities and defaults of the database
+      engine software.</para>
 
-        <para>Information on all TABLE and VIEW object, including the
-        INFORMATION_SCHEMA views themselves</para>
+      <indexterm significance="preferred" type="sql">
+        <primary>SQL_PACKAGES</primary>
+      </indexterm>
 
-        <indexterm significance="preferred" type="sql">
-          <primary>TABLE_CONSTRAINTS</primary>
-        </indexterm>
+      <para>SQL_PACKAGES</para>
 
-        <para>TABLE_CONSTRAINTS</para>
+      <para>List of the SQL:2008 Standard packages, including information on
+      whether they are supported or not supported by HyperSQL</para>
 
-        <para>Information on all table level constraints, including PRIMARY
-        KEY, UNIQUE, FOREIGN KEY and CHECK constraints</para>
+      <indexterm significance="preferred" type="sql">
+        <primary>SQL_PARTS</primary>
+      </indexterm>
 
-        <indexterm significance="preferred" type="sql">
-          <primary>TABLE_PRIVILEGES</primary>
-        </indexterm>
+      <para>SQL_PARTS</para>
 
-        <para>TABLE_PRIVILEGES</para>
+      <para>List of the SQL:2008 Standard parts, including information on
+      whether they are supported or not supported by HyperSQL</para>
 
-        <para>Information on privileges on TABLE and VIEW objects owned or
-        given to the current user</para>
+      <indexterm significance="preferred" type="sql">
+        <primary>SQL_SIZING</primary>
+      </indexterm>
 
-        <indexterm significance="preferred" type="sql">
-          <primary>TRANSLATIONS</primary>
-        </indexterm>
+      <para>SQL_SIZING</para>
 
-        <para>TRANSLATIONS</para>
+      <para>List of the SQL:2008 Standard maximum supported sizes for
+      different features as supported by HyperSQL</para>
 
-        <indexterm significance="preferred" type="sql">
-          <primary>TRIGGERED_UPDATE_COLUMNS</primary>
-        </indexterm>
+      <indexterm significance="preferred" type="sql">
+        <primary>SQL_SIZING_PROFILES</primary>
+      </indexterm>
 
-        <para>TRIGGERED_UPDATE_COLUMNS</para>
+      <para>SQL_SIZING_PROFILES</para>
 
-        <para>Information on columns that have been used in TRIGGER
-        definitions in the ON UPDATE clause</para>
+      <indexterm significance="preferred" type="sql">
+        <primary>TABLES</primary>
+      </indexterm>
 
-        <indexterm significance="preferred" type="sql">
-          <primary>TRIGGERS</primary>
-        </indexterm>
+      <para>TABLES</para>
 
-        <para>TRIGGERS</para>
+      <para>Information on all TABLE and VIEW object, including the
+      INFORMATION_SCHEMA views themselves</para>
 
-        <para>Top level information on the TRIGGER definitions in the
-        databases</para>
+      <indexterm significance="preferred" type="sql">
+        <primary>TABLE_CONSTRAINTS</primary>
+      </indexterm>
 
-        <indexterm significance="preferred" type="sql">
-          <primary>TRIGGER_COLUMN_USAGE</primary>
-        </indexterm>
+      <para>TABLE_CONSTRAINTS</para>
 
-        <para>TRIGGER_COLUMN_USAGE</para>
+      <para>Information on all table level constraints, including PRIMARY KEY,
+      UNIQUE, FOREIGN KEY and CHECK constraints</para>
 
-        <para>Information on COLUMN objects that have been referenced in the
-        body of TRIGGER definitions</para>
+      <indexterm significance="preferred" type="sql">
+        <primary>TABLE_PRIVILEGES</primary>
+      </indexterm>
 
-        <indexterm significance="preferred" type="sql">
-          <primary>TRIGGER_ROUTINE_USAGE</primary>
-        </indexterm>
+      <para>TABLE_PRIVILEGES</para>
 
-        <para>TRIGGER_ROUTINE_USAGE</para>
+      <para>Information on privileges on TABLE and VIEW objects owned or given
+      to the current user</para>
 
-        <para>Information on FUNCTION and PROCEDURE objects that have been
-        used in TRIGGER definitions</para>
+      <indexterm significance="preferred" type="sql">
+        <primary>TRANSLATIONS</primary>
+      </indexterm>
 
-        <indexterm significance="preferred" type="sql">
-          <primary>TRIGGER_SEQUENCE_USAGE</primary>
-        </indexterm>
+      <para>TRANSLATIONS</para>
 
-        <para>TRIGGER_SEQUENCE_USAGE</para>
+      <indexterm significance="preferred" type="sql">
+        <primary>TRIGGERED_UPDATE_COLUMNS</primary>
+      </indexterm>
 
-        <para>Information on SEQUENCE objects that been referenced in TRIGGER
-        definitions</para>
+      <para>TRIGGERED_UPDATE_COLUMNS</para>
 
-        <indexterm significance="preferred" type="sql">
-          <primary>TRIGGER_TABLE_USAGE</primary>
-        </indexterm>
+      <para>Information on columns that have been used in TRIGGER definitions
+      in the ON UPDATE clause</para>
 
-        <para>TRIGGER_TABLE_USAGE</para>
+      <indexterm significance="preferred" type="sql">
+        <primary>TRIGGERS</primary>
+      </indexterm>
 
-        <para>Information on TABLE and VIEW objects that have been referenced
-        in TRIGGER definitions</para>
+      <para>TRIGGERS</para>
 
-        <indexterm significance="preferred" type="sql">
-          <primary>USAGE_PRIVILEGES</primary>
-        </indexterm>
+      <para>Top level information on the TRIGGER definitions in the
+      databases</para>
 
-        <para>USAGE_PRIVILEGES</para>
+      <indexterm significance="preferred" type="sql">
+        <primary>TRIGGER_COLUMN_USAGE</primary>
+      </indexterm>
 
-        <para>Information on USAGE privileges granted to or owned by the
-        current user</para>
+      <para>TRIGGER_COLUMN_USAGE</para>
 
-        <indexterm significance="preferred" type="sql">
-          <primary>USER_DEFINED_TYPES</primary>
-        </indexterm>
+      <para>Information on COLUMN objects that have been referenced in the
+      body of TRIGGER definitions</para>
 
-        <para>USER_DEFINED_TYPES</para>
+      <indexterm significance="preferred" type="sql">
+        <primary>TRIGGER_ROUTINE_USAGE</primary>
+      </indexterm>
 
-        <para>Top level information on TYPE objects in the database</para>
+      <para>TRIGGER_ROUTINE_USAGE</para>
 
-        <indexterm significance="preferred" type="sql">
-          <primary>VIEWS</primary>
-        </indexterm>
+      <para>Information on FUNCTION and PROCEDURE objects that have been used
+      in TRIGGER definitions</para>
 
-        <para>VIEWS</para>
+      <indexterm significance="preferred" type="sql">
+        <primary>TRIGGER_SEQUENCE_USAGE</primary>
+      </indexterm>
 
-        <para>Top Level information on VIEW objects in the database</para>
+      <para>TRIGGER_SEQUENCE_USAGE</para>
 
-        <indexterm significance="preferred" type="sql">
-          <primary>VIEW_COLUMN_USAGE</primary>
-        </indexterm>
+      <para>Information on SEQUENCE objects that been referenced in TRIGGER
+      definitions</para>
 
-        <para>VIEW_COLUMN_USAGE</para>
+      <indexterm significance="preferred" type="sql">
+        <primary>TRIGGER_TABLE_USAGE</primary>
+      </indexterm>
 
-        <para>Information on COLUMN objects referenced in the query
-        expressions of the VIEW objects</para>
+      <para>TRIGGER_TABLE_USAGE</para>
 
-        <indexterm significance="preferred" type="sql">
-          <primary>VIEW_ROUTINE_USAGE</primary>
-        </indexterm>
+      <para>Information on TABLE and VIEW objects that have been referenced in
+      TRIGGER definitions</para>
 
-        <para>VIEW_ROUTINE_USAGE</para>
+      <indexterm significance="preferred" type="sql">
+        <primary>USAGE_PRIVILEGES</primary>
+      </indexterm>
 
-        <para>Information on FUNCTION and PROCEDURE objects that have been
-        used in the query expressions of the VIEW objects</para>
+      <para>USAGE_PRIVILEGES</para>
 
-        <indexterm significance="preferred" type="sql">
-          <primary>VIEW_TABLE_USAGE</primary>
-        </indexterm>
+      <para>Information on USAGE privileges granted to or owned by the current
+      user</para>
 
-        <para>VIEW_TABLE_USAGE</para>
+      <indexterm significance="preferred" type="sql">
+        <primary>USER_DEFINED_TYPES</primary>
+      </indexterm>
 
-        <para>Information on TABLE and VIEW objects that have been referenced
-        in the query expressions of the VIEW objects</para>
-      </section>
+      <para>USER_DEFINED_TYPES</para>
+
+      <para>Top level information on TYPE objects in the database</para>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>VIEWS</primary>
+      </indexterm>
+
+      <para>VIEWS</para>
+
+      <para>Top Level information on VIEW objects in the database</para>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>VIEW_COLUMN_USAGE</primary>
+      </indexterm>
+
+      <para>VIEW_COLUMN_USAGE</para>
+
+      <para>Information on COLUMN objects referenced in the query expressions
+      of the VIEW objects</para>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>VIEW_ROUTINE_USAGE</primary>
+      </indexterm>
+
+      <para>VIEW_ROUTINE_USAGE</para>
+
+      <para>Information on FUNCTION and PROCEDURE objects that have been used
+      in the query expressions of the VIEW objects</para>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>VIEW_TABLE_USAGE</primary>
+      </indexterm>
+
+      <para>VIEW_TABLE_USAGE</para>
+
+      <para>Information on TABLE and VIEW objects that have been referenced in
+      the query expressions of the VIEW objects</para>
 
       <section>
         <title>HyperSQL Custom Views</title>

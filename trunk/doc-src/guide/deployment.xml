@@ -172,12 +172,14 @@
       high speeds (usually over 20MB / s) for both storage and retrieval of
       LOBs.</para>
 
-      <para>By default, the internal LOB schema is stored in the database as
-      MEMORY tables. Therefore the amount of JVM memory should be increased
-      when more than tens of thousands of LOBs are stored in the database. If
-      your database contains more than a few hundreds of thousands of LOBs and
-      memory use becomes an issue, you can change one or all LOB schema tables
-      to CACHED tables. See the next section for details.</para>
+      <para>There is an internal LOBS schema in the database to strore the
+      id's, sizes and addresses of the LOBs (but not the actual LOBS) in a few
+      system tables. This schema is stored in the database as MEMORY tables.
+      Therefore the amount of JVM memory should be increased when more than
+      tens of thousands of LOBs are stored in the database. If your database
+      contains more than a few hundreds of thousands of LOBs and memory use
+      becomes an issue, you can change one or all LOB schema tables to CACHED
+      tables. See the next section for details.</para>
     </section>
 
     <section>
@@ -507,10 +509,10 @@
 
       <para>The Server has an option that allows databases to be created as
       needed by making a connection (see the Listeners Chapter). This option
-      is useful for testing, as your server is never shut down. Each time you
-      connect to the <glossterm>mem:</glossterm> database that is served by
-      the Server, the database is created if it does not exist (i.e. has been
-      previously shut down).</para>
+      is useful for testing, as your server is never shut down when a database
+      is shutdown. Each time you connect to the <glossterm>mem:</glossterm>
+      database that is served by the Server, the database is created if it
+      does not exist (i.e. has been previously shut down).</para>
 
       <para>If you do not want to run a Server instance, and you need
       persistence between tests in different processes, then you should use a
@@ -536,7 +538,7 @@
       when the connection commits. The write delay also has an effect on how
       soon the statements are written out.</para>
 
-      <para>The new SQL logging feature in version 2.1.1 and later records all
+      <para>The new SQL logging feature in version 2.2.x and later records all
       executed statements and can be used for debugging your
       application.</para>
 
@@ -546,17 +548,25 @@
       property "files_readonly=true" in the .properties file of the database.
       The tests can then modify the database, but these modifications are not
       persisted after the tests have completed.</para>
+
+      <para>Databases with "files_readonly=true" can be placed within the
+      classpath and in a jar file. In this case, the connection URL must use
+      the res: protocol, which treats the database as a resource.</para>
     </section>
 
     <section>
       <title>Embedded Databases in Desktop Applications</title>
 
       <para>In this usage, the amount of data change is often limited and
-      there is often a requirement to persist the data immediately. You can
-      use the property <literal>write_delay=false</literal> to force a disk
-      sync after each commit. Before the application is closed, you should
-      perform the SHUTDOWN command to ensure the database is opened instantly
-      when it is next opened.</para>
+      there is often a requirement to persist the data immediately. The
+      default write delay of .5 second is fine for many applications. You can
+      also use the property <literal>hsqldb.write_delay_millis=100</literal>
+      to reduce it to .1 second, or the property
+      <literal>hsqldb.write_delay=false</literal> to force a disk sync after
+      each commit. Before the application is closed, you should perform the
+      SHUTDOWN command to ensure the database is opened instantly when it is
+      next opened. Note you don't need to use SHUTDOWN COMPACT as
+      routine.</para>
     </section>
 
     <section>
@@ -628,7 +638,7 @@
       SHUTDOWN, the data is also persisted correctly. If you do not use
       CHECKPOINT or SHUTDOWN when you terminate the application, all the
       changes are lost and the database reverts to its original state when it
-      is opened.</para>
+      is opened without losing any of the original data.</para>
 
       <para>Your server applications can use a database as a temporary disk
       data cache which is not persisted past the lifetime of the application.
@@ -677,9 +687,18 @@
         </listitem>
 
         <listitem>
-          <para>If you have performed many thousands of updates or deletes, it
-          is a good idea to execute CHECKPOINT DEFRAG, instead of CHECKPOINT
-          at the end.</para>
+          <para>If you have performed many thousands of updates or deletes
+          (not just inserts), it is a good idea to execute CHECKPOINT DEFRAG,
+          instead of CHECKPOINT at the end.</para>
+        </listitem>
+
+        <listitem>
+          <para>If things go wrong during the bulk operation, for example when
+          a unique constraint violation aborts the operation, and you want to
+          redo the operation, just use SHUTDOWN IMMEDIATELY instead of
+          CHECKPOINT. When you restart the database it will revert to the
+          state at the first CHECKPOINT and the bulk operation can be
+          redone.</para>
         </listitem>
       </orderedlist>
     </section>
@@ -701,7 +720,7 @@
       last critical issue was fixed 2 years before the release of version
       2.0.</para>
 
-      <para>There are further enhancements in version 2.0</para>
+      <para>There are further enhancements in version 2.2</para>
 
       <itemizedlist>
         <listitem>
@@ -718,14 +737,32 @@
           <para>All files are synced at checkpoints and also just before
           closing.</para>
         </listitem>
+
+        <listitem>
+          <para>The data file is enlarged in block increments</para>
+        </listitem>
+
+        <listitem>
+          <para>The nio implementation has been improved</para>
+        </listitem>
       </itemizedlist>
 
       <para>Persistence relies on the JVM, the operating system, and the
       computer hardware. A database system like HSQLDB can perform millions of
       read and write operations in an hour. As system hardware and software
       can go wrong, it is impossible to achieve zero failure rate. Therefore
-      regular backups are recommended. HyperSQL 2.0 has built-in database
+      regular backups are recommended. HyperSQL 2.2 has built-in database
       backup and restore features, discussed elsewhere in this chapter.</para>
+
+      <para>A note regarding the nio implementation: This implementation
+      applies only to CACHED table data in the .data file. Other files are not
+      accessed via nio. There has been an issue with some JVM implementations
+      of nio not releasing the file buffers after they were closed. HyperSQL
+      uses a workaround which is recommended with Sun JVM's. This does not
+      apply to other JVM's. In such environments, it is therefore recommended
+      to test the CHECKPOINT DEFRAG operation and the shutting down and
+      restarting the database inside the same Java process extensively with
+      nio. Use of nio can be turned off if necessary.</para>
     </section>
   </section>
 
@@ -897,6 +934,8 @@
 
       <itemizedlist>
         <listitem>
+          <para>Names</para>
+
           <para>Names of tables, columns and indexes can be changed. These
           changes must be consistent regarding foreign key constraints.</para>
         </listitem>
@@ -2674,7 +2713,8 @@
       types. BINARY_DOUBLE and BINARY_FLOAT are translated to DOUBLE. LONG RAW
       and RAW are translated to VARBINARY with long or medium length limits.
       LONG and VARCHAR2 are translated to VARCHAR with long or medium length
-      limits. NUMBER is translated to DECIMAL.</simpara>
+      limits. NUMBER is translated to DECIMAL. Some extra type conversions and
+      no-arg functions are also allowed in this mode.</simpara>
 
       <simpara>The property is <literal>FALSE</literal> by default.</simpara>
 
@@ -3009,6 +3049,11 @@
       <simpara>This command can be used only when there is no data in CACHED
       tables. This is equivalent to the connection property
       <literal>hsqldb.cache_file_scale</literal>.</simpara>
+
+      <simpara>The scale factor indicates the size of the unit of storage of
+      data in bytes. For example, with a scale factor of 128, a row containing
+      a small amount of data will use 128 bytes. Larger rows may use multiple
+      units of 128 bytes.</simpara>
 
       <simpara>Only a user with the DBA role can execute this
       statement.</simpara>
