@@ -5046,11 +5046,20 @@ public class SqlFile {
                               || dataVals[i].equals(nullRepToken)) {
                             ps.setTimestamp(i + 1, null);
                         } else {
-                            dateString = (dataVals[i].indexOf(':') > 0)
-                                       ? dataVals[i]
-                                       : (dataVals[i] + " 0:00:00");
-                            // BEWARE:  This may not work for some foreign
+                            // BEWARE:  This may not work for some non-US
                             // date/time formats.
+                            if (dataVals[i].indexOf(':') > 0
+                                    && dataVals[i].indexOf('-') > 0) {
+                                dateString = dataVals[i];
+                            } else if (dataVals[i].indexOf(':') < 1) {
+                                dateString = dataVals[i] + " 0:00:00";
+                            } else if (dataVals[i].indexOf('-') < 1) {
+                                dateString = "0000-00-00 " + dataVals[i];
+                            } else {
+                                throw new RuntimeException(
+                                        "Unexpected date/time val: "
+                                        + dataVals[i]);
+                            }
                             try {
                                 ps.setTimestamp(i + 1,
                                         java.sql.Timestamp.valueOf(dateString));
