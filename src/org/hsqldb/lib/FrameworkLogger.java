@@ -82,6 +82,18 @@ import java.lang.reflect.Method;
  * @since 1.9.0
  */
 public class FrameworkLogger {
+    /*
+     * FrameworkLogger coders:  It would be convenient to be able to log
+     * states and such at debug level in this class.
+     * I tentatively think that using a logger instance early in the static
+     * lifecycle is too risky, possibly using the underlying plumbing before
+     * the application has had a chance to customize, and perhaps before
+     * classloaders have been re-prioritized, etc.
+     * Could be that it all works out ok, but make sure you consider all
+     * situations before logging with FrameworkLogger instances here.
+     * This is one reason why there are a couple uses of System.err below.
+     */
+
     /**
      * Utility method for integrators.
      * Returns a string representation of the active Logger instance keys.
@@ -103,7 +115,7 @@ public class FrameworkLogger {
     private Object         log4jLogger;
     private Logger         jdkLogger;
     static private boolean haveLoadedOurDefault;
-    static private ConsoleHandler  consoleHandler = new ConsoleHandler();
+    static private ConsoleHandler  consoleHandler;
     // No need for more than one static, since we have only one console
 
     static {
@@ -151,34 +163,8 @@ public class FrameworkLogger {
             log4jLoggerClass = null;
         }
 
-        if (log4jLoggerClass == null) try {
-            log4jGetLogger = null;
-            log4jLogMethod = null;
-            LogManager lm = LogManager.getLogManager();
-            if (haveLoadedOurDefault || isDefaultJdkConfig()) {
-                haveLoadedOurDefault = true;
-                consoleHandler.setFormatter(
-                        new BasicTextJdkLogFormatter(false));
-                consoleHandler.setLevel(Level.INFO);
-                lm.readConfiguration(
-                        FrameworkLogger.class.getResourceAsStream(
-                        "/org/hsqldb/resources/jdklogging-default.properties"));
-                Logger cmdlineLogger = Logger.getLogger("org.hsqldb.cmdline");
-                cmdlineLogger.addHandler(consoleHandler);
-                cmdlineLogger.setUseParentHandlers(false);
-            } else {
-                // Do not intervene.  Use JDK logging exactly as configured by
-                // user.
-                lm.readConfiguration();
-                // The only bad thing about doing this is that if the app has
-                // programmatically changed the logging config after starting
-                // the program but before using FrameworkLogger, we will
-                // clobber those customizations.
-            }
-        } catch (Exception e) {
-            throw new RuntimeException(
-                "<clinit> failure initializing JDK logging system", e);
-        } else try {
+        // Try log4j first so we can fall back to JUL if anything goes wrong.
+        if (log4jLoggerClass != null) try {
             Method log4jToLevel = Class.forName(
                 "org.apache.log4j.Level").getMethod(
                 "toLevel", new Class[]{ String.class });
@@ -219,9 +205,49 @@ public class FrameworkLogger {
 
             // This last object is what we toggle on to generate either
             // Log4j or Jdk Logger objects (to wrap).
+            return;  // Success for Log4j
+        } catch (Exception e) {
+            try {
+                System.err.println(
+                        "<clinit> failure instantiating present Log4j system: "
+                        + e);
+                // It's possible we don't have write access to System.err.
+            } catch (Throwable t) {
+                // Intentionally empty.  We tried our best to report problem,
+                // but don't want to throw and prevent JUL from working.
+            }
+        }
+
+        try {
+            log4jGetLogger = null;
+            log4jLogMethod = null;
+            LogManager lm = LogManager.getLogManager();
+            if (haveLoadedOurDefault || isDefaultJdkConfig()) {
+                haveLoadedOurDefault = true;
+                if (consoleHandler == null) {
+                    consoleHandler = new ConsoleHandler();
+                }
+                consoleHandler.setFormatter(
+                        new BasicTextJdkLogFormatter(false));
+                consoleHandler.setLevel(Level.INFO);
+                lm.readConfiguration(
+                        FrameworkLogger.class.getResourceAsStream(
+                        "/org/hsqldb/resources/jdklogging-default.properties"));
+                Logger cmdlineLogger = Logger.getLogger("org.hsqldb.cmdline");
+                cmdlineLogger.addHandler(consoleHandler);
+                cmdlineLogger.setUseParentHandlers(false);
+            } else {
+                // Do not intervene.  Use JDK logging exactly as configured by
+                // user.
+                lm.readConfiguration();
+                // The only bad thing about doing this is that if the app has
+                // programmatically changed the logging config after starting
+                // the program but before using FrameworkLogger, we will
+                // clobber those customizations.
+            }
         } catch (Exception e) {
             throw new RuntimeException(
-                "<clinit> failure instantiating present Log4j system", e);
+                "<clinit> failure initializing JDK logging system", e);
         }
     }
 
