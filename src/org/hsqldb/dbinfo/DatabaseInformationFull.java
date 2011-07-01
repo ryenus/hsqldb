@@ -3388,8 +3388,8 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
                 row[data_type] = "ARRAY";
             }
 
-            row[dtd_identifier] = type.getDefinition();
-            row[declared_data_type]    = row[data_type];
+            row[dtd_identifier]     = type.getDefinition();
+            row[declared_data_type] = row[data_type];
 
             // end common block
             Expression defaultExpression =
@@ -3523,7 +3523,10 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
                 row[collection_type_identifier] = type.getDefinition();
 
                 addTypeInfo(row, ((ArrayType) type).collectionBaseType());
-                t.insertSys(session, store, row);
+
+                try {
+                    t.insertSys(session, store, row);
+                } catch (HsqlException e) {}
             }
         }
 
@@ -3573,7 +3576,10 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
             row[collection_type_identifier] = type.getDefinition();
 
             addTypeInfo(row, ((ArrayType) type).collectionBaseType());
-            t.insertSys(session, store, row);
+
+            try {
+                t.insertSys(session, store, row);
+            } catch (HsqlException e) {}
         }
 
         it = database.schemaManager.databaseObjectIterator(
@@ -3602,7 +3608,10 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
                 row[collection_type_identifier] = type.getDefinition();
 
                 addTypeInfo(row, ((ArrayType) type).collectionBaseType());
-                t.insertSys(session, store, row);
+
+                try {
+                    t.insertSys(session, store, row);
+                } catch (HsqlException e) {}
             }
 
             Type returnType = type;
@@ -3630,7 +3639,10 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
                 row[collection_type_identifier] = type.getDefinition();
 
                 addTypeInfo(row, ((ArrayType) type).collectionBaseType());
-                t.insertSys(session, store, row);
+
+                try {
+                    t.insertSys(session, store, row);
+                } catch (HsqlException e) {}
             }
         }
 
@@ -3713,8 +3725,8 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
                 ValuePool.getLong(type.arrayLimitCardinality());
         }
 
-        row[dtd_identifier] = type.getDefinition();
-        row[declared_data_type]    = row[data_type];
+        row[dtd_identifier]     = type.getDefinition();
+        row[declared_data_type] = row[data_type];
     }
 
     /**
@@ -5906,8 +5918,8 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
                     row[data_type] = "ARRAY";
                 }
 
-                row[dtd_identifier] = type.getDefinition();
-                row[declared_data_type]    = row[data_type];
+                row[dtd_identifier]     = type.getDefinition();
+                row[declared_data_type] = row[data_type];
 
                 // end common block
             }

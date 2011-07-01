@@ -716,7 +716,12 @@ public class QuerySpecification extends QueryExpression {
             e.resolveTypes(session, parent);
 
             if (e.getType() == OpTypes.ROW) {
-                throw Error.error(ErrorCode.X_42564);
+                throw Error.error(ErrorCode.X_42565);
+            }
+
+            if (e.getDataType() != null
+                    && e.getDataType().typeCode == Types.SQL_ROW) {
+                throw Error.error(ErrorCode.X_42565);
             }
         }
 
