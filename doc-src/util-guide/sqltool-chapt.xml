@@ -3428,7 +3428,8 @@ java -jar $HSQLDB_HOME/lib/sqltool.jar urlid > /tmp/log.html 2>&1]]></screen>
             </simpara> <simpara>
                 To allow for user-friendly entry of headers, we require
                 that tables for DSV import/exports use standard column names.
-                I.e., no column names that require quoting.
+                I.e., no column names that would require quoting in interactive
+                SQL statements.
                 The DSV import and export parsers are very smart and
                 user-friendly.
                 The data types of columns are checked so that the parser can
