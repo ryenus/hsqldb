@@ -1836,7 +1836,56 @@
       </listitem>
     </orderedlist>
 
-    <para></para>
+    <para>HyperSQL security is multi-layered and avoids any loopholes to
+    circumvent security. It is however the user's responsibility to enable the
+    required level of security.</para>
+
+    <section>
+      <title>Security Defaults</title>
+
+      <para>The default setting are generally adequate for most embedded use
+      of the database or for servers on the host that are accessed from the
+      same machine. For servers accessed within a network, and especially for
+      those accessed from outside the network, additional security settings
+      must be used.</para>
+
+      <para>The default settings for server and web server do not use SSL or
+      IP access control lists. These features are enabled programatically, or
+      with the properties used to start the server.</para>
+
+      <para>The default settings allow a database user with the DBA role or
+      with schema creation role to access static functions on the classpath.
+      You can disable this feature or limit it to specific classes and
+      methods. This can be done programatically or by setting a system
+      property when you start a server.</para>
+
+      <para>If access to specific static functions is granted, then these
+      functions must be considered as part of the database program and checked
+      for any security flaws before inclusion in the classpath.</para>
+
+      <para>The default settings do not allow a user to access files outside
+      the database directory. This access is for TEXT table source files. You
+      can override this programatically or with a system property when you
+      start a server.</para>
+
+      <para>The encryption of database file does not utilise any user-supplied
+      information for encryption keys. This level of security is outside the
+      realm of users and passwords.</para>
+
+      <para>The first user for a new database has the DBA role. This user name
+      need not be SA. The name of the first DBA user and its password can be
+      specified when the database is created by the first connection to the
+      database. These settings are then stored in the database.</para>
+
+      <para>The initial user with the DBA role should be used for admin
+      purposes only. At least one additional role should be created for normal
+      databse use in the application and at least one additional user should
+      be created and granted this role. The new role should not be given the
+      DBA role. It can be given the CREATE_SCHEMA role, which allows it to
+      create and access multiple schemas. Alternatively, the user with the DBA
+      role can create the schemas and their objects and then grant specific
+      privileges on the objects to the non-DBA role.</para>
+    </section>
 
     <section>
       <title>Authentication Control</title>
