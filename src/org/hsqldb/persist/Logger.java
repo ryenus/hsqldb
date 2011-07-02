@@ -1372,8 +1372,7 @@ public class Logger {
             return String.valueOf(propCacheFileScale);
         }
 
-        if (HsqlDatabaseProperties.hsqldb_cache_free_count.equals(
-                name)) {
+        if (HsqlDatabaseProperties.hsqldb_cache_free_count.equals(name)) {
             return String.valueOf(this.propMaxFreeBlocks);
         }
 
@@ -1474,7 +1473,6 @@ public class Logger {
         if (HsqlDatabaseProperties.sql_longvar_is_lob.equals(name)) {
             return String.valueOf(database.sqlLongvarIsLob);
         }
-
 
 /*
         if (HsqlDatabaseProperties.sql_identity_is_pk.equals(name)) {
@@ -1898,6 +1896,35 @@ public class Logger {
         }
     }
 
+    /**
+     *  Returns a secure path or null for a user-defined path when
+     *  hsqldb.allow_full_path is false. Returns the path otherwise.
+     *
+     */
+    public String getSecurePath(String path) {
+
+        if (database.getType() == DatabaseURL.S_RES) {
+            return path;
+        }
+
+        if (!database.logger.propTextAllowFullPath) {
+            if (path.indexOf("..") != -1) {
+                return null;
+            }
+
+            String fullPath = new File(
+                new File(
+                    database.getPath()
+                    + ".properties").getAbsolutePath()).getParent();
+
+            if (fullPath != null) {
+                path = fullPath + File.separator + path;
+            }
+        }
+
+        return path;
+    }
+
     // fredt@users 20020221 - patch 513005 by sqlbob@users (RMP) - text tables
 
     /**
@@ -1908,20 +1935,10 @@ public class Logger {
 
         closeTextCache(table);
 
-        if (database.getType() != DatabaseURL.S_RES
-                && !database.logger.propTextAllowFullPath) {
-            if (source.indexOf("..") != -1) {
-                throw (Error.error(ErrorCode.ACCESS_IS_DENIED, source));
-            }
+        source = getSecurePath(source);
 
-            String path = new File(
-                new File(
-                    database.getPath()
-                    + ".properties").getAbsolutePath()).getParent();
-
-            if (path != null) {
-                source = path + File.separator + source;
-            }
+        if (source == null) {
+            throw (Error.error(ErrorCode.ACCESS_IS_DENIED, source));
         }
 
         TextCache c = new TextCache(table, source);

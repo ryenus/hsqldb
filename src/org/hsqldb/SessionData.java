@@ -582,6 +582,14 @@ public class SessionData {
 
     ClobData createClobFromFile(String filename, String encoding) {
 
+        session.checkAdmin();
+
+        filename = database.logger.getSecurePath(filename);
+
+        if (filename == null) {
+            throw (Error.error(ErrorCode.ACCESS_IS_DENIED, filename));
+        }
+
         File    file   = new File(filename);
         boolean exists = file.exists();
 
@@ -615,6 +623,14 @@ public class SessionData {
     }
 
     BlobData createBlobFromFile(String filename) {
+
+        session.checkAdmin();
+
+        filename = database.logger.getSecurePath(filename);
+
+        if (filename == null) {
+            throw (Error.error(ErrorCode.ACCESS_IS_DENIED, filename));
+        }
 
         File    file   = new File(filename);
         boolean exists = file.exists();
