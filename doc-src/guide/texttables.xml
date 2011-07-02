@@ -372,13 +372,22 @@
         contains the database, unless the
         <varname>textdb.allow_full_path</varname> property is set true as a
         Java system property. This feature is for security, otherwise an admin
-        database user may be able to open random files.</para>
+        database user may be able to open random files. The specified text
+        source path is interpreted differently according to this property. By
+        default, the path is interpreted as a relative path to the directory
+        path of database files, it therefore cannot contain the double dot
+        notation for parent directory. This path is then appended by the
+        engine to the directory path to form a full path. When the property is
+        true, the path is not appended to the directory path and is used as it
+        is to open the file. In this usage the path can be relative or
+        absolute.</para>
       </listitem>
 
       <listitem>
         <para>All-in-memory databases cannot create text tables, unless the
         <varname>textdb.allow_full_path</varname> property is set true as a
-        Java system property. These text tables are always read only.</para>
+        Java system property. In this usage, the path should be an absolute
+        path. These text tables are always read only.</para>
       </listitem>
 
       <listitem>
