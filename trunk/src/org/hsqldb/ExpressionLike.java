@@ -43,14 +43,13 @@ import org.hsqldb.types.Types;
  *
  * @author Campbell Boucher-Burnet (boucherb@users dot sourceforge.net)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.0.1
+ * @version 2.2.5
  * @since 1.9.0
  */
 public final class ExpressionLike extends ExpressionLogical {
 
     private static final int ESCAPE = 2;
     private Like             likeObject;
-    private boolean          isBinary;
 
     /**
      * Creates a LIKE expression
@@ -197,29 +196,58 @@ public final class ExpressionLike extends ExpressionLogical {
             throw Error.error(ErrorCode.X_42567);
         }
 
-        if (nodes[LEFT].dataType.isCharacterType()
-                && nodes[RIGHT].dataType.isCharacterType()
-                && (nodes[ESCAPE] == null
-                    || nodes[ESCAPE].dataType.isCharacterType())) {
-            boolean ignoreCase =
-                nodes[LEFT].dataType.typeCode == Types.VARCHAR_IGNORECASE
-                || nodes[RIGHT].dataType.typeCode == Types.VARCHAR_IGNORECASE;
+        switch (nodes[LEFT].dataType.typeComparisonGroup) {
 
-            likeObject.setIgnoreCase(ignoreCase);
-        } else if (nodes[LEFT].dataType.isBinaryType()
-                   && nodes[RIGHT].dataType.isBinaryType()
-                   && (nodes[ESCAPE] == null
-                       || nodes[ESCAPE].dataType.isBinaryType())) {
-            likeObject.isBinary = true;
-            isBinary            = true;
-        } else {
-            if (!session.database.sqlEnforceTypes
-                    && nodes[LEFT].opType == OpTypes.VALUE) {
-                nodes[LEFT].valueData = nodes[LEFT].getValue(session,
-                        Type.SQL_VARCHAR_DEFAULT);
-                nodes[LEFT].dataType = Type.SQL_VARCHAR_DEFAULT;
-            } else {
+            case Types.SQL_VARCHAR : {
+                if (nodes[RIGHT].dataType.isCharacterType()
+                        && (nodes[ESCAPE] == null
+                            || nodes[ESCAPE].dataType.isCharacterType())) {
+                    boolean ignoreCase =
+                        nodes[LEFT].dataType.typeCode == Types
+                            .VARCHAR_IGNORECASE || nodes[RIGHT].dataType
+                            .typeCode == Types.VARCHAR_IGNORECASE;
+
+                    likeObject.setIgnoreCase(ignoreCase);
+                } else {
+                    throw Error.error(ErrorCode.X_42563);
+                }
+
+                break;
+            }
+            case Types.SQL_VARBINARY : {
+                if (nodes[RIGHT].dataType.isBinaryType()
+                        && (nodes[ESCAPE] == null
+                            || nodes[ESCAPE].dataType.isBinaryType())) {
+                    likeObject.isBinary = true;
+                } else {
+                    throw Error.error(ErrorCode.X_42563);
+                }
+
+                break;
+            }
+            case Types.OTHER : {
                 throw Error.error(ErrorCode.X_42563);
+            }
+            default : {
+                if (session.database.sqlEnforceTypes) {
+                    throw Error.error(ErrorCode.X_42562);
+                }
+
+                nodes[LEFT] = ExpressionOp.getCastExpression(session,
+                        nodes[LEFT], Type.SQL_VARCHAR_DEFAULT);
+
+                if (nodes[RIGHT].dataType.isCharacterType()
+                        && (nodes[ESCAPE] == null
+                            || nodes[ESCAPE].dataType.isCharacterType())) {
+                    boolean ignoreCase = nodes[RIGHT].dataType.typeCode
+                                         == Types.VARCHAR_IGNORECASE;
+
+                    likeObject.setIgnoreCase(ignoreCase);
+                } else {
+                    throw Error.error(ErrorCode.X_42563);
+                }
+
+                break;
             }
         }
 
@@ -227,20 +255,19 @@ public final class ExpressionLike extends ExpressionLogical {
 
         boolean isRightArgFixedConstant = nodes[RIGHT].opType == OpTypes.VALUE;
 
-        if (isRightArgFixedConstant && isEscapeFixedConstant
-                && nodes[LEFT].opType == OpTypes.VALUE) {
-            setAsConstantValue(session);
-
-            likeObject = null;
-
-            return;
-        }
-
-        // always optimise with logical conditions
         if (isRightArgFixedConstant && isEscapeFixedConstant) {
+            if (nodes[LEFT].opType == OpTypes.VALUE) {
+                setAsConstantValue(session);
+
+                likeObject = null;
+
+                return;
+            }
+
             likeObject.isVariable = false;
         }
 
+        // always optimise with logical conditions
         Object pattern = isRightArgFixedConstant
                          ? nodes[RIGHT].getValue(session)
                          : null;
