@@ -350,23 +350,34 @@
       transaction has committed. The transaction then continues automatically.
       This isolation level is called READ CONSISTENCY.</para>
 
-      <para>Conflict is possible if each transaction is waiting for a
-      different row modified by the other transaction. In this case, one of
-      the transactions is immediately terminated unless the connection
-      property hsqldb.tx_deadlock_rollback=false has been set.</para>
+      <para>Deadlock is completely avoided. In theory conflict is possible if
+      each transaction is waiting for a different row modified by the other
+      transaction. In this case, one of the transactions is immediately
+      terminated (rolled back) unless the setting has been changed with the
+      <literal>&lt;set database transaction rollback on deadlock
+      statement&gt;</literal>. When this setting is changed to FALSE, the
+      session that avoided executing the deadlock-causing statement returns an
+      error, but without rolling back the previous actions. This will cause
+      the other transaction to wait for the current transaction. The property
+      should not be changed unless the application can quickly perform an
+      alternative statement to continue or roll back the transaction. This
+      allows maximum flexibility and compatibility with other database engines
+      which do not roll back the transaction upon deadlock. </para>
 
       <para>When transactions are running in REPEATABLE READ or SERIALIZABLE
       isolation levels, conflict is more likely to happen. There is no
       difference in operation between these two isolation levels. This
       isolation level is called SNAPSHOT ISOLATION.</para>
 
-      <para>When the duration of two transactions overlaps, if one of the
-      transactions has modified a row and the second transaction wants to
-      modify the same row, the action of the second transaction will fail. The
-      engine will invalidate the second transaction and roll back all its
-      changes. The default behaviour can be changed for the whole database if
-      the connection property hsqldb.tx_deadlock_rollback=false has been
-      set.</para>
+      <para>In this mode, when the duration of two transactions overlaps, if
+      one of the transactions has modified a row and the second transaction
+      wants to modify the same row, the action of the second transaction will
+      fail. The engine will invalidate the second transaction and roll back
+      all its changes. If the setting is changed to false with the
+      <literal>&lt;set database transaction rollback on deadlock
+      statement&gt;</literal>, then the second transaction will just return an
+      error without rolling back. The application must perform an alternative
+      statement to continue or roll back the transaction.</para>
 
       <para>In the MVCC model, READ UNCOMMITTED is promoted to READ COMMITTED,
       as the new architecture is based on multi-version rows for uncommitted
@@ -571,23 +582,6 @@
     transactional SQL statements start a transaction automatically, therefore
     using this statement is not necessary. If the statement is called in the
     middle of a transaction, an exception is thrown.</simpara>
-
-    <indexterm significance="preferred" type="sql">
-      <primary>SET DATABASE TRANSACTION CONTROL</primary>
-    </indexterm>
-
-    <simpara><emphasis role="bold">SET DATABASE TRANSACTION
-    CONTROL</emphasis></simpara>
-
-    <simpara><emphasis>set database transaction control</emphasis></simpara>
-
-    <simpara><literal>&lt;set database transaction control statement&gt; ::=
-    SET DATABASE TRANSACTION CONTROL { LOCKS | MVLOCKS | MVCC
-    }</literal></simpara>
-
-    <simpara>Set the concurrency control model for the whole database. It will
-    wait until all sessions have been committed or rolled back. The default is
-    LOCKS.</simpara>
 
     <indexterm significance="preferred" type="sql">
       <primary>SET TRANSACTION</primary>

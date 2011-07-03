@@ -1661,6 +1661,8 @@
 
         <listitem>
           <para>Fine control over MVCC deadlock avoidance is provided by the
+          <literal>&lt;set database transaction rollback on deadlock
+          statement&gt;</literal> and the corresonding
           <literal>hsqldb.tx_deadlock_rollback</literal> connection
           property.</para>
         </listitem>
@@ -2295,6 +2297,35 @@
       statement.</simpara>
 
       <indexterm significance="preferred" type="sql">
+        <primary>SET DATABASE TRANSACTION ROLLBACK ON DEADLOCK</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">SET DATABASE TRANSACTION ROLLBACK ON
+      DEADLOCK</emphasis></simpara>
+
+      <simpara><emphasis>set database transaction rollback on deadlock
+      statement</emphasis></simpara>
+
+      <simpara><literal>&lt;set database transaction rollback on deadlock
+      statement&gt; ::= SET DATABASE TRANSACTION ROLLBACK ON DEACLOCK { TRUE |
+      FALSE }</literal></simpara>
+
+      <simpara>When a deadlock is about to happen, the current transaction is
+      rolled back and an exception is raised. When this property is set false,
+      the transaction is not rolled back. This will cause the other
+      transaction to wait for the current transaction. The property should not
+      be changed unless the application can quickly perform an alternative
+      statement and complete the transaction. It is provided for compatibility
+      with other database engines which do not roll back the transaction upon
+      deadlock. This command is also discussed in the <link
+      endterm="sessions-title" xlink:href="#sqlroutines-chapt"></link>
+      chapter. This is equivalent to the connection property
+      <literal>hsqldb.tx_deadlock_rollback</literal>.</simpara>
+
+      <simpara>Only a user with the DBA role can execute this
+      statement.</simpara>
+
+      <indexterm significance="preferred" type="sql">
         <primary>SET DATABASE DEFAULT ISOLATION LEVEL</primary>
       </indexterm>
 
@@ -2453,8 +2484,10 @@
       <simpara>This command can enable or disable full enforcement of the
       rules that prevents illegal type conversions and parameters or nulls
       without type in SQL statements (usually SELECT statements). For example
-      an INTEGER column cannot be compared to a character string when
-      enforcement is <literal>TRUE</literal>.</simpara>
+      an INTEGER or column or a DATE column cannot be compared to a character
+      string or searched with a LIKE expression. when enforcement is
+      <literal>TRUE</literal>. These operations are allowed by
+      default.</simpara>
 
       <simpara>This is equivalent to the connection property
       <literal>sql.enforce_type</literal>.</simpara>
@@ -2493,7 +2526,8 @@
       <literal>sql.enforce_tdc_delete</literal>.</simpara>
 
       <simpara>The property is <literal>TRUE</literal> by default and
-      shouldn't be changed unless a legacy application needs it.</simpara>
+      shouldn't be changed unless an application written for a non-conforming
+      RDBMS needs it.</simpara>
 
       <simpara>Only a user with the DBA role can execute this
       statement.</simpara>
@@ -2513,9 +2547,9 @@
 
       <simpara>This command can enable or disable full enforcement of the SQL
       Standard rules that prevents triggered data change exeptions caused by
-      multiple ON UPDATE or ON DELETE clauses of foreign key constraint. When
-      there are multiple constraints, a field in a row may be updated by two
-      constraints to different valuesin the same operation. This is not
+      multiple ON UPDATE or ON DELETE SET clauses of foreign key constraint.
+      When there are multiple constraints, a field in a row may be updated by
+      two constraints to different values in the same operation. This is not
       allowed by default. Changing this to <literal>FALSE</literal> allows
       such violations of the Standard to pass without an exception.</simpara>
 
@@ -2523,7 +2557,8 @@
       <literal>sql.enforce_tdc_update</literal>.</simpara>
 
       <simpara>The property is <literal>TRUE</literal> by default and
-      shouldn't be changed unless a legacy application needs it.</simpara>
+      shouldn't be changed unless an application written for a non-conforming
+      RDBMS needs it.</simpara>
 
       <simpara>Only a user with the DBA role can execute this
       statement.</simpara>
