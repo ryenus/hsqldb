@@ -808,6 +808,10 @@ public class ExpressionLogical extends Expression {
                     // compatibility for BIT with number and BOOLEAN - convert bit to other type
                 } else if (nodes[LEFT].dataType.isBitType()
                            || nodes[LEFT].dataType.isBooleanType()) {
+                    if (session.database.sqlEnforceTypes) {
+                        throw Error.error(ErrorCode.X_42562);
+                    }
+
                     if (nodes[LEFT].dataType.canConvertFrom(
                             nodes[RIGHT].dataType)) {
                         nodes[RIGHT] = ExpressionOp.getCastExpression(session,
@@ -815,6 +819,10 @@ public class ExpressionLogical extends Expression {
                     }
                 } else if (nodes[RIGHT].dataType.isBitType()
                            || nodes[RIGHT].dataType.isBooleanType()) {
+                    if (session.database.sqlEnforceTypes) {
+                        throw Error.error(ErrorCode.X_42562);
+                    }
+
                     if (nodes[RIGHT].dataType.canConvertFrom(
                             nodes[LEFT].dataType)) {
                         nodes[LEFT] = ExpressionOp.getCastExpression(session,
