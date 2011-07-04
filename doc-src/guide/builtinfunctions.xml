@@ -146,6 +146,21 @@
     character of <literal>&lt;char value expr&gt;</literal>. (JDBC)</para>
 
     <indexterm significance="preferred" type="sql">
+      <primary>BIT_LENGTH function</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">BIT_LENGTH</emphasis></simpara>
+
+    <para><literal>BIT_LENGTH ( &lt;string value expression&gt;
+    )</literal></para>
+
+    <para>BIT_LENGTH can be used with character, binary and bit strings. It
+    return a BIGINT value that measures the bit length of the string.
+    (Foundation)</para>
+
+    <para>See also CHARACTER_LENGTH and OCTET_LENGTH.</para>
+
+    <indexterm significance="preferred" type="sql">
       <primary>CHAR function</primary>
     </indexterm>
 
@@ -157,6 +172,30 @@
     single character that has the specified<literal> &lt;UNICODE
     code&gt;</literal>, which is an integer. ASCII codes are a subset of the
     allowed values for <literal>&lt;UNICODE code&gt;</literal>. (JDBC)</para>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>CHAR_LENGTH</primary>
+    </indexterm>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>CHARACTER_LENGTH</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">CHARACTER_LENGTH</emphasis></simpara>
+
+    <para><literal>{ CHAR_LENGTH | CHARACTER_LENGTH } ( &lt;char value
+    expression&gt; [ USING { CHARACTERS | OCTETS } ] )</literal></para>
+
+    <para>The CHAR_LENGTH or CHARACTER_LENGTH function can be used with
+    character strings, while OCTET_LENGTH can be used with character or binary
+    strings and BIT_LENGTH can be used with character, binary and bit
+    strings.</para>
+
+    <para>All functions return a BIGINT value that measures the length of the
+    string in the given unit. CHAR_LENGTH counts characters, OCTET_LENGTH
+    counts octets and BIT_LENGTH counts bits in the string. For CHAR_LENGTH,
+    if <literal>[ USING OCTETS ] </literal>is specified, the octet count is
+    returned, which is twice the normal length. (Foundation)</para>
 
     <indexterm significance="preferred" type="sql">
       <primary>CONCAT function</primary>
@@ -311,6 +350,66 @@
     expr&gt;</literal> with the leading space characters removed. Equivalent
     to SQL/Foundation <literal>TRIM( LEADING ' ' FROM &lt;char value expr&gt;
     )</literal>. (JDBC)</para>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>OCTET_LENGTH function</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">OCTET_LENGTH</emphasis></simpara>
+
+    <para><literal>OCTET_LENGTH ( &lt;string value expression&gt;
+    )</literal></para>
+
+    <para>The OCTET_LENGTH function can be used with character or binary
+    strings.</para>
+
+    <para>Return a BIGINT value that measures the length of the string in
+    octets<literal>. When used with character strings</literal>, the octet
+    count is returned, which is twice the normal length. (Foundation)</para>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>OVERLAY function</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">OVERLAY</emphasis></simpara>
+
+    <para><literal>OVERLAY ( &lt;char value expr 1&gt; PLACING &lt;char value
+    expr 2&gt;</literal></para>
+
+    <para><literal>FROM &lt;start position&gt; [ FOR &lt;string length&gt; ] [
+    USING CHARACTERS ] )</literal></para>
+
+    <para><literal>OVERLAY ( &lt;binary value expr 1&gt; PLACING &lt;binary
+    value expr 2&gt;</literal></para>
+
+    <para><literal>FROM &lt;start position&gt; [ FOR &lt;string length&gt; ]
+    )</literal></para>
+
+    <para>The character version of OVERLAY returns a character string based on
+    <literal>&lt;char value expr 1&gt;</literal> in which <literal>&lt;string
+    length&gt;</literal> characters have been removed from the
+    <literal>&lt;start position&gt;</literal> and in their place, the whole
+    <literal>&lt;char value expr 2&gt;</literal> is copied.</para>
+
+    <para>The binary version of OVERLAY returns a binary string formed in the
+    same manner as the character version. (Foundation)</para>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>POSITION function</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">POSITION</emphasis></simpara>
+
+    <para><literal>POSITION ( &lt;char value expr 1&gt; IN &lt;char value expr
+    2&gt; [ USING CHARACTERS ] )</literal></para>
+
+    <para><literal>POSITION ( &lt;binary value expr 1&gt; IN &lt;binary value
+    expr 2&gt; )</literal></para>
+
+    <para>The character and binary versions of POSITION search the string
+    value of the second argument for the first occurrence of the first
+    argument string. If the search is successful, the position in the string
+    is returned as a BIGINT. Otherwise zero is returned. (Foundation)</para>
 
     <indexterm significance="preferred" type="sql">
       <primary>RAWTOHEX function</primary>
@@ -490,100 +589,6 @@
     position. (JDBC)</para>
 
     <indexterm significance="preferred" type="sql">
-      <primary>UCASE function</primary>
-    </indexterm>
-
-    <simpara><emphasis role="bold">UCASE</emphasis></simpara>
-
-    <para><literal>UCASE ( &lt;char value expr&gt; ) </literal></para>
-
-    <para>Returns a character string that is the lower case version of the
-    <literal>&lt;char value expr&gt;</literal>. Equivalent to SQL/Foundation
-    <literal>UPPER( &lt;char value expr&gt; )</literal> . (JDBC)</para>
-
-    <indexterm significance="preferred" type="sql">
-      <primary>CHARACTER_LENGTH</primary>
-    </indexterm>
-
-    <simpara><emphasis role="bold">CHARACTER_LENGTH</emphasis></simpara>
-
-    <para><literal>{ CHAR_LENGTH | CHARACTER_LENGTH } ( &lt;char value
-    expression&gt; [ USING { CHARACTERS | OCTETS } ] )</literal></para>
-
-    <indexterm significance="preferred" type="sql">
-      <primary>OCTET_LENGTH function</primary>
-    </indexterm>
-
-    <simpara><emphasis role="bold">OCTET_LENGTH</emphasis></simpara>
-
-    <para><literal>OCTET_LENGTH ( &lt;string value expression&gt;
-    )</literal></para>
-
-    <indexterm significance="preferred" type="sql">
-      <primary>BIT_LENGTH function</primary>
-    </indexterm>
-
-    <simpara><emphasis role="bold">BIT_LENGTH</emphasis></simpara>
-
-    <para><literal>BIT_LENGTH ( &lt;string value expression&gt;
-    )</literal></para>
-
-    <para>The CHAR_LENGTH or CHARACTER_LENGTH function can be used with
-    character strings, while OCTET_LENGTH can be used with character or binary
-    strings and BIT_LENGTH can be used with character, binary and bit
-    strings.</para>
-
-    <para>All functions return a BIGINT value that measures the length of the
-    string in the given unit. CHAR_LENGTH counts characters, OCTET_LENGTH
-    counts octets and BIT_LENGTH counts bits in the string. For CHAR_LENGTH,
-    if <literal>[ USING OCTETS ] </literal>is specified, the octet count is
-    returned. (Foundation)</para>
-
-    <indexterm significance="preferred" type="sql">
-      <primary>OVERLAY function</primary>
-    </indexterm>
-
-    <simpara><emphasis role="bold">OVERLAY</emphasis></simpara>
-
-    <para><literal>OVERLAY ( &lt;char value expr 1&gt; PLACING &lt;char value
-    expr 2&gt;</literal></para>
-
-    <para><literal>FROM &lt;start position&gt; [ FOR &lt;string length&gt; ] [
-    USING CHARACTERS ] )</literal></para>
-
-    <para><literal>OVERLAY ( &lt;binary value expr 1&gt; PLACING &lt;binary
-    value expr 2&gt;</literal></para>
-
-    <para><literal>FROM &lt;start position&gt; [ FOR &lt;string length&gt; ]
-    )</literal></para>
-
-    <para>The character version of OVERLAY returns a character string based on
-    <literal>&lt;char value expr 1&gt;</literal> in which <literal>&lt;string
-    length&gt;</literal> characters have been removed from the
-    <literal>&lt;start position&gt;</literal> and in their place, the whole
-    <literal>&lt;char value expr 2&gt;</literal> is copied.</para>
-
-    <para>The binary version of OVERLAY returns a binary string formed in the
-    same manner as the character version. (Foundation)</para>
-
-    <indexterm significance="preferred" type="sql">
-      <primary>POSITION function</primary>
-    </indexterm>
-
-    <simpara><emphasis role="bold">POSITION</emphasis></simpara>
-
-    <para><literal>POSITION ( &lt;char value expr 1&gt; IN &lt;char value expr
-    2&gt; [ USING CHARACTERS ] )</literal></para>
-
-    <para><literal>POSITION ( &lt;binary value expr 1&gt; IN &lt;binary value
-    expr 2&gt; )</literal></para>
-
-    <para>The character and binary versions of POSITION search the string
-    value of the second argument for the first occurrence of the first
-    argument string. If the search is successful, the position in the string
-    is returned as a BIGINT. Otherwise zero is returned. (Foundation)</para>
-
-    <indexterm significance="preferred" type="sql">
       <primary>SUBSTRING function</primary>
     </indexterm>
 
@@ -632,6 +637,29 @@
     <literal>&lt;trim octet&gt; </literal>are removed in the same manner as in
     the character version. If<literal> [ &lt;trim octet&gt; ]</literal> is not
     specified, the 0 octet is used as default. (Foundation)</para>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>UCASE function</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">UCASE</emphasis></simpara>
+
+    <para><literal>UCASE ( &lt;char value expr&gt; ) </literal></para>
+
+    <para>Returns a character string that is the upper case version of the
+    <literal>&lt;char value expr&gt;</literal>. Equivalent to SQL/Foundation
+    <literal>UPPER( &lt;char value expr&gt; )</literal> . (JDBC)</para>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>UPPER function</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">UPPER</emphasis></simpara>
+
+    <para><literal>UPPER ( &lt;char value expr&gt; ) </literal></para>
+
+    <para>Returns a character string that is the upper case version of the
+    <literal>&lt;char value expr&gt;</literal> . (Foundation)</para>
   </section>
 
   <section xml:id="builtin_functions_numeric-sect">
@@ -929,7 +957,9 @@
     <para>This function rounds values ending with .5 or larger away from zero
     for DECIMAL arguments and results. When the value ends with .5 or larger
     and the argument and result are DOUBLE, It rounds the value towards the
-    closest even value. (JDBC)</para>
+    closest even value. </para>
+
+    <para>The datetime version is discussed in the next section. (JDBC)</para>
 
     <indexterm significance="preferred" type="sql">
       <primary>SIGN function</primary>
@@ -1511,36 +1541,6 @@ WIDTH_BUCKET( 200, 10, 110, 10)
     datetime value is rounded to the nearest day. (HyperSQL)</para>
 
     <indexterm significance="preferred" type="sql">
-      <primary>TRUNC function datetime</primary>
-    </indexterm>
-
-    <simpara><emphasis role="bold">TRUNC</emphasis></simpara>
-
-    <para><literal>TRUNC ( &lt;datetime value expr&gt; [ , &lt;char value
-    expr&gt; ] ) </literal></para>
-
-    <para>Similar to the ROUND function, the <literal>&lt;num value expr&gt;
-    </literal>is of DATE, TIME or TIMESTAMP type. The <literal>&lt;char value
-    expr&gt;</literal> is a format string for YEAR, MONTH, WEEK OF YEAR, DAY,
-    HOUR, MINUTE or SECOND as listed in the table for TO_CHAR and TO_DATE
-    format elements (see below). The datetime value is truncated after the
-    specified field and the rest of the fields to the right are set to one for
-    MONTH and DAY, or zero, for the rest of the fields. For example applying
-    TRUNC to a timestamp value on the DAY field results in midnight the same
-    date. Examples of ROUND and TRUNC functions are given below. If the second
-    argument is omitted, the datetime value is truncated to midnight the same
-    date. (HyperSQL)</para>
-
-    <programlisting>ROUND ( TIMESTAMP'2008-08-01 20:30:40', 'YYYY' )
-
-'2009-01-01 00:00:00'
-
-TRUNC ( TIMESTAMP'2008-08-01 20:30:40', 'YYYY' )
-
-'2008-01-01 00:00:00'
-</programlisting>
-
-    <indexterm significance="preferred" type="sql">
       <primary>TO_CHAR function</primary>
     </indexterm>
 
@@ -1714,7 +1714,7 @@ TIMESTAMP '2008-11-22 20:30:40.000000'
           <row>
             <entry><literal>DD</literal></entry>
 
-            <entry><para>Day of month (1-31).</para></entry>
+            <entry><para>Day of month (01-31).</para></entry>
           </row>
 
           <row>
@@ -1732,31 +1732,31 @@ TIMESTAMP '2008-11-22 20:30:40.000000'
           <row>
             <entry><literal>HH</literal></entry>
 
-            <entry><para>Hour of day (0-11).</para></entry>
+            <entry><para>Hour of day (00-11).</para></entry>
           </row>
 
           <row>
             <entry><literal>HH12</literal></entry>
 
-            <entry><para>Hour of day (0-11).</para></entry>
+            <entry><para>Hour of day (00-11).</para></entry>
           </row>
 
           <row>
             <entry><literal>HH24</literal></entry>
 
-            <entry><para>Hour of day (0-23).</para></entry>
+            <entry><para>Hour of day (00-23).</para></entry>
           </row>
 
           <row>
             <entry><literal>MI</literal></entry>
 
-            <entry><para>Minute (0-59).</para></entry>
+            <entry><para>Minute (00-59).</para></entry>
           </row>
 
           <row>
             <entry><literal>SS</literal></entry>
 
-            <entry><para>Second (0-59).</para></entry>
+            <entry><para>Second (00-59).</para></entry>
           </row>
 
           <row>
@@ -1774,11 +1774,29 @@ TIMESTAMP '2008-11-22 20:30:40.000000'
 
     <simpara><emphasis role="bold">TRUNC</emphasis></simpara>
 
-    <para><literal>TRUNC ( &lt;datetime value expr&gt;, &lt;char value
-    expr&gt; ) </literal></para>
+    <para><literal>TRUNC ( &lt;datetime value expr&gt; [ , &lt;char value
+    expr&gt; ] ) </literal></para>
 
-    <para>This function is similar to the ROUND datatime function. It
-    truncates the datetime value instead of rounding. (HyperSQL)</para>
+    <para>Similar to the ROUND function, the <literal>&lt;num value expr&gt;
+    </literal>is of DATE, TIME or TIMESTAMP type. The <literal>&lt;char value
+    expr&gt;</literal> is a format string for YEAR, MONTH, WEEK OF YEAR, DAY,
+    HOUR, MINUTE or SECOND as listed in the table for TO_CHAR and TO_DATE
+    format elements (see above). The datetime value is truncated after the
+    specified field and the rest of the fields to the right are set to one for
+    MONTH and DAY, or zero, for the rest of the fields. For example applying
+    TRUNC to a timestamp value on the DAY field results in midnight the same
+    date. Examples of ROUND and TRUNC functions are given below. If the second
+    argument is omitted, the datetime value is truncated to midnight the same
+    date. (HyperSQL)</para>
+
+    <programlisting>ROUND ( TIMESTAMP'2008-08-01 20:30:40', 'YYYY' )
+
+'2009-01-01 00:00:00'
+
+TRUNC ( TIMESTAMP'2008-08-01 20:30:40', 'YYYY' )
+
+'2008-01-01 00:00:00'
+</programlisting>
 
     <indexterm significance="preferred" type="sql">
       <primary>UNIX_TIMESTAMP function</primary>
