@@ -301,7 +301,7 @@ public class ServerProperties extends HsqlProperties {
                  getMeta(sc_key_silent, SERVER_PROPERTY, false));
         meta.put(sc_key_trace, getMeta(sc_key_trace, SERVER_PROPERTY, false));
         meta.put(sc_key_tls, getMeta(sc_key_tls, SERVER_PROPERTY, false));
-        meta.put(sc_key_acl, getMeta(sc_key_acl, SERVER_PROPERTY, false));
+        meta.put(sc_key_acl, getMeta(sc_key_acl, SERVER_PROPERTY, null));
         meta.put(sc_key_autorestart_server,
                  getMeta(sc_key_autorestart_server, SERVER_PROPERTY, false));
         meta.put(sc_key_remote_open_db,
