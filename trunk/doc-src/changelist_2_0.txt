@@ -1,7 +1,8 @@
-5 July 2011 - version 2.2.5
+4 July 2011 - version 2.2.5
 -- fixed UNNEST in subquery
 -- fixed issue with INFORMATION_SCHEMA.ELEMENT_TYPES view
 -- fixed missing exception when table functions were used as SELECT items
+-- fixed regression with server ACL file load
 -- added support for UNNEST with multiple ARRAY args
 -- added SYSTIMESTAMP function
 -- dba privilege required for LOAD_FILE function
