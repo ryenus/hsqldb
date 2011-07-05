@@ -897,6 +897,11 @@ public class QuerySpecification extends QueryExpression {
 
         setRangeVariableConditions(session);
 
+        if (rangeVariables.length > 1) {
+            isMergeable = false;
+            isUpdatable = false;
+        }
+
         if (isAggregated && !isGrouped && !sortAndSlice.hasOrder()
                 && !sortAndSlice.hasLimit() && aggregateSet.size() == 1
                 && indexLimitVisible == 1) {
