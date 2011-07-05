@@ -386,15 +386,15 @@ public class Collation implements SchemaObject {
     }
 
     public HsqlName getSchemaName() {
-        return SqlInvariants.INFORMATION_SCHEMA_HSQLNAME;
+        return name.schema;
     }
 
     public HsqlName getCatalogName() {
-        return null;
+        return name.schema.schema;
     }
 
     public Grantee getOwner() {
-        return SqlInvariants.INFORMATION_SCHEMA_HSQLNAME.owner;
+        return name.schema.owner;
     }
 
     public OrderedHashSet getReferences() {
