@@ -3311,4 +3311,75 @@ public static java.sql.Array accessExternalMethod(String database, String user, 
 </programlisting>
     </section>
   </section>
+
+  <section>
+    <title>Ivy and Maven Dependency Settings</title>
+    <simpara>
+      This section is about building applications that have build-time
+      dependencies upon HyperSQL with Ivy, Maven, or other build tools that
+      use Ivy or Maven, such as Gradle.
+    </simpara>
+    <para>
+      Most developers are recommended to depend upon the latest public
+      version of HyperSQL with a range pattern like
+      <literal>[2,)</literal>, as described below.
+      (Note that Ivy supports the exclusive <literal>[</literal>, whereas
+      Maven supports only the inclusive <literal>]</literal> specifier.
+      See the relevant Ivy or Maven documentation for details.)
+      There are cases where you should depend on a specific version instead.
+      <itemizedlist>
+        <listitem><simpara>
+          Your application has code dependencies upon version-specific
+          details of the HyperSQL distribution.
+          In this case, the specific dependency specification should be
+          checked in to your source code control system alongside the code
+          that manifests the version-dependency.
+          If your code is enhanced to use a newer version of HyperSQL, you
+          should update the version specification so that whenever code +
+          configs are checked out, the dependency will always match the code.
+        </simpara></listitem>
+        <listitem><simpara>
+          Your organization only allows the use of vetted libraries.
+          In this case, you vigorously maintain your configurations, updating
+          your dependencies and and regression testing as soon as new
+          versions of HyperSQL are vetted.
+          To get the best performance and reliability from HyperSQL, you
+          should urge the appropriate parties to vet new versions as
+          soon as they are publicly released.
+        </simpara></listitem>
+        <listitem><simpara>
+          You need precisely reproducible builds.
+        </simpara></listitem>
+      </itemizedlist>
+      If none of these situations apply to you, then follow the examples
+      below.
+      If you need to specify a specific version, change the version range
+      specifications below to literal versions like <literal>2.2.5</literal>.
+    </para>
+
+    <example><title>Sample Ivy Dependency</title>
+      <programlisting>
+       &lt;dependency org="org.hsqldb" name="hsqldb" rev="]2,)" conf="j6-&gt;default"/&gt;</programlisting>
+      <simpara>
+        The range pattern here means the latest version greater than version
+        <literal>2</literal>.
+      </simpara>
+    </example>
+
+    <example><title>Sample Maven Dependency</title>
+      <programlisting>
+        &lt;dependency&gt;
+          &lt;groupId&gt;org.hsqldb&lt;groupId&gt;
+          &lt;artifactId&gt;hsqldb&lt;artifactId&gt;
+          &lt;version&gt;[2,)&lt;version&gt;
+          &lt;!- Scope defaults to "compile":
+          &lt;scope&gt;test&lt;scope&gt;
+          -&gt;
+        &lt;dependency&gt;</programlisting>
+      <simpara>
+        The range pattern here means the latest version equal or greater than
+        version <literal>2</literal>.
+      </simpara>
+    </example>
+  </section>
 </chapter>
