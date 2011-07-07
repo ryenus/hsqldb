@@ -70,7 +70,6 @@ public abstract class Statement {
     boolean           isError;
     boolean           isTransactionStatement;
     boolean           isExplain;
-    int               metaDataImpact;
 
     /** SQL string for the statement */
     String sql;
@@ -89,6 +88,9 @@ public abstract class Statement {
 
     //
     OrderedHashSet references;
+
+    //
+    int cursorPropertiesRequest;
 
     public abstract Result execute(Session session);
 
@@ -252,5 +254,13 @@ public abstract class Statement {
 
     public int getStatementReturnType() {
         return statementReturnType;
+    }
+
+    public int getCursorPropertiesRequest() {
+        return cursorPropertiesRequest;
+    }
+
+    public void setCursorPropertiesRequest(int props) {
+        cursorPropertiesRequest = props;
     }
 }

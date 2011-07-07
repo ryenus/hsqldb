@@ -509,10 +509,14 @@ public final class ResultMetaData {
 
     public boolean areTypesCompatible(ResultMetaData newMeta) {
 
-        if (type == PARAM_METADATA) {
-            return columnCount == newMeta.columnCount;
-        } else if (type == RESULT_METADATA) {
-            return columnCount == newMeta.columnCount;
+        if (columnCount != newMeta.columnCount) {
+            return false;
+        }
+
+        for (int i = 0; i < columnCount; i++) {
+            if (!columnTypes[i].canConvertFrom(newMeta.columnTypes[i])) {
+                return false;
+            }
         }
 
         return true;
