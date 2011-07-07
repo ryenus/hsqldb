@@ -34,9 +34,9 @@ package org.hsqldb;
 import org.hsqldb.HsqlNameManager.HsqlName;
 import org.hsqldb.lib.IntKeyHashMap;
 import org.hsqldb.lib.LongKeyHashMap;
+import org.hsqldb.lib.LongKeyIntValueHashMap;
 import org.hsqldb.lib.LongValueHashMap;
 import org.hsqldb.result.Result;
-import org.hsqldb.result.ResultMetaData;
 
 /**
  * This class manages the reuse of Statement objects for prepared
@@ -87,6 +87,9 @@ public final class StatementManager {
     /** Map: Compiled statment id (int) => CompiledStatement object. */
     private LongKeyHashMap csidMap;
 
+    /** Map: Compiled statment id (int) => number of uses of the statement */
+    private LongKeyIntValueHashMap useMap;
+
     /**
      * Monotonically increasing counter used to assign unique ids to compiled
      * statements.
@@ -104,6 +107,7 @@ public final class StatementManager {
         this.database = database;
         schemaMap     = new IntKeyHashMap();
         csidMap       = new LongKeyHashMap();
+        useMap        = new LongKeyIntValueHashMap();
         next_cs_id    = 0;
     }
 
@@ -114,6 +118,7 @@ public final class StatementManager {
 
         schemaMap.clear();
         csidMap.clear();
+        useMap.clear();
 
         next_cs_id = 0;
     }
@@ -220,6 +225,7 @@ public final class StatementManager {
         // revalidate with the original schema
         try {
             HsqlName schema = cs.getSchemaName();
+            int      props  = cs.getCursorPropertiesRequest();
 
             if (schema != null) {
 
@@ -229,8 +235,9 @@ public final class StatementManager {
 
             boolean setGenerated = cs.generatedResultMetaData() != null;
 
-            newStatement = session.compileStatement(cs.getSQL(),
-                    cs.getResultProperties());
+            newStatement = session.compileStatement(cs.getSQL(), props);
+
+            newStatement.setCursorPropertiesRequest(props);
 
             if (!cs.getResultMetaData().areTypesCompatible(
                     newStatement.getResultMetaData())) {
@@ -241,8 +248,6 @@ public final class StatementManager {
                     newStatement.getParametersMetaData())) {
                 return null;
             }
-
-            ResultMetaData newMeta = newStatement.getResultMetaData();
 
             newStatement.setCompileTimestamp(
                 database.txManager.getGlobalChangeTimestamp());
@@ -316,6 +321,14 @@ public final class StatementManager {
             return;
         }
 
+        int useCount = useMap.get(csid, 1);
+
+        if (useCount > 1) {
+            useMap.put(csid, useCount - 1);
+
+            return;
+        }
+
         Statement cs = (Statement) csidMap.remove(csid);
 
         if (cs != null) {
@@ -326,6 +339,8 @@ public final class StatementManager {
 
             sqlMap.remove(sql);
         }
+
+        useMap.remove(csid);
     }
 
     /**
@@ -338,19 +353,37 @@ public final class StatementManager {
     synchronized Statement compile(Session session,
                                    Result cmd) throws Throwable {
 
-        String    sql  = cmd.getMainString();
-        long      csid = getStatementID(session.currentSchema, sql);
-        Statement cs   = (Statement) csidMap.get(csid);
-        int       props;
+        int       props = cmd.getExecuteProperties();
+        Statement cs    = null;
+        String    sql   = cmd.getMainString();
+        long      csid  = getStatementID(session.currentSchema, sql);
+
+        if (csid >= 0) {
+            cs = (Statement) csidMap.get(csid);
+
+            if (cs != null) {
+                if (cs.getCursorPropertiesRequest() != props) {
+                    cs   = null;
+                    csid = -1;
+                }
+
+                // generated result props still overwrite earlier version
+            }
+        }
 
         if (cs == null || !cs.isValid()
                 || cs.getCompileTimestamp()
                    < database.schemaManager.getSchemaChangeTimestamp()) {
-            props = cmd.getExecuteProperties();
-            cs    = session.compileStatement(sql, props);
-            csid  = registerStatement(csid, cs);
+            cs = session.compileStatement(sql, props);
+
+            cs.setCursorPropertiesRequest(props);
+
+            csid = registerStatement(csid, cs);
         }
 
+        int useCount = useMap.get(csid, 0) + 1;
+
+        useMap.put(csid, useCount);
         cs.setGeneratedColumnInfo(cmd.getGeneratedResultType(),
                                   cmd.getGeneratedResultMetaData());
 

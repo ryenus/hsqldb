@@ -1588,8 +1588,8 @@ public class ParserCommand extends ParserDDL {
             readThis(Tokens.CHAIN);
         }
 
-        return chain ? StatementSession.commitAndChainStatement
-                     : StatementSession.commitNoChainStatement;
+        return new StatementSession(StatementTypes.COMMIT_WORK,
+                                    new Object[]{ Boolean.valueOf(chain) });
     }
 
     private Statement compileStartTransaction() {
@@ -1697,8 +1697,8 @@ public class ParserCommand extends ParserDDL {
             }
         }
 
-        return chain ? StatementSession.rollbackAndChainStatement
-                     : StatementSession.rollbackNoChainStatement;
+        return new StatementSession(StatementTypes.ROLLBACK_WORK,
+                                    new Object[]{ Boolean.valueOf(chain) });
     }
 
     private Statement compileSavepoint() {

@@ -161,13 +161,11 @@ public class StatementCommand extends Statement {
 
             // fall through
             case StatementTypes.SET_TABLE_SOURCE :
-                metaDataImpact = Statement.META_RESET_VIEWS;
-                group          = StatementTypes.X_HSQLDB_SCHEMA_MANIPULATION;
+                group = StatementTypes.X_HSQLDB_SCHEMA_MANIPULATION;
                 break;
 
             case StatementTypes.SET_TABLE_READONLY :
-                metaDataImpact = Statement.META_RESET_VIEWS;
-                group          = StatementTypes.X_HSQLDB_SCHEMA_MANIPULATION;
+                group = StatementTypes.X_HSQLDB_SCHEMA_MANIPULATION;
                 break;
 
             case StatementTypes.DATABASE_SHUTDOWN :
