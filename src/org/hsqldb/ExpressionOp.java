@@ -561,7 +561,7 @@ public class ExpressionOp extends Expression {
             expr = expr.nodes[RIGHT].nodes[RIGHT];
         }
 
-        if (dataType == null) {
+        if (dataType == null || dataType.typeCode == Types.SQL_ALL_TYPES) {
             throw Error.error(ErrorCode.X_42567);
         }
     }

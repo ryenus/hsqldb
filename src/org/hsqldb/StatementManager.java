@@ -70,7 +70,7 @@ import org.hsqldb.result.Result;
  * @author Campbell Boucher-Burnet (boucherb@users dot sourceforge.net)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
  *
- * @version 2.1.1
+ * @version 2.2.6
  * @since 1.7.2
  */
 public final class StatementManager {
