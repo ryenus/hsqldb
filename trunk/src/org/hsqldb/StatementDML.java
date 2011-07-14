@@ -501,6 +501,8 @@ public class StatementDML extends StatementDMQL {
             generatedNavigator = resultOut.getChainedResult().getNavigator();
         }
 
+        session.sessionContext.rownum = 1;
+
         while (it.next()) {
             session.sessionData.startRowProcessing();
 
@@ -523,6 +525,8 @@ public class StatementDML extends StatementDMQL {
             }
 
             rowset.addRow(session, row, newData, colTypes, updateColumnMap);
+
+            session.sessionContext.rownum++;
         }
 
         it.release();
@@ -1115,10 +1119,14 @@ public class StatementDML extends StatementDMQL {
             new RowSetNavigatorDataChange(session.database.sqlEnforceTDCD,
                                           session.database.sqlEnforceTDCU);
 
+        session.sessionContext.rownum = 1;
+
         while (it.next()) {
             Row currentRow = it.getCurrentRow();
 
             navigator.addRow(currentRow);
+
+            session.sessionContext.rownum++;
         }
 
         it.release();
