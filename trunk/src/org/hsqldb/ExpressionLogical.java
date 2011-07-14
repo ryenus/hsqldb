@@ -1041,8 +1041,14 @@ public class ExpressionLogical extends Expression {
                 throw Error.error(ErrorCode.X_42567);
             }
 
+            if (type.typeComparisonGroup
+                    != nodes[RIGHT].nodeDataTypes[i].typeComparisonGroup) {
+                throw Error.error(ErrorCode.X_42563);
+            }
+
             nodes[LEFT].nodeDataTypes[i]  = type;
             nodes[LEFT].nodes[i].dataType = type;
+
         }
     }
 
@@ -1157,8 +1163,10 @@ public class ExpressionLogical extends Expression {
             case OpTypes.NOT_EQUAL : {
                 if (exprSubType == OpTypes.ANY_QUANTIFIED
                         || exprSubType == OpTypes.ALL_QUANTIFIED) {
-                    return testAllAnyCondition(
-                        session, (Object[]) nodes[LEFT].getRowValue(session));
+                    Object[] rowData =
+                        (Object[]) nodes[LEFT].getRowValue(session);
+
+                    return testAllAnyCondition(session, rowData);
                 }
 
                 Object o1 = nodes[LEFT].getValue(session);

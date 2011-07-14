@@ -313,7 +313,11 @@ public class ExpressionArithmetic extends Expression {
 
         if (nodes[LEFT].isUnresolvedParam()
                 && nodes[RIGHT].isUnresolvedParam()) {
-            throw Error.error(ErrorCode.X_42567);
+            nodes[LEFT].dataType = nodes[RIGHT].dataType = Type.SQL_INTEGER;
+        }
+
+        if (nodes[LEFT].dataType == null && nodes[RIGHT].dataType == null) {
+            nodes[LEFT].dataType = nodes[RIGHT].dataType = Type.SQL_INTEGER;
         }
 
         if (nodes[LEFT].isUnresolvedParam()) {
@@ -321,50 +325,98 @@ public class ExpressionArithmetic extends Expression {
                 throw Error.error(ErrorCode.X_42567);
             }
 
-            if (nodes[RIGHT].dataType.isDecimalType()) {
-                nodes[LEFT].dataType = Type.SQL_DECIMAL_DEFAULT;
-            } else {
-                if (nodes[RIGHT].dataType.isIntervalType()) {
-                    if (parent != null) {
-                        switch (parent.opType) {
+            if (nodes[RIGHT].dataType.isIntervalType()) {
+                if (parent != null) {
+                    switch (parent.opType) {
 
-                            case OpTypes.EQUAL :
-                            case OpTypes.GREATER_EQUAL :
-                            case OpTypes.SMALLER_EQUAL :
-                            case OpTypes.SMALLER :
-                            case OpTypes.GREATER :
-                                for (int i = 0; i < parent.nodes.length; i++) {
-                                    if (parent.nodes[i] != this) {
-                                        if (parent.nodes[i].dataType != null
-                                                && parent.nodes[i].dataType
-                                                    .isDateTimeType()) {
-                                            nodes[LEFT].dataType =
-                                                parent.nodes[i].dataType;
-                                        }
-
-                                        break;
+                        case OpTypes.EQUAL :
+                        case OpTypes.GREATER_EQUAL :
+                        case OpTypes.SMALLER_EQUAL :
+                        case OpTypes.SMALLER :
+                        case OpTypes.GREATER :
+                            for (int i = 0; i < parent.nodes.length; i++) {
+                                if (parent.nodes[i] != this) {
+                                    if (parent.nodes[i].dataType != null
+                                            && parent.nodes[i].dataType
+                                                .isDateTimeType()) {
+                                        nodes[LEFT].dataType =
+                                            parent.nodes[i].dataType;
                                     }
-                                }
-                                break;
 
-                            default :
-                        }
+                                    break;
+                                }
+                            }
+                            break;
+
+                        default :
                     }
                 }
+            }
 
-                if (nodes[LEFT].dataType == null) {
-                    nodes[LEFT].dataType = nodes[RIGHT].dataType;
+            if (nodes[LEFT].dataType == null) {
+                switch (opType) {
+
+                    case OpTypes.SUBTRACT :
+                        nodes[LEFT].dataType = nodes[RIGHT].dataType;
+                        break;
+
+                    case OpTypes.ADD :
+                        if (nodes[RIGHT].dataType.isDateTimeType()) {
+                            if (nodes[RIGHT].dataType.typeComparisonGroup
+                                    == Types.SQL_DATE) {
+                                nodes[LEFT].dataType =
+                                    Type
+                                    .SQL_INTERVAL_YEAR_TO_MONTH_MAX_PRECISION;
+                            } else {
+                                nodes[LEFT].dataType =
+                                    Type
+                                    .SQL_INTERVAL_DAY_TO_SECOND_MAX_PRECISION;
+                            }
+                        } else {
+                            nodes[RIGHT].dataType = nodes[LEFT].dataType;
+                        }
+                        break;
                 }
+            }
+
+            if (nodes[LEFT].dataType == null) {
+                nodes[LEFT].dataType = nodes[RIGHT].dataType;
             }
         } else if (nodes[RIGHT].isUnresolvedParam()) {
             if (nodes[LEFT].dataType == null) {
                 throw Error.error(ErrorCode.X_42567);
             }
 
-            if (nodes[LEFT].dataType.isDecimalType()) {
-                nodes[RIGHT].dataType = Type.SQL_DECIMAL_DEFAULT;
-            } else {
-                nodes[RIGHT].dataType = nodes[LEFT].dataType;
+            switch (opType) {
+
+                case OpTypes.MULTIPLY :
+                case OpTypes.DIVIDE :
+                    if (nodes[LEFT].dataType.isIntervalType()) {
+                        nodes[RIGHT].dataType = Type.SQL_DECIMAL;
+                    } else {
+                        nodes[RIGHT].dataType = nodes[LEFT].dataType;
+                    }
+                    break;
+
+                case OpTypes.SUBTRACT :
+                case OpTypes.ADD :
+                    if (nodes[LEFT].dataType.isDateTimeType()) {
+
+                        // datetime subtract - type predetermined
+                        if (dataType != null && dataType.isIntervalType()) {
+                            nodes[RIGHT].dataType = nodes[LEFT].dataType;
+                        } else if (nodes[LEFT].dataType.typeComparisonGroup
+                                   == Types.SQL_DATE) {
+                            nodes[RIGHT].dataType =
+                                Type.SQL_INTERVAL_YEAR_TO_MONTH_MAX_PRECISION;
+                        } else {
+                            nodes[RIGHT].dataType =
+                                Type.SQL_INTERVAL_DAY_TO_SECOND_MAX_PRECISION;
+                        }
+                    } else {
+                        nodes[RIGHT].dataType = nodes[LEFT].dataType;
+                    }
+                    break;
             }
         }
 
@@ -419,11 +471,10 @@ public class ExpressionArithmetic extends Expression {
                     nodes[LEFT]  = nodes[RIGHT];
                     nodes[RIGHT] = temp;
                 } else if (nodes[RIGHT].dataType.isNumberType()) {
-                    if(!session.database.sqlSyntaxOra) {
+                    if (!session.database.sqlSyntaxOra) {
                         throw Error.error(ErrorCode.X_42562);
                     }
                 }
-
             }
         }
 
@@ -440,13 +491,19 @@ public class ExpressionArithmetic extends Expression {
         }
 
         if (nodes[LEFT].isUnresolvedParam()) {
-            nodes[LEFT].dataType = nodes[RIGHT].dataType;
-        } else if (nodes[RIGHT].isUnresolvedParam()) {
-            nodes[RIGHT].dataType = nodes[LEFT].dataType;
+            nodes[LEFT].dataType = Type.SQL_VARCHAR_DEFAULT;
         }
 
-        if (nodes[LEFT].dataType == null || nodes[RIGHT].dataType == null) {
-            throw Error.error(ErrorCode.X_42567);
+        if (nodes[RIGHT].isUnresolvedParam()) {
+            nodes[RIGHT].dataType = Type.SQL_VARCHAR_DEFAULT;
+        }
+
+        if (nodes[LEFT].dataType == null) {
+            nodes[LEFT].dataType = Type.SQL_VARCHAR_DEFAULT;
+        }
+
+        if (nodes[RIGHT].dataType == null) {
+            nodes[RIGHT].dataType = Type.SQL_VARCHAR_DEFAULT;
         }
 
         if (nodes[LEFT].dataType.isBinaryType()

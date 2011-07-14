@@ -1277,6 +1277,10 @@ public class FunctionSQL extends Expression {
                 break;
             }
             case FUNC_CHAR_LENGTH :
+                if (nodes[0].dataType == null) {
+                    nodes[0].dataType = Type.SQL_VARCHAR;
+                }
+
                 if (!nodes[0].dataType.isCharacterType()) {
                     throw Error.error(ErrorCode.X_42563);
                 }
