@@ -1422,7 +1422,7 @@ public class Session implements SessionInterface {
 
         if (cs.hasGeneratedColumns()) {
             generatedResult =
-                Result.newDataResult(cs.generatedResultMetaData());
+                Result.newGeneratedDataResult(cs.generatedResultMetaData());
         }
 
         Result error = null;
