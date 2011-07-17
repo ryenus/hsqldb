@@ -3459,8 +3459,8 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
                 SchemaObject.INDEX);
 
             t.createPrimaryKeyConstraint(name, new int[] {
-                0, 1, 2, 4, 5, 6
-            }, false);
+                0, 1, 2, 4, 5, 27
+            }, true);
 
             return t;
         }

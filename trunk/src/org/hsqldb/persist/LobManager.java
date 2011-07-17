@@ -1387,7 +1387,7 @@ public class LobManager {
 
             setLength(lobID, offset);
 
-            return ResultLob.newLobTruncateResponse(lobID);
+            return ResultLob.newLobTruncateResponse(lobID, offset);
         } finally {
             writeLock.unlock();
         }
