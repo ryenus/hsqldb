@@ -31,6 +31,7 @@
 
 package org.hsqldb.testbase;
 
+import java.io.Closeable;
 import java.sql.Array;
 import java.sql.Blob;
 import java.sql.CallableStatement;
@@ -43,6 +44,7 @@ import java.sql.ResultSet;
 import java.sql.SQLXML;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.EventListener;
 import java.util.List;
 
 /**
@@ -96,6 +98,8 @@ public final class ConnectionFactory {
     private final List<Array> m_arrays = new ArrayList<Array>();
     @SuppressWarnings("CollectionWithoutInitialCapacity")
     private final List<SQLXML> m_xmls = new ArrayList<SQLXML>();
+    @SuppressWarnings("CollectionWithoutInitialCapacity")
+    private final List<Closeable> m_closeable = new ArrayList<Closeable> ();
 
 
 
@@ -106,20 +110,21 @@ public final class ConnectionFactory {
      * for event "closedRegisteredObjects".
      */
     @SuppressWarnings("PublicInnerClass")
-    public interface EventListener extends java.util.EventListener {
+    public interface ConnectionFactoryEventListener extends EventListener {
 
-        void closedRegisteredObjects(ConnectionFactory source);
+        void finishedClosingRegisteredObjects(ConnectionFactory source);
     }
 
-    private final List<EventListener> m_listeners = new ArrayList<EventListener>(2);
+    private final List<ConnectionFactoryEventListener> m_listeners 
+            = new ArrayList<ConnectionFactoryEventListener>(2);
 
-    public void addDatabaseEventListener(EventListener l) {
+    public void addEventListener(ConnectionFactoryEventListener l) {
         if (!m_listeners.contains(l)) {
             m_listeners.add(l);
         }
     }
 
-    public void removeDatabaseEventListener(EventListener l) {
+    public void removeEventListener(ConnectionFactoryEventListener l) {
         m_listeners.remove(l);
     }
     // </editor-fold>
@@ -184,6 +189,10 @@ public final class ConnectionFactory {
 
     public void registerSQLXML(SQLXML xml) {
         m_xmls.add(xml);
+    }
+    
+    public void registerClosable(java.io.Closeable closable) {
+        
     }
 
     public boolean isRollbackConnectionBeforeClose() {
@@ -265,13 +274,13 @@ public final class ConnectionFactory {
             }
         }
 
-        final List<EventListener> list = m_listeners;
+        final List<ConnectionFactoryEventListener> list = m_listeners;
 
         for (int i = 0; i < list.size(); i++) {
-            final ConnectionFactory.EventListener l = list.get(i);
+            final ConnectionFactoryEventListener l = list.get(i);
 
             try {
-                l.closedRegisteredObjects(this);
+                l.finishedClosingRegisteredObjects(this);
             } catch (Exception e) {
                 e.printStackTrace();
             }

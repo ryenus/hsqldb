@@ -27,8 +27,6 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-
-
 package org.hsqldb.testbase;
 
 import java.io.File;
@@ -58,6 +56,7 @@ import java.util.Enumeration;
 import java.util.jar.JarEntry;
 import org.hsqldb.lib.IntValueHashMap;
 import org.hsqldb.lib.OrderedHashSet;
+import org.hsqldb.testbase.ConnectionFactory.ConnectionFactoryEventListener;
 
 /**
  * Abstract HSQLDB-targeted JUnit 3.8 test case. <p>
@@ -68,12 +67,14 @@ import org.hsqldb.lib.OrderedHashSet;
  */
 public abstract class BaseTestCase extends junit.framework.TestCase {
 
+    public static final String BTCK_CLOSE_EMBEDDED_DATABASES_HANDLER = "close.embedded.databases.handler";
     public static final String DEFAULT_PROPERTY_KEY_PREFIX = "hsqldb.test.suite.";
     public static final String DEFAULT_PROPERTY_KEY_PREFIX_KEY = DEFAULT_PROPERTY_KEY_PREFIX + "properties.prefix";
     public static final String DEFAULT_DRIVER = "org.hsqldb.jdbcDriver";
     public static final String DEFAULT_PASSWORD = "";
     public static final String DEFAULT_URL = "jdbc:hsqldb:mem:testcase";
     public static final String DEFAULT_USER = "SA";
+    public static final String BTCK_CLOSE_EMBEDDED_DATABASES_ON_TEARDOWN = "close.embedded.databases.on.teardown";
     //
     protected static final IntValueHashMap s_fieldValueMap =
             new IntValueHashMap();
@@ -115,8 +116,7 @@ public abstract class BaseTestCase extends junit.framework.TestCase {
         }
     };
     //
-    private static final ConnectionFactory.EventListener s_embeddedDatabaseCloser = HsqldbEmbeddedDatabaseCloser.Instance;
-
+    private static final ConnectionFactory.ConnectionFactoryEventListener s_embeddedDatabaseCloser = HsqldbEmbeddedDatabaseCloser.Instance;
     //
     private static final String LINE_SEPARATOR =
             PropertyGetter.getProperty("line.separator", "\n");
@@ -151,7 +151,7 @@ public abstract class BaseTestCase extends junit.framework.TestCase {
     private static final Class<?>[] NO_PARMS = new Class<?>[0];
     //
     private ConnectionFactory m_connectionFactory;
-    private ConnectionFactory.EventListener m_embeddedDatabaseCloser;
+    private ConnectionFactory.ConnectionFactoryEventListener m_embeddedDatabaseCloser;
 
     /**
      * by computing a shallow string representation
@@ -979,63 +979,67 @@ public abstract class BaseTestCase extends junit.framework.TestCase {
      * @return true if so, else false.
      */
     protected boolean isCloseEmbeddedDatabasesOnTeardown() {
-        return getBooleanProperty("close.embedded.databases.on.teardown", false);
+        return getBooleanProperty(BTCK_CLOSE_EMBEDDED_DATABASES_ON_TEARDOWN, false);
     }
 
-    protected ConnectionFactory.EventListener getEmbeddedDatabaseCloser() {
-        ConnectionFactory.EventListener closer = null;
-        String closerFQN = getProperty("close.embedded.databases.handler",
-                "default");
+    protected ConnectionFactoryEventListener getEmbeddedDatabaseCloser() {
+        ConnectionFactoryEventListener closer = null;
+        String closerFQN = getProperty(BTCK_CLOSE_EMBEDDED_DATABASES_HANDLER,
+                HsqldbEmbeddedDatabaseCloser.class.getName());
 
-        if ("default".equalsIgnoreCase(closerFQN)) {
-            closer = s_embeddedDatabaseCloser;
-        } else {
+        if (!HsqldbEmbeddedDatabaseCloser.class.getName().equals(closerFQN)) {
             try {
                 Class<?> closerClass = Class.forName(closerFQN);
-                closer = (ConnectionFactory.EventListener) closerClass.newInstance();
+                closer = (ConnectionFactory.ConnectionFactoryEventListener) closerClass.newInstance();
             } catch (ClassNotFoundException cnfe) {
             } catch (IllegalAccessException iae) {
             } catch (InstantiationException ie) {
             }
         }
+        if (closer == null) {
+            closer = s_embeddedDatabaseCloser;
+        }
 
         return closer;
     }
 
-    protected void activateEmbeddedDatabaseCloser() {
+    // invoked on teardown to ensure that the built-in listeners always 
+    // get notified *after* all subclass listener registrations.
+    protected void activateConnectionFactoryListeners() {
         if (isCloseEmbeddedDatabasesOnTeardown()) {
             m_embeddedDatabaseCloser = getEmbeddedDatabaseCloser();
 
             if (m_embeddedDatabaseCloser != null) {
-                connectionFactory().addDatabaseEventListener(m_embeddedDatabaseCloser);
+                connectionFactory().addEventListener(m_embeddedDatabaseCloser);
             }
         }
     }
 
-    protected void deactivateEmbeddedDatabaseCloser() {
+    protected void deactivateConnectionFactoryListeners() {
         if (m_embeddedDatabaseCloser != null) {
-            connectionFactory().removeDatabaseEventListener(m_embeddedDatabaseCloser);
+            connectionFactory().removeEventListener(m_embeddedDatabaseCloser);
         }
     }
 
     /**
-     * Unless overridden in subclass, this method is invoked
-     * before the main teardown behavior occurs.
+     * Activates any configured ConnectionFactoryEventLiseners. <p>
      *
-     * Note that the default teardown implementation simply records
-     * and exception thrown in the course of invoking this method and
-     * re-throws it only if all other tear down work succeeds.
+     * Invoked before the main teardown behavior occurs, providing
+     * a facility for controlling event listener registration / invocation 
      *
      * @throws Exception
      */
     protected void preTearDown() throws Exception {
-        activateEmbeddedDatabaseCloser();
+        activateConnectionFactoryListeners();
     }
 
     /**
-     * Performs test teardown. <p>
-     *
-     * By default,
+     * Performs test teardown, which includes preTeardown and postTeardown<p>  
+     * 
+     * It is highly recommended to use the pre and post methods, rather than
+     * overriding the teardown method, which contains important base
+     * functionality while other teardown work may need to come either before
+     * or after this.
      *
      * @throws java.lang.Exception if any, thrown as part of tearing down
      *         the test fixture.
@@ -1047,13 +1051,14 @@ public abstract class BaseTestCase extends junit.framework.TestCase {
         Exception tearDownException = null;
         Exception postTearDownException = null;
 
+
         try {
             preTearDown();
         } catch (Exception ex) {
             preTearDownException = ex;
         }
 
-        this.connectionFactory().closeRegisteredObjects();
+        connectionFactory().closeRegisteredObjects();
 
         try {
             super.tearDown();
@@ -1077,13 +1082,12 @@ public abstract class BaseTestCase extends junit.framework.TestCase {
     }
 
     /**
-     * Unless overridden in a subclass, this method is invoked
-     * after the main teardown behavior occurs, even if an exception
-     * is thrown as part of the main teardown activity.
+     * Invoked before the main teardown behavior occurs.
+     * 
      * @throws Exception
      */
     protected void postTearDown() throws Exception {
-        deactivateEmbeddedDatabaseCloser();
+        deactivateConnectionFactoryListeners();
     }
 
     /**
