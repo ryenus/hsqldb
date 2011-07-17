@@ -5363,7 +5363,13 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Updates to a LOB are made directly.
+     * Updates to a LOB are made directly. This means the lobs in an updatable
+     * ResultSet can be updated and the change is applied when the updateRow()
+     * method is applied. Lobs created by calling the Connection methods
+     * createClob() and createBlob() can be updated. The lob can then be sent to
+     * the database in a PreparedStatement with an UPDATE or INSERT SQL
+     * statement.
+     *
      * </div>
      * <!-- end release-specific documentation -->
      *
