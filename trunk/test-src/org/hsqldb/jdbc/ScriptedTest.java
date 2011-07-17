@@ -61,13 +61,13 @@ public class ScriptedTest extends BaseScriptedTestCase {
     @Override
     protected void preTearDown() throws Exception {
         super.preTearDown();
-        this.connectionFactory().addDatabaseEventListener(m_deleter);
+        this.connectionFactory().addEventListener(m_deleter);
     }
 
     @Override
     protected void postTearDown() throws Exception {
         super.postTearDown();
-        this.connectionFactory().removeDatabaseEventListener(m_deleter);
+        this.connectionFactory().removeEventListener(m_deleter);
     }
 
     /**

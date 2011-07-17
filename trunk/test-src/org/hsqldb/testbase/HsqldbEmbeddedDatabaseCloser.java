@@ -40,14 +40,14 @@ package org.hsqldb.testbase;
  * @version 2.0.1
  * @since 2.0.1
  */
-public class HsqldbEmbeddedDatabaseCloser implements ConnectionFactory.EventListener {
+public class HsqldbEmbeddedDatabaseCloser implements ConnectionFactory.ConnectionFactoryEventListener {
 
     private HsqldbEmbeddedDatabaseCloser() {}
 
-    public static final ConnectionFactory.EventListener Instance = new HsqldbEmbeddedDatabaseCloser();
+    public static final ConnectionFactory.ConnectionFactoryEventListener Instance = new HsqldbEmbeddedDatabaseCloser();
 
     @Override
-    public void closedRegisteredObjects(ConnectionFactory source) {
+    public void finishedClosingRegisteredObjects(ConnectionFactory source) {
         org.hsqldb.DatabaseManager.closeDatabases(org.hsqldb.Database.CLOSEMODE_IMMEDIATELY);
     }
 
