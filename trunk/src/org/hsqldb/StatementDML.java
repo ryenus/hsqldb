@@ -54,7 +54,7 @@ import org.hsqldb.types.Types;
  * Implementation of Statement for DML statements.<p>
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.1.1
+ * @version 2.2.6
  * @since 1.9.0
  */
 
@@ -800,6 +800,9 @@ public class StatementDML extends StatementDMQL {
         while (newData.hasNext()) {
             Object[] data = (Object[]) newData.getNext();
 
+            // for identity using global sequence
+            session.sessionData.startRowProcessing();
+
             baseTable.insertSingleRow(session, store, data, null);
 
             if (checkIterator != null) {
@@ -961,6 +964,9 @@ public class StatementDML extends StatementDMQL {
             navigator.next();
 
             Object[] data = navigator.getCurrentChangedData();
+
+            // for identity using global sequence
+            session.sessionData.startRowProcessing();
 
             /**
              * @todo 1.9.0 - make optional using database property -
