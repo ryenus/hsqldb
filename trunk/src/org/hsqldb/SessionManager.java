@@ -193,7 +193,7 @@ public class SessionManager {
     /**
      * Closes all Sessions registered with this SessionManager.
      */
-    public synchronized void closeAllSessions() {
+    public void closeAllSessions() {
 
         // don't disconnect system user; need it to save database
         Session[] sessions = getAllSessions();
