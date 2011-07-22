@@ -983,6 +983,16 @@ public class SchemaManager {
                         break;
                 }
             }
+
+            if (Error.TRACE) {
+                HsqlArrayList list = getAllTables(false);
+
+                for (int i = 0; i < list.size(); i++) {
+                    Table t = (Table) list.get(i);
+
+                    t.verifyConstraintsIntegrity();
+                }
+            }
         } finally {
             writeLock.unlock();
         }
@@ -1022,12 +1032,14 @@ public class SchemaManager {
                 }
             }
 
-            HsqlArrayList list = getAllTables(false);
+            if (Error.TRACE) {
+                HsqlArrayList list = getAllTables(false);
 
-            for (int i = 0; i < list.size(); i++) {
-                Table t = (Table) list.get(i);
+                for (int i = 0; i < list.size(); i++) {
+                    Table t = (Table) list.get(i);
 
-                t.verifyConstraintsIntegrity();
+                    t.verifyConstraintsIntegrity();
+                }
             }
         } finally {
             writeLock.unlock();

@@ -165,7 +165,7 @@ implements HandshakeCompletedListener {
         ss = (SSLServerSocket) getServerSocketFactoryImpl()
             .createServerSocket(port, 128, addr);
 
-        if (Error.TRACE) {
+        if (Error.TRACESYSTEMOUT) {
             Error.printSystemOut("[" + this + "]: createServerSocket()");
             Error.printSystemOut("capabilities for " + ss + ":");
             Error.printSystemOut("----------------------------");
@@ -366,7 +366,7 @@ implements HandshakeCompletedListener {
         String     sessionId;
         SSLSocket  socket;
 
-        if (Error.TRACE) {
+        if (Error.TRACESYSTEMOUT) {
             socket  = evt.getSocket();
             session = evt.getSession();
 

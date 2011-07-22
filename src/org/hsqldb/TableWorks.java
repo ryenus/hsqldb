@@ -280,7 +280,6 @@ public class TableWorks {
                    HsqlArrayList constraints) {
 
         Index      index          = null;
-        Table      originalTable  = table;
         Constraint mainConstraint = null;
         boolean    addFK          = false;
         boolean    addUnique      = false;
@@ -309,8 +308,8 @@ public class TableWorks {
             c = null;
         }
 
-        table = table.moveDefinition(session, table.tableType, column, c,
-                                     null, colIndex, 1, emptySet, emptySet);
+        Table tn = table.moveDefinition(session, table.tableType, column, c,
+                                        null, colIndex, 1, emptySet, emptySet);
 
         for (int i = 1; i < constraints.size(); i++) {
             c = (Constraint) constraints.get(i);
@@ -340,13 +339,14 @@ public class TableWorks {
                                                          SchemaObject.INDEX);
 
                     // create an autonamed index
-                    index = table.createAndAddIndexStructure(session,
-                            indexName, c.getMainColumns(), null, null, true,
-                            true, false);
-                    c.core.mainTable = table;
+                    index = tn.createAndAddIndexStructure(session, indexName,
+                                                          c.getMainColumns(),
+                                                          null, null, true,
+                                                          true, false);
+                    c.core.mainTable = tn;
                     c.core.mainIndex = index;
 
-                    table.addConstraint(c);
+                    tn.addConstraint(c);
 
                     break;
                 }
@@ -360,16 +360,16 @@ public class TableWorks {
                     c.core.mainTable =
                         database.schemaManager.getUserTable(session,
                             c.getMainTableName());
-                    c.core.refTable = table;
+                    c.core.refTable = tn;
                     c.core.refName  = c.getName();
 
-                    boolean isSelf = originalTable == c.core.mainTable;
+                    boolean isSelf = table == c.core.mainTable;
 
                     if (isSelf) {
-                        c.core.mainTable = table;
+                        c.core.mainTable = tn;
                     }
 
-                    c.setColumnsIndexes(table);
+                    c.setColumnsIndexes(tn);
                     checkCreateForeignKey(c);
 
                     Constraint uniqueConstraint =
@@ -377,8 +377,7 @@ public class TableWorks {
                             c.core.mainCols);
                     boolean isForward = c.core.mainTable.getSchemaName()
                                         != table.getSchemaName();
-                    int offset =
-                        database.schemaManager.getTableIndex(originalTable);
+                    int offset = database.schemaManager.getTableIndex(table);
 
                     if (!isSelf
                             && offset
@@ -394,9 +393,10 @@ public class TableWorks {
                                                          table.getName(),
                                                          SchemaObject.INDEX);
 
-                    index = table.createAndAddIndexStructure(session,
-                            indexName, c.getRefColumns(), null, null, false,
-                            true, isForward);
+                    index = tn.createAndAddIndexStructure(session, indexName,
+                                                          c.getRefColumns(),
+                                                          null, null, false,
+                                                          true, isForward);
                     c.core.uniqueName = uniqueConstraint.getName();
                     c.core.mainName = database.nameManager.newAutoName("REF",
                             c.core.refName.name, table.getSchemaName(),
@@ -405,7 +405,7 @@ public class TableWorks {
                     c.core.refIndex  = index;
                     c.isForward      = isForward;
 
-                    table.addConstraint(c);
+                    tn.addConstraint(c);
 
                     mainConstraint = new Constraint(c.core.mainName, c);
 
@@ -418,15 +418,14 @@ public class TableWorks {
 
                     addCheck = true;
 
-                    c.prepareCheckConstraint(session, table, false);
-                    table.addConstraint(c);
+                    c.prepareCheckConstraint(session, tn, false);
+                    tn.addConstraint(c);
 
                     if (c.isNotNull()) {
                         column.setNullable(false);
-                        table.setColumnTypeVars(colIndex);
+                        tn.setColumnTypeVars(colIndex);
 
-                        if (!originalTable.isEmpty(session)
-                                && !column.hasDefault()) {
+                        if (!table.isEmpty(session) && !column.hasDefault()) {
                             throw Error.error(ErrorCode.X_42531);
                         }
                     }
@@ -434,19 +433,21 @@ public class TableWorks {
             }
         }
 
-        column.compile(session, table);
-        moveData(originalTable, table, colIndex, 1);
+        column.compile(session, tn);
+        moveData(table, tn, colIndex, 1);
 
         if (mainConstraint != null) {
             mainConstraint.getMain().addConstraint(mainConstraint);
         }
 
         registerConstraintNames(constraints);
-        setNewTableInSchema(table);
-        updateConstraints(table, emptySet);
+        setNewTableInSchema(tn);
+        updateConstraints(tn, emptySet);
         database.schemaManager.addSchemaObject(column);
-        database.schemaManager.recompileDependentObjects(table);
-        table.compile(session, null);
+        database.schemaManager.recompileDependentObjects(tn);
+        tn.compile(session, null);
+
+        table = tn;
     }
 
     void updateConstraints(OrderedHashSet tableSet,
@@ -472,6 +473,11 @@ public class TableWorks {
 
             if (c.getConstraintType()
                     == SchemaObject.ConstraintTypes.FOREIGN_KEY) {
+                Table refT = database.schemaManager.getUserTable(session,
+                    c.core.refTable.getName());
+
+                c.core.refTable = refT;
+
                 Table mainT = database.schemaManager.getUserTable(session,
                     c.core.mainTable.getName());
                 Constraint mainC = mainT.getConstraint(c.getMainName().name);
@@ -479,6 +485,11 @@ public class TableWorks {
                 mainC.core = c.core;
             } else if (c.getConstraintType()
                        == SchemaObject.ConstraintTypes.MAIN) {
+                Table mainT = database.schemaManager.getUserTable(session,
+                    c.core.mainTable.getName());
+
+                c.core.mainTable = mainT;
+
                 Table refT = database.schemaManager.getUserTable(session,
                     c.core.refTable.getName());
                 Constraint refC = refT.getConstraint(c.getRefName().name);
@@ -732,8 +743,8 @@ public class TableWorks {
                                             indexSet);
 
             moveData(table, tn, -1, 0);
-            updateConstraints(tn, emptySet);
             setNewTableInSchema(tn);
+            updateConstraints(tn, emptySet);
 
             table = tn;
         }
@@ -1111,8 +1122,8 @@ public class TableWorks {
                                         emptySet);
 
         moveData(table, tn, colIndex, 0);
-        updateConstraints(tn, emptySet);
         setNewTableInSchema(tn);
+        updateConstraints(tn, emptySet);
         database.schemaManager.recompileDependentObjects(table);
 
         table = tn;
@@ -1211,12 +1222,12 @@ public class TableWorks {
                                       0, emptySet, emptySet);
 
             moveData(table, tn, -1, 0);
-            updateConstraints(tn, emptySet);
         } catch (HsqlException e) {
             return false;
         }
 
         setNewTableInSchema(tn);
+        updateConstraints(tn, emptySet);
 
         table = tn;
 
