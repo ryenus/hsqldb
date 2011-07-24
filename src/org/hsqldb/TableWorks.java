@@ -767,7 +767,7 @@ public class TableWorks {
         ColumnSchema   column       = table.getColumn(colIndex);
         HsqlName       columnName   = column.getName();
         OrderedHashSet referencingObjects =
-            database.schemaManager.getReferencingObjectNames(table.getName(),
+            database.schemaManager.getReferencesTo(table.getName(),
                 columnName);
 
         checkModifyTable();

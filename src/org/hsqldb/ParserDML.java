@@ -419,7 +419,7 @@ public class ParserDML extends ParserDQL {
         if (!isTable && !noCheck) {
             OrderedHashSet set = new OrderedHashSet();
 
-            session.database.schemaManager.getCascadingSchemaReferences(
+            session.database.schemaManager.getCascadingReferencesToSchema(
                 objectName, set);
 
             for (int i = 0; i < set.size(); i++) {

@@ -1,7 +1,4 @@
-/*
- * For work developed by the HSQL Development Group:
- *
- * Copyright (c) 2001-2011, The HSQL Development Group
+/* Copyright (c) 2001-2011, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -29,42 +26,6 @@
  * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *
- *
- *
- * For work originally developed by the Hypersonic SQL Group:
- *
- * Copyright (c) 1995-2000, The Hypersonic SQL Group.
- * All rights reserved.
- *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are met:
- *
- * Redistributions of source code must retain the above copyright notice, this
- * list of conditions and the following disclaimer.
- *
- * Redistributions in binary form must reproduce the above copyright notice,
- * this list of conditions and the following disclaimer in the documentation
- * and/or other materials provided with the distribution.
- *
- * Neither the name of the Hypersonic SQL Group nor the names of its
- * contributors may be used to endorse or promote products derived from this
- * software without specific prior written permission.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
- * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
- * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
- * ARE DISCLAIMED. IN NO EVENT SHALL THE HYPERSONIC SQL GROUP,
- * OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
- * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
- * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
- * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
- * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
- * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *
- * This software consists of voluntary contributions made by many individuals
- * on behalf of the Hypersonic SQL Group.
  */
 
 
@@ -97,13 +58,11 @@ import org.hsqldb.types.Type;
 /**
  * Holds the data structures and methods for creation of a database table.
  *
- *
  * Extensively rewritten and extended in successive versions of HSQLDB.
  *
- * @author Thomas Mueller (Hypersonic SQL Group)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.0.1
- * @since Hypersonic SQL
+ * @version 2.2.6
+ * @since 1.6.1
  */
 public class Table extends TableBase implements SchemaObject {
 
@@ -320,6 +279,17 @@ public class Table extends TableBase implements SchemaObject {
 
         OrderedHashSet set = new OrderedHashSet();
 
+        if (identitySequence != null && identitySequence.getName() != null) {
+            set.add(identitySequence.getName());
+        }
+
+        return set;
+    }
+
+    public OrderedHashSet getReferencesForDependents() {
+
+        OrderedHashSet set = new OrderedHashSet();
+
         for (int i = 0; i < colTypes.length; i++) {
             ColumnSchema   column = getColumn(i);
             OrderedHashSet refs   = column.getReferences();
@@ -329,8 +299,14 @@ public class Table extends TableBase implements SchemaObject {
             }
         }
 
-        if (identitySequence != null && identitySequence.getName() != null) {
-            set.add(identitySequence.getName());
+        for (int i = 0; i < fkConstraints.length; i++) {
+            if (fkConstraints[i].getMainTableName() != this.getName()) {
+                set.add(fkConstraints[i].getName());
+            }
+        }
+
+        for (int i = 0; i < triggerList.length; i++) {
+            set.add(triggerList[i].getName());
         }
 
         return set;
@@ -1410,13 +1386,11 @@ public class Table extends TableBase implements SchemaObject {
 
         OrderedHashSet set = new OrderedHashSet();
 
-        for (int i = 0, size = constraintList.length; i < size; i++) {
-            Constraint c = constraintList[i];
+        for (int i = 0, size = fkMainConstraints.length; i < size; i++) {
+            Constraint c = fkMainConstraints[i];
 
-            if (c.getConstraintType() == SchemaObject.ConstraintTypes.MAIN) {
-                if (c.core.uniqueName == constraint.getName()) {
-                    set.add(c);
-                }
+            if (c.core.uniqueName == constraint.getName()) {
+                set.add(c);
             }
         }
 
@@ -1436,6 +1410,23 @@ public class Table extends TableBase implements SchemaObject {
                 if (c.core.mainTable != c.core.refTable) {
                     set.add(c);
                 }
+            }
+        }
+
+        return set;
+    }
+
+    public OrderedHashSet getUniquePKConstraintNames() {
+
+        OrderedHashSet set = new OrderedHashSet();
+
+        for (int i = 0, size = constraintList.length; i < size; i++) {
+            Constraint c = constraintList[i];
+
+            if (c.constType == SchemaObject.ConstraintTypes.UNIQUE
+                    || c.constType
+                       == SchemaObject.ConstraintTypes.PRIMARY_KEY) {
+                set.add(c.getName());
             }
         }
 

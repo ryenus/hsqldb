@@ -514,7 +514,7 @@ public class StatementSchema extends Statement {
                         }
                         case StatementTypes.ADD_COLUMN : {
                             ColumnSchema  column = (ColumnSchema) arguments[2];
-                            int           colIndex = ((Integer) arguments[3]).intValue();
+                            int colIndex = ((Integer) arguments[3]).intValue();
                             HsqlArrayList list = (HsqlArrayList) arguments[4];
                             TableWorks tableWorks = new TableWorks(session,
                                                                    table);
@@ -554,7 +554,8 @@ public class StatementSchema extends Statement {
                         }
                         case StatementTypes.ALTER_COLUMN_SEQUENCE : {
                             ColumnSchema column = (ColumnSchema) arguments[2];
-                            int          columnIndex = ((Integer) arguments[3]).intValue();
+                            int columnIndex =
+                                ((Integer) arguments[3]).intValue();
                             NumberSequence sequence =
                                 (NumberSequence) arguments[4];
 
@@ -569,8 +570,9 @@ public class StatementSchema extends Statement {
                         }
                         case StatementTypes.ALTER_COLUMN_NULL : {
                             ColumnSchema column = (ColumnSchema) arguments[2];
-                            boolean      nullable = ((Boolean) arguments[3]).booleanValue();
-                            TableWorks   tw = new TableWorks(session, table);
+                            boolean nullable =
+                                ((Boolean) arguments[3]).booleanValue();
+                            TableWorks tw = new TableWorks(session, table);
 
                             tw.setColNullability(column, nullable);
 
@@ -578,9 +580,10 @@ public class StatementSchema extends Statement {
                         }
                         case StatementTypes.ALTER_COLUMN_DEFAULT : {
                             ColumnSchema column = (ColumnSchema) arguments[2];
-                            int          columnIndex = ((Integer) arguments[3]).intValue();
-                            Expression   e = (Expression) arguments[4];
-                            TableWorks   tw = new TableWorks(session, table);
+                            int columnIndex =
+                                ((Integer) arguments[3]).intValue();
+                            Expression e  = (Expression) arguments[4];
+                            TableWorks tw = new TableWorks(session, table);
 
                             tw.setColDefaultExpression(columnIndex, e);
 
@@ -588,8 +591,9 @@ public class StatementSchema extends Statement {
                         }
                         case StatementTypes.ALTER_COLUMN_DROP_DEFAULT : {
                             ColumnSchema column = (ColumnSchema) arguments[2];
-                            int          columnIndex = ((Integer) arguments[3]).intValue();
-                            TableWorks   tw = new TableWorks(session, table);
+                            int columnIndex =
+                                ((Integer) arguments[3]).intValue();
+                            TableWorks tw = new TableWorks(session, table);
 
                             tw.setColDefaultExpression(columnIndex, null);
                             table.setColumnTypeVars(columnIndex);
@@ -598,7 +602,8 @@ public class StatementSchema extends Statement {
                         }
                         case StatementTypes.ALTER_COLUMN_DROP_GENERATED : {
                             ColumnSchema column = (ColumnSchema) arguments[2];
-                            int          columnIndex = ((Integer) arguments[3]).intValue();
+                            int columnIndex =
+                                ((Integer) arguments[3]).intValue();
 
                             column.setIdentity(null);
                             table.setColumnTypeVars(columnIndex);
@@ -652,8 +657,7 @@ public class StatementSchema extends Statement {
                     view.compile(session, null);
 
                     OrderedHashSet dependents =
-                        schemaManager.getReferencingObjectNames(
-                            oldView.getName());
+                        schemaManager.getReferencesTo(oldView.getName());
 
                     if (dependents.getCommonElementCount(view.getReferences())
                             > 0) {
@@ -1378,8 +1382,7 @@ public class StatementSchema extends Statement {
         Type domain =
             (Type) session.database.schemaManager.getSchemaObject(name);
         OrderedHashSet set =
-            session.database.schemaManager.getReferencingObjectNames(
-                domain.getName());
+            session.database.schemaManager.getReferencesTo(domain.getName());
 
         if (!cascade && set.size() > 0) {
             HsqlName objectName = (HsqlName) set.get(0);
