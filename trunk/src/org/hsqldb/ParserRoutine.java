@@ -468,9 +468,8 @@ public class ParserRoutine extends ParserDML {
         restrict = readIfThis(Tokens.RESTRICT);
 
         if (restrict) {
-            OrderedHashSet set =
-                database.schemaManager.getReferencingObjectNames(
-                    routine.getSpecificName());
+            OrderedHashSet set = database.schemaManager.getReferencesTo(
+                routine.getSpecificName());
 
             if (!set.isEmpty()) {
                 throw Error.error(ErrorCode.X_42502);
