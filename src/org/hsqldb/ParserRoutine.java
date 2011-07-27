@@ -173,7 +173,7 @@ public class ParserRoutine extends ParserDML {
                 throw Error.error(ErrorCode.X_42562);
             }
 
-            resolveOuterReferencesAndTypes(RangeVariable.emptyArray, e);
+            e.dataType = dataType;
 
             return e;
         }
@@ -1425,6 +1425,14 @@ public class ParserRoutine extends ParserDML {
                     } else {
                         cs = compileSetStatement(rangeVariables);
                     }
+                    break;
+
+                case Tokens.GET :
+                    if (label != null) {
+                        throw unexpectedToken();
+                    }
+
+                    cs = this.compileGetStatement(rangeVariables);
                     break;
 
                 // control

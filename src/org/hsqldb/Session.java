@@ -76,7 +76,7 @@ import org.hsqldb.types.Type.TypedComparator;
  * Implementation of SQL sessions.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.1.1
+ * @version 2.2.6
  * @since 1.7.0
  */
 public class Session implements SessionInterface {
@@ -166,7 +166,7 @@ public class Session implements SessionInterface {
         this.zoneString             = zoneString;
         this.sessionTimeZoneSeconds = timeZoneSeconds;
         this.timeZoneSeconds        = timeZoneSeconds;
-        rowActionList               = new HsqlArrayList(true);
+        rowActionList               = new HsqlArrayList(32, true);
         waitedSessions              = new OrderedHashSet();
         waitingSessions             = new OrderedHashSet();
         tempSet                     = new OrderedHashSet();
@@ -478,15 +478,11 @@ public class Session implements SessionInterface {
                 actionTimestamp);
             database.txManager.rollbackAction(this);
         } else {
-            if (result.mode == ResultConstants.UPDATECOUNT) {
                 sessionContext
                     .diagnosticsVariables[ExpressionColumn.idx_row_count] =
-                        Integer.valueOf(result.getUpdateCount());
-            } else {
-                sessionContext
-                    .diagnosticsVariables[ExpressionColumn.idx_row_count] =
-                        ValuePool.INTEGER_0;
-            }
+                    result.mode == ResultConstants.UPDATECOUNT
+                    ? Integer.valueOf(result.getUpdateCount())
+                    : ValuePool.INTEGER_0;
 
             database.txManager.completeActions(this);
         }

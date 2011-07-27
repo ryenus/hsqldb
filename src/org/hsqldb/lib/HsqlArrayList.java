@@ -70,7 +70,7 @@ public class HsqlArrayList extends BaseList implements HsqlList {
         }
     }
 */
-    private static final int   DEFAULT_INITIAL_CAPACITY = 10;
+    private static final int   DEFAULT_INITIAL_CAPACITY = 8;
     private static final float DEFAULT_RESIZE_FACTOR    = 2.0f;
     Object[]                   elementData;
     Object[]                   reserveElementData;
@@ -92,10 +92,14 @@ public class HsqlArrayList extends BaseList implements HsqlList {
      * Creates a new instance of HsqlArrayList that minimizes the size when
      * empty
      */
-    public HsqlArrayList(boolean minimize) {
+    public HsqlArrayList(int initialCapacity, boolean minimize) {
 
 //        reporter.initCounter++;
-        elementData     = new Object[DEFAULT_INITIAL_CAPACITY];
+        if (initialCapacity < DEFAULT_INITIAL_CAPACITY) {
+            initialCapacity = DEFAULT_INITIAL_CAPACITY;
+        }
+
+        elementData     = new Object[initialCapacity];
         minimizeOnClear = minimize;
     }
 
@@ -108,11 +112,11 @@ public class HsqlArrayList extends BaseList implements HsqlList {
                 "Invalid initial capacity given");
         }
 
-        if (initialCapacity == 0) {
-            elementData = new Object[1];
-        } else {
-            elementData = new Object[initialCapacity];
+        if (initialCapacity < DEFAULT_INITIAL_CAPACITY) {
+            initialCapacity = DEFAULT_INITIAL_CAPACITY;
         }
+
+        elementData = new Object[initialCapacity];
     }
 
     /** Inserts an element at the given index */

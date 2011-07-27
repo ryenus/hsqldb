@@ -129,7 +129,7 @@ public class SessionContext {
         session.sessionData.persistentStoreCollection.push();
 
         if (stack == null) {
-            stack = new HsqlArrayList(true);
+            stack = new HsqlArrayList(32, true);
         }
 
         stack.add(diagnosticsVariables);

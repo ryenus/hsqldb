@@ -6035,11 +6035,11 @@ public class ParserDQL extends ParserBase {
         private HsqlArrayList namedSubqueries;
 
         //
-        private OrderedIntKeyHashMap parameters = new OrderedIntKeyHashMap();
-        private HsqlArrayList        usedSequences  = new HsqlArrayList(true);
-        private HsqlArrayList        usedRoutines   = new HsqlArrayList(true);
-        private HsqlArrayList        rangeVariables = new HsqlArrayList(true);
-        private HsqlArrayList        usedObjects    = new HsqlArrayList(true);
+        private OrderedIntKeyHashMap parameters   = new OrderedIntKeyHashMap();
+        private HsqlArrayList usedSequences       = new HsqlArrayList(8, true);
+        private HsqlArrayList        usedRoutines = new HsqlArrayList(8, true);
+        private HsqlArrayList rangeVariables      = new HsqlArrayList(8, true);
+        private HsqlArrayList        usedObjects  = new HsqlArrayList(8, true);
         Type                         currentDomain;
         boolean                      contextuallyTypedExpression;
         Routine                      callProcedure;
