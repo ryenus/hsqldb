@@ -212,6 +212,10 @@ public class StatementDML extends StatementDMQL {
                 throw Error.runtimeError(ErrorCode.U_S0500, "StatementDML");
         }
 
+        session.sessionContext
+            .diagnosticsVariables[ExpressionColumn.idx_row_count] =
+                Integer.valueOf(result.getUpdateCount());
+
         return result;
     }
 
@@ -802,7 +806,6 @@ public class StatementDML extends StatementDMQL {
 
             // for identity using global sequence
             session.sessionData.startRowProcessing();
-
             baseTable.insertSingleRow(session, store, data, null);
 
             if (checkIterator != null) {

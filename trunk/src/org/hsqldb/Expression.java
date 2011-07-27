@@ -1069,25 +1069,31 @@ public class Expression implements Cloneable {
 
             case OpTypes.ARRAY : {
                 boolean hasUndefined = false;
+                Type    nodeDataType = null;
 
                 for (int i = 0; i < nodes.length; i++) {
                     if (nodes[i].dataType == null) {
                         hasUndefined = true;
                     } else {
-                        dataType = Type.getAggregateType(dataType,
-                                                         nodes[i].dataType);
+                        nodeDataType =
+                            Type.getAggregateType(nodeDataType,
+                                                  nodes[i].dataType);
                     }
                 }
 
                 if (hasUndefined) {
                     for (int i = 0; i < nodes.length; i++) {
                         if (nodes[i].dataType == null) {
-                            nodes[i].dataType = dataType;
+                            nodes[i].dataType = nodeDataType;
                         }
                     }
                 }
 
-                dataType = new ArrayType(dataType, nodes.length);
+                if (hasUndefined && nodeDataType == null) {
+                    throw Error.error(ErrorCode.X_42567);
+                }
+
+                dataType = new ArrayType(nodeDataType, nodes.length);
 
                 return;
             }
