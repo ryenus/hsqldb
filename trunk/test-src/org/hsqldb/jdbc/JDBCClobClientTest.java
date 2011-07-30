@@ -58,7 +58,7 @@ public class JDBCClobClientTest extends BaseClobTestCase {
     protected Clob handleCreateClob() throws Exception {
         Connection conn = newConnection();
 
-        Statement stmt = connectionFactory().createStatement(conn);
+        Statement  stmt = connectionFactory().createStatement(conn);
 
         stmt.execute("drop table clob_client_test if exists");
         stmt.execute("create table clob_client_test(id int, clob_value clob)");
@@ -71,7 +71,7 @@ public class JDBCClobClientTest extends BaseClobTestCase {
 
         pstmt.execute();
 
-        ResultSet rs = stmt.executeQuery("select clob_value from clob_client_test where id = 1 ");
+        ResultSet rs = stmt.executeQuery("select clob_value from clob_client_test where id = 1 for update");
 
         rs.next();
 
@@ -79,7 +79,7 @@ public class JDBCClobClientTest extends BaseClobTestCase {
     }
 
     public static Test suite() {
-       return new TestSuite(JDBCClobClientTest.class);
+        return new TestSuite(JDBCClobClientTest.class);
     }
 
     public static void main(java.lang.String[] argList) {
