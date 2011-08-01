@@ -56,7 +56,7 @@ import org.hsqldb.types.UserTypeModifier;
  * Parser for DDL statements
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.1.1
+ * @version 2.2.6
  * @since 1.9.0
  */
 public class ParserDDL extends ParserRoutine {
@@ -1632,7 +1632,7 @@ public class ParserDDL extends ParserRoutine {
         HsqlName name = readNewSchemaObjectName(SchemaObject.SEQUENCE, false);
         NumberSequence sequence = new NumberSequence(name, Type.SQL_INTEGER);
 
-        readSequenceOptions(sequence, true, false);
+        readSequenceOptions(sequence, true, false, false);
 
         String     sql             = getLastPart();
         Object[]   args            = new Object[]{ sequence };
@@ -2481,7 +2481,7 @@ public class ParserDDL extends ParserRoutine {
 
                         if (token.tokenType == Tokens.OPENBRACKET) {
                             read();
-                            readSequenceOptions(sequence, false, false);
+                            readSequenceOptions(sequence, false, false, true);
                             readThis(Tokens.CLOSEBRACKET);
                         }
 
@@ -2602,7 +2602,8 @@ public class ParserDDL extends ParserRoutine {
     }
 
     private void readSequenceOptions(NumberSequence sequence,
-                                     boolean withType, boolean isAlter) {
+                                     boolean withType, boolean isAlter,
+                                     boolean allowComma) {
 
         OrderedIntHashSet set = new OrderedIntHashSet();
 
@@ -2617,6 +2618,7 @@ public class ParserDDL extends ParserRoutine {
 
                 case Tokens.AS : {
                     if (withType) {
+                        set.add(token.tokenType);
                         read();
 
                         Type type = readTypeDefinition(false, true);
@@ -2673,6 +2675,10 @@ public class ParserDDL extends ParserRoutine {
                 case Tokens.NO :
                     read();
 
+                    if (set.contains(token.tokenType)) {
+                        throw unexpectedToken();
+                    }
+
                     if (token.tokenType == Tokens.MAXVALUE) {
                         sequence.setDefaultMaxValue();
                     } else if (token.tokenType == Tokens.MINVALUE) {
@@ -2713,6 +2719,15 @@ public class ParserDDL extends ParserRoutine {
                     sequence.setCycle(true);
                     break;
 
+                case Tokens.COMMA : {
+                    if (allowComma) {
+                        read();
+
+                        break;
+                    }
+                }
+
+                // fall through
                 default :
                     end = true;
                     break;
@@ -3883,7 +3898,7 @@ public class ParserDDL extends ParserRoutine {
 
         NumberSequence copy = sequence.duplicate();
 
-        readSequenceOptions(copy, false, true);
+        readSequenceOptions(copy, false, true, false);
 
         String   sql  = getLastPart();
         Object[] args = new Object[] {
@@ -3944,7 +3959,7 @@ public class ParserDDL extends ParserRoutine {
 
         if (token.tokenType == Tokens.OPENBRACKET) {
             read();
-            readSequenceOptions(sequence, false, false);
+            readSequenceOptions(sequence, false, false, false);
             readThis(Tokens.CLOSEBRACKET);
         }
 
