@@ -64,7 +64,7 @@ import org.hsqldb.types.TimestampData;
  * protocol.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.0.1
+ * @version 2.2.6
  * @since 1.7.2
  */
 public class ClientConnection implements SessionInterface {
@@ -570,8 +570,8 @@ public class ClientConnection implements SessionInterface {
 
         if (clientProperties == null) {
             if (clientPropertiesString.length() > 0) {
-                HsqlProperties.delimitedArgPairsToProps(clientPropertiesString,
-                        "=", ";", null);
+                clientProperties = HsqlProperties.delimitedArgPairsToProps(
+                    clientPropertiesString, "=", ";", null);
             } else {
                 clientProperties = new HsqlProperties();
             }
@@ -591,7 +591,6 @@ public class ClientConnection implements SessionInterface {
     public String getDatabaseUniqueName() {
         return databaseUniqueName;
     }
-
 
     /**
      * Converts specified encoded integer to a Network Compatibility Version

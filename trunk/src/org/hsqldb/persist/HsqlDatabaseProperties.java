@@ -47,7 +47,7 @@ import org.hsqldb.lib.StringUtil;
  * Manages a .properties file for a database.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.2.1
+ * @version 2.2.6
  * @since 1.7.0
  */
 public class HsqlDatabaseProperties extends HsqlProperties {
@@ -922,6 +922,8 @@ public class HsqlDatabaseProperties extends HsqlProperties {
             StringBuffer sb = new StringBuffer(jdbc_translate_tti_types);
 
             sb.append('=').append(true);
+
+            return sb.toString();
         }
 
         return "";
