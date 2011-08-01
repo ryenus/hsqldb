@@ -1,7 +1,11 @@
-14 July 2011 - SVN 4376
+1 August 2011 - SVN 4387
+-- fixed issue with TIME ZONE types JDBC type reporting in server
+-- fixed issue with type resolution of arrays
 -- fixed issue with identical prepared statements in session
 -- added support for ROWNUM() in UPDATE and DELETE statements
+-- added backward compatibility for IDENTITY options with commas
 -- improved data type determination for dynamic variables
+-- minor improvements
 5 July 2011 - version 2.2.5
 -- fixed UNNEST in subquery
 -- fixed issue with INFORMATION_SCHEMA.ELEMENT_TYPES view
