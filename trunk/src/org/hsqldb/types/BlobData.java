@@ -64,15 +64,12 @@ public interface BlobData extends LobData {
 
     boolean isBits();
 
-    int setBytes(SessionInterface session, long pos, byte[] bytes, int offset,
-                 int len);
+    void setBytes(SessionInterface session, long pos, byte[] bytes,
+                  int offset, int len);
 
-    int setBytes(SessionInterface session, long pos, byte[] bytes);
+    void setBytes(SessionInterface session, long pos, byte[] bytes);
 
-    public long setBinaryStream(SessionInterface session, long pos,
-                                InputStream in);
-
-    OutputStream setBinaryStream(SessionInterface session, long pos);
+    void setBinaryStream(SessionInterface session, long pos, InputStream in);
 
     void truncate(SessionInterface session, long len);
 

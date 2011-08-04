@@ -2005,7 +2005,6 @@ public class JDBCConnection implements Connection {
         }
 
         return savepoint;
-
     }
 
 //#endif JAVA4
@@ -3106,31 +3105,31 @@ public class JDBCConnection implements Connection {
 // --------------------------- Added: Mustang Build 80 -------------------------
 
     /**
-      * Factory method for creating Array objects.
-      *<p>
-      * <b>Note: </b>When <code>createArrayOf</code> is used to create an array object
-      * that maps to a primitive data type, then it is implementation-defined
-      * whether the <code>Array</code> object is an array of that primitive
-      * data type or an array of <code>Object</code>.
-      * <p>
-      * <b>Note: </b>The JDBC driver is responsible for mapping the elements
-      * <code>Object</code> array to the default JDBC SQL type defined in
-      * java.sql.Types for the given class of <code>Object</code>. The default
-      * mapping is specified in Appendix B of the JDBC specification.  If the
-      * resulting JDBC type is not the appropriate type for the given typeName then
-      * it is implementation defined whether an <code>SQLException</code> is
-      * thrown or the driver supports the resulting conversion.
-      *
-      * @param typeName the SQL name of the type the elements of the array map to. The typeName is a
-      * database-specific name which may be the name of a built-in type, a user-defined type or a standard  SQL type supported by this database. This
-      *  is the value returned by <code>Array.getBaseTypeName</code>
-      * @param elements the elements that populate the returned object
-      * @return an Array object whose elements map to the specified SQL type
-      * @throws SQLException if a database error occurs, the JDBC type is not
-      *  appropriate for the typeName and the conversion is not supported, the typeName is null or this method is called on a closed connection
-      * @throws SQLFeatureNotSupportedException  if the JDBC driver does not support this data type
-      * @since 1.6
-      */
+     *  Factory method for creating Array objects.
+     * <p>
+     *  <b>Note: </b>When <code>createArrayOf</code> is used to create an array object
+     *  that maps to a primitive data type, then it is implementation-defined
+     *  whether the <code>Array</code> object is an array of that primitive
+     *  data type or an array of <code>Object</code>.
+     *  <p>
+     *  <b>Note: </b>The JDBC driver is responsible for mapping the elements
+     *  <code>Object</code> array to the default JDBC SQL type defined in
+     *  java.sql.Types for the given class of <code>Object</code>. The default
+     *  mapping is specified in Appendix B of the JDBC specification.  If the
+     *  resulting JDBC type is not the appropriate type for the given typeName then
+     *  it is implementation defined whether an <code>SQLException</code> is
+     *  thrown or the driver supports the resulting conversion.
+     *
+     *  @param typeName the SQL name of the type the elements of the array map to. The typeName is a
+     *  database-specific name which may be the name of a built-in type, a user-defined type or a standard  SQL type supported by this database. This
+     *   is the value returned by <code>Array.getBaseTypeName</code>
+     *  @param elements the elements that populate the returned object
+     *  @return an Array object whose elements map to the specified SQL type
+     *  @throws SQLException if a database error occurs, the JDBC type is not
+     *   appropriate for the typeName and the conversion is not supported, the typeName is null or this method is called on a closed connection
+     *  @throws SQLFeatureNotSupportedException  if the JDBC driver does not support this data type
+     *  @since 1.6
+     */
 //#ifdef JAVA6
     public Array createArrayOf(String typeName,
                                Object[] elements) throws SQLException {
@@ -3159,11 +3158,13 @@ public class JDBCConnection implements Connection {
         try {
             for (int i = 0; i < elements.length; i++) {
                 Object o = type.convertJavaToSQL(sessionProxy, elements[i]);
+
                 newData[i] = type.convertToTypeLimits(sessionProxy, o);
             }
         } catch (HsqlException e) {
             throw Util.sqlException(e);
         }
+
         return new JDBCArray(newData, type, this);
     }
 

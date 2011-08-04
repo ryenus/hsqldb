@@ -33,7 +33,6 @@ package org.hsqldb.types;
 
 import java.io.Reader;
 
-import org.hsqldb.HsqlException;
 import org.hsqldb.SessionInterface;
 
 /**
@@ -55,19 +54,21 @@ public interface ClobData extends LobData {
     ClobData getClob(SessionInterface session, final long pos,
                      final long length);
 
+    ClobData duplicate(SessionInterface session);
+
     void truncate(SessionInterface session, long len);
 
     Reader getCharacterStream(SessionInterface session);
 
-    int setString(SessionInterface session, long pos, String str);
+    void setString(SessionInterface session, long pos, String str);
 
-    int setString(SessionInterface session, long pos, String str, int offset,
-                  int len);
+    void setClob(SessionInterface session, long pos, ClobData clob, long offset,
+                  long len);
 
-    int setChars(SessionInterface session, long pos, char[] chars, int offset,
+    void setChars(SessionInterface session, long pos, char[] chars, int offset,
                  int len);
 
-    public long setCharacterStream(SessionInterface session, long pos,
+    void setCharacterStream(SessionInterface session, long pos,
                                    Reader in);
 
     long position(SessionInterface session, String searchstr, long start);

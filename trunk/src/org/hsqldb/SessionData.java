@@ -46,6 +46,7 @@ import org.hsqldb.lib.CountdownInputStream;
 import org.hsqldb.lib.HashMap;
 import org.hsqldb.lib.HsqlByteArrayOutputStream;
 import org.hsqldb.lib.Iterator;
+import org.hsqldb.lib.LongDeque;
 import org.hsqldb.lib.LongKeyHashMap;
 import org.hsqldb.lib.LongKeyLongValueHashMap;
 import org.hsqldb.lib.ReaderInputStream;
@@ -84,6 +85,9 @@ public class SessionData {
     // SEQUENCE
     HashMap sequenceMap;
     HashMap sequenceUpdateMap;
+
+    // LOBS
+    LongDeque newLobIDs;
 
     public SessionData(Database database, Session session) {
 
@@ -297,15 +301,34 @@ public class SessionData {
         resultMap.clear();
     }
 
+    // lob creation
+    public void registerNewLob(long lobID) {
+
+        if (newLobIDs == null) {
+            newLobIDs = new LongDeque();
+        }
+
+        newLobIDs.add(lobID);
+
+        hasLobOps = true;
+    }
+
+    public LongDeque getNewLobIDs() {
+        return newLobIDs;
+    }
+
+    public void clearNewLobIDs() {
+
+        if (newLobIDs != null) {
+            newLobIDs.clear();
+        }
+    }
+
     // lobs in results
     LongKeyLongValueHashMap resultLobs = new LongKeyLongValueHashMap();
 
     // lobs in transaction
     boolean hasLobOps;
-
-    public void addToCreatedLobs(long lobID) {
-        hasLobOps = true;
-    }
 
     public void adjustLobUsageCount(Object value, int adjust) {
 
@@ -446,10 +469,10 @@ public class SessionData {
 
                     // server session + unknown lob length
                     long   blobId     = resultLobs.get(result.getLobID());
-                    long   blobLength = result.getBlockLength();
+                    long   dataLength = result.getBlockLength();
                     byte[] byteArray  = result.getByteArray();
                     Result actionResult = database.lobManager.setBytes(blobId,
-                        result.getOffset(), byteArray);
+                        result.getOffset(), byteArray, (int) dataLength);
 
                     break;
                 }
@@ -457,7 +480,7 @@ public class SessionData {
 
                     // server session + unknown lob length
                     long   clobId     = resultLobs.get(result.getLobID());
-                    long   clobLength = result.getBlockLength();
+                    long   dataLength = result.getBlockLength();
                     char[] charArray  = result.getCharArray();
                     Result actionResult = database.lobManager.setChars(clobId,
                         result.getOffset(), charArray);
@@ -486,14 +509,9 @@ public class SessionData {
             byteArrayOS.write(stream, bufferLength);
 
             byte[] byteArray = byteArrayOS.getBuffer();
-
-            if (byteArrayOS.size() < bufferLength) {
-                byteArray = byteArrayOS.toByteArray();
-            }
-
             Result actionResult =
                 database.lobManager.setBytes(result.getLobID(), currentOffset,
-                                             byteArray);
+                                             byteArray, byteArrayOS.size());
 
             currentOffset += byteArrayOS.size();
 

@@ -65,9 +65,10 @@ public final class ResultLob extends Result {
         int REQUEST_TRUNCATE                  = 9;
         int REQUEST_GET_LENGTH                = 10;
         int REQUEST_GET_LOB                   = 11;
+        int REQUEST_DUPLICATE_LOB             = 12;
 
         // non-network
-        int REQUEST_GET_TRUNCATE_LENGTH = 12;
+        int REQUEST_GET_TRUNCATE_LENGTH = 13;
 
         //
         int RESPONSE_GET_BYTES                 = 21;
@@ -320,8 +321,8 @@ public final class ResultLob extends Result {
 
         ResultLob result = new ResultLob();
 
-        result.subType = LobResultTypes.RESPONSE_TRUNCATE;
-        result.lobID   = id;
+        result.subType     = LobResultTypes.RESPONSE_TRUNCATE;
+        result.lobID       = id;
         result.blockLength = length;
 
         return result;
@@ -336,6 +337,16 @@ public final class ResultLob extends Result {
         result.lobID       = id;
         result.blockOffset = offset;
         result.blockLength = length;
+
+        return result;
+    }
+
+    public static ResultLob newLobDuplicateRequest(long id) {
+
+        ResultLob result = new ResultLob();
+
+        result.subType = LobResultTypes.REQUEST_DUPLICATE_LOB;
+        result.lobID   = id;
 
         return result;
     }
@@ -359,6 +370,7 @@ public final class ResultLob extends Result {
                 break;
 
             case LobResultTypes.REQUEST_GET_LOB :
+            case LobResultTypes.REQUEST_DUPLICATE_LOB :
 
             //
             case LobResultTypes.REQUEST_GET_BYTES :
@@ -493,6 +505,7 @@ public final class ResultLob extends Result {
                 break;
 
             case LobResultTypes.REQUEST_GET_LOB :
+            case LobResultTypes.REQUEST_DUPLICATE_LOB :
 
             //
             case LobResultTypes.REQUEST_GET_BYTES :

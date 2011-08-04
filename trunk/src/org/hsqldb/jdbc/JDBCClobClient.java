@@ -60,7 +60,7 @@ import org.hsqldb.types.ClobInputStream;
  * Instances of this class are returned by calls to ResultSet methods.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.0.1
+ * @version 2.2.6
  * @since  JDK 1.2, HSQLDB 1.9.0
  */
 public class JDBCClobClient implements Clob {
@@ -141,7 +141,7 @@ public class JDBCClobClient implements Clob {
                                       : m_byteBuffer;
 
                 // Since ASCII is single-byte, retrict encoder character consumption
-                // to at most 'len' characters' to produce at most len ASCII 
+                // to at most 'len' characters' to produce at most len ASCII
                 // characters
                 int cbLimit     = cb.limit();
                 int cbPosistion = cb.position();
@@ -334,7 +334,22 @@ public class JDBCClobClient implements Clob {
      */
     public synchronized long position(Clob searchstr,
                                       long start) throws SQLException {
-        return position(searchstr.getSubString(0, (int) searchstr.length()),
+
+        if (!isInLimits(Long.MAX_VALUE, start - 1, 0)) {
+            throw Util.outOfRangeArgument();
+        }
+
+        if (searchstr instanceof JDBCClobClient) {
+            ClobDataID searchClob = ((JDBCClobClient) searchstr).clob;
+
+            try {
+                return clob.position(session, searchClob, start - 1);
+            } catch (HsqlException e) {
+                throw Util.sqlException(e);
+            }
+        }
+
+        return position(searchstr.getSubString(1, (int) searchstr.length()),
                         start);
     }
 
@@ -357,6 +372,11 @@ public class JDBCClobClient implements Clob {
         if (pos < 1) {
             throw Util.outOfRangeArgument("pos: " + pos);
         }
+
+        if (!isWritable) {
+            throw Util.notUpdatableColumn();
+        }
+        startUpdate();
 
         return new OutputStream() {
 
@@ -471,6 +491,15 @@ public class JDBCClobClient implements Clob {
 
         checkClosed();
 
+        if (pos < 1) {
+            throw Util.outOfRangeArgument("pos: " + pos);
+        }
+
+        if (!isWritable) {
+            throw Util.notUpdatableColumn();
+        }
+        startUpdate();
+
         return new Writer() {
 
             private long    m_clobPosition = pos - 1;
@@ -538,13 +567,26 @@ public class JDBCClobClient implements Clob {
     public synchronized int setString(long pos, String str, int offset,
                                       int len) throws SQLException {
 
-        if (!isInLimits(Long.MAX_VALUE, pos - 1, len)) {
+        if (!isInLimits(str.length(), offset, len)) {
             throw Util.outOfRangeArgument();
         }
         checkClosed();
 
+        if (pos < 1) {
+            throw Util.outOfRangeArgument("pos: " + pos);
+        }
+
+        if (!isWritable) {
+            throw Util.notUpdatableColumn();
+        }
+        startUpdate();
+
+        str = str.substring(offset, offset + len);
+
         try {
-            return clob.setString(session, pos - 1, str, offset, len);
+            clob.setString(session, pos - 1, str);
+
+            return len;
         } catch (HsqlException e) {
             throw Util.sqlException(e);
         }
@@ -636,9 +678,13 @@ public class JDBCClobClient implements Clob {
     }
 
     //
+    ClobDataID       originalClob;
     ClobDataID       clob;
     SessionInterface session;
-    boolean          isClosed;
+    int              colIndex;
+    private boolean  isClosed;
+    private boolean  isWritable;
+    JDBCResultSet    resultSet;
 
     public JDBCClobClient(SessionInterface session, ClobDataID clob) {
         this.session = session;
@@ -651,6 +697,35 @@ public class JDBCClobClient implements Clob {
 
     public synchronized boolean isClosed() {
         return isClosed;
+    }
+
+    public synchronized void setWritable(JDBCResultSet result, int index) {
+
+        isWritable = true;
+        resultSet  = result;
+        colIndex   = index;
+    }
+
+    public synchronized void clearUpdates() {
+
+        if (originalClob != null) {
+            clob         = originalClob;
+            originalClob = null;
+        }
+    }
+
+    private void startUpdate() throws SQLException {
+
+        if (originalClob != null) {
+            return;
+        }
+        originalClob = clob;
+        clob         = (ClobDataID) clob.duplicate(session);
+
+        resultSet.startUpdate(colIndex + 1);
+
+        resultSet.preparedStatement.parameterValues[colIndex] = clob;
+        resultSet.preparedStatement.parameterSet[colIndex]    = Boolean.TRUE;
     }
 
     private void checkClosed() throws SQLException {

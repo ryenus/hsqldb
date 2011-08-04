@@ -4410,7 +4410,17 @@ public class JDBCResultSet implements ResultSet {
         }
 
         if (o instanceof BlobDataID) {
-            return new JDBCBlobClient(session, (BlobDataID) o);
+            JDBCBlobClient blob = new JDBCBlobClient(session, (BlobDataID) o);
+
+            if (isUpdatable) {
+                if (resultMetaData.colIndexes[columnIndex - 1] > 0
+                        && resultMetaData.columns[columnIndex - 1]
+                            .isWriteable()) {
+                    blob.setWritable(this, columnIndex - 1);
+                }
+            }
+
+            return blob;
         } else if (o instanceof Blob) {
             return (Blob) o;
         } else if (o instanceof BinaryData) {
@@ -4462,7 +4472,17 @@ public class JDBCResultSet implements ResultSet {
         }
 
         if (o instanceof ClobDataID) {
-            return new JDBCClobClient(session, (ClobDataID) o);
+            JDBCClobClient clob = new JDBCClobClient(session, (ClobDataID) o);
+
+            if (isUpdatable) {
+                if (resultMetaData.colIndexes[columnIndex - 1] > 0
+                        && resultMetaData.columns[columnIndex - 1]
+                            .isWriteable()) {
+                    clob.setWritable(this, columnIndex - 1);
+                }
+            }
+
+            return clob;
         } else if (o instanceof Clob) {
             return (Clob) o;
         } else if (o instanceof String) {

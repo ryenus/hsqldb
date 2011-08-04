@@ -290,24 +290,32 @@ class SubQuery implements Comparator {
 
         Result result;
 
-        if (isRecursive) {
-            result = queryExpression.getResultRecursive(session, recursiveSubQuery.table);
-        } else {
-            result = queryExpression.getResult(session, isExistsPredicate ? 1
-                                                                          : 0);
+        session.sessionContext.pushForSubquery();
+
+        try {
+            if (isRecursive) {
+                result = queryExpression.getResultRecursive(session,
+                        recursiveSubQuery.table);
+            } else {
+                result = queryExpression.getResult(session,
+                                                   isExistsPredicate ? 1
+                                                                     : 0);
+            }
+
+            if (uniqueRows) {
+                RowSetNavigatorData navigator =
+                    ((RowSetNavigatorData) result.getNavigator());
+
+                navigator.removeDuplicates(session);
+            }
+
+            store = session.sessionData.getSubqueryRowStore(table);
+
+            table.insertResult(session, store, result);
+            result.getNavigator().close();
+        } finally {
+            session.sessionContext.popForSubquery();
         }
-
-        if (uniqueRows) {
-            RowSetNavigatorData navigator =
-                ((RowSetNavigatorData) result.getNavigator());
-
-            navigator.removeDuplicates(session);
-        }
-
-        store = session.sessionData.getSubqueryRowStore(table);
-
-        table.insertResult(session, store, result);
-        result.getNavigator().close();
     }
 
     public boolean hasUniqueNotNullRows(Session session) {

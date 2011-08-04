@@ -390,8 +390,13 @@ public class Log {
         }
 
         database.logger.logInfoEvent("checkpointClose start");
-        database.lobManager.deleteUnusedLobs();
         synchLog();
+        database.lobManager.synch();
+
+        if (!database.txManager.isMVCC()) {
+            database.lobManager.deleteUnusedLobs();
+        }
+
         deleteOldDataFiles();
 
         try {
@@ -489,6 +494,7 @@ public class Log {
 
 //
             synchLog();
+            database.lobManager.synch();
             deleteOldDataFiles();
 
             DataFileDefrag dfd = cache.defrag();

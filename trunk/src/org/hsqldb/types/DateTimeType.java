@@ -243,6 +243,14 @@ public final class DateTimeType extends DTIType {
 
     public Type getAggregateType(Type other) {
 
+        if (other == null) {
+            return this;
+        }
+
+        if (other == SQL_ALL_TYPES) {
+            return this;
+        }
+
         // DATE with DATE returned here
         if (typeCode == other.typeCode) {
             return scale >= other.scale ? this

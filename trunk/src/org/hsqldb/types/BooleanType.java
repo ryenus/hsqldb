@@ -84,6 +84,14 @@ public final class BooleanType extends Type {
 
     public Type getAggregateType(Type other) {
 
+        if (other == null) {
+            return this;
+        }
+
+        if (other == SQL_ALL_TYPES) {
+            return this;
+        }
+
         if (typeCode == other.typeCode) {
             return this;
         }

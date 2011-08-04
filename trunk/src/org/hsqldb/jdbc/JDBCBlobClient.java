@@ -48,7 +48,7 @@ import org.hsqldb.types.BlobInputStream;
  * Instances of this class are returnd by calls to ResultSet methods.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.0.1
+ * @version 2.2.6
  * @since 1.9.0
  */
 public class JDBCBlobClient implements Blob {
@@ -126,12 +126,18 @@ public class JDBCBlobClient implements Blob {
     public synchronized long position(byte[] pattern,
                                       long start) throws SQLException {
 
-        if (!isInLimits(Long.MAX_VALUE, start, 0)) {
+        if (!isInLimits(Long.MAX_VALUE, start - 1, 0)) {
             throw Util.outOfRangeArgument();
         }
 
         try {
-            return blob.position(session, pattern, start - 1);
+            long position = blob.position(session, pattern, start - 1);
+
+            if (position >= 0) {
+                position++;
+            }
+
+            return position;
         } catch (HsqlException e) {
             throw Util.sqlException(e);
         }
@@ -151,6 +157,26 @@ public class JDBCBlobClient implements Blob {
      */
     public synchronized long position(Blob pattern,
                                       long start) throws SQLException {
+
+        if (!isInLimits(Long.MAX_VALUE, start - 1, 0)) {
+            throw Util.outOfRangeArgument();
+        }
+
+        if (pattern instanceof JDBCBlobClient) {
+            BlobDataID searchClob = ((JDBCBlobClient) pattern).blob;
+
+            try {
+                long position = blob.position(session, searchClob, start - 1);
+
+                if (position >= 0) {
+                    position++;
+                }
+
+                return position;
+            } catch (HsqlException e) {
+                throw Util.sqlException(e);
+            }
+        }
 
         if (!isInLimits(Integer.MAX_VALUE, 0, pattern.length())) {
             throw Util.outOfRangeArgument();
@@ -177,19 +203,7 @@ public class JDBCBlobClient implements Blob {
      */
     public synchronized int setBytes(long pos,
                                      byte[] bytes) throws SQLException {
-
-        throw Util.notSupported();
-/*
-        if (!isInLimits(Long.MAX_VALUE, pos - 1, bytes.length)) {
-            throw Util.outOfRangeArgument();
-        }
-
-        try {
-            return blob.setBytes(session, pos - 1, bytes);
-        } catch (HsqlException e) {
-            throw Util.sqlException(e);
-        }
-*/
+        return setBytes(pos, bytes, 0, bytes.length);
     }
 
     /**
@@ -212,22 +226,27 @@ public class JDBCBlobClient implements Blob {
     public synchronized int setBytes(long pos, byte[] bytes, int offset,
                                      int len) throws SQLException {
 
-        throw Util.notSupported();
-/*
         if (!isInLimits(bytes.length, offset, len)) {
             throw Util.outOfRangeArgument();
         }
 
-        if (offset != 0 || len != bytes.length) {
-            byte[] newBytes = new byte[len];
-
-            System.arraycopy(bytes, (int) offset, newBytes, 0, len);
-
-            bytes = newBytes;
+        if (!isInLimits(Long.MAX_VALUE, pos - 1, len)) {
+            throw Util.outOfRangeArgument();
         }
 
-        return setBytes(pos, bytes);
-*/
+        if (!isWritable) {
+            throw Util.notUpdatableColumn();
+        }
+
+        startUpdate();
+
+        try {
+            blob.setBytes(session, pos - 1, bytes, offset, len);
+
+            return len;
+        } catch (HsqlException e) {
+            throw Util.sqlException(e);
+        }
     }
 
     /**
@@ -241,8 +260,8 @@ public class JDBCBlobClient implements Blob {
      * @throws SQLException if there is an error accessing the
      *   <code>BLOB</code> value
      */
-    public synchronized OutputStream setBinaryStream(
-            long pos) throws SQLException {
+    public synchronized OutputStream setBinaryStream(long pos)
+    throws SQLException {
         throw Util.notSupported();
     }
 
@@ -312,9 +331,13 @@ public class JDBCBlobClient implements Blob {
     }
 
     //--
+    BlobDataID       originalBlob;
     BlobDataID       blob;
     SessionInterface session;
-    boolean          isClosed;
+    int              colIndex;
+    private boolean  isClosed;
+    private boolean  isWritable;
+    JDBCResultSet    resultSet;
 
     public JDBCBlobClient(SessionInterface session, BlobDataID blob) {
         this.session = session;
@@ -327,6 +350,36 @@ public class JDBCBlobClient implements Blob {
 
     public BlobDataID getBlob() {
         return blob;
+    }
+
+    public synchronized void setWritable(JDBCResultSet result, int index) {
+
+        isWritable = true;
+        resultSet  = result;
+        colIndex   = index;
+    }
+
+    public synchronized void clearUpdates() {
+
+        if (originalBlob != null) {
+            blob         = originalBlob;
+            originalBlob = null;
+        }
+    }
+
+    private void startUpdate() throws SQLException {
+
+        if (originalBlob != null) {
+            return;
+        }
+
+        originalBlob = blob;
+        blob         = (BlobDataID) blob.duplicate(session);
+
+        resultSet.startUpdate(colIndex + 1);
+
+        resultSet.preparedStatement.parameterValues[colIndex] = blob;
+        resultSet.preparedStatement.parameterSet[colIndex]    = Boolean.TRUE;
     }
 
     private void checkClosed() throws SQLException {

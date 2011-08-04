@@ -605,6 +605,8 @@ public class Logger {
             return true;
         }
 
+        log.synchLog();
+        database.lobManager.synch();
         database.lobManager.deleteUnusedLobs();
 
         try {
@@ -933,12 +935,13 @@ public class Logger {
 
         if (logsStatements) {
             database.logger.logInfoEvent("Checkpoint start");
-            database.lobManager.synch();
             log.checkpoint(mode);
             database.sessionManager.resetLoggedSchemas();
             database.logger.logInfoEvent("Checkpoint end");
         } else if (!isFileDatabase()) {
-            database.lobManager.deleteUnusedLobs();
+            if (!database.txManager.isMVCC()) {
+                database.lobManager.deleteUnusedLobs();
+            }
         }
 
         checkpointRequired = false;

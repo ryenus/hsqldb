@@ -43,7 +43,7 @@ import org.hsqldb.result.ResultLob;
  * Locator for BLOB.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.2.3
+ * @version 2.2.6
  * @since 1.9.0
  */
 public class BlobDataID implements BlobData {
@@ -56,7 +56,16 @@ public class BlobDataID implements BlobData {
     }
 
     public BlobData duplicate(SessionInterface session) {
-        return null;
+        ResultLob resultOut = ResultLob.newLobDuplicateRequest(id);
+        Result    resultIn  = session.execute(resultOut);
+
+        if (resultIn.isError()) {
+            throw resultIn.getException();
+        }
+
+        long lobID = ((ResultLob) resultIn).getLobID();
+
+        return new BlobDataID(lobID);
     }
 
     public void free() {}
@@ -147,6 +156,7 @@ public class BlobDataID implements BlobData {
 
     public long position(SessionInterface session, BlobData pattern,
                          long start) {
+
         ResultLob resultOut = ResultLob.newLobGetCharPatternPositionRequest(id,
             pattern.getId(), start);
         Result resultIn = session.execute(resultOut);
@@ -163,18 +173,19 @@ public class BlobDataID implements BlobData {
 
         ResultLob resultOut = ResultLob.newLobGetBytePatternPositionRequest(id,
             pattern, start);
-        ResultLob resultIn = (ResultLob) session.execute(resultOut);
+        Result resultIn = session.execute(resultOut);
 
         if (resultIn.isError()) {
             throw resultIn.getException();
         }
 
-        return resultIn.getOffset();
+        return ((ResultLob) resultIn).getOffset();
     }
 
     public long nonZeroLength(SessionInterface session) {
+
         ResultLob resultOut = ResultLob.newLobGetTruncateLength(id);
-        Result resultIn = session.execute(resultOut);
+        Result    resultIn  = session.execute(resultOut);
 
         if (resultIn.isError()) {
             throw resultIn.getException();
@@ -183,12 +194,8 @@ public class BlobDataID implements BlobData {
         return ((ResultLob) resultIn).getBlockLength();
     }
 
-    public OutputStream setBinaryStream(SessionInterface session, long pos) {
-        return null;
-    }
-
-    public int setBytes(SessionInterface session, long pos, byte[] bytes,
-                        int offset, int len) {
+    public void setBytes(SessionInterface session, long pos, byte[] bytes,
+                         int offset, int len) {
 
         if (offset != 0 || len != bytes.length) {
             if (!BinaryData.isInLimits(bytes.length, offset, len)) {
@@ -203,22 +210,23 @@ public class BlobDataID implements BlobData {
         }
 
         ResultLob resultOut = ResultLob.newLobSetBytesRequest(id, pos, bytes);
-        Result    resultIn  = (ResultLob) session.execute(resultOut);
+        Result    resultIn  = session.execute(resultOut);
 
         if (resultIn.isError()) {
             throw resultIn.getException();
         }
 
-        return bytes.length;
+        length = ((ResultLob) resultIn).getBlockLength();
     }
 
-    public int setBytes(SessionInterface session, long pos, byte[] bytes) {
-        return setBytes(session, pos, bytes, 0, bytes.length);
+    public void setBytes(SessionInterface session, long pos, byte[] bytes) {
+        setBytes(session, pos, bytes, 0, bytes.length);
     }
 
-    public long setBinaryStream(SessionInterface session, long pos,
+    public void setBinaryStream(SessionInterface session, long pos,
                                 InputStream in) {
-        return 0;
+
+        //
     }
 
     public void setSession(SessionInterface session) {}

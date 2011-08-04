@@ -186,6 +186,14 @@ public class BinaryType extends Type {
 
     public Type getAggregateType(Type other) {
 
+        if (other == null) {
+            return this;
+        }
+
+        if (other == SQL_ALL_TYPES) {
+            return this;
+        }
+
         if (typeCode == other.typeCode) {
             return precision >= other.precision ? this
                                                 : other;
@@ -196,9 +204,6 @@ public class BinaryType extends Type {
         }
 
         switch (other.typeCode) {
-
-            case Types.SQL_ALL_TYPES :
-                return this;
 
             case Types.SQL_BIT :
             case Types.SQL_BIT_VARYING : {

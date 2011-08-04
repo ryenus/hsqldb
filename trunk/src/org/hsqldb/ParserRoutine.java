@@ -280,6 +280,7 @@ public class ParserRoutine extends ParserDML {
             targetTypes[i] = variables[i].getDataType();
         }
 
+        select.setReturningResult();
         select.resolve(session, rangeVars, targetTypes);
 
         if (select.getColumnCount() != variables.length) {

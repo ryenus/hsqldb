@@ -94,11 +94,15 @@ public final class OtherType extends Type {
 
     public Type getAggregateType(Type other) {
 
-        if (typeCode == other.typeCode) {
+        if (other == null) {
             return this;
         }
 
         if (other == SQL_ALL_TYPES) {
+            return this;
+        }
+
+        if (typeCode == other.typeCode) {
             return this;
         }
 

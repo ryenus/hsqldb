@@ -478,8 +478,8 @@ public class Session implements SessionInterface {
                 actionTimestamp);
             database.txManager.rollbackAction(this);
         } else {
-                sessionContext
-                    .diagnosticsVariables[ExpressionColumn.idx_row_count] =
+            sessionContext
+                .diagnosticsVariables[ExpressionColumn.idx_row_count] =
                     result.mode == ResultConstants.UPDATECOUNT
                     ? Integer.valueOf(result.getUpdateCount())
                     : ValuePool.INTEGER_0;
@@ -612,6 +612,7 @@ public class Session implements SessionInterface {
         rowActionList.clear();
         sessionData.persistentStoreCollection.clearTransactionTables();
         sessionData.closeAllTransactionNavigators();
+        sessionData.clearNewLobIDs();
 
         sessionContext.isReadOnly = isReadOnlyDefault ? Boolean.TRUE
                                                       : Boolean.FALSE;
@@ -647,6 +648,7 @@ public class Session implements SessionInterface {
         rollback(false);
         sessionData.closeAllNavigators();
         sessionData.persistentStoreCollection.clearAllTables();
+        sessionData.clearNewLobIDs();
         statementManager.reset();
 
         sessionContext.lastIdentity = ValuePool.INTEGER_0;
@@ -1822,26 +1824,26 @@ public class Session implements SessionInterface {
     // lobs
     public BlobDataID createBlob(long length) {
 
-        long lobID = database.lobManager.createBlob(length);
+        long lobID = database.lobManager.createBlob(this, length);
 
         if (lobID == 0) {
             throw Error.error(ErrorCode.X_0F502);
         }
 
-        sessionData.addToCreatedLobs(lobID);
+        sessionData.registerNewLob(lobID);
 
         return new BlobDataID(lobID);
     }
 
     public ClobDataID createClob(long length) {
 
-        long lobID = database.lobManager.createClob(length);
+        long lobID = database.lobManager.createClob(this, length);
 
         if (lobID == 0) {
             throw Error.error(ErrorCode.X_0F502);
         }
 
-        sessionData.addToCreatedLobs(lobID);
+        sessionData.registerNewLob(lobID);
 
         return new ClobDataID(lobID);
     }
@@ -1873,8 +1875,9 @@ public class Session implements SessionInterface {
                     id, cmd.getOffset(), (int) cmd.getBlockLength());
             }
             case ResultLob.LobResultTypes.REQUEST_SET_BYTES : {
-                return database.lobManager.setBytes(id, cmd.getOffset(),
-                                                    cmd.getByteArray());
+                return database.lobManager.setBytes(
+                    id, cmd.getOffset(), cmd.getByteArray(),
+                    (int) cmd.getBlockLength());
             }
             case ResultLob.LobResultTypes.REQUEST_GET_CHARS : {
                 return database.lobManager.getChars(
@@ -1885,10 +1888,10 @@ public class Session implements SessionInterface {
                                                     cmd.getCharArray());
             }
             case ResultLob.LobResultTypes.REQUEST_TRUNCATE : {
-                throw Error.error(ErrorCode.X_0A501);
+                return database.lobManager.truncate(id, cmd.getOffset());
             }
-            case ResultLob.LobResultTypes.REQUEST_GET_TRUNCATE_LENGTH : {
-                return database.lobManager.getTruncateLength(id);
+            case ResultLob.LobResultTypes.REQUEST_DUPLICATE_LOB : {
+                return database.lobManager.createDuplicateLob(id);
             }
             case ResultLob.LobResultTypes.REQUEST_CREATE_BYTES :
             case ResultLob.LobResultTypes.REQUEST_CREATE_CHARS :
