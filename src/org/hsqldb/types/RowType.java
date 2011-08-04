@@ -289,22 +289,26 @@ public class RowType extends Type {
         return true;
     }
 
-    public Type getAggregateType(Type otherType) {
+    public Type getAggregateType(Type other) {
 
-        if (otherType == null) {
+        if (other == null) {
             return this;
         }
 
-        if (otherType == this) {
+        if (other == SQL_ALL_TYPES) {
             return this;
         }
 
-        if (!otherType.isRowType()) {
+        if (other == this) {
+            return this;
+        }
+
+        if (!other.isRowType()) {
             throw Error.error(ErrorCode.X_42562);
         }
 
         Type[] newTypes   = new Type[dataTypes.length];
-        Type[] otherTypes = ((RowType) otherType).getTypesArray();
+        Type[] otherTypes = ((RowType) other).getTypesArray();
 
         if (dataTypes.length != otherTypes.length) {
             throw Error.error(ErrorCode.X_42564);

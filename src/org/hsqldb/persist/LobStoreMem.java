@@ -35,7 +35,7 @@ import org.hsqldb.lib.HsqlArrayList;
 
 /**
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 1.9.0
+ * @version 2.2.6
  * @since 1.9.0
  */
 public class LobStoreMem implements LobStore {
@@ -86,12 +86,6 @@ public class LobStoreMem implements LobStore {
 
         while (blockCount > 0) {
             int largeBlockIndex = blockAddress / blocksInLargeBlock;
-            int largeBlockLimit = (blockAddress + blockCount)
-                                  / blocksInLargeBlock;
-
-            if ((blockAddress + blockCount) % blocksInLargeBlock != 0) {
-                largeBlockLimit++;
-            }
 
             if (largeBlockIndex >= byteStoreList.size()) {
                 byteStoreList.add(new byte[largeBlockSize]);
@@ -112,6 +106,33 @@ public class LobStoreMem implements LobStore {
             blockAddress    += currentBlockCount;
             dataBlockOffset += currentBlockCount;
             blockCount      -= currentBlockCount;
+        }
+    }
+
+    public void setBlockBytes(byte[] dataBytes, long position, int offset,
+                              int length) {
+
+        while (length > 0) {
+            int largeBlockIndex = (int) (position / largeBlockSize);
+
+            if (largeBlockIndex >= byteStoreList.size()) {
+                byteStoreList.add(new byte[largeBlockSize]);
+            }
+
+            byte[] largeBlock = (byte[]) byteStoreList.get(largeBlockIndex);
+            int    offsetInLargeBlock = (int) (position % largeBlockSize);
+            int    currentLength      = length;
+
+            if ((offsetInLargeBlock + currentLength) > largeBlockSize) {
+                currentLength = largeBlockSize - offsetInLargeBlock;
+            }
+
+            System.arraycopy(dataBytes, offset, largeBlock,
+                             offsetInLargeBlock, currentLength);
+
+            position += currentLength;
+            offset   += currentLength;
+            length   -= currentLength;
         }
     }
 

@@ -983,7 +983,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         row    = t.getEmptyRowData();
         row[0] = "IGNORECASE";
         row[1] = session.isIgnorecase() ? Tokens.T_TRUE
-                                       : Tokens.T_FALSE;
+                                        : Tokens.T_FALSE;
 
         t.insertSys(session, store, row);
 

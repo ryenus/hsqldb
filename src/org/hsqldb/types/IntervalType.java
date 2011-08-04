@@ -350,16 +350,20 @@ public final class IntervalType extends DTIType {
 
     public Type getAggregateType(Type other) {
 
+        if (other == null) {
+            return this;
+        }
+
+        if (other == SQL_ALL_TYPES) {
+            return this;
+        }
+
         if (typeCode == other.typeCode) {
             if (precision >= other.precision && scale >= other.scale) {
                 return this;
             } else if (precision <= other.precision && scale <= other.scale) {
                 return other;
             }
-        }
-
-        if (other == SQL_ALL_TYPES) {
-            return this;
         }
 
         if (other.isCharacterType()) {

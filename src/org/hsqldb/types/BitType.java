@@ -120,15 +120,20 @@ public final class BitType extends BinaryType {
 
     public Type getAggregateType(Type other) {
 
+        if (other == null) {
+            return this;
+        }
+
+        if (other == SQL_ALL_TYPES) {
+            return this;
+        }
+
         if (typeCode == other.typeCode) {
             return precision >= other.precision ? this
                                                 : other;
         }
 
         switch (other.typeCode) {
-
-            case Types.SQL_ALL_TYPES :
-                return this;
 
             case Types.SQL_BIT :
                 return precision >= other.precision ? this

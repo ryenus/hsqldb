@@ -37,7 +37,7 @@ import java.lang.reflect.Array;
  * Collection of static methods for operations on arrays
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.2.5
+ * @version 2.2.6
  * @since 1.7.2
  */
 public class ArrayUtil {
@@ -909,6 +909,43 @@ public class ArrayUtil {
     }
 
     /**
+     * Byte arrays source and dest each begin at an offset in the common space.
+     * If there is an overlap between dest and the first length elements of
+     * the source, the overlapping elements are copied to dest.
+     */
+    public static void copyBytes(long sourceOffset, byte[] source,
+                                 int sourceOff, int length, long destOffset,
+                                 byte[] dest) {
+
+        if (sourceOffset + sourceOff >= destOffset + dest.length
+                || sourceOffset + sourceOff + length <= destOffset) {
+            return;
+        }
+
+        long sourceIndex = destOffset - sourceOffset;
+        long destIndex   = 0;
+        int  sourceLimit = sourceOff + length;
+
+        if (sourceIndex > 0) {
+            if (sourceIndex < sourceOff) {
+                sourceIndex = sourceOff;
+            }
+        } else {
+            destIndex   = -sourceIndex + sourceOff;
+            sourceIndex = sourceOff;
+        }
+
+        length = sourceLimit - (int) sourceIndex;
+
+        if (length > dest.length - destIndex) {
+            length = dest.length - (int) destIndex;
+        }
+
+        System.arraycopy(source, (int) sourceIndex, dest, (int) destIndex,
+                         length);
+    }
+
+    /**
      * Convenience wrapper for System.arraycopy().
      */
     public static void copyArray(Object source, Object dest, int count) {
@@ -1473,6 +1510,35 @@ public class ArrayUtil {
         }
 
         return bytes;
+    }
+
+    /**
+     * Compares two arrays. Returns -1, 0, +1. If one array is shorther and
+     * all the elements are equal to the other's elements, -1 is returned.
+     */
+    public static int compare(byte[] a, byte[] b) {
+
+        int length = a.length;
+
+        if (length > b.length) {
+            length = b.length;
+        }
+
+        for (int i = 0; i < length; i++) {
+            if (a[i] == b[i]) {
+                continue;
+            }
+
+            return a[i] < b[i] ? -1
+                               : 1;
+        }
+
+        if (a.length == b.length) {
+            return 0;
+        }
+
+        return a.length < b.length ? -1
+                                   : 1;
     }
 
     /**

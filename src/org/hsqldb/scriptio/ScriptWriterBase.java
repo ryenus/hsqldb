@@ -370,7 +370,7 @@ public abstract class ScriptWriterBase implements Runnable {
                                            String s) throws IOException;
 
     public abstract void writeOtherStatement(Session session,
-                                           String s) throws IOException;
+            String s) throws IOException;
 
     public abstract void writeInsertStatement(Session session, Row row,
             Table table) throws IOException;

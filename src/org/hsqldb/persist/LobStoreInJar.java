@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2010, The HSQL Development Group
+/* Copyright (c) 2001-2011, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -42,7 +42,7 @@ import org.hsqldb.error.ErrorCode;
 
 /**
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 1.9.0
+ * @version 2.2.6
  * @since 1.9.0
  */
 public class LobStoreInJar implements LobStore {
@@ -91,6 +91,9 @@ public class LobStoreInJar implements LobStore {
 
     public void setBlockBytes(byte[] dataBytes, int blockAddress,
                               int blockCount) {}
+
+    public void setBlockBytes(byte[] dataBytes, long position, int offset,
+                              int length) {}
 
     public int getBlockSize() {
         return lobBlockSize;

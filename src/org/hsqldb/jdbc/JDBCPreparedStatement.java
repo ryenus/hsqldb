@@ -4276,16 +4276,17 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
             }
             case Types.SQL_CHAR :
                 if (outType.precision == 1) {
-                   if( o instanceof Character) {
-                       o = new String(new char[] { ( (Character) o).charValue()});
+                    if (o instanceof Character) {
+                        o = new String(new char[] {
+                            ((Character) o).charValue() });
 
-                       break;
-                   } else if (o instanceof Boolean) {
-                       o = ((Boolean) o).booleanValue() ? "1"
-                                                        : "0";
+                        break;
+                    } else if (o instanceof Boolean) {
+                        o = ((Boolean) o).booleanValue() ? "1"
+                                : "0";
 
-                       break;
-                   }
+                        break;
+                    }
                 }
 
             // fall through
@@ -4554,7 +4555,9 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
                 } else if (value instanceof InputStream) {
                     long length = streamLengths[i];
 
-                    blob = session.createBlob(length);
+                    long createLength = length > 0 ? length : 0;
+
+                    blob = session.createBlob(createLength);
                     id   = blob.getId();
 
                     InputStream stream = (InputStream) value;
@@ -4564,6 +4567,8 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
 
                     session.allocateResultLob(resultLob, null);
                     resultOut.addLobResult(resultLob);
+                } else if (value instanceof BlobDataID) {
+                    blob = (BlobDataID) value;
                 }
                 parameterValues[i] = blob;
             } else if (parameterTypes[i].typeCode == Types.SQL_CLOB) {
@@ -4591,7 +4596,9 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
                 } else if (value instanceof Reader) {
                     long length = streamLengths[i];
 
-                    clob = session.createClob(length);
+                    long createLength = length > 0 ? length : 0;
+
+                    clob = session.createClob(createLength);
                     id   = clob.getId();
 
                     Reader reader = (Reader) value;
@@ -4601,6 +4608,8 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
 
                     session.allocateResultLob(resultLob, null);
                     resultOut.addLobResult(resultLob);
+                } else if (value instanceof ClobDataID) {
+                    clob = (ClobDataID) value;
                 }
                 parameterValues[i] = clob;
             }

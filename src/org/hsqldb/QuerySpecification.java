@@ -841,12 +841,6 @@ public class QuerySpecification extends QueryExpression {
         resolveTypesPartTwo(session);
         ArrayUtil.copyArray(resultTable.colTypes, unionColumnTypes,
                             unionColumnTypes.length);
-
-        for (int i = 0; i < indexStartHaving; i++) {
-            if (exprColumns[i].dataType == null) {
-                throw Error.error(ErrorCode.X_42567);
-            }
-        }
     }
 
     void resolveTypesPartOne(Session session) {
@@ -877,9 +871,14 @@ public class QuerySpecification extends QueryExpression {
             }
 
             exprColumns[i].setDataType(session, type);
+
+            if (exprColumns[i].dataType.isArrayType()
+                    && exprColumns[i].dataType.collectionBaseType() == null) {
+                throw Error.error(ErrorCode.X_42567);
+            }
         }
 
-        for (int i = 0; i < indexStartHaving; i++) {
+        for (int i = indexLimitVisible; i < indexStartHaving; i++) {
             if (exprColumns[i].dataType == null) {
                 throw Error.error(ErrorCode.X_42567);
             }

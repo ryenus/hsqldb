@@ -4670,7 +4670,6 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * @throws SQLFeatureNotSupportedException  if the JDBC driver does not support this method
      * JDK 1.6, HSQLDB 2.0
      */
-
 //#ifdef JAVA6
     public synchronized void setNCharacterStream(String parameterName,
             Reader value) throws SQLException {

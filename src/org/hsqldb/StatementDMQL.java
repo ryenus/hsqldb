@@ -551,6 +551,10 @@ public abstract class StatementDMQL extends Statement {
                                                   + (i + 1);
             parameterMetaData.columnTypes[idx] = parameters[i].dataType;
 
+            if ( parameters[i].dataType == null) {
+                throw Error.error(ErrorCode.X_42567);
+            }
+
             byte parameterMode = SchemaObject.ParameterModes.PARAM_IN;
 
             if (parameters[i].column != null

@@ -458,6 +458,14 @@ public final class NumberType extends Type {
 
     public Type getAggregateType(Type other) {
 
+        if (other == null) {
+            return this;
+        }
+
+        if (other == SQL_ALL_TYPES) {
+            return this;
+        }
+
         if (this == other) {
             return this;
         }
@@ -467,9 +475,6 @@ public final class NumberType extends Type {
         }
 
         switch (other.typeCode) {
-
-            case Types.SQL_ALL_TYPES :
-                return this;
 
             case Types.SQL_REAL :
             case Types.SQL_FLOAT :

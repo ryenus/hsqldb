@@ -38,7 +38,7 @@ import org.hsqldb.persist.RandomAccessInterface;
 
 /**
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.0.1
+ * @version 2.2.6
  * @since 1.9.0
  */
 public class LobStoreRAFile implements LobStore {
@@ -116,6 +116,21 @@ public class LobStoreRAFile implements LobStore {
 
             file.seek(address);
             file.write(dataBytes, 0, count);
+        } catch (Throwable t) {
+            throw Error.error(ErrorCode.DATA_FILE_ERROR, t);
+        }
+    }
+
+    public void setBlockBytes(byte[] dataBytes, long position, int offset,
+                              int length) {
+
+        if (file == null) {
+            openFile();
+        }
+
+        try {
+            file.seek(position);
+            file.write(dataBytes, offset, length);
         } catch (Throwable t) {
             throw Error.error(ErrorCode.DATA_FILE_ERROR, t);
         }

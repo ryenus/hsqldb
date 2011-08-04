@@ -1089,10 +1089,6 @@ public class Expression implements Cloneable {
                     }
                 }
 
-                if (hasUndefined && nodeDataType == null) {
-                    throw Error.error(ErrorCode.X_42567);
-                }
-
                 dataType = new ArrayType(nodeDataType, nodes.length);
 
                 return;

@@ -174,6 +174,19 @@ public class LongDeque {
         return true;
     }
 
+    public int addAll(LongDeque deque) {
+
+        int count = 0;
+
+        for (int i = 0; i < deque.size(); i++) {
+            add(deque.get(i));
+
+            count++;
+        }
+
+        return count;
+    }
+
     public void clear() {
 
         if (elementCount == 0) {
@@ -271,6 +284,13 @@ public class LongDeque {
 
         for (int i = 0; i < elementCount; i++) {
             array[i] = (int) get(i);
+        }
+    }
+
+    public void toArray(long[] array) {
+
+        for (int i = 0; i < elementCount; i++) {
+            array[i] = get(i);
         }
     }
 

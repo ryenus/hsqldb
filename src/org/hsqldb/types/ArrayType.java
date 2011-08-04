@@ -54,7 +54,7 @@ import org.hsqldb.lib.ArraySort;
 public class ArrayType extends Type {
 
     public static final int defaultArrayCardinality      = 1024;
-    public static final int defaultLargeArrayCardinality = 1024 * 1024;
+    public static final int defaultLargeArrayCardinality = Integer.MAX_VALUE;
     final Type              dataType;
     final int               maxCardinality;
 
@@ -385,47 +385,64 @@ public class ArrayType extends Type {
         return true;
     }
 
-    public Type getAggregateType(Type otherType) {
+    public Type getAggregateType(Type other) {
 
-        if (otherType == null) {
+        if (other == null) {
             return this;
         }
 
-        if (!otherType.isArrayType()) {
+        if (other == SQL_ALL_TYPES) {
+            return this;
+        }
+
+        if (this == other) {
+            return this;
+        }
+
+        if (!other.isArrayType()) {
             throw Error.error(ErrorCode.X_42562);
         }
 
-        Type otherComponent = otherType.collectionBaseType();
+        Type otherComponent = other.collectionBaseType();
 
         if (dataType.equals(otherComponent)) {
-            return this;
+            return ((ArrayType) other).maxCardinality > maxCardinality
+                   ? other
+                   : this;
         }
 
-        Type newType = dataType.getAggregateType(otherComponent);
+        Type newComponent = dataType.getAggregateType(otherComponent);
+        int cardinality =
+            ((ArrayType) other).maxCardinality > maxCardinality
+            ? ((ArrayType) other).maxCardinality
+            : maxCardinality;
 
-        return new ArrayType(newType, maxCardinality);
+        return new ArrayType(newComponent, cardinality);
     }
 
     public Type getCombinedType(Type otherType, int operation) {
 
-        if (operation != OpTypes.CONCAT) {
-            return getAggregateType(otherType);
-        }
+        ArrayType type = (ArrayType) getAggregateType(otherType);
 
         if (otherType == null) {
-            return this;
+            return type;
         }
 
-        if (!otherType.isArrayType()) {
-            throw Error.error(ErrorCode.X_42562);
+        if (operation != OpTypes.CONCAT) {
+            return type;
         }
 
-        Type otherComponent = otherType.collectionBaseType();
-        Type combinedType   = dataType.getAggregateType(otherComponent);
+        if (type.maxCardinality == ArrayType.defaultLargeArrayCardinality) {
+            return type;
+        }
 
-        return new ArrayType(combinedType,
-                             maxCardinality
-                             + otherType.arrayLimitCardinality());
+        long card = (long) ((ArrayType) otherType).maxCardinality + maxCardinality;
+
+        if (card > ArrayType.defaultLargeArrayCardinality) {
+            card = ArrayType.defaultLargeArrayCardinality;
+        }
+
+        return new ArrayType(dataType, (int) card);
     }
 
     public int cardinality(Session session, Object a) {

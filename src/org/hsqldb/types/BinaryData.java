@@ -175,8 +175,8 @@ public class BinaryData implements BlobData {
         return new BlobInputStream(session, this, pos, length(session));
     }
 
-    public int setBytes(SessionInterface session, long pos, byte[] bytes,
-                        int offset, int length) {
+    public void setBytes(SessionInterface session, long pos, byte[] bytes,
+                         int offset, int length) {
 
         if (!isInLimits(data.length, pos, 0)) {
             throw new IndexOutOfBoundsException();
@@ -189,24 +189,16 @@ public class BinaryData implements BlobData {
         System.arraycopy(bytes, offset, data, (int) pos, length);
 
         bitLength = data.length * 8;
-
-        return length;
     }
 
-    public int setBytes(SessionInterface session, long pos, byte[] bytes) {
-
+    public void setBytes(SessionInterface session, long pos, byte[] bytes) {
         setBytes(session, pos, bytes, 0, bytes.length);
-
-        return bytes.length;
     }
 
-    public long setBinaryStream(SessionInterface session, long pos,
+    public void setBinaryStream(SessionInterface session, long pos,
                                 InputStream in) {
-        return 0;
-    }
 
-    public OutputStream setBinaryStream(SessionInterface session, long pos) {
-        return null;
+        //
     }
 
     public void truncate(SessionInterface session, long len) {

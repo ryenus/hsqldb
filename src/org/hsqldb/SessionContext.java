@@ -106,8 +106,9 @@ public class SessionContext {
      */
     SessionContext(Session session) {
 
-        this.session          = session;
-        diagnosticsVariables = new Object[ExpressionColumn.diagnosticsVariableTokens.length];
+        this.session = session;
+        diagnosticsVariables =
+            new Object[ExpressionColumn.diagnosticsVariableTokens.length];
         rangeIterators        = new RangeIterator[8];
         savepoints            = new HashMappedList(4);
         savepointTimestamps   = new LongDeque();
@@ -121,12 +122,18 @@ public class SessionContext {
     }
 
     public void push() {
+        push(true);
+    }
+
+    private void push(boolean isRoutine) {
 
         if (session.sessionContext.depth > 256) {
             throw Error.error(ErrorCode.GENERAL_ERROR);
         }
 
-        session.sessionData.persistentStoreCollection.push();
+        if (isRoutine) {
+            session.sessionData.persistentStoreCollection.push();
+        }
 
         if (stack == null) {
             stack = new HsqlArrayList(32, true);
@@ -147,7 +154,8 @@ public class SessionContext {
         stack.add(ValuePool.getInt(currentMaxRows));
         stack.add(ValuePool.getInt(rownum));
 
-        diagnosticsVariables = new Object[ExpressionColumn.diagnosticsVariableTokens.length];
+        diagnosticsVariables =
+            new Object[ExpressionColumn.diagnosticsVariableTokens.length];
         rangeIterators      = new RangeIterator[8];
         savepoints          = new HashMappedList(4);
         savepointTimestamps = new LongDeque();
@@ -158,8 +166,14 @@ public class SessionContext {
     }
 
     public void pop() {
+        pop(true);
+    }
 
-        session.sessionData.persistentStoreCollection.pop();
+    public void pop(boolean isRoutine) {
+
+        if (isRoutine) {
+            session.sessionData.persistentStoreCollection.pop();
+        }
 
         rownum = ((Integer) stack.remove(stack.size() - 1)).intValue();
         currentMaxRows = ((Integer) stack.remove(stack.size() - 1)).intValue();
@@ -181,13 +195,35 @@ public class SessionContext {
 
     public void pushDynamicArguments(Object[] args) {
 
-        push();
+        push(true);
 
         dynamicArguments = args;
     }
 
     public void setDynamicArguments(Object[] args) {
         dynamicArguments = args;
+    }
+
+    public void pushForSubquery() {
+
+        RangeIterator[] iterators = rangeIterators;
+
+        push(false);
+
+        if (rangeIterators.length < iterators.length) {
+            rangeIterators = new RangeIterator[iterators.length];
+        }
+
+        ArrayUtil.copyArray(iterators, rangeIterators, iterators.length);
+    }
+
+    public void popForSubquery() {
+
+        for (int i = 0; i < rangeIterators.length; i++) {
+            rangeIterators[i] = null;
+        }
+
+        pop(false);
     }
 
     void clearStructures(StatementDMQL cs) {
