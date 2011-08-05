@@ -73,7 +73,7 @@ public class AuthFunctionUtils {
 
     /**
      * @throws RuntimeException if jab
-     *         param is neither null not an instance of JDBCArrayBasic wrapping
+     *         param is neither null nor an instance of JDBCArrayBasic wrapping
      *         an array of Strings.
      */
     static String[] toStrings(Array jab) {
