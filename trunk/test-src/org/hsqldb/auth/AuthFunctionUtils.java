@@ -32,12 +32,8 @@
 package org.hsqldb.auth;
 
 import java.sql.Array;
-import java.sql.Connection;
-import java.util.Set;
 import java.sql.SQLException;
-import java.sql.ResultSet;
 import java.sql.Statement;
-import java.util.HashSet;
 import org.hsqldb.types.Type;
 import org.hsqldb.jdbc.JDBCArrayBasic;
 import org.hsqldb.lib.FrameworkLogger;
