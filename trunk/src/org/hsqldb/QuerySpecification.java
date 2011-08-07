@@ -157,7 +157,6 @@ public class QuerySpecification extends QueryExpression {
 
         super(compileContext);
 
-        this.compileContext = compileContext;
         resultRangePosition = compileContext.getNextRangeVarIndex();
         rangeVariableList   = new HsqlArrayList();
         exprColumnList      = new HsqlArrayList();
@@ -2200,6 +2199,8 @@ public class QuerySpecification extends QueryExpression {
                     ExpressionLogical.andExpressions(baseQueryCondition,
                                                      localQueryCondition);
                 rangeVariables = newRangeVariables;
+                rangeVariables[0].rangePosition =
+                    compileContext.getNextRangeVarIndex();
             }
         }
 
