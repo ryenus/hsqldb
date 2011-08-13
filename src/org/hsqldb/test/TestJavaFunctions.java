@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2010, The HSQL Development Group
+/* Copyright (c) 2001-2011, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -116,6 +116,8 @@ public class TestJavaFunctions extends TestBase {
 
             System.out.println(temp);
         }
+
+        r = s.executeQuery();
 
         s = c.prepareCall("CALL TEST_CUSTOM_RESULT(6, 1900)");
 

@@ -104,6 +104,12 @@ public class TestStoredProcedure extends TestBase {
 
             rs.next();
             assertEquals(value, 2);
+
+            rs = c.executeQuery();
+
+            rs.next();
+            assertEquals(value, 2);
+
         } catch (Exception e) {
             assertTrue("unexpected error", false);
         } finally {
@@ -276,6 +282,14 @@ public class TestStoredProcedure extends TestBase {
 
             rs.close();
         }
+
+        rs = cs.executeQuery();
+
+        rs.next();
+        assertEquals(rs.getString(1), "SYSTEM_LOBS");
+        assertEquals(rs.getString(2), "LOB_IDS");
+
+        rs.close();
     }
 
     public void testFive() throws SQLException {

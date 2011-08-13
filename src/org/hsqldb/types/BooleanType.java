@@ -247,6 +247,9 @@ public final class BooleanType extends Type {
             return a;
         } else if (a instanceof String) {
             return convertToType(session, a, Type.SQL_VARCHAR);
+        } else if (a instanceof Number) {
+            return NumberType.isZero(a) ? Boolean.FALSE
+                                        : Boolean.TRUE;
         }
 
         throw Error.error(ErrorCode.X_42561);

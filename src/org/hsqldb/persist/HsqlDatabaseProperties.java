@@ -456,7 +456,7 @@ public class HsqlDatabaseProperties extends HsqlProperties {
                                           SQL_PROPERTY, 512, 0, 4096));
         dbMeta.put(hsqldb_result_max_memory_rows,
                    HsqlProperties.getMeta(hsqldb_result_max_memory_rows,
-                                          SQL_PROPERTY, 0, 0, 1000000));
+                                          SQL_PROPERTY, 0, 0, 1024 * 1024));
         dbMeta.put(hsqldb_nio_max_size,
                    HsqlProperties.getMeta(hsqldb_nio_max_size, SQL_PROPERTY,
                                           256, 64, 2048));
