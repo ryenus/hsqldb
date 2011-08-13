@@ -41,6 +41,7 @@ import java.sql.CallableStatement;
 import java.sql.Clob;
 import java.sql.Date;
 import java.sql.Ref;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Time;
 import java.sql.Timestamp;
@@ -133,24 +134,6 @@ import org.hsqldb.types.Types;
  * <div class="ReleaseSpecificDocumentation">
  * <h3>HSQLDB-Specific Information:</h3> <p>
  *
- * Some of the previously unsupported features of this interface
- * are now supported, such as the parameterName-based setter methods. <p>
- *
- * More importantly, JDBCCallableStatement objects are now backed by a true
- * compiled parametric representation. Hence, there are now significant
- * performance gains to be had by using a CallableStatement object instead of
- * a Statement object, if a short-running CALL statement is to be executed more
- * than a small number of times.  Moreover, the recent work lays the foundation
- * for work in a subsequence release to support CallableStatement OUT and
- * IN OUT style parameters, as well as the generation and retrieval of multiple
- * results in response to the execution of a CallableStatement object. <p>
- *
- * For a more in-depth discussion of performance issues regarding HSQLDB
- * prepared and callable statement objects, please see overview section of
- * {@link JDBCParameterMetaData JDBCPreparedStatment}.
- *
- * <hr>
- *
  * As with many DBMS, HSQLDB support for stored procedures is not provided in
  * a completely standard fashion. <p>
  *
@@ -163,17 +146,18 @@ import org.hsqldb.types.Types;
  * from one DBMS product line to another almost invariably involves complex
  * porting issues and often may not be possible at all. <em>Be warned</em>. <p>
  *
- * One kind of HSQLDB stored procedures is Java routines that map directly onto
- * the static methods of compiled Java classes found on the class path of the
- * engine at runtime. <p>
- *
- * Overloaded methods are supported and resolved according to the type of
- * para;meters.
+ * One kind of HSQLDB stored procedures and functions is Java routines that map
+ * directly onto the static methods of compiled Java classes found on the class
+ * path of the engine at runtime. The CREATE PROCEDURE or CREATE FUNCTION
+ * statements are used in SQL to support the Java methods.<p>
  *
  * The other kind of HSQLDB stored procedures is SQL routines that are created
  * as part of schemas.
  *
- * With SQL routines, <code>OUT</code> and <code>IN OUT</code> parameters
+ * Overloaded methods are supported and resolved according to the type of
+ * parameters.
+ *
+ * With procedures, <code>OUT</code> and <code>IN OUT</code> parameters
  * are also supported. <p>
  *
  * In addition, HSQLDB stored procedure call mechanism allows the
@@ -190,47 +174,11 @@ import org.hsqldb.types.Types;
  * SELECT &lt;simple-expression&gt; FROM DUAL;
  * </PRE>
  *
- * As a transitional measure, HSQLDB provides the ability to materialize a
- * general result set in response to stored procedure execution.  In this case,
- * the stored procedure's Java method descriptor must specify a return type of
- * java.lang.Object for external use (although at any point in the development
- * cycle, other, proprietary return types may accepted internally for engine
- * development purposes).
- *
- * When HSQLDB detects that the runtime class of the resulting Object is
- * eligible, an automatic internal unwrapping is performed to correctly
- * expose the underlying result set to the client, whether local or remote. <p>
- *
- * Additionally, HSQLDB automatically detects if java.sql.Connection is
- * the class of the first argument of any underlying Java method(s).  If so,
- * then the engine transparently supplies the internal Connection object
- * corresponding to the Session executing the call, adjusting the positions
- * of other arguments to suite the SQL context. <p>
- *
- * The features above are not intended to be permanent.  Rather, the intention
- * is to offer more general and powerful mechanisms in a future release;
- * it is recommend to use them only as a temporary convenience. <p>
- *
- * For instance, one might be well advised to future-proof by writing
- * HSQLDB-specific adapter methods that in turn call the real logic of an
- * underlying generalized JDBC stored procedure library. <p>
+ * HSQLDB functions can return a single result set. Procedures that
+ * return one or more result sets.
  *
  * Here is a very simple example of an HSQLDB stored procedure generating a
  * user-defined result set:
- *
- * <pre class="JavaCodeExample">
- * <span class="JavaKeyWord">package</span> mypackage;
- *
- * <span class="JavaKeyWord">class</span> MyClass {
- *
- *      <span class="JavaKeyWord">public static</span> Object <b>mySp</b>(Connection conn) <span class="JavaKeyWord">throws</span> SQLException {
- *          <span class="JavaKeyWord">return</span> conn.<b>createStatement</b>().<b>executeQuery</b>(<span class="JavaStringLiteral">"select * from my_table"</span>);
- *      }
- * }
- * </pre>
- *
- * Here is a refinement demonstrating no more than the bare essence of the idea
- * behind a more portable style:
  *
  * <pre class="JavaCodeExample">
  * <span class="JavaKeyWord">package</span> mypackage;
@@ -245,36 +193,7 @@ import org.hsqldb.types.Types;
  *      }
  * }
  *
- * //--
- *
- * <span class="JavaKeyWord">package</span> myadaptorpackage;
- *
- * <span class="JavaKeyWord">import</span> java.sql.Connection;
- * <span class="JavaKeyWord">import</span> java.sql.SQLException;
- *
- * <span class="JavaKeyWord">class</span> MyAdaptorClass {
- *
- *      <span class="JavaKeyWord">public static</span> Object <b>mySp</b>(Connection conn) <span class="JavaKeyWord">throws</span> SQLException {
- *          MyLibraryClass.<b>getCtx()</b>.<b>setConnection</b>(conn);
- *          <span class="JavaKeyWord">return</span> MyLibraryClass.<b>mySp</b>();
- *      }
- * }
  * </pre>
- *
- * In a future release, it is intended to provided some new features
- * that will support writing fairly portable JDBC-based stored procedure
- * code: <P>
- *
- * <ul>
- *  <li> Support for the <span class="JavaStringLiteral">"jdbc:default:connection"</span>
- *       standard database connection url. <p>
- *
- *  <li> A well-defined specification of the behaviour of the HSQLDB execution
- *       stack under stored procedure calls. <p>
- *
- *  <li> A well-defined, pure JDBC specification for generating multiple
- *       results from HSQLDB stored procedures for client retrieval.
- * </ul>
  *
  * (boucherb@users)
  * </div>
@@ -282,7 +201,7 @@ import org.hsqldb.types.Types;
  *
  * @author Campbell Boucher-Burnet (boucherb@users dot sourceforge.net)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.0.1
+ * @version 2.2.6
  * @since 1.7.2
  * @revised JDK 1.6, HSQLDB 2.0
  * @revised JDK 1.7, HSQLDB 2.0.1
@@ -5031,4 +4950,47 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
     public boolean isCloseOnCompletion() throws SQLException {
         throw new UnsupportedOperationException("Not supported yet.");
     }
+
+    /**
+     * <!-- start generic documentation -->
+     * Executes the SQL query in this <code>PreparedStatement</code> object
+     * and returns the <code>ResultSet</code> object generated by the query.
+     * <!-- end generic documentation -->
+     * <!-- start release-specific documentation -->
+     * <div class="ReleaseSpecificDocumentation">
+     * <h3>HSQLDB-Specific Information:</h3> <p>
+     *
+     * HSQLDB supports this method for a call to a FUNCTION that returns a result.
+     * For a PROCEDURE that returns one or more results, the first result is
+     * returned.<p>
+     *
+     * If the FUNCTION or PROCEDURE does not return a ResultSet, an
+     * <code>SQLException</code> if thrown.
+     * </div>
+     * <!-- end release-specific documentation -->
+     *
+     * @return a <code>ResultSet</code> object that contains the data produced by the
+     *         query; never <code>null</code>
+     * @exception SQLException if a database access error occurs,
+     * this method is called on a closed  <code>PreparedStatement</code> or the SQL
+     *            statement does not return a <code>ResultSet</code> object
+     */
+    public synchronized ResultSet executeQuery() throws SQLException {
+
+        fetchResult();
+
+        ResultSet rs = getResultSet();
+
+        if (rs != null) {
+            return rs;
+        }
+
+        if (getMoreResults()) {
+            return getResultSet();
+        }
+
+        throw Util.sqlException(ErrorCode.X_07504);
+    }
+
+
 }
