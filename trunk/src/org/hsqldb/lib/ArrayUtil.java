@@ -911,15 +911,16 @@ public class ArrayUtil {
     /**
      * Byte arrays source and dest each begin at an offset in the common space.
      * If there is an overlap between dest and the first length elements of
-     * the source, the overlapping elements are copied to dest.
+     * the source, the overlapping elements are copied to dest. Returns count
+     * of copied bytes.
      */
-    public static void copyBytes(long sourceOffset, byte[] source,
+    public static int copyBytes(long sourceOffset, byte[] source,
                                  int sourceOff, int length, long destOffset,
                                  byte[] dest) {
 
         if (sourceOffset + sourceOff >= destOffset + dest.length
                 || sourceOffset + sourceOff + length <= destOffset) {
-            return;
+            return 0;
         }
 
         long sourceIndex = destOffset - sourceOffset;
@@ -943,6 +944,8 @@ public class ArrayUtil {
 
         System.arraycopy(source, (int) sourceIndex, dest, (int) destIndex,
                          length);
+
+        return length;
     }
 
     /**

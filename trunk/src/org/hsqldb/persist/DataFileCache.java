@@ -215,12 +215,12 @@ public class DataFileCache {
             boolean isIncremental;
 
             if (preexists) {
-                int fileTypeTemp = database.logger.isStoredFileAccess()
-                                   ? ScaledRAFile.DATA_FILE_STORED
-                                   : ScaledRAFile.DATA_FILE_RAF;
-
-                dataFile = ScaledRAFile.newScaledRAFile(database,
-                        dataFileName, readonly, fileTypeTemp);
+                if (database.logger.isStoredFileAccess()) {
+                    dataFile = ScaledRAFile.newScaledRAFile(database,
+                            dataFileName, true, ScaledRAFile.DATA_FILE_STORED);
+                } else {
+                    dataFile = new ScaledRAFileSimple(dataFileName, "r");
+                }
 
                 dataFile.seek(FLAGS_POS);
 
@@ -310,8 +310,9 @@ public class DataFileCache {
             initBuffers();
 
             fileModified = false;
-            freeBlocks = new DataFileBlockManager(database.logger.propMaxFreeBlocks,
-                                                  cacheFileScale, 0, freesize);
+            freeBlocks =
+                new DataFileBlockManager(database.logger.propMaxFreeBlocks,
+                                         cacheFileScale, 0, freesize);
 
             database.logger.logInfoEvent("open end");
         } catch (Throwable t) {
@@ -559,7 +560,6 @@ public class DataFileCache {
 
                 dataFile.seek(FLAGS_POS);
                 dataFile.writeInt(flags);
-                database.logger.logDetailEvent("DataFileCache flags");
             }
 
             dataFile.synch();
@@ -571,6 +571,8 @@ public class DataFileCache {
 
                 shadowFile = null;
             }
+
+            database.logger.logDetailEvent("DataFileCache commit end");
         } catch (Throwable t) {
             database.logger.logSevereEvent("dataFileCache commit failed", t);
 
@@ -687,13 +689,13 @@ public class DataFileCache {
      */
     int setFilePos(CachedObject r) {
 
-        int rowSize = r.getStorageSize();
-        int i       = freeBlocks.get(rowSize);
+        int  rowSize = r.getStorageSize();
+        int  i       = freeBlocks.get(rowSize);
+        long newFreePosition;
 
         if (i == -1) {
-            i = (int) (fileFreePosition / cacheFileScale);
-
-            long newFreePosition = fileFreePosition + rowSize;
+            i               = (int) (fileFreePosition / cacheFileScale);
+            newFreePosition = fileFreePosition + rowSize;
 
             if (newFreePosition > maxDataFileSize) {
                 database.logger.logSevereEvent(
@@ -859,6 +861,9 @@ public class DataFileCache {
 
                     break;
                 } catch (OutOfMemoryError err) {
+                    database.logger.logSevereEvent(dataFileName
+                                                   + " getFromFile out of mem "
+                                                   + pos, err);
                     cache.forceCleanUp();
                     System.gc();
 
@@ -1012,6 +1017,8 @@ public class DataFileCache {
                               int count) throws IOException {
 
         if (shadowFile != null) {
+            long time = cache.saveAllTimer.elapsedTime();
+
             for (int i = offset; i < offset + count; i++) {
                 CachedObject row     = rows[i];
                 long         seekpos = (long) row.getPos() * cacheFileScale;
@@ -1020,6 +1027,10 @@ public class DataFileCache {
             }
 
             shadowFile.synch();
+
+            time = cache.saveAllTimer.elapsedTime() - time;
+
+            database.logger.logDetailEvent("shadow copy " + time);
         }
     }
 
