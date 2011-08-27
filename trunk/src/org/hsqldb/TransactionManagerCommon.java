@@ -43,6 +43,7 @@ import org.hsqldb.lib.DoubleIntIndex;
 import org.hsqldb.lib.HashMap;
 import org.hsqldb.lib.HsqlArrayList;
 import org.hsqldb.lib.IntKeyHashMapConcurrent;
+import org.hsqldb.lib.IntLookup;
 import org.hsqldb.lib.Iterator;
 import org.hsqldb.lib.LongDeque;
 import org.hsqldb.lib.MultiValueHashMap;
@@ -844,7 +845,7 @@ class TransactionManagerCommon {
      * For auto-defrag, as currently there will be no RowAction entries
      * at the time of defrag.
      */
-    DoubleIntIndex getTransactionIDList() {
+    public DoubleIntIndex getTransactionIDList() {
 
         writeLock.lock();
 
@@ -857,7 +858,9 @@ class TransactionManagerCommon {
             Iterator it = this.rowActionMap.keySet().iterator();
 
             for (; it.hasNext(); ) {
-                lookup.addUnique(it.nextInt(), 0);
+                int key = it.nextInt();
+
+                lookup.addUnique(key, key);
             }
 
             return lookup;
@@ -869,7 +872,7 @@ class TransactionManagerCommon {
     /**
      * Convert row ID's for cached table rows in transactions
      */
-    void convertTransactionIDs(DoubleIntIndex lookup) {
+    public void convertTransactionIDs(IntLookup lookup) {
 
         writeLock.lock();
 
@@ -884,7 +887,7 @@ class TransactionManagerCommon {
             rowActionMap.clear();
 
             for (int i = 0; i < list.length; i++) {
-                int pos = lookup.lookupFirstEqual(list[i].getPos());
+                int pos = lookup.lookup(list[i].getPos());
 
                 list[i].setPos(pos);
                 rowActionMap.put(pos, list[i]);

@@ -36,14 +36,14 @@ import java.util.NoSuchElementException;
 /**
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 1.8.0
+ * @version 2.2.6
  * @since 1.8.0
  */
 public interface IntLookup {
 
     int add(int key, int value);
 
-    int lookupFirstEqual(int key) throws NoSuchElementException;
+    int lookup(int key) throws NoSuchElementException;
 
     int lookupFirstGreaterEqual(int key) throws NoSuchElementException;
 }

@@ -32,6 +32,7 @@
 package org.hsqldb;
 
 import org.hsqldb.lib.DoubleIntIndex;
+import org.hsqldb.lib.IntLookup;
 import org.hsqldb.persist.CachedObject;
 import org.hsqldb.persist.PersistentStore;
 
@@ -85,7 +86,7 @@ public interface TransactionManager {
     /**
      * Convert row ID's for cached table rows in transactions
      */
-    public void convertTransactionIDs(DoubleIntIndex lookup);
+    public void convertTransactionIDs(IntLookup lookup);
 
     /**
      * Return a lookup of all row ids for cached tables in transactions.

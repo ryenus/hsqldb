@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2010, The HSQL Development Group
+/* Copyright (c) 2001-2011, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,7 +31,6 @@
 
 package org.hsqldb;
 
-import org.hsqldb.lib.DoubleIntIndex;
 import org.hsqldb.persist.CachedObject;
 import org.hsqldb.persist.PersistentStore;
 
@@ -324,21 +323,4 @@ implements TransactionManager {
             transactionCount--;
         }
     }
-
-// functional unit - list actions and translate id's
-
-    /**
-     * Return a lookup of all row ids for cached tables in transactions.
-     */
-    public DoubleIntIndex getTransactionIDList() {
-
-        DoubleIntIndex lookup = new DoubleIntIndex(10, false);
-
-        return lookup;
-    }
-
-    /**
-     * Convert row ID's for cached table rows in transactions
-     */
-    public void convertTransactionIDs(DoubleIntIndex lookup) {}
 }

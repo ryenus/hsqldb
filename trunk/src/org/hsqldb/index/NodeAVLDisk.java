@@ -551,7 +551,7 @@ public class NodeAVLDisk extends NodeAVL {
         int newPointer = 0;
 
         if (pointer != NodeAVL.NO_POS) {
-            newPointer = lookup.lookupFirstEqual(pointer);
+            newPointer = lookup.lookup(pointer);
         }
 
         out.writeInt(newPointer);

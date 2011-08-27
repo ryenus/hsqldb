@@ -36,19 +36,19 @@ import java.io.UnsupportedEncodingException;
 
 import org.hsqldb.Database;
 import org.hsqldb.DatabaseURL;
-import org.hsqldb.error.Error;
-import org.hsqldb.error.ErrorCode;
 import org.hsqldb.HsqlException;
 import org.hsqldb.Table;
+import org.hsqldb.error.Error;
+import org.hsqldb.error.ErrorCode;
 import org.hsqldb.lib.FileUtil;
 import org.hsqldb.lib.HsqlByteArrayOutputStream;
+import org.hsqldb.lib.IntKeyHashMap;
 import org.hsqldb.rowio.RowInputInterface;
 import org.hsqldb.rowio.RowInputText;
 import org.hsqldb.rowio.RowInputTextQuoted;
 import org.hsqldb.rowio.RowOutputText;
 import org.hsqldb.rowio.RowOutputTextQuoted;
 import org.hsqldb.scriptio.ScriptWriterText;
-import org.hsqldb.store.ObjectCacheHashMap;
 
 // Ito Kazumitsu 20030328 - patch 1.7.2 - character encoding support
 // Dimitri Maziuk - patch for NL in string support
@@ -67,7 +67,7 @@ import org.hsqldb.store.ObjectCacheHashMap;
  *  A memory buffer contains the rows not yet committed.
  *
  * @author Bob Preston (sqlbob@users dot sourceforge.net)
- * @version 2.0.1
+ * @version 2.2.6
  * @since 1.7.0
  */
 public class TextCache extends DataFileCache {
@@ -83,7 +83,7 @@ public class TextCache extends DataFileCache {
     public boolean             ignoreFirst;
     protected String           header;
     protected Table            table;
-    private ObjectCacheHashMap uncommittedCache;
+    private IntKeyHashMap      uncommittedCache;
 
     //
     static final char DOUBLE_QUOTE_CHAR = '\"';
@@ -104,7 +104,7 @@ public class TextCache extends DataFileCache {
         super(table.database, name);
 
         this.table       = table;
-        uncommittedCache = new ObjectCacheHashMap(5);
+        uncommittedCache = new IntKeyHashMap();
     }
 
     protected void initParams(Database database, String baseFileName) {

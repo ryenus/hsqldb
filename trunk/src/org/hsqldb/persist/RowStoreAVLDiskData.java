@@ -32,7 +32,6 @@
 package org.hsqldb.persist;
 
 import java.io.IOException;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import org.hsqldb.HsqlException;
 import org.hsqldb.Row;
