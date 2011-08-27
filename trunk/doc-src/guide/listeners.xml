@@ -113,7 +113,7 @@
       the example command line above with the following:</para>
 
       <informalexample>
-        <screen>    java -cp ../lib/hsqldb.jar org.hsqldb.server.Server</screen>
+        <screen>    java -cp ../lib/hsqldb.jar org.hsqldb.server.WebServer</screen>
       </informalexample>
 
       <para>The contents of the server.properties file is described in the
