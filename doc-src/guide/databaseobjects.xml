@@ -869,7 +869,7 @@ INSERT INTO movies (starid, movieid, title) VALUES (CURRENT VALUE FOR seq, 10, '
       consists of dot-separated<literal> &lt;table name&gt; . &lt;column
       name&gt;</literal>. The name of the table, view or routine can be a
       simple name. All names can be qualified with a schema name. If there is
-      alread a comment on the object, the new comment will replace
+      already a comment on the object, the new comment will replace
       it.</simpara>
 
       <para>The comments appear in the results returned by JDBC
@@ -3054,7 +3054,7 @@ alter specific routine zero_pad_01
       varies with the user's privilege. For example, the owner of a VIEW can
       see the text of the view query, but a user of the view cannot see this
       text. When a user cannot see the contents of some column, null is
-      returned for that column. </para>
+      returned for that column.</para>
     </section>
 
     <section>
