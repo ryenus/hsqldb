@@ -414,13 +414,4 @@ public class RowAVLDisk extends RowAVL {
 
         return false;
     }
-
-    /**
-     * Hash code is valid only until a modification to the cache
-     *
-     * @return file position of row
-     */
-    public int hashCode() {
-        return position;
-    }
 }

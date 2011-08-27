@@ -33,7 +33,6 @@ package org.hsqldb.persist;
 
 import java.util.Comparator;
 
-import org.hsqldb.error.Error;
 import org.hsqldb.lib.ArraySort;
 import org.hsqldb.lib.Iterator;
 import org.hsqldb.lib.StopWatch;
@@ -48,7 +47,7 @@ import org.hsqldb.store.BaseHashMap;
  * to DataFileCache.<p>
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.0.1
+ * @version 2.2.6
  * @since 1.8.0
  */
 public class Cache extends BaseHashMap {
@@ -337,9 +336,11 @@ public class Cache extends BaseHashMap {
         sb.append(',').append(saveAllTimer.elapsedTime()).append(' ');
         sb.append("operation ").append(saveCount).append(',');
         sb.append(saveAllTimer.elapsedTime() - startTime).append(' ');
+
 //
         sb.append("txts ");
         sb.append(dataFileCache.database.txManager.getGlobalChangeTimestamp());
+
 //
         dataFileCache.database.logger.logDetailEvent(sb.toString());
     }
@@ -369,19 +370,27 @@ public class Cache extends BaseHashMap {
 
         public int compare(Object a, Object b) {
 
+            int diff;
+
             switch (compareType) {
 
                 case COMPARE_POSITION :
-                    return ((CachedObject) a).getPos()
+                    diff = ((CachedObject) a).getPos()
                            - ((CachedObject) b).getPos();
+                    break;
 
                 case COMPARE_SIZE :
-                    return ((CachedObject) a).getStorageSize()
+                    diff = ((CachedObject) a).getStorageSize()
                            - ((CachedObject) b).getStorageSize();
+                    break;
 
                 default :
                     return 0;
             }
+
+            return diff == 0 ? 0
+                             : diff > 0 ? 1
+                                        : -1;
         }
     }
 }

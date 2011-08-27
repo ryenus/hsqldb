@@ -47,7 +47,7 @@ import java.util.NoSuchElementException;
  * Sorting methods originally contributed by Tony Lai.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 1.8.0
+ * @version 2.2.6
  * @since 1.8.0
  */
 public class DoubleIntIndex implements IntLookup {
@@ -301,7 +301,7 @@ public class DoubleIntIndex implements IntLookup {
         return i;
     }
 
-    public int lookupFirstEqual(int key) throws NoSuchElementException {
+    public int lookup(int key) throws NoSuchElementException {
 
         if (sortOnValues) {
             sorted       = false;

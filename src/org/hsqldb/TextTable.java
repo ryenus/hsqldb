@@ -38,7 +38,6 @@ import org.hsqldb.lib.StringConverter;
 import org.hsqldb.persist.DataFileCache;
 import org.hsqldb.persist.PersistentStore;
 import org.hsqldb.persist.TextCache;
-import org.hsqldb.navigator.RowIterator;
 
 // tony_lai@users 20020820 - patch 595099 - user define PK name
 
@@ -67,7 +66,9 @@ public class TextTable extends org.hsqldb.Table {
      * @param type code (normal or temp text table)
      */
     TextTable(Database db, HsqlNameManager.HsqlName name, int type) {
+
         super(db, name, type);
+
         isWithDataSource = true;
     }
 
@@ -128,7 +129,6 @@ public class TextTable extends org.hsqldb.Table {
 
                 systemUpdateIdentityValue(data);
                 enforceRowConstraints(session, data);
-
                 store.indexRow(session, row);
             }
         } catch (Throwable t) {

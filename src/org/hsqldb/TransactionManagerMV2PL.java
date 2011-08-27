@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2010, The HSQL Development Group
+/* Copyright (c) 2001-2011, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -32,9 +32,6 @@
 package org.hsqldb;
 
 import org.hsqldb.HsqlNameManager.HsqlName;
-import org.hsqldb.error.Error;
-import org.hsqldb.error.ErrorCode;
-import org.hsqldb.lib.DoubleIntIndex;
 import org.hsqldb.lib.HsqlDeque;
 import org.hsqldb.lib.IntKeyHashMapConcurrent;
 import org.hsqldb.lib.LongDeque;
@@ -483,23 +480,5 @@ implements TransactionManager {
             liveTransactionTimestamps.remove(index);
             mergeExpiredTransactions(session);
         }
-    }
-
-// functional unit - list actions and translate id's
-
-    /**
-     * Return a lookup of all row ids for cached tables in transactions.
-     * For auto-defrag, as currently there will be no RowAction entries
-     * at the time of defrag.
-     */
-    public DoubleIntIndex getTransactionIDList() {
-        return super.getTransactionIDList();
-    }
-
-    /**
-     * Convert row ID's for cached table rows in transactions
-     */
-    public void convertTransactionIDs(DoubleIntIndex lookup) {
-        super.convertTransactionIDs(lookup);
     }
 }

@@ -31,6 +31,7 @@
 
 package org.hsqldb.lib;
 
+import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import org.hsqldb.store.BaseHashMap;
@@ -38,7 +39,7 @@ import org.hsqldb.store.BaseHashMap;
 /**
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.0.1
+ * @version 2.2.6
  * @since 1.9.0
  */
 public class LongKeyHashMap extends BaseHashMap {
@@ -59,6 +60,10 @@ public class LongKeyHashMap extends BaseHashMap {
     throws IllegalArgumentException {
         super(initialCapacity, BaseHashMap.longKeyOrValue,
               BaseHashMap.objectKeyOrValue, false);
+    }
+
+    public Lock getWriteLock() {
+        return writeLock;
     }
 
     public Object get(long key) {

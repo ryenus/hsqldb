@@ -59,7 +59,7 @@ import org.hsqldb.store.BitMap;
  *  image after translating the old pointers to the new.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version    2.1.0
+ * @version    2.2.6
  * @since      1.7.2
  */
 final class DataFileDefrag {
@@ -70,7 +70,7 @@ final class DataFileDefrag {
     String                dataFileName;
     int[][]               rootsList;
     Database              database;
-    DataFileCache         cache;
+    DataFileCache         dataCache;
     int                   scale;
     DoubleIntIndex        pointerLookup;
     DoubleIntIndex        transactionRowLookup;
@@ -78,14 +78,14 @@ final class DataFileDefrag {
     DataFileDefrag(Database db, DataFileCache cache, String dataFileName) {
 
         this.database     = db;
-        this.cache        = cache;
+        this.dataCache    = cache;
         this.scale        = cache.cacheFileScale;
         this.dataFileName = dataFileName;
     }
 
     void process() {
 
-        boolean complete = false;
+        Throwable error = null;
 
         database.logger.logDetailEvent("Defrag process begins");
 
@@ -118,17 +118,19 @@ final class DataFileDefrag {
             pointerLookup = new DoubleIntIndex(maxSize, false);
 
             // write out the end of file position
-            int type = database.logger.isStoredFileAccess()
-                       ? ScaledRAFile.DATA_FILE_STORED
-                       : ScaledRAFile.DATA_FILE_RAF;
+            if (database.logger.isStoredFileAccess()) {
+                randomAccessOut = ScaledRAFile.newScaledRAFile(database,
+                        dataFileName + Logger.newFileExtension, false,
+                        ScaledRAFile.DATA_FILE_STORED);
+            } else {
+                randomAccessOut = new ScaledRAFileSimple(dataFileName
+                        + Logger.newFileExtension, "rw");
+            }
 
-            randomAccessOut = ScaledRAFile.newScaledRAFile(database,
-                    dataFileName + Logger.newFileExtension, false, type);
+            randomAccessOut.write(new byte[dataCache.initialFreePos], 0,
+                                  dataCache.initialFreePos);
 
-            randomAccessOut.write(new byte[cache.initialFreePos], 0,
-                                  cache.initialFreePos);
-
-            fileOffset = cache.initialFreePos;
+            fileOffset = dataCache.initialFreePos;
 
             for (int i = 0, tSize = allTables.size(); i < tSize; i++) {
                 Table t = (Table) allTables.get(i);
@@ -176,35 +178,40 @@ final class DataFileDefrag {
                         + org.hsqldb.lib.StringUtil.getList(roots, ",", ""));
                 }
             }
-
-            complete = true;
         } catch (IOException e) {
+            error = e;
+
             throw Error.error(ErrorCode.FILE_IO_ERROR, e);
         } catch (OutOfMemoryError e) {
-            database.logger.logSevereEvent(
-                "defrag failed - out of memory - required: " + maxSize * 8,
-                null);
+            error = e;
 
             throw Error.error(ErrorCode.OUT_OF_MEMORY, e);
         } catch (Throwable t) {
+            error = t;
+
             throw Error.error(ErrorCode.GENERAL_ERROR, t);
         } finally {
             try {
                 if (randomAccessOut != null) {
                     randomAccessOut.close();
                 }
-            } catch (Throwable t) {
-                complete = false;
+            } catch (Throwable t) {}
+
+            if (error instanceof OutOfMemoryError) {
+                database.logger.logInfoEvent(
+                    "defrag failed - out of memory - required: "
+                    + maxSize * 8);
             }
 
-            if (!complete) {
+            if (error == null) {
+                database.logger.logDetailEvent("Defrag transfer complete: "
+                                               + stopw.elapsedTime());
+            } else {
+                database.logger.logSevereEvent("defrag failed ", error);
                 database.logger.getFileAccess().removeElement(dataFileName
                         + Logger.newFileExtension);
             }
         }
-
-        database.logger.logDetailEvent("Defrag transfer complete: "
-                                       + stopw.elapsedTime());
     }
 
     /**
@@ -236,7 +243,7 @@ final class DataFileDefrag {
 
         Session session = database.getSessionManager().getSysSession();
         PersistentStore    store      = table.getRowStore(session);
-        RowOutputInterface rowOut     = cache.rowOut.duplicate();
+        RowOutputInterface rowOut     = dataCache.rowOut.duplicate();
         int[]              rootsArray = table.getIndexRootsArray();
         long               pos        = fileOffset;
         int                count      = 0;

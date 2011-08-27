@@ -35,7 +35,6 @@ import java.util.concurrent.locks.Lock;
 
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
-import org.hsqldb.lib.DoubleIntIndex;
 import org.hsqldb.lib.HashSet;
 import org.hsqldb.lib.HsqlDeque;
 import org.hsqldb.lib.IntKeyHashMapConcurrent;
@@ -777,24 +776,6 @@ implements TransactionManager {
             liveTransactionTimestamps.remove(index);
             mergeExpiredTransactions(session);
         }
-    }
-
-// functional unit - list actions and translate id's
-
-    /**
-     * Return a lookup of all row ids for cached tables in transactions.
-     * For auto-defrag, as currently there will be no RowAction entries
-     * at the time of defrag.
-     */
-    public DoubleIntIndex getTransactionIDList() {
-        return super.getTransactionIDList();
-    }
-
-    /**
-     * Convert row ID's for cached table rows in transactions
-     */
-    public void convertTransactionIDs(DoubleIntIndex lookup) {
-        super.convertTransactionIDs(lookup);
     }
 
     private void countDownLatches(Session session) {
