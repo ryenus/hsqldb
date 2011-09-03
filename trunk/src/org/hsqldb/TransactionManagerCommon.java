@@ -847,6 +847,10 @@ class TransactionManagerCommon {
      */
     public DoubleIntIndex getTransactionIDList() {
 
+        if (txModel == TransactionManager.LOCKS) {
+            return new DoubleIntIndex(8, false);
+        }
+
         writeLock.lock();
 
         try {
@@ -873,6 +877,10 @@ class TransactionManagerCommon {
      * Convert row ID's for cached table rows in transactions
      */
     public void convertTransactionIDs(IntLookup lookup) {
+
+        if (txModel == TransactionManager.LOCKS) {
+            return;
+        }
 
         writeLock.lock();
 

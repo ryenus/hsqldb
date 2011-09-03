@@ -53,6 +53,8 @@ public interface RowInputInterface {
 
     String readString() throws IOException;
 
+    byte readByte() throws IOException;
+
     short readShort() throws IOException;
 
     int readInt() throws IOException;
