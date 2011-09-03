@@ -302,7 +302,7 @@ final class ScaledRAFile implements RandomAccessInterface {
             }
         } catch (IOException e) {
             resetPointer();
-            database.logger.logWarningEvent("faeild to read a byte array", e);
+            database.logger.logWarningEvent("failed to read a byte array", e);
 
             throw e;
         }

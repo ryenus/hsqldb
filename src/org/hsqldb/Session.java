@@ -559,12 +559,12 @@ public class Session implements SessionInterface {
         if (!database.txManager.commitTransaction(this)) {
 
 //            tempActionHistory.add("commit aborts " + actionTimestamp);
-            rollback(false);
+            rollback(chain);
 
             throw Error.error(ErrorCode.X_40001);
         }
 
-        endTransaction(true);
+        endTransaction(true, chain);
 
         if (database != null && !sessionUser.isSystem()
                 && database.logger.needsCheckpointReset()) {
@@ -588,24 +588,11 @@ public class Session implements SessionInterface {
             return;
         }
 
-        if (!isTransaction && rowActionList.size() == 0) {
-            sessionContext.isReadOnly = isReadOnlyDefault ? Boolean.TRUE
-                                                          : Boolean.FALSE;
-
-            setIsolation(isolationLevelDefault);
-
-            return;
-        }
-
-        try {
-            database.logger.writeRollbackStatement(this);
-        } catch (HsqlException e) {}
-
         database.txManager.rollback(this);
-        endTransaction(false);
+        endTransaction(false, chain);
     }
 
-    private void endTransaction(boolean commit) {
+    private void endTransaction(boolean commit, boolean chain) {
 
         sessionContext.savepoints.clear();
         sessionContext.savepointTimestamps.clear();
@@ -614,14 +601,16 @@ public class Session implements SessionInterface {
         sessionData.closeAllTransactionNavigators();
         sessionData.clearNewLobIDs();
 
-        sessionContext.isReadOnly = isReadOnlyDefault ? Boolean.TRUE
-                                                      : Boolean.FALSE;
-
-        setIsolation(isolationLevelDefault);
-
         lockStatement = null;
 
         logSequences();
+
+        if (!chain) {
+            sessionContext.isReadOnly = isReadOnlyDefault ? Boolean.TRUE
+                                                          : Boolean.FALSE;
+
+            setIsolation(isolationLevelDefault);
+        }
 
         Statement endTX = commit ? StatementSession.commitNoChainStatement
                                  : StatementSession.rollbackNoChainStatement;

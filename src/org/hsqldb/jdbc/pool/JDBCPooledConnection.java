@@ -61,7 +61,7 @@ import org.hsqldb.lib.OrderedHashSet;
  * @version 2.0.1
  * @since JDK 1.2, HSQLDB 2.0
  */
-class JDBCPooledConnection
+public class JDBCPooledConnection
 implements PooledConnection, JDBCConnectionEventListener {
 
     synchronized public Connection getConnection() throws SQLException {
@@ -147,6 +147,8 @@ implements PooledConnection, JDBCConnectionEventListener {
     synchronized public void release() {
 
         if (userConnection != null) {
+
+            // userConnection is already closed in normal use
             try {
                 userConnection.close();
             } catch (SQLException e) {

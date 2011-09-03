@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2010, The HSQL Development Group
+/* Copyright (c) 2001-2011, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -102,12 +102,6 @@ class TestBench {
                     i++;
 
                     DriverName = Args[i];
-
-                    if (DriverName.equals("org.hsqldb.jdbc.JDBCDriver")
-                            || DriverName.equals("org.hsqldb.jdbcDriver")) {
-
-//                        ShutdownCommand = "SHUTDOWN";
-                    }
                 }
             } else if (Args[i].equals("-url")) {
                 if (i + 1 < Args.length) {
@@ -181,6 +175,13 @@ class TestBench {
                            + n_txn_per_client);
         System.out.println();
 
+        if (DriverName.equals("org.hsqldb.jdbc.JDBCDriver")
+                || DriverName.equals("org.hsqldb.jdbcDriver")) {
+            if (!DBUrl.contains("mem:")) {
+                ShutdownCommand = "SHUTDOWN";
+            }
+        }
+
         try {
             Class.forName(DriverName);
 
@@ -221,18 +222,24 @@ class TestBench {
 
             MemoryWatcher.start();
 
-            long tempTime = System.currentTimeMillis();
+            long startTime = System.currentTimeMillis();
 
             for (int i = 0; i < rounds; i++) {
                 oneRound(url, user, password);
             }
 
-            tempTime = System.currentTimeMillis() - tempTime;
+            long tempTime = System.currentTimeMillis() - startTime;
+
+            startTime = System.currentTimeMillis();
             guardian = connect(url, user, password);
 
             checkSums(guardian);
             connectClose(guardian);
             System.out.println("Total time: " + tempTime / 1000D + " seconds");
+            System.out.println(
+                "sum check time: "
+                + (System.currentTimeMillis() - startTime / 1000D)
+                + " seconds");
         } catch (Exception E) {
             System.out.println(E.getMessage());
             E.printStackTrace();
@@ -597,6 +604,7 @@ class TestBench {
             // for tests
             if (ShutdownCommand.length() > 0) {
                 Stmt.execute(ShutdownCommand);
+                System.out.println("database shutdown");
             }
 
             Stmt.close();

@@ -45,5 +45,5 @@ public interface IntLookup {
 
     int lookup(int key) throws NoSuchElementException;
 
-    int lookupFirstGreaterEqual(int key) throws NoSuchElementException;
+    int lookup(int key, int def);
 }

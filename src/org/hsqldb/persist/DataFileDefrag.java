@@ -39,6 +39,7 @@ import org.hsqldb.Table;
 import org.hsqldb.TableBase;
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
+import org.hsqldb.lib.ArrayUtil;
 import org.hsqldb.lib.DoubleIntIndex;
 import org.hsqldb.lib.HsqlArrayList;
 import org.hsqldb.lib.StopWatch;
@@ -149,6 +150,12 @@ final class DataFileDefrag {
                                                + t.getName().name);
             }
 
+            int padding =
+                (int) (ArrayUtil.getBinaryNormalisedCeiling(fileOffset, ScaledRAFile.bufferSize)
+                       - fileOffset);
+            byte[] bytes = new byte[padding];
+
+            randomAccessOut.write(bytes, 0, padding);
             randomAccessOut.seek(DataFileCache.LONG_FREE_POS_POS);
             randomAccessOut.writeLong(fileOffset);
 
