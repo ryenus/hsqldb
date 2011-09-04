@@ -51,6 +51,7 @@ import org.hsqldb.types.CharacterType;
 import org.hsqldb.types.Collation;
 import org.hsqldb.types.NullType;
 import org.hsqldb.types.Type;
+import org.hsqldb.types.Types;
 
 /**
  * Expression class.
@@ -1167,22 +1168,33 @@ public class Expression implements Cloneable {
         for (int j = 0; j < degree; j++) {
             Type    type         = row == null ? null
                                                : row.nodes[j].dataType;
-            boolean hasParameter = row == null ? false
-                                               : row.nodes[j].isDynamicParam();
+            boolean hasUresolvedParameter = row == null ? false
+                                               : row.nodes[j].isUnresolvedParam();
 
             for (int i = 0; i < nodes.length; i++) {
                 type = Type.getAggregateType(nodes[i].nodes[j].dataType, type);
-                hasParameter |= nodes[i].nodes[j].isDynamicParam();
+                hasUresolvedParameter |= nodes[i].nodes[j].isUnresolvedParam();
             }
 
             if (type == null) {
                 throw Error.error(ErrorCode.X_42567);
             }
 
-            if (hasParameter && type.isCharacterType()) {
-                if (type.precision < Type.SQL_VARCHAR_DEFAULT.precision) {
-                    type = CharacterType.getCharacterType(
-                        type.typeCode, Type.SQL_VARCHAR_DEFAULT.precision,
+            int typeCode = type.typeCode;
+
+            if (hasUresolvedParameter && type.isCharacterType()) {
+                if (typeCode == Types.SQL_CHAR
+                        || type.precision
+                           < Type.SQL_VARCHAR_DEFAULT.precision) {
+                    if (typeCode == Types.SQL_CHAR) {
+                        typeCode = Types.SQL_VARCHAR;
+                    }
+
+                    long precision =
+                        Math.max(Type.SQL_VARCHAR_DEFAULT.precision,
+                                 type.precision);
+
+                    type = CharacterType.getCharacterType(typeCode, precision,
                         type.getCollation());
                 }
             }
