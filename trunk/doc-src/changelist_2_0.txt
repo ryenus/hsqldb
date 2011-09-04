@@ -1,6 +1,6 @@
-4 September 2011 - SVN 4402
+4 September 2011 - SVN 4404
 -- fixed issue with memory use of large strings in cache
--- fixed issue with FOR loops in routines
+-- fixed issue with FOR loops with ORDER BY in routines
 -- improved concurrency of DDL operations
 1 August 2011 - SVN 4387
 -- fixed issue with TIME ZONE types JDBC type reporting in server
