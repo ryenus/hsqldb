@@ -38,6 +38,7 @@ import org.hsqldb.HsqlNameManager.SimpleName;
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
 import org.hsqldb.index.Index;
+import org.hsqldb.lib.ArrayUtil;
 import org.hsqldb.lib.HsqlArrayList;
 import org.hsqldb.lib.HsqlList;
 import org.hsqldb.lib.OrderedHashSet;
@@ -240,15 +241,17 @@ public class ParserDDL extends ParserRoutine {
 
                 Table table = (Table) database.schemaManager.getSchemaObject(
                     index.getName().parent);
-                int[]    indexColumns = readColumnList(table, true);
-                String   sql          = getLastPart();
-                Object[] args         = new Object[] {
+                int[]      indexColumns   = readColumnList(table, true);
+                String     sql            = getLastPart();
+                Object[]   args           = new Object[] {
                     table, indexColumns, index.getName()
+                };
+                HsqlName[] writeLockNames = new HsqlName[] {
+                    database.getCatalogName(), table.getName()
                 };
 
                 return new StatementSchema(sql, StatementTypes.ALTER_INDEX,
-                                           args, null,
-                                           new HsqlName[]{ table.getName() });
+                                           args, null, writeLockNames);
             }
             case Tokens.SCHEMA : {
                 read();
@@ -557,9 +560,9 @@ public class ParserDDL extends ParserRoutine {
                     && (Tokens.T_MODULE.equals(token.namePrefix)
                         || Tokens.T_SESSION.equals(token.namePrefix));
 
-                name = readNewSchemaObjectName(objectType, false);
-
                 if (isModule) {
+                    name = readNewSchemaObjectName(objectType, false);
+
                     Object[] args = new Object[] {
                         name, Boolean.valueOf(ifExists)
                     };
@@ -567,11 +570,21 @@ public class ParserDDL extends ParserRoutine {
                     return new StatementSession(StatementTypes.DROP_TABLE,
                                                 args);
                 }
-
-                break;
             }
+
+            // fall through
             default :
                 name = readNewSchemaObjectName(objectType, false);
+
+                name.setSchemaIfNull(session.getCurrentSchemaHsqlName());
+
+                SchemaObject object =
+                    database.schemaManager.findSchemaObject(name.name,
+                        name.schema.name, name.type);
+
+                if (object != null) {
+                    name = object.getName();
+                }
         }
 
         if (!ifExists && useIfExists && token.tokenType == Tokens.IF) {
@@ -597,7 +610,7 @@ public class ParserDDL extends ParserRoutine {
             Boolean.valueOf(ifExists)
         };
         HsqlName[] writeLockNames =
-            database.schemaManager.getCatalogAndBaseTableNames();
+            database.schemaManager.getCatalogAndBaseTableNames(name);
         Statement cs = new StatementSchema(sql, statementType, args, null,
                                            writeLockNames);
 
@@ -745,10 +758,10 @@ public class ParserDDL extends ParserRoutine {
         }
     }
 
-    private Statement compileAlterTableDropConstraint(Table t) {
+    private Statement compileAlterTableDropConstraint(Table table) {
 
         boolean cascade = false;
-        SchemaObject object = readSchemaObjectName(t.getSchemaName(),
+        SchemaObject object = readSchemaObjectName(table.getSchemaName(),
             SchemaObject.CONSTRAINT);
 
         if (token.tokenType == Tokens.RESTRICT) {
@@ -764,17 +777,15 @@ public class ParserDDL extends ParserRoutine {
             object.getName(), ValuePool.getInt(SchemaObject.CONSTRAINT),
             Boolean.valueOf(cascade), Boolean.valueOf(false)
         };
-        HsqlName   mainName = ((Constraint) object).getMainTableName();
-        HsqlName[] writeLockNames;
+        HsqlName[] writeLockNames =
+            database.schemaManager.getCatalogAndBaseTableNames(
+                table.getName());
+        HsqlName mainTableName = ((Constraint) object).getMainTableName();
 
-        if (mainName == null) {
-            writeLockNames = new HsqlName[] {
-                database.getCatalogName(), t.getName()
-            };
-        } else {
-            writeLockNames = new HsqlName[] {
-                database.getCatalogName(), t.getName(), mainName
-            };
+        if (mainTableName != null && mainTableName != table.getName()) {
+            writeLockNames =
+                (HsqlName[]) ArrayUtil.toAdjustedArray(writeLockNames,
+                    mainTableName, writeLockNames.length, 1);
         }
 
         Statement cs = new StatementSchema(sql,
@@ -784,7 +795,7 @@ public class ParserDDL extends ParserRoutine {
         return cs;
     }
 
-    private Statement compileAlterTableDropPrimaryKey(Table t) {
+    private Statement compileAlterTableDropPrimaryKey(Table table) {
 
         boolean cascade = false;
 
@@ -796,18 +807,19 @@ public class ParserDDL extends ParserRoutine {
             cascade = true;
         }
 
-        if (!t.hasPrimaryKey()) {
+        if (!table.hasPrimaryKey()) {
             throw Error.error(ErrorCode.X_42501);
         }
 
         String       sql    = getLastPart();
-        SchemaObject object = t.getPrimaryConstraint();
+        SchemaObject object = table.getPrimaryConstraint();
         Object[]     args   = new Object[] {
             object.getName(), ValuePool.getInt(SchemaObject.CONSTRAINT),
             Boolean.valueOf(cascade), Boolean.valueOf(false)
         };
         HsqlName[] writeLockNames =
-            database.schemaManager.getCatalogAndBaseTableNames();
+            database.schemaManager.getCatalogAndBaseTableNames(
+                table.getName());
         Statement cs = new StatementSchema(sql,
                                            StatementTypes.DROP_CONSTRAINT,
                                            args, null, writeLockNames);
@@ -1014,12 +1026,31 @@ public class ParserDDL extends ParserRoutine {
             readThis(Tokens.ROWS);
         }
 
-        String   sql  = getLastPart();
-        Object[] args = new Object[] {
+        OrderedHashSet names = new OrderedHashSet();
+
+        names.add(database.getCatalogName());
+
+        for (int i = 0; i < tempConstraints.size(); i++) {
+            Constraint c    = (Constraint) tempConstraints.get(i);
+            HsqlName   name = c.getMainTableName();
+
+            if (name != null) {
+                Table t = database.schemaManager.findUserTable(null,
+                    name.name, name.schema.name);
+
+                if (t != null && !t.isTemp()) {
+                    names.add(table.getName());
+                }
+            }
+        }
+
+        String     sql            = getLastPart();
+        Object[]   args           = new Object[] {
             table, tempConstraints, null, Boolean.valueOf(ifNot)
         };
-        HsqlName[] writeLockNames =
-            database.schemaManager.getCatalogAndBaseTableNames();
+        HsqlName[] writeLockNames = new HsqlName[names.size()];
+
+        names.toArray(writeLockNames);
 
         return new StatementSchema(sql, StatementTypes.CREATE_TABLE, args,
                                    null, writeLockNames);
@@ -1183,13 +1214,13 @@ public class ParserDDL extends ParserRoutine {
             readName = statement.getTableNamesForRead();
         }
 
-        Object[]   args            = new Object[] {
+        Object[]   args           = new Object[] {
             table, new HsqlArrayList(), statement, Boolean.FALSE
         };
-        String     sql             = getLastPart();
-        HsqlName[] writeTableNames = database.schemaManager.catalogNameArray;
+        String     sql            = getLastPart();
+        HsqlName[] writeLockNames = database.schemaManager.catalogNameArray;
         StatementSchema st = new StatementSchema(sql,
-            StatementTypes.CREATE_TABLE, args, readName, writeTableNames);
+            StatementTypes.CREATE_TABLE, args, readName, writeLockNames);
 
         return st;
     }
@@ -1609,14 +1640,14 @@ public class ParserDDL extends ParserRoutine {
 
         StatementQuery s = new StatementQuery(session, queryExpression,
                                               compileContext);
-        String     fullSQL         = getLastPart();
-        Object[]   args            = new Object[]{ view };
-        int        type            = alter ? StatementTypes.ALTER_VIEW
-                                           : StatementTypes.CREATE_VIEW;
-        HsqlName[] writeTableNames = database.schemaManager.catalogNameArray;
+        String     fullSQL        = getLastPart();
+        Object[]   args           = new Object[]{ view };
+        int        type           = alter ? StatementTypes.ALTER_VIEW
+                                          : StatementTypes.CREATE_VIEW;
+        HsqlName[] writeLockNames = database.schemaManager.catalogNameArray;
 
         return new StatementSchema(fullSQL, type, args, s.readTableNames,
-                                   writeTableNames);
+                                   writeLockNames);
     }
 
     StatementSchema compileCreateSequence() {
@@ -1634,12 +1665,12 @@ public class ParserDDL extends ParserRoutine {
 
         readSequenceOptions(sequence, true, false, false);
 
-        String     sql             = getLastPart();
-        Object[]   args            = new Object[]{ sequence };
-        HsqlName[] writeTableNames = database.schemaManager.catalogNameArray;
+        String     sql            = getLastPart();
+        Object[]   args           = new Object[]{ sequence };
+        HsqlName[] writeLockNames = database.schemaManager.catalogNameArray;
 
         return new StatementSchema(sql, StatementTypes.CREATE_SEQUENCE, args,
-                                   null, writeTableNames);
+                                   null, writeLockNames);
     }
 
     StatementSchema compileCreateDomain() {
@@ -1700,12 +1731,12 @@ public class ParserDDL extends ParserRoutine {
             userTypeModifier.addConstraint(c);
         }
 
-        String     sql             = getLastPart();
-        Object[]   args            = new Object[]{ type };
-        HsqlName[] writeTableNames = database.schemaManager.catalogNameArray;
+        String     sql            = getLastPart();
+        Object[]   args           = new Object[]{ type };
+        HsqlName[] writeLockNames = database.schemaManager.catalogNameArray;
 
         return new StatementSchema(sql, StatementTypes.CREATE_DOMAIN, args,
-                                   null, writeTableNames);
+                                   null, writeLockNames);
     }
 
     StatementSchema compileCreateType() {
@@ -1725,12 +1756,12 @@ public class ParserDDL extends ParserRoutine {
 
         type.userTypeModifier = userTypeModifier;
 
-        String     sql             = getLastPart();
-        Object[]   args            = new Object[]{ type };
-        HsqlName[] writeTableNames = database.schemaManager.catalogNameArray;
+        String     sql            = getLastPart();
+        Object[]   args           = new Object[]{ type };
+        HsqlName[] writeLockNames = database.schemaManager.catalogNameArray;
 
         return new StatementSchema(sql, StatementTypes.CREATE_TYPE, args,
-                                   null, writeTableNames);
+                                   null, writeLockNames);
     }
 
     StatementSchema compileCreateCharacterSet() {
@@ -1760,12 +1791,12 @@ public class ParserDDL extends ParserRoutine {
 
         charset.base = source.getName();
 
-        String     sql             = getLastPart();
-        Object[]   args            = new Object[]{ charset };
-        HsqlName[] writeTableNames = database.schemaManager.catalogNameArray;
+        String     sql            = getLastPart();
+        Object[]   args           = new Object[]{ charset };
+        HsqlName[] writeLockNames = database.schemaManager.catalogNameArray;
 
         return new StatementSchema(sql, StatementTypes.CREATE_CHARACTER_SET,
-                                   args, null, writeTableNames);
+                                   args, null, writeLockNames);
     }
 
     StatementSchema compileCreateCollation() {
@@ -1816,13 +1847,13 @@ public class ParserDDL extends ParserRoutine {
                               sourceName.getSchemaQualifiedStatementName());
         }
 
-        Collation  collation       = new Collation(name, source, charset);
-        String     sql             = getLastPart();
-        Object[]   args            = new Object[]{ collation };
-        HsqlName[] writeTableNames = database.schemaManager.catalogNameArray;
+        Collation  collation      = new Collation(name, source, charset);
+        String     sql            = getLastPart();
+        Object[]   args           = new Object[]{ collation };
+        HsqlName[] writeLockNames = database.schemaManager.catalogNameArray;
 
         return new StatementSchema(sql, StatementTypes.CREATE_COLLATION, args,
-                                   null, writeTableNames);
+                                   null, writeLockNames);
     }
 
     StatementSchema compileCreateAlias() {
@@ -1863,14 +1894,14 @@ public class ParserDDL extends ParserRoutine {
             routines = Routine.newRoutines(session, methods);
         }
 
-        String     sql             = getLastPart();
-        Object[]   args            = new Object[] {
+        String     sql            = getLastPart();
+        Object[]   args           = new Object[] {
             name, routines
         };
-        HsqlName[] writeTableNames = database.schemaManager.catalogNameArray;
+        HsqlName[] writeLockNames = database.schemaManager.catalogNameArray;
 
         return new StatementSchema(sql, StatementTypes.CREATE_ALIAS, args,
-                                   null, writeTableNames);
+                                   null, writeLockNames);
     }
 
     StatementSchema compileCreateTrigger() {
@@ -2254,15 +2285,16 @@ public class ParserDDL extends ParserRoutine {
                                     conditionSQL, updateColumnIndexes,
                                     className, isNowait, queueSize);
 
-                String   sql  = getLastPart();
-                Object[] args = new Object[] {
+                String     sql            = getLastPart();
+                Object[]   args           = new Object[] {
                     td, otherName
+                };
+                HsqlName[] writeLockNames = new HsqlName[] {
+                    database.getCatalogName(), table.getName()
                 };
 
                 return new StatementSchema(sql, StatementTypes.CREATE_TRIGGER,
-                                           args, null, new HsqlName[] {
-                    database.getCatalogName(), table.getName()
-                });
+                                           args, null, writeLockNames);
             } catch (HsqlException e) {
                 rewind(position);
             }
@@ -3193,13 +3225,13 @@ public class ParserDDL extends ParserRoutine {
                 this.readNewSchemaObjectName(SchemaObject.CHARSET, false);
         }
 
-        String     sql             = getLastPart();
-        Object[]   args            = new Object[] {
+        String     sql            = getLastPart();
+        Object[]   args           = new Object[] {
             schemaName, owner
         };
-        HsqlName[] writeTableNames = database.schemaManager.catalogNameArray;
+        HsqlName[] writeLockNames = database.schemaManager.catalogNameArray;
         StatementSchema cs = new StatementSchema(sql,
-            StatementTypes.CREATE_SCHEMA, args, null, writeTableNames);
+            StatementTypes.CREATE_SCHEMA, args, null, writeLockNames);
 
         cs.setSchemaHsqlName(schemaName);
 
@@ -3368,13 +3400,13 @@ public class ParserDDL extends ParserRoutine {
 
         read();
 
-        HsqlName   name            = readNewUserIdentifier();
-        String     sql             = getLastPart();
-        Object[]   args            = new Object[]{ name };
-        HsqlName[] writeTableNames = database.schemaManager.catalogNameArray;
+        HsqlName   name           = readNewUserIdentifier();
+        String     sql            = getLastPart();
+        Object[]   args           = new Object[]{ name };
+        HsqlName[] writeLockNames = database.schemaManager.catalogNameArray;
 
         return new StatementSchema(sql, StatementTypes.CREATE_ROLE, args,
-                                   null, writeTableNames);
+                                   null, writeLockNames);
     }
 
     StatementSchema compileCreateUser() {
@@ -3405,14 +3437,14 @@ public class ParserDDL extends ParserRoutine {
 
         checkDatabaseUpdateAuthorisation();
 
-        String     sql             = getLastPart();
-        Object[]   args            = new Object[] {
+        String     sql            = getLastPart();
+        Object[]   args           = new Object[] {
             name, password, grantor, admin, isDigest
         };
-        HsqlName[] writeTableNames = database.schemaManager.catalogNameArray;
+        HsqlName[] writeLockNames = database.schemaManager.catalogNameArray;
 
         return new StatementSchema(sql, StatementTypes.CREATE_USER, args,
-                                   null, writeTableNames);
+                                   null, writeLockNames);
     }
 
     HsqlName readNewUserIdentifier() {
@@ -3463,13 +3495,14 @@ public class ParserDDL extends ParserRoutine {
                 checkSchemaUpdateAuthorisation(session, name.schema);
         }
 
-        Object[]   args            = new Object[] {
+        Object[] args = new Object[] {
             name, newName
         };
-        HsqlName[] writeTableNames = database.schemaManager.catalogNameArray;
+        HsqlName[] writeLockNames =
+            database.schemaManager.getCatalogNameArray();
 
         return new StatementSchema(sql, StatementTypes.RENAME_OBJECT, args,
-                                   null, writeTableNames);
+                                   null, writeLockNames);
     }
 
     Statement compileAlterTableAddUniqueConstraint(Table table,
@@ -3493,11 +3526,12 @@ public class ParserDDL extends ParserRoutine {
         Object[] args = new Object[] {
             StatementTypes.ADD_CONSTRAINT, table, c
         };
+        HsqlName[] writeLockNames =
+            database.schemaManager.getCatalogAndBaseTableNames(
+                table.getName());
 
         return new StatementSchema(sql, StatementTypes.ALTER_TABLE, args,
-                                   null, new HsqlName[] {
-            database.getCatalogName(), table.getName()
-        });
+                                   null, writeLockNames);
     }
 
     Statement compileAlterTableAddForeignKeyConstraint(Table table,
@@ -3518,16 +3552,22 @@ public class ParserDDL extends ParserRoutine {
 
         c.setColumnsIndexes(table);
 
-        String     sql   = getLastPart();
-        Object[]   args  = new Object[] {
+        String   sql  = getLastPart();
+        Object[] args = new Object[] {
             StatementTypes.ADD_CONSTRAINT, table, c
         };
-        HsqlName[] names = new HsqlName[] {
-            database.getCatalogName(), table.getName(), mainTableName
-        };
+        HsqlName[] writeLockNames =
+            database.schemaManager.getCatalogAndBaseTableNames(
+                table.getName());
+
+        if (mainTableName != null && mainTableName != table.getName()) {
+            writeLockNames =
+                (HsqlName[]) ArrayUtil.toAdjustedArray(writeLockNames,
+                    mainTableName, writeLockNames.length, 1);
+        }
 
         return new StatementSchema(sql, StatementTypes.ALTER_TABLE, args,
-                                   null, names);
+                                   null, writeLockNames);
     }
 
     Statement compileAlterTableAddCheckConstraint(Table table, HsqlName name) {
@@ -3544,15 +3584,16 @@ public class ParserDDL extends ParserRoutine {
 
         readCheckConstraintCondition(check);
 
-        String   sql  = getLastPart();
-        Object[] args = new Object[] {
+        String     sql            = getLastPart();
+        Object[]   args           = new Object[] {
             StatementTypes.ADD_CONSTRAINT, table, check
+        };
+        HsqlName[] writeLockNames = new HsqlName[] {
+            database.getCatalogName(), table.getName()
         };
 
         return new StatementSchema(sql, StatementTypes.ALTER_TABLE, args,
-                                   null, new HsqlName[] {
-            database.getCatalogName(), table.getName()
-        });
+                                   null, writeLockNames);
     }
 
     Statement compileAlterTableAddColumn(Table table) {
@@ -3591,11 +3632,12 @@ public class ParserDDL extends ParserRoutine {
             StatementTypes.ADD_COLUMN, table, column, new Integer(colIndex),
             list
         };
+        HsqlName[] writeLockNames =
+            database.schemaManager.getCatalogAndBaseTableNames(
+                table.getName());
 
         return new StatementSchema(sql, StatementTypes.ALTER_TABLE, args,
-                                   null, new HsqlName[] {
-            database.getCatalogName(), table.getName()
-        });
+                                   null, writeLockNames);
     }
 
     Statement compileAlterTableAddPrimaryKey(Table table, HsqlName name) {
@@ -3617,20 +3659,18 @@ public class ParserDDL extends ParserRoutine {
         Object[] args = new Object[] {
             StatementTypes.ADD_CONSTRAINT, table, constraint
         };
+        HsqlName[] writeLockNames =
+            database.schemaManager.getCatalogAndBaseTableNames(
+                table.getName());
 
         return new StatementSchema(sql, StatementTypes.ALTER_TABLE, args,
-                                   null, new HsqlName[] {
-            database.getCatalogName(), table.getName()
-        });
+                                   null, writeLockNames);
     }
 
     Statement compileAlterTableDropColumn(Table table, String colName,
                                           boolean cascade) {
 
-        HsqlName[] writeLockNames = new HsqlName[] {
-            database.getCatalogName(), table.getName()
-        };
-        int        colindex       = table.getColumnIndex(colName);
+        int colindex = table.getColumnIndex(colName);
 
         if (table.getColumnCount() == 1) {
             throw Error.error(ErrorCode.X_42591);
@@ -3642,6 +3682,9 @@ public class ParserDDL extends ParserRoutine {
             ValuePool.getInt(SchemaObject.COLUMN), Boolean.valueOf(cascade),
             Boolean.valueOf(false)
         };
+        HsqlName[] writeLockNames =
+            database.schemaManager.getCatalogAndBaseTableNames(
+                table.getName());
 
         return new StatementSchema(sql, StatementTypes.DROP_COLUMN, args,
                                    null, writeLockNames);
@@ -3650,10 +3693,10 @@ public class ParserDDL extends ParserRoutine {
     Statement compileAlterColumn(Table table, ColumnSchema column,
                                  int columnIndex) {
 
-        HsqlName[] writeLockNames = new HsqlName[] {
-            database.getCatalogName(), table.getName()
-        };
-        int        position       = getPosition();
+        HsqlName[] writeLockNames =
+            database.schemaManager.getCatalogAndBaseTableNames(
+                table.getName());
+        int position = getPosition();
 
         switch (token.tokenType) {
 
@@ -3825,9 +3868,9 @@ public class ParserDDL extends ParserRoutine {
             StatementTypes.ALTER_COLUMN_TYPE_IDENTITY, table, column, type,
             sequence
         };
-        HsqlName[] writeLockNames = new HsqlName[] {
-            database.getCatalogName(), table.getName()
-        };
+        HsqlName[] writeLockNames =
+            database.schemaManager.getCatalogAndBaseTableNames(
+                table.getName());
 
         return new StatementSchema(sql, StatementTypes.ALTER_TABLE, args,
                                    null, writeLockNames);
@@ -3848,13 +3891,13 @@ public class ParserDDL extends ParserRoutine {
             }
         }
 
-        String     sql            = getLastPart();
-        Object[]   args           = new Object[] {
+        String   sql  = getLastPart();
+        Object[] args = new Object[] {
             StatementTypes.ALTER_COLUMN_TYPE, table, column, type
         };
-        HsqlName[] writeLockNames = new HsqlName[] {
-            database.getCatalogName(), table.getName()
-        };
+        HsqlName[] writeLockNames =
+            database.schemaManager.getCatalogAndBaseTableNames(
+                table.getName());
 
         return new StatementSchema(sql, StatementTypes.ALTER_TABLE, args,
                                    null, writeLockNames);
@@ -3863,13 +3906,13 @@ public class ParserDDL extends ParserRoutine {
     private Statement compileAlterColumnSetNullability(Table table,
             ColumnSchema column, boolean b) {
 
-        String     sql            = getLastPart();
-        Object[]   args           = new Object[] {
+        String   sql  = getLastPart();
+        Object[] args = new Object[] {
             StatementTypes.ALTER_COLUMN_NULL, table, column, b
         };
-        HsqlName[] writeLockNames = new HsqlName[] {
-            database.getCatalogName(), table.getName()
-        };
+        HsqlName[] writeLockNames =
+            database.schemaManager.getCatalogAndBaseTableNames(
+                table.getName());
 
         return new StatementSchema(sql, StatementTypes.ALTER_TABLE, args,
                                    null, writeLockNames);
@@ -3928,7 +3971,9 @@ public class ParserDDL extends ParserRoutine {
             StatementTypes.ALTER_COLUMN_SEQUENCE, table, column, colIndex,
             sequence
         };
-        HsqlName[] writeLockNames = new HsqlName[]{ table.getName() };
+        HsqlName[] writeLockNames =
+            database.schemaManager.getCatalogAndBaseTableNames(
+                table.getName());
 
         return new StatementSchema(sql, StatementTypes.ALTER_TABLE, args,
                                    null, writeLockNames);
@@ -4093,7 +4138,9 @@ public class ParserDDL extends ParserRoutine {
             StatementTypes.ALTER_COLUMN_SEQUENCE, table, column, columnIndex,
             sequence
         };
-        HsqlName[] writeLockNames = new HsqlName[]{ table.getName() };
+        HsqlName[] writeLockNames = new HsqlName[] {
+            database.getCatalogName(), table.getName()
+        };
 
         return new StatementSchema(sql, StatementTypes.ALTER_TABLE, args,
                                    null, writeLockNames);
@@ -4116,14 +4163,16 @@ public class ParserDDL extends ParserRoutine {
         database.schemaManager.checkColumnIsReferenced(table.getName(),
                 column.getName());
 
-        String     sql   = getLastPart();
-        Object[]   args  = new Object[] {
+        String     sql            = getLastPart();
+        Object[]   args           = new Object[] {
             column.getName(), name
         };
-        HsqlName[] names = new HsqlName[]{ table.getName() };
+        HsqlName[] writeLockNames = new HsqlName[] {
+            database.getCatalogName(), table.getName()
+        };
 
         return new StatementSchema(sql, StatementTypes.RENAME_OBJECT, args,
-                                   null, names);
+                                   null, writeLockNames);
     }
 
     Statement compileAlterSchemaRename() {
@@ -4140,7 +4189,7 @@ public class ParserDDL extends ParserRoutine {
             name, newName
         };
         HsqlName[] writeLockNames =
-            database.schemaManager.getCatalogAndBaseTableNames();
+            database.schemaManager.getCatalogNameArray();
 
         return new StatementSchema(sql, StatementTypes.RENAME_OBJECT, args,
                                    null, writeLockNames);
@@ -4259,7 +4308,8 @@ public class ParserDDL extends ParserRoutine {
                         StatementTypes.DROP_DEFAULT, domain
                     };
                     HsqlName[] writeLockNames =
-                        database.schemaManager.catalogNameArray;
+                        database.schemaManager.getCatalogAndBaseTableNames(
+                            domain.getName());
 
                     return new StatementSchema(sql,
                                                StatementTypes.ALTER_DOMAIN,
@@ -4279,7 +4329,8 @@ public class ParserDDL extends ParserRoutine {
                         StatementTypes.DROP_CONSTRAINT, domain, name
                     };
                     HsqlName[] writeLockNames =
-                        database.schemaManager.catalogNameArray;
+                        database.schemaManager.getCatalogAndBaseTableNames(
+                            domain.getName());
 
                     return new StatementSchema(sql,
                                                StatementTypes.ALTER_DOMAIN,
@@ -4298,7 +4349,8 @@ public class ParserDDL extends ParserRoutine {
                     StatementTypes.ADD_DEFAULT, domain, e
                 };
                 HsqlName[] writeLockNames =
-                    database.schemaManager.catalogNameArray;
+                    database.schemaManager.getCatalogAndBaseTableNames(
+                        domain.getName());
 
                 return new StatementSchema(sql, StatementTypes.ALTER_DOMAIN,
                                            args, null, writeLockNames);
@@ -4322,7 +4374,8 @@ public class ParserDDL extends ParserRoutine {
                         StatementTypes.ADD_CONSTRAINT, domain, c
                     };
                     HsqlName[] writeLockNames =
-                        database.schemaManager.catalogNameArray;
+                        database.schemaManager.getCatalogAndBaseTableNames(
+                            domain.getName());
 
                     return new StatementSchema(sql,
                                                StatementTypes.ALTER_DOMAIN,
@@ -4681,7 +4734,8 @@ public class ParserDDL extends ParserRoutine {
             granteeList, objectName, right, grantor, Boolean.valueOf(cascade),
             Boolean.valueOf(isGrantOption)
         };
-        HsqlName[] writeLockNames = database.schemaManager.catalogNameArray;
+        HsqlName[] writeLockNames =
+            database.schemaManager.getCatalogNameArray();
         StatementSchema cs = new StatementSchema(sql, type, args, null,
             writeLockNames);
 
@@ -4776,13 +4830,14 @@ public class ParserDDL extends ParserRoutine {
             }
         }
 
-        String     sql            = getLastPart();
-        int        type           = grant ? StatementTypes.GRANT_ROLE
-                                          : StatementTypes.REVOKE_ROLE;
-        Object[]   args           = new Object[] {
+        String   sql  = getLastPart();
+        int      type = grant ? StatementTypes.GRANT_ROLE
+                              : StatementTypes.REVOKE_ROLE;
+        Object[] args = new Object[] {
             granteeList, roleList, grantor, Boolean.valueOf(cascade)
         };
-        HsqlName[] writeLockNames = database.schemaManager.catalogNameArray;
+        HsqlName[] writeLockNames =
+            database.schemaManager.getCatalogNameArray();
         StatementSchema cs = new StatementSchema(sql, type, args, null,
             writeLockNames);
 
