@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2010, The HSQL Development Group
+/* Copyright (c) 2001-2011, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,16 +31,8 @@
 
 package org.hsqldb;
 
-import org.hsqldb.HsqlNameManager.HsqlName;
 import org.hsqldb.ParserDQL.CompileContext;
-import org.hsqldb.error.Error;
-import org.hsqldb.error.ErrorCode;
-import org.hsqldb.lib.ArraySort;
-import org.hsqldb.lib.ArrayUtil;
-import org.hsqldb.lib.OrderedHashSet;
 import org.hsqldb.result.Result;
-import org.hsqldb.store.ValuePool;
-import org.hsqldb.types.Type;
 
 /**
  * Implementation of Statement for PSM and trigger assignment.

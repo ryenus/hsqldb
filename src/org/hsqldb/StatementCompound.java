@@ -487,7 +487,8 @@ public class StatementCompound extends Statement {
 
             Object[] data = queryResult.navigator.getCurrent();
 
-            initialiseVariables(session, data);
+            initialiseVariables(session, data,
+                                queryResult.metaData.getColumnCount());
 
             for (int i = 0; i < statements.length; i++) {
                 result = statements[i].execute(session);
@@ -928,13 +929,14 @@ public class StatementCompound extends Statement {
         }
     }
 
-    private void initialiseVariables(Session session, Object[] data) {
+    private void initialiseVariables(Session session, Object[] data,
+                                     int count) {
 
         Object[] vars   = session.sessionContext.routineVariables;
         int      offset = parent == null ? 0
                                          : parent.scopeVariables.size();
 
-        for (int i = 0; i < data.length; i++) {
+        for (int i = 0; i < count; i++) {
             try {
                 vars[offset + i] = data[i];
             } catch (HsqlException e) {}
