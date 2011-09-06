@@ -108,10 +108,10 @@ public class RowAVLDisk extends RowAVL {
     public static final int NO_POS = -1;
 
     //
-    int     storageSize;
-    int     keepCount;
-    boolean isInMemory;
-    int     accessCount;
+    int              storageSize;
+    int              keepCount;
+    volatile boolean isInMemory;
+    int              accessCount;
 
     /**
      *  Flag indicating unwritten data.
