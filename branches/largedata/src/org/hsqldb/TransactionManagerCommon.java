@@ -846,6 +846,9 @@ class TransactionManagerCommon {
      * at the time of defrag.
      */
     public LongLookup getTransactionIDList() {
+        if (txModel == TransactionManager.LOCKS) {
+            return new LongLookupMap(8);
+        }
 
         writeLock.lock();
 
@@ -870,6 +873,9 @@ class TransactionManagerCommon {
      * Convert row ID's for cached table rows in transactions
      */
     public void convertTransactionIDs(LongLookup lookup) {
+        if (txModel == TransactionManager.LOCKS) {
+            return;
+        }
 
         writeLock.lock();
 

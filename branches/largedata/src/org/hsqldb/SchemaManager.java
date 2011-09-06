@@ -563,6 +563,73 @@ public class SchemaManager {
         }
     }
 
+    public HsqlName[] getCatalogAndBaseTableNames(HsqlName name) {
+
+        readLock.lock();
+
+        try {
+            switch (name.type) {
+
+                case SchemaObject.SCHEMA :
+                case SchemaObject.GRANTEE : {
+                    return catalogNameArray;
+                }
+                case SchemaObject.INDEX :
+                case SchemaObject.CONSTRAINT :
+                    findSchemaObject(name.name, name.schema.name, name.type);
+            }
+
+            SchemaObject object = findSchemaObject(name.name,
+                                                   name.schema.name,
+                                                   name.type);
+
+            if (object == null) {
+                return catalogNameArray;
+            }
+
+            HsqlName       parent     = object.getName().parent;
+            OrderedHashSet references = getReferencesTo(object.getName());
+            OrderedHashSet names      = new OrderedHashSet();
+
+            names.add(database.getCatalogName());
+
+            if (parent != null) {
+                SchemaObject parentObject = findSchemaObject(parent.name,
+                    parent.schema.name, parent.type);
+
+                if (parentObject != null
+                        && parentObject.getName().type == SchemaObject.TABLE) {
+                    names.add(parentObject.getName());
+                }
+            }
+
+            if (object.getName().type == SchemaObject.TABLE) {
+                names.add(object.getName());
+            }
+
+            for (int i = 0; i < references.size(); i++) {
+                HsqlName reference = (HsqlName) references.get(i);
+
+                if (reference.type == SchemaObject.TABLE) {
+                    Table table = findUserTable(null, reference.name,
+                                                reference.schema.name);
+
+                    if (table != null && !table.isTemp()) {
+                        names.add(reference);
+                    }
+                }
+            }
+
+            HsqlName[] array = new HsqlName[names.size()];
+
+            names.toArray(array);
+
+            return array;
+        } finally {
+            readLock.unlock();
+        }
+    }
+
     private SchemaObjectSet getSchemaObjectSet(Schema schema, int type) {
 
         readLock.lock();
@@ -808,8 +875,8 @@ public class SchemaManager {
 
         if (!cascade) {
             for (int i = 0; i < externalConstraints.size(); i++) {
-                Constraint c         = (Constraint) externalConstraints.get(i);
-                HsqlName   refname   = c.getRefName();
+                Constraint c       = (Constraint) externalConstraints.get(i);
+                HsqlName   refname = c.getRefName();
 
                 if (c.getConstraintType()
                         == SchemaObject.ConstraintTypes.MAIN) {
@@ -1020,13 +1087,13 @@ public class SchemaManager {
             }
 
             if (Error.TRACE) {
-            HsqlArrayList list = getAllTables(false);
+                HsqlArrayList list = getAllTables(false);
 
-            for (int i = 0; i < list.size(); i++) {
-                Table t = (Table) list.get(i);
+                for (int i = 0; i < list.size(); i++) {
+                    Table t = (Table) list.get(i);
 
-                t.verifyConstraintsIntegrity();
-            }
+                    t.verifyConstraintsIntegrity();
+                }
             }
         } finally {
             writeLock.unlock();
@@ -1480,7 +1547,7 @@ public class SchemaManager {
     // references
     private void addReferencesFrom(SchemaObject object) {
 
-        OrderedHashSet set = object.getReferences();
+        OrderedHashSet set  = object.getReferences();
         HsqlName       name = object.getName();
 
         if (set == null) {
@@ -1514,7 +1581,7 @@ public class SchemaManager {
     private void removeReferencesFrom(SchemaObject object) {
 
         HsqlName       name = object.getName();
-        OrderedHashSet set = object.getReferences();
+        OrderedHashSet set  = object.getReferences();
 
         if (set == null) {
             return;
@@ -1975,10 +2042,10 @@ public class SchemaManager {
                             case SchemaObject.COLUMN : {
                                 int index =
                                     ((Table) object).findColumn(ref.name);
-                            ColumnSchema column =
-                                ((Table) object).getColumn(index);
+                                ColumnSchema column =
+                                    ((Table) object).getColumn(index);
 
-                            addSchemaObject(column);
+                                addSchemaObject(column);
 
                                 break;
                             }
