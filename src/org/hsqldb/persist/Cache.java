@@ -96,11 +96,9 @@ public class Cache extends BaseHashMap {
     public synchronized CachedObject get(long pos) {
 
         if (accessCount > ACCESS_MAX) {
-
-//            updateAccessCounts();
+            updateAccessCounts();
             resetAccessCount();
-
-//            updateObjectAccessCounts();
+            updateObjectAccessCounts();
         }
 
         int lookup = getLookup(pos);
@@ -133,11 +131,9 @@ public class Cache extends BaseHashMap {
         }
 
         if (accessCount > ACCESS_MAX) {
-
-//            updateAccessCounts();
+            updateAccessCounts();
             resetAccessCount();
-
-//            updateObjectAccessCounts();
+            updateObjectAccessCounts();
         }
 
         super.addOrRemove(key, row, null, false);
@@ -234,21 +230,21 @@ public class Cache extends BaseHashMap {
 
             if (oldRow) {
                 synchronized (row) {
-            if (row.isKeepInMemory()) {
+                    if (row.isKeepInMemory()) {
                         it.setAccessCount(accessTarget + 1);
-            } else {
-                    if (row.hasChanged()) {
-                        rowTable[savecount++] = row;
+                    } else {
+                        if (row.hasChanged()) {
+                            rowTable[savecount++] = row;
+                        }
+
+                        row.setInMemory(false);
+                        it.remove();
+
+                        cacheBytesLength -= row.getStorageSize();
+
+                        removeCount--;
                     }
-
-                    row.setInMemory(false);
-                    it.remove();
-
-                    cacheBytesLength -= row.getStorageSize();
-
-                    removeCount--;
                 }
-            }
             }
 
             if (savecount == rowTable.length) {
@@ -272,7 +268,7 @@ public class Cache extends BaseHashMap {
             synchronized (row) {
                 if (!row.hasChanged() && !row.isKeepInMemory()) {
                     row.setInMemory(false);
-                it.remove();
+                    it.remove();
 
                     cacheBytesLength -= row.getStorageSize();
                 }

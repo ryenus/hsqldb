@@ -1292,8 +1292,13 @@ public class IndexAVL implements Index {
         NodeAVL  c = node;
         Object[] data;
         Object[] nodeData;
+        Row      row;
 
-        if (session.database.txManager.canRead(session, node.getRow(store),
+        row = node.getRow(store);
+
+        session.database.txManager.setTransactionInfo(row);
+
+        if (session.database.txManager.canRead(session, row,
                                                TransactionManager.ACTION_DUP,
                                                null)) {
             return true;
@@ -1311,7 +1316,9 @@ public class IndexAVL implements Index {
             nodeData = c.getData(store);
 
             if (compareRow(session, data, nodeData) == 0) {
-                Row row = c.getRow(store);
+                row = c.getRow(store);
+
+                session.database.txManager.setTransactionInfo(row);
 
                 if (session.database.txManager.canRead(
                         session, row, TransactionManager.ACTION_DUP, null)) {
@@ -1334,7 +1341,9 @@ public class IndexAVL implements Index {
             nodeData = c.getData(store);
 
             if (compareRow(session, data, nodeData) == 0) {
-                Row row = c.getRow(store);
+                row = c.getRow(store);
+
+                session.database.txManager.setTransactionInfo(row);
 
                 if (session.database.txManager.canRead(
                         session, row, TransactionManager.ACTION_DUP, null)) {
