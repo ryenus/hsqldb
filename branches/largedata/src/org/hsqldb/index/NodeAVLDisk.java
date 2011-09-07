@@ -123,11 +123,11 @@ public class NodeAVLDisk extends NodeAVL {
         iData    = r.getPos();
         ext      = in.readInt();
         iBalance = (byte) ext;
-        iLeft    = in.readInt();
-        iRight   = in.readInt();
-        iParent  = in.readInt();
+        iLeft    = in.readInt() & 0xffffffffL;
+        iRight   = in.readInt() & 0xffffffffL;
+        iParent  = in.readInt() & 0xffffffffL;
 
-        if (ext > 0) {
+        if (ext > 0xff) {
             iParent |= (((long) ext << 8) & 0xff00000000L);
             iLeft   |= (((long) ext << 16) & 0xff00000000L);
             iRight  |= (((long) ext << 24) & 0xff00000000L);
