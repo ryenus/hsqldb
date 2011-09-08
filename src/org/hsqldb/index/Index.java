@@ -139,9 +139,6 @@ public interface Index extends SchemaObject {
 
     public long sizeUnique(PersistentStore store);
 
-/*
-    public double selectivity(Session session, PersistentStore store);
-*/
     public boolean isEmpty(PersistentStore store);
 
     public void checkIndex(PersistentStore store);
