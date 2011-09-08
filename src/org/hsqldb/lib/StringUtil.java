@@ -39,7 +39,7 @@ import java.lang.reflect.Array;
  * @author Campbell Boucher-Burnet (boucherb@users dot sourceforge.net)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
  * @author Nitin Chauhan
- * @version 2.0.1
+ * @version 2.2.6
  * @since 1.7.0
  */
 public class StringUtil {
@@ -121,13 +121,12 @@ public class StringUtil {
             }
         }
 
-        StringBuffer sb        = new StringBuffer(length);
-        int          padLength = source.length();
-        int partLength = (length - padLength) % pad.length();
+        StringBuffer sb         = new StringBuffer(length);
+        int          padLength  = source.length();
+        int          partLength = (length - padLength) % pad.length();
 
         if (trailing) {
             sb.append(source);
-
             sb.append(pad.substring(pad.length() - partLength, pad.length()));
         }
 
@@ -251,6 +250,24 @@ public class StringUtil {
      * @param quote the <code>String</code> with which to quote the list elements
      */
     public static String getList(int[] s, String separator, String quote) {
+
+        int          len = s.length;
+        StringBuffer sb  = new StringBuffer(len * 8);
+
+        for (int i = 0; i < len; i++) {
+            sb.append(quote);
+            sb.append(s[i]);
+            sb.append(quote);
+
+            if (i + 1 < len) {
+                sb.append(separator);
+            }
+        }
+
+        return sb.toString();
+    }
+
+    public static String getList(long[] s, String separator, String quote) {
 
         int          len = s.length;
         StringBuffer sb  = new StringBuffer(len * 8);
