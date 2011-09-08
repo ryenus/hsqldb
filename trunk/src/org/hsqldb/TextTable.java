@@ -329,7 +329,7 @@ public class TextTable extends org.hsqldb.Table {
             return null;
         }
 
-        StringBuffer sb     = new StringBuffer(128);
+        StringBuffer sb = new StringBuffer(128);
 
         sb.append(Tokens.T_SET).append(' ').append(Tokens.T_TABLE).append(' ');
         sb.append(getName().getSchemaQualifiedStatementName());

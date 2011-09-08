@@ -46,7 +46,7 @@ import org.hsqldb.types.Type;
  * Implementation of Statement for SQL session statements.<p>
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.1.1
+ * @version 2.2.6
  * @since 1.9.0
  */
 public class StatementSession extends Statement {
@@ -85,6 +85,7 @@ public class StatementSession extends Statement {
 
         this.expressions       = args;
         isTransactionStatement = false;
+        isLogged               = false;
 
         switch (type) {
 
@@ -179,8 +180,12 @@ public class StatementSession extends Statement {
             case StatementTypes.SET_SESSION_RESULT_MAX_ROWS :
             case StatementTypes.SET_SESSION_RESULT_MEMORY_ROWS :
             case StatementTypes.SET_SESSION_AUTOCOMMIT :
-            case StatementTypes.SET_SESSION_SQL_IGNORECASE :
                 group = StatementTypes.X_HSQLDB_SESSION;
+                break;
+
+            case StatementTypes.SET_SESSION_SQL_IGNORECASE :
+                isLogged = true;
+                group    = StatementTypes.X_HSQLDB_SESSION;
                 break;
 
             // logged by session if necessary

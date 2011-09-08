@@ -582,7 +582,7 @@ public class TextCache extends DataFileCache {
             }
 
             if (complete) {
-                int length = (int) dataFile.getFilePointer() - pos;
+                int length = (int) (dataFile.getFilePointer() - pos);
 
                 if (wasNormal) {
                     length--;
