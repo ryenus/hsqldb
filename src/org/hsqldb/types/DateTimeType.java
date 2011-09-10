@@ -57,6 +57,10 @@ public final class DateTimeType extends DTIType {
 
     public final boolean withTimeZone;
     private String       nameString;
+    public static final long epochSeconds =
+        HsqlDateTime.getDateSeconds("1-01-01");
+    public static final TimestampData epochTimestamp =
+        new TimestampData(epochSeconds);
 
     public DateTimeType(int typeGroup, int type, int scale) {
 
