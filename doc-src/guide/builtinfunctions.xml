@@ -957,7 +957,7 @@
     <para>This function rounds values ending with .5 or larger away from zero
     for DECIMAL arguments and results. When the value ends with .5 or larger
     and the argument and result are DOUBLE, It rounds the value towards the
-    closest even value. </para>
+    closest even value.</para>
 
     <para>The datetime version is discussed in the next section. (JDBC)</para>
 
@@ -1492,7 +1492,12 @@ WIDTH_BUCKET( 200, 10, 110, 10)
     calling these two functions. The return value for TIMESTAMPADD is of the
     same type as the datetime argument used. The return type for TIMESTAMPDIFF
     is always BIGINT, regardless of the type of arguments. The two datetime
-    arguments of TIMESTAMPDIFF should be of the same type. (JDBC)</para>
+    arguments of TIMESTAMPDIFF should be of the same type. </para>
+
+    <para><literal>TIMESTAMPDIFF</literal> is evaluated as &lt;datetime value
+    expr 2&gt; - &lt;datetime value expr 1&gt;.</para>
+
+    <para>(JDBC)</para>
 
     <indexterm significance="preferred" type="sql">
       <primary>DATEADD function</primary>
@@ -1518,7 +1523,30 @@ WIDTH_BUCKET( 200, 10, 110, 10)
     <para>The DATEADD and DATEDIFF functions are alternatives to TIMESTAMPADD
     and TIMESTAMPDIFF, with fewer available field options. The field names are
     specified as strings, rather than keywords. The fields translate to YEAR,
-    MONTH, DAY, HOUR, MINUTE, SECOND and MILLISECOND. (HyperSQL}</para>
+    MONTH, DAY, HOUR, MINUTE, SECOND and MILLISECOND.
+    <literal>DATEDIFF</literal> is evaluated as &lt;datetime value expr 2&gt;
+    - &lt;datetime value expr 1&gt;. (HyperSQL}</para>
+
+    <para><literal>DATEDIFF ( &lt;datetime value expr 1&gt;, datetime value
+    expr 2&gt; )</literal></para>
+
+    <para>This special form of <literal>DATEDIFF</literal> does not have a
+    field parameter and return the number of days between two dates. This form
+    is evaluated as <literal>&lt;datetime value expr 1&gt; - &lt;datetime
+    value expr 2&gt;</literal>, which is different from the main form. This
+    form is compatible with some other database engines. (HyperSQL}</para>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>DAYS function datetime</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">DAYS</emphasis></simpara>
+
+    <para><literal>DAYS ( &lt;datetime value expr&gt; ) </literal></para>
+
+    <para>The <literal>&lt;datetime value expr&gt; </literal>is of DATE or
+    TIMESTAMP type. This function returns the DAY number since the first day
+    of the calendar. The first day is numbered 1. (HyperSQL)</para>
 
     <indexterm significance="preferred" type="sql">
       <primary>ROUND function datetime</primary>
@@ -1529,16 +1557,17 @@ WIDTH_BUCKET( 200, 10, 110, 10)
     <para><literal>ROUND ( &lt;datetime value expr&gt; [ , &lt;char value
     expr&gt; ] ) </literal></para>
 
-    <para>The <literal>&lt;num value expr&gt; </literal>is of DATE, TIME or
-    TIMESTAMP type. The <literal>&lt;char value expr&gt;</literal> is a format
-    string for YEAR, MONTH, WEEK OF YEAR, DAY, HOUR, MINUTE or SECOND as
-    listed in the table for TO_CHAR and TO_DATE format elements (see below).
-    The datetime value is rounded up or down after the specified field and the
-    rest of the fields to the right are set to one for MONTH and DAY, or zero,
-    for the rest of the fields. For example rounding a timestamp value on the
-    DAY field results in midnight the same date or midnight the next day if
-    the time is at or after 12 noon. If the second argument is ommitted, the
-    datetime value is rounded to the nearest day. (HyperSQL)</para>
+    <para>The <literal>&lt;datetime value expr&gt; </literal>is of DATE, TIME
+    or TIMESTAMP type. The <literal>&lt;char value expr&gt;</literal> is a
+    format string for YEAR, MONTH, WEEK OF YEAR, DAY, HOUR, MINUTE or SECOND
+    as listed in the table for TO_CHAR and TO_DATE format elements (see
+    below). The datetime value is rounded up or down after the specified field
+    and the rest of the fields to the right are set to one for MONTH and DAY,
+    or zero, for the rest of the fields. For example rounding a timestamp
+    value on the DAY field results in midnight the same date or midnight the
+    next day if the time is at or after 12 noon. If the second argument is
+    ommitted, the datetime value is rounded to the nearest day.
+    (HyperSQL)</para>
 
     <indexterm significance="preferred" type="sql">
       <primary>TO_CHAR function</primary>
