@@ -33,6 +33,7 @@ package org.hsqldb.types;
 
 import java.math.BigDecimal;
 
+import org.hsqldb.HsqlDateTime;
 import org.hsqldb.OpTypes;
 import org.hsqldb.Session;
 import org.hsqldb.SessionInterface;
@@ -901,26 +902,43 @@ public final class IntervalType extends DTIType {
 
                     return new IntervalSecondData(seconds, nanos, this, true);
                 } else if (a instanceof TimeData && b instanceof TimeData) {
-                    long seconds = ((TimeData) a).getSeconds()
-                                   - ((TimeData) b).getSeconds();
+                    long aSeconds = ((TimeData) a).getSeconds();
+                    long bSeconds = ((TimeData) b).getSeconds();
                     long nanos = ((TimeData) a).getNanos()
                                  - ((TimeData) b).getNanos();
 
-                    return new IntervalSecondData(seconds, nanos, this, true);
+                    return subtract(aSeconds, bSeconds, nanos);
                 } else if (a instanceof TimestampData
                            && b instanceof TimestampData) {
-                    long seconds = (((TimestampData) a).getSeconds()
-                                    - ((TimestampData) b).getSeconds());
+                    long aSeconds = ((TimestampData) a).getSeconds();
+                    long bSeconds = ((TimestampData) b).getSeconds();
                     long nanos = ((TimestampData) a).getNanos()
                                  - ((TimestampData) b).getNanos();
 
-                    return new IntervalSecondData(seconds, nanos, this, true);
+                    return subtract(aSeconds, bSeconds, nanos);
                 }
 
             // fall through
             default :
                 throw Error.runtimeError(ErrorCode.U_S0500, "IntervalType");
         }
+    }
+
+    private IntervalSecondData subtract(long aSeconds, long bSeconds,
+                                        long nanos) {
+
+        if (endIntervalType != Types.SQL_INTERVAL_SECOND) {
+            aSeconds =
+                HsqlDateTime.getTruncatedPart(aSeconds * 1000, endIntervalType)
+                / 1000;
+            bSeconds =
+                HsqlDateTime.getTruncatedPart(bSeconds * 1000, endIntervalType)
+                / 1000;
+
+            nanos = 0;
+        }
+
+        return new IntervalSecondData(aSeconds - bSeconds, nanos, this, true);
     }
 
     public Object multiply(Object a, Object b) {
