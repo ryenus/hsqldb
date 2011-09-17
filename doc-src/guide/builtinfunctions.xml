@@ -1492,7 +1492,7 @@ WIDTH_BUCKET( 200, 10, 110, 10)
     calling these two functions. The return value for TIMESTAMPADD is of the
     same type as the datetime argument used. The return type for TIMESTAMPDIFF
     is always BIGINT, regardless of the type of arguments. The two datetime
-    arguments of TIMESTAMPDIFF should be of the same type. </para>
+    arguments of TIMESTAMPDIFF should be of the same type.</para>
 
     <para><literal>TIMESTAMPDIFF</literal> is evaluated as &lt;datetime value
     expr 2&gt; - &lt;datetime value expr 1&gt;.</para>
@@ -1517,8 +1517,9 @@ WIDTH_BUCKET( 200, 10, 110, 10)
     <para><literal>DATEDIFF ( &lt;field&gt;, &lt;datetime value expr 1&gt;,
     datetime value expr 2&gt; )</literal></para>
 
-    <para><literal>&lt;field&gt; ::= 'yy' | 'mm' | 'dd' | 'hh' | 'mi' | 'ss' |
-    'ms'</literal></para>
+    <para><literal>&lt;field&gt; ::= 'yy' | 'year' | 'mm' | 'month' | 'dd' |
+    'day' | 'hh' | 'hour' | 'mi' | 'minute' | 'ss' | 'second' | 'ms' |
+    'millisecond'</literal></para>
 
     <para>The DATEADD and DATEDIFF functions are alternatives to TIMESTAMPADD
     and TIMESTAMPDIFF, with fewer available field options. The field names are
@@ -2238,6 +2239,21 @@ D          I
 
     <para>Returns the file name (without directory information) of the
     database. (JDBC)</para>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>DATABASE_NAME function</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">DATABASE_NAME</emphasis></simpara>
+
+    <para><literal>DATABASE_NAME ()</literal></para>
+
+    <para>Returns the database name. This name is a 16 character, uppercase
+    string. It is generated as a string based on the timestamp of the creation
+    of the database, for example HSQLDB32438AEAFB. The name can be redefined
+    by an admin user but the new name must be all uppercase and 16 characters
+    long. This name is used in log messages with external logging frameworks.
+    (HyperSQL)</para>
 
     <indexterm significance="preferred" type="sql">
       <primary>DATABASE_VERSION function</primary>
