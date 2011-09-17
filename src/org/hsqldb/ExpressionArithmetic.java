@@ -357,7 +357,10 @@ public class ExpressionArithmetic extends Expression {
                 switch (opType) {
 
                     case OpTypes.SUBTRACT :
-                        nodes[LEFT].dataType = nodes[RIGHT].dataType;
+                        if (nodes[RIGHT].dataType.isIntervalType()) {
+                            nodes[LEFT].dataType =
+                                Type.SQL_TIMESTAMP_WITH_TIME_ZONE;
+                        }
                         break;
 
                     case OpTypes.ADD :
@@ -372,8 +375,9 @@ public class ExpressionArithmetic extends Expression {
                                     Type
                                     .SQL_INTERVAL_DAY_TO_SECOND_MAX_PRECISION;
                             }
-                        } else {
-                            nodes[RIGHT].dataType = nodes[LEFT].dataType;
+                        } else if (nodes[RIGHT].dataType.isIntervalType()) {
+                            nodes[LEFT].dataType =
+                                Type.SQL_TIMESTAMP_WITH_TIME_ZONE;
                         }
                         break;
                 }

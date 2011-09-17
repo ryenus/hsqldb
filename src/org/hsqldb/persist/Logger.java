@@ -135,6 +135,7 @@ public class Logger {
     Log               log;
     private LockFile  lockFile;
     private Crypto    crypto;
+    boolean           cryptLobs;
     public FileAccess fileAccess;
     public boolean    isStoredFileAccess;
     String            tempDirectoryPath;
@@ -394,6 +395,9 @@ public class Logger {
                 HsqlDatabaseProperties.url_crypt_provider);
 
             crypto = new Crypto(cryptKey, cryptType, cryptProvider);
+            cryptLobs = database.urlProperties.isPropertyTrue(
+                HsqlDatabaseProperties.url_crypt_lobs, true);
+
         }
 
         if (database.databaseProperties.isPropertyTrue(

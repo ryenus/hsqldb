@@ -832,7 +832,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
             }
         } catch (IOException ex) {
             throw Util.sqlException(ErrorCode.SERVER_TRANSFER_CORRUPTED,
-                                    ex.toString());
+                                    ex.toString(), ex);
         }
         setParameter(parameterIndex, writer.toString());
     }
@@ -1309,7 +1309,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
             setParameter(parameterIndex, out.toByteArray());
         } catch (Throwable e) {
             throw Util.sqlException(ErrorCode.JDBC_INPUTSTREAM_ERROR,
-                                    e.toString());
+                                    e.toString(), e);
         }
     }
 
@@ -1399,7 +1399,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
             setParameter(parameterIndex, writer.toString());
         } catch (Throwable e) {
             throw Util.sqlException(ErrorCode.SERVER_TRANSFER_CORRUPTED,
-                                    e.toString());
+                                    e.toString(), e);
         }
     }
 
@@ -2632,7 +2632,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
             }
             setParameter(parameterIndex, s);
         } catch (IOException e) {
-            throw Util.sqlException(ErrorCode.JDBC_INPUTSTREAM_ERROR);
+            throw Util.sqlException(ErrorCode.JDBC_INPUTSTREAM_ERROR, null, e);
         }
     }
 
@@ -2701,7 +2701,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
             setParameter(parameterIndex, output.toByteArray());
         } catch (Throwable e) {
             throw Util.sqlException(ErrorCode.JDBC_INPUTSTREAM_ERROR,
-                                    e.toString());
+                                    e.toString(), e);
         }
     }
 
@@ -2772,7 +2772,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
             setParameter(parameterIndex, writer.toString());
         } catch (Throwable e) {
             throw Util.sqlException(ErrorCode.JDBC_INPUTSTREAM_ERROR,
-                                    e.toString());
+                                    e.toString(), e);
         }
     }
 

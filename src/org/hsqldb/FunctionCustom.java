@@ -1970,7 +1970,7 @@ public class FunctionCustom extends FunctionSQL {
 
                     case Types.SQL_DATE :
                         if (nodes[2].dataType.typeCode == Types.SQL_TIME
-                                && nodes[2].dataType.typeCode
+                                || nodes[2].dataType.typeCode
                                    == Types.SQL_TIME_WITH_TIME_ZONE) {
                             throw Error.error(ErrorCode.X_42563);
                         }
@@ -1992,7 +1992,7 @@ public class FunctionCustom extends FunctionSQL {
                     case Types.SQL_TIMESTAMP :
                     case Types.SQL_TIMESTAMP_WITH_TIME_ZONE :
                         if (nodes[2].dataType.typeCode == Types.SQL_TIME
-                                && nodes[2].dataType.typeCode
+                                || nodes[2].dataType.typeCode
                                    == Types.SQL_TIME_WITH_TIME_ZONE) {
                             throw Error.error(ErrorCode.X_42563);
                         }
@@ -3019,19 +3019,25 @@ public class FunctionCustom extends FunctionSQL {
 
         int part;
 
-        if ("yy".equalsIgnoreCase(string)) {
+        if ("yy".equalsIgnoreCase(string) || "year".equalsIgnoreCase(string)) {
             part = Tokens.SQL_TSI_YEAR;
-        } else if ("mm".equalsIgnoreCase(string)) {
+        } else if ("mm".equalsIgnoreCase(string)
+                   || "month".equalsIgnoreCase(string)) {
             part = Tokens.SQL_TSI_MONTH;
-        } else if ("dd".equalsIgnoreCase(string)) {
+        } else if ("dd".equalsIgnoreCase(string)
+                   || "day".equalsIgnoreCase(string)) {
             part = Tokens.SQL_TSI_DAY;
-        } else if ("hh".equalsIgnoreCase(string)) {
+        } else if ("hh".equalsIgnoreCase(string)
+                   || "hour".equalsIgnoreCase(string)) {
             part = Tokens.SQL_TSI_HOUR;
-        } else if ("mi".equalsIgnoreCase(string)) {
+        } else if ("mi".equalsIgnoreCase(string)
+                   || "minute".equalsIgnoreCase(string)) {
             part = Tokens.SQL_TSI_MINUTE;
-        } else if ("ss".equalsIgnoreCase(string)) {
+        } else if ("ss".equalsIgnoreCase(string)
+                   || "second".equalsIgnoreCase(string)) {
             part = Tokens.SQL_TSI_SECOND;
-        } else if ("ms".equalsIgnoreCase(string)) {
+        } else if ("ms".equalsIgnoreCase(string)
+                   || "millisecond".equalsIgnoreCase(string)) {
             part = Tokens.SQL_TSI_MILLI_SECOND;
         } else {
             throw Error.error(ErrorCode.X_42566, string);
