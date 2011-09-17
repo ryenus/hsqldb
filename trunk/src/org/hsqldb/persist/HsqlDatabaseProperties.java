@@ -183,6 +183,7 @@ public class HsqlDatabaseProperties extends HsqlProperties {
     public static final String url_crypt_key      = "crypt_key";
     public static final String url_crypt_type     = "crypt_type";
     public static final String url_crypt_provider = "crypt_provider";
+    public static final String url_crypt_lobs     = "crypt_lobs";
 
     //
     public static final String hsqldb_tx       = "hsqldb.tx";

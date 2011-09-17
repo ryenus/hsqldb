@@ -833,6 +833,14 @@ public class FunctionSQL extends Expression {
                 Object temp;
                 Object temp2;
 
+                if (nodes[0].dataType.isNumberType()) {
+                    subType = nodes[0].dataType;
+                } else {
+                    subType =
+                        nodes[0].dataType.getCombinedType(nodes[0].dataType,
+                                                          OpTypes.SUBTRACT);
+                }
+
                 switch (compare) {
 
                     case 0 :
@@ -849,8 +857,6 @@ public class FunctionSQL extends Expression {
                                                 Type.SQL_INTEGER);
                         }
 
-                        subType = nodes[0].dataType.getCombinedType(
-                            nodes[0].dataType, OpTypes.SUBTRACT);
                         temp = subType.subtract(data[0], data[1],
                                                 nodes[0].dataType);
                         temp2 = subType.subtract(data[2], data[1],
@@ -870,8 +876,6 @@ public class FunctionSQL extends Expression {
                                                 Type.SQL_INTEGER);
                         }
 
-                        subType = nodes[0].dataType.getCombinedType(
-                            nodes[0].dataType, OpTypes.SUBTRACT);
                         temp = subType.subtract(data[1], data[0],
                                                 nodes[0].dataType);
                         temp2 = subType.subtract(data[1], data[2],
@@ -883,12 +887,18 @@ public class FunctionSQL extends Expression {
                         throw Error.runtimeError(ErrorCode.U_S0500, "");
                 }
 
-                temp = IntervalType.factorType.convertToType(session, temp,
-                        subType);
-                temp2 = IntervalType.factorType.convertToType(session, temp2,
-                        subType);
-                temp = IntervalType.factorType.multiply(temp, data[3]);
-                temp = IntervalType.factorType.divide(session, temp, temp2);
+                Type opType;
+
+                if (subType.typeCode == Types.SQL_DOUBLE) {
+                    opType = subType;
+                } else {
+                    opType = IntervalType.factorType;
+                    temp   = opType.convertToType(session, temp, subType);
+                    temp2  = opType.convertToType(session, temp2, subType);
+                }
+
+                temp = opType.multiply(temp, data[3]);
+                temp = opType.divide(session, temp, temp2);
                 temp = dataType.convertToDefaultType(session, temp);
 
                 return dataType.add(temp, ValuePool.INTEGER_1,

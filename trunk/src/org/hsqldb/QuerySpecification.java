@@ -64,7 +64,7 @@ import org.hsqldb.types.Types;
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
  *
- * @version 2.2.1
+ * @version 2.2.6
  * @since 1.9.0
  */
 public class QuerySpecification extends QueryExpression {
@@ -275,6 +275,98 @@ public class QuerySpecification extends QueryExpression {
         unionColumnTypes = new Type[indexLimitVisible];
 
         setReferenceableColumns();
+    }
+
+    public boolean hasReference(RangeVariable range) {
+
+        if (unresolvedExpressions == null) {
+            return false;
+        }
+
+        for (int i = 0; i < unresolvedExpressions.size(); i++) {
+            if (((Expression) unresolvedExpressions.get(i)).hasReference(
+                    range)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    public boolean areColumnsResolved() {
+        return unresolvedExpressions == null
+               || unresolvedExpressions.isEmpty();
+    }
+
+    public void resolveTypes(Session session) {
+
+        if (isResolved) {
+            return;
+        }
+
+        resolveTypesPartOne(session);
+        resolveTypesPartTwo(session);
+        ArrayUtil.copyArray(resultTable.colTypes, unionColumnTypes,
+                            unionColumnTypes.length);
+    }
+
+    void resolveTypesPartOne(Session session) {
+
+        resolveExpressionTypes(session, rowExpression);
+        resolveAggregates();
+
+        for (int i = 0; i < unionColumnTypes.length; i++) {
+            unionColumnTypes[i] = Type.getAggregateType(unionColumnTypes[i],
+                    exprColumns[i].getDataType());
+        }
+    }
+
+    void resolveTypesPartTwo(Session session) {
+
+        resolveGroups();
+
+        for (int i = 0; i < unionColumnTypes.length; i++) {
+            Type type = unionColumnTypes[i];
+
+            if (type == null) {
+                if (session.database.sqlEnforceTypes) {
+                    throw Error.error(ErrorCode.X_42567);
+                }
+
+                type                = Type.SQL_VARCHAR_DEFAULT;
+                unionColumnTypes[i] = type;
+            }
+
+            exprColumns[i].setDataType(session, type);
+
+            if (exprColumns[i].dataType.isArrayType()
+                    && exprColumns[i].dataType.collectionBaseType() == null) {
+                throw Error.error(ErrorCode.X_42567);
+            }
+        }
+
+        for (int i = indexLimitVisible; i < indexStartHaving; i++) {
+            if (exprColumns[i].dataType == null) {
+                throw Error.error(ErrorCode.X_42567);
+            }
+        }
+
+        checkLobUsage();
+        setMergeability();
+        setUpdatability();
+        createResultMetaData(session);
+        createTable(session);
+
+        if (isMergeable) {
+            mergeQuery();
+        }
+
+        setRangeVariableConditions(session);
+        setDistinctConditions(session);
+        setAggregateConditions(session);
+        sortAndSlice.setSortRange(this);
+
+        isResolved = true;
     }
 
     /**
@@ -688,22 +780,6 @@ public class QuerySpecification extends QueryExpression {
         }
     }
 
-    public boolean hasReference(RangeVariable range) {
-
-        if (unresolvedExpressions == null) {
-            return false;
-        }
-
-        for (int i = 0; i < unresolvedExpressions.size(); i++) {
-            if (((Expression) unresolvedExpressions.get(i)).hasReference(
-                    range)) {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
     /**
      * Sets the types of all the expressions used in this SELECT list.
      */
@@ -784,11 +860,6 @@ public class QuerySpecification extends QueryExpression {
         }
     }
 
-    public boolean areColumnsResolved() {
-        return unresolvedExpressions == null
-               || unresolvedExpressions.isEmpty();
-    }
-
     private void setRangeVariableConditions(Session session) {
 
         RangeVariableResolver rangeResolver =
@@ -798,102 +869,56 @@ public class QuerySpecification extends QueryExpression {
         rangeResolver.processConditions(session);
 
         rangeVariables = rangeResolver.rangeVariables;
-
-        if (!isAggregated && (isDistinctSelect || isGrouped)) {
-            RangeVariable range = null;
-
-            tempSet.clear();
-
-            for (int i = 0; i < indexLimitVisible; i++) {
-                if (exprColumns[i].getType() != OpTypes.COLUMN) {
-                    return;
-                }
-
-                if (i == 0) {
-                    range = exprColumns[i].getRangeVariable();
-                } else {
-                    if (range != exprColumns[i].getRangeVariable()) {
-                        return;
-                    }
-                }
-
-                tempSet.add(exprColumns[i].getColumn().getName().name);
-            }
-
-            if (!range.hasIndexCondition()) {
-                return;
-            }
-
-            int[] colMap = range.rangeTable.getColumnIndexes(tempSet);
-
-            range.setDistinctColumnsOnIndex(colMap);
-        }
     }
 
-    public void resolveTypes(Session session) {
+    private void setDistinctConditions(Session session) {
 
-        if (isResolved) {
+        if (!isDistinctSelect && !isGrouped) {
             return;
         }
 
-        resolveTypesPartOne(session);
-        resolveTypesPartTwo(session);
-        ArrayUtil.copyArray(resultTable.colTypes, unionColumnTypes,
-                            unionColumnTypes.length);
-    }
-
-    void resolveTypesPartOne(Session session) {
-
-        resolveExpressionTypes(session, rowExpression);
-        resolveAggregates();
-
-        for (int i = 0; i < unionColumnTypes.length; i++) {
-            unionColumnTypes[i] = Type.getAggregateType(unionColumnTypes[i],
-                    exprColumns[i].getDataType());
+        if (isAggregated) {
+            return;
         }
-    }
 
-    void resolveTypesPartTwo(Session session) {
+        RangeVariable range = null;
 
-        resolveGroups();
+        tempSet.clear();
 
-        for (int i = 0; i < unionColumnTypes.length; i++) {
-            Type type = unionColumnTypes[i];
+        for (int i = 0; i < indexLimitVisible; i++) {
+            if (exprColumns[i].getType() != OpTypes.COLUMN) {
+                return;
+            }
 
-            if (type == null) {
-                if (session.database.sqlEnforceTypes) {
-                    throw Error.error(ErrorCode.X_42567);
+            if (i == 0) {
+                range = exprColumns[i].getRangeVariable();
+            } else {
+                if (range != exprColumns[i].getRangeVariable()) {
+                    return;
                 }
-
-                type                = Type.SQL_VARCHAR_DEFAULT;
-                unionColumnTypes[i] = type;
             }
 
-            exprColumns[i].setDataType(session, type);
-
-            if (exprColumns[i].dataType.isArrayType()
-                    && exprColumns[i].dataType.collectionBaseType() == null) {
-                throw Error.error(ErrorCode.X_42567);
-            }
+            tempSet.add(exprColumns[i].getColumn().getName().name);
         }
 
-        for (int i = indexLimitVisible; i < indexStartHaving; i++) {
-            if (exprColumns[i].dataType == null) {
-                throw Error.error(ErrorCode.X_42567);
-            }
+        int[] colMap;
+
+        if (!range.hasIndexCondition()) {
+            colMap = range.rangeTable.getColumnIndexes(tempSet);
+
+            Index index = range.rangeTable.getFullIndexForColumns(colMap);
+
+            range.setSortIndex(index, false);
+
+            return;
         }
 
-        checkLobUsage();
-        setMergeability();
-        setUpdatability();
-        createResultMetaData(session);
-        createTable(session);
+        colMap = range.rangeTable.getColumnIndexes(tempSet);
 
-        if (isMergeable) {
-            mergeQuery();
-        }
+        range.setDistinctColumnsOnIndex(colMap);
+    }
 
-        setRangeVariableConditions(session);
+    private void setAggregateConditions(Session session) {
 
         if (rangeVariables.length > 1) {
             isMergeable = false;
@@ -962,10 +987,6 @@ public class QuerySpecification extends QueryExpression {
                 default :
             }
         }
-
-        sortAndSlice.setSortRange(this);
-
-        isResolved = true;
     }
 
     void checkLobUsage() {

@@ -161,7 +161,7 @@ public class Util {
     }
 
     public static final SQLException sqlException(int id, String message,
-            Exception cause) {
+            Throwable cause) {
         return sqlException(Error.error(id, message), cause);
     }
 

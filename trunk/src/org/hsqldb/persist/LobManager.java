@@ -1335,11 +1335,11 @@ public class LobManager {
             for (int j = 0; j < blockAddresses[i][LOBS.BLOCK_COUNT]; j++) {
                 int localLength = lobBlockSize;
 
+                ArrayUtil.fillArray(byteBuffer, 0, (byte) 0);
+
                 if (i == blockAddresses.length - 1
                         && j == blockAddresses[i][LOBS.BLOCK_COUNT] - 1) {
                     localLength = byteLimitOffset;
-
-                    java.util.Arrays.fill(byteBuffer, (byte) 0);
                 }
 
                 try {
