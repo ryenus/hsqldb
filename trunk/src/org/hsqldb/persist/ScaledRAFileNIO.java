@@ -372,6 +372,7 @@ final class ScaledRAFileNIO implements RandomAccessInterface {
 
             for (int i = 0; i < buffers.length; i++) {
                 unmap(buffers[i]);
+
                 buffers[i] = null;
             }
 
@@ -487,8 +488,8 @@ final class ScaledRAFileNIO implements RandomAccessInterface {
             try {
                 buffers[i].force();
             } catch (Throwable t) {
-                database.logger.logWarningEvent("NIO buffer force error "
-                                                + JVM_ERROR + " ", t);
+                database.logger.logSevereEvent("NIO buffer force error "
+                                               + JVM_ERROR + " ", t);
 
                 error = true;
             }
@@ -499,8 +500,8 @@ final class ScaledRAFileNIO implements RandomAccessInterface {
                 try {
                     buffers[i].force();
                 } catch (Throwable t) {
-                    database.logger.logWarningEvent("NIO buffer force error "
-                                                    + JVM_ERROR + " ", t);
+                    database.logger.logSevereEvent("NIO buffer force error "
+                                                   + JVM_ERROR + " ", t);
                 }
             }
         }
@@ -509,7 +510,10 @@ final class ScaledRAFileNIO implements RandomAccessInterface {
             fileDescriptor.sync();
 
             buffersModified = false;
-        } catch (Throwable t) {}
+        } catch (Throwable t) {
+            database.logger.logSevereEvent("NIO RA file sync error "
+                                           + JVM_ERROR + " ", t);
+        }
     }
 
     private void positionBufferSeek(long offset) {
@@ -564,8 +568,8 @@ final class ScaledRAFileNIO implements RandomAccessInterface {
             Method clearMethod = cleaner.getClass().getMethod("clean");
 
             clearMethod.invoke(cleaner);
-        } catch (InvocationTargetException e) {
-        } catch (NoSuchMethodException e) {
+        } catch (InvocationTargetException e) {}
+        catch (NoSuchMethodException e) {
 
             // Means we're not dealing with a Sun JVM?
         } catch (Throwable e) {}

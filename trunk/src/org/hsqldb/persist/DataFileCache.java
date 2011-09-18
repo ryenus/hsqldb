@@ -219,7 +219,8 @@ public class DataFileCache {
                     dataFile = ScaledRAFile.newScaledRAFile(database,
                             dataFileName, true, ScaledRAFile.DATA_FILE_STORED);
                 } else {
-                    dataFile = new ScaledRAFileSimple(dataFileName, "r");
+                    dataFile = new ScaledRAFileSimple(database, dataFileName,
+                                                      "r");
                 }
 
                 dataFile.seek(FLAGS_POS);
@@ -1191,7 +1192,7 @@ public class DataFileCache {
         }
 
         try {
-            dataFile = new ScaledRAFileSimple(dataFileName, "rws");
+            dataFile = new ScaledRAFileSimple(database, dataFileName, "rws");
 
             initNewFile();
         } catch (IOException e) {
@@ -1203,8 +1204,7 @@ public class DataFileCache {
 
                     dataFile = null;
                 } catch (IOException e) {
-                    database.logger.logWarningEvent("error closing RA file",
-                                                    e);
+                    database.logger.logSevereEvent("error closing RA file", e);
                 }
             }
         }

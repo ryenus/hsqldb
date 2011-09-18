@@ -395,7 +395,9 @@ final class ScaledRAFile implements RandomAccessInterface {
 
         try {
             fileDescriptor.sync();
-        } catch (IOException e) {}
+        } catch (IOException e) {
+            database.logger.logSevereEvent("RA file sync error ", e);
+        }
     }
 
     private void writeToBuffer(byte[] b, int off, int len) throws IOException {

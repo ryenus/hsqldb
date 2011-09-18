@@ -61,10 +61,9 @@ public class DataFileCacheSession extends DataFileCache {
         cachedRowPadding  = cacheFileScale;
         initialFreePos    = cacheFileScale;
         maxCacheRows      = 2048;
-
-        maxCacheBytes   = maxCacheRows * 1024;
-        maxDataFileSize = (long) Integer.MAX_VALUE * cacheFileScale;
-        dataFile        = null;
+        maxCacheBytes     = maxCacheRows * 1024;
+        maxDataFileSize   = (long) Integer.MAX_VALUE * cacheFileScale;
+        dataFile          = null;
     }
 
     /**
@@ -81,7 +80,8 @@ public class DataFileCacheSession extends DataFileCache {
 
             freeBlocks = new DataFileBlockManager(0, cacheFileScale, 0, 0);
         } catch (Throwable t) {
-            database.logger.logWarningEvent("Failed to open RA file", t);
+            database.logger.logWarningEvent("Failed to open Session RA file",
+                                            t);
             close(false);
 
             throw Error.error(t, ErrorCode.FILE_IO_ERROR,
@@ -110,7 +110,8 @@ public class DataFileCacheSession extends DataFileCache {
                 fa.removeElement(dataFileName);
             }
         } catch (Throwable t) {
-            database.logger.logWarningEvent("Failed to close RA file", t);
+            database.logger.logWarningEvent("Failed to close Session RA file",
+                                            t);
 
             throw Error.error(t, ErrorCode.FILE_IO_ERROR,
                               ErrorCode.M_DataFileCache_close, new Object[] {
