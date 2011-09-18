@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2010, The HSQL Development Group
+/* Copyright (c) 2001-2011, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -49,12 +49,15 @@ final class ScaledRAFileSimple implements RandomAccessInterface {
 
     final RandomAccessFile file;
     final boolean          readOnly;
+    final Database         database;
 
-    ScaledRAFileSimple(String name,
+    ScaledRAFileSimple(Database database, String name,
                        String openMode)
                        throws FileNotFoundException, IOException {
-        this.file = new RandomAccessFile(name, openMode);
-        readOnly  = openMode.equals("r");
+
+        this.file     = new RandomAccessFile(name, openMode);
+        this.database = database;
+        readOnly      = openMode.equals("r");
     }
 
     public long length() throws IOException {
@@ -132,6 +135,8 @@ final class ScaledRAFileSimple implements RandomAccessInterface {
 
         try {
             file.getFD().sync();
-        } catch (IOException e) {}
+        } catch (IOException e) {
+            database.logger.logSevereEvent("RA file sync error ", e);
+        }
     }
 }

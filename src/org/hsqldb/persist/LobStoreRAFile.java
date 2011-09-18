@@ -34,7 +34,6 @@ package org.hsqldb.persist;
 import org.hsqldb.Database;
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
-import org.hsqldb.persist.RandomAccessInterface;
 
 /**
  * @author Fred Toussi (fredt@users dot sourceforge.net)
@@ -75,8 +74,8 @@ public class LobStoreRAFile implements LobStore {
                 file = ScaledRAFile.newScaledRAFile(
                     database, name, readonly, ScaledRAFile.DATA_FILE_STORED);
             } else {
-                file = new ScaledRAFileSimple(name, readonly ? "r"
-                                                             : "rws");
+                file = new ScaledRAFileSimple(database, name, readonly ? "r"
+                                                                       : "rws");
             }
         } catch (Throwable t) {
             throw Error.error(ErrorCode.DATA_FILE_ERROR, t);
@@ -123,6 +122,10 @@ public class LobStoreRAFile implements LobStore {
 
     public void setBlockBytes(byte[] dataBytes, long position, int offset,
                               int length) {
+
+        if (length == 0) {
+            return;
+        }
 
         if (file == null) {
             openFile();

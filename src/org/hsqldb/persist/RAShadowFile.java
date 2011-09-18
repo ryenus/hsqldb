@@ -150,7 +150,7 @@ public class RAShadowFile {
             dest = ScaledRAFile.newScaledRAFile(database, pathName, false,
                                                 ScaledRAFile.DATA_FILE_STORED);
         } else {
-            dest = new ScaledRAFileSimple(pathName, "rws");
+            dest = new ScaledRAFileSimple(database, pathName, "rws");
         }
     }
 
@@ -183,7 +183,7 @@ public class RAShadowFile {
                                                 openMode.equals("r"),
                                                 ScaledRAFile.DATA_FILE_STORED);
         } else {
-            return new ScaledRAFileSimple(pathName, openMode);
+            return new ScaledRAFileSimple(database, pathName, openMode);
         }
     }
 

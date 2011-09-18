@@ -124,8 +124,8 @@ final class DataFileDefrag {
                         dataFileName + Logger.newFileExtension, false,
                         ScaledRAFile.DATA_FILE_STORED);
             } else {
-                randomAccessOut = new ScaledRAFileSimple(dataFileName
-                        + Logger.newFileExtension, "rw");
+                randomAccessOut = new ScaledRAFileSimple(database,
+                        dataFileName + Logger.newFileExtension, "rw");
             }
 
             randomAccessOut.write(new byte[dataCache.initialFreePos], 0,
