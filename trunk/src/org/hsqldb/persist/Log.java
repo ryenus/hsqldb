@@ -215,7 +215,7 @@ public class Log {
                 cache.deleteFile();
                 cache.deleteBackup();
             } else {
-                cache.backupFile();
+                cache.backupFile(false);
                 cache.renameBackupFile();
             }
         }
@@ -371,6 +371,7 @@ public class Log {
 
                 return;
             } catch (Exception e) {
+                database.logger.logSevereEvent("defrag failed", e);
 
                 // do normal checkpoint
             }
@@ -411,7 +412,7 @@ public class Log {
         try {
             if (cache != null) {
                 cache.commitChanges();
-                cache.backupFile();
+                cache.backupFile(false);
             }
         } catch (Exception ee) {
 
