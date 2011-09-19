@@ -249,7 +249,7 @@ public class DataFileCache {
                             fa.isStreamElement(backupFileName);
 
                         if (!existsBackup) {
-                            backupFile();
+                            backupFile(false);
                         }
                     }
 
@@ -624,11 +624,17 @@ public class DataFileCache {
             cache.clear();
 
             if (!database.logger.propIncrementBackup) {
-                backupFile();
+                backupFile(true);
             }
 
             database.schemaManager.setTempIndexRoots(dfd.getIndexRoots());
-            database.logger.log.writeScript(false);
+
+            try {
+                database.logger.log.writeScript(false);
+            } finally {
+                database.schemaManager.setTempIndexRoots(null);
+            }
+
             database.getProperties().setProperty(
                 HsqlDatabaseProperties.hsqldb_script_format,
                 database.logger.propScriptFormat);
@@ -1050,7 +1056,7 @@ public class DataFileCache {
      *
      * @throws  HsqlException
      */
-    void backupFile() {
+    void backupFile(boolean newFile) {
 
         writeLock.lock();
 
@@ -1064,7 +1070,11 @@ public class DataFileCache {
             }
 
             if (fa.isStreamElement(dataFileName)) {
-                FileArchiver.archive(dataFileName,
+                String filename = newFile
+                                  ? dataFileName + Logger.newFileExtension
+                                  : dataFileName;
+
+                FileArchiver.archive(filename,
                                      backupFileName + Logger.newFileExtension,
                                      database.logger.getFileAccess(),
                                      FileArchiver.COMPRESSION_ZIP);
