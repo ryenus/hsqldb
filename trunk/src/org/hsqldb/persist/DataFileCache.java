@@ -92,6 +92,7 @@ public class DataFileCache {
 
     // this flag is used externally to determine if a backup is required
     protected boolean fileModified;
+    protected boolean cacheModified;
     protected int     cacheFileScale;
 
     // post opening constant fields
@@ -310,7 +311,8 @@ public class DataFileCache {
 
             initBuffers();
 
-            fileModified = false;
+            fileModified  = false;
+            cacheModified = false;
             freeBlocks =
                 new DataFileBlockManager(database.logger.propMaxFreeBlocks,
                                          cacheFileScale, 0, freesize);
@@ -565,7 +567,8 @@ public class DataFileCache {
 
             dataFile.synch();
 
-            fileModified = false;
+            fileModified  = false;
+            cacheModified = false;
 
             if (shadowFile != null) {
                 shadowFile.close();
@@ -735,6 +738,8 @@ public class DataFileCache {
         writeLock.lock();
 
         try {
+            cacheModified = true;
+
             int i = setFilePos(object);
 
             cache.put(i, object);
@@ -1262,6 +1267,10 @@ public class DataFileCache {
 
     public boolean isFileModified() {
         return fileModified;
+    }
+
+    public boolean isModified() {
+        return cacheModified;
     }
 
     public boolean isFileOpen() {

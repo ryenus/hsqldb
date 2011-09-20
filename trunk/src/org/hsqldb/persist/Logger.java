@@ -397,7 +397,6 @@ public class Logger {
             crypto = new Crypto(cryptKey, cryptType, cryptProvider);
             cryptLobs = database.urlProperties.isPropertyTrue(
                 HsqlDatabaseProperties.url_crypt_lobs, true);
-
         }
 
         if (database.databaseProperties.isPropertyTrue(
@@ -1991,7 +1990,7 @@ public class Logger {
         Iterator it = textCacheList.values().iterator();
 
         while (it.hasNext()) {
-            if (((TextCache) it.next()).isFileModified()) {
+            if (((TextCache) it.next()).isModified()) {
                 return true;
             }
         }
