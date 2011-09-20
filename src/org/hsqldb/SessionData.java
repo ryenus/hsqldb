@@ -67,7 +67,7 @@ import org.hsqldb.types.LobData;
  * Session semi-persistent data structures
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.0.1
+ * @version 2.2.6
  * @since 1.9.0
  */
 public class SessionData {
@@ -297,8 +297,6 @@ public class SessionData {
                 it.remove();
             }
         }
-
-        resultMap.clear();
     }
 
     // lob creation

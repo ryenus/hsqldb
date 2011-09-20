@@ -325,7 +325,7 @@ public class Log {
      */
     boolean isAnyCacheModified() {
 
-        if (cache != null && cache.isFileModified()) {
+        if (cache != null && cache.isModified()) {
             return true;
         }
 
