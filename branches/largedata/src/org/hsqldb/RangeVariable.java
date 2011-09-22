@@ -219,7 +219,7 @@ public class RangeVariable implements Cloneable {
     }
 
     public void addColumn(int columnIndex) {
-        usedColumns[columnIndex]    = true;
+        usedColumns[columnIndex] = true;
     }
 
     public void addAllColumns() {}
@@ -1669,8 +1669,7 @@ public class RangeVariable implements Cloneable {
             StringBuffer sb = new StringBuffer();
             String       b  = ValuePool.spaceString.substring(0, blanks);
 
-            sb.append("index=").append(
-                rangeIndex.getName().name).append("\n");
+            sb.append("index=").append(rangeIndex.getName().name).append("\n");
 
             if (hasIndexCondition()) {
                 if (indexedColumnCount > 0) {

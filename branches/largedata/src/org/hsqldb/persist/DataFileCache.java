@@ -92,6 +92,7 @@ public class DataFileCache {
 
     // this flag is used externally to determine if a backup is required
     protected boolean fileModified;
+    protected boolean cacheModified;
     protected int     cacheFileScale;
 
     // post opening constant fields
@@ -219,7 +220,8 @@ public class DataFileCache {
                     dataFile = ScaledRAFile.newScaledRAFile(database,
                             dataFileName, true, ScaledRAFile.DATA_FILE_STORED);
                 } else {
-                    dataFile = new ScaledRAFileSimple(dataFileName, "r");
+                    dataFile = new ScaledRAFileSimple(database, dataFileName,
+                                                      "r");
                 }
 
                 dataFile.seek(FLAGS_POS);
@@ -248,7 +250,7 @@ public class DataFileCache {
                             fa.isStreamElement(backupFileName);
 
                         if (!existsBackup) {
-                            backupFile();
+                            backupFile(false);
                         }
                     }
 
@@ -309,7 +311,8 @@ public class DataFileCache {
 
             initBuffers();
 
-            fileModified = false;
+            fileModified  = false;
+            cacheModified = false;
             freeBlocks =
                 new DataFileBlockManager(database.logger.propMaxFreeBlocks,
                                          cacheFileScale, 0, freesize);
@@ -564,7 +567,8 @@ public class DataFileCache {
 
             dataFile.synch();
 
-            fileModified = false;
+            fileModified  = false;
+            cacheModified = false;
 
             if (shadowFile != null) {
                 shadowFile.close();
@@ -623,11 +627,17 @@ public class DataFileCache {
             cache.clear();
 
             if (!database.logger.propIncrementBackup) {
-                backupFile();
+                backupFile(true);
             }
 
             database.schemaManager.setTempIndexRoots(dfd.getIndexRoots());
-            database.logger.log.writeScript(false);
+
+            try {
+                database.logger.log.writeScript(false);
+            } finally {
+                database.schemaManager.setTempIndexRoots(null);
+            }
+
             database.getProperties().setProperty(
                 HsqlDatabaseProperties.hsqldb_script_format,
                 database.logger.propScriptFormat);
@@ -728,6 +738,8 @@ public class DataFileCache {
         writeLock.lock();
 
         try {
+            cacheModified = true;
+
             long i = setFilePos(object);
 
             cache.put(i, object);
@@ -1049,7 +1061,7 @@ public class DataFileCache {
      *
      * @throws  HsqlException
      */
-    void backupFile() {
+    void backupFile(boolean newFile) {
 
         writeLock.lock();
 
@@ -1063,7 +1075,11 @@ public class DataFileCache {
             }
 
             if (fa.isStreamElement(dataFileName)) {
-                FileArchiver.archive(dataFileName,
+                String filename = newFile
+                                  ? dataFileName + Logger.newFileExtension
+                                  : dataFileName;
+
+                FileArchiver.archive(filename,
                                      backupFileName + Logger.newFileExtension,
                                      database.logger.getFileAccess(),
                                      FileArchiver.COMPRESSION_ZIP);
@@ -1191,7 +1207,7 @@ public class DataFileCache {
         }
 
         try {
-            dataFile = new ScaledRAFileSimple(dataFileName, "rws");
+            dataFile = new ScaledRAFileSimple(database, dataFileName, "rws");
 
             initNewFile();
         } catch (IOException e) {
@@ -1203,8 +1219,7 @@ public class DataFileCache {
 
                     dataFile = null;
                 } catch (IOException e) {
-                    database.logger.logWarningEvent("error closing RA file",
-                                                    e);
+                    database.logger.logSevereEvent("error closing RA file", e);
                 }
             }
         }
@@ -1252,6 +1267,10 @@ public class DataFileCache {
 
     public boolean isFileModified() {
         return fileModified;
+    }
+
+    public boolean isModified() {
+        return cacheModified;
     }
 
     public boolean isFileOpen() {
