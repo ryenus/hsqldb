@@ -27,7 +27,7 @@ Use PL variable values (which have been set) like: *{VARNAME}.
 Use System Property values (which you may not set) like: ${property.name}.
 You may use /VARNAME instead iff /VARNAME is the first word of a SQL command.
 Use PL variables in logical expressions, like (*VARNAME == 1).
-Auto. variable ? is set to the very next SQL datum fetched (or update count).
+Auto. variable ? is set to the very latest SQL datum fetched (or update count).
     Query:  The value of the first field of the first row returned.
     other:  Return status of the command (for updates this will be
             the number of rows updated).
