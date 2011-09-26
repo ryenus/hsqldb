@@ -602,7 +602,7 @@ public class SqlFile {
             throws UnsupportedEncodingException {
         if (newEncoding == null) {
             shared.encoding = null;
-            shared.userVars.remove("ENCODING");
+            shared.userVars.remove("*ENCODING");
             return;
         }
         if (!Charset.isSupported(newEncoding))
