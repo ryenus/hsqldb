@@ -72,6 +72,9 @@ public interface SessionInterface {
     int TX_REPEATABLE_READ  = 4;
     int TX_SERIALIZABLE     = 8;
 
+    //
+    int lobStreamBlockSize = 512 * 1024;
+
     Result execute(Result r);
 
     RowSetNavigatorClient getRows(long navigatorId, int offset, int size);
