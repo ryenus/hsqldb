@@ -908,7 +908,9 @@ public class QuerySpecification extends QueryExpression {
 
             Index index = range.rangeTable.getFullIndexForColumns(colMap);
 
-            range.setSortIndex(index, false);
+            if (index != null) {
+                range.setSortIndex(index, false);
+            }
 
             return;
         }

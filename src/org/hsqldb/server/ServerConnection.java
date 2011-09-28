@@ -345,8 +345,7 @@ class ServerConnection implements Runnable {
 
     private CleanExit cleanExit = new CleanExit();
 
-    private void receiveResult(int resultMode)
-    throws CleanExit, IOException, HsqlException {
+    private void receiveResult(int resultMode) throws CleanExit, IOException {
 
         boolean terminate = false;
         Result resultIn = Result.newResult(session, resultMode, dataInput,
@@ -1534,9 +1533,13 @@ class ServerConnection implements Runnable {
                 server.printWithThread(mThread + ":disconnected " + user);
             } catch (HsqlException e) {
 
-                // fredt - is thrown while constructing the result or server shutdown
-                // blaine - Should we check shutdown state and slip the stack
-                //          trace if this exception is expected?
+                // fredt - is thrown in unforeseen circumstances
+                if (keepAlive) {
+                    server.printStackTrace(e);
+                }
+            } catch (Throwable e) {
+
+                // fredt - is thrown in unforeseen circumstances
                 if (keepAlive) {
                     server.printStackTrace(e);
                 }
@@ -1615,7 +1618,7 @@ class ServerConnection implements Runnable {
      *
      * @return int read as first thing off of stream
      */
-    public int handshake() throws IOException, HsqlException {
+    public int handshake() throws IOException {
 
         long clientDataDeadline = new java.util.Date().getTime()
                                   + MAX_WAIT_FOR_CLIENT_DATA;
@@ -1671,7 +1674,7 @@ class ServerConnection implements Runnable {
         return firstInt;
     }
 
-    private void odbcConnect(int firstInt) throws IOException, HsqlException {
+    private void odbcConnect(int firstInt) throws IOException {
 
         /* Until client receives teh ReadyForQuery packet at the end of this
          * method, we (the server) initiate all packet exchanges. */
@@ -1740,8 +1743,7 @@ class ServerConnection implements Runnable {
             } catch (RecoverableOdbcFailure rf) {
 
                 // In this case, we do not treat it as recoverable
-                throw new ClientFailure(rf.toString(),
-                                        rf.getClientMessage());
+                throw new ClientFailure(rf.toString(), rf.getClientMessage());
             }
 
             inPacket.close();

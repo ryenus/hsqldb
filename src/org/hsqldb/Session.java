@@ -809,7 +809,7 @@ public class Session implements SessionInterface {
     }
 
     public synchronized int getStreamBlockSize() {
-        return 512 * 1024;
+        return lobStreamBlockSize;
     }
 
     /**

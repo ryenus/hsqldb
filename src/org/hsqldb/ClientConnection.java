@@ -563,7 +563,7 @@ public class ClientConnection implements SessionInterface {
     }
 
     public int getStreamBlockSize() {
-        return 512 * 1024;
+        return lobStreamBlockSize;
     }
 
     public HsqlProperties getClientProperties() {
