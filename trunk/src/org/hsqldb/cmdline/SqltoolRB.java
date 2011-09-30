@@ -147,7 +147,7 @@ public enum SqltoolRB implements RefCapableRBInterface {
     plvar_nameempty,
     plvar_unterminated,
     pl_malformat,
-    pl_expansionmode,
+    deprecated_noop,
     end_noblock,
     continue_syntax,
     break_syntax,
