@@ -622,6 +622,7 @@ public class SqlFile {
     private boolean             preempt;
     private String              lastSqlStatement;
     private boolean             autoClose = true;
+    private boolean             csv;
 
     /**
      * Specify whether the supplied or generated input Reader should
@@ -1489,7 +1490,8 @@ public class SqlFile {
                 }
                 requireConnection();
                 try {
-                    if (arg1.length() != 1 || other == null) {
+                    if ((!arg1.equals("xq") && arg1.length() != 1)
+                            || other == null) {
                         throw new BadSpecial(DSV_X_SYNTAX_MSG);
                     }
 
@@ -1500,9 +1502,11 @@ public class SqlFile {
                         throw new BadSpecial(
                                 SqltoolRB.dsv_targetfile_demand.getString());
                     }
+                    csv = arg1.equals("xq");
+logger.severe("DTF=" + dsvTargetFile);
                     File dsvFile = new File((dsvTargetFile == null)
-                                            ? (tableName + ".dsv")
-                                            : dereferenceAt(dsvTargetFile));
+                            ? (tableName + (csv ? ".csv" : ".dsv"))
+                            : dereferenceAt(dsvTargetFile));
 
                     pwDsv = new PrintWriter(new OutputStreamWriter(
                             new FileOutputStream(dsvFile),
@@ -3231,6 +3235,14 @@ public class SqlFile {
                                   int[] incCols,
                                   String filterString) throws SQLException,
                                   SqlToolError {
+if (pwDsv != null) logger.severe("CSV? " + csv);
+        if (pwDsv != null && csv
+                && (dsvColDelim == null || dsvColDelim.length() != 1
+                || dsvColDelim.equals("\""))) {
+            // TODO:  Define a portable message:
+            throw new SqlToolError("CSV exporting requires a single-character "
+                    + "col-delimiter, excluding '\"'");
+        }
         java.sql.Timestamp ts;
         int dotAt;
         int                updateCount = (statement == null) ? -1
@@ -3620,9 +3632,25 @@ public class SqlFile {
                     pwDsv.print(dsvRowDelim);
                 }
 
+                if (csv) {
+                    char delimChar = dsvColDelim.charAt(0);
+                    for (String[] fArray : rows) {
+                        for (int j = 0; j < fArray.length; j++) {
+                            if (fArray[j] == null
+                                    || (fArray[j].indexOf(delimChar) < 0
+                                    && fArray[j].indexOf('"') < 0)) {
+                                continue;
+                            }
+                            fArray[j] = '"'
+                                    + fArray[j].replace("\"", "\"\"") + '"';
+                        }
+                    }
+                }
                 for (String[] fArray : rows) {
                     for (int j = 0; j < fArray.length; j++) {
-                        dsvSafe(fArray[j]);
+                        if (pwDsv == null) {
+                            dsvSafe(fArray[j]);
+                        }
                         pwDsv.print((fArray[j] == null)
                                     ? (autonulls[j] ? ""
                                                     : nullRepToken)
