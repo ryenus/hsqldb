@@ -481,7 +481,6 @@ public class SqlFile {
                 history = new TokenList();
                 maxHistoryLength = DEFAULT_HISTORY_SIZE;
             }
-            updateUserSettings();
             // Updates local vars basd on * shared.userVars
             // even when (like now) these are all defaults.
         } catch (IOException ioe) {
@@ -515,15 +514,12 @@ public class SqlFile {
         try {
             recursed = true;
             shared = parentSqlFile.shared;
-            plMode = parentSqlFile.plMode;
             interactive = false;
             continueOnError = parentSqlFile.continueOnError;
             // Nested input is non-interactive because it just can't work to
             // have user append to edit buffer, and displaying prompts would
             // be misleading and inappropriate; yet we will inherit the current
             // continueOnError behavior.
-            updateUserSettings();
-            // Updates local vars basd on * shared.userVars
         } catch (RuntimeException re) {
             closeReader();
             throw re;
@@ -581,6 +577,7 @@ public class SqlFile {
 
     public void addUserVars(Map<String, String> newUserVars) {
         shared.userVars.putAll(newUserVars);
+        sqlExpandMode = null;
     }
 
     public Map<String, String> getUserVars() {
@@ -659,6 +656,7 @@ public class SqlFile {
         if (reader == null)
             throw new IllegalStateException("Can't call execute() "
                     + "more than once for a single SqlFile instance");
+        updateUserSettings();
 
         try {
             scanner = new SqlFileScanner(reader);
@@ -730,18 +728,16 @@ public class SqlFile {
     }
 
     /**
-     * Sets plMode to true if any end-user userVar is set.
+     * Sets sqlExpandMode to true if any end-user userVar is set.
      */
-    private void setPlModeIfEuVar() {
-        if (plMode) {
-            return;
-        }
+    private void setSqlExpandMode() {
         for (String key : shared.userVars.keySet()) {
-            if (key.charAt(0) != '*') {
-                plMode = true;
+            if (key.charAt(0) != '*' && !key.equals("?")) {
+                sqlExpandMode = Boolean.TRUE;
                 return;
             }
         }
+        sqlExpandMode = Boolean.FALSE;
     }
 
     synchronized protected void scanpass(TokenSource ts)
@@ -749,8 +745,7 @@ public class SqlFile {
         boolean rollbackUncoms = true;
         String nestingCommand;
         Token token = null;
-
-        setPlModeIfEuVar();
+        sqlExpandMode = null;
 
         try {
             while (true) try {
@@ -1659,6 +1654,7 @@ public class SqlFile {
                             SqltoolRB.sqlfile_name_demand.getString());
                 }
 
+                sqlExpandMode = null;
                 try {
                     new SqlFile(this, new File(dereferenceAt(other))).execute();
                 } catch (ContinueException ce) {
@@ -1676,7 +1672,7 @@ public class SqlFile {
                     throw new BadSpecial(
                             SqltoolRB.sqlfile_execute_fail.getString(other), e);
                 }
-                setPlModeIfEuVar();
+                updateUserSettings();
 
                 return;
 
@@ -2136,8 +2132,7 @@ public class SqlFile {
         return expandBuffer.toString();
     }
 
-    // plMode is a 1-way setting.  Once it's true, it remains true.
-    private boolean plMode;
+    private Boolean sqlExpandMode;  // Null indicates dirty.
 
     //  PL variable name currently awaiting query output.
     private String  fetchingVar;
@@ -2155,15 +2150,11 @@ public class SqlFile {
             // so liberal.
         }
         if (m.groupCount() < 1 || m.group(1) == null) {
-            plMode = true;
-            stdprintln(SqltoolRB.pl_expansionmode.getString("on"));
+            stdprintln(SqltoolRB.deprecated_noop.getString("*"));
             return;
         }
 
         String[] tokens = m.group(1).split("\\s+", -1);
-
-        // If user runs any PL command, we turn PL mode on.
-        plMode = true;
 
         if (tokens[0].equals("foreach")) {
             Matcher foreachM = foreachPattern.matcher(
@@ -2226,10 +2217,11 @@ public class SqlFile {
 
             if (origval == null) {
                 shared.userVars.remove(varName);
-                updateUserSettings();
             } else {
                 shared.userVars.put(varName, origval);
             }
+            updateUserSettings();
+            sqlExpandMode = null;
 
             return;
         }
@@ -2351,8 +2343,7 @@ public class SqlFile {
             // so liberal.
         }
         if (m.groupCount() < 1 || m.group(1) == null) {
-            plMode = true;
-            stdprintln(SqltoolRB.pl_expansionmode.getString("on"));
+            stdprintln(SqltoolRB.deprecated_noop.getString("*"));
             return;
         }
 
@@ -2363,9 +2354,6 @@ public class SqlFile {
 
             return;
         }
-
-        // If user runs any PL command, we turn PL mode on.
-        plMode = true;
 
         if (tokens[0].equals("end")) {
             throw new BadSpecial(SqltoolRB.end_noblock.getString());
@@ -2500,6 +2488,7 @@ public class SqlFile {
 
                 shared.userVars.remove(varName);
                 updateUserSettings();
+                sqlExpandMode = null;
 
                 fetchingVar = varName;
 
@@ -2526,6 +2515,7 @@ public class SqlFile {
                     shared.userVars.remove(varName);
                 }
                 updateUserSettings();
+                sqlExpandMode = null;
 
                 return;
         }
@@ -3104,8 +3094,11 @@ public class SqlFile {
                     + " in processSQL().");
         // No reason to check autoCommit constantly.  If we need to roll
         // back, we will check the autocommit state at that time.
-        lastSqlStatement    = (plMode ? dereference(buffer.val, true)
-                                      : buffer.val);
+        if (sqlExpandMode == null) {
+            setSqlExpandMode();
+        }
+        lastSqlStatement = sqlExpandMode.booleanValue()
+                           ? dereference(buffer.val, true) : buffer.val;
         // Above is the only case where we deference conditionally.
         // For :, \, * commands we either always do or always don't.
         // N.b. "lastSqlStatement" is a misnomer only inside this method.
@@ -3497,6 +3490,7 @@ public class SqlFile {
                             shared.userVars.put(
                                     fetchingVar, shared.userVars.get("?"));
                             updateUserSettings();
+                            sqlExpandMode = null;
 
                             fetchingVar = null;
                         }
@@ -3651,8 +3645,9 @@ public class SqlFile {
                 shared.userVars.put("?", Integer.toString(updateCount));
                 if (fetchingVar != null) {
                     shared.userVars.put(fetchingVar, shared.userVars.get("?"));
-                    updateUserSettings();
                     fetchingVar = null;
+                    updateUserSettings();
+                    sqlExpandMode = null;
                 }
 
                 if (updateCount != 0 && interactive) {
@@ -4264,6 +4259,7 @@ public class SqlFile {
         // The streamToString() method ensures that the Stream gets closed
         shared.userVars.put(varName, string);
         updateUserSettings();
+        sqlExpandMode = null;
     }
 
     /**

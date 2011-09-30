@@ -1,7 +1,5 @@
 PROCEDURAL LANGUAGE COMMANDS
     *?                            PL Help
-    *                             Expand PL variables from now on.
-                                  (this is also implied by all the following).
     * VARNAME = Variable value    Set variable value
     * VARNAME =                   Unset variable
     * VARNAME ~                   Set variable value to the value of the very
@@ -29,8 +27,7 @@ You may use /VARNAME instead iff /VARNAME is the first word of a SQL command.
 Use PL variables in logical expressions, like (*VARNAME == 1).
 Auto. variable ? is set to the very latest SQL datum fetched (or update count).
     Query:  The value of the first field of the first row returned.
-    other:  Return status of the command (for updates this will be
-            the number of rows updated).
+    other:  Return status of the command
+            (for updates this will be the number of rows updated).
 '* VARNAME ~' or '* VARNAME _' sets the specified variable's value exactly
 like ?.  (~ will echo the value, _ will do it silently).
-
