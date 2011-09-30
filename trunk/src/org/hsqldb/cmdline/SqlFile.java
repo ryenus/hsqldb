@@ -729,15 +729,28 @@ public class SqlFile {
         throw new BadSpecial(SqltoolRB.pl_malformat.getString());
     }
 
+    /**
+     * Sets plMode to true if any end-user userVar is set.
+     */
+    private void setPlModeIfEuVar() {
+        if (plMode) {
+            return;
+        }
+        for (String key : shared.userVars.keySet()) {
+            if (key.charAt(0) != '*') {
+                plMode = true;
+                return;
+            }
+        }
+    }
+
     synchronized protected void scanpass(TokenSource ts)
                                      throws SqlToolError, SQLException {
         boolean rollbackUncoms = true;
         String nestingCommand;
         Token token = null;
 
-        if (shared.userVars.size() > 0) {
-            plMode = true;
-        }
+        setPlModeIfEuVar();
 
         try {
             while (true) try {
@@ -1408,8 +1421,7 @@ public class SqlFile {
         if (string.length() < 1) {
             throw new BadSpecial(SqltoolRB.special_unspecified.getString());
         }
-        Matcher m = specialPattern.matcher(
-                plMode ? dereference(string, false) : string);
+        Matcher m = specialPattern.matcher(dereference(string, false));
         if (!m.matches()) {
             throw new BadSpecial(SqltoolRB.special_malformat.getString());
             // I think it's impossible to get here, since the pattern is
@@ -1474,13 +1486,13 @@ public class SqlFile {
                 return;
 
             case 'x' :
-                requireConnection();
                 if (arg1.equals("x?") ||
                         (arg1.equals("x") && other != null
                                  && other.equals("?"))) {
                     stdprintln(DSV_OPTIONS_TEXT + LS + DSV_X_SYNTAX_MSG);
                     return;
                 }
+                requireConnection();
                 try {
                     if (arg1.length() != 1 || other == null) {
                         throw new BadSpecial(DSV_X_SYNTAX_MSG);
@@ -1568,13 +1580,13 @@ public class SqlFile {
                 return;
 
             case 'd' :
-                requireConnection();
                 if (arg1.equals("d?") ||
                         (arg1.equals("d") && other != null
                                  && other.equals("?"))) {
                     stdprintln(D_OPTIONS_TEXT);
                     return;
                 }
+                requireConnection();
                 if (arg1.length() == 2) {
                     listTables(arg1.charAt(1), other);
 
@@ -1664,6 +1676,7 @@ public class SqlFile {
                     throw new BadSpecial(
                             SqltoolRB.sqlfile_execute_fail.getString(other), e);
                 }
+                setPlModeIfEuVar();
 
                 return;
 
@@ -2123,6 +2136,7 @@ public class SqlFile {
         return expandBuffer.toString();
     }
 
+    // plMode is a 1-way setting.  Once it's true, it remains true.
     private boolean plMode;
 
     //  PL variable name currently awaiting query output.
@@ -3092,6 +3106,8 @@ public class SqlFile {
         // back, we will check the autocommit state at that time.
         lastSqlStatement    = (plMode ? dereference(buffer.val, true)
                                       : buffer.val);
+        // Above is the only case where we deference conditionally.
+        // For :, \, * commands we either always do or always don't.
         // N.b. "lastSqlStatement" is a misnomer only inside this method.
         // Outside of this method, this var references the "last" SQL
         // statement which we attempted to execute.
