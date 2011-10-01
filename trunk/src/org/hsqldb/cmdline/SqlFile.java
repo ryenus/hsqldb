@@ -151,7 +151,7 @@ public class SqlFile {
             FrameworkLogger.getLog(SqlFile.class);
     private static final int DEFAULT_HISTORY_SIZE = 40;
     private boolean          executing;
-    private boolean permitEmptySqlStatements;
+    private boolean          permitEmptySqlStatements;
     private boolean          interactive;
     private String           primaryPrompt    = "sql> ";
     private static String    rawPrompt;
@@ -274,6 +274,8 @@ public class SqlFile {
         dsvSkipCols = shared.userVars.get("*DSV_SKIP_COLS");
         dsvTrimAll = Boolean.parseBoolean(
                 shared.userVars.get("*DSV_TRIM_ALL"));
+        csvPromiscuous = Boolean.parseBoolean(
+                shared.userVars.get("*CSV_PROMISCUOUS_QUOTE"));
         dsvColDelim = SqlFile.convertEscapes(
                 shared.userVars.get("*DSV_COL_DELIM"));
         if (dsvColDelim == null) {
@@ -1366,6 +1368,7 @@ public class SqlFile {
     private String  dsvRowSplitter;
     private String  dsvSkipCols;
     private boolean dsvTrimAll;
+    private boolean csvPromiscuous;
     private static String  DSV_X_SYNTAX_MSG;
     private static String  DSV_M_SYNTAX_MSG;
     private static String  nobufferYetString;
@@ -3618,7 +3621,7 @@ if (pwDsv != null) logger.severe("CSV? " + csv);
                     char delimChar = dsvColDelim.charAt(0);
                     for (String[] fArray : rows) {
                         for (int j = 0; j < fArray.length; j++) {
-                            if (fArray[j] == null
+                            if (fArray[j] == null || csvPromiscuous
                                     || (fArray[j].indexOf(delimChar) < 0
                                     && fArray[j].indexOf('"') < 0)) {
                                 continue;

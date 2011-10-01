@@ -44,8 +44,8 @@ Der Standardwert/Verhalten steht in den [quadratischen Klammern].
                                Einstellung, es wird nun nach X erfolgreichen
                                INSERTS commitet (sowie nach Abschluss des
                                Imports).
-    *CSV_PROMISCUOUS_QUOTING \xq Doppeltes Anführungszeichen jede Zelle für
-                                 \xq Exporte
+    *CSV_PROMISCUOUS_QUOTE \xq Doppeltes Anführungszeichen jede Zelle für
+                               \xq Exporte
 * Das Importieren wird sofort nach dem ersten fehlerhaften Ipmort eines
 Datensatzes abgebrochen, es sei den die Variablen *DSV_REJECT_FILE und/oder
 *DSV_REJECT_REPORT sind gesetzt.
