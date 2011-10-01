@@ -252,6 +252,11 @@ public class SqlFile {
     // Strings are constant, one test run of the program will tell
     // if the patterns are good.
 
+    private boolean emptyVarsAsNulls() {
+        String sysP = System.getProperty("EMPTY_VARS_AS_NULLS");
+        return sysP == null || Boolean.parseBoolean(sysP);
+    }
+
     /**
      * Encapsulate updating local variables which depend upon PL variables.
      * <P>
@@ -266,6 +271,26 @@ public class SqlFile {
      * <P/>
      */
     private void updateUserSettings() {
+        // Unset those system userVars where empty string makes no sense.
+        String varVal;
+        for (String noEmpty : new String[] {
+            "DSV_SKIP_PREFIX", "DSV_SKIP_COLS", "DSV_COL_DELIM", 
+            "DSV_COL_SPLITTER", "DSV_ROW_DELIM", "DSV_ROW_SPLITTER",
+            "DSV_TARGET_FILE", "DSV_TARGET_TABLE", "DSV_CONST_COLS",
+            "DSV_REJECT_FILE", "DSV_REJECT_REPORT", "DSV_RECORDS_PER_COMMIT",
+        }) {
+            varVal = shared.userVars.get('*' + noEmpty);
+            if (varVal == null || varVal.length() > 0) {
+                continue;
+            }
+            if (!emptyVarsAsNulls()) {
+                // TODO:  Define a portable error message
+                logger.warning("Unsetting variable '*" + noEmpty + "'.  "
+                        + "You should not have this set to an empty string.");
+            }
+            shared.userVars.remove('*' + noEmpty);
+        }
+
         dsvSkipPrefix = SqlFile.convertEscapes(
                 shared.userVars.get("*DSV_SKIP_PREFIX"));
         if (dsvSkipPrefix == null) {
@@ -335,6 +360,8 @@ public class SqlFile {
 
         Connection jdbcConn;
 
+        // Since we enforce non-null mapping values, userVars.get(key) of null
+        // always means that that the map does not contain the specified key.
         Map<String, String> userVars = new HashMap<String, String>();
 
         Map<String, Token> macros = new HashMap<String, Token>();
@@ -560,12 +587,25 @@ public class SqlFile {
     }
 
     public void addUserVars(Map<String, String> newUserVars) {
+        for (String val : newUserVars.values()) {
+            if (val == null) {
+                // TODO: Throw a more appropriate Exception
+                throw new IllegalArgumentException(
+                        "Null mapping values not allowed");
+            }
+        }
         shared.userVars.putAll(newUserVars);
         sqlExpandMode = null;
     }
 
+    /**
+     * Get a reference to the user variable map.
+     *
+     * Since you are getting a reference to the private map used inside this
+     * class, update this map with great caution and attention to lifecycle
+     * handling of the variable map.
+     */
     public Map<String, String> getUserVars() {
-        // Consider whether safer to return a deep copy.  Probably.
         return shared.userVars;
     }
 
@@ -581,7 +621,7 @@ public class SqlFile {
      */
     private void setEncoding(String newEncoding)
             throws UnsupportedEncodingException {
-        if (newEncoding == null) {
+        if (newEncoding == null || newEncoding.length() < 1) {
             shared.encoding = null;
             shared.userVars.remove("*ENCODING");
             return;
@@ -1488,7 +1528,6 @@ public class SqlFile {
                                 SqltoolRB.dsv_targetfile_demand.getString());
                     }
                     csv = arg1.equals("xq");
-logger.severe("DTF=" + dsvTargetFile);
                     File dsvFile = new File((dsvTargetFile == null)
                             ? (tableName + (csv ? ".csv" : ".dsv"))
                             : dereferenceAt(dsvTargetFile));
@@ -2106,7 +2145,7 @@ logger.severe("DTF=" + dsvTargetFile);
             // recursion without this clumsy detection tactic.
 
             varValue = shared.userVars.get(varName);
-            if (varValue == null) {
+            if (varValue == null) {  // Key not in map, since never null vals.
                 if (permitUnset) {
                     varValue = "";
                 } else {
@@ -2170,6 +2209,7 @@ logger.severe("DTF=" + dsvTargetFile);
             try {
                 for (String val : values) {
                     try {
+                        // val may never be null
                         shared.userVars.put(varName, val);
                         updateUserSettings();
 
@@ -2501,8 +2541,39 @@ logger.severe("DTF=" + dsvTargetFile);
                 if (m.groupCount() > 2 && m.group(3) != null) {
                     shared.userVars.put(varName, m.group(3));
                 } else {
-                    shared.userVars.remove(varName);
+                    if (emptyVarsAsNulls()) {
+                        shared.userVars.remove(varName);
+                    } else {
+                        shared.userVars.put(varName, "");
+                    }
                 }
+                updateUserSettings();
+                sqlExpandMode = null;
+
+                return;
+
+            case '!' :
+                if (m.groupCount() < 3 || m.group(3) != null) {
+                    // TODO:  Define message
+                    throw new BadSpecial(
+                            "Can not set a value with unset command");
+                }
+                if (fetchingVar != null && fetchingVar.equals(varName)) {
+                    fetchingVar = null;
+                }
+
+                if (varName.equals("*ENCODING")) try {
+                    // Special case so we can proactively prohibit encodings
+                    // which will not work, so we'll always be confident
+                    // that 'encoding' value is always good.
+                    setEncoding(m.group(3));
+                    return;
+                } catch (UnsupportedEncodingException use) {
+                    // Impossible to get here.  Satisfy compiler.
+                    throw new BadSpecial(
+                            SqltoolRB.encode_fail.getString(m.group(3)));
+                }
+                shared.userVars.remove(varName);
                 updateUserSettings();
                 sqlExpandMode = null;
 
@@ -3220,7 +3291,6 @@ logger.severe("DTF=" + dsvTargetFile);
                                   int[] incCols,
                                   String filterString) throws SQLException,
                                   SqlToolError {
-if (pwDsv != null) logger.severe("CSV? " + csv);
         if (pwDsv != null && csv
                 && (dsvColDelim == null || dsvColDelim.length() != 1
                 || dsvColDelim.equals("\""))) {
@@ -3481,6 +3551,7 @@ if (pwDsv != null) logger.severe("CSV? " + csv);
                             }
                         }
 
+                        // nullRepToken may never be null
                         shared.userVars.put("?",
                                 ((val == null) ? nullRepToken : val));
                         if (fetchingVar != null) {
@@ -3621,13 +3692,12 @@ if (pwDsv != null) logger.severe("CSV? " + csv);
                     char delimChar = dsvColDelim.charAt(0);
                     for (String[] fArray : rows) {
                         for (int j = 0; j < fArray.length; j++) {
-                            if (fArray[j] == null || csvPromiscuous
-                                    || (fArray[j].indexOf(delimChar) < 0
-                                    && fArray[j].indexOf('"') < 0)) {
-                                continue;
+                            if (fArray[j] != null && (csvPromiscuous
+                                    || fArray[j].indexOf(delimChar) > -1
+                                    || fArray[j].indexOf('"') < -1)) {
+                                fArray[j] = '"'
+                                        + fArray[j].replace("\"", "\"\"") + '"';
                             }
-                            fArray[j] = '"'
-                                    + fArray[j].replace("\"", "\"\"") + '"';
                         }
                     }
                 }
@@ -3657,6 +3727,7 @@ if (pwDsv != null) logger.severe("CSV? " + csv);
             default :
                 shared.userVars.put("?", Integer.toString(updateCount));
                 if (fetchingVar != null) {
+                    // shared.userVars.get("?") must be set here:
                     shared.userVars.put(fetchingVar, shared.userVars.get("?"));
                     fetchingVar = null;
                     updateUserSettings();
@@ -4010,6 +4081,10 @@ if (pwDsv != null) logger.severe("CSV? " + csv);
         }
     }
 
+    /**
+     * Unset variables are permitted in expressions as long as use
+     * the short *VARNAME form.
+     */
     private boolean eval(String[] inTokens) throws BadSpecial {
         /* TODO:  Rewrite using java.util.regex.  */
         // dereference *VARNAME variables.
@@ -4026,36 +4101,55 @@ if (pwDsv != null) logger.severe("CSV? " + csv);
             } else {
                 tokens[i] = inTokens[i + (negate ? 1 : 0)];
             }
-
-            // Unset variables permitted in expressions as long as use
-            // the short *VARNAME form.
-            if (tokens[i] == null) {
-                tokens[i] = "";
-            }
         }
 
         if (tokens.length == 1) {
-            return (tokens[0].length() > 0 &&!tokens[0].equals("0")) ^ negate;
+            return (tokens[0] != null && tokens[0].length() > 0
+                    &&!tokens[0].equals("0")) ^ negate;
         }
 
         if (tokens.length == 3) {
-            if (tokens[1].equals("==")) {
-                return tokens[0].equals(tokens[2]) ^ negate;
+            if (tokens[1] == null) {
+                throw new BadSpecial(SqltoolRB.logical_unrecognized.getString());
             }
 
             if (tokens[1].equals("!=") || tokens[1].equals("<>")
                     || tokens[1].equals("><")) {
-                return (!tokens[0].equals(tokens[2])) ^ negate;
+                negate = !negate;
+                tokens[1] = "==";
+            }
+            if (tokens[1].equals(">=") || tokens[1].equals("=>")) {
+                negate = !negate;
+                tokens[1] = "<";
+            }
+            if (tokens[1].equals("<=") || tokens[1].equals("=<")) {
+                negate = !negate;
+                tokens[1] = ">";
+            }
+
+            if (tokens[1].equals("==")) {
+                if (tokens[0] == null || tokens[2] == null) {
+                    return (tokens[0] == null && tokens[2] == null) ^ negate;
+                }
+                return tokens[0].equals(tokens[2]) ^ negate;
             }
 
             if (tokens[1].equals(">")) {
-                return (tokens[0].length() > tokens[2].length() || ((tokens[0].length() == tokens[2].length()) && tokens[0].compareTo(tokens[2]) > 0))
-                       ^ negate;
+                if (tokens[0] == null || tokens[2] == null) {
+                    return !negate;
+                }
+                return (tokens[0].length() > tokens[2].length()
+                        || ((tokens[0].length() == tokens[2].length())
+                        && tokens[0].compareTo(tokens[2]) > 0)) ^ negate;
             }
 
             if (tokens[1].equals("<")) {
-                return (tokens[2].length() > tokens[0].length() || ((tokens[2].length() == tokens[0].length()) && tokens[2].compareTo(tokens[0]) > 0))
-                       ^ negate;
+                if (tokens[0] == null || tokens[2] == null) {
+                    return !negate;
+                }
+                return (tokens[2].length() > tokens[0].length()
+                        || ((tokens[2].length() == tokens[0].length())
+                        && tokens[2].compareTo(tokens[0]) > 0)) ^ negate;
             }
         }
 
