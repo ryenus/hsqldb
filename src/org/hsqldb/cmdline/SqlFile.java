@@ -643,7 +643,7 @@ public class SqlFile {
     private boolean             preempt;
     private String              lastSqlStatement;
     private boolean             autoClose = true;
-    private boolean             csv;
+    private boolean             csvStyleQuoting;
 
     /**
      * Specify whether the supplied or generated input Reader should
@@ -1528,21 +1528,24 @@ public class SqlFile {
                         throw new BadSpecial(
                                 SqltoolRB.dsv_targetfile_demand.getString());
                     }
-                    csv = arg1.equals("xq");
-                    File dsvFile = new File((dsvTargetFile == null)
-                            ? (tableName + (csv ? ".csv" : ".dsv"))
-                            : dereferenceAt(dsvTargetFile));
-
-                    pwDsv = new PrintWriter(new OutputStreamWriter(
-                            new FileOutputStream(dsvFile),
-                            (shared.encoding == null)
-                            ? DEFAULT_FILE_ENCODING : shared.encoding));
-
-                    ResultSet rs = shared.jdbcConn.createStatement()
-                            .executeQuery((tableName == null) ? other
-                                                : ("SELECT * FROM "
-                                                   + tableName));
+                    ResultSet rs = null;
+                    File dsvFile = null;
+                    csvStyleQuoting = arg1.equals("xq");
                     try {
+                        dsvFile = new File((dsvTargetFile == null)
+                                ? (tableName
+                                        + (csvStyleQuoting ? ".csv" : ".dsv"))
+                                : dereferenceAt(dsvTargetFile));
+
+                        pwDsv = new PrintWriter(new OutputStreamWriter(
+                                new FileOutputStream(dsvFile),
+                                (shared.encoding == null)
+                                ? DEFAULT_FILE_ENCODING : shared.encoding));
+
+                        rs = shared.jdbcConn.createStatement()
+                                .executeQuery((tableName == null) ? other
+                                                    : ("SELECT * FROM "
+                                                       + tableName));
                         List<Integer> colList = new ArrayList<Integer>();
                         int[] incCols = null;
                         if (dsvSkipCols != null) {
@@ -1578,7 +1581,10 @@ public class SqlFile {
                         }
                         displayResultSet(null, rs, incCols, null);
                     } finally {
-                        rs.close();
+                        csvStyleQuoting = false;
+                        if (rs != null) {
+                            rs.close();
+                        }
                     }
                     pwDsv.flush();
                     stdprintln(SqltoolRB.file_wrotechars.getString(
@@ -3292,7 +3298,7 @@ public class SqlFile {
                                   int[] incCols,
                                   String filterString) throws SQLException,
                                   SqlToolError {
-        if (pwDsv != null && csv
+        if (pwDsv != null && csvStyleQuoting
                 && (dsvColDelim == null || dsvColDelim.length() != 1
                 || dsvColDelim.equals("\""))) {
             throw new SqlToolError(
@@ -3688,7 +3694,7 @@ public class SqlFile {
                     pwDsv.print(dsvRowDelim);
                 }
 
-                if (csv) {
+                if (csvStyleQuoting) {
                     char delimChar = dsvColDelim.charAt(0);
                     for (String[] fArray : rows) {
                         for (int j = 0; j < fArray.length; j++) {
