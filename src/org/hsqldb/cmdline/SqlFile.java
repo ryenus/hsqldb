@@ -689,6 +689,13 @@ public class SqlFile {
             scanner.setRawLeadinPrompt(SqltoolRB.raw_leadin.getString());
             if (interactive) {
                 stdprintln(SqltoolRB.SqlFile_banner.getString(revnum));
+                if (System.getProperty("EMPTY_VARS_AS_NULLS") == null) {
+                    stdprintln("SUGGESTION:  Set Java system property "
+                            + "'EMPTY_VARS_AS_NULLS' to 'true', because");
+                    stdprintln("this will become the default behavior with an "
+                            + "upcoming release.");
+                    stdprintln("");
+                }
                 scanner.setRawPrompt(rawPrompt);
                 scanner.setSqlPrompt(contPrompt);
                 scanner.setSqltoolPrompt(primaryPrompt);
