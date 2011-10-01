@@ -8,6 +8,7 @@
 * *DSV_TARGET_FILE = ${java.io.tmpdir}/test-roundtrip-${user.name}.csv
 * *DSV_TARGET_TABLE = t
 * *DSV_COL_DELIM = \t
+-- * *CSV_PROMISCUOUS_QUOTE = true
 CREATE TABLE t (i INT, v VARCHAR(25), d DATE);
 
 INSERT INTO t(i, v, d) VALUES (1, 'one two three', null);
