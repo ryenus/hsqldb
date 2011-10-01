@@ -1,5 +1,5 @@
 PROCEDURAL LANGUAGE COMMANDS
-    *?                            PL Help
+    * ?                           PL Help
     * VARNAME = [new value]       Set variable value
     * VARNAME !                   Unset variable
     * VARNAME ~                   Set variable value to the value of the very
