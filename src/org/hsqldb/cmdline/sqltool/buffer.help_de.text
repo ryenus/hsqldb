@@ -10,7 +10,7 @@ angewendet werden, wenn Sie nach dem Doppelpunkt ein Muster angeben, welches
 auf den gesuchten Befehl zutrifft; wie z.B.: ":blau;" um den letzten Befehl der
 "blau" enthielt nochmal auszuführen.
 Oder "w -3 /tmp/befehl.txt" um den drittletzten Befehl an die Datei befehl.txt
-anzuhängen. 
+anzuhängen.
     :;                 Führt den Editier-Pufferinhalt aus (Spezial, PL oder
                        SQL-Befehl)
     :w datei/pfad.sql  Aktuellen Editier-Pufferinhalt an Datei anhängen.
@@ -18,7 +18,7 @@ anzuhängen.
                        Pufferinhaltes.
     :s/von regex/zu/   Ersetzt alle Übereinstimmungen "von regex" mit  "zu".
     :s/von/zu/[igm;]   Ein oder Mehrfachersetzung mit mehreren Optionen.
-                von:   Regulärer Ausdruck.  
+                von:   Regulärer Ausdruck.
                 	   Siehe auch 'perlre'-Manpage oder Java API Spezifikation
                        für java.util.regex.Pattern!
                 zu:    Wenn leer - dann werden alle "von"`s gelöscht
