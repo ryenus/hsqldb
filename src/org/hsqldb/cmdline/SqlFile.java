@@ -274,7 +274,7 @@ public class SqlFile {
         // Unset those system userVars where empty string makes no sense.
         String varVal;
         for (String noEmpty : new String[] {
-            "DSV_SKIP_PREFIX", "DSV_SKIP_COLS", "DSV_COL_DELIM", 
+            "DSV_SKIP_PREFIX", "DSV_SKIP_COLS", "DSV_COL_DELIM",
             "DSV_COL_SPLITTER", "DSV_ROW_DELIM", "DSV_ROW_SPLITTER",
             "DSV_TARGET_FILE", "DSV_TARGET_TABLE", "DSV_CONST_COLS",
             "DSV_REJECT_FILE", "DSV_REJECT_REPORT", "DSV_RECORDS_PER_COMMIT",
@@ -1483,7 +1483,9 @@ public class SqlFile {
                     stdprintln(DSV_OPTIONS_TEXT + LS + DSV_M_SYNTAX_MSG);
                     return;
                 }
-                if (arg1.length() != 1 || other == null) {
+                requireConnection();
+                if ((!arg1.equals("mq") && arg1.length() != 1)
+                        || other == null) {
                     throw new BadSpecial(DSV_M_SYNTAX_MSG);
                 }
                 boolean noComments = other.charAt(other.length() - 1) == '*';
@@ -1503,7 +1505,12 @@ public class SqlFile {
                     other = other.substring(0, colonIndex).trim();
                 }
 
-                importDsv(dereferenceAt(other), skipPrefix);
+                csvStyleQuoting = arg1.equals("mq");
+                try {
+                    importDsv(dereferenceAt(other), skipPrefix);
+                } finally {
+                    csvStyleQuoting = false;
+                }
 
                 return;
 
@@ -3700,7 +3707,7 @@ public class SqlFile {
                         for (int j = 0; j < fArray.length; j++) {
                             if (fArray[j] != null && (allQuoted
                                     || fArray[j].indexOf(delimChar) > -1
-                                    || fArray[j].indexOf('"') < -1)) {
+                                    || fArray[j].indexOf('"') > -1)) {
                                 fArray[j] = '"'
                                         + fArray[j].replace("\"", "\"\"") + '"';
                             }
@@ -4730,6 +4737,8 @@ public class SqlFile {
         if (dsvConstCols != null) {
             // We trim col. names, but not values.  Must allow users to
             // specify values as spaces, empty string, null.
+            // We do not support CVS-quoted style constColMap String.
+            // Must be specified in DSV style.
             constColMap = new TreeMap<String, String>();
             for (String constPair : dsvConstCols.split(dsvColSplitter, -1)) {
                 matcher = nameValPairPattern.matcher(constPair);
@@ -4744,6 +4753,8 @@ public class SqlFile {
         }
         Set<String> skipCols = null;
         if (dsvSkipCols != null) {
+            // We do not support CVS-quoted style skipCols String.
+            // Must be specified in DSV style.
             skipCols = new HashSet<String>();
             for (String skipCol : dsvSkipCols.split(dsvColSplitter, -1)) {
                 skipCols.add(skipCol.trim().toLowerCase());
@@ -4796,12 +4807,19 @@ public class SqlFile {
         try {
             String string = new String(bfr, (shared.encoding == null)
                     ? DEFAULT_FILE_ENCODING : shared.encoding);
-            lines = string.split(dsvRowSplitter, -1);
+            if (csvStyleQuoting && string.indexOf('\u0002') > -1) {
+                throw new SqlToolError(
+                        // TODO:   Make new message.  This one WRONG!
+                        SqltoolRB.dsv_coldelim_present.getString
+                        ("(For internal quoting support.) \\u0002"));
+            }
+            lines = string.split(dsvRowSplitter);
         } catch (UnsupportedEncodingException uee) {
             throw new SqlToolError(uee);
         } catch (RuntimeException re) {
             throw new SqlToolError(SqltoolRB.read_convertfail.getString(), re);
         }
+        bfr = null;  // Release memory.  We use 'lines' not 'bfr' from here on.
 
         List<String> headerList = new ArrayList<String>();
         String    tableName = dsvTargetTable;
@@ -4863,9 +4881,68 @@ public class SqlFile {
             // Skip non-matched header line
         }
 
+        if (csvStyleQuoting) {
+            StringBuilder sb = new StringBuilder();
+            int offset, segLen, prevOffset;
+            // Convert CSV 'lines' into DSV 'lines'.
+            for (int i = lineCount - 1; i < lines.length; i++) {
+                if (lines[i].indexOf('"') < 0) {
+                    lines[i] = lines[i].replaceAll(dsvColSplitter, "\u0002");
+                    continue;
+                }
+                sb.setLength(0);
+                prevOffset = -1;
+                SEEK_QUOTEDFIELD:
+                while (prevOffset < lines[i].length() - 1) {
+                    // Get start of next quoted field:
+                    offset = lines[i].indexOf('"', prevOffset + 1);
+                    segLen = ((offset < 0) ? lines[i].length() : offset)
+                            - (prevOffset + 1);
+                    if (segLen > 1) {
+                        // Here we insert non-quoted segments, replacing all
+                        // dsvColSplitters.
+                        sb.append(lines[i].substring(
+                                prevOffset + 1, prevOffset + 1 + segLen)
+                                .replaceAll(dsvColSplitter, "\u0002"));
+                    }
+                    if (offset < 0) {
+                        // Done with line
+                        break;
+                    }
+                    prevOffset = offset;
+                    while ((offset = lines[i].indexOf(
+                            '"', prevOffset + 1)) > -1) {
+                        if (offset - prevOffset > 1) {
+                            // Here we insert quoted segments without any "s.
+                            sb.append(lines[i].substring(
+                                    prevOffset + 1, offset));
+                        }
+                        prevOffset = offset;
+                        if (lines[i].length() < offset + 2
+                                || lines[i].charAt(offset + 1) != '"') {
+                            // Field terminated
+                            continue SEEK_QUOTEDFIELD;
+                        }
+                        // Field-internal ""
+                        prevOffset++;
+                        sb.append('"');
+                    }
+                    throw new SqlToolError(
+                        // TODO:   Make new message.  This one WRONG!
+                        SqltoolRB.dsv_coldelim_present.getString
+                        ("Unterminated \"-quoted field at data line " + (i+1)));
+                }
+                lines[i] = sb.toString();
+            }
+
+            // Restore state
+            curLine = lines[lineCount - 1];
+        }
+
         String headerLine = curLine.substring(headerOffset);
         String colName;
-        String[] cols = headerLine.split(dsvColSplitter, -1);
+        String[] cols = headerLine.split(
+                (csvStyleQuoting ? "\u0002" : dsvColSplitter), -1);
 
         for (String col : cols) {
             if (col.length() < 1) {
@@ -5129,7 +5206,8 @@ public class SqlFile {
 
                 readColCount = 0;
                 storeColCount = 0;
-                cols = curLine.split(dsvColSplitter, -1);
+                cols = curLine.split(
+                        (csvStyleQuoting ? "\u0002" : dsvColSplitter), -1);
 
                 for (String col : cols) {
                     if (readColCount == inputColHeadCount) {

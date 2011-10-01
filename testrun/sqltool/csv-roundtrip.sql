@@ -8,6 +8,7 @@
 * *DSV_TARGET_FILE = ${java.io.tmpdir}/test-roundtrip-${user.name}.csv
 * *DSV_TARGET_TABLE = t
 * *DSV_COL_DELIM = \t
+* *DSV_COL_SPLITTER = \t
 -- * *CSV_PROMISCUOUS_QUOTE = true
 CREATE TABLE t (i INT, v VARCHAR(25), d DATE);
 
@@ -42,17 +43,26 @@ SELECT count(*) FROM t WHERE i = 5 AND v = '"one,two"three,' AND d = '2007-06-24
 *end if
 
 
---  COMPLETE AFTER IMPLEMENT CSV IMPORTING
 /* Import */
-/*
-\m *{*DSV_TARGET_FILE}
+\mq *{*DSV_TARGET_FILE}
 
-SELECT count(*) FROM t WHERE i = 1 AND v = 149 AND d IS null;
+SELECT count(*) FROM t WHERE i = 1 AND v = 'one two three' AND d IS null;
 *if (*? != 2)
-    \q Post-check of imported data failed (1)
+    \q Post-check of inserted data failed (1)
 *end if
 SELECT count(*) FROM t WHERE i = 2 AND v IS NULL AND d = '2007-06-24';
 *if (*? != 2)
-    \q Post-check of imported data failed (2)
+    \q Post-check of inserted data failed (2)
 *end if
-*/
+SELECT count(*) FROM t WHERE i = 3 AND v = 'one,two,,three' AND d = '2007-06-24';
+*if (*? != 2)
+    \q Post-check of inserted data failed (3)
+*end if
+SELECT count(*) FROM t WHERE i = 4 AND v = '"one"two""three' AND d = '2007-06-24';
+*if (*? != 2)
+    \q Post-check of inserted data failed (4)
+*end if
+SELECT count(*) FROM t WHERE i = 5 AND v = '"one,two"three,' AND d = '2007-06-24';
+*if (*? != 2)
+    \q Post-check of inserted data failed (5)
+*end if
