@@ -277,10 +277,6 @@ public class SqlFile {
         dsvColDelim = SqlFile.convertEscapes(
                 shared.userVars.get("*DSV_COL_DELIM"));
         if (dsvColDelim == null) {
-            dsvColDelim = SqlFile.convertEscapes(
-                    shared.userVars.get("*CSV_COL_DELIM"));
-        }
-        if (dsvColDelim == null) {
             dsvColDelim = DEFAULT_COL_DELIM;
         }
         dsvColSplitter = shared.userVars.get("*DSV_COL_SPLITTER");
@@ -291,10 +287,6 @@ public class SqlFile {
         dsvRowDelim = SqlFile.convertEscapes(
                 shared.userVars.get("*DSV_ROW_DELIM"));
         if (dsvRowDelim == null) {
-            dsvRowDelim = SqlFile.convertEscapes(
-                    shared.userVars.get("*CSV_ROW_DELIM"));
-        }
-        if (dsvRowDelim == null) {
             dsvRowDelim = DEFAULT_ROW_DELIM;
         }
         dsvRowSplitter = shared.userVars.get("*DSV_ROW_SPLITTER");
@@ -303,14 +295,7 @@ public class SqlFile {
         }
 
         dsvTargetFile = shared.userVars.get("*DSV_TARGET_FILE");
-        if (dsvTargetFile == null) {
-            dsvTargetFile = shared.userVars.get("*CSV_FILEPATH");
-        }
         dsvTargetTable = shared.userVars.get("*DSV_TARGET_TABLE");
-        if (dsvTargetTable == null) {
-            dsvTargetTable = shared.userVars.get("*CSV_TABLENAME");
-            // This just for legacy variable name.
-        }
 
         dsvConstCols = shared.userVars.get("*DSV_CONST_COLS");
         dsvRejectFile = shared.userVars.get("*DSV_REJECT_FILE");
@@ -326,9 +311,6 @@ public class SqlFile {
         }
 
         nullRepToken = shared.userVars.get("*NULL_REP_TOKEN");
-        if (nullRepToken == null) {
-            nullRepToken = shared.userVars.get("*CSV_NULL_REP");
-        }
         if (nullRepToken == null) {
             nullRepToken = DEFAULT_NULL_REP;
         }
