@@ -28,6 +28,7 @@ Verwenden Sie "SCHEMANAME.", um auf ein Schema zu begrenzen.
                            lassen.)
     \m pfad/datei.dsv [*]  Importiert Datensätze aus einer DSV-Textdatei in
                            eine Tabelle. (weitere Optionen '\m?').
+    \mq pfad/datei.csv     Ditto, aber mit traditionellen CSV doppelt zitiert.
     \o [datei/pfad.html]   Leitet (oder stoppt dies) die Ausgabe der Abfrage in
                            die angegebene Datei um.
     \p [Eine Nachricht]    Gibt Nachricht auf stdout aus
@@ -39,5 +40,5 @@ Verwenden Sie "SCHEMANAME.", um auf ein Schema zu begrenzen.
                            (connection transaction isolation)
     \x {TABELLE|SELECT...} Exportiert Tabellen oder Abfragen in eine
                            DSV-Textdatei (weitere Optionen: '\x?').
-    \xq {TABELLE|SELECT...} Ditto, aber mit traditionellen CSV doppelt zitiert.
+    \xq {TABELLE|SEL...}   Ditto, aber mit traditionellen CSV doppelt zitiert.
 
