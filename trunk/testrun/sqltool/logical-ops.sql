@@ -23,6 +23,14 @@
     \q !4 > 3
 *end if
 
+*if (3 >= 4)
+    \q 3 >= 4
+*end if
+
+*if (4 =< 3)
+    \q 4 =< 3
+*end if
+
 *if (*unset1 != *unset2)
     \q *unset1 != *unset2
 *end if
