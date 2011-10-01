@@ -25,5 +25,5 @@ Filter substrings are case-sensitive!  Use "SCHEMANAME." to narrow to schema.
     \t [true|false]      report execution Times for all SQL commands
     \v [TRAN_ISO_LVL]    view/set the connection transaction isolation leVel
     \x {TABLE|SELECT...} eXport table or query to DSV text file (options \x?)
-    \xq {TABELLE|SELECT...} Ditto, but with traditional CVS double-quoting.
+    \xq {TABLE|SELECT...} Ditto, but with traditional CSV double-quoting.
 

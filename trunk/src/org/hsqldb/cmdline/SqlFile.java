@@ -253,7 +253,7 @@ public class SqlFile {
     // if the patterns are good.
 
     private boolean emptyVarsAsNulls() {
-        String sysP = System.getProperty("EMPTY_VARS_AS_NULLS");
+        String sysP = System.getProperty("REMOVE_EMPTY_VARS");
         return sysP == null || Boolean.parseBoolean(sysP);
     }
 
@@ -299,8 +299,8 @@ public class SqlFile {
         dsvSkipCols = shared.userVars.get("*DSV_SKIP_COLS");
         dsvTrimAll = Boolean.parseBoolean(
                 shared.userVars.get("*DSV_TRIM_ALL"));
-        csvPromiscuous = Boolean.parseBoolean(
-                shared.userVars.get("*CSV_PROMISCUOUS_QUOTE"));
+        allQuoted = Boolean.parseBoolean(
+                shared.userVars.get("*ALL_QUOTED"));
         dsvColDelim = SqlFile.convertEscapes(
                 shared.userVars.get("*DSV_COL_DELIM"));
         if (dsvColDelim == null) {
@@ -689,9 +689,9 @@ public class SqlFile {
             scanner.setRawLeadinPrompt(SqltoolRB.raw_leadin.getString());
             if (interactive) {
                 stdprintln(SqltoolRB.SqlFile_banner.getString(revnum));
-                if (System.getProperty("EMPTY_VARS_AS_NULLS") == null) {
+                if (System.getProperty("REMOVE_EMPTY_VARS") == null) {
                     stdprintln("SUGGESTION:  Set Java system property "
-                            + "'EMPTY_VARS_AS_NULLS' to 'true', because");
+                            + "'REMOVE_EMPTY_VARS' to 'true', because");
                     stdprintln("this will become the default behavior with an "
                             + "upcoming release.");
                     stdprintln("");
@@ -1415,7 +1415,7 @@ public class SqlFile {
     private String  dsvRowSplitter;
     private String  dsvSkipCols;
     private boolean dsvTrimAll;
-    private boolean csvPromiscuous;
+    private boolean allQuoted;
     private static String  DSV_X_SYNTAX_MSG;
     private static String  DSV_M_SYNTAX_MSG;
     private static String  nobufferYetString;
@@ -3699,7 +3699,7 @@ public class SqlFile {
                     char delimChar = dsvColDelim.charAt(0);
                     for (String[] fArray : rows) {
                         for (int j = 0; j < fArray.length; j++) {
-                            if (fArray[j] != null && (csvPromiscuous
+                            if (fArray[j] != null && (allQuoted
                                     || fArray[j].indexOf(delimChar) > -1
                                     || fArray[j].indexOf('"') < -1)) {
                                 fArray[j] = '"'
