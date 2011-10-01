@@ -1,0 +1,10 @@
+/*
+ * $Id$
+ *
+ * Invokes another script that defines variables.
+ * Then we test that we have access to the variables.
+ */
+
+*if (*{unset} == 3)
+    \p Should not succeed
+*end if
