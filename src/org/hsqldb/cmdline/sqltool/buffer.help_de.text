@@ -19,7 +19,7 @@ anzuhängen.
     :s/von regex/zu/   Ersetzt alle Übereinstimmungen "von regex" mit  "zu".
     :s/von/zu/[igm;]   Ein oder Mehrfachersetzung mit mehreren Optionen.
                 von:   Regulärer Ausdruck.
-                	   Siehe auch 'perlre'-Manpage oder Java API Spezifikation
+                       Siehe auch 'perlre'-Manpage oder Java API Spezifikation
                        für java.util.regex.Pattern!
                 zu:    Wenn leer - dann werden alle "von"`s gelöscht
                        (z.b. ":s/x//").
