@@ -284,9 +284,7 @@ public class SqlFile {
                 continue;
             }
             if (!emptyVarsAsNulls()) {
-                // TODO:  Define a portable error message
-                logger.warning("Unsetting variable '*" + noEmpty + "'.  "
-                        + "You should not have this set to an empty string.");
+                errprintln(SqltoolRB.auto_unset_warning.getString(noEmpty));
             }
             shared.userVars.remove('*' + noEmpty);
         }
@@ -331,7 +329,7 @@ public class SqlFile {
             dsvRecordsPerCommit = Integer.parseInt(
                     shared.userVars.get("*DSV_RECORDS_PER_COMMIT"));
         } catch (NumberFormatException nfe) {
-            logger.error(SqltoolRB.reject_rpc.getString(
+            errprintln(SqltoolRB.reject_rpc.getString(
                     shared.userVars.get("*DSV_RECORDS_PER_COMMIT")));
             shared.userVars.remove("*DSV_REJECT_REPORT");
             dsvRecordsPerCommit = 0;
@@ -589,7 +587,6 @@ public class SqlFile {
     public void addUserVars(Map<String, String> newUserVars) {
         for (String val : newUserVars.values()) {
             if (val == null) {
-                // TODO: Throw a more appropriate Exception
                 throw new IllegalArgumentException(
                         "Null mapping values not allowed");
             }
@@ -690,19 +687,15 @@ public class SqlFile {
             if (interactive) {
                 stdprintln(SqltoolRB.SqlFile_banner.getString(revnum));
                 if (System.getProperty("REMOVE_EMPTY_VARS") == null) {
-                    stdprintln("SUGGESTION:  Set Java system property "
-                            + "'REMOVE_EMPTY_VARS' to 'true', because");
-                    stdprintln("this will become the default behavior with an "
-                            + "upcoming release.");
-                    stdprintln("");
+                    stdprintln(
+                            SqltoolRB.remove_empty_vars_suggestion.getString());
                 }
                 scanner.setRawPrompt(rawPrompt);
                 scanner.setSqlPrompt(contPrompt);
                 scanner.setSqltoolPrompt(primaryPrompt);
                 scanner.setInteractive(true);
                 if (shared.jdbcConn == null)
-                    stdprintln("To connect to a data source, use '\\j "
-                        + "urlid' or '\\j account password jdbc:url...'");
+                    stdprintln(SqltoolRB.suggest_j.getString());
                 stdprint(primaryPrompt);
             }
             scanpass(scanner);
@@ -729,7 +722,8 @@ public class SqlFile {
             if (scanner != null) try {
                 scanner.yyclose();
             } catch (IOException ioe) {
-                errprintln("Failed to close pipes");
+                errprintln(
+                        SqltoolRB.pipeclose_failure.getString(ioe.toString()));
             }
             try {
                 reader.close();
@@ -1816,7 +1810,8 @@ public class SqlFile {
                     shared.possiblyUncommitteds = false;
                     shared.jdbcConn.setAutoCommit(goalAutoCommit);
                 } catch (Exception e) {
-                    throw new BadSpecial("Failed to connect", e);
+                    throw new BadSpecial(
+                            SqltoolRB.connect_failure.getString(), e);
                 }
                 displayConnBanner();
             } catch (Throwable t) {
@@ -2561,9 +2556,8 @@ public class SqlFile {
 
             case '!' :
                 if (m.groupCount() < 3 || m.group(3) != null) {
-                    // TODO:  Define message
                     throw new BadSpecial(
-                            "Can not set a value with unset command");
+                            SqltoolRB.pl_unset_nomoreargs.getString());
                 }
                 if (fetchingVar != null && fetchingVar.equals(varName)) {
                     fetchingVar = null;
@@ -3005,7 +2999,7 @@ public class SqlFile {
 
                     if (rs == null) {
                         throw new BadSpecial(
-                            "Failed to get metadata from database");
+                            SqltoolRB.metadata_fetch_fail.getString());
                     }
 
                     displayResultSet(null, rs, listMDSchemaCols, filter);
@@ -3044,7 +3038,7 @@ public class SqlFile {
 
                     if (rs == null) {
                         throw new BadSpecial(
-                            "Failed to get metadata from database");
+                            SqltoolRB.metadata_fetch_fail.getString());
                     }
 
                     displayResultSet(null, rs, listMDIndexCols, null);
@@ -3301,9 +3295,8 @@ public class SqlFile {
         if (pwDsv != null && csv
                 && (dsvColDelim == null || dsvColDelim.length() != 1
                 || dsvColDelim.equals("\""))) {
-            // TODO:  Define a portable message:
-            throw new SqlToolError("CSV exporting requires a single-character "
-                    + "col-delimiter, excluding '\"'");
+            throw new SqlToolError(
+                    SqltoolRB.dsv_xqmq_singlechardelim.getString());
         }
         java.sql.Timestamp ts;
         int dotAt;
@@ -3535,7 +3528,7 @@ public class SqlFile {
                                 isValNull = r.wasNull();
                             } catch (IOException ioe) {
                                 throw new SqlToolError(
-                                    "Failed to read value using stream",
+                                    SqltoolRB.streamread_failure.getString(),
                                     ioe);
                             }
 
@@ -5228,10 +5221,8 @@ public class SqlFile {
                             case 'a' :
                                 if (SqlFile.createArrayOfMethod == null) {
                                     throw new SqlToolError(
-                                            //SqltoolRB.boolean_bad.getString(
-                                        "SqlTool requires += Java 1.6 at "
-                                        + "runtime in order to import Array "
-                                        + "values");
+                                            SqltoolRB.arrayimp_jvmreq
+                                            .getString());
                                 }
                                 if (dataVals[i].length() < 1) {
                                     ps.setArray(i + 1, null);
@@ -5240,9 +5231,8 @@ public class SqlFile {
                                 arMatcher = arrayPattern.matcher(dataVals[i]);
                                 if (!arMatcher.matches()) {
                                     throw new RowError(
-                                            //SqltoolRB.boolean_bad.getString(
-                                        "Malformatted ARRAY value: ("
-                                        + dataVals[i] + ')');
+                                            SqltoolRB.arrayval_malformat
+                                            .getString(dataVals[i]));
                                 }
                                 arVals = (arMatcher.group(1) == null)
                                        ? (new String[0])
@@ -5261,11 +5251,8 @@ public class SqlFile {
                                             &&  ite.getCause()
                                             instanceof AbstractMethodError) {
                                         throw new SqlToolError(
-                                            //SqltoolRB.boolean_bad.getString(
-                                            "SqlTool binary is not "
-                                            + "Array-compatible with your "
-                                            + "runtime JRE.  Array imports "
-                                            + "not possible.");
+                                            SqltoolRB.sqlarray_badjvm
+                                            .getString());
                                     }
                                     throw new RuntimeException(ite);
                                 }
@@ -5671,9 +5658,7 @@ public class SqlFile {
     private String dereferenceAt(String s) throws BadSpecial {
         if (s.indexOf('@') != 0) return s;
         if (baseDir == null)
-            throw new BadSpecial(
-                    "Leading @ in file paths has special meaning, and may "
-                    + " only be used if input is a file.");
+            throw new BadSpecial(SqltoolRB.illegal_at.getString());
         return baseDir.getPath() + s.substring(1);
     }
 }

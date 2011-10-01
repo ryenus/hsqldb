@@ -252,7 +252,19 @@ public enum SqltoolRB implements RefCapableRBInterface {
     disconnected_msg,
     connected_fallbackmsg,
     no_vendor_schemaspt,
-    schemaname_retrieval_fail
+    schemaname_retrieval_fail,
+    remove_empty_vars_suggestion,
+    auto_unset_warning,
+    pl_unset_nomoreargs,
+    dsv_xqmq_singlechardelim,
+    connect_failure,
+    streamread_failure,
+    illegal_at,
+    suggest_j,
+    pipeclose_failure,
+    arrayimp_jvmreq,
+    arrayval_malformat,
+    sqlarray_badjvm
     ;
 
     private static ValidatingResourceBundle vrb =
