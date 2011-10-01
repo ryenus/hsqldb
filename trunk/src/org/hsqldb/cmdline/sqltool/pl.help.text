@@ -1,7 +1,7 @@
 PROCEDURAL LANGUAGE COMMANDS
     *?                            PL Help
-    * VARNAME = Variable value    Set variable value
-    * VARNAME =                   Unset variable
+    * VARNAME = [new value]       Set variable value
+    * VARNAME !                   Unset variable
     * VARNAME ~                   Set variable value to the value of the very
                                   next SQL value or count fetched (see details
                                   at the bottom of this listing).

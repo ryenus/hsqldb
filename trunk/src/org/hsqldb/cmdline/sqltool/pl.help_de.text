@@ -1,10 +1,7 @@
 PROZEDUALE SPRACHE (PROCEDURAL LANGUAGE) BEFEHLE
     *?                             PL Hilfe
-    *                              PL-Variablen ab sofort erweitern.  (Dies
-                                   ist auch bei alle folgenden Befehlen
-                                   inbegriffen ).
-    * VARNAME = Variable Wert      Weist der Variable einen Wert zu.
-    * VARNAME =                    Löscht die Variable.
+    * VARNAME = [neur Wert]        Weist der Variable einen Wert zu.
+    * VARNAME !                    Löscht die Variable.
     * VARNAME ~                    Weist der Variable als Wert den Inhalt der
                                    direkt folgenden SQL-Anweiung oder eines
                                    Zählers zu (Bitte beachten Sie auch die
@@ -22,7 +19,7 @@ PROZEDUALE SPRACHE (PROCEDURAL LANGUAGE) BEFEHLE
                                    um die Variable an dieser Stelle
                                    einzusetzten (bei "*{?}" wird die
                                    Standardvariable verwendet).
-    * foreach VARNAME ([wert1...]) Wiederholt den folgenden PL-Block pro Wert
+    * foreach VARNAME ([Wert1...]) Wiederholt den folgenden PL-Block pro Wert
                                    mit der Variable, wobei diese im PL-Block
                                    jeweils durch den Wert ersetzt wird.
     * if (logical expr)            Führt den folgenden PL-Block nur aus wenn
