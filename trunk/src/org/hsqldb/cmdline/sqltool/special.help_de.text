@@ -36,7 +36,7 @@ Verwenden Sie "SCHEMANAME.", um auf ein Schema zu begrenzen.
     \t [true|false]        Gibt die Ausführungszeiten für alle SQL-Befehle aus.
     \v [TRAN_ISO_LEVEL]    Zeigt/Setzt das Level der
                            Verbindungs-Transaktion-Isolation.
-    					   (connection transaction isolation)
+                           (connection transaction isolation)
     \x {TABELLE|SELECT...} Exportiert Tabellen oder Abfragen in eine
                            DSV-Textdatei (weitere Optionen: '\x?').
     \xq {TABELLE|SELECT...} Ditto, aber mit traditionellen CSV doppelt zitiert.
