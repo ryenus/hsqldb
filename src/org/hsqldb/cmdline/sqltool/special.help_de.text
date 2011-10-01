@@ -39,5 +39,5 @@ um auf ein Schema zu begrenzen.
     					   (connection transaction isolation)
     \x {TABELLE|SELECT...} Exportiert Tabellen oder Abfragen in eine
                            DSV-Textdatei (weitere Optionen: '\x?').
-    \xq {TABELLE|SELECT...} Ditto, aber mit traditionellen CVS doppelt zitiert.
+    \xq {TABELLE|SELECT...} Ditto, aber mit traditionellen CSV doppelt zitiert.
 
