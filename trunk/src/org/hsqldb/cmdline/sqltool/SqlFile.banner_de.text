@@ -25,3 +25,4 @@ k?nnen PL-Variablen in den meisten Befehlen wie folgt verwendet werden:
   *{PLVARNAME}
 Wenn Sie Regul?re Ausdr?cke in Kommandos verwenden, beachten Sie bitte, da?
 diese im Befehlstext nur nach dem '*' oder '\' Pr?fix (falls vorhanden) wirken.
+

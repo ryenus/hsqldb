@@ -31,3 +31,4 @@ Auto. variable ? is set to the very latest SQL datum fetched (or update count).
             (for updates this will be the number of rows updated).
 '* VARNAME ~' or '* VARNAME _' sets the specified variable's value exactly
 like ?.  (~ will echo the value, _ will do it silently).
+
