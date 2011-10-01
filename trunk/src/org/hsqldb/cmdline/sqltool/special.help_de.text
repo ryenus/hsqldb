@@ -1,6 +1,6 @@
 Sonderbefehle.
-Bei Filterzeichenketten wird die Groﬂ/Kleinschreibung beachtet . Verwenden Sie "SCHEMANAME.", 
-um auf ein Schema zu begrenzen.
+Bei Filterzeichenketten wird die Groﬂ/Kleinschreibung beachtet.
+Verwenden Sie "SCHEMANAME.", um auf ein Schema zu begrenzen.
     \?                     Sonderbefehle Hilfe
     \.                     Geben Sie reines SQL ein (Raw-SQL). Schlieﬂen Sie
                            mit einer Leerzeile ab, die nur einen "." enth‰lt

@@ -27,7 +27,7 @@ PROZEDUALE SPRACHE (PROCEDURAL LANGUAGE) BEFEHLE
     * while (logical expr)         Wiederholt den folgenden PL-Block solange
                                    wie der Ausdruck in den Klammern wahr ist.
     * end foreach|if|while         Beendent einen PL-Block.
-    * break [foreach|if|while|file]Unterbricht einen PL-Block vorzeitig. 
+    * break [foreach|if|while|file]Unterbricht einen PL-Block vorzeitig.
     * continue [foreach|while]     Bricht einen Schleifendurch in einem
                                    PL-Block ab und fährt mit dem nächsten
                                    Durchlauf fort.
@@ -37,7 +37,7 @@ Verwenden Sie Systemeigenschaften (auch wenn Sie sie vlt. nicht gesetzt haben)
 so: ${property.name}.
 Sie können /VARNAME benutzen, wenn /VARNAME das erste Wort im SQL-Befehl ist.
 In logischen Ausdrücken verwenden Sie PL-Variablen so: (VARNAME == 1).
-Die automatische Variable ? bezieht sich immer auf die jüngste SQL-Anweisung 
+Die automatische Variable ? bezieht sich immer auf die jüngste SQL-Anweisung
 (oder Updatezähler).
     Abfrage:  Der Wert des ersten Feldes aus der ersten Reihe welche zurück
               gegeben wurde.

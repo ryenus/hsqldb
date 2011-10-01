@@ -18,7 +18,7 @@ Optionen:
     						 wobei 'SQL' aus SQL-Befehlen gebildet wird. Siehe
                              Handbuch.
     --rcFile=path/file.rc    Verwende Info-Datei [$HOME/sqltool.rc]
-    --continueOnErr=true|false Weiter (true) oder Abbrechen (false) nach Fehler.          
+    --continueOnErr=true|false Weiter (true) oder Abbrechen (false) nach Fehler.
     --setVar=NAME1=val1[,NAME2=val2...]   PL Variablen
     --driver=a.b.c.Driver    JDBC Treiber Class [%{2}]
     urlid                    ID von Url/Benutzername/Passwort in der RC-Datei

@@ -2,9 +2,9 @@ DSV bedeutet Delimiter-Separated-Values (dt. etwa:Trennzeichen-getrennte Werte).
 Es ist im Grunde genommen CSV (Comma Separated Values), DSV verwendet aber als
 Trennzeichen
 nur Zeichen welche sonst nicht im Text vorkommen. Auf diese Weise wird
-die bei CSV oft notwendige Maskierung von Trennzeichen im Text umgangen.    
+die bei CSV oft notwendige Maskierung von Trennzeichen im Text umgangen.
 Alle DSV PL-Variablen sind optional.
-Um sich den Inhalt einer PL-Variable anzeigen zu lassen, geben Sie 
+Um sich den Inhalt einer PL-Variable anzeigen zu lassen, geben Sie
 "* listvalues" ein (ohne die "").
 Um einer Variable einen Wert zu zuweisen: "* *DSV_COL_DELIM = ,"
 Bitte vergessen Sie nicht, das erste * leitet eine PL-Variable ein und
@@ -36,9 +36,8 @@ Der Standardwert/Verhalten steht in den [quadratischen Klammern].
     *DSV_SKIP_COLS     \m\x    Spalten aus der Eingabedatei/Tabelle welche
                                ausgelassen werden.
     *DSV_TRIM_ALL      \m      Wenn auf "true" gesetzt, werden alle führenden
-                               und abschließenden
-    						   Leerzeichen aus allen Spalten nach dem import
-                               entfernt. [false]
+                               und abschließenden Leerzeichen aus allen Spalten
+                               nach dem import entfernt. [false]
     *DSV_RECORDS_PER_COMMIT \m Integer-Wert (X). Wird er gesetzt, so
                                überschreibt er die aktuelle Autocommit
                                Einstellung, es wird nun nach X erfolgreichen
@@ -50,7 +49,7 @@ Der Standardwert/Verhalten steht in den [quadratischen Klammern].
 Datensatzes abgebrochen, es sei den die Variablen *DSV_REJECT_FILE und/oder
 *DSV_REJECT_REPORT sind gesetzt.
 (Die "Rollback"-Funktion (Rückgängig machen) des SqlTols hängt von der
-Verwendung der Optionen \c und \z ab.) 
+Verwendung der Optionen \c und \z ab.)
 Auto-commit und *DSV_RECORDS_PER_COMMIT stellen sicher das alle erfolgreich
 eingefügten Datensätze auch commitet werden - Rollbacks sind dann aber nicht
 mehr möglich.

@@ -96,7 +96,7 @@ import org.hsqldb.lib.FrameworkLogger;
     public void setMagicPrefix(String magicPrefix) {
         this.magicPrefix = magicPrefix;
     }
-    
+
     public void setStdPrintStream(PrintStream psStd) {
         this.psStd = psStd;
     }
