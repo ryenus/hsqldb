@@ -1,5 +1,5 @@
 PROZEDUALE SPRACHE (PROCEDURAL LANGUAGE) BEFEHLE
-    *?                             PL Hilfe
+    * ?                            PL Hilfe
     * VARNAME = [neur Wert]        Weist der Variable einen Wert zu.
     * VARNAME !                    Löscht die Variable.
     * VARNAME ~                    Weist der Variable als Wert den Inhalt der
