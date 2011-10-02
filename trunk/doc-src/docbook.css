@@ -86,13 +86,15 @@ div.section h3.title {
 }
 div.section h4.title {
     /* level3 sections */
-    font-size: 123%;
+    font-size: 116%;
     font-weight: bold;
+    margin-left: 10px;
 }
 div.section h5.title {
     /* level4 sections */
-    font-size: 116%;
+    font-size: 110%;
     font-weight: bold;
+    margin-left: 20px;
 }
 
 span.remark        {
