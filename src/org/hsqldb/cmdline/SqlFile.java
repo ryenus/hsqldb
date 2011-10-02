@@ -253,7 +253,7 @@ public class SqlFile {
     // if the patterns are good.
 
     private boolean emptyVarsAsNulls() {
-        String sysP = System.getProperty("REMOVE_EMPTY_VARS");
+        String sysP = System.getProperty("sqltool.REMOVE_EMPTY_VARS");
         return sysP == null || Boolean.parseBoolean(sysP);
     }
 
@@ -686,7 +686,7 @@ public class SqlFile {
             scanner.setRawLeadinPrompt(SqltoolRB.raw_leadin.getString());
             if (interactive) {
                 stdprintln(SqltoolRB.SqlFile_banner.getString(revnum));
-                if (System.getProperty("REMOVE_EMPTY_VARS") == null) {
+                if (System.getProperty("sqltool.REMOVE_EMPTY_VARS") == null) {
                     stdprintln(
                             SqltoolRB.remove_empty_vars_suggestion.getString());
                 }
@@ -2557,7 +2557,8 @@ public class SqlFile {
                     shared.userVars.put(varName, m.group(3));
                 } else {
                     if (emptyVarsAsNulls()) {
-                        if (System.getProperty("REMOVE_EMPTY_VARS") == null) {
+                        if (System.getProperty("sqltool.REMOVE_EMPTY_VARS")
+                                == null) {
                             stdprintln(SqltoolRB.
                                     remove_empty_vars_suggestset.getString());
                         }
