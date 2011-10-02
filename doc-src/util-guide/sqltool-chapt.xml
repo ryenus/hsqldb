@@ -233,16 +233,16 @@
                   about setting PL variables to nothing.
                   In the future, by default, setting a PL variable to nothing,
                   like <literal>* name = Bruno</literal> will not unset/remove
-                  the variable but will instead assign the empty-string value.
+                  the variable but will instead assign an empty-string value.
                   There are important use cases for empty-string values.
                   In new scripts and interactively, from now on you should use
-                  the new PL command "<literal>* ! VARNAME</literal>" if you
+                  the new PL command "<literal>* - VARNAME</literal>" if you
                   really want to unset a variable.
                   If you do not set Java system property
                   '<literal>sqltool.REMOVE_EMPTY_VARS</literal>',
                   everything behaves just like before (except that you will be
-                  able to use the new <literal>* !</literal> command), but you
-                  will get the warnings.
+                  able to use the new <literal>* - VARNAME</literal> command),
+                  but you will get the warnings.
                   Set the value of the system property to 'true' to have the
                   same (old) behavior but to quiet the warnings.
                   Set the value of the system property to 'true' to have the
@@ -274,15 +274,19 @@
                 </simpara></listitem><listitem><simpara>
                     CSV exporting and importing.
                 </simpara></listitem><listitem><simpara>
-                    New "<literal>* ! VARNAME</literal> PL command added to
+                    New "<literal>* - VARNAME</literal>" PL command added to
                     explicitly unset a variable.
                     If you set Java system property
                     '<literal>sqltool.REMOVE_EMPTY_VARS</literal>' to
                     <literal>true</literal>, then you can use the normal
                     variable-set command ("<literal>* VARNAME =</literal>")
-                    to set a variable value to an empty string.
-                    This will become the default behavior of SqlTool before
-                    long, so you are encouraged to set this property.
+                    to set a variable value to an empty string, but use
+                    "<literal>* - VARNAME</literal>" instead except for legacy
+                    scripts.
+                    This '<literal>sqltool.REMOVE_EMPTY_VARS</literal>'
+                    <literal>true</literal> behavior will become the default
+                    behavior of SqlTool before long, so you are encouraged to
+                    set the property now.
                 </simpara></listitem><listitem><simpara>
                     The * command (just plain "<literal>*</literal>") has
                     been removed because it is no longer necessary.
@@ -1823,7 +1827,7 @@
               about variable usage.
             </simpara>
             </listitem></varlistentry>
-            <varlistentry><term>* VARNAME !</term><listitem><simpara>
+            <varlistentry><term>* - VARNAME</term><listitem><simpara>
                 <emphasis>Unset</emphasis> (remove) the specified variable.
 
             </simpara></listitem></varlistentry>
@@ -2726,7 +2730,7 @@ INSERT INTO musictbl (id, stream) VALUES(3112, ?);</screen>
                       I give a very brief but useful example of this below.
                   </simpara></listitem> <listitem><simpara>
                       You can unset PL variables other than ? using the
-                      <literal>* VARNAME !</literal> command.
+                      <literal>* - VARNAME</literal> command.
                   </simpara></listitem> <listitem><simpara>
                       In logical expressions (such as
                       <literal>* if (*{x} == 4)</literal>), you can use an
@@ -2734,8 +2738,14 @@ INSERT INTO musictbl (id, stream) VALUES(3112, ?);</screen>
                       If you use plain <literal>*VARNAME</literal>, only inside
                       logical expressions, then evaluation will be delayed
                       (which is what is usually desired) and unset variables
-                      are treated as empty strings instead of failing (exactly
-                      like <literal>*{:VARNAME}</literal>).
+                      are allowed instead of causing a failure.
+                      This is similar to <literal>*{:VARNAME}</literal>), but
+                      if <literal>VARNAME</literal> is unset,
+                      <literal>*{:VARNAME}</literal> != <literal>*VARNAME</literal>
+                      because the former resolves to <emphasis>unset</emphasis>
+                      (and is equal to all other unset variables) whereas the
+                      latter resolves to the empty string (which is equal to
+                      all other empty strings).
                   </simpara></listitem> <listitem><para>
                       You can't do math with expression variables, but you
                       can get functionality like the traditional
@@ -2842,7 +2852,6 @@ INSERT INTO musictbl (id, stream) VALUES(3112, ?);</screen>
     /* Explicitly turn on PL variable expansion, in case no variables have
        been set yet.  (Only the case if user did not set USER).
     */
-    *
 
     GRANT all ON book TO *{USER};
     GRANT all ON category TO *{USER};</programlisting>
@@ -2856,12 +2865,6 @@ INSERT INTO musictbl (id, stream) VALUES(3112, ?);</screen>
                 If the script is accidentally run without setting the
                 USER variable, SqlTool will give a very clear notificaton of
                 that.
-            </simpara> <simpara>
-                The purpose of the plain "*" command is just
-                so that the *{USER} variables will be expanded.
-                (This would not be necessary if the USER variable, or any
-                other variable, were set, but we don't want to depend upon
-                that).
             </simpara>
         </section>
         <section>
@@ -2886,6 +2889,11 @@ INSERT INTO musictbl (id, stream) VALUES(3112, ?);</screen>
                 will always be true or always be false.
                 (I.e. the following block will loop infinitely or will never
                 run).
+                Another difference between <literal>*{VARNAME}</literal>
+                and <varname>*VARNAME</varname> is that the latter resolves
+                to <emphasis>unset</emphasis> (this is very different from
+                the empty string that <varname>*{:VARNAME}</varname> would
+                resolve to).
             </simpara> <simpara>
                 Don't use quotes or whitespace of any kind in
                 <literal>*{VARNAME}</literal> variables in expressions.
@@ -2922,10 +2930,24 @@ INSERT INTO musictbl (id, stream) VALUES(3112, ?);</screen>
                     the same length but is greater according to a string sort.
                 </simpara></listitem></varlistentry>
                 <varlistentry><term>TOKEN1 &lt; TOKEN2</term><listitem><simpara>
-                    Similarly to TOKEN1 &gt; TOKEN2.
+                  Similarly to <literal>TOKEN1 &gt; TOKEN2</literal>.
                 </simpara></listitem></varlistentry>
                 <varlistentry><term>! LOGICAL_EXPRESSION</term><listitem><simpara>
                     Logical negation of any of the expressions listed above.
+                </simpara></listitem></varlistentry>
+                <varlistentry><term>TOKEN1 &gt;= TOKEN2</term><listitem><simpara>
+                  True if the TOKEN1 string is longer than TOKEN2 or is the
+                  same length but is greater or equal value according to a
+                  string sort.
+                </simpara></listitem></varlistentry>
+                <varlistentry><term>TOKEN1 =&gt; TOKEN2</term><listitem><simpara>
+                  Ditto.
+                </simpara></listitem></varlistentry>
+                <varlistentry><term>TOKEN1 &lt;= TOKEN2</term><listitem><simpara>
+                  Similarly to <literal>TOKEN1 &gt;= TOKEN2</literal>.
+                </simpara></listitem></varlistentry>
+                <varlistentry><term>TOKEN1 =&lt; TOKEN2</term><listitem><simpara>
+                  Ditto.
                 </simpara></listitem></varlistentry>
             </variablelist>
             <simpara>
@@ -3548,6 +3570,80 @@ INSERT INTO musictbl (id, stream) VALUES(3112, ?);</screen>
                 values to the specified columns of all inserted rows.
             </simpara>
         </section>
+    </section>
+
+    <section xml:id="sqltool_csv-sect">
+        <title>CSV Imports and Exports</title>
+        <simpara>
+          The only difference between CSV and DSV is that CSVs require
+          double-quote escaping and therefore the data may contain the column
+          delimiter.
+          To enable this double-quote escaping, just use commands
+          <literal>\xq</literal> and <literal>\mq</literal> instead of
+          <literal>\x</literal> and <literal>\m</literal>.
+          Conflicting with the name, CSV files do not need to use comma as the
+          column delimiter, and the tab character is a common alternative.
+        </simpara> <simpara>
+          I should also mention the trivial difference between
+          <literal>\xq</literal> and <literal>\x</literal>that if you do not
+          specify <literal>*DSV_TARGET_FILE</literal>, the default filename
+          suffix will be "<literal>.csv</literal>" instead of
+          "<literal>.dsv</literal>".
+        </simpara>
+        <variablelist>
+            <title>Options often set with CSV importing/exporting</title>
+            <varlistentry><term>*DSV_COL_DELIM</term><listitem><simpara>
+              Set to what column delimiter to write.
+              Values of "<literal>,</literal>" and
+              "<literal>\t</literal>" (without the quotes) are most common with
+              CSVs.
+            </simpara></listitem></varlistentry>
+            <varlistentry><term>*DSV_COL_SPLITTER</term><listitem><simpara>
+              Set to what column delimiter is used in the CSV file to read.
+              Values of "<literal>,</literal>" and
+              "<literal>\t</literal>" (without the quotes) are most common with
+              CSVs.
+            </simpara></listitem></varlistentry>
+            <varlistentry><term>*NULL_REP_TOKEN</term><listitem><simpara>
+               This effects only data coming from or destined to columns with
+               a string data type, because nulls can easily be distinguished
+               from non-nulls for other data types.
+               By default, SqlTool will distinguish between nulls and empty
+               strings for string columns.
+               Many CSV-support applications can't handle importing or exporting
+               nulls.
+               In you are interfacing to such an app,
+               set Java sytem property
+               '<literal>sqltool.REMOVE_EMPTY_VARS</literal>' to
+               <literal>false</literal>
+               and set <literal>*NULL_REP_TOKEN</literal> to the
+               empty string like "<literal>* *NULL_RP_TOKEN =</literal>".
+               This will cause both nulls and empty strings to write empty
+               strings to the export CSV file; and will cause empty strings in
+               the import CSV file to create nulls.
+               (The Java system property setting will become unnecessary soon
+               because that is going to be SqlTool's default behavior with an
+               upcoming release).
+            </simpara></listitem></varlistentry>
+            <varlistentry><term>*ALL_QUOTED</term><listitem><simpara>
+              Every cell value will be quoted upon \xq, instead of just those
+              values containing a column delimiter character or double-quote
+              that needs escaping.
+            </simpara></listitem></varlistentry>
+            <varlistentry><term>*DSV_COL_SPLITTER</term><listitem><simpara>
+            </simpara></listitem></varlistentry>
+        </variablelist>
+        <para>
+          This sample shows everything you need to know to get going with CSV.
+          <filename xlink:href="#csv-sample.sql-link">
+            csv-sample.sql</filename>
+          <footnoteref linkend='samplelocFn'/>.
+          <example>
+            <title>Sample CSV export + import script</title>
+            <programlisting><xi:include href="../verbatim/sample/csv-sample.sql"
+                                        parse="text"/></programlisting>
+          </example>
+        </para>
     </section>
 
     <section xml:id="sqltool_unittest-sect">
