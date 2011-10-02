@@ -222,123 +222,46 @@
               of SQL scripts.
               For this revision of this document, this list consists of
               script-impacting changes made to SqlTool
-              <emphasis>after</emphasis> the final 1.8.0.0 HSQLDB release.
-              I'm specifically not listing changes to interactive(:)-only
-              commands ( with one legacy exception which is listed below),i
-              since these commands can't be used in SQL scripts;
-              and I'm specifically not listing backwards-compatible feature
-              additions and enhancements.
-              The reason for limiting the change list to only portability-
-              impacting changes is that a list of all enhancements since
-              just 1.8.1.1 would be pages long.
+              <emphasis>after</emphasis> the final 2.0.0 HyperSQL release.
             </simpara>
             <itemizedlist>
                 <listitem><simpara>
-                 SqlTool is now bundled in the supplied file
-                 <literal>sqltool.jar</literal> instead of
-                 <filename>hsqldb.jar</filename>.
-                 Therefore, the usage idiom
-                 <literal>java -jar .../hsqldb.jar</literal> has changed to
-                 <literal>java -jar .../sqltool.jar</literal>.
-                 (depending on where you get your HyperSQL resources from,
-                 these files may be named with a version label, like
-                 <filename>sqltool-1.2.3.4.jar</filename>).
-                </simpara></listitem><listitem><simpara>
-                 The package of SqlTool and support classes has been changed
-                 from <classname>org.hsqldb.util</classname> to
-                 <classname>org.hsqldb.cmdline</classname>.
-                 There is no change to <literal>java -jar...</literal> command-lines,
-                 but you will need to change the package name in SqlTool
-                 command lines of the form <literal>java... org.hsqldb...</literal>.
-                 This later usage is necessary if you need to modify the
-                 classpath for any reason, such as for embedding, to use a
-                 logging config file, or to use a non-HSQLDB JDBC driver.
-                </simpara></listitem><listitem><simpara>
-                  SqlTool now consistently outputs \r\n line breaks when
-                  on \r\n-linebreak platforms, like Windows.
-                  This includes output written to stdout, \w files,
-                  and \o files.
-                </simpara></listitem><listitem><simpara>
-                  Time type values are always output with the date as
-                  well as the time.
-                  This was required in order to produce consistent output
-                  for the wildly varying formats provided by different
-                  database vendors.
-                </simpara></listitem><listitem><simpara>
-                  DSV input now takes JDBC Timestamp format with date and
+                  DSV input now accepts JDBC Timestamp format with date and
                   optionally time of day.
                 </simpara></listitem><listitem><simpara>
-                  The command ":;" is now strictly an interactive command.
-                  If you want to repeat a command in an SQL scripts, just
-                  repeat the exact text of the command.
-                  Non-interactive use now has no dependency on command history.
+                  When you run SqlTool interactively, you will see warnings
+                  about setting PL variables to nothing.
+                  In the future, by default, setting a PL variable to nothing,
+                  like <literal>* name = Bruno</literal> will not unset/remove
+                  the variable but will instead assign the empty-string value.
+                  There are important use cases for empty-string values.
+                  In new scripts and interactively, from now on you should use
+                  the new PL command "<literal>* ! VARNAME</literal>" if you
+                  really want to unset a variable.
+                  If you do not set Java system property
+                  '<literal>sqltool.REMOVE_EMPTY_VARS</literal>',
+                  everything behaves just like before (except that you will be
+                  able to use the new <literal>* !</literal> command), but you
+                  will get the warnings.
+                  Set the value of the system property to 'true' to have the
+                  same (old) behavior but to quiet the warnings.
+                  Set the value of the system property to 'true' to have the
                 </simpara></listitem><listitem><simpara>
-                  The command ":w" has replace the command \w.
-                  Unlike writing "output" to a file with \w, :w is used to
-                  write SQL "commands", and this is an interactive feature.
-                </simpara></listitem><listitem><simpara>
-                  Shell scripts using raw mode (e.g. PL/SQL scripts) must
-                  terminate the raw code with a line containing ".;", which
-                  will also send the code to the database for execution.
-                  (The old "." command has been changed to ":." to make it
-                  very clear that that command is now an interactive command).
-                </simpara></listitem><listitem><simpara>
-                  You must use raw mode to <emphasis>chunk</emphasis> SQL
-                  statements to your DB server.
-                  I.e., with previous versions of SqlTool, SQL statements
-                  were only sent to the DB server when a semi-colon is read
-                  at the end of a line.
-                  SqlTool now has a much more powerful parser, and individual
-                  SQL statements are sent to the DB server as soon as they
-                  are terminated with a semi-colon, regardless of line
-                  delimiters.
-                  Therefore, to send multiple SQL statements to the DB server
-                  in one transmittal, you must use raw mode.
-                </simpara></listitem><listitem><simpara>
-                  The --sql argument will never automatically append a
-                  semicolon to the text you provide.
-                  If you want to execute a command ending with a semi--
-                  then type a semi.
-                </simpara></listitem><listitem><simpara>
-                  Default encoding used is now the platform's default encoding
-                  instead of <literal>US-ASCII</literal>.
-                </simpara></listitem><listitem><simpara>
-                  To minimize side-effects (especialy for instance-based
-                  programmatic usage), the only System properties used are
-                  those predefined by the JVM (incl.
-                  <literal>javax.net.ssl.*</literal>.
-                  Properties of the form <literal>sqlfile.*</literal> and
-                  <literal>sqltool.*</literal> are specifically no longer
-                  supported.
-                  (Less invasive configuration systems are provided to serve
-                  the same purposes).
-                </simpara></listitem><listitem><simpara>
-                  SqlTool no longer displays the usage banner if none of
-                  inline-RC, urlid, SQL files are supplied, because that now
-                  starts up SqlTool with no JDBC Connection.
-                  To see the usage banner, use the <literal>--help</literal>
-                  command-line switch.
-                </simpara></listitem><listitem><simpara>
-                  Requires Java 1.5 in order to build or run.
-                </simpara></listitem><listitem><simpara>
-                  Update and row counts are not displayed in non-interactive
-                  mode.
-                  The count values are readily available in a format more
-                  suitable for scripting uses through PL variables (like with
-                  <literal>*{?}</literal> or <literal>* VARNAME _</literal>).
+                  The simplest PL command, just "<literal>*</literal>", has
+                  been deprecated.  It is now useless since the only time
+                  where variables are not expanded are in SQL commands if no
+                  user variable has been set.
+                  Since you obviously must set at least one variable value if
+                  you intend for variable substitution to succeed, the purpose
+                  of the old * command is satisfied intuitively and
+                  automatically now.
+                  (That purpose being to prevent modification of SQL text
+                  without the operator's knowledge).
                 </simpara></listitem>
             </itemizedlist>
-            <simpara>
-                Although it doesn't effect scripts, I will mention a
-                significant recent change to interactive commands which could
-                confuse existing power users.
-                Special and PL commands are now stored to the edit buffer
-                and to command history, so they can be recalled and edited
-                just like SQL commands.  Now, all commands other than
-                edit/history : commands are stored to the buffer and history.
-            </simpara>
         </section>
         <section><title>New Features</title>
+          <subtitle>Since 2.0.0 final</subtitle>
             <itemizedlist>
                 <listitem><simpara>
                     You can (and if you use nested scripts, you probably
@@ -347,80 +270,31 @@
                     This makes them relative to the parent script directory
                     instead of to the invocation current directory.
                 </simpara></listitem><listitem><simpara>
-                    DSV column and row delimiters are now specified
-                    separately for input and output.
-                    This allows the input delimiters to be regular expressions.
-                    (Which in turn, allows for the next item).
+                    More accepting of dates and times in DSV imports.
                 </simpara></listitem><listitem><simpara>
-                    The new default DSM import row delimiter works for
-                    standard UNIX, Windows, Mac lines.
-                    This makes DSV files portable across these platforms.
-                    (If using a change control system like Subversion, CVS,
-                    or whatever, you can now change control your .dsv files
-                    as native ASCII files).
+                    CSV exporting and importing.
                 </simpara></listitem><listitem><simpara>
-                    Both <literal>/* This kind */</literal> and
-                    <literal>-- This kind</literal> of comments are now
-                    handled generally and intuitively, in SQL statements
-                    and in SqlTool-specific commands.
-                    (There were previously several limitations to where they
-                    could be used).
+                    New "<literal>* ! VARNAME</literal> PL command added to
+                    explicitly unset a variable.
+                    If you set Java system property
+                    '<literal>sqltool.REMOVE_EMPTY_VARS</literal>' to
+                    <literal>true</literal>, then you can use the normal
+                    variable-set command ("<literal>* VARNAME =</literal>")
+                    to set a variable value to an empty string.
+                    This will become the default behavior of SqlTool before
+                    long, so you are encouraged to set this property.
                 </simpara></listitem><listitem><simpara>
-                    At the cost of adding another
-                    <emphasis>command type</emphasis>, command aliases were
-                    replaced by / <emphasis>macros</emphasis>.
-                    Usage (i.e., execution) is basically the same, but the new
-                    macros are much easier to define and list; and macros can
-                    be used for both PL and Special commands now (not just
-                    for SQL statements).
+                    The * command (just plain "<literal>*</literal>") has
+                    been removed because it is no longer necessary.
+                    (See item on it in the previous section of this manual).
                 </simpara></listitem><listitem><simpara>
-                    Reports Transaction Isolation level and JDBC Connection
-                    Read/Write or Read-Only state connection or request
-                    (with \j).
+                    Bugs in variable scoping have been fixed.
+                    All variables are global and shared among auto.sql, all
+                    command-line and nested SQL scripts, and interactive shells.
                 </simpara></listitem><listitem><simpara>
-                    New \t command to report database exection duration times.
-                </simpara></listitem><listitem><simpara>
-                    New \v command to set or report the Connection's
-                    Transaction Isolation LeVel.
-                </simpara></listitem><listitem><simpara>
-                    <literal>\d object filter</literal> commands now use the
-                    filter as a regular expression, where possible, and
-                    filter may have optional prefix / to mean to match the
-                    filter against all output (not just the object name).
-                </simpara></listitem><listitem><simpara>
-                    <literal>\dX filter</literal> commands now use the
-                    filter as a regular expression, where possible.
-                </simpara></listitem><listitem><simpara>
-                    New <varname>*DSV_TRIM_ALL</varname> to automatically
-                    handle import of
-                    data which is both positional and character-delimited.
-                </simpara></listitem><listitem><simpara>
-                    New \l command to log user-specified messages with
-                    <classname>java.util.logging</classname> or Log4j
-                    logging facility.
-                    Nothing at all is written directly to stderr.
-                </simpara></listitem><listitem><simpara>
-                    All warnings and messages now use logging facility.
-                    This allows for declarative fine control of what gets
-                    logged and where the messages go to, as well as allowing
-                    for embedded apps to manage SqlTool apps in an integrated
-                    fashion with other app log entries.
-                </simpara></listitem><listitem><simpara>
-                    New *DSV_RECORDS_PER_COMMIT setting to support
-                    user-specified tuning of large DSV imports.
-                </simpara></listitem><listitem><simpara>
-                    (Optional) DSV log report can be customized with style
-                    sheets.
-                </simpara></listitem><listitem><simpara>
-                    You can interactively (or in SQL scripts) switch JDBC data
-                    sources (with \j).
-                    SqlTool can be started and used without any data source,
-                    though you'll obviously need to connect to a data source
-                    before issuing SQL commands.
-                </simpara></listitem><listitem><simpara>
-                  Array types are now supported, including in DSV imports and
-                  exports, with the exception that DSV imports do not support
-                  element values containing commas.
+                    A variable sharing bug has been fixed so that SqlTool
+                    system variables (with names starting with "*") are now
+                    honored no matter how or where the variable value was set.
                 </simpara></listitem>
             </itemizedlist>
         </section>
