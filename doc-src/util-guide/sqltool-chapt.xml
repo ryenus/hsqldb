@@ -2287,6 +2287,14 @@ echo "See log file y:$HOME/log/app.log" | mailx -s "App aborted on host y" recip
                     Print the given string to stdout.
                     Just give "\p" alone to print a blank line.
                 </simpara></listitem></varlistentry>
+                <varlistentry><term>\l SEVERITY_LEVEL text to log</term><listitem><simpara>
+                    The logging subsystem will display and/or log and/or email
+                    or whatever, depending on how you have it configured.
+                    To see where messages go by default, just play with it
+                    interactively.
+                    Run "<literal>\l?</literal>" to list the available
+                    severity levels.
+                </simpara></listitem></varlistentry>
                 <varlistentry><term>\i /path/to/file.sql</term><listitem><simpara>
                     Include another SQL file at this location.
                     You can use this to nest SQL files.
@@ -2384,7 +2392,7 @@ echo "See log file y:$HOME/log/app.log" | mailx -s "App aborted on host y" recip
                 In this case, do not give the sql file(s) as an argument to
                 SqlTool, but pipe them in instead, like
                 <informalexample>
-                  <screen><![CDATA[java -jar $HSQLDB_HOME/lib/sqltool.jar urlid < filepath1.sql > /tmp/log.html 2]]></screen>
+                  <screen><![CDATA[java -jar $HSQLDB_HOME/lib/sqltool.jar urlid < filepath1.sql > /tmp/log.html 2>&1]]></screen>
               </informalexample>
                 or
               <informalexample>
@@ -2581,25 +2589,23 @@ INSERT INTO musictbl (id, stream) VALUES(3112, ?);</screen>
             <emphasis>significant</emphasis> shell scripting, I mean to the
             extent of using variables, for loops, etc.).
         </simpara> <simpara>
-            PL variables will only be expanded after you run a PL command (or
-            set variable(s) from the command-line).
-            We only want to turn on variable expansion if the user wants
-            variable expansion.
-            People who don't use PL don't have to worry about strings getting
-            accidentally expanded.
+            It generally causes an error to reference a variable that has not
+            been set.
+            SqlTool will always attempt to de-reference PL variable and Java
+            system property references, except for (a) in : commands, and
+            (b) in SQL statements if no user PL variable has been set.
+            Since you should never be trying to dereference a PL variable if
+            none have been set, the practical implications are just: If you
+            want Java system properties to be de-referenced, just make sure
+            that any PL user variable is set;
+            and if you have strings like <literal>${this}</literal> appear in
+            your SQL text (which you do not want expanded), unset all user PL
+            variables before executing that text (if any have been set earlier).
+            The purpose of this system is to avoid changing user-specified SQL
+            without the user knowing it.
+            People who don't use PL at all don't have to worry about strings
+            getting accidentally expanded.
         </simpara> <simpara>
-            All other PL commands imply the "*" command, so you only need to
-            use the "*" statement if your script uses PL variables
-            and it is possible that no variables may be set before-hand (and
-            no PL commands have been run previously).
-            In this case, without "*", your script would silently use a
-            literal value like "*{x}" instead of trying to expand it.
-            With a preceding "*" command, PL will notice that the variable
-            <literal>x</literal> has not been set and will generate an error.
-            (If x had been set here will be no issue because setting a
-            variable automatically turns on PL variable expansion).
-        </simpara>
-        <simpara>
             PL is also used to upload and download column values to/from
             local ASCII files, analogously to the special \b commands
             for binary files.
