@@ -71,7 +71,7 @@
             database).
       </simpara> <important> <simpara>
           The SqlTool commands and settings are intuitive once you are
-          famililar with the usage idioms.
+          familiar with the usage idioms.
           This Guide does not attempt to list every SqlTool command and
           option available.
           When you want to know what SqlTool commands or options are available
@@ -483,7 +483,7 @@
             SqlTool does not <emphasis>commit</emphasis> SQL changes by default.
             (You can use the <literal>--autoCommit</literal> command-line
             switch to have it auto-commit).
-            This leaves it to the user's disgression whether to commit or
+            This leaves it to the user's discression whether to commit or
             rollback their modifications.
             If you do want your changes committed, remember to run \= before
             quitting SqlTool.
@@ -1302,7 +1302,7 @@
                 and conditional and flow control statements like
                 <literal>* if</literal> and <literal>* while</literal>.
                 A few PL features (such as macros and updating and
-                selecing data directly from/to files) can be a real
+                selecting data directly from/to files) can be a real
                 convenience for nearly all users, so these features will be
                 discussed briefly in this section.
                 More detailed explanation of PL variables and the other
@@ -1379,7 +1379,7 @@
                 It's obviously unnecessary if you have auto-commit mode on.
             </simpara></listitem></varlistentry>
             <varlistentry><term>\m?</term><listitem><simpara>
-              List a summary of DSV and CSV emporting,
+              List a summary of DSV and CSV importing,
               and all available options for them.
               You can use variables in the file path specifications, as
               described for the \i command above.
@@ -1678,7 +1678,7 @@
                         Use "i" to make the searches for
                         <emphasis>from regex</emphasis> case insensitive.
                     </para></listitem> <listitem><para>
-                        Use "g" to substitute Globally, i.e., to subsitute
+                        Use "g" to substitute Globally, i.e., to substitute
                         <emphasis>all</emphasis> occurrences of the
                         <emphasis>from regex</emphasis> instead of only the
                         first occurrence found.
@@ -1816,7 +1816,7 @@
               to nothing, like
                 <programlisting>    * VARNAME =</programlisting>
               does it.
-              You are encouraged to use this behavior by setting the sytem
+              You are encouraged to use this behavior by setting the system
               property, because this will become the default behavior of
               SqlTool shortly (i.e. even if you don't set the system
               property).
@@ -1837,7 +1837,7 @@
             <varlistentry><term>* prepare VARNAME</term><listitem><simpara>
                 Indicate that next command should be a SQL INSERT or UPDATE
                 command containing one question mark.
-                The value of VARNAME will be substuted for the ? variable.
+                The value of VARNAME will be substituted for the ? variable.
                 This does work for CLOB columns.
             </simpara></listitem></varlistentry>
             <varlistentry><term>* VARNAME _</term><listitem><simpara>
@@ -2327,7 +2327,7 @@ echo "See log file y:$HOME/log/app.log" | mailx -s "App aborted on host y" recip
                     encountered.
                     The current transaction will not be rolled back upon SQL
                     errors, so if \c is true, then run the
-                    <literal>ROLLCACK;</literal> command yourself if that's
+                    <literal>ROLLBACK;</literal> command yourself if that's
                     what you want to happen.
                     The default for interactive use is to continue upon error,
                     but the default for non-interactive use is to abort upon
@@ -2623,7 +2623,7 @@ INSERT INTO musictbl (id, stream) VALUES(3112, ?);</screen>
             <variablelist>
               <title>Variable Types</title>
               <varlistentry><term>Database/SQL Variables</term><listitem><simpara>
-                SqlTool has no control over variable mechanmisms provided by
+                SqlTool has no control over variable mechanisms provided by
                 the SQL implementation or database vendor.
                 You can use such constructs only in SQL commands, since the
                 other command types never reach the database engine.
@@ -3619,7 +3619,7 @@ INSERT INTO musictbl (id, stream) VALUES(3112, ?);</screen>
                Many CSV-support applications can't handle importing or exporting
                nulls.
                In you are interfacing to such an app,
-               set Java sytem property
+               set Java system property
                '<literal>sqltool.REMOVE_EMPTY_VARS</literal>' to
                <literal>false</literal>
                and set <literal>*NULL_REP_TOKEN</literal> to the
