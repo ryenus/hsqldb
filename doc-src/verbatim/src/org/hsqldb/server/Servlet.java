@@ -183,15 +183,18 @@ public class Servlet extends javax.servlet.http.HttpServlet {
             dbType = dbURL.getProperty("connection_type");
 
             try {
-
                 DatabaseManager.getDatabase(dbType, dbPath, dbURL);
             } catch (HsqlException e) {
                 errorStr = e.getMessage();
             }
         }
 
-        log(errorStr);
-        log("Initialization completed.");
+        if (errorStr == null) {
+            log("Initialization completed.");
+        } else {
+            log("Database could not be initialised.");
+            log(errorStr);
+        }
     }
 
     private static long lModified = 0;
