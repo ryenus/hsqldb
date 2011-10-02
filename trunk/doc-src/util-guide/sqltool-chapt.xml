@@ -184,7 +184,7 @@
             I don't have to contort my fingers to type them :).
         </simpara> <simpara>
             If you are using SqlTool from a HyperSQL distribution of version
-            1.8.x or earlier, you should use the documentation with that
+            2.2.5 or earlier, you should use the documentation with that
             distribution, because this manual documents many new features,
             several significant changes to interactive-only commands, and
             a few changes effecting backwards-compatibility (see next
@@ -204,7 +204,7 @@
             (Dotted version numbers of SqlTool and SqlFile definitely indicate
             ancient versions).
         </simpara> <simpara>
-            This guide covers SqlTool as bundled with HSQLDB after 1.8.x.
+            This guide covers SqlTool as bundled with HSQLDB after 2.2.5.
             <footnote label='1' xml:id='samplelocFn'><simpara>
             To reduce the time I will need to spend maintaining this document,
             in this chapter I am giving the path to the
@@ -293,7 +293,7 @@
                     command-line and nested SQL scripts, and interactive shells.
                 </simpara></listitem><listitem><simpara>
                     A variable sharing bug has been fixed so that SqlTool
-                    system variables (with names starting with "*") are now
+                    system PL variables (with names starting with "*") are now
                     honored no matter how or where the variable value was set.
                 </simpara></listitem>
             </itemizedlist>
@@ -1229,6 +1229,19 @@
             you had just typed it in.
         </simpara>
         </section>
+        <section><title>Emulating Non-Interactive mode</title>
+            <simpara>
+            You can run SqlTool <emphasis>interactively</emphasis>, but
+            have SqlTool behave exactly as if it were processing an SQL
+            file (i.e., no command-line prompts, error-handling
+            that defaults to fail-upon-error, etc.).
+            Just specify "-" as the SQL file name in the command line.
+            This is a good way to test what SqlTool will do when it
+            encounters any specific command in an SQL file.
+            See the <link xlink:href='#sqltool_scripting-sect' endterm='scripting-title'/>
+            subsection of the Non-Interactive chapter for an example.
+            </simpara>
+        </section>
         </section>
         <section><title>Command Types</title>
         <variablelist><title>Command types</title>
@@ -1315,7 +1328,9 @@
         <section><title>Special Commands</title>
         <variablelist><title>Essential Special Commands</title>
             <varlistentry><term>\?</term><listitem><simpara>
-                help
+                  help.
+                  <emphasis role="bold">Run this show ALL available Special
+                  Commands instead of just the subset listed here!</emphasis>
             </simpara></listitem></varlistentry>
             <varlistentry><term>\q</term><listitem><simpara>
                 quit
@@ -1326,24 +1341,48 @@
                 Run \? to see the syntax for the different usages.
             </simpara></listitem></varlistentry>
             <varlistentry><term>\i path/to/script.sql</term><listitem><simpara>
-                execute the specified SQL script, then continue again
+                Execute the specified SQL script, then continue again
                 interactively.
                 Since SqlTool is a Java program, you can safely use forward
                 slashes in your file paths, regardless of your operating
                 system.
+                You can use Java system properties like
+                <literal>${user.home}</literal>, PL variables like
+                <literal>*{this}</literal> and <literal>@</literal> in your
+                file paths.
+                The last is mostly useful for \i statements inside of SQL files,
+                where it means the directory containing the
+                <emphasis>current</emphasis> script.
+            </simpara></listitem></varlistentry>
+            <varlistentry><term>\c true  (or false)</term><listitem><simpara>
+                Change error-handling (<emphasis>Continue-on-error</emphasis>)
+                behavior from the default.
+                By default when SqlTool is run interactively, errors will be
+                reported but SqlTool will continue to process subsequent
+                commands.
+                By default when SqlTool is run non-interactively, errors will
+                also cause SqlTool to stop processing the current stream
+                (like stdin) or SQL file.
+                The default settings are usually what is desired, except for
+                SQL scripts which need to abort upon failures, even when
+                invoked manually (including for interactive testing purposes).
             </simpara></listitem></varlistentry>
             <varlistentry><term>\=</term><listitem><simpara>
-                commit the current SQL transaction.
+                Commit the current SQL transaction.
                 Most users are used to typing the SQL statement
                 <literal>commit;</literal>, but this command is crucial for
                 those databases which don't support the statement.
                 It's obviously unnecessary if you have auto-commit mode on.
             </simpara></listitem></varlistentry>
-            <varlistentry><term>\x?</term><listitem><simpara>
-                List a summary of DSV eXporting, and all available DSV options.
-            </simpara></listitem></varlistentry>
             <varlistentry><term>\m?</term><listitem><simpara>
-                List a summary of DSV iMporting, and all available DSV options.
+              List a summary of DSV and CSV emporting,
+              and all available options for them.
+              You can use variables in the file path specifications, as
+              described for the \i command above.
+            </simpara></listitem></varlistentry>
+            <varlistentry><term>\x?</term><listitem><simpara>
+              List a summary of DSV and CSV eXporting,
+              and all available options for them.
             </simpara></listitem></varlistentry>
             <varlistentry><term>\d?</term><listitem><simpara>
                 List a summary of the \d commands below.
@@ -1450,7 +1489,7 @@
                 To narrow the displayed information based on all column
                 outputs, instead of just the column names, just prefix the
                 expression with /.
-                For example, to list all INTERGER columns, you could run
+                For example, to list all INTEGER columns, you could run
                 <literal>\d mytable /INTEGER</literal>.
                 </simpara><tip><simpara>
                 When working with real data (as opposed to learning or playing),
@@ -1464,8 +1503,9 @@
         </variablelist>
         <simpara>
             This list here includes only the <emphasis>essential</emphasis>
-            Special Commands, but n.b. that there are other useful Special
-            Commands which you can list by running <literal>\?</literal>.
+            Special Commands, but n.b. that
+            <emphasis role='bold'>there are other useful Special Commands
+            which you can list by running <literal>\?</literal></emphasis>.
             (You can, for example, execute SQL from external SQL files, and
             save your interactive SQL commands to files).
             Some specifics of these other commands are specified immediately
@@ -1484,11 +1524,6 @@
             code in SqlTool).
             Because of this, you can give as many command-line arguments
             as you wish, but you can't use shell wildcards or redirection.
-        </simpara> <simpara>
-            The \w command can be used to store any command in your SQL
-            history to a file.
-            Just restore the command to the edit buffer
-            with a command like "\-4" before you give the \w command.
         </simpara>
         </section>
         <section><title>Edit Buffer / History Commands</title>
@@ -1673,6 +1708,9 @@
                 to the specified file.
                 Since what is being written are Special, PL, or SQL commands,
                 you are effectively creating an SQL script.
+                To write some previous command to a file,
+                just restore the command to the edit buffer
+                with a command like "\-4" before you give the \w command.
             </simpara></listitem></varlistentry>
         </variablelist>
         <para>
@@ -1721,11 +1759,40 @@
             use "(?-i)" at the beginning of your regular expression to
             be case-sensitive.
         </simpara>
+        <section><title>Command History</title>
+          <para>
+            The SQL history shown by the :h command, and used by other commands,
+            is truncated to 100 entries, since its utility comes from being
+            able to quickly view the history list.
+            You can change the history length by setting the system property
+            <literal>sqltool.historyLength</literal> to the desire integer
+            value (using any of the System Property mechanisms provided by
+            Java).
+            If there is any demand, I'll make the setting of this value more
+            convenient.
+          </para> <simpara>
+            The SQL history list contains all executed commands other than
+            Edit Buffer commands and comments, even if the command has a
+            syntax error or fails upon execution.
+            The reason for including bad commands is so that you can
+            recall and fix them if you wish to.
+            The same applies to the edit buffer.
+            If you copy a command to the edit buffer by entering blank
+            line, or if you edit the edit buffer, that edit buffer value
+            will never make it into the command history until and if
+            you execute it.
+          </simpara>
+        </section>
         </section>
 
         <section xml:id='sqltool_interactive_pl_commands-sect'>
         <title>PL Commands</title>
         <variablelist><title xml:id='interactive_pl_commands-title'>Essential PL Command</title>
+            <varlistentry><term>* ?</term><listitem><simpara>
+                  help.
+                  <emphasis role="bold">Run this show ALL available PL
+                  Commands instead of just the subset listed here!</emphasis>
+            </simpara></listitem></varlistentry>
             <varlistentry><term>* VARNAME = value</term><listitem><simpara>
                 Set the value of a variable.
                 If the variable doesn't exist yet, it will be created.
@@ -1737,15 +1804,29 @@
                 <literal>*{:VARNAME}</literal> is that the former produces an
                 error if VARNAME is not set, whereas the latter will expand
                 to a zero-length string if VARNAME is not set.
-            </simpara><simpara>
-                If you put variable definitions into the SQL file
-                <filename>auto.sql</filename> in your home directory, those
-                variables will always be available for interactive use.
-            </simpara> <simpara>
-                PL variables can be expanded within all commands other than
-                : edit/history commands.
+            </simpara><warning><para>
+              With the current version of SqlTool, it is impossible to set
+              the value of a variable to the empty string unless you set
+              Java system property <literal>sqltool.REMOVE_EMPTY_VARS</literal>
+              to <literal>false</literal>, in which case, setting a variable
+              to nothing, like
+                <programlisting>    * VARNAME =</programlisting>
+              does it.
+              You are encouraged to use this behavior by setting the sytem
+              property, because this will become the default behavior of
+              SqlTool shortly (i.e. even if you don't set the system
+              property).
+            </para></warning><simpara>
+              See
+              <link xlink:href='#sqltool_variables-sect'
+                    endterm='variables-title'/> subsection for information
+              about variable usage.
             </simpara>
             </listitem></varlistentry>
+            <varlistentry><term>* VARNAME !</term><listitem><simpara>
+                <emphasis>Unset</emphasis> (remove) the specified variable.
+
+            </simpara></listitem></varlistentry>
             <varlistentry><term>* load VARNAME /file/path.txt</term><listitem><simpara>
                 Sets VARNAME to the content of the specified ASCII file.
             </simpara></listitem></varlistentry>
@@ -1772,126 +1853,12 @@
                 Store the value of VARNAME to the specified ASCII file.
             </simpara></listitem></varlistentry>
         </variablelist>
-        <section>
-          <title>? Variable</title>
-          <para>
-            You don't set the ? variable.
-            It is just like the Bourne shell variable $? in that it is always
-            automatically set to the first value of a result set (or the
-            return value of other SQL commands).
-            It works just like the <literal>* VARNAME ~</literal>
-            command described above, but it all happens automatically.
-            You can, of course, dereference ? like any PL variable, but it
-            does not list with the <literal>list</literal> and
-            <literal>listvalues</literal> commands.
-            You can see the value whenever you want by running
-            <informalexample><programlisting>    \p *{?}</programlisting></informalexample>
-          </para>
         <simpara>
-            Note that PL commands are used to upload and download column
-            values to/from local ASCII files, but the corresponding actions
-            for binary files use the special \b commands.
-            This is because PL variables are used for ASCII values and
-            you can store any number of column values in PL variables.
-            This is not true for binary column values.
-            The \b commands work with a single binary byte buffer.
-        </simpara> <simpara>
-            See the <link xlink:href='#sqltool_pl-sect' endterm='pl-title'/> section
-            below for information on using variables in other ways, and
-            information on the other PL commands and features.
+            This list here includes only the <emphasis>essential</emphasis>
+            PL Commands, but n.b. that
+            <emphasis role='bold'>there are other useful PL Commands
+            which you can list by running <literal>* ?</literal></emphasis>.
         </simpara>
-        </section>
-        <section xml:id='sqltool_binary_files-sect'>
-            <title xml:id='binary_files-title'>
-                Storing and retrieving binary files</title>
-        <simpara>
-            You can upload binary files such as photographs, audio files,
-            or serialized Java objects into database columns.
-            SqlTool keeps one binary buffer which you can load from files
-            with the \bl command, or from a database query by doing a
-            one-row query for any non-displayable type (including
-            <literal>BLOB</literal>, <literal>OBJECT</literal>, and
-            <literal>OTHER</literal>).
-            In the latter case, the data returned for the first
-            non-displayable column of the first result row will be stored
-            into the binary buffer.
-        </simpara><simpara>
-            Once you have data in the binary buffer, you can upload it
-            to a database column (including <literal>BLOB</literal>,
-            <literal>OBJECT</literal>, and <literal>OTHER</literal> type
-            columns), or save it to a file.
-            The former is accomplished by the special command \bp followed
-            by a <emphasis>prepared</emphasis> SQL query containing one
-            question mark place-holder to indicate where the data gets
-            inserted.
-            The latter is accomplished with the \bd command.
-        </simpara><simpara>
-            You can also store the output from normal, displayable column
-            into the binary buffer by using the special command \b.
-            The very first column value from the first result row of the
-            next SQL command will be stored to the binary byte buffer.
-        </simpara>
-        <example><title>Inserting binary data into database from a file</title>
-          <screen>    \bl /tmp/favoritesong.mp3
-    \bp
-    INSERT INTO musictbl (id, stream) VALUES(3112, ?);</screen>
-        </example>
-        <example><title>Downloading binary data from database to a file</title>
-            <screen>    SELECT stream FROM musictbl WHERE id = 3112;
-    \bd /tmp/favoritesong.mp3</screen>
-        </example>
-        <simpara>
-            You can also store and retrieve text column values to/from
-            ASCII files, as documented in the
-            <link xlink:href='#sqltool_interactive_pl_commands-sect' endterm='interactive_pl_commands-title'/>
-            section.
-        </simpara>
-        </section>
-        <section><title>Command History</title>
-        <para>
-            The SQL history shown by the \h command, and used by other commands,
-            is truncated to 100 entries, since its utility comes from being
-            able to quickly view the history list.
-            You can change the history length by setting the system property
-            <literal>sqltool.historyLength</literal> to the desire integer
-            value (using any of the System Property mechanisms provided by
-            Java).
-            If there is any demand, I'll make the setting of this value more
-            convenient.
-        </para> <simpara>
-            The SQL history list contains all executed commands other than
-            Edit Buffer commands and comments, even if the command has a
-            syntax error or fails upon execution.
-            The reason for including bad commands is so that you can
-            recall and fix them if you wish to.
-            The same applies to the edit buffer.
-            If you copy a command to the edit buffer by entering blank
-            line, or if you edit the edit buffer, that edit buffer value
-            will never make it into the command history until and if
-            you execute it.
-        </simpara>
-        </section>
-        <section><title>Shell scripting and command-line piping</title>
-            <simpara>
-            You normally use non-interactive mode for input piping.
-            You specify "-" as the SQL file name.
-            See the <link xlink:href='#sqltool_scripting-sect' endterm='scripting-title'/>
-            subsection of the Non-Interactive chapter.
-            </simpara>
-        </section>
-        <section><title>Emulating Non-Interactive mode</title>
-            <simpara>
-            You can run SqlTool <emphasis>interactively</emphasis>, but
-            have SqlTool behave exactly as if it were processing an SQL
-            file (i.e., no command-line prompts, error-handling
-            that defaults to fail-upon-error, etc.).
-            Just specify "-" as the SQL file name in the command line.
-            This is a good way to test what SqlTool will do when it
-            encounters any specific command in an SQL file.
-            See the <link xlink:href='#sqltool_scripting-sect' endterm='scripting-title'/>
-            subsection of the Non-Interactive chapter for an example.
-            </simpara>
-        </section>
     </section>
 
     <section xml:id='sqltool_nonint-sect'>
@@ -1902,6 +1869,23 @@
             because much of what is in this section builds upon that.
             You can skip all discussion about Command History and the
             edit buffer if you will not use those interactive features.
+        </simpara>
+        <simpara>
+          SqlTool system PL variables control behavior (for example, they
+          control many aspects of DSV importing and exporting).
+          User PL variables can be used to make your scripts dynamic and for
+          conditional actions.
+          Both system and user PL variables can be set by
+          <literal>--setvar</literal> switch or PL commands in
+          <literal>--sql</literal> switches or SQL files (as well as in
+          <filename>auto.sql</filename> for interactive usage).
+          Since the variables are all global and shared across contexts, the
+          variables thus set effect behavior of all subsequence content in
+          <literal>--sql</literal> switches and SQL files
+          (and <filename>auto.sql</filename> and stdin for interactive usge).
+          See the
+          <link xlink:href='#sqltool_variables-sect'
+                    endterm='variables-title'/> subsection for the particulars.
         </simpara>
         <important><simpara>
             If you're doing data updates, remember to issue a commit command
@@ -1946,11 +1930,18 @@
                 <informalexample>
                   <screen>    java -jar $HSQLDB_HOME/lib/sqltool.jar --sql='
         SQL statement number one;
-        SQL statement
+        * NEWVAR = something
+        \p A SqlTool Special command which echoes NEWVAR: *{NEWVAR}
             number two;
         SQL statement three;
     ' urlid</screen>
               </informalexample>
+                Notice that the <emphasis>SQL string</emphasis> is not strictly
+                SQL, but SqlTool input, so it may contain Special or PL
+                commands.
+                The variable is set this way only for educational purposes.
+                The same thing could be accomplished more elegantly by using the
+                <literal>--setvar</literal> switch.
             </para><note><simpara>
                 The multi-line examples in this section will only work as-is
                 with a Bourne-compatible shell.
@@ -2010,7 +2001,7 @@
                 SQL files themselves have ultimate control over error handling.
                 </emphasis>
                 Regardless of what command-line options are set, or what
-                commands you give interactively, if a SQL file gives error
+                commands you give interactively, if a SQL file contains error
                 handling statements, they will take precedence.
             </simpara><simpara>
                 You can also use \i in SQL files to pull in (nest) additional
@@ -2034,6 +2025,19 @@
                 With the addition of some very simple PL coding, I can
                 I can re-create all database structures in a parallel schema by
                 just specifying a schema name when I invoke the super-script.
+            </simpara><simpara>
+              Only for interactive SqlTool invocations, the file
+              <filename>auto.sql</filename> in your home directory will be
+              executed before your typed (or piped) input.
+              It is processed in the same way as a script file specified on the
+              command-line except that since you are running SqlTool
+              interactively, the interactive SqlTool rules will apply.
+              If your <filename>auto.sql</filename> does setup that you need
+              done for non-interactive SQL files, then add a
+              <literal>\i ${user.home}/auto.sql</literal> to the top of the
+              script, understanding that if you execute that script
+              interactively you will cause <filename>auto.sql</filename> to be
+              exectued a second time.
             </simpara><simpara>
               As you would probably guess, all of SQL's file commands (for
               example loading or saving SQL scripts, binary data, DSV data)
@@ -2084,8 +2088,8 @@
                 C shell syntax would be similar.
                 You would need to use an SQL file to accomplish this on Windows.
             </simpara></note> <simpara>
-                (The <literal>--sql="create...;"</literal> arguments create an
-                account which the script uses).
+                (The <literal>--sql="create...;"</literal> argument in the
+                example creates an account which the following script uses).
                 You should see error messages between the
                 <literal>Continue-on-error...true</literal> and
                 <literal>Continue-on-error...false</literal>.  The script
@@ -2124,7 +2128,10 @@ java -jar $HSQLDB_HOME/lib/sqltool.jar urlid file.sql 2>&1 | someprogram...]]></
                 <example><title>Piping input into SqlTool</title>
                   <screen>    echo "Some SQL commands with '$VARIABLES';" |
     java -jar $HSQLDB_HOME/lib/sqltool.jar urlid -</screen>
-            </example>
+                </example>
+                <example><title>Redirecting input into SqlTool</title>
+                  <screen>    java -jar $HSQLDB_HOME/lib/sqltool.jar urlid - &lt; myFile.sql</screen>
+                </example>
             For a shell not as graceful as the Bourne-compatible shells, you
             would need to type this all on the same line (or use a
             line-continuation trick).
@@ -2145,9 +2152,39 @@ java -jar $HSQLDB_HOME/lib/sqltool.jar urlid file.sql 2>&1 | someprogram...]]></
                 Make sure that you also read the
                 <link xlink:href='#sqltool_sqlswitch-sect' endterm='sqlswitch-title'/>
                 section.
-                The <literal>--sql</literal> switch is a great facility to use
-                with shell scripts.
+                The <literal>--sql</literal> and <literal>--setvar</literal>
+                switchs are great facilities to use with shell scripts.
             </simpara>
+        </section>
+        <section><title>Automation</title>
+            <simpara>
+                SqlTool is ideal for mission-critical automation because,
+                unlike other SQL tools, SqlTool returns a dependable exit
+                status and gives you control over error handling and SQL
+                transactions.
+                Autocommit is off by default, so you can build a completely
+                dependable solution by intelligently using \c commands
+                (Continue upon Errors) and commit statements, and by
+                verifying exit statuses.
+            </simpara> <simpara>
+                Using the SqlTool Procedural Language, you have ultimate
+                control over program flow, and you can use variables for
+                database input and output as well as for many other purposes.
+                See the <link xlink:href='#sqltool_pl-sect' endterm='pl-title'/>
+                section.
+            </simpara>
+            <tip>
+              <simpara>
+                Since SqlTool religiously returns meaningful exit status, you
+                can use the following idiom to send alerts about failed batch
+                jobs (for example, jobs started by cron, at, AutoSys, Quartz,
+                Hudson).
+              </simpara>
+              <example><title>Error-handling Idiom</title>
+                <screen>java -jar $HSQLDB_HOME/lib/sqltool.jar urlid $HOME/app/myFile.sql &gt;&gt; $HOME/log/app.log 2&gt;&amp;1 ||
+echo "See log file y:$HOME/log/app.log" | mailx -s "App aborted on host y" recip1@z.com recip2@z.com</screen>
+              </example>
+            </tip>
         </section>
         <section>
             <title>Optimally Compatible SQL Files</title>
@@ -2237,9 +2274,10 @@ java -jar $HSQLDB_HOME/lib/sqltool.jar urlid file.sql 2>&1 | someprogram...]]></
                     If you give no abort message, then SqlTool will exit
                     quietly with successful status.
                     As a result, <programlisting>    \q</programlisting>
-                    means to make an immediate but graceful exit, whereas
+                    means to make an immediate but successful exit, whereas
                     <programlisting>    \q Message</programlisting>
-                    means to abort immediately.
+                    means to abort immediately with error status.
+                    Both commands will exit gracefully.
                 </para></listitem></varlistentry>
                 <varlistentry><term>\p [text to print]</term><listitem><simpara>
                     Print the given string to stdout.
@@ -2330,24 +2368,6 @@ java -jar $HSQLDB_HOME/lib/sqltool.jar urlid file.sql 2>&1 | someprogram...]]></
                     </simpara></important>
                 </listitem></varlistentry>
             </variablelist>
-        </section>
-        <section><title>Automation</title>
-            <simpara>
-                SqlTool is ideal for mission-critical automation because,
-                unlike other SQL tools, SqlTool returns a dependable exit
-                status and gives you control over error handling and SQL
-                transactions.
-                Autocommit is off by default, so you can build a completely
-                dependable solution by intelligently using \c commands
-                (Continue upon Errors) and commit statements, and by
-                verifying exit statuses.
-            </simpara> <simpara>
-                Using the SqlTool Procedural Language, you have ultimate
-                control over program flow, and you can use variables for
-                database input and output as well as for many other purposes.
-                See the <link xlink:href='#sqltool_pl-sect' endterm='pl-title'/>
-                section.
-            </simpara>
         </section>
         <section><title>Getting Interactive Functionality with SQL Files</title>
             <para>
@@ -2491,6 +2511,53 @@ java -jar $HSQLDB_HOME/lib/sqltool.jar urlid > /tmp/log.html 2>&1]]></screen>
         </simpara></tip>
     </section>
 
+    <section xml:id='sqltool_binary_files-sect'>
+        <title xml:id='binary_files-title'>
+            Storing and retrieving binary files</title>
+    <simpara>
+        You can upload binary files such as photographs, audio files,
+        or serialized Java objects into database columns.
+        SqlTool keeps one binary buffer which you can load from files
+        with the \bl command, or from a database query by doing a
+        one-row query for any non-displayable type (including
+        <literal>BLOB</literal>, <literal>OBJECT</literal>, and
+        <literal>OTHER</literal>).
+        In the latter case, the data returned for the first
+        non-displayable column of the first result row will be stored
+        into the binary buffer.
+    </simpara><simpara>
+        Once you have data in the binary buffer, you can upload it
+        to a database column (including <literal>BLOB</literal>,
+        <literal>OBJECT</literal>, and <literal>OTHER</literal> type
+        columns), or save it to a file.
+        The former is accomplished by the special command \bp followed
+        by a <emphasis>prepared</emphasis> SQL query containing one
+        question mark place-holder to indicate where the data gets
+        inserted.
+        The latter is accomplished with the \bd command.
+    </simpara><simpara>
+        You can also store the output from normal, displayable column
+        into the binary buffer by using the special command \b.
+        The very first column value from the first result row of the
+        next SQL command will be stored to the binary byte buffer.
+    </simpara>
+    <example><title>Inserting binary data into database from a file</title>
+      <screen>    \bl /tmp/favoritesong.mp3
+\bp
+INSERT INTO musictbl (id, stream) VALUES(3112, ?);</screen>
+    </example>
+    <example><title>Downloading binary data from database to a file</title>
+        <screen>    SELECT stream FROM musictbl WHERE id = 3112;
+\bd /tmp/favoritesong.mp3</screen>
+    </example>
+    <simpara>
+        You can also store and retrieve text column values to/from
+        ASCII files, as documented in the
+        <link xlink:href='#sqltool_interactive_pl_commands-sect' endterm='interactive_pl_commands-title'/>
+        section.
+    </simpara>
+    </section>
+
     <section xml:id='sqltool_pl-sect'>
         <title xml:id='pl-title'>SqlTool Procedural Language</title>
         <subtitle>Aka PL</subtitle>
@@ -2536,59 +2603,182 @@ java -jar $HSQLDB_HOME/lib/sqltool.jar urlid > /tmp/log.html 2>&1]]></screen>
             <link xlink:href='#sqltool_interactive_pl_commands-sect' endterm='interactive_pl_commands-title'/>
             section above.
         </simpara>
-        <section>
-            <title>Variables</title>
+        <section xml:id='sqltool_variables-sect'>
+            <title xml:id='variables-title'>Variables</title>
+            <simpara>Following subsections explain important things about
+              specific variable types.
+              Here we just list the variable types and give a few points about
+              variable usage generally.
+            </simpara>
+            <variablelist>
+              <title>Variable Types</title>
+              <varlistentry><term>Database/SQL Variables</term><listitem><simpara>
+                SqlTool has no control over variable mechanmisms provided by
+                the SQL implementation or database vendor.
+                You can use such constructs only in SQL commands, since the
+                other command types never reach the database engine.
+                Nothing else that we have to say about manuals applies to
+                database/SQL variables.
+              </simpara></listitem></varlistentry>
+              <varlistentry><term>Java System Properties</term><listitem><simpara>
+                SqlTool allows for reading but not writing of these variables
+                with <literal>${varname}</literal> and
+                <literal>* listsysprops</literal>.
+                To prevent your SQL text from being changed unintentionally,
+                <literal>${varname}</literal> occurrences will not be expanded
+                inside of SQL statements unless at least one PL user variable
+                has been set.
+                Therefore, if executing portable SQL scripts (and by default),
+                SqlTool will not expand 
+                <literal>${varname}</literal>s inside of SQL statements.
+              </simpara></listitem></varlistentry>
+              <varlistentry><term>PL User Variables</term><listitem><simpara>
+                These are set like <literal>* VARNAME = var value</literal>
+                (or with command line switch <literal>--setvar</literal>)
+                and are read like <literal>* listvalues</literal> and
+                <literal>*{VARNAME}</literal>
+                (or <literal>*VARNAME</literal> inside of logical expressions).
+              </simpara></listitem></varlistentry>
+              <varlistentry><term>PL System Variables</term><listitem><simpara>
+                These are PL variables just like PL user variables, but the
+                variable names begin with the <literal>*</literal> character,
+                like <literal>*DSV_TARGET_FILE</literal>, and they effect
+                SqlTool system behavior.
+                Some of these are initialized by SqlTool automatically.
+                You can change and examine the values in the same way as PL
+                user variables.
+              </simpara></listitem></varlistentry>
+              <varlistentry><term>PL ? Variable</term><listitem><simpara>
+                The ? variable is set automatically to the results of SQL
+                statement executions.
+                The value can only be examined with the 
+                <literal>*{?}</literal> and <literal>*?</literal> constructs.
+              </simpara></listitem></varlistentry>
+            </variablelist>
             <itemizedlist>
-                <listitem><simpara>
-                    Use the <literal>* list</literal> command to list some or
-                    all variables; or <literal>* listvalues</literal> to also
-                    see the values.
-                </simpara></listitem> <listitem><simpara>
-                    You can set variables using the
-                    <literal>* VARNAME = value</literal> command.
-                    This document explains elsewhere how you can set a values
-                    to the contents of files, and to the return value of SQL
-                    statements and fetches.
-                </simpara></listitem> <listitem><simpara>
-                    You can also set variables using the
-                    <literal>--setvar</literal> command-line switch.
-                    I give a very brief but useful example of this below.
-                </simpara></listitem> <listitem><simpara>
-                    SqlTool does not allow for setting system variables.
-                    As explained below, they are expanded in the same way as
-                    PL variables.
-                </simpara></listitem> <listitem><simpara>
-                    Variables are always expanded in SQL, Special, and PL
-                    commands if they are written like
-                    <literal>*{VARNAME}</literal>
-                    (assuming that a PL command has been run previously).
-                    Your SQL scripts can give good feedback by echoing the
-                    value of variables with the "\p" special command.
-                    Use the construct <literal>*{:VARNAME}</literal> to
-                    expand the variable, but to expand to a zero-length
-                    string instead of fail if VARNAME is not set.
-                </simpara></listitem> <listitem><simpara>
-                    Java system variables work the same exact way, except you
-                    use <literal>$</literal> instead of <varname>*</varname>
-                    to dereference, like so:  <literal>${user.name}</literal>.
-                </simpara></listitem> <listitem><simpara>
-                    Variables are normally written like
-                    <varname>*VARNAME</varname> in logical expressions to
-                    prevent them from being evaluated too early.
-                    See below about logical expressions.
-                </simpara></listitem> <listitem><para>
-                    You can't do math with expression variables, but you
-                    can get functionality like the traditional
-                    <literal>for (i = 0; i &lt; x; i++)</literal> by appending
-                    to a variable and testing the string length, like
-                    <programlisting>    * while (*i &lt; ${x})
-        * i = *{i}.</programlisting>
-                    <literal>i</literal> will be a growing line of dots.
-                </para></listitem> <listitem><para>
-                Variable names must not contain white space, or
-                the characters "}" or "=".
-                </para></listitem>
+              <title>General Rules for PL vars and Java system props</title>
+              <listitem><simpara>
+                  PL variables and Java system properties are always
+                  expanded in Special, and PL commands if they are written
+                  like <literal>*{VARNAME}</literal> and
+                  <literal>${VARNAME}</literal> correspondingly.
+                  They are expanded in the same way inside of SQL
+                  statements as long as one (or more)
+                  PL variable has been set.
+              </simpara></listitem> <listitem><simpara>
+                  Your SQL scripts can give good feedback by echoing the
+                  value of variables with the "\p" special command.
+              </simpara></listitem> <listitem><simpara>
+                  It is an error to expand an <emphasis>unset</emphasis>
+                  variable with <literal>*{VARNAME}</literal> or
+                  <literal>${VARNAME}</literal>.
+                  Therefore, if the variable/property may not be set, just
+                  add a colon like
+                  <literal>*{:VARNAME}</literal>
+                  <literal>${:VARNAME}</literal> to
+                  expand the variable if set, but expand to a zero-length
+                  string if the variable is not set.
+              </simpara></listitem>
             </itemizedlist>
+            <section xml:id='sqltool_pl_variables-sect'>
+              <title xml:id='pl_variables-title'>PL Variables</title>
+              <simpara>
+                This subsection explains points common to most or all of the
+                three PL variable varieties: user, SqlTool system, and ?.
+                (It specifically does not cover SQL/database variables or
+                Java system properties).
+              </simpara>
+              <itemizedlist>
+                  <listitem><para>
+                      PL variables are global to a SqlTool invocation and are
+                      therefore shared among
+                      <itemizedlist>
+                        <listitem><simpara>
+                            <literal>--setvar</literal> command-line switches.
+                        </simpara></listitem> <listitem><simpara>
+                            <literal>--sql</literal> command-line switches.
+                        </simpara></listitem> <listitem><simpara>
+                        <filename>auto.sql</filename> file, if it is
+                          present and the rules call for it to load.
+                        </simpara></listitem> <listitem><simpara>
+                          SQL files loaded with \i from top or a nested level.
+                        </simpara></listitem> <listitem><simpara>
+                          standard input whether from a terminal, redirection,
+                          or piping
+                        </simpara></listitem>
+                      </itemizedlist>
+                      The variable must, of course, be set at a point in time
+                      before it is referenced.
+                  </para></listitem> <listitem><simpara>
+                      Use the <literal>* list</literal> command to list some or
+                      all variables; or <literal>* listvalues</literal> to also
+                      see the values.
+                      (Exception: The ? variable can not be displayed this way).
+                  </simpara></listitem> <listitem><simpara>
+                      You can set PL variables other than ? using the
+                      <literal>* VARNAME = value</literal> command.
+                      This document explains elsewhere how you can set a values
+                      to the contents of files, and to the return value of SQL
+                      statements and fetches.
+                  </simpara></listitem> <listitem><simpara>
+                      You can also set PL variables other than ? using the
+                      <literal>--setvar</literal> command-line switch.
+                      I give a very brief but useful example of this below.
+                  </simpara></listitem> <listitem><simpara>
+                      You can unset PL variables other than ? using the
+                      <literal>* VARNAME !</literal> command.
+                  </simpara></listitem> <listitem><simpara>
+                      In logical expressions (such as
+                      <literal>* if (*{x} == 4)</literal>), you can use an
+                      alternate syntax intead of <literal>*{VARNAME}</literal>.
+                      If you use plain <literal>*VARNAME</literal>, only inside
+                      logical expressions, then evaluation will be delayed
+                      (which is what is usually desired) and unset variables
+                      are treated as empty strings instead of failing (exactly
+                      like <literal>*{:VARNAME}</literal>).
+                  </simpara></listitem> <listitem><para>
+                      You can't do math with expression variables, but you
+                      can get functionality like the traditional
+                      <literal>for (i = 0; i &lt; x; i++)</literal> by appending
+                      to a variable and testing the string length, like
+                      <programlisting>    * while (*i &lt; ${x})
+          * i = *{i}.</programlisting>
+                      <literal>i</literal> will be a growing line of dots.
+                  </para></listitem> <listitem><para>
+                  PL variable names must not contain white space, or
+                  the characters "}" or "=".
+                  </para></listitem>
+              </itemizedlist>
+            <simpara>
+                Note that PL commands are used to upload and download column
+                values to/from local ASCII files, but the corresponding actions
+                for binary files use the special \b commands.
+                This is because PL variables are used for ASCII values and
+                you can store any number of column values in PL variables.
+                This is not true for binary column values.
+                The \b commands work with a single binary byte buffer.
+            </simpara> <simpara>
+                See the <link xlink:href='#sqltool_pl-sect' endterm='pl-title'/>
+                section below for information on using variables in other ways,
+                and information on the other PL commands and features.
+            </simpara>
+            </section>
+            <section>
+              <title>PL ? Variable</title>
+              <para>
+                You don't set the ? variable.
+                It is just like the Bourne shell variable $? in that it is always
+                automatically set to the first value of a result set (or the
+                return value of other SQL commands).
+                It works just like the <literal>* VARNAME ~</literal>
+                command described above, but it all happens automatically.
+                You can, of course, dereference ? like any PL variable, but it
+                does not list with the <literal>list</literal> and
+                <literal>listvalues</literal> commands.
+                You can see the value whenever you want by running
+                <informalexample><programlisting>    \p *{?}</programlisting></informalexample>
+              </para>
+            </section>
         </section>
         <section xml:id='sqltool_macro-sect'>
             <title xml:id='macro-title'>Macros</title>
