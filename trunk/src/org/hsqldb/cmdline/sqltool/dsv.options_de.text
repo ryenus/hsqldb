@@ -1,8 +1,14 @@
+    \m pfad/datei.dsv [*]  Importiert Datensätze aus einer DSV-Textdatei in
+                           eine Tabelle. (weitere Optionen '\m?').
+    \mq pfad/datei.csv     Ditto, aber mit traditionellen CSV doppelt zitiert.
+    \x {TABELLE|SELECT...} Exportiert Tabellen oder Abfragen in eine
+                           DSV-Textdatei (weitere Optionen: '\x?').
+    \xq {TABELLE|SEL...}   Ditto, aber mit traditionellen CSV doppelt zitiert.
+
 DSV bedeutet Delimiter-Separated-Values (dt. etwa:Trennzeichen-getrennte Werte).
 Es ist im Grunde genommen CSV (Comma Separated Values), DSV verwendet aber als
-Trennzeichen
-nur Zeichen welche sonst nicht im Text vorkommen. Auf diese Weise wird
-die bei CSV oft notwendige Maskierung von Trennzeichen im Text umgangen.
+Trennzeichen nur Zeichen welche sonst nicht im Text vorkommen. Auf diese Weise
+wird die bei CSV oft notwendige Maskierung von Trennzeichen im Text umgangen.
 Alle DSV PL-Variablen sind optional.
 Um sich den Inhalt einer PL-Variable anzeigen zu lassen, geben Sie
 "* listvalues" ein (ohne die "").
