@@ -2505,6 +2505,35 @@ public class SqlFile {
             return;
         }
 
+        if (tokens[0].equals("-")) {
+            // We do not consider it an error to remove a non-existent
+            // variable.
+            if (tokens.length != 2) {
+                throw new BadSpecial(
+                        SqltoolRB.pl_unset_nomoreargs.getString());
+            }
+            if (fetchingVar != null && fetchingVar.equals(tokens[1])) {
+                fetchingVar = null;
+            }
+
+            if (tokens[1].equals("*ENCODING")) try {
+                // Special case so we can proactively prohibit encodings
+                // which will not work, so we'll always be confident
+                // that 'encoding' value is always good.
+                setEncoding(m.group(3));
+                return;
+            } catch (UnsupportedEncodingException use) {
+                // Impossible to get here.  Satisfy compiler.
+                throw new BadSpecial(
+                        SqltoolRB.encode_fail.getString(m.group(3)));
+            }
+            shared.userVars.remove(tokens[1]);
+            updateUserSettings();
+            sqlExpandMode = null;
+
+            return;
+        }
+
         m = varsetPattern.matcher(dereference(string, false));
         if (!m.matches()) {
             throw new BadSpecial(SqltoolRB.pl_unknown.getString(tokens[0]));
@@ -2572,31 +2601,6 @@ public class SqlFile {
 
                 return;
 
-            case '!' :
-                if (m.groupCount() < 3 || m.group(3) != null) {
-                    throw new BadSpecial(
-                            SqltoolRB.pl_unset_nomoreargs.getString());
-                }
-                if (fetchingVar != null && fetchingVar.equals(varName)) {
-                    fetchingVar = null;
-                }
-
-                if (varName.equals("*ENCODING")) try {
-                    // Special case so we can proactively prohibit encodings
-                    // which will not work, so we'll always be confident
-                    // that 'encoding' value is always good.
-                    setEncoding(m.group(3));
-                    return;
-                } catch (UnsupportedEncodingException use) {
-                    // Impossible to get here.  Satisfy compiler.
-                    throw new BadSpecial(
-                            SqltoolRB.encode_fail.getString(m.group(3)));
-                }
-                shared.userVars.remove(varName);
-                updateUserSettings();
-                sqlExpandMode = null;
-
-                return;
         }
 
         throw new BadSpecial(SqltoolRB.pl_unknown.getString(tokens[0]));
