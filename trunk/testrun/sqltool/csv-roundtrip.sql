@@ -9,7 +9,7 @@
 * *DSV_TARGET_TABLE = t
 * *DSV_COL_DELIM = \t
 * *DSV_COL_SPLITTER = \t
--- * *CSV_PROMISCUOUS_QUOTE = true
+-- * *ALL_QUOTED = true
 CREATE TABLE t (i INT, v VARCHAR(25), d DATE);
 
 INSERT INTO t(i, v, d) VALUES (1, 'one two three', null);
