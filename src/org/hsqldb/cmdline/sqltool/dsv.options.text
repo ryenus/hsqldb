@@ -1,6 +1,15 @@
 DSV stands for Delimiter-Separated-Values, which is just CSV (comma-
 separated-values) but always using a proper delimiter to prevent the
 need for quoting and escaping which CSV files have.
+You can use all of these features with traditional CSV files, which allows for
+the use of the column-delimiter inside data, by using \xq and \mq instead of
+\x and \q.
+Here are the special commands to initiate DSV and CSV imports and exports.
+    \m file/path.dsv [*] iMport DSV text file records into a table (opts \m?)
+    \mq  f/path.csv [*]  Ditto, but with traditional CSV double-quoting
+    \x {TABLE|SELECT...} eXport table or query to DSV text file (options \x?)
+    \xq {TABLE|SEL...}   Ditto, but with traditional CSV double-quoting.
+
 All of the DSV PL variables are optional.  To see all PL var. values,
 run "* listvalues".  Set the values like:
     * *DSV_COL_DELIM = ,
