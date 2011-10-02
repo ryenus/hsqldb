@@ -104,3 +104,6 @@ span.remark        {
 img { border:0; padding:0; margin:0; }
 
 p.copyright { font-family:sans-serif; }
+
+div.variablelist tr { vertical-align:top; background-color:#E0E0E0; }
+div.variablelist span.term { white-space:nowrap; }
