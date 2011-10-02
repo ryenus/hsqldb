@@ -70,6 +70,13 @@
       </simpara> <simpara>
         <link xlink:href="&distro_baseurl;/verbatim/sample/dsv-sample.sql"/>
       </simpara>
+    </listitem> <listitem xml:id="csv-sample.sql-link">
+      <simpara>
+        Local:
+        <link xlink:href="../verbatim/sample/csv-sample.sql"/>
+      </simpara> <simpara>
+        <link xlink:href="&distro_baseurl;/verbatim/sample/csv-sample.sql"/>
+      </simpara>
     </listitem> <listitem xml:id="sqljrt.sql-link">
       <simpara>
         Local:
