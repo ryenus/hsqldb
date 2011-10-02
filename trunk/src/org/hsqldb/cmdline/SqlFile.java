@@ -2557,6 +2557,10 @@ public class SqlFile {
                     shared.userVars.put(varName, m.group(3));
                 } else {
                     if (emptyVarsAsNulls()) {
+                        if (System.getProperty("REMOVE_EMPTY_VARS") == null) {
+                            stdprintln(SqltoolRB.
+                                    remove_empty_vars_suggestset.getString());
+                        }
                         shared.userVars.remove(varName);
                     } else {
                         shared.userVars.put(varName, "");
@@ -4809,9 +4813,7 @@ public class SqlFile {
                     ? DEFAULT_FILE_ENCODING : shared.encoding);
             if (csvStyleQuoting && string.indexOf('\u0002') > -1) {
                 throw new SqlToolError(
-                        // TODO:   Make new message.  This one WRONG!
-                        SqltoolRB.dsv_coldelim_present.getString
-                        ("(For internal quoting support.) \\u0002"));
+                        SqltoolRB.csv_coldelim_present.getString("\\u0002"));
             }
             lines = string.split(dsvRowSplitter);
         } catch (UnsupportedEncodingException uee) {
@@ -4928,9 +4930,7 @@ public class SqlFile {
                         sb.append('"');
                     }
                     throw new SqlToolError(
-                        // TODO:   Make new message.  This one WRONG!
-                        SqltoolRB.dsv_coldelim_present.getString
-                        ("Unterminated \"-quoted field at data line " + (i+1)));
+                        SqltoolRB.csv_quote_unterminated.getString(i+1));
                 }
                 lines[i] = sb.toString();
             }
