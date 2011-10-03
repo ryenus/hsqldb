@@ -252,7 +252,7 @@ public class SqlFile {
     // Strings are constant, one test run of the program will tell
     // if the patterns are good.
 
-    private boolean emptyVarsAsNulls() {
+    private boolean removeEmptyVars() {
         String sysP = System.getProperty("sqltool.REMOVE_EMPTY_VARS");
         return sysP == null || Boolean.parseBoolean(sysP);
     }
@@ -283,7 +283,7 @@ public class SqlFile {
             if (varVal == null || varVal.length() > 0) {
                 continue;
             }
-            if (!emptyVarsAsNulls()) {
+            if (!removeEmptyVars()) {
                 errprintln(SqltoolRB.auto_unset_warning.getString(noEmpty));
             }
             shared.userVars.remove('*' + noEmpty);
@@ -2585,7 +2585,7 @@ public class SqlFile {
                 if (m.groupCount() > 2 && m.group(3) != null) {
                     shared.userVars.put(varName, m.group(3));
                 } else {
-                    if (emptyVarsAsNulls()) {
+                    if (removeEmptyVars()) {
                         if (System.getProperty("sqltool.REMOVE_EMPTY_VARS")
                                 == null) {
                             stdprintln(SqltoolRB.
