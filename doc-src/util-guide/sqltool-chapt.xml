@@ -216,7 +216,8 @@
             </simpara></footnote>
         </simpara>
         </section>
-        <section><title>Recent Functional Changes</title>
+        <section xml:id='sqltool_functional_changes-sect'>
+            <title xml:id='functional_changes-title'>Recent Funtional Changes</title>
             <simpara>This section lists changes to SqlTool since the last
               major release of HSQLDB which may effect the portability
               of SQL scripts.
@@ -226,14 +227,15 @@
             </simpara>
             <itemizedlist>
                 <listitem><simpara>
-                  DSV input now accepts JDBC Timestamp format with date and
-                  optionally time of day.
-                </simpara></listitem><listitem><simpara>
                   When you run SqlTool interactively, you will see warnings
                   about setting PL variables to nothing.
-                  In the future, by default, setting a PL variable to nothing,
-                  like <literal>* name = Bruno</literal> will not unset/remove
-                  the variable but will instead assign an empty-string value.
+                  If you don't do anything involving assignment or testing of
+                  unset or empty variables, then skip this item and ignore the
+                  new warnings.
+                  In an upcoming release, by default, setting a PL variable to
+                  nothing, like <literal>* name = Bruno</literal> will no
+                  longer unset/remove the variable but will instead assign an
+                  empty-string value.
                   There are important use cases for empty-string values.
                   In new scripts and interactively, from now on you should use
                   the new PL command "<literal>* - VARNAME</literal>" if you
@@ -243,8 +245,20 @@
                   everything behaves just like before (except that you will be
                   able to use the new <literal>* - VARNAME</literal> command),
                   but you will get the warnings.
-                  Set the value of the system property to 'true' to have the
-                  same (old) behavior but to quiet the warnings.
+                  But if you do anything involving assignment or testing of
+                  unset or empty variables, you need to set this property.
+                </simpara> <simpara>
+                  For legacy scripts, you should set
+                  '<literal>sqltool.REMOVE_EMPTY_VARS</literal>' to
+                  <literal>true</literal> to quiet the messages, retaining the
+                  old behavior and protecting from the behavior change in the
+                  future.
+                  For maintained or new scripts, set the value of the property
+                  to <literal>false</literal>, and only use
+                  "<literal>* - VARNAME</literal>" to unset variables.
+                </simpara></listitem><listitem><simpara>
+                  DSV input now accepts JDBC Timestamp format with date and
+                  optionally time of day.
                 </simpara></listitem><listitem><simpara>
                   The simplest PL command, just "<literal>*</literal>", has
                   been deprecated.  It is now useless since the only time
@@ -256,6 +270,18 @@
                   automatically now.
                   (That purpose being to prevent modification of SQL text
                   without the operator's knowledge).
+                </simpara></listitem><listitem><simpara>
+                    The * command (just plain "<literal>*</literal>") has
+                    been removed because it is no longer necessary.
+                    (See item on it in the previous section of this manual).
+                </simpara></listitem><listitem><simpara>
+                    Bugs in variable scoping have been fixed.
+                    All variables are global and shared among auto.sql, all
+                    command-line and nested SQL scripts, and interactive shells.
+                </simpara></listitem><listitem><simpara>
+                    A bug has been fixed so that SqlTool
+                    system PL variables (with names starting with "*") are now
+                    honored no matter how or where the variable value was set.
                 </simpara></listitem>
             </itemizedlist>
         </section>
@@ -274,30 +300,10 @@
                     CSV exporting and importing.
                 </simpara></listitem><listitem><simpara>
                     New "<literal>* - VARNAME</literal>" PL command added to
-                    explicitly unset a variable.
-                    If you set Java system property
-                    '<literal>sqltool.REMOVE_EMPTY_VARS</literal>' to
-                    <literal>true</literal>, then you can use the normal
-                    variable-set command ("<literal>* VARNAME =</literal>")
-                    to set a variable value to an empty string, but use
-                    "<literal>* - VARNAME</literal>" instead except for legacy
-                    scripts.
-                    This '<literal>sqltool.REMOVE_EMPTY_VARS</literal>'
-                    <literal>true</literal> behavior will become the default
-                    behavior of SqlTool before long, so you are encouraged to
-                    set the property now.
-                </simpara></listitem><listitem><simpara>
-                    The * command (just plain "<literal>*</literal>") has
-                    been removed because it is no longer necessary.
-                    (See item on it in the previous section of this manual).
-                </simpara></listitem><listitem><simpara>
-                    Bugs in variable scoping have been fixed.
-                    All variables are global and shared among auto.sql, all
-                    command-line and nested SQL scripts, and interactive shells.
-                </simpara></listitem><listitem><simpara>
-                    A variable sharing bug has been fixed so that SqlTool
-                    system PL variables (with names starting with "*") are now
-                    honored no matter how or where the variable value was set.
+                    explicitly unset/remove a variable.
+                    Definitely read the first item in the
+                    <link xlink:href="#sqltool_functional_changes-sect"
+                    endterm="functional_changes-title"/> section.
                 </simpara></listitem>
             </itemizedlist>
         </section>
@@ -2679,7 +2685,7 @@ INSERT INTO musictbl (id, stream) VALUES(3112, ?);</screen>
                   value of variables with the "\p" special command.
               </simpara></listitem> <listitem><simpara>
                   It is an error to expand an <emphasis>unset</emphasis>
-                  variable with <literal>*{VARNAME}</literal> or
+                  (remove) variable with <literal>*{VARNAME}</literal> or
                   <literal>${VARNAME}</literal>.
                   Therefore, if the variable/property may not be set, just
                   add a colon like
@@ -2734,8 +2740,8 @@ INSERT INTO musictbl (id, stream) VALUES(3112, ?);</screen>
                       <literal>--setvar</literal> command-line switch.
                       I give a very brief but useful example of this below.
                   </simpara></listitem> <listitem><simpara>
-                      You can unset PL variables other than ? using the
-                      <literal>* - VARNAME</literal> command.
+                      You can unset (remove) PL variables using
+                      the <literal>* - VARNAME</literal> command.
                   </simpara></listitem> <listitem><simpara>
                       In logical expressions (such as
                       <literal>* if (*{x} == 4)</literal>), you can use an
