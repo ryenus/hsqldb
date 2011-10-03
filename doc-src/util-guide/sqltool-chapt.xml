@@ -245,7 +245,6 @@
                   but you will get the warnings.
                   Set the value of the system property to 'true' to have the
                   same (old) behavior but to quiet the warnings.
-                  Set the value of the system property to 'true' to have the
                 </simpara></listitem><listitem><simpara>
                   The simplest PL command, just "<literal>*</literal>", has
                   been deprecated.  It is now useless since the only time
@@ -1332,12 +1331,12 @@
         <section><title>Special Commands</title>
         <variablelist><title>Essential Special Commands</title>
             <varlistentry><term>\?</term><listitem><simpara>
-                  help.
+                  Help.
                   <emphasis role="bold">Run this show ALL available Special
                   Commands instead of just the subset listed here!</emphasis>
             </simpara></listitem></varlistentry>
             <varlistentry><term>\q</term><listitem><simpara>
-                quit
+                Quit
             </simpara></listitem></varlistentry>
             <varlistentry><term>\j...</term><listitem><simpara>
                 View JDBC Data Source details or connect up to a JDBC Data
@@ -1886,7 +1885,7 @@
           Since the variables are all global and shared across contexts, the
           variables thus set effect behavior of all subsequence content in
           <literal>--sql</literal> switches and SQL files
-          (and <filename>auto.sql</filename> and stdin for interactive usge).
+          (and <filename>auto.sql</filename> and stdin for interactive usage).
           See the
           <link xlink:href='#sqltool_variables-sect'
                     endterm='variables-title'/> subsection for the particulars.
@@ -1903,7 +1902,7 @@
             transactions.
             SqlTool is designed so that you can reliably determine if errors
             occurred within SQL scripts themselves, and from the invoking
-            environment (for example, from a perl, Bash, or Python script,
+            environment (for example, from a Perl, Bash, or Python script,
             or a simple cron tab invocation).
         </simpara>
         <section xml:id='sqltool_sqlswitch-sect'>
@@ -2026,7 +2025,7 @@
                 an installation procedure known to work, I can recreate large
                 and complex, custom product databases for deployments or tests
                 in seconds.
-                With the addition of some very simple PL coding, I can
+                With the addition of some very simple PL coding,
                 I can re-create all database structures in a parallel schema by
                 just specifying a schema name when I invoke the super-script.
             </simpara><simpara>
@@ -2041,7 +2040,7 @@
               <literal>\i ${user.home}/auto.sql</literal> to the top of the
               script, understanding that if you execute that script
               interactively you will cause <filename>auto.sql</filename> to be
-              exectued a second time.
+              executed a second time.
             </simpara><simpara>
               As you would probably guess, all of SQL's file commands (for
               example loading or saving SQL scripts, binary data, DSV data)
@@ -2105,7 +2104,7 @@
                 support databases which don't support
                 <literal>IF EXISTS</literal>).
                 If an error occurs when continue-on-error is false, the
-                script would abort immedately.
+                script would abort immediately.
             </simpara>
         </section>
         <section xml:id='sqltool_scripting-sect'>
@@ -3010,7 +3009,7 @@ INSERT INTO musictbl (id, stream) VALUES(3112, ?);</screen>
                 which shows how to use most PL
                 features <footnoteref linkend='samplelocFn'/>.
                 If you have a question about how to use a particular
-                PL feature, check this file in your distrubition before asking
+                PL feature, check this file in your distribution before asking
                 for help.
                 Definitely give it a run, like
                 <screen>java -jar $HSQLDB_HOME/lib/sqltool.jar mem $HSQLDB_HOME/pl.jar</screen>
@@ -3591,7 +3590,7 @@ INSERT INTO musictbl (id, stream) VALUES(3112, ?);</screen>
           column delimiter, and the tab character is a common alternative.
         </simpara> <simpara>
           I should also mention the trivial difference between
-          <literal>\xq</literal> and <literal>\x</literal>that if you do not
+          <literal>\xq</literal> and <literal>\x</literal> that if you do not
           specify <literal>*DSV_TARGET_FILE</literal>, the default filename
           suffix will be "<literal>.csv</literal>" instead of
           "<literal>.dsv</literal>".
