@@ -39,6 +39,7 @@ import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
 import org.hsqldb.lib.HashSet;
 import org.hsqldb.store.ValuePool;
+import org.hsqldb.types.ArrayType;
 import org.hsqldb.types.DTIType;
 import org.hsqldb.types.IntervalMonthData;
 import org.hsqldb.types.IntervalSecondData;
@@ -64,9 +65,10 @@ public class SetFunction implements Serializable {
     private boolean isDistinct;
 
     //
-    private int  setType;
-    private int  dataType;
-    private Type type;
+    private int       setType;
+    private int       dataType;
+    private Type      type;
+    private ArrayType arrayType;
 
     //
     private int count;
@@ -80,13 +82,15 @@ public class SetFunction implements Serializable {
     private BigDecimal currentBigDecimal;
     private Object     currentValue;
 
-    SetFunction(int setType, Type type, boolean isDistinct) {
+    SetFunction(int setType, Type type, boolean isDistinct,
+                ArrayType arrayType) {
 
         this.setType = setType;
         this.type    = type;
 
         if (isDistinct) {
             this.isDistinct = true;
+            this.arrayType  = arrayType;
             distinctValues  = new HashSet();
         }
 
@@ -248,6 +252,19 @@ public class SetFunction implements Serializable {
         }
 
         if (setType == OpTypes.COUNT) {
+            if (isDistinct && type.isCharacterType()) {
+                Object[] array = new Object[distinctValues.size()];
+
+                distinctValues.toArray(array);
+
+                SortAndSlice sort = new SortAndSlice();
+
+                sort.prepareSingleColumn(0);
+                arrayType.sort(session, array, sort);
+
+                count = arrayType.deDuplicate(session, array, sort);
+            }
+
             return ValuePool.getInt(count);
         }
 

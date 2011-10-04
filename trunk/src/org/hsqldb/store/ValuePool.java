@@ -137,6 +137,7 @@ public class ValuePool {
 
         synchronized (ValuePool.class) {
             for (int i = 0; i < POOLS_COUNT; i++) {
+                poolList[i].clear();
                 poolList[i].resetCapacity(sizeArray[i] * sizeFactor,
                                           BaseHashMap.PURGE_HALF);
             }
