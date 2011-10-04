@@ -2481,7 +2481,7 @@ java -jar $HSQLDB_HOME/lib/sqltool.jar urlid > /tmp/log.html 2>&1]]></screen>
         </procedure>
         <para>
             It is not just the output of "SELECT" statements that will make
-            it into the report file, but
+            it into the report file, but...
             <itemizedlist>
                 <title>Kinds of output that get teed to \o files</title>
                 <listitem><simpara>
@@ -2526,6 +2526,21 @@ java -jar $HSQLDB_HOME/lib/sqltool.jar urlid > /tmp/log.html 2>&1]]></screen>
             In this case, stretch your window and repeat the last command with
             the ":;" Edit Buffer Command.
         </simpara></tip>
+        <para><example><title>Sample session/SQL file to generate a HTML report</title>
+          <programlisting><![CDATA[CREATE TABLE t (i int, vc varchar(25));
+insert into t values(1, 'one');
+insert into t values(2, 'two');
+commit;
+-- Set any PL variable to enable expansion of ${...} Java properties.
+* fake =
+
+\o tst.html
+\H
+\p <TITLE>Sample SqlTool Select Statement HTML Output</TITLE>
+/* Send HTML formatted line for output before writing Select output */
+\p <P style="font-size:200%; color:red; font-weight:bold;">${user.name} Select HTML Output</P>
+SELECT * FROM t;]]></programlisting>
+        </example></para>
     </section>
 
     <section xml:id='sqltool_binary_files-sect'>
@@ -2560,12 +2575,12 @@ java -jar $HSQLDB_HOME/lib/sqltool.jar urlid > /tmp/log.html 2>&1]]></screen>
     </simpara>
     <example><title>Inserting binary data into database from a file</title>
       <screen>    \bl /tmp/favoritesong.mp3
-\bp
-INSERT INTO musictbl (id, stream) VALUES(3112, ?);</screen>
+    \bp
+    INSERT INTO musictbl (id, stream) VALUES(3112, ?);</screen>
     </example>
     <example><title>Downloading binary data from database to a file</title>
         <screen>    SELECT stream FROM musictbl WHERE id = 3112;
-\bd /tmp/favoritesong.mp3</screen>
+    \bd /tmp/favoritesong.mp3</screen>
     </example>
     <simpara>
         You can also store and retrieve text column values to/from
