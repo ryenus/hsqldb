@@ -36,6 +36,7 @@ import org.hsqldb.error.ErrorCode;
 import org.hsqldb.lib.ArrayListIdentity;
 import org.hsqldb.lib.HsqlList;
 import org.hsqldb.store.ValuePool;
+import org.hsqldb.types.ArrayType;
 
 /**
  * Implementation of aggregate operations
@@ -48,6 +49,7 @@ public class ExpressionAggregate extends Expression {
 
     boolean    isDistinctAggregate;
     Expression condition = Expression.EXPR_TRUE;
+    ArrayType  arrayType;
 
     ExpressionAggregate(int type, boolean distinct, Expression e) {
 
@@ -234,6 +236,11 @@ public class ExpressionAggregate extends Expression {
             if (nodes[LEFT].dataType.isLobType()) {
                 throw Error.error(ErrorCode.X_42534);
             }
+
+            if (nodes[LEFT].dataType.isCharacterType()) {
+                arrayType = new ArrayType(nodes[LEFT].dataType,
+                                          Integer.MAX_VALUE);
+            }
         }
 
         dataType = SetFunction.getType(opType, nodes[LEFT].dataType);
@@ -266,7 +273,7 @@ public class ExpressionAggregate extends Expression {
 
         if (currValue == null) {
             currValue = new SetFunction(opType, nodes[LEFT].dataType,
-                                        isDistinctAggregate);
+                                        isDistinctAggregate, arrayType);
         }
 
         Object newValue = nodes[LEFT].opType == OpTypes.ASTERISK

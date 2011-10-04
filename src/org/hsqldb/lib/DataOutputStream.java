@@ -115,35 +115,35 @@ public class DataOutputStream extends java.io.BufferedOutputStream {
         }
     }
 
-    public void write(Reader reader, long length) throws IOException {
+    public long write(Reader reader, long length) throws IOException {
 
         InputStream inputStream = new ReaderInputStream(reader);
 
-        write(inputStream, length * 2);
+        return write(inputStream, length * 2) / 2;
     }
 
-    public void write(InputStream inputStream,
+    public long write(InputStream inputStream,
                       long length) throws IOException {
 
-        CountdownInputStream countStream =
-            new CountdownInputStream(inputStream);
-
-        countStream.setCount(length);
-
         byte[] data = new byte[1024];
-
+        long totalCount = 0;
         while (true) {
-            int count = countStream.read(data);
+            long count = length - totalCount;
+
+            if (count > data.length ) {
+                count = data.length;
+            }
+
+            count = inputStream.read(data, 0, (int) count);
 
             if (count < 1) {
-                if (countStream.getCount() != 0) {
-                    throw new EOFException();
-                }
-
                 break;
             }
 
-            write(data, 0, count);
+            write(data, 0, (int) count);
+            totalCount += count;
         }
+
+        return totalCount;
     }
 }
