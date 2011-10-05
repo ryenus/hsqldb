@@ -3616,16 +3616,22 @@ SELECT * FROM t;]]></programlisting>
           suffix will be "<literal>.csv</literal>" instead of
           "<literal>.dsv</literal>".
         </simpara>
+        <para>
+          As always, use command \m? or \x? to list all available import and
+          export options.
         <variablelist>
-            <title>Options often set with CSV importing/exporting</title>
             <varlistentry><term>*DSV_COL_DELIM</term><listitem><simpara>
-              Set to what column delimiter to write.
+              Set to what column delimiter to write to the CSV file.
               Values of "<literal>,</literal>" and
               "<literal>\t</literal>" (without the quotes) are most common with
               CSVs.
+              This is what SqlTool will use to <emphasis>separate</emphasis>
+              the values in a single output CSV file line.
             </simpara></listitem></varlistentry>
             <varlistentry><term>*DSV_COL_SPLITTER</term><listitem><simpara>
-              Set to what column delimiter is used in the CSV file to read.
+              Set to the column-delimiter character in the CSV file to be read.
+              This is what SqlTool will use to <emphasis>split</emphasis>
+              each line into multiple cell values.
               Values of "<literal>,</literal>" and
               "<literal>\t</literal>" (without the quotes) are most common with
               CSVs.
@@ -3650,15 +3656,28 @@ SELECT * FROM t;]]></programlisting>
                (The Java system property setting will become unnecessary soon
                because that is going to be SqlTool's default behavior with an
                upcoming release).
+               <literal>*NULL_REP_TOKEN</literal> also effects how nulls are
+               represented in regular query output (non-exports), so after your
+               exporting/importing you will often want to reset it with
+               "<literal>* - *NULL_REP_TOKEN</literal>" unless you will be
+               exiting SqlTool immediately.
             </simpara></listitem></varlistentry>
             <varlistentry><term>*ALL_QUOTED</term><listitem><simpara>
               Every cell value will be quoted upon \xq, instead of just those
               values containing a column delimiter character or double-quote
               that needs escaping.
             </simpara></listitem></varlistentry>
-            <varlistentry><term>*DSV_COL_SPLITTER</term><listitem><simpara>
+            <varlistentry><term>*DSV_REJECT_REPORT</term><listitem><simpara>
+              Set this to the path of a HTML file that will be generated if
+              any bad input records are encountered upon \mq.
+              Instead of aborting, SqlTool will continue and import every
+              record that it is able to.
+              You can view the summary counts (always displayed) and/or the
+              reject report before deciding whether to commit or rollback the
+              new database records.
             </simpara></listitem></varlistentry>
         </variablelist>
+        </para>
         <para>
           This sample shows everything you need to know to get going with CSV.
           <filename xlink:href="#csv-sample.sql-link">
