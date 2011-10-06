@@ -1477,9 +1477,9 @@ public class SqlFile {
                 return;
 
             case 'm' :
-                if (arg1.equals("m?") ||
-                        (arg1.equals("m") && other != null
-                                 && other.equals("?"))) {
+                if (arg1.equals("m?") || arg1.equals("mq?")
+                        || (other != null && other.equals("?")
+                        && (arg1.equals("m") || arg1.equals("mq")))) {
                     stdprintln(DSV_OPTIONS_TEXT + LS + DSV_M_SYNTAX_MSG);
                     return;
                 }
@@ -1515,9 +1515,9 @@ public class SqlFile {
                 return;
 
             case 'x' :
-                if (arg1.equals("x?") ||
-                        (arg1.equals("x") && other != null
-                                 && other.equals("?"))) {
+                if (arg1.equals("x?") || arg1.equals("xq?")
+                        || (other != null && other.equals("?")
+                        && (arg1.equals("x") || arg1.equals("xq")))) {
                     stdprintln(DSV_OPTIONS_TEXT + LS + DSV_X_SYNTAX_MSG);
                     return;
                 }
@@ -3314,11 +3314,9 @@ public class SqlFile {
                                   int[] incCols,
                                   String filterString) throws SQLException,
                                   SqlToolError {
-        if (pwDsv != null && csvStyleQuoting
-                && (dsvColDelim == null || dsvColDelim.length() != 1
-                || dsvColDelim.equals("\""))) {
-            throw new SqlToolError(
-                    SqltoolRB.dsv_xqmq_singlechardelim.getString());
+        if (pwDsv != null && csvStyleQuoting && (dsvColDelim.indexOf('"') > -1
+                || dsvRowDelim.indexOf('"') > -1)) {
+            throw new SqlToolError(SqltoolRB.dsv_q_nodblquote.getString());
         }
         java.sql.Timestamp ts;
         int dotAt;
@@ -3711,12 +3709,12 @@ public class SqlFile {
                 }
 
                 if (csvStyleQuoting) {
-                    char delimChar = dsvColDelim.charAt(0);
+                    Pattern delimPat = Pattern.compile(dsvColDelim);
                     for (String[] fArray : rows) {
                         for (int j = 0; j < fArray.length; j++) {
                             if (fArray[j] != null && (allQuoted
-                                    || fArray[j].indexOf(delimChar) > -1
-                                    || fArray[j].indexOf('"') > -1)) {
+                                    || fArray[j].indexOf('"') > -1
+                                    || delimPat.matcher(fArray[j]).find())) {
                                 fArray[j] = '"'
                                         + fArray[j].replace("\"", "\"\"") + '"';
                             }
@@ -4739,6 +4737,10 @@ public class SqlFile {
          * simpler and concise, just switch all column names to lower-case.
          * This is ok since we acknowledge up front that DSV import/export
          * assume no special characters or escaping in column names. */
+        if (csvStyleQuoting && (dsvColSplitter.indexOf('"') > -1
+                || dsvRowSplitter.indexOf('"') > -1)) {
+            throw new SqlToolError(SqltoolRB.dsv_q_nodblquote.getString());
+        }
         Matcher matcher;
         byte[] bfr  = null;
         File   dsvFile = new File(filePath);

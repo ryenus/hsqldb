@@ -257,7 +257,7 @@ public enum SqltoolRB implements RefCapableRBInterface {
     remove_empty_vars_suggestset,
     auto_unset_warning,
     pl_unset_nomoreargs,
-    dsv_xqmq_singlechardelim,
+    dsv_q_nodblquote,
     connect_failure,
     streamread_failure,
     illegal_at,
