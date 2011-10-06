@@ -1390,8 +1390,13 @@
               described for the \i command above.
             </simpara></listitem></varlistentry>
             <varlistentry><term>\x?</term><listitem><simpara>
-              List a summary of DSV and CSV eXporting,
-              and all available options for them.
+              Ditto.
+            </simpara></listitem></varlistentry>
+            <varlistentry><term>\mq?</term><listitem><simpara>
+              Ditto.
+            </simpara></listitem></varlistentry>
+            <varlistentry><term>\xq?</term><listitem><simpara>
+              Ditto.
             </simpara></listitem></varlistentry>
             <varlistentry><term>\d?</term><listitem><simpara>
                 List a summary of the \d commands below.
@@ -3249,7 +3254,8 @@ SELECT * FROM t;]]></programlisting>
     </section>
 
     <section xml:id="sqltool_dsv-sect">
-        <title>Delimiter-Separated-Value Imports and Exports</title>
+        <title xml:id="dsv-title">
+          Delimiter-Separated-Value Imports and Exports</title>
         <para>
           SqlTool's DSV functionality encompasses what many users will
           recognize as CSV export, as well as portable backup or transfer of
@@ -3304,12 +3310,12 @@ SELECT * FROM t;]]></programlisting>
             usually not a comma, and, more importantly, we purposefully
             choose an effective delimiter instead of the CSV method of
             using a delimiter which works in some cases and then use
-            quotes and back-slashes to escape occurrence of the delimiter
-            in the actual data.
+            double-quotes to escape occurrence of the column-delimiter
+            and of double-quote itself in the actual data.
             Just by choosing a delimiter which never needs escaping, we
             eliminate the whole mess, and the data in our files always
             looks just like the corresponding data in the database.
-            To make this CSV / Delimiter-separated-value dintinction clear,
+            To make this CSV / Delimiter-separated-value distinction clear,
             I use the suffix ".dsv" for my data files.
             This leads me to stipulate the abbreviation DSV for the
             <emphasis>Delimiter Separated Value</emphasis> feature of HyperSQL.
@@ -3317,6 +3323,10 @@ SELECT * FROM t;]]></programlisting>
             Use the <literal>\x</literal> command to eXport a table to a
             DSV file, and the <literal>\m</literal> command to iMport a
             DSV file into a pre-existing table.
+            <emphasis role="bold">
+            Use command <literal>\x?</literal> or <literal>\m?</literal> for
+            a listing of all related commands and options.
+            </emphasis>
         </simpara><simpara>
             The row and column delimiters may be any String (or even a
             regular expression for import), not just a single character.
@@ -3452,9 +3462,15 @@ SELECT * FROM t;]]></programlisting>
                 <varname>*DSV_NULL_REP</varname>.
                 Notice that the asterisk is part of the variable names, to
                 indicate that these variables are used by SqlTool internally.
-                When specifying delimiters, you can use the escape seqpences
-                \n, \r, \f, \t, \\, and decimal, octal or hex specifications
-                like \20, \020, \0x20.
+                Regular expressions have their own mechanism for including
+                special characters.
+                <varname>*DSV_NULL_REP</varname> effects normal displaying of
+                VARCHAR output to screen or stdout, not just importing and
+                exporting-- so you should reset the value if you want to
+                revert to normal display behavior.
+                When specifying output delimiters, you can use the escape
+                sequences \n, \r, \f, \t, \\, and decimal, octal or hex
+                specifications like \20, \020, \0x20.
                 For example, to change the column delimiter to the tab character,
                 you would give the command
                 <informalexample>
@@ -3471,7 +3487,20 @@ SELECT * FROM t;]]></programlisting>
                 distinguished by containing "SPLITTER" for splitting input
                 (\m) files; or "DELIM" for the delimiters that we will write
                 (\x) among the data.
-            </simpara><para>
+            </simpara>
+            <tip><simpara>
+                *DSV...DELIM vs *DSV...SPLITTER settings
+              </simpara><simpara>
+              The settings named like <literal>*DSV...SPLITTER</literal> are
+              input delimiters specified as regular expressions following
+              the rules in the
+                <link xlink:href='http://http://java.sun.com/javase/6/docs/api/java/util/regex/Pattern.html'>API spec for java.util.regex.Pattern</link>.
+              The settings named like <literal>*DSV...SPLITTER</literal> are
+              output delimiters specified as constant strings which can contain
+              escape sequences to represent special characters (as documented
+              in this section).
+            </simpara></tip>
+            <para>
                 For imports, you must always specify the source DSV file path.
                 If you want to <emphasis>export</emphasis> to a different file
                 than one in the current directory named according to the source
@@ -3556,11 +3585,13 @@ SELECT * FROM t;]]></programlisting>
                 by *DSV_ROW_DELIM).
                 By default, commented lines are ignored, and the comment
                 character can be changed from its default value.
-            </simpara> <simpara>
+            </simpara> <important> <simpara>
                 Run the command "\x?" or "\m?" to see the several system PL
                 variables which you can set to adjust reject file behavior,
                 commenting behavior, and other DSV features.
-            </simpara> <para>
+                The online help is the definitive reference for available
+                options, not this manual.
+            </simpara> <important> <para>
                 You can also define some settings right in the DSV file,
                 and you can even specify multiple header lines in a single
                 DSV file.
@@ -3609,6 +3640,10 @@ SELECT * FROM t;]]></programlisting>
           <literal>\x</literal> and <literal>\m</literal>.
           Conflicting with the name, CSV files do not need to use comma as the
           column delimiter, and the tab character is a common alternative.
+          Since DSV importing and exporting is just a sub-case of DSV
+          import and exporting, everything in the 
+          <link xlink:href='#sqltool_dsv-sect' endterm='dsv-title'/>
+          section applies, and you should read it.
         </simpara> <simpara>
           I should also mention the trivial difference between
           <literal>\xq</literal> and <literal>\x</literal> that if you do not
@@ -3617,9 +3652,10 @@ SELECT * FROM t;]]></programlisting>
           "<literal>.dsv</literal>".
         </simpara>
         <para>
-          As always, use command \m? or \x? to list all available import and
+          Always use command \mq? or \xq? to list all available import and
           export options.
         <variablelist>
+          <title>Settings Often of Interest to CSV User</title>
             <varlistentry><term>*DSV_COL_DELIM</term><listitem><simpara>
               Set to what column delimiter to write to the CSV file.
               Values of "<literal>,</literal>" and
@@ -3656,7 +3692,8 @@ SELECT * FROM t;]]></programlisting>
                (The Java system property setting will become unnecessary soon
                because that is going to be SqlTool's default behavior with an
                upcoming release).
-               <literal>*NULL_REP_TOKEN</literal> also effects how nulls are
+               <literal>*NULL_REP_TOKEN</literal> also effects how nulls in
+               VARCHAR columns are
                represented in regular query output (non-exports), so after your
                exporting/importing you will often want to reset it with
                "<literal>* - *NULL_REP_TOKEN</literal>" unless you will be
