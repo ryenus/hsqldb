@@ -17,6 +17,8 @@ Bitte vergessen Sie nicht, das erste * leitet eine PL-Variable ein und
 das zweite * steht am Beginn eines jeden Variablennamens.
 \x oder \m im folgenden zeigen an wo die Einstellung anwendbar ist.
 Der Standardwert/Verhalten steht in den [quadratischen Klammern].
+    *ALL_QUOTED        \xq     Doppeltes Anführungszeichen jede Zelle für
+                               \xq Exporte.  ["false"]
     *DSV_SKIP_PREFIX   \m      Das Vorzeichen, das eine Kommentarzeile in der
                                Datei einleitet. ["#"]
     *DSV_COL_SPLITTER  \m      Das Spaltentrennzeichen fürs Einlesen als Regex.
@@ -49,8 +51,6 @@ Der Standardwert/Verhalten steht in den [quadratischen Klammern].
                                Einstellung, es wird nun nach X erfolgreichen
                                INSERTS commitet (sowie nach Abschluss des
                                Imports).
-    *ALL_QUOTED        \xq     Doppeltes Anführungszeichen jede Zelle für
-                               \xq Exporte
 * Das Importieren wird sofort nach dem ersten fehlerhaften Ipmort eines
 Datensatzes abgebrochen, es sei den die Variablen *DSV_REJECT_FILE und/oder
 *DSV_REJECT_REPORT sind gesetzt.

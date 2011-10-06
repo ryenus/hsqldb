@@ -13,32 +13,35 @@ Here are the special commands to initiate DSV and CSV imports and exports.
 All of the DSV PL variables are optional.  To see all PL var. values,
 run "* listvalues".  Set the values like:
     * *DSV_COL_DELIM = ,
-Don't forget the * indicating a PL command PLUS the leading * in
-all of these variable names.  \x or \m below indicates where
-the setting is applicable (\x implies \xq also, and \m impliex \mq also).
+Don't forget the * indicating a PL command PLUS the leading * in all of these
+ variable names.  (Names like *THIS indicate a SqlTool system PL variable).
+The second column indicates where the setting is applicable, either a
+ specific command; or M for \m or \mq; or X for \x or \xq; or MX for all.
 Default value/behavior is in [square brackets].
-    *DSV_COL_SPLITTER  \m    Column input delimiter regexp.   ["\|"]
-    *DSV_COL_DELIM     \x    Column output delimiter.   ["|"]
-    *DSV_CONST_COLS    \m    Column values to write to every row.   [None]
-    *DSV_RECORDS_PER_COMMIT \m  Set to integer value (X).  Overrides current
+    *ALL_QUOTED        \xq   Double-quote every cell for \xq exports. ["false"]
+    *DSV_COL_SPLITTER  M     Column input delimiter regexp.   ["\|"]
+    *DSV_COL_DELIM     X     Column output delimiter.   ["|"]
+    *DSV_CONST_COLS    M     Column values to write to every row.   [None]
+    *DSV_RECORDS_PER_COMMIT M  Set to integer value (X).  Overrides current
                              auto-commit setting and commits after every X
                              successful inserts (and upon import completion).
-    *DSV_REJECT_FILE   \m    DSV file to be created with rejected records.
+                             ["1" if auto-committing, "0" (never) if not]
+    *DSV_REJECT_FILE   M     DSV file to be created with rejected records.
                               [None*]
-    *DSV_REJECT_REPORT \m    HTML report to explain reject records [None*]
-    *DSV_ROW_SPLITTER  \m    Row input delimiter regexp.   ["\r\n|\r|\n"]
-    *DSV_ROW_DELIM     \x    Row output delimiter
+    *DSV_REJECT_REPORT M     HTML report to explain reject records [None*]
+    *DSV_ROW_SPLITTER  M     Row input delimiter regexp.   ["\r\n|\r|\n"]
+    *DSV_ROW_DELIM     X     Row output delimiter
                               [OS-dependent (Java line.separator)]
-    *DSV_SKIP_COLS     \m\x  Skip columns from input DSV file or input table.
-    *DSV_SKIP_PREFIX   \m    Comment line prefix in DSV files.  ["#"]
-    *DSV_TARGET_FILE   \x    File which exports will write to
+    *DSV_SKIP_COLS     MX    Skip columns from input DSV file or input table.
+                              [None]
+    *DSV_SKIP_PREFIX   M     Comment line prefix in DSV files.  ["#"]
+    *DSV_TARGET_FILE   X     File which exports will write to
                               [source table name + ".dsv", or ".csv" for \xq]
-    *DSV_TARGET_TABLE  \m    Table which imports will write to
+    *DSV_TARGET_TABLE  M     Table which imports will write to
                               [DSV filename without extension]
-    *DSV_TRIM_ALL      \m    If set to "true", trim leading and trailing
+    *DSV_TRIM_ALL      M     If set to "true", trim leading and trailing
                              whitespace from all columns upon import [false]
-    *NULL_REP_TOKEN    \m\x  String to represent database null.   ["[null]"]
-    *ALL_QUOTED        \xq   Double-quote every cell for \xq exports
+    *NULL_REP_TOKEN    MX    String to represent database null.   ["[null]"]
 * Imports will abort immediately upon the first import record failure, unless
 either *DSV_REJECT_FILE or *DSV_REJECT_REPORT (or both) are set.  (Whether
 SqlTool will roll back and quit depends on your settings for \c and \a).
