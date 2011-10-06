@@ -1689,12 +1689,6 @@ TIMESTAMP '2008-11-22 20:30:40.000000'
           </row>
 
           <row>
-            <entry><literal>IYYY</literal></entry>
-
-            <entry><para>4-digit year</para></entry>
-          </row>
-
-          <row>
             <entry><literal>MM</literal></entry>
 
             <entry><para>Month (01-12)</para></entry>
