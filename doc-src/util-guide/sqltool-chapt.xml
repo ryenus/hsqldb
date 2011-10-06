@@ -3488,9 +3488,9 @@ SELECT * FROM t;]]></programlisting>
                 (\m) files; or "DELIM" for the delimiters that we will write
                 (\x) among the data.
             </simpara>
-            <tip><simpara>
+            <tip><title>
                 *DSV...DELIM vs *DSV...SPLITTER settings
-              </simpara><simpara>
+              </title><simpara>
               The settings named like <literal>*DSV...SPLITTER</literal> are
               input delimiters specified as regular expressions following
               the rules in the
@@ -3591,7 +3591,7 @@ SELECT * FROM t;]]></programlisting>
                 commenting behavior, and other DSV features.
                 The online help is the definitive reference for available
                 options, not this manual.
-            </simpara> <important> <para>
+              </simpara> </important> <para>
                 You can also define some settings right in the DSV file,
                 and you can even specify multiple header lines in a single
                 DSV file.
