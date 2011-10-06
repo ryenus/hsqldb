@@ -6,6 +6,9 @@
 
 * *DSV_COL_DELIM = ,
 * *DSV_COL_SPLITTER = ,
+-- Following causes a reject report to be written if there are any bad records
+-- during the import.  To test it, enable the "FORCE AN ERROR" block below.
+* *DSV_REJECT_REPORT = import.html
 
 -- 1. SETTINGS
 -- For applications like MS Excel, which can't import or export nulls, we have
@@ -38,6 +41,11 @@ commit;
 -- 3. CSV EXPORT
 /* Export */
 \xq t
+/*  FORCE AN ERROR.  Enable the following 3 lines to force a bad CSV record.
+\o t.csv
+\p barf
+\o
+*/
 
 -- 4. BACK UP AND ZERO SOURCE TABLE
 CREATE TABLE orig AS (SELECT * FROM t) WITH DATA;
