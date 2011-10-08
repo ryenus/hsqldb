@@ -85,7 +85,7 @@ import java.util.regex.Pattern
 import groovy.xml.XmlUtil
 import groovy.xml.StreamingMarkupBuilder
 
-void recursivePush(newName, dli, msl, ips) {
+private void recursivePush(newName, dli, msl, ips) {
     if (msl.contains(newName))
         throw new GradleException("Recursion duplication for target '$newName'")
     if (ips.contains(newName))
