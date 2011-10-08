@@ -41,6 +41,8 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.List;
+import java.util.ArrayList;
 import org.hsqldb.lib.FrameworkLogger;
 import org.hsqldb.lib.RCData;
 import org.hsqldb.cmdline.sqltool.Token;
@@ -292,7 +294,7 @@ public class SqlTool {
         String  sqlText          = null;
         String  driver           = null;
         String  targetDb         = null;
-        String  varSettings      = null;
+        List<String>  varSettings  = new ArrayList<String>();
         boolean debug            = false;
         File[]  scriptFiles      = null;
         int     i                = -1;
@@ -369,9 +371,9 @@ public class SqlTool {
                         throw bcl;
                     }
 
-                    varSettings = arg[i];
+                    varSettings.add(arg[i]);
                 } else if (parameter.startsWith("setvar=")) {
-                    varSettings = arg[i].substring("--setvar=".length());
+                    varSettings.add(arg[i].substring("--setvar=".length()));
                 } else if (parameter.equals("sql")) {
                     noinput = true;    // but turn back on if file "-" specd.
 
@@ -621,9 +623,11 @@ public class SqlTool {
 
         sqlFiles = new SqlFile[numFiles];
 
-        if (varSettings != null) try {
+        if (varSettings.size() > 0) try {
             userVars = new HashMap<String, String>();
-            varParser(varSettings, userVars, false);
+            for (String vs : varSettings) {
+                varParser(vs, userVars, false);
+            }
         } catch (PrivateException pe) {
             throw new SqlToolException(RCERR_EXITVAL, pe.getMessage());
         }
