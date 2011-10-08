@@ -639,7 +639,7 @@ public class SqlFile {
      * false otherwise).
      */
     private SqlFileScanner      scanner;
-    private Token               buffer;
+    private Token               buffer, prevToken;
     private boolean             preempt;
     private String              lastSqlStatement;
     private boolean             autoClose = true;
@@ -863,6 +863,8 @@ public class SqlFile {
                         processPL(null);
                         continue;
                     case Token.SPECIAL_TYPE:
+                        // Storing prevToken as an attempted hack
+                        prevToken = buffer;
                         setBuf(token);
                         historize();
                         processSpecial(null);
@@ -1530,6 +1532,13 @@ public class SqlFile {
 
                     String tableName = ((other.indexOf(' ') > 0) ? null
                                                                  : other);
+                    if (tableName.equals(":")) {
+                        tableName = null;
+                        if (prevToken == null) {
+                            throw new BadSpecial(nobufferYetString);
+                        }
+                        other = prevToken.val;
+                    }
 
                     if (dsvTargetFile == null && tableName == null) {
                         throw new BadSpecial(
