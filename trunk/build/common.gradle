@@ -1,0 +1,80 @@
+// Purposefully not processing "gradle.properties" file, to avoid conflicts
+// with Gradle-internal handling of that file.
+
+void loadJavaProps(String filePath, boolean strict) {
+    File f = new File(filePath)
+    if (!f.isFile()) return
+    def props = new Properties();
+    f.withInputStream { props.load(it) }
+    logger.info('Loaded ' + props.size() + ' from ' + filePath)
+    String newVal;
+    boolean haveNewVal;
+    int prevCount = props.size();
+    def unresolveds = []
+    while (prevCount > 0) {
+        unresolveds.clear()
+        new HashMap(props).each() { pk, pv ->
+            haveNewVal = true;
+            newVal = pv.replaceAll(/\$\{([^}]+)\}/, {
+                if (project.hasProperty(it[1])) return project.property(it[1])
+                if (System.properties.containsKey(it[1]))
+                    return System.properties[it[1]]
+                unresolveds << it[1]
+                haveNewVal = false;
+                        return it[0]
+            })
+            if (haveNewVal) {
+                project.setProperty(pk, newVal)
+                props.remove(pk)
+            }
+        }
+        if (prevCount == props.size()) {
+            if (strict)
+                throw new GradleException(
+                    'Unable to resolve top-level properties: ' + props.keySet()
+                    + '\ndue to unresolved references to: ' + unresolveds)
+            logger.error(
+                    'Unable to resolve top-level properties: ' + props.keySet()
+                    + '\ndue to unresolved references to: ' + unresolveds)
+            return
+        }
+        prevCount = props.size()
+    }
+}
+// Unlike Ant, the LAST loaded properties will override.
+loadJavaProps('app.properties', true)
+loadJavaProps('local.properties', false)
+
+// Read in 'local.gradle' if it exists.
+file localFile = file('local.gradle')
+if (localFile.canRead() && localFile.isFile()) {
+    logger.info("Applying '" + localFile + "'")
+    apply from: localFile
+}
+
+// Add a flatDir repository if property 'repos.flatdir.path' is set.
+if (project.hasProperty('repos.flatdir.path')) {
+    repositories {
+        flatDir dirs: new File(project.property('repos.flatdir.path'))
+    }
+}
+// Add a flat url repository if property 'repos.flatdir.url' is set.
+if (project.hasProperty('repos.flatdir.url')) {
+    repositories {
+        add(new org.apache.ivy.plugins.resolver.URLResolver()) {
+            name = 'flatDirUrlRepos'
+            addArtifactPattern "${project.property('repos.flatdir.url')}/[artifact]-[revision](-[classifier]).[ext]"
+            checkmodified = true
+        }
+    }
+}
+// Add default Maven repository if property 'repos.useMaven' is set.
+if (project.hasProperty('repos.useMaven')
+        && Boolean.parseBoolean(project.property('repos.useMaven')))
+    repositories { mavenCentral() }
+if (repositories.resolvers.size < 1)
+    throw new InvalidUserDataException('''Set one of following properties or write a 'local.gradle' file:
+    'repos.flatdir.path' or 'repos.flatdir.url' or 'repos.useMaven' to 'true'
+    ''')
+
+logger.info(repositories.resolvers.size + ' repositories')
