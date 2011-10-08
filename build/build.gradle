@@ -1,0 +1,249 @@
+defaultTasks 'hsqldb-help'
+
+project['repos.useMaven'] = 'true'
+apply from: 'common.gradle'
+
+// This task only for SCM administrator.  Update version and execute this task.
+task updateWrapper(type: Wrapper) {
+    gradleVersion = '1.0-milestone-3'
+}
+updateWrapper.description = 'Update Gradle version.  For HSQLDB Administrators.'
+
+task serialver << {
+    if (!project.hasProperty('className'))
+        throw new InvalidUserDataException(
+                "Property 'className' is required for task 'serialver'")
+
+    String pathSep = System.properties['path.separator']
+    // Could alternatively use Gradle's ExecSpec via exec(...)
+    def process = new ProcessBuilder([
+        // 'D:\\progra~1\\portableGit-1.7.3.1-p\\bin\\ls',
+        'serialver',
+        '-classpath',
+        ('classes' + pathSep + configurations.runtime.files.join(pathSep)
+                + pathSep + configurations.compile.files.join(pathSep))
+        ,
+        project.property('className')
+    ]).redirectErrorStream(true).start()
+    // Must read input before waitFor-ing
+    process.inputStream.eachLine { println it }
+    process.waitFor()
+    if (process.exitValue()) {
+        //print process.inputStream.text
+        throw new GradleException("'serialver' execution failed")
+    }
+}
+serialver.description = "Generates Java serialversion for specified 'classname'"
+
+void resolveCheck(configName) {
+    int artCount = configurations[configName].files.size()
+    // Following test works only if deps' transitive is false.
+    if (configurations[configName].allDependencies.size() != artCount) {
+        logger.error(
+                "Didn't resolve all dependencies for config '$configName'.  "
+                + configurations[configName].allDependencies.size()
+                + ' dependencies:\n    ' + configurations[configName]
+                .allDependencies .collect({it.name}).join('\n    ')
+                + '\nbut ' + artCount 
+                + ' resolved artifacts:\n    '
+                + configurations[configName].files.collect({it}).join('\n    ')
+                + '\n'
+        )
+        throw new GradleException("Didn't resolve all dependencies.")
+    }
+    //configurations[configName].files.each { println '+' + it }
+    //throw new GradleException("Quittin' early")
+    logger.info(artCount + ' artifacts resolved')
+}
+
+/*  This task will become useful for native Gradle compilations
+compileJava.dependsOn << {
+    if (!project.hasProperty('resolveCheck.skip')
+            || !Boolean.parseBoolean(project.property('resolveCheck.skip')))
+        resolveCheck('compile')
+}
+*/
+
+// Blaine wants to use a variant of the following to check for tabs in
+// SqlTool's properties and *.txt files.
+/*  X's inserted below or this multi-line comment would not work.
+task checkTabs (dependsOn: war) << {
+    FileTree tree = fileTree(dir: '.')
+    tree.exclude '**X/.*'
+    tree.exclude 'src/main/webapp/images'
+    tree.exclude 'src/main/webapp/css/openid*.css'
+    tree.exclude 'src/main/webapp/js/openid*.js'
+    tree.include  'src/X**'
+    tree.include  'doc/X**'
+    def tabFiles = []
+    tree.each { if (it.text.indexOf('\t') > -1) tabFiles << relativePath(it) }
+    if (tabFiles.size() > 0) println '  ' + tabFiles.join('\n  ')
+}
+*/
+
+import java.util.regex.Pattern
+import groovy.xml.XmlUtil
+import groovy.xml.StreamingMarkupBuilder
+
+void recursivePush(newName, dli, msl, ips) {
+    if (msl.contains(newName))
+        throw new GradleException("Recursion duplication for target '$newName'")
+    if (ips.contains(newName))
+        throw new GradleException("Recursion cycle for target '$newName'")
+    ips.add(0, newName)
+    for (superEl in dli)
+        if (superEl.contains(newName))
+            for (subEl in superEl) {
+                if (subEl == newName) break
+                if (ips.contains(subEl))
+                    throw new GradleException(
+                            "Dependency cycle exists for target '$subEl'")
+                if (!msl.contains(subEl)) // Recurse
+                    recursivePush(subEl, dli, msl, ips)
+            }
+        //for (i = 0 .. superEl.size()-1)
+    msl.add(newName)
+    if (ips.remove(0) != newName)
+        throw new GradleException('Internal IPS stack problem')
+}
+
+/**
+ * @param fileNameInsertion.
+ *        For translating input filenames to new output files.
+ * @closure  Will call this with param of an array of Slurped XML (same number
+ *           of elements as number of input files).
+ *           Null to not do anything with it.
+ */
+void resequenceAntDependencies(
+        String fileNameInsertion, closure, File... inFiles) {
+    def xmls = []
+    for (File f in inFiles)
+        xmls << new XmlSlurper().parseText(f.getText("UTF-8"))
+    def targetsIn = [:]      // name -> Target.  Those CONTAINING multi-depends.
+    def dependListsIn = [:]  // name -> List<String>
+    def inProcessStack = []  // For cycle checking
+    def masterSeqList = []   // Sequential list of all ref'd targ names
+
+    // 1:  Determine new sequence 'masterSeqList'
+    for (xml in xmls) for (targ in xml.target.findAll{
+        it.@depends != null && it.@depends.list().size() > 0}) {
+            def listEls = Arrays.asList(targ.@depends.text().split("\\s*,\\s*"))
+            if (listEls.size() > 0 && listEls[0].size() < 1) listEls.remove(0)
+            if (listEls.size() < 2) continue  // No precedence if 1:1 dep.
+            targetsIn[targ.@name.text()] = targ
+            dependListsIn[targ.@name.text()] = listEls
+        }
+    logger.info(targetsIn.size()
+            + " name->Target's (just keys): " + targetsIn.keySet())
+    logger.info(dependListsIn.size() + " name->List's: " + dependListsIn)
+
+    for (dl in dependListsIn.values())
+        for (n in dl)
+            if (!masterSeqList.contains(n))
+                recursivePush(n,
+                        dependListsIn.values(), masterSeqList, inProcessStack)
+    logger.info('RESULT:  ' + masterSeqList)
+
+    // 2: Generate task-renaming map 'renameMap'
+    //    and ouput dep lists 'dependListsOut'
+    def renameMap = [:]       // String -> String
+    def dependListsOut = [:]  // name -> List<String>
+    def outList               // Strings
+
+    for (n in masterSeqList)
+        renameMap[n] = String.format("%03d%s", renameMap.size() + 1, n);
+    for (e in dependListsIn) {
+        outList = []
+        dependListsOut[e.key] = outList;
+        for (n in e.value)
+            outList << (renameMap.containsKey(n) ? renameMap[n] : n)
+    }
+    logger.info('renameMap: ' + renameMap)
+
+    // 3: Modify Ant build file text
+    // Update 'target' attrs, target name attrs, target depends attrs
+    for (e in targetsIn)
+        e.value.@depends = dependListsOut[e.key].join(', ')
+    for (xml in xmls) {
+        for (targ in xml.depthFirst().findAll{ it.@target.list().size() > 0 })
+            if (renameMap.containsKey(targ.@target.text()))
+                // { logger.debug("Trying " + targ.@target.text())
+                targ.@target = renameMap.get(targ.@target.text())
+        for (e in renameMap) {
+            xml.target.find{it.@name.text() == e.key}.@name = e.value;
+            // Following is for depends that did not contribute to sequencing,
+            // but which still contain mapped target names.
+            xml.target.findAll{it.@depends.text() == e.key}.@depends = e.value;
+        }
+    }
+
+    // 3.5: Conditionally execute user-specified closure
+    if (closure != null) closure(xmls)
+
+
+    // 4: Write modified Ant build file
+    File outFile;
+    java.util.regex.Pattern dotPattern = java.util.regex.Pattern.compile("\\.");
+    for (i in 0 .. xmls.size()-1) {
+        if (inFiles[i].name.indexOf('.') < 0)
+            throw new GradleException(
+                    "Input file name has no extension:  " + inFiles[i].name)
+        outFile = new File(
+                ((project.hasProperty('resequence.destDir'))
+                        ? project['resequence.destDir']
+                        : inFiles[i].getParentFile()),
+                dotPattern.matcher(inFiles[i].getName()).replaceFirst(
+                fileNameInsertion + '.'))
+        logger.info("Writing '" + outFile.absolutePath + "'")
+        outFile.write(XmlUtil.serialize(
+            new StreamingMarkupBuilder().bind{mkp.yield xmls[i]}), "UTF-8")
+    }
+
+    // 5: Consider creating Gradle-only wrapper Tasks for those renamed
+    //    Targets that have names not beginning with "-".
+}
+
+// RESEQUENCE
+project['resequence.destDir'] = file('..')
+resequenceAntDependencies('-gradled', {
+    it[0].import.find{it.@file = 'build-docbook-gradled.xml'}
+    it[0].@name = it[0].@name.text() + "_gradled"
+    it[1].@name = it[0].@name.text() + "_gradled"
+}, file('build.xml'), file('build-docbook.xml'))
+
+ant.importBuild('../build-gradled.xml')
+file('../build-gradled.xml').deleteOnExit();
+file('../build-docbook-gradled.xml').deleteOnExit();
+
+// Don't want to override expected out-of-the-box Gradle task "help", so we
+// rename our Ant "help" task:
+task 'hsqldb-help'(dependsOn: help) {
+    description = "Wrapper for hsqldb's 'help' task"
+} << {
+    println '\nIn the usage and examples text' \
+            + 'above, use "gradlew" in place of "ant".'
+}
+
+task tasks << {
+    Pattern privateTaskPattern = Pattern.compile("(?:\\d{3}|-).+");
+    print """
+------------------------------------------------------------
+Root Project
+------------------------------------------------------------
+
+Help tasks
+----------
+dependencies - Displays the dependencies of root project '$project.name'.
+help - Displays a help message
+projects - Displays the sub-projects of root project '$project.name'.
+properties - Displays the properties of root project '$project.name'.
+tasks - Displays the tasks in root project '$project.name'.
+
+Other tasks
+-----------
+"""
+    for (t in getTasks())
+        if (t.description != null
+                && !privateTaskPattern.matcher(t.name).matches())
+            println t.name + ' - ' + t.description
+}
