@@ -208,7 +208,7 @@ project['resequence.destDir'] = file('..')
 resequenceAntDependencies('-gradled', {
     it[0].import.find{it.@file = 'build-docbook-gradled.xml'}
     it[0].@name = it[0].@name.text() + "_gradled"
-    it[1].@name = it[0].@name.text() + "_gradled"
+    it[1].@name = it[1].@name.text() + "_gradled"
 }, file('build.xml'), file('build-docbook.xml'))
 
 ant.importBuild('../build-gradled.xml')
