@@ -192,7 +192,8 @@ public class SqlTool {
      * @param lowerCaseKeys Set to <code>true</code> if the map keys should be
      *        converted to lower case
      */
-    private static void varParser(String varString, Map<String, String> varMap,
+    private static void varParser(String inVarString,
+                                  Map<String, String> varMap,
                                   boolean lowerCaseKeys)
                                   throws PrivateException {
 
@@ -204,13 +205,17 @@ public class SqlTool {
             throw new IllegalArgumentException(
                     "varMap is null in SqlTool.varParser call");
         }
-        if (varString == null) {
+        if (inVarString == null) {
             throw new IllegalArgumentException(
-                    "varString is null in SqlTool.varParser call");
+                    "inVarString is null in SqlTool.varParser call");
         }
+        boolean escapesPresent = inVarString.indexOf("\\,") > -1;
+        String  varString = escapesPresent ?
+                inVarString.replace("\\,", "\u0002")
+                : inVarString;
 
         for (String token : varString.split("\\s*,\\s*")) {
-            equals     = token.indexOf('=');
+            equals = token.indexOf('=');
 
             if (equals < 1) {
                 throw new PrivateException(
@@ -219,6 +224,9 @@ public class SqlTool {
 
             var = token.substring(0, equals).trim();
             val = token.substring(equals + 1).trim();
+            if (escapesPresent) {
+                val = val.replace("\u0002", ",");
+            }
 
             if (var.length() < 1) {
                 throw new PrivateException(
