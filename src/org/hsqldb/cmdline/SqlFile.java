@@ -4950,6 +4950,7 @@ public class SqlFile {
         String colName;
         String[] cols = headerLine.split(
                 (csvStyleQuoting ? "\u0002" : dsvColSplitter), -1);
+        Set<String> usedCols = new HashSet<String>();  // Checks for dup cols
 
         for (String col : cols) {
             if (col.length() < 1) {
@@ -4958,15 +4959,23 @@ public class SqlFile {
             }
 
             colName = col.trim().toLowerCase();
-            headerList.add(
-                (colName.equals("-")
+            if (colName.equals("-")
                         || (skipCols != null
                                 && skipCols.remove(colName))
                         || (constColMap != null
-                                && constColMap.containsKey(colName))
-                )
-                ? ((String) null)
-                : colName);
+                                && constColMap.containsKey(colName))) {
+                colName = null;
+            }
+            headerList.add(colName);
+            if (colName == null) {
+                continue;
+            }
+            if (usedCols.contains(colName.toLowerCase())) {
+                // TODO:  Define an internationalized message
+                throw new SqlToolError("Multiple input column values for "
+                        + "single database column: " + colName);
+            }
+            usedCols.add(colName.toLowerCase());
         }
         if (skipCols != null && skipCols.size() > 0) {
             throw new SqlToolError(SqltoolRB.dsv_skipcols_missing.getString(
