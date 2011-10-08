@@ -19,8 +19,12 @@ Options:
                              or --sql switch used).
     --rcFile=/file/path.rc   Connect Info File [$HOME/sqltool.rc]
     --setVar=NAME1=val1[,NAME2=val2...]   PL variables
+                             May use multiple instances of this switch.
+    -p NAME=value            Assign a single PL variable.
+                             May use multiple instances of this switch.
     --sql="SQL; Statements;" Execute given SQL instead of stdin (before
                              SQL files if any are specified) where "SQL"
                              consists of SQL command(s).  See the Guide.
     --stdInput               Read stdin IN ADDITION to sql files/--sql input
+Values set with inlineRc or setVar may use \ to escape commas inside of values.
 SqlTool v. %{1}.  The invocation samples assume you have set up 'CLASSPATH'.
