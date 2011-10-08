@@ -41,8 +41,6 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.List;
-import java.util.ArrayList;
 import org.hsqldb.lib.FrameworkLogger;
 import org.hsqldb.lib.RCData;
 import org.hsqldb.cmdline.sqltool.Token;
@@ -294,7 +292,6 @@ public class SqlTool {
         String  sqlText          = null;
         String  driver           = null;
         String  targetDb         = null;
-        List<String>  varSettings  = new ArrayList<String>();
         boolean debug            = false;
         File[]  scriptFiles      = null;
         int     i                = -1;
@@ -316,7 +313,7 @@ public class SqlTool {
         String  parameter;
         SqlFile[] sqlFiles       = null;
         Connection conn          = null;
-        Map<String, String> userVars = null;
+        Map<String, String> userVars = new HashMap<String, String>();
 
         try { // Try block to GC tmpReader
         try { // Try block for BadCmdline
@@ -371,9 +368,20 @@ public class SqlTool {
                         throw bcl;
                     }
 
-                    varSettings.add(arg[i]);
+                    try {
+                        varParser(arg[i], userVars, false);
+                    } catch (PrivateException pe) {
+                        throw new SqlToolException(
+                                RCERR_EXITVAL, pe.getMessage());
+                    }
                 } else if (parameter.startsWith("setvar=")) {
-                    varSettings.add(arg[i].substring("--setvar=".length()));
+                    try {
+                        varParser(arg[i].substring("--setvar=".length()),
+                                userVars, false);
+                    } catch (PrivateException pe) {
+                        throw new SqlToolException(
+                                RCERR_EXITVAL, pe.getMessage());
+                    }
                 } else if (parameter.equals("sql")) {
                     noinput = true;    // but turn back on if file "-" specd.
 
@@ -623,15 +631,6 @@ public class SqlTool {
 
         sqlFiles = new SqlFile[numFiles];
 
-        if (varSettings.size() > 0) try {
-            userVars = new HashMap<String, String>();
-            for (String vs : varSettings) {
-                varParser(vs, userVars, false);
-            }
-        } catch (PrivateException pe) {
-            throw new SqlToolException(RCERR_EXITVAL, pe.getMessage());
-        }
-
         // We print version before execing this one.
         int interactiveFileIndex = -1;
         String encoding = (conData == null) ? null : conData.charset;
@@ -676,7 +675,7 @@ public class SqlTool {
         try {
             for (SqlFile sqlFile : sqlFiles) {
                 if (conn != null) sqlFile.setConnection(conn);
-                if (userVars != null) sqlFile.addUserVars(userVars);
+                if (userVars.size() > 0) sqlFile.addUserVars(userVars);
                 if (macros != null) sqlFile.addMacros(macros);
                 if (coeOverride != null)
                     sqlFile.setContinueOnError(coeOverride.booleanValue());
