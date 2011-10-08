@@ -317,7 +317,8 @@ public class SqlTool {
 
         try { // Try block to GC tmpReader
         try { // Try block for BadCmdline
-            while ((i + 1 < arg.length) && arg[i + 1].startsWith("--")) {
+            while ((i + 1 < arg.length))
+            if (arg[i + 1].startsWith("--")) {
                 i++;
 
                 if (arg[i].length() == 2) {
@@ -424,6 +425,21 @@ public class SqlTool {
                 } else {
                     throw bcl;
                 }
+            } else if (arg[i + 1].equalsIgnoreCase("-P")) {
+                i++;
+                if (++i == arg.length) {
+                    throw bcl;
+                }
+
+                int equalAt = arg[i].indexOf('=');
+                if (equalAt < 1) {
+                    throw new SqlToolException(RCERR_EXITVAL,
+                            "Specified var assignment contains no '='");
+                }
+                userVars.put(arg[i].substring(0, equalAt),
+                        arg[i].substring(equalAt + 1));
+            } else {
+                break;
             }
 
             if (!listMode && rcParams == null && ++i != arg.length) {
