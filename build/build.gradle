@@ -1,4 +1,4 @@
-defaultTasks 'hsqldb-help'
+defaultTasks 'help'
 
 project['repos.useMaven'] = 'true'
 apply from: 'common.gradle'
@@ -183,7 +183,7 @@ void resequenceAntDependencies(
 
     // 4: Write modified Ant build file
     File outFile;
-    java.util.regex.Pattern dotPattern = java.util.regex.Pattern.compile("\\.");
+    Pattern dotPattern = Pattern.compile("\\.");
     for (i in 0 .. xmls.size()-1) {
         if (inFiles[i].name.indexOf('.') < 0)
             throw new GradleException(
@@ -216,14 +216,38 @@ ant.importBuild('../build-gradled.xml')
 file('../build-gradled.xml').deleteOnExit();
 file('../build-docbook-gradled.xml').deleteOnExit();
 
-// Don't want to override expected out-of-the-box Gradle task "help", so we
-// rename our Ant "help" task:
-task 'hsqldb-help'(dependsOn: help) {
-    description = "Wrapper for hsqldb's 'help' task"
-} << {
-    println '\nIn the usage and examples text' \
-            + 'above, use "gradlew" in place of "ant".'
+/**
+ *
+ * Override both the Gradle out-of-the-box 'help' task, as well as our HSQLDB
+ * Ant 'help' target, because the latter is very Ant-specific.
+ * To get the both of both worlds, we combine the output of Gradle's OOTB
+ * 'help' with Gradle-translated output of our Ant 'help' target.
+ */
+task help(overwrite:true) << {
+    def antVer = ant.properties['ant.version']
+            .replaceFirst("^[^\\d]*(\\d\\S+).*\$", "\$1")
+    print """
+Welcome to Gradle $gradle.gradleVersion.  (Wrapping Ant $antVer).
+
+To run a build, run gradle <task> ...
+
+To see a list of available tasks, run gradle tasks
+
+To see a list of command-line options, run gradle --help
+
+    
+Usage:
+   gradlew --help           Display 'gradlew' command syntax
+   gradlew tasks            Display all invocable targets
+   gradlew explainjars      List all targets which build jar files
+   gradlew ANYTHING ELSE    Run 'gradlew' for details
+
+examples:
+   gradlew jar
+   gradlew clean
+"""
 }
+help.description = "Displays a help message"
 
 task tasks << {
     Pattern privateTaskPattern = Pattern.compile("(?:\\d{3}|-).+");
