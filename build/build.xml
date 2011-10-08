@@ -33,6 +33,7 @@
    <property name="build.vendor" value="${user.name}"/>
    <property name="hsqldb.title" value="HSQLDB"/>
    <property name="hsqldb.vendor" value="The HSQL Development Group"/>
+   <property name="build.sysclasspath" value="ignore"/>
    <property name="swsrc" value="${basedir}/tmp/switchedsrc/"/>
    <condition property="switch.inplace">
      <equals arg1="${swsrc}" arg2="${basedir}/src"/>
