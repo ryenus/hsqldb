@@ -159,13 +159,6 @@ public class SqlFile {
     private String           contPrompt       = "  +> ";
     private boolean          htmlMode;
     private TokenList        history;
-    private String           nullRepToken;
-    private String           dsvTargetFile;
-    private String           dsvTargetTable;
-    private String           dsvConstCols;
-    private String           dsvRejectFile;
-    private String           dsvRejectReport;
-    private int              dsvRecordsPerCommit = 0;
     /** Platform-specific line separator */
     public static String     LS = System.getProperty("line.separator");
     private int              maxHistoryLength = 1;
@@ -177,9 +170,33 @@ public class SqlFile {
     // has finished.
     private String           inputStreamLabel;
     private File             baseDir;
+    private boolean          dsvTrimAll;
+    private boolean          allQuoted;
+    private boolean          doPrepare;
+    private static String    DSV_X_SYNTAX_MSG;
+    private static String    DSV_M_SYNTAX_MSG;
+    private static String    nobufferYetString;
+    private String           prepareVar;
+    private int              dsvRecordsPerCommit = 0;
 
     static String            DEFAULT_FILE_ENCODING =
                              System.getProperty("file.encoding");
+
+    // These settings are never null
+    private String nullRepToken;   // May be ""
+    private String dsvColDelim;    // May NOT be ""
+    private String dsvColSplitter; // May NOT be ""
+    private String dsvRowDelim;    // May NOT be ""
+    private String dsvRowSplitter; // May NOT be ""
+    private String dsvConstCols;   // May NOT be ""
+    private String dsvSkipPrefix;  // May not be ""
+
+    // Following may be null but not ""
+    private String dsvSkipCols;
+    private String dsvTargetFile;
+    private String dsvTargetTable;
+    private String dsvRejectFile;
+    private String dsvRejectReport;
 
     /**
      * N.b. javax.util.regex Optional capture groups (...)? are completely
@@ -279,7 +296,7 @@ public class SqlFile {
         // Unset those system userVars where empty string makes no sense.
         String varVal;
         for (String noEmpty : new String[] {
-            "DSV_SKIP_PREFIX", "DSV_SKIP_COLS", "DSV_COL_DELIM",
+            "DSV_SKIP_COLS", "DSV_COL_DELIM",
             "DSV_COL_SPLITTER", "DSV_ROW_DELIM", "DSV_ROW_SPLITTER",
             "DSV_TARGET_FILE", "DSV_TARGET_TABLE", "DSV_CONST_COLS",
             "DSV_REJECT_FILE", "DSV_REJECT_REPORT", "DSV_RECORDS_PER_COMMIT",
@@ -294,10 +311,17 @@ public class SqlFile {
             shared.userVars.remove('*' + noEmpty);
         }
 
+        // Null/empty policy of *DSV_SKIP_PREFIX variable is very different
+        // from that of our dsvSkipPrefix local variable.
+        // *DSV... null -> dsv* default
+        // *DSV... ""   -> dsv* null
+        // There is no dsv* of ""
         dsvSkipPrefix = SqlFile.convertEscapes(
                 shared.userVars.get("*DSV_SKIP_PREFIX"));
         if (dsvSkipPrefix == null) {
             dsvSkipPrefix = DEFAULT_SKIP_PREFIX;
+        } else if (dsvSkipPrefix.length() < 1) {
+            dsvSkipPrefix = null;
         }
         dsvSkipCols = shared.userVars.get("*DSV_SKIP_COLS");
         dsvTrimAll = Boolean.parseBoolean(
@@ -330,6 +354,7 @@ public class SqlFile {
         dsvConstCols = shared.userVars.get("*DSV_CONST_COLS");
         dsvRejectFile = shared.userVars.get("*DSV_REJECT_FILE");
         dsvRejectReport = shared.userVars.get("*DSV_REJECT_REPORT");
+        dsvRecordsPerCommit = 0;
         if (shared.userVars.get("*DSV_RECORDS_PER_COMMIT") != null) try {
             dsvRecordsPerCommit = Integer.parseInt(
                     shared.userVars.get("*DSV_RECORDS_PER_COMMIT"));
@@ -337,7 +362,6 @@ public class SqlFile {
             errprintln(SqltoolRB.reject_rpc.getString(
                     shared.userVars.get("*DSV_RECORDS_PER_COMMIT")));
             shared.userVars.remove("*DSV_REJECT_REPORT");
-            dsvRecordsPerCommit = 0;
         }
 
         nullRepToken = shared.userVars.get("*NULL_REP_TOKEN");
@@ -1414,20 +1438,6 @@ public class SqlFile {
                 Character.toString(commandChar)));
     }
 
-    private boolean doPrepare;
-    private String  prepareVar;
-    private String  dsvColDelim;
-    private String  dsvColSplitter;
-    private String  dsvSkipPrefix;
-    private String  dsvRowDelim;
-    private String  dsvRowSplitter;
-    private String  dsvSkipCols;
-    private boolean dsvTrimAll;
-    private boolean allQuoted;
-    private static String  DSV_X_SYNTAX_MSG;
-    private static String  DSV_M_SYNTAX_MSG;
-    private static String  nobufferYetString;
-
     private void enforce1charSpecial(String tokenString, char command)
             throws BadSpecial {
         if (tokenString.length() != 1) {
@@ -1499,21 +1509,14 @@ public class SqlFile {
                     throw new BadSpecial(DSV_M_SYNTAX_MSG);
                 }
                 other = other.trim();
-                boolean noComments = other.charAt(other.length() - 1) == '*';
-                String skipPrefix = null;
+                String skipPrefix = dsvSkipPrefix;
 
-                if (noComments) {
+                if (other.charAt(other.length() - 1) == '*') {
                     other = other.substring(0, other.length()-1).trim();
                     if (other.length() < 1) {
                         throw new BadSpecial(DSV_M_SYNTAX_MSG);
                     }
-                } else {
-                    skipPrefix = dsvSkipPrefix;
-                }
-                int colonIndex = other.indexOf(" :");
-                if (colonIndex > -1 && colonIndex < other.length() - 2) {
-                    skipPrefix = other.substring(colonIndex + 2);
-                    other = other.substring(0, colonIndex).trim();
+                    skipPrefix = null;
                 }
 
                 csvStyleQuoting = arg1.equals("mq");

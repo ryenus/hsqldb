@@ -1,4 +1,4 @@
-    \m pfad/datei.dsv [*]  Importiert Datensätze aus einer DSV-Textdatei in
+    \m pfad/datei.dsv      Importiert Datensätze aus einer DSV-Textdatei in
                            eine Tabelle. (weitere Optionen '\m?').
     \mq pfad/datei.csv     Ditto, aber mit traditionellen CSV doppelt zitiert.
     \x {TABELLE|SELECT...} Exportiert Tabellen oder Abfragen in eine

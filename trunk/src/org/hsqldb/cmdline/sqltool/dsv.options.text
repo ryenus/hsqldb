@@ -5,8 +5,8 @@ You can use all of these features with traditional CSV files, which allows for
 the use of the column-delimiter inside data, by using \xq and \mq instead of
 \x and \q.
 Here are the special commands to initiate DSV and CSV imports and exports.
-    \m file/path.dsv [*]   iMport DSV text file records into a table (opts \m?)
-    \mq  f/path.csv [*]    Ditto, but with traditional CSV double-quoting
+    \m file/path.dsv       iMport DSV text file records into a table (opts \m?)
+    \mq  f/path.csv        Ditto, but with traditional CSV double-quoting
     \x {TABLE|:[appendage]|SELECT...}
                            eXport table or query to DSV text file (options \x?)
     \xq {TABLE|:[appendage]|SELECT...}   
@@ -31,7 +31,7 @@ Default value/behavior is in [square brackets].
     *DSV_RECORDS_PER_COMMIT M  Set to integer value (X).  Overrides current
                              auto-commit setting and commits after every X
                              successful inserts (and upon import completion).
-                             ["1" if auto-committing, "0" (never) if not]
+                              ["1" if auto-committing, "0" (never) if not]
     *DSV_REJECT_FILE   M     DSV file to be created with rejected records.
                               [None*]
     *DSV_REJECT_REPORT M     HTML report to explain reject records [None*]
@@ -41,6 +41,7 @@ Default value/behavior is in [square brackets].
     *DSV_SKIP_COLS     MX    Skip columns from input DSV file or input table.
                               [None]
     *DSV_SKIP_PREFIX   M     Comment line prefix in DSV files.  ["#"]
+                             Set to "" (empty String) to disable commenting.
     *DSV_TARGET_FILE   X     File which exports will write to
                               [source table name + ".dsv", or ".csv" for \xq]
     *DSV_TARGET_TABLE  M     Table which imports will write to
