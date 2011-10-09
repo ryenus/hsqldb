@@ -29,6 +29,7 @@ Auto. variable ? is set to the very latest SQL datum fetched (or update count).
     Query:  The value of the first field of the first row returned.
     other:  Return status of the command
             (for updates this will be the number of rows updated).
-'* VARNAME ~' or '* VARNAME _' sets the specified variable's value exactly
-like ?.  (~ will echo the value, _ will do it silently).
+'* VARNAME ~' or '* VARNAME _' sets the specified variable's value just like
+?, but to the very next returned value.
+(~ will echo the value, _ will do it silently).
 
