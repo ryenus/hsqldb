@@ -206,8 +206,12 @@ public class SqlFile {
     private static Pattern wincmdPattern;
     private static Pattern useMacroPattern =
             Pattern.compile("(\\w+)(\\s.*[^;])?(;?)");
-    private static Pattern editMacroPattern =
+    private static Pattern useFnPattern =
+            Pattern.compile("(\\w+)\\(\\s*([^;)]*?)\\s*\\)\\s*(;?)");
+    private static Pattern legacyEditMacroPattern =
             Pattern.compile("(\\w+)\\s*:(.*)");
+    private static Pattern editMacroPattern =
+            Pattern.compile(":\\s(\\w+)\\s(.*)");
     private static Pattern spMacroPattern =
             Pattern.compile("(\\w+)\\s+([*\\\\])(.*\\S)");
     private static Pattern sqlMacroPattern =
@@ -858,6 +862,7 @@ public class SqlFile {
                         processMacro(token);
                         continue;
                     case Token.PL_TYPE:
+                        // Storing prevToken as an attempted hack
                         prevToken = buffer;
                         setBuf(token);
                         historize();
@@ -5615,9 +5620,32 @@ public class SqlFile {
         if (defToken.val.length() < 1) {
             throw new BadSpecial(SqltoolRB.macro_tip.getString());
         }
+        boolean isFunction = false;
+        int newType = -1;
+        StringBuffer newVal = new StringBuffer();
         switch (defToken.val.charAt(0)) {
             case '?':
                 stdprintln(SqltoolRB.macro_help.getString());
+                break;
+            case ':':
+                matcher = editMacroPattern.matcher(defToken.val);
+                if (!matcher.matches())
+                    throw new BadSpecial(SqltoolRB.macro_malformat.getString());
+                if (buffer == null) {
+                    stdprintln(nobufferYetString);
+                    return;
+                }
+                newVal.append(buffer.val);
+                if (matcher.groupCount() > 1 && matcher.group(2) != null
+                        && matcher.group(2).length() > 0)
+                    newVal.append(matcher.group(2));
+                newType = buffer.type;
+                if (newVal.length() < 1)
+                    throw new BadSpecial(SqltoolRB.macrodef_empty.getString());
+                if (newVal.charAt(newVal.length() - 1) == ';')
+                    throw new BadSpecial(SqltoolRB.macrodef_semi.getString());
+                shared.macros.put(matcher.group(1) + (isFunction ? "()" : ""),
+                        new Token(newType, newVal, defToken.line));
                 break;
             case '=':
                 String defString = defToken.val;
@@ -5631,9 +5659,7 @@ public class SqlFile {
                     break;
                 }
 
-                int newType = -1;
-                StringBuffer newVal = new StringBuffer();
-                matcher = editMacroPattern.matcher(defString);
+                matcher = legacyEditMacroPattern.matcher(defString);
                 if (matcher.matches()) {
                     if (buffer == null) {
                         stdprintln(nobufferYetString);
@@ -5663,10 +5689,58 @@ public class SqlFile {
                     throw new BadSpecial(SqltoolRB.macrodef_empty.getString());
                 if (newVal.charAt(newVal.length() - 1) == ';')
                     throw new BadSpecial(SqltoolRB.macrodef_semi.getString());
-                shared.macros.put(matcher.group(1),
+                shared.macros.put(matcher.group(1) + (isFunction ? "()" : ""),
                         new Token(newType, newVal, defToken.line));
                 break;
             default:
+                matcher = useFnPattern.matcher(defToken.val);
+                if (matcher.matches()) {
+                    //Pattern.compile("(\\w+)\\(\\s*([^;)]*?)\\s*\\)\\s*(;?)");
+                    macroToken = shared.macros.get(matcher.group(1) + "()");
+                    if (macroToken == null)
+                        throw new BadSpecial(SqltoolRB.macro_undefined.getString(
+                                matcher.group(1) + "(...)"));
+                    setBuf(macroToken);
+                    buffer.line = defToken.line;
+                    String[] splitVars = null;
+                    if (matcher.groupCount() > 1 && matcher.group(2) != null
+                            && matcher.group(2).length() > 0) {
+                        //buffer.val += matcher.group(2);
+                        splitVars = matcher.group(2).split("\\s*,\\s*", -1);
+                    } else {
+                        splitVars = new String[0];
+                    }
+                    preempt = matcher.group(matcher.groupCount()).equals(";");
+                    // TODO:  Make a static var:
+                    Pattern fnParamPat = Pattern.compile("\\*\\{(:)?(\\d+)\\}");
+                    Matcher templateM = fnParamPat.matcher(macroToken.val);
+                    int prevEnd = 0;
+                    String varVal;
+                    int varNum;
+                    buffer.val = "";
+                    while (templateM.find()) {
+                        buffer.val += macroToken.val
+                                .substring(prevEnd, templateM.start());
+                        varNum = Integer.valueOf(
+                                templateM.group(templateM.groupCount()));
+                        varVal = (varNum > 0 && varNum <= splitVars.length)
+                                ? splitVars[varNum-1] : null;
+                        if (varVal == null && (templateM.groupCount() < 2 ||
+                                templateM.group(1) == null ||
+                                templateM.group(1).length() < 1)) {
+                            throw new BadSpecial(
+                                    SqltoolRB.plvar_undefined.getString(
+                                    templateM.group(templateM.groupCount())));
+                        }
+                        if (varVal != null) {
+                            buffer.val += varVal;
+                        }
+                        prevEnd = templateM.end();
+                    }
+                    buffer.val += macroToken.val.substring(prevEnd);
+                    return;
+                }
+
                 matcher = useMacroPattern.matcher(defToken.val);
                 if (!matcher.matches())
                     throw new BadSpecial(SqltoolRB.macro_malformat.getString());
