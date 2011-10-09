@@ -47,7 +47,7 @@ a
 * res2 ~
 /m1 t;
 * if (*res2 != 149)
-      \q multi-line query with multi-line internal PL variable failed
+      \q Legacy multi-line query with multi-line internal PL variable failed
 * end if
 
 -- Newer syntax of same:
