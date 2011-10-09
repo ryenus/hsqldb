@@ -186,17 +186,18 @@ public class SqlFile {
      * unpredictable wrt whether you get a null capture group vs. no capture.
      * Must always check count!
      */
+    private static Pattern   wordPattern = Pattern.compile("\\w+");
     private static Pattern   specialPattern =
-            Pattern.compile("(\\S+)(?:\\s+(.*\\S))?\\s*");
+            Pattern.compile("(\\S+)(?:(\\s+.*\\S))?\\s*");
     private static Pattern   plPattern  = Pattern.compile("(.*\\S)?\\s*");
     private static Pattern   foreachPattern =
             Pattern.compile("foreach\\s+(\\S+)\\s*\\(([^)]+)\\)\\s*");
     private static Pattern   ifwhilePattern =
             Pattern.compile("\\S+\\s*\\(([^)]*)\\)\\s*");
     private static Pattern   varsetPattern =
-            Pattern.compile("(\\S+)\\s*([=_~:])\\s*(?:(.*\\S)\\s*)?");
+            Pattern.compile("(\\S+)\\s*([=_~:])(.*)?");
     private static Pattern   substitutionPattern =
-            Pattern.compile("(\\S)(.+?)\\1(.*?)\\1(.+)?\\s*");
+            Pattern.compile("(\\S)(.+?)\\1(.*?)\\1(.+?)?\\s*");
             // Note that this pattern does not include the leading ":s".
     private static Pattern   slashHistoryPattern =
             Pattern.compile("\\s*/([^/]+)/\\s*(\\S.*)?");
@@ -866,7 +867,7 @@ public class SqlFile {
                         prevToken = buffer;
                         setBuf(token);
                         historize();
-                        processPL(null);
+                        processPL();
                         continue;
                     case Token.SPECIAL_TYPE:
                         // Storing prevToken as an attempted hack
@@ -1172,7 +1173,9 @@ public class SqlFile {
         switch (commandChar) {
             case 'l' :
             case 'b' :
-                enforce1charBH(other, 'l');
+                if (other != null)
+                    throw new BadSpecial(
+                            SqltoolRB.special_extrachars.getString("l", other));
                 if (buffer == null) {
                     stdprintln(nobufferYetString);
                 } else {
@@ -1183,7 +1186,9 @@ public class SqlFile {
                 return;
 
             case 'h' :
-                enforce1charBH(other, 'h');
+                if (other != null)
+                    throw new BadSpecial(
+                            SqltoolRB.special_extrachars.getString("h", other));
                 showHistory();
 
                 return;
@@ -1220,7 +1225,7 @@ public class SqlFile {
         commandChar = ((hm.group(2) == null || hm.group(2).length() < 1)
                 ? '\0' : hm.group(2).charAt(0));
         other = ((commandChar == '\0') ? null : hm.group(2).substring(1));
-        if (other != null && other.length() < 1) other = null;
+        if (other != null && other.trim().length() < 1) other = null;
         Token targetCommand = ((histNum == null)
                 ? null : commandFromHistory(histNum.intValue()));
         // Every command below depends upon buffer content.
@@ -1233,7 +1238,9 @@ public class SqlFile {
                 return;
 
             case ';' :
-                enforce1charBH(other, ';');
+                if (other != null)
+                    throw new BadSpecial(
+                            SqltoolRB.special_extrachars.getString(";", other));
 
                 if (targetCommand != null) setBuf(targetCommand);
                 if (buffer == null) throw new BadSpecial(
@@ -1253,8 +1260,7 @@ public class SqlFile {
                     if (other.trim().charAt(other.trim().length() - 1) == ';') {
                         other = other.substring(0, other.lastIndexOf(';'));
                         if (other.trim().length() < 1)
-                            throw new BadSpecial(
-                                    SqltoolRB.append_empty.getString());
+                            throw new BadSpecial( SqltoolRB.append_empty.getString());
                         doExec = true;
                     }
                 }
@@ -1426,12 +1432,7 @@ public class SqlFile {
             throws BadSpecial {
         if (tokenString.length() != 1) {
             throw new BadSpecial(SqltoolRB.special_extrachars.getString(
-                     Character.toString(command), tokenString.substring(1))); } }
-    private void enforce1charBH(String tokenString, char command)
-            throws BadSpecial {
-        if (tokenString != null) {
-            throw new BadSpecial(SqltoolRB.buffer_extrachars.getString(
-                    Character.toString(command), tokenString));
+                     Character.toString(command), tokenString.substring(1)));
         }
     }
 
@@ -1465,13 +1466,14 @@ public class SqlFile {
         }
 
         String arg1 = m.group(1);
+        // If other count > 1 and group(2) not null, then it is non-empty.
         String other = ((m.groupCount() > 1) ? m.group(2) : null);
 
         switch (arg1.charAt(0)) {
             case 'q' :
                 enforce1charSpecial(arg1, 'q');
                 if (other != null) {
-                    throw new QuitNow(other);
+                    throw new QuitNow(other.trim());
                 }
 
                 throw new QuitNow();
@@ -1486,7 +1488,7 @@ public class SqlFile {
 
             case 'm' :
                 if (arg1.equals("m?") || arg1.equals("mq?")
-                        || (other != null && other.equals("?")
+                        || (other != null && other.trim().equals("?")
                         && (arg1.equals("m") || arg1.equals("mq")))) {
                     stdprintln(DSV_OPTIONS_TEXT + LS + DSV_M_SYNTAX_MSG);
                     return;
@@ -1496,6 +1498,7 @@ public class SqlFile {
                         || other == null) {
                     throw new BadSpecial(DSV_M_SYNTAX_MSG);
                 }
+                other = other.trim();
                 boolean noComments = other.charAt(other.length() - 1) == '*';
                 String skipPrefix = null;
 
@@ -1524,7 +1527,7 @@ public class SqlFile {
 
             case 'x' :
                 if (arg1.equals("x?") || arg1.equals("xq?")
-                        || (other != null && other.equals("?")
+                        || (other != null && other.trim().equals("?")
                         && (arg1.equals("x") || arg1.equals("xq")))) {
                     stdprintln(DSV_OPTIONS_TEXT + LS + DSV_X_SYNTAX_MSG);
                     return;
@@ -1535,15 +1538,24 @@ public class SqlFile {
                             || other == null) {
                         throw new BadSpecial(DSV_X_SYNTAX_MSG);
                     }
+                    String tableName = null;
+                    StringBuilder query = new StringBuilder();
 
-                    String tableName = ((other.indexOf(' ') > 0) ? null
-                                                                 : other);
-                    if (tableName.equals(":")) {
-                        tableName = null;
+                    // Due to regex, other does contain at least one \S.
+                    if (other.trim().charAt(0) == ':') {
+                        // Case 1: Query from Edit-buffer
                         if (prevToken == null) {
                             throw new BadSpecial(nobufferYetString);
                         }
-                        other = prevToken.val;
+                        query.append(prevToken.val)
+                                .append(other.substring(other.indexOf(':')+1));
+                    } else if (wordPattern.matcher(other.trim()).matches()) {
+                        // Case 2: Table name specified
+                        tableName = other.trim();
+                        query.append("SELECT * FROM ").append(tableName);
+                    } else {
+                        // Case 3: Explicit in-line query
+                        query.append(other.trim());
                     }
 
                     if (dsvTargetFile == null && tableName == null) {
@@ -1565,9 +1577,7 @@ public class SqlFile {
                                 ? DEFAULT_FILE_ENCODING : shared.encoding));
 
                         rs = shared.jdbcConn.createStatement()
-                                .executeQuery((tableName == null) ? other
-                                                    : ("SELECT * FROM "
-                                                       + tableName));
+                                .executeQuery(query.toString());
                         List<Integer> colList = new ArrayList<Integer>();
                         int[] incCols = null;
                         if (dsvSkipCols != null) {
@@ -1634,18 +1644,19 @@ public class SqlFile {
             case 'd' :
                 if (arg1.equals("d?") ||
                         (arg1.equals("d") && other != null
-                                 && other.equals("?"))) {
+                                 && other.trim().equals("?"))) {
                     stdprintln(D_OPTIONS_TEXT);
                     return;
                 }
                 requireConnection();
                 if (arg1.length() == 2) {
-                    listTables(arg1.charAt(1), other);
+                    listTables(arg1.charAt(1), other.trim());
 
                     return;
                 }
 
                 if (arg1.length() == 1 && other != null) try {
+                    other = other.trim();
                     int space = other.indexOf(' ');
 
                     if (space < 0) {
@@ -1675,6 +1686,7 @@ public class SqlFile {
                     return;
                 }
 
+                other = other.trim();
                 if (pwQuery != null) {
                     stdprintln(SqltoolRB.outputfile_reopening.getString());
                     closeQueryOutputStream();
@@ -1710,6 +1722,7 @@ public class SqlFile {
                     throw new BadSpecial(
                             SqltoolRB.sqlfile_name_demand.getString());
                 }
+                other = other.trim();
 
                 sqlExpandMode = null;
                 try {
@@ -1738,7 +1751,7 @@ public class SqlFile {
                 if (other == null) {
                     stdprintln(true);
                 } else {
-                    stdprintln(other, true);
+                    stdprintln(other.trim(), true);
                 }
 
                 return;
@@ -1780,6 +1793,7 @@ public class SqlFile {
                 requireConnection();
                 enforce1charSpecial(arg1, 'a');
                 if (other != null) {
+                    other = other.trim();
                     shared.jdbcConn.setAutoCommit(
                         Boolean.parseBoolean(other));
                     shared.possiblyUncommitteds = false;
@@ -1851,6 +1865,7 @@ public class SqlFile {
                 requireConnection();
                 enforce1charSpecial(arg1, 'v');
                 if (other != null) {
+                    other = other.trim();
                     if (integerPattern.matcher(other).matches()) {
                         shared.jdbcConn.setTransactionIsolation(
                                 Integer.parseInt(other));
@@ -1900,6 +1915,7 @@ public class SqlFile {
                     throw new BadSpecial(
                             SqltoolRB.special_b_malformat.getString());
                 }
+                other = other.trim();
 
                 File otherFile = new File(dereferenceAt(other));
 
@@ -1924,7 +1940,7 @@ public class SqlFile {
                 enforce1charSpecial(arg1, '=');
                 if (other != null) {
                     // But remember that we have to abort on some I/O errors.
-                    reportTimes = Boolean.parseBoolean(other);
+                    reportTimes = Boolean.parseBoolean(other.trim());
                 }
 
                 stdprintln(SqltoolRB.exectime_reporting.getString(
@@ -1936,7 +1952,7 @@ public class SqlFile {
                 enforce1charSpecial(arg1, '=');
                 if (other != null) {
                     // But remember that we have to abort on some I/O errors.
-                    continueOnError = Boolean.parseBoolean(other);
+                    continueOnError = Boolean.parseBoolean(other.trim());
                 }
 
                 stdprintln(SqltoolRB.c_setting.getString(
@@ -1970,7 +1986,7 @@ public class SqlFile {
                 String      extCommand = ((arg1.length() == 1)
                         ? "" : arg1.substring(1))
                     + ((arg1.length() > 1 && other != null)
-                       ? " " : "") + ((other == null) ? "" : other);
+                       ? " " : "") + ((other == null) ? "" : other.trim());
                 if (extCommand.trim().length() < 1)
                     throw new BadSpecial(SqltoolRB.bang_incomplete.getString());
 
@@ -2393,8 +2409,8 @@ public class SqlFile {
      * @throws SqlToolError all other errors, plus BreakException and
      *                      ContinueException.
      */
-    private void processPL(String inString) throws BadSpecial, SqlToolError {
-        String string = (inString == null) ? buffer.val : inString;
+    private void processPL() throws BadSpecial, SqlToolError {
+        String string = buffer.val;
         Matcher m = plPattern.matcher(dereference(string, false));
         if (!m.matches()) {
             throw new BadSpecial(SqltoolRB.pl_malformat.getString());
@@ -2570,13 +2586,13 @@ public class SqlFile {
                 if (prevToken == null) {
                     throw new BadSpecial(nobufferYetString);
                 }
-                StringBuilder sb = new Stringbuilder();
+                StringBuilder sb = new StringBuilder();
                 switch (prevToken.type) {
                     case Token.PL_TYPE:
                         sb.append('*');
                         break;
                     case Token.SPECIAL_TYPE:
-                        sb.append('*');
+                        sb.append('\\');
                         break;
                     default:
                         // Intentionally empty
@@ -2593,9 +2609,10 @@ public class SqlFile {
             case '_' :
                 silentFetch = true;
             case '~' :
-                if (m.groupCount() > 2 && m.group(3) != null) {
+                if (m.groupCount() > 2 && m.group(3) != null
+                            && m.group(3).trim().length() > 0) {
                     throw new BadSpecial(SqltoolRB.plvar_tildedash_nomoreargs.getString(
-                            m.group(3)));
+                            m.group(3).trim()));
                 }
 
                 shared.userVars.remove(varName);
@@ -2610,19 +2627,22 @@ public class SqlFile {
                 if (fetchingVar != null && fetchingVar.equals(varName)) {
                     fetchingVar = null;
                 }
+                String varVal = (m.groupCount() > 2 && m.group(3) != null)
+                        ? m.group(3).replaceFirst("^\\s+", "") : null;
+                if (varVal != null && varVal.length() < 1) varVal = null;
 
                 if (varName.equals("*ENCODING")) try {
                     // Special case so we can proactively prohibit encodings
                     // which will not work, so we'll always be confident
                     // that 'encoding' value is always good.
-                    setEncoding(m.group(3));
+                    setEncoding(varVal.trim());
                     return;
                 } catch (UnsupportedEncodingException use) {
                     throw new BadSpecial(
-                            SqltoolRB.encode_fail.getString(m.group(3)));
+                            SqltoolRB.encode_fail.getString(varVal));
                 }
-                if (m.groupCount() > 2 && m.group(3) != null) {
-                    shared.userVars.put(varName, m.group(3));
+                if (varVal != null) {
+                    shared.userVars.put(varName, varVal);
                 } else {
                     if (removeEmptyVars()) {
                         if (System.getProperty("sqltool.REMOVE_EMPTY_VARS")

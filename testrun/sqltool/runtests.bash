@@ -89,13 +89,13 @@ echo "${#Scripts[@]} test(s) to run..."
 for script in "${Scripts[@]}"; do
     case "$script" in *.inter) REDIRIN='<';; *) REDIRIN=;; esac
     if [ -n "$VERBOSE" ]; then
-        echo java -Dsqltool.testsp=spval org.hsqldb.cmdline.SqlTool --noAutoFile --setVar=testvar=plval --inlineRc=user=sa,url=jdbc:hsqldb:mem:utst,password=,transiso=TRANSACTION_READ_COMMITTED $REDIRIN "$script"
+        echo java -Dsqltool.REMOVE_EMPTY_VARS=true -Dsqltool.testsp=spval org.hsqldb.cmdline.SqlTool --noAutoFile --setVar=testvar=plval --inlineRc=user=sa,url=jdbc:hsqldb:mem:utst,password=,transiso=TRANSACTION_READ_COMMITTED $REDIRIN "$script"
     else
         echo -n T
     fi
     [ -n "$NORUN" ] || {
         succeed=
-        eval java -Dsqltool.testsp=spval org.hsqldb.cmdline.SqlTool --noAutoFile --setVar=testvar=plval --inlineRc=user=sa,url=jdbc:hsqldb:mem:utst,password=,transiso=TRANSACTION_READ_COMMITTED $REDIRIN "$script" $REDIROUT
+        eval java -Dsqltool.REMOVE_EMPTY_VARS=true -Dsqltool.testsp=spval org.hsqldb.cmdline.SqlTool --noAutoFile --setVar=testvar=plval --inlineRc=user=sa,url=jdbc:hsqldb:mem:utst,password=,transiso=TRANSACTION_READ_COMMITTED $REDIRIN "$script" $REDIROUT
         case "$script" in
             *.nsql) [ $? -ne 0 ] && succeed=1;;
             *) [ $? -eq 0 ] && succeed=1;;
