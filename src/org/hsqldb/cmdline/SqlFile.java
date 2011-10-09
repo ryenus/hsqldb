@@ -2570,9 +2570,21 @@ public class SqlFile {
                 if (prevToken == null) {
                     throw new BadSpecial(nobufferYetString);
                 }
-                shared.userVars.put(varName, prevToken.val
-                        + ((m.groupCount() > 2 && m.group(3) != null)
-                            ? m.group(3) : ""));
+                StringBuilder sb = new Stringbuilder();
+                switch (prevToken.type) {
+                    case Token.PL_TYPE:
+                        sb.append('*');
+                        break;
+                    case Token.SPECIAL_TYPE:
+                        sb.append('*');
+                        break;
+                    default:
+                        // Intentionally empty
+                }
+                sb.append(prevToken.val);
+                if (m.groupCount() > 2 && m.group(3) != null)
+                    sb.append(m.group(3));
+                shared.userVars.put(varName, sb.toString());
                 updateUserSettings();
                 sqlExpandMode = null;
 
