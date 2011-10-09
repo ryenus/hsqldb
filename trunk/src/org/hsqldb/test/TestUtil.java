@@ -44,6 +44,7 @@ import java.sql.Statement;
 import java.text.SimpleDateFormat;
 
 import org.hsqldb.lib.ArraySort;
+import org.hsqldb.lib.FileUtil;
 import org.hsqldb.lib.HsqlArrayList;
 import org.hsqldb.lib.LineGroupReader;
 import org.hsqldb.lib.StopWatch;
@@ -83,23 +84,20 @@ public class TestUtil {
     }
 
     public static void deleteDatabase(String path) {
-
-        delete(path + ".backup");
-        delete(path + ".properties");
-        delete(path + ".script");
-        delete(path + ".data");
-        delete(path + ".log");
-        delete(path + ".lck");
-        delete(path + ".lobs");
-        delete(path + ".sql.log");
-        delete(path + ".app.log");
+        FileUtil.deleteOrRenameDatabaseFiles(path);
     }
 
-    static void delete(String file) {
+    static boolean delete(String file) {
+        return new File(file).delete();
+    }
 
-        try {
-            new File(file).delete();
-        } catch (Exception e) {}
+    public static void checkDatabaseFilesDeleted(String path) {
+
+        File[] list = FileUtil.getDatabaseFileList(path);
+
+        if (list.length != 0) {
+            System.out.println("database files not deleted");
+        }
     }
 
     /**
@@ -127,8 +125,6 @@ public class TestUtil {
     }
 
     static void testScripts(String directory) {
-
-        TestUtil.deleteDatabase("test1");
 
         try {
             Class.forName("org.hsqldb.jdbc.JDBCDriver");
@@ -159,6 +155,12 @@ public class TestUtil {
                     cConnection.close();
                 }
             }
+
+            cConnection = DriverManager.getConnection(url, user, password);
+
+            cConnection.createStatement().execute("SHUTDOWN");
+            TestUtil.deleteDatabase("test1");
+            TestUtil.checkDatabaseFilesDeleted("test1");
         } catch (Exception e) {
             e.printStackTrace();
             print("TestUtil init error: " + e.toString());

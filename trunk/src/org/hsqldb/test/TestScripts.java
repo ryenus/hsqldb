@@ -136,13 +136,6 @@ class TestScripts extends TestUtil {
         + TestScripts.class.getName()
         + " [--ephConnId=x | --persistConnId=x] file1.txt...";
 
-    static void delete(String file) {
-
-        try {
-            new File(file).delete();
-        } catch (Exception e) {}
-    }
-
     static String DEF_DB = "test3";
     static String DEF_URL = "jdbc:hsqldb:" + DEF_DB
                             + ";sql.enforce_strict_size=true";
