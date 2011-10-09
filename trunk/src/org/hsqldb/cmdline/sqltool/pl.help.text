@@ -7,7 +7,7 @@ PROCEDURAL LANGUAGE COMMANDS
                                   at the bottom of this listing).
     * VARNAME _                   Same as * VARNAME _, except the query is
                                   done silently (i.e, no rows to screen).
-    * VARNAME :                   Set variable value to the previous edit
+    * VARNAME :[appendage]        Set variable value to the previous edit
                                   buffer contents.
     * break [foreach|if|while|file] Exits a PL block or file early
     * continue [foreach|while]    Exits a PL block iteration early
