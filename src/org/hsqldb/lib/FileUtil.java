@@ -36,6 +36,7 @@ import java.io.FileDescriptor;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -383,6 +384,163 @@ public class FileUtil implements FileAccess {
         public FileAccess.FileSync getFileSync(OutputStream os)
         throws IOException {
             throw new IOException();
+        }
+    }
+
+    /**
+     * Utility method for user applications. Attempts to delete all the files
+     * for the database as listed by the getDatabaseFileList() method. If any
+     * of the current, main database files cannot be deleted, it is renamed
+     * by adding a suffixe containting a hexadecimal timestamp portion and
+     * the ".old" extension.
+     * @param path full path or name of database (without a file extension)
+     * @return currently always true
+     */
+    public static boolean deleteOrRenameDatabaseFiles(String path) {
+
+        DatabaseFilenameFilter filter = new DatabaseFilenameFilter(path);
+        File[] fileList = filter.getExistingFileListInDirectory();
+
+        for (int i = 0; i < fileList.length; i++) {
+            fileList[i].delete();
+        }
+
+        fileList = filter.getExistingMainFileSetList();
+
+        if (fileList.length == 0) {
+            return true;
+        }
+
+        try {
+            Thread.currentThread().wait(200);
+        } catch (InterruptedException e) {}
+
+        for (int i = 0; i < fileList.length; i++) {
+            fileList[i].delete();
+        }
+
+        fileList = filter.getExistingMainFileSetList();
+
+        for (int i = 0; i < fileList.length; i++) {
+            fileList[i].renameTo(
+                new File(newDiscardFileName(fileList[i].getPath())));
+        }
+
+        return true;
+    }
+
+    /**
+     * Utility method for user applications. Returns a list of files that
+     * currently exist for a database. The list includes current database files
+     * as well as ".new", and ".old" versions of the files.
+     *
+     * @param path full path or name of database (without a file extension)
+     */
+    public static File[] getDatabaseFileList(String path) {
+
+        DatabaseFilenameFilter filter = new DatabaseFilenameFilter(path);
+
+        return filter.getExistingFileListInDirectory();
+    }
+
+    public static String newDiscardFileName(String filename) {
+
+        String timestamp = StringUtil.toPaddedString(
+            Integer.toHexString((int) System.currentTimeMillis()), 8, '0',
+            true);
+        String discardName = filename + "." + timestamp + ".old";
+
+        return discardName;
+    }
+
+    static class DatabaseFilenameFilter implements FilenameFilter {
+
+        String[] suffixes = new String[] {
+            ".backup", ".properties", ".script", ".data", ".log", ".lck",
+            ".lobs", ".sql.log", ".app.log"
+        };
+        private String dbName;
+        private File   parent;
+        private File   canonicalFile;
+
+        DatabaseFilenameFilter(String dbName) {
+
+            this.dbName   = dbName;
+            canonicalFile = new File(dbName);
+
+            try {
+                canonicalFile = canonicalFile.getCanonicalFile();
+            } catch (Exception e) {}
+
+            parent = canonicalFile.getParentFile();
+        }
+
+        public File[] getCompleteMainFileSetList() {
+
+            File[] fileList = new File[suffixes.length];
+
+            for (int i = 0; i < suffixes.length; i++) {
+                fileList[i] = new File(canonicalFile.getPath() + suffixes[i]);
+            }
+
+            return fileList;
+        }
+
+        public File[] getExistingMainFileSetList() {
+
+            File[]        fileList = getCompleteMainFileSetList();
+            HsqlArrayList list     = new HsqlArrayList();
+
+            for (int i = 0; i < fileList.length; i++) {
+                if (fileList[i].exists()) {
+                    list.add(fileList[i]);
+                }
+            }
+
+            fileList = new File[list.size()];
+
+            list.toArray(fileList);
+
+            return fileList;
+        }
+
+        public File[] getExistingFileListInDirectory() {
+            return parent.listFiles(this);
+        }
+
+        /**
+         * Accepts all main files as well as ".new" and ".old" versions.
+         */
+        public boolean accept(File dir, String name) {
+
+            if (parent.equals(dir) && name.indexOf(dbName) == 0) {
+                String suffix = name.substring(dbName.length());
+
+                for (int i = 0; i < suffixes.length; i++) {
+                    if (suffix.equals(suffixes[i])) {
+                        return true;
+                    }
+
+                    if (suffix.startsWith(suffixes[i])) {
+                        if (suffix.length() == suffixes[i].length()) {
+                            return true;
+                        }
+
+                        if (name.endsWith(".new")) {
+                            if (suffix.length() == suffixes[i].length() + 4) {
+                                return true;
+                            }
+                        } else if (name.endsWith(".old")) {
+                            if (suffix.length()
+                                    == suffixes[i].length() + 9 + 4) {
+                                return true;
+                            }
+                        }
+                    }
+                }
+            }
+
+            return false;
         }
     }
 }
