@@ -194,7 +194,7 @@ public class SqlFile {
     private static Pattern   ifwhilePattern =
             Pattern.compile("\\S+\\s*\\(([^)]*)\\)\\s*");
     private static Pattern   varsetPattern =
-            Pattern.compile("(\\S+)\\s*([=_~])\\s*(?:(.*\\S)\\s*)?");
+            Pattern.compile("(\\S+)\\s*([=_~:])\\s*(?:(.*\\S)\\s*)?");
     private static Pattern   substitutionPattern =
             Pattern.compile("(\\S)(.+?)\\1(.*?)\\1(.+)?\\s*");
             // Note that this pattern does not include the leading ":s".
@@ -858,6 +858,7 @@ public class SqlFile {
                         processMacro(token);
                         continue;
                     case Token.PL_TYPE:
+                        prevToken = buffer;
                         setBuf(token);
                         historize();
                         processPL(null);
@@ -2560,6 +2561,21 @@ public class SqlFile {
         }
 
         switch (m.group(2).charAt(0)) {
+            case ':' :
+                if (m.groupCount() > 2 && m.group(3) != null) {
+                    // Update SqltoolRB.plvar_tildedash_nomroeargs to include :
+                    throw new BadSpecial(SqltoolRB.plvar_tildedash_nomoreargs.getString(
+                            m.group(3)));
+                }
+                if (prevToken == null) {
+                    throw new BadSpecial(nobufferYetString);
+                }
+                shared.userVars.put(varName, prevToken.val);
+                updateUserSettings();
+                sqlExpandMode = null;
+
+                return;
+
             case '_' :
                 silentFetch = true;
             case '~' :

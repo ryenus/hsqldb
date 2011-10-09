@@ -6,7 +6,9 @@ PROCEDURAL LANGUAGE COMMANDS
                                   next SQL value or count fetched (see details
                                   at the bottom of this listing).
     * VARNAME _                   Same as * VARNAME _, except the query is
-                                  done silently (i.e, no rows to screen)
+                                  done silently (i.e, no rows to screen).
+    * VARNAME :                   Set variable value to the previous edit
+                                  buffer contents.
     * break [foreach|if|while|file] Exits a PL block or file early
     * continue [foreach|while]    Exits a PL block iteration early
     * dump VARNAME path.txt       Dump variable value to text file
