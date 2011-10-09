@@ -207,15 +207,15 @@ public class SqlFile {
     private static Pattern useMacroPattern =
             Pattern.compile("(\\w+)(\\s.*[^;])?(;?)");
     private static Pattern useFnPattern =
-            Pattern.compile("(\\w+)\\(\\s*([^;)]*?)\\s*\\)\\s*(;?)");
+            Pattern.compile("(\\w+\\()\\s*([^;)]*?)\\s*\\)(.*)");
     private static Pattern legacyEditMacroPattern =
             Pattern.compile("(\\w+)\\s*:(.*)");
     private static Pattern editMacroPattern =
-            Pattern.compile(":\\s(\\w+)\\s(.*)");
+            Pattern.compile(":\\s(\\w+(?:\\(\\))?)\\s(.*)");
     private static Pattern spMacroPattern =
-            Pattern.compile("(\\w+)\\s+([*\\\\])(.*\\S)");
+            Pattern.compile("(\\w+(?:\\(\\))?)\\s+([*\\\\])(.*\\S)");
     private static Pattern sqlMacroPattern =
-            Pattern.compile("(\\w+)\\s+(.*\\S)");
+            Pattern.compile("(\\w+(?:\\(\\))?)\\s+(.*\\S)");
     private static Pattern integerPattern = Pattern.compile("\\d+");
     private static Pattern nameValPairPattern =
             Pattern.compile("\\s*(\\w+)\\s*=(.*)");
@@ -5620,7 +5620,6 @@ public class SqlFile {
         if (defToken.val.length() < 1) {
             throw new BadSpecial(SqltoolRB.macro_tip.getString());
         }
-        boolean isFunction = false;
         int newType = -1;
         StringBuffer newVal = new StringBuffer();
         switch (defToken.val.charAt(0)) {
@@ -5644,8 +5643,8 @@ public class SqlFile {
                     throw new BadSpecial(SqltoolRB.macrodef_empty.getString());
                 if (newVal.charAt(newVal.length() - 1) == ';')
                     throw new BadSpecial(SqltoolRB.macrodef_semi.getString());
-                shared.macros.put(matcher.group(1) + (isFunction ? "()" : ""),
-                        new Token(newType, newVal, defToken.line));
+                shared.macros.put(matcher.group(1),
+                        new Token(buffer.type, newVal, defToken.line));
                 break;
             case '=':
                 String defString = defToken.val;
@@ -5689,19 +5688,16 @@ public class SqlFile {
                     throw new BadSpecial(SqltoolRB.macrodef_empty.getString());
                 if (newVal.charAt(newVal.length() - 1) == ';')
                     throw new BadSpecial(SqltoolRB.macrodef_semi.getString());
-                shared.macros.put(matcher.group(1) + (isFunction ? "()" : ""),
+                shared.macros.put(matcher.group(1),
                         new Token(newType, newVal, defToken.line));
                 break;
             default:
                 matcher = useFnPattern.matcher(defToken.val);
                 if (matcher.matches()) {
-                    //Pattern.compile("(\\w+)\\(\\s*([^;)]*?)\\s*\\)\\s*(;?)");
-                    macroToken = shared.macros.get(matcher.group(1) + "()");
+                    macroToken = shared.macros.get(matcher.group(1) + ')');
                     if (macroToken == null)
                         throw new BadSpecial(SqltoolRB.macro_undefined.getString(
-                                matcher.group(1) + "(...)"));
-                    setBuf(macroToken);
-                    buffer.line = defToken.line;
+                                matcher.group(1) + "...)"));
                     String[] splitVars = null;
                     if (matcher.groupCount() > 1 && matcher.group(2) != null
                             && matcher.group(2).length() > 0) {
@@ -5710,14 +5706,27 @@ public class SqlFile {
                     } else {
                         splitVars = new String[0];
                     }
-                    preempt = matcher.group(matcher.groupCount()).equals(";");
+                    String thirdGroup = (matcher.groupCount() > 2
+                            && matcher.group(3) != null)
+                        ? matcher.group(3) : null;
+                    preempt = thirdGroup != null && thirdGroup.endsWith(";");
+                    if (preempt) {
+                        if (thirdGroup.length() == 1) {
+                            thirdGroup = null;
+                        } else {
+                            thirdGroup = thirdGroup.substring(0,
+                                    thirdGroup.length() - 1);
+                        }
+                    }
                     // TODO:  Make a static var:
                     Pattern fnParamPat = Pattern.compile("\\*\\{(:)?(\\d+)\\}");
                     Matcher templateM = fnParamPat.matcher(macroToken.val);
                     int prevEnd = 0;
                     String varVal;
                     int varNum;
+                    setBuf(macroToken);
                     buffer.val = "";
+                    buffer.line = defToken.line;
                     while (templateM.find()) {
                         buffer.val += macroToken.val
                                 .substring(prevEnd, templateM.start());
@@ -5738,6 +5747,7 @@ public class SqlFile {
                         prevEnd = templateM.end();
                     }
                     buffer.val += macroToken.val.substring(prevEnd);
+                    if (thirdGroup != null) buffer.val += thirdGroup;
                     return;
                 }
 
