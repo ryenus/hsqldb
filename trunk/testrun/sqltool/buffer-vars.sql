@@ -55,9 +55,32 @@ a
   SELECT
 a
 .
+-- Note the critical 2 spaces before FROM to delimite it from preceding token:
 /: m1  FROM
 * res3 ~
 /m1 t;
 * if (*res3 != 149)
-      \q multi-line query with multi-line internal PL variable failed
+      \q multi-line query with multi-line internal PL variable failed. Ws by appendage.
+* end if
+
+-- With separating white space in in middle appendage
+\.
+a
+    FROM
+.
+* qpart3 : 
+SELECT *{qpart3}t;
+* if (*? != 149)
+      \q White space inserted with middle appendage
+* end if
+
+-- With separating white space in the base
+\.
+a
+    FROM 
+.
+* qpart3 :
+SELECT *{qpart3}t;
+* if (*? != 149)
+      \q White space inserted with middle appendage
 * end if

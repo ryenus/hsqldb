@@ -20,7 +20,7 @@ SELECT
 .
 
 /* Export */
-\x :
+\x : WHERE i = 1
 
 SELECT count(*) FROM t WHERE i = 1 AND a = 149 AND d IS null;
 *if (*? != 1)
@@ -40,6 +40,6 @@ SELECT count(*) FROM t WHERE i = 1 AND a = 149 AND d IS null;
     \q Post-check of imported data failed (1)
 *end if
 SELECT count(*) FROM t WHERE i = 2 AND a IS NULL AND d = '2007-06-24';
-*if (*? != 2)
+*if (*? != 1)
     \q Post-check of imported data failed (2)
 *end if

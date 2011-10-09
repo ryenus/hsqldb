@@ -31,6 +31,8 @@
 
 package org.hsqldb.cmdline.sqltool;
 
+import java.util.regex.Pattern;
+
 /* @(#)$Id$ */
 
 public class Token {
@@ -44,6 +46,7 @@ public class Token {
     public static final int UNTERM_TYPE = 7;
     public static final int BUFFER_TYPE = 8;
     public static final int MACRO_TYPE = 9;
+    public static final Pattern leadingWhitePattern = Pattern.compile("^\\s+");
     public int line;
     public TokenList nestedBlock = null;
 
@@ -75,7 +78,10 @@ public class Token {
                 // Will be trimmed.
                 if (val == null) throw new IllegalArgumentException(
                         "Null String value for scanner token");
-                val = val.trim();  // Worry about efficiency later
+                // Leading white space is always safe for us to trim from these
+                // types of commands, but we must preserve trailing whitespace
+                // for some commands.
+                val = leadingWhitePattern.matcher(val).replaceFirst("");
                 break;
 
             case SYNTAX_ERR_TYPE:
