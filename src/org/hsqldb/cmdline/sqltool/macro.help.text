@@ -2,7 +2,9 @@
 /=                     Display all macros
 /= name command...     Define a macro equal to the specified SQL command
                          (do not type the terminating ";").
-/= name :[appendage]   Define a macro equal to the current buffer contents
+/: name [appendage]    Define a macro equal to the current buffer contents
+                       If you want your 'appendage' to begin with a space, then
+                       you must type two spaces after the name here.
 /name [appendage]      Expand macro to buffer
 /name [appendage];     Execute macro
 

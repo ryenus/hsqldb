@@ -49,3 +49,15 @@ a
 * if (*res2 != 149)
       \q multi-line query with multi-line internal PL variable failed
 * end if
+
+-- Newer syntax of same:
+\.
+  SELECT
+a
+.
+/: m1  FROM
+* res3 ~
+/m1 t;
+* if (*res3 != 149)
+      \q multi-line query with multi-line internal PL variable failed
+* end if
