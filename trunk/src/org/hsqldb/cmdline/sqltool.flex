@@ -203,7 +203,7 @@ TRADITIONAL_COMMENT = "/*" ~"*/"
 {TRADITIONAL_COMMENT} { /* Ignore top-level traditional comments */
     debug ("/**/ Comment", yytext());
 }
-[ \f\t]+ { /* Ignore top-level whte space */
+[ \f\t]+ { /* Ignore top-level white space */
     debug("Whitespace", yytext());
 }
 {LINETERM_MAC} {
