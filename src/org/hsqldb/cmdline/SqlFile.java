@@ -2567,15 +2567,12 @@ public class SqlFile {
 
         switch (m.group(2).charAt(0)) {
             case ':' :
-                if (m.groupCount() > 2 && m.group(3) != null) {
-                    // Update SqltoolRB.plvar_tildedash_nomroeargs to include :
-                    throw new BadSpecial(SqltoolRB.plvar_tildedash_nomoreargs.getString(
-                            m.group(3)));
-                }
                 if (prevToken == null) {
                     throw new BadSpecial(nobufferYetString);
                 }
-                shared.userVars.put(varName, prevToken.val);
+                shared.userVars.put(varName, prevToken.val
+                        + ((m.groupCount() > 2 && m.group(3) != null)
+                            ? m.group(3) : ""));
                 updateUserSettings();
                 sqlExpandMode = null;
 
