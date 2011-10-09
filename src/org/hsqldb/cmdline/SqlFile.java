@@ -245,6 +245,7 @@ public class SqlFile {
         Pattern.compile("(?i)(FINER|WARNING|SEVERE|INFO|FINEST)\\s+(.*\\S)");
     private static Pattern   arrayPattern =
             Pattern.compile("ARRAY\\s*\\[\\s*(.*\\S)?\\s*\\]");
+    private static Pattern fnParamPat = Pattern.compile("\\*\\{(:)?(\\d+)\\}");
 
     private static Map<String, Pattern> nestingPLCommands =
             new HashMap<String, Pattern>();
@@ -5441,8 +5442,6 @@ public class SqlFile {
                                     thirdGroup.length() - 1);
                         }
                     }
-                    // TODO:  Make a static var:
-                    Pattern fnParamPat = Pattern.compile("\\*\\{(:)?(\\d+)\\}");
                     Matcher templateM = fnParamPat.matcher(macroToken.val);
                     int prevEnd = 0;
                     String varVal;
