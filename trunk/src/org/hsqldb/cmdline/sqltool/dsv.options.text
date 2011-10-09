@@ -5,10 +5,14 @@ You can use all of these features with traditional CSV files, which allows for
 the use of the column-delimiter inside data, by using \xq and \mq instead of
 \x and \q.
 Here are the special commands to initiate DSV and CSV imports and exports.
-    \m file/path.dsv [*] iMport DSV text file records into a table (opts \m?)
-    \mq  f/path.csv [*]  Ditto, but with traditional CSV double-quoting
-    \x {TABLE|SELECT...} eXport table or query to DSV text file (options \x?)
-    \xq {TABLE|SEL...}   Ditto, but with traditional CSV double-quoting.
+    \m file/path.dsv [*]   iMport DSV text file records into a table (opts \m?)
+    \mq  f/path.csv [*]    Ditto, but with traditional CSV double-quoting
+    \x {TABLE|:|SELECT...} eXport table or query to DSV text file (options \x?)
+    \xq {TABLE|:|SEL...}   Ditto, but with traditional CSV double-quoting.
+Export commands must specify either a table name, a 1-line SQL query (with no
+terminating ';') , or ':'.  ':' means to use the last edit buffer, which you
+set up by entering a SQL query in raw mode, or interactively recall or edit a
+previous command.
 
 All of the DSV PL variables are optional.  To see all PL var. values,
 run "* listvalues".  Set the values like:
