@@ -49,12 +49,12 @@
     used as identifiers (names of database objects such as columns and tables)
     without quoting.</para>
 
-    <para>HyperSQL has two modes of operation, which are selected with the SET
-    DATABASE SQL NAMES { TRUE | FALSE } to allow or disallow the keywords as
-    identifiers. The default mode is FALSE and allows the use of most keywords
-    as identifiers. Even in this mode, keywords cannot be used as USER or ROLE
-    identifiers. When the mode is TRUE, none of the keywords listed below can
-    be used as identifiers.</para>
+    <para>HyperSQL has two modes of operation, which are selected with the
+    <literal>SET DATABASE SQL NAMES { TRUE | FALSE }</literal> to allow or
+    disallow the keywords as identifiers. The default mode is FALSE and allows
+    the use of most keywords as identifiers. Even in this mode, keywords
+    cannot be used as USER or ROLE identifiers. When the mode is TRUE, none of
+    the keywords listed below can be used as identifiers.</para>
 
     <para>All keywords can be used with double quotes as identifiers. For
     example </para>
@@ -151,9 +151,9 @@
   <section>
     <title>List of SQL Keywords Disallowed as HyperSQL Identifiers</title>
 
-    <para>When the default SET DATABASE SQL NAMES FALSE mode is used, only a
-    subset of SQL Standard keywords cannot be used as HyperSQL identifiers.
-    The keywords are as follows:</para>
+    <para>When the default <literal>SET DATABASE SQL NAMES FALSE</literal>
+    mode is used, only a subset of SQL Standard keywords cannot be used as
+    HyperSQL identifiers. The keywords are as follows:</para>
 
     <simpara>ALL • AND • ANY • AS • AT • AVG</simpara>
 
@@ -203,12 +203,12 @@
     <title>Special Function Keywords</title>
 
     <para>HyperSQL supports SQL Standard functions that are called without a
-    parameter. These functions include LOCALTIMESTAMP, TIMEZONE_MINUTE, USER,
-    etc. When the default SET DATABASE SQL NAMES FALSE mode is used, keywords
-    that are names of SQL functions can be used as identifiers without double
-    quotes in CREATE TABLE statements . But when the identifier is a column
-    name and is referenced in SELECT statements, the keywords must be double
-    quoted. Otherwise the result of the SQL function is returned instead of
-    the column value.</para>
+    parameter. These functions include CURRENT_DATE, LOCALTIMESTAMP,
+    TIMEZONE_HOUR, USER, etc. When the default <literal>SET DATABASE SQL NAMES
+    FALSE</literal> mode is used, keywords that are names of SQL functions can
+    be used as identifiers without double quotes in CREATE TABLE statements .
+    But when the identifier is a column name and is referenced in SELECT
+    statements, the keywords must be double quoted. Otherwise the result of
+    the SQL function is returned instead of the column value.</para>
   </section>
 </appendix>
