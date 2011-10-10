@@ -381,7 +381,7 @@ examples:
       </javac>
       <fixcrlf destdir="classes" preservelastmodified='true' eol="lf"
                encoding="ISO-8859-1" srcdir="src"
-               includes="**/*.properties, **/*.text, **/*.sql"/>
+               includes="**/*.properties, **/*.text, **/*.sql, **/*.html"/>
     </target>
 
    <target name="classes12" depends="classes" if="ant.java.iscjavamodern"
@@ -794,6 +794,7 @@ examples:
     <fileset id='sqltoolres' dir='classes'
         includes='org/hsqldb/cmdline/**/*.text
                   org/hsqldb/cmdline/**/*.properties
+                  org/hsqldb/cmdline/sqltool/**/*.html
                   '/>
 
     <target name="sqltool" depends="classes15, -cmdline, -prep-license-files"

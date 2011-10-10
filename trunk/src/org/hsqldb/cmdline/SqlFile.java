@@ -43,6 +43,7 @@ import java.io.Reader;
 import java.io.OutputStreamWriter;
 import java.io.PrintStream;
 import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -197,6 +198,8 @@ public class SqlFile {
     private String dsvTargetTable;
     private String dsvRejectFile;
     private String dsvRejectReport;
+    private String topHtmlFile;
+    private String bottomHtmlFile;
 
     /**
      * N.b. javax.util.regex Optional capture groups (...)? are completely
@@ -346,6 +349,8 @@ public class SqlFile {
         dsvConstCols = shared.userVars.get("*DSV_CONST_COLS");
         dsvRejectFile = shared.userVars.get("*DSV_REJECT_FILE");
         dsvRejectReport = shared.userVars.get("*DSV_REJECT_REPORT");
+        topHtmlFile = shared.userVars.get("*TOP_HTMLFRAG_FILE");
+        bottomHtmlFile = shared.userVars.get("*BOTTOM_HTMLFRAG_FILE");
         dsvRecordsPerCommit = 0;
         if (shared.userVars.get("*DSV_RECORDS_PER_COMMIT") != null) try {
             dsvRecordsPerCommit = Integer.parseInt(
@@ -1444,7 +1449,7 @@ public class SqlFile {
                 enforce1charSpecial(arg1, 'H');
                 htmlMode = !htmlMode;
 
-                stdprintln(SqltoolRB.html_mode.getString(
+                shared.psStd.println(SqltoolRB.html_mode.getString(
                         Boolean.toString(htmlMode)));
 
                 return;
@@ -1617,12 +1622,49 @@ public class SqlFile {
 
                 throw new BadSpecial(SqltoolRB.special_d_like.getString());
             case 'o' :
+                boolean addFooter = arg1.equals("oc");
+                if (addFooter) arg1 = "o";
                 enforce1charSpecial(arg1, 'o');
                 if (other == null) {
                     if (pwQuery == null)
                         throw new BadSpecial(
                                 SqltoolRB.outputfile_nonetoclose.getString());
 
+                    if (addFooter) {
+                        char[] readBfr = new char[1024];
+                        int i;
+                        StringWriter sWriter = new StringWriter();
+                        InputStreamReader isr = null;
+                        String str;
+                        try {
+                            InputStream is = (bottomHtmlFile == null)
+                                    ? getClass().getResourceAsStream(
+                                    "sqltool/bottom-boilerplate.html")
+                                    : new FileInputStream(bottomHtmlFile);
+                            if (is == null)
+                                throw new IOException("Missing resource: "
+                                    + ((bottomHtmlFile == null)
+                                    ? bottomHtmlFile
+                                    : "sqltool/bottom-boilerplate"));
+                            isr = new InputStreamReader(is);
+                            while ((i = isr.read(readBfr)) > -1)
+                                sWriter.write(readBfr, 0, i);
+                            readBfr = null;
+                            str = sWriter.toString().replaceAll("\\r?\\n", LS);
+                            sWriter.close();
+                        } catch (Exception e) {
+                            throw new BadSpecial(
+                                    SqltoolRB.file_writefail.getString(
+                                    other), e);
+                        } finally {
+                            try {
+                                if (isr != null) isr.close();
+                            } catch (IOException ioe) {
+                                // TODO: Throw appropriate exception
+                            }
+                        }
+                        pwQuery.write(str);
+                    }
                     closeQueryOutputStream();
 
                     return;
@@ -1630,31 +1672,61 @@ public class SqlFile {
 
                 other = other.trim();
                 if (pwQuery != null) {
-                    stdprintln(SqltoolRB.outputfile_reopening.getString());
+                    shared.psStd.println(
+                            SqltoolRB.outputfile_reopening.getString());
                     closeQueryOutputStream();
                 }
 
+                boolean exists = new File(dereferenceAt(other)).exists();
                 try {
                     pwQuery = new PrintWriter(new OutputStreamWriter(
                             new FileOutputStream(dereferenceAt(other), true),
                             (shared.encoding == null)
                             ? DEFAULT_FILE_ENCODING : shared.encoding));
-
-                    /* Opening in append mode, so it's possible that we will
-                     * be adding superfluous <HTML> and <BODY> tags.
-                     * I think that browsers can handle that */
-                    pwQuery.println((htmlMode
-                            ? ("<HTML>" + LS + "<!--")
-                            : "#") + " " + (new java.util.Date()) + ".  "
-                                    + SqltoolRB.outputfile_header.getString(
-                                    getClass().getName())
-                                    + (htmlMode ? (" -->" + LS + LS + "<BODY>")
-                                                : LS));
-                    pwQuery.flush();
                 } catch (Exception e) {
                     throw new BadSpecial(SqltoolRB.file_writefail.getString(
                             other), e);
                 }
+
+                /* Opening in append mode, so it's possible that we will
+                 * be adding superfluous <HTML> and <BODY> tags.
+                 * I think that browsers can handle that */
+                if (!exists) {
+                    char[] readBfr = new char[1024];
+                    int i;
+                    StringWriter sWriter = new StringWriter();
+                    InputStreamReader isr = null;
+                    String str;
+                    try {
+                        InputStream is = (topHtmlFile == null)
+                                ? getClass().getResourceAsStream(
+                                "sqltool/top-boilerplate.html")
+                                : new FileInputStream(topHtmlFile);
+                        if (is == null)
+                            throw new IOException("Missing resource: "
+                                + ((topHtmlFile == null)
+                                ? topHtmlFile
+                                : "sqltool/top-boilerplate"));
+                        isr = new InputStreamReader(is);
+                        while ((i = isr.read(readBfr)) > -1)
+                            sWriter.write(readBfr, 0, i);
+                        readBfr = null;
+                        str = sWriter.toString().replaceAll("\\r?\\n", LS);
+                        sWriter.close();
+                    } catch (Exception e) {
+                        throw new BadSpecial(
+                                SqltoolRB.file_writefail.getString(
+                                other), e);
+                    } finally {
+                        try {
+                            if (isr != null) isr.close();
+                        } catch (IOException ioe) {
+                            // TODO: Throw appropriate exception
+                        }
+                    }
+                    pwQuery.write(str);
+                }
+                pwQuery.flush();
 
                 return;
 
@@ -2574,10 +2646,12 @@ public class SqlFile {
      * Conditionally HTML-ifies output.
      */
     private void stdprintln(boolean queryOutput) {
-        if (shared.psStd != null) if (htmlMode) {
-            shared.psStd.println("<BR>");
-        } else {
-            shared.psStd.println();
+        if (shared.psStd != null) {
+            if (htmlMode) {
+                shared.psStd.println("<BR>");
+            } else {
+                shared.psStd.println();
+            }
         }
 
         if (queryOutput && pwQuery != null) {
@@ -2598,8 +2672,8 @@ public class SqlFile {
      */
     private void errprintln(String s) {
         if (shared.psStd != null && htmlMode) {
-            shared.psStd.println("<DIV style='color:white; background: red; "
-                       + "font-weight: bold'>" + s + "</DIV>");
+            shared.psStd.println(
+                    "<DIV style=\"sqltool-error\">" + s + "</DIV>");
         } else {
             logger.privlog(Level.SEVERE, s, null, 5, SqlFile.class);
             /* Only consistent way we can log source location is to log
@@ -3523,13 +3597,13 @@ public class SqlFile {
                 // STEP 2: DISPLAY DATA  (= 2a OR 2b)
                 // STEP 2a (Non-DSV)
                 if (pwDsv == null) {
-                    condlPrintln("<TABLE border='1'>", true);
+                    condlPrintln("<TABLE class=\"sqltool\">", true);
 
                     if (incCount > 1) {
                         condlPrint(SqlFile.htmlRow(COL_HEAD) + LS + PRE_TD, true);
 
                         for (int i = 0; i < headerArray.length; i++) {
-                            condlPrint("<TD>" + headerArray[i] + "</TD>",
+                            condlPrint("<TH>" + headerArray[i] + "</TH>",
                                        true);
                             condlPrint(((i > 0) ? "  " : "")
                                     + ((i < headerArray.length - 1
@@ -3583,8 +3657,6 @@ public class SqlFile {
                     if (interactive && rows.size() != 1)
                         stdprintln(LS + SqltoolRB.rows_fetched.getString(
                                 rows.size()), true);
-
-                    condlPrintln("<HR>", true);
 
                     break;
                 }
@@ -3665,17 +3737,13 @@ public class SqlFile {
     private static String htmlRow(int colType) {
         switch (colType) {
             case COL_HEAD :
-                return PRE_TR + "<TR style='font-weight: bold;'>";
+                return PRE_TR + "<TR>";
 
             case COL_ODD :
-                return PRE_TR
-                       + "<TR style='background: #94d6ef; font: normal "
-                       + "normal 10px/10px Arial, Helvitica, sans-serif;'>";
+                return PRE_TR + "<TR class=\"sqltool-odd\">";
 
             case COL_EVEN :
-                return PRE_TR
-                       + "<TR style='background: silver; font: normal "
-                       + "normal 10px/10px Arial, Helvitica, sans-serif;'>";
+                return PRE_TR + "<TR class=\"sqltool-even\">";
         }
 
         return null;
@@ -3900,11 +3968,11 @@ public class SqlFile {
             }
 
             // STEP 2: DISPLAY DATA
-            condlPrint("<TABLE border='1'>" + LS + SqlFile.htmlRow(COL_HEAD) + LS
-                       + PRE_TD, true);
+            condlPrint("<TABLE class=\"sqltool sqltool-describe\">"
+                    + LS + SqlFile.htmlRow(COL_HEAD) + LS + PRE_TD, true);
 
             for (int i = 0; i < headerArray.length; i++) {
-                condlPrint("<TD>" + headerArray[i] + "</TD>", true);
+                condlPrint("<TH>" + headerArray[i] + "</TH>", true);
                 condlPrint(((i > 0) ? "  " : "")
                         + ((i < headerArray.length - 1 || rightJust[i])
                            ? StringUtil.toPaddedString(
@@ -3945,7 +4013,7 @@ public class SqlFile {
                 condlPrintln("", false);
             }
 
-            condlPrintln(LS + "</TABLE>" + LS + "<HR>", true);
+            condlPrintln(LS + "</TABLE>", true);
         } finally {
             try {
                 if (r != null) r.close();
@@ -4030,7 +4098,6 @@ public class SqlFile {
 
         try {
             if (htmlMode) {
-                pwQuery.println("</BODY></HTML>");
                 pwQuery.flush();
             }
         } finally {
