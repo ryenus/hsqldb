@@ -21,6 +21,7 @@ Filter substrings are case-sensitive!  Use "SCHEMANAME." to narrow to schema.
     \m file/path.dsv [*] iMport DSV text file records into a table (opts \m?)
     \mq  f/path.csv [*]  Ditto, but with traditional CSV double-quoting
     \o [file/path.html]  tee (or stop teeing) query Output to specified file
+    \oc                  stop teeing query Output and write Closing HTML
     \p [A Message]       Print string to stdout
     \q [abort message]   Quit (or you can end input with Ctrl-Z or Ctrl-D)
     \t [true|false]      report execution Times for all SQL commands
