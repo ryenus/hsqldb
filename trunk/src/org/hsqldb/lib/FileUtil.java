@@ -392,7 +392,8 @@ public class FileUtil implements FileAccess {
      * for the database as listed by the getDatabaseFileList() method. If any
      * of the current, main database files cannot be deleted, it is renamed
      * by adding a suffixe containting a hexadecimal timestamp portion and
-     * the ".old" extension.
+     * the ".old" extension. Also deletes the ".tmp" directory.
+     *
      * @param path full path or name of database (without a file extension)
      * @return currently always true
      */
@@ -403,6 +404,18 @@ public class FileUtil implements FileAccess {
 
         for (int i = 0; i < fileList.length; i++) {
             fileList[i].delete();
+        }
+
+        File tempDir = new File(filter.canonicalFile.getPath() + ".tmp");
+
+        if (tempDir.isDirectory()) {
+            File[] tempList = tempDir.listFiles();
+
+            for (int i = 0; i < tempList.length; i++) {
+                tempList[i].delete();
+            }
+
+            tempDir.delete();
         }
 
         fileList = filter.getExistingMainFileSetList();

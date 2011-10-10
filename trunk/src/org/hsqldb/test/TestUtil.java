@@ -126,6 +126,8 @@ public class TestUtil {
 
     static void testScripts(String directory) {
 
+        TestUtil.deleteDatabase("test1");
+
         try {
             Class.forName("org.hsqldb.jdbc.JDBCDriver");
 
@@ -158,9 +160,9 @@ public class TestUtil {
 
             cConnection = DriverManager.getConnection(url, user, password);
 
-            cConnection.createStatement().execute("SHUTDOWN");
-            TestUtil.deleteDatabase("test1");
-            TestUtil.checkDatabaseFilesDeleted("test1");
+//            cConnection.createStatement().execute("SHUTDOWN");
+//            TestUtil.deleteDatabase("test1");
+//            TestUtil.checkDatabaseFilesDeleted("test1");
         } catch (Exception e) {
             e.printStackTrace();
             print("TestUtil init error: " + e.toString());
