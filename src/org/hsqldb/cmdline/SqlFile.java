@@ -5296,17 +5296,6 @@ public class SqlFile {
                         summaryString, revnum));
                 rejectReportWriter.flush();
             }
-            if (rejectCount == 0) {
-                if (rejectFile != null && rejectFile.exists()
-                        && !rejectFile.delete())
-                    errprintln(SqltoolRB.dsv_rejectfile_purgefail.getString(
-                            rejectFile.toString()));
-                if (rejectReportFile != null && !rejectReportFile.delete())
-                    errprintln(SqltoolRB.dsv_rejectreport_purgefail.getString(
-                            (rejectFile == null)
-                                    ? null : rejectFile.toString()));
-                // These are trivial errors.
-            }
         }
         } finally {
             if (rejectWriter != null) try {
@@ -5318,6 +5307,17 @@ public class SqlFile {
                 rejectReportWriter.close();
             } finally {
                 rejectReportWriter = null;  // Encourage GC of buffers
+            }
+            if (rejectCount == 0) {
+                if (rejectFile != null && rejectFile.exists()
+                        && !rejectFile.delete())
+                    errprintln(SqltoolRB.dsv_rejectfile_purgefail.getString(
+                            rejectFile.toString()));
+                if (rejectReportFile != null && !rejectReportFile.delete())
+                    errprintln(SqltoolRB.dsv_rejectreport_purgefail.getString(
+                            (rejectFile == null)
+                                    ? null : rejectFile.toString()));
+                // These are trivial errors.
             }
         }
     }
