@@ -1598,7 +1598,8 @@ public class SqlFile {
                 }
                 requireConnection();
                 if (arg1.length() == 2) {
-                    listTables(arg1.charAt(1), other.trim());
+                    listTables(arg1.charAt(1),
+                            (other == null) ? null : other.trim());
 
                     return;
                 }
