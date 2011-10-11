@@ -13,7 +13,7 @@ Filter substrings are case-sensitive!  Use "SCHEMANAME." to narrow to schema.
     \d OBJECTNAME [regx] Describe table or view columns
     \d{tvsiSanur*?} [substr]  List objects of specified type:
   (Tbls/Views/Seqs/Indexes/SysTbls/Aliases/schemaNames/Users/Roles/table-like)
-    \H                   toggle HTML output mode
+    \h [true|false]      enable or disable HTML output mode
     \i file/path.sql     Include/execute commands from external file
     \j [urlid]           display Jdbc connection details, or connect to 'urlid'
     \j acct pwd jdbc:url Establish connection to Jdbc data source at URL

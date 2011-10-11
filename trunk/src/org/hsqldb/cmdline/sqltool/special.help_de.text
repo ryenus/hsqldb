@@ -18,7 +18,7 @@ Verwenden Sie "SCHEMANAME.", um auf ein Schema zu begrenzen.
     \d OBJEKTNAME [regx]   Beschreibt Spalten von Tabellen oder Views
     \d{tvsiSanur*?} [Zeichenkette] Listet Objekte der spezifizierten Art:
 (Tbln/Views/Seqs/Indexe/SysTbln/Aliase/SchemaNamen/Benutzer/Rollenn/tbl-ähnlich)
-    \H                     Schaltet in den HTML-Ausgabe-Modus.
+    \h [true|false]        Schaltet in den HTML-Ausgabe-Modus.
     \i pfad/datei.sql      Befehle aus externer Datei ausführen/einbinden
     \j [urlid]             Anzeige JDBC-Verbindung Details, oder zu 'urlid' zu
                            verbinden
