@@ -3983,7 +3983,8 @@ public class SqlFile {
                     + LS + SqlFile.htmlRow(COL_HEAD) + LS + PRE_TD, true);
 
             for (int i = 0; i < headerArray.length; i++) {
-                condlPrint("<TH>" + headerArray[i] + "</TH>", true);
+                condlPrint("<TH" + (rightJust[i] ? " class=\"sqltool-right\"")
+                        + ">" + headerArray[i] + "</TH>", true);
                 condlPrint(((i > 0) ? "  " : "")
                         + ((i < headerArray.length - 1 || rightJust[i])
                            ? StringUtil.toPaddedString(
