@@ -31,7 +31,7 @@ SqlTool reserves variables with names beginning with * for special purposes.
  letter and followed by zero or more letters, digits, or _, are 'user' vars.
 Use System Property values (which you may not set) like: ${property.name}.
 Use PL variables in logical expressions, like (*VARNAME == 1).  [No curlies]
-Use PL vars in math expressions, like ((VARNAME = OTHER * 3)).  [No parens.]
+Use PL vars in math asssignments, like ((VARNAME = OTHER * 3)).  [Bare names]
 Auto. variable ? is set to the very latest SQL datum fetched (or update count).
     Query:  The value of the first field of the first row returned.
     other:  Return status of the command
