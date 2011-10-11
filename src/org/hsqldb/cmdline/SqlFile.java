@@ -3647,8 +3647,9 @@ public class SqlFile {
                         fieldArray = rows.get(i);
 
                         for (int j = 0; j < fieldArray.length; j++) {
-                            condlPrint("<TD>" + fieldArray[j] + "</TD>",
-                                       true);
+                            condlPrint("<TD" + (rightJust[j]
+                                        ? " class=\"sqltool-right\"" : "")
+                                        + ">" + fieldArray[j] + "</TD>", true);
                             condlPrint(((j > 0) ? "  " : "")
                                     + ((j < fieldArray.length - 1
                                         || rightJust[j])
@@ -3983,8 +3984,7 @@ public class SqlFile {
                     + LS + SqlFile.htmlRow(COL_HEAD) + LS + PRE_TD, true);
 
             for (int i = 0; i < headerArray.length; i++) {
-                condlPrint("<TH" + (rightJust[i] ? " class=\"sqltool-right\"")
-                        + ">" + headerArray[i] + "</TH>", true);
+                condlPrint("<TH>" + headerArray[i] + "</TH>", true);
                 condlPrint(((i > 0) ? "  " : "")
                         + ((i < headerArray.length - 1 || rightJust[i])
                            ? StringUtil.toPaddedString(
@@ -4013,7 +4013,9 @@ public class SqlFile {
                 fieldArray = rows.get(i);
 
                 for (int j = 0; j < fieldArray.length; j++) {
-                    condlPrint("<TD>" + fieldArray[j] + "</TD>", true);
+                    condlPrint("<TD"
+                            + (rightJust[j] ? " class=\"sqltool-right\"" : "")
+                            + ">" + fieldArray[j] + "</TD>", true);
                     condlPrint(((j > 0) ? "  " : "")
                             + ((j < fieldArray.length - 1 || rightJust[j])
                                ? StringUtil.toPaddedString(
