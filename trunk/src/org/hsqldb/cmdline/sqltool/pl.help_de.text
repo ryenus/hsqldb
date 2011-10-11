@@ -35,7 +35,6 @@ PROZEDUALE SPRACHE (PROCEDURAL LANGUAGE) BEFEHLE
 Verwenden Sie PL-Variablen (die Sie gesetzt haben) wie folgt: *{VARNAME}.
 Verwenden Sie Systemeigenschaften (auch wenn Sie sie vlt. nicht gesetzt haben)
 so: ${property.name}.
-Sie können /VARNAME benutzen, wenn /VARNAME das erste Wort im SQL-Befehl ist.
 In logischen Ausdrücken verwenden Sie PL-Variablen so: (VARNAME == 1).
 Die automatische Variable ? bezieht sich immer auf die jüngste SQL-Anweisung
 (oder Updatezähler).

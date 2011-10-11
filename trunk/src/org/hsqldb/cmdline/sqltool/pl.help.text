@@ -23,11 +23,15 @@ PROCEDURAL LANGUAGE COMMANDS
     * prepare VARNAME             Use ? in next SQL statement to upload val.
                                   (Just "?", "*{?}" would mean the auto var.).
     * while (logical expr)        Repeat following PL block while expr true
+    * ((VARNAME = math expr))     Set VARNAME to integer value of expression
 
 Use PL variable values (which have been set) like: *{VARNAME}.
+SqlTool reserves variables with names beginning with * for special purposes.
+ These are called SqlTool system variables.  Variables beginning with a
+ letter and followed by zero or more letters, digits, or _, are 'user' vars.
 Use System Property values (which you may not set) like: ${property.name}.
-You may use /VARNAME instead iff /VARNAME is the first word of a SQL command.
-Use PL variables in logical expressions, like (*VARNAME == 1).
+Use PL variables in logical expressions, like (*VARNAME == 1).  [No curlies]
+Use PL vars in math expressions, like ((VARNAME = OTHER * 3)).  [No parens.]
 Auto. variable ? is set to the very latest SQL datum fetched (or update count).
     Query:  The value of the first field of the first row returned.
     other:  Return status of the command
