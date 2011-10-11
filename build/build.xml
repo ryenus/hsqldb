@@ -894,7 +894,7 @@ examples:
                     if="ant.java.iscjava16"
             unless="ant.java.iscjava17">
         <property name="jse.doc.link"
-                  value="http://java.sun.com/javase/6/docs/api/"/>
+                  value="http://download.oracle.com/javase/6/docs/api/"/>
         <property name="jee.doc.link"
                   value="http://download.oracle.com/javaee/6/api/"/>
     </target>
@@ -904,7 +904,7 @@ examples:
                     if="ant.java.iscjava15"
             unless="ant.java.iscjava16">
         <property name="jse.doc.link"
-                  value="http://java.sun.com/javase/5/docs/api/"/>
+                  value="http://download.oracle.com/javase/1.5.0/docs/api/"/>
         <property name="jee.doc.link"
                   value="http://download.oracle.com/javaee/5/api/"/>
     </target>
