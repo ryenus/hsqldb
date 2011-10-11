@@ -355,14 +355,26 @@ public class SqlTool {
                     coeOverride = Boolean.valueOf(
                             arg[i].substring("--continueonerr=".length()));
                 } else if (parameter.equals("list")) {
+                    if (listMode) {
+                        throw new SqlToolException(SYNTAXERR_EXITVAL,
+                                SqltoolRB.SqlTool_params_redundant.getString());
+                    }
                     listMode = true;
                 } else if (parameter.equals("rcfile")) {
                     if (++i == arg.length) {
                         throw bcl;
                     }
+                    if (rcFile != null) {
+                        throw new SqlToolException(SYNTAXERR_EXITVAL,
+                                SqltoolRB.SqlTool_params_redundant.getString());
+                    }
 
                     rcFile = arg[i];
                 } else if (parameter.startsWith("rcfile=")) {
+                    if (rcFile != null) {
+                        throw new SqlToolException(SYNTAXERR_EXITVAL,
+                                SqltoolRB.SqlTool_params_redundant.getString());
+                    }
                     rcFile = arg[i].substring("--rcfile=".length());
                 } else if (parameter.equals("setvar")) {
                     if (++i == arg.length) {
@@ -389,38 +401,82 @@ public class SqlTool {
                     if (++i == arg.length) {
                         throw bcl;
                     }
+                    if (sqlText != null) {
+                        throw new SqlToolException(SYNTAXERR_EXITVAL,
+                                SqltoolRB.SqlTool_params_redundant.getString());
+                    }
 
                     sqlText = arg[i];
                 } else if (parameter.startsWith("sql=")) {
                     noinput = true;    // but turn back on if file "-" specd.
+                    if (sqlText != null) {
+                        throw new SqlToolException(SYNTAXERR_EXITVAL,
+                                SqltoolRB.SqlTool_params_redundant.getString());
+                    }
                     sqlText = arg[i].substring("--sql=".length());
                 } else if (parameter.equals("debug")) {
+                    if (debug) {
+                        throw new SqlToolException(SYNTAXERR_EXITVAL,
+                                SqltoolRB.SqlTool_params_redundant.getString());
+                    }
                     debug = true;
                 } else if (parameter.equals("noautofile")) {
+                    if (noautoFile) {
+                        throw new SqlToolException(SYNTAXERR_EXITVAL,
+                                SqltoolRB.SqlTool_params_redundant.getString());
+                    }
                     noautoFile = true;
                 } else if (parameter.equals("autocommit")) {
+                    if (autoCommit) {
+                        throw new SqlToolException(SYNTAXERR_EXITVAL,
+                                SqltoolRB.SqlTool_params_redundant.getString());
+                    }
                     autoCommit = true;
                 } else if (parameter.equals("stdinput")) {
                     noinput          = false;
+                    if (stdinputOverride != null) {
+                        throw new SqlToolException(SYNTAXERR_EXITVAL,
+                                SqltoolRB.SqlTool_params_redundant.getString());
+                    }
                     stdinputOverride = Boolean.TRUE;
                 } else if (parameter.equals("noinput")) {
                     noinput          = true;
+                    if (stdinputOverride != null) {
+                        throw new SqlToolException(SYNTAXERR_EXITVAL,
+                                SqltoolRB.SqlTool_params_redundant.getString());
+                    }
                     stdinputOverride = Boolean.FALSE;
                 } else if (parameter.equals("driver")) {
                     if (++i == arg.length) {
                         throw bcl;
                     }
+                    if (driver != null) {
+                        throw new SqlToolException(SYNTAXERR_EXITVAL,
+                                SqltoolRB.SqlTool_params_redundant.getString());
+                    }
 
                     driver = arg[i];
                 } else if (parameter.startsWith("driver=")) {
+                    if (driver != null) {
+                        throw new SqlToolException(SYNTAXERR_EXITVAL,
+                                SqltoolRB.SqlTool_params_redundant.getString());
+                    }
                     driver = arg[i].substring("--driver=".length());
                 } else if (parameter.equals("inlinerc")) {
                     if (++i == arg.length) {
                         throw bcl;
                     }
+                    if (rcParams != null) {
+                        throw new SqlToolException(SYNTAXERR_EXITVAL,
+                                SqltoolRB.SqlTool_params_redundant.getString());
+                    }
 
                     rcParams = arg[i];
                 } else if (parameter.startsWith("inlinerc=")) {
+                    if (rcParams != null) {
+                        throw new SqlToolException(SYNTAXERR_EXITVAL,
+                                SqltoolRB.SqlTool_params_redundant.getString());
+                    }
                     rcParams = arg[i].substring("--inlinerc=".length());
                 } else {
                     throw bcl;
