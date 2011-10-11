@@ -1446,8 +1446,10 @@ public class SqlFile {
 
                 throw new QuitNow();
             case 'H' :
-                enforce1charSpecial(arg1, 'H');
-                htmlMode = !htmlMode;
+            case 'h' :
+                enforce1charSpecial(arg1, 'h');
+                htmlMode = (other == null) ? (!htmlMode)
+                        : Boolean.parseBoolean(other.trim());
 
                 shared.psStd.println(SqltoolRB.html_mode.getString(
                         Boolean.toString(htmlMode)));
@@ -1651,7 +1653,7 @@ public class SqlFile {
                             while ((i = isr.read(readBfr)) > -1)
                                 sWriter.write(readBfr, 0, i);
                             readBfr = null;
-                            str = sWriter.toString().replaceAll("\\r?\\n", LS);
+                            str = sWriter.toString();
                             sWriter.close();
                         } catch (Exception e) {
                             throw new BadSpecial(
@@ -1664,7 +1666,8 @@ public class SqlFile {
                                 // TODO: Throw appropriate exception
                             }
                         }
-                        pwQuery.write(str);
+                        pwQuery.write(dereference(
+                                str.replaceAll("\\r?\\n", LS), true));
                     }
                     closeQueryOutputStream();
 
@@ -1692,7 +1695,7 @@ public class SqlFile {
                 /* Opening in append mode, so it's possible that we will
                  * be adding superfluous <HTML> and <BODY> tags.
                  * I think that browsers can handle that */
-                if (!exists) {
+                if (htmlMode && !exists) {
                     char[] readBfr = new char[1024];
                     int i;
                     StringWriter sWriter = new StringWriter();
@@ -1712,7 +1715,7 @@ public class SqlFile {
                         while ((i = isr.read(readBfr)) > -1)
                             sWriter.write(readBfr, 0, i);
                         readBfr = null;
-                        str = sWriter.toString().replaceAll("\\r?\\n", LS);
+                        str = sWriter.toString();
                         sWriter.close();
                     } catch (Exception e) {
                         throw new BadSpecial(
@@ -1725,7 +1728,8 @@ public class SqlFile {
                             // TODO: Throw appropriate exception
                         }
                     }
-                    pwQuery.write(str);
+                    pwQuery.write(dereference(
+                            str.replaceAll("\\r?\\n", LS), true));
                 }
                 pwQuery.flush();
 
@@ -2672,9 +2676,14 @@ public class SqlFile {
      * Conditionally HTML-ifies error output.
      */
     private void errprintln(String s) {
+        if (pwQuery != null && htmlMode) {
+            pwQuery.println("<DIV style=\"sqltool-error\"><CODE>"
+                    + s + "</CODE></DIV>");
+            pwQuery.flush();
+        }
         if (shared.psStd != null && htmlMode) {
-            shared.psStd.println(
-                    "<DIV style=\"sqltool-error\">" + s + "</DIV>");
+            shared.psStd.println("<DIV style=\"sqltool-error\"><CODE>"
+                    + s + "</CODE></DIV>");
         } else {
             logger.privlog(Level.SEVERE, s, null, 5, SqlFile.class);
             /* Only consistent way we can log source location is to log
@@ -3598,7 +3607,7 @@ public class SqlFile {
                 // STEP 2: DISPLAY DATA  (= 2a OR 2b)
                 // STEP 2a (Non-DSV)
                 if (pwDsv == null) {
-                    condlPrintln("<TABLE class=\"sqltool\">", true);
+                    condlPrintln("<TABLE class=\"sqltool\"><THEAD>", true);
 
                     if (incCount > 1) {
                         condlPrint(SqlFile.htmlRow(COL_HEAD) + LS + PRE_TD, true);
@@ -3628,6 +3637,7 @@ public class SqlFile {
                             condlPrintln("", false);
                         }
                     }
+                    condlPrintln("</THEAD><TBODY>", true);
 
                     for (int i = 0; i < rows.size(); i++) {
                         condlPrint(SqlFile.htmlRow(((i % 2) == 0) ? COL_EVEN
@@ -3653,7 +3663,7 @@ public class SqlFile {
                         condlPrintln("", false);
                     }
 
-                    condlPrintln("</TABLE>", true);
+                    condlPrintln("<TBODY></TABLE>", true);
 
                     if (interactive && rows.size() != 1)
                         stdprintln(LS + SqltoolRB.rows_fetched.getString(
@@ -3969,7 +3979,7 @@ public class SqlFile {
             }
 
             // STEP 2: DISPLAY DATA
-            condlPrint("<TABLE class=\"sqltool sqltool-describe\">"
+            condlPrint("<TABLE class=\"sqltool sqltool-describe\"><THEAD>"
                     + LS + SqlFile.htmlRow(COL_HEAD) + LS + PRE_TD, true);
 
             for (int i = 0; i < headerArray.length; i++) {
@@ -3984,6 +3994,7 @@ public class SqlFile {
 
             condlPrintln(LS + PRE_TR + "</TR>", true);
             condlPrintln("", false);
+            condlPrintln("</THEAD><TBODY>", true);
 
             if (!htmlMode) {
                 for (int i = 0; i < headerArray.length; i++)
@@ -4014,7 +4025,7 @@ public class SqlFile {
                 condlPrintln("", false);
             }
 
-            condlPrintln(LS + "</TABLE>", true);
+            condlPrintln(LS + "</TBODY></TABLE>", true);
         } finally {
             try {
                 if (r != null) r.close();
