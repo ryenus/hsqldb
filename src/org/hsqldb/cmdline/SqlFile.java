@@ -77,6 +77,7 @@ import org.hsqldb.cmdline.sqltool.Token;
 import org.hsqldb.cmdline.sqltool.TokenList;
 import org.hsqldb.cmdline.sqltool.TokenSource;
 import org.hsqldb.cmdline.sqltool.SqlFileScanner;
+import org.hsqldb.cmdline.sqltool.Calculator;
 
 /* $Id$ */
 
@@ -209,7 +210,9 @@ public class SqlFile {
     private static Pattern   wordPattern = Pattern.compile("\\w+");
     private static Pattern   specialPattern =
             Pattern.compile("(\\S+)(?:(\\s+.*\\S))?\\s*");
-    private static Pattern   plPattern  = Pattern.compile("(.*\\S)?\\s*");
+    private static Pattern  plPattern = Pattern.compile("(.*\\S)?\\s*");
+    private static Pattern  mathPattern = Pattern.compile(
+            "\\(\\(\\s*([a-zA-Z]\\w*)\\s*=\\s*(.+)?\\s*\\)\\)\\s*");
     private static Pattern   foreachPattern =
             Pattern.compile("foreach\\s+(\\S+)\\s*\\(([^)]+)\\)\\s*");
     private static Pattern   ifwhilePattern =
@@ -2390,7 +2393,23 @@ public class SqlFile {
      */
     private void processPL() throws BadSpecial, SqlToolError {
         String string = buffer.val;
-        Matcher m = plPattern.matcher(dereference(string, false));
+        String dereffed = dereference(string, false);
+
+        Matcher mathMatcher = mathPattern.matcher(dereference(string, false));
+        if (mathMatcher.matches()) try {
+            shared.userVars.put(mathMatcher.group(1), Integer.toString(
+                    new Calculator(
+                    mathMatcher.group(2), shared.userVars).reduce(0, false)));
+            // No updateUserSettings since can't modify *System vars
+            sqlExpandMode = null;
+            return;
+        } catch (IllegalStateException ise) {
+System.err.println("MSG=(" + ise.getMessage() + ')');
+            throw new BadSpecial(
+                    SqltoolRB.math_expr_fail.getString(ise.getMessage()));
+        }
+
+        Matcher m = plPattern.matcher(dereffed);
         if (!m.matches())
             throw new BadSpecial(SqltoolRB.pl_malformat.getString());
             // I think it's impossible to get here, since the pattern is
@@ -2399,7 +2418,6 @@ public class SqlFile {
             stdprintln(SqltoolRB.deprecated_noop.getString("*"));
             return;
         }
-
         String[] tokens = m.group(1).split("\\s+", -1);
 
         if (tokens[0].charAt(0) == '?') {

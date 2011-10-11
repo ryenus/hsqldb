@@ -91,7 +91,7 @@ public class Calculator {
                 op = MathOp.valueOf(token.charAt(0));
                 if (op != null) return;
             }
-System.err.println("Trying '" + token + "'");
+            // System.err.println("Trying '" + token + "'");
             val = deref(token);
         }
         //private Atom(MathOp op) { this.op = op; }
@@ -172,7 +172,7 @@ System.err.println("Trying '" + token + "'");
         int remaining = i - startAtomIndex;
         if (remaining < 1)
             throw new IllegalStateException("Empty expression");
-System.out.println("Need to consume " + remaining + " after parens removed");
+        // System.out.println("Need to consume " + remaining + " after parens removed");
 
         // Reduce multiplication and division
         Atom nextAtom;
@@ -224,7 +224,7 @@ System.out.println("Need to consume " + remaining + " after parens removed");
             --remaining;
             atom = atoms.remove(startAtomIndex);
             op = atom.op;
-System.err.println("Trying +/- for " + op);
+            // System.err.println("Trying +/- for " + op);
             if (op == null)
                 throw new IllegalStateException(
                         "Operator expected but got value " + atom.val);
@@ -251,6 +251,7 @@ System.err.println("Trying +/- for " + op);
         return total;
     }
 
+    /* TODO:  Replace this method with a proper unit test class */
     public static void main(String[] sa) {
         if (sa.length != 1)
             throw new IllegalArgumentException(

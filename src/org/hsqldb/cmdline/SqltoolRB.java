@@ -268,7 +268,8 @@ public enum SqltoolRB implements RefCapableRBInterface {
     arrayval_malformat,
     sqlarray_badjvm,
     csv_coldelim_present,
-    csv_quote_unterminated
+    csv_quote_unterminated,
+    math_expr_fail
     ;
 
     private static ValidatingResourceBundle vrb =

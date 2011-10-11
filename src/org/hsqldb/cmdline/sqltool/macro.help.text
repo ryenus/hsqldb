@@ -1,3 +1,5 @@
+Macros may only be entered as the first thing in a command, because macros
+are stored 'commands', not stored text (like PL variables).
 SqlTool functions are macros that accept positional parameters and the function
 names always end with () (like "myFunction()").
 Unless noted, everything said here about macros also applies to functions.
