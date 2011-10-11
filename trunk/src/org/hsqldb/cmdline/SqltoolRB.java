@@ -70,6 +70,7 @@ public enum SqltoolRB implements RefCapableRBInterface {
     rcdata_genfromvalues_fail,
     conndata_retrieval_fail,
     jdbc_established,
+    SqlTool_params_redundant,
 
     // SqlFile class, file references:
     SqlFile_banner,
