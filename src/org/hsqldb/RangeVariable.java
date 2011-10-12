@@ -1065,7 +1065,7 @@ public class RangeVariable implements Cloneable {
 
             SubQuery subQuery = rangeVar.rangeTable.getSubQuery();
 
-            if (subQuery != null) {
+            if (subQuery != null && subQuery.isCorrelated()) {
                 subQuery.materialiseCorrelated(session);
             }
 

@@ -1078,7 +1078,6 @@ public class ParserDML extends ParserDQL {
         }
 
         fullRangeVars[1].addJoinCondition(mergeCondition);
-        fullRangeVars[0].setJoinType(true, false);
 
         RangeVariableResolver resolver =
             new RangeVariableResolver(fullRangeVars, null, compileContext);
