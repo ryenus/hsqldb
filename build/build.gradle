@@ -16,7 +16,7 @@ task serialver << {
 
     String pathSep = System.properties['path.separator']
     // Could alternatively use Gradle's ExecSpec via exec(...)
-    def process = new ProcessBuilder([
+    Process process = new ProcessBuilder([
         // 'D:\\progra~1\\portableGit-1.7.3.1-p\\bin\\ls',
         'serialver',
         '-classpath',
@@ -224,7 +224,7 @@ file('../build-docbook-gradled.xml').deleteOnExit();
  * 'help' with Gradle-translated output of our Ant 'help' target.
  */
 task help(overwrite:true) << {
-    def antVer = ant.properties['ant.version']
+    String antVer = ant.properties['ant.version']
             .replaceFirst("^[^\\d]*(\\d\\S+).*\$", "\$1")
     print """
 Welcome to Gradle $gradle.gradleVersion.  (Wrapping Ant $antVer).
