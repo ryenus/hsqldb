@@ -207,6 +207,7 @@ public class SqlFile {
      * unpredictable wrt whether you get a null capture group vs. no capture.
      * Must always check count!
      */
+    private static Pattern   varPattern = Pattern.compile("\\*?[a-zA-Z]\\w*");
     private static Pattern   wordPattern = Pattern.compile("\\w+");
     private static Pattern   specialPattern =
             Pattern.compile("(\\S+)(?:(\\s+.*\\S))?\\s*");
@@ -618,6 +619,13 @@ public class SqlFile {
                         "Null mapping values not allowed");
         }
         shared.userVars.putAll(newUserVars);
+        List<String> strangeVars = new ArrayList<String>();
+        for (String name : newUserVars.keySet())
+            if (!varPattern.matcher(name).matches())
+                strangeVars.add(name);
+        if (strangeVars.size() > 0)
+            errprintln(SqltoolRB.varname_warning.getString(
+                    strangeVars.toString()));
         sqlExpandMode = null;
     }
 
@@ -2239,6 +2247,8 @@ public class SqlFile {
             String varName   = foreachM.group(1);
             if (varName.indexOf(':') > -1)
                 throw new BadSpecial(SqltoolRB.plvar_nocolon.getString());
+            if (!varPattern.matcher(varName).matches())
+                errprintln(SqltoolRB.varname_warning.getString(varName));
             String[] values = foreachM.group(2).split("\\s+", -1);
 
             String origval = shared.userVars.get(varName);
@@ -2402,6 +2412,9 @@ public class SqlFile {
                     mathMatcher.group(2), shared.userVars).reduce(0, false)));
             // No updateUserSettings since can't modify *System vars
             sqlExpandMode = null;
+            if (!varPattern.matcher(mathMatcher.group(1)).matches())
+                errprintln(SqltoolRB.varname_warning.getString(
+                        mathMatcher.group(1)));
             return;
         } catch (IllegalStateException ise) {
 System.err.println("MSG=(" + ise.getMessage() + ')');
@@ -2564,6 +2577,8 @@ System.err.println("MSG=(" + ise.getMessage() + ')');
 
         if (varName.indexOf(':') > -1)
             throw new BadSpecial(SqltoolRB.plvar_nocolon.getString());
+        if (!varPattern.matcher(varName).matches())
+            errprintln(SqltoolRB.varname_warning.getString(varName));
 
         switch (m.group(2).charAt(0)) {
             case ':' :
@@ -4323,6 +4338,8 @@ System.err.println("MSG=(" + ise.getMessage() + ')');
         String string = streamToString(new FileInputStream(asciiFile), cs);
         // The streamToString() method ensures that the Stream gets closed
         shared.userVars.put(varName, string);
+        if (!varPattern.matcher(varName).matches())
+            errprintln(SqltoolRB.varname_warning.getString(varName));
         updateUserSettings();
         sqlExpandMode = null;
     }
