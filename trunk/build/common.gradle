@@ -4,7 +4,7 @@
 void loadJavaProps(String filePath, boolean strict) {
     File f = new File(filePath)
     if (!f.isFile()) return
-    def props = new Properties();
+    Properties props = new Properties();
     f.withInputStream { props.load(it) }
     logger.info('Loaded ' + props.size() + ' from ' + filePath)
     String newVal;
