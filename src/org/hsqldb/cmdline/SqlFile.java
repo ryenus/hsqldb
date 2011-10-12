@@ -2695,12 +2695,12 @@ System.err.println("MSG=(" + ise.getMessage() + ')');
      */
     private void errprintln(String s) {
         if (pwQuery != null && htmlMode) {
-            pwQuery.println("<DIV style=\"sqltool-error\"><CODE>"
+            pwQuery.println("<DIV class=\"sqltool-error\"><CODE>"
                     + s + "</CODE></DIV>");
             pwQuery.flush();
         }
         if (shared.psStd != null && htmlMode) {
-            shared.psStd.println("<DIV style=\"sqltool-error\"><CODE>"
+            shared.psStd.println("<DIV class=\"sqltool-error\"><CODE>"
                     + s + "</CODE></DIV>");
         } else {
             logger.privlog(Level.SEVERE, s, null, 5, SqlFile.class);
