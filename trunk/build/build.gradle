@@ -82,6 +82,7 @@ task checkTabs (dependsOn: war) << {
 */
 
 import java.util.regex.Pattern
+import java.util.regex.Matcher
 import groovy.xml.XmlUtil
 import groovy.xml.StreamingMarkupBuilder
 
@@ -180,7 +181,6 @@ void resequenceAntDependencies(
     // 3.5: Conditionally execute user-specified closure
     if (closure != null) closure(xmls)
 
-
     // 4: Write modified Ant build file
     File outFile;
     Pattern dotPattern = Pattern.compile("\\.");
@@ -198,9 +198,6 @@ void resequenceAntDependencies(
         outFile.write(XmlUtil.serialize(
             new StreamingMarkupBuilder().bind{mkp.yield xmls[i]}), "UTF-8")
     }
-
-    // 5: Consider creating Gradle-only wrapper Tasks for those renamed
-    //    Targets that have names not beginning with "-".
 }
 
 // RESEQUENCE
@@ -215,6 +212,23 @@ resequenceAntDependencies('-gradled', {
 ant.importBuild('../build-gradled.xml')
 file('../build-gradled.xml').deleteOnExit();
 file('../build-docbook-gradled.xml').deleteOnExit();
+
+// This block generates wrapper tasks for the sole purpose of preventing the
+// end user from seeing numbered task names.
+Pattern candidatePattern = Pattern.compile("^\\d{3}([^-.][^.]*)\$");
+Matcher m;
+for (t in getTasks()) {
+    if (t.description == null) continue;
+    m = candidatePattern.matcher(t.name);
+    if (!m.matches()) continue;
+    logger.debug("CREATING Wrapper for " + m.group(1))
+    task m.group(1)
+    thatNamedTasks = getTasksByName(m.group(1), true).toArray()
+    if (thatNamedTasks.size() > 1)
+        throw new GradleException('Task multiply defined: ' + m.group(1))
+    thatNamedTasks[0].dependsOn = [t]
+    thatNamedTasks[0].description = t.description
+}
 
 /**
  *
@@ -249,8 +263,24 @@ examples:
 }
 help.description = "Displays a help message"
 
+/**
+ * Override OOTB 'tasks'.
+ * Hides -private tasks from Ant.
+ * Hides tasks without descriptions.
+ * Hides Ant-subproject tasks because for tasks in sub-projects, Gradle always
+ *  creates unqualified and one qualified to the sub-project.
+ * Hide renamed tasks so that user will only see the "generated wrappers"
+ *  created above for this purpose.
+ *
+ * Only problem here is that Gradle gives us no way to discern overridden
+ * tasks, so that we could present both the sub-project target and the
+ * super-project target in this case.
+ * In this case, we present only the overriding target until Gradle fixes the
+ * bug that I registered.
+ */
 task tasks << {
     Pattern privateTaskPattern = Pattern.compile("(?:\\d{3}|-).+");
+    Pattern preDotPattern = Pattern.compile("^(.*\\.)");
     print """
 ------------------------------------------------------------
 Root Project
@@ -267,8 +297,12 @@ tasks - Displays the tasks in root project '$project.name'.
 Other tasks
 -----------
 """
+    String targName
+    int dotAt
+    def sameNameds = []
+    NEXT_TASK:
     for (t in getTasks())
-        if (t.description != null
+        if (t.description != null && t.name.indexOf('.') < 0
                 && !privateTaskPattern.matcher(t.name).matches())
             println t.name + ' - ' + t.description
 }
