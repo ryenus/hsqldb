@@ -40,7 +40,7 @@ import org.hsqldb.lib.OrderedIntHashSet;
  *
  * @author  Nitin Chauhan (initial work)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.1.1
+ * @version 2.2.6
  * @since 1.7.2
  */
 public class Tokens {
@@ -2105,6 +2105,7 @@ public class Tokens {
         commandSet.put(T_FINAL, FINAL);
         commandSet.put(T_FIRST, FIRST);
         commandSet.put(T_FORMAT, FORMAT);
+        commandSet.put(T_FOUND, FOUND);
         commandSet.put(T_G_FACTOR, G);
         commandSet.put(T_GC, GC);
         commandSet.put(T_GENERATED, GENERATED);

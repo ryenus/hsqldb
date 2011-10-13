@@ -552,12 +552,18 @@ public class StatementDML extends StatementDMQL {
             if (count == 1) {
                 return Result.updateOneResult;
             } else if (count == 0) {
+                session.addWarning(HsqlException.noDataCondition);
+
                 return Result.updateZeroResult;
             }
 
             return new Result(ResultConstants.UPDATECOUNT, count);
         } else {
             resultOut.setUpdateCount(count);
+
+            if (count == 0) {
+                session.addWarning(HsqlException.noDataCondition);
+            }
 
             return resultOut;
         }
@@ -770,9 +776,19 @@ public class StatementDML extends StatementDMQL {
                 return Result.updateOneResult;
             }
 
+            if (count == 0) {
+                session.addWarning(HsqlException.noDataCondition);
+
+                return Result.updateZeroResult;
+            }
+
             return new Result(ResultConstants.UPDATECOUNT, count);
         } else {
             resultOut.setUpdateCount(count);
+
+            if (count == 0) {
+                session.addWarning(HsqlException.noDataCondition);
+            }
 
             return resultOut;
         }
@@ -1143,6 +1159,8 @@ public class StatementDML extends StatementDMQL {
         if (navigator.getSize() > 0) {
             count = delete(session, baseTable, navigator);
         } else {
+            session.addWarning(HsqlException.noDataCondition);
+
             return Result.updateZeroResult;
         }
 
@@ -1155,8 +1173,9 @@ public class StatementDML extends StatementDMQL {
 
     Result executeDeleteTruncateStatement(Session session) {
 
-        PersistentStore store = targetTable.getRowStore(session);
-        RowIterator     it    = targetTable.getPrimaryIndex().firstRow(store);
+        PersistentStore store   = targetTable.getRowStore(session);
+        RowIterator     it = targetTable.getPrimaryIndex().firstRow(store);
+        boolean         hasData = it.hasNext();
 
         try {
             while (it.hasNext()) {
@@ -1170,6 +1189,10 @@ public class StatementDML extends StatementDMQL {
             }
         } finally {
             it.release();
+        }
+
+        if (!hasData) {
+            session.addWarning(HsqlException.noDataCondition);
         }
 
         return Result.updateOneResult;
