@@ -49,7 +49,8 @@ public class Calculator {
         SUBTRACT('-'),
         MULTIPLY('*'),
         DIVIDE('/'),
-        MOD('%')
+        MOD('%'),
+        POWER('^')
         ;
         MathOp(char c) { this.c = c; }
         private char c;
@@ -61,14 +62,14 @@ public class Calculator {
         }
     }
 
-    private int deref(String varName) {
+    private long deref(String varName) {
         if (!vars.containsKey(varName))
             throw new IllegalStateException("Undefined variable: " + varName);
         try {
-            return Integer.parseInt(vars.get(varName));
+            return Long.parseLong(vars.get(varName));
         } catch (NumberFormatException nfe) {
             throw new IllegalStateException(
-                    "Variable not integral: " + varName);
+                    "Variable's value not an integer: " + varName);
         }
     }
 
@@ -84,7 +85,7 @@ public class Calculator {
             if (token.length() < 1)
                 throw new IllegalArgumentException("Tokens may not be empty");
             if (intPattern.matcher(token).matches()) {
-                val = Integer.parseInt(token);
+                val = Long.parseLong(token);
                 return;
             }
             if (token.length() == 1) {
@@ -95,11 +96,11 @@ public class Calculator {
             val = deref(token);
         }
         //private Atom(MathOp op) { this.op = op; }
-        private Atom(int val) { this.val = val; }
+        private Atom(long val) { this.val = val; }
         public MathOp op;
-        public int val;
+        public long val;
         public String toString() {
-            return (op == null) ? Integer.toString(val) : op.toString();
+            return (op == null) ? Long.toString(val) : op.toString();
         }
     }
 
@@ -120,14 +121,16 @@ public class Calculator {
     }
     */
     public Calculator(String[] sa, Map<String, String> vars) {
+        if (vars.size() < 1)
+            throw new IllegalArgumentException("No expression supplied");
         this.vars = vars;
         for (String s : sa) add(s);
     }
 
     public Calculator(String s, Map<String, String> vars) {
-        this(s.replaceAll("([()*/+])", " $1 ")
-                .replaceAll("([^()*/+\\s-])\\s*-(\\d)", "$1 - $2")
-                .replaceAll("([^()*/+\\s-])-", "$1 -")
+        this(s.replaceAll("([()*/+^])", " $1 ")
+                .replaceAll("([^()*/+\\s^-])\\s*-(\\d)", "$1 - $2")
+                .replaceAll("([^()*/+\\s^-])-", "$1 -")
                 .trim().split("\\s+"), vars);
     }
     /**
@@ -138,10 +141,10 @@ public class Calculator {
      *
      * @returns Value that all visited atoms reduce to.
      */
-    public int reduce(int startAtomIndex, boolean stopAtParenClose) {
+    public long reduce(int startAtomIndex, boolean stopAtParenClose) {
         // Every occurence of atoms.remove() below is an instance of reduction.
         int i;
-        Integer prevValue = null;
+        Long prevValue = null;
         Atom atom;
         // Reduce parens via recursion
         i = startAtomIndex - 1;
@@ -173,10 +176,45 @@ public class Calculator {
         if (remaining < 1)
             throw new IllegalStateException("Empty expression");
         // System.out.println("Need to consume " + remaining + " after parens removed");
-
-        // Reduce multiplication and division
         Atom nextAtom;
         MathOp op;
+
+        // Reduce powers
+        i = startAtomIndex;
+        atom = atoms.get(i);
+        if (atom.op != null)
+            throw new IllegalStateException(
+                    "Expected initial value expected but got operation "
+                    + atom.op);
+        while (startAtomIndex + remaining > i + 1) {
+            if (startAtomIndex + remaining < i + 3)
+                throw new IllegalStateException(
+                        "No operator/operand pairing remaining");
+            nextAtom = atoms.get(i + 1);
+            if (nextAtom.op == null)
+                throw new IllegalStateException(
+                        "Operator expected but got value " + nextAtom.val);
+            op = nextAtom.op;
+            nextAtom = atoms.get(i + 2);
+            if (nextAtom.op != null)
+                throw new IllegalStateException(
+                        "Value expected but got operator " + nextAtom.op);
+            if (op != MathOp.POWER) {
+                // Skip 'atom' (current) and the operand that we'll handle later
+                i += 2;
+                atom = nextAtom;
+                continue;
+            }
+            // Reduce the operator and right operand Atoms
+            remaining -= 2;
+            atoms.remove(i + 1);
+            atoms.remove(i + 1);
+            long origVal = atom.val;
+            atom.val = 1;
+            for (int j = 0; j < nextAtom.val; j++) atom.val *= origVal;
+        }
+
+        // Reduce multiplication and division
         i = startAtomIndex;
         atom = atoms.get(i);
         if (atom.op != null)
@@ -218,7 +256,7 @@ public class Calculator {
         if (atom.op != null)
             throw new IllegalStateException(
                     "Value expected but got operation " + atom.op);
-        int total = atom.val;
+        long total = atom.val;
         while (remaining > 0) {
             // Reduce the operator Atom
             --remaining;
@@ -282,5 +320,54 @@ public class Calculator {
         else
             System.out.println("<");
         */
+    }
+
+    /**
+     * Does not actually do the assigment, but validates the input variable
+     * and returns the value ready to be assigned to it.
+     */
+    public static long reassignValue(String assignee,
+            Map<String, String> valMap, String opStr, String expr) {
+        long outVal = 0;
+        try {
+            outVal = Long.parseLong(valMap.get(assignee));
+        } catch (NumberFormatException nfe) {
+            throw new IllegalArgumentException(
+                    "Can not perform a self-operation on a non-integer: "
+                    + assignee);
+        }
+        Long rhValObj = (expr == null || expr.trim().length() < 1) ? null
+                : Long.valueOf(
+                        new Calculator(expr, valMap).reduce(0, false));
+        if (opStr.equals("++")) {
+            if (rhValObj != null)
+                throw new IllegalStateException(
+                        "++ operator takes no right hand operand");
+            return ++outVal;
+        }
+        if (opStr.equals("--")) {
+            if (rhValObj != null)
+                throw new IllegalStateException(
+                        "++ operator takes no right hand operand");
+            return --outVal;
+        }
+        if (rhValObj == null)
+            throw new IllegalStateException(
+                    "Operator requires a right hand operand: " + opStr);
+        long rhVal = rhValObj.intValue();
+        if (opStr.equals("+=")) {
+            outVal += rhVal;
+        } else if (opStr.equals("-=")) {
+            outVal -= rhVal;
+        } else if (opStr.equals("*=")) {
+            outVal *= rhVal;
+        } else if (opStr.equals("/=")) {
+            outVal /= rhVal;
+        } else if (opStr.equals("%=")) {
+            outVal %= rhVal;
+        } else {
+            throw new IllegalStateException("Unsupported operator: " + opStr);
+        }
+        return outVal;
     }
 }
