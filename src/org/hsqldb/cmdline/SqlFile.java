@@ -183,6 +183,8 @@ public class SqlFile {
 
     static String            DEFAULT_FILE_ENCODING =
                              System.getProperty("file.encoding");
+    static Set<String>       hiddenVars = new HashSet<String>(
+                             Arrays.asList("?", "*START_TIME", "*VERSION"));
 
     // These settings are never null
     private String nullRepToken;   // May be ""
@@ -302,6 +304,12 @@ public class SqlFile {
     private void updateUserSettings() {
         // Unset those system userVars where empty string makes no sense.
         String varVal;
+        if (shared.userVars.containsKey("NULL")
+                 || shared.userVars.containsKey("*NULL")) {
+                errprintln(SqltoolRB.null_assignment.getString());
+             shared.userVars.remove("NULL");
+             shared.userVars.remove("*NULL");
+         }
         for (String noEmpty : new String[] {
             "DSV_SKIP_COLS", "DSV_COL_DELIM",
             "DSV_COL_SPLITTER", "DSV_ROW_DELIM", "DSV_ROW_SPLITTER",
@@ -510,6 +518,10 @@ public class SqlFile {
         this(reader, inputStreamLabel, baseDir);
         try {
             shared = new SharedFields(psStd);
+            shared.userVars.put(
+                    "*START_TIME", (new java.util.Date()).toString());
+            shared.userVars.put("*REVISION", revnum);
+            shared.userVars.put("?", "");
             setEncoding(encoding);
             this.interactive = interactive;
             continueOnError = this.interactive;
@@ -551,6 +563,10 @@ public class SqlFile {
         try {
             recursed = true;
             shared = parentSqlFile.shared;
+            shared.userVars.put(
+                    "*START_TIME", (new java.util.Date()).toString());
+            shared.userVars.put("*REVISION", revnum);
+            shared.userVars.put("?", "");
             interactive = false;
             continueOnError = parentSqlFile.continueOnError;
             // Nested input is non-interactive because it just can't work to
@@ -621,7 +637,7 @@ public class SqlFile {
         shared.userVars.putAll(newUserVars);
         List<String> strangeVars = new ArrayList<String>();
         for (String name : newUserVars.keySet())
-            if (!varPattern.matcher(name).matches())
+            if (!name.equals("?") && !varPattern.matcher(name).matches())
                 strangeVars.add(name);
         if (strangeVars.size() > 0)
             errprintln(SqltoolRB.varname_warning.getString(
@@ -1474,6 +1490,7 @@ public class SqlFile {
                     stdprintln(DSV_OPTIONS_TEXT + LS + DSV_M_SYNTAX_MSG);
                     return;
                 }
+                shared.userVars.remove("?");
                 requireConnection();
                 if ((!arg1.equals("mq") && arg1.length() != 1)
                         || other == null)
@@ -1494,6 +1511,7 @@ public class SqlFile {
                 } finally {
                     csvStyleQuoting = false;
                 }
+                shared.userVars.put("?", "");
 
                 return;
 
@@ -1504,6 +1522,7 @@ public class SqlFile {
                     stdprintln(DSV_OPTIONS_TEXT + LS + DSV_X_SYNTAX_MSG);
                     return;
                 }
+                shared.userVars.remove("?");
                 requireConnection();
                 try {
                     if ((!arg1.equals("xq") && arg1.length() != 1)
@@ -1576,7 +1595,7 @@ public class SqlFile {
                             for (int i = 0; i < incCols.length; i++)
                                 incCols[i] = colList.get(i).intValue();
                         }
-                        displayResultSet(null, rs, incCols, null);
+                        displayResultSet(null, rs, incCols, null, true);
                     } finally {
                         csvStyleQuoting = false;
                         if (rs != null) rs.close();
@@ -2718,7 +2737,7 @@ System.err.println("MSG=(" + ise.getMessage() + ')');
             shared.psStd.println("<DIV class=\"sqltool-error\"><CODE>"
                     + s + "</CODE></DIV>");
         } else {
-            logger.privlog(Level.SEVERE, s, null, 5, SqlFile.class);
+            logger.privlog(Level.SEVERE, s, null, 4, SqlFile.class);
             /* Only consistent way we can log source location is to log
              * the caller of SqlFile.
              * This seems acceptable, since the location being reported
@@ -3084,7 +3103,7 @@ System.err.println("MSG=(" + ise.getMessage() + ')');
                         throw new BadSpecial(
                             SqltoolRB.metadata_fetch_fail.getString());
 
-                    displayResultSet(null, rs, listMDSchemaCols, filter);
+                    displayResultSet(null, rs, listMDSchemaCols, filter, false);
 
                     return;
 
@@ -3122,7 +3141,7 @@ System.err.println("MSG=(" + ise.getMessage() + ')');
                         throw new BadSpecial(
                             SqltoolRB.metadata_fetch_fail.getString());
 
-                    displayResultSet(null, rs, listMDIndexCols, null);
+                    displayResultSet(null, rs, listMDIndexCols, null, false);
 
                     return;
 
@@ -3160,7 +3179,7 @@ System.err.println("MSG=(" + ise.getMessage() + ')');
             if (rs == null)
                 throw new BadSpecial(SqltoolRB.metadata_fetch_fail.getString());
 
-            displayResultSet(null, rs, listSet, filter);
+            displayResultSet(null, rs, listSet, filter, false);
 
             if (additionalSchemas != null) {
                 for (String additionalSchema : additionalSchemas) {
@@ -3181,8 +3200,8 @@ System.err.println("MSG=(" + ise.getMessage() + ')');
 
                     displayResultSet(
                         null,
-                        md.getTables(
-                            null, additionalSchema, null, types), listSet, filter);
+                        md.getTables(null, additionalSchema, null, types),
+                        listSet, filter, false);
                 }
             }
         } catch (SQLException se) {
@@ -3219,6 +3238,7 @@ System.err.println("MSG=(" + ise.getMessage() + ')');
      * @throws SqlToolError all other errors.
      */
     private void processSQL() throws SQLException, SqlToolError {
+        shared.userVars.remove("?");
         requireConnection();
         if (buffer == null)
             throw new RuntimeException(
@@ -3320,7 +3340,7 @@ System.err.println("MSG=(" + ise.getMessage() + ')');
         ResultSet rs = null;
         try {
             rs = statement.getResultSet();
-            displayResultSet(statement, rs, null, null);
+            displayResultSet(statement, rs, null, null, true);
         } finally {
             if (rs != null) try {
                 rs.close();
@@ -3360,7 +3380,8 @@ System.err.println("MSG=(" + ise.getMessage() + ')');
      */
     private void displayResultSet(Statement statement, ResultSet r,
                                   int[] incCols,
-                                  String filterString) throws SQLException,
+                                  String filterString,
+                                  boolean updateStatus) throws SQLException,
                                   SqlToolError {
         if (pwDsv != null && csvStyleQuoting && (dsvColDelim.indexOf('"') > -1
                 || dsvRowDelim.indexOf('"') > -1))
@@ -3594,11 +3615,12 @@ System.err.println("MSG=(" + ise.getMessage() + ')');
                                 }
 
                         // nullRepToken may never be null
-                        shared.userVars.put("?",
-                                ((val == null) ? nullRepToken : val));
+                        if (updateStatus)
+                            shared.userVars.put("?",
+                                    ((val == null) ? nullRepToken : val));
                         if (fetchingVar != null) {
-                            shared.userVars.put(
-                                    fetchingVar, shared.userVars.get("?"));
+                            shared.userVars.put(fetchingVar,
+                                    ((val == null) ? nullRepToken : val));
                             updateUserSettings();
                             sqlExpandMode = null;
 
@@ -3749,10 +3771,11 @@ System.err.println("MSG=(" + ise.getMessage() + ')');
                 break;
 
             default :
-                shared.userVars.put("?", Integer.toString(updateCount));
+                if (updateStatus)
+                    shared.userVars.put("?", Integer.toString(updateCount));
                 if (fetchingVar != null) {
-                    // shared.userVars.get("?") must be set here:
-                    shared.userVars.put(fetchingVar, shared.userVars.get("?"));
+                    shared.userVars.put(
+                            fetchingVar, Integer.toString(updateCount));
                     fetchingVar = null;
                     updateUserSettings();
                     sqlExpandMode = null;
