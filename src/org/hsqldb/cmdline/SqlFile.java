@@ -214,8 +214,10 @@ public class SqlFile {
     private static Pattern   specialPattern =
             Pattern.compile("(\\S+)(?:(\\s+.*\\S))?\\s*");
     private static Pattern  plPattern = Pattern.compile("(.*\\S)?\\s*");
+    private static Pattern  math2Pattern = Pattern.compile(
+        "\\(\\(\\s*([a-zA-Z]\\w*)\\s*([-+*/%][-+=])\\s*(.+?)?\\s*\\)\\)\\s*");
     private static Pattern  mathPattern = Pattern.compile(
-            "\\(\\(\\s*([a-zA-Z]\\w*)\\s*=\\s*(.+)?\\s*\\)\\)\\s*");
+            "\\(\\(\\s*([a-zA-Z]\\w*)\\s*=\\s*(.+?)?\\s*\\)\\)\\s*");
     private static Pattern   foreachPattern =
             Pattern.compile("foreach\\s+(\\S+)\\s*\\(([^)]+)\\)\\s*");
     private static Pattern   ifwhilePattern =
@@ -2424,21 +2426,32 @@ public class SqlFile {
         String string = buffer.val;
         String dereffed = dereference(string, false);
 
-        Matcher mathMatcher = mathPattern.matcher(dereference(string, false));
+        Matcher mathMatcher = math2Pattern.matcher(dereference(string, false));
         if (mathMatcher.matches()) try {
-            shared.userVars.put(mathMatcher.group(1), Integer.toString(
-                    new Calculator(
-                    mathMatcher.group(2), shared.userVars).reduce(0, false)));
+            shared.userVars.put(mathMatcher.group(1), Long.toString(
+                    Calculator.reassignValue(mathMatcher.group(1),
+                    shared.userVars, mathMatcher.group(2),
+                    (mathMatcher.groupCount() < 3)
+                    ? null : mathMatcher.group(3))));
             // No updateUserSettings since can't modify *System vars
             sqlExpandMode = null;
-            if (!varPattern.matcher(mathMatcher.group(1)).matches())
-                errprintln(SqltoolRB.varname_warning.getString(
-                        mathMatcher.group(1)));
             return;
-        } catch (IllegalStateException ise) {
-System.err.println("MSG=(" + ise.getMessage() + ')');
+        } catch (RuntimeException re) {
             throw new BadSpecial(
-                    SqltoolRB.math_expr_fail.getString(ise.getMessage()));
+                    SqltoolRB.math_expr_fail.getString(re.getMessage()));
+        }
+        mathMatcher = mathPattern.matcher(dereference(string, false));
+        if (mathMatcher.matches()) try {
+            shared.userVars.put(mathMatcher.group(1), Long.toString(
+                    new Calculator(((mathMatcher.groupCount() > 1
+                    && mathMatcher.group(2) != null) ? mathMatcher.group(2)
+                    : ""), shared.userVars).reduce(0, false)));
+            // No updateUserSettings since can't modify *System vars
+            sqlExpandMode = null;
+            return;
+        } catch (RuntimeException re) {
+            throw new BadSpecial(
+                    SqltoolRB.math_expr_fail.getString(re.getMessage()));
         }
 
         Matcher m = plPattern.matcher(dereffed);
@@ -4224,9 +4237,9 @@ System.err.println("MSG=(" + ise.getMessage() + ')');
                 : new TreeMap<Object, Object>(map).entrySet()) {
             s = (String) entry.getValue();
 
-            SqlFile.appendLine(sb, "    " + (String) entry.getKey() + ": " + (withValues ? ("(" + s + ')')
-                                                        : Integer.toString(
-                                                        s.length())));
+            SqlFile.appendLine(sb, "    " + (String) entry.getKey()
+                    + ": " + (withValues ? ("(" + s + ')')
+                    : Integer.toString( s.length())));
         }
 
         return sb.toString();

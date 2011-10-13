@@ -41,3 +41,26 @@ SELECT COUNT(*) FROM t WHERE i = 4;
 * if (*r != 1)
     \q Loop failed to insert record with i == 4
 * end if
+
+*a = 3
+*((z=a*2))
+*(( z *= 1 + 1 ))
+* if (*z != 12)
+    \q Math op #1 failed
+* end if
+
+-- Series of squares
+* sum = 0
+* i = 0
+* while (*i < 5)
+  * ((sum += i*i))
+  * ((i++))
+* end while
+* if (*sum != 30)
+    \q Math op #2 failed
+* end if
+
+* ((  v1 = (3 + 4) ^ (1 + 2) * 3  ))
+* if (*v1 != 1029)
+    \q Power operation failed
+* end if
