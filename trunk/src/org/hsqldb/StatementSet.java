@@ -46,7 +46,7 @@ import org.hsqldb.types.Type;
  * Implementation of Statement for PSM and trigger assignment.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.0.1
+ * @version 2.2.6
  * @since 1.9.0
  */
 public class StatementSet extends StatementDMQL {
@@ -165,6 +165,8 @@ public class StatementSet extends StatementDMQL {
                 Object[] values = queryExpression.getSingleRowValues(session);
 
                 if (values == null) {
+                    session.addWarning(HsqlException.noDataCondition);
+
                     result = Result.updateZeroResult;
 
                     break;
@@ -315,8 +317,7 @@ public class StatementSet extends StatementDMQL {
         Expression[] colExpressions = updateExpressions;
         Type[]       colTypes       = table.getColumnTypes();
         int index = targetRangeVariables[TriggerDef.NEW_ROW].rangePosition;
-        Object[] oldData =
-            session.sessionContext.triggerArguments[index];
+        Object[]     oldData = session.sessionContext.triggerArguments[index];
         Object[] data = StatementDML.getUpdatedData(session, targets, table,
             colMap, colExpressions, colTypes, oldData);
 
@@ -395,7 +396,8 @@ public class StatementSet extends StatementDMQL {
                     break;
 
                 case SchemaObject.COLUMN :
-                    data = session.sessionContext.triggerArguments[TriggerDef.NEW_ROW];
+                    data = session.sessionContext
+                        .triggerArguments[TriggerDef.NEW_ROW];
                     break;
             }
 

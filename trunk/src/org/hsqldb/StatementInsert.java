@@ -43,12 +43,12 @@ import org.hsqldb.types.Type;
  * Implementation of Statement for INSERT statements.<p>
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.0.1
+ * @version 2.2.6
  * @since 1.9.0
  */
 public class StatementInsert extends StatementDML {
 
-    int            overrideUserValue = -1;
+    int overrideUserValue = -1;
 
     /**
      * Instantiate this as an INSERT_VALUES statement.
@@ -112,6 +112,7 @@ public class StatementInsert extends StatementDML {
         Result          resultOut          = null;
         RowSetNavigator generatedNavigator = null;
         PersistentStore store              = baseTable.getRowStore(session);
+        int             count;
 
         if (generatedIndexes != null) {
             resultOut = Result.newUpdateCountResult(generatedResultMetaData,
@@ -131,7 +132,9 @@ public class StatementInsert extends StatementDML {
                                            ? getInsertValuesNavigator(session)
                                            : getInsertSelectNavigator(session);
 
-        if (newDataNavigator.getSize() > 0) {
+        count = newDataNavigator.getSize();
+
+        if (count > 0) {
             insertRowSet(session, generatedNavigator, newDataNavigator);
         }
 
@@ -141,10 +144,13 @@ public class StatementInsert extends StatementDML {
         }
 
         if (resultOut == null) {
-            resultOut = new Result(ResultConstants.UPDATECOUNT,
-                                   newDataNavigator.getSize());
+            resultOut = new Result(ResultConstants.UPDATECOUNT, count);
         } else {
-            resultOut.setUpdateCount(newDataNavigator.getSize());
+            resultOut.setUpdateCount(count);
+        }
+
+        if (count == 0) {
+            session.addWarning(HsqlException.noDataCondition);
         }
 
         return resultOut;

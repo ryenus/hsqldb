@@ -46,7 +46,7 @@ import org.hsqldb.types.Type;
  * Implementation of Statement for PSM compound statements.
 
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.0.1
+ * @version 2.2.6
  * @since 1.9.0
  */
 public class StatementCompound extends Statement {
@@ -428,8 +428,11 @@ public class StatementCompound extends Statement {
                  * if condition is system related promote to top level
                  * schema manipulation conditions are never handled
                  */
-                if (handler.handlesCondition(result.getSubString())) {
+                if (handler.handlesCondition(sqlState)) {
                     session.resetSchema();
+
+                    String labelString = label == null ? null
+                                                       : label.name;
 
                     switch (handler.handlerType) {
 
@@ -441,7 +444,7 @@ public class StatementCompound extends Statement {
                             session.rollbackToSavepoint();
 
                             result = Result.newPSMResult(StatementTypes.LEAVE,
-                                                         label.name, null);
+                                                         labelString, null);
                             break;
 
                         case StatementHandler.EXIT :
