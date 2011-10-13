@@ -270,7 +270,8 @@ public enum SqltoolRB implements RefCapableRBInterface {
     csv_coldelim_present,
     csv_quote_unterminated,
     math_expr_fail,
-    varname_warning
+    varname_warning,
+    null_assignment
     ;
 
     private static ValidatingResourceBundle vrb =
