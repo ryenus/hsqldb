@@ -217,17 +217,27 @@ file('../build-docbook-gradled.xml').deleteOnExit();
 // end user from seeing numbered task names.
 Pattern candidatePattern = Pattern.compile("^\\d{3}([^-.][^.]*)\$");
 Matcher m;
+def hidingWrappers = [:]
+Task newTask
 for (t in getTasks()) {
     if (t.description == null) continue;
     m = candidatePattern.matcher(t.name);
     if (!m.matches()) continue;
-    logger.debug("CREATING Wrapper for " + m.group(1))
-    task m.group(1)
-    thatNamedTasks = getTasksByName(m.group(1), true).toArray()
-    if (thatNamedTasks.size() > 1)
-        throw new GradleException('Task multiply defined: ' + m.group(1))
-    thatNamedTasks[0].dependsOn = [t]
-    thatNamedTasks[0].description = t.description
+    newTask = project.task(m.group(1))
+    //thatNamedTasks = getTasksByName(m.group(1), true).toArray()
+    //if (thatNamedTasks.size() > 1)
+        //throw new GradleException('Task multiply defined: ' + m.group(1))
+    newTask.dependsOn = [t]
+    newTask.description = t.description
+    hidingWrappers[t] = newTask
+}
+
+private def recursiveAggregator(additions, inMap, assemblage) {
+    for (addition in additions) if (!assemblage.contains(addition)) {
+        recursiveAggregator(inMap[addition], inMap, assemblage)
+        assemblage << addition
+    }
+    return assemblage
 }
 
 /**
@@ -277,10 +287,16 @@ help.description = "Displays a help message"
  * super-project target in this case.
  * In this case, we present only the overriding target until Gradle fixes the
  * bug that I registered.
+ *
+ * TEMPORARY:  Until Adam Murdoch of the Gradle team tells me how to use the
+ * undocumented task-specific switch feature, user's will need to emulate
+ * "gradlew tasks --all" with "gradle -P allTasks=true tasks".
  */
 task tasks << {
-    Pattern privateTaskPattern = Pattern.compile("(?:\\d{3}|-).+");
-    Pattern preDotPattern = Pattern.compile("^(.*\\.)");
+    Pattern seqRenamedPattern = Pattern.compile("\\d{3}.+");
+    // Following pattern purposefull skips import-qualified tasks.
+    // We'll just report on the unqualified ones.
+    Pattern privatePattern = Pattern.compile("(?:\\d{3})?(-.*)");
     print """
 ------------------------------------------------------------
 Root Project
@@ -297,12 +313,65 @@ tasks - Displays the tasks in root project '$project.name'.
 Other tasks
 -----------
 """
-    String targName
-    int dotAt
-    def sameNameds = []
+    boolean displayAll = (project.hasProperty('allTasks')
+            && Boolean.parseBoolean(project.property('allTasks')))
+    def describedPrivates = []
+    Matcher pMatcher
     NEXT_TASK:
-    for (t in getTasks())
-        if (t.description != null && t.name.indexOf('.') < 0
-                && !privateTaskPattern.matcher(t.name).matches())
+    for (t in getTasks()) {
+        if (t.name.length() < 1)
+            throw new GradleException('Task with 0 length name encountered.')
+        if (t.description != null) {
+            pMatcher = privatePattern.matcher(t.name)
+            if (pMatcher.matches()) {
+                if (pMatcher.groupCount() != 1 || pMatcher.group(1) == null)
+                    throw new GradleException(
+                        'Internal problem w/ regex pattern: ' + privatePattern)
+                describedPrivates << pMatcher.group(1)
+                continue
+            }
+        }
+        if (!displayAll && t.description != null && t.name.indexOf('.') < 0
+                && !seqRenamedPattern.matcher(t.name).matches())
             println t.name + ' - ' + t.description
-}
+    }
+
+    if (displayAll) {
+        def dependOnMap = [:]
+        def depList
+        for (t in getTasks()) {
+            if (hidingWrappers.containsValue(t)) continue
+            depList = []
+            dependOnMap[t] = depList
+            for (u in t.dependsOn)
+                if (u instanceof Task) depList << u
+                else if (u instanceof TaskDependency)
+                    // Retarded that t must pass itself as param to its own u:
+                    for (v in u.getDependencies(t)) depList << v
+        }
+        def allDependees = [] as Set
+        for (vs in dependOnMap.values()) allDependees.addAll(vs)
+        for (t in getTasks())
+            if (!allDependees.contains(t) && !hidingWrappers.containsValue(t)) {
+                print t.name
+                if (t.description != null) print " - $t.description"
+                if (hidingWrappers.containsKey(t))
+                    print ' [Wrapped by ' + hidingWrappers[t].name + ']'
+                println()
+                for (u in recursiveAggregator(
+                        dependOnMap[t], dependOnMap, [])) {
+                    print "    $u.name"
+                    if (u.description != null) print " - $u.description"
+                    if (hidingWrappers.containsKey(u))
+                        print ' [Wrapped by ' + hidingWrappers[u].name + ']'
+                    println()
+                }
+            }
+    } else {
+        println('\nTo see all tasks and more detail, run '
+                + "'gradle -P allTasks=true tasks'.")
+    }
+    if (describedPrivates.size() > 0)
+        logger.warn('\nWARNING:  Private Ant tasks have descriptions: '
+                + describedPrivates.join(', '))
+    }
