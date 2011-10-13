@@ -24,8 +24,8 @@ PROCEDURAL LANGUAGE COMMANDS
                                   (Just "?", "*{?}" would mean the auto var.).
     * while (logical expr)        Repeat following PL block while expr true
     * ((VARNAME OP math expr))    Perform integer math and assign to the var.
-                                  The expression may perform +, -, *, -, %, ^.
-                                  OP itself may be =, ++, --, =-, +-, /=, %=.
+                                  Internal ops: variables, +, -, *, -, %, ^, ()
+                                  Assignment OP:  =, ++, --, =-, +-, /=, %=
 
 Use PL variable values (which have been set) like: *{VARNAME}.
 SqlTool reserves variables with names beginning with * for special purposes.
