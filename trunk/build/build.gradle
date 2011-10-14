@@ -119,12 +119,11 @@ private void recursivePush(newName, dli, msl, ips) {
 /**
  * @param fileNameInsertion.
  *        For translating input filenames to new output files.
- * @closure  Will call this with param of an array of Slurped XML (same number
- *           of elements as number of input files).
+ * @closures Will call thse with param of the corresponding Slurped XML
+ *           (same number of elements as number of input files).
  *           Null to not do anything with it.
  */
-void resequenceAntDependencies(
-        String fileNameInsertion, closure, File... inFiles) {
+File[] resequenceAntDependencies(String fileNameInsertion, closures, inFiles) {
     def xmls = []
     for (File f in inFiles)
         xmls << new XmlSlurper().parseText(f.getText("UTF-8"))
@@ -188,11 +187,18 @@ void resequenceAntDependencies(
         }
     }
 
-    // 3.5: Conditionally execute user-specified closure
-    if (closure != null) closure(xmls)
+    // 3.5: Conditionally execute user-specified closures
+    if (closures != null) {
+        if (closures.size() != xmls.size())
+            throw new GradleException(
+                    'Size of given xmls != size of closures: '
+                    + xmls.size() + ' vs. ' + closures.size())
+        for (i in 0.. closures.size()-1) closures[i](xmls[i])
+    }
 
     // 4: Write modified Ant build file
-    File outFile;
+    List<File> outFiles = []
+    File outFile
     Pattern dotPattern = Pattern.compile("\\.");
     for (i in 0 .. xmls.size()-1) {
         if (inFiles[i].name.indexOf('.') < 0)
@@ -204,32 +210,45 @@ void resequenceAntDependencies(
                         : inFiles[i].getParentFile()),
                 dotPattern.matcher(inFiles[i].getName()).replaceFirst(
                 fileNameInsertion + '.'))
+        outFiles << outFile
         logger.info("Writing '" + outFile.absolutePath + "'")
         outFile.write(XmlUtil.serialize(
             new StreamingMarkupBuilder().bind{mkp.yield xmls[i]}), "UTF-8")
     }
+    return outFiles
 }
 
 // RESEQUENCE
 project['resequence.destDir'] = file('..')
-resequenceAntDependencies('-gradled', {
-    it[0].import.find{it.@file = 'build-docbook-gradled.xml'}
-    it[0].@name = it[0].@name.text() + "_gradled"
-    it[0].attributes().remove("basedir")
-    it[1].@name = it[1].@name.text() + "_gradled"
-    it[1].import.replaceNode {}
-    String ivySetupTaskName = '-ivy-setup'
-    if (project.renameMap.containsKey(ivySetupTaskName))
-        ivySetupTaskName = project.renameMap.get(ivySetupTaskName)
-    it[1].appendNode { target(name: ivySetupTaskName) }
-}, file('build.xml'), file('build-docbook.xml'))
+// The top-level entry Build file must be first!!!
+sourceAntBuildFiles = [file('build.xml'), file('build-docbook.xml')]
+if (project.hasProperty('addlAntBuildFiles'))
+    sourceAntBuildFiles = addlAntBuildFiles + sourceAntBuildFiles 
+//throw new GradleException(sourceAntBuildFiles.join(','))
 
-ant.importBuild('../build-gradled.xml')
+antBuildClosures = [{
+        it.import.find{it.@file = 'build-docbook-gradled.xml'}
+        it.@name = it.@name.text() + "_gradled"
+        it.attributes().remove("basedir")
+    }, {
+        it.@name = it.@name.text() + "_gradled"
+        it.import.replaceNode {}
+        String ivySetupTaskName = '-ivy-setup'
+        if (project.renameMap.containsKey(ivySetupTaskName))
+                ivySetupTaskName = project.renameMap.get(ivySetupTaskName)
+        it.appendNode { target(name: ivySetupTaskName) }
+    }
+]
+if (project.hasProperty('addlAntBuildClosures'))
+    antBuildClosures = addlAntBuildClosures + antBuildClosures
+
+File[] outFs = resequenceAntDependencies(
+        '-gradled', antBuildClosures, sourceAntBuildFiles)
+
+ant.importBuild(outFs[0].absolutePath)
 if (!project.hasProperty('retain.gradleds')
-        || !Boolean.parseBoolean(project.property('retain.gradleds'))) {
-    file('../build-gradled.xml').deleteOnExit();
-    file('../build-docbook-gradled.xml').deleteOnExit();
-}
+        || !Boolean.parseBoolean(project.property('retain.gradleds')))
+    for (f in outFs) f.deleteOnExit()
 
 // This block generates wrapper tasks for the sole purpose of preventing the
 // end user from seeing numbered task names.
@@ -294,7 +313,7 @@ Usage:
    gradlew ANYTHING ELSE    Run 'gradlew' for details
 
 examples:
-   gradlew jar
+   gradlew hsqldb
    gradlew clean
 """
 }

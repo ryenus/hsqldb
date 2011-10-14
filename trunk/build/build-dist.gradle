@@ -1,0 +1,12 @@
+defaultTasks 'dist'
+
+addlAntBuildFiles = [file('build-dist.xml')]
+
+addlAntBuildClosures = [{
+        it.import.find{it.@file = 'build-gradled.xml'}
+        it.@name = it.@name.text() + "_gradled"
+        it.attributes().remove("basedir")
+    }
+]
+
+apply from: 'build.gradle'
