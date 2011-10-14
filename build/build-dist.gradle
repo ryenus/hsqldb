@@ -1,5 +1,3 @@
-defaultTasks 'dist'
-
 addlAntBuildFiles = [file('build-dist.xml')]
 
 addlAntBuildClosures = [{
@@ -10,3 +8,5 @@ addlAntBuildClosures = [{
 ]
 
 apply from: 'build.gradle'
+
+defaultTasks 'dist'
