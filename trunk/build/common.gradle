@@ -1,6 +1,8 @@
 // Purposefully not processing "gradle.properties" file, to avoid conflicts
 // with Gradle-internal handling of that file.
 
+import org.apache.ivy.plugins.resolver.URLResolver
+
 void loadJavaProps(String filePath, boolean strict) {
     File f = new File(filePath)
     if (!f.isFile()) return
@@ -61,7 +63,7 @@ if (project.hasProperty('repos.flatdir.path')) {
 // Add a flat url repository if property 'repos.flatdir.url' is set.
 if (project.hasProperty('repos.flatdir.url')) {
     repositories {
-        add(new org.apache.ivy.plugins.resolver.URLResolver()) {
+        add(new URLResolver()) {
             name = 'flatDirUrlRepos'
             addArtifactPattern "${project.property('repos.flatdir.url')}/[artifact]-[revision](-[classifier]).[ext]"
             checkmodified = true

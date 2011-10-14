@@ -1,57 +1,44 @@
 <ivy-module version="2.0">
   <!-- $Id$ -->
-  <info organisation="admc" module="docbook"/>
-  <configurations>
-    <conf name="baseconf" visibility="private"/> <!-- basic XML -->
+  <info organisation="hsqldb" module="docbook"/>
+  <configurations defaultconf="msv">
+    <!-- Want to have 'msv' and 'xalan' extend this, but don't yet have
+         Gradle honoring the 'extends' attribute, so giving verbose conf
+         specifications below instead. -->
     <conf name="admc-rs-msv"
        description="Single Catalog-Resolving Schematron-Capable MSV jar file"/>
-    <conf name="msv" description="Sun MSV" extends="baseconf"/>
-    <conf name="xalan" description="Xalan Xslt" extends="baseconf"/>
-    <conf name="fop" description="FOP"/>
+    <conf name="msv" description="Sun MSV" transitive="false"
+          visibility="private"/>
+    <conf name="xalan" description="Xalan Xslt" transitive="false"
+          visibility="private"/>
+    <conf name="fop" description="FOP" transitive="false" visibility="private"/>
   </configurations>
-  <dependencies>
-    <dependency name="relames" rev="20060319"
-                transitive="false" conf="msv->default"/>
-    <dependency name="msv" rev="20081113"
-                transitive="false" conf="msv->default"/>
-    <dependency name="relaxngDatatype" rev="20081113"
-                transitive="false" conf="msv->default"/>
-    <dependency name="xsdlib" rev="20081113"
-                transitive="false" conf="msv->default"/>
-    <dependency name="isorelax" rev="20081113"
-                transitive="false" conf="msv->default"/>
-    <dependency name="fop" rev="0.94"
-                transitive="false" conf="fop->default"/>
-    <dependency name="fop-hyph" rev="1.2"
-                transitive="false" conf="fop->default"/>
-    <dependency name="jai_codec" rev="1.1.3"
-                transitive="false" conf="fop->default"/>
-    <dependency name="jai_core" rev="1.1.3"
-                transitive="false" conf="fop->default"/>
-    <dependency name="xmlgraphics-commons" rev="1.2"
-                transitive="false" conf="fop->default"/>
-    <dependency name="avalon-framework" rev="4.2.0"
-                transitive="false" conf="fop->default"/>
-    <dependency name="batik-all" rev="1.6"
-                transitive="false" conf="fop->default"/>
-    <dependency name="commons-io" rev="1.3.1"
-                transitive="false" conf="fop->default"/>
-    <dependency name="commons-logging" rev="1.1.1"
-                transitive="false" conf="fop->default"/>
-    <dependency name="xalan" rev="2.7.1"
-                transitive="false" conf="xalan->default; msv->default"/>
-    <dependency name="serializer" rev="2.7.1"
-                transitive="false" conf="xalan->default"/>
-    <dependency name="docbook-ext-xalan2" rev="1.73.2"
-                transitive="false" conf="xalan->default"/>
-    <dependency name="xml-apis" rev="1.3"
-                transitive="false" conf="baseconf->default"/>
-    <dependency name="xercesImpl" rev="2.9.0"
-                transitive="false" conf="baseconf->default"/>
-    <dependency name="resolver" rev="1.2"
-                transitive="false" conf="msv->default"/>
-    <dependency name="admc-rs-msv" rev="1.0" transitive="false"
-                conf="admc-rs-msv->default; xalan->default"/>
+  <dependencies defaultconfmapping="*->default">
+    <dependency name="relames" rev="20060319"/>
+    <dependency name="msv" rev="20081113"/>
+    <dependency name="relaxngDatatype" rev="20081113"/>
+    <dependency name="xsdlib" rev="20081113"/>
+    <dependency name="isorelax" rev="20081113"/>
+    <dependency name="fop" rev="0.94" conf="fop"/>
+    <dependency name="fop-hyph" rev="1.2" conf="fop"/>
+    <dependency name="jai_codec" rev="1.1.3" conf="fop"/>
+    <dependency name="jai_core" rev="1.1.3" conf="fop"/>
+    <dependency name="xmlgraphics-commons" rev="1.2" conf="fop"/>
+    <dependency name="avalon-framework" rev="4.2.0" conf="fop"/>
+    <dependency name="batik-all" rev="1.6" conf="fop"/>
+    <dependency name="commons-io" rev="1.3.1" conf="fop"/>
+    <dependency name="commons-logging" rev="1.1.1" conf="fop"/>
+    <dependency name="xalan" rev="2.7.1" conf="xalan"/>
+    <dependency name="xalan" rev="2.7.1" conf="msv"/>
+    <dependency name="serializer" rev="2.7.1" conf="xalan"/>
+    <dependency name="docbook-ext-xalan2" rev="1.73.2" conf="xalan"/>
+    <dependency name="xml-apis" rev="1.3" conf="xalan"/>
+    <dependency name="xml-apis" rev="1.3" conf="msv"/>
+    <dependency name="xercesImpl" rev="2.9.0" conf="msv"/>
+    <dependency name="xercesImpl" rev="2.9.0" conf="xalan"/>
+    <dependency name="resolver" rev="1.2"/>
+    <dependency name="admc-rs-msv" rev="1.0" conf="admc-rs-msv"/>
+    <dependency name="admc-rs-msv" rev="1.0" conf="xalan"/>
     <!-- Primary purpose of this jar is for the MSV validator.
          It is also added to the XSLT CLASSPATH only to add the XInclude
          settings file to the CLASSPATH.  Needed by Xalan during XSLT.

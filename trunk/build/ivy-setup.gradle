@@ -1,0 +1,61 @@
+import org.apache.ivy.core.settings.IvySettings
+import org.apache.ivy.core.module.descriptor.DefaultModuleDescriptor
+import org.apache.ivy.plugins.parser.xml.XmlModuleDescriptorParser
+import org.apache.ivy.core.module.descriptor.DependencyDescriptor
+import org.apache.ivy.core.module.id.ModuleRevisionId
+import org.apache.ivy.core.module.descriptor.DependencyArtifactDescriptor
+import org.gradle.api.internal.artifacts.dependencies.DefaultExternalModuleDependency
+import org.gradle.api.internal.artifacts.dependencies.DefaultDependencyArtifact;
+import org.gradle.api.internal.artifacts.DefaultExcludeRule;
+
+
+configurations {
+    'admc-rs-msv' { transitive = false }
+    msv { transitive = false }
+    xalan { transitive = false }
+    fop { transitive = false }
+}
+
+def gradleProjConfMap = [:]
+for (p in configurations) gradleProjConfMap[p.name] = p
+DefaultModuleDescriptor moduleDescriptor =
+    (DefaultModuleDescriptor) XmlModuleDescriptorParser.getInstance()
+    .parseDescriptor(new IvySettings(), new File("ivy.xml").toURL(), false);
+moduleDescriptor.getDependencies().each {
+    DependencyDescriptor descriptor ->
+        def mappableConfiguration = descriptor.moduleConfigurations.find {
+            springConf -> gradleProjConfMap.containsKey(springConf)
+        }
+    if (mappableConfiguration) {
+        ModuleRevisionId id = descriptor.dependencyRevisionId
+        DefaultExternalModuleDependency dep =
+            new DefaultExternalModuleDependency(id.organisation, id.name,
+                    id.revision, descriptor.getDependencyConfigurations(
+                    mappableConfiguration)[0]);
+		dep.setChanging (descriptor.changing)
+		dep.setTransitive(descriptor.transitive)
+		
+		descriptor.getAllDependencyArtifacts().each {
+            DependencyArtifactDescriptor depArt ->
+			dep.addArtifact(new DefaultDependencyArtifact
+                    (depArt.name, depArt.type, depArt.ext, null, depArt.url));
+		}
+		
+		def excRuleContainer = dep.excludeRules;
+		descriptor.excludeRules?.values().each {
+            def ruleList -> ruleList.each {
+                def rule ->
+				excRuleContainer.add(new DefaultExcludeRule(rule.attributes))
+			}			
+		}
+		gradleProjConfMap[mappableConfiguration].addDependency(dep)
+	}
+}
+
+task echoDeps << {
+    if (!project.hasProperty('config.name'))
+        throw new GradleException(
+                "Project property 'config.name' required by task 'echoDeps'.")
+    println configurations[project['config.name']]
+            .asPath.replace(System.properties['path.separator'], "\n")
+}
