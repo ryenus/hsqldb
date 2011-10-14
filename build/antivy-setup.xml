@@ -31,6 +31,7 @@ OR for any CMD-like Windows shell:
       <!-- The "msv"resolve downloads and makes the 3rd party libs accessed by
            our admc-rs-msv jar file through its manifests classpath entry. -->
     <ivy:cachepath conf="admc-rs-msv-jar" pathid="admc-rs-msv-jar.cpref"/>
+    <ivy:cachepath conf="admc-rs-msv-deps" pathid="admc-rs-msv-deps.cpref"/>
     <!-- Debug stuff:
       <pathconvert property="xalan.cp" refid="xalan.cpref"/>
       <echo level="error" message="xalan.cpref=(${xalan.cp})"/>

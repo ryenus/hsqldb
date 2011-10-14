@@ -413,9 +413,9 @@ file.</echo>
     <fail unless="doc.name"
           message="Ant property 'doc.name' is required by target 'validate'."/>
     <pathconvert property="jar.file" refid="admc-rs-msv-jar.cpref"/>
-<echo level="error" message="jar.file=(${jar.file})"/>
-    <java fork="true" failonerror="true"
-          jar="${jar.file}" dir="doc-src/${doc.name}">
+    <java fork="true" failonerror="true" dir="doc-src/${doc.name}"
+          classpath="${jar.file}" classpathref="admc-rs-msv-deps.cpref"
+          classname="com.admc.msv.ResolvingSchematronDriver">
       <sysproperty key="xml.catalog.verbosity"
                    value="${xml.catalog.verbosity}"/>
       <sysproperty key="xml.catalog.files" value="${xml.catalog.files}"/>
