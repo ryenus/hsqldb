@@ -91,7 +91,7 @@ sqltool.jar     ant sqltool     SqlTool app (no JDBC driver)</echo>
    ant ANYTHING ELSE    Run 'ant -projecthelp' for details
 
 examples:
-   ant jar
+   ant hsqldb
    ant clean</echo>
    </target>
 
