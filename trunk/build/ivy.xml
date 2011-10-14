@@ -28,17 +28,13 @@
     <dependency name="batik-all" rev="1.6" conf="fop"/>
     <dependency name="commons-io" rev="1.3.1" conf="fop"/>
     <dependency name="commons-logging" rev="1.1.1" conf="fop"/>
-    <dependency name="xalan" rev="2.7.1" conf="xalan"/>
-    <dependency name="xalan" rev="2.7.1" conf="msv"/>
+    <dependency name="xalan" rev="2.7.1" conf="xalan; msv"/>
     <dependency name="serializer" rev="2.7.1" conf="xalan"/>
     <dependency name="docbook-ext-xalan2" rev="1.73.2" conf="xalan"/>
-    <dependency name="xml-apis" rev="1.3" conf="xalan"/>
-    <dependency name="xml-apis" rev="1.3" conf="msv"/>
-    <dependency name="xercesImpl" rev="2.9.0" conf="msv"/>
-    <dependency name="xercesImpl" rev="2.9.0" conf="xalan"/>
+    <dependency name="xml-apis" rev="1.3" conf="xalan; msv"/>
+    <dependency name="xercesImpl" rev="2.9.0" conf="msv; xalan"/>
     <dependency name="resolver" rev="1.2"/>
-    <dependency name="admc-rs-msv" rev="1.0" conf="admc-rs-msv"/>
-    <dependency name="admc-rs-msv" rev="1.0" conf="xalan"/>
+    <dependency name="admc-rs-msv" rev="1.0" conf="admc-rs-msv; xalan"/>
     <!-- Primary purpose of this jar is for the MSV validator.
          It is also added to the XSLT CLASSPATH only to add the XInclude
          settings file to the CLASSPATH.  Needed by Xalan during XSLT.
