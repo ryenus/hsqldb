@@ -18,7 +18,8 @@ import org.gradle.api.internal.artifacts.DefaultExcludeRule;
 
 
 configurations {
-    'admc-rs-msv' { transitive = false }
+    'admc-rs-msv-jar' { transitive = false }
+    'admc-rs-msv-deps' { transitive = false }
     msv { transitive = false }
     xalan { transitive = false }
     fop { transitive = false }
@@ -63,7 +64,7 @@ moduleDescriptor.dependencies.each {
     }
 }
 
-task echoDeps << {
+task displayDeps << {
     if (!project.hasProperty('config.name'))
         throw new GradleException(
                 "Project property 'config.name' required by task 'echoDeps'.")
