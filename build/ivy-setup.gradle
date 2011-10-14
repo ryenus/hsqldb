@@ -8,6 +8,14 @@ import org.gradle.api.internal.artifacts.dependencies.DefaultExternalModuleDepen
 import org.gradle.api.internal.artifacts.dependencies.DefaultDependencyArtifact;
 import org.gradle.api.internal.artifacts.DefaultExcludeRule;
 
+/**
+ * This Gradle support for 'ivy.xml' is based on contributed fragments in Jira
+ * issue for GRADLE-197 at http://issues.gradle.org/browse/GRADLE-197 .
+ * The code here does also include my own enhancements.
+ *
+ * Limitation of ivy.xml parsing:  excludes attributes ignored
+ */
+
 
 configurations {
     'admc-rs-msv' { transitive = false }
@@ -16,46 +24,51 @@ configurations {
     fop { transitive = false }
 }
 
+// configurations apparently not a Collection, since this doesn't work:
+//def gradleProjConfMap = configurations.collectEntries { [(it.name): it] }
 def gradleProjConfMap = [:]
 for (p in configurations) gradleProjConfMap[p.name] = p
+
 DefaultModuleDescriptor moduleDescriptor =
-    (DefaultModuleDescriptor) XmlModuleDescriptorParser.getInstance()
+    (DefaultModuleDescriptor) XmlModuleDescriptorParser.instance
     .parseDescriptor(new IvySettings(), new File("ivy.xml").toURL(), false);
-moduleDescriptor.getDependencies().each {
+moduleDescriptor.dependencies.each {
     DependencyDescriptor descriptor ->
-        def mappableConfiguration = descriptor.moduleConfigurations.find {
-            springConf -> gradleProjConfMap.containsKey(springConf)
+        def mappableConfNames = descriptor.moduleConfigurations.findAll {
+            gradleProjConfMap.containsKey(it)
         }
-    if (mappableConfiguration) {
+    for (mappableConfName in mappableConfNames) {
+        if (!mappableConfName) return
         ModuleRevisionId id = descriptor.dependencyRevisionId
         DefaultExternalModuleDependency dep =
             new DefaultExternalModuleDependency(id.organisation, id.name,
                     id.revision, descriptor.getDependencyConfigurations(
-                    mappableConfiguration)[0]);
-		dep.setChanging (descriptor.changing)
-		dep.setTransitive(descriptor.transitive)
-		
-		descriptor.getAllDependencyArtifacts().each {
+                    mappableConfName)[0]);
+        dep.changing = descriptor.changing
+        dep.transitive = descriptor.transitive
+        
+        descriptor.allDependencyArtifacts.each {
             DependencyArtifactDescriptor depArt ->
-			dep.addArtifact(new DefaultDependencyArtifact
-                    (depArt.name, depArt.type, depArt.ext, null, depArt.url));
-		}
-		
-		def excRuleContainer = dep.excludeRules;
-		descriptor.excludeRules?.values().each {
+                dep.addArtifact(new DefaultDependencyArtifact(
+                        depArt.name, depArt.type, depArt.ext, null, depArt.url));
+        }
+        
+        def excRuleContainer = dep.excludeRules;
+        descriptor.excludeRules?.values().each {
             def ruleList -> ruleList.each {
-                def rule ->
-				excRuleContainer.add(new DefaultExcludeRule(rule.attributes))
-			}			
-		}
-		gradleProjConfMap[mappableConfiguration].addDependency(dep)
-	}
+                excRuleContainer.add(new DefaultExcludeRule(it.attributes))
+            }
+        }
+        gradleProjConfMap[mappableConfName].addDependency(dep)
+    }
 }
 
 task echoDeps << {
     if (!project.hasProperty('config.name'))
         throw new GradleException(
                 "Project property 'config.name' required by task 'echoDeps'.")
-    println configurations[project['config.name']]
-            .asPath.replace(System.properties['path.separator'], "\n")
+    println (configurations[project['config.name']].allDependencies.size()
+            + " configs for " + project['config.name'] + '\n    '
+            +  configurations[project['config.name']].asPath
+            .replace(System.properties['path.separator'], '\n    '))
 }
