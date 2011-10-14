@@ -227,46 +227,59 @@ ${_for.automation.blurb}</fail>
       <targetfilelist dir="${docoutput.path}/${doc.name}"
                       files="${doc.name}.pdf"/>
     </dependset>
-    <available property="skip.html" type="file" value="transform.skip"
+    <condition property="_htmlgen.skip" value="transform.skip">
+      <istrue value="${html.skip}"/>
+    </condition>
+    <condition property="_chunkgen.skip" value="transform.skip">
+      <istrue value="${chunk.skip}"/>
+    </condition>
+    <condition property="_fogen.skip" value="transform.skip">
+      <istrue value="${fo.skip}"/>
+    </condition>
+    <condition property="_pdfgen.skip" value="pdfgen.skip">
+      <istrue value="${pdf.skip}"/>
+    </condition>
+    <available property="_htmlgen.skip" type="file" value="transform.skip"
                file="${docoutput.path}/${doc.name}/${doc.name}.html"/>
-    <available property="skip.chunk" type="file" value="transform.skip"
+    <available property="_chunkgen.skip" type="file" value="transform.skip"
                file="${docoutput.path}/${doc.name}/index.html"/>
-    <available property="skip.fo" type="file" value="transform.skip"
+    <available property="_fogen.skip" type="file" value="transform.skip"
                file="${docoutput.path}/${doc.name}/${doc.name}.fo"/>
-    <available property="skip.pdf" type="file" value="fop.skip"
+    <available property="_pdfgen.skip" type="file" value="pdfgen.skip"
                file="${docoutput.path}/${doc.name}/${doc.name}.pdf"/>
-    <property name="skip.html" value="dummy"/>
-    <property name="skip.chuk" value="dummy"/>
-    <property name="skip.pdf" value="dummy"/>
+    <property name="_htmlgen.skip" value="dummy"/>
+    <property name="_chunkgen.skip" value="dummy"/>
+    <property name="_fogen.skip" value="dummy"/>
+    <property name="_pdfgen.skip" value="dummy"/>
 
-    <antcall target="-transform">
+    <antcall target="-transform" inheritrefs="true">
       <param name="style.path" value="${html.path}"/>
       <param name="output.base"
              value="${docoutput.path}/${doc.name}/${doc.name}.html"/>
       <param name="html.format" value="true"/>
-      <param name="${skip.html}" value="true"/>
+      <param name="${_htmlgen.skip}" value="true"/>
     </antcall>
-    <antcall target="-transform">
+    <antcall target="-transform" inheritrefs="true">
       <param name="style.path" value="${chunk.path}"/>
       <param name="output.base"
              value="${docoutput.path}/${doc.name}/dummy.html"/>
       <param name="html.format" value="true"/>
-      <param name="${skip.chunk}" value="true"/>
+      <param name="${_chunkgen.skip}" value="true"/>
     </antcall>
     <fixcrlf eol="lf" encoding="UTF-8" srcdir="doc/${doc.name}"
              includes="*.html"/>  <!-- Make output platform-independent -->
-    <antcall target="-transform">
+    <antcall target="-transform" inheritrefs="true">
       <param name="style.path" value="${fo.path}"/>
       <param name="output.base" value="tmp/doc-work/${doc.name}/${doc.name}.fo"/>
       <param name="fop.format" value="true"/>
-      <param name="${skip.fo}" value="true"/>
+      <param name="${_fogen.skip}" value="true"/>
     </antcall>
-    <antcall target="-fop">
-      <param name="${skip.pdf}" value="true"/>
+    <antcall target="-fop" inheritrefs="true">
+      <param name="${_pdfgen.skip}" value="true"/>
     </antcall>
   </target>
 
-  <target name="-fop" unless="fop.skip">
+  <target name="-fop" unless="pdfgen.skip">
     <fop format="application/pdf" basedir="doc-src/${doc.name}"
          fofile="tmp/doc-work/${doc.name}/${doc.name}.fo"
          outfile="${docoutput.path}/${doc.name}/${doc.name}.pdf"/>
@@ -296,8 +309,6 @@ ${_for.automation.blurb}</fail>
 &lt;!ENTITY distro_baseurl "${distro.baseurl}"&gt;
 </echo>
 
-<pathconvert property="xalan.cp" refid="xalan.cpref"/>
-<echo level="error" message="xalan.cpref=(${xalan.cp})"/>
     <xslt style="${style.path}" basedir="doc-src/${doc.name}"
           in="doc-src/${doc.name}/${doc.name}.xml"
           out="${output.base}" classpathref="xalan.cpref">
@@ -393,8 +404,6 @@ ${_for.automation.blurb}</fail>
   </target>
 
   <target name="-fop-setup" depends="-ivy-setup">
-<pathconvert property="fop.cp" refid="fop.cpref"/>
-<echo level="error" message="fop.cpref=(${fop.cp})"/>
     <taskdef name="fop" classname="org.apache.fop.tools.anttasks.Fop"
              classpathref="fop.cpref"/>
   </target>
