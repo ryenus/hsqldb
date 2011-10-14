@@ -432,18 +432,42 @@ file.</echo>
 
   <target name="validation-help" depends="-ivy-setup"
           description="Display advice about validating files manually">
-<fail message="This task needs oo be re-written ASAP"/>
-      <!-- The resolve downloads and makes the 3rd party libs accessed by
-           our admc-rs-msv jar file through its manifests classpath entry. -->
     <pathconvert property="jar.file" refid="admc-rs-msv-jar.cpref"/>
-    <echo>'cd' to the directory containing the XML source files, and run
-something like
-java -Xss${java.threadstacksize} -Dxml.catalog.files=${xml.catalog.files} -jar ${jar.file} -v ${dbxirng.url} file.xml...
+    <basename property="jar.basename" file="${jar.file}"/>
+    <echo>Validating our DocBook source files requires a powerful XML validator that
+supports Xincludes, XML catalogs, macros, and other advanced XML features.
+The following explains how to set up and use our XML validator against DocBook
+or other complex XML files.
 
-See the XML Commons docs about the Java System Properties to
-use for XML catalog resolution:
-http://xml.apache.org/commons/components/resolver/resolver-article.html#ctrlresolver
+The critical file is '${jar.basename}', which is the executable jar file of
+of the Catalog-Resolving Schematron-Capable MSV validator (that's a mouthful!).
+To prepare it for execution, put this file and all of its dependency jars into
+the same directory (just execute the 'ext-validation-setup' target to do this).
+
+Then to perform validation, 'cd' to the directory containing your XML source
+files, and run something like
+
+  java -Xss${java.threadstacksize} -Dxml.catalog.files=${xml.catalog.files} -jar .../${jar.basename} -v ${dbxirng.url} file.xml...
+
+See the XML Commons docs about the Java System Properties to use for XML
+catalog resolution:
+
+  http://xml.apache.org/commons/components/resolver/resolver-article.html#ctrlresolver
 </echo>
+  </target>
+
+  <target name="ext-validation-setup" depends="-ivy-setup"
+          description="Set up a capable standalone XML validator">
+    <fail unless="validator.install.dir">
+Property 'validator.install.dir' is required for target 'ext-validation-setup'.
+Set the value to a directory in which to install the jar files.</fail>
+    <copy todir="${validator.install.dir}"
+          preservelastmodified="true" flatten="true">
+      <path refid="admc-rs-msv-jar.cpref"/>
+      <path refid="admc-rs-msv-deps.cpref"/>
+    </copy>
+    <pathconvert property="jar.file" refid="admc-rs-msv-jar.cpref"/>
+    <echo message="Run the 'validation-help' target for instructions on how to use the validator"/>
   </target>
 
   <target name="refresh-verbatim"
