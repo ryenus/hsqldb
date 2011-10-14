@@ -147,7 +147,9 @@ void resequenceAntDependencies(
 
     // 2: Generate task-renaming map 'renameMap'
     //    and ouput dep lists 'dependListsOut'
-    def renameMap = [:]       // String -> String
+    // Purposefully not declaring 'renameMap'
+    // so it will make project.renameMap so we can share it.
+    renameMap = [:]       // String -> String
     def dependListsOut = [:]  // name -> List<String>
     def outList               // Strings
 
@@ -207,6 +209,11 @@ resequenceAntDependencies('-gradled', {
     it[0].@name = it[0].@name.text() + "_gradled"
     it[0].attributes().remove("basedir")
     it[1].@name = it[1].@name.text() + "_gradled"
+    it[1].import.replaceNode {}
+    String ivySetupTaskName = '-ivy-setup'
+    if (project.renameMap.containsKey(ivySetupTaskName))
+        ivySetupTaskName = project.renameMap.get(ivySetupTaskName)
+    it[1].appendNode { target(name: ivySetupTaskName) }
 }, file('build.xml'), file('build-docbook.xml'))
 
 ant.importBuild('../build-gradled.xml')
@@ -374,4 +381,4 @@ Other tasks
     if (describedPrivates.size() > 0)
         logger.warn('\nWARNING:  Private Ant tasks have descriptions: '
                 + describedPrivates.join(', '))
-    }
+}

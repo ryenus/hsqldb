@@ -4,8 +4,7 @@
   Released under the HSQL license, available at http://hsqldb.org
 -->
 
-<project name="hsqldb-ant-docbook" default="gen-docs"
-         xmlns:ivy="antlib:org.apache.ivy.ant">
+<project name="hsqldb-ant-docbook" default="gen-docs" basedir="..">
   <!--
     USAGE
     Purpose of this build file is to generate Whole HTML, Chunked HTML,
@@ -30,6 +29,7 @@
     parent Ant build file (perhaps by loading a "build.properties" or
     "local.properties" file).
   -->
+  <import file="antivy-setup.xml"/>
 
   <!-- Since the main HSQLDB build file imports this one, relative property
        file specifications must be relative to the project root, not build/ -->
@@ -296,7 +296,8 @@ ${_for.automation.blurb}</fail>
 &lt;!ENTITY distro_baseurl "${distro.baseurl}"&gt;
 </echo>
 
-    <ivy:cachepath conf="xalan" pathid="xalan.cpref"/>
+<pathconvert property="xalan.cp" refid="xalan.cpref"/>
+<echo level="error" message="xalan.cpref=(${xalan.cp})"/>
     <xslt style="${style.path}" basedir="doc-src/${doc.name}"
           in="doc-src/${doc.name}/${doc.name}.xml"
           out="${output.base}" classpathref="xalan.cpref">
@@ -392,30 +393,10 @@ ${_for.automation.blurb}</fail>
   </target>
 
   <target name="-fop-setup" depends="-ivy-setup">
-    <ivy:cachepath conf="fop" pathid="fop.cpref"/>
+<pathconvert property="fop.cp" refid="fop.cpref"/>
+<echo level="error" message="fop.cpref=(${fop.cp})"/>
     <taskdef name="fop" classname="org.apache.fop.tools.anttasks.Fop"
              classpathref="fop.cpref"/>
-  </target>
-
-  <target name="-ivy-setup">
-    <available property="_ivy.present" classname="org.apache.ivy.ant.IvyTask"/>
-    <fail unless="_ivy.present">
-Add Ivy jar file to Ant CLASSPATH.
-
-Obtain a 2.x version of an Apache Ivy jar file (perhaps at
-http://ant.apache.org/ivy/), and run a command like the following, changing the
-jar file path to wherever you have it saved.  For any Bourne shell (incl. Bash):
-
-    export ANT_ARGS; ANT_ARGS='-lib ${basedir}/build/ivy-2.2.0.jar -noclasspath'
-
-OR for any CMD-like Windows shell:
-
-    SET ANT_ARGS=-lib "${basedir}/build/ivy-2.2.0.jar" -noclasspath</fail>
-
-    <available property="_ivysettings.present" file="${ivy.settings.file}"
-               type="file"/>
-    <antcall target="-ensure-ivysettings"/>
-    <ivy:settings/>
   </target>
 
   <target name="-ensure-ivysettings" unless="_ivysettings.present">
@@ -431,11 +412,8 @@ file.</echo>
           description="Validate specified DocBook source document">
     <fail unless="doc.name"
           message="Ant property 'doc.name' is required by target 'validate'."/>
-    <ivy:resolve conf="msv"/>
-      <!-- The resolve downloads and makes the 3rd party libs accessed by
-           our admc-rs-msv jar file through its manifests classpath entry. -->
-    <ivy:cachepath conf="admc-rs-msv" pathid="admc-rs-msv.cpref"/>
     <pathconvert property="jar.file" refid="admc-rs-msv.cpref"/>
+<echo level="error" message="jar.file=(${jar.file})"/>
     <java fork="true" failonerror="true"
           jar="${jar.file}" dir="doc-src/${doc.name}">
       <sysproperty key="xml.catalog.verbosity"
@@ -454,10 +432,9 @@ file.</echo>
 
   <target name="validation-help" depends="-ivy-setup"
           description="Display advice about validating files manually">
-    <ivy:resolve conf="msv"/>
+<fail message="This task needs oo be re-written ASAP"/>
       <!-- The resolve downloads and makes the 3rd party libs accessed by
            our admc-rs-msv jar file through its manifests classpath entry. -->
-    <ivy:cachepath conf="admc-rs-msv" pathid="admc-rs-msv.cpref"/>
     <pathconvert property="jar.file" refid="admc-rs-msv.cpref"/>
     <echo>'cd' to the directory containing the XML source files, and run
 something like
