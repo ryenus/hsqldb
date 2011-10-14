@@ -1,7 +1,9 @@
 defaultTasks 'help'
 
-project['repos.useMaven'] = 'true'
+project['repos.flatdir.url'] = 'http://pub.admc.com/lib-repos'
 apply from: 'common.gradle'
+
+task nichts  // Quiet task for testing root-level Groovy/Gradle development
 
 // This task only for SCM administrator.  Update version and execute this task.
 task updateWrapper(type: Wrapper) {
@@ -134,16 +136,16 @@ void resequenceAntDependencies(
             targetsIn[targ.@name.text()] = targ
             dependListsIn[targ.@name.text()] = listEls
         }
-    logger.info(targetsIn.size()
+    logger.debug(targetsIn.size()
             + " name->Target's (just keys): " + targetsIn.keySet())
-    logger.info(dependListsIn.size() + " name->List's: " + dependListsIn)
+    logger.debug(dependListsIn.size() + " name->List's: " + dependListsIn)
 
     for (dl in dependListsIn.values())
         for (n in dl)
             if (!masterSeqList.contains(n))
                 recursivePush(n,
                         dependListsIn.values(), masterSeqList, inProcessStack)
-    logger.info('RESULT:  ' + masterSeqList)
+    logger.debug('RESULT:  ' + masterSeqList)
 
     // 2: Generate task-renaming map 'renameMap'
     //    and ouput dep lists 'dependListsOut'
@@ -238,6 +240,7 @@ for (t in getTasks()) {
     newTask.description = t.description
     hidingWrappers[t] = newTask
 }
+apply from: 'ivy-setup.gradle'
 
 private def recursiveAggregator(additions, inMap, assemblage) {
     for (addition in additions) if (!assemblage.contains(addition)) {
