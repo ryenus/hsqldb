@@ -4,6 +4,7 @@ project['repos.flatdir.url'] = 'http://pub.admc.com/lib-repos'
 apply from: 'common.gradle'
 
 task nichts  // Quiet task for testing root-level Groovy/Gradle development
+nichts.description = 'Noop for testing Gradle'
 
 // This task only for SCM administrator.  Update version and execute this task.
 task updateWrapper(type: Wrapper) << {
@@ -14,6 +15,7 @@ task updateWrapper(type: Wrapper) << {
 }
 updateWrapper.description = 'Update Gradle version.  For HSQLDB Administrators.'
 
+/*
 task serialver << {
     if (!project.hasProperty('className'))
         throw new InvalidUserDataException(
@@ -39,6 +41,7 @@ task serialver << {
     }
 }
 serialver.description = "Generates Java serialversion for specified 'classname'"
+*/
 
 void resolveCheck(configName) {
     int artCount = configurations[configName].files.size()
@@ -222,8 +225,11 @@ resequenceAntDependencies('-gradled', {
 }, file('build.xml'), file('build-docbook.xml'))
 
 ant.importBuild('../build-gradled.xml')
-file('../build-gradled.xml').deleteOnExit();
-file('../build-docbook-gradled.xml').deleteOnExit();
+if (!project.hasProperty('retain.gradleds')
+        || !Boolean.parseBoolean(project.property('retain.gradleds'))) {
+    file('../build-gradled.xml').deleteOnExit();
+    file('../build-docbook-gradled.xml').deleteOnExit();
+}
 
 // This block generates wrapper tasks for the sole purpose of preventing the
 // end user from seeing numbered task names.
@@ -241,12 +247,16 @@ for (t in getTasks()) {
     hidingWrappers[t] = newTask
 }
 apply from: 'ivy-setup.gradle'
+import org.apache.tools.ant.types.Path
 ant.references['admc-rs-msv-jar.cpref'] =
-        new org.apache.tools.ant.types.Path(
-                ant.antProject, configurations['admc-rs-msv-jar'].asPath)
+        new Path(ant.project, configurations['admc-rs-msv-jar'].asPath)
 ant.references['admc-rs-msv-deps.cpref'] =
-        new org.apache.tools.ant.types.Path(
-                ant.antProject, configurations['admc-rs-msv-deps'].asPath)
+        new Path(ant.project, configurations['admc-rs-msv-deps'].asPath)
+ant.references['fop.cpref'] =
+        new Path(ant.project, configurations['fop'].asPath)
+ant.references['xalan.cpref'] =
+        new Path(ant.project, configurations['xalan'].asPath)
+//throw new GradleException('Ant proj name = ' + ant.antProject.name)
 
 
 private def recursiveAggregator(additions, inMap, assemblage) {
@@ -349,7 +359,8 @@ Other tasks
             }
         }
         if (!displayAll && t.description != null && t.name.indexOf('.') < 0
-                && !seqRenamedPattern.matcher(t.name).matches())
+                && !seqRenamedPattern.matcher(t.name).matches()
+                && 'tasks' != t.name && 'help' != t.name)
             println t.name + ' - ' + t.description
     }
 
@@ -369,7 +380,8 @@ Other tasks
         def allDependees = [] as Set
         for (vs in dependOnMap.values()) allDependees.addAll(vs)
         for (t in getTasks())
-            if (!allDependees.contains(t) && !hidingWrappers.containsValue(t)) {
+            if (!allDependees.contains(t) && !hidingWrappers.containsValue(t)
+                    && 'tasks' != t.name && 'help' != t.name) {
                 print t.name
                 if (t.description != null) print " - $t.description"
                 if (hidingWrappers.containsKey(t))
@@ -392,3 +404,5 @@ Other tasks
         logger.warn('\nWARNING:  Private Ant tasks have descriptions: '
                 + describedPrivates.join(', '))
 }
+tasks['tasks'].description =
+        "Displays the tasks in root project '$project.name'."

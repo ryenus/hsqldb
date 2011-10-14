@@ -1053,7 +1053,7 @@ examples:
         </targetfilelist>
       </dependset>
       -->
-      <available property="skip.jflex" type="file"
+      <available property="jflex.skip" type="file"
                  file="src/org/hsqldb/cmdline/sqltool/SqlFileScanner.java"/>
       <antcall target="-condl-jflex"/>
       <!-- JFlex will only run if SqlFileScanner.java does not exist -->
@@ -1070,7 +1070,7 @@ examples:
                classpath='${jflex.lib}'/>
      </target>
 
-    <target name="-condl-jflex" unless="skip.jflex">
+    <target name="-condl-jflex" unless="jflex.skip">
       <!-- Only reason for this method is that target dependencies (if/unless)
       get executed BEFORE the main target -->
       <antcall target="jflex"/>
@@ -1132,10 +1132,10 @@ to the local path to the images subdirectory (perhaps in file
 
   <target name="gen-docs" description="Generate Docbook documents for project"
           depends="validate-docs, -prep-images, -gen-docs-setup">
-    <antcall target="docbook-transform">
+    <antcall target="docbook-transform" inheritrefs="true">
       <param name="doc.name" value="guide"/>
     </antcall>
-    <antcall target="docbook-transform">
+    <antcall target="docbook-transform" inheritrefs="true">
       <param name="doc.name" value="util-guide"/>
     </antcall>
     <antcall target="-gen-docs-complete"/>
@@ -1143,10 +1143,10 @@ to the local path to the images subdirectory (perhaps in file
 
   <target name="validate-docs"
           description="Validate project DocBook source files using a modified version of Sun's MSV Validator">
-    <antcall target="validate-doc">
+    <antcall target="validate-doc" inheritrefs="true">
       <param name="doc.name" value="guide"/>
     </antcall>
-    <antcall target="validate-doc">
+    <antcall target="validate-doc" inheritrefs="true">
       <param name="doc.name" value="util-guide"/>
     </antcall>
   </target>
