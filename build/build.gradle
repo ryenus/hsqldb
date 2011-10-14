@@ -236,14 +236,12 @@ for (t in getTasks()) {
     m = candidatePattern.matcher(t.name);
     if (!m.matches()) continue;
     newTask = project.task(m.group(1))
-    //thatNamedTasks = getTasksByName(m.group(1), true).toArray()
-    //if (thatNamedTasks.size() > 1)
-        //throw new GradleException('Task multiply defined: ' + m.group(1))
     newTask.dependsOn = [t]
     newTask.description = t.description
     hidingWrappers[t] = newTask
 }
 apply from: 'ivy-setup.gradle'
+
 
 private def recursiveAggregator(additions, inMap, assemblage) {
     for (addition in additions) if (!assemblage.contains(addition)) {
