@@ -241,6 +241,9 @@ for (t in getTasks()) {
     hidingWrappers[t] = newTask
 }
 apply from: 'ivy-setup.gradle'
+ant.references['admc-rs-msv-jar.cpref'] =
+        new org.apache.tools.ant.types.Path(
+                ant.antProject, configurations['admc-rs-msv-jar'].asPath)
 
 
 private def recursiveAggregator(additions, inMap, assemblage) {

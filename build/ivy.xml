@@ -5,7 +5,7 @@
     <!-- Want to have 'msv' and 'xalan' extend this, but don't yet have
          Gradle honoring the 'extends' attribute, so giving verbose conf
          specifications below instead. -->
-    <conf name="admc-rs-msv"
+    <conf name="admc-rs-msv-jar"
        description="Single Catalog-Resolving Schematron-Capable MSV jar file"/>
     <conf name="msv" description="Sun MSV" transitive="false"
           visibility="private"/>
@@ -34,7 +34,7 @@
     <dependency name="xml-apis" rev="1.3" conf="xalan; msv"/>
     <dependency name="xercesImpl" rev="2.9.0" conf="msv; xalan"/>
     <dependency name="resolver" rev="1.2"/>
-    <dependency name="admc-rs-msv" rev="1.0" conf="admc-rs-msv; xalan"/>
+    <dependency name="admc-rs-msv" rev="1.0" conf="admc-rs-msv-jar; xalan"/>
     <!-- Primary purpose of this jar is for the MSV validator.
          It is also added to the XSLT CLASSPATH only to add the XInclude
          settings file to the CLASSPATH.  Needed by Xalan during XSLT.

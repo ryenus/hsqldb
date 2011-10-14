@@ -412,7 +412,7 @@ file.</echo>
           description="Validate specified DocBook source document">
     <fail unless="doc.name"
           message="Ant property 'doc.name' is required by target 'validate'."/>
-    <pathconvert property="jar.file" refid="admc-rs-msv.cpref"/>
+    <pathconvert property="jar.file" refid="admc-rs-msv-jar.cpref"/>
 <echo level="error" message="jar.file=(${jar.file})"/>
     <java fork="true" failonerror="true"
           jar="${jar.file}" dir="doc-src/${doc.name}">
@@ -435,7 +435,7 @@ file.</echo>
 <fail message="This task needs oo be re-written ASAP"/>
       <!-- The resolve downloads and makes the 3rd party libs accessed by
            our admc-rs-msv jar file through its manifests classpath entry. -->
-    <pathconvert property="jar.file" refid="admc-rs-msv.cpref"/>
+    <pathconvert property="jar.file" refid="admc-rs-msv-jar.cpref"/>
     <echo>'cd' to the directory containing the XML source files, and run
 something like
 java -Xss${java.threadstacksize} -Dxml.catalog.files=${xml.catalog.files} -jar ${jar.file} -v ${dbxirng.url} file.xml...
