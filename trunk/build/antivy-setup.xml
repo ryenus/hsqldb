@@ -1,0 +1,43 @@
+<?xml version="1.0"?>
+<!--
+  Copyright (c) 2010, The HSQL Development Group. All rights reserved.
+  Released under the HSQL license, available at http://hsqldb.org
+-->
+<project name="hsqldb-antivy-setup" xmlns:ivy="antlib:org.apache.ivy.ant">
+  <target name="ivy-setup" depends="-ivy-setup"/>
+
+  <target name="-ivy-setup">
+    <available property="_ivy.present" classname="org.apache.ivy.ant.IvyTask"/>
+    <fail unless="_ivy.present">
+Add Ivy jar file to Ant CLASSPATH.
+
+Obtain a 2.x version of an Apache Ivy jar file (perhaps at
+http://ant.apache.org/ivy/), and run a command like the following, changing the
+jar file path to wherever you have it saved.  For any Bourne shell (incl. Bash):
+
+    export ANT_ARGS; ANT_ARGS='-lib ${basedir}/build/ivy-2.2.0.jar -noclasspath'
+
+OR for any CMD-like Windows shell:
+
+    SET ANT_ARGS=-lib "${basedir}/build/ivy-2.2.0.jar" -noclasspath</fail>
+
+    <available property="_ivysettings.present" file="${ivy.settings.file}"
+               type="file"/>
+    <antcall target="-ensure-ivysettings"/>
+    <ivy:settings/>
+    <ivy:cachepath conf="xalan" pathid="xalan.cpref"/>
+    <ivy:cachepath conf="fop" pathid="fop.cpref"/>
+    <ivy:resolve conf="msv"/>
+      <!-- The "msv"resolve downloads and makes the 3rd party libs accessed by
+           our admc-rs-msv jar file through its manifests classpath entry. -->
+    <ivy:cachepath conf="admc-rs-msv" pathid="admc-rs-msv.cpref"/>
+    <!-- Debug stuff:
+      <pathconvert property="xalan.cp" refid="xalan.cpref"/>
+      <echo level="error" message="xalan.cpref=(${xalan.cp})"/>
+      <pathconvert property="fop.cp" refid="fop.cpref"/>
+      <echo level="error" message="fop.cpref=(${fop.cp})"/>
+          <pathconvert property="jar.file" refid="admc-rs-msv.cpref"/>
+      <echo level="error" message="jar.file=(${jar.file})"/>
+    -->
+  </target>
+</project>
