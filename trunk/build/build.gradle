@@ -6,8 +6,11 @@ apply from: 'common.gradle'
 task nichts  // Quiet task for testing root-level Groovy/Gradle development
 
 // This task only for SCM administrator.  Update version and execute this task.
-task updateWrapper(type: Wrapper) {
-    gradleVersion = '1.0-milestone-3'
+task updateWrapper(type: Wrapper) << {
+    if (!project.hasProperty('newVersion'))
+        throw new InvalidUserDataException(
+                "Property 'newVersion' is required for task 'updateWrapper'")
+    gradleVersion = project['newVersion']
 }
 updateWrapper.description = 'Update Gradle version.  For HSQLDB Administrators.'
 
