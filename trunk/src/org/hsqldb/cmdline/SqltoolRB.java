@@ -295,6 +295,12 @@ public enum SqltoolRB implements RefCapableRBInterface {
     public String getExpandedString(String... strings) {
         return vrb.getExpandedString(this, strings);
     }
+    public String getString(Throwable t) {
+        return vrb.getString(this,
+                (t.getMessage() == null)
+                ? t.toString()
+                : (t.getClass().getSimpleName() + ": " + t.getMessage()));
+    }
     public String getString(String... strings) {
         return vrb.getString(this, strings);
     }

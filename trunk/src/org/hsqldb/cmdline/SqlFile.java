@@ -771,8 +771,7 @@ public class SqlFile {
             if (scanner != null) try {
                 scanner.yyclose();
             } catch (IOException ioe) {
-                errprintln(
-                        SqltoolRB.pipeclose_failure.getString(ioe.toString()));
+                errprintln(SqltoolRB.pipeclose_failure.getString(ioe));
             }
             try {
                 reader.close();
@@ -854,7 +853,8 @@ public class SqlFile {
 
                 switch (token.type) {
                     case Token.SYNTAX_ERR_TYPE:
-                        throw new SqlToolError(SqltoolRB.input_malformat.getString());
+                        throw new SqlToolError(
+                                SqltoolRB.input_malformat.getString());
                         // Will get here if Scanner can't match input to any
                         // known command type.
                         // An easy way to get here is to start a command with
@@ -954,8 +954,7 @@ public class SqlFile {
                 }
                 Throwable cause = bs.getCause();
                 if (cause != null)
-                    errprintln(SqltoolRB.causereport.getString(
-                            cause.toString()));
+                    errprintln(SqltoolRB.causereport.getString(cause));
 
                 if (!continueOnError) throw new SqlToolError(bs);
             } catch (SQLException se) {
@@ -1023,7 +1022,7 @@ public class SqlFile {
                 ));
                 Throwable cause = ste.getCause();
                 errprintln((cause == null) ? sb.toString()
-                        : SqltoolRB.causereport.getString(cause.toString()));
+                        : SqltoolRB.causereport.getString(cause));
                 if (!continueOnError) throw ste;
             }
 
@@ -1283,7 +1282,8 @@ public class SqlFile {
                     if (other.trim().charAt(other.trim().length() - 1) == ';') {
                         other = other.substring(0, other.lastIndexOf(';'));
                         if (other.trim().length() < 1)
-                            throw new BadSpecial( SqltoolRB.append_empty.getString());
+                            throw new BadSpecial(
+                                    SqltoolRB.append_empty.getString());
                         doExec = true;
                     }
                 }
@@ -2437,8 +2437,7 @@ public class SqlFile {
             sqlExpandMode = null;
             return;
         } catch (RuntimeException re) {
-            throw new BadSpecial(
-                    SqltoolRB.math_expr_fail.getString(re.getMessage()));
+            throw new BadSpecial(SqltoolRB.math_expr_fail.getString(re));
         }
         mathMatcher = mathPattern.matcher(dereference(string, false));
         if (mathMatcher.matches()) try {
@@ -2450,8 +2449,7 @@ public class SqlFile {
             sqlExpandMode = null;
             return;
         } catch (RuntimeException re) {
-            throw new BadSpecial(
-                    SqltoolRB.math_expr_fail.getString(re.getMessage()));
+            throw new BadSpecial(SqltoolRB.math_expr_fail.getString(re));
         }
 
         Matcher m = plPattern.matcher(dereffed);
@@ -2640,7 +2638,8 @@ public class SqlFile {
             case '~' :
                 if (m.groupCount() > 2 && m.group(3) != null
                             && m.group(3).trim().length() > 0) {
-                    throw new BadSpecial(SqltoolRB.plvar_tildedash_nomoreargs.getString(
+                    throw new BadSpecial(
+                            SqltoolRB.plvar_tildedash_nomoreargs.getString(
                             m.group(3).trim()));
                 }
 
@@ -3414,8 +3413,7 @@ public class SqlFile {
         if (filterString != null) try {
             filter = Pattern.compile(filterString);
         } catch (PatternSyntaxException pse) {
-            throw new SqlToolError(
-                    SqltoolRB.regex_malformat.getString(pse.getMessage()));
+            throw new SqlToolError(SqltoolRB.regex_malformat.getString(pse));
         }
 
         if (excludeSysSchemas)
@@ -3907,8 +3905,7 @@ public class SqlFile {
         try {
             pattern = Pattern.compile("(?ims)" + findRegex);
         } catch (PatternSyntaxException pse) {
-            throw new BadSpecial(
-                    SqltoolRB.regex_malformat.getString(pse.getMessage()));
+            throw new BadSpecial(SqltoolRB.regex_malformat.getString(pse));
         }
         // Make matching more liberal.  Users can customize search behavior
         // by using "(?-OPTIONS)" or (?OPTIONS) in their regexes.
@@ -3995,8 +3992,7 @@ public class SqlFile {
             filter = Pattern.compile(filterMatchesAll
                     ? filterString.substring(1) : filterString);
         } catch (PatternSyntaxException pse) {
-            throw new SQLException(SqltoolRB.regex_malformat.getString(
-                    pse.getMessage()));
+            throw new SQLException(SqltoolRB.regex_malformat.getString(pse));
             // This is obviously not a SQLException.
             // Perhaps change input parameter to a Pattern to require
             // caller to compile the pattern?
@@ -4351,7 +4347,7 @@ public class SqlFile {
                                          : (new String(ba, cs));
             } catch (UnsupportedEncodingException uee) {
                 throw new IOException(
-                        SqltoolRB.encode_fail.getString(uee.getMessage()));
+                        SqltoolRB.encode_fail.getString(uee));
             } catch (RuntimeException re) {
                 throw new IOException(SqltoolRB.read_convertfail.getString());
             }
@@ -5114,7 +5110,8 @@ public class SqlFile {
             try {
                 ps = shared.jdbcConn.prepareStatement(sb.toString() + ')');
             } catch (SQLException se) {
-                throw new SqlToolError(SqltoolRB.insertion_preparefail.getString(
+                throw new SqlToolError(
+                        SqltoolRB.insertion_preparefail.getString(
                         sb.toString()), se);
             }
             String[] dataVals = new String[autonulls.length];
@@ -5142,8 +5139,9 @@ public class SqlFile {
                     }
                     int colonAt = trimmedLine.indexOf(':');
                     if (colonAt < 1 || colonAt == trimmedLine.length() - 1)
-                        throw new SqlToolError(SqltoolRB.dsv_header_matchernonhead.getString(
-                                        lineCount));
+                        throw new SqlToolError(
+                                SqltoolRB.dsv_header_matchernonhead.getString(
+                                lineCount));
                     continue;
                 }
                 // Finished using "trimmed" line now.  Whitespace is
@@ -5160,14 +5158,16 @@ public class SqlFile {
 
                 for (String col : cols) {
                     if (readColCount == inputColHeadCount)
-                        throw new RowError(SqltoolRB.dsv_colcount_mismatch.getString(
+                        throw new RowError(
+                                SqltoolRB.dsv_colcount_mismatch.getString(
                                 inputColHeadCount, 1 + readColCount));
 
                     if (headers[readColCount++] != null)
                         dataVals[storeColCount++] = dsvTrimAll ? col.trim() : col;
                 }
                 if (readColCount < inputColHeadCount)
-                    throw new RowError(SqltoolRB.dsv_colcount_mismatch.getString(
+                    throw new RowError(
+                            SqltoolRB.dsv_colcount_mismatch.getString(
                             inputColHeadCount, readColCount));
                 /* Already checked for readColCount too high in prev. block */
 
@@ -5175,7 +5175,8 @@ public class SqlFile {
                     for (String val : constColMap.values())
                         dataVals[storeColCount++] = val;
                 if (storeColCount != dataVals.length)
-                    throw new RowError(SqltoolRB.dsv_insertcol_mismatch.getString(
+                    throw new RowError(
+                            SqltoolRB.dsv_insertcol_mismatch.getString(
                             dataVals.length, storeColCount));
 
                 for (int i = 0; i < dataVals.length; i++) {
@@ -5210,7 +5211,8 @@ public class SqlFile {
                                 ps.setTimestamp(i + 1,
                                         java.sql.Timestamp.valueOf(dateString));
                             } catch (IllegalArgumentException iae) {
-                                throw new RowError(SqltoolRB.time_bad.getString(
+                                throw new RowError(
+                                        SqltoolRB.time_bad.getString(
                                         dateString), iae);
                             }
                         }
@@ -5225,7 +5227,8 @@ public class SqlFile {
                                 // Boolean... is equivalent to Java 4's
                                 // Boolean.parseBoolean().
                             } catch (IllegalArgumentException iae) {
-                                throw new RowError(SqltoolRB.boolean_bad.getString(
+                                throw new RowError(
+                                        SqltoolRB.boolean_bad.getString(
                                         dataVals[i]), iae);
                             }
                         }
@@ -5378,7 +5381,8 @@ public class SqlFile {
             }
             if (rejectWriter != null) rejectWriter.flush();
             if (rejectReportWriter != null && rejectCount > 0) {
-                rejectReportWriter.println(SqltoolRB.rejectreport_bottom.getString(
+                rejectReportWriter.println(
+                        SqltoolRB.rejectreport_bottom.getString(
                         summaryString, revnum));
                 rejectReportWriter.flush();
             }
@@ -5401,8 +5405,7 @@ public class SqlFile {
                             rejectFile.toString()));
                 if (rejectReportFile != null && !rejectReportFile.delete())
                     errprintln(SqltoolRB.dsv_rejectreport_purgefail.getString(
-                            (rejectFile == null)
-                                    ? null : rejectFile.toString()));
+                            rejectReportFile.toString()));
                 // These are trivial errors.
             }
         }
@@ -5573,7 +5576,8 @@ public class SqlFile {
                 if (matcher.matches()) {
                     macroToken = shared.macros.get(matcher.group(1) + ')');
                     if (macroToken == null)
-                        throw new BadSpecial(SqltoolRB.macro_undefined.getString(
+                        throw new BadSpecial(
+                                SqltoolRB.macro_undefined.getString(
                                 matcher.group(1) + "...)"));
                     String[] splitVars = null;
                     if (matcher.groupCount() > 1 && matcher.group(2) != null
