@@ -29,7 +29,7 @@ SELECT COUNT(*) FROM t;
 *end if
 
 DELETE FROM t;
-* *DSV_REJECT_REPORT = /dev/null
+* *DSV_REJECT_REPORT = ${java.io.tmpdir}/test-rpcommit-${user.name}.dsv
 \m dsv-rpcommit.dsv
 
 SELECT COUNT(*) FROM t;
