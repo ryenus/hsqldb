@@ -265,6 +265,9 @@ public class HsqlProperties {
         outDescriptor.sync();
         fos.close();
 
+        outDescriptor = null;
+        fos           = null;
+
         return;
     }
 
