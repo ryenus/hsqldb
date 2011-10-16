@@ -193,7 +193,8 @@ File[] resequenceAntDependencies(String fileNameInsertion, closures, inFiles) {
             throw new GradleException(
                     'Size of given xmls != size of closures: '
                     + xmls.size() + ' vs. ' + closures.size())
-        for (i in 0.. closures.size()-1) closures[i](xmls[i])
+        for (i in 0.. closures.size()-1)
+            if (closures[i] != null) closures[i](xmls[i])
     }
 
     // 4: Write modified Ant build file
