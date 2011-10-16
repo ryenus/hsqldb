@@ -1158,7 +1158,8 @@ public class ParserDDL extends ParserRoutine {
         readThis(Tokens.AS);
         readThis(Tokens.OPENBRACKET);
 
-        QueryExpression queryExpression = XreadQueryExpression();
+        QueryExpression queryExpression =
+            XreadQueryExpression(RangeVariable.emptyArray);
 
         queryExpression.setReturningResult();
         queryExpression.resolve(session);
@@ -1609,7 +1610,7 @@ public class ParserDDL extends ParserRoutine {
         QueryExpression queryExpression;
 
         try {
-            queryExpression = XreadQueryExpression();
+            queryExpression = XreadQueryExpression(RangeVariable.emptyArray);
         } catch (HsqlException e) {
             queryExpression = XreadJoinedTableAsView();
         }
