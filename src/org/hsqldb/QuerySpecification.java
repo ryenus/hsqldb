@@ -922,11 +922,6 @@ public class QuerySpecification extends QueryExpression {
 
     private void setAggregateConditions(Session session) {
 
-        if (rangeVariables.length > 1) {
-            isMergeable = false;
-            isUpdatable = false;
-        }
-
         if (isAggregated && !isGrouped && !sortAndSlice.hasOrder()
                 && !sortAndSlice.hasLimit() && aggregateSet.size() == 1
                 && indexLimitVisible == 1) {
@@ -2174,6 +2169,8 @@ public class QuerySpecification extends QueryExpression {
 
                 newRangeVariables[0] =
                     baseSelect.rangeVariables[0].duplicate();
+                newRangeVariables[0].rangePosition =
+                    rangeVariables[0].rangePosition;
 
                 Expression[] newBaseExprColumns =
                     new Expression[baseSelect.indexLimitData];
@@ -2222,8 +2219,6 @@ public class QuerySpecification extends QueryExpression {
                     ExpressionLogical.andExpressions(baseQueryCondition,
                                                      localQueryCondition);
                 rangeVariables = newRangeVariables;
-                rangeVariables[0].rangePosition =
-                    compileContext.getNextRangeVarIndex();
             }
         }
 
