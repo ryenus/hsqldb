@@ -225,6 +225,8 @@ public abstract class ScriptWriterBase implements Runnable {
                 forceSync();
                 fileStreamOut.close();
 
+                fileStreamOut = null;
+                outDescriptor = null;
                 isClosed = true;
             }
         } catch (IOException e) {

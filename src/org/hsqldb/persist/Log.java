@@ -717,6 +717,8 @@ public class Log {
 
         scw.writeAll();
         scw.close();
+
+        scw = null;
     }
 
     /**

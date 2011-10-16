@@ -179,18 +179,24 @@ public class FileUtil implements FileAccess {
      */
     private boolean renameWithOverwrite(String oldname, String newname) {
 
-        File    file    = new File(oldname);
+        File file = new File(oldname);
+
+        delete(newname);
+
         boolean renamed = file.renameTo(new File(newname));
 
         if (renamed) {
             return true;
         }
 
-        if (delete(newname)) {
-            return file.renameTo(new File(newname));
+        System.gc();
+        delete(newname);
+
+        if (exists(newname)) {
+            new File(newname).renameTo(new File(newDiscardFileName(newname)));
         }
 
-        return false;
+        return file.renameTo(new File(newname));
     }
 
     /**
@@ -424,9 +430,7 @@ public class FileUtil implements FileAccess {
             return true;
         }
 
-        try {
-            Thread.currentThread().wait(200);
-        } catch (InterruptedException e) {}
+        System.gc();
 
         for (int i = 0; i < fileList.length; i++) {
             fileList[i].delete();
