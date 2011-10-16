@@ -307,7 +307,7 @@ public class ParserDML extends ParserDQL {
 
         ArrayUtil.projectRow(baseTable.getColumnTypes(), columnMap, types);
 
-        QueryExpression queryExpression = XreadQueryExpression();
+        QueryExpression queryExpression = XreadQueryExpression(outerRanges);
 
         queryExpression.setReturningResult();
         queryExpression.resolve(session, outerRanges, types);
@@ -860,7 +860,8 @@ public class ParserDML extends ParserDQL {
             if (token.tokenType == Tokens.SELECT) {
                 rewind(position);
 
-                SubQuery sq = XreadSubqueryBody(OpTypes.ROW_SUBQUERY);
+                SubQuery sq = XreadSubqueryBody(RangeVariable.emptyArray,
+                                                OpTypes.ROW_SUBQUERY);
 
                 if (degree != sq.queryExpression.getColumnCount()) {
                     throw Error.error(ErrorCode.X_42546);
