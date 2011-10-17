@@ -1,3 +1,69 @@
+/**
+ * $Id$
+ *
+ *   This build file is separate from the main build.xml file specifically
+ *   because it is not intended for normal end-user or developer usage.
+ *   It is only for generating full distributable packages of the app.
+ *   This build file is NOT necessary to build a distributable jar file:
+ *   that is the purpose of several targets in the main build file.
+ *
+ *   PREP:  Before building a public distribution, you must:
+ *      1: Run targets 'javadoc' and 'javadocdev', watching for JavaDoc
+ *         authoring mistakes, and fix them.
+ *      2: Update property 'hsqldb.version' in file 'build.xml'.
+ *      3: Execute target 'refresh-verbatim' to update code in our docs.
+ *      4: Execute target 'update-readme' to substitute updated variables into
+ *         some doc file(s).
+ *      5: Commit all of the work above.
+ *      6: Verify that docs build successfully.
+ *      7. Make a release tag.
+ *
+ *   USAGE:
+ *       1: Set up your desired build environment (JAVA_HOME set, etc., and
+ *          if you will be using Ant directly instead of Gradle, add Ant to
+ *          your search path,
+ *       2: Do a Subversion export with the release tag to a NEW directory
+ *       3: If you don't have a .properties file set up for this purpose
+ *          already, then make one outside of this work area with a distinctive
+ *          name (for auditing and so you can archive it and/or re-use it for
+ *          future distribution builds), then copy it to "build.properties"
+ *          in this directory.
+ *          IMPORTANT QUIRK:  This file may not use ${} properties in values,
+ *          since that feature is incompatible with the "-propertyfile"
+ *          switch that we will use below.
+ *          This file must set Ant properties "build.label", "build.vendor",
+ *          "dbimage.path".  (See following section about optional properties).
+ *       4: Run
+ *              gradlew -b build-dist.gradle   # Gradle users
+ *          or
+ *              ant -f build-dist.xml          # Ant users
+ *          from the build directory.
+ *          Ant users only:
+ *          If buidling directly with Ant, you don't have Ivy in your
+ *          CLASSPATH, you will be instructed how to satisfy that requirement.
+ *
+ *   OPTIONAL ANT PROPERTIES
+ *       To prevent Internet access for DocBook resources, set properties
+ *         nsstylebase.url, dbxirng.url, dbcentx.url in file
+ *         "local-docbook.properties" or "build.properties" (just depends on
+ *         whether you want to manage them separately from the primary
+ *         properties).  This decreases document build time by about 70%.
+ *         These values point to DocBook-privided resources that you should
+ *         be able to figure out between the property name and the usage of
+ *         them in the "build-docbook.xml" file.
+ *       Add settings for build.debug and build.optimize to change the default
+ *         compilation settings.
+ *
+ *   You may add or edit some files without them being added to the
+ *   distribution that you build:  build/build.properties,
+ *   build/local*.properties, tmp/*, classes/*, dist/*.
+ *   If you don't know if something will have an effect on the distribution
+ *   you are building, then *don't do it*.
+ *   If you were to add a "todo.txt" file to the main or build directory;
+ *   or run "gradle hsqldbtest" (or "ant hsqldbtest), for example, artifacts
+ *   would be added to the distro.
+ */
+
 addlAntBuildFiles = [file('build-dist.xml')]
 
 addlAntBuildClosures = [{
