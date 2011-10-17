@@ -61,7 +61,7 @@ import org.hsqldb.types.Collation;
  * It holds the data structures that form an HSQLDB database instance.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.2.1
+ * @version 2.2.6
  * @since 1.9.0
  */
 public class Database {
@@ -105,6 +105,7 @@ public class Database {
     public boolean                sqlConcatNulls         = true;
     public boolean                sqlUniqueNulls         = true;
     public boolean                sqlConvertTruncate     = true;
+    public int                    sqlAvgScale            = 0;
     public boolean                sqlDoubleNaN           = true;
     public boolean                sqlLongvarIsLob        = false;
     public boolean                sqlSyntaxMss           = false;
@@ -476,6 +477,10 @@ public class Database {
 
     public void setDoubleNaN(boolean mode) {
         sqlDoubleNaN = mode;
+    }
+
+    public void setAvgScale(int scale) {
+        sqlAvgScale = scale;
     }
 
     public void setLongVarIsLob(boolean mode) {

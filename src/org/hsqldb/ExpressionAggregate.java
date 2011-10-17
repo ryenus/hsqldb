@@ -243,7 +243,7 @@ public class ExpressionAggregate extends Expression {
             }
         }
 
-        dataType = SetFunction.getType(opType, nodes[LEFT].dataType);
+        dataType = SetFunction.getType(session, opType, nodes[LEFT].dataType);
 
         condition.resolveTypes(session, null);
     }
@@ -273,7 +273,8 @@ public class ExpressionAggregate extends Expression {
 
         if (currValue == null) {
             currValue = new SetFunction(opType, nodes[LEFT].dataType,
-                                        isDistinctAggregate, arrayType);
+                                        dataType, isDistinctAggregate,
+                                        arrayType);
         }
 
         Object newValue = nodes[LEFT].opType == OpTypes.ASTERISK

@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2010, The HSQL Development Group
+/* Copyright (c) 2001-2011, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -41,12 +41,13 @@ import org.hsqldb.types.ArrayType;
 import org.hsqldb.types.NumberType;
 import org.hsqldb.types.RowType;
 import org.hsqldb.types.Type;
+import org.hsqldb.types.Types;
 
 /**
  * Implementation of array aggregate operations
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.0.1
+ * @version 2.2.6
  * @since 2.0.1
  */
 public class ExpressionArrayAggregate extends Expression {
@@ -210,12 +211,6 @@ public class ExpressionArrayAggregate extends Expression {
             throw Error.error(ErrorCode.X_42534);
         }
 
-        if (opType == OpTypes.MEDIAN) {
-            if (!exprType.isNumberType()) {
-                throw Error.error(ErrorCode.X_42534);
-            }
-        }
-
         Type rowDataType = new RowType(nodeDataTypes);
 
         switch (opType) {
@@ -239,7 +234,12 @@ public class ExpressionArrayAggregate extends Expression {
                 arrayDataType =
                     new ArrayType(nodeDataTypes[0],
                                   ArrayType.defaultArrayCardinality);
-                dataType = exprType;
+                dataType = SetFunction.getType(session, OpTypes.MEDIAN,
+                                               exprType);
+
+                if (!exprType.isNumberType()) {
+                    throw Error.error(ErrorCode.X_42563);
+                }
                 break;
         }
 
@@ -371,13 +371,15 @@ public class ExpressionArrayAggregate extends Expression {
                 if (even) {
                     Object val1 = array[(array.length / 2) - 1];
                     Object val2 = array[array.length / 2];
-                    Object val3 = ((NumberType) exprType).add(val1, val2,
-                        exprType);
+                    Object val3 = ((NumberType) dataType).add(val1, val2,
+                        dataType);
 
-                    return ((NumberType) exprType).divide(session, val3,
+                    return ((NumberType) dataType).divide(session, val3,
                                                           Integer.valueOf(2));
                 } else {
-                    return array[array.length / 2];
+                    return dataType.convertToType(session,
+                                                  array[array.length / 2],
+                                                  exprType);
                 }
             }
         }
