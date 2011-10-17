@@ -6,6 +6,20 @@
 
 <project name="hsqldb-ant-docbook" default="gen-docs" basedir="..">
   <!--
+    End-user properties of interest:
+        validation.skip:  Set to 'true' to skip XML validation
+        html.skip:  Set to 'true' to skip generation of DocBook whole-HTML docs
+        chunk.skip:  Set to 'true' to skip gen. of DocBook index.html, etc.
+        fo.skip:  Set to 'true' to skip generation of DocBook intermediate
+                  .fo files (which are a necessary step to generate PDF).
+        pdf.skip:  Set to 'true' to skip generateion of DocBook PDF docs.
+        doc.name:  A few targets 'require' a doc name to be specified.
+                   If you run a target and it complains that 'doc.name' needs
+                   to be set, then set to 'guide' or 'util-guide'.
+        doc.target:  Targets which operate on all docs by default (regen-docs,
+                   gen-docs, and validate-docs) may be narrowed by
+                   setting this to 'guide' or 'util-guide' (or future docs).
+
     USAGE
     Purpose of this build file is to generate Whole HTML, Chunked HTML,
     and PDF DocBook output documents from DocBook source located under a
@@ -194,6 +208,7 @@ ${_for.automation.blurb}</fail>
   </target>
 
   <target name="docbook-transform" depends="-fop-setup"
+          unless="-dbtransform-skip"
           description="Generate DocBook output for specified source doc">
     <fail unless="doc.name"
   message="Ant property 'doc.name' is required by target 'docbook-transform'."/>

@@ -3,7 +3,10 @@
 <!-- author fredt@users.sourceforge.net 2001 - 2010 -->
 <!-- additional targets 2004-2010: blaine (dot) simpson (at) admc (dot) com -->
 <project name="hsqldb" default="help" basedir="../">
-   <!-- This loads properties in the same exact way as if you ran
+  <!--  To see what build properties you can change, see the property elements
+        below.
+       
+        This loads properties in the same exact way as if you ran
         "ant -Dprop1name=val1 -Dprop2name=val2...", etc.  To use all
         defaults, you should have no 'build.properties' file.
         If you don't understand this or want to know about precedence or
@@ -12,7 +15,8 @@
         If you want to know, "Can I set property 'x' in 'build.properties'",
         rephrase the question to yourself as "Can I run 'ant -Dx=...?"
         Do not address questions about property file(s) to the
-        hsqldb community. -->
+        hsqldb community.
+        -->
 
   <!-- TODO:
         Use multiple class directories (javac dest dirs).
@@ -1130,23 +1134,63 @@ to the local path to the images subdirectory (perhaps in file
     </copy>
   </target>
 
+  <!-- See comments at top of "build-docbook.xml" about doc.target property -->
   <target name="gen-docs" description="Generate Docbook documents for project"
           depends="validate-docs, -prep-images, -gen-docs-setup">
+    <!-- These doc-skip properties can be simplified once we require Ant 1.8 -->
+    <condition property="_genskip-guide" value="DUMMY">
+      <equals arg1="guide" arg2="${doc.target}"/>
+    </condition>
+    <condition property="_genskip-guide" value="-dbtransform-skip">
+      <isset property="doc.target"/>
+    </condition>
+    <property name="_genskip-guide" value="DUMMY"/>
+    <condition property="_genskip-util-guide" value="DUMMY">
+      <equals arg1="util-guide" arg2="${doc.target}"/>
+    </condition>
+    <condition property="_genskip-util-guide" value="-dbtransform-skip">
+      <isset property="doc.target"/>
+    </condition>
+    <property name="_genskip-util-guide" value="DUMMY"/>
+
     <antcall target="docbook-transform" inheritrefs="true">
+      <param name="${_genskip-guide}" value="true"/>
       <param name="doc.name" value="guide"/>
     </antcall>
     <antcall target="docbook-transform" inheritrefs="true">
+      <param name="${_genskip-util-guide}" value="true"/>
       <param name="doc.name" value="util-guide"/>
     </antcall>
     <antcall target="-gen-docs-complete"/>
   </target>
 
-  <target name="validate-docs"
+  <!-- See comments at top of "build-docbook.xml" about doc.target property -->
+  <target name="validate-docs" depends="-ivy-setup"
           description="Validate project DocBook source files using a modified version of Sun's MSV Validator">
+    <!-- The depends above would be redundant, except that Gradle needs
+         -ivy-setup to execute BEFORE the first antcall executes -->
+
+    <!-- These doc-skip properties can be simplified once we require Ant 1.8 -->
+    <condition property="_valskip-guide" value="DUMMY">
+      <equals arg1="guide" arg2="${doc.target}"/>
+    </condition>
+    <condition property="_valskip-guide" value="validation.skip">
+      <isset property="doc.target"/>
+    </condition>
+    <property name="_valskip-guide" value="DUMMY"/>
+    <condition property="_valskip-util-guide" value="DUMMY">
+      <equals arg1="util-guide" arg2="${doc.target}"/>
+    </condition>
+    <condition property="_valskip-util-guide" value="validation.skip">
+      <isset property="doc.target"/>
+    </condition>
+    <property name="_valskip-util-guide" value="DUMMY"/>
     <antcall target="validate-doc" inheritrefs="true">
+      <param name="${_valskip-guide}" value="true"/>
       <param name="doc.name" value="guide"/>
     </antcall>
     <antcall target="validate-doc" inheritrefs="true">
+      <param name="${_valskip-util-guide}" value="true"/>
       <param name="doc.name" value="util-guide"/>
     </antcall>
   </target>

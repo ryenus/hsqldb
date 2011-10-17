@@ -1,5 +1,19 @@
 defaultTasks 'help'
 
+/*
+ * The only end-user Gradle build properties used at this time are:
+ *     retain.gradleds  Set to 'true' to retain the temporary files
+ *                      "build-gradled.xml", "build-docbook-gradled.xml"
+ *                      in the parent (real project root) directory.
+ *     allTasks   Used only by the 'tasks' target.  Setting this to 'true' is
+ *                equivalent to the tas-specific switch '--all' for the
+ *                out-of-the-box 'tasks' target.  I.e., our
+ *                'gradlew -PallTasks=true tasks'
+ *                emulates out-of-the-box 'gradlew tasks --all'.
+ * All other build properties are loaded indirectly by Ant, so you must use
+ * Gradle's -D switch to set those Ant properties as Java system properties.
+ */
+
 project['repos.flatdir.url'] = 'http://pub.admc.com/lib-repos'
 apply from: 'common.gradle'
 
@@ -234,7 +248,8 @@ antBuildClosures = [{
     }, {
         it.@name = it.@name.text() + "_gradled"
         it.import.replaceNode {}
-        String ivySetupTaskName = '-ivy-setup'
+        // Global var because needed for our replacement task definition below
+        ivySetupTaskName = '-ivy-setup'
         if (project.renameMap.containsKey(ivySetupTaskName))
                 ivySetupTaskName = project.renameMap.get(ivySetupTaskName)
         it.appendNode { target(name: ivySetupTaskName) }
@@ -250,6 +265,7 @@ ant.importBuild(outFs[0].absolutePath)
 if (!project.hasProperty('retain.gradleds')
         || !Boolean.parseBoolean(project.property('retain.gradleds')))
     for (f in outFs) f.deleteOnExit()
+version = ant.properties['hsqldb.version']  // Inherit version from "build.xml"
 
 // This block generates wrapper tasks for the sole purpose of preventing the
 // end user from seeing numbered task names.
@@ -267,16 +283,18 @@ for (t in getTasks()) {
     hidingWrappers[t] = newTask
 }
 apply from: 'ivy-setup.gradle'
+
 import org.apache.tools.ant.types.Path
-ant.references['admc-rs-msv-jar.cpref'] =
-        new Path(ant.project, configurations['admc-rs-msv-jar'].asPath)
-ant.references['admc-rs-msv-deps.cpref'] =
-        new Path(ant.project, configurations['admc-rs-msv-deps'].asPath)
-ant.references['fop.cpref'] =
-        new Path(ant.project, configurations['fop'].asPath)
-ant.references['xalan.cpref'] =
-        new Path(ant.project, configurations['xalan'].asPath)
-//throw new GradleException('Ant proj name = ' + ant.antProject.name)
+    project.task([overwrite: true], ivySetupTaskName) << {
+    ant.references['admc-rs-msv-jar.cpref'] =
+            new Path(ant.project, configurations['admc-rs-msv-jar'].asPath)
+    ant.references['admc-rs-msv-deps.cpref'] =
+            new Path(ant.project, configurations['admc-rs-msv-deps'].asPath)
+    ant.references['fop.cpref'] =
+            new Path(ant.project, configurations['fop'].asPath)
+    ant.references['xalan.cpref'] =
+            new Path(ant.project, configurations['xalan'].asPath)
+}
 
 
 private def recursiveAggregator(additions, inMap, assemblage) {
@@ -311,6 +329,7 @@ Usage:
    gradlew --help           Display 'gradlew' command syntax
    gradlew tasks            Display all invocable targets
    gradlew explainjars      List all targets which build jar files
+   gradlew explainprops     Explain how to change build properties
    gradlew ANYTHING ELSE    Run 'gradlew' for details
 
 examples:
@@ -318,7 +337,30 @@ examples:
    gradlew clean
 """
 }
-help.description = "Displays a help message"
+help.description = 'Displays a help message'
+
+task explainprops << {
+    println '''
+There are two types of build properties that you can change.
+See comments at top of "build-*.xml" files for available Ant build properties.
+See comments at top of "build-*.gradle" files for available Gradle build
+properties.
+
+For property settings that you want to apply to most builds, use a Java
+properties file named "build.properties".  For example, to usually build
+non-debug/speed-and-size optimized Java classes, set
+   build.debug=true
+Whether or not you set properties in this way, you can override with
+invocation-specific properties as follow.
+
+For invocation-specific Ant property settings, use -D switches.  For example
+    gradlew -Dbuild.debug=false hsqldb
+
+For invocation-specific Gradle property settings, use -P switches like this:
+    gradlew -Pretain.gradleds=true hsqldb
+'''
+}
+explainprops.description = 'Explain how to change default build properties'
 
 /**
  * Override OOTB 'tasks'.
@@ -334,10 +376,6 @@ help.description = "Displays a help message"
  * super-project target in this case.
  * In this case, we present only the overriding target until Gradle fixes the
  * bug that I registered.
- *
- * TEMPORARY:  Until Adam Murdoch of the Gradle team tells me how to use the
- * undocumented task-specific switch feature, user's will need to emulate
- * "gradlew tasks --all" with "gradle -P allTasks=true tasks".
  */
 task tasks << {
     Pattern seqRenamedPattern = Pattern.compile("\\d{3}.+");
@@ -352,6 +390,8 @@ Root Project
 Help tasks
 ----------
 dependencies - Displays the dependencies of root project '$project.name'.
+explainjars - List all targets which build jar files
+explainprops - How to change build properties of root project '$project.name'.
 help - Displays a help message
 projects - Displays the sub-projects of root project '$project.name'.
 properties - Displays the properties of root project '$project.name'.
@@ -363,6 +403,8 @@ Other tasks
     boolean displayAll = (project.hasProperty('allTasks')
             && Boolean.parseBoolean(project.property('allTasks')))
     def describedPrivates = []
+    def hardTaskDescriptions =
+            ['tasks', 'help', 'explainprops', 'explainjars'] as Set
     Matcher pMatcher
     NEXT_TASK:
     for (t in getTasks()) {
@@ -380,7 +422,7 @@ Other tasks
         }
         if (!displayAll && t.description != null && t.name.indexOf('.') < 0
                 && !seqRenamedPattern.matcher(t.name).matches()
-                && 'tasks' != t.name && 'help' != t.name)
+                && !hardTaskDescriptions.contains(t.name))
             println t.name + ' - ' + t.description
     }
 
@@ -401,7 +443,7 @@ Other tasks
         for (vs in dependOnMap.values()) allDependees.addAll(vs)
         for (t in getTasks())
             if (!allDependees.contains(t) && !hidingWrappers.containsValue(t)
-                    && 'tasks' != t.name && 'help' != t.name) {
+                    && !hardTaskDescriptions.contains(t.name)) {
                 print t.name
                 if (t.description != null) print " - $t.description"
                 if (hidingWrappers.containsKey(t))
@@ -417,8 +459,10 @@ Other tasks
                 }
             }
     } else {
-        println('\nTo see all tasks and more detail, run '
-                + "'gradle -P allTasks=true tasks'.")
+        println('''
+To see all tasks and more detail, run 'gradle -PallTasks=true tasks'.
+(N.b. our -P switch differs from Gradle's out-of-the-box --all switch for this
+purpose).''')
     }
     if (describedPrivates.size() > 0)
         logger.warn('\nWARNING:  Private Ant tasks have descriptions: '
