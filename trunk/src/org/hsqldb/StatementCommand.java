@@ -49,7 +49,7 @@ import org.hsqldb.scriptio.ScriptWriterText;
  * Implementation of Statement for SQL commands.<p>
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.2.2
+ * @version 2.2.6
  * @since 1.9.0
  */
 public class StatementCommand extends Statement {
@@ -628,7 +628,7 @@ public class StatementCommand extends Statement {
             case StatementTypes.SET_DATABASE_SQL : {
                 String  property = (String) parameters[0];
                 boolean mode     = ((Boolean) parameters[1]).booleanValue();
-
+                int     value    = ((Number) parameters[2]).intValue();
                 session.checkAdmin();
                 session.checkDDLWrite();
 
@@ -662,6 +662,8 @@ public class StatementCommand extends Statement {
                 } else if (property
                            == HsqlDatabaseProperties.sql_convert_trunc) {
                     session.database.setConvertTrunc(mode);
+                } else if (property == HsqlDatabaseProperties.sql_avg_scale) {
+                    session.database.setAvgScale(value);
                 } else if (property == HsqlDatabaseProperties.sql_double_nan) {
                     session.database.setDoubleNaN(mode);
                 } else if (property

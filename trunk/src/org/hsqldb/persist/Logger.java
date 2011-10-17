@@ -511,6 +511,8 @@ public class Logger {
         database.sqlConvertTruncate =
             database.databaseProperties.isPropertyTrue(
                 HsqlDatabaseProperties.sql_convert_trunc);
+        database.sqlAvgScale = database.databaseProperties.getIntegerProperty(
+            HsqlDatabaseProperties.sql_avg_scale);
         database.sqlDoubleNaN = database.databaseProperties.isPropertyTrue(
             HsqlDatabaseProperties.sql_double_nan);
         database.sqlLongvarIsLob = database.databaseProperties.isPropertyTrue(
@@ -1616,6 +1618,12 @@ public class Logger {
         sb.append(Tokens.T_TRUNCATE).append(' ');
         sb.append(database.sqlConvertTruncate ? Tokens.T_TRUE
                                               : Tokens.T_FALSE);
+        list.add(sb.toString());
+        sb.setLength(0);
+        sb.append("SET DATABASE ").append(Tokens.T_SQL).append(' ');
+        sb.append(Tokens.T_AVG).append(' ');
+        sb.append(Tokens.T_SCALE).append(' ');
+        sb.append(database.sqlAvgScale);
         list.add(sb.toString());
         sb.setLength(0);
         sb.append("SET DATABASE ").append(Tokens.T_SQL).append(' ');

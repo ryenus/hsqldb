@@ -50,7 +50,7 @@ import org.hsqldb.types.Types;
  * Parser for session and management statements
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.2.2
+ * @version 2.2.6
  * @since 1.9.0
  */
 public class ParserCommand extends ParserDDL {
@@ -1060,7 +1060,8 @@ public class ParserCommand extends ParserDDL {
                 read();
 
                 int     type     = StatementTypes.SET_DATABASE_SQL;
-                Boolean flag     = null;
+                Boolean flag     = Boolean.TRUE;
+                Integer value    = Integer.valueOf(0);
                 String  property = null;
 
                 switch (token.tokenType) {
@@ -1141,6 +1142,14 @@ public class ParserCommand extends ParserDDL {
                         property = HsqlDatabaseProperties.sql_convert_trunc;
                         break;
 
+                    case Tokens.AVG :
+                        read();
+                        readThis(Tokens.SCALE);
+
+                        value    = readIntegerObject();
+                        property = HsqlDatabaseProperties.sql_avg_scale;
+                        break;
+
                     case Tokens.DOUBLE :
                         read();
                         readThis(Tokens.NAN);
@@ -1189,7 +1198,7 @@ public class ParserCommand extends ParserDDL {
                 }
 
                 Object[] args = new Object[] {
-                    property, flag
+                    property, flag, value
                 };
 
                 return new StatementCommand(type, args, null, null);

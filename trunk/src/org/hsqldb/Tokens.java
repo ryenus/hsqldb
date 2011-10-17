@@ -62,7 +62,7 @@ public class Tokens {
     static final String        T_AT               = "AT";
     static final String        T_ATOMIC           = "ATOMIC";
     public static final String T_AUTHORIZATION    = "AUTHORIZATION";
-    static final String        T_AVG              = "AVG";
+    public static final String T_AVG              = "AVG";
     static final String        T_BEGIN            = "BEGIN";
     static final String        T_BETWEEN          = "BETWEEN";
     public static final String T_BIGINT           = "BIGINT";
