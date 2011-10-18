@@ -64,15 +64,21 @@
  *   would be added to the distro.
  */
 
+import org.apache.tools.ant.types.Path
+
 addlAntBuildFiles = [file('build-dist.xml')]
 
 addlAntBuildClosures = [{
         it.import.find{it.@file = 'build-gradled.xml'}
         it.@name = it.@name.text() + "_gradled"
         it.attributes().remove("basedir")
+        it.target.find{it.@name == '-bnd-ivy-setup'}.cachepath.replaceNode {}
     }
 ]
 
 apply from: 'build.gradle'
 
 defaultTasks 'dist'
+
+ant.references['bnd-jar.cpref'] =
+        new Path(ant.project, configurations['bnd-jar'].asPath)
