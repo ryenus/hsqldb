@@ -535,8 +535,8 @@ examples:
             message="Place Jar file for v. 3.8.x of Junit at '${junit38.lib}', or set property 'junit38.lib'"/>
    </target>
 
-   <target name="scanner-driver" depends="util">
-      <!-- Purposefully no description -->
+   <target name="scanner-driver" depends="util"
+       description="Build Scanner Driver.  For SqlTool scanner developers.">
       <javac srcdir="${swsrc}"
              includes="org/hsqldb/test/SqlFileScannerDriver.java"
              destdir="classes"
@@ -1091,7 +1091,8 @@ examples:
 
     <!-- If called internally, always call the -conditionalize-flex target
          before this one, to eliminate unnecessary executions. -->
-    <target name="jflex" depends="-init-jflex" unless="jflex.skip">
+    <target name="jflex" depends="-init-jflex" unless="jflex.skip"
+            description="Execute JFlex.  For SqlTool scanner developers.">
         <jflex file="src/org/hsqldb/cmdline/sqltool.flex" destdir="src"/>
         <!-- A limitation of the jflex task is that you must specify the .flex
              files individually and explicitly.  No filesets, etc. -->
