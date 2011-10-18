@@ -1068,9 +1068,16 @@ examples:
       <available property='_jflex_available' classpath='${jflex.lib}'
                  classname='JFlex.anttask.JFlexTask'/>
       <fail unless='_jflex_available'
-            message="Place JFlex library at '${jflex.lib}', or set property 'jflex.lib' (available from http://sourceforge.net/projects/jflex/)"/>
+            message="Run target 'fetch-jflex' or otherwise place a JFlex jar file at '${jflex.lib}'"/>
       <taskdef classname="JFlex.anttask.JFlexTask" name="jflex"
                classpath='${jflex.lib}'/>
+     </target>
+
+     <target name="fetch-jflex" depends="-ivy-setup"
+       description="Fetch JFlex jar file from Internet, for rebuilsing SqlTool scanner">
+       <copy tofile="${jflex.lib}" preservelastmodified="true">
+         <path refid="jflex-jar.cpref"/>
+       </copy>
      </target>
 
     <target name="-conditionalize-jflex" depends="-set-jvmvars">

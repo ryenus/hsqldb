@@ -294,6 +294,8 @@ project.task([overwrite: true], ivySetupTaskName) << {
             new Path(ant.project, configurations['fop'].asPath)
     ant.references['xalan.cpref'] =
             new Path(ant.project, configurations['xalan'].asPath)
+    ant.references['jflex-jar.cpref'] =
+            new Path(ant.project, configurations['jflex-jar'].asPath)
 }
 
 
