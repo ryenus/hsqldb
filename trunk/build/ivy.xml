@@ -15,6 +15,8 @@
     <conf name="xalan" description="Xalan Xslt" transitive="false"
           visibility="private"/>
     <conf name="fop" description="FOP" transitive="false" visibility="private"/>
+    <conf name="bnd-jar" visibility="private" transitive="false"
+       description="aQute Bundle Tool Library jar file"/>
   </configurations>
   <dependencies defaultconfmapping="*->default">
     <dependency name="relames" rev="20060319" conf="msv; admc-rs-msv-deps"/>
@@ -44,5 +46,6 @@
          It is also added to the XSLT CLASSPATH only to add the XInclude
          settings file to the CLASSPATH.  Needed by Xalan during XSLT.
     -->
+    <dependency name="bnd" rev="0.0.384" conf="bnd-jar"/>
   </dependencies>
 </ivy-module>

@@ -285,7 +285,7 @@ for (t in getTasks()) {
 apply from: 'ivy-setup.gradle'
 
 import org.apache.tools.ant.types.Path
-    project.task([overwrite: true], ivySetupTaskName) << {
+project.task([overwrite: true], ivySetupTaskName) << {
     ant.references['admc-rs-msv-jar.cpref'] =
             new Path(ant.project, configurations['admc-rs-msv-jar'].asPath)
     ant.references['admc-rs-msv-deps.cpref'] =

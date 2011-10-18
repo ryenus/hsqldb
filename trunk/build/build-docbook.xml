@@ -436,9 +436,9 @@ file.</echo>
           description="Validate specified DocBook source document">
     <fail unless="doc.name"
           message="Ant property 'doc.name' is required by target 'validate'."/>
-    <pathconvert property="jar.file" refid="admc-rs-msv-jar.cpref"/>
+    <pathconvert property="msvjar.file" refid="admc-rs-msv-jar.cpref"/>
     <java fork="true" failonerror="true" dir="doc-src/${doc.name}"
-          classpath="${jar.file}" classpathref="admc-rs-msv-deps.cpref"
+          classpath="${msvjar.file}" classpathref="admc-rs-msv-deps.cpref"
           classname="com.admc.msv.ResolvingSchematronDriver">
       <sysproperty key="xml.catalog.verbosity"
                    value="${xml.catalog.verbosity}"/>
@@ -456,8 +456,8 @@ file.</echo>
 
   <target name="validation-help" depends="-ivy-setup"
           description="Display advice about validating files manually">
-    <pathconvert property="jar.file" refid="admc-rs-msv-jar.cpref"/>
-    <basename property="jar.basename" file="${jar.file}"/>
+    <pathconvert property="msvjar.file" refid="admc-rs-msv-jar.cpref"/>
+    <basename property="jar.basename" file="${msvjar.file}"/>
     <echo>Validating our DocBook source files requires a powerful XML validator that
 supports Xincludes, XML catalogs, macros, and other advanced XML features.
 The following explains how to set up and use our XML validator against DocBook
@@ -490,7 +490,7 @@ Set the value to a directory in which to install the jar files.</fail>
       <path refid="admc-rs-msv-jar.cpref"/>
       <path refid="admc-rs-msv-deps.cpref"/>
     </copy>
-    <pathconvert property="jar.file" refid="admc-rs-msv-jar.cpref"/>
+    <pathconvert property="msvjar.file" refid="admc-rs-msv-jar.cpref"/>
     <echo message="Run the 'validation-help' target for instructions on how to use the validator"/>
   </target>
 

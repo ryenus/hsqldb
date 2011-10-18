@@ -2,7 +2,8 @@
 <!--
 $Id$
 -->
-<project name="hsqldb-dist" default="dist" basedir="..">
+<project name="hsqldb-dist" default="dist" basedir=".."
+         xmlns:ivy="antlib:org.apache.ivy.ant">
 <!--  See file "build-dist.gradle" for distribution-building instructions.  -->
 
   <import file="build.xml"/>
@@ -17,8 +18,7 @@ $Id$
       <equals arg1="${hsqldb.version}" arg2="${build.label}"/>
     </condition>
     <fail unless="_label.ok">Ant properties 'build.label' and 'hsqldb.version' must be equal.
-I suggest setting the value(s) in an external properties file and using the Ant
-"-propertyfile" switch.</fail>
+I suggest setting the value(s) in a "build.properties" file.</fail>
     <condition property="_vendor.ok">
       <equals arg1="${hsqldb.vendor}" arg2="${build.vendor}"/>
     </condition>
@@ -152,19 +152,23 @@ and re-export.</fail>
     </zip>
   </target>
 
-  <target name="bnd"
+  <target name="-bnd-ivy-setup">
+    <ivy:cachepath conf="bnd-jar" pathid="bnd-jar.cpref"/>
+  </target>
+
+  <target name="bnd" depends="-bnd-ivy-setup"
           description="Write OSGI properties to manifest of 'hsqldb.jar' file">
-    <fail message="Ant property 'bnd.jarpath' required by target 'bnd'"
-           unless="bnd.jarpath"/>
     <move overwrite="true" failonerror="false"
            file="lib/hsqldb.jar" tofile="lib/hsqldb.prebnd"/>
     <available property="injar.present" type="file" file="lib/hsqldb.prebnd"/>
-    <fail message="Can't use target 'bnd' if 'hsqldb.jar' file not build yet"
+    <fail message="Can't use target 'bnd' if 'hsqldb.jar' file not built yet"
            unless="injar.present"/>
     <!-- Purposefully not using the bndwrap task available for this purpose,
          because the docs don't explain how to use the attributes clearly enough
          to figure out how to use it. -->
-    <java failonerror="true" jar="${bnd.jarpath}" fork="true" dir="lib">
+    <pathconvert property="bndjar.file" refid="bnd-jar.cpref"/>
+    <java failonerror="true" fork="true" dir="lib" classpath="${bndjar.file}"
+          classname="aQute.bnd.main.bnd">
       <sysproperty key="hsqldb.version" value="${hsqldb.version}"/>
       <sysproperty key="build.vendor" value="${user.name}"/>
       <sysproperty key="hsqldb.title" value="${hsqldb.title}"/>
