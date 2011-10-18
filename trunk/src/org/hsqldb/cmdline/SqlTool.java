@@ -481,18 +481,22 @@ public class SqlTool {
                 } else {
                     throw bcl;
                 }
-            } else if (arg[i + 1].equalsIgnoreCase("-P")) {
+            } else if (arg[i + 1].startsWith("-P")
+                    || arg[i + 1].startsWith("-p")) {
                 i++;
-                if (++i == arg.length) {
-                    throw bcl;
+                boolean sepSwitch = arg[i].length() < 3;
+                if (sepSwitch) {
+                    if (++i == arg.length) {
+                        throw bcl;
+                    }
                 }
 
                 int equalAt = arg[i].indexOf('=');
-                if (equalAt < 1) {
+                if (equalAt < (sepSwitch ? 1 : 3)) {
                     throw new SqlToolException(RCERR_EXITVAL,
                             "Specified var assignment contains no '='");
                 }
-                userVars.put(arg[i].substring(0, equalAt),
+                userVars.put(arg[i].substring(sepSwitch ? 0 : 2, equalAt),
                         arg[i].substring(equalAt + 1));
             } else {
                 break;
