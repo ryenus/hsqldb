@@ -493,10 +493,8 @@ examples:
     </target>
 
     <target name="-cmdline" if="ant.java.iscjava15"
+            depends="-conditionalize-sqlfile-scanner, -sqlfile-scanner"
             description="compiles the cmdline classes">
-      <antcall target="-sqlfile-scanner"/>
-      <!-- antcall instead of depends, because we don't want it to be run
-           if the 'if' is false -->
       <javac srcdir="${swsrc}"
              destdir="classes"
              debug="${build.debug}"
@@ -1033,12 +1031,17 @@ examples:
    </target>
 
     <target name="sqlfile-scanner"
-            description="Run JFlex to regenerate SqlFileScanner.java">
+            depends="-delete.SqlFileScanner, -sqlfile-scanner"
+    description="Unconditionally run JFlex to regenerate SqlFileScanner.java"/>
+
+    <target name="-delete.SqlFileScanner">
       <delete file="src/org/hsqldb/cmdline/sqltool/SqlFileScanner.java"/>
-      <antcall target="-sqlfile-scanner"/>
     </target>
 
-    <target name="-sqlfile-scanner">
+     <!-- If you don't want this to run unless ant.java.iscjava15 is set,
+          then call -conditionalize-sqlfile-scanner before this target. -->
+    <target name="-sqlfile-scanner" depends="-conditionalize-jflex, jflex"
+            unless="-sqlfile-scanner.skip">
       <!-- Prepares SqlFileScanner.java, running Jflex only if needed.
            Purpose here is to require jflex library only if user modifies
            the *.flex file.
@@ -1057,15 +1060,11 @@ examples:
         </targetfilelist>
       </dependset>
       -->
-      <available property="jflex.skip" type="file"
-                 file="src/org/hsqldb/cmdline/sqltool/SqlFileScanner.java"/>
-      <antcall target="-condl-jflex"/>
-      <!-- JFlex will only run if SqlFileScanner.java does not exist -->
       <copy todir="${swsrc}/org/hsqldb/cmdline/sqltool"
             file="src/org/hsqldb/cmdline/sqltool/SqlFileScanner.java"/>
     </target>
 
-    <target name="-init-jflex">
+    <target name="-init-jflex" unless="jflex.skip">
       <available property='_jflex_available' classpath='${jflex.lib}'
                  classname='JFlex.anttask.JFlexTask'/>
       <fail unless='_jflex_available'
@@ -1074,13 +1073,25 @@ examples:
                classpath='${jflex.lib}'/>
      </target>
 
-    <target name="-condl-jflex" unless="jflex.skip">
-      <!-- Only reason for this method is that target dependencies (if/unless)
-      get executed BEFORE the main target -->
-      <antcall target="jflex"/>
+    <target name="-conditionalize-jflex" depends="-set-jvmvars">
+      <!-- JFlex will only run if SqlFileScanner.java does not exist
+           and ant.java.iscjava15 -->
+      <available property="jflex.skip" type="file"
+                 file="src/org/hsqldb/cmdline/sqltool/SqlFileScanner.java"/>
+      <condition property="jflex.skip"> <not>
+        <isset property="ant.java.iscjava15"/>
+      </not> </condition>
     </target>
 
-    <target name="jflex" depends="-init-jflex">
+    <target name="-conditionalize-sqlfile-scanner" depends="-set-jvmvars">
+      <condition property="-sqlfile-scanner.skip"> <not>
+        <isset property="ant.java.iscjava15"/>
+      </not> </condition>
+    </target>
+
+    <!-- If called internally, always call the -conditionalize-flex target
+         before this one, to eliminate unnecessary executions. -->
+    <target name="jflex" depends="-init-jflex" unless="jflex.skip">
         <jflex file="src/org/hsqldb/cmdline/sqltool.flex" destdir="src"/>
         <!-- A limitation of the jflex task is that you must specify the .flex
              files individually and explicitly.  No filesets, etc. -->
