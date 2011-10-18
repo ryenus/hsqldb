@@ -24,6 +24,7 @@ configurations {
     xalan { transitive = false }
     fop { transitive = false }
     'bnd-jar' { transitive = false }
+    'jflex-jar' { transitive = false }
 }
 
 // configurations apparently not a Collection, since this doesn't work:

@@ -16,7 +16,9 @@
           visibility="private"/>
     <conf name="fop" description="FOP" transitive="false" visibility="private"/>
     <conf name="bnd-jar" visibility="private" transitive="false"
-       description="aQute Bundle Tool Library jar file"/>
+          description="aQute Bundle Tool Library jar file"/>
+    <conf name="jflex-jar" visibility="private" transitive="false"
+          description="JFlex Library jar file"/>
   </configurations>
   <dependencies defaultconfmapping="*->default">
     <dependency name="relames" rev="20060319" conf="msv; admc-rs-msv-deps"/>
@@ -47,5 +49,6 @@
          settings file to the CLASSPATH.  Needed by Xalan during XSLT.
     -->
     <dependency name="bnd" rev="0.0.384" conf="bnd-jar"/>
+    <dependency name="jflex" rev="1.4.1" conf="jflex-jar"/>
   </dependencies>
 </ivy-module>
