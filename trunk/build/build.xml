@@ -452,7 +452,7 @@ examples:
         compiles 1.4-specific test classes
    -->
     <target name="-test14" if="ant.java.iscjava14" depends='switches'>
-      <antcall inheritall='true' target='-requireJunit'/>
+      <antcall target='-requireJunit'/>
       <!-- using antcall instead of depends so that it is not called if the
            target "if" above is false. -->
       <javac srcdir="${swsrc}"
@@ -562,7 +562,7 @@ examples:
          <exclude name="org/hsqldb/test/TestJDBCSavepoints.java"/>
          <exclude name="org/hsqldb/test/SqlFileScannerDriver.java"/>
       </javac>
-      <antcall inheritall='true' target='-test14'/>
+      <antcall target='-test14'/>
    </target>
 
     <target name="hsqldbtest" depends="test,swing, -prep-license-files"
