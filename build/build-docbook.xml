@@ -490,7 +490,6 @@ Set the value to a directory in which to install the jar files.</fail>
       <path refid="admc-rs-msv-jar.cpref"/>
       <path refid="admc-rs-msv-deps.cpref"/>
     </copy>
-    <pathconvert property="msvjar.file" refid="admc-rs-msv-jar.cpref"/>
     <echo message="Run the 'validation-help' target for instructions on how to use the validator"/>
   </target>
 
