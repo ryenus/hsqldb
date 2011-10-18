@@ -6,7 +6,9 @@
 <project name="hsqldb-antivy-setup" xmlns:ivy="antlib:org.apache.ivy.ant">
   <target name="ivy-setup" depends="-ivy-setup"/>
 
-  <target name="-ivy-setup">
+  <target name="-ivy-setup" unless="-ivy.is.setup">
+    <!-- The -ivy.is.setup check above is only needed for direct Ant
+       executions, because Gradle does not call this target superfluously. -->
     <available property="_ivy.present" classname="org.apache.ivy.ant.IvyTask"/>
     <fail unless="_ivy.present">
 Add Ivy jar file to Ant CLASSPATH.
@@ -28,9 +30,10 @@ OR for any CMD-like Windows shell:
     <ivy:cachepath conf="xalan" pathid="xalan.cpref"/>
     <ivy:cachepath conf="fop" pathid="fop.cpref"/>
     <ivy:resolve conf="msv"/>
-      <!-- The "msv"resolve downloads and makes the 3rd party libs accessed by
+      <!-- The "msv" resolve downloads and makes the 3rd party libs accessed by
            our admc-rs-msv jar file through its manifests classpath entry. -->
     <ivy:cachepath conf="admc-rs-msv-jar" pathid="admc-rs-msv-jar.cpref"/>
     <ivy:cachepath conf="admc-rs-msv-deps" pathid="admc-rs-msv-deps.cpref"/>
+    <property name="-ivy.is.setup" value="true"/>
   </target>
 </project>
