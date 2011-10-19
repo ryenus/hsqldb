@@ -76,16 +76,6 @@ hsqldbtest.jar  ant hsqldbtest  All, including test classes
 sqltool.jar     ant sqltool     SqlTool app (no JDBC driver)</echo>
    </target>
 
-   <!-- Deprecated targets.  New naming convention is:
-        Target name is always the same as the desired jar file name, less
-        the ".jar" extension. -->
-   <target name='jar' depends='hsqldb'/>
-   <target name='jarclient' depends='hsqljdbc'/>
-   <target name='jarmain' depends='hsqldbmain'/>
-   <target name='jarmin' depends='hsqldbmin'/>
-   <target name='jartest' depends='hsqldbtest'/>
-   <target name='jarutil' depends='hsqldbutil'/>
-
    <target name="help" description="Top-level help message">
      <echo>Ant version: ${ant.version} </echo>
       <echo>usage:
