@@ -40,7 +40,7 @@ import org.hsqldb.lib.OrderedIntHashSet;
  *
  * @author  Nitin Chauhan (initial work)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.1.1
+ * @version 2.2.6
  * @since 1.7.2
  */
 public class Tokens {
@@ -62,7 +62,7 @@ public class Tokens {
     static final String        T_AT               = "AT";
     static final String        T_ATOMIC           = "ATOMIC";
     public static final String T_AUTHORIZATION    = "AUTHORIZATION";
-    static final String        T_AVG              = "AVG";
+    public static final String T_AVG              = "AVG";
     static final String        T_BEGIN            = "BEGIN";
     static final String        T_BETWEEN          = "BETWEEN";
     public static final String T_BIGINT           = "BIGINT";
@@ -2105,6 +2105,7 @@ public class Tokens {
         commandSet.put(T_FINAL, FINAL);
         commandSet.put(T_FIRST, FIRST);
         commandSet.put(T_FORMAT, FORMAT);
+        commandSet.put(T_FOUND, FOUND);
         commandSet.put(T_G_FACTOR, G);
         commandSet.put(T_GC, GC);
         commandSet.put(T_GENERATED, GENERATED);
