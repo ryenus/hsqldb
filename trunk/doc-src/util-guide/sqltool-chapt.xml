@@ -2933,19 +2933,20 @@ java -jar $HSQLDB_HOME/lib/sqltool.jar urlid > /tmp/log.html 2>&1]]></screen>
             </section>
             <section>
               <title>PL ? Variable</title>
-              <para>
+              <simpara>
                 You don't set the ? variable.
-                It is just like the Bourne shell variable $? in that it is always
-                automatically set to the first value of a result set (or the
-                return value of other SQL commands).
-                It works just like the <literal>* VARNAME ~</literal>
-                command described above, but it all happens automatically.
+                It is much like the Bourne shell variable $? in that it is
+                always automatically set to the first value of a result set
+                (or the return value of other SQL commands).
+                It works very similarly to the <literal>* VARNAME ~</literal>
+                and <literal>* VARNAME ~</literal> assignment commands,
+                but it all happens automatically.
                 You can, of course, dereference ? like any PL variable, but it
                 does not list with the <literal>list</literal> and
                 <literal>listvalues</literal> commands.
                 You can see the value whenever you want by running
                 <informalexample><programlisting>    \p *{?}</programlisting></informalexample>
-              </para>
+              </simpara>
             </section>
         </section>
         <section xml:id='sqltool_macro-sect'>
