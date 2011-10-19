@@ -282,6 +282,43 @@
                     A bug has been fixed so that SqlTool
                     system PL variables (with names starting with "*") are now
                     honored no matter how or where the variable value was set.
+                </simpara></listitem><listitem><simpara>
+                    Variables with non-alpha-numerical characters, and those
+                    beginning with digits have been deprecated but are still
+                    supported for now.
+                </simpara></listitem><listitem><simpara>
+                    The data (and just the data) of HTML reports has remained
+                    the same, but the whole system has been drastically
+                    modernized and enhanced.
+                </simpara></listitem><listitem><simpara>
+                    For consistency, the \H toggle switch has been superseded
+                    with <literal>\h true|false</literal>>
+                    The old variants are still supported.
+                </simpara></listitem><listitem><simpara>
+                    Command <literal>/= name :...</literal> has been
+                    superseded by the more consistent (with our other commands)
+                    <literal>/: name...</literal>.
+                    The old variant is still supported.
+                </simpara></listitem><listitem><simpara>
+                    Removed support for SqlTool system PL variable names
+                    deprecated years ago.
+                </simpara></listitem><listitem><simpara>
+                    Idiosyncratic * option to \m is no longer necessary (though
+                    still supported).
+                    SqlTool system variable *DSV_SKIP_PREFIX may now be
+                    set to the empty string to indicate no skipping.
+                </simpara></listitem><listitem><simpara>
+                    Import reject report files were being retained on Windows,
+                    even when there were not rejected records.
+                    This bug has been fixed.
+                </simpara></listitem><listitem><simpara>
+                    PL variables <literal>*NULL</literal> and
+                    <literal>NULL</literal> are reserved and may be referenced
+                    but not assigned to.
+                </simpara></listitem><listitem><simpara>
+                    The special PL variable <literal>?</literal> is now
+                    updated rigorously.  It will be null only if the last
+                    SQL command that was run failed.
                 </simpara></listitem>
             </itemizedlist>
         </section>
@@ -304,6 +341,57 @@
                     Definitely read the first item in the
                     <link xlink:href="#sqltool_functional_changes-sect"
                     endterm="functional_changes-title"/> section.
+                </simpara></listitem><listitem><simpara>
+                    Added integer math feature very similar to that of
+                    Bash and Korn shells.
+                    Besides many other applications, mathematical assignment
+                    can be combined with <literal>* while</literal> to make
+                    an effective <emphasis>for loop</emphasis>
+                    (not <emphasis>foreach</emphasis>, which we already have).
+                </simpara></listitem><listitem><simpara>
+                    Added some new logical operators
+                </simpara></listitem><listitem><simpara>
+                    Added new : variant for exporting (\x and \xq), which
+                    uses a query from the edit buffer.
+                    This provides direct support for exports using long,
+                    multi-line queries.
+                </simpara></listitem><listitem><simpara>
+                    SqlTool functions have been implemented.
+                    These are just / macros which take positional parameters.
+                    They can be distinguished from regular macros by having
+                    name like <literal>this()</literal>, and being invoked
+                    like <literal>this(with, parameters)</literal>.
+                </simpara></listitem><listitem><simpara>
+                    We have provided multiple ways to accommodate command-line
+                    <emphasis>inlinerc</emphasis>s and variable assignments
+                    where the values contain commas, and generally added
+                    flexibility to the latter.
+                    In both cases, commas may be escaped with the backslash
+                    character.
+                    New argument -p or -P can be used to assign single
+                    variables, thereby eliminating the delimiter issue.
+                    -P and -p are equivalent and work with the variable
+                    asignment immediately following or separated by white space.
+                    I.e., either <literal>-Pname=value</literal> or
+                    <literal>-P name=value</literal>.
+                    Both upper-case and lower-case 'p' are supported to make
+                    it easy to distinguish your variable name as is done with
+                    camelback naming.
+                    I would prefer to write <literal>-pVARNAME=x</literal>
+                    but <literal>-Pvarname=y</literal>.
+                    If you want to use just one case, to be consistent,
+                    knock yourself out.
+                </simpara></listitem><listitem><simpara>
+                    Multiple --sql, -p, and -P arguments to SqlTool are now
+                    honored, and they are evaluated in specified order.
+                </simpara></listitem><listitem><simpara>
+                    Added automatically-assigned SqlTool system PL variables
+                    <literal>*START_TIME</literal>
+                    and <literal>*REVISION</literal>.
+                    The former is a date and time string formatted for the
+                    user's locale.
+                    The latter is SqlTool's version string (i.e., it is not
+                    a valid real or integer number).
                 </simpara></listitem>
             </itemizedlist>
         </section>
@@ -524,160 +612,182 @@
             with others you use a menu system where you can enter the number
             of columns).
         </simpara></tip>
-        <section><title>Embedding</title>
-          <subtitle>Using SqlTool to execute SQL files from your own Java
-            code</subtitle>
-          <simpara>
-            To repeat what is stated in the JavaDoc for the
-            <classname xlink:href="#SqlTool.html-link">SqlTool</classname>
-            class itself:
-            <emphasis>
-              Programmatic users will usually want to use the
-              objectMain(String[]) method if they want arguments and behavior
-              exactly like command-line SqlTool. If you don't need invocation
-              parameter parsing, <filename>auto.sql</filename> exection, etc.,
-              you will have more control and efficiency by using the SqlFile
-              class directly. The file
-              <filename xlink:href="#SqlFileEmbedder.java-link">
-                src/org/hsqldb/sample/SqlFileEmbedder.java</filename>
-              in the HyperSQL distribution provides an example for this latter
-              strategy. 
-            </emphasis>
-          </simpara>
-        </section>
-        <section><title>Non-displayable Types</title>
+      </section>
+      <section><title>Quotes and Spaces</title>
+        <simpara>
+          Single and double-quotes are not treated specially by SqlTool.
+          This makes SqlTool more intuitive than most shell languages, ensures
+          that quotes sent to the database engine are not adulterated, and
+          eliminates the need for somehow <emphasis>escaping</emphasis> quote
+          characters.
+        </simpara><simpara>
+          Line delimiters are special, as that is the primary means for SqlTool
+          to tell when a command is finished (requiring combination with
+          semi-colon to support multi-line SQL statements).
+          Spaces and tabs are preserved inside of your strings and variable
+          values, but are trimmed from the beginning in nearly all cases
+          (such space having very rare usefulness).
+        </simpara><para>
+          So, if you write the SQL command
+          <informalexample><screen>INSERT into t values ('one ''    and   ''  two');</screen></informalexample> or the SqlTool print command
+          <informalexample><screen>\p A message for my 'Greatest...     fan'</screen></informalexample>
+          you just type exactly what you want to send to the databse, or
+          what you want displayed.
+        </para>
+      </section>
+      <section><title>Embedding</title>
+        <subtitle>Using SqlTool to execute SQL files from your own Java
+          code</subtitle>
+        <simpara>
+          To repeat what is stated in the JavaDoc for the
+          <classname xlink:href="#SqlTool.html-link">SqlTool</classname>
+          class itself:
+          <emphasis>
+            Programmatic users will usually want to use the
+            objectMain(String[]) method if they want arguments and behavior
+            exactly like command-line SqlTool. If you don't need invocation
+            parameter parsing, <filename>auto.sql</filename> exection, etc.,
+            you will have more control and efficiency by using the SqlFile
+            class directly. The file
+            <filename xlink:href="#SqlFileEmbedder.java-link">
+              src/org/hsqldb/sample/SqlFileEmbedder.java</filename>
+            in the HyperSQL distribution provides an example for this latter
+            strategy. 
+          </emphasis>
+        </simpara>
+      </section>
+      <section><title>Non-displayable Types</title>
             <simpara>
             There are some SQL types which SqlTool (being a text-based
             program) can't display properly.
             This includes the SQL types <literal>BLOB</literal>,
             <literal>JAVA_OBJECT</literal>, <literal>STRUCT</literal>,
             and <literal>OTHER</literal>.
-            When you run a query that returns any of these, SqlTool will
-            save the very first such value obtained to the binary buffer
-            and will not display any output from this query.
-            You can then save the binary value to a file, as explained in the
-          <link xlink:href='#sqltool_binary_files-sect' endterm='binary_files-title'/>
-            section.
-            </simpara> <simpara>
-            There are other types, such as <literal>BINARY</literal>, which
-            JDBC can make displayable (by using ResultSet.getString()), but
-            which you may very well want to retrieve in raw binary format.
-            You can use the \b command to retrieve any-column-type-at-all
-            in raw binary format (so you can later store the value to a
-            binary file).
-            </simpara> <simpara>
-            Another restriction which all text-based database clients have
-            is the practical inability for the user to type in binary data
-            such as photos, audio streams, and serialized Java objects.
-            You can use SqlTool to load any binary object into a database
-            by telling SqlTool to get the insert/update datum from a file.
-            This is also explained in the
-          <link xlink:href='#sqltool_binary_files-sect' endterm='binary_files-title'/>
-            section.
-            </simpara>
-        </section>
-        <section><title>Compound commands or commands with semi-colons</title>
-          <simpara>
-            See the
-            <link xlink:href='#sqltool_chunk-sect' endterm='chunk-title'/>
-            section if you need to execute any compound SQL commands or SQL
-            commands containing non-escaped/quoted semi-colons.
+          When you run a query that returns any of these, SqlTool will
+          save the very first such value obtained to the binary buffer
+          and will not display any output from this query.
+          You can then save the binary value to a file, as explained in the
+        <link xlink:href='#sqltool_binary_files-sect' endterm='binary_files-title'/>
+          section.
+          </simpara> <simpara>
+          There are other types, such as <literal>BINARY</literal>, which
+          JDBC can make displayable (by using ResultSet.getString()), but
+          which you may very well want to retrieve in raw binary format.
+          You can use the \b command to retrieve any-column-type-at-all
+          in raw binary format (so you can later store the value to a
+          binary file).
+          </simpara> <simpara>
+          Another restriction which all text-based database clients have
+          is the practical inability for the user to type in binary data
+          such as photos, audio streams, and serialized Java objects.
+          You can use SqlTool to load any binary object into a database
+          by telling SqlTool to get the insert/update datum from a file.
+          This is also explained in the
+        <link xlink:href='#sqltool_binary_files-sect' endterm='binary_files-title'/>
+          section.
           </simpara>
-        </section>
-        <section><title>Desktop shortcuts</title>
-            <simpara>
-                Desktop shortcuts and quick launch icons are useful, especially
-                if you often run SqlTool with the same set of arguments.
-                It's really easy to set up several of them-- one for each
-                way that you invoke SqlTool (i.e., each one would start
-                SqlTool with all the arguments for one of your typical startup
-                needs).
-                One typical setup is to have one shortcut for each database
-                account which you normally use (use a different
-                <literal>urlid</literal> argument in each shortcut's
-                <guilabel>Target</guilabel> specification.
-            </simpara><simpara>
-                Desktop icon setup varies depending on your Desktop manager,
-                of course.
-                I'll explain how to set up a SqlTool startup icon in Windows
-                XP.
-                Linux and Mac users should be able to take it from there, since
-                it's easier with the common Linux and Mac desktops.
-            </simpara>
-            <procedure>
-                <title>Creating a Desktop Shortcut for SqlTool</title>
-                <step><simpara>
-                    Right click in the main Windows background.
-                </simpara></step> <step><simpara>
-                    <guimenuitem>New</guimenuitem>
-                </simpara></step> <step><simpara>
-                    <guimenuitem>Shortcut</guimenuitem>
-                </simpara></step> <step><simpara>
-                    <guibutton>Browse</guibutton>
-                </simpara></step> <step><simpara>
-                    Navigate to where your good JRE lives.  For recent Sun
-                    JRE's, it installs to
-                    <filename>C:\Program Files\Java\*\bin</filename>
-                    by default (the * will be a JDK or JRE identifier and
-                    version number).
-                </simpara></step> <step><simpara>
-                    Select <filename>java.exe</filename>.
-                </simpara></step> <step><simpara>
-                    <guibutton>OK</guibutton>
-                </simpara></step> <step><simpara>
-                    <guimenuitem>Next</guimenuitem>
-                </simpara></step> <step><simpara>
-                    Enter any name
-                </simpara></step> <step><simpara>
-                    <guimenuitem>Finish</guimenuitem>
-                </simpara></step> <step><simpara>
-                    Right click the new icon.
-                </simpara></step> <step><simpara>
-                    <guimenuitem>Properties</guimenuitem>
-                </simpara></step> <step><simpara>
-                    Edit the <guilabel>Target</guilabel> field.
-                </simpara></step> <step><simpara>
-                    Leave the path to java.exe exactly as it is, including the
-                    quotes, but append to what is there.
-                    Beginning with a space, enter the command-line that you
-                    want run.
-                </simpara></step> <step><simpara>
-                    <guibutton>Change Icon...</guibutton> to a pretty icon.
-                </simpara></step> <step><simpara>
-                    If you want a quick-launch icon instead of (or in addition
-                    to) a desktop shortcut icon, click and drag it to your
-                    quick launch bar.  (You may or may not need to edit the
-                    Windows Toolbar properties to let you add new items).
-                </simpara></step>
-            </procedure>
-        </section>
-        <section><title>Loading sample data</title>
-            <para>
-                If you want some sample database objects and data to play
-                with, execute the
-                <filename xlink:href="#sampledata.sql-link">
-                  sample/sampledata.sql</filename> SQL file
-                <footnoteref linkend='samplelocFn'/>.
-                To separate the sample data from your regular data, you can
-                put it into its own schema by running this before you import:
-                <informalexample>
-                <programlisting>    CREATE SCHEMA sampledata AUTHORIZATION dba;
-    SET SCHEMA sampledata;</programlisting>
-            </informalexample>
-                Run it like this from an SqlTool session
-      <programlisting>    \i HSQLDB_HOME/sample/sampledata.sql</programlisting>
-                where <emphasis role='bold'>HSQLDB_HOME</emphasis> is the
-                base directory of your HSQLDB software installation
-                <footnoteref linkend='samplelocFn'/>.
-            </para>
-            <simpara>
-                For memory-only databases, you'll need to run this every
-                time that you run SqlTool.
-                For other (persistent) databases, the data will reside in
-                your database until you drop the tables.
-            </simpara>
-        </section>
-    </section>
+      </section>
+      <section><title>Compound commands or commands with semi-colons</title>
+        <simpara>
+          See the
+          <link xlink:href='#sqltool_chunk-sect' endterm='chunk-title'/>
+          section if you need to execute any compound SQL commands or SQL
+          commands containing non-escaped/quoted semi-colons.
+        </simpara>
+      </section>
+      <section><title>Desktop shortcuts</title>
+          <simpara>
+              Desktop shortcuts and quick launch icons are useful, especially
+              if you often run SqlTool with the same set of arguments.
+              It's really easy to set up several of them-- one for each
+              way that you invoke SqlTool (i.e., each one would start
+              SqlTool with all the arguments for one of your typical startup
+              needs).
+              One typical setup is to have one shortcut for each database
+              account which you normally use (use a different
+              <literal>urlid</literal> argument in each shortcut's
+              <guilabel>Target</guilabel> specification.
+          </simpara><simpara>
+              Desktop icon setup varies depending on your Desktop manager,
+              of course.
+              I'll explain how to set up a SqlTool startup icon in Windows
+              XP.
+              Linux and Mac users should be able to take it from there, since
+              it's easier with the common Linux and Mac desktops.
+          </simpara>
+          <procedure>
+              <title>Creating a Desktop Shortcut for SqlTool</title>
+              <step><simpara>
+                  Right click in the main Windows background.
+              </simpara></step> <step><simpara>
+                  <guimenuitem>New</guimenuitem>
+              </simpara></step> <step><simpara>
+                  <guimenuitem>Shortcut</guimenuitem>
+              </simpara></step> <step><simpara>
+                  <guibutton>Browse</guibutton>
+              </simpara></step> <step><simpara>
+                  Navigate to where your good JRE lives.  For recent Sun
+                  JRE's, it installs to
+                  <filename>C:\Program Files\Java\*\bin</filename>
+                  by default (the * will be a JDK or JRE identifier and
+                  version number).
+              </simpara></step> <step><simpara>
+                  Select <filename>java.exe</filename>.
+              </simpara></step> <step><simpara>
+                  <guibutton>OK</guibutton>
+              </simpara></step> <step><simpara>
+                  <guimenuitem>Next</guimenuitem>
+              </simpara></step> <step><simpara>
+                  Enter any name
+              </simpara></step> <step><simpara>
+                  <guimenuitem>Finish</guimenuitem>
+              </simpara></step> <step><simpara>
+                  Right click the new icon.
+              </simpara></step> <step><simpara>
+                  <guimenuitem>Properties</guimenuitem>
+              </simpara></step> <step><simpara>
+                  Edit the <guilabel>Target</guilabel> field.
+              </simpara></step> <step><simpara>
+                  Leave the path to java.exe exactly as it is, including the
+                  quotes, but append to what is there.
+                  Beginning with a space, enter the command-line that you
+                  want run.
+              </simpara></step> <step><simpara>
+                  <guibutton>Change Icon...</guibutton> to a pretty icon.
+              </simpara></step> <step><simpara>
+                  If you want a quick-launch icon instead of (or in addition
+                  to) a desktop shortcut icon, click and drag it to your
+                  quick launch bar.  (You may or may not need to edit the
+                  Windows Toolbar properties to let you add new items).
+              </simpara></step>
+          </procedure>
+      </section>
+      <section><title>Loading sample data</title>
+          <para>
+              If you want some sample database objects and data to play
+              with, execute the
+              <filename xlink:href="#sampledata.sql-link">
+                sample/sampledata.sql</filename> SQL file
+              <footnoteref linkend='samplelocFn'/>.
+              To separate the sample data from your regular data, you can
+              put it into its own schema by running this before you import:
+              <informalexample>
+              <programlisting>    CREATE SCHEMA sampledata AUTHORIZATION dba;
+  SET SCHEMA sampledata;</programlisting>
+          </informalexample>
+              Run it like this from an SqlTool session
+    <programlisting>    \i HSQLDB_HOME/sample/sampledata.sql</programlisting>
+              where <emphasis role='bold'>HSQLDB_HOME</emphasis> is the
+              base directory of your HSQLDB software installation
+              <footnoteref linkend='samplelocFn'/>.
+          </para>
+          <simpara>
+              For memory-only databases, you'll need to run this every
+              time that you run SqlTool.
+              For other (persistent) databases, the data will reside in
+              your database until you drop the tables.
+          </simpara>
+      </section>
 
     <section>
       <title>Satisfying SqlTool's CLASSPATH Requirements</title>
@@ -2453,10 +2563,9 @@ java -jar $HSQLDB_HOME/lib/sqltool.jar urlid > /tmp/log.html 2>&1]]></screen>
             But it is much easier to use the "\o" and "\H" special commands.
         </simpara>
         <note><simpara>
-            I've neglected the \H feature, because I don't know of anybody
-            using it.
-            Be aware that it writes very old-fashioned HTML, with no attention
-            to encoding, metadata, style sheets, etc.
+            HTML reporting has been totally modernized.
+            It now has user-overridable boiler plates, flexible and safe
+            CSS styles, and PL variable substitution.
         </simpara></note>
         <procedure>
             <title>Writing query output to an external file</title>
@@ -2531,21 +2640,18 @@ java -jar $HSQLDB_HOME/lib/sqltool.jar urlid > /tmp/log.html 2>&1]]></screen>
             In this case, stretch your window and repeat the last command with
             the ":;" Edit Buffer Command.
         </simpara></tip>
-        <para><example><title>Sample session/SQL file to generate a HTML report</title>
-          <programlisting><![CDATA[CREATE TABLE t (i int, vc varchar(25));
-insert into t values(1, 'one');
-insert into t values(2, 'two');
-commit;
--- Set any PL variable to enable expansion of ${...} Java properties.
-* fake =
-
-\o tst.html
-\H
-\p <TITLE>Sample SqlTool Select Statement HTML Output</TITLE>
-/* Send HTML formatted line for output before writing Select output */
-\p <P style="font-size:200%; color:red; font-weight:bold;">${user.name} Select HTML Output</P>
-SELECT * FROM t;]]></programlisting>
-        </example></para>
+        <para>
+          This sample shows everything you need to know to write an HTML report.
+          <filename xlink:href="#html-report.sql-link">
+            csv-sample.sql</filename>
+          <footnoteref linkend='samplelocFn'/>.
+          <example>
+            <title>Sample CSV export + import script</title>
+            <programlisting><xi:include
+                href="../verbatim/sample/html-report.sql"
+                parse="text"/></programlisting>
+          </example>
+        </para>
     </section>
 
     <section xml:id='sqltool_binary_files-sect'>
@@ -2604,14 +2710,14 @@ SELECT * FROM t;]]></programlisting>
             you.
             I've tried to design the language features to be intuitive.
             Readers experience with significant shell scripting in any
-            language can probably learn everything they need to know by
+            language can probably learn the rudiments by
             looking at (and running!) the sample script
             <filename xlink:href="#pl.sql-link">
               sample/pl.sql</filename> in your HyperSQL distribution
-            <footnoteref linkend='samplelocFn'/> and
-            using the <varname>*?</varname> command from within an interactive
-            SqlTool session as a reference.  (By
-            <emphasis>significant</emphasis> shell scripting, I mean to the
+            <footnoteref linkend='samplelocFn'/> and then pick up everything
+            else by using the <varname>*?</varname> command from within an
+            interactive SqlTool session.
+            (By <emphasis>significant</emphasis> shell scripting, I mean to the
             extent of using variables, for loops, etc.).
         </simpara> <simpara>
             It generally causes an error to reference a variable that has not
@@ -2668,13 +2774,22 @@ SELECT * FROM t;]]></programlisting>
                 <literal>${varname}</literal>s inside of SQL statements.
               </simpara></listitem></varlistentry>
               <varlistentry><term>PL User Variables</term><listitem><simpara>
-                These are set like <literal>* VARNAME = var value</literal>
-                (or with command line switch <literal>--setvar</literal>)
-                and are read like <literal>* listvalues</literal> and
-                <literal>*{VARNAME}</literal>
-                (or <literal>*VARNAME</literal> inside of logical expressions).
+                These variables have names beginning with a letter and (if the
+                name is longer than one character) any number of letter, digit,
+                or _ characters.
+                The letters are case-specific.
+                Two examples are <literal>m</literal>
+                and <literal>MY_VAR</literal>.
+                There variables are created and assigned values on the
+                SqlTool command-line or with any of several PL assignment
+                commands listed by the <literal>* ?</literal> command.
+                Depending on context (see below about that), they are
+                referenced as <literal>*{MY_VAR}</literal>,
+                as <literal>*MY_VAR</literal>, or as <literal>MY_VAR</literal>.
+                You can display all current user (and SqlTool system) variables
+                with the PL command <literal>* listvalues</literal>.
               </simpara></listitem></varlistentry>
-              <varlistentry><term>PL System Variables</term><listitem><simpara>
+              <varlistentry><term>SqlTool System PL Variables</term><listitem><simpara>
                 These are PL variables just like PL user variables, but the
                 variable names begin with the <literal>*</literal> character,
                 like <literal>*DSV_TARGET_FILE</literal>, and they effect
@@ -2683,45 +2798,47 @@ SELECT * FROM t;]]></programlisting>
                 You can change and examine the values in the same way as PL
                 user variables.
               </simpara></listitem></varlistentry>
-              <varlistentry><term>PL ? Variable</term><listitem><simpara>
+              <varlistentry><term>Reserved PL Variable ?</term><listitem><simpara>
                 The ? variable is set automatically to the results of SQL
                 statement executions.
-                The value can only be examined with the 
-                <literal>*{?}</literal> and <literal>*?</literal> constructs.
+                The reset state is the empty string, and it is only ever set to
+                null (aka <emphasis>unset</emphasis>) if an SQL error was
+                encountered.
+              </simpara></listitem></varlistentry>
+              <varlistentry><term>*PL variables NULL and NULL</term><listitem><simpara>
+                These are actually reserved system and user PL variables, and
+                since they are very unique and interchangeable with one another,
+                I'm giving them their own bullet.
+                These are reserved PL variables which always have the value of
+                null (which has the meaning of <emphasis>unset</emphasis>.
+                You can compare other variables to <literal>*NULL</literal>
+                or <literal>NULL</literal> to see if they are set or not.
+                A specific application is to compare <emphasis>?</emphasis> to
+                <emphasis>*NULL</emphasis> or <emphasis>NULL</emphasis> to see
+                if the last SQL command has failed.
               </simpara></listitem></varlistentry>
             </variablelist>
             <itemizedlist>
               <title>General Rules for PL vars and Java system props</title>
               <listitem><simpara>
                   PL variables and Java system properties are always
-                  expanded in Special, and PL commands if they are written
-                  like <literal>*{VARNAME}</literal> and
+                  expanded in Special, and (most) PL commands if they are
+                  written like <literal>*{VARNAME}</literal> and
                   <literal>${VARNAME}</literal> correspondingly.
                   They are expanded in the same way inside of SQL
                   statements as long as one (or more)
                   PL variable has been set.
               </simpara></listitem> <listitem><simpara>
-                  Your SQL scripts can give good feedback by echoing the
-                  value of variables with the "\p" special command.
-              </simpara></listitem> <listitem><simpara>
-                  It is an error to expand an <emphasis>unset</emphasis>
-                  (remove) variable with <literal>*{VARNAME}</literal> or
-                  <literal>${VARNAME}</literal>.
-                  Therefore, if the variable/property may not be set, just
-                  add a colon like
-                  <literal>*{:VARNAME}</literal>
-                  <literal>${:VARNAME}</literal> to
-                  expand the variable if set, but expand to a zero-length
-                  string if the variable is not set.
+                  Your SQL scripts can give good feedback by displaying the
+                  value of variables with the "\p" Special command.
               </simpara></listitem>
             </itemizedlist>
             <section xml:id='sqltool_pl_variables-sect'>
               <title xml:id='pl_variables-title'>PL Variables</title>
               <simpara>
                 This subsection explains points common to most or all of the
-                three PL variable varieties: user, SqlTool system, and ?.
-                (It specifically does not cover SQL/database variables or
-                Java system properties).
+                PL variable varieties (all variables other than Database/SQL
+                and Java system properties).
               </simpara>
               <itemizedlist>
                   <listitem><para>
@@ -2730,6 +2847,9 @@ SELECT * FROM t;]]></programlisting>
                       <itemizedlist>
                         <listitem><simpara>
                             <literal>--setvar</literal> command-line switches.
+                        </simpara></listitem> <listitem><simpara>
+                            <literal>-P</literal> or <literal>-p</literal>
+                            command-line switches.
                         </simpara></listitem> <listitem><simpara>
                             <literal>--sql</literal> command-line switches.
                         </simpara></listitem> <listitem><simpara>
@@ -2748,50 +2868,57 @@ SELECT * FROM t;]]></programlisting>
                       Use the <literal>* list</literal> command to list some or
                       all variables; or <literal>* listvalues</literal> to also
                       see the values.
-                      (Exception: The ? variable can not be displayed this way).
+                      (Exception: The ? variable can not be displayed with the
+                      list commands, thou you may 
                   </simpara></listitem> <listitem><simpara>
-                      You can set PL variables other than ? using the
-                      <literal>* VARNAME = value</literal> command.
-                      This document explains elsewhere how you can set a values
-                      to the contents of files, and to the return value of SQL
-                      statements and fetches.
-                  </simpara></listitem> <listitem><simpara>
+                    <emphasis role="bold">Assignment</emphasis>
+                      Run the <literal>* ?</literal> command to see a list of
+                      commands that you can use to assign and to unset PL
+                      variables.
+                      The most simple assignment command is
+                      <literal>* VARNAME = Var value</literal>, but you can
+                      assign values from command output, query return values,
+                      contents of files, mathematical expressions, the edit
+                      buffer, etc.
+                </simpara></listitem> <listitem><simpara>
                       You can also set PL variables other than ? using the
-                      <literal>--setvar</literal> command-line switch.
+                      <literal>--setvar</literal> and
+                      <literal>-P</literal> or <literal>-p</literal>
+                      command-line switches.
                       I give a very brief but useful example of this below.
                   </simpara></listitem> <listitem><simpara>
                       You can unset (remove) PL variables using
                       the <literal>* - VARNAME</literal> command.
                   </simpara></listitem> <listitem><simpara>
-                      In logical expressions (such as
-                      <literal>* if (*{x} == 4)</literal>), you can use an
-                      alternate syntax intead of <literal>*{VARNAME}</literal>.
-                      If you use plain <literal>*VARNAME</literal>, only inside
-                      logical expressions, then evaluation will be delayed
-                      (which is what is usually desired) and unset variables
-                      are allowed instead of causing a failure.
-                      This is similar to <literal>*{:VARNAME}</literal>), but
-                      if <literal>VARNAME</literal> is unset,
-                      <literal>*{:VARNAME}</literal> != <literal>*VARNAME</literal>
-                      because the former resolves to <emphasis>unset</emphasis>
-                      (and is equal to all other unset variables) whereas the
-                      latter resolves to the empty string (which is equal to
-                      all other empty strings).
-                  </simpara></listitem> <listitem><para>
-                      You can't do math with expression variables, but you
-                      can get functionality like the traditional
-                      <literal>for (i = 0; i &lt; x; i++)</literal> by appending
-                      to a variable and testing the string length, like
-                      <programlisting>    * while (*i &lt; ${x})
-          * i = *{i}.</programlisting>
-                      <literal>i</literal> will be a growing line of dots.
-                  </para></listitem> <listitem><para>
-                  PL variable names must not contain white space, or
-                  the characters "}" or "=".
-                  </para></listitem>
+                      It is an error in a Special and most PL commands to
+                      expand an <emphasis>unset</emphasis>
+                      (remove) variable with <literal>*{VARNAME}</literal> or
+                      <literal>${VARNAME}</literal>.
+                      Therefore, if the variable/property may not be set, just
+                      add a colon like
+                      <literal>*{:VARNAME}</literal>
+                      or <literal>${:VARNAME}</literal> to
+                      expand the variable if set, but expand to a zero-length
+                      string if the variable is not set.
+                  </simpara></listitem> <listitem><simpara>
+                    Inside of logical expressions (like inside of
+                    <literal>if</literal> and <literal>while</literal> commands),
+                    reference variables like <literal>*VARNAME</literal>, i.e. 
+                    without the curly brace, and don't worry about a construct like
+                    <literal>${:VARNAME}</literal> because it is legal to compare
+                    unset variables (all unset variables are equal to one another).
+                    The justfication for this simplification is explained below.
+                  </simpara></listitem> <listitem><simpara>
+                    The assignee variable name, and variables inside of
+                    mathematical expressions are written simply as bare words.
+                    For example: "<literal>* VARNAME = Var value</literal>
+                    (<literal>*</literal> there is a command prefix-- not part of
+                    the variable specifier) and
+                    "<literal>* ((VARNAME = OTHER_VARNAME * 6))</literal>".
+                  </simpara></listitem>
               </itemizedlist>
             <simpara>
-                Note that PL commands are used to upload and download column
+                PL commands can be used to upload and download column
                 values to/from local ASCII files, but the corresponding actions
                 for binary files use the special \b commands.
                 This is because PL variables are used for ASCII values and
@@ -2849,7 +2976,7 @@ SELECT * FROM t;]]></programlisting>
                 </para><para>
                 Just like when recalling a command from history, you use ";"
                 to execute even Special and PL macro commands.
-                <programlisting>    sql> /= notate  Work completed by
+                <programlisting>    sql> /= notate  \p Work completed by
     sql> /notate Blaine;</programlisting>
                 If you don't type the ;, you will just recall the command
                 to the buffer (from which you can execute or edit it, if
@@ -2866,6 +2993,65 @@ SELECT * FROM t;]]></programlisting>
                 you want.
                 Then just run "/= name :" to define a macro with name "name".
             </simpara>
+        </section>
+        <section><title>SqlTool Functions</title>
+            <simpara>
+              SqlTool functions are macros which take positional parameters.
+              They are functions in the shell-programming sense.
+              They do not return values in the sense of functions as
+              distinguished from procedures or methods.
+              As the <literal>/?</literal> help shows, they can be defined
+              by literal assignment or by buffer contents, and optional
+              appendages work as one would want-- just like regular macros.
+              They are intuitive to define and use, so one example should be
+              all the instruction needed.
+            </simpara>
+            <para>
+              <example><title>Creating a SqlTool Function</title>
+                  <programlisting>\.
+INSERT INTO t(i, vc) VALUES(*{1}, '*{2}');
+SELECT * FROM t
+  WHERE i = *{1}
+.
+/: writeread()  AND audited is null</programlisting>
+              </example>
+              This is a non-trivial example where we insert into a table with
+              some automatically generated columns, and we want to see the
+              entire created record before deciding whether to commit the
+              new record.
+              Since what we want to do will take multiple lines of SQL, and
+              indeed 2 SQL statements, we use raw mode to write the multi-line
+              SQL statement to the edit buffer, then use the
+              <literal>/: MACRONAME [appendage]</literal> construct to define
+              a macro with body of the previous edit buffer contents.
+              Just by assigning a name ending with <literal>()</literal> we
+              have made a function instead of a regula macro.
+              Notice how we used positional parameters <literal>*{1}</literal>
+              and <literal>*{2}</literal> in the macro body.
+              We wanted to add a little to what was in the edit buffer, so we
+              added an appendage to the <literal>/:</literal> command.
+              Note the extra space after <literal>()</literal> or we would have
+              ended up with resulting body of
+              "<literal>... i = *{1}AND audited...</literal>".
+            </para>
+            <para>
+              <example><title>Invoking a SqlTool Function</title>
+                  <programlisting>/writeread(10, ten);</programlisting>
+              </example>
+              Not much to explain.
+              Though the second character is for a string value to insert
+              into the a varchar column, we wrote the function so that the
+              function body supplies the single-quotes instead of having to
+              type them in ever time we use the function.
+              Leading and trailing white space is trimmed from each parameter.
+              So if you want your value to have leading or trialing space,
+              you will have to type in the quotes at invocation time.
+              Another limitation caused by this convenient parsing is that
+              functions just won't work when your invocaton parameters need
+              to contain commas.
+              Just like for regular macros, the terminating ; causes the
+              expanded macro to execute.
+            </para>
         </section>
         <section><title>PL Sample</title>
             <simpara>
@@ -2908,7 +3094,31 @@ SELECT * FROM t;]]></programlisting>
                 (The parentheses after "foreach" do not enclose a logical
                 expression, they just enclose a list).
             </simpara> <simpara>
-                There is a critical difference between
+                SqlTool's logical expressions are purposefully minimalistic.
+                We do not support nested operations or mixing with
+                assignment commands.
+                Notice that there are no <literal>||</literal>,
+                <literal>&amp;&amp;</literal>, <literal>AND</literal>, or
+                <literal>OR</literal> operations in the table below.
+                You can not assign the value of a boolean expression directly.
+                You can achieve that goal with an <literal>* while</literal>
+                and mathematical assignments.
+                The following section explains how a <literal>* while</literal>
+                command plus a math assignment command provide the effective
+                equivalent of a <emphasis>for counter loop</emphasis>.
+            </simpara> <simpara>
+                As stated earlier, inside of logical expressions you should
+                normally reference PL variables without curly braces.
+                This syntatic simplification is allowed because multi-word
+                tokens are not allowed in logical expressions
+                (therefore {...} is not needed to group words).
+                For example, "<literal>word"</literal>, "<literal>>"</literal>,
+                and "<literal>*VARNAME"</literal> are all separate atoms.
+            </simpara> <simpara>
+                You can indeed use the curly format like
+                "<literal>*{THIS}</literal>" inside of logical expressions, but
+                the casual user should stick to "<literal>*THIS</literal>".
+                There is a difference between
                 <literal>*{VARNAME}</literal> and <varname>*VARNAME</varname>
                 inside logical expressions.
                 <literal>*{VARNAME}</literal> is expanded one time when the
@@ -2926,8 +3136,8 @@ SELECT * FROM t;]]></programlisting>
                 the empty string that <varname>*{:VARNAME}</varname> would
                 resolve to).
             </simpara> <simpara>
-                Don't use quotes or whitespace of any kind in
-                <literal>*{VARNAME}</literal> variables in expressions.
+                If you do use the braces, make sure that the expansion value
+                doesn't contain quotes or whitespace.
                 (They would expand and then the expression would most likely
                 no longer be a valid expression as listed in the table below).
                 Quotes and whitespace are fine in <varname>*VARNAME</varname>
@@ -2935,7 +3145,23 @@ SELECT * FROM t;]]></programlisting>
                 evaluations, regardless of whether quotes match up, etc.
                 I.e. quotes and whitespace are not <emphasis>special</emphasis>
                 to the token evaluator.
-            </simpara>
+                Hence-- causual users should not use braces inside of
+                logical expressions.
+            </simpara> <para>
+                Though tokens inside logical expressions are atomic, you
+                definitely can and should do tests on strings that contain
+                spaces.
+                You just have to use a variable for each such string value.
+                For example, if I want to see if the special variable
+                <literal>?</literal> is equal to
+                <literal>one  two three</literal>, then you must do it like
+                this:<informalexample><screen>    * cfString = one  two three
+  * if (*cfString == ?)</screen></informalexample>
+                As noted elsewhere in this guide, internal spaces are
+                preserved as given.  For assignments, trailing spaces are
+                generally preserved.
+                Leading spaces are preserved only for the : assignment commands.
+            </para>
             <variablelist>
                 <title>Logical Operators</title>
                 <varlistentry><term>TOKEN</term><listitem><simpara>
@@ -2992,12 +3218,88 @@ SELECT * FROM t;]]></programlisting>
                 expression is equivalent to *{:VARNAME} out of a logical
                 expression.
             </simpara> <simpara>
-                When developing scripts, you definitely use SqlTool
+                When developing scripts, you definitely should use SqlTool
                 interactively to verify that SqlTool evaluates logical
                 expressions as you expect.
                 Just run <literal>* if</literal> commands that print something
                 (i.e. \p) if the test expression is true.
             </simpara>
+        </section>
+        <section>
+            <title>Mathematical Assignments</title>
+            <para>
+              Only integer math is supported, and only in mathematical
+              assignment commands.
+              Math assignment commands are of the format<informalexample>
+              <screen><![CDATA[<ASSIGNEE> <ASSIGNMENT_OP> <INTEGER_EXPRESSION>]]></screen>
+              </informalexample>
+              For example, <informalexample>
+              <screen>SQUARE_FOOTAGE += (FOYER_FEET + 20) * 3 + 300 * BATHS</screen>
+              </informalexample>
+              This works very close to Bash and Korn shell
+              <literal>((...))</literal> integer math.
+              The primary difference from those shells is that we prohibit
+              useless non-assignment commands.
+              Therefore, our math assignment commands always begin with the
+              assignee variable name and an assignment operator.
+            </para> <simpara>
+              The list below is available from the program by running
+              <literal>* ?</literal> (they are listed after the words
+              "<literal>Assignment OPs:</literal>").
+              Note that though we support assignment operator
+              <literal>++</literal>, we do not support
+              <literal>--</literal> because that conflicts with our single-line
+              comment delimiter <literal>--</literal>.
+              The work-around is to use <literal>-=1</literal> instead.
+            </simpara>
+            <itemizedlist>
+                <title>Mathmatical Assignment Operators</title>
+                <listitem><simpara>
+                    =
+                </simpara></listitem> <listitem><simpara>
+                    ++ (increment by 1, no expression allowed)
+                </simpara></listitem> <listitem><simpara>
+                    -= (subtract value of the expression)
+                </simpara></listitem> <listitem><simpara>
+                    += (add to...)
+                </simpara></listitem> <listitem><simpara>
+                    /= (divide by...)
+                </simpara></listitem> <listitem><simpara>
+                    %= (divide by expression and return remainder)
+                </simpara></listitem>
+            </itemizedlist>
+            <simpara>
+              To the right of the assignment operator is the integer math
+              expression consisting of raw variable names, integers, and
+              mathematical operators.
+              The variables referenced, if any, must all contain integer values.
+              In the expression only user PL variables may be used.  Not Java
+              system properties nor SqlTool system PL variables.
+            </simpara> <simpara>
+              The list below is available from the program by running
+              <literal>* ?</literal> (they are listed after the words
+              "<literal>Internal ops:</literal>").
+            </simpara>
+            <itemizedlist>
+                <title>Mathmatical Expression Operators</title>
+                <listitem><simpara>
+                    INTEGER_USER_VARIABLE_NAME  (resolve to its value)
+                </simpara></listitem> <listitem><simpara>
+                    ()  (specify precedence)
+                </simpara></listitem> <listitem><simpara>
+                    +
+                </simpara></listitem> <listitem><simpara>
+                    -
+                </simpara></listitem> <listitem><simpara>
+                    *
+                </simpara></listitem> <listitem><simpara>
+                    /  (division)
+                </simpara></listitem> <listitem><simpara>
+                    %  (division remainder)
+                </simpara></listitem> <listitem><simpara>
+                    ^  (power)
+                </simpara></listitem>
+            </itemizedlist>
         </section>
         <section>
             <title>Flow Control</title>
@@ -3026,19 +3328,34 @@ SELECT * FROM t;]]></programlisting>
                 <emphasis>including</emphasis> SQL file or interactive
                 session, or with the next SQL file if you supplied multiple on
                 the command-line).
-            </simpara>
+            </simpara> <para>
+                An effective for counter loop can be constructed by combining
+                an <literal>* while</literal> command with an integer math
+                assignment, like so
+                <example><title>Effective For Counter Loop</title>
+                    <programlisting>    * i = 0
+    * while (*i &lt; 5)
+      -- Whatever you need to do
+      * ((i++))
+    * end while</programlisting>
+                </example>
+            </para>
         </section>
         <section> <title>Example</title>
             <para>
                 Below is the example SQL file
                 <filename xlink:href="#pl.sql-link">sample/pl.sql</filename>,
-                which shows how to use most PL
+                which shows how to use most of the basic PL
                 features <footnoteref linkend='samplelocFn'/>.
                 If you have a question about how to use a particular
                 PL feature, check this file in your distribution before asking
-                for help.
-                Definitely give it a run, like
+                for help...
+                and definitely read the in-program help for
+                <literal>* ?</literal> carefully!
+                Give it a run, like
                 <screen>java -jar $HSQLDB_HOME/lib/sqltool.jar mem $HSQLDB_HOME/pl.jar</screen>
+                It will suggest that you re-run it with another parameter.
+                Insert the new parameter before "<literal>mem</literal>".
             </para>
             <example><title>SQL File showing use of most PL features</title>
                 <programlisting><xi:include href="../verbatim/sample/pl.sql"
@@ -3491,6 +3808,13 @@ SELECT * FROM t;]]></programlisting>
             <tip><title>
                 *DSV...DELIM vs *DSV...SPLITTER settings
               </title><simpara>
+              Both the ...DELIM and the ...SPLITTER settings are for
+              delimiting cells of data,
+              but whereas our DELIM values are literal things that
+              SqlTool will write right into a DSV file, SPLITTER values are
+              patterns for detecting the literal delimiters in existing DSV
+              files.
+            </simpara><simpara>
               The settings named like <literal>*DSV...SPLITTER</literal> are
               input delimiters specified as regular expressions following
               the rules in the

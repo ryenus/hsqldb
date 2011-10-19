@@ -49,6 +49,13 @@
       </simpara> <simpara>
         <link xlink:href="&distro_baseurl;/verbatim/sample/sample.sql"/>
       </simpara>
+    </listitem> <listitem xml:id="html-report.sql-link">
+      <simpara>
+        Local:
+        <link xlink:href="../verbatim/sample/html-report.sql"/>
+      </simpara> <simpara>
+        <link xlink:href="&distro_baseurl;/verbatim/sample/html-report.sql"/>
+      </simpara>
     </listitem> <listitem xml:id="pl.sql-link">
       <simpara>
         Local:

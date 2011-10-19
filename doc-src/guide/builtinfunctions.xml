@@ -1515,7 +1515,7 @@ WIDTH_BUCKET( 200, 10, 110, 10)
     <simpara><emphasis role="bold">DATEDIFF</emphasis></simpara>
 
     <para><literal>DATEDIFF ( &lt;field&gt;, &lt;datetime value expr 1&gt;,
-    datetime value expr 2&gt; )</literal></para>
+    &lt;datetime value expr 2&gt; )</literal></para>
 
     <para><literal>&lt;field&gt; ::= 'yy' | 'year' | 'mm' | 'month' | 'dd' |
     'day' | 'hh' | 'hour' | 'mi' | 'minute' | 'ss' | 'second' | 'ms' |
@@ -1528,7 +1528,7 @@ WIDTH_BUCKET( 200, 10, 110, 10)
     <literal>DATEDIFF</literal> is evaluated as &lt;datetime value expr 2&gt;
     - &lt;datetime value expr 1&gt;. (HyperSQL}</para>
 
-    <para><literal>DATEDIFF ( &lt;datetime value expr 1&gt;, datetime value
+    <para><literal>DATEDIFF ( &lt;datetime value expr 1&gt;, &lt;datetime value
     expr 2&gt; )</literal></para>
 
     <para>This special form of <literal>DATEDIFF</literal> does not have a
