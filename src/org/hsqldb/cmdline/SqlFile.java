@@ -214,7 +214,7 @@ public class SqlFile {
     private static Pattern   specialPattern =
             Pattern.compile("(\\S+)(?:(\\s+.*\\S))?\\s*");
     private static Pattern  plPattern = Pattern.compile("(.*\\S)?\\s*");
-    private static Pattern  math2Pattern = Pattern.compile(
+    private static Pattern  mathAsgnPattern = Pattern.compile(
         "\\(\\(\\s*([a-zA-Z]\\w*)\\s*([-+*/%][-+=])\\s*(.+?)?\\s*\\)\\)\\s*");
     private static Pattern  mathPattern = Pattern.compile(
             "\\(\\(\\s*([a-zA-Z]\\w*)\\s*=\\s*(.+?)?\\s*\\)\\)\\s*");
@@ -2426,7 +2426,8 @@ public class SqlFile {
         String string = buffer.val;
         String dereffed = dereference(string, false);
 
-        Matcher mathMatcher = math2Pattern.matcher(dereference(string, false));
+        Matcher mathMatcher =
+                mathAsgnPattern.matcher(dereference(string, false));
         if (mathMatcher.matches()) try {
             shared.userVars.put(mathMatcher.group(1), Long.toString(
                     Calculator.reassignValue(mathMatcher.group(1),
@@ -4155,8 +4156,19 @@ public class SqlFile {
                 return tokens[0].equals(tokens[2]) ^ negate;
             }
 
+            char c1 = (tokens[0] == null || tokens[0].length() < 1)
+                        ? '\0' : tokens[0].charAt(0);
+            char c2 = (tokens[2] == null || tokens[2].length() < 1)
+                        ? '\0' : tokens[2].charAt(0);
             if (tokens[1].equals(">")) {
                 if (tokens[0] == null || tokens[2] == null) return !negate;
+                if (c1 == '-' && c2 == '-') {
+                    negate = !negate;
+                } else if (c1 == '-') {
+                    return negate;
+                } else if (c2 == '-') {
+                    return !negate;
+                }
                 return (tokens[0].length() > tokens[2].length()
                         || ((tokens[0].length() == tokens[2].length())
                         && tokens[0].compareTo(tokens[2]) > 0)) ^ negate;
@@ -4164,6 +4176,13 @@ public class SqlFile {
 
             if (tokens[1].equals("<")) {
                 if (tokens[0] == null || tokens[2] == null) return !negate;
+                if (c1 == '-' && c2 == '-') {
+                    negate = !negate;
+                } else if (c1 == '-') {
+                    return !negate;
+                } else if (c2 == '-') {
+                    return negate;
+                }
                 return (tokens[2].length() > tokens[0].length()
                         || ((tokens[2].length() == tokens[0].length())
                         && tokens[2].compareTo(tokens[0]) > 0)) ^ negate;
