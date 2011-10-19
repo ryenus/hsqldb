@@ -2152,9 +2152,6 @@
       <simpara>Sets the maximum number of rows of each result set and other
       internal temporary table that is held in memory.</simpara>
 
-      <simpara>This is equivalent to the connection property
-      <literal>hsqldb.result_max_memory_rows</literal>.</simpara>
-
       <simpara>This setting applies to all sessions. Individual sessions can
       change the value with the <literal>SET SESSION RESULT MEMORY
       ROWS</literal> statement. The default is 0, meaning all result sets are
@@ -2162,6 +2159,9 @@
 
       <simpara>Only a user with the DBA role can execute this
       statement.</simpara>
+
+      <simpara>This is equivalent to the connection property
+      <literal>hsqldb.result_max_memory_rows</literal>.</simpara>
 
       <indexterm significance="preferred" type="sql">
         <primary>SET DATABASE DEFAULT TABLE TYPE</primary>
@@ -2179,11 +2179,11 @@
       <simpara>Sets the type of table created when the next CREATE TABLE
       statement is executed. The default is MEMORY.</simpara>
 
-      <simpara>This is equivalent to the connection property
-      <literal>hsqldb.default_table_type</literal>.</simpara>
-
       <simpara>Only a user with the DBA role can execute this
       statement.</simpara>
+
+      <simpara>This is equivalent to the connection property
+      <literal>hsqldb.default_table_type</literal>.</simpara>
 
       <indexterm significance="preferred" type="sql">
         <primary>SET DATABASE EVENT LOG LEVEL</primary>
@@ -2223,11 +2223,11 @@
       <simpara>The logged lines are stored in a file with the extension
       <literal>.sql.log</literal> alongside the main database files.</simpara>
 
-      <simpara>This is equivalent to the connection property
-      <literal>hsqldb.applog</literal>.</simpara>
-
       <simpara>Only a user with the DBA role can execute this
       statement.</simpara>
+
+      <simpara>This is equivalent to the connection property
+      <literal>hsqldb.applog</literal>.</simpara>
 
       <indexterm significance="preferred" type="sql">
         <primary>SET DATABASE GC</primary>
@@ -2290,11 +2290,13 @@
       <simpara>Set the concurrency control system for the database. It can be
       issued only when all sessions have been committed or rolled back. This
       command and its modes is discussed in the <link endterm="sessions-title"
-      xlink:href="#sqlroutines-chapt"></link> chapter. This is equivalent to
-      the connection property <literal>hsqldb.tx</literal>.</simpara>
+      xlink:href="#sqlroutines-chapt"></link> chapter.</simpara>
 
       <simpara>Only a user with the DBA role can execute this
       statement.</simpara>
+
+      <simpara>This is equivalent to the connection property
+      <literal>hsqldb.tx</literal>.</simpara>
 
       <indexterm significance="preferred" type="sql">
         <primary>SET DATABASE TRANSACTION ROLLBACK ON DEADLOCK</primary>
@@ -2319,11 +2321,13 @@
       with other database engines which do not roll back the transaction upon
       deadlock. This command is also discussed in the <link
       endterm="sessions-title" xlink:href="#sqlroutines-chapt"></link>
-      chapter. This is equivalent to the connection property
-      <literal>hsqldb.tx_deadlock_rollback</literal>.</simpara>
+      chapter.</simpara>
 
       <simpara>Only a user with the DBA role can execute this
       statement.</simpara>
+
+      <simpara>This is equivalent to the connection property
+      <literal>hsqldb.tx_deadlock_rollback</literal>.</simpara>
 
       <indexterm significance="preferred" type="sql">
         <primary>SET DATABASE DEFAULT ISOLATION LEVEL</primary>
@@ -2343,11 +2347,11 @@
       default is READ COMMITTED. Each session can also set its isolation
       level.</simpara>
 
-      <simpara>This is equivalent to the connection property
-      <literal>hsqldb.tx_level</literal>.</simpara>
-
       <simpara>Only a user with the DBA role can execute this
       statement.</simpara>
+
+      <simpara>This is equivalent to the connection property
+      <literal>hsqldb.tx_level</literal>.</simpara>
 
       <indexterm significance="preferred" type="sql">
         <primary>SET DATABASE TEXT TABLE DEFAULTS</primary>
@@ -2403,13 +2407,15 @@
       <simpara>Enable or disable enforcement of column sizes for CHAR and
       VARCHAR columns. The default is TRUE, meaning table definition must
       contain <literal>VARCHAR(n)</literal> instead of
-      <literal>VARCHAR</literal>. This is equivalent to the connection
-      property <literal>sql.enforce_size</literal>.</simpara>
+      <literal>VARCHAR</literal>.</simpara>
 
       <simpara>SQL Standard requires enforcement.</simpara>
 
       <simpara>Only a user with the DBA role can execute this
       statement.</simpara>
+
+      <simpara>This is equivalent to the connection property
+      <literal>sql.enforce_size</literal>.</simpara>
 
       <indexterm significance="preferred" type="sql">
         <primary>SET DATABASE SQL NAMES</primary>
@@ -2432,11 +2438,11 @@
       enable this check, in order to improve the quality and correctness of
       SQL statements.</emphasis></simpara>
 
-      <simpara>This is equivalent to the connection property
-      <literal>sql.enforce_names</literal>.</simpara>
-
       <simpara>Only a user with the DBA role can execute this
       statement.</simpara>
+
+      <simpara>This is equivalent to the connection property
+      <literal>sql.enforce_names</literal>.</simpara>
 
       <indexterm significance="preferred" type="sql">
         <primary>SET DATABASE SQL REFERENCES</primary>
@@ -2457,9 +2463,6 @@
       qualified by a table name or table alias and can refer to more than one
       column in a JOIN list.</simpara>
 
-      <simpara>This is equivalent to the connection property
-      <literal>sql.enforce_refs</literal>.</simpara>
-
       <simpara>The property is <literal>FALSE</literal> by default.</simpara>
 
       <simpara>SQL Standard requires enforcement. <emphasis>It is better to
@@ -2468,6 +2471,9 @@
 
       <simpara>Only a user with the DBA role can execute this
       statement.</simpara>
+
+      <simpara>This is equivalent to the connection property
+      <literal>sql.enforce_refs</literal>.</simpara>
 
       <indexterm significance="preferred" type="sql">
         <primary>SET DATABASE SQL TYPES</primary>
@@ -2489,9 +2495,6 @@
       <literal>TRUE</literal>. These operations are allowed by
       default.</simpara>
 
-      <simpara>This is equivalent to the connection property
-      <literal>sql.enforce_type</literal>.</simpara>
-
       <simpara>The property is <literal>FALSE</literal> by default.</simpara>
 
       <simpara>SQL Standard requires enforcement. <emphasis>It is better to
@@ -2500,6 +2503,9 @@
 
       <simpara>Only a user with the DBA role can execute this
       statement.</simpara>
+
+      <simpara>This is equivalent to the connection property
+      <literal>sql.enforce_type</literal>.</simpara>
 
       <indexterm significance="preferred" type="sql">
         <primary>SET DATABASE SQL TDC DELETE</primary>
@@ -2522,15 +2528,15 @@
       default. Changing this to false allows such violations of the Standard
       to pass without an exception.</simpara>
 
-      <simpara>This is equivalent to the connection property
-      <literal>sql.enforce_tdc_delete</literal>.</simpara>
-
       <simpara>The property is <literal>TRUE</literal> by default and
       shouldn't be changed unless an application written for a non-conforming
       RDBMS needs it.</simpara>
 
       <simpara>Only a user with the DBA role can execute this
       statement.</simpara>
+
+      <simpara>This is equivalent to the connection property
+      <literal>sql.enforce_tdc_delete</literal>.</simpara>
 
       <indexterm significance="preferred" type="sql">
         <primary>SET DATABASE SQL TYPES</primary>
@@ -2553,15 +2559,15 @@
       allowed by default. Changing this to <literal>FALSE</literal> allows
       such violations of the Standard to pass without an exception.</simpara>
 
-      <simpara>This is equivalent to the connection property
-      <literal>sql.enforce_tdc_update</literal>.</simpara>
-
       <simpara>The property is <literal>TRUE</literal> by default and
       shouldn't be changed unless an application written for a non-conforming
       RDBMS needs it.</simpara>
 
       <simpara>Only a user with the DBA role can execute this
       statement.</simpara>
+
+      <simpara>This is equivalent to the connection property
+      <literal>sql.enforce_tdc_update</literal>.</simpara>
 
       <indexterm significance="preferred" type="sql">
         <primary>SET DATABASE SQL TRANSLATE TTI TYPES</primary>
@@ -2584,15 +2590,15 @@
       time zone and the VARCHAR type respectively. The original type names are
       preserved.</simpara>
 
-      <simpara>This is equivalent to the connection property
-      <literal>jdbc.translate_tti_types</literal>.</simpara>
-
       <simpara>The property is <literal>TRUE</literal> by default. If set to
       <literal>FASLE</literal>, the type codes for WITH TIME ZONE types will
       be SQL type codes as opposed to JDBC type codes.</simpara>
 
       <simpara>Only a user with the DBA role can execute this
       statement.</simpara>
+
+      <simpara>This is equivalent to the connection property
+      <literal>jdbc.translate_tti_types</literal>.</simpara>
 
       <indexterm significance="preferred" type="sql">
         <primary>SET DATABASE SQL CONCAT NULLS</primary>
@@ -2617,13 +2623,13 @@
 
       <simpara>SQL Standard requires a NULL result..</simpara>
 
-      <simpara>This is equivalent to the connection property
-      <literal>sql.concat_nulls</literal>.</simpara>
-
       <simpara>The property is <literal>TRUE</literal> by default.</simpara>
 
       <simpara>Only a user with the DBA role can execute this
       statement.</simpara>
+
+      <simpara>This is equivalent to the connection property
+      <literal>sql.concat_nulls</literal>.</simpara>
 
       <indexterm significance="preferred" type="sql">
         <primary>SET DATABASE SQL UNIQUE NULLS</primary>
@@ -2653,13 +2659,13 @@
 
       <simpara>SQL Standard requires the defual (TRUE) behaviour.</simpara>
 
-      <simpara>This is equivalent to the connection property
-      <literal>sql.unique_nulls</literal>.</simpara>
-
       <simpara>The property is <literal>TRUE</literal> by default.</simpara>
 
       <simpara>Only a user with the DBA role can execute this
       statement.</simpara>
+
+      <simpara>This is equivalent to the connection property
+      <literal>sql.unique_nulls</literal>.</simpara>
 
       <indexterm significance="preferred" type="sql">
         <primary>SET DATABASE SQL CONVERT TRUNCATE</primary>
@@ -2686,13 +2692,13 @@
       <simpara>Standard SQL considers this behaviour implementation
       dependent.</simpara>
 
-      <simpara>This is equivalent to the connection property
-      <literal>sql.convert_trunc</literal>.</simpara>
-
       <simpara>The property is <literal>TRUE</literal> by default.</simpara>
 
       <simpara>Only a user with the DBA role can execute this
       statement.</simpara>
+
+      <simpara>This is equivalent to the connection property
+      <literal>sql.convert_trunc</literal>.</simpara>
 
       <indexterm significance="preferred" type="sql">
         <primary>SET DATABASE SQL AVG SCALE</primary>
@@ -2715,13 +2721,13 @@
       <simpara>Standard SQL considers this behaviour implementation
       dependent.</simpara>
 
-      <simpara>This is equivalent to the connection property
-      <literal>sql.avg_scale</literal>.</simpara>
-
       <simpara>The property is <literal>0</literal> by default.</simpara>
 
       <simpara>Only a user with the DBA role can execute this
       statement.</simpara>
+
+      <simpara>This is equivalent to the connection property
+      <literal>sql.avg_scale</literal>.</simpara>
 
       <indexterm significance="preferred" type="sql">
         <primary>SET DATABASE SQL DOUBLE NAN</primary>
@@ -2743,13 +2749,13 @@
 
       <simpara>Standard SQL requires an exception to be raised.</simpara>
 
-      <simpara>This is equivalent to the connection property
-      <literal>sql.double_nan</literal>.</simpara>
-
       <simpara>The property is <literal>TRUE</literal> by default.</simpara>
 
       <simpara>Only a user with the DBA role can execute this
       statement.</simpara>
+
+      <simpara>This is equivalent to the connection property
+      <literal>sql.double_nan</literal>.</simpara>
 
       <indexterm significance="preferred" type="sql">
         <primary>SET DATABASE SQL SYNTAX MSS</primary>
@@ -2774,6 +2780,9 @@
 
       <simpara>Only a user with the DBA role can execute this
       statement.</simpara>
+
+      <simpara>This is equivalent to the connection property
+      <literal>sql.syntax_mss</literal>.</simpara>
 
       <indexterm significance="preferred" type="sql">
         <primary>SET DATABASE SQL SYNTAX MYS</primary>
@@ -2806,6 +2815,9 @@
       <simpara>Only a user with the DBA role can execute this
       statement.</simpara>
 
+      <simpara>This is equivalent to the connection property
+      <literal>sql.syntax_mys</literal>.</simpara>
+
       <indexterm significance="preferred" type="sql">
         <primary>SET DATABASE SQL SYNTAX ORA</primary>
       </indexterm>
@@ -2833,6 +2845,9 @@
 
       <simpara>Only a user with the DBA role can execute this
       statement.</simpara>
+
+      <simpara>This is equivalent to the connection property
+      <literal>sql.syntax_ora</literal>.</simpara>
 
       <indexterm significance="preferred" type="sql">
         <primary>SET DATABASE SQL SYNTAX PGS</primary>
@@ -2865,6 +2880,9 @@
 
       <simpara>Only a user with the DBA role can execute this
       statement.</simpara>
+
+      <simpara>This is equivalent to the connection property
+      <literal>sql.syntax_pgs</literal>.</simpara>
 
       <indexterm significance="preferred" type="sql">
         <primary>SET REFERENTIAL INTEGRITY</primary>
@@ -2941,9 +2959,8 @@
       are opened and closed frequently.</simpara>
 
       <simpara>The default mode is <literal>TRUE</literal>. If the old method
-      of backup is preferred, the mode can be set <literal>FALSE</literal>.
-      This is equivalent to the connection property
-      <literal>hsqldb.inc_backup</literal>.</simpara>
+      of backup is preferred, the mode can be set
+      <literal>FALSE</literal>.</simpara>
 
       <simpara>Warning: The old, non-incremental setting, FALSE, shouldn't be
       used at all when the data file is larger than 4GB. If it is used, the
@@ -2953,6 +2970,9 @@
 
       <simpara>Only a user with the DBA role can execute this
       statement.</simpara>
+
+      <simpara> This is equivalent to the connection property
+      <literal>hsqldb.inc_backup</literal>.</simpara>
 
       <indexterm significance="preferred" type="sql">
         <primary>SET FILES CACHE ROWS</primary>
@@ -2969,8 +2989,10 @@
       <simpara>Sets the maximum number of rows (of CACHED tables) held in the
       memory cache. The default is 50000 rows.</simpara>
 
-      <simpara>Only a user with the DBA role can execute this statement. This
-      is equivalent to the connection property
+      <simpara>Only a user with the DBA role can execute this
+      statement.</simpara>
+
+      <simpara>This is equivalent to the connection property
       <literal>hsqldb.cache_rows</literal>.</simpara>
 
       <indexterm significance="preferred" type="sql">
@@ -2990,8 +3012,10 @@
       amount of memory used is larger than this amount, which does not account
       for Java object size overheads.</simpara>
 
-      <simpara>Only a user with the DBA role can execute this statement. This
-      is equivalent to the connection property
+      <simpara>Only a user with the DBA role can execute this
+      statement.</simpara>
+
+      <simpara>This is equivalent to the connection property
       <literal>hsqldb.cache_size</literal>.</simpara>
 
       <indexterm significance="preferred" type="sql">
@@ -3016,11 +3040,13 @@
       performed instead of a CHECKPOINT.</simpara>
 
       <simpara>The default is 0, which indicates no DEFRAG. Useful values are
-      between 10 to 50. This is equivalent to the connection property
-      <literal>hsqldb.defrag_limit</literal>.</simpara>
+      between 10 to 50.</simpara>
 
       <simpara>Only a user with the DBA role can execute this
       statement.</simpara>
+
+      <simpara>This is equivalent to the connection property
+      <literal>hsqldb.defrag_limit</literal>.</simpara>
 
       <indexterm significance="preferred" type="sql">
         <primary>SET FILES LOG</primary>
@@ -3034,12 +3060,14 @@
       TRUE | FALSE }</literal></simpara>
 
       <simpara>Sets logging of database operations on or off. Turning logging
-      off is for special usage, such as temporary cache usage. This is
-      equivalent to the connection property
-      <literal>hsqldb.log_data</literal>. The default is TRUE.</simpara>
+      off is for special usage, such as temporary cache usage. The default is
+      TRUE.</simpara>
 
       <simpara>Only a user with the DBA role can execute this
       statement.</simpara>
+
+      <simpara>This is equivalent to the connection property
+      <literal>hsqldb.log_data</literal>. </simpara>
 
       <indexterm significance="preferred" type="sql">
         <primary>SET FILES LOG SIZE</primary>
@@ -3056,11 +3084,13 @@
       file to the specified value. The default maximum size is 50 MB. If the
       value is zero, no limit is used for the size of the file. When the size
       of the file reaches this value, a CHECKPOINT is performed and the the
-      <literal>*.log</literal> file is cleared to size 0. This is equivalent
-      to the connection property <literal>hsqldb.log_size</literal>.</simpara>
+      <literal>*.log</literal> file is cleared to size 0.</simpara>
 
       <simpara>Only a user with the DBA role can execute this
       statement.</simpara>
+
+      <simpara> This is equivalent to the connection property
+      <literal>hsqldb.log_size</literal>.</simpara>
 
       <indexterm significance="preferred" type="sql">
         <primary>SET FILES NIO</primary>
@@ -3074,12 +3104,13 @@
       TRUE | FALSE }</literal></simpara>
 
       <simpara>Sets the access method of the .data file. The default is TRUE
-      and uses the Java nio classes to access the file. This is equivalent to
-      the connection property
-      <literal>hsqldb.nio_data_file</literal>.</simpara>
+      and uses the Java nio classes to access the file.</simpara>
 
       <simpara>Only a user with the DBA role can execute this
       statement.</simpara>
+
+      <simpara>This is equivalent to the connection property
+      <literal>hsqldb.nio_data_file</literal>.</simpara>
 
       <indexterm significance="preferred" type="sql">
         <primary>SET FILES NIO SIZE</primary>
@@ -3095,11 +3126,13 @@
       <simpara>Sets The maximum size of .data file in megabytes that can use
       the nio access method. When the file gets larger than this limit,
       non-nio access methods are used. Values 64, 128, 256, 512, 1024, 2048
-      can be used. The default is 256MB. This is equivalent to the connection
-      property <literal>hsqldb.nio_max_size</literal>.</simpara>
+      can be used. The default is 256MB.</simpara>
 
       <simpara>Only a user with the DBA role can execute this
       statement.</simpara>
+
+      <simpara> This is equivalent to the connection property
+      <literal>hsqldb.nio_max_size</literal>.</simpara>
 
       <indexterm significance="preferred" type="sql">
         <primary>SET FILES WRITE DELAY</primary>
@@ -3135,12 +3168,11 @@
       <para>Each time the SET FILES WRITE DELAY statement is executed with any
       value, a sync is immediately performed.</para>
 
+      <para>Only a user with the DBA role can execute this statement.</para>
+
       <para>This is equivalent to the connection properties
       <literal>hsqldb.write_delay</literal> and
       <literal>hsqldb.write_delay_millis</literal>.</para>
-
-      <simpara>Only a user with the DBA role can execute this
-      statement.</simpara>
 
       <indexterm significance="preferred" type="sql">
         <primary>SET FILES SCALE</primary>
@@ -3171,6 +3203,9 @@
       <simpara>Only a user with the DBA role can execute this
       statement.</simpara>
 
+      <simpara>This is equivalent to the connection property
+      <literal>hsqldb.cache_file_scale</literal>.</simpara>
+
       <indexterm significance="preferred" type="sql">
         <primary>SET FILES LOB SCALE</primary>
       </indexterm>
@@ -3192,14 +3227,14 @@
       each lob. Reducing the lob scale to 2 will result in average 1KB wasted
       space for each lob.</simpara>
 
-      <simpara>This is equivalent to the connection property
-      <literal>hsqldb.lob_file_scale</literal>.</simpara>
-
       <simpara>This command can be used only when there is no lob in the
       database.</simpara>
 
       <simpara>Only a user with the DBA role can execute this
       statement.</simpara>
+
+      <simpara>This is equivalent to the connection property
+      <literal>hsqldb.lob_file_scale</literal>.</simpara>
 
       <indexterm significance="preferred" type="sql">
         <primary>SET FILES SCRIPT FORMAT</primary>
