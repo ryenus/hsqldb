@@ -1487,6 +1487,11 @@
         </listitem>
 
         <listitem>
+          <para>HyperSQL supports SQL Standard ARRAY types. PostgreSQL also
+          supports this, but not entirely according to the Standard.</para>
+        </listitem>
+
+        <listitem>
           <para>SQL routines are poratable, but some syntax elements are
           different and require changes.</para>
         </listitem>
@@ -1650,8 +1655,9 @@
       <title>Oracle Compatibility</title>
 
       <para>Recent versions of Oracle support Standard SQL syntax for outer
-      joins. HyperSQL features a setting to support Oracle syntax for the most
-      widely used non-standard features.</para>
+      joins and many other operations. In addition, HyperSQL features a
+      setting to support Oracle syntax and semantics for the most widely used
+      non-standard features.</para>
 
       <itemizedlist>
         <listitem>
@@ -1689,11 +1695,29 @@
         <listitem>
           <para>Use <literal>&lt;set database sql syntax ORA
           statement&gt;</literal> to enable support for some non-standard
-          syntax of Oracle. The DUAL table and the expressions, ROWNUM,
-          CURRVAL, NEXTVAL are supported. The non-standard data type
-          definitions such as NUMBER, VARCHAR2, NVARCHAR2, BINARY_DOUBLE,
-          BINARY_FLOAT, LONG, RAW are translated into the closest HSQLDB
-          equivalent.</para>
+          syntax of Oracle.</para>
+        </listitem>
+
+        <listitem>
+          <para> Non-standard data type definitions such as NUMBER, VARCHAR2,
+          NVARCHAR2, BINARY_DOUBLE, BINARY_FLOAT, LONG, RAW are translated
+          into the closest HyperSQL / SQL Standard equivalent.</para>
+        </listitem>
+
+        <listitem>
+          <para>The DUAL table and the expressions, ROWNUM, CURRVAL, NEXTVAL
+          are supported. </para>
+        </listitem>
+
+        <listitem>
+          <para>HyperSQL natively supports operations involving datetime and
+          interval values. These features are based on the SQL
+          Standard.</para>
+        </listitem>
+
+        <listitem>
+          <para>Many subtle automatic type conversions, syntax refinements and
+          other common features are supported.</para>
         </listitem>
 
         <listitem>
@@ -2971,7 +2995,7 @@
       <simpara>Only a user with the DBA role can execute this
       statement.</simpara>
 
-      <simpara> This is equivalent to the connection property
+      <simpara>This is equivalent to the connection property
       <literal>hsqldb.inc_backup</literal>.</simpara>
 
       <indexterm significance="preferred" type="sql">
@@ -3067,7 +3091,7 @@
       statement.</simpara>
 
       <simpara>This is equivalent to the connection property
-      <literal>hsqldb.log_data</literal>. </simpara>
+      <literal>hsqldb.log_data</literal>.</simpara>
 
       <indexterm significance="preferred" type="sql">
         <primary>SET FILES LOG SIZE</primary>
@@ -3089,7 +3113,7 @@
       <simpara>Only a user with the DBA role can execute this
       statement.</simpara>
 
-      <simpara> This is equivalent to the connection property
+      <simpara>This is equivalent to the connection property
       <literal>hsqldb.log_size</literal>.</simpara>
 
       <indexterm significance="preferred" type="sql">
@@ -3131,7 +3155,7 @@
       <simpara>Only a user with the DBA role can execute this
       statement.</simpara>
 
-      <simpara> This is equivalent to the connection property
+      <simpara>This is equivalent to the connection property
       <literal>hsqldb.nio_max_size</literal>.</simpara>
 
       <indexterm significance="preferred" type="sql">
