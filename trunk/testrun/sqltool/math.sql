@@ -57,7 +57,15 @@ SELECT COUNT(*) FROM t WHERE i = 4;
   * ((i++))
 * end while
 * if (*sum != 30)
-    \q Math op #2 failed
+    \q Math summation failed
+* end if
+-- Count back down
+* while (*i > 0)
+  * ((i-=1)) -- We do not support '--'
+  * ((sum -= i*i))
+* end while
+* if (*sum != 0)
+    \q Reversion of summation failed.  *{sum} left over.
 * end if
 
 * ((  v1 = (3 + 4) ^ (1 + 2) * 3  ))
