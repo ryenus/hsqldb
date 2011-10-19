@@ -98,9 +98,6 @@
       that the Text table uses:</para>
 
       <programlisting>   SET TABLE &lt;tablename&gt; SOURCE &lt;quoted_filename_and_options&gt; [DESC]</programlisting>
-
-      <para>Text Tables cannot be created in <glossterm>mem:</glossterm>
-      (all-in-memory) databases (databases that have no script file).</para>
     </section>
 
     <section>
@@ -384,10 +381,11 @@
       </listitem>
 
       <listitem>
-        <para>All-in-memory databases cannot create text tables, unless the
-        <varname>textdb.allow_full_path</varname> property is set true as a
-        Java system property. In this usage, the path should be an absolute
-        path. These text tables are always read only.</para>
+        <para>All-in-memory databases can use text tables. In this usage, the
+        path must be an absolute path. These text tables are always read only.
+        To disable this capability for access control reasons, the
+        <varname>textdb.allow_full_path</varname> property can be set false as
+        a Java system property.</para>
       </listitem>
 
       <listitem>

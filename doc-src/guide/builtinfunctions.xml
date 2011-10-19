@@ -1092,728 +1092,548 @@ WIDTH_BUCKET( 200, 10, 110, 10)
   <section xml:id="builtin_functions_datetime-sect">
     <title>Date Time and Interval Functions</title>
 
-    <indexterm significance="preferred" type="sql">
-      <primary>TIMEZONE function</primary>
-    </indexterm>
+    <para>Functions to report the time zone.</para>
 
-    <simpara><emphasis role="bold">TIMEZONE</emphasis></simpara>
+    <section>
+      <title>Functions to Report the Time Zone.</title>
 
-    <para><literal>TIMEZONE()</literal></para>
+      <indexterm significance="preferred" type="sql">
+        <primary>TIMEZONE function</primary>
+      </indexterm>
 
-    <para>Returns the current time zone for the session. Returns an INTERVAL
-    HOUR TO MINUTE value. (HyperSQL)</para>
+      <simpara><emphasis role="bold">TIMEZONE</emphasis></simpara>
 
-    <indexterm significance="preferred" type="sql">
-      <primary>SESSION_TIMEZONE function</primary>
-    </indexterm>
+      <para><literal>TIMEZONE()</literal></para>
 
-    <simpara><emphasis role="bold">SESSION_TIMEZONE</emphasis></simpara>
+      <para>Returns the current time zone for the session. Returns an INTERVAL
+      HOUR TO MINUTE value. (HyperSQL)</para>
 
-    <para><literal>SESSION_TIMEZONE()</literal></para>
+      <indexterm significance="preferred" type="sql">
+        <primary>SESSION_TIMEZONE function</primary>
+      </indexterm>
 
-    <para>Returns the default time zone for the current session. Returns an
-    INTERVAL HOUR TO MINUTE value. (HyperSQL)</para>
+      <simpara><emphasis role="bold">SESSION_TIMEZONE</emphasis></simpara>
 
-    <indexterm significance="preferred" type="sql">
-      <primary>DATABASE_TIMEZONE function</primary>
-    </indexterm>
+      <para><literal>SESSION_TIMEZONE()</literal></para>
 
-    <simpara><emphasis role="bold">DATABASE_TIMEZONE</emphasis></simpara>
+      <para>Returns the default time zone for the current session. Returns an
+      INTERVAL HOUR TO MINUTE value. (HyperSQL)</para>
 
-    <para><literal>DATABASE_TIMEZONE()</literal></para>
+      <indexterm significance="preferred" type="sql">
+        <primary>DATABASE_TIMEZONE function</primary>
+      </indexterm>
 
-    <para>Returns the time zone for the database engine. This is based on
-    where the database server process is located. Returns an INTERVAL HOUR TO
-    MINUTE value. (HyperSQL)</para>
+      <simpara><emphasis role="bold">DATABASE_TIMEZONE</emphasis></simpara>
 
-    <indexterm significance="preferred" type="sql">
-      <primary>EXTRACT function</primary>
-    </indexterm>
+      <para><literal>DATABASE_TIMEZONE()</literal></para>
 
-    <simpara><emphasis role="bold">EXTRACT</emphasis></simpara>
+      <para>Returns the time zone for the database engine. This is based on
+      where the database server process is located. Returns an INTERVAL HOUR
+      TO MINUTE value. (HyperSQL)</para>
+    </section>
 
-    <para><literal>EXTRACT ( &lt;extract field&gt; FROM &lt;extract source&gt;
-    )</literal></para>
+    <section>
+      <title>Functions to Report the Current Datetime</title>
 
-    <para><literal>&lt;extract field&gt; ::= YEAR | MONTH | DAY | HOUR |
-    MINUTE | DAY_OF_WEEK | WEEK_OF_YEAR | QUARTER | DAY_OF_YEAR | DAY_OF_MONTH
-    |</literal></para>
+      <indexterm significance="preferred" type="sql">
+        <primary>CURRENT_DATE function</primary>
+      </indexterm>
 
-    <para><literal>TIMEZONE_HOUR | TIMEZONE_MINUTE | SECOND |
-    SECONDS_SINCE_MIDNIGHT |</literal></para>
+      <simpara><emphasis role="bold">CURRENT_DATE</emphasis></simpara>
 
-    <para><literal>DAY_NAME | MONTH_NAME</literal></para>
+      <para><literal>CURRENT_DATE</literal></para>
 
-    <para><literal>&lt;extract source&gt; ::= &lt;datatime value expr&gt; |
-    &lt;interval value expr&gt;</literal></para>
+      <indexterm significance="preferred" type="sql">
+        <primary>CURRENT_TIME function</primary>
+      </indexterm>
 
-    <para>The EXTRACT function returns a field or element of the
-    <literal>&lt;extract source&gt;</literal>. The <literal>&lt;extract
-    source&gt;</literal> is a datetime or interval expression. The type of the
-    return value is BIGINT for most of the<literal> &lt;extract
-    field&gt;</literal> options. The exceptions is <literal>SECOND
-    </literal>where a DECIMAL value is returned which has the same precision
-    as the datetime or interval expression. The field values <literal>DAY_NAME
-    </literal>or<literal> MONTH_NAME </literal>result in a character string.
-    When <literal>MONTH_NAME</literal> is specified, a string in the range
-    January - December is returned. When <literal>DAY_NAME </literal>is
-    specified, a string in the range Sunday -Saturday is returned.</para>
+      <simpara><emphasis role="bold">CURRENT_TIME</emphasis></simpara>
 
-    <para>If the <literal>&lt;extract source&gt;</literal> is <literal>FROM
-    &lt;datatime value expr&gt;</literal>, different groups of
-    <literal>&lt;extract source&gt;</literal> can be used depending on the
-    data type of the expression. The <literal>TIMEZONE_HOUR |
-    TIMEZONE_MINUTE</literal> options are valid only for TIME WITH TIMEZONE
-    and TIMESTAMP WITH TIMEZONE data types. The <literal>HOUR | MINUTE |
-    SECOND | SECONDS_MIDNIGHT</literal> options, are valid for TIME and
-    TIMESTAMP types. The rest of the fields are valid for DATE and TIMESTAMP
-    types.</para>
+      <para><literal>CURRENT_TIME [ ( &lt;time precision&gt; )
+      ]</literal></para>
 
-    <para>If the <literal>&lt;extract source&gt;</literal> is <literal>FROM
-    &lt;interval value expr&gt;</literal>, the <literal>&lt;extract
-    field&gt;</literal> must be one of the fields of the INTERVAL type of the
-    expressions. The <literal>YEAR | MONTH</literal> options may be valid for
-    INTERVAL types based on months. The <literal>DAY | HOUR | MINUTE | SECOND
-    | SECONDS_MIDNIGHT</literal> options may be valid for INTERVAL types based
-    on seconds. For example,<literal> DAY | HOUR | MINUTE</literal> are the
-    only valid fields for the INTERVAL DAY TO MINUTE data type. (Foundation
-    with HyperSQL extensions)</para>
+      <indexterm significance="preferred" type="sql">
+        <primary>LOCALTIME function</primary>
+      </indexterm>
 
-    <indexterm significance="preferred" type="sql">
-      <primary>CURRENT_DATE function</primary>
-    </indexterm>
+      <simpara><emphasis role="bold">LOCALTIME</emphasis></simpara>
 
-    <simpara><emphasis role="bold">CURRENT_DATE</emphasis></simpara>
+      <para><literal>LOCALTIME [ ( &lt;time precision&gt; ) ]</literal></para>
 
-    <para><literal>CURRENT_DATE</literal></para>
+      <indexterm significance="preferred" type="sql">
+        <primary>CURRENT_TIMESTAMP function</primary>
+      </indexterm>
 
-    <indexterm significance="preferred" type="sql">
-      <primary>CURRENT_TIME function</primary>
-    </indexterm>
+      <simpara><emphasis role="bold">CURRENT_TIMESTAMP</emphasis></simpara>
 
-    <simpara><emphasis role="bold">CURRENT_TIME</emphasis></simpara>
+      <para><literal>CURRENT_TIMESTAMP [ ( &lt;timestamp precision&gt; )
+      ]</literal></para>
 
-    <para><literal>CURRENT_TIME [ ( &lt;time precision&gt; )
-    ]</literal></para>
+      <indexterm significance="preferred" type="sql">
+        <primary>LOCALTIMESTAMP function</primary>
+      </indexterm>
 
-    <indexterm significance="preferred" type="sql">
-      <primary>LOCALTIME function</primary>
-    </indexterm>
+      <simpara><emphasis role="bold">LOCALTIMESTAMP</emphasis></simpara>
 
-    <simpara><emphasis role="bold">LOCALTIME</emphasis></simpara>
+      <para><literal>LOCALTIMESTAMP [ ( &lt;timestamp precision&gt; )
+      ]</literal></para>
 
-    <para><literal>LOCALTIME [ ( &lt;time precision&gt; ) ]</literal></para>
+      <para>These datetime functions return the datetime value representing
+      the moment the function is called. CURRENT_DATE returns a value of DATE
+      type. CURRENT_TIME returns a value of TIME WITH TIME ZONE type.
+      LOCALTIME returns a value of TIME type. CURRENT_TIMESTAMP returns a
+      value of TIMESTAMP WITH TIME ZONE type. LOCALTIMESTAMP returns a value
+      of TIMESTAMP type. If the optional <literal>[ ( &lt;time precision&gt; )
+      ]</literal> or<literal> [ ( &lt;timestamp precision&gt; ) ]</literal> is
+      used, then the returned value has the specified fraction of the second
+      precision. (Foundation)</para>
 
-    <indexterm significance="preferred" type="sql">
-      <primary>CURRENT_TIMESTAMP function</primary>
-    </indexterm>
+      <indexterm significance="preferred" type="sql">
+        <primary>NOW function</primary>
+      </indexterm>
 
-    <simpara><emphasis role="bold">CURRENT_TIMESTAMP</emphasis></simpara>
+      <simpara><emphasis role="bold">NOW</emphasis></simpara>
 
-    <para><literal>CURRENT_TIMESTAMP [ ( &lt;timestamp precision&gt; )
-    ]</literal></para>
+      <para><literal>NOW ()</literal></para>
 
-    <indexterm significance="preferred" type="sql">
-      <primary>LOCALTIMESTAMP function</primary>
-    </indexterm>
+      <para>This function is equivalent to <literal>LOCALTIMESTAMP. It can be
+      used as a no-arg function as the empty parentheses are optional.
+      (HyperSQL)</literal></para>
 
-    <simpara><emphasis role="bold">LOCALTIMESTAMP</emphasis></simpara>
+      <indexterm significance="preferred" type="sql">
+        <primary>CURDATE function</primary>
+      </indexterm>
 
-    <para><literal>LOCALTIMESTAMP [ ( &lt;timestamp precision&gt; )
-    ]</literal></para>
+      <simpara><emphasis role="bold">CURDATE</emphasis></simpara>
 
-    <para>These datetime functions return the datetime value representing the
-    moment the function is called. CURRENT_DATE returns a value of DATE type.
-    CURRENT_TIME returns a value of TIME WITH TIME ZONE type. LOCALTIME
-    returns a value of TIME type. CURRENT_TIMESTAMP returns a value of
-    TIMESTAMP WITH TIME ZONE type. LOCALTIMESTAMP returns a value of TIMESTAMP
-    type. If the optional <literal>[ ( &lt;time precision&gt; ) ]</literal>
-    or<literal> [ ( &lt;timestamp precision&gt; ) ]</literal> is used, then
-    the returned value has the specified fraction of the second precision.
-    (Foundation)</para>
+      <para><literal>CURDATE ()</literal></para>
 
-    <indexterm significance="preferred" type="sql">
-      <primary>CURDATE function</primary>
-    </indexterm>
+      <para>This function is equivalent to<literal> CURRENT_DATE.
+      </literal>(JDBC)</para>
 
-    <simpara><emphasis role="bold">CURDATE</emphasis></simpara>
+      <indexterm significance="preferred" type="sql">
+        <primary>CURTIME function</primary>
+      </indexterm>
 
-    <para><literal>CURDATE ()</literal></para>
+      <simpara><emphasis role="bold">CURTIME</emphasis></simpara>
 
-    <para>This function is equivalent to<literal> CURRENT_DATE.
-    </literal>(JDBC)</para>
+      <para><literal>CURTIME ()</literal></para>
 
-    <indexterm significance="preferred" type="sql">
-      <primary>CURTIME function</primary>
-    </indexterm>
+      <para>This function is equivalent to<literal> LOCALTIME</literal>.
+      (JDBC)</para>
 
-    <simpara><emphasis role="bold">CURTIME</emphasis></simpara>
+      <indexterm significance="preferred" type="sql">
+        <primary>SYSDATE function</primary>
+      </indexterm>
 
-    <para><literal>CURTIME ()</literal></para>
+      <simpara><emphasis role="bold">SYSDATE</emphasis></simpara>
 
-    <para>This function is equivalent to<literal> LOCALTIME</literal>.
-    (JDBC)</para>
+      <para><literal>SYSDATE</literal></para>
 
-    <indexterm significance="preferred" type="sql">
-      <primary>DAYNAME function</primary>
-    </indexterm>
+      <para>This function is equivalent to<literal> LOCALTIMESTAMP.
+      </literal>(HyperSQL)</para>
 
-    <simpara><emphasis role="bold">DAYNAME</emphasis></simpara>
+      <indexterm significance="preferred" type="sql">
+        <primary>SYSTIMESTAMP function</primary>
+      </indexterm>
 
-    <para><literal>DAYNAME ( &lt;datatime value expr&gt; )</literal></para>
+      <simpara><emphasis role="bold">SYSTIMESTAMP</emphasis></simpara>
 
-    <para>This function is equivalent to<literal> EXTRACT ( DAY_NAME FROM ...
-    ) </literal>Returns a string in the range of Sunday - Saturday.
-    (JDBC)</para>
+      <para><literal>SYSTIMESTAMP</literal></para>
 
-    <indexterm significance="preferred" type="sql">
-      <primary>DAYOFMONTH function</primary>
-    </indexterm>
+      <para>This no-arg function is equivalent to<literal> CURRENT_TIMESTAMP
+      and is enabled in Oracle syntax mode only. </literal>(HyperSQL)</para>
 
-    <simpara><emphasis role="bold">DAYOFMONTH</emphasis></simpara>
+      <indexterm significance="preferred" type="sql">
+        <primary>TODAY function</primary>
+      </indexterm>
 
-    <para><literal>DAYOFMONTH ( &lt;datetime value expr&gt; )</literal></para>
+      <simpara><emphasis role="bold">TODAY</emphasis></simpara>
 
-    <para>This function is equivalent to<literal> EXTRACT ( DAY_OF_MONTH FROM
-    ... ) </literal>Returns an integer value in the range of 1-31.
-    (JDBC)</para>
+      <para><literal>TODAY</literal></para>
 
-    <indexterm significance="preferred" type="sql">
-      <primary>DAYOFWEEK function</primary>
-    </indexterm>
+      <para>This no-arg function is equivalent to<literal> CURRENT_DATE.
+      </literal>(HyperSQL)</para>
+    </section>
 
-    <simpara><emphasis role="bold">DAYOFWEEK</emphasis></simpara>
+    <section>
+      <title>Functions to Extract an Element of a Datetime</title>
 
-    <para><literal>DAYOFWEEK ( &lt;datetime value expr&gt; )</literal></para>
+      <indexterm significance="preferred" type="sql">
+        <primary>DAYNAME function</primary>
+      </indexterm>
 
-    <para>This function is equivalent to <literal>EXTRACT ( DAY_OF_WEEK FROM
-    ... ) </literal>Returns an integer value in the range of 1-7. The first
-    day of the week is Sunday. (JDBC)</para>
+      <simpara><emphasis role="bold">DAYNAME</emphasis></simpara>
 
-    <indexterm significance="preferred" type="sql">
-      <primary>DAYOFYEAR function</primary>
-    </indexterm>
+      <para><literal>DAYNAME ( &lt;datatime value expr&gt; )</literal></para>
 
-    <simpara><emphasis role="bold">DAYOFYEAR</emphasis></simpara>
+      <para>This function is equivalent to<literal> EXTRACT ( DAY_NAME FROM
+      ... ) </literal>Returns a string in the range of Sunday - Saturday.
+      (JDBC)</para>
 
-    <para><literal>DAYOFYEAR ( &lt;datetime value expr&gt; )</literal></para>
+      <indexterm significance="preferred" type="sql">
+        <primary>DAYOFMONTH function</primary>
+      </indexterm>
 
-    <para>This function is equivalent to <literal>EXTRACT ( DAY_OF_YEAR FROM
-    ... ) </literal>Returns an integer value in the range of 1-366.
-    (JDBC)</para>
+      <simpara><emphasis role="bold">DAYOFMONTH</emphasis></simpara>
 
-    <indexterm significance="preferred" type="sql">
-      <primary>HOUR function</primary>
-    </indexterm>
+      <para><literal>DAYOFMONTH ( &lt;datetime value expr&gt;
+      )</literal></para>
 
-    <simpara><emphasis role="bold">HOUR</emphasis></simpara>
+      <para>This function is equivalent to<literal> EXTRACT ( DAY_OF_MONTH
+      FROM ... ) </literal>Returns an integer value in the range of 1-31.
+      (JDBC)</para>
 
-    <para><literal>HOUR ( &lt;datetime value expr&gt; )</literal></para>
+      <indexterm significance="preferred" type="sql">
+        <primary>DAYOFWEEK function</primary>
+      </indexterm>
 
-    <para>This function is equivalent to <literal>EXTRACT ( HOUR FROM ... )
-    </literal>Returns an integer value in the range of 0-23. (JDBC)</para>
+      <simpara><emphasis role="bold">DAYOFWEEK</emphasis></simpara>
 
-    <indexterm significance="preferred" type="sql">
-      <primary>MINUTE function</primary>
-    </indexterm>
+      <para><literal>DAYOFWEEK ( &lt;datetime value expr&gt;
+      )</literal></para>
 
-    <simpara><emphasis role="bold">MINUTE</emphasis></simpara>
+      <para>This function is equivalent to <literal>EXTRACT ( DAY_OF_WEEK FROM
+      ... ) </literal>Returns an integer value in the range of 1-7. The first
+      day of the week is Sunday. (JDBC)</para>
 
-    <para><literal>MINUTE ( &lt;datetime value expr&gt; )</literal></para>
+      <indexterm significance="preferred" type="sql">
+        <primary>DAYOFYEAR function</primary>
+      </indexterm>
 
-    <para>This function is equivalent to<literal> EXTRACT ( MINUTE FROM ... )
-    </literal>Returns an integer value in the range of 0 - 59. (JDBC)</para>
+      <simpara><emphasis role="bold">DAYOFYEAR</emphasis></simpara>
 
-    <indexterm significance="preferred" type="sql">
-      <primary>MONTH function</primary>
-    </indexterm>
+      <para><literal>DAYOFYEAR ( &lt;datetime value expr&gt;
+      )</literal></para>
 
-    <simpara><emphasis role="bold">MONTH</emphasis></simpara>
+      <para>This function is equivalent to <literal>EXTRACT ( DAY_OF_YEAR FROM
+      ... ) </literal>Returns an integer value in the range of 1-366.
+      (JDBC)</para>
 
-    <para><literal>MONTH ( &lt;datetime value expr&gt; )</literal></para>
+      <indexterm significance="preferred" type="sql">
+        <primary>DAYS function datetime</primary>
+      </indexterm>
 
-    <para>This function is equivalent to <literal>EXTRACT ( MONTH FROM ... )
-    </literal>Returns an integer value in the range of 1-12. (JDBC)</para>
+      <simpara><emphasis role="bold">DAYS</emphasis></simpara>
 
-    <indexterm significance="preferred" type="sql">
-      <primary>MONTHNAME function</primary>
-    </indexterm>
+      <para><literal>DAYS ( &lt;datetime value expr&gt; ) </literal></para>
 
-    <simpara><emphasis role="bold">MONTHNAME</emphasis></simpara>
+      <para>The <literal>&lt;datetime value expr&gt; </literal>is of DATE or
+      TIMESTAMP type. This function returns the DAY number since the first day
+      of the calendar. The first day is numbered 1. (HyperSQL)</para>
 
-    <para><literal>MONTHNAME ( &lt;datetime value expr&gt; )</literal></para>
+      <indexterm significance="preferred" type="sql">
+        <primary>HOUR function</primary>
+      </indexterm>
 
-    <para>This function is equivalent to <literal>EXTRACT ( NAME_OF_MONTH FROM
-    ... ) </literal>Returns a string in the range of January - December.
-    (JDBC)</para>
+      <simpara><emphasis role="bold">HOUR</emphasis></simpara>
 
-    <indexterm significance="preferred" type="sql">
-      <primary>NOW function</primary>
-    </indexterm>
+      <para><literal>HOUR ( &lt;datetime value expr&gt; )</literal></para>
 
-    <simpara><emphasis role="bold">NOW</emphasis></simpara>
+      <para>This function is equivalent to <literal>EXTRACT ( HOUR FROM ... )
+      </literal>Returns an integer value in the range of 0-23. (JDBC)</para>
 
-    <para><literal>NOW ()</literal></para>
+      <indexterm significance="preferred" type="sql">
+        <primary>MINUTE function</primary>
+      </indexterm>
 
-    <para>This function is equivalent to <literal>LOCAL_TIMESTAMP. It can be
-    used as a no-arg function as the empty parentheses are optional.
-    (HyperSQL)</literal></para>
+      <simpara><emphasis role="bold">MINUTE</emphasis></simpara>
 
-    <indexterm significance="preferred" type="sql">
-      <primary>QUARTER function</primary>
-    </indexterm>
+      <para><literal>MINUTE ( &lt;datetime value expr&gt; )</literal></para>
 
-    <simpara><emphasis role="bold">QUARTER</emphasis></simpara>
+      <para>This function is equivalent to<literal> EXTRACT ( MINUTE FROM ...
+      ) </literal>Returns an integer value in the range of 0 - 59.
+      (JDBC)</para>
 
-    <para><literal>QUARTER ( &lt;datetime value expr&gt; )</literal></para>
+      <indexterm significance="preferred" type="sql">
+        <primary>MONTH function</primary>
+      </indexterm>
 
-    <para>This function is equivalent to <literal>EXTRACT ( QUARTER FROM ... )
-    </literal>Returns an integer in the range of 1 - 4. (JDBC)</para>
+      <simpara><emphasis role="bold">MONTH</emphasis></simpara>
 
-    <indexterm significance="preferred" type="sql">
-      <primary>SECOND function</primary>
-    </indexterm>
+      <para><literal>MONTH ( &lt;datetime value expr&gt; )</literal></para>
 
-    <simpara><emphasis role="bold">SECOND</emphasis></simpara>
+      <para>This function is equivalent to <literal>EXTRACT ( MONTH FROM ... )
+      </literal>Returns an integer value in the range of 1-12. (JDBC)</para>
 
-    <para><literal>SECOND ( &lt;datetime value expr&gt; )</literal></para>
+      <indexterm significance="preferred" type="sql">
+        <primary>MONTHNAME function</primary>
+      </indexterm>
 
-    <para>This function is equivalent to <literal>EXTRACT ( SECOND FROM ... )
-    </literal>Returns an integer or decimal in the range of 0 - 59, with the
-    same precision as the &lt;datetime value expr&gt;. (JDBC)</para>
+      <simpara><emphasis role="bold">MONTHNAME</emphasis></simpara>
 
-    <indexterm significance="preferred" type="sql">
-      <primary>SECONDS_SINCE_MIDNIGHT function</primary>
-    </indexterm>
+      <para><literal>MONTHNAME ( &lt;datetime value expr&gt;
+      )</literal></para>
 
-    <simpara><emphasis role="bold">SECONDS_SINCE_MIDNIGHT</emphasis></simpara>
+      <para>This function is equivalent to <literal>EXTRACT ( NAME_OF_MONTH
+      FROM ... ) </literal>Returns a string in the range of January -
+      December. (JDBC)</para>
 
-    <para><literal>SECONDS_SINCE_MIDNIGHT ( &lt;datetime value expr&gt;
-    )</literal></para>
+      <indexterm significance="preferred" type="sql">
+        <primary>QUARTER function</primary>
+      </indexterm>
 
-    <para>This function is equivalent to<literal> EXTRACT (
-    SECONDS_SINCE_MIDNIGHT FROM ... ) </literal>Returns an integer in the
-    range of 0 - 86399. (HyperSQL)</para>
+      <simpara><emphasis role="bold">QUARTER</emphasis></simpara>
 
-    <indexterm significance="preferred" type="sql">
-      <primary>SYSDATE function</primary>
-    </indexterm>
+      <para><literal>QUARTER ( &lt;datetime value expr&gt; )</literal></para>
 
-    <simpara><emphasis role="bold">SYSDATE</emphasis></simpara>
+      <para>This function is equivalent to <literal>EXTRACT ( QUARTER FROM ...
+      ) </literal>Returns an integer in the range of 1 - 4. (JDBC)</para>
 
-    <para><literal>SYSDATE</literal></para>
+      <indexterm significance="preferred" type="sql">
+        <primary>SECOND function</primary>
+      </indexterm>
 
-    <para>This function is equivalent to<literal> LOCAL_TIMESTAMP.
-    </literal>(HyperSQL)</para>
+      <simpara><emphasis role="bold">SECOND</emphasis></simpara>
 
-    <indexterm significance="preferred" type="sql">
-      <primary>SYSTIMESTAMP function</primary>
-    </indexterm>
+      <para><literal>SECOND ( &lt;datetime value expr&gt; )</literal></para>
 
-    <simpara><emphasis role="bold">SYSTIMESTAMP</emphasis></simpara>
+      <para>This function is equivalent to <literal>EXTRACT ( SECOND FROM ...
+      ) </literal>Returns an integer or decimal in the range of 0 - 59, with
+      the same precision as the &lt;datetime value expr&gt;. (JDBC)</para>
 
-    <para><literal>SYSTIMESTAMP</literal></para>
+      <indexterm significance="preferred" type="sql">
+        <primary>SECONDS_SINCE_MIDNIGHT function</primary>
+      </indexterm>
 
-    <para>This no-arg function is equivalent to<literal> CURRENT_TIMESTAMP and
-    is enabled in Oracle syntax mode only. </literal>(HyperSQL)</para>
+      <simpara><emphasis
+      role="bold">SECONDS_SINCE_MIDNIGHT</emphasis></simpara>
 
-    <indexterm significance="preferred" type="sql">
-      <primary>TODAY function</primary>
-    </indexterm>
+      <para><literal>SECONDS_SINCE_MIDNIGHT ( &lt;datetime value expr&gt;
+      )</literal></para>
 
-    <simpara><emphasis role="bold">TODAY</emphasis></simpara>
+      <para>This function is equivalent to<literal> EXTRACT (
+      SECONDS_SINCE_MIDNIGHT FROM ... ) </literal>Returns an integer in the
+      range of 0 - 86399. (HyperSQL)</para>
 
-    <para><literal>TODAY</literal></para>
+      <indexterm significance="preferred" type="sql">
+        <primary>UNIX_TIMESTAMP function</primary>
+      </indexterm>
 
-    <para>This no-arg function is equivalent to<literal> CURRENT_DATE.
-    </literal>(HyperSQL)</para>
+      <simpara><emphasis role="bold">UNIX_TIMESTAMP</emphasis></simpara>
 
-    <indexterm significance="preferred" type="sql">
-      <primary>WEEK function</primary>
-    </indexterm>
+      <para><literal>UNIX_TIMESTAMP ( [ &lt;datetime value expression&gt; ] )
+      </literal></para>
 
-    <simpara><emphasis role="bold">WEEK</emphasis></simpara>
+      <para>This function returns a BIGINT value. With no parameter, it
+      returns the number of seconds since 1970-01-01. With a DATE or TIMESTAMP
+      parameter, it converts the argument into number of seconds since
+      1970-01-01. The TIMESTAMP ( &lt;num value expression&gt; function
+      returns a TIMESTAMP from a Unix timestamp. (HyperSQL)</para>
 
-    <para><literal>WEEK ( &lt;datetime value expr&gt; )</literal></para>
+      <indexterm significance="preferred" type="sql">
+        <primary>WEEK function</primary>
+      </indexterm>
 
-    <para>This function is equivalent to<literal> EXTRACT ( WEEK_OF_YEAR FROM
-    ... ) </literal>Returns an integer in the range of 1 - 54. (JDBC)</para>
+      <simpara><emphasis role="bold">WEEK</emphasis></simpara>
 
-    <indexterm significance="preferred" type="sql">
-      <primary>YEAR function</primary>
-    </indexterm>
+      <para><literal>WEEK ( &lt;datetime value expr&gt; )</literal></para>
 
-    <simpara><emphasis role="bold">YEAR</emphasis></simpara>
+      <para>This function is equivalent to<literal> EXTRACT ( WEEK_OF_YEAR
+      FROM ... ) </literal>Returns an integer in the range of 1 - 54.
+      (JDBC)</para>
 
-    <para><literal>YEAR ( &lt;datetime value expr&gt; )</literal></para>
+      <indexterm significance="preferred" type="sql">
+        <primary>YEAR function</primary>
+      </indexterm>
 
-    <para>This function is equivalent to<literal> EXTRACT ( YEAR FROM ... )
-    </literal>Returns an integer in the range of 1 - 9999. (JDBC)</para>
+      <simpara><emphasis role="bold">YEAR</emphasis></simpara>
 
-    <indexterm significance="preferred" type="sql">
-      <primary>TIMESTAMPADD function</primary>
-    </indexterm>
+      <para><literal>YEAR ( &lt;datetime value expr&gt; )</literal></para>
 
-    <simpara><emphasis role="bold">TIMESTAMPADD</emphasis></simpara>
+      <para>This function is equivalent to<literal> EXTRACT ( YEAR FROM ... )
+      </literal>Returns an integer in the range of 1 - 9999. (JDBC)</para>
 
-    <para><literal>TIMESTAMPADD ( &lt;tsi datetime field&gt;, &lt;numeric
-    value expression&gt;, &lt;datetime value expr&gt;)</literal></para>
+      <indexterm significance="preferred" type="sql">
+        <primary>EXTRACT function</primary>
+      </indexterm>
 
-    <indexterm significance="preferred" type="sql">
-      <primary>TIMESTAMPDIFF function</primary>
-    </indexterm>
+      <simpara><emphasis role="bold">EXTRACT</emphasis></simpara>
 
-    <simpara><emphasis role="bold">TIMESTAMPDIFF</emphasis></simpara>
+      <para><literal>EXTRACT ( &lt;extract field&gt; FROM &lt;extract
+      source&gt; )</literal></para>
 
-    <para><literal>TIMESTAMPDIFF ( &lt;tsi datetime field&gt;, &lt;datetime
-    value expr 1&gt;, &lt;datetime value expr 2&gt;)</literal></para>
+      <para><literal>&lt;extract field&gt; ::= YEAR | MONTH | DAY | HOUR |
+      MINUTE | DAY_OF_WEEK | WEEK_OF_YEAR | QUARTER | DAY_OF_YEAR |
+      DAY_OF_MONTH |</literal></para>
 
-    <para><literal>&lt;tsi datetime field&gt; ::= SQL_TSI_FRAC_SECOND |
-    SQL_TSI_SECOND | SQL_TSI_MINUTE | SQL_TSI_HOUR | SQL_TSI_DAY |
-    SQL_TSI_WEEK | SQL_TSI_MONTH | SQL_TSI_QUARTER |
-    SQL_TSI_YEAR</literal></para>
+      <para><literal>TIMEZONE_HOUR | TIMEZONE_MINUTE | SECOND |
+      SECONDS_SINCE_MIDNIGHT |</literal></para>
 
-    <para>HyperSQL supports full SQL Standard datetime features. It supports
-    adding integers representing units of time directly to datetime values
-    using the arithmetic plus operator. It also supports subtracting one
-    <literal>&lt;datetime value expr&gt;</literal> from another in the given
-    units of days using the minus operator. An example of
-    <literal>&lt;datetime value expr&gt; + &lt;numeric value expression&gt;
-    &lt;datetime field&gt; </literal>is <literal>LOCAL_TIMESTAMP + 5
-    DAY</literal>. An example of <literal>( &lt;datetime value expr&gt; -
-    &lt;numeric value expression&gt; ) &lt;datetime field&gt; </literal>is
-    <literal>(CURRENT_DATE - DATE '2008-08-8') MONTH </literal>which returns
-    the number of calendar months between the two dates.</para>
+      <para><literal>DAY_NAME | MONTH_NAME</literal></para>
 
-    <para>The two JDBC functions, <literal>TIMESTAMPADD </literal>and
-    <literal>TIMESTAMPDIFF</literal> perform the same function as above SQL
-    expressions. The field names are keywords and are different from those
-    used in the EXTRACT functions. These names are valid for use only when
-    calling these two functions. The return value for TIMESTAMPADD is of the
-    same type as the datetime argument used. The return type for TIMESTAMPDIFF
-    is always BIGINT, regardless of the type of arguments. The two datetime
-    arguments of TIMESTAMPDIFF should be of the same type.</para>
+      <para><literal>&lt;extract source&gt; ::= &lt;datatime value expr&gt; |
+      &lt;interval value expr&gt;</literal></para>
 
-    <para><literal>TIMESTAMPDIFF</literal> is evaluated as &lt;datetime value
-    expr 2&gt; - &lt;datetime value expr 1&gt;.</para>
+      <para>The EXTRACT function returns a field or element of the
+      <literal>&lt;extract source&gt;</literal>. The <literal>&lt;extract
+      source&gt;</literal> is a datetime or interval expression. The type of
+      the return value is BIGINT for most of the<literal> &lt;extract
+      field&gt;</literal> options. The exceptions is <literal>SECOND
+      </literal>where a DECIMAL value is returned which has the same precision
+      as the datetime or interval expression. The field values
+      <literal>DAY_NAME </literal>or<literal> MONTH_NAME </literal>result in a
+      character string. When <literal>MONTH_NAME</literal> is specified, a
+      string in the range January - December is returned. When
+      <literal>DAY_NAME </literal>is specified, a string in the range Sunday
+      -Saturday is returned.</para>
 
-    <para>(JDBC)</para>
+      <para>If the <literal>&lt;extract source&gt;</literal> is <literal>FROM
+      &lt;datatime value expr&gt;</literal>, different groups of
+      <literal>&lt;extract source&gt;</literal> can be used depending on the
+      data type of the expression. The <literal>TIMEZONE_HOUR |
+      TIMEZONE_MINUTE</literal> options are valid only for TIME WITH TIMEZONE
+      and TIMESTAMP WITH TIMEZONE data types. The <literal>HOUR | MINUTE |
+      SECOND | SECONDS_MIDNIGHT</literal> options, are valid for TIME and
+      TIMESTAMP types. The rest of the fields are valid for DATE and TIMESTAMP
+      types.</para>
 
-    <indexterm significance="preferred" type="sql">
-      <primary>DATEADD function</primary>
-    </indexterm>
+      <para>If the <literal>&lt;extract source&gt;</literal> is <literal>FROM
+      &lt;interval value expr&gt;</literal>, the <literal>&lt;extract
+      field&gt;</literal> must be one of the fields of the INTERVAL type of
+      the expressions. The <literal>YEAR | MONTH</literal> options may be
+      valid for INTERVAL types based on months. The <literal>DAY | HOUR |
+      MINUTE | SECOND | SECONDS_MIDNIGHT</literal> options may be valid for
+      INTERVAL types based on seconds. For example,<literal> DAY | HOUR |
+      MINUTE</literal> are the only valid fields for the INTERVAL DAY TO
+      MINUTE data type. (Foundation with HyperSQL extensions)</para>
+    </section>
 
-    <simpara><emphasis role="bold">DATEADD</emphasis></simpara>
+    <section>
+      <title>Functions for Datetime Arithmatic</title>
 
-    <para><literal>DATEADD ( &lt;field&gt;, &lt;numeric value expr&gt;,
-    &lt;datetime value expr&gt; )</literal></para>
+      <indexterm significance="preferred" type="sql">
+        <primary>TIMESTAMPADD function</primary>
+      </indexterm>
 
-    <indexterm significance="preferred" type="sql">
-      <primary>DATEDIFF function</primary>
-    </indexterm>
+      <simpara><emphasis role="bold">TIMESTAMPADD</emphasis></simpara>
 
-    <simpara><emphasis role="bold">DATEDIFF</emphasis></simpara>
+      <para><literal>TIMESTAMPADD ( &lt;tsi datetime field&gt;, &lt;numeric
+      value expression&gt;, &lt;datetime value expr&gt;)</literal></para>
 
-    <para><literal>DATEDIFF ( &lt;field&gt;, &lt;datetime value expr 1&gt;,
-    &lt;datetime value expr 2&gt; )</literal></para>
+      <indexterm significance="preferred" type="sql">
+        <primary>TIMESTAMPDIFF function</primary>
+      </indexterm>
 
-    <para><literal>&lt;field&gt; ::= 'yy' | 'year' | 'mm' | 'month' | 'dd' |
-    'day' | 'hh' | 'hour' | 'mi' | 'minute' | 'ss' | 'second' | 'ms' |
-    'millisecond'</literal></para>
+      <simpara><emphasis role="bold">TIMESTAMPDIFF</emphasis></simpara>
 
-    <para>The DATEADD and DATEDIFF functions are alternatives to TIMESTAMPADD
-    and TIMESTAMPDIFF, with fewer available field options. The field names are
-    specified as strings, rather than keywords. The fields translate to YEAR,
-    MONTH, DAY, HOUR, MINUTE, SECOND and MILLISECOND.
-    <literal>DATEDIFF</literal> is evaluated as &lt;datetime value expr 2&gt;
-    - &lt;datetime value expr 1&gt;. (HyperSQL}</para>
+      <para><literal>TIMESTAMPDIFF ( &lt;tsi datetime field&gt;, &lt;datetime
+      value expr 1&gt;, &lt;datetime value expr 2&gt;)</literal></para>
 
-    <para><literal>DATEDIFF ( &lt;datetime value expr 1&gt;, &lt;datetime value
-    expr 2&gt; )</literal></para>
+      <para><literal>&lt;tsi datetime field&gt; ::= SQL_TSI_FRAC_SECOND |
+      SQL_TSI_SECOND | SQL_TSI_MINUTE | SQL_TSI_HOUR | SQL_TSI_DAY |
+      SQL_TSI_WEEK | SQL_TSI_MONTH | SQL_TSI_QUARTER |
+      SQL_TSI_YEAR</literal></para>
 
-    <para>This special form of <literal>DATEDIFF</literal> does not have a
-    field parameter and return the number of days between two dates. This form
-    is evaluated as <literal>&lt;datetime value expr 1&gt; - &lt;datetime
-    value expr 2&gt;</literal>, which is different from the main form. This
-    form is compatible with some other database engines. (HyperSQL}</para>
+      <para>HyperSQL supports full SQL Standard datetime features. It supports
+      adding integers representing units of time directly to datetime values
+      using the arithmetic plus operator. It also supports subtracting one
+      <literal>&lt;datetime value expr&gt;</literal> from another in the given
+      units of days using the minus operator. An example of
+      <literal>&lt;datetime value expr&gt; + &lt;numeric value expression&gt;
+      &lt;datetime field&gt; </literal>is <literal>LOCALTIMESTAMP + 5
+      DAY</literal>. An example of <literal>( &lt;datetime value expr&gt; -
+      &lt;numeric value expression&gt; ) &lt;datetime field&gt; </literal>is
+      <literal>(CURRENT_DATE - DATE '2008-08-8') MONTH </literal>which returns
+      the number of calendar months between the two dates.</para>
 
-    <indexterm significance="preferred" type="sql">
-      <primary>DAYS function datetime</primary>
-    </indexterm>
+      <para>The two JDBC functions, <literal>TIMESTAMPADD </literal>and
+      <literal>TIMESTAMPDIFF</literal> perform the same function as above SQL
+      expressions. The field names are keywords and are different from those
+      used in the EXTRACT functions. These names are valid for use only when
+      calling these two functions. The return value for TIMESTAMPADD is of the
+      same type as the datetime argument used. The return type for
+      TIMESTAMPDIFF is always BIGINT, regardless of the type of arguments. The
+      two datetime arguments of TIMESTAMPDIFF should be of the same
+      type.</para>
 
-    <simpara><emphasis role="bold">DAYS</emphasis></simpara>
+      <para><literal>TIMESTAMPDIFF</literal> is evaluated as &lt;datetime
+      value expr 2&gt; - &lt;datetime value expr 1&gt;.</para>
 
-    <para><literal>DAYS ( &lt;datetime value expr&gt; ) </literal></para>
+      <para>(JDBC)</para>
 
-    <para>The <literal>&lt;datetime value expr&gt; </literal>is of DATE or
-    TIMESTAMP type. This function returns the DAY number since the first day
-    of the calendar. The first day is numbered 1. (HyperSQL)</para>
+      <indexterm significance="preferred" type="sql">
+        <primary>DATEADD function</primary>
+      </indexterm>
 
-    <indexterm significance="preferred" type="sql">
-      <primary>ROUND function datetime</primary>
-    </indexterm>
+      <simpara><emphasis role="bold">DATEADD</emphasis></simpara>
 
-    <simpara><emphasis role="bold">ROUND</emphasis></simpara>
+      <para><literal>DATEADD ( &lt;field&gt;, &lt;numeric value expr&gt;,
+      &lt;datetime value expr&gt; )</literal></para>
 
-    <para><literal>ROUND ( &lt;datetime value expr&gt; [ , &lt;char value
-    expr&gt; ] ) </literal></para>
+      <indexterm significance="preferred" type="sql">
+        <primary>DATEDIFF function</primary>
+      </indexterm>
 
-    <para>The <literal>&lt;datetime value expr&gt; </literal>is of DATE, TIME
-    or TIMESTAMP type. The <literal>&lt;char value expr&gt;</literal> is a
-    format string for YEAR, MONTH, WEEK OF YEAR, DAY, HOUR, MINUTE or SECOND
-    as listed in the table for TO_CHAR and TO_DATE format elements (see
-    below). The datetime value is rounded up or down after the specified field
-    and the rest of the fields to the right are set to one for MONTH and DAY,
-    or zero, for the rest of the fields. For example rounding a timestamp
-    value on the DAY field results in midnight the same date or midnight the
-    next day if the time is at or after 12 noon. If the second argument is
-    ommitted, the datetime value is rounded to the nearest day.
-    (HyperSQL)</para>
+      <simpara><emphasis role="bold">DATEDIFF</emphasis></simpara>
 
-    <indexterm significance="preferred" type="sql">
-      <primary>TO_CHAR function</primary>
-    </indexterm>
+      <para><literal>DATEDIFF ( &lt;field&gt;, &lt;datetime value expr 1&gt;,
+      &lt;datetime value expr 2&gt; )</literal></para>
 
-    <simpara><emphasis role="bold">TO_CHAR</emphasis></simpara>
+      <para><literal>&lt;field&gt; ::= 'yy' | 'year' | 'mm' | 'month' | 'dd' |
+      'day' | 'hh' | 'hour' | 'mi' | 'minute' | 'ss' | 'second' | 'ms' |
+      'millisecond'</literal></para>
 
-    <para><literal>TO_CHAR ( &lt;datetime value expr&gt;, &lt;char value
-    expr&gt; )</literal></para>
+      <para>The DATEADD and DATEDIFF functions are alternatives to
+      TIMESTAMPADD and TIMESTAMPDIFF, with fewer available field options. The
+      field names are specified as strings, rather than keywords. The fields
+      translate to YEAR, MONTH, DAY, HOUR, MINUTE, SECOND and MILLISECOND.
+      <literal>DATEDIFF</literal> is evaluated as &lt;datetime value expr
+      2&gt; - &lt;datetime value expr 1&gt;. (HyperSQL}</para>
 
-    <para>This function formats a datetime or numeric value to the format
-    given in the second argument. The format string can contain pattern
-    elements from the list given below, plus punctuation and space characters.
-    An example, including the result, is given below:</para>
+      <para><literal>DATEDIFF ( &lt;datetime value expr 1&gt;, &lt;datetime
+      value expr 2&gt; )</literal></para>
 
-    <programlisting>TO_CHAR ( TIMESTAMP'2008-02-01 20:30:40', 'YYYY BC MONTH, DAY HH' )
+      <para>This special form of <literal>DATEDIFF</literal> does not have a
+      field parameter and return the number of days between two dates. This
+      form is evaluated as <literal>&lt;datetime value expr 1&gt; -
+      &lt;datetime value expr 2&gt;</literal>, which is different from the
+      main form. This form is compatible with some other database engines.
+      (HyperSQL}</para>
 
-2008 AD February, Friday 8
-</programlisting>
+      <indexterm significance="preferred" type="sql">
+        <primary>ROUND function datetime</primary>
+      </indexterm>
 
-    <para>The format is internally translated to a
-    <classname>java.text.SimpleDateFormat</classname> format string. Separator
-    characters (space, comma, period, hyphen, colon, semicolon, forward slash)
-    can be included between the pattern elements. Unsupported format strings
-    should not be used. You can include a string literal inside the format
-    string by enclosing it in double quotes. (HyperSQL)</para>
+      <simpara><emphasis role="bold">ROUND</emphasis></simpara>
 
-    <indexterm significance="preferred" type="sql">
-      <primary>TO_DATE function</primary>
-    </indexterm>
+      <para><literal>ROUND ( &lt;datetime value expr&gt; [ , &lt;char value
+      expr&gt; ] ) </literal></para>
 
-    <simpara><emphasis role="bold">TO_DATE</emphasis></simpara>
+      <para>The <literal>&lt;datetime value expr&gt; </literal>is of DATE,
+      TIME or TIMESTAMP type. The <literal>&lt;char value expr&gt;</literal>
+      is a format string for YEAR, MONTH, WEEK OF YEAR, DAY, HOUR, MINUTE or
+      SECOND as listed in the table for TO_CHAR and TO_DATE format elements
+      (see below). The datetime value is rounded up or down after the
+      specified field and the rest of the fields to the right are set to one
+      for MONTH and DAY, or zero, for the rest of the fields. For example
+      rounding a timestamp value on the DAY field results in midnight the same
+      date or midnight the next day if the time is at or after 12 noon. If the
+      second argument is ommitted, the datetime value is rounded to the
+      nearest day. (HyperSQL)</para>
 
-    <para><literal>TO_DATE ( &lt;char value expr&gt;, &lt;char value expr&gt;
-    )</literal></para>
+      <indexterm significance="preferred" type="sql">
+        <primary>TRUNC function datetime</primary>
+      </indexterm>
 
-    <para>This function translates a formatted datetime sting to a DATE
-    according to the format given in the second argument. See TO_TIMESTAMP
-    below for further details.</para>
+      <simpara><emphasis role="bold">TRUNC</emphasis></simpara>
 
-    <indexterm significance="preferred" type="sql">
-      <primary>TO_TIMESTAMP function</primary>
-    </indexterm>
+      <para><literal>TRUNC ( &lt;datetime value expr&gt; [ , &lt;char value
+      expr&gt; ] ) </literal></para>
 
-    <simpara><emphasis role="bold">TO_TIMESTAMP</emphasis></simpara>
+      <para>Similar to the ROUND function, the <literal>&lt;num value expr&gt;
+      </literal>is of DATE, TIME or TIMESTAMP type. The <literal>&lt;char
+      value expr&gt;</literal> is a format string for YEAR, MONTH, WEEK OF
+      YEAR, DAY, HOUR, MINUTE or SECOND as listed in the table for TO_CHAR and
+      TO_DATE format elements (see above). The datetime value is truncated
+      after the specified field and the rest of the fields to the right are
+      set to one for MONTH and DAY, or zero, for the rest of the fields. For
+      example applying TRUNC to a timestamp value on the DAY field results in
+      midnight the same date. Examples of ROUND and TRUNC functions are given
+      below. If the second argument is omitted, the datetime value is
+      truncated to midnight the same date. (HyperSQL)</para>
 
-    <para><literal>TO_TIMESTAMP ( &lt;char value expr&gt;, &lt;char value
-    expr&gt; )</literal></para>
-
-    <para>This function translates a formatted datetime sting to a TIMESTAMP
-    according to the format given in the second argument. The format string
-    can contain pattern elements from the list given below, plus punctuation
-    and space characters. The pattern should contain all the necessary fields
-    to construct a date, including, year, month, day of month, etc. The
-    returned timestamp can then be cast into DATE or TIME types if necessary.
-    An example, including the result, is given below:</para>
-
-    <programlisting>TO_TIMESTAMP ( '22/11/2008 20:30:40', 'DD/MM/YYYY HH:MI:SS' )
-
-TIMESTAMP '2008-11-22 20:30:40.000000'
-</programlisting>
-
-    <para>The format is internally translated to a
-    <classname>java.text.SimpleDateFormat</classname> format string.
-    Unsupported format strings should not be used. You can include a string
-    literal inside the format string by enclosing it in double quotes.
-    (HyperSQL)</para>
-
-    <para>The supported format components are all uppercase as follows:</para>
-
-    <table colsep="1" frame="all" pgwide="0">
-      <title>TO_CHAR and TO_DATE format elements</title>
-
-      <tgroup cols="2">
-        <colspec colwidth="5cm" />
-
-        <colspec />
-
-        <tbody>
-          <row>
-            <entry><literal>BC | B.C. | AD | A.D.</literal></entry>
-
-            <entry>Returns <literal>AD</literal> for common era and
-            <literal>BC</literal> for before common era</entry>
-          </row>
-
-          <row>
-            <entry><literal>RRRR</literal></entry>
-
-            <entry><para>4-digit year</para></entry>
-          </row>
-
-          <row>
-            <entry><literal>YYYY</literal></entry>
-
-            <entry><para>4-digit year</para></entry>
-          </row>
-
-          <row>
-            <entry><literal>IYYY</literal></entry>
-
-            <entry><para>4-digit year, corresponding to ISO week of the year.
-            The reported year for the last few days of the calendar year may
-            be the next year.</para></entry>
-          </row>
-
-          <row>
-            <entry><literal>YY</literal></entry>
-
-            <entry><para>2 digit year</para></entry>
-          </row>
-
-          <row>
-            <entry><literal>IY</literal></entry>
-
-            <entry><para>2 digit year, corresponding to ISO week of the year
-            </para></entry>
-          </row>
-
-          <row>
-            <entry><literal>MM</literal></entry>
-
-            <entry><para>Month (01-12)</para></entry>
-          </row>
-
-          <row>
-            <entry><literal>MON</literal></entry>
-
-            <entry><para>Short three-letter name of month</para></entry>
-          </row>
-
-          <row>
-            <entry><literal>MONTH</literal></entry>
-
-            <entry><para>Name of month</para></entry>
-          </row>
-
-          <row>
-            <entry><literal>WW</literal></entry>
-
-            <entry><para>Week of year (1-53) where week 1 starts on the first
-            day of the year and continues to the seventh day of the
-            year.</para></entry>
-          </row>
-
-          <row>
-            <entry><literal>W</literal></entry>
-
-            <entry><para>Week of month (1-5) where week 1 starts on the first
-            day of the month and ends on the seventh.</para></entry>
-          </row>
-
-          <row>
-            <entry><literal>IW</literal></entry>
-
-            <entry><para>Week of year (1-52 or 1-53) based on the ISO
-            standard. Week starts on Monday. The first week may start near the
-            end of previous year.</para></entry>
-          </row>
-
-          <row>
-            <entry><literal>DAY</literal></entry>
-
-            <entry><para>Name of day.</para></entry>
-          </row>
-
-          <row>
-            <entry><literal>DD</literal></entry>
-
-            <entry><para>Day of month (01-31).</para></entry>
-          </row>
-
-          <row>
-            <entry><literal>DDD</literal></entry>
-
-            <entry><para>Day of year (1-366).</para></entry>
-          </row>
-
-          <row>
-            <entry><literal>DY</literal></entry>
-
-            <entry><para>Short three-letter name of day.</para></entry>
-          </row>
-
-          <row>
-            <entry><literal>HH</literal></entry>
-
-            <entry><para>Hour of day (00-11).</para></entry>
-          </row>
-
-          <row>
-            <entry><literal>HH12</literal></entry>
-
-            <entry><para>Hour of day (00-11).</para></entry>
-          </row>
-
-          <row>
-            <entry><literal>HH24</literal></entry>
-
-            <entry><para>Hour of day (00-23).</para></entry>
-          </row>
-
-          <row>
-            <entry><literal>MI</literal></entry>
-
-            <entry><para>Minute (00-59).</para></entry>
-          </row>
-
-          <row>
-            <entry><literal>SS</literal></entry>
-
-            <entry><para>Second (00-59).</para></entry>
-          </row>
-
-          <row>
-            <entry><literal>FF</literal></entry>
-
-            <entry><para>Fractional seconds.</para></entry>
-          </row>
-        </tbody>
-      </tgroup>
-    </table>
-
-    <indexterm significance="preferred" type="sql">
-      <primary>TRUNC function datetime</primary>
-    </indexterm>
-
-    <simpara><emphasis role="bold">TRUNC</emphasis></simpara>
-
-    <para><literal>TRUNC ( &lt;datetime value expr&gt; [ , &lt;char value
-    expr&gt; ] ) </literal></para>
-
-    <para>Similar to the ROUND function, the <literal>&lt;num value expr&gt;
-    </literal>is of DATE, TIME or TIMESTAMP type. The <literal>&lt;char value
-    expr&gt;</literal> is a format string for YEAR, MONTH, WEEK OF YEAR, DAY,
-    HOUR, MINUTE or SECOND as listed in the table for TO_CHAR and TO_DATE
-    format elements (see above). The datetime value is truncated after the
-    specified field and the rest of the fields to the right are set to one for
-    MONTH and DAY, or zero, for the rest of the fields. For example applying
-    TRUNC to a timestamp value on the DAY field results in midnight the same
-    date. Examples of ROUND and TRUNC functions are given below. If the second
-    argument is omitted, the datetime value is truncated to midnight the same
-    date. (HyperSQL)</para>
-
-    <programlisting>ROUND ( TIMESTAMP'2008-08-01 20:30:40', 'YYYY' )
+      <programlisting>ROUND ( TIMESTAMP'2008-08-01 20:30:40', 'YYYY' )
 
 '2009-01-01 00:00:00'
 
@@ -1821,20 +1641,268 @@ TRUNC ( TIMESTAMP'2008-08-01 20:30:40', 'YYYY' )
 
 '2008-01-01 00:00:00'
 </programlisting>
+    </section>
 
-    <indexterm significance="preferred" type="sql">
-      <primary>UNIX_TIMESTAMP function</primary>
-    </indexterm>
+    <section>
+      <title>Functions to Convert or Format a Datetime</title>
 
-    <simpara><emphasis role="bold">UNIX_TIMESTAMP</emphasis></simpara>
+      <indexterm significance="preferred" type="sql">
+        <primary>TIMESTAMP function</primary>
+      </indexterm>
 
-    <para><literal>UNIX_TIMESTAMP ( [ &lt;datetime value expression&gt; ] )
-    </literal></para>
+      <simpara><emphasis role="bold">TIMESTAMP</emphasis></simpara>
 
-    <para>This function returns a BIGINT value. With no parameter, it returns
-    the number of seconds since 1970-01-01. With a DATE or TIMESTAMP
-    parameter, it converts the argument into number of seconds since
-    1970-01-01. (HyperSQL)</para>
+      <para>TIMESTAMP ( &lt;num value expr&gt; )</para>
+
+      <para>TIMESTAMP ( &lt;char value expr&gt; )</para>
+
+      <para><literal>TIMESTAMP ( &lt;char value expr&gt;, &lt;char value
+      expr&gt; )</literal></para>
+
+      <para><literal>TIMESTAMP ( &lt;date value expr&gt;, &lt;time value
+      expr&gt; )</literal></para>
+
+      <para>This function translates the arguments into a TIMESTAMP value.
+      When the single argument is a numeric value, it is interpreted as a Unix
+      timestamp in seconds. A single formatted date or timestamp string is
+      translated to a TIMESTAMP.</para>
+
+      <para>When two arguments are used, the first argument is the date part
+      and the second argument is the time part of the returned TIMESTAMP
+      value. An example, including the result, is given below:</para>
+
+      <programlisting>TIMESTAMP ( '2008-11-22', '20:30:40' )
+
+TIMESTAMP '2008-11-22 20:30:40.000000'
+</programlisting>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>TO_CHAR function</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">TO_CHAR</emphasis></simpara>
+
+      <para><literal>TO_CHAR ( &lt;datetime value expr&gt;, &lt;char value
+      expr&gt; )</literal></para>
+
+      <para>This function formats a datetime or numeric value to the format
+      given in the second argument. The format string can contain pattern
+      elements from the list given below, plus punctuation and space
+      characters. An example, including the result, is given below:</para>
+
+      <programlisting>TO_CHAR ( TIMESTAMP'2008-02-01 20:30:40', 'YYYY BC MONTH, DAY HH' )
+
+2008 AD February, Friday 8
+</programlisting>
+
+      <para>The format is internally translated to a
+      <classname>java.text.SimpleDateFormat</classname> format string.
+      Separator characters (space, comma, period, hyphen, colon, semicolon,
+      forward slash) can be included between the pattern elements. Unsupported
+      format strings should not be used. You can include a string literal
+      inside the format string by enclosing it in double quotes.
+      (HyperSQL)</para>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>TO_DATE function</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">TO_DATE</emphasis></simpara>
+
+      <para><literal>TO_DATE ( &lt;char value expr&gt;, &lt;char value
+      expr&gt; )</literal></para>
+
+      <para>This function translates a formatted datetime sting to a DATE
+      according to the format given in the second argument. See TO_TIMESTAMP
+      below for further details.</para>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>TO_TIMESTAMP function</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">TO_TIMESTAMP</emphasis></simpara>
+
+      <para><literal>TO_TIMESTAMP ( &lt;char value expr&gt;, &lt;char value
+      expr&gt; )</literal></para>
+
+      <para>This function translates a formatted datetime sting to a TIMESTAMP
+      according to the format given in the second argument. The format string
+      can contain pattern elements from the list given below, plus punctuation
+      and space characters. The pattern should contain all the necessary
+      fields to construct a date, including, year, month, day of month, etc.
+      The returned timestamp can then be cast into DATE or TIME types if
+      necessary. An example, including the result, is given below:</para>
+
+      <programlisting>TO_TIMESTAMP ( '22/11/2008 20:30:40', 'DD/MM/YYYY HH:MI:SS' )
+
+TIMESTAMP '2008-11-22 20:30:40.000000'
+</programlisting>
+
+      <para>The format strings that can be used for TO_DATE and TO_TIMESTAMP
+      are more restrictive than those used for TO_CHAR, because the format
+      string must contain all the elements needed to build a full DATE or
+      TIMESTAMP value. The format is internally translated to a
+      <classname>java.text.SimpleDateFormat</classname> format string.
+      Unsupported format strings should not be used. You can include a string
+      literal inside the format string by enclosing it in double quotes.
+      (HyperSQL)</para>
+
+      <para>The supported format components are all uppercase as
+      follows:</para>
+
+      <table colsep="1" frame="all" pgwide="0">
+        <title>TO_CHAR, TO_DATE and TO_TIMESTAMP format elements</title>
+
+        <tgroup cols="2">
+          <colspec colwidth="5cm" />
+
+          <colspec />
+
+          <tbody>
+            <row>
+              <entry><literal>BC | B.C. | AD | A.D.</literal></entry>
+
+              <entry>Returns <literal>AD</literal> for common era and
+              <literal>BC</literal> for before common era</entry>
+            </row>
+
+            <row>
+              <entry><literal>RRRR</literal></entry>
+
+              <entry><para>4-digit year</para></entry>
+            </row>
+
+            <row>
+              <entry><literal>YYYY</literal></entry>
+
+              <entry><para>4-digit year</para></entry>
+            </row>
+
+            <row>
+              <entry><literal>IYYY</literal></entry>
+
+              <entry><para>4-digit year, corresponding to ISO week of the
+              year. The reported year for the last few days of the calendar
+              year may be the next year.</para></entry>
+            </row>
+
+            <row>
+              <entry><literal>YY</literal></entry>
+
+              <entry><para>2 digit year</para></entry>
+            </row>
+
+            <row>
+              <entry><literal>IY</literal></entry>
+
+              <entry><para>2 digit year, corresponding to ISO week of the year
+              </para></entry>
+            </row>
+
+            <row>
+              <entry><literal>MM</literal></entry>
+
+              <entry><para>Month (01-12)</para></entry>
+            </row>
+
+            <row>
+              <entry><literal>MON</literal></entry>
+
+              <entry><para>Short three-letter name of month</para></entry>
+            </row>
+
+            <row>
+              <entry><literal>MONTH</literal></entry>
+
+              <entry><para>Name of month</para></entry>
+            </row>
+
+            <row>
+              <entry><literal>WW</literal></entry>
+
+              <entry><para>Week of year (1-53) where week 1 starts on the
+              first day of the year and continues to the seventh day of the
+              year.</para></entry>
+            </row>
+
+            <row>
+              <entry><literal>W</literal></entry>
+
+              <entry><para>Week of month (1-5) where week 1 starts on the
+              first day of the month and ends on the seventh.</para></entry>
+            </row>
+
+            <row>
+              <entry><literal>IW</literal></entry>
+
+              <entry><para>Week of year (1-52 or 1-53) based on the ISO
+              standard. Week starts on Monday. The first week may start near
+              the end of previous year.</para></entry>
+            </row>
+
+            <row>
+              <entry><literal>DAY</literal></entry>
+
+              <entry><para>Name of day.</para></entry>
+            </row>
+
+            <row>
+              <entry><literal>DD</literal></entry>
+
+              <entry><para>Day of month (01-31).</para></entry>
+            </row>
+
+            <row>
+              <entry><literal>DDD</literal></entry>
+
+              <entry><para>Day of year (1-366).</para></entry>
+            </row>
+
+            <row>
+              <entry><literal>DY</literal></entry>
+
+              <entry><para>Short three-letter name of day.</para></entry>
+            </row>
+
+            <row>
+              <entry><literal>HH</literal></entry>
+
+              <entry><para>Hour of day (00-11).</para></entry>
+            </row>
+
+            <row>
+              <entry><literal>HH12</literal></entry>
+
+              <entry><para>Hour of day (00-11).</para></entry>
+            </row>
+
+            <row>
+              <entry><literal>HH24</literal></entry>
+
+              <entry><para>Hour of day (00-23).</para></entry>
+            </row>
+
+            <row>
+              <entry><literal>MI</literal></entry>
+
+              <entry><para>Minute (00-59).</para></entry>
+            </row>
+
+            <row>
+              <entry><literal>SS</literal></entry>
+
+              <entry><para>Second (00-59).</para></entry>
+            </row>
+
+            <row>
+              <entry><literal>FF</literal></entry>
+
+              <entry><para>Fractional seconds.</para></entry>
+            </row>
+          </tbody>
+        </tgroup>
+      </table>
+    </section>
   </section>
 
   <section>
