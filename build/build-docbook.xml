@@ -161,7 +161,7 @@ ${_for.automation.blurb}</fail>
       <!-- Fileset pretty simple, since the binaries always need to be
            served to end users. -->
       <fileset dir="doc-src"
-               excludes="**/.*, **/*.txt, **/entities/**, apidocs/**,
+               excludes="**/.*/**, **/*.txt, **/entities/**, apidocs/**,
                          **/*.xml, **/*.java, **/*.sql, **/*.cfg, **/*.css,
                          **/*.ent, **/*.rc, **/*.html, **/*.properties"/>
     </copy>
@@ -172,33 +172,33 @@ ${_for.automation.blurb}</fail>
     <fixcrlf destdir="${docoutput.path}" eol="crlf"
              encoding="UTF-8" srcdir="doc-src"
              includes="verbatim/**/*.txt, images/**/*.txt"
-             excludes="**/.*"/>
+             excludes="**/.*/**"/>
     <fixcrlf destdir="${docoutput.path}" eol="crlf"
              encoding="UTF-8" srcdir="doc-src"
-             excludes="**/.*, verbatim/**, images/**, **/entities/**,
+             excludes="**/.*/**, verbatim/**, images/**, **/entities/**,
                        */*.txt, apidocs/**, readme-template.txt"
              includes="**/*.txt"/>
     <fixcrlf destdir="${docoutput.path}" eol="lf"
              encoding="UTF-8" srcdir="doc-src"
              includes="verbatim/**/*.xml, images/**/*.xml"
-             excludes="**/.*"/>
+             excludes="**/.*/**"/>
     <fixcrlf destdir="${docoutput.path}" eol="lf"
              encoding="UTF-8" srcdir="doc-src"
-             excludes="**/.*, verbatim/**, images/**, **/entities/**,
+             excludes="**/.*/**, verbatim/**, images/**, **/entities/**,
                        *.xml, */*.xml"
              includes="**/*.xml"/>
 
     <!-- All remaining text files -->
     <fixcrlf destdir="${docoutput.path}" eol="lf"
              encoding="UTF-8" srcdir="doc-src"
-             excludes="**/.*, **/entities/**, apidocs/**"
+             excludes="**/.*/**, **/entities/**, apidocs/**"
              includes="**/*.java, **/*.sql, **/*.cfg, **/*.css,
                        **/*.rc, **/*.properties"/>
     <!-- To allow substitution of ant-variables like ${x} in any of the text
          files above, just move that file type from the fixcrlf above to the
          copy below. -->
     <copy todir="${docoutput.path}">
-      <fileset dir="doc-src" excludes="**/.*, **/entities/**, apidocs/**"
+      <fileset dir="doc-src" excludes="**/.*/**, **/entities/**, apidocs/**"
                includes="**/*.html"/>
       <filterchain>
         <expandproperties/>
@@ -223,7 +223,8 @@ ${_for.automation.blurb}</fail>
           message="DocBook 5 FO style sheet missing: ${fo.path}"/>
 
     <dependset>
-      <srcfileset dir="doc-src" excludes="**/.*, *_lic.txt, readme*, index.html"
+      <srcfileset dir="doc-src"
+                  excludes="**/.*/**, *_lic.txt, readme*, index.html"
                   includes="*.*, entities/**, images/**, verbatim/**"/>
           <!-- Remove *_lic.txt from excludes above and below if we add any
                reference to license files from any of our DocBook documents.
@@ -233,7 +234,7 @@ ${_for.automation.blurb}</fail>
              excludes="apidocs/**, readme*, index.html, *_lic.txt"/>
     </dependset>
     <dependset>
-      <srcfileset dir="doc-src/${doc.name}" excludes="**/.*"/>
+      <srcfileset dir="doc-src/${doc.name}" excludes="**/.*/**"/>
       <targetfileset dir="${docoutput.path}/${doc.name}"/>
       <targetfilelist dir="tmp/doc-work/${doc.name}" files="${doc.name}.fo"/>
     </dependset>

@@ -140,15 +140,16 @@ and re-export.</fail>
                   includes="**/*.cmd, **/*.bat, **/*.bash, **/*.sh, **/*.pl,
                             **/*.php, **/*.init, **/*.py, build/gradlew"
                   filemode="0755"
-                  excludes="**/.*, build/local**, test-src/**
+                  excludes="**/.*/**, build/local**, test-src/**,
+                            *gradled*, build/gradle-app.setting,
                             classes/**, dist/**, local*/**, tmp/**"/>
       <zipfileset prefix="${app.basedir}/hsqldb" dir="."
-                  excludes="**/.*, **/*.cmd, **/*.bat, **/*.bash, **/*.sh,
+                  excludes="**/.*/**, **/*.cmd, **/*.bat, **/*.bash, **/*.sh,
                   test-src/**, **/*.pl, **/*.php, **/*.init, **/*.py
                   build/build.properties, build/local**, build/ivysettings.xml,
                   classes/**, dist/**, local*/**, tmp/**, doc-src/images/db/**,
                   build/ivysettings.xml, stylesheets/rng-catalog.xml,
-                  build/gradlew"/>
+                  build/gradlew, *gradled*, build/gradle-app.setting"/>
     </zip>
   </target>
 
