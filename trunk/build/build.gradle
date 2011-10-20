@@ -269,17 +269,20 @@ version = ant.properties['hsqldb.version']  // Inherit version from "build.xml"
 
 // This block generates wrapper tasks for the sole purpose of preventing the
 // end user from seeing numbered task names.
+// Postnote:  Also removes descriptions from sub-project tasks + wrapped tasks.
 Pattern candidatePattern = Pattern.compile("^\\d{3}([^-.][^.]*)\$");
 Matcher m;
-def hidingWrappers = [:]
+def hidingWrappers = [:]  // From 0xxWrappee -> wrapper
 Task newTask
 for (t in getTasks()) {
     if (t.description == null) continue;
+    if (t.name.indexOf('.') > 0) t.description = null
     m = candidatePattern.matcher(t.name);
     if (!m.matches()) continue;
     newTask = project.task(m.group(1))
     newTask.dependsOn = [t]
     newTask.description = t.description
+    t.description = null
     hidingWrappers[t] = newTask
 }
 apply from: 'ivy-setup.gradle'
@@ -380,9 +383,6 @@ explainprops.description = 'Explain how to change default build properties'
  * bug that I registered.
  */
 task tasks << {
-    Pattern seqRenamedPattern = Pattern.compile("\\d{3}.+");
-    // Following pattern purposefull skips import-qualified tasks.
-    // We'll just report on the unqualified ones.
     Pattern privatePattern = Pattern.compile("(?:\\d{3})?(-.*)");
     print """
 ------------------------------------------------------------
@@ -422,8 +422,7 @@ Other tasks
                 continue
             }
         }
-        if (!displayAll && t.description != null && t.name.indexOf('.') < 0
-                && !seqRenamedPattern.matcher(t.name).matches()
+        if (!displayAll && t.description != null
                 && !hardTaskDescriptions.contains(t.name))
             println t.name + ' - ' + t.description
     }
@@ -431,8 +430,17 @@ Other tasks
     if (displayAll) {
         def dependOnMap = [:]
         def depList
+        def reverseWrappers = [:]  // Goes from wrapper -> wrappee
+        // Probably a cooler Groovy way to do this, but this works:
+        for (e in hidingWrappers)  reverseWrappers[e.value] = e.key
+        if (hidingWrappers.size() != reverseWrappers.size())
+            throw new GradleException(
+                    'Seems we have a wrapper Task wrapping more than one Targe')
         for (t in getTasks()) {
             if (hidingWrappers.containsValue(t)) continue
+            // Excluding wrappers so that wrappees can be listed as top-level
+            // tasks.  (Because they would be if we didn't need the hack to
+            // work around Gradle sequencing bug).
             depList = []
             dependOnMap[t] = depList
             for (u in t.dependsOn)
@@ -441,22 +449,41 @@ Other tasks
                     // Retarded that t must pass itself as param to its own u:
                     for (v in u.getDependencies(t)) depList << v
         }
-        def allDependees = [] as Set
+        def allDependees = [] as Set  // Purposefully excluding wrappees
         for (vs in dependOnMap.values()) allDependees.addAll(vs)
         for (t in getTasks())
-            if (!allDependees.contains(t) && !hidingWrappers.containsValue(t)
+            if (!allDependees.contains(t)
                     && !hardTaskDescriptions.contains(t.name)) {
+                // t is now non-depended-upon, other than by wrappers
                 print t.name
                 if (t.description != null) print " - $t.description"
-                if (hidingWrappers.containsKey(t))
-                    print ' [Wrapped by ' + hidingWrappers[t].name + ']'
+                if (hidingWrappers.containsKey(t)) {
+                    print ' [Wrapped by ' + hidingWrappers[t].name
+                    if (hidingWrappers[t].description != null)
+                        print ' - ' + hidingWrappers[t].description
+                    print ']'
+                }
+                if (reverseWrappers.containsKey(t)) {
+                    println ' [Wrapper]'
+                    def u = reverseWrappers[t]
+                    print "    $u.name"
+                    if (u.description != null) print " - $u.description"
+                    if (hidingWrappers.containsValue(u))
+                        throw new GradleException("Wrappee is a wrapper too?")
+                }
                 println()
                 for (u in recursiveAggregator(
                         dependOnMap[t], dependOnMap, [])) {
                     print "    $u.name"
                     if (u.description != null) print " - $u.description"
-                    if (hidingWrappers.containsKey(u))
-                        print ' [Wrapped by ' + hidingWrappers[u].name + ']'
+                    if (hidingWrappers.containsKey(u)) {
+                        print ' [Wrapped by ' + hidingWrappers[u].name
+                        if (hidingWrappers[u].description != null)
+                            print ' - ' + hidingWrappers[u].description
+                        print ']'
+                    }
+                    if (hidingWrappers.containsValue(u))
+                        throw new GradleException("Wrapper is depended-up?")
                     println()
                 }
             }
