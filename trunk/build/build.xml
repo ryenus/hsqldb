@@ -482,9 +482,9 @@ examples:
       </javac>
     </target>
 
+    <!-- compiles the cmdline classes -->
     <target name="-cmdline" if="ant.java.iscjava15"
-            depends="-conditionalize-sqlfile-scanner, -sqlfile-scanner"
-            description="compiles the cmdline classes">
+            depends="-conditionalize-sqlfile-scanner, -sqlfile-scanner">
       <javac srcdir="${swsrc}"
              destdir="classes"
              debug="${build.debug}"
@@ -494,8 +494,8 @@ examples:
       </javac>
     </target>
 
-    <target name="-auth" if="ant.java.iscjava15"
-            description="compiles the auth classes">
+    <!-- compiles the auth classes -->
+    <target name="-auth" if="ant.java.iscjava15">
       <javac srcdir="${swsrc}"
              destdir="classes"
              debug="${build.debug}"
