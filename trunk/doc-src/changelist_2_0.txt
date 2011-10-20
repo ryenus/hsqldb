@@ -1,13 +1,14 @@
-4 September 2011 - SVN 4404
+20 October 2011 - SVN ????
 -- fixed issue with memory use of large strings in cache
 -- fixed issue with FOR loops with ORDER BY in routines
--- improved concurrency of DDL operations
-1 August 2011 - SVN 4387
 -- fixed issue with TIME ZONE types JDBC type reporting in server
 -- fixed issue with type resolution of arrays
 -- fixed issue with identical prepared statements in session
+-- added new datetime functions
 -- added support for ROWNUM() in UPDATE and DELETE statements
 -- added backward compatibility for IDENTITY options with commas
+-- added support for new new SQL properties
+-- improved concurrency of DDL operations
 -- improved data type determination for dynamic variables
 -- minor improvements
 5 July 2011 - version 2.2.5
