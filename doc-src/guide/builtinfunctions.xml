@@ -489,12 +489,15 @@
     <simpara><emphasis role="bold">REPLACE</emphasis></simpara>
 
     <para><literal>REPLACE ( &lt;char value expr 1&gt;, &lt;char value expr
-    2&gt;, &lt;char value expr 3&gt; )</literal></para>
+    2&gt; [, &lt;char value expr 3&gt; ] )</literal></para>
 
     <para>Returns a character string based on <literal>&lt;char value expr
     1&gt;</literal> where each occurrence of <literal>&lt;char value expr
     2&gt;</literal> has been replaced with a copy of <literal>&lt;char value
-    expr 3&gt;</literal>. (JDBC)</para>
+    expr 3&gt;</literal>. If the function is called with just two arguments,
+    the &lt;char value expr 3&gt; defaults to the empty string and calling the
+    function simply removes the occurences of <literal>&lt;char value expr
+    2&gt;</literal> from the first string.(JDBC)</para>
 
     <indexterm significance="preferred" type="sql">
       <primary>REVERSE function</primary>
