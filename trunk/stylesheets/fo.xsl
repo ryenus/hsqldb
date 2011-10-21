@@ -30,7 +30,7 @@
     <xsl:attribute name="border">0.5pt solid gray</xsl:attribute>
     <xsl:attribute name="padding">1pt</xsl:attribute>
     <xsl:attribute name="background-color">#F0F8FF</xsl:attribute>
-    <!-- Note that some of OASIS's examples the long-deprecated "bgcolor".
+    <!-- Note that some of OASIS's examples use the long-deprecated "bgcolor".
          You should use "background-color". -->
   </xsl:attribute-set>
 
