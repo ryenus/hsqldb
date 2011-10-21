@@ -3618,6 +3618,15 @@ public class SqlFile {
                                        SqlFile.sqlTypeToString(dataType[insi])
                                     ));
 
+                            if (updateStatus)
+                                shared.userVars.put("?", "");
+                            if (fetchingVar != null) {
+                                shared.userVars.put(fetchingVar, "");
+                                updateUserSettings();
+                                sqlExpandMode = null;
+
+                                fetchingVar = null;
+                            }
                             return;
                         }
 
@@ -3674,6 +3683,15 @@ public class SqlFile {
                     }
 
                     if (!filteredOut) rows.add(fieldArray);
+                }
+                if (updateStatus && !shared.userVars.containsKey("?"))
+                    shared.userVars.put("?", "");
+                if (fetchingVar != null) {
+                    shared.userVars.remove(fetchingVar);
+                    updateUserSettings();
+                    sqlExpandMode = null;
+
+                    fetchingVar = null;
                 }
 
                 // STEP 2: DISPLAY DATA  (= 2a OR 2b)
