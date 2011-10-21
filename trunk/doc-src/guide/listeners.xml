@@ -34,7 +34,7 @@
 
     <releaseinfo>$Revision$</releaseinfo>
 
-    <pubdate>$Date$</pubdate>
+    <pubdate>&timestamp;</pubdate>
 
     <keywordset>
       <keyword>Hsqldb</keyword>
@@ -507,7 +507,7 @@ Connection c = DriverManager.getConnection("jdbc:hsqldb:hsql://localhost/xdb;fil
 
       <releaseinfo>$Revision$</releaseinfo>
 
-      <pubdate>$Date$</pubdate>
+      <pubdate>&timestamp;</pubdate>
 
       <keywordset>
         <keyword>HyperSQL</keyword>

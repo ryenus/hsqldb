@@ -43,7 +43,7 @@
 
     <releaseinfo>$Revision$</releaseinfo>
 
-    <pubdate>$Date$</pubdate>
+    <pubdate>&timestamp;</pubdate>
 
     <keywordset>
       <keyword>HyperSQL</keyword>
@@ -301,11 +301,9 @@
         </author>
       </authorgroup>
 
-      <!-- No sense for separate stamps while this is in a shared file.
     <releaseinfo>$Revision$</releaseinfo>
 
-    <pubdate>$Date$</pubdate>
-    -->
+    <pubdate>&timestamp;</pubdate>
 
       <keywordset>
         <keyword>Hsqldb</keyword>
@@ -656,11 +654,9 @@ java org.hsqldb.util.DatabaseManagerSwing --urlid urlid</screen>
         </author>
       </authorgroup>
 
-      <!-- No sense for separate stamps while this is in a shared file.
     <releaseinfo>$Revision$</releaseinfo>
 
-    <pubdate>$Date$</pubdate>
-    -->
+    <pubdate>&timestamp;</pubdate>
 
       <keywordset>
         <keyword>Hsqldb</keyword>

@@ -564,8 +564,7 @@ examples:
              <attribute name='Specification-Title' value='${hsqldb.title}'/>
              <attribute name='Specification-Version' value='${hsqldb.version}'/>
              <attribute name='Specification-Vendor' value='${hsqldb.vendor}'/>
-             <attribute name='Implementation-Title'
-                        value='Test runtime'/>
+             <attribute name='Implementation-Title' value='Test runtime'/>
              <attribute name='Implementation-Version' value='${build.label}'/>
              <attribute name='Implementation-Vendor' value='${build.vendor}'/>
          </manifest>

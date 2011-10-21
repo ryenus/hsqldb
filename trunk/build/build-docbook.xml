@@ -318,11 +318,15 @@ ${_for.automation.blurb}</fail>
       message="Missing DocBook source document 'doc-src/${doc.name}/${doc.name}.xml'"/>
 
     <mkdir dir="tmp/doc-work/${doc.name}"/>
+    <tstamp>
+      <format property="_timestamp" pattern="yyyy-MM-dd' 'HH:mm:ssZ"/>
+    </tstamp>
     <echo file="tmp/doc-work/${doc.name}/dynamic.ent">&lt;!--Dynamically generated Entity Values loaded by a catalog for document
-'${doc.name}' --&gt;
+'${doc.name}' at ${_timestamp} --&gt;
 
 &lt;!ENTITY doc_basename "${doc.name}"&gt;
 &lt;!ENTITY distro_baseurl "${distro.baseurl}"&gt;
+&lt;!ENTITY timestamp "${_timestamp}"&gt;
 </echo>
 
     <xslt style="${style.path}" basedir="doc-src/${doc.name}"

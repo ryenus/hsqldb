@@ -31,7 +31,7 @@
 
     <releaseinfo>$Revision: 847 $</releaseinfo>
 
-    <pubdate>$Date: 2009-01-19 22:24:49 +0000 (Mon, 19 Jan 2009) $</pubdate>
+    <pubdate>&timestamp;</pubdate>
 
     <keywordset>
       <keyword>HSQLDB</keyword>

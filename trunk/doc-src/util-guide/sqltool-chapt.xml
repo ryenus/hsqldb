@@ -25,7 +25,7 @@
             </author>
         </authorgroup>
         <releaseinfo>$Revision$</releaseinfo>
-        <pubdate>$Date$</pubdate>
+        <pubdate>&timestamp;</pubdate>
         <keywordset>
             <keyword>SqlTool</keyword>
             <keyword>HSQLDB</keyword>
