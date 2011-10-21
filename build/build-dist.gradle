@@ -1,19 +1,20 @@
 /**
  * $Id$
  *
- *   This build file is separate from the main build.xml file specifically
- *   because it is not intended for normal end-user or developer usage.
- *   It is only for generating full distributable packages of the app.
+ *   "build-dist.gradle" and "build-dist.xml" are separate from the main
+ *   "build.*" files specifically because they are not intended for normal
+ *   end-user or developer usage.
+ *   They are only for generating full distributable packages of the app.
  *   This build file is NOT necessary to build a distributable jar file:
- *   that is the purpose of several targets in the main build file.
+ *   that is the purpose of several tasks/targets in the main build files.
  *
  *   PREP:  Before building a public distribution, you must:
- *      1: Run targets 'javadoc' and 'javadocdev', watching for JavaDoc
+ *      1: Run task/targets 'javadoc' and 'javadocdev', watching for JavaDoc
  *         authoring mistakes, and fix them.
  *      2: Update property 'hsqldb.version' in file 'build.xml'.
- *      3: Execute target 'refresh-verbatim' to update code in our docs.
- *      4: Execute target 'update-readme' to substitute updated variables into
- *         some doc file(s).
+ *      3: Execute task/target 'refresh-verbatim' to update code in our docs.
+ *      4: Execute task/target 'update-readme' to substitute updated variables
+ *         into some doc file(s).
  *      5: Commit all of the work above.
  *      6: Verify that docs build successfully.
  *      7. Make a release tag.
