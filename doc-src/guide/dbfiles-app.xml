@@ -1,11 +1,15 @@
 <!-- $Id$ -->
 
+<!DOCTYPE book [
+  <!ENTITY % dummy22 SYSTEM "../entities/global.ent"> %dummy22;
+]>
+
 <appendix>
 
 <title>Hsqldb Database Files and Recovery</title>
 <appendixinfo>
     <releaseinfo>$Revision$</releaseinfo>
-    <pubdate>$Date$</pubdate>
+    <pubdate>&timestamp;</pubdate>
     <keywordset>
         <keyword>HSQLDB</keyword>
         <keyword>Data</keyword>

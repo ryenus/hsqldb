@@ -1,4 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE book [
+  <!ENTITY % dummy22 SYSTEM "../entities/global.ent"> %dummy22;
+]>
 <chapter version="5.0" xml:id="sqlroutines-chapt"
          xmlns="http://docbook.org/ns/docbook"
          xmlns:xi="http://www.w3.org/2001/XInclude"
@@ -22,7 +26,7 @@
 
     <releaseinfo>$Revision$</releaseinfo>
 
-    <pubdate>$Date$</pubdate>
+    <pubdate>&timestamp;</pubdate>
 
     <keywordset>
       <keyword>Hsqldb</keyword>

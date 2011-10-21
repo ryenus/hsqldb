@@ -32,7 +32,7 @@
 
     <releaseinfo>$Revision$</releaseinfo>
 
-    <pubdate>$Date$</pubdate>
+    <pubdate>&timestamp;</pubdate>
 
     <keywordset>
       <keyword>HSQLDB</keyword>

@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- $Id$ -->
+
 <!DOCTYPE book [
 <!ENTITY % dummy22 SYSTEM "../entities/global.ent">
 %dummy22;
@@ -31,7 +32,7 @@
 
     <releaseinfo>$Revision$</releaseinfo>
 
-    <pubdate>$Date$</pubdate>
+    <pubdate>&timestamp;</pubdate>
 
     <keywordset>
       <keyword>HSQLDB</keyword>

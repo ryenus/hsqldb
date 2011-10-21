@@ -1,4 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE book [
+  <!ENTITY % dummy22 SYSTEM "../entities/global.ent"> %dummy22;
+]>
 <chapter version="5.0" xml:id="accesscontrol-chapt"
          xmlns="http://docbook.org/ns/docbook"
          xmlns:xlink="http://www.w3.org/1999/xlink"
@@ -22,7 +26,7 @@
 
     <releaseinfo>$Revision: 3096 $</releaseinfo>
 
-    <pubdate>$Date: 2009-08-09 17:50:39 +0100 (Sun, 09 Aug 2009) $</pubdate>
+    <pubdate>&timestamp;</pubdate>
 
     <keywordset>
       <keyword>Hsqldb</keyword>
