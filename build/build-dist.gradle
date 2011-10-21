@@ -28,7 +28,7 @@
  *          already, then make one outside of this work area with a distinctive
  *          name (for auditing and so you can archive it and/or re-use it for
  *          future distribution builds), then copy it to "build.properties"
- *          in this directory.
+ *          in this directory.  (If on a good operating system, just sym-link).
  *          IMPORTANT QUIRK:  This file may not use ${} properties in values,
  *          since that feature is incompatible with the "-propertyfile"
  *          switch that we will use below.
