@@ -36,6 +36,7 @@ import java.util.ArrayList;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.regex.Pattern;
+import java.util.EnumSet;
 
 public class Calculator {
     private List<Atom> atoms = new ArrayList<Atom>();
@@ -49,7 +50,7 @@ public class Calculator {
         SUBTRACT('-'),
         MULTIPLY('*'),
         DIVIDE('/'),
-        MOD('%'),
+        REM('%'),
         POWER('^')
         ;
         MathOp(char c) { this.c = c; }
@@ -61,6 +62,9 @@ public class Calculator {
             return null;
         }
     }
+    private EnumSet<MathOp> TradOrLParen =
+            EnumSet.of(MathOp.ADD, MathOp.SUBTRACT, MathOp.LPAREN,
+            MathOp.MULTIPLY, MathOp.DIVIDE, MathOp.REM, MathOp.POWER);
 
     private long deref(String varName) {
         if (!vars.containsKey(varName))
@@ -74,6 +78,9 @@ public class Calculator {
     }
 
     private class Atom {
+        /* Atoms do not hold variables.
+         * Makes for nice simplification by dereferencing variable names in
+         * the constructor and just dealing with integer values thereafter. */
         private Atom(String token) {
             /*
             if (token == null || token.length() < 1)
@@ -95,7 +102,7 @@ public class Calculator {
             // System.err.println("Trying '" + token + "'");
             val = deref(token);
         }
-        //private Atom(MathOp op) { this.op = op; }
+        private Atom(MathOp op) { this.op = op; }
         private Atom(long val) { this.val = val; }
         public MathOp op;
         public long val;
@@ -108,29 +115,45 @@ public class Calculator {
         return atoms.toString();
     }
 
-    public void add(String token) {
-        atoms.add(new Atom(token));
-    }
-
-    /*
-    public Calculator(String[] sa, int start, int past) {
-        for (int i = start; i++; i < past) add(sa[i]);
-    }
-    public Calculator(String[] sa) {
-        this(0, sa.length);
-    }
-    */
     public Calculator(String[] sa, Map<String, String> vars) {
+        /* Populates the atom list.
+         * Also collapses 2-part negative numbers into single Atoms. */
         if (vars.size() < 1)
             throw new IllegalArgumentException("No expression supplied");
         this.vars = vars;
-        for (String s : sa) add(s);
+        Atom atom = null, prePrevAtom;
+        int prevIndex;
+        NEXT_TOKEN:
+        for (String token : sa) try {
+            atom = new Atom(token);
+            prevIndex = atoms.size() - 1;
+            if (prevIndex < 0) continue;
+            if (atoms.get(prevIndex).op != MathOp.SUBTRACT) continue;
+            prePrevAtom = (prevIndex > 0) ? atoms.get(prevIndex-1) : null;
+            if (prePrevAtom != null && !TradOrLParen.contains(prePrevAtom.op))
+                continue;
+
+            if (atom.op == null) {
+                atoms.remove(prevIndex);
+                atom.val *= -1;
+            } else if (atom.op == MathOp.LPAREN) {
+                atoms.remove(prevIndex);
+                atoms.add(new Atom(-1L));
+                atoms.add(new Atom(MathOp.MULTIPLY));
+            }
+        } finally {
+            atoms.add(atom);
+        }
     }
 
+    /**
+     * Every integer, var name, and single-math-op-character get their own
+     * tokens here.
+     * Special processesing is needed afterwards because negative signs get
+     * separated into separate tokens.
+     */
     public Calculator(String s, Map<String, String> vars) {
-        this(s.replaceAll("([()*/+^])", " $1 ")
-                .replaceAll("([^()*/+\\s^-])\\s*-(\\d)", "$1 - $2")
-                .replaceAll("([^()*/+\\s^-])-", "$1 -")
+        this(s.replaceAll("([-()*/+^])", " $1 ")
                 .trim().split("\\s+"), vars);
     }
     /**
@@ -234,7 +257,7 @@ public class Calculator {
             if (nextAtom.op != null)
                 throw new IllegalStateException(
                         "Value expected but got operator " + nextAtom.op);
-            if (op != MathOp.MULTIPLY && op != MathOp.DIVIDE && op != MathOp.MOD) {
+            if (op != MathOp.MULTIPLY && op != MathOp.DIVIDE && op != MathOp.REM) {
                 // Skip 'atom' (current) and the operand that we'll handle later
                 i += 2;
                 atom = nextAtom;
