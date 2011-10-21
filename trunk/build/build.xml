@@ -1131,12 +1131,26 @@ examples:
   <import file="build-docbook.xml"/>
 
   <target name="-prep-images">
+    <!-- This will overwrite change-controlled cusotm iages in
+         doc-src/images/db if files with same names in ${dbimage.path} have
+         newer timestamps.
+         Since timestamps on our image files all get updated when we build
+         distributions, this will only happen if somebody installs Docbook
+         images newer than the HyperSQL distribution; or for Subversion users.
+         In the first case, the user is purposefully overriding what we
+         configured the distribution with, so they are responsible.
+         For the second case, the Subversion user will see the overrides with
+         "svn status" and can simply undo them with "svn revert paths...". -->
     <fail unless="dbimage.path">Ant property 'dbimage.path' is
 required.  This is normally the "images" subdirectory of a DocBook v.5 NS Style
 Sheet distribution.  The docbook-xsl-ns distro can be downloaded from
-'http://docbook.sourceforge.net/projects/docbook'.  Set property 'dbimage.path'
-to the local path to the images subdirectory (perhaps in file
-'build.properties').</fail>
+ https://sourceforge.net/projects/docbook/files/docbook-xsl-ns/
+Set property 'dbimage.path' to the local path to the images subdirectory
+ (perhaps in file 'build.properties').
+If you have set property 'nsstylebase.url' to a file URL, then just set
+'dbimage.path' to the 'images' subdirectory within that path, but you must
+reformat as a plain filesystem path because 'dbimage.path' takes a filepath
+not a URL.</fail>
     <copy todir="doc-src/images/db">
       <fileset dir="${dbimage.path}"/>
     </copy>
@@ -1203,17 +1217,13 @@ to the local path to the images subdirectory (perhaps in file
     </antcall>
   </target>
 
-  <target name="-ensure-catalog" unless="_catalog.present">
-    <copy file="build/rng-catalog-sample.xml"
-          tofile="stylesheets/rng-catalog.xml"/>
-    <echo>Just created a local 'stylesheets/rng-catalog.xml' file for you.
-To speed up XML validations, you should edit this file.</echo>
-  </target>
-
   <target name="-validation-setup">
-    <available property="_catalog.present" file="stylesheets/rng-catalog.xml"
-               type="file"/>
-    <antcall target="-ensure-catalog"/>
+    <copy file="build/rng-catalog-template.xml"
+          tofile="stylesheets/rng-catalog.xml">
+      <filterset>
+        <filter token="DBCENTX_URL" value="${dbcentx.url}"/>
+      </filterset>
+    </copy>
   </target>
 
   <target name="-prep-license-files">

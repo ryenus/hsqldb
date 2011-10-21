@@ -1,21 +1,13 @@
 <?xml version="1.0"?>
 <!-- $Id$ -->
 
-<!-- IMPORTANT:  To set up your build environment, edit the copy of this file
-     at "stylesheets/rng-catalog.xml", not the one at
-     "build/rng-catalog-sample.xml". -->
-
 <!DOCTYPE catalog PUBLIC "-//OASIS//DTD Entity Resolution XML Catalog V1.0//EN"
     "http://www.oasis-open.org/committees/entity/release/1.0/catalog.dtd">
 
 <catalog xmlns="urn:oasis:names:tc:entity:xmlns:xml:catalog" prefer="public">
   <public publicId="-//OASIS/ENTITIES DocBook Character Entities V4.5//EN"
-          uri="file:../local/db4-entities/dbcentx.mod"/>
-  <!--  Set the uri value above to match the your local setting of property
-        "dbcentx.url" (perhapse in "local-docbook.properties" or
-        "build.properties").  This will eliminate the Internet dependency and
-        speed up validations.
-        Relative paths must be relative to this file.
+          uri="@DBCENTX_URL@"/>
+  <!--  Relative paths must be relative to this file.
         If the designated hostname or file DOES NOT EXIST, the setting will
         be ignored.  Make sure to not set to http URL for a host name that
         does exist, with a wrong path, or the server error message will be

@@ -42,6 +42,23 @@
     build file as well as this one), set them however you want in your
     parent Ant build file (perhaps by loading a "build.properties" or
     "local.properties" file).
+
+    To eliminate the requirement for an Internet connection, download and
+    install the resources below and set properties 'nsstylebase.url',
+    'dbxirng.url', and dbcentx.url' in your .properties file.  (You could also
+    use the same method to use them from a server on your internal network).
+    Sources:
+        nsstylebase stylesheets:   Get the latest version from
+                https://sourceforge.net/projects/docbook/files/docbook-xsl-ns/
+        dbxirng schema:  http://www.docbook.org/xml/5.0/rng/docbookxi.rng
+          (Just the single file)
+        dbcentx entities:  http://www.docbook.org/xml/4.5/docbook-xml-4.5.zip
+          (Beware the zip doesn't bundle into a top-level directory, so you
+          need to extract it into a new, appropriately named subdirectory like
+          "docbook-xml-entities-4.5".)
+          IMPORTANT!  Though you must install the entire contents of the zip,
+          you set the 'dbcentx.url' value to the URL of the 'dbcentx.mod' file
+          within it.
   -->
   <import file="antivy-setup.xml"/>
 
@@ -55,8 +72,9 @@
 
   <property name="oasis.stylesheet.url"
             value="http://docbook.sourceforge.net/release/xsl-ns/current"/>
-  <!-- IMPORTANT:  This value must exactly match the network href values in
-       our *.xsl files! -->
+  <!-- IMPORTANT:  DO NOT CHANGE!
+                   This value must exactly match the network href values in
+                   our *.xsl files! -->
 
   <!-- See
        http://xml.apache.org/commons/components/resolver/resolver-article.html#ctrlresolver
@@ -82,23 +100,25 @@
   <!-- TODO:  Once our repository is set up, change the repos.url value here -->
   <property name="repos.url" value="http://pub.admc.com/lib-repos"/>
   <property name="dbxirng.url"
-            value="http://www.docbook.org/xml/5.0/rng/docbook.rng"/>
+            value="http://www.docbook.org/xml/5.0/rng/docbookxi.rng"/>
       <!-- The "xi" variant supports Xinclude -->
   <property name="html.path" value="stylesheets/html.xsl"/>
   <property name="chunk.path" value="stylesheets/chunk.xsl"/>
   <property name="fo.path" value="stylesheets/fo.xsl"/>
-  <!-- Set nsstylebase.url, in your .properties file, to your local filesystem
-       or local http server location for the DocBok style sheets.
-       That makes the XSLT transformations execute much faster than when
-       pulling the sheets from OASIS Internet site.
-       Example transform. times: 34 s. vs. 1:49.
-  -->
+  <!-- As noted at the top of this file, there are benefits to installing the
+       sheets locally. -->
   <property name="nsstylebase.url" value="UNSET_STYLEBASE"/>
+  <!--
+  <property name="nsstylebase.url" value="${oasis.stylesheet.url}"/>
+  -->
   <!-- Without setting a default value, some error messages could contain the
        misleading string "${nsstylebase.url}" in cases where user does not set a
        value and resolution fails (not that there will be a resolution failure,
-       since this setting is optional). -->
-  <property name="dbcentx.url" value="UNSET_STYLEBASE"/>
+       since this setting is optional).
+       UPDATE:  I don't know why, but PDF generation does depend on this
+       being usable.  Shouldn't since the other output formats don't.
+  -->
+  <property name="dbcentx.url" value="UNSET_DBCHARENTS"/>
   <!-- ditto about the default value -->
 
   <target name="fetch-images"
@@ -107,9 +127,12 @@
 docbook-xsl-ns package to
 '${basedir}/doc-src/images/db'.  docbook-xsl-ns is
 available for download from the DocBook project at
-http://sourceforge.net/packages/docbook.
-We'll do this automatically for you once Ant has a task to transfer
-entire directories of files.</echo>
+https://sourceforge.net/projects/docbook/files/docbook-xsl-ns/ .
+Unfortunately, they provide no "current" link, so we can't fetch the current
+version for you automatically (without introducing too much risk of problems).
+To eliminate the Internet dependency for your doc builds, install stylesheets,
+enties, and rng file as explained at the top of the "build-docbook.xml" file.
+</echo>
   </target>
 
   <target name="regen-docs"
@@ -282,6 +305,9 @@ ${_for.automation.blurb}</fail>
       <param name="html.format" value="true"/>
       <param name="${_chunkgen.skip}" value="true"/>
     </antcall>
+    <!-- Funny place to put post-html and post-chunk processing, but Ant has
+         no post-depends attribute: -->
+    <mkdir dir="doc/${doc.name}"/>
     <fixcrlf eol="lf" encoding="UTF-8" srcdir="doc/${doc.name}"
              includes="*.html"/>  <!-- Make output platform-independent -->
     <antcall target="-transform" inheritrefs="true">
@@ -341,6 +367,9 @@ ${_for.automation.blurb}</fail>
              You must define Catalog mappings/replacements used in all of
              your DocBook source right here, plus those needed in the validation
              step need a duplicate entry in stylesheets/rng-catalog.xml.
+             We use an Ant copy with filter to update rng-catalog.xml (in
+             "build.xml") accordingly, but if you add Catalog
+             mappings/replacements, you must update that system too.
              Ant's xmlcatalog task is pretty limiting.  No support for prefixes,
              and external XML Commons Resolver and external catalog files
              support are broken.
