@@ -2637,6 +2637,9 @@ public class SqlFile {
             case '_' :
                 silentFetch = true;
             case '~' :
+                // TODO:  Condsider limiting fetchingVars to User variables
+                // (as opposed to *SYTEM variables).
+                // That would eliminate some updateUserSettings calls.
                 if (m.groupCount() > 2 && m.group(3) != null
                             && m.group(3).trim().length() > 0) {
                     throw new BadSpecial(
@@ -3631,8 +3634,10 @@ public class SqlFile {
                             shared.userVars.put("?",
                                     ((val == null) ? nullRepToken : val));
                         if (fetchingVar != null) {
-                            shared.userVars.put(fetchingVar,
-                                    ((val == null) ? nullRepToken : val));
+                            if (val == null)
+                                shared.userVars.remove(fetchingVar);
+                            else
+                                shared.userVars.put(fetchingVar, val);
                             updateUserSettings();
                             sqlExpandMode = null;
 
