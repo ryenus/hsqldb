@@ -96,7 +96,7 @@
 
   <property name="docoutput.path" value="doc"/>
   <property name="javac.debug" value="true"/>
-  <property name="java.threadstacksize" value="1M"/>
+  <property name="xmlvalidation.threadstacksize" value="1M"/>
   <!-- TODO:  Once our repository is set up, change the repos.url value here -->
   <property name="repos.url" value="http://pub.admc.com/lib-repos"/>
   <property name="dbxirng.url"
@@ -481,7 +481,9 @@ file.</echo>
       <sysproperty key="xml.catalog.allowPI" value="${xml.catalog.allowPI}"/>
       <sysproperty key="xml.catalog.staticCatalog"
                    value="${xml.catalog.staticCatalog}"/>
-      <jvmarg value="-Xss${java.threadstacksize}"/>
+      <jvmarg value="-Xss${xmlvalidation.threadstacksize}"/>
+      <!-- Have tried setting -Xmx* and -XX:MaxPermSize here.
+           No effect on speed. -->
       <arg value="-v"/>
       <arg value="${dbxirng.url}"/>
       <arg value="${doc.name}.xml"/>
@@ -505,7 +507,7 @@ the same directory (just execute the 'ext-validation-setup' target to do this).
 Then to perform validation, 'cd' to the directory containing your XML source
 files, and run something like
 
-  java -Xss${java.threadstacksize} -Dxml.catalog.files=${xml.catalog.files} -jar .../${jar.basename} -v ${dbxirng.url} file.xml...
+  java -Xss${xmlvalidation.stacksize} -Dxml.catalog.files=${xml.catalog.files} -jar .../${jar.basename} -v ${dbxirng.url} file.xml...
 
 See the XML Commons docs about the Java System Properties to use for XML
 catalog resolution:
