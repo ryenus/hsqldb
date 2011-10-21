@@ -2,14 +2,19 @@ defaultTasks 'help'
 
 /*
  * The only end-user Gradle build properties used at this time are:
- *     retain.gradleds  Set to 'true' to retain the temporary files
- *                      "build-gradled.xml", "build-docbook-gradled.xml"
- *                      in the parent (real project root) directory.
+ *     gradled.retain  Set to 'true' to retain the temporary files
+ *                     "build-gradled.xml", "build-docbook-gradled.xml"
+ *                     in the parent (real project root) directory.
+ *                     IMPORTANT: If you get non-trivial Ant build errors,
+ *                     definitely run gradle with '-i' switch and with
+ *                     ratain.gradles true.
  *     allTasks   Used only by the 'tasks' target.  Setting this to 'true' is
  *                equivalent to the tas-specific switch '--all' for the
  *                out-of-the-box 'tasks' target.  I.e., our
  *                'gradlew -PallTasks=true tasks'
  *                emulates out-of-the-box 'gradlew tasks --all'.
+ *     newVersion  Used only by the 'updateWrapper' target, which is only for
+ *                 baseline maintainers.
  * All other build properties are loaded indirectly by Ant, so you must use
  * Gradle's -D switch to set those Ant properties as Java system properties.
  */
@@ -262,8 +267,8 @@ File[] outFs = resequenceAntDependencies(
         '-gradled', antBuildClosures, sourceAntBuildFiles)
 
 ant.importBuild(outFs[0].absolutePath)
-if (!project.hasProperty('retain.gradleds')
-        || !Boolean.parseBoolean(project.property('retain.gradleds')))
+if (!project.hasProperty('gradled.retain')
+        || !Boolean.parseBoolean(project.property('gradled.retain')))
     for (f in outFs) f.deleteOnExit()
 version = ant.properties['hsqldb.version']  // Inherit version from "build.xml"
 
@@ -362,7 +367,7 @@ For invocation-specific Ant property settings, use -D switches.  For example
     gradlew -Dbuild.debug=false hsqldb
 
 For invocation-specific Gradle property settings, use -P switches like this:
-    gradlew -Pretain.gradleds=true hsqldb
+    gradlew -Pgradled.retain=true hsqldb
 '''
 }
 explainprops.description = 'Explain how to change default build properties'
