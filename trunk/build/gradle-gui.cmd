@@ -20,7 +20,7 @@ type gui-welcome.txt
 :: If there is no settings file in place, start user with our customized one:
 if not exist gradle-app.setting copy gui-initial.setting gradle-app.setting > nul
 
-.\gradlew.bat --gui
+.\gradlew.bat --gui %*
 
 :: Enable following line for debugging purposes:
 ::pause
