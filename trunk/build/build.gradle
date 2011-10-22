@@ -328,9 +328,9 @@ task help(overwrite:true) << {
     print """
 Welcome to Gradle $gradle.gradleVersion.  (Wrapping Ant $antVer).
 
-To run a build, run 'gradle <task> ...'
+To run a build, run 'gradlew <task> ...'
 
-To see a list of available tasks, run 'gradle tasks'.
+To see a list of available tasks, run 'gradlew tasks'.
 Add switch -q to make Gradle run quieter, or -i -s to run louder
 (or -d -S for very loud).
 
