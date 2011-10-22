@@ -66,6 +66,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 import java.util.logging.Level;
+import java.text.SimpleDateFormat;
+import java.text.ParseException;
 import java.lang.reflect.Method;
 import java.lang.reflect.InvocationTargetException;
 import java.nio.charset.Charset;
@@ -204,6 +206,7 @@ public class SqlFile {
     private String dsvRejectReport;
     private String topHtmlFile;
     private String bottomHtmlFile;
+    private SimpleDateFormat timestampFormat;
 
     /**
      * N.b. javax.util.regex Optional capture groups (...)? are completely
@@ -314,7 +317,7 @@ public class SqlFile {
              shared.userVars.remove("*NULL");
          }
         for (String noEmpty : new String[] {
-            "DSV_SKIP_COLS", "DSV_COL_DELIM",
+            "DSV_SKIP_COLS", "DSV_COL_DELIM", "*TIMESTAMP_FORMAT",
             "DSV_COL_SPLITTER", "DSV_ROW_DELIM", "DSV_ROW_SPLITTER",
             "DSV_TARGET_FILE", "DSV_TARGET_TABLE", "DSV_CONST_COLS",
             "DSV_REJECT_FILE", "DSV_REJECT_REPORT", "DSV_RECORDS_PER_COMMIT",
@@ -380,6 +383,15 @@ public class SqlFile {
         if (nullRepToken == null) nullRepToken = DEFAULT_NULL_REP;
         nullRepHtml = shared.userVars.get("*NULL_REP_HTML");
         if (nullRepHtml == null) nullRepHtml = DEFAULT_NULL_HTML;
+        timestampFormat = null;
+        String formatString = shared.userVars.get("*TIMESTAMP_FORMAT");
+        if (formatString != null) try {
+            timestampFormat = new SimpleDateFormat(formatString);
+        } catch (IllegalArgumentException iae) {
+            errprintln(SqltoolRB.bad_time_format.getString(
+                    formatString, iae.getMessage()));
+            shared.userVars.remove("*TIMESTAMP_FORMAT");
+        }
     }
 
     /**
@@ -2237,11 +2249,16 @@ public class SqlFile {
 
             varValue = shared.userVars.get(varName);
             if (varValue == null) {  // Key not in map, since never null vals.
-                if (permitUnset) {
-                    varValue = "";
+                if (varName.equals("*TIMESTAMP")) {
+                    if (timestampFormat == null)
+                        throw new SqlToolError(
+                                SqltoolRB.no_timestamp_format.getString());
+                    varValue = timestampFormat.format(new java.util.Date());
                 } else {
-                    throw new SqlToolError(
-                            SqltoolRB.plvar_undefined.getString(varName));
+                    if (!permitUnset)
+                        throw new SqlToolError(
+                                SqltoolRB.plvar_undefined.getString(varName));
+                    varValue = "";
                 }
             }
 
