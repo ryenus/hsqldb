@@ -10,6 +10,11 @@
 # GRADLE_OPTS="$GRADLE_OPTS -Xmx512m"
 # JAVA_OPTS="$JAVA_OPTS -Xmx512m"
 
+# Customization by blaine of HSQL Development Group:
+[ -n "$JAVA_OPTS" ] || JAVA_OPTS='-Xms256m -Xmx1g -XX:MaxPermSize=256m'
+# This just sets JAVA_OPTS's "default", but does nothing at all if the caller
+# has any JAVA_OPTS value set.
+
 GRADLE_APP_NAME=Gradle
 
 # Use the maximum available, or set MAX_FD != -1 to use that value.
