@@ -22,7 +22,7 @@ Filter substrings are case-sensitive!  Use "SCHEMANAME." to narrow to schema.
     \mq  f/path.csv [*]  Ditto, but with traditional CSV double-quoting
     \o [file/path.html]  tee (or stop teeing) query Output to specified file
     \oc                  stop teeing query Output and write Closing HTML
-    \p [A Message]       Print string to stdout
+    \p[r] [A Message]    Print string to stdout (r = Raw HTML when in \h mode)
     \q [abort message]   Quit (or you can end input with Ctrl-Z or Ctrl-D)
     \t [true|false]      report execution Times for all SQL commands
     \v [TRAN_ISO_LVL]    view/set the connection transaction isolation leVel
