@@ -12,6 +12,9 @@ if "%OS%"=="Windows_NT" setlocal
 @rem set GRADLE_OPTS=%GRADLE_OPTS% -Xmx512m
 @rem set JAVA_OPTS=%JAVA_OPTS% -Xmx512m
 
+# Customization by blaine of HSQL Development Group:
+if "%JAVA_OPTS%" == "" set JAVA_OPTS=-Xms256m -Xmx1g -XX:MaxPermSize=256m
+
 set DIRNAME=%~dp0
 if "%DIRNAME%" == "" set DIRNAME=.\
 
