@@ -1,0 +1,19 @@
+#!/bin/bash -p
+
+# $Id$
+# author: Blaine Simpson of the HSQL Development Group
+# Distribution is permitted under the terms of the HSQLDB license.
+# (c) 2011 The HSQL Development Group
+
+case "$0" in
+/*) SCRIPTDIR="${0%/*}";; */*) SCRIPTDIR="$PWD/${0%/*}";; *) SCRIPTDIR="$PWD";;
+esac
+case "$SCRIPTDIR" in *?/.) SCRIPTDIR="${SCRIPTDIR%/.}"; esac
+
+cd "$SCRIPTDIR"
+
+# If there is no settings file in place, start user with our customized one:
+[ -e gradle-app.setting ] || cp gui-initial.setting gradle-app.setting
+
+# Change JVM settings here:
+GRADLE_OPTS='-Xms256m -Xmx1g -XX:MaxPermSize=256m' exec ./gradlew --gui &
