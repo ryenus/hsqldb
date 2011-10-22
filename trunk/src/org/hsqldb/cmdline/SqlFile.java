@@ -5786,4 +5786,34 @@ public class SqlFile {
             throw new BadSpecial(SqltoolRB.illegal_at.getString());
         return baseDir.getPath() + s.substring(1);
     }
+
+    /**
+     * Escaping rules taken from 'Reserved Characters in HTML table at
+     * http://www.w3schools.com/tags/ref_entities.asp
+     */
+    public static String escapeHtml(String s) {
+        StringBuilder sb = new StringBuilder();
+        char[] charArray = s.toCharArray();
+        for (char c : charArray) switch (c) {
+          case 34:
+            sb.append("&quot;");
+            break;
+          case 39:
+            // This case not supported by Commons Lang's escapeHtml
+            sb.append("&apos;");
+            break;
+          case 38:
+            sb.append("&amp;");
+            break;
+          case 60:
+            sb.append("&lt;");
+            break;
+          case 62:
+            sb.append("&gt;");
+            break;
+          default:
+            sb.append(c);
+        }
+        return sb.toString();
+    }
 }
