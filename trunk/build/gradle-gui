@@ -16,4 +16,4 @@ cd "$SCRIPTDIR"
 [ -e gradle-app.setting ] || cp gui-initial.setting gradle-app.setting
 
 # Change JVM settings here:
-GRADLE_OPTS='-Xms256m -Xmx1g -XX:MaxPermSize=256m' exec ./gradlew --gui "$@" &
+exec ./gradlew --gui "$@" &
