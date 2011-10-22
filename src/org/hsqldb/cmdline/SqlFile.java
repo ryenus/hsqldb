@@ -188,6 +188,7 @@ public class SqlFile {
 
     // These settings are never null
     private String nullRepToken;   // May be ""
+    private String nullRepHtml;   // May be ""
     private String dsvColDelim;    // May NOT be ""
     private String dsvColSplitter; // May NOT be ""
     private String dsvRowDelim;    // May NOT be ""
@@ -377,6 +378,8 @@ public class SqlFile {
 
         nullRepToken = shared.userVars.get("*NULL_REP_TOKEN");
         if (nullRepToken == null) nullRepToken = DEFAULT_NULL_REP;
+        nullRepHtml = shared.userVars.get("*NULL_REP_HTML");
+        if (nullRepHtml == null) nullRepHtml = DEFAULT_NULL_HTML;
     }
 
     /**
@@ -1795,6 +1798,23 @@ public class SqlFile {
                 return;
 
             case 'p' :
+                if (arg1.equals("pr")) {
+                    if (other == null) {
+                        if (shared.psStd != null) shared.psStd.println();
+
+                        if (pwQuery != null) {
+                            pwQuery.println();
+                            pwQuery.flush();
+                        }
+                    } else {
+                        shared.psStd.println(other);
+                        if (pwQuery != null) {
+                            pwQuery.println(other);
+                            pwQuery.flush();
+                        }
+                    }
+                    return;
+                }
                 enforce1charSpecial(arg1, 'p');
                 if (other == null) {
                     stdprintln(true);
@@ -2746,12 +2766,12 @@ public class SqlFile {
     private void errprintln(String s) {
         if (pwQuery != null && htmlMode) {
             pwQuery.println("<DIV class=\"sqltool-error\"><CODE>"
-                    + s + "</CODE></DIV>");
+                    + SqlFile.escapeHtml(s) + "</CODE></DIV>");
             pwQuery.flush();
         }
         if (shared.psStd != null && htmlMode) {
             shared.psStd.println("<DIV class=\"sqltool-error\"><CODE>"
-                    + s + "</CODE></DIV>");
+                    + SqlFile.escapeHtml(s) + "</CODE></DIV>");
         } else {
             logger.privlog(Level.SEVERE, s, null, 4, SqlFile.class);
             /* Only consistent way we can log source location is to log
@@ -2768,10 +2788,12 @@ public class SqlFile {
      */
     private void stdprint(String s, boolean queryOutput) {
         if (shared.psStd != null)
-            shared.psStd.print(htmlMode ? ("<P>" + s + "</P>") : s);
+            shared.psStd.print(
+                    htmlMode ? ("<P>" + SqlFile.escapeHtml(s) + "</P>") : s);
 
         if (queryOutput && pwQuery != null) {
-            pwQuery.print(htmlMode ? ("<P>" + s + "</P>") : s);
+            pwQuery.print(
+                    htmlMode ? ("<P>" + SqlFile.escapeHtml(s) + "</P>") : s);
             pwQuery.flush();
         }
     }
@@ -2782,12 +2804,12 @@ public class SqlFile {
      * Conditionally HTML-ifies output.
      */
     private void stdprintln(String s, boolean queryOutput) {
-        shared.psStd.println(htmlMode ? ("<P>" + s + "</P>")
-                               : s);
+        shared.psStd.println(
+                htmlMode ? ("<P>" + SqlFile.escapeHtml(s) + "</P>") : s);
 
         if (queryOutput && pwQuery != null) {
-            pwQuery.println(htmlMode ? ("<P>" + s + "</P>")
-                                     : s);
+            pwQuery.println(
+                    htmlMode ? ("<P>" + SqlFile.escapeHtml(s) + "</P>") : s);
             pwQuery.flush();
         }
     }
@@ -2796,6 +2818,7 @@ public class SqlFile {
     // SqlFile output, we use the same default value for null in DSV
     // files, but this DSV null representation can be changed to anything.
     private static final String DEFAULT_NULL_REP = "[null]";
+    private static final String DEFAULT_NULL_HTML = "&Oslash;";
     private static final String DEFAULT_ROW_DELIM = LS;
     private static final String DEFAULT_ROW_SPLITTER = "\\r\\n|\\r|\\n";
     private static final String DEFAULT_COL_DELIM = "|";
@@ -3666,8 +3689,8 @@ public class SqlFile {
                         // A little tricky here.  fieldArray[] MUST get set.
                         if (val == null && pwDsv == null) {
                             if (dataType[insi] == java.sql.Types.VARCHAR) {
-                                fieldArray[insi] = (htmlMode ? "<I>null</I>"
-                                                             : nullRepToken);
+                                fieldArray[insi] = htmlMode
+                                                 ? "\u0000" : nullRepToken;
                             } else {
                                 fieldArray[insi] = "";
                             }
@@ -3703,8 +3726,9 @@ public class SqlFile {
                         condlPrint(SqlFile.htmlRow(COL_HEAD) + LS + PRE_TD, true);
 
                         for (int i = 0; i < headerArray.length; i++) {
-                            condlPrint("<TH>" + headerArray[i] + "</TH>",
-                                       true);
+                            condlPrint("<TH>"
+                                    + SqlFile.escapeHtml(headerArray[i])
+                                    + "</TH>", true);
                             condlPrint(((i > 0) ? "  " : "")
                                     + ((i < headerArray.length - 1
                                         || rightJust[i])
@@ -3737,9 +3761,13 @@ public class SqlFile {
                         fieldArray = rows.get(i);
 
                         for (int j = 0; j < fieldArray.length; j++) {
-                            condlPrint("<TD" + (rightJust[j]
-                                        ? " class=\"sqltool-right\"" : "")
-                                        + ">" + fieldArray[j] + "</TD>", true);
+                            condlPrint("<TD"
+                                    + (rightJust[j]
+                                       ? " class=\"sqltool-right\"" : "") + ">"
+                                    + (fieldArray[j].equals("\u0000")
+                                       ? nullRepHtml
+                                       : SqlFile.escapeHtml(fieldArray[j]))
+                                    + "</TD>", true);
                             condlPrint(((j > 0) ? "  " : "")
                                     + ((j < fieldArray.length - 1
                                         || rightJust[j])
@@ -3790,8 +3818,7 @@ public class SqlFile {
                     for (int j = 0; j < fArray.length; j++) {
                         if (pwDsv == null) dsvSafe(fArray[j]);
                         pwDsv.print((fArray[j] == null)
-                                    ? (autonulls[j] ? ""
-                                                    : nullRepToken)
+                                    ? (autonulls[j] ? "" : nullRepToken)
                                     : fArray[j]);
 
                         if (j < fArray.length - 1) pwDsv.print(dsvColDelim);
@@ -4050,11 +4077,9 @@ public class SqlFile {
 
                 fieldArray[1] = m.getColumnTypeName(i + 1);
                 fieldArray[2] = Integer.toString(m.getColumnDisplaySize(i + 1));
-                fieldArray[3] =
-                    ((m.isNullable(i + 1) == java.sql.ResultSetMetaData.columnNullable)
-                     ? (htmlMode ? "&nbsp;"
-                                 : "")
-                     : "*");
+                fieldArray[3] = ((m.isNullable(i + 1)
+                        == java.sql.ResultSetMetaData.columnNullable)
+                        ? "" : "*");
 
                 if (filter != null && filterMatchesAll
                         && !filter.matcher(fieldArray[0]
@@ -4073,7 +4098,8 @@ public class SqlFile {
                     + LS + SqlFile.htmlRow(COL_HEAD) + LS + PRE_TD, true);
 
             for (int i = 0; i < headerArray.length; i++) {
-                condlPrint("<TH>" + headerArray[i] + "</TH>", true);
+                condlPrint("<TH>"
+                        + SqlFile.escapeHtml(headerArray[i]) + "</TH>", true);
                 condlPrint(((i > 0) ? "  " : "")
                         + ((i < headerArray.length - 1 || rightJust[i])
                            ? StringUtil.toPaddedString(
@@ -4088,23 +4114,23 @@ public class SqlFile {
 
             if (!htmlMode) {
                 for (int i = 0; i < headerArray.length; i++)
-                    condlPrint(((i > 0) ? "  "
-                                        : "") + SqlFile.divider(maxWidth[i]), false);
+                    condlPrint(((i > 0) ? "  " : "")
+                            + SqlFile.divider(maxWidth[i]), false);
 
                 condlPrintln("", false);
             }
 
             for (int i = 0; i < rows.size(); i++) {
-                condlPrint(SqlFile.htmlRow(((i % 2) == 0) ? COL_EVEN
-                                                  : COL_ODD) + LS
-                                                  + PRE_TD, true);
+                condlPrint(SqlFile.htmlRow( ((i % 2) == 0)
+                        ? COL_EVEN : COL_ODD) + LS + PRE_TD, true);
 
                 fieldArray = rows.get(i);
 
                 for (int j = 0; j < fieldArray.length; j++) {
                     condlPrint("<TD"
                             + (rightJust[j] ? " class=\"sqltool-right\"" : "")
-                            + ">" + fieldArray[j] + "</TD>", true);
+                            + ">" + SqlFile.escapeHtml(fieldArray[j])
+                            + "</TD>", true);
                     condlPrint(((j > 0) ? "  " : "")
                             + ((j < fieldArray.length - 1 || rightJust[j])
                                ? StringUtil.toPaddedString(
@@ -4234,6 +4260,8 @@ public class SqlFile {
     /**
      * Print to psStd and possibly pwQuery iff current HTML mode matches
      * supplied printHtml.
+     *
+     * The condlPrint methods do not escape HTML like the stdprint methods do.
      */
     private void condlPrintln(String s, boolean printHtml) {
         if ((printHtml &&!htmlMode) || (htmlMode &&!printHtml)) return;
@@ -4249,6 +4277,8 @@ public class SqlFile {
     /**
      * Print to psStd and possibly pwQuery iff current HTML mode matches
      * supplied printHtml.
+     *
+     * The condlPrint methods do not escape HTML like the stdprint methods do.
      */
     private void condlPrint(String s, boolean printHtml) {
         if ((printHtml &&!htmlMode) || (htmlMode &&!printHtml)) return;
