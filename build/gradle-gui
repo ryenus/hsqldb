@@ -10,16 +10,6 @@ case "$0" in
 esac
 case "$SCRIPTDIR" in *?/.) SCRIPTDIR="${SCRIPTDIR%/.}"; esac
 
-
-type -t java > /dev/null || {
-    [ -n "$JAVA_HOME" ] && PATH="$JAVA_HOME/bin:$PATH"
-    type -t java > /dev/null || {
-        echo "You must either have env. var 'JAVA_HOME' exported,
-or have 'java' in your shell search path." 1>&2
-        exit 2
-    }
-}
-
 cd "$SCRIPTDIR"
 
 # If there is no settings file in place, start user with our customized one:
