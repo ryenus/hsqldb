@@ -182,7 +182,7 @@
     SHUTDOWN IMMEDIATELY was used, the database is in aborted state.</para>
 
     <itemizedlist>
-      <title>Aborted Database state</title>
+      <title>Aborted database state</title>
 
       <listitem>
         <para>The <filename>test.properties</filename> containes
