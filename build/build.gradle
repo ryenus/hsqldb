@@ -202,7 +202,7 @@ File[] resequenceAntDependencies(String fileNameInsertion, closures, inFiles) {
     for (e in targetsIn)
         e.value.@depends = dependListsOut[e.key].join(', ')
     for (pGpathR in projectGpathRs) {
-        for (targ in pGpathR.depthFirst().findAll {
+        for (targ in pGpathR.'**'.findAll {
             it.@target.list().size() > 0
         })
             if (renameMap.containsKey(targ.@target.text()))
