@@ -1,8 +1,3 @@
-        <TR><TD class='sum' colspan='4'>%{1}</TD></TR>
+        <TR><TD class="sqltool-sum" colspan="4">%{1}</TD></TR>
     </TBODY>
 </TABLE>
-
-<DIV class='footnote'>SqlFile revision %{2}.</DIV>
-
-</BODY>
-</HTML>

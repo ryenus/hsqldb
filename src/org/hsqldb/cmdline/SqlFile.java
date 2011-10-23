@@ -1680,7 +1680,8 @@ public class SqlFile {
                         throw new BadSpecial(
                                 SqltoolRB.outputfile_nonetoclose.getString());
 
-                    if (addFooter) writeFooter(pwQuery);
+                    if (addFooter)
+                        writeFooter(pwQuery, "(the HTML report file)");
                     closeQueryOutputStream();
 
                     return;
@@ -5094,8 +5095,17 @@ public class SqlFile {
                     new FileOutputStream(rejectReportFile),
                     (shared.encoding == null)
                     ? DEFAULT_FILE_ENCODING : shared.encoding));
+            boolean setTitle = !shared.userVars.containsKey("REPORT_TITLE");
+            if (setTitle)
+                shared.userVars.put("REPORT_TITLE",
+                        "SqlTool " + (csvStyleQuoting ? "CSV" : "DSV")
+                        + " Reject Report");
+            try {
+                writeHeader(rejectReportWriter, dsvRejectReport);
+            } finally {
+                if (setTitle) shared.userVars.remove("REPORT_TITLE");
+            }
             rejectReportWriter.println(SqltoolRB.rejectreport_top.getString(
-                    (new java.util.Date()).toString(),
                     dsvFile.getPath(),
                     ((rejectFile == null) ? SqltoolRB.none.getString()
                                     : rejectFile.getPath()),
@@ -5404,6 +5414,7 @@ public class SqlFile {
                 rejectReportWriter.println(
                         SqltoolRB.rejectreport_bottom.getString(
                         summaryString, revnum));
+                writeFooter(rejectReportWriter, dsvRejectReport);
                 rejectReportWriter.flush();
             }
         }
@@ -5459,10 +5470,10 @@ public class SqlFile {
     private void genRejectReportRecord(PrintWriter pw, int rCount,
             int lCount, String field, String eMsg, Throwable cause) {
         pw.println(SqltoolRB.rejectreport_row.getString(
-                ((rCount % 2 == 0) ? "even" : "odd") + "row",
+                "sqltool-" + ((rCount % 2 == 0) ? "even" : "odd"),
                 Integer.toString(rCount),
                 Integer.toString(lCount),
-                ((field == null) ? "&nbsp;" : field),
+                ((field == null) ? "" : field),
                 (((eMsg == null) ? "" : eMsg)
                         + ((eMsg == null || cause == null) ? "" : "<HR/>")
                         + ((cause == null) ? "" : (
@@ -5795,6 +5806,9 @@ public class SqlFile {
         return sb.toString();
     }
 
+    /**
+     * @param filePath only used for error reporting.
+     */
     private void writeHeader(PrintWriter pWriter, String filePath)
             throws BadSpecial, SqlToolError {
         char[] readBfr = new char[1024];
@@ -5831,8 +5845,11 @@ public class SqlFile {
         pWriter.write(dereference(str.replaceAll("\\r?\\n", LS), true));
     }
 
-    private void writeFooter(
-            PrintWriter pwQuery) throws BadSpecial, SqlToolError {
+    /**
+     * @param filePath only used for error reporting.
+     */
+    private void writeFooter(PrintWriter pwQuery, String filePath)
+            throws SqlToolError {
         char[] readBfr = new char[1024];
         int i;
         StringWriter sWriter = new StringWriter();
@@ -5854,9 +5871,8 @@ public class SqlFile {
             str = sWriter.toString();
             sWriter.close();
         } catch (Exception e) {
-            throw new BadSpecial(
-                    SqltoolRB.file_writefail.getString(
-                    "(specified HTML file"), e);
+            throw new SqlToolError(
+                    SqltoolRB.file_writefail.getString(filePath), e);
         } finally {
             try {
                 if (isr != null) isr.close();
