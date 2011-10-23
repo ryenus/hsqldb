@@ -8,7 +8,7 @@ void loadJavaProps(String filePath, boolean strict) {
     if (!f.isFile()) return
     Properties props = new Properties();
     f.withInputStream { props.load(it) }
-    logger.info('Loaded ' + props.size() + ' from ' + filePath)
+    logger.info 'Loaded ' + props.size() + ' from ' + filePath
     String newVal;
     boolean haveNewVal;
     int prevCount = props.size();
@@ -50,7 +50,7 @@ loadJavaProps('local.properties', false)
 // Read in 'local.gradle' if it exists.
 file localFile = file('local.gradle')
 if (localFile.canRead() && localFile.isFile()) {
-    logger.info("Applying '" + localFile + "'")
+    logger.info "Applying '$localFile'"
     apply from: localFile
 }
 
@@ -65,7 +65,8 @@ if (project.hasProperty('repos.flatdir.url')) {
     repositories {
         add(new URLResolver()) {
             name = 'flatDirUrlRepos'
-            addArtifactPattern "${project.property('repos.flatdir.url')}/[artifact]-[revision](-[classifier]).[ext]"
+            addArtifactPattern (project.property('repos.flatdir.url')
+                    + '/[artifact]-[revision](-[classifier]).[ext]')
             checkmodified = true
         }
     }
@@ -79,4 +80,4 @@ if (repositories.resolvers.size < 1)
     'repos.flatdir.path' or 'repos.flatdir.url' or 'repos.useMaven' to 'true'
     ''')
 
-logger.info(repositories.resolvers.size + ' repositories')
+logger.info "$repositories.resolvers.size repositories"

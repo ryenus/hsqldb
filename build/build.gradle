@@ -82,7 +82,7 @@ void resolveCheck(configName) {
     }
     //configurations[configName].files.each { println '+' + it }
     //throw new GradleException("Quittin' early")
-    logger.info(artCount + ' artifacts resolved')
+    logger.info "$artCount  artifacts resolved"
 }
 
 /*  This task will become useful for native Gradle compilations
@@ -116,8 +116,8 @@ import groovy.xml.XmlUtil
 import groovy.xml.StreamingMarkupBuilder
 
 private void recursivePush(newName, dli, msl, ips) {
-    if (msl.contains(newName))
-        throw new GradleException("Recursion duplication for target '$newName'")
+    assert !msl.contains(newName) :
+            "Recursion duplication for target '$newName'"
     if (ips.contains(newName))
         throw new GradleException("Recursion cycle for target '$newName'")
     ips.add(0, newName)
@@ -133,9 +133,10 @@ private void recursivePush(newName, dli, msl, ips) {
             }
         //for (i = 0 .. superEl.size()-1)
     msl.add(newName)
-    if (ips.remove(0) != newName)
-        throw new GradleException('Internal IPS stack problem')
+    assert ips.remove(0) == newName : 'Internal IPS stack problem'
 }
+
+import groovy.util.slurpersupport.GPathResult
 
 /**
  * @param fileNameInsertion.
@@ -145,18 +146,23 @@ private void recursivePush(newName, dli, msl, ips) {
  *           Null to not do anything with it.
  */
 File[] resequenceAntDependencies(String fileNameInsertion, closures, inFiles) {
-    def xmls = []
-    for (File f in inFiles)
-        xmls << new XmlSlurper().parseText(f.getText("UTF-8"))
+    def projectGpathRs = []
+    for (File f in inFiles) {
+        GPathResult gPathR = new XmlSlurper().parseText(f.getText('UTF-8'))
+        assert gPathR.name() == 'project' :
+                ("Root element in file '$f.absolutePath' not 'project': "
+                + gPathR.name())
+        projectGpathRs << gPathR
+    }
     def targetsIn = [:]      // name -> Target.  Those CONTAINING multi-depends.
     def dependListsIn = [:]  // name -> List<String>
     def inProcessStack = []  // For cycle checking
     def masterSeqList = []   // Sequential list of all ref'd targ names
 
     // 1:  Determine new sequence 'masterSeqList'
-    for (xml in xmls) for (targ in xml.target.findAll{
+    for (pGpathR in projectGpathRs) for (targ in pGpathR.target.findAll {
         it.@depends != null && it.@depends.list().size() > 0}) {
-            def listEls = Arrays.asList(targ.@depends.text().split("\\s*,\\s*"))
+            def listEls = Arrays.asList(targ.@depends.text().split('\\s*,\\s*'))
             if (listEls.size() > 0 && listEls[0].size() < 1) listEls.remove(0)
             if (listEls.size() < 2) continue  // No precedence if 1:1 dep.
             targetsIn[targ.@name.text()] = targ
@@ -164,14 +170,14 @@ File[] resequenceAntDependencies(String fileNameInsertion, closures, inFiles) {
         }
     logger.debug(targetsIn.size()
             + " name->Target's (just keys): " + targetsIn.keySet())
-    logger.debug(dependListsIn.size() + " name->List's: " + dependListsIn)
+    logger.debug(dependListsIn.size() + " name->List's: $dependListsIn")
 
     for (dl in dependListsIn.values())
         for (n in dl)
             if (!masterSeqList.contains(n))
                 recursivePush(n,
                         dependListsIn.values(), masterSeqList, inProcessStack)
-    logger.debug('RESULT:  ' + masterSeqList)
+    logger.debug "RESULT:  $masterSeqList"
 
     // 2: Generate task-renaming map 'renameMap'
     //    and ouput dep lists 'dependListsOut'
@@ -182,50 +188,53 @@ File[] resequenceAntDependencies(String fileNameInsertion, closures, inFiles) {
     def outList               // Strings
 
     for (n in masterSeqList)
-        renameMap[n] = String.format("%03d%s", renameMap.size() + 1, n);
+        renameMap[n] = String.format('%03d%s', renameMap.size() + 1, n);
     for (e in dependListsIn) {
         outList = []
         dependListsOut[e.key] = outList;
         for (n in e.value)
             outList << (renameMap.containsKey(n) ? renameMap[n] : n)
     }
-    logger.info('renameMap: ' + renameMap)
+    logger.info "renameMap: $renameMap"
 
     // 3: Modify Ant build file text
     // Update 'target' attrs, target name attrs, target depends attrs
     for (e in targetsIn)
         e.value.@depends = dependListsOut[e.key].join(', ')
-    for (xml in xmls) {
-        for (targ in xml.depthFirst().findAll{ it.@target.list().size() > 0 })
+    for (pGpathR in projectGpathRs) {
+        for (targ in pGpathR.depthFirst().findAll {
+            it.@target.list().size() > 0
+        })
             if (renameMap.containsKey(targ.@target.text()))
-                // { logger.debug("Trying " + targ.@target.text())
+                // { logger.debug"Trying " + targ.@target.text()
                 targ.@target = renameMap.get(targ.@target.text())
         for (e in renameMap) {
-            xml.target.find{it.@name.text() == e.key}.@name = e.value;
+            pGpathR.target.find {it.@name.text() == e.key}.@name = e.value;
             // Following is for depends that did not contribute to sequencing,
             // but which still contain mapped target names.
-            xml.target.findAll{it.@depends.text() == e.key}.@depends = e.value;
+            pGpathR.target.findAll {
+                it.@depends.text() == e.key
+            }.@depends = e.value;
         }
     }
 
     // 3.5: Conditionally execute user-specified closures
     if (closures != null) {
-        if (closures.size() != xmls.size())
-            throw new GradleException(
-                    'Size of given xmls != size of closures: '
-                    + xmls.size() + ' vs. ' + closures.size())
+         assert closures.size() == projectGpathRs.size() :
+                ('Size of given projectGpathRs != size of closures: '
+                + projectGpathRs.size() + ' vs. ' + closures.size())
         for (i in 0.. closures.size()-1)
-            if (closures[i] != null) closures[i](xmls[i])
+            if (closures[i] != null) closures[i](projectGpathRs[i])
     }
 
     // 4: Write modified Ant build file
     List<File> outFiles = []
     File outFile
-    Pattern dotPattern = Pattern.compile("\\.");
-    for (i in 0 .. xmls.size()-1) {
+    Pattern dotPattern = Pattern.compile('\\.');
+    for (i in 0 .. projectGpathRs.size()-1) {
         if (inFiles[i].name.indexOf('.') < 0)
             throw new GradleException(
-                    "Input file name has no extension:  " + inFiles[i].name)
+                    'Input file name has no extension:  ' + inFiles[i].name)
         outFile = new File(
                 ((project.hasProperty('resequence.destDir'))
                         ? project['resequence.destDir']
@@ -233,9 +242,10 @@ File[] resequenceAntDependencies(String fileNameInsertion, closures, inFiles) {
                 dotPattern.matcher(inFiles[i].getName()).replaceFirst(
                 fileNameInsertion + '.'))
         outFiles << outFile
-        logger.info("Writing '" + outFile.absolutePath + "'")
-        outFile.write(XmlUtil.serialize(
-            new StreamingMarkupBuilder().bind{mkp.yield xmls[i]}), "UTF-8")
+        logger.info "Writing '$outFile.absolutePath'"
+        outFile.write(XmlUtil.serialize(new StreamingMarkupBuilder().bind {
+                mkp.yield projectGpathRs[i]
+        }), 'UTF-8')
     }
     return outFiles
 }
@@ -249,11 +259,11 @@ if (project.hasProperty('addlAntBuildFiles'))
 //throw new GradleException(sourceAntBuildFiles.join(','))
 
 antBuildClosures = [{
-        it.import.find{it.@file = 'build-docbook-gradled.xml'}
-        it.@name = it.@name.text() + "_gradled"
-        it.attributes().remove("basedir")
+        it.import.find {it.@file = 'build-docbook-gradled.xml'}
+        it.@name = it.@name.text() + '_gradled'
+        it.attributes().remove('basedir')
     }, {
-        it.@name = it.@name.text() + "_gradled"
+        it.@name = it.@name.text() + '_gradled'
         it.import.replaceNode {}
         // Global var because needed for our replacement task definition below
         ivySetupTaskName = '-ivy-setup'
@@ -277,7 +287,7 @@ version = ant.properties['hsqldb.version']  // Inherit version from "build.xml"
 // This block generates wrapper tasks for the sole purpose of preventing the
 // end user from seeing numbered task names.
 // Postnote:  Also removes descriptions from sub-project tasks + wrapped tasks.
-Pattern candidatePattern = Pattern.compile("^\\d{3}([^-.][^.]*)\$");
+Pattern candidatePattern = Pattern.compile('^\\d{3}([^-.][^.]*)\$');
 Matcher m;
 def hidingWrappers = [:]  // From 0xxWrappee -> wrapper
 Task newTask
@@ -326,7 +336,7 @@ private def recursiveAggregator(additions, inMap, assemblage) {
  */
 task help(overwrite:true) << {
     String antVer = ant.properties['ant.version']
-            .replaceFirst("^[^\\d]*(\\d\\S+).*\$", "\$1")
+            .replaceFirst('^[^\\d]*(\\d\\S+).*\$', '\$1')
     print """
 Welcome to Gradle $gradle.gradleVersion.  (Wrapping Ant $antVer).
 
@@ -390,7 +400,7 @@ explainprops.description = 'Explain how to change default build properties'
  * bug that I registered.
  */
 task tasks << {
-    Pattern privatePattern = Pattern.compile("(?:\\d{3})?(-.*)");
+    Pattern privatePattern = Pattern.compile('(?:\\d{3})?(-.*)');
     print """
 ------------------------------------------------------------
 Root Project
@@ -417,21 +427,19 @@ Other tasks
     Matcher pMatcher
     NEXT_TASK:
     for (t in getTasks()) {
-        if (t.name.length() < 1)
-            throw new GradleException('Task with 0 length name encountered.')
+        assert t.name.length() > 0: 'Task with 0 length name encountered.'
         if (t.description != null) {
             pMatcher = privatePattern.matcher(t.name)
             if (pMatcher.matches()) {
-                if (pMatcher.groupCount() != 1 || pMatcher.group(1) == null)
-                    throw new GradleException(
-                        'Internal problem w/ regex pattern: ' + privatePattern)
+                 assert pMatcher.groupCount() == 1 && pMatcher.group(1) != null:
+                        "Internal problem w/ regex pattern: $privatePattern"
                 describedPrivates << pMatcher.group(1)
                 continue
             }
         }
         if (!displayAll && t.description != null
                 && !hardTaskDescriptions.contains(t.name))
-            println t.name + ' - ' + t.description
+            println "$t.name - $t.description"
     }
 
     if (displayAll) {
@@ -440,9 +448,8 @@ Other tasks
         def reverseWrappers = [:]  // Goes from wrapper -> wrappee
         // Probably a cooler Groovy way to do this, but this works:
         for (e in hidingWrappers)  reverseWrappers[e.value] = e.key
-        if (hidingWrappers.size() != reverseWrappers.size())
-            throw new GradleException(
-                    'Seems we have a wrapper Task wrapping more than one Targe')
+        assert hidingWrappers.size() == reverseWrappers.size():
+                'Seems we have a wrapper Task wrapping more than one Target'
         for (t in getTasks()) {
             if (hidingWrappers.containsValue(t)) continue
             // Excluding wrappers so that wrappees can be listed as top-level
@@ -475,8 +482,8 @@ Other tasks
                     def u = reverseWrappers[t]
                     print "    $u.name"
                     if (u.description != null) print " - $u.description"
-                    if (hidingWrappers.containsValue(u))
-                        throw new GradleException("Wrappee is a wrapper too?")
+                    assert !hidingWrappers.containsValue(u):
+                            'Wrappee is a wrapper too?'
                 }
                 println()
                 for (u in recursiveAggregator(
@@ -489,8 +496,8 @@ Other tasks
                             print ' - ' + hidingWrappers[u].description
                         print ']'
                     }
-                    if (hidingWrappers.containsValue(u))
-                        throw new GradleException("Wrapper is depended-up?")
+                    assert !hidingWrappers.containsValue(u):
+                            'Wrapper is depended-up?'
                     println()
                 }
             }
