@@ -34,7 +34,7 @@ for (p in configurations) gradleProjConfMap[p.name] = p
 
 DefaultModuleDescriptor moduleDescriptor =
     (DefaultModuleDescriptor) XmlModuleDescriptorParser.instance
-    .parseDescriptor(new IvySettings(), new File("ivy.xml").toURL(), false);
+    .parseDescriptor(new IvySettings(), new File('ivy.xml').toURL(), false);
 moduleDescriptor.dependencies.each {
     DependencyDescriptor descriptor ->
         def mappableConfNames = descriptor.moduleConfigurations.findAll {
@@ -71,7 +71,7 @@ task displayDeps << {
         throw new GradleException(
                 "Project property 'config.name' required by task 'echoDeps'.")
     println (configurations[project['config.name']].allDependencies.size()
-            + " configs for " + project['config.name'] + '\n    '
+            + ' configs for ' + project['config.name'] + '\n    '
             +  configurations[project['config.name']].asPath
             .replace(System.properties['path.separator'], '\n    '))
 }
