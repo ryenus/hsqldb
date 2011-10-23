@@ -697,7 +697,7 @@ public class SqlFile {
     }
 
     // So we can tell how to handle quit and break commands.
-    private boolean      recursed;
+    private boolean     recursed;
     private PrintWriter pwQuery;
     private PrintWriter pwDsv;
     private boolean     continueOnError;
@@ -1680,42 +1680,7 @@ public class SqlFile {
                         throw new BadSpecial(
                                 SqltoolRB.outputfile_nonetoclose.getString());
 
-                    if (addFooter) {
-                        char[] readBfr = new char[1024];
-                        int i;
-                        StringWriter sWriter = new StringWriter();
-                        InputStreamReader isr = null;
-                        String str;
-                        try {
-                            InputStream is = (bottomHtmlFile == null)
-                                    ? getClass().getResourceAsStream(
-                                    "sqltool/bottom-boilerplate.html")
-                                    : new FileInputStream(bottomHtmlFile);
-                            if (is == null)
-                                throw new IOException("Missing resource: "
-                                    + ((bottomHtmlFile == null)
-                                    ? bottomHtmlFile
-                                    : "sqltool/bottom-boilerplate"));
-                            isr = new InputStreamReader(is);
-                            while ((i = isr.read(readBfr)) > -1)
-                                sWriter.write(readBfr, 0, i);
-                            readBfr = null;
-                            str = sWriter.toString();
-                            sWriter.close();
-                        } catch (Exception e) {
-                            throw new BadSpecial(
-                                    SqltoolRB.file_writefail.getString(
-                                    other), e);
-                        } finally {
-                            try {
-                                if (isr != null) isr.close();
-                            } catch (IOException ioe) {
-                                // TODO: Throw appropriate exception
-                            }
-                        }
-                        pwQuery.write(dereference(
-                                str.replaceAll("\\r?\\n", LS), true));
-                    }
+                    if (addFooter) writeFooter(pwQuery);
                     closeQueryOutputStream();
 
                     return;
@@ -1728,56 +1693,22 @@ public class SqlFile {
                     closeQueryOutputStream();
                 }
 
-                boolean exists = new File(dereferenceAt(other)).exists();
+                String filePath = dereferenceAt(other);
+                boolean preExists = new File(filePath).exists();
                 try {
                     pwQuery = new PrintWriter(new OutputStreamWriter(
-                            new FileOutputStream(dereferenceAt(other), true),
+                            new FileOutputStream(filePath, true),
                             (shared.encoding == null)
                             ? DEFAULT_FILE_ENCODING : shared.encoding));
                 } catch (Exception e) {
                     throw new BadSpecial(SqltoolRB.file_writefail.getString(
-                            other), e);
+                            filePath), e);
                 }
 
                 /* Opening in append mode, so it's possible that we will
                  * be adding superfluous <HTML> and <BODY> tags.
                  * I think that browsers can handle that */
-                if (htmlMode && !exists) {
-                    char[] readBfr = new char[1024];
-                    int i;
-                    StringWriter sWriter = new StringWriter();
-                    InputStreamReader isr = null;
-                    String str;
-                    try {
-                        InputStream is = (topHtmlFile == null)
-                                ? getClass().getResourceAsStream(
-                                "sqltool/top-boilerplate.html")
-                                : new FileInputStream(topHtmlFile);
-                        if (is == null)
-                            throw new IOException("Missing resource: "
-                                + ((topHtmlFile == null)
-                                ? topHtmlFile
-                                : "sqltool/top-boilerplate"));
-                        isr = new InputStreamReader(is);
-                        while ((i = isr.read(readBfr)) > -1)
-                            sWriter.write(readBfr, 0, i);
-                        readBfr = null;
-                        str = sWriter.toString();
-                        sWriter.close();
-                    } catch (Exception e) {
-                        throw new BadSpecial(
-                                SqltoolRB.file_writefail.getString(
-                                other), e);
-                    } finally {
-                        try {
-                            if (isr != null) isr.close();
-                        } catch (IOException ioe) {
-                            // TODO: Throw appropriate exception
-                        }
-                    }
-                    pwQuery.write(dereference(
-                            str.replaceAll("\\r?\\n", LS), true));
-                }
+                if (htmlMode && !preExists) writeHeader(pwQuery, filePath);
                 pwQuery.flush();
 
                 return;
@@ -5862,5 +5793,77 @@ public class SqlFile {
             sb.append(c);
         }
         return sb.toString();
+    }
+
+    private void writeHeader(PrintWriter pWriter, String filePath)
+            throws BadSpecial, SqlToolError {
+        char[] readBfr = new char[1024];
+        int i;
+        StringWriter sWriter = new StringWriter();
+        InputStreamReader isr = null;
+        String str;
+        try {
+            InputStream is = (topHtmlFile == null)
+                    ? getClass().getResourceAsStream(
+                    "sqltool/top-boilerplate.html")
+                    : new FileInputStream(topHtmlFile);
+            if (is == null)
+                throw new IOException("Missing resource: "
+                    + ((topHtmlFile == null)
+                    ? topHtmlFile
+                    : "sqltool/top-boilerplate"));
+            isr = new InputStreamReader(is);
+            while ((i = isr.read(readBfr)) > -1)
+                sWriter.write(readBfr, 0, i);
+            readBfr = null;
+            str = sWriter.toString();
+            sWriter.close();
+        } catch (Exception e) {
+            throw new BadSpecial(
+                    SqltoolRB.file_writefail.getString(filePath), e);
+        } finally {
+            try {
+                if (isr != null) isr.close();
+            } catch (IOException ioe) {
+                // TODO: Throw appropriate exception
+            }
+        }
+        pWriter.write(dereference(str.replaceAll("\\r?\\n", LS), true));
+    }
+
+    private void writeFooter(
+            PrintWriter pwQuery) throws BadSpecial, SqlToolError {
+        char[] readBfr = new char[1024];
+        int i;
+        StringWriter sWriter = new StringWriter();
+        InputStreamReader isr = null;
+        String str;
+        try {
+            InputStream is = (bottomHtmlFile == null)
+                    ? getClass().getResourceAsStream(
+                    "sqltool/bottom-boilerplate.html")
+                    : new FileInputStream(bottomHtmlFile);
+            if (is == null)
+                throw new IOException("Missing resource: "
+                    + ((bottomHtmlFile == null)
+                    ? bottomHtmlFile
+                    : "sqltool/bottom-boilerplate"));
+            isr = new InputStreamReader(is);
+            while ((i = isr.read(readBfr)) > -1) sWriter.write(readBfr, 0, i);
+            readBfr = null;
+            str = sWriter.toString();
+            sWriter.close();
+        } catch (Exception e) {
+            throw new BadSpecial(
+                    SqltoolRB.file_writefail.getString(
+                    "(specified HTML file"), e);
+        } finally {
+            try {
+                if (isr != null) isr.close();
+            } catch (IOException ioe) {
+                // TODO: Throw appropriate exception
+            }
+        }
+        pwQuery.write(dereference(str.replaceAll("\\r?\\n", LS), true));
     }
 }
