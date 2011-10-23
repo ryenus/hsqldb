@@ -1131,26 +1131,60 @@ examples:
   <import file="build-docbook.xml"/>
 
   <target name="-prep-images">
-    <!-- This will overwrite change-controlled cusotm iages in
+    <!-- This will overwrite change-controlled custom iages in
          doc-src/images/db if files with same names in ${dbimage.path} have
          newer timestamps.
          Since timestamps on our image files all get updated when we build
-         distributions, this will only happen if somebody installs Docbook
+         distributions, this will only happen if somebody installs DocBook
          images newer than the HyperSQL distribution; or for Subversion users.
          In the first case, the user is purposefully overriding what we
          configured the distribution with, so they are responsible.
          For the second case, the Subversion user will see the overrides with
          "svn status" and can simply undo them with "svn revert paths...". -->
-    <fail unless="dbimage.path">Ant property 'dbimage.path' is
-required.  This is normally the "images" subdirectory of a DocBook v.5 NS Style
-Sheet distribution.  The docbook-xsl-ns distro can be downloaded from
- http://sourceforge.net/projects/docbook/files/docbook-xsl-ns/
-Set property 'dbimage.path' to the local path to the images subdirectory
- (perhaps in file 'build.properties').
-If you have set property 'nsstylebase.url' to a file URL, then just set
-'dbimage.path' to the 'images' subdirectory within that path, but you must
-reformat as a plain filesystem path because 'dbimage.path' takes a filepath
-not a URL.</fail>
+    <fail unless="dbimage.path">
+Ant property 'dbimage.path' is required.  This is normally the "images"
+subdirectory of a DocBook v.5 NS Style Sheet distribution.
+There is a simple one-time setup procedure No reason to panic.
+These instructions are lengthy only because I describe three different
+procedures from you to choose from, and all are easy.
+Just do one of these alternatives, then set the property according to the
+instructions after the list.
+
+ + If you have set property 'nsstylebase.url' to a file URL, then
+  'dbimage.path' will just be the full path to the 'images' subdirectory
+   direclty within that directory, but you must reformat as a plain filesystem
+   path because 'dbimage.path' takes a filepath not a URL.
+OR
+ + Run the Gradle task 'installDbImages'
+   Gradle will download and unzip the images from SourceForge for you.
+   Gradle will tell you how to inform it where you want the files downloaded
+   to, and it will tell you the 'dbimage.path' value to use.
+   (There is no Ant target for this action, only a Gradle task).
+OR
+ + Download the latest stable  docbook-xsl-ns distro from
+   http://sourceforge.net/projects/docbook/files/docbook-xsl-ns/
+   and extract it to anywhere.  You only need the 'images' subdirectory right
+   in the root 'docbook-xsl-ns-* directory.  (You may want to retain the
+   entire extraction to speed up builds.  For that, see comments in the
+   "build-docbook.xml" file about 'nsstylebas.url').  Your 'dbimage.path'
+   value will be the file path to this new images subdirectory
+
+Once you know the file path to your 'images' directory, just open up the
+file "build.properties" in your HyperSQL build directory and enter
+
+    dbimage.path=
+
+followed immediately by the file path.  For example
+
+    dbimage.path=d:/Users/blaine/docbook/xsl-ns-1.76.1/images
+
+(If the file "build.properties" does not yet exist in your HyperSQL build
+directory, that is normal-- just create it.)
+
+If you set other build properties, then you may want to set the 'dbimage.path'
+property in the file "local-docbook.properties" instead of "build.properties".
+Either file will work and the setting is made the exact same way.
+</fail>
     <copy todir="doc-src/images/db">
       <fileset dir="${dbimage.path}"/>
     </copy>
