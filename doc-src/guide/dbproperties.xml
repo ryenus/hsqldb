@@ -308,8 +308,8 @@
 
     <para>Each JDBC Connection to a database can specify connection
     properties. The properties <property>user</property> and
-    <property>password</property> are always required. In 2.1 the following
-    optional properties can also be used.</para>
+    <property>password</property> are always required. The following optional
+    properties can also be used.</para>
 
     <para>Connection properties are specified either by establishing the
     connection via the method call below, or the property can be appended to
