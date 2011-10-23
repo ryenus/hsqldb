@@ -5,6 +5,9 @@
 :: Distribution is permitted under the terms of the HSQLDB license.
 :: (c) 2011 The HSQL Development Group
 
+:: Set local scope for the variables with windows NT shell
+if "%OS%"=="Windows_NT" setlocal
+
 set DIRNAME=%~dp0
 if "%DIRNAME%" == "" set DIRNAME=\.\
 
