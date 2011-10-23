@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-
 <!DOCTYPE book [
-  <!ENTITY % dummy22 SYSTEM "../entities/global.ent"> %dummy22;
+<!ENTITY % dummy22 SYSTEM "../entities/global.ent">
+%dummy22;
 ]>
 <chapter version="5.0" xml:id="sessions-chapt"
          xmlns="http://docbook.org/ns/docbook"
@@ -358,7 +358,7 @@
       each transaction is waiting for a different row modified by the other
       transaction. In this case, one of the transactions is immediately
       terminated (rolled back) unless the setting has been changed with the
-      <literal>&lt;set database transaction rollback on deadlock
+      <literal>&lt;set database transaction rollback on conflict
       statement&gt;</literal>. When this setting is changed to FALSE, the
       session that avoided executing the deadlock-causing statement returns an
       error, but without rolling back the previous actions. This will cause
@@ -366,7 +366,7 @@
       should not be changed unless the application can quickly perform an
       alternative statement to continue or roll back the transaction. This
       allows maximum flexibility and compatibility with other database engines
-      which do not roll back the transaction upon deadlock. </para>
+      which do not roll back the transaction upon deadlock.</para>
 
       <para>When transactions are running in REPEATABLE READ or SERIALIZABLE
       isolation levels, conflict is more likely to happen. There is no
@@ -378,7 +378,7 @@
       wants to modify the same row, the action of the second transaction will
       fail. The engine will invalidate the second transaction and roll back
       all its changes. If the setting is changed to false with the
-      <literal>&lt;set database transaction rollback on deadlock
+      <literal>&lt;set database transaction rollback on conflict
       statement&gt;</literal>, then the second transaction will just return an
       error without rolling back. The application must perform an alternative
       statement to continue or roll back the transaction.</para>
