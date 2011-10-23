@@ -45,7 +45,7 @@ void loadJavaProps(String filePath, boolean strict) {
 }
 // Unlike Ant, the LAST loaded properties will override.
 loadJavaProps('app.properties', true)
-loadJavaProps('local.properties', false)
+loadJavaProps('build.properties', false)
 
 // Read in 'local.gradle' if it exists.
 file localFile = file('local.gradle')
