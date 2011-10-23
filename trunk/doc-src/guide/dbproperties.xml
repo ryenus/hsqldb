@@ -1403,24 +1403,26 @@
 
           <tbody valign="top">
             <row>
-              <entry><property>hsqldb.tx_deadlock_rollback</property></entry>
+              <entry><property>hsqldb.tx_conflict_rollback</property></entry>
 
               <entry><literal>true</literal></entry>
 
-              <entry>effect of deadlock on transaction</entry>
+              <entry>effect of deadlock or other conflicts on
+              transaction</entry>
             </row>
 
             <row>
-              <entry nameend="c3" namest="c1"><para>When a deadlock is about
-              to happen, the current transaction is rolled back and an
-              exception is raised. When this property is set false, the
-              transaction is not rolled back. This will cause the other
-              transaction to wait for the current transaction. The property
-              should not be changed unless the application can quickly perform
-              an alternative statement and complete the transaction. It is
+              <entry nameend="c3" namest="c1"><para>When a transaction
+              deadlock or other unresolvable conflict is about to happen, the
+              current transaction is rolled back and an exception is raised.
+              When this property is set false, the transaction is not rolled
+              back. Only the latest action that would cause the conflict is
+              undone and an error is returned. The property should not be
+              changed unless the application can quickly perform an
+              alternative statement and complete the transaction. It is
               provided for compatibility with other database engines which do
               not roll back the transaction upon
-              deadlock.</para><para><programlisting>SET DATABASE TRANSACTION ROLLBACK ON DEADLOCK { TRUE | FALSE }</programlisting></para></entry>
+              deadlock.</para><para><programlisting>SET DATABASE TRANSACTION ROLLBACK ON CONFLICT { TRUE | FALSE }</programlisting></para></entry>
             </row>
           </tbody>
         </tgroup>

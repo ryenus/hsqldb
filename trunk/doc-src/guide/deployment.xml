@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-
 <!DOCTYPE book [
-  <!ENTITY % dummy22 SYSTEM "../entities/global.ent"> %dummy22;
+<!ENTITY % dummy22 SYSTEM "../entities/global.ent">
+%dummy22;
 ]>
 <chapter version="5.0" xml:id="deployment-chapt"
          xmlns="http://docbook.org/ns/docbook"
@@ -1671,9 +1671,9 @@
 
         <listitem>
           <para>Fine control over MVCC deadlock avoidance is provided by the
-          <literal>&lt;set database transaction rollback on deadlock
+          <literal>&lt;set database transaction rollback on conflict
           statement&gt;</literal> and the corresonding
-          <literal>hsqldb.tx_deadlock_rollback</literal> connection
+          <literal>hsqldb.tx_conflict_rollback</literal> connection
           property.</para>
         </listitem>
 
@@ -1703,14 +1703,14 @@
         </listitem>
 
         <listitem>
-          <para> Non-standard data type definitions such as NUMBER, VARCHAR2,
+          <para>Non-standard data type definitions such as NUMBER, VARCHAR2,
           NVARCHAR2, BINARY_DOUBLE, BINARY_FLOAT, LONG, RAW are translated
           into the closest HyperSQL / SQL Standard equivalent.</para>
         </listitem>
 
         <listitem>
           <para>The DUAL table and the expressions, ROWNUM, CURRVAL, NEXTVAL
-          are supported. </para>
+          are supported.</para>
         </listitem>
 
         <listitem>
@@ -2327,35 +2327,35 @@
       <literal>hsqldb.tx</literal>.</simpara>
 
       <indexterm significance="preferred" type="sql">
-        <primary>SET DATABASE TRANSACTION ROLLBACK ON DEADLOCK</primary>
+        <primary>SET DATABASE TRANSACTION ROLLBACK ON CONFLICT</primary>
       </indexterm>
 
       <simpara><emphasis role="bold">SET DATABASE TRANSACTION ROLLBACK ON
-      DEADLOCK</emphasis></simpara>
+      CONFLICT</emphasis></simpara>
 
-      <simpara><emphasis>set database transaction rollback on deadlock
+      <simpara><emphasis>set database transaction rollback on conflict
       statement</emphasis></simpara>
 
-      <simpara><literal>&lt;set database transaction rollback on deadlock
-      statement&gt; ::= SET DATABASE TRANSACTION ROLLBACK ON DEACLOCK { TRUE |
+      <simpara><literal>&lt;set database transaction rollback on conflict
+      statement&gt; ::= SET DATABASE TRANSACTION ROLLBACK ON CONFLICT { TRUE |
       FALSE }</literal></simpara>
 
-      <simpara>When a deadlock is about to happen, the current transaction is
-      rolled back and an exception is raised. When this property is set false,
-      the transaction is not rolled back. This will cause the other
-      transaction to wait for the current transaction. The property should not
-      be changed unless the application can quickly perform an alternative
-      statement and complete the transaction. It is provided for compatibility
-      with other database engines which do not roll back the transaction upon
-      deadlock. This command is also discussed in the <link
-      endterm="sessions-title" xlink:href="#sqlroutines-chapt"></link>
-      chapter.</simpara>
+      <simpara>When a transaction deadlock or conflict is about to happen, the
+      current transaction is rolled back and an exception is raised. When this
+      property is set false, the transaction is not rolled back. Only the
+      latest statement that would cause the conflict is undone and an
+      exception is raised. The property should not be changed unless the
+      application can quickly perform an alternative statement and complete
+      the transaction. It is provided for compatibility with other database
+      engines which do not roll back the transaction upon deadlock. This
+      command is also discussed in the <link endterm="sessions-title"
+      xlink:href="#sqlroutines-chapt"></link> chapter.</simpara>
 
       <simpara>Only a user with the DBA role can execute this
       statement.</simpara>
 
       <simpara>This is equivalent to the connection property
-      <literal>hsqldb.tx_deadlock_rollback</literal>.</simpara>
+      <literal>hsqldb.tx_conflict_rollback</literal>.</simpara>
 
       <indexterm significance="preferred" type="sql">
         <primary>SET DATABASE DEFAULT ISOLATION LEVEL</primary>

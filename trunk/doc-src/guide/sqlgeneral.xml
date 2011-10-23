@@ -192,10 +192,10 @@
 
       <para>With all-in-memory databases, both MEMORY table and CACHED table
       declarations are treated as declarations for non-persistent memory
-      tables. TEXT table declarations are not allowed in these
-      databases.</para>
+      tables. In the latest versions of HyperSQL, TEXT table declarations are
+      allowed in all-in-imemory databases.</para>
 
-      <para>The default type of table resulting from future CREATE TABLE
+      <para>The default type of tables resulting from future CREATE TABLE
       statements can be specified with the SQL command:</para>
 
       <para><programlisting>    SET DATABASE DEFAULT TABLE TYPE { CACHED | MEMORY };</programlisting>The
@@ -210,12 +210,11 @@
       <title>Lob Data</title>
 
       <para>Lobs are logically stored in columns of tables. Their physical
-      storage is a separate *.lobs file. In version 2.0 this file is created
-      as soon as a BLOB or CLOB is inserted into the database. The file will
-      grow as new lobs are inserted into the database. In version 2.0, the
-      *.lobs file is never deleted even if all lobs are deleted from the
-      database (In this case you can delete the .lobs file after a
-      SHTUDOWN).</para>
+      storage is a separate *.lobs file. This file is created as soon as a
+      BLOB or CLOB is inserted into the database. The file will grow as new
+      lobs are inserted into the database. In version 2.x, the *.lobs file is
+      never deleted even if all lobs are deleted from the database (In this
+      case you can delete the .lobs file after a SHTUDOWN).</para>
     </section>
   </section>
 
@@ -315,7 +314,7 @@
       </listitem>
     </itemizedlist>
 
-    <para>HyperSQL 2.1 has several compatibility modes which allow the type
+    <para>HyperSQL 2.2.x has several compatibility modes which allow the type
     names that are used by other RDBM's to be accepted and translated into the
     closest SQL Standard type. For example the type TEXT, supported by MySQL
     and PostgreSQL is translated in these compatibility modes.</para>
@@ -1704,7 +1703,7 @@ UPDATE t SET scores[2] = 123, names[2] = 'Reds' WHERE id = 10
     </informalexample>
 
     <para>The general rule is to put first the table that has a narrowing
-    condition on one of its columns. In certain cases, HyperSQL 2.1 reorders
+    condition on one of its columns. In certain cases, HyperSQL 2.2.x reorders
     the joined tables if it is obvious that this will introduce a narrowing
     condition.</para>
 
@@ -1721,7 +1720,7 @@ UPDATE t SET scores[2] = 123, names[2] = 'Reds' WHERE id = 10
   <section>
     <title>Query Processing and Optimisation</title>
 
-    <para>HyperSQL 2.1 changes the order of tables in a query in order to
+    <para>HyperSQL 2.2x changes the order of tables in a query in order to
     optimise processing. This happens only when one of the tables has a
     narrowing condition and reordering does not change the result of the
     query.</para>
