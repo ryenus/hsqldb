@@ -1144,7 +1144,7 @@ examples:
     <fail unless="dbimage.path">Ant property 'dbimage.path' is
 required.  This is normally the "images" subdirectory of a DocBook v.5 NS Style
 Sheet distribution.  The docbook-xsl-ns distro can be downloaded from
- https://sourceforge.net/projects/docbook/files/docbook-xsl-ns/
+ http://sourceforge.net/projects/docbook/files/docbook-xsl-ns/
 Set property 'dbimage.path' to the local path to the images subdirectory
  (perhaps in file 'build.properties').
 If you have set property 'nsstylebase.url' to a file URL, then just set
