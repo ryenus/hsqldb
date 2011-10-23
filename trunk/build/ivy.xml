@@ -31,46 +31,53 @@
          of the functionality found, and the dependency eliminated.
     -->
     <dependency name="relames" rev="20060319" conf="msv; admc-rs-msv-deps"/>
-    <dependency name="msv" rev="20050913" conf="msv; admc-rs-msv-deps"/>
-    <dependency name="relaxngDatatype" rev="20050913"
+    <dependency name="msv" org="msv" rev="20050913" conf="msv; admc-rs-msv-deps"/>
+    <dependency name="relaxngDatatype" org="msv" rev="20050913"
                 conf="msv; admc-rs-msv-deps"/>
-    <dependency name="xsdlib" rev="20060615" conf="msv; admc-rs-msv-deps"/>
-    <dependency name="isorelax" rev="20050913" conf="msv; admc-rs-msv-deps"/>
-    <dependency name="fop" rev="1.0" conf="fop"/>
+    <dependency name="xsdlib" org="com.sun.msv.datatype.xsd"
+        rev="20060615" conf="msv; admc-rs-msv-deps"/>
+    <dependency name="isorelax" org="msv" rev="20050913" conf="msv; admc-rs-msv-deps"/>
+    <dependency name="fop" org="org.apache.xmlgraphics" rev="1.0" conf="fop"/>
     <!-- Need?:
     <dependency name="fop-hyph" rev="1.2" conf="fop"/>
     <dependency name="jai_codec" rev="1.1.3" conf="fop"/>
     <dependency name="jai_core" rev="1.1.3" conf="fop"/>
     -->
-    <dependency name="xmlgraphics-commons" rev="1.4" conf="fop"/>
+    <dependency name="xmlgraphics-commons" org="org.apache.xmlgraphics"
+        rev="1.4" conf="fop"/>
     <!--
     <dependency name="avalon-framework" rev="4.2.0" conf="fop"/>
     -->
-    <dependency name="avalon-framework-api" rev="4.3.1" conf="fop"/>
-    <dependency name="avalon-framework-impl" rev="4.3.1" conf="fop"/>
-    <dependency name="batik-svg-dom" rev="1.7" conf="fop"/>
-    <dependency name="batik-bridge" rev="1.7" conf="fop"/>
-    <dependency name="batik-util" rev="1.7" conf="fop"/>
-    <dependency name="batik-dom" rev="1.7" conf="fop"/>
-    <dependency name="batik-css" rev="1.7" conf="fop"/>
-    <dependency name="batik-awt-util" rev="1.7" conf="fop"/>
-    <dependency name="batik-gvt" rev="1.7" conf="fop"/>
-    <dependency name="batik-transcoder" rev="1.7" conf="fop"/>
-    <dependency name="batik-extension" rev="1.7" conf="fop"/>
-    <dependency name="batik-ext" rev="1.7" conf="fop; admc-rs-msv-deps"/>
-    <dependency name="commons-io" rev="2.1" conf="fop"/>
-    <dependency name="commons-logging" rev="1.1.1" conf="fop"/>
-    <dependency name="xalan" rev="2.7.1" conf="xalan; msv; admc-rs-msv-deps"/>
-    <dependency name="serializer" rev="2.7.1" conf="xalan"/>
+    <dependency name="avalon-framework-api" org="org.apache.avalon.framework"
+        rev="4.3.1" conf="fop"/>
+    <dependency name="avalon-framework-impl" org="org.apache.avalon.framework"
+        rev="4.3.1" conf="fop"/>
+    <dependency name="batik-svg-dom" org="org.apache.xmlgraphics" rev="1.7" conf="fop"/>
+    <dependency name="batik-bridge" org="org.apache.xmlgraphics" rev="1.7" conf="fop"/>
+    <dependency name="batik-util" org="org.apache.xmlgraphics" rev="1.7" conf="fop"/>
+    <dependency name="batik-dom" org="org.apache.xmlgraphics" rev="1.7" conf="fop"/>
+    <dependency name="batik-css" org="org.apache.xmlgraphics" rev="1.7" conf="fop"/>
+    <dependency name="batik-awt-util" org="org.apache.xmlgraphics" rev="1.7" conf="fop"/>
+    <dependency name="batik-gvt" org="org.apache.xmlgraphics" rev="1.7" conf="fop"/>
+    <dependency name="batik-transcoder" org="org.apache.xmlgraphics" rev="1.7" conf="fop"/>
+    <dependency name="batik-extension" org="org.apache.xmlgraphics" rev="1.7" conf="fop"/>
+    <dependency name="batik-ext" org="org.apache.xmlgraphics"
+        rev="1.7" conf="fop; admc-rs-msv-deps"/>
+    <dependency name="commons-io" org="commons-io" rev="2.1" conf="fop"/>
+    <dependency name="commons-logging" org="commons-logging" rev="1.1.1" conf="fop"/>
+    <dependency name="xalan" org="xalan" rev="2.7.1" conf="xalan; msv; admc-rs-msv-deps"/>
+    <dependency name="serializer" org="xalan" rev="2.7.1" conf="xalan"/>
     <!-- ?
     <dependency name="docbook-ext-xalan2" rev="1.73.2" conf="xalan"/>
     -->
-    <dependency name="docbook-xsl-xalan" rev="1.0.0" conf="xalan"/>
-    <dependency name="xml-apis" rev="2.0.2" conf="xalan; msv; admc-rs-msv-deps"/>
-    <dependency name="xercesImpl" rev="2.10.0"
+    <dependency name="docbook-xsl-xalan" org="net.sf.docbook" rev="1.0.0" conf="xalan"/>
+    <dependency name="xml-apis" org="xml-apis"
+        rev="2.0.2" conf="xalan; msv; admc-rs-msv-deps"/>
+    <dependency name="xercesImpl" org="xerces" rev="2.10.0"
                 conf="msv; xalan; admc-rs-msv-deps"/>
               <!--  Perhaps resolver would be better: ?  -->
-    <dependency name="xml-resolver" rev="1.2" conf="msv; admc-rs-msv-deps"/>
+    <dependency name="xml-resolver" org="xml-resolver"
+        rev="1.2" conf="msv; admc-rs-msv-deps"/>
     <!-- amdc-rs-msv is not available in Maven repository yet -->
     <dependency name="admc-rs-msv" rev="1.0" conf="admc-rs-msv-jar; xalan"/>
     <!-- Primary purpose of this jar is for the MSV validator.
@@ -78,6 +85,6 @@
          settings file to the CLASSPATH.  Needed by Xalan during XSLT.
     -->
     <dependency name="bnd" rev="0.0.384" conf="bnd-jar"/>
-    <dependency name="jflex" rev="1.4.3" conf="jflex-jar"/>
+    <dependency name="jflex" org="de.jflex" rev="1.4.3" conf="jflex-jar"/>
   </dependencies>
 </ivy-module>

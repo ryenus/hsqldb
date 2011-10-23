@@ -20,6 +20,7 @@ defaultTasks 'help'
  */
 
 project['repos.flatdir.url'] = 'http://pub.admc.com/lib-repos'
+project['repos.useMaven'] = 'true'
 apply from: 'common.gradle'
 
 task nichts  // Quiet task for testing root-level Groovy/Gradle development

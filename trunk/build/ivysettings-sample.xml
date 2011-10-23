@@ -14,8 +14,11 @@ holds the plain jar files with names like BASENAME-VERSION.jar.
           artifactPattern="[artifact]-[revision].[ext]"/>
   <settings defaultResolver="default"/>
   <resolvers>
-    <url name="default">
-      <artifact pattern="${repos.url}/[artifact]-[revision].[ext]"/>
-    </url>
+    <chain name="default" returnFirst="true">
+      <url name="admc-resolver">
+        <artifact pattern="${repos.url}/[artifact]-[revision].[ext]"/>
+      </url>
+      <ibiblio name="maven2-resolver" m2compatible="true"/>
+    </chain>
   </resolvers>
 </ivysettings>
