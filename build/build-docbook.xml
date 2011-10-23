@@ -49,7 +49,7 @@
     use the same method to use them from a server on your internal network).
     Sources:
         nsstylebase stylesheets:   Get the latest version from
-                https://sourceforge.net/projects/docbook/files/docbook-xsl-ns/
+                http://sourceforge.net/projects/docbook/files/docbook-xsl-ns/
         dbxirng schema:  http://www.docbook.org/xml/5.0/rng/docbookxi.rng
           (Just the single file)
         dbcentx entities:  http://www.docbook.org/xml/4.5/docbook-xml-4.5.zip
@@ -127,7 +127,7 @@
 docbook-xsl-ns package to
 '${basedir}/doc-src/images/db'.  docbook-xsl-ns is
 available for download from the DocBook project at
-https://sourceforge.net/projects/docbook/files/docbook-xsl-ns/ .
+http://sourceforge.net/projects/docbook/files/docbook-xsl-ns/ .
 Unfortunately, they provide no "current" link, so we can't fetch the current
 version for you automatically (without introducing too much risk of problems).
 To eliminate the Internet dependency for your doc builds, install stylesheets,
