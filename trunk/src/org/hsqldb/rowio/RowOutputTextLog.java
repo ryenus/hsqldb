@@ -136,11 +136,11 @@ public class RowOutputTextLog extends RowOutputBase {
     }
 
     protected void writeClob(ClobData o, Type type) {
-        writeString(Long.toString(o.getId()));
+        writeBytes(Long.toString(o.getId()));
     }
 
     protected void writeBlob(BlobData o, Type type) {
-        writeString(Long.toString(o.getId()));
+        writeBytes(Long.toString(o.getId()));
     }
 
     protected void writeArray(Object[] o, Type type) {

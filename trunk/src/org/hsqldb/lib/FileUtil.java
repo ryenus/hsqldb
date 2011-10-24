@@ -522,7 +522,11 @@ public class FileUtil implements FileAccess {
         }
 
         public File[] getExistingFileListInDirectory() {
-            return parent.listFiles(this);
+
+            File[] list = parent.listFiles(this);
+
+            return list == null ? new File[]{}
+                                : list;
         }
 
         /**

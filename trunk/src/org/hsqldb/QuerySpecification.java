@@ -1354,9 +1354,9 @@ public class QuerySpecification extends QueryExpression {
             Object[]        data  = new Object[indexLimitData];
             Table           table = rangeVariables[0].getTable();
             PersistentStore store = table.getRowStore(session);
-            int             count = store.elementCount(session);
+            long            count = store.elementCount(session);
 
-            data[0] = data[indexStartAggregates] = ValuePool.getInt(count);
+            data[0] = data[indexStartAggregates] = ValuePool.getLong(count);
 
             navigator.add(data);
 

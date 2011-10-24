@@ -126,7 +126,7 @@ public class Database {
     public SessionManager     sessionManager;
     public TransactionManager txManager;
     public int defaultIsolationLevel = SessionInterface.TX_READ_COMMITTED;
-    public boolean            defaultDeadlockRollback = true;
+    public boolean            txConflictRollback = true;
 
     // schema objects
     public SchemaManager schemaManager;

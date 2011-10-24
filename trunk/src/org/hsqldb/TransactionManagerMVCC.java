@@ -323,7 +323,8 @@ implements TransactionManager {
                         .isolationLevel == SessionInterface.TX_SERIALIZABLE) {
                     session.tempSet.clear();
 
-                    session.abortTransaction = session.deadlockRollback;
+                    session.redoAction       = false;
+                    session.abortTransaction = session.txConflictRollback;
 
                     throw Error.error(ErrorCode.X_40501);
                 }
@@ -360,12 +361,12 @@ implements TransactionManager {
                         session.waitedSessions.add(actionSession);
                         session.latch.countUp();
                     }
+
+                    redoCount++;
                 } else {
                     session.redoAction       = false;
-                    session.abortTransaction = session.deadlockRollback;
+                    session.abortTransaction = session.txConflictRollback;
                 }
-
-                redoCount++;
 
                 throw Error.error(ErrorCode.X_40501);
             } finally {
@@ -386,7 +387,7 @@ implements TransactionManager {
         Session   actionSession = null;
         boolean   redoAction    = false;
         boolean   redoWait      = true;
-
+        HsqlException cause     = null;
         if (action == null) {
             System.out.println("null insert action " + session + " "
                                + session.actionTimestamp);
@@ -404,6 +405,7 @@ implements TransactionManager {
             }
 
             redoAction = true;
+            cause = e;
         }
 
         if (!redoAction) {
@@ -431,6 +433,9 @@ implements TransactionManager {
 
                 case SessionInterface.TX_REPEATABLE_READ :
                 case SessionInterface.TX_SERIALIZABLE :
+                    redoAction = false;
+                    break;
+
                 default :
                     redoAction = checkDeadlock(session, actionSession);
             }
@@ -443,13 +448,14 @@ implements TransactionManager {
                     session.waitedSessions.add(actionSession);
                     session.latch.countUp();
                 }
+
+                redoCount++;
             } else {
+                session.abortTransaction = session.txConflictRollback;
                 session.redoAction = false;
             }
 
-            redoCount++;
-
-            throw Error.error(ErrorCode.X_40501);
+            throw Error.error(cause, ErrorCode.X_40501, null);
         } finally {
             writeLock.unlock();
         }

@@ -142,7 +142,7 @@ public class StatementCommand extends Statement {
             case StatementTypes.SET_DATABASE_SQL :
             case StatementTypes.SET_DATABASE_TRANSACTION_CONTROL :
             case StatementTypes.SET_DATABASE_DEFAULT_ISOLATION_LEVEL :
-            case StatementTypes.SET_DATABASE_TRANSACTION_DEADLOCK :
+            case StatementTypes.SET_DATABASE_TRANSACTION_CONFLICT :
             case StatementTypes.SET_DATABASE_GC :
 
 //
@@ -734,13 +734,13 @@ public class StatementCommand extends Statement {
                     return Result.newErrorResult(e, sql);
                 }
             }
-            case StatementTypes.SET_DATABASE_TRANSACTION_DEADLOCK : {
+            case StatementTypes.SET_DATABASE_TRANSACTION_CONFLICT : {
                 try {
                     boolean mode = ((Boolean) parameters[0]).booleanValue();
 
                     session.checkAdmin();
 
-                    session.database.defaultDeadlockRollback = mode;
+                    session.database.txConflictRollback = mode;
 
                     return Result.updateZeroResult;
                 } catch (HsqlException e) {

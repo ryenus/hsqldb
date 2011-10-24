@@ -72,7 +72,7 @@ public class SetFunction implements Serializable {
     private Type      returnType;
 
     //
-    private int count;
+    private long count;
 
     //
     private boolean    hasNull;
@@ -267,7 +267,7 @@ public class SetFunction implements Serializable {
                 count = arrayType.deDuplicate(session, array, sort);
             }
 
-            return ValuePool.getInt(count);
+            return ValuePool.getLong(count);
         }
 
         if (count == 0) {
@@ -306,8 +306,8 @@ public class SetFunction implements Serializable {
                             return currentBigDecimal.divide(
                                 new BigDecimal(count), BigDecimal.ROUND_DOWN);
                         } else {
-                            return returnType.divide(session, currentBigDecimal,
-                                              count);
+                            return returnType.divide(session,
+                                                     currentBigDecimal, count);
                         }
                     case Types.SQL_INTERVAL : {
                         BigInteger bi =
@@ -411,7 +411,7 @@ public class SetFunction implements Serializable {
     static Type getType(Session session, int setType, Type type) {
 
         if (setType == OpTypes.COUNT) {
-            return Type.SQL_INTEGER;
+            return Type.SQL_BIGINT;
         }
 
         int typeCode = type.isIntervalType() ? Types.SQL_INTERVAL

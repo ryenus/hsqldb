@@ -99,7 +99,7 @@ public class Session implements SessionInterface {
     long                    actionTimestamp;
     long                    transactionTimestamp;
     long                    transactionEndTimestamp;
-    boolean                 deadlockRollback;
+    boolean                 txConflictRollback;
     boolean                 isPreTransaction;
     boolean                 isTransaction;
     boolean                 isBatch;
@@ -172,7 +172,7 @@ public class Session implements SessionInterface {
         tempSet                     = new OrderedHashSet();
         isolationLevelDefault       = database.defaultIsolationLevel;
         isolationLevel              = isolationLevelDefault;
-        deadlockRollback            = database.defaultDeadlockRollback;
+        txConflictRollback            = database.txConflictRollback;
         isReadOnlyDefault           = readonly;
         isReadOnlyIsolation = isolationLevel
                               == SessionInterface.TX_READ_UNCOMMITTED;
@@ -654,7 +654,7 @@ public class Session implements SessionInterface {
 
         setIsolation(isolationLevelDefault);
 
-        deadlockRollback = database.defaultDeadlockRollback;
+        txConflictRollback = database.txConflictRollback;
     }
 
     /**
@@ -1339,7 +1339,7 @@ public class Session implements SessionInterface {
 
                 sessionContext.currentStatement = null;
 
-                return Result.newErrorResult(Error.error(ErrorCode.X_40001));
+                return Result.newErrorResult(Error.error(r.getException(), ErrorCode.X_40001, null));
             }
 
             if (redoAction) {

@@ -487,9 +487,9 @@ public class Logger {
                 SessionInterface.TX_READ_COMMITTED;
         }
 
-        database.defaultDeadlockRollback =
+        database.txConflictRollback =
             database.databaseProperties.isPropertyTrue(
-                HsqlDatabaseProperties.hsqldb_tx_deadlock_rollback);
+                HsqlDatabaseProperties.hsqldb_tx_conflict_rollback);
         database.sqlEnforceNames = database.databaseProperties.isPropertyTrue(
             HsqlDatabaseProperties.sql_enforce_names);
         database.sqlEnforceRefs = database.databaseProperties.isPropertyTrue(
@@ -1723,9 +1723,9 @@ public class Logger {
         sb.append("SET DATABASE ").append(Tokens.T_TRANSACTION);
         sb.append(' ').append(Tokens.T_ROLLBACK).append(' ');
         sb.append(Tokens.T_ON).append(' ');
-        sb.append(Tokens.T_DEADLOCK).append(' ');
-        sb.append(database.defaultDeadlockRollback ? Tokens.T_TRUE
-                                                   : Tokens.T_FALSE);
+        sb.append(Tokens.T_CONFLICT).append(' ');
+        sb.append(database.txConflictRollback ? Tokens.T_TRUE
+                                              : Tokens.T_FALSE);
         list.add(sb.toString());
         sb.setLength(0);
         sb.append("SET DATABASE ").append(Tokens.T_TEXT).append(' ');

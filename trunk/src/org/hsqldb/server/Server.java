@@ -2219,8 +2219,9 @@ public class Server implements HsqlSocketRequestHandler {
         setState(ServerConstants.SERVER_STATE_ONLINE);
         print(sw.elapsedTimeToMessage("Startup sequence completed"));
         printServerOnlineMessage();
+
         // isShuttingDown is only read after socket connections are 'accept'ed.
-        isShuttingDown = false;  // In case shutdown was aborted previously.
+        isShuttingDown = false;    // In case shutdown was aborted previously.
 
         try {
             /*
@@ -2478,6 +2479,8 @@ public class Server implements HsqlSocketRequestHandler {
         if (propsPath == null) {
             propsPath      = "server";
             propsExtension = ".properties";
+        } else {
+            argProps.removeProperty(ServerProperties.sc_key_props);
         }
 
         propsPath = FileUtil.getFileUtil().canonicalOrAbsolutePath(propsPath);
@@ -2516,7 +2519,7 @@ public class Server implements HsqlSocketRequestHandler {
 
         if (fileProps != null) {
             server.print("Loaded properties from [" + propsPath
-                         + ".properties]");
+                         + propsExtension + "]");
         } else {
             server.print("Could not load properties from file");
             server.print("Using cli/default properties only");

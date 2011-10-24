@@ -533,11 +533,11 @@ public class FunctionCustom extends FunctionSQL {
                 break;
 
             case FUNC_DATEADD :
-            case FUNC_REPLACE :
             case FUNC_SEQUENCE_ARRAY :
                 parseList = tripleParamList;
                 break;
 
+            case FUNC_REPLACE :
             case FUNC_LPAD :
             case FUNC_RPAD :
             case FUNC_POSITION_CHAR :
@@ -1158,8 +1158,18 @@ public class FunctionCustom extends FunctionSQL {
                 }
 
                 if (unary) {
-                    return Type.SQL_TIMESTAMP.convertToType(session, data[0],
-                            nodes[0].dataType);
+                    if (nodes[0].dataType.isNumberType()) {
+                        return new TimestampData(
+                            ((Number) data[0]).longValue());
+                    }
+
+                    try {
+                        return Type.SQL_TIMESTAMP.convertToType(session,
+                                data[0], nodes[0].dataType);
+                    } catch (HsqlException e) {
+                        return Type.SQL_DATE.convertToType(session, data[0],
+                                                           nodes[0].dataType);
+                    }
                 }
 
                 if (data[1] == null) {
@@ -2196,6 +2206,7 @@ public class FunctionCustom extends FunctionSQL {
                             || argType.typeCode == Types.SQL_TIMESTAMP
                             || argType.typeCode
                                == Types.SQL_TIMESTAMP_WITH_TIME_ZONE) {}
+                    else if (argType.isNumberType()) {}
                     else {
                         throw Error.error(ErrorCode.X_42561);
                     }
@@ -2490,6 +2501,11 @@ public class FunctionCustom extends FunctionSQL {
                 break;
             }
             case FUNC_REPLACE : {
+
+                if (nodes[2] == null) {
+                    nodes[2] = new ExpressionValue("", Type.SQL_VARCHAR);
+                }
+
                 for (int i = 0; i < nodes.length; i++) {
                     if (nodes[i].dataType == null) {
                         nodes[i].dataType = Type.SQL_VARCHAR;

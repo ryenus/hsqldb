@@ -816,17 +816,10 @@ public class RowAction extends RowActionBase {
                     if (mode == TransactionManager.ACTION_READ) {
                         actionType = action.ACTION_DELETE;
                     } else if (mode == TransactionManager.ACTION_DUP) {
-                        if (action.changeColumnMap == null) {
-                            actionType = ACTION_INSERT;
+                        actionType = ACTION_INSERT;
 
-                            if (!session.tempSet.isEmpty()) {
-                                session.tempSet.clear();
-                            }
-
-                            session.tempSet.add(action);
-                        } else {
-                            actionType = ACTION_DELETE;
-                        }
+                        session.tempSet.clear();
+                        session.tempSet.add(action);
                     } else if (mode == TransactionManager.ACTION_REF) {
                         actionType = ACTION_DELETE;
                     }
@@ -846,17 +839,22 @@ public class RowAction extends RowActionBase {
                 continue;
             } else if (action.commitTimestamp < threshold) {
                 if (action.type == ACTION_DELETE) {
-                    if (actionType == ACTION_INSERT) {
-                        actionType = action.type;
-                    } else {
-                        actionType = action.type;
-                    }
+                    actionType = ACTION_DELETE;
                 } else if (action.type == ACTION_INSERT) {
-                    actionType = action.type;
+                    actionType = ACTION_INSERT;
                 }
             } else {
                 if (action.type == ACTION_INSERT) {
-                    actionType = ACTION_DELETE;
+                    if (mode == TransactionManager.ACTION_READ) {
+                        actionType = action.ACTION_DELETE;
+                    } else if (mode == TransactionManager.ACTION_DUP) {
+                        actionType = ACTION_INSERT;
+
+                        session.tempSet.clear();
+                        session.tempSet.add(action);
+                    } else if (mode == TransactionManager.ACTION_REF) {
+                        actionType = ACTION_DELETE;
+                    }
                 }
             }
 
