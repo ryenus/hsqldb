@@ -14,7 +14,7 @@
 </P>
 %{3:+
 <P>
-    The corresponding records in '%3'
+    The corresponding records in '<SPAN class="sqltool-metafieldval">%3</SPAN>'
     are at line numbers of (reject # + 1), since the
     header record occupies the first line.
 </P>
