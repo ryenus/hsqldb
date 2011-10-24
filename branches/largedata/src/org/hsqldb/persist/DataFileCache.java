@@ -1154,7 +1154,7 @@ public class DataFileCache {
                 fa.removeElement(dataFileName);
 
                 if (fa.isStreamElement(dataFileName)) {
-                    String discardName = newDiscardFileName();
+                    String discardName = FileUtil.newDiscardFileName(dataFileName);
 
                     fa.renameElement(dataFileName, discardName);
                 }
@@ -1162,17 +1162,6 @@ public class DataFileCache {
         } finally {
             writeLock.unlock();
         }
-    }
-
-    String newDiscardFileName() {
-
-        String timestamp = StringUtil.toPaddedString(
-            Integer.toHexString((int) System.currentTimeMillis()), 8, '0',
-            true);
-        String discardName = dataFileName + "." + timestamp
-                             + Logger.oldFileExtension;
-
-        return discardName;
     }
 
     void deleteBackup() {
