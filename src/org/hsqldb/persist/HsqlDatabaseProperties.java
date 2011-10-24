@@ -188,8 +188,8 @@ public class HsqlDatabaseProperties extends HsqlProperties {
     //
     public static final String hsqldb_tx       = "hsqldb.tx";
     public static final String hsqldb_tx_level = "hsqldb.tx_level";
-    public static final String hsqldb_tx_deadlock_rollback =
-        "hsqldb.tx_deadlock_rollback";
+    public static final String hsqldb_tx_conflict_rollback =
+        "hsqldb.tx_conflict_rollback";
     public static final String hsqldb_applog         = "hsqldb.applog";
     public static final String hsqldb_sqllog         = "hsqldb.sqllog";
     public static final String hsqldb_lob_file_scale = "hsqldb.lob_file_scale";
@@ -327,8 +327,8 @@ public class HsqlDatabaseProperties extends HsqlProperties {
                                           SQL_PROPERTY, "MEMORY"));
 
         // boolean defaults for user defined props
-        dbMeta.put(hsqldb_tx_deadlock_rollback,
-                   HsqlProperties.getMeta(hsqldb_tx_deadlock_rollback,
+        dbMeta.put(hsqldb_tx_conflict_rollback,
+                   HsqlProperties.getMeta(hsqldb_tx_conflict_rollback,
                                           SQL_PROPERTY, true));
         dbMeta.put(jdbc_translate_tti_types,
                    HsqlProperties.getMeta(jdbc_translate_tti_types,
