@@ -1733,10 +1733,10 @@ UPDATE t SET scores[2] = 123, names[2] = 'Reds' WHERE id = 10
       Conditions can be in join or WHERE clauses, including all types of
       joins.</para>
 
-      <para>In addition, HyperSQL will always use an index (if one exists) for
-      IN conditions, whether constants, variable, or subqueries are used on
-      the right hand side of the IN predicate. Multicolumn IN conditions can
-      also use an index.</para>
+      <para>In addition, HyperSQL will use an index (if one exists) for IN
+      conditions, whether constants, variable, or subqueries are used on the
+      right hand side of the IN predicate. Multicolumn IN conditions can also
+      use an index.</para>
 
       <para>HyperSQL can always use indexes when several conditions are
       combined with the AND operator, choosing a conditions which can use an
@@ -1756,6 +1756,14 @@ UPDATE t SET scores[2] = 123, names[2] = 'Reds' WHERE id = 10
     SELECT * FROM TC WHERE TC.FIRSTNAME = 'John' OR TC.LASTNAME = 'Smith' OR TC.LASTNAME = 'Williams'
 </programlisting>
       </informalexample>
+
+      <para>Each subquery is considered as a separate SELECT statement and
+      uses indexes when they are available.</para>
+
+      <para>In each SELECT statement, at least one index per table can be used
+      if there is a query conditions that can use the index. When conditions
+      on a table are combined with the OR operator, and each condition can use
+      an index, multiple indexes per table are used.</para>
     </section>
 
     <section>
