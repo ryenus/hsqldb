@@ -73,7 +73,7 @@ void resolveCheck(configName) {
                 + configurations[configName].allDependencies.size()
                 + ' dependencies:\n    ' + configurations[configName]
                 .allDependencies .collect({it.name}).join('\n    ')
-                + '\nbut ' + artCount 
+                + '\nbut ' + artCount
                 + ' resolved artifacts:\n    '
                 + configurations[configName].files.collect({it}).join('\n    ')
                 + '\n'
@@ -188,10 +188,10 @@ File[] resequenceAntDependencies(String fileNameInsertion, closures, inFiles) {
     def outList               // Strings
 
     for (n in masterSeqList)
-        renameMap[n] = String.format('%03d%s', renameMap.size() + 1, n);
+        renameMap[n] = String.format('%03d%s', renameMap.size() + 1, n)
     for (e in dependListsIn) {
         outList = []
-        dependListsOut[e.key] = outList;
+        dependListsOut[e.key] = outList
         for (n in e.value)
             outList << (renameMap.containsKey(n) ? renameMap[n] : n)
     }
@@ -209,12 +209,12 @@ File[] resequenceAntDependencies(String fileNameInsertion, closures, inFiles) {
                 // { logger.debug"Trying " + targ.@target.text()
                 targ.@target = renameMap.get(targ.@target.text())
         for (e in renameMap) {
-            pGpathR.target.find {it.@name.text() == e.key}.@name = e.value;
+            pGpathR.target.find {it.@name.text() == e.key}.@name = e.value
             // Following is for depends that did not contribute to sequencing,
             // but which still contain mapped target names.
             pGpathR.target.findAll {
                 it.@depends.text() == e.key
-            }.@depends = e.value;
+            }.@depends = e.value
         }
     }
 
@@ -230,7 +230,7 @@ File[] resequenceAntDependencies(String fileNameInsertion, closures, inFiles) {
     // 4: Write modified Ant build file
     List<File> outFiles = []
     File outFile
-    Pattern dotPattern = Pattern.compile('\\.');
+    Pattern dotPattern = Pattern.compile('\\.')
     for (i in 0 .. projectGpathRs.size()-1) {
         if (inFiles[i].name.indexOf('.') < 0)
             throw new GradleException(
@@ -255,7 +255,7 @@ project['resequence.destDir'] = file('..')
 // The top-level entry Build file must be first!!!
 sourceAntBuildFiles = [file('build.xml'), file('build-docbook.xml')]
 if (project.hasProperty('addlAntBuildFiles'))
-    sourceAntBuildFiles = addlAntBuildFiles + sourceAntBuildFiles 
+    sourceAntBuildFiles = addlAntBuildFiles + sourceAntBuildFiles
 //throw new GradleException(sourceAntBuildFiles.join(','))
 
 antBuildClosures = [{
@@ -287,15 +287,15 @@ version = ant.properties['hsqldb.version']  // Inherit version from "build.xml"
 // This block generates wrapper tasks for the sole purpose of preventing the
 // end user from seeing numbered task names.
 // Postnote:  Also removes descriptions from sub-project tasks + wrapped tasks.
-Pattern candidatePattern = Pattern.compile('^\\d{3}([^-.][^.]*)\$');
-Matcher m;
+Pattern candidatePattern = Pattern.compile('^\\d{3}([^-.][^.]*)\$')
+Matcher m
 def hidingWrappers = [:]  // From 0xxWrappee -> wrapper
 Task newTask
 for (t in getTasks()) {
-    if (t.description == null) continue;
+    if (t.description == null) continue
     if (t.name.indexOf('.') > 0) t.description = null
-    m = candidatePattern.matcher(t.name);
-    if (!m.matches()) continue;
+    m = candidatePattern.matcher(t.name)
+    if (!m.matches()) continue
     newTask = project.task(m.group(1))
     newTask.dependsOn = [t]
     newTask.description = t.description
@@ -346,7 +346,7 @@ To see a list of available tasks, run 'gradlew tasks'.
 Add switch -q to make Gradle run quieter, or -i -s to run louder
 (or -d -S for very loud).
 
-    
+
 Usage:
    gradlew --help           Display 'gradlew' command syntax
    gradlew tasks            Display all invocable targets
@@ -384,6 +384,101 @@ For invocation-specific Gradle property settings, use -P switches like this:
 }
 explainprops.description = 'Explain how to change default build properties'
 
+task installDbImages << {
+    assert !project.hasProperty('dbimage.path') :
+            "Property 'dbimage.path' may not be set when running target 'installDbImages'.\n" +
+    'If you have it set in a properties file, please remove it and try again.'
+    if (project.hasProperty('nsstylebase.url')) {
+        File dbimageDir = null
+        String nsStyleBaseUrlString = project.property('nsstylebase.url')
+        if (nsStyleBaseUrlString.startsWith('file:')) {
+            Matcher nsm = nsStyleBaseUrlString =~ 'file:(.+)'
+            if (nsm.matches()) {
+                String nsStyleBasePath = nsm.group(1)
+                // First try relative to the Ant basedir
+                File nsStyleBaseDir =
+                       new File(project.projectDir.parentFile, nsStyleBasePath)
+                if (!nsStyleBaseDir.isDirectory()) nsStyleBaseDir = null
+                if (nsStyleBaseDir == null) {
+                    nsStyleBaseDir = new File(nsStyleBasePath)
+                    if (!nsStyleBaseDir.isDirectory())
+                        nsStyleBaseDir = null
+                }
+                if (nsStyleBaseDir != null) {
+                    dbimageDir = new File(nsStyleBaseDir, 'images')
+                    if (!dbimageDir.isDirectory())
+                        dbimageDir = null
+                }
+            }
+        }
+        if (dbimageDir != null) {
+            file('local-docbook.properties').append(
+                    "dbimage.path:$dbimageDir\n", "ISO-8859-1")
+            println "File 'local-docbook.properties' updated with\n" +
+                    "dbimage.path of '$dbimageDir'."
+            return
+        }
+    }
+    if (!project.hasProperty('install.parent.dir')) {
+        println """Task 'installDbImages will install either the entire DocBook v.5 NS Style
+Sheet distribution, or just the images resources from it.
+Only the image resources are required, but having all of the style sheets on
+your local file system would decrease future DocBook build times and reduce
+dependency on network and Internet connection.
+
+So, now you must select an existng local directory into which the
+'installDbImages' task will create a new directory to install the new resources
+underneath.
+
+You must set Gradle property 'install.parent.dir' to the directory that you
+have chosen.  If you want to install the entire style sheet distribution, you
+should also set property 'install.dbstyles.entire' to true.
+If running Gradle on the command line, rerun the 'installDbImages' task with
+-P switches like:
+
+    gradlew -Pinstall.parent.dir=c:\\data -Pinstall.dbstyles.entire=true
+
+(Skip the second -P if you want to install only the required images).
+If running graphically, add settings like the following to file
+$project.projectDir.absolutePath/build.properties:
+
+    install.parent.dir=c:\\data
+    install.dbstyles.entire=true
+
+(Skip the second setting if you want to install only the required images).
+And then rerun the 'installDbImages' task.
+You can remove these settings when you are finished running 'installDbImages'.
+"""
+        return
+    }
+    boolean installAll = (project.hasProperty('install.dbstyles.entire')
+        && Boolean.parseBoolean(project.property('install.dbstyles.entire')))
+    File installParentDir = new File(project.property('install.parent.dir'))
+    assert installParentDir.canWrite() : "Can't write to '$installParentDir'"
+    GroovyScriptEngine gse = new GroovyScriptEngine(
+            [ projectDir.absolutePath ] as String[])
+    Binding binding = new Binding()
+    binding.setVariable('params', [installParentDir, installAll])
+    gse.run('dbuInstallSheetsWrapper.groovy', binding)
+    String newRootName = binding.getVariable("retVal")
+    File newRootDir = new File(installParentDir, newRootName)
+    File dbimageDir = null
+    if (installAll) {
+        dbimageDir = new File(newRootDir, "images")
+        file('local-docbook.properties').append(
+                "nsstylebase.url:$newRootDir\n", "ISO-8859-1")
+        println "File 'local-docbook.properties' updated with\n" +
+                "nsstylebase.url of '$newRootDir'."
+    } else {
+        dbimageDir = newRootDir
+    }
+    file('local-docbook.properties')
+            .append("dbimage.path:$dbimageDir\n", "ISO-8859-1")
+    println "File 'local-docbook.properties' updated with\n" +
+            "dbimage.path of '$dbimageDir'."
+}
+installDbImages.description = 'Install DocBook resources (minimal by defaul)'
+
 /**
  * Override OOTB 'tasks'.
  * Hides -private tasks from Ant.
@@ -400,7 +495,7 @@ explainprops.description = 'Explain how to change default build properties'
  * bug that I registered.
  */
 task tasks << {
-    Pattern privatePattern = Pattern.compile('(?:\\d{3})?(-.*)');
+    Pattern privatePattern = Pattern.compile('(?:\\d{3})?(-.*)')
     print """
 ------------------------------------------------------------
 Root Project

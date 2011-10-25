@@ -5,8 +5,8 @@ import org.apache.ivy.core.module.descriptor.DependencyDescriptor
 import org.apache.ivy.core.module.id.ModuleRevisionId
 import org.apache.ivy.core.module.descriptor.DependencyArtifactDescriptor
 import org.gradle.api.internal.artifacts.dependencies.DefaultExternalModuleDependency
-import org.gradle.api.internal.artifacts.dependencies.DefaultDependencyArtifact;
-import org.gradle.api.internal.artifacts.DefaultExcludeRule;
+import org.gradle.api.internal.artifacts.dependencies.DefaultDependencyArtifact
+import org.gradle.api.internal.artifacts.DefaultExcludeRule
 
 /**
  * This Gradle support for 'ivy.xml' is based on contributed fragments in Jira
@@ -34,7 +34,7 @@ for (p in configurations) gradleProjConfMap[p.name] = p
 
 DefaultModuleDescriptor moduleDescriptor =
     (DefaultModuleDescriptor) XmlModuleDescriptorParser.instance
-    .parseDescriptor(new IvySettings(), new File('ivy.xml').toURL(), false);
+    .parseDescriptor(new IvySettings(), new File('ivy.xml').toURL(), false)
 moduleDescriptor.dependencies.each {
     DependencyDescriptor descriptor ->
         def mappableConfNames = descriptor.moduleConfigurations.findAll {
@@ -46,17 +46,17 @@ moduleDescriptor.dependencies.each {
         DefaultExternalModuleDependency dep =
             new DefaultExternalModuleDependency(id.organisation, id.name,
                     id.revision, descriptor.getDependencyConfigurations(
-                    mappableConfName)[0]);
+                    mappableConfName)[0])
         dep.changing = descriptor.changing
         dep.transitive = descriptor.transitive
-        
+
         descriptor.allDependencyArtifacts.each {
             DependencyArtifactDescriptor depArt ->
                 dep.addArtifact(new DefaultDependencyArtifact(
-                        depArt.name, depArt.type, depArt.ext, null, depArt.url));
+                        depArt.name, depArt.type, depArt.ext, null, depArt.url))
         }
-        
-        def excRuleContainer = dep.excludeRules;
+
+        def excRuleContainer = dep.excludeRules
         descriptor.excludeRules?.values().each {
             def ruleList -> ruleList.each {
                 excRuleContainer.add(new DefaultExcludeRule(it.attributes))

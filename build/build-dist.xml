@@ -66,7 +66,7 @@ and re-export.</fail>
       -->
     <mkdir dir="dist"/>
     <property name="app.basedir" value="hsqldb-${hsqldb.version}"/>
-    
+
     <!-- Enforce platform-independent EOL policies on items that will be
          packed.  Generated docs and everything under classes/ already
          have EOLs enforced.
