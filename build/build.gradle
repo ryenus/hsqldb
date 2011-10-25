@@ -413,9 +413,11 @@ task installDbImages << {
         }
         if (dbimageDir != null) {
             file('local-docbook.properties').append(
-                    "dbimage.path:$dbimageDir\n", "ISO-8859-1")
-            println "File 'local-docbook.properties' updated with\n" +
-                    "dbimage.path of '$dbimageDir'."
+                    "dbimage.path=$dbimageDir".replace('\\', '\\\\') + '\n',
+                    "ISO-8859-1")
+            println "File 'local-docbook.properties' updated with dbimage.path of"
+            println "'$dbimageDir'."
+            println "We used your existing 'nsstylebase.url' installation."
             return
         }
     }
@@ -447,7 +449,8 @@ $project.projectDir.absolutePath/build.properties:
 
 (Skip the second setting if you want to install only the required images).
 And then rerun the 'installDbImages' task.
-You can remove these settings when you are finished running 'installDbImages'.
+You can remove these install.* settings when you are finished running
+'installDbImages'.
 """
         return
     }
@@ -466,16 +469,23 @@ You can remove these settings when you are finished running 'installDbImages'.
     if (installAll) {
         dbimageDir = new File(newRootDir, "images")
         file('local-docbook.properties').append(
-                "nsstylebase.url:$newRootDir\n", "ISO-8859-1")
-        println "File 'local-docbook.properties' updated with\n" +
-                "nsstylebase.url of '$newRootDir'."
+                "nsstylebase.url=file:$newRootDir".replace('\\', '\\\\') + '\n',
+                "ISO-8859-1")
+        println "File 'local-docbook.properties' updated with nsstylebase.url of "
+        println "'$newRootDir'."
     } else {
         dbimageDir = newRootDir
     }
     file('local-docbook.properties')
-            .append("dbimage.path:$dbimageDir\n", "ISO-8859-1")
-    println "File 'local-docbook.properties' updated with\n" +
-            "dbimage.path of '$dbimageDir'."
+            .append("dbimage.path=$dbimageDir".replace('\\', '\\\\') + '\n',
+            "ISO-8859-1")
+    println "File 'local-docbook.properties' updated with dbimage.path of "
+    println """'$dbimageDir'.
+
+You will have the fastest doc builds and minimal network/Internet 
+dependencies if you use stylesheets (via 'nsstylebase.url'), schema file, and
+entities locally, as described in comments at top of file "build-docbook.xml".
+"""
 }
 installDbImages.description = 'Install DocBook resources (minimal by defaul)'
 

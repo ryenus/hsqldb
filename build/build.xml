@@ -1151,9 +1151,9 @@ Style Sheet distribution (instead of just the images) to speed up your future
 DocBook builds and decrease dependency upon a network and Internet connection.
 ('installDbImages' is only available as a Gradle task, not as an Ant target).
 
-You can do all of this by yourself, and set property 'dbimage.path' (and
-optionally 'nsstylebase.url') in file
-"${basedir}/build/local-docbook.properties"
+See comments at the top of file "${basedir}/build/local-docbook.properties"
+for instructions on how set up the DocBook images (and other optional
+optimizations) manually.
 </fail>
     <copy todir="doc-src/images/db">
       <fileset dir="${dbimage.path}"/>
