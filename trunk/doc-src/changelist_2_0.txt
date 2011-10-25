@@ -1,16 +1,24 @@
-20 October 2011 - SVN ????
+25 October 2011 - SVN 4625
 -- fixed issue with memory use of large strings in cache
 -- fixed issue with FOR loops with ORDER BY in routines
 -- fixed issue with TIME ZONE types JDBC type reporting in server
 -- fixed issue with type resolution of arrays
 -- fixed issue with identical prepared statements in session
+-- fixed issue with cached tables in jar databases
+-- fixed issue with certain server properties
+-- fixed issues with MVCC transactions
 -- added new datetime functions
 -- added support for ROWNUM() in UPDATE and DELETE statements
 -- added backward compatibility for IDENTITY options with commas
 -- added support for new new SQL properties
+-- improved JDBC support for LOBs
 -- improved concurrency of DDL operations
 -- improved data type determination for dynamic variables
--- minor improvements
+-- improved routine variable scope in MERGE statements
+-- improved compatibility modes
+-- improved persistence reliability
+-- minor improvements and bug fixes
+-- major improvements to SqlTool
 5 July 2011 - version 2.2.5
 -- fixed UNNEST in subquery
 -- fixed issue with INFORMATION_SCHEMA.ELEMENT_TYPES view
