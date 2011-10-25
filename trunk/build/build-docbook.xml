@@ -121,20 +121,6 @@
   <property name="dbcentx.url" value="UNSET_DBCHARENTS"/>
   <!-- ditto about the default value -->
 
-  <target name="fetch-images"
-          description="Fetch stock DocBook image files from Internet">
-    <echo>Copy the images directory from the latest stable version of the
-docbook-xsl-ns package to
-'${basedir}/doc-src/images/db'.  docbook-xsl-ns is
-available for download from the DocBook project at
-http://sourceforge.net/projects/docbook/files/docbook-xsl-ns/ .
-Unfortunately, they provide no "current" link, so we can't fetch the current
-version for you automatically (without introducing too much risk of problems).
-To eliminate the Internet dependency for your doc builds, install stylesheets,
-enties, and rng file as explained at the top of the "build-docbook.xml" file.
-</echo>
-  </target>
-
   <target name="regen-docs"
           description="Clean and regen project DocBook docs.  N.b this wipes javadocs too!"
           depends="clean-docs, gen-docs"/>
