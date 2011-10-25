@@ -5,7 +5,7 @@
 <project name="hsqldb" default="help" basedir="../">
   <!--  To see what build properties you can change, see the property elements
         below.
-       
+
         This loads properties in the same exact way as if you ran
         "ant -Dprop1name=val1 -Dprop2name=val2...", etc.  To use all
         defaults, you should have no 'build.properties' file.
@@ -1142,48 +1142,18 @@ examples:
          For the second case, the Subversion user will see the overrides with
          "svn status" and can simply undo them with "svn revert paths...". -->
     <fail unless="dbimage.path">
-Ant property 'dbimage.path' is required.  This is normally the "images"
-subdirectory of a DocBook v.5 NS Style Sheet distribution.
-There is a simple one-time setup procedure No reason to panic.
-These instructions are lengthy only because I describe three different
-procedures from you to choose from, and all are easy.
-Just do one of these alternatives, then set the property according to the
-instructions after the list.
+Ant property 'dbimage.path' is required.  This should be set to the "images"
+subdirectory of a DocBook v.5 NS Style Sheet distribution, on your local
+filesystem.  If you run the Gradle task 'installDbImages', I'll do that for
+you, downloading and installing the resources from sourceforge.net if you
+don't already have them.  You will have the option of installing the entire
+Style Sheet distribution (instead of just the images) to speed up your future
+DocBook builds and decrease dependency upon a network and Internet connection.
+('installDbImages' is only available as a Gradle task, not as an Ant target).
 
- + If you have set property 'nsstylebase.url' to a file URL, then
-  'dbimage.path' will just be the full path to the 'images' subdirectory
-   direclty within that directory, but you must reformat as a plain filesystem
-   path because 'dbimage.path' takes a filepath not a URL.
-OR
- + Run the Gradle task 'installDbImages'
-   Gradle will download and unzip the images from SourceForge for you.
-   Gradle will tell you how to inform it where you want the files downloaded
-   to, and it will tell you the 'dbimage.path' value to use.
-   (There is no Ant target for this action, only a Gradle task).
-OR
- + Download the latest stable  docbook-xsl-ns distro from
-   http://sourceforge.net/projects/docbook/files/docbook-xsl-ns/
-   and extract it to anywhere.  You only need the 'images' subdirectory right
-   in the root 'docbook-xsl-ns-* directory.  (You may want to retain the
-   entire extraction to speed up builds.  For that, see comments in the
-   "build-docbook.xml" file about 'nsstylebas.url').  Your 'dbimage.path'
-   value will be the file path to this new images subdirectory
-
-Once you know the file path to your 'images' directory, just open up the
-file "build.properties" in your HyperSQL build directory and enter
-
-    dbimage.path=
-
-followed immediately by the file path.  For example
-
-    dbimage.path=d:/Users/blaine/docbook/xsl-ns-1.76.1/images
-
-(If the file "build.properties" does not yet exist in your HyperSQL build
-directory, that is normal-- just create it.)
-
-If you set other build properties, then you may want to set the 'dbimage.path'
-property in the file "local-docbook.properties" instead of "build.properties".
-Either file will work and the setting is made the exact same way.
+You can do all of this by yourself, and set property 'dbimage.path' (and
+optionally 'nsstylebase.url') in file
+"${basedir}/build/local-docbook.properties"
 </fail>
     <copy todir="doc-src/images/db">
       <fileset dir="${dbimage.path}"/>

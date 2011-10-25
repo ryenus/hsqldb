@@ -15,10 +15,13 @@ holds the plain jar files with names like BASENAME-VERSION.jar.
   <settings defaultResolver="default"/>
   <resolvers>
     <chain name="default" returnFirst="true">
-      <url name="admc-resolver">
+      <url name="custom-resolver">
         <artifact pattern="${repos.url}/[artifact]-[revision].[ext]"/>
       </url>
       <ibiblio name="maven2-resolver" m2compatible="true"/>
+    </chain>
+    <chain name="downloadGrapes">
+      <chain ref="default"/>
     </chain>
   </resolvers>
 </ivysettings>
