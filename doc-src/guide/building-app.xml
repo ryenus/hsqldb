@@ -336,27 +336,20 @@
           </simpara></step>
         </procedure>
 
-        <note><title>Gradle GUI Limitations</title><para>
+        <note><title>Gradle GUI Limitations</title><simpara>
           The Gradle GUI is fairly new and lacks some of the power available to
           text-based users.
-          Most significantly, in my opinion, are the following items for
-          which I have opened Gradle <emphasis>issues</emphasis>
-          (Gradle issue numbers are in parentheses).
-          <itemizedlist>
-            <listitem><simpara>
-              No ability to interrupt a task execution once triggered.  (1854)
-            </simpara></listitem> <listitem><simpara>
-              No convenient way to set build properties.  (1855)
-              If you want to change Ant or Gradle build settings, edit the text
-              file <filename>build.properties</filename> in the HyperSQL
-              <filename>build</filename> directory (creating it if it doesn't
-              exist yet), and enter your propeties using Java properties file
-              syntax.
-              (You can also use <filename>local-docbook.properties</filename>
-              in the same way for DocBook-specific properties).
-            </simpara></listitem>
-          </itemizedlist>
-        </para></note>
+          Most significantly, in my opinion, is the following item for
+          which I have opened Gradle <emphasis>issues</emphasis> 1855.
+          There is no convenient way to set build properties.
+          If you want to change Ant or Gradle build settings, edit the text
+          file <filename>build.properties</filename> in the HyperSQL
+          <filename>build</filename> directory (creating it if it doesn't
+          exist yet), and enter your propeties using Java properties file
+          syntax.
+          (You can also use <filename>local-docbook.properties</filename>
+          in the same way for DocBook-specific properties).
+        </simpara></note>
       </section>
     </section>
   </section>
