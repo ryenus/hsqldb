@@ -666,9 +666,9 @@ ant hsqldb
     <simpara>The JavaDoc can be built simply by invoking the javadoc
     target.</simpara>
 
-    <para>The two Guides (the one you are reading now lus the Utilities
+    <para>The two Guides (the one you are reading now plus the Utilities
     user guide) are in DocBook XML source format. To rebuild to PDF or
-    one of the HTML output formats, run the Gradle target
+    one of the HTML output formats from the XML source, run the Gradle target
     <literal>gen-docs</literal>
     (or the Ant target <literal>gen-docs</literal>).
     Instructions will be displayed.
@@ -700,9 +700,44 @@ ant hsqldb
         <literal>installDbImages</literal> task).
       </simpara></listitem>
     </itemizedlist>
-    See the file <filename>doc-src/readme-docauthors.txt</filename> for details
-    about our DocBook build system (though as I write this it is somewhat out
-    of date).
     </para>
+    <simpara>
+      The task/target <literal>validate-docs</literal>
+      is also very useful to DocBook builders.
+    </simpara>
+    <simpara>
+      If running Gradle, you probably want to turn logging up to level
+      <emphasis>info</emphasis>, because the default <emphasis>warn</emphasis>
+      level doesn't give much feedback as DocBook builds run.
+    </simpara>
+    <para>
+      There are several properties that can be used to dramatically decrease
+      run times for partial doc builds.
+      Read about these properties in comment at the top of the file
+      <filename>build-docbook.xml</filename> in the <filename>build</filename>
+      directory.
+      <itemizedlist>
+        <listitem><simpara>
+          validation.skip
+        </simpara></listitem> <listitem><simpara>
+          html.skip
+        </simpara></listitem> <listitem><simpara>
+          chunk.skip
+        </simpara></listitem> <listitem><simpara>
+          fo.skip
+        </simpara></listitem> <listitem><simpara>
+          pdf.skip
+        </simpara></listitem> <listitem><simpara>
+          doc.name
+        </simpara></listitem> <listitem><simpara>
+          doc.target
+        </simpara></listitem>
+      </itemizedlist>
+    </para>
+    <simpara>
+      See the file <filename>doc-src/readme-docauthors.txt</filename> for
+      details about our DocBook build system (though as I write this it is
+      somewhat out of date).
+    </simpara>
   </section>
 </appendix>
