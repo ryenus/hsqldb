@@ -264,13 +264,13 @@
         Otherwise, if you need a shell while running the gui,
         open up another console window.
       </simpara> <simpara>
-        The <filename>gradle-gui</filename> is our own wrapper script for
+        The <filename>gradle-gui</filename> file is our own wrapper script for
         <literal>gradlew --gui</literal>.
         Be aware that both <filename>gradle-gui</filename> and
         <literal>gradlew --gui</literal> suffer from the limitation that the
         <literal>--gui</literal> switch is mutually exclusive with most or
         all other arguments (including tasks).
-        I have registered GRADLE bugs 1861 an 1863 about this.
+        I have registered GRADLE bugs 1861 and 1863 about this.
       </simpara>
     </section>
 
