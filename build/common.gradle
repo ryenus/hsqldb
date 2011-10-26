@@ -56,13 +56,15 @@ if (localFile.canRead() && localFile.isFile()) {
 }
 
 // Add a flatDir repository if property 'repos.flatdir.path' is set.
-if (project.hasProperty('repos.flatdir.path')) {
+if (project.hasProperty('repos.flatdir.path')
+        && project.property('repos.flatdir.path') != '') {
     repositories {
         flatDir dirs: new File(project.property('repos.flatdir.path'))
     }
 }
 // Add a flat url repository if property 'repos.flatdir.url' is set.
-if (project.hasProperty('repos.flatdir.url')) {
+if (project.hasProperty('repos.flatdir.url')
+        && project.property('repos.flatdir.url') != '') {
     repositories {
         add(new URLResolver()) {
             name = 'flatDirUrlRepos'

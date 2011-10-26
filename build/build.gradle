@@ -8,12 +8,12 @@ defaultTasks 'help'
  *                     IMPORTANT: If you get non-trivial Ant build errors,
  *                     definitely run gradle with '-i' switch and with
  *                     ratain.gradles true.
- *     allTasks   Used only by the 'tasks' target.  Setting this to 'true' is
+ *     allTasks   Used only by the 'tasks' task.  Setting this to 'true' is
  *                equivalent to the tas-specific switch '--all' for the
- *                out-of-the-box 'tasks' target.  I.e., our
+ *                out-of-the-box 'tasks' task.  I.e., our
  *                'gradlew -PallTasks=true tasks'
  *                emulates out-of-the-box 'gradlew tasks --all'.
- *     newVersion  Used only by the 'updateWrapper' target, which is only for
+ *     newVersion  Used only by the 'updateWrapper' task, which is only for
  *                 baseline maintainers.
  * All other build properties are loaded indirectly by Ant, so you must use
  * Gradle's -D switch to set those Ant properties as Java system properties.

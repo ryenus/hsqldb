@@ -75,5 +75,4 @@ task displayDeps << {
             +  configurations[project['config.name']].asPath
             .replace(System.properties['path.separator'], '\n    '))
 }
-displayDeps.description =
-"Lists Ivy deps onlyfor specified 'config.name', similar to target 'dependencies'"
+displayDeps.description = "Lists Ivy deps only for specified 'config.name'"
