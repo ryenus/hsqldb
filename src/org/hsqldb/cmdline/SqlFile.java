@@ -214,7 +214,7 @@ public class SqlFile {
      * Must always check count!
      */
     private static Pattern   varPattern = Pattern.compile("\\*?[a-zA-Z]\\w*");
-    private static Pattern   wordPattern = Pattern.compile("\\w+");
+    private static Pattern   wordAndDotPattern = Pattern.compile("[\\w.]+");
     private static Pattern   specialPattern =
             Pattern.compile("(\\S+)(?:(\\s+.*\\S))?\\s*");
     private static Pattern  plPattern = Pattern.compile("(.*\\S)?\\s*");
@@ -433,8 +433,8 @@ public class SqlFile {
         + "-----------------------------------------------------------------";
     // Needs to be at least as wide as the widest field or header displayed.
     private static String revnum =
-            "$Revision$".substring("$Revision: ".length(),
-            "$Revision$".length() - 2);
+            "$Revision: x$".substring("$Revision: ".length(),
+            "$Revision: x$".length() - 2);
 
     private static String DSV_OPTIONS_TEXT;
     private static String D_OPTIONS_TEXT;
@@ -1555,7 +1555,8 @@ public class SqlFile {
                             throw new BadSpecial(nobufferYetString);
                         query.append(prevToken.val)
                                 .append(other.substring(other.indexOf(':')+1));
-                    } else if (wordPattern.matcher(other.trim()).matches()) {
+                    } else if (wordAndDotPattern.matcher(
+                            other.trim()).matches()) {
                         // Case 2: Table name specified
                         tableName = other.trim();
                         query.append("SELECT * FROM ").append(tableName);
@@ -1587,7 +1588,8 @@ public class SqlFile {
                         int[] incCols = null;
                         if (dsvSkipCols != null) {
                             Set<String> skipCols = new HashSet<String>();
-                            for (String s : dsvSkipCols.split(dsvColDelim, -1)) {
+                            for (String s : dsvSkipCols.split(
+                                    "\\Q" + dsvColDelim, -1)) {
                             // Don't know if better to use dsvColDelim or
                             // dsvColSplitter.  Going with former, since the
                             // latter should not need to be set for eXporting
@@ -3438,7 +3440,9 @@ public class SqlFile {
                         if (skip) continue;
                     }
 
-                    headerArray[++insi] = m.getColumnLabel(i);
+                    headerArray[++insi] = (pwDsv != null && csvStyleQuoting
+                            && allQuoted) ? ('"' + m.getColumnLabel(i) + '"')
+                            : m.getColumnLabel(i);
                     dataType[insi]      = m.getColumnType(i);
                     rightJust[insi]     = false;
                     autonulls[insi]     = true;
@@ -3759,7 +3763,7 @@ public class SqlFile {
                         for (int j = 0; j < fArray.length; j++)
                             if (fArray[j] != null && (allQuoted
                                     || fArray[j].indexOf('"') > -1
-                                    || delimPat.matcher(fArray[j]).find()))
+                                    || fArray[j].indexOf(dsvColDelim) > -1))
                                 fArray[j] = '"'
                                         + fArray[j].replace("\"", "\"\"") + '"';
                 }
