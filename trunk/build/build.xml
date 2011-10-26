@@ -1062,7 +1062,7 @@ examples:
      </target>
 
      <target name="fetch-jflex" depends="-ivy-setup"
-       description="Fetch JFlex jar file from Internet, for rebuilsing SqlTool scanner">
+       description="Fetch JFlex jar file from Internet, for rebuilding SqlTool scanner">
        <copy tofile="${jflex.lib}" preservelastmodified="true">
          <path refid="jflex-jar.cpref"/>
        </copy>
