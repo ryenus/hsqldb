@@ -41,7 +41,7 @@
     For more general changes (say you want "javac.debug" to effect your own
     build file as well as this one), set them however you want in your
     parent Ant build file (perhaps by loading a "build.properties" or
-    "local.properties" file).
+    "local-docbook.properties" file).
 
     To eliminate the requirement for an Internet connection, download and
     install the resources below and set properties 'nsstylebase.url',
@@ -447,7 +447,7 @@ ${_for.automation.blurb}</fail>
     <copy file="build/ivysettings-sample.xml" tofile="build/ivysettings.xml"/>
     <echo>Just created a local 'ivysettings.xml' file for you.
 Customize this as you wish and/or set Ivy properties (or any other
-docbook-specific local build properties) in a 'local.properties'
+docbook-specific local build properties) in a 'local-docbook.properties'
 file.</echo>
   </target>
 
