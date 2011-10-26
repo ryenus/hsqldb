@@ -62,7 +62,7 @@ moduleDescriptor.dependencies.each {
                 excRuleContainer.add(new DefaultExcludeRule(it.attributes))
             }
         }
-        gradleProjConfMap[mappableConfName].addDependency(dep)
+        gradleProjConfMap[mappableConfName].getDependencies().add(dep)
     }
 }
 
