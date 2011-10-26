@@ -21,7 +21,7 @@
           description="JFlex Library jar file"/>
   </configurations>
   <dependencies defaultconfmapping="*->default">
-    <!-- Contray to standard Java policy, Sun has apparently obsoleted the
+    <!-- Contrary to standard Java policy, Sun has apparently obsoleted the
          relames jar and shows no concern for their users by not providing
          an archived version of it anywhere.
          Not only is it not available in Maven... it's not available in any
@@ -30,7 +30,8 @@
          admc-rs-msv upon relames should be identified, an alternative provider
          of the functionality found, and the dependency eliminated.
     -->
-    <dependency name="relames" rev="20060319" conf="msv; admc-rs-msv-deps"/>
+    <dependency name="relames"
+                org="admc" rev="20060319" conf="msv; admc-rs-msv-deps"/>
     <dependency name="msv" org="msv" rev="20050913"
                conf="msv; admc-rs-msv-deps"/>
     <dependency name="relaxngDatatype" org="msv" rev="20050913"
@@ -86,14 +87,15 @@
     <dependency name="docbook-xsl-xalan" org="net.sf.docbook" rev="1.0.0"
                 conf="xalan"/>
     <dependency name="xml-apis" org="xml-apis"
-                rev="2.0.2" conf="xalan; msv; admc-rs-msv-deps"/>
+                rev="1.0.b2" conf="xalan; msv; admc-rs-msv-deps"/>
     <dependency name="xercesImpl" org="xerces" rev="2.10.0"
                 conf="msv; xalan; admc-rs-msv-deps"/>
               <!--  Perhaps resolver would be better: ?  -->
     <dependency name="xml-resolver" org="xml-resolver"
                 rev="1.2" conf="msv; admc-rs-msv-deps"/>
     <!-- amdc-rs-msv is not available in Maven repository yet -->
-    <dependency name="admc-rs-msv" rev="1.0" conf="admc-rs-msv-jar; xalan"/>
+    <dependency name="admc-rs-msv" rev="1.0"
+                org="admc" conf="admc-rs-msv-jar; xalan"/>
     <!-- Primary purpose of this jar is for the MSV validator.
          It is also added to the XSLT CLASSPATH only to add the XInclude
          settings file to the CLASSPATH.  Needed by Xalan during XSLT.
