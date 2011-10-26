@@ -39,9 +39,8 @@
    <property name="hsqldb.vendor" value="The HSQL Development Group"/>
    <property name="build.sysclasspath" value="ignore"/>
    <property name="swsrc" value="${basedir}/tmp/switchedsrc/"/>
-   <condition property="switch.inplace">
-     <equals arg1="${swsrc}" arg2="${basedir}/src"/>
-   </condition>
+   <available property="switch.inplace"
+              file="${swsrc}/org/hsqldb/package.html"/>
 
    <!-- It is safe to override these with settings in your own
         build.properties file. -->
@@ -132,7 +131,7 @@ examples:
 
    <target name="reinit"
        description="Just like 'clean' target, except overwrites switched source files to prevent need for a complete re-copy">
-       <!-- Beware this will retain a copy of removed artifcats under src.
+       <!-- Beware this will refresh a copy of removed artifacts under swsrc.
             You must use the real 'clean' target to really purge everything. -->
        <fail message="Just use 'clean' for inplace-switching setups"
              if="switch.inplace"/>
@@ -1102,7 +1101,11 @@ examples:
     </target>
 
     <target name="-clean-switch-branch" unless="switch.inplace">
-        <delete dir="${swsrc}"/>
+      <available property="_inplace.doublecheck"
+                 file="${swsrc}/org/hsqldb/cmdline/sqltool.properties"/>
+      <fail if="_inplace.doublecheck"
+  message="Aborting to prevent detected attempt to wipe original source code"/>
+      <delete dir="${swsrc}"/>
     </target>
 
     <target name="update-readme"
