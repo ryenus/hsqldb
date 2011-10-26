@@ -26,11 +26,18 @@ apply from: 'common.gradle'
 task nichts  // Quiet task for testing root-level Groovy/Gradle development
 nichts.description = 'Noop for testing Gradle'
 
+task gv << {
+    println gradle.gradleVersion
+}
+
 // This task only for SCM administrator.  Update version and execute this task.
-task updateWrapper(type: Wrapper) << {
-    if (!project.hasProperty('newVersion'))
-        throw new InvalidUserDataException(
-                "Property 'newVersion' is required for task 'updateWrapper'")
+task updateWrapper(type: Wrapper) { doFirst {
+    assert project.hasProperty('newVersion') :
+            "Property 'newVersion' is required for task 'updateWrapper'"
+    assert project.newVersion == gradle.gradleVersion :
+        "You invoke Gradle system with version $gradle.gradleVersion instead of desired version $project.newVersion"
+} }
+updateWrapper << {
     gradleVersion = project['newVersion']
     println 'WARNING:  Merge our customizations into the newly-generated wrapper scripts'
 }
@@ -78,7 +85,7 @@ void resolveCheck(configName) {
                 + configurations[configName].files.collect({it}).join('\n    ')
                 + '\n'
         )
-        throw new GradleException("Didn't resolve all dependencies.")
+        assert false : "Didn't resolve all dependencies."
     }
     //configurations[configName].files.each { println '+' + it }
     //throw new GradleException("Quittin' early")
@@ -291,16 +298,20 @@ Pattern candidatePattern = Pattern.compile('^\\d{3}([^-.][^.]*)\$')
 Matcher m
 def hidingWrappers = [:]  // From 0xxWrappee -> wrapper
 Task newTask
+def tasksToMake = [:]
 for (t in getTasks()) {
     if (t.description == null) continue
     if (t.name.indexOf('.') > 0) t.description = null
     m = candidatePattern.matcher(t.name)
     if (!m.matches()) continue
-    newTask = project.task(m.group(1))
-    newTask.dependsOn = [t]
-    newTask.description = t.description
-    t.description = null
-    hidingWrappers[t] = newTask
+    tasksToMake[t] = m.group(1)
+}
+for (e in tasksToMake) {
+    newTask = project.task(e.value)
+    newTask.dependsOn = [e.key]
+    newTask.description = e.key.description
+    e.key.description = null
+    hidingWrappers[e.key] = newTask
 }
 apply from: 'ivy-setup.gradle'
 
