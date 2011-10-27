@@ -2564,7 +2564,9 @@ public class SqlFile {
             "varset pattern matched but captured " + m.groupCount() + " groups";
 
         String varName  = m.group(1);
-        if (derefed.startsWith(varName + '_'))
+        // Test for ambiguous form:  * VARNAME_ 
+        // Ambibuous whether _ is part of varname or operator.
+        if (derefed.trim().equals(varName + '_'))
             throw new BadSpecial(SqltoolRB.pl_unknown.getString(tokens[0]));
 
         if (varName.indexOf(':') > -1)
