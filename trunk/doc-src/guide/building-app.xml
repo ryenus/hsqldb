@@ -289,7 +289,7 @@
         </simpara>
         <note><simpara>
           Gradle's -v switch reports version details more directly than the
-          <literal>explainjars</literal> task does, from the the operating
+          <literal>explainjars</literal> task does, from the operating
           system version to the Groovy version (the language interpreter used
           for Gradle instructions).
         </simpara></note>
