@@ -1062,7 +1062,7 @@ public class SqlFile {
             if (fetchingVar != null) {
                 errprintln(SqltoolRB.plvar_set_incomplete.getString(
                         fetchingVar));
-                //fetchingVar = null;
+                fetchingVar = null;
                 rollbackUncoms = true;
             }
             if (shared.jdbcConn != null) {
