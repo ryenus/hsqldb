@@ -2887,7 +2887,25 @@ java -jar $HSQLDB_HOME/lib/sqltool.jar urlid > /tmp/log.html 2>&1]]></screen>
             used.
         </simpara>
         <para>
-          Please study this example closesly, because this is your principal
+          <mediaobject>
+            <imageobject>
+              <imagedata fileref="html-report.png" align="center" format="PNG"/>
+               <!-- Instead of specifying width="6.5in" here, I've scaled the
+                    image file itself.  This causes HTML representation to
+                    display the image without distortion and reduction with its
+                    native size, and is manually sized correctly for PDF/PS. -->
+            </imageobject>
+            <caption>
+              <simpara>A HTML report</simpara>
+            </caption>
+          </mediaobject>
+          The report above has a simple table dump and the basic column
+          definitions for that table.
+          You can, of course, make reports with any number of queries of any
+          level of sophistication.
+          The SQL file below generated this report.
+        </para> <para>
+          Please study this example closely, because this is your principal
           source of education about the specifics of creating HTML reports.
           Notice the close at the very end with the explicit HTML-close
           command <literal>\oc</literal>.
@@ -3906,16 +3924,11 @@ SELECT * FROM t
                 </example>
             </para>
         </section>
-        <section> <title>HTML Report Example</title>
+        <section> <title>PL Example</title>
             <para>
                 Below is the example SQL file
-                <filename xlink:href="#pl.sql-link">sample/pl.sql</filename>
-                that generated the report displayed.
-                The report shows a simple table dump and the basic colun
-                definitions for that table.
-                You can, of course, make report with queries of any level of
-                sophistication.
-                The SQL file below shows how to use most of the basic PL
+                <filename xlink:href="#pl.sql-link">sample/pl.sql</filename>,
+                which shows how to use most of the basic PL
                 features <footnoteref linkend='samplelocFn'/>.
                 If you have a question about how to use a particular
                 PL feature, check this file in your distribution before asking
