@@ -2568,7 +2568,8 @@ public class SqlFile {
             return;
         }
 
-        m = varsetPattern.matcher(dereference(string, false));
+        String derefed = dereference(string, false);
+        m = varsetPattern.matcher(derefed);
         if (!m.matches())
             throw new BadSpecial(SqltoolRB.pl_unknown.getString(tokens[0]));
         if (m.groupCount() < 2 || m.groupCount() > 3)
@@ -2577,6 +2578,8 @@ public class SqlFile {
                     + m.groupCount() + " groups");
 
         String varName  = m.group(1);
+        if (derefed.startsWith(varName + '_'))
+            throw new BadSpecial(SqltoolRB.pl_unknown.getString(tokens[0]));
 
         if (varName.indexOf(':') > -1)
             throw new BadSpecial(SqltoolRB.plvar_nocolon.getString());
