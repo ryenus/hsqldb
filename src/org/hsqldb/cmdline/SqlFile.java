@@ -5774,20 +5774,20 @@ public class SqlFile {
         StringBuilder sb = new StringBuilder();
         char[] charArray = s.toCharArray();
         for (char c : charArray) switch (c) {
-          case 34:
+          case '"':
             sb.append("&quot;");
             break;
-          case 39:
+          case '\'':
             // This case not supported by Commons Lang's escapeHtml
             sb.append("&apos;");
             break;
-          case 38:
+          case "&":
             sb.append("&amp;");
             break;
-          case 60:
+          case '<':
             sb.append("&lt;");
             break;
-          case 62:
+          case '>':
             sb.append("&gt;");
             break;
           default:
