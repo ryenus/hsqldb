@@ -2,6 +2,8 @@ defaultTasks 'help'
 
 /*
  * The only end-user Gradle build properties used at this time are:
+ *     ivyDepFile  Path to ivy dependencies file.  Defaults to 'ivy.xml'.
+ *                 (This corresponds to Ivy's property 'ivy.dep.file').
  *     gradled.retain  Set to 'true' to retain the temporary files
  *                     "build-gradled.xml", "build-docbook-gradled.xml"
  *                     in the parent (real project root) directory.
@@ -15,7 +17,9 @@ defaultTasks 'help'
  *                emulates out-of-the-box 'gradlew tasks --all'.
  *     newVersion  Used only by the 'updateWrapper' task, which is only for
  *                 baseline maintainers.
- * All other build properties are loaded indirectly by Ant, so you must use
+ * There are probably a few other task-specific properties, but these tasks
+ * are written to abort cleanly and tell you if they need a property set.
+ * Other build properties are loaded indirectly by Ant, so you must use
  * Gradle's -D switch to set those Ant properties as Java system properties.
  */
 
@@ -312,6 +316,16 @@ for (e in tasksToMake) {
     newTask.description = e.key.description
     e.key.description = null
     hidingWrappers[e.key] = newTask
+}
+
+configurations {
+    'admc-rs-msv-jar' { transitive = false }
+    'admc-rs-msv-deps' { transitive = false }
+    msv { transitive = false }
+    xalan { transitive = false }
+    fop { transitive = false }
+    'bnd-jar' { transitive = false }
+    'jflex-jar' { transitive = false }
 }
 apply from: 'ivy-setup.gradle'
 

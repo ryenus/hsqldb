@@ -13,19 +13,15 @@ import org.gradle.api.internal.artifacts.DefaultExcludeRule
  * issue for GRADLE-197 at http://issues.gradle.org/browse/GRADLE-197 .
  * The code here does also include my own enhancements.
  *
+ * Set project property ivyDepFile to path String to the Ivy dependencies file.
+ * This corresponds to Ivy property 'ivy.dep.file'.  Defaults to "ivy.xml".
+ *
+ * Does not attempt to load any ivysettings files or do any repository setup,
+ * only dependency settings.
+ *
  * Limitation of ivy.xml parsing:  excludes attributes ignored
  */
 
-
-configurations {
-    'admc-rs-msv-jar' { transitive = false }
-    'admc-rs-msv-deps' { transitive = false }
-    msv { transitive = false }
-    xalan { transitive = false }
-    fop { transitive = false }
-    'bnd-jar' { transitive = false }
-    'jflex-jar' { transitive = false }
-}
 
 // configurations apparently not a Collection, since this doesn't work:
 //def gradleProjConfMap = configurations.collectEntries { [(it.name): it] }
@@ -33,8 +29,11 @@ def gradleProjConfMap = [:]
 for (p in configurations) gradleProjConfMap[p.name] = p
 
 DefaultModuleDescriptor moduleDescriptor =
-    (DefaultModuleDescriptor) XmlModuleDescriptorParser.instance
-    .parseDescriptor(new IvySettings(), new File('ivy.xml').toURL(), false)
+        (DefaultModuleDescriptor) XmlModuleDescriptorParser.instance
+        .parseDescriptor(new IvySettings(),
+        new File(project.hasProperty('ivyDepFile')
+        ? project.ivyDepFile : 'ivy.xml')
+        .toURL(), false)
 moduleDescriptor.dependencies.each {
     DependencyDescriptor descriptor ->
         def mappableConfNames = descriptor.moduleConfigurations.findAll {
