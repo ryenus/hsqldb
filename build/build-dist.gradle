@@ -11,16 +11,24 @@
  *   PREP:  Before building a public distribution, you must:
  *      1: Run task/targets 'javadoc' and 'javadocdev', watching for JavaDoc
  *         authoring mistakes, and fix them.
- *      2: Update property 'hsqldb.version' in file 'build.xml'.
- *      3: Execute task/target 'refresh-verbatim' to update code in our docs.
- *      4: Execute task/target 'update-readme' to substitute updated variables
+ *      2: Update HyperSQL minor or version number if required in file
+ *         "../doc-src/guide/entities/versions.ent".
+ *      3: Run "svn info ../src/org/hsqldb/cmdline/Sql????.java" to determine
+ *         the current versions of SqlTool.java and SqlFile.java.
+ *         Update the revision values in file
+ *         "../doc-src/uti-guide/entities/versions.ent" accordingly.
+ *      4: Update property 'hsqldb.version' in file 'build.xml'.
+ *      5: Execute task/target 'refresh-verbatim' to update code in our docs.
+ *      6: Execute task/target 'update-readme' to substitute updated variables
  *         into some doc file(s).
- *      5: Commit all of the work above.
- *      6: Verify that docs build successfully.
- *      7. Make a release tag.
+ *      7: Manually update the version displayed in file "../readme.txt".
+ *         Fred doesn't want this one automated.
+ *      8: Commit all of the work above.
+ *      9: Verify that docs build successfully.
+ *     10. Make a release tag.
  *
  *   USAGE:
- *       1: Set up your desired build environment (JAVA_HOME set, etc., and
+ *       1: Set up your desired build environment (JAVA_HOME set, etc.), and
  *          if you will be using Ant directly instead of Gradle, add Ant to
  *          your search path,
  *       2: Do a Subversion export with the release tag to a NEW directory
@@ -35,7 +43,7 @@
  *          This file must set Ant properties "build.label", "build.vendor",
  *          "dbimage.path".  (See following section about optional properties).
  *       4: Run
- *              gradlew -b build-dist.gradle   # Gradle users
+ *              gradlew -i -b build-dist.gradle   # Gradle users
  *          or
  *              ant -f build-dist.xml          # Ant users
  *          from the build directory.
@@ -44,14 +52,11 @@
  *          CLASSPATH, you will be instructed how to satisfy that requirement.
  *
  *   OPTIONAL ANT PROPERTIES
- *       To prevent Internet access for DocBook resources, set properties
- *         nsstylebase.url, dbxirng.url, dbcentx.url in file
- *         "local-docbook.properties" or "build.properties" (just depends on
- *         whether you want to manage them separately from the primary
- *         properties).  This decreases document build time by about 70%.
- *         These values point to DocBook-privided resources that you should
- *         be able to figure out between the property name and the usage of
- *         them in the "build-docbook.xml" file.
+ *       I suggest setting properties nsstylebase.url, dbxirng.url,
+ *         dbcentx.url in file "local-docbook.properties" or
+ *         "build.properties", according to the
+ *         reasons documented at the top of "build-docbook.xml", and according
+ *         to the instructions there.
  *       Add settings for build.debug and build.optimize to change the default
  *         compilation settings.
  *
