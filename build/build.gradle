@@ -327,7 +327,7 @@ configurations {
     'bnd-jar' { transitive = false }
     'jflex-jar' { transitive = false }
 }
-apply from: 'ivy-setup.gradle'
+apply from: 'ivyxml-support.gradle'
 
 import org.apache.tools.ant.types.Path
 project.task([overwrite: true], ivySetupTaskName) << {
