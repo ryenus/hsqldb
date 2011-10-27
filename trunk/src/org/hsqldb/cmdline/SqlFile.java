@@ -317,7 +317,7 @@ public class SqlFile {
              shared.userVars.remove("*NULL");
          }
         for (String noEmpty : new String[] {
-            "DSV_SKIP_COLS", "DSV_COL_DELIM", "*TIMESTAMP_FORMAT",
+            "DSV_SKIP_COLS", "DSV_COL_DELIM", "TIMESTAMP_FORMAT",
             "DSV_COL_SPLITTER", "DSV_ROW_DELIM", "DSV_ROW_SPLITTER",
             "DSV_TARGET_FILE", "DSV_TARGET_TABLE", "DSV_CONST_COLS",
             "DSV_REJECT_FILE", "DSV_REJECT_REPORT", "DSV_RECORDS_PER_COMMIT",
@@ -376,7 +376,7 @@ public class SqlFile {
         } catch (NumberFormatException nfe) {
             errprintln(SqltoolRB.reject_rpc.getString(
                     shared.userVars.get("*DSV_RECORDS_PER_COMMIT")));
-            shared.userVars.remove("*DSV_REJECT_REPORT");
+            shared.userVars.remove("*DSV_RECORDS_PER_COMMIT");
         }
 
         nullRepToken = shared.userVars.get("*NULL_REP_TOKEN");
@@ -1816,7 +1816,8 @@ public class SqlFile {
                 stdprintln(SqltoolRB.a_setting.getString(
                         Boolean.toString(shared.jdbcConn.getAutoCommit())));
 
-                return; case 'j' : try {
+                return;
+            case 'j' : try {
                 enforce1charSpecial(arg1, 'j');
                 String urlid = null;
                 String acct = null;
