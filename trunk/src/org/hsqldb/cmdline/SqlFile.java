@@ -950,10 +950,9 @@ public class SqlFile {
                         processSQL();
                         continue;
                     default:
-                        throw new RuntimeException(
-                                "Internal assertion failed.  "
-                                + "Unexpected token type: "
-                                + token.getTypeString());
+                        assert false :
+                            "Internal assertion failed. Unexpected token type: "
+                            + token.getTypeString();
                 }
             } catch (BadSpecial bs) {
                 // BadSpecials ALWAYS have non-null getMessage().
@@ -1087,15 +1086,13 @@ public class SqlFile {
 
         BadSpecial(String s) {
             super(s);
-            if (s == null)
-                throw new RuntimeException(
-                        "Must construct BadSpecials with non-null message");
+            assert s != null:
+                "Must construct BadSpecials with non-null message";
         }
         BadSpecial(String s, Throwable t) {
             super(s, t);
-            if (s == null)
-                throw new RuntimeException(
-                        "Must construct BadSpecials with non-null message");
+            assert s != null:
+                "Must construct BadSpecials with non-null message";
         }
     }
 
@@ -1327,10 +1324,9 @@ public class SqlFile {
                         scanner.setRequestedState(SqlFileScanner.PL);
                         break;
                     default:
-                        throw new RuntimeException(
-                            "Internal assertion failed.  "
+                        assert false: "Internal assertion failed.  "
                             + "Appending to unexpected type: "
-                            + newToken.getTypeString());
+                            + newToken.getTypeString();
                 }
                 scanner.setCommandBuffer(newToken.val);
 
@@ -1389,12 +1385,10 @@ public class SqlFile {
                                 SqltoolRB.substitution_malformat.getString());
 
                     // Note that this pattern does not include the leading :.
-                    if (m.groupCount() < 3 || m.groupCount() > 4)
-                        throw new RuntimeException(
-                                "Internal assertion failed.  "
-                                + "Matched substitution "
-                                + "pattern, but captured "
-                                + m.groupCount() + " groups");
+                    assert m.groupCount() > 2 && m.groupCount() < 5 :
+                        "Internal assertion failed.  "
+                        + "Matched substitution pattern, but captured "
+                        + m.groupCount() + " groups";
                     String optionGroup = (
                             (m.groupCount() > 3 && m.group(4) != null)
                             ? (new String(m.group(4))) : null);
@@ -1473,11 +1467,9 @@ public class SqlFile {
             throw new BadSpecial(SqltoolRB.special_malformat.getString());
             // I think it's impossible to get here, since the pattern is
             // so liberal.
-        if (m.groupCount() < 1 || m.groupCount() > 2)
-            // Failed assertion
-            throw new RuntimeException(
-                    "Internal assertion failed.  Pattern matched, yet captured "
-                    + m.groupCount() + " groups");
+        assert m.groupCount() > 0 && m.groupCount() < 3:
+            "Internal assertion failed.  Pattern matched, yet captured "
+            + m.groupCount() + " groups";
 
         String arg1 = m.group(1);
         // If other count > 1 and group(2) not null, then it is non-empty.
@@ -1794,10 +1786,9 @@ public class SqlFile {
                         level = Level.INFO;
                     else if (levelString.equalsIgnoreCase("FINEST"))
                         level = Level.FINEST;
-                    if (level == null)
-                        throw new RuntimeException(
-                                "Internal assertion failed.  "
-                                + " Unexpected Level string: " + levelString);
+                    assert level != null:
+                        "Internal assertion failed.  "
+                        + " Unexpected Level string: " + levelString;
                     logger.enduserlog(level, logMatcher.group(2));
                 }
 
@@ -2232,10 +2223,10 @@ public class SqlFile {
             if (!foreachM.matches())
                 throw new BadSpecial(SqltoolRB.foreach_malformat.getString());
             if (foreachM.groupCount() != 2)
-                throw new RuntimeException(
-                        "Internal assertion failed.  "
-                        + "foreach pattern matched, but captured "
-                        + foreachM.groupCount() + " groups");
+            assert foreachM.groupCount() == 2:
+                "Internal assertion failed.  "
+                + "foreach pattern matched, but captured "
+                + foreachM.groupCount() + " groups";
 
             String varName   = foreachM.group(1);
             if (varName.indexOf(':') > -1)
@@ -2297,11 +2288,10 @@ public class SqlFile {
                     dereference(token.val, false));
             if (!ifwhileM.matches())
                 throw new BadSpecial(SqltoolRB.ifwhile_malformat.getString());
-            if (ifwhileM.groupCount() != 1)
-                throw new RuntimeException(
-                        "Internal assertion failed.  "
-                        + "if/while pattern matched, but captured "
-                        + ifwhileM.groupCount() + " groups");
+            assert ifwhileM.groupCount() == 1:
+                "Internal assertion failed.  "
+                + "if/while pattern matched, but captured "
+                + ifwhileM.groupCount() + " groups";
 
             String[] values =
                     ifwhileM.group(1).replaceAll("!([a-zA-Z0-9*])", "! $1").
@@ -2373,9 +2363,7 @@ public class SqlFile {
                             SqltoolRB.pl_block_fail.getString(), e);
                 }
             } else {
-                // Assertion
-                throw new RuntimeException(
-                        SqltoolRB.pl_unknown.getString(tokens[0]));
+                assert false: SqltoolRB.pl_unknown.getString(tokens[0]);
             }
 
             return;
@@ -2572,10 +2560,8 @@ public class SqlFile {
         m = varsetPattern.matcher(derefed);
         if (!m.matches())
             throw new BadSpecial(SqltoolRB.pl_unknown.getString(tokens[0]));
-        if (m.groupCount() < 2 || m.groupCount() > 3)
-            // Assertion
-            throw new RuntimeException("varset pattern matched but captured "
-                    + m.groupCount() + " groups");
+        assert m.groupCount() > 1 && m.groupCount() < 4:
+            "varset pattern matched but captured " + m.groupCount() + " groups";
 
         String varName  = m.group(1);
         if (derefed.startsWith(varName + '_'))
@@ -3234,14 +3220,12 @@ public class SqlFile {
     private void processSQL() throws SQLException, SqlToolError {
         shared.userVars.remove("?");
         requireConnection();
-        if (buffer == null)
-            throw new RuntimeException(
-                    "Internal assertion failed.  No buffer in processSQL().");
-        if (buffer.type != Token.SQL_TYPE)
-            throw new RuntimeException(
-                    "Internal assertion failed.  "
-                    + "Token type " + buffer.getTypeString()
-                    + " in processSQL().");
+        assert buffer != null:
+            "Internal assertion failed.  No buffer in processSQL().";
+        assert buffer.type == Token.SQL_TYPE:
+            "Internal assertion failed.  "
+            + "Token type " + buffer.getTypeString()
+            + " in processSQL().";
         // No reason to check autoCommit constantly.  If we need to roll
         // back, we will check the autocommit state at that time.
         if (sqlExpandMode == null) setSqlExpandMode();
@@ -3936,10 +3920,10 @@ public class SqlFile {
             case Token.SPECIAL_TYPE:
                 break;
             default:
-                throw new RuntimeException(
-                        "Internal assertion failed.  "
-                        + "Attempted to add command type "
-                        + newBuffer.getTypeString() + " to buffer");
+                assert false:
+                    "Internal assertion failed.  "
+                    + "Attempted to add command type "
+                    + newBuffer.getTypeString() + " to buffer";
         }
         buffer = new Token(newBuffer.type, new String(newBuffer.val),
                 newBuffer.line);
@@ -3975,9 +3959,8 @@ public class SqlFile {
      */
     private void describe(String tableName,
                           String filterString) throws SQLException {
-        if (shared.jdbcConn == null)
-            throw new RuntimeException(
-                    "Somehow got to 'describe' even though we have no Conn");
+        assert shared.jdbcConn != null:
+            "Somehow got to 'describe' even though we have no Conn";
         /*
          * Doing case-sensitive filters now, for greater portability.
         String filter = ((inFilter == null) ? null : inFilter.toUpperCase());
@@ -4606,11 +4589,10 @@ public class SqlFile {
      * @throws SqlToolError if validation fails.
      */
     public void dsvSafe(String s) throws SqlToolError {
-        if (pwDsv == null || dsvColDelim == null || dsvRowDelim == null
-                || nullRepToken == null)
-            throw new RuntimeException(
-                "Assertion failed.  \n"
-                + "dsvSafe called when DSV settings are incomplete");
+        assert pwDsv != null && dsvColDelim != null && dsvRowDelim != null
+                && nullRepToken != null:
+            "Assertion failed.  \n"
+            + "dsvSafe called when DSV settings are incomplete";
 
         if (s == null) return;
 
@@ -5241,9 +5223,9 @@ public class SqlFile {
                             } else if (dataVals[i].indexOf('-') < 1) {
                                 dateString = "0000-00-00 " + dataVals[i];
                             } else {
-                                throw new RuntimeException(
-                                        "Unexpected date/time val: "
-                                        + dataVals[i]);
+                                dateString = null;  // To shut up compiler
+                                assert false:
+                                    "Unexpected date/time val: " + dataVals[i];
                             }
                             try {
                                 ps.setTimestamp(i + 1,
@@ -5723,11 +5705,9 @@ public class SqlFile {
 
             ba[offset++] = (byte) octet;
         }
-        if (ba.length != offset)
-            throw new RuntimeException(
-                    "Internal accounting problem.  Expected to fill buffer of "
-                    + "size "+ ba.length + ", but wrote only " + offset
-                    + " bytes");
+        assert ba.length == offset:
+            "Internal accounting problem.  Expected to fill buffer of "
+            + "size "+ ba.length + ", but wrote only " + offset + " bytes";
         return ba;
     }
 
