@@ -132,7 +132,7 @@
         to work with all other IDEs.
       </simpara> <simpara>
         If you do use and enjoy Gradle, then I urge you to make the product
-        better by registing an account for yourself at
+        better by registing a free account for yourself at
         <link xlink:href="http://issues.gradle.org/">the Gradle Jira site</link>
         and vote for critical usability issues like
         <link xlink:href="http://issues.gradle.org/browse/GRADLE-427">GRADLE-427</link>,

@@ -35,6 +35,32 @@
         </keywordset>
     </info>
 
+    <section xml:id="sqltool_tryit-sect">
+      <title>Try IT</title>
+      <simpara>
+        If you know how to type in a Java command at your shell command line,
+        and you know at least the most basic SQL commands, then you know
+        enough to benefit from SqlTool.
+        You can play with Java system properties, PL variables, math, and
+        other things by just executing
+        <link xlink:href='http://search.maven.org/remotecontent?filepath=org/hsqldb/sqltool/2.2.6/sqltool-2.2.6.jar'>this <filename>sqltool-2.2.6.jar</filename> file</link>.
+        But SqlTool was made for JDBC, so you should download HyperSQL to
+        have SqlTool automatically connect to a fully functional, pure Java
+        database; or obtain a JDBC driver for any other database that you have
+        an account in.
+      </simpara> <simpara>
+        Just execute the SqlTool jar file.
+        If HyperSql's <filename>hsqldb.jar</filename> resides in the same
+        directory as the SqlTool jar file, then you can connect up to a
+        HyperSql instance from SqlTool just by specifying the JDBC URL, root
+        account user name of <literal>SA</literal> and empty password, with
+        the <literal>\j</literal> command.
+        See the
+        <link xlink:href='#sqltool_dsswitch-sect' endterm='dsswitch-title'/>
+        section below for details about <literal>\j</literal>.
+      </simpara>
+    </section>
+
     <section xml:id="sqltool_book_purpose-sect">
         <title>Purpose, Coverage, Changes in Behavior</title>
       <note> <simpara>
@@ -229,6 +255,34 @@
             </simpara>
             <itemizedlist>
                 <listitem><simpara>
+                  SqlTool always has treated unset PL variables equal to
+                  null-valued variables, and this is not changing.
+                  There is no distinction between <emphasis>unset</emphasis>
+                  and <emphasis>null-valued</emphasis>.
+                  But before revision 4423 (i.e. pre-HyperSQL 2.2.6),
+                  SqlTool almost always treated variable value of empty
+                  String (i.e. what is between these two quotes: "") as
+                  equivalent to null/unset.
+                  The most common case where a user would see this was in the
+                  command to <emphasis>unset</emphasis> a PL variable:
+                  <literal>* VARNAME =</literal>.
+                  Though your command says to assign the value of the empty
+                  string to <varname>VARNAME</varname>, varname would unset it
+                  instead (which latter is equivalent to assigning null to it).
+                </simpara> <simpara>
+                  SqlTool achieves several new benefits by purposefully
+                  assigning the empty string for some purposes, and
+                  distinctly unsetting for other purposes.
+                  One example of this is the new consistent and robust handling
+                  of the PL variable <varname>?</varname>.
+                  Now, when <varname>?</varname> is unset (aka
+                  <emphasis>null</emphasis>), it always mean that the last
+                  SQL command failed.
+                  If this variable has the value of the empty string, it means
+                  that the last cell returned had value of the empty string,
+                  or the <literal>?</literal> was reset (for example due to
+                  SqlTool startup).
+                </simpara> <simpara>
                   When you run SqlTool interactively, you will see warnings
                   about setting PL variables to nothing.
                   If you don't do anything involving assignment or testing of
@@ -258,6 +312,19 @@
                   For maintained or new scripts, set the value of the property
                   to <literal>false</literal>, and only use
                   "<literal>* - VARNAME</literal>" to unset variables.
+                </simpara> <simpara>
+                  <literal>sqltool.REMOVE_EMPTY_VARS</literal> only effects the
+                  assignment operation <literal>* VARNAME =</literal>.
+                  Regardless of this setting, SqlTool itself will assign some
+                  SqlTool PL variables to the empty string and to null,
+                  and _ will assign nulls if the next call value retrieve is
+                  null,
+                  variables which have never been set will be equal to null,
+                  and you can use command line parameters
+                  <literal>-P</literal> or <literal>--setVar</literal> to
+                  assign PL variables to the empty String.
+                  (For example
+                  "<literal>java -jar .../sqltool.jar -Pvarname= urlid script.sql</literal>").
                 </simpara></listitem><listitem><simpara>
                   DSV input now accepts JDBC Timestamp format with date and
                   optionally time of day.
@@ -279,7 +346,8 @@
                     (See item on it in the previous section of this manual).
                 </simpara></listitem><listitem><simpara>
                     Bugs in variable scoping have been fixed.
-                    All variables are global and shared among auto.sql, all
+                    All variables are global and shared among
+                    <filename>auto.sql</filename>, all
                     command-line and nested SQL scripts, and interactive shells.
                 </simpara></listitem><listitem><simpara>
                     A bug has been fixed so that SqlTool
@@ -293,6 +361,14 @@
                     The data (and just the data) of HTML reports has remained
                     the same, but the whole system has been drastically
                     modernized and enhanced.
+                    You may notice new special command <literal>\pr</literal>.
+                    This is a <literal>\p</literal> variant applicable only
+                    to HTML mode, telling SqlTool to treat the expression as
+                    Raw, so the author can type in HTML, JavaScript or other
+                    text not to be formatted.
+                    HTML model also gets its own
+                    <varname>*NULL_REP_HTML</varname> setting distinct from
+                    <varname>*NULL_REP_TOKEN</varname>.
                 </simpara></listitem><listitem><simpara>
                     For consistency, the \H toggle switch has been superseded
                     with <literal>\h true|false</literal>>
@@ -324,6 +400,17 @@
                     The special PL variable <literal>?</literal> is now
                     updated rigorously.  It will be null only if the last
                     SQL command that was run failed.
+                </simpara></listitem><listitem><simpara>
+                    The special PL variable <literal>?</literal> is now
+                    listed in the output of <literal>* list</literal>
+                    and <literal>* listvalues</literal> commands.
+                    (Unless at the time it is unset/null, of course, and in
+                    this case the absense of <literal>?</literal> indicates
+                    that it is unset.
+                </simpara></listitem><listitem><simpara>
+                    The look of DSV import reject reports has changed, and the
+                    name of user-supplied (optional) CSS file has been changed.
+                    (See following section about why).
                 </simpara></listitem>
             </itemizedlist>
         </section>
@@ -382,6 +469,20 @@
                     Added automatically-assigned SqlTool system PL variables
                     <varname>*START_TIME</varname>
                     and <varname>*REVISION</varname>.
+                </simpara></listitem><listitem><simpara>
+                    Added optional SqlTool system PL variable
+                    <varname>*TIMESTAMP_FORMAT</varname>, which, when set
+                    causes new SqlTool system PL variable
+                    <varname>*TIMESTAMP</varname> to be automatically set to
+                    the time when this (latter) variable is referenced.
+                    Unlike <varname>*START_TIME</varname>, the
+                    <varname>*TIMESTAMP_FORMAT</varname> +
+                    <varname>*TIMESTAMP</varname> combination allows the user
+                    to specify exactly how to display the time and/or date.
+                </simpara></listitem><listitem><simpara>
+                    The DSV import reject report has been refactored to use the
+                    same templating and substitution used by the new HTML
+                    reports.
                 </simpara></listitem>
             </itemizedlist>
         </section>
@@ -578,6 +679,11 @@
             home directory, this file will be executed automatically every
             time that you run SqlTool interactively (unless you invoke with
             the <literal>--noAutoFile</literal> switch).
+            I did say <emphasis>interactively</emphasis>:  If you want to
+            execute this file when you execute SQL scripts from the command
+            line, then your script must use
+            <literal>\i ${user.home}/auto.sql</literal> or similar to invoke
+            it explicitly.
         </simpara> <para>
             To use a JDBC Driver other than the HyperSQL driver, you can't use
             the <literal>-jar</literal> switch because you need to modify the
@@ -1097,6 +1203,8 @@
           (or interactively).
           "\?" shows the syntax to make a connection by either RCData urlid
           or by name + password + JDBC Url.
+          (If you omit the password parameter, an empty string password will
+          be used).
           The urlid variant uses RC file of
           <filename>$HOME/sqltool.rc</filename>.
           We will add a way to specify an RC file if there is any demand for
@@ -1787,7 +1895,7 @@
                 it is interpreted as a regular expression so you can do
                 all kinds of powerful substitutions.
                 See the <literal>perlre</literal> man page, or the
-                <link xlink:href='http://http://java.sun.com/javase/6/docs/api/java/util/regex/Pattern.html'>java.util.regex.Pattern</link>
+                <link xlink:href='http://download.oracle.com/javase/6/docs/api/java/util/regex/Pattern.html'>java.util.regex.Pattern</link>
                 API Spec for everything you need to know about extended
                 regular expressions.
                 </simpara>
@@ -1878,7 +1986,7 @@
             you can always use syntax like "(?i)" inside of your regular
             expression, as described in the Java API spec for class
             <classname
-            xlink:href='http://http://java.sun.com/javase/6/docs/api/java/util/regex/Pattern.html'>
+            xlink:href='http://download.oracle.com/javase/6/docs/api/java/util/regex/Pattern.html'>
               java.util.regex.Pattern</classname>.
             History-command-matching with the /regex/ construct is
             purposefully liberal, matching any portion of the command,
@@ -1943,17 +2051,28 @@
                 </simpara></important>
             </para>
             <warning><para>
-              With the current version of SqlTool, it is impossible to set
-              the value of a variable to the empty string unless you set
-              Java system property <literal>sqltool.REMOVE_EMPTY_VARS</literal>
-              to <literal>false</literal>, in which case, setting a variable
-              to nothing, like
+              With the current version of SqlTool, you can't use this
+              assignment command to set the value of a variable to the empty
+              string unless you set Java system property
+              <literal>sqltool.REMOVE_EMPTY_VARS</literal>
+              to <literal>false</literal>.
+              We are talking about assignments like the following:
                 <programlisting>    * VARNAME =</programlisting>
-              does it.
-              You are encouraged to use this behavior by setting the system
-              property, because this will become the default behavior of
-              SqlTool shortly (i.e. even if you don't set the system
-              property).
+              If <literal>sqltool.REMOVE_EMPTY_VARS</literal> is set to
+              <literal>false</literal>, then the assignment shown assigns
+              the empty string.
+              Otherwise, the assignment shown <emphasis>unsets</emphasis> the
+              variable (which is equivalent to setting it to be null).
+              You are encouraged to set
+              <literal>sqltool.REMOVE_EMPTY_VARS</literal>
+              to <literal>false</literal>, because this will become the default
+              behavior of SqlTool shortly (i.e. even if you don't set the
+              system property).
+              Regardless of <literal>sqltool.REMOVE_EMPTY_VARS</literal>, you
+              can always use the unset command (described next) to unset
+              variables, and you can always use command line switches
+              <literal>-P</literal> or <literal>--setVar</literal> to assign
+              empty strings.
             </para></warning><simpara>
               See
               <link xlink:href='#sqltool_variables-sect'
@@ -1980,6 +2099,13 @@
                 This works for CLOB columns too.
                 It also works with Oracle XML type columns if you use
                 column labels and the <literal>getclobval</literal> function.
+                If the SQL null value is retrieved nex, then this variable will
+                be assigned the value null, which is the same thing as
+                unsetting it.
+                It's easy to tell when a variable is set to null vs. when it
+                is set to the empty string.
+                See the <link xlink:href='#sqltool_nullempty-sect'
+                endterm='nullempty-title'/> section about that.
             </simpara></listitem></varlistentry>
             <varlistentry><term>* VARNAME ~</term><listitem><para>
                 Exactly the same as
@@ -1996,6 +2122,14 @@
             PL Commands, but n.b. that
             <emphasis role='bold'>there are other useful PL Commands
             which you can list by running <literal>* ?</literal></emphasis>.
+        </simpara> <simpara>
+          PL variables are intimately involved with most PL commands, and (and
+          with some Special commands).
+          Even if you never assign a PL variable, if you are at technical level
+          of using PL commands, you should at least know how to check SqlTool
+          system PL variables which effect SqlTool's behavior.
+          See the <link xlink:href='#sqltool_nullempty-sect'
+          endterm='nullempty-title'/> section about that.
         </simpara>
     </section>
 
@@ -2206,8 +2340,35 @@
               <literal>\i ${user.home}/auto.sql</literal> to the top of the
               script, understanding that if you execute that script
               interactively you will cause <filename>auto.sql</filename> to be
-              executed a second time.
-            </simpara><simpara>
+              executed a second time, but see the following tip about
+              preventing that.
+            </simpara>
+            <tip>
+              <title>
+                Preventing redundant execution of utility or shared scripts.
+              </title> <para>
+              There's a common idiom used in UNIX login and shell
+              initialization scripts that prevents redundant exections, and it
+              works great for SqlTool too.
+              Think up a unique PL variable name which will keep track of
+              whether the script has been sourced in the current SqlTool
+              session, and the script will have no effect if called a 2nd,
+              3rd, etc. time.
+              This example applies the idiom to an <filename>auto.sql</filename>
+              file, but it can be used in any script that you want to prevent
+              superfluous executions in a developer-friendly way.
+              <programlisting>    * if (*AUTO_EXECUTED)
+        * break
+    * end if
+    * AUTO_EXECUTED = true</programlisting>
+              It would be slightly more efficient, but less reliable, to put
+              the test on the caller's side instead of the callee side, like
+              this:
+              <programlisting>    * if (! *AUTO_EXECUTED)
+        * \i ${user.home}/auto.sql
+    * end if</programlisting>
+            </para></tip>
+            <simpara>
               As you would probably guess, all of SQL's file commands (for
               example loading or saving SQL scripts, binary data, DSV data)
               take either relative or absolute file paths.
@@ -2698,8 +2859,15 @@ java -jar $HSQLDB_HOME/lib/sqltool.jar urlid > /tmp/log.html 2>&1]]></screen>
             the ":;" Edit Buffer Command.
         </simpara></tip>
         <simpara>
+          HTML output has its own <varname>*NULL_REP_HTML</varname> setting
+          distinct from <varname>*NULL_REP_TOKEN</varname>.
+          It fulfills <varname>*NULL_REP_TOKEN</varname>'s output purpose of
+          saying how to represent SQL nulls retrieved from VARCHAR columns,
+          but lets you manage it for HTML separately from display and
+          CSV/DSV output.
+        </simpara> <simpara>
             Several new features have been added to HTML reporting between
-            revisions 4505 and 4525 inclusive.
+            revisions 4505 and 4606 inclusive.
             All of the new features are explained in comments in the working,
             sample SQL file below.
             If you write your own top boilerplate fragment, you will probably
@@ -2710,22 +2878,36 @@ java -jar $HSQLDB_HOME/lib/sqltool.jar urlid > /tmp/log.html 2>&1]]></screen>
             used.
         </simpara>
         <para>
-          This sample shows everything you need to know to write an HTML report.
+          Please study this example closesly, because this is your principal
+          source of education about the specifics of creating HTML reports.
+          Notice the close at the very end with the explicit HTML-close
+          command <literal>\oc</literal>.
+          If you used just <literal>\o</literal>, the file would be closed but
+          the closing HTML code would not be written.
           <filename xlink:href="#html-report.sql-link">
             csv-sample.sql</filename>
           <footnoteref linkend='samplelocFn'/>.
           <example>
-            <title>Sample CSV export + import script</title>
+            <title>Sample HTML Report Generation Script</title>
             <programlisting><xi:include
                 href="../verbatim/sample/html-report.sql"
                 parse="text"/></programlisting>
           </example>
+          On thing that I chose no to exemplify in the example, so as not to
+          scare away less technical users, is that you can use the
+          <literal>\p</literal> variant command <literal>\pr</literal>.
+          When you give a <literal>\p</literal> command in HTML mode, SqlTool
+          formats the output into a paragraph.
+          But coders may want to write HTML, Javascript, JSP, or similar code,
+          and SqlTool should treat this as <emphasis>Raw</emphasis> to be
+          written as-is to the report file.
+          This is what <literal>\p</literal> accomplishes.
         </para>
     </section>
 
     <section xml:id='sqltool_binary_files-sect'>
         <title xml:id='binary_files-title'>
-            Storing and retrieving binary files</title>
+            Storing and Retrieving Binary Files</title>
     <simpara>
         You can upload binary files such as photographs, audio files,
         or serialized Java objects into database columns.
@@ -2813,6 +2995,94 @@ java -jar $HSQLDB_HOME/lib/sqltool.jar urlid > /tmp/log.html 2>&1]]></screen>
             <link xlink:href='#sqltool_interactive_pl_commands-sect' endterm='interactive_pl_commands-title'/>
             section above.
         </simpara>
+
+        <section xml:id='sqltool_nullempty-sect'>
+            <title xml:id='nullempty-title'>Nulls and Empty Strings</title>
+          <simpara>
+            I am raising this PL variable topic out of order here because it
+            is important to understand, and I'd like you to have the concept
+            firmly in mind before digging into other details about variables.
+            In this sub-section I am only talking about PL variable values
+            (not system properties or SQL engine variables, etc.).
+          </simpara> <para>
+            Very similarly to Java system properties, if the value of a
+            PL variable is null, then the variable is
+            <emphasis>unset</emphasis>;
+            and (if you set the <literal>sqltool.REMOVE_EMPTY_VARS</literal>
+            mode as suggested) there is no way to directly assign a variable
+            to null.
+            If, for example, you ran <screen>
+              * MYVAR = null
+            </screen>that would assign the string value of
+            <literal>null</literal> to your variable, not the real null value.
+            If a variable is assigned null indirectly, say by fetching a null
+            cell value into a variable, or when variable <literal>?</literal>
+            is assigned null due to a SQL failure, this action is entirely
+            equivalent to unsetting the variable.
+          </para>
+          <important><title>Recap</title><simpara>
+            If a variable is unset, or has never yet been set, then
+            that variable's value is null.
+            If a variable's value is null, then the variable is unset.
+          </simpara></important>
+          <para>
+            You can assign a PL variable the empty string value by using a
+            command switch <literal>-P</literal> or <literal>--setVar</literal>.
+            For example
+                  <screen>java -jar .../sqltool.jar -Pvarname= urlid script.sql</screen>
+            You can see it's an empty string by echoing the value:
+              <screen>\p One*{varname}Two
+OneTwo</screen>
+            With the next minor release of SqlTool, or now if you set Java
+            system property <literal>sqltool.REMOVE_EMPTY_VARS</literal> to
+            <literal>false</literal>, that you can use the vanilla PL
+            assignment command to assign empty values like this:
+            <screen>* MYVAR =</screen>
+          </para>
+
+          <section><title>Distinguishing Nulls from Empty Strings</title>
+            <simpara>
+              You can't use the simplest Special Command <literal>\p</literal>
+              to distinguish null variables, because (a) It is an error to
+              expand an unset/null value with the <literal>${x}</literal>
+              construct, and the alternative <literal>${:x}</literal> is safe
+              but displays null values as if they were empty strings-- thereby
+              not distinguishing.
+              But don't fear.  There are easy ways.
+            </simpara> <para>
+              Unset/null variables are not listed by the commands
+              <literal>* list</literal> or <literal>* listvalues</literal>.
+              Therefore, say you want to know if variable
+              <varname>MYVAR</varname> is set or not (stated differently,
+              whether it is non-null or null).  Run <informalexample><screen>
+    * list MYVAR</screen></informalexample>.
+              If it lists the variable then it is set and is not null.
+            </para> <para>
+              You can use the <literal>* if</literal> command to compare your
+              variable to the null value or to the empty string.
+              The first test here will tell you if <varname>MYVAR</varname> is
+              equal to null (by comparing it to reserved PL variable
+              <literal>*NULL</literal>).
+              The second test here compares <varname>MYVAR</varname> to a
+              variable that you assigned the empty string to earlier.
+              <example><title>Explicit null and empty-string Tests</title>
+                <screen>    java -jar .../sqltool.jar -pEMPTYSTRING=
+    ....
+    * if (*MYVAR == **NULL)
+        \p MYVAR really is null
+    * end if
+    * if (*MYVAR == EMPTYSTING)
+        \p MYVAR is now an empty string
+    * end if</screen></example>
+            </para>
+            <simpara>
+              Definitely study the
+              <link xlink:href='#sqltool_specialqplus-ex' endterm='specialqplus-title'/>
+              example.
+            </simpara>
+          </section>
+        </section>
+
         <section xml:id='sqltool_variables-sect'>
             <title xml:id='variables-title'>Variables</title>
             <simpara>Following subsections explain important things about
@@ -2866,15 +3136,8 @@ java -jar $HSQLDB_HOME/lib/sqltool.jar urlid > /tmp/log.html 2>&1]]></screen>
                 Some of these are initialized by SqlTool automatically.
                 You can change and examine the values in the same way as PL
                 user variables.
-                </simpara><simpara>
-                SqlTool automatically assign values to a few special system
-                variables.
-                As I write this, the special variables are only
-                <varname>*START_TIME</varname> and <varname>*REVISION</varname>.
-                The former is a date and time string formatted for the
-                user's locale.
-                The latter is SqlTool's version string (i.e., it is not
-                a valid real or integer number).
+                See the following subsection about System PL Variables for
+                details.
               </simpara></listitem></varlistentry>
               <varlistentry><term>Reserved PL Variable ?</term><listitem><simpara>
                 The ? variable is set automatically to the results of SQL
@@ -2883,7 +3146,7 @@ java -jar $HSQLDB_HOME/lib/sqltool.jar urlid > /tmp/log.html 2>&1]]></screen>
                 null (aka <emphasis>unset</emphasis>) if an SQL error was
                 encountered.
               </simpara></listitem></varlistentry>
-              <varlistentry><term>*PL variables NULL and NULL</term><listitem><simpara>
+              <varlistentry><term>*PL variables NULL and *NULL</term><listitem><simpara>
                 These are actually reserved system and user PL variables, and
                 since they are very unique and interchangeable with one another,
                 I'm giving them their own bullet.
@@ -2911,6 +3174,48 @@ java -jar $HSQLDB_HOME/lib/sqltool.jar urlid > /tmp/log.html 2>&1]]></screen>
                   value of variables with the "\p" Special command.
               </simpara></listitem>
             </itemizedlist>
+            <section xml:id='sqltool_plsys_variables-sect'>
+              <title xml:id='pl_sysvariables-title'>System PL Variables</title>
+              <simpara>
+                </simpara><simpara>
+                  SqlTool automatically assign values to a few special system
+                  variables.
+                  As I write this, the special variables are only
+                  <varname>*START_TIME</varname>, <varname>*REVISION</varname>,
+                  <varname>*TIMESTAMP</varname>.
+                  <varname>*START_TIME</varname> is a date and time string
+                  formatted for the user's locale.
+                  <varname>*REVISION</varname> is SqlTool's version string
+                  (i.e., it is not a valid real or integer number).
+                  <varname>*TIMESTAMP</varname> is a user-configurable
+                  date or time string configurable with another system variable
+                  <varname>*TIMESTAMP_FORMAT</varname>.
+                </simpara><simpara>
+                  SqlTool System PL variables are the mechanism used to configure SqlTool
+                  behavior.
+                  You can list all <emphasis>set</emphasis> PL variables by running the
+                  SqlTool command <literal>* listvalues</literal>.
+                  If a SqlTool System variable is not shown, then it is
+                  <emphasis>unset</emphasis> (which is equivalent to
+                  <emphasis>non-null</emphasis>).
+                  But if a system variable is not set, that doesn't mean that the setting
+                  behavior will be <emphasis>unset</emphasis>, but rather that the
+                  <emphasis>default behavior</emphasis> will apply.
+                  For example, if you <literal>* listvalues</literal> and the variable
+                  <varname>*DSV_COL_DELIM</varname> is not listed, that doesn't mean that
+                  there will be no DSV column delimiter, but that the default DSV column
+                  delimiter will be used.
+                  The in-program help can be used to determine what the default behavior is.
+                  (In the case of <varname>*DSV_COL_DELIM</varname>, you can see the default
+                  behavior by running <varname>\x?</varname>.
+                </simpara><simpara>
+                  <emphasis role="bold">
+                    See the list of variables (as of revision 4637 in the <link
+                    xlink:href='#systempls-app' endterm='systempls-title'/>
+                    appendix.
+                  </emphasis>
+                </simpara>
+            </section>
             <section xml:id='sqltool_pl_variables-sect'>
               <title xml:id='pl_variables-title'>PL Variables</title>
               <simpara>
@@ -2971,8 +3276,8 @@ java -jar $HSQLDB_HOME/lib/sqltool.jar urlid > /tmp/log.html 2>&1]]></screen>
                       Use the <literal>* list</literal> command to list some or
                       all variables; or <literal>* listvalues</literal> to also
                       see the values.
-                      (Exception: The ? variable can not be displayed with the
-                      list commands, thou you may 
+                      (Exception: The *EXCEPTION variable can not be displayed
+                      with the list commands).
                   </simpara></listitem> <listitem><para>
                     <emphasis role="bold">Assignment</emphasis>
                       <tip> <title>A Mnemonic</title> <simpara>
@@ -3063,13 +3368,24 @@ java -jar $HSQLDB_HOME/lib/sqltool.jar urlid > /tmp/log.html 2>&1]]></screen>
                 (or the return value of other SQL commands).
                 It works very similarly to the <literal>* VARNAME ~</literal>
                 and <literal>* VARNAME ~</literal> assignment commands,
-                but the value of ? is set automatically without you dong
+                but the value of ? is set automatically without you doing
                 anything.
-                You can, of course, dereference ? like any PL variable, but it
-                does not list with the <literal>list</literal> and
-                <literal>listvalues</literal> commands.
-                You can see the value whenever you want by running
-                <informalexample><programlisting>    \p *{?}</programlisting></informalexample>
+                You can, of course, dereference ? like any PL variable or view
+                it with <literal>* list</literal> or
+                <literal>* listvalues</literal>.
+                If you are running interactively or have turned on
+                <literal>\c</literal> (continue-upon-error), you should be
+                prepared that <literal>?</literal> could get unset by SQL
+                failures and thereby cause <literal>*{?}</literal>
+                references to fail.
+                (In which case the list commands still work, you can check it
+                with an <literal>* if</literal> comparison, and the
+                <literal>*{:?}</literal> construct will be safe (though this
+                last does not show you the difference between empty string and
+                null).
+                The important thing to remember about the list commands is
+                that variables that are not listed are
+                <emphasis>unset</emphasis> (i.e., are null).
               </para> <para>
                 <literal>?</literal> is reliably set to null only upon SQL
                 failures.
@@ -3099,13 +3415,18 @@ java -jar $HSQLDB_HOME/lib/sqltool.jar urlid > /tmp/log.html 2>&1]]></screen>
                 or <literal>~</literal> command (or return value for
                 non-result-set SQL).
                 Easier to show what I mean than to explain it...
-                <informalexample><screen><![CDATA[    sql> CREATE TABLE t(i INTEGER, vc VARCHAR(20));
+                <example xml:id='sqltool_specialqplus-ex'>
+                  <title xml:id='specialqplus-title'>Special values for ?, and _ (or ~) Variables</title>
+                  <screen><![CDATA[    sql> \p At startup ? is equal to empty string.  See between A and B:  A*{?}B
+    At startup ? is equal to empty string.  See between A and B:  AB
+    sql> * if (A*{?}B == AB)
+    sql>     \p ? is the empty string
+    sql> * end if
+    ? is the empty string
+    sql>  
+    sql> CREATE TABLE t(i INTEGER, vc VARCHAR(20));
     sql> INSERT INTO t VALUES(1, 'one');
     1 row updated.
-    sql> INSRT INTO t VALUES(2, 'two');
-    SEVERE  SQL Error at '<stdin>' line 3:
-    "INSRT INTO t VALUES(2, 'two')"
-    unexpected token: INSRT
     sql> INSERT INTO t VALUES(2, 'two');
     1 row updated.
     sql> * res ~
@@ -3120,8 +3441,55 @@ java -jar $HSQLDB_HOME/lib/sqltool.jar urlid > /tmp/log.html 2>&1]]></screen>
     two
     sql> \p *{res}
     1
-    sql>]]></screen></informalexample>
-              </para>
+    sql> * listvalues ? res
+    Listing all 'set' variables (any var not seen is unset and equal to null).
+    The outermost parentheses are not part of the values.
+        ?: (two)
+        res: (1)
+    sql> 
+    sql> INSERT INTO t VALUES (3, null);
+    1 row updated.
+    sql> *res ~
+    sql> SELECT vc FROM t WHERE i = 3;
+    [null]
+    sql> \p *{?}
+    [null]
+    sql> * if (*res == **NULL)
+    sql>     \p res really is null
+    sql> * end if
+    res really is null
+    sql> * listvalues ? res
+    Listing all 'set' variables (any var not seen is unset and equal to null).
+    The outermost parentheses are not part of the values.
+        ?: ([null])
+    sql> 
+    sql> -- This will prevent SqlTool from aborting when we run a bad SQL statement:
+    sql> \c true
+    Continue-on-error is set to true.
+    sql> *res ~
+    sql> SELECT hocus FROM pocus;
+    SEVERE  SQL Error at '<stdin>' line 27:
+    "SELECT hocus FROM pocus"
+    user lacks privilege or object not found: POCUS
+    sql> * if (*? == **NULL)
+    sql>     \p ? really is null
+    sql> * end if
+    ? really is null
+    SEVERE  Did not finish setting variable 'res' before a code block exited.
+    SEVERE  Rolling back SQL transaction.
+    sql> * if (*res == **NULL)
+    sql>     \p res really is null
+    sql> * end if
+    res really is null
+    sql> * listvalues ? res
+    Listing all 'set' variables (any var not seen is unset and equal to null).
+    The outermost parentheses are not part of the values.
+    sql>]]></screen></example>
+                    (The SQL that generated this is available in the file
+                    <filename>nullempty.sql</filename> in the
+                    <filename>sample</filename> directory of your HyperSQL
+                    distribution.
+                  </para>
             </section>
         </section>
         <section xml:id='sqltool_macro-sect'>
@@ -3423,6 +3791,15 @@ SELECT * FROM t
               Therefore, our math assignment commands always begin with the
               assignee variable name and an assignment operator.
             </para> <simpara>
+              Those users unfamiliar with programs that do strictly integer
+              math should play around with it before using it for anything
+              important.
+              It may surprise you that real numbers like <literal>2.9</literal>
+              are not automatically converted to an integer, but are simply
+              prohibited;
+              and that results of expressions are truncated to an integer, not
+              rounded.
+            </simpara> <simpara>
               The list below is available from the program by running
               <literal>* ?</literal> (they are listed after the words
               "<literal>Assignment OPs:</literal>").
@@ -3801,21 +4178,24 @@ SELECT * FROM t
             or to another database instance, or to another database system.
         </simpara></note>
         <simpara>
-            This feature is what most business people call "CSV", but
-            these files are more accurately called <emphasis>Delimiter
-            Separated Value files</emphasis> because the delimiter is
-            usually not a comma, and, more importantly, we purposefully
-            choose an effective delimiter instead of the CSV method of
-            using a delimiter which works in some cases and then use
-            double-quotes to escape occurrence of the column-delimiter
-            and of double-quote itself in the actual data.
-            Just by choosing a delimiter which never needs escaping, we
-            eliminate the whole mess, and the data in our files always
-            looks just like the corresponding data in the database.
-            To make this CSV / Delimiter-separated-value distinction clear,
-            I use the suffix ".dsv" for my data files.
-            This leads me to stipulate the abbreviation DSV for the
-            <emphasis>Delimiter Separated Value</emphasis> feature of HyperSQL.
+          Most business type people would call this feature "CSV", but there
+          is an important difference.
+          Though "CSV" stands for <emphasis>Comma-Separated Values</emphasis>,
+          the only thing actually distinctive about CSV is not the comma but
+          the way that double-quotes are used for escaping purposes.
+          As discussed in this section, with Delimiter-Separated-Value
+          files, we purposefully
+          choose an effective delimiter instead of the CSV method of
+          using a delimiter which works in some cases and then use
+          double-quoting to escape occurrence of the column-delimiter
+          and of double-quote itself in the actual data.
+          Just by choosing a delimiter which never needs escaping, we
+          eliminate the whole double-quoting complication, and the data in our
+          files always look just like the corresponding data in the database.
+          To make this CSV / Delimiter-separated-value distinction clear,
+          I use the suffix ".dsv" for my data files.
+          This leads me to stipulate the abbreviation DSV for the
+          <emphasis>Delimiter Separated Value</emphasis> feature of HyperSQL.
         </simpara><simpara>
             Use the <literal>\x</literal> command to eXport a table to a
             DSV file, and the <literal>\m</literal> command to iMport a
@@ -3827,20 +4207,22 @@ SELECT * FROM t
         </simpara><simpara>
             The row and column delimiters may be any String (or even a
             regular expression for import), not just a single character.
-            And just as the delimiter capability is more general than
-            traditional CSV delimiters, the export function is also more
-            general than just a table data exporter.
+            The export function is more general than just a table data exporter.
             Besides the trivial generalization that you may specify a
             view or other virtual table name in place of a table name,
             you can alternatively export the output of any query which
             produces normal text output.
-            A benefit to this approach is that it allows you to export only
+            (This could actually even be multiple multiple-line SQL statements,
+            as long as the last one outputs the needed data cells).
+            A benefit to specifying even a simple query is that it allows you
+            to export only
             some columns of a table, and to specify a WHERE clause to narrow
             down the rows to be exported (or perform any other SQL
             transformation, mapping, join, etc.).
-            One specific use for this would be to exclude columns of
+            A specific use for this would be to exclude columns of
             binary data (which can be exported by other means, such as
-            a PL loop to store binary values to files with the \bd command).
+            a PL loop to store binary values to files with the \bd command),
+            or pseudo-or derived columns.
         </simpara><simpara>
             Note that the import command will not create a new table.
             This is because of the impossibility of guessing appropriate
@@ -3856,6 +4238,16 @@ SELECT * FROM t
             some columns to be created automatically by column DEFAULT
             settings, triggers, HyperSQL identity sequences, etc.
             Another reason would be to skip binary columns.
+        </simpara> <simpara>
+          Due to wildly varying support and behavior of data and time types in
+          SQL databases, SqlTool always converts date-type and time-type values
+          being imported from DSV files using
+          <link xlink:href='http://download.oracle.com/javase/6/docs/api/java/sql/Timestamp.html'>java.sql.Timestamp</link>s.
+          This usually provides more resolution than is needed, but is required
+          for portability.
+          Therefore, uestions about acceptable date/time formats are ultimately
+          decided by the Java's
+          <link xlink:href='http://download.oracle.com/javase/6/docs/api/java/sql/Timestamp.html'>java.sql.Timestamp class</link>.
         </simpara>
         <section>
             <title>Simple DSV exports and imports using default settings</title>
@@ -3998,7 +4390,7 @@ SELECT * FROM t
               The settings named like <varname>*DSV...SPLITTER</varname> are
               input delimiters specified as regular expressions following
               the rules in the
-                <link xlink:href='http://http://java.sun.com/javase/6/docs/api/java/util/regex/Pattern.html'>API spec for java.util.regex.Pattern</link>.
+                <link xlink:href='http://download.oracle.com/javase/6/docs/api/java/util/regex/Pattern.html'>API spec for java.util.regex.Pattern</link>.
               The settings named like <varname>*DSV...SPLITTER</varname> are
               output delimiters specified as constant strings which can contain
               escape sequences to represent special characters (as documented
@@ -4080,6 +4472,24 @@ SELECT * FROM t
                 In both cases, you set the variable value to the path of the
                 file which SqlTool will create.
             </simpara> <simpara>
+                Reject reports use the same templating system as SqlTool
+                HTML reports.
+                Therefore you can set SqlTool system PL variables
+                <varname>*TOP_HTMLFRAG_FILE</varname> or
+                <varname>*BOTTOM_HTMLFRAG_FILE</varname> to use your own
+                opening and closing HTML and to completely replace the
+                styling.
+                If you use the default templates you can set user PL variable
+                <varname>REPORT_TITLE</varname> for the obvious reason, and
+                you can place a file named <filename>overrides.css</filename>
+                into the same directory as your generated report, for the
+                obvious purpose.
+                You can use PL variable references in your own fragment files
+                (remember to use the <literal>${:VARNAME}</literal> construct
+                to prevent errors for variables that are not set).
+                You can also use automatically set variables like
+                <varname>*TIMESTAMP</varname> and <varname>*REVISION</varname>
+            </simpara> <simpara>
                 To allow for user-friendly entry of headers, we require
                 that tables for DSV import/exports use standard column names.
                 I.e., no column names that would require quoting in interactive
@@ -4150,18 +4560,22 @@ SELECT * FROM t
     <section xml:id="sqltool_csv-sect">
         <title>CSV Imports and Exports</title>
         <simpara>
-          The only difference between CSV and DSV is that CSVs require
-          double-quote escaping and therefore the data may contain the column
-          delimiter.
+          The only difference between CSV and DSV is that CSVs allow presence
+          of the column delimiter in the CSV file, and require the use of
+          double-quotes to escape occurrences of both that column delimiter and
+          of double-quotes in the real data cells.
           To enable this double-quote escaping, just use commands
           <literal>\xq</literal> and <literal>\mq</literal> instead of
           <literal>\x</literal> and <literal>\m</literal>.
+          Since CSV <emphasis>is</emphasis> this double-quote escaping,
+          SqlTool's <literal>\xq</literal> and <literal>\mq</literal> commands
+          initiate CSV exports and imports.
           Conflicting with the name, CSV files do not need to use comma as the
           column delimiter, and the tab character is a common alternative.
-          Since DSV importing and exporting is just a sub-case of DSV
+          Since CSV importing and exporting is implemented as a sub-case of DSV
           import and exporting, everything in the 
           <link xlink:href='#sqltool_dsv-sect' endterm='dsv-title'/>
-          section applies, and you should read it.
+          section applies, and CSV users should definitely read that section.
         </simpara> <simpara>
           I should also mention the trivial difference between
           <literal>\xq</literal> and <literal>\x</literal> that if you do not
@@ -4207,9 +4621,9 @@ SELECT * FROM t
                This will cause both nulls and empty strings to write empty
                strings to the export CSV file; and will cause empty strings in
                the import CSV file to create nulls.
-               (The Java system property setting will become unnecessary soon
-               because that is going to be SqlTool's default behavior with an
-               upcoming release).
+               (The Java system property setting will become unnecessary
+               with the next minor relase of SqlTool because that is going to
+               be SqlTool's default behavior).
                <varname>*NULL_REP_TOKEN</varname> also effects how nulls in
                VARCHAR columns are
                represented in regular query output (non-exports), so after your
@@ -4221,6 +4635,11 @@ SELECT * FROM t
               Every cell value will be quoted upon \xq, instead of just those
               values containing a column delimiter character or double-quote
               that needs escaping.
+              <varname>*ALL_QUOTED</varname> does not effect the
+              <varname>*NULL_REP_TOKEN</varname>.
+              If you want the null-rep token to be double-quoted took, then
+              you must set the <varname>*NULL_REP_TOKEN</varname> value itself
+              to be double-quoted.
             </simpara></listitem></varlistentry>
             <varlistentry><term>*DSV_REJECT_REPORT</term><listitem><simpara>
               Set this to the path of a HTML file that will be generated if

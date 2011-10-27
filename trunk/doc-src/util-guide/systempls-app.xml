@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- $Id$ -->
+
+<!DOCTYPE book [
+  <!ENTITY % dummy22 SYSTEM "../entities/global.ent"> %dummy22;
+  <!ENTITY % dummy25 SYSTEM "entities/versions.ent"> %dummy25;
+]>
+
+<appendix version="5.0" xmlns="http://docbook.org/ns/docbook"
+          xmlns:xlink="http://www.w3.org/1999/xlink">
+  <!-- We declare the default namespace + those for prefixes xlink: and xi: in
+       the root element, so we can use them anywhere in this file. -->
+
+  <info xml:id="systempls-app">
+    <title xml:id="systempls-title">SqlTool System PL Variables</title>
+    <subtitle>As of SqlFile revision &SqlFile_rev;</subtitle>
+  </info>
+
+  <simpara>
+    SqlTool System PL variables are the mechanism used to configure SqlTool
+    behavior.
+    You can list all <emphasis>set</emphasis> PL variables by running the
+    SqlTool command <literal>* listvalues</literal>.
+    If a SqlTool System variable is not shown, then it is
+    <emphasis>unset</emphasis> (which is equivalent to
+    <emphasis>non-null</emphasis>).
+    But if a system variable is not set, that doesn't mean that the setting
+    behavior will be <emphasis>unset</emphasis>, but rather that the
+    <emphasis>default behavior</emphasis> will apply.
+    For example, if you <literal>* listvalues</literal> and the variable
+    <varname>*DSV_COL_DELIM</varname> is not listed, that doesn't mean that
+    there will be no DSV column delimiter, but that the default DSV column
+    delimiter will be used.
+    The in-program help can be used to determine what the default behavior is.
+    (In the case of <varname>*DSV_COL_DELIM</varname>, you can see the default
+    behavior by running <varname>\x?</varname>.
+  </simpara> <simpara>
+    Besides System PL variables, there are also user PL variables which have
+    names beginning with a letter, and the special variables
+    <literal>?</literal> and <literal>NULL</literal>.
+    <literal>NULL</literal> is completely equivalent to
+    <literal>*NULL</literal>, which is explained below.
+    See the <link xlink:href='#sqltool-chapt' endterm='sqltool-title'/>
+    chapter about <literal>?</literal>.
+  </simpara>
+
+  <variablelist>
+    <varlistentry><term>*ALL_QUOTED</term><listitem><simpara>
+          Boolean.  Whether to quote all values (excluding null values)
+          in a \xq export.  No effect on any command other than \xq.
+    </simpara></listitem></varlistentry>
+    <varlistentry><term>*BOTTOM_HTMLFRAG_FILE</term><listitem><simpara>
+          File path to HTML fragment file to close the HTML report or
+          DSV import reject file.
+    </simpara></listitem></varlistentry>
+    <varlistentry><term>*DSV_COL_DELIM</term><listitem><simpara>
+          Literal string (which may contain character escapes).
+          DSV or CSV output column delimiter literal.
+          Run \x? to see default value and details.
+    </simpara></listitem></varlistentry>
+    <varlistentry><term>*DSV_COL_SPLITTER</term><listitem><simpara>
+          Regular expression.
+          DSV or CSV input column delimiter regular expression.
+          Run \x? to see default value and details.
+    </simpara></listitem></varlistentry>
+    <varlistentry><term>*DSV_CONST_COLS</term><listitem><simpara>
+          A list of <literal>column_name = column_value|...</literal>
+          settings.
+          Specifies constant import values.
+          Run \x? to see default value and details.
+    </simpara></listitem></varlistentry>
+    <varlistentry><term>*DSV_RECORDS_PER_COMMIT</term><listitem><simpara>
+          Integer.  How often to commit upon DSV/CSV imports.
+          Run \x? to see default value and details.
+    </simpara></listitem></varlistentry>
+    <varlistentry><term>*DSV_REJECT_FILE</term><listitem><simpara>
+          File path.
+          Path to DSV file of rejects rejected upon CSV/DSV imports.
+          Run \x? to see default value and details.
+    </simpara></listitem></varlistentry>
+    <varlistentry><term>*DSV_REJECT_REPORT</term><listitem><simpara>
+          File path.
+          Path to HTML report about CSV/DSV import failures.
+          Run \x? to see default value and details.
+    </simpara></listitem></varlistentry>
+    <varlistentry><term>*DSV_ROW_DELIM</term><listitem><simpara>
+          Literal string (which may contain character escapes).
+          DSV or CSV output row delimiter literal.
+          Run \x? to see default value and details.
+    </simpara></listitem></varlistentry>
+    <varlistentry><term>*DSV_ROW_SPLITTER</term><listitem><simpara>
+          Regular expression.
+          DSV or CSV input row delimiter regular expression.
+          Run \x? to see default value and details.
+    </simpara></listitem></varlistentry>
+    <varlistentry><term>*DSV_SKIP_COLS</term><listitem><simpara>
+          A list of column names to skip, like
+          <literal>column1|column2</literal>
+          Specifies columns to omit from CSV or DSV importing or exporting.
+          Run \x? to see default value and details.
+    </simpara></listitem></varlistentry>
+    <varlistentry><term>*DSV_SKIP_PREFIX</term><listitem><simpara>
+          Literal string (which may contain character escapes).
+          Specifies comment delimeter character or string in DSV or CSV files.
+          Run \x? to see default value and details.
+    </simpara></listitem></varlistentry>
+    <varlistentry><term>*DSV_TRIM_ALL</term><listitem><simpara>
+          Boolean.
+          Trim leading and trailing white space from every cell in
+          CSV or DSV file upon mport.
+          Run \x? to see default value and details.
+    </simpara></listitem></varlistentry>
+    <varlistentry><term>*DSV_TARGET_FILE</term><listitem><simpara>
+          File path.
+          File where to export CSV or DSV to.
+          Run \x? to see default value and details.
+    </simpara></listitem></varlistentry>
+    <varlistentry><term>*DSV_TARGET_TABLE</term><listitem><simpara>
+          Table name.
+          Table where to import CSV or DSV to.
+          Run \x? to see default value and details.
+    </simpara></listitem></varlistentry>
+    <varlistentry><term>*NULL</term><listitem><simpara>
+          Null (i.e. always unset).
+    </simpara></listitem></varlistentry>
+    <varlistentry><term>*NULL_REP_HTML</term><listitem><simpara>
+          Literal string (which may contain character escapes).
+          Same as <varname>*NULL_REP_TOKEN</varname>, but only applies to
+          HTML reports.
+    </simpara></listitem></varlistentry>
+    <varlistentry><term>*NULL_REP_TOKEN</term><listitem><simpara>
+        Literal string (which may contain character escapes).
+        String value to represent SQL nulls from VARCHAR columns and
+        null (unset) PL variable values.
+        Applies to what displays on screen and what gets written into
+        export files.
+    </simpara></listitem></varlistentry>
+    <varlistentry><term>*REVISION</term><listitem><simpara>
+        Read only.  Literal string.
+        Automatically set to the SqlFile program revision.
+    </simpara></listitem></varlistentry>
+    <varlistentry><term>*START_TIME</term><listitem><simpara>
+        Read only.  Literal string.
+        Automatically set to a localized string presenting the date and time.
+    </simpara></listitem></varlistentry>
+    <varlistentry><term>*TIMESTAMP</term><listitem><simpara>
+        Read only.  Literal string.
+        Only usable if <varname>*TIMESTAMP_FORMAT</varname> has been set.
+        Displays the date and/or time at which this variable is dereferenced.
+    </simpara></listitem></varlistentry>
+    <varlistentry><term>*TIMESTAMP_FORMAT</term><listitem><simpara>
+        Formatting string, as described below.
+        Setting this variable enables the <varname>*TIMESTAMP</varname>
+        read-only variable to be used.
+        Set to a date and/or time format like
+        <literal>yyyy-MM-dd'T'HH:mm:ss.SSSZ</literal>, as described at
+        <link xlink:href='http://download.oracle.com/javase/6/docs/api/java/text/SimpleDateFormat.html'/>
+    </simpara></listitem></varlistentry>
+    <varlistentry><term>*TOP_HTMLFRAG_FILE</term><listitem><simpara>
+          File path.
+          File path to HTML fragment file to open the HTML report or
+          DSV import reject file.
+   </simpara></listitem></varlistentry>
+  </variablelist>
+</appendix>

@@ -717,6 +717,7 @@ java org.hsqldb.util.DatabaseManagerSwing --urlid urlid</screen>
     </section>
   </chapter>
 
+  <xi:include href="systempls-app.xml" />
   <xi:include href="filelinks-app.xml" />
 
   <!--  Enable the index as soon as mark some index terms.
