@@ -1062,6 +1062,7 @@ public class SqlFile {
             if (fetchingVar != null) {
                 errprintln(SqltoolRB.plvar_set_incomplete.getString(
                         fetchingVar));
+                //fetchingVar = null;
                 rollbackUncoms = true;
             }
             if (shared.jdbcConn != null) {
@@ -5781,7 +5782,7 @@ public class SqlFile {
             // This case not supported by Commons Lang's escapeHtml
             sb.append("&apos;");
             break;
-          case "&":
+          case '&':
             sb.append("&amp;");
             break;
           case '<':
