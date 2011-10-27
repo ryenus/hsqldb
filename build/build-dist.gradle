@@ -54,9 +54,10 @@
  *   OPTIONAL ANT PROPERTIES
  *       I suggest setting properties nsstylebase.url, dbxirng.url,
  *         dbcentx.url in file "local-docbook.properties" or
- *         "build.properties", according to the
+ *         "build.properties" in the external (or shared) build properties
+           explained above), according to the
  *         reasons documented at the top of "build-docbook.xml", and according
- *         to the instructions there.
+ *         to the instructions there (except use the specified properties file).
  *       Add settings for build.debug and build.optimize to change the default
  *         compilation settings.
  *
