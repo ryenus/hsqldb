@@ -46,13 +46,12 @@
         <link xlink:href='http://search.maven.org/remotecontent?filepath=org/hsqldb/sqltool/2.2.6/sqltool-2.2.6.jar'>this <filename>sqltool-2.2.6.jar</filename> file</link>.
         But SqlTool was made for JDBC, so you should download HyperSQL to
         have SqlTool automatically connect to a fully functional, pure Java
-        database; or obtain a JDBC driver for any other database that you have
-        an account in.
+        database; or obtain a JDBC driver for any other SQL database that you
+        have an account in.
       </simpara> <simpara>
-        Just execute the SqlTool jar file.
-        If HyperSql's <filename>hsqldb.jar</filename> resides in the same
+        If HyperSQL's <filename>hsqldb.jar</filename> resides in the same
         directory as the SqlTool jar file, then you can connect up to a
-        HyperSql instance from SqlTool just by specifying the JDBC URL, root
+        HyperSQL instance from SqlTool just by specifying the JDBC URL, root
         account user name of <literal>SA</literal> and empty password, with
         the <literal>\j</literal> command.
         See the
@@ -416,6 +415,11 @@
         </section>
         <section><title>New Features</title>
           <subtitle>Since 2.0.0 final</subtitle>
+            <simpara>To reduce duplication, new features are listed in the
+              <link xlink:href="#sqltool_functional_changes-sect"
+              endterm="functional_changes-title"/> section are not repeated
+              here, so check that list too.
+            </simpara>
             <itemizedlist>
                 <listitem><simpara>
                     You can (and if you use nested scripts, you probably
@@ -860,6 +864,11 @@
                   to) a desktop shortcut icon, click and drag it to your
                   quick launch bar.  (You may or may not need to edit the
                   Windows Toolbar properties to let you add new items).
+                  Postnote:  Quick launch setup has become more idiosyncratic
+                  on the more recent versions of Windows, sometimes requiring
+                  esoteric hacks to make them in some cases.
+                  So, if the instructions here don't work, you'll have to seek
+                  help elsewhere.
               </simpara></step>
           </procedure>
       </section>
@@ -2383,7 +2392,7 @@
               everything will <emphasis>just work</emphasis>, regardless of
               your current directory when you invoke script(s).
             </simpara>
-            <tip> <title>Make use of @/ construct for CMd scripts with nesting
+            <tip> <title>Make use of @/ construct for CMD scripts with nesting
                 </title>
               <simpara>
               If you use a managed set of nested scripts, you are advised to
@@ -3012,8 +3021,7 @@ java -jar $HSQLDB_HOME/lib/sqltool.jar urlid > /tmp/log.html 2>&1]]></screen>
             mode as suggested) there is no way to directly assign a variable
             to null.
             If, for example, you ran <screen>
-              * MYVAR = null
-            </screen>that would assign the string value of
+              * MYVAR = null</screen>that would assign the string value of
             <literal>null</literal> to your variable, not the real null value.
             If a variable is assigned null indirectly, say by fetching a null
             cell value into a variable, or when variable <literal>?</literal>
@@ -3898,11 +3906,16 @@ SELECT * FROM t
                 </example>
             </para>
         </section>
-        <section> <title>Example</title>
+        <section> <title>HTML Report Example</title>
             <para>
                 Below is the example SQL file
-                <filename xlink:href="#pl.sql-link">sample/pl.sql</filename>,
-                which shows how to use most of the basic PL
+                <filename xlink:href="#pl.sql-link">sample/pl.sql</filename>
+                that generated the report displayed.
+                The report shows a simple table dump and the basic colun
+                definitions for that table.
+                You can, of course, make report with queries of any level of
+                sophistication.
+                The SQL file below shows how to use most of the basic PL
                 features <footnoteref linkend='samplelocFn'/>.
                 If you have a question about how to use a particular
                 PL feature, check this file in your distribution before asking
