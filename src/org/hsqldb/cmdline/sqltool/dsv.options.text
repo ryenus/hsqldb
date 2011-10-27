@@ -27,7 +27,8 @@ Default value/behavior is in [square brackets].
     *ALL_QUOTED        \xq   Double-quote every cell for \xq exports. ["false"]
     *DSV_COL_SPLITTER  M     Column input delimiter regexp.   ["\|"]
     *DSV_COL_DELIM     X     Column output delimiter.   ["|"]
-    *DSV_CONST_COLS    M     Column values to write to every row.   [None]
+    *DSV_CONST_COLS    M     Column value assignments to apply to every row.
+                             [None]
     *DSV_RECORDS_PER_COMMIT M  Set to integer value (X).  Overrides current
                              auto-commit setting and commits after every X
                              successful inserts (and upon import completion).

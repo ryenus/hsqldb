@@ -379,7 +379,7 @@ public class SqlFile {
             shared.userVars.remove("*DSV_RECORDS_PER_COMMIT");
         }
 
-        nullRepToken = shared.userVars.get("*NULL_REP_TOKEN");
+        nullRepToken = convertEscapes(shared.userVars.get("*NULL_REP_TOKEN"));
         if (nullRepToken == null) nullRepToken = DEFAULT_NULL_REP;
         nullRepHtml = shared.userVars.get("*NULL_REP_HTML");
         if (nullRepHtml == null) nullRepHtml = DEFAULT_NULL_HTML;
