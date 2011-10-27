@@ -50,7 +50,7 @@ Failout 'You must put the version of Java to test (early) in your search path'
 [ -n "$CLASSPATH" ] ||
 Failout "You must put the SqlTool jar file (or class directory) in your CLASSPATH
 (and export)"
-java org.hsqldb.cmdline.SqlTool --help >&- 2>&- ||
+java -ea org.hsqldb.cmdline.SqlTool --help >&- 2>&- ||
 Failout 'org.hsqldb.cmdline.SqlTool is not in your CLASSPATH.  Add, export, and re-run.'
 
 declare -a Scripts
@@ -89,13 +89,13 @@ echo "${#Scripts[@]} test(s) to run..."
 for script in "${Scripts[@]}"; do
     case "$script" in *.inter) REDIRIN='<';; *) REDIRIN=;; esac
     if [ -n "$VERBOSE" ]; then
-        echo java -Dsqltool.REMOVE_EMPTY_VARS=true -Dsqltool.testsp=spval org.hsqldb.cmdline.SqlTool --noAutoFile --setVar=testvar=plval --inlineRc=user=sa,url=jdbc:hsqldb:mem:utst,password=,transiso=TRANSACTION_READ_COMMITTED $REDIRIN "$script"
+        echo java -ea -Dsqltool.REMOVE_EMPTY_VARS=true -Dsqltool.testsp=spval org.hsqldb.cmdline.SqlTool --noAutoFile --setVar=testvar=plval --inlineRc=user=sa,url=jdbc:hsqldb:mem:utst,password=,transiso=TRANSACTION_READ_COMMITTED $REDIRIN "$script"
     else
         echo -n T
     fi
     [ -n "$NORUN" ] || {
         succeed=
-        eval java -Dsqltool.REMOVE_EMPTY_VARS=true -Dsqltool.testsp=spval org.hsqldb.cmdline.SqlTool --noAutoFile --setVar=testvar=plval --inlineRc=user=sa,url=jdbc:hsqldb:mem:utst,password=,transiso=TRANSACTION_READ_COMMITTED $REDIRIN "$script" $REDIROUT
+        eval java -ea -Dsqltool.REMOVE_EMPTY_VARS=true -Dsqltool.testsp=spval org.hsqldb.cmdline.SqlTool --noAutoFile --setVar=testvar=plval --inlineRc=user=sa,url=jdbc:hsqldb:mem:utst,password=,transiso=TRANSACTION_READ_COMMITTED $REDIRIN "$script" $REDIROUT
         case "$script" in
             *.nsql) [ $? -ne 0 ] && succeed=1;;
             *) [ $? -eq 0 ] && succeed=1;;
