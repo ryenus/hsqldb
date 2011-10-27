@@ -123,13 +123,23 @@
         get Gradle working from a file manager (like Windows Explorer),
         then seek out instructions for making shortcuts, etc. for your
         operating system or desktop manager.  (Try a web search).
-      </simpara>
-      <simpara>Some IDEs, like IntelliJ have direct support for Gradle.
+      </simpara> <simpara>
+        Some IDEs, like IntelliJ have direct support for Gradle.
         The Spring Framework team is working on a sophisticated plugin for
         using Gradle with their IDE.
         But I'm going to document a very basic setup done with Eclipse
         because it's very servicable and a very similar procedure is likely
         to work with all other IDEs.
+      </simpara> <simpara>
+        If you do use and enjoy Gradle, then I urge you to make the product
+        better by registing an account for yourself at
+        <link xlink:href="http://issues.gradle.org/">the Gradle Jira site</link>
+        and vote for critical usability issues like
+        <link xlink:href="http://issues.gradle.org/browse/GRADLE-427">GRADLE-427</link>,
+        <link xlink:href="http://issues.gradle.org/browse/GRADLE-1855">GRADLE-1855</link>,
+        <link xlink:href="http://issues.gradle.org/browse/GRADLE-1870">GRADLE-1870</link>,
+        <link xlink:href="http://issues.gradle.org/browse/GRADLE-1871">GRADLE-1871</link>,
+        to help to improve the product.
       </simpara>
       <procedure><title>Invoking Gradle GUI from Windows Explorer</title>
         <step><simpara>
@@ -257,13 +267,6 @@
         </simpara></step>
       </procedure>
       <simpara>
-        You will notice that even when running the GUI, Gradle runs
-        synchronously, blocking your command line.
-        If you have a good operating system, you can use your shell's
-        features to invoke Gradle in the background.
-        Otherwise, if you need a shell while running the gui,
-        open up another console window.
-      </simpara> <simpara>
         The <filename>gradle-gui</filename> file is our own wrapper script for
         <literal>gradlew --gui</literal>.
         Be aware that both <filename>gradle-gui</filename> and
