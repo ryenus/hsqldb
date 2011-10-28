@@ -120,6 +120,13 @@
           Table where to import CSV or DSV to.
           Run \x? to see default value and details.
     </simpara></listitem></varlistentry>
+    <varlistentry><term>*IGNORE_BANG_STATUS</term><listitem><simpara>
+          Boolean.
+          If true, then if an external command executed by <literal>\!</literal>
+          returns error (non-zero) status, SqlTool will not report or try to
+          act on the error.
+          (This will have no effect on what the external program may do).
+    </simpara></listitem></varlistentry>
     <varlistentry><term>*NULL</term><listitem><simpara>
           Null (i.e. always unset).
     </simpara></listitem></varlistentry>

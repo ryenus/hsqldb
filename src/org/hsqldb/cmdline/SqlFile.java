@@ -175,6 +175,7 @@ public class SqlFile {
     private String           inputStreamLabel;
     private File             baseDir;
     private boolean          dsvTrimAll;
+    private boolean          ignoreBangStatus;
     private boolean          allQuoted;
     private boolean          doPrepare;
     private static String    DSV_X_SYNTAX_MSG;
@@ -347,6 +348,8 @@ public class SqlFile {
         dsvSkipCols = shared.userVars.get("*DSV_SKIP_COLS");
         dsvTrimAll = Boolean.parseBoolean(
                 shared.userVars.get("*DSV_TRIM_ALL"));
+        ignoreBangStatus = Boolean.parseBoolean(
+                shared.userVars.get("*IGNORE_BANG_STATUS"));
         allQuoted = Boolean.parseBoolean(
                 shared.userVars.get("*ALL_QUOTED"));
         dsvColDelim = SqlFile.convertEscapes(
@@ -2028,7 +2031,7 @@ public class SqlFile {
                     stream.close();
                     stream = null;  // Encourage buffer GC
 
-                    if (proc.waitFor() != 0)
+                    if (proc.waitFor() != 0 && !ignoreBangStatus)
                         throw new BadSpecial(
                                 SqltoolRB.bang_command_fail.getString(
                                 extCommand));
