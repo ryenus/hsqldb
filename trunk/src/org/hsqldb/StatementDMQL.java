@@ -425,6 +425,11 @@ public abstract class StatementDMQL extends Statement {
                 continue;
             }
 
+            if (range.rangeTable.getSchemaName()
+                    == SqlInvariants.SYSTEM_SUBQUERY_HSQLNAME) {
+                continue;
+            }
+
             session.getGrantee().checkSelect(range.rangeTable,
                                              range.usedColumns);
         }
