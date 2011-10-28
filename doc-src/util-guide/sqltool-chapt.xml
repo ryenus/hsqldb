@@ -430,7 +430,8 @@
                 </simpara></listitem><listitem><simpara>
                     More accepting of dates and times in DSV imports.
                 </simpara></listitem><listitem><simpara>
-                    CSV exporting and importing.
+                    CSV exporting and importing with double-quote
+                    delimiting and escaping.
                 </simpara></listitem><listitem><simpara>
                     New "<literal>* - VARNAME</literal>" PL command added to
                     explicitly unset/remove a variable.
@@ -2920,7 +2921,7 @@ java -jar $HSQLDB_HOME/lib/sqltool.jar urlid > /tmp/log.html 2>&1]]></screen>
                 href="../verbatim/sample/html-report.sql"
                 parse="text"/></programlisting>
           </example>
-          On thing that I chose no to exemplify in the example, so as not to
+          One thing that I chose not to exemplify in the example, so as not to
           scare away less technical users, is that you can use the
           <literal>\p</literal> variant command <literal>\pr</literal>.
           When you give a <literal>\p</literal> command in HTML mode, SqlTool
