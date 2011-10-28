@@ -1440,6 +1440,8 @@ public class RangeVariable implements Cloneable {
         final RangeVariable rangeVar;
         Expression[]        indexCond;
         Expression[]        indexEndCond;
+        int[]               opTypes;
+        int[]               opTypesEnd;
         Expression          indexEndCondition;
         int                 indexedColumnCount;
         Index               rangeIndex;
@@ -1492,7 +1494,8 @@ public class RangeVariable implements Cloneable {
                 return;
             }
 
-            int colIndex = e.getLeftNode().getColumnIndex();
+            int   colIndex  = e.getLeftNode().getColumnIndex();
+            int[] indexCols = rangeIndex.getColumns();
 
             switch (e.getType()) {
 
@@ -1501,14 +1504,14 @@ public class RangeVariable implements Cloneable {
 
                     // replaces existing condition
                     if (opType == OpTypes.NOT) {
-                        if (rangeIndex.getColumns()[indexedColumnCount - 1]
-                                == colIndex) {
+                        if (indexCols[indexedColumnCount - 1] == colIndex) {
                             nonIndexCondition =
                                 ExpressionLogical.andExpressions(
                                     nonIndexCondition,
                                     indexCond[indexedColumnCount - 1]);
                             indexCond[indexedColumnCount - 1] = e;
                             opType                            = e.opType;
+                            opTypes[indexedColumnCount - 1]   = e.opType;
 
                             if (e.exprSubType == OpTypes.LIKE
                                     && indexedColumnCount == 1) {
@@ -1533,14 +1536,16 @@ public class RangeVariable implements Cloneable {
                             break;
                         }
 
-                        if (rangeIndex.getColumns()[indexedColumnCount - 1]
-                                == colIndex) {
+                        if (indexCols[indexedColumnCount - 1] == colIndex) {
                             indexEndCond[indexedColumnCount - 1] = e;
                             indexEndCondition =
                                 ExpressionLogical.andExpressions(
                                     indexEndCondition, e);
-                            opTypeEnd = e.getType();
+                            opTypeEnd                          = e.opType;
+                            opTypesEnd[indexedColumnCount - 1] = e.opType;
                         }
+                    } else {
+                        addToIndexEndConditions(e);
                     }
 
                     break;
@@ -1555,12 +1560,45 @@ public class RangeVariable implements Cloneable {
                 if (indexedColumnCount < rangeIndex.getColumnCount()) {
                     if (rangeIndex.getColumns()[indexedColumnCount]
                             == e.getLeftNode().getColumnIndex()) {
-                        indexCond[indexedColumnCount] = e;
+                        indexCond[indexedColumnCount]  = e;
+                        opType                         = e.opType;
+                        opTypes[indexedColumnCount]    = e.opType;
+                        opTypeEnd                      = OpTypes.MAX;
+                        opTypesEnd[indexedColumnCount] = OpTypes.MAX;
 
                         indexedColumnCount++;
 
-                        opType    = e.opType;
-                        opTypeEnd = OpTypes.MAX;
+                        return true;
+                    }
+                }
+            }
+
+            return false;
+        }
+
+        boolean addToIndexEndConditions(Expression e) {
+
+            if (opType == OpTypes.EQUAL || opType == OpTypes.IS_NULL) {
+                if (indexedColumnCount < rangeIndex.getColumnCount()) {
+                    if (rangeIndex.getColumns()[indexedColumnCount]
+                            == e.getLeftNode().getColumnIndex()) {
+                        Expression condition = e.getLeftNode();
+
+                        condition = new ExpressionLogical(OpTypes.IS_NULL,
+                                                          condition);
+                        condition = new ExpressionLogical(OpTypes.NOT,
+                                                          condition);
+                        indexCond[indexedColumnCount]    = condition;
+                        indexEndCond[indexedColumnCount] = e;
+                        indexEndCondition =
+                            ExpressionLogical.andExpressions(indexEndCondition,
+                                                             e);
+                        opType                         = OpTypes.NOT;
+                        opTypes[indexedColumnCount]    = OpTypes.NOT;
+                        opTypeEnd                      = e.opType;
+                        opTypesEnd[indexedColumnCount] = e.opType;
+
+                        indexedColumnCount++;
 
                         return true;
                     }
@@ -1579,28 +1617,35 @@ public class RangeVariable implements Cloneable {
         void addIndexCondition(Expression[] exprList, Index index,
                                int colCount) {
 
-            rangeIndex = index;
-            opType     = exprList[0].getType();
+            int indexColCount = index.getColumnCount();
+
+            rangeIndex   = index;
+            indexCond    = new Expression[indexColCount];
+            indexEndCond = new Expression[indexColCount];
+            opTypes      = new int[indexColCount];
+            opTypesEnd   = new int[indexColCount];
+            opType       = exprList[0].opType;
+            opTypes[0]   = exprList[0].opType;
 
             switch (opType) {
 
                 case OpTypes.NOT :
-                    indexCond    = exprList;
-                    indexEndCond = new Expression[exprList.length];
-                    opTypeEnd    = OpTypes.MAX;
+                    indexCond     = exprList;
+                    opTypeEnd     = OpTypes.MAX;
+                    opTypesEnd[0] = OpTypes.MAX;
                     break;
 
                 case OpTypes.GREATER :
                 case OpTypes.GREATER_EQUAL :
-                    indexCond    = exprList;
-                    indexEndCond = new Expression[exprList.length];
+                    indexCond = exprList;
 
                     if (exprList[0].exprSubType == OpTypes.LIKE) {
                         indexEndCond[0] = indexEndCondition =
                             exprList[0].nodes[2];
                     }
 
-                    opTypeEnd = OpTypes.MAX;
+                    opTypeEnd     = OpTypes.MAX;
+                    opTypesEnd[0] = OpTypes.MAX;
                     break;
 
                 case OpTypes.SMALLER :
@@ -1609,18 +1654,18 @@ public class RangeVariable implements Cloneable {
 
                     e = new ExpressionLogical(OpTypes.IS_NULL, e);
                     e               = new ExpressionLogical(OpTypes.NOT, e);
-                    indexCond       = new Expression[]{ e };
-                    indexEndCond    = new Expression[exprList.length];
+                    indexCond[0]    = e;
                     indexEndCond[0] = indexEndCondition = exprList[0];
                     opTypeEnd       = opType;
+                    opTypesEnd[0]   = opType;
                     opType          = OpTypes.NOT;
+                    opTypes[0]      = OpTypes.NOT;
 
                     break;
                 }
                 case OpTypes.IS_NULL :
                 case OpTypes.EQUAL : {
-                    indexCond    = exprList;
-                    indexEndCond = new Expression[exprList.length];
+                    indexCond = exprList;
 
                     for (int i = 0; i < colCount; i++) {
                         Expression e = exprList[i];
@@ -1629,7 +1674,8 @@ public class RangeVariable implements Cloneable {
                         indexEndCondition =
                             ExpressionLogical.andExpressions(indexEndCondition,
                                                              e);
-                        opType = e.getType();
+                        opType     = e.opType;
+                        opTypes[0] = e.opType;
                     }
 
                     opTypeEnd = opType;
