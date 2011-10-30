@@ -27,12 +27,8 @@ project['repos.flatdir.url'] = 'http://pub.admc.com/lib-repos'
 project['repos.useMaven'] = 'true'
 apply from: 'common.gradle'
 
-task nichts  // Quiet task for testing root-level Groovy/Gradle development
-nichts.description = 'Noop for testing Gradle'
-
-task gv << {
-    println gradle.gradleVersion
-}
+task noop  // Quiet task for testing root-level Groovy/Gradle development
+noop.description = 'Noop for testing Gradle'
 
 // This task only for SCM administrator.  Update version and execute this task.
 task updateWrapper(type: Wrapper) { doFirst {
