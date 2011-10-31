@@ -70,7 +70,7 @@ task displayDeps << {
         throw new GradleException(
                 "Project property 'config.name' required by task 'echoDeps'.")
     println (configurations[project['config.name']].allDependencies.size()
-            + ' configs for ' + project['config.name'] + '\n    '
+            + ' dependencies for ' + project['config.name'] + '\n    '
             +  configurations[project['config.name']].asPath
             .replace(System.properties['path.separator'], '\n    '))
 }
