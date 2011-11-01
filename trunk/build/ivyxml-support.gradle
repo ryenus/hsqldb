@@ -7,6 +7,7 @@ import org.apache.ivy.core.module.descriptor.DependencyArtifactDescriptor
 import org.gradle.api.internal.artifacts.dependencies.DefaultExternalModuleDependency
 import org.gradle.api.internal.artifacts.dependencies.DefaultDependencyArtifact
 import org.gradle.api.internal.artifacts.DefaultExcludeRule
+import org.apache.ivy.core.module.descriptor.Configuration.Visibility
 
 /**
  * This Gradle support for 'ivy.xml' is based on contributed fragments in Jira
@@ -18,8 +19,6 @@ import org.gradle.api.internal.artifacts.DefaultExcludeRule
  *
  * Does not attempt to load any ivysettings files or do any repository setup,
  * only dependency settings.
- *
- * Limitation of ivy.xml parsing:  excludes attributes ignored
  */
 
 
@@ -34,6 +33,23 @@ DefaultModuleDescriptor moduleDescriptor =
         new File(project.hasProperty('ivyDepFile')
         ? project.ivyDepFile : 'ivy.xml')
         .toURL(), false)
+for (def confName in moduleDescriptor.configurationsNames) {
+    if (!gradleProjConfMap.containsKey(confName)) {
+        println ('-' + confName)
+        continue
+    }
+    org.apache.ivy.core.module.descriptor.Configuration c =
+            moduleDescriptor.getConfiguration(confName)
+    Configuration gradleConfig = configurations.getByName(confName)
+    println('* Bingo!  ' + confName)
+    for (parentConfName in c.getExtends())
+        gradleConfig.extendsFrom(configurations.getByName(parentConfName))
+    println 'Trans->' + c.transitive
+    gradleConfig.transitive = c.transitive
+    gradleConfig.visible = c.visibility == Visibility.PUBLIC
+    if (gradleConfig.description == null)
+        gradleConfig.description = c.description
+}
 moduleDescriptor.dependencies.each {
     DependencyDescriptor descriptor ->
         def mappableConfNames = descriptor.moduleConfigurations.findAll {
