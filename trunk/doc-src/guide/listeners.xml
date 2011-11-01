@@ -258,6 +258,14 @@
           </row>
 
           <row>
+            <entry><property>server.daemon</property></entry>
+
+            <entry><literal>false</literal></entry>
+
+            <entry>Whether the server is run as a daemon</entry>
+          </row>
+
+          <row>
             <entry><property>server.remote_open</property></entry>
 
             <entry><literal>false</literal></entry>
@@ -486,6 +494,26 @@ Connection c = DriverManager.getConnection("jdbc:hsqldb:hsql://localhost/xdb;fil
 </programlisting>
 
     <para>The path can be a file: or mem: database.</para>
+  </section>
+
+  <section>
+    <title>Specifying Database Properties at Server Start</title>
+
+    <para>Each database started by a Server has its own URL. When new
+    databases are created by the server, the database properties for each of
+    the new database can be appended to the database URL. Examples
+    below:</para>
+
+    <programlisting>// example in server.propertie file
+    server.database.0=file:/opt/db/accounts;hsqldb.default_table_type=cached;sql.enforce_names=true
+    server.dbname.0=accounts
+
+// example for setting the property programatically
+    HsqlProperties p = new HsqlProperties();
+    p.setProperty("server.database.0","file:/opt/db/accounts;hsqldb.default_table_type=cached;sql.enforce_names=true");
+</programlisting>
+
+    <para> specified in the </para>
   </section>
 
   <section xml:id="listeners_tls-sect">
