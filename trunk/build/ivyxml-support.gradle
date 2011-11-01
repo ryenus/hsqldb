@@ -34,17 +34,12 @@ DefaultModuleDescriptor moduleDescriptor =
         ? project.ivyDepFile : 'ivy.xml')
         .toURL(), false)
 for (def confName in moduleDescriptor.configurationsNames) {
-    if (!gradleProjConfMap.containsKey(confName)) {
-        println ('-' + confName)
-        continue
-    }
+    if (!gradleProjConfMap.containsKey(confName)) continue
     org.apache.ivy.core.module.descriptor.Configuration c =
             moduleDescriptor.getConfiguration(confName)
     Configuration gradleConfig = configurations.getByName(confName)
-    println('* Bingo!  ' + confName)
     for (parentConfName in c.getExtends())
         gradleConfig.extendsFrom(configurations.getByName(parentConfName))
-    println 'Trans->' + c.transitive
     gradleConfig.transitive = c.transitive
     gradleConfig.visible = c.visibility == Visibility.PUBLIC
     if (gradleConfig.description == null)
