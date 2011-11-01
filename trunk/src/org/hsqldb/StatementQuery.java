@@ -102,7 +102,12 @@ public class StatementQuery extends StatementDMQL {
         }
     }
 
-    void collectTableNamesForWrite(OrderedHashSet set) {}
+    void collectTableNamesForWrite(OrderedHashSet set) {
+
+        if (queryExpression.isUpdatable) {
+            queryExpression.getBaseTableNames(set);
+        }
+    }
 
     public int getResultProperties() {
         return ResultProperties.defaultPropsValue;
