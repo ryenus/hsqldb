@@ -60,7 +60,7 @@ import org.hsqldb.store.BitMap;
  * Rewritten for 1.8.0 and 2.x
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.1.1
+ * @version 2.2.6
  * @since 1.7.2
  */
 public class DataFileCache {
@@ -99,9 +99,9 @@ public class DataFileCache {
     protected boolean cacheReadonly;
 
     //
-    protected int     cachedRowPadding = 8;
-    protected int     initialFreePos   = MIN_INITIAL_FREE_POS;
-    protected boolean hasRowInfo       = false;
+    protected int     cachedRowPadding;
+    protected int     initialFreePos;
+    protected boolean hasRowInfo = false;
     protected int     storeCount;
 
     // reusable input / output streams
@@ -152,6 +152,8 @@ public class DataFileCache {
             cachedRowPadding = cacheFileScale;
         }
 
+        initialFreePos = MIN_INITIAL_FREE_POS;
+
         if (initialFreePos < cacheFileScale) {
             initialFreePos = cacheFileScale;
         }
@@ -170,9 +172,9 @@ public class DataFileCache {
      */
     public void open(boolean readonly) {
 
-        fileFreePosition = 0;
+        fileFreePosition = MIN_INITIAL_FREE_POS;
 
-        database.logger.logInfoEvent("open start");
+        database.logger.logInfoEvent("dataFileCache open start");
 
         try {
             boolean isNio = database.logger.propNioDataFile;
@@ -211,9 +213,10 @@ public class DataFileCache {
                 return;
             }
 
-            long    freesize  = 0;
-            boolean preexists = fa.isStreamElement(dataFileName);
-            boolean isIncremental;
+            long    freesize      = 0;
+            boolean preexists     = fa.isStreamElement(dataFileName);
+            boolean isIncremental = database.logger.propIncrementBackup;
+            boolean isSaved       = false;
 
             if (preexists) {
                 if (database.logger.isStoredFileAccess()) {
@@ -224,54 +227,62 @@ public class DataFileCache {
                                                       "r");
                 }
 
-                dataFile.seek(FLAGS_POS);
+                long    length       = dataFile.length();
+                boolean wrongVersion = false;
 
-                int     flags   = dataFile.readInt();
-                boolean isSaved = BitMap.isSet(flags, FLAG_ISSAVED);
+                if (length > MIN_INITIAL_FREE_POS) {
+                    dataFile.seek(FLAGS_POS);
 
-                isIncremental = BitMap.isSet(flags, FLAG_ISSHADOWED);
-                is180         = !BitMap.isSet(flags, FLAG_190);
+                    int flags = dataFile.readInt();
 
-                dataFile.seek(LONG_FREE_POS_POS);
+                    isSaved       = BitMap.isSet(flags, FLAG_ISSAVED);
+                    isIncremental = BitMap.isSet(flags, FLAG_ISSHADOWED);
+                    is180         = !BitMap.isSet(flags, FLAG_190);
 
-                fileFreePosition = dataFile.readLong();
+                    if (BitMap.isSet(flags, FLAG_HX)) {
+                        wrongVersion = true;
+                    }
+                }
 
                 dataFile.close();
 
-                if (BitMap.isSet(flags, FLAG_HX)) {
+                if (length > maxDataFileSize) {
+                    throw Error.error(ErrorCode.WRONG_DATABASE_FILE_VERSION,
+                                      "requires large database support");
+                }
+
+                if (wrongVersion) {
                     throw Error.error(ErrorCode.WRONG_DATABASE_FILE_VERSION);
                 }
+            }
 
-                if (isSaved) {
-                    if (isIncremental) {
-                        deleteBackup();
-                    } else {
-                        boolean existsBackup =
-                            fa.isStreamElement(backupFileName);
-
-                        if (!existsBackup) {
-                            backupFile(false);
-                        }
-                    }
-
-                    dataFile = ScaledRAFile.newScaledRAFile(database,
-                            dataFileName, readonly, fileType);
+            if (isSaved) {
+                if (isIncremental) {
+                    deleteBackup();
                 } else {
-                    boolean restored;
+                    boolean existsBackup = fa.isStreamElement(backupFileName);
 
-                    if (isIncremental) {
-                        restored = restoreBackupIncremental();
-                    } else {
-                        restored = restoreBackup();
+                    if (!existsBackup) {
+                        backupFile(false);
                     }
-
-                    if (!restored && fileFreePosition > initialFreePos) {
-                        throw Error.error(ErrorCode.DATA_FILE_BACKUP_MISMATCH);
-                    }
-
-                    dataFile = ScaledRAFile.newScaledRAFile(database,
-                            dataFileName, readonly, fileType);
                 }
+            } else {
+                if (isIncremental) {
+                    preexists = restoreBackupIncremental();
+                } else {
+                    preexists = restoreBackup();
+                }
+            }
+
+            dataFile = ScaledRAFile.newScaledRAFile(database, dataFileName,
+                    readonly, fileType);
+
+            if (preexists) {
+                dataFile.seek(FLAGS_POS);
+
+                int flags = dataFile.readInt();
+
+                is180 = !BitMap.isSet(flags, FLAG_190);
 
                 dataFile.seek(LONG_EMPTY_SIZE);
 
@@ -280,33 +291,8 @@ public class DataFileCache {
                 dataFile.seek(LONG_FREE_POS_POS);
 
                 fileFreePosition = dataFile.readLong();
-
-                if (fileFreePosition <= initialFreePos) {
-                    initNewFile();
-                }
-
-                openShadowFile();
             } else {
-                boolean restored = false;
-
-                isIncremental = database.logger.propIncrementBackup;
-
-                if (isIncremental) {
-
-                    // incremental needs .data file to restore - delete in case there is a stale backup
-                    deleteBackup();
-                } else {
-
-                    // .data file may have been deleted - can restore from full backup
-                    restored = restoreBackup();
-                }
-
-                dataFile = ScaledRAFile.newScaledRAFile(database,
-                        dataFileName, readonly, fileType);
-
-                if (!restored) {
-                    initNewFile();
-                }
+                initNewFile();
             }
 
             initBuffers();
@@ -317,9 +303,9 @@ public class DataFileCache {
                 new DataFileBlockManager(database.logger.propMaxFreeBlocks,
                                          cacheFileScale, 0, freesize);
 
-            database.logger.logInfoEvent("open end");
+            database.logger.logInfoEvent("dataFileCache open end");
         } catch (Throwable t) {
-            database.logger.logSevereEvent("open failed", t);
+            database.logger.logSevereEvent("dataFileCache open failed", t);
             close(false);
 
             throw Error.error(t, ErrorCode.FILE_IO_ERROR,
@@ -334,7 +320,7 @@ public class DataFileCache {
         fileFreePosition = initialFreePos;
 
         dataFile.seek(LONG_FREE_POS_POS);
-        dataFile.writeLong(initialFreePos);
+        dataFile.writeLong(fileFreePosition);
 
         // set shadowed flag;
         int flags = 0;
@@ -395,7 +381,7 @@ public class DataFileCache {
     private boolean restoreBackup() {
 
         // in case data file cannot be deleted, reset it
-        deleteOrResetFreePos();
+        deleteFile();
 
         try {
             FileAccess fa = database.logger.getFileAccess();
@@ -576,7 +562,7 @@ public class DataFileCache {
                 shadowFile = null;
             }
 
-            database.logger.logDetailEvent("DataFileCache commit end");
+            database.logger.logDetailEvent("dataFileCache commit end");
         } catch (Throwable t) {
             database.logger.logSevereEvent("dataFileCache commit failed", t);
 
@@ -1154,7 +1140,8 @@ public class DataFileCache {
                 fa.removeElement(dataFileName);
 
                 if (fa.isStreamElement(dataFileName)) {
-                    String discardName = FileUtil.newDiscardFileName(dataFileName);
+                    String discardName =
+                        FileUtil.newDiscardFileName(dataFileName);
 
                     fa.renameElement(dataFileName, discardName);
                 }
@@ -1174,43 +1161,6 @@ public class DataFileCache {
             }
         } finally {
             writeLock.unlock();
-        }
-    }
-
-    /**
-     * This method deletes a data file or resets its free position.
-     * this is used only for nio files - not OOo files
-     */
-    void deleteOrResetFreePos() {
-
-        deleteFile();
-
-        // OOo related code
-        if (database.logger.isStoredFileAccess()) {
-            return;
-        }
-
-        // OOo end
-        if (!database.logger.getFileAccess().isStreamElement(dataFileName)) {
-            return;
-        }
-
-        try {
-            dataFile = new ScaledRAFileSimple(database, dataFileName, "rws");
-
-            initNewFile();
-        } catch (IOException e) {
-            database.logger.logSevereEvent("deleteOrResetFreePos failed", e);
-        } finally {
-            if (dataFile != null) {
-                try {
-                    dataFile.close();
-
-                    dataFile = null;
-                } catch (IOException e) {
-                    database.logger.logSevereEvent("error closing RA file", e);
-                }
-            }
         }
     }
 

@@ -5949,6 +5949,7 @@ public class ParserDQL extends ParserBase {
 
         OrderedHashSet  colNames        = null;
         QueryExpression queryExpression = XreadQueryExpression(outerRanges);
+        boolean         forUpdate       = false;
 
         if (token.tokenType == Tokens.FOR) {
             read();
@@ -5959,7 +5960,8 @@ public class ParserDQL extends ParserBase {
             } else {
                 readThis(Tokens.UPDATE);
 
-                props = ResultProperties.addUpdatable(props, true);
+                forUpdate = true;
+                props     = ResultProperties.addUpdatable(props, true);
 
                 if (token.tokenType == Tokens.OF) {
                     readThis(Tokens.OF);
