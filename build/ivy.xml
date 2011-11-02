@@ -22,8 +22,7 @@
                 conf="admc-rs-msv-deps"/>
     <dependency name="relaxngDatatype" org="msv" rev="20050913"
                 conf="admc-rs-msv-deps"/>
-    <dependency name="xsdlib" org="com.sun.msv.datatype.xsd"
-                rev="20060615" conf="admc-rs-msv-deps"/>
+    <dependency name="xsdlib" org="msv" rev="20050913" conf="admc-rs-msv-deps"/>
     <dependency name="isorelax" org="msv" rev="20050913"
                 conf="admc-rs-msv-deps"/>
     <dependency name="fop" org="org.apache.xmlgraphics" rev="1.0"/>
