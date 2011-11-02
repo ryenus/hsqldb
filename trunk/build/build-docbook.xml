@@ -493,7 +493,7 @@ the same directory (just execute the 'ext-validation-setup' target to do this).
 Then to perform validation, 'cd' to the directory containing your XML source
 files, and run something like
 
-  java -Xss${xmlvalidation.stacksize} -Dxml.catalog.files=${xml.catalog.files} -jar .../${jar.basename} -v ${dbxirng.url} file.xml...
+  java -Xss${xmlvalidation.threadstacksize} -Dxml.catalog.files=${xml.catalog.files} -jar .../${jar.basename} -v ${dbxirng.url} file.xml...
 
 See the XML Commons docs about the Java System Properties to use for XML
 catalog resolution:
