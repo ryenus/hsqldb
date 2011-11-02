@@ -1440,6 +1440,8 @@ public class RangeVariable implements Cloneable {
         final RangeVariable rangeVar;
         Expression[]        indexCond;
         Expression[]        indexEndCond;
+        int[]               opTypes;
+        int[]               opTypesEnd;
         Expression          indexEndCondition;
         int                 indexedColumnCount;
         Index               rangeIndex;

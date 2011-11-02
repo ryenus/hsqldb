@@ -854,13 +854,21 @@ public class SchemaManager {
 
         try {
             if (table.isView()) {
-                removeSchemaObject(table.getName(), cascade);
+                dropView(table, cascade);
             } else {
                 dropTable(session, table, cascade);
             }
         } finally {
             writeLock.unlock();
         }
+    }
+
+    private void dropView(Table table, boolean cascade) {
+
+        Schema schema = (Schema) schemaMap.get(table.getSchemaName().name);
+
+        removeSchemaObject(table.getName(), cascade);
+        schema.triggerLookup.removeParent(table.getName());
     }
 
     private void dropTable(Session session, Table table, boolean cascade) {
