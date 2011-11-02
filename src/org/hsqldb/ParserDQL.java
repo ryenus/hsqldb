@@ -5949,19 +5949,20 @@ public class ParserDQL extends ParserBase {
 
         OrderedHashSet  colNames        = null;
         QueryExpression queryExpression = XreadQueryExpression(outerRanges);
-        boolean         forUpdate       = false;
 
         if (token.tokenType == Tokens.FOR) {
             read();
 
-            if (token.tokenType == Tokens.READ) {
+            if (token.tokenType == Tokens.READ
+                    || token.tokenType == Tokens.FETCH) {
                 read();
                 readThis(Tokens.ONLY);
+
+                props = ResultProperties.addUpdatable(props, false);
             } else {
                 readThis(Tokens.UPDATE);
 
-                forUpdate = true;
-                props     = ResultProperties.addUpdatable(props, true);
+                props = ResultProperties.addUpdatable(props, true);
 
                 if (token.tokenType == Tokens.OF) {
                     readThis(Tokens.OF);
