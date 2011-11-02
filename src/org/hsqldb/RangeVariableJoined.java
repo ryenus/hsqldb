@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2010, The HSQL Development Group
+/* Copyright (c) 2001-2011, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -106,8 +106,8 @@ public class RangeVariableJoined extends RangeVariable {
         return super.getTable();
     }
 
-    boolean hasIndexCondition() {
-        return super.hasIndexCondition();
+    boolean hasSingleIndexCondition() {
+        return super.hasSingleIndexCondition();
     }
 
     boolean setDistinctColumnsOnIndex(int[] colMap) {
