@@ -29,9 +29,6 @@ OR for any CMD-like Windows shell:
     <ivy:settings/>
     <ivy:cachepath conf="xalan" pathid="xalan.cpref"/>
     <ivy:cachepath conf="fop" pathid="fop.cpref"/>
-    <ivy:resolve conf="msv"/>
-      <!-- The "msv" resolve downloads and makes the 3rd party libs accessed by
-           our admc-rs-msv jar file through its manifests classpath entry. -->
     <ivy:cachepath conf="admc-rs-msv-jar" pathid="admc-rs-msv-jar.cpref"/>
     <ivy:cachepath conf="jflex-jar" pathid="jflex-jar.cpref"/>
     <ivy:cachepath conf="admc-rs-msv-deps" pathid="admc-rs-msv-deps.cpref"/>
