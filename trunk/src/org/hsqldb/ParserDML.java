@@ -581,7 +581,7 @@ public class ParserDML extends ParserDQL {
         Table baseTable = table.isTriggerUpdatable() ? table
                                                      : table.getBaseTable();
 
-        if (table.isTriggerDeletable()) {
+        if (table.isTriggerUpdatable()) {
             rangeVariables[0].resetViewRageTableAsSubquery();
         }
 
