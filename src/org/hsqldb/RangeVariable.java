@@ -244,12 +244,33 @@ public class RangeVariable implements Cloneable {
         return rangeTable;
     }
 
-    boolean hasIndexCondition() {
+    boolean hasAnyIndexCondition() {
+
+        for (int i = 0; i < joinConditions.length; i++) {
+            if (joinConditions[0].indexedColumnCount > 0) {
+                return true;
+            }
+        }
+
+        for (int i = 0; i < whereConditions.length; i++) {
+            if (whereConditions[0].indexedColumnCount > 0) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    boolean hasSingleIndexCondition() {
         return joinConditions.length == 1
                && joinConditions[0].indexedColumnCount > 0;
     }
 
     boolean setDistinctColumnsOnIndex(int[] colMap) {
+
+        if (joinConditions.length != 1) {
+            return false;
+        }
 
         int[] indexColMap = joinConditions[0].rangeIndex.getColumns();
 
