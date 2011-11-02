@@ -282,7 +282,7 @@ public class View extends TableDerived {
                 break;
 
             case StatementTypes.UPDATE_WHERE :
-                isTriggerInsertable = false;
+                isTriggerUpdatable = false;
                 break;
 
             default :
