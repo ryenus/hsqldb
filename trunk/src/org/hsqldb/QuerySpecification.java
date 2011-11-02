@@ -903,7 +903,7 @@ public class QuerySpecification extends QueryExpression {
 
         int[] colMap;
 
-        if (!range.hasIndexCondition()) {
+        if (!range.hasAnyIndexCondition()) {
             colMap = range.rangeTable.getColumnIndexes(tempSet);
 
             Index index = range.rangeTable.getFullIndexForColumns(colMap);
@@ -922,9 +922,14 @@ public class QuerySpecification extends QueryExpression {
 
     private void setAggregateConditions(Session session) {
 
-        if (isAggregated && !isGrouped && !sortAndSlice.hasOrder()
-                && !sortAndSlice.hasLimit() && aggregateSet.size() == 1
-                && indexLimitVisible == 1) {
+        if (!isAggregated) {
+            return;
+        }
+
+        if (isGrouped) {
+            setGroupedAggregateConditions(session);
+        } else if (!sortAndSlice.hasOrder() && !sortAndSlice.hasLimit()
+                   && aggregateSet.size() == 1 && indexLimitVisible == 1) {
             Expression e      = exprColumns[indexStartAggregates];
             int        opType = e.getType();
 
@@ -984,6 +989,11 @@ public class QuerySpecification extends QueryExpression {
                 default :
             }
         }
+    }
+
+    private void setGroupedAggregateConditions(Session session) {
+
+        //
     }
 
     void checkLobUsage() {

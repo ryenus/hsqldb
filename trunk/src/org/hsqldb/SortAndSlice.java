@@ -64,7 +64,6 @@ public final class SortAndSlice {
     boolean            zeroLimit;
     public boolean     skipSort       = false;    // true when result can be used as is
     public boolean     skipFullResult = false;    // true when result can be sliced as is
-    int[]          columnIndexes;
     public Index   index;
     public boolean isGenerated;
 
@@ -174,21 +173,6 @@ public final class SortAndSlice {
             return;
         }
 
-        if (columnCount == 0) {
-            if (limitCondition == null) {
-                return;
-            }
-
-            if (select.isDistinctSelect || select.isGrouped
-                    || select.isAggregated) {
-                return;
-            }
-
-            skipFullResult = true;
-
-            return;
-        }
-
         for (int i = 0; i < columnCount; i++) {
             ExpressionOrderBy sort     = (ExpressionOrderBy) exprList.get(i);
             Type              dataType = sort.getLeftNode().getDataType();
@@ -198,12 +182,26 @@ public final class SortAndSlice {
             }
         }
 
+        if (select.isDistinctSelect || select.isGrouped
+                || select.isAggregated) {
+            return;
+        }
+
+        if (columnCount == 0) {
+            if (limitCondition == null) {
+                return;
+            }
+
+            skipFullResult = true;
+
+            return;
+        }
+
         if (select == null || hasNullsLast) {
             return;
         }
 
-        if (select.isDistinctSelect || select.isGrouped
-                || select.isAggregated) {
+        if (collations != null) {
             return;
         }
 
@@ -224,21 +222,15 @@ public final class SortAndSlice {
             colIndexes[i] = e.columnIndex;
         }
 
-        this.columnIndexes = colIndexes;
-
-        if (columnIndexes == null) {
-            return;
-        }
-
-        if (collations != null) {
-            return;
-        }
-
         Index rangeIndex = select.rangeVariables[0].getSortIndex();
 
         if (rangeIndex == null) {
+
+            // multi-index
             return;
         }
+
+        int[] sortColIndexes = colIndexes;
 
         colIndexes = rangeIndex.getColumns();
 
@@ -249,9 +241,23 @@ public final class SortAndSlice {
             return;
         }
 
-        if (!select.rangeVariables[0].hasIndexCondition()) {
+        if (colIndexes.length > 0) {
+            if (ArrayUtil.haveEqualArrays(sortColIndexes, colIndexes,
+                                          sortColIndexes.length)) {
+                if (allDescending) {
+                    boolean reversed = select.rangeVariables[0].reverseOrder();
+
+                    if (!reversed) {
+                        return;
+                    }
+                }
+
+                skipSort       = true;
+                skipFullResult = true;
+            }
+        } else {
             Table table = select.rangeVariables[0].getTable();
-            Index index = table.getFullIndexForColumns(columnIndexes);
+            Index index = table.getFullIndexForColumns(colIndexes);
 
             if (index != null) {
                 if (select.rangeVariables[0].setSortIndex(index,
@@ -260,18 +266,6 @@ public final class SortAndSlice {
                     skipFullResult = true;
                 }
             }
-        } else if (ArrayUtil.haveEqualArrays(columnIndexes, colIndexes,
-                                             columnIndexes.length)) {
-            if (allDescending) {
-                boolean reversed = select.rangeVariables[0].reverseOrder();
-
-                if (!reversed) {
-                    return;
-                }
-            }
-
-            skipSort       = true;
-            skipFullResult = true;
         }
     }
 
@@ -297,9 +291,9 @@ public final class SortAndSlice {
             return false;
         }
 
-        int[] colIndexes = rangeIndex.getColumns();
+        if (select.rangeVariables[0].hasSingleIndexCondition()) {
+            int[] colIndexes = rangeIndex.getColumns();
 
-        if (select.rangeVariables[0].hasIndexCondition()) {
             if (colIndexes[0] != ((ExpressionColumn) e).getColumnIndex()) {
                 return false;
             }
@@ -307,6 +301,8 @@ public final class SortAndSlice {
             if (opType == OpTypes.MAX) {
                 select.rangeVariables[0].reverseOrder();
             }
+        } else if (select.rangeVariables[0].hasAnyIndexCondition()) {
+            return false;
         } else {
             Table table = select.rangeVariables[0].getTable();
             Index index = table.getIndexForColumn(
@@ -322,14 +318,12 @@ public final class SortAndSlice {
             }
         }
 
-        columnCount      = 1;
-        sortOrder        = new int[columnCount];
-        sortDescending   = new boolean[columnCount];
-        sortNullsLast    = new boolean[columnCount];
-        columnIndexes    = new int[columnCount];
-        columnIndexes[0] = e.columnIndex;
-        skipSort         = true;
-        skipFullResult   = true;
+        columnCount    = 1;
+        sortOrder      = new int[columnCount];
+        sortDescending = new boolean[columnCount];
+        sortNullsLast  = new boolean[columnCount];
+        skipSort       = true;
+        skipFullResult = true;
 
         return true;
     }
