@@ -871,17 +871,7 @@ public class RangeVariable implements Cloneable {
         boolean         isBeforeFirst;
         RangeVariable   rangeVar;
 
-        RangeIteratorBase() {}
-
-        public RangeIteratorBase(Session session, PersistentStore store,
-                                 TableBase t, int position) {
-
-            this.session       = session;
-            this.rangePosition = position;
-            this.store         = store;
-            it                 = t.rowIterator(store);
-            isBeforeFirst      = true;
-        }
+        private RangeIteratorBase() {}
 
         public boolean isBeforeFirst() {
             return isBeforeFirst;
@@ -1213,6 +1203,12 @@ public class RangeVariable implements Cloneable {
 
                 currentData = currentRow.getData();
 
+                if (conditions[condIndex].terminalCondition != null
+                        && !conditions[condIndex].terminalCondition
+                            .testCondition(session)) {
+                    break;
+                }
+
                 if (conditions[condIndex].indexEndCondition != null
                         && !conditions[condIndex].indexEndCondition
                             .testCondition(session)) {
@@ -1469,6 +1465,7 @@ public class RangeVariable implements Cloneable {
         final boolean       isJoin;
         Expression          excludeConditions;
         Expression          nonIndexCondition;
+        Expression          terminalCondition;
         int                 opType;
         int                 opTypeEnd;
         boolean             isFalse;
@@ -1494,6 +1491,12 @@ public class RangeVariable implements Cloneable {
 
             if (e == null) {
                 return;
+            }
+
+            if (e instanceof ExpressionLogical) {
+                if (((ExpressionLogical) e).isTerminal) {
+                    terminalCondition = e;
+                }
             }
 
             nonIndexCondition =

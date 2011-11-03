@@ -507,6 +507,12 @@ public class RangeVariableResolver {
             index = first;
         }
 
+        if (e instanceof ExpressionLogical) {
+            if (((ExpressionLogical) e).isTerminal) {
+                index = expressionLists.length - 1;
+            }
+        }
+
         expressionLists[index].add(e);
     }
 
