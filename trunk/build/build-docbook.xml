@@ -486,7 +486,8 @@ The following explains how to set up and use our XML validator against DocBook
 or other complex XML files.
 
 The critical file is '${jar.basename}', which is the executable jar file of
-of the Catalog-Resolving Schematron-Capable MSV validator (that's a mouthful!).
+of the Catalog-Resolving Schematron-Capable RELAX NG validator (that's a
+mouthful!).
 To prepare it for execution, put this file and all of its dependency jars into
 the same directory (just execute the 'ext-validation-setup' target to do this).
 
