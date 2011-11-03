@@ -88,4 +88,4 @@ apply from: 'build.gradle'
 defaultTasks 'dist'
 
 ant.references['bnd-jar.cpref'] =
-        new Path(ant.project, configurations['bnd-jar'].asPath)
+        new Path(ant.project, configurations['bndJar'].asPath)
