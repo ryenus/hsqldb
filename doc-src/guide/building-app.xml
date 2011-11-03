@@ -706,9 +706,9 @@ ant hsqldb
     </para>
      <tip><simpara>
       If running Gradle, you probably want to turn logging up to level
-      <emphasis>info</emphasis> for DocBook-related tasks, because the default
-      <emphasis>warn/lifecycle</emphasis>
-      level doesn't give much feedback as DocBook builds run.
+      <emphasis>info</emphasis> for generation and validation tasks, because
+      the default <emphasis>warn/lifecycle</emphasis>
+      level doesn't give much feedback.
     </simpara></tip>
     <simpara>
       The task/target <literal>validate-docs</literal>
