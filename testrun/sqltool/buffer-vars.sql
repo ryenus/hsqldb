@@ -1,13 +1,7 @@
 /*
  * $Id$
- *
- * Does a DSV export using a multi-line custom query instead of just
- * specifying the table name.
- * Imports it back to validate the output.
  */
 
-* *DSV_TARGET_FILE = ${java.io.tmpdir}/test-roundtrip-${user.name}.dsv
-* *DSV_TARGET_TABLE = t
 CREATE TABLE t (i INT, a INT, d DATE);
 
 INSERT INTO t(i, a, d) VALUES (1, 149, null);
