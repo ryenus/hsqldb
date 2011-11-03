@@ -51,7 +51,7 @@
          It is also added to the XSLT CLASSPATH only to add the XInclude
          settings file to the CLASSPATH.  Needed by Xalan during XSLT.
     -->
-    <dependency name="bnd" org="bnd" rev="0.0.384" conf="bndJar"/>
+    <dependency name="bnd" org="biz.aQute" rev="0.0.384" conf="bndJar"/>
     <dependency name="jflex" org="de.jflex" rev="1.4.3" conf="jflexJar"/>
   </dependencies>
 </ivy-module>
