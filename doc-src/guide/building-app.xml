@@ -714,7 +714,7 @@ ant hsqldb
       The task/target <literal>validate-docs</literal>
       is also very useful to DocBook builders.
     </simpara> <simpara>
-      The documentation license does not all you to post modifications
+      The documentation license does not allow you to post modifications
       to our guides, but you can modify them for internal use by your
       organization, and you can use our DocBook system to write new DocBook
       documents related or unrelated to HyperSQL.
