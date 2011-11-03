@@ -420,6 +420,8 @@ switch)."""
 For usage instructions, re-run this target, 'standaloneValidation' without the
 'install.parent.dir' build property."""
 }
+standaloneValidation.description =
+        'Install standalone XML validator, and instructions for same'
 
 /**
  *
