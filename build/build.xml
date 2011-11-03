@@ -1195,7 +1195,7 @@ optimizations) manually.
 
   <!-- See comments at top of "build-docbook.xml" about doc.target property -->
   <target name="validate-docs" depends="-ivy-setup"
-          description="Validate project DocBook source files using a modified version of Sun's MSV Validator">
+          description="Validate project DocBook source files">
     <!-- The depends above would be redundant, except that Gradle needs
          -ivy-setup to execute BEFORE the first antcall executes -->
 

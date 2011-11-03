@@ -348,6 +348,80 @@ private def recursiveAggregator(additions, inMap, assemblage) {
     return assemblage
 }
 
+task standaloneValidation << {
+    if (!project.hasProperty('install.parent.dir')) {
+        // Load some properties from Ant build file, for use in our message.
+        String threadStackSize = ant.properties['xmlvalidation.threadstacksize']
+        String xmlCatalogFiles = ant.properties['xml.catalog.files']
+        String dbxirngUrl = ant.properties['dbxirng.url']
+        println """If you have set build property 'install.parent.dir', then task 'standalone'
+will install the standalone XML validator that you can use to validate HyperSQL
+DocBook document source files.
+If you have not set build property 'install.parent.dir', you will see these
+instructions.
+
+Validating our DocBook source files requires a powerful XML validator that
+supports Xincludes, XML catalogs, DTD entities, and other advanced XML features.
+You can use the task 'validate-docs' or 'validate-doc' using Gradle (or Ant),
+but if you want to run a standalone validator, we will install one for you...
+read on.
+
+To use the standalone validator, xcsde-rngval, you need to know the full path
+to the file 'xcsde-rngval-*.jar' which will reside wherever you install the
+validator to.  You then cd to the directory containing your XML source files
+and run a command like this:
+
+  java -Xss$threadStackSize -Dxml.catalog.files=$xmlCatalogFiles -jar .../xcsde-rngval-*.jar -v $dbxirngUrl file.xml...
+
+See the XML Commons docs about the Java System Properties to use for XML
+catalog resolution:
+
+  http://xml.apache.org/commons/components/resolver/resolver-article.html#ctrlresolver
+
+To install the validator, just set build property 'install.parent.dir' to the
+directory under which you want the validator installed (a new subdirectory will
+be created) and re-run this 'standaloneValidation' task.
+You can set the property by adding a switch to your gradlew invocation, like
+    gradlew -P install.parent.dir=c:/Users/cindy
+or by editing file '${projectDir.absolutePath}/build.properties' (creating it
+if it doesn't already exist) and adding a line like
+    install.parent.dir=c:/Users/cindy
+Afterwards, if you want to see these instructions again, you can re-run this
+same task, 'standaloneValidation', as many times as you want to, without the
+property (remove the line from the properties file or omit the command-line
+switch)."""
+        return
+    }
+    String zipFileName = 'xcsde-rngval-LATEST.zip'
+    String zipUrlString =
+            'http://cloud.github.com/downloads/unsaved/xcsde-rngval/' +
+            zipFileName
+
+    File localZip = new File(System.properties['java.io.tmpdir'], zipFileName)
+    BufferedOutputStream bos =
+            new BufferedOutputStream(new FileOutputStream(localZip))
+    localZip.deleteOnExit()
+    //println localZip.absolutePath
+    zipUrlString.toURL().withInputStream() { bos << it }
+    bos.close()
+
+    File pDir = new File(project.property('install.parent.dir'))
+    assert pDir.canWrite() : "Can't write to '$installParentDir'"
+    // Unfortunately, the following writes temp files under build/build/tmp.
+    // Too complicated to clean it up safely, so we'll leave it there for now.
+    File newDir =
+            new File(pDir, zipTree(localZip).iterator().next().parentFile.name)
+    assert !newDir.exists() :
+            "New target directory already exists: $newDir.absolutePath"
+    ant.unzip(src:localZip.absolutePath,
+            dest:pDir.absolutePath, overwrite:'false')
+    if (!newDir.isDirectory())
+        throw new IOException("Extraction into '$newDir.absolutePath' failed")
+    println """Installed xcsde-rng validator to new directory: $newDir.absolutePath
+For usage instructions, re-run this target, 'standaloneValidation' without the
+'install.parent.dir' build property."""
+}
+
 /**
  *
  * Override both the Gradle out-of-the-box 'help' task, as well as our HSQLDB
