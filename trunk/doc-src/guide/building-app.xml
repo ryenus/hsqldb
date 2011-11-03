@@ -704,14 +704,36 @@ ant hsqldb
       </simpara></listitem>
     </itemizedlist>
     </para>
+     <tip><simpara>
+      If running Gradle, you probably want to turn logging up to level
+      <emphasis>info</emphasis> for DocBook-related tasks, because the default
+      <emphasis>warn/lifecycle</emphasis>
+      level doesn't give much feedback as DocBook builds run.
+    </simpara></tip>
     <simpara>
       The task/target <literal>validate-docs</literal>
       is also very useful to DocBook builders.
-    </simpara>
-    <simpara>
-      If running Gradle, you probably want to turn logging up to level
-      <emphasis>info</emphasis>, because the default <emphasis>warn</emphasis>
-      level doesn't give much feedback as DocBook builds run.
+    </simpara> <simpara>
+      The documentation license does not all you to post modifications
+      to our guides, but you can modify them for internal use by your
+      organization, and you can use our DocBook system to write new DocBook
+      documents related or unrelated to HyperSQL.
+      To create new DocBook documents, create a subdirectory off of
+      <filename>doc-src</filename> for each new document, with the main DocBook
+      source file within having same name as
+      the directory plus <literal>.xml</literal>.
+      See the peer directory <filename>util-guide</filename> or
+      <filename>guide</filename> as an example.
+      If you use the high-level tasks/target <literal>gen-docs</literal> or
+      <literal>validate-docs</literal>, then copy and paste to add new stanzas
+      to these targets in file <filename>build.xml</filename>.
+    </simpara> <simpara>
+      Editors of DocBook documents (see previous paragraph for motive) may
+      find it useful to have a standalone XML validator so you can do your
+      primary editing without involvement of the build system.
+      Use the Gradle target <literal>standaloneValidation</literal> for this.
+      It will tell you how to set a build property to tell it where to
+      install the validator, and will give instructions on how to use it.
     </simpara>
     <para>
       There are several properties that can be used to dramatically decrease
