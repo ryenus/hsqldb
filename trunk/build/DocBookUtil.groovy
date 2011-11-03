@@ -59,13 +59,18 @@ public static String installStyleSheets(File pDir, boolean allSheets) {
     AntBuilder ant = new AntBuilder()
 
     if (allSheets) {
+        File newDir = new File(pDir, "docbook-xsl-ns-$latestVer")
+        assert !newDir.exists() :
+            "New target directory already exists: $newDir.absolutePath"
         ant.unzip(src:localZip.absolutePath,
                 dest:pDir.absolutePath, overwrite:'false')
-        if (!new File(pDir, "docbook-xsl-ns-$latestVer/images").isDirectory())
-            throw new IOException("Extraction into '$pDir' failed")
+        if (!new File(newDir, "images").isDirectory())
+            throw new IOException("Extraction into '$newDir.absolutePath' failed")
         return "docbook-xsl-ns-$latestVer"
     }
     File destDir = new File(pDir, "xsl-ns-images-$latestVer")
+    assert !destDir.exists() :
+        "New target directory already exists: $destDir.absolutePath"
     ant.unzip(src:localZip.absolutePath,
             dest:destDir.absolutePath, overwrite:'false') {
         patternset {
