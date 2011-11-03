@@ -23,7 +23,6 @@ defaultTasks 'help'
  * Gradle's -D switch to set those Ant properties as Java system properties.
  */
 
-project['repos.flatdir.url'] = 'http://pub.admc.com/lib-repos'
 project['repos.useMaven'] = 'true'
 apply from: 'common.gradle'
 
@@ -315,28 +314,28 @@ for (e in tasksToMake) {
 }
 
 configurations {
-    'admc-rs-msv-jar' { transitive = false }
-    'admc-rs-msv-deps' { transitive = false }
-    msv { transitive = false }
-    xalan { transitive = false }
-    fop { transitive = false }
-    'bnd-jar' { transitive = false }
-    'jflex-jar' { transitive = false }
+    xcsdeRngvalJar
+    xcsdeRngvalDeps
+    xalan
+    fop
+    bndJar
+    jflexJar
 }
+
 apply from: 'ivyxml-support.gradle'
 
 import org.apache.tools.ant.types.Path
 project.task([overwrite: true], ivySetupTaskName) << {
-    ant.references['admc-rs-msv-jar.cpref'] =
-            new Path(ant.project, configurations['admc-rs-msv-jar'].asPath)
-    ant.references['admc-rs-msv-deps.cpref'] =
-            new Path(ant.project, configurations['admc-rs-msv-deps'].asPath)
+    ant.references['xcsde-rngval-jar.cpref'] =
+            new Path(ant.project, configurations['xcsdeRngvalJar'].asPath)
+    ant.references['xcsde-rngval-deps.cpref'] =
+            new Path(ant.project, configurations['xcsdeRngvalDeps'].asPath)
     ant.references['fop.cpref'] =
             new Path(ant.project, configurations['fop'].asPath)
     ant.references['xalan.cpref'] =
             new Path(ant.project, configurations['xalan'].asPath)
     ant.references['jflex-jar.cpref'] =
-            new Path(ant.project, configurations['jflex-jar'].asPath)
+            new Path(ant.project, configurations['jflexJar'].asPath)
 }
 
 

@@ -2,29 +2,20 @@
   <!-- $Id$ -->
   <info organisation="hsqldb" module="docbook"/>
   <configurations defaultconf="fop">
-    <conf name="admc-rs-msv-jar" transitive="false"
-       description="Single Catalog-Resolving Schematron-Capable MSV jar file"/>
-    <conf name="admc-rs-msv-deps" transitive="false"
-          description="Dependecies of admc-rs-msv Jar file"
-          extends="admc-rs-msv-jar"/>
+    <conf name="xcsdeRngvalJar" transitive="false"
+          description="Single XCSDE RELAX NG XML Validator jar file"/>
+    <conf name="xcsdeRngvalDeps" transitive="true"
+          description="Dependecies of XCSDE RELAX NG XML Validator Jar file"
+          extends="xcsdeRngvalJar"/>
     <conf name="xalan" description="Xalan Xslt" transitive="false"
-          extends="admc-rs-msv-jar"/>
+          extends="xcsdeRngvalJar"/>
     <conf name="fop" description="FOP" transitive="false"/>
-    <conf name="bnd-jar" transitive="false"
+    <conf name="bndJar" transitive="false"
           description="aQute Bundle Tool Library jar file"/>
-    <conf name="jflex-jar" transitive="false"
+    <conf name="jflexJar" transitive="false"
           description="JFlex Library jar file"/>
   </configurations>
   <dependencies defaultconfmapping="*->default">
-    <dependency name="relames"
-                org="com.admc" rev="0.2" conf="admc-rs-msv-deps"/>
-    <dependency name="msv" org="msv" rev="20050913"
-                conf="admc-rs-msv-deps"/>
-    <dependency name="relaxngDatatype" org="msv" rev="20050913"
-                conf="admc-rs-msv-deps"/>
-    <dependency name="xsdlib" org="msv" rev="20050913" conf="admc-rs-msv-deps"/>
-    <dependency name="isorelax" org="msv" rev="20050913"
-                conf="admc-rs-msv-deps"/>
     <dependency name="fop" org="org.apache.xmlgraphics" rev="1.0"/>
     <dependency name="xmlgraphics-commons" org="org.apache.xmlgraphics"
                 rev="1.4"/>
@@ -42,30 +33,25 @@
     <dependency name="batik-transcoder" org="org.apache.xmlgraphics" rev="1.7"/>
     <dependency name="batik-extension" org="org.apache.xmlgraphics" rev="1.7"/>
     <dependency name="batik-ext" org="org.apache.xmlgraphics"
-                rev="1.7" conf="fop; admc-rs-msv-deps"/>
+                rev="1.7" conf="fop"/>
     <dependency name="commons-io" org="commons-io" rev="2.1"/>
     <dependency name="commons-logging" org="commons-logging" rev="1.1.1"/>
-    <dependency name="xalan" org="xalan" rev="2.7.1"
-                conf="xalan; admc-rs-msv-deps"/>
+    <dependency name="xalan" org="xalan" rev="2.7.1" conf="xalan"/>
     <dependency name="serializer" org="xalan" rev="2.7.1" conf="xalan"/>
     <dependency name="docbook-xsl-xalan" org="net.sf.docbook" rev="1.0.0"
                 conf="xalan"/>
-    <dependency name="xml-apis" org="xml-apis"
-                rev="1.0.b2" conf="xalan; admc-rs-msv-deps"/>
+    <dependency name="xml-apis" org="xml-apis" rev="1.0.b2" conf="xalan"/>
     <dependency name="xercesImpl" org="xerces" rev="2.10.0"
-                conf="xalan; admc-rs-msv-deps"/>
-              <!--  Perhaps resolver would be better: ?  -->
-    <dependency name="xml-resolver" org="xml-resolver"
-                rev="1.2" conf="admc-rs-msv-deps"/>
-    <!-- amdc-rs-msv is not available in Maven repository yet -->
-    <dependency name="admc-rs-msv" rev="1.0" org="admc" conf="admc-rs-msv-jar"/>
-    <!-- conf extending gets this admc-rs-msv into the admc-rs-msv-deps and
+                conf="xalan"/>
+    <dependency name="xcsde-rngval" rev="0.1.0" org="com.admc"
+                conf="xcsdeRngvalJar"/>
+    <!-- conf extending gets this xcsdeRngvalJar into the xcsdeRngvalDeps and
          into xalan.
          Primary purpose of this jar is for the admc MSV validator.
          It is also added to the XSLT CLASSPATH only to add the XInclude
          settings file to the CLASSPATH.  Needed by Xalan during XSLT.
     -->
-    <dependency name="bnd" org="bnd" rev="0.0.384" conf="bnd-jar"/>
-    <dependency name="jflex" org="de.jflex" rev="1.4.3" conf="jflex-jar"/>
+    <dependency name="bnd" org="bnd" rev="0.0.384" conf="bndJar"/>
+    <dependency name="jflex" org="de.jflex" rev="1.4.3" conf="jflexJar"/>
   </dependencies>
 </ivy-module>

@@ -29,9 +29,9 @@ OR for any CMD-like Windows shell:
     <ivy:settings/>
     <ivy:cachepath conf="xalan" pathid="xalan.cpref"/>
     <ivy:cachepath conf="fop" pathid="fop.cpref"/>
-    <ivy:cachepath conf="admc-rs-msv-jar" pathid="admc-rs-msv-jar.cpref"/>
-    <ivy:cachepath conf="jflex-jar" pathid="jflex-jar.cpref"/>
-    <ivy:cachepath conf="admc-rs-msv-deps" pathid="admc-rs-msv-deps.cpref"/>
+    <ivy:cachepath conf="xcsdeRngvalJar" pathid="xcsde-rngval-jar.cpref"/>
+    <ivy:cachepath conf="jflexJar" pathid="jflex-jar.cpref"/>
+    <ivy:cachepath conf="xcsdeRngvalDeps" pathid="xcsde-rngval-deps.cpref"/>
     <property name="-ivy.is.setup" value="true"/>
   </target>
 </project>

@@ -154,7 +154,7 @@ and re-export.</fail>
   </target>
 
   <target name="-bnd-ivy-setup">
-    <ivy:cachepath conf="bnd-jar" pathid="bnd-jar.cpref"/>
+    <ivy:cachepath conf="bndJar" pathid="bnd-jar.cpref"/>
   </target>
 
   <target name="bnd" depends="-bnd-ivy-setup"

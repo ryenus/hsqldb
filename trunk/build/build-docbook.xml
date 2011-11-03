@@ -97,8 +97,6 @@
   <property name="docoutput.path" value="doc"/>
   <property name="javac.debug" value="true"/>
   <property name="xmlvalidation.threadstacksize" value="1M"/>
-  <!-- TODO:  Once our repository is set up, change the repos.url value here -->
-  <property name="repos.url" value="http://pub.admc.com/lib-repos"/>
   <property name="dbxirng.url"
             value="http://www.docbook.org/xml/5.0/rng/docbookxi.rng"/>
       <!-- The "xi" variant supports Xinclude -->
@@ -456,10 +454,10 @@ file.</echo>
           description="Validate specified DocBook source document">
     <fail unless="doc.name"
           message="Ant property 'doc.name' is required by target 'validate'."/>
-    <pathconvert property="msvjar.file" refid="admc-rs-msv-jar.cpref"/>
+    <pathconvert property="msvjar.file" refid="xcsde-rngval-jar.cpref"/>
     <java fork="true" failonerror="true" dir="doc-src/${doc.name}"
-          classpath="${msvjar.file}" classpathref="admc-rs-msv-deps.cpref"
-          classname="com.admc.msv.ResolvingSchematronDriver">
+          classpath="${msvjar.file}" classpathref="xcsde-rngval-deps.cpref"
+          classname="com.admc.xml.ResolvingSchematronDriver">
       <sysproperty key="xml.catalog.verbosity"
                    value="${xml.catalog.verbosity}"/>
       <sysproperty key="xml.catalog.files" value="${xml.catalog.files}"/>
