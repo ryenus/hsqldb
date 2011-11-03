@@ -476,46 +476,6 @@ file.</echo>
     </java>
   </target>
 
-  <target name="validation-help" depends="-ivy-setup"
-          description="Display advice about validating files manually">
-    <pathconvert property="msvjar.file" refid="admc-rs-msv-jar.cpref"/>
-    <basename property="jar.basename" file="${msvjar.file}"/>
-    <echo>Validating our DocBook source files requires a powerful XML validator that
-supports Xincludes, XML catalogs, macros, and other advanced XML features.
-The following explains how to set up and use our XML validator against DocBook
-or other complex XML files.
-
-The critical file is '${jar.basename}', which is the executable jar file of
-of the Catalog-Resolving Schematron-Capable RELAX NG validator (that's a
-mouthful!).
-To prepare it for execution, put this file and all of its dependency jars into
-the same directory (just execute the 'ext-validation-setup' target to do this).
-
-Then to perform validation, 'cd' to the directory containing your XML source
-files, and run something like
-
-  java -Xss${xmlvalidation.threadstacksize} -Dxml.catalog.files=${xml.catalog.files} -jar .../${jar.basename} -v ${dbxirng.url} file.xml...
-
-See the XML Commons docs about the Java System Properties to use for XML
-catalog resolution:
-
-  http://xml.apache.org/commons/components/resolver/resolver-article.html#ctrlresolver
-</echo>
-  </target>
-
-  <target name="ext-validation-setup" depends="-ivy-setup"
-          description="Set up a capable standalone XML validator">
-    <fail unless="validator.install.dir">
-Property 'validator.install.dir' is required for target 'ext-validation-setup'.
-Set the value to a directory in which to install the jar files.</fail>
-    <copy todir="${validator.install.dir}"
-          preservelastmodified="true" flatten="true">
-      <path refid="admc-rs-msv-jar.cpref"/>
-      <path refid="admc-rs-msv-deps.cpref"/>
-    </copy>
-    <echo message="Run the 'validation-help' target for instructions on how to use the validator"/>
-  </target>
-
   <target name="refresh-verbatim"
           description="Update files under doc-src/verbatim">
     <!-- It's good to apply preservelastmodified to stuff under doc-src/,
