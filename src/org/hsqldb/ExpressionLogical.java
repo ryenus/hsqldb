@@ -54,6 +54,7 @@ public class ExpressionLogical extends Expression {
 
     boolean noOptimisation;
     boolean isQuantified;
+    boolean isTerminal;
 
     //
     RangeVariable[] rangeArray = RangeVariable.emptyArray;
@@ -870,6 +871,11 @@ public class ExpressionLogical extends Expression {
             if (nodes[LEFT].opType == OpTypes.VALUE
                     && nodes[RIGHT].opType == OpTypes.VALUE) {
                 setAsConstantValue(session);
+            }
+
+            if (nodes[LEFT].opType == OpTypes.ROWNUM
+                    && nodes[RIGHT].opType == OpTypes.VALUE) {
+                isTerminal = true;
             }
         }
     }
