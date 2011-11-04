@@ -488,6 +488,11 @@
                     The DSV import reject report has been refactored to use the
                     same templating and substitution used by the new HTML
                     reports.
+                </simpara></listitem><listitem><simpara>
+                    The SqlTool unit test system has been ported from Bash to
+                    Groovy wrapped by Gradle.
+                    The system requirements have thereby been reduced from
+                    requiring a Bash shell to just requiring a Java 6 JRE.
                 </simpara></listitem>
             </itemizedlist>
         </section>
@@ -4695,15 +4700,29 @@ SELECT * FROM t
     <section xml:id="sqltool_unittest-sect">
         <title>Unit Testing SqlTool</title>
         <simpara>
-          The SqlTool unit tests reside at testrun/sqltool in the
-          HyperSQL source code repository.
-          Just run the <filename>runtests.bash</filename> script from
-          that directory to execute all of the tests.
-          As you can see, the test runner, unfortunately, requires a Bash
-          shell at this time.
+          The SqlTool unit tests reside at <filename>testrun/sqltool</filename>
+          in your HyperSQL distribution or source code repository.
+          Just run <filename>runtests</filename> in that directory to
+          execute all of the tests (except for non-Windows, non-UNIX, non-MacOS
+          users, who must invoke 
+          <literal>../../build/gradlew</literal> directly).
           Read the file <filename>README.txt</filename> to find out all
-          about it, including everything you'd need to know to test your
-          own scripts or to add more unit test scripts for SqlTool.
+          about file naming conventions so that you can write your own
+          SQL test script files.
+        </simpara> <simpara>
+          The system requirements to run the tests is now just a Java 6 JRE.
+          The real test runner is implemented in the Groovy script
+          <filename>runtests.groovy</filename>.
+          By just typing <literal>runtests</literal>, Windows and Linux
+          (incl. MacOS) users will invoke their OS-specific scripts.
+          All users can invoke Gradle manually instead if they wish to, using
+          either <filename>../../build/gradlew</filename> or a local
+          Gradle installation.
+          If you have Groovy installed, you can cut out all of the wrappers and
+          invoke the Groovy script directly, like
+          <literal>groovy runtests.groovy</literal>
+          (or change the interpreter line within the script file to point to
+          your own <filename>groovy</filename> path).
         </simpara>
     </section>
 </chapter>
