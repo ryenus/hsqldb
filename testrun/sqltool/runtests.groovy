@@ -160,6 +160,8 @@ ${failedScriptNames.size()} tests failed out of ${scripts.size()}:"""
         if (doJvmExit)
             System.exit((failedScriptNames.size() > 255)
                         ? 1 : failedScriptNames.size())
+        assert false:
+            Integer.toString(failedScriptNames.size()) + ' test(s) failed'
     }
 }
 
