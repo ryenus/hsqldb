@@ -195,6 +195,8 @@ public enum SqltoolRB implements RefCapableRBInterface {
     describe_table_datatype,
     describe_table_width,
     describe_table_nonulls,
+    describe_table_precision,
+    describe_table_scale,
     logical_unrecognized,
     read_toobig,
     read_partial,
