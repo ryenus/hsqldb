@@ -3979,10 +3979,13 @@ public class SqlFile {
             SqltoolRB.describe_table_datatype.getString(),
             SqltoolRB.describe_table_width.getString(),
             SqltoolRB.describe_table_nonulls.getString(),
+            SqltoolRB.describe_table_precision.getString(),
+            SqltoolRB.describe_table_scale.getString(),
         };
         String[]  fieldArray;
-        int[]     maxWidth  = { 0, 0, 0, 0 };
-        boolean[] rightJust = { false, false, true, false };
+        int[]     maxWidth  = { 0, 0, 0, 0, 0, 0 };
+        boolean[] rightJust = { false, false, true, false, true, true };
+        int       precision, scale;
 
         if (filterString != null) try {
             filterMatchesAll = (filterString.charAt(0) == '/');
@@ -4015,17 +4018,23 @@ public class SqlFile {
             int               cols = m.getColumnCount();
 
             for (int i = 0; i < cols; i++) {
-                fieldArray    = new String[4];
+                fieldArray    = new String[6];
+                precision = m.getPrecision(i + 1);
+                scale = m.getScale(i + 1);
                 fieldArray[0] = m.getColumnName(i + 1);
 
                 if (filter != null && (!filterMatchesAll)
                         && !filter.matcher(fieldArray[0]).find()) continue;
 
                 fieldArray[1] = m.getColumnTypeName(i + 1);
+System.err.println("(" + m.getPrecision(i + 1) + " | " + m.getScale(i + 1) + ')');
                 fieldArray[2] = Integer.toString(m.getColumnDisplaySize(i + 1));
                 fieldArray[3] = ((m.isNullable(i + 1)
                         == java.sql.ResultSetMetaData.columnNullable)
                         ? "" : "*");
+                fieldArray[4] =
+                        (precision == 0) ? "" :Integer.toString(precision);
+                fieldArray[5] = (scale == 0) ? "" :Integer.toString(scale);
 
                 if (filter != null && filterMatchesAll
                         && !filter.matcher(fieldArray[0]
