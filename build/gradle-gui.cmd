@@ -1,9 +1,14 @@
 @echo off
 
 :: $Id$
-:: author: Blaine Simpson of the HSQL Development Group
 :: Distribution is permitted under the terms of the HSQLDB license.
 :: (c) 2011 The HSQL Development Group
+
+:: This script automatically 'cd's to directory .../testrun/sqltool in which
+:: it resides, so that it may be safely executed from desktop managers, etc.
+:: The main work script, "runtests.groovy" does not have this limitation.
+::
+:: author: Blaine Simpson of the HSQL Development Group
 
 :: Set local scope for the variables with windows NT shell
 if "%OS%"=="Windows_NT" setlocal
