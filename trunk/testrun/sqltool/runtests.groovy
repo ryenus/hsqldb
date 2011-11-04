@@ -1,10 +1,18 @@
 #!/local/groovy/bin/groovy
+/*
+ * $Id$
+ * Distribution is permitted under the terms of the HSQLDB license.
+ * (c) 2011 The HSQL Development Group
+ */
 
 /**
  * The I/O in this class could be simplified it were not necessary to support
  * Gradle.
  * Gradle intercedes with stdout (and stderr), requiring the flushes and usage
  * of System.console().  The latter makes this script require Java 6 or later.
+ *
+ * @author: Blaine Simpson, unsaved@users.sourceforge.net
+ * @since HyperSQL 2.2.6
  */
 
 import java.util.logging.Logger
@@ -35,6 +43,8 @@ Non-verbose Result Key:
             if (params[0].indexOf('n') > 0) noRun = true
             if (params[0].indexOf('v') > 0) verbose = true
             if (params[0].indexOf('h') > 0) {
+                println helpMessage
+                return
             }
             params.remove(0)
         }
@@ -44,20 +54,33 @@ Non-verbose Result Key:
          "Executable Java not found under Java home '$javaBinDir.absolutePath'"
         String sqlToolPath = '../../lib/sqltool.jar'
         File sqlToolFile = new File(sqlToolPath)
-        if (!sqlToolFile.canRead())
-            throw new IOException("Can't read file: $sqlToolFile.absolutePath")
-        if (!sqlToolFile.isFile())
+        String sqlToolClassName = 'org.hsqldb.cmdline.SqlTool'
+        boolean useJar = true
+        if (!sqlToolFile.canRead()) {
+            try {
+                Class.forName(sqlToolClassName)
+            } catch (Exception e) {
+                throw new IOException("SqlTool is available neither at '$sqlToolPath' nor via CLASSPATH")
+            }
+            useJar = false
+            logger.warning("SqlTool jar file not available at '$sqlToolPath', therefore using it from CLASSPATH")
+        } else if (!sqlToolFile.isFile())
             throw new IOException("Not a read file: $sqlToolFile.absolutePath")
-        String[] pbParams = [
+        def pbParams = [
             'java',
             '-Dsqltool.REMOVE_EMPTY_VARS=true',
-            '-jar',
-            sqlToolPath,
+            // either '-jar path.jar' or 'class.Name' will be inserted here
             '--noAutoFile',
             '-Ptestvar=plval',
             '--inlineRc=user=sa,url=jdbc:hsqldb:mem:utst,password=,transiso=TRANSACTION_READ_COMMITTED',
             null  // Sometimes we'll specify script, sometimes not
         ]
+        if (useJar) {
+            pbParams.add(2, sqlToolPath)
+            pbParams.add(2, '-jar')
+        } else {
+            pbParams.add(2, sqlToolClassName)
+        }
         def scripts = []
         if (params.size() > 0) {
             for (p in params) scripts << new File(p)
@@ -91,8 +114,8 @@ Non-verbose Result Key:
 StringWriter eWriter
         for (f in scripts) {
             isInter = f.name.endsWith('.inter')
-            if (!isInter) pbParams[pbParams.length-1] = f.name
-            runParams = isInter ? pbParams[0..pbParams.length-2] : pbParams
+            if (!isInter) pbParams[pbParams.size()-1] = f.name
+            runParams = isInter ? pbParams[0..pbParams.size()-2] : pbParams
             if (verbose) {
                 logger.info(runParams.join(' '))
             } else {

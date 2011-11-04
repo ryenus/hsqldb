@@ -2,6 +2,18 @@
 PROGNAME="${0##*/}"
 
 # $Id$
+# Distribution is permitted under the terms of the HSQLDB license.
+# (c) 2011 The HSQL Development Group
+#
+# Wrapper that serves two purposes:
+# (1) Takes traditional parameters in format: command -switches... filenames...
+#     and converts to a Gradle command of format: Gradle -P x=y...  taskname
+# (2) Invokes the 'gradlew' wrapper script supplied by the HyperSQL
+#     distribution.
+# This script automatically 'cd's to directory .../testrun/sqltool in which
+# it resides, so that it may be safely executed from desktop managers, etc.
+# The main work script, "runtests.groovy" does not have this limitation.
+#
 # author: Blaine Simpson, unsaved@users.sourceforge.net
 # since: HSQLDB 1.8.0.8 / 1.9.x
 # see:  README.txt in this same directory.
@@ -34,6 +46,13 @@ while [ $# -gt 0 ]; do case "$1" in -*)
     shift;;
   *) break 2;;
 esac; done
+
+case "$0" in
+/*) SCRIPTDIR="${0%/*}";; */*) SCRIPTDIR="$PWD/${0%/*}";; *) SCRIPTDIR="$PWD";;
+esac
+case "$SCRIPTDIR" in *?/.) SCRIPTDIR="${SCRIPTDIR%/.}"; esac
+
+cd "$SCRIPTDIR"
 
 scriptsString=
 while [ $# -gt 0 ]; do
