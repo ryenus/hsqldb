@@ -45,6 +45,7 @@ goto moreArgs
 
 :noMoreArgs
 
+if "%VERBOSE%" == "true" echo ..\..\build\gradlew %HELP% %VERBOSE% %NORUN% %SCRIPTLIST%
 ..\..\build\gradlew %HELP% %VERBOSE% %NORUN% %SCRIPTLIST%
 :: People who have a real, local Gradl installation can use the following:
 ::gradle %HELP% %VERBOSE% %NORUN% %SCRIPTLIST%
