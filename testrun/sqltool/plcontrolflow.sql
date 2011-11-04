@@ -16,8 +16,7 @@
 *if (0)
     \q Failed boolean test of zero constant
 *end if
-*if (! x)
-/* Note that there must be white space to separate the two tokens above. */
+*if (!x)
     \q Failed boolean test of a plain constant
 *end if
 
