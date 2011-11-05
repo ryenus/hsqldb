@@ -873,7 +873,7 @@ public class ExpressionLogical extends Expression {
                 setAsConstantValue(session);
             }
 
-            if (nodes[LEFT].opType == OpTypes.ROWNUM
+            if (nodes.length == 2 && nodes[LEFT].opType == OpTypes.ROWNUM
                     && nodes[RIGHT].opType == OpTypes.VALUE) {
                 isTerminal = true;
             }
