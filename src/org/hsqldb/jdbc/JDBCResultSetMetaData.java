@@ -99,7 +99,7 @@ import org.hsqldb.types.Types;
  *
  * @author Campbell Boucher-Burnet (boucherb@users dot sourceforge.net)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.0.1
+ * @version 2.2.6
  * @revised JDK 1.6, HSQLDB 2.0
  * @see JDBCStatement#executeQuery
  * @see JDBCStatement#getResultSet
@@ -535,11 +535,9 @@ public class JDBCResultSetMetaData implements ResultSetMetaData {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Starting with 1.8.0, HSQLDB reports the declared length or precision
-     * specifiers for table columns, if they are defined.<p>
-     *
-     * From 2.0, HSQLDB, reports the correct length or precision for
-     * computed columns according to the SQL Standard.<p>
+     * HSQLDB 2.0 reports the correct length or precision for
+     * all columns. For DOUBLE, the binary precision of 64 is returned, while
+     * for other numeric types the decimal precision is returned.<p>
      * </div>
      * <!-- end release-specific documentation -->
      *
@@ -553,17 +551,7 @@ public class JDBCResultSetMetaData implements ResultSetMetaData {
 
         // type in columnTypes overrides column type
         Type type      = translateType(resultMetaData.columnTypes[--column]);
-        long precision = type.precision;
-
-        if (type.isDateTimeType() || type.isIntervalType()) {
-            precision = type.displaySize();
-        }
-
-        if (precision > Integer.MAX_VALUE) {
-            precision = Integer.MAX_VALUE;
-        }
-
-        return (int) precision;
+        return type.getJDBCPrecision();
     }
 
     /**
@@ -576,17 +564,12 @@ public class JDBCResultSetMetaData implements ResultSetMetaData {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Starting with 1.8.0, HSQLDB reports the declared
-     * scale for table columns.<p>
+     * HSQLDB 2.0 reports the correct scale for all columns.<p>
      *
-     * From 2.0, HSQLDB, reports the correct scale for
-     * computed columns according to the SQL Standard.<p>
-     *
-     * <pre>
-     * sql.enforce_strict_size
-     * </pre>
      * For datetime and interval types such as Timestamp or Time, the
-     * fractional second precision is reported.
+     * fractional second precision is reported.<p>
+     *
+     * The reported scale for INTEGER, BIGINT and DOUBLE is 0<p>
      * </div>
      * <!-- end release-specific documentation -->
      *
@@ -600,7 +583,7 @@ public class JDBCResultSetMetaData implements ResultSetMetaData {
 
         Type type = translateType(resultMetaData.columnTypes[--column]);
 
-        return type.scale;
+        return type.getJDBCScale();
     }
 
     /**
