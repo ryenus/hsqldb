@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-
 <!DOCTYPE book [
-  <!ENTITY % dummy22 SYSTEM "../entities/global.ent"> %dummy22;
+<!ENTITY % dummy22 SYSTEM "../entities/global.ent">
+%dummy22;
 ]>
 <chapter version="5.0" xml:id="builtinfunctions-chapt"
          xmlns="http://docbook.org/ns/docbook"
@@ -759,6 +759,28 @@
     )</literal></para>
 
     <indexterm significance="preferred" type="sql">
+      <primary>BITANDNOT function</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">BITANDNOT</emphasis></simpara>
+
+    <para><literal>BITANDNOT ( &lt;num value expr 1&gt;, &lt;num value expr
+    2&gt; )</literal></para>
+
+    <para><literal>BITANDNOT ( &lt;bit value expr 1&gt;, &lt;bit value expr
+    2&gt; )</literal></para>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>BITNOT function</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">BITNOT</emphasis></simpara>
+
+    <para><literal>BITNOT ( &lt;num value expr 1&gt; )</literal></para>
+
+    <para><literal>BITNOT ( &lt;bit value expr 1&gt; )</literal></para>
+
+    <indexterm significance="preferred" type="sql">
       <primary>BITOR function</primary>
     </indexterm>
 
@@ -782,12 +804,14 @@
     <para><literal>BITXOR ( &lt;bit value expr 1&gt;, &lt;bit value expr 2&gt;
     )</literal></para>
 
-    <para>These three functions perform the bit operations: OR, AND, XOR, on
-    two values. The values are either integer values, or bit strings. The
-    result is an integer value of the same type as the arguments, or a bit
-    string of the same length as the argument. Each bit of the result is
-    formed by performing the operation on corresponding bits of the arguments.
-    (HyperSQL)</para>
+    <para>These functions bit operations on two values, or in the case of
+    BITNOT on a single values. The values are either integer values, or bit
+    strings. The result is an integer value of the same type as the arguments,
+    or a bit string of the same length as the argument. Each bit of the result
+    is formed by performing the operation on corresponding bits of the
+    arguments. The names of the function indicate NOT, OR, AND, XOR
+    operations. The BITANDNOT performs NOT on the second argument, then
+    performs AND on result and the first argument. (HyperSQL)</para>
 
     <indexterm significance="preferred" type="sql">
       <primary>COS function</primary>
