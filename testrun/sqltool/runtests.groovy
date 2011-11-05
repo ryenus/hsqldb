@@ -20,8 +20,7 @@ import java.util.logging.Logger
 class SqlToolTester {
     private static Logger logger = Logger.getLogger(SqlToolTester.class.name)
     private static boolean doJvmExit = true
-    private static String helpMessage = '''
-groovy runtests.groovy [-h] [-nv] [testscript.sql...]
+    private static String helpMessage = '''groovy runtests.groovy [-h] [-nv] [testscript.sql...]
 -h displays this message.
 With -v, output from SqlTool will be shown.  Otherwise, only tests and results
 will be shown.
