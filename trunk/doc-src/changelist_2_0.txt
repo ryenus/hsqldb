@@ -1,4 +1,4 @@
-25 October 2011 - SVN 4625
+5 November 2011 - SVN 4711
 -- fixed issue with memory use of large strings in cache
 -- fixed issue with FOR loops with ORDER BY in routines
 -- fixed issue with TIME ZONE types JDBC type reporting in server
@@ -7,7 +7,10 @@
 -- fixed issue with cached tables in jar databases
 -- fixed issue with certain server properties
 -- fixed issues with MVCC transactions
--- added new datetime functions
+-- added code branch supporting huge multi terabyte databases with tens of billions of rows
+-- added property hsqldb.avg_scale for decimal results from AVG and MEDIAN aggregates
+-- added two-arg REPLACE function
+-- added new datetime and bit functions 
 -- added support for ROWNUM() in UPDATE and DELETE statements
 -- added backward compatibility for IDENTITY options with commas
 -- added support for new new SQL properties
@@ -17,7 +20,7 @@
 -- improved routine variable scope in MERGE statements
 -- improved compatibility modes
 -- improved persistence reliability
--- minor improvements and bug fixes
+-- many minor improvements and bug fixes
 -- major improvements to SqlTool
 5 July 2011 - version 2.2.5
 -- fixed UNNEST in subquery
@@ -60,26 +63,23 @@
 -- improved query speed for some LEFT OUTER joins
 -- added deletion of the temp directory at shutdown
 10 May 2011 - version 2.2.0
+-- fixed regression in 2.1.0 with database log created after a backup is completed not used for recovery
+-- fixed regression in 2.1.0 with alter table operation failures causing loss of table data 
+-- fixed issues with disk based result sets
+-- fixed issue with multiple ALTER TABLE statements used as a single statement
 -- reserved keywords now include DEFAULT and exclude ADMIN
+-- added support for ROWNUM() function
+-- added support for GET DIAGNOSTICS statement and DIAGNOSTICS function
+-- added support for POSITION_ARRAY and enhancements to SORT_ARRAY (also ARRAY_SORT)
+-- added support for WIDTH_BUCKET function
+-- added support for SQL execution logging SET DATABASE EVENT LOG SQL LEVEL 3
 -- improved column nullability reporting in ResultSetMetaData
 -- improved BOOLEAN type support in compatibility modes
--- added support for ROWNUM() function
 -- improvements to Server, including new shutdown methods and properties file name argument
 -- improvements to MVCC transaction management
 -- improvements to text table properties support
--- minor improvements and bug fixes
-21 Apr 2011 - SVN 4199
--- added support for GET DIAGNOSTICS statement and DIAGNOSTICS function
--- added support for POSITION_ARRAY and enhancements to SORT_ARRAY (also ARRAY_SORT)
-18 Apr 2011 - SVN 4196
--- fixed regression in 2.1.0 with alter table operation failures causing loss of table data 
--- fixed regression in 2.1.0 with database log created after a backup is completed not used for recovery
--- added support for SQL execution logging SET DATABASE EVENT LOG SQL LEVEL 3
-26 Mar 2011 - SVN 4164
--- fixed issues with disk based result sets
--- added support for WIDTH_BUCKET function
 -- improved table and database locking for DDL statements
--- fixed issue with multiple ALTER TABLE statements used as a single statement
+-- minor improvements and bug fixes
 14 Mar 2011 - Version 2.1.0
 -- added support for WITH RECURSIVE
 -- added support for ALTER INDEX <name> AS (<new column name list>) to change the indexed column list of an index
@@ -87,28 +87,20 @@
 -- extension of MySQL and PostgreSQL compatibility modes. Includes type conversion and sequence functions
 -- extension to IDENTITY column support allows the use of a named SEQUENCE
 22 Feb 2011 - SVN 4096 - 2.1.0 rc4
--- changes to avoid creation of new .data files at checkpoint and allow incremental enlargement of this file
--- various enhancements and improvements
-3 Feb 2011 - SVN 4040
+-- improvements to avoid creation of new .data files at checkpoint and allow incremental enlargement of this file
 -- additions and improvements to INFORMATION_SCHEMA
-1 Feb 2011 - SVN 4033
 -- added MS SqlServer function compatibility
 -- added more extensive support for ALTER SPECIFIC ROUTINE
--- initial support for JDBC 4.1 - Java 1.7
-20 Jan 2011 - SVN 3980
--- added support for opening most 1.8.0 databases that are not closed properly
+-- added initial support for JDBC 4.1 - Java 1.7
+-- added support for opening most 1.8.x databases that are not explicitly SHUTDOWN
 -- event logging format has changed slightly, and new level 3 allows more detail in the log
-23 Dec 2010 
 -- added MEDIAN aggregate function
 -- added ARRAY_SORT function
 -- routine variables and parameters can be used in LIMIT / FETCH / OFFSET clauses
 -- improvements to lob use with PreparedStatement 
 -- improvements to calling procedures with JDBC
-16 Dec 2010 - SVN 3946
--- added support for upgrading databases without explicit SHUTDOWN
 10 Dec 2010 - SVN 3940 - 2.0.1 RC3 
 -- added support for cached tables for lob catalog
-14 Nov 2010 - SVN 3897
 -- added support for CURRENT VALUE FOR <identity sequence>, same as CURRVAL
 -- added TO_TIMESTAMP, LPAD, RPAD functions
 31 Oct 2010 - SVN 3836 - 2.0.1 RC2
@@ -128,16 +120,13 @@
 -- added support for variables in database URL's
 24 Sept 2010 - SVN 3794
 -- fixed issue with new sql compatibility properties applied to older databases
-23 Sept 2010 - SVN 3792
--- added support for Oracle syntax elements including DUAL, ROWNUM, NEXTVAL, CURRVAL with sql.syntax_ora=true property
 -- fixed bug with IN predicates in arguments of aggregate functions
 -- fixed bug with table functions used in subqueries
-10 Sept 2010  - SVN 3782
+-- added support for Oracle syntax elements including DUAL, ROWNUM, NEXTVAL, CURRVAL with sql.syntax_ora=true property
 -- added support for clustered indexes
 -- added enhancement for column visibility in nested joins
 -- added support for datetime ROUND and TRUNC functions
-04 Sept 2010  - SVN 3775
--- additional connection properties
+-- added new connection properties
 -- added support for FOR loops in routines
 11 Aug 2010  - SVN 3750
 -- extended getGeneratedKeys to UPDATE and MERGE operations
