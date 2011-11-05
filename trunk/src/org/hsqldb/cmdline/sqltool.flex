@@ -195,7 +195,7 @@ TRADITIONAL_COMMENT = "/*" ~"*/"
     debug("Gobbled", yytext());
     prompt();
 }
-<SQL, SQL_SINGLE_QUOTED, SQL_DOUBLE_QUOTED, SPECIAL, PL, EDIT, MACRO> <<EOF>> {
+<SQL, SQL_SINGLE_QUOTED, SQL_DOUBLE_QUOTED, SPECIAL, PL, EDIT, MACRO, RAW> <<EOF>> {
     yybegin(YYINITIAL);
     return new Token(Token.UNTERM_TYPE, commandBuffer, yyline);
 }
