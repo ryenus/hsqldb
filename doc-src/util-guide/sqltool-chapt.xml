@@ -410,6 +410,9 @@
                     The look of DSV import reject reports has changed, and the
                     name of user-supplied (optional) CSS file has been changed.
                     (See following section about why).
+                </simpara></listitem><listitem><simpara>
+                    The <literal>\d tableLikeObject</literal> command output
+                    now has 2 more columns, to report precision and scale.
                 </simpara></listitem>
             </itemizedlist>
         </section>
@@ -493,6 +496,12 @@
                     Groovy wrapped by Gradle.
                     The system requirements have thereby been reduced from
                     requiring a Bash shell to just requiring a Java 6 JRE.
+                </simpara></listitem><listitem><simpara>
+                    Added an inline/shortcut <literal>*if</literal> syntax
+                    like this:
+                    <literal>* if (*x == *b) \p Any 1-lne statement</literal>.
+                    People who value conciseness, like myself, will appreciate
+                    this.
                 </simpara></listitem>
             </itemizedlist>
         </section>
@@ -3449,74 +3458,66 @@ OneTwo</screen>
                 Easier to show what I mean than to explain it...
                 <example xml:id='sqltool_specialqplus-ex'>
                   <title xml:id='specialqplus-title'>Special values for ?, and _ (or ~) Variables</title>
-                  <screen><![CDATA[    sql> \p At startup ? is equal to empty string.  See between A and B:  A*{?}B
-    At startup ? is equal to empty string.  See between A and B:  AB
-    sql> * if (A*{?}B == AB)
-    sql>     \p ? is the empty string
-    sql> * end if
-    ? is the empty string
-    sql>  
-    sql> CREATE TABLE t(i INTEGER, vc VARCHAR(20));
-    sql> INSERT INTO t VALUES(1, 'one');
-    1 row updated.
-    sql> INSERT INTO t VALUES(2, 'two');
-    1 row updated.
-    sql> * res ~
-    sql> SELECT * FROM t;
-    I  VC
-    -  ---
-    1  one
-    2  two
+                  <screen><![CDATA[sql> \p At startup ? is equal to empty string.  See between A and B:  A*{?}B
+At startup ? is equal to empty string.  See between A and B:  AB
+sql> * if (A*{?}B == AB) \p ? is the empty string
+? is the empty string
+sql> 
+sql> CREATE TABLE t(i INTEGER, vc VARCHAR(20));
+sql> INSERT INTO t VALUES(1, 'one');
+1 row updated.
+sql> INSERT INTO t VALUES(2, 'two');
+1 row updated.
+sql> * res ~
+sql> SELECT * FROM t;
+I  VC
+-  ---
+1  one
+2  two
 
-    Fetched 2 rows.
-    sql> \p *{?}
-    two
-    sql> \p *{res}
-    1
-    sql> * listvalues ? res
-    Listing all 'set' variables (any var not seen is unset and equal to null).
-    The outermost parentheses are not part of the values.
-        ?: (two)
-        res: (1)
-    sql> 
-    sql> INSERT INTO t VALUES (3, null);
-    1 row updated.
-    sql> *res ~
-    sql> SELECT vc FROM t WHERE i = 3;
-    [null]
-    sql> \p *{?}
-    [null]
-    sql> * if (*res == **NULL)
-    sql>     \p res really is null
-    sql> * end if
-    res really is null
-    sql> * listvalues ? res
-    Listing all 'set' variables (any var not seen is unset and equal to null).
-    The outermost parentheses are not part of the values.
-        ?: ([null])
-    sql> 
-    sql> -- This will prevent SqlTool from aborting when we run a bad SQL statement:
-    sql> \c true
-    Continue-on-error is set to true.
-    sql> *res ~
-    sql> SELECT hocus FROM pocus;
-    SEVERE  SQL Error at '<stdin>' line 27:
-    "SELECT hocus FROM pocus"
-    user lacks privilege or object not found: POCUS
-    sql> * if (*? == **NULL)
-    sql>     \p ? really is null
-    sql> * end if
-    ? really is null
-    SEVERE  Did not finish setting variable 'res' before a code block exited.
-    SEVERE  Rolling back SQL transaction.
-    sql> * if (*res == **NULL)
-    sql>     \p res really is null
-    sql> * end if
-    res really is null
-    sql> * listvalues ? res
-    Listing all 'set' variables (any var not seen is unset and equal to null).
-    The outermost parentheses are not part of the values.
-    sql>]]></screen></example>
+Fetched 2 rows.
+sql> \p *{?}
+two
+sql> \p *{res}
+1
+sql> * listvalues ? res
+Listing all 'set' variables (any var not seen is unset and equal to null).
+The outermost parentheses are not part of the values.
+    ?: (two)
+    res: (1)
+sql> 
+sql> INSERT INTO t VALUES (3, null);
+1 row updated.
+sql> *res ~
+sql> SELECT vc FROM t WHERE i = 3;
+[null]
+sql> \p *{?}
+[null]
+sql> * if (*res == **NULL) \p res really is null
+res really is null
+sql> * listvalues ? res
+Listing all 'set' variables (any var not seen is unset and equal to null).
+The outermost parentheses are not part of the values.
+    ?: ([null])
+sql> 
+sql> -- This will prevent SqlTool from aborting when we run a bad SQL statement:
+sql> \c true
+Continue-on-error is set to true.
+sql> *res ~
+sql> SELECT hocus FROM pocus;
+SEVERE  SQL Error at '<stdin>' line 23:
+"SELECT hocus FROM pocus"
+user lacks privilege or object not found: POCUS
+sql> * if (*? == **NULL) \p ? really is null
+? really is null
+SEVERE  Did not finish setting variable 'res' before a code block exited.
+SEVERE  Rolling back SQL transaction.
+sql> * if (*res == **NULL) \p res really is null
+res really is null
+sql> * listvalues ? res
+Listing all 'set' variables (any var not seen is unset and equal to null).
+The outermost parentheses are not part of the values.
+sql>]]></screen></example>
                     (The SQL that generated this is available in the file
                     <filename>nullempty.sql</filename> in the
                     <filename>sample</filename> directory of your HyperSQL
@@ -3918,6 +3919,18 @@ SELECT * FROM t
                 session, or with the next SQL file if you supplied multiple on
                 the command-line).
             </simpara> <para>
+              There is now also an inline <literal>* if</literal> command that
+              is very handy and concise.
+              Try these samples on.
+              <example><title>Inline If Statement</title>
+                <programlisting>    * if (*x == *NULL) \q Aborting program
+    ....
+    * while...
+        * if (*exitCondition) break
+    ...
+    * if (*notableEvent) \l SEVERE Something bad happened</programlisting>
+              </example>
+            </para> <para>
                 An effective for counter loop can be constructed by combining
                 an <literal>* while</literal> command with an integer math
                 assignment, like so
