@@ -47,7 +47,7 @@ import org.hsqldb.store.ValuePool;
  * Type subclass for all NUMBER types.<p>
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.2.1
+ * @version 2.2.6
  * @since 1.9.0
  */
 public final class NumberType extends Type {
@@ -285,6 +285,10 @@ public final class NumberType extends Type {
             default :
                 throw Error.runtimeError(ErrorCode.U_S0500, "NumberType");
         }
+    }
+
+    public int getJDBCPrecision() {
+        return getPrecision();
     }
 
     public String getNameString() {
