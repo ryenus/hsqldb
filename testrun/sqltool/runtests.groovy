@@ -68,6 +68,7 @@ Non-verbose Result Key:
             throw new IOException("Not a read file: $sqlToolFile.absolutePath")
         def pbParams = [
             'java',
+            '-ea',
             '-Dsqltool.REMOVE_EMPTY_VARS=true',
             // either '-jar path.jar' or 'class.Name' will be inserted here
             '--noAutoFile',
@@ -76,10 +77,10 @@ Non-verbose Result Key:
             null  // Sometimes we'll specify script, sometimes not
         ]
         if (useJar) {
-            pbParams.add(2, sqlToolPath)
-            pbParams.add(2, '-jar')
+            pbParams.add(3, sqlToolPath)
+            pbParams.add(3, '-jar')
         } else {
-            pbParams.add(2, sqlToolClassName)
+            pbParams.add(3, sqlToolClassName)
         }
         def scripts = []
         if (params.size() > 0) {
