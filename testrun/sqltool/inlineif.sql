@@ -87,8 +87,11 @@
 *if (*R != I:A1a:A1b:A2a:A2b:A3a:A3b:A4a:A4b:B1a:B1b:B2a:B2b:B3a:B3b:B4a:B4b:C1a:C1b:C2a:C2b:C3a:C3b:C4a:C4b) \q nested foreach result unexpected: *{R}
 /* Initialize Results  to I */
 * R = I
+\p before R=(*{R})
 *foreach L1 (A B C)
+\p BEFORE R=(*{R})
   *if (*L1 != A)
+\p bEFORE R=(*{R})
 	  *foreach L2 (1 2 3 4)
 		  *if (*L2 != 3)
 			  *foreach L3 (a b c)
@@ -106,14 +109,10 @@
 *foreach L1 (A B C)
   *foreach L2 (1 2 3 4)
       *foreach L3 (a b)
-          *if (*L3 == a)
-            *continue
-          *end if
+          *if (*L3 == a) *continue
 	      * R = *{R}:*{L1}*{L2}*{L3}
 	  *end foreach
-      *if (*L2 == 3)
-        *break foreach
-      *end if
+      *if (*L2 == 3) *break foreach
   *end foreach
 *end foreach
 *if (*R != I:A1b:A2b:A3b:B1b:B2b:B3b:C1b:C2b:C3b) \q nested foreach result unexpected: *{R}
@@ -127,9 +126,7 @@
        * subcum = *{subcum}Q
    *end while
    * accum = *{accum}*{subcum}
-   *if (*accum == LPMQQPMQQ)
-       *break while
-    *end if
+   *if (*accum == LPMQQPMQQ) *break while
 *end while
 
 *if (*accum != LPMQQPMQQ) \q Wrong value accumulated by nested while loops (*{accum})

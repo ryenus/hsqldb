@@ -40,6 +40,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.io.StringReader;
 import java.io.OutputStreamWriter;
 import java.io.PrintStream;
 import java.io.PrintWriter;
@@ -227,6 +228,8 @@ public class SqlFile {
             Pattern.compile("foreach\\s+(\\S+)\\s*\\(([^)]+)\\)\\s*");
     private static Pattern   ifwhilePattern =
             Pattern.compile("\\S+\\s*\\(([^)]*)\\)\\s*");
+    private static Pattern   inlineifPattern =
+            Pattern.compile("(if\\s*\\([^)]*\\))(.*\\S.*)");
     private static Pattern   varsetPattern =
             Pattern.compile("(\\S+)\\s*([=_~:])(.*)?");
     private static Pattern   substitutionPattern =
@@ -265,10 +268,13 @@ public class SqlFile {
 
     private static Map<String, Pattern> nestingPLCommands =
             new HashMap<String, Pattern>();
+    private static Map<String, Pattern> inlineNestPLCommands =
+            new HashMap<String, Pattern>();
     static {
         nestingPLCommands.put("if", ifwhilePattern);
         nestingPLCommands.put("while", ifwhilePattern);
         nestingPLCommands.put("foreach", foreachPattern);
+        inlineNestPLCommands.put("if", inlineifPattern);
 
         if (System.getProperty("os.name").startsWith("Windows"))
             wincmdPattern = Pattern.compile("([^\"]+)?(\"[^\"]*\")?");
@@ -583,10 +589,7 @@ public class SqlFile {
         try {
             recursed = true;
             shared = parentSqlFile.shared;
-            shared.userVars.put(
-                    "*START_TIME", (new java.util.Date()).toString());
-            shared.userVars.put("*REVISION", revnum);
-            shared.userVars.put("?", "");
+            // shared.userVars.put("?", "");  Don't destroy this useful value!
             interactive = false;
             continueOnError = parentSqlFile.continueOnError;
             // Nested input is non-interactive because it just can't work to
@@ -802,6 +805,20 @@ public class SqlFile {
         }
     }
 
+    /**
+     * If command is not an inline-nest command, returns null;
+     *
+     * @return Matcher which has already successfully .matched() or null
+     */
+    private Matcher inlineNestMatcher(Token token) throws BadSpecial {
+        if (token.type != Token.PL_TYPE) return null;
+        // The scanner assures that val is non-null for PL_TYPEs.
+        String commandWord = token.val.replaceFirst("\\s.*", "");
+        if (!inlineNestPLCommands.containsKey(commandWord)) return null;
+        Pattern pattern = inlineNestPLCommands.get(commandWord);
+        Matcher m = pattern.matcher(token.val);
+        return m.matches() ? m : null;
+    }
 
     /**
      * Returns normalized nesting command String, like "if" or "foreach".
@@ -836,6 +853,7 @@ public class SqlFile {
                                      throws SqlToolError, SQLException {
         boolean rollbackUncoms = true;
         String nestingCommand;
+        Matcher inlineNestMatcher;
         Token token = null;
         sqlExpandMode = null;
 
@@ -849,6 +867,15 @@ public class SqlFile {
                     logger.finest("SqlFile got new token:  " + token);
                 }
                 if (token == null) break;
+
+                inlineNestMatcher = inlineNestMatcher(token);
+                if (inlineNestMatcher != null) {
+                    processInlineBlock(token,
+                            inlineNestMatcher.group(1),
+                            inlineNestMatcher.group(2));
+                    processBlock(token);
+                    continue;
+                }
 
                 nestingCommand = nestingCommand(token);
                 if (nestingCommand != null) {
@@ -4027,7 +4054,6 @@ public class SqlFile {
                         && !filter.matcher(fieldArray[0]).find()) continue;
 
                 fieldArray[1] = m.getColumnTypeName(i + 1);
-System.err.println("(" + m.getPrecision(i + 1) + " | " + m.getScale(i + 1) + ')');
                 fieldArray[2] = Integer.toString(m.getColumnDisplaySize(i + 1));
                 fieldArray[3] = ((m.isNullable(i + 1)
                         == java.sql.ResultSetMetaData.columnNullable)
@@ -5496,7 +5522,8 @@ System.err.println("(" + m.getPrecision(i + 1) + " | " + m.getScale(i + 1) + ')'
      * (unless you consider parsing blocks of nested commands to be
      * "performing" a command).
      *
-     * Throws only if I/O error or EOF encountered before end of entire file
+     * Throws only if I/O error or if nestingCommand != null and
+     * EOF encountered before end of entire file
      * (encountered at any level of recursion).
      *
      * Exceptions thrown within this method percolate right up to the
@@ -5506,22 +5533,34 @@ System.err.println("(" + m.getPrecision(i + 1) + " | " + m.getScale(i + 1) + ')'
      * Only a separate SqlFile invocation (incl. \i command) will cause
      * a seekTokenSource exception to be handled at a level other than
      * the very top.
+     *
+     * @param nestingCommand Set to null to read scanner until EOF.
      */
     private TokenList seekTokenSource(String nestingCommand)
-            throws BadSpecial, IOException {
+            throws BadSpecial, IOException, SqlToolError {
         Token token;
         TokenList newTS = new TokenList();
-        Pattern endPattern = Pattern.compile("end\\s+" + nestingCommand);
+        Pattern endPattern = (nestingCommand == null)
+                ? null : Pattern.compile("end\\s+" + nestingCommand);
         String subNestingCommand;
+        Matcher inlineNestMatcher;
 
         while ((token = scanner.yylex()) != null) {
-            if (token.type == Token.PL_TYPE
+            if (nestingCommand != null && token.type == Token.PL_TYPE
                     && endPattern.matcher(token.val).matches()) return newTS;
-            subNestingCommand = nestingCommand(token);
-            if (subNestingCommand != null) 
-                token.nestedBlock = seekTokenSource(subNestingCommand);
+            inlineNestMatcher = inlineNestMatcher(token);
+            if (inlineNestMatcher != null) {
+                processInlineBlock(token,
+                        inlineNestMatcher.group(1),
+                        inlineNestMatcher.group(2));
+            } else {
+                subNestingCommand = nestingCommand(token);
+                if (subNestingCommand != null) 
+                    token.nestedBlock = seekTokenSource(subNestingCommand);
+            }
             newTS.add(token);
         }
+        if (nestingCommand == null) return newTS;
         throw new BadSpecial(
                 SqltoolRB.pl_block_unterminated.getString(nestingCommand));
     }
@@ -5884,5 +5923,23 @@ System.err.println("(" + m.getPrecision(i + 1) + " | " + m.getScale(i + 1) + ')'
             }
         }
         pwQuery.write(dereference(str.replaceAll("\\r?\\n", LS), true));
+    }
+
+    private void processInlineBlock(
+            Token t, String ifCmdText, String nestingText)
+            throws BadSpecial, IOException, SqlToolError  {
+        assert t.nestedBlock == null:
+            "Inline-nest command has .nestBlock pre-populated";
+        SqlFileScanner storedScanner = scanner;
+        try {
+            scanner = new SqlFileScanner(new StringReader(nestingText + '\n'));
+            scanner.setStdPrintStream(shared.psStd);
+            scanner.setRawLeadinPrompt("");
+            scanner.setInteractive(interactive);
+            t.nestedBlock = seekTokenSource(null);
+        } finally {
+            scanner = storedScanner;
+        }
+        t.val = ifCmdText;
     }
 }
