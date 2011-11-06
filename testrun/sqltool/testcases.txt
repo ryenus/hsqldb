@@ -1,5 +1,11 @@
 $Id$
 
+This list is incomplete.
+It just takes more time than I am willing to dedicate to keep documenting ever
+new test script.
+If you want to know what a script for and it's not listed here, you'll have to
+open the script file and look at it.
+
 file              items/features tested
 -----------       ----------------------------
 dsv-trimming.sql  DSV import tests, including trimming of whitespace.
