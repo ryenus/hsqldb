@@ -12,43 +12,47 @@ Savings Time) offsets to JDBC DATE objects.
 ************************************************************
 
 
-PORTABILITY (or lack thereof)
-
-    At this time, you need to have a Bash shell to run this script, so you'll
-    need a UNIX variant, Cygwin, etc.
-    When I have time, I'll port the test runner script "runtests.bash" to 
-    Java so that the tests will run on any Java platform.
-    If you have time and the Java skills to port it now-- please contact 
-    me ASAP:  blaine.simpson@admc.com
-    (BTW, it will take considerable effort to just port the existing
-    behavior from Bash to Perl, but the real difficultiy would be to
-    improve the run-time by not invoking a new JVM for each test run.
-    Specifically, Java uses a very closed design for providing stdin,
-    stdout, stderr, and one can't open and close these pipes at will, as
-    we do in the Bash script).
-
-
 HOW TO RUN
 
-    Typical usage (executes all tests):
+    Typical usage (executes all tests).  From UNIX:
 
         cd .../testrun/sqltool
         ./runtests.bash
 
-    Run tests on any SQL files:
+    or from Windows:
 
-        .../testrun/sqltool/runtests.bash file1.sql file2.sql...
+        cd .../testrun/sqltool
+        runtests
+
+    Run tests on any subset of SQL files:
+
+        cd .../testrun/sqltool
+        .../testrun/sqltool/runtests.bash file1.sql file2.nsql...
+    or
+        cd .../testrun/sqltool
+        .../testrun/sqltool/runtests file1.sql file2.nsql...
+
+    If you have Grooy installed, you can run tests on SQL files that reside
+    anywhere:
+
+        groovy .../testrun/sqltool/runtests.groovy file1.sql file2.nsql...
 
     If there are any test failures, the failed SQL scripts will be listed
-    at the end of the results.  To get details about the failure, run
-    runtests.bash with just one of the failed SQL scripts at a time, and
+    at the end of the results.  To get details about the failure, re-run the
+    same command with just one of the failed SQL scripts at a time, and
     with the Verbose option, like
 
         ./runtests.bash -v failedscript.sql
+    or
+        runtests -v failedscript.sql
+    or
+        groovy .../testrun/sqltool/runtests.groovy -v failedscript.sql
 
     To see all available invocation methods:
 
         ./runtests.bash -h
+    or
+        runtests -h
 
 
 FILE NAMING AND ASCII/BINARY CONVENTIONS
@@ -93,8 +97,17 @@ FILE NAMING AND ASCII/BINARY CONVENTIONS
         top-level SQL script    .sql    ASCII (mime-type text/plain)
         top-level neg. SQL      .nsql   ASCII (mime-type text/plain)
         interactive SQL script  .inter  ASCII (mime-type text/plain)
-        nested \i SQL script    .isql   ASCII (mime-type text/plain)
-        delimiter-sep-values    .dsv    Binary (no mime-type)
+        nested \i SQL script*   .isql   ASCII (mime-type text/plain)*
+        delimiter-sep-values*   .dsv    Binary (no mime-type)*
+
+    * If you run any 'runtests' command without specifying any script files,
+      all of the *.sql, *.nsql, and *.inter scripts will be executed directly.
+      Any other files, including *.isql and *.dsv, will only be used if
+      pulled in from the directly executed scripts.
+      Therefore, if you add a script named say 'alpha.isql' or 'beta.custom',
+      they will not be used unless you specify the filename to your 'testrun'
+      command explicitly, or if you reference them from a file that is
+      executed directly.
 
     If you will be adding new files to HSQLDB, please configure these
     extensions in for CVS or Subversion client accordingly.
@@ -126,6 +139,7 @@ NEGATIVE TESTS
     Here's an example to confirm that you understand.
 
         ./runtests.bash 1.sql 2.sql 3.nsql 4.nsql 5.sql
+        or runtests 1.sql 2.sql 3.nsql 4.nsql 5.sql    (on Windows)
 
     This test run will report test failures for 1.sql, 2.sql, and 5.sql
     only if SqlTool fails when executing them.  It will report test
