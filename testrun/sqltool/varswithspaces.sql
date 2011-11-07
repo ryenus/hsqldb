@@ -11,4 +11,4 @@
 *if (*str1 == *wrong1) \q 'one  two' == 'one two'
 *if (*str1 == *wrong2) \q 'one  two' == 'one'
 *if (*str1 == *wrong3) \q 'one  two' == 'two'
-*if (*str1 != *expected) \q 'one  two' != 'one  two'
+*if (*str1 != *expected) \q (*{str1}) vs. (*{expected})
