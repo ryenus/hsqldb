@@ -11,3 +11,7 @@
 
 * EXPECTED = one two three
 * if (*VAR != *EXPECTED) \q return statement failed: (*{VAR}) vs. (*{EXPECTED})
+
+* return
+
+\q return.sql ran past the return statement
