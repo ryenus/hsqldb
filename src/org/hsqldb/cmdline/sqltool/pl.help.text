@@ -11,6 +11,8 @@ PROCEDURAL LANGUAGE COMMANDS
     * VARNAME :[appendage]        Set variable value to the previous edit
                                   buffer contents.
     * break [foreach|if|while|file] Exits a PL block or file early
+    * return                      Exits a file early
+                                  (equivalent to no-param 'break')
     * continue [foreach|while]    Exits a PL block iteration early
     * dump VARNAME path.txt       Dump variable value to text file
     * end foreach|if|while        Ends a PL block

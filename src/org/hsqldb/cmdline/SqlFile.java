@@ -2476,6 +2476,12 @@ public class SqlFile {
             throw new ContinueException();
         }
 
+        if (tokens[0].equals("return")) {
+            if (tokens.length > 1)
+                throw new BadSpecial(SqltoolRB.break_syntax.getString());
+            throw new BreakException();
+        }
+
         if (tokens[0].equals("break")) {
             if (tokens.length > 1) {
                 if (tokens.length == 2 &&

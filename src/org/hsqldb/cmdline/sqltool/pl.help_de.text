@@ -27,7 +27,9 @@ PROZEDUALE SPRACHE (PROCEDURAL LANGUAGE) BEFEHLE
     * while (logical expr)         Wiederholt den folgenden PL-Block solange
                                    wie der Ausdruck in den Klammern wahr ist.
     * end foreach|if|while         Beendent einen PL-Block.
-    * break [foreach|if|while|file]Unterbricht einen PL-Block vorzeitig.
+    * break [foreach|if|while|file]Unterbricht einen PL-Block oder Datei
+                                   vorzeitig.
+    * return                       Unterbricht eine Datei vorzeitig.
     * continue [foreach|while]     Bricht einen Schleifendurch in einem
                                    PL-Block ab und fährt mit dem nächsten
                                    Durchlauf fort.
