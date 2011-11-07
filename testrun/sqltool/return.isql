@@ -5,7 +5,7 @@
 
 * VAR=*{VAR} two
 
-* break
+* return
 
 \q return did not cause nested script ireturn.sql to return
 * VAR=*{VAR} three
