@@ -505,6 +505,29 @@
                 </simpara></listitem>
             </itemizedlist>
         </section>
+        <section><title>Upcoming Features</title>
+            <simpara>
+              No promise is made about these features.
+              I intend to implement them.
+              If and when they get implemented depends on whether other work
+              of mine requires them, and whether I get requests from any users.
+            </simpara>
+            <itemizedlist>
+              <listitem><simpara>
+                <literal>* else</literal> statement to accompany the
+                <literal>* if</literal> statement.
+              </simpara></listitem><listitem><simpara>
+                Traditional <literal>* for</literal> statement with
+                intialization clause and per-iteration conditional and
+                execution clauses, like:
+                <literal>* for ((x = 0)) (*x &lt; 10) ((x += 1))</literal>
+              </simpara></listitem><listitem><simpara>
+                Result set row-iteration, where PL variables are set to the
+                return values of the <emphasis>current</emphasis> row of the
+                result set of the specified query.
+              </simpara></listitem>
+            </itemizedlist>
+        </section>
     </section>
 
     <section xml:id='sqltool_baremin-sect'>
@@ -3665,8 +3688,8 @@ SELECT * FROM t
                 that.
             </simpara>
         </section>
-        <section>
-            <title>Logical Expressions</title>
+        <section xml:id='sqltool_logical-sect'>
+            <title xml:id='logical-title'>Logical Expressions</title>
             <simpara>
                 Logical expressions occur only inside of logical expression
                 parentheses in PL statements.
@@ -3674,7 +3697,24 @@ SELECT * FROM t
                 <literal>while (*checkvar)</literal>.
                 (The parentheses after "foreach" do not enclose a logical
                 expression, they just enclose a list).
-            </simpara> <simpara>
+            </simpara> <para>
+                Spaces are not allowed in elements of logical expressions.
+                These are examples of illegal logical expressions:
+                <literal>* while (two words)</literal>,
+                <literal>* if (*x == two words)</literal>.
+                You can certainly do what you want to do, however, by using
+                variables to hold multi-word strings.
+                You can achieve the goals for the two previous attempts with
+                <informalexample><screen>    *tmpVar = two words
+    * while (*tmpVar)
+    ...
+    * if (*x == *tmpVar)</screen></informalexample>
+                It is critically important here to use
+                <literal>*tmpvar</literal> instead of
+                <literal>*{tmpvar}</literal> in this situation, because
+                <literal>*{...}</literal> would not delay expansion and would
+                therefore be equivalent to entering the multiple words.
+            </para> <simpara>
                 SqlTool's logical expressions are purposefully minimalistic.
                 We do not support nested operations or mixing with
                 assignment commands.
@@ -3737,7 +3777,7 @@ SELECT * FROM t
                 <literal>?</literal> is equal to
                 <literal>one  two three</literal>, then you must do it like
                 this:<informalexample><programlisting>    * cfString = one  two three
-  * if (*cfString == ?)</programlisting></informalexample>
+    * if (*cfString == ?)</programlisting></informalexample>
                 As noted elsewhere in this guide, internal spaces are
                 preserved as given.  For assignments, trailing spaces are
                 generally preserved.
@@ -3904,6 +3944,9 @@ SELECT * FROM t
                 statement (like <literal>* foreach, *while, * if</literal>)
                 and a corresponding <literal>* end</literal> PL Command
                 (like <literal>* end foreach</literal>).
+            </simpara> <simpara>
+                Definitely read the section
+                <link xlink:href='#sqltool_logica-sect' endterm='logical-title'/>.
             </simpara> <simpara>
                 The values of control variables for foreach and while PL
                 blocks will change as expected.
