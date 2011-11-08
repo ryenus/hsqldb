@@ -951,7 +951,23 @@ public class SqlFile {
                         }
                         if (receivedType == Token.RAWEXEC_TYPE) {
                             historize();
-                            processSQL();
+                            Statement statement = processSQL();
+                            ResultSet rs = null;
+                            if (statement != null) {
+                                try {
+                                    rs = statement.getResultSet();
+                                } catch (SQLException se) {
+                                    try {
+                                        if (statement != null)
+                                            statement.close();
+                                    } catch (SQLException nse) {
+                                        // Purposefully doing nothing
+                                    }
+                                    throw se;  // rethrow
+                                }
+                                displaySqlResults(
+                                        statement, rs, null, null, true);
+                            }
                         }
                         continue;
                     case Token.MACRO_TYPE:
@@ -985,7 +1001,23 @@ public class SqlFile {
                         if (token.val == null) token.val = "";
                         setBuf(token);
                         historize();
-                        processSQL();
+                        Statement statement = processSQL();
+                        ResultSet rs = null;
+                        if (statement != null) {
+                            try {
+                                rs = statement.getResultSet();
+                            } catch (SQLException se) {
+                                try {
+                                    if (statement != null)
+                                        statement.close();
+                                } catch (SQLException nse) {
+                                    // Purposefully doing nothing
+                                }
+                                throw se;  // rethrow
+                            }
+                            displaySqlResults(
+                                    statement, rs, null, null, true);
+                        }
                         continue;
                     default:
                         assert false :
@@ -1600,6 +1632,7 @@ public class SqlFile {
                         throw new BadSpecial(
                                 SqltoolRB.dsv_targetfile_demand.getString());
                     ResultSet rs = null;
+                    Statement st = null;
                     File dsvFile = null;
                     csvStyleQuoting = arg1.equals("xq");
                     try {
@@ -1613,8 +1646,8 @@ public class SqlFile {
                                 (shared.encoding == null)
                                 ? DEFAULT_FILE_ENCODING : shared.encoding));
 
-                        rs = shared.jdbcConn.createStatement()
-                                .executeQuery(query.toString());
+                        st = shared.jdbcConn.createStatement();
+                        rs = st.executeQuery(query.toString());
                         List<Integer> colList = new ArrayList<Integer>();
                         int[] incCols = null;
                         if (dsvSkipCols != null) {
@@ -1645,10 +1678,19 @@ public class SqlFile {
                             for (int i = 0; i < incCols.length; i++)
                                 incCols[i] = colList.get(i).intValue();
                         }
-                        displaySqlResults(null, rs, incCols, null, true);
+                        displaySqlResults(st, rs, incCols, null, true);
                     } finally {
                         csvStyleQuoting = false;
-                        if (rs != null) rs.close();
+                        if (rs != null) try {
+                            rs.close();
+                        } catch (SQLException se) {
+                            // Purposefully empty
+                        }
+                        if (st != null) try {
+                            st.close();
+                        } catch (SQLException se) {
+                            // Purposefully empty
+                        }
                     }
                     pwDsv.flush();
                     stdprintln(SqltoolRB.file_wrotechars.getString(
@@ -1988,7 +2030,6 @@ public class SqlFile {
                         Boolean.toString(reportTimes)));
                 return;
 
-            case '*' :
             case 'c' :
                 enforce1charSpecial(arg1, '=');
                 if (other != null)
@@ -3251,6 +3292,17 @@ public class SqlFile {
                     types[0] = "VIEW";
                     break;
 
+                case 'c' :
+                    rs = md.getCatalogs();
+
+                    if (rs == null)
+                        throw new BadSpecial(
+                            SqltoolRB.metadata_fetch_fail.getString());
+
+                    displaySqlResults(null, rs, listMDSchemaCols, filter, false);
+
+                    return;
+
                 case 'n' :
                     rs = md.getSchemas();
 
@@ -3334,7 +3386,7 @@ public class SqlFile {
             if (rs == null)
                 throw new BadSpecial(SqltoolRB.metadata_fetch_fail.getString());
 
-            displaySqlResults(null, rs, listSet, filter, false);
+            displaySqlResults(statement, rs, listSet, filter, false);
 
             if (additionalSchemas != null) {
                 for (String additionalSchema : additionalSchemas) {
@@ -3389,10 +3441,11 @@ public class SqlFile {
     /**
      * Process the contents of Edit Buffer as an SQL Statement
      *
+     * @return an open SQL Statement or null.
      * @throws SQLException thrown by JDBC driver.
      * @throws SqlToolError all other errors.
      */
-    private void processSQL() throws SQLException, SqlToolError {
+    private Statement processSQL() throws SQLException, SqlToolError {
         shared.userVars.remove("?");
         requireConnection();
         assert buffer != null:
@@ -3422,47 +3475,70 @@ public class SqlFile {
 
         long startTime = 0;
         if (reportTimes) startTime = (new java.util.Date()).getTime();
-        try { // VERY outer block just to ensure we close "statement"
-        try { if (doPrepare) {
-            if (lastSqlStatement.indexOf('?') < 1) {
-                lastSqlStatement = null;
-                throw new SqlToolError(SqltoolRB.prepare_demandqm.getString());
-            }
-
-            doPrepare = false;
-
-            PreparedStatement ps =
-                    shared.jdbcConn.prepareStatement(lastSqlStatement);
-            statement = ps;
-
-            if (prepareVar == null) {
-                if (binBuffer == null) {
+        try {
+            if (doPrepare) {
+                if (lastSqlStatement.indexOf('?') < 1) {
                     lastSqlStatement = null;
-                    throw new SqlToolError(
-                            SqltoolRB.binbuffer_empty.getString());
+                    throw new SqlToolError(SqltoolRB.prepare_demandqm.getString());
                 }
 
-                ps.setBytes(1, binBuffer);
+                doPrepare = false;
+
+                PreparedStatement ps =
+                        shared.jdbcConn.prepareStatement(lastSqlStatement);
+                statement = ps;
+
+                if (prepareVar == null) {
+                    if (binBuffer == null) {
+                        lastSqlStatement = null;
+                        throw new SqlToolError(
+                                SqltoolRB.binbuffer_empty.getString());
+                    }
+
+                    ps.setBytes(1, binBuffer);
+                } else {
+                    String val = shared.userVars.get(prepareVar);
+
+                    if (val == null) {
+                        lastSqlStatement = null;
+                        throw new SqlToolError(
+                                SqltoolRB.plvar_undefined.getString(prepareVar));
+                    }
+
+                    prepareVar = null;
+
+                    ps.setString(1, val);
+                }
+
+                ps.executeUpdate();
             } else {
-                String val = shared.userVars.get(prepareVar);
+                statement = shared.jdbcConn.createStatement();
 
-                if (val == null) {
-                    lastSqlStatement = null;
-                    throw new SqlToolError(
-                            SqltoolRB.plvar_undefined.getString(prepareVar));
-                }
-
-                prepareVar = null;
-
-                ps.setString(1, val);
+                statement.execute(lastSqlStatement);
             }
-
-            ps.executeUpdate();
-        } else {
-            statement = shared.jdbcConn.createStatement();
-
-            statement.execute(lastSqlStatement);
-        } } finally {
+        // We close SQL resources for following catches.
+        // If we return resources, we obviously do not close them.
+        // User already being notified about the problem so don't clutter
+        // with details about close failures.
+        } catch (SQLException se) {
+            if (statement != null) try {
+                statement.close();
+            } catch (SQLException sen) {
+                // Intentionally empty.  See preceding comment
+            } finally {
+                statement = null;
+            }
+            throw se; // rethrow
+        } catch (SqlToolError ste) {
+            if (statement != null) try {
+                statement.close();
+            } catch (SQLException sen) {
+                // Intentionally empty.  See preceding comment
+            } finally {
+                statement = null;
+            }
+            throw ste; // rethrow
+        } finally {
             if (reportTimes) {
                 long elapsed = (new java.util.Date().getTime()) - startTime;
                 //condlPrintln("</TABLE>", true);
@@ -3477,6 +3553,9 @@ public class SqlFile {
             shared.possiblyUncommitteds = !shared.jdbcConn.getAutoCommit()
                     && !commitOccursPattern.matcher(lastSqlStatement).matches();
         } catch (java.sql.SQLException se) {
+            // The thing about this block is, we can't clean up resources
+            // because our connection has been severed.  We just notify and
+            // return.
             // If connection is closed by instance shutdown or whatever, we'll
             // get here.
             lastSqlStatement = null; // I forget what this is for
@@ -3488,41 +3567,24 @@ public class SqlFile {
             shared.jdbcConn = null;
             shared.possiblyUncommitteds = false;
             stdprintln(SqltoolRB.disconnect_success.getString());
-            return;
+            return null;
         }
-        ResultSet rs = null;
-        try {
-            rs = statement.getResultSet();
-            displaySqlResults(statement, rs, null, null, true);
-        } finally {
-            if (rs != null) try {
-                rs.close();
-            } catch (SQLException se) {
-                // We already got what we want from it, or have/are
-                // processing a more specific error.
-            }
-        }
-        } finally {
-            try {
-                if (statement != null) statement.close();
-            } catch (SQLException se) {
-                // Purposefully doing nothing
-            }
-        }
-        lastSqlStatement = null;
+        return statement;
     }
 
     /**
-     * Display the given result set for user.
+     * Display the given result set or update count for user and closes the
+     * supplied JDBC resources.
      * The last 3 params are to narrow down records and columns where
      * that can not be done with a where clause (like in metadata queries).
      * <P/>
      * Caller is responsible for closing any passed Statement or ResultSet.
      *
      * @param statement The SQL Statement that the result set is for.
-     *                  (This is so we can get the statement's update count.
-     *                  Can be null for non-update queries.)
-     * @param r         The ResultSet to display.
+     *                  This is so we can get the statement's update count,
+     *                  and so we can close it.
+     *                  Can be null if you don't want either of those things.
+     * @param r         The ResultSet to display and close.
      * @param incCols   Optional list of which columns to include (i.e., if
      *                  given, then other columns will be skipped).
      * @param filterRegex Optional filter.  Rows are skipped which to not
@@ -3536,6 +3598,7 @@ public class SqlFile {
                                   String filterString,
                                   boolean updateStatus) throws SQLException,
                                   SqlToolError {
+        try {
         if (pwDsv != null && csvStyleQuoting && (dsvColDelim.indexOf('"') > -1
                 || dsvRowDelim.indexOf('"') > -1))
             throw new SqlToolError(SqltoolRB.dsv_q_nodblquote.getString());
@@ -3766,6 +3829,7 @@ public class SqlFile {
 
                                 fetchingVar = null;
                             }
+                            lastSqlStatement = null;
                             return;
                         }
 
@@ -3792,7 +3856,10 @@ public class SqlFile {
                             fetchingVar = null;
                         }
 
-                        if (silent) return;
+                        if (silent) {
+                            lastSqlStatement = null;
+                            return;
+                        }
 
                         // We do not omit rows here.  We collect information
                         // so we can make the decision after all rows are
@@ -3964,6 +4031,23 @@ public class SqlFile {
                         ? SqltoolRB.row_update_singular.getString()
                         : SqltoolRB.row_update_multiple.getString(updateCount));
                 break;
+        }
+        lastSqlStatement = null;  // Clear this only if we don't error out
+        } finally {
+            if (r != null) try {
+                r.close();
+            } catch (SQLException se) {
+                logger.warning("Failed to close SQL result set: " + se);
+            } finally {
+                r = null;
+            }
+            if (statement != null) try {
+                statement.close();
+            } catch (SQLException se) {
+                logger.warning("Failed to close SQL statement: " + se);
+            } finally {
+                statement = null;
+            }
         }
     }
 

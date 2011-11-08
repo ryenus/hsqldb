@@ -1,5 +1,6 @@
 \dX [parameter...] where X is one of the following.
     a:  list Aliases
+    c:  list Catalogs
     i:  list Indexes (for some databases, must specify literal target table)
     n:  list schema Names
     r:  list Roles
