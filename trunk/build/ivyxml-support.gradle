@@ -79,10 +79,10 @@ moduleDescriptor.dependencies.each {
 task displayDeps << {
     if (!project.hasProperty('config.name'))
         throw new GradleException(
-                "Project property 'config.name' required by task 'echoDeps'.")
+            '''Project property 'config.name' required by task 'echoDeps'.''')
     println (configurations[project['config.name']].allDependencies.size()
             + ' dependencies for ' + project['config.name'] + '\n    '
             +  configurations[project['config.name']].asPath
             .replace(System.properties['path.separator'], '\n    '))
 }
-displayDeps.description = "Lists Ivy deps only for specified 'config.name'"
+displayDeps.description = '''Lists Ivy deps only for specified 'config.name'.'''

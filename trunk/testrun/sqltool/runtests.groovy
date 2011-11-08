@@ -25,7 +25,7 @@ class SqlToolTester {
 With -v, output from SqlTool will be shown.  Otherwise, only tests and results
 will be shown.
 With -n, SqlTool will not actually be invoked.
-If no script names are supplied, *.sql and *.nsql from the current directory 
+If no script names are supplied, *.sql and *.nsql from the current directory
 will be executed.
 Exit value is number of test failures, or 1 for other errors or if number of
 test failures exceeds 255 (shell scripts can't handle exit values > 255).
@@ -88,9 +88,7 @@ Non-verbose Result Key:
             AntBuilder ant = new AntBuilder()
             for (suffix in ['.sql', '.nsql', '.inter'])
                 for (f in (ant.fileScanner {
-                    fileset(dir: '.') {
-                        include(name: "*$suffix")
-                    }
+                    fileset(dir: '.') { include(name: "*$suffix") }
                 })) scripts << f
         }
         if (scripts.size() < 1)
@@ -123,7 +121,7 @@ StringWriter eWriter
                 cPrinter.flush()
             }
             if (noRun) continue
-            sWriter  = new StringWriter();  // Unfortunately, can't re-use
+            sWriter  = new StringWriter()  // Unfortunately, can't re-use
             // To process stderr separately, remove the redirectErrorStream
             // call below, and add a p.consumeProcessErrorStream(eWriter)
             Process p = new ProcessBuilder(runParams)
