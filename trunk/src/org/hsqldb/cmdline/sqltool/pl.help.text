@@ -19,6 +19,7 @@ PROCEDURAL LANGUAGE COMMANDS
     * foreach VARNAME ([val1...]) Repeat the following PL block with the
                                   variable set to each value in turn.
     * if (logical expr)           Execute following PL block only if expr true
+    * else                        Execute block if paired 'if' statement false
     * list[values] [VARNAME1...]  List PL variable(s) (defaults to all)
     * listsysprops [VARNAME1...]  List Java System property(s) (defaults to all)
     * load VARNAME path.txt       Load variable value from text file

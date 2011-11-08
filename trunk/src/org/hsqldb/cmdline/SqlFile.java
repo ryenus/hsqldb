@@ -152,6 +152,7 @@ import org.hsqldb.cmdline.sqltool.Calculator;
  */
 
 public class SqlFile {
+    private enum Recursion { FILE, IF, WHILE, FOREACH }
     private static FrameworkLogger logger =
             FrameworkLogger.getLog(SqlFile.class);
     private static final int DEFAULT_HISTORY_SIZE = 40;
@@ -441,9 +442,13 @@ public class SqlFile {
         "-----------------------------------------------------------------"
         + "-----------------------------------------------------------------";
     // Needs to be at least as wide as the widest field or header displayed.
-    private static String revnum =
-            "$Revision: x$".substring("$Revision: ".length(),
-            "$Revision: x$".length() - 2);
+    private static final String revString = "$Revision$";
+    private static final int revStringLength = revString.length();
+    private static final String  revnum =
+            (revStringLength - " $".length() > "$Revision: ".length())
+            ?  revString.substring("$Revision: ".length(),
+                    revStringLength - " $".length())
+            : "<UNTRACKED>";
 
     private static String DSV_OPTIONS_TEXT;
     private static String D_OPTIONS_TEXT;
@@ -587,7 +592,7 @@ public class SqlFile {
             String inputStreamLabel, File baseDir) {
         this(reader, inputStreamLabel, baseDir);
         try {
-            recursed = true;
+            recursed = Recursion.FILE;
             shared = parentSqlFile.shared;
             // shared.userVars.put("?", "");  Don't destroy this useful value!
             interactive = false;
@@ -703,7 +708,7 @@ public class SqlFile {
     }
 
     // So we can tell how to handle quit and break commands.
-    private boolean     recursed;
+    private Recursion   recursed;
     private PrintWriter pwQuery;
     private PrintWriter pwDsv;
     private boolean     continueOnError;
@@ -1017,7 +1022,7 @@ public class SqlFile {
             } catch (BreakException be) {
                 String msg = be.getMessage();
 
-                if (recursed) {
+                if (recursed != null) {
                     rollbackUncoms = false;
                     // Recursion level will exit by rethrowing the BE.
                     // We set rollbackUncoms to false because only the
@@ -1029,17 +1034,17 @@ public class SqlFile {
                     errprintln(SqltoolRB.break_unsatisfied.getString(msg));
                 }
 
-                if (recursed ||!continueOnError) throw be;
+                if (recursed  != null || !continueOnError) throw be;
             } catch (ContinueException ce) {
                 String msg = ce.getMessage();
 
-                if (recursed) {
+                if (recursed != null) {
                     rollbackUncoms = false;
                 } else {
                     errprintln(SqltoolRB.continue_unsatisfied.getString(msg));
                 }
 
-                if (recursed ||!continueOnError) throw ce;
+                if (recursed != null || !continueOnError) throw ce;
             } catch (QuitNow qn) {
                 throw qn;
             } catch (SqlToolError ste) {
@@ -1076,7 +1081,7 @@ public class SqlFile {
             throw new SqlToolError(
                     SqltoolRB.primaryinput_accessfail.getString(), ioe);
         } catch (QuitNow qn) {
-            if (recursed)
+            if (recursed != null)
                 throw qn;
                 // Will rollback if conditions otherwise require.
                 // Otherwise top level will decide based upon qn.getMessage().
@@ -2276,8 +2281,8 @@ public class SqlFile {
                         shared.userVars.put(varName, val);
                         updateUserSettings();
 
-                        boolean origRecursed = recursed;
-                        recursed = true;
+                        Recursion origRecursed = recursed;
+                        recursed = Recursion.FOREACH;
                         try {
                             scanpass(token.nestedBlock.dup());
                         } finally {
@@ -2330,11 +2335,21 @@ public class SqlFile {
 
             if (tokens[0].equals("if")) {
                 try {
-                    if (eval(values)) {
-                        boolean origRecursed = recursed;
-                        recursed = true;
+                    // Provisionally 'else'.  Will be nulled if it is not:
+                    Token elseToken = (token.nestedBlock.size() < 1)
+                            ? null
+                            : token.nestedBlock.get(
+                                    token.nestedBlock.size() - 1);
+                    if (elseToken != null && (elseToken.type != Token.PL_TYPE ||
+                            !elseToken.val.equals("else"))) elseToken = null;
+                    //if (elseToken != null)
+                        //token.nestedBlock.remove(token.nestedBlock.size() - 1);
+                    Token recurseToken = eval(values) ? token : elseToken;
+                    if (recurseToken != null) {
+                        Recursion origRecursed = recursed;
+                        recursed = Recursion.IF;
                         try {
-                            scanpass(token.nestedBlock.dup());
+                            scanpass(recurseToken.nestedBlock.dup());
                         } finally {
                             recursed = origRecursed;
                         }
@@ -2362,8 +2377,8 @@ public class SqlFile {
 
                     while (eval(values)) {
                         try {
-                            boolean origRecursed = recursed;
-                            recursed = true;
+                            Recursion origRecursed = recursed;
+                            recursed = Recursion.WHILE;
                             try {
                                 scanpass(token.nestedBlock.dup());
                             } finally {
@@ -2461,6 +2476,12 @@ public class SqlFile {
             return;
         }
 
+        if (tokens[0].equals("else")) {
+            if (recursed != Recursion.IF)
+                throw new BadSpecial(SqltoolRB.else_without_if.getString());
+            return;
+        }
+
         if (tokens[0].equals("end"))
             throw new BadSpecial(SqltoolRB.end_noblock.getString());
 
@@ -2479,14 +2500,13 @@ public class SqlFile {
         if (tokens[0].equals("return")) {
             if (tokens.length > 1)
                 throw new BadSpecial(SqltoolRB.break_syntax.getString());
-            throw new BreakException();
+            throw new BreakException("file");
         }
 
         if (tokens[0].equals("break")) {
             if (tokens.length > 1) {
                 if (tokens.length == 2 &&
                         (tokens[1].equals("foreach") ||
-                         tokens[1].equals("if") ||
                          tokens[1].equals("while") ||
                          tokens[1].equals("file")))
                     throw new BreakException(tokens[1]);
@@ -4975,9 +4995,8 @@ public class SqlFile {
             headerList.add(colName);
             if (colName == null) continue;
             if (usedCols.contains(colName.toLowerCase()))
-                // TODO:  Define an internationalized message
-                throw new SqlToolError("Multiple input column values for "
-                        + "single database column: " + colName);
+                throw new SqlToolError(
+                        SqltoolRB.import_col_dup.getString(colName));
             usedCols.add(colName.toLowerCase());
         }
         if (skipCols != null && skipCols.size() > 0)
@@ -5546,14 +5565,32 @@ public class SqlFile {
             throws BadSpecial, IOException, SqlToolError {
         Token token;
         TokenList newTS = new TokenList();
-        Pattern endPattern = (nestingCommand == null)
-                ? null : Pattern.compile("end\\s+" + nestingCommand);
+        Pattern endPattern = null;
+        Pattern elsePattern = null;
+        if (nestingCommand != null)
+            if (nestingCommand.equals("if")) {
+                endPattern = Pattern.compile("end\\s+" + nestingCommand);
+                elsePattern = Pattern.compile("else");
+            } else if (nestingCommand.equals("else")) {
+                endPattern = Pattern.compile("end\\s+if");
+            } else {
+                endPattern = Pattern.compile("end\\s+" + nestingCommand);
+            }
+
         String subNestingCommand;
         Matcher inlineNestMatcher;
 
         while ((token = scanner.yylex()) != null) {
-            if (nestingCommand != null && token.type == Token.PL_TYPE
+            if (endPattern != null && token.type == Token.PL_TYPE
                     && endPattern.matcher(token.val).matches()) return newTS;
+            if (elsePattern != null && token.type == Token.PL_TYPE
+                    && elsePattern.matcher(token.val).matches()) {
+                assert token.nestedBlock == null:
+                        "else statement's .nested block not null";
+                token.nestedBlock = seekTokenSource("else");
+                newTS.add(token);
+                return newTS;
+            }
             inlineNestMatcher = inlineNestMatcher(token);
             if (inlineNestMatcher != null) {
                 processInlineBlock(token,
