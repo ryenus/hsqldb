@@ -228,7 +228,7 @@ public class SqlFile {
     private static Pattern   foreachPattern =
             Pattern.compile("foreach\\s+(\\S+)\\s*\\(([^)]+)\\)\\s*");
     private static Pattern   forrowsPattern =
-            Pattern.compile("forrows(?:\\s+([a-zA-Z]\\w*))*\\s*");
+            Pattern.compile("forrows((?:\\s+[a-zA-Z]\\w*)*)\\s*");
     private static Pattern   forPattern = Pattern.compile(
         "for\\s+(\\(\\(.+\\)\\))?\\s*(\\([^)]+\\))\\s*(\\(\\(.+\\)\\))\\s*");
     private static Pattern   ifwhilePattern =
@@ -722,12 +722,12 @@ public class SqlFile {
      * This is reset upon each execute() invocation (to true if interactive,
      * false otherwise).
      */
-    private SqlFileScanner      scanner;
-    private Token               buffer, prevToken;
-    private boolean             preempt;
-    private String              lastSqlStatement;
-    private boolean             autoClose = true;
-    private boolean             csvStyleQuoting;
+    private SqlFileScanner scanner;
+    private Token          buffer, prevToken;
+    private boolean        preempt;
+    private String         lastSqlStatement;
+    private boolean        autoClose = true;
+    private boolean        csvStyleQuoting;
 
     /**
      * Specify whether the supplied or generated input Reader should
@@ -2426,11 +2426,13 @@ public class SqlFile {
                 throw new BadSpecial(
                         SqltoolRB.pl_malformat_specific.getString("forrows"));
 
-            String[] origVals = new String[forrowsM.groupCount()];
-            for (int i = 1; i <= forrowsM.groupCount(); i++)
-                origVals[i-1] = shared.userVars.get(forrowsM.group(i));
-for (int i = 1; i <= forrowsM.groupCount(); i++)
-logger.severe("G"+ i + "=(" + forrowsM.group(i) + ')');
+            String[] vars = (forrowsM.groupCount() > 0
+                    && forrowsM.group(1) != null
+                    && forrowsM.group(1).length() > 0)
+                    ? forrowsM.group(1).trim().split("\\s+") : null;
+            String[] origVals = (vars == null) ? null : new String[vars.length];
+            if (origVals != null) for (int i = 0; i < vars.length; i++)
+                origVals[i] = shared.userVars.get(vars[i]);
             TokenList dupNesteds = token.nestedBlock.dup();
             if (dupNesteds.size() < 2)
                 // TODO: Define message
@@ -2447,14 +2449,15 @@ logger.severe("G"+ i + "=(" + forrowsM.group(i) + ')');
             if (statement == null)
                 // TODO: Define message
                 throw new BadSpecial("Failed to prepare SQL for loop");
+            int colCount = 0;
             try {
                 rs = statement.getResultSet();
                 ResultSetMetaData rsmd = rs.getMetaData();
-                int colCount = rsmd.getColumnCount();
-                if (forrowsM.groupCount() > colCount)
+                colCount = rsmd.getColumnCount();
+                if (vars != null && vars.length > colCount)
                     // TODO: Define message
                     throw new BadSpecial("*forrows command specifies "
-                            + forrowsM.groupCount()
+                            + vars.length
                             + " variables, but query pulled only "
                             + colCount + " columns");
                 if (colCount < 1) return;
@@ -2481,11 +2484,28 @@ logger.severe("G"+ i + "=(" + forrowsM.group(i) + ')');
                     statement = null;
                 }
             }
+            lastSqlStatement = null;
             // Done with SQL
 
+            if (rowData.size() > 0) {
+                String firstVal = rowData.get(0)[0];
+                String lastVal = rowData.get(rowData.size()-1)[colCount - 1];
+                shared.userVars.put("?",
+                        (lastVal == null) ? nullRepToken : lastVal);
+                if (fetchingVar != null) {
+                    if (firstVal == null)
+                        shared.userVars.remove(fetchingVar);
+                    else
+                        shared.userVars.put(fetchingVar, firstVal);
+                    updateUserSettings();
+                    sqlExpandMode = null;
+                    fetchingVar = null;
+                }
+            } else {
+                shared.userVars.put("?", "");
+            }
             StringBuilder rowBuilder = new StringBuilder();
             String rowVal;
-//TODO:  Update ?, fetchingvar, any other state variables
             try {
                 for (String[] cells : rowData) {
                     if (cells.length == 1) {
@@ -2497,16 +2517,15 @@ logger.severe("G"+ i + "=(" + forrowsM.group(i) + ')');
                                 rowBuilder.append(dsvColDelim);
                             rowBuilder.append((s == null) ? nullRepToken : s);
                         }
+                        rowVal = rowBuilder.toString();
                     }
-                    shared.userVars.put("*ROW", rowBuilder.toString());
+                    shared.userVars.put("*ROW", rowVal);
 
-                    for (int i = 0; i < forrowsM.groupCount(); i++)
+                    if (vars != null) for (int i = 0; i < vars.length; i++)
                         if (cells[i] == null)
-                            shared.userVars.remove(forrowsM.group(i+1));
+                            shared.userVars.remove(vars[i]);
                         else
-{logger.severe(forrowsM.group(i+1) + "=>" + cells[i]);
-                            shared.userVars.put(forrowsM.group(i+1), cells[i]);
-}
+                            shared.userVars.put(vars[i], cells[i]);
                     updateUserSettings();
 
                     Recursion origRecursed = recursed;
@@ -2535,11 +2554,11 @@ logger.severe("G"+ i + "=(" + forrowsM.group(i) + ')');
                 throw new BadSpecial(SqltoolRB.pl_block_fail.getString(), e);
             } finally {
                 shared.userVars.remove("*ROW");
-                for (int i = 1; i <= forrowsM.groupCount(); i++)
-                    if (origVals[i-1] == null)
-                        shared.userVars.remove(forrowsM.group(i));
+                if (origVals != null) for (int i = 1; i < origVals.length; i++)
+                    if (origVals[i] == null)
+                        shared.userVars.remove(vars[i]);
                     else
-                        shared.userVars.put(forrowsM.group(i), origVals[i-1]);
+                        shared.userVars.put(vars[i], origVals[i]);
                 updateUserSettings();
                 sqlExpandMode = null;
             }

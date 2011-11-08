@@ -144,7 +144,14 @@
     </simpara></listitem></varlistentry>
     <varlistentry><term>*REVISION</term><listitem><simpara>
         Read only.  Literal string.
-        Automatically set to the SqlFile program revision.
+    </simpara></listitem></varlistentry>
+    <varlistentry><term>*ROW</term><listitem><simpara>
+        Read only.  Literal string.  Set only inside of
+        <literal>* forrow</literal> loop bodies.
+        If there is only a single column fetched, then this is equal to that
+        cell of the current row, unless that value is null, in which case
+        <varname>*ROW</varname> will be the <varname>*NULL_REP_TOKEN</varname>
+        value.
     </simpara></listitem></varlistentry>
     <varlistentry><term>*START_TIME</term><listitem><simpara>
         Read only.  Literal string.

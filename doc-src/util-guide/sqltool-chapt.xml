@@ -444,10 +444,6 @@
                 </simpara></listitem><listitem><simpara>
                     Added integer math feature very similar to that of
                     Bash and Korn shells.
-                    Besides many other applications, mathematical assignment
-                    can be combined with <literal>* while</literal> to make
-                    an effective <emphasis>for loop</emphasis>
-                    (not <emphasis>foreach</emphasis>, which we already have).
                 </simpara></listitem><listitem><simpara>
                     Added some new logical operators
                 </simpara></listitem><listitem><simpara>
@@ -502,30 +498,19 @@
                     <literal>* if (*x == *b) \p Any 1-lne statement</literal>.
                     People who value conciseness, like myself, will appreciate
                     this.
+                </simpara></listitem><listitem><simpara>
+                  Added <literal>* else</literal> statement to accompany
+                  <literal>* if</literal> statement.
+                </simpara></listitem><listitem><simpara>
+                  Added traditional mathematical <literal>* if</literal>
+                  statement.  Run <literal>*?</literal> to see syntax.
+                </simpara></listitem><listitem><simpara>
+                  Added iteration over query result set rows with loop
+                  statment <literal>* forrows</literal>.
+                </simpara></listitem><listitem><simpara>
+                  Added statement <literal>* return</literal> as a more
+                  intuitival alias for <literal>* break file</literal>.
                 </simpara></listitem>
-            </itemizedlist>
-        </section>
-        <section><title>Upcoming Features</title>
-            <simpara>
-              No promise is made about these features.
-              I intend to implement them.
-              If and when they get implemented depends on whether other work
-              of mine requires them, and whether I get requests from any users.
-            </simpara>
-            <itemizedlist>
-              <listitem><simpara>
-                <literal>* else</literal> statement to accompany the
-                <literal>* if</literal> statement.
-              </simpara></listitem><listitem><simpara>
-                Traditional <literal>* for</literal> statement with
-                intialization clause and per-iteration conditional and
-                execution clauses, like:
-                <literal>* for ((x = 0)) (*x &lt; 10) ((x += 1))</literal>
-              </simpara></listitem><listitem><simpara>
-                Result set row-iteration, where PL variables are set to the
-                return values of the <emphasis>current</emphasis> row of the
-                result set of the specified query.
-              </simpara></listitem>
             </itemizedlist>
         </section>
     </section>
@@ -3724,9 +3709,6 @@ SELECT * FROM t
                 You can not assign the value of a boolean expression directly.
                 You can achieve that goal with an <literal>* while</literal>
                 and mathematical assignments.
-                The following section explains how a <literal>* while</literal>
-                command plus a math assignment command provide the effective
-                equivalent of a <emphasis>for counter loop</emphasis>.
             </simpara> <simpara>
                 As stated earlier, inside of logical expressions you should
                 normally reference PL variables without curly braces.
@@ -3973,17 +3955,6 @@ SELECT * FROM t
     ...
     * if (*notableEvent) \l SEVERE Something bad happened</programlisting>
               </example>
-            </para> <para>
-                An effective for counter loop can be constructed by combining
-                an <literal>* while</literal> command with an integer math
-                assignment, like so
-                <example><title>Effective For Counter Loop</title>
-                    <programlisting>    * i = 0
-    * while (*i &lt; 5)
-      -- Whatever you need to do
-      * ((i++))
-    * end while</programlisting>
-                </example>
             </para>
         </section>
         <section> <title>PL Example</title>

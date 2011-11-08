@@ -35,6 +35,14 @@ PROCEDURAL LANGUAGE COMMANDS
     * ((VARNAME OP math expr))    Perform integer math and assign to the var.
                                  Internal ops: variables, +, -, *, /, %, ^, ()
                                  Assignment OPs:  =, ++, +=, -=, *=, /=, %=
+    * forrows [VARNAME1...]      An SQL query statement must be the very next
+                                 command, then a PL block that will be executed
+                                 for each output row from the query.
+                                 Specified vars, if any, will be assigned to
+                                 the corresponding column output for each row,
+                                 and env var. *ROW will be set just like ?
+                                 except if multiple columns, they will all be
+                                 concatenated into *ROW.
 
 Use PL variable values (which have been set) like: *{VARNAME}.
 SqlTool reserves variables with names beginning with * for special purposes.
