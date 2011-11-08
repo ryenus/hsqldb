@@ -152,7 +152,7 @@ import org.hsqldb.cmdline.sqltool.Calculator;
  */
 
 public class SqlFile {
-    private enum Recursion { FILE, IF, WHILE, FOREACH }
+    private enum Recursion { FILE, IF, WHILE, FOREACH, FOR }
     private static FrameworkLogger logger =
             FrameworkLogger.getLog(SqlFile.class);
     private static final int DEFAULT_HISTORY_SIZE = 40;
@@ -227,6 +227,8 @@ public class SqlFile {
             "\\(\\(\\s*([a-zA-Z]\\w*)\\s*=\\s*(.+?)?\\s*\\)\\)\\s*");
     private static Pattern   foreachPattern =
             Pattern.compile("foreach\\s+(\\S+)\\s*\\(([^)]+)\\)\\s*");
+    private static Pattern   forPattern = Pattern.compile(
+        "for\\s+(\\(\\(.+\\)\\))?\\s*(\\([^)]+\\))\\s*(\\(\\(.+\\)\\))\\s*");
     private static Pattern   ifwhilePattern =
             Pattern.compile("\\S+\\s*\\(([^)]*)\\)\\s*");
     private static Pattern   inlineifPattern =
@@ -275,6 +277,7 @@ public class SqlFile {
         nestingPLCommands.put("if", ifwhilePattern);
         nestingPLCommands.put("while", ifwhilePattern);
         nestingPLCommands.put("foreach", foreachPattern);
+        nestingPLCommands.put("for", forPattern);
         inlineNestPLCommands.put("if", inlineifPattern);
 
         if (System.getProperty("os.name").startsWith("Windows"))
@@ -1760,7 +1763,7 @@ public class SqlFile {
                     String beMessage = be.getMessage();
 
                     // Handle "file" and plain breaks (by doing nothing)
-                    if (beMessage != null &&!beMessage.equals("file")) throw be;
+                    if (beMessage != null && !beMessage.equals("file")) throw be;
                 } catch (QuitNow qn) {
                     throw qn;
                 } catch (Exception e) {
@@ -2238,7 +2241,7 @@ public class SqlFile {
     private boolean fetchBinary;
 
     /**
-     * Process a block PL command like "if" of "foreach".
+     * Process a block PL command like "if" or "foreach".
      */
     private void processBlock(Token token) throws BadSpecial, SqlToolError {
         Matcher m = plPattern.matcher(dereference(token.val, false));
@@ -2253,11 +2256,121 @@ public class SqlFile {
 
         String[] tokens = m.group(1).split("\\s+", -1);
 
+        if (tokens[0].equals("for")) {
+            Matcher forM = forPattern.matcher(
+                    dereference(token.val, false));
+            if (!forM.matches())
+                throw new BadSpecial(
+                        SqltoolRB.pl_malformat_specific.getString("for"));
+            assert forM.groupCount() == 2 || forM.groupCount() == 3:
+                "Internal assertion failed.  "
+                + "forh pattern matched, but captured "
+                + forM.groupCount() + " groups";
+            String iterableAssignmentStr = forM.group(forM.groupCount());
+            String logicalExprStr = forM.group(forM.groupCount() - 1);
+            String initAssignmentStr = (forM.groupCount() < 3
+                    || forM.group(1) == null
+                    || forM.group(1).trim().length() < 1)
+                ? null : forM.group(1);
+
+            if (initAssignmentStr != null) try {
+                Matcher mathMatcher =
+                        mathAsgnPattern.matcher(initAssignmentStr);
+                if (mathMatcher.matches()) {
+                    shared.userVars.put(mathMatcher.group(1), Long.toString(
+                            Calculator.reassignValue(mathMatcher.group(1),
+                            shared.userVars, mathMatcher.group(2),
+                            (mathMatcher.groupCount() < 3)
+                            ? null : mathMatcher.group(3))));
+                } else {
+                    mathMatcher = mathPattern.matcher(initAssignmentStr);
+                    if (mathMatcher.matches())
+                        shared.userVars.put(mathMatcher.group(1), Long.toString(
+                                new Calculator(((mathMatcher.groupCount() > 1
+                                && mathMatcher.group(2) != null)
+                                ? mathMatcher.group(2)
+                                : ""), shared.userVars).reduce(0, false)));
+                }
+                sqlExpandMode = null;
+            } catch (RuntimeException re) {
+                throw new BadSpecial(SqltoolRB.math_expr_fail.getString(re));
+            }
+            String[] values =
+                    logicalExprStr.substring(1, logicalExprStr.length() - 1)
+                    .replaceAll("!([a-zA-Z0-9*])", "! $1").
+                    replaceAll("([a-zA-Z0-9*])!", "$1 !").split("\\s+", -1);
+
+            try {
+                while (eval(values)) {
+                    try {
+                        Recursion origRecursed = recursed;
+                        recursed = Recursion.FOR;
+                        try {
+                            scanpass(token.nestedBlock.dup());
+                        } finally {
+                            recursed = origRecursed;
+                        }
+                    } catch (ContinueException ce) {
+                        String ceMessage = ce.getMessage();
+
+                        if (ceMessage != null && !ceMessage.equals("for"))
+                            throw ce;
+                    }
+                    try {
+                        Matcher mathMatcher =
+                                mathAsgnPattern.matcher(iterableAssignmentStr);
+                        if (mathMatcher.matches()) {
+                            shared.userVars.put(
+                                    mathMatcher.group(1), Long.toString(
+                                    Calculator.reassignValue(
+                                    mathMatcher.group(1),
+                                    shared.userVars, mathMatcher.group(2),
+                                    (mathMatcher.groupCount() < 3)
+                                    ? null : mathMatcher.group(3))));
+                        } else {
+                            mathMatcher =
+                                    mathPattern.matcher(iterableAssignmentStr);
+                            if (mathMatcher.matches())
+                                shared.userVars.put(
+                                        mathMatcher.group(1), Long.toString(
+                                        new Calculator(
+                                        ((mathMatcher.groupCount() > 1
+                                        && mathMatcher.group(2) != null)
+                                        ? mathMatcher.group(2)
+                                        : ""),
+                                        shared.userVars).reduce(0, false)));
+                        }
+                    } catch (RuntimeException re) {
+                        throw new BadSpecial(
+                                SqltoolRB.math_expr_fail.getString(re));
+                    }
+                    // No updateUserSettings since can't modify *System vars
+                    sqlExpandMode = null;
+                }
+            } catch (BreakException be) {
+                String beMessage = be.getMessage();
+
+                // Handle "for" and plain breaks (by doing nothing)
+                if (beMessage != null && !beMessage.equals("for")) throw be;
+            } catch (QuitNow qn) {
+                throw qn;
+            } catch (RuntimeException re) {
+                throw re;  // Unrecoverable
+            } catch (Exception e) {
+                throw new BadSpecial(SqltoolRB.pl_block_fail.getString(), e);
+            }
+            // If we haven't instantiated a new SqlTool, then the following
+            // are unncessary.  TODO:  Test this and remove if unnecessary.
+            updateUserSettings();
+            sqlExpandMode = null;
+            return;
+        }
         if (tokens[0].equals("foreach")) {
             Matcher foreachM = foreachPattern.matcher(
                     dereference(token.val, false));
             if (!foreachM.matches())
-                throw new BadSpecial(SqltoolRB.foreach_malformat.getString());
+                throw new BadSpecial(
+                        SqltoolRB.pl_malformat_specific.getString("foreach"));
             if (foreachM.groupCount() != 2)
             assert foreachM.groupCount() == 2:
                 "Internal assertion failed.  "
@@ -2292,14 +2405,14 @@ public class SqlFile {
                         String ceMessage = ce.getMessage();
 
                         if (ceMessage != null
-                                &&!ceMessage.equals("foreach")) throw ce;
+                                && !ceMessage.equals("foreach")) throw ce;
                     }
                 }
             } catch (BreakException be) {
                 String beMessage = be.getMessage();
 
                 // Handle "foreach" and plain breaks (by doing nothing)
-                if (beMessage != null &&!beMessage.equals("foreach")) throw be;
+                if (beMessage != null && !beMessage.equals("foreach")) throw be;
             } catch (QuitNow qn) {
                 throw qn;
             } catch (RuntimeException re) {
@@ -2358,13 +2471,14 @@ public class SqlFile {
                     String beMessage = be.getMessage();
 
                     // Handle "if" and plain breaks (by doing nothing)
-                    if (beMessage == null ||!beMessage.equals("if")) throw be;
+                    if (beMessage == null || !beMessage.equals("if")) throw be;
                 } catch (ContinueException ce) {
                     throw ce;
                 } catch (QuitNow qn) {
                     throw qn;
                 } catch (BadSpecial bs) {
-                    bs.appendMessage(SqltoolRB.if_malformat.getString());
+                    bs.appendMessage(
+                            SqltoolRB.pl_malformat_specific.getString("if"));
                     throw bs;
                 } catch (RuntimeException re) {
                     throw re;  // Unrecoverable
@@ -2387,7 +2501,7 @@ public class SqlFile {
                         } catch (ContinueException ce) {
                             String ceMessage = ce.getMessage();
 
-                            if (ceMessage != null &&!ceMessage.equals("while"))
+                            if (ceMessage != null && !ceMessage.equals("while"))
                                 throw ce;
                         }
                     }
@@ -2395,12 +2509,13 @@ public class SqlFile {
                     String beMessage = be.getMessage();
 
                     // Handle "while" and plain breaks (by doing nothing)
-                    if (beMessage != null &&!beMessage.equals("while")) 
+                    if (beMessage != null && !beMessage.equals("while")) 
                         throw be;
                 } catch (QuitNow qn) {
                     throw qn;
                 } catch (BadSpecial bs) {
-                    bs.appendMessage(SqltoolRB.while_malformat.getString());
+                    bs.appendMessage(
+                            SqltoolRB.pl_malformat_specific.getString("while"));
                     throw bs;
                 } catch (RuntimeException re) {
                     throw re;  // Unrecoverable
@@ -2432,8 +2547,7 @@ public class SqlFile {
         String string = buffer.val;
         String dereffed = dereference(string, false);
 
-        Matcher mathMatcher =
-                mathAsgnPattern.matcher(dereference(string, false));
+        Matcher mathMatcher = mathAsgnPattern.matcher(dereffed);
         if (mathMatcher.matches()) try {
             shared.userVars.put(mathMatcher.group(1), Long.toString(
                     Calculator.reassignValue(mathMatcher.group(1),
@@ -2446,7 +2560,7 @@ public class SqlFile {
         } catch (RuntimeException re) {
             throw new BadSpecial(SqltoolRB.math_expr_fail.getString(re));
         }
-        mathMatcher = mathPattern.matcher(dereference(string, false));
+        mathMatcher = mathPattern.matcher(dereffed);
         if (mathMatcher.matches()) try {
             shared.userVars.put(mathMatcher.group(1), Long.toString(
                     new Calculator(((mathMatcher.groupCount() > 1
@@ -2488,8 +2602,9 @@ public class SqlFile {
         if (tokens[0].equals("continue")) {
             if (tokens.length > 1) {
                 if (tokens.length == 2 &&
-                        (tokens[1].equals("foreach") ||
-                         tokens[1].equals("while")))
+                        (tokens[1].equals("foreach")
+                        || tokens[1].equals("for")
+                        || tokens[1].equals("while")))
                     throw new ContinueException(tokens[1]);
                 throw new BadSpecial(SqltoolRB.continue_syntax.getString());
             }
@@ -2506,9 +2621,10 @@ public class SqlFile {
         if (tokens[0].equals("break")) {
             if (tokens.length > 1) {
                 if (tokens.length == 2 &&
-                        (tokens[1].equals("foreach") ||
-                         tokens[1].equals("while") ||
-                         tokens[1].equals("file")))
+                        (tokens[1].equals("foreach")
+                        || tokens[1].equals("while")
+                        || tokens[1].equals("for")
+                        || tokens[1].equals("file")))
                     throw new BreakException(tokens[1]);
                 throw new BadSpecial(SqltoolRB.break_syntax.getString());
             }
@@ -2574,7 +2690,8 @@ public class SqlFile {
 
         if (tokens[0].equals("prepare")) {
             if (tokens.length != 2)
-                throw new BadSpecial(SqltoolRB.prepare_malformat.getString());
+                throw new BadSpecial(
+                        SqltoolRB.pl_malformat_specific.getString("prepare"));
 
             if (shared.userVars.get(tokens[1]) == null)
                 throw new BadSpecial(
@@ -3618,7 +3735,7 @@ public class SqlFile {
                             }
                         }
 
-                        if (binary || (val == null &&!isValNull)) {
+                        if (binary || (val == null && !isValNull)) {
                             if (pwDsv != null)
                                 throw new SqlToolError(
                                         SqltoolRB.dsv_bincol.getString());
@@ -4186,7 +4303,7 @@ public class SqlFile {
 
         if (tokens.length == 1)
             return (tokens[0] != null && tokens[0].length() > 0
-                    &&!tokens[0].equals("0")) ^ negate;
+                    && !tokens[0].equals("0")) ^ negate;
 
         if (tokens.length == 3) {
             if (tokens[1] == null)
@@ -4271,7 +4388,7 @@ public class SqlFile {
      * The condlPrint methods do not escape HTML like the stdprint methods do.
      */
     private void condlPrintln(String s, boolean printHtml) {
-        if ((printHtml &&!htmlMode) || (htmlMode &&!printHtml)) return;
+        if ((printHtml && !htmlMode) || (htmlMode && !printHtml)) return;
 
         if (shared.psStd != null) shared.psStd.println(s);
 
@@ -4288,7 +4405,7 @@ public class SqlFile {
      * The condlPrint methods do not escape HTML like the stdprint methods do.
      */
     private void condlPrint(String s, boolean printHtml) {
-        if ((printHtml &&!htmlMode) || (htmlMode &&!printHtml)) return;
+        if ((printHtml && !htmlMode) || (htmlMode && !printHtml)) return;
 
         if (shared.psStd != null) shared.psStd.print(s);
 

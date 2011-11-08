@@ -554,7 +554,7 @@ public class SqlTool {
                 // I.e., if there are any SQL files specified.
                 scriptFiles = new File[arg.length - i - 1
                         + ((stdinputOverride == null
-                                ||!stdinputOverride.booleanValue()) ? 0 : 1)];
+                                || !stdinputOverride.booleanValue()) ? 0 : 1)];
 
                 if (debug) {
                     System.err.println("scriptFiles has "
@@ -682,11 +682,11 @@ public class SqlTool {
         File[] singleNullFileArray = { null };
         File   autoFile            = null;
 
-        if (interactive &&!noautoFile) {
+        if (interactive && !noautoFile) {
             autoFile = new File(System.getProperty("user.home")
                                 + "/auto.sql");
 
-            if ((!autoFile.isFile()) ||!autoFile.canRead()) {
+            if ((!autoFile.isFile()) || !autoFile.canRead()) {
                 autoFile = null;
             }
         }
