@@ -152,7 +152,7 @@ import org.hsqldb.cmdline.sqltool.Calculator;
  */
 
 public class SqlFile {
-    private enum Recursion { FILE, IF, WHILE, FOREACH, FOR }
+    private enum Recursion { FILE, IF, WHILE, FOREACH, FOR, FORROWS }
     private static FrameworkLogger logger =
             FrameworkLogger.getLog(SqlFile.class);
     private static final int DEFAULT_HISTORY_SIZE = 40;
@@ -227,6 +227,8 @@ public class SqlFile {
             "\\(\\(\\s*([a-zA-Z]\\w*)\\s*=\\s*(.+?)?\\s*\\)\\)\\s*");
     private static Pattern   foreachPattern =
             Pattern.compile("foreach\\s+(\\S+)\\s*\\(([^)]+)\\)\\s*");
+    private static Pattern   forrowsPattern =
+            Pattern.compile("forrows(?:\\s+([a-zA-Z]\\w*))*\\s*");
     private static Pattern   forPattern = Pattern.compile(
         "for\\s+(\\(\\(.+\\)\\))?\\s*(\\([^)]+\\))\\s*(\\(\\(.+\\)\\))\\s*");
     private static Pattern   ifwhilePattern =
@@ -277,6 +279,7 @@ public class SqlFile {
         nestingPLCommands.put("if", ifwhilePattern);
         nestingPLCommands.put("while", ifwhilePattern);
         nestingPLCommands.put("foreach", foreachPattern);
+        nestingPLCommands.put("forrows", forrowsPattern);
         nestingPLCommands.put("for", forPattern);
         inlineNestPLCommands.put("if", inlineifPattern);
 
@@ -962,6 +965,8 @@ public class SqlFile {
                                             statement.close();
                                     } catch (SQLException nse) {
                                         // Purposefully doing nothing
+                                    } finally {
+                                        statement = null;
                                     }
                                     throw se;  // rethrow
                                 }
@@ -1008,10 +1013,11 @@ public class SqlFile {
                                 rs = statement.getResultSet();
                             } catch (SQLException se) {
                                 try {
-                                    if (statement != null)
-                                        statement.close();
+                                    if (statement != null) statement.close();
                                 } catch (SQLException nse) {
                                     // Purposefully doing nothing
+                                } finally {
+                                    statement = null;
                                 }
                                 throw se;  // rethrow
                             }
@@ -1685,11 +1691,15 @@ public class SqlFile {
                             rs.close();
                         } catch (SQLException se) {
                             // Purposefully empty
+                        } finally {
+                            rs = null;
                         }
                         if (st != null) try {
                             st.close();
                         } catch (SQLException se) {
                             // Purposefully empty
+                        } finally {
+                            st = null;
                         }
                     }
                     pwDsv.flush();
@@ -2283,8 +2293,11 @@ public class SqlFile {
 
     /**
      * Process a block PL command like "if" or "foreach".
+     *
+     * @throws SQLException only if thrown by *forrows processing.
      */
-    private void processBlock(Token token) throws BadSpecial, SqlToolError {
+    private void processBlock(Token token)
+            throws BadSpecial, SqlToolError, SQLException {
         Matcher m = plPattern.matcher(dereference(token.val, false));
         if (!m.matches())
             throw new BadSpecial(SqltoolRB.pl_malformat.getString());
@@ -2343,19 +2356,17 @@ public class SqlFile {
 
             try {
                 while (eval(values)) {
+                    Recursion origRecursed = recursed;
+                    recursed = Recursion.FOR;
                     try {
-                        Recursion origRecursed = recursed;
-                        recursed = Recursion.FOR;
-                        try {
-                            scanpass(token.nestedBlock.dup());
-                        } finally {
-                            recursed = origRecursed;
-                        }
+                        scanpass(token.nestedBlock.dup());
                     } catch (ContinueException ce) {
                         String ceMessage = ce.getMessage();
 
                         if (ceMessage != null && !ceMessage.equals("for"))
                             throw ce;
+                    } finally {
+                        recursed = origRecursed;
                     }
                     try {
                         Matcher mathMatcher =
@@ -2399,13 +2410,142 @@ public class SqlFile {
                 throw re;  // Unrecoverable
             } catch (Exception e) {
                 throw new BadSpecial(SqltoolRB.pl_block_fail.getString(), e);
+            } finally {
+                // If we haven't instantiated a new SqlTool, then the following
+                // are unncessary.  TODO:  Test this and remove if unnecessary.
+                updateUserSettings();
+                sqlExpandMode = null;
             }
-            // If we haven't instantiated a new SqlTool, then the following
-            // are unncessary.  TODO:  Test this and remove if unnecessary.
-            updateUserSettings();
-            sqlExpandMode = null;
             return;
         }
+
+        if (tokens[0].equals("forrows")) {
+            Matcher forrowsM = forrowsPattern.matcher(
+                    dereference(token.val, false));
+            if (!forrowsM.matches())
+                throw new BadSpecial(
+                        SqltoolRB.pl_malformat_specific.getString("forrows"));
+
+            String[] origVals = new String[forrowsM.groupCount()];
+            for (int i = 1; i <= forrowsM.groupCount(); i++)
+                origVals[i-1] = shared.userVars.get(forrowsM.group(i));
+for (int i = 1; i <= forrowsM.groupCount(); i++)
+logger.severe("G"+ i + "=(" + forrowsM.group(i) + ')');
+            TokenList dupNesteds = token.nestedBlock.dup();
+            if (dupNesteds.size() < 2)
+                // TODO: Define message
+                throw new BadSpecial("Empty forrows loop");
+            Token queryToken = dupNesteds.remove(0);
+            if (queryToken.type != Token.SQL_TYPE)
+                // TODO: Define message
+                throw new BadSpecial("*forrows command not followed "
+                        + "immediately by an SQL statement");
+            setBuf(queryToken);
+            List<String[]> rowData = new ArrayList<String[]>();
+            Statement statement = processSQL();
+            ResultSet rs = null;
+            if (statement == null)
+                // TODO: Define message
+                throw new BadSpecial("Failed to prepare SQL for loop");
+            try {
+                rs = statement.getResultSet();
+                ResultSetMetaData rsmd = rs.getMetaData();
+                int colCount = rsmd.getColumnCount();
+                if (forrowsM.groupCount() > colCount)
+                    // TODO: Define message
+                    throw new BadSpecial("*forrows command specifies "
+                            + forrowsM.groupCount()
+                            + " variables, but query pulled only "
+                            + colCount + " columns");
+                if (colCount < 1) return;
+                String[] rowCells;
+                while (rs.next()) {
+                    rowCells = new String[colCount];
+                    rowData.add(rowCells);
+                    for (int i = 1; i <= colCount; i++)
+                        rowCells[i-1] = rs.getString(i);
+                }
+            } finally {
+                try {
+                    if (rs != null) rs.close();
+                } catch (SQLException nse) {
+                    // Purposefully doing nothing
+                } finally {
+                    rs = null;
+                }
+                try {
+                    if (statement != null) statement.close();
+                } catch (SQLException nse) {
+                    // Purposefully doing nothing
+                } finally {
+                    statement = null;
+                }
+            }
+            // Done with SQL
+
+            StringBuilder rowBuilder = new StringBuilder();
+            String rowVal;
+//TODO:  Update ?, fetchingvar, any other state variables
+            try {
+                for (String[] cells : rowData) {
+                    if (cells.length == 1) {
+                        rowVal = (cells[0] == null) ? nullRepToken : cells[0];
+                    } else {
+                        rowBuilder.setLength(0);
+                        for (String s : cells) {
+                            if (rowBuilder.length() > 0)
+                                rowBuilder.append(dsvColDelim);
+                            rowBuilder.append((s == null) ? nullRepToken : s);
+                        }
+                    }
+                    shared.userVars.put("*ROW", rowBuilder.toString());
+
+                    for (int i = 0; i < forrowsM.groupCount(); i++)
+                        if (cells[i] == null)
+                            shared.userVars.remove(forrowsM.group(i+1));
+                        else
+{logger.severe(forrowsM.group(i+1) + "=>" + cells[i]);
+                            shared.userVars.put(forrowsM.group(i+1), cells[i]);
+}
+                    updateUserSettings();
+
+                    Recursion origRecursed = recursed;
+                    recursed = Recursion.FORROWS;
+                    try {
+                        scanpass(dupNesteds.dup());
+                    } catch (ContinueException ce) {
+                        String ceMessage = ce.getMessage();
+
+                        if (ceMessage != null
+                                && !ceMessage.equals("forrows")) throw ce;
+                    } finally {
+                        recursed = origRecursed;
+                    }
+                }
+            } catch (BreakException be) {
+                String beMessage = be.getMessage();
+
+                // Handle "forrows" and plain breaks (by doing nothing)
+                if (beMessage != null && !beMessage.equals("forrows")) throw be;
+            } catch (QuitNow qn) {
+                throw qn;
+            } catch (RuntimeException re) {
+                throw re;  // Unrecoverable
+            } catch (Exception e) {
+                throw new BadSpecial(SqltoolRB.pl_block_fail.getString(), e);
+            } finally {
+                shared.userVars.remove("*ROW");
+                for (int i = 1; i <= forrowsM.groupCount(); i++)
+                    if (origVals[i-1] == null)
+                        shared.userVars.remove(forrowsM.group(i));
+                    else
+                        shared.userVars.put(forrowsM.group(i), origVals[i-1]);
+                updateUserSettings();
+                sqlExpandMode = null;
+            }
+            return;
+        }
+
         if (tokens[0].equals("foreach")) {
             Matcher foreachM = foreachPattern.matcher(
                     dereference(token.val, false));
@@ -2429,23 +2569,21 @@ public class SqlFile {
 
             try {
                 for (String val : values) {
-                    try {
-                        // val may never be null
-                        shared.userVars.put(varName, val);
-                        updateUserSettings();
+                    // val may never be null
+                    shared.userVars.put(varName, val);
+                    updateUserSettings();
 
-                        Recursion origRecursed = recursed;
-                        recursed = Recursion.FOREACH;
-                        try {
-                            scanpass(token.nestedBlock.dup());
-                        } finally {
-                            recursed = origRecursed;
-                        }
+                    Recursion origRecursed = recursed;
+                    recursed = Recursion.FOREACH;
+                    try {
+                        scanpass(token.nestedBlock.dup());
                     } catch (ContinueException ce) {
                         String ceMessage = ce.getMessage();
 
                         if (ceMessage != null
                                 && !ceMessage.equals("foreach")) throw ce;
+                    } finally {
+                        recursed = origRecursed;
                     }
                 }
             } catch (BreakException be) {
@@ -2459,15 +2597,15 @@ public class SqlFile {
                 throw re;  // Unrecoverable
             } catch (Exception e) {
                 throw new BadSpecial(SqltoolRB.pl_block_fail.getString(), e);
+            } finally {
+                if (origval == null) {
+                    shared.userVars.remove(varName);
+                } else {
+                    shared.userVars.put(varName, origval);
+                }
+                updateUserSettings();
+                sqlExpandMode = null;
             }
-
-            if (origval == null) {
-                shared.userVars.remove(varName);
-            } else {
-                shared.userVars.put(varName, origval);
-            }
-            updateUserSettings();
-            sqlExpandMode = null;
 
             return;
         }
@@ -2530,19 +2668,17 @@ public class SqlFile {
                 try {
 
                     while (eval(values)) {
+                        Recursion origRecursed = recursed;
+                        recursed = Recursion.WHILE;
                         try {
-                            Recursion origRecursed = recursed;
-                            recursed = Recursion.WHILE;
-                            try {
-                                scanpass(token.nestedBlock.dup());
-                            } finally {
-                                recursed = origRecursed;
-                            }
+                            scanpass(token.nestedBlock.dup());
                         } catch (ContinueException ce) {
                             String ceMessage = ce.getMessage();
 
                             if (ceMessage != null && !ceMessage.equals("while"))
                                 throw ce;
+                        } finally {
+                            recursed = origRecursed;
                         }
                     }
                 } catch (BreakException be) {
@@ -2643,6 +2779,7 @@ public class SqlFile {
             if (tokens.length > 1) {
                 if (tokens.length == 2 &&
                         (tokens[1].equals("foreach")
+                        || tokens[1].equals("forrows")
                         || tokens[1].equals("for")
                         || tokens[1].equals("while")))
                     throw new ContinueException(tokens[1]);
@@ -2662,6 +2799,7 @@ public class SqlFile {
             if (tokens.length > 1) {
                 if (tokens.length == 2 &&
                         (tokens[1].equals("foreach")
+                        || tokens[1].equals("forrows")
                         || tokens[1].equals("while")
                         || tokens[1].equals("for")
                         || tokens[1].equals("file")))
@@ -3425,6 +3563,8 @@ public class SqlFile {
                 } catch (SQLException se) {
                     // We already got what we want from it, or have/are
                     // processing a more specific error.
+                } finally {
+                    rs = null;
                 }
             }
 
@@ -3432,6 +3572,8 @@ public class SqlFile {
                 statement.close();
             } catch (SQLException se) {
                 // Purposefully doing nothing
+            } finally {
+                statement = null;
             }
         }
     }
@@ -4352,12 +4494,19 @@ public class SqlFile {
 
             condlPrintln(LS + "</TBODY></TABLE>", true);
         } finally {
-            try {
-                if (r != null) r.close();
-
+            if (r != null) try {
+                r.close();
+            } catch (SQLException nse) {
+                // intentionally empty;
+            } finally {
+                r = null;
+            }
+            if (statement != null) try {
                 statement.close();
-            } catch (SQLException se) {
-                // Purposefully doing nothing
+            } catch (SQLException nse) {
+                // intentionally empty;
+            } finally {
+                statement = null;
             }
         }
     }
