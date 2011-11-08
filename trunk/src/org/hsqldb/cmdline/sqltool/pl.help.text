@@ -18,6 +18,12 @@ PROCEDURAL LANGUAGE COMMANDS
     * end foreach|if|while        Ends a PL block
     * foreach VARNAME ([val1...]) Repeat the following PL block with the
                                   variable set to each value in turn.
+    * for ((VARNAME OP math expr)) (logical expr) ((VARNAME OP math expr))
+                                  Traditional mathematical for loop with
+                                  initial expr., test condition, iter. expr.
+                                  Example: * for ((i = 0)) (*i < 10) ((i += 1))
+    * for (logical expr) ((VARNAME OP math expr))
+                                  Same as previous, but with no initial expr.
     * if (logical expr)           Execute following PL block only if expr true
     * else                        Execute block if paired 'if' statement false
     * list[values] [VARNAME1...]  List PL variable(s) (defaults to all)
