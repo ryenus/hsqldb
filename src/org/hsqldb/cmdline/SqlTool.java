@@ -77,10 +77,14 @@ public class SqlTool {
             FrameworkLogger.getLog(SqlTool.class);
     public static final String DEFAULT_RCFILE =
         System.getProperty("user.home") + "/sqltool.rc";
-    // N.b. the following is static!
-    private static String  revnum =
-            "$Revision$".substring("$Revision: ".length(),
-            "$Revision$".length() - 2);
+    // N.b. the following are static!
+    private static final String revString = "$Revision$";
+    private static final int revStringLength = revString.length();
+    private static final String  revnum =
+            (revStringLength - " $".length() > "$Revision: ".length())
+            ?  revString.substring("$Revision: ".length(),
+                    revStringLength - " $".length())
+            : "<UNTRACKED>";
 
     public static final int SQLTOOLERR_EXITVAL = 1;
     public static final int SYNTAXERR_EXITVAL = 11;

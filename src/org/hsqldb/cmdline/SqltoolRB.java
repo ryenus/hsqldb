@@ -275,7 +275,9 @@ public enum SqltoolRB implements RefCapableRBInterface {
     varname_warning,
     null_assignment,
     bad_time_format,
-    no_timestamp_format
+    no_timestamp_format,
+    else_without_if,
+    import_col_dup
     ;
 
     private static ValidatingResourceBundle vrb =
