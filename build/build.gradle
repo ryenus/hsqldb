@@ -32,7 +32,7 @@ noop.description = 'Noop for testing Gradle'
 // This task only for SCM administrator.  Update version and execute this task.
 task updateWrapper(type: Wrapper) { doFirst {
     assert project.hasProperty('newVersion') :
-            "Property 'newVersion' is required for task 'updateWrapper'"
+        '''Property 'newVersion' is required for task 'updateWrapper'.'''
     assert project.newVersion == gradle.gradleVersion :
         "You invoke Gradle system with version $gradle.gradleVersion instead of desired version $project.newVersion"
 } }
@@ -46,7 +46,7 @@ updateWrapper.description = 'Update Gradle version.  For HSQLDB Administrators.'
 task serialver << {
     if (!project.hasProperty('className'))
         throw new InvalidUserDataException(
-                "Property 'className' is required for task 'serialver'")
+                '''Property 'className' is required for task 'serialver'.''')
 
     String pathSep = System.properties['path.separator']
     // Could alternatively use Gradle's ExecSpec via exec(...)
@@ -64,10 +64,10 @@ task serialver << {
     process.waitFor()
     if (process.exitValue()) {
         //print process.inputStream.text
-        throw new GradleException("'serialver' execution failed")
+        throw new GradleException(''''serialver' execution failed''')
     }
 }
-serialver.description = "Generates Java serialversion for specified 'classname'"
+serialver.description = '''Generates Java serialversion for specified 'classname'.'''
 */
 
 void resolveCheck(configName) {
@@ -84,10 +84,10 @@ void resolveCheck(configName) {
                 + configurations[configName].files.collect({it}).join('\n    ')
                 + '\n'
         )
-        assert false : "Didn't resolve all dependencies."
+        assert false : '''Didn't resolve all dependencies.'''
     }
     //configurations[configName].files.each { println '+' + it }
-    //throw new GradleException("Quittin' early")
+    //throw new GradleException('''Quittin' early''')
     logger.info "$artCount  artifacts resolved"
 }
 
@@ -175,7 +175,7 @@ File[] resequenceAntDependencies(String fileNameInsertion, closures, inFiles) {
             dependListsIn[targ.@name.text()] = listEls
         }
     logger.debug(targetsIn.size()
-            + " name->Target's (just keys): " + targetsIn.keySet())
+            + ''' name->Target's (just keys): ''' + targetsIn.keySet())
     logger.debug(dependListsIn.size() + " name->List's: $dependListsIn")
 
     for (dl in dependListsIn.values())
@@ -212,7 +212,7 @@ File[] resequenceAntDependencies(String fileNameInsertion, closures, inFiles) {
             it.@target.list().size() > 0
         })
             if (renameMap.containsKey(targ.@target.text()))
-                // { logger.debug"Trying " + targ.@target.text()
+                // { logger.debug 'Trying ' + targ.@target.text()
                 targ.@target = renameMap.get(targ.@target.text())
         for (e in renameMap) {
             pGpathR.target.find {it.@name.text() == e.key}.@name = e.value
@@ -482,7 +482,7 @@ explainprops.description = 'Explain how to change default build properties'
 
 task installDbImages << {
     assert !project.hasProperty('dbimage.path') :
-            "Property 'dbimage.path' may not be set when running target 'installDbImages'.\n" +
+            '''Property 'dbimage.path' may not be set when running target 'installDbImages'.\n''' +
     'If you have it set in a properties file, please remove it and try again.'
     if (project.hasProperty('nsstylebase.url')) {
         File dbimageDir = null
@@ -510,10 +510,10 @@ task installDbImages << {
         if (dbimageDir != null) {
             file('local-docbook.properties').append(
                     "dbimage.path=$dbimageDir".replace('\\', '\\\\') + '\n',
-                    "ISO-8859-1")
-            println "File 'local-docbook.properties' updated with dbimage.path of"
+                    'ISO-8859-1')
+            println '''File 'local-docbook.properties' updated with dbimage.path of'''
             println "'$dbimageDir'."
-            println "We used your existing 'nsstylebase.url' installation."
+            println '''We used your existing 'nsstylebase.url' installation.'''
             return
         }
     }
@@ -559,23 +559,23 @@ You can remove these install.* settings when you are finished running
     Binding binding = new Binding()
     binding.setVariable('params', [installParentDir, installAll])
     gse.run('dbuInstallSheetsWrapper.groovy', binding)
-    String newRootName = binding.getVariable("retVal")
+    String newRootName = binding.getVariable('retVal')
     File newRootDir = new File(installParentDir, newRootName)
     File dbimageDir = null
     if (installAll) {
-        dbimageDir = new File(newRootDir, "images")
+        dbimageDir = new File(newRootDir, 'images')
         file('local-docbook.properties').append(
                 "nsstylebase.url=file:$newRootDir".replace('\\', '\\\\') + '\n',
-                "ISO-8859-1")
-        println "File 'local-docbook.properties' updated with nsstylebase.url of "
+                'ISO-8859-1')
+        println '''File 'local-docbook.properties' updated with nsstylebase.url of '''
         println "'$newRootDir'."
     } else {
         dbimageDir = newRootDir
     }
     file('local-docbook.properties')
             .append("dbimage.path=$dbimageDir".replace('\\', '\\\\') + '\n',
-            "ISO-8859-1")
-    println "File 'local-docbook.properties' updated with dbimage.path of "
+            'ISO-8859-1')
+    println '''File 'local-docbook.properties' updated with dbimage.path of '''
     println """'$dbimageDir'.
 
 You will have the fastest doc builds and minimal network/Internet 

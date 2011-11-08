@@ -29,7 +29,7 @@ public static String installStyleSheets(File pDir, boolean allSheets) {
     String indexPathString = '/projects/docbook/files/docbook-xsl-ns'
     String latestVersionPath = null
 
-    (siteUrlString + indexPathString).toURL().withReader("UTF-8") {
+    (siteUrlString + indexPathString).toURL().withReader('UTF-8') {
         GPathResult html = (new XmlSlurper(new Parser()).parse(it))
         GPathResult gPathR = html.'**'.find {
             it.name() == 'table' && it.@id == 'files_list'
@@ -40,7 +40,8 @@ public static String installStyleSheets(File pDir, boolean allSheets) {
 
     //println "($latestVersionPath)"
     java.util.regex.Matcher m = latestVersionPath =~  /.*\/([-\w.]+)\//
-    assert m.matches() : "Failed to parse a version from path:  $latestVersionPath"
+    assert m.matches() :
+        "Failed to parse a version from path:  $latestVersionPath"
 
     String latestVer = m.group(1)
     //println "($latestVer)"
@@ -64,8 +65,9 @@ public static String installStyleSheets(File pDir, boolean allSheets) {
             "New target directory already exists: $newDir.absolutePath"
         ant.unzip(src:localZip.absolutePath,
                 dest:pDir.absolutePath, overwrite:'false')
-        if (!new File(newDir, "images").isDirectory())
-            throw new IOException("Extraction into '$newDir.absolutePath' failed")
+        if (!new File(newDir, 'images').isDirectory())
+            throw new IOException(
+                    "Extraction into '$newDir.absolutePath' failed")
         return "docbook-xsl-ns-$latestVer"
     }
     File destDir = new File(pDir, "xsl-ns-images-$latestVer")
@@ -73,9 +75,7 @@ public static String installStyleSheets(File pDir, boolean allSheets) {
         "New target directory already exists: $destDir.absolutePath"
     ant.unzip(src:localZip.absolutePath,
             dest:destDir.absolutePath, overwrite:'false') {
-        patternset {
-            include(name: "docbook-xsl-ns-$latestVer/images/**")
-        }
+        patternset { include(name: "docbook-xsl-ns-$latestVer/images/**") }
         regexpmapper(from:'^[^/]+/images/(.+)$', to:/\1/)
     }
     if (!destDir.isDirectory())
