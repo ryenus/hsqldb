@@ -1645,7 +1645,7 @@ public class SqlFile {
                             for (int i = 0; i < incCols.length; i++)
                                 incCols[i] = colList.get(i).intValue();
                         }
-                        displayResultSet(null, rs, incCols, null, true);
+                        displaySqlResults(null, rs, incCols, null, true);
                     } finally {
                         csvStyleQuoting = false;
                         if (rs != null) rs.close();
@@ -2386,7 +2386,6 @@ public class SqlFile {
 
             String origval = shared.userVars.get(varName);
 
-
             try {
                 for (String val : values) {
                     try {
@@ -3039,7 +3038,7 @@ public class SqlFile {
      * In many cases, the DB does not have a filter option, so we have
      * to filter ourselves.
      * For the latter, we have no control over which columsn the DB
-     * matches agains, plus the displayResultSet() method in this class
+     * matches agains, plus the displaySqlResults() method in this class
      * can only match against all columns (only reason not to add
      * column-specific filtering is to keep the complexity manageable).
      *
@@ -3259,7 +3258,7 @@ public class SqlFile {
                         throw new BadSpecial(
                             SqltoolRB.metadata_fetch_fail.getString());
 
-                    displayResultSet(null, rs, listMDSchemaCols, filter, false);
+                    displaySqlResults(null, rs, listMDSchemaCols, filter, false);
 
                     return;
 
@@ -3297,7 +3296,7 @@ public class SqlFile {
                         throw new BadSpecial(
                             SqltoolRB.metadata_fetch_fail.getString());
 
-                    displayResultSet(null, rs, listMDIndexCols, null, false);
+                    displaySqlResults(null, rs, listMDIndexCols, null, false);
 
                     return;
 
@@ -3335,13 +3334,13 @@ public class SqlFile {
             if (rs == null)
                 throw new BadSpecial(SqltoolRB.metadata_fetch_fail.getString());
 
-            displayResultSet(null, rs, listSet, filter, false);
+            displaySqlResults(null, rs, listSet, filter, false);
 
             if (additionalSchemas != null) {
                 for (String additionalSchema : additionalSchemas) {
                     /*
                      * Inefficient, but we have to do each successful query
-                     * twice in order to prevent calling displayResultSet
+                     * twice in order to prevent calling displaySqlResults
                      * for empty/non-existent schemas
                      */
                     rs = md.getTables(null, additionalSchema, null,
@@ -3354,7 +3353,7 @@ public class SqlFile {
 
                     if (!rs.next()) continue;
 
-                    displayResultSet(
+                    displaySqlResults(
                         null,
                         md.getTables(null, additionalSchema, null, types),
                         listSet, filter, false);
@@ -3494,7 +3493,7 @@ public class SqlFile {
         ResultSet rs = null;
         try {
             rs = statement.getResultSet();
-            displayResultSet(statement, rs, null, null, true);
+            displaySqlResults(statement, rs, null, null, true);
         } finally {
             if (rs != null) try {
                 rs.close();
@@ -3532,7 +3531,7 @@ public class SqlFile {
      * @throws SQLException thrown by JDBC driver.
      * @throws SqlToolError all other errors.
      */
-    private void displayResultSet(Statement statement, ResultSet r,
+    private void displaySqlResults(Statement statement, ResultSet r,
                                   int[] incCols,
                                   String filterString,
                                   boolean updateStatus) throws SQLException,
