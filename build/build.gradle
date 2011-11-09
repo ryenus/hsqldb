@@ -71,22 +71,23 @@ compileJava.dependsOn << {
 }
 */
 
-// Blaine wants to use a variant of the following to check for tabs in
-// SqlTool's properties and *.txt files.
-/*  X's inserted below or this multi-line comment would not work.
-task checkTabs (dependsOn: war) << {
-    FileTree tree = fileTree(dir: '.')
-    tree.exclude '**X/.*'
-    tree.exclude 'src/main/webapp/images'
-    tree.exclude 'src/main/webapp/css/openid*.css'
-    tree.exclude 'src/main/webapp/js/openid*.js'
-    tree.include  'src/X**'
-    tree.include  'doc/X**'
+task checkTabs << {
+    FileTree tree = fileTree(dir: '..')
+    tree.exclude '**/javadoc.css'
+    tree.exclude '**/*.jar'
+    tree.exclude '**/*.png'
+    tree.exclude '**/*.gif'
+    tree.exclude '**/.*/**'
+    tree.exclude '**/images/**'
+    tree.include  '*.text'
+    tree.include  'build/*'
+    tree.include  'src/**'
+    tree.include  'doc-src/**'
     def tabFiles = []
     tree.each { if (it.text.indexOf('\t') > -1) tabFiles << relativePath(it) }
     if (tabFiles.size() > 0) println '  ' + tabFiles.join('\n  ')
 }
-*/
+checkTabs.description = 'Reports on any text files containing tab characters'
 
 import java.util.regex.Pattern
 import java.util.regex.Matcher
