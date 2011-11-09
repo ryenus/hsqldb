@@ -42,34 +42,6 @@ updateWrapper << {
 }
 updateWrapper.description = 'Update Gradle version.  For HSQLDB Administrators.'
 
-/*
-task serialver << {
-    if (!project.hasProperty('className'))
-        throw new InvalidUserDataException(
-                '''Property 'className' is required for task 'serialver'.''')
-
-    String pathSep = System.properties['path.separator']
-    // Could alternatively use Gradle's ExecSpec via exec(...)
-    Process process = new ProcessBuilder([
-        // 'D:\\progra~1\\portableGit-1.7.3.1-p\\bin\\ls',
-        'serialver',
-        '-classpath',
-        ('classes' + pathSep + configurations.runtime.files.join(pathSep)
-                + pathSep + configurations.compile.files.join(pathSep))
-        ,
-        project.property('className')
-    ]).redirectErrorStream(true).start()
-    // Must read input before waitFor-ing
-    process.inputStream.eachLine { println it }
-    process.waitFor()
-    if (process.exitValue()) {
-        //print process.inputStream.text
-        throw new GradleException(''''serialver' execution failed''')
-    }
-}
-serialver.description = '''Generates Java serialversion for specified 'classname'.'''
-*/
-
 void resolveCheck(configName) {
     int artCount = configurations[configName].files.size()
     // Following test works only if deps' transitive is false.
@@ -321,6 +293,31 @@ configurations {
     bndJar
     jflexJar
 }
+
+task serialver(dependsOn: ['classes16', 'util']) << {
+    assert project.hasProperty('className'):
+            '''Property 'className' is required for task 'serialver'.'''
+    String fileSep = System.properties['file.separator']
+    // Could alternatively use Gradle's ExecSpec via exec(...)
+    String javaHome = System.properties['java.home']
+    String javacHome = (javaHome.endsWith("jre")
+            ? javaHome.substring(0, javaHome.length() - "/jre".length())
+            : javaHome)
+    Process process = new ProcessBuilder([
+        javacHome + fileSep + 'bin' + fileSep + 'serialver',
+        '-classpath',
+        '../classes',
+        project.property('className')
+    ]).redirectErrorStream(true).start()
+    // Must read input before waitFor-ing
+    File outFile = new File(System.properties['java.io.tmpdir'],
+                'serialVer-' + System.properties['user.name'] + '.txt')
+    process.inputStream.eachLine { println it; outFile.write(it + '\n') }
+    assert process.waitFor() == 0:  '''Execution of 'serialver' failed'''
+    println """Also written to file '$outFile.absolutePath'
+so you can read it into your editor."""
+}
+serialver.description = "Generates Java serialversion for specified 'classname'"
 
 apply from: 'ivyxml-support.gradle'
 
