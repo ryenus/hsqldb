@@ -1590,7 +1590,7 @@
         <variablelist><title>Essential Special Commands</title>
             <varlistentry><term>\?</term><listitem><simpara>
                   In-program Help.
-                  <emphasis role="bold">Run this show ALL available Special
+                  <emphasis role="bold">Run this to show ALL available Special
                   Commands instead of just the subset listed here!</emphasis>
             </simpara></listitem></varlistentry>
             <varlistentry><term>\q</term><listitem><simpara>
@@ -2055,11 +2055,16 @@
 
         <section xml:id='sqltool_interactive_pl_commands-sect'>
         <title>PL Commands</title>
-        <variablelist><title xml:id='interactive_pl_commands-title'>Essential PL Command</title>
+        <variablelist><title xml:id='interactive_pl_commands-title'>
+         Essential PL Command</title>
             <varlistentry><term>* ?</term><listitem><simpara>
-                  In-program Help.
-                  <emphasis role="bold">Run this show ALL available PL
-                  Commands instead of just the subset listed here!</emphasis>
+                In-program Help about using the PL variables which have been
+                set.
+                <emphasis role="bold">Use this command!</emphasis>
+            </simpara></listitem></varlistentry>
+            <varlistentry><term>* ? assign</term><listitem><simpara>
+                In-program Help about setting and unsetting PL variables.
+                <emphasis role="bold">Use this command!</emphasis>
             </simpara></listitem></varlistentry>
             <varlistentry><term>* VARNAME = value</term><listitem><para>
                 Set the value of a variable.
@@ -2114,16 +2119,6 @@
             </listitem></varlistentry>
             <varlistentry><term>* - VARNAME</term><listitem><simpara>
                 <emphasis>Unset</emphasis> (remove) the specified variable.
-
-            </simpara></listitem></varlistentry>
-            <varlistentry><term>* load VARNAME /file/path.txt</term><listitem><simpara>
-                Sets VARNAME to the content of the specified ASCII file.
-            </simpara></listitem></varlistentry>
-            <varlistentry><term>* prepare VARNAME</term><listitem><simpara>
-                Indicate that next command should be a SQL INSERT or UPDATE
-                command containing one question mark.
-                The value of VARNAME will be substituted for the ? variable.
-                This does work for CLOB columns.
             </simpara></listitem></varlistentry>
             <varlistentry><term>* VARNAME _</term><listitem><simpara>
                 When next SQL command is run, instead of displaying the rows,
@@ -2139,21 +2134,26 @@
                 See the <link xlink:href='#sqltool_nullempty-sect'
                 endterm='nullempty-title'/> section about that.
             </simpara></listitem></varlistentry>
-            <varlistentry><term>* VARNAME ~</term><listitem><para>
-                Exactly the same as
-                <programlisting>    * VARNAME ~</programlisting>
-                except that the fetched results will be displayed in addition
-                to setting the variable.
-            </para></listitem></varlistentry>
-            <varlistentry><term>* dump VARNAME /file/path.txt</term><listitem><simpara>
-                Store the value of VARNAME to the specified ASCII file.
+            <varlistentry><term>* ? control</term><listitem><simpara>
+                In-program Help about PL control/branching commands.
+                <emphasis role="bold">Use this command!</emphasis>
+            </simpara></listitem></varlistentry>
+            <varlistentry><term>* if (LOGICAL EXPR)</term><listitem><simpara>
+                If the logical expression evaluates to true, then the following
+                block of code (up to the paired <literal>* end if</literal>
+                statement is executed.
+                If the expression is false, then the same code block is skipped.
+                Run <literal>* ? control</literal> for details, including 
+                the optional <literal>* else</literal> statement, a short-cut
+                <emphasis>inline if statement</emphasis>, and several other
+                branching statements.
             </simpara></listitem></varlistentry>
         </variablelist>
         <simpara>
-            This list here includes only the <emphasis>essential</emphasis>
-            PL Commands, but n.b. that
-            <emphasis role='bold'>there are other useful PL Commands
-            which you can list by running <literal>* ?</literal></emphasis>.
+          This list here includes only a sampling of some
+          <emphasis>essential</emphasis> PL Commands, but 
+          <emphasis role='bold'>there are many other useful PL Commands
+          which you can list by running <literal>* ?</literal></emphasis>.
         </simpara> <simpara>
           PL variables are intimately involved with most PL commands, and (and
           with some Special commands).
@@ -3225,8 +3225,13 @@ OneTwo</screen>
             </itemizedlist>
             <section xml:id='sqltool_plsys_variables-sect'>
               <title xml:id='pl_sysvariables-title'>System PL Variables</title>
+              <important><simpara>
+                  Definitely run command <literal>* ?</literal> to view
+                  in-program help about referencing PL variables, and run
+                  <literal>* ? assign</literal> if you will be assigning
+                  variables.
+              </simpara></important>
               <simpara>
-                </simpara><simpara>
                   SqlTool automatically assign values to a few special system
                   variables.
                   As I write this, the special variables are only
@@ -3259,7 +3264,7 @@ OneTwo</screen>
                   behavior by running <varname>\x?</varname>.
                 </simpara><simpara>
                   <emphasis role="bold">
-                    See the list of variables (as of revision 4637 in the <link
+                    See the list of system variables in the <link
                     xlink:href='#systempls-app' endterm='systempls-title'/>
                     appendix.
                   </emphasis>
@@ -3919,7 +3924,13 @@ SELECT * FROM t
                 Flow control works by conditionally executing blocks of
                 Commands according to conditions specified by logical
                 expressions.
-            </simpara> <simpara>
+            </simpara>
+            <important><simpara>
+                Definitely run command <literal>* ? control</literal> to view
+                a list of the available flow control statements, and details
+                about how to use them.
+            </simpara></important>
+            <simpara>
                 The conditionally executed blocks are called
                 <emphasis>PL Blocks</emphasis>.
                 These PL Blocks always occur between a PL flow control
@@ -3930,8 +3941,8 @@ SELECT * FROM t
                 Definitely read the section
                 <link xlink:href='#sqltool_logica-sect' endterm='logical-title'/>.
             </simpara> <simpara>
-                The values of control variables for foreach and while PL
-                blocks will change as expected.
+            The values of control variables for <literal>* foreach</literal>
+            and <literal>* forrows</literal> PL blocks will change as expected.
             </simpara> <simpara>
                 There are <literal>* break</literal> and
                 <literal>* continue</literal>, which work as any shell
@@ -3951,7 +3962,7 @@ SELECT * FROM t
                 <programlisting>    * if (*x == *NULL) \q Aborting program
     ....
     * while...
-        * if (*exitCondition) break
+        * if (*exitCondition) * break
     ...
     * if (*notableEvent) \l SEVERE Something bad happened</programlisting>
               </example>
