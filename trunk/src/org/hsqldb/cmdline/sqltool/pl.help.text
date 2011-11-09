@@ -1,56 +1,28 @@
-PROCEDURAL LANGUAGE COMMANDS
-    * ?                           PL Help
-    * VARNAME = [new value]       Set variable value.
-                                  Leading space is trimmed from new value.
-    * - VARNAME                   Unset variable
-    * VARNAME ~                   Set variable value to the value of the very
-                                  next SQL value or count fetched (see details
-                                  at the bottom of this listing).
-    * VARNAME _                   Same as * VARNAME _, except the query is
-                                  done silently (i.e, no rows to screen).
-    * VARNAME :[appendage]        Set variable value to the previous edit
-                                  buffer contents.
-    * break [foreach|if|while|file] Exits a PL block or file early
-    * return                      Exits a file early
-                                  (equivalent to no-param 'break')
-    * continue [foreach|while]    Exits a PL block iteration early
-    * dump VARNAME path.txt       Dump variable value to text file
-    * end foreach|if|while        Ends a PL block
-    * foreach VARNAME ([val1...]) Repeat the following PL block with the
-                                  variable set to each value in turn.
-    * for ((VARNAME OP math expr)) (logical expr) ((VARNAME OP math expr))
-                                  Traditional mathematical for loop with
-                                  initial expr., test condition, iter. expr.
-                                  Example: * for ((i = 0)) (*i < 10) ((i += 1))
-    * for (logical expr) ((VARNAME OP math expr))
-                                  Same as previous, but with no initial expr.
-    * if (logical expr)           Execute following PL block only if expr true
-    * else                        Execute block if paired 'if' statement false
-    * list[values] [VARNAME1...]  List PL variable(s) (defaults to all)
-    * listsysprops [VARNAME1...]  List Java System property(s) (defaults to all)
-    * load VARNAME path.txt       Load variable value from text file
-    * prepare VARNAME             Use ? in next SQL statement to upload val.
-                                  (Just "?", since "*{?}" is the auto var.).
-    * while (logical expr)        Repeat following PL block while expr true
-    * ((VARNAME OP math expr))    Perform integer math and assign to the var.
-                                 Internal ops: variables, +, -, *, /, %, ^, ()
-                                 Assignment OPs:  =, ++, +=, -=, *=, /=, %=
-    * forrows [VARNAME1...]      An SQL query statement must be the very next
-                                 command, then a PL block that will be executed
-                                 for each output row from the query.
-                                 Specified vars, if any, will be assigned to
-                                 the corresponding column output for each row,
-                                 and env var. *ROW will be set just like ?
-                                 except if multiple columns, they will all be
-                                 concatenated into *ROW.
+PROCEDURAL LANGUAGE HELP
 
-Use PL variable values (which have been set) like: *{VARNAME}.
+This help describes variable usage (referencing) and the PL help commands.
+Please use the following commands for help about other aspects of PL.
+
+* ?                           This PL Help
+* ? assign                    Help about variable assignments:  * ? assign
+* ? control                   Help about control structures like '*if' and
+                              loops:  *? control
+* dump VARNAME path.txt       Dump variable value to text file
+* list[values] [VARNAME1...]  List PL variable(s) (defaults to all)
+* listsysprops [VARNAME1...]  List Java System property(s) (defaults to all)
+* prepare VARNAME             Use ? in next SQL statement to upload val.
+                              (Just "?", since "*{?}" is the auto var.).
+
+Resolve PL variable values, which have been set, like: *{VARNAME}.
+Resolve PL variable values, which MAY have been set, like: *{:VARNAME}.
 SqlTool reserves variables with names beginning with * for special purposes.
  These are called SqlTool system variables.  Variables beginning with a
  letter and followed by zero or more letters, digits, or _, are 'user' vars.
-Use System Property values (which you may not set) like: ${property.name}.
-Use PL variables in logical expressions, like (*VARNAME == 1).  [No curlies]
-Use PL vars in math asssignments, like ((VARNAME = OTHER * 3)).  [Bare names]
+Resolve System Property values (which you may not set) like: ${property.name}.
+Resolve PL variables in logical expressions, like (*VARNAME == 1).  [No curlies]
+When purposefully telling SqlTool a variable's "name", like to make an
+ assignment, write just the name like:  VARNAME = 1.  [Bare names]
+Use PL vars in math expressions, like ((NEWVAR = VARNAME * 3)).  [Bare names]
 Auto. variable ? is set to the very latest SQL datum fetched (or update count).
     Query:  The value of the last field of the last row returned.
             (Except will be set to the *NULL_REP_TOKEN value instead of to
@@ -58,8 +30,4 @@ Auto. variable ? is set to the very latest SQL datum fetched (or update count).
     other:  Return status of the command
             (for updates this will be the number of rows updated).
     null/unset:  If the last SQL command failed, ? will be unset (aka null).
-'* VARNAME ~' or '* VARNAME _' sets the specified variable's value just like ?,
-but to the very next returned value; and VARNAME will be assigned null if
-the fetched value is SQL null.
-~  and _ assignments are equivalent except that _ suppresses display output.
 

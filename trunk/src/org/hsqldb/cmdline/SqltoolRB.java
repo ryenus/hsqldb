@@ -77,6 +77,8 @@ public enum SqltoolRB implements RefCapableRBInterface {
     buffer_help,
     special_help,
     pl_help,
+    pl_control,
+    pl_assign,
     dsv_options,
     d_options,
     raw_leadin,

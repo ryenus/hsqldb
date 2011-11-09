@@ -2780,7 +2780,18 @@ public class SqlFile {
         String[] tokens = m.group(1).split("\\s+", -1);
 
         if (tokens[0].charAt(0) == '?') {
-            stdprintln(SqltoolRB.pl_help.getString());
+            String remainder = tokens[0].substring(1);
+            String msg = null;
+            if (remainder.startsWith("assign") ||
+                    (tokens.length > 1 && tokens[1].startsWith("assign")))
+                msg = SqltoolRB.pl_assign.getString();
+            else if (remainder.equals("control") ||
+                    (tokens.length > 1 && tokens[1].equals("control")))
+                msg = SqltoolRB.pl_control.getString();
+            else
+                msg = SqltoolRB.pl_help.getString();
+
+            stdprintln(msg);
 
             return;
         }
