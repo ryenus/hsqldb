@@ -247,7 +247,7 @@ if (project.hasProperty('addlAntBuildFiles'))
 //throw new GradleException(sourceAntBuildFiles.join(','))
 
 antBuildClosures = [{
-        it.import.find {it.@file = 'build-docbook-gradled.xml'}
+        it.import.@file = 'build-docbook-gradled.xml'
         it.@name = it.@name.text() + '_gradled'
         it.attributes().remove('basedir')
     }, {
