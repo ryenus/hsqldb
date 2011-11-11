@@ -1,3 +1,5 @@
+defaultTasks 'dist'
+
 /**
  * $Id$
  *
@@ -42,13 +44,21 @@
  *          switch that we will use below.
  *          This file must set Ant properties "build.label", "build.vendor",
  *          "dbimage.path".  (See following section about optional properties).
+ *          It MUST also set Gradle property 'distBuild' to 'true' until such
+ *          time as the '-b build-dist.gradle' switch will work.  (See "Once
+ *          Gradle..." comment in #4 about that).
  *       4: Run
- *              gradlew -i -b build-dist.gradle   # Gradle users
+ *              gradlew                   # Gradle users
  *          or
- *              ant -f build-dist.xml          # Ant users
+ *              ant -f build-dist.xml     # Ant users
  *          from the build directory.
+ *          (Once Gradle fixes the 'settings.gradle'/project name problem,
+ *          I will modify the build files and then the the Gradle command
+ *          above will need to add -b switch as follow:
+ *              gradlew -i -b build-dist.gradle   # Gradle users
+ *          )
  *          Ant users only:
- *          If buidling directly with Ant, you don't have Ivy in your
+ *          If building directly with Ant, you don't have Ivy in your
  *          CLASSPATH, you will be instructed how to satisfy that requirement.
  *
  *   OPTIONAL ANT PROPERTIES
@@ -71,6 +81,12 @@
  *   would be added to the distro.
  */
 
+assert project.name == 'hsqldb':
+    '''Due to a bug in Gradle, to use build-dist tasks, you must set Gradle
+build property 'distBuild' to 'true', then use the main Gradle build file.
+This complexity should be removed before version 1.0 of Gradle.
+'''
+
 import org.apache.tools.ant.types.Path
 
 addlAntBuildFiles = [file('build-dist.xml')]
@@ -82,10 +98,6 @@ addlAntBuildClosures = [{
         it.target.find{it.@name == '-bnd-ivy-setup'}.cachepath.replaceNode {}
     }
 ]
-
-apply from: 'build.gradle'
-
-defaultTasks 'dist'
 
 ant.references['bnd-jar.cpref'] =
         new Path(ant.project, configurations['bndJar'].asPath)
