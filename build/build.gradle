@@ -51,6 +51,20 @@ updateWrapper << {
 }
 updateWrapper.description = 'Update Gradle version.  For HSQLDB Administrators.'
 
+def javaPluginTasks = [
+    'compileJava',
+    'processResources',
+    'classes',
+    'compileTestJava',
+    'processTestResources',
+    'testClasses',
+    'jar',
+    'javadoc',
+    'test',
+    'uploadArchives',
+    'clean',
+]
+
 void resolveCheck(configName) {
     int artCount = configurations[configName].files.size()
     // Following test works only if deps' transitive is false.
@@ -138,15 +152,12 @@ import groovy.util.slurpersupport.GPathResult
 /**
  * @param fileNameInsertion.
  *        For translating input filenames to new output files.
- * @preClosures Will call these with param of the corresponding Slurped XML
- *           (same number of elements as number of input files).
- *           Null to not do anything with it.
- * @postClosures Will call these with param of the corresponding Slurped XML
+ * @closures Will call these with param of the corresponding Slurped XML
  *           (same number of elements as number of input files).
  *           Null to not do anything with it.
  */
 File[] resequenceAntDependencies(String fileNameInsertion,
-        preClosures, postClosures, inFiles) {
+        closures, prohibitedTasks, inFiles) {
     def projectGpathRs = []
     for (File f in inFiles) {
         GPathResult gPathR = new XmlSlurper().parseText(f.getText('UTF-8'))
@@ -154,15 +165,6 @@ File[] resequenceAntDependencies(String fileNameInsertion,
                 ("Root element in file '$f.absolutePath' not 'project': "
                 + gPathR.name())
         projectGpathRs << gPathR
-    }
-
-    // .0:  Conditionally execute user-specified preClosures
-    if (preClosures != null) {
-         assert preClosures.size() == projectGpathRs.size() :
-                ('Size of given projectGpathRs != size of preClosures: '
-                + projectGpathRs.size() + ' vs. ' + preClosures.size())
-        for (i in 0.. preClosures.size()-1)
-            if (preClosures[i] != null) preClosures[i](projectGpathRs[i])
     }
 
     def targetsIn = [:]      // name -> Target.  Those CONTAINING multi-depends.
@@ -190,11 +192,12 @@ File[] resequenceAntDependencies(String fileNameInsertion,
                         dependListsIn.values(), masterSeqList, inProcessStack)
     logger.debug "RESULT:  $masterSeqList"
 
-    // 2: Generate task-renaming map 'renameMap'
+    // 2: Generate task-renaming maps 'renameMap' and 'prohibitionMap'
     //    and ouput dep lists 'dependListsOut'
-    // Purposefully not declaring 'renameMap'
-    // so it will make project.renameMap so we can share it.
+    // Purposefully not declaring 'renameMap' and 'prohibitionMap'
+    // so they will make project.* so we can share them.
     renameMap = [:]       // String -> String
+    prohibitionMap = [:]
     def dependListsOut = [:]  // name -> List<String>
     def outList               // Strings
 
@@ -210,8 +213,7 @@ File[] resequenceAntDependencies(String fileNameInsertion,
 
     // 3: Modify Ant build file text
     // Update 'target' attrs, target name attrs, target depends attrs
-    for (e in targetsIn)
-        e.value.@depends = dependListsOut[e.key].join(', ')
+    for (e in targetsIn) e.value.@depends = dependListsOut[e.key].join(', ')
     for (pGpathR in projectGpathRs) {
         for (targ in pGpathR.'**'.findAll {
             it.@target.list().size() > 0
@@ -235,14 +237,44 @@ File[] resequenceAntDependencies(String fileNameInsertion,
             }
         }
     }
+    if (prohibitedTasks != null) for (pGpathR in projectGpathRs) {
+        for (targ in pGpathR.'**'.findAll {
+            it.@target.list().size() > 0
+        })
+            if (prohibitedTasks.contains(targ.@target.text())) {
+                String n = targ.@target.text()
+                if (!prohibitionMap.containsKey(n))
+                    prohibitionMap[n] = 'ant' + n.capitalize()
+                targ.@target = prohibitionMap[n]
+            }
+        for (k in prohibitedTasks) {
+            pGpathR.target.each {
+                if (it.@name.text() == k) {
+                    if (!prohibitionMap.containsKey(k))
+                        prohibitionMap[k] = 'ant' + k.capitalize()
+                    it.@name = prohibitionMap[k]
+                }
+                def de = it.@depends
+                if (de.list().size() < 1) return
+                List depEls = de.text().split(/[\s,]+/)
+                int i = depEls.indexOf(k)
+                if (i < 0) return
+                if (!prohibitionMap.containsKey(k))
+                    prohibitionMap[k] = 'ant' + k.capitalize()
+                depEls.remove(i)
+                depEls.add(i, prohibitionMap[k])
+                it.@depends = depEls.join(', ')
+            }
+        }
+    }
 
-    // 3.5: Conditionally execute user-specified postClosures
-    if (postClosures != null) {
-         assert postClosures.size() == projectGpathRs.size() :
-                ('Size of given projectGpathRs != size of postClosures: '
-                + projectGpathRs.size() + ' vs. ' + postClosures.size())
-        for (i in 0.. postClosures.size()-1)
-            if (postClosures[i] != null) postClosures[i](projectGpathRs[i])
+    // 3.5: Conditionally execute user-specified closures
+    if (closures != null) {
+         assert closures.size() == projectGpathRs.size() :
+                ('Size of given projectGpathRs != size of closures: '
+                + projectGpathRs.size() + ' vs. ' + closures.size())
+        for (i in 0.. closures.size()-1)
+            if (closures[i] != null) closures[i](projectGpathRs[i])
     }
 
     // 4: Write modified Ant build file
@@ -290,36 +322,6 @@ if (project.hasProperty('addlAntBuildFiles'))
     sourceAntBuildFiles = addlAntBuildFiles + sourceAntBuildFiles
 //throw new GradleException(sourceAntBuildFiles.join(','))
 
-antPreClosures = ((project.hasProperty('mvnBuild')
-        && Boolean.parseBoolean(project.property('gradled.retain')))
-        ? [{ pgpr ->
-            def litMap = [
-                javadoc: 'antJavadoc',
-                clean: 'antClean',
-                classes: 'antClasses',
-                test: 'antTest'
-            ]
-            for (targ in pgpr.'**'.findAll {
-                it.@target.list().size() > 0
-            })
-                if (litMap.containsKey(targ.@target.text()))
-                    targ.@target = litMap.get(targ.@target.text())
-            for (e in litMap) {
-                pgpr.target.find {it.@name.text() == e.key}.@name = e.value
-                pgpr.target.each {
-                    def de = it.@depends
-                    if (de.list().size() < 1) return
-                    List depEls = de.text().split(/[\s,]+/)
-                    int i = depEls.indexOf(e.key)
-                    if (i < 0) return
-                    depEls.remove(i)
-                    depEls.add(i, e.value)
-                    it.@depends = depEls.join(', ')
-                }
-            }
-          }, null]
-        : null)
-
 antBuildClosures = [{
         it.import.@file = 'build-docbook-gradled.xml'
         it.@name = it.@name.text() + '_gradled'
@@ -338,7 +340,11 @@ if (project.hasProperty('addlAntBuildClosures'))
     antBuildClosures = addlAntBuildClosures + antBuildClosures
 
 File[] outFs = resequenceAntDependencies(
-        '-gradled', antPreClosures, antBuildClosures, sourceAntBuildFiles)
+        '-gradled', antBuildClosures,
+        ((project.hasProperty('mvnBuild')
+                && Boolean.parseBoolean(project.property('gradled.retain')))
+                ? javaPluginTasks : null),
+        sourceAntBuildFiles)
 
 ant.importBuild(outFs[0].absolutePath)
 if (!project.hasProperty('gradled.retain')
@@ -792,3 +798,7 @@ purpose).''')
 }
 tasks['tasks'].description =
         "Displays the tasks in root project '$project.name'."
+if (prohibitionMap.size() > 0)
+    logger.warn('''\nWARNING:  The following tasks have been renamed to avid conflict with
+Gradle plugin task names:
+''' + prohibitionMap)
