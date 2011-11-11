@@ -48,7 +48,7 @@ defaultTasks 'dist'
  *          time as the '-b build-dist.gradle' switch will work.  (See "Once
  *          Gradle..." comment in #4 about that).
  *       4: Run
- *              gradlew                   # Gradle users
+ *              gradlew -i                # Gradle users
  *          or
  *              ant -f build-dist.xml     # Ant users
  *          from the build directory.

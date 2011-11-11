@@ -23,12 +23,12 @@ defaultTasks 'help'
  * Gradle's -D switch to set those Ant properties as Java system properties.
  */
 
+project['repos.useMaven'] = 'true'
+apply from: 'common.gradle'
+
 if (project.hasProperty('distBuild')
         && Boolean.parseBoolean(project.property('distBuild')))
     apply from: 'build-dist.gradle'
-
-project['repos.useMaven'] = 'true'
-apply from: 'common.gradle'
 
 task noop  // Quiet task for testing root-level Groovy/Gradle development
 noop.description = 'Noop for testing Gradle'
