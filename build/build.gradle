@@ -247,6 +247,20 @@ File[] resequenceAntDependencies(String fileNameInsertion, closures, inFiles) {
     return outFiles
 }
 
+if (project.hasProperty('distBuild')
+        && Boolean.parseBoolean(project.property('distBuild'))) {
+    addlAntBuildFiles = [file('build-dist.xml')]
+
+    addlAntBuildClosures = [{
+            it.import.find{it.@file = 'build-gradled.xml'}
+            it.@name = it.@name.text() + '_gradled'
+            it.attributes().remove('basedir')
+            it.target.find{it.@name == '-bnd-ivy-setup'}.
+                    cachepath.replaceNode {}
+        }
+    ]
+}
+
 // RESEQUENCE
 project['resequence.destDir'] = file('..')
 // The top-level entry Build file must be first!!!
@@ -343,6 +357,12 @@ project.task([overwrite: true], ivySetupTaskName) << {
             new Path(ant.project, configurations['xalan'].asPath)
     ant.references['jflex-jar.cpref'] =
             new Path(ant.project, configurations['jflexJar'].asPath)
+}
+if (project.hasProperty('distBuild')
+        && Boolean.parseBoolean(project.property('distBuild'))) {
+    defaultTasks 'dist'
+    ant.references['bnd-jar.cpref'] =
+            new Path(ant.project, configurations['bndJar'].asPath)
 }
 
 
@@ -591,10 +611,6 @@ entities locally, as described in comments at top of file "build-docbook.xml".
 """
 }
 installDbImages.description = 'Install DocBook resources (minimal by defaul)'
-
-if (project.hasProperty('distBuild')
-        && Boolean.parseBoolean(project.property('distBuild')))
-    apply from: 'build-dist.gradle'
 
 /**
  * Override OOTB 'tasks'.
