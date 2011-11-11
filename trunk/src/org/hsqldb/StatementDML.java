@@ -359,7 +359,7 @@ public class StatementDML extends StatementDMQL {
 
             case ResultConstants.RETURN_GENERATED_KEYS :
                 if (baseTable.hasGeneratedColumn()) {
-                    if (idColIndex > 0) {
+                    if (idColIndex >= 0) {
                         int generatedCount =
                             ArrayUtil.countTrueElements(baseTable.colGenerated)
                             + 1;

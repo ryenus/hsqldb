@@ -771,11 +771,11 @@ public class ExpressionLogical extends Expression {
             return;
         }
 
-        if (nodes[LEFT].opType == OpTypes.ROW
-                || nodes[RIGHT].opType == OpTypes.ROW) {
-            if (nodes[LEFT].opType != OpTypes.ROW
-                    || nodes[RIGHT].opType != OpTypes.ROW
-                    || nodes[LEFT].nodes.length != nodes[RIGHT].nodes.length) {
+        int leftDegree  = nodes[LEFT].getDegree();
+        int rightDegree = nodes[RIGHT].getDegree();
+
+        if (leftDegree > 1 || rightDegree > 1) {
+            if (leftDegree != rightDegree) {
                 throw Error.error(ErrorCode.X_42564);
             }
 
@@ -1054,7 +1054,6 @@ public class ExpressionLogical extends Expression {
 
             nodes[LEFT].nodeDataTypes[i]  = type;
             nodes[LEFT].nodes[i].dataType = type;
-
         }
     }
 

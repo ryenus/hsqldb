@@ -328,6 +328,26 @@ public class BinaryType extends Type {
                 return 0;
             }
 
+            if (typeCode == Types.SQL_BINARY) {
+                if (data1.length > data2.length) {
+                    for (int i = data2.length; i < data1.length; i++) {
+                        if (data1[i] != 0) {
+                            return 1;
+                        }
+                    }
+
+                    return 0;
+                } else {
+                    for (int i = data1.length; i < data2.length; i++) {
+                        if (data2[i] != 0) {
+                            return -1;
+                        }
+                    }
+
+                    return 0;
+                }
+            }
+
             return data1.length > data2.length ? 1
                                                : -1;
         }

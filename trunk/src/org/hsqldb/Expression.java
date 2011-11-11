@@ -1166,10 +1166,12 @@ public class Expression implements Cloneable {
         nodeDataTypes = new Type[degree];
 
         for (int j = 0; j < degree; j++) {
-            Type    type         = row == null ? null
-                                               : row.nodes[j].dataType;
+            Type    type                  = row == null ? null
+                                                        : row.nodes[j]
+                                                            .dataType;
             boolean hasUresolvedParameter = row == null ? false
-                                               : row.nodes[j].isUnresolvedParam();
+                                                        : row.nodes[j]
+                                                            .isUnresolvedParam();
 
             for (int i = 0; i < nodes.length; i++) {
                 type = Type.getAggregateType(nodes[i].nodes[j].dataType, type);
@@ -1195,7 +1197,7 @@ public class Expression implements Cloneable {
                                  type.precision);
 
                     type = CharacterType.getCharacterType(typeCode, precision,
-                        type.getCollation());
+                                                          type.getCollation());
                 }
             }
 
@@ -1329,11 +1331,12 @@ public class Expression implements Cloneable {
             case OpTypes.ROW :
                 return nodes.length;
 
+            case OpTypes.TABLE :
             case OpTypes.ROW_SUBQUERY :
             case OpTypes.TABLE_SUBQUERY :
                 if (subQuery == null) {
 
-                    // todo
+                    return nodeDataTypes.length;
                 }
 
                 return subQuery.queryExpression.getColumnCount();
