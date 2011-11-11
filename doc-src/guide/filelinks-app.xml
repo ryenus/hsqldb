@@ -5,13 +5,12 @@
   <!ENTITY % dummy22 SYSTEM "../entities/global.ent"> %dummy22;
 ]>
 
-<appendix version="5.0" xmlns="http://docbook.org/ns/docbook"
+<appendix version="5.0" xml:id="filelinks-app"
+          xmlns="http://docbook.org/ns/docbook"
           xmlns:xlink="http://www.w3.org/1999/xlink">
 
-  <info xml:id="filelinks-app">
-    <title>HyperSQL File Links</title>
-    <subtitle>HyperSQL Files referred to in this Guide</subtitle>
-  </info>
+  <title>HyperSQL File Links</title>
+  <subtitle>HyperSQL Files referred to in this Guide</subtitle>
   <simpara>
     HyperSQL files referred to in the text may be retrieved from the
     canonical HyperSQL documentation site, &distro_baseurl;, or from the
