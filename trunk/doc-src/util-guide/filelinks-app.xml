@@ -6,14 +6,13 @@
 ]>
 
 <appendix version="5.0" xmlns="http://docbook.org/ns/docbook"
+          xml:id="filelinks-app"
           xmlns:xlink="http://www.w3.org/1999/xlink">
   <!-- We declare the default namespace + those for prefixes xlink: and xi: in
        the root element, so we can use them anywhere in this file. -->
 
-  <info xml:id="filelinks-app">
-    <title>HyperSQL File Links</title>
-    <subtitle>HyperSQL Files referred to in this Guide</subtitle>
-  </info>
+  <title>HyperSQL File Links</title>
+  <subtitle>HyperSQL Files referred to in this Guide</subtitle>
   <simpara>
     HyperSQL files referred to in the text may be retrieved from the
     canonical HyperSQL documentation site, &distro_baseurl;, or from the

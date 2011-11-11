@@ -7,14 +7,13 @@
 ]>
 
 <appendix version="5.0" xmlns="http://docbook.org/ns/docbook"
+          xml:id="systempls-app"
           xmlns:xlink="http://www.w3.org/1999/xlink">
   <!-- We declare the default namespace + those for prefixes xlink: and xi: in
        the root element, so we can use them anywhere in this file. -->
 
-  <info xml:id="systempls-app">
-    <title xml:id="systempls-title">SqlTool System PL Variables</title>
-    <subtitle>As of SqlFile revision &SqlFile_rev;</subtitle>
-  </info>
+  <title xml:id="systempls-title">SqlTool System PL Variables</title>
+  <subtitle>As of SqlFile revision &SqlFile_rev;</subtitle>
 
   <simpara>
     SqlTool System PL variables are the mechanism used to configure SqlTool

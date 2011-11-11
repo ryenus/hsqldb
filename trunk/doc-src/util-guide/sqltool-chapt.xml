@@ -3938,8 +3938,8 @@ SELECT * FROM t
                 and a corresponding <literal>* end</literal> PL Command
                 (like <literal>* end foreach</literal>).
             </simpara> <simpara>
-                Definitely read the section
-                <link xlink:href='#sqltool_logica-sect' endterm='logical-title'/>.
+              Definitely read the section
+              <link xlink:href='#sqltool_logical-sect' endterm='logical-title'/>.
             </simpara> <simpara>
             The values of control variables for <literal>* foreach</literal>
             and <literal>* forrows</literal> PL blocks will change as expected.
