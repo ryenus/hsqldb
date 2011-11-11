@@ -138,11 +138,15 @@ import groovy.util.slurpersupport.GPathResult
 /**
  * @param fileNameInsertion.
  *        For translating input filenames to new output files.
- * @closures Will call thse with param of the corresponding Slurped XML
+ * @preClosures Will call these with param of the corresponding Slurped XML
+ *           (same number of elements as number of input files).
+ *           Null to not do anything with it.
+ * @postClosures Will call these with param of the corresponding Slurped XML
  *           (same number of elements as number of input files).
  *           Null to not do anything with it.
  */
-File[] resequenceAntDependencies(String fileNameInsertion, closures, inFiles) {
+File[] resequenceAntDependencies(String fileNameInsertion,
+        preClosures, postClosures, inFiles) {
     def projectGpathRs = []
     for (File f in inFiles) {
         GPathResult gPathR = new XmlSlurper().parseText(f.getText('UTF-8'))
@@ -151,6 +155,16 @@ File[] resequenceAntDependencies(String fileNameInsertion, closures, inFiles) {
                 + gPathR.name())
         projectGpathRs << gPathR
     }
+
+    // .0:  Conditionally execute user-specified preClosures
+    if (preClosures != null) {
+         assert preClosures.size() == projectGpathRs.size() :
+                ('Size of given projectGpathRs != size of preClosures: '
+                + projectGpathRs.size() + ' vs. ' + preClosures.size())
+        for (i in 0.. preClosures.size()-1)
+            if (preClosures[i] != null) preClosures[i](projectGpathRs[i])
+    }
+
     def targetsIn = [:]      // name -> Target.  Those CONTAINING multi-depends.
     def dependListsIn = [:]  // name -> List<String>
     def inProcessStack = []  // For cycle checking
@@ -159,7 +173,7 @@ File[] resequenceAntDependencies(String fileNameInsertion, closures, inFiles) {
     // 1:  Determine new sequence 'masterSeqList'
     for (pGpathR in projectGpathRs) for (targ in pGpathR.target.findAll {
         it.@depends != null && it.@depends.list().size() > 0}) {
-            def listEls = Arrays.asList(targ.@depends.text().split('\\s*,\\s*'))
+            List listEls = targ.@depends.text().split(/\s*,\s*/)
             if (listEls.size() > 0 && listEls[0].size() < 1) listEls.remove(0)
             if (listEls.size() < 2) continue  // No precedence if 1:1 dep.
             targetsIn[targ.@name.text()] = targ
@@ -209,19 +223,26 @@ File[] resequenceAntDependencies(String fileNameInsertion, closures, inFiles) {
             pGpathR.target.find {it.@name.text() == e.key}.@name = e.value
             // Following is for depends that did not contribute to sequencing,
             // but which still contain mapped target names.
-            pGpathR.target.findAll {
-                it.@depends.text() == e.key
-            }.@depends = e.value
+            pGpathR.target.each {
+                def de = it.@depends
+                if (de.list().size() < 1) return
+                List depEls = de.text().split(/[\s,]+/)
+                int i = depEls.indexOf(e.key)
+                if (i < 0) return
+                depEls.remove(i)
+                depEls.add(i, e.value)
+                it.@depends = depEls.join(', ')
+            }
         }
     }
 
-    // 3.5: Conditionally execute user-specified closures
-    if (closures != null) {
-         assert closures.size() == projectGpathRs.size() :
-                ('Size of given projectGpathRs != size of closures: '
-                + projectGpathRs.size() + ' vs. ' + closures.size())
-        for (i in 0.. closures.size()-1)
-            if (closures[i] != null) closures[i](projectGpathRs[i])
+    // 3.5: Conditionally execute user-specified postClosures
+    if (postClosures != null) {
+         assert postClosures.size() == projectGpathRs.size() :
+                ('Size of given projectGpathRs != size of postClosures: '
+                + projectGpathRs.size() + ' vs. ' + postClosures.size())
+        for (i in 0.. postClosures.size()-1)
+            if (postClosures[i] != null) postClosures[i](projectGpathRs[i])
     }
 
     // 4: Write modified Ant build file
@@ -269,6 +290,36 @@ if (project.hasProperty('addlAntBuildFiles'))
     sourceAntBuildFiles = addlAntBuildFiles + sourceAntBuildFiles
 //throw new GradleException(sourceAntBuildFiles.join(','))
 
+antPreClosures = ((project.hasProperty('mvnBuild')
+        && Boolean.parseBoolean(project.property('gradled.retain')))
+        ? [{ pgpr ->
+            def litMap = [
+                javadoc: 'antJavadoc',
+                clean: 'antClean',
+                classes: 'antClasses',
+                test: 'antTest'
+            ]
+            for (targ in pgpr.'**'.findAll {
+                it.@target.list().size() > 0
+            })
+                if (litMap.containsKey(targ.@target.text()))
+                    targ.@target = litMap.get(targ.@target.text())
+            for (e in litMap) {
+                pgpr.target.find {it.@name.text() == e.key}.@name = e.value
+                pgpr.target.each {
+                    def de = it.@depends
+                    if (de.list().size() < 1) return
+                    List depEls = de.text().split(/[\s,]+/)
+                    int i = depEls.indexOf(e.key)
+                    if (i < 0) return
+                    depEls.remove(i)
+                    depEls.add(i, e.value)
+                    it.@depends = depEls.join(', ')
+                }
+            }
+          }, null]
+        : null)
+
 antBuildClosures = [{
         it.import.@file = 'build-docbook-gradled.xml'
         it.@name = it.@name.text() + '_gradled'
@@ -287,7 +338,7 @@ if (project.hasProperty('addlAntBuildClosures'))
     antBuildClosures = addlAntBuildClosures + antBuildClosures
 
 File[] outFs = resequenceAntDependencies(
-        '-gradled', antBuildClosures, sourceAntBuildFiles)
+        '-gradled', antPreClosures, antBuildClosures, sourceAntBuildFiles)
 
 ant.importBuild(outFs[0].absolutePath)
 if (!project.hasProperty('gradled.retain')
@@ -298,7 +349,7 @@ version = ant.properties['hsqldb.version']  // Inherit version from "build.xml"
 // This block generates wrapper tasks for the sole purpose of preventing the
 // end user from seeing numbered task names.
 // Postnote:  Also removes descriptions from sub-project tasks + wrapped tasks.
-Pattern candidatePattern = Pattern.compile('^\\d{3}([^-.][^.]*)\$')
+Pattern candidatePattern = Pattern.compile('\\d{3}([^-.][^.]*)')
 Matcher m
 def hidingWrappers = [:]  // From 0xxWrappee -> wrapper
 Task newTask
@@ -459,7 +510,7 @@ standaloneValidation.description =
  */
 task help(overwrite:true) << {
     String antVer = ant.properties['ant.version']
-            .replaceFirst('^[^\\d]*(\\d\\S+).*\$', '\$1')
+            .replaceFirst('^[^\\d]*(\\d\\S+).*$', '$1')
     print """
 Welcome to Gradle $gradle.gradleVersion.  (Wrapping Ant $antVer).
 
