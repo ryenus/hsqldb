@@ -1,5 +1,3 @@
-defaultTasks 'dist'
-
 /**
  * $Id$
  *
@@ -44,21 +42,13 @@ defaultTasks 'dist'
  *          switch that we will use below.
  *          This file must set Ant properties "build.label", "build.vendor",
  *          "dbimage.path".  (See following section about optional properties).
- *          It MUST also set Gradle property 'distBuild' to 'true' until such
- *          time as the '-b build-dist.gradle' switch will work.  (See "Once
- *          Gradle..." comment in #4 about that).
  *       4: Run
- *              gradlew -i                # Gradle users
- *          or
- *              ant -f build-dist.xml     # Ant users
- *          from the build directory.
- *          (Once Gradle fixes the 'settings.gradle'/project name problem,
- *          I will modify the build files and then the the Gradle command
- *          above will need to add -b switch as follow:
  *              gradlew -i -b build-dist.gradle   # Gradle users
- *          )
+ *          or
+ *              ant -f build-dist.xml          # Ant users
+ *          from the build directory.
  *          Ant users only:
- *          If building directly with Ant, you don't have Ivy in your
+ *          If buidling directly with Ant, you don't have Ivy in your
  *          CLASSPATH, you will be instructed how to satisfy that requirement.
  *
  *   OPTIONAL ANT PROPERTIES
@@ -81,10 +71,10 @@ defaultTasks 'dist'
  *   would be added to the distro.
  */
 
-assert project.name == 'hsqldb':
-    '''Due to a bug in Gradle, to use build-dist tasks, you must set Gradle
-build property 'distBuild' to 'true', then use the main Gradle build file.
-This complexity should be removed before version 1.0 of Gradle.
+assert false : '''File 'build.-dist.gradle temporarily disabled until Gradle
+fixes problems with setting project name.
+For now, set Gradle build property 'distbuild' to 'true' and use the main
+build file instead of this one.
 '''
 
 import org.apache.tools.ant.types.Path
@@ -92,12 +82,16 @@ import org.apache.tools.ant.types.Path
 addlAntBuildFiles = [file('build-dist.xml')]
 
 addlAntBuildClosures = [{
-        it.import.@file = 'build-gradled.xml'
+        it.import.find{it.@file = 'build-gradled.xml'}
         it.@name = it.@name.text() + '_gradled'
         it.attributes().remove('basedir')
         it.target.find{it.@name == '-bnd-ivy-setup'}.cachepath.replaceNode {}
     }
 ]
+
+apply from: 'build.gradle'
+
+defaultTasks 'dist'
 
 ant.references['bnd-jar.cpref'] =
         new Path(ant.project, configurations['bndJar'].asPath)
