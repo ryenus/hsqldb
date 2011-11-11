@@ -2634,6 +2634,9 @@ public class ParserDDL extends ParserRoutine {
         return column;
     }
 
+    /**
+     * A comma after START WITH is accepted for 1.8.x compatibility
+     */
     private void readSequenceOptions(NumberSequence sequence,
                                      boolean withType, boolean isAlter,
                                      boolean allowComma) {
@@ -2672,6 +2675,10 @@ public class ParserDDL extends ParserRoutine {
 
                     sequence.setStartValueNoCheck(value);
 
+                    if (allowComma) {
+                        readIfThis(Tokens.COMMA);
+                    }
+
                     break;
                 }
                 case Tokens.RESTART : {
@@ -2692,6 +2699,8 @@ public class ParserDDL extends ParserRoutine {
                         sequence.setStartValueDefault();
                     }
 
+                    allowComma = false;
+
                     break;
                 }
                 case Tokens.INCREMENT : {
@@ -2703,9 +2712,11 @@ public class ParserDDL extends ParserRoutine {
 
                     sequence.setIncrement(value);
 
+                    allowComma = false;
+
                     break;
                 }
-                case Tokens.NO :
+                case Tokens.NO : {
                     read();
 
                     if (set.contains(token.tokenType)) {
@@ -2724,8 +2735,11 @@ public class ParserDDL extends ParserRoutine {
 
                     set.add(token.tokenType);
                     read();
-                    break;
 
+                    allowComma = false;
+
+                    break;
+                }
                 case Tokens.MAXVALUE : {
                     set.add(token.tokenType);
                     read();
@@ -2733,6 +2747,8 @@ public class ParserDDL extends ParserRoutine {
                     long value = readBigint();
 
                     sequence.setMaxValueNoCheck(value);
+
+                    allowComma = false;
 
                     break;
                 }
@@ -2744,23 +2760,19 @@ public class ParserDDL extends ParserRoutine {
 
                     sequence.setMinValueNoCheck(value);
 
+                    allowComma = false;
+
                     break;
                 }
-                case Tokens.CYCLE :
+                case Tokens.CYCLE : {
                     set.add(token.tokenType);
                     read();
                     sequence.setCycle(true);
+
+                    allowComma = false;
+
                     break;
-
-                case Tokens.COMMA : {
-                    if (allowComma) {
-                        read();
-
-                        break;
-                    }
                 }
-
-                // fall through
                 default :
                     end = true;
                     break;

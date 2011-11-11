@@ -361,24 +361,18 @@ public class FunctionCustom extends FunctionSQL {
             case Tokens.LENGTH :
             case Tokens.LOG :
             case Tokens.OCTETLENGTH :
-            case Tokens.TODAY :
-            case Tokens.SYSDATE :
-            case Tokens.SYSTIMESTAMP :
             case Tokens.UCASE :
                 return new FunctionSQL(id);
 
+            case Tokens.SYSTIMESTAMP :
+            case Tokens.CURDATE :
+            case Tokens.CURTIME :
+            case Tokens.TODAY :
+            case Tokens.SYSDATE :
             case Tokens.NOW : {
                 FunctionSQL function = new FunctionSQL(id);
 
                 function.parseList = optionalNoParamList;
-
-                return function;
-            }
-            case Tokens.CURDATE :
-            case Tokens.CURTIME : {
-                FunctionSQL function = new FunctionSQL(id);
-
-                function.parseList = emptyParamList;
 
                 return function;
             }
