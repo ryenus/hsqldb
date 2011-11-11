@@ -26,9 +26,14 @@ defaultTasks 'help'
 project['repos.useMaven'] = 'true'
 apply from: 'common.gradle'
 
-if (project.hasProperty('distBuild')
-        && Boolean.parseBoolean(project.property('distBuild')))
-    apply from: 'build-dist.gradle'
+configurations {
+    xcsdeRngvalJar
+    xcsdeRngvalDeps
+    xalan
+    fop
+    bndJar
+    jflexJar
+}
 
 task noop  // Quiet task for testing root-level Groovy/Gradle development
 noop.description = 'Noop for testing Gradle'
@@ -297,15 +302,6 @@ for (e in tasksToMake) {
     newTask.description = e.key.description
     e.key.description = null
     hidingWrappers[e.key] = newTask
-}
-
-configurations {
-    xcsdeRngvalJar
-    xcsdeRngvalDeps
-    xalan
-    fop
-    bndJar
-    jflexJar
 }
 
 task serialver(dependsOn: ['classes16', 'util']) << {
@@ -595,6 +591,10 @@ entities locally, as described in comments at top of file "build-docbook.xml".
 """
 }
 installDbImages.description = 'Install DocBook resources (minimal by defaul)'
+
+if (project.hasProperty('distBuild')
+        && Boolean.parseBoolean(project.property('distBuild')))
+    apply from: 'build-dist.gradle'
 
 /**
  * Override OOTB 'tasks'.
