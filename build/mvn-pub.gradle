@@ -1,6 +1,27 @@
 defaultTasks 'uploadArchives'
 
 /**
+ * Instructions for doing a full, plubic release:
+ * Make sure that your "build.properties" file has setting 'build.dist=true'.
+ * Right after doing the build of the zip distributable with JDK 6 and
+ * javac.debug of false, publish the same exact jar files that are in the zip.
+ * Use -x switches to prevent rebuilds of the jars (our Ant build file is not
+ * smart enough to see that they do not need to be re-built).
+ *
+ * <PRE><CODE>
+ *     gradlew -x sqltool -x hsqldb -Pbuild.mvn=true uploadArchives
+ * </CODE></PRE>
+ *
+ * Now, for each alternative, adjust environment and build properties, like
+ * by setting env var JAVA_HOME or build property 'build.debug', and run
+ *
+ * <PRE><CODE>
+ *     gradlew clean-all hsqldb sqltool bnd
+ *     gradlew -x sqltool -x hsqldb -Pclassifier=debug -Pbuild.mvn=true uploadArchives
+ * </CODE></PRE>
+ * The clean-all will wipe .../doc, but the .../doc and everything else from
+ * your original dist build will be retained in .../dist/*.zip.
+ *
  * @author Blaine Simpson  (blaine dot simpson at admc dot com)
  */
 
