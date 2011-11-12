@@ -1,0 +1,102 @@
+defaultTasks 'uploadArchives'
+
+/**
+ * @author Blaine Simpson  (blaine dot simpson at admc dot com)
+ */
+
+apply plugin: 'java'
+apply plugin: 'maven'
+apply plugin: 'signing'
+
+signing {
+    sign configurations.archives
+}
+ 
+// add javadoc/source jar tasks as artifacts
+/*
+artifacts {
+     archives sourcesJar
+     archives javadocJar
+}
+*/
+
+uploadArchives {
+    if (!project.hasProperty('mavenRepository.dest.url'))
+        // This crap just to satisfy load-time requirement when the
+        // uploadArchives task won't even be used.
+        project.setProperty('mavenRepository.dest.url', '')
+    if (!project.hasProperty('mavenRepository.dest.username'))
+        project.setProperty('mavenRepository.dest.username', '')
+    if (!project.hasProperty('mavenRepository.dest.password'))
+        project.setProperty('mavenRepository.dest.password', '')
+
+    repositories.mavenDeployer {
+        beforeDeployment { MavenDeployment deployment -> signPom(deployment) }
+        repository(url: project.property('mavenRepository.dest.url')) {
+            authentication(
+                userName: project.property('mavenRepository.dest.username'),
+                password: project.property('mavenRepository.dest.password')
+            )
+        }
+        pom.project {
+            name "HyperSQL"
+            description project.description
+            url project.url
+            inceptionYear project.inceptionYear
+            scm {
+                url project.property('scm.url')
+                connection project.property('scm.connection')
+            }
+            licenses {
+                license {
+                    name 'HSQLDB License, a BSD open source license'
+                    url 'http://hsqldb.org/web/hsqlLicense.html'
+                    distribution 'repo'
+                }
+            }
+        }
+    }
+}
+
+uploadArchives { doFirst {
+    assert project.hasProperty('group') && project.group != '' :
+            "Property 'group' is required by 'uploadArchives' task."
+    /*  Unfortunately, Maven plugin has no OOTB way to get a proper
+     *  organization name into the descriptors.
+     *  TODO:  Test this with Gradle 1.0 milestone 6.
+    assert project.hasProperty('organization') && project.organization != '' :
+            "Property 'organization' is required by 'uploadArchives' task."
+     */
+    assert (project.hasProperty('mavenRepository.dest.url')
+            && project.property('mavenRepository.dest.url') != ''):
+    "Property 'mavenRepository.dest.url' is required by 'uploadArchives' task."
+
+    assert (project.hasProperty('scm.connection')
+            && project.hasProperty('scm.url')
+            && project.hasProperty('url')
+            && project.hasProperty('inceptionYear')) :
+            ("Following properties required for 'uploadArchives' task: "
+            + 'scm.connection, scm.url, url, inceptionYear')
+} }
+
+task jarDep << {
+println jar.archivePath.lastModified()
+println file('../lib/hsqldb.jar').lastModified()
+if (jar.archivePath.exists() && jar.archivePath.lastModified()
+        < file('../lib/hsqldb.jar').lastModified()) println 'DELETING'
+    if (jar.archivePath.exists() && jar.archivePath.lastModified()
+            < file('../lib/hsqldb.jar').lastModified())
+        jar.archivePath.delete()
+}
+
+jar << {
+    File srcFile = file('../lib/hsqldb.jar')
+    println 'len was ' + jar.archivePath.length()
+    println "Copying from ($srcFile.path) to ($jar.archivePath.path)"
+    jar.archivePath.setBytes(srcFile.bytes)
+    println 'len now ' + jar.archivePath.length()
+}
+
+jar.dependsOn = [hsqldb, jarDep]
+
+clean.dependsOn = [prohibitionMap['clean']]

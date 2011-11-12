@@ -19,6 +19,7 @@ import org.apache.ivy.core.module.descriptor.Configuration.Visibility
  *
  * Does not attempt to load any ivysettings files or do any repository setup,
  * only dependency settings.
+ * @author Blaine Simpson  (blaine dot simpson at admc dot com)
  */
 
 
