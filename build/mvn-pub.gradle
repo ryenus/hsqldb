@@ -11,18 +11,11 @@ apply plugin: 'signing'
 signing {
     sign configurations.archives
 }
- 
-// add javadoc/source jar tasks as artifacts
-/*
-artifacts {
-     archives sourcesJar
-     archives javadocJar
-}
-*/
 
 configurations {
     deployJars
 }
+
 dependencies {
     if (project.hasProperty('mavenRepository.dest.url')
             && project.property('mavenRepository.dest.url').
@@ -50,6 +43,8 @@ uploadArchives {
         repository(url: project.property('mavenRepository.dest.url')) {
             authentication(authMap)
         }
+        addFilter('hsqldb') {artifact, file -> artifact.name == 'hsqldb'}
+        addFilter('sqltool') {artifact, file -> artifact.name == 'sqltool'}
         pom.project {
             name "HyperSQL"
             description project.description
@@ -105,5 +100,33 @@ jar << {
 }
 
 jar.dependsOn = [hsqldb, jarDep]
+if (project.hasProperty('classifier')) jar.classifier = project.classifier
 
 clean.dependsOn = [prohibitionMap['clean']]
+
+task sqltoolJarDep << {
+    if (jar.archivePath.exists() && jar.archivePath.lastModified()
+            < file('../lib/sqltool.jar').lastModified()) {
+        println "Deleting $sqltoolJar.archivePath.absolutePath"
+        sqltoolJar.archivePath.delete()
+    }
+}
+
+task sqltoolJar(dependsOn: [sqltool, sqltoolJarDep], type: Jar) {
+    baseName = 'sqltool'
+    if (project.hasProperty('classifier')) classifier = project.classifier
+}
+
+sqltoolJar << {
+    File srcFile = file('../lib/sqltool.jar')
+    sqltoolJar.archivePath.setBytes(srcFile.bytes)
+}
+ 
+// add javadoc/source jar tasks as artifacts
+artifacts {
+    archives sqltoolJar
+/*
+    archives sourcesJar
+    archives javadocJar
+*/
+}
