@@ -75,7 +75,7 @@
 
 assert false : '''File 'build.-dist.gradle temporarily disabled until Gradle
 fixes problems with setting project name.
-For now, set Gradle build property 'distbuild' to 'true' and use the main
+For now, set Gradle build property 'build.dist' to 'true' and use the main
 build file instead of this one.
 '''
 
