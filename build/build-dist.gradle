@@ -69,6 +69,8 @@
  *   If you were to add a "todo.txt" file to the main or build directory;
  *   or run "gradle hsqldbtest" (or "ant hsqldbtest), for example, artifacts
  *   would be added to the distro.
+ *
+ * @author Blaine Simpson  (blaine dot simpson at admc dot com)
  */
 
 assert false : '''File 'build.-dist.gradle temporarily disabled until Gradle

@@ -3,6 +3,10 @@
 
 import org.apache.ivy.plugins.resolver.URLResolver
 
+/**
+ * @author Blaine Simpson  (blaine dot simpson at admc dot com)
+ */
+
 void loadJavaProps(String filePath, boolean strict) {
     File f = new File(filePath)
     if (!f.isFile()) return
