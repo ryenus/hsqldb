@@ -49,7 +49,7 @@
  *              ant -f build-dist.xml     # Ant users
  *          from the build directory.
  *          Ant users only:
- *          If buidling directly with Ant, you don't have Ivy in your
+ *          If building directly with Ant, you don't have Ivy in your
  *          CLASSPATH, you will be instructed how to satisfy that requirement.
  *
  *   It's likely that in the future the "build.dist" property will become

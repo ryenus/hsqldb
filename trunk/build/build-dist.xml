@@ -2,6 +2,9 @@
 <!--
 $Id$
 -->
+
+<!-- N.b. the clean targets, even 'clean-all', do not clean the "dist"
+     subdirectory. -->
 <project name="hsqldb-dist" default="dist" basedir=".."
          xmlns:ivy="antlib:org.apache.ivy.ant">
 <!--  See file "build-dist.gradle" for distribution-building instructions.  -->
@@ -159,6 +162,12 @@ and re-export.</fail>
 
   <target name="bnd" depends="-bnd-ivy-setup"
           description="Write OSGI properties to manifest of 'hsqldb.jar' file">
+    <!-- This target should depend on the 'hsqldb' target, but unfortunately
+         our jar targets do not prevent useless re-builds, so we are forced to
+         manage rebuilds manually.
+         This can be handled properly and gracefully if/when we assemble the
+         jars with Gradle.
+    -->
     <move overwrite="true" failonerror="false"
            file="lib/hsqldb.jar" tofile="lib/hsqldb.prebnd"/>
     <available property="injar.present" type="file" file="lib/hsqldb.prebnd"/>
