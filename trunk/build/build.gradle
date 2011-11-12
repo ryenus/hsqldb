@@ -342,7 +342,7 @@ if (project.hasProperty('addlAntBuildClosures'))
 File[] outFs = resequenceAntDependencies(
         '-gradled', antBuildClosures,
         ((project.hasProperty('mvnBuild')
-                && Boolean.parseBoolean(project.property('gradled.retain')))
+                && Boolean.parseBoolean(project.property('mvnBuild')))
                 ? javaPluginTasks : null),
         sourceAntBuildFiles)
 
@@ -795,10 +795,14 @@ purpose).''')
     if (describedPrivates.size() > 0)
         logger.warn('\nWARNING:  Private Ant tasks have descriptions: '
                 + describedPrivates.join(', '))
+    if (prohibitionMap.size() > 0)
+        logger.warn('''\nWARNING:  The following tasks have been renamed to avid conflict with
+    Gradle plugin task names:
+        ''' + prohibitionMap)
 }
 tasks['tasks'].description =
         "Displays the tasks in root project '$project.name'."
 if (prohibitionMap.size() > 0)
     logger.warn('''\nWARNING:  The following tasks have been renamed to avid conflict with
 Gradle plugin task names:
-''' + prohibitionMap)
+    ''' + prohibitionMap)
