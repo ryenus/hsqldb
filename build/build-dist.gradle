@@ -42,14 +42,20 @@
  *          switch that we will use below.
  *          This file must set Ant properties "build.label", "build.vendor",
  *          "dbimage.path".  (See following section about optional properties).
+ *          It must also set property "build.dist" to 'true'.
  *       4: Run
- *              gradlew -i -b build-dist.gradle   # Gradle users
+ *              gradlew -i                # Gradle users
  *          or
- *              ant -f build-dist.xml          # Ant users
+ *              ant -f build-dist.xml     # Ant users
  *          from the build directory.
  *          Ant users only:
  *          If buidling directly with Ant, you don't have Ivy in your
  *          CLASSPATH, you will be instructed how to satisfy that requirement.
+ *
+ *   It's likely that in the future the "build.dist" property will become
+ *   unnecessary, but a -b switch will be added to the gradlew command.
+ *   Can't do this how I want to until Gradle fixes their 'settings.gradle'
+ *   and project name issues.
  *
  *   OPTIONAL ANT PROPERTIES
  *       I suggest setting properties nsstylebase.url, dbxirng.url,
