@@ -20,23 +20,35 @@ artifacts {
 }
 */
 
+configurations {
+    deployJars
+}
+dependencies {
+    if (project.hasProperty('mavenRepository.dest.url')
+            && project.property('mavenRepository.dest.url').
+            startsWith('scp://'))
+        deployJars 'org.apache.maven.wagon:wagon-ssh:2.0'
+}
+
 uploadArchives {
     if (!project.hasProperty('mavenRepository.dest.url'))
         // This crap just to satisfy load-time requirement when the
         // uploadArchives task won't even be used.
         project.setProperty('mavenRepository.dest.url', '')
-    if (!project.hasProperty('mavenRepository.dest.username'))
-        project.setProperty('mavenRepository.dest.username', '')
-    if (!project.hasProperty('mavenRepository.dest.password'))
-        project.setProperty('mavenRepository.dest.password', '')
+    def authMap = [:]
+    if (project.hasProperty('mavenRepository.dest.username'))
+        authMap['userName'] = project.property('mavenRepository.dest.username')
+    if (project.hasProperty('mavenRepository.dest.password'))
+        authMap['password'] = project.property('mavenRepository.dest.password')
+    if (project.hasProperty('mavenRepository.dest.privateKey'))
+        authMap['privateKey'] =
+                project.property('mavenRepository.dest.privateKey')
 
     repositories.mavenDeployer {
+        configuration = configurations.deployJars
         beforeDeployment { MavenDeployment deployment -> signPom(deployment) }
         repository(url: project.property('mavenRepository.dest.url')) {
-            authentication(
-                userName: project.property('mavenRepository.dest.username'),
-                password: project.property('mavenRepository.dest.password')
-            )
+            authentication(authMap)
         }
         pom.project {
             name "HyperSQL"
@@ -80,21 +92,16 @@ uploadArchives { doFirst {
 } }
 
 task jarDep << {
-println jar.archivePath.lastModified()
-println file('../lib/hsqldb.jar').lastModified()
-if (jar.archivePath.exists() && jar.archivePath.lastModified()
-        < file('../lib/hsqldb.jar').lastModified()) println 'DELETING'
     if (jar.archivePath.exists() && jar.archivePath.lastModified()
-            < file('../lib/hsqldb.jar').lastModified())
+            < file('../lib/hsqldb.jar').lastModified()) {
+        println "Deleting $jar.archivePath.absolutePath"
         jar.archivePath.delete()
+    }
 }
 
 jar << {
     File srcFile = file('../lib/hsqldb.jar')
-    println 'len was ' + jar.archivePath.length()
-    println "Copying from ($srcFile.path) to ($jar.archivePath.path)"
     jar.archivePath.setBytes(srcFile.bytes)
-    println 'len now ' + jar.archivePath.length()
 }
 
 jar.dependsOn = [hsqldb, jarDep]
