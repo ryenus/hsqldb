@@ -2698,8 +2698,6 @@ public class ParserDDL extends ParserRoutine {
                         sequence.setStartValueDefault();
                     }
 
-                    allowComma = false;
-
                     break;
                 }
                 case Tokens.INCREMENT : {
@@ -2710,8 +2708,6 @@ public class ParserDDL extends ParserRoutine {
                     long value = readBigint();
 
                     sequence.setIncrement(value);
-
-                    allowComma = false;
 
                     break;
                 }
@@ -2734,9 +2730,6 @@ public class ParserDDL extends ParserRoutine {
 
                     set.add(token.tokenType);
                     read();
-
-                    allowComma = false;
-
                     break;
                 }
                 case Tokens.MAXVALUE : {
@@ -2746,8 +2739,6 @@ public class ParserDDL extends ParserRoutine {
                     long value = readBigint();
 
                     sequence.setMaxValueNoCheck(value);
-
-                    allowComma = false;
 
                     break;
                 }
@@ -2759,16 +2750,12 @@ public class ParserDDL extends ParserRoutine {
 
                     sequence.setMinValueNoCheck(value);
 
-                    allowComma = false;
-
                     break;
                 }
                 case Tokens.CYCLE : {
                     set.add(token.tokenType);
                     read();
                     sequence.setCycle(true);
-
-                    allowComma = false;
 
                     break;
                 }
