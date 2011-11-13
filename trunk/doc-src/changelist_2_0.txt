@@ -1,4 +1,4 @@
-5 November 2011 - SVN 4711
+12 November 2011 - SVN 4747
 -- fixed issue with memory use of large strings in cache
 -- fixed issue with FOR loops with ORDER BY in routines
 -- fixed issue with TIME ZONE types JDBC type reporting in server
@@ -7,13 +7,16 @@
 -- fixed issue with cached tables in jar databases
 -- fixed issue with certain server properties
 -- fixed issues with MVCC transactions
+-- fixed issue with some row comparison predicates
 -- added code branch supporting huge multi terabyte databases with tens of billions of rows
 -- added property hsqldb.avg_scale for decimal results from AVG and MEDIAN aggregates
 -- added two-arg REPLACE function
 -- added new datetime and bit functions 
 -- added support for ROWNUM() in UPDATE and DELETE statements
 -- added backward compatibility for IDENTITY options with commas
--- added support for new new SQL properties
+-- added support for new SQL properties
+-- added Gradle build
+-- improved SYSDATE, NOW and similar functions to accept optional empty arg list
 -- improved JDBC support for LOBs
 -- improved concurrency of DDL operations
 -- improved data type determination for dynamic variables

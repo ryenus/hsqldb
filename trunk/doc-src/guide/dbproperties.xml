@@ -534,15 +534,10 @@
       </tgroup>
     </table>
 
-    <para>In addition, when a connection to an
-    <glossterm>in-process</glossterm> database creates a new database, or
-    opens an existing database (i.e. it is the first connection made to the
-    database by the application), all the user-defined database properties can
-    be specified as URL properties. This can be used to specify properties to
-    enforce more strict SQL adherence, or to change cache_scale or similar
-    properties before the database files are created. However, for new
-    databases, it is recommended to use the SET PROPERTY command for such
-    settings.</para>
+    <para>In addition, when the first connection to an
+    <glossterm>in-process</glossterm> file: or mem: database creates a new
+    database all the user-defined database properties can be specified as URL
+    properties. See the next section for details.</para>
   </section>
 
   <section>
@@ -1501,7 +1496,8 @@
 
               <entry><literal>false</literal></entry>
 
-              <entry>readonly database</entry>
+              <entry>readonly database - is used to open an existing file:
+              database</entry>
             </row>
 
             <row>
@@ -1542,7 +1538,8 @@
 
               <entry><literal>false</literal></entry>
 
-              <entry>readonly files database</entry>
+              <entry>readonly files database - is used to open an existing
+              file: database</entry>
             </row>
 
             <row>
@@ -1665,7 +1662,8 @@
 
               <entry><literal>0</literal></entry>
 
-              <entry>sql logging level</entry>
+              <entry>sql logging level - can also be used to open an existing
+              file: database</entry>
             </row>
 
             <row>
@@ -1674,7 +1672,8 @@
               rollbacks. Level 2 currently logs all the SQL statements
               executed, together with their parameter values. Level 3 will be
               supported in the future.The events are logged in a file ending
-              with ".sql.log".</para><para><programlisting>SET DATABASE EVENT LOG SQL LEVEL { 0 | 1 | 2 }</programlisting></para></entry>
+              with ".sql.log". This property applies to existing file:
+              databases as well as new databases.</para><para><programlisting>SET DATABASE EVENT LOG SQL LEVEL { 0 | 1 | 2 }</programlisting></para></entry>
             </row>
           </tbody>
         </tgroup>
@@ -1959,7 +1958,8 @@
 
               <entry><literal>true</literal></entry>
 
-              <entry>use of lock file</entry>
+              <entry>use of lock file - can also be used with an existing
+              database</entry>
             </row>
 
             <row>
@@ -1968,8 +1968,8 @@
               write. This property can be specified with the value false to
               prevent the lock file from being created. This usage is not
               recommended but may be desirable when flash type storage is
-              used. This property applies existing databases as well as new
-              databases.</para><para><programlisting>this property cannot be set with an SQL statement</programlisting></para></entry>
+              used. This property applies to existing file: databases as well
+              as new databases.</para><para><programlisting>this property cannot be set with an SQL statement</programlisting></para></entry>
             </row>
           </tbody>
         </tgroup>

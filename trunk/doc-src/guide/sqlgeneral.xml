@@ -671,7 +671,14 @@ LONGVARCHAR
       string is padded with zeros to fill the fixed width. Similar to the
       CHARACTER type, the trailing zeros in the BINARY string are simply
       discarded in some operations. For the same reason, it is best to avoid
-      this particular type.</para>
+      this particular type and use VARBINARY instead.</para>
+
+      <para>When two binary values are compared, if one is of BINARY type,
+      then zero padding is performed to extend the length of the shorter
+      string to the longer one before comparison. No padding is performed with
+      other binary types. If the bytes compare equal to the end of the shorter
+      value, then the longer string is considered larger than the shorter
+      string.</para>
 
       <para>If BINARY is used without specifying the length, the length
       defaults to 1. For the BLOB type, the length limit can be defined in
@@ -1757,7 +1764,7 @@ UPDATE t SET scores[2] = 123, names[2] = 'Reds' WHERE id = 10
 </programlisting>
       </informalexample>
 
-      <para>Each subquery is considered as a separate SELECT statement and
+      <para>Each subquery is considered a separate SELECT statement and
       uses indexes when they are available.</para>
 
       <para>In each SELECT statement, at least one index per table can be used
