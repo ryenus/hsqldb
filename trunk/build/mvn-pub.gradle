@@ -27,11 +27,13 @@ defaultTasks 'uploadArchives'
 
 apply plugin: 'java'
 apply plugin: 'maven'
+/*  Disabling PGP signing for now.
 apply plugin: 'signing'
 
 signing {
     sign configurations.archives
 }
+*/
 
 configurations {
     deployJars
@@ -60,7 +62,8 @@ uploadArchives {
 
     repositories.mavenDeployer {
         configuration = configurations.deployJars
-        beforeDeployment { MavenDeployment deployment -> signPom(deployment) }
+        //  Disabling PGP signing for now.
+        //beforeDeployment { MavenDeployment deployment -> signPom(deployment) }
         repository(url: project.property('mavenRepository.dest.url')) {
             authentication(authMap)
         }
