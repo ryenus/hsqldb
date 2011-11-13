@@ -1,4 +1,4 @@
-12 November 2011 - SVN 4744
+12 November 2011 - SVN 4756
 -- fixed issue with memory use of large strings in cache
 -- fixed issue with FOR loops with ORDER BY in routines
 -- fixed issue with TIME ZONE types JDBC type reporting in server
