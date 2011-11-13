@@ -16,8 +16,8 @@
  * Make sure that your "build.properties" file has setting 'build.dist=true'.
  * Right after doing the build of the zip distributable with JDK 6 and
  * javac.debug of false, publish the same exact jar files that are in the zip.
- * Use -x switches to prevent rebuilds of the jars (our Ant build file is not
- * smart enough to see that they do not need to be re-built).
+ * Use -x switches to prevent rebuilds of the jars which have been checksummed
+ * by 'build-dist' not by 'mvn-pub'.
  *
  * <PRE><CODE>
  *     gradlew -x sqltool -x hsqldb -b mvn-pub.gradle
@@ -27,7 +27,7 @@
  * by setting env var JAVA_HOME or build property 'build.debug', and run
  *
  * <PRE><CODE>
- *   gradlew -b build-dist.gradle clean-all hsqldb sqltool bnd
+ *   gradlew -b build-dist.gradle clean-all osgi sqltool
  *   gradlew -x sqltool -x hsqldb -Pclassifier=NEW_CLASSIFIER -b mvn-pub.gradle
  * </CODE></PRE>
  * The clean-all will wipe .../doc, but the .../doc and everything else from
@@ -133,33 +133,37 @@ uploadArchives { doFirst {
             + 'scm.connection, scm.url, url, inceptionYear')
 } }
 
-task jarDep << {
+// This is because jar.inputs is read-only
+// Funny name is work-around for Gradle sequencing bug
+task zJarDep << {
     if (jar.archivePath.exists() && jar.archivePath.lastModified()
-            < file('../lib/hsqldb.jar').lastModified()) {
+            < file('../lib/hsqldb-osgi.jar').lastModified()) {
         println "Deleting $jar.archivePath.absolutePath"
         jar.archivePath.delete()
     }
 }
 
 jar << {
-    File srcFile = file('../lib/hsqldb.jar')
+    File srcFile = file('../lib/hsqldb-osgi.jar')
     jar.archivePath.setBytes(srcFile.bytes)
 }
 
-jar.dependsOn = [hsqldb, jarDep]
+jar.dependsOn = [osgi, zJarDep]
 if (project.hasProperty('classifier')) jar.classifier = project.classifier
 
 clean.dependsOn = [prohibitionMap['clean']]
 
-task sqltoolJarDep << {
-    if (jar.archivePath.exists() && jar.archivePath.lastModified()
+// This is because jar.inputs is read-only
+// Funny name is work-around for Gradle sequencing bug
+task zSqltoolJarDep << {
+    if (sqltoolJar.archivePath.exists() && sqltoolJar.archivePath.lastModified()
             < file('../lib/sqltool.jar').lastModified()) {
         println "Deleting $sqltoolJar.archivePath.absolutePath"
         sqltoolJar.archivePath.delete()
     }
 }
 
-task sqltoolJar(dependsOn: [sqltool, sqltoolJarDep], type: Jar) {
+task sqltoolJar(dependsOn: [sqltool, zSqltoolJarDep], type: Jar) {
     baseName = 'sqltool'
     if (project.hasProperty('classifier')) classifier = project.classifier
 }

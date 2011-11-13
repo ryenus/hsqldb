@@ -320,6 +320,7 @@ antBuildClosures = [{
         it.import.@file = 'build-docbook-gradled.xml'
         it.@name = it.@name.text() + '_gradled'
         it.attributes().remove('basedir')
+        // Global var because needed for our replacement task definition below
     }, {
         it.@name = it.@name.text() + '_gradled'
         it.import.replaceNode {}
@@ -338,7 +339,7 @@ File[] outFs = resequenceAntDependencies(
         sourceAntBuildFiles)
 
 ant.importBuild(outFs[0].absolutePath)
-if (retainGradled) for (f in outFs) f.deleteOnExit()
+if (!retainGradled) for (f in outFs) f.deleteOnExit()
 version = ant.properties['hsqldb.version']  // Inherit version from "build.xml"
 
 // This block generates wrapper tasks for the sole purpose of preventing the
@@ -406,6 +407,8 @@ project.task([overwrite: true], ivySetupTaskName) << {
             new Path(ant.project, configurations['xalan'].asPath)
     ant.references['jflex-jar.cpref'] =
             new Path(ant.project, configurations['jflexJar'].asPath)
+    ant.references['bnd-jar.cpref'] =
+            new Path(ant.project, configurations['bndJar'].asPath)
 }
 
 private def recursiveAggregator(additions, inMap, assemblage) {
@@ -415,6 +418,29 @@ private def recursiveAggregator(additions, inMap, assemblage) {
     }
     return assemblage
 }
+
+def hsqldbTask = renameMap.containsKey('hsqldb') ?
+        tasks[renameMap.get('hsqldb')] : tasks['hsqldb']
+hsqldbTask.outputs.file file('../lib/hsqldb.jar')
+hsqldbTask.inputs.source fileTree (
+    dir:'..',
+    excludes: ['classes/org/hsqldb/jmx/**', 'classes/org/hsqldb/cmdline/**'],
+    includes: ['doc/*_lic.txt', 'classes/**']
+)
+
+def sqltoolTask = renameMap.containsKey('sqltool') ?
+        tasks[renameMap.get('sqltool')] : tasks['sqltool']
+sqltoolTask.outputs.file file('../lib/sqltool.jar')
+sqltoolTask.inputs.source fileTree (
+    dir:'..',
+    includes: ['doc/*_lic.txt', 'classes/org/hsqldb/cmdline/**',
+            'classes/org/hsqldb/lib/**', 'classes/org/hsqldb/resources/jdklog*']
+)
+
+def osgiTask = renameMap.containsKey('osgi') ?
+        tasks[renameMap.get('osgi')] : tasks['osgi']
+osgiTask.outputs.file file('../lib/hsqldb-osgi.jar')
+osgiTask.inputs.files files(file('../lib/hsqldb.jar'), file('hsqldb.bnd'))
 
 task standaloneValidation << {
     if (!project.hasProperty('install.parent.dir')) {

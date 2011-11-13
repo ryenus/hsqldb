@@ -88,13 +88,9 @@ addlAntBuildClosures = [{
         it.import.find{it.@file = 'build-gradled.xml'}
         it.@name = it.@name.text() + '_gradled'
         it.attributes().remove('basedir')
-        it.target.find{it.@name == '-bnd-ivy-setup'}.cachepath.replaceNode {}
     }
 ]
 
 apply from: 'build.gradle'
 
 defaultTasks 'dist'
-
-ant.references['bnd-jar.cpref'] =
-        new Path(ant.project, configurations['bndJar'].asPath)
