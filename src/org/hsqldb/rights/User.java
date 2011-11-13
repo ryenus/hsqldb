@@ -84,10 +84,6 @@ public class User extends Grantee {
         return sb.toString();
     }
 
-    public long getChangeTimestamp() {
-        return 0;
-    }
-
     public String getPasswordDigest() {
         return password;
     }

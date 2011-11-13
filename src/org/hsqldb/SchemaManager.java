@@ -567,10 +567,34 @@ public class SchemaManager {
 
         readLock.lock();
 
+        if (name == null) {
+            return catalogNameArray;
+        }
+
         try {
             switch (name.type) {
 
-                case SchemaObject.SCHEMA :
+                case SchemaObject.SCHEMA : {
+                    if (findSchemaHsqlName(name.name) == null) {
+                        return catalogNameArray;
+                    }
+
+                    OrderedHashSet names = new OrderedHashSet();
+
+                    names.add(database.getCatalogName());
+
+                    HashMappedList list = getTables(name.name);
+
+                    for (int i = 0; i < list.size(); i++) {
+                        names.add(((SchemaObject) list.get(i)).getName());
+                    }
+
+                    HsqlName[] array = new HsqlName[names.size()];
+
+                    names.toArray(array);
+
+                    return array;
+                }
                 case SchemaObject.GRANTEE : {
                     return catalogNameArray;
                 }

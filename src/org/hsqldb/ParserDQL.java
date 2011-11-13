@@ -5608,14 +5608,9 @@ public class ParserDQL extends ParserBase {
 
     HsqlName readNewSchemaName() {
 
-        checkIsSchemaObjectName();
-        checkValidCatalogName(token.namePrefix);
-        SqlInvariants.checkSchemaNameNotSystem(token.tokenString);
+        HsqlName name = readNewSchemaObjectName(SchemaObject.SCHEMA, false);
 
-        HsqlName name = database.nameManager.newHsqlName(token.tokenString,
-            isDelimitedIdentifier(), SchemaObject.SCHEMA);
-
-        read();
+        SqlInvariants.checkSchemaNameNotSystem(name.name);
 
         return name;
     }
