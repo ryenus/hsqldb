@@ -255,6 +255,11 @@ public class StatementCommand extends Statement {
                         StatementSchema.checkSchemaUpdateAuthorisation(session,
                                 name.schema);
                     } else {
+
+                        // ensure schema existence
+                        session.database.schemaManager.getSchemaHsqlName(
+                            name.name);
+
                         HashMappedList list =
                             session.database.schemaManager.getTables(
                                 name.name);
@@ -629,6 +634,7 @@ public class StatementCommand extends Statement {
                 String  property = (String) parameters[0];
                 boolean mode     = ((Boolean) parameters[1]).booleanValue();
                 int     value    = ((Number) parameters[2]).intValue();
+
                 session.checkAdmin();
                 session.checkDDLWrite();
 

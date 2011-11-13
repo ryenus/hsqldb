@@ -322,13 +322,15 @@ public class ParserDDL extends ParserRoutine {
 
     Statement compileDrop() {
 
-        int     objectTokenType;
-        int     objectType;
-        int     statementType;
-        boolean canCascade  = false;
-        boolean cascade     = false;
-        boolean useIfExists = false;
-        boolean ifExists    = false;
+        int          objectTokenType;
+        int          objectType;
+        int          statementType;
+        boolean      canCascade  = false;
+        boolean      cascade     = false;
+        boolean      useIfExists = false;
+        boolean      ifExists    = false;
+        SchemaObject object;
+        HsqlName[]   writeLockNames;
 
         read();
 
@@ -527,10 +529,7 @@ public class ParserDDL extends ParserRoutine {
                 checkIsSimpleName();
                 checkDatabaseUpdateAuthorisation();
 
-                Grantee grantee =
-                    database.getUserManager().get(token.tokenString);
-
-                name = grantee.getName();
+                object = database.getUserManager().get(token.tokenString);
 
                 read();
 
@@ -540,17 +539,16 @@ public class ParserDDL extends ParserRoutine {
                 checkIsSimpleName();
                 checkDatabaseUpdateAuthorisation();
 
-                Grantee role =
+                object =
                     database.getGranteeManager().getRole(token.tokenString);
-
-                name = role.getName();
 
                 read();
 
                 break;
             }
             case Tokens.SCHEMA : {
-                name = readNewSchemaName();
+                name   = readNewSchemaName();
+                object = database.schemaManager.findSchema(name.name);
 
                 break;
             }
@@ -578,13 +576,8 @@ public class ParserDDL extends ParserRoutine {
 
                 name.setSchemaIfNull(session.getCurrentSchemaHsqlName());
 
-                SchemaObject object =
-                    database.schemaManager.findSchemaObject(name.name,
+                object = database.schemaManager.findSchemaObject(name.name,
                         name.schema.name, name.type);
-
-                if (object != null) {
-                    name = object.getName();
-                }
         }
 
         if (!ifExists && useIfExists && token.tokenType == Tokens.IF) {
@@ -604,13 +597,19 @@ public class ParserDDL extends ParserRoutine {
             }
         }
 
+        if (object == null) {
+            writeLockNames = database.schemaManager.getCatalogNameArray();
+        } else {
+            name = object.getName();
+            writeLockNames =
+                database.schemaManager.getCatalogAndBaseTableNames(name);
+        }
+
         String   sql  = getLastPart();
         Object[] args = new Object[] {
             name, new Integer(objectType), Boolean.valueOf(cascade),
             Boolean.valueOf(ifExists)
         };
-        HsqlName[] writeLockNames =
-            database.schemaManager.getCatalogAndBaseTableNames(name);
         Statement cs = new StatementSchema(sql, statementType, args, null,
                                            writeLockNames);
 
