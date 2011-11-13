@@ -28,9 +28,8 @@ defaultTasks 'help'
 project['repos.useMaven'] = 'true'
 apply from: 'common.gradle'
 
-if (!project.hasProperty('mvnBuild'))
-    mvnBuild = (project.hasProperty('build.mvn')
-        && Boolean.parseBoolean(project.property('build.mvn')))
+if (!project.hasProperty('mvnBuild')) mvnBuild = false
+
 if (!project.hasProperty('retainGradled'))
     retainGradled = (project.hasProperty('gradled.retain')
         && Boolean.parseBoolean(project.property('gradled.retain')))
@@ -367,8 +366,6 @@ for (e in tasksToMake) {
     e.key.description = null
     hidingWrappers[e.key] = newTask
 }
-
-if (mvnBuild) apply from: 'mvn-pub.gradle'
 
 task serialver(dependsOn: ['classes16', 'util']) << {
     assert project.hasProperty('className'):

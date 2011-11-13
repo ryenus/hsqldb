@@ -1,6 +1,13 @@
 /**
  * $Id$
  *
+ * Invoke this build file with Gradle's -b switch for zip and jar
+ * distribution building.
+ *
+ * Unfortunately, it is impractical to encpsulate all of the needed processing
+ * here, so there is some tight coupling between this file and "build.gradle".
+ * (This file loads/applies "build.gradle").
+ *
  *   "build-dist.gradle" and "build-dist.xml" are separate from the main
  *   "build.*" files specifically because they are not intended for normal
  *   end-user or developer usage.
