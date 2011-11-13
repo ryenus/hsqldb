@@ -1,4 +1,4 @@
-12 November 2011 - SVN 4747
+12 November 2011 - SVN 4744
 -- fixed issue with memory use of large strings in cache
 -- fixed issue with FOR loops with ORDER BY in routines
 -- fixed issue with TIME ZONE types JDBC type reporting in server
@@ -18,7 +18,7 @@
 -- added Gradle build
 -- improved SYSDATE, NOW and similar functions to accept optional empty arg list
 -- improved JDBC support for LOBs
--- improved concurrency of DDL operations
+-- improved concurrency of CREATE and DROP DDL operations
 -- improved data type determination for dynamic variables
 -- improved routine variable scope in MERGE statements
 -- improved compatibility modes
@@ -39,7 +39,8 @@
 -- improved parameter type allocation for IN lists
 -- minor improvements
 12 Jun 2011 - version 2.2.4
--- fixed issue and improved INFORMATION_SCHEMA concurrency
+-- fixed reported issue 
+-- improved INFORMATION_SCHEMA concurrency
 6 Jun 2011 - version 2.2.3
 -- fixed issue with limit offset with indexed IN predicate
 -- added INFORMATION_SCHEMA.ELEMENT_TYPES view and related enhancements
@@ -86,7 +87,6 @@
 14 Mar 2011 - Version 2.1.0
 -- added support for WITH RECURSIVE
 -- added support for ALTER INDEX <name> AS (<new column name list>) to change the indexed column list of an index
-28 Feb 2011 - SVN 4105 
 -- extension of MySQL and PostgreSQL compatibility modes. Includes type conversion and sequence functions
 -- extension to IDENTITY column support allows the use of a named SEQUENCE
 22 Feb 2011 - SVN 4096 - 2.1.0 rc4
