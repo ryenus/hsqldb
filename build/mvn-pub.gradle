@@ -10,7 +10,9 @@
  * for populating a POM file and for specifying (and optionally authenticating
  * to a Maven repository server.
  *
- * Instructions for doing a full, plubic release:
+ *****************************************************************************
+ * Instructions for doing a full, public release:
+ *
  * Make sure that your "build.properties" file has setting 'build.dist=true'.
  * Right after doing the build of the zip distributable with JDK 6 and
  * javac.debug of false, publish the same exact jar files that are in the zip.
@@ -30,6 +32,12 @@
  * </CODE></PRE>
  * The clean-all will wipe .../doc, but the .../doc and everything else from
  * your original dist build will be retained in .../dist/*.zip.
+ *****************************************************************************
+ * For snapshot builds, just publish jars individually, exactly as described
+ * in the 2nd part of "Instructions for doing a full, public release:" above,
+ * beginning  with "Now, for each alternative".
+ * (In this case, clean-all really will blow away your only docs, so either
+ * back them up or regenerate them afterwards).
  *
  * @author Blaine Simpson  (blaine dot simpson at admc dot com)
  */
