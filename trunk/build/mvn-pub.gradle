@@ -88,9 +88,11 @@ uploadArchives {
         repository(url: project.property('mavenRepository.dest.url')) {
             authentication(authMap)
         }
-        addFilter('hsqldb') {artifact, file -> artifact.name == 'hsqldb'}
-        addFilter('sqltool') {artifact, file -> artifact.name == 'sqltool'}
-        pom.project {
+        def poms = [
+            addFilter('hsqldb') {artifact, file -> artifact.name == 'hsqldb'},
+            addFilter('sqltool') {artifact, file -> artifact.name == 'sqltool'}
+        ]
+        for (p in poms) p.project {
             name "HyperSQL"
             description project.description
             url project.url
