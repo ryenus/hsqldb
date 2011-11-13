@@ -1238,4 +1238,24 @@ optimizations) manually.
     <fixcrlf destdir="doc" preservelastmodified='true' eol="crlf"
              srcdir="doc-src" includes="*_lic.txt"/>
   </target>
+
+  <target name="osgi" depends="-ivy-setup, hsqldb"
+    description="Generates 'hsqldb-osgi.jar' file with OSGI properties in manifest">
+    <pathconvert property="bndjar.file" refid="bnd-jar.cpref"/>
+    <!-- Purposefully not using the bndwrap task available for this purpose,
+         because the docs don't explain how to use the attributes clearly enough
+         to figure out how to use it. -->
+    <java failonerror="true" fork="true" dir="lib" classpath="${bndjar.file}"
+          classname="aQute.bnd.main.bnd">
+      <sysproperty key="hsqldb.version" value="${hsqldb.version}"/>
+      <sysproperty key="build.vendor" value="${user.name}"/>
+      <sysproperty key="hsqldb.title" value="${hsqldb.title}"/>
+      <arg value="wrap"/>
+      <arg value="-output"/>
+      <arg value="hsqldb-osgi.jar"/>
+      <arg value="-properties"/>
+      <arg file="build/hsqldb.bnd"/>
+      <arg value="hsqldb.jar"/>
+    </java>
+  </target>
 </project>

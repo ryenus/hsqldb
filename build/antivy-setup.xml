@@ -32,6 +32,7 @@ OR for any CMD-like Windows shell:
     <ivy:cachepath conf="xcsdeRngvalJar" pathid="xcsde-rngval-jar.cpref"/>
     <ivy:cachepath conf="jflexJar" pathid="jflex-jar.cpref"/>
     <ivy:cachepath conf="xcsdeRngvalDeps" pathid="xcsde-rngval-deps.cpref"/>
+    <ivy:cachepath conf="bndJar" pathid="bnd-jar.cpref"/>
     <property name="-ivy.is.setup" value="true"/>
   </target>
 </project>

@@ -60,13 +60,8 @@ and re-export.</fail>
   </target>
 
   <target name="dist"
-      depends="state-check, clean-all, javadoc, gen-docs, hsqldb, sqltool, bnd"
-          description="Build joint binary + source distribution packages">
-    <!--
-      -  It's ok to run the bnd target repeatedly.  That would just re-set the
-      -  values to what they already were.  Probably just resulting in updating
-      -  the modification timestamp of the jar file node.
-      -->
+          depends="state-check, clean-all, javadoc, gen-docs, sqltool, osgi"
+          description="Build joint binary + source distribution zip package">
     <mkdir dir="dist"/>
     <property name="app.basedir" value="hsqldb-${hsqldb.version}"/>
 
@@ -137,6 +132,9 @@ and re-export.</fail>
              preservelastmodified='true' eol="lf" encoding="UTF-8"
              includes="**/*.sql, **/*.dsv, **/*.isql, **/*.nsql, **/*.inter"/>
 
+    <!-- This is a wasteful work-around to get Ant to zip the file with a
+         different t name than "hsqldb-osgi.jar" -->
+    <copy file="lib/hsqldb-osgi.jar" tofile="tmp/hsqldb.jar"/>
     <mkdir dir="data"/>
     <zip destfile="dist/${app.basedir}.zip">
       <zipfileset prefix="${app.basedir}/hsqldb" dir="."
@@ -148,47 +146,18 @@ and re-export.</fail>
                             classes/**, dist/**, local*/**, tmp/**"/>
       <zipfileset prefix="${app.basedir}/hsqldb" dir="."
                   excludes="**/.*/**, **/*.cmd, **/*.bat, **/*.bash, **/*.sh,
-                  test-src/**, **/*.pl, **/*.php, **/*.init, **/*.py
+                  test-src/**, **/*.pl, **/*.php, **/*.init, **/*.py, lib/**
                   build/build.properties, build/local**, build/ivysettings.xml,
                   classes/**, dist/**, local*/**, tmp/**, doc-src/images/db/**,
                   build/ivysettings.xml, stylesheets/rng-catalog.xml,
                   build/gradlew, *gradled*, build/gradle-app.setting"/>
+      <zipfileset prefix="${app.basedir}/hsqldb/lib" dir="lib"
+                  includes="sqltool.jar, servlet*.zip"/>
+      <zipfileset prefix="${app.basedir}/hsqldb/lib" dir="tmp"
+                  includes="hsqldb.jar"/>
+      <!-- Don't leave "tmp/hsqldb.jar" lying around, because it has a
+           misleading name and it is redundant. -->
+      <delete file="tmp/hsqldb.jar"/>
     </zip>
-  </target>
-
-  <target name="-bnd-ivy-setup">
-    <ivy:cachepath conf="bndJar" pathid="bnd-jar.cpref"/>
-  </target>
-
-  <target name="bnd" depends="-bnd-ivy-setup"
-          description="Write OSGI properties to manifest of 'hsqldb.jar' file">
-    <!-- This target should depend on the 'hsqldb' target, but unfortunately
-         our jar targets do not prevent useless re-builds, so we are forced to
-         manage rebuilds manually.
-         This can be handled properly and gracefully if/when we assemble the
-         jars with Gradle.
-    -->
-    <move overwrite="true" failonerror="false"
-           file="lib/hsqldb.jar" tofile="lib/hsqldb.prebnd"/>
-    <available property="injar.present" type="file" file="lib/hsqldb.prebnd"/>
-    <fail message="Can't use target 'bnd' if 'hsqldb.jar' file not built yet"
-           unless="injar.present"/>
-    <!-- Purposefully not using the bndwrap task available for this purpose,
-         because the docs don't explain how to use the attributes clearly enough
-         to figure out how to use it. -->
-    <pathconvert property="bndjar.file" refid="bnd-jar.cpref"/>
-    <java failonerror="true" fork="true" dir="lib" classpath="${bndjar.file}"
-          classname="aQute.bnd.main.bnd">
-      <sysproperty key="hsqldb.version" value="${hsqldb.version}"/>
-      <sysproperty key="build.vendor" value="${user.name}"/>
-      <sysproperty key="hsqldb.title" value="${hsqldb.title}"/>
-      <arg value="wrap"/>
-      <arg value="-output"/>
-      <arg value="hsqldb.jar"/>
-      <arg value="-properties"/>
-      <arg file="build/hsqldb.bnd"/>
-      <arg value="hsqldb.prebnd"/>
-    </java>
-    <delete file="lib/hsqldb.prebnd"/>
   </target>
 </project>
