@@ -28,9 +28,6 @@ defaultTasks 'help'
 project['repos.useMaven'] = 'true'
 apply from: 'common.gradle'
 
-if (!project.hasProperty('distBuild'))
-    distBuild = (project.hasProperty('build.dist')
-        && Boolean.parseBoolean(project.property('build.dist')))
 if (!project.hasProperty('mvnBuild'))
     mvnBuild = (project.hasProperty('build.mvn')
         && Boolean.parseBoolean(project.property('build.mvn')))
@@ -312,19 +309,6 @@ File[] resequenceAntDependencies(String fileNameInsertion,
     return outFiles
 }
 
-if (distBuild) {
-    addlAntBuildFiles = [file('build-dist.xml')]
-
-    addlAntBuildClosures = [{
-            it.import.find{it.@file = 'build-gradled.xml'}
-            it.@name = it.@name.text() + '_gradled'
-            it.attributes().remove('basedir')
-            it.target.find{it.@name == '-bnd-ivy-setup'}.
-                    cachepath.replaceNode {}
-        }
-    ]
-}
-
 // RESEQUENCE
 project['resequence.destDir'] = file('..')
 // The top-level entry Build file must be first!!!
@@ -426,12 +410,6 @@ project.task([overwrite: true], ivySetupTaskName) << {
     ant.references['jflex-jar.cpref'] =
             new Path(ant.project, configurations['jflexJar'].asPath)
 }
-if (distBuild) {
-    defaultTasks 'dist'
-    ant.references['bnd-jar.cpref'] =
-            new Path(ant.project, configurations['bndJar'].asPath)
-}
-
 
 private def recursiveAggregator(additions, inMap, assemblage) {
     for (addition in additions) if (!assemblage.contains(addition)) {
