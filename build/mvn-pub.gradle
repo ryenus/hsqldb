@@ -20,7 +20,7 @@
  * by 'build-dist' not by 'mvn-pub'.
  *
  * <PRE><CODE>
- *     gradlew -x sqltool -x hsqldb -b mvn-pub.gradle
+ *     gradlew -x sqltool -x osgi -b mvn-pub.gradle
  * </CODE></PRE>
  *
  * Now, for each alternative, adjust environment and build properties, like
@@ -28,7 +28,7 @@
  *
  * <PRE><CODE>
  *   gradlew -b build-dist.gradle clean-all osgi sqltool
- *   gradlew -x sqltool -x hsqldb -Pclassifier=NEW_CLASSIFIER -b mvn-pub.gradle
+ *   gradlew -x sqltool -x osgi -Pclassifier=NEW_CLASSIFIER -b mvn-pub.gradle
  * </CODE></PRE>
  * The clean-all will wipe .../doc, but the .../doc and everything else from
  * your original dist build will be retained in .../dist/*.zip.
