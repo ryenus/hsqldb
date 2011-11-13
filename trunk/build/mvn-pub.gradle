@@ -33,9 +33,9 @@
  * The clean-all will wipe .../doc, but the .../doc and everything else from
  * your original dist build will be retained in .../dist/*.zip.
  *****************************************************************************
- * For snapshot builds, just publish jars individually, exactly as described
- * in the 2nd part of "Instructions for doing a full, public release:" above,
- * beginning  with "Now, for each alternative".
+ * For snapshot builds, just publish jar-pairs individually, exactly as
+ * described * in the 2nd part of "Instructions for doing a full, public
+ * release:" above, beginning  with "Now, for each alternative".
  * (In this case, clean-all really will blow away your only docs, so either
  * back them up or regenerate them afterwards).
  *
