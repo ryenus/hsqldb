@@ -18,15 +18,15 @@
  * smart enough to see that they do not need to be re-built).
  *
  * <PRE><CODE>
- *     gradlew -x sqltool -x hsqldb -b mvn-pub.mvn=true
+ *     gradlew -x sqltool -x hsqldb -b mvn-pub.gradle
  * </CODE></PRE>
  *
  * Now, for each alternative, adjust environment and build properties, like
  * by setting env var JAVA_HOME or build property 'build.debug', and run
  *
  * <PRE><CODE>
- *     gradlew -b build-dist.gradle clean-all hsqldb sqltool bnd
- *     gradlew -x sqltool -x hsqldb -Pclassifier=debug -b mvn-pub.mvn=true
+ *   gradlew -b build-dist.gradle clean-all hsqldb sqltool bnd
+ *   gradlew -x sqltool -x hsqldb -Pclassifier=NEW_CLASSIFIER -b mvn-pub.gradle
  * </CODE></PRE>
  * The clean-all will wipe .../doc, but the .../doc and everything else from
  * your original dist build will be retained in .../dist/*.zip.
