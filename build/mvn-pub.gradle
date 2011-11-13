@@ -1,6 +1,15 @@
-defaultTasks 'uploadArchives'
-
 /**
+ * Invoke this build file with Gradle's -b switch for POM- or
+ * Maven-publishing related tasks.
+ *
+ * Unfortunately, it is impractical to encpsulate all of the needed processing
+ * here, so there is some tight coupling between this file and "build.gradle".
+ * (This file loads/applies "build.gradle").
+ *
+ * The tasks pulled in by this file require several properties to be set,
+ * for populating a POM file and for specifying (and optionally authenticating
+ * to a Maven repository server.
+ *
  * Instructions for doing a full, plubic release:
  * Make sure that your "build.properties" file has setting 'build.dist=true'.
  * Right after doing the build of the zip distributable with JDK 6 and
@@ -9,15 +18,15 @@ defaultTasks 'uploadArchives'
  * smart enough to see that they do not need to be re-built).
  *
  * <PRE><CODE>
- *     gradlew -x sqltool -x hsqldb -Pbuild.mvn=true uploadArchives
+ *     gradlew -x sqltool -x hsqldb -b mvn-pub.mvn=true
  * </CODE></PRE>
  *
  * Now, for each alternative, adjust environment and build properties, like
  * by setting env var JAVA_HOME or build property 'build.debug', and run
  *
  * <PRE><CODE>
- *     gradlew clean-all hsqldb sqltool bnd
- *     gradlew -x sqltool -x hsqldb -Pclassifier=debug -Pbuild.mvn=true uploadArchives
+ *     gradlew -b build-dist.gradle clean-all hsqldb sqltool bnd
+ *     gradlew -x sqltool -x hsqldb -Pclassifier=debug -b mvn-pub.mvn=true
  * </CODE></PRE>
  * The clean-all will wipe .../doc, but the .../doc and everything else from
  * your original dist build will be retained in .../dist/*.zip.
@@ -34,6 +43,10 @@ signing {
     sign configurations.archives
 }
 */
+
+mvnBuild = true
+apply from: 'build.gradle'
+defaultTasks 'uploadArchives'
 
 configurations {
     deployJars
