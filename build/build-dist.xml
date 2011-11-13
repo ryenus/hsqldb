@@ -157,7 +157,7 @@ and re-export.</fail>
                   includes="hsqldb.jar"/>
       <!-- Don't leave "tmp/hsqldb.jar" lying around, because it has a
            misleading name and it is redundant. -->
-      <delete file="tmp/hsqldb.jar"/>
     </zip>
+    <delete file="tmp/hsqldb.jar"/>
   </target>
 </project>
