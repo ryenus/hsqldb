@@ -104,6 +104,15 @@ uploadArchives {
             scm {
                 url project.property('scm.url')
                 connection project.property('scm.connection')
+                if (project.hasProperty('scm.tag'))
+                    tag project.property('scm.tag')
+            }
+            if (project.hasProperty('org.name')
+                    || project.hasProperty('org.url')) organization {
+                if (project.hasProperty('org.name'))
+                    name project.property('org.name')
+                if (project.hasProperty('org.url'))
+                    url project.property('org.url')
             }
             licenses {
                 license {
