@@ -37,6 +37,8 @@
    <property name="build.vendor" value="${user.name}"/>
    <property name="hsqldb.title" value="HSQLDB"/>
    <property name="hsqldb.vendor" value="The HSQL Development Group"/>
+   <property name="description"
+             value="HyperSQL Lightweight 100% Java SQL Database Engine"/>
    <property name="build.sysclasspath" value="ignore"/>
    <property name="swsrc" value="${basedir}/tmp/switchedsrc/"/>
    <available property="switch.inplace"
@@ -1249,6 +1251,7 @@ optimizations) manually.
           classname="aQute.bnd.main.bnd">
       <sysproperty key="hsqldb.version" value="${hsqldb.version}"/>
       <sysproperty key="build.vendor" value="${user.name}"/>
+      <sysproperty key="build.description" value="${description}"/>
       <sysproperty key="hsqldb.title" value="${hsqldb.title}"/>
       <arg value="wrap"/>
       <arg value="-output"/>
