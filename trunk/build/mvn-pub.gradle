@@ -27,8 +27,7 @@
  * by setting env var JAVA_HOME or build property 'build.debug', and run
  *
  * <PRE><CODE>
- *   gradlew -b build-dist.gradle clean-all osgi sqltool
- *   gradlew -x sqltool -x osgi -Pclassifier=NEW_CLASSIFIER -b mvn-pub.gradle
+ *   gradlew -Pclassifier=NEW_CLASSIFIER -b mvn-pub.gradle clean-all uploadArchives
  * </CODE></PRE>
  * The clean-all will wipe .../doc, but the .../doc and everything else from
  * your original dist build will be retained in .../dist/*.zip.
@@ -66,6 +65,11 @@ dependencies {
             startsWith('scp://'))
         deployJars 'org.apache.maven.wagon:wagon-ssh:2.0'
 }
+
+// description attribute of project is always set, but may be null
+if (!project.hasProperty('description') ||
+        project.property('description') == null)
+    project.description = 'HyperSQL Lightweight 100% Java SQL Database Engine'
 
 uploadArchives {
     if (!project.hasProperty('mavenRepository.dest.url'))
