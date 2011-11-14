@@ -3405,7 +3405,7 @@ public static java.sql.Array accessExternalMethod(String database, String user, 
   </section>
 
   <section>
-    <title>Ivy and Maven Dependency Settings</title>
+    <title>Gradle, Ivy, and Maven Dependency Settings</title>
 
     <simpara>This section is about building applications that have build-time
     dependencies upon HyperSQL with Ivy, Maven, or other build tools that use
@@ -3453,7 +3453,11 @@ public static java.sql.Array accessExternalMethod(String database, String user, 
        &lt;dependency org="org.hsqldb" name="hsqldb" rev="]2,)" conf="j6-&gt;default"/&gt;</programlisting>
 
       <simpara>The range pattern here means the latest version greater than
-      version <literal>2</literal>.</simpara>
+        version <literal>2</literal>.
+        I give no example of specifying a <emphasis>classifier</emphasis> in
+        <filename>ivy.xml</filename> because I have so far failed to get that
+        to succeed.
+      </simpara>
     </example>
 
     <example>
@@ -3464,13 +3468,32 @@ public static java.sql.Array accessExternalMethod(String database, String user, 
           &lt;groupId&gt;org.hsqldb&lt;groupId&gt;
           &lt;artifactId&gt;hsqldb&lt;artifactId&gt;
           &lt;version&gt;[2,)&lt;version&gt;
-          &lt;!- Scope defaults to "compile":
+          &lt;!-- Scope defaults to "compile":
           &lt;scope&gt;test&lt;scope&gt;
-          -&gt;
+            Use a classifier to pull one of our alternative jars:
+          &lt;classifier&gt;jdk5&lt;classifier&gt;
+          --&gt;
         &lt;dependency&gt;</programlisting>
 
       <simpara>The range pattern here means the latest version equal or
       greater than version <literal>2</literal>.</simpara>
+    </example>
+
+    <example>
+      <title>Sample Gradle Dependency</title>
+
+      <programlisting>
+    dependencies.compile (group: 'org.hsqldb', name: 'hsqldb', version:'[2,)', classifier: 'jdk5')
+    dependencies {
+        runtime 'org.hsqldb:hsqldb:fake-2:jdk6debug@jar',
+                'org.hsqldb:sqltool:fake-2:jdk6debug@jar'
+    }</programlisting>
+      <simpara>The range pattern here means the latest version equal or
+        greater than version <literal>2</literal>.
+        If you want the default Java 6 non-debug jar, then skip the classifier
+        settings (<literal>jdk5</literal> and <literal>jdk6debug</literal>)
+        above.
+      </simpara>
     </example>
   </section>
 </chapter>
