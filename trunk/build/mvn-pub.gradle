@@ -69,7 +69,7 @@ dependencies {
 // description attribute of project is always set, but may be null
 if (!project.hasProperty('description') ||
         project.property('description') == null)
-    project.description = 'HyperSQL Lightweight 100% Java SQL Database Engine'
+    project.description = 'HSQLDB - Lightweight 100% Java SQL Database Engine'
 
 uploadArchives {
     if (!project.hasProperty('mavenRepository.dest.url'))
@@ -97,7 +97,7 @@ uploadArchives {
             addFilter('sqltool') {artifact, file -> artifact.name == 'sqltool'}
         ]
         for (p in poms) p.project {
-            name "HyperSQL"
+            name 'HyperSQL Database'
             description project.description
             url project.url
             inceptionYear project.inceptionYear
