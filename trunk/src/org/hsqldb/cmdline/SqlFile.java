@@ -5148,18 +5148,19 @@ public class SqlFile {
     /**
      * Name is self-explanatory.
      *
-     * If there is user demand, open file in random access mode so don't
-     * need to load 2 copies of the entire file into memory.
-     * This will be difficult because can't use standard Java language
-     * features to search through a character array for multi-character
-     * substrings.
-     *
      * @throws SqlToolError  Would prefer to throw an internal exception,
      *                       but we want this method to have external
      *                       visibility.
      */
     public void importDsv(String filePath, String skipPrefix)
             throws SqlToolError {
+        /*
+         * If there is user demand, open file in random access mode so don't
+         * need to load 2 copies of the entire file into memory.
+         * This will be difficult because can't use standard Java language
+         * features to search through a character array for multi-character
+         * substrings.
+         */
         requireConnection();
         /* To make string comparisons, contains() methods, etc. a little
          * simpler and concise, just switch all column names to lower-case.
