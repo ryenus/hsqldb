@@ -1,0 +1,48 @@
+<ivy-module version="2.0">
+<!--
+  Copyright (c) 2010, The HSQL Development Group. All rights reserved.
+  Released under the HSQL license, available at http://hsqldb.org
+-->
+
+  <!-- The configuration here could be simplified greatly by using default Ivy
+       transitive dependencies.  I have disabled that so that you can see each
+       and every dependency. -->
+
+  <!-- Not pulling in HyperSQL through Ivy and Maven, because as I am coding
+       this example, the HyperSQL LDAP features are not available in Maven yet.
+  -->
+
+  <info organisation="org.hsqldb" module="extAuthWithSpring"/>
+  <configurations>
+    <conf name="baseconf" visibility="private"
+          description="Dependencies which hold for all other confs"/>
+    <conf name="build" description="Dependencies for compiling"
+          extends="baseconf" visibility="private"/>
+    <conf name="run" description="Dependencies for running"
+          extends="baseconf" visibility="private"/>
+  </configurations>
+  <dependencies defaultconfmapping="baseconf->default">
+    <dependency org="org.springframework" name="spring-context"
+                rev="3.0.5.RELEASE" transitive="false"/>
+    <dependency org="org.springframework" name="spring-beans"
+                rev="3.0.5.RELEASE" transitive="false"/>
+    <dependency org="org.springframework" name="spring-core"
+                rev="3.0.5.RELEASE" transitive="false"/>
+    <dependency org="commons-logging" name="commons-logging" rev="1.1.1"
+                transitive="false"/>
+    <dependency org="org.springframework" name="spring-asm"
+                conf="run->default" rev="3.0.5.RELEASE" transitive="false"/>
+    <dependency org="org.springframework" name="spring-aop"
+                conf="run->default" rev="3.0.5.RELEASE" transitive="false"/>
+    <dependency org="org.springframework" name="spring-expression"
+                conf="run->default" rev="3.0.5.RELEASE" transitive="false"/>
+    <dependency org="org.springframework" name="spring-jdbc"
+                conf="run->default" rev="3.0.5.RELEASE" transitive="false"/>
+
+    <!-- Enable this dependency to pull hsqldb*.jar from Maven repository
+         instead of by manual non-ivy inclusion in build.xml.
+    <dependency org="org.hsqldb" name="hsqldb"
+                conf="run->default" rev="2.0.1" transitive="false"/>
+    -->
+  </dependencies>
+</ivy-module>
