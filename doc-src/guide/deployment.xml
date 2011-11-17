@@ -2255,7 +2255,7 @@
       statement.</simpara>
 
       <simpara>This is equivalent to the connection property
-      <literal>hsqldb.applog</literal>.</simpara>
+      <literal>hsqldb.sqllog</literal>.</simpara>
 
       <indexterm significance="preferred" type="sql">
         <primary>SET DATABASE GC</primary>
@@ -3406,98 +3406,97 @@ public static java.sql.Array accessExternalMethod(String database, String user, 
 
   <section>
     <title>Application HyperSQL Dependency Settings</title>
+
     <subtitle>Dependency settings using Gradle, Ivy, Maven, Groovy</subtitle>
 
     <simpara>This section is about building applications that have build-time
-      dependencies upon HyperSQL, and for executions that use a dependency
-      library system.
-      Examples of the second type are unit test runs, job runs triggered by
-      a build system, or systems like Grape that pull libraries from the
-      network at end-user run time.</simpara>
+    dependencies upon HyperSQL, and for executions that use a dependency
+    library system. Examples of the second type are unit test runs, job runs
+    triggered by a build system, or systems like Grape that pull libraries
+    from the network at end-user run time.</simpara>
 
-    <section><title>What version to Pull</title>
-    <para>Most developers are recommended to depend upon the latest public
-    version of HyperSQL with a range pattern like <literal>[2,)</literal>, as
-    described below. <itemizedlist>
-        <listitem>
-          <simpara>Your application has code dependencies upon
-          version-specific details of the HyperSQL distribution. In this case,
-          the specific dependency specification should be checked in to your
-          source code control system alongside the code that manifests the
-          version-dependency. If your code is enhanced to use a newer version
-          of HyperSQL, you should update the version specification so that
-          whenever code + configs are checked out, the dependency will always
-          match the code.</simpara>
-        </listitem>
+    <section>
+      <title>What version to Pull</title>
 
-        <listitem>
-          <simpara>Your organization only allows the use of vetted libraries.
-          In this case, you vigorously maintain your configurations, updating
-          your dependencies and and regression testing as soon as new versions
-          of HyperSQL are vetted. To get the best performance and reliability
-          from HyperSQL, you should urge the appropriate parties to vet new
-          versions as soon as they are publicly released.</simpara>
-        </listitem>
+      <para>Most developers are recommended to depend upon the latest public
+      version of HyperSQL with a range pattern like <literal>[2,)</literal>,
+      as described below. <itemizedlist>
+          <listitem>
+            <simpara>Your application has code dependencies upon
+            version-specific details of the HyperSQL distribution. In this
+            case, the specific dependency specification should be checked in
+            to your source code control system alongside the code that
+            manifests the version-dependency. If your code is enhanced to use
+            a newer version of HyperSQL, you should update the version
+            specification so that whenever code + configs are checked out, the
+            dependency will always match the code.</simpara>
+          </listitem>
 
-        <listitem>
-          <simpara>You need precisely reproducible builds.</simpara>
-        </listitem>
-      </itemizedlist> If none of these situations apply to you, then follow
-      the suggestion to use version ranges as shown in the examples below.
-      If you need to specify a specific version, change the
-      version range specifications below to literal versions like
+          <listitem>
+            <simpara>Your organization only allows the use of vetted
+            libraries. In this case, you vigorously maintain your
+            configurations, updating your dependencies and and regression
+            testing as soon as new versions of HyperSQL are vetted. To get the
+            best performance and reliability from HyperSQL, you should urge
+            the appropriate parties to vet new versions as soon as they are
+            publicly released.</simpara>
+          </listitem>
+
+          <listitem>
+            <simpara>You need precisely reproducible builds.</simpara>
+          </listitem>
+        </itemizedlist> If none of these situations apply to you, then follow
+      the suggestion to use version ranges as shown in the examples below. If
+      you need to specify a specific version, change the version range
+      specifications below to literal versions like
       <literal>2.2.5</literal>.</para>
-    <note xml:id="mavenrange">
-    <title>Limitation of Maven Version Range Specifiers</title>
-    <simpara>
-      Note that Ivy (and the many systems that use Ivy undeneath,
-      like Grape and Gradle) supports the opening exclusive
-      <literal>]</literal> in addition to <literal>[</literal>,
-      whereas Maven supports only the opening inclusive <literal>[</literal>
-      specifier.
-      See the relevant
-      <link xlink:href="http://ant.apache.org/ivy/history/latest-milestone/ivyfile/dependency.html">
-      Ivy</link> or
-      <link xlink:href="http://docs.codehaus.org/display/MAVEN/Dependency+Mediation+and+Conflict+Resolution#DependencyMediationandConflictResolution-DependencyVersionRanges">
-      Maven</link> documentation for details.
-      There are special cases where you should depend on a
-      specific version instead.
-    </simpara></note>
+
+      <note xml:id="mavenrange">
+        <title>Limitation of Maven Version Range Specifiers</title>
+
+        <simpara>Note that Ivy (and the many systems that use Ivy undeneath,
+        like Grape and Gradle) supports the opening exclusive
+        <literal>]</literal> in addition to <literal>[</literal>, whereas
+        Maven supports only the opening inclusive <literal>[</literal>
+        specifier. See the relevant <link
+        xlink:href="http://ant.apache.org/ivy/history/latest-milestone/ivyfile/dependency.html">
+        Ivy</link> or <link
+        xlink:href="http://docs.codehaus.org/display/MAVEN/Dependency+Mediation+and+Conflict+Resolution#DependencyMediationandConflictResolution-DependencyVersionRanges">
+        Maven</link> documentation for details. There are special cases where
+        you should depend on a specific version instead.</simpara>
+      </note>
     </section>
 
-    <section><title>Dependency Specification Examples</title>
+    <section>
+      <title>Dependency Specification Examples</title>
 
-    <important>
-      <simpara>For all examples below, if a range pattern is given, it means
+      <important>
+        <simpara>For all examples below, if a range pattern is given, it means
         the latest version equal or greater than version <literal>2</literal>.
         If a classifier is shown, it is optional and you can skip it to get
-        the default (no-classifier) jar.
-      </simpara>
-    </important>
+        the default (no-classifier) jar.</simpara>
+      </important>
 
-    <example>
-      <title>Sample Ivy Dependency</title>
+      <example>
+        <title>Sample Ivy Dependency</title>
 
-      <programlisting>
+        <programlisting>
        &lt;dependency org="org.hsqldb" name="hsqldb" rev="[2,)" conf="j6-&gt;default"/&gt;</programlisting>
 
-      <simpara>
-        I give no example of specifying a <emphasis>classifier</emphasis> in
-        <filename>ivy.xml</filename> because I have so far failed to get that
-        to succeed.
+        <simpara>I give no example of specifying a
+        <emphasis>classifier</emphasis> in <filename>ivy.xml</filename>
+        because I have so far failed to get that to succeed.
         <filename>ivy.xml</filename> is supported if using Gradle, as
-        exemplified below.
-      </simpara>
-    </example>
+        exemplified below.</simpara>
+      </example>
 
-    <example>
-      <title>Sample Maven Dependency</title>
-      <simpara>
-        See <link xlink:href="#mavenrange">note above</link> about Maven range
-        specifications.
-      </simpara>
+      <example>
+        <title>Sample Maven Dependency</title>
 
-      <programlisting>
+        <simpara>See <link xlink:href="#mavenrange">note above</link> about
+        Maven range specifications.</simpara>
+
+        <programlisting>
         &lt;dependency&gt;
           &lt;groupId&gt;org.hsqldb&lt;groupId&gt;
           &lt;artifactId&gt;hsqldb&lt;artifactId&gt;
@@ -3508,24 +3507,26 @@ public static java.sql.Array accessExternalMethod(String database, String user, 
           &lt;classifier&gt;jdk5&lt;classifier&gt;
           --&gt;
         &lt;dependency&gt;</programlisting>
-    </example>
+      </example>
 
-    <example>
-      <title>Sample Gradle Dependency</title>
+      <example>
+        <title>Sample Gradle Dependency</title>
 
-      <programlisting>
+        <programlisting>
     dependencies.compile (group: 'org.hsqldb', name: 'hsqldb', version:'[2,)', classifier: 'jdk5')
     dependencies {
         runtime 'org.hsqldb:hsqldb:fake-2:jdk6debug@jar',
                 'org.hsqldb:sqltool:fake-2:jdk6debug@jar'
     }</programlisting>
-    </example>
+      </example>
 
-    <para>If you want to use an <filename>ivy.xml</filename> with a Gradle
+      <para>If you want to use an <filename>ivy.xml</filename> with a Gradle
       build, you will need to copy our
-      <filename>ivyxml-support.gradle</filename> file into your project, then...
-    <example>
-      <title>Sample Gradle Build File using ivy.xml</title> <programlisting>
+      <filename>ivyxml-support.gradle</filename> file into your project,
+      then... <example>
+          <title>Sample Gradle Build File using ivy.xml</title>
+
+          <programlisting>
     apply plugin: 'java'  // Load any plugins that define configurations
     ...
     configurations {
@@ -3535,22 +3536,21 @@ public static java.sql.Array accessExternalMethod(String database, String user, 
     // you want to load from the ivy.xml file.  Other confs in the ivy.xml
     // file with be ignored.
     apply from: 'ivyxml-support.gradle'</programlisting>
-    </example>
-    <example>
-      <title>Sample ivy.xml loaded by ivyxml-support.gradle</title>
-      <programlisting>
+        </example> <example>
+          <title>Sample ivy.xml loaded by ivyxml-support.gradle</title>
+
+          <programlisting>
     &lt;ivy-module version="2.0" xmlns:m="http://ant.apache.org/ivy/maven"&gt;
     ...
     &lt;dependency org="org.hsqldb" name="hsqldb" rev="[2,)" m:classifier="jdk5"/&gt;</programlisting>
-    </example>
-    </para>
+        </example></para>
 
-    <example>
-      <title>Sample Groovy Dependency, using Grape</title>
+      <example>
+        <title>Sample Groovy Dependency, using Grape</title>
 
-      <programlisting>
+        <programlisting>
 @Grab(group='org.hsqldb', module='hsqldb', version='[2,)', classifier='jdk6debug')</programlisting>
-    </example>
+      </example>
     </section>
   </section>
 </chapter>
