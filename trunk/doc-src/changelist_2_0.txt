@@ -1,4 +1,4 @@
-12 November 2011 - SVN 4756
+17 November 2011 - version 2.2.6
 -- fixed issue with memory use of large strings in cache
 -- fixed issue with FOR loops with ORDER BY in routines
 -- fixed issue with TIME ZONE types JDBC type reporting in server
@@ -10,6 +10,7 @@
 -- fixed issue with some row comparison predicates
 -- added code branch supporting huge multi terabyte databases with tens of billions of rows
 -- added property hsqldb.avg_scale for decimal results from AVG and MEDIAN aggregates
+-- added support for AVG with datetime types
 -- added two-arg REPLACE function
 -- added new datetime and bit functions 
 -- added support for ROWNUM() in UPDATE and DELETE statements
