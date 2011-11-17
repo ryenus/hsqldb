@@ -232,8 +232,8 @@ public class RowOutputBinary extends RowOutputBase {
     }
 
     protected void writeDaySecondInterval(IntervalSecondData o, Type type) {
-        writeLong(o.units);
-        writeInt(o.nanos);
+        writeLong(o.getSeconds());
+        writeInt(o.getNanos());
     }
 
     protected void writeOther(JavaObjectData o) {

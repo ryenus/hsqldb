@@ -47,8 +47,8 @@ public class IntervalSecondData {
         Type.SQL_INTERVAL_DAY);
 
     //
-    public final long units;
-    public final int  nanos;
+    final long units;
+    final int  nanos;
 
     public static IntervalSecondData newIntervalDay(long days,
             IntervalType type) {

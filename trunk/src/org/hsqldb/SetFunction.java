@@ -45,6 +45,8 @@ import org.hsqldb.types.IntervalMonthData;
 import org.hsqldb.types.IntervalSecondData;
 import org.hsqldb.types.IntervalType;
 import org.hsqldb.types.NumberType;
+import org.hsqldb.types.TimeData;
+import org.hsqldb.types.TimestampData;
 import org.hsqldb.types.Type;
 import org.hsqldb.types.Types;
 
@@ -139,25 +141,45 @@ public class SetFunction implements Serializable {
 
                         return;
 
-                    case Types.SQL_INTERVAL :
+                    case Types.SQL_INTERVAL : {
                         if (item instanceof IntervalSecondData) {
-                            addLong(((IntervalSecondData) item).units);
+                            addLong( ( (IntervalSecondData) item).getSeconds());
 
-                            currentLong += ((IntervalSecondData) item).nanos;
+                            currentLong += ( (IntervalSecondData) item).getNanos();
 
                             if (Math.abs(currentLong)
-                                    >= DTIType.nanoScaleFactors[0]) {
+                                >= DTIType.nanoScaleFactors[0]) {
                                 addLong(currentLong
                                         / DTIType.nanoScaleFactors[0]);
 
                                 currentLong %= DTIType.nanoScaleFactors[0];
                             }
-                        } else if (item instanceof IntervalMonthData) {
-                            addLong(((IntervalMonthData) item).units);
+                        }
+                        else if (item instanceof IntervalMonthData) {
+                            addLong( ( (IntervalMonthData) item).units);
                         }
 
                         return;
+                    }
+                    case Types.SQL_DATE :
+                    case Types.SQL_TIMESTAMP :
+                    case Types.SQL_TIMESTAMP_WITH_TIME_ZONE : {
+                            addLong( ( (TimestampData) item).getSeconds());
 
+                            currentLong += ( (TimestampData) item).getNanos();
+
+                            if (Math.abs(currentLong)
+                                >= DTIType.nanoScaleFactors[0]) {
+                                addLong(currentLong
+                                        / DTIType.nanoScaleFactors[0]);
+
+                                currentLong %= DTIType.nanoScaleFactors[0];
+                            }
+
+                            currentDouble = ( (TimestampData) item).getZone();
+
+                        return;
+                    }
                     case Types.SQL_BIGINT :
                         addLong(((Number) item).longValue());
 
@@ -327,6 +349,19 @@ public class SetFunction implements Serializable {
                                 bi.longValue(), (IntervalType) type);
                         }
                     }
+                    case Types.SQL_DATE :
+                    case Types.SQL_TIMESTAMP :
+                    case Types.SQL_TIMESTAMP_WITH_TIME_ZONE : {
+                        BigInteger bi =
+                            getLongSum().divide(BigInteger.valueOf(count));
+
+                        if (!NumberType.isInLongLimits(bi)) {
+                            throw Error.error(ErrorCode.X_22015);
+                        }
+
+
+                        return new TimestampData(bi.longValue(), (int) currentLong, (int) currentDouble);
+                    }
                     default :
                         throw Error.runtimeError(ErrorCode.U_S0500,
                                                  "SetFunction");
@@ -444,6 +479,9 @@ public class SetFunction implements Serializable {
                     case Types.SQL_FLOAT :
                     case Types.SQL_DOUBLE :
                     case Types.SQL_INTERVAL :
+                    case Types.SQL_DATE :
+                    case Types.SQL_TIMESTAMP :
+                    case Types.SQL_TIMESTAMP_WITH_TIME_ZONE :
                         return type;
 
                     default :
