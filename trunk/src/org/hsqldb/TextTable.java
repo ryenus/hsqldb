@@ -33,9 +33,7 @@ package org.hsqldb;
 
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
-import org.hsqldb.lib.FileUtil;
 import org.hsqldb.lib.StringConverter;
-import org.hsqldb.persist.DataFileCache;
 import org.hsqldb.persist.PersistentStore;
 import org.hsqldb.persist.TextCache;
 
@@ -100,7 +98,7 @@ public class TextTable extends org.hsqldb.Table {
 
         this.store = store;
 
-        DataFileCache cache = null;
+        TextCache cache = null;
 
         try {
             cache = (TextCache) database.logger.openTextFilePersistence(this,
@@ -112,8 +110,8 @@ public class TextTable extends org.hsqldb.Table {
             Row row     = null;
             int nextpos = 0;
 
-            if (((TextCache) cache).ignoreFirst) {
-                nextpos += ((TextCache) cache).readHeaderLine();
+            if (cache.isIgnoreFirstLine()) {
+                nextpos += cache.readHeaderLine();
             }
 
             while (true) {
@@ -221,10 +219,6 @@ public class TextTable extends org.hsqldb.Table {
 
         dataSourceNew = dataSourceNew.trim();
 
-        if (createFile && FileUtil.getFileUtil().exists(dataSourceNew)) {
-            throw Error.error(ErrorCode.TEXT_SOURCE_EXISTS, dataSourceNew);
-        }
-
         //-- Open if descending, direction changed, file changed, or not connected currently
         if (isReversedNew || (isReversedNew != isReversed)
                 || !dataSource.equals(dataSourceNew) || !isConnected) {
@@ -250,7 +244,7 @@ public class TextTable extends org.hsqldb.Table {
             database.persistentStoreCollection.getStore(this);
         TextCache cache = (TextCache) store.getCache();
 
-        if (cache != null && cache.ignoreFirst) {
+        if (cache != null && cache.isIgnoreFirstLine()) {
             cache.setHeader(header);
 
             return;

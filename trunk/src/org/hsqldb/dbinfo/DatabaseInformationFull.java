@@ -73,6 +73,7 @@ import org.hsqldb.persist.HsqlDatabaseProperties;
 import org.hsqldb.persist.HsqlProperties;
 import org.hsqldb.persist.PersistentStore;
 import org.hsqldb.persist.TextCache;
+import org.hsqldb.persist.TextFileSettings;
 import org.hsqldb.result.Result;
 import org.hsqldb.rights.GrantConstants;
 import org.hsqldb.rights.Grantee;
@@ -1273,16 +1274,19 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
             TextCache cache = (TextCache) currentStore.getCache();
 
             if (cache != null) {
+                TextFileSettings textFileSettings =
+                    cache.getTextFileSettings();
+
                 row[ifile_path] =
                     FileUtil.getFileUtil().canonicalOrAbsolutePath(
                         cache.getFileName());
-                row[ifile_enc] = cache.stringEncoding;
-                row[ifs]       = cache.fs;
-                row[ivfs]      = cache.vs;
-                row[ilvfs]     = cache.lvs;
-                row[iif]       = ValuePool.getBoolean(cache.ignoreFirst);
-                row[iiq]       = ValuePool.getBoolean(cache.isQuoted);
-                row[iiaq]      = ValuePool.getBoolean(cache.isAllQuoted);
+                row[ifile_enc] = textFileSettings.stringEncoding;
+                row[ifs]       = textFileSettings.fs;
+                row[ivfs]      = textFileSettings.vs;
+                row[ilvfs]     = textFileSettings.lvs;
+                row[iif] = ValuePool.getBoolean(textFileSettings.ignoreFirst);
+                row[iiq] = ValuePool.getBoolean(textFileSettings.isQuoted);
+                row[iiaq] = ValuePool.getBoolean(textFileSettings.isAllQuoted);
                 row[iid] = ((TextTable) table).isDescDataSource()
                            ? Boolean.TRUE
                            : Boolean.FALSE;
