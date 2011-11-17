@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-
 <!DOCTYPE book [
-  <!ENTITY % dummy22 SYSTEM "../entities/global.ent"> %dummy22;
+<!ENTITY % dummy22 SYSTEM "../entities/global.ent">
+%dummy22;
 ]>
 <chapter version="5.0" xml:id="dataaccess-chapt"
          xmlns="http://docbook.org/ns/docbook"
@@ -2065,10 +2065,11 @@ invoice_date &lt; ALL (SELECT holiday_date FROM holidays)
       returns the sum of values for <literal>acolumn</literal> in each
       group.</simpara>
 
-      <simpara>The AVG, SUM and MEDIAN operations can be performed on numeric
-      expressions only. AVG returns the average value, while SUM returns the
-      sum of all values. If all values are NULL, the operations return NULL.
-      MEDIAN returns the middle value in the sorted list of values.</simpara>
+      <simpara>The SUM operations can be performed on numeric expressions
+      only. AVG and MEDIAN can be performed on numeric or datetime
+      expressions. AVG returns the average value, while SUM returns the sum of
+      all values. If all values are NULL, the operations return NULL. MEDIAN
+      returns the middle value in the sorted list of values.</simpara>
 
       <simpara>MAX and MIN can be performed on all types of expressions and
       return the minimum or the maximum value. If all values are NULL, the
