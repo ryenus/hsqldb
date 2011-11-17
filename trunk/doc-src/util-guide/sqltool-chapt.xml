@@ -4315,7 +4315,7 @@ SELECT * FROM t
           <link xlink:href='http://download.oracle.com/javase/6/docs/api/java/sql/Timestamp.html'>java.sql.Timestamp</link>s.
           This usually provides more resolution than is needed, but is required
           for portability.
-          Therefore, uestions about acceptable date/time formats are ultimately
+          Therefore, questions about acceptable date/time formats are ultimately
           decided by the Java's
           <link xlink:href='http://download.oracle.com/javase/6/docs/api/java/sql/Timestamp.html'>java.sql.Timestamp class</link>.
         </simpara>
