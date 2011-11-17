@@ -56,40 +56,33 @@ import org.hsqldb.scriptio.ScriptWriterText;
 // fredt@users - updated for 1.8.0 to allow correct behaviour with transactions
 
 /**
- * Acts as a buffer manager for a single TEXT table with respect its Row data.<p>
+ * Acts as a buffer manager for a single TEXT table and its Row data.<p>
  *
  * Handles read/write operations on the table's text format data file using a
  * compatible pair of org.hsqldb.rowio input/output class instances.
  *
  *
- *  fredt - this used to write rows as soon as they are inserted
- *  but now this is subject to transaction management.
- *  A memory buffer contains the rows not yet committed.
+ * fredt - This used to write rows as soon as they are inserted
+ * but now this is subject to transaction management.
+ * A memory buffer contains the rows not yet committed.
+ * Refactored for version 2.2.6.
  *
  * @author Bob Preston (sqlbob@users dot sourceforge.net)
+ * @author Fred Toussi (fredt@users dot sourceforge.net)
  * @version 2.2.6
  * @since 1.7.0
  */
 public class TextCache extends DataFileCache {
 
+    //
+    TextFileSettings textFileSettings;
+
     //state of Cache
-    public static final String NL = System.getProperty("line.separator");
-    public String              fs;
-    public String              vs;
-    public String              lvs;
-    public String              stringEncoding;
-    public boolean             isQuoted;
-    public boolean             isAllQuoted;
-    public boolean             ignoreFirst;
-    protected String           header;
-    protected Table            table;
-    private IntKeyHashMap      uncommittedCache;
+    protected String      header;
+    protected Table       table;
+    private IntKeyHashMap uncommittedCache;
 
     //
-    static final char DOUBLE_QUOTE_CHAR = '\"';
-    static final char BACKSLASH_CHAR    = '\\';
-    static final char LF_CHAR           = '\n';
-    static final char CR_CHAR           = '\r';
 
     /**
      *  The source string for a cached table is evaluated and the parameters
@@ -107,105 +100,20 @@ public class TextCache extends DataFileCache {
         uncommittedCache = new IntKeyHashMap();
     }
 
-    protected void initParams(Database database, String baseFileName) {
+    protected void initParams(Database database, String fileSettingsString) {
 
-        this.dataFileName = dataFileName;
-        this.database     = database;
-        fa                = FileUtil.getFileUtil();
+        this.database    = database;
+        fa               = FileUtil.getFileUtil();
+        textFileSettings = new TextFileSettings(database, fileSettingsString);
+        dataFileName     = textFileSettings.getFileName();
 
-        HsqlProperties tableprops =
-            HsqlProperties.delimitedArgPairsToProps(baseFileName, "=", ";",
-                "textdb");
-        HsqlDatabaseProperties dbProps = database.getProperties();
-
-        //-- Get file name
-        switch (tableprops.errorCodes.length) {
-
-            case 0 :
-                throw Error.error(ErrorCode.X_S0501);
-            case 1 :
-
-                // source file name is the only key without a value
-                this.dataFileName = tableprops.errorKeys[0].trim();
-                break;
-
-            default :
-                throw Error.error(ErrorCode.X_S0502);
+        if (dataFileName == null) {
+            throw Error.error(ErrorCode.X_S0501);
         }
 
-        //-- Get separators: from database properties, then from table properties
-        fs  = dbProps.getStringProperty(HsqlDatabaseProperties.textdb_fs);
-        fs  = tableprops.getProperty(HsqlDatabaseProperties.textdb_fs, fs);
-        vs  = dbProps.getStringProperty(HsqlDatabaseProperties.textdb_vs);
-        vs  = tableprops.getProperty(HsqlDatabaseProperties.textdb_vs, vs);
-        lvs = dbProps.getStringProperty(HsqlDatabaseProperties.textdb_lvs);
-        lvs = tableprops.getProperty(HsqlDatabaseProperties.textdb_lvs, lvs);
-
-        if (vs == null) {
-            vs = fs;
-        }
-
-        if (lvs == null) {
-            lvs = fs;
-        }
-
-        fs  = translateSep(fs);
-        vs  = translateSep(vs);
-        lvs = translateSep(lvs);
-
-        if (fs.length() == 0 || vs.length() == 0 || lvs.length() == 0) {
-            throw Error.error(ErrorCode.X_S0503);
-        }
-
-        //-- Get booleans
-        ignoreFirst =
-            dbProps.isPropertyTrue(HsqlDatabaseProperties.textdb_ignore_first);
-        ignoreFirst = tableprops.isPropertyTrue(
-            HsqlDatabaseProperties.textdb_ignore_first, ignoreFirst);
-        isQuoted =
-            dbProps.isPropertyTrue(HsqlDatabaseProperties.textdb_quoted);
-        isQuoted =
-            tableprops.isPropertyTrue(HsqlDatabaseProperties.textdb_quoted,
-                                      isQuoted);
-        isAllQuoted =
-            dbProps.isPropertyTrue(HsqlDatabaseProperties.textdb_all_quoted);
-        isAllQuoted =
-            tableprops.isPropertyTrue(HsqlDatabaseProperties.textdb_all_quoted,
-                                      isAllQuoted);
-        stringEncoding =
-            dbProps.getStringProperty(HsqlDatabaseProperties.textdb_encoding);
-        stringEncoding =
-            tableprops.getProperty(HsqlDatabaseProperties.textdb_encoding,
-                                   stringEncoding);
-
-        //-- get size and scale
-        int cacheScale = dbProps.getIntegerProperty(
-            HsqlDatabaseProperties.textdb_cache_scale);
-
-        cacheScale = tableprops.getIntegerProperty(
-            HsqlDatabaseProperties.textdb_cache_scale, cacheScale);
-
-        int cacheSizeScale = dbProps.getIntegerProperty(
-            HsqlDatabaseProperties.textdb_cache_size_scale);
-
-        cacheSizeScale = tableprops.getIntegerProperty(
-            HsqlDatabaseProperties.textdb_cache_size_scale, cacheSizeScale);
-        maxCacheRows = (1 << cacheScale) * 3;
-        maxCacheRows = dbProps.getIntegerProperty(
-            HsqlDatabaseProperties.textdb_cache_rows, maxCacheRows);
-        maxCacheRows = tableprops.getIntegerProperty(
-            HsqlDatabaseProperties.textdb_cache_rows, maxCacheRows);
-        maxCacheBytes = ((1 << cacheSizeScale) * maxCacheRows) / 1024;
-
-        if (maxCacheBytes < 4) {
-            maxCacheBytes = 4;
-        }
-
-        maxCacheBytes = dbProps.getIntegerProperty(
-            HsqlDatabaseProperties.textdb_cache_size, (int) maxCacheBytes);
-        maxCacheBytes = tableprops.getIntegerProperty(
-            HsqlDatabaseProperties.textdb_cache_size, (int) maxCacheBytes);
-        maxCacheBytes *= 1024;
+        dataFileName  = ((FileUtil) fa).canonicalOrAbsolutePath(dataFileName);
+        maxCacheRows  = textFileSettings.getMaxCacheRows();
+        maxCacheBytes = textFileSettings.getMaxCacheBytes();
 
         //-- Get size and scale
         maxDataFileSize  = Integer.MAX_VALUE;
@@ -215,108 +123,24 @@ public class TextCache extends DataFileCache {
 
     protected void initBuffers() {
 
-        if (isQuoted || isAllQuoted) {
-            rowIn = new RowInputTextQuoted(fs, vs, lvs, isAllQuoted);
-            rowOut = new RowOutputTextQuoted(fs, vs, lvs, isAllQuoted,
-                                             stringEncoding);
+        if (textFileSettings.isQuoted || textFileSettings.isAllQuoted) {
+            rowIn = new RowInputTextQuoted(textFileSettings.fs,
+                                           textFileSettings.vs,
+                                           textFileSettings.lvs,
+                                           textFileSettings.isAllQuoted);
+            rowOut = new RowOutputTextQuoted(textFileSettings.fs,
+                                             textFileSettings.vs,
+                                             textFileSettings.lvs,
+                                             textFileSettings.isAllQuoted,
+                                             textFileSettings.stringEncoding);
         } else {
-            rowIn  = new RowInputText(fs, vs, lvs, false);
-            rowOut = new RowOutputText(fs, vs, lvs, false, stringEncoding);
+            rowIn = new RowInputText(textFileSettings.fs, textFileSettings.vs,
+                                     textFileSettings.lvs, false);
+            rowOut = new RowOutputText(textFileSettings.fs,
+                                       textFileSettings.vs,
+                                       textFileSettings.lvs, false,
+                                       textFileSettings.stringEncoding);
         }
-    }
-
-    private static String translateSep(String sep) {
-        return translateSep(sep, false);
-    }
-
-    /**
-     * Translates the escaped characters in a separator string and returns
-     * the non-escaped string.
-     */
-    private static String translateSep(String sep, boolean isProperty) {
-
-        if (sep == null) {
-            return null;
-        }
-
-        int next = sep.indexOf(BACKSLASH_CHAR);
-
-        if (next != -1) {
-            int          start    = 0;
-            char[]       sepArray = sep.toCharArray();
-            char         ch       = 0;
-            int          len      = sep.length();
-            StringBuffer sb       = new StringBuffer(len);
-
-            do {
-                sb.append(sepArray, start, next - start);
-
-                start = ++next;
-
-                if (next >= len) {
-                    sb.append(BACKSLASH_CHAR);
-
-                    break;
-                }
-
-                if (!isProperty) {
-                    ch = sepArray[next];
-                }
-
-                if (ch == 'n') {
-                    sb.append(LF_CHAR);
-
-                    start++;
-                } else if (ch == 'r') {
-                    sb.append(CR_CHAR);
-
-                    start++;
-                } else if (ch == 't') {
-                    sb.append('\t');
-
-                    start++;
-                } else if (ch == BACKSLASH_CHAR) {
-                    sb.append(BACKSLASH_CHAR);
-
-                    start++;
-                } else if (ch == 'u') {
-                    start++;
-
-                    sb.append(
-                        (char) Integer.parseInt(
-                            sep.substring(start, start + 4), 16));
-
-                    start += 4;
-                } else if (sep.startsWith("semi", next)) {
-                    sb.append(';');
-
-                    start += 4;
-                } else if (sep.startsWith("space", next)) {
-                    sb.append(' ');
-
-                    start += 5;
-                } else if (sep.startsWith("quote", next)) {
-                    sb.append(DOUBLE_QUOTE_CHAR);
-
-                    start += 5;
-                } else if (sep.startsWith("apos", next)) {
-                    sb.append('\'');
-
-                    start += 4;
-                } else {
-                    sb.append(BACKSLASH_CHAR);
-                    sb.append(sepArray[next]);
-
-                    start++;
-                }
-            } while ((next = sep.indexOf(BACKSLASH_CHAR, start)) != -1);
-
-            sb.append(sepArray, start, len - start);
-
-            sep = sb.toString();
-        }
-
-        return sep;
     }
 
     /**
@@ -373,7 +197,8 @@ public class TextCache extends DataFileCache {
         try {
             cache.saveAll();
 
-            boolean empty = (dataFile.length() <= NL.length());
+            boolean empty = (dataFile.length()
+                             <= TextFileSettings.NL.length());
 
             dataFile.synch();
             dataFile.close();
@@ -513,28 +338,28 @@ public class TextCache extends DataFileCache {
 
     protected RowInputInterface readObject(int pos) {
 
+        boolean                   hasQuote  = false;
+        boolean                   complete  = false;
+        boolean                   wasCR     = false;
+        boolean                   wasNormal = false;
+        HsqlByteArrayOutputStream buffer = new HsqlByteArrayOutputStream(128);
+
+        pos = findNextUsedLinePos(pos);
+
+        if (pos == -1) {
+            return null;
+        }
+
         try {
-            ByteArray buffer   = new ByteArray(80);
-            boolean   complete = false;
-            boolean   wasCR    = false;
-            int       c;
-            boolean   hasQuote  = false;
-            boolean   wasNormal = false;
-
-            pos = findNextUsedLinePos(pos);
-
-            if (pos == -1) {
-                return null;
-            }
-
             dataFile.seek(pos);
 
             while (!complete) {
+                int c = dataFile.read();
+
                 wasNormal = false;
-                c         = dataFile.read();
 
                 if (c == -1) {
-                    if (buffer.length() == 0) {
+                    if (buffer.size() == 0) {
                         return null;
                     }
 
@@ -545,8 +370,9 @@ public class TextCache extends DataFileCache {
                     }
 
                     if (!cacheReadonly) {
-                        dataFile.write(ScriptWriterText.BYTES_LINE_SEP, 0,
-                                       ScriptWriterText.BYTES_LINE_SEP.length);
+                        dataFile.write(TextFileSettings.BYTES_LINE_SEP, 0,
+                                       TextFileSettings.BYTES_LINE_SEP.length);
+                        buffer.write(TextFileSettings.BYTES_LINE_SEP);
                     }
 
                     break;
@@ -554,21 +380,21 @@ public class TextCache extends DataFileCache {
 
                 switch (c) {
 
-                    case DOUBLE_QUOTE_CHAR :
+                    case TextFileSettings.DOUBLE_QUOTE_CHAR :
                         wasNormal = true;
                         complete  = wasCR;
                         wasCR     = false;
 
-                        if (isQuoted) {
+                        if (textFileSettings.isQuoted) {
                             hasQuote = !hasQuote;
                         }
                         break;
 
-                    case CR_CHAR :
+                    case TextFileSettings.CR_CHAR :
                         wasCR = !hasQuote;
                         break;
 
-                    case LF_CHAR :
+                    case TextFileSettings.LF_CHAR :
                         complete = !hasQuote;
                         break;
 
@@ -578,18 +404,25 @@ public class TextCache extends DataFileCache {
                         wasCR     = false;
                 }
 
-                buffer.append(c);
+                buffer.write(c);
             }
 
             if (complete) {
-                int length = (int) (dataFile.getFilePointer() - pos);
-
                 if (wasNormal) {
-                    length--;
+                    buffer.setPosition(buffer.size() - 1);
                 }
 
-                ((RowInputText) rowIn).setSource(buffer.toString(), pos,
-                                                 length);
+                String rowString;
+
+                try {
+                    rowString =
+                        buffer.toString(textFileSettings.stringEncoding);
+                } catch (UnsupportedEncodingException e) {
+                    rowString = buffer.toString();
+                }
+
+                ((RowInputText) rowIn).setSource(rowString, pos,
+                                                 buffer.size());
 
                 return rowIn;
             }
@@ -602,10 +435,10 @@ public class TextCache extends DataFileCache {
 
     public int readHeaderLine() {
 
-        boolean   complete  = false;
-        boolean   wasCR     = false;
-        boolean   wasNormal = false;
-        ByteArray buffer    = new ByteArray(80);
+        boolean                   complete  = false;
+        boolean                   wasCR     = false;
+        boolean                   wasNormal = false;
+        HsqlByteArrayOutputStream buffer = new HsqlByteArrayOutputStream(128);
 
         while (!complete) {
             wasNormal = false;
@@ -616,15 +449,16 @@ public class TextCache extends DataFileCache {
                 c = dataFile.read();
 
                 if (c == -1) {
-                    if (buffer.length() == 0) {
+                    if (buffer.size() == 0) {
                         return 0;
                     }
 
                     complete = true;
 
                     if (!cacheReadonly) {
-                        dataFile.write(ScriptWriterText.BYTES_LINE_SEP, 0,
-                                       ScriptWriterText.BYTES_LINE_SEP.length);
+                        dataFile.write(TextFileSettings.BYTES_LINE_SEP, 0,
+                                       TextFileSettings.BYTES_LINE_SEP.length);
+                        buffer.write(TextFileSettings.BYTES_LINE_SEP);
                     }
 
                     break;
@@ -635,11 +469,11 @@ public class TextCache extends DataFileCache {
 
             switch (c) {
 
-                case CR_CHAR :
+                case TextFileSettings.CR_CHAR :
                     wasCR = true;
                     break;
 
-                case LF_CHAR :
+                case TextFileSettings.LF_CHAR :
                     complete = true;
                     break;
 
@@ -653,22 +487,20 @@ public class TextCache extends DataFileCache {
                 continue;
             }
 
-            buffer.append(c);
+            buffer.write(c);
         }
 
-        header = buffer.toString();
+        if (wasNormal) {
+            buffer.setPosition(buffer.size() - 1);
+        }
 
         try {
-            int length = (int) dataFile.getFilePointer();
-
-            if (wasNormal) {
-                length--;
-            }
-
-            return length;
-        } catch (IOException e) {
-            throw Error.error(ErrorCode.TEXT_FILE);
+            header = buffer.toString(textFileSettings.stringEncoding);
+        } catch (UnsupportedEncodingException e) {
+            header = buffer.toString();
         }
+
+        return buffer.size();
     }
 
     // fredt - new method
@@ -680,7 +512,7 @@ public class TextCache extends DataFileCache {
      *
      * If none found return -1
      */
-    int findNextUsedLinePos(int pos) {
+    private int findNextUsedLinePos(int pos) {
 
         try {
             int     firstPos   = pos;
@@ -696,11 +528,11 @@ public class TextCache extends DataFileCache {
 
                 switch (c) {
 
-                    case CR_CHAR :
+                    case TextFileSettings.CR_CHAR :
                         wasCR = true;
                         break;
 
-                    case LF_CHAR :
+                    case TextFileSettings.LF_CHAR :
                         wasCR = false;
 
                         ((RowInputText) rowIn).skippedLine();
@@ -831,9 +663,13 @@ public class TextCache extends DataFileCache {
         return header;
     }
 
+    public void setHeaderInitialise(String header) {
+        this.header = header;
+    }
+
     public void setHeader(String header) {
 
-        if (ignoreFirst && fileFreePosition == 0) {
+        if (textFileSettings.ignoreFirst && fileFreePosition == 0) {
             try {
                 writeHeader(header);
 
@@ -854,10 +690,10 @@ public class TextCache extends DataFileCache {
 
         try {
             byte[] buf       = null;
-            String firstLine = header + NL;
+            String firstLine = header + TextFileSettings.NL;
 
             try {
-                buf = firstLine.getBytes(stringEncoding);
+                buf = firstLine.getBytes(textFileSettings.stringEncoding);
             } catch (UnsupportedEncodingException e) {
                 buf = firstLine.getBytes();
             }
@@ -870,51 +706,21 @@ public class TextCache extends DataFileCache {
         }
     }
 
-    private class ByteArray {
-
-        private byte[] buffer;
-        private int    buflen;
-
-        public ByteArray(int n) {
-            buffer = new byte[n];
-            buflen = 0;
-        }
-
-        public void append(int c) {
-
-            if (buflen >= buffer.length) {
-                byte[] newbuf = new byte[buflen + 80];
-
-                System.arraycopy(buffer, 0, newbuf, 0, buflen);
-
-                buffer = newbuf;
-            }
-
-            buffer[buflen] = (byte) c;
-
-            buflen++;
-        }
-
-        public int length() {
-            return buflen;
-        }
-
-        public void setLength(int l) {
-            buflen = l;
-        }
-
-        public String toString() {
-
-            try {
-                return new String(buffer, 0, buflen, stringEncoding);
-            } catch (UnsupportedEncodingException e) {
-                return new String(buffer, 0, buflen);
-            }
-        }
-    }
-
     public int getLineNumber() {
         return ((RowInputText) rowIn).getLineNumber();
+    }
+
+    public TextFileReader getTextFileReader() {
+        return new TextFileReader(dataFile, textFileSettings, rowIn,
+                                  cacheReadonly);
+    }
+
+    public TextFileSettings getTextFileSettings() {
+        return textFileSettings;
+    }
+
+    public boolean isIgnoreFirstLine() {
+        return textFileSettings.ignoreFirst;
     }
 
     protected void setFileModified() {

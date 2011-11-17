@@ -38,7 +38,7 @@ import org.hsqldb.Row;
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
 import org.hsqldb.lib.StringConverter;
-import org.hsqldb.persist.TextCache;
+import org.hsqldb.persist.TextFileSettings;
 import org.hsqldb.types.BinaryData;
 import org.hsqldb.types.BlobData;
 import org.hsqldb.types.ClobData;
@@ -114,7 +114,7 @@ public class RowOutputText extends RowOutputBase {
             writeBytes(nextSep);
         }
 
-        writeBytes(TextCache.NL);
+        writeBytes(TextFileSettings.NL);
     }
 
     public void writeSize(int size) {

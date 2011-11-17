@@ -1921,19 +1921,20 @@ public class Logger {
             return path;
         }
 
-        if (!database.logger.propTextAllowFullPath) {
-            if (path.indexOf("..") != -1) {
+        if (path.indexOf("..") != -1) {
+            if (database.logger.propTextAllowFullPath) {
+                return FileUtil.getFileUtil().canonicalOrAbsolutePath(path);
+            } else {
                 return null;
             }
+        }
 
-            String fullPath = new File(
-                new File(
-                    database.getPath()
-                    + ".properties").getAbsolutePath()).getParent();
+        String fullPath =
+            new File(new File(database.getPath()
+                              + ".properties").getAbsolutePath()).getParent();
 
-            if (fullPath != null) {
-                path = fullPath + File.separator + path;
-            }
+        if (fullPath != null) {
+            path = fullPath + File.separator + path;
         }
 
         return path;

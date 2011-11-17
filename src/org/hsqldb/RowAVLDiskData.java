@@ -234,7 +234,7 @@ public class RowAVLDiskData extends RowAVL {
 
     /** used by Index, nodes are always in memory */
     public boolean isInMemory() {
-        return true;
+        return rowData != null;
     }
 
     public boolean isKeepInMemory() {
