@@ -509,6 +509,7 @@ public class HsqlDateTime {
         { 'M', 'M' },
         { 'D', 'A', 'Y' }, { 'D', 'Y' },
         { 'W', 'W' }, { 'I', 'W' }, { 'D', 'D' }, { 'D', 'D', 'D' },
+        { 'W' },
         { 'H', 'H', '2', '4' }, { 'H', 'H', '1', '2' }, { 'H', 'H' },
         { 'M', 'I' },
         { 'S', 'S' },
@@ -524,6 +525,7 @@ public class HsqlDateTime {
         "MM",
         "EEEE", "EE",
         "'*WW'", "w", "dd", "D",
+        "'*W'",
         "HH", "KK", "KK",
         "mm", "ss",
         "aaa", "aaa", "aaa", "aaa",
@@ -562,6 +564,12 @@ public class HsqlDateTime {
         }
 
         matchIndex = javaPattern.indexOf("*WW");
+
+        if (matchIndex >= 0) {
+            throw Error.error(ErrorCode.X_22511);
+        }
+
+        matchIndex = javaPattern.indexOf("*W");
 
         if (matchIndex >= 0) {
             throw Error.error(ErrorCode.X_22511);
@@ -633,6 +641,21 @@ public class HsqlDateTime {
 
             sb.replace(matchIndex, matchIndex + matchLength,
                        String.valueOf(weekOfYear));
+
+            result = sb.toString();
+        }
+
+        matchIndex = result.indexOf("*W");
+
+        if (matchIndex >= 0) {
+            Calendar      cal         = format.getCalendar();
+            int           matchLength = 2;
+            int           dayOfMonth   = cal.get(Calendar.DAY_OF_MONTH);
+            int           weekOfMonth  = ((dayOfMonth - 1) / 7) + 1;
+            StringBuilder sb          = new StringBuilder(result);
+
+            sb.replace(matchIndex, matchIndex + matchLength,
+                       String.valueOf(weekOfMonth));
 
             result = sb.toString();
         }
