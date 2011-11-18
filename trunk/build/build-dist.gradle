@@ -35,9 +35,7 @@
  *     10. Make a release tag.
  *
  *   USAGE:
- *       1: Set up your desired build environment (JAVA_HOME set, etc.), and
- *          if you will be using Ant directly instead of Gradle, add Ant to
- *          your search path,
+ *       1: Set up your desired build environment (JAVA_HOME set, etc.).
  *       2: Do a Subversion export with the release tag to a NEW directory
  *       3: If you don't have a .properties file set up for this purpose
  *          already, then make one outside of this work area with a distinctive
@@ -51,12 +49,7 @@
  *          "dbimage.path".  (See following section about optional properties).
  *       4: Run
  *              gradlew -i -b build-dist.gradle  # Gradle users
- *          or
- *              ant -f build-dist.xml            # Ant users
  *          from the build directory.
- *          Ant users only:
- *          If building directly with Ant, you don't have Ivy in your
- *          CLASSPATH, you will be instructed how to satisfy that requirement.
  *
  *   OPTIONAL ANT PROPERTIES
  *       I suggest setting properties nsstylebase.url, dbxirng.url,
@@ -74,8 +67,8 @@
  *   If you don't know if something will have an effect on the distribution
  *   you are building, then *don't do it*.
  *   If you were to add a "todo.txt" file to the main or build directory;
- *   or run "gradle hsqldbtest" (or "ant hsqldbtest), for example, artifacts
- *   would be added to the distro.
+ *   or run "gradle hsqldbtest", for example, artifacts would be added to
+ *   the distro.
  *
  * @author Blaine Simpson  (blaine dot simpson at admc dot com)
  */

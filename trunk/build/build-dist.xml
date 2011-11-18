@@ -4,9 +4,15 @@ $Id$
 -->
 
 <!-- N.b. the clean targets, even 'clean-all', do not clean the "dist"
-     subdirectory. -->
-<project name="hsqldb-dist" default="dist" basedir=".."
-         xmlns:ivy="antlib:org.apache.ivy.ant">
+     subdirectory.
+
+     IMPORTANT!  This build file may not be invoked directly with Ant any more.
+     Instead, use the file "build-dist.gradle" with Gradle, and that will pull
+     in this file.  Like this:
+     
+         gradlew -b build-dist.gradle...
+-->
+<project name="hsqldb-dist" default="dist" basedir="..">
 <!--  See file "build-dist.gradle" for distribution-building instructions.  -->
 
   <import file="build.xml"/>
