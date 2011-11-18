@@ -80,6 +80,11 @@
  * @author Blaine Simpson  (blaine dot simpson at admc dot com)
  */
 
+buildscript { dependencies {
+    classpath fileTree(dir: '.', include: 'gradle-javaPropFile-plugin-*.jar')
+    classpath fileTree(dir: '.', include: 'gradle-ivyxml-plugin-*.jar')
+} }
+
 import org.apache.tools.ant.types.Path
 
 addlAntBuildFiles = [file('build-dist.xml')]

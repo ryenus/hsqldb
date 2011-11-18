@@ -51,6 +51,11 @@ signing {
 }
 */
 
+buildscript { dependencies {
+    classpath fileTree(dir: '.', include: 'gradle-javaPropFile-plugin-*.jar')
+    classpath fileTree(dir: '.', include: 'gradle-ivyxml-plugin-*.jar')
+} }
+
 mvnBuild = true
 apply from: 'build.gradle'
 defaultTasks 'uploadArchives'
@@ -59,23 +64,21 @@ configurations {
     deployJars
 }
 
-dependencies {
-    if (project.hasProperty('mavenRepository.dest.url')
-            && project.property('mavenRepository.dest.url').
-            startsWith('scp://'))
-        deployJars 'org.apache.maven.wagon:wagon-ssh:2.0'
+if (project.hasProperty('mavenRepository.dest.url')
+        && project.property('mavenRepository.dest.url').startsWith('scp://')) {
+    repositories { mavenCentral() }
+    dependencies {
+        deployJars 'org.apache.maven.wagon:wagon-ssh:latest.milestone'
+    }
 }
 
 // description attribute of project is always set, but may be null
 if (!project.hasProperty('description') ||
         project.property('description') == null)
     project.description = 'HSQLDB - Lightweight 100% Java SQL Database Engine'
+if (!project.hasProperty('title')) title = 'HyperSQL Database'
 
 uploadArchives {
-    if (!project.hasProperty('mavenRepository.dest.url'))
-        // This crap just to satisfy load-time requirement when the
-        // uploadArchives task won't even be used.
-        project.setProperty('mavenRepository.dest.url', '')
     def authMap = [:]
     if (project.hasProperty('mavenRepository.dest.username'))
         authMap['userName'] = project.property('mavenRepository.dest.username')
@@ -89,21 +92,29 @@ uploadArchives {
         configuration = configurations.deployJars
         //  Disabling PGP signing for now.
         //beforeDeployment { MavenDeployment deployment -> signPom(deployment) }
-        repository(url: project.property('mavenRepository.dest.url')) {
-            authentication(authMap)
-        }
+        if (project.hasProperty('mavenRepository.dest.url'))
+            repository(url: project.property('mavenRepository.dest.url')) {
+                authentication(authMap)
+            }
         def poms = [
             addFilter('hsqldb') {artifact, file -> artifact.name == 'hsqldb'},
             addFilter('sqltool') {artifact, file -> artifact.name == 'sqltool'}
         ]
         for (p in poms) p.project {
-            name 'HyperSQL Database'
-            description project.description
-            url project.url
-            inceptionYear project.inceptionYear
+            // The hasProperty tests are necessary even for required variables
+            // because this code is evaluated even if the uploadArchives task
+            // will never be executed.
+            if (project.hasProperty('title')) name project.property('title')
+            if (project.hasProperty('description'))
+                description project.property('description')
+            if (project.hasProperty('url')) url project.property('url')
+            if (project.hasProperty('inceptionYear'))
+                inceptionYear project.property('inceptionYear')
             scm {
-                url project.property('scm.url')
-                connection project.property('scm.connection')
+                if (project.hasProperty('scm.url'))
+                    url project.property('scm.url')
+                if (project.hasProperty('scm.connection'))
+                    connection project.property('scm.connection')
                 if (project.hasProperty('scm.tag'))
                     tag project.property('scm.tag')
             }
@@ -121,29 +132,29 @@ uploadArchives {
                     distribution 'repo'
                 }
             }
+            if (project.hasProperty('developer.name')
+                    || project.hasProperty('developer.email')) developers {
+                developer {
+                    if (project.hasProperty('developer.id'))
+                        id project.property('developer.id')
+                    if (project.hasProperty('developer.name'))
+                        name project.property('developer.name')
+                    if (project.hasProperty('developer.email'))
+                        email project.property('developer.email')
+                }
+            }
         }
     }
 }
 
 uploadArchives { doFirst {
-    assert project.hasProperty('group') && project.group != '' :
-            "Property 'group' is required by 'uploadArchives' task."
-    /*  Unfortunately, Maven plugin has no OOTB way to get a proper
-     *  organization name into the descriptors.
-     *  TODO:  Test this with Gradle 1.0 milestone 6.
-    assert project.hasProperty('organization') && project.organization != '' :
-            "Property 'organization' is required by 'uploadArchives' task."
-     */
-    assert (project.hasProperty('mavenRepository.dest.url')
-            && project.property('mavenRepository.dest.url') != ''):
-    "Property 'mavenRepository.dest.url' is required by 'uploadArchives' task."
-
-    assert (project.hasProperty('scm.connection')
-            && project.hasProperty('scm.url')
-            && project.hasProperty('url')
-            && project.hasProperty('inceptionYear')) :
-            ("Following properties required for 'uploadArchives' task: "
-            + 'scm.connection, scm.url, url, inceptionYear')
+    for (p in ['title', 'group', 'mavenRepository.dest.url', 'scm.connection',
+            'scm.url', 'url', 'inceptionYear', 'description']) {
+        assert (project.hasProperty(p) && project.property(p) != null
+                && project.property(p) != '') :
+            """Property '$p' is required by 'uploadArchives' task.
+"""
+    }
 } }
 
 // This is because jar.inputs is read-only
