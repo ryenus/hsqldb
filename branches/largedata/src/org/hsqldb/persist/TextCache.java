@@ -710,11 +710,6 @@ public class TextCache extends DataFileCache {
         return ((RowInputText) rowIn).getLineNumber();
     }
 
-    public TextFileReader getTextFileReader() {
-        return new TextFileReader(dataFile, textFileSettings, rowIn,
-                                  cacheReadonly);
-    }
-
     public TextFileSettings getTextFileSettings() {
         return textFileSettings;
     }
