@@ -25,8 +25,22 @@ defaultTasks 'help'
  * @author Blaine Simpson  (blaine dot simpson at admc dot com)
  */
 
-project['repos.useMaven'] = 'true'
-apply from: 'common.gradle'
+buildscript { dependencies {
+    classpath fileTree(dir: '.', include: 'gradle-javaPropFile-plugin-*.jar')
+    classpath fileTree(dir: '.', include: 'gradle-ivyxml-plugin-*.jar')
+} }
+
+apply plugin: 'javaPropFile'
+import com.admc.gradle.JavaPropFile
+def buildPropertiesFile = file('build.properties')
+def localBookPropertiesFile = file('local-docbook.properties')
+if (buildPropertiesFile.isFile()) propFileLoader.load(buildPropertiesFile)
+if (localBookPropertiesFile.isFile())
+    propFileLoader.load(localBookPropertiesFile)
+
+apply plugin: 'ivyxml'
+
+repositories { mavenCentral() }
 
 if (!project.hasProperty('mvnBuild')) mvnBuild = false
 
@@ -393,7 +407,7 @@ so you can read it into your editor."""
 }
 serialver.description = "Generates Java serialversion for specified 'classname'"
 
-apply from: 'ivyxml-support.gradle'
+ivyxml.load()
 
 import org.apache.tools.ant.types.Path
 project.task([overwrite: true], ivySetupTaskName) << {
