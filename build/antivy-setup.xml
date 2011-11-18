@@ -3,36 +3,13 @@
   Copyright (c) 2010, The HSQL Development Group. All rights reserved.
   Released under the HSQL license, available at http://hsqldb.org
 -->
-<project name="hsqldb-antivy-setup" xmlns:ivy="antlib:org.apache.ivy.ant">
+<project name="hsqldb-antivy-setup">
   <target name="ivy-setup" depends="-ivy-setup"/>
 
   <target name="-ivy-setup" unless="-ivy.is.setup">
-    <!-- The -ivy.is.setup check above is only needed for direct Ant
-       executions, because Gradle does not call this target superfluously. -->
-    <available property="_ivy.present" classname="org.apache.ivy.ant.IvyTask"/>
-    <fail unless="_ivy.present">
-Add Ivy jar file to Ant CLASSPATH.
-
-Obtain a 2.x version of an Apache Ivy jar file (perhaps at
-http://ant.apache.org/ivy/), and run a command like the following, changing the
-jar file path to wherever you have it saved.  For any Bourne shell (incl. Bash):
-
-    export ANT_ARGS; ANT_ARGS='-lib ${basedir}/build/ivy-2.2.0.jar -noclasspath'
-
-OR for any CMD-like Windows shell:
-
-    SET ANT_ARGS=-lib "${basedir}/build/ivy-2.2.0.jar" -noclasspath</fail>
-
-    <available property="_ivysettings.present" file="${ivy.settings.file}"
-               type="file"/>
-    <antcall target="-ensure-ivysettings"/>
-    <ivy:settings/>
-    <ivy:cachepath conf="xalan" pathid="xalan.cpref"/>
-    <ivy:cachepath conf="fop" pathid="fop.cpref"/>
-    <ivy:cachepath conf="xcsdeRngvalJar" pathid="xcsde-rngval-jar.cpref"/>
-    <ivy:cachepath conf="jflexJar" pathid="jflex-jar.cpref"/>
-    <ivy:cachepath conf="xcsdeRngvalDeps" pathid="xcsde-rngval-deps.cpref"/>
-    <ivy:cachepath conf="bndJar" pathid="bnd-jar.cpref"/>
-    <property name="-ivy.is.setup" value="true"/>
+    <fail>An Ant target that you have invoked, directly or indirectly, has been changed
+to reply upon Gradle.
+Please rerun your Ant command as a Gradle command, using 'gradlew' in place of
+'ant'.</fail>
   </target>
 </project>
