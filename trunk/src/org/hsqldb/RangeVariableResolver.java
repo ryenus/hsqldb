@@ -69,7 +69,8 @@ public class RangeVariableResolver {
     //
     Expression[] inExpressions;
     boolean[]    inInJoin;
-    int          inExpressionCount = 0;
+    int          inExpressionCount  = 0;
+    boolean      expandInExpression = true;
 
     //
     boolean hasOuterJoin = false;
@@ -82,20 +83,37 @@ public class RangeVariableResolver {
     OrderedHashSet        tempSet          = new OrderedHashSet();
     MultiValueHashMap     tempMap          = new MultiValueHashMap();
 
-    RangeVariableResolver(RangeVariable[] rangeVars, Expression conditions,
+    RangeVariableResolver(QuerySpecification select) {
+
+        this.rangeVariables     = select.rangeVariables;
+        this.conditions         = select.queryCondition;
+        this.compileContext     = select.compileContext;
+//        this.expandInExpression = select.checkQueryCondition == null;
+
+        initialise();
+    }
+
+    RangeVariableResolver(RangeVariable[] rangeVariables,
+                          Expression conditions,
                           CompileContext compileContext) {
 
-        this.rangeVariables      = rangeVars;
-        this.conditions          = conditions;
-        this.compileContext      = compileContext;
-        this.firstLeftJoinIndex  = rangeVars.length;
-        this.firstRightJoinIndex = rangeVars.length;
+        this.rangeVariables = rangeVariables;
+        this.conditions     = conditions;
+        this.compileContext = compileContext;
 
-        for (int i = 0; i < rangeVars.length; i++) {
-            RangeVariable range = rangeVars[i];
+        initialise();
+    }
+
+    private void initialise() {
+
+        firstLeftJoinIndex  = rangeVariables.length;
+        firstRightJoinIndex = rangeVariables.length;
+
+        for (int i = 0; i < rangeVariables.length; i++) {
+            RangeVariable range = rangeVariables[i];
 
             if (range.isLeftJoin) {
-                if (firstLeftJoinIndex == rangeVars.length) {
+                if (firstLeftJoinIndex == rangeVariables.length) {
                     firstLeftJoinIndex = i;
                 }
 
@@ -103,7 +121,7 @@ public class RangeVariableResolver {
             }
 
             if (range.isRightJoin) {
-                if (firstRightJoinIndex == rangeVars.length) {
+                if (firstRightJoinIndex == rangeVariables.length) {
                     firstRightJoinIndex = i;
                 }
 
@@ -111,23 +129,23 @@ public class RangeVariableResolver {
             }
         }
 
-        inExpressions       = new Expression[rangeVars.length];
-        inInJoin            = new boolean[rangeVars.length];
-        tempJoinExpressions = new HsqlArrayList[rangeVars.length];
+        inExpressions       = new Expression[rangeVariables.length];
+        inInJoin            = new boolean[rangeVariables.length];
+        tempJoinExpressions = new HsqlArrayList[rangeVariables.length];
 
-        for (int i = 0; i < rangeVars.length; i++) {
+        for (int i = 0; i < rangeVariables.length; i++) {
             tempJoinExpressions[i] = new HsqlArrayList();
         }
 
-        joinExpressions = new HsqlArrayList[rangeVars.length];
+        joinExpressions = new HsqlArrayList[rangeVariables.length];
 
-        for (int i = 0; i < rangeVars.length; i++) {
+        for (int i = 0; i < rangeVariables.length; i++) {
             joinExpressions[i] = new HsqlArrayList();
         }
 
-        whereExpressions = new HsqlArrayList[rangeVars.length];
+        whereExpressions = new HsqlArrayList[rangeVariables.length];
 
-        for (int i = 0; i < rangeVars.length; i++) {
+        for (int i = 0; i < rangeVariables.length; i++) {
             whereExpressions[i] = new HsqlArrayList();
         }
     }
@@ -667,7 +685,7 @@ public class RangeVariableResolver {
             }
         }
 
-        if (inExpressionCount != 0) {
+        if (expandInExpression && inExpressionCount != 0) {
             setInConditionsAsTables();
         }
     }

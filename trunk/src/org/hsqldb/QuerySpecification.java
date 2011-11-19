@@ -863,8 +863,7 @@ public class QuerySpecification extends QueryExpression {
     private void setRangeVariableConditions(Session session) {
 
         RangeVariableResolver rangeResolver =
-            new RangeVariableResolver(rangeVariables, queryCondition,
-                                      compileContext);
+            new RangeVariableResolver(this);
 
         rangeResolver.processConditions(session);
 
@@ -2145,6 +2144,12 @@ public class QuerySpecification extends QueryExpression {
 
             QuerySpecification baseSelect =
                 baseQueryExpression.getMainSelect();
+
+            if (baseSelect.rangeVariables.length != 1) {
+                isMergeable = false;
+
+                return;
+            }
 
             if (baseQueryExpression.view == null) {
                 rangeVariables[0] = baseSelect.rangeVariables[0];

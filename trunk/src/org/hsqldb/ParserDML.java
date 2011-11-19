@@ -223,7 +223,7 @@ public class ParserDML extends ParserDQL {
                             assignsToIdentity = true;
 
                             if (e.getType() != OpTypes.DEFAULT) {
-                                if (table.identitySequence.isAlways()) {
+                                if (baseTable.identitySequence.isAlways()) {
                                     if (!overridingUser && !overridingSystem) {
                                         throw Error.error(ErrorCode.X_42543);
                                     }
@@ -285,12 +285,12 @@ public class ParserDML extends ParserDQL {
             columnMap = newColumnMap;
         }
 
-        int enforcedDefaultIndex = table.getIdentityColumnIndex();
+        int enforcedDefaultIndex = baseTable.getIdentityColumnIndex();
         int overrideIndex        = -1;
 
         if (enforcedDefaultIndex != -1
                 && ArrayUtil.find(columnMap, enforcedDefaultIndex) > -1) {
-            if (table.identitySequence.isAlways()) {
+            if (baseTable.identitySequence.isAlways()) {
                 if (!overridingUser && !overridingSystem) {
                     throw Error.error(ErrorCode.X_42543);
                 }
