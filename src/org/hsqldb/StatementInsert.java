@@ -68,9 +68,9 @@ public class StatementInsert extends StatementDML {
         this.insertCheckColumns = checkColumns;
         this.insertExpression   = insertExpression;
 
+        setupChecks();
         setDatabseObjects(session, compileContext);
         checkAccessRights(session);
-        setupChecks();
 
         isSimpleInsert = insertExpression != null
                          && insertExpression.nodes.length == 1
@@ -96,9 +96,9 @@ public class StatementInsert extends StatementDML {
         this.queryExpression    = queryExpression;
         this.overrideUserValue  = override;
 
+        setupChecks();
         setDatabseObjects(session, compileContext);
         checkAccessRights(session);
-        setupChecks();
     }
 
     /**

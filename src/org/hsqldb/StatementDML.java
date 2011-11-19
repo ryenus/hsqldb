@@ -61,10 +61,8 @@ import org.hsqldb.types.Types;
 // support for MERGE statement originally contributed by Justin Spadea (jzs9783@users dot sourceforge.net)
 public class StatementDML extends StatementDMQL {
 
-    Expression[]  targets;
-    Expression    updatableTableCheck;
-    RangeVariable checkRangeVariable;
-    boolean       isTruncate;
+    Expression[] targets;
+    boolean      isTruncate;
 
     //
     boolean        isSimpleInsert;
@@ -129,9 +127,9 @@ public class StatementDML extends StatementDMQL {
         this.updateCheckColumns   = checkColumns;
         this.targetRangeVariables = rangeVars;
 
+        setupChecks();
         setDatabseObjects(session, compileContext);
         checkAccessRights(session);
-        setupChecks();
         targetRangeVariables[0].addAllColumns();
     }
 
@@ -161,9 +159,9 @@ public class StatementDML extends StatementDMQL {
         this.targetRangeVariables = targetRangeVars;
         this.condition            = mergeCondition;
 
+        setupChecks();
         setDatabseObjects(session, compileContext);
         checkAccessRights(session);
-        setupChecks();
     }
 
     /**
@@ -182,7 +180,8 @@ public class StatementDML extends StatementDMQL {
                     .getMainSelect();
 
             this.updatableTableCheck = select.checkQueryCondition;
-            this.checkRangeVariable  = select.rangeVariables[0];
+            this.checkRangeVariable =
+                select.rangeVariables[select.rangeVariables.length - 1];
         }
     }
 

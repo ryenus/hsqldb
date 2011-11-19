@@ -105,6 +105,12 @@ public abstract class StatementDMQL extends Statement {
     boolean[] updateCheckColumns;
 
     /**
+     * VIEW check
+     */
+    Expression    updatableTableCheck;
+    RangeVariable checkRangeVariable;
+
+    /**
      * Select to be evaluated when this is an INSERT_SELECT or
      * SELECT statement
      */
@@ -316,6 +322,12 @@ public abstract class StatementDMQL extends Statement {
 
         if (queryExpression != null) {
             OrderedHashSet set = queryExpression.getSubqueries();
+
+            subQueries = OrderedHashSet.addAll(subQueries, set);
+        }
+
+        if (updatableTableCheck != null) {
+            OrderedHashSet set = updatableTableCheck.getSubqueries();
 
             subQueries = OrderedHashSet.addAll(subQueries, set);
         }
@@ -556,7 +568,7 @@ public abstract class StatementDMQL extends Statement {
                                                   + (i + 1);
             parameterMetaData.columnTypes[idx] = parameters[i].dataType;
 
-            if ( parameters[i].dataType == null) {
+            if (parameters[i].dataType == null) {
                 throw Error.error(ErrorCode.X_42567);
             }
 
