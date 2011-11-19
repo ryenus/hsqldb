@@ -1949,7 +1949,7 @@ public class FunctionCustom extends FunctionSQL {
                     nodes[2].dataType = Type.SQL_TIMESTAMP;
                 }
 
-                if (!nodes[1].dataType.isIntegralType()) {
+                if (!nodes[1].dataType.isNumberType()) {
                     throw Error.error(ErrorCode.X_42561);
                 }
 
