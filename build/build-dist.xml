@@ -94,14 +94,6 @@ and re-export.</fail>
              includes="**/*.xml, **/*.list, **/*.gradle, **/*.groovy"/>
     <!-- Docbook or XSLT adds &#13;s on Windows.  Remove them. -->
     <replace dir="doc" includes="*/*.html" token="&amp;#13;"/>
-    <fixcrlf srcdir="doc-src" preservelastmodified='true' eol="lf"
-             encoding="ISO-8859-1" includes="**/*.properties"/>
-    <fixcrlf srcdir="doc-src" preservelastmodified='true' eol="crlf"
-             includes="**/*.txt"/>
-    <fixcrlf srcdir="doc-src" preservelastmodified='true' eol="lf"
-             encoding="UTF-8"
-             includes="**/*.cfg, **/*.css, **/*.ent, **/*.java, **/*.rc,
-                       **/*.sql, **/*.xml, **/*.html"/>
     <fixcrlf srcdir="sample" preservelastmodified='true' eol="lf"
              encoding="UTF-8" excludes="**/*.txt, **/*.properties"/>
     <fixcrlf srcdir="sample" preservelastmodified='true' eol="crlf"
@@ -149,14 +141,14 @@ and re-export.</fail>
                             **/*.php, **/*.init, **/*.py, build/gradlew,
                             build/gradle-gui, **/*.groovy"
                   filemode="0755"
-                  excludes="**/.*/**, build/local**, test-src/**,
+                  excludes="**/.*/**, build/local**, test-src/**, doc-src/**,
                             *gradled*, build/gradle-app.setting,
                             classes/**, dist/**, local*/**, tmp/**"/>
       <zipfileset prefix="${app.basedir}/hsqldb" dir="."
                   excludes="**/.*/**, **/*.cmd, **/*.bat, **/*.bash, **/*.sh,
                   test-src/**, **/*.pl, **/*.php, **/*.init, **/*.py, lib/**
                   build/build.properties, build/local**, build/ivysettings.xml,
-                  classes/**, dist/**, local*/**, tmp/**, doc-src/images/db/**,
+                  classes/**, dist/**, local*/**, tmp/**, doc-src/**,
                   build/ivysettings.xml, stylesheets/rng-catalog.xml,
                   build/gradle-gui, **/*.groovy,
                   build/gradlew, *gradled*, build/gradle-app.setting"/>
