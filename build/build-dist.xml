@@ -90,7 +90,8 @@ and re-export.</fail>
     <fixcrlf srcdir="build" preservelastmodified='true' eol="lf"
              encoding="ISO-8859-1" includes="**/*.properties"/>
     <fixcrlf srcdir="build" preservelastmodified='true' eol="lf"
-             encoding="UTF-8" includes="**/*.xml, **/*.list, **/*.gradle"/>
+             encoding="UTF-8"
+             includes="**/*.xml, **/*.list, **/*.gradle, **/*.groovy"/>
     <!-- Docbook or XSLT adds &#13;s on Windows.  Remove them. -->
     <replace dir="doc" includes="*/*.html" token="&amp;#13;"/>
     <fixcrlf srcdir="doc-src" preservelastmodified='true' eol="lf"
@@ -124,8 +125,6 @@ and re-export.</fail>
                        **/*.sql, **/*.src, **/*.xml"/>
     -->
 
-    <fixcrlf srcdir="testrun" preservelastmodified='true' eol="lf"
-             encoding="UTF-8" includes="**/*.bash"/>
     <fixcrlf srcdir="testrun" preservelastmodified='true' eol="crlf"
              includes="**/*.txt"/>
     <!-- NOTE:  The file testrun/hsqldb/TestSelf.txt has something in it that
@@ -136,7 +135,9 @@ and re-export.</fail>
          can filter that just fine. -->
     <fixcrlf srcdir="testrun"
              preservelastmodified='true' eol="lf" encoding="UTF-8"
-             includes="**/*.sql, **/*.dsv, **/*.isql, **/*.nsql, **/*.inter"/>
+             includes="**/*.sql, **/*.dsv, **/*.isql, **/*.nsql, **/*.inter,
+                       **/*.bash, **/*.gradle, **/*.groovy"
+             />
 
     <!-- This is a wasteful work-around to get Ant to zip the file with a
          different t name than "hsqldb-osgi.jar" -->
@@ -146,7 +147,7 @@ and re-export.</fail>
       <zipfileset prefix="${app.basedir}/hsqldb" dir="."
                   includes="**/*.cmd, **/*.bat, **/*.bash, **/*.sh, **/*.pl,
                             **/*.php, **/*.init, **/*.py, build/gradlew,
-                            build/gradle-gui"
+                            build/gradle-gui, **/*.groovy"
                   filemode="0755"
                   excludes="**/.*/**, build/local**, test-src/**,
                             *gradled*, build/gradle-app.setting,
@@ -157,7 +158,7 @@ and re-export.</fail>
                   build/build.properties, build/local**, build/ivysettings.xml,
                   classes/**, dist/**, local*/**, tmp/**, doc-src/images/db/**,
                   build/ivysettings.xml, stylesheets/rng-catalog.xml,
-                  build/gradle-gui,
+                  build/gradle-gui, **/*.groovy,
                   build/gradlew, *gradled*, build/gradle-app.setting"/>
       <zipfileset prefix="${app.basedir}/hsqldb/lib" dir="lib"
                   includes="sqltool.jar, servlet*.zip"/>
