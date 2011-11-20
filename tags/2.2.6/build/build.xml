@@ -1137,16 +1137,13 @@ examples:
   <import file="build-docbook.xml"/>
 
   <target name="-prep-images">
-    <!-- This will overwrite change-controlled custom iages in
-         doc-src/images/db if files with same names in ${dbimage.path} have
-         newer timestamps.
-         Since timestamps on our image files all get updated when we build
-         distributions, this will only happen if somebody installs DocBook
-         images newer than the HyperSQL distribution; or for Subversion users.
-         In the first case, the user is purposefully overriding what we
-         configured the distribution with, so they are responsible.
-         For the second case, the Subversion user will see the overrides with
-         "svn status" and can simply undo them with "svn revert paths...". -->
+    <!-- This will only add 'new' files to our "doc-src/images/db" directory.
+         Therefore, if you want to update file "x.png", then remove it there
+         before this target runs, and it will be pulled from ${dbimage.path}.
+         After you have built the docs once, you will need to check your source
+         for the document source code to see which images HSQLDB
+         change-controls.  Just see what is in directory "doc-src/images/db",
+         in Subversion or your distribution zip. -->
     <fail unless="dbimage.path">
 Ant property 'dbimage.path' is required.  This should be set to the "images"
 subdirectory of a DocBook v.5 NS Style Sheet distribution, on your local
@@ -1161,6 +1158,9 @@ See comments at the top of file "${basedir}/build/local-docbook.properties"
 for instructions on how set up the DocBook images (and other optional
 optimizations) manually.
 </fail>
+   <!-- The touch is to prevent overwriting customized images.
+        Ant will overwrite if the destination file is older than the source.-->
+    <touch> <fileset dir="${dbimage.path}"/> </touch>
     <copy todir="doc-src/images/db">
       <fileset dir="${dbimage.path}"/>
     </copy>
