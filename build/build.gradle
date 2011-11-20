@@ -31,14 +31,14 @@ buildscript { dependencies {
 } }
 
 apply plugin: 'javaPropFile'
+apply plugin: 'ivyxml'
+
 import com.admc.gradle.JavaPropFile
 def buildPropertiesFile = file('build.properties')
 def localBookPropertiesFile = file('local-docbook.properties')
 if (buildPropertiesFile.isFile()) propFileLoader.load(buildPropertiesFile)
 if (localBookPropertiesFile.isFile())
     propFileLoader.load(localBookPropertiesFile)
-
-apply plugin: 'ivyxml'
 
 repositories { mavenCentral() }
 
@@ -154,17 +154,16 @@ private void recursivePush(newName, dli, msl, ips) {
     if (ips.contains(newName))
         throw new GradleException("Recursion cycle for target '$newName'")
     ips.add(0, newName)
-    for (superEl in dli)
-        if (superEl.contains(newName))
-            for (subEl in superEl) {
-                if (subEl == newName) break
-                if (ips.contains(subEl))
-                    throw new GradleException(
-                            "Dependency cycle exists for target '$subEl'")
-                if (!msl.contains(subEl)) // Recurse
-                    recursivePush(subEl, dli, msl, ips)
-            }
-        //for (i = 0 .. superEl.size()-1)
+    dli.each { superEl ->
+        if (superEl.contains(newName)) for (subEl in superEl) {
+            if (subEl == newName) break
+            if (ips.contains(subEl))
+                throw new GradleException(
+                        "Dependency cycle exists for target '$subEl'")
+            if (!msl.contains(subEl)) // Recurse
+                recursivePush(subEl, dli, msl, ips)
+        }
+    }
     msl.add(newName)
     assert ips.remove(0) == newName : 'Internal IPS stack problem'
 }
@@ -181,7 +180,7 @@ import groovy.util.slurpersupport.GPathResult
 File[] resequenceAntDependencies(String fileNameInsertion,
         closures, prohibitedTasks, inFiles) {
     def projectGpathRs = []
-    for (File f in inFiles) {
+    inFiles.each { f ->
         GPathResult gPathR = new XmlSlurper().parseText(f.getText('UTF-8'))
         assert gPathR.name() == 'project' :
                 ("Root element in file '$f.absolutePath' not 'project': "
@@ -195,23 +194,28 @@ File[] resequenceAntDependencies(String fileNameInsertion,
     def masterSeqList = []   // Sequential list of all ref'd targ names
 
     // 1:  Determine new sequence 'masterSeqList'
-    for (pGpathR in projectGpathRs) for (targ in pGpathR.target.findAll {
-        it.@depends != null && it.@depends.list().size() > 0}) {
+    projectGpathRs.each { pGpathR ->
+        pGpathR.target.findAll {
+            it.@depends != null && it.@depends.list().size() > 0
+        }.each { targ ->
             List listEls = targ.@depends.text().split(/\s*,\s*/)
             if (listEls.size() > 0 && listEls[0].size() < 1) listEls.remove(0)
-            if (listEls.size() < 2) continue  // No precedence if 1:1 dep.
+            if (listEls.size() < 2) return  // No precedence if 1:1 dep.
             targetsIn[targ.@name.text()] = targ
             dependListsIn[targ.@name.text()] = listEls
         }
+    }
     logger.debug(targetsIn.size()
             + ''' name->Target's (just keys): ''' + targetsIn.keySet())
     logger.debug(dependListsIn.size() + " name->List's: $dependListsIn")
 
-    for (dl in dependListsIn.values())
-        for (n in dl)
+    dependListsIn.values.each { dl ->
+        dl.each { n ->
             if (!masterSeqList.contains(n))
                 recursivePush(n,
                         dependListsIn.values(), masterSeqList, inProcessStack)
+        }
+    }
     logger.debug "RESULT:  $masterSeqList"
 
     // 2: Generate task-renaming maps 'renameMap' and 'prohibitionMap'
@@ -223,27 +227,28 @@ File[] resequenceAntDependencies(String fileNameInsertion,
     def dependListsOut = [:]  // name -> List<String>
     def outList               // Strings
 
-    for (n in masterSeqList)
+    masterSeqList.each { n ->
         renameMap[n] = String.format('%03d%s', renameMap.size() + 1, n)
-    for (e in dependListsIn) {
+    }
+    dependListsIn.each { k, v ->
         outList = []
-        dependListsOut[e.key] = outList
-        for (n in e.value)
-            outList << (renameMap.containsKey(n) ? renameMap[n] : n)
+        dependListsOut[k] = outList
+        for (n in v) outList << (renameMap.containsKey(n) ? renameMap[n] : n)
     }
     logger.info "renameMap: $renameMap"
 
     // 3: Modify Ant build file text
     // Update 'target' attrs, target name attrs, target depends attrs
-    for (e in targetsIn) e.value.@depends = dependListsOut[e.key].join(', ')
-    for (pGpathR in projectGpathRs) {
-        for (targ in pGpathR.'**'.findAll {
+    targetsIn.each { k, v -> v.@depends = dependListsOut[k].join(', ') }
+    projectGpathRs.each { pGpathR ->
+        pGpathR.'**'.findAll {
             it.@target.list().size() > 0
-        })
+        }.each { targ ->
             if (renameMap.containsKey(targ.@target.text()))
                 // { logger.debug 'Trying ' + targ.@target.text()
                 targ.@target = renameMap.get(targ.@target.text())
-        for (e in renameMap) {
+        }
+        renameMap.each { e ->
             pGpathR.target.find {it.@name.text() == e.key}.@name = e.value
             // Following is for depends that did not contribute to sequencing,
             // but which still contain mapped target names.
@@ -259,17 +264,18 @@ File[] resequenceAntDependencies(String fileNameInsertion,
             }
         }
     }
-    if (prohibitedTasks != null) for (pGpathR in projectGpathRs) {
-        for (targ in pGpathR.'**'.findAll {
+    if (prohibitedTasks != null) projectGpathRs.each { pGpathR ->
+        pGpathR.'**'.findAll {
             it.@target.list().size() > 0
-        })
+        }.each { targ ->
             if (prohibitedTasks.contains(targ.@target.text())) {
                 String n = targ.@target.text()
                 if (!prohibitionMap.containsKey(n))
                     prohibitionMap[n] = 'ant' + n.capitalize()
                 targ.@target = prohibitionMap[n]
             }
-        for (k in prohibitedTasks) {
+        }
+        prohibitedTasks.each { k ->
             pGpathR.target.each {
                 if (it.@name.text() == k) {
                     if (!prohibitionMap.containsKey(k))
@@ -292,26 +298,27 @@ File[] resequenceAntDependencies(String fileNameInsertion,
 
     // 3.5: Conditionally execute user-specified closures
     if (closures != null) {
-         assert closures.size() == projectGpathRs.size() :
-                ('Size of given projectGpathRs != size of closures: '
-                + projectGpathRs.size() + ' vs. ' + closures.size())
-        for (i in 0.. closures.size()-1)
-            if (closures[i] != null) closures[i](projectGpathRs[i])
+        assert closures.size() == projectGpathRs.size() :
+               ('Size of given projectGpathRs != size of closures: '
+               + projectGpathRs.size() + ' vs. ' + closures.size())
+        closures.eachWithIndex { closure, i ->
+            if (closures != null) closure(projectGpathRs[i])
+        }
     }
 
     // 4: Write modified Ant build file
     List<File> outFiles = []
     File outFile
     Pattern dotPattern = Pattern.compile('\\.')
-    for (i in 0 .. projectGpathRs.size()-1) {
-        if (inFiles[i].name.indexOf('.') < 0)
+    inFiles.eachWithIndex { inFile, i ->
+        if (inFile.name.indexOf('.') < 0)
             throw new GradleException(
-                    'Input file name has no extension:  ' + inFiles[i].name)
+                    'Input file name has no extension:  ' + inFile.name)
         outFile = new File(
                 ((project.hasProperty('resequence.destDir'))
                         ? project['resequence.destDir']
-                        : inFiles[i].getParentFile()),
-                dotPattern.matcher(inFiles[i].getName()).replaceFirst(
+                        : inFile.getParentFile()),
+                dotPattern.matcher(inFile.getName()).replaceFirst(
                 fileNameInsertion + '.'))
         outFiles << outFile
         logger.info "Writing '$outFile.absolutePath'"
@@ -353,7 +360,7 @@ File[] outFs = resequenceAntDependencies(
         sourceAntBuildFiles)
 
 ant.importBuild(outFs[0].absolutePath)
-if (!retainGradled) for (f in outFs) f.deleteOnExit()
+if (!retainGradled) outFs.each { it.deleteOnExit() }
 version = ant.properties['hsqldb.version']  // Inherit version from "build.xml"
 
 // This block generates wrapper tasks for the sole purpose of preventing the
@@ -364,22 +371,22 @@ Matcher m
 def hidingWrappers = [:]  // From 0xxWrappee -> wrapper
 Task newTask
 def tasksToMake = [:]
-for (t in getTasks()) {
-    if (t.description == null) continue
+getTasks().each { t ->
+    if (t.description == null) return
     if (t.name.indexOf('.') > 0) t.description = null
     m = candidatePattern.matcher(t.name)
-    if (!m.matches()) continue
+    if (!m.matches()) return
     if (mvnBuild && javaPluginTasks.contains(m.group(1)))
         prohibitionMap[m.group(1)] = t.name
     else
         tasksToMake[t] = m.group(1)
 }
-for (e in tasksToMake) {
-    newTask = project.task(e.value)
-    newTask.dependsOn = [e.key]
-    newTask.description = e.key.description
-    e.key.description = null
-    hidingWrappers[e.key] = newTask
+tasksToMake.each { k, v ->
+    newTask = project.task(v)
+    newTask.dependsOn = [k]
+    newTask.description = k.description
+    k.description = null
+    hidingWrappers[k] = newTask
 }
 
 task serialver(dependsOn: ['classes16', 'util']) << {
@@ -426,9 +433,11 @@ project.task([overwrite: true], ivySetupTaskName) << {
 }
 
 private def recursiveAggregator(additions, inMap, assemblage) {
-    for (addition in additions) if (!assemblage.contains(addition)) {
-        recursiveAggregator(inMap[addition], inMap, assemblage)
-        assemblage << addition
+    additions.each { addition ->
+        if (!assemblage.contains(addition)) {
+            recursiveAggregator(inMap[addition], inMap, assemblage)
+            assemblage << addition
+        }
     }
     return assemblage
 }
@@ -736,7 +745,7 @@ Other tasks
             ['tasks', 'help', 'explainprops', 'explainjars'] as Set
     Matcher pMatcher
     NEXT_TASK:
-    for (t in getTasks()) {
+    getTasks().each { t ->
         assert t.name.length() > 0: 'Task with 0 length name encountered.'
         if (t.description != null) {
             pMatcher = privatePattern.matcher(t.name)
@@ -744,7 +753,7 @@ Other tasks
                  assert pMatcher.groupCount() == 1 && pMatcher.group(1) != null:
                         "Internal problem w/ regex pattern: $privatePattern"
                 describedPrivates << pMatcher.group(1)
-                continue
+                return
             }
         }
         if (!displayAll && t.description != null
@@ -757,25 +766,26 @@ Other tasks
         def depList
         def reverseWrappers = [:]  // Goes from wrapper -> wrappee
         // Probably a cooler Groovy way to do this, but this works:
-        for (e in hidingWrappers)  reverseWrappers[e.value] = e.key
+        hidingWrappers.each { k, v -> reverseWrappers[v] = k }
         assert hidingWrappers.size() == reverseWrappers.size():
                 'Seems we have a wrapper Task wrapping more than one Target'
-        for (t in getTasks()) {
-            if (hidingWrappers.containsValue(t)) continue
+        getTasks().each { t ->
+            if (hidingWrappers.containsValue(t)) return
             // Excluding wrappers so that wrappees can be listed as top-level
             // tasks.  (Because they would be if we didn't need the hack to
             // work around Gradle sequencing bug).
             depList = []
             dependOnMap[t] = depList
-            for (u in t.dependsOn)
+            t.dependsOn.each { u ->
                 if (u instanceof Task) depList << u
                 else if (u instanceof TaskDependency)
                     // Retarded that t must pass itself as param to its own u:
-                    for (v in u.getDependencies(t)) depList << v
+                    u.getDependencies(t).each { depList << it }
+            }
         }
         def allDependees = [] as Set  // Purposefully excluding wrappees
-        for (vs in dependOnMap.values()) allDependees.addAll(vs)
-        for (t in getTasks())
+        dependOnMap.values.each { allDependees.addAll(it) }
+        getTasks().each { t ->
             if (!allDependees.contains(t)
                     && !hardTaskDescriptions.contains(t.name)) {
                 // t is now non-depended-upon, other than by wrappers
@@ -796,21 +806,21 @@ Other tasks
                             'Wrappee is a wrapper too?'
                 }
                 println()
-                for (u in recursiveAggregator(
-                        dependOnMap[t], dependOnMap, [])) {
-                    print "    $u.name"
-                    if (u.description != null) print " - $u.description"
-                    if (hidingWrappers.containsKey(u)) {
-                        print ' [Wrapped by ' + hidingWrappers[u].name
-                        if (hidingWrappers[u].description != null)
-                            print ' - ' + hidingWrappers[u].description
+                recursiveAggregator(dependOnMap[t], dependOnMap, []).each {
+                    print "    $it.name"
+                    if (it.description != null) print " - $it.description"
+                    if (hidingWrappers.containsKey(it)) {
+                        print ' [Wrapped by ' + hidingWrappers[it].name
+                        if (hidingWrappers[it].description != null)
+                            print ' - ' + hidingWrappers[it].description
                         print ']'
                     }
-                    assert !hidingWrappers.containsValue(u):
+                    assert !hidingWrappers.containsValue(it):
                             'Wrapper is depended-up?'
                     println()
                 }
             }
+        }
     } else {
         println('''
 To see all tasks and more detail, run 'gradle -PallTasks=true tasks'.
