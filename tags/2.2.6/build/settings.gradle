@@ -1,0 +1,9 @@
+//According to Adam Murdoch at http://www.unix.com/man-page/Linux/5/interfaces/
+//"For the Gradle 1.0 release, we plan to merge the settings.gradle script into
+// the build script".
+rootProject.name = 'hsqldb'
+
+// Following work-around needed when use -b switch to Gradle, per
+// http://forums.gradle.org/gradle/topics/how_change_project_name_when_using_non_build_gradle_build_file
+if (startParameter.buildFile)
+    rootProject.buildFileName = startParameter.buildFile.name

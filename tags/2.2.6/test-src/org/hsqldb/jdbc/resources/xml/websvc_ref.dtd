@@ -1,0 +1,44 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!--
+    Document   : websvc_ref.dtd
+    Created on : May 28, 2006, 8:13 PM CST
+    Author     : boucherb@users
+    Description: Test JDBCSQLXML
+
+    PUBLIC ID: -//WEBSVC_REF//DTD WEBSVC_REV 1.0//EN
+    SYSTEM ID: http://server/path/websvc_ref.dtd
+-->
+
+<!ELEMENT java (object|int)*>
+<!ATTLIST java
+    class CDATA #IMPLIED
+    version CDATA #IMPLIED
+  >
+
+<!ELEMENT int (#PCDATA)>
+
+<!ELEMENT object (void)*>
+<!ATTLIST object
+    idref CDATA #IMPLIED
+    id CDATA #IMPLIED
+    class CDATA #IMPLIED
+  >
+
+<!ELEMENT void (null|boolean|int|object|array|void|string)*>
+<!ATTLIST void
+    index CDATA #IMPLIED
+    method CDATA #IMPLIED
+    property CDATA #IMPLIED
+  >
+
+<!ELEMENT string (#PCDATA)>
+
+<!ELEMENT array (void)*>
+<!ATTLIST array
+    length CDATA #IMPLIED
+    class CDATA #IMPLIED
+  >
+
+<!ELEMENT boolean (#PCDATA)>
+
+<!ELEMENT null EMPTY>
