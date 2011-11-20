@@ -27,12 +27,7 @@
     \q Two legacy-unset vars differ, one set to blanks
 * end if
 
--- Reverse this test once sqltool.REMOVE_EMPTY_VARS behavior changed
-* if (*mt1 != *unset)
-    \q Legacy-unset var != never-set var
-* end if
-
-* if (*mt1 != *unset)
+* if (*mt1 == *unset)
     \q Legacy-unset var != never-set var
 * end if
 

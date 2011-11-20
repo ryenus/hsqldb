@@ -1,8 +1,5 @@
 /*
  * $Id$
- *
- * Invokes another script that defines variables.
- * Then we test that we have access to the variables.
  */
 
 \p *{:unsetvar}
@@ -12,6 +9,11 @@
 *end if
 
 *x =
-*if (*x != *y)
-    \q A variable set to '' not equal to an unset variable
+*if (*x == *y)
+    \q A variable set to '' is equal to an unset variable
+*end if
+
+*z =
+*if (*x != *z)
+    \q Two variables set to '' are not equal
 *end if

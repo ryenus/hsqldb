@@ -49,15 +49,10 @@
     \q *blankVar1 != *blankVar2
 *end if
 
--- TODO:  Change the operator below to == after
--- behavior of DEFAULT_VAR_AS_NULLS is changed in SqlFile.java
-*if (*blankVar1 != *unset1)
-    \q *blankVar1 != *unset1
+*if (*blankVar1 == *unset1)
+    \q *blankVar1 == *unset1
 *end if
 
-/* TODO:  Enable the following after
- * behavior of DEFAULT_VAR_AS_NULLS is changed in SqlFile.java
 *if (*{blankVar1} != *{blankVar2})
     \q *{blankVar1} != *{blankVar2}
 *end if
-*/
