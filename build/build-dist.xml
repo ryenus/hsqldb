@@ -145,7 +145,8 @@ and re-export.</fail>
     <zip destfile="dist/${app.basedir}.zip">
       <zipfileset prefix="${app.basedir}/hsqldb" dir="."
                   includes="**/*.cmd, **/*.bat, **/*.bash, **/*.sh, **/*.pl,
-                            **/*.php, **/*.init, **/*.py, build/gradlew"
+                            **/*.php, **/*.init, **/*.py, build/gradlew,
+                            build/gradle-gui"
                   filemode="0755"
                   excludes="**/.*/**, build/local**, test-src/**,
                             *gradled*, build/gradle-app.setting,
@@ -156,6 +157,7 @@ and re-export.</fail>
                   build/build.properties, build/local**, build/ivysettings.xml,
                   classes/**, dist/**, local*/**, tmp/**, doc-src/images/db/**,
                   build/ivysettings.xml, stylesheets/rng-catalog.xml,
+                  build/gradle-gui,
                   build/gradlew, *gradled*, build/gradle-app.setting"/>
       <zipfileset prefix="${app.basedir}/hsqldb/lib" dir="lib"
                   includes="sqltool.jar, servlet*.zip"/>
