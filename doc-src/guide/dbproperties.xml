@@ -286,7 +286,7 @@
     URLs.</para>
 
     <para>If the database part of a file: database begins with ~/ or ~\ the
-    tilde character is replaced with the value of the sytem property
+    tilde character is replaced with the value of the system property
     "user.home" resulting in the database being created or accessed in this
     directory, or one of its subdirectories. In the example below, the
     database files for mydb are located in the user's home directory.</para>

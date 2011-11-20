@@ -2980,7 +2980,7 @@ public class SqlFile {
                 silentFetch = true;
             case '~' :
                 // TODO:  Condsider limiting fetchingVars to User variables
-                // (as opposed to *SYTEM variables).
+                // (as opposed to *SYSTEM variables).
                 // That would eliminate some updateUserSettings calls.
                 if (m.groupCount() > 2 && m.group(3) != null
                             && m.group(3).trim().length() > 0) {
