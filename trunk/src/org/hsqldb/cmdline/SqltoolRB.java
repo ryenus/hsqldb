@@ -255,7 +255,6 @@ public enum SqltoolRB implements RefCapableRBInterface {
     connected_fallbackmsg,
     no_vendor_schemaspt,
     schemaname_retrieval_fail,
-    remove_empty_vars_suggestion,
     remove_empty_vars_suggestset,
     auto_unset_warning,
     pl_unset_nomoreargs,

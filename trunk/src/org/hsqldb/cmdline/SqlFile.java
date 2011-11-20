@@ -305,7 +305,7 @@ public class SqlFile {
 
     private boolean removeEmptyVars() {
         String sysP = System.getProperty("sqltool.REMOVE_EMPTY_VARS");
-        return sysP == null || Boolean.parseBoolean(sysP);
+        return sysP != null && Boolean.parseBoolean(sysP);
     }
 
     /**
@@ -770,9 +770,6 @@ public class SqlFile {
             scanner.setRawLeadinPrompt(SqltoolRB.raw_leadin.getString());
             if (interactive) {
                 stdprintln(SqltoolRB.SqlFile_banner.getString(revnum));
-                if (System.getProperty("sqltool.REMOVE_EMPTY_VARS") == null)
-                    stdprintln(
-                            SqltoolRB.remove_empty_vars_suggestion.getString());
                 scanner.setRawPrompt(rawPrompt);
                 scanner.setSqlPrompt(contPrompt);
                 scanner.setSqltoolPrompt(primaryPrompt);
@@ -3017,18 +3014,16 @@ public class SqlFile {
                     throw new BadSpecial(
                             SqltoolRB.encode_fail.getString(varVal));
                 }
-                if (varVal != null) {
-                    shared.userVars.put(varName, varVal);
-                } else {
+                if (varVal == null) {
                     if (removeEmptyVars()) {
-                        if (System.getProperty("sqltool.REMOVE_EMPTY_VARS")
-                                == null)
-                            stdprintln(SqltoolRB.
-                                    remove_empty_vars_suggestset.getString());
+                        stdprintln(SqltoolRB.
+                                remove_empty_vars_suggestset.getString());
                         shared.userVars.remove(varName);
                     } else {
                         shared.userVars.put(varName, "");
                     }
+                } else {
+                    shared.userVars.put(varName, varVal);
                 }
                 updateUserSettings();
                 sqlExpandMode = null;
