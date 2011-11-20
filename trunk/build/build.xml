@@ -1160,7 +1160,7 @@ optimizations) manually.
 </fail>
    <!-- The touch is to prevent overwriting customized images.
         Ant will overwrite if the destination file is older than the source.-->
-    <touch> <fileset dir="doc-src/images/db" excludes="**/.*/**/> </touch>
+    <touch> <fileset dir="doc-src/images/db" excludes="**/.*/**"/> </touch>
     <copy todir="doc-src/images/db">
       <fileset dir="${dbimage.path}"/>
     </copy>
