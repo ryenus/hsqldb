@@ -102,7 +102,7 @@ uploadArchives {
         [
             addFilter('hsqldb') {artifact, file -> artifact.name == 'hsqldb'},
             addFilter('sqltool') {artifact, file -> artifact.name == 'sqltool'}
-        ] poms.each { pom -> pom.project {
+        ].each { pom -> pom.project {
             // The hasProperty tests are necessary even for required variables
             // because this code is evaluated even if the uploadArchives task
             // will never be executed.
