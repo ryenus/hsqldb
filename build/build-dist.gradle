@@ -23,7 +23,7 @@
  *      3: Run "svn info ../src/org/hsqldb/cmdline/Sql????.java" to determine
  *         the current versions of SqlTool.java and SqlFile.java.
  *         Update the revision values in file
- *         "../doc-src/uti-guide/entities/versions.ent" accordingly.
+ *         "../doc-src/util-guide/entities/versions.ent" accordingly.
  *      4: Update property 'hsqldb.version' in file 'build.xml'.
  *      5: Execute task/target 'refresh-verbatim' to update code in our docs.
  *      6: Execute task/target 'update-readme' to substitute updated variables
