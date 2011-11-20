@@ -169,7 +169,7 @@ public class HsqlDateTime {
 
     private static java.util.Date sysDate = new java.util.Date();
 
-    public static String getSytemTimeString() {
+    public static String getSystemTimeString() {
 
         synchronized (sdftsSys) {
             sysDate.setTime(System.currentTimeMillis());

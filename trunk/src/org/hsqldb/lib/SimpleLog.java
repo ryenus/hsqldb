@@ -131,7 +131,7 @@ public class SimpleLog {
             return;
         }
 
-        sb.append(HsqlDateTime.getSytemTimeString()).append(' ');
+        sb.append(HsqlDateTime.getSystemTimeString()).append(' ');
         sb.append(logTypeNames[atLevel]).append(' ').append(message);
         writer.println(sb.toString());
         sb.setLength(0);
@@ -144,7 +144,7 @@ public class SimpleLog {
             return;
         }
 
-        sb.append(HsqlDateTime.getSytemTimeString()).append(' ');
+        sb.append(HsqlDateTime.getSystemTimeString()).append(' ');
         sb.append(logTypeNames[atLevel]).append(' ').append(prefix);
         sb.append(' ').append(message).append(' ').append(suffix);
         writer.println(sb.toString());
@@ -162,7 +162,7 @@ public class SimpleLog {
             return;
         }
 
-        sb.append(HsqlDateTime.getSytemTimeString()).append(' ');
+        sb.append(HsqlDateTime.getSystemTimeString()).append(' ');
         sb.append(logTypeNames[atLevel]).append(' ').append(message);
 
 //#ifdef JAVA4

@@ -1523,7 +1523,7 @@ public class Server implements HsqlSocketRequestHandler {
      * @param msg the message to print
      */
     final void printWithTimestamp(String msg) {
-        print(HsqlDateTime.getSytemTimeString() + " " + msg);
+        print(HsqlDateTime.getSystemTimeString() + " " + msg);
     }
 
     /**

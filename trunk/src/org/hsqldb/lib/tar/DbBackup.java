@@ -348,7 +348,7 @@ public class DbBackup {
      * <B>Algorithm details:</B>
      * </P> <P>
      * Minimum system I want support is a J2SE system with 256M physical
-     * RAM.  This sytem can hold a 61 MB byte array (real 1024^2 M).
+     * RAM.  This system can hold a 61 MB byte array (real 1024^2 M).
      * (61MB with Java 1.6, 62MB with Java 1.4).
      * This decreases to just 60 MB with (pre-production, non-optimized)
      * HSQLDB v. 1.9 on Java 1.6.
