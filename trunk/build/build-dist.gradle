@@ -28,8 +28,8 @@
  *      5: Execute task/target 'refresh-verbatim' to update code in our docs.
  *      6: Execute task/target 'update-readme' to substitute updated variables
  *         into some doc file(s).
- *      7: Manually update the version displayed in file "../readme.txt".
- *         Fred doesn't want this one automated.
+ *      7: Double-check file "../readme.txt".
+ *         May or may not need to be updated manually.
  *      8: Commit all of the work above.
  *      9: Verify that docs build successfully.
  *     10. Make a release tag.
