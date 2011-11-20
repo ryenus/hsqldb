@@ -41,6 +41,14 @@
  * @author Blaine Simpson  (blaine dot simpson at admc dot com)
  */
 
+buildscript { dependencies {
+    // This 'buildscript' only here because with current version of Gradle,
+    // 'buildscript' is only honored from the top-level build file executed.
+    // When we "apply" 'build.gradle, the 'buildscript' there will be ignored.
+    classpath fileTree(dir: '.', include: 'gradle-javaPropFile-plugin-*.jar')
+    classpath fileTree(dir: '.', include: 'gradle-ivyxml-plugin-*.jar')
+} }
+
 apply plugin: 'java'
 apply plugin: 'maven'
 /*  Disabling PGP signing for now.
@@ -50,11 +58,6 @@ signing {
     sign configurations.archives
 }
 */
-
-buildscript { dependencies {
-    classpath fileTree(dir: '.', include: 'gradle-javaPropFile-plugin-*.jar')
-    classpath fileTree(dir: '.', include: 'gradle-ivyxml-plugin-*.jar')
-} }
 
 mvnBuild = true
 apply from: 'build.gradle'
@@ -96,11 +99,10 @@ uploadArchives {
             repository(url: project.property('mavenRepository.dest.url')) {
                 authentication(authMap)
             }
-        def poms = [
+        [
             addFilter('hsqldb') {artifact, file -> artifact.name == 'hsqldb'},
             addFilter('sqltool') {artifact, file -> artifact.name == 'sqltool'}
-        ]
-        for (p in poms) p.project {
+        ] poms.each { pom -> pom.project {
             // The hasProperty tests are necessary even for required variables
             // because this code is evaluated even if the uploadArchives task
             // will never be executed.
@@ -143,16 +145,16 @@ uploadArchives {
                         email project.property('developer.email')
                 }
             }
-        }
+        } }
     }
 }
 
 uploadArchives { doFirst {
-    for (p in ['title', 'group', 'mavenRepository.dest.url', 'scm.connection',
-            'scm.url', 'url', 'inceptionYear', 'description']) {
-        assert (project.hasProperty(p) && project.property(p) != null
-                && project.property(p) != '') :
-            """Property '$p' is required by 'uploadArchives' task.
+    ['title', 'group', 'mavenRepository.dest.url', 'scm.connection',
+            'scm.url', 'url', 'inceptionYear', 'description'].each {
+        assert (project.hasProperty(it) && project.property(it) != null
+                && project.property(it) != '') :
+            """Property '$it' is required by 'uploadArchives' task.
 """
     }
 } }
