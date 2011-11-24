@@ -1904,7 +1904,7 @@ public class SqlFile {
                 String url = null;
                 boolean goalAutoCommit = false;
                 String[] tokens = (other == null)
-                        ? (new String[0]) : other.split("\\s+", 3);
+                        ? (new String[0]) : other.trim().split("\\s+", 3);
                 switch (tokens.length) {
                     case 0:
                         break;
