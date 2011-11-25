@@ -129,7 +129,7 @@ implements ActionListener, WindowListener, KeyListener {
     private static final String ABOUT_TEXT =
         "$Revision$ of DatabaseManager\n\n"
         + "Copyright (c) 1995-2000, The Hypersonic SQL Group.\n"
-        + "Copyright (c) 2001-2009, The HSQL Development Group.\n"
+        + "Copyright (c) 2001-2011, The HSQL Development Group.\n"
         + "http://hsqldb.org  (User Guide available at this site).\n\n\n"
         + "You may use and redistribute according to the HSQLDB\n"
         + "license documented in the source code and at the web\n"
