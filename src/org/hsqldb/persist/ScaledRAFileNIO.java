@@ -450,10 +450,6 @@ final class ScaledRAFileNIO implements RandomAccessInterface {
             database.logger.logDetailEvent(
                 "NOI buffer allocate failed, file size " + newFileLength);
 
-            try {
-                close();
-            } catch (Throwable t) {}
-
             return false;
         }
 
