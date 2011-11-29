@@ -300,7 +300,7 @@ public final class DateTimeType extends DTIType {
         return getDateTimeType(newType, scale);
     }
 
-    public Type getCombinedType(Type other, int operation) {
+    public Type getCombinedType(Session session, Type other, int operation) {
 
         switch (operation) {
 
@@ -1562,7 +1562,7 @@ public final class DateTimeType extends DTIType {
             b[1] = b[0];
         }
 
-        Type commonType = ta[0].getCombinedType(tb[0], OpTypes.EQUAL);
+        Type commonType = ta[0].getCombinedType(session, tb[0], OpTypes.EQUAL);
 
         a[0] = commonType.castToType(session, a[0], ta[0]);
         b[0] = commonType.castToType(session, b[0], tb[0]);

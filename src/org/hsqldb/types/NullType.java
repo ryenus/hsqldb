@@ -80,7 +80,7 @@ public final class NullType extends Type {
         return other;
     }
 
-    public Type getCombinedType(Type other, int operation) {
+    public Type getCombinedType(Session session, Type other, int operation) {
         return other;
     }
 

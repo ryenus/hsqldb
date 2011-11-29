@@ -109,7 +109,7 @@ public final class OtherType extends Type {
         throw Error.error(ErrorCode.X_42562);
     }
 
-    public Type getCombinedType(Type other, int operation) {
+    public Type getCombinedType(Session session, Type other, int operation) {
         return this;
     }
 

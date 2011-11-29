@@ -836,9 +836,8 @@ public class FunctionSQL extends Expression {
                 if (nodes[0].dataType.isNumberType()) {
                     subType = nodes[0].dataType;
                 } else {
-                    subType =
-                        nodes[0].dataType.getCombinedType(nodes[0].dataType,
-                                                          OpTypes.SUBTRACT);
+                    subType = nodes[0].dataType.getCombinedType(session,
+                            nodes[0].dataType, OpTypes.SUBTRACT);
                 }
 
                 switch (compare) {
