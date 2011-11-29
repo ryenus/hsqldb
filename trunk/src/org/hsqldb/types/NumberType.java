@@ -579,7 +579,7 @@ public final class NumberType extends Type {
      *  For ADD/SUBTRACT/DIVIDE, the scale is the larger of the two<br>
      *  For MULTIPLY, the scale is the sum of the two scales<br>
      */
-    public Type getCombinedType(Type other, int operation) {
+    public Type getCombinedType(Session session, Type other, int operation) {
 
         if (other.typeCode == Types.SQL_ALL_TYPES) {
             other = this;
@@ -588,18 +588,16 @@ public final class NumberType extends Type {
         switch (operation) {
 
             case OpTypes.ADD :
+            case OpTypes.DIVIDE :
                 break;
 
             case OpTypes.MULTIPLY :
                 if (other.isIntervalType()) {
-                    return other.getCombinedType(this, OpTypes.MULTIPLY);
+                    return other.getCombinedType(session, this,
+                                                 OpTypes.MULTIPLY);
                 }
                 break;
 
-            case OpTypes.DIVIDE :
-                if (typeWidth == DECIMAL_WIDTH) {
-                    break;
-                }
             case OpTypes.SUBTRACT :
             default :
 
@@ -617,14 +615,16 @@ public final class NumberType extends Type {
             return Type.SQL_DOUBLE;
         }
 
-        int sum = typeWidth + ((NumberType) other).typeWidth;
+        if (operation != OpTypes.DIVIDE || session.database.sqlAvgScale == 0) {
+            int sum = typeWidth + ((NumberType) other).typeWidth;
 
-        if (sum <= INTEGER_WIDTH) {
-            return Type.SQL_INTEGER;
-        }
+            if (sum <= INTEGER_WIDTH) {
+                return Type.SQL_INTEGER;
+            }
 
-        if (sum <= BIGINT_WIDTH) {
-            return Type.SQL_BIGINT;
+            if (sum <= BIGINT_WIDTH) {
+                return Type.SQL_BIGINT;
+            }
         }
 
         int  newScale;
@@ -646,6 +646,10 @@ public final class NumberType extends Type {
                 newDigits = precision - scale + other.scale;
                 newScale  = scale > other.scale ? scale
                                                 : other.scale;
+
+                if (session.database.sqlAvgScale > newScale) {
+                    newScale = session.database.sqlAvgScale;
+                }
                 break;
 
             case OpTypes.MULTIPLY :

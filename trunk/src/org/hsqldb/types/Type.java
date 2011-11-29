@@ -494,7 +494,7 @@ public abstract class Type implements SchemaObject, Cloneable {
      * other type is not allways comparable with this, but a operation should
      * be valid without any explicit CAST
      */
-    public abstract Type getCombinedType(Type other, int operation);
+    public abstract Type getCombinedType(Session session, Type other, int operation);
 
     public int compareToTypeRange(Object o) {
         return 0;

@@ -158,7 +158,7 @@ public final class BitType extends BinaryType {
     /**
      * Returns type for concat
      */
-    public Type getCombinedType(Type other, int operation) {
+    public Type getCombinedType(Session session, Type other, int operation) {
 
         if (operation != OpTypes.CONCAT) {
             return getAggregateType(other);
@@ -183,7 +183,7 @@ public final class BitType extends BinaryType {
             case Types.SQL_BINARY :
             case Types.SQL_VARBINARY :
             case Types.SQL_BLOB :
-                return other.getCombinedType(this, operation);
+                return other.getCombinedType(session, this, operation);
 
             default :
                 throw Error.error(ErrorCode.X_42562);

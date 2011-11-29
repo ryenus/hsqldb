@@ -85,11 +85,11 @@ public class RangeVariableResolver {
 
     RangeVariableResolver(QuerySpecification select) {
 
-        this.rangeVariables     = select.rangeVariables;
-        this.conditions         = select.queryCondition;
-        this.compileContext     = select.compileContext;
-//        this.expandInExpression = select.checkQueryCondition == null;
+        this.rangeVariables = select.rangeVariables;
+        this.conditions     = select.queryCondition;
+        this.compileContext = select.compileContext;
 
+//        this.expandInExpression = select.checkQueryCondition == null;
         initialise();
     }
 
@@ -242,11 +242,11 @@ public class RangeVariableResolver {
         }
 
         // choose start expressions
-        Expression start = null;
-        double cost =
-            rangeVariables[0].rangeTable.getRowStore(session).elementCount();
+        Expression    start    = null;
         int           position = 0;
         RangeVariable range    = null;
+        double cost =
+            rangeVariables[0].rangeTable.getRowStore(session).elementCount();
 
         if (cost < Index.minimumSelectivity) {
             cost = Index.minimumSelectivity;

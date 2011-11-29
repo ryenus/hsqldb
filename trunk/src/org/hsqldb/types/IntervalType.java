@@ -396,7 +396,7 @@ public final class IntervalType extends DTIType {
         }
     }
 
-    public Type getCombinedType(Type other, int operation) {
+    public Type getCombinedType(Session session, Type other, int operation) {
 
         switch (operation) {
 
@@ -421,7 +421,7 @@ public final class IntervalType extends DTIType {
 
             case OpTypes.ADD :
                 if (other.isDateTimeType()) {
-                    return other.getCombinedType(this, operation);
+                    return other.getCombinedType(session, this, operation);
                 } else if (other.isIntervalType()) {
                     IntervalType newType =
                         (IntervalType) getAggregateType(other);

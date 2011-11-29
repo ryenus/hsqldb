@@ -65,6 +65,8 @@ public final class SortAndSlice {
     public boolean     skipSort       = false;    // true when result can be used as is
     public boolean     skipFullResult = false;    // true when result can be sliced as is
     public Index   index;
+    public Index   primaryTableIndex;
+    public int[]   colIndexes;
     public boolean isGenerated;
 
     SortAndSlice() {}
@@ -167,7 +169,7 @@ public final class SortAndSlice {
         }
     }
 
-    void setSortRange(QuerySpecification select) {
+    void setSortIndex(QuerySpecification select) {
 
         if (isGenerated) {
             return;
@@ -205,7 +207,7 @@ public final class SortAndSlice {
             return;
         }
 
-        int[] colIndexes = new int[columnCount];
+        colIndexes = new int[columnCount];
 
         for (int i = 0; i < columnCount; i++) {
             Expression e = ((Expression) exprList.get(i)).getLeftNode();
@@ -220,6 +222,26 @@ public final class SortAndSlice {
             }
 
             colIndexes[i] = e.columnIndex;
+        }
+
+        int     count         = ArrayUtil.countTrueElements(sortDescending);
+        boolean allDescending = count == columnCount;
+
+        if (!allDescending && count > 0) {
+            return;
+        }
+
+        Table table = select.rangeVariables[0].getTable();
+
+        primaryTableIndex = table.getFullIndexForColumns(colIndexes);
+    }
+
+    void setSortRange(QuerySpecification select) {
+
+        setSortIndex(select);
+
+        if (primaryTableIndex == null) {
+            return;
         }
 
         Index rangeIndex = select.rangeVariables[0].getSortIndex();

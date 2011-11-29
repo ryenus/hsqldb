@@ -341,7 +341,7 @@ public class CharacterType extends Type {
     /**
      * For concatenation
      */
-    public Type getCombinedType(Type other, int operation) {
+    public Type getCombinedType(Session session, Type other, int operation) {
 
         if (operation != OpTypes.CONCAT) {
             return getAggregateType(other);

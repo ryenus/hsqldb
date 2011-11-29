@@ -321,22 +321,22 @@ public class RowType extends Type {
         return new RowType(newTypes);
     }
 
-    public Type getCombinedType(Type otherType, int operation) {
+    public Type getCombinedType(Session session, Type other, int operation) {
 
         if (operation != OpTypes.CONCAT) {
-            return getAggregateType(otherType);
+            return getAggregateType(other);
         }
 
-        if (otherType == null) {
+        if (other == null) {
             return this;
         }
 
-        if (!otherType.isRowType()) {
+        if (!other.isRowType()) {
             throw Error.error(ErrorCode.X_42562);
         }
 
         Type[] newTypes   = new Type[dataTypes.length];
-        Type[] otherTypes = ((RowType) otherType).getTypesArray();
+        Type[] otherTypes = ((RowType) other).getTypesArray();
 
         if (dataTypes.length != otherTypes.length) {
             throw Error.error(ErrorCode.X_42564);

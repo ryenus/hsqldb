@@ -406,25 +406,23 @@ public class ArrayType extends Type {
         Type otherComponent = other.collectionBaseType();
 
         if (dataType.equals(otherComponent)) {
-            return ((ArrayType) other).maxCardinality > maxCardinality
-                   ? other
-                   : this;
+            return ((ArrayType) other).maxCardinality > maxCardinality ? other
+                                                                       : this;
         }
 
         Type newComponent = dataType.getAggregateType(otherComponent);
-        int cardinality =
-            ((ArrayType) other).maxCardinality > maxCardinality
-            ? ((ArrayType) other).maxCardinality
-            : maxCardinality;
+        int cardinality = ((ArrayType) other).maxCardinality > maxCardinality
+                          ? ((ArrayType) other).maxCardinality
+                          : maxCardinality;
 
         return new ArrayType(newComponent, cardinality);
     }
 
-    public Type getCombinedType(Type otherType, int operation) {
+    public Type getCombinedType(Session session, Type other, int operation) {
 
-        ArrayType type = (ArrayType) getAggregateType(otherType);
+        ArrayType type = (ArrayType) getAggregateType(other);
 
-        if (otherType == null) {
+        if (other == null) {
             return type;
         }
 
@@ -436,7 +434,7 @@ public class ArrayType extends Type {
             return type;
         }
 
-        long card = (long) ((ArrayType) otherType).maxCardinality + maxCardinality;
+        long card = (long) ((ArrayType) other).maxCardinality + maxCardinality;
 
         if (card > ArrayType.defaultLargeArrayCardinality) {
             card = ArrayType.defaultLargeArrayCardinality;
