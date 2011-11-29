@@ -2740,11 +2740,12 @@
       <simpara><literal>&lt;set database sql avg scale&gt; ::= SET DATABASE
       SQL AVG SCALE &lt;numeric value&gt;</literal></simpara>
 
-      <simpara>When the property is not zero, the result of the AVG and MEDIAN
-      aggregate functions always has the same type as the aggregated value.
-      Otherwise, the specified scale is used for the result. For example, the
-      average of 5 and 10 is 7 by default, but 7.50 if the scale is specified
-      as 2.</simpara>
+      <simpara>When the property is not zero, the result of division and the
+      AVG and MEDIAN aggregate functions always has the same type as the
+      aggregated value. Otherwise, the specified scale is used for the result.
+      For example, the average of 5 and 10 is 7 by default, but 7.50 if the
+      scale is specified as 2. The result of 7/3 is 3 by default but 2.33 if
+      the scale is specified as 2.</simpara>
 
       <simpara>Standard SQL considers this behaviour implementation
       dependent.</simpara>
@@ -3521,16 +3522,13 @@ public static java.sql.Array accessExternalMethod(String database, String user, 
       </example>
 
       <para>If you want to use an <filename>ivy.xml</filename> file with a
-        Gradle build, you will need use the <link
-        xlink:href="https://github.com/unsaved/gradle-ivyxml-plugin">
-        Ivyxml Gradle Plugin</link>.
-        It just takes a few linkes of code in your
-        <filename>build.gradle</filename> file to hook in
-        <literal>ivyxml</literal>.
-        See the <link
-          xlink:href="https://github.com/unsaved/gradle-ivyxml-plugin/raw/master/README.txt">
-          Ivyxml documentation</link> to see exactly how.
-         <example>
+      Gradle build, you will need use the <link
+      xlink:href="https://github.com/unsaved/gradle-ivyxml-plugin"> Ivyxml
+      Gradle Plugin</link>. It just takes a few linkes of code in your
+      <filename>build.gradle</filename> file to hook in
+      <literal>ivyxml</literal>. See the <link
+      xlink:href="https://github.com/unsaved/gradle-ivyxml-plugin/raw/master/README.txt">
+      Ivyxml documentation</link> to see exactly how. <example>
           <title>Sample ivy.xml loaded by Ivyxml plugin</title>
 
           <programlisting>
