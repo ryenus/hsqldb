@@ -1039,18 +1039,18 @@
 
               <entry><literal>0</literal></entry>
 
-              <entry>decimal scale of values returned by the AVG and MEDIAN
-              aggregate functions</entry>
+              <entry>decimal scale of values returned by division and the AVG
+              and MEDIAN aggregate functions</entry>
             </row>
 
             <row>
               <entry nameend="c3" namest="c1"><para>By default, the result of
-              an AVG or MEDIAN aggregate has the same type and scale as the
-              aggregated value. For INTEGER types, the scale is 0. When this
-              property is set to a value other than the default 0, then the
-              scale is used if it is greater than the scale of the aggregated
-              value. This property does not affect DOUBLE values. Values
-              between 0 - 10 can be used for this
+              a division or an AVG or MEDIAN aggregate has the same type and
+              scale as the aggregated value. For INTEGER types, the scale is
+              0. When this property is set to a value other than the default
+              0, then the scale is used if it is greater than the scale of the
+              divisor or aggregated value. This property does not affect
+              DOUBLE values. Values between 0 - 10 can be used for this
               property.</para><para><programlisting>SET DATABASE SQL AVG SCALE &lt;numeric value&gt;</programlisting></para></entry>
             </row>
           </tbody>

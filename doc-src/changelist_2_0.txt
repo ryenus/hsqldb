@@ -1,3 +1,5 @@
+29 Sep 2011
+-- extended the scope of the property hsqldb.avg_scale to the results of division
 19 November 2011 - version 2.2.6
 -- fixed issue with memory use of large strings in cache
 -- fixed issue with FOR loops with ORDER BY in routines
