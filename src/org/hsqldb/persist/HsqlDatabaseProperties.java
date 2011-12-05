@@ -230,14 +230,16 @@ public class HsqlDatabaseProperties extends HsqlProperties {
     public static final String sql_enforce_tdcd  = "sql.enforce_tdc_delete";
     public static final String sql_enforce_tdcu  = "sql.enforce_tdc_update";
     public static final String sql_concat_nulls  = "sql.concat_nulls";
+    public static final String sql_nulls_first   = "sql.nulls_first";
     public static final String sql_unique_nulls  = "sql.unique_nulls";
     public static final String sql_convert_trunc = "sql.convert_trunc";
     public static final String sql_avg_scale     = "sql.avg_scale";
     public static final String sql_double_nan    = "sql.double_nan";
-    public static final String sql_syntax_ora    = "sql.syntax_ora";
-    public static final String sql_syntax_pgs    = "sql.syntax_pgs";
+    public static final String sql_syntax_db2    = "sql.syntax_db2";
     public static final String sql_syntax_mss    = "sql.syntax_mss";
     public static final String sql_syntax_mys    = "sql.syntax_mys";
+    public static final String sql_syntax_ora    = "sql.syntax_ora";
+    public static final String sql_syntax_pgs    = "sql.syntax_pgs";
     public static final String jdbc_translate_tti_types =
         "jdbc.translate_tti_types";
     public static final String sql_identity_is_pk = "sql.identity_is_pk";
@@ -376,6 +378,9 @@ public class HsqlDatabaseProperties extends HsqlProperties {
         dbMeta.put(sql_concat_nulls,
                    HsqlProperties.getMeta(sql_concat_nulls, SQL_PROPERTY,
                                           true));
+        dbMeta.put(sql_nulls_first,
+                   HsqlProperties.getMeta(sql_nulls_first, SQL_PROPERTY,
+                                          true));
         dbMeta.put(sql_unique_nulls,
                    HsqlProperties.getMeta(sql_unique_nulls, SQL_PROPERTY,
                                           true));
@@ -387,14 +392,17 @@ public class HsqlDatabaseProperties extends HsqlProperties {
                                           10));
         dbMeta.put(sql_double_nan,
                    HsqlProperties.getMeta(sql_double_nan, SQL_PROPERTY, true));
-        dbMeta.put(sql_syntax_ora,
-                   HsqlProperties.getMeta(sql_syntax_ora, SQL_PROPERTY,
+        dbMeta.put(sql_syntax_db2,
+                   HsqlProperties.getMeta(sql_syntax_db2, SQL_PROPERTY,
                                           false));
         dbMeta.put(sql_syntax_mss,
                    HsqlProperties.getMeta(sql_syntax_mss, SQL_PROPERTY,
                                           false));
         dbMeta.put(sql_syntax_mys,
                    HsqlProperties.getMeta(sql_syntax_mys, SQL_PROPERTY,
+                                          false));
+        dbMeta.put(sql_syntax_ora,
+                   HsqlProperties.getMeta(sql_syntax_ora, SQL_PROPERTY,
                                           false));
         dbMeta.put(sql_syntax_pgs,
                    HsqlProperties.getMeta(sql_syntax_pgs, SQL_PROPERTY,

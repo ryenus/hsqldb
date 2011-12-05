@@ -1614,6 +1614,12 @@ public class ParserDQL extends ParserBase {
             sortAndSlice.setStrictLimit();
         }
 
+        if (sortAndSlice.hasOrder() && token.tokenType == Tokens.USING) {
+            read();
+            readThis(Tokens.INDEX);
+            sortAndSlice.setUsingIndex();
+        }
+
         if (e1 == null) {
             e1 = new ExpressionValue(ValuePool.INTEGER_0, Type.SQL_INTEGER);
         }
@@ -1655,14 +1661,19 @@ public class ParserDQL extends ParserBase {
                 read();
             }
 
+            if (!database.sqlNullsFirst) {
+                o.setNullsLast(true);
+            }
+
             if (token.tokenType == Tokens.NULLS) {
                 read();
 
                 if (token.tokenType == Tokens.FIRST) {
                     read();
+                    o.setNullsLast(false);
                 } else if (token.tokenType == Tokens.LAST) {
                     read();
-                    o.setNullsLast();
+                    o.setNullsLast(true);
                 } else {
                     throw unexpectedToken();
                 }

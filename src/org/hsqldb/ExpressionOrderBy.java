@@ -73,8 +73,8 @@ public class ExpressionOrderBy extends Expression {
     /**
      * Set an ORDER BY column NULL ordering
      */
-    void setNullsLast() {
-        isNullsLast = true;
+    void setNullsLast(boolean value) {
+        isNullsLast = value;
     }
 
     /**

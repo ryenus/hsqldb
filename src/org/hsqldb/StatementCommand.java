@@ -663,6 +663,9 @@ public class StatementCommand extends Statement {
                            == HsqlDatabaseProperties.sql_concat_nulls) {
                     session.database.setConcatNulls(mode);
                 } else if (property
+                           == HsqlDatabaseProperties.sql_nulls_first) {
+                    session.database.setNullsFirst(mode);
+                } else if (property
                            == HsqlDatabaseProperties.sql_unique_nulls) {
                     session.database.setUniqueNulls(mode);
                 } else if (property
@@ -675,12 +678,14 @@ public class StatementCommand extends Statement {
                 } else if (property
                            == HsqlDatabaseProperties.sql_longvar_is_lob) {
                     session.database.setLongVarIsLob(mode);
-                } else if (property == HsqlDatabaseProperties.sql_syntax_ora) {
-                    session.database.setSyntaxOra(mode);
+                } else if (property == HsqlDatabaseProperties.sql_syntax_db2) {
+                    session.database.setSyntaxDb2(mode);
                 } else if (property == HsqlDatabaseProperties.sql_syntax_mss) {
                     session.database.setSyntaxMss(mode);
                 } else if (property == HsqlDatabaseProperties.sql_syntax_mys) {
                     session.database.setSyntaxMys(mode);
+                } else if (property == HsqlDatabaseProperties.sql_syntax_ora) {
+                    session.database.setSyntaxOra(mode);
                 } else if (property == HsqlDatabaseProperties.sql_syntax_pgs) {
                     session.database.setSyntaxPgs(mode);
                 }

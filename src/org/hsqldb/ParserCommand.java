@@ -1126,6 +1126,14 @@ public class ParserCommand extends ParserDDL {
                         property = HsqlDatabaseProperties.sql_concat_nulls;
                         break;
 
+                    case Tokens.NULLS :
+                        read();
+                        readThis(Tokens.FIRST);
+
+                        flag     = processTrueOrFalseObject();
+                        property = HsqlDatabaseProperties.sql_nulls_first;
+                        break;
+
                     case Tokens.UNIQUE :
                         read();
                         readThis(Tokens.NULLS);
@@ -1170,10 +1178,10 @@ public class ParserCommand extends ParserDDL {
                     case Tokens.SYNTAX :
                         read();
 
-                        if (token.tokenString.equals(Tokens.T_ORA)) {
+                        if (token.tokenString.equals(Tokens.T_DB2)) {
                             read();
 
-                            property = HsqlDatabaseProperties.sql_syntax_ora;
+                            property = HsqlDatabaseProperties.sql_syntax_db2;
                         } else if (token.tokenString.equals(Tokens.T_MSS)) {
                             read();
 
@@ -1182,6 +1190,10 @@ public class ParserCommand extends ParserDDL {
                             read();
 
                             property = HsqlDatabaseProperties.sql_syntax_mys;
+                        } else if (token.tokenString.equals(Tokens.T_ORA)) {
+                            read();
+
+                            property = HsqlDatabaseProperties.sql_syntax_ora;
                         } else if (token.tokenString.equals(Tokens.T_PGS)) {
                             read();
 
@@ -1219,6 +1231,7 @@ public class ParserCommand extends ParserDDL {
 
                 if (readIfThis(Tokens.ROLLBACK)) {
                     readThis(Tokens.ON);
+
                     if (!readIfThis(Tokens.DEADLOCK)) {
                         readThis(Tokens.CONFLICT);
                     }

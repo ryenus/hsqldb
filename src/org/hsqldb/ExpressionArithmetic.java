@@ -437,8 +437,8 @@ public class ExpressionArithmetic extends Expression {
                     throw Error.error(ErrorCode.X_42562);
                 }
             } else {
-                Type type =
-                    nodes[LEFT].dataType.getCombinedType(session, nodes[RIGHT].dataType, opType);
+                Type type = nodes[LEFT].dataType.getCombinedType(session,
+                    nodes[RIGHT].dataType, opType);
 
                 if (type == null) {
                     throw Error.error(ErrorCode.X_42562);
@@ -459,8 +459,8 @@ public class ExpressionArithmetic extends Expression {
                 }
             }
         } else {
-            dataType =
-                nodes[LEFT].dataType.getCombinedType(session, nodes[RIGHT].dataType, opType);
+            dataType = nodes[LEFT].dataType.getCombinedType(session,
+                    nodes[RIGHT].dataType, opType);
 
             if (dataType.isDateTimeType()) {
                 if (nodes[LEFT].dataType.isIntervalType()) {
@@ -560,7 +560,8 @@ public class ExpressionArithmetic extends Expression {
                     newType);
         }
 
-        dataType = nodes[LEFT].dataType.getCombinedType(session, nodes[RIGHT].dataType, OpTypes.CONCAT);
+        dataType = nodes[LEFT].dataType.getCombinedType(session,
+                nodes[RIGHT].dataType, OpTypes.CONCAT);
 
         if (nodes[LEFT].opType == OpTypes.VALUE
                 && nodes[RIGHT].opType == OpTypes.VALUE) {

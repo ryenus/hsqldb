@@ -473,7 +473,7 @@ public class Tokens {
     static final String        T_EXCLUDING            = "EXCLUDING";
     static final String        T_EXIT                 = "EXIT";
     static final String        T_FINAL                = "FINAL";
-    static final String        T_FIRST                = "FIRST";
+    public static final String T_FIRST                = "FIRST";
     static final String        T_FOLLOWING            = "FOLLOWING";
     static final String        T_FORTRAN              = "FORTRAN";
     static final String        T_FOUND                = "FOUND";
@@ -655,6 +655,7 @@ public class Tokens {
     static final String        T_CURTIME              = "CURTIME";
     public static final String T_DATABASE             = "DATABASE";
     public static final String T_DATETIME             = "DATETIME";
+    public static final String T_DB2                  = "DB2";
     public static final String T_DEADLOCK             = "DEADLOCK";
     public static final String T_DEFRAG               = "DEFRAG";
     public static final String T_DELAY                = "DELAY";

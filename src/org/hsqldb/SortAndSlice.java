@@ -62,9 +62,12 @@ public final class SortAndSlice {
     boolean            hasNullsLast;
     boolean            strictLimit;
     boolean            zeroLimit;
+    boolean            usingIndex;
+    boolean            allDescending;
     public boolean     skipSort       = false;    // true when result can be used as is
     public boolean     skipFullResult = false;    // true when result can be sliced as is
     public Index   index;
+    public Table   primaryTable;
     public Index   primaryTableIndex;
     public int[]   colIndexes;
     public boolean isGenerated;
@@ -101,6 +104,10 @@ public final class SortAndSlice {
 
     public void setZeroLimit() {
         zeroLimit = true;
+    }
+
+    public void setUsingIndex() {
+        usingIndex = true;
     }
 
     public void prepareSingleColumn(int colIndex) {
@@ -224,21 +231,19 @@ public final class SortAndSlice {
             colIndexes[i] = e.columnIndex;
         }
 
-        int     count         = ArrayUtil.countTrueElements(sortDescending);
-        boolean allDescending = count == columnCount;
+        int count = ArrayUtil.countTrueElements(sortDescending);
+
+        allDescending = count == columnCount;
 
         if (!allDescending && count > 0) {
             return;
         }
 
-        Table table = select.rangeVariables[0].getTable();
-
-        primaryTableIndex = table.getFullIndexForColumns(colIndexes);
+        primaryTable      = select.rangeVariables[0].getTable();
+        primaryTableIndex = primaryTable.getFullIndexForColumns(colIndexes);
     }
 
     void setSortRange(QuerySpecification select) {
-
-        setSortIndex(select);
 
         if (primaryTableIndex == null) {
             return;
@@ -252,41 +257,27 @@ public final class SortAndSlice {
             return;
         }
 
-        int[] sortColIndexes = colIndexes;
-
-        colIndexes = rangeIndex.getColumns();
-
-        int     count         = ArrayUtil.countTrueElements(sortDescending);
-        boolean allDescending = count == columnCount;
-
-        if (!allDescending && count > 0) {
+        if (primaryTable != select.rangeVariables[0].rangeTable) {
             return;
         }
 
-        if (colIndexes.length > 0) {
-            if (ArrayUtil.haveEqualArrays(sortColIndexes, colIndexes,
-                                          sortColIndexes.length)) {
-                if (allDescending) {
-                    boolean reversed = select.rangeVariables[0].reverseOrder();
+        if (rangeIndex == primaryTableIndex) {
+            if (allDescending) {
+                boolean reversed = select.rangeVariables[0].reverseOrder();
 
-                    if (!reversed) {
-                        return;
-                    }
+                if (!reversed) {
+                    return;
                 }
+            }
 
+            skipSort       = true;
+            skipFullResult = true;
+        } else if (!select.rangeVariables[0].joinConditions[0]
+                .hasIndexCondition()) {
+            if (select.rangeVariables[0].setSortIndex(primaryTableIndex,
+                    allDescending)) {
                 skipSort       = true;
                 skipFullResult = true;
-            }
-        } else {
-            Table table = select.rangeVariables[0].getTable();
-            Index index = table.getFullIndexForColumns(colIndexes);
-
-            if (index != null) {
-                if (select.rangeVariables[0].setSortIndex(index,
-                        allDescending)) {
-                    skipSort       = true;
-                    skipFullResult = true;
-                }
             }
         }
     }

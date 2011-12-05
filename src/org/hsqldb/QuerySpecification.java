@@ -361,6 +361,7 @@ public class QuerySpecification extends QueryExpression {
             mergeQuery();
         }
 
+        sortAndSlice.setSortIndex(this);
         setRangeVariableConditions(session);
         setDistinctConditions(session);
         setAggregateConditions(session);
