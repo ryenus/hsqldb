@@ -506,6 +506,8 @@ public class Logger {
             HsqlDatabaseProperties.jdbc_translate_tti_types);
         database.sqlConcatNulls = database.databaseProperties.isPropertyTrue(
             HsqlDatabaseProperties.sql_concat_nulls);
+        database.sqlNullsFirst = database.databaseProperties.isPropertyTrue(
+            HsqlDatabaseProperties.sql_nulls_first);
         database.sqlUniqueNulls = database.databaseProperties.isPropertyTrue(
             HsqlDatabaseProperties.sql_unique_nulls);
         database.sqlConvertTruncate =
@@ -517,6 +519,8 @@ public class Logger {
             HsqlDatabaseProperties.sql_double_nan);
         database.sqlLongvarIsLob = database.databaseProperties.isPropertyTrue(
             HsqlDatabaseProperties.sql_longvar_is_lob);
+        database.sqlSyntaxDb2 = database.databaseProperties.isPropertyTrue(
+            HsqlDatabaseProperties.sql_syntax_db2);
         database.sqlSyntaxMss = database.databaseProperties.isPropertyTrue(
             HsqlDatabaseProperties.sql_syntax_mss);
         database.sqlSyntaxMys = database.databaseProperties.isPropertyTrue(
@@ -1607,6 +1611,13 @@ public class Logger {
         list.add(sb.toString());
         sb.setLength(0);
         sb.append("SET DATABASE ").append(Tokens.T_SQL).append(' ');
+        sb.append(Tokens.T_NULLS).append(' ');
+        sb.append(Tokens.T_FIRST).append(' ');
+        sb.append(database.sqlUniqueNulls ? Tokens.T_TRUE
+                                          : Tokens.T_FALSE);
+        list.add(sb.toString());
+        sb.setLength(0);
+        sb.append("SET DATABASE ").append(Tokens.T_SQL).append(' ');
         sb.append(Tokens.T_UNIQUE).append(' ');
         sb.append(Tokens.T_NULLS).append(' ');
         sb.append(database.sqlUniqueNulls ? Tokens.T_TRUE
@@ -1642,6 +1653,16 @@ public class Logger {
         list.add(sb.toString());
         sb.setLength(0);
 
+        if (database.sqlSyntaxDb2) {
+            sb.append("SET DATABASE ").append(Tokens.T_SQL).append(' ');
+            sb.append(Tokens.T_SYNTAX).append(' ');
+            sb.append(Tokens.T_DB2).append(' ');
+            sb.append(database.sqlSyntaxOra ? Tokens.T_TRUE
+                                            : Tokens.T_FALSE);
+            list.add(sb.toString());
+            sb.setLength(0);
+        }
+
         if (database.sqlSyntaxMss) {
             sb.append("SET DATABASE ").append(Tokens.T_SQL).append(' ');
             sb.append(Tokens.T_SYNTAX).append(' ');
@@ -1652,21 +1673,21 @@ public class Logger {
             sb.setLength(0);
         }
 
-        if (database.sqlSyntaxOra) {
-            sb.append("SET DATABASE ").append(Tokens.T_SQL).append(' ');
-            sb.append(Tokens.T_SYNTAX).append(' ');
-            sb.append(Tokens.T_ORA).append(' ');
-            sb.append(database.sqlSyntaxOra ? Tokens.T_TRUE
-                                            : Tokens.T_FALSE);
-            list.add(sb.toString());
-            sb.setLength(0);
-        }
-
         if (database.sqlSyntaxMys) {
             sb.append("SET DATABASE ").append(Tokens.T_SQL).append(' ');
             sb.append(Tokens.T_SYNTAX).append(' ');
             sb.append(Tokens.T_MYS).append(' ');
             sb.append(database.sqlSyntaxMys ? Tokens.T_TRUE
+                                            : Tokens.T_FALSE);
+            list.add(sb.toString());
+            sb.setLength(0);
+        }
+
+        if (database.sqlSyntaxOra) {
+            sb.append("SET DATABASE ").append(Tokens.T_SQL).append(' ');
+            sb.append(Tokens.T_SYNTAX).append(' ');
+            sb.append(Tokens.T_ORA).append(' ');
+            sb.append(database.sqlSyntaxOra ? Tokens.T_TRUE
                                             : Tokens.T_FALSE);
             list.add(sb.toString());
             sb.setLength(0);

@@ -59,6 +59,7 @@ public class RangeVariableResolver {
     Expression      conditions;
     OrderedHashSet  rangeVarSet = new OrderedHashSet();
     CompileContext  compileContext;
+    SortAndSlice    sortAndSlice = SortAndSlice.noSort;
 
     //
     HsqlArrayList[] tempJoinExpressions;
@@ -88,6 +89,7 @@ public class RangeVariableResolver {
         this.rangeVariables = select.rangeVariables;
         this.conditions     = select.queryCondition;
         this.compileContext = select.compileContext;
+        this.sortAndSlice   = select.sortAndSlice;
 
 //        this.expandInExpression = select.checkQueryCondition == null;
         initialise();
@@ -167,12 +169,15 @@ public class RangeVariableResolver {
 
         conditions = null;
 
-        for (int i = 0; i < rangeVariables.length; i++) {
-            rangeVarSet.add(rangeVariables[i]);
-        }
+        if (!sortAndSlice.usingIndex
+                || sortAndSlice.primaryTableIndex == null) {
+            for (int i = 0; i < rangeVariables.length; i++) {
+                rangeVarSet.add(rangeVariables[i]);
+            }
 
-        reorder();
-        rangeVarSet.clear();
+            reorder();
+            rangeVarSet.clear();
+        }
 
         for (int i = 0; i < rangeVariables.length; i++) {
             rangeVarSet.add(rangeVariables[i]);
@@ -658,7 +663,7 @@ public class RangeVariableResolver {
 
                 conditions = rangeVariables[i].joinConditions[0];
 
-                if (conditions.hasIndexCondition()) {
+                if (conditions.hasIndex()) {
                     hasIndex = true;
                 }
 
@@ -870,15 +875,19 @@ public class RangeVariableResolver {
             }
         }
 
-        setEqaulityConditions(conditions, exprList);
+        setEqualityConditions(conditions, exprList, rangeVarIndex);
 
-        hasIndex = conditions.hasIndexCondition();
+        hasIndex = conditions.hasIndex();
 
         if (!hasIndex) {
-            setNonEqualityConditions(conditions, exprList);
+            setNonEqualityConditions(conditions, exprList, rangeVarIndex);
         }
 
-        hasIndex = conditions.hasIndexCondition();
+        if (rangeVarIndex == 0 && sortAndSlice.usingIndex) {
+            hasIndex = true;
+        } else {
+            hasIndex = conditions.hasIndex();
+        }
 
         // no index found
         boolean isOR = false;
@@ -1001,7 +1010,7 @@ public class RangeVariableResolver {
 
             conditionsArray[i] = c;
 
-            if (!c.hasIndexCondition()) {
+            if (!c.hasIndex()) {
 
                 // deep OR
                 return false;
@@ -1058,11 +1067,24 @@ public class RangeVariableResolver {
         return true;
     }
 
-    private void setEqaulityConditions(RangeVariableConditions conditions,
-                                       HsqlArrayList exprList) {
+    private void setEqualityConditions(RangeVariableConditions conditions,
+                                       HsqlArrayList exprList,
+                                       int rangeVarIndex) {
 
-        Index idx = conditions.rangeVar.rangeTable.getIndexForColumns(session,
-            colIndexSetEqual, false);
+        Index idx = null;
+
+        if (rangeVarIndex == 0 && sortAndSlice.usingIndex) {
+            idx = sortAndSlice.primaryTableIndex;
+
+            if (idx != null) {
+                conditions.rangeIndex = idx;
+            }
+        }
+
+        if (idx == null) {
+            idx = conditions.rangeVar.rangeTable.getIndexForColumns(session,
+                    colIndexSetEqual, false);
+        }
 
         if (idx == null) {
             return;
@@ -1126,11 +1148,14 @@ public class RangeVariableResolver {
             }
         }
 
-        conditions.addIndexCondition(firstRowExpressions, idx, colCount);
+        if (colCount > 0) {
+            conditions.addIndexCondition(firstRowExpressions, idx, colCount);
+        }
     }
 
     private void setNonEqualityConditions(RangeVariableConditions conditions,
-                                          HsqlArrayList exprList) {
+                                          HsqlArrayList exprList,
+                                          int rangeVarIndex) {
 
         if (colIndexSetOther.isEmpty()) {
             return;
@@ -1149,8 +1174,16 @@ public class RangeVariableResolver {
             }
         }
 
-        Index idx = conditions.rangeVar.rangeTable.getIndexForColumn(session,
-            currentIndex);
+        Index idx = null;
+
+        if (rangeVarIndex == 0 && sortAndSlice.usingIndex) {
+            idx = sortAndSlice.primaryTableIndex;
+        }
+
+        if (idx == null) {
+            idx = conditions.rangeVar.rangeTable.getIndexForColumn(session,
+                    currentIndex);
+        }
 
         if (idx == null) {
             it = colIndexSetOther.keySet().iterator();

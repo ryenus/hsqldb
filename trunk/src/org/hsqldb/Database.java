@@ -104,10 +104,12 @@ public class Database {
     public boolean                sqlTranslateTTI        = true;
     public boolean                sqlConcatNulls         = true;
     public boolean                sqlUniqueNulls         = true;
+    public boolean                sqlNullsFirst          = true;
     public boolean                sqlConvertTruncate     = true;
     public int                    sqlAvgScale            = 0;
     public boolean                sqlDoubleNaN           = true;
     public boolean                sqlLongvarIsLob        = false;
+    public boolean                sqlSyntaxDb2           = false;
     public boolean                sqlSyntaxMss           = false;
     public boolean                sqlSyntaxMys           = false;
     public boolean                sqlSyntaxOra           = false;
@@ -463,6 +465,10 @@ public class Database {
         sqlTranslateTTI = mode;
     }
 
+    public void setNullsFirst(boolean mode) {
+        sqlNullsFirst = mode;
+    }
+
     public void setConcatNulls(boolean mode) {
         sqlConcatNulls = mode;
     }
@@ -487,16 +493,20 @@ public class Database {
         sqlLongvarIsLob = mode;
     }
 
+    public void setSyntaxDb2(boolean mode) {
+        sqlSyntaxDb2 = mode;
+    }
+
     public void setSyntaxMss(boolean mode) {
         sqlSyntaxMss = mode;
     }
 
-    public void setSyntaxOra(boolean mode) {
-        sqlSyntaxOra = mode;
-    }
-
     public void setSyntaxMys(boolean mode) {
         sqlSyntaxMys = mode;
+    }
+
+    public void setSyntaxOra(boolean mode) {
+        sqlSyntaxOra = mode;
     }
 
     public void setSyntaxPgs(boolean mode) {

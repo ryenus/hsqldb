@@ -1470,6 +1470,7 @@ public class RangeVariable implements Cloneable {
         int                 opTypeEnd;
         boolean             isFalse;
         boolean             reversed;
+        boolean             hasIndex;
 
         RangeVariableConditions(RangeVariable rangeVar, boolean isJoin) {
             this.rangeVar = rangeVar;
@@ -1485,6 +1486,10 @@ public class RangeVariable implements Cloneable {
 
         boolean hasIndexCondition() {
             return indexedColumnCount > 0;
+        }
+
+        boolean hasIndex() {
+            return hasIndex;
         }
 
         void addCondition(Expression e) {
@@ -1578,7 +1583,7 @@ public class RangeVariable implements Cloneable {
             }
         }
 
-        boolean addToIndexConditions(Expression e) {
+        private boolean addToIndexConditions(Expression e) {
 
             if (opType == OpTypes.EQUAL || opType == OpTypes.IS_NULL) {
                 if (indexedColumnCount < rangeIndex.getColumnCount()) {
@@ -1600,7 +1605,7 @@ public class RangeVariable implements Cloneable {
             return false;
         }
 
-        boolean addToIndexEndConditions(Expression e) {
+        private boolean addToIndexEndConditions(Expression e) {
 
             if (opType == OpTypes.EQUAL || opType == OpTypes.IS_NULL) {
                 if (indexedColumnCount < rangeIndex.getColumnCount()) {
@@ -1711,6 +1716,7 @@ public class RangeVariable implements Cloneable {
             }
 
             indexedColumnCount = colCount;
+            hasIndex           = true;
         }
 
         void reverseIndexCondition() {
