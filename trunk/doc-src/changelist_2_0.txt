@@ -1,5 +1,8 @@
-29 Sep 2011
--- extended the scope of the property hsqldb.avg_scale to the results of division
+05 December 2011
+-- fixed issue with NPE thrown with nio data files
+-- added SET DATABASE SQL NULLS FIRST and the property sql.nulls_first for the default sort order of nulls
+-- added SET DATABASE SQL SYNTAX DB2 and the property sql.syntax for DB2 syntax compatibility
+-- extended SET DATABASE SQL AVG SCALE and the property sql.avg_scale to the results of division
 19 November 2011 - version 2.2.6
 -- fixed issue with memory use of large strings in cache
 -- fixed issue with FOR loops with ORDER BY in routines
@@ -11,7 +14,7 @@
 -- fixed issues with MVCC transactions
 -- fixed issue with some row comparison predicates
 -- added code branch supporting huge multi terabyte databases with tens of billions of rows
--- added property hsqldb.avg_scale for decimal results from AVG and MEDIAN aggregates
+-- added property sql.avg_scale for decimal results from AVG and MEDIAN aggregates
 -- added support for AVG with datetime types
 -- added two-arg REPLACE function
 -- added new datetime and bit functions 

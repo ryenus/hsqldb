@@ -1097,6 +1097,82 @@
       </table>
 
       <table frame="all" pgwide="1" tocentry="1">
+        <title>Sort order of NULL values</title>
+
+        <tgroup align="left" cols="3">
+          <colspec colname="c1" colwidth="6.5cm" />
+
+          <colspec colname="c2" colwidth="1.5cm" />
+
+          <colspec colname="c3" />
+
+          <thead>
+            <row>
+              <entry>Name</entry>
+
+              <entry>Default</entry>
+
+              <entry>Description</entry>
+            </row>
+          </thead>
+
+          <tbody valign="top">
+            <row>
+              <entry><property>sql.nulls_first</property></entry>
+
+              <entry><literal>true</literal></entry>
+
+              <entry>behaviour expressions returning of DOUBLE NaN</entry>
+            </row>
+
+            <row>
+              <entry nameend="c3" namest="c1"><para>This property, when set
+              false, causes nulls to appear by default after not-null values
+              in result sets with ORDER BY</para><para><programlisting>SET DATABASE SQL NULLS FIRST { TRUE | FALSE }</programlisting></para></entry>
+            </row>
+          </tbody>
+        </tgroup>
+      </table>
+
+      <table frame="all" pgwide="1" tocentry="1">
+        <title>DB2 Style Syntax</title>
+
+        <tgroup align="left" cols="3">
+          <colspec colname="c1" colwidth="6.5cm" />
+
+          <colspec colname="c2" colwidth="1.5cm" />
+
+          <colspec colname="c3" />
+
+          <thead>
+            <row>
+              <entry>Name</entry>
+
+              <entry>Default</entry>
+
+              <entry>Description</entry>
+            </row>
+          </thead>
+
+          <tbody valign="top">
+            <row>
+              <entry><property>sql.syntax_db2</property></entry>
+
+              <entry><literal>false</literal></entry>
+
+              <entry>support for DB2 style syntax</entry>
+            </row>
+
+            <row>
+              <entry nameend="c3" namest="c1"><para>This property, when set
+              true, allows compatibility with some aspects of this dialect.
+              <programlisting>SET DATABASE SQL SYNTAX DB2 { TRUE | FALSE }</programlisting></para></entry>
+            </row>
+          </tbody>
+        </tgroup>
+      </table>
+
+      <table frame="all" pgwide="1" tocentry="1">
         <title>MSSQL Style Syntax</title>
 
         <tgroup align="left" cols="3">

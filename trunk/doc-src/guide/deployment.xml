@@ -1550,6 +1550,18 @@
 
       <itemizedlist>
         <listitem>
+          <para>Use <literal>&lt;set database sql syntax MYS
+          statement&gt;</literal> to enable support for AUTO_INCREMENT and
+          TEXT data types. These type definitions are translated into HSQLDB
+          equivalents.</para>
+        </listitem>
+
+        <listitem>
+          <para>Use MVCC with <literal>&lt;set database transaction control
+          statement&gt;</literal> if your application is multi-user.</para>
+        </listitem>
+
+        <listitem>
           <para>Avoid storing invalid values, for example invalid dates such
           as '0000-00-00' or '2001-00-00' which are rejected by
           HyperSQL.</para>
@@ -1558,11 +1570,6 @@
         <listitem>
           <para>Avoid the MySQL feature that trims spaces at the end of CHAR
           values.</para>
-        </listitem>
-
-        <listitem>
-          <para>Use MVCC with <literal>&lt;set database transaction control
-          statement&gt;</literal> if your application is multi-user.</para>
         </listitem>
 
         <listitem>
@@ -1604,13 +1611,6 @@
           FLOAT, DECIMAL, NUMERIC, VARCHAR, CHAR, BINARY, VARBINARY, BLOB,
           DATE, TIMESTAMP (all Standard SQL) and TINYINT, DATETIME (non
           Standard).</para>
-        </listitem>
-
-        <listitem>
-          <para>Use <literal>&lt;set database sql syntax MYS
-          statement&gt;</literal> to enable support for AUTO_INCREMENT and
-          TEXT data types. These type definitions are translated into HSQLDB
-          equivalents.</para>
         </listitem>
 
         <listitem>
@@ -1665,6 +1665,12 @@
 
       <itemizedlist>
         <listitem>
+          <para>Use <literal>&lt;set database sql syntax ORA
+          statement&gt;</literal> to enable support for some non-standard
+          syntax of Oracle.</para>
+        </listitem>
+
+        <listitem>
           <para>Use MVCC with <literal>&lt;set database transaction control
           statement&gt;</literal> if your application is multi-user.</para>
         </listitem>
@@ -1694,12 +1700,6 @@
           <para>Many Oracle functions are supported, including no-arg
           functions such as SYSDATE and SYSTIMESTAMP and more complex ones
           such as TO_DATE and TO_CHAR.</para>
-        </listitem>
-
-        <listitem>
-          <para>Use <literal>&lt;set database sql syntax ORA
-          statement&gt;</literal> to enable support for some non-standard
-          syntax of Oracle.</para>
         </listitem>
 
         <listitem>
@@ -1740,6 +1740,12 @@
 
       <itemizedlist>
         <listitem>
+          <para>Use <literal>&lt;set database sql syntax DB2
+          statement&gt;</literal> to enable support for some non-standard
+          syntax of DB2.</para>
+        </listitem>
+
+        <listitem>
           <para>Use MVCC with <literal>&lt;set database transaction control
           statement&gt;</literal> if your application is multi-user.</para>
         </listitem>
@@ -1751,8 +1757,17 @@
         </listitem>
 
         <listitem>
-          <para>Those functions or system tables such as DUAL that are in
-          system schemas, can be easily simulated.</para>
+          <para>The DB2 binary type definition FOR BIT DATA is supported, as
+          well as empty definition of column default values.</para>
+        </listitem>
+
+        <listitem>
+          <para>Many DB2 functions are supported.</para>
+        </listitem>
+
+        <listitem>
+          <para>The DUAL table and the expressions, ROWNUM, CURRVAL, NEXTVAL
+          are supported.</para>
         </listitem>
 
         <listitem>
@@ -1770,6 +1785,13 @@
 
       <itemizedlist>
         <listitem>
+          <para>Use <literal>&lt;set database sql syntax MSS
+          statement&gt;</literal> to enable support for the
+          <literal>CONVERT(&lt;type definition&gt;, &lt;expression)</literal>
+          function with switched order of arguments</para>
+        </listitem>
+
+        <listitem>
           <para>Use MVCC with <literal>&lt;set database transaction control
           statement&gt;</literal> if your application is multi-user.</para>
         </listitem>
@@ -1783,13 +1805,6 @@
         <listitem>
           <para>HyperSQL supports + for string concatenation. It also supports
           many functions supported by these dialects.</para>
-        </listitem>
-
-        <listitem>
-          <para>Use <literal>&lt;set database sql syntax MSS
-          statement&gt;</literal> to enable support for the
-          <literal>CONVERT(&lt;type definition&gt;, &lt;expression)</literal>
-          function with switched order of arguments</para>
         </listitem>
 
         <listitem>
@@ -2740,15 +2755,16 @@
       <simpara><literal>&lt;set database sql avg scale&gt; ::= SET DATABASE
       SQL AVG SCALE &lt;numeric value&gt;</literal></simpara>
 
-      <simpara>When the property is not zero, the result of division and the
-      AVG and MEDIAN aggregate functions always has the same type as the
-      aggregated value. Otherwise, the specified scale is used for the result.
-      For example, the average of 5 and 10 is 7 by default, but 7.50 if the
-      scale is specified as 2. The result of 7/3 is 3 by default but 2.33 if
-      the scale is specified as 2.</simpara>
+      <simpara>By default, the result of division and the AVG and MEDIAN
+      aggregate functions has the same type as the aggregated type of the
+      values. This includes the scale. The scaled specified with this property
+      is used if it is larger than the scale of the operation. For example,
+      the average of 5 and 10 is 7 by default, but 7.50 if the scale is
+      specified as 2. The result of 7/3 is 2 by default but 2.33 if the scale
+      is specified as 2.</simpara>
 
-      <simpara>Standard SQL considers this behaviour implementation
-      dependent.</simpara>
+      <simpara>Standard SQL considers this behaviour implementation dependent.
+      Some databases use a default scale larger than zero.</simpara>
 
       <simpara>The property is <literal>0</literal> by default.</simpara>
 
@@ -2785,6 +2801,60 @@
 
       <simpara>This is equivalent to the connection property
       <literal>sql.double_nan</literal>.</simpara>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>SET DATABASE SQL NULLS FIRST</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">SET DATABASE SQL NULLS
+      FIRST</emphasis></simpara>
+
+      <simpara><emphasis>set database sql nulls first</emphasis></simpara>
+
+      <simpara><literal>&lt;set database sql nulls first&gt; ::= SET DATABASE
+      SQL NULLS FIRST { TRUE | FALSE }</literal></simpara>
+
+      <simpara>When the property is <literal>TRUE</literal>, nulls appear
+      before values in result sets with ORDER BY. When set FALSE, nulls appear
+      after the values. Some databases, including PostgreSQL, Oracle and MS
+      SQL Server, return nulls after the values.</simpara>
+
+      <simpara>The property is <literal>TRUE</literal> by default.</simpara>
+
+      <simpara>Only a user with the DBA role can execute this
+      statement.</simpara>
+
+      <simpara>This is equivalent to the connection property
+      <literal>sql.nulls_first</literal>.</simpara>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>SET DATABASE SQL SYNTAX DB2</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">SET DATABASE SQL SYNTAX
+      DB2</emphasis></simpara>
+
+      <simpara><emphasis>set database sql syntax DB2</emphasis></simpara>
+
+      <simpara><literal>&lt;set database sql syntax DB2 statement&gt; ::= SET
+      DATABASE SQL SYNTAX DB2 { TRUE | FALSE }</literal></simpara>
+
+      <simpara>This property, when set TRUE, enables support for some elements
+      of DB2 syntax. Single-row SELECT statements (<literal>SELECT
+      &lt;expression list&gt;</literal> without the FROM clause) are supported
+      and treated as the SQL Standard equivalent, <literal>VALUES
+      &lt;expression list&gt;</literal>. The DUAL table is supported, as well
+      as the ROWNUM psuedo-column. BINARY type definitions such as VARCHAR(L)
+      FOR BIT DATA are supported. Empty DEFAULT clauses in column definitions
+      are supported.</simpara>
+
+      <simpara>The property is <literal>FALSE</literal> by default.</simpara>
+
+      <simpara>Only a user with the DBA role can execute this
+      statement.</simpara>
+
+      <simpara>This is equivalent to the connection property
+      <literal>sql.syntax_db2</literal>.</simpara>
 
       <indexterm significance="preferred" type="sql">
         <primary>SET DATABASE SQL SYNTAX MSS</primary>
