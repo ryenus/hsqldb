@@ -2474,6 +2474,14 @@ public class ParserDDL extends ParserRoutine {
 
             switch (token.tokenType) {
 
+                case Tokens.WITH : {
+                    if (database.sqlSyntaxDb2) {
+                        read();
+                    } else {
+                        throw unexpectedToken();
+                    }
+                }
+                // fall through
                 case Tokens.DEFAULT : {
                     read();
 
@@ -2730,6 +2738,7 @@ public class ParserDDL extends ParserRoutine {
 
                     set.add(token.tokenType);
                     read();
+
                     break;
                 }
                 case Tokens.MAXVALUE : {
