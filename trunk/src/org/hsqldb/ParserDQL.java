@@ -439,13 +439,38 @@ public class ParserDQL extends ParserBase {
 
                 break;
             }
+            case Types.SQL_CHAR :
+                if (database.sqlSyntaxDb2) {
+                    if (readIfThis(Tokens.FOR)) {
+                        readThis(Tokens.BIT);
+                        readThis(Tokens.DATA);
+
+                        typeNumber = Types.SQL_BINARY;
+
+                        break;
+                    }
+                }
             case Types.SQL_CLOB :
             case Types.VARCHAR_IGNORECASE :
-            case Types.SQL_CHAR :
                 isCharacter = true;
                 break;
 
             case Types.SQL_VARCHAR :
+                if (database.sqlSyntaxDb2) {
+                    if (readIfThis(Tokens.FOR)) {
+                        readThis(Tokens.BIT);
+                        readThis(Tokens.DATA);
+
+                        typeNumber = Types.SQL_VARBINARY;
+
+                        if (!hasLength) {
+                            length = 32 * 1024;
+                        }
+
+                        break;
+                    }
+                }
+
                 isCharacter = true;
 
                 if (!hasLength) {
@@ -2554,7 +2579,7 @@ public class ParserDQL extends ParserBase {
 
                         break;
                     }
-                } else if (!database.sqlSyntaxOra) {
+                } else if (!database.sqlSyntaxOra && !database.sqlSyntaxDb2) {
                     rewind(position);
 
                     break;
