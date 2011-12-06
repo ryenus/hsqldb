@@ -1764,8 +1764,8 @@ UPDATE t SET scores[2] = 123, names[2] = 'Reds' WHERE id = 10
 </programlisting>
       </informalexample>
 
-      <para>Each subquery is considered a separate SELECT statement and
-      uses indexes when they are available.</para>
+      <para>Each subquery is considered a separate SELECT statement and uses
+      indexes when they are available.</para>
 
       <para>In each SELECT statement, at least one index per table can be used
       if there is a query conditions that can use the index. When conditions
@@ -1832,20 +1832,36 @@ UPDATE t SET scores[2] = 123, names[2] = 'Reds' WHERE id = 10
 
       <para>If there is an equality or range condition (e.g. EQUALS, GREATER
       THAN) condition on the columns specified in the ORDER BY clause, the
-      index is still used. But if the query contains an equality condition on
-      another indexed column in the table, this may take precedence and no
-      index may be used for ORDER BY.</para>
+      index is still used.</para>
 
-      <para>In the two examples below, the index on TB.COL3 is used and only
+      <para>In the two examples below, the index on TA.COL3 is used and only
       up to 1000 rows are processed and returned.</para>
 
       <informalexample>
-        <programlisting>    (TB is a very large table with an index on TB.COL3
+        <programlisting>    (TA is a very large table with an index on TA.COL3
 
-    SELECT * FROM TB JOIN TA ON TA.COL1 = TB.COL2 WHERE TB.COL3 &gt; 40000 ORDER BY TB.COL3 LIMIT 1000;
-    SELECT * FROM TB JOIN TA ON TA.COL1 = TB.COL2 WHERE TB.COL3 &gt; 40000 AND TB.COL3 &lt; 100000 ORDER BY TB.COL3 DESC LIMIT 1000;
+    SELECT * FROM TA JOIN TB ON TA.COL2 = TB.COL1 WHERE TA.COL3 &gt; 40000 ORDER BY TA.COL3 LIMIT 1000;
+    SELECT * FROM TA JOIN TB ON TA.COL2 = TB.COL1 WHERE TA.COL3 &gt; 40000 AND TA.COL3 &lt; 100000 ORDER BY TA.COL3 DESC LIMIT 1000;
 </programlisting>
       </informalexample>
+
+      <para>But if the query contains an equality condition on another indexed
+      column in the table, this may take precedence and no index may be used
+      for ORDER BY. In this case USING INDEX can be added to the end of the
+      query to force the use of the index for the LIMIT operation. In the
+      example below there is an index on TA.COL1 as well as the index on
+      TA.COL3. Normally the index on TA.COL1 is used, but the USING INDEX hint
+      results in the index on TB.COL3 to be used for selecting the first 1000
+      rows.</para>
+
+      <informalexample>
+        <programlisting>    (TA is a very large table with an index on TA.COL3 and a separate index on TA.COL1
+
+    SELECT * FROM TA JOIN TB ON TA.COL2 = TB.COL1 WHERE TA.COL1 = 'SENT' AND TB.COL3 &gt; 40000 ORDER BY TB.COL3 LIMIT 1000 USING INDEX;
+</programlisting>
+      </informalexample>
+
+      <para> </para>
     </section>
   </section>
 </chapter>
