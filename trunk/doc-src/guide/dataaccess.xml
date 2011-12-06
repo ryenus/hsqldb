@@ -2146,28 +2146,6 @@ LASTNAME  C2
 Steel     Robert * Laura * John                   
 King      Robert * Julia * James * George         
 Sommer    Robert * Janet</programlisting>
-
-      <indexterm significance="preferred" type="sql">
-        <primary>sort specification list</primary>
-      </indexterm>
-
-      <simpara><emphasis role="bold">sort specification
-      list</emphasis></simpara>
-
-      <simpara><emphasis>sort specification list</emphasis></simpara>
-
-      <simpara><literal>&lt;sort specification list&gt; ::= &lt;value
-      expression&gt; [ASC | DESC] [NULLS FIRST | NULLS
-      LAST]</literal></simpara>
-
-      <simpara>Specify a sort order. A sort operation is performed on the
-      result of a <literal>&lt;query expression&gt;</literal> or
-      <literal>&lt;query specification&gt;</literal> and sorts the result
-      according to one or more <literal>&lt;value expression&gt;</literal>.
-      The <literal>&lt;value expression&gt;</literal> is usually a single
-      column of the result, but in some cases it can be a column of the
-      <literal>&lt;table expression&gt;</literal> that is not used in the
-      select list.</simpara>
     </section>
   </section>
 
@@ -3159,6 +3137,28 @@ GEN PAR    CHILD
       when it can use the same index for accessing the table data and
       ordering. Optimisation can happen both with DESC + NULLS LAST and ASC +
       NULLS FIRST.</para>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>sort specification list</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">sort specification
+      list</emphasis></simpara>
+
+      <simpara><emphasis>sort specification list</emphasis></simpara>
+
+      <simpara><literal>&lt;sort specification list&gt; ::= &lt;value
+      expression&gt; [ASC | DESC] [NULLS FIRST | NULLS
+      LAST]</literal></simpara>
+
+      <simpara>Specify a sort order. A sort operation is performed on the
+      result of a <literal>&lt;query expression&gt;</literal> or
+      <literal>&lt;query specification&gt;</literal> and sorts the result
+      according to one or more <literal>&lt;value expression&gt;</literal>.
+      The <literal>&lt;value expression&gt;</literal> is usually a single
+      column of the result, but in some cases it can be a column of the
+      <literal>&lt;table expression&gt;</literal> that is not used in the
+      select list. The default is ASC and NULLS FIRST.</simpara>
     </section>
 
     <section>
@@ -3173,13 +3173,14 @@ GEN PAR    CHILD
       are discarded.</para>
 
       <para><literal>&lt;result offset clause&gt; ::= OFFSET &lt;offset row
-      count&gt; { ROW | ROWS } </literal></para>
+      count&gt; { ROW | ROWS }</literal></para>
 
       <para><literal>&lt;fetch first clause&gt; ::= FETCH { FIRST | NEXT } [
-      &lt;fetch first row count&gt; ] { ROW | ROWS } ONLY</literal></para>
+      &lt;fetch first row count&gt; ] { ROW | ROWS } ONLY [ USING INDEX
+      ]</literal></para>
 
-      <para><literal>&lt;limit clause&gt; ::= LIMIT [ &lt;fetch first row
-      count&gt; ]</literal></para>
+      <para><literal>&lt;limit clause&gt; ::= LIMIT &lt;fetch first row
+      count&gt; [ USING INDEX ]</literal></para>
 
       <para>A slicing operation takes the result set that has been already
       processed and ordered. It then discards the specified number of rows
@@ -3191,6 +3192,19 @@ GEN PAR    CHILD
 
       <programlisting>SELECT a, b FROM atable WHERE d &lt; 5 ORDER BY absum OFFSET 3 FETCH 2 ROWS ONLY 
 SELECT a, b FROM atable WHERE d &lt; 5 ORDER BY absum OFFSET 3 LIMIT 2 /* alternative keyword */ </programlisting>
+
+      <para>When the FETCH keyword is used, the specified number of rows must
+      be at least 1, otherwise an error is returned. This behaviour is
+      consistent with the SQL Standard. When the LIMIT keyword is used, the
+      sepcified number of rows can be zero, which means return all rows (no
+      LIMIT). In MySQL and PostgreSQL syntax modes, zero limit means no rows
+      (empty result).</para>
+
+      <para>If there is an index on all the columns specified in the ORDER BY
+      clause, it is normally used for slicing. In some queries, an index on
+      another column may take precedence. It is possible to add USING INDEX to
+      the end of the slicing clause to force the use of the index for ordering
+      and slicing.</para>
     </section>
   </section>
 

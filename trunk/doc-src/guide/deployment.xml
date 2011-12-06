@@ -715,58 +715,86 @@
       method is the most reliable as well as the most accessible method of
       running databases.</para>
     </section>
+  </section>
+
+  <section>
+    <title>ACID, Persistence and Reliability</title>
+
+    <para>HyperSQL 2.0 uses the same persistence mechanism as version 1.8, but
+    with important enhancements. The code has proven reliable, as the last
+    critical issue was fixed 2 years before the release of version 2.0.</para>
+
+    <para>There are further enhancements in version 2.2</para>
+
+    <itemizedlist>
+      <listitem>
+        <para>More extensive locking mechanism has been added to code to
+        support multithreaded access.</para>
+      </listitem>
+
+      <listitem>
+        <para>Incremental backup (an internal mechanism for crash protection)
+        allows fast checkpoint and shutdown.</para>
+      </listitem>
+
+      <listitem>
+        <para>All files are synced at checkpoints and also just before
+        closing.</para>
+      </listitem>
+
+      <listitem>
+        <para>The data file is enlarged in block increments</para>
+      </listitem>
+
+      <listitem>
+        <para>The nio implementation has been improved</para>
+      </listitem>
+    </itemizedlist>
+
+    <para>Persistence relies on the JVM, the operating system, and the
+    computer hardware. A database system like HSQLDB can perform millions of
+    read and write operations in an hour. As system hardware and software can
+    go wrong, it is impossible to achieve zero failure rate. Therefore regular
+    backups are recommended. HyperSQL 2.2 has built-in database backup and
+    restore features, discussed elsewhere in this chapter.</para>
+
+    <para>A note regarding the nio implementation: This implementation applies
+    only to CACHED table data in the .data file. Other files are not accessed
+    via nio. There has been an issue with some JVM implementations of nio not
+    releasing the file buffers after they were closed. HyperSQL uses a
+    workaround which is recommended with Sun JVM's. This does not apply to
+    other JVM's. In such environments, it is therefore recommended to test the
+    CHECKPOINT DEFRAG operation and the shutting down and restarting the
+    database inside the same Java process extensively with nio. Use of nio can
+    be turned off if necessary.</para>
 
     <section>
-      <title>Persistence and Reliability</title>
+      <title>Atomicity, Consistency, Isolation, Durability</title>
 
-      <para>HyperSQL 2.0 uses the same persistence mechanism as version 1.8,
-      but with important enhancements. The code has proven reliable, as the
-      last critical issue was fixed 2 years before the release of version
-      2.0.</para>
+      <para>Atomicity means a transaction is either fails without changing the
+      data, or succeeds. HyperSQL ensures atomicity both during operations and
+      in the event of a system crash.</para>
 
-      <para>There are further enhancements in version 2.2</para>
+      <para>Consistency means all the implicit and explicit integrity
+      constraints are always enforced. HyperSQL always enforces the
+      constraints and at the same time does not allow unenforceable
+      constraints (illegal forms of CHECK constraints) to be created.</para>
 
-      <itemizedlist>
-        <listitem>
-          <para>More extensive locking mechanism has been added to code to
-          support multithreaded access.</para>
-        </listitem>
+      <para>Isolation means transactions do not interfere with each other.
+      HyperSQL enforces isolation according to strict rules of the database
+      isolation model (MVCC or LOCKS).</para>
 
-        <listitem>
-          <para>Incremental backup (an internal mechanism for crash
-          protection) allows fast checkpoint and shutdown.</para>
-        </listitem>
-
-        <listitem>
-          <para>All files are synced at checkpoints and also just before
-          closing.</para>
-        </listitem>
-
-        <listitem>
-          <para>The data file is enlarged in block increments</para>
-        </listitem>
-
-        <listitem>
-          <para>The nio implementation has been improved</para>
-        </listitem>
-      </itemizedlist>
-
-      <para>Persistence relies on the JVM, the operating system, and the
-      computer hardware. A database system like HSQLDB can perform millions of
-      read and write operations in an hour. As system hardware and software
-      can go wrong, it is impossible to achieve zero failure rate. Therefore
-      regular backups are recommended. HyperSQL 2.2 has built-in database
-      backup and restore features, discussed elsewhere in this chapter.</para>
-
-      <para>A note regarding the nio implementation: This implementation
-      applies only to CACHED table data in the .data file. Other files are not
-      accessed via nio. There has been an issue with some JVM implementations
-      of nio not releasing the file buffers after they were closed. HyperSQL
-      uses a workaround which is recommended with Sun JVM's. This does not
-      apply to other JVM's. In such environments, it is therefore recommended
-      to test the CHECKPOINT DEFRAG operation and the shutting down and
-      restarting the database inside the same Java process extensively with
-      nio. Use of nio can be turned off if necessary.</para>
+      <para>Durability means a committed transaction is protected in case of a
+      system crash. HyperSQL ensures durability according to the setting for
+      WRITE DELAY MILLIS. A zero delay setting results in an
+      FileDescriptor#sync() call each time a transaction commits. A timed
+      delay means the FileDescriptor#sync() call is executed in the given
+      intervals and only the last transactions committed in the interval may
+      be lost. The sync() call is also made at all critical points, including
+      when a file is about to be closed. All files Durability requires a
+      reliable JVM and disk storage system that stores the data safely with a
+      sync() call. In practice, many systems are generally reliable in this
+      respect.</para>
     </section>
   </section>
 
