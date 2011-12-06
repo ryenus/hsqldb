@@ -494,7 +494,8 @@ public abstract class Type implements SchemaObject, Cloneable {
      * other type is not allways comparable with this, but a operation should
      * be valid without any explicit CAST
      */
-    public abstract Type getCombinedType(Session session, Type other, int operation);
+    public abstract Type getCombinedType(Session session, Type other,
+                                         int operation);
 
     public int compareToTypeRange(Object o) {
         return 0;
@@ -758,12 +759,11 @@ public abstract class Type implements SchemaObject, Cloneable {
         IntervalType.newIntervalType(Types.SQL_INTERVAL_SECOND,
                                      DTIType.maxIntervalPrecision,
                                      DTIType.maxFractionPrecision);
+
     //
     public static final IntervalType SQL_INTERVAL_YEAR_TO_MONTH_MAX_PRECISION =
         IntervalType.newIntervalType(Types.SQL_INTERVAL_YEAR_TO_MONTH,
-                                     DTIType.maxIntervalPrecision,
-                                     0);
-
+                                     DTIType.maxIntervalPrecision, 0);
     public static final IntervalType SQL_INTERVAL_DAY_TO_SECOND_MAX_PRECISION =
         IntervalType.newIntervalType(Types.SQL_INTERVAL_DAY_TO_SECOND,
                                      DTIType.maxIntervalPrecision,

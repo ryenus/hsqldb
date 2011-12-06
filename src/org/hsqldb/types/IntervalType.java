@@ -934,7 +934,6 @@ public final class IntervalType extends DTIType {
             bSeconds =
                 HsqlDateTime.getTruncatedPart(bSeconds * 1000, endIntervalType)
                 / 1000;
-
             nanos = 0;
         }
 
