@@ -604,8 +604,8 @@ public class QueryExpression {
         }
 
         if (sortAndSlice.hasLimit()) {
-            navigator.trim(sortAndSlice.getLimitStart(session),
-                           sortAndSlice.getLimitCount(session, maxRows));
+            int[] limits = sortAndSlice.getLimits(session, maxRows, false);
+            navigator.trim(limits[0], limits[1]);
         }
 
         navigator.reset();

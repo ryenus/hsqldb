@@ -48,7 +48,10 @@ import org.hsqldb.types.Type;
  */
 public final class SortAndSlice {
 
-    static final SortAndSlice noSort = new SortAndSlice();
+    static final SortAndSlice noSort        = new SortAndSlice();
+    static final int[]        defaultLimits = new int[] {
+        0, Integer.MAX_VALUE, Integer.MAX_VALUE
+    };
 
     //
     public int[]       sortOrder;
@@ -341,38 +344,61 @@ public final class SortAndSlice {
         return true;
     }
 
-    public int getLimitStart(Session session) {
+    int[] getLimits(Session session, int maxRows, boolean simpleLimit) {
 
-        if (limitCondition != null) {
-            Integer limit =
+        int     skipRows   = 0;
+        int     limitRows  = Integer.MAX_VALUE;
+        int     limitFetch = Integer.MAX_VALUE;
+        boolean hasLimits  = false;
+
+        if (hasLimit()) {
+            Integer value =
                 (Integer) limitCondition.getLeftNode().getValue(session);
 
-            if (limit != null) {
-                return limit.intValue();
+            if (value == null || value.intValue() < 0) {
+                throw Error.error(ErrorCode.X_2201X);
+            }
+
+            skipRows  = value.intValue();
+            hasLimits = skipRows != 0;
+
+            if (limitCondition.getRightNode() != null) {
+                value =
+                    (Integer) limitCondition.getRightNode().getValue(session);
+
+                if (value == null || value.intValue() < 0
+                        || (strictLimit && value.intValue() == 0)) {
+                    throw Error.error(ErrorCode.X_2201W);
+                }
+
+                if (value.intValue() == 0 && !zeroLimit) {
+                    limitRows = Integer.MAX_VALUE;
+                } else {
+                    limitRows = value.intValue();
+                    hasLimits = true;
+                }
             }
         }
 
-        return 0;
-    }
+        if (maxRows != 0) {
+            if (maxRows < limitRows) {
+                limitRows = maxRows;
+            }
 
-    public int getLimitCount(Session session, int rowCount) {
+            hasLimits = true;
+        }
 
-        int limitCount = 0;
-
-        if (limitCondition != null) {
-            Integer limit =
-                (Integer) limitCondition.getRightNode().getValue(session);
-
-            if (limit != null) {
-                limitCount = limit.intValue();
+        if (hasLimits && simpleLimit && (!hasOrder() || skipSort)
+                && (!hasLimit() || skipFullResult)) {
+            if (limitFetch - skipRows > limitRows) {
+                limitFetch = skipRows + limitRows;
             }
         }
 
-        if (rowCount != 0 && (limitCount == 0 || rowCount < limitCount)) {
-            limitCount = rowCount;
+        return hasLimits ? new int[] {
+            skipRows, limitRows, limitFetch
         }
-
-        return limitCount;
+                         : defaultLimits;
     }
 
     public void setIndex(Session session, TableBase table) {
