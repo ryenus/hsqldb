@@ -554,7 +554,7 @@ implements Comparator {
             }
         }
 
-        if (limitcount == 0 || limitcount >= size) {
+        if (limitcount >= size) {
             return;
         }
 

@@ -69,10 +69,6 @@ import org.hsqldb.types.Types;
  */
 public class QuerySpecification extends QueryExpression {
 
-    private static final int[] defaultLimits = new int[] {
-        0, Integer.MAX_VALUE, Integer.MAX_VALUE
-    };
-
     //
     public int            resultRangePosition;
     public boolean        isValueList;
@@ -863,8 +859,7 @@ public class QuerySpecification extends QueryExpression {
 
     private void setRangeVariableConditions(Session session) {
 
-        RangeVariableResolver rangeResolver =
-            new RangeVariableResolver(this);
+        RangeVariableResolver rangeResolver = new RangeVariableResolver(this);
 
         rangeResolver.processConditions(session);
 
@@ -1250,67 +1245,6 @@ public class QuerySpecification extends QueryExpression {
         return set == null;
     }
 
-    int[] getLimits(Session session, int maxRows) {
-
-        int     skipRows   = 0;
-        int     limitRows  = Integer.MAX_VALUE;
-        int     limitFetch = Integer.MAX_VALUE;
-        boolean hasLimits  = false;
-
-        if (sortAndSlice.hasLimit()) {
-            Integer value =
-                (Integer) sortAndSlice.limitCondition.getLeftNode().getValue(
-                    session);
-
-            if (value == null || value.intValue() < 0) {
-                throw Error.error(ErrorCode.X_2201X);
-            }
-
-            skipRows  = value.intValue();
-            hasLimits = skipRows != 0;
-
-            if (sortAndSlice.limitCondition.getRightNode() != null) {
-                value =
-                    (Integer) sortAndSlice.limitCondition.getRightNode()
-                        .getValue(session);
-
-                if (value == null || value.intValue() < 0
-                        || (sortAndSlice.strictLimit
-                            && value.intValue() == 0)) {
-                    throw Error.error(ErrorCode.X_2201W);
-                }
-
-                if (value.intValue() == 0 && !sortAndSlice.zeroLimit) {
-                    limitRows = Integer.MAX_VALUE;
-                } else {
-                    limitRows = value.intValue();
-                    hasLimits = true;
-                }
-            }
-        }
-
-        if (maxRows != 0) {
-            if (maxRows < limitRows) {
-                limitRows = maxRows;
-            }
-
-            hasLimits = true;
-        }
-
-        if (hasLimits && simpleLimit
-                && (!sortAndSlice.hasOrder() || sortAndSlice.skipSort)
-                && (!sortAndSlice.hasLimit() || sortAndSlice.skipFullResult)) {
-            if (limitFetch - skipRows > limitRows) {
-                limitFetch = skipRows + limitRows;
-            }
-        }
-
-        return hasLimits ? new int[] {
-            skipRows, limitRows, limitFetch
-        }
-                         : defaultLimits;
-    }
-
     /**
      * Returns the result of executing this Select.
      *
@@ -1329,7 +1263,7 @@ public class QuerySpecification extends QueryExpression {
 
     private Result getSingleResult(Session session, int maxRows) {
 
-        int[]               limits    = getLimits(session, maxRows);
+        int[] limits = sortAndSlice.getLimits(session, maxRows, simpleLimit);
         Result              r         = buildResult(session, limits[2]);
         RowSetNavigatorData navigator = (RowSetNavigatorData) r.getNavigator();
 
@@ -1341,7 +1275,7 @@ public class QuerySpecification extends QueryExpression {
             navigator.sortOrder(session);
         }
 
-        if (limits != defaultLimits) {
+        if (limits != SortAndSlice.defaultLimits) {
             navigator.trim(limits[0], limits[1]);
         }
 
