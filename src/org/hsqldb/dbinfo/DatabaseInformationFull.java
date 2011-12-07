@@ -8235,7 +8235,8 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
             for (int i = 0; i < references.size(); i++) {
                 HsqlName refName = (HsqlName) references.get(i);
 
-                if (refName.type != SchemaObject.TABLE) {
+                if (refName.type != SchemaObject.TABLE
+                        && refName.type != SchemaObject.VIEW) {
                     continue;
                 }
 
