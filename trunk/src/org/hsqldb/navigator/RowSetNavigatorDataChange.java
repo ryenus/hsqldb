@@ -50,7 +50,7 @@ import org.hsqldb.types.Type;
  * operations.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.1.1
+ * @version 2.2.7
  * @since 1.9.0
  */
 public class RowSetNavigatorDataChange extends RowSetNavigator {
@@ -149,6 +149,8 @@ public class RowSetNavigatorDataChange extends RowSetNavigator {
 
         size = 0;
     }
+
+    public void endMainDataSet() {}
 
     public void add(Object[] d) {
         throw Error.runtimeError(ErrorCode.U_S0500,

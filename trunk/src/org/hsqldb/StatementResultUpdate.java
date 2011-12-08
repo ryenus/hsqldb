@@ -46,7 +46,7 @@ import org.hsqldb.types.Type;
  * Implementation of Statement for updating result rows.<p>
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.0.1
+ * @version 2.2.7
  * @since 1.9.0
  */
 public class StatementResultUpdate extends StatementDML {
@@ -60,6 +60,7 @@ public class StatementResultUpdate extends StatementDML {
         super();
 
         writeTableNames = new HsqlName[1];
+
         setCompileTimestamp(Long.MAX_VALUE);
     }
 
@@ -118,6 +119,7 @@ public class StatementResultUpdate extends StatementDML {
 
                 list.addRow(session, row, data, baseTable.getColumnTypes(),
                             colMap);
+                list.endMainDataSet();
                 update(session, baseTable, list, null);
 
                 break;
@@ -129,13 +131,13 @@ public class StatementResultUpdate extends StatementDML {
                     throw Error.error(ErrorCode.X_24521);
                 }
 
-                RowSetNavigatorDataChange navigator =
-                    new RowSetNavigatorDataChange(
-                        session.database.sqlEnforceTDCD,
-                        session.database.sqlEnforceTDCU);
+                RowSetNavigatorDataChange list = new RowSetNavigatorDataChange(
+                    session.database.sqlEnforceTDCD,
+                    session.database.sqlEnforceTDCU);
 
-                navigator.addRow(row);
-                delete(session, baseTable, navigator);
+                list.addRow(row);
+                list.endMainDataSet();
+                delete(session, baseTable, list);
 
                 break;
             }
