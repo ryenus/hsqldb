@@ -57,7 +57,7 @@
     the keywords listed below can be used as identifiers.</para>
 
     <para>All keywords can be used with double quotes as identifiers. For
-    example </para>
+    example</para>
 
     <para><programlisting>  CREATE TABLE "ALL" ("AND" INT, "WHEN" INT)
   SELECT "AND" FROM "ALL" WHERE "WHEN" = 2020
@@ -202,13 +202,19 @@
   <section>
     <title>Special Function Keywords</title>
 
-    <para>HyperSQL supports SQL Standard functions that are called without a
-    parameter. These functions include CURRENT_DATE, LOCALTIMESTAMP,
+    <para>HyperSQL supports SQL Standard functions that are called without
+    parentheses. These functions include CURRENT_DATE, LOCALTIMESTAMP,
     TIMEZONE_HOUR, USER, etc. When the default <literal>SET DATABASE SQL NAMES
     FALSE</literal> mode is used, keywords that are names of SQL functions can
-    be used as identifiers without double quotes in CREATE TABLE statements .
-    But when the identifier is a column name and is referenced in SELECT
-    statements, the keywords must be double quoted. Otherwise the result of
-    the SQL function is returned instead of the column value.</para>
+    be used as column names without double quotes in CREATE TABLE statements .
+    But when the identifier is a column name and is referenced in SELECT or
+    other statements, the keywords must be double quoted. Otherwise the result
+    of the SQL function is returned instead of the column value.</para>
+
+    <para>HyperSQL also supports non-standard functions SYSTIMESTAMP, CURDATE,
+    CURTIME, TODAY, SYSDATE and NOW which can be called with or without
+    parentheses ( e.g. NOW() or NOW ). These names can be used as column
+    names, but the names must be double quoted in SELECT and other
+    statements.</para>
   </section>
 </appendix>
