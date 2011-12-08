@@ -54,7 +54,7 @@ import org.hsqldb.types.Types;
  * Implementation of Statement for DML statements.<p>
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.2.6
+ * @version 2.2.7
  * @since 1.9.0
  */
 
@@ -532,6 +532,7 @@ public class StatementDML extends StatementDMQL {
             session.sessionContext.rownum++;
         }
 
+        rowset.endMainDataSet();
         it.release();
 /* debug 190
         if (rowset.size() == 0) {
@@ -746,6 +747,8 @@ public class StatementDML extends StatementDMQL {
                 }
             }
         }
+
+        updateRowSet.endMainDataSet();
 
         for (int i = 0; i < joinRangeIterators.length; i++) {
             rangeIterators[i].reset();
@@ -1154,6 +1157,7 @@ public class StatementDML extends StatementDMQL {
         }
 
         it.release();
+        navigator.endMainDataSet();
 
         if (navigator.getSize() > 0) {
             count = delete(session, baseTable, navigator);
