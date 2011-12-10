@@ -675,7 +675,7 @@ public class DataFileCache {
         }
     }
 
-    public void removePersistence(int i, PersistentStore store) {}
+    public void removePersistence(CachedObject object) {}
 
     /**
      * Allocates file space for the row. <p>
