@@ -51,7 +51,7 @@ import org.hsqldb.rowio.RowInputInterface;
  * Implementation of PersistentStore for TEXT tables.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.0.1
+ * @version 2.2.7
  * @since 1.9.0
  */
 public class RowStoreAVLDiskData extends RowStoreAVLDisk {
@@ -147,8 +147,8 @@ public class RowStoreAVLDiskData extends RowStoreAVLDisk {
         cache.remove(i, this);
     }
 
-    public void removePersistence(int i) {
-        cache.removePersistence(i, this);
+    public void removePersistence(Row row) {
+        cache.removePersistence(row);
     }
 
     public void release(int i) {
@@ -179,7 +179,7 @@ public class RowStoreAVLDiskData extends RowStoreAVLDisk {
         switch (changeAction) {
 
             case RowAction.ACTION_DELETE :
-                removePersistence(row.getPos());
+                removePersistence(row);
                 break;
 
             case RowAction.ACTION_INSERT :

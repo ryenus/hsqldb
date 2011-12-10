@@ -36,6 +36,8 @@ import org.hsqldb.error.ErrorCode;
 import org.hsqldb.lib.StringConverter;
 import org.hsqldb.persist.PersistentStore;
 import org.hsqldb.persist.TextCache;
+import org.hsqldb.persist.TextFileReader;
+import org.hsqldb.rowio.RowInputInterface;
 
 // tony_lai@users 20020820 - patch 595099 - user define PK name
 
@@ -46,7 +48,7 @@ import org.hsqldb.persist.TextCache;
  * data is read from and written to a text format data file.
  *
  * @author Bob Preston (sqlbob@users dot sourceforge.net)
- * @version 2.0.1
+ * @version 2.2.7
  */
 public class TextTable extends org.hsqldb.Table {
 
@@ -98,7 +100,8 @@ public class TextTable extends org.hsqldb.Table {
 
         this.store = store;
 
-        TextCache cache = null;
+        TextCache      cache  = null;
+        TextFileReader reader = null;
 
         try {
             cache = (TextCache) database.logger.openTextFilePersistence(this,
@@ -106,16 +109,25 @@ public class TextTable extends org.hsqldb.Table {
 
             store.setCache(cache);
 
+            reader = cache.getTextFileReader();
+
             // read and insert all the rows from the source file
             Row row     = null;
             int nextpos = 0;
 
             if (cache.isIgnoreFirstLine()) {
-                nextpos += cache.readHeaderLine();
+                nextpos += reader.readHeaderLine();
+                cache.setHeaderInitialise(reader.getHeaderLine());
             }
 
             while (true) {
-                row = (Row) store.get(nextpos, false);
+                RowInputInterface rowIn = reader.readObject(nextpos);
+
+                if (rowIn == null) {
+                    break;
+                }
+
+                row = (Row) store.get(rowIn);
 
                 if (row == null) {
                     break;
@@ -130,9 +142,8 @@ public class TextTable extends org.hsqldb.Table {
                 store.indexRow(session, row);
             }
         } catch (Throwable t) {
-            int linenumber = cache == null ? 0
-                                           : ((TextCache) cache)
-                                               .getLineNumber();
+            int linenumber = reader == null ? 0
+                                            : reader.getLineNumber();
 
             clearAllData(session);
 
