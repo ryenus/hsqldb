@@ -104,6 +104,7 @@ public class RowStoreAVLDiskData extends RowStoreAVLDisk {
                 row.setPos(in.getPos());
                 row.setStorageSize(in.getSize());
                 row.setChanged(false);
+                ((TextCache) cache).addInit(row);
 
                 return row;
             }
