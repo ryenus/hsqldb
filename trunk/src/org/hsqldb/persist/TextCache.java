@@ -328,6 +328,17 @@ public class TextCache extends DataFileCache {
         }
     }
 
+    public void addInit(CachedObject object) {
+
+        writeLock.lock();
+
+        try {
+            cache.put(object.getPos(), object);
+        } finally {
+            writeLock.unlock();
+        }
+    }
+
     public void add(CachedObject object) {
 
         writeLock.lock();
@@ -352,17 +363,20 @@ public class TextCache extends DataFileCache {
 
         try {
             try {
-                buffer.ensureRoom(object.getStorageSize());
+                buffer.reset(object.getStorageSize());
                 dataFile.seek(object.getPos());
                 dataFile.read(buffer.getBuffer(), 0, object.getStorageSize());
+                buffer.setSize(object.getStorageSize());
 
                 String rowString =
                     buffer.toString(textFileSettings.stringEncoding);
 
                 ((RowInputText) rowIn).setSource(rowString, object.getPos(),
                                                  buffer.size());
+                store.get(rowIn);
+                cache.put(object.getPos(), object);
 
-                return store.get(rowIn);
+                return object;
             } catch (IOException err) {
                 database.logger.logSevereEvent(dataFileName
                                                + " getFromFile problem "
@@ -378,11 +392,11 @@ public class TextCache extends DataFileCache {
     }
 
     public CachedObject get(int i, PersistentStore store, boolean keep) {
-        throw Error.runtimeError(ErrorCode.U_S0500, "RowStoreAVLDisk");
+        throw Error.runtimeError(ErrorCode.U_S0500, "TextCache");
     }
 
     protected void saveRows(CachedObject[] rows, int offset, int count) {
-        throw Error.runtimeError(ErrorCode.U_S0500, "RowStoreAVLDisk");
+        // no-op
     }
 
     /**

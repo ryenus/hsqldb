@@ -249,9 +249,7 @@ implements DataOutput {
 
     public void close() throws IOException {}
 
-
     // additional public methods not in similar java.util classes
-
     public void writeNoCheck(int b) {
         buffer[count++] = (byte) b;
     }
@@ -405,5 +403,14 @@ implements DataOutput {
     public void reset(byte[] buffer) {
         count       = 0;
         this.buffer = buffer;
+    }
+
+    public void setSize(int size) {
+
+        if (size > buffer.length) {
+            reset(size);
+        }
+
+        count = size;
     }
 }
