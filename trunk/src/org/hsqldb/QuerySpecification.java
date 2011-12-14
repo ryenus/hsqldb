@@ -99,8 +99,7 @@ public class QuerySpecification extends QueryExpression {
     private boolean       hasMemoryRow;
 
     //
-    public boolean  isUniqueResultRows;
-    private boolean simpleLimit = true;          // true if maxrows can be uses as is
+    public boolean isUniqueResultRows;
 
     //
     Type[]                    columnTypes;
@@ -1133,10 +1132,6 @@ public class QuerySpecification extends QueryExpression {
             }
         }
 
-        if (isDistinctSelect || isGrouped) {
-            simpleLimit = false;
-        }
-
         if (!isAggregated) {
             return;
         }
@@ -1263,8 +1258,8 @@ public class QuerySpecification extends QueryExpression {
 
     private Result getSingleResult(Session session, int maxRows) {
 
-        int[] limits = sortAndSlice.getLimits(session, maxRows, simpleLimit);
-        Result              r         = buildResult(session, limits[2]);
+        int[] limits = sortAndSlice.getLimits(session, this, maxRows);
+        Result              r         = buildResult(session, limits);
         RowSetNavigatorData navigator = (RowSetNavigatorData) r.getNavigator();
 
         if (isDistinctSelect) {
@@ -1275,14 +1270,15 @@ public class QuerySpecification extends QueryExpression {
             navigator.sortOrder(session);
         }
 
-        if (limits != SortAndSlice.defaultLimits) {
+        if (limits != SortAndSlice.defaultLimits
+                && !sortAndSlice.skipFullResult) {
             navigator.trim(limits[0], limits[1]);
         }
 
         return r;
     }
 
-    private Result buildResult(Session session, int limitcount) {
+    private Result buildResult(Session session, int[] limits) {
 
         RowSetNavigatorData navigator = new RowSetNavigatorData(session,
             (QuerySpecification) this);
@@ -1292,6 +1288,13 @@ public class QuerySpecification extends QueryExpression {
 
         if (isUpdatable) {
             result.rsProperties = ResultProperties.updatablePropsValue;
+        }
+
+        int skipCount  = 0;
+        int limitCount = limits[2];
+        if (sortAndSlice.skipFullResult) {
+            skipCount = limits[0];
+            limitCount = limits[1];
         }
 
         if (this.isSimpleCount) {
@@ -1359,7 +1362,7 @@ public class QuerySpecification extends QueryExpression {
                 continue;
             }
 
-            if (limitcount == 0) {
+            if (limitCount == 0) {
                 break;
             }
 
@@ -1385,6 +1388,11 @@ public class QuerySpecification extends QueryExpression {
 
             session.sessionContext.rownum++;
 
+            if (skipCount > 0) {
+                skipCount--;
+                continue;
+            }
+
             Object[] groupData = null;
 
             if (isAggregated || isGrouped) {
@@ -1400,6 +1408,8 @@ public class QuerySpecification extends QueryExpression {
                 data[i] = exprColumns[i].updateAggregatingValue(session,
                         data[i]);
             }
+
+
 
             if (groupData == null) {
                 navigator.add(data);
@@ -1423,7 +1433,7 @@ public class QuerySpecification extends QueryExpression {
                 }
             }
 
-            if (rowCount >= limitcount) {
+            if (rowCount >= limitCount) {
                 break;
             }
         }
