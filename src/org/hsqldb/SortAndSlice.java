@@ -69,6 +69,7 @@ public final class SortAndSlice {
     boolean            allDescending;
     public boolean     skipSort       = false;    // true when result can be used as is
     public boolean     skipFullResult = false;    // true when result can be sliced as is
+
     public Index   index;
     public Table   primaryTable;
     public Index   primaryTableIndex;
@@ -344,7 +345,7 @@ public final class SortAndSlice {
         return true;
     }
 
-    int[] getLimits(Session session, int maxRows, boolean simpleLimit) {
+    int[] getLimits(Session session, QueryExpression qe, int maxRows) {
 
         int     skipRows   = 0;
         int     limitRows  = Integer.MAX_VALUE;
@@ -386,6 +387,16 @@ public final class SortAndSlice {
             }
 
             hasLimits = true;
+        }
+
+        boolean simpleLimit = false;
+
+        if (qe instanceof QuerySpecification) {
+            QuerySpecification qs = (QuerySpecification) qe;
+
+            if (!qs.isDistinctSelect && !qs.isGrouped) {
+                simpleLimit = true;
+            }
         }
 
         if (hasLimits && simpleLimit && (!hasOrder() || skipSort)

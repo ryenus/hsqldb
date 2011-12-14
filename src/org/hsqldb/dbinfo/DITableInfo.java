@@ -154,7 +154,7 @@ final class DITableInfo {
         String key;
 
         if (table.getTableType() != TableBase.INFO_SCHEMA_TABLE) {
-            return null;
+            return table.getColumn(i).getName().comment;
         }
 
         key = getName() + "_" + getColName(i);

@@ -604,7 +604,7 @@ public class QueryExpression {
         }
 
         if (sortAndSlice.hasLimit()) {
-            int[] limits = sortAndSlice.getLimits(session, maxRows, false);
+            int[] limits = sortAndSlice.getLimits(session, this, maxRows);
             navigator.trim(limits[0], limits[1]);
         }
 
