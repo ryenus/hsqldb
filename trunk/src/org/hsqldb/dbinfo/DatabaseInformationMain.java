@@ -1869,6 +1869,7 @@ class DatabaseInformationMain extends DatabaseInformation {
                 database.getCatalogName().name;
             row[procedure_schema] = routine.getSchemaName().name;
             row[procedure_name]   = routine.getName().name;
+            row[remarks]          = routine.getName().comment;
             row[procedure_type] = routine.isProcedure() ? ValuePool.INTEGER_1
                                                         : ValuePool.INTEGER_2;
             row[specific_name]    = routine.getSpecificName().name;
