@@ -3291,11 +3291,9 @@ DELETE FROM T AS TT WHERE TT.A = (SELECT MAX(A) FROM T)
       the execution of the TRUNCATE statement. The action cannot be rolled
       back. If the additional NO CHECK option is also specified, then the
       TRUNCATE statement is executed even if the table is referenced in a
-      FOREIGN KEY constraint defined on another table. This form of TRUNCATE
-      is faster than the default form and does not use much memory.</simpara>
-
-      <simpara>Use of the AND COMMIT option requires schema ownership or
-      administrative privileges.</simpara>
+      FOREIGN KEY constraint defined on another, non-empty table. This form of
+      TRUNCATE is faster than the default form and does not use much
+      memory.</simpara>
 
       <indexterm significance="preferred" type="sql">
         <primary>TRUNCATE SCHEMA</primary>
@@ -3306,13 +3304,18 @@ DELETE FROM T AS TT WHERE TT.A = (SELECT MAX(A) FROM T)
       <simpara><emphasis>truncate schema statement</emphasis></simpara>
 
       <simpara><literal>&lt;truncate schema statement&gt; ::= TRUNCATE SCHEMA
-      &lt;target schema&gt; AND COMMIT [ NO CHECK ]</literal></simpara>
+      &lt;target schema&gt; [ &lt;identity column restart option&gt; ] AND
+      COMMIT [ NO CHECK ]</literal></simpara>
 
       <simpara>Performs the equivalent of a TRANCATE TABLE ... AND COMMIT on
       all the table in the schema. If the additional NO CHECK option is also
       specified, then the TRUNCATE statement is executed even if any of the
       tables in the schema is referenced in a FOREIGN KEY constraint defined
-      on table in a different schema.</simpara>
+      on a non-empty table in a different schema.</simpara>
+
+      <simpara>If RESTART IDENTITY is specified, all table IDENTITY sequences
+      and all SEQUENCE objects in the schema are reset to their start
+      values.</simpara>
 
       <simpara>Use of this statement requires schema ownership or
       administrative privileges.</simpara>

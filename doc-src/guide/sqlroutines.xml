@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-
 <!DOCTYPE book [
-  <!ENTITY % dummy22 SYSTEM "../entities/global.ent"> %dummy22;
+<!ENTITY % dummy22 SYSTEM "../entities/global.ent">
+%dummy22;
 ]>
 <chapter version="5.0" xml:id="sqlroutines-chapt"
          xmlns="http://docbook.org/ns/docbook"
@@ -1618,8 +1618,8 @@ SELECT sinh(doublecolumn) FROM mytable
 
     <programlisting>public static String toZeroPaddedString(long value, int precision, int maxSize)</programlisting>
 
-    <para>The parameter and return types and of the SQL routine definition
-    must match those of the Java method according to the table below:</para>
+    <para>The parameter and return types of the SQL routine definition must
+    match those of the Java method according to the table below:</para>
 
     <informaltable frame="all">
       <tgroup cols="2">
