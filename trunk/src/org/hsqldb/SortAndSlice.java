@@ -43,7 +43,7 @@ import org.hsqldb.types.Type;
  * Implementation of ORDER BY and LIMIT properties of query expressions.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.0.1
+ * @version 2.2.7
  * @since 1.9.0
  */
 public final class SortAndSlice {
@@ -69,7 +69,6 @@ public final class SortAndSlice {
     boolean            allDescending;
     public boolean     skipSort       = false;    // true when result can be used as is
     public boolean     skipFullResult = false;    // true when result can be sliced as is
-
     public Index   index;
     public Table   primaryTable;
     public Index   primaryTableIndex;
@@ -399,17 +398,20 @@ public final class SortAndSlice {
             }
         }
 
-        if (hasLimits && simpleLimit && (!hasOrder() || skipSort)
-                && (!hasLimit() || skipFullResult)) {
-            if (limitFetch - skipRows > limitRows) {
-                limitFetch = skipRows + limitRows;
+        if (hasLimits) {
+            if (simpleLimit && (!hasOrder() || skipSort)
+                    && (!hasLimit() || skipFullResult)) {
+                if (limitFetch - skipRows > limitRows) {
+                    limitFetch = skipRows + limitRows;
+                }
             }
+
+            return new int[] {
+                skipRows, limitRows, limitFetch
+            };
         }
 
-        return hasLimits ? new int[] {
-            skipRows, limitRows, limitFetch
-        }
-                         : defaultLimits;
+        return defaultLimits;
     }
 
     public void setIndex(Session session, TableBase table) {

@@ -37,7 +37,6 @@ import org.hsqldb.Table;
 import org.hsqldb.TableBase;
 import org.hsqldb.resources.BundleHandler;
 import org.hsqldb.store.ValuePool;
-import org.hsqldb.types.Types;
 
 /**
  * Provides extended information about HSQLDB tables and their
@@ -46,7 +45,7 @@ import org.hsqldb.types.Types;
  * Current version has been reduced in scope.<p>
  *
  * @author boucherb@users
- * @version 2.0.1
+ * @version 2.2.7
  * @since 1.7.2
  */
 final class DITableInfo {

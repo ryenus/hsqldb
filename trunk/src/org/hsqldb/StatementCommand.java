@@ -36,6 +36,8 @@ import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
 import org.hsqldb.index.Index;
 import org.hsqldb.lib.HashMappedList;
+import org.hsqldb.lib.Iterator;
+import org.hsqldb.lib.OrderedHashSet;
 import org.hsqldb.lib.java.JavaSystem;
 import org.hsqldb.persist.HsqlDatabaseProperties;
 import org.hsqldb.persist.HsqlProperties;
@@ -49,7 +51,7 @@ import org.hsqldb.scriptio.ScriptWriterText;
  * Implementation of Statement for SQL commands.<p>
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.2.6
+ * @version 2.2.7
  * @since 1.9.0
  */
 public class StatementCommand extends Statement {
@@ -129,7 +131,6 @@ public class StatementCommand extends Statement {
             case StatementTypes.SET_DATABASE_FILES_SCALE :
             case StatementTypes.SET_DATABASE_FILES_DEFRAG :
             case StatementTypes.SET_DATABASE_FILES_LOBS_SCALE :
-            case StatementTypes.SET_DATABASE_FILES_LOCK :
             case StatementTypes.SET_DATABASE_FILES_LOG :
             case StatementTypes.SET_DATABASE_FILES_LOG_SIZE :
             case StatementTypes.SET_DATABASE_FILES_NIO :
@@ -240,53 +241,7 @@ public class StatementCommand extends Statement {
         switch (type) {
 
             case StatementTypes.TRUNCATE : {
-                try {
-                    HsqlName name            = (HsqlName) parameters[0];
-                    boolean  restartIdentity = (Boolean) parameters[1];
-                    Table[]  tables;
-
-                    if (name.type == SchemaObject.TABLE) {
-                        Table table =
-                            session.database.schemaManager.getUserTable(
-                                session, name);
-
-                        tables = new Table[]{ table };
-
-                        StatementSchema.checkSchemaUpdateAuthorisation(session,
-                                name.schema);
-                    } else {
-
-                        // ensure schema existence
-                        session.database.schemaManager.getSchemaHsqlName(
-                            name.name);
-
-                        HashMappedList list =
-                            session.database.schemaManager.getTables(
-                                name.name);
-
-                        tables = new Table[list.size()];
-
-                        list.toValuesArray(tables);
-                        StatementSchema.checkSchemaUpdateAuthorisation(session,
-                                name);
-                    }
-
-                    for (int i = 0; i < tables.length; i++) {
-                        Table           table = tables[i];
-                        PersistentStore store = table.getRowStore(session);
-
-                        store.removeAll();
-
-                        if (restartIdentity
-                                && table.identitySequence != null) {
-                            table.identitySequence.reset();
-                        }
-                    }
-
-                    return Result.updateZeroResult;
-                } catch (HsqlException e) {
-                    return Result.newErrorResult(e, sql);
-                }
+                return getTruncateResult(session);
             }
             case StatementTypes.EXPLAIN_PLAN : {
                 Statement statement = (Statement) parameters[0];
@@ -476,15 +431,6 @@ public class StatementCommand extends Statement {
                     session.checkDDLWrite();
                     session.database.logger.setEventLogLevel(value, isSql);
 
-                    return Result.updateZeroResult;
-                } catch (HsqlException e) {
-                    return Result.newErrorResult(e, sql);
-                }
-            }
-            case StatementTypes.SET_DATABASE_FILES_LOCK : {
-                try {
-
-                    // no-op - to remove from release version
                     return Result.updateZeroResult;
                 } catch (HsqlException e) {
                     return Result.newErrorResult(e, sql);
@@ -1143,6 +1089,106 @@ public class StatementCommand extends Statement {
             }
             default :
                 throw Error.runtimeError(ErrorCode.U_S0500, "StatemntCommand");
+        }
+    }
+
+    Result getTruncateResult(Session session) {
+
+        try {
+            HsqlName name            = (HsqlName) parameters[0];
+            boolean  restartIdentity = (Boolean) parameters[1];
+            boolean  noCheck         = (Boolean) parameters[2];
+            Table[]  tables;
+
+            if (name.type == SchemaObject.TABLE) {
+                Table table =
+                    session.database.schemaManager.getUserTable(session, name);
+
+                tables = new Table[]{ table };
+
+                session.getGrantee().checkDelete(table);
+
+                if (!noCheck) {
+                    for (int i = 0; i < table.fkMainConstraints.length; i++) {
+                        if (table.fkMainConstraints[i].getRef() != table) {
+                            HsqlName tableName =
+                                table.fkMainConstraints[i].getRef().getName();
+                            Table refTable =
+                                session.database.schemaManager.getUserTable(
+                                    session, tableName);
+
+                            if (!refTable.isEmpty(session)) {
+                                throw Error.error(ErrorCode.X_23504,
+                                                  refTable.getName().name);
+                            }
+                        }
+                    }
+                }
+            } else {
+
+                // ensure schema existence
+                session.database.schemaManager.getSchemaHsqlName(name.name);
+
+                HashMappedList list =
+                    session.database.schemaManager.getTables(name.name);
+
+                tables = new Table[list.size()];
+
+                list.toValuesArray(tables);
+                StatementSchema.checkSchemaUpdateAuthorisation(session, name);
+
+                if (!noCheck) {
+                    OrderedHashSet set = new OrderedHashSet();
+
+                    session.database.schemaManager
+                        .getCascadingReferencesToSchema(name, set);
+
+                    for (int i = 0; i < set.size(); i++) {
+                        HsqlName objectName = (HsqlName) set.get(i);
+
+                        if (objectName.type == SchemaObject.CONSTRAINT) {
+                            if (objectName.parent.type == SchemaObject.TABLE) {
+                                Table refTable =
+                                    (Table) session.database.schemaManager
+                                        .getUserTable(session,
+                                                      objectName.parent);
+
+                                if (!refTable.isEmpty(session)) {
+                                    throw Error.error(ErrorCode.X_23504,
+                                                      refTable.getName().name);
+                                }
+                            }
+                        }
+                    }
+                }
+
+                if (restartIdentity) {
+                    Iterator it =
+                        session.database.schemaManager.databaseObjectIterator(
+                            name.name, SchemaObject.SEQUENCE);
+
+                    while (it.hasNext()) {
+                        NumberSequence sequence = (NumberSequence) it.next();
+
+                        sequence.reset();
+                    }
+                }
+            }
+
+            for (int i = 0; i < tables.length; i++) {
+                Table           table = tables[i];
+                PersistentStore store = table.getRowStore(session);
+
+                store.removeAll();
+
+                if (restartIdentity && table.identitySequence != null) {
+                    table.identitySequence.reset();
+                }
+            }
+
+            return Result.updateZeroResult;
+        } catch (HsqlException e) {
+            return Result.newErrorResult(e, sql);
         }
     }
 
