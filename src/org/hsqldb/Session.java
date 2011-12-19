@@ -172,7 +172,7 @@ public class Session implements SessionInterface {
         tempSet                     = new OrderedHashSet();
         isolationLevelDefault       = database.defaultIsolationLevel;
         isolationLevel              = isolationLevelDefault;
-        txConflictRollback            = database.txConflictRollback;
+        txConflictRollback          = database.txConflictRollback;
         isReadOnlyDefault           = readonly;
         isReadOnlyIsolation = isolationLevel
                               == SessionInterface.TX_READ_UNCOMMITTED;
@@ -398,11 +398,11 @@ public class Session implements SessionInterface {
      */
     void checkDDLWrite() {
 
-        checkReadWrite();
-
         if (isProcessingScript || isProcessingLog) {
             return;
         }
+
+        checkReadWrite();
     }
 
     public long getActionTimestamp() {
@@ -1339,7 +1339,8 @@ public class Session implements SessionInterface {
 
                 sessionContext.currentStatement = null;
 
-                return Result.newErrorResult(Error.error(r.getException(), ErrorCode.X_40001, null));
+                return Result.newErrorResult(Error.error(r.getException(),
+                        ErrorCode.X_40001, null));
             }
 
             if (redoAction) {

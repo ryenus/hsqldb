@@ -35,7 +35,7 @@ package org.hsqldb;
  * Codes based on SQL Standards for different types of statement.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.0.1
+ * @version 2.2.7
  * @since 1.9.0
  */
 public interface StatementTypes {
@@ -181,7 +181,7 @@ public interface StatementTypes {
     int SET_DATABASE_FILES_DEFRAG              = 1014;
     int SET_DATABASE_FILES_EVENT_LOG           = 1015;
     int SET_DATABASE_FILES_LOBS_SCALE          = 1016;
-    int SET_DATABASE_FILES_LOCK                = 1017;
+    int SET_DATABASE_FILES_UNUSED_TYPE_SETTING = 1017;
     int SET_DATABASE_FILES_LOG                 = 1018;
     int SET_DATABASE_FILES_LOG_SIZE            = 1019;
     int SET_DATABASE_FILES_NIO                 = 1020;

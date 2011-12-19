@@ -1322,14 +1322,6 @@ public class ParserCommand extends ParserDDL {
 
         switch (token.tokenType) {
 
-            case Tokens.LOCK : {
-                read();
-
-                flag = processTrueOrFalseObject();
-                type = StatementTypes.SET_DATABASE_FILES_LOCK;
-
-                break;
-            }
             case Tokens.CACHE : {
                 read();
 

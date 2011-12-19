@@ -360,29 +360,31 @@ public class ParserDML extends ParserDQL {
             table      = rangeVariables[0].getTable();
             objectName = table.getName();
             isTable    = true;
-
-            switch (token.tokenType) {
-
-                case Tokens.CONTINUE : {
-                    read();
-                    readThis(Tokens.IDENTITY);
-
-                    break;
-                }
-                case Tokens.RESTART : {
-                    read();
-                    readThis(Tokens.IDENTITY);
-
-                    restartIdentity = true;
-
-                    break;
-                }
-            }
         } else {
             readThis(Tokens.SCHEMA);
 
             objectName = readSchemaName();
+        }
 
+        switch (token.tokenType) {
+
+            case Tokens.CONTINUE : {
+                read();
+                readThis(Tokens.IDENTITY);
+
+                break;
+            }
+            case Tokens.RESTART : {
+                read();
+                readThis(Tokens.IDENTITY);
+
+                restartIdentity = true;
+
+                break;
+            }
+        }
+
+        if (!isTable) {
             checkIsThis(Tokens.AND);
         }
 
@@ -405,42 +407,9 @@ public class ParserDML extends ParserDQL {
                 session.database.schemaManager.getCatalogAndBaseTableNames();
         }
 
-        if (isTable && !noCheck) {
-            for (int i = 0; i < table.fkMainConstraints.length; i++) {
-                if (table.fkMainConstraints[i].getRef() != table) {
-                    String tableName =
-                        table.fkMainConstraints[i].getRef().getName().name;
-
-                    throw Error.error(ErrorCode.X_23504, tableName);
-                }
-            }
-        }
-
-        if (!isTable && !noCheck) {
-            OrderedHashSet set = new OrderedHashSet();
-
-            session.database.schemaManager.getCascadingReferencesToSchema(
-                objectName, set);
-
-            for (int i = 0; i < set.size(); i++) {
-                HsqlName name = (HsqlName) set.get(i);
-
-                if (name.type == SchemaObject.CONSTRAINT) {
-                    if (name.parent.type == SchemaObject.TABLE) {
-                        Table refTable =
-                            (Table) session.database.schemaManager
-                                .getUserTable(session, name.parent);
-
-                        throw Error.error(ErrorCode.X_23504,
-                                          refTable.getName().name);
-                    }
-                }
-            }
-        }
-
         if (withCommit) {
             Object[] args = new Object[] {
-                objectName, restartIdentity
+                objectName, restartIdentity, noCheck
             };
 
             return new StatementCommand(StatementTypes.TRUNCATE, args, null,
