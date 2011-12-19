@@ -606,7 +606,7 @@
       units of kilobyte (K, 1024), megabyte (M, 1024 * 1024) or gigabyte (G,
       1024 * 1024 * 1024), using the <literal>&lt;multiplier&gt;</literal>. If
       CLOB is used without specifying the length, the length defaults to
-      1M.</para>
+      16M.</para>
 
       <simpara><literal>&lt;character string type&gt; ::= { CHARACTER | CHAR }
       [ &lt;left paren&gt; &lt;character length&gt; &lt;right paren&gt; ] | {
@@ -684,9 +684,8 @@ LONGVARCHAR
       defaults to 1. For the BLOB type, the length limit can be defined in
       units of kilobyte (K, 1024), megabyte (M, 1024 * 1024) or gigabyte (G,
       1024 * 1024 * 1024), using the <literal>&lt;multiplier&gt;</literal>. If
-      BLOB is used without specifying the length, the length defaults to 16M.
-      If the property <literal>sql.longvar_is_lob</literal> has been set true,
-      then LONGVARCHAR is translated to CLOB.</para>
+      BLOB is used without specifying the length, the length defaults to
+      16M.</para>
 
       <simpara><literal>&lt;binary string type&gt; ::= BINARY [ &lt;left
       paren&gt; &lt;length&gt; &lt;right paren&gt; ] | { BINARY VARYING |
@@ -1861,7 +1860,7 @@ UPDATE t SET scores[2] = 123, names[2] = 'Reds' WHERE id = 10
 </programlisting>
       </informalexample>
 
-      <para> </para>
+      <para></para>
     </section>
   </section>
 </chapter>
