@@ -1995,13 +1995,13 @@ public class ParserCommand extends ParserDDL {
          * Non-Blocking and SCRIPT mode.
          */
         if (scriptMode != null) {
-            throw unsupportedFeature("SCRIPT");
+            throw unsupportedFeature(Tokens.T_SCRIPT);
         }
 
         scriptMode = Boolean.FALSE;
 
         if (blockingMode == null) {
-            throw unexpectedTokenRequire("BLOCKING");
+            throw unexpectedTokenRequire(Tokens.T_BLOCKING);
         }
 
         if (compression == null) {
