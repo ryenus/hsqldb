@@ -847,7 +847,7 @@
     procedures below should be followed.</para>
 
     <para>A note about SHUTDOWN modes. SHUTDOWN COMPACT is equivalent to
-    SHUTDOWN SCRIPT plus openning the database and then performing a simple
+    SHUTDOWN SCRIPT plus opening the database and then performing a simple
     SHUTDOWN.</para>
 
     <para>After upgrading a database, you may want to change some of its
