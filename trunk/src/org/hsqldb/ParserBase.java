@@ -281,7 +281,7 @@ public class ParserBase {
                     break;
             }
 
-            throw Error.error(errorCode);
+            throw Error.error(errorCode, token.getFullString());
         }
 
         if (isRecording) {
@@ -377,7 +377,9 @@ public class ParserBase {
     void checkIsThis(int type) {
 
         if (token.tokenType != type) {
-            throw unexpectedToken();
+            String required = Tokens.getKeyword(type);
+
+            throw unexpectedTokenRequire(required);
         }
     }
 
