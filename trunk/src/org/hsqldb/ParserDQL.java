@@ -62,7 +62,7 @@ import org.hsqldb.types.Types;
  * Parser for DQL statements
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.1.1
+ * @version 2.2.7
  * @since 1.9.0
  */
 public class ParserDQL extends ParserBase {
@@ -161,10 +161,11 @@ public class ParserDQL extends ParserBase {
                             read();
 
                             return Type.getType(Types.SQL_VARBINARY, null,
-                                                database.collation,
+                                                null,
                                                 BlobType.defaultBlobSize, 0);
                         } else {
-                            return Type.getType(Types.SQL_VARCHAR, null, null,
+                            return Type.getType(Types.SQL_VARCHAR, null,
+                                                database.collation,
                                                 ClobType.defaultClobSize, 0);
                         }
                     case Tokens.NUMBER :
@@ -173,29 +174,34 @@ public class ParserDQL extends ParserBase {
                         if (token.tokenType == Tokens.OPENBRACKET) {
                             read();
 
-                            int precision = readInteger();
-                            int scale     = 0;
+                            boolean isInt     = false;
+                            int     precision = readInteger();
+                            int     scale     = 0;
 
                             if (token.tokenType == Tokens.COMMA) {
                                 read();
 
                                 scale = readInteger();
+                            } else if (precision < 10) {
+                                isInt = true;
                             }
 
                             readThis(Tokens.CLOSEBRACKET);
 
-                            return Type.getType(Types.SQL_DECIMAL, null, null,
-                                                precision, scale);
+                            return isInt ? Type.SQL_INTEGER
+                                         : Type.getType(Types.SQL_DECIMAL,
+                                                        null, null, precision,
+                                                        scale);
                         } else {
-                            return Type.SQL_DECIMAL_DEFAULT;
+                            return Type.SQL_DOUBLE;
                         }
                     case Tokens.RAW :
-                        typeNumber = Types.VARBINARY;
+                        typeNumber = Types.SQL_VARBINARY;
                         break;
 
                     case Tokens.VARCHAR2 :
                     case Tokens.NVARCHAR2 :
-                        typeNumber     = Types.VARCHAR;
+                        typeNumber     = Types.SQL_VARCHAR;
                         readByteOrChar = true;
                         break;
                 }
