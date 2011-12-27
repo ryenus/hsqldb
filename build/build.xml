@@ -485,7 +485,7 @@ examples:
 
     <!-- compiles the cmdline classes -->
     <target name="-cmdline" if="ant.java.iscjava15"
-            depends="-update-switch-branch,
+            depends="-prepare, -update-switch-branch,
                      -conditionalize-sqlfile-scanner, -sqlfile-scanner">
       <javac srcdir="${swsrc}"
              destdir="classes"
