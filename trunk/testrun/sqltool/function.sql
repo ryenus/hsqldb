@@ -50,7 +50,7 @@ SELECT vc FROM *{1} WHERE i = 4
 -- Test function invocation with no params but appendage
 \.
 INSERT INTO t VALUES(5, 'four');
-SELECT vc FROM *{1}
+SELECT vc FROM t
 .
 /: f2()
 * quieter ~
