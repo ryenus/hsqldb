@@ -253,7 +253,7 @@ public class SqlFile {
     private static Pattern legacyEditMacroPattern =
             Pattern.compile("(\\w+(?:\\(\\))?)\\s*:(.*)");
     private static Pattern editMacroPattern =
-            Pattern.compile(":\\s(\\w+(?:\\(\\))?)\\s(.*)");
+            Pattern.compile(":\\s(\\w+(?:\\(\\))?)(?:\\s(.*))?");
     private static Pattern spMacroPattern =
             Pattern.compile("(\\w+(?:\\(\\))?)\\s+([*\\\\])(.*\\S)");
     private static Pattern sqlMacroPattern =
