@@ -13,6 +13,7 @@ command you ran which contains "blue", or ":w -3 /tmp/output.txt" to append
 the third command 'back' to a file.
     :;                Execute edit buffer content (special, PL, or SQL command)
     :a[text]          Enter append mode with a copy of the buffer contents
+    :aAPPENDAGE;      Append to buffer contents then executes resulting command
     :s/from regex/to/ Substitute match of "from regex" with "to"
     :s/from/to/[igm;] One or multiple Substitutions with specified options
                 from:  Standard regexp.  See 'perlre' man page or
