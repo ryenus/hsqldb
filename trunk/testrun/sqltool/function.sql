@@ -32,5 +32,17 @@ SELECT  -- Trailing whitespace on next line
 * quieter ~
 /h(FROM)WHERE i = 3;
 * if (*? != three)
-    \q SqlTool function for multi-line chunked SQL command failed
+    \q SqlTool function for multi-line chunked SQL command with appendages failed
+*end if
+
+-- Same but without any appendages
+\.
+INSERT INTO t VALUES(4, 'four');
+SELECT vc FROM *{1} WHERE i = 4
+.
+/: f1()
+* quieter ~
+/f1(t);
+* if (*? != four)
+    \q SqlTool function for multi-line chunked SQL command (no appendages) failed
 *end if
