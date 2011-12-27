@@ -9,10 +9,10 @@
 # Add default JVM options here. You can also use JAVA_OPTS and GRADLE_OPTS to pass JVM options to this script.
 DEFAULT_JVM_OPTS=""
 
-# Customization by blaine of HSQL Development Group:
+# Customization by blaine of HSQL Development Group.
+# Does nothing if JAVA_OPTS has been set by the user.
 [ -n "$JAVA_OPTS" ] || JAVA_OPTS='-Xms256m -Xmx1g -XX:MaxPermSize=256m'
-# This just sets JAVA_OPTS's "default", but does nothing at all if the caller
-# has any JAVA_OPTS value set.
+# This configures Groovy's Grape resolver by adding to JAVA_OPES:
 if [ -n "$JAVA_OPTS" ]; then
     JAVA_OPTS="$JAVA_OPTS -Dgrape.config=ivysettings.xml"
 else
