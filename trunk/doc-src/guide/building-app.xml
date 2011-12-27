@@ -667,7 +667,7 @@ ant hsqldb
     <title>Building Documentation</title>
 
     <simpara>The JavaDoc can be built simply by invoking the javadoc
-    target.</simpara>
+      task/target with Gradle or Ant.</simpara>
 
     <para>The two Guides (the one you are reading now plus the Utilities
     user guide) are in DocBook XML source format. To rebuild to PDF or
@@ -677,6 +677,16 @@ ant hsqldb
     Instructions will be displayed.
     In particular <itemizedlist>
       <listitem><simpara>
+        Obtain the HyperSQL documentation source.
+        We no longer include our Guide source files in our main distribution
+        zip file, in order to keep it small.
+        You may want to build from the trunk branch or the latest release tag.
+        You can download a static snapshot tarball from
+        http://hsqldb.svn.sourceforge.net/viewvc/hsqldb/base/trunk/ or
+        under http://hsqldb.svn.sourceforge.net/viewvc/hsqldb/base/tags/ ,
+        or you can export a snapshot or check out a work area using a
+        Subversion client.
+      </simpara></listitem> <listitem><simpara>
         You must locally install the DocBook set of image files, which are
         available for download from Sourceforge.
         The <literal>gen-docs</literal> task/target will tell you of a Gradle
