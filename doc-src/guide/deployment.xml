@@ -838,7 +838,7 @@
     not practical to perform the first step of this procedure (with the old
     jar). You can ignore the first step but you may lose part of the database
     statements that are stored in the .log file. Therefore you need test with
-    databases created with your application to make sure typcial statements
+    databases created with your application to make sure typical statements
     that are logged in the .log file are compatible with the new version.
     Examples of known incompatible statements are those used for changing the
     data type or default values of column.</para>
