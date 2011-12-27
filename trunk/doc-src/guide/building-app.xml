@@ -85,9 +85,9 @@
       <literal>java</literal> is available from, but if environmental variable
       <varname>JAVA_HOME</varname> is set, that will override.
       Therefore, if you have multiple JREs or JDKs installed,
-      or don't know if if multiple are insalled, you should set
+      or don't know if multiple are installed, you should set
       environmental variable <varname>JAVA_HOME</varname> to
-      definitely eliminate all ambiguity.
+      definitively eliminate all ambiguity.
     </simpara></note>
     <important><title>Rare Gotcha</title><simpara>
       Depending on your operating system, version, and how you installed
@@ -98,7 +98,7 @@
       SDK is installed.
       (See previous <emphasis>note</emphasis> for justification).
       So as not to get bogged down in the details here, if you don't know how
-      set an environmental variable, I ask you to utilize a search engine.
+      to set an environmental variable, I ask you to utilize a search engine.
     </simpara></important>
 
     <indexterm significance="preferred">
@@ -108,7 +108,7 @@
     <section><title>Invoking a Gradle Build Graphically</title>
       <simpara>
         Whether from an IDE, a shortcut or launch icon, to run a Gradle
-        graphical build you just need to exeute either the file
+        graphical build you just need to execute either the file
         <literal>gradle-gui.cmd</literal>
         (on Windows) or <literal>gradle-gui</literal>
         (all other platforms), both of which reside in the
@@ -128,7 +128,7 @@
         The Spring Framework team is working on a sophisticated plugin for
         using Gradle with their IDE.
         But I'm going to document a very basic setup done with Eclipse
-        because it's very servicable and a very similar procedure is likely
+        because it's servicable and a very similar procedure is likely
         to work with all other IDEs.
       </simpara> <simpara>
         If you do use and enjoy Gradle, then I urge you to make the product
@@ -176,7 +176,7 @@
           nested under <guilabel>Program</guilabel>, in which case you should
           select that).
         </simpara></step> <step><simpara>
-          To the right, change the value in the<guilabel>Name:</guilabel> field
+          To the right, change the value in the <guilabel>Name:</guilabel> field
           to <literal>HSQLDB Gradle</literal> (or whatever name you want for
           this launcher config (this Gradle launcher is only for your HSQLDB
           project).
