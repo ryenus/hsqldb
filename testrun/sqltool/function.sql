@@ -46,3 +46,15 @@ SELECT vc FROM *{1} WHERE i = 4
 * if (*? != four)
     \q SqlTool function for multi-line chunked SQL command (no appendages) failed
 *end if
+
+-- Test function invocation with no params but appendage
+\.
+INSERT INTO t VALUES(5, 'four');
+SELECT vc FROM *{1}
+.
+/: f2()
+* quieter ~
+/f2() WHERE i = 4;
+* if (*? != four)
+    \q SqlTool function for multi-line chunked SQL command (no params) failed
+*end if
