@@ -1458,7 +1458,7 @@ public class SqlFile {
                         throw new BadSubst(
                                 SqltoolRB.substitution_malformat.getString());
 
-                    // Note that this pattern does not include the leading :.
+                    // Note that this pattern does not include the leading ':'.
                     assert m.groupCount() > 2 && m.groupCount() < 5 :
                         "Internal assertion failed.  "
                         + "Matched substitution pattern, but captured "
