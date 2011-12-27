@@ -4062,17 +4062,17 @@ SELECT * FROM t
             to store the input to the edit buffer and send it to the
             database server for execution.
         </simpara> <simpara>
-            This paragraph applies only to interactive usage.
-            Interactive users may may end the raw input with ":."
-            instead of ".;".
-            This will just save the input to the edit buffer so that you can
-            edit it and send it to the database manually.
-            You can look at the edit buffer with the ":b" Buffer Command.
-            You would normally use the command ":;" to
-            send the buffer to the database after you are satisfied with it.
+            You may end the raw input with a line consisting only of "."
+            (instead of ".;").
+            This will just save the input to the edit buffer so that you can do
+            things like edit it or create a macro/function/variable for it.
+            To execute a database command after editing, use the command ":;"
+            when you are satisfied (use ":b" to view buffer).
+        </simpara> <simpara>
+            You may end the raw input with a line consisting only of "."
             You'll notice that your prompt will be the "raw" prompt
             between entering "\." and terminating the raw input with ".;"
-            or ":.".
+            or ".".
         </simpara> <simpara>
             Just by running commands beginning with
             <literal>BEGIN</literal>, <literal>DECLARE</literal>,
@@ -4096,15 +4096,15 @@ SELECT * FROM t
         <para>
           <example><title>Interactive Raw Mode example</title>
             <programlisting>    sql> \.
-    Enter RAW SQL.  No \, :, * commands.
+    Enter RAW text.  No \, :, * commands.
     End with a line containing only ".;" to send to database,
-    or ":." to store to edit buffer for editing or saving.
+    or oly "." to store to edit buffer for editing or saving.
     -----------------------------------------------------------
     raw> line one;
     raw> line two;
     raw> line three;
-    raw> :.
-    Raw SQL chunk moved into buffer.  Run ":;" to execute the chunk.
+    raw> .
+    Raw chunk moved into buffer.  Run ":;" to execute the chunk.
     sql> :;
     Executing command from buffer:
     line one;
@@ -4115,7 +4115,7 @@ SELECT * FROM t
     "line one;
     line two;
     line three;"
-    Unexpected token: LINE in statement [line]
+    Unexpected token: LINE
     sql></programlisting>
             </example>
             The error message "Unexpected token: LINE in statement [line]"
