@@ -234,489 +234,6 @@
     </section>
   </section>
 
-  <section xml:id="deployment_mem_disk-sect">
-    <title>Memory and Disk Use</title>
-
-    <indexterm significance="preferred">
-      <primary>memory use</primary>
-    </indexterm>
-
-    <para>Memory used by the program can be thought of as two distinct pools:
-    memory used for table data which is not released unless the data is
-    deleted and memory that can be released or is released automatically,
-    including memory used for caching, building result sets and other internal
-    operations such as storing the information needed for a rollback a
-    transaction.</para>
-
-    <para>Most JVM implementations allocate up to a maximum amount of memory
-    (usually 64 MB by default). This amount is generally not adequate when
-    large memory tables are used, or when the average size of rows in cached
-    tables is larger than a few hundred bytes. The maximum amount of allocated
-    memory can be set on the Java command line that is used for running
-    HyperSQL. For example, with Sun JVM, parameter -Xmx256m increases the
-    amount to 256 MB.</para>
-
-    <section>
-      <title>Table Memory Allocation</title>
-
-      <para>The memory used for a MEMORY table is the sum of memory used by
-      each row. Each MEMORY table row is a Java object that has 2 int or
-      reference variables. It contains an array of objects for the fields in
-      the row. Each field is an object such as <classname>Integer</classname>,
-      <classname>Long</classname>, <classname>String</classname>, etc. In
-      addition each index on the table adds a node object to the row. Each
-      node object has 6 int or reference variables. As a result, a table with
-      just one column of type INTEGER will have four objects per row, with a
-      total of 10 variables of 4 bytes each - currently taking up 80 bytes per
-      row. Beyond this, each extra column in the table adds at least a few
-      bytes to the size of each row.</para>
-    </section>
-
-    <section>
-      <title>Result Set Memory Allocation</title>
-
-      <para>By default, all the rows in the result set are built in memory, so
-      very large result sets may not be possible to build. In server mode
-      databases, by default, the result set memory is released from the server
-      once the database server has returned the result set.
-      <glossterm>in-process</glossterm> databases release the memory when the
-      application program releases the
-      <classname>java.sql.ResultSet</classname> object. Server modes require
-      additional memory for returning result sets, as they convert the full
-      result set into an array of bytes which is then transmitted to the
-      client.</para>
-
-      <para>HyperSQL 2.0 supports disk-based result sets. The commands,
-      <literal>SET SESSION RESULT MEMORY ROWS &lt;integer&gt;</literal> and
-      <literal>SET DATABASE DEFAULT RESULT MEMORY ROWS
-      &lt;integer&gt;</literal> specify a threshold for the number of rows.
-      Results with row counts above the threshold are stored on disk. These
-      settings also apply to temporary tables and subquery tables.</para>
-
-      <para>When the setFetchSize() method of the Statement interface is used
-      to limit the number rows fetched, the whole result is held by the engine
-      and is returned to the JDBC ResultSet in blocks of rows of the specified
-      fetch size. Disk-based result sets slow down the database operations and
-      should be used only when absolutely necessary, perhaps with result sets
-      that are larger than tens of thousands of rows.</para>
-    </section>
-
-    <section>
-      <title>Temporary Memory Use During Operations</title>
-
-      <para>When UPDATE and DELETE queries are performed on CACHED tables, the
-      full set of rows that are affected, including those affected due to ON
-      UPDATE actions, is held in memory for the duration of the operation.
-      This means it may not be possible to perform deletes or updates
-      involving very large numbers of rows of CACHED tables. Such operations
-      should be performed in smaller sets.</para>
-
-      <para>When transactions support is enabled with SET AUTOCOMMIT FALSE,
-      lists of all insert, delete or update operations are stored in memory so
-      that they can be undone when ROLLBACK is issued. For CACHED tables, only
-      the transaction information is held in memory, not the actual rows that
-      have changed. Transactions that span thousands of modification to data
-      will take up a lot of memory until the next COMMIT or ROLLBACK clears
-      the list. Each row modification uses less than 100 bytes until
-      COMMIT.</para>
-
-      <para>When subqueries or views are used in SELECT and other statements,
-      transient tables are created and populated by the engine. If the
-      <literal>SET SESSION RESULT MEMORY ROWS &lt;integer&gt;</literal>
-      statement has been used, these transient tables are stored on disk when
-      they are larger than the threshold.</para>
-    </section>
-
-    <section>
-      <title>Data Cache Memory Allocation</title>
-
-      <para>With CACHED tables, the data is stored on disk and only up to a
-      maximum number of rows are held in memory at any time. The default is up
-      to 50,000 rows. The SET FILES CACHE ROWS command or the
-      <property>hsqldb.cache_rows</property> connection property can be set to
-      alter this amount. As any random subset of the rows in any of the CACHED
-      tables can be held in the cache, the amount of memory needed by cached
-      rows can reach the sum of the rows containing the largest field data.
-      For example if a table with 100,000 rows contains 40,000 rows with 1,000
-      bytes of data in each row and 60,000 rows with 100 bytes in each, the
-      cache can grow to contain 50,000 of the smaller rows, but as explained
-      further, only 10,000 or the large rows.</para>
-
-      <para>An additional property, <property>hsqldb.cache_size</property> is
-      used in conjunction with the <property>hsqldb.cache_rows</property>
-      property. This puts a limit in bytes on the total size of rows that are
-      cached. The default values is 10,000KB. (This is the size of binary
-      images of the rows and indexes. It translates to more actual memory,
-      typically 2-4 times, used for the cache because the data is represented
-      by Java objects.)</para>
-
-      <para>If memory is limited, the <property>hsqldb.cache_rows</property>
-      or <property>hsqldb.cache_size</property> database properties can be
-      reduced. In the example above, if the
-      <property>hsqldb.cache_size</property> is reduced from 10,000 to 5,000,
-      it will allow the number of cached rows to reach 50,000 small rows, but
-      only 5,000 of the larger rows.</para>
-
-      <para>Data for CLOB and BLOB columns is not cached and does not affect
-      the CACHED table memory cache.</para>
-
-      <para>The use of Java nio file access method also increases memory
-      usage. Access with nio improves database update speed and is used by
-      default for data files up to 256 MB. For minimal memory use, nio access
-      should be disabled.</para>
-    </section>
-
-    <section>
-      <title>Object Pool Memory Allocation</title>
-
-      <para>HyperSQL uses a set of fast pools for immutable objects such as
-      Integer, Long and short String objects that are stored in the database.
-      In most circumstances, this reduces the memory footprint still further
-      as fewer copies of the most frequently-used objects are kept in memory.
-      The object pools are shared among all databases in the JVM. The size of
-      each pool can be modified only by altering and recompiling the
-      <literal>org.hsqldb.store.ValuePool</literal> class.</para>
-    </section>
-
-    <section>
-      <title>Lob Memory Usage</title>
-
-      <para>Access to lobs is always performed in chunks, so it is perfectly
-      possible to store and access a CLOB or BLOB that is larger than the JVM
-      memory allocation. The actual total size of lobs is almost unlimited. We
-      have tested with over 100 GB of lobs without any loss of
-      performance.</para>
-
-      <para>By default, HyperSQL 2.0 uses memory-based tables for the lob
-      schema (not the actual lob data). Therefore it is practical to store
-      about 100,000 individual lobs in the database with the default JVM
-      memory allocation. More lobs can be stored with larger JVM memory
-      allocations. In order to store more than a few hundreds of thousands of
-      lobs, you can change the lob schema storage to CACHED tables with the
-      following statements:</para>
-
-      <example>
-        <title>Using CACHED tables for the LOB schema</title>
-
-        <screen>  SET TABLE SYSTEM_LOBS.BLOCKS TYPE CACHED
-  SET TABLE SYSTEM_LOBS.LOBS TYPE CACHED
-  SET TABLE SYSTEM_LOBS.LOB_IDS TYPE CACHED
-</screen>
-      </example>
-    </section>
-
-    <section>
-      <title>Disk Space</title>
-
-      <para>With file: database, the engine uses the disk for storage of data
-      and any change. For safely, the engine backs up the data internally
-      during operation. Spare space, at least equal to the size of the .data
-      and .script file is needed. The .lobs file is not backed up during
-      operation.</para>
-    </section>
-  </section>
-
-  <section xml:id="deployment_conns-sect">
-    <title>Managing Database Connections</title>
-
-    <para>In all running modes (server or <glossterm>in-process</glossterm>)
-    multiple connections to the database engine are supported.
-    <glossterm>in-process</glossterm> (standalone) mode supports connections
-    from the client in the same Java Virtual Machine, while server modes
-    support connections over the network from several different
-    clients.</para>
-
-    <para>Connection pooling software can be used to connect to the database
-    but it is not generally necessary. Connection pools may be used for the
-    following reasons.</para>
-
-    <itemizedlist>
-      <listitem>
-        <para>To allow new queries to be performed while a time-consuming
-        query is being performed in the background. In HyperSQL, blocking
-        depends on the transaction control model, the isolation level, and the
-        current activity by other sessions.</para>
-      </listitem>
-
-      <listitem>
-        <para>To limit the maximum number of simultaneous connections to the
-        database for performance reasons. With HSQLDB this can be useful if
-        your application is designed in a way that opens and closes
-        connections for each small task. Also, the overall performance may be
-        higher when fewer simultaneous connections are used. If you want to
-        reduce the number of simultaneous sessions, you can use a connection
-        pool with fewer pooled connections.</para>
-      </listitem>
-    </itemizedlist>
-
-    <para>An application that is not both multi-threaded and transactional,
-    such as an application for recording user login and logout actions, does
-    not need more than one connection. The connection can stay open
-    indefinitely and reopened only when it is dropped due to network
-    problems.</para>
-
-    <para>When using an <glossterm>in-process</glossterm> database, when the
-    last connection to the database is closed, the database still remains
-    open. An explicit SHUTDOWN command, with or without an argument, is
-    required to close the database. A connection property on the connection
-    URL or in a properties object can be used to shutdown the database when
-    the last connection is closed.</para>
-
-    <para>When using a server database (and to some extent, an
-    <glossterm>in-process</glossterm> database), care must be taken to avoid
-    creating and dropping JDBC Connections too frequently. Failure to observe
-    this will result in poor performance when the application is under heavy
-    load.</para>
-
-    <para>A common error made by users in load-test simulations is to use a
-    single client machine to open and close thousands of connections to a
-    HyperSQL server instance. The connection attempts will fail after a few
-    thousand because of OS restrictions on opening sockets and the delay that
-    is built into the OS in closing them.</para>
-  </section>
-
-  <section>
-    <title>Tweaking the Mode of Operation</title>
-
-    <para>Different modes of operation and settings are used for different
-    purposes. Some scenarios are discussed below:</para>
-
-    <section>
-      <title>Application Development and Testing</title>
-
-      <para>First thing to be aware of is the SQL conformance settings of
-      HyperSQL. By default version 2.0 applies stricter conformance rules than
-      version 1.8 and catches long strings or decimal values that do not fit
-      within the specified length or precision settings. However, there are
-      several conformance settings that are turned off by default. This is to
-      enable easier migration from earlier versions, and also greater
-      compatibility with databases such as MySQL that are sometimes very
-      liberal with type conversions. The conformance settings are listed
-      towards the end of this chapter and their connection property
-      equivalents are listed in the Database Properties chapter. Ideally, all
-      the settings should have a true value for best error checking.</para>
-
-      <para>For application unit testing you can use an all-in-memory,
-      in-process database.</para>
-
-      <para>If the tests are all run in one process, then the contents of a
-      <glossterm>mem:</glossterm> database survives between tests. To release
-      the contents you can use the SHUTDOWN command (an SQL command). You can
-      even use multiple <glossterm>mem:</glossterm> databases in your tests
-      and SHUTDOWN each one separately.</para>
-
-      <para>If the tests are in different processes and you want to keep the
-      data between the tests, the best solution is to use a Server instance
-      that has a <glossterm>mem:</glossterm> database. After the tests are
-      done, you can SHUTDOWN this database, which will shutdown the
-      server.</para>
-
-      <para>The Server has an option that allows databases to be created as
-      needed by making a connection (see the Listeners Chapter). This option
-      is useful for testing, as your server is never shut down when a database
-      is shutdown. Each time you connect to the <glossterm>mem:</glossterm>
-      database that is served by the Server, the database is created if it
-      does not exist (i.e. has been previously shut down).</para>
-
-      <para>If you do not want to run a Server instance, and you need
-      persistence between tests in different processes, then you should use a
-      <glossterm>file:</glossterm> database. You can use the
-      <literal>shutdown=true</literal> connection property to ensure the
-      database is persisted fully after the connections are closed. An
-      alternative option is to use <literal>hsqldb.write_delay=false</literal>
-      connection property, but this is slightly slower than the other
-      option.</para>
-
-      <para>It has been reported that some data access frameworks do not close
-      all their connection to the database after the tests. In such
-      situations, you need to use zero WRITE DELAY if you want the data to
-      persist at the end of the tests</para>
-
-      <para>You may actually want to use a <glossterm>file:</glossterm>
-      database, or a server instance that serves a
-      <glossterm>file:</glossterm> database in preference to a
-      <glossterm>mem:</glossterm> database. As HyperSQL logs the DDL and DML
-      statements in the .log file, this file can be used to check what is
-      being sent to the database. Note that UPDATE statements are represented
-      by a DELETE followed by an INSERT statement. Statements are written out
-      when the connection commits. The write delay also has an effect on how
-      soon the statements are written out.</para>
-
-      <para>The new SQL logging feature in version 2.2.x and later records all
-      executed statements and can be used for debugging your
-      application.</para>
-
-      <para>Some types of tests start with a database that already contains
-      the tables and data, and perform various operations on it during the
-      tests. You can create and populate the initial database then set the
-      property "files_readonly=true" in the .properties file of the database.
-      The tests can then modify the database, but these modifications are not
-      persisted after the tests have completed.</para>
-
-      <para>Databases with "files_readonly=true" can be placed within the
-      classpath and in a jar file. In this case, the connection URL must use
-      the res: protocol, which treats the database as a resource.</para>
-    </section>
-
-    <section>
-      <title>Embedded Databases in Desktop Applications</title>
-
-      <para>In this usage, the amount of data change is often limited and
-      there is often a requirement to persist the data immediately. The
-      default write delay of .5 second is fine for many applications. You can
-      also use the property <literal>hsqldb.write_delay_millis=100</literal>
-      to reduce it to .1 second, or the property
-      <literal>hsqldb.write_delay=false</literal> to force a disk sync after
-      each commit. Before the application is closed, you should perform the
-      SHUTDOWN command to ensure the database is opened instantly when it is
-      next opened. Note you don't need to use SHUTDOWN COMPACT as
-      routine.</para>
-    </section>
-
-    <section>
-      <title>Embedded Databases in Server Applications</title>
-
-      <para>This usage involves a server application, such as a web
-      application, connecting to an embedded HyperSQL instance. In this usage,
-      the database is often accessed heavily, therefore performance and
-      latency is a consideration. If the database is updated heavily, the
-      default value of the WRITE DELAY property (0.5 sec) is often enough, as
-      it is assumed the server or the application does not go down frequently.
-      If it is necessary, you can reduce the WRITE DELAY to a small value (20
-      ms) without impacting the update speed. If you reduce WRITE DELAY to
-      zero, performance drops to the speed of disk file sync operation.</para>
-
-      <para>Alternatively, a server application can use an all-in-mem database
-      instance for fast access, while sending the data changes to a
-      persistent, disk based instance either periodically or in real
-      time.</para>
-    </section>
-
-    <section>
-      <title>Embedding a HyperSQL Server (Listener)</title>
-
-      <para>Since you won't be able to access
-      <glossterm>in-process</glossterm> database instances from other
-      processes, you will often want to run a Listener in your applications
-      that use embedded databases. You can do this by starting up a Server or
-      WebServer instance programmatically, but you could also use the class
-      <classname>org.hsqldb.util.MainInvoker</classname> to start up your
-      application and a HyperSQL Server or WebServer without any programming.
-      <example>
-          <title>MainInvoker Example</title>
-
-          <screen>  java -cp path/to/your/app.jar:path/to/hsqldb.jar your.App "" org.hsqldb.server.Server</screen>
-        </example> (Use ; instead of : to delimit classpath elements on
-      Windows). Specify the same <glossterm>in-process</glossterm> JDBC URL to
-      your app and in the <filename>server.properties</filename> file. You can
-      then connect to the database from outside using a JDBC URL like
-      <literal>jdbc:hsqldb:hsql://hostname</literal>, while connecting from
-      inside the application using something like
-      <literal>jdbc:hsqldb:file:&lt;filepath of database&gt;</literal>
-      .</para>
-
-      <simpara>This tactic can be used to run off-the-shelf server
-      applications with an embedded HyperSQL Server, without doing any
-      coding.</simpara>
-
-      <simpara><classname>MainInvoker</classname> can be used to run any
-      number of Java class main method invocations in a single JVM. See the
-      API spec for <classname xlink:href="#MainInvoker.html-link">
-      MainInvoker</classname> for details on its usage.</simpara>
-    </section>
-
-    <section>
-      <title>Using HyperSQL Without Logging</title>
-
-      <para>All file database that are not readonly, write changes to the .log
-      file. There are scenarios where writing to the .log file can be turned
-      off to improve performance, especially with larger databases. For these
-      applications you can set the property
-      <literal>hsqldb.log_data=false</literal> to disable the recovery log and
-      speed up data change performance. The equivalent SQL command is SET
-      FILES LOG FALSE.</para>
-
-      <para>With this setting, no data is logged, but all the changes to
-      cached tables are written to the .data file. To persist all the data
-      changes up to date, you can use the CHECKPOINT command. If you perform
-      SHUTDOWN, the data is also persisted correctly. If you do not use
-      CHECKPOINT or SHUTDOWN when you terminate the application, all the
-      changes are lost and the database reverts to its original state when it
-      is opened without losing any of the original data.</para>
-
-      <para>Your server applications can use a database as a temporary disk
-      data cache which is not persisted past the lifetime of the application.
-      For this usage, delete the database files when the application
-      ends.</para>
-
-      <para>On some platforms, such as embedded devices which have a reliable
-      storage device, this is also a useful option. Your application issues
-      CHECKPOINT to save the changes made so far. This method of use reduces
-      write operations on SSD devices. For this usage, the lock file should
-      also be disabled with the connection property
-      <literal>hsqldb.lock_file=false</literal>.</para>
-    </section>
-
-    <section>
-      <title>Bulk Inserts, Updates and Deletes</title>
-
-      <para>Bulk inserts, deletes and updates are performed with the best
-      performance with the following method. The database remains safe and
-      consistent using this method. In the event of a machine crash during the
-      operation, the database can be recovered to the point just before the
-      bulk operation.</para>
-
-      <orderedlist>
-        <listitem>
-          <para>Before the operation, execute the SET FILES LOG FALSE
-          statement.</para>
-        </listitem>
-
-        <listitem>
-          <para>Execute the CHECKPOINT statement.</para>
-        </listitem>
-
-        <listitem>
-          <para>Perform all the bulk operations, using batched prepared
-          statements. A batch size of 1000 to 10000 is adequate.</para>
-        </listitem>
-
-        <listitem>
-          <para>After all the bulk operations are complete, execute the SET
-          FILES LOG TRUE statement.</para>
-        </listitem>
-
-        <listitem>
-          <para>Finally execute the CHECKPOINT statatement.</para>
-        </listitem>
-
-        <listitem>
-          <para>If you have performed many thousands of updates or deletes
-          (not just inserts), it is a good idea to execute CHECKPOINT DEFRAG,
-          instead of CHECKPOINT at the end.</para>
-        </listitem>
-
-        <listitem>
-          <para>If things go wrong during the bulk operation, for example when
-          a unique constraint violation aborts the operation, and you want to
-          redo the operation, just use SHUTDOWN IMMEDIATELY instead of
-          CHECKPOINT. When you restart the database it will revert to the
-          state at the first CHECKPOINT and the bulk operation can be
-          redone.</para>
-        </listitem>
-      </orderedlist>
-    </section>
-
-    <section>
-      <title>Server Databases</title>
-
-      <para>Running databases in a HyperSQL server is the best overall method
-      of access. As the JVM process is separate from the application, this
-      method is the most reliable as well as the most accessible method of
-      running databases.</para>
-    </section>
-  </section>
-
   <section>
     <title>ACID, Persistence and Reliability</title>
 
@@ -795,226 +312,6 @@
       reliable JVM and disk storage system that stores the data safely with a
       sync() call. In practice, many systems are generally reliable in this
       respect.</para>
-    </section>
-  </section>
-
-  <section xml:id="deployment_upgrade-sect">
-    <title>Upgrading Databases</title>
-
-    <indexterm significance="preferred">
-      <primary>upgrading</primary>
-    </indexterm>
-
-    <para>Any database that is not produced with the release version of
-    HyperSQL 2.0 must be upgraded to this version.</para>
-
-    <procedure>
-      <title>Upgrading Databases Created with Version 1.8.x</title>
-
-      <step>
-        <para>Open the database with the jar that created it and perform the
-        SHUTDOWN statement as an SQL statement.</para>
-      </step>
-
-      <step>
-        <para>Open the database with the HyperSQL 2.0 jar.</para>
-      </step>
-
-      <step>
-        <para>Perform the SHUTDOWN COMPACT statement..</para>
-      </step>
-    </procedure>
-
-    <para>The first step is to guarantee there is no .log file for the
-    database. You may upgrade without the first step, but may lose part of the
-    logged statements. This has been allowed due to requests from some of our
-    deployers who have been able to test the databases created by their
-    applications and found there was no data loss. But this is not recommended
-    for general use. Most catalogs created with 1.8.x can be upgraded simply
-    by opening with HyperSQL 2.0. After opening with version 2.0, perform a
-    SHUTDOWN COMPACT to rewrite the database in the latest format.</para>
-
-    <para>In large scale deployed apps undergoing upgrades, it is sometimes
-    not practical to perform the first step of this procedure (with the old
-    jar). You can ignore the first step but you may lose part of the database
-    statements that are stored in the .log file. Therefore you need test with
-    databases created with your application to make sure typical statements
-    that are logged in the .log file are compatible with the new version.
-    Examples of known incompatible statements are those used for changing the
-    data type or default values of column.</para>
-
-    <para>When this method is not possible due to errors, the rest of the
-    procedures below should be followed.</para>
-
-    <para>A note about SHUTDOWN modes. SHUTDOWN COMPACT is equivalent to
-    SHUTDOWN SCRIPT plus opening the database and then performing a simple
-    SHUTDOWN.</para>
-
-    <para>After upgrading a database, you may want to change some of its
-    settings. For example, the new SET FILES BACKUP INCREMENT TRUE statement
-    can improve the shutdown and checkpoint times of larger databases.</para>
-
-    <para>Once a database is upgraded to 2.0, it can no longer be used with
-    previous versions of HyperSQL.</para>
-
-    <section xml:id="upgrade_via_script-sect">
-      <title xml:id="upgrade_via_script-title">Upgrading From Older
-      Versions</title>
-
-      <para>To upgrade from version 1.8.x with the default TEXT format script
-      files, simply open the database with 2.0. If the version 1.8.x files
-      have database script format set to BINARY or COMPRESSED (ZIPPED) you
-      must issue the SET SCRIPTFORMAT TEXT and SHUTDOWN SCRIPT commands with
-      the old version, then open with the new version of the engine. In most
-      cases the upgrade is successful and complete.</para>
-
-      <para>It is strongly recommended to execute SHUTDOWN COMPACT after an
-      automatic upgrade from previous versions.</para>
-
-      <para>If your database has been created with version 1.7.2 or 1.7.3,
-      first upgrade to version 1.8.1 and perform a SHUTDOWN SCRIPT with this
-      version. You can then upgrade the database to version 2.0.</para>
-
-      <para>To upgrade from older version database files (1.7.1 and older)
-      that contain CACHED tables, use the SCRIPT procedure below. In all
-      versions of HyperSQL, the <literal>SCRIPT 'filename'</literal> command
-      (used as an SQL statement) allows you to save a full record of your
-      database, including database object definitions and data, to a file of
-      your choice. You can export a script file using the old version of the
-      database engine and open the script as a database with 2.0.</para>
-
-      <procedure>
-        <title>Upgrade Using the SCRIPT Procedure for Very Old
-        Versions</title>
-
-        <step>
-          <para>Open the original database in the old version of
-          DatabaseManager</para>
-        </step>
-
-        <step>
-          <para>Issue the SCRIPT command, for example <literal>SCRIPT
-          'newversion.script'</literal> to create a script file containing a
-          copy of the database.</para>
-        </step>
-
-        <step>
-          <para>SHUTDOWN this database.</para>
-        </step>
-
-        <step>
-          <para>Copy the original <literal>*.properties</literal> file into
-          <filename>newversion.properties</filename> in the same directory as
-          <filename>newversion.script</filename></para>
-        </step>
-
-        <step>
-          <para>Try to open the new database <filename>newversion</filename>
-          using DatabaseManager of version 1.8.1.</para>
-        </step>
-
-        <step>
-          <para>If there is any inconsistency in the data, the script line
-          number is reported on the console and the opening process is
-          aborted. Edit and correct any problems in the
-          <filename>newversion.script</filename> before attempting to open
-          again. Use the guidelines in the next section (Manual Changes to the
-          <literal>.script</literal> File). Use a programming editor that is
-          capable of handling very large files and does not wrap long lines of
-          text.</para>
-        </step>
-      </procedure>
-    </section>
-
-    <section>
-      <title>Manual Changes to the *.script File</title>
-
-      <para>In HyperSQL 2.0 the full range of ALTER TABLE commands is
-      available to change the data structures and their names. However, if an
-      old database cannot be opened due to data inconsistencies, or it uses
-      index or column names that are not compatible with 2.0, manual editing
-      of the <literal>*.script</literal> file can be performed and can be
-      faster.</para>
-
-      <itemizedlist>
-        <listitem>
-          <para>Version 2.0 does not accept duplicate names for indexes that
-          were allowed before 1.7.2.</para>
-        </listitem>
-
-        <listitem>
-          <para>Version 2.0 does not accept some table or column names that
-          are SQL reserved keywords without double quoting.</para>
-        </listitem>
-
-        <listitem>
-          <para>Version 2.0 does not accept unquoted table or column names
-          which begin with an underscore</para>
-        </listitem>
-
-        <listitem>
-          <para>Version 2.0 is more strict with check conditions and default
-          values.</para>
-        </listitem>
-      </itemizedlist>
-
-      <para>Other manual changes are also possible. Note that the
-      <literal>*.script</literal> file must be the result of a SHUTDOWN SCRIPT
-      and must contain the full data for the database. The following changes
-      can be applied so long as they do not affect the integrity of existing
-      data.</para>
-
-      <itemizedlist>
-        <listitem>
-          <para>Names</para>
-
-          <para>Names of tables, columns and indexes can be changed. These
-          changes must be consistent regarding foreign key constraints.</para>
-        </listitem>
-
-        <listitem>
-          <para><literal>CHECK</literal></para>
-
-          <para>A check constraint can always be removed.</para>
-        </listitem>
-
-        <listitem>
-          <para><literal>NOT NULL</literal></para>
-
-          <para>A not-null constraint can always be removed.</para>
-        </listitem>
-
-        <listitem>
-          <para><literal>PRIMARY KEY</literal></para>
-
-          <para>A primary key constraint can be removed. It cannot be removed
-          if there is a foreign key referencing the column(s).</para>
-        </listitem>
-
-        <listitem>
-          <para><literal>UNIQUE</literal></para>
-
-          <para>A UNIQUE constraint can be removed if there is no foreign key
-          referencing the column(s).</para>
-        </listitem>
-
-        <listitem>
-          <para><literal>FOREIGN KEY</literal></para>
-
-          <para>A FOREIGN KEY constraint can always be removed.</para>
-        </listitem>
-
-        <listitem>
-          <para><literal>COLUMN TYPES</literal></para>
-
-          <para>Some changes to column types are possible. For example an
-          INTEGER column can be changed to BIGINT.</para>
-        </listitem>
-      </itemizedlist>
-
-      <para>After completing the changes and saving the modified
-      <literal>.script</literal> file, you can open the database as
-      normal.</para>
     </section>
   </section>
 
@@ -1282,127 +579,159 @@
   </section>
 
   <section>
-    <title>Backward Compatibility Issues</title>
+    <title>Database Security</title>
 
-    <para>HyperSQL 2.0 conforms to the SQL Standard better than previous
-    versions and has many more features. For these reasons, there may be some
-    compatibility issues when converting old database, or using applications
-    that were written for version 1.8.x or earlier. Some of the potential
-    issues (and enhancements) are listed here.</para>
+    <para>HyperSQL has extensive security features which are implemented at
+    different levels and covered in different chapters of this guide.</para>
 
-    <itemizedlist>
+    <orderedlist>
       <listitem>
-        <para>User names and passwords are case-sensitive. Check the .script
-        file of a database for the correct case of user name and password and
-        use this form in the connection properties or on connection
-        URL.</para>
+        <para>The server can use SSL and IP address access control lists. See
+        the <link endterm="listeners-title"
+        xlink:href="#listeners-chapt"></link> chapter.</para>
       </listitem>
 
       <listitem>
-        <para>It is now possible to specify the admin username and password
-        for a new database (instead of SA and the empty password).</para>
+        <para>You can define a system property to stop the database engine
+        accessing the Java static functions that are on the classpath, apart
+        from a limited set that you allow. See Securing Access to Classes in
+        the <link endterm="sqlroutines-title"
+        xlink:href="#sqlroutines-chapt"></link> chapter.</para>
       </listitem>
 
       <listitem>
-        <para>HyperSQL 2.0 has several settings that relax its conformance to
-        the SQL Standard in the areas of type conversion and object names.
-        These settings can be turned on for maximum conformance.</para>
-      </listitem>
-
-      <listitem>
-        <para>Check constraints must conform to the SQL Standard. A check
-        constraint is rejected if it is not deterministic or retrospectively
-        deterministic. When opening an old database, HyperSQL silently drops
-        check constraints that no longer compile. See under check constraints
-        for more detail about what is not allowed.</para>
-      </listitem>
-
-      <listitem>
-        <para>Type declarations in column definition and in cast expressions
-        must have the necessary size parameters.</para>
-      </listitem>
-
-      <listitem>
-        <para>In connection with the above, an old database that did not have
-        the <literal>enforce_strict_size</literal> property, is now converted
-        to version 2.0 with the engine supplying the missing size parameters.
-        For example, a VARCHAR column declaration that has no size, is given a
-        32K size, a LONGVARCHAR column is given a 16MB size. Check these sizes
-        are adequate for your use, and change the column definition as
-        necessary.</para>
-      </listitem>
-
-      <listitem>
-        <para>Column names in a GROUP BY clause were previously resolved to
-        the column label. They are now resolved to column name first, and if
-        the name does not match, to the column label.</para>
-      </listitem>
-
-      <listitem>
-        <para>If two or more tables in a join contain columns with the same
-        name, the columns cannot be referenced in join and where conditions.
-        Use table names before column names to qualify the references to such
-        columns. The <literal>SET DATABASE SQL REFERENCES { TRUE | FALSE
-        }</literal> statement enables or disables this check.</para>
-      </listitem>
-
-      <listitem>
-        <para>If the unqualified wild card is used, as in the statement SELECT
-        * FROM ... no additional column references are allowed. A
-        table-qualified wild card allows additional column references in the
-        SELECT list</para>
-      </listitem>
-
-      <listitem>
-        <para>Table definitions containing <literal>GENERATED BY DEFAULT AS
-        IDENTITY</literal> but with no <literal>PRIMARY KEY</literal> do not
-        automatically create a primary key. Database .script files made with
-        1.8 are fine, as the <literal>PRIMARY KEY</literal> clause is always
-        included. But the <literal>CREATE TABLE</literal> statements in your
-        application program may assume an automatic primary key is created.
-        The old shortcut, IDENTITY, is retained with the same meaning. So
-        <literal>CREATE TABLE T (ID IDENTITY, DAT VARCHAR(20))</literal> is
-        translated into <literal>CREATE TABLE T(ID INTEGER GENERATED BY
-        DEFAULT AS IDENTITY PRIMARY KEY, DAT VARCHAR(20))</literal>. This last
-        form is the correct way of defining both autoincrement and primary key
-        in versions 1.8 and 2.0.</para>
-      </listitem>
-
-      <listitem>
-        <para>CREATE ALIAS is now obsolete. Use the new function definition
-        syntax. The <classname>org.hsqldb.Library </classname>class no longer
-        exists. You should use the SQL form of the old library functions. For
-        example, use <literal>LOG(x)</literal> rather than the direct form,
-        <literal>"org.hsqldb.Library.log"(x)</literal>.</para>
-      </listitem>
-
-      <listitem>
-        <para>The names of some commands for changing database and session
-        properties have changed. See the list of statements in this
+        <para>You can define a system property to allow access to files on the
+        file system outside the database directory and its children. This
+        access is only necessary if you use TEXT tables. See the <link
+        endterm="texttables-title" xlink:href="#texttables-chapt"></link>
         chapter.</para>
       </listitem>
 
       <listitem>
-        <para>Computed columns in SELECT statements which did not have an
-        alias: These columns had no ResultMetaData lebel in version 1.8, but
-        in vresion 2.0, the engine generates labels such as C1, C2.</para>
+        <para>The database files can be encrypted. Discussed in this
+        chapter.</para>
       </listitem>
 
       <listitem>
-        <para>The issue with the JDBC ResultSetMetaData methods,
-        <literal>getColumnName(int column)</literal> and
-        <literal>getColumnLabel(int column)</literal> has been clarified by
-        the JDBC 4 specification. <literal>getColumName()</literal> returns
-        the undelying column name, while <literal>getColumnLabel()</literal>
-        returns any specified or generated alias. HyperSQL 1.8 and 2.0 have a
-        connection property, <literal>get_column_name</literal>, which
-        defaults to true in verision 2.0, but defaulted to false in some
-        releases of version 1.8.x. You have to explicitly specify this
-        property as false if you want (non-standard behaviour)
-        <literal>getColumnName()</literal> to return the same value as
-        <literal>getColumnLabel()</literal>.</para>
+        <para>Within the database, the DBA privileges are required for system
+        and maintenance jobs. Ordinary users can be granted privileges on
+        objects.</para>
       </listitem>
-    </itemizedlist>
+
+      <listitem>
+        <para>You can define users and roles and grant them access on
+        different database objects. Each user has a password and is granted a
+        set of privileges. See the <link endterm="accesscontrol-title"
+        xlink:href="#accesscontrol-chapt"></link> chapter.</para>
+      </listitem>
+
+      <listitem>
+        <para>You can define a password complexity check function for new and
+        changed passwords. This is covered below under Authentication
+        Settings.</para>
+      </listitem>
+
+      <listitem>
+        <para>You can use external authentication instead of internally stored
+        password to authenticate users for each database. This is covered
+        below under Authentication Settings.</para>
+      </listitem>
+    </orderedlist>
+
+    <para>HyperSQL security is multi-layered and avoids any loopholes to
+    circumvent security. It is however the user's responsibility to enable the
+    required level of security.</para>
+
+    <section>
+      <title>Security Defaults</title>
+
+      <para>The default setting are generally adequate for most embedded use
+      of the database or for servers on the host that are accessed from the
+      same machine. For servers accessed within a network, and especially for
+      those accessed from outside the network, additional security settings
+      must be used.</para>
+
+      <para>The default settings for server and web server do not use SSL or
+      IP access control lists. These features are enabled programatically, or
+      with the properties used to start the server.</para>
+
+      <para>The default settings allow a database user with the DBA role or
+      with schema creation role to access static functions on the classpath.
+      You can disable this feature or limit it to specific classes and
+      methods. This can be done programatically or by setting a system
+      property when you start a server.</para>
+
+      <para>If access to specific static functions is granted, then these
+      functions must be considered as part of the database program and checked
+      for any security flaws before inclusion in the classpath.</para>
+
+      <para>The default settings do not allow a user to access files outside
+      the database directory. This access is for TEXT table source files. You
+      can override this programatically or with a system property when you
+      start a server.</para>
+
+      <para>The encryption of database file does not utilise any user-supplied
+      information for encryption keys. This level of security is outside the
+      realm of users and passwords.</para>
+
+      <para>The first user for a new database has the DBA role. This user name
+      need not be SA. The name of the first DBA user and its password can be
+      specified when the database is created by the first connection to the
+      database. These settings are then stored in the database.</para>
+
+      <para>The initial user with the DBA role should be used for admin
+      purposes only. At least one additional role should be created for normal
+      databse use in the application and at least one additional user should
+      be created and granted this role. The new role should not be given the
+      DBA role. It can be given the CREATE_SCHEMA role, which allows it to
+      create and access multiple schemas. Alternatively, the user with the DBA
+      role can create the schemas and their objects and then grant specific
+      privileges on the objects to the non-DBA role.</para>
+    </section>
+
+    <section>
+      <title>Authentication Control</title>
+
+      <para>Authentication is the mechanism that determines if a user can
+      access the database at all. Once authentication is performed, the
+      authorization mechanism is used to determine which database objects the
+      particular user can access. The default authentication mechanism is
+      password authentication. Each user is created with a password, which is
+      stored in the database and checked each time a new database connection
+      is created.</para>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>password complexity</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">Password Complexity
+      Check</emphasis></simpara>
+
+      <para>HyperSQL allows you to define a function that checks the quality
+      of the passwords defined in the database. The passwords are stored in
+      the database. Each time a user connects, the user's name and password
+      are checked against the stored list of users and passwords. The
+      connection attempt is rejected if there is no match.</para>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>external authentication</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">External
+      Authentication</emphasis></simpara>
+
+      <para>You can use an external authentication mechanism instead of the
+      internal authentication mechanism. HyperSQL allows you to define a
+      function that checks the combination of database unique name, user name,
+      and password for each connection attempt. The function can use external
+      resources to authenticate the user. For example, a directory server may
+      be used. The password may be ignored if the external resource can verify
+      the user's credential without it.</para>
+
+      <para>You can override external authentication for a user with the ALTER
+      USER statement. See the <link endterm="accesscontrol-title"
+      xlink:href="#accesscontrol-chapt"></link> chapter</para>
+    </section>
   </section>
 
   <section>
@@ -1846,162 +1175,6 @@
           <para>SQL routines need quite a lot of changes.</para>
         </listitem>
       </itemizedlist>
-    </section>
-  </section>
-
-  <section>
-    <title>Database Security</title>
-
-    <para>HyperSQL has extensive security features which are implemented at
-    different levels and covered in different chapters of this guide.</para>
-
-    <orderedlist>
-      <listitem>
-        <para>The server can use SSL and IP address access control lists. See
-        the <link endterm="listeners-title"
-        xlink:href="#listeners-chapt"></link> chapter.</para>
-      </listitem>
-
-      <listitem>
-        <para>You can define a system property to stop the database engine
-        accessing the Java static functions that are on the classpath, apart
-        from a limited set that you allow. See Securing Access to Classes in
-        the <link endterm="sqlroutines-title"
-        xlink:href="#sqlroutines-chapt"></link> chapter.</para>
-      </listitem>
-
-      <listitem>
-        <para>You can define a system property to allow access to files on the
-        file system outside the database directory and its children. This
-        access is only necessary if you use TEXT tables. See the <link
-        endterm="texttables-title" xlink:href="#texttables-chapt"></link>
-        chapter.</para>
-      </listitem>
-
-      <listitem>
-        <para>The database files can be encrypted. Discussed in this
-        chapter.</para>
-      </listitem>
-
-      <listitem>
-        <para>Within the database, the DBA privileges are required for system
-        and maintenance jobs. Ordinary users can be granted privileges on
-        objects.</para>
-      </listitem>
-
-      <listitem>
-        <para>You can define users and roles and grant them access on
-        different database objects. Each user has a password and is granted a
-        set of privileges. See the <link endterm="accesscontrol-title"
-        xlink:href="#accesscontrol-chapt"></link> chapter.</para>
-      </listitem>
-
-      <listitem>
-        <para>You can define a password complexity check function for new and
-        changed passwords. This is covered below under Authentication
-        Settings.</para>
-      </listitem>
-
-      <listitem>
-        <para>You can use external authentication instead of internally stored
-        password to authenticate users for each database. This is covered
-        below under Authentication Settings.</para>
-      </listitem>
-    </orderedlist>
-
-    <para>HyperSQL security is multi-layered and avoids any loopholes to
-    circumvent security. It is however the user's responsibility to enable the
-    required level of security.</para>
-
-    <section>
-      <title>Security Defaults</title>
-
-      <para>The default setting are generally adequate for most embedded use
-      of the database or for servers on the host that are accessed from the
-      same machine. For servers accessed within a network, and especially for
-      those accessed from outside the network, additional security settings
-      must be used.</para>
-
-      <para>The default settings for server and web server do not use SSL or
-      IP access control lists. These features are enabled programatically, or
-      with the properties used to start the server.</para>
-
-      <para>The default settings allow a database user with the DBA role or
-      with schema creation role to access static functions on the classpath.
-      You can disable this feature or limit it to specific classes and
-      methods. This can be done programatically or by setting a system
-      property when you start a server.</para>
-
-      <para>If access to specific static functions is granted, then these
-      functions must be considered as part of the database program and checked
-      for any security flaws before inclusion in the classpath.</para>
-
-      <para>The default settings do not allow a user to access files outside
-      the database directory. This access is for TEXT table source files. You
-      can override this programatically or with a system property when you
-      start a server.</para>
-
-      <para>The encryption of database file does not utilise any user-supplied
-      information for encryption keys. This level of security is outside the
-      realm of users and passwords.</para>
-
-      <para>The first user for a new database has the DBA role. This user name
-      need not be SA. The name of the first DBA user and its password can be
-      specified when the database is created by the first connection to the
-      database. These settings are then stored in the database.</para>
-
-      <para>The initial user with the DBA role should be used for admin
-      purposes only. At least one additional role should be created for normal
-      databse use in the application and at least one additional user should
-      be created and granted this role. The new role should not be given the
-      DBA role. It can be given the CREATE_SCHEMA role, which allows it to
-      create and access multiple schemas. Alternatively, the user with the DBA
-      role can create the schemas and their objects and then grant specific
-      privileges on the objects to the non-DBA role.</para>
-    </section>
-
-    <section>
-      <title>Authentication Control</title>
-
-      <para>Authentication is the mechanism that determines if a user can
-      access the database at all. Once authentication is performed, the
-      authorization mechanism is used to determine which database objects the
-      particular user can access. The default authentication mechanism is
-      password authentication. Each user is created with a password, which is
-      stored in the database and checked each time a new database connection
-      is created.</para>
-
-      <indexterm significance="preferred" type="sql">
-        <primary>password complexity</primary>
-      </indexterm>
-
-      <simpara><emphasis role="bold">Password Complexity
-      Check</emphasis></simpara>
-
-      <para>HyperSQL allows you to define a function that checks the quality
-      of the passwords defined in the database. The passwords are stored in
-      the database. Each time a user connects, the user's name and password
-      are checked against the stored list of users and passwords. The
-      connection attempt is rejected if there is no match.</para>
-
-      <indexterm significance="preferred" type="sql">
-        <primary>external authentication</primary>
-      </indexterm>
-
-      <simpara><emphasis role="bold">External
-      Authentication</emphasis></simpara>
-
-      <para>You can use an external authentication mechanism instead of the
-      internal authentication mechanism. HyperSQL allows you to define a
-      function that checks the combination of database unique name, user name,
-      and password for each connection attempt. The function can use external
-      resources to authenticate the user. For example, a directory server may
-      be used. The password may be ignored if the external resource can verify
-      the user's credential without it.</para>
-
-      <para>You can override external authentication for a user with the ALTER
-      USER statement. See the <link endterm="accesscontrol-title"
-      xlink:href="#accesscontrol-chapt"></link> chapter</para>
     </section>
   </section>
 
@@ -3501,6 +2674,833 @@ public static java.sql.Array accessExternalMethod(String database, String user, 
 }
 </programlisting>
     </section>
+  </section>
+
+  <section xml:id="deployment_mem_disk-sect">
+    <title>Memory and Disk Use</title>
+
+    <indexterm significance="preferred">
+      <primary>memory use</primary>
+    </indexterm>
+
+    <para>Memory used by the program can be thought of as two distinct pools:
+    memory used for table data which is not released unless the data is
+    deleted and memory that can be released or is released automatically,
+    including memory used for caching, building result sets and other internal
+    operations such as storing the information needed for a rollback a
+    transaction.</para>
+
+    <para>Most JVM implementations allocate up to a maximum amount of memory
+    (usually 64 MB by default). This amount is generally not adequate when
+    large memory tables are used, or when the average size of rows in cached
+    tables is larger than a few hundred bytes. The maximum amount of allocated
+    memory can be set on the Java command line that is used for running
+    HyperSQL. For example, with Sun JVM, parameter -Xmx256m increases the
+    amount to 256 MB.</para>
+
+    <section>
+      <title>Table Memory Allocation</title>
+
+      <para>The memory used for a MEMORY table is the sum of memory used by
+      each row. Each MEMORY table row is a Java object that has 2 int or
+      reference variables. It contains an array of objects for the fields in
+      the row. Each field is an object such as <classname>Integer</classname>,
+      <classname>Long</classname>, <classname>String</classname>, etc. In
+      addition each index on the table adds a node object to the row. Each
+      node object has 6 int or reference variables. As a result, a table with
+      just one column of type INTEGER will have four objects per row, with a
+      total of 10 variables of 4 bytes each - currently taking up 80 bytes per
+      row. Beyond this, each extra column in the table adds at least a few
+      bytes to the size of each row.</para>
+    </section>
+
+    <section>
+      <title>Result Set Memory Allocation</title>
+
+      <para>By default, all the rows in the result set are built in memory, so
+      very large result sets may not be possible to build. In server mode
+      databases, by default, the result set memory is released from the server
+      once the database server has returned the result set.
+      <glossterm>in-process</glossterm> databases release the memory when the
+      application program releases the
+      <classname>java.sql.ResultSet</classname> object. Server modes require
+      additional memory for returning result sets, as they convert the full
+      result set into an array of bytes which is then transmitted to the
+      client.</para>
+
+      <para>HyperSQL 2.0 supports disk-based result sets. The commands,
+      <literal>SET SESSION RESULT MEMORY ROWS &lt;integer&gt;</literal> and
+      <literal>SET DATABASE DEFAULT RESULT MEMORY ROWS
+      &lt;integer&gt;</literal> specify a threshold for the number of rows.
+      Results with row counts above the threshold are stored on disk. These
+      settings also apply to temporary tables and subquery tables.</para>
+
+      <para>When the setFetchSize() method of the Statement interface is used
+      to limit the number rows fetched, the whole result is held by the engine
+      and is returned to the JDBC ResultSet in blocks of rows of the specified
+      fetch size. Disk-based result sets slow down the database operations and
+      should be used only when absolutely necessary, perhaps with result sets
+      that are larger than tens of thousands of rows.</para>
+    </section>
+
+    <section>
+      <title>Temporary Memory Use During Operations</title>
+
+      <para>When UPDATE and DELETE queries are performed on CACHED tables, the
+      full set of rows that are affected, including those affected due to ON
+      UPDATE actions, is held in memory for the duration of the operation.
+      This means it may not be possible to perform deletes or updates
+      involving very large numbers of rows of CACHED tables. Such operations
+      should be performed in smaller sets.</para>
+
+      <para>When transactions support is enabled with SET AUTOCOMMIT FALSE,
+      lists of all insert, delete or update operations are stored in memory so
+      that they can be undone when ROLLBACK is issued. For CACHED tables, only
+      the transaction information is held in memory, not the actual rows that
+      have changed. Transactions that span thousands of modification to data
+      will take up a lot of memory until the next COMMIT or ROLLBACK clears
+      the list. Each row modification uses less than 100 bytes until
+      COMMIT.</para>
+
+      <para>When subqueries or views are used in SELECT and other statements,
+      transient tables are created and populated by the engine. If the
+      <literal>SET SESSION RESULT MEMORY ROWS &lt;integer&gt;</literal>
+      statement has been used, these transient tables are stored on disk when
+      they are larger than the threshold.</para>
+    </section>
+
+    <section>
+      <title>Data Cache Memory Allocation</title>
+
+      <para>With CACHED tables, the data is stored on disk and only up to a
+      maximum number of rows are held in memory at any time. The default is up
+      to 50,000 rows. The SET FILES CACHE ROWS command or the
+      <property>hsqldb.cache_rows</property> connection property can be set to
+      alter this amount. As any random subset of the rows in any of the CACHED
+      tables can be held in the cache, the amount of memory needed by cached
+      rows can reach the sum of the rows containing the largest field data.
+      For example if a table with 100,000 rows contains 40,000 rows with 1,000
+      bytes of data in each row and 60,000 rows with 100 bytes in each, the
+      cache can grow to contain 50,000 of the smaller rows, but as explained
+      further, only 10,000 or the large rows.</para>
+
+      <para>An additional property, <property>hsqldb.cache_size</property> is
+      used in conjunction with the <property>hsqldb.cache_rows</property>
+      property. This puts a limit in bytes on the total size of rows that are
+      cached. The default values is 10,000KB. (This is the size of binary
+      images of the rows and indexes. It translates to more actual memory,
+      typically 2-4 times, used for the cache because the data is represented
+      by Java objects.)</para>
+
+      <para>If memory is limited, the <property>hsqldb.cache_rows</property>
+      or <property>hsqldb.cache_size</property> database properties can be
+      reduced. In the example above, if the
+      <property>hsqldb.cache_size</property> is reduced from 10,000 to 5,000,
+      it will allow the number of cached rows to reach 50,000 small rows, but
+      only 5,000 of the larger rows.</para>
+
+      <para>Data for CLOB and BLOB columns is not cached and does not affect
+      the CACHED table memory cache.</para>
+
+      <para>The use of Java nio file access method also increases memory
+      usage. Access with nio improves database update speed and is used by
+      default for data files up to 256 MB. For minimal memory use, nio access
+      should be disabled.</para>
+    </section>
+
+    <section>
+      <title>Object Pool Memory Allocation</title>
+
+      <para>HyperSQL uses a set of fast pools for immutable objects such as
+      Integer, Long and short String objects that are stored in the database.
+      In most circumstances, this reduces the memory footprint still further
+      as fewer copies of the most frequently-used objects are kept in memory.
+      The object pools are shared among all databases in the JVM. The size of
+      each pool can be modified only by altering and recompiling the
+      <literal>org.hsqldb.store.ValuePool</literal> class.</para>
+    </section>
+
+    <section>
+      <title>Lob Memory Usage</title>
+
+      <para>Access to lobs is always performed in chunks, so it is perfectly
+      possible to store and access a CLOB or BLOB that is larger than the JVM
+      memory allocation. The actual total size of lobs is almost unlimited. We
+      have tested with over 100 GB of lobs without any loss of
+      performance.</para>
+
+      <para>By default, HyperSQL 2.0 uses memory-based tables for the lob
+      schema (not the actual lob data). Therefore it is practical to store
+      about 100,000 individual lobs in the database with the default JVM
+      memory allocation. More lobs can be stored with larger JVM memory
+      allocations. In order to store more than a few hundreds of thousands of
+      lobs, you can change the lob schema storage to CACHED tables with the
+      following statements:</para>
+
+      <example>
+        <title>Using CACHED tables for the LOB schema</title>
+
+        <screen>  SET TABLE SYSTEM_LOBS.BLOCKS TYPE CACHED
+  SET TABLE SYSTEM_LOBS.LOBS TYPE CACHED
+  SET TABLE SYSTEM_LOBS.LOB_IDS TYPE CACHED
+</screen>
+      </example>
+    </section>
+
+    <section>
+      <title>Disk Space</title>
+
+      <para>With file: database, the engine uses the disk for storage of data
+      and any change. For safely, the engine backs up the data internally
+      during operation. Spare space, at least equal to the size of the .data
+      and .script file is needed. The .lobs file is not backed up during
+      operation.</para>
+    </section>
+  </section>
+
+  <section xml:id="deployment_conns-sect">
+    <title>Managing Database Connections</title>
+
+    <para>In all running modes (server or <glossterm>in-process</glossterm>)
+    multiple connections to the database engine are supported.
+    <glossterm>in-process</glossterm> (standalone) mode supports connections
+    from the client in the same Java Virtual Machine, while server modes
+    support connections over the network from several different
+    clients.</para>
+
+    <para>Connection pooling software can be used to connect to the database
+    but it is not generally necessary. Connection pools may be used for the
+    following reasons.</para>
+
+    <itemizedlist>
+      <listitem>
+        <para>To allow new queries to be performed while a time-consuming
+        query is being performed in the background. In HyperSQL, blocking
+        depends on the transaction control model, the isolation level, and the
+        current activity by other sessions.</para>
+      </listitem>
+
+      <listitem>
+        <para>To limit the maximum number of simultaneous connections to the
+        database for performance reasons. With HSQLDB this can be useful if
+        your application is designed in a way that opens and closes
+        connections for each small task. Also, the overall performance may be
+        higher when fewer simultaneous connections are used. If you want to
+        reduce the number of simultaneous sessions, you can use a connection
+        pool with fewer pooled connections.</para>
+      </listitem>
+    </itemizedlist>
+
+    <para>An application that is not both multi-threaded and transactional,
+    such as an application for recording user login and logout actions, does
+    not need more than one connection. The connection can stay open
+    indefinitely and reopened only when it is dropped due to network
+    problems.</para>
+
+    <para>When using an <glossterm>in-process</glossterm> database, when the
+    last connection to the database is closed, the database still remains
+    open. An explicit SHUTDOWN command, with or without an argument, is
+    required to close the database. A connection property on the connection
+    URL or in a properties object can be used to shutdown the database when
+    the last connection is closed.</para>
+
+    <para>When using a server database (and to some extent, an
+    <glossterm>in-process</glossterm> database), care must be taken to avoid
+    creating and dropping JDBC Connections too frequently. Failure to observe
+    this will result in poor performance when the application is under heavy
+    load.</para>
+
+    <para>A common error made by users in load-test simulations is to use a
+    single client machine to open and close thousands of connections to a
+    HyperSQL server instance. The connection attempts will fail after a few
+    thousand because of OS restrictions on opening sockets and the delay that
+    is built into the OS in closing them.</para>
+  </section>
+
+  <section>
+    <title>Tweaking the Mode of Operation</title>
+
+    <para>Different modes of operation and settings are used for different
+    purposes. Some scenarios are discussed below:</para>
+
+    <section>
+      <title>Application Development and Testing</title>
+
+      <para>First thing to be aware of is the SQL conformance settings of
+      HyperSQL. By default version 2.0 applies stricter conformance rules than
+      version 1.8 and catches long strings or decimal values that do not fit
+      within the specified length or precision settings. However, there are
+      several conformance settings that are turned off by default. This is to
+      enable easier migration from earlier versions, and also greater
+      compatibility with databases such as MySQL that are sometimes very
+      liberal with type conversions. The conformance settings are listed
+      towards the end of this chapter and their connection property
+      equivalents are listed in the Database Properties chapter. Ideally, all
+      the settings should have a true value for best error checking.</para>
+
+      <para>For application unit testing you can use an all-in-memory,
+      in-process database.</para>
+
+      <para>If the tests are all run in one process, then the contents of a
+      <glossterm>mem:</glossterm> database survives between tests. To release
+      the contents you can use the SHUTDOWN command (an SQL command). You can
+      even use multiple <glossterm>mem:</glossterm> databases in your tests
+      and SHUTDOWN each one separately.</para>
+
+      <para>If the tests are in different processes and you want to keep the
+      data between the tests, the best solution is to use a Server instance
+      that has a <glossterm>mem:</glossterm> database. After the tests are
+      done, you can SHUTDOWN this database, which will shutdown the
+      server.</para>
+
+      <para>The Server has an option that allows databases to be created as
+      needed by making a connection (see the Listeners Chapter). This option
+      is useful for testing, as your server is never shut down when a database
+      is shutdown. Each time you connect to the <glossterm>mem:</glossterm>
+      database that is served by the Server, the database is created if it
+      does not exist (i.e. has been previously shut down).</para>
+
+      <para>If you do not want to run a Server instance, and you need
+      persistence between tests in different processes, then you should use a
+      <glossterm>file:</glossterm> database. You can use the
+      <literal>shutdown=true</literal> connection property to ensure the
+      database is persisted fully after the connections are closed. An
+      alternative option is to use <literal>hsqldb.write_delay=false</literal>
+      connection property, but this is slightly slower than the other
+      option.</para>
+
+      <para>It has been reported that some data access frameworks do not close
+      all their connection to the database after the tests. In such
+      situations, you need to use zero WRITE DELAY if you want the data to
+      persist at the end of the tests</para>
+
+      <para>You may actually want to use a <glossterm>file:</glossterm>
+      database, or a server instance that serves a
+      <glossterm>file:</glossterm> database in preference to a
+      <glossterm>mem:</glossterm> database. As HyperSQL logs the DDL and DML
+      statements in the .log file, this file can be used to check what is
+      being sent to the database. Note that UPDATE statements are represented
+      by a DELETE followed by an INSERT statement. Statements are written out
+      when the connection commits. The write delay also has an effect on how
+      soon the statements are written out.</para>
+
+      <para>The new SQL logging feature in version 2.2.x and later records all
+      executed statements and can be used for debugging your
+      application.</para>
+
+      <para>Some types of tests start with a database that already contains
+      the tables and data, and perform various operations on it during the
+      tests. You can create and populate the initial database then set the
+      property "files_readonly=true" in the .properties file of the database.
+      The tests can then modify the database, but these modifications are not
+      persisted after the tests have completed.</para>
+
+      <para>Databases with "files_readonly=true" can be placed within the
+      classpath and in a jar file. In this case, the connection URL must use
+      the res: protocol, which treats the database as a resource.</para>
+    </section>
+
+    <section>
+      <title>Embedded Databases in Desktop Applications</title>
+
+      <para>In this usage, the amount of data change is often limited and
+      there is often a requirement to persist the data immediately. The
+      default write delay of .5 second is fine for many applications. You can
+      also use the property <literal>hsqldb.write_delay_millis=100</literal>
+      to reduce it to .1 second, or the property
+      <literal>hsqldb.write_delay=false</literal> to force a disk sync after
+      each commit. Before the application is closed, you should perform the
+      SHUTDOWN command to ensure the database is opened instantly when it is
+      next opened. Note you don't need to use SHUTDOWN COMPACT as
+      routine.</para>
+    </section>
+
+    <section>
+      <title>Embedded Databases in Server Applications</title>
+
+      <para>This usage involves a server application, such as a web
+      application, connecting to an embedded HyperSQL instance. In this usage,
+      the database is often accessed heavily, therefore performance and
+      latency is a consideration. If the database is updated heavily, the
+      default value of the WRITE DELAY property (0.5 sec) is often enough, as
+      it is assumed the server or the application does not go down frequently.
+      If it is necessary, you can reduce the WRITE DELAY to a small value (20
+      ms) without impacting the update speed. If you reduce WRITE DELAY to
+      zero, performance drops to the speed of disk file sync operation.</para>
+
+      <para>Alternatively, a server application can use an all-in-mem database
+      instance for fast access, while sending the data changes to a
+      persistent, disk based instance either periodically or in real
+      time.</para>
+    </section>
+
+    <section>
+      <title>Embedding a HyperSQL Server (Listener)</title>
+
+      <para>Since you won't be able to access
+      <glossterm>in-process</glossterm> database instances from other
+      processes, you will often want to run a Listener in your applications
+      that use embedded databases. You can do this by starting up a Server or
+      WebServer instance programmatically, but you could also use the class
+      <classname>org.hsqldb.util.MainInvoker</classname> to start up your
+      application and a HyperSQL Server or WebServer without any programming.
+      <example>
+          <title>MainInvoker Example</title>
+
+          <screen>  java -cp path/to/your/app.jar:path/to/hsqldb.jar your.App "" org.hsqldb.server.Server</screen>
+        </example> (Use ; instead of : to delimit classpath elements on
+      Windows). Specify the same <glossterm>in-process</glossterm> JDBC URL to
+      your app and in the <filename>server.properties</filename> file. You can
+      then connect to the database from outside using a JDBC URL like
+      <literal>jdbc:hsqldb:hsql://hostname</literal>, while connecting from
+      inside the application using something like
+      <literal>jdbc:hsqldb:file:&lt;filepath of database&gt;</literal>
+      .</para>
+
+      <simpara>This tactic can be used to run off-the-shelf server
+      applications with an embedded HyperSQL Server, without doing any
+      coding.</simpara>
+
+      <simpara><classname>MainInvoker</classname> can be used to run any
+      number of Java class main method invocations in a single JVM. See the
+      API spec for <classname xlink:href="#MainInvoker.html-link">
+      MainInvoker</classname> for details on its usage.</simpara>
+    </section>
+
+    <section>
+      <title>Using HyperSQL Without Logging</title>
+
+      <para>All file database that are not readonly, write changes to the .log
+      file. There are scenarios where writing to the .log file can be turned
+      off to improve performance, especially with larger databases. For these
+      applications you can set the property
+      <literal>hsqldb.log_data=false</literal> to disable the recovery log and
+      speed up data change performance. The equivalent SQL command is SET
+      FILES LOG FALSE.</para>
+
+      <para>With this setting, no data is logged, but all the changes to
+      cached tables are written to the .data file. To persist all the data
+      changes up to date, you can use the CHECKPOINT command. If you perform
+      SHUTDOWN, the data is also persisted correctly. If you do not use
+      CHECKPOINT or SHUTDOWN when you terminate the application, all the
+      changes are lost and the database reverts to its original state when it
+      is opened without losing any of the original data.</para>
+
+      <para>Your server applications can use a database as a temporary disk
+      data cache which is not persisted past the lifetime of the application.
+      For this usage, delete the database files when the application
+      ends.</para>
+
+      <para>On some platforms, such as embedded devices which have a reliable
+      storage device, this is also a useful option. Your application issues
+      CHECKPOINT to save the changes made so far. This method of use reduces
+      write operations on SSD devices. For this usage, the lock file should
+      also be disabled with the connection property
+      <literal>hsqldb.lock_file=false</literal>.</para>
+    </section>
+
+    <section>
+      <title>Bulk Inserts, Updates and Deletes</title>
+
+      <para>Bulk inserts, deletes and updates are performed with the best
+      performance with the following method. The database remains safe and
+      consistent using this method. In the event of a machine crash during the
+      operation, the database can be recovered to the point just before the
+      bulk operation.</para>
+
+      <orderedlist>
+        <listitem>
+          <para>Before the operation, execute the SET FILES LOG FALSE
+          statement.</para>
+        </listitem>
+
+        <listitem>
+          <para>Execute the CHECKPOINT statement.</para>
+        </listitem>
+
+        <listitem>
+          <para>Perform all the bulk operations, using batched prepared
+          statements. A batch size of 1000 to 10000 is adequate.</para>
+        </listitem>
+
+        <listitem>
+          <para>After all the bulk operations are complete, execute the SET
+          FILES LOG TRUE statement.</para>
+        </listitem>
+
+        <listitem>
+          <para>Finally execute the CHECKPOINT statatement.</para>
+        </listitem>
+
+        <listitem>
+          <para>If you have performed many thousands of updates or deletes
+          (not just inserts), it is a good idea to execute CHECKPOINT DEFRAG,
+          instead of CHECKPOINT at the end.</para>
+        </listitem>
+
+        <listitem>
+          <para>If things go wrong during the bulk operation, for example when
+          a unique constraint violation aborts the operation, and you want to
+          redo the operation, just use SHUTDOWN IMMEDIATELY instead of
+          CHECKPOINT. When you restart the database it will revert to the
+          state at the first CHECKPOINT and the bulk operation can be
+          redone.</para>
+        </listitem>
+      </orderedlist>
+    </section>
+
+    <section>
+      <title>Server Databases</title>
+
+      <para>Running databases in a HyperSQL server is the best overall method
+      of access. As the JVM process is separate from the application, this
+      method is the most reliable as well as the most accessible method of
+      running databases.</para>
+    </section>
+  </section>
+
+  <section xml:id="deployment_upgrade-sect">
+    <title>Upgrading Databases</title>
+
+    <indexterm significance="preferred">
+      <primary>upgrading</primary>
+    </indexterm>
+
+    <para>Any database that is not produced with the release version of
+    HyperSQL 2.0 must be upgraded to this version.</para>
+
+    <procedure>
+      <title>Upgrading Databases Created with Version 1.8.x</title>
+
+      <step>
+        <para>Open the database with the jar that created it and perform the
+        SHUTDOWN statement as an SQL statement.</para>
+      </step>
+
+      <step>
+        <para>Open the database with the HyperSQL 2.0 jar.</para>
+      </step>
+
+      <step>
+        <para>Perform the SHUTDOWN COMPACT statement..</para>
+      </step>
+    </procedure>
+
+    <para>The first step is to guarantee there is no .log file for the
+    database. You may upgrade without the first step, but may lose part of the
+    logged statements. This has been allowed due to requests from some of our
+    deployers who have been able to test the databases created by their
+    applications and found there was no data loss. But this is not recommended
+    for general use. Most catalogs created with 1.8.x can be upgraded simply
+    by opening with HyperSQL 2.0. After opening with version 2.0, perform a
+    SHUTDOWN COMPACT to rewrite the database in the latest format.</para>
+
+    <para>In large scale deployed apps undergoing upgrades, it is sometimes
+    not practical to perform the first step of this procedure (with the old
+    jar). You can ignore the first step but you may lose part of the database
+    statements that are stored in the .log file. Therefore you need test with
+    databases created with your application to make sure typical statements
+    that are logged in the .log file are compatible with the new version.
+    Examples of known incompatible statements are those used for changing the
+    data type or default values of column.</para>
+
+    <para>When this method is not possible due to errors, the rest of the
+    procedures below should be followed.</para>
+
+    <para>A note about SHUTDOWN modes. SHUTDOWN COMPACT is equivalent to
+    SHUTDOWN SCRIPT plus opening the database and then performing a simple
+    SHUTDOWN.</para>
+
+    <para>After upgrading a database, you may want to change some of its
+    settings. For example, the new SET FILES BACKUP INCREMENT TRUE statement
+    can improve the shutdown and checkpoint times of larger databases.</para>
+
+    <para>Once a database is upgraded to 2.0, it can no longer be used with
+    previous versions of HyperSQL.</para>
+
+    <section xml:id="upgrade_via_script-sect">
+      <title xml:id="upgrade_via_script-title">Upgrading From Older
+      Versions</title>
+
+      <para>To upgrade from version 1.8.x with the default TEXT format script
+      files, simply open the database with 2.0. If the version 1.8.x files
+      have database script format set to BINARY or COMPRESSED (ZIPPED) you
+      must issue the SET SCRIPTFORMAT TEXT and SHUTDOWN SCRIPT commands with
+      the old version, then open with the new version of the engine. In most
+      cases the upgrade is successful and complete.</para>
+
+      <para>It is strongly recommended to execute SHUTDOWN COMPACT after an
+      automatic upgrade from previous versions.</para>
+
+      <para>If your database has been created with version 1.7.2 or 1.7.3,
+      first upgrade to version 1.8.1 and perform a SHUTDOWN SCRIPT with this
+      version. You can then upgrade the database to version 2.0.</para>
+
+      <para>To upgrade from older version database files (1.7.1 and older)
+      that contain CACHED tables, use the SCRIPT procedure below. In all
+      versions of HyperSQL, the <literal>SCRIPT 'filename'</literal> command
+      (used as an SQL statement) allows you to save a full record of your
+      database, including database object definitions and data, to a file of
+      your choice. You can export a script file using the old version of the
+      database engine and open the script as a database with 2.0.</para>
+
+      <procedure>
+        <title>Upgrade Using the SCRIPT Procedure for Very Old
+        Versions</title>
+
+        <step>
+          <para>Open the original database in the old version of
+          DatabaseManager</para>
+        </step>
+
+        <step>
+          <para>Issue the SCRIPT command, for example <literal>SCRIPT
+          'newversion.script'</literal> to create a script file containing a
+          copy of the database.</para>
+        </step>
+
+        <step>
+          <para>SHUTDOWN this database.</para>
+        </step>
+
+        <step>
+          <para>Copy the original <literal>*.properties</literal> file into
+          <filename>newversion.properties</filename> in the same directory as
+          <filename>newversion.script</filename></para>
+        </step>
+
+        <step>
+          <para>Try to open the new database <filename>newversion</filename>
+          using DatabaseManager of version 1.8.1.</para>
+        </step>
+
+        <step>
+          <para>If there is any inconsistency in the data, the script line
+          number is reported on the console and the opening process is
+          aborted. Edit and correct any problems in the
+          <filename>newversion.script</filename> before attempting to open
+          again. Use the guidelines in the next section (Manual Changes to the
+          <literal>.script</literal> File). Use a programming editor that is
+          capable of handling very large files and does not wrap long lines of
+          text.</para>
+        </step>
+      </procedure>
+    </section>
+
+    <section>
+      <title>Manual Changes to the *.script File</title>
+
+      <para>In HyperSQL 2.0 the full range of ALTER TABLE commands is
+      available to change the data structures and their names. However, if an
+      old database cannot be opened due to data inconsistencies, or it uses
+      index or column names that are not compatible with 2.0, manual editing
+      of the <literal>*.script</literal> file can be performed and can be
+      faster.</para>
+
+      <itemizedlist>
+        <listitem>
+          <para>Version 2.0 does not accept duplicate names for indexes that
+          were allowed before 1.7.2.</para>
+        </listitem>
+
+        <listitem>
+          <para>Version 2.0 does not accept some table or column names that
+          are SQL reserved keywords without double quoting.</para>
+        </listitem>
+
+        <listitem>
+          <para>Version 2.0 does not accept unquoted table or column names
+          which begin with an underscore</para>
+        </listitem>
+
+        <listitem>
+          <para>Version 2.0 is more strict with check conditions and default
+          values.</para>
+        </listitem>
+      </itemizedlist>
+
+      <para>Other manual changes are also possible. Note that the
+      <literal>*.script</literal> file must be the result of a SHUTDOWN SCRIPT
+      and must contain the full data for the database. The following changes
+      can be applied so long as they do not affect the integrity of existing
+      data.</para>
+
+      <itemizedlist>
+        <listitem>
+          <para>Names</para>
+
+          <para>Names of tables, columns and indexes can be changed. These
+          changes must be consistent regarding foreign key constraints.</para>
+        </listitem>
+
+        <listitem>
+          <para><literal>CHECK</literal></para>
+
+          <para>A check constraint can always be removed.</para>
+        </listitem>
+
+        <listitem>
+          <para><literal>NOT NULL</literal></para>
+
+          <para>A not-null constraint can always be removed.</para>
+        </listitem>
+
+        <listitem>
+          <para><literal>PRIMARY KEY</literal></para>
+
+          <para>A primary key constraint can be removed. It cannot be removed
+          if there is a foreign key referencing the column(s).</para>
+        </listitem>
+
+        <listitem>
+          <para><literal>UNIQUE</literal></para>
+
+          <para>A UNIQUE constraint can be removed if there is no foreign key
+          referencing the column(s).</para>
+        </listitem>
+
+        <listitem>
+          <para><literal>FOREIGN KEY</literal></para>
+
+          <para>A FOREIGN KEY constraint can always be removed.</para>
+        </listitem>
+
+        <listitem>
+          <para><literal>COLUMN TYPES</literal></para>
+
+          <para>Some changes to column types are possible. For example an
+          INTEGER column can be changed to BIGINT.</para>
+        </listitem>
+      </itemizedlist>
+
+      <para>After completing the changes and saving the modified
+      <literal>.script</literal> file, you can open the database as
+      normal.</para>
+    </section>
+  </section>
+
+  <section>
+    <title>Backward Compatibility Issues</title>
+
+    <para>HyperSQL 2.0 conforms to the SQL Standard better than previous
+    versions and has many more features. For these reasons, there may be some
+    compatibility issues when converting old database, or using applications
+    that were written for version 1.8.x or earlier. Some of the potential
+    issues (and enhancements) are listed here.</para>
+
+    <itemizedlist>
+      <listitem>
+        <para>User names and passwords are case-sensitive. Check the .script
+        file of a database for the correct case of user name and password and
+        use this form in the connection properties or on connection
+        URL.</para>
+      </listitem>
+
+      <listitem>
+        <para>It is now possible to specify the admin username and password
+        for a new database (instead of SA and the empty password).</para>
+      </listitem>
+
+      <listitem>
+        <para>HyperSQL 2.0 has several settings that relax its conformance to
+        the SQL Standard in the areas of type conversion and object names.
+        These settings can be turned on for maximum conformance.</para>
+      </listitem>
+
+      <listitem>
+        <para>Check constraints must conform to the SQL Standard. A check
+        constraint is rejected if it is not deterministic or retrospectively
+        deterministic. When opening an old database, HyperSQL silently drops
+        check constraints that no longer compile. See under check constraints
+        for more detail about what is not allowed.</para>
+      </listitem>
+
+      <listitem>
+        <para>Type declarations in column definition and in cast expressions
+        must have the necessary size parameters.</para>
+      </listitem>
+
+      <listitem>
+        <para>In connection with the above, an old database that did not have
+        the <literal>enforce_strict_size</literal> property, is now converted
+        to version 2.0 with the engine supplying the missing size parameters.
+        For example, a VARCHAR column declaration that has no size, is given a
+        32K size, a LONGVARCHAR column is given a 16MB size. Check these sizes
+        are adequate for your use, and change the column definition as
+        necessary.</para>
+      </listitem>
+
+      <listitem>
+        <para>Column names in a GROUP BY clause were previously resolved to
+        the column label. They are now resolved to column name first, and if
+        the name does not match, to the column label.</para>
+      </listitem>
+
+      <listitem>
+        <para>If two or more tables in a join contain columns with the same
+        name, the columns cannot be referenced in join and where conditions.
+        Use table names before column names to qualify the references to such
+        columns. The <literal>SET DATABASE SQL REFERENCES { TRUE | FALSE
+        }</literal> statement enables or disables this check.</para>
+      </listitem>
+
+      <listitem>
+        <para>If the unqualified wild card is used, as in the statement SELECT
+        * FROM ... no additional column references are allowed. A
+        table-qualified wild card allows additional column references in the
+        SELECT list</para>
+      </listitem>
+
+      <listitem>
+        <para>Table definitions containing <literal>GENERATED BY DEFAULT AS
+        IDENTITY</literal> but with no <literal>PRIMARY KEY</literal> do not
+        automatically create a primary key. Database .script files made with
+        1.8 are fine, as the <literal>PRIMARY KEY</literal> clause is always
+        included. But the <literal>CREATE TABLE</literal> statements in your
+        application program may assume an automatic primary key is created.
+        The old shortcut, IDENTITY, is retained with the same meaning. So
+        <literal>CREATE TABLE T (ID IDENTITY, DAT VARCHAR(20))</literal> is
+        translated into <literal>CREATE TABLE T(ID INTEGER GENERATED BY
+        DEFAULT AS IDENTITY PRIMARY KEY, DAT VARCHAR(20))</literal>. This last
+        form is the correct way of defining both autoincrement and primary key
+        in versions 1.8 and 2.0.</para>
+      </listitem>
+
+      <listitem>
+        <para>CREATE ALIAS is now obsolete. Use the new function definition
+        syntax. The <classname>org.hsqldb.Library </classname>class no longer
+        exists. You should use the SQL form of the old library functions. For
+        example, use <literal>LOG(x)</literal> rather than the direct form,
+        <literal>"org.hsqldb.Library.log"(x)</literal>.</para>
+      </listitem>
+
+      <listitem>
+        <para>The names of some commands for changing database and session
+        properties have changed. See the list of statements in this
+        chapter.</para>
+      </listitem>
+
+      <listitem>
+        <para>Computed columns in SELECT statements which did not have an
+        alias: These columns had no ResultMetaData lebel in version 1.8, but
+        in vresion 2.0, the engine generates labels such as C1, C2.</para>
+      </listitem>
+
+      <listitem>
+        <para>The issue with the JDBC ResultSetMetaData methods,
+        <literal>getColumnName(int column)</literal> and
+        <literal>getColumnLabel(int column)</literal> has been clarified by
+        the JDBC 4 specification. <literal>getColumName()</literal> returns
+        the undelying column name, while <literal>getColumnLabel()</literal>
+        returns any specified or generated alias. HyperSQL 1.8 and 2.0 have a
+        connection property, <literal>get_column_name</literal>, which
+        defaults to true in verision 2.0, but defaulted to false in some
+        releases of version 1.8.x. You have to explicitly specify this
+        property as false if you want (non-standard behaviour)
+        <literal>getColumnName()</literal> to return the same value as
+        <literal>getColumnLabel()</literal>.</para>
+      </listitem>
+    </itemizedlist>
   </section>
 
   <section>
