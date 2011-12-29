@@ -112,13 +112,15 @@
 
   <xi:include href="builtinfunctions.xml" />
 
-  <xi:include href="deployment.xml" />
+  <xi:include href="management.xml" />
 
   <xi:include href="dbproperties.xml" />
 
   <xi:include href="listeners.xml" />
 
   <xi:include href="unix.xml" />
+
+  <xi:include href="deployment.xml" />
 
   <xi:include href="lists-app.xml" />
 
