@@ -33,10 +33,13 @@ package org.hsqldb.cmdline.sqltool;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.io.FileNotFoundException;
-import java.io.FileReader;
+import java.io.InputStreamReader;
+import java.io.FileInputStream;
 import java.util.regex.Pattern;
 import java.util.regex.Matcher;
+import org.hsqldb.cmdline.SqlToolError;
 
 /**
  * This class does not impement or extend java.io classes/interfaces, and is
@@ -58,18 +61,24 @@ public class FileRecordReader {
      * tool for us to use.
      */
 
-    public static final int INITIAL_CHARBUFFER_SIZE = 1;
+    // Can lower dramatically, all the way to 1, to test buffering.
+    public static final int INITIAL_CHARBUFFER_SIZE = 10240;
     private File file;
-    private FileReader reader;
+    private InputStreamReader reader;
     private Pattern recordPattern;
     private long postRead;
     private StringBuilder stringBuffer = new StringBuilder();
     private char[] charBuffer = new char[INITIAL_CHARBUFFER_SIZE];
 
-    public FileRecordReader(String filePath, String recordDelimiterRegex)
-            throws FileNotFoundException {
+    /**
+     * @throws java.util.regex.PatternSyntaxException
+     * @throws UnsupportedEncodingException
+     */
+    public FileRecordReader(
+            String filePath, String recordDelimiterRegex, String encoding)
+            throws FileNotFoundException, UnsupportedEncodingException {
         file = new File(filePath);
-        reader = new FileReader(filePath);
+        reader = new InputStreamReader(new FileInputStream(file), encoding);
         recordPattern = Pattern.compile(
                 "(.*?)(" + recordDelimiterRegex + ").*", Pattern.DOTALL);
     }
@@ -102,13 +111,15 @@ public class FileRecordReader {
 
     /**
      * To be replaced by proper unit test class
+     *
+     * @throws IOException
      */
     public static void main(String[] sa) throws IOException {
         if (sa.length != 2)
             throw new IllegalArgumentException(
                     "SYNTAX: java " + FileRecordReader.class.getName()
                     + " file.txt RECORD_DELIM");
-        FileRecordReader frr = new FileRecordReader(sa[0], sa[1]);
+        FileRecordReader frr = new FileRecordReader(sa[0], sa[1], "UTF-8");
         int i = 0;
         String r;
         while ((r = frr.nextRecord()) != null)
@@ -117,6 +128,7 @@ public class FileRecordReader {
 
     /**
      * @return null if no more records in input file
+     * @throws IOException
      */
     public String nextRecord() throws IOException {
         Matcher matcher;
@@ -127,31 +139,32 @@ public class FileRecordReader {
             if (matcher.matches()) {
                 String rec = matcher.group(1);
                 stringBuffer.delete(0,  matcher.end(2));
-//System.err.println("    REM=(" + stringBuffer + ')');
+                //System.err.println("    REM=(" + stringBuffer + ')');
                 return rec;
             }
             if (reader == null) {
                 if (stringBuffer.length() < 1) return null;
                 String rec = stringBuffer.toString();
                 stringBuffer.setLength(0);
-//System.err.println("    Rem=()");
+                //System.err.println("    Rem=()");
                 return rec;
             }
             reload(reloaded);
-//System.err.println("        Reloaded to {"  + stringBuffer + '}');
+            //System.err.println("        Reloaded to {"  + stringBuffer + '}');
             reloaded = true;
         }
     }
 
     /**
      * @param increaseBuffer.  If true, grab 2 x as many bytes as previous read.
+     * @throws IOException
      */
     private void reload(boolean increaseBuffer) throws IOException {
         if (reader == null)
             throw new IllegalStateException(
                     "Attempt to reload after source file has been closed");
         if (increaseBuffer) charBuffer = new char[charBuffer.length * 2];
-//if (increaseBuffer) System.err.println("-> " + charBuffer.length);
+        //if (increaseBuffer) System.err.println("-> " + charBuffer.length);
         int retVal = reader.read(charBuffer);
         // Indicate OED for 0, since we could get into loop by returning 0:
         if (retVal > 0)

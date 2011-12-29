@@ -81,6 +81,7 @@ import org.hsqldb.cmdline.sqltool.TokenList;
 import org.hsqldb.cmdline.sqltool.TokenSource;
 import org.hsqldb.cmdline.sqltool.SqlFileScanner;
 import org.hsqldb.cmdline.sqltool.Calculator;
+import org.hsqldb.cmdline.sqltool.FileRecordReader;
 
 /* $Id$ */
 
@@ -5140,6 +5141,60 @@ public class SqlFile {
         return workString;
     }
 
+    private void checkFor02(String s) throws SqlToolError {
+        try {
+            if (csvStyleQuoting && s.indexOf('\u0002') > -1)
+                throw new SqlToolError(
+                        SqltoolRB.csv_coldelim_present.getString("\\u0002"));
+        } catch (RuntimeException re) {
+            throw new SqlToolError(SqltoolRB.read_convertfail.getString(), re);
+        }
+    }
+
+    /**
+     * Convert CSV 'line' into DSV 'lines'.
+     */
+    private String preprocessCsvQuoting(String s, int lineNum)
+            throws SqlToolError {
+        StringBuilder sb = new StringBuilder();
+        int offset, segLen, prevOffset;
+        if (s.indexOf('"') < 0) return s.replaceAll(dsvColSplitter, "\u0002");
+        prevOffset = -1;
+        SEEK_QUOTEDFIELD:
+        while (prevOffset < s.length() - 1) {
+            // Get start of next quoted field:
+            offset = s.indexOf('"', prevOffset + 1);
+            segLen = ((offset < 0) ? s.length() : offset)
+                    - (prevOffset + 1);
+            if (segLen > 1)
+                // Here we insert non-quoted segments, replacing all
+                // dsvColSplitters.
+                sb.append(s.substring(
+                        prevOffset + 1, prevOffset + 1 + segLen)
+                        .replaceAll(dsvColSplitter, "\u0002"));
+            if (offset < 0) break; // Done with line
+            prevOffset = offset;
+            while ((offset = s.indexOf(
+                    '"', prevOffset + 1)) > -1) {
+                if (offset - prevOffset > 1)
+                    // Here we insert quoted segments without any "s.
+                    sb.append(s.substring(
+                            prevOffset + 1, offset));
+                prevOffset = offset;
+                if (s.length() < offset + 2
+                        || s.charAt(offset + 1) != '"')
+                    // Field terminated
+                    continue SEEK_QUOTEDFIELD;
+                // Field-internal ""
+                prevOffset++;
+                sb.append('"');
+            }
+            throw new SqlToolError(
+                SqltoolRB.csv_quote_unterminated.getString(lineNum));
+        }
+        return sb.toString();
+    }
+
     /**
      * Name is self-explanatory.
      *
@@ -5165,8 +5220,6 @@ public class SqlFile {
                 || dsvRowSplitter.indexOf('"') > -1))
             throw new SqlToolError(SqltoolRB.dsv_q_nodblquote.getString());
         Matcher matcher;
-        byte[] bfr  = null;
-        File   dsvFile = new File(filePath);
         SortedMap<String, String> constColMap = null;
         if (dsvConstCols != null) {
             // We trim col. names, but not values.  Must allow users to
@@ -5193,59 +5246,27 @@ public class SqlFile {
                 skipCols.add(skipCol.trim().toLowerCase());
         }
 
-        if (!dsvFile.canRead())
-            throw new SqlToolError(SqltoolRB.file_readfail.getString(
-                    dsvFile.toString()));
-
+        FileRecordReader dsvReader = null;
         try {
-            bfr = new byte[(int) dsvFile.length()];
-        } catch (RuntimeException re) {
-            throw new SqlToolError(SqltoolRB.read_toobig.getString(), re);
-        }
-
-        int bytesread = 0;
-        int retval;
-        InputStream is = null;
-
-        try {
-            is = new FileInputStream(dsvFile);
-            while (bytesread < bfr.length &&
-                    (retval = is.read(bfr, bytesread, bfr.length - bytesread))
-                    > 0) 
-                bytesread += retval;
-
-        } catch (IOException ioe) {
-            throw new SqlToolError(ioe);
-        } finally {
-            if (is != null) try {
-                is.close();
-            } catch (IOException ioe) {
-                errprintln(
-                        SqltoolRB.inputfile_closefail.getString() + ": " + ioe);
-            } finally {
-                is = null;  // Encourage GC of buffers
-            }
-        }
-        if (bytesread != bfr.length)
-            throw new SqlToolError(SqltoolRB.read_partial.getString(
-                    bytesread, bfr.length));
-
-        String dateString;
-        String[] lines = null;
-
-        try {
-            String string = new String(bfr, (shared.encoding == null)
+            dsvReader = new FileRecordReader(filePath, dsvRowSplitter,
+                    (shared.encoding == null)
                     ? DEFAULT_FILE_ENCODING : shared.encoding);
-            if (csvStyleQuoting && string.indexOf('\u0002') > -1)
-                throw new SqlToolError(
-                        SqltoolRB.csv_coldelim_present.getString("\\u0002"));
-            lines = string.split(dsvRowSplitter);
         } catch (UnsupportedEncodingException uee) {
             throw new SqlToolError(uee);
-        } catch (RuntimeException re) {
-            throw new SqlToolError(SqltoolRB.read_convertfail.getString(), re);
+        } catch (IOException ioe) {
+            throw new SqlToolError(SqltoolRB.file_readfail.getString(filePath));
+        } catch (PatternSyntaxException pse) {
+            throw new SqlToolError(
+                    SqltoolRB.regex_malformat.getString(dsvRowSplitter));
         }
-        bfr = null;  // Release memory.  We use 'lines' not 'bfr' from here on.
+
+
+// TODO:  Undefine message.  I eliminated this constraint
+//throw new SqlToolError(SqltoolRB.read_toobig.getString(), re);
+
+        int retval;
+
+        String dateString;
 
         List<String> headerList = new ArrayList<String>();
         String    tableName = dsvTargetTable;
@@ -5255,13 +5276,20 @@ public class SqlFile {
         String trimmedLine = null;
         boolean switching = false;
         int headerOffset = 0;  //  Used to offset read-start of header record
-        String curLine = "dummy"; // Val will be replaced 4 lines down
+        String curLine = null; // Val will be replaced 4 lines down
                                   // This is just to quiet compiler warning
 
+        try {
         while (true) {
-            if (lineCount >= lines.length)
+            try {
+                curLine = dsvReader.nextRecord();
+            } catch (IOException ioe) {
+                throw new SqlToolError(ioe);
+            }
+            if (curLine == null)
                 throw new SqlToolError(SqltoolRB.dsv_header_none.getString());
-            curLine = lines[lineCount++];
+            checkFor02(curLine);
+            lineCount++;
             trimmedLine = curLine.trim();
             if (trimmedLine.length() < 1
                     || (skipPrefix != null
@@ -5299,56 +5327,7 @@ public class SqlFile {
             // Skip non-matched header line
         }
 
-        if (csvStyleQuoting) {
-            StringBuilder sb = new StringBuilder();
-            int offset, segLen, prevOffset;
-            // Convert CSV 'lines' into DSV 'lines'.
-            for (int i = lineCount - 1; i < lines.length; i++) {
-                if (lines[i].indexOf('"') < 0) {
-                    lines[i] = lines[i].replaceAll(dsvColSplitter, "\u0002");
-                    continue;
-                }
-                sb.setLength(0);
-                prevOffset = -1;
-                SEEK_QUOTEDFIELD:
-                while (prevOffset < lines[i].length() - 1) {
-                    // Get start of next quoted field:
-                    offset = lines[i].indexOf('"', prevOffset + 1);
-                    segLen = ((offset < 0) ? lines[i].length() : offset)
-                            - (prevOffset + 1);
-                    if (segLen > 1)
-                        // Here we insert non-quoted segments, replacing all
-                        // dsvColSplitters.
-                        sb.append(lines[i].substring(
-                                prevOffset + 1, prevOffset + 1 + segLen)
-                                .replaceAll(dsvColSplitter, "\u0002"));
-                    if (offset < 0) break; // Done with line
-                    prevOffset = offset;
-                    while ((offset = lines[i].indexOf(
-                            '"', prevOffset + 1)) > -1) {
-                        if (offset - prevOffset > 1)
-                            // Here we insert quoted segments without any "s.
-                            sb.append(lines[i].substring(
-                                    prevOffset + 1, offset));
-                        prevOffset = offset;
-                        if (lines[i].length() < offset + 2
-                                || lines[i].charAt(offset + 1) != '"')
-                            // Field terminated
-                            continue SEEK_QUOTEDFIELD;
-                        // Field-internal ""
-                        prevOffset++;
-                        sb.append('"');
-                    }
-                    throw new SqlToolError(
-                        SqltoolRB.csv_quote_unterminated.getString(i+1));
-                }
-                lines[i] = sb.toString();
-            }
-
-            // Restore state
-            curLine = lines[lineCount - 1];
-        }
-
+        if (csvStyleQuoting) curLine = preprocessCsvQuoting(curLine, lineCount);
         String headerLine = curLine.substring(headerOffset);
         String colName;
         String[] cols = headerLine.split(
@@ -5399,7 +5378,7 @@ public class SqlFile {
         // values may be nulls.
 
         if (tableName == null) {
-            tableName = dsvFile.getName();
+            tableName = dsvReader.getName();
 
             int i = tableName.lastIndexOf('.');
 
@@ -5537,7 +5516,7 @@ public class SqlFile {
                 if (setTitle) shared.userVars.remove("REPORT_TITLE");
             }
             rejectReportWriter.println(SqltoolRB.rejectreport_top.getString(
-                    dsvFile.getPath(),
+                    dsvReader.getPath(),
                     ((rejectFile == null) ? SqltoolRB.none.getString()
                                     : rejectFile.getPath()),
                     ((rejectFile == null) ? null : rejectFile.getPath())));
@@ -5584,8 +5563,16 @@ public class SqlFile {
             String[] arVals;
 
             // Insert data rows 1-row-at-a-time
-            while (lineCount < lines.length) try { try {
-                curLine = lines[lineCount++];
+            while (true) try { try {
+                try {
+                    curLine = dsvReader.nextRecord();
+                } catch (IOException ioe) {
+                    throw new SqlToolError(ioe);
+                }
+                if (curLine == null) break;
+                checkFor02(curLine);
+                if (csvStyleQuoting)
+                    curLine = preprocessCsvQuoting(curLine, ++lineCount);
                 trimmedLine = curLine.trim();
                 if (trimmedLine.length() < 1) continue;  // Silently skip blank lines
                 if (skipPrefix != null
@@ -5869,6 +5856,15 @@ public class SqlFile {
                     errprintln(SqltoolRB.dsv_rejectreport_purgefail.getString(
                             rejectReportFile.toString()));
                 // These are trivial errors.
+            }
+        }
+        } finally {
+            if (dsvReader.isOpen()) try {
+                dsvReader.close();
+            } catch (Exception ioe) {
+                // Just log it
+                logger.error(
+                        SqltoolRB.inputfile_closefail.getString() + ": " + ioe);
             }
         }
     }
