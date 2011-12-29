@@ -431,7 +431,7 @@ public class QueryExpression {
                 column = new ColumnBase();
 
                 column.setType(leftQueryExpression.unionColumnTypes[i]);
-                column.setNullability(leftMeta.columns[leftIndex].getNullability());
+                column.setNullability(leftNullability);
 
                 leftMeta.columns[leftIndex] = column;
             }
@@ -921,7 +921,8 @@ public class QueryExpression {
             HashMappedList list    = new HashMappedList();
 
             for (int i = 0; i < unionColumnMap.length; i++) {
-                ColumnSchema column = (ColumnSchema) columns.get(i);
+                ColumnSchema column =
+                    (ColumnSchema) columns.get(unionColumnMap[i]);
 
                 list.add(column.getName().name, column);
             }

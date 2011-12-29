@@ -123,6 +123,14 @@ public class ParserDQL extends ParserBase {
             typeNumber = Type.getTypeNr(token.tokenString);
         }
 
+        if (database.sqlSyntaxOra) {
+            if (typeNumber == Types.SQL_DATE) {
+                read();
+
+                return Type.SQL_TIMESTAMP_NO_FRACTION;
+            }
+        }
+
         if (typeNumber == Integer.MIN_VALUE) {
             if (includeUserTypes) {
                 checkIsSchemaObjectName();
