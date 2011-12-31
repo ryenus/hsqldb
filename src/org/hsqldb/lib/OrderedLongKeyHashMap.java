@@ -36,7 +36,7 @@ import org.hsqldb.store.BaseHashMap;
 /**
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 1.9.0
+ * @version 2.2.7
  * @since 1.9.0
  */
 public class OrderedLongKeyHashMap extends BaseHashMap {
@@ -58,8 +58,8 @@ public class OrderedLongKeyHashMap extends BaseHashMap {
     }
 
     public OrderedLongKeyHashMap(int initialCapacity,
-                                boolean hasThirdValue)
-                                throws IllegalArgumentException {
+                                 boolean hasThirdValue)
+                                 throws IllegalArgumentException {
 
         super(initialCapacity, BaseHashMap.longKeyOrValue,
               BaseHashMap.objectKeyOrValue, false);
@@ -71,6 +71,8 @@ public class OrderedLongKeyHashMap extends BaseHashMap {
         if (hasThirdValue) {
             objectValueTable2 = new Object[objectValueTable.length];
         }
+
+        minimizeOnEmpty = true;
     }
 
     public Object get(long key) {
@@ -97,6 +99,7 @@ public class OrderedLongKeyHashMap extends BaseHashMap {
     }
 
     public Object setSecondValueByIndex(int index, Object value) {
+
         Object oldValue = objectKeyTable[index];
 
         objectKeyTable[index] = value;

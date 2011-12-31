@@ -685,7 +685,7 @@ public class Result {
         if (navigator == null) {
             navigator = new RowSetNavigatorClient(4);
         } else {
-            ((RowSetNavigatorClient) navigator).clear();
+            navigator.clear();
         }
 
         updateCount    = 0;

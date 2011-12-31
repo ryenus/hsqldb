@@ -50,7 +50,7 @@ import org.hsqldb.lib.StringConverter;
  * Type subclass for DATE, TIME and TIMESTAMP.<p>
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.2.1
+ * @version 2.2.7
  * @since 1.9.0
  */
 public final class DateTimeType extends DTIType {
@@ -184,10 +184,6 @@ public final class DateTimeType extends DTIType {
     }
 
     public String getDefinition() {
-
-        if (scale == DTIType.defaultTimeFractionPrecision) {
-            return getNameString();
-        }
 
         String token;
 

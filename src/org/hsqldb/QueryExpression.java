@@ -55,7 +55,7 @@ import org.hsqldb.types.Types;
  * Implementation of an SQL query expression
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.0.1
+ * @version 2.2.7
  * @since 1.9.0
  */
 
@@ -450,6 +450,7 @@ public class QueryExpression {
 
                 column.setNullability(rightNullability);
             }
+
         }
 
         if (unionCorresponding) {
@@ -549,7 +550,7 @@ public class QueryExpression {
             }
 
             rowSet.copy(navigator, leftQueryExpression.unionColumnMap);
-            navigator.close();
+            navigator.release();
 
             navigator = rowSet;
 
@@ -564,7 +565,7 @@ public class QueryExpression {
             }
 
             rowSet.copy(rightNavigator, rightQueryExpression.unionColumnMap);
-            navigator.close();
+            rightNavigator.release();
 
             rightNavigator = rowSet;
         }
@@ -605,6 +606,7 @@ public class QueryExpression {
 
         if (sortAndSlice.hasLimit()) {
             int[] limits = sortAndSlice.getLimits(session, this, maxRows);
+
             navigator.trim(limits[0], limits[1]);
         }
 
@@ -854,8 +856,8 @@ public class QueryExpression {
 
         ArrayUtil.fillSequence(fullCols);
 
-        fullIndex = resultTable.createAndAddIndexStructure(session, null,
-                fullCols, null, null, false, false, false);
+        fullIndex = resultTable.createAndAddIndexStructure(null, fullCols,
+                null, null, false, false, false);
         resultTable.fullIndex = fullIndex;
     }
 
@@ -874,7 +876,7 @@ public class QueryExpression {
         try {
             resultTable = new TableDerived(session.database, tableName,
                                            tableType, unionColumnTypes,
-                                           columnList, null, null);
+                                           columnList);
         } catch (Exception e) {}
     }
 

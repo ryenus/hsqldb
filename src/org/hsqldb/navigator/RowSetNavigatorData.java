@@ -224,10 +224,18 @@ implements Comparator {
         size++;
     }
 
+    public void release() {
+
+        this.table = emptyTable;
+        this.size  = 0;
+
+        reset();
+    }
+
     public void clear() {
 
         this.table = emptyTable;
-        this.size  = table.length;
+        this.size  = 0;
 
         reset();
     }
@@ -275,10 +283,6 @@ implements Comparator {
 
     public void reset() {
         super.reset();
-    }
-
-    public void close() {
-        super.close();
     }
 
     public boolean isMemory() {
@@ -343,7 +347,7 @@ implements Comparator {
             }
         }
 
-        other.close();
+        other.release();
         reset();
     }
 
@@ -357,7 +361,7 @@ implements Comparator {
             add(currentData);
         }
 
-        other.close();
+        other.release();
         reset();
     }
 
@@ -375,7 +379,7 @@ implements Comparator {
             }
         }
 
-        other.close();
+        other.release();
         reset();
     }
 
@@ -415,7 +419,7 @@ implements Comparator {
             remove();
         }
 
-        other.close();
+        other.release();
         reset();
     }
 
@@ -433,7 +437,7 @@ implements Comparator {
             }
         }
 
-        other.close();
+        other.release();
         reset();
     }
 
@@ -471,7 +475,7 @@ implements Comparator {
             }
         }
 
-        other.close();
+        other.release();
         reset();
     }
 

@@ -327,7 +327,7 @@ public class LobManager {
         boolean         next      = navigator.next();
 
         if (!next) {
-            navigator.close();
+            navigator.release();
 
             return 0;
         }
@@ -358,7 +358,7 @@ public class LobManager {
         boolean         next      = navigator.next();
 
         if (!next) {
-            navigator.close();
+            navigator.release();
 
             return null;
         }
@@ -1622,7 +1622,7 @@ public class LobManager {
                 ((Integer) data[LOBS.BLOCK_OFFSET]).intValue();
         }
 
-        navigator.close();
+        navigator.release();
 
         return blocks;
     }
@@ -1695,7 +1695,7 @@ public class LobManager {
             boolean         next      = navigator.next();
 
             if (!next) {
-                navigator.close();
+                navigator.release();
 
                 return 0;
             }

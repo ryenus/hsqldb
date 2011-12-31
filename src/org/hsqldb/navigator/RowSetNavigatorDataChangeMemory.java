@@ -32,7 +32,6 @@
 package org.hsqldb.navigator;
 
 import java.io.IOException;
-import java.util.NoSuchElementException;
 
 import org.hsqldb.Row;
 import org.hsqldb.Session;
@@ -53,109 +52,77 @@ import org.hsqldb.types.Type;
  * @version 2.2.7
  * @since 1.9.0
  */
-public class RowSetNavigatorDataChange extends RowSetNavigator {
+public class RowSetNavigatorDataChangeMemory
+implements RowSetNavigatorDataChange {
 
+    public static RowSetNavigatorDataChangeMemory emptyRowSet =
+        new RowSetNavigatorDataChangeMemory(null);
+    int                   size;
+    int                   currentPos = -1;
     OrderedLongKeyHashMap list;
-    boolean               enforceDeleteOrUpdate;
-    boolean               enforceSingleUpdate;
+    Session               session;
 
-    public RowSetNavigatorDataChange() {
-        list = new OrderedLongKeyHashMap(8, true);
+    public RowSetNavigatorDataChangeMemory(Session session) {
+        this.session = session;
+        list         = new OrderedLongKeyHashMap(64, true);
     }
 
-    public RowSetNavigatorDataChange(boolean enforceDeleteOrUpdate,
-                                     boolean enforceSingleUpdate) {
-
-        list                       = new OrderedLongKeyHashMap(8, true);
-        this.enforceDeleteOrUpdate = enforceDeleteOrUpdate;
-        this.enforceSingleUpdate   = enforceSingleUpdate;
-    }
-
-    /**
-     * Returns the current row object.
-     */
-    public Object[] getCurrent() {
-        return getCurrentRow().getData();
-    }
-
-    public Row getCurrentRow() {
-        return (Row) list.getValueByIndex(super.currentPos);
-    }
-
-    public Object[] getCurrentChangedData() {
-        return (Object[]) list.getSecondValueByIndex(super.currentPos);
-    }
-
-    public int[] getCurrentChangedColumns() {
-        return (int[]) list.getThirdValueByIndex(super.currentPos);
-    }
-
-    public Row getNextRow() {
-        return next() ? getCurrentRow()
-                      : null;
-    }
-
-    public void remove() {
-        throw new NoSuchElementException();
-    }
-
-    public boolean next() {
-        return super.next();
-    }
-
-    public void reset() {
-        super.reset();
-    }
-
-    // reading and writing
-    public void write(RowOutputInterface out,
-                      ResultMetaData meta) throws IOException {
+    public void release() {
 
         beforeFirst();
-        out.writeLong(id);
-        out.writeInt(size);
-        out.writeInt(0);    // offset
-        out.writeInt(size);
-
-        while (hasNext()) {
-            Object[] data = getNext();
-
-            out.writeData(meta.getColumnCount(), meta.columnTypes, data, null,
-                          null);
-        }
-
-        beforeFirst();
-    }
-
-    public void read(RowInputInterface in,
-                     ResultMetaData meta) throws IOException {
-
-        id = in.readLong();
-
-        int count = in.readInt();
-
-        in.readInt();    // offset
-        in.readInt();    // size again
-
-        while (count-- > 0) {
-            add(in.readData(meta.columnTypes));
-        }
-    }
-
-    public void clear() {
-
-        reset();
         list.clear();
 
         size = 0;
     }
 
-    public void endMainDataSet() {}
-
-    public void add(Object[] d) {
-        throw Error.runtimeError(ErrorCode.U_S0500,
-                                 "RowSetNavigatorDataChange");
+    public int getSize() {
+        return size;
     }
+
+    public int getRowPosition() {
+        return currentPos;
+    }
+
+    public boolean next() {
+
+        if (currentPos < size - 1) {
+            currentPos++;
+
+            return true;
+        }
+
+        currentPos = size - 1;
+
+        return false;
+    }
+
+    public boolean beforeFirst() {
+
+        currentPos = -1;
+
+        return true;
+    }
+
+    public Row getCurrentRow() {
+        return (Row) list.getValueByIndex(currentPos);
+    }
+
+    public Object[] getCurrentChangedData() {
+        return (Object[]) list.getSecondValueByIndex(currentPos);
+    }
+
+    public int[] getCurrentChangedColumns() {
+        return (int[]) list.getThirdValueByIndex(currentPos);
+    }
+
+    // reading and writing
+    public void write(RowOutputInterface out,
+                      ResultMetaData meta) throws IOException {}
+
+    public void read(RowInputInterface in,
+                     ResultMetaData meta) throws IOException {}
+
+    public void endMainDataSet() {}
 
     public boolean addRow(Row row) {
 
@@ -169,7 +136,7 @@ public class RowSetNavigatorDataChange extends RowSetNavigator {
             return true;
         } else {
             if (list.getSecondValueByIndex(lookup) != null) {
-                if (enforceDeleteOrUpdate) {
+                if (session.database.sqlEnforceTDCD) {
                     throw Error.error(ErrorCode.X_27000);
                 }
 
@@ -202,7 +169,7 @@ public class RowSetNavigatorDataChange extends RowSetNavigator {
                 (Object[]) list.getSecondValueByIndex(lookup);
 
             if (currentData == null) {
-                if (enforceDeleteOrUpdate) {
+                if (session.database.sqlEnforceTDCD) {
                     throw Error.error(ErrorCode.X_27000);
                 } else {
                     return null;
@@ -215,7 +182,7 @@ public class RowSetNavigatorDataChange extends RowSetNavigator {
                 if (types[j].compare(session, data[j], currentData[j]) != 0) {
                     if (types[j].compare(session, rowData[j], currentData[j])
                             != 0) {
-                        if (enforceSingleUpdate) {
+                        if (session.database.sqlEnforceTDCU) {
                             throw Error.error(ErrorCode.X_27000);
                         }
                     } else {

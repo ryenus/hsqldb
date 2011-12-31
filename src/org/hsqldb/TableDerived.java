@@ -43,7 +43,7 @@ import org.hsqldb.types.Type;
  * Table with data derived from a query expression.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.0.1
+ * @version 2.2.7
  * @since 1.9.0
  */
 public class TableDerived extends Table {
@@ -90,27 +90,22 @@ public class TableDerived extends Table {
     }
 
     public TableDerived(Database database, HsqlName name, int type,
-                        Type[] columnTypes, HashMappedList columnList,
-                        QueryExpression queryExpression, SubQuery subQuery) {
+                        Type[] columnTypes, HashMappedList columnList) {
+        this(database, name, type, columnTypes, columnList,
+             ValuePool.emptyIntArray);
+    }
 
-        this(database, name, type, queryExpression, subQuery);
+    public TableDerived(Database database, HsqlName name, int type,
+                        Type[] columnTypes, HashMappedList columnList,
+                        int[] pkColumns) {
+
+        this(database, name, type, (QueryExpression) null, (SubQuery) null);
 
         this.colTypes          = columnTypes;
         this.columnList        = columnList;
         columnCount            = columnList.size();
-        primaryKeyCols         = ValuePool.emptyIntArray;
-        primaryKeyTypes        = Type.emptyArray;
-        primaryKeyColsSequence = ValuePool.emptyIntArray;
-        colDefaults            = new Expression[columnCount];
-        colNotNull             = new boolean[columnCount];
-        defaultColumnMap       = new int[columnCount];
 
-        ArrayUtil.fillSequence(defaultColumnMap);
-
-        bestIndexForColumn = new int[colTypes.length];
-
-        ArrayUtil.fillArray(bestIndexForColumn, -1);
-        createPrimaryIndex(primaryKeyCols, primaryKeyTypes, null);
+        createPrimaryKey(null, pkColumns, true);
     }
 
     public int getId() {

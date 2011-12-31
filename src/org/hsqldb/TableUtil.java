@@ -39,29 +39,14 @@ import org.hsqldb.types.Type;
  * Utility functions to set up special tables.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.0.1
+ * @version 2.2.7
  * @since 1.9.0
  */
 public class TableUtil {
 
-    static Table newTable(Database database, int type,
-                          HsqlName tableHsqlName) {
-
-        switch (type) {
-
-            case TableBase.TEMP_TEXT_TABLE :
-            case TableBase.TEXT_TABLE : {
-                return new TextTable(database, tableHsqlName, type);
-            }
-            default : {
-                return new Table(database, tableHsqlName, type);
-            }
-        }
-    }
-
-    static Table newLookupTable(Database database, HsqlName tableName,
-                                int tableType, HsqlName colName,
-                                Type colType) {
+    static Table newSingleColumnTable(Database database, HsqlName tableName,
+                                      int tableType, HsqlName colName,
+                                      Type colType) {
 
         TableDerived table;
 

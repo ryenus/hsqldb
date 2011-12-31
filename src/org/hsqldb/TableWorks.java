@@ -339,7 +339,7 @@ public class TableWorks {
                                                          SchemaObject.INDEX);
 
                     // create an autonamed index
-                    index = tn.createAndAddIndexStructure(session, indexName,
+                    index = tn.createAndAddIndexStructure(indexName,
                                                           c.getMainColumns(),
                                                           null, null, true,
                                                           true, false);
@@ -393,7 +393,7 @@ public class TableWorks {
                                                          table.getName(),
                                                          SchemaObject.INDEX);
 
-                    index = tn.createAndAddIndexStructure(session, indexName,
+                    index = tn.createAndAddIndexStructure(indexName,
                                                           c.getRefColumns(),
                                                           null, null, false,
                                                           true, isForward);

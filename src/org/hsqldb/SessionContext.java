@@ -41,12 +41,14 @@ import org.hsqldb.lib.HsqlArrayList;
 import org.hsqldb.lib.LongDeque;
 import org.hsqldb.navigator.RangeIterator;
 import org.hsqldb.store.ValuePool;
+import org.hsqldb.navigator.RowSetNavigatorDataChange;
+import org.hsqldb.navigator.RowSetNavigatorDataChangeMemory;
 
 /*
  * Session execution context and temporary data structures
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.1.1
+ * @version 2.2.7
  * @since 1.9.0
  */
 public class SessionContext {
@@ -190,6 +192,10 @@ public class SessionContext {
 
     public void setDynamicArguments(Object[] args) {
         dynamicArguments = args;
+    }
+
+    RowSetNavigatorDataChange getRowSetDataChange() {
+        return new RowSetNavigatorDataChangeMemory(session);
     }
 
     void clearStructures(StatementDMQL cs) {

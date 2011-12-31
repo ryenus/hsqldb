@@ -421,8 +421,8 @@ public final class SortAndSlice {
     public Index getNewIndex(Session session, TableBase table) {
 
         if (hasOrder()) {
-            Index orderIndex = table.createAndAddIndexStructure(session, null,
-                sortOrder, sortDescending, sortNullsLast, false, false, false);
+            Index orderIndex = table.createAndAddIndexStructure(null, sortOrder,
+                sortDescending, sortNullsLast, false, false, false);
 
             if (collations != null) {
                 for (int i = 0; i < columnCount; i++) {

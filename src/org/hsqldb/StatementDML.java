@@ -490,8 +490,7 @@ public class StatementDML extends StatementDMQL {
         int          count          = 0;
         Expression[] colExpressions = updateExpressions;
         RowSetNavigatorDataChange rowset =
-            new RowSetNavigatorDataChange(session.database.sqlEnforceTDCD,
-                                          session.database.sqlEnforceTDCU);
+            session.sessionContext.getRowSetDataChange();
         Type[] colTypes = baseTable.getColumnTypes();
         RangeIterator it = RangeVariable.getIterator(session,
             targetRangeVariables);
@@ -547,6 +546,8 @@ public class StatementDML extends StatementDMQL {
         rowset.beforeFirst();
 
         count = update(session, baseTable, rowset, generatedNavigator);
+
+        rowset.release();
 
         if (resultOut == null) {
             if (count == 1) {
@@ -683,8 +684,7 @@ public class StatementDML extends StatementDMQL {
 
         // rowset for update operation
         RowSetNavigatorDataChange updateRowSet =
-            new RowSetNavigatorDataChange(session.database.sqlEnforceTDCD,
-                                          session.database.sqlEnforceTDCU);
+            session.sessionContext.getRowSetDataChange();
         RangeVariable[] joinRangeIterators = targetRangeVariables;
 
         // populate insert and update lists
@@ -772,6 +772,8 @@ public class StatementDML extends StatementDMQL {
                 && baseTable.triggerLists[Trigger.INSERT_AFTER].length > 0) {
             baseTable.fireTriggers(session, Trigger.INSERT_AFTER, newData);
         }
+
+        updateRowSet.release();
 
         if (resultOut == null) {
             if (count == 1) {
@@ -1004,7 +1006,8 @@ public class StatementDML extends StatementDMQL {
             HashSet path = session.sessionContext.getConstraintPath();
 
             for (int i = 0; i < rowCount; i++) {
-                Row      row  = navigator.getNextRow();
+                navigator.next();
+                Row      row  = navigator.getCurrentRow();
                 Object[] data = navigator.getCurrentChangedData();
 
                 performReferentialActions(session, table, navigator, row,
@@ -1015,8 +1018,8 @@ public class StatementDML extends StatementDMQL {
             navigator.beforeFirst();
         }
 
-        for (int i = 0; i < navigator.getSize(); i++) {
-            Row      row            = navigator.getNextRow();
+        while (navigator.next()) {
+            Row      row            = navigator.getCurrentRow();
             Object[] data           = navigator.getCurrentChangedData();
             int[]    changedColumns = navigator.getCurrentChangedColumns();
             Table    currentTable   = ((Table) row.getTable());
@@ -1039,8 +1042,8 @@ public class StatementDML extends StatementDMQL {
 
         navigator.beforeFirst();
 
-        for (int i = 0; i < navigator.getSize(); i++) {
-            Row   row            = navigator.getNextRow();
+        while (navigator.next()) {
+            Row   row            = navigator.getCurrentRow();
             Table currentTable   = ((Table) row.getTable());
             int[] changedColumns = navigator.getCurrentChangedColumns();
 
@@ -1049,8 +1052,8 @@ public class StatementDML extends StatementDMQL {
 
         navigator.beforeFirst();
 
-        for (int i = 0; i < navigator.getSize(); i++) {
-            Row             row          = navigator.getNextRow();
+        while (navigator.next()) {
+            Row             row          = navigator.getCurrentRow();
             Object[]        data         = navigator.getCurrentChangedData();
             Table           currentTable = ((Table) row.getTable());
             int[] changedColumns = navigator.getCurrentChangedColumns();
@@ -1078,8 +1081,8 @@ public class StatementDML extends StatementDMQL {
         boolean hasAfterRowTriggers =
             table.triggerLists[Trigger.UPDATE_AFTER_ROW].length > 0;
 
-        for (int i = 0; i < navigator.getSize(); i++) {
-            Row      row            = navigator.getNextRow();
+        while (navigator.next()) {
+            Row      row            = navigator.getCurrentRow();
             Table    currentTable   = ((Table) row.getTable());
             Object[] changedData    = navigator.getCurrentChangedData();
             int[]    changedColumns = navigator.getCurrentChangedColumns();
@@ -1104,8 +1107,8 @@ public class StatementDML extends StatementDMQL {
         navigator.beforeFirst();
 
         if (hasAfterRowTriggers) {
-            for (int i = 0; i < navigator.getSize(); i++) {
-                Row      row            = navigator.getNextRow();
+            while (navigator.next()) {
+                Row      row            = navigator.getCurrentRow();
                 Object[] changedData    = navigator.getCurrentChangedData();
                 int[]    changedColumns = navigator.getCurrentChangedColumns();
                 Table    currentTable   = ((Table) row.getTable());
@@ -1142,25 +1145,26 @@ public class StatementDML extends StatementDMQL {
         int count = 0;
         RangeIterator it = RangeVariable.getIterator(session,
             targetRangeVariables);
-        RowSetNavigatorDataChange navigator =
-            new RowSetNavigatorDataChange(session.database.sqlEnforceTDCD,
-                                          session.database.sqlEnforceTDCU);
+        RowSetNavigatorDataChange rowset =
+            session.sessionContext.getRowSetDataChange();
 
         session.sessionContext.rownum = 1;
 
         while (it.next()) {
             Row currentRow = it.getCurrentRow();
 
-            navigator.addRow(currentRow);
+            rowset.addRow(currentRow);
 
             session.sessionContext.rownum++;
         }
 
         it.release();
-        navigator.endMainDataSet();
+        rowset.endMainDataSet();
 
-        if (navigator.getSize() > 0) {
-            count = delete(session, baseTable, navigator);
+        if (rowset.getSize() > 0) {
+            count = delete(session, baseTable, rowset);
+
+            rowset.release();
         } else {
             session.addWarning(HsqlException.noDataCondition);
 
@@ -1228,9 +1232,7 @@ public class StatementDML extends StatementDMQL {
             navigator.beforeFirst();
         }
 
-        while (navigator.hasNext()) {
-            navigator.next();
-
+        while (navigator.next()) {
             Row      row            = navigator.getCurrentRow();
             Object[] changedData    = navigator.getCurrentChangedData();
             int[]    changedColumns = navigator.getCurrentChangedColumns();
@@ -1258,8 +1260,8 @@ public class StatementDML extends StatementDMQL {
 
         boolean hasUpdate = false;
 
-        for (int i = 0; i < navigator.getSize(); i++) {
-            Row      row          = navigator.getNextRow();
+        while (navigator.next()) {
+            Row      row          = navigator.getCurrentRow();
             Object[] data         = navigator.getCurrentChangedData();
             Table    currentTable = ((Table) row.getTable());
 
@@ -1273,8 +1275,8 @@ public class StatementDML extends StatementDMQL {
         navigator.beforeFirst();
 
         if (hasUpdate) {
-            for (int i = 0; i < navigator.getSize(); i++) {
-                Row             row          = navigator.getNextRow();
+            while (navigator.next()) {
+                Row             row          = navigator.getCurrentRow();
                 Object[]        data = navigator.getCurrentChangedData();
                 Table           currentTable = ((Table) row.getTable());
                 int[] changedColumns = navigator.getCurrentChangedColumns();
@@ -1299,9 +1301,7 @@ public class StatementDML extends StatementDMQL {
             table.triggerLists[Trigger.DELETE_AFTER_ROW].length > 0;
 
         if (rowCount != navigator.getSize()) {
-            while (navigator.hasNext()) {
-                navigator.next();
-
+            while (navigator.next()) {
                 Row      row            = navigator.getCurrentRow();
                 Object[] changedData    = navigator.getCurrentChangedData();
                 int[]    changedColumns = navigator.getCurrentChangedColumns();
@@ -1344,9 +1344,7 @@ public class StatementDML extends StatementDMQL {
         }
 
         if (hasAfterRowTriggers) {
-            while (navigator.hasNext()) {
-                navigator.next();
-
+            while (navigator.next()) {
                 Row      row          = navigator.getCurrentRow();
                 Object[] changedData  = navigator.getCurrentChangedData();
                 Table    currentTable = ((Table) row.getTable());

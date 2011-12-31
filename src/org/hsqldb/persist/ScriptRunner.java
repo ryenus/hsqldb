@@ -38,6 +38,7 @@ import org.hsqldb.ColumnSchema;
 import org.hsqldb.Database;
 import org.hsqldb.HsqlException;
 import org.hsqldb.HsqlNameManager.HsqlName;
+import org.hsqldb.Row;
 import org.hsqldb.Session;
 import org.hsqldb.Statement;
 import org.hsqldb.StatementDML;
@@ -62,7 +63,7 @@ import org.hsqldb.types.Type;
  * logged to the application log. If memory runs out, an exception is thrown.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.2.3
+ * @version 2.2.7
  * @since 1.7.2
  */
 public class ScriptRunner {
@@ -236,10 +237,14 @@ public class ScriptRunner {
 
                         current.beginAction(dummy);
 
-                        Object[] data = scr.getData();
+                        Table    table = scr.getCurrentTable();
+                        Object[] data  = scr.getData();
+                        Row row = table.getDeleteRowFromLog(current, data);
 
-                        scr.getCurrentTable().deleteNoCheckFromLog(current,
-                                data);
+                        if (row != null) {
+                            current.addDeleteAction(table, row, null);
+                        }
+
                         current.endAction(Result.updateOneResult);
 
                         break;

@@ -45,6 +45,7 @@ import org.hsqldb.lib.Set;
 import org.hsqldb.lib.StringUtil;
 import org.hsqldb.navigator.RowIterator;
 import org.hsqldb.navigator.RowSetNavigator;
+import org.hsqldb.navigator.RowSetNavigatorDataChange;
 import org.hsqldb.persist.CachedObject;
 import org.hsqldb.persist.PersistentStore;
 import org.hsqldb.result.Result;
@@ -61,7 +62,7 @@ import org.hsqldb.types.Type;
  * Extensively rewritten and extended in successive versions of HSQLDB.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.2.6
+ * @version 2.2.7
  * @since 1.6.1
  */
 public class Table extends TableBase implements SchemaObject {
@@ -1233,11 +1234,11 @@ public class Table extends TableBase implements SchemaObject {
                                                    idx.isForward());
 
             newIdx.setClustered(idx.isClustered());
-            tn.addIndex(session, newIdx);
+            tn.addIndex(newIdx);
         }
 
         if (index != null) {
-            tn.addIndex(session, index);
+            tn.addIndex(index);
         }
 
         HsqlArrayList newList = new HsqlArrayList();
@@ -1614,8 +1615,9 @@ public class Table extends TableBase implements SchemaObject {
             throw Error.runtimeError(ErrorCode.U_S0500, "Table");
         }
 
-        if (columns == null) {
+        if (columns == null || columns.length == 0) {
             columns = ValuePool.emptyIntArray;
+            indexName = SqlInvariants.SYSTEM_INDEX_HSQLNAME;
         } else {
             for (int i = 0; i < columns.length; i++) {
                 getColumn(columns[i]).setPrimaryKey(true);
@@ -1659,7 +1661,10 @@ public class Table extends TableBase implements SchemaObject {
 
     void setColumnStructures() {
 
-        colTypes         = new Type[columnCount];
+        if (colTypes == null) {
+            colTypes = new Type[columnCount];
+        }
+
         colDefaults      = new Expression[columnCount];
         colNotNull       = new boolean[columnCount];
         colGenerated     = new boolean[columnCount];
@@ -2132,7 +2137,8 @@ public class Table extends TableBase implements SchemaObject {
     }
 
     /**
-     *  Used to create an index automatically for system and temp tables.
+     * Used to create an index automatically for system and temp tables.
+     * Used for internal operation tables with null Session param.
      */
     Index createIndexForColumns(Session session, int[] columns) {
 
@@ -2141,9 +2147,8 @@ public class Table extends TableBase implements SchemaObject {
             getSchemaName(), getName(), SchemaObject.INDEX);
 
         try {
-            index = createAndAddIndexStructure(session, indexName, columns,
-                                               null, null, false, false,
-                                               false);
+            index = createAndAddIndexStructure(indexName, columns, null, null,
+                                               false, false, false);
         } catch (Throwable t) {
             return null;
         }
@@ -2159,9 +2164,33 @@ public class Table extends TableBase implements SchemaObject {
 
                 break;
             }
+            case TableBase.SYSTEM_SUBQUERY :
+            case TableBase.SYSTEM_TABLE :
         }
 
         return index;
+    }
+
+    void fireTriggers(Session session, int trigVecIndex,
+                      RowSetNavigatorDataChange rowSet) {
+
+        if (!database.isReferentialIntegrity()) {
+            return;
+        }
+
+        TriggerDef[] trigVec = triggerLists[trigVecIndex];
+
+        for (int i = 0, size = trigVec.length; i < size; i++) {
+            TriggerDef td         = trigVec[i];
+            boolean    sqlTrigger = td instanceof TriggerDefSQL;
+
+            if (td.hasOldTable()) {
+
+                //
+            }
+
+            td.pushPair(session, null, null);
+        }
     }
 
     void fireTriggers(Session session, int trigVecIndex,
@@ -2757,9 +2786,9 @@ public class Table extends TableBase implements SchemaObject {
     }
 
     /**
-     * For log statements. Delete a single row.
+     * For log statements. Find a single row to delete.
      */
-    public void deleteNoCheckFromLog(Session session, Object[] data) {
+    public Row getDeleteRowFromLog(Session session, Object[] data) {
 
         Row             row   = null;
         PersistentStore store = getRowStore(session);
@@ -2819,11 +2848,7 @@ public class Table extends TableBase implements SchemaObject {
             it.release();
         }
 
-        if (row == null) {
-            return;
-        }
-
-        session.addDeleteAction(this, row, null);
+        return row;
     }
 
     public RowIterator rowIteratorClustered(Session session) {

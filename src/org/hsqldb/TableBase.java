@@ -44,7 +44,7 @@ import org.hsqldb.types.Type;
  * The  base of all HSQLDB table implementations.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.0.1
+ * @version 2.2.7
  * @since 1.7.2
  */
 public class TableBase {
@@ -379,20 +379,20 @@ public class TableBase {
             false);
 
         try {
-            addIndex(null, newIndex);
+            addIndex(newIndex);
         } catch (HsqlException e) {}
     }
 
-    public final Index createAndAddIndexStructure(Session session,
-            HsqlName name, int[] columns, boolean[] descending,
-            boolean[] nullsLast, boolean unique, boolean constraint,
-            boolean forward) {
+    public final Index createAndAddIndexStructure(HsqlName name,
+            int[] columns, boolean[] descending, boolean[] nullsLast,
+            boolean unique, boolean constraint, boolean forward
+            ) {
 
         Index newindex = createIndexStructure(name, columns, descending,
                                               nullsLast, unique, constraint,
                                               forward);
 
-        addIndex(session, newindex);
+        addIndex(newindex);
 
         return newindex;
     }
@@ -443,7 +443,7 @@ public class TableBase {
         }
     }
 
-    final void addIndex(Session session, Index index) {
+    final void addIndex(Index index) {
 
         int i = 0;
 
@@ -502,8 +502,8 @@ public class TableBase {
                                    boolean[] nullsLast, boolean unique,
                                    boolean constraint, boolean forward) {
 
-        Index newIndex = createAndAddIndexStructure(session, name, columns,
-            descending, nullsLast, unique, constraint, forward);
+        Index newIndex = createAndAddIndexStructure(name, columns, descending,
+            nullsLast, unique, constraint, forward);
 
         return newIndex;
     }

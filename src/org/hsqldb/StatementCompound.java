@@ -46,7 +46,7 @@ import org.hsqldb.types.Type;
  * Implementation of Statement for PSM compound statements.
 
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.2.6
+ * @version 2.2.7
  * @since 1.9.0
  */
 public class StatementCompound extends Statement {
@@ -540,7 +540,7 @@ public class StatementCompound extends Statement {
             }
         }
 
-        queryResult.navigator.close();
+        queryResult.navigator.release();
 
         return result;
     }

@@ -59,6 +59,7 @@ import java.sql.SQLXML;
 
 //#endif JAVA6
 import org.hsqldb.ColumnBase;
+import org.hsqldb.persist.HsqlDatabaseProperties;
 import org.hsqldb.HsqlDateTime;
 import org.hsqldb.HsqlException;
 import org.hsqldb.SessionInterface;
@@ -75,6 +76,7 @@ import org.hsqldb.types.BinaryData;
 import org.hsqldb.types.BlobDataID;
 import org.hsqldb.types.ClobDataID;
 import org.hsqldb.types.DateTimeType;
+import org.hsqldb.types.IntervalType;
 import org.hsqldb.types.JavaObjectData;
 import org.hsqldb.types.TimeData;
 import org.hsqldb.types.TimestampData;
@@ -313,7 +315,7 @@ import org.hsqldb.types.Types;
  *
  * @author Campbell Boucher-Burnet (boucherb@users dot sourceforge.net)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.0.1
+ * @version 2.2.7
  * @since HSQLDB 1.9.0
  * @revised JDK 7, HSQLDB 2.0.1
  */
@@ -395,7 +397,7 @@ public class JDBCResultSet implements ResultSet {
         if (navigator == null) {
             return;
         }
-        navigator.close();
+        navigator.release();
 
         navigator = null;
 
@@ -7102,7 +7104,16 @@ public class JDBCResultSet implements ResultSet {
      * from DatabaseMetaData<p>
      */
     JDBCStatementBase statement;
+
+    /**
+     * Session or ClientConnection
+     */
     SessionInterface  session;
+
+    /**
+     * Translation of INTERVAL types
+     */
+    private boolean translateTTIType;
 
     /**
      * The scrollability / scroll sensitivity type of this result.
@@ -7274,6 +7285,11 @@ public class JDBCResultSet implements ResultSet {
         if (trackNull(value)) {
             return null;
         }
+
+        if (translateTTIType && targetType.isIntervalType()) {
+            targetType = ((IntervalType) targetType).getCharacterType();
+        }
+
 
         if (sourceType.typeCode != targetType.typeCode) {
             try {
@@ -7494,6 +7510,11 @@ public class JDBCResultSet implements ResultSet {
             preparedStatement = new JDBCPreparedStatement(s.connection,
                     result);
         }
+
+        if (conn != null && conn.clientProperties != null) {
+            translateTTIType = conn.clientProperties.isPropertyTrue(
+                HsqlDatabaseProperties.jdbc_translate_tti_types);
+        }
     }
 
     public JDBCResultSet(JDBCConnection conn, Result r,
@@ -7507,6 +7528,11 @@ public class JDBCResultSet implements ResultSet {
         navigator       = r.getNavigator();
         resultMetaData  = metaData;
         columnCount     = resultMetaData.getColumnCount();
+
+        if (conn != null && conn.clientProperties != null) {
+            translateTTIType = conn.clientProperties.isPropertyTrue(
+                HsqlDatabaseProperties.jdbc_translate_tti_types);
+        }
     }
 
     /**
