@@ -54,7 +54,7 @@ import org.hsqldb.types.Type;
  * Base implementation of PersistentStore for different table types.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.0.1
+ * @version 2.2.7
  * @since 1.9.0
  */
 public abstract class RowStoreAVL implements PersistentStore {
@@ -86,9 +86,7 @@ public abstract class RowStoreAVL implements PersistentStore {
         this.timestamp = timestamp;
     }
 
-    public boolean isMemory() {
-        return false;
-    }
+    public abstract boolean isMemory();
 
     public void setMemory(boolean mode) {}
 

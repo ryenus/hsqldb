@@ -308,7 +308,7 @@ class SubQuery implements Comparator {
         store = session.sessionData.getSubqueryRowStore(table);
 
         table.insertResult(session, store, result);
-        result.getNavigator().close();
+        result.getNavigator().release();
     }
 
     public boolean hasUniqueNotNullRows(Session session) {

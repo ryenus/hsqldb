@@ -33,7 +33,6 @@ package org.hsqldb.navigator;
 
 import java.io.IOException;
 
-import org.hsqldb.RangeVariable;
 import org.hsqldb.Row;
 import org.hsqldb.SessionInterface;
 import org.hsqldb.error.Error;
@@ -48,7 +47,7 @@ import org.hsqldb.rowio.RowOutputInterface;
  * object retreival.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.0.1
+ * @version 2.2.7
  * @since 1.9.0
  */
 public abstract class RowSetNavigator implements RangeIterator {
@@ -121,11 +120,6 @@ public abstract class RowSetNavigator implements RangeIterator {
     public abstract void remove();
 
     /**
-     * Clear all rows
-     */
-    public abstract void clear();
-
-    /**
      * Reset to initial state
      */
     public void reset() {
@@ -133,11 +127,14 @@ public abstract class RowSetNavigator implements RangeIterator {
     }
 
     /**
+     * Clear the contents
+     */
+    public abstract void clear();
+
+    /**
      * Remove any resourses and invalidate
      */
-    public void release() {
-        reset();
-    }
+    public abstract void release();
 
     public void setSession(SessionInterface session) {
         this.session = session;
@@ -311,8 +308,6 @@ public abstract class RowSetNavigator implements RangeIterator {
         return size > 0 && currentPos == size;
     }
 
-    public void close() {}
-
     public void writeSimple(RowOutputInterface out,
                             ResultMetaData meta) throws IOException {
         throw Error.runtimeError(ErrorCode.U_S0500, "RowSetNavigator");
@@ -335,9 +330,5 @@ public abstract class RowSetNavigator implements RangeIterator {
 
     public int getRangePosition() {
         return rangePosition;
-    }
-
-    public RangeVariable getRange() {
-        return null;
     }
 }

@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2010, The HSQL Development Group
+/* Copyright (c) 2001-2011, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,18 +31,15 @@
 
 package org.hsqldb.persist;
 
-import org.hsqldb.Session;
-import org.hsqldb.TableBase;
-import org.hsqldb.index.Index;
-import org.hsqldb.error.ErrorCode;
-import org.hsqldb.error.Error;
-
 import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import org.hsqldb.Row;
 import org.hsqldb.RowAVL;
+import org.hsqldb.Session;
+import org.hsqldb.TableBase;
+import org.hsqldb.index.Index;
 import org.hsqldb.index.NodeAVL;
 import org.hsqldb.navigator.RowIterator;
 
@@ -50,7 +47,7 @@ import org.hsqldb.navigator.RowIterator;
  * Implementation of PersistentStore for information schema and temp tables.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.0.1
+ * @version 2.2.7
  * @since 2.0.1
  */
 public class RowStoreAVLHybridExtended extends RowStoreAVLHybrid {
@@ -63,11 +60,6 @@ public class RowStoreAVLHybridExtended extends RowStoreAVLHybrid {
                                      PersistentStoreCollection manager,
                                      TableBase table, boolean diskBased) {
         super(session, manager, table, diskBased);
-    }
-
-    private RowStoreAVLHybridExtended(Session session,  TableBase table) {
-
-        super(session, table);
     }
 
     public CachedObject getNewCachedObject(Session session, Object object,
@@ -123,6 +115,8 @@ public class RowStoreAVLHybridExtended extends RowStoreAVLHybrid {
 
         if (isCached) {
             resetAccessorKeysForCached();
+
+            return;
         }
 
         super.resetAccessorKeys(keys);
@@ -131,7 +125,8 @@ public class RowStoreAVLHybridExtended extends RowStoreAVLHybrid {
     private void resetAccessorKeysForCached() {
 
         RowStoreAVLHybrid tempStore = new RowStoreAVLHybridExtended(session,
-            table);
+            manager, table, true);
+        tempStore.changeToDiskTable(session);
         RowIterator iterator = table.rowIterator(this);
 
         while (iterator.hasNext()) {

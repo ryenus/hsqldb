@@ -401,9 +401,9 @@ public class StatementSession extends Statement {
                         if (single && data != null && data[0] != null) {
                             value = data[0];
 
-                            result.getNavigator().close();
+                            result.getNavigator().release();
                         } else {
-                            result.getNavigator().close();
+                            result.getNavigator().release();
 
                             return Result.newErrorResult(
                                 Error.error(ErrorCode.X_22009), sql);

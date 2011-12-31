@@ -64,7 +64,7 @@ import org.hsqldb.types.Types;
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
  *
- * @version 2.2.6
+ * @version 2.2.7
  * @since 1.9.0
  */
 public class QuerySpecification extends QueryExpression {
@@ -1645,8 +1645,8 @@ public class QuerySpecification extends QueryExpression {
                 groupCols[i] = indexLimitVisible + i;
             }
 
-            groupIndex = resultTable.createAndAddIndexStructure(session, null,
-                    groupCols, null, null, false, false, false);
+            groupIndex = resultTable.createAndAddIndexStructure(null, groupCols,
+                    null, null, false, false, false);
         } else if (isAggregated) {
             groupIndex = mainIndex;
         }
@@ -1654,8 +1654,8 @@ public class QuerySpecification extends QueryExpression {
         if (isUpdatable && view == null) {
             int[] idCols = new int[]{ indexLimitVisible };
 
-            idIndex = resultTable.createAndAddIndexStructure(session, null,
-                    idCols, null, null, false, false, false);
+            idIndex = resultTable.createAndAddIndexStructure(null, idCols,
+                    null, null, false, false, false);
         }
     }
 
@@ -1665,8 +1665,8 @@ public class QuerySpecification extends QueryExpression {
 
         ArrayUtil.fillSequence(fullCols);
 
-        fullIndex = resultTable.createAndAddIndexStructure(session, null,
-                fullCols, null, null, false, false, false);
+        fullIndex = resultTable.createAndAddIndexStructure(null, fullCols,
+                null, null, false, false, false);
         resultTable.fullIndex = fullIndex;
     }
 
@@ -1702,8 +1702,8 @@ public class QuerySpecification extends QueryExpression {
 
         try {
             resultTable = new TableDerived(session.database, tableName,
-                                           tableType, columnTypes, columnList,
-                                           null, null);
+                                           tableType, columnTypes, columnList
+                                           );
         } catch (Exception e) {}
     }
 

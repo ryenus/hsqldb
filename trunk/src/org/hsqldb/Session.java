@@ -416,7 +416,7 @@ public class Session implements SessionInterface {
      * @param  row the deleted row
      * @throws  HsqlException
      */
-    void addDeleteAction(Table table, Row row, int[] colMap) {
+    public void addDeleteAction(Table table, Row row, int[] colMap) {
 
 //        tempActionHistory.add("add delete action " + actionTimestamp);
         if (abortTransaction) {

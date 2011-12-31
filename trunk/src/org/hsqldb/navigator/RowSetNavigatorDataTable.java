@@ -52,7 +52,7 @@ import org.hsqldb.rowio.RowOutputInterface;
  * Implementation of RowSetNavigator using a table as the data store.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.0.1
+ * @version 2.2.7
  * @since 1.9.0
  */
 public class RowSetNavigatorDataTable extends RowSetNavigatorData {
@@ -229,15 +229,6 @@ public class RowSetNavigatorDataTable extends RowSetNavigatorData {
         }
     }
 
-    public void clear() {
-
-        table.clearAllData(store);
-
-        size = 0;
-
-        reset();
-    }
-
     public boolean absolute(int position) {
         return super.absolute(position);
     }
@@ -278,7 +269,7 @@ public class RowSetNavigatorDataTable extends RowSetNavigatorData {
         iterator = mainIndex.firstRow(store);
     }
 
-    public void close() {
+    public void release() {
 
         if (isClosed) {
             return;
@@ -288,6 +279,15 @@ public class RowSetNavigatorDataTable extends RowSetNavigatorData {
         store.release();
 
         isClosed = true;
+    }
+
+    public void clear() {
+
+        table.clearAllData(store);
+
+        size = 0;
+
+        reset();
     }
 
     public boolean isMemory() {
@@ -334,7 +334,7 @@ public class RowSetNavigatorDataTable extends RowSetNavigatorData {
             addAdjusted(currentData, rightColumnIndexes);
         }
 
-        other.close();
+        other.release();
     }
 
     public void union(Session session, RowSetNavigatorData other) {
@@ -358,7 +358,7 @@ public class RowSetNavigatorDataTable extends RowSetNavigatorData {
             }
         }
 
-        other.close();
+        other.release();
     }
 
     public void intersect(Session session, RowSetNavigatorData other) {
@@ -376,7 +376,7 @@ public class RowSetNavigatorDataTable extends RowSetNavigatorData {
             }
         }
 
-        other.close();
+        other.release();
     }
 
     public void intersectAll(Session session, RowSetNavigatorData other) {
@@ -419,7 +419,7 @@ public class RowSetNavigatorDataTable extends RowSetNavigatorData {
             remove();
         }
 
-        other.close();
+        other.release();
     }
 
     public void except(Session session, RowSetNavigatorData other) {
@@ -437,7 +437,7 @@ public class RowSetNavigatorDataTable extends RowSetNavigatorData {
             }
         }
 
-        other.close();
+        other.release();
     }
 
     public void exceptAll(Session session, RowSetNavigatorData other) {
@@ -478,7 +478,7 @@ public class RowSetNavigatorDataTable extends RowSetNavigatorData {
             }
         }
 
-        other.close();
+        other.release();
     }
 
     public boolean hasUniqueNotNullRows(Session session) {
@@ -515,7 +515,6 @@ public class RowSetNavigatorDataTable extends RowSetNavigatorData {
         Object[] lastRowData = null;
 
         while (next()) {
-
             Object[] currentData = getCurrent();
 
             if (lastRowData != null

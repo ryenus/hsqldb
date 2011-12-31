@@ -57,7 +57,7 @@ import org.hsqldb.types.UserTypeModifier;
  * Parser for DDL statements
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.2.6
+ * @version 2.2.7
  * @since 1.9.0
  */
 public class ParserDDL extends ParserRoutine {
@@ -858,7 +858,7 @@ public class ParserDDL extends ParserRoutine {
 
         name.schema = SqlInvariants.MODULE_HSQLNAME;
 
-        Table table = TableUtil.newTable(database, TableBase.TEMP_TABLE, name);
+        Table table = new Table(database, name, TableBase.TEMP_TABLE);
         StatementSchema cs          = compileCreateTableBody(table, false);
         HsqlArrayList   constraints = (HsqlArrayList) cs.arguments[1];
 
@@ -901,7 +901,20 @@ public class ParserDDL extends ParserRoutine {
 
         name.setSchemaIfNull(session.getCurrentSchemaHsqlName());
 
-        Table table = TableUtil.newTable(database, type, name);
+        Table table;
+
+        switch (type) {
+
+            case TableBase.TEMP_TEXT_TABLE :
+            case TableBase.TEXT_TABLE : {
+                table = new TextTable(database, name, type);
+
+                break;
+            }
+            default : {
+                table = new Table(database, name, type);
+            }
+        }
 
         return compileCreateTableBody(table, ifNot);
     }
@@ -1272,9 +1285,8 @@ public class ParserDDL extends ParserRoutine {
                             c.getName().name, table.getSchemaName(),
                             table.getName(), SchemaObject.INDEX);
 
-                    Index index = table.createAndAddIndexStructure(session,
-                        indexName, c.core.mainCols, null, null, true, true,
-                        false);
+                    Index index = table.createAndAddIndexStructure(indexName,
+                        c.core.mainCols, null, null, true, true, false);
                     Constraint newconstraint = new Constraint(c.getName(),
                         table, index, SchemaObject.ConstraintTypes.UNIQUE);
 
@@ -1377,7 +1389,7 @@ public class ParserDDL extends ParserRoutine {
 
         HsqlName refIndexName = session.database.nameManager.newAutoName("IDX",
             table.getSchemaName(), table.getName(), SchemaObject.INDEX);
-        Index index = table.createAndAddIndexStructure(session, refIndexName,
+        Index index = table.createAndAddIndexStructure(refIndexName,
             c.core.refCols, null, null, false, true, isForward);
         HsqlName mainName = session.database.nameManager.newAutoName("REF",
             c.getName().name, table.getSchemaName(), table.getName(),
@@ -2481,6 +2493,7 @@ public class ParserDDL extends ParserRoutine {
                         throw unexpectedToken();
                     }
                 }
+
                 // fall through
                 case Tokens.DEFAULT : {
                     read();

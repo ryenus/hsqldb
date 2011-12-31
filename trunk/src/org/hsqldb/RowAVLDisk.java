@@ -91,16 +91,11 @@ import org.hsqldb.rowio.RowOutputInterface;
  *  In-memory representation of a disk-based database row object with  methods
  *  for serialization and de-serialization. <p>
  *
- *  A CachedRow is normally part of a circular double linked list which
- *  contains all of the Rows currently in the Cache for the database. It is
- *  unlinked from this list when it is freed from the Cache to make way for
- *  other rows.<p>
- *
  *  New class derived from Hypersonic SQL code and enhanced in HSQLDB. <p>
  *
  * @author Fred Toussi (fredt@users dot sourceforge dot net)
  * @author Thomas Mueller (Hypersonic SQL Group)
- * @version 2.0.1
+ * @version 2.2.7
  * @since Hypersonic SQL
  */
 public class RowAVLDisk extends RowAVL {
@@ -116,7 +111,7 @@ public class RowAVLDisk extends RowAVL {
     /**
      *  Flag indicating unwritten data.
      */
-    private boolean hasDataChanged;
+    boolean hasDataChanged;
 
     /**
      *  Flag indicating Node data has changed.
@@ -135,6 +130,13 @@ public class RowAVLDisk extends RowAVL {
         super(t, o);
 
         setNewNodes(store);
+
+        hasDataChanged = hasNodesChanged = true;
+    }
+
+    RowAVLDisk(TableBase t, Object[] o) {
+
+        super(t, o);
 
         hasDataChanged = hasNodesChanged = true;
     }
@@ -378,7 +380,7 @@ public class RowAVLDisk extends RowAVL {
      *
      * @throws IOException
      */
-    private void writeNodes(RowOutputInterface out) throws IOException {
+    void writeNodes(RowOutputInterface out) throws IOException {
 
         out.writeSize(storageSize);
 

@@ -34,19 +34,12 @@ package org.hsqldb;
 import org.hsqldb.HsqlNameManager.HsqlName;
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
-import org.hsqldb.types.CharacterType;
-import org.hsqldb.types.Charset;
-import org.hsqldb.types.DateTimeType;
-import org.hsqldb.types.NumberType;
-import org.hsqldb.types.Type;
-import org.hsqldb.types.Types;
-import org.hsqldb.types.UserTypeModifier;
 
 /**
  * Invariant schema objects.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.0.1
+ * @version 2.2.7
  * @since 1.9.0
  */
 public class SqlInvariants {
@@ -81,6 +74,7 @@ public class SqlInvariants {
     public static final String   MODULE             = "MODULE";
     public static final String   DUAL               = "DUAL";
     public static final String   DUMMY              = "DUMMY";
+    public static final String   IDX                = "IDX";
     public static final HsqlName INFORMATION_SCHEMA_HSQLNAME;
     public static final HsqlName SYSTEM_SCHEMA_HSQLNAME;
     public static final HsqlName LOBS_SCHEMA_HSQLNAME;
@@ -89,6 +83,7 @@ public class SqlInvariants {
     public static final HsqlName MODULE_HSQLNAME;
     public static final HsqlName DUAL_TABLE_HSQLNAME;
     public static final HsqlName DUAL_COLUMN_HSQLNAME;
+    public static final HsqlName SYSTEM_INDEX_HSQLNAME;
 
     static {
         INFORMATION_SCHEMA_HSQLNAME =
@@ -110,6 +105,8 @@ public class SqlInvariants {
                 SchemaObject.SCHEMA);
         DUAL_COLUMN_HSQLNAME = HsqlNameManager.newSystemObjectName(DUMMY,
                 SchemaObject.SCHEMA);
+        SYSTEM_INDEX_HSQLNAME = HsqlNameManager.newSystemObjectName(IDX,
+                SchemaObject.INDEX);
 
         SYSTEM_SUBQUERY_HSQLNAME.setSchemaIfNull(SYSTEM_SCHEMA_HSQLNAME);
     }

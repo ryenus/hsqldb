@@ -53,7 +53,7 @@ import org.hsqldb.types.Type;
  * Manages all SCHEMA related database objects
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version  2.2.6
+ * @version  2.2.7
  * @since 1.8.0
  */
 public class SchemaManager {
@@ -2780,12 +2780,9 @@ public class SchemaManager {
 
     public void createSystemTables() {
 
-        dualTable =
-            TableUtil.newLookupTable(database,
-                                     SqlInvariants.DUAL_TABLE_HSQLNAME,
-                                     TableBase.SYSTEM_TABLE,
-                                     SqlInvariants.DUAL_COLUMN_HSQLNAME,
-                                     Type.SQL_VARCHAR);
+        dualTable = TableUtil.newSingleColumnTable(database,
+                SqlInvariants.DUAL_TABLE_HSQLNAME, TableBase.SYSTEM_TABLE,
+                SqlInvariants.DUAL_COLUMN_HSQLNAME, Type.SQL_VARCHAR);
 
         dualTable.insertSys(database.sessionManager.getSysSession(),
                             dualTable.getRowStore(null), new Object[]{ "X" });

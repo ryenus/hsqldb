@@ -261,7 +261,7 @@ public class SessionData {
 
         Result result = (Result) resultMap.remove(id);
 
-        result.getNavigator().close();
+        result.getNavigator().release();
     }
 
     public void closeAllNavigators() {
@@ -275,7 +275,7 @@ public class SessionData {
         while (it.hasNext()) {
             Result result = (Result) it.next();
 
-            result.getNavigator().close();
+            result.getNavigator().release();
         }
 
         resultMap.clear();
@@ -293,7 +293,7 @@ public class SessionData {
             Result result = (Result) it.next();
 
             if (!ResultProperties.isHoldable(result.rsProperties)) {
-                result.getNavigator().close();
+                result.getNavigator().release();
                 it.remove();
             }
         }

@@ -58,7 +58,7 @@ public class StatementCursor extends StatementQuery {
 
         while (current != null) {
             if (getCursorName().name.equals(current.getMainString())) {
-                current.navigator.close();
+                current.navigator.release();
 
                 if (head == current) {
                     head = current.getChainedResult();

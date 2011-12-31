@@ -36,7 +36,7 @@ import org.hsqldb.Row;
 
 /**
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.0.1
+ * @version 2.2.7
  * @since 1.9.0
  */
 public interface RangeIterator extends RowIterator {
@@ -60,6 +60,4 @@ public interface RangeIterator extends RowIterator {
     void reset();
 
     int getRangePosition();
-
-    RangeVariable getRange();
 }
