@@ -1,8 +1,11 @@
-05 December 2011
+01 January 2012
 -- fixed issue with NPE thrown with nio data files
 -- added SET DATABASE SQL NULLS FIRST and the property sql.nulls_first for the default sort order of nulls
 -- added SET DATABASE SQL SYNTAX DB2 and the property sql.syntax for DB2 syntax compatibility
 -- extended SET DATABASE SQL AVG SCALE and the property sql.avg_scale to the results of division
+-- changed the JDBC object returned for INTERVAL values to String for the default jdbc.translate_tti_types=true setting
+-- improved memory use in transactions that delete or update disk rows
+-- improved syntax compatibility modes
 19 November 2011 - version 2.2.6
 -- fixed issue with memory use of large strings in cache
 -- fixed issue with FOR loops with ORDER BY in routines
