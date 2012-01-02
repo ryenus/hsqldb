@@ -40,9 +40,9 @@ import org.hsqldb.lib.HashSet;
 import org.hsqldb.lib.HsqlArrayList;
 import org.hsqldb.lib.LongDeque;
 import org.hsqldb.navigator.RangeIterator;
-import org.hsqldb.store.ValuePool;
 import org.hsqldb.navigator.RowSetNavigatorDataChange;
 import org.hsqldb.navigator.RowSetNavigatorDataChangeMemory;
+import org.hsqldb.store.ValuePool;
 
 /*
  * Session execution context and temporary data structures

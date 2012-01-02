@@ -85,7 +85,7 @@ import org.hsqldb.types.Type;
  *  storage.<p>
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.0.1
+ * @version 2.2.7
  * @since 1.7.0
  */
 public class Logger {
@@ -1261,6 +1261,8 @@ public class Logger {
             case TableBase.TEMP_TABLE :
                 return new RowStoreAVLHybridExtended(session, collection,
                                                      table, true);
+            case TableBase.CHANGE_SET_TABLE :
+                return new RowStoreDataChange(session, collection, table);
 
             case TableBase.RESULT_TABLE :
             case TableBase.SYSTEM_SUBQUERY :
@@ -1291,6 +1293,7 @@ public class Logger {
                                           descending, nullsLast, colTypes, pk,
                                           unique, constraint, forward);
 
+            case TableBase.CHANGE_SET_TABLE :
             case TableBase.FUNCTION_TABLE :
             case TableBase.CACHED_TABLE :
             case TableBase.TEXT_TABLE :

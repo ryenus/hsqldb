@@ -120,6 +120,7 @@ public class StatementResultUpdate extends StatementDML {
                             colMap);
                 list.endMainDataSet();
                 update(session, baseTable, list, null);
+                list.release();
 
                 break;
             }
@@ -136,6 +137,7 @@ public class StatementResultUpdate extends StatementDML {
                 list.addRow(row);
                 list.endMainDataSet();
                 delete(session, baseTable, list);
+                list.release();
 
                 break;
             }

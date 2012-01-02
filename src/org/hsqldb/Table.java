@@ -107,6 +107,11 @@ public class Table extends TableBase implements SchemaObject {
 
         switch (type) {
 
+            case CHANGE_SET_TABLE :
+                persistenceScope = SCOPE_STATEMENT;
+                isSessionBased   = true;
+                break;
+
             case SYSTEM_SUBQUERY :
                 persistenceScope = SCOPE_STATEMENT;
                 isSessionBased   = true;
