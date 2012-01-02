@@ -62,6 +62,7 @@ public class TableBase {
     public static final int TRANSITION_TABLE  = 10;
     public static final int FUNCTION_TABLE    = 11;
     public static final int SYSTEM_TABLE      = 12;
+    public static final int CHANGE_SET_TABLE  = 13;
 
     //
     public static final int SCOPE_STATEMENT   = 21;

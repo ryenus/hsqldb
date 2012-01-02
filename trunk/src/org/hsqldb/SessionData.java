@@ -67,14 +67,14 @@ import org.hsqldb.types.LobData;
  * Session semi-persistent data structures
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.2.6
+ * @version 2.2.7
  * @since 1.9.0
  */
 public class SessionData {
 
-    private final Database           database;
-    private final Session            session;
-    PersistentStoreCollectionSession persistentStoreCollection;
+    private final Database                  database;
+    private final Session                   session;
+    public PersistentStoreCollectionSession persistentStoreCollection;
 
     // large results
     LongKeyHashMap resultMap;

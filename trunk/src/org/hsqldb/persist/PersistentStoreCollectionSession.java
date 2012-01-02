@@ -48,7 +48,7 @@ import org.hsqldb.store.ValuePool;
  * TableBase.getPersistenceId().
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.0.1
+ * @version 2.2.7
  * @since 1.9.0
  */
 public class PersistentStoreCollectionSession
@@ -101,6 +101,10 @@ implements PersistentStoreCollection {
                 throw Error.runtimeError(ErrorCode.U_S0500,
                                          "PersistentStoreCollectionSession");
         }
+    }
+
+    public PersistentStore getViewStore(long persistenceId) {
+        return (PersistentStore) rowStoreMapStatement.get(persistenceId);
     }
 
     public PersistentStore getStore(Object key) {

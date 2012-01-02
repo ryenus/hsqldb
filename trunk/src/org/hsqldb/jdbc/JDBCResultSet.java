@@ -7076,8 +7076,13 @@ public class JDBCResultSet implements ResultSet {
     /** The internal representation. */
     protected ResultMetaData resultMetaData;
 
+    /**
+     * Translation of INTERVAL types
+     */
+    private boolean translateTTIType;
+
     /** How many columns does this ResultSet have? */
-    int columnCount;
+    private int columnCount;
 
     /** Did the last getXXX method encounter a null value? */
     private boolean wasNullValue;
@@ -7085,17 +7090,11 @@ public class JDBCResultSet implements ResultSet {
     /** The ResultSetMetaData object for this ResultSet */
     private ResultSetMetaData resultSetMetaData;
 
-    /** JDBCConnection for this. */
-    private JDBCConnection connection;
-
     /** Accelerates findColumn; Map<columnName, columnIndex> */
     private IntValueHashMap columnMap;
 
     /** The first warning in the chain. Null if there are no warnings. */
-    protected SQLWarning rootWarning;
-
-    /** The underlying result. */
-    public Result result;
+    private SQLWarning rootWarning;
 
     //-------------------------- Package Attributes ----------------------------
 
@@ -7110,10 +7109,8 @@ public class JDBCResultSet implements ResultSet {
      */
     SessionInterface  session;
 
-    /**
-     * Translation of INTERVAL types
-     */
-    private boolean translateTTIType;
+    /** JDBCConnection for this. */
+    JDBCConnection connection;
 
     /**
      * The scrollability / scroll sensitivity type of this result.
@@ -7133,6 +7130,9 @@ public class JDBCResultSet implements ResultSet {
 
     /** Statement is closed when its result set is closed */
     boolean autoClose;
+
+    /** The underlying result. */
+    public Result result;
 
     // ---------------------- Public Attributes --------------------------------
     // Support for JDBC 2 from JRE 1.1.x

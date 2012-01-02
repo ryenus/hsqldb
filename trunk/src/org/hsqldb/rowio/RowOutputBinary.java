@@ -57,7 +57,7 @@ import org.hsqldb.types.Types;
  *
  * @author Bob Preston (sqlbob@users dot sourceforge.net)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.0.1
+ * @version 2.6.7
  * @since 1.7.0
  */
 public class RowOutputBinary extends RowOutputBase {
@@ -160,11 +160,11 @@ public class RowOutputBinary extends RowOutputBase {
         return (size + scale - 1) & mask;
     }
 
-    protected void writeFieldType(Type type) {
+    public void writeFieldType(Type type) {
         write(1);
     }
 
-    protected void writeNull(Type type) {
+    public void writeNull(Type type) {
         write(0);
     }
 
@@ -268,6 +268,16 @@ public class RowOutputBinary extends RowOutputBase {
         }
     }
 
+    public void writeArray(int[] o) {
+
+        writeInt(o.length);
+
+        for (int i = 0; i < o.length; i++) {
+            write(1);
+            writeInt(o[i]);
+        }
+    }
+
 // fredt@users - comment - helper and conversion methods
     public void writeByteArray(byte[] b) {
         writeInt(b.length);
@@ -280,6 +290,9 @@ public class RowOutputBinary extends RowOutputBase {
         write(c, 0, c.length);
     }
 
+    public int getSize(int[] array) {
+        return 4 + array.length * 5;
+    }
     /**
      * Calculate the size of byte array required to store a row.
      *
@@ -288,7 +301,7 @@ public class RowOutputBinary extends RowOutputBase {
      * @param types - array of java.sql.Types values
      * @return size of byte array
      */
-    private int getSize(Object[] data, int l, Type[] types) {
+    public int getSize(Object[] data, int l, Type[] types) {
 
         int s = 0;
 
