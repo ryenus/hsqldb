@@ -772,7 +772,7 @@
       </listitem>
 
       <listitem>
-        <para>Specific syntax compatibility properties allow syntax and type
+        <para>Specific SQL syntax compatibility modes allow syntax and type
         names that are supported by some popular RDBMS.</para>
       </listitem>
 
@@ -794,19 +794,19 @@
 
       <itemizedlist>
         <listitem>
-          <para>Use MVCC if your application is multi-user</para>
-        </listitem>
-
-        <listitem>
-          <para>PostgreSQL functions are generally supported</para>
-        </listitem>
-
-        <listitem>
           <para>Use <literal>&lt;set database sql syntax PGS
           statement&gt;</literal> to enable the PostgreSQL's non-standard
           features. Support for SERIAL, BIGSERIAL and TEXT data types, as well
           as sequence functions are ttranslated into HSQLDB
           equivalents.</para>
+        </listitem>
+
+        <listitem>
+          <para>Use MVCC if your application is multi-user</para>
+        </listitem>
+
+        <listitem>
+          <para>PostgreSQL functions are generally supported</para>
         </listitem>
 
         <listitem>
@@ -862,10 +862,10 @@
       <title>MySQL Compatibility</title>
 
       <para>MySQL had many incompatibilities with the Standard. The latest
-      versions have introduced much greater compatibly, but these features
-      have to be turned on via properties. You should therefore check the
-      current Standard compatibility settings of your MySQL database and use
-      the available HyperSQL properties to achieve closer results. If you
+      versions have introduced much greater compatibly, but some of these
+      features have to be turned on via properties. You should therefore check
+      the current Standard compatibility settings of your MySQL database and
+      use the available HyperSQL properties to achieve closer results. If you
       avoid the few anti-Standard features of MySQL you can port your
       databases to HyperSQL.</para>
 
@@ -1061,12 +1061,18 @@
         <listitem>
           <para>Non-standard data type definitions such as NUMBER, VARCHAR2,
           NVARCHAR2, BINARY_DOUBLE, BINARY_FLOAT, LONG, RAW are translated
-          into the closest HyperSQL / SQL Standard equivalent.</para>
+          into the closest HyperSQL / SQL Standard equivalent in ORA
+          mode.</para>
+        </listitem>
+
+        <listitem>
+          <para>The DATE type is interpreted as TIMESTAMP(0) in ORA syntax
+          mode.</para>
         </listitem>
 
         <listitem>
           <para>The DUAL table and the expressions, ROWNUM, CURRVAL, NEXTVAL
-          are supported.</para>
+          are supported in ORA syntax mode.</para>
         </listitem>
 
         <listitem>
@@ -1113,8 +1119,9 @@
         </listitem>
 
         <listitem>
-          <para>The DB2 binary type definition FOR BIT DATA is supported, as
-          well as empty definition of column default values.</para>
+          <para>The DB2 binary type definition FOR BIT DATA, as well as empty
+          definition of column default values are supported in DB2 syntax
+          mode.</para>
         </listitem>
 
         <listitem>
@@ -1123,7 +1130,7 @@
 
         <listitem>
           <para>The DUAL table and the expressions, ROWNUM, CURRVAL, NEXTVAL
-          are supported.</para>
+          are supported in DB2 syntax mode.</para>
         </listitem>
 
         <listitem>
@@ -1392,8 +1399,10 @@
       SET DATABASE DEFAULT RESULT MEMORY ROWS &lt;unsigned integer
       literal&gt;</literal></simpara>
 
-      <simpara>Sets the maximum number of rows of each result set and other
-      internal temporary table that is held in memory.</simpara>
+      <simpara>Sets the maximum number of rows of each result set and internal
+      temporary table that is held in memory. Temporary tables includes views,
+      schema-based and session-based TEMPORARY tables, transient tables for
+      subqueries, and INFORMATION_SCHEMA tables.</simpara>
 
       <simpara>This setting applies to all sessions. Individual sessions can
       change the value with the <literal>SET SESSION RESULT MEMORY
@@ -1710,7 +1719,8 @@
 
       <simpara>SQL Standard requires enforcement. <emphasis>It is better to
       enable this check, in order to improve the quality and correctness of
-      SQL statements.</emphasis></simpara>
+      SQL statements.</emphasis> When false, the first matching table is used
+      to resolve the column reference.</simpara>
 
       <simpara>Only a user with the DBA role can execute this
       statement.</simpara>
@@ -1733,10 +1743,9 @@
       <simpara>This command can enable or disable full enforcement of the
       rules that prevents illegal type conversions and parameters or nulls
       without type in SQL statements (usually SELECT statements). For example
-      an INTEGER or column or a DATE column cannot be compared to a character
-      string or searched with a LIKE expression. when enforcement is
-      <literal>TRUE</literal>. These operations are allowed by
-      default.</simpara>
+      an INTEGER column or a DATE column cannot be compared to a character
+      string or searched with a LIKE expression when thie property is
+      <literal>TRUE</literal>.</simpara>
 
       <simpara>The property is <literal>FALSE</literal> by default.</simpara>
 
@@ -1765,13 +1774,16 @@
 
       <simpara>This command can enable or disable full enforcement of the SQL
       Standard rules that prevents triggered data change exeptions caused by
-      ON DELETE CASCADE clauses of foreign key constraint. When there are
-      multiple constraints, a row may be updated by one constraint and deleted
-      by another constraint in the same operation. This is not allowed by
-      default. Changing this to false allows such violations of the Standard
-      to pass without an exception.</simpara>
+      ON DELETE CASCADE clauses of foreign key constraint.</simpara>
 
-      <simpara>The property is <literal>TRUE</literal> by default and
+      <simpara>When there are multiple constraints, a row may be updated by
+      one constraint and deleted by another constraint in the same operation.
+      This is not allowed by default. Changing this to false allows such
+      violations of the Standard to pass without an exception.</simpara>
+
+      <simpara>The property is <literal>TRUE</literal> by default.</simpara>
+
+      <simpara>SQL Standard requires enforcement, therefore this property
       shouldn't be changed unless an application written for a non-conforming
       RDBMS needs it.</simpara>
 
@@ -1802,7 +1814,9 @@
       allowed by default. Changing this to <literal>FALSE</literal> allows
       such violations of the Standard to pass without an exception.</simpara>
 
-      <simpara>The property is <literal>TRUE</literal> by default and
+      <simpara>The property is <literal>TRUE</literal> by default.</simpara>
+
+      <simpara>SQL Standard requires enforcement, therefore this property
       shouldn't be changed unless an application written for a non-conforming
       RDBMS needs it.</simpara>
 
@@ -1825,6 +1839,11 @@
       <simpara><literal>&lt;set database sql translate tti types statement&gt;
       ::= SET DATABASE SQL TRANSLATE TTI TYPES { TRUE | FALSE
       }</literal></simpara>
+
+      <simpara>The JDBC Specification up to version 4.1 does not support some
+      SQL Standard built-in types, therefore these types must be translated to
+      a supported type when accessed through JDBC ResultSet and
+      PreparedStatement methods.</simpara>
 
       <simpara>If the property is true, the TIME / TIMESTAMP WITH TIME ZONE
       types and INTERVAL types are represented in JDBC methods of
@@ -1957,7 +1976,7 @@
 
       <simpara>By default, the result of division and the AVG and MEDIAN
       aggregate functions has the same type as the aggregated type of the
-      values. This includes the scale. The scaled specified with this property
+      values. This includes the scale. The scale specified with this property
       is used if it is larger than the scale of the operation. For example,
       the average of 5 and 10 is 7 by default, but 7.50 if the scale is
       specified as 2. The result of 7/3 is 2 by default but 2.33 if the scale
