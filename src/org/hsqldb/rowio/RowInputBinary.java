@@ -59,7 +59,7 @@ import org.hsqldb.types.Types;
  *
  * @author Bob Preston (sqlbob@users dot sourceforge.net)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 1.9.0
+ * @version 2.2.7
  * @since 1.7.0
  */
 public class RowInputBinary extends RowInputBase
@@ -97,7 +97,7 @@ implements org.hsqldb.rowio.RowInputInterface {
         return s;
     }
 
-    protected boolean readNull() throws IOException {
+    public boolean readNull() throws IOException {
 
         int b = readByte();
 
@@ -214,13 +214,31 @@ implements org.hsqldb.rowio.RowInputInterface {
     }
 
     protected Object[] readArray(Type type) throws IOException {
-        type = type.collectionBaseType();
-        int size = readInt();
 
+        type = type.collectionBaseType();
+
+        int      size = readInt();
         Object[] data = new Object[size];
 
         for (int i = 0; i < size; i++) {
             data[i] = readData(type);
+        }
+
+        return data;
+    }
+
+    /**
+     * Nulls in array are treated as 0
+     */
+    public int[] readIntArray() throws IOException {
+
+        int   size = readInt();
+        int[] data = new int[size];
+
+        for (int i = 0; i < size; i++) {
+            if (!readNull()) {
+                data[i] = readInt();
+            }
         }
 
         return data;

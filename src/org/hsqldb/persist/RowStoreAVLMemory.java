@@ -205,8 +205,11 @@ public class RowStoreAVLMemory extends RowStoreAVL implements PersistentStore {
     public void setCache(DataFileCache cache) {}
 
     public void release() {
+
         setTimestamp(0);
         ArrayUtil.fillArray(accessorList, null);
+
+        elementCount = 0;
     }
 
     public void setAccessor(Index key, CachedObject accessor) {
