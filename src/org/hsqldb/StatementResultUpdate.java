@@ -70,11 +70,19 @@ public class StatementResultUpdate extends StatementDML {
 
     public Result execute(Session session) {
 
+        Result result;
+
         try {
-            return getResult(session);
-        } catch (Throwable e) {
-            return Result.newErrorResult(e, null);
+            result = getResult(session);
+
+            clearStructures(session);
+        } catch (Throwable t) {
+            clearStructures(session);
+
+            result = Result.newErrorResult(t, null);
         }
+
+        return result;
     }
 
     Result getResult(Session session) {
@@ -120,7 +128,6 @@ public class StatementResultUpdate extends StatementDML {
                             colMap);
                 list.endMainDataSet();
                 update(session, baseTable, list, null);
-                list.release();
 
                 break;
             }
@@ -137,7 +144,6 @@ public class StatementResultUpdate extends StatementDML {
                 list.addRow(row);
                 list.endMainDataSet();
                 delete(session, baseTable, list);
-                list.release();
 
                 break;
             }
