@@ -393,7 +393,7 @@ public class TextCache extends DataFileCache {
     }
 
     public CachedObject get(long i, PersistentStore store, boolean keep) {
-        throw Error.runtimeError(ErrorCode.U_S0500, "RowStoreAVLDisk");
+        throw Error.runtimeError(ErrorCode.U_S0500, "TextCache");
     }
 
     protected void saveRows(CachedObject[] rows, int offset, int count) {

@@ -44,16 +44,16 @@ import org.hsqldb.TableBase;
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
 import org.hsqldb.index.Index;
+import org.hsqldb.index.NodeAVLDisk;
 import org.hsqldb.lib.ArrayUtil;
 import org.hsqldb.navigator.RowIterator;
 import org.hsqldb.rowio.RowInputInterface;
-import org.hsqldb.index.NodeAVLDisk;
 
 /*
- * Implementation of PersistentStore for result set and temporary tables.
+ * Implementation of PersistentStore for result sets.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.0.1
+ * @version 2.2.7
  * @since 1.9.0
  */
 public class RowStoreAVLHybrid extends RowStoreAVL implements PersistentStore {
@@ -93,16 +93,6 @@ public class RowStoreAVLHybrid extends RowStoreAVL implements PersistentStore {
 //
         resetAccessorKeys(table.getIndexList());
         manager.setStore(table, this);
-    }
-
-    RowStoreAVLHybrid(Session session, TableBase table) {
-
-        this.session = session;
-        this.table   = table;
-        useDisk      = true;
-        isCached     = true;
-
-        resetAccessorKeys(table.getIndexList());
     }
 
     public boolean isMemory() {
@@ -337,6 +327,18 @@ public class RowStoreAVLHybrid extends RowStoreAVL implements PersistentStore {
         }
 
         manager.setStore(table, null);
+
+        elementCount = 0;
+    }
+
+    /**
+     * Row might have changed from memory to disk or indexes added
+     */
+    public void delete(Session session, Row row) {
+
+        row = ((Table) table).getDeleteRowFromLog(session, row.getData());
+
+        super.delete(session, row);
     }
 
     public void setAccessor(Index key, CachedObject accessor) {

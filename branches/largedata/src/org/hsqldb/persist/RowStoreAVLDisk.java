@@ -278,7 +278,8 @@ public class RowStoreAVLDisk extends RowStoreAVL {
         ArrayUtil.fillArray(accessorList, null);
         cache.adjustStoreCount(-1);
 
-        cache = null;
+        cache        = null;
+        elementCount = 0;
     }
 
     public CachedObject getAccessor(Index key) {

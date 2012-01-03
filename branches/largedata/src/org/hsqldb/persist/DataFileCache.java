@@ -854,11 +854,12 @@ public class DataFileCache {
 
                     break;
                 } catch (OutOfMemoryError err) {
+                    cache.forceCleanUp();
+
+                    System.gc();
                     database.logger.logSevereEvent(dataFileName
                                                    + " getFromFile out of mem "
                                                    + pos, err);
-                    cache.forceCleanUp();
-                    System.gc();
 
                     if (j > 0) {
                         throw err;

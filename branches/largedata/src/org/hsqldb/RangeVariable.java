@@ -54,7 +54,7 @@ import org.hsqldb.types.Type;
  * Metadata for range variables, including conditions.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.0.1
+ * @version 2.2.7
  * @since 1.9.0
  */
 public class RangeVariable implements Cloneable {
@@ -944,10 +944,6 @@ public class RangeVariable implements Cloneable {
             return rangePosition;
         }
 
-        public RangeVariable getRange() {
-            return rangeVar;
-        }
-
         public Row getNextRow() {
             throw Error.runtimeError(ErrorCode.U_S0500, "RangeVariable");
         }
@@ -1445,10 +1441,6 @@ public class RangeVariable implements Cloneable {
 
         public int getRangePosition() {
             return 0;
-        }
-
-        public RangeVariable getRange() {
-            return null;
         }
     }
 
