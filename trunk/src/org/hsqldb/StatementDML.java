@@ -547,8 +547,6 @@ public class StatementDML extends StatementDMQL {
 
         count = update(session, baseTable, rowset, generatedNavigator);
 
-        rowset.release();
-
         if (resultOut == null) {
             if (count == 1) {
                 return Result.updateOneResult;
@@ -772,8 +770,6 @@ public class StatementDML extends StatementDMQL {
                 && baseTable.triggerLists[Trigger.INSERT_AFTER].length > 0) {
             baseTable.fireTriggers(session, Trigger.INSERT_AFTER, newData);
         }
-
-        updateRowSet.release();
 
         if (resultOut == null) {
             if (count == 1) {
@@ -1007,6 +1003,7 @@ public class StatementDML extends StatementDMQL {
 
             for (int i = 0; i < rowCount; i++) {
                 navigator.next();
+
                 Row      row  = navigator.getCurrentRow();
                 Object[] data = navigator.getCurrentChangedData();
 
@@ -1163,8 +1160,6 @@ public class StatementDML extends StatementDMQL {
 
         if (rowset.getSize() > 0) {
             count = delete(session, baseTable, rowset);
-
-            rowset.release();
         } else {
             session.addWarning(HsqlException.noDataCondition);
 
@@ -1598,5 +1593,9 @@ public class StatementDML extends StatementDMQL {
         return new String[] {
             c.core.refName.name, c.core.refTable.getName().name
         };
+    }
+
+    public void clearStructures(Session session) {
+        session.sessionContext.clearStructures(this);
     }
 }

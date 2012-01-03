@@ -50,7 +50,7 @@ import org.hsqldb.store.ValuePool;
  *
  * @author Campbell Boucher-Burnet (boucherb@users dot sourceforge.net)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.0.1
+ * @version 2.2.7
  * @since 1.7.2
  */
 
@@ -194,13 +194,15 @@ public abstract class StatementDMQL extends Statement {
             }
 
             result = getResult(session);
+
+            clearStructures(session);
         } catch (Throwable t) {
+            clearStructures(session);
+
             result = Result.newErrorResult(t, null);
 
             result.getException().setStatementType(group, type);
         }
-
-        session.sessionContext.clearStructures(this);
 
         return result;
     }

@@ -268,4 +268,6 @@ public abstract class Statement {
     public void setCursorPropertiesRequest(int props) {
         cursorPropertiesRequest = props;
     }
+
+    public void clearStructures(Session session) {}
 }
