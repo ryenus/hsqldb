@@ -2460,11 +2460,11 @@ public class Table extends TableBase implements SchemaObject {
      *  Return the list of file pointers to root nodes for this table's
      *  indexes.
      */
-    public final int[] getIndexRootsArray() {
+    public final long[] getIndexRootsArray() {
 
         PersistentStore store =
             database.persistentStoreCollection.getStore(this);
-        int[] roots = new int[indexList.length * 2 + 1];
+        long[] roots = new long[indexList.length * 2 + 1];
         int   i     = 0;
 
         for (int index = 0; index < indexList.length; index++) {
@@ -2490,7 +2490,7 @@ public class Table extends TableBase implements SchemaObject {
      *  root signifies an empty table. Accordingly, all index roots should be
      *  null or all should be a valid file pointer/reference.
      */
-    public void setIndexRoots(int[] roots) {
+    public void setIndexRoots(long[] roots) {
 
         if (!isCached) {
             throw Error.error(ErrorCode.X_42501, tableName.name);
@@ -2504,7 +2504,7 @@ public class Table extends TableBase implements SchemaObject {
             store.setAccessor(indexList[index], roots[i++]);
         }
 
-        int size = roots[indexList.length * 2];
+        long size = roots[indexList.length * 2];
 
         for (int index = 0; index < indexList.length; index++) {
             store.setElementCount(indexList[index], size, roots[i++]);
@@ -2521,21 +2521,21 @@ public class Table extends TableBase implements SchemaObject {
         }
 
         ParserDQL p     = new ParserDQL(session, new Scanner(s));
-        int[]     roots = new int[getIndexCount() * 2 + 1];
+        long[]     roots = new long[getIndexCount() * 2 + 1];
 
         p.read();
 
         int i = 0;
 
         for (int index = 0; index < getIndexCount(); index++) {
-            int v = p.readInteger();
+            long v = p.readBigint();
 
             roots[i++] = v;
         }
 
         try {
             for (int index = 0; index < getIndexCount() + 1; index++) {
-                int v = p.readInteger();
+                long v = p.readBigint();
 
                 roots[i++] = v;
             }
