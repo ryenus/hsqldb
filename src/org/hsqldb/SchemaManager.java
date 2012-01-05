@@ -2590,7 +2590,7 @@ public class SchemaManager {
 
         try {
             Session       sysSession = database.sessionManager.getSysSession();
-            int[][]       rootsArray = getIndexRoots(sysSession);
+            long[][]      rootsArray = getIndexRoots(sysSession);
             HsqlArrayList tableList  = getAllTables(true);
             HsqlArrayList list       = new HsqlArrayList();
 
@@ -2700,19 +2700,19 @@ public class SchemaManager {
         }
     }
 
-    int[][] tempIndexRoots;
+    long[][] tempIndexRoots;
 
-    public void setTempIndexRoots(int[][] roots) {
+    public void setTempIndexRoots(long[][] roots) {
         tempIndexRoots = roots;
     }
 
-    public int[][] getIndexRoots(Session session) {
+    public long[][] getIndexRoots(Session session) {
 
         readLock.lock();
 
         try {
             if (tempIndexRoots != null) {
-                int[][] roots = tempIndexRoots;
+                long[][] roots = tempIndexRoots;
 
                 tempIndexRoots = null;
 
@@ -2726,7 +2726,7 @@ public class SchemaManager {
                 Table t = (Table) allTables.get(i);
 
                 if (t.getTableType() == TableBase.CACHED_TABLE) {
-                    int[] roots = t.getIndexRootsArray();
+                    long[] roots = t.getIndexRootsArray();
 
                     list.add(roots);
                 } else {
@@ -2734,7 +2734,7 @@ public class SchemaManager {
                 }
             }
 
-            int[][] array = new int[list.size()][];
+            long[][] array = new long[list.size()][];
 
             list.toArray(array);
 
@@ -2747,7 +2747,7 @@ public class SchemaManager {
     /**
      * called after the completion of defrag
      */
-    public void setIndexRoots(int[][] roots) {
+    public void setIndexRoots(long[][] roots) {
 
         readLock.lock();
 
@@ -2759,7 +2759,7 @@ public class SchemaManager {
                 Table t = (Table) allTables.get(i);
 
                 if (t.getTableType() == TableBase.CACHED_TABLE) {
-                    int[] rootsArray = roots[i];
+                    long[] rootsArray = roots[i];
 
                     if (roots != null) {
                         t.setIndexRoots(rootsArray);
