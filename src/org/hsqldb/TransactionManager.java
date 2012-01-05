@@ -39,7 +39,7 @@ import org.hsqldb.persist.PersistentStore;
  * Manages rows involved in transactions
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.0.1
+ * @version 2.2.7
  * @since 2.0.0
  */
 public interface TransactionManager {
@@ -81,18 +81,6 @@ public interface TransactionManager {
     public boolean commitTransaction(Session session);
 
     public void completeActions(Session session);
-
-    /**
-     * Convert row ID's for cached table rows in transactions
-     */
-    public void convertTransactionIDs(LongLookup lookup);
-
-    /**
-     * Return a lookup of all row ids for cached tables in transactions.
-     * For auto-defrag, as currently there will be no RowAction entries
-     * at the time of defrag.
-     */
-    public LongLookup getTransactionIDList();
 
     public int getTransactionControl();
 
