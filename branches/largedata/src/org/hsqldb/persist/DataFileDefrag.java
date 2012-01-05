@@ -61,7 +61,7 @@ import org.hsqldb.store.BitMap;
  *  image after translating the old pointers to the new.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version    2.2.6
+ * @version    2.2.7
  * @since      1.7.2
  */
 final class DataFileDefrag {
@@ -238,11 +238,6 @@ final class DataFileDefrag {
         }
     }
 
-    /**
-     * called from outside after the complete end of defrag
-     */
-    void updateTransactionRowIDs() {}
-
     long[] writeTableToDataFile(Table table) throws IOException {
 
         Session session = database.getSessionManager().getSysSession();
@@ -309,7 +304,6 @@ final class DataFileDefrag {
             rootsArray[i] = pointer;
         }
 
-        setTransactionRowLookups(pointerLookup);
         database.logger.logDetailEvent("table written "
                                        + table.getName().name);
 
@@ -319,8 +313,6 @@ final class DataFileDefrag {
     public long[][] getIndexRoots() {
         return rootsList;
     }
-
-    void setTransactionRowLookups(LongLookup pointerLookup) {}
 
     static boolean checkAllTables(Database database) {
 
