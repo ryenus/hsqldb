@@ -39,11 +39,9 @@ import org.hsqldb.HsqlNameManager.HsqlName;
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
 import org.hsqldb.lib.ArrayUtil;
-import org.hsqldb.lib.DoubleIntIndex;
 import org.hsqldb.lib.HashMap;
 import org.hsqldb.lib.HsqlArrayList;
 import org.hsqldb.lib.IntKeyHashMapConcurrent;
-import org.hsqldb.lib.IntLookup;
 import org.hsqldb.lib.Iterator;
 import org.hsqldb.lib.LongDeque;
 import org.hsqldb.lib.MultiValueHashMap;
@@ -53,7 +51,7 @@ import org.hsqldb.lib.OrderedHashSet;
  * Shared code for TransactionManager classes
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.0.1
+ * @version 2.2.7
  * @since 2.0.0
  */
 class TransactionManagerCommon {
@@ -835,71 +833,6 @@ class TransactionManagerCommon {
             }
 
             return rowActions;
-        } finally {
-            writeLock.unlock();
-        }
-    }
-
-    /**
-     * Return a lookup of all row ids for cached tables in transactions.
-     * For auto-defrag, as currently there will be no RowAction entries
-     * at the time of defrag.
-     */
-    public DoubleIntIndex getTransactionIDList() {
-
-        if (txModel == TransactionManager.LOCKS) {
-            return new DoubleIntIndex(8, false);
-        }
-
-        writeLock.lock();
-
-        try {
-            int            size   = rowActionMap.size();
-            DoubleIntIndex lookup = new DoubleIntIndex(size, false);
-
-            lookup.setKeysSearchTarget();
-
-            Iterator it = this.rowActionMap.keySet().iterator();
-
-            for (; it.hasNext(); ) {
-                int key = it.nextInt();
-
-                lookup.addUnique(key, key);
-            }
-
-            return lookup;
-        } finally {
-            writeLock.unlock();
-        }
-    }
-
-    /**
-     * Convert row ID's for cached table rows in transactions
-     */
-    public void convertTransactionIDs(IntLookup lookup) {
-
-        if (txModel == TransactionManager.LOCKS) {
-            return;
-        }
-
-        writeLock.lock();
-
-        try {
-            RowAction[] list = new RowAction[rowActionMap.size()];
-            Iterator    it   = this.rowActionMap.values().iterator();
-
-            for (int i = 0; it.hasNext(); i++) {
-                list[i] = (RowAction) it.next();
-            }
-
-            rowActionMap.clear();
-
-            for (int i = 0; i < list.length; i++) {
-                int pos = lookup.lookup(list[i].getPos());
-
-                list[i].setPos(pos);
-                rowActionMap.put(pos, list[i]);
-            }
         } finally {
             writeLock.unlock();
         }
