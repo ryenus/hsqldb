@@ -69,7 +69,7 @@ final class DataFileDefrag {
     long                  fileOffset;
     StopWatch             stopw = new StopWatch();
     String                dataFileName;
-    int[][]               rootsList;
+    long[][]              rootsList;
     Database              database;
     DataFileCache         dataCache;
     int                   scale;
@@ -91,9 +91,9 @@ final class DataFileDefrag {
 
         HsqlArrayList allTables = database.schemaManager.getAllTables(true);
 
-        rootsList = new int[allTables.size()][];
+        rootsList = new long[allTables.size()][];
 
-        int maxSize = 0;
+        long maxSize = 0;
 
         for (int i = 0, tSize = allTables.size(); i < tSize; i++) {
             Table table = (Table) allTables.get(i);
@@ -101,7 +101,7 @@ final class DataFileDefrag {
             if (table.getTableType() == TableBase.CACHED_TABLE) {
                 PersistentStore store =
                     database.persistentStoreCollection.getStore(table);
-                int size = store.elementCount();
+                long size = store.elementCount();
 
                 if (size > maxSize) {
                     maxSize = size;
@@ -109,8 +109,12 @@ final class DataFileDefrag {
             }
         }
 
+        if (maxSize > Integer.MAX_VALUE / 2) {
+            throw Error.error(ErrorCode.X_2200T);
+        }
+
         try {
-            pointerLookup = new DoubleIntIndex(maxSize, false);
+            pointerLookup = new DoubleIntIndex((int) maxSize, false);
 
             // write out the end of file position
             if (database.logger.isStoredFileAccess()) {
@@ -131,7 +135,7 @@ final class DataFileDefrag {
                 Table t = (Table) allTables.get(i);
 
                 if (t.getTableType() == TableBase.CACHED_TABLE) {
-                    int[] rootsArray = writeTableToDataFile(t);
+                    long[] rootsArray = writeTableToDataFile(t);
 
                     rootsList[i] = rootsArray;
 
@@ -171,7 +175,7 @@ final class DataFileDefrag {
             randomAccessOut = null;
 
             for (int i = 0, size = rootsList.length; i < size; i++) {
-                int[] roots = rootsList[i];
+                long[] roots = rootsList[i];
 
                 if (roots != null) {
                     database.logger.logDetailEvent(
@@ -226,21 +230,21 @@ final class DataFileDefrag {
             Table t = (Table) allTables.get(i);
 
             if (t.getTableType() == TableBase.CACHED_TABLE) {
-                int[] rootsArray = rootsList[i];
+                long[] rootsArray = rootsList[i];
 
                 t.setIndexRoots(rootsArray);
             }
         }
     }
 
-    int[] writeTableToDataFile(Table table) throws IOException {
+    long[] writeTableToDataFile(Table table) throws IOException {
 
         Session session = database.getSessionManager().getSysSession();
         PersistentStore    store      = table.getRowStore(session);
         RowOutputInterface rowOut     = dataCache.rowOut.duplicate();
-        int[]              rootsArray = table.getIndexRootsArray();
+        long[]             rootsArray = table.getIndexRootsArray();
         long               pos        = fileOffset;
-        int                count      = 0;
+        long               count      = 0;
 
         pointerLookup.removeAll();
         pointerLookup.setKeysSearchTarget();
@@ -253,7 +257,7 @@ final class DataFileDefrag {
         for (; it.hasNext(); count++) {
             CachedObject row = it.getNextRow();
 
-            pointerLookup.addUnsorted(row.getPos(), (int) (pos / scale));
+            pointerLookup.addUnsorted((int) row.getPos(), (int) (pos / scale));
 
             if (count != 0 && count % 100000 == 0) {
                 database.logger.logDetailEvent("pointer pair for row " + count
@@ -292,7 +296,7 @@ final class DataFileDefrag {
             }
 
             int lookupIndex =
-                pointerLookup.findFirstEqualKeyIndex(rootsArray[i]);
+                pointerLookup.findFirstEqualKeyIndex((int) rootsArray[i]);
 
             if (lookupIndex == -1) {
                 throw Error.error(ErrorCode.DATA_FILE_ERROR);
@@ -307,7 +311,7 @@ final class DataFileDefrag {
         return rootsArray;
     }
 
-    public int[][] getIndexRoots() {
+    public long[][] getIndexRoots() {
         return rootsList;
     }
 
