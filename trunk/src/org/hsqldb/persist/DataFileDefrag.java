@@ -60,7 +60,7 @@ import org.hsqldb.store.BitMap;
  *  image after translating the old pointers to the new.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version    2.2.6
+ * @version    2.2.7
  * @since      1.7.2
  */
 final class DataFileDefrag {
@@ -74,7 +74,6 @@ final class DataFileDefrag {
     DataFileCache         dataCache;
     int                   scale;
     DoubleIntIndex        pointerLookup;
-    DoubleIntIndex        transactionRowLookup;
 
     DataFileDefrag(Database db, DataFileCache cache, String dataFileName) {
 
@@ -89,11 +88,6 @@ final class DataFileDefrag {
         Throwable error = null;
 
         database.logger.logDetailEvent("Defrag process begins");
-
-        transactionRowLookup = database.txManager.getTransactionIDList();
-
-        database.logger.logDetailEvent("transaction count "
-                                       + transactionRowLookup.size());
 
         HsqlArrayList allTables = database.schemaManager.getAllTables(true);
 
@@ -239,13 +233,6 @@ final class DataFileDefrag {
         }
     }
 
-    /**
-     * called from outside after the complete end of defrag
-     */
-    void updateTransactionRowIDs() {
-        database.txManager.convertTransactionIDs(transactionRowLookup);
-    }
-
     int[] writeTableToDataFile(Table table) throws IOException {
 
         Session session = database.getSessionManager().getSysSession();
@@ -314,7 +301,6 @@ final class DataFileDefrag {
             rootsArray[i] = pointerLookup.getValue(lookupIndex);
         }
 
-        setTransactionRowLookups(pointerLookup);
         database.logger.logDetailEvent("table written "
                                        + table.getName().name);
 
@@ -323,19 +309,6 @@ final class DataFileDefrag {
 
     public int[][] getIndexRoots() {
         return rootsList;
-    }
-
-    void setTransactionRowLookups(DoubleIntIndex pointerLookup) {
-
-        for (int i = 0, size = transactionRowLookup.size(); i < size; i++) {
-            int key         = transactionRowLookup.getKey(i);
-            int lookupIndex = pointerLookup.findFirstEqualKeyIndex(key);
-
-            if (lookupIndex != -1) {
-                transactionRowLookup.setValue(
-                    i, pointerLookup.getValue(lookupIndex));
-            }
-        }
     }
 
     static boolean checkAllTables(Database database) {

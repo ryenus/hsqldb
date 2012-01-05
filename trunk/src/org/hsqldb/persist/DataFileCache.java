@@ -60,7 +60,7 @@ import org.hsqldb.store.BitMap;
  * Rewritten for 1.8.0 and 2.x
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.2.6
+ * @version 2.2.7
  * @since 1.7.2
  */
 public class DataFileCache {
@@ -637,7 +637,6 @@ public class DataFileCache {
             database.getProperties().setDBModified(
                 HsqlDatabaseProperties.FILES_NOT_MODIFIED);
             open(false);
-            dfd.updateTransactionRowIDs();
             database.schemaManager.setIndexRoots(dfd.getIndexRoots());
 
             if (database.logger.log.dbLogWriter != null) {
