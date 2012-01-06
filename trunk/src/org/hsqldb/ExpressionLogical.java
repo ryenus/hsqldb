@@ -1028,6 +1028,11 @@ public class ExpressionLogical extends Expression {
             }
         }
 
+        // encounterd in system generated MATCH predicates
+        if (nodes[RIGHT].nodeDataTypes == null) {
+            nodes[RIGHT].prepareTable(session, nodes[LEFT], degree);
+        }
+
         if (degree != nodes[RIGHT].nodeDataTypes.length) {
             throw Error.error(ErrorCode.X_42564);
         }

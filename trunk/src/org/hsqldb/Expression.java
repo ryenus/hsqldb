@@ -1179,7 +1179,7 @@ public class Expression implements Cloneable {
             }
 
             if (type == null) {
-                throw Error.error(ErrorCode.X_42567);
+                type = Type.SQL_VARCHAR_DEFAULT;
             }
 
             int typeCode = type.typeCode;

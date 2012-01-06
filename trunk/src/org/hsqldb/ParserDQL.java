@@ -5163,7 +5163,7 @@ public class ParserDQL extends ParserBase {
                 break;
             }
 
-            Expression l = new ExpressionLogical(main, v);
+            Expression l = new ExpressionLogical(OpTypes.MATCH_FULL, main, v);
             Expression r = XreadValueExpression();
             Expression a = new ExpressionOp(OpTypes.ALTERNATIVE, r, null);
             Expression c = new ExpressionOp(OpTypes.CASEWHEN, l, a);
