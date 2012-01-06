@@ -47,7 +47,7 @@ import org.hsqldb.types.Type;
 /**
  * @author Campbell Boucher-Burnet (boucherb@users dot sourceforge.net)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.0.1
+ * @version 2.2.7
  * @since 1.9.0
  */
 public class ExpressionLogical extends Expression {
