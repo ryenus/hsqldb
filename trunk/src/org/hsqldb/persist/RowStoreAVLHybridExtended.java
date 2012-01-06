@@ -52,10 +52,6 @@ import org.hsqldb.navigator.RowIterator;
  */
 public class RowStoreAVLHybridExtended extends RowStoreAVLHybrid {
 
-    ReadWriteLock lock      = new ReentrantReadWriteLock();
-    Lock          readLock  = lock.readLock();
-    Lock          writeLock = lock.writeLock();
-
     public RowStoreAVLHybridExtended(Session session,
                                      PersistentStoreCollection manager,
                                      TableBase table, boolean diskBased) {
@@ -139,29 +135,5 @@ public class RowStoreAVLHybridExtended extends RowStoreAVLHybrid {
 
         indexList    = tempStore.indexList;
         accessorList = tempStore.accessorList;
-    }
-
-    public void writeLock() {
-        writeLock.lock();
-    }
-
-    public void writeUnlock() {
-        writeLock.unlock();
-    }
-
-    void lockIndexes() {
-
-        for (int i = 0; i < indexList.length; i++) {
-
-//            indexList[i].lock();
-        }
-    }
-
-    void unlockIndexes(Index[] array) {
-
-        for (int i = 0; i < array.length; i++) {
-
-//            array[i].unlock();
-        }
     }
 }

@@ -990,7 +990,7 @@ public class JDBCStatement extends JDBCStatementBase implements Statement {
         checkClosed();
 
         if (batchResultOut != null) {
-            batchResultOut.getNavigator().release();
+            batchResultOut.getNavigator().clear();
         }
     }
 
@@ -1087,11 +1087,11 @@ public class JDBCStatement extends JDBCStatementBase implements Statement {
 
             performPostExecute();
         } catch (HsqlException e) {
-            batchResultOut.getNavigator().release();
+            batchResultOut.getNavigator().clear();
 
             throw Util.sqlException(e);
         }
-        batchResultOut.getNavigator().release();
+        batchResultOut.getNavigator().clear();
 
         if (resultIn.isError()) {
             throw Util.sqlException(resultIn);

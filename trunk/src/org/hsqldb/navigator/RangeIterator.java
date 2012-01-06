@@ -31,7 +31,6 @@
 
 package org.hsqldb.navigator;
 
-import org.hsqldb.RangeVariable;
 import org.hsqldb.Row;
 
 /**

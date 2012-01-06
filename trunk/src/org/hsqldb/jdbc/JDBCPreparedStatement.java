@@ -1913,7 +1913,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
             throw Util.sqlException(e);
         } finally {
             performPostExecute();
-            resultOut.getNavigator().release();
+            resultOut.getNavigator().clear();
 
             isBatch = false;
         }
@@ -3703,7 +3703,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
         }
 
         if (isBatch) {
-            resultOut.getNavigator().release();
+            resultOut.getNavigator().clear();
         }
     }
 
