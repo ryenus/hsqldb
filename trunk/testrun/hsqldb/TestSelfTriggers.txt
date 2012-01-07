@@ -59,6 +59,7 @@ CREATE TRIGGER trigfive AFTER INSERT ON testtrig
  FOR EACH ROW WHEN (newrow.data IS NOT NULL)
  BEGIN ATOMIC
  DECLARE cwExists int DEFAULT 0;
+ SET cwExists = 0;
  select count(*) into cwExists from testtrig2 where data = 'action1';
  call test_proc_three(cwExists);
  insert into testtrig2 values cwExists, newrow.data, current_date;

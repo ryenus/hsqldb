@@ -31,10 +31,32 @@ insert into viewinst values (1, 'data2 value1', 'data3 value1')
 insert into viewinst values (2, 'data2 value2', 'data3 value2')
 
 /*r
+ 1,data2 value1,data3 value1,inserted
+ 2,data2 value2,data3 value2,inserted
+*/select id, data2, data3, op from testtrig12 natural join testtrig13 order by id
+
+/*r
  1,data3 value1,inserted
  2,data3 value2,inserted
-*/select * from testtrig13
+*/select * from testtrig13 order by id
 
 update viewinst set vdata2='data2 updated1', vdata3='data3 updated1' where vid=1
 
+/*r
+ 1,data2 updated1,data3 updated1,updated
+ 2,data2 value2,data3 value2,inserted
+*/select id, data2, data3, op from testtrig12 natural join testtrig13 order by id
+
 delete from viewinst
+/*c0*/select * from viewinst
+/*c0*/select * from testtrig12
+/*c0*/select * from testtrig13
+
+drop view V_TAB1 if exists;
+drop table TAB1 if exists;
+create table TAB1 (T1_ID bigint primary key, T1_NAME VARCHAR(10));
+create view V_TAB1 as select T.T1_ID as ID, T.T1_NAME as NAME from TAB1 T;
+create trigger TR_INS_V_T1 INSTEAD OF INSERT ON V_TAB1 referencing new row as NEWROW for each row insert into TAB1 (T1_ID, T1_NAME) values (NEWROW.ID, NEWROW.NAME);
+create trigger TR_UPD_V_T1 INSTEAD OF UPDATE ON V_TAB1 referencing new row as NEWROW for each row update TAB1 set T1_NAME = NEWROW.NAME where T1_ID = newrow.ID;
+insert into V_TAB1 (ID, NAME) values (1, 'Name 1');
+update V_TAB1 set NAME = 'Name 11' where ID = 1;

@@ -31,6 +31,22 @@ alter table customer add column arr varchar(40) array
 update customer set arr = array[firstname, lastname, street, city]
 SELECT id, w, y FROM customer, unnest (arr) with ordinality j(w,y)
 
+SELECT firstname, lastname, (SELECT SUM(total) FROM invoice WHERE customerid = customer.id) s FROM customer
+SELECT firstname, lastname, a.c FROM customer, LATERAL(SELECT SUM(total) FROM invoice WHERE customerid = customer.id) a (c)
+
 --
 select * from customer, lateral(select sum(invoice.total) from invoice where invoice.customerid = customer.id)
 explain plan for select * from customer where firstname in(unnest(?))
+
+create table tour   ( id int primary key, name varchar(20)  );
+create table golfer   ( id int primary key, name  varchar(20),  tour_id  int);
+create table stat    ( id int primary key,  round  int, score  int,  golfer_id int);
+
+insert into tour values 1, 'PGA'
+insert into golfer values 3, 'Woods', 1
+insert into stat values 1000, 1, 5, 3
+insert into stat values 1010, 3, 10, 3
+
+/*c1*/select golfer.name, secondstat.score score1, firststat.score score2 from tour join golfer on (tour.id = tour_id and  tour.name = 'PGA' ),
+ lateral(select * from stat where golfer_id = golfer.id order by round desc limit 1 offset 1) secondstat,
+ lateral(select * from stat where golfer_id = golfer.id order by round desc limit 1) firststat
