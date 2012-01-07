@@ -1757,13 +1757,18 @@ public class JDBCResultSetTest extends BaseJdbcTestCase {
         assertEquals(ResultSet.CONCUR_READ_ONLY,
                 newFOROJdbcResultSet().getConcurrency());
 
+        ResultSet rs = newJdbcResultSet(
+                ResultSet.TYPE_FORWARD_ONLY,
+                ResultSet.CONCUR_UPDATABLE);
+
         assertEquals(
                 ResultSet.CONCUR_UPDATABLE,
-                newJdbcResultSet(
-                ResultSet.TYPE_FORWARD_ONLY,
-                ResultSet.CONCUR_UPDATABLE).getConcurrency());
+                rs.getConcurrency());
 
-        ResultSet rs = this.newFOROJdbcResultSet();
+        ( (JDBCResultSet) rs).connection.close();
+
+
+        rs = this.newFOROJdbcResultSet();
 
         rs.close();
 
@@ -2218,7 +2223,7 @@ public class JDBCResultSetTest extends BaseJdbcTestCase {
             return;
         }
 
-        ResultSet rs;
+        ResultSet rs = null;
 
         try {
                 rs = this.newUpdateableJdbcResultSet();
@@ -2231,9 +2236,10 @@ public class JDBCResultSetTest extends BaseJdbcTestCase {
 
                 fail("Allowed insertRow() after close()");
             } catch (SQLException ex) {
-                ex.printStackTrace();
+                // ex.printStackTrace();
+            } finally {
+                ( (JDBCResultSet) rs).connection.close();
             }
-
         try {
 
             rs = this.newUpdateableJdbcResultSet();
@@ -2314,6 +2320,8 @@ public class JDBCResultSetTest extends BaseJdbcTestCase {
                     "error code",
                     ex.getErrorCode(),
                     -ErrorCode.X_24501);
+        } finally {
+            ( (JDBCResultSet) rs).connection.close();
         }
 
         try {
@@ -2336,8 +2344,9 @@ public class JDBCResultSetTest extends BaseJdbcTestCase {
             return;
         }
 
+        ResultSet rs = null;
         try {
-            ResultSet rs = newUpdateableJdbcResultSet();
+            rs = newUpdateableJdbcResultSet();
 
             rs.next();
 
@@ -2345,9 +2354,11 @@ public class JDBCResultSetTest extends BaseJdbcTestCase {
         } catch (Exception ex) {
            printException(ex);
            fail(ex.toString());
-        }
+       } finally {
+           ( (JDBCResultSet) rs).connection.close();
+       }
 
-        ResultSet rs = newJdbcResultSet(ResultSet.TYPE_SCROLL_SENSITIVE);
+        rs = newJdbcResultSet(ResultSet.TYPE_SCROLL_SENSITIVE);
 
         rs.next();
 
@@ -2362,6 +2373,8 @@ public class JDBCResultSetTest extends BaseJdbcTestCase {
                     "error code",
                     ex.getErrorCode(),
                     -ErrorCode.X_24501);
+        } finally {
+            ( (JDBCResultSet) rs).connection.close();
         }
     }
 
@@ -2374,8 +2387,9 @@ public class JDBCResultSetTest extends BaseJdbcTestCase {
             return;
         }
 
+        ResultSet rs = null;
         try {
-            ResultSet rs = newUpdateableJdbcResultSet();
+            rs = newUpdateableJdbcResultSet();
 
             rs.next();
 
@@ -2388,9 +2402,11 @@ public class JDBCResultSetTest extends BaseJdbcTestCase {
             rs.cancelRowUpdates();
         } catch (Exception ex) {
             fail(ex.toString());
+        } finally {
+            ( (JDBCResultSet) rs).connection.close();
         }
 
-        ResultSet rs = newUpdateableJdbcResultSet();
+        rs = newUpdateableJdbcResultSet();
 
         rs.updateNull(1);
         rs.close();
@@ -2402,6 +2418,8 @@ public class JDBCResultSetTest extends BaseJdbcTestCase {
             assertEquals("sql state",
                     SqlState.Exception.InvalidCursorState.IdentifiedCursorIsNotOpen.Value,
                     ex.getSQLState());
+        } finally {
+            ( (JDBCResultSet) rs).connection.close();
         }
     }
 
@@ -2413,15 +2431,19 @@ public class JDBCResultSetTest extends BaseJdbcTestCase {
             return;
         }
 
+        ResultSet rs = null;
+
         try {
-            ResultSet rs = this.newUpdateableJdbcResultSet();
+            rs = this.newUpdateableJdbcResultSet();
 
             rs.moveToInsertRow();
         } catch (Exception ex) {
             fail(ex.toString());
+        } finally {
+            ( (JDBCResultSet) rs).connection.close();
         }
 
-        ResultSet rs = this.newUpdateableJdbcResultSet();
+        rs = this.newUpdateableJdbcResultSet();
 
         rs.close();
 
@@ -2434,6 +2456,8 @@ public class JDBCResultSetTest extends BaseJdbcTestCase {
                     "error code",
                     ex.getErrorCode(),
                     -ErrorCode.X_24501);
+        } finally {
+            ( (JDBCResultSet) rs).connection.close();
         }
     }
 
@@ -2445,16 +2469,19 @@ public class JDBCResultSetTest extends BaseJdbcTestCase {
             return;
         }
 
+        ResultSet rs = null;
         try {
-            ResultSet rs = this.newUpdateableJdbcResultSet();
+            rs = this.newUpdateableJdbcResultSet();
 
             rs.moveToInsertRow();
             rs.moveToCurrentRow();
         } catch (Exception ex) {
             fail(ex.toString());
+        } finally {
+            ( (JDBCResultSet) rs).connection.close();
         }
 
-        ResultSet rs = this.newUpdateableJdbcResultSet();
+        rs = this.newUpdateableJdbcResultSet();
 
         rs.moveToInsertRow();
 
@@ -2469,6 +2496,8 @@ public class JDBCResultSetTest extends BaseJdbcTestCase {
                     "error code",
                     ex.getErrorCode(),
                     -ErrorCode.X_24501);
+        } finally {
+            ( (JDBCResultSet) rs).connection.close();
         }
     }
 

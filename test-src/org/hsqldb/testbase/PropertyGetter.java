@@ -28,7 +28,6 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-
 package org.hsqldb.testbase;
 
 import org.hsqldb.resources.BundleHandler;
