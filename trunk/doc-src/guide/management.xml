@@ -182,7 +182,16 @@
       tens of thousands of LOBs are stored in the database. If your database
       contains more than a few hundreds of thousands of LOBs and memory use
       becomes an issue, you can change one or all LOB schema tables to CACHED
-      tables. See the next section for details.</para>
+      tables. See statements below:</para>
+
+      <example>
+        <title>Using CACHED tables for the LOB schema</title>
+
+        <screen>  SET TABLE SYSTEM_LOBS.BLOCKS TYPE CACHED
+  SET TABLE SYSTEM_LOBS.LOBS TYPE CACHED
+  SET TABLE SYSTEM_LOBS.LOB_IDS TYPE CACHED
+</screen>
+      </example>
     </section>
 
     <section>
@@ -613,8 +622,7 @@
 
       <listitem>
         <para>Within the database, the DBA privileges are required for system
-        and maintenance jobs. Ordinary users can be granted privileges on
-        objects.</para>
+        and maintenance jobs.</para>
       </listitem>
 
       <listitem>
@@ -734,18 +742,20 @@
   </section>
 
   <section>
-    <title>Compatibility With Other RDBMS</title>
+    <title>Compatibility with Other RDBMS</title>
 
     <para>HyperSQL is used more than any other database engine for application
     testing and development targeted at other databases. Over the years, this
     usage resulted in developers finding and reporting many obscure bugs in
     HyperSQL, which have all been fixed in the latest version. Also, HyperSQL
     2.0 has been written to the SQL Standard and avoids the traps caused by
-    superficial imitation of existing RDBMS. HyperSQL has many property
-    settings that relax conformance to the Standard in order to allow
-    compatibility with other RDBMS, without breaking the core integrity of the
-    database. These properties are modified with SET DATABASE SQL statements
-    described in the SQL Conformance Settings section of this chapter</para>
+    superficial imitation of existing RDBMS.</para>
+
+    <para>HyperSQL has many property settings that relax conformance to the
+    Standard in order to allow compatibility with other RDBMS, without
+    breaking the core integrity of the database. These properties are modified
+    with SET DATABASE SQL statements described in the SQL Conformance Settings
+    section of this chapter</para>
 
     <para>The SQL Standard has existed since 1989 and has been expanded over
     the years in several revisions. Also, the X-Open specification has defined
@@ -796,8 +806,8 @@
         <listitem>
           <para>Use <literal>&lt;set database sql syntax PGS
           statement&gt;</literal> to enable the PostgreSQL's non-standard
-          features. Support for SERIAL, BIGSERIAL and TEXT data types, as well
-          as sequence functions are ttranslated into HSQLDB
+          features. References to SERIAL, BIGSERIAL and TEXT data types, as
+          well as sequence functions, are translated into HSQLDB
           equivalents.</para>
         </listitem>
 
@@ -854,6 +864,11 @@
         <listitem>
           <para>SQL routines are poratable, but some syntax elements are
           different and require changes.</para>
+        </listitem>
+
+        <listitem>
+          <para>You may need to use <literal>SET DATABASE SQL TDC { DELETE |
+          UPDATE }</literal> FALSE statements. </para>
         </listitem>
       </itemizedlist>
     </section>
