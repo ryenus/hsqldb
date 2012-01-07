@@ -135,7 +135,7 @@ public class TextTable extends org.hsqldb.Table {
 
                 Object[] data = row.getData();
 
-                nextpos = row.getPos() + row.getStorageSize();
+                nextpos = (int) row.getPos() + row.getStorageSize();
 
                 systemUpdateIdentityValue(data);
                 enforceRowConstraints(session, data);
