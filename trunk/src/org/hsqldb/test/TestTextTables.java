@@ -54,8 +54,8 @@ public class TestTextTables extends TestBase {
         TestUtil.deleteDatabase("/hsql/testtext/test");
         TestUtil.delete("/hsql/testtext/t.txt");
         TestUtil.delete("/hsql/testtext/tt.txt");
-        TestUtil.delete("/hsql/testtext/ttt.txt");
-        TestUtil.delete("/hsql/testtext/tttt.txt");
+        TestUtil.delete("/hsql/testtext/tident.txt");
+        TestUtil.delete("/hsql/testtext/tsingle.txt");
         initDatabase();
         partA();
         partD();
@@ -66,8 +66,8 @@ public class TestTextTables extends TestBase {
         TestUtil.deleteDatabase("/hsql/testtext/test");
         TestUtil.delete("/hsql/testtext/t.txt");
         TestUtil.delete("/hsql/testtext/tt.txt");
-        TestUtil.delete("/hsql/testtext/ttt.txt");
-        TestUtil.delete("/hsql/testtext/tttt.txt");
+        TestUtil.delete("/hsql/testtext/tident.txt");
+        TestUtil.delete("/hsql/testtext/tsingle.txt");
         initDatabase();
         partB();
         partD();
@@ -94,6 +94,7 @@ public class TestTextTables extends TestBase {
     public void testSectionFive() throws Exception {
 
         Connection conn = newConnection();
+
         PreparedStatement ps =
             conn.prepareStatement("insert into tident (c2) values ?");
 
@@ -253,7 +254,7 @@ public class TestTextTables extends TestBase {
 
         Connection conn = newConnection();
 
-        TestUtil.testScript(conn, "TestText01.txt");
+        TestUtil.testScript(conn, "testrun/hsqldb/TestText01.txt");
 
         Statement st = conn.createStatement();
 
@@ -264,7 +265,7 @@ public class TestTextTables extends TestBase {
 
         Connection conn = newConnection();
 
-        TestUtil.testScript(conn, "TestText01.txt");
+        TestUtil.testScript(conn, "testrun/hsqldb/TestText01.txt");
 
         Statement st = conn.createStatement();
 
@@ -275,7 +276,7 @@ public class TestTextTables extends TestBase {
 
         Connection conn = newConnection();
 
-        TestUtil.testScript(conn, "TestText02.txt");
+        TestUtil.testScript(conn, "testrun/hsqldb/TestText02.txt");
 
         Statement st = conn.createStatement();
 

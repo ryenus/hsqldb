@@ -47,7 +47,7 @@ import java.util.NoSuchElementException;
  * Sorting methods originally contributed by Tony Lai.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.2.6
+ * @version 2.2.7
  * @since 1.8.0
  */
 public class DoubleIntIndex implements IntLookup {
@@ -262,7 +262,7 @@ public class DoubleIntIndex implements IntLookup {
      * current search target column.
      * @param key the key
      * @param value the value
-     * @return true or false depending on success
+     * @return index of added key or -1 if key exists
      */
     public synchronized int add(int key, int value) {
 
