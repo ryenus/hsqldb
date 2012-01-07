@@ -44,18 +44,18 @@ public class ScannerTest extends TestCase {
     // TODO:  Fix
     //    java.lang.reflect.InvocationTargetException
     //Caused by: java.lang.ExceptionInInitializerError
-    //  at org.hsqldb.HsqlNameManager.newInfoSchemaObjectName(HsqlNameManager.java:128)
-    //  at org.hsqldb.Collation.<init>(Collation.java:166)
-    //  at org.hsqldb.Collation.<clinit>(Collation.java:154)
-    //  at org.hsqldb.types.CharacterType.<init>(CharacterType.java:81)
-    //  at org.hsqldb.types.Type.<clinit>(Type.java:451)
-    //  at org.hsqldb.ScannerTest.computeTestName(ScannerTest.java:49)
-    //  at org.hsqldb.ScannerTest.<init>(ScannerTest.java:69)
-    //  at org.hsqldb.ScannerTest.suite(ScannerTest.java:108)
+    //	at org.hsqldb.HsqlNameManager.newInfoSchemaObjectName(HsqlNameManager.java:128)
+    //	at org.hsqldb.Collation.<init>(Collation.java:166)
+    //	at org.hsqldb.Collation.<clinit>(Collation.java:154)
+    //	at org.hsqldb.types.CharacterType.<init>(CharacterType.java:81)
+    //	at org.hsqldb.types.Type.<clinit>(Type.java:451)
+    //	at org.hsqldb.ScannerTest.computeTestName(ScannerTest.java:49)
+    //	at org.hsqldb.ScannerTest.<init>(ScannerTest.java:69)
+    //	at org.hsqldb.ScannerTest.suite(ScannerTest.java:108)
     //Caused by: java.lang.NullPointerException
-    //  at org.hsqldb.types.DTIType.<init>(DTIType.java:174)
-    //  at org.hsqldb.types.DateTimeType.<init>(DateTimeType.java:63)
-    //  at org.hsqldb.SqlInvariants.<clinit>(SqlInvariants.java:218)
+    //	at org.hsqldb.types.DTIType.<init>(DTIType.java:174)
+    //	at org.hsqldb.types.DateTimeType.<init>(DateTimeType.java:63)
+    //	at org.hsqldb.SqlInvariants.<clinit>(SqlInvariants.java:218)
     static IntervalType sit = Type.SQL_INTERVAL_DAY;
 
     public static String computeTestName(
