@@ -87,29 +87,31 @@
       <title>Result Set Memory Allocation</title>
 
       <para>By default, all the rows in the result set are built in memory, so
-      very large result sets may not be possible to build. In server mode
-      databases, by default, the result set memory is released from the server
-      once the database server has returned the result set.
-      <glossterm>in-process</glossterm> databases release the memory when the
-      application program releases the
-      <classname>java.sql.ResultSet</classname> object. Server modes require
-      additional memory for returning result sets, as they convert the full
-      result set into an array of bytes which is then transmitted to the
-      client.</para>
+      very large result sets may not be possible to build. A server mode
+      databases releases the result set from the server memory once the
+      database server has returned the result set. An
+      <glossterm>in-process</glossterm> database releases the memory when the
+      application program closes the <classname>java.sql.ResultSet</classname>
+      object. A server mode database requires additional memory for returning
+      result sets, as it converts the full result set into an array of bytes
+      which is then transmitted to the client.</para>
 
       <para>HyperSQL 2.0 supports disk-based result sets. The commands,
       <literal>SET SESSION RESULT MEMORY ROWS &lt;integer&gt;</literal> and
       <literal>SET DATABASE DEFAULT RESULT MEMORY ROWS
       &lt;integer&gt;</literal> specify a threshold for the number of rows.
       Results with row counts above the threshold are stored on disk. These
-      settings also apply to temporary tables and subquery tables.</para>
+      settings also apply to temporary tables, views and subquery
+      tables.</para>
 
-      <para>When the setFetchSize() method of the Statement interface is used
-      to limit the number rows fetched, the whole result is held by the engine
-      and is returned to the JDBC ResultSet in blocks of rows of the specified
-      fetch size. Disk-based result sets slow down the database operations and
+      <para>Disk-based result sets slow down the database operations and
       should be used only when absolutely necessary, perhaps with result sets
       that are larger than tens of thousands of rows.</para>
+
+      <para>In a server mode database, when the setFetchSize() method of the
+      Statement interface is used to limit the number rows fetched, the whole
+      result is held by the engine and is returned to the JDBC ResultSet in
+      blocks of rows of the specified fetch size.</para>
     </section>
 
     <section>
@@ -120,7 +122,8 @@
       UPDATE actions, is held in memory for the duration of the operation.
       This means it may not be possible to perform deletes or updates
       involving very large numbers of rows of CACHED tables. Such operations
-      should be performed in smaller sets.</para>
+      should be performed in smaller sets. This memory is released as soon as
+      the DELETE or UPDATE is performed.</para>
 
       <para>When transactions support is enabled with SET AUTOCOMMIT FALSE,
       lists of all insert, delete or update operations are stored in memory so
@@ -175,6 +178,11 @@
       usage. Access with nio improves database update speed and is used by
       default for data files up to 256 MB. For minimal memory use, nio access
       should be disabled.</para>
+
+      <para>The operating system usually allocates a large amount of memory to
+      cache files for read operations. Therefore when a lot of memory is
+      available to the operating system, all database operations perform
+      faster.</para>
     </section>
 
     <section>
@@ -223,7 +231,7 @@
       and any change. For safely, the engine backs up the data internally
       during operation. Spare space, at least equal to the size of the .data
       and .script file is needed. The .lobs file is not backed up during
-      operation.</para>
+      operation as it is not necessary for safety.</para>
     </section>
   </section>
 
@@ -302,10 +310,10 @@
       several conformance settings that are turned off by default. This is to
       enable easier migration from earlier versions, and also greater
       compatibility with databases such as MySQL that are sometimes very
-      liberal with type conversions. The conformance settings are listed
-      towards the end of this chapter and their connection property
-      equivalents are listed in the Database Properties chapter. Ideally, all
-      the settings should have a true value for best error checking.</para>
+      liberal with type conversions. The conformance settings are listed in
+      the System Management chapter and their connection property equivalents
+      are listed in the Database Properties chapter. Ideally, all the settings
+      should have a true value for best error checking.</para>
 
       <para>For application unit testing you can use an all-in-memory,
       in-process database.</para>
@@ -404,7 +412,7 @@
     </section>
 
     <section>
-      <title>Embedding a HyperSQL Server (Listener)</title>
+      <title>Mixed Mode : Embedding a HyperSQL Server (Listener)</title>
 
       <para>Since you won't be able to access
       <glossterm>in-process</glossterm> database instances from other
@@ -556,25 +564,15 @@
     </procedure>
 
     <para>The first step is to guarantee there is no .log file for the
-    database. You may upgrade without the first step, but may lose part of the
-    logged statements. This has been allowed due to requests from some of our
-    deployers who have been able to test the databases created by their
-    applications and found there was no data loss. But this is not recommended
-    for general use. Most catalogs created with 1.8.x can be upgraded simply
-    by opening with HyperSQL 2.0. After opening with version 2.0, perform a
-    SHUTDOWN COMPACT to rewrite the database in the latest format.</para>
-
-    <para>In large scale deployed apps undergoing upgrades, it is sometimes
-    not practical to perform the first step of this procedure (with the old
-    jar). You can ignore the first step but you may lose part of the database
-    statements that are stored in the .log file. Therefore you need test with
-    databases created with your application to make sure typical statements
-    that are logged in the .log file are compatible with the new version.
-    Examples of known incompatible statements are those used for changing the
-    data type or default values of column.</para>
-
-    <para>When this method is not possible due to errors, the rest of the
-    procedures below should be followed.</para>
+    database. When upgrading an application that has been dyployed on a large
+    scale, it is sometimes not practical to perform the first step of this
+    procedure (with the old jar). You can ignore the first step but you may
+    lose part of the database statements that are stored in the .log file.
+    Therefore you need test with databases created with your application to
+    make sure typical statements that are logged in the .log file are
+    compatible with the new version. Examples of known incompatible statements
+    are those used for changing the data type or default values of
+    column.</para>
 
     <para>A note about SHUTDOWN modes. SHUTDOWN COMPACT is equivalent to
     SHUTDOWN SCRIPT plus opening the database and then performing a simple
@@ -592,11 +590,11 @@
       Versions</title>
 
       <para>To upgrade from version 1.8.x with the default TEXT format script
-      files, simply open the database with 2.0. If the version 1.8.x files
-      have database script format set to BINARY or COMPRESSED (ZIPPED) you
-      must issue the SET SCRIPTFORMAT TEXT and SHUTDOWN SCRIPT commands with
-      the old version, then open with the new version of the engine. In most
-      cases the upgrade is successful and complete.</para>
+      files, follow the instructions above. If the 1.8.x files have database
+      script format set to BINARY or COMPRESSED (ZIPPED) you must issue the
+      SET SCRIPTFORMAT TEXT and SHUTDOWN SCRIPT commands with the old version,
+      then open with the new version of the engine. In most cases the upgrade
+      is successful and complete.</para>
 
       <para>It is strongly recommended to execute SHUTDOWN COMPACT after an
       automatic upgrade from previous versions.</para>
@@ -699,7 +697,8 @@
           <para>Names</para>
 
           <para>Names of tables, columns and indexes can be changed. These
-          changes must be consistent regarding foreign key constraints.</para>
+          changes must be consistent regarding foreign key constraint
+          references.</para>
         </listitem>
 
         <listitem>
@@ -873,7 +872,7 @@
   </section>
 
   <section>
-    <title>Application HyperSQL Dependency Settings</title>
+    <title>HyperSQL Dependency Settings for Applications</title>
 
     <subtitle>Dependency settings using Gradle, Ivy, Maven, Groovy</subtitle>
 
@@ -887,8 +886,8 @@
       <title>What version to Pull</title>
 
       <para>Most developers are recommended to depend upon the latest public
-      version of HyperSQL with a range pattern like <literal>[2,)</literal>,
-      as described below. <itemizedlist>
+      version of HyperSQL with a range pattern like <literal>[2,)</literal>.
+      Alternatives are described below. <itemizedlist>
           <listitem>
             <simpara>Your application has code dependencies upon
             version-specific details of the HyperSQL distribution. In this
@@ -903,21 +902,21 @@
           <listitem>
             <simpara>Your organization only allows the use of vetted
             libraries. In this case, you vigorously maintain your
-            configurations, updating your dependencies and and regression
-            testing as soon as new versions of HyperSQL are vetted. To get the
-            best performance and reliability from HyperSQL, you should urge
-            the appropriate parties to vet new versions as soon as they are
+            configurations, updating your dependencies and regression testing
+            as soon as new versions of HyperSQL are vetted. To get the best
+            performance and reliability from HyperSQL, you should urge the
+            appropriate parties to vet new versions as soon as they are
             publicly released.</simpara>
           </listitem>
 
           <listitem>
             <simpara>You need precisely reproducible builds.</simpara>
           </listitem>
-        </itemizedlist> If none of these situations apply to you, then follow
+        </itemizedlist>If none of these situations apply to you, then follow
       the suggestion to use version ranges as shown in the examples below. If
       you need to specify a specific version, change the version range
       specifications below to literal versions like
-      <literal>2.2.5</literal>.</para>
+      <literal>2.2.7</literal>.</para>
 
       <note xml:id="mavenrange">
         <title>Limitation of Maven Version Range Specifiers</title>
@@ -991,7 +990,7 @@
       <para>If you want to use an <filename>ivy.xml</filename> file with a
       Gradle build, you will need use the <link
       xlink:href="https://github.com/unsaved/gradle-ivyxml-plugin"> Ivyxml
-      Gradle Plugin</link>. It just takes a few linkes of code in your
+      Gradle Plugin</link>. It just takes a few links of code in your
       <filename>build.gradle</filename> file to hook in
       <literal>ivyxml</literal>. See the <link
       xlink:href="https://github.com/unsaved/gradle-ivyxml-plugin/raw/master/README.txt">
