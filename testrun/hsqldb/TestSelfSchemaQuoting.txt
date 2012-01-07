@@ -5,13 +5,13 @@
 /*c1*/select * from schemata
     where schema_owner = 'SA' AND schema_name = 'SCHEMA1';
 
-/*u0*/CREATE SCHEMA dEfAuLt authorization sa;
+/*u0*/CREATE SCHEMA dEfAuLt1 authorization sa;
 /*c1*/select * from schemata
-    where schema_name = 'DEFAULT';
+    where schema_name = 'DEFAULT1';
 
-/*u0*/SET INITIAL SCHEMA "DEFAULT";
+/*u0*/SET INITIAL SCHEMA "DEFAULT1";
 /*c1*/SELECT * FROM system_users
-    WHERE user_name = 'SA' AND initial_schema = 'DEFAULT';
+    WHERE user_name = 'SA' AND initial_schema = 'DEFAULT1';
 
 /*u0*/SET INITIAL SCHEMA DEFAULT;
 /*c1*/SELECT * FROM system_users
