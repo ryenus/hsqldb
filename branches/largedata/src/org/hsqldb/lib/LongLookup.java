@@ -34,9 +34,6 @@ package org.hsqldb.lib;
 import java.util.NoSuchElementException;
 
 public interface LongLookup {
-    void clear();
-
-    long size();
 
     int add(long key, long value);
 

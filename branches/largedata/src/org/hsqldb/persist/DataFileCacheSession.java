@@ -40,7 +40,7 @@ import org.hsqldb.lib.FileUtil;
  * A file-based row store for temporary CACHED table persistence.<p>
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.0.1
+ * @version 2.2.7
  * @since 1.9.0
  */
 public class DataFileCacheSession extends DataFileCache {
@@ -61,10 +61,9 @@ public class DataFileCacheSession extends DataFileCache {
         cachedRowPadding  = cacheFileScale;
         initialFreePos    = cacheFileScale;
         maxCacheRows      = 2048;
-
-        maxCacheBytes   = maxCacheRows * 1024;
-        maxDataFileSize = (long) Integer.MAX_VALUE * cacheFileScale * 128;
-        dataFile        = null;
+        maxCacheBytes     = maxCacheRows * 1024;
+        maxDataFileSize   = (long) Integer.MAX_VALUE * cacheFileScale * 128;
+        dataFile          = null;
     }
 
     /**
@@ -73,8 +72,7 @@ public class DataFileCacheSession extends DataFileCache {
     public void open(boolean readonly) {
 
         try {
-            dataFile = ScaledRAFile.newScaledRAFile(database, dataFileName,
-                    false, ScaledRAFile.DATA_FILE_RAF);
+            dataFile = new ScaledRAFile(database, dataFileName, false, false);
             fileFreePosition = initialFreePos;
 
             initBuffers();

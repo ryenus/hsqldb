@@ -40,9 +40,8 @@ import org.hsqldb.TableBase;
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
 import org.hsqldb.lib.ArrayUtil;
+import org.hsqldb.lib.DoubleIntIndex;
 import org.hsqldb.lib.HsqlArrayList;
-import org.hsqldb.lib.LongLookup;
-import org.hsqldb.lib.LongLookupMap;
 import org.hsqldb.lib.StopWatch;
 import org.hsqldb.navigator.RowIterator;
 import org.hsqldb.rowio.RowOutputInterface;
@@ -74,7 +73,7 @@ final class DataFileDefrag {
     Database              database;
     DataFileCache         dataCache;
     int                   scale;
-    LongLookup            pointerLookup;
+    DoubleIntIndex        pointerLookup;
 
     DataFileDefrag(Database db, DataFileCache cache, String dataFileName) {
 
@@ -115,7 +114,7 @@ final class DataFileDefrag {
         }
 
         try {
-            pointerLookup = new LongLookupMap((int) maxSize);
+            pointerLookup = new DoubleIntIndex((int) maxSize, false);
 
             // write out the end of file position
             if (database.logger.isStoredFileAccess()) {
@@ -247,7 +246,8 @@ final class DataFileDefrag {
         long               pos        = fileOffset;
         long               count      = 0;
 
-        pointerLookup.clear();
+        pointerLookup.removeAll();
+        pointerLookup.setKeysSearchTarget();
         database.logger.logDetailEvent("lookup begins " + table.getName().name
                                        + " " + stopw.elapsedTime());
 
@@ -257,7 +257,7 @@ final class DataFileDefrag {
         for (; it.hasNext(); count++) {
             CachedObject row = it.getNextRow();
 
-            pointerLookup.add(row.getPos(), pos / scale);
+            pointerLookup.addUnsorted((int) row.getPos(), (int) (pos / scale));
 
             if (count != 0 && count % 100000 == 0) {
                 database.logger.logDetailEvent("pointer pair for row " + count
@@ -295,13 +295,14 @@ final class DataFileDefrag {
                 continue;
             }
 
-            long pointer = pointerLookup.lookup(rootsArray[i], -1);
+            int lookupIndex =
+                pointerLookup.findFirstEqualKeyIndex((int) rootsArray[i]);
 
-            if (pointer == -1) {
+            if (lookupIndex == -1) {
                 throw Error.error(ErrorCode.DATA_FILE_ERROR);
             }
 
-            rootsArray[i] = pointer;
+            rootsArray[i] = pointerLookup.getValue(lookupIndex);
         }
 
         database.logger.logDetailEvent("table written "
