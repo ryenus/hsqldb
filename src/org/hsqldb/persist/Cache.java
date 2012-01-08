@@ -47,7 +47,7 @@ import org.hsqldb.store.BaseHashMap;
  * to DataFileCache.<p>
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.2.6
+ * @version 2.2.7
  * @since 1.8.0
  */
 public class Cache extends BaseHashMap {

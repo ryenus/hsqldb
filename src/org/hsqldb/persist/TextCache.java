@@ -43,7 +43,6 @@ import org.hsqldb.error.ErrorCode;
 import org.hsqldb.lib.FileUtil;
 import org.hsqldb.lib.HsqlByteArrayOutputStream;
 import org.hsqldb.lib.LongKeyHashMap;
-import org.hsqldb.rowio.RowInputInterface;
 import org.hsqldb.rowio.RowInputText;
 import org.hsqldb.rowio.RowInputTextQuoted;
 import org.hsqldb.rowio.RowOutputText;

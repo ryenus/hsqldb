@@ -43,7 +43,7 @@ import org.hsqldb.lib.HashSet;
 import org.hsqldb.lib.HsqlArrayList;
 import org.hsqldb.lib.HsqlList;
 import org.hsqldb.lib.OrderedHashSet;
-import org.hsqldb.lib.OrderedLongKeyHashMap;
+import org.hsqldb.lib.OrderedLongHashSet;
 import org.hsqldb.navigator.RangeIterator;
 import org.hsqldb.navigator.RowIterator;
 import org.hsqldb.persist.PersistentStore;
@@ -978,7 +978,7 @@ public class RangeVariable implements Cloneable {
         int                       condIndex = 0;
 
         //
-        OrderedLongKeyHashMap lookup;
+        OrderedLongHashSet lookup;
 
         //
         Object[] currentJoinData = null;
@@ -999,7 +999,7 @@ public class RangeVariable implements Cloneable {
             joinConditions     = rangeVar.joinConditions;
 
             if (rangeVar.isRightJoin) {
-                lookup = new OrderedLongKeyHashMap();
+                lookup = new OrderedLongHashSet();
             }
 
             conditions = rangeVar.joinConditions;
@@ -1263,7 +1263,7 @@ public class RangeVariable implements Cloneable {
         protected void addFoundRow() {
 
             if (rangeVar.isRightJoin) {
-                lookup.put(currentRow.getPos(), null);
+                lookup.add(currentRow.getPos());
             }
         }
     }
@@ -1351,7 +1351,7 @@ public class RangeVariable implements Cloneable {
 
         private boolean lookupAndTest() {
 
-            boolean result = !lookup.containsKey(currentRow.getPos());
+            boolean result = !lookup.contains(currentRow.getPos());
 
             if (result) {
                 currentData = currentRow.getData();

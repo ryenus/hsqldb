@@ -37,7 +37,7 @@ import org.hsqldb.lib.DoubleIntIndex;
  * Maintains a list of free file blocks with fixed capacity.<p>
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.2.5
+ * @version 2.2.7
  * @since 1.8.0
  */
 public class DataFileBlockManager {

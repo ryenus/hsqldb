@@ -42,7 +42,7 @@ import org.hsqldb.error.ErrorCode;
  * case.
  *
  * @author Bob Preston (sqlbob@users dot sourceforge.net)
- * @version 1.9.0
+ * @version 2.2.7
  * @since 1.7.0
  */
 public class RowInputTextQuoted extends RowInputText {
