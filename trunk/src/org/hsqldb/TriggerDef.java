@@ -302,7 +302,7 @@ public class TriggerDef implements Runnable, SchemaObject {
                 sb.append(Tokens.T_OLD).append(' ').append(Tokens.T_ROW);
                 sb.append(' ').append(Tokens.T_AS).append(' ');
                 sb.append(
-                    rangeVars[OLD_ROW].getTableAliasName().getStatementName());
+                    rangeVars[OLD_ROW].getTableAlias().getStatementName());
                 sb.append(' ');
             }
 
@@ -310,7 +310,7 @@ public class TriggerDef implements Runnable, SchemaObject {
                 sb.append(Tokens.T_NEW).append(' ').append(Tokens.T_ROW);
                 sb.append(' ').append(Tokens.T_AS).append(' ');
                 sb.append(
-                    rangeVars[NEW_ROW].getTableAliasName().getStatementName());
+                    rangeVars[NEW_ROW].getTableAlias().getStatementName());
                 sb.append(' ');
             }
 
@@ -415,12 +415,12 @@ public class TriggerDef implements Runnable, SchemaObject {
 
     public String getOldTransitionRowName() {
         return rangeVars[OLD_ROW] == null ? null
-                                          : rangeVars[OLD_ROW].getTableAlias();
+                                          : rangeVars[OLD_ROW].getTableAlias().name;
     }
 
     public String getNewTransitionRowName() {
         return rangeVars[NEW_ROW] == null ? null
-                                          : rangeVars[NEW_ROW].getTableAlias();
+                                          : rangeVars[NEW_ROW].getTableAlias().name;
     }
 
     public String getOldTransitionTableName() {
