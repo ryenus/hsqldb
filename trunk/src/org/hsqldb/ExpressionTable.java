@@ -136,6 +136,11 @@ public class ExpressionTable extends Expression {
 
         for (int i = 0; i < nodes.length; i++) {
             nodeDataTypes[i] = nodes[i].dataType.collectionBaseType();
+
+            if (nodeDataTypes[i] == null
+                    || nodeDataTypes[i] == Type.SQL_ALL_TYPES) {
+                throw Error.error(ErrorCode.X_42567, Tokens.T_UNNEST);
+            }
         }
 
         if (ordinality) {
