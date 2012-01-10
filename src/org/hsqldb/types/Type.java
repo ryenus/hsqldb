@@ -477,6 +477,11 @@ public abstract class Type implements SchemaObject, Cloneable {
     public int precedenceDegree(Type other) {
 
         if (other.typeCode == typeCode) {
+            if (typeCode == Types.SQL_ARRAY) {
+                return collectionBaseType().precedenceDegree(
+                    other.collectionBaseType());
+            }
+
             return 0;
         }
 
