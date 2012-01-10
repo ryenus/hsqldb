@@ -645,7 +645,7 @@ public class QuerySpecification extends QueryExpression {
 
             for (int j = 0; j < columnList.size(); j++) {
                 ColumnSchema column       = (ColumnSchema) columnList.get(j);
-                String       name         = range.getColumnAlias(j);
+                String       name         = range.getColumnAlias(j).name;
                 boolean      columnInList = nameSet.contains(name);
                 boolean namedJoin = range.namedJoinColumns != null
                                     && range.namedJoinColumns.contains(name);

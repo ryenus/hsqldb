@@ -179,24 +179,16 @@ public class RangeVariableJoined extends RangeVariable {
         return super.getColumn(i);
     }
 
-    String getColumnAlias(int i) {
+    public SimpleName getColumnAlias(int i) {
         return super.getColumnAlias(i);
-    }
-
-    public SimpleName getColumnAliasName(int i) {
-        return super.getColumnAliasName(i);
     }
 
     boolean hasColumnAlias() {
         return super.hasColumnAlias();
     }
 
-    String getTableAlias() {
+    SimpleName getTableAlias() {
         return super.getTableAlias();
-    }
-
-    SimpleName getTableAliasName() {
-        return super.getTableAliasName();
     }
 
     boolean resolvesTableName(ExpressionColumn e) {

@@ -207,8 +207,8 @@ public class ExpressionColumn extends Expression {
         columnIndex   = i;
         column        = range.getColumn(i);
         dataType      = column.getDataType();
-        columnName    = range.getColumnAlias(i);
-        tableName     = range.getTableAlias();
+        columnName    = range.getColumnAlias(i).name;
+        tableName     = range.getTableAlias().name;
         rangeVariable = range;
 
         rangeVariable.addColumn(columnIndex);
@@ -254,6 +254,10 @@ public class ExpressionColumn extends Expression {
 
         if (alias != null) {
             return alias;
+        }
+
+        if (rangeVariable != null && rangeVariable.hasColumnAlias()) {
+            return rangeVariable.getColumnAlias(columnIndex);
         }
 
         if (column != null) {
