@@ -39,7 +39,6 @@ import java.io.InputStreamReader;
 import java.io.FileInputStream;
 import java.util.regex.Pattern;
 import java.util.regex.Matcher;
-import org.hsqldb.cmdline.SqlToolError;
 
 /**
  * This class does not impement or extend java.io classes/interfaces, and is

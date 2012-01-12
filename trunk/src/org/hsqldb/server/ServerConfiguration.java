@@ -46,7 +46,7 @@ import org.hsqldb.persist.HsqlProperties;
  * Assists with Server and WebServer configuration tasks.
  *
  * @author  boucherb@users
- * @version 1.9.0
+ * @version 2.2.7
  * @since 1.7.2
  */
 public final class ServerConfiguration implements ServerConstants {
@@ -254,6 +254,8 @@ public final class ServerConfiguration implements ServerConstants {
 
                 if (defaultdb == null) {
                     defaultdb = SC_DEFAULT_DATABASE;
+                } else {
+                    p.removeProperty(ServerProperties.sc_key_database);
                 }
 
                 p.setProperty(ServerProperties.sc_key_database + ".0",

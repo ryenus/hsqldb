@@ -67,7 +67,7 @@ import org.hsqldb.persist.HsqlProperties;
  * against the set.<p>
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.2.1
+ * @version 2.2.7
  * @since 1.9.0
  */
 public class ServerProperties extends HsqlProperties {
@@ -242,6 +242,12 @@ public class ServerProperties extends HsqlProperties {
 
         int    dbNumber;
         String prefix = (String) meta[indexName];
+
+        if (meta[indexName].equals(sc_key_database)) {
+            if (sc_key_database.equals(key)) {
+                key = key + ".0";
+            }
+        }
 
         try {
             dbNumber = Integer.parseInt(key.substring(prefix.length() + 1));
