@@ -45,7 +45,7 @@
     </legalnotice>
   </info>
 
-  <section>
+  <section xml:id="dbc_overview">
     <title>Overview</title>
 
     <para>The persistent elements of an SQL environment are database objects.
@@ -63,7 +63,7 @@
     unique within its name-space.</para>
   </section>
 
-  <section>
+  <section xml:id="dbc_schemas_schema_objects">
     <title>Schemas and Schema Objects</title>
 
     <para>In HyperSQL, there is only one catalog per database. The name of the
@@ -165,7 +165,7 @@
       ROUTINE definition, it is not always possible to rename it.</para>
     </section>
 
-    <section>
+    <section xml:id="dbc_character_sets">
       <title>Character Sets</title>
 
       <simpara>A CHARACTER SET is the whole or a subset of the UNICODE
@@ -209,7 +209,7 @@
       character string.</simpara>
     </section>
 
-    <section>
+    <section xml:id="dbc_collations">
       <title>Collations</title>
 
       <simpara>A COLLATION is the method used for ordering character strings
@@ -253,7 +253,7 @@
       <simpara>Distinct types share a name-space with domains.</simpara>
     </section>
 
-    <section>
+    <section xml:id="dbc_number_sequence">
       <title>Number Sequences</title>
 
       <simpara>A SEQUENCE object produces INTEGER values in sequence. The
@@ -424,7 +424,7 @@ INSERT INTO movies (starid, movieid, title) VALUES (CURRENT VALUE FOR seq, 10, '
       </informalexample>
     </section>
 
-    <section>
+    <section xml:id="dbc_tables">
       <title>Tables</title>
 
       <simpara>In the SQL environment, tables are the most essential
@@ -443,7 +443,7 @@ INSERT INTO movies (starid, movieid, title) VALUES (CURRENT VALUE FOR seq, 10, '
       object.</simpara>
     </section>
 
-    <section>
+    <section xml:id="dbc_views">
       <title>Views</title>
 
       <simpara>A VIEW is similar to a TABLE but it does not permanently
@@ -504,7 +504,7 @@ INSERT INTO movies (starid, movieid, title) VALUES (CURRENT VALUE FOR seq, 10, '
       <simpara>Views share a name-space with tables.</simpara>
     </section>
 
-    <section>
+    <section xml:id="dbc_constraints">
       <title>Constraints</title>
 
       <simpara>A CONSTRAINT is a child schema object and can belong to a
@@ -614,7 +614,7 @@ INSERT INTO movies (starid, movieid, title) VALUES (CURRENT VALUE FOR seq, 10, '
       <simpara>Constraints share a name space with assertions.</simpara>
     </section>
 
-    <section>
+    <section xml:id="dbc_assertions">
       <title>Assertions</title>
 
       <para>An ASSERTION is a top-level schema objects. It consists of a
@@ -639,7 +639,7 @@ INSERT INTO movies (starid, movieid, title) VALUES (CURRENT VALUE FOR seq, 10, '
       chapter.</simpara>
     </section>
 
-    <section>
+    <section xml:id="dbc_routines">
       <title>Routines</title>
 
       <simpara>Routines are user-defined functions or procedures. The names
@@ -666,7 +666,7 @@ INSERT INTO movies (starid, movieid, title) VALUES (CURRENT VALUE FOR seq, 10, '
       xlink:href="#sqlroutines-chapt"></link> .</simpara>
     </section>
 
-    <section>
+    <section xml:id="dbc_indexes">
       <title>Indexes</title>
 
       <para>Indexes are an implementation-defined extension to the SQL
@@ -675,7 +675,7 @@ INSERT INTO movies (starid, movieid, title) VALUES (CURRENT VALUE FOR seq, 10, '
     </section>
   </section>
 
-  <section>
+  <section xml:id="dbc_schema_def_statements">
     <title>Statements for Schema Definition and Manipulation</title>
 
     <simpara>Schemas and schema objects can be created, modified and dropped.
@@ -683,7 +683,7 @@ INSERT INTO movies (starid, movieid, title) VALUES (CURRENT VALUE FOR seq, 10, '
     supports many additional statements, especially for changing the
     properties of existing schema objects.</simpara>
 
-    <section>
+    <section xml:id="dbc_common_elements">
       <title>Common Elements and Statements</title>
 
       <simpara>These elements and statements are used for different types of
@@ -821,7 +821,7 @@ INSERT INTO movies (starid, movieid, title) VALUES (CURRENT VALUE FOR seq, 10, '
       <literal>&lt;routine definition&gt;</literal> statement.</simpara>
     </section>
 
-    <section>
+    <section xml:id="dbc_renaming">
       <title>Renaming Objects</title>
 
       <indexterm significance="preferred" type="sql">
@@ -883,7 +883,7 @@ INSERT INTO movies (starid, movieid, title) VALUES (CURRENT VALUE FOR seq, 10, '
       the comments.</para>
     </section>
 
-    <section>
+    <section xml:id="dbc_schema_creation">
       <title>Schema Creation</title>
 
       <indexterm significance="preferred" type="sql">
@@ -968,7 +968,7 @@ INSERT INTO movies (starid, movieid, title) VALUES (CURRENT VALUE FOR seq, 10, '
       with a CASCADE option.</simpara>
     </section>
 
-    <section>
+    <section xml:id="dbc_table_creation">
       <title>Table Creation</title>
 
       <indexterm significance="preferred" type="sql">
@@ -1470,7 +1470,7 @@ INSERT INTO t (id, firstname, lastname, fullname) VALUES (2, 'Pink', 'Panther', 
       contains it.</simpara>
     </section>
 
-    <section>
+    <section xml:id="dbc_table_manupulation">
       <title>Table Manipulation</title>
 
       <simpara>Table manipulation statements change the attributes of tables
@@ -2073,7 +2073,7 @@ INSERT INTO t (id, firstname, lastname, fullname) VALUES (2, 'Pink', 'Panther', 
       not compatible, the statement fails.</simpara>
     </section>
 
-    <section>
+    <section xml:id="dbc_domain_creation">
       <title>Domain Creation and Manipulation</title>
 
       <indexterm significance="preferred" type="sql">
@@ -2200,7 +2200,7 @@ INSERT INTO t (id, firstname, lastname, fullname) VALUES (2, 'Pink', 'Panther', 
       CONSTRAINT of the DOMAIN.</simpara>
     </section>
 
-    <section>
+    <section xml:id="dbc_trigger_creation">
       <title>Trigger Creation</title>
 
       <indexterm significance="preferred" type="sql">
@@ -2319,7 +2319,7 @@ INSERT INTO t (id, firstname, lastname, fullname) VALUES (2, 'Pink', 'Panther', 
       <simpara>Destroy a trigger.</simpara>
     </section>
 
-    <section>
+    <section xml:id="dbc_routine_creation">
       <title>Routine Creation</title>
 
       <indexterm significance="preferred" type="sql">
@@ -2671,7 +2671,7 @@ alter specific routine zero_pad_01
       <!-- From Foundation chapt. 13 -->
     </section>
 
-    <section>
+    <section xml:id="dbc_procedure_satement">
       <title>SQL Procedure Statement</title>
 
       <indexterm significance="preferred" type="sql">
@@ -2726,7 +2726,7 @@ alter specific routine zero_pad_01
       statement&gt;</literal></simpara>
     </section>
 
-    <section>
+    <section xml:id="dbc_other_object_creation">
       <title>Other Schema Object Creation</title>
 
       <indexterm significance="preferred" type="sql">
@@ -2996,7 +2996,7 @@ alter specific routine zero_pad_01
     </section>
   </section>
 
-  <section>
+  <section xml:id="dbc_information_schema">
     <title>The Information Schema</title>
 
     <para>The Information Schema is a special schema in each catalog. The SQL
@@ -3046,7 +3046,7 @@ alter specific routine zero_pad_01
       in the next sections.</para>
     </section>
 
-    <section>
+    <section xml:id="dbc_visibility">
       <title>Visibility of Information</title>
 
       <para>Users with the special ADMIN role can see the full information on
@@ -3061,7 +3061,7 @@ alter specific routine zero_pad_01
       returned for that column.</para>
     </section>
 
-    <section>
+    <section xml:id="dbc_name_information">
       <title>Name Information</title>
 
       <para>The names of database objects are stored in hierarchical views.
@@ -3093,7 +3093,7 @@ alter specific routine zero_pad_01
       TABLE_PRIVILEGES.</para>
     </section>
 
-    <section>
+    <section xml:id="dbc_data_type_information">
       <title>Data Type Information</title>
 
       <para>The INFORMATION_SCHEMA contains comprehensive information on the
@@ -3119,7 +3119,7 @@ alter specific routine zero_pad_01
       the COLUMNS view is needed.</para>
     </section>
 
-    <section>
+    <section xml:id="dbc_product_information">
       <title>Product Information</title>
 
       <para>A group of views, including SQL_IMPLEMENTATION_INFO, SQL_FEATURES,
@@ -3128,7 +3128,7 @@ alter specific routine zero_pad_01
       is empty.</para>
     </section>
 
-    <section>
+    <section xml:id="dbc_operation_information">
       <title>Operations Information</title>
 
       <para>There are some HyperSQL custom views cover the current state of
@@ -3136,7 +3136,7 @@ alter specific routine zero_pad_01
       SYSTEM_SESSIONINFO and SYSTEM_SESSIONS views.</para>
     </section>
 
-    <section>
+    <section xml:id="dbc_standard_views">
       <title>SQL Standard Views</title>
 
       <para>The following views are defined by the SQL Standard and supported
@@ -3671,7 +3671,7 @@ alter specific routine zero_pad_01
       <para>Information on TABLE and VIEW objects that have been referenced in
       the query expressions of the VIEW objects</para>
 
-      <section>
+      <section xml:id="dbc_hypersql_views">
         <title>HyperSQL Custom Views</title>
 
         <para>The following views are specific to HyperSQL. Most of these

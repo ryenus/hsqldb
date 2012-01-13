@@ -45,7 +45,7 @@
     </legalnotice>
   </info>
 
-  <section>
+  <section xml:id="dac_overview">
     <title>Overview</title>
 
     <para>HyperSQL data access and data change statements are fully compatible
@@ -56,7 +56,7 @@
     standard.</para>
   </section>
 
-  <section>
+  <section xml:id="dac_cursors_result_sets">
     <title>Cursors And Result Sets</title>
 
     <para>An SQL statement can executed in two ways. One way is to use the
@@ -430,7 +430,7 @@ OPEN thiscursor;
     </section>
   </section>
 
-  <section>
+  <section xml:id="dac_syntax_elements">
     <title>Syntax Elements</title>
 
     <para>The syntax elements that can be used in data access and data change
@@ -438,7 +438,7 @@ OPEN thiscursor;
     extensive set of definitions for these elements. The BNF definitions given
     here are sometimes simplified.</para>
 
-    <section>
+    <section xml:id="dac_literals">
       <title>Literals</title>
 
       <para>Literals are used to express constant values. The general type of
@@ -870,7 +870,7 @@ ALTER SEQUENCE MYCAT.MYSCHEMA.MYSEQUENCE RESTART WITH 100
       list, it must be used in a CAST statement.</simpara>
     </section>
 
-    <section>
+    <section xml:id="dac_value_expression">
       <title>Value Expression</title>
 
       <para>Value expression is a general name for all expressions that return
@@ -1905,7 +1905,7 @@ invoice_date &lt; ALL (SELECT holiday_date FROM holidays)
       <programlisting>startdate IS DISTINCT FROM enddate</programlisting>
     </section>
 
-    <section>
+    <section xml:id="dac_other_syntax_elements">
       <title>Other Syntax Elements</title>
 
       <indexterm significance="preferred" type="sql">
@@ -2149,7 +2149,7 @@ Sommer    Robert * Janet</programlisting>
     </section>
   </section>
 
-  <section>
+  <section xml:id="dac_data_access_statements">
     <title>Data Access Statements</title>
 
     <para>HyperSQL fully supports all of SQL-92 data access statements, plus
@@ -2250,7 +2250,7 @@ SELECT * FROM atable WHERE a + b = c ORDER BY a FETCH 5 ROWS ONLY
       expression&gt;</literal>.</para>
     </section>
 
-    <section>
+    <section xml:id="dac_table">
       <title>Table</title>
 
       <para>In data access statements, a table can be a database table (or
@@ -2289,7 +2289,7 @@ SELECT * FROM atable UNION SELECT * FROM anothertable
 </programlisting>
     </section>
 
-    <section>
+    <section xml:id="dac_subquery">
       <title>Subquery</title>
 
       <para>A subquery is simply a query expression in brackets. A query
@@ -2316,7 +2316,7 @@ SELECT * FROM atable UNION SELECT * FROM anothertable
       expression&gt; &lt;right paren&gt;</literal></para>
     </section>
 
-    <section>
+    <section xml:id="dac_query_specification">
       <title>Query Specification</title>
 
       <para>A query specification is also known as a SELECT statement. It is
@@ -2381,7 +2381,7 @@ SELECT * FROM atable UNION SELECT * FROM anothertable
       expression.</para>
     </section>
 
-    <section>
+    <section xml:id="dac_table_expression">
       <title>Table Expression</title>
 
       <para>A table expression is part of the SELECT statement and consists of
@@ -2470,7 +2470,7 @@ SELECT d + e, SUM(f) FROM atable WHERE a + b = c GROUP BY d + e HAVING SUM(f) &g
       the aggregate functions used.</para>
     </section>
 
-    <section>
+    <section xml:id="dac_table_primary">
       <title>Table Primary</title>
 
       <para>Table primary refers to different forms of table reference in the
@@ -2637,7 +2637,7 @@ I D          S
       paren&gt; &lt;joined table&gt; &lt;right paren&gt;</literal></para>
     </section>
 
-    <section>
+    <section xml:id="dac_joined_table">
       <title>Joined Table</title>
 
       <para>Joins are operators with two table as the operands, resulting in a
@@ -2763,7 +2763,7 @@ I D          S
       USING (&lt;comma separated column name list&gt;)</literal>.</para>
     </section>
 
-    <section>
+    <section xml:id="dac_selection">
       <title>Selection</title>
 
       <para>Despite the name, selection has nothing to do with the list of
@@ -2777,7 +2777,7 @@ I D          S
       query.</para>
     </section>
 
-    <section>
+    <section xml:id="dac_projection">
       <title>Projection</title>
 
       <para>Projection is selection of the columns from a simple or joined
@@ -2794,7 +2794,7 @@ I D          S
       commas.</para>
     </section>
 
-    <section>
+    <section xml:id="dac_computed_columns">
       <title>Computed Columns</title>
 
       <para>In the select list, it is possible to use expressions that
@@ -2899,7 +2899,7 @@ SELECT x, y, z FROM atable AS t (u, v, w, x, y, z)  WHERE u + v = w</programlist
       used together with aggregation.</para>
     </section>
 
-    <section>
+    <section xml:id="dac_aggregation">
       <title>Aggregation</title>
 
       <para>Aggregation is an operation that computes a single value from the
@@ -2911,7 +2911,7 @@ SELECT x, y, z FROM atable AS t (u, v, w, x, y, z)  WHERE u + v = w</programlist
       average value among the values in different rows.</para>
     </section>
 
-    <section>
+    <section xml:id="dac_set_operations">
       <title>Set Operations</title>
 
       <indexterm significance="preferred" type="sql">
@@ -2957,7 +2957,7 @@ SELECT x, y, z FROM atable AS t (u, v, w, x, y, z)  WHERE u + v = w</programlist
       then zero.</para>
     </section>
 
-    <section>
+    <section xml:id="dac_with_clause">
       <title>With Clause and Recursive Queries</title>
 
       <para>The optional WITH clause can be used in a query expression. The
@@ -3101,7 +3101,7 @@ GEN PAR    CHILD
       participating tables.</para>
     </section>
 
-    <section>
+    <section xml:id="dac_ordering">
       <title>Ordering</title>
 
       <para>When the rows of the result table have been formed, it is possible
@@ -3161,7 +3161,7 @@ GEN PAR    CHILD
       select list. The default is ASC and NULLS FIRST.</simpara>
     </section>
 
-    <section>
+    <section xml:id="dac_slicing">
       <title>Slicing</title>
 
       <para>A different form of limiting the rows can be performed on the
@@ -3208,7 +3208,7 @@ SELECT a, b FROM atable WHERE d &lt; 5 ORDER BY absum OFFSET 3 LIMIT 2 /* altern
     </section>
   </section>
 
-  <section>
+  <section xml:id="dac_data_changes_statements">
     <title>Data Change Statements</title>
 
     <section>
@@ -3250,7 +3250,7 @@ DELETE FROM T AS TT WHERE TT.A = (SELECT MAX(A) FROM T)
 </programlisting>
     </section>
 
-    <section>
+    <section xml:id="dac_truncate_statement">
       <title>Truncate Statement</title>
 
       <indexterm significance="preferred" type="sql">
@@ -3321,7 +3321,7 @@ DELETE FROM T AS TT WHERE TT.A = (SELECT MAX(A) FROM T)
       administrative privileges.</simpara>
     </section>
 
-    <section>
+    <section xml:id="dac_insert_statement">
       <title>Insert Statement</title>
 
       <indexterm significance="preferred" type="sql">
@@ -3430,7 +3430,7 @@ INSERT INTO T VALUES 3, ARRAY['hot','cold']
       provide the inserted value for some of the columns.</para>
     </section>
 
-    <section>
+    <section xml:id="dac_update_statement">
       <title>Update Statement</title>
 
       <indexterm significance="preferred" type="sql">
@@ -3525,7 +3525,7 @@ UPDATE T SET A = 3, B[3] = 'warm'
 </programlisting>
     </section>
 
-    <section>
+    <section xml:id="dac_merge_statement">
       <title>Merge Statement</title>
 
       <indexterm significance="preferred" type="sql">
@@ -3634,7 +3634,7 @@ MERGE INTO t USING (VALUES(CAST(? AS INT))) AS vals(x) ON t.id = vals.x
     </section>
   </section>
 
-  <section>
+  <section xml:id="dac_diagnostics_state">
     <title>Diagnostics and State</title>
 
     <para>HyperSQL supports some SQL statements, expressions, functions and

@@ -45,7 +45,7 @@
     </legalnotice>
   </info>
 
-  <section xml:id="builtin_functions_intro-sect">
+  <section xml:id="buc_overview">
     <title>Overview</title>
 
     <para>HyperSQL supports a wide range of built-in functions and allows
@@ -122,7 +122,7 @@
     Standard.</para>
   </section>
 
-  <section xml:id="builtin_functions_string-sect">
+  <section xml:id="buc_string-binary-functions">
     <title>String and Binary String Functions</title>
 
     <para>In SQL, there are three kinds of string: character, binary and bit.
@@ -1120,7 +1120,7 @@ WIDTH_BUCKET( 200, 10, 110, 10)
 </programlisting>
   </section>
 
-  <section xml:id="builtin_functions_datetime-sect">
+  <section xml:id="buc_datetime-functions">
     <title>Date Time and Interval Functions</title>
 
     <para>Functions to report the time zone.</para>
@@ -1936,7 +1936,7 @@ TIMESTAMP '2008-11-22 20:30:40.000000'
     </section>
   </section>
 
-  <section>
+  <section xml:id="buc_array-functions">
     <title>Array Functions</title>
 
     <para>Array functions are specialised functions with ARRAY parameters or
