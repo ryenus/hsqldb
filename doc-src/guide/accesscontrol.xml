@@ -45,7 +45,7 @@
     </legalnotice>
   </info>
 
-  <section>
+  <section xml:id='acc_overview-sect'>
     <title>Overview</title>
 
     <para>This chapter is about access control to database objects such as
@@ -120,7 +120,7 @@
     objects.</simpara>
   </section>
 
-  <section>
+  <section xml:id='acc_auth_and_acc_ctrl'>
     <title>Authorizations and Access Control</title>
 
     <para>In general, ROLE and USER objects simply control access to schema
@@ -178,7 +178,7 @@
     <simpara>Authorization identifiers share the same name-space within the
     database. The same name cannot be used for a USER and a ROLE.</simpara>
 
-    <section>
+    <section xml:id='acc_built_in_roles_users'>
       <title>Built-In Roles and Users</title>
 
       <para>There are some pre-defined roles in each database; some defined by
@@ -270,7 +270,7 @@
       role.</simpara>
     </section>
 
-    <section>
+    <section xml:id='acc_access_rights'>
       <title>Access Rights</title>
 
       <para>By default, the objects in a schema can only be accessed by the
@@ -349,7 +349,7 @@
     </section>
   </section>
 
-  <section>
+  <section xml:id='acc_statements'>
     <title xml:id="accesscontrol-statements-title">Statements for
     Authorization and Access Control</title>
 
