@@ -89,7 +89,7 @@
     A trigger can be specified to activate before or after the action has been
     performed.</simpara>
 
-    <sectionxml:id="trc_before_triggers">
+    <section xml:id="trc_before_triggers">
       <title>BEFORE Triggers</title>
 
       <simpara>A trigger that is declared as BEFORE DELETE cannot modify the
@@ -109,7 +109,7 @@
       strings, CHECK constraints, and FOREIGN key constraints.</simpara>
     </section>
 
-    <sectionxml:id="trc_after_triggers">
+    <section xml:id="trc_after_triggers">
       <title>AFTER Triggers</title>
 
       <simpara>AFTER triggers can also perform additional data changes, for
