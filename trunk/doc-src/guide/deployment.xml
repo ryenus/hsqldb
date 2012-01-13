@@ -960,7 +960,7 @@
       <example>
         <title>Sample Maven Dependency</title>
 
-        <simpara>See <link xlink:href="#mavenrange">note above</link> about
+        <simpara>See <link xlink:href="#dec_maven_range">note above</link> about
         Maven range specifications.</simpara>
 
         <programlisting>

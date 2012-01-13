@@ -710,7 +710,7 @@ LONGVARBINARY
 </programlisting>
     </section>
 
-    <section xml:id="sgc_binary_types">
+    <section xml:id="sgc_bit_types">
       <title>Bit String Types</title>
 
       <indexterm significance="preferred" type="sql">
