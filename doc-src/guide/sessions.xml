@@ -45,7 +45,7 @@
     </legalnotice>
   </info>
 
-  <section>
+  <section xml:id="snc_overview">
     <title>Overview</title>
 
     <para>All SQL statements are executed in sessions. When a connection is
@@ -97,13 +97,13 @@
     <para>Details of the statement is described later in this chapter.</para>
   </section>
 
-  <section>
+  <section xml:id="snc_session_attr_vars">
     <title>Session Attributes and Variables</title>
 
     <para>Each session has several system attributes. A session can also have
     user-defined session variables.</para>
 
-    <section>
+    <section xml:id="snc_session_attr">
       <title>Session Attributes</title>
 
       <para>The system attributes reflect the current mode of operation for
@@ -120,7 +120,7 @@
       ns6:href="#builtinfunctions-chapt"></link> chapter.</para>
     </section>
 
-    <section>
+    <section xml:id="snc_session_vars">
       <title>Session Variables</title>
 
       <para>Session variables are user-defined variables created the same way
@@ -143,7 +143,7 @@
       </example>
     </section>
 
-    <section>
+    <section xml:id="snc_session_tables">
       <title>Session Tables</title>
 
       <para>With necessary access privileges, sessions can access all table,
@@ -190,7 +190,7 @@
     </section>
   </section>
 
-  <section xml:id="sqlgeneral_trans_cc-sect">
+  <section xml:id="snc_tx_tx_cc">
     <title>Transactions and Concurrency Control</title>
 
     <para>HyperSQL 2.0 has been fully redesigned to support different
@@ -222,7 +222,7 @@
     <literal>SET DATABASE TRANSACTION CONTROL { LOCKS | MVLOCKS | MVCC
     }</literal> can be used by a user with the DBA role.</para>
 
-    <section>
+    <section xml:id="snc_tx_2pl">
       <title>Two Phase Locking</title>
 
       <para>The two-phase locking model is the default mode. It is referred to
@@ -267,7 +267,7 @@
       lock.</para>
     </section>
 
-    <section>
+    <section xml:id="snc_tx_2pl_si">
       <title>Two Phase Locking with Snapshot Isolation</title>
 
       <para>This model is referred to as MVLOCKS. It works the same way as
@@ -286,7 +286,7 @@
       data.</para>
     </section>
 
-    <section>
+    <section xml:id="snc_tx_locks_2pl">
       <title>Lock Contention in 2PL</title>
 
       <para>When multiple connections are used to access the database, the
@@ -324,7 +324,7 @@
       lock the same table for write.</para>
     </section>
 
-    <section>
+    <section xml:id="snc_tx_locks_routines">
       <title>Locks in SQL Routines and Triggers</title>
 
       <para>In both LOCKS and MVLOCKS models, SQL routines (functions and
@@ -336,7 +336,7 @@
       COMMITTED.</para>
     </section>
 
-    <section>
+    <section xml:id="snc_tx_mvcc">
       <title>MVCC</title>
 
       <para>In the MVCC model, there are no shared, read locks. Exclusive
@@ -393,7 +393,7 @@
       modes.</para>
     </section>
 
-    <section>
+    <section xml:id="snc_tx_choosing">
       <title>Choosing the Transaction Model</title>
 
       <para>The SQL Standard defines the isolation levels as modes of
@@ -449,7 +449,7 @@
       faster, especially with multi-core processors.</para>
     </section>
 
-    <section>
+    <section xml:id="snc_tx_schema_change">
       <title>Schema and Database Change</title>
 
       <para>There are a few SQL statements that must access a consistent state
@@ -474,7 +474,7 @@
       locks are all removed.</para>
     </section>
 
-    <section>
+    <section xml:id="snc_tx_access_tables">
       <title>Simultaneous Access to Tables</title>
 
       <para>It was mentioned that there is no limit on the number of sessions
@@ -503,7 +503,7 @@
       performed after the other operation has finished.</para>
     </section>
 
-    <section>
+    <section xml:id="snc_viewing_sessions">
       <title>Viewing Sessions</title>
 
       <para>As HyperSQL is multithreaded, you can view the current sessions
@@ -516,7 +516,7 @@
     </section>
   </section>
 
-  <section>
+  <section xml:id="snc_statements">
     <title>Session and Transaction Control Statements</title>
 
     <indexterm significance="preferred" type="sql">

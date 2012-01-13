@@ -49,7 +49,7 @@
     </legalnotice>
   </info>
 
-  <section xml:id="dbproperties_connections-sect">
+  <section xml:id="dpc_connection_url">
     <title>Connection URL</title>
 
     <para>The normal method of accessing a HyperSQL catalog is via the JDBC
@@ -279,7 +279,7 @@
     </table>
   </section>
 
-  <section>
+  <section xml:id="dpc_variables_url">
     <title>Variables In Connection URL</title>
 
     <para>Two types of variables are allowed for mem: and file: database
@@ -303,7 +303,7 @@
     <programlisting>    jdbc:hsqldb:file:${mydbpath};sql.enforce_types=true</programlisting>
   </section>
 
-  <section xml:id="conn_props-sect">
+  <section xml:id="dpc_connection_props">
     <title>Connection properties</title>
 
     <para>Each JDBC Connection to a database can specify connection
@@ -540,7 +540,7 @@
     properties. See the next section for details.</para>
   </section>
 
-  <section>
+  <section xml:id="dpc_db_props_url">
     <title>Database Properties in Connection URL and Properties</title>
 
     <para>The database engine has several properties that are listed in the
@@ -617,7 +617,7 @@
       </tgroup>
     </table>
 
-    <section>
+    <section xml:id="dpc_sql_conformance">
       <title>SQL Conformance Properties</title>
 
       <table frame="all" pgwide="1" tocentry="1">
@@ -1330,7 +1330,7 @@
       </table>
     </section>
 
-    <section>
+    <section xml:id="dpc_db_operations">
       <title>Database Operations Properties</title>
 
       <table frame="all" pgwide="1" tocentry="1">
@@ -1543,7 +1543,7 @@
       </table>
     </section>
 
-    <section>
+    <section xml:id="dpc_db_file_mem">
       <title>Database File and Memory Properties</title>
 
       <table frame="all" pgwide="1" tocentry="1">
@@ -2472,7 +2472,7 @@
       </table>
     </section>
 
-    <section>
+    <section xml:id="dpc_crypt_props">
       <title>Crypt Properties</title>
 
       <table frame="all" pgwide="1" tocentry="1">
@@ -2638,7 +2638,7 @@
     </section>
   </section>
 
-  <section>
+  <section xml:id="dpc_system_props">
     <title>System Properties</title>
 
     <para>A few system properties are used by HyperSQL. These are set on the

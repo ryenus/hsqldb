@@ -55,7 +55,7 @@
     </legalnotice>
   </info>
 
-  <section xml:id="listeners-sect">
+  <section xml:id="lsc_listener_types">
     <title>Listeners</title>
 
     <simpara>As described in the <link endterm="running-title"
@@ -64,7 +64,7 @@
     HyperSQL listeners support both ipv4 and ipv6 network
     addressing.</simpara>
 
-    <section xml:id="listeners_hsqlserver-sect">
+    <section xml:id="lsc_hsql_server">
       <title>HyperSQL Server</title>
 
       <para>This is the preferred way of running a database server and the
@@ -98,7 +98,7 @@
       next section.</para>
     </section>
 
-    <section xml:id="listeners_httpserver-sect">
+    <section xml:id="lsc_http_server">
       <title>HyperSQL HTTP Server</title>
 
       <para>This method of access is used when the computer hosting the
@@ -120,7 +120,7 @@
       next section.</para>
     </section>
 
-    <section xml:id="listeners_servlet-sect">
+    <section xml:id="lsc_servlet">
       <title>HyperSQL HTTP Servlet</title>
 
       <para>This method of access also uses the HTTP protocol. It is used when
@@ -145,7 +145,7 @@
     </section>
   </section>
 
-  <section xml:id="listeners_server_props-sect">
+  <section xml:id="lsc_server_props">
     <title>Server and Web Server Properties</title>
 
     <para>Properties files for running the servers are not created
@@ -435,7 +435,7 @@
     </note>
   </section>
 
-  <section xml:id="listeners_appstart-sect">
+  <section xml:id="lsc_app_start">
     <title>Starting a Server from your Application</title>
 
     <para>If you want to start the server from within your application, as
@@ -464,7 +464,7 @@
     shutdown() method.</para>
   </section>
 
-  <section>
+  <section xml:id="lsc_remote_open">
     <title>Allowing a Connection to Open or Create a Database</title>
 
     <para>If the <literal>server.remote_open</literal> property is true, the
@@ -516,7 +516,7 @@ Connection c = DriverManager.getConnection("jdbc:hsqldb:hsql://localhost/xdb;fil
     <para> specified in the </para>
   </section>
 
-  <section xml:id="listeners_tls-sect">
+  <section xml:id="lsc_tls">
     <info>
       <title xml:id="tls-sect-title">TLS Encryption</title>
 
@@ -561,7 +561,7 @@ Connection c = DriverManager.getConnection("jdbc:hsqldb:hsql://localhost/xdb;fil
     <glossterm>in-process</glossterm> (non-Listener) setup, this chapter does
     not apply to you.</para>
 
-    <section>
+    <section xml:id="lsc_tls_rquirements">
       <title>Requirements</title>
 
       <itemizedlist>
@@ -607,7 +607,7 @@ Connection c = DriverManager.getConnection("jdbc:hsqldb:hsql://localhost/xdb;fil
       </itemizedlist>
     </section>
 
-    <section>
+    <section xml:id="lsc_encrypt_connection">
       <title>Encrypting your JDBC connection</title>
 
       <para>At this time, only 1-way, server-cert encryption is tested.</para>
@@ -752,7 +752,7 @@ Connection c = DriverManager.getConnection("jdbc:hsqldb:hsql://localhost/xdb;fil
       </section>
     </section>
 
-    <section xml:id="jsse-sect">
+    <section xml:id="lsc_jsse">
       <title>JSSE</title>
 
       <para>If you are running Java 4.x or later, then you are all set. Java
@@ -771,7 +771,7 @@ Connection c = DriverManager.getConnection("jdbc:hsqldb:hsql://localhost/xdb;fil
       <para>Pretty painless.</para>
     </section>
 
-    <section xml:id="privatekey-sect">
+    <section xml:id="lsc_privatekey">
       <title>Making a Private-key Keystore</title>
 
       <para>There are two main ways to do this. Either you can use a
@@ -827,7 +827,7 @@ Connection c = DriverManager.getConnection("jdbc:hsqldb:hsql://localhost/xdb;fil
       </section>
     </section>
 
-    <section>
+    <section xml:id="lsc_auto_server_unix">
       <title>Automatic Server or WebServer startup on UNIX</title>
 
       <para>If you are on UNIX and want to automatically start and stop a
@@ -846,7 +846,7 @@ Connection c = DriverManager.getConnection("jdbc:hsqldb:hsql://localhost/xdb;fil
     </section>
   </section>
 
-  <section xml:id="listeners_acl-sect">
+  <section xml:id="lsc_acl">
     <info>
       <title>Network Access Control</title>
 

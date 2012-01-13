@@ -45,7 +45,7 @@
     </legalnotice>
   </info>
 
-  <section xml:id="deployment_modes-sect">
+  <section xml:id="mtc_modes_tables">
     <title>Mode of Operation and Tables</title>
 
     <para>HyperSQL has many modes of operation and features that allow it to
@@ -53,7 +53,7 @@
     accessibility by different applications are influenced by how HyperSQL is
     deployed.</para>
 
-    <section>
+    <section xml:id="mtc_modes_operation">
       <title>Mode of Operation</title>
 
       <para>The decision to run HyperSQL as a separate server process or as an
@@ -97,7 +97,7 @@
         </itemizedlist></para>
     </section>
 
-    <section>
+    <section xml:id="mtc_table_types">
       <title>Tables</title>
 
       <para>TEXT tables are designed for special applications where the data
@@ -142,7 +142,7 @@
         </itemizedlist></para>
     </section>
 
-    <section>
+    <section xml:id="mtc_large_objects">
       <title>Large Objects</title>
 
       <para>HyperSQL 2.0 supports dedicated storage and access to BLOB and
@@ -194,7 +194,7 @@
       </example>
     </section>
 
-    <section>
+    <section xml:id="mtc_deploy_context">
       <title>Deployment context</title>
 
       <para>The files used for storing HyperSQL database data are all in the
@@ -220,7 +220,7 @@
       </itemizedlist>
     </section>
 
-    <section>
+    <section xml:id="mtc_readonly_database">
       <title>Readonly Databases</title>
 
       <para>A <glossterm>file:</glossterm> catalog can be made readonly
@@ -242,7 +242,7 @@
     </section>
   </section>
 
-  <section>
+  <section xml:id="mtc_acid_persistence">
     <title>ACID, Persistence and Reliability</title>
 
     <para>HyperSQL 2.0 uses the same persistence mechanism as version 1.8, but
@@ -293,10 +293,10 @@
     database inside the same Java process extensively with nio. Use of nio can
     be turned off if necessary.</para>
 
-    <section>
+    <section xml:id="mtc_acid">
       <title>Atomicity, Consistency, Isolation, Durability</title>
 
-      <para>Atomicity means a transaction is either fails without changing the
+      <para>Atomicity means a transaction either fails without changing the
       data, or succeeds. HyperSQL ensures atomicity both during operations and
       in the event of a system crash.</para>
 
@@ -316,14 +316,14 @@
       delay means the FileDescriptor#sync() call is executed in the given
       intervals and only the last transactions committed in the interval may
       be lost. The sync() call is also made at all critical points, including
-      when a file is about to be closed. All files Durability requires a
+      when a file is about to be closed. Durability of files requires a
       reliable JVM and disk storage system that stores the data safely with a
       sync() call. In practice, many systems are generally reliable in this
       respect.</para>
     </section>
   </section>
 
-  <section xml:id="deployment_backup-sect">
+  <section xml:id="mtc_backup">
     <title>Backing Up Database Catalogs</title>
 
     <indexterm significance="preferred">
@@ -351,7 +351,7 @@
     if the target database catalog is running, or on the command-line if the
     target catalog has been shutdown.</simpara>
 
-    <section>
+    <section xml:id="mtc_online_backup">
       <title>Making Online Backups</title>
 
       <simpara>To back up a running catalog, obtain a JDBC connection and
@@ -370,7 +370,7 @@
       backup.</simpara>
     </section>
 
-    <section>
+    <section xml:id="mtc_offline_backup">
       <title>Making Offline Backups</title>
 
       <para>To back up an offline catalog, the catalog must be in shut down
@@ -387,7 +387,7 @@
       type <glossterm>file:</glossterm>.</para>
     </section>
 
-    <section>
+    <section xml:id="mtc_listing_backup">
       <title>Examining Backups</title>
 
       <para>You can list the contents of backup tar files with
@@ -408,7 +408,7 @@
       temporary directory.</simpara>
     </section>
 
-    <section>
+    <section xml:id="mtc_restoring_backup">
       <title>Restoring a Backup</title>
 
       <para>You use <classname>DbBackup</classname> on your operating system
@@ -427,7 +427,7 @@
     </section>
   </section>
 
-  <section>
+  <section xml:id="mtc_encrypted_database">
     <title>Encrypted Databases</title>
 
     <para>HyperSQL supports encrypted databases. Encryption services use the
@@ -515,7 +515,7 @@
     </section>
   </section>
 
-  <section>
+  <section xml:id="mtc_monitoring_operation">
     <title>Monitoring Database Operations</title>
 
     <para>Database operations can be monitored at different levels using
@@ -586,7 +586,7 @@
     </section>
   </section>
 
-  <section>
+  <section xml:id="mtc_database_security">
     <title>Database Security</title>
 
     <para>HyperSQL has extensive security features which are implemented at
@@ -649,7 +649,7 @@
     circumvent security. It is however the user's responsibility to enable the
     required level of security.</para>
 
-    <section>
+    <section xml:id="mtc_security_defaults">
       <title>Security Defaults</title>
 
       <para>The default setting are generally adequate for most embedded use
@@ -696,7 +696,7 @@
       privileges on the objects to the non-DBA role.</para>
     </section>
 
-    <section>
+    <section xml:id="mtc_authentication_control">
       <title>Authentication Control</title>
 
       <para>Authentication is the mechanism that determines if a user can
@@ -741,7 +741,7 @@
     </section>
   </section>
 
-  <section>
+  <section xml:id="mtc_compatibility_other">
     <title>Compatibility with Other RDBMS</title>
 
     <para>HyperSQL is used more than any other database engine for application
@@ -796,7 +796,7 @@
     <para>In the future, the supported compatibility modes with other RDBMS
     will be expanded further.</para>
 
-    <section>
+    <section xml:id="mtc_compatibility_postgres">
       <title>PostgreSQL Compatibility</title>
 
       <para>PostgreSQL is fairly compatible with the Standard, but uses some
@@ -873,7 +873,7 @@
       </itemizedlist>
     </section>
 
-    <section>
+    <section xml:id="mtc_compatibility_mysql">
       <title>MySQL Compatibility</title>
 
       <para>MySQL had many incompatibilities with the Standard. The latest
@@ -998,14 +998,14 @@
       </itemizedlist>
     </section>
 
-    <section>
+    <section xml:id="mtc_compatibility_firebird">>
       <title>Firebird Compatibility</title>
 
       <para>Firebird generally follows the SQL Standard. Applications can be
       ported to HyperSQL without difficulty.</para>
     </section>
 
-    <section>
+    <section xml:id="mtc_compatibility_derby">>
       <title>Apache Derby Compatibility</title>
 
       <para>Apache Derby supports a smaller subset of the SQL Standard
@@ -1026,7 +1026,7 @@
       </itemizedlist>
     </section>
 
-    <section>
+    <section xml:id="mtc_compatibility_oracle">>
       <title>Oracle Compatibility</title>
 
       <para>Recent versions of Oracle support Standard SQL syntax for outer
@@ -1108,7 +1108,7 @@
       </itemizedlist>
     </section>
 
-    <section>
+    <section xml:id="mtc_compatibility_db2">>
       <title>DB2 Compatibility</title>
 
       <para>DB2 is highly compatible with the SQL Standard (except its lack of
@@ -1154,7 +1154,7 @@
       </itemizedlist>
     </section>
 
-    <section>
+    <section xml:id="mtc_compatibility_mssql">>
       <title>MS SQLServer and Sybase Compatibility</title>
 
       <para>SQLServer has some incompatibilities with the Standard syntax. The
@@ -1199,7 +1199,7 @@
     </section>
   </section>
 
-  <section>
+  <section xml:id="mtc_statements">>
     <title>Statements</title>
 
     <para>System level statements are listed in this section. Statements that
@@ -1207,7 +1207,7 @@
     effect on the normal operation of HyperSQL. The effects of these
     statements are also discussed in different chapters.</para>
 
-    <section>
+    <section xml:id="mtc_system_operations">>
       <title>System Operations</title>
 
       <para>These statements perform a system level action.</para>
@@ -1375,7 +1375,7 @@
       statement.</simpara>
     </section>
 
-    <section>
+    <section xml:id="mtc_database_settings">
       <title>Database Settings</title>
 
       <simpara>These statements change the database settings.</simpara>
@@ -1644,7 +1644,7 @@
       statement.</simpara>
     </section>
 
-    <section>
+    <section xml:id="mtc_sql_settings">
       <title>SQL Conformance Settings</title>
 
       <simpara>These statements modify the level of conformance to the SQL
@@ -2260,7 +2260,7 @@
       statement.</simpara>
     </section>
 
-    <section>
+    <section xml:id="mtc_cache_persistence">
       <title>Cache, Persistence and Files Settings</title>
 
       <simpara>These statements control the memory and other settings for
@@ -2590,7 +2590,7 @@
       statement.</simpara>
     </section>
 
-    <section>
+    <section xml:id="mtc_authntication_settings">
       <title>Authentication Settings</title>
 
       <para>Two settings are available for authentication control.</para>

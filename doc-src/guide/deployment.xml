@@ -45,7 +45,7 @@
     </legalnotice>
   </info>
 
-  <section xml:id="deployment_mem_disk-sect">
+  <section xml:id="dec_mem_disk_use">
     <title>Memory and Disk Use</title>
 
     <indexterm significance="preferred">
@@ -224,7 +224,7 @@
       </example>
     </section>
 
-    <section>
+    <section xml:id="dec_disk_space">
       <title>Disk Space</title>
 
       <para>With file: database, the engine uses the disk for storage of data
@@ -235,7 +235,7 @@
     </section>
   </section>
 
-  <section xml:id="deployment_conns-sect">
+  <section xml:id="dec_managing_connections">
     <title>Managing Database Connections</title>
 
     <para>In all running modes (server or <glossterm>in-process</glossterm>)
@@ -294,13 +294,13 @@
     is built into the OS in closing them.</para>
   </section>
 
-  <section>
+  <section xml:id="dec_tweaking">
     <title>Tweaking the Mode of Operation</title>
 
     <para>Different modes of operation and settings are used for different
     purposes. Some scenarios are discussed below:</para>
 
-    <section>
+    <section xml:id="dec_app_dev_testing">
       <title>Application Development and Testing</title>
 
       <para>First thing to be aware of is the SQL conformance settings of
@@ -411,7 +411,7 @@
       time.</para>
     </section>
 
-    <section>
+    <section xml:id="dec_mixed_mode_server">
       <title>Mixed Mode : Embedding a HyperSQL Server (Listener)</title>
 
       <para>Since you won't be able to access
@@ -444,7 +444,7 @@
       MainInvoker</classname> for details on its usage.</simpara>
     </section>
 
-    <section>
+    <section xml:id="dec_no_logging">
       <title>Using HyperSQL Without Logging</title>
 
       <para>All file database that are not readonly, write changes to the .log
@@ -476,7 +476,7 @@
       <literal>hsqldb.lock_file=false</literal>.</para>
     </section>
 
-    <section>
+    <section xml:id="dec_bulk_operations">
       <title>Bulk Inserts, Updates and Deletes</title>
 
       <para>Bulk inserts, deletes and updates are performed with the best
@@ -536,7 +536,7 @@
     </section>
   </section>
 
-  <section xml:id="deployment_upgrade-sect">
+  <section xml:id="dec_upgrade_database">
     <title>Upgrading Databases</title>
 
     <indexterm significance="preferred">
@@ -585,7 +585,7 @@
     <para>Once a database is upgraded to 2.0, it can no longer be used with
     previous versions of HyperSQL.</para>
 
-    <section xml:id="upgrade_via_script-sect">
+    <section xml:id="dec_upgrade_via_script">
       <title xml:id="upgrade_via_script-title">Upgrading From Older
       Versions</title>
 
@@ -747,7 +747,7 @@
     </section>
   </section>
 
-  <section>
+  <section xml:id="dec_backware_compatibility">
     <title>Backward Compatibility Issues</title>
 
     <para>HyperSQL 2.0 conforms to the SQL Standard better than previous
@@ -871,7 +871,7 @@
     </itemizedlist>
   </section>
 
-  <section>
+  <section xml:id="dec_dependency_applications">
     <title>HyperSQL Dependency Settings for Applications</title>
 
     <subtitle>Dependency settings using Gradle, Ivy, Maven, Groovy</subtitle>
@@ -918,7 +918,7 @@
       specifications below to literal versions like
       <literal>2.2.7</literal>.</para>
 
-      <note xml:id="mavenrange">
+      <note xml:id="dec_maven_range">
         <title>Limitation of Maven Version Range Specifiers</title>
 
         <simpara>Note that Ivy (and the many systems that use Ivy undeneath,

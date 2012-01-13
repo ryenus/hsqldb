@@ -61,7 +61,7 @@
     </legalnotice>
   </info>
 
-  <section xml:id="texttables_overview-sect">
+  <section xml:id="ttc_overview">
     <title>Overview</title>
 
     <para>Text Table support for HSQLDB was originally developed by Bob
@@ -86,7 +86,7 @@
     data stored in text files.</para>
   </section>
 
-  <section xml:id="texttables_impl-sect">
+  <section xml:id="ttc_implementation">
     <title>The Implementation</title>
 
     <section>
@@ -330,7 +330,7 @@
       <varname>textdb.cache_size_scale</varname> can still be used.</para>
     </section>
 
-    <section xml:id="disconnecting_text_tables">
+    <section xml:id="ttc_disconnect">
       <title>Disconnecting Text Tables</title>
 
       <para>Text tables may be <glossterm>disconnected</glossterm> from their
@@ -359,7 +359,7 @@
     </section>
   </section>
 
-  <section xml:id="texttables_issues-sect">
+  <section xml:id="ttc_issues">
     <title>Text File Usage</title>
 
     <para>The following information applies to the usage of text
@@ -438,7 +438,7 @@
     </itemizedlist>
   </section>
 
-  <section xml:id="texttables_globalprops-sect">
+  <section xml:id="ttc_global_props">
     <title>Text File Global Properties</title>
 
     <para>The database engine uses a set of defaults for text table

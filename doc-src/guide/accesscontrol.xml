@@ -45,14 +45,14 @@
     </legalnotice>
   </info>
 
-  <section xml:id='acc_overview-sect'>
+  <section xml:id='acc_overview'>
     <title>Overview</title>
 
     <para>This chapter is about access control to database objects such as
     tables, inside the database engine. Other issues related to security
     include user authentication, password complexity and secure connections
-    are covered in the <link endterm="deployment-title" xlink:arcrole=""
-    xlink:href="#deployment-chapt"></link> chapter and the <link
+    are covered in the <link endterm="management-title" xlink:arcrole=""
+    xlink:href="#management-chapt"></link> chapter and the <link
     endterm="listeners-title" xlink:href="#listeners-chapt"></link>
     chapter.</para>
 
@@ -120,7 +120,7 @@
     objects.</simpara>
   </section>
 
-  <section xml:id='acc_auth_and_acc_ctrl'>
+  <section xml:id='acc_auth_and_access_ctrl'>
     <title>Authorizations and Access Control</title>
 
     <para>In general, ROLE and USER objects simply control access to schema
