@@ -56,7 +56,7 @@
     standard.</para>
   </section>
 
-  <section xml:id="dac_cursors_result_sets">
+  <section xml:id="dac_jdbc_cursors_result_sets">
     <title>Cursors And Result Sets</title>
 
     <para>An SQL statement can executed in two ways. One way is to use the
@@ -83,7 +83,7 @@
     of the JDBC <classname>Statement</classname> or
     <classname>PreparedStatement</classname>.</para>
 
-    <section>
+    <section xml:id="dac_jdbc_columns_rows">
       <title>Columns and Rows</title>
 
       <para>The columns of the rows of the result set are determined by the
@@ -107,7 +107,7 @@
       result has been built, and the excess rows are discarded.</para>
     </section>
 
-    <section>
+    <section xml:id="dac_jdbc_cursor_navigation">
       <title>Navigation</title>
 
       <para>A cursor is either scrollable or not. Scrollable cursors allow
@@ -128,7 +128,7 @@
       row.</para>
     </section>
 
-    <section>
+    <section xml:id="dac_jdbc_cursor_updatability">
       <title>Updatability</title>
 
       <para>The result returned by some query expressions is updatable. HSQLDB
@@ -202,7 +202,7 @@ SELECT X FROM V WHERE Y = 5
       to execute SQL data change statements that modify the same data.</para>
     </section>
 
-    <section>
+    <section xml:id="dac_jdbc_cursor_sensitivity">
       <title>Sensitivity</title>
 
       <para>The sensitivity of the cursor relates to visibility of changes
@@ -220,7 +220,7 @@ SELECT X FROM V WHERE Y = 5
       to the data made by other statements.</para>
     </section>
 
-    <section>
+    <section xml:id="dac_jdbc_cursor_holdability">
       <title>Holdability</title>
 
       <para>A cursor is holdable if the result set is not automatically closed
@@ -243,7 +243,7 @@ SELECT X FROM V WHERE Y = 5
       precedence.</para>
     </section>
 
-    <section>
+    <section xml:id="dac_jdbc_autocommit">
       <title>Autocommit</title>
 
       <para>The autocommit property of a connection is a feature of JDBC and
@@ -253,16 +253,16 @@ SELECT X FROM V WHERE Y = 5
       read-only and holdable.</para>
     </section>
 
-    <section>
+    <section  xml:id="dac_jdbc_overview">
       <title>JDBC Overview</title>
 
       <para>The JDBC settings, ResultSet.CONCUR_READONLY and
-      ResultSet.CONCUR_UPDATABLE are the alternatives for read-only or
+      ResultSet.CONCUR_UPDATABLE are the available alternatives for read-only or
       updatability. The default is ResultSet.CONCUR_READONLY.</para>
 
       <para>The JDBC settings, ResultSet.TYPE_FORWARD_ONLY,
       ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.TYPE_SCROLL_SENSITIVE are
-      the alternatives for both scrollability (navigation) and sensitivity.
+      the available alternatives for both scrollability (navigation) and sensitivity.
       HyperSQL does not support ResultSet.TYPE_SCROLL_SENSITIVE. The two other
       alternatives can be used for both updatable and read-only result
       sets.</para>
@@ -282,7 +282,7 @@ st = c.createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_UPDATABLE);
 st = c.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_UPDATABLE);</programlisting>
     </section>
 
-    <section>
+    <section xml:id="dac_jdbc_parameters">
       <title>JDBC Parameters</title>
 
       <para>When a JDBC PreparedStatement or CallableStatement is used with an
@@ -333,7 +333,7 @@ st.execute(); // exception is thrown when HyperSQL checks the value for update
       RDBMS servers.</para>
     </section>
 
-    <section>
+    <section xml:id="dac_jdbc_data_change">
       <title>JDBC and Data Change Statements</title>
 
       <para>Data change statements, also called data manipulation statements
@@ -348,7 +348,7 @@ st.execute(); // exception is thrown when HyperSQL checks the value for update
       TRIGGER on the table.</para>
     </section>
 
-    <section>
+    <section xml:id="dac_jdbc_callable_statement">
       <title>JDBC Callable Statement</title>
 
       <para>The JDBC CallableStatement interface is used to call Java or SQL
@@ -370,7 +370,7 @@ st.execute(); // exception is thrown when HyperSQL checks the value for update
       the same way as procedures and retrieve the table as a ResultSet.</para>
     </section>
 
-    <section>
+    <section  xml:id="dac_jdbc_return_values">
       <title>JDBC Returned Values</title>
 
       <para>The methods of the JDBC ResultSet interface can be used to return
@@ -385,7 +385,7 @@ st.execute(); // exception is thrown when HyperSQL checks the value for update
       <para>Array objects are returned as instances of java.sql.Array.</para>
     </section>
 
-    <section>
+    <section xml:id="dac_declare_cursor">
       <title>Cursor Declaration</title>
 
       <para>The DECLARE CURSOR statement is used within an SQL PROCEDURE body.
@@ -772,7 +772,7 @@ INTERVAL -'08:08' MINUTE TO SECOND
 </programlisting>
     </section>
 
-    <section>
+    <section xml:id="dac_sql_references">
       <title>References, etc.</title>
 
       <para>References are identifier chains, which can be a single
@@ -1444,7 +1444,7 @@ INSERT INTO CHILDTABLE(COL1, COL2) VALUES 10, CURRENT VALUE FOR MYSEQUENCE;
       <simpara>Specify a boolean value.</simpara>
     </section>
 
-    <section>
+    <section xml:id="dac_sql_predicates">
       <title>Predicates</title>
 
       <simpara>Predicates are conditions with two sides and evaluate to a
@@ -2226,7 +2226,7 @@ SELECT * FROM atable WHERE a + b = c ORDER BY a FETCH 5 ROWS ONLY
 </programlisting>The next sections discuss various types of tables and
     operations involved in data access statements.</para>
 
-    <section>
+    <section xml:id="dac_sql_select_statement">
       <title>Select Statement</title>
 
       <para>The SELECT statement itself does not cover all types of data

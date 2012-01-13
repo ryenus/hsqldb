@@ -67,7 +67,7 @@
     HyperSQL. For example, with Sun JVM, parameter -Xmx256m increases the
     amount to 256 MB.</para>
 
-    <section>
+    <section xml:id="dec_table_mem_use">
       <title>Table Memory Allocation</title>
 
       <para>The memory used for a MEMORY table is the sum of memory used by
@@ -83,7 +83,7 @@
       bytes to the size of each row.</para>
     </section>
 
-    <section>
+    <section xml:id="dec_result_mem_use">
       <title>Result Set Memory Allocation</title>
 
       <para>By default, all the rows in the result set are built in memory, so
@@ -114,7 +114,7 @@
       blocks of rows of the specified fetch size.</para>
     </section>
 
-    <section>
+    <section xml:id="dec_temp_mem_use">
       <title>Temporary Memory Use During Operations</title>
 
       <para>When UPDATE and DELETE queries are performed on CACHED tables, the
@@ -141,7 +141,7 @@
       they are larger than the threshold.</para>
     </section>
 
-    <section>
+    <section xml:id="dec_cache_mem_use">
       <title>Data Cache Memory Allocation</title>
 
       <para>With CACHED tables, the data is stored on disk and only up to a
@@ -185,7 +185,7 @@
       faster.</para>
     </section>
 
-    <section>
+    <section xml:id="dec_pool_mem_use">
       <title>Object Pool Memory Allocation</title>
 
       <para>HyperSQL uses a set of fast pools for immutable objects such as
@@ -197,7 +197,7 @@
       <literal>org.hsqldb.store.ValuePool</literal> class.</para>
     </section>
 
-    <section>
+    <section xml:id="dec_lob_mem_use">
       <title>Lob Memory Usage</title>
 
       <para>Access to lobs is always performed in chunks, so it is perfectly
@@ -377,7 +377,7 @@
       the res: protocol, which treats the database as a resource.</para>
     </section>
 
-    <section>
+    <section xml:id="dec_embedded_desktop_db">
       <title>Embedded Databases in Desktop Applications</title>
 
       <para>In this usage, the amount of data change is often limited and
@@ -392,7 +392,7 @@
       routine.</para>
     </section>
 
-    <section>
+    <section xml:id="dec_embedded_server_db">
       <title>Embedded Databases in Server Applications</title>
 
       <para>This usage involves a server application, such as a web
@@ -526,7 +526,7 @@
       </orderedlist>
     </section>
 
-    <section>
+    <section xml:id="dec_server_db">
       <title>Server Databases</title>
 
       <para>Running databases in a HyperSQL server is the best overall method
@@ -654,7 +654,7 @@
       </procedure>
     </section>
 
-    <section>
+    <section xml:id="dec_script_manual_change">
       <title>Manual Changes to the *.script File</title>
 
       <para>In HyperSQL 2.0 the full range of ALTER TABLE commands is
@@ -882,7 +882,7 @@
     triggered by a build system, or systems like Grape that pull libraries
     from the network at end-user run time.</simpara>
 
-    <section>
+    <section xml:id="dec_hsqldb_version_pull">
       <title>What version to Pull</title>
 
       <para>Most developers are recommended to depend upon the latest public
@@ -934,7 +934,7 @@
       </note>
     </section>
 
-    <section>
+    <section xml:id="dec_hsqldb_dependency_examples">
       <title>Dependency Specification Examples</title>
 
       <important>

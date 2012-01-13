@@ -496,7 +496,7 @@ Connection c = DriverManager.getConnection("jdbc:hsqldb:hsql://localhost/xdb;fil
     <para>The path can be a file: or mem: database.</para>
   </section>
 
-  <section>
+  <section xml:id="lsc_db_props_startup">
     <title>Specifying Database Properties at Server Start</title>
 
     <para>Each database started by a Server has its own URL. When new
@@ -607,12 +607,12 @@ Connection c = DriverManager.getConnection("jdbc:hsqldb:hsql://localhost/xdb;fil
       </itemizedlist>
     </section>
 
-    <section xml:id="lsc_encrypt_connection">
+    <section xml:id="lsc_ssl_connection">
       <title>Encrypting your JDBC connection</title>
 
       <para>At this time, only 1-way, server-cert encryption is tested.</para>
 
-      <section>
+      <section xml:id="lsc_ssl_client">
         <title>Client-Side</title>
 
         <para>Just use one of the following protocol prefixes.</para>
@@ -711,7 +711,7 @@ Connection c = DriverManager.getConnection("jdbc:hsqldb:hsql://localhost/xdb;fil
         docs.</para>
       </section>
 
-      <section>
+      <section xml:id="lsc_ssl_server">
         <title>Server-Side (Listener-Side)</title>
 
         <simpara>Get yourself a <link xlink:href="#lsc_privatekey"> JKS
@@ -780,7 +780,7 @@ Connection c = DriverManager.getConnection("jdbc:hsqldb:hsql://localhost/xdb;fil
       Name</emphasis> of the cert has to be the exact hostname that JDBC
       clients will use in their database URL.</para>
 
-      <section>
+      <section xml:id="lsc_ssl_certificate">
         <title>CA-Signed Cert</title>
 
         <para>I'm not going to tell you how to get a CA-signed SSL
@@ -818,7 +818,7 @@ Connection c = DriverManager.getConnection("jdbc:hsqldb:hsql://localhost/xdb;fil
         program to do the same thing-- just let me know.</para>
       </section>
 
-      <section>
+      <section xml:id="mtc_ssl_certificate_non_ca">
         <title>Non-CA-Signed Cert</title>
 
         <para>Run <literal>man keytool</literal> or see <link

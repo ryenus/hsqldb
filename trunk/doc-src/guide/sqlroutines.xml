@@ -125,7 +125,7 @@
   and invocation are all implemented uniformly for routines written in SQL or
   Java.</para>
 
-  <section>
+  <section xml:id="src_routine_definition">
     <title>Routine Definition</title>
 
     <para>SQL-Invoked Routines, whether PSM or JRT, are defined using a SQL
@@ -321,7 +321,7 @@
     class name&gt; &lt;period&gt; &lt;Java method name&gt; [ &lt;Java
     parameter declaration list&gt; ]</literal></simpara>
 
-    <section>
+    <section xml:id="src_routine_characteristics">
       <title>Routine Characteristics</title>
 
       <para>The <literal>&lt;routine characteristics&gt;</literal> clause
@@ -507,7 +507,7 @@ CREATE FUNCTION an_hour_before_max (e_type INT)
     </section>
   </section>
 
-  <section>
+  <section xml:id="src_psm_routines">
     <title>SQL Language Routines (PSM)</title>
 
     <para>The PSM (Persistent Stored Module) specification extends the SQL
@@ -555,7 +555,7 @@ CREATE FUNCTION an_hour_before_max (e_type INT)
     <literal>&lt;semicolon&gt;</literal>, which is required at the end of some
     statements but not accepted at the end of others.</para>
 
-    <section>
+    <section xml:id="src_advantages">
       <title>Advantages and Disadvantages</title>
 
       <para>SQL Language Routines (PSM) have certain advantages over Java
@@ -598,7 +598,7 @@ CREATE FUNCTION an_hour_before_max (e_type INT)
       </itemizedlist>
     </section>
 
-    <section>
+    <section  xml:id="src_psm_statements">
       <title>Routine Statements</title>
 
       <para>The following SQL Statements can be used only in routines. These
@@ -663,7 +663,7 @@ CREATE FUNCTION an_hour_before_max (e_type INT)
       column reference is used.</para>
     </section>
 
-    <section>
+    <section xml:id="src_psm_compound">
       <title>Compound Statement</title>
 
       <para>A compound statement is enclosed in a BEGIN / END block with
@@ -705,7 +705,7 @@ CREATE FUNCTION an_hour_before_max (e_type INT)
 </programlisting>
     </section>
 
-    <section>
+    <section xml:id="src_psm_table_vars">
       <title>Table Variables</title>
 
       <para>A <literal>&lt;table variable declaration&gt;</literal> defines
@@ -722,7 +722,7 @@ CREATE FUNCTION an_hour_before_max (e_type INT)
 </programlisting>
     </section>
 
-    <section>
+    <section  xml:id="src_psm_vars">
       <title>Variables</title>
 
       <para>A <literal>&lt;variable declaration&gt;</literal> defines the name
@@ -775,7 +775,7 @@ CREATE FUNCTION an_hour_before_max (e_type INT)
   END</programlisting>
     </section>
 
-    <section>
+    <section xml:id="src_psm_cursors">
       <title>Cursors</title>
 
       <para>A <literal>&lt;declare cursor&gt;</literal> statement is used to
@@ -812,7 +812,7 @@ CREATE FUNCTION an_hour_before_max (e_type INT)
 </programlisting>
     </section>
 
-    <section>
+    <section xml:id="src_psm_handlers">
       <title>Handlers</title>
 
       <para>A <literal>&lt;handler declaration&gt;</literal> defines the
@@ -904,7 +904,7 @@ CREATE FUNCTION an_hour_before_max (e_type INT)
       handlers.</para>
     </section>
 
-    <section>
+    <section xml:id="src_psm_assignment">
       <title>Assignment Statement</title>
 
       <para>The SET statement is used for assignment. It can be used flexibly
@@ -935,7 +935,7 @@ CREATE FUNCTION an_hour_before_max (e_type INT)
       <programlisting>SET var1 = SQRT(var2);</programlisting>
     </section>
 
-    <section>
+    <section xml:id="src_psm_select_single">
       <title>Select Statement : Single Row</title>
 
       <para>A special form of SELECT can also be used for assigning values
@@ -965,7 +965,7 @@ CREATE FUNCTION an_hour_before_max (e_type INT)
       <programlisting>SELECT col1, col2 INTO arg1, arg2 FROM atable WHERE id = 10;</programlisting>
     </section>
 
-    <section>
+    <section xml:id="src_formal_parameters">
       <title>Formal Parameters</title>
 
       <para>Each parameter of a procedure can be defined as IN, OUT or INOUT.
@@ -1015,7 +1015,7 @@ CALL the_new_id;
 </programlisting>
     </section>
 
-    <section>
+    <section xml:id="src_psm_iterated_statements">
       <title>Iterated Statements</title>
 
       <para>Various iterated statements can be used in routines. In these
@@ -1075,7 +1075,7 @@ END WHILE loop_label;
 </programlisting>
     </section>
 
-    <section>
+    <section xml:id="src_psm_for_statement">
       <title>Iterated FOR Statement</title>
 
       <para>The <literal>&lt;for statement&gt;</literal> is similar to other
@@ -1138,7 +1138,7 @@ END
 </programlisting>
     </section>
 
-    <section>
+    <section xml:id="src_psm_conditional">
       <title>Conditional Statements</title>
 
       <para>There are two types of CASE ... WHEN statement and the IF ... THEN
@@ -1237,7 +1237,7 @@ END
       statement list&gt;</literal></simpara>
     </section>
 
-    <section>
+    <section xml:id="src_psm_return_statement">
       <title>Return Statement</title>
 
       <para>The RETURN statement is required and used only in functions. The
@@ -1297,7 +1297,7 @@ CREATE FUNCTION an_hour_before_max (e_type INT)
 </programlisting>
     </section>
 
-    <section>
+    <section xml:id="src_psm_control_statements">
       <title>Control Statements</title>
 
       <para>In addition to the RETURN statement, the following statements can
@@ -1322,7 +1322,7 @@ CREATE FUNCTION an_hour_before_max (e_type INT)
       label&gt;</literal></simpara>
     </section>
 
-    <section>
+    <section xml:id="src_psm_exceptions">
       <title>Raising Exceptions</title>
 
       <simpara>Signal and Resignal Statements allow the routine to throw an
@@ -1365,7 +1365,7 @@ CREATE FUNCTION an_hour_before_max (e_type INT)
       &lt;state value&gt;</literal></simpara>
     </section>
 
-    <section>
+    <section xml:id="src_routine_polymorphism">
       <title>Routine Polymorphism</title>
 
       <para>More than one version of a routine can be created.</para>
@@ -1410,7 +1410,7 @@ CREATE FUNCTION an_hour_before_or_now(t TIME)
       as SQL/JRT or SQL/PSM routines.</para>
     </section>
 
-    <section>
+    <section xml:id="src_returning_data">
       <title>Returning Data From Procedures</title>
 
       <para>The OUT or INOUT parameters of a PROCEDURE are used to assign
@@ -1511,7 +1511,7 @@ String lastname = call.getString(3);
       all.</para>
     </section>
 
-    <section>
+    <section xml:id="src_psm_recursive_routines">
       <title>Recursive Routines</title>
 
       <para>Routines can be recursive. Recursive functions are often functions
@@ -1582,7 +1582,7 @@ SELECT * FROM TABLE(child_table(1))
     </section>
   </section>
 
-  <section>
+  <section xml:id="src_jrt_routines">
     <title>Java Language Routines (SQL/JRT)</title>
 
     <para>The general features of SQL-Invoked Routines are shared between PSM
@@ -1730,7 +1730,7 @@ SELECT sinh(doublecolumn) FROM mytable
     construct a JDBCResultSet for this purpose, see the source code for the
     org.hsqldb.jdbc.JDBCArray class.</para>
 
-    <section>
+    <section xml:id="src_jrt_polymorphis">
       <title>Polymorphism</title>
 
       <para>If two versions of the same SQL invoked routine with different
@@ -1784,7 +1784,7 @@ CREATE FUNCTION testquery(i INTEGER)
 </programlisting>
     </section>
 
-    <section>
+    <section xml:id="src_jrt_procedures">
       <title>Java Language Procedures</title>
 
       <para>Java procedures are defined similarly to functions. The
@@ -1886,7 +1886,7 @@ CREATE FUNCTION testquery(i INTEGER)
       the ResultSet objects returned by the procedure.</para>
     </section>
 
-    <section>
+    <section xml:id="src_jrt_static_methods">
       <title>Java Static Methods</title>
 
       <para>The static methods that are used for procedures and functions must
@@ -1985,7 +1985,7 @@ SPECIFIC P2 LANGUAGE JAVA DETERMINISTIC MODIFIES SQL DATA EXTERNAL NAME 'CLASSPA
 </programlisting></para>
     </section>
 
-    <section>
+    <section xml:id="src_jrt_legacy">
       <title>Legacy Support</title>
 
       <para>The legacy HyperSQL statement, <literal>CREATE ALIAS &lt;name&gt;
@@ -2000,7 +2000,7 @@ SPECIFIC P2 LANGUAGE JAVA DETERMINISTIC MODIFIES SQL DATA EXTERNAL NAME 'CLASSPA
       double quoted, fully qualified name of the Java method used.</para>
     </section>
 
-    <section>
+    <section xml:id="src_jrt_access_control">
       <title>Securing Access to Classes</title>
 
       <para>By default, the static methods of any class that is on the
@@ -2033,7 +2033,7 @@ SPECIFIC P2 LANGUAGE JAVA DETERMINISTIC MODIFIES SQL DATA EXTERNAL NAME 'CLASSPA
     </section>
   </section>
 
-  <section>
+  <section xml:id="src_aggregate_functions">
     <title>User Defined Aggregate Functions</title>
 
     <para>HyperSQL adds an extension to the SQL Standard to allow user-defined
@@ -2048,7 +2048,7 @@ SPECIFIC P2 LANGUAGE JAVA DETERMINISTIC MODIFIES SQL DATA EXTERNAL NAME 'CLASSPA
     <para>A user defined aggregate function can be used in SQL statements
     where a predefined aggregate function is allowed.</para>
 
-    <section>
+    <section xml:id="src_aggregate_function_definition">
       <title>Definition of Aggregate Functions</title>
 
       <para>An aggregate function is always defined with 4 parameters. The
@@ -2121,7 +2121,7 @@ SPECIFIC P2 LANGUAGE JAVA DETERMINISTIC MODIFIES SQL DATA EXTERNAL NAME 'CLASSPA
       separate group.</para>
     </section>
 
-    <section>
+    <section xml:id="src_psm_aggregate_functions">
       <title>SQL PSM Aggregate Functions</title>
 
       <para>The example below features a user defined version of the Standard
@@ -2232,7 +2232,7 @@ Susanne Clancy,Michael Clancy,Sylvia Clancy,Bob Clancy,Susanne Clancy,John Clanc
 </programlisting>
     </section>
 
-    <section>
+    <section xml:id="src_jrt_aggregate_functions">
       <title>Java Aggregate Functions</title>
 
       <para>A Java aggregate function is defined similarly to PSM functions,

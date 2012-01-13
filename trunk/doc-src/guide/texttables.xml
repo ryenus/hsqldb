@@ -89,7 +89,7 @@
   <section xml:id="ttc_implementation">
     <title>The Implementation</title>
 
-    <section>
+    <section xml:id="ttc_table_definition">
       <title>Definition of Tables</title>
 
       <para>Text Tables are defined similarly to conventional tables with the
@@ -104,7 +104,7 @@
       <programlisting>   SET TABLE &lt;tablename&gt; SOURCE &lt;quoted_filename_and_options&gt; [DESC]</programlisting>
     </section>
 
-    <section>
+    <section xml:id="ttc_scope">
       <title>Scope and Reassignment</title>
 
       <itemizedlist>
@@ -142,7 +142,7 @@
       </itemizedlist>
     </section>
 
-    <section>
+    <section xml:id="ttc_nulls">
       <title>Null Values in Columns of Text Tables</title>
 
       <itemizedlist>
@@ -157,7 +157,7 @@
       </itemizedlist>
     </section>
 
-    <section>
+    <section xml:id="ttc_configuration">
       <title>Configuration</title>
 
       <para>The default field separator is a comma (,). A different field
@@ -492,7 +492,7 @@
     </itemizedlist>
   </section>
 
-  <section>
+  <section xml:id="trc_transactions">
     <title>Transactions</title>
 
     <para>Text tables fully support transactions. New or changed rows that

@@ -440,7 +440,7 @@
     is the fully qualified class name of the cipher provider. A key is
     represented as a hexadecimal string.</para>
 
-    <section>
+    <section xml:id="mtc_encrypted_create">
       <title>Creating and Accessing an Encrypted Database</title>
 
       <para>First, a key must be created for the desired cipher and
@@ -471,7 +471,7 @@
       crypt_lobs=true must be specified to encrypt the .lobs file.</para>
     </section>
 
-    <section>
+    <section xml:id="mtc_encrypted_speed">
       <title>Speed Considerations</title>
 
       <para>General operations on an encrypted database are performed the same
@@ -482,7 +482,7 @@
       is slower.</para>
     </section>
 
-    <section>
+    <section xml:id="mtc_encrypted_security">
       <title>Security Considerations</title>
 
       <para>Security considerations for encrypted databases have been
@@ -521,7 +521,7 @@
     <para>Database operations can be monitored at different levels using
     internal HyperSQL capabilities or add-ons.</para>
 
-    <section>
+    <section xml:id="mtc_external_monitoring">
       <title>External Statement Level Monitoring</title>
 
       <para>Statement level monitoring allows you to gather statistics about
@@ -538,7 +538,7 @@
       on as a proxy in a much simpler fashion.</para>
     </section>
 
-    <section>
+    <section xml:id="mtc_internal_monitoring">
       <title>Internal Statement Level Monitoring</title>
 
       <para>The internally-generated, individual sql log for the database can
@@ -548,7 +548,7 @@
       use this for debugging. Two levels of sql logging are supported.</para>
     </section>
 
-    <section>
+    <section xml:id="mtc_internal_event_monitoring">
       <title>Internal Event Monitoring</title>
 
       <para>HyperSQL can log important internal events of the engine. These
@@ -576,7 +576,7 @@
       so they can be identified in a multi-database server context.</para>
     </section>
 
-    <section>
+    <section xml:id="mtc_server_monitoring">
       <title>Server Operation Monitoring</title>
 
       <para>A Server or WebServer instance can be started with the property
