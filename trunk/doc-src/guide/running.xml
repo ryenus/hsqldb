@@ -49,7 +49,7 @@
     </legalnotice>
   </info>
 
-  <section xml:id="running_jar-sect">
+  <section xml:id="rgc_hsqldb_jar">
     <title>The HSQLDB Jar</title>
 
     <para>The HSQLDB jar package is located in the /lib directory of the ZIP
@@ -82,7 +82,7 @@
     can be used with any database engine that has a JDBC driver.</para>
   </section>
 
-  <section xml:id="running_tools-sect">
+  <section xml:id="rgc_access_tools">
     <title>Running Database Access Tools</title>
 
     <para>The tools are used for interactive user access to databases,
@@ -122,7 +122,7 @@
     application.</para>
   </section>
 
-  <section xml:id="running_db-sect">
+  <section xml:id="rgc_hsqldb_db">
     <title>A HyperSQL Database</title>
 
     <para>Each HyperSQL database is called a catalog. There are three types of
@@ -216,7 +216,7 @@
     program.</para>
   </section>
 
-  <section xml:id="running_inprocess-sect">
+  <section xml:id="rgc_inprocess">
     <title>In-Process Access to Database Catalogs</title>
 
     <para>In general, JDBC is used for all access to databases. This is done
@@ -291,7 +291,7 @@
     multiple Java processes.</para>
   </section>
 
-  <section xml:id="running_modes-sect">
+  <section xml:id="rgc_server_modes">
     <title>Server Modes</title>
 
     <para>For most applications, <glossterm>in-process</glossterm> access is
@@ -323,7 +323,7 @@
     endterm="listeners-title" xlink:arcrole=""
     xlink:href="#listeners-chapt"></link> chapter.</para>
 
-    <section xml:id="running_hsqlserver-sect">
+    <section xml:id="rgc_hsql_server">
       <title>HyperSQL HSQL Server</title>
 
       <para>This is the preferred way of running a database server and the
@@ -342,7 +342,7 @@
       get a list of available arguments.</para>
     </section>
 
-    <section xml:id="running_httpserver-sect">
+    <section xml:id="rgc_http_server">
       <title>HyperSQL HTTP Server</title>
 
       <para>This method of access is used when the computer hosting the
@@ -364,7 +364,7 @@
       get a list of available arguments.</para>
     </section>
 
-    <section xml:id="running_servlet-sect">
+    <section  xml:id="rgc_http_servlet">
       <title>HyperSQL HTTP Servlet</title>
 
       <para>This method of access also uses the HTTP protocol. It is used when
@@ -387,7 +387,7 @@
       <glossterm>in-process</glossterm>, or using a separate Server</para>
     </section>
 
-    <section xml:id="running_connecting-sect">
+    <section xml:id="rgc_connecting_db">
       <title>Connecting to a Database Server</title>
 
       <para>When a HyperSQL server is running, client programs can connect to
@@ -431,7 +431,7 @@
       instance.</para>
     </section>
 
-    <section xml:id="running_security-sect">
+    <section xml:id="rgc_security">
       <title>Security Considerations</title>
 
       <indexterm significance="preferred">
@@ -469,7 +469,7 @@
       chapter.</para>
     </section>
 
-    <section xml:id="running_multiple_db-sect">
+    <section xml:id="rgc_multiple_db">
       <title>Using Multiple Databases</title>
 
       <para>A server can provide connections to more than one database. In the
@@ -481,7 +481,7 @@
     </section>
   </section>
 
-  <section xml:id="running-data-access-sect">
+  <section xml:id="rgc-data-access">
     <title>Accessing the Data</title>
 
     <para>As shown so far, a <classname>java.sql.Connection</classname> object
@@ -559,7 +559,7 @@
     together with information that is specific to HSQLDB.</para>
   </section>
 
-  <section xml:id="running_closing-sect">
+  <section xml:id="rgc_closing_db">
     <title>Closing the Database</title>
 
     <para>All databases running in different modes can be closed with the
@@ -595,7 +595,7 @@
     recommended for application programs.</para>
   </section>
 
-  <section xml:id="running_newdb-sect">
+  <section xml:id="rgc_new_db">
     <title>Creating a New Database</title>
 
     <para>When a server instance is started, or when a connection is made to

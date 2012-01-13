@@ -2804,7 +2804,7 @@ I D          S
       that row.</para>
     </section>
 
-    <section>
+    <section xml:id="dac_naming">
       <title>Naming</title>
 
       <para>Naming is used to hide the original names of tables or table
@@ -2881,7 +2881,7 @@ SELECT x, y, z FROM atable AS t (u, v, w, x, y, z)  WHERE u + v = w</programlist
       specify which table is being referred to.</simpara>
     </section>
 
-    <section>
+    <section xml:id="dac_grouping_operations">
       <title>Grouping Operations</title>
 
       <indexterm significance="preferred" type="sql">
@@ -3041,7 +3041,7 @@ GEN PAR    CHILD
       variables and, if necessary, recursion.</para>
     </section>
 
-    <section>
+    <section xml:id="dac_query_expression">
       <title>Query Expression</title>
 
       <para>A query expression consists of an optional WITH clause and a query
@@ -3208,10 +3208,10 @@ SELECT a, b FROM atable WHERE d &lt; 5 ORDER BY absum OFFSET 3 LIMIT 2 /* altern
     </section>
   </section>
 
-  <section xml:id="dac_data_changes_statements">
+  <section xml:id="dac_data_change_statements">
     <title>Data Change Statements</title>
 
-    <section>
+    <section xml:id="dac_delete_statement>
       <title>Delete Statement</title>
 
       <indexterm significance="preferred" type="sql">

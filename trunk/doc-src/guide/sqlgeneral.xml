@@ -49,7 +49,7 @@
     </legalnotice>
   </info>
 
-  <section xml:id="sqlgeneral_standards-sect">
+  <section xml:id="sgc_standards">
     <title>Standards Support</title>
 
     <para>HyperSQL 2.0 supports the dialect of SQL defined by SQL standards
@@ -108,7 +108,7 @@
     <classname>org.hsqldb.jdbc.*</classname> classes.</para>
   </section>
 
-  <section xml:id="sqlgeneral_tabletypes-sect">
+  <section xml:id="sgc_data_tables">
     <title>SQL Data and Tables</title>
 
     <para>In an SQL system, all significant data is stored in tables and
@@ -117,7 +117,7 @@
     tables, which are for temporary data, and permanent base tables, which are
     for persistent data.</para>
 
-    <section>
+    <section xml:id="sgc_temp_tables">
       <title>Temporary Tables</title>
 
       <para>Data in TEMPORARY tables is not saved and lasts only for the
@@ -150,7 +150,7 @@
       row count above the setting are stored on disk.</para>
     </section>
 
-    <section>
+    <section xml:id="sgc_persist_tables">
       <title>Persistent Tables</title>
 
       <para>HyperSQL supports the Standard definition of persistent base
@@ -206,7 +206,7 @@
       statements is needed to access different types of table.</para>
     </section>
 
-    <section>
+    <section xml:id="sgc_lob_data">
       <title>Lob Data</title>
 
       <para>Lobs are logically stored in columns of tables. Their physical
@@ -218,7 +218,7 @@
     </section>
   </section>
 
-  <section>
+  <section xml:id="sgc_data_type_guide">
     <title>Short Guide to Data Types</title>
 
     <para>Most other RDBMS's do not conform to the SQL Standard in all areas,
@@ -320,7 +320,7 @@
     and PostgreSQL is translated in these compatibility modes.</para>
   </section>
 
-  <section xml:id="sqlgeneral_types_ops-sect">
+  <section xml:id="sgc_types_ops">
     <title>Data Types and Operations</title>
 
     <para>HyperSQL supports all the types defined by SQL-92, plus BOOLEAN,
@@ -354,7 +354,7 @@
     and / or its parameters are accessible through the methods of
     PreparedStatement.</para>
 
-    <section>
+    <section xml:id="sgc_numeric_types">
       <title>Numeric Types</title>
 
       <indexterm significance="preferred" type="sql">
@@ -530,7 +530,7 @@
       integer&gt;</literal></simpara>
     </section>
 
-    <section>
+    <section xml:id="sgc_boolean_type">
       <title>Boolean Type</title>
 
       <indexterm significance="preferred" type="sql">
@@ -566,7 +566,7 @@
       value, otherwise it is TRUE.</para>
     </section>
 
-    <section>
+    <section xml:id="sgc_char_types">
       <title>Character String Types</title>
 
       <indexterm significance="preferred" type="sql">
@@ -649,7 +649,7 @@ LONGVARCHAR
 </programlisting>
     </section>
 
-    <section>
+    <section xml:id="sgc_binary_types">
       <title>Binary String Types</title>
 
       <indexterm significance="preferred" type="sql">
@@ -710,7 +710,7 @@ LONGVARBINARY
 </programlisting>
     </section>
 
-    <section>
+    <section xml:id="sgc_binary_types">
       <title>Bit String Types</title>
 
       <indexterm significance="preferred" type="sql">
@@ -754,7 +754,7 @@ BIT VARYING(2)
 </programlisting>
     </section>
 
-    <section>
+    <section xml:id="sgc_java_objects">
       <title>Storage and Handling of Java Objects</title>
 
       <indexterm significance="preferred" type="sql">
@@ -785,7 +785,7 @@ BIT VARYING(2)
       <simpara><literal>&lt;java object type&gt; ::= OTHER</literal></simpara>
     </section>
 
-    <section>
+    <section xml:id="sgc_length_precision">
       <title>Type Length, Precision and Scale</title>
 
       <para>In older version of HyperSQL, all table column type definitions
@@ -845,7 +845,7 @@ BIT VARYING(2)
     </section>
   </section>
 
-  <section>
+  <section xml:id="sgc_datetime_types">
     <title>Datetime types</title>
 
     <para>HSQLDB fully supports datetime and interval types and operations,
@@ -1141,7 +1141,7 @@ CAST (&lt;value&gt; AS TIME WITH TIME ZONE)</programlisting>
     default behaviour.</para>
   </section>
 
-  <section>
+  <section xml:id="sgc_interval_typs">
     <title>Interval Types</title>
 
     <indexterm significance="preferred" type="sql">
@@ -1369,7 +1369,7 @@ CURRENT_DATE - 2 DAY /* the date of the day before yesterday */
     default behaviour.</para>
   </section>
 
-  <section>
+  <section xml:id="sgc_array">
     <title>Arrays</title>
 
     <para>Array are a powerful feature of SQL:2008 and can help solve many
@@ -1394,7 +1394,7 @@ CURRENT_DATE - 2 DAY /* the date of the day before yesterday */
     in SELECT or other statements, combined with rows of tables and used in
     routine calls.</para>
 
-    <section>
+    <section xml:id="sgc_array_def">
       <title>Array Definition</title>
 
       <para>The type of a table column, a routine parameter, a variable, or
@@ -1477,7 +1477,7 @@ UPDATE t SET names = ARRAY['LARGE', 'SMALL'] WHERE id &lt; 12 AND scores = ARRAY
       </informalexample>
     </section>
 
-    <section>
+    <section xml:id="sgc_array_ref">
       <title>Array Reference</title>
 
       <para>The most common operations on an array are element reference and
@@ -1520,7 +1520,7 @@ UPDATE t SET scores[2] = 123, names[2] = 'Reds' WHERE id = 10
       <para></para>
     </section>
 
-    <section>
+    <section xml:id="sgc_array_ops">
       <title>Array Operations</title>
 
       <para>Several SQL operations and functions can be used with
@@ -1615,7 +1615,7 @@ UPDATE t SET scores[2] = 123, names[2] = 'Reds' WHERE id = 10
     </section>
   </section>
 
-  <section xml:id="sqlgeneral_constr_indexes-sect">
+  <section xml:id="sgc_index_speed">
     <title>Indexes and Query Speed</title>
 
     <para>HyperSQL supports PRIMARY KEY, UNIQUE and FOREIGN KEY constraints,
@@ -1720,18 +1720,18 @@ UPDATE t SET scores[2] = 123, names[2] = 'Reds' WHERE id = 10
     the string.</para>
 
     <para>Indexes are used for ORDER BY clauses if the same index is used for
-    selection and ordering of rows.</para>
+    selection and ordering of rows. It is possible to force the use of index for ORDER BY.</para>
   </section>
 
-  <section>
+  <section xml:id="sgc_query_opt">
     <title>Query Processing and Optimisation</title>
 
-    <para>HyperSQL 2.2x changes the order of tables in a query in order to
+    <para>HyperSQL 2.2.x changes the order of tables in a query in order to
     optimise processing. This happens only when one of the tables has a
     narrowing condition and reordering does not change the result of the
     query.</para>
 
-    <section>
+    <section xml:id="sgc_indexes_cond">
       <title>Indexes and Conditions</title>
 
       <para>HyperSQL optimises queries to use indexes, for all types of range
@@ -1772,7 +1772,7 @@ UPDATE t SET scores[2] = 123, names[2] = 'Reds' WHERE id = 10
       an index, multiple indexes per table are used.</para>
     </section>
 
-    <section>
+    <section xml:id="sgc_indexes_ops">
       <title>Indexes and Operations</title>
 
       <para>HyperSQL optimises simple row count queries in the form of
@@ -1814,7 +1814,7 @@ UPDATE t SET scores[2] = 123, names[2] = 'Reds' WHERE id = 10
 </programlisting></para>
     </section>
 
-    <section>
+    <section xml:id="sgc_indexes_order">
       <title>Indexes and ORDER BY, OFFSET and LIMIT</title>
 
       <para>HyperSQL can use an index on an ORDER BY clause if all the columns

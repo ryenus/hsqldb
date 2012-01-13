@@ -130,7 +130,7 @@
     described in the <link endterm="accesscontrol-statements-title" os=""
     xlink:href="#accesscontrol-chapt"></link> chapter.</para>
 
-    <section>
+    <section xml:id="dbc_names_references">
       <title>Names and References</title>
 
       <para>The name of a schema object is an
@@ -232,7 +232,7 @@
       collation can be used in an ORDER BY clause.</simpara>
     </section>
 
-    <section>
+    <section xml:id="dbc_distinct_types">
       <title>Distinct Types</title>
 
       <simpara>A distinct, user-defined TYPE is simply based on a built-in
@@ -242,7 +242,7 @@
       <simpara>Distinct types share a name-space with domains.</simpara>
     </section>
 
-    <section>
+    <section xml:id="dbc_domains_info_schema">
       <title>Domains</title>
 
       <simpara>A DOMAIN is a user-defined type, simply based on a built-in
@@ -624,7 +624,7 @@ INSERT INTO movies (starid, movieid, title) VALUES (CURRENT VALUE FOR seq, 10, '
       <para>Assertions share a name-space with constraints</para>
     </section>
 
-    <section>
+    <section xml:id="dbc_triggers">
       <title>Triggers</title>
 
       <simpara>A TRIGGER is a child schema object that always belongs to a
@@ -850,7 +850,7 @@ INSERT INTO movies (starid, movieid, title) VALUES (CURRENT VALUE FOR seq, 10, '
       object.</simpara>
     </section>
 
-    <section>
+    <section xml:id="dbc_commenting">
       <title>Commenting Objects</title>
 
       <indexterm significance="preferred" type="sql">
@@ -1997,7 +1997,7 @@ INSERT INTO t (id, firstname, lastname, fullname) VALUES (2, 'Pink', 'Panther', 
       option is specific to HyperSQL</simpara>
     </section>
 
-    <section>
+    <section xml:id="dbc_view_creation">
       <title>View Creation and Manipulation</title>
 
       <indexterm significance="preferred" type="sql">
@@ -2528,7 +2528,7 @@ alter specific routine zero_pad_01
       <simpara>Destroy an SQL-invoked routine.</simpara>
     </section>
 
-    <section>
+    <section xml:id="dbc_sequence_creation">
       <title>Sequence Creation</title>
 
       <indexterm significance="preferred" type="sql">
@@ -3017,7 +3017,7 @@ alter specific routine zero_pad_01
     are for features that are not reported in any of the views defined by the
     Standard, or for use by JDBC DatabaseMetaData.</para>
 
-    <section>
+    <section xml:id="dbc_char_sets_info_schema">
       <title>Predefined Character Sets, Collations and Domains</title>
 
       <para>The SQL Standard defines a number of character sets and domains in
@@ -3032,7 +3032,7 @@ alter specific routine zero_pad_01
       SCHEMA.</simpara>
     </section>
 
-    <section>
+    <section xml:id="dbc_views_info_schema">
       <title>Views in INFORMATION SCHEMA</title>
 
       <para>HyperSQL supports a vast range of views in the INFORMATION_SCHEMA.
@@ -3046,7 +3046,7 @@ alter specific routine zero_pad_01
       in the next sections.</para>
     </section>
 
-    <section xml:id="dbc_visibility">
+    <section xml:id="dbc_visibility_info_schema">
       <title>Visibility of Information</title>
 
       <para>Users with the special ADMIN role can see the full information on
@@ -3061,7 +3061,7 @@ alter specific routine zero_pad_01
       returned for that column.</para>
     </section>
 
-    <section xml:id="dbc_name_information">
+    <section xml:id="dbc_name_info_schema">
       <title>Name Information</title>
 
       <para>The names of database objects are stored in hierarchical views.
@@ -3093,7 +3093,7 @@ alter specific routine zero_pad_01
       TABLE_PRIVILEGES.</para>
     </section>
 
-    <section xml:id="dbc_data_type_information">
+    <section xml:id="dbc_data_type_info_schema">
       <title>Data Type Information</title>
 
       <para>The INFORMATION_SCHEMA contains comprehensive information on the
@@ -3119,7 +3119,7 @@ alter specific routine zero_pad_01
       the COLUMNS view is needed.</para>
     </section>
 
-    <section xml:id="dbc_product_information">
+    <section xml:id="dbc_product_info_schema">
       <title>Product Information</title>
 
       <para>A group of views, including SQL_IMPLEMENTATION_INFO, SQL_FEATURES,
@@ -3128,7 +3128,7 @@ alter specific routine zero_pad_01
       is empty.</para>
     </section>
 
-    <section xml:id="dbc_operation_information">
+    <section xml:id="dbc_operations_info_schema">
       <title>Operations Information</title>
 
       <para>There are some HyperSQL custom views cover the current state of
@@ -3136,7 +3136,7 @@ alter specific routine zero_pad_01
       SYSTEM_SESSIONINFO and SYSTEM_SESSIONS views.</para>
     </section>
 
-    <section xml:id="dbc_standard_views">
+    <section xml:id="dbc_standard_views_info_schema">
       <title>SQL Standard Views</title>
 
       <para>The following views are defined by the SQL Standard and supported
@@ -3671,7 +3671,7 @@ alter specific routine zero_pad_01
       <para>Information on TABLE and VIEW objects that have been referenced in
       the query expressions of the VIEW objects</para>
 
-      <section xml:id="dbc_hypersql_views">
+      <section xml:id="dbc_hypersql_views_info_schema">
         <title>HyperSQL Custom Views</title>
 
         <para>The following views are specific to HyperSQL. Most of these
