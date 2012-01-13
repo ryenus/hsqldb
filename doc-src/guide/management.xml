@@ -998,14 +998,14 @@
       </itemizedlist>
     </section>
 
-    <section xml:id="mtc_compatibility_firebird">>
+    <section xml:id="mtc_compatibility_firebird">
       <title>Firebird Compatibility</title>
 
       <para>Firebird generally follows the SQL Standard. Applications can be
       ported to HyperSQL without difficulty.</para>
     </section>
 
-    <section xml:id="mtc_compatibility_derby">>
+    <section xml:id="mtc_compatibility_derby">
       <title>Apache Derby Compatibility</title>
 
       <para>Apache Derby supports a smaller subset of the SQL Standard
@@ -1026,7 +1026,7 @@
       </itemizedlist>
     </section>
 
-    <section xml:id="mtc_compatibility_oracle">>
+    <section xml:id="mtc_compatibility_oracle">
       <title>Oracle Compatibility</title>
 
       <para>Recent versions of Oracle support Standard SQL syntax for outer
@@ -1108,7 +1108,7 @@
       </itemizedlist>
     </section>
 
-    <section xml:id="mtc_compatibility_db2">>
+    <section xml:id="mtc_compatibility_db2">
       <title>DB2 Compatibility</title>
 
       <para>DB2 is highly compatible with the SQL Standard (except its lack of
@@ -1154,7 +1154,7 @@
       </itemizedlist>
     </section>
 
-    <section xml:id="mtc_compatibility_mssql">>
+    <section xml:id="mtc_compatibility_mssql">
       <title>MS SQLServer and Sybase Compatibility</title>
 
       <para>SQLServer has some incompatibilities with the Standard syntax. The
@@ -1199,7 +1199,7 @@
     </section>
   </section>
 
-  <section xml:id="mtc_statements">>
+  <section xml:id="mtc_statements">
     <title>Statements</title>
 
     <para>System level statements are listed in this section. Statements that
@@ -1207,7 +1207,7 @@
     effect on the normal operation of HyperSQL. The effects of these
     statements are also discussed in different chapters.</para>
 
-    <section xml:id="mtc_system_operations">>
+    <section xml:id="mtc_system_operations">
       <title>System Operations</title>
 
       <para>These statements perform a system level action.</para>

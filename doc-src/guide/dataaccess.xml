@@ -3211,7 +3211,7 @@ SELECT a, b FROM atable WHERE d &lt; 5 ORDER BY absum OFFSET 3 LIMIT 2 /* altern
   <section xml:id="dac_data_change_statements">
     <title>Data Change Statements</title>
 
-    <section xml:id="dac_delete_statement>
+    <section xml:id="dac_delete_statement">
       <title>Delete Statement</title>
 
       <indexterm significance="preferred" type="sql">

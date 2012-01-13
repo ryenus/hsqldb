@@ -576,7 +576,7 @@ Connection c = DriverManager.getConnection("jdbc:hsqldb:hsql://localhost/xdb;fil
 
         <listitem>
           <para>If Java 2.x or 3.x, then you will need to <link
-          xlink:href="#jsse-sect">install JSSE</link>. Your server and/or
+          xlink:href="#lsc_jsse">install JSSE</link>. Your server and/or
           client will start up much slower than that of Java 4.x users.
           Client-side users will not be able to use the https: JDBC protocol
           (because the https protocol handler is not implemented in 2.x/3.x
@@ -584,7 +584,7 @@ Connection c = DriverManager.getConnection("jdbc:hsqldb:hsql://localhost/xdb;fil
         </listitem>
 
         <listitem>
-          <para>A <link xlink:href="#privatekey-sect">JKS keystore containing
+          <para>A <link xlink:href="#lsc_privatekey">JKS keystore containing
           a private key</link>, in order to run a Listener.</para>
         </listitem>
 
@@ -714,7 +714,7 @@ Connection c = DriverManager.getConnection("jdbc:hsqldb:hsql://localhost/xdb;fil
       <section>
         <title>Server-Side (Listener-Side)</title>
 
-        <simpara>Get yourself a <link xlink:href="#privatekey-sect"> JKS
+        <simpara>Get yourself a <link xlink:href="#lsc_privatekey"> JKS
         keystore containing a private key</link>. Then set properties
         <varname>server.tls</varname>,
         <varname>system.javax.net.ssl.keyStore</varname> and

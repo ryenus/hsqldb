@@ -440,7 +440,7 @@
 
       <para>When a HyperSQL server is run, network access should be adequately
       protected. Source IP addresses may be restricted by use of our <link
-      xlink:href="#listeners_acl-sect">Access Control List feature</link>,
+      xlink:href="#lsc_acl">Access Control List feature</link>,
       network filtering software, firewall software, or standalone firewalls.
       Only secure passwords should be used-- most importantly, the password
       for the default system user should be changed from the default empty
@@ -451,8 +451,8 @@
       also apply to HyperSQL servers run with the HTTP protocol.</para>
 
       <para>HyperSQL provides two optional security mechanisms. The <link
-      xlink:href="#listeners_tls-sect">encrypted SSL protocol</link>, and
-      <link xlink:href="#listeners_acl-sect">Access Control Lists</link>. Both
+      xlink:href="#lsc_tls">encrypted SSL protocol</link>, and
+      <link xlink:href="#lsc_acl">Access Control Lists</link>. Both
       mechanisms can be specified when running the Server or WebServer. On the
       client, the URL to connect to an SSL server is slightly
       different:</para>
