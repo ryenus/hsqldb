@@ -122,7 +122,7 @@
     Standard.</para>
   </section>
 
-  <section xml:id="bfc_string-binary-functions">
+  <section xml:id="bfc_string_binary_functions">
     <title>String and Binary String Functions</title>
 
     <para>In SQL, there are three kinds of string: character, binary and bit.
@@ -669,7 +669,7 @@
     <literal>&lt;char value expr&gt;</literal> . (Foundation)</para>
   </section>
 
-  <section xml:id="builtin_functions_numeric-sect">
+  <section xml:id="builtin_functions_numeric_sect">
     <title>Numeric Functions</title>
 
     <indexterm significance="preferred" type="sql">
@@ -1120,12 +1120,12 @@ WIDTH_BUCKET( 200, 10, 110, 10)
 </programlisting>
   </section>
 
-  <section xml:id="bfc_datetime-functions">
+  <section xml:id="bfc_datetime_functions">
     <title>Date Time and Interval Functions</title>
 
     <para>Functions to report the time zone.</para>
 
-    <section>
+    <section xml:id="bfc_timezone_functions">
       <title>Functions to Report the Time Zone.</title>
 
       <indexterm significance="preferred" type="sql">
@@ -1163,7 +1163,7 @@ WIDTH_BUCKET( 200, 10, 110, 10)
       TO MINUTE value. (HyperSQL)</para>
     </section>
 
-    <section>
+    <section xml:id="bfc_current_datetime">
       <title>Functions to Report the Current Datetime</title>
 
       <indexterm significance="preferred" type="sql">
@@ -1287,7 +1287,7 @@ WIDTH_BUCKET( 200, 10, 110, 10)
       </literal>(HyperSQL)</para>
     </section>
 
-    <section>
+    <section xml:id="bfc_extract_datetime">
       <title>Functions to Extract an Element of a Datetime</title>
 
       <indexterm significance="preferred" type="sql">
@@ -1530,7 +1530,7 @@ WIDTH_BUCKET( 200, 10, 110, 10)
       MINUTE data type. (Foundation with HyperSQL extensions)</para>
     </section>
 
-    <section>
+    <section xml:id="bfc_datetime_arithmetic">
       <title>Functions for Datetime Arithmatic</title>
 
       <indexterm significance="preferred" type="sql">
@@ -1674,7 +1674,7 @@ TRUNC ( TIMESTAMP'2008-08-01 20:30:40', 'YYYY' )
 </programlisting>
     </section>
 
-    <section>
+    <section xml:id="bfc_datetime_format">
       <title>Functions to Convert or Format a Datetime</title>
 
       <indexterm significance="preferred" type="sql">
@@ -1936,7 +1936,7 @@ TIMESTAMP '2008-11-22 20:30:40.000000'
     </section>
   </section>
 
-  <section xml:id="bfc_array-functions">
+  <section xml:id="bfc_array_functions">
     <title>Array Functions</title>
 
     <para>Array functions are specialised functions with ARRAY parameters or
@@ -2060,7 +2060,7 @@ D          I
 </programlisting>
   </section>
 
-  <section>
+  <section xml:id="bfc_general_functions">
     <title>General Functions</title>
 
     <para>General functions can take different types of arguments. Some

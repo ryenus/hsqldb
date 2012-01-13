@@ -45,7 +45,7 @@
     </legalnotice>
   </info>
 
-  <section>
+  <section xml:id="trc_overview">
     <title>Overview</title>
 
     <simpara>Trigger functionality first appeared in SQL:1999. Triggers embody
@@ -89,7 +89,7 @@
     A trigger can be specified to activate before or after the action has been
     performed.</simpara>
 
-    <section>
+    <sectionxml:id="trc_before_triggers">
       <title>BEFORE Triggers</title>
 
       <simpara>A trigger that is declared as BEFORE DELETE cannot modify the
@@ -109,7 +109,7 @@
       strings, CHECK constraints, and FOREIGN key constraints.</simpara>
     </section>
 
-    <section>
+    <sectionxml:id="trc_after_triggers">
       <title>AFTER Triggers</title>
 
       <simpara>AFTER triggers can also perform additional data changes, for
@@ -118,7 +118,7 @@
       the INSERT or UPDATE action.</simpara>
     </section>
 
-    <section>
+    <section xml:id="trc_instead_of_triggers">
       <title>INSTEAD OF Triggers</title>
 
       <simpara>A trigger that is declared on a VIEW, is an INSTEAD OF trigger.
@@ -133,13 +133,13 @@
     </section>
   </section>
 
-  <section>
+  <section xml:id="trc_trigger_props">
     <title>Trigger Properties</title>
 
     <para>A trigger is declared on a specific table or view. Various trigger
     properties determine when the trigger is executed and how.</para>
 
-    <section>
+    <section xml:id="trc_trigger_event">
       <title>Trigger Event</title>
 
       <para>The trigger event specifies the type of SQL statement that causes
@@ -160,7 +160,7 @@
       one of the columns specified in its SET statements.</para>
     </section>
 
-    <section>
+    <section xml:id="trc_trigger_granularity">
       <title>Granularity</title>
 
       <para>A statement level trigger is performed once for the executed SQL
@@ -184,7 +184,7 @@
       trigger.</para>
     </section>
 
-    <section>
+    <section xml:id="trc_trigger_action_time">
       <title>Trigger Action Time</title>
 
       <para>A trigger is executed BEFORE, AFTER or INSTEAD OF the trigger
@@ -208,7 +208,7 @@
       trigger.</para>
     </section>
 
-    <section>
+    <section xml:id="trc_row_references">
       <title>References to Rows</title>
 
       <para>If the old rows or new rows are referenced in the SQL statements
@@ -221,7 +221,7 @@
       old or new rows are qualified with the specified names.</para>
     </section>
 
-    <section>
+    <section xml:id="trc_trigger_condition">
       <title>Trigger Condition</title>
 
       <para>The WHEN clause can specify a condition for the columns of the row
@@ -234,7 +234,7 @@
       activated at all.</para>
     </section>
 
-    <section>
+    <section xml:id="trc_trigger_action_sql">
       <title>Trigger Action in SQL</title>
 
       <para>The trigger action specifies what the trigger does when it is
@@ -276,7 +276,7 @@
 </programlisting>
     </section>
 
-    <section>
+    <section xml:id="trc_trigger_action_java">
       <title>Trigger Action in Java</title>
 
       <para>A trigger action can be written as a Java class that implements
@@ -362,7 +362,7 @@
     </section>
   </section>
 
-  <section>
+  <section xml:id="trc_trigger_creation">
     <title>Trigger Creation</title>
 
     <indexterm significance="preferred" type="sql">

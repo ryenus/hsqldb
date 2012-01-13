@@ -47,7 +47,7 @@
     </keywordset>
   </info>
 
-  <section xml:id="unix_purpose-sect">
+  <section xml:id="uxc_purpose">
     <title>Purpose</title>
 
     <simpara>This chapter explains how to quickly install, run, and use a
@@ -71,7 +71,7 @@
     insist on using the inferior C-shells will need to convert.</simpara>
   </section>
 
-  <section xml:id="unix_install-sect">
+  <section xml:id="uxc_install">
     <title>Installation</title>
 
     <simpara>Go to <link
@@ -224,7 +224,7 @@
     and see if it works, or build your own.</simpara>
 
     <simpara>To use the supplied <filename>hsqldb.jar</filename>, just skip to
-    the <link xlink:href="#unix_cat_setup-sect"> next section of this
+    the <link xlink:href="#unix_cat_setup"> next section of this
     document</link>. Otherwise build a new
     <filename>hsqldb.jar</filename>.</simpara>
 
@@ -281,7 +281,7 @@
     settings.</simpara>
   </section>
 
-  <section xml:id="unix_cat_setup-sect">
+  <section xml:id="uxc_cat_setup">
     <title>Setting up a HyperSQL Persistent Database Catalog and a HyperSQL
     Network Listener</title>
 
@@ -358,7 +358,7 @@
     </procedure>
   </section>
 
-  <section xml:id="unix_access-sect">
+  <section xml:id="uxc_access">
     <title>Accessing your Database</title>
     <simpara>
       We're going to use SqlTool to access the database, so you will need the
@@ -436,7 +436,7 @@
     other <classname>SqlTool</classname> features.</simpara>
   </section>
 
-  <section xml:id="unix_addl_accts-sect">
+  <section xml:id="uxc_addl_accts">
     <title>Create additional Accounts</title>
 
     <simpara>Connect to the database as SA (or any other Administrative user)
@@ -479,7 +479,7 @@
     </simpara>
   </section>
 
-  <section xml:id="unix_shutdown-sect">
+  <section xml:id="uxc_shutdown">
     <title>Shutdown</title>
 
     <para>Do a clean database shutdown when you are finished with the database
@@ -491,7 +491,7 @@
     all served database catalogs are shut down.</para>
   </section>
 
-  <section xml:id="unix_daemon-sect">
+  <section xml:id="uxc_daemon">
     <title>Running Hsqldb as a System Daemon</title>
 
     <indexterm significance="preferred">
@@ -533,7 +533,7 @@
     start or stop HSQLDB. (I.e., not just at system bootup or
     shutdown).</simpara>
 
-    <section>
+    <section xml:id="uxc_init_script_portability">
       <title>Portability of <filename>hsqldb</filename> init script</title>
 
       <simpara>The primary design criterion of the init script is portability.
@@ -550,7 +550,7 @@
       feedback.</simpara>
     </section>
 
-    <section>
+    <section xml:id="uxc_init_script_setup">
       <title>Init script Setup Procedure</title>
 
       <simpara>The strategy taken here is to get the init script to run your
@@ -649,8 +649,8 @@
 
           <simpara>Re-run the script with each of the possible arguments to
           really test it good. If anything doesn't work right, then see the
-          <link endterm="unix_inittrouble-title"
-          xlink:href="#unix_inittrouble-sect"></link> section.</simpara>
+          <link endterm="uxc_inittrouble-title"
+          xlink:href="#unix_inittrouble"></link> section.</simpara>
         </step>
 
         <step>
@@ -693,8 +693,8 @@
       <varname>INVOC_ADDL_ARGS</varname> items).</simpara>
     </section>
 
-    <section xml:id="unix_inittrouble-sect">
-      <title xml:id="unix_inittrouble-title">Troubleshooting the Init
+    <section xml:id="uxc_inittrouble">
+      <title xml:id="uxc_inittrouble-title">Troubleshooting the Init
       Script</title>
 
       <simpara>Definitely look at the init script log file, which is at an
@@ -740,7 +740,7 @@
     </section>
   </section>
 
-  <section xml:id="unix_upgrade-sect">
+  <section xml:id="uxc_upgrade">
     <title>Upgrading</title>
 
     <simpara>This section is for users who are using our UNIX init script, and
