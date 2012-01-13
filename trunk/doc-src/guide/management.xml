@@ -374,15 +374,16 @@
       <title>Making Offline Backups</title>
 
       <para>To back up an offline catalog, the catalog must be in shut down
-      state. You will run a Java command like this <example>
+      state. You will run a Java command like this. In this example, the
+      database is named dbname and is in the dbdir directory. The backup is
+      saved to a file named backup.tar in the tardir directory.<example>
           <title>Offline Backup Example</title>
 
-          <screen>  java -cp path/to/hsqldb.jar org.hsqldb.lib.tar.DbBackup --save  \
-  tar/path.tar db/base/path</screen>
-        </example>where <filename>tar/path.tar</filename> is a file path to
-      the <literal>*.tar</literal> or <literal>*.tar.gz</literal> file to be
-      created, and <filename>db/base/path</filename> is the file path to the
-      catalog file base name (in same fashion as in
+          <screen>  java -cp hsqldb.jar org.hsqldb.lib.tar.DbBackup --save tardir/backup.tar dbdir/dbname</screen>
+        </example>where <filename>tardir/backup.tar</filename> is a file path
+      to the <literal>*.tar</literal> or <literal>*.tar.gz</literal> file to
+      be created in your file system, and <filename>dbdir/dbname</filename> is
+      the file path to the catalog file base name (in same fashion as in
       <varname>server.database.*</varname> settings and JDBC URLs with catalog
       type <glossterm>file:</glossterm>.</para>
     </section>
@@ -396,7 +397,7 @@
       <example>
           <title>Listing a Backup with DbBackup</title>
 
-          <screen>  java -cp path/to/hsqldb.jar org.hsqldb.lib.tar.DbBackup --list tar/path.tar</screen>
+          <screen>  java -cp hsqldb.jar org.hsqldb.lib.tar.DbBackup --list tardir/backup.tar</screen>
         </example>You can also give regular expressions at the end of the
       command line if you are only interested in some of the file entries in
       the backup. Note that these are real regular expressions, not shell
@@ -415,12 +416,11 @@
       command line to restore a catalog from a backup. <example>
           <title>Restoring a Backup with DbBackup</title>
 
-          <screen>  java -cp path/to/hsqldb.jar org.hsqldb.lib.tar.DbBackup --extract  \
-      tar/path.tar db/dir</screen>
-        </example>where <filename>tar/path.tar</filename> is a file path to
-      the *.tar or *.tar.gz file to be read, and <filename>db/dir</filename>
+          <screen>  java -cp hsqldb.jar org.hsqldb.lib.tar.DbBackup --extract tardir/backup.tar dbdir</screen>
+        </example>where <filename>tardir/backup.tar</filename> is a file path
+      to the *.tar or *.tar.gz file to be read, and <filename>dbdir</filename>
       is the target directory to extract the catalog files into. Note that
-      <filename>db/dir</filename> specifies a directory path, without the
+      <filename>dbdir</filename> specifies a directory path, without the
       catalog file base name. The files will be created with the names stored
       in the tar file (and which you can see as described in the preceding
       section).</para>
@@ -868,7 +868,7 @@
 
         <listitem>
           <para>You may need to use <literal>SET DATABASE SQL TDC { DELETE |
-          UPDATE }</literal> FALSE statements. </para>
+          UPDATE }</literal> FALSE statements.</para>
         </listitem>
       </itemizedlist>
     </section>

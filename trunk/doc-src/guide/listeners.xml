@@ -513,7 +513,10 @@ Connection c = DriverManager.getConnection("jdbc:hsqldb:hsql://localhost/xdb;fil
     p.setProperty("server.database.0","file:/opt/db/accounts;hsqldb.default_table_type=cached;sql.enforce_names=true");
 </programlisting>
 
-    <para> specified in the </para>
+    <para>The specified properties apply only to a new database. They have no
+    effect on an existing database apart from a few properties such as
+    readonly listed in the <link endterm="dbproperties-title"
+    xlink:href="#dbproperties-chapt"></link> chapter.</para>
   </section>
 
   <section xml:id="lsc_tls">
@@ -584,8 +587,8 @@ Connection c = DriverManager.getConnection("jdbc:hsqldb:hsql://localhost/xdb;fil
         </listitem>
 
         <listitem>
-          <para>A <link xlink:href="#lsc_privatekey">JKS keystore containing
-          a private key</link>, in order to run a Listener.</para>
+          <para>A <link xlink:href="#lsc_privatekey">JKS keystore containing a
+          private key</link>, in order to run a Listener.</para>
         </listitem>
 
         <listitem>
