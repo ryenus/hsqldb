@@ -168,20 +168,19 @@ public class Error {
      * @see HsqlException#HsqlException(Throwable,String, String, int)
      * @return an <code>HsqlException</code>
      */
-    public static HsqlException error(String message, String sqlState, int i) {
+    public static HsqlException error(String message, String sqlState) {
 
-        if (message == null) {
-            int code = getCode(sqlState);
+        int code = getCode(sqlState);
 
-            if (code >= 0) {
-                message = getMessage(code);
-                i       = code;
-            } else {
-                message = getMessage(ErrorCode.X_45000);
-            }
+        if (code < 1000) {
+            code = ErrorCode.X_45000;
         }
 
-        return new HsqlException(null, message, sqlState, i);
+        if (message == null) {
+            message = getMessage(code);
+        }
+
+        return new HsqlException(null, message, sqlState, code);
     }
 
     /**
@@ -305,7 +304,9 @@ public class Error {
             Field[] fields = ErrorCode.class.getDeclaredFields();
 
             for (int i = 0; i < fields.length; i++) {
-                if (fields[i].getName().endsWith(sqlState)) {
+                String name = fields[i].getName();
+
+                if (name.length() == 7 && name.endsWith(sqlState)) {
                     return fields[i].getInt(ErrorCode.class);
                 }
             }
