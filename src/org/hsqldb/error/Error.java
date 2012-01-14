@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2010, The HSQL Development Group
+/* Copyright (c) 2001-2011, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,6 +31,8 @@
 
 package org.hsqldb.error;
 
+import java.lang.reflect.Field;
+
 import org.hsqldb.HsqlException;
 import org.hsqldb.lib.StringUtil;
 import org.hsqldb.resources.BundleHandler;
@@ -41,7 +43,7 @@ import org.hsqldb.result.Result;
  *
  * @author Loic Lefevre
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 1.9.0
+ * @version 2.2.7
  * @since 1.9.0
  */
 public class Error {
@@ -167,6 +169,18 @@ public class Error {
      * @return an <code>HsqlException</code>
      */
     public static HsqlException error(String message, String sqlState, int i) {
+
+        if (message == null) {
+            int code = getCode(sqlState);
+
+            if (code >= 0) {
+                message = getMessage(code);
+                i       = code;
+            } else {
+                message = getMessage(ErrorCode.X_45000);
+            }
+        }
+
         return new HsqlException(null, message, sqlState, i);
     }
 
@@ -283,5 +297,20 @@ public class Error {
         if (TRACESYSTEMOUT) {
             System.out.println(message);
         }
+    }
+
+    public static int getCode(String sqlState) {
+
+        try {
+            Field[] fields = ErrorCode.class.getDeclaredFields();
+
+            for (int i = 0; i < fields.length; i++) {
+                if (fields[i].getName().endsWith(sqlState)) {
+                    return fields[i].getInt(ErrorCode.class);
+                }
+            }
+        } catch (IllegalAccessException e) {}
+
+        return -1;
     }
 }

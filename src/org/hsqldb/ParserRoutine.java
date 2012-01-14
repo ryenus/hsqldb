@@ -49,7 +49,7 @@ import org.hsqldb.types.Types;
  * Parser for SQL stored procedures and functions - PSM
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.1.1
+ * @version 2.2.7
  * @since 1.9.0
  */
 public class ParserRoutine extends ParserDML {
@@ -994,24 +994,24 @@ public class ParserRoutine extends ParserDML {
         }
     }
 
-/*
-    <SQL control statement> ::=
-    <call statement>
-    | <return statement>
+    /*
+        <SQL control statement> ::=
+        <call statement>
+        | <return statement>
 
-    <compound statement>
-    <case statement>
-    <if statement>
-    <iterate statement>
-    <leave statement>
-    <loop statement>
-    <while statement>
-    <repeat statement>
-   <for statement>
-   <assignment statement> SET (,,,) = (,,,) or SET a = b
+        <compound statement>
+        <case statement>
+        <if statement>
+        <iterate statement>
+        <leave statement>
+        <loop statement>
+        <while statement>
+        <repeat statement>
+       <for statement>
+       <assignment statement> SET (,,,) = (,,,) or SET a = b
 
 
-*/
+     */
     private Object[] readLocalDeclarationList(Routine routine,
             StatementCompound context) {
 
@@ -2052,12 +2052,23 @@ public class ParserRoutine extends ParserDML {
                                     StatementCompound context,
                                     HsqlName label) {
 
+        String sqlState;
+        String message = null;
+
         readThis(Tokens.SIGNAL);
         readThis(Tokens.SQLSTATE);
 
-        String sqlState = parseSQLStateValue();
+        sqlState = parseSQLStateValue();
+
+        if (readIfThis(Tokens.SET)) {
+            readThis(Tokens.MESSAGE_TEXT);
+            readThis(Tokens.EQUALS);
+
+            message = readQuotedString();
+        }
+
         StatementSimple cs = new StatementSimple(StatementTypes.SIGNAL,
-            sqlState);
+            sqlState, message);
 
         return cs;
     }
@@ -2067,15 +2078,23 @@ public class ParserRoutine extends ParserDML {
                                       HsqlName label) {
 
         String sqlState = null;
+        String message  = null;
 
         readThis(Tokens.RESIGNAL);
 
         if (readIfThis(Tokens.SQLSTATE)) {
             sqlState = parseSQLStateValue();
+
+            if (readIfThis(Tokens.SET)) {
+                readThis(Tokens.MESSAGE_TEXT);
+                readThis(Tokens.EQUALS);
+
+                message = readQuotedString();
+            }
         }
 
         StatementSimple cs = new StatementSimple(StatementTypes.RESIGNAL,
-            sqlState);
+            sqlState, message);
 
         return cs;
     }

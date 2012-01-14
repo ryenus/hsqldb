@@ -41,12 +41,13 @@ import org.hsqldb.result.Result;
  * Implementation of Statement for simple PSM control statements.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.0.1
+ * @version 2.2.7
  * @since 1.9.0
  */
 public class StatementSimple extends Statement {
 
     String   sqlState;
+    String   message;
     HsqlName label;
 
     //
@@ -62,13 +63,14 @@ public class StatementSimple extends Statement {
         this.label             = label;
     }
 
-    StatementSimple(int type, String sqlState) {
+    StatementSimple(int type, String sqlState, String message) {
 
         super(type, StatementTypes.X_SQL_CONTROL);
 
         references             = new OrderedHashSet();
         isTransactionStatement = false;
         this.sqlState          = sqlState;
+        this.message           = message;
     }
 
     public String getSQL() {
@@ -140,9 +142,7 @@ public class StatementSimple extends Statement {
             /** @todo - check sqlState against allowed values */
             case StatementTypes.SIGNAL :
             case StatementTypes.RESIGNAL :
-                HsqlException ex =
-                    Error.error("sql routine SIGNAL or RESIGNAL", sqlState,
-                                -1);
+                HsqlException ex = Error.error(message, sqlState, -1);
 
                 return Result.newErrorResult(ex);
 
