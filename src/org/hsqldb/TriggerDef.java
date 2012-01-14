@@ -46,6 +46,7 @@ import org.hsqldb.rights.Grantee;
 // fredt@users 20040430 - changes by mattshaw@users to allow termination of the
 // trigger thread -
 // fredt@users - updated for v. 2.x
+
 /**
  *  Represents an HSQLDB Trigger definition. <p>
  *
@@ -414,13 +415,17 @@ public class TriggerDef implements Runnable, SchemaObject {
     }
 
     public String getOldTransitionRowName() {
+
         return rangeVars[OLD_ROW] == null ? null
-                                          : rangeVars[OLD_ROW].getTableAlias().name;
+                                          : rangeVars[OLD_ROW].getTableAlias()
+                                              .name;
     }
 
     public String getNewTransitionRowName() {
+
         return rangeVars[NEW_ROW] == null ? null
-                                          : rangeVars[NEW_ROW].getTableAlias().name;
+                                          : rangeVars[NEW_ROW].getTableAlias()
+                                              .name;
     }
 
     public String getOldTransitionTableName() {

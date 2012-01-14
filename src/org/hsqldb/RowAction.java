@@ -105,11 +105,7 @@ public class RowAction extends RowActionBase {
         this.table           = table;
         this.store           = table.getRowStore(session);
         this.isMemory        = row.isMemory();
-
-        if (row.isMemory()) {
-            this.memoryRow = row;
-        }
-
+        this.memoryRow       = row;
         this.rowId           = row.getPos();
         this.changeColumnMap = colMap;
     }
