@@ -150,7 +150,7 @@
       <listitem>
         <informalexample>
           <simpara>The /*s*/ option stands for silent. It is used for
-          executing quries regardless of results. Used for preparation of
+          executing queries regardless of results. Used for preparation of
           tests, not for actual tests.</simpara>
 
           <programlisting>/*s*/ Any SQL statement - errors are ignored</programlisting>
@@ -179,8 +179,8 @@
 
       <listitem>
         <informalexample>
-          <simpara>The /*e*/ option asserts that the given query results in an
-          erros. It is mainly used for testing the error detection
+          <simpara>The /*e*/ option asserts that the given query results is an
+          error. It is mainly used for testing the error detection
           capabilities of the engine. The SQL State of the expected error can
           be defined, for example /*e42578*/, to verify the returned error.
           This option can be used with syntactically valid queries to assert a
@@ -249,7 +249,7 @@
       </listitem>
 
       <listitem>
-        <simpara>The /*p ENFORCE_SEQUENC WAITER_NAME*/ directive is the peer
+        <simpara>The /*p ENFORCE_SEQUENCE WAITER_NAME*/ directive is the peer
         directive to /*w*/, which causes a waiting thread to
         Proceed.</simpara>
 
@@ -341,7 +341,7 @@
       connection you are about to make. You can then access the connection in
       future sessions. To save a connection setting, enter a name in the
       Setting Name box before clicking on the OK button. Next time the
-      connection dialogue is displayed, the drop-down box labeled Recent will
+      connection dialogue is displayed, the drop-down box labelled Recent will
       include the name for all the saved connection settings. When you select
       a name, the individual settings are displayed in the appropriate
       boxes.</para>
@@ -490,7 +490,7 @@
         </step>
 
         <step>
-          <simpara>For now on, whenver you are going to run DatabaseManager*,
+          <simpara>For now on, whenever you are going to run DatabaseManager*,
           make sure that you have this <filename>hsqldbutil.jar</filename> as
           the first item in your <varname>CLASSPATH</varname>.</simpara>
         </step>

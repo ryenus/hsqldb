@@ -100,13 +100,13 @@
     </simpara></listitem></varlistentry>
     <varlistentry><term>*DSV_SKIP_PREFIX</term><listitem><simpara>
           Literal string (which may contain character escapes).
-          Specifies comment delimeter character or string in DSV or CSV files.
+          Specifies comment delimiter character or string in DSV or CSV files.
           Run \x? to see default value and details.
     </simpara></listitem></varlistentry>
     <varlistentry><term>*DSV_TRIM_ALL</term><listitem><simpara>
           Boolean.
           Trim leading and trailing white space from every cell in
-          CSV or DSV file upon mport.
+          CSV or DSV file upon import.
           Run \x? to see default value and details.
     </simpara></listitem></varlistentry>
     <varlistentry><term>*DSV_TARGET_FILE</term><listitem><simpara>
