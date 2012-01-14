@@ -193,7 +193,7 @@
       <para>With all-in-memory databases, both MEMORY table and CACHED table
       declarations are treated as declarations for non-persistent memory
       tables. In the latest versions of HyperSQL, TEXT table declarations are
-      allowed in all-in-imemory databases.</para>
+      allowed in all-in-memory databases.</para>
 
       <para>The default type of tables resulting from future CREATE TABLE
       statements can be specified with the SQL command:</para>
@@ -221,7 +221,7 @@
   <section xml:id="sgc_data_type_guide">
     <title>Short Guide to Data Types</title>
 
-    <para>Most other RDBMS's do not conform to the SQL Standard in all areas,
+    <para>Most other RDBMS do not conform to the SQL Standard in all areas,
     but they are gradually moving towards Standard conformance. When switching
     from another SQL dialect, the following should be considered:</para>
 
@@ -315,7 +315,7 @@
     </itemizedlist>
 
     <para>HyperSQL 2.2.x has several compatibility modes which allow the type
-    names that are used by other RDBM's to be accepted and translated into the
+    names that are used by other RDBMS to be accepted and translated into the
     closest SQL Standard type. For example the type TEXT, supported by MySQL
     and PostgreSQL is translated in these compatibility modes.</para>
   </section>
@@ -1567,7 +1567,7 @@ UPDATE t SET scores[2] = 123, names[2] = 'Reds' WHERE id = 10
       expression&gt; &lt;right paren&gt;</literal></para>
 
       <para>The ARRAY_SORT function returns a sorted copy of an array. NULL
-      elements apprear at the beginning of the new array. This function is a
+      elements appear at the beginning of the new array. This function is a
       HyperSQL extension and not part of the SQL Standard.</para>
 
       <para><emphasis>CAST</emphasis></para>

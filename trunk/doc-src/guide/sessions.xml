@@ -423,7 +423,7 @@
       SERIALIZABLE.</para>
 
       <para>The MVCC model is not covered directly by the Standard. Research
-      has established that the READ CONSISTENCY level fulfills the
+      has established that the READ CONSISTENCY level fulfils the
       requirements of (and is stronger than) the READ COMMITTED level. The
       SNAPSHOT ISOLATION level is stronger than the READ CONSISTENCY level. It
       avoids the three anomalies defined by the Standard, and is therefore

@@ -408,7 +408,7 @@
     server.dbname.0=accounts
 
     server.database.1=file:/opt/db/mydb
-    server.dbname.1=enrollments
+    server.dbname.1=enrolments
 
     server.database.2=mem:adatabase
     server.dbname.2=quickdb</programlisting>
@@ -417,7 +417,7 @@
     file indicates that the server provides access to 3 different databases.
     Two of the databases are file-based, while the third is all-in-memory. The
     aliases for the databases that the users connect to are
-    <literal>accounts</literal>, <literal>enrollments</literal> and
+    <literal>accounts</literal>, <literal>enrolments</literal> and
     <literal>quickdb</literal>.</para>
 
     <para>All the above properties and their values can be specified on the
@@ -485,7 +485,7 @@
     this, the next connection to the specified alias will connect to the same
     database. The database path can also point to a mem: database. If you use
     database properties on the URL, these properties are used when the new
-    database is created. If no database proprties are used on the URL, you can
+    database is created. If no database properties are used on the URL, you can
     also specify the path with filepath=&lt;path&gt;. Examples below:</para>
 
     <programlisting>Connection c = DriverManager.getConnection("jdbc:hsqldb:hsql://localhost/xdb;file:C:/files/mydatabase", "SA", "");

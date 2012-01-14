@@ -466,7 +466,7 @@
     <para><literal>REGEXP_SUBSTRING_ARRAY ( &lt;char value expr&gt;,
     &lt;regular expression&gt; ) </literal></para>
 
-    <para>Returns all the reqions in the the <literal>&lt;char value
+    <para>Returns all the regions in the the <literal>&lt;char value
     expr&gt;</literal> that match the <literal>&lt;regular
     expression&gt;</literal>. The <literal>&lt;regular
     expression&gt;</literal> is defined according to Java language regular
@@ -500,7 +500,7 @@
     2&gt;</literal> has been replaced with a copy of <literal>&lt;char value
     expr 3&gt;</literal>. If the function is called with just two arguments,
     the &lt;char value expr 3&gt; defaults to the empty string and calling the
-    function simply removes the occurences of <literal>&lt;char value expr
+    function simply removes the occurrences of <literal>&lt;char value expr
     2&gt;</literal> from the first string.(JDBC)</para>
 
     <indexterm significance="preferred" type="sql">
@@ -1296,7 +1296,7 @@ WIDTH_BUCKET( 200, 10, 110, 10)
 
       <simpara><emphasis role="bold">DAYNAME</emphasis></simpara>
 
-      <para><literal>DAYNAME ( &lt;datatime value expr&gt; )</literal></para>
+      <para><literal>DAYNAME ( &lt;datetime value expr&gt; )</literal></para>
 
       <para>This function is equivalent to<literal> EXTRACT ( DAY_NAME FROM
       ... ) </literal>Returns a string in the range of Sunday - Saturday.
@@ -1493,7 +1493,7 @@ WIDTH_BUCKET( 200, 10, 110, 10)
 
       <para><literal>DAY_NAME | MONTH_NAME</literal></para>
 
-      <para><literal>&lt;extract source&gt; ::= &lt;datatime value expr&gt; |
+      <para><literal>&lt;extract source&gt; ::= &lt;datetime value expr&gt; |
       &lt;interval value expr&gt;</literal></para>
 
       <para>The EXTRACT function returns a field or element of the
@@ -1510,7 +1510,7 @@ WIDTH_BUCKET( 200, 10, 110, 10)
       -Saturday is returned.</para>
 
       <para>If the <literal>&lt;extract source&gt;</literal> is <literal>FROM
-      &lt;datatime value expr&gt;</literal>, different groups of
+      &lt;datetime value expr&gt;</literal>, different groups of
       <literal>&lt;extract source&gt;</literal> can be used depending on the
       data type of the expression. The <literal>TIMEZONE_HOUR |
       TIMEZONE_MINUTE</literal> options are valid only for TIME WITH TIMEZONE
@@ -1531,7 +1531,7 @@ WIDTH_BUCKET( 200, 10, 110, 10)
     </section>
 
     <section xml:id="bfc_datetime_arithmetic">
-      <title>Functions for Datetime Arithmatic</title>
+      <title>Functions for Datetime Arithmetic</title>
 
       <indexterm significance="preferred" type="sql">
         <primary>TIMESTAMPADD function</primary>
@@ -1640,7 +1640,7 @@ WIDTH_BUCKET( 200, 10, 110, 10)
       for MONTH and DAY, or zero, for the rest of the fields. For example
       rounding a timestamp value on the DAY field results in midnight the same
       date or midnight the next day if the time is at or after 12 noon. If the
-      second argument is ommitted, the datetime value is rounded to the
+      second argument is omitted, the datetime value is rounded to the
       nearest day. (HyperSQL)</para>
 
       <indexterm significance="preferred" type="sql">
@@ -1978,7 +1978,7 @@ TIMESTAMP '2008-11-22 20:30:40.000000'
 
     <para>Returns the position of the first match for the <literal>&lt;value
     expression&gt;</literal> in the array. By default the search starts from
-    the begining of the array. The optional <literal>&lt;int value
+    the beginning of the array. The optional <literal>&lt;int value
     expr&gt;</literal> specifies the start position. Positions are counted
     from 1. Returns zero if no match is found. (HyperSQL)</para>
 
@@ -2282,7 +2282,7 @@ D          I
     )</literal></para>
 
     <para>Returns a binary string representation of a cryptography key for the
-    given cipher and cyptography provider. The cipher specification is
+    given cipher and cryptography provider. The cipher specification is
     specified by <literal>&lt;value expr 1&gt;</literal> and the provider by
     <literal>&lt;value expr 2&gt;</literal>. To use the default provider,
     specify null for <literal>&lt;value expr 2&gt;</literal>.
@@ -2297,7 +2297,7 @@ D          I
     <para><literal>DIAGNOSTICS ( ROW_COUNT )</literal></para>
 
     <para>This is a convenience function for use instead of the <literal>GET
-    DIAGNOSTICS ...</literal> statement. The agrument specifies the name of
+    DIAGNOSTICS ...</literal> statement. The argument specifies the name of
     the diagnostics variable. Currently the only supported variable is the
     <literal>ROW_COUNT</literal> variable. The function returns the row count
     returned by the last executed statement. The return value is 0 after most
@@ -2602,7 +2602,7 @@ D          I
 
     <para>Returns the current row number (from 1) being processed in a select
     statement. This has the same semantics as the ROWNUM pseudo-column in
-    Oracle syntax mode, but can be used in any systax mode. The function is
+    Oracle syntax mode, but can be used in any syntax mode. The function is
     always used in a SELECT statement. The ROWNUM of a row is incremented as
     the rows are added to the result set. It is therefore possible to use a
     condition such as WHERE ROWNUM() &lt; 10, but not ROWNUM() &gt; 10 or

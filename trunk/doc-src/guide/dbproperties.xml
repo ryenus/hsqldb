@@ -250,7 +250,7 @@
             <entry><simplelist type="vert">
                 <member><literal>/an_alias</literal></member>
 
-                <member><literal>/enrollments</literal></member>
+                <member><literal>/enrolments</literal></member>
 
                 <member><literal>/quickdb</literal></member>
               </simplelist></entry>
@@ -348,7 +348,7 @@
 
           <row>
             <entry nameend="c3" namest="c1"><para>Standard property. This
-            property is case sensitive. Example below:</para><programlisting>    jdbc:hsqldb:file:enrollments;user=aUserName;ifexists=true</programlisting></entry>
+            property is case sensitive. Example below:</para><programlisting>    jdbc:hsqldb:file:enrolments;user=aUserName;ifexists=true</programlisting></entry>
           </row>
 
           <row>
@@ -361,12 +361,12 @@
 
           <row>
             <entry nameend="c3" namest="c1"><para>Standard property. This
-            property is case sensitive. Example below:</para><programlisting>    jdbc:hsqldb:file:enrollments;user=aUserName;password=3xLVz</programlisting><para>For
+            property is case sensitive. Example below:</para><programlisting>    jdbc:hsqldb:file:enrolments;user=aUserName;password=3xLVz</programlisting><para>For
             compatibility with other engines, a non-standard form of
             specifying user and password is also supported. In this form, user
             name and password appear at the end of the URL string, prefixed
             respectively with the question mark and the
-            ampersand:</para><programlisting>    jdbc:hsqldb:file:enrollments;create=false?user=aUserName&amp;password=3xLVz</programlisting></entry>
+            ampersand:</para><programlisting>    jdbc:hsqldb:file:enrolments;create=false?user=aUserName&amp;password=3xLVz</programlisting></entry>
           </row>
         </tbody>
       </tgroup>
@@ -410,7 +410,7 @@
             database.</para><para>The default is true. When the property is
             false, the above method returns the same value as
             <methodname>ResultSet.getColumnLabel(int column)</methodname>
-            Example below:</para><programlisting>    jdbc:hsqldb:hsql://localhost/enrollments;get_column_name=false</programlisting><para>When
+            Example below:</para><programlisting>    jdbc:hsqldb:hsql://localhost/enrolments;get_column_name=false</programlisting><para>When
             a ResultSet is used inside a user-defined stored procedure, the
             default, true, is always used for this property.</para></entry>
           </row>
@@ -456,7 +456,7 @@
             <glossterm>file:</glossterm> database will be created if it does
             not exist.</para><para>Setting the property to true is useful when
             troubleshooting as no database is created if the URL is malformed.
-            Example below:</para><programlisting>    jdbc:hsqldb:file:enrollments;ifexists=true</programlisting></entry>
+            Example below:</para><programlisting>    jdbc:hsqldb:file:enrolments;ifexists=true</programlisting></entry>
           </row>
 
           <row>
@@ -478,7 +478,7 @@
             database will be created if it does not exist.</para><para>Setting
             the property to true is useful when troubleshooting as no database
             is created if the URL is malformed. Example
-            below:</para><programlisting>    jdbc:hsqldb:file:enrollments;create=false</programlisting></entry>
+            below:</para><programlisting>    jdbc:hsqldb:file:enrolments;create=false</programlisting></entry>
           </row>
         </tbody>
       </tgroup>
@@ -528,7 +528,7 @@
             environment to shutdown the database. Examples reported by users
             include web application servers, where the closing of the last
             connection coincides with the web app being shut
-            down.</para><programlisting>    jdbc:hsqldb:file:enrollments;shutdown=true</programlisting></entry>
+            down.</para><programlisting>    jdbc:hsqldb:file:enrolments;shutdown=true</programlisting></entry>
           </row>
         </tbody>
       </tgroup>
@@ -569,7 +569,7 @@
     <para>In the example URL below, two properties are set for the first
     connection to a new database.</para>
 
-    <programlisting>    jdbc:hsqldb:file:enrollments;hsqldb.cache_rows=10000;hsqldb.nio_data_file=false</programlisting>
+    <programlisting>    jdbc:hsqldb:file:enrolments;hsqldb.cache_rows=10000;hsqldb.nio_data_file=false</programlisting>
 
     <para>In the table below, database properties that can be used as part of
     the URL or in connection properties are listed. For each property that can
@@ -690,7 +690,7 @@
             <row>
               <entry nameend="c3" namest="c1"><para>This property, when set
               true, causes an error when an SQL statement (usually a select
-              statement) contains column references that can be resovled by
+              statement) contains column references that can be resolved by
               more than one table name or alias. In effect forces such column
               references to have a table name or table alias
               qualifier.</para><para><programlisting>SET DATABASE SQL REFERENCES { TRUE | FALSE }</programlisting></para></entry>
@@ -1203,7 +1203,7 @@
 
             <row>
               <entry nameend="c3" namest="c1"><para>This property, when set
-              true, switches the aguments of the CONVERT function and also
+              true, switches the arguments of the CONVERT function and also
               allow compatibility with some other aspects of this dialect.
               <programlisting>SET DATABASE SQL SYNTAX MSS { TRUE | FALSE }</programlisting></para></entry>
             </row>
@@ -1705,7 +1705,7 @@
               indicates no logging. Level 1 results in minimal logging,
               including any failures. Level 2 indicates all events, including
               ordinary events. LEVEL 3 adds details of some of the normal
-              operations.The events are logged in a file ending with
+              operations. The events are logged in a file ending with
               ".app.log".</para><para><programlisting>SET DATABASE EVENT LOG LEVEL { 0 | 1 | 2 | 3}</programlisting></para></entry>
             </row>
           </tbody>
@@ -1747,7 +1747,7 @@
               indicates no logging. Level 1 currently logs only commits and
               rollbacks. Level 2 currently logs all the SQL statements
               executed, together with their parameter values. Level 3 will be
-              supported in the future.The events are logged in a file ending
+              supported in the future. The events are logged in a file ending
               with ".sql.log". This property applies to existing file:
               databases as well as new databases.</para><para><programlisting>SET DATABASE EVENT LOG SQL LEVEL { 0 | 1 | 2 }</programlisting></para></entry>
             </row>
@@ -2382,7 +2382,7 @@
               is stopped if any exception occurs. Exceptions are usually
               caused by incomplete lines of SQL statements near the end of the
               .log file, which were not fully synced to disk when an abnormal
-              shutdown occured.</para><para><programlisting>This property cannot be set with an SQL statement</programlisting></para></entry>
+              shutdown occurred.</para><para><programlisting>This property cannot be set with an SQL statement</programlisting></para></entry>
             </row>
           </tbody>
         </tgroup>
@@ -2676,7 +2676,7 @@
 
           <row>
             <entry nameend="c3" namest="c1"><para>Setting this system property
-            false avoids reconfigurign the framework logging system such as
+            false avoids reconfiguring the framework logging system such as
             Log4J or java.util.Logging. If the property does not exist or is
             true, reconfiguration takes place.</para></entry>
           </row>

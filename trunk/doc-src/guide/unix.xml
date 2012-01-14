@@ -471,7 +471,7 @@
     and minimize administration, it is often best to grant SELECT to PUBLIC on
     table-like objects that need to be accessed by multiple database users,
     with the significant exception of any data which you want to keep secret.
-    (Similary with EXECUTE priv for routines and USAGE priv for other object
+    (Similarly with EXECUTE priv for routines and USAGE priv for other object
     types).
     Note that this is not at all equivalent to giving the world or the Internet
     read access to your tables-- you are giving read access to people that have

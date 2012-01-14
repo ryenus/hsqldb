@@ -1289,7 +1289,7 @@ END
 CREATE FUNCTION an_hour_before_max (e_type INT)
   RETURNS TIMESTAMP
   BEGIN ATOMIC
-    DECLAR max_event TIMESTAMP;
+    DECLARE max_event TIMESTAMP;
     SET max_event = SELECT MAX(event_time) FROM atable WHERE event_type = e_type;
     RETURN max_event - 1 HOUR;
   END
@@ -1306,7 +1306,7 @@ CREATE FUNCTION an_hour_before_max (e_type INT)
       <para>ITERATE STATEMENT</para>
 
       <para>The ITERATE statement can be used to cause the next iteration of a
-      labeled iterated statement (a WHILE, REPEAT or LOOP statement). It is
+      labelled iterated statement (a WHILE, REPEAT or LOOP statement). It is
       similar to the "continue" statement in C and Java.</para>
 
       <simpara><literal>&lt;iterate statement&gt; ::= ITERATE &lt;statement
@@ -1314,7 +1314,7 @@ CREATE FUNCTION an_hour_before_max (e_type INT)
 
       <para>LEAVE STATEMENT</para>
 
-      <para>The LEAVE statement can be used to leave a labeled block. When
+      <para>The LEAVE statement can be used to leave a labelled block. When
       used in an iterated statement, it is similar to the "break" statement is
       C and Java. But it can be used in compound statements as well.</para>
 
@@ -1491,7 +1491,7 @@ Connection conn = ...;
 CallableStatement call = conn.prepareCall("call get_customer(?, ?, ?)");
 call.setInt(1, 121); // only the IN (or INOUT) arguments should be set before the call
 call.execute();
-String firstname = call.getString(2); // the OUT (or INOUT) arguments are retreived after the call
+String firstname = call.getString(2); // the OUT (or INOUT) arguments are retrieved after the call
 String lastname = call.getString(3);
 
 </programlisting>
@@ -1532,7 +1532,7 @@ String lastname = call.getString(3);
       <programlisting>CREATE TABLE ptree (pid INT, id INT);
 INSERT INTO ptree VALUES (NULL, 1) ,(1,2), (1,3),(2,4),(4,5),(3,6),(3,7);
 
--- the function is created and always throws an excption when used
+-- the function is created and always throws an exception when used
 CREATE FUNCTION child_arr(p_pid INT) RETURNS INT ARRAY
   SPECIFIC child_arr_one
   READS SQL DATA

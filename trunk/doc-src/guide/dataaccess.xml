@@ -228,7 +228,7 @@ SELECT X FROM V WHERE Y = 5
       in the cursor declaration using the SQL qualifiers WITH HOLD or WITHOUT
       HOLD.</para>
 
-      <para>In JDBC, hodability is specified using either of the following
+      <para>In JDBC, holdability is specified using either of the following
       values for the Statement parameter: HOLD_CURSORS_OVER_COMMIT, or
       CLOSE_CURSORS_AT_COMMIT.</para>
 
@@ -555,7 +555,7 @@ U&amp;'Unicode string with Greek delta \0394 and phi \03a6 letters'
       <simpara><literal>&lt;hexit&gt; ::= &lt;digit&gt; | A | B | C | D | E |
       F | a | b | c | d | e | f</literal></simpara>
 
-      <simpara>The type of a binary literal is BINARY. The octect length of
+      <simpara>The type of a binary literal is BINARY. The octet length of
       the binary literal is the length of the type. Case-insensitive
       hexadecimal characters are used in the binary string. Each pair of
       characters in the literal represents a byte in the binary string. Long
@@ -1617,7 +1617,7 @@ INSERT INTO CHILDTABLE(COL1, COL2) VALUES 10, CURRENT VALUE FOR MYSEQUENCE;
       be used with prepared statements where a variable length array of values
       can be used as the parameter value for each call. The example below
       shows how this is used in SQL. The JDBC code must create a new
-      java.sql.Array object that contains the values and set the paraemter
+      java.sql.Array object that contains the values and set the parameter
       with this array.</simpara>
 
       <programlisting>SELECT * FROM customer WHERE firstname IN ( UNNEST(?) )
@@ -2293,7 +2293,7 @@ SELECT * FROM atable UNION SELECT * FROM anothertable
       <title>Subquery</title>
 
       <para>A subquery is simply a query expression in brackets. A query
-      expression is usualy a complete SELECT statement and is discussed in the
+      expression is usually a complete SELECT statement and is discussed in the
       rest of this chapter. A scalar subquery returns one row with one column.
       A row subquery returns one row with one or more columns. A table
       subquery returns zero or more rows with one or more columns. The
@@ -2512,13 +2512,13 @@ SELECT d + e, SUM(f) FROM atable WHERE a + b = c GROUP BY d + e HAVING SUM(f) &g
       <para><literal>&lt;lateral derived table&gt; ::= LATERAL &lt;table
       subquery&gt;</literal></para>
 
-      <para>The use of &lt;lateral derived table&gt; completely transofrms the
+      <para>The use of &lt;lateral derived table&gt; completely transforms the
       way a query is written. For example, the two queries below are
       equivalent, but with different forms. The query with LATERAL is
       evaluated separately for each row of the first table that satisfies the
       WHERE condition. The example below uses the tables that are created and
       populated in DatabaseManagerSwing with the "Insert test data" menu
-      option. The first query uses a scalar subquery to comput the sum of
+      option. The first query uses a scalar subquery to compute the sum of
       invoice values for each customer. The second query is equivalent and
       uses a join with a LATERAL table.</para>
 
@@ -3187,7 +3187,7 @@ GEN PAR    CHILD
       from the start of the result set and returns the specified number of
       rows after the discarded rows. The &lt;offset row count&gt; and
       &lt;fetch first row count&gt; can be constants, dynamic variables,
-      routine parameters, or routine variables. The type of the contants must
+      routine parameters, or routine variables. The type of the constants must
       be INTEGER.</para>
 
       <programlisting>SELECT a, b FROM atable WHERE d &lt; 5 ORDER BY absum OFFSET 3 FETCH 2 ROWS ONLY 
@@ -3196,7 +3196,7 @@ SELECT a, b FROM atable WHERE d &lt; 5 ORDER BY absum OFFSET 3 LIMIT 2 /* altern
       <para>When the FETCH keyword is used, the specified number of rows must
       be at least 1, otherwise an error is returned. This behaviour is
       consistent with the SQL Standard. When the LIMIT keyword is used, the
-      sepcified number of rows can be zero, which means return all rows (no
+      specified number of rows can be zero, which means return all rows (no
       LIMIT). In MySQL and PostgreSQL syntax modes, zero limit means no rows
       (empty result).</para>
 
@@ -3307,7 +3307,7 @@ DELETE FROM T AS TT WHERE TT.A = (SELECT MAX(A) FROM T)
       &lt;target schema&gt; [ &lt;identity column restart option&gt; ] AND
       COMMIT [ NO CHECK ]</literal></simpara>
 
-      <simpara>Performs the equivalent of a TRANCATE TABLE ... AND COMMIT on
+      <simpara>Performs the equivalent of a TRUNCATE TABLE ... AND COMMIT on
       all the table in the schema. If the additional NO CHECK option is also
       specified, then the TRUNCATE statement is executed even if any of the
       tables in the schema is referenced in a FOREIGN KEY constraint defined
@@ -3408,7 +3408,7 @@ INSERT INTO T VALUES 3, ARRAY['hot','cold']
 
       <para>If the table contains an IDENTITY column, the value for this
       column for the last row inserted by a session can be retrieved using a
-      call to the IDENITY() function. This call returns the last value
+      call to the IDENTITY() function. This call returns the last value
       inserted by the calling session. When the insert statement is executed
       with a JDBC Statement or PreparedStatement method, the
       getGeneratedKeys() method of Statement can be used to retrieve not only
