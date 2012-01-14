@@ -101,6 +101,7 @@ public class DataFileCache {
     //
     protected int     cachedRowPadding;
     protected int     initialFreePos;
+    protected long    fileStartFreePosition;
     protected boolean hasRowInfo = false;
     protected int     storeCount;
 
@@ -172,7 +173,7 @@ public class DataFileCache {
      */
     public void open(boolean readonly) {
 
-        fileFreePosition = MIN_INITIAL_FREE_POS;
+        fileFreePosition = initialFreePos;
 
         database.logger.logInfoEvent("dataFileCache open start");
 
@@ -230,7 +231,7 @@ public class DataFileCache {
                 long    length       = dataFile.length();
                 boolean wrongVersion = false;
 
-                if (length > MIN_INITIAL_FREE_POS) {
+                if (length > initialFreePos) {
                     dataFile.seek(FLAGS_POS);
 
                     int flags = dataFile.readInt();
@@ -285,7 +286,8 @@ public class DataFileCache {
 
                 dataFile.seek(LONG_FREE_POS_POS);
 
-                fileFreePosition = dataFile.readLong();
+                fileFreePosition      = dataFile.readLong();
+                fileStartFreePosition = fileFreePosition;
             } else {
                 initNewFile();
             }
@@ -312,7 +314,8 @@ public class DataFileCache {
 
     void initNewFile() throws IOException {
 
-        fileFreePosition = initialFreePos;
+        fileFreePosition      = initialFreePos;
+        fileStartFreePosition = initialFreePos;
 
         dataFile.seek(LONG_FREE_POS_POS);
         dataFile.writeLong(fileFreePosition);
@@ -880,6 +883,7 @@ public class DataFileCache {
 
             return object;
         } catch (HsqlException e) {
+
             database.logger.logSevereEvent(dataFileName + " getFromFile "
                                            + pos, e);
 
@@ -1258,5 +1262,9 @@ public class DataFileCache {
 
     public boolean isDataReadOnly() {
         return this.cacheReadonly;
+    }
+
+    public RAShadowFile getShadowFile() {
+        return shadowFile;
     }
 }
