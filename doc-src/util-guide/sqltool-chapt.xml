@@ -244,7 +244,7 @@
         </simpara>
         </section>
         <section xml:id='sqltool_functional_changes-sect'>
-            <title xml:id='functional_changes-title'>Recent Funtional Changes</title>
+            <title xml:id='functional_changes-title'>Recent Functional Changes</title>
             <simpara>This section lists changes to SqlTool since the last
               major release of HSQLDB which may effect the portability
               of SQL scripts.
@@ -404,7 +404,7 @@
                     listed in the output of <literal>* list</literal>
                     and <literal>* listvalues</literal> commands.
                     (Unless at the time it is unset/null, of course, and in
-                    this case the absense of <literal>?</literal> indicates
+                    this case the absence of <literal>?</literal> indicates
                     that it is unset.
                 </simpara></listitem><listitem><simpara>
                     The look of DSV import reject reports has changed, and the
@@ -506,10 +506,10 @@
                   statement.  Run <literal>*?</literal> to see syntax.
                 </simpara></listitem><listitem><simpara>
                   Added iteration over query result set rows with loop
-                  statment <literal>* forrows</literal>.
+                  statement <literal>* forrows</literal>.
                 </simpara></listitem><listitem><simpara>
                   Added statement <literal>* return</literal> as a more
-                  intuitival alias for <literal>* break file</literal>.
+                  intuitive alias for <literal>* break file</literal>.
                 </simpara></listitem>
             </itemizedlist>
         </section>
@@ -694,7 +694,7 @@
             SqlTool does not <emphasis>commit</emphasis> SQL changes by default.
             (You can use the <literal>--autoCommit</literal> command-line
             switch to have it auto-commit).
-            This leaves it to the user's discression whether to commit or
+            This leaves it to the user's discretion whether to commit or
             rollback their modifications.
             If you do want your changes committed, remember to run \= before
             quitting SqlTool.
@@ -759,7 +759,7 @@
           So, if you write the SQL command
           <informalexample><programlisting>INSERT into t values ('one ''    and   ''  two');</programlisting></informalexample> or the SqlTool print command
           <informalexample><programlisting>\p A message for my 'Greatest...     fan'</programlisting></informalexample>
-          you just type exactly what you want to send to the databse, or
+          you just type exactly what you want to send to the database, or
           what you want displayed.
         </para>
       </section>
@@ -774,7 +774,7 @@
             Programmatic users will usually want to use the
             objectMain(String[]) method if they want arguments and behavior
             exactly like command-line SqlTool. If you don't need invocation
-            parameter parsing, <filename>auto.sql</filename> exection, etc.,
+            parameter parsing, <filename>auto.sql</filename> execution, etc.,
             you will have more control and efficiency by using the SqlFile
             class directly. The file
             <filename xlink:href="#SqlFileEmbedder.java-link">
@@ -991,7 +991,7 @@
                 Give any other SqlTool parameters as you usually would.
               </para><para>
                 Once you have verified that you can access your database using
-                the <literal>--driver</literal> paramater as explained above,
+                the <literal>--driver</literal> parameter as explained above,
                 edit your <filename>sqltool.rc</filename> file, and add a
                 new line
                 <informalexample>
@@ -1032,7 +1032,7 @@
           What I'm responsible for telling you is <emphasis>what</emphasis>
           you need to add to your classpath.
           For the non-embedded case where you have set up your CLASSPATH
-          environmental varialbe, you would invoke SqlTool like this.
+          environmental variable, you would invoke SqlTool like this.
           <informalexample>
             <screen>    java org.hsqldb.cmdline.SqlTool ...</screen>
           </informalexample>
@@ -1090,7 +1090,7 @@
           it's usually easiest to just copy 
           <filename>sqltool.jar</filename> and <filename>hsqldb.jar</filename>
           to the PCs (plus JDBC driver jars for any other target databases).
-          If you want to minize what you distribute, then build and
+          If you want to minimize what you distribute, then build and
           distribute <filename>hsqljdbc.jar</filename> or
           <filename>hsqldbmain.jar</filename> instead of
           <filename>hsqldb.jar</filename>, according to the criteria listed in
@@ -1245,7 +1245,7 @@
           You can start SqlTool without any JDBC Connection by specifying no
           Inline RC and urlid of "-" (just a hyphen).
           If you don't need to specify any SQL file paths, you can skip the
-          hypen, as in this example.
+          hyphen, as in this example.
             <informalexample>
               <screen>java -jar $HSQLDB_HOME/lib/sqltool.jar -Pv1=one</screen>
             </informalexample>
@@ -1405,7 +1405,7 @@
             which many people are used to from DosKey and Bash shell.
             If you don't know how to use regular expressions, and don't want
             to learn how to use them, then just forget command-recall.
-            (Actualy DosKey does work from vanilla Windows MSDOS console
+            (Actually DosKey does work from vanilla Windows MSDOS console
             windows.  Be aware that it suffers from the same 20-year old
             quirks as DOS command-line editing.  Very often the command line
             history will get shifted and you won't be able to find the command
@@ -1552,7 +1552,7 @@
                 you can edit and/or (re-)execute previously entered commands.
             </simpara></listitem></varlistentry>
             <varlistentry><term>PL Command</term><listitem><para>
-                Procedural Langage commands.
+                Procedural Language commands.
                 Run the command "<literal>*?</literal>" to list the PL Commands.
                 All of the PL Commands begin with "*".
                 PL commands are for setting and using scripting variables
@@ -2071,7 +2071,7 @@
                 If the variable doesn't exist yet, it will be created.
                 The most common use for this is so that you can later use
                 it in math expressions like <literal>VARNAME</literal>,
-                in logical (conditionaly) expressions like
+                in logical (conditionally) expressions like
                 <literal>*{VARNAME}</literal>, or in other commands
                 (including SQL) like <literal>*{VARNAME}</literal> or
                 <literal>*{:VARNAME}</literal> construct.
@@ -2126,7 +2126,7 @@
                 This works for CLOB columns too.
                 It also works with Oracle XML type columns if you use
                 column labels and the <literal>getclobval</literal> function.
-                If the SQL null value is retrieved nex, then this variable will
+                If the SQL null value is retrieved next, then this variable will
                 be assigned the value null, which is the same thing as
                 unsetting it.
                 It's easy to tell when a variable is set to null vs. when it
@@ -2380,7 +2380,7 @@
                 Preventing redundant execution of utility or shared scripts.
               </title> <para>
               There's a common idiom used in UNIX login and shell
-              initialization scripts that prevents redundant exections, and it
+              initialization scripts that prevents redundant executions, and it
               works great for SqlTool too.
               Think up a unique PL variable name which will keep track of
               whether the script has been sourced in the current SqlTool
@@ -2408,7 +2408,7 @@
               your paths with the <literal>@/</literal>.
               The initial <literal>@</literal> character in file paths means
               <emphasis>the directory containing the current script</emphasis>.
-              This is important because of Java's frustating inability to
+              This is important because of Java's frustrating inability to
               switch the current directory.
               By using <literal>@</literal>, you can cross-reference between
               SQL scripts in one or several co-located directories, and
@@ -2559,7 +2559,7 @@ echo "See log file y:$HOME/log/app.log" | mailx -s "App aborted on host y" recip
                 the other SQL tools, but you will have to disable these
                 defaults in order to have optimally compatible behavior.
             </simpara><para>
-                These switches provide compatibilty at the cost of poor
+                These switches provide compatibility at the cost of poor
                 control and error detection.
                 <itemizedlist>
                     <listitem>
@@ -2748,7 +2748,7 @@ echo "See log file y:$HOME/log/app.log" | mailx -s "App aborted on host y" recip
         <section><title>Getting Interactive Functionality with SQL Files</title>
             <para>
                 Some script developers may run into cases where they want to
-                run with sql files but they alwo want SqlTool's interactive
+                run with sql files but they also want SqlTool's interactive
                 behavior.
                 For example, they may want to do command recall in the sql file,
                 or they may want to log SqlTool's command-line prompts (which
@@ -2814,7 +2814,7 @@ java -jar $HSQLDB_HOME/lib/sqltool.jar urlid > /tmp/log.html 2>&1]]></screen>
         <procedure>
             <title>Writing query output to an external file</title>
             <step><simpara>
-                By default, everthing will be done in plain text.
+                By default, everything will be done in plain text.
                 If you want your report to be in HTML format, then give the
                 special command <literal>\h true</literal>.
                 If you do so, you will probably want to use filenames with an
@@ -2893,7 +2893,7 @@ java -jar $HSQLDB_HOME/lib/sqltool.jar urlid > /tmp/log.html 2>&1]]></screen>
         <simpara>
           HTML output has its own <varname>*NULL_REP_HTML</varname> setting
           distinct from <varname>*NULL_REP_TOKEN</varname>.
-          It fulfills <varname>*NULL_REP_TOKEN</varname>'s output purpose of
+          It fulfils <varname>*NULL_REP_TOKEN</varname>'s output purpose of
           saying how to represent SQL nulls retrieved from VARCHAR columns,
           but lets you manage it for HTML separately from display and
           CSV/DSV output.
@@ -3443,7 +3443,7 @@ OneTwo</screen>
               </para> <para>
                 <literal>?</literal> is reliably set to null only upon SQL
                 failures.
-                Upong SqlTool startup, <literal>?</literal> is set to the
+                Upon SqlTool startup, <literal>?</literal> is set to the
                 empty string "" instead of being unset or null.
                 If a query returns a null value in the last cell, then
                 <literal>?</literal> will be assigned to the current
@@ -3641,7 +3641,7 @@ SELECT * FROM t
               So if you want your value to have leading or trialing space,
               you will have to type in the quotes at invocation time.
               Another limitation caused by this convenient parsing is that
-              functions just won't work when your invocaton parameters need
+              functions just won't work when your invocation parameters need
               to contain commas.
               Just like for regular macros, the terminating ; causes the
               expanded macro to execute.
@@ -3674,7 +3674,7 @@ SELECT * FROM t
                 There is no need for a <literal>commit</literal> statement
                 in this SQL file since no DML is done.
                 If the script is accidentally run without setting the
-                USER variable, SqlTool will give a very clear notificaton of
+                USER variable, SqlTool will give a very clear notification of
                 that.
             </simpara>
         </section>
@@ -3753,7 +3753,7 @@ SELECT * FROM t
                 evaluations, regardless of whether quotes match up, etc.
                 I.e. quotes and whitespace are not <emphasis>special</emphasis>
                 to the token evaluator.
-                Hence-- causual users should not use braces inside of
+                Hence-- casual users should not use braces inside of
                 logical expressions.
             </simpara> <para>
                 Though tokens inside logical expressions are atomic, you
@@ -4098,7 +4098,7 @@ SELECT * FROM t
             <programlisting>    sql> \.
     Enter RAW text.  No \, :, * commands.
     End with a line containing only ".;" to send to database,
-    or oly "." to store to edit buffer for editing or saving.
+    or only "." to store to edit buffer for editing or saving.
     -----------------------------------------------------------
     raw> line one;
     raw> line two;
@@ -4349,7 +4349,7 @@ SELECT * FROM t
                 data.
                 This line is present because it will be needed if the file is
                 to used for a DSV import.
-                Notice the following characterstics about the export data.
+                Notice the following characteristics about the export data.
                 The column delimiter is the pipe character "|".
                 The record delimiter is the default line delimiter character(s)
                 for your operating system.
@@ -4386,7 +4386,7 @@ SELECT * FROM t
                 delimiters.
                 The input delimiters are regular expressions.
                 The input column delimiter happens to be the regular expression
-                corresponding exatly to "|"; but the input record delimiter
+                corresponding exactly to "|"; but the input record delimiter
                 matches UNIX, Windows, Mac, and HTTP line breaks.
             </para>
         </section>
@@ -4594,7 +4594,7 @@ SELECT * FROM t
                 and you can even specify multiple header lines in a single
                 DSV file.
                 I use this last feature to import data from one data set
-                into multple tables that are joined.
+                into multiple tables that are joined.
                 Since I don't have any more time to dedicate to explaining
                 all of these features, I'll give you some examples from
                 working DSV files and let you take it from there.
