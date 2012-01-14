@@ -404,14 +404,7 @@ public class RangeVariable implements Cloneable {
         }
     }
 
-    String getColumnAlias(int i) {
-
-        SimpleName name = getColumnAliasName(i);
-
-        return name.name;
-    }
-
-    public SimpleName getColumnAliasName(int i) {
+    public SimpleName getColumnAlias(int i) {
 
         if (columnAliases == null) {
             return rangeTable.getColumn(i).getName();
@@ -424,14 +417,7 @@ public class RangeVariable implements Cloneable {
         return columnAliases != null;
     }
 
-    String getTableAlias() {
-
-        SimpleName name = getTableAliasName();
-
-        return name.name;
-    }
-
-    SimpleName getTableAliasName() {
+    SimpleName getTableAlias() {
         return tableAlias == null ? rangeTable.getName()
                                   : tableAlias;
     }
