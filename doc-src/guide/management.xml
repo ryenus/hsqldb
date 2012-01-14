@@ -175,7 +175,7 @@
       high speeds (usually over 20MB / s) for both storage and retrieval of
       LOBs.</para>
 
-      <para>There is an internal LOBS schema in the database to strore the
+      <para>There is an internal LOBS schema in the database to store the
       id's, sizes and addresses of the LOBs (but not the actual LOBS) in a few
       system tables. This schema is stored in the database as MEMORY tables.
       Therefore the amount of JVM memory should be increased when more than
@@ -543,7 +543,7 @@
 
       <para>The internally-generated, individual sql log for the database can
       be enabled with the <literal>SET DATABASE EVENT LOG SQL LEVEL</literal>
-      s tatement, described in the next section. As all the executed
+      statement, described in the next section. As all the executed
       statements are logged, there is an impact on speed. So you should only
       use this for debugging. Two levels of sql logging are supported.</para>
     </section>
@@ -688,7 +688,7 @@
 
       <para>The initial user with the DBA role should be used for admin
       purposes only. At least one additional role should be created for normal
-      databse use in the application and at least one additional user should
+      database use in the application and at least one additional user should
       be created and granted this role. The new role should not be given the
       DBA role. It can be given the CREATE_SCHEMA role, which allows it to
       create and access multiple schemas. Alternatively, the user with the DBA
@@ -862,7 +862,7 @@
         </listitem>
 
         <listitem>
-          <para>SQL routines are poratable, but some syntax elements are
+          <para>SQL routines are portable, but some syntax elements are
           different and require changes.</para>
         </listitem>
 
@@ -1130,7 +1130,7 @@
         <listitem>
           <para>HyperSQL supports almost the entire syntax of DB2 together
           with many of the functions. Even local temporary tables using the
-          SESSION psudo schema are supported.</para>
+          SESSION pseudo schema are supported.</para>
         </listitem>
 
         <listitem>
@@ -1344,7 +1344,7 @@
       <simpara>Closes the database files, rewrites the script file, deletes
       the log file and opens the database. If <literal>DEFRAG</literal> is
       specified, also shrinks the <literal>*.data</literal> file to its
-      minumum size. Only a user with the DBA role can execute this
+      minimum size. Only a user with the DBA role can execute this
       statement.</simpara>
 
       <simpara>Only a user with the DBA role can execute this
@@ -1759,7 +1759,7 @@
       rules that prevents illegal type conversions and parameters or nulls
       without type in SQL statements (usually SELECT statements). For example
       an INTEGER column or a DATE column cannot be compared to a character
-      string or searched with a LIKE expression when thie property is
+      string or searched with a LIKE expression when the property is
       <literal>TRUE</literal>.</simpara>
 
       <simpara>The property is <literal>FALSE</literal> by default.</simpara>
@@ -1788,7 +1788,7 @@
       DATABASE SQL TDC DELETE { TRUE | FALSE }</literal></simpara>
 
       <simpara>This command can enable or disable full enforcement of the SQL
-      Standard rules that prevents triggered data change exeptions caused by
+      Standard rules that prevents triggered data change exceptions caused by
       ON DELETE CASCADE clauses of foreign key constraint.</simpara>
 
       <simpara>When there are multiple constraints, a row may be updated by
@@ -1822,7 +1822,7 @@
       DATABASE SQL TDC UPDATE { TRUE | FALSE }</literal></simpara>
 
       <simpara>This command can enable or disable full enforcement of the SQL
-      Standard rules that prevents triggered data change exeptions caused by
+      Standard rules that prevents triggered data change exceptions caused by
       multiple ON UPDATE or ON DELETE SET clauses of foreign key constraint.
       When there are multiple constraints, a field in a row may be updated by
       two constraints to different values in the same operation. This is not
@@ -1868,7 +1868,7 @@
       preserved.</simpara>
 
       <simpara>The property is <literal>TRUE</literal> by default. If set to
-      <literal>FASLE</literal>, the type codes for WITH TIME ZONE types will
+      <literal>FALSE</literal>, the type codes for WITH TIME ZONE types will
       be SQL type codes as opposed to JDBC type codes.</simpara>
 
       <simpara>Only a user with the DBA role can execute this
@@ -1890,7 +1890,7 @@
       <simpara><literal>&lt;set database sql concat nulls statement&gt; ::=
       SET DATABASE SQL CONCAT NULLS { TRUE | FALSE }</literal></simpara>
 
-      <simpara>When the property is <literal>TRUE</literal>, concatanation of
+      <simpara>When the property is <literal>TRUE</literal>, concatenation of
       a null value with a not-null value results in a null value. When the
       property is <literal>FALSE</literal> this type of concatenation result
       in the not-null value.</simpara>
@@ -1934,7 +1934,7 @@
       <simpara>Setting this property <literal>FALSE</literal> results in
       UNIQUE constraint behaviour similar to Oracle.</simpara>
 
-      <simpara>SQL Standard requires the defual (TRUE) behaviour.</simpara>
+      <simpara>SQL Standard requires the default (TRUE) behaviour.</simpara>
 
       <simpara>The property is <literal>TRUE</literal> by default.</simpara>
 
@@ -1959,10 +1959,10 @@
       }</literal></simpara>
 
       <simpara>When the property is <literal>TRUE</literal>, conversion from a
-      floating point value (a DOUBLE value) to an integral type alwas
+      floating point value (a DOUBLE value) to an integral type always
       truncates the fractional part. When the property is
       <literal>FALSE</literal>, rounding takes place instead of truncation.
-      For example, assigning the value 123456E-2 to an ineger column will
+      For example, assigning the value 123456E-2 to an integer column will
       result in 1234 by default, but 1235 when the property is
       <literal>FALSE</literal>.</simpara>
 
@@ -2078,7 +2078,7 @@
       &lt;expression list&gt;</literal> without the FROM clause) are supported
       and treated as the SQL Standard equivalent, <literal>VALUES
       &lt;expression list&gt;</literal>. The DUAL table is supported, as well
-      as the ROWNUM psuedo-column. BINARY type definitions such as VARCHAR(L)
+      as the ROWNUM pseudo-column. BINARY type definitions such as VARCHAR(L)
       FOR BIT DATA are supported. Empty DEFAULT clauses in column definitions
       are supported.</simpara>
 
@@ -2195,7 +2195,7 @@
       DATABASE SQL SYNTAX PGS { TRUE | FALSE }</literal></simpara>
 
       <simpara>This property, when set TRUE, enables support for some elements
-      of PosgtreSQL syntax. The TEXT data type is transated to LONGVARCHAR,
+      of PosgtreSQL syntax. The TEXT data type is translated to LONGVARCHAR,
       while the SERIAL data types is translated to BIGINT together with
       GENERATED BY DEFAULT AS IDENTITY.</simpara>
 
@@ -2288,7 +2288,7 @@
 
       <simpara>The alternative is backup in increments, just before some part
       of the .data file is modified. In this mode, no backup is performed at
-      CHECKPIONT or SHUTDOWN. This mode is preferred for large databases which
+      CHECKPOINT or SHUTDOWN. This mode is preferred for large databases which
       are opened and closed frequently.</simpara>
 
       <simpara>The default mode is <literal>TRUE</literal>. If the old method

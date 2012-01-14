@@ -127,7 +127,7 @@
     objects. This is the scope of the SQL Standard. However, there are special
     roles that allow the creation of USER and ROLE objects and also allow some
     special operations on the database as a whole. These roles are not defined
-    by the Standard, which has left it to implementors to define such roles as
+    by the Standard, which has left it to implementers to define such roles as
     they are needed for the particular SQL implementation.</para>
 
     <para>A ROLE has a name a collection of zero or more other roles, plus
@@ -250,7 +250,7 @@
 
       <simpara>A user that has this role, can change the authorization for the
       current session to another user. The other user cannot have the DBA role
-      (otherwise, the original user would gain DBA provileges). The DBA
+      (otherwise, the original user would gain DBA privileges). The DBA
       authorization has this role and can grant it to other
       authorizations.</simpara>
 
@@ -632,7 +632,7 @@
 
     <informalexample>
       <programlisting>GRANT ALL ON SEQUENCE aSequence TO roleOrUser 
-GRANT SELELCT ON aTable TO roleOrUser  
+GRANT SELECT ON aTable TO roleOrUser  
 GRANT SELECT, UPDATE ON aTABLE TO roleOrUser1, roleOrUser2
 GRANT SELECT(columnA, columnB), UPDATE(columnA, columnB) ON TABLE aTable TO roleOrUser
 GRANT EXECUTE ON SPECIFIC ROUTINE aroutine_1234 TO rolOrUser

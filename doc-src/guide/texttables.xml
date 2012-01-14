@@ -318,7 +318,7 @@
       <varname>cache_rows</varname> property. The default value for
       <varname>cache_rows</varname> is 1000 and can be changed by setting the
       default database property .The <varname>cache_size</varname> property
-      sets the maximum amout of memory used for each text table. The default
+      sets the maximum amount of memory used for each text table. The default
       is 100 KB. The properties can be set for individual text tables. These
       properties do not control the maximum size of each text table, which can
       be much larger. An example is given below:</para>

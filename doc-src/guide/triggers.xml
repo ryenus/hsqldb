@@ -104,7 +104,7 @@
       exception.</simpara>
 
       <simpara>Because BEFORE triggers can modify the inserted or updated
-      rows, all constrainst checks are performed after the execution of the
+      rows, all constraint checks are performed after the execution of the
       BEFORE triggers. The checks include NOT NULL constraints, length of
       strings, CHECK constraints, and FOREIGN key constraints.</simpara>
     </section>
@@ -460,7 +460,7 @@
     to INSERT, DELETE, UPDATE and MERGE statements.</simpara>
 
     <simpara>The <literal>&lt;HSQLDB trigger class FQN&gt;</literal> is a
-    delimited identifer that contains the fully qualified name of a Java class
+    delimited identifier that contains the fully qualified name of a Java class
     that implements the <classname>org.hsqldb.Trigger</classname>
     interface.</simpara>
 

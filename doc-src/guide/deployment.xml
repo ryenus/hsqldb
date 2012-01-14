@@ -506,7 +506,7 @@
         </listitem>
 
         <listitem>
-          <para>Finally execute the CHECKPOINT statatement.</para>
+          <para>Finally execute the CHECKPOINT statement.</para>
         </listitem>
 
         <listitem>
@@ -564,7 +564,7 @@
     </procedure>
 
     <para>The first step is to guarantee there is no .log file for the
-    database. When upgrading an application that has been dyployed on a large
+    database. When upgrading an application that has been deployed on a large
     scale, it is sometimes not practical to perform the first step of this
     procedure (with the old jar). You can ignore the first step but you may
     lose part of the database statements that are stored in the .log file.
@@ -850,8 +850,8 @@
 
       <listitem>
         <para>Computed columns in SELECT statements which did not have an
-        alias: These columns had no ResultMetaData lebel in version 1.8, but
-        in vresion 2.0, the engine generates labels such as C1, C2.</para>
+        alias: These columns had no ResultMetaData label in version 1.8, but
+        in version 2.0, the engine generates labels such as C1, C2.</para>
       </listitem>
 
       <listitem>
@@ -859,10 +859,10 @@
         <literal>getColumnName(int column)</literal> and
         <literal>getColumnLabel(int column)</literal> has been clarified by
         the JDBC 4 specification. <literal>getColumName()</literal> returns
-        the undelying column name, while <literal>getColumnLabel()</literal>
+        the underlying column name, while <literal>getColumnLabel()</literal>
         returns any specified or generated alias. HyperSQL 1.8 and 2.0 have a
         connection property, <literal>get_column_name</literal>, which
-        defaults to true in verision 2.0, but defaulted to false in some
+        defaults to true in version 2.0, but defaulted to false in some
         releases of version 1.8.x. You have to explicitly specify this
         property as false if you want (non-standard behaviour)
         <literal>getColumnName()</literal> to return the same value as
@@ -921,7 +921,7 @@
       <note xml:id="dec_maven_range">
         <title>Limitation of Maven Version Range Specifiers</title>
 
-        <simpara>Note that Ivy (and the many systems that use Ivy undeneath,
+        <simpara>Note that Ivy (and the many systems that use Ivy underneath,
         like Grape and Gradle) supports the opening exclusive
         <literal>]</literal> in addition to <literal>[</literal>, whereas
         Maven supports only the opening inclusive <literal>[</literal>
