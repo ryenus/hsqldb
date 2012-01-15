@@ -37,11 +37,11 @@
     </keywordset>
 
     <legalnotice>
-      <para>Copyright 2010-2012 Fred Toussi. Permission is granted to distribute
-      this document without any alteration under the terms of the HSQLDB
-      license. Additional permission is granted to the HSQL Development Group
-      to distribute this document with or without alterations under the terms
-      of the HSQLDB license.</para>
+      <para>Copyright 2010-2012 Fred Toussi. Permission is granted to
+      distribute this document without any alteration under the terms of the
+      HSQLDB license. Additional permission is granted to the HSQL Development
+      Group to distribute this document with or without alterations under the
+      terms of the HSQLDB license.</para>
     </legalnotice>
   </info>
 
@@ -598,7 +598,7 @@ CREATE FUNCTION an_hour_before_max (e_type INT)
       </itemizedlist>
     </section>
 
-    <section  xml:id="src_psm_statements">
+    <section xml:id="src_psm_statements">
       <title>Routine Statements</title>
 
       <para>The following SQL Statements can be used only in routines. These
@@ -722,7 +722,7 @@ CREATE FUNCTION an_hour_before_max (e_type INT)
 </programlisting>
     </section>
 
-    <section  xml:id="src_psm_vars">
+    <section xml:id="src_psm_vars">
       <title>Variables</title>
 
       <para>A <literal>&lt;variable declaration&gt;</literal> defines the name
@@ -1342,11 +1342,14 @@ CREATE FUNCTION an_hour_before_max (e_type INT)
       is in turn invoked. If there is no handler, the exception is propagated
       to the enclosing context. In its simplest form, when there is no
       exception handler for the given exception, routine execution is halted,
-      any change of data is rolled back and the routine throws the
-      exception.</para>
+      any change of data is rolled back and the routine throws the exception.
+      By default, the message for the exception is taken from the predefined
+      exception message for the specified SQLSTATE. A custom message can be
+      specified with the optional SET clause.</para>
 
       <simpara><literal>&lt;signal statement&gt; ::= SIGNAL SQLSTATE &lt;state
-      value&gt;</literal></simpara>
+      value&gt; [ SET MESSAGE_TEXT = &lt;character string literal&gt; ]
+      </literal></simpara>
 
       <indexterm significance="preferred" type="sql">
         <primary>RESIGNAL STATEMENT</primary>
@@ -1359,10 +1362,14 @@ CREATE FUNCTION an_hour_before_max (e_type INT)
       <para>The RESIGNAL statement is used to throw an exception from an
       exception handler's <literal>&lt;SQL procedure statement&gt;</literal>,
       in effect propagating the exception to the enclosing context without
-      further action by the currently active handlers.</para>
+      further action by the currently active handlers. By default, the message
+      for the exception is taken from the predefined exception message for the
+      specified SQLSTATE. A custom message can be specified with the optional
+      SET clause.</para>
 
       <simpara><literal>&lt;resignal statement&gt; ::= RESIGNAL SQLSTATE
-      &lt;state value&gt;</literal></simpara>
+      &lt;state value&gt; [ SET MESSAGE_TEXT = &lt;character string
+      literal&gt; ]</literal></simpara>
     </section>
 
     <section xml:id="src_routine_polymorphism">
