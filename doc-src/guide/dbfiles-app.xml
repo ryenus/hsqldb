@@ -28,7 +28,7 @@
     </keywordset>
   </info>
 
-  <section>
+  <section xml:id="dfa_db_files">
     <title>Database Files</title>
 
     <para>Database catalogs opened with the file: protocol are stored as a set
@@ -108,7 +108,7 @@
     CHECKPOINT followed by closing the database.</para>
   </section>
 
-  <section>
+  <section xml:id="dfa_file_states">
     <title>States</title>
 
     <para>Database is closed correctly</para>
@@ -215,13 +215,13 @@
     </itemizedlist>
   </section>
 
-  <section>
+  <section xml:id="dfa_db_files_procs">
     <title>Procedures</title>
 
     <para>The database engine performs the following procedures internally in
     different circumstances.</para>
 
-    <section>
+    <section xml:id="dfa_db_files_shutdown">
       <title>Clean Shutdown</title>
 
       <procedure>
@@ -278,7 +278,7 @@
       </procedure>
     </section>
 
-    <section>
+    <section xml:id="dfa_db_files_startup">
       <title>Startup</title>
 
       <procedure>
@@ -296,14 +296,13 @@
 
         <step>
           <para>If the <filename>test.script</filename> did not exist, then
-          this is a new database. Create the empty
-          <filename>test.log</filename> to append new commands.</para>
+          this is a new database.</para>
         </step>
 
         <step>
           <para>If it is an existing database, check in the
           <filename>test.properties</filename> file if 'modified=yes'. In this
-          case the 'RESTORE' operatio is performed before the database is
+          case the 'RESTORE' operation is performed before the database is
           opened normally.</para>
         </step>
 
