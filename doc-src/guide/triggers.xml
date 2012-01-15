@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-
 <!DOCTYPE book [
-  <!ENTITY % dummy22 SYSTEM "../entities/global.ent"> %dummy22;
+<!ENTITY % dummy22 SYSTEM "../entities/global.ent">
+%dummy22;
 ]>
 <chapter version="5.0" xml:id="triggers-chapt"
          xmlns="http://docbook.org/ns/docbook"
@@ -37,11 +37,11 @@
     </keywordset>
 
     <legalnotice>
-      <para>Copyright 2010-2012 Fred Toussi. Permission is granted to distribute
-      this document without any alteration under the terms of the HSQLDB
-      license. Additional permission is granted to the HSQL Development Group
-      to distribute this document with or without alterations under the terms
-      of the HSQLDB license.</para>
+      <para>Copyright 2010-2012 Fred Toussi. Permission is granted to
+      distribute this document without any alteration under the terms of the
+      HSQLDB license. Additional permission is granted to the HSQL Development
+      Group to distribute this document with or without alterations under the
+      terms of the HSQLDB license.</para>
     </legalnotice>
   </info>
 
@@ -326,8 +326,9 @@
       action time can modify the row data. Triggers with AFTER trigger action
       time can modify the database, e.g. insert new rows. If the trigger needs
       to access the database, the same method as in Java Language Routines
-      SQL/JRT can be used with <literal>"jdbc:default:connection"</literal> to
-      get the connection to the database.</para>
+      SQL/JRT can be used. The Java code should connect to the URL
+      <literal>"jdbc:default:connection"</literal> and use this connection to
+      access the database.</para>
 
       <para>For sample trigger classes and test code see,
       <classname>org.hsqldb.sample.TriggerSample</classname>,
@@ -460,8 +461,8 @@
     to INSERT, DELETE, UPDATE and MERGE statements.</simpara>
 
     <simpara>The <literal>&lt;HSQLDB trigger class FQN&gt;</literal> is a
-    delimited identifier that contains the fully qualified name of a Java class
-    that implements the <classname>org.hsqldb.Trigger</classname>
+    delimited identifier that contains the fully qualified name of a Java
+    class that implements the <classname>org.hsqldb.Trigger</classname>
     interface.</simpara>
 
     <simpara>Early releases of HyperSQL version 2.0 do not allow the use of
@@ -507,7 +508,7 @@
     FOR EACH ROW WHEN (newrow.id &gt; 100)
     BEGIN ATOMIC
       IF EXISTS (SELECT * FROM CUSTOMER WHERE CUSTOMER.LASTNAME = NEW.LASTNAME) THEN
-        SIGNAL SQLSTATE '45000';
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'already exists';
       END IF;
     END
 </programlisting>
