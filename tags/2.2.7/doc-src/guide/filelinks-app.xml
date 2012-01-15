@@ -1,0 +1,170 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- $Id$ -->
+
+<!DOCTYPE book [
+  <!ENTITY % dummy22 SYSTEM "../entities/global.ent"> %dummy22;
+]>
+
+<appendix version="5.0" xml:id="filelinks-app"
+          xmlns="http://docbook.org/ns/docbook"
+          xmlns:xlink="http://www.w3.org/1999/xlink">
+
+  <title>HyperSQL File Links</title>
+  <subtitle>HyperSQL Files referred to in this Guide</subtitle>
+  <simpara>
+    HyperSQL files referred to in the text may be retrieved from the
+    canonical HyperSQL documentation site, &distro_baseurl;, or from the
+    same location you are reading this page from.
+  </simpara>
+  <note><simpara>
+    If you are reading this document with a standalone PDF reader,
+    only the &distro_baseurl;/... links will function.
+  </simpara></note>
+
+  <itemizedlist>
+    <title>
+      Pairs of local + &distro_baseurl; links for referenced files.
+    </title>
+    <listitem xml:id="JDBCConnection.html-link">
+      <simpara>
+        Local:
+        <link xlink:href="../apidocs/org/hsqldb/jdbc/JDBCConnection.html"/>
+      </simpara> <simpara>
+        <link xlink:href="&distro_baseurl;/apidocs/org/hsqldb/jdbc/JDBCConnection.html"/>
+      </simpara>
+    </listitem> <listitem xml:id="JDBCDriver.html-link">
+      <simpara>
+        Local:
+        <link xlink:href="../apidocs/org/hsqldb/jdbc/JDBCDriver.html"/>
+      </simpara> <simpara>
+        <link xlink:href="&distro_baseurl;/apidocs/org/hsqldb/jdbc/JDBCDriver.html"/>
+      </simpara>
+    </listitem> <listitem xml:id="JDBCDatabaseMetaData.html-link">
+      <simpara>
+        Local:
+        <link xlink:href="../apidocs/org/hsqldb/jdbc/JDBCDatabaseMetaData.html"/>
+      </simpara> <simpara>
+        <link xlink:href="&distro_baseurl;/apidocs/org/hsqldb/jdbc/JDBCDatabaseMetaData.html"/>
+      </simpara>
+    </listitem> <listitem xml:id="JDBCResultSet.html-link">
+      <simpara>
+        Local:
+        <link xlink:href="../apidocs/org/hsqldb/jdbc/JDBCResultSet.html"/>
+      </simpara> <simpara>
+        <link xlink:href="&distro_baseurl;/apidocs/org/hsqldb/jdbc/JDBCResultSet.html"/>
+      </simpara>
+    </listitem> <listitem xml:id="JDBCStatement.html-link">
+      <simpara>
+        Local:
+        <link xlink:href="../apidocs/org/hsqldb/jdbc/JDBCStatement.html"/>
+      </simpara> <simpara>
+        <link xlink:href="&distro_baseurl;/apidocs/org/hsqldb/jdbc/JDBCStatement.html"/>
+      </simpara>
+    </listitem> <listitem xml:id="JDBCPreparedStatement.html-link">
+      <simpara>
+        Local:
+        <link xlink:href="../apidocs/org/hsqldb/jdbc/JDBCPreparedStatement.html"/>
+      </simpara> <simpara>
+        <link xlink:href="&distro_baseurl;/apidocs/org/hsqldb/jdbc/JDBCPreparedStatement.html"/>
+      </simpara>
+    </listitem> <listitem xml:id="MainInvoker.html-link">
+      <simpara>
+        Local:
+        <link xlink:href="../apidocs/org/hsqldb/util/MainInvoker.html"/>
+      </simpara> <simpara>
+      <link xlink:href="&distro_baseurl;/apidocs/org/hsqldb/util/MainInvoker.html"/>
+      </simpara>
+    </listitem> <listitem xml:id="javadoc-link">
+      <simpara>
+        Local:
+        <link xlink:href="../apidocs/index.html"/>
+      </simpara> <simpara>
+        <link xlink:href="&distro_baseurl;/apidocs/"/>
+      </simpara>
+    </listitem> <listitem xml:id="Servlet.java-link">
+      <simpara>
+        Local:
+        <link xlink:href="../verbatim/src/org/hsqldb/server/Servlet.java"/>
+      </simpara> <simpara>
+        <link xlink:href="&distro_baseurl;/verbatim/src/org/hsqldb/server/Servlet.java"/>
+      </simpara>
+    </listitem> <listitem xml:id="Tokens.java-link">
+      <simpara>
+        Local:
+        <link xlink:href="../verbatim/src/org/hsqldb/Tokens.java"/>
+      </simpara> <simpara>
+        <link xlink:href="&distro_baseurl;/verbatim/src/org/hsqldb/Tokens.java"/>
+      </simpara>
+    </listitem> <listitem xml:id="WebServer.java-link">
+      <simpara>
+        Local:
+        <link xlink:href="../verbatim/src/org/hsqldb/server/WebServer.java"/>
+      </simpara> <simpara>
+        <link xlink:href="&distro_baseurl;/verbatim/src/org/hsqldb/server/WebServer.java"/>
+      </simpara>
+    </listitem> <listitem xml:id="TestBase.java-link">
+      <simpara>
+        Local:
+        <link xlink:href="../verbatim/src/org/hsqldb/test/TestBase.java"/>
+      </simpara> <simpara>
+        <link xlink:href="&distro_baseurl;/verbatim/src/org/hsqldb/test/TestBase.java"/>
+      </simpara>
+    </listitem> <listitem xml:id="Trigger.java-link">
+      <simpara>
+        Local:
+        <link xlink:href="../verbatim/src/org/hsqldb/Trigger.java"/>
+      </simpara> <simpara>
+        <link xlink:href="&distro_baseurl;/verbatim/src/org/hsqldb/Trigger.java"/>
+      </simpara>
+    </listitem> <listitem xml:id="TriggerSample.java-link">
+      <simpara>
+        Local:
+        <link xlink:href="../verbatim/src/org/hsqldb/sample/TriggerSample.java"/>
+      </simpara> <simpara>
+        <link xlink:href="&distro_baseurl;/verbatim/src/org/hsqldb/test/sample/TriggerSample.java"/>
+      </simpara>
+    </listitem> <listitem xml:id="MainInvoker.java-link">
+      <simpara>
+        Local:
+        <link xlink:href="../verbatim/src/org/hsqldb/util/MainInvoker.java"/>
+      </simpara> <simpara>
+      <link xlink:href="&distro_baseurl;/verbatim/src/org/hsqldb/util/MainInvoker.java"/>
+      </simpara>
+    </listitem> <listitem xml:id="hsqldb.cfg-link">
+      <simpara>
+        Local:
+        <link xlink:href="../verbatim/sample/hsqldb.cfg"/>
+      </simpara> <simpara>
+        <link xlink:href="&distro_baseurl;/verbatim/sample/hsqldb.cfg"/>
+      </simpara>
+    </listitem> <listitem xml:id="acl.txt-link">
+      <simpara>
+        Local:
+        <link xlink:href="../verbatim/sample/acl.txt"/>
+      </simpara> <simpara>
+        <link xlink:href="&distro_baseurl;/verbatim/sample/acl.txt"/>
+      </simpara>
+    </listitem> <listitem xml:id="server.properties-link">
+      <simpara>
+        Local:
+        <link xlink:href="../verbatim/sample/server.properties"/>
+      </simpara> <simpara>
+        <link xlink:href="&distro_baseurl;/verbatim/sample/server.properties"/>
+      </simpara>
+    </listitem> <listitem xml:id="sqltool.rc-link">
+      <simpara>
+        Local:
+        <link xlink:href="../verbatim/sample/sqltool.rc"/>
+      </simpara> <simpara>
+        <link xlink:href="&distro_baseurl;/verbatim/sample/sqltool.rc"/>
+      </simpara>
+    </listitem> <listitem xml:id="hsqldb.init-link">
+      <simpara>
+        Local:
+        <link xlink:href="../verbatim/sample/hsqldb.init"/>
+      </simpara> <simpara>
+        <link xlink:href="&distro_baseurl;/verbatim/sample/hsqldb.init"/>
+      </simpara>
+    </listitem>
+  </itemizedlist>
+</appendix>
