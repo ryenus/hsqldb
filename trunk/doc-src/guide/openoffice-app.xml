@@ -44,7 +44,7 @@
     </keywordset>
   </info>
 
-  <section>
+  <section xml:id="ooa_overview">
     <title>HyperSQL with OpenOffice.org</title>
 
     <simpara>OpenOffice.org includes HyperSQL and uses it for embedded
@@ -64,7 +64,7 @@
     database is intended for your own application.</simpara>
   </section>
 
-  <section>
+  <section xml:id="ooa_database_tool">
     <title>Using OpenOffice.org as a Database Tool</title>
 
     <simpara>OpenOffice.org is a very powerful database front end. If you want
@@ -91,7 +91,7 @@
     future versions of OOo.</simpara>
   </section>
 
-  <section>
+  <section xml:id="ooa_db_files_convert">
     <title>Converting .odb files to use with HyperSQL Server</title>
 
     <simpara>You may already have an OOo database file, which you want to use

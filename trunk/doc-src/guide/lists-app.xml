@@ -42,7 +42,7 @@
     </keywordset>
   </info>
 
-  <section>
+  <section xml:id="lta_standard_keywords">
     <title>List of SQL Standard Keywords</title>
 
     <para>According to the SQL Standard, the SQL Language keywords cannot be
@@ -148,7 +148,7 @@
     <simpara>YEAR</simpara>
   </section>
 
-  <section>
+  <section xml:id="dfa_disallowed_keywords">
     <title>List of SQL Keywords Disallowed as HyperSQL Identifiers</title>
 
     <para>When the default <literal>SET DATABASE SQL NAMES FALSE</literal>
@@ -199,7 +199,7 @@
     <simpara>WHEN • WHERE • WITH</simpara>
   </section>
 
-  <section>
+  <section xml:id="dfa_function_keywords">
     <title>Special Function Keywords</title>
 
     <para>HyperSQL supports SQL Standard functions that are called without
