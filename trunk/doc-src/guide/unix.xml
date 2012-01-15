@@ -224,7 +224,7 @@
     and see if it works, or build your own.</simpara>
 
     <simpara>To use the supplied <filename>hsqldb.jar</filename>, just skip to
-    the <link xlink:href="#unix_cat_setup"> next section of this
+    the <link xlink:href="#uxc_cat_setup"> next section of this
     document</link>. Otherwise build a new
     <filename>hsqldb.jar</filename>.</simpara>
 
@@ -650,7 +650,7 @@
           <simpara>Re-run the script with each of the possible arguments to
           really test it good. If anything doesn't work right, then see the
           <link endterm="uxc_inittrouble-title"
-          xlink:href="#unix_inittrouble"></link> section.</simpara>
+          xlink:href="#uxc_inittrouble"></link> section.</simpara>
         </step>
 
         <step>
