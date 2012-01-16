@@ -2678,6 +2678,10 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
     private void setBinStream(int parameterIndex, java.io.InputStream x,
                               long length) throws SQLException {
 
+        if (isClosed || connection.isClosed) {
+            checkClosed();
+        }
+
         if (parameterTypes[parameterIndex - 1].typeCode == Types.SQL_BLOB) {
             setBlobParameter(parameterIndex, x, length);
 
