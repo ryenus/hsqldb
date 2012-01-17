@@ -43,6 +43,8 @@ import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.hsqldb.lib.InputStreamInterface;
+import org.hsqldb.lib.InputStreamWrapper;
 import org.hsqldb.lib.StringUtil;
 
 /**
@@ -187,6 +189,13 @@ public class TarGenerator {
                            throws FileNotFoundException,
                                   TarMalformatException {
         entryQueue.add(new TarEntrySupplicant(entryPath, file, archive));
+    }
+
+    public void queueEntry(String entryPath,
+                           InputStreamInterface is)
+                           throws FileNotFoundException,
+                                  TarMalformatException {
+        entryQueue.add(new TarEntrySupplicant(entryPath, is, archive));
     }
 
     /**
@@ -358,7 +367,7 @@ public class TarGenerator {
         protected String fileMode  = DEFAULT_FILE_MODES;
 
         // Following fields are always initialized by constructors.
-        protected InputStream         inputStream;
+        protected InputStreamInterface         inputStream;
         protected String              path;
         protected long                modTime;
         protected TarFileOutputStream tarStream;
@@ -473,9 +482,29 @@ public class TarGenerator {
             modTime     = file.lastModified() / 1000L;
             fileMode    = TarEntrySupplicant.getLameMode(file);
             dataSize    = file.length();
-            inputStream = new FileInputStream(file);
+            inputStream = new InputStreamWrapper(new FileInputStream(file));
         }
 
+        public TarEntrySupplicant(String path, InputStreamInterface is,
+                                  TarFileOutputStream tarStream)
+                                  throws FileNotFoundException,
+                                         TarMalformatException {
+
+            // Must use an expression-embedded ternary here to satisfy compiler
+            // that this() call be first statement in constructor.
+            this( path, '0', tarStream);
+
+            // Difficult call for '0'.  binary 0 and character '0' both mean
+            // regular file.  Binary 0 pre-UStar is probably more portable,
+            // but we are writing a valid UStar header, and I doubt anybody's
+            // tar implementation would choke on this since there is no
+            // outcry of UStar archives failing to work with older tars.
+
+            modTime     = System.currentTimeMillis() / 1000L;
+            fileMode    = DEFAULT_FILE_MODES;
+            dataSize    = is.getSizeLimit();
+            inputStream = is;
+        }
         /**
          * After instantiating a TarEntrySupplicant, the user must either invoke
          * write() or close(), to release system resources on the input
@@ -517,7 +546,7 @@ public class TarGenerator {
             inputStream = new PipedInputStream(outPipe, maxBytes);
             */
             try {
-                inputStream = new PipedInputStream(outPipe);
+                inputStream = new InputStreamWrapper(new PipedInputStream(outPipe));
                 while ((i =
                         origStream
                             .read(tarStream.writeBuffer, 0, tarStream
@@ -611,6 +640,12 @@ public class TarGenerator {
             int i;
 
             try {
+
+                // normal file streams will return -1 as size limit
+                if (inputStream.getSizeLimit() == 0) {
+                    return;
+                }
+
                 writeField(TarHeaderField.name, path);
 
                 // TODO:  If path.length() > 99, then write a PIF entry with
@@ -632,7 +667,6 @@ public class TarGenerator {
                 tarStream.writeBlock(rawHeader);
 
                 long dataStart = tarStream.getBytesWritten();
-
                 while ((i = inputStream.read(tarStream.writeBuffer)) > 0) {
                     tarStream.write(i);
                 }

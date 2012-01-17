@@ -75,7 +75,7 @@ import org.hsqldb.scriptio.ScriptWriterText;
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
  * @author Bob Preston (sqlbob@users dot sourceforge.net) - text table support
- * @version 2.1.1
+ * @version 2.3.0
  * @since 1.8.0
  */
 public class Log {
@@ -828,5 +828,9 @@ public class Log {
 
             file.delete();
         } catch (Throwable t) {}
+    }
+
+    String getLogFileName() {
+        return logFileName;
     }
 }

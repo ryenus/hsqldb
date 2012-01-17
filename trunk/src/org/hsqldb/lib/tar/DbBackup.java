@@ -37,6 +37,8 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Properties;
 
+import org.hsqldb.lib.InputStreamInterface;
+
 /**
  * Works with tar archives containing HSQLDB database instance backups.
  * Viz, creating, examining, or extracting these archives.
@@ -59,6 +61,7 @@ import java.util.Properties;
  * @see #setOverWrite(boolean)
  * @see #setAbortUponModify(boolean)
  * @author Blaine Simpson (blaine dot simpson at admc dot com)
+ * @version 2.3.0
  */
 public class DbBackup {
 
@@ -166,6 +169,15 @@ public class DbBackup {
         }
     }
 
+    protected File         dbDir;
+    protected File         archiveFile;
+    protected String       instanceName;
+    protected boolean      overWrite       = false;    // Defaults no NO OVERWRITE
+    protected boolean      abortUponModify = true;     // Defaults to ABORT-UPON-MODIFY
+    File[]                 componentFiles;
+    InputStreamInterface[] componentStreams;
+    boolean[]              existList;
+
     /**
      * Instantiate a DbBackup instance for creating a Database Instance backup.
      *
@@ -178,15 +190,51 @@ public class DbBackup {
 
         File dbPathFile = new File(dbPath);
 
-        dbDir        = dbPathFile.getAbsoluteFile().getParentFile();
-        instanceName = dbPathFile.getName();
+        dbDir          = dbPathFile.getAbsoluteFile().getParentFile();
+        instanceName   = dbPathFile.getName();
+        componentFiles = new File[] {
+            new File(dbDir, instanceName + ".properties"),
+            new File(dbDir, instanceName + ".script"),
+            new File(dbDir, instanceName + ".backup"),
+            new File(dbDir, instanceName + ".data"),
+            new File(dbDir, instanceName + ".log"),
+            new File(dbDir, instanceName + ".lobs")
+        };
+        componentStreams = new InputStreamInterface[componentFiles.length];
+        existList        = new boolean[componentFiles.length];
     }
 
-    protected File    dbDir;
-    protected File    archiveFile;
-    protected String  instanceName;
-    protected boolean overWrite       = false;    // Defaults no NO OVERWRITE
-    protected boolean abortUponModify = true;     // Defaults to ABORT-UPON-MODIFY
+    /**
+     * Used for SCRIPT backup
+     */
+    public DbBackup(File archiveFile, String dbPath, boolean script) {
+
+        this.archiveFile = archiveFile;
+
+        File dbPathFile = new File(dbPath);
+
+        dbDir        = dbPathFile.getAbsoluteFile().getParentFile();
+        instanceName = dbPathFile.getName();
+        componentFiles = new File[]{
+            new File(dbDir, instanceName + ".script"), };
+        componentStreams = new InputStreamInterface[componentFiles.length];
+        existList        = new boolean[componentFiles.length];
+        abortUponModify  = false;
+    }
+
+    /**
+     * Overrides file with stream.
+     */
+    public void setStream(String fileExtension, InputStreamInterface is) {
+
+        for (int i = 0; i < componentFiles.length; i++) {
+            if (componentFiles[i].getName().endsWith(fileExtension)) {
+                componentStreams[i] = is;
+
+                break;
+            }
+        }
+    }
 
     /**
      * Defaults to false.
@@ -230,22 +278,51 @@ public class DbBackup {
      */
     public void write() throws IOException, TarMalformatException {
 
-        File   propertiesFile = new File(dbDir, instanceName + ".properties");
-        File   scriptFile     = new File(dbDir, instanceName + ".script");
-        File[] componentFiles = new File[] {
-            propertiesFile, scriptFile,
-            new File(dbDir, instanceName + ".backup"),
-            new File(dbDir, instanceName + ".data"),
-            new File(dbDir, instanceName + ".log"),
-            new File(dbDir, instanceName + ".lobs")
-        };
-        boolean[] existList = new boolean[componentFiles.length];
-        long      startTime = new java.util.Date().getTime();
+        long startTime = new java.util.Date().getTime();
 
-        for (int i = 0; i < existList.length; i++) {
-            existList[i] = componentFiles[i].exists();
+        checkEssentialFiles();
 
-            if (i < 2 && !existList[i]) {
+        TarGenerator generator = new TarGenerator(archiveFile, overWrite,
+            new Integer(DbBackup.generateBufferBlockValue(componentFiles)));
+
+        for (int i = 0; i < componentFiles.length; i++) {
+            boolean exists = componentStreams[i] != null
+                             || componentFiles[i].exists();
+
+            if (!exists) {
+                continue;
+
+                // We've already verified that required files exist, therefore
+                // there is no error condition here.
+            }
+
+            if (componentStreams[i] == null) {
+                generator.queueEntry(componentFiles[i].getName(),
+                                     componentFiles[i]);
+
+                existList[i] = true;
+            } else {
+                generator.queueEntry(componentFiles[i].getName(),
+                                     componentStreams[i]);
+            }
+        }
+
+        generator.write();
+        checkFilesNotChanged(startTime);
+    }
+
+    void checkEssentialFiles()
+    throws FileNotFoundException, IllegalStateException {
+
+        if (!componentFiles[0].getName().endsWith(".properties")) {
+            return;
+        }
+
+        for (int i = 0; i < 2; i++) {
+            boolean exists = componentStreams[i] != null
+                             || componentFiles[i].exists();
+
+            if (!exists) {
 
                 // First 2 files are REQUIRED
                 throw new FileNotFoundException(
@@ -254,84 +331,79 @@ public class DbBackup {
             }
         }
 
-        if (abortUponModify) {
-            Properties      p   = new Properties();
-            FileInputStream fis = null;
+        if (!abortUponModify) {
+            return;
+        }
 
+        Properties      p   = new Properties();
+        FileInputStream fis = null;
+
+        try {
+            File propertiesFile = componentFiles[0];
+
+            fis = new FileInputStream(propertiesFile);
+
+            p.load(fis);
+        } catch (IOException io) {}
+        finally {
             try {
-                fis = new FileInputStream(propertiesFile);
-
-                p.load(fis);
-            } finally {
-                try {
-                    if (fis != null) {
-                        fis.close();
-                    }
-                } finally {
-                    fis = null;    // Encourage buffer GC
+                if (fis != null) {
+                    fis.close();
                 }
-            }
-
-            String modifiedString = p.getProperty("modified");
-
-            if (modifiedString != null
-                    && (modifiedString.equalsIgnoreCase("yes")
-                        || modifiedString.equalsIgnoreCase("true"))) {
-                throw new IllegalStateException(
-                    RB.modified_property.getString(modifiedString));
+            } catch (IOException io) {}
+            finally {
+                fis = null;    // Encourage buffer GC
             }
         }
 
-        TarGenerator generator = new TarGenerator(archiveFile, overWrite,
-            new Integer(DbBackup.generateBufferBlockValue(componentFiles)));
+        String modifiedString = p.getProperty("modified");
 
-        for (int i = 0; i < componentFiles.length; i++) {
-            if (!componentFiles[i].exists()) {
-                continue;
+        if (modifiedString != null
+                && (modifiedString.equalsIgnoreCase("yes")
+                    || modifiedString.equalsIgnoreCase("true"))) {
+            throw new IllegalStateException(
+                RB.modified_property.getString(modifiedString));
+        }
+    }
 
-                // We've already verified that required files exist, therefore
-                // there is no error condition here.
-            }
+    void checkFilesNotChanged(long startTime) throws FileNotFoundException {
 
-            generator.queueEntry(componentFiles[i].getName(),
-                                 componentFiles[i]);
+        // abortUponModify is used with offline invocation only
+        if (!abortUponModify) {
+            return;
         }
 
-        generator.write();
-
-        if (abortUponModify) {
-            try {
-                for (int i = 0; i < componentFiles.length; i++) {
-                    if (componentFiles[i].exists()) {
-                        if (!existList[i]) {
-                            throw new FileNotFoundException(
-                                RB.file_disappeared.getString(
-                                    componentFiles[i].getAbsolutePath()));
-                        }
-
-                        if (componentFiles[i].lastModified() > startTime) {
-                            throw new FileNotFoundException(
-                                RB.file_changed.getString(
-                                    componentFiles[i].getAbsolutePath()));
-                        }
-                    } else if (existList[i]) {
+        try {
+            for (int i = 0; i < componentFiles.length; i++) {
+                if (componentFiles[i].exists()) {
+                    if (!existList[i]) {
                         throw new FileNotFoundException(
-                            RB.file_appeared.getString(
+                            RB.file_disappeared.getString(
                                 componentFiles[i].getAbsolutePath()));
                     }
-                }
-            } catch (IllegalStateException ise) {
-                if (!archiveFile.delete()) {
-                    System.out.println(
-                        RB.cleanup_rmfail.getString(
-                            archiveFile.getAbsolutePath()));
 
-                    // Be-it-known.  This method can write to stderr if
-                    // abortUponModify is true.
+                    if (componentFiles[i].lastModified() > startTime) {
+                        throw new FileNotFoundException(
+                            RB.file_changed.getString(
+                                componentFiles[i].getAbsolutePath()));
+                    }
+                } else if (existList[i]) {
+                    throw new FileNotFoundException(
+                        RB.file_appeared.getString(
+                            componentFiles[i].getAbsolutePath()));
                 }
-
-                throw ise;
             }
+        } catch (IllegalStateException ise) {
+            if (!archiveFile.delete()) {
+                System.out.println(
+                    RB.cleanup_rmfail.getString(
+                        archiveFile.getAbsolutePath()));
+
+                // Be-it-known.  This method can write to stderr if
+                // abortUponModify is true.
+            }
+
+            throw ise;
         }
     }
 

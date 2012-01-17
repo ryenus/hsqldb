@@ -32,10 +32,12 @@
 package org.hsqldb.persist;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.text.SimpleDateFormat;
 import java.util.Locale;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.hsqldb.Database;
 import org.hsqldb.DatabaseURL;
@@ -65,12 +67,15 @@ import org.hsqldb.lib.FileUtil;
 import org.hsqldb.lib.FrameworkLogger;
 import org.hsqldb.lib.HashMap;
 import org.hsqldb.lib.HsqlArrayList;
+import org.hsqldb.lib.InputStreamInterface;
+import org.hsqldb.lib.InputStreamWrapper;
 import org.hsqldb.lib.Iterator;
 import org.hsqldb.lib.SimpleLog;
 import org.hsqldb.lib.StringUtil;
 import org.hsqldb.lib.tar.DbBackup;
 import org.hsqldb.lib.tar.TarMalformatException;
 import org.hsqldb.scriptio.ScriptWriterBase;
+import org.hsqldb.scriptio.ScriptWriterText;
 import org.hsqldb.types.RowType;
 import org.hsqldb.types.Type;
 
@@ -85,7 +90,7 @@ import org.hsqldb.types.Type;
  *  storage.<p>
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.2.7
+ * @version 2.3.0
  * @since 1.7.0
  */
 public class Logger {
@@ -148,6 +153,13 @@ public class Logger {
 
     //
     public boolean isSingleFile;
+
+    //
+    AtomicInteger backupState = new AtomicInteger();
+
+    static final int stateNormal = 0;
+    static final int stateBackup = 1;
+    static final int stateCheckpoint = 2;
 
     //
     public static final String oldFileExtension        = ".old";
@@ -942,6 +954,18 @@ public class Logger {
      */
     public synchronized void checkpoint(boolean mode) {
 
+        if (!backupState.compareAndSet(stateNormal, stateCheckpoint)) {
+            throw Error.error(ErrorCode.ACCESS_IS_DENIED);
+        }
+
+        try {
+            checkpointInternal(mode);
+        } finally {
+            backupState.set(stateNormal);
+        }
+    }
+
+    void checkpointInternal(boolean mode) {
         if (logsStatements) {
             database.logger.logInfoEvent("Checkpoint start");
             log.checkpoint(mode);
@@ -1851,32 +1875,36 @@ public class Logger {
         return array;
     }
 
-    //
-    static private SimpleDateFormat backupFileFormat =
+    public void backup(String destPath, boolean script, boolean checkpoint,
+                       boolean blocking, boolean compressed) {
+
+        if (!backupState.compareAndSet(stateNormal, stateBackup)) {
+            throw Error.error(ErrorCode.BACKUP_ERROR, "BACKUP IN PROGRESS");
+        }
+
+        try {
+            backupInternal(destPath, script, checkpoint, blocking, compressed);
+        } finally {
+            backupState.set(stateNormal);
+        }
+    }
+
+    private SimpleDateFormat backupFileFormat =
         new SimpleDateFormat("yyyyMMdd'T'HHmmss");
-    static private Character runtimeFileDelim = null;
+    private Character runtimeFileDelim =
+        new Character(System.getProperty("file.separator").charAt(0));
+    DbBackup backup;
 
-    public synchronized void backup(String destPath, boolean script,
-                                    boolean checkpoint, boolean blocking,
-                                    boolean compressed) {
+    void backupInternal(String destPath, boolean script, boolean checkpoint,
+                        boolean blocking, boolean compressed) {
 
-        String dbPath = database.getPath();
-
+        String scriptName = null;
+        String dbPath     = database.getPath();
         /* If want to add db Id also, will need to pass either Database
-         * instead of dbPath, or pass dbPath + Id from CommandStatement.
+         * instead of dbPath, or pass dbPath + Id from StatementCommand.
          */
-        if (runtimeFileDelim == null) {
-            runtimeFileDelim =
-                new Character(System.getProperty("file.separator").charAt(0));
-        }
-
         String instanceName = new File(dbPath).getName();
-
-        if (destPath == null || destPath.length() < 1) {
-            throw Error.error(ErrorCode.X_2200F, "0-length destination path");
-        }
-
-        char lastChar = destPath.charAt(destPath.length() - 1);
+        char   lastChar     = destPath.charAt(destPath.length() - 1);
         boolean generateName = (lastChar == '/'
                                 || lastChar == runtimeFileDelim.charValue());
         String defaultCompressionSuffix = compressed ? ".tar.gz"
@@ -1907,7 +1935,13 @@ public class Logger {
             });
         }
 
-        log.checkpointClose();
+        if (checkpoint) {
+            if (blocking) {
+                log.checkpointClose();
+            } else {
+                checkpointInternal(false);
+            }
+        }
 
         try {
             database.logger.logInfoEvent("Initiating backup of instance '"
@@ -1916,23 +1950,83 @@ public class Logger {
             // By default, DbBackup will throw if archiveFile (or
             // corresponding work file) already exist.  That's just what we
             // want here.
-            DbBackup backup = new DbBackup(archiveFile, dbPath);
+            if (script) {
+                String path = getTempDirectoryPath();
 
-            backup.setAbortUponModify(false);
-            backup.write();
+                if (path == null) {
+                    return;
+                }
+
+                path = path + "/" + new File(database.getPath()).getName();
+                scriptName = path + scriptFileExtension;
+
+                ScriptWriterText dsw = new ScriptWriterText(database,
+                    scriptName, true, true, true);
+
+                dsw.writeAll();
+                dsw.close();
+
+                backup = new DbBackup(archiveFile, path, true);
+
+                backup.write();
+            } else {
+                backup = new DbBackup(archiveFile, dbPath);
+
+                backup.setAbortUponModify(false);
+
+                if (!blocking) {
+                    InputStreamWrapper isw;
+                    File               file = null;
+
+                    if (hasCache()) {
+                        DataFileCache dataFileCache = getCache();
+
+                        file = new File(dataFileCache.dataFileName);
+                        isw = new InputStreamWrapper(
+                            new FileInputStream(file));
+
+                        isw.setSizeLimit(dataFileCache.fileStartFreePosition);
+                        backup.setStream(dataFileExtension, isw);
+
+                        RAShadowFile shadowFile =
+                            dataFileCache.getShadowFile();
+
+                        if (shadowFile != null) {
+                            InputStreamInterface isi =
+                                shadowFile.getInputStream();
+
+                            backup.setStream(backupFileExtension, isi);
+                        }
+                    }
+
+                    // log
+                    file = new File(log.getLogFileName());
+                    isw  = new InputStreamWrapper(new FileInputStream(file));
+
+                    isw.setSizeLimit(file.length());
+                    backup.setStream(logFileExtension, isw);
+                }
+
+                backup.write();
+            }
+
             database.logger.logInfoEvent("Successfully backed up instance '"
                                          + instanceName + "' to '" + destPath
                                          + "'");
-
-            // RENAME tempPath to destPath
-        } catch (IllegalArgumentException iae) {
-            throw Error.error(ErrorCode.X_HV00A, iae.toString());
         } catch (IOException ioe) {
             throw Error.error(ErrorCode.FILE_IO_ERROR, ioe.toString());
         } catch (TarMalformatException tme) {
             throw Error.error(ErrorCode.FILE_IO_ERROR, tme.toString());
         } finally {
-            log.checkpointReopen();
+            if (scriptName != null) {
+                FileUtil.getFileUtil().delete(scriptName);
+            }
+
+            if (checkpoint) {
+                if (blocking) {
+                    log.checkpointReopen();
+                }
+            }
         }
     }
 
