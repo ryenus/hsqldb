@@ -1261,6 +1261,7 @@ public class Logger {
             case TableBase.TEMP_TABLE :
                 return new RowStoreAVLHybridExtended(session, collection,
                                                      table, true);
+
             case TableBase.CHANGE_SET_TABLE :
                 return new RowStoreDataChange(session, collection, table);
 
@@ -1856,7 +1857,8 @@ public class Logger {
     static private Character runtimeFileDelim = null;
 
     public synchronized void backup(String destPath, boolean script,
-                                    boolean blocking, boolean compressed) {
+                                    boolean checkpoint, boolean blocking,
+                                    boolean compressed) {
 
         String dbPath = database.getPath();
 
