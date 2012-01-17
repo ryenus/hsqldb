@@ -31,10 +31,13 @@
 
 package org.hsqldb.persist;
 
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 
 import org.hsqldb.Database;
 import org.hsqldb.lib.HsqlByteArrayOutputStream;
+import org.hsqldb.lib.InputStreamInterface;
 import org.hsqldb.lib.java.JavaSystem;
 import org.hsqldb.store.BitMap;
 
@@ -42,7 +45,7 @@ import org.hsqldb.store.BitMap;
  * Wrapper for random access file for incremental backup of the .data file.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.0.1
+ * @version 2.3.0
  * @since 1.9.0
  */
 public class RAShadowFile {
@@ -55,6 +58,7 @@ public class RAShadowFile {
     final long                  maxSize;
     final BitMap                bitMap;
     boolean                     zeroPageSet;
+    long                        savedLength;
     HsqlByteArrayOutputStream byteArrayOutputStream =
         new HsqlByteArrayOutputStream(new byte[]{});
 
@@ -132,6 +136,8 @@ public class RAShadowFile {
             source.read(buffer, 12, readSize);
             dest.seek(writePos);
             dest.write(buffer, 0, buffer.length);
+
+            savedLength = writePos + buffer.length;
         } catch (Throwable t) {
             bitMap.unset(pageOffset);
             dest.seek(0);
@@ -175,6 +181,14 @@ public class RAShadowFile {
         }
     }
 
+    public long getSavedLength() {
+        return savedLength;
+    }
+
+    public InputStreamInterface getInputStream() {
+        return new InputStreamShadow();
+    }
+
     private static RandomAccessInterface getStorage(Database database,
             String pathName, String openMode) throws IOException {
 
@@ -209,5 +223,95 @@ public class RAShadowFile {
         source.close();
         dest.synch();
         dest.close();
+    }
+
+    class InputStreamShadow implements InputStreamInterface {
+
+        FileInputStream is;
+        long            limitSize   = 0;
+        long            fetchedSize = 0;
+        boolean         initialised = false;
+
+        public int read() throws IOException {
+
+            if (!initialised) {
+                initialise();
+            }
+
+            if (fetchedSize == limitSize) {
+                return -1;
+            }
+
+            int byteread = is.read();
+
+            if (byteread >= 0) {
+                fetchedSize++;
+            }
+
+            return byteread;
+        }
+
+        public int read(byte bytes[]) throws IOException {
+            return read(bytes, 0, bytes.length);
+        }
+
+        public int read(byte bytes[], int offset,
+                        int length) throws IOException {
+
+            if (!initialised) {
+                initialise();
+            }
+
+            if (fetchedSize == limitSize) {
+                return -1;
+            }
+
+            if (limitSize >= 0 && limitSize - fetchedSize < length) {
+                length = (int) (limitSize - fetchedSize);
+            }
+
+            int count = is.read(bytes, offset, length);
+
+            if (count >= 0) {
+                fetchedSize += count;
+            }
+
+            return count;
+        }
+
+        public long skip(long count) throws IOException {
+            return 0;
+        }
+
+        public int available() throws IOException {
+            return 0;
+        }
+
+        public void close() throws IOException {
+
+            if (is != null) {
+                is.close();
+            }
+        }
+
+        public void setSizeLimit(long count) {
+            limitSize = count;
+        }
+
+        public long getSizeLimit() {
+            return limitSize;
+        }
+
+        private void initialise() {
+
+            if (savedLength > 0) {
+                try {
+                    is = new FileInputStream(pathName);
+                } catch (FileNotFoundException e) {}
+            }
+
+            initialised = true;
+            limitSize   = savedLength;
+        }
     }
 }
