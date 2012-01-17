@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2010, The HSQL Development Group
+/* Copyright (c) 2001-2011, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -35,7 +35,7 @@ package org.hsqldb.error;
  * SQL error codes.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.0.1
+ * @version 2.3.0
  * @since 1.9.0
  */
 public interface ErrorCode {
@@ -135,6 +135,7 @@ public interface ErrorCode {
     int GENERAL_IO_ERROR     = 467;                // S1000 IO error
     int DATA_FILE_IS_FULL    = 468;                // S1000 Data file size limit is reached
     int DATA_FILE_IN_USE     = 469;                // S1000 Data file is in use
+    int BACKUP_ERROR         = 470;                // S1000 Backup error
 
     // HSQLDB Text tables
     int TEXT_TABLE_UNKNOWN_DATA_SOURCE = 481;      // S1000 The table's data source for has not been defined

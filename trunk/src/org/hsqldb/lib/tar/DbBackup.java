@@ -88,7 +88,7 @@ public class DbBackup {
         try {
             if (sa.length < 1) {
                 System.out.println(
-                        RB.DbBackup_syntax.getString(DbBackup.class.getName()));
+                    RB.DbBackup_syntax.getString(DbBackup.class.getName()));
                 System.out.println();
                 System.out.println(RB.listing_format.getString());
                 System.exit(0);
@@ -161,7 +161,7 @@ public class DbBackup {
             }
         } catch (IllegalArgumentException iae) {
             System.out.println(
-                    RB.DbBackup_syntaxerr.getString(DbBackup.class.getName()));
+                RB.DbBackup_syntaxerr.getString(DbBackup.class.getName()));
             System.exit(2);
         }
     }
@@ -249,7 +249,7 @@ public class DbBackup {
 
                 // First 2 files are REQUIRED
                 throw new FileNotFoundException(
-                        RB.file_missing.getString(
+                    RB.file_missing.getString(
                         componentFiles[i].getAbsolutePath()));
             }
         }
@@ -268,7 +268,7 @@ public class DbBackup {
                         fis.close();
                     }
                 } finally {
-                    fis = null; // Encourage buffer GC
+                    fis = null;    // Encourage buffer GC
                 }
             }
 
@@ -278,22 +278,23 @@ public class DbBackup {
                     && (modifiedString.equalsIgnoreCase("yes")
                         || modifiedString.equalsIgnoreCase("true"))) {
                 throw new IllegalStateException(
-                        RB.modified_property.getString(modifiedString));
+                    RB.modified_property.getString(modifiedString));
             }
         }
 
         TarGenerator generator = new TarGenerator(archiveFile, overWrite,
             new Integer(DbBackup.generateBufferBlockValue(componentFiles)));
 
-        for (File componentFile : componentFiles) {
-            if (!componentFile.exists()) {
+        for (int i = 0; i < componentFiles.length; i++) {
+            if (!componentFiles[i].exists()) {
                 continue;
 
                 // We've already verified that required files exist, therefore
                 // there is no error condition here.
             }
 
-            generator.queueEntry(componentFile.getName(), componentFile);
+            generator.queueEntry(componentFiles[i].getName(),
+                                 componentFiles[i]);
         }
 
         generator.write();
@@ -304,25 +305,25 @@ public class DbBackup {
                     if (componentFiles[i].exists()) {
                         if (!existList[i]) {
                             throw new FileNotFoundException(
-                                    RB.file_disappeared.getString(
+                                RB.file_disappeared.getString(
                                     componentFiles[i].getAbsolutePath()));
                         }
 
                         if (componentFiles[i].lastModified() > startTime) {
                             throw new FileNotFoundException(
-                                    RB.file_changed.getString(
+                                RB.file_changed.getString(
                                     componentFiles[i].getAbsolutePath()));
                         }
                     } else if (existList[i]) {
                         throw new FileNotFoundException(
-                                RB.file_appeared.getString(
+                            RB.file_appeared.getString(
                                 componentFiles[i].getAbsolutePath()));
                     }
                 }
             } catch (IllegalStateException ise) {
                 if (!archiveFile.delete()) {
                     System.out.println(
-                            RB.cleanup_rmfail.getString(
+                        RB.cleanup_rmfail.getString(
                             archiveFile.getAbsolutePath()));
 
                     // Be-it-known.  This method can write to stderr if
@@ -377,13 +378,13 @@ public class DbBackup {
 
         long maxFileSize = 0;
 
-        for (File file : files) {
-            if (file == null) {
+        for (int i = 0; i < files.length; i++) {
+            if (files[i] == null) {
                 continue;
             }
 
-            if (file.length() > maxFileSize) {
-                maxFileSize = file.length();
+            if (files[i].length() > maxFileSize) {
+                maxFileSize = files[i].length();
             }
         }
 

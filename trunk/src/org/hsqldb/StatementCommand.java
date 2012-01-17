@@ -254,6 +254,7 @@ public class StatementCommand extends Statement {
                 boolean blocking   = ((Boolean) parameters[1]).booleanValue();
                 boolean script     = ((Boolean) parameters[2]).booleanValue();
                 boolean compressed = ((Boolean) parameters[3]).booleanValue();
+                boolean checkpoint = ((Boolean) parameters[4]).booleanValue();
 
                 try {
                     session.checkAdmin();
@@ -285,7 +286,7 @@ public class StatementCommand extends Statement {
                             Error.error(ErrorCode.DATABASE_IS_NON_FILE), null);
                     }
 
-                    session.database.logger.backup(path, script, blocking,
+                    session.database.logger.backup(path, script, checkpoint, blocking,
                                                    compressed);
 
                     return Result.updateZeroResult;

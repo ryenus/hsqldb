@@ -50,7 +50,7 @@ import org.hsqldb.types.Types;
  * Parser for session and management statements
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.2.6
+ * @version 2.3.0
  * @since 1.9.0
  */
 public class ParserCommand extends ParserDDL {
@@ -1922,14 +1922,22 @@ public class ParserCommand extends ParserDDL {
 
     private Statement compileBackup() {
 
+        String  path;
+        Boolean blockingMode = null;    // Default to non-blocking
+        Boolean scriptMode   = null;    // Default to non-script
+        Boolean compression  = null;    // Defaults to compressed
+        Boolean checkpoint   = null;    // Defaults to true
+
         read();
         readThis(Tokens.DATABASE);
         readThis(Tokens.TO);
 
-        String  path         = readQuotedString();
-        Boolean blockingMode = null;    // Default to non-blocking
-        Boolean scriptMode   = null;    // Default to non-script
-        Boolean compression  = null;    // Defaults to compressed
+        path = readQuotedString();
+        path = path.trim();
+
+        if (path.length() == 0) {
+            throw unexpectedToken(path);
+        }
 
         outerLoop:
         while (true) {
@@ -1977,6 +1985,10 @@ public class ParserCommand extends ParserDDL {
 
                         read();
                     } else if (token.tokenType == Tokens.BLOCKING) {
+                        if (blockingMode != null) {
+                            throw unexpectedToken();
+                        }
+
                         blockingMode = Boolean.FALSE;
 
                         read();
@@ -1985,33 +1997,54 @@ public class ParserCommand extends ParserDDL {
                     }
                     break;
 
+                case Tokens.CHECKPOINT :
+                    if (checkpoint != null) {
+                        throw unexpectedToken();
+                    }
+
+                    checkpoint = Boolean.TRUE;
+
+                    read();
                 default :
                     break outerLoop;
             }
         }
 
-        /**
-         * @todo: This block is TEMPORARY.  Will be removed when we implement
-         * Non-Blocking and SCRIPT mode.
-         */
-        if (scriptMode != null) {
-            throw unsupportedFeature(Tokens.T_SCRIPT);
+        if (scriptMode == null) {
+            scriptMode = Boolean.FALSE;
         }
 
-        scriptMode = Boolean.FALSE;
-
         if (blockingMode == null) {
-            throw unexpectedTokenRequire(Tokens.T_BLOCKING);
+            blockingMode = Boolean.TRUE;
         }
 
         if (compression == null) {
             compression = Boolean.TRUE;
         }
 
+        if (scriptMode) {
+            if (!blockingMode) {
+                throw unexpectedToken(Tokens.T_NOT);
+            }
+        }
+
+        if (blockingMode) {
+            checkpoint = Boolean.TRUE;
+        } else {
+            if (checkpoint == null) {
+                checkpoint = Boolean.FALSE;
+            }
+        }
+
+        if (checkpoint == null) {
+            checkpoint = Boolean.TRUE;
+        }
+
         HsqlName[] names =
-            database.schemaManager.getCatalogAndBaseTableNames();
+            blockingMode ? database.schemaManager.getCatalogAndBaseTableNames()
+                         : HsqlName.emptyArray;
         Object[] args = new Object[] {
-            path, blockingMode, scriptMode, compression,
+            path, blockingMode, scriptMode, compression, checkpoint
         };
         Statement cs = new StatementCommand(StatementTypes.DATABASE_BACKUP,
                                             args, null, names);
