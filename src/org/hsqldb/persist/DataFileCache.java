@@ -288,6 +288,8 @@ public class DataFileCache {
 
                 fileFreePosition      = dataFile.readLong();
                 fileStartFreePosition = fileFreePosition;
+
+                openShadowFile();
             } else {
                 initNewFile();
             }
