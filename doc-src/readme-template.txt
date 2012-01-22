@@ -1,5 +1,5 @@
 Readme File
-$Date$
+${timestamp}
 This package contains HyperSQL v. ${hsqldb.version}
 
 HyperSQL is a relational database engine and a set of tools written in Java.
