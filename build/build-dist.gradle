@@ -21,7 +21,7 @@
  *      2: Update HyperSQL minor or version number if required in file
  *         "../doc-src/guide/entities/versions.ent".
  *      3: Run "svn info ../src/org/hsqldb/cmdline/Sql????.java" to determine
- *         the current versions of SqlTool.java and SqlFile.java.
+ *         the "Last Changed Rev"s of SqlTool.java and SqlFile.java.
  *         Update the revision values in file
  *         "../doc-src/util-guide/entities/versions.ent" accordingly.
  *      4: Update property 'hsqldb.version' in file 'build.xml'.
