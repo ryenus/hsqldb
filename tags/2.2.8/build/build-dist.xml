@@ -40,18 +40,18 @@ I suggest setting the value(s) in an external properties file and using the Ant
       <filterchain>
         <expandproperties/>
         <tokenfilter>
-          <!-- Intention is to strip out all RCS keywords, since their values
+          <!-- Intention is to strip out timestamps, since their values
                would cause false positives for our file comparison below.  -->
-          <replaceregex pattern="\$[A-Z][a-z]+: .+? \$" flags="g"/>
+          <replaceregex pattern="\b20\d\d\S+\d" flags="g"/>
         </tokenfilter>
       </filterchain>
     </copy>
     <copy file="readme.txt" tofile="tmp/readme-svn.txt" overwrite="true">
       <filterchain>
         <tokenfilter>
-          <!-- Intention is to strip out all RCS keywords, since their values
+          <!-- Intention is to strip out timeestamps, since their values
                would cause false positives for our file comparison below.  -->
-          <replaceregex pattern="\$[A-Z][a-z]+: .+? \$" flags="g"/>
+          <replaceregex pattern="\b20\d\d\S+\d" flags="g"/>
         </tokenfilter>
       </filterchain>
     </copy>
