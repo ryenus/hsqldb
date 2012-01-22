@@ -50,7 +50,7 @@ import org.hsqldb.types.Types;
  * Parser for session and management statements
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.0
+ * @version 2.2.8
  * @since 1.9.0
  */
 public class ParserCommand extends ParserDDL {
@@ -1923,10 +1923,9 @@ public class ParserCommand extends ParserDDL {
     private Statement compileBackup() {
 
         String  path;
-        Boolean blockingMode = null;    // Default to non-blocking
-        Boolean scriptMode   = null;    // Default to non-script
+        Boolean blockingMode = null;    // Defaults to blocking
+        Boolean scriptMode   = null;    // Defaults to non-script
         Boolean compression  = null;    // Defaults to compressed
-        Boolean checkpoint   = null;    // Defaults to true
 
         read();
         readThis(Tokens.DATABASE);
@@ -1997,14 +1996,6 @@ public class ParserCommand extends ParserDDL {
                     }
                     break;
 
-                case Tokens.CHECKPOINT :
-                    if (checkpoint != null) {
-                        throw unexpectedToken();
-                    }
-
-                    checkpoint = Boolean.TRUE;
-
-                    read();
                 default :
                     break outerLoop;
             }
@@ -2028,23 +2019,11 @@ public class ParserCommand extends ParserDDL {
             }
         }
 
-        if (blockingMode) {
-            checkpoint = Boolean.TRUE;
-        } else {
-            if (checkpoint == null) {
-                checkpoint = Boolean.FALSE;
-            }
-        }
-
-        if (checkpoint == null) {
-            checkpoint = Boolean.TRUE;
-        }
-
         HsqlName[] names =
             blockingMode ? database.schemaManager.getCatalogAndBaseTableNames()
                          : HsqlName.emptyArray;
         Object[] args = new Object[] {
-            path, blockingMode, scriptMode, compression, checkpoint
+            path, blockingMode, scriptMode, compression
         };
         Statement cs = new StatementCommand(StatementTypes.DATABASE_BACKUP,
                                             args, null, names);

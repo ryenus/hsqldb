@@ -502,7 +502,6 @@ public class TarGenerator {
 
             modTime     = System.currentTimeMillis() / 1000L;
             fileMode    = DEFAULT_FILE_MODES;
-            dataSize    = is.getSizeLimit();
             inputStream = is;
         }
         /**
@@ -642,8 +641,17 @@ public class TarGenerator {
             try {
 
                 // normal file streams will return -1 as size limit
-                if (inputStream.getSizeLimit() == 0) {
+                // getSizeLimit() is called just before writing the entry
+                long sizeLimit = inputStream.getSizeLimit();
+
+                // special stream with explicit zero limit is not written
+                if (sizeLimit == 0) {
                     return;
+                }
+
+                // special stream
+                if (sizeLimit > 0) {
+                    dataSize = sizeLimit;
                 }
 
                 writeField(TarHeaderField.name, path);

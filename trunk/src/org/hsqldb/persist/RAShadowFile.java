@@ -45,7 +45,7 @@ import org.hsqldb.store.BitMap;
  * Wrapper for random access file for incremental backup of the .data file.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.0
+ * @version 2.2.8
  * @since 1.9.0
  */
 public class RAShadowFile {
@@ -299,6 +299,11 @@ public class RAShadowFile {
         }
 
         public long getSizeLimit() {
+
+            if (!initialised) {
+                initialise();
+            }
+
             return limitSize;
         }
 

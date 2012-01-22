@@ -90,7 +90,7 @@ import org.hsqldb.types.Type;
  *  storage.<p>
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.0
+ * @version 2.2.8
  * @since 1.7.0
  */
 public class Logger {
@@ -155,10 +155,9 @@ public class Logger {
     public boolean isSingleFile;
 
     //
-    AtomicInteger backupState = new AtomicInteger();
-
-    static final int stateNormal = 0;
-    static final int stateBackup = 1;
+    AtomicInteger    backupState     = new AtomicInteger();
+    static final int stateNormal     = 0;
+    static final int stateBackup     = 1;
     static final int stateCheckpoint = 2;
 
     //
@@ -966,6 +965,7 @@ public class Logger {
     }
 
     void checkpointInternal(boolean mode) {
+
         if (logsStatements) {
             database.logger.logInfoEvent("Checkpoint start");
             log.checkpoint(mode);
@@ -1875,15 +1875,15 @@ public class Logger {
         return array;
     }
 
-    public void backup(String destPath, boolean script, boolean checkpoint,
-                       boolean blocking, boolean compressed) {
+    public void backup(String destPath, boolean script, boolean blocking,
+                       boolean compressed) {
 
         if (!backupState.compareAndSet(stateNormal, stateBackup)) {
             throw Error.error(ErrorCode.BACKUP_ERROR, "BACKUP IN PROGRESS");
         }
 
         try {
-            backupInternal(destPath, script, checkpoint, blocking, compressed);
+            backupInternal(destPath, script, blocking, compressed);
         } finally {
             backupState.set(stateNormal);
         }
@@ -1895,8 +1895,8 @@ public class Logger {
         new Character(System.getProperty("file.separator").charAt(0));
     DbBackup backup;
 
-    void backupInternal(String destPath, boolean script, boolean checkpoint,
-                        boolean blocking, boolean compressed) {
+    void backupInternal(String destPath, boolean script, boolean blocking,
+                        boolean compressed) {
 
         String scriptName = null;
         String dbPath     = database.getPath();
@@ -1935,12 +1935,8 @@ public class Logger {
             });
         }
 
-        if (checkpoint) {
-            if (blocking) {
-                log.checkpointClose();
-            } else {
-                checkpointInternal(false);
-            }
+        if (blocking) {
+            log.checkpointClose();
         }
 
         try {
@@ -2022,10 +2018,8 @@ public class Logger {
                 FileUtil.getFileUtil().delete(scriptName);
             }
 
-            if (checkpoint) {
-                if (blocking) {
-                    log.checkpointReopen();
-                }
+            if (blocking) {
+                log.checkpointReopen();
             }
         }
     }

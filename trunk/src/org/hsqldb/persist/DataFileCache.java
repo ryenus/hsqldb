@@ -60,7 +60,7 @@ import org.hsqldb.store.BitMap;
  * Rewritten for 1.8.0 and 2.x
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.2.7
+ * @version 2.2.8
  * @since 1.7.2
  */
 public class DataFileCache {
@@ -293,6 +293,8 @@ public class DataFileCache {
 
                 fileFreePosition      = dataFile.readLong();
                 fileStartFreePosition = fileFreePosition;
+
+                openShadowFile();
             } else {
                 initNewFile();
             }

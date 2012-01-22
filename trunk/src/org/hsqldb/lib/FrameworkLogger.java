@@ -77,8 +77,13 @@ import java.lang.reflect.Method;
  *   logger.finer("Doing something log-worthy");
  * </PRE> </CODE>
  *
+ * <p/>
+ * The system level property <code>hsqldb.reconfig_logging=false</code> is
+ * required to avoid configuration of java.util.logging. Otherwise
+ * configuration takes place.<p/>
+ *
  * @author Blaine Simpson (blaine dot simpson at admc dot com)
- * @version 2.0.1
+ * @version 2.2.8
  * @since 1.9.0
  */
 public class FrameworkLogger {
