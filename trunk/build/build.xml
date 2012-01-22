@@ -29,11 +29,11 @@
    <property name="hsqldb.version" value="2.2.8"/>
 
    <tstamp>
-       <format property="_tmpstamp" pattern="yyyy/MM/dd-HH:mm:ss"
+       <format property="timestamp" pattern="yyyy/MM/dd-HH:mm:ss"
                locale="en"/>
    </tstamp>
 
-   <property name="build.label" value="private-${_tmpstamp}"/>
+   <property name="build.label" value="private-${timestamp}"/>
    <property name="build.vendor" value="${user.name}"/>
    <property name="hsqldb.title" value="HSQLDB"/>
    <property name="hsqldb.vendor" value="The HSQL Development Group"/>
