@@ -345,7 +345,7 @@
     <literal>*.script</literal>, etc., as detailed in previous
     chapters.</para>
 
-    <simpara>HyperSQL 2.0 includes commands to backup the database files into
+    <simpara>HyperSQL 2.2 includes commands to backup the database files into
     a single <literal>.tar</literal> or <literal>.tar.gz</literal> file
     archive. The backup can be performed by a command given in a JDBC session
     if the target database catalog is running, or on the command-line if the
@@ -543,9 +543,9 @@
 
       <para>The internally-generated, individual sql log for the database can
       be enabled with the <literal>SET DATABASE EVENT LOG SQL LEVEL</literal>
-      statement, described in the next section. As all the executed
-      statements are logged, there is an impact on speed. So you should only
-      use this for debugging. Two levels of sql logging are supported.</para>
+      statement, described in the next section. As all the executed statements
+      are logged, there is an impact on speed. So you should only use this for
+      debugging. Two levels of sql logging are supported.</para>
     </section>
 
     <section xml:id="mtc_internal_event_monitoring">
@@ -567,13 +567,25 @@
       statement, described in the next section. This method of logging is very
       useful for desktop application deployment, as it provides an ongoing
       record of database operations.</para>
+    </section>
+
+    <section>
+      <title>Log4J and JDK logging</title>
 
       <para>HyperSQL also supports log4J and JDK logging. The same event
       information that is passed to the internal log, is passed to external
-      logging frameworks. These frameworks are configured outside HyperSQL.
-      The log messages include the string "hsqldb.db." followed by the unique
-      id (a 16 character string) of the database that generated the message,
-      so they can be identified in a multi-database server context.</para>
+      logging frameworks. These frameworks are typically configured outside
+      HyperSQL. The log messages include the string "hsqldb.db." followed by
+      the unique id (a 16 character string) of the database that generated the
+      message, so they can be identified in a multi-database server
+      context.</para>
+
+      <para>As the default JDK logging framework has several shotcomings,
+      HyperSQL configures this logging framework for better operation. If you
+      do not want HyperSQL to configure the JDK logging framework, you should
+      include the system level property
+      <literal>hsqldb.reconfig_logging=false</literal> in your
+      environment.</para>
     </section>
 
     <section xml:id="mtc_server_monitoring">
@@ -1293,8 +1305,8 @@
       <simpara><emphasis>backup database statement</emphasis></simpara>
 
       <simpara><literal>&lt;backup database statement&gt; ::= BACKUP DATABASE
-      TO &lt;file path&gt; {SCRIPT | [NOT] COMPRESSED}
-      BLOCKING</literal></simpara>
+      TO &lt;file path&gt; [SCRIPT] {[NOT] COMPRESSED} {[NOT]
+      BLOCKING}</literal></simpara>
 
       <simpara>Backup the database to specified <literal>&lt;file
       path&gt;</literal> for archiving purposes.</simpara>
@@ -1304,23 +1316,36 @@
       it specifies a directory. In this case, an automatic name for the
       archive is generated that includes the date, time and the base name of
       the database. The database is backed up to this archive file in the
-      specified directory. If the <literal>&lt;file path&gt;</literal> does
-      not end with a forward slash, it specifies a user-defined file name for
-      the backup archive. The archive is in tar, gzip format depending on
-      whether it is compressed or not.</simpara>
+      specified directory. The archive is in <literal>.tar.gz</literal> or
+      <literal>.tar</literal> format depending on whether it is compressed or
+      not.</simpara>
 
-      <simpara>The SCRIPT option is not currently supported. If SCRIPT is
-      specified, the backup will consist of two files, a
-      <literal>*.properties</literal> file and a <literal>*.script</literal>
-      file, which contain all the data and settings of the database. These
-      files are not compressed.</simpara>
+      <simpara>If the <literal>&lt;file path&gt;</literal> does not end with a
+      forward slash, it specifies a user-defined file name for the backup
+      archive. The file extension must be either <literal>.tar.gz</literal> or
+      <literal>.tar</literal> and this must match the compression option.
+      </simpara>
 
-      <simpara>If COMPRESSED or NOT COMPRESSED is specified, the backup
-      consists of the current snapshot of database files. During backup, a
-      CHECKPOINT command is silently executed.</simpara>
+      <simpara>The default set of options is COMPRESSED BLOCKING.</simpara>
+
+      <simpara>If SCRIPT is specified, the backup will contain a
+      <literal>*.script</literal> file, which contain all the data and
+      settings of the database. Otherwise, it consists of the current snapshot
+      of all database files.</simpara>
+
+      <simpara>If NOT COMPRESSED is specified, the backup is a tar file,
+      without compression. Otherwise, it is in gzip format.</simpara>
 
       <simpara>The qualifier, BLOCKING, means all database operations are
-      suspended during backup.</simpara>
+      suspended during backup. During backup, a CHECKPOINT command is silently
+      executed. This mode is always used when SCRIPT is specified.</simpara>
+
+      <simpara>Hot backup is performed if NOT BLOCKING is specified. In this
+      mode, the database can be used during backup. This mode should only be
+      used with very large databases. A hot backup set is less compact and
+      takes longer to restore and use than a normal backup set produced with
+      the BLOCKING option. You can perform a CHECKPOINT just before a hot
+      backup in order to reduce the size of the backup set.</simpara>
 
       <simpara>The HyperSQL jar also contains a program that creates an
       archive of an offline database. It also contains a program to expand an
