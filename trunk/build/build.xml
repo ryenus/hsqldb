@@ -43,6 +43,13 @@
    <property name="swsrc" value="${basedir}/tmp/switchedsrc/"/>
    <available property="switch.inplace"
               file="${swsrc}/org/hsqldb/package.html"/>
+    <!-- I have only found a reliable Internet repository for the Javadocs of
+         the version of JUnit.  This is inaccurate, but IMO still much more
+         useful for developers than no links at all.
+         TODO:  Find a reliable Internet source for JUnit 3.8.2 Javadocs and
+         replace the value here.  -->
+   <property name="junit.doc.link"
+              value="http://kentbeck.github.com/junit/javadoc/latest/"/>
 
    <!-- It is safe to override these with settings in your own
         build.properties file. -->
@@ -874,8 +881,10 @@ examples:
     </target>
 
     <target name="-doclink-17"
+                depends="-set-jvmvars"
                 if="ant.java.iscjava17">
-                        <!-- TODO: update to final release api docs url when available -->
+        <!-- The depends above is a Gradle work-around.
+             It is not necessary for Ant.  -->
         <property name="jse.doc.link"
                   value="http://download.java.net/jdk7/docs/api/"/>
         <property name="jee.doc.link"
@@ -1009,6 +1018,7 @@ examples:
            </classpath>
            <link href="${jse.doc.link}"/>
            <link href="${jee.doc.link}"/>
+           <link href="${junit.doc.link}"/>
            <tag name="todo"/>
            <tag name="revised"/>
            <tag name="jboss.xmbean"/>
