@@ -61,7 +61,7 @@ import org.hsqldb.lib.InputStreamInterface;
  * @see #setOverWrite(boolean)
  * @see #setAbortUponModify(boolean)
  * @author Blaine Simpson (blaine dot simpson at admc dot com)
- * @version 2.3.0
+ * @version 2.2.8
  */
 public class DbBackup {
 
@@ -195,8 +195,8 @@ public class DbBackup {
         componentFiles = new File[] {
             new File(dbDir, instanceName + ".properties"),
             new File(dbDir, instanceName + ".script"),
-            new File(dbDir, instanceName + ".backup"),
             new File(dbDir, instanceName + ".data"),
+            new File(dbDir, instanceName + ".backup"),
             new File(dbDir, instanceName + ".log"),
             new File(dbDir, instanceName + ".lobs")
         };

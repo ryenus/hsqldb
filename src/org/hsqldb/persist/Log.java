@@ -75,7 +75,7 @@ import org.hsqldb.scriptio.ScriptWriterText;
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
  * @author Bob Preston (sqlbob@users dot sourceforge.net) - text table support
- * @version 2.3.0
+ * @version 2.2.8
  * @since 1.8.0
  */
 public class Log {
@@ -370,7 +370,7 @@ public class Log {
                 database.sessionManager.resetLoggedSchemas();
 
                 return;
-            } catch (Exception e) {
+            } catch (Throwable e) {
                 database.logger.logSevereEvent("defrag failed", e);
 
                 // do normal checkpoint
@@ -402,7 +402,7 @@ public class Log {
 
         try {
             writeScript(false);
-        } catch (HsqlException e) {
+        } catch (Throwable e) {
             deleteNewScript();
             database.logger.logSevereEvent("checkpoint failed - recovered", e);
 
@@ -414,7 +414,7 @@ public class Log {
                 cache.commitChanges();
                 cache.backupFile(false);
             }
-        } catch (Exception ee) {
+        } catch (Throwable ee) {
 
             // backup failed perhaps due to lack of disk space
             deleteNewScript();
@@ -424,7 +424,7 @@ public class Log {
                 if (!cache.isFileOpen()) {
                     cache.open(false);
                 }
-            } catch (Exception e1) {}
+            } catch (Throwable e1) {}
 
             database.logger.logSevereEvent("checkpoint failed - recovered",
                                            ee);
@@ -443,7 +443,7 @@ public class Log {
         try {
             properties.setDBModified(
                 HsqlDatabaseProperties.FILES_NOT_MODIFIED);
-        } catch (Exception e) {}
+        } catch (Throwable e) {}
 
         database.logger.logInfoEvent("checkpointClose end");
 
@@ -468,7 +468,7 @@ public class Log {
             }
 
             properties.setDBModified(HsqlDatabaseProperties.FILES_MODIFIED);
-        } catch (Exception e) {
+        } catch (Throwable e) {
             return false;
         }
 
@@ -677,7 +677,7 @@ public class Log {
 
             dbLogWriter.setWriteDelay(writeDelay);
             dbLogWriter.start();
-        } catch (Exception e) {
+        } catch (Throwable e) {
             throw Error.error(ErrorCode.FILE_IO_ERROR, logFileName);
         }
     }

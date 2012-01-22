@@ -51,7 +51,7 @@ import org.hsqldb.scriptio.ScriptWriterText;
  * Implementation of Statement for SQL commands.<p>
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.2.7
+ * @version 2.2.8
  * @since 1.9.0
  */
 public class StatementCommand extends Statement {
@@ -254,7 +254,6 @@ public class StatementCommand extends Statement {
                 boolean blocking   = ((Boolean) parameters[1]).booleanValue();
                 boolean script     = ((Boolean) parameters[2]).booleanValue();
                 boolean compressed = ((Boolean) parameters[3]).booleanValue();
-                boolean checkpoint = ((Boolean) parameters[4]).booleanValue();
 
                 try {
                     session.checkAdmin();
@@ -286,7 +285,7 @@ public class StatementCommand extends Statement {
                             Error.error(ErrorCode.DATABASE_IS_NON_FILE), null);
                     }
 
-                    session.database.logger.backup(path, script, checkpoint, blocking,
+                    session.database.logger.backup(path, script, blocking,
                                                    compressed);
 
                     return Result.updateZeroResult;
