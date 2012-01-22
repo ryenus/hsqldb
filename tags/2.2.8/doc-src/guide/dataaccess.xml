@@ -1,0 +1,3677 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE book [
+<!ENTITY % dummy22 SYSTEM "../entities/global.ent">
+%dummy22;
+]>
+<chapter version="5.0" xml:id="dataaccess-chapt"
+         xmlns="http://docbook.org/ns/docbook"
+         xmlns:xlink="http://www.w3.org/1999/xlink"
+         xmlns:xi="http://www.w3.org/2001/XInclude"
+         xmlns:ns5="http://www.w3.org/2000/svg"
+         xmlns:ns4="http://www.w3.org/1998/Math/MathML"
+         xmlns:ns3="http://www.w3.org/1999/xhtml"
+         xmlns:ns="http://docbook.org/ns/docbook">
+  <title xml:id="dataaccess-title">Data Access and Change</title>
+
+  <info>
+    <authorgroup>
+      <author>
+        <personname><firstname>Fred</firstname><surname>Toussi</surname></personname>
+
+        <affiliation>
+          <orgname>The HSQL Development Group</orgname>
+        </affiliation>
+      </author>
+    </authorgroup>
+
+    <releaseinfo>$Revision$</releaseinfo>
+
+    <pubdate>&timestamp;</pubdate>
+
+    <keywordset>
+      <keyword>Hsqldb</keyword>
+
+      <keyword>HyperSQL</keyword>
+
+      <keyword>SQL</keyword>
+    </keywordset>
+
+    <legalnotice>
+      <para>Copyright 2010-2012 Fred Toussi. Permission is granted to distribute
+      this document without any alteration under the terms of the HSQLDB
+      license. Additional permission is granted to the HSQL Development Group
+      to distribute this document with or without alterations under the terms
+      of the HSQLDB license.</para>
+    </legalnotice>
+  </info>
+
+  <section xml:id="dac_overview">
+    <title>Overview</title>
+
+    <para>HyperSQL data access and data change statements are fully compatible
+    with the latest SQL:2008 Standard. There are a few extensions and some
+    relaxation of rules, but these do not affect statements that are written
+    to the Standard syntax. There is full support for classic SQL, as
+    specified by SQL-92, and many enhancements added in later versions of the
+    standard.</para>
+  </section>
+
+  <section xml:id="dac_jdbc_cursors_result_sets">
+    <title>Cursors And Result Sets</title>
+
+    <para>An SQL statement can executed in two ways. One way is to use the
+    <classname>java.sql.Statement</classname> interface. The Statement object
+    can be reused to execute completely different SQL statements.
+    Alternatively a <classname>PreparedStatment</classname> can be used to
+    execute an SQL statement repeatedly, and the statements can be
+    parameterized. Using either form, if the SQL statement is a query
+    expression, a <classname>ResultSet</classname> is returned.</para>
+
+    <para>In SQL, when a query expression (SELECT or similar SQL statement) is
+    executed, an ephemeral table is created. When this table is returned to
+    the application program, it is returned as a result set, which is accessed
+    row-by-row by a cursor. A JDBC <classname>ResultSet</classname> represents
+    an SQL result set and its cursor.</para>
+
+    <para>The minimal definition of a cursor is a list of rows with a position
+    that can move forward. Some cursors also allow the position to move
+    backwards or jump to any position in the list.</para>
+
+    <para>An SQL cursor has several attributes. These attributes depend on the
+    query expression. Some of these attributes can be overridden by specifying
+    qualifiers in the SQL statement or by specifying values for the parameters
+    of the JDBC <classname>Statement</classname> or
+    <classname>PreparedStatement</classname>.</para>
+
+    <section xml:id="dac_jdbc_columns_rows">
+      <title>Columns and Rows</title>
+
+      <para>The columns of the rows of the result set are determined by the
+      query expression. The number of columns and the type and name
+      characteristics of each column are known when the query expression is
+      compiled and before its execution. This metadata information remains
+      constant regardless of changes to the contents of the tables used in the
+      query expression. The metadata for the JDBC
+      <classname>ResultSet</classname> is in the form of a
+      <classname>ResultSetMetaData</classname> object. Various methods of the
+      <classname>ResultSetMetaData</classname> interface return different
+      properties of each column of the
+      <classname>ResultSet</classname>.</para>
+
+      <para>A result set may contain 0 or more rows. The rows are determined
+      by the execution of the query expression.</para>
+
+      <para>The <methodname>setMaxRows(int)</methodname> method of JDBC
+      <classname>Statement</classname> allows limiting the number of rows
+      returned by the statement. This limit is conceptually applied after the
+      result has been built, and the excess rows are discarded.</para>
+    </section>
+
+    <section xml:id="dac_jdbc_cursor_navigation">
+      <title>Navigation</title>
+
+      <para>A cursor is either scrollable or not. Scrollable cursors allow
+      accessing rows by absolute or relative positioning. No-scroll cursors
+      only allow moving to the next row. The cursor can be optionally declared
+      with the SQL qualifiers SCROLL, or NO SCROLL. The JDBC statement
+      parameter can be specified as: TYPE_FORWARD_ONLY and
+      TYPE_SCROLL_INSENSITIVE. The JDBC type TYPE_SCROLL_SENSITIVE is not
+      supported by HSQLDB.</para>
+
+      <para>The default is NO SCROLL or TYPE_FORWARD_ONLY.</para>
+
+      <para>When a JDBC <classname>ResultSet</classname> is opened, it is
+      positioned before the first row. Using the
+      <methodname>next()</methodname> method the position is moved to the
+      first row. While the <classname>ResultSet</classname> is positioned on a
+      row, various getter methods can be used to access the columns of the
+      row.</para>
+    </section>
+
+    <section xml:id="dac_jdbc_cursor_updatability">
+      <title>Updatability</title>
+
+      <para>The result returned by some query expressions is updatable. HSQLDB
+      supports core SQL updatability features, plus some enhancements from the
+      SQL optional features.</para>
+
+      <para>A query expression is updatable if it is a SELECT from a single
+      underlying base table (or updatable view) either directly or indirectly.
+      A SELECT statement featuring DISTINCT or GROUP BY or FETCH, LIMIT,
+      OFFSET is not updatable. In an updatable query expression, one or more
+      columns are updatable. An updatable column is a column that can be
+      traced directly to the underlying table. Therefore, columns that contain
+      expressions are not updatable. Examples of updatable query expressions
+      are given below. The view V is updatable when its query expression is
+      updatable. The SELECT statement from this view is also updatable:</para>
+
+      <programlisting>SELECT A, B FROM T WHERE C &gt; 5
+SELECT A, B FROM (SELECT * FROM T WHERE C &gt; 10) AS TT WHERE TT.B &lt;10
+CREATE VIEW V(X,Y) AS SELECT A, B FROM T WHERE C &gt; 0 AND B &lt; 10
+SELECT X FROM V WHERE Y = 5
+</programlisting>
+
+      <para>If a cursor is declared with the SQL qualifier, <literal>FOR
+      UPDATE OF &lt;column name list&gt;</literal>, then only the stated
+      columns in the result set become updatable. If any of the stated columns
+      is not actually updatable, then the cursor declaration will not
+      succeed.</para>
+
+      <para>If the SQL qualifier, FOR UPDATE is used, then all the updatable
+      columns of the result set become updatable.</para>
+
+      <para>If a cursor is declared with FOR READ ONLY, then it is not
+      updatable.</para>
+
+      <para>In HSQLDB, if FOR READ ONLY or FOR UPDATE is not used then all the
+      updatable columns of the result set become updatable. This relaxes the
+      SQL standard rule that in this case limits updatability to only simply
+      updatable SELECT statements (where all columns are updatable).</para>
+
+      <para>In JDBC, CONCUR_READ_ONLY or CONCUR_UPDATABLE can be specified for
+      the <classname>Statement</classname> parameter. CONCUR_UPDATABLE is
+      required if the returning ResultSet is to be updatable. If
+      CONCUR_READ_ONLY, which is the default, is used, then even an updatable
+      ResultSet becomes read-only.</para>
+
+      <para>When a <classname>ResultSet</classname> is updatable, various
+      setter methods can be used to modify the column values. The names of the
+      setter methods begin with "update". After all the updates on a row are
+      done, the <methodname>updateRow()</methodname> method must be called to
+      finalise the row update.</para>
+
+      <para>An updatable <classname>ResultSet</classname> may or may not be
+      insertable-into. In an insertable <classname>ResultSet</classname>, all
+      columns of the result are updatable and any column of the base table
+      that is not in the result must be a generated column or have a default
+      value.</para>
+
+      <para>In the <classname>ResultSet</classname> object, a special
+      pseudo-row, called the insert row, is used to populate values for
+      insertion into the <classname>ResultSet</classname> (and consequently,
+      into the base table). The setter methods must be used on all the
+      columns, followed by a call to
+      <methodname>insertRow()</methodname>.</para>
+
+      <para>Individual rows from all updatable result sets can be deleted one
+      at a time. The <methodname>deleteRow()</methodname> is called when the
+      <classname>ResultSet</classname> is positioned on a row.</para>
+
+      <para>While using an updatable ResultSet to modify data, it is
+      recommended not to change the same data using another ResultSet and not
+      to execute SQL data change statements that modify the same data.</para>
+    </section>
+
+    <section xml:id="dac_jdbc_cursor_sensitivity">
+      <title>Sensitivity</title>
+
+      <para>The sensitivity of the cursor relates to visibility of changes
+      made to the data by the same transaction but without using the given
+      cursor. While the result set is open, the same transaction may use
+      statements such as INSERT or UPDATE, and change the data of the tables
+      from which the result set data is derived. A cursor is SENSITIVE if it
+      reflects those changes. It is INSENSITIVE if it ignores such changes. It
+      is ASENSITIVE if behaviour is implementation dependent.</para>
+
+      <para>The SQL default is ASENSITIVE, i.e., implantation
+      dependent.</para>
+
+      <para>In HSQLDB all cursors are INSENSITIVE. They do not reflect changes
+      to the data made by other statements.</para>
+    </section>
+
+    <section xml:id="dac_jdbc_cursor_holdability">
+      <title>Holdability</title>
+
+      <para>A cursor is holdable if the result set is not automatically closed
+      when the current transaction is committed. Holdability can be specified
+      in the cursor declaration using the SQL qualifiers WITH HOLD or WITHOUT
+      HOLD.</para>
+
+      <para>In JDBC, holdability is specified using either of the following
+      values for the Statement parameter: HOLD_CURSORS_OVER_COMMIT, or
+      CLOSE_CURSORS_AT_COMMIT.</para>
+
+      <para>The SQL default is WITHOUT HOLD.</para>
+
+      <para>The JDBC default for HSQLDB result sets is WITH HOLD for read-only
+      result sets and WITHOUT HOLD for updatable result sets.</para>
+
+      <para>If the holdability of a <classname>ResultSet</classname> is
+      specified in a conflicting manner in the SQL statement and the JDBC
+      <classname>Statement</classname> object, the JDBC setting takes
+      precedence.</para>
+    </section>
+
+    <section xml:id="dac_jdbc_autocommit">
+      <title>Autocommit</title>
+
+      <para>The autocommit property of a connection is a feature of JDBC and
+      ODBC and is not part of the SQL Standard. In autocommit mode, all
+      transactional statements are followed by an implicit commit. In
+      autocommit mode, all <classname>ResultSet</classname> objects are
+      read-only and holdable.</para>
+    </section>
+
+    <section  xml:id="dac_jdbc_overview">
+      <title>JDBC Overview</title>
+
+      <para>The JDBC settings, ResultSet.CONCUR_READONLY and
+      ResultSet.CONCUR_UPDATABLE are the available alternatives for read-only or
+      updatability. The default is ResultSet.CONCUR_READONLY.</para>
+
+      <para>The JDBC settings, ResultSet.TYPE_FORWARD_ONLY,
+      ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.TYPE_SCROLL_SENSITIVE are
+      the available alternatives for both scrollability (navigation) and sensitivity.
+      HyperSQL does not support ResultSet.TYPE_SCROLL_SENSITIVE. The two other
+      alternatives can be used for both updatable and read-only result
+      sets.</para>
+
+      <para>The JDBC settings ResultSet.CLOSE_CURSORS_AT_COMMIT and
+      ResultSet.HOLD_CURSORS_OVER_COMMIT are the alternatives for the lifetime
+      of the result set. The default is ResultSet.CLOSE_CURSORS_AT_COMMIT. The
+      other setting can only be used for read-only result sets.</para>
+
+      <para>Examples of creating statements for updatable result sets are
+      given below:</para>
+
+      <programlisting>Connection c = newConnection();
+Statement st;
+c.setAutoCommit(false);
+st = c.createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_UPDATABLE);
+st = c.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_UPDATABLE);</programlisting>
+    </section>
+
+    <section xml:id="dac_jdbc_parameters">
+      <title>JDBC Parameters</title>
+
+      <para>When a JDBC PreparedStatement or CallableStatement is used with an
+      SQL statement that contains dynamic parameters, the data types of the
+      parameters are resolved and determined by the engine when the statement
+      is prepared. The SQL Standard has detailed rules to determine the data
+      types and imposes limits on the maximum length or precision of the
+      parameter. HyperSQL applies the standard rules with two exceptions for
+      parameters with String and BigDecimal Java types. HyperSQL ignores the
+      limits when the parameter value is set, and only enforces the necessary
+      limits when the PreparedStatement is executed. In all other cases,
+      parameter type limits are checked and enforce when the parameter is
+      set.</para>
+
+      <para>In the example below the setString() calls do not raise an
+      exception, but one of the execute() statements does.</para>
+
+      <programlisting>// table definition: CREATE TABLE T (NAME VARCHAR(12), ...)
+Connection c = newConnection();
+PreparedStatement st = c.prepareStatement("SELECT * FROM T WHERE NAME = ?");
+// type of the parameter is VARCHAR(12), which limits length to 12 characters
+st.setString(1, "Eyjafjallajokull"); // string is longer than type, but no exception is raised here
+set.execute(); // executes with no exception and does not find any rows
+
+// but if an UPDATE is attempted, an exception is raised
+st = c.prepareStatement("UPDATE T SET NAME = ? WHERE ID = 10");
+st.setString(1, "Eyjafjallajokull"); // string is longer than type, but no exception is raised here
+st.execute(); // exception is thrown when HyperSQL checks the value for update
+
+</programlisting>
+
+      <para>All of the above also applies to setting the values in new and
+      updated rows in updatable ResultSet objects.</para>
+
+      <para>JDBC parameters can be set with any compatible type, as supported
+      by the JDBC specification. For CLOB and BLOB types, you can use streams,
+      or create instances of BLOB or CLOB before assigning them to the
+      parameters. You can even use CLOB or BLOB objects returned from
+      connections to other RDBMS servers. The Connection.createBlob() and
+      createClob() methods can be used to create the new LOBs. For very large
+      LOB's the stream methods are preferable as they use less memory.</para>
+
+      <para>For array parameters, you must use a
+      <classname>java.sql.Array</classname> object that contains the array
+      elements before assigning to JDBC parameters. The
+      <code>Connection.createArrayOf(...)</code> method can be used to create
+      a new object, or you can use an Array returned from connections to other
+      RDBMS servers.</para>
+    </section>
+
+    <section xml:id="dac_jdbc_data_change">
+      <title>JDBC and Data Change Statements</title>
+
+      <para>Data change statements, also called data manipulation statements
+      (DML) such as INSERT, UPDATE, MERGE can be called with different
+      executeUpdate() methods of java.sql.Statement and
+      java.sql.PreparedStatement. Some of these methods allow you to specify
+      how values for generated columns of the table are returned. These
+      methods are documented in the JavaDoc for org.hsqldb.jdbc.JDBCStatement
+      and org.hsqldb.jdbc.JDBCPreparedStatement. HyperSQL can return not just
+      the generated columns, but any set of columns of the table. You can use
+      this to retrieve the columns values that may be modified by a BEFORE
+      TRIGGER on the table.</para>
+    </section>
+
+    <section xml:id="dac_jdbc_callable_statement">
+      <title>JDBC Callable Statement</title>
+
+      <para>The JDBC CallableStatement interface is used to call Java or SQL
+      procedures that have been defined in the database. The SQL statement in
+      the form of CALL procedureName ( ... ) with constant value arguments or
+      with parameter markers. Note that you must use a parameter marker for
+      OUT and INOUT arguments of the procedure you are calling. The OUT
+      arguments should not be set before executing the callable
+      statement.</para>
+
+      <para>After executing the statement, you can retrieve the OUT and INOUT
+      parameters with the appropriate getXXX() method.</para>
+
+      <para>Procedures can also return one or more result sets. You should
+      call the getResultSet() and getMoreResults() methods to retrieve the
+      result sets one by one.</para>
+
+      <para>SQL functions can also return a table. You can call such functions
+      the same way as procedures and retrieve the table as a ResultSet.</para>
+    </section>
+
+    <section  xml:id="dac_jdbc_return_values">
+      <title>JDBC Returned Values</title>
+
+      <para>The methods of the JDBC ResultSet interface can be used to return
+      values and to convert value to different types as supported by the JDBC
+      specification.</para>
+
+      <para>When a CLOB and BLOB object is returned from a ResultSet, no data
+      is transferred until the data is read by various methods of
+      java.sql.CLOB and java.sql.BLOB. Data is streamed in large blocks to
+      avoid excessive memory use.</para>
+
+      <para>Array objects are returned as instances of java.sql.Array.</para>
+    </section>
+
+    <section xml:id="dac_declare_cursor">
+      <title>Cursor Declaration</title>
+
+      <para>The DECLARE CURSOR statement is used within an SQL PROCEDURE body.
+      In the early releases of HyperSQL 2.0, the cursor is used only to return
+      a result set from the procedure. Therefore the cursor must be declared
+      WITH RETURN and can only be READ ONLY.</para>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>DECLARE CURSOR</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">DECLARE CURSOR</emphasis></simpara>
+
+      <simpara><emphasis>declare cursor statement</emphasis></simpara>
+
+      <para><literal>&lt;declare cursor&gt; ::= DECLARE &lt;cursor
+      name&gt;</literal></para>
+
+      <para><literal>[ { SENSITIVE | INSENSITIVE | ASENSITIVE } ] [ { SCROLL |
+      NO SCROLL } ] </literal></para>
+
+      <para><literal>CURSOR [ { WITH HOLD | WITHOUT HOLD } ] [ { WITH RETURN |
+      WITHOUT RETURN } ]</literal></para>
+
+      <para><literal>FOR &lt;query expression&gt;</literal></para>
+
+      <para><literal>[ FOR { READ ONLY | UPDATE [ OF &lt;column name list&gt;
+      ] } ]</literal></para>
+
+      <para>The query expression is a SELECT statement or similar, and is
+      discussed in the rest of this chapter. In the example below a cursor is
+      declared for a SELECT statement. It is later opened to create the result
+      set. The cursor is specified WITHOUT HOLD, so the result set is not kept
+      after a commit. Use WITH HOLD to keep the result set. Note that you need
+      to declare the cursor WITH RETURN as it is returned by the
+      <classname>CallableStatement</classname>.</para>
+
+      <programlisting>DECLARE thiscursor SCROLL CURSOR WITHOUT HOLD WITH RETURN FOR SELECT * FROM INFORMATION_SCHEMA.TABLES;
+--
+OPEN thiscursor;
+</programlisting>
+    </section>
+  </section>
+
+  <section xml:id="dac_syntax_elements">
+    <title>Syntax Elements</title>
+
+    <para>The syntax elements that can be used in data access and data change
+    statements are described in this section. The SQL Standard has a very
+    extensive set of definitions for these elements. The BNF definitions given
+    here are sometimes simplified.</para>
+
+    <section xml:id="dac_literals">
+      <title>Literals</title>
+
+      <para>Literals are used to express constant values. The general type of
+      a literal is known by its format. The specific type is based on
+      conventions.</para>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>unicode escape elements</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">unicode escape
+      elements</emphasis></simpara>
+
+      <simpara><emphasis>unicode escape elements</emphasis></simpara>
+
+      <simpara><literal>&lt;Unicode escape specifier&gt; ::= [ UESCAPE
+      &lt;quote&gt;&lt;Unicode escape character&gt;&lt;quote&gt; ]
+      </literal></simpara>
+
+      <simpara><literal>&lt;Unicode escape value&gt; ::= &lt;Unicode 4 digit
+      escape value&gt; | &lt;Unicode 6 digit escape value&gt; | &lt;Unicode
+      character escape value&gt;</literal></simpara>
+
+      <simpara><literal>&lt;Unicode 4 digit escape value&gt; ::= &lt;Unicode
+      escape
+      character&gt;&lt;hexit&gt;&lt;hexit&gt;&lt;hexit&gt;&lt;hexit&gt;</literal></simpara>
+
+      <simpara><literal>&lt;Unicode 6 digit escape value&gt; ::= &lt;Unicode
+      escape character&gt;&lt;plus sign&gt;
+      &lt;hexit&gt;&lt;hexit&gt;&lt;hexit&gt;&lt;hexit&gt;&lt;hexit&gt;&lt;hexit&gt;</literal></simpara>
+
+      <simpara><literal>&lt;Unicode character escape value&gt; ::= &lt;Unicode
+      escape character&gt;&lt;Unicode escape character&gt;</literal></simpara>
+
+      <simpara><literal>&lt;Unicode escape character&gt; ::= a single
+      character than a &lt;hexit&gt; (a-f, A-F, 0-9), &lt;plus sign&gt;,
+      &lt;quote&gt;, &lt;double quote&gt;, or &lt;white
+      space&gt;</literal></simpara>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>character literal</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">character literal</emphasis></simpara>
+
+      <simpara><emphasis>character literal</emphasis></simpara>
+
+      <simpara><literal>&lt;character string literal&gt; ::= [
+      &lt;introducer&gt;&lt;character set specification&gt; ] &lt;quote&gt; [
+      &lt;character representation&gt;... ] &lt;quote&gt; [ {
+      &lt;separator&gt; &lt;quote&gt; [ &lt;character representation&gt;... ]
+      &lt;quote&gt; }... ]</literal></simpara>
+
+      <simpara><literal>&lt;introducer&gt; ::=
+      &lt;underscore&gt;</literal></simpara>
+
+      <simpara><literal>&lt;character representation&gt; ::= &lt;nonquote
+      character&gt; | &lt;quote symbol&gt;</literal></simpara>
+
+      <simpara><literal>&lt;nonquote character&gt; ::= any character apart
+      from the quote symbol.</literal></simpara>
+
+      <simpara><literal>&lt;quote symbol&gt; ::=
+      &lt;quote&gt;&lt;quote&gt;</literal></simpara>
+
+      <simpara><literal>&lt;national character string literal&gt; ::= N
+      &lt;quote&gt; [ &lt;character representation&gt;... ] &lt;quote&gt; [ {
+      &lt;separator&gt; &lt;quote&gt; [ &lt;character representation&gt;... ]
+      &lt;quote&gt; }... ]</literal></simpara>
+
+      <simpara><literal>&lt;Unicode character string literal&gt; ::= [
+      &lt;introducer&gt;&lt;character set specification&gt; ]
+      U&lt;ampersand&gt;&lt;quote&gt; [ &lt;Unicode representation&gt;... ]
+      &lt;quote&gt; [ { &lt;separator&gt; &lt;quote&gt; [ &lt;Unicode
+      representation&gt;... ] &lt;quote&gt; }... ] &lt;Unicode escape
+      specifier&gt;</literal></simpara>
+
+      <simpara><literal>&lt;Unicode representation&gt; ::= &lt;character
+      representation&gt; | &lt;Unicode escape value&gt;</literal></simpara>
+
+      <simpara>The type of a character literal is CHARACTER. The length of the
+      string literal is the character length of the type. If the quote
+      character is used in a string, it is represented with two quote
+      characters. Long literals can be divided into multiple quoted strings,
+      separated with a space or end-of-line character.</simpara>
+
+      <simpara>Unicode literals start with U&amp; and can contain ordinary
+      characters and unicode escapes. A unicode escape begins with the
+      backslash ( \ ) character and is followed by four hexadecimal characters
+      which specify the character code.</simpara>
+
+      <simpara>Example of character literals are given below:</simpara>
+
+      <programlisting>'a literal'  ' string seperated'  ' into parts'
+'a string''s literal form with quote character'
+U&amp;'Unicode string with Greek delta \0394 and phi \03a6 letters'
+</programlisting>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>binary literal</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">binary literal</emphasis></simpara>
+
+      <simpara><emphasis>binary literal</emphasis></simpara>
+
+      <simpara><literal>&lt;binary string literal&gt; ::= X &lt;quote&gt; [
+      &lt;space&gt;... ] [ { &lt;hexit&gt; [ &lt;space&gt;... ] &lt;hexit&gt;
+      [ &lt;space&gt;... ] }... ] &lt;quote&gt; [ { &lt;separator&gt;
+      &lt;quote&gt; [ &lt;space&gt;... ] [ { &lt;hexit&gt; [ &lt;space&gt;...
+      ] &lt;hexit&gt; [ &lt;space&gt;... ] }... ] &lt;quote&gt; }...
+      ]</literal></simpara>
+
+      <simpara><literal>&lt;hexit&gt; ::= &lt;digit&gt; | A | B | C | D | E |
+      F | a | b | c | d | e | f</literal></simpara>
+
+      <simpara>The type of a binary literal is BINARY. The octet length of
+      the binary literal is the length of the type. Case-insensitive
+      hexadecimal characters are used in the binary string. Each pair of
+      characters in the literal represents a byte in the binary string. Long
+      literals can be divided into multiple quoted strings, separated with a
+      space or end-of-line character.</simpara>
+
+      <programlisting>X'1abACD34' 'Af'</programlisting>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>bit literal</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">bit literal</emphasis></simpara>
+
+      <simpara><emphasis>bit literal</emphasis></simpara>
+
+      <simpara><literal>&lt;bit string literal&gt; ::= B &lt;quote&gt; [
+      &lt;bit&gt; ... ] &lt;quote&gt; [ { &lt;separator&gt; &lt;quote&gt; [
+      &lt;bit&gt;... ] &lt;quote&gt; }... ]</literal></simpara>
+
+      <simpara><literal>&lt;bit&gt; ::= 0 | 1</literal></simpara>
+
+      <simpara>The type of a binary literal is BIT. The bit length of the bit
+      literal is the length of the type. Digits 0 and 1 are used to represent
+      the bits. Long literals can be divided into multiple quoted strings,
+      separated with a space or end-of-line character.</simpara>
+
+      <programlisting>B'10001001' '00010'</programlisting>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>numeric literal</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">numeric literal</emphasis></simpara>
+
+      <simpara><emphasis>numeric literal</emphasis></simpara>
+
+      <simpara><literal>&lt;signed numeric literal&gt; ::= [ &lt;sign&gt; ]
+      &lt;unsigned numeric literal&gt;</literal></simpara>
+
+      <simpara><literal>&lt;unsigned numeric literal&gt; ::= &lt;exact numeric
+      literal&gt; | &lt;approximate numeric literal&gt;</literal></simpara>
+
+      <simpara><literal>&lt;exact numeric literal&gt; ::= &lt;unsigned
+      integer&gt; [ &lt;period&gt; [ &lt;unsigned integer&gt; ] ] |
+      &lt;period&gt; &lt;unsigned integer&gt;</literal></simpara>
+
+      <simpara><literal>&lt;sign&gt; ::= &lt;plus sign&gt; | &lt;minus
+      sign&gt;</literal></simpara>
+
+      <simpara><literal>&lt;approximate numeric literal&gt; ::=
+      &lt;mantissa&gt; E &lt;exponent&gt;</literal></simpara>
+
+      <simpara><literal>&lt;mantissa&gt; ::= &lt;exact numeric
+      literal&gt;</literal></simpara>
+
+      <simpara><literal>&lt;exponent&gt; ::= &lt;signed
+      integer&gt;</literal></simpara>
+
+      <simpara><literal>&lt;signed integer&gt; ::= [ &lt;sign&gt; ]
+      &lt;unsigned integer&gt;</literal></simpara>
+
+      <simpara><literal>&lt;unsigned integer&gt; ::=
+      &lt;digit&gt;...</literal></simpara>
+
+      <simpara>The type of an exact numeric literal without a decimal point is
+      INTEGER, BIGINT, or DECIMAL, depending on the value of the literal (the
+      smallest type that can represent the value is the type).</simpara>
+
+      <simpara>The type of an exact numeric literal with a decimal point is
+      DECIMAL. The precision of a decimal literal is the total number of
+      digits of the literal. The scale of the literal is the total number of
+      digits to the right of the decimal point.</simpara>
+
+      <simpara>The type of an approximate numeric literal is DOUBLE. An
+      approximate numeric literal always includes the mantissa and exponent,
+      separated by E.</simpara>
+
+      <programlisting>12
+34.35
++12E-2
+</programlisting>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>boolean literal</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">boolean literal</emphasis></simpara>
+
+      <simpara><emphasis>boolean literal</emphasis></simpara>
+
+      <simpara><literal>&lt;boolean literal&gt; ::= TRUE | FALSE |
+      UNKNOWN</literal></simpara>
+
+      <simpara>The boolean literal is one of the specified keywords.</simpara>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>datetime and interval literal</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">datetime and interval
+      literal</emphasis></simpara>
+
+      <simpara><emphasis>datetime and interval literal</emphasis></simpara>
+
+      <simpara><literal>&lt;datetime literal&gt; ::= &lt;date literal&gt; |
+      &lt;time literal&gt; | &lt;timestamp literal&gt;</literal></simpara>
+
+      <simpara><literal>&lt;date literal&gt; ::= DATE &lt;date
+      string&gt;</literal></simpara>
+
+      <simpara><literal>&lt;time literal&gt; ::= TIME &lt;time
+      string&gt;</literal></simpara>
+
+      <simpara><literal>&lt;timestamp literal&gt; ::= TIMESTAMP &lt;timestamp
+      string&gt;</literal></simpara>
+
+      <simpara><literal>&lt;date string&gt; ::= &lt;quote&gt; &lt;unquoted
+      date string&gt; &lt;quote&gt;</literal></simpara>
+
+      <simpara><literal>&lt;time string&gt; ::= &lt;quote&gt; &lt;unquoted
+      time string&gt; &lt;quote&gt;</literal></simpara>
+
+      <simpara><literal>&lt;timestamp string&gt; ::= &lt;quote&gt;
+      &lt;unquoted timestamp string&gt; &lt;quote&gt;</literal></simpara>
+
+      <simpara><literal>&lt;time zone interval&gt; ::= &lt;sign&gt; &lt;hours
+      value&gt; &lt;colon&gt; &lt;minutes value&gt;</literal></simpara>
+
+      <simpara><literal>&lt;date value&gt; ::= &lt;years value&gt; &lt;minus
+      sign&gt; &lt;months value&gt; &lt;minus sign&gt; &lt;days
+      value&gt;</literal></simpara>
+
+      <simpara><literal>&lt;time value&gt; ::= &lt;hours value&gt;
+      &lt;colon&gt; &lt;minutes value&gt; &lt;colon&gt; &lt;seconds
+      value&gt;</literal></simpara>
+
+      <simpara><literal>&lt;interval literal&gt; ::= INTERVAL [ &lt;sign&gt; ]
+      &lt;interval string&gt; &lt;interval qualifier&gt;</literal></simpara>
+
+      <simpara><literal>&lt;interval string&gt; ::= &lt;quote&gt; &lt;unquoted
+      interval string&gt; &lt;quote&gt;</literal></simpara>
+
+      <simpara><literal>&lt;unquoted date string&gt; ::= &lt;date
+      value&gt;</literal></simpara>
+
+      <simpara><literal>&lt;unquoted time string&gt; ::= &lt;time value&gt; [
+      &lt;time zone interval&gt; ]</literal></simpara>
+
+      <simpara><literal>&lt;unquoted timestamp string&gt; ::= &lt;unquoted
+      date string&gt; &lt;space&gt; &lt;unquoted time
+      string&gt;</literal></simpara>
+
+      <simpara><literal>&lt;unquoted interval string&gt; ::= [ &lt;sign&gt; ]
+      { &lt;year-month literal&gt; | &lt;day-time literal&gt;
+      }</literal></simpara>
+
+      <simpara><literal>&lt;year-month literal&gt; ::= &lt;years value&gt; [
+      &lt;minus sign&gt; &lt;months value&gt; ] | &lt;months
+      value&gt;</literal></simpara>
+
+      <simpara><literal>&lt;day-time literal&gt; ::= &lt;day-time interval&gt;
+      | &lt;time interval&gt;</literal></simpara>
+
+      <simpara><literal>&lt;day-time interval&gt; ::= &lt;days value&gt; [
+      &lt;space&gt; &lt;hours value&gt; [ &lt;colon&gt; &lt;minutes value&gt;
+      [ &lt;colon&gt; &lt;seconds value&gt; ] ] ]</literal></simpara>
+
+      <simpara><literal>&lt;time interval&gt; ::= &lt;hours value&gt; [
+      &lt;colon&gt; &lt;minutes value&gt; [ &lt;colon&gt; &lt;seconds
+      value&gt; ] ] | &lt;minutes value&gt; [ &lt;colon&gt; &lt;seconds
+      value&gt; ] | &lt;seconds value&gt;</literal></simpara>
+
+      <simpara><literal>&lt;years value&gt; ::= &lt;datetime
+      value&gt;</literal></simpara>
+
+      <simpara><literal>&lt;months value&gt; ::= &lt;datetime
+      value&gt;</literal></simpara>
+
+      <simpara><literal>&lt;days value&gt; ::= &lt;datetime
+      value&gt;</literal></simpara>
+
+      <simpara><literal>&lt;hours value&gt; ::= &lt;datetime
+      value&gt;</literal></simpara>
+
+      <simpara><literal>&lt;minutes value&gt; ::= &lt;datetime
+      value&gt;</literal></simpara>
+
+      <simpara><literal>&lt;seconds value&gt; ::= &lt;seconds integer
+      value&gt; [ &lt;period&gt; [ &lt;seconds fraction&gt; ]
+      ]</literal></simpara>
+
+      <simpara><literal>&lt;seconds integer value&gt; ::= &lt;unsigned
+      integer&gt;</literal></simpara>
+
+      <simpara><literal>&lt;seconds fraction&gt; ::= &lt;unsigned
+      integer&gt;</literal></simpara>
+
+      <simpara><literal>&lt;datetime value&gt; ::= &lt;unsigned
+      integer&gt;</literal></simpara>
+
+      <simpara>The type of a datetime or interval type is specified in the
+      literal. The fractional second precision is the number of digits in the
+      fractional part of the literal. Details are described in the <link
+      endterm="sqlgeneral-title" xlink:href="#sqlgeneral-chapt"></link>
+      chapter</simpara>
+
+      <programlisting>DATE '2008-08-08'
+TIME '20:08:08'
+TIMESTAMP '2008-08-08 20:08:08.235'
+
+INTERVAL '10' DAY
+INTERVAL -'08:08' MINUTE TO SECOND
+</programlisting>
+    </section>
+
+    <section xml:id="dac_sql_references">
+      <title>References, etc.</title>
+
+      <para>References are identifier chains, which can be a single
+      identifiers or identifiers chains composed of single identifiers chained
+      together with the period symbol.</para>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>identifier chain</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">identifier chain</emphasis></simpara>
+
+      <simpara><emphasis>identifier chain</emphasis></simpara>
+
+      <simpara><literal>&lt;identifier chain&gt; ::= &lt;identifier&gt; [ {
+      &lt;period&gt; &lt;identifier&gt; }... ]</literal></simpara>
+
+      <simpara><literal>&lt;basic identifier chain&gt; ::= &lt;identifier
+      chain&gt;</literal></simpara>
+
+      <simpara>A period-separated chain of identifiers. The identifiers in an
+      identifier chain can refer to database objects in a hierarchy. The
+      possible hierarchies are as follows. In each hierarchy, elements from
+      the start or the end can be missing, but the order of elements cannot be
+      changed.</simpara>
+
+      <simpara>catalog, schema, database object</simpara>
+
+      <simpara>catalog, schema, table, column</simpara>
+
+      <simpara>correlation name, column</simpara>
+
+      <simpara>Examples of identifier chain are given below:</simpara>
+
+      <programlisting>SELECT MYCAT.MYSCHEMA.MYTABLE.MYCOL FROM MYCAT.MYSCHEMA.MYTABLE
+DROP TABLE MYCAT.MYSCHEMA.MYTABLE CASCADE
+ALTER SEQUENCE MYCAT.MYSCHEMA.MYSEQUENCE RESTART WITH 100
+</programlisting>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>column reference</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">column reference</emphasis></simpara>
+
+      <simpara><emphasis>column reference</emphasis></simpara>
+
+      <simpara><literal>&lt;column reference&gt; ::= &lt;basic identifier
+      chain&gt; | MODULE &lt;period&gt; &lt;qualified identifier&gt;
+      &lt;period&gt; &lt;column name&gt;</literal></simpara>
+
+      <simpara>Reference a column or a routine variable.</simpara>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>SQL parameter reference</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">SQL parameter
+      reference</emphasis></simpara>
+
+      <simpara><emphasis>SQL parameter reference</emphasis></simpara>
+
+      <simpara><literal>&lt;SQL parameter reference&gt; ::= &lt;basic
+      identifier chain&gt;</literal></simpara>
+
+      <simpara>Reference an SQL routine parameter.</simpara>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>contextually typed value specification</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">contextually typed value
+      specification</emphasis></simpara>
+
+      <simpara><emphasis>contextually typed value
+      specification</emphasis></simpara>
+
+      <simpara><literal>&lt;contextually typed value specification&gt; ::=
+      &lt;null specification&gt; | &lt;default
+      specification&gt;</literal></simpara>
+
+      <simpara><literal>&lt;null specification&gt; ::=
+      NULL</literal></simpara>
+
+      <simpara><literal>&lt;default specification&gt; ::=
+      DEFAULT</literal></simpara>
+
+      <simpara>Specify a value whose data type or value is inferred from its
+      context. DEFAULT is used for assignments to table columns that have a
+      default value, or to table columns that are generated either as an
+      IDENTITY value or as an expression. NULL can be used only in a context
+      where the type of the value is known. For example, a NULL can be
+      assigned to a column of the table in an INSERT or UPDATE statement,
+      because the type of the column is known. But if NULL is used in a SELECT
+      list, it must be used in a CAST statement.</simpara>
+    </section>
+
+    <section xml:id="dac_value_expression">
+      <title>Value Expression</title>
+
+      <para>Value expression is a general name for all expressions that return
+      a value. Different types of expressions are allowed in different
+      contexts.</para>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>value expression primary</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">value expression
+      primary</emphasis></simpara>
+
+      <simpara><emphasis>value expression primary</emphasis></simpara>
+
+      <simpara><literal>&lt;value expression primary&gt; ::= &lt;parenthesized
+      value expression&gt; | &lt;nonparenthesized value expression
+      primary&gt;</literal></simpara>
+
+      <simpara><literal>&lt;parenthesized value expression&gt; ::= &lt;left
+      paren&gt; &lt;value expression&gt; &lt;right
+      paren&gt;</literal></simpara>
+
+      <simpara><literal>&lt;nonparenthesized value expression primary&gt; ::=
+      &lt;unsigned value specification&gt; | &lt;column reference&gt; |
+      &lt;set function specification&gt; | &lt;scalar subquery&gt; | &lt;case
+      expression&gt; | &lt;cast specification&gt; | &lt;next value
+      expression&gt; | &lt;current value expression&gt; | &lt;routine
+      invocation&gt;</literal></simpara>
+
+      <simpara>Specify a value that is syntactically self-delimited.</simpara>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>value specification</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">value specification</emphasis></simpara>
+
+      <simpara><emphasis>value specification</emphasis></simpara>
+
+      <simpara><literal>&lt;value specification&gt; ::= &lt;literal&gt; |
+      &lt;general value specification&gt;</literal></simpara>
+
+      <simpara><literal>&lt;unsigned value specification&gt; ::= &lt;unsigned
+      literal&gt; | &lt;general value specification&gt;</literal></simpara>
+
+      <simpara><literal>&lt;target specification&gt; ::= &lt;host parameter
+      specification&gt; | &lt;SQL parameter reference&gt; | &lt;column
+      reference&gt; | &lt;dynamic parameter
+      specification&gt;</literal></simpara>
+
+      <simpara><literal>&lt;simple target specification&gt; ::= &lt;host
+      parameter specification&gt; | &lt;SQL parameter reference&gt; |
+      &lt;column reference&gt; | &lt;embedded variable
+      name&gt;</literal></simpara>
+
+      <simpara><literal>&lt;host parameter specification&gt; ::= &lt;host
+      parameter name&gt; [ &lt;indicator parameter&gt; ]</literal></simpara>
+
+      <simpara><literal>&lt;dynamic parameter specification&gt; ::=
+      &lt;question mark&gt;</literal></simpara>
+
+      <simpara>Specify one or more values, host parameters, SQL parameters,
+      dynamic parameters, or host variables.</simpara>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>row value expression</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">row value expression</emphasis></simpara>
+
+      <simpara><emphasis>row value expression</emphasis></simpara>
+
+      <simpara><literal>&lt;row value expression&gt; ::= &lt;row value special
+      case&gt; | &lt;explicit row value constructor&gt; </literal></simpara>
+
+      <simpara><literal>&lt;row value predicand&gt; ::= &lt;row value special
+      case&gt; | &lt;row value constructor predicand&gt;</literal></simpara>
+
+      <simpara><literal>&lt;row value special case&gt; ::=
+      &lt;nonparenthesized value expression primary&gt;</literal></simpara>
+
+      <simpara><literal>&lt;explicit row value constructor&gt; ::= &lt;left
+      paren&gt; &lt;row value constructor element&gt; &lt;comma&gt; &lt;row
+      value constructor element list&gt; &lt;right paren&gt;
+      |</literal></simpara>
+
+      <simpara><literal> ROW &lt;left paren&gt; &lt;row value constructor
+      element list&gt; &lt;right paren&gt; | &lt;row
+      subquery&gt;</literal></simpara>
+
+      <simpara>Specify a row consisting of one or more elements. A comma
+      separated list of expressions, enclosed in brackets, with the optional
+      keyword ROW. In SQL, a row containing a single element can often be used
+      where a single value is expected.</simpara>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>set function specification</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">set function
+      specification</emphasis></simpara>
+
+      <simpara><emphasis>set function specification</emphasis></simpara>
+
+      <simpara><literal>&lt;set function specification&gt; ::= &lt;aggregate
+      function&gt; | &lt;grouping operation&gt;</literal></simpara>
+
+      <simpara><literal>&lt;grouping operation&gt; ::= GROUPING &lt;left
+      paren&gt; &lt;column reference&gt; [ { &lt;comma&gt; &lt;column
+      reference&gt; }... ] &lt;right paren&gt;</literal></simpara>
+
+      <simpara>Specify a value derived by the application of a function to an
+      argument. Early releases of HyperSQL 2.0 do not support
+      <literal>&lt;grouping operation&gt;</literal> .</simpara>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>COALESCE expression</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">COALESCE</emphasis></simpara>
+
+      <simpara><emphasis>coalesce expression</emphasis></simpara>
+
+      <simpara><literal>&lt;coalesce expression&gt; := COALESCE &lt;left
+      paren&gt; &lt;value expression&gt; { &lt;comma&gt; &lt;value
+      expression&gt; }... &lt;right paren&gt;</literal></simpara>
+
+      <simpara>Replace null values with another value. The coalesce expression
+      has two or more instances of &lt;value expression&gt;. If the first
+      &lt;value expression&gt; evaluates to a non-null value, it is returned
+      as the result of the coalesce expression. If it is null, the next
+      <literal>&lt;value expression&gt;</literal> is evaluated and if it
+      evaluates to a non-non value, it is returned, and so on.</simpara>
+
+      <simpara>The type of the return value of a COALESCE expression is the
+      aggregate type of the types of all the <literal>&lt;value
+      expression&gt;</literal> instances. Therefore, any value returned is
+      implicitly cast to this type. HyperSQL also features built-in functions
+      with similar functionality.</simpara>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>NULLIF expression</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">NULLIF</emphasis></simpara>
+
+      <simpara><emphasis>nullif expression</emphasis></simpara>
+
+      <simpara><literal>&lt;nullif expression&gt; := NULLIF &lt;left paren&gt;
+      &lt;value expression&gt; &lt;comma&gt; &lt;value expression&gt;
+      &lt;right paren&gt;</literal></simpara>
+
+      <simpara>Return NULL if two values are equal. If the result of the first
+      <literal>&lt;value expression&gt;</literal> is not equal to the result
+      of the second, then it is returned, otherwise NULL is returned. The type
+      of the return value is the type of the first <literal>&lt;value
+      expression&gt;</literal>.</simpara>
+
+      <programlisting>SELECT i, NULLIF(n, 'not defined') FROM t</programlisting>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>case expression</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">CASE</emphasis></simpara>
+
+      <simpara><emphasis>case specification</emphasis></simpara>
+
+      <simpara><literal>&lt;case specification&gt; ::= &lt;simple case&gt; |
+      &lt;searched case&gt;</literal></simpara>
+
+      <simpara><literal>&lt;simple case&gt; ::= CASE &lt;case operand&gt;
+      &lt;simple when clause&gt;... [ &lt;else clause&gt; ]
+      END</literal></simpara>
+
+      <simpara><literal>&lt;searched case&gt; ::= CASE &lt;searched when
+      clause&gt;... [ &lt;else clause&gt; ] END</literal></simpara>
+
+      <simpara><literal>&lt;simple when clause&gt; ::= WHEN &lt;when operand
+      list&gt; THEN &lt;result&gt;</literal></simpara>
+
+      <simpara><literal>&lt;searched when clause&gt; ::= WHEN &lt;search
+      condition&gt; THEN &lt;result&gt;</literal></simpara>
+
+      <simpara><literal>&lt;else clause&gt; ::= ELSE
+      &lt;result&gt;</literal></simpara>
+
+      <simpara><literal>&lt;case operand&gt; ::= &lt;row value predicand&gt; |
+      &lt;overlaps predicate part 1&gt;</literal></simpara>
+
+      <simpara><literal>&lt;when operand list&gt; ::= &lt;when operand&gt; [ {
+      &lt;comma&gt; &lt;when operand&gt; }... ]</literal></simpara>
+
+      <simpara><literal>&lt;when operand&gt; ::= &lt;row value predicand&gt; |
+      &lt;comparison predicate part 2&gt; | &lt;between predicate part 2&gt; |
+      &lt;in predicate part 2&gt; | &lt;character like predicate part 2&gt; |
+      &lt;octet like predicate part 2&gt; | &lt;similar predicate part 2&gt; |
+      &lt;regex like predicate part 2&gt; | &lt;null predicate part 2&gt; |
+      &lt;quantified comparison predicate part 2&gt; | &lt;match predicate
+      part 2&gt; | &lt;overlaps predicate part 2&gt; | &lt;distinct predicate
+      part 2&gt;</literal></simpara>
+
+      <simpara><literal>&lt;result&gt; ::= &lt;result expression&gt; |
+      NULL</literal></simpara>
+
+      <simpara><literal>&lt;result expression&gt; ::= &lt;value
+      expression&gt;</literal></simpara>
+
+      <simpara>Specify a conditional value. The result of a case expression is
+      always a value. All the values introduced with THEN must be of the same
+      type.</simpara>
+
+      <simpara>Some simple examples of the CASE expression are given below.
+      The first two examples return 'Britain', 'Germany', or 'Other country'
+      depending on the value of dialcode. The third example uses IN and
+      smaller-than predicates.</simpara>
+
+      <programlisting>CASE dialcode WHEN 44 THEN 'Britain' WHEN 49 THEN 'Germany' ELSE 'Other country' END
+CASE WHEN dialcode=44 THEN 'Britain' WHEN dialcode=49 THEN 'Germany' WHEN dialcode &lt; 0 THEN 'bad dial code' ELSE 'Other country' END
+CASE dialcode WHEN IN (44, 49,30) THEN 'Europe' WHEN IN (86,91,91) THEN 'Asia' WHEN &lt; 0 THEN 'bad dial code' ELSE 'Other continent' END
+</programlisting>
+
+      <simpara>The case statement can be far more complex and involve several
+      conditions.</simpara>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>CAST</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">CAST</emphasis></simpara>
+
+      <simpara><emphasis>cast specification</emphasis></simpara>
+
+      <simpara><literal>&lt;cast specification&gt; ::= CAST &lt;left paren&gt;
+      &lt;cast operand&gt; AS &lt;cast target&gt; &lt;right
+      paren&gt;</literal></simpara>
+
+      <simpara><literal>&lt;cast operand&gt; ::= &lt;value expression&gt; |
+      &lt;implicitly typed value specification&gt;</literal></simpara>
+
+      <simpara><literal>&lt;cast target&gt; ::= &lt;domain name&gt; | &lt;data
+      type&gt;</literal></simpara>
+
+      <simpara>Specify a data conversion. Data conversion takes place
+      automatically among variants of a general type. For example numeric
+      values are freely converted from one type to another in
+      expressions.</simpara>
+
+      <simpara>Explicit type conversion is necessary in two cases. One case is
+      to determine the type of a NULL value. The other case is to force
+      conversion for special purposes. Values of data types can be cast to a
+      character type. The exception is BINARY and OTHER types. The result of
+      the cast is the literal expression of the value. Conversely, a value of
+      a character type can be converted to another type if the character value
+      is a literal representation of the value in the target type. Special
+      conversions are possible between numeric and interval types, which are
+      described in the section covering interval types.</simpara>
+
+      <simpara>The examples below show examples of cast with their
+      result:</simpara>
+
+      <programlisting>CAST (NULL AS TIMESTAMP)
+CAST ('   199  ' AS INTEGER) = 199
+CAST ('tRue ' AS BOOLEAN) = TRUE
+CAST (INTERVAL '2' DAY AS INTEGER) = 2
+CAST ('1992-04-21' AS DATE) = DATE '1992-04-21'
+</programlisting>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>NEXT VALUE FOR</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">NEXT VALUE FOR</emphasis></simpara>
+
+      <simpara><emphasis>next value expression</emphasis></simpara>
+
+      <simpara><literal>&lt;next value expression&gt; ::= NEXT VALUE FOR
+      &lt;sequence generator name&gt;</literal></simpara>
+
+      <simpara>Return the next value of a sequence generator. This expression
+      can be used as a select list element in queries, or in assignments to
+      table columns in data change statements. If the expression is used more
+      than once in a single row that is being evaluated, the same value is
+      returned for each invocation. After evaluation of the particular row is
+      complete, the sequence generator will return a different value from the
+      old value. The new value is generated by the sequence generator by
+      adding the increment to the last value it generated. In the example
+      below the expression is used in an insert statement:</simpara>
+
+      <programlisting>INSERT INTO MYTABLE(COL1, COL2) VALUES 2, NEXT VALUE FOR MYSEQUENCE
+</programlisting>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>CURRENT VALUE FOR</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">CURRENT VALUE FOR</emphasis></simpara>
+
+      <simpara><emphasis>current value expression</emphasis></simpara>
+
+      <simpara><literal>&lt;current value expression&gt; ::= CURRENT VALUE FOR
+      &lt;sequence generator name&gt;</literal></simpara>
+
+      <simpara>Return the latest value that was returned by the NEXT VALUE FOR
+      expression for a sequence generator. In the example below, the value
+      that was generated by the sequence for the first insert, is reused for
+      the second insert:</simpara>
+
+      <programlisting>INSERT INTO MYTABLE(COL1, COL2) VALUES 2, NEXT VALUE FOR MYSEQUENCE;
+INSERT INTO CHILDTABLE(COL1, COL2) VALUES 10, CURRENT VALUE FOR MYSEQUENCE;
+</programlisting>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>value expression</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">value expression</emphasis></simpara>
+
+      <simpara><emphasis>value expression</emphasis></simpara>
+
+      <simpara><literal>&lt;value expression&gt; ::= &lt;numeric value
+      expression&gt; | &lt;string value expression&gt; | &lt;datetime value
+      expression&gt; | &lt;interval value expression&gt; | &lt;boolean value
+      expression&gt; | &lt;row value expression&gt;</literal></simpara>
+
+      <simpara>An expression that returns a value. The value can be a single
+      value, or a row consisting more than one value.</simpara>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>numeric value expression</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">numeric value
+      expression</emphasis></simpara>
+
+      <simpara><emphasis>numeric value expression</emphasis></simpara>
+
+      <simpara><literal>&lt;numeric value expression&gt; ::= &lt;term&gt; |
+      &lt;numeric value expression&gt; &lt;plus sign&gt; &lt;term&gt; |
+      &lt;numeric value expression&gt; &lt;minus sign&gt;
+      &lt;term&gt;</literal></simpara>
+
+      <simpara><literal>&lt;term&gt; ::= &lt;factor&gt; | &lt;term&gt;
+      &lt;asterisk&gt; &lt;factor&gt; | &lt;term&gt; &lt;solidus&gt;
+      &lt;factor&gt;</literal></simpara>
+
+      <simpara><literal>&lt;factor&gt; ::= [ &lt;sign&gt; ] &lt;numeric
+      primary&gt;</literal></simpara>
+
+      <simpara><literal>&lt;numeric primary&gt; ::= &lt;value expression
+      primary&gt; | &lt;numeric value function&gt;</literal></simpara>
+
+      <simpara>Specify a numeric value. The BNF indicates that
+      <literal>&lt;asterisk&gt;</literal> and
+      <literal>&lt;solidus&gt;</literal> (the operators for multiplication and
+      division) have precedence over <literal>&lt;minus sign&gt;</literal> and
+      <literal>&lt;plus sign&gt;</literal>.</simpara>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>numeric value function</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">numeric value
+      function</emphasis></simpara>
+
+      <simpara><emphasis>numeric value function</emphasis></simpara>
+
+      <simpara><literal>&lt;numeric value function&gt; ::= &lt;position
+      expression&gt; | &lt;extract expression&gt; | &lt;length expression&gt;
+      ...</literal></simpara>
+
+      <simpara>Specify a function yielding a value of type numeric. The
+      supported numeric value functions are listed and described in the <link
+      endterm="builtinfunctions-title"
+      xlink:href="#builtinfunctions-chapt"></link> chapter.</simpara>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>string value expression</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">string value
+      expression</emphasis></simpara>
+
+      <simpara><emphasis>string value expression</emphasis></simpara>
+
+      <simpara><literal>&lt;string value expression&gt; ::= &lt;string
+      concatenation&gt; | &lt;string factor&gt;</literal></simpara>
+
+      <simpara><literal>&lt;string factor&gt; ::= &lt;value expression
+      primary&gt; | &lt;string value function&gt;</literal></simpara>
+
+      <simpara><literal>&lt;string concatenation&gt; ::= &lt;string value
+      expression&gt; &lt;concatenation operator&gt; &lt;string
+      factor&gt;</literal></simpara>
+
+      <simpara><literal>&lt;concatenation operator&gt; ::=
+      ||</literal></simpara>
+
+      <simpara>Specify a character string value, a binary string value, or a
+      bit string value. The BNF indicates that a string value expression can
+      be formed by concatenation of two or more <literal>&lt;value expression
+      primary&gt;</literal>. The types of the <literal>&lt;value expression
+      primary&gt;</literal> elements must be compatible, that is, all must be
+      string, or binary or bit string values.</simpara>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>character value function</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">character value
+      function</emphasis></simpara>
+
+      <simpara><emphasis>string value function</emphasis></simpara>
+
+      <simpara><literal>&lt;string value function&gt; ::=
+      ...</literal></simpara>
+
+      <simpara>Specify a function that returns a character string or binary
+      string. The supported character value functions are listed and described
+      in the <link endterm="builtinfunctions-title"
+      xlink:href="#builtinfunctions-chapt"></link> chapter.</simpara>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>datetime value expression</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">datetime value
+      expression</emphasis></simpara>
+
+      <simpara><emphasis>datetime value expression</emphasis></simpara>
+
+      <simpara><literal>&lt;datetime value expression&gt; ::= &lt;datetime
+      term&gt; | &lt;interval value expression&gt; &lt;plus sign&gt;
+      &lt;datetime term&gt; | &lt;datetime value expression&gt; &lt;plus
+      sign&gt; &lt;interval term&gt; | &lt;datetime value expression&gt;
+      &lt;minus sign&gt; &lt;interval term&gt;</literal></simpara>
+
+      <simpara><literal>&lt;datetime term&gt; ::= &lt;datetime
+      factor&gt;</literal></simpara>
+
+      <simpara><literal>&lt;datetime factor&gt; ::= &lt;datetime primary&gt; [
+      &lt;time zone&gt; ]</literal></simpara>
+
+      <simpara><literal>&lt;datetime primary&gt; ::= &lt;value expression
+      primary&gt; | &lt;datetime value function&gt;</literal></simpara>
+
+      <simpara><literal>&lt;time zone&gt; ::= AT &lt;time zone
+      specifier&gt;</literal></simpara>
+
+      <simpara><literal>&lt;time zone specifier&gt; ::= LOCAL | TIME ZONE
+      &lt;interval primary&gt;</literal></simpara>
+
+      <simpara>Specify a datetime value. Details are described in the <link
+      endterm="sqlgeneral-title" xlink:href="#sqlgeneral-chapt"></link>
+      chapter.</simpara>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>datetime value function</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">datetime value
+      function</emphasis></simpara>
+
+      <simpara><emphasis>datetime value function</emphasis></simpara>
+
+      <simpara><literal>&lt;datetime value function&gt; ::=
+      ...</literal></simpara>
+
+      <simpara>Specify a function that returns a datetime value. The supported
+      datetime value functions are listed and described in the <link
+      endterm="builtinfunctions-title" xlink:arcrole=""
+      xlink:href="#builtinfunctions-chapt"></link> chapter.</simpara>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>interval term</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">interval term</emphasis></simpara>
+
+      <simpara><emphasis>interval value expression</emphasis></simpara>
+
+      <simpara><literal>&lt;interval value expression&gt; ::= &lt;interval
+      term&gt; | &lt;interval value expression 1&gt; &lt;plus sign&gt;
+      &lt;interval term 1&gt; | &lt;interval value expression 1&gt; &lt;minus
+      sign&gt; &lt;interval term 1&gt; | &lt;left paren&gt; &lt;datetime value
+      expression&gt; &lt;minus sign&gt; &lt;datetime term&gt; &lt;right
+      paren&gt; &lt;interval qualifier&gt;</literal></simpara>
+
+      <simpara><literal>&lt;interval term&gt; ::= &lt;interval factor&gt; |
+      &lt;interval term 2&gt; &lt;asterisk&gt; &lt;factor&gt; | &lt;interval
+      term 2&gt; &lt;solidus&gt; &lt;factor&gt; | &lt;term&gt;
+      &lt;asterisk&gt; &lt;interval factor&gt;</literal></simpara>
+
+      <simpara><literal>&lt;interval factor&gt; ::= [ &lt;sign&gt; ]
+      &lt;interval primary&gt;</literal></simpara>
+
+      <simpara><literal>&lt;interval primary&gt; ::= &lt;value expression
+      primary&gt; [ &lt;interval qualifier&gt; ] | &lt;interval value
+      function&gt;</literal></simpara>
+
+      <simpara><literal>&lt;interval value expression 1&gt; ::= &lt;interval
+      value expression&gt;</literal></simpara>
+
+      <simpara><literal>&lt;interval term 1&gt; ::= &lt;interval
+      term&gt;</literal></simpara>
+
+      <simpara><literal>&lt;interval term 2&gt; ::= &lt;interval
+      term&gt;</literal></simpara>
+
+      <simpara>Specify an interval value. Details are described in the <link
+      endterm="sqlgeneral-title" xlink:href="#sqlgeneral-chapt"></link>
+      chapter.</simpara>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>interval absolute value function</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">interval absolute value
+      function</emphasis></simpara>
+
+      <simpara><emphasis>interval value function</emphasis></simpara>
+
+      <simpara><literal>&lt;interval value function&gt; ::= &lt;interval
+      absolute value function&gt;</literal></simpara>
+
+      <simpara><literal>&lt;interval absolute value function&gt; ::= ABS
+      &lt;left paren&gt; &lt;interval value expression&gt; &lt;right
+      paren&gt;</literal></simpara>
+
+      <simpara>Specify a function that returns the absolute value of an
+      interval. If the interval is negative, it is negated, otherwise the
+      original value is returned.</simpara>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>boolean value expression</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">boolean value
+      expression</emphasis></simpara>
+
+      <simpara><emphasis>boolean value expression</emphasis></simpara>
+
+      <simpara><literal>&lt;boolean value expression&gt; ::= &lt;boolean
+      term&gt; | &lt;boolean value expression&gt; OR &lt;boolean
+      term&gt;</literal></simpara>
+
+      <simpara><literal>&lt;boolean term&gt; ::= &lt;boolean factor&gt; |
+      &lt;boolean term&gt; AND &lt;boolean factor&gt;</literal></simpara>
+
+      <simpara><literal>&lt;boolean factor&gt; ::= [ NOT ] &lt;boolean
+      test&gt;</literal></simpara>
+
+      <simpara><literal>&lt;boolean test&gt; ::= &lt;boolean primary&gt; [ IS
+      [ NOT ] &lt;truth value&gt; ]</literal></simpara>
+
+      <simpara><literal>&lt;truth value&gt; ::= TRUE | FALSE |
+      UNKNOWN</literal></simpara>
+
+      <simpara><literal>&lt;boolean primary&gt; ::= &lt;predicate&gt; |
+      &lt;boolean predicand&gt;</literal></simpara>
+
+      <simpara><literal>&lt;boolean predicand&gt; ::= &lt;parenthesized
+      boolean value expression&gt; | &lt;nonparenthesized value expression
+      primary&gt;</literal></simpara>
+
+      <simpara><literal>&lt;parenthesized boolean value expression&gt; ::=
+      &lt;left paren&gt; &lt;boolean value expression&gt; &lt;right
+      paren&gt;</literal></simpara>
+
+      <simpara>Specify a boolean value.</simpara>
+    </section>
+
+    <section xml:id="dac_sql_predicates">
+      <title>Predicates</title>
+
+      <simpara>Predicates are conditions with two sides and evaluate to a
+      boolean value. The left side of the predicate, the <literal>&lt;row
+      value predicand&gt;</literal>, is the common element of all predicates.
+      This element is a generalisation of both <literal>&lt;value
+      expression&gt;</literal>, which is a scalar, and of
+      <literal>&lt;explicit row value constructor&gt;</literal>, which is a
+      row. The two sides of a predicate can be split in CASE statements where
+      the <literal>&lt;row value predicand&gt;</literal> is part of multiple
+      predicates.</simpara>
+
+      <simpara>The number of fields in all <literal>&lt;row value
+      predicand&gt;</literal> used in predicates must be the same and the
+      types of the fields in the same position must be compatible for
+      comparison. If either of these conditions does not hold, an exception is
+      raised. The number of fields in a row is called the
+      <glossterm>degree</glossterm>.</simpara>
+
+      <simpara>In many types of predicates (but not all of them), if the
+      <literal>&lt;row value predicand&gt;</literal> evaluates to NULL, the
+      result of the predicate is UNKNOWN. If the <literal>&lt;row value
+      predicand&gt;</literal> has more than one element, and one or more of
+      the fields evaluate to NULL, the result depends on the particular
+      predicate.</simpara>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>comparison predicate</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">comparison predicand</emphasis></simpara>
+
+      <simpara><emphasis>comparison predicate</emphasis></simpara>
+
+      <simpara><literal>&lt;comparison predicate&gt; ::= &lt;row value
+      predicand&gt; &lt;comp op&gt; &lt;row value
+      predicand&gt;</literal></simpara>
+
+      <simpara><literal>&lt;comp op&gt; ::= &lt;equals operator&gt; | &lt;not
+      equals operator&gt; | &lt;less than operator&gt; | &lt;greater than
+      operator&gt; | &lt;less than or equals operator&gt; | &lt;greater than
+      or equals operator&gt;</literal></simpara>
+
+      <simpara>Specify a comparison of two row values. If either
+      <literal>&lt;row value predicand&gt;</literal> evaluates to NULL, the
+      result of <literal>&lt;comparison predicate&gt;</literal> is UNKNOWN.
+      Otherwise, the result is TRUE, FALSE or UNKNOWN.</simpara>
+
+      <simpara>If the <glossterm>degree</glossterm> of <literal>&lt;row value
+      predicand&gt;</literal> is larger than one, comparison is performed
+      between each field and the corresponding field in the other
+      <literal>&lt;row value predicand&gt;</literal> from left to right, one
+      by one.</simpara>
+
+      <simpara>When comparing two elements, if either field is NULL then the
+      result is UNKNOWN.</simpara>
+
+      <simpara>For <literal>&lt;equals operator&gt;</literal>, if the result
+      of comparison is TRUE for all field, the result of the predicate is
+      TRUE. If the result of comparison is FALSE for one field, the result of
+      predicate is FALSE. Otherwise the result is UNKNOWN.</simpara>
+
+      <simpara>The <literal>&lt;not equals operator&gt;</literal> is
+      translated to <literal>NOT (&lt;row value predicand&gt; = &lt;row value
+      predicand&gt;)</literal>.</simpara>
+
+      <simpara>The <literal>&lt;less than or equals operator&gt;</literal> is
+      translated to <literal>(&lt;row value predicand&gt; = &lt;row value
+      predicand&gt;) OR (&lt;row value predicand&gt; &lt; &lt;row value
+      predicand&gt;)</literal>. The <literal>&lt;greater than or equals
+      operator&gt;</literal> is translated similarly.</simpara>
+
+      <simpara>For the <literal>&lt;less than operator&gt;</literal> and
+      <literal>&lt;greater than operator&gt;</literal>, if two fields at a
+      given position are equal, then comparison continues to the next field.
+      Otherwise, the result of the last performed comparison is returned as
+      the result of the predicate. This means that if the first field is NULL,
+      the result is always UNKNOWN.</simpara>
+
+      <simpara>The logic that governs NULL values and UNKNOWN result is as
+      follows: Suppose the NULL values were substituted by arbitrary real
+      values. If substitution cannot change the result of the predicate, then
+      the result is TRUE or FALSE, based on the existing non-NULL values,
+      otherwise the result of the predicate is UNKNOWN.</simpara>
+
+      <simpara>The examples of comparison given below use literals, but the
+      literals actually represent the result of evaluation of some
+      expression.</simpara>
+
+      <programlisting>((1, 2, 3, 4) = (1, 2, 3, 4)) IS TRUE
+((1, 2, 3, 4) = (1, 2, 3, 5)) IS FALSE
+((1, 2, 3, 4) &lt; (1, 2, 3, 4)) IS FALSE
+((1, 2, 3, 4) &lt; (1, 2, 3, 5)) IS TRUE
+((NULL, 1, NULL) = (NULL, 1, NULL)) IS UNKNOWN  
+((NULL, 1, NULL) = (NULL, 2, NULL)) IS FALSE  
+((NULL, 1, NULL) &lt;&gt; (NULL, 2, NULL)) IS TRUE  
+((NULL, 1, 2) &lt;all operators&gt; (NULL, 1, 2)) IS UNKNOWN
+((1, NULL, ...) &lt; (1, 2, ...)) IS UNKNOWN  
+((1, NULL, ...) &lt; (2, NULL, ...)) IS TRUE
+((2, NULL, ...) &lt; (1, NULL, ...)) IS FALSE
+</programlisting>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>BETWEEN predicate</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">BETWEEN</emphasis></simpara>
+
+      <simpara><emphasis>between predicate</emphasis></simpara>
+
+      <simpara><literal>&lt;between predicate&gt; ::= &lt;row value
+      predicand&gt; &lt;between predicate part 2&gt;</literal></simpara>
+
+      <simpara><literal>&lt;between predicate part 2&gt; ::= [ NOT ] BETWEEN [
+      ASYMMETRIC | SYMMETRIC ] &lt;row value predicand&gt; AND &lt;row value
+      predicand&gt;</literal></simpara>
+
+      <simpara>Specify a range comparison. The default is ASYMMETRIC. The
+      expression <literal>X BETWEEN Y AND Z</literal> is equivalent to
+      <literal>(X &gt;= Y AND X &lt;= Z)</literal>. Therefore if Y &gt; Z, the
+      BETWEEN expression is never true. The expression <literal>X BETWEEN
+      SYMMETRIC Y AND Z</literal> is equivalent to <literal>(X &gt;= Y AND X
+      &lt;= Z) OR (X &gt;= Z AND X &lt;= Y)</literal>. The expression
+      <literal>Z NOT BETWEEN ...</literal> is equivalent to <literal>NOT (Z
+      BETWEEN ...)</literal>. If any of the three <literal>&lt;row value
+      predicand&gt;</literal> evaluates to NULL, the result is
+      UNKNOWN.</simpara>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>IN predicate</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">IN</emphasis></simpara>
+
+      <simpara><emphasis>in predicate</emphasis></simpara>
+
+      <simpara><literal>&lt;in predicate&gt; ::= &lt;row value predicand&gt; [
+      NOT ] IN &lt;in predicate value&gt;</literal></simpara>
+
+      <simpara><literal>&lt;in predicate value&gt; ::= &lt;table subquery&gt;
+      | &lt;left paren&gt; &lt;in value list&gt; &lt;right paren&gt;
+      </literal></simpara>
+
+      <simpara><literal>| &lt;left paren&gt; UNNEST &lt;left paren&gt;
+      &lt;array value expression&gt; &lt;right paren&gt; &lt;right
+      paren&gt;</literal></simpara>
+
+      <simpara><literal>&lt;in value list&gt; ::= &lt;row value expression&gt;
+      [ { &lt;comma&gt; &lt;row value expression&gt; }...
+      ]</literal></simpara>
+
+      <simpara>Specify a quantified comparison. The expression <literal>X NOT
+      IN Y is</literal> equivalent to <literal>NOT (X IN Y)</literal>. The
+      <literal>( &lt;in value list&gt; )</literal> is converted into a table
+      with one or more rows. The expression <literal>X IN Y</literal> is
+      equivalent to <literal>X = ANY Y</literal>, which is a
+      <literal>&lt;quantified comparison predicate&gt;</literal>.</simpara>
+
+      <simpara>If the <literal>&lt;table subquery&gt;</literal> returns no
+      rows, the result is FALSE. Otherwise the <literal>&lt;row value
+      predicand&gt;</literal> is compared one by one with each row of the
+      <literal>&lt;table subquery&gt;</literal>.</simpara>
+
+      <simpara>If the comparison is TRUE for at least one row, the result is
+      TRUE. If the comparison is FALSE for all rows, the result is FALSE.
+      Otherwise the result is UNKNOWN.</simpara>
+
+      <simpara>HyperSQL supports an extension to the SQL Standard to allow an
+      array to be used in the &lt;in predicate value&gt;. This is intended to
+      be used with prepared statements where a variable length array of values
+      can be used as the parameter value for each call. The example below
+      shows how this is used in SQL. The JDBC code must create a new
+      java.sql.Array object that contains the values and set the parameter
+      with this array.</simpara>
+
+      <programlisting>SELECT * FROM customer WHERE firstname IN ( UNNEST(?) )
+
+Connection conn;
+PreparedStatement ps;
+// conn and ps are instantiated here
+Array arr = conn.createArrayOf("INTEGER", new Integer[] {1, 2, 3});
+ps.setArray(1, arr);
+ResultSet rs = ps.executeQuery();
+</programlisting>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>LIKE predicate</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">LIKE</emphasis></simpara>
+
+      <simpara><emphasis>like predicate</emphasis></simpara>
+
+      <simpara><literal>&lt;like predicate&gt; ::= &lt;character like
+      predicate&gt; | &lt;octet like predicate&gt;</literal></simpara>
+
+      <simpara><literal>&lt;character like predicate&gt; ::= &lt;row value
+      predicand&gt; [ NOT ] LIKE &lt;character pattern&gt; [ ESCAPE &lt;escape
+      character&gt; ]</literal></simpara>
+
+      <simpara><literal>&lt;character pattern&gt; ::= &lt;character value
+      expression&gt;</literal></simpara>
+
+      <simpara><literal>&lt;escape character&gt; ::= &lt;character value
+      expression&gt;</literal></simpara>
+
+      <simpara><literal>&lt;octet like predicate&gt; ::= &lt;row value
+      predicand&gt; [ NOT ] LIKE &lt;octet pattern&gt; [ ESCAPE &lt;escape
+      octet&gt; ]</literal></simpara>
+
+      <simpara><literal>&lt;octet pattern&gt; ::= &lt;binary value
+      expression&gt;</literal></simpara>
+
+      <simpara><literal>&lt;escape octet&gt; ::= &lt;binary value
+      expression&gt;</literal></simpara>
+
+      <simpara>Specify a pattern-match comparison for character or binary
+      strings. The <literal>&lt;row value predicand&gt;</literal> is always a
+      <literal>&lt;string value expression&gt;</literal> of character or
+      binary type. The <literal>&lt;character pattern&gt;</literal> or
+      <literal>&lt;octet pattern&gt;</literal> is a <literal>&lt;string value
+      expression&gt;</literal> in which the underscore and percent characters
+      have special meanings. The underscore means match any one character,
+      while the percent means match a sequence of zero or more characters. The
+      <literal>&lt;escape character&gt;</literal> or <literal>&lt;escape
+      octet&gt;</literal> is also a <literal>&lt;string value
+      expression&gt;</literal> that evaluates to a string of exactly one
+      character length. If the underscore or the percent is required as normal
+      characters in the pattern, the specified <literal>&lt;escape
+      character&gt;</literal> or <literal>&lt;escape octet&gt;</literal> can
+      be used in the pattern before the underscore or the percent. The
+      <literal>&lt;row value predicand&gt;</literal> is compared with the
+      <literal>&lt;character pattern&gt;</literal> and the result of
+      comparison is returned. If any of the expressions in the predicate
+      evaluates to NULL, the result of the predicate is UNKNOWN. The
+      expression <literal>A NOT LIKE B</literal> is equivalent to <literal>NOT
+      (A LIKE B)</literal>. If the length of the escape is not 1 or it is used
+      in the pattern not immediately before an underscore or a percent
+      character, an exception is raised.</simpara>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>IS NULL predicate</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">IS NULL</emphasis></simpara>
+
+      <simpara><emphasis>null predicate</emphasis></simpara>
+
+      <simpara><literal>&lt;null predicate&gt; ::= &lt;row value predicand&gt;
+      IS [ NOT ] NULL</literal></simpara>
+
+      <simpara>Specify a test for a null value. The expression <literal>X IS
+      NOT NULL</literal> is NOT equivalent to <literal>NOT (X IS
+      NULL)</literal>if the degree of the <literal>&lt;row value
+      predicand&gt;</literal> is larger than 1. The rules are: If all fields
+      are null, <literal>X IS NULL</literal> is TRUE and <literal>X IS NOT
+      NULL</literal> is FALSE. If only some fields are null, both <literal>X
+      IS NULL</literal> and <literal>X IS NOT NULL</literal> are FALSE. If all
+      fields are not null, <literal>X IS NULL</literal> is FALSE and
+      <literal>X IS NOT NULL</literal> is TRUE.</simpara>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>ALL and ANY predicates</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">ALL and ANY</emphasis></simpara>
+
+      <simpara><emphasis>quantified comparison predicate</emphasis></simpara>
+
+      <simpara><literal>&lt;quantified comparison predicate&gt; ::= &lt;row
+      value predicand&gt; &lt;comp op&gt; &lt;quantifier&gt; &lt;table
+      subquery&gt;</literal></simpara>
+
+      <simpara><literal>&lt;quantifier&gt; ::= &lt;all&gt; |
+      &lt;some&gt;</literal></simpara>
+
+      <simpara><literal>&lt;all&gt; ::= ALL</literal></simpara>
+
+      <simpara><literal>&lt;some&gt; ::= SOME | ANY</literal></simpara>
+
+      <simpara>Specify a quantified comparison. For a quantified comparison,
+      the <literal>&lt;row value predicand&gt;</literal> is compared one by
+      one with each row of the <literal>&lt;table sub
+      query&gt;</literal>.</simpara>
+
+      <simpara>If the <literal>&lt;table subquery&gt;</literal> returns no
+      rows, then if <literal>ALL</literal> is specified the result is TRUE,
+      but if <literal>SOME</literal> or <literal>ANY</literal> is specified
+      the result is FALSE.</simpara>
+
+      <simpara>If <literal>ALL</literal> is specified, if the comparison is
+      TRUE for all rows, the result of the predicate is TRUE. If the
+      comparison is FALSE for at least one row, the result is FALSE. Otherwise
+      the result is UNKNOWN.</simpara>
+
+      <simpara>If <literal>SOME</literal> or <literal>ANY</literal> is
+      specified, if the comparison is TRUE for at least one row, the result is
+      TRUE. If the comparison is FALSE for all rows, the result is FALSE.
+      Otherwise the result is UNKNOWN. Note that the IN predicate is
+      equivalent to the SOME or ANY predicate using the <literal>&lt;equals
+      operator&gt;</literal>.</simpara>
+
+      <simpara>In the examples below, the date of an invoice is compared to
+      holidays in a given year. In the first example the invoice date must
+      equal one of the holidays, in the second example it must be later than
+      all holidays (later than the last holiday), in the third example it must
+      be on or after some holiday (on or after the first holiday), and in the
+      fourth example, it must be before all holidays (before the first
+      holiday).</simpara>
+
+      <programlisting>invoice_date = SOME (SELECT holiday_date FROM holidays)
+invoice_date &gt; ALL (SELECT holiday_date FROM holidays)
+invoice_date &gt;= ANY (SELECT holiday_date FROM holidays)
+invoice_date &lt; ALL (SELECT holiday_date FROM holidays)
+</programlisting>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>EXISTS predicate</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">EXISTS</emphasis></simpara>
+
+      <simpara><emphasis>exists predicate</emphasis></simpara>
+
+      <simpara><literal>&lt;exists predicate&gt; ::= EXISTS &lt;table
+      subquery&gt;</literal></simpara>
+
+      <simpara>Specify a test for a non-empty set. If the evaluation of
+      <literal>&lt;table subquery&gt;</literal> results in one or more rows,
+      then the expression is TRUE, otherwise FALSE.</simpara>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>UNIQUE predicate</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">UNIQUE</emphasis></simpara>
+
+      <simpara><emphasis>unique predicate</emphasis></simpara>
+
+      <simpara><literal>&lt;unique predicate&gt; ::= UNIQUE &lt;table
+      subquery&gt;</literal></simpara>
+
+      <simpara>Specify a test for the absence of duplicate rows. The result of
+      the test is either TRUE or FALSE (never UNKNOWN). The rows of the
+      <literal>&lt;table subquery&gt;</literal> that contain one or more NULL
+      values are not considered for this test. If the rest of the rows are
+      distinct from each other, the result of the test is TRUE, otherwise it
+      is FALSE. The distinctness of rows X and Y is tested with the predicate
+      <literal>X IS DISTINCT FROM Y</literal>.</simpara>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>MATCH predicate</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">MATCH</emphasis></simpara>
+
+      <simpara><emphasis>match predicate</emphasis></simpara>
+
+      <simpara><literal>&lt;match predicate&gt; ::= &lt;row value
+      predicand&gt; MATCH [ UNIQUE ] [ SIMPLE | PARTIAL | FULL ] &lt;table
+      subquery&gt;</literal></simpara>
+
+      <simpara>Specify a test for matching rows. The default is MATCH SIMPLE
+      without UNIQUE. The result of the test is either TRUE or FALSE (never
+      UNKNOWN).</simpara>
+
+      <simpara>The interpretation of NULL values is different from other
+      predicates and quite counter-intuitive. If the <literal>&lt;row value
+      predicand&gt;</literal> is NULL, or all of its fields are NULL, the
+      result is TRUE.</simpara>
+
+      <simpara>Otherwise, the <literal>&lt;row value predicand&gt;</literal>
+      is compared with each row of the <literal>&lt;table
+      subquery&gt;</literal>.</simpara>
+
+      <simpara>If SIMPLE is specified, if some field of <literal>&lt;row value
+      predicate&gt;</literal> is NULL, the result is TRUE. Otherwise if
+      <literal>&lt;row value predicate&gt; </literal>is equal to one or more
+      rows of <literal>&lt;table subquery&gt;</literal> the result is TRUE if
+      UNIQUE is not specified, or if UNIQUE is specified and only one row
+      matches. Otherwise the result is FALSE.</simpara>
+
+      <simpara>If PARTIAL is specified, if the non-null values
+      <literal>&lt;row value predicate&gt; </literal>are equal to those in one
+      or more rows of <literal>&lt;table subquery&gt;</literal> the result is
+      TRUE if UNIQUE is not specified, or if UNIQUE is specified and only one
+      row matches. Otherwise the result is FALSE.</simpara>
+
+      <simpara>If FULL is specified, if some field of <literal>&lt;row value
+      predicate&gt;</literal> is NULL, the result is FALSE. Otherwise if
+      <literal>&lt;row value predicate&gt;</literal> is equal to one or more
+      rows of <literal>&lt;table subquery&gt;</literal> the result is TRUE if
+      UNIQUE is not specified, or if UNIQUE is specified and only one row
+      matches.</simpara>
+
+      <simpara>Note that MATCH can also used be used in FOREIGN KEY constraint
+      definitions. The exact meaning is described in the <link
+      endterm="databaseobjects-title"
+      xlink:href="#databaseobjects-chapt"></link> chapter.</simpara>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>OVERLAPS predicate</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">OVERLAPS</emphasis></simpara>
+
+      <simpara><emphasis>overlaps predicate</emphasis></simpara>
+
+      <simpara><literal>&lt;overlaps predicate&gt; ::= &lt;row value
+      predicand&gt; OVERLAPS &lt;row value predicand&gt;</literal></simpara>
+
+      <simpara>Specify a test for an overlap between two datetime periods.
+      Each <literal>&lt;row value predicand&gt;</literal> must have two fields
+      and the fields together represent a datetime period. So the predicates
+      is always in the form <literal>(X1, X2) OVERLAPS (Y1, Y2)</literal>. The
+      first field is always a datetime value, while the second field is either
+      a datetime value or an interval value.</simpara>
+
+      <simpara>If the second value is an interval value, it is replaced with
+      the sum of the datetime value and itself, for example <literal>(X1, X1 +
+      X2) OVERLAPS (Y1, Y1 + Y 2)</literal>.</simpara>
+
+      <simpara>If any of the values is NULL, the result is UNKNOWN.</simpara>
+
+      <simpara>The expression is true if there is there is any overlap between
+      the two datetime periods. In the example below, the period is compared
+      with a week long period ending yesterday.</simpara>
+
+      <programlisting>(startdate, enddate) OVERLAPS (CURRENT_DATE - 7 DAY, CURRENT_DATE - 1 DAY)</programlisting>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>IS DISTINCT predicate</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">IS DISTINCT</emphasis></simpara>
+
+      <simpara><emphasis>is distinct predicate</emphasis></simpara>
+
+      <simpara><literal>&lt;distinct predicate&gt; ::= &lt;row value
+      predicand&gt; IS [ NOT ] DISTINCT FROM &lt;row value
+      predicand&gt;</literal></simpara>
+
+      <simpara>Specify a test of whether two row values are distinct. The
+      result of the test is either TRUE or FALSE (never UNKNOWN). The
+      <glossterm>degree</glossterm> the two <literal>&lt;row value
+      predicand&gt;</literal> must be the same. Each field of the first
+      <literal>&lt;row value predicand&gt;</literal> is compared to the field
+      of the second <literal>&lt;row value predicand&gt;</literal> at the same
+      position. If one field is NULL and the other is not NULL, or if the
+      elements are NOT equal, then the result of the expression is TRUE. If no
+      comparison result is TRUE, then the result of the predicate is FALSE.
+      The expression <literal>X IS NOT DISTINCT FROM Y</literal> is equivalent
+      to <literal>NOT (X IS DISTINCT FORM Y)</literal>. The following check
+      returns true if startdate is not equal to enddate. It also returns true
+      if either startdate or enddate is NULL. It returns false in other
+      cases.</simpara>
+
+      <programlisting>startdate IS DISTINCT FROM enddate</programlisting>
+    </section>
+
+    <section xml:id="dac_other_syntax_elements">
+      <title>Other Syntax Elements</title>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>search condition</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">search condition</emphasis></simpara>
+
+      <simpara><emphasis>search condition</emphasis></simpara>
+
+      <simpara><literal>&lt;search condition&gt; ::= &lt;boolean value
+      expression&gt;</literal></simpara>
+
+      <simpara>Specify a condition that is TRUE, FALSE, or UNKNOWN. A search
+      condition is often a predicate.</simpara>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>PATH</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">PATH</emphasis></simpara>
+
+      <simpara><emphasis>path specification</emphasis></simpara>
+
+      <simpara><literal>&lt;path specification&gt; ::= PATH &lt;schema name
+      list&gt;</literal></simpara>
+
+      <simpara><literal>&lt;schema name list&gt; ::= &lt;schema name&gt; [ {
+      &lt;comma&gt; &lt;schema name&gt; }... ]</literal></simpara>
+
+      <simpara>Specify an order for searching for a user-defined SQL-invoked
+      routine. This is not currently supported by HyperSQL.</simpara>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>routine invocation</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">routine invocation</emphasis></simpara>
+
+      <simpara><emphasis>routine invocation</emphasis></simpara>
+
+      <simpara><literal>&lt;routine invocation&gt; ::= &lt;routine name&gt;
+      &lt;SQL argument list&gt;</literal></simpara>
+
+      <simpara><literal>&lt;routine name&gt; ::= [ &lt;schema name&gt;
+      &lt;period&gt; ] &lt;qualified identifier&gt;</literal></simpara>
+
+      <simpara><literal>&lt;SQL argument list&gt; ::= &lt;left paren&gt; [
+      &lt;SQL argument&gt; [ { &lt;comma&gt; &lt;SQL argument&gt; }... ] ]
+      &lt;right paren&gt;</literal></simpara>
+
+      <simpara><literal>&lt;SQL argument&gt; ::= &lt;value expression&gt; |
+      &lt;target specification&gt;</literal></simpara>
+
+      <simpara>Invoke an SQL-invoked routine. Examples are given in the <link
+      endterm="sqlroutines-title" xlink:href="#sqlroutines-chapt"></link>
+      chapter.</simpara>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>COLLATE</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">COLLATE</emphasis></simpara>
+
+      <simpara><emphasis>collate clause</emphasis></simpara>
+
+      <simpara><literal>&lt;collate clause&gt; ::= COLLATE &lt;collation
+      name&gt;</literal></simpara>
+
+      <simpara>Specify a default collation for a column or for an ORDER BY
+      expression. This is supported by HyperSQL from version 2.1.</simpara>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>CONSTRAINT</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">CONSTRAINT</emphasis></simpara>
+
+      <simpara><emphasis>constraint name definition</emphasis></simpara>
+
+      <simpara><literal>&lt;constraint name definition&gt; ::= CONSTRAINT
+      &lt;constraint name&gt;</literal></simpara>
+
+      <simpara><literal>&lt;constraint characteristics&gt; ::= &lt;constraint
+      check time&gt; [ [ NOT ] DEFERRABLE ] | [ NOT ] DEFERRABLE [
+      &lt;constraint check time&gt; ]</literal></simpara>
+
+      <simpara><literal>&lt;constraint check time&gt; ::= INITIALLY DEFERRED |
+      INITIALLY IMMEDIATE</literal></simpara>
+
+      <simpara>Specify the name of a constraint and its characteristics. This
+      is an optional element of CONSTRAINT definition, not yet supported by
+      HyperSQL.</simpara>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>aggregate function</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">aggregate function</emphasis></simpara>
+
+      <simpara><emphasis>aggregate function</emphasis></simpara>
+
+      <simpara><literal>&lt;aggregate function&gt; ::= COUNT &lt;left
+      paren&gt; &lt;asterisk&gt; &lt;right paren&gt; [ &lt;filter clause&gt; ]
+      | &lt;general set function&gt; [ &lt;filter clause&gt; ] | &lt;array
+      aggregate function&gt; [ &lt;filter clause&gt; ]</literal></simpara>
+
+      <simpara><literal>&lt;general set function&gt; ::= &lt;set function
+      type&gt; &lt;left paren&gt; [ &lt;set quantifier&gt; ] &lt;value
+      expression&gt; &lt;right paren&gt;</literal></simpara>
+
+      <simpara><literal>&lt;set function type&gt; ::= &lt;computational
+      operation&gt;</literal></simpara>
+
+      <simpara><literal>&lt;computational operation&gt; ::= AVG | MAX | MIN |
+      SUM | EVERY | ANY | SOME | COUNT | STDDEV_POP | STDDEV_SAMP | VAR_SAMP |
+      VAR_POP | MEDIAN</literal></simpara>
+
+      <simpara><literal>&lt;set quantifier&gt; ::= DISTINCT |
+      ALL</literal></simpara>
+
+      <simpara><literal>&lt;filter clause&gt; ::= FILTER &lt;left paren&gt;
+      WHERE &lt;search condition&gt; &lt;right paren&gt;</literal></simpara>
+
+      <simpara><literal>&lt;array aggregate function&gt; ::= { ARRAY_AGG |
+      GROUP_CONCAT } &lt;left paren&gt; [ &lt;set quantifier&gt; ] &lt;value
+      expression&gt; [ &lt;order by clause&gt; ] [ &lt;separator&gt; ]
+      &lt;right paren&gt;</literal></simpara>
+
+      <simpara><literal>&lt;separator&gt; ::= &lt;character string
+      literal&gt;</literal></simpara>
+
+      <simpara>Specify a value computed from a collection of rows.</simpara>
+
+      <simpara>An aggregate function is used exclusively in a
+      <literal>&lt;query specification&gt;</literal> and its use transforms a
+      normal query into an aggregate query returning a single row instead of
+      the multiple rows that the original query returns. For example,
+      <literal>SELECT acolumn &lt;table expression&gt;</literal> is a query
+      that returns the value of acolumn for all the rows the satisfy the given
+      condition. But <literal>SELECT MAX(acolumn) &lt;table
+      expression&gt;</literal> returns only one row, containing the largest
+      value in that column. The query <literal>SELECT COUNT(*) &lt;table
+      expression&gt;</literal> returns the count of rows, while
+      <literal>SELECT COUNT(acolumn) &lt;table expression&gt;</literal>
+      returns the count of rows where <literal>acolumn IS NOT
+      NULL</literal>.</simpara>
+
+      <simpara>If the <literal>&lt;table expression&gt;</literal> is a grouped
+      table (has a <code>GROUP BY</code> clause), the aggregate function
+      returns the result of the <literal>COUNT</literal> or
+      <literal>&lt;computational operation&gt;</literal> for each group. In
+      this case the result has the same number of rows as the original grouped
+      query. For example <literal>SELECT SUM(acolumn) &lt;table
+      expression&gt;</literal> when <literal>&lt;table
+      expression&gt;</literal> has a <literal>GROUP BY</literal> clause,
+      returns the sum of values for <literal>acolumn</literal> in each
+      group.</simpara>
+
+      <simpara>The SUM operations can be performed on numeric expressions
+      only. AVG and MEDIAN can be performed on numeric or datetime
+      expressions. AVG returns the average value, while SUM returns the sum of
+      all values. If all values are NULL, the operations return NULL. MEDIAN
+      returns the middle value in the sorted list of values.</simpara>
+
+      <simpara>MAX and MIN can be performed on all types of expressions and
+      return the minimum or the maximum value. If all values are NULL, the
+      operations return NULL.</simpara>
+
+      <simpara><literal>COUNT(*)</literal> returns the count of all values,
+      including nulls, while <literal>COUNT(&lt;value
+      expression&gt;)</literal> returns the count of non-NULL
+      values.</simpara>
+
+      <simpara>The EVERY, ANY and SOME operations can be performed on boolean
+      expressions only. EVERY returns TRUE if all the values are TRUE,
+      otherwise FALSE. ANY and SOME are the same operation and return TRUE if
+      one of the values is TRUE, otherwise it returns FALSE.</simpara>
+
+      <simpara>The other operations perform the statistical functions
+      STDDEV_POP, STDDEV_SAMP, VAR_SAMP, VAR_POP on numeric values. NULL
+      values are ignored in calculations.</simpara>
+
+      <simpara>User defined aggregate functions can be defined and used
+      instead of the built-in aggregate functions. Syntax and examples are
+      given in the <link endterm="sqlroutines-title"
+      xlink:href="#sqlroutines-chapt"></link> chapter.</simpara>
+
+      <simpara>The <code>&lt;filter clause&gt;</code> allows you to add a
+      search condition. When the search condition evaluates to TRUE for a row,
+      the row is included in aggregation. Otherwise the row is not included.
+      In the example below a single query returns two different filtered
+      counts:</simpara>
+
+      <programlisting>SELECT COUNT(ITEM) FILTER (WHERE GENDER = 'F') AS "FEMALE COUNT", COUNT(ITEM) FILTER (WHERE GENDER = 'M') AS "MALE COUNT" FROM PEOPLE
+</programlisting>
+
+      <simpara>ARRAY_AGG is different from all other aggregate functions, as
+      it does not ignore the NULL values. This set function returns an array
+      that contains all the values, for different rows, for the
+      <literal>&lt;value expression&gt;</literal>. For example, if the
+      <literal>&lt;value expression&gt;</literal> is a column reference, the
+      SUM function adds the values for all the row together, while the
+      ARRAY_AGG function adds the value for each row as a separate element of
+      the array. ARRAY_AGG can include an optional &lt;order by clause&gt;. If
+      this is used, the elements of the returned array are sorted according to
+      the <literal>&lt;order by clause&gt;</literal>, which can reference all
+      the available columns of the query, not just the <literal>&lt;value
+      expression&gt;</literal> that is used as the ARRAY_AGG argument. The
+      <literal>&lt;order by clause&gt;</literal> can have multiple elements
+      and each element can include NULLS LAST or DESC qualifiers. No
+      <literal>&lt;separator&gt;</literal> is used with this
+      function.</simpara>
+
+      <simpara>GROUP_CONCAT is a specialised function derived from ARRAY_AGG.
+      This function computes the array in the same way as ARRAY_AGG, removes
+      all the NULL elements, then returns a string that is a concatenation of
+      the elements of the array. If <literal>&lt;separator&gt;</literal> has
+      been specified, it is used to separate the elements of the array.
+      Otherwise the comma is used to separate the elements.</simpara>
+
+      <simpara>The example below shows a grouped query with ARRAY_AGG and
+      GROUP_CONCAT. The CUSTOMER table that is included for tests in the
+      DatabaseManager GUI app is the source of the data.</simpara>
+
+      <programlisting>SELECT LASTNAME, ARRAY_AGG(FIRSTNAME ORDER BY FIRSTNAME) FROM Customer  GROUP BY LASTNAME
+
+LASTNAME  C2                                                         
+--------- ---------------------------------------------------------- 
+Steel     ARRAY['John','John','Laura','Robert']                      
+King      ARRAY['George','George','James','Julia','Robert','Robert'] 
+Sommer    ARRAY['Janet','Robert']                                    
+
+SELECT LASTNAME, GROUP_CONCAT(DISTINCT FIRSTNAME ORDER BY FIRSTNAME DESC SEPARATOR ' * ') FROM Customer  GROUP BY LASTNAME
+
+LASTNAME  C2                                                
+--------- ------------------------------------------------- 
+Steel     Robert * Laura * John                   
+King      Robert * Julia * James * George         
+Sommer    Robert * Janet</programlisting>
+    </section>
+  </section>
+
+  <section xml:id="dac_data_access_statements">
+    <title>Data Access Statements</title>
+
+    <para>HyperSQL fully supports all of SQL-92 data access statements, plus
+    some additions from SQL:2008. Due to time constraints, the current version
+    of this Guide does not cover the subject fully. You are advised to consult
+    an SQL book such as the recent O'Reilly title "SQL and Relational Theory"
+    by C. J. Date.</para>
+
+    <para>Database queries are data access statements. The most commonly used
+    data access statement is the SELECT statement, but there are other
+    statements that perform a similar role. Data access statements access
+    tables and return result tables. The returned result tables are falsely
+    called result sets, as they are not necessarily sets of rows, but
+    multisets of rows.</para>
+
+    <para>Result tables are formed by performing the following operations on
+    base tables and views. These operations are loosely based on Relational
+    Algebra.</para>
+
+    <para><glossterm>JOIN</glossterm> operations</para>
+
+    <para><glossterm>SET</glossterm> and <glossterm>MULTISET</glossterm>
+    operations</para>
+
+    <para><glossterm>SELECTION</glossterm></para>
+
+    <para><glossterm>PROJECTION</glossterm></para>
+
+    <para><glossterm>COMPUTING</glossterm></para>
+
+    <para><glossterm>COLUMN NAMING</glossterm></para>
+
+    <para><glossterm>GROUPING</glossterm> and
+    <glossterm>AGGREGATION</glossterm></para>
+
+    <para><glossterm>SELECTION AFTER GROUPING OR
+    AGGREGATION</glossterm></para>
+
+    <para><glossterm>SET and MULTISET (COLLECTION)
+    OPERATIONS</glossterm></para>
+
+    <para><glossterm>ORDERING</glossterm></para>
+
+    <para><glossterm>SLICING</glossterm></para>
+
+    <para>Conceptually, the operations are performed one by one in the above
+    order if they apply to the given data access statement. In the example
+    below a simple select statement is made more complex by adding various
+    operations.</para>
+
+    <para><programlisting>CREATE TABLE atable (a INT, b INT, c INT, d INT, e INT, f INT);
+/* in the next SELECT, no join is performed and no further operation takes place */
+SELECT * FROM atable
+/* in the next SELECT, selection is performed by the WHERE clause, with no further action */
+SELECT * FROM atable WHERE a + b = c
+/* in the next SELECT, projection is performed after the other operations */
+SELECT d, e, f FROM atable WHERE a + b = c
+/* in the next SELECT, computation is performed after projection */
+SELECT (d + e) / f FROM atable WHERE a + b = c
+/* in the next two SELECT statements, column naming is performed in different ways*/
+SELECT (a + e) / f AS calc, f AS div FROM atable WHERE a + b = c
+SELECT dcol, ecol, fcol FROM atable(acol, bcol, ccol, dcol, ecol, fcol) WHERE acol + bcol = ccol
+/* in the next SELECT, both grouping and aggregation is performed */
+SELECT d, e, SUM(f) FROM atable GROUP BY d, e
+/* in the next SELECT, selection is performed after grouping and aggregation is performed */
+SELECT d, e, SUM(f) FROM atable GROUP BY d, e HAVING SUM(f) &gt; 10
+/* in the next SELECT, a UNION is performed on two selects from the same table */
+SELECT d, e, f FROM atable WHERE d = 3 UNION SELECT a, b, c FROM atable WHERE a = 30
+/* in the next SELECT, ordering is performed */
+SELECT (a + e) / f AS calc, f AS div FROM atable WHERE a + b = c ORDER BY calc DESC, div NULLS LAST
+/* in the next SELECT, slicing is performed after ordering */
+SELECT * FROM atable WHERE a + b = c ORDER BY a FETCH 5 ROWS ONLY
+
+</programlisting>The next sections discuss various types of tables and
+    operations involved in data access statements.</para>
+
+    <section xml:id="dac_sql_select_statement">
+      <title>Select Statement</title>
+
+      <para>The SELECT statement itself does not cover all types of data
+      access statements, which may combine multiple SELECT statements. The
+      <literal>&lt;query specification&gt;</literal> is the most common data
+      access statement and begins with the SELECT keyword.</para>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>SELECT</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">SELECT STATEMENT</emphasis></simpara>
+
+      <simpara><emphasis>select statement (general)</emphasis></simpara>
+
+      <para>Users generally refer to the SELECT statement when they mean a
+      <literal>&lt;query specification&gt;</literal> or <literal>&lt;query
+      expression&gt;</literal>. If a statement begins with SELECT and has no
+      UNION or other set operations, then it is a <literal>&lt;query
+      specification&gt;</literal>. Otherwise it is a <literal>&lt;query
+      expression&gt;</literal>.</para>
+    </section>
+
+    <section xml:id="dac_table">
+      <title>Table</title>
+
+      <para>In data access statements, a table can be a database table (or
+      view) or an ephemeral table formed for the duration of the query. Some
+      types of table are &lt;table primary&gt; and can participate in joins
+      without the use of extra parentheses. The BNF in the Table Primary
+      section below lists different types of &lt;table primary&gt;:</para>
+
+      <para>Tables can also be formed by specifying the values that are
+      contained in them:</para>
+
+      <simpara><literal>&lt;table value constructor&gt; ::= VALUES &lt;row
+      value expression list&gt;</literal></simpara>
+
+      <simpara><literal>&lt;row value expression list&gt; ::= &lt;table row
+      value expression&gt; [ { &lt;comma&gt; &lt;table row value
+      expression&gt; }... ]</literal></simpara>
+
+      <simpara>In the example below a table with two rows and 3 columns is
+      constructed out of some values:</simpara>
+
+      <programlisting>VALUES (12, 14, null), (10, 11, CURRENT_DATE)</programlisting>
+
+      <simpara>When a table is used directly in a UNION or similar operation,
+      the keyword TABLE is used with the name:</simpara>
+
+      <simpara><literal>&lt;explicit table&gt; ::= TABLE &lt;table or query
+      name&gt;</literal></simpara>
+
+      <simpara>In the examples below, all rows of the two tables are included
+      in the union. The keyword TABLE is used in the first example. The two
+      examples below are equivalent.</simpara>
+
+      <programlisting>TABLE atable UNION TABLE anothertable
+SELECT * FROM atable UNION SELECT * FROM anothertable
+</programlisting>
+    </section>
+
+    <section xml:id="dac_subquery">
+      <title>Subquery</title>
+
+      <para>A subquery is simply a query expression in brackets. A query
+      expression is usually a complete SELECT statement and is discussed in the
+      rest of this chapter. A scalar subquery returns one row with one column.
+      A row subquery returns one row with one or more columns. A table
+      subquery returns zero or more rows with one or more columns. The
+      distinction between different forms of subquery is syntactic. Different
+      forms are allowed in different contexts. If a scalar subquery or a row
+      subquery return more than one row, an exception is raised. If a scalar
+      or row subquery returns no row, it is usually treated as returning a
+      NULL. Depending on the context, this has different consequences.</para>
+
+      <para><literal>&lt;scalar subquery&gt; ::= &lt;subquery&gt;
+      </literal></para>
+
+      <para><literal>&lt;row subquery&gt; ::= &lt;subquery&gt;
+      </literal></para>
+
+      <para><literal>&lt;table subquery&gt; ::= &lt;subquery&gt;
+      </literal></para>
+
+      <para><literal>&lt;subquery&gt; ::= &lt;left paren&gt; &lt;query
+      expression&gt; &lt;right paren&gt;</literal></para>
+    </section>
+
+    <section xml:id="dac_query_specification">
+      <title>Query Specification</title>
+
+      <para>A query specification is also known as a SELECT statement. It is
+      the most common form of <literal>&lt;derived table&gt;</literal> . A
+      <literal>&lt;table expression&gt;</literal> is a base table, a view or
+      any form of allowed derived table. The SELECT statement performs
+      projection, naming, computing or aggregation on the rows of the
+      <literal>&lt;table expression&gt;</literal> .</para>
+
+      <simpara><literal>&lt;query specification&gt; ::= SELECT [ DISTINCT |
+      ALL ] &lt;select list&gt; &lt;table expression&gt;</literal></simpara>
+
+      <simpara><literal>&lt;select list&gt; ::= &lt;asterisk&gt; | &lt;select
+      sublist&gt; [ { &lt;comma&gt; &lt;select sublist&gt; }... ]
+      </literal></simpara>
+
+      <simpara><literal>&lt;select sublist&gt; ::= &lt;derived column&gt; |
+      &lt;qualified asterisk&gt; </literal></simpara>
+
+      <simpara><literal>&lt;qualified asterisk&gt; ::= &lt;asterisked
+      identifier chain&gt; &lt;period&gt; &lt;asterisk&gt;</literal></simpara>
+
+      <simpara><literal>&lt;asterisked identifier chain&gt; ::= &lt;asterisked
+      identifier&gt; [ { &lt;period&gt; &lt;asterisked identifier&gt; }... ]
+      </literal></simpara>
+
+      <simpara><literal>&lt;asterisked identifier&gt; ::=
+      &lt;identifier&gt;</literal></simpara>
+
+      <simpara><literal>&lt;derived column&gt; ::= &lt;value expression&gt; [
+      &lt;as clause&gt; ] </literal></simpara>
+
+      <simpara><literal>&lt;as clause&gt; ::= [ AS ] &lt;column name&gt;
+      </literal></simpara>
+
+      <para>The qualifier DISTINCT or ALL apply to the results of the SELECT
+      statement after all other operations have been performed. ALL simply
+      returns the rows, while DISTINCT compares the rows and removes the
+      duplicate ones.</para>
+
+      <para>Projection is performed by the <literal>&lt;select
+      list&gt;</literal>.</para>
+
+      <para>A single <literal>&lt;asterisk&gt;</literal> means all columns of
+      the <literal>&lt;table expression&gt;</literal> are included, in the
+      same order as they appear in the <literal>&lt;table
+      expression&gt;</literal>. An asterisk qualified by a table name means
+      all the columns of the qualifier table name are included. If an
+      unqualified asterisk is used, then no other items are allowed in the
+      <literal>&lt;select list&gt;</literal>. When the the <literal>&lt;table
+      expression&gt;</literal> is the direct result of NATURAL or USING joins,
+      the use of <literal>&lt;asterisk&gt;</literal> includes the columns used
+      for the join before the other columns. A qualified asterisk does not
+      cover the join columns.</para>
+
+      <para>A derived column is a <literal>&lt;value expression&gt;</literal>,
+      optionally named with the <literal>&lt;as clause&gt;</literal>. A
+      <literal>&lt;value expression&gt;</literal> can be many things. Common
+      types include: the name of a column in the <literal>&lt;table
+      expression&gt;</literal>; an expression based on different columns or
+      constant values; a function call; an aggregate function; a CASE WHEN
+      expression.</para>
+    </section>
+
+    <section xml:id="dac_table_expression">
+      <title>Table Expression</title>
+
+      <para>A table expression is part of the SELECT statement and consists of
+      the FROM clause with optional other clauses that performs selection (of
+      rows) and grouping from the table(s) in the FROM clause.</para>
+
+      <simpara><literal>&lt;table expression&gt; ::= &lt;from clause&gt; [
+      &lt;where clause&gt; ] [ &lt;group by clause&gt; ] [ &lt;having
+      clause&gt; ]</literal></simpara>
+
+      <para><literal>&lt;from clause&gt; ::= FROM &lt;table reference&gt; [ {
+      &lt;comma&gt; &lt;table reference&gt; }... ]</literal></para>
+
+      <simpara><literal>&lt;table reference&gt; ::= &lt;table primary&gt; |
+      &lt;joined table&gt; </literal></simpara>
+
+      <simpara><literal>&lt;table primary&gt; ::= &lt;table or query name&gt;
+      [ [ AS ] &lt;correlation name&gt; [ &lt;left paren&gt; &lt;derived
+      column list&gt; &lt;right paren&gt; ] ] </literal></simpara>
+
+      <simpara><literal>| &lt;derived table&gt; [ AS ] &lt;correlation
+      name&gt; [ &lt;left paren&gt; &lt;derived column list&gt; &lt;right
+      paren&gt; ] </literal></simpara>
+
+      <simpara><literal>| &lt;lateral derived table&gt; [ AS ] &lt;correlation
+      name&gt; [ &lt;left paren&gt; &lt;derived column list&gt; &lt;right
+      paren&gt; ] </literal></simpara>
+
+      <simpara><literal>| &lt;collection derived table&gt; [ AS ]
+      &lt;correlation name&gt; [ &lt;left paren&gt; &lt;derived column
+      list&gt; &lt;right paren&gt; ] </literal></simpara>
+
+      <simpara><literal>| &lt;table function derived table&gt; [ AS ]
+      &lt;correlation name&gt; [ &lt;left paren&gt; &lt;derived column
+      list&gt; &lt;right paren&gt; ] </literal></simpara>
+
+      <simpara><literal>| &lt;parenthesized joined table&gt; [ AS ]
+      &lt;correlation name&gt; [ &lt;left paren&gt; &lt;derived column
+      list&gt; &lt;right paren&gt; ] </literal></simpara>
+
+      <simpara><literal>&lt;where clause&gt; ::= WHERE &lt;boolean value
+      expression&gt;</literal></simpara>
+
+      <simpara><literal>&lt;group by clause&gt; ::= GROUP BY [ &lt;set
+      quantifier&gt; ] &lt;grouping element&gt; [ { &lt;comma&gt; &lt;grouping
+      element&gt; }... ]</literal></simpara>
+
+      <simpara><literal>&lt;having clause&gt; ::= HAVING &lt;boolean value
+      expression&gt;</literal></simpara>
+
+      <para>The <literal>&lt;from clause&gt;</literal> contains one or more
+      <literal>&lt;table reference&gt;</literal> separated by commas. A table
+      reference is often a table or view name or a joined table.</para>
+
+      <para>The <literal>&lt;where clause&gt;</literal> filters the rows of
+      the table in the &lt;from clause&gt; and removes the rows for which the
+      search condition is not TRUE.</para>
+
+      <para>The <literal>&lt;group by clause&gt;</literal> is a comma
+      separated list of columns of the table in the <literal>&lt;from
+      clause&gt;</literal> or expressions based on the columns.</para>
+
+      <para>When a <literal>&lt;group by clause&gt;</literal> is used, only
+      the columns used in the <literal>&lt;group by clause&gt;</literal> or
+      expressions used there, can be used in the <literal>&lt;select
+      list&gt;</literal>, together with any <literal>&lt;aggregate
+      function&gt;</literal> on other columns. A <literal>&lt;group by
+      clause&gt;</literal> compares the rows and groups together the rows that
+      have the same values in the columns of the <literal>&lt;group by
+      clause&gt;</literal>. Then any <literal>&lt;aggregate
+      function&gt;</literal> in the <literal>&lt;select list&gt;</literal> is
+      performed on each group, and for each group, a row is formed that
+      contains the values of the columns of the <literal>&lt;group by
+      clause&gt;</literal> and the values returned from each
+      <literal>&lt;aggregate function&gt;.</literal> In the first example
+      below, a simple column reference is used in GROUP BY, while in the
+      second example, an expression is used.<programlisting>CREATE TABLE atable (a INT, b INT, c INT, d INT, e INT, f INT);
+SELECT d, e, f FROM atable WHERE a + b = c GROUP BY d, e, f
+SELECT d + e, SUM(f) FROM atable WHERE a + b = c GROUP BY d + e HAVING SUM(f) &gt; 2 AND d + e &gt; 4
+</programlisting></para>
+
+      <para>A <literal>&lt;having clause&gt;</literal> filters the rows of the
+      table that is formed after applying the <literal>&lt;group by
+      clause&gt;</literal> using its search condition. The search condition
+      must be an expression based on the expressions in the GROUP BY list or
+      the aggregate functions used.</para>
+    </section>
+
+    <section xml:id="dac_table_primary">
+      <title>Table Primary</title>
+
+      <para>Table primary refers to different forms of table reference in the
+      FROM clause.</para>
+
+      <para>The simplest form of reference is simply a name. This is the name
+      of a table, a view, a transition table in a trigger definition, or a
+      query name specified in the WITH clause of a query expression.</para>
+
+      <para><literal>&lt;table or query name&gt; ::= &lt;table name&gt; |
+      &lt;transition table name&gt; | &lt;query name&gt;</literal></para>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>derived table</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">derived table</emphasis></simpara>
+
+      <para>A query expression that is enclosed in parentheses and returns
+      from zero to many rows is a <literal>&lt;table subquery&gt;</literal>.
+      In a <literal>&lt;derived table&gt;</literal> the query expression is
+      self contained and cannot reference the columns of other table
+      references. This is the traditional and most common form of use of a
+      <literal>&lt;table subquery&gt;</literal>.</para>
+
+      <para><literal>&lt;derived table&gt; ::= &lt;table
+      subquery&gt;</literal></para>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>LATERAL</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">LATERAL</emphasis></simpara>
+
+      <para>When the word LATERAL is used before a &lt;table subquery&gt;, it
+      means the query expression can reference the columns of other table
+      references that go before it.</para>
+
+      <para><literal>&lt;lateral derived table&gt; ::= LATERAL &lt;table
+      subquery&gt;</literal></para>
+
+      <para>The use of &lt;lateral derived table&gt; completely transforms the
+      way a query is written. For example, the two queries below are
+      equivalent, but with different forms. The query with LATERAL is
+      evaluated separately for each row of the first table that satisfies the
+      WHERE condition. The example below uses the tables that are created and
+      populated in DatabaseManagerSwing with the "Insert test data" menu
+      option. The first query uses a scalar subquery to compute the sum of
+      invoice values for each customer. The second query is equivalent and
+      uses a join with a LATERAL table.</para>
+
+      <programlisting>SELECT firstname, lastname, (SELECT SUM(total) FROM invoice WHERE customerid = customer.id) s FROM customer
+
+SELECT firstname, lastname, a.c FROM customer, LATERAL(SELECT SUM(total) FROM invoice WHERE customerid = customer.id) a (c)
+</programlisting>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>UNNEST</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">UNNEST</emphasis></simpara>
+
+      <para>UNNEST is similar to LATERAL, but instead of a query expression,
+      one or more expressions that return an array are used. These expressions
+      are converted into a table which has one column for each expression and
+      contains the elements of the array. If WITH ORDINALITY is used, an extra
+      column that contains the index of each element is added to this table.
+      The number or rows in the table equals the length of the largest arrays.
+      The smaller arrays are padded with NULL values. If an &lt;array value
+      expression&gt; evaluates to NULL, an empty array is used in its place.
+      The array expression can contain references to any column of the table
+      references preceding the current table reference.</para>
+
+      <para><literal>&lt;collection derived table&gt; ::= UNNEST &lt;left
+      paren&gt; &lt;array value expression&gt;, ... &lt;right paren&gt; [ WITH
+      ORDINALITY ]</literal></para>
+
+      <para>The <literal>&lt;array value expression&gt;</literal> can be the
+      result of a function call. If the arguments of the function call are
+      values from the tables on the left of the UNNEST, then the function is
+      called for each row of table.</para>
+
+      <para>In the first example below, UNNEST is used with the built
+      in-function SEQUENCE_ARRAY to build a table containing dates for the
+      last seven days and their ordinal position. In the second example, a
+      select statement returns costs for the last seven days . In the third
+      example, the WITH clause turns the two selects into named subqueries
+      which are used in a SELECT statement that uses a LEFT join.</para>
+
+      <programlisting>SELECT * FROM UNNEST(SEQUENCE_ARRAY(CURRENT_DATE - 7 DAY, CURRENT_DATE - 1 DAY, 1 DAY)) WITH ORDINALITY AS T(D, I)  
+
+D          I 
+---------- - 
+2010-07-25 1 
+2010-07-26 2 
+2010-07-27 3 
+2010-07-28 4 
+2010-07-29 5 
+2010-07-30 6 
+2010-07-31 7 
+
+CREATE TABLE expenses (item_date DATE, cost DECIMAL(8,2))
+--
+SELECT item_date, SUM(cost) AS s FROM expenses WHERE item_date &gt;= CURRENT_DATE - 7 DAY GROUP BY item_date
+
+ITEM_DATE  S      
+---------- ------ 
+2010-07-27 100.12 
+2010-07-29 50.45  
+
+WITH costs(i_d, s) AS (SELECT item_date, SUM(cost) AS s FROM expenses WHERE item_date &gt;= CURRENT_DATE - 7 DAY GROUP BY item_date),
+dates(d, i) AS (SELECT * FROM UNNEST(SEQUENCE_ARRAY(CURRENT_DATE - 7 DAY, CURRENT_DATE - 1 DAY, 1 DAY)) WITH ORDINALITY)   
+SELECT i, d, s FROM dates LEFT OUTER JOIN costs ON dates.d = costs.i_d
+
+I D          S      
+- ---------- ------ 
+1 2010-07-25 (null) 
+2 2010-07-26 (null) 
+3 2010-07-27 100.12 
+4 2010-07-28 (null) 
+5 2010-07-29 50.45  
+6 2010-07-30 (null) 
+7 2010-07-31 (null) 
+
+</programlisting>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>TABLE</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">TABLE</emphasis></simpara>
+
+      <para>When TABLE is used in this context, the &lt;collection value
+      expression&gt; must be the result of a function call to a built-in
+      function or user-defined function that returns an array or a table. When
+      the function returns an array, this array is converted into a table,
+      similar to the way UNNEST operates. When the function returns a table,
+      the result is a MULTISET and is used as is.</para>
+
+      <para><literal>&lt;table function derived table&gt; ::= TABLE &lt;left
+      paren&gt; &lt;collection value expression&gt; &lt;right
+      paren&gt;</literal></para>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>column name list</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">column name list</emphasis></simpara>
+
+      <para>The column list that is specified for the table reference must
+      contain names that are unique within the list</para>
+
+      <para><literal>&lt;derived column list&gt; ::= &lt;column name
+      list&gt;</literal></para>
+
+      <para><literal>&lt;column name list&gt; ::= &lt;column name&gt; [ {
+      &lt;comma&gt; &lt;column name&gt; }... ] </literal></para>
+
+      <para>A parenthesized joined table is simply a joined table contained in
+      parentheses. Joined tables are discussed below.</para>
+
+      <para><literal>&lt;parenthesized joined table&gt; ::= &lt;left paren&gt;
+      &lt;parenthesized joined table&gt; &lt;right paren&gt; | &lt;left
+      paren&gt; &lt;joined table&gt; &lt;right paren&gt;</literal></para>
+    </section>
+
+    <section xml:id="dac_joined_table">
+      <title>Joined Table</title>
+
+      <para>Joins are operators with two table as the operands, resulting in a
+      third table, called joined table. All join operators are evaluated left
+      to right, therefore, with multiple joins, the table resulting from the
+      first join operator becomes an operand of the next join operator.
+      Parentheses can be used to group sequences of joined tables and change
+      the evaluation order. So if more than two tables are joined together
+      with join operators, the end result is also a joined table. There are
+      different types of join, each producing the result table in a different
+      way.</para>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>CROSS JOIN</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">CROSS JOIN</emphasis></simpara>
+
+      <para>The simplest form of join is CROSS JOIN. The CROSS JOIN of two
+      tables is a table that has all the columns of the first table, followed
+      by all the columns of the second table, in the original order. Each row
+      of the first table is combined with each row of the second table to fill
+      the rows of the new table. If the rows of each table form a set, then
+      the rows of the CROSS JOIN table form the Cartesian product of the rows
+      of the two table operands.</para>
+
+      <para>The CROSS JOIN can be expressed in two forms. The first form is
+      <literal>A CROSS JOIN B</literal>. The second form is <literal>A,
+      B</literal>. This type of join is not generally very useful, as it
+      returns large result tables.</para>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>UNION JOIN</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">UNION JOIN</emphasis></simpara>
+
+      <para>The UNION JOIN has limited use in queries. The result table has
+      the same columns as that of CROSS JOIN. Each row of the first table is
+      extended to the right with nulls and added to the new table. Each row of
+      the second table is extended to the left with nulls and added to the new
+      table. The UNION JOIN is expressed as <literal>A UNION JOIN B</literal>.
+      This should not be confused with <literal>A UNION B</literal>, which is
+      a set operation. Union join is for special applications and is not
+      commonly used.</para>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>JOIN with condition</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">JOIN ... ON</emphasis></simpara>
+
+      <para>The condition join is similar to CROSS JOIN, but a condition is
+      tested for each row of the new table and the row is created only if the
+      condition is true. This form of join is expressed as <literal>A JOIN B
+      ON (&lt;search condition&gt;)</literal>.</para>
+
+      <para>Equijoin is a condition join in which the search condition is an
+      equality condition between on or more pairs of columns from the two
+      table. Equijoin is the most commonly used type of join.</para>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>JOIN USING</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">JOIN ... USING</emphasis></simpara>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>NATURAL JOIN</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">NATURAL JOIN</emphasis></simpara>
+
+      <para>Joins with USING or NATURAL keywords joins are similar to an
+      equijoin but they cannot be replaced simply with an equijoin. The new
+      table is formed with the specified or implied shared columns of the two
+      tables, followed by the rest of the columns from each table. In NATURAL
+      JOIN, the shared columns are all the column pairs that have the same
+      name in the first and second table. In JOIN USING, only columns names
+      that are specified by the USING clause are shared. The joins are
+      expressed as <literal>A NATURAL JOIN B</literal>, and <literal>A JOIN B
+      USING (&lt;comma separated column name list&gt;)</literal>.</para>
+
+      <para>The columns of the joined table are formed by the following
+      procedures: In JOIN ... USING the shared columns are added to the joined
+      table in the same order as they appear in the column name list. In
+      NATURAL JOIN the shared columns are added to the joined table in the
+      same order as they appear in the first table. In both forms of join, the
+      non-shared columns of the first table are added in the order they appear
+      in the first table, finally the non-shared columns of the second table
+      are added in the order they appear in the second table.</para>
+
+      <para>The type of each shared column of the joined table is based on the
+      type of the columns in the original tables. If the original types are
+      not exactly the same, the type of the shared column is formed by type
+      aggregation. Type aggregations selects a type that can represent values
+      of both aggregated types. Simple type aggregation picks one of the
+      types. For example SMALLINT and INTEGER, results in INTEGER, or
+      VARCHAR(10) and VARCHAR(20) results in VARCHAR(20). More complex type
+      aggregation inherits properties from both types. For example DECIMAL(8)
+      and DECIMAL (6,2) results in DECIMAL (8,2).</para>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>OUTER JOIN</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">OUTER JOIN</emphasis></simpara>
+
+      <para>LEFT, RIGHT and FULL OUTER JOIN</para>
+
+      <para>The three qualifiers can be added to all types of JOIN apart from
+      CROSS JOIN and UNION JOIN. First the new table is populated with the
+      rows from the original join. If LEFT is specified, all the rows from the
+      first table that did not make it into the new table are extended to the
+      right with nulls and added to the table. If RIGHT is specified, all the
+      rows from the second table that did not make it into the new table are
+      extended to the left with nulls and added to the table. If FULL is
+      specified, the addition of leftover rows is performed from both the
+      first and the second table. These forms are expressed by prefixing the
+      join specification with the given keyword. For example <literal>A LEFT
+      OUTER JOIN B ON (&lt;search condition&gt;)</literal> or <literal>A
+      NATURAL FULL OUTER JOIN B</literal> or <literal>A FULL OUTER JOIN B
+      USING (&lt;comma separated column name list&gt;)</literal>.</para>
+    </section>
+
+    <section xml:id="dac_selection">
+      <title>Selection</title>
+
+      <para>Despite the name, selection has nothing to do with the list of
+      columns in a SELECT statement. In fact, it refers to the search
+      condition used to limit the rows that from a result table (selection of
+      rows, not columns). In SQL, simple selection is expressed with a WHERE
+      condition appended to a single table or a joined table. In some cases,
+      this method of selection is the only method available. But when it is
+      possible to perform the selection with join conditions, this is the
+      better method, as it results in a clearer expression of the
+      query.</para>
+    </section>
+
+    <section xml:id="dac_projection">
+      <title>Projection</title>
+
+      <para>Projection is selection of the columns from a simple or joined
+      table to form a result table. Explicit projection is performed in the
+      SELECT statement by specifying the select column list. Some form of
+      projection is also performed in JOIN ... USING and NATURAL JOIN.</para>
+
+      <para>The joined table has columns that are formed according to the
+      rules mentioned above. But in many cases, not all the columns are
+      necessary for the intended operation. If the statement is in the form,
+      SELECT * FROM &lt;joined table&gt;, then all the columns of &lt;joined
+      table&gt; are returned. But normally, the columns to be returned are
+      specified after the SELECT keyword, separated from each other with
+      commas.</para>
+    </section>
+
+    <section xml:id="dac_computed_columns">
+      <title>Computed Columns</title>
+
+      <para>In the select list, it is possible to use expressions that
+      reference any columns of &lt;joined table&gt;. Each of these expressions
+      forms a computed column. It is computed for each row of the result
+      table, using the values of the columns of the &lt;joined table&gt; for
+      that row.</para>
+    </section>
+
+    <section xml:id="dac_naming">
+      <title>Naming</title>
+
+      <para>Naming is used to hide the original names of tables or table
+      columns and to replace them with new names in the scope of the query.
+      Naming is also used for defining names for computed columns.</para>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>naming in joined table</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">Naming in Joined
+      Table</emphasis></simpara>
+
+      <para>Naming is performed by adding a new name after a table's real name
+      and by adding a list of column names after the new table name. Both
+      table naming and column naming are optional, but table naming is
+      required for column naming. The expression <literal>A [AS] X (&lt;comma
+      separated column name list&gt;)</literal> means table A is used in the
+      query expression as table X and its columns are named as in the given
+      list. The original name A, or its original column names, are not visible
+      in the scope of the query. The BNF is given below. The
+      <literal>&lt;correlation name&gt;</literal> can be the same or different
+      from the name of the table. The <literal>&lt;derived column
+      list&gt;</literal> is a comma separated list of column names. The degree
+      of this list must be equal to the degree of the table. The column names
+      in the list must be distinct. They can be the same or different from the
+      names of the table's columns.</para>
+
+      <para><literal>&lt;table or query name&gt; [ [ AS ] &lt;correlation
+      name&gt; [ &lt;left paren&gt; &lt;derived column list&gt; &lt;right
+      paren&gt; ] ]</literal></para>
+
+      <simpara>In the examples below, the columns of the original tables are
+      named (a, b, c, d, e, f). The two queries are equivalent. In the second
+      query, the table and its columns are renamed and the new names are used
+      in the WHERE clauses:</simpara>
+
+      <programlisting>CREATE TABLE atable (a INT, b INT, c INT, d INT, e INT, f INT);
+SELECT d, e, f FROM atable WHERE a + b = c
+SELECT x, y, z FROM atable AS t (u, v, w, x, y, z)  WHERE u + v = w</programlisting>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>naming in select list</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">Naming in Select
+      List</emphasis></simpara>
+
+      <para>Naming in the SELECT list logically takes place after naming in
+      the joined table. The new names for columns are not visible in the
+      immediate query expression or query expression. They become visible in
+      the ORDER BY clause and in the result table that is returned to the
+      user. Or if the query expression is used as a derived table in an
+      enclosing query expression.</para>
+
+      <para>In the example below, the query is on the same table but with
+      column renaming in the Select list. The new names are used in the ORDER
+      BY clause:</para>
+
+      <programlisting>SELECT x + y AS xysum, y + z AS yzsum FROM atable AS t (u, v, w, x, y, z)  WHERE u + v = w ORDER BY xysum, yzsum</programlisting>
+
+      <para>If the names <literal>xysum</literal> or <literal>yzsum</literal>
+      are not used, the computed columns cannot be referenced in the ORDER BY
+      list.</para>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>name resolution</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">Name Resolution</emphasis></simpara>
+
+      <simpara>In a joined table, if a column name appears in tables on both
+      sides then any reference to the name must use the table name in order to
+      specify which table is being referred to.</simpara>
+    </section>
+
+    <section xml:id="dac_grouping_operations">
+      <title>Grouping Operations</title>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>GROUPING OPERATIONS</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">Grouping Operations</emphasis></simpara>
+
+      <para>Grouping results in the elimination of duplicate rows. A grouping
+      operation is performed after the operations discussed above. A simple
+      form of grouping is performed by the use of DISTINCT after SELECT. This
+      eliminates all the duplicate rows (rows that have the same value in each
+      of their columns when compared to another row). The other form of
+      grouping is performed with the GROUP BY clause. This form is usually
+      used together with aggregation.</para>
+    </section>
+
+    <section xml:id="dac_aggregation">
+      <title>Aggregation</title>
+
+      <para>Aggregation is an operation that computes a single value from the
+      values of a column over several rows. The operation is performed with an
+      aggregate function. The simplest form of aggregation is counting,
+      performed by the COUNT function.</para>
+
+      <para>Other common aggregate functions return the maximum, minimum and
+      average value among the values in different rows.</para>
+    </section>
+
+    <section xml:id="dac_set_operations">
+      <title>Set Operations</title>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>SET OPERATIONS</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">Set and Multiset
+      Operations</emphasis></simpara>
+
+      <para>While join operations generally result in laterally expanded
+      tables, SET and COLLECTION operations are performed on two tables that
+      have the same degree and result in a table of the same degree. The SET
+      operations are UNION, INTERSECT and EXCEPT (difference). When each of
+      these operations is performed on two tables, the collection of rows in
+      each table and in the result is reduced to a set of rows, by eliminating
+      duplicates. The set operations are then performed on the two tables,
+      resulting in the new table which itself is a set of rows. Collection
+      operations are similar but the tables are not reduced to sets before or
+      after the operation and the result is not necessarily a set, but a
+      collection of rows.</para>
+
+      <para>The set operations on two tables A and B are: <literal>A UNION
+      [DISTINCT] B</literal>, <literal>A INTERSECT [DISTINCT] B</literal> and
+      <literal>A EXCEPT [DISTINCT] B</literal>. The result table is formed in
+      the following way: The UNION operation adds all the rows from A and B
+      into the new table, but avoids copying duplicate rows. The INTERSECT
+      operation copies only those rows from each table that also exist in the
+      other table, but avoids copying duplicate rows. The EXCEPT operation
+      copies those rows from the first table which do not exist in the second
+      table, but avoids copying duplicate rows.</para>
+
+      <para>The collection operations are similar to the set operations, but
+      can return duplicate rows. They are <literal>A UNION ALL B</literal>,
+      <literal>A INTERSECT ALL B</literal> and <literal>A EXCEPT ALL
+      B</literal>. The UNION ALL operation adds all the rows from A and B into
+      the new table. The INTERSECT operation copies only those rows from each
+      table that also exist in the other table. If n copies of a rows exists
+      in one table, and m copies in the other table, the number of copies in
+      the result table is the smaller of n and m. The EXCEPT operation copies
+      those rows from the first table which do not exist in the second table.
+      If n copies of a row exist in the first table and m copies in the second
+      table the number of copies in the result table is n-m, or if n &lt; m,
+      then zero.</para>
+    </section>
+
+    <section xml:id="dac_with_clause">
+      <title>With Clause and Recursive Queries</title>
+
+      <para>The optional WITH clause can be used in a query expression. The
+      WITH clause lists one or more named ephemeral tables that can be
+      referenced in the query expression body. The ephemeral tables are
+      created and populated before the rest of the query expression is
+      executed. Their contents do not change during the execution of the
+      <literal>&lt;query expression body&gt;</literal>.</para>
+
+      <para><literal>&lt;with clause&gt; ::= WITH [ RECURSIVE ] &lt;with
+      list&gt;</literal></para>
+
+      <para><literal>&lt;with list&gt; ::= &lt;with list element&gt; [ {
+      &lt;comma&gt; &lt;with list element&gt; }... ] </literal></para>
+
+      <para><literal>&lt;with list element&gt; ::= &lt;query name&gt; [
+      &lt;left paren&gt; &lt;with column list&gt; &lt;right paren&gt; ] AS
+      &lt;left paren&gt; &lt;query expression&gt; &lt;right paren&gt;
+      </literal></para>
+
+      <para><literal>&lt;with column list&gt; ::= &lt;column name
+      list&gt;</literal></para>
+
+      <para>An example of the use of the WITH clause is given above under
+      UNNEST. The <literal>&lt;query expression&gt;</literal> in the WITH
+      clause is evaluated once and its result table can be referenced in the
+      body of the main <literal>&lt;query expression body&gt;</literal> using
+      the specified &lt;query name&gt;.</para>
+
+      <para>The RECURSIVE keyword changes the way the elements of the
+      <literal>&lt;with list&gt;</literal> are interpreted. The
+      <literal>&lt;query expression&gt;</literal> contained in the
+      <literal>&lt;with list element&gt;</literal> must be the UNION or UNION
+      ALL of two &lt;query expression body&gt; elements (simple VALUES or
+      SELECT statements). The left element of the UNION is evaluated first and
+      its result becomes the result of the <literal>&lt;with list
+      element&gt;</literal>. After this step, the current result of the
+      &lt;with list element&gt; is referenced in the right element (a SELECT
+      statement) of the UNION, the UNION is performed between the result and
+      previous result of the <literal>&lt;with list element&gt;</literal>,
+      which is enlarged by this operation. The UNION operation is performed
+      again and again, until the result of the <literal>&lt;with list
+      element&gt;</literal> stops changing. The result of the
+      <literal>&lt;with list element&gt;</literal> is now complete and is
+      later used in the execution of the <literal>&lt;query expression
+      body&gt;</literal>. When RECURSIVE is used, the <literal>&lt;with column
+      list&gt;</literal> must be defined.</para>
+
+      <para>HyperSQL limits recursion to 265 rounds. If this is exceeded, an
+      error is raised.</para>
+
+      <para>A trivial example of a recursive query is given below. Note the
+      first column GEN. For example, if each row of the table represents a
+      member of a family of dogs, together with its parent, the first column
+      of the result indicates the calculated generation of each dog, ranging
+      from first to fourth generation.</para>
+
+      <programlisting>CREATE TABLE pptree (pid INT, id INT);
+INSERT INTO pptree VALUES (NULL, 1) ,(1,2), (1,3),(2,4),(4,5),(3,6),(3,7);
+
+WITH RECURSIVE tree (gen, par, child) AS (
+  VALUES(1, CAST(null as int), 1)
+  UNION
+  SELECT gen + 1, pid, id FROM pptree, tree WHERE pid = child
+  ) SELECT * FROM tree;
+
+GEN PAR    CHILD 
+--- ------ ----- 
+1   (null) 1     
+2   1      2     
+2   1      3     
+3   2      4     
+3   3      6     
+3   3      7     
+4   4      5</programlisting>
+
+      <para>if recursive queries become complex they also become very
+      difficult to develop and debug. HyperSQL provides an alternative to this
+      with user-defined SQL functions which return tables. Functions can
+      perform any complex, repetitive task with better control, using loops,
+      variables and, if necessary, recursion.</para>
+    </section>
+
+    <section xml:id="dac_query_expression">
+      <title>Query Expression</title>
+
+      <para>A query expression consists of an optional WITH clause and a query
+      expression body. The optional WITH clause lists one or more named
+      ephemeral tables that can be referenced, just like the database tables
+      in the query expression body.</para>
+
+      <para><literal>&lt;query expression&gt; ::= [ &lt;with clause&gt; ]
+      &lt;query expression body&gt;</literal></para>
+
+      <para>A query expression body refers to a table formed by using UNION
+      and other set operations. The query expression body is evaluated from
+      left to right and the INTERSECT operator has precedence over the UNION
+      and EXCEPT operators. A simplified BNF is given below:</para>
+
+      <simpara><literal>&lt;query expression body&gt; ::= &lt;query term&gt; |
+      &lt;query expression body&gt; UNION | EXCEPT [ ALL | DISTINCT ] [
+      &lt;corresponding spec&gt; ] &lt;query term&gt;</literal></simpara>
+
+      <simpara><literal>&lt;query term&gt; ::= &lt;query primary&gt; |
+      &lt;query term&gt; INTERSECT [ ALL | DISTINCT ] [ &lt;corresponding
+      spec&gt; ] &lt;query term&gt;</literal></simpara>
+
+      <simpara><literal>&lt;query primary&gt; ::= &lt;simple table&gt; |
+      &lt;left paren&gt; &lt;query expression body&gt; [ &lt;order by
+      clause&gt; ] [ &lt;result offset clause&gt; ] [ &lt;fetch first
+      clause&gt; ] &lt;right paren&gt;</literal></simpara>
+
+      <simpara><literal>&lt;simple table&gt; ::= &lt;query specification&gt; |
+      &lt;table value constructor&gt; | &lt;explicit table&gt; &lt;explicit
+      table&gt; ::= TABLE &lt;table or query name&gt;</literal></simpara>
+
+      <para><literal>&lt;corresponding spec&gt; ::= CORRESPONDING [ BY
+      &lt;left paren&gt; &lt;column name list&gt; &lt;right paren&gt;
+      ]</literal></para>
+
+      <para>A <literal>&lt;query term&gt;</literal> and a <literal>&lt;query
+      primary&gt;</literal> can be a SELECT statement, an
+      <literal>&lt;explicit table&gt;</literal>, or a <literal>&lt;table value
+      constructor&gt;</literal>.</para>
+
+      <para>The CORRESPONDING clause is optional. If it is not specified, then
+      the <literal>&lt;query term&gt;</literal> and the <literal>&lt;query
+      primary&gt;</literal> must have the same number of columns. If
+      CORRESPONDING is specified, the two sides need not have the same number
+      of columns. If no column list is used with CORRESPONDING, then all the
+      column names that are common in the tables on two sides are used in the
+      order in which they appear in the first table. If a columns list is
+      used, it allows you to select only some columns of the tables on the
+      left and right side to create the new table. In the example below the
+      columns named u and v from the two SELECT statements are used to create
+      the UNION table.</para>
+
+      <para><programlisting>SELECT * FROM atable UNION CORRESPONDING BY (u, v) SELECT * FROM anothertable
+</programlisting>The type of each column of the query expression is determined
+      by combining the types of the corresponding columns from the two
+      participating tables.</para>
+    </section>
+
+    <section xml:id="dac_ordering">
+      <title>Ordering</title>
+
+      <para>When the rows of the result table have been formed, it is possible
+      to specify the order in which they are returned to the user. The ORDER
+      BY clause is used to specify the columns used for ordering, and whether
+      ascending or descending ordering is used. It can also specify whether
+      NULL values are returned first or last.</para>
+
+      <programlisting>SELECT x + y AS xysum, y + z AS yzsum FROM atable AS t (u, v, w, x, y, z)  WHERE u + v = w ORDER BY xysum NULLS LAST, yzsum NULLS FIRST</programlisting>
+
+      <para>The ORDER BY clause specifies one or more <literal>&lt;value
+      expressions&gt;</literal>. The list of rows is sorted according to the
+      first <literal>&lt;value expression&gt;</literal>. When some rows are
+      sorted equal then they are sorted according to the next
+      <literal>&lt;value expression&gt;</literal> and so on.</para>
+
+      <para><literal>&lt;order by clause&gt; ::= ORDER BY &lt;sort
+      specification&gt; [ { &lt;comma&gt; &lt;sort specification&gt; }...
+      ]</literal></para>
+
+      <para><literal>&lt;sort specification&gt; ::= &lt;value expression&gt; [
+      &lt;collate clause&gt; ] [ ASC | DESC ] [ NULLS FIRST | NULLS LAST
+      ]</literal></para>
+
+      <para>The defaults are ASC and NULLS FIRST.</para>
+
+      <para>For character columns of an ORDER BY expression, if a
+      <literal>&lt;collate clause&gt;</literal> is not specified then the
+      collation of the column, or the default collation of the database is
+      used.</para>
+
+      <para>An ORDER BY operation can sometimes be optimised by the engine
+      when it can use the same index for accessing the table data and
+      ordering. Optimisation can happen both with DESC + NULLS LAST and ASC +
+      NULLS FIRST.</para>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>sort specification list</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">sort specification
+      list</emphasis></simpara>
+
+      <simpara><emphasis>sort specification list</emphasis></simpara>
+
+      <simpara><literal>&lt;sort specification list&gt; ::= &lt;value
+      expression&gt; [ASC | DESC] [NULLS FIRST | NULLS
+      LAST]</literal></simpara>
+
+      <simpara>Specify a sort order. A sort operation is performed on the
+      result of a <literal>&lt;query expression&gt;</literal> or
+      <literal>&lt;query specification&gt;</literal> and sorts the result
+      according to one or more <literal>&lt;value expression&gt;</literal>.
+      The <literal>&lt;value expression&gt;</literal> is usually a single
+      column of the result, but in some cases it can be a column of the
+      <literal>&lt;table expression&gt;</literal> that is not used in the
+      select list. The default is ASC and NULLS FIRST.</simpara>
+    </section>
+
+    <section xml:id="dac_slicing">
+      <title>Slicing</title>
+
+      <para>A different form of limiting the rows can be performed on the
+      result table after it has been formed according to all the other
+      operations (selection, grouping, ordering etc.). This is specified by
+      the FETCH ... ROWS and OFFSET clauses of a SELECT statement. In this
+      form, the specified OFFSET rows are removed from start of the table,
+      then up to the specified FETCH rows are kept and the rest of the rows
+      are discarded.</para>
+
+      <para><literal>&lt;result offset clause&gt; ::= OFFSET &lt;offset row
+      count&gt; { ROW | ROWS }</literal></para>
+
+      <para><literal>&lt;fetch first clause&gt; ::= FETCH { FIRST | NEXT } [
+      &lt;fetch first row count&gt; ] { ROW | ROWS } ONLY [ USING INDEX
+      ]</literal></para>
+
+      <para><literal>&lt;limit clause&gt; ::= LIMIT &lt;fetch first row
+      count&gt; [ USING INDEX ]</literal></para>
+
+      <para>A slicing operation takes the result set that has been already
+      processed and ordered. It then discards the specified number of rows
+      from the start of the result set and returns the specified number of
+      rows after the discarded rows. The &lt;offset row count&gt; and
+      &lt;fetch first row count&gt; can be constants, dynamic variables,
+      routine parameters, or routine variables. The type of the constants must
+      be INTEGER.</para>
+
+      <programlisting>SELECT a, b FROM atable WHERE d &lt; 5 ORDER BY absum OFFSET 3 FETCH 2 ROWS ONLY 
+SELECT a, b FROM atable WHERE d &lt; 5 ORDER BY absum OFFSET 3 LIMIT 2 /* alternative keyword */ </programlisting>
+
+      <para>When the FETCH keyword is used, the specified number of rows must
+      be at least 1, otherwise an error is returned. This behaviour is
+      consistent with the SQL Standard. When the LIMIT keyword is used, the
+      specified number of rows can be zero, which means return all rows (no
+      LIMIT). In MySQL and PostgreSQL syntax modes, zero limit means no rows
+      (empty result).</para>
+
+      <para>If there is an index on all the columns specified in the ORDER BY
+      clause, it is normally used for slicing. In some queries, an index on
+      another column may take precedence. It is possible to add USING INDEX to
+      the end of the slicing clause to force the use of the index for ordering
+      and slicing.</para>
+    </section>
+  </section>
+
+  <section xml:id="dac_data_change_statements">
+    <title>Data Change Statements</title>
+
+    <section xml:id="dac_delete_statement">
+      <title>Delete Statement</title>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>DELETE FROM</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">DELETE FROM</emphasis></simpara>
+
+      <simpara><emphasis>delete statement: searched</emphasis></simpara>
+
+      <simpara><literal>&lt;delete statement: searched&gt; ::= DELETE FROM
+      &lt;target table&gt; [ [ AS ] &lt;correlation name&gt; ] [ WHERE
+      &lt;search condition&gt; ]</literal></simpara>
+
+      <simpara>Delete rows of a table. The search condition is a
+      <literal>&lt;boolean value expression&gt;</literal> that is evaluated
+      for each row of the table. If the condition is true, the row is deleted.
+      If the condition is not specified, all the rows of the table are
+      deleted. In fact, an implicit SELECT is performed in the form of
+      <literal>SELECT * FROM &lt;target table&gt; [ WHERE &lt;search
+      condition&gt;]</literal> and the selected rows are deleted. When used in
+      JDBC, the number of rows returned by the implicit SELECT is returned as
+      the update count.</simpara>
+
+      <simpara>If there are FOREIGN KEY constraints on other tables that
+      reference the subject table, and the FOREIGN KEY constraints have
+      referential actions, then rows from those other tables that reference
+      the deleted rows are either deleted, or updated, according to the
+      specified referential actions.</simpara>
+
+      <simpara>In the second example below the rows that have the maximum
+      value for column A are deleted;</simpara>
+
+      <programlisting>DELETE FROM T WHERE C &gt; 5
+DELETE FROM T AS TT WHERE TT.A = (SELECT MAX(A) FROM T)
+</programlisting>
+    </section>
+
+    <section xml:id="dac_truncate_statement">
+      <title>Truncate Statement</title>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>TRUNCATE TABLE</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">TRUNCATE TABLE</emphasis></simpara>
+
+      <simpara><emphasis>truncate table statement</emphasis></simpara>
+
+      <simpara><literal>&lt;truncate table statement&gt; ::= TRUNCATE TABLE
+      &lt;target table&gt; [ &lt;identity column restart option&gt; ] [
+      &lt;truncate options&gt; ]</literal></simpara>
+
+      <simpara><literal>&lt;identity column restart option&gt; ::= CONTINUE
+      IDENTITY | RESTART IDENTITY</literal></simpara>
+
+      <simpara><literal>&lt;truncate options&gt; ::= AND COMMIT [ NO CHECK
+      ]</literal></simpara>
+
+      <simpara>Delete all rows of a table without firing its triggers. This
+      statement can only be used on base tables (not views). If the table is
+      referenced in a FOREIGN KEY constraint defined on another table, the
+      statement causes an exception. Triggers defined on the table are not
+      executed with this statement. The default for <literal>&lt;identity
+      column restart option&gt;</literal> is <literal>CONTINUE
+      IDENTITY</literal>. This means no change to the IDENTITY sequence of the
+      table. If <literal>RESTART IDENTITY</literal> is specified, then the
+      sequence is reset to its start value.</simpara>
+
+      <simpara>TRUNCATE is faster than ordinary DELETE. The TRUNCATE statement
+      is an SQL Standard data change statement, therefore it is performed
+      under transaction control and can be rolled back if the connection is
+      not in the auto-commit mode.</simpara>
+
+      <simpara>HyperSQL also supports the optional AND COMMIT and NO CHECK
+      options. If AND COMMIT is used, then the transaction is committed with
+      the execution of the TRUNCATE statement. The action cannot be rolled
+      back. If the additional NO CHECK option is also specified, then the
+      TRUNCATE statement is executed even if the table is referenced in a
+      FOREIGN KEY constraint defined on another, non-empty table. This form of
+      TRUNCATE is faster than the default form and does not use much
+      memory.</simpara>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>TRUNCATE SCHEMA</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">TRUNCATE SCHEMA</emphasis></simpara>
+
+      <simpara><emphasis>truncate schema statement</emphasis></simpara>
+
+      <simpara><literal>&lt;truncate schema statement&gt; ::= TRUNCATE SCHEMA
+      &lt;target schema&gt; [ &lt;identity column restart option&gt; ] AND
+      COMMIT [ NO CHECK ]</literal></simpara>
+
+      <simpara>Performs the equivalent of a TRUNCATE TABLE ... AND COMMIT on
+      all the table in the schema. If the additional NO CHECK option is also
+      specified, then the TRUNCATE statement is executed even if any of the
+      tables in the schema is referenced in a FOREIGN KEY constraint defined
+      on a non-empty table in a different schema.</simpara>
+
+      <simpara>If RESTART IDENTITY is specified, all table IDENTITY sequences
+      and all SEQUENCE objects in the schema are reset to their start
+      values.</simpara>
+
+      <simpara>Use of this statement requires schema ownership or
+      administrative privileges.</simpara>
+    </section>
+
+    <section xml:id="dac_insert_statement">
+      <title>Insert Statement</title>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>INSERT INTO</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">INSERT INTO</emphasis></simpara>
+
+      <simpara><emphasis>insert statement</emphasis></simpara>
+
+      <simpara><literal>&lt;insert statement&gt; ::= INSERT INTO &lt;target
+      table&gt; &lt;insert columns and source&gt;</literal></simpara>
+
+      <simpara><literal>&lt;insert columns and source&gt; ::= &lt;from
+      subquery&gt; | &lt;from constructor&gt; | &lt;from
+      default&gt;</literal></simpara>
+
+      <simpara><literal>&lt;from subquery&gt; ::= [ &lt;left paren&gt;
+      &lt;insert column list&gt; &lt;right paren&gt; ] [ &lt;override
+      clause&gt; ] &lt;query expression&gt;</literal></simpara>
+
+      <simpara><literal>&lt;from constructor&gt; ::= [ &lt;left paren&gt;
+      &lt;insert column list&gt; &lt;right paren&gt; ] [ &lt;override
+      clause&gt; ] &lt;contextually typed table value
+      constructor&gt;</literal></simpara>
+
+      <simpara><literal>&lt;override clause&gt; ::= OVERRIDING USER VALUE |
+      OVERRIDING SYSTEM VALUE</literal></simpara>
+
+      <simpara><literal>&lt;from default&gt; ::= DEFAULT
+      VALUES</literal></simpara>
+
+      <simpara><literal>&lt;insert column list&gt; ::= &lt;column name
+      list&gt;</literal></simpara>
+
+      <simpara>Insert new rows in a table. An INSERT statement inserts one or
+      more rows into the table.</simpara>
+
+      <simpara>The special form, <literal>INSERT INTO &lt;target table&gt;
+      DEFAULT VALUES</literal> can be used with tables which have a default
+      value for each column.</simpara>
+
+      <simpara>With the other forms of INSERT, the optional
+      <literal>(&lt;insert column list&gt;)</literal> specifies to which
+      columns of the table the new values are assigned.</simpara>
+
+      <simpara>In one form, the inserted values are from a <literal>&lt;query
+      expression&gt;</literal> and all the rows that are returned by the
+      <literal>&lt;query expression&gt;</literal> are inserted into the table.
+      If the <literal>&lt;query expression&gt;</literal> returns no rows,
+      nothing is inserted.</simpara>
+
+      <simpara>In the other form, a comma separated list of values called
+      <literal>&lt;contextually typed table value constructor&gt;</literal> is
+      used to insert one or more rows into the table. This list is
+      contextually typed, because the keywords NULL and DEFAULT can be used
+      for the values that are assigned to each column of the table. The
+      keyword DEFAULT means the default value of the column and can be used
+      only if the target column has a default value or is an IDENTITY or
+      GENERATED column of the table.</simpara>
+
+      <simpara>The <literal>&lt;override clause&gt;</literal> must be used
+      when a value is explicitly assigned to a column that has been defined as
+      GENERATED ALWAYS AS IDENTITY. The clause, OVERRIDE SYSTEM VALUE means
+      the provided values are used for the insert, while OVERRIDING USER VALUE
+      means the provided values are simply ignored and the values generated by
+      the system are used instead.</simpara>
+
+      <simpara>An array can be inserted into a column of the array type by
+      using literals, by specifying a parameter in a prepared statement or an
+      existing array returned by query expression. The last example below
+      inserts an array.</simpara>
+
+      <simpara>The rows that are inserted into the table are checked against
+      all the constraints that have been declared on the table. The whole
+      INSERT operation fails if any row fails to inserted due to constraint
+      violation. Examples:</simpara>
+
+      <programlisting>INSERT INTO T DEFAULT VALUES /* all columns of T have DEFAULT clauses */
+INSERT INTO T (SELECT * FROM Z) /* table Z has the same columns as table T */
+INSERT INTO T (A,B) VALUES ((1,2),(3,NULL), (DEFAULT,6)) /* three rows are inserted into table T */
+INSERT INTO T VALUES 3, ARRAY['hot','cold']
+</programlisting>
+
+      <para>If the table contains an IDENTITY column, the value for this
+      column for the last row inserted by a session can be retrieved using a
+      call to the IDENTITY() function. This call returns the last value
+      inserted by the calling session. When the insert statement is executed
+      with a JDBC Statement or PreparedStatement method, the
+      getGeneratedKeys() method of Statement can be used to retrieve not only
+      the IDENTITY column, but also any GENERATED computed column, or any
+      other column. The getGeneratedKeys() returns a ResultSet with one or
+      more columns. This contains one row per inserted row, and can therefore
+      return all the generated columns for a multi-row insert.</para>
+
+      <para>There are three methods of specifying which generated keys should
+      be returned. The first method does not specify the columns of the table.
+      With this method, the returned ResultSet will have a column for each
+      column of the table that is defined as GENERATED ... AS IDENTITY or
+      GENERATED ... AS (&lt;expression&gt;). The two other methods require the
+      user to specify which columns should be returned, either by column
+      indexes, or by column names. With these methods, there is no restriction
+      on which columns of the inserted values to be returned. This is
+      especially useful when some columns have a default clause which is a
+      function, or when there are BEFORE triggers on the table that may
+      provide the inserted value for some of the columns.</para>
+    </section>
+
+    <section xml:id="dac_update_statement">
+      <title>Update Statement</title>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>UPDATE</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">UPDATE</emphasis></simpara>
+
+      <simpara><emphasis>update statement: searched</emphasis></simpara>
+
+      <simpara><literal>&lt;update statement: searched&gt; ::= UPDATE
+      &lt;target table&gt; [ [ AS ] &lt;correlation name&gt; ] SET &lt;set
+      clause list&gt; [ WHERE &lt;search condition&gt; ]</literal></simpara>
+
+      <simpara>Update rows of a table. An UPDATE statement selects rows from
+      the <literal>&lt;target table&gt;</literal> using an implicit SELECT
+      statement formed in the following manner:</simpara>
+
+      <simpara><literal>SELECT * FROM &lt;target table&gt; [ [ AS ]
+      &lt;correlation name&gt; ] [ WHERE &lt;search condition&gt;
+      ]</literal></simpara>
+
+      <simpara>Then it applies the <literal>SET &lt;set clause
+      list&gt;</literal> expression to each selected row.</simpara>
+
+      <simpara>If the implicit SELECT returns no rows, no update takes place.
+      When used in JDBC, the number of rows returned by the implicit SELECT is
+      returned as the update count.</simpara>
+
+      <simpara>If there are FOREIGN KEY constraints on other tables that
+      reference the subject table, and the FOREIGN KEY constraints have
+      referential actions, then rows from those other tables that reference
+      the updated rows are updated, according to the specified referential
+      actions.</simpara>
+
+      <simpara>The rows that are updated are checked against all the
+      constraints that have been declared on the table. The whole UPDATE
+      operation fails if any row violates any constraint.</simpara>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>set clause in UPDATE and MERGE statements</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">set clause list</emphasis></simpara>
+
+      <simpara><emphasis>set clause list</emphasis></simpara>
+
+      <simpara><literal>&lt;set clause list&gt; ::= &lt;set clause&gt; [ {
+      &lt;comma&gt; &lt;set clause&gt; }... ]</literal></simpara>
+
+      <simpara><literal>&lt;set clause&gt; ::= &lt;multiple column
+      assignment&gt; | &lt;set target&gt; &lt;equals operator&gt; &lt;update
+      source&gt;</literal></simpara>
+
+      <simpara><literal>&lt;multiple column assignment&gt; ::= &lt;set target
+      list&gt; &lt;equals operator&gt; &lt;assigned
+      row&gt;</literal></simpara>
+
+      <simpara><literal>&lt;set target list&gt; ::= &lt;left paren&gt; &lt;set
+      target&gt; [ { &lt;comma&gt; &lt;set target&gt; }... ] &lt;right
+      paren&gt;</literal></simpara>
+
+      <simpara><literal>&lt;assigned row&gt; ::= &lt;contextually typed row
+      value expression&gt;</literal></simpara>
+
+      <simpara><literal>&lt;set target&gt; ::= &lt;column
+      name&gt;</literal></simpara>
+
+      <simpara><literal>&lt;update source&gt; ::= &lt;value expression&gt; |
+      &lt;contextually typed value specification&gt;</literal></simpara>
+
+      <simpara>Specify a list of assignments. This is used in UPDATE, MERGE
+      and SET statements to assign values to a scalar or row target.</simpara>
+
+      <simpara>Apart from setting a whole target to a value, a SET statement
+      can set individual elements of an array to new values. The last example
+      below shows this form of assignment to the array in the column named
+      B.</simpara>
+
+      <simpara>In the examples given below, UPDATE statements with single and
+      multiple assignments are shown. Note in the third example, a SELECT
+      statement is used to provide the update values for columns A and C,
+      while the update value for column B is given separately. The SELECT
+      statement must return exactly one row . In this example the SELECT
+      statement refers to the existing value for column C in its search
+      condition.</simpara>
+
+      <programlisting>UPDATE T SET A = 5 WHERE ...
+UPDATE T SET (A, B) = (1, NULL) WHERE ...
+UPDATE T SET (A, C) = (SELECT X, Y FROM U WHERE Z = C), B = 10 WHERE ...
+UPDATE T SET A = 3, B[3] = 'warm'
+</programlisting>
+    </section>
+
+    <section xml:id="dac_merge_statement">
+      <title>Merge Statement</title>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>MERGE INTO</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">MERGE INTO</emphasis></simpara>
+
+      <simpara><emphasis>merge statement</emphasis></simpara>
+
+      <simpara><literal>&lt;merge statement&gt; ::= MERGE INTO &lt;target
+      table&gt; [ [ AS ] &lt;merge correlation name&gt; ] USING &lt;table
+      reference&gt; ON &lt;search condition&gt; &lt;merge operation
+      specification&gt;</literal></simpara>
+
+      <simpara><literal>&lt;merge correlation name&gt; ::= &lt;correlation
+      name&gt;</literal></simpara>
+
+      <simpara><literal>&lt;merge operation specification&gt; ::= &lt;merge
+      when clause&gt;...</literal></simpara>
+
+      <simpara><literal>&lt;merge when clause&gt; ::= &lt;merge when matched
+      clause&gt; | &lt;merge when not matched clause&gt;</literal></simpara>
+
+      <simpara><literal>&lt;merge when matched clause&gt; ::= WHEN MATCHED
+      THEN &lt;merge update specification&gt;</literal></simpara>
+
+      <simpara><literal>&lt;merge when not matched clause&gt; ::= WHEN NOT
+      MATCHED THEN &lt;merge insert specification&gt;</literal></simpara>
+
+      <simpara><literal>&lt;merge update specification&gt; ::= UPDATE SET
+      &lt;set clause list&gt;</literal></simpara>
+
+      <simpara><literal>&lt;merge insert specification&gt; ::= INSERT [
+      &lt;left paren&gt; &lt;insert column list&gt; &lt;right paren&gt; ] [
+      &lt;override clause&gt; ] VALUES &lt;merge insert value
+      list&gt;</literal></simpara>
+
+      <simpara><literal>&lt;merge insert value list&gt; ::= &lt;left paren&gt;
+      &lt;merge insert value element&gt; [ { &lt;comma&gt; &lt;merge insert
+      value element&gt; }... ] &lt;right paren&gt;</literal></simpara>
+
+      <simpara><literal>&lt;merge insert value element&gt; ::= &lt;value
+      expression&gt; | &lt;contextually typed value
+      specification&gt;</literal></simpara>
+
+      <simpara>Update rows, or insert new rows into the <literal>&lt;target
+      table&gt;</literal>. The MERGE statement uses a second table, specified
+      by <literal>&lt;table reference&gt;</literal>, to determine the rows to
+      be updated or inserted. It is possible to use the statement only to
+      update rows or to insert rows, but usually both update and insert are
+      specified.</simpara>
+
+      <simpara>The <literal>&lt;search condition&gt;</literal> matches each
+      row of the <literal>&lt;table reference&gt;</literal> with each row of
+      the <literal>&lt;target table&gt;</literal>. If the two rows match then
+      the UPDATE clause is used to update the matching row of the target
+      table. Those rows of <literal>&lt;table reference&gt;</literal> that
+      have no matching rows are then used to insert new rows into the
+      <literal>&lt;target table&gt;</literal>. Therefore, a MERGE statement
+      can update between 0 and all the rows of the <literal>&lt;target
+      table&gt;</literal> and can insert between 0 and the number of the rows
+      in <literal>&lt;table reference&gt;</literal> into the
+      <literal>&lt;target table&gt;</literal>. If any row in the
+      <literal>&lt;target table&gt;</literal> matches more than one row in
+      <literal>&lt;table reference&gt;</literal> a cardinality error is
+      raised. On the other hand, several rows in the <literal>&lt;target
+      table&gt;</literal> can match a single row in <literal>&lt;table
+      reference&gt;</literal> without any error. The constraints and
+      referential actions specified on the database tables are enforced the
+      same way as for an update and an insert statement.</simpara>
+
+      <simpara>The MERGE statement can be used with only the WHEN NOT MATCHED
+      clause as a conditional INSERT statement that inserts a row if no
+      existing rows match a condition.</simpara>
+
+      <simpara>In the first example below, the table originally contains two
+      rows for different furniture. The <literal>&lt;table
+      reference&gt;</literal> is the <literal>(VALUES(1, 'conference table'),
+      (14, 'sofa'), (5, 'coffee table'))</literal> expression, which evaluates
+      to a table with 3 rows. When the x value for a row matches an existing
+      row, then the existing row is updated. When the x value does not match,
+      the row is inserted. Therefore one row of table t is updated from
+      'dining table' to 'conference table', and two rows are inserted into
+      table t. The second example uses a SELECT statement as the source of the
+      values for the MERGE.</simpara>
+
+      <simpara>In the third example, a new row in inserted into the table only
+      when the primary key for the new row does not exist. This example uses
+      parameters and should be executed as a JDBC PreparedStatement.</simpara>
+
+      <programlisting>CREATE TABLE t (id INT PRIMARY KEY, description VARCHAR(100))
+INSERT INTO t VALUES (1, 'dining table'), (2, 'deck chair')
+MERGE INTO t USING (VALUES(1, 'conference table'), (14, 'sofa'), (5, 'coffee table')) 
+   AS vals(x,y) ON t.id = vals.x
+   WHEN MATCHED THEN UPDATE SET t.description = vals.y
+   WHEN NOT MATCHED THEN INSERT VALUES vals.x, vals.y
+
+MERGE INTO t USING (SELECT * FROM tt WHERE acol = 2) AS vals(x,y) ON t.id = vals.x
+   WHEN MATCHED THEN UPDATE SET t.description = vals.y
+   WHEN NOT MATCHED THEN INSERT VALUES vals.x, vals.y
+
+MERGE INTO t USING (VALUES(CAST(? AS INT))) AS vals(x) ON t.id = vals.x
+   WHEN NOT MATCHED THEN INSERT VALUES vals.x, ?
+</programlisting>
+    </section>
+  </section>
+
+  <section xml:id="dac_diagnostics_state">
+    <title>Diagnostics and State</title>
+
+    <para>HyperSQL supports some SQL statements, expressions, functions and
+    Java methods that report on the most recently executed statement.</para>
+
+    <para>The <literal>IDENTITY()</literal> function returns the last inserted
+    identity value for the current session.</para>
+
+    <para>The <literal>GET DIAGNOSTICS</literal> statement is supported to a
+    limited extent. The built-in function <literal>DIAGNOSTICS()</literal> is
+    an alternative. These are normally used in SQL/PSM routines to check the
+    result of the last data update operation.</para>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>GET DIAGNOSTICS</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">GET DIAGNOSTICS</emphasis></simpara>
+
+    <simpara><emphasis>get diagnostics statement</emphasis></simpara>
+
+    <simpara><literal>&lt;get diagnostics statement&gt; ::= GET DIAGNOSTICS
+    &lt;simple target value specification&gt; = ROW_COUNT</literal></simpara>
+
+    <para>The <literal>&lt;simple target value specification&gt;</literal> is
+    a session variable, or a routine variable or OUT parameter.</para>
+
+    <para>The keyword <literal>ROW_COUNT</literal> specifies the row count
+    returned by the last executed statement. For INSERT, UPDATE, DELETE and
+    MERGE statements, this is the number of rows affected by the statement.
+    This is the same value as returned by JDBC execute() methods. For all
+    other statements, zero is returned.</para>
+
+    <para>The value of <literal>ROW_COUNT</literal> is stored in the specified
+    target.</para>
+
+    <para>In future versions, more options will be supported for diagnostics
+    values.</para>
+  </section>
+</chapter>
