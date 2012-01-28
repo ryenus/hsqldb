@@ -31,10 +31,6 @@
 
 package org.hsqldb.persist;
 
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReadWriteLock;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
-
 import org.hsqldb.Row;
 import org.hsqldb.RowAVL;
 import org.hsqldb.Session;
@@ -122,7 +118,9 @@ public class RowStoreAVLHybridExtended extends RowStoreAVLHybrid {
 
         RowStoreAVLHybrid tempStore = new RowStoreAVLHybridExtended(session,
             manager, table, true);
+
         tempStore.changeToDiskTable(session);
+
         RowIterator iterator = table.rowIterator(this);
 
         while (iterator.hasNext()) {

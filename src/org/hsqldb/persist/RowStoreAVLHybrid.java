@@ -53,7 +53,7 @@ import org.hsqldb.rowio.RowInputInterface;
  * Implementation of PersistentStore for result sets.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.2.7
+ * @version 2.2.9
  * @since 1.9.0
  */
 public class RowStoreAVLHybrid extends RowStoreAVL implements PersistentStore {
@@ -93,6 +93,8 @@ public class RowStoreAVLHybrid extends RowStoreAVL implements PersistentStore {
 //
         resetAccessorKeys(table.getIndexList());
         manager.setStore(table, this);
+
+        nullsList = new boolean[table.getColumnCount()];
     }
 
     public boolean isMemory() {
@@ -175,6 +177,14 @@ public class RowStoreAVLHybrid extends RowStoreAVL implements PersistentStore {
             object.setStorageSize(size);
             cache.add(object);
         }
+
+        Object[] data = ((Row) object).getData();
+
+        for (int i = 0; i < nullsList.length; i++) {
+            if (data[i] == null) {
+                nullsList[i] = true;
+            }
+        }
     }
 
     public CachedObject get(RowInputInterface in) {
@@ -218,6 +228,8 @@ public class RowStoreAVLHybrid extends RowStoreAVL implements PersistentStore {
         } else {
             int id  = rowIdSequence++;
             Row row = new RowAVL(table, (Object[]) object, id, this);
+
+            add(row);
 
             if (tx) {
                 RowAction action = new RowAction(session, table,
@@ -364,6 +376,10 @@ public class RowStoreAVLHybrid extends RowStoreAVL implements PersistentStore {
         }
 
         super.resetAccessorKeys(keys);
+    }
+
+    public boolean hasNull(int pos) {
+        return nullsList[pos];
     }
 
     public final void changeToDiskTable(Session session) {

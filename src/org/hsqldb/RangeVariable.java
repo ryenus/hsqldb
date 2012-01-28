@@ -54,7 +54,7 @@ import org.hsqldb.types.Type;
  * Metadata for range variables, including conditions.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.2.7
+ * @version 2.2.9
  * @since 1.9.0
  */
 public class RangeVariable implements Cloneable {
@@ -634,7 +634,14 @@ public class RangeVariable implements Cloneable {
 
                 set.addAll(((TableDerived) rangeTable).view.getSubqueries());
             } else if (baseQueryExpression == null) {
-                set = OrderedHashSet.add(set, rangeTable.getSubQuery());
+                SubQuery sq = rangeTable.getSubQuery();
+
+                set = OrderedHashSet.add(set, sq);
+
+                if (sq.dataExpression != null) {
+                    OrderedHashSet.addAll(set,
+                                          sq.dataExpression.getSubqueries());
+                }
             } else {
                 OrderedHashSet temp = baseQueryExpression.getSubqueries();
 
@@ -1589,12 +1596,10 @@ public class RangeVariable implements Cloneable {
                 if (indexedColumnCount < rangeIndex.getColumnCount()) {
                     if (rangeIndex.getColumns()[indexedColumnCount]
                             == e.getLeftNode().getColumnIndex()) {
-                        Expression condition = e.getLeftNode();
+                        Expression condition =
+                            ExpressionLogical.newNotNullCondition(
+                                e.getLeftNode());
 
-                        condition = new ExpressionLogical(OpTypes.IS_NULL,
-                                                          condition);
-                        condition = new ExpressionLogical(OpTypes.NOT,
-                                                          condition);
                         indexCond[indexedColumnCount]    = condition;
                         indexEndCond[indexedColumnCount] = e;
                         indexEndCondition =
