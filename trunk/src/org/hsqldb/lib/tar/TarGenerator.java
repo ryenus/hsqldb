@@ -367,12 +367,12 @@ public class TarGenerator {
         protected String fileMode  = DEFAULT_FILE_MODES;
 
         // Following fields are always initialized by constructors.
-        protected InputStreamInterface         inputStream;
-        protected String              path;
-        protected long                modTime;
-        protected TarFileOutputStream tarStream;
-        protected long                dataSize;    // In bytes
-        protected boolean             paxSized = false;
+        protected InputStreamInterface inputStream;
+        protected String               path;
+        protected long                 modTime;
+        protected TarFileOutputStream  tarStream;
+        protected long                 dataSize;    // In bytes
+        protected boolean              paxSized = false;
 
         // Size will only be written to entry's header if paxSized is false.
         public String getPath() {

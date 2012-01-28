@@ -54,7 +54,7 @@ import org.hsqldb.types.Type;
  * Base implementation of PersistentStore for different table types.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.2.7
+ * @version 2.2.9
  * @since 1.9.0
  */
 public abstract class RowStoreAVL implements PersistentStore {
@@ -66,6 +66,7 @@ public abstract class RowStoreAVL implements PersistentStore {
     CachedObject[]            accessorList = CachedObject.emptyArray;
     TableBase                 table;
     int                       elementCount;
+    boolean[]                 nullsList;
 
     // for result tables
     // for INFORMATION SCHEMA tables
@@ -364,6 +365,10 @@ public abstract class RowStoreAVL implements PersistentStore {
 
     public void setElementCount(Index key, int size, int uniqueSize) {
         elementCount = size;
+    }
+
+    public boolean hasNull(int pos) {
+        return false;
     }
 
     /**

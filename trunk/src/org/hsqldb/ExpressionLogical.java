@@ -245,6 +245,16 @@ public class ExpressionLogical extends Expression {
         }
     }
 
+    /**
+     * Creates a NOT NULL condition
+     */
+    static ExpressionLogical newNotNullCondition(Expression e) {
+
+        e = new ExpressionLogical(OpTypes.IS_NULL, e);
+
+        return new ExpressionLogical(OpTypes.NOT, e);
+    }
+
     // logical ops
     static Expression andExpressions(Expression e1, Expression e2) {
 
@@ -1556,11 +1566,17 @@ public class ExpressionLogical extends Expression {
         boolean         empty = table.isEmpty(session);
         Index           index = table.getFullIndex();
         RowIterator     it;
+        PersistentStore store = table.getRowStore(session);
         Row             firstrow;
-        PersistentStore store   = table.getRowStore(session);
-        Row             lastrow = index.lastRow(session, store).getNextRow();
-        Object[]        lastdata;
+        Row             lastrow;
         Object[]        firstdata;
+        Object[]        lastdata;
+
+        boolean hasNullValue = false;
+
+        for (int i = 0; i < table.columnCount; i++) {
+            hasNullValue |= store.hasNull(i);
+        }
 
         switch (exprSubType) {
 
@@ -1573,25 +1589,38 @@ public class ExpressionLogical extends Expression {
                     return null;
                 }
 
-                lastdata = lastrow.getData();
-
-                if (countNulls(lastdata) == data.length) {
-                    return null;
-                }
-
                 convertToType(session, data, nodes[LEFT].nodeDataTypes,
                               nodes[RIGHT].nodeDataTypes);
 
                 if (opType == OpTypes.EQUAL) {
                     it = index.findFirstRow(session, store, data);
 
-                    return it.hasNext() ? Boolean.TRUE
-                                        : Boolean.FALSE;
+                    if (it.hasNext()) {
+                        return Boolean.TRUE;
+                    } else {
+                        if (hasNullValue) {
+                            return null;
+                        } else {
+                            return Boolean.FALSE;
+                        }
+                    }
                 }
 
-                it        = index.findFirstRowNotNull(session, store);
-                firstrow  = it.getNextRow();
+                if (opType == OpTypes.NOT_EQUAL) {
+                    it = index.firstRow(session, store);
+                } else {
+                    it = index.findFirstRowNotNull(session, store);
+                }
+
+                firstrow = it.getNextRow();
+
+                if (firstrow == null) {
+                    return null;
+                }
+
                 firstdata = firstrow.getData();
+                lastrow   = index.lastRow(session, store).getNextRow();
+                lastdata  = lastrow.getData();
 
                 Boolean comparefirst = compareValues(session, data, firstdata);
                 Boolean comparelast  = compareValues(session, data, lastdata);
@@ -1599,10 +1628,17 @@ public class ExpressionLogical extends Expression {
                 switch (opType) {
 
                     case OpTypes.NOT_EQUAL :
-                        return Boolean.TRUE.equals(comparefirst)
-                               || Boolean.TRUE.equals(
-                                   comparelast) ? Boolean.TRUE
-                                                : Boolean.FALSE;
+                        if (Boolean.TRUE.equals(comparefirst)
+                                || Boolean.TRUE.equals(comparelast)) {
+                            return Boolean.TRUE;
+                        } else if (Boolean.FALSE.equals(comparefirst)
+                                && Boolean.FALSE.equals(comparelast)) {
+                            it = index.findFirstRow(session, store, data);
+                            return Boolean.FALSE;
+                        } else {
+                            return null;
+                        }
+
 
                     case OpTypes.GREATER :
                         return comparefirst;
@@ -1656,6 +1692,7 @@ public class ExpressionLogical extends Expression {
                                         : Boolean.TRUE;
                 }
 
+                lastrow  = index.lastRow(session, store).getNextRow();
                 lastdata = lastrow.getData();
 
                 Boolean comparefirst = compareValues(session, data, firstdata);

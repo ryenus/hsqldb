@@ -43,7 +43,7 @@ import org.hsqldb.types.Type;
  * Implementation of ORDER BY and LIMIT properties of query expressions.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.2.7
+ * @version 2.2.9
  * @since 1.9.0
  */
 public final class SortAndSlice {
@@ -328,9 +328,14 @@ public final class SortAndSlice {
                 return false;
             }
 
-            if (!select.rangeVariables[0].setSortIndex(index,
-                    opType == OpTypes.MAX)) {
-                return false;
+            Expression[] conditions = new Expression[]{
+                ExpressionLogical.newNotNullCondition(e) };
+
+            select.rangeVariables[0].joinConditions[0].addIndexCondition(
+                conditions, index, 1);
+
+            if (opType == OpTypes.MAX) {
+                select.rangeVariables[0].reverseOrder();
             }
         }
 
@@ -421,8 +426,8 @@ public final class SortAndSlice {
     public Index getNewIndex(Session session, TableBase table) {
 
         if (hasOrder()) {
-            Index orderIndex = table.createAndAddIndexStructure(null, sortOrder,
-                sortDescending, sortNullsLast, false, false, false);
+            Index orderIndex = table.createAndAddIndexStructure(null,
+                sortOrder, sortDescending, sortNullsLast, false, false, false);
 
             if (collations != null) {
                 for (int i = 0; i < columnCount; i++) {

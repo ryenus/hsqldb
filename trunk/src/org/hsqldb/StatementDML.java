@@ -54,7 +54,7 @@ import org.hsqldb.types.Types;
  * Implementation of Statement for DML statements.<p>
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.2.7
+ * @version 2.2.9
  * @since 1.9.0
  */
 
@@ -1178,6 +1178,21 @@ public class StatementDML extends StatementDMQL {
         PersistentStore store   = targetTable.getRowStore(session);
         RowIterator     it = targetTable.getPrimaryIndex().firstRow(store);
         boolean         hasData = it.hasNext();
+
+        for (int i = 0; i < targetTable.fkMainConstraints.length; i++) {
+            if (targetTable.fkMainConstraints[i].getRef() != targetTable) {
+                HsqlName tableName =
+                    targetTable.fkMainConstraints[i].getRef().getName();
+                Table refTable =
+                    session.database.schemaManager.getUserTable(session,
+                        tableName);
+
+                if (!refTable.isEmpty(session)) {
+                    throw Error.error(ErrorCode.X_23504,
+                                      refTable.getName().name);
+                }
+            }
+        }
 
         try {
             while (it.hasNext()) {

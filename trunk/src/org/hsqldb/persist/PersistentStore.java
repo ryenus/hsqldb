@@ -42,7 +42,7 @@ import org.hsqldb.rowio.RowInputInterface;
  * Interface for a store for CachedObject objects.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.0.1
+ * @version 2.2.9
  * @since 1.9.0
  */
 public interface PersistentStore {
@@ -135,6 +135,8 @@ public interface PersistentStore {
     int elementCountUnique(Index index);
 
     void setElementCount(Index key, int size, int uniqueSize);
+
+    boolean hasNull(int pos);
 
     void resetAccessorKeys(Index[] keys);
 
