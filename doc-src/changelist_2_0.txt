@@ -1,3 +1,7 @@
+28 January 2012 - SVN 4925
+-- fixed issue with min(), max() optimisation for indexed columns
+-- fixed issue with some usages of UNNEST
+-- fixed issue with some NOT IN usage with NULL in list
 22 January 2012 - version 2.2.8
 -- fixed regression since 2.2.6 that affected database crash recovery
 -- added support for hot backup
