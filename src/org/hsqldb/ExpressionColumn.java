@@ -531,7 +531,7 @@ public class ExpressionColumn extends Expression {
                     return false;
                 }
 
-                if (!rangeVar.resolvesTableName(tableName)) {
+                if (!rangeVar.resolvesSchemaAndTableName(null, tableName)) {
                     return false;
                 }
 
@@ -540,11 +540,7 @@ public class ExpressionColumn extends Expression {
                 break;
             }
             default : {
-                if (!rangeVar.resolvesSchemaName(schema)) {
-                    return false;
-                }
-
-                if (!rangeVar.resolvesTableName(tableName)) {
+                if (!rangeVar.resolvesSchemaAndTableName(schema, tableName)) {
                     return false;
                 }
 

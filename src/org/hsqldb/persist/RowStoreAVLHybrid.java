@@ -248,6 +248,10 @@ public class RowStoreAVLHybrid extends RowStoreAVL implements PersistentStore {
         elementCount = 0;
 
         ArrayUtil.fillArray(accessorList, null);
+
+        for (int i = 0; i < nullsList.length; i++) {
+            nullsList[i] = false;
+        }
     }
 
     public void remove(int i) {

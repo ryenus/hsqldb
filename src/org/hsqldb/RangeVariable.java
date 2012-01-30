@@ -387,14 +387,6 @@ public class RangeVariable implements Cloneable {
         }
     }
 
-    ColumnSchema getColumn(String columnName) {
-
-        int index = findColumn(columnName);
-
-        return index < 0 ? null
-                         : rangeTable.getColumn(index);
-    }
-
     ColumnSchema getColumn(int i) {
 
         if (variables == null) {
@@ -456,7 +448,12 @@ public class RangeVariable implements Cloneable {
         return false;
     }
 
-    public boolean resolvesTableName(String name) {
+    public boolean resolvesSchemaAndTableName(String schemaName,
+            String tableName) {
+        return resolvesSchemaName(schemaName) && resolvesTableName(tableName);
+    }
+
+    boolean resolvesTableName(String name) {
 
         if (name == null) {
             return true;
@@ -636,11 +633,13 @@ public class RangeVariable implements Cloneable {
             } else if (baseQueryExpression == null) {
                 SubQuery sq = rangeTable.getSubQuery();
 
-                set = OrderedHashSet.add(set, sq);
+                if (sq != null) {
+                    set = OrderedHashSet.add(set, sq);
 
-                if (sq.dataExpression != null) {
-                    OrderedHashSet.addAll(set,
-                                          sq.dataExpression.getSubqueries());
+                    if (sq.dataExpression != null) {
+                        OrderedHashSet.addAll(
+                            set, sq.dataExpression.getSubqueries());
+                    }
                 }
             } else {
                 OrderedHashSet temp = baseQueryExpression.getSubqueries();

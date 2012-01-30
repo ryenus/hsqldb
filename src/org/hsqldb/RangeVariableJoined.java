@@ -171,10 +171,6 @@ public class RangeVariableJoined extends RangeVariable {
         return super.findColumn(columnName);
     }
 
-    ColumnSchema getColumn(String columnName) {
-        return super.getColumn(columnName);
-    }
-
     ColumnSchema getColumn(int i) {
         return super.getColumn(i);
     }
@@ -206,7 +202,7 @@ public class RangeVariableJoined extends RangeVariable {
         return false;
     }
 
-    public boolean resolvesTableName(String name) {
+    boolean resolvesTableName(String name) {
 
         if (tableAlias != null) {
             return super.resolvesTableName(name);

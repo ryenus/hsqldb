@@ -4553,8 +4553,9 @@ public class ParserDQL extends ParserBase {
 
             index = rangeVars[i].findColumn(token.tokenString);
 
-            if (index > -1 && rangeVars[i].resolvesTableName(token.namePrefix)
-                    && rangeVars[i].resolvesSchemaName(token.namePrePrefix)) {
+            if (index > -1
+                    && rangeVars[i].resolvesSchemaAndTableName(
+                        token.namePrePrefix, token.namePrefix)) {
                 column = rangeVars[i].getColumn(index);
 
                 read();
@@ -5848,8 +5849,8 @@ public class ParserDQL extends ParserBase {
         checkIsIdentifier();
 
         if (withPrefix) {
-            if (!rangeVar.resolvesTableName(token.namePrefix)
-                    || !rangeVar.resolvesSchemaName(token.namePrePrefix)) {
+            if (!rangeVar.resolvesSchemaAndTableName(token.namePrePrefix,
+                    token.namePrefix)) {
                 throw Error.error(ErrorCode.X_42501, token.namePrefix);
             }
         } else if (token.namePrefix != null) {
