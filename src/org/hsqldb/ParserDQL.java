@@ -4551,11 +4551,11 @@ public class ParserDQL extends ParserBase {
                 continue;
             }
 
-            index = rangeVars[i].findColumn(token.tokenString);
+            index = rangeVars[i].findColumn(token.namePrePrefix,
+                                            token.namePrefix,
+                                            token.tokenString);
 
-            if (index > -1
-                    && rangeVars[i].resolvesSchemaAndTableName(
-                        token.namePrePrefix, token.namePrefix)) {
+            if (index > -1) {
                 column = rangeVars[i].getColumn(index);
 
                 read();
@@ -5848,26 +5848,22 @@ public class ParserDQL extends ParserBase {
 
         checkIsIdentifier();
 
-        if (withPrefix) {
-            if (!rangeVar.resolvesSchemaAndTableName(token.namePrePrefix,
-                    token.namePrefix)) {
-                throw Error.error(ErrorCode.X_42501, token.namePrefix);
-            }
-        } else if (token.namePrefix != null) {
+        if (!withPrefix && token.namePrefix != null) {
             throw tooManyIdentifiers();
         }
 
-        int index = rangeVar.findColumn(token.tokenString);
+        int index = rangeVar.findColumn(token.namePrePrefix, token.namePrefix,
+                                        token.tokenString);
 
-        if (index > -1) {
-            column = rangeVar.getTable().getColumn(index);
-
-            read();
-
-            return column;
+        if (index == -1) {
+            throw Error.error(ErrorCode.X_42501, token.tokenString);
         }
 
-        throw Error.error(ErrorCode.X_42501, token.tokenString);
+        column = rangeVar.getTable().getColumn(index);
+
+        read();
+
+        return column;
     }
 
     ColumnSchema readSimpleColumnName(Table table, boolean withPrefix) {

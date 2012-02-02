@@ -118,7 +118,7 @@ public class RangeVariable implements Cloneable {
     //
     boolean isGenerated;
 
-    RangeVariable(HashMappedList variables, SimpleName rangeName,
+    public RangeVariable(HashMappedList variables, SimpleName rangeName,
                   boolean isVariable, int rangeType) {
 
         this.variables   = variables;
@@ -134,7 +134,7 @@ public class RangeVariable implements Cloneable {
             new RangeVariableConditions(this, false) };
     }
 
-    RangeVariable(Table table, SimpleName alias, OrderedHashSet columnList,
+    public RangeVariable(Table table, SimpleName alias, OrderedHashSet columnList,
                   SimpleName[] columnNameList, CompileContext compileContext) {
 
         rangeType        = TABLE_RANGE;
@@ -156,7 +156,7 @@ public class RangeVariable implements Cloneable {
         }
     }
 
-    RangeVariable(Table table, int position) {
+    public RangeVariable(Table table, int position) {
 
         rangeType        = TABLE_RANGE;
         rangeTable       = table;
@@ -204,7 +204,7 @@ public class RangeVariable implements Cloneable {
         return r;
     }
 
-    void setJoinType(boolean isLeft, boolean isRight) {
+    public void setJoinType(boolean isLeft, boolean isRight) {
 
         isLeftJoin  = isLeft;
         isRightJoin = isRight;
@@ -224,7 +224,7 @@ public class RangeVariable implements Cloneable {
 
     public void addAllColumns() {}
 
-    void addNamedJoinColumnExpression(String name, Expression e) {
+    public void addNamedJoinColumnExpression(String name, Expression e) {
 
         if (namedJoinColumnExpressions == null) {
             namedJoinColumnExpressions = new HashMap();
@@ -233,18 +233,18 @@ public class RangeVariable implements Cloneable {
         namedJoinColumnExpressions.put(name, e);
     }
 
-    ExpressionColumn getColumnExpression(String name) {
+    public ExpressionColumn getColumnExpression(String name) {
 
         return namedJoinColumnExpressions == null ? null
                                                   : (ExpressionColumn) namedJoinColumnExpressions
                                                   .get(name);
     }
 
-    Table getTable() {
+    public Table getTable() {
         return rangeTable;
     }
 
-    boolean hasAnyIndexCondition() {
+    public boolean hasAnyIndexCondition() {
 
         for (int i = 0; i < joinConditions.length; i++) {
             if (joinConditions[0].indexedColumnCount > 0) {
@@ -261,12 +261,12 @@ public class RangeVariable implements Cloneable {
         return false;
     }
 
-    boolean hasSingleIndexCondition() {
+    public boolean hasSingleIndexCondition() {
         return joinConditions.length == 1
                && joinConditions[0].indexedColumnCount > 0;
     }
 
-    boolean setDistinctColumnsOnIndex(int[] colMap) {
+    public boolean setDistinctColumnsOnIndex(int[] colMap) {
 
         if (joinConditions.length != 1) {
             return false;
@@ -290,7 +290,7 @@ public class RangeVariable implements Cloneable {
     /**
      * Used for sort
      */
-    Index getSortIndex() {
+    public Index getSortIndex() {
 
         if (joinConditions.length == 1) {
             return joinConditions[0].rangeIndex;
@@ -302,7 +302,7 @@ public class RangeVariable implements Cloneable {
     /**
      * Used for sort
      */
-    boolean setSortIndex(Index index, boolean reversed) {
+    public boolean setSortIndex(Index index, boolean reversed) {
 
         if (joinConditions.length == 1) {
             if (joinConditions[0].indexedColumnCount == 0) {
@@ -316,7 +316,7 @@ public class RangeVariable implements Cloneable {
         return false;
     }
 
-    boolean reverseOrder() {
+    public boolean reverseOrder() {
 
         joinConditions[0].reverseIndexCondition();
 
@@ -356,13 +356,14 @@ public class RangeVariable implements Cloneable {
         return set;
     }
 
-    public int findColumn(ExpressionColumn e) {
+    public int findColumn(String schemaName, String tableName,
+                          String columnName) {
 
-        if (!resolvesTableName(e)) {
-            return -1;
+        if (resolvesSchemaAndTableName(schemaName, tableName)) {
+            return findColumn(columnName);
         }
 
-        return findColumn(e.columnName);
+        return -1;
     }
 
     /**
@@ -371,7 +372,7 @@ public class RangeVariable implements Cloneable {
      * @param columnName name of column
      * @return int index or -1 if not found
      */
-    public int findColumn(String columnName) {
+    private int findColumn(String columnName) {
 
         if (namedJoinColumnExpressions != null
                 && namedJoinColumnExpressions.containsKey(columnName)) {
@@ -387,7 +388,7 @@ public class RangeVariable implements Cloneable {
         }
     }
 
-    ColumnSchema getColumn(int i) {
+    public ColumnSchema getColumn(int i) {
 
         if (variables == null) {
             return rangeTable.getColumn(i);
@@ -405,55 +406,30 @@ public class RangeVariable implements Cloneable {
         }
     }
 
-    boolean hasColumnAlias() {
+    public boolean hasColumnAlias() {
         return columnAliases != null;
     }
 
-    SimpleName getTableAlias() {
+    public SimpleName getTableAlias() {
         return tableAlias == null ? rangeTable.getName()
                                   : tableAlias;
     }
 
-    boolean resolvesTableName(ExpressionColumn e) {
+    public RangeVariable getRangeForTableName(String name) {
 
-        if (e.tableName == null) {
-            return true;
+        if (resolvesTableName(name)) {
+            return this;
         }
 
-        if (variables != null) {
-            if (tableAlias != null) {
-                return e.tableName.equals(tableAlias.name);
-            }
-
-            return false;
-        }
-
-        if (e.schema == null) {
-            if (tableAlias == null) {
-                if (e.tableName.equals(rangeTable.getName().name)) {
-                    return true;
-                }
-            } else if (e.tableName.equals(tableAlias.name)) {
-                return true;
-            }
-        } else {
-            if (tableAlias == null) {
-                if (e.tableName.equals(rangeTable.getName().name)
-                        && e.schema.equals(rangeTable.getSchemaName().name)) {
-                    return true;
-                }
-            }
-        }
-
-        return false;
+        return null;
     }
 
-    public boolean resolvesSchemaAndTableName(String schemaName,
+    private boolean resolvesSchemaAndTableName(String schemaName,
             String tableName) {
         return resolvesSchemaName(schemaName) && resolvesTableName(tableName);
     }
 
-    boolean resolvesTableName(String name) {
+    private boolean resolvesTableName(String name) {
 
         if (name == null) {
             return true;
@@ -478,7 +454,7 @@ public class RangeVariable implements Cloneable {
         return false;
     }
 
-    boolean resolvesSchemaName(String name) {
+    private boolean resolvesSchemaName(String name) {
 
         if (name == null) {
             return true;
@@ -498,7 +474,7 @@ public class RangeVariable implements Cloneable {
     /**
      * Add all columns to a list of expressions
      */
-    void addTableColumns(HsqlArrayList exprList) {
+    public void addTableColumns(HsqlArrayList exprList) {
 
         if (namedJoinColumns != null) {
             int count    = exprList.size();
@@ -529,7 +505,7 @@ public class RangeVariable implements Cloneable {
     /**
      * Add all columns to a list of expressions
      */
-    int addTableColumns(HsqlArrayList exprList, int position,
+    public int addTableColumns(HsqlArrayList exprList, int position,
                         HashSet exclude) {
 
         Table table = getTable();
@@ -553,13 +529,33 @@ public class RangeVariable implements Cloneable {
         return position;
     }
 
-    void addTableColumns(Expression expression, HashSet exclude) {
+    public void addTableColumns(RangeVariable subRange, Expression expression,
+                                HashSet exclude) {
 
-        HsqlArrayList list  = new HsqlArrayList();
+        if (subRange == this) {
+            Table table = getTable();
+            int   count = table.getColumnCount();
+
+            addTableColumns(expression, 0, count, exclude);
+        }
+    }
+
+    protected int getFirstColumnIndex(RangeVariable subRange) {
+
+        if (subRange == this) {
+            return 0;
+        }
+
+        return -1;
+    }
+
+    protected void addTableColumns(Expression expression, int start, int count,
+                         HashSet exclude) {
+
         Table         table = getTable();
-        int           count = table.getColumnCount();
+        HsqlArrayList list  = new HsqlArrayList();
 
-        for (int i = 0; i < count; i++) {
+        for (int i = start; i < start + count; i++) {
             ColumnSchema column = table.getColumn(i);
             String columnName = columnAliases == null ? column.getName().name
                                                       : (String) columnAliases
@@ -585,7 +581,7 @@ public class RangeVariable implements Cloneable {
      * Removes reference to Index to avoid possible memory leaks after alter
      * table or drop index
      */
-    void setForCheckConstraint() {
+    public void setForCheckConstraint() {
         joinConditions[0].rangeIndex = null;
         rangePosition                = 0;
     }
@@ -593,15 +589,15 @@ public class RangeVariable implements Cloneable {
     /**
      * used before condition processing
      */
-    Expression getJoinCondition() {
+    public Expression getJoinCondition() {
         return joinCondition;
     }
 
-    void addJoinCondition(Expression e) {
+    public void addJoinCondition(Expression e) {
         joinCondition = ExpressionLogical.andExpressions(joinCondition, e);
     }
 
-    void resetConditions() {
+    public void resetConditions() {
 
         Index index = joinConditions[0].rangeIndex;
 
@@ -612,7 +608,7 @@ public class RangeVariable implements Cloneable {
             new RangeVariableConditions(this, false) };
     }
 
-    OrderedHashSet getSubqueries() {
+    public OrderedHashSet getSubqueries() {
 
         OrderedHashSet set = null;
 
@@ -1178,7 +1174,7 @@ public class RangeVariable implements Cloneable {
          *
          * @return true if a next value is available upon exit
          */
-        protected boolean findNext() {
+        private boolean findNext() {
 
             boolean result = false;
 
@@ -1252,7 +1248,7 @@ public class RangeVariable implements Cloneable {
             return result;
         }
 
-        protected void addFoundRow() {
+        private void addFoundRow() {
 
             if (rangeVar.isRightJoin) {
                 lookup.add(currentRow.getPos());
@@ -1295,7 +1291,7 @@ public class RangeVariable implements Cloneable {
             }
         }
 
-        protected boolean findNextRight() {
+        private boolean findNextRight() {
 
             boolean result = false;
 
@@ -1625,7 +1621,7 @@ public class RangeVariable implements Cloneable {
          * @param index Index to use
          * @param colCount number of columns searched
          */
-        void addIndexCondition(Expression[] exprList, Index index,
+        public void addIndexCondition(Expression[] exprList, Index index,
                                int colCount) {
 
             int indexColCount = index.getColumnCount();
@@ -1701,7 +1697,7 @@ public class RangeVariable implements Cloneable {
             hasIndex           = true;
         }
 
-        void reverseIndexCondition() {
+        public void reverseIndexCondition() {
 
             if (opType == OpTypes.EQUAL || opType == OpTypes.IS_NULL) {
                 return;

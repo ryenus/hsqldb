@@ -58,7 +58,7 @@ import org.hsqldb.types.Types;
  *
  * @author Campbell Boucher-Burnet (boucherb@users dot sourceforge.net)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.2.7
+ * @version 2.2.9
  * @since 1.9.0
  */
 public class Expression implements Cloneable {
@@ -844,13 +844,6 @@ public class Expression implements Cloneable {
     }
 
     /**
-     * Find a range variable with the given table alias
-     */
-    int findMatchingRangeVariableIndex(RangeVariable[] rangeVarArray) {
-        return -1;
-    }
-
-    /**
      * collects all range variables in expression tree
      */
     void collectRangeVariables(RangeVariable[] rangeVariables, Set set) {
@@ -1335,7 +1328,6 @@ public class Expression implements Cloneable {
             case OpTypes.ROW_SUBQUERY :
             case OpTypes.TABLE_SUBQUERY :
                 if (subQuery == null) {
-
                     return nodeDataTypes.length;
                 }
 
@@ -1537,7 +1529,11 @@ public class Expression implements Cloneable {
                               Type[] newType) {
 
         for (int i = 0; i < data.length; i++) {
-            data[i] = newType[i].convertToType(session, data[i], dataType[i]);
+            if (dataType[i].typeComparisonGroup
+                    != newType[i].typeComparisonGroup) {
+                data[i] = newType[i].convertToType(session, data[i],
+                                                   dataType[i]);
+            }
         }
     }
 

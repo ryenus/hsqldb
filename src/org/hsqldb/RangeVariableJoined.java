@@ -42,11 +42,18 @@ import org.hsqldb.index.Index;
 import org.hsqldb.store.ValuePool;
 import org.hsqldb.ParserDQL.CompileContext;
 
+/**
+ * Metadata for range joined variables
+ *
+ * @author Fred Toussi (fredt@users dot sourceforge.net)
+ * @version 2.2.9
+ * @since 1.9.0
+ */
 public class RangeVariableJoined extends RangeVariable {
 
     RangeVariable[] rangeArray;
 
-    RangeVariableJoined(Table table, SimpleName alias,
+    public RangeVariableJoined(Table table, SimpleName alias,
                         OrderedHashSet columnList,
                         SimpleName[] columnNameList,
                         CompileContext compileContext) {
@@ -78,7 +85,7 @@ public class RangeVariableJoined extends RangeVariable {
         return r;
     }
 
-    void setJoinType(boolean isLeft, boolean isRight) {
+    public void setJoinType(boolean isLeft, boolean isRight) {
         super.setJoinType(isLeft, isRight);
     }
 
@@ -94,41 +101,41 @@ public class RangeVariableJoined extends RangeVariable {
         super.addAllColumns();
     }
 
-    void addNamedJoinColumnExpression(String name, Expression e) {
+    public void addNamedJoinColumnExpression(String name, Expression e) {
         super.addNamedJoinColumnExpression(name, e);
     }
 
-    ExpressionColumn getColumnExpression(String name) {
+    public ExpressionColumn getColumnExpression(String name) {
         return super.getColumnExpression(name);
     }
 
-    Table getTable() {
+    public Table getTable() {
         return super.getTable();
     }
 
-    boolean hasSingleIndexCondition() {
+    public boolean hasSingleIndexCondition() {
         return super.hasSingleIndexCondition();
     }
 
-    boolean setDistinctColumnsOnIndex(int[] colMap) {
+    public boolean setDistinctColumnsOnIndex(int[] colMap) {
         return super.setDistinctColumnsOnIndex(colMap);
     }
 
     /**
      * Used for sort
      */
-    Index getSortIndex() {
+    public Index getSortIndex() {
         return super.getSortIndex();
     }
 
     /**
      * Used for sort
      */
-    boolean setSortIndex(Index index, boolean reversed) {
+    public boolean setSortIndex(Index index, boolean reversed) {
         return super.setSortIndex(index, reversed);
     }
 
-    boolean reverseOrder() {
+    public boolean reverseOrder() {
         return super.reverseOrder();
     }
 
@@ -140,16 +147,18 @@ public class RangeVariableJoined extends RangeVariable {
         return super.getUniqueColumnNameSet();
     }
 
-    public int findColumn(ExpressionColumn e) {
+    public int findColumn(String schemaName, String tableName,
+                          String columnName) {
 
         if (tableAlias != null) {
-            return super.findColumn(e);
+            return super.findColumn(schemaName, tableName, columnName);
         }
 
         int count = 0;
 
         for (int i = 0; i < rangeArray.length; i++) {
-            int colIndex = rangeArray[i].findColumn(e);
+            int colIndex = rangeArray[i].findColumn(schemaName, tableName,
+                columnName);
 
             if (colIndex > -1) {
                 return count + colIndex;
@@ -161,109 +170,100 @@ public class RangeVariableJoined extends RangeVariable {
         return -1;
     }
 
-    /**
-     * Retruns index for column
-     *
-     * @param columnName name of column
-     * @return int index or -1 if not found
-     */
-    public int findColumn(String columnName) {
-        return super.findColumn(columnName);
-    }
-
-    ColumnSchema getColumn(int i) {
-        return super.getColumn(i);
-    }
-
     public SimpleName getColumnAlias(int i) {
         return super.getColumnAlias(i);
     }
 
-    boolean hasColumnAlias() {
+    public boolean hasColumnAlias() {
         return super.hasColumnAlias();
     }
 
-    SimpleName getTableAlias() {
+    public SimpleName getTableAlias() {
         return super.getTableAlias();
     }
 
-    boolean resolvesTableName(ExpressionColumn e) {
+    public RangeVariable getRangeForTableName(String name) {
 
         if (tableAlias != null) {
-            return super.resolvesTableName(e);
+            return super.getRangeForTableName(name);
         }
 
         for (int i = 0; i < rangeArray.length; i++) {
-            if (rangeArray[i].resolvesTableName(e)) {
-                return true;
+            RangeVariable range = rangeArray[i].getRangeForTableName(name);
+
+            if (range != null) {
+                return range;
             }
         }
 
-        return false;
-    }
-
-    boolean resolvesTableName(String name) {
-
-        if (tableAlias != null) {
-            return super.resolvesTableName(name);
-        }
-
-        for (int i = 0; i < rangeArray.length; i++) {
-            if (rangeArray[i].resolvesTableName(name)) {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    boolean resolvesSchemaName(String name) {
-        return super.resolvesSchemaName(name);
+        return null;
     }
 
     /**
      * Add all columns to a list of expressions
      */
-    void addTableColumns(HsqlArrayList exprList) {
+    public void addTableColumns(HsqlArrayList exprList) {
         super.addTableColumns(exprList);
     }
 
     /**
      * Add all columns to a list of expressions
      */
-    int addTableColumns(HsqlArrayList exprList, int position,
+    public int addTableColumns(HsqlArrayList exprList, int position,
                         HashSet exclude) {
         return super.addTableColumns(exprList, position, exclude);
     }
 
-    void addTableColumns(Expression expression, HashSet exclude) {
-        super.addTableColumns(expression, exclude);
+    public void addTableColumns(RangeVariable subRange, Expression expression,
+                                HashSet exclude) {
+
+        int index = getFirstColumnIndex(subRange);
+
+        addTableColumns(expression, index,
+                        subRange.rangeTable.getColumnCount(), exclude);
+    }
+
+    protected int getFirstColumnIndex(RangeVariable subRange) {
+
+        int count = 0;
+
+        for (int i = 0; i < rangeArray.length; i++) {
+            int index = rangeArray[i].getFirstColumnIndex(subRange);
+
+            if (index == -1) {
+                count += rangeArray[i].rangeTable.getColumnCount();
+            } else {
+                return count + index;
+            }
+        }
+
+        return -1;
     }
 
     /**
      * Removes reference to Index to avoid possible memory leaks after alter
      * table or drop index
      */
-    void setForCheckConstraint() {
+    public void setForCheckConstraint() {
         super.setForCheckConstraint();
     }
 
     /**
      * used before condition processing
      */
-    Expression getJoinCondition() {
+    public Expression getJoinCondition() {
         return super.getJoinCondition();
     }
 
-    void addJoinCondition(Expression e) {
+    public void addJoinCondition(Expression e) {
         super.addJoinCondition(e);
     }
 
-    void resetConditions() {
+    public void resetConditions() {
         super.resetConditions();
     }
 
-    OrderedHashSet getSubqueries() {
+    public OrderedHashSet getSubqueries() {
         return super.getSubqueries();
     }
 
