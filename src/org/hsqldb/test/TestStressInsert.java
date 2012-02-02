@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2010, The HSQL Development Group
+/* Copyright (c) 2001-2011, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -40,6 +40,7 @@ import java.sql.Statement;
 import java.util.Random;
 
 import org.hsqldb.jdbc.JDBCBlob;
+import java.util.Arrays;
 
 /**
  * Test with small cache and very large row inserts
@@ -57,8 +58,8 @@ public class TestStressInsert {
     public void init() throws Exception {
 
         String driver = "org.hsqldb.jdbc.JDBCDriver";
-//        String url    = "jdbc:hsqldb:file:/hsql/stress/test";
-        String url    = "jdbc:hsqldb:hsql://localhost/test";
+        String url    = "jdbc:hsqldb:file:/hsql/stress/test";
+//        String url    = "jdbc:hsqldb:hsql://localhost/test";
 
         Class.forName(driver);
 
@@ -118,7 +119,11 @@ public class TestStressInsert {
     public void insertA(byte[] id) throws Exception {
 
         try {
-            insertStmtA.setBytes(1, data);
+            int    length = getRandomLength(LOB_SIZE);
+            byte[] array  = Arrays.copyOf(data, length);
+
+
+            insertStmtA.setBytes(1, array);
             insertStmtA.setBytes(2, id);
             insertStmtA.execute();
         } finally {
@@ -130,7 +135,11 @@ public class TestStressInsert {
     public void insertB(byte[] id) throws Exception {
 
         try {
-            insertStmtB.setBlob(1, new JDBCBlob(data));
+            int    length = getRandomLength(LOB_SIZE);
+            byte[] array  = Arrays.copyOf(data, length);
+
+
+            insertStmtB.setBytes(1, array);
             insertStmtB.setBytes(2, id);
             insertStmtB.execute();
         } finally {
@@ -185,6 +194,22 @@ public class TestStressInsert {
         shutdown();
     }
 
+    private byte[] getRandomBytes(int length) {
+
+        byte[] ret = new byte[length];
+
+        random.nextBytes(ret);
+
+        return ret;
+    }
+
+    private int getRandomLength(int max) {
+
+        int length = random.nextInt(max);
+
+        return length;
+    }
+
     public static void main(String[] args) {
 
         try {
@@ -197,14 +222,5 @@ public class TestStressInsert {
         } catch (Exception e) {
             e.printStackTrace();
         }
-    }
-
-    private byte[] getRandomBytes(int length) {
-
-        byte[] ret = new byte[length];
-
-        random.nextBytes(ret);
-
-        return ret;
     }
 }

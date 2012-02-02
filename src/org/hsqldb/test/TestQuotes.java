@@ -51,7 +51,7 @@ import junit.framework.TestSuite;
 public class TestQuotes extends TestCase {
 
     private static final String CREATETABLE =
-        "create table quotetest (test varchar)";
+        "create table quotetest (test varchar(100))";
     private static final String DELETE = "delete from quotetest";
     private static final String TESTSTRING =
         "insert into quotetest (test) values (?)";

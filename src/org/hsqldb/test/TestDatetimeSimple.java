@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2010, The HSQL Development Group
+/* Copyright (c) 2001-2011, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -35,14 +35,23 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.TimeZone;
-import java.sql.SQLException;
+
+import junit.framework.TestCase;
+
+import java.util.Locale;
+import java.util.Calendar;
+import java.sql.Timestamp;
 
 /**
  * Date Test Case.
  */
-public class TestDatetimeSimple extends junit.framework.TestCase {
+public class TestDatetimeSimple extends TestCase {
+
+    static String connectionURL =
+        "jdbc:hsqldb:file:/hsql/tests/testdatetimesimple";
 
     static {
         try {
@@ -53,14 +62,58 @@ public class TestDatetimeSimple extends junit.framework.TestCase {
         }
     }
 
+    public void testTimestampParam() throws SQLException {
+
+        Connection c = DriverManager.getConnection("jdbc:hsqldb:mem:db", "sa",
+            "");
+        Statement stmt = c.createStatement();
+
+        stmt.execute("create table dual (c0 integer)");
+        stmt.executeUpdate("insert into dual values (2)");
+
+        ResultSet set = stmt.executeQuery(
+            "select to_number(to_char((select current_timestamp + c0  day from dual), 'YYYYMMDD')) from dual");
+
+        if (set.next()) {
+            System.out.println("stmt res=" + set.getInt(1));
+        }
+
+        set.close();
+
+        PreparedStatement pstmt = c.prepareStatement(
+            "select to_number(to_char((select ? + c0  day from dual), 'YYYYMMDD')) from dual");
+
+        pstmt.setTimestamp(1, new Timestamp(System.currentTimeMillis()));
+
+        set = pstmt.executeQuery();
+
+        if (set.next()) {
+            System.out.println("pstmt res=" + set.getInt(1));
+        }
+
+        pstmt = c.prepareStatement(
+            "select to_number(to_char((select ? - c0  day from dual), 'YYYYMMDD')) from dual");
+
+        pstmt.setTimestamp(1, new Timestamp(System.currentTimeMillis()));
+
+        set = pstmt.executeQuery();
+
+        if (set.next()) {
+            System.out.println("pstmt res=" + set.getInt(1));
+        }
+
+        c.close();
+    }
+
     public void testSimple() throws SQLException {
 
-        Connection conn = DriverManager.getConnection("jdbc:hsqldb:mem:m",
-            "SA", "");
+        Connection conn = DriverManager.getConnection(connectionURL, "SA", "");
         ResultSet         rs;
         PreparedStatement ps;
         Statement         st = conn.createStatement();
 
+        st.executeUpdate("SET TIME ZONE INTERVAL '-5:00' HOUR TO MINUTE");
+        st.executeUpdate("DROP TABLE t IF EXISTS");
         st.executeUpdate("CREATE TABLE t(i int, d date)");
         st.executeUpdate("INSERT INTO t VALUES(1, '2008-11-27')");
 
@@ -118,6 +171,7 @@ public class TestDatetimeSimple extends junit.framework.TestCase {
         System.out.println("Match? " + (rs.getInt("c") > 0));
 
         /** ********  TIMESTAMP COL BELOW ********* */
+        st.executeUpdate("DROP TABLE t2 IF EXISTS");
         st.executeUpdate("CREATE TABLE t2(i int, ts timestamp)");
         /* These all fail:
         st.executeUpdate("INSERT INTO t2 VALUES(1, '2008-11-27')");
@@ -138,7 +192,7 @@ public class TestDatetimeSimple extends junit.framework.TestCase {
         rs = st.executeQuery("SELECT ts FROM t2");
 
         rs.next();
-        System.out.println("Object: " + rs.getObject("ts")                //
+        System.out.println("Object: " + rs.getObject("ts")               //
                            + " ; Timestamp: " + rs.getTimestamp("ts")    //
                            + " ; Date: " + rs.getObject("ts")            //
                            + "; String: " + rs.getString("ts"));
@@ -149,8 +203,7 @@ public class TestDatetimeSimple extends junit.framework.TestCase {
 
     public void testValues() throws SQLException {
 
-        Connection conn = DriverManager.getConnection("jdbc:hsqldb:mem:m",
-            "SA", "");
+        Connection conn = DriverManager.getConnection(connectionURL, "SA", "");
         ResultSet          rs;
         PreparedStatement  ps;
         String             s;
@@ -159,10 +212,12 @@ public class TestDatetimeSimple extends junit.framework.TestCase {
         java.sql.Timestamp ts;
         Statement          st = conn.createStatement();
 
-        st.executeUpdate("CREATE TABLE t(d date)");
-        st.executeUpdate("INSERT INTO t VALUES('2008-11-27')");
+        st.executeUpdate("SET TIME ZONE INTERVAL '-5:00' HOUR TO MINUTE");
+        st.executeUpdate("DROP TABLE t3 IF EXISTS");
+        st.executeUpdate("CREATE TABLE t3(d date)");
+        st.executeUpdate("INSERT INTO t3 VALUES('2008-11-27')");
 
-        rs = st.executeQuery("SELECT d FROM t");
+        rs = st.executeQuery("SELECT d FROM t3");
 
         rs.next();
 
@@ -175,6 +230,11 @@ public class TestDatetimeSimple extends junit.framework.TestCase {
                            + "\n    Object: " + o + "\n    Date: " + dump(d)
                            + "\n    Timestamp: " + dump(ts) + '\n');
         rs.close();
+        st.executeUpdate("DROP TABLE ts IF EXISTS");
+        st.executeUpdate(
+            "CREATE TABLE ts(id integer generated by default as identity (start with 1), ts timestamp, tsz timestamp with time zone)");
+        st.executeUpdate(
+            "INSERT INTO ts VALUES DEFAULT, LOCALTIMESTAMP, CURRENT_TIMESTAMP");
 
         rs = st.executeQuery("CALL CURRENT_DATE");
 

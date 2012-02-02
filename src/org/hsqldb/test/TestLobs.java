@@ -697,6 +697,88 @@ public class TestLobs extends TestBase {
     }
 
     public void testClobG() {
+
+        try {
+            String ddl0 = "DROP TABLE CLOBTEST IF EXISTS";
+            String ddl1 =
+                "CREATE TABLE CLOBTEST(ID IDENTITY, CLOBFIELD CLOB(100000))";
+
+            statement.execute(ddl0);
+            statement.execute(ddl1);
+        } catch (SQLException e) {}
+
+        try {
+            String dml0 = "insert into clobtest(clobfield) values ?";
+            String            value = "0123456789";
+            PreparedStatement ps    = connection.prepareStatement(dml0);
+
+            Clob clob = connection.createClob();
+            clob.setString(1, value);
+
+            ps.setClob(1, clob);
+            ps.executeUpdate();
+
+            String dq1 = "select CHARACTER_LENGTH(clobfield) from clobtest;";
+
+            ResultSet rs = statement.executeQuery(dq1);
+
+            rs.next();
+
+            int length = rs.getInt(1);
+
+            assertTrue(value.length() == length);
+
+            rs.close();
+
+            String dq3 = "delete from clobtest;";
+
+            statement.execute(dq3);
+
+            char[] testChars = new char[11111];
+
+            for (int i = 0, j = 32; i < testChars.length ; i++, j++) {
+                if (j > 255) {
+                    j = 32;
+                }
+
+                testChars[i] = (char) j;
+            }
+
+
+            ps.setCharacterStream(1, new CharArrayReader(testChars), testChars.length);
+
+            ps.executeUpdate();
+
+            String dq2 = "select clobfield from clobtest;";
+
+            rs = statement.executeQuery(dq2);
+
+            rs.next();
+
+            Reader reader = rs.getCharacterStream(1);
+
+            char[] newChars = new char[testChars.length];
+
+                try {
+                    reader.read(newChars);
+                } catch (IOException e) {
+                    fail("test failure");
+                }
+            for (int i = 0; i < testChars.length ; i++) {
+
+                if (testChars[i] != newChars[i]) {
+                    fail("test failure");
+                }
+            }
+
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            fail("test failure");
+        }
+    }
+
+    public void testClobH() {
         try {
             String ddl1 = "create procedure PUBLIC.PROC_A(out p1 clob, out p2 int) READS SQL DATA BEGIN ATOMIC SET p1 = 'dafsdfasdfaefafeajfiwejifpjajsidojfakmvkamsdjfadpsjfoajsdifjaos'; SET p2 = 0; end";
             String dml0 = "call PUBLIC.PROC_A(?, ?)";
@@ -715,7 +797,7 @@ public class TestLobs extends TestBase {
         }
     }
 
-    public void testBlobG() {
+    public void testBlobH() {
 
         try {
             String ddl1 = "DROP TABLE BLOBTEST IF EXISTS";

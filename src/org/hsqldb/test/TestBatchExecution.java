@@ -95,12 +95,12 @@ public class TestBatchExecution extends TestBase {
         System.out.println(s);
     }
 
-    static void printCommandStats(StopWatch sw, String cmd) {
+    static void printCommandStats(StopWatch sw, String cmd, int count) {
 
         long et = sw.elapsedTime();
 
-        print(sw.elapsedTimeToMessage(rows + " " + cmd));
-        println(" " + ((1000 * rows) / et) + " ops/s.");
+        print(sw.elapsedTimeToMessage(count + " " + cmd));
+        println(" " + ((1000 * count) / et) + " ops/s.");
     }
 
     public static void main(String[] args) throws Exception {
@@ -117,6 +117,7 @@ public class TestBatchExecution extends TestBase {
         } catch (Exception e) {}
 
         db_path = "batchtest";
+
         try {
             db_path = args[1];
         } catch (Exception e) {}
@@ -205,7 +206,10 @@ public class TestBatchExecution extends TestBase {
         println("shutting down database");
         stmnt.execute(shutdown_sql);
         println("---------------------------------------");
+
+        //
         preparedTestTwo();
+        preparedTestThree();
     }
 
     public static void nonPreparedTest() throws Exception {
@@ -276,26 +280,29 @@ public class TestBatchExecution extends TestBase {
             // inserts
             sw.zero();
             insertStmnt.executeBatch();
-            printCommandStats(sw, "inserts");
+            printCommandStats(sw, "inserts", rows);
 
             ResultSet    generated = insertStmnt.getGeneratedKeys();
             StringBuffer sb        = new StringBuffer();
 
+            int genCount = 0;
             while (generated.next()) {
                 int gen = generated.getInt(1);
 
                 if (gen % 1000 == 0) {
                     sb.append(gen).append(" - ");
                 }
+
+                genCount++;
             }
 
             System.out.println(sb.toString());
-            printCommandStats(sw, "generated reads");
+            printCommandStats(sw, "generated reads", genCount);
 
             // updates
             sw.zero();
-            updateStmnt.executeBatch();
-            printCommandStats(sw, "updates");
+            int[] updateCounts = updateStmnt.executeBatch();
+            printCommandStats(sw, "updates", updateCounts.length);
 
             // selects
             sw.zero();
@@ -304,8 +311,8 @@ public class TestBatchExecution extends TestBase {
 //            printCommandStats(sw, "selects");
             // deletes
             sw.zero();
-            deleteStmnt.executeBatch();
-            printCommandStats(sw, "deletes");
+            updateCounts = deleteStmnt.executeBatch();
+            printCommandStats(sw, "deletes", updateCounts.length);
 
             // calls
             sw.zero();
@@ -316,6 +323,8 @@ public class TestBatchExecution extends TestBase {
     }
 
     public static void preparedTestTwo() {
+
+        System.out.println("preparedTestTwo");
 
         try {
             Class.forName("org.hsqldb.jdbc.JDBCDriver");
@@ -356,6 +365,73 @@ public class TestBatchExecution extends TestBase {
 
             while (rs.next()) {
                 System.out.println("id = " + rs.getInt(1));
+            }
+
+            System.out.println("bye.");
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void preparedTestThree() {
+
+        System.out.println("preparedTestThree");
+
+        try {
+            Class.forName("org.hsqldb.jdbc.JDBCDriver");
+
+            Connection con = DriverManager.getConnection("jdbc:hsqldb:mem:.",
+                "sa", "");
+
+            con.setAutoCommit(false);
+            System.out.println("con=" + con);
+
+            Statement stmt = con.createStatement();
+
+            try {
+                stmt.executeUpdate("drop table node");
+            } catch (Exception e) {}
+
+            stmt.executeUpdate(
+                "create table Node (id varbinary(255) not null, name varchar(255), primary key (id))");
+
+            PreparedStatement prep = con.prepareStatement(
+                "insert into Node (name, id) values (?, ?)");
+            byte[] byteArray = null;
+
+            try {
+                byteArray =
+                    org.hsqldb.lib.StringConverter.hexStringToByteArray(
+                        "c0a8000a30d110808130d18080880000");
+            } catch (Exception e) {}
+            ;
+
+            prep.setNull(1, java.sql.Types.VARCHAR);
+            prep.setBytes(2, byteArray);
+
+            int result = prep.executeUpdate();
+
+            prep.close();
+
+            prep = con.prepareStatement("delete from Node where id=?");
+
+            prep.setBytes(1, byteArray);
+            prep.addBatch();
+            System.out.println("executeBatch() for delete");
+            prep.executeBatch();
+            con.commit();
+
+            // prep.clearBatch(); // -> java.lang.NullPointerException
+            // at org.hsqldb.Result.getUpdateCounts(Unknown Source)
+            prep.close();
+
+            // see what we got
+            ResultSet rs = stmt.executeQuery("select * from Node");
+
+            while (rs.next()) {
+                System.out.println("row retreived");
             }
 
             System.out.println("bye.");
