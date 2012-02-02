@@ -52,7 +52,7 @@ import org.hsqldb.rowio.RowOutputInterface;
  * Implementation of RowSetNavigator using a table as the data store.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.2.7
+ * @version 2.2.9
  * @since 1.9.0
  */
 public class RowSetNavigatorDataTable extends RowSetNavigatorData {
@@ -142,7 +142,7 @@ public class RowSetNavigatorDataTable extends RowSetNavigatorData {
         store              = table.getRowStore(session);
         mainIndex          = table.getPrimaryIndex();
         fullIndex          = table.getFullIndex();
-        this.size          = mainIndex.size(session, store);
+        this.size          = (int) mainIndex.size(session, store);
 
         reset();
     }

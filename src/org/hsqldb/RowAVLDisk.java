@@ -134,13 +134,6 @@ public class RowAVLDisk extends RowAVL {
         hasDataChanged = hasNodesChanged = true;
     }
 
-    RowAVLDisk(TableBase t, Object[] o) {
-
-        super(t, o);
-
-        hasDataChanged = hasNodesChanged = true;
-    }
-
     /**
      *  Constructor when read from the disk into the Cache.
      *
@@ -150,7 +143,7 @@ public class RowAVLDisk extends RowAVL {
      */
     public RowAVLDisk(TableBase t, RowInputInterface in) throws IOException {
 
-        super(t, null);
+        super(t, (Object[]) null);
 
         position    = in.getPos();
         storageSize = in.getSize();
@@ -167,6 +160,10 @@ public class RowAVLDisk extends RowAVL {
         }
 
         rowData = in.readData(table.getColumnTypes());
+    }
+
+    RowAVLDisk(TableBase t) {
+        super(t, (Object[]) null);
     }
 
     public NodeAVL insertNode(int index) {
@@ -209,13 +206,6 @@ public class RowAVLDisk extends RowAVL {
     public void setPos(int pos) {
 
         position = pos;
-
-        NodeAVL n = nPrimaryNode;
-
-        while (n != null) {
-            ((NodeAVLDisk) n).iData = position;
-            n                       = n.nNext;
-        }
     }
 
     /**
@@ -364,7 +354,7 @@ public class RowAVLDisk extends RowAVL {
         NodeAVL rownode = nPrimaryNode;
 
         while (rownode != null) {
-            ((NodeAVLDisk) rownode).write(out, lookup);
+            rownode.write(out, lookup);
 
             rownode = rownode.nNext;
         }
@@ -393,27 +383,5 @@ public class RowAVLDisk extends RowAVL {
         }
 
         hasNodesChanged = false;
-    }
-
-    /**
-     * Lifetime scope of this method depends on the operations performed on
-     * any cached tables since this row or the parameter were constructed.
-     * If only deletes or only inserts have been performed, this method
-     * remains valid. Otherwise it can return invalid results.
-     *
-     * @param obj row to compare
-     * @return boolean
-     */
-    public boolean equals(Object obj) {
-
-        if (obj == this) {
-            return true;
-        }
-
-        if (obj instanceof RowAVLDisk) {
-            return ((RowAVLDisk) obj).position == position;
-        }
-
-        return false;
     }
 }
