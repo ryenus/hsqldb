@@ -34,6 +34,7 @@ package org.hsqldb.persist;
 import java.io.IOException;
 
 import org.hsqldb.HsqlException;
+import org.hsqldb.Row;
 import org.hsqldb.RowDiskDataChange;
 import org.hsqldb.Session;
 import org.hsqldb.TableBase;
@@ -43,16 +44,28 @@ import org.hsqldb.rowio.RowInputInterface;
  * Implementation of PersistentStore for data change lists.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.2.7
+ * @version 2.3.0
  * @since 2.2.7
  */
 public class RowStoreDataChange extends RowStoreAVLHybrid {
 
     public RowStoreDataChange(Session session,
-                             PersistentStoreCollection manager,
-                             TableBase table) {
+                              PersistentStoreCollection manager,
+                              TableBase table) {
+
         super(session, manager, table, true);
+
         super.changeToDiskTable(session);
+    }
+
+    public CachedObject getNewCachedObject(Session session, Object object,
+                                           boolean tx) {
+
+        Row row = new RowDiskDataChange(table, (Object[]) object, this, null);
+
+        add(row);
+
+        return row;
     }
 
     public CachedObject get(RowInputInterface in) {

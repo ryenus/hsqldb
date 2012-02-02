@@ -103,7 +103,7 @@ public class Row implements CachedObject {
     }
 
     public long getId() {
-        return ((long) table.getId() << 32) + (long) position;
+        return ((long) table.getId() << 40) + position;
     }
 
     public void setPos(int pos) {

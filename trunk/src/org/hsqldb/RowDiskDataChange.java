@@ -43,7 +43,7 @@ import org.hsqldb.types.Type;
 
 /**
  * @author Fred Toussi (fredt@users dot sourceforge dot net)
- * @version 2.2.7
+ * @version 2.2.9
  * @since 2.2.7
  */
 public class RowDiskDataChange extends RowAVLDisk {
@@ -58,7 +58,7 @@ public class RowDiskDataChange extends RowAVLDisk {
     //
     final static Type[] arrayType = new Type[]{
         new ArrayType(Type.SQL_INTEGER, Integer.MAX_VALUE) };
-    final Table targetTable;
+    Table    targetTable;
     Object[]    updateData;
     int[]       updateColMap;
 
@@ -89,8 +89,7 @@ public class RowDiskDataChange extends RowAVLDisk {
 
         super(t, in);
 
-        targetTable = t.database.schemaManager.getTable(
-            session,
+        targetTable = t.database.schemaManager.getTable(session,
             (String) rowData[COL_POS_TABLE_NAME],
             (String) rowData[COL_POS_SCHEMA_NAME]);
 
@@ -146,6 +145,10 @@ public class RowDiskDataChange extends RowAVLDisk {
 
     public int[] getUpdateColumnMap() {
         return updateColMap;
+    }
+
+    public void setTargetTable(Table table) {
+        targetTable = table;
     }
 
     public void setUpdateData(Object[] data) {

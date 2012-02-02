@@ -146,7 +146,7 @@ public class DataFileCache {
         this.backupFileName = baseFileName + Logger.backupFileExtension;
         this.database       = database;
         fa                  = database.logger.getFileAccess();
-        dataFileScale      = database.logger.getDataFileScale();
+        dataFileScale       = database.logger.getDataFileScale();
         cachedRowPadding    = 8;
 
         if (dataFileScale > 8) {
@@ -864,7 +864,6 @@ public class DataFileCache {
                     break;
                 } catch (OutOfMemoryError err) {
                     cache.forceCleanUp();
-
                     System.gc();
                     database.logger.logSevereEvent(dataFileName
                                                    + " getFromFile out of mem "
@@ -890,7 +889,6 @@ public class DataFileCache {
 
             return object;
         } catch (HsqlException e) {
-
             database.logger.logSevereEvent(dataFileName + " getFromFile "
                                            + pos, e);
 

@@ -219,19 +219,6 @@ public class RowAVLDiskData extends RowAVL {
         return true;
     }
 
-    /**
-     * With the current implementation of TEXT table updates and inserts,
-     * the lifetime scope of this method extends until redefinition of table
-     * data source or shutdown.
-     *
-     * @param obj the reference object with which to compare.
-     * @return <code>true</code> if this object is the same as the obj argument;
-     *   <code>false</code> otherwise.
-     */
-    public boolean equals(Object obj) {
-        return obj == this;
-    }
-
     /** used by Index, nodes are always in memory */
     public boolean isInMemory() {
         return rowData != null;

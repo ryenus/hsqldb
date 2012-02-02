@@ -98,7 +98,7 @@ import org.hsqldb.rowio.RowOutputInterface;
  *
  * @author Fred Toussi (fredt@users dot sourceforge dot net)
  * @author Thomas Mueller (Hypersonic SQL Group)
- * @version 1.9.0
+ * @version 2.2.9
  * @since Hypersonic SQL
  */
 public class NodeAVLDisk extends NodeAVL {
@@ -106,7 +106,6 @@ public class NodeAVLDisk extends NodeAVL {
     final RowAVLDisk row;
 
     //
-    public int              iData;
     private int             iLeft   = NO_POS;
     private int             iRight  = NO_POS;
     private int             iParent = NO_POS;
@@ -118,21 +117,18 @@ public class NodeAVLDisk extends NodeAVL {
 
         row      = r;
         iId      = id;
-        iData    = r.getPos();
         iBalance = in.readInt();
         iLeft    = in.readInt();
+        iRight   = in.readInt();
+        iParent  = in.readInt();
 
         if (iLeft <= 0) {
             iLeft = NO_POS;
         }
 
-        iRight = in.readInt();
-
         if (iRight <= 0) {
             iRight = NO_POS;
         }
-
-        iParent = in.readInt();
 
         if (iParent <= 0) {
             iParent = NO_POS;
@@ -140,10 +136,8 @@ public class NodeAVLDisk extends NodeAVL {
     }
 
     public NodeAVLDisk(RowAVLDisk r, int id) {
-
         row   = r;
         iId   = id;
-        iData = r.getPos();
     }
 
     public void delete() {
@@ -168,7 +162,7 @@ public class NodeAVLDisk extends NodeAVL {
     }
 
     public int getPos() {
-        return iData;
+        return row.getPos();
     }
 
     public Row getRow(PersistentStore store) {
@@ -204,7 +198,7 @@ public class NodeAVLDisk extends NodeAVL {
             return iLeft == NO_POS;
         }
 
-        return iLeft == ((NodeAVLDisk) n).iData;
+        return iLeft == n.getPos();
     }
 
     boolean isRight(NodeAVL n) {
@@ -213,7 +207,7 @@ public class NodeAVLDisk extends NodeAVL {
             return iRight == NO_POS;
         }
 
-        return iRight == ((NodeAVLDisk) n).iData;
+        return iRight == n.getPos();
     }
 
     NodeAVL getLeft(PersistentStore store) {
@@ -325,7 +319,7 @@ public class NodeAVLDisk extends NodeAVL {
             node.nParent = findNode(store, iParent);
         }
 
-        return getPos() == ((NodeAVLDisk) node.nParent).iLeft;
+        return row.getPos() == ((NodeAVLDisk) node.nParent).iLeft;
     }
 
     public NodeAVL child(PersistentStore store, boolean isleft) {
@@ -515,7 +509,7 @@ public class NodeAVLDisk extends NodeAVL {
             }
 
             if (nParent != null) {
-                if (iData == ((NodeAVLDisk) nParent).iLeft) {
+                if (row.getPos() == ((NodeAVLDisk) nParent).iLeft) {
                     nParent.nLeft = null;
                 } else {
                     nParent.nRight = null;
@@ -540,21 +534,24 @@ public class NodeAVLDisk extends NodeAVL {
     public void write(RowOutputInterface out, IntLookup lookup) {
 
         out.writeInt(iBalance);
-        writeTranslatePointer(iLeft, out, lookup);
-        writeTranslatePointer(iRight, out, lookup);
-        writeTranslatePointer(iParent, out, lookup);
+        out.writeInt(getTranslatePointer(iLeft, lookup));
+        out.writeInt(getTranslatePointer(iRight, lookup));
+        out.writeInt(getTranslatePointer(iParent, lookup));
     }
 
-    private static void writeTranslatePointer(int pointer,
-            RowOutputInterface out, IntLookup lookup) {
+    private static int getTranslatePointer(int pointer, IntLookup lookup) {
 
         int newPointer = 0;
 
         if (pointer != NodeAVL.NO_POS) {
-            newPointer = lookup.lookup(pointer);
+            if (lookup == null) {
+                newPointer = pointer;
+            } else {
+                newPointer = lookup.lookup(pointer);
+            }
         }
 
-        out.writeInt(newPointer);
+        return newPointer;
     }
 
     public void restore() {}
