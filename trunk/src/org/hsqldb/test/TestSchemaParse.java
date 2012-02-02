@@ -305,15 +305,14 @@ public class TestSchemaParse extends junit.framework.TestCase {
 
         expect = SQL_ABORT;
 
-        execSQL("CREATE ALIAS " + prefix + "tstalias "
-                + "FOR \"org.hsqldb.test.BlaineTrig.capitalize\"", expect);
+        execSQL("CREATE FUNCTION " + prefix + "tstalias(A VARCHAR(100)) "
+                + "RETURNS VARCHAR(100) "
+                + "LANGUAGE JAVA EXTERNAL NAME \'org.hsqldb.test.BlaineTrig.capitalize\'", 0);
 
         // Following should not throw an exception:
-        /*
         assertEquals(
-            expect, queryRowCount(
+            1, queryRowCount(
                 "SELECT " + prefix + "tstalias('helo') FROM tsttbl WHERE i = 1"));
-        */
     }
 
     public void test2pTriggers() throws Exception {
@@ -488,8 +487,15 @@ public class TestSchemaParse extends junit.framework.TestCase {
     public void testTwoPartKeywords() throws Exception {
         multiPartKeywords("public.");
     }
+    public void testInvalidTwoPartKeywords() throws Exception {
+        multiPartKeywords("alpha.");
+    }
 
     public void testThreePartKeywords() throws Exception {
+        multiPartKeywords("public.public.");
+    }
+
+    public void testInvalidThreePartKeywords() throws Exception {
         multiPartKeywords("alpha.public.");
     }
 
@@ -585,19 +591,7 @@ public class TestSchemaParse extends junit.framework.TestCase {
         execSQL(pref + "INSERT INTO tsttbl VALUES (1, 'one')", expect);
         execSQL("INSERT " + pref + "INTO tsttbl VALUES (1, 'one')", expect);
 
-        if (!manyParter) {
-            expect = 1;
-        }
-
-        execSQL("INSERT INTO " + pref + "tsttbl VALUES (1, 'one')", expect);
-
-        expect = SQL_ABORT;
-
         execSQL(pref + "DELETE FROM tsttbl WHERE i < 10", expect);
-        execSQL("SELECT vc FROM " + pref + "tsttbl, " + pref
-                + "joinedtbl WHERE tsttbl.i = joinedtbl.i2\n"
-                + "AND joinedtbl.vc2 = 'zwei'", (manyParter ? SQL_ABORT
-                                                            : SQL_FAIL));
         execSQL(pref + "SELECT i FROM tsttbl", expect);
         execSQL("SELECT i " + pref + "FROM tsttbl", expect);
         execSQL("SELECT i FROM tsttbl " + pref + "WHERE i > 0", expect);
@@ -640,13 +634,7 @@ public class TestSchemaParse extends junit.framework.TestCase {
         execSQL("CREATE VIEW tstviewx AS SELECT * " + pref
                 + "FROM tsttbl WHERE i < 10", expect);
 
-        if (!manyParter) {
-            expect = 0;
-        }
-
         execSQL("CREATE USER tstuserc PASSWORD " + pref + "fake", expect);
-
-        expect = SQL_ABORT;
 
         execSQL("DROP VIEW tstviewx IF EXISTS", 0);    // reset
         execSQL("CREATE TRIGGER tsttriga AFTER INSERT " + pref
@@ -691,13 +679,7 @@ public class TestSchemaParse extends junit.framework.TestCase {
         execSQL("DROP TABLE t1 IF EXISTS", 0);         // reset
         execSQL("DELETE " + pref + "FROM tsttbl WHERE i < 10", expect);
 
-        if (!manyParter) {
-            expect = 3;
-        }
-
         execSQL("DELETE FROM tsttbl " + pref + "WHERE i < 10", expect);
-
-        expect = SQL_ABORT;
 
         execSQL(pref + "SET AUTOCOMMIT true", expect);
         execSQL("SET " + pref + "AUTOCOMMIT true", expect);
@@ -722,26 +704,14 @@ public class TestSchemaParse extends junit.framework.TestCase {
         execSQL("GRANT ALL " + pref + "ON playtbl TO tstuser", expect);
         execSQL("GRANT ALL ON playtbl " + pref + "TO tstuser", expect);
 
-        if (!manyParter) {
-            expect = 0;
-        }
-
         execSQL("GRANT ALL ON playtbl TO " + pref + "tstuser", expect);
-
-        expect = SQL_ABORT;
 
         execSQL(pref + "REVOKE ALL ON playtbl FROM tstuser RESTRICT", expect);
         execSQL("REVOKE " + pref + "ALL ON playtbl FROM tstuser RESTRICT", expect);
         execSQL("REVOKE ALL " + pref + "ON playtbl FROM tstuser RESTRICT", expect);
         execSQL("REVOKE ALL ON playtbl " + pref + "FROM tstuser RESTRICT", expect);
 
-        if (!manyParter) {
-            expect = 0;
-        }
-
         execSQL("REVOKE ALL ON playtbl FROM " + pref + "tstuser RESTRICT", expect);
-
-        expect = SQL_ABORT;
 
         execSQL("GRANT ALL ON playtbl TO tstuser", 0);    // reset
         execSQL(pref + "COMMIT", expect);
@@ -759,15 +729,7 @@ public class TestSchemaParse extends junit.framework.TestCase {
         execSQL("ALTER " + pref + "SEQUENCE tstseq RESTART WITH 13", expect);
         execSQL("ALTER SEQUENCE tstseq " + pref + "RESTART WITH 13", expect);
         execSQL("ALTER SEQUENCE tstseq RESTART " + pref + "WITH 13", expect);
-
-        if (!manyParter) {
-            expect = 0;
-        }
-
         execSQL("ALTER USER tstuser SET PASSWORD " + pref + "frank", expect);
-
-        expect = SQL_ABORT;
-
         execSQL(pref + "ALTER USER tstuser SET PASSWORD frank", expect);
         execSQL("ALTER " + pref + "USER tstuser SET PASSWORD frank", expect);
         execSQL("ALTER USER tstuser " + pref + "SET PASSWORD frank", expect);

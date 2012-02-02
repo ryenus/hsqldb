@@ -38,6 +38,7 @@ import java.sql.SQLException;
 
 import org.hsqldb.server.Server;
 import org.hsqldb.server.WebServer;
+
 import junit.framework.TestCase;
 import junit.framework.TestResult;
 
@@ -77,12 +78,16 @@ public abstract class TestBase extends TestCase {
 
         if (isNetwork) {
             if (url == null) {
-                url = isHTTP ? "jdbc:hsqldb:http://localhost/test"
+                url = isHTTP ? "jdbc:hsqldb:http://localhost:8085/test"
                              : "jdbc:hsqldb:hsql://localhost/test";
             }
 
             server = isHTTP ? new WebServer()
                             : new Server();
+
+            if (isHTTP) {
+                server.setPort(8085);
+            }
 
             server.setDatabaseName(0, "test");
             server.setDatabasePath(0, "mem:test;sql.enforce_strict_size=true");

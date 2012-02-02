@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2009, The HSQL Development Group
+/* Copyright (c) 2001-2011, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -32,6 +32,8 @@
 package org.hsqldb.test;
 
 import org.hsqldb.Trigger;
+import org.hsqldb.jdbc.JDBCArrayBasic;
+import org.hsqldb.types.Type;
 
 public class TriggerClass implements Trigger {
 
@@ -43,4 +45,13 @@ public class TriggerClass implements Trigger {
         callCounts[type]++;
         callCount++;
     }
+
+    public static java.sql.Array authenticateFalse(String database, String user, String password) {
+        throw new RuntimeException("bad user");
+    }
+
+    public static java.sql.Array authenticate(
+        String database, String user, String password) {
+         return new JDBCArrayBasic(new String[] { "DBA" }, Type.SQL_VARCHAR);
+   }
 }
