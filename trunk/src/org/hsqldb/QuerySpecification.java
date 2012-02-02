@@ -64,7 +64,7 @@ import org.hsqldb.types.Types;
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
  *
- * @version 2.2.7
+ * @version 2.2.9
  * @since 1.9.0
  */
 public class QuerySpecification extends QueryExpression {
@@ -497,17 +497,27 @@ public class QuerySpecification extends QueryExpression {
                 if (tablename == null) {
                     addAllJoinedColumns(e);
                 } else {
-                    int rangeIndex =
-                        e.findMatchingRangeVariableIndex(rangeVariables);
+                    boolean resolved = false;
 
-                    if (rangeIndex == -1) {
-                        throw Error.error(ErrorCode.X_42501, tablename);
+                    for (int i = 0; i < rangeVariables.length; i++) {
+                        RangeVariable range =
+                            rangeVariables[i].getRangeForTableName(tablename);
+
+                        if (range != null) {
+                            HashSet exclude = getAllNamedJoinColumns();
+
+                            rangeVariables[i].addTableColumns(range, e,
+                                                              exclude);
+
+                            resolved = true;
+
+                            break;
+                        }
                     }
 
-                    RangeVariable range   = rangeVariables[rangeIndex];
-                    HashSet       exclude = getAllNamedJoinColumns();
-
-                    range.addTableColumns(e, exclude);
+                    if (!resolved) {
+                        throw Error.error(ErrorCode.X_42501, tablename);
+                    }
                 }
 
                 for (int i = 0; i < e.nodes.length; i++) {
@@ -879,6 +889,8 @@ public class QuerySpecification extends QueryExpression {
 
         tempSet.clear();
 
+        int[] colMap = new int[indexLimitVisible];
+
         for (int i = 0; i < indexLimitVisible; i++) {
             if (exprColumns[i].getType() != OpTypes.COLUMN) {
                 return;
@@ -892,14 +904,10 @@ public class QuerySpecification extends QueryExpression {
                 }
             }
 
-            tempSet.add(exprColumns[i].getColumn().getName().name);
+            colMap[i] = exprColumns[i].columnIndex;
         }
 
-        int[] colMap;
-
         if (!range.hasAnyIndexCondition()) {
-            colMap = range.rangeTable.getColumnIndexes(tempSet);
-
             Index index = range.rangeTable.getFullIndexForColumns(colMap);
 
             if (index != null) {
@@ -1292,8 +1300,9 @@ public class QuerySpecification extends QueryExpression {
 
         int skipCount  = 0;
         int limitCount = limits[2];
+
         if (sortAndSlice.skipFullResult) {
-            skipCount = limits[0];
+            skipCount  = limits[0];
             limitCount = limits[1];
         }
 
@@ -1390,6 +1399,7 @@ public class QuerySpecification extends QueryExpression {
 
             if (skipCount > 0) {
                 skipCount--;
+
                 continue;
             }
 
@@ -1408,8 +1418,6 @@ public class QuerySpecification extends QueryExpression {
                 data[i] = exprColumns[i].updateAggregatingValue(session,
                         data[i]);
             }
-
-
 
             if (groupData == null) {
                 navigator.add(data);
@@ -1645,8 +1653,8 @@ public class QuerySpecification extends QueryExpression {
                 groupCols[i] = indexLimitVisible + i;
             }
 
-            groupIndex = resultTable.createAndAddIndexStructure(null, groupCols,
-                    null, null, false, false, false);
+            groupIndex = resultTable.createAndAddIndexStructure(null,
+                    groupCols, null, null, false, false, false);
         } else if (isAggregated) {
             groupIndex = mainIndex;
         }
@@ -1702,8 +1710,7 @@ public class QuerySpecification extends QueryExpression {
 
         try {
             resultTable = new TableDerived(session.database, tableName,
-                                           tableType, columnTypes, columnList
-                                           );
+                                           tableType, columnTypes, columnList);
         } catch (Exception e) {}
     }
 

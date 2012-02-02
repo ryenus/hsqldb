@@ -34,6 +34,7 @@ package org.hsqldb.persist;
 import org.hsqldb.Row;
 import org.hsqldb.RowAVL;
 import org.hsqldb.Session;
+import org.hsqldb.Table;
 import org.hsqldb.TableBase;
 import org.hsqldb.index.Index;
 import org.hsqldb.index.NodeAVL;
@@ -81,6 +82,16 @@ public class RowStoreAVLHybridExtended extends RowStoreAVLHybrid {
         }
 
         super.indexRow(session, row);
+    }
+
+    /**
+     * Row might have changed from memory to disk or indexes added
+     */
+    public void delete(Session session, Row row) {
+
+        row = ((Table) table).getDeleteRowFromLog(session, row.getData());
+
+        super.delete(session, row);
     }
 
     public CachedObject getAccessor(Index key) {

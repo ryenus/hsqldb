@@ -3492,7 +3492,11 @@ public class ParserDDL extends ParserRoutine {
 
         String tokenS = token.tokenString;
 
-        read();
+        if (isUndelimitedSimpleName() || isDelimitedSimpleName()) {
+            read();
+        } else {
+            readQuotedString();
+        }
 
         return tokenS;
     }

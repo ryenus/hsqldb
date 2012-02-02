@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2010, The HSQL Development Group
+/* Copyright (c) 2001-2011, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -40,7 +40,7 @@ import org.hsqldb.types.Type;
  * Implementation of column used as assignment target.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.0.1
+ * @version 2.2.9
  * @since 2.0.0
  */
 public class ExpressionColumnAccessor extends Expression {
@@ -116,10 +116,6 @@ public class ExpressionColumnAccessor extends Expression {
     Expression replaceColumnReferences(RangeVariable range,
                                        Expression[] list) {
         return this;
-    }
-
-    int findMatchingRangeVariableIndex(RangeVariable[] rangeVarArray) {
-        return -1;
     }
 
     /**

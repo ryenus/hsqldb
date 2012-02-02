@@ -347,13 +347,7 @@ public class RowStoreAVLHybrid extends RowStoreAVL implements PersistentStore {
         elementCount = 0;
     }
 
-    /**
-     * Row might have changed from memory to disk or indexes added
-     */
     public void delete(Session session, Row row) {
-
-        row = ((Table) table).getDeleteRowFromLog(session, row.getData());
-
         super.delete(session, row);
     }
 

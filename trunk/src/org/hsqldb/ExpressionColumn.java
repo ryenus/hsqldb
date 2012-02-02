@@ -49,7 +49,7 @@ import org.hsqldb.types.Type;
  * Implementation of column, variable, parameter, etc. access operations.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.1.1
+ * @version 2.2.9
  * @since 1.9.0
  */
 public class ExpressionColumn extends Expression {
@@ -494,7 +494,7 @@ public class ExpressionColumn extends Expression {
             return true;
         }
 
-        int colIndex = rangeVar.findColumn(this);
+        int colIndex = rangeVar.findColumn(schema, tableName, columnName);
 
         if (colIndex == -1) {
             return false;
@@ -531,19 +531,11 @@ public class ExpressionColumn extends Expression {
                     return false;
                 }
 
-                if (!rangeVar.resolvesSchemaAndTableName(null, tableName)) {
-                    return false;
-                }
-
                 opType = OpTypes.TRANSITION_VARIABLE;
 
                 break;
             }
             default : {
-                if (!rangeVar.resolvesSchemaAndTableName(schema, tableName)) {
-                    return false;
-                }
-
                 break;
             }
         }
@@ -570,7 +562,8 @@ public class ExpressionColumn extends Expression {
                     return false;
 
                 default :
-                    int colIndex = rangeVar.findColumn(this);
+                    int colIndex = rangeVar.findColumn(schema, tableName,
+                                                       columnName);
 
                     return colIndex != -1;
             }
@@ -983,19 +976,6 @@ public class ExpressionColumn extends Expression {
         }
 
         return this;
-    }
-
-    int findMatchingRangeVariableIndex(RangeVariable[] rangeVarArray) {
-
-        for (int i = 0; i < rangeVarArray.length; i++) {
-            RangeVariable rangeVar = rangeVarArray[i];
-
-            if (rangeVar.resolvesTableName(this)) {
-                return i;
-            }
-        }
-
-        return -1;
     }
 
     /**
