@@ -50,10 +50,10 @@ package org.hsqldb.store;
  * as a node and their contents is not significant.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 1.9.0
+ * @version 2.2.9
  * @since 1.7.2
  */
-class HashIndex {
+public class HashIndex {
 
     int[]   hashTable;
     int[]   linkTable;
@@ -63,7 +63,7 @@ class HashIndex {
     boolean fixedSize;
     boolean modified;
 
-    HashIndex(int hashTableSize, int capacity, boolean fixedSize) {
+    public HashIndex(int hashTableSize, int capacity, boolean fixedSize) {
 
         if (capacity < hashTableSize) {
             capacity = hashTableSize;
@@ -80,7 +80,7 @@ class HashIndex {
      * @param hashTableSize
      * @param capacity
      */
-    void reset(int hashTableSize, int capacity) {
+    public void reset(int hashTableSize, int capacity) {
 
         int[] newHT = new int[hashTableSize];
         int[] newLT = new int[capacity];
@@ -92,7 +92,7 @@ class HashIndex {
         resetTables();
     }
 
-    void resetTables() {
+    public void resetTables() {
 
         int   to       = hashTable.length;
         int[] intArray = hashTable;
@@ -110,7 +110,7 @@ class HashIndex {
     /**
      * Reset the index as empty.
      */
-    void clear() {
+    public void clear() {
 
         int   to       = linkTable.length;
         int[] intArray = linkTable;
@@ -125,7 +125,7 @@ class HashIndex {
     /**
      * @param hash
      */
-    int getHashIndex(int hash) {
+    public int getHashIndex(int hash) {
         return (hash & 0x7fffffff) % hashTable.length;
     }
 
@@ -135,7 +135,7 @@ class HashIndex {
      * @param hash the hash value used for indexing
      * @return either -1 or the first node for this hash value
      */
-    int getLookup(int hash) {
+    public int getLookup(int hash) {
 
         if (elementCount == 0) {
             return -1;
@@ -152,7 +152,7 @@ class HashIndex {
      * @param lookup A valid node to look from
      * @return either -1 or the next node from this node
      */
-    int getNextLookup(int lookup) {
+    public int getNextLookup(int lookup) {
         return linkTable[lookup];
     }
 
@@ -163,7 +163,7 @@ class HashIndex {
      * @param lastLookup either -1 or the node to which the new node will be linked
      * @return the new node
      */
-    int linkNode(int index, int lastLookup) {
+    public int linkNode(int index, int lastLookup) {
 
         // get the first reclaimed slot
         int lookup = reclaimedNodePointer;
@@ -199,7 +199,7 @@ class HashIndex {
      * @param lastLookup either -1 or the node to which the target node is linked
      * @param lookup the node to remove
      */
-    void unlinkNode(int index, int lastLookup, int lookup) {
+    public void unlinkNode(int index, int lastLookup, int lookup) {
 
         // unlink the node
         if (lastLookup == -1) {
@@ -224,7 +224,7 @@ class HashIndex {
      * @param lookup the node to remove
      * @return true if node found in unlinked state
      */
-    boolean removeEmptyNode(int lookup) {
+    public boolean removeEmptyNode(int lookup) {
 
         boolean found      = false;
         int     lastLookup = -1;

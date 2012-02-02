@@ -391,10 +391,10 @@ public class StatementCommand extends Statement {
                     session.checkDDLWrite();
 
                     if (session.isProcessingScript) {
-                        session.database.logger.setCacheFileScaleNoCheck(
+                        session.database.logger.setDataFileScaleNoCheck(
                             value);
                     } else {
-                        session.database.logger.setCacheFileScale(value);
+                        session.database.logger.setDataFileScale(value);
                     }
 
                     return Result.updateZeroResult;

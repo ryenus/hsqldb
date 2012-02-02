@@ -90,7 +90,7 @@ import org.hsqldb.types.Type;
  *  storage.<p>
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.2.8
+ * @version 2.2.9
  * @since 1.7.0
  */
 public class Logger {
@@ -121,8 +121,8 @@ public class Logger {
     int     propMaxFreeBlocks = 512;
     int     propCacheMaxRows;
     int     propCacheMaxSize;
-    int     propCacheFileScale;
     int     propCacheDefragLimit;
+    int     propDataFileScale;
     String  propTextSourceDefault = "";
     boolean propTextAllowFullPath;
     int     propWriteDelay;
@@ -570,7 +570,7 @@ public class Logger {
         setLobFileScaleNoCheck(
             database.databaseProperties.getIntegerProperty(
                 HsqlDatabaseProperties.hsqldb_lob_file_scale));
-        setCacheFileScaleNoCheck(
+        setDataFileScaleNoCheck(
             database.databaseProperties.getIntegerProperty(
                 HsqlDatabaseProperties.hsqldb_cache_file_scale));
 
@@ -1097,9 +1097,9 @@ public class Logger {
         return propCacheMaxSize;
     }
 
-    public void setCacheFileScale(int value) {
+    public void setDataFileScale(int value) {
 
-        if (propCacheFileScale == value) {
+        if (propDataFileScale == value) {
             return;
         }
 
@@ -1113,10 +1113,10 @@ public class Logger {
             throw Error.error(ErrorCode.DATA_FILE_IN_USE);
         }
 
-        propCacheFileScale = value;
+        propDataFileScale = value;
     }
 
-    public void setCacheFileScaleNoCheck(int value) {
+    public void setDataFileScaleNoCheck(int value) {
 
         checkPower(value, 10);
 
@@ -1124,11 +1124,15 @@ public class Logger {
             throw Error.error(ErrorCode.X_42556);
         }
 
-        propCacheFileScale = value;
+        propDataFileScale = value;
     }
 
-    public int getCacheFileScale() {
-        return propCacheFileScale;
+    public int getDataFileScale() {
+        return propDataFileScale;
+    }
+
+    public int getDataFileFactor() {
+        return 1;
     }
 
     public void setLobFileScale(int value) {
@@ -1409,7 +1413,7 @@ public class Logger {
         }
 
         if (HsqlDatabaseProperties.hsqldb_cache_file_scale.equals(name)) {
-            return String.valueOf(propCacheFileScale);
+            return String.valueOf(propDataFileScale);
         }
 
         if (HsqlDatabaseProperties.hsqldb_cache_free_count.equals(name)) {
@@ -1827,7 +1831,7 @@ public class Logger {
         list.add(sb.toString());
         sb.setLength(0);
         sb.append("SET FILES ").append(Tokens.T_SCALE);
-        sb.append(' ').append(propCacheFileScale);
+        sb.append(' ').append(propDataFileScale);
         list.add(sb.toString());
         sb.setLength(0);
         sb.append("SET FILES ").append(Tokens.T_LOB).append(' ').append(

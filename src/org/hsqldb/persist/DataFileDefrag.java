@@ -79,7 +79,7 @@ final class DataFileDefrag {
 
         this.database     = db;
         this.dataCache    = cache;
-        this.scale        = cache.cacheFileScale;
+        this.scale        = cache.dataFileScale;
         this.dataFileName = dataFileName;
     }
 
