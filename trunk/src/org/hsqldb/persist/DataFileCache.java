@@ -93,7 +93,7 @@ public class DataFileCache {
     // this flag is used externally to determine if a backup is required
     protected boolean fileModified;
     protected boolean cacheModified;
-    protected int     cacheFileScale;
+    protected int     dataFileScale;
 
     // post opening constant fields
     protected boolean cacheReadonly;
@@ -146,23 +146,23 @@ public class DataFileCache {
         this.backupFileName = baseFileName + Logger.backupFileExtension;
         this.database       = database;
         fa                  = database.logger.getFileAccess();
-        cacheFileScale      = database.logger.getCacheFileScale();
+        dataFileScale      = database.logger.getDataFileScale();
         cachedRowPadding    = 8;
 
-        if (cacheFileScale > 8) {
-            cachedRowPadding = cacheFileScale;
+        if (dataFileScale > 8) {
+            cachedRowPadding = dataFileScale;
         }
 
         initialFreePos = MIN_INITIAL_FREE_POS;
 
-        if (initialFreePos < cacheFileScale) {
-            initialFreePos = cacheFileScale;
+        if (initialFreePos < dataFileScale) {
+            initialFreePos = dataFileScale;
         }
 
         cacheReadonly   = database.logger.propFilesReadOnly;
         maxCacheRows    = database.logger.propCacheMaxRows;
         maxCacheBytes   = database.logger.propCacheMaxSize;
-        maxDataFileSize = (long) Integer.MAX_VALUE * cacheFileScale;
+        maxDataFileSize = (long) Integer.MAX_VALUE * dataFileScale;
         dataFile        = null;
         shadowFile      = null;
     }
@@ -305,7 +305,7 @@ public class DataFileCache {
             cacheModified = false;
             freeBlocks =
                 new DataFileBlockManager(database.logger.propMaxFreeBlocks,
-                                         cacheFileScale, 0, freesize);
+                                         dataFileScale, 0, freesize);
 
             database.logger.logInfoEvent("dataFileCache open end");
         } catch (Throwable t) {
@@ -694,7 +694,7 @@ public class DataFileCache {
         long newFreePosition;
 
         if (i == -1) {
-            i               = (int) (fileFreePosition / cacheFileScale);
+            i               = (int) (fileFreePosition / dataFileScale);
             newFreePosition = fileFreePosition + rowSize;
 
             if (newFreePosition > maxDataFileSize) {
@@ -916,7 +916,7 @@ public class DataFileCache {
         writeLock.lock();
 
         try {
-            dataFile.seek((long) pos * cacheFileScale);
+            dataFile.seek((long) pos * dataFileScale);
 
             return dataFile.readInt();
         } catch (IOException e) {
@@ -929,7 +929,7 @@ public class DataFileCache {
     protected RowInputInterface readObject(int pos) {
 
         try {
-            dataFile.seek((long) pos * cacheFileScale);
+            dataFile.seek((long) pos * dataFileScale);
 
             int size = dataFile.readInt();
 
@@ -1009,7 +1009,7 @@ public class DataFileCache {
         try {
             rowOut.reset();
             row.write(rowOut);
-            dataFile.seek((long) row.getPos() * cacheFileScale);
+            dataFile.seek((long) row.getPos() * dataFileScale);
             dataFile.write(rowOut.getOutputStream().getBuffer(), 0,
                            rowOut.getOutputStream().size());
         } catch (IOException e) {
@@ -1025,7 +1025,7 @@ public class DataFileCache {
 
             for (int i = offset; i < offset + count; i++) {
                 CachedObject row     = rows[i];
-                long         seekpos = (long) row.getPos() * cacheFileScale;
+                long         seekpos = (long) row.getPos() * dataFileScale;
 
                 shadowFile.copy(seekpos, row.getStorageSize());
             }
@@ -1041,7 +1041,7 @@ public class DataFileCache {
     protected void copyShadow(CachedObject row) throws IOException {
 
         if (shadowFile != null) {
-            long seekpos = (long) row.getPos() * cacheFileScale;
+            long seekpos = (long) row.getPos() * dataFileScale;
 
             shadowFile.copy(seekpos, row.getStorageSize());
             shadowFile.synch();

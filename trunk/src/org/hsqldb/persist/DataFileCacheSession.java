@@ -57,12 +57,12 @@ public class DataFileCacheSession extends DataFileCache {
         this.dataFileName = baseFileName + ".data.tmp";
         this.database     = database;
         fa                = FileUtil.getFileUtil();
-        cacheFileScale    = 64;
-        cachedRowPadding  = cacheFileScale;
-        initialFreePos    = cacheFileScale;
+        dataFileScale     = 64;
+        cachedRowPadding  = dataFileScale;
+        initialFreePos    = dataFileScale;
         maxCacheRows      = 2048;
         maxCacheBytes     = maxCacheRows * 1024;
-        maxDataFileSize   = (long) Integer.MAX_VALUE * cacheFileScale;
+        maxDataFileSize   = (long) Integer.MAX_VALUE * dataFileScale;
         dataFile          = null;
     }
 
@@ -77,7 +77,7 @@ public class DataFileCacheSession extends DataFileCache {
 
             initBuffers();
 
-            freeBlocks = new DataFileBlockManager(0, cacheFileScale, 0, 0);
+            freeBlocks = new DataFileBlockManager(0, dataFileScale, 0, 0);
         } catch (Throwable t) {
             database.logger.logWarningEvent("Failed to open Session RA file",
                                             t);

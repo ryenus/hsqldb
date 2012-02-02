@@ -47,10 +47,10 @@ import java.util.NoSuchElementException;
  * Sorting methods originally contributed by Tony Lai.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.2.7
+ * @version 2.2.9
  * @since 1.8.0
  */
-public class DoubleIntIndex implements IntLookup {
+public class DoubleIntIndex implements IntLookup, LongLookup {
 
     private int           count = 0;
     private int           capacity;
@@ -257,6 +257,18 @@ public class DoubleIntIndex implements IntLookup {
         return true;
     }
 
+    public int add(long key, long value) {
+        if (key > Integer.MAX_VALUE || key < Integer.MIN_VALUE) {
+            throw new java.lang.IllegalArgumentException();
+        }
+
+        if (value > Integer.MAX_VALUE || value < Integer.MIN_VALUE) {
+            throw new java.lang.IllegalArgumentException();
+        }
+
+        return add((int) key, (int) value);
+    }
+
     /**
      * Adds a pair, maintaining sorted order
      * current search target column.
@@ -301,6 +313,15 @@ public class DoubleIntIndex implements IntLookup {
         return i;
     }
 
+    public long lookup(long key) throws NoSuchElementException {
+        if (key > Integer.MAX_VALUE || key < Integer.MIN_VALUE) {
+            throw new NoSuchElementException();
+        }
+
+        return lookup ((int) key);
+
+    }
+
     public int lookup(int key) throws NoSuchElementException {
 
         if (sortOnValues) {
@@ -312,6 +333,25 @@ public class DoubleIntIndex implements IntLookup {
 
         if (i == -1) {
             throw new NoSuchElementException();
+        }
+
+        return getValue(i);
+    }
+
+    public long lookup (long key, long def) {
+        if (key > Integer.MAX_VALUE || key < Integer.MIN_VALUE) {
+            return def;
+        }
+
+        if (sortOnValues) {
+            sorted       = false;
+            sortOnValues = false;
+        }
+
+        int i = findFirstEqualKeyIndex((int) key);
+
+        if (i == -1) {
+            return def;
         }
 
         return getValue(i);
