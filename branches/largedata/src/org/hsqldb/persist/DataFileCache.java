@@ -1,34 +1,3 @@
-/* Copyright (c) 2001-2011, The HSQL Development Group
- * All rights reserved.
- *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are met:
- *
- * Redistributions of source code must retain the above copyright notice, this
- * list of conditions and the following disclaimer.
- *
- * Redistributions in binary form must reproduce the above copyright notice,
- * this list of conditions and the following disclaimer in the documentation
- * and/or other materials provided with the distribution.
- *
- * Neither the name of the HSQL Development Group nor the names of its
- * contributors may be used to endorse or promote products derived from this
- * software without specific prior written permission.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
- * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
- * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
- * ARE DISCLAIMED. IN NO EVENT SHALL HSQL DEVELOPMENT GROUP, HSQLDB.ORG,
- * OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
- * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
- * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
- * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
- * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
- * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- */
-
-
 package org.hsqldb.persist;
 
 import java.io.IOException;
@@ -60,7 +29,7 @@ import org.hsqldb.store.BitMap;
  * Rewritten for 1.8.0 and 2.x
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.2.7
+ * @version 2.3.0
  * @since 1.7.2
  */
 public class DataFileCache {
@@ -93,7 +62,7 @@ public class DataFileCache {
     // this flag is used externally to determine if a backup is required
     protected boolean fileModified;
     protected boolean cacheModified;
-    protected int     cacheFileScale;
+    protected int     dataFileScale;
 
     // post opening constant fields
     protected boolean cacheReadonly;
@@ -146,25 +115,26 @@ public class DataFileCache {
         this.backupFileName = baseFileName + Logger.backupFileExtension;
         this.database       = database;
         fa                  = database.logger.getFileAccess();
-        cacheFileScale      = database.logger.getCacheFileScale();
+        dataFileScale       = database.logger.getDataFileScale();
         cachedRowPadding    = 8;
 
-        if (cacheFileScale > 8) {
-            cachedRowPadding = cacheFileScale;
+        if (dataFileScale > 8) {
+            cachedRowPadding = dataFileScale;
         }
 
         initialFreePos = MIN_INITIAL_FREE_POS;
 
-        if (initialFreePos < cacheFileScale) {
-            initialFreePos = cacheFileScale;
+        if (initialFreePos < dataFileScale) {
+            initialFreePos = dataFileScale;
         }
 
-        cacheReadonly   = database.logger.propFilesReadOnly;
-        maxCacheRows    = database.logger.propCacheMaxRows;
-        maxCacheBytes   = database.logger.propCacheMaxSize;
-        maxDataFileSize = (long) Integer.MAX_VALUE * cacheFileScale * 128;
-        dataFile        = null;
-        shadowFile      = null;
+        cacheReadonly = database.logger.propFilesReadOnly;
+        maxCacheRows  = database.logger.propCacheMaxRows;
+        maxCacheBytes = database.logger.propCacheMaxSize;
+        maxDataFileSize = (long) Integer.MAX_VALUE * dataFileScale
+                          * database.logger.getDataFileFactor();
+        dataFile   = null;
+        shadowFile = null;
     }
 
     /**
@@ -247,6 +217,11 @@ public class DataFileCache {
 
                 dataFile.close();
 
+                if (length > maxDataFileSize) {
+                    throw Error.error(ErrorCode.WRONG_DATABASE_FILE_VERSION,
+                                      "requires large database support");
+                }
+
                 if (wrongVersion) {
                     throw Error.error(ErrorCode.WRONG_DATABASE_FILE_VERSION);
                 }
@@ -300,7 +275,7 @@ public class DataFileCache {
             cacheModified = false;
             freeBlocks =
                 new DataFileBlockManager(database.logger.propMaxFreeBlocks,
-                                         cacheFileScale, 0, freesize);
+                                         dataFileScale, 0, freesize);
 
             database.logger.logInfoEvent("dataFileCache open end");
         } catch (Throwable t) {
@@ -689,7 +664,7 @@ public class DataFileCache {
         long newFreePosition;
 
         if (i == -1) {
-            i               = fileFreePosition / cacheFileScale;
+            i               = fileFreePosition / dataFileScale;
             newFreePosition = fileFreePosition + rowSize;
 
             if (newFreePosition > maxDataFileSize) {
@@ -859,7 +834,6 @@ public class DataFileCache {
                     break;
                 } catch (OutOfMemoryError err) {
                     cache.forceCleanUp();
-
                     System.gc();
                     database.logger.logSevereEvent(dataFileName
                                                    + " getFromFile out of mem "
@@ -885,7 +859,6 @@ public class DataFileCache {
 
             return object;
         } catch (HsqlException e) {
-
             database.logger.logSevereEvent(dataFileName + " getFromFile "
                                            + pos, e);
 
@@ -911,7 +884,7 @@ public class DataFileCache {
         writeLock.lock();
 
         try {
-            dataFile.seek((long) pos * cacheFileScale);
+            dataFile.seek((long) pos * dataFileScale);
 
             return dataFile.readInt();
         } catch (IOException e) {
@@ -924,7 +897,7 @@ public class DataFileCache {
     protected RowInputInterface readObject(long pos) {
 
         try {
-            dataFile.seek((long) pos * cacheFileScale);
+            dataFile.seek((long) pos * dataFileScale);
 
             int size = dataFile.readInt();
 
@@ -1004,7 +977,7 @@ public class DataFileCache {
         try {
             rowOut.reset();
             row.write(rowOut);
-            dataFile.seek((long) row.getPos() * cacheFileScale);
+            dataFile.seek((long) row.getPos() * dataFileScale);
             dataFile.write(rowOut.getOutputStream().getBuffer(), 0,
                            rowOut.getOutputStream().size());
         } catch (IOException e) {
@@ -1020,7 +993,7 @@ public class DataFileCache {
 
             for (int i = offset; i < offset + count; i++) {
                 CachedObject row     = rows[i];
-                long         seekpos = (long) row.getPos() * cacheFileScale;
+                long         seekpos = (long) row.getPos() * dataFileScale;
 
                 shadowFile.copy(seekpos, row.getStorageSize());
             }
@@ -1036,7 +1009,7 @@ public class DataFileCache {
     protected void copyShadow(CachedObject row) throws IOException {
 
         if (shadowFile != null) {
-            long seekpos = (long) row.getPos() * cacheFileScale;
+            long seekpos = (long) row.getPos() * dataFileScale;
 
             shadowFile.copy(seekpos, row.getStorageSize());
             shadowFile.synch();

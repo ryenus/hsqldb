@@ -1,34 +1,3 @@
-/* Copyright (c) 2001-2011, The HSQL Development Group
- * All rights reserved.
- *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are met:
- *
- * Redistributions of source code must retain the above copyright notice, this
- * list of conditions and the following disclaimer.
- *
- * Redistributions in binary form must reproduce the above copyright notice,
- * this list of conditions and the following disclaimer in the documentation
- * and/or other materials provided with the distribution.
- *
- * Neither the name of the HSQL Development Group nor the names of its
- * contributors may be used to endorse or promote products derived from this
- * software without specific prior written permission.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
- * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
- * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
- * ARE DISCLAIMED. IN NO EVENT SHALL HSQL DEVELOPMENT GROUP, HSQLDB.ORG,
- * OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
- * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
- * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
- * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
- * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
- * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- */
-
-
 package org.hsqldb.persist;
 
 import java.util.Comparator;
@@ -47,7 +16,7 @@ import org.hsqldb.store.BaseHashMap;
  * to DataFileCache.<p>
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.2.7
+ * @version 2.3.0
  * @since 1.8.0
  */
 public class Cache extends BaseHashMap {
@@ -68,8 +37,8 @@ public class Cache extends BaseHashMap {
 
     Cache(DataFileCache dfc) {
 
-        super(dfc.capacity(), BaseHashMap.longKeyOrValue,
-              BaseHashMap.objectKeyOrValue, true);
+        super(dfc.capacity(), BaseHashMap.objectKeyOrValue,
+              BaseHashMap.noKeyOrValue, true);
 
         maxCapacity      = dfc.capacity();
         dataFileCache    = dfc;
@@ -84,10 +53,26 @@ public class Cache extends BaseHashMap {
      *  Structural initialisations take place here. This allows the Cache to
      *  be resized while the database is in operation.
      */
-    void init(int capacity, long bytesCapacity) {}
+    void resize(int capacity, long bytesCapacity) {}
 
     long getTotalCachedBlockSize() {
         return cacheBytesLength;
+    }
+
+    protected int getLookup(long key) {
+
+        int          lookup = hashIndex.getLookup((int) key);
+        CachedObject tempKey;
+
+        for (; lookup >= 0; lookup = hashIndex.getNextLookup(lookup)) {
+            tempKey = (CachedObject) objectKeyTable[lookup];
+
+            if (tempKey.getPos() == key) {
+                return lookup;
+            }
+        }
+
+        return lookup;
     }
 
     /**
@@ -109,7 +94,7 @@ public class Cache extends BaseHashMap {
 
         accessTable[lookup] = ++accessCount;
 
-        CachedObject object = (CachedObject) objectValueTable[lookup];
+        CachedObject object = (CachedObject) objectKeyTable[lookup];
 
         return object;
     }
@@ -136,7 +121,7 @@ public class Cache extends BaseHashMap {
             updateObjectAccessCounts();
         }
 
-        super.addOrRemove(key, row, null, false);
+        super.addOrRemove(0, 0, row, null, false);
         row.setInMemory(true);
 
         cacheBytesLength += storageSize;
@@ -147,17 +132,37 @@ public class Cache extends BaseHashMap {
      */
     synchronized CachedObject release(long i) {
 
-        CachedObject r = (CachedObject) super.addOrRemove(i, null, null, true);
+        int          hash        = (int) i;
+        int          index       = hashIndex.getHashIndex(hash);
+        int          lookup      = hashIndex.getLookup(hash);
+        int          lastLookup  = -1;
+        CachedObject returnValue = null;
 
-        if (r == null) {
+        for (; lookup >= 0;
+                lastLookup = lookup,
+                lookup = hashIndex.getNextLookup(lookup)) {
+            returnValue = (CachedObject) objectKeyTable[lookup];
+
+            if (returnValue.getPos() == i) {
+                break;
+            }
+        }
+
+        if (lookup >= 0) {
+            objectKeyTable[lookup] = null;
+
+            hashIndex.unlinkNode(index, lastLookup, lookup);
+
+            accessTable[lookup] = 0;
+        } else {
             return null;
         }
 
-        cacheBytesLength -= r.getStorageSize();
+        cacheBytesLength -= returnValue.getStorageSize();
 
-        r.setInMemory(false);
+        returnValue.setInMemory(false);
 
-        return r;
+        return returnValue;
     }
 
     /**
@@ -167,7 +172,7 @@ public class Cache extends BaseHashMap {
 
         int lookup = super.getLookup(key);
 
-        super.objectValueTable[lookup] = row;
+        objectKeyTable[lookup] = row;
     }
 
     private void updateAccessCounts() {
@@ -175,8 +180,8 @@ public class Cache extends BaseHashMap {
         CachedObject r;
         int          count;
 
-        for (int i = 0; i < objectValueTable.length; i++) {
-            r = (CachedObject) objectValueTable[i];
+        for (int i = 0; i < objectKeyTable.length; i++) {
+            r = (CachedObject) objectKeyTable[i];
 
             if (r != null) {
                 count = r.getAccessCount();
@@ -193,8 +198,8 @@ public class Cache extends BaseHashMap {
         CachedObject r;
         int          count;
 
-        for (int i = 0; i < objectValueTable.length; i++) {
-            r = (CachedObject) objectValueTable[i];
+        for (int i = 0; i < objectKeyTable.length; i++) {
+            r = (CachedObject) objectKeyTable[i];
 
             if (r != null) {
                 count = accessTable[i];
@@ -220,7 +225,7 @@ public class Cache extends BaseHashMap {
 
         int                          removeCount = size() / 2;
         int accessTarget = getAccessCountCeiling(removeCount, removeCount / 8);
-        BaseHashMap.BaseHashIterator it          = new BaseHashIterator();
+        BaseHashMap.BaseHashIterator it          = new BaseHashIterator(true);
         int                          savecount   = 0;
 
         for (; it.hasNext(); ) {
@@ -260,7 +265,7 @@ public class Cache extends BaseHashMap {
 
     synchronized void forceCleanUp() {
 
-        BaseHashMap.BaseHashIterator it = new BaseHashIterator();
+        BaseHashMap.BaseHashIterator it = new BaseHashIterator(true);
 
         for (; it.hasNext(); ) {
             CachedObject row = (CachedObject) it.next();
@@ -305,7 +310,7 @@ public class Cache extends BaseHashMap {
      */
     synchronized void saveAll() {
 
-        Iterator it        = new BaseHashIterator();
+        Iterator it        = new BaseHashIterator(true);
         int      savecount = 0;
 
         for (; it.hasNext(); ) {
