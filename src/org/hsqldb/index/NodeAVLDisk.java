@@ -136,8 +136,8 @@ public class NodeAVLDisk extends NodeAVL {
     }
 
     public NodeAVLDisk(RowAVLDisk r, int id) {
-        row   = r;
-        iId   = id;
+        row = r;
+        iId = id;
     }
 
     public void delete() {
