@@ -161,7 +161,8 @@ public class Row implements CachedObject {
         }
 
         if (obj instanceof Row) {
-            return ((Row) obj).position == position;
+            return ((Row) obj).table == table
+                   && ((Row) obj).position == position;
         }
 
         return false;
