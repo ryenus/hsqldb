@@ -139,6 +139,12 @@
             paramount and a large amount of free memory is available, MEMORY
             tables can be used for large tables as well.</para>
           </listitem>
+
+          <listitem>
+            <para>You can change the type of the table with the <literal>SET
+            TABLE &lt;table name&gt; TYPE { CACHED | MEMORY
+            }</literal>statement.</para>
+          </listitem>
         </itemizedlist></para>
     </section>
 
@@ -225,8 +231,9 @@
 
       <para>A <glossterm>file:</glossterm> catalog can be made readonly
       permanently, or it can be opened as readonly. To make the database
-      readonly, the property, value pair, readonly=true can be added to the
-      .properties file of the database.</para>
+      readonly, the property, value pair, <literal>readonly=true</literal> can
+      be added to the <filename>.properties</filename> file of the
+      database.</para>
 
       <para>It is also possible to open a normal database as readonly. For
       this, the property can be included in the URL of the first connection to
@@ -234,11 +241,11 @@
 
       <para>There is another option which allows MEMORY tables to be writable,
       but without persisting the changes at SHUTDOWN. This option is activated
-      with the property, value pair, <literal>files_readonly= true</literal>,
-      which can be added to the .properties file of the database, or included
-      in the URL of the first connection to the database. This option is
-      useful for running application tests which operate on a predefined
-      dataset.</para>
+      with the property, value pair, <literal>files_readonly=true</literal>,
+      which can be added to the <filename>.properties</filename> file of the
+      database, or included in the URL of the first connection to the
+      database. This option is useful for running application tests which
+      operate on a predefined dataset.</para>
     </section>
   </section>
 
@@ -694,7 +701,8 @@
       realm of users and passwords.</para>
 
       <para>The first user for a new database has the DBA role. This user name
-      need not be SA. The name of the first DBA user and its password can be
+      need was always SA in older versions of HSQLDB, but not in the latest
+      versions. The name of the first DBA user and its password can be
       specified when the database is created by the first connection to the
       database. These settings are then stored in the database.</para>
 
@@ -1323,8 +1331,8 @@
       <simpara>If the <literal>&lt;file path&gt;</literal> does not end with a
       forward slash, it specifies a user-defined file name for the backup
       archive. The file extension must be either <literal>.tar.gz</literal> or
-      <literal>.tar</literal> and this must match the compression option.
-      </simpara>
+      <literal>.tar</literal> and this must match the compression
+      option.</simpara>
 
       <simpara>The default set of options is COMPRESSED BLOCKING.</simpara>
 
@@ -2610,6 +2618,23 @@
       default is text. Using COMPRESSED results in the storage of the .script
       file in gzip compressed form. Using this command causes a
       CHECKPOINT.</simpara>
+
+      <simpara>Only a user with the DBA role can execute this
+      statement.</simpara>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>SET TABLE TYPE</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">SET TABLE TYPE</emphasis></simpara>
+
+      <simpara><emphasis>set table type</emphasis></simpara>
+
+      <simpara><literal>&lt;set table type statement&gt; ::= SET TABLE
+      &lt;table name&gt; TYPE { MEMORY | CACHED }</literal></simpara>
+
+      <simpara>Changes the storage type of an existing table between CACHED
+      and MEMORY types.</simpara>
 
       <simpara>Only a user with the DBA role can execute this
       statement.</simpara>
