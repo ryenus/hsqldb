@@ -62,7 +62,7 @@ import org.hsqldb.types.Types;
  * Scans for SQL tokens.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.1.1
+ * @version 2.2.9
  * @since 1.9.0
  */
 public class Scanner {

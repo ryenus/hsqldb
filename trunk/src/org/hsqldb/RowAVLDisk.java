@@ -95,7 +95,7 @@ import org.hsqldb.rowio.RowOutputInterface;
  *
  * @author Fred Toussi (fredt@users dot sourceforge dot net)
  * @author Thomas Mueller (Hypersonic SQL Group)
- * @version 2.2.7
+ * @version 2.2.9
  * @since Hypersonic SQL
  */
 public class RowAVLDisk extends RowAVL {
@@ -170,7 +170,7 @@ public class RowAVLDisk extends RowAVL {
         return null;
     }
 
-    private void readRowInfo(RowInputInterface in) throws IOException {
+    private void readRowInfo(RowInputInterface in) {
 
         // for use when additional transaction info is attached to rows
     }
@@ -204,7 +204,6 @@ public class RowAVLDisk extends RowAVL {
      * @param pos position in data file
      */
     public void setPos(int pos) {
-
         position = pos;
     }
 
@@ -335,16 +334,14 @@ public class RowAVLDisk extends RowAVL {
      */
     public void write(RowOutputInterface out) {
 
-        try {
-            writeNodes(out);
+        writeNodes(out);
 
-            if (hasDataChanged) {
-                out.writeData(this, table.colTypes);
-                out.writeEnd();
+        if (hasDataChanged) {
+            out.writeData(this, table.colTypes);
+            out.writeEnd();
 
-                hasDataChanged = false;
-            }
-        } catch (IOException e) {}
+            hasDataChanged = false;
+        }
     }
 
     public void write(RowOutputInterface out, IntLookup lookup) {
@@ -370,7 +367,7 @@ public class RowAVLDisk extends RowAVL {
      *
      * @throws IOException
      */
-    void writeNodes(RowOutputInterface out) throws IOException {
+    void writeNodes(RowOutputInterface out) {
 
         out.writeSize(storageSize);
 

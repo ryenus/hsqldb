@@ -1032,7 +1032,7 @@ public class DataFileCache {
 
             time = cache.saveAllTimer.elapsedTime() - time;
 
-            database.logger.logDetailEvent("shadow copy " + time);
+            database.logger.logDetailEvent("shadow copy [time, size] " + time + " " + shadowFile.getSavedLength());
         }
     }
 

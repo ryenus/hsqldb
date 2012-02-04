@@ -861,18 +861,6 @@ public class Logger {
     }
 
     /**
-     * Records a Log entry representing start of a session or a new connection
-     * action on the specified Session object.
-     */
-    public synchronized void writeStartSession(Session session) {
-
-        if (loggingEnabled) {
-            log.writeOtherStatement(session,
-                                    session.getUser().getConnectUserSQL());
-        }
-    }
-
-    /**
      * Records a Log entry for the specified SQL statement, on behalf of
      * the specified Session object.
      */
@@ -924,16 +912,6 @@ public class Logger {
 
         if (loggingEnabled) {
             log.writeCommitStatement(session);
-        }
-    }
-
-    /**
-     * Used at transaction commit
-     */
-    public synchronized void writeRollbackStatement(Session session) {
-
-        if (loggingEnabled) {
-            log.writeOtherStatement(session, "ROLLBACK");
         }
     }
 

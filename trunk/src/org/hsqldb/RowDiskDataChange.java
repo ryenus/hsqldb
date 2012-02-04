@@ -43,7 +43,7 @@ import org.hsqldb.types.Type;
 
 /**
  * @author Fred Toussi (fredt@users dot sourceforge dot net)
- * @version 2.2.9
+ * @version 2.3.0
  * @since 2.2.7
  */
 public class RowDiskDataChange extends RowAVLDisk {
@@ -59,8 +59,8 @@ public class RowDiskDataChange extends RowAVLDisk {
     final static Type[] arrayType = new Type[]{
         new ArrayType(Type.SQL_INTEGER, Integer.MAX_VALUE) };
     Table    targetTable;
-    Object[]    updateData;
-    int[]       updateColMap;
+    Object[] updateData;
+    int[]    updateColMap;
 
     /**
      *  Constructor for new Rows.  Variable hasDataChanged is set to true in
@@ -90,8 +90,8 @@ public class RowDiskDataChange extends RowAVLDisk {
         super(t, in);
 
         targetTable = t.database.schemaManager.getTable(session,
-            (String) rowData[COL_POS_TABLE_NAME],
-            (String) rowData[COL_POS_SCHEMA_NAME]);
+                (String) rowData[COL_POS_TABLE_NAME],
+                (String) rowData[COL_POS_SCHEMA_NAME]);
 
         if ((Boolean) rowData[COL_POS_IS_UPDATE]) {
             updateData = in.readData(targetTable.colTypes);
@@ -111,32 +111,30 @@ public class RowDiskDataChange extends RowAVLDisk {
 
     public void write(RowOutputInterface out) {
 
-        try {
-            writeNodes(out);
+        writeNodes(out);
 
-            if (hasDataChanged) {
-                out.writeData(this, table.colTypes);
+        if (hasDataChanged) {
+            out.writeData(this, table.colTypes);
 
-                if (updateData != null) {
-                    Type[] targetTypes = targetTable.colTypes;
+            if (updateData != null) {
+                Type[] targetTypes = targetTable.colTypes;
 
-                    out.writeData(targetTypes.length, targetTypes, updateData,
-                                  null, null);
+                out.writeData(targetTypes.length, targetTypes, updateData,
+                              null, null);
 
-                    RowOutputBinary bout = (RowOutputBinary) out;
+                RowOutputBinary bout = (RowOutputBinary) out;
 
-                    if (updateColMap == null) {
-                        bout.writeNull(Type.SQL_ARRAY_ALL_TYPES);
-                    } else {
-                        bout.writeArray(updateColMap);
-                    }
+                if (updateColMap == null) {
+                    bout.writeNull(Type.SQL_ARRAY_ALL_TYPES);
+                } else {
+                    bout.writeArray(updateColMap);
                 }
-
-                out.writeEnd();
-
-                hasDataChanged = false;
             }
-        } catch (IOException e) {}
+
+            out.writeEnd();
+
+            hasDataChanged = false;
+        }
     }
 
     public Object[] getUpdateData() {
