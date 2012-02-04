@@ -100,7 +100,7 @@ public class RowAVLDisk extends RowAVL {
         return null;
     }
 
-    private void readRowInfo(RowInputInterface in) throws IOException {
+    private void readRowInfo(RowInputInterface in) {
 
         // for use when additional transaction info is attached to rows
     }
@@ -264,16 +264,14 @@ public class RowAVLDisk extends RowAVL {
      */
     public void write(RowOutputInterface out) {
 
-        try {
-            writeNodes(out);
+        writeNodes(out);
 
-            if (hasDataChanged) {
-                out.writeData(this, table.colTypes);
-                out.writeEnd();
+        if (hasDataChanged) {
+            out.writeData(this, table.colTypes);
+            out.writeEnd();
 
-                hasDataChanged = false;
-            }
-        } catch (IOException e) {}
+            hasDataChanged = false;
+        }
     }
 
     public void write(RowOutputInterface out, LongLookup lookup) {
@@ -299,7 +297,7 @@ public class RowAVLDisk extends RowAVL {
      *
      * @throws IOException
      */
-    void writeNodes(RowOutputInterface out) throws IOException {
+    void writeNodes(RowOutputInterface out) {
 
         out.writeSize(storageSize);
 
