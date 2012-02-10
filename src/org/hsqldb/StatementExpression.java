@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2010, The HSQL Development Group
+/* Copyright (c) 2001-2011, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -36,13 +36,14 @@ import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
 import org.hsqldb.lib.ArraySort;
 import org.hsqldb.lib.OrderedHashSet;
+import org.hsqldb.navigator.RowSetNavigatorData;
 import org.hsqldb.result.Result;
 
 /**
  * Implementation of Statement for PSM statements with expressions.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 1.9.0
+ * @version 2.2.9
  * @since 1.9.0
  */
 public class StatementExpression extends StatementDMQL {
@@ -158,7 +159,18 @@ public class StatementExpression extends StatementDMQL {
 
             case StatementTypes.RETURN :
             case StatementTypes.CONDITION :
-                return expression.getResult(session);
+                Result result = expression.getResult(session);
+
+                // data navigator has statement scope and will be cleared at the end of statement
+                if (result.isData()) {
+                    RowSetNavigatorData navigator =
+                        new RowSetNavigatorData(session,
+                                                result.getNavigator());
+
+                    result.setNavigator(navigator);
+                }
+
+                return result;
 
             default :
                 throw Error.runtimeError(ErrorCode.U_S0500, "");

@@ -563,7 +563,7 @@ public class ParserRoutine extends ParserDML {
     }
 
     // SQL-invoked routine
-    StatementSchema compileCreateProcedureOrFunction() {
+    StatementSchema compileCreateProcedureOrFunction(boolean orReplace) {
 
         int     routineType;
         boolean isAggregate = false;

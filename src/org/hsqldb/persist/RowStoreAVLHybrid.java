@@ -44,6 +44,8 @@ import org.hsqldb.TableBase;
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
 import org.hsqldb.index.Index;
+import org.hsqldb.index.IndexAVL;
+import org.hsqldb.index.NodeAVL;
 import org.hsqldb.index.NodeAVLDisk;
 import org.hsqldb.lib.ArrayUtil;
 import org.hsqldb.navigator.RowIterator;
@@ -245,6 +247,10 @@ public class RowStoreAVLHybrid extends RowStoreAVL implements PersistentStore {
 
     public void removeAll() {
 
+        if (!isCached) {
+            destroy();
+        }
+
         elementCount = 0;
 
         ArrayUtil.fillArray(accessorList, null);
@@ -333,6 +339,10 @@ public class RowStoreAVLHybrid extends RowStoreAVL implements PersistentStore {
 
     public void release() {
 
+        if (!isCached) {
+            destroy();
+        }
+
         ArrayUtil.fillArray(accessorList, null);
 
         if (isCached) {
@@ -385,6 +395,8 @@ public class RowStoreAVLHybrid extends RowStoreAVL implements PersistentStore {
         cache = ((PersistentStoreCollectionSession) manager).getResultCache();
 
         if (cache != null) {
+            IndexAVL    idx      = (IndexAVL) indexList[0];
+            NodeAVL     root     = (NodeAVL) accessorList[0];
             RowIterator iterator = table.rowIterator(this);
 
             ArrayUtil.fillArray(accessorList, null);
@@ -400,8 +412,9 @@ public class RowStoreAVLHybrid extends RowStoreAVL implements PersistentStore {
                                                       false);
 
                 indexRow(session, newRow);
-                row.destroy();
             }
+
+            idx.unlinkNodes(root);
         }
 
         maxMemoryRowCount = Integer.MAX_VALUE;

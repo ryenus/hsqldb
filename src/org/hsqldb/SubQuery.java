@@ -277,38 +277,45 @@ class SubQuery implements Comparator {
      */
     public void materialise(Session session) {
 
-        PersistentStore store;
+        session.sessionContext.pushStatementState();
 
-        // table constructors
-        if (isDataExpression) {
+        try {
+            PersistentStore store;
+
+            // table constructors
+            if (isDataExpression) {
+                store = session.sessionData.getSubqueryRowStore(table);
+
+                dataExpression.insertValuesIntoSubqueryTable(session, store);
+
+                return;
+            }
+
+            Result result;
+
+            if (isRecursive) {
+                result = queryExpression.getResultRecursive(session,
+                        recursiveSubQuery.table);
+            } else {
+                result = queryExpression.getResult(session,
+                                                   isExistsPredicate ? 1
+                                                                     : 0);
+            }
+
+            if (uniqueRows) {
+                RowSetNavigatorData navigator =
+                    ((RowSetNavigatorData) result.getNavigator());
+
+                navigator.removeDuplicates(session);
+            }
+
             store = session.sessionData.getSubqueryRowStore(table);
 
-            dataExpression.insertValuesIntoSubqueryTable(session, store);
-
-            return;
+            table.insertResult(session, store, result);
+            result.getNavigator().release();
+        } finally {
+            session.sessionContext.popStatementState();
         }
-
-        Result result;
-
-        if (isRecursive) {
-            result = queryExpression.getResultRecursive(session,
-                    recursiveSubQuery.table);
-        } else {
-            result = queryExpression.getResult(session, isExistsPredicate ? 1
-                                                                          : 0);
-        }
-
-        if (uniqueRows) {
-            RowSetNavigatorData navigator =
-                ((RowSetNavigatorData) result.getNavigator());
-
-            navigator.removeDuplicates(session);
-        }
-
-        store = session.sessionData.getSubqueryRowStore(table);
-
-        table.insertResult(session, store, result);
-        result.getNavigator().release();
     }
 
     public boolean hasUniqueNotNullRows(Session session) {

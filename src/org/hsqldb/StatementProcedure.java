@@ -237,14 +237,6 @@ public class StatementProcedure extends StatementDMQL {
             return result;
         }
 
-        if (procedure.returnsTable()) {
-            RowSetNavigator resultNavigator = result.getNavigator();
-            RowSetNavigatorData navigator = new RowSetNavigatorData(session,
-                resultNavigator);
-
-            result.setNavigator(navigator);
-        }
-
         return result;
     }
 

@@ -113,7 +113,7 @@ import org.hsqldb.types.Type;
  *
  * @author Thomas Mueller (Hypersonic SQL Group)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.0.1
+ * @version 2.2.9
  * @since Hypersonic SQL
  */
 public class IndexAVL implements Index {
@@ -451,6 +451,72 @@ public class IndexAVL implements Index {
         } finally {
             readLock.unlock();
         }
+    }
+
+    /**
+     * Removes all links between memory nodes
+     */
+    public void unlinkNodes(NodeAVL primaryRoot) {
+
+        writeLock.lock();
+
+        try {
+            NodeAVL x = primaryRoot;
+            NodeAVL l = x;
+
+            while (l != null) {
+                x = l;
+                l = x.getLeft(null);
+            }
+
+            while (x != null) {
+                NodeAVL n = nextUnlink(x);
+
+                x = n;
+            }
+        } finally {
+            writeLock.unlock();
+        }
+    }
+
+    private NodeAVL nextUnlink(NodeAVL x) {
+
+        NodeAVL temp = x.getRight(null);
+
+        if (temp != null) {
+            x    = temp;
+            temp = x.getLeft(null);
+
+            while (temp != null) {
+                x    = temp;
+                temp = x.getLeft(null);
+            }
+
+            return x;
+        }
+
+        temp = x;
+        x    = x.getParent(null);
+
+        while (x != null && x.isRight(temp)) {
+            x.nRight = null;
+
+            temp.getRow(null).destroy();
+            temp.delete();
+
+            //
+            temp = x;
+            x    = x.getParent(null);
+        }
+
+        if (x != null) {
+            x.nLeft = null;
+        }
+
+        temp.getRow(null).destroy();
+        temp.delete();
+
+        return x;
     }
 
     public void checkIndex(PersistentStore store) {

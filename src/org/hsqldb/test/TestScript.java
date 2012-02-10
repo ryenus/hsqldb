@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2010, The HSQL Development Group
+/* Copyright (c) 2001-2011, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -35,10 +35,24 @@ import java.sql.Connection;
 
 public class TestScript extends TestBase {
 
-      String path = "TestSelf01TempTables.txt";
-//       String path = "TestSelfTriggers2.txt";
+//    String path = "TestSelf01UDAggregates.txt";
+//    String path = "TestSelf01hsqldb_schema.txt";
+//    String path = "TestSelf01WithSubquery.txt";
+//    String path = "TestSelf02UpdatableViews.txt";
+//    String path = "TestSelf04UnionCorresponding.txt";
+//    String path = "TestSelf07OrderLimitNulls.txt";
+//    String path = "TestSelf06Generated.txt";
+//    String path = "TestSelf01TempTables.txt";
+//    String path = "TestSelfTriggers2.txt";
+//    String path = "TestSelf01Function.txt";
+//    String path = "TestSelf01Procedure.txt";
+//    String path = "TestSelf01Subquery.txt";
+      String path = "TestSelf01Triggers.txt";
+//      String path = "TestSelf02UpdatableViews.txt";
+//    String path = "TestSelf03Merge.txt";
 //    String path = "TestAny.txt";
 //    String path = "TestSelf.txt";
+//    String path = "TestSelfArrays.txt";
 //    String path = "TestSelf3PartNames.txt";
 //    String path = "TestSelfArithmetic.txt";
 //    String path = "TestSelfAlterColumn.txt";
@@ -47,6 +61,7 @@ public class TestScript extends TestBase {
 //    String path = "TestSelfColGrant.txt";
 //    String path = "TestSelfCreate.txt";
 //    String path = "TestSelfConstraints.txt";
+//    String path = "TestSelfFunction.txt";
 //    String path = "TestSelfGrantees.txt";
 //    String path = "TestSelfGroupBy.txt";
 //    String path = "TestSelfInsertDeleteQueries.txt";
@@ -55,6 +70,7 @@ public class TestScript extends TestBase {
 //    String path = "TestSelfFieldLimits.txt";
 //    String path = "TestSelfFKModes.txt";
 //    String path = "TestSelfInPredicateReferencing.txt";
+//    String path = "TestSelfInsteadOfTriggers.txt";
 //    String path = "TestSelfIssues.txt";
 //    String path = "TestSelfJoins.txt";
 //    String path = "TestSelfLeftJoin.txt";
@@ -69,8 +85,9 @@ public class TestScript extends TestBase {
 //    String path = "TestSelfQueries.txt";
 //    String path = "TestSelfSchemaPersistB1.txt";
 //    String path = "TestSelfSeqRightsA.txt";
-//      String path = "TestSelfStoredProcedure.txt";
-//      String path = "TestSelfStoredProcedureTypes.txt";
+//    String path = "TestSelfStoredProcedure.txt";
+//    String path = "TestSelfStoredProcedureTypes.txt";
+//    String path = "TestSelfSubselects.txt";
 //    String path = "TestSelfSysTables.txt";
 //    String path = "TestSelfTempTable1.txt";
 //    String path = "TestSelfTransaction.txt";
@@ -93,8 +110,8 @@ public class TestScript extends TestBase {
         Connection conn = newConnection();
         String fullPath = "testrun/hsqldb/" + path;
         TestUtil.testScript(conn, fullPath);
-        conn.createStatement().execute("SHUTDOWN IMMEDIATELY");
-    }
+        conn.createStatement().execute("SHUTDOWN");
+   }
 
     public static void main(String[] Args) throws Exception {
 
