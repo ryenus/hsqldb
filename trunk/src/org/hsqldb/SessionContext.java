@@ -190,6 +190,19 @@ public class SessionContext {
         dynamicArguments = args;
     }
 
+    public void pushStatementState() {
+
+        if (stack == null) {
+            stack = new HsqlArrayList(32, true);
+        }
+
+        stack.add(ValuePool.getInt(rownum));
+    }
+
+    public void popStatementState() {
+        rownum = ((Integer) stack.remove(stack.size() - 1)).intValue();
+    }
+
     public void setDynamicArguments(Object[] args) {
         dynamicArguments = args;
     }

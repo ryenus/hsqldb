@@ -195,7 +195,8 @@ public class RowAVL extends Row {
     public void restore() {}
 
     /**
-     * Helps GC, removing secondary node links.
+     * Helps GC, removing secondary node links. Keeps primary index links to
+     * allow iteration.
      */
     public void destroy() {
 

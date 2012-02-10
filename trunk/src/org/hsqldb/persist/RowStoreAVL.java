@@ -543,4 +543,19 @@ public abstract class RowStoreAVL implements PersistentStore {
 
         throw error;
     }
+
+    /**
+     * Used with memory indexes
+     */
+    void destroy() {
+
+        if (indexList.length == 0) {
+            return;
+        }
+
+        IndexAVL idx  = (IndexAVL) indexList[0];
+        NodeAVL  root = (NodeAVL) accessorList[0];
+
+        idx.unlinkNodes(root);
+    }
 }

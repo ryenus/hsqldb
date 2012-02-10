@@ -62,7 +62,7 @@ import org.hsqldb.types.Types;
  * Parser for DQL statements
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.2.7
+ * @version 2.2.9
  * @since 1.9.0
  */
 public class ParserDQL extends ParserBase {
@@ -123,7 +123,7 @@ public class ParserDQL extends ParserBase {
             typeNumber = Type.getTypeNr(token.tokenString);
         }
 
-        if (database.sqlSyntaxOra) {
+        if (database.sqlSyntaxOra && !session.isProcessingScript()) {
             if (typeNumber == Types.SQL_DATE) {
                 read();
 

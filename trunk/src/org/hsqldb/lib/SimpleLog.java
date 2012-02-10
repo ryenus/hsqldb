@@ -46,7 +46,7 @@ import org.hsqldb.HsqlDateTime;
  * and minor errors.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.1.1
+ * @version 2.2.9
  * @since 1.8.0
  */
 public class SimpleLog {
@@ -58,21 +58,29 @@ public class SimpleLog {
 
     //
     public static final String   logTypeNameEngine = "ENGINE";
-    public static final String[] logTypeNames      = {
+    public static final String[] appLogTypeNames   = {
         "", "ERROR ", "NORMAL", "DETAIL"
+    };
+    public static final String[] sqlLogTypeNames   = {
+        "", "BASIC ", "NORMAL", "DETAIL"
     };
 
     //
     private PrintWriter  writer;
     private int          level;
     private boolean      isSystem;
+    private boolean      isSQL;
+    String[]             logTypeNames;
     private String       filePath;
     private StringBuffer sb;
 
-    public SimpleLog(String path, int level) {
+    public SimpleLog(String path, int level, boolean isSQL) {
 
         this.isSystem = path == null;
         this.filePath = path;
+        this.isSQL    = isSQL;
+        logTypeNames  = isSQL ? sqlLogTypeNames
+                              : appLogTypeNames;
         sb            = new StringBuffer(256);
 
         setLevel(level);
@@ -102,8 +110,7 @@ public class SimpleLog {
         try {
             FileUtil.getFileUtil().makeParentDirectories(file);
 
-            writer = new PrintWriter(new FileWriter(file, true),
-                                     true);
+            writer = new PrintWriter(new FileWriter(file, true), true);
         } catch (Exception e) {
             isSystem = true;
             writer   = new PrintWriter(System.out);

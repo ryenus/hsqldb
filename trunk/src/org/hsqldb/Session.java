@@ -617,7 +617,7 @@ public class Session implements SessionInterface {
 
         if (database.logger.getSqlEventLogLevel() > 0) {
             database.logger.logStatementEvent(this, endTX, null,
-                                              SimpleLog.LOG_NORMAL);
+                                              SimpleLog.LOG_ERROR);
         }
 /* debug 190
         tempActionHistory.add("commit ends " + actionTimestamp);
@@ -1270,13 +1270,10 @@ public class Session implements SessionInterface {
         boolean isTX = cs.isTransactionStatement();
 
         if (!isTX) {
-            if (database.logger.getSqlEventLogLevel() > 0) {
+            if (database.logger.getSqlEventLogLevel() >= SimpleLog.LOG_NORMAL) {
                 sessionContext.setDynamicArguments(pvals);
-            }
-
-            if (database.logger.getSqlEventLogLevel() > 0) {
                 database.logger.logStatementEvent(this, cs, pvals,
-                                                  SimpleLog.LOG_DETAIL);
+                                                  SimpleLog.LOG_NORMAL);
             }
 
             r                               = cs.execute(this);
@@ -1323,9 +1320,9 @@ public class Session implements SessionInterface {
             //        tempActionHistory.add("sql execute " + cs.sql + " " + actionTimestamp + " " + rowActionList.size());
             sessionContext.setDynamicArguments(pvals);
 
-            if (database.logger.getSqlEventLogLevel() > 0) {
+            if (database.logger.getSqlEventLogLevel() >= SimpleLog.LOG_NORMAL) {
                 database.logger.logStatementEvent(this, cs, pvals,
-                                                  SimpleLog.LOG_DETAIL);
+                                                  SimpleLog.LOG_NORMAL);
             }
 
             r             = cs.execute(this);

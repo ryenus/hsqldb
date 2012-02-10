@@ -57,7 +57,7 @@ import org.hsqldb.types.UserTypeModifier;
  * Parser for DDL statements
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.2.7
+ * @version 2.2.9
  * @since 1.9.0
  */
 public class ParserDDL extends ParserRoutine {
@@ -82,8 +82,9 @@ public class ParserDDL extends ParserRoutine {
 
     StatementSchema compileCreate() {
 
-        int     tableType = TableBase.MEMORY_TABLE;
-        boolean isTable   = false;
+        int     tableType   = TableBase.MEMORY_TABLE;
+        boolean isTable     = false;
+        boolean isOrReplace = false;
 
         read();
 
@@ -145,6 +146,25 @@ public class ParserDDL extends ParserRoutine {
                 tableType = database.schemaManager.getDefaultTableType();
                 break;
 
+            case Tokens.OR :
+                if (database.sqlSyntaxOra) {
+                    read();
+                    readThis(Tokens.REPLACE);
+
+                    switch (token.tokenType) {
+
+                        case Tokens.FUNCTION :
+                        case Tokens.PROCEDURE :
+                        case Tokens.TRIGGER :
+                        case Tokens.TYPE :
+                        case Tokens.VIEW :
+                            break;
+                        default :
+                            throw unexpectedToken(Tokens.T_OR);
+                    }
+
+                    isOrReplace = true;
+                }
             default :
         }
 
@@ -165,7 +185,7 @@ public class ParserDDL extends ParserRoutine {
                 return compileCreateSchema();
 
             case Tokens.TRIGGER :
-                return compileCreateTrigger();
+                return compileCreateTrigger(isOrReplace);
 
             case Tokens.USER :
                 return compileCreateUser();
@@ -174,13 +194,13 @@ public class ParserDDL extends ParserRoutine {
                 return compileCreateRole();
 
             case Tokens.VIEW :
-                return compileCreateView(false);
+                return compileCreateView(false, isOrReplace);
 
             case Tokens.DOMAIN :
                 return compileCreateDomain();
 
             case Tokens.TYPE :
-                return compileCreateType();
+                return compileCreateType(isOrReplace);
 
             case Tokens.CHARACTER :
                 return compileCreateCharacterSet();
@@ -201,7 +221,7 @@ public class ParserDDL extends ParserRoutine {
             case Tokens.AGGREGATE :
             case Tokens.FUNCTION :
             case Tokens.PROCEDURE :
-                return compileCreateProcedureOrFunction();
+                return compileCreateProcedureOrFunction(isOrReplace);
 
             default : {
                 throw unexpectedToken();
@@ -290,7 +310,7 @@ public class ParserDDL extends ParserRoutine {
                 return compileAlterDomain();
             }
             case Tokens.VIEW : {
-                return compileCreateView(true);
+                return compileCreateView(true, false);
             }
             case Tokens.SESSION : {
                 return compileAlterSession();
@@ -1588,7 +1608,7 @@ public class ParserDDL extends ParserRoutine {
         return name;
     }
 
-    StatementSchema compileCreateView(boolean alter) {
+    StatementSchema compileCreateView(boolean alter, boolean orReplace) {
 
         read();
 
@@ -1751,7 +1771,7 @@ public class ParserDDL extends ParserRoutine {
                                    null, writeLockNames);
     }
 
-    StatementSchema compileCreateType() {
+    StatementSchema compileCreateType(boolean orReplace) {
 
         read();
 
@@ -1916,7 +1936,7 @@ public class ParserDDL extends ParserRoutine {
                                    null, writeLockNames);
     }
 
-    StatementSchema compileCreateTrigger() {
+    StatementSchema compileCreateTrigger(boolean orReplace) {
 
         Table          table;
         Boolean        isForEachRow = null;
@@ -2782,6 +2802,26 @@ public class ParserDDL extends ParserRoutine {
                     break;
                 }
                 default :
+                    if (database.sqlSyntaxOra && isSimpleName()) {
+                        if (token.tokenString.equals("NOCACHE")
+                                || token.tokenString.equals("NOCYCLE")
+                                || token.tokenString.equals("NOMAXVALUE")
+                                || token.tokenString.equals("NOMINVALUE")
+                                || token.tokenString.equals("NOORDER")
+                                || token.tokenString.equals("ORDER")) {
+                            read();
+
+                            break;
+                        }
+
+                        if (token.tokenString.equals("CACHE")) {
+                            read();
+                            readBigint();
+
+                            break;
+                        }
+                    }
+
                     end = true;
                     break;
             }
@@ -3332,7 +3372,7 @@ public class ParserDDL extends ParserRoutine {
                             break;
 
                         case Tokens.TYPE :
-                            cs     = compileCreateType();
+                            cs     = compileCreateType(false);
                             cs.sql = getLastPart(position);
                             break;
 

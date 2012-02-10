@@ -342,8 +342,8 @@ public class Logger {
             sqlLogPath = database.getPath() + sqlLogFileExtension;
         }
 
-        appLog = new SimpleLog(appLogPath, propEventLogLevel);
-        sqlLog = new SimpleLog(sqlLogPath, propSqlLogLevel);
+        appLog = new SimpleLog(appLogPath, propEventLogLevel, false);
+        sqlLog = new SimpleLog(sqlLogPath, propSqlLogLevel, true);
 
         database.setReferentialIntegrity(propRefIntegrity);
 
@@ -815,8 +815,8 @@ public class Logger {
             String sql       = statement.getSQL();
             String values    = "";
 
-            if (sql.length() > 100) {
-                sql.substring(0, 100);
+            if (sql.length() > 256) {
+                sql.substring(0, 256);
             }
 
             if (level == SimpleLog.LOG_DETAIL) {
@@ -828,7 +828,7 @@ public class Logger {
                 }
             }
 
-            sqlLog.logContext(SimpleLog.LOG_DETAIL, sessionId, sql, values);
+            sqlLog.logContext(level, sessionId, sql, values);
         }
     }
 
