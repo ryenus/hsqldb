@@ -1,3 +1,9 @@
+10 February 2012 - SVN 4938
+-- fixed issue with ROWNUM when correlated supqueries were used
+-- added support for SQL log level 1-3
+-- extended ORA syntax compatibility mode
+-- improved garbage collection of dropped MEMORY and TEXT tables
+-- improved name resolution with joined tables
 28 January 2012 - SVN 4925
 -- fixed issue with min(), max() optimisation for indexed columns
 -- fixed issue with some usages of UNNEST
