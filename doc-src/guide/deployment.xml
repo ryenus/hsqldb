@@ -938,6 +938,31 @@
         our snapshot jars are always built debug-enabled with Java 6.</simpara>
       </note>
 
+      <simpara>
+        Where you insert the &lt;repository&gt; element depends on whether you
+        want the definition to be personal, shared, or project-specific, so see
+        the Maven documentation about that.
+        But you can paste this element verbatim:
+      </simpara>
+      <example>
+        <title>HyperSQL Snapshot Repository Definition</title>
+
+        <programlisting><![CDATA[    <repository>
+      <releases>
+        <enabled>false</enabled>
+      </releases>
+      <snapshots>
+        <enabled>true</enabled>
+        <updatePolicy>always</updatePolicy>
+        <checksumPolicy>fail</checksumPolicy>
+      </snapshots>
+      <id>hsqldb_snapshots</id>
+      <name>HyperSQL Snapshots</name>
+      <url>http://hsqldb.org/repos</url>
+      <layout>default</layout>
+    </repository>]]></programlisting>
+      </example>
+
     <section xml:id="dec_hsqldb_snap_dep_examples">
       <title>Snapshot Dependency Specification Examples</title>
 
