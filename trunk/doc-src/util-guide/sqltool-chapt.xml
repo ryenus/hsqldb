@@ -1978,7 +1978,7 @@
                 you are effectively creating an SQL script.
                 To write some previous command to a file,
                 just restore the command to the edit buffer
-                with a command like "\-4" before you give the \w command.
+                with a command like ":-4" before you give the :w command.
             </simpara></listitem></varlistentry>
         </variablelist>
         <para>
