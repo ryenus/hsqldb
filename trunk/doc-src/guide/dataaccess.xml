@@ -37,11 +37,11 @@
     </keywordset>
 
     <legalnotice>
-      <para>Copyright 2010-2012 Fred Toussi. Permission is granted to distribute
-      this document without any alteration under the terms of the HSQLDB
-      license. Additional permission is granted to the HSQL Development Group
-      to distribute this document with or without alterations under the terms
-      of the HSQLDB license.</para>
+      <para>Copyright 2010-2012 Fred Toussi. Permission is granted to
+      distribute this document without any alteration under the terms of the
+      HSQLDB license. Additional permission is granted to the HSQL Development
+      Group to distribute this document with or without alterations under the
+      terms of the HSQLDB license.</para>
     </legalnotice>
   </info>
 
@@ -253,19 +253,19 @@ SELECT X FROM V WHERE Y = 5
       read-only and holdable.</para>
     </section>
 
-    <section  xml:id="dac_jdbc_overview">
+    <section xml:id="dac_jdbc_overview">
       <title>JDBC Overview</title>
 
       <para>The JDBC settings, ResultSet.CONCUR_READONLY and
-      ResultSet.CONCUR_UPDATABLE are the available alternatives for read-only or
-      updatability. The default is ResultSet.CONCUR_READONLY.</para>
+      ResultSet.CONCUR_UPDATABLE are the available alternatives for read-only
+      or updatability. The default is ResultSet.CONCUR_READONLY.</para>
 
       <para>The JDBC settings, ResultSet.TYPE_FORWARD_ONLY,
       ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.TYPE_SCROLL_SENSITIVE are
-      the available alternatives for both scrollability (navigation) and sensitivity.
-      HyperSQL does not support ResultSet.TYPE_SCROLL_SENSITIVE. The two other
-      alternatives can be used for both updatable and read-only result
-      sets.</para>
+      the available alternatives for both scrollability (navigation) and
+      sensitivity. HyperSQL does not support ResultSet.TYPE_SCROLL_SENSITIVE.
+      The two other alternatives can be used for both updatable and read-only
+      result sets.</para>
 
       <para>The JDBC settings ResultSet.CLOSE_CURSORS_AT_COMMIT and
       ResultSet.HOLD_CURSORS_OVER_COMMIT are the alternatives for the lifetime
@@ -370,7 +370,7 @@ st.execute(); // exception is thrown when HyperSQL checks the value for update
       the same way as procedures and retrieve the table as a ResultSet.</para>
     </section>
 
-    <section  xml:id="dac_jdbc_return_values">
+    <section xml:id="dac_jdbc_return_values">
       <title>JDBC Returned Values</title>
 
       <para>The methods of the JDBC ResultSet interface can be used to return
@@ -555,12 +555,12 @@ U&amp;'Unicode string with Greek delta \0394 and phi \03a6 letters'
       <simpara><literal>&lt;hexit&gt; ::= &lt;digit&gt; | A | B | C | D | E |
       F | a | b | c | d | e | f</literal></simpara>
 
-      <simpara>The type of a binary literal is BINARY. The octet length of
-      the binary literal is the length of the type. Case-insensitive
-      hexadecimal characters are used in the binary string. Each pair of
-      characters in the literal represents a byte in the binary string. Long
-      literals can be divided into multiple quoted strings, separated with a
-      space or end-of-line character.</simpara>
+      <simpara>The type of a binary literal is BINARY. The octet length of the
+      binary literal is the length of the type. Case-insensitive hexadecimal
+      characters are used in the binary string. Each pair of characters in the
+      literal represents a byte in the binary string. Long literals can be
+      divided into multiple quoted strings, separated with a space or
+      end-of-line character.</simpara>
 
       <programlisting>X'1abACD34' 'Af'</programlisting>
 
@@ -2065,11 +2065,12 @@ invoice_date &lt; ALL (SELECT holiday_date FROM holidays)
       returns the sum of values for <literal>acolumn</literal> in each
       group.</simpara>
 
-      <simpara>The SUM operations can be performed on numeric expressions
-      only. AVG and MEDIAN can be performed on numeric or datetime
-      expressions. AVG returns the average value, while SUM returns the sum of
-      all values. If all values are NULL, the operations return NULL. MEDIAN
-      returns the middle value in the sorted list of values.</simpara>
+      <simpara>The SUM operations can be performed on numeric and interval
+      expressions only. AVG and MEDIAN can be performed on numeric, interval
+      or datetime expressions. AVG returns the average value, while SUM
+      returns the sum of all values. If all values are NULL, the operations
+      return NULL. MEDIAN returns the middle value in the sorted list of
+      values.</simpara>
 
       <simpara>MAX and MIN can be performed on all types of expressions and
       return the minimum or the maximum value. If all values are NULL, the
@@ -2077,8 +2078,14 @@ invoice_date &lt; ALL (SELECT holiday_date FROM holidays)
 
       <simpara><literal>COUNT(*)</literal> returns the count of all values,
       including nulls, while <literal>COUNT(&lt;value
-      expression&gt;)</literal> returns the count of non-NULL
-      values.</simpara>
+      expression&gt;)</literal> returns the count of non-NULL values. COUNT
+      with DISTINCT also accepts multiple arguments. In this usage the
+      distinct combinations of the arguments are counted. Examples
+      below:</simpara>
+
+      <programlisting>SELECT COUNT(DISTINCT firstname, lastname) FROM customer
+SELECT COUNT(DISTINCT (firstname, lastname)) FROM customer
+</programlisting>
 
       <simpara>The EVERY, ANY and SOME operations can be performed on boolean
       expressions only. EVERY returns TRUE if all the values are TRUE,
@@ -2293,9 +2300,9 @@ SELECT * FROM atable UNION SELECT * FROM anothertable
       <title>Subquery</title>
 
       <para>A subquery is simply a query expression in brackets. A query
-      expression is usually a complete SELECT statement and is discussed in the
-      rest of this chapter. A scalar subquery returns one row with one column.
-      A row subquery returns one row with one or more columns. A table
+      expression is usually a complete SELECT statement and is discussed in
+      the rest of this chapter. A scalar subquery returns one row with one
+      column. A row subquery returns one row with one or more columns. A table
       subquery returns zero or more rows with one or more columns. The
       distinction between different forms of subquery is syntactic. Different
       forms are allowed in different contexts. If a scalar subquery or a row
@@ -2810,6 +2817,14 @@ I D          S
       <para>Naming is used to hide the original names of tables or table
       columns and to replace them with new names in the scope of the query.
       Naming is also used for defining names for computed columns.</para>
+
+      <para>Without explicit naming, the name of a column is a predefined
+      name. If the column is a column of a table, or is a named parameter, the
+      name is of the table column or parameter is used. Otherwise it is
+      generated by the database engine. HyperSQL generates column names such
+      as C1, C2, etc. As generated naming is implementation defined according
+      to the SQL Standard, it is better to explicitly name the computed and
+      derived columns in your applications.</para>
 
       <indexterm significance="preferred" type="sql">
         <primary>naming in joined table</primary>

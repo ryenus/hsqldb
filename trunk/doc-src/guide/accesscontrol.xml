@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-
 <!DOCTYPE book [
-  <!ENTITY % dummy22 SYSTEM "../entities/global.ent"> %dummy22;
+<!ENTITY % dummy22 SYSTEM "../entities/global.ent">
+%dummy22;
 ]>
 <chapter version="5.0" xml:id="accesscontrol-chapt"
          xmlns="http://docbook.org/ns/docbook"
@@ -37,15 +37,15 @@
     </keywordset>
 
     <legalnotice>
-      <para>Copyright 2010-2012 Fred Toussi. Permission is granted to distribute
-      this document without any alteration under the terms of the HSQLDB
-      license. Additional permission is granted to the HSQL Development Group
-      to distribute this document with or without alterations under the terms
-      of the HSQLDB license.</para>
+      <para>Copyright 2010-2012 Fred Toussi. Permission is granted to
+      distribute this document without any alteration under the terms of the
+      HSQLDB license. Additional permission is granted to the HSQL Development
+      Group to distribute this document with or without alterations under the
+      terms of the HSQLDB license.</para>
     </legalnotice>
   </info>
 
-  <section xml:id='acc_overview'>
+  <section xml:id="acc_overview">
     <title>Overview</title>
 
     <para>This chapter is about access control to database objects such as
@@ -120,7 +120,7 @@
     objects.</simpara>
   </section>
 
-  <section xml:id='acc_auth_and_access_ctrl'>
+  <section xml:id="acc_auth_and_access_ctrl">
     <title>Authorizations and Access Control</title>
 
     <para>In general, ROLE and USER objects simply control access to schema
@@ -178,13 +178,17 @@
     <simpara>Authorization identifiers share the same name-space within the
     database. The same name cannot be used for a USER and a ROLE.</simpara>
 
-    <section xml:id='acc_built_in_roles_users'>
+    <section xml:id="acc_built_in_roles_users">
       <title>Built-In Roles and Users</title>
 
       <para>There are some pre-defined roles in each database; some defined by
       the SQL Standard, some by HyperSQL. These roles can be assigned to users
       (directly or via other, user-defined roles). In addition, there is the
-      default initial user, SA, created with each new database.</para>
+      initial SYS user created with each new database. The initial user name
+      and password is defined in the connection properties when the first
+      connection to the database is made. In older versions of HSQLDB, this
+      name was always SA. But in the latest version, the name can be defined
+      as a different string.</para>
 
       <indexterm significance="preferred" type="sql">
         <primary>PUBLIC ROLE</primary>
@@ -255,22 +259,46 @@
       authorizations.</simpara>
 
       <indexterm significance="preferred" type="sql">
-        <primary>SA USER</primary>
+        <primary>SYS USER</primary>
       </indexterm>
 
-      <simpara><emphasis role="bold">SA</emphasis></simpara>
+      <simpara><emphasis role="bold">SYS User</emphasis></simpara>
 
-      <simpara><emphasis>the SA user (HyperSQL-specific)</emphasis></simpara>
+      <simpara><emphasis>the SYS user (HyperSQL-specific)</emphasis></simpara>
 
       <simpara>This user is automatically created with a new database and has
-      the DBA role. Initially, the password for this user is an empty string.
-      After connecting to the new database as this user, it is possible to
-      change the password, create other users and created new schema objects.
-      The SA user can be dropped by another user that has the DBA
-      role.</simpara>
+      the DBA role. This user name and its password are defined in the
+      connection properties when connecting to the new database to create the
+      database. As this user, it is possible to change the password, create
+      other users and created new schema objects. The initial SYS user can be
+      dropped by another user that has the DBA role. As a result, there is
+      always at least one SYS user in the database.</simpara>
     </section>
 
-    <section xml:id='acc_access_rights'>
+    <section xml:id="acc_listing">
+      <title>Listing Users and Roles</title>
+
+      <para>Tables in the INFORMATION_SCHEMA contain the list of users and
+      roles for the database.</para>
+
+      <para>The SYSTEM_USERS tables contains the list of users, with some
+      extra settings for each user. The AUTHORIZATIONS table contains a list
+      of both users and roles.</para>
+
+      <para>Several other INFORMATION_SCHEMA tables list the privileges
+      granted to users and roles on different database objects. Refer to the
+      <link endterm="databaseobjects-title"
+      xlink:href="#dbobjects-chapt"></link> chapter for a list and description
+      of the tables. Example below:</para>
+
+      <para><informalexample>
+          <programlisting>SELECT * FROM INFORMATION_SCHEMA.SYSTEM_USERS 
+SELECT * FROM INFORMATION_SCHEMA.TABLE_PRIVILEGES
+</programlisting>
+        </informalexample></para>
+    </section>
+
+    <section xml:id="acc_access_rights">
       <title>Access Rights</title>
 
       <para>By default, the objects in a schema can only be accessed by the
@@ -349,7 +377,7 @@
     </section>
   </section>
 
-  <section xml:id='acc_statements'>
+  <section xml:id="acc_statements">
     <title xml:id="accesscontrol-statements-title">Statements for
     Authorization and Access Control</title>
 
@@ -459,7 +487,7 @@
     is enabled. In this method of authentication, users created in the
     database are ignored and an external authentication mechanism, such as
     LDAP is used. This statement is used if you want to use local, password
-    authentication for a specific user. </simpara>
+    authentication for a specific user.</simpara>
 
     <simpara>Only a user with the DBA role can execute this
     statement.</simpara>
