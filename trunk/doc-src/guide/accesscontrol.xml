@@ -288,8 +288,8 @@
       <para>Several other INFORMATION_SCHEMA tables list the privileges
       granted to users and roles on different database objects. Refer to the
       <link endterm="databaseobjects-title"
-      xlink:href="#dbobjects-chapt"></link> chapter for a list and description
-      of the tables. Example below:</para>
+      xlink:href="#databaseobjects-chapt"></link> chapter for a list and
+      description of the tables. Example below:</para>
 
       <para><informalexample>
           <programlisting>SELECT * FROM INFORMATION_SCHEMA.SYSTEM_USERS 
