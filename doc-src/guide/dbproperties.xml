@@ -153,11 +153,14 @@
 
           <row>
             <entry nameend="c3" namest="c1"><para>The file path specifies the
-            database file. In the above examples the first one refers to a set
-            of mydb.* files in the directory where the
+            database files. It should consist of a relative or absolute path
+            to the directory containing the database files, followed by a '/'
+            and the database name. In the above examples the first one refers
+            to a set of mydb.* files in the directory where the
             <literal>java</literal>command for running the application was
             issued. The second and third examples refer to absolute paths on
-            the host machine.</para></entry>
+            the host machine: For example, files named accounts.* in the
+            directory /opt/db for the accounts database.</para></entry>
           </row>
         </tbody>
       </tgroup>

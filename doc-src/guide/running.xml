@@ -234,10 +234,11 @@
     <para>The database file path format can be specified using forward slashes
     in Windows hosts as well as Linux hosts. So relative paths or paths that
     refer to the same directory on the same drive can be identical. For
-    example if your database path in Linux is
-    <filename>/opt/db/testdb</filename> and you create an identical directory
-    structure on the <literal>C:</literal> drive of a Windows host, you can
-    use the same URL in both Windows and Linux:</para>
+    example if your database directory in Linux is <filename>/opt/db/
+    containing a database testdb (with files named testdb.*), then the
+    database file path is /opt/db/testdb.</filename> If you create an
+    identical directory structure on the <literal>C:</literal> drive of a
+    Windows host, you can use the same URL in both Windows and Linux:</para>
 
     <programlisting>  Connection c = DriverManager.getConnection("jdbc:hsqldb:file:/opt/db/testdb", "SA", "");</programlisting>
 
@@ -364,7 +365,7 @@
       get a list of available arguments.</para>
     </section>
 
-    <section  xml:id="rgc_http_servlet">
+    <section xml:id="rgc_http_servlet">
       <title>HyperSQL HTTP Servlet</title>
 
       <para>This method of access also uses the HTTP protocol. It is used when
@@ -440,22 +441,21 @@
 
       <para>When a HyperSQL server is run, network access should be adequately
       protected. Source IP addresses may be restricted by use of our <link
-      xlink:href="#lsc_acl">Access Control List feature</link>,
-      network filtering software, firewall software, or standalone firewalls.
-      Only secure passwords should be used-- most importantly, the password
-      for the default system user should be changed from the default empty
-      string. If you are purposefully providing data to the public, then the
-      wide-open public network connection should be used exclusively to access
-      the public data via read-only accounts. (i.e., neither secure data nor
+      xlink:href="#lsc_acl">Access Control List feature</link>, network
+      filtering software, firewall software, or standalone firewalls. Only
+      secure passwords should be used-- most importantly, the password for the
+      default system user should be changed from the default empty string. If
+      you are purposefully providing data to the public, then the wide-open
+      public network connection should be used exclusively to access the
+      public data via read-only accounts. (i.e., neither secure data nor
       privileged accounts should use this connection). These considerations
       also apply to HyperSQL servers run with the HTTP protocol.</para>
 
       <para>HyperSQL provides two optional security mechanisms. The <link
-      xlink:href="#lsc_tls">encrypted SSL protocol</link>, and
-      <link xlink:href="#lsc_acl">Access Control Lists</link>. Both
-      mechanisms can be specified when running the Server or WebServer. On the
-      client, the URL to connect to an SSL server is slightly
-      different:</para>
+      xlink:href="#lsc_tls">encrypted SSL protocol</link>, and <link
+      xlink:href="#lsc_acl">Access Control Lists</link>. Both mechanisms can
+      be specified when running the Server or WebServer. On the client, the
+      URL to connect to an SSL server is slightly different:</para>
 
       <para><example>
           <title>Java code to connect to the local secure SSL hsql and http
