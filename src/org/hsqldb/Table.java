@@ -62,7 +62,7 @@ import org.hsqldb.types.Type;
  * Extensively rewritten and extended in successive versions of HSQLDB.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.2.7
+ * @version 2.2.9
  * @since 1.6.1
  */
 public class Table extends TableBase implements SchemaObject {

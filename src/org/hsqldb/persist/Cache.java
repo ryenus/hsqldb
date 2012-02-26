@@ -31,10 +31,9 @@
 
 package org.hsqldb.persist;
 
-import java.util.Comparator;
-
 import org.hsqldb.lib.ArraySort;
 import org.hsqldb.lib.Iterator;
+import org.hsqldb.lib.ObjectComparator;
 import org.hsqldb.lib.StopWatch;
 import org.hsqldb.store.BaseHashMap;
 
@@ -355,12 +354,12 @@ public class Cache extends BaseHashMap {
         cacheBytesLength = 0;
     }
 
-    static final class CachedObjectComparator implements Comparator {
+    static final class CachedObjectComparator implements ObjectComparator {
 
         static final int COMPARE_LAST_ACCESS = 0;
         static final int COMPARE_POSITION    = 1;
         static final int COMPARE_SIZE        = 2;
-        private int      compareType;
+        private int      compareType = COMPARE_POSITION;
 
         CachedObjectComparator() {}
 
@@ -391,6 +390,14 @@ public class Cache extends BaseHashMap {
             return diff == 0 ? 0
                              : diff > 0 ? 1
                                         : -1;
+        }
+
+        public int hashCode(Object o) {
+            return o.hashCode();
+        }
+
+        public long longKey(Object o) {
+            return ((CachedObject) o).getPos();
         }
     }
 }

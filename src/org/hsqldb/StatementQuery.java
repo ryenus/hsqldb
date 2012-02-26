@@ -43,7 +43,7 @@ import org.hsqldb.result.ResultProperties;
  * Implementation of Statement for query expressions.<p>
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.1.1
+ * @version 2.2.9
  * @since 1.9.0
  */
 public class StatementQuery extends StatementDMQL {
@@ -110,6 +110,9 @@ public class StatementQuery extends StatementDMQL {
     }
 
     public int getResultProperties() {
-        return ResultProperties.defaultPropsValue;
+
+        return queryExpression.isUpdatable
+               ? ResultProperties.updatablePropsValue
+               : ResultProperties.defaultPropsValue;
     }
 }

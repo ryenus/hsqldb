@@ -31,8 +31,6 @@
 
 package org.hsqldb.types;
 
-import java.util.Comparator;
-
 import org.hsqldb.HsqlNameManager;
 import org.hsqldb.HsqlNameManager.HsqlName;
 import org.hsqldb.SchemaObject;
@@ -44,15 +42,15 @@ import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
 import org.hsqldb.lib.IntKeyHashMap;
 import org.hsqldb.lib.IntValueHashMap;
+import org.hsqldb.lib.ObjectComparator;
 import org.hsqldb.lib.OrderedHashSet;
 import org.hsqldb.rights.Grantee;
-import org.hsqldb.store.ValuePool;
 
 /**
  * Base class for type objects.<p>
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.0.1
+ * @version 2.2.9
  * @since 1.9.0
  */
 public abstract class Type implements SchemaObject, Cloneable {
@@ -541,6 +539,15 @@ public abstract class Type implements SchemaObject, Cloneable {
         return 0;
     }
 
+    int hashCode(Object a) {
+
+        if (a == null) {
+            return 0;
+        }
+
+        return a.hashCode();
+    }
+
     public boolean equals(Object other) {
 
         if (other == this) {
@@ -573,7 +580,7 @@ public abstract class Type implements SchemaObject, Cloneable {
         return new TypedComparator(session);
     }
 
-    public static class TypedComparator implements Comparator {
+    public static class TypedComparator implements ObjectComparator {
 
         Session      session;
         Type         type;
@@ -586,6 +593,14 @@ public abstract class Type implements SchemaObject, Cloneable {
 
         public int compare(Object a, Object b) {
             return type.compare(session, a, b, sort);
+        }
+
+        public int hashCode(Object a) {
+            return type.hashCode(a);
+        }
+
+        public long longKey(Object a) {
+            return 0;
         }
 
         public void setType(Type type, SortAndSlice sort) {

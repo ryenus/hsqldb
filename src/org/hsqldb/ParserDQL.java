@@ -1997,7 +1997,8 @@ public class ParserDQL extends ParserBase {
             read();
         }
 
-        Expression e = XreadValueExpression();
+        int        position = getPosition();
+        Expression e        = XreadValueExpression();
 
         switch (type) {
 
@@ -2015,6 +2016,12 @@ public class ParserDQL extends ParserBase {
 
                     break;
                 } else {
+                    if (token.tokenType == Tokens.COMMA) {
+                        rewind(position);
+
+                        e = XreadRowElementList(false);
+                    }
+
                     break;
                 }
             case OpTypes.STDDEV_POP :
@@ -2283,12 +2290,24 @@ public class ParserDQL extends ParserBase {
                 }
         }
 
-        if (e == null && token.tokenType == Tokens.OPENBRACKET) {
-            read();
+        if (e == null) {
+            boolean isRow = false;
 
-            e = XreadRowElementList(true);
+            if (token.tokenType == Tokens.ROW) {
+                read();
+                checkIsThis(Tokens.OPENBRACKET);
 
-            readThis(Tokens.CLOSEBRACKET);
+                isRow = true;
+            }
+
+            if (token.tokenType == Tokens.OPENBRACKET) {
+                read();
+
+                // ignore isRow
+                e = XreadRowElementList(true);
+
+                readThis(Tokens.CLOSEBRACKET);
+            }
         }
 
         if (boole && e != null) {
@@ -5164,7 +5183,8 @@ public class ParserDQL extends ParserBase {
                 break;
             }
 
-            Expression l = new ExpressionLogical(OpTypes.MATCH_FULL, main, v);
+            Expression l = new ExpressionLogical(OpTypes.NOT_DISTINCT, main,
+                                                 v);
             Expression r = XreadValueExpression();
             Expression a = new ExpressionOp(OpTypes.ALTERNATIVE, r, null);
             Expression c = new ExpressionOp(OpTypes.CASEWHEN, l, a);

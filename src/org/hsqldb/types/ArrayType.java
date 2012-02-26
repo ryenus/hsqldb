@@ -48,7 +48,7 @@ import org.hsqldb.lib.ArraySort;
  * Class for ARRAY type objects.<p>
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.2.1
+ * @version 2.2.9
  * @since 2.0.0
  */
 public class ArrayType extends Type {
@@ -488,6 +488,22 @@ public class ArrayType extends Type {
         }
 
         return false;
+    }
+
+    public int hashCode(Object a) {
+
+        if (a == null) {
+            return 0;
+        }
+
+        int      hash  = 0;
+        Object[] array = (Object[]) a;
+
+        for (int i = 0; i < array.length && i < 4; i++) {
+            hash += dataType.hashCode(array[i]);
+        }
+
+        return hash;
     }
 
     public void sort(Session session, Object a, SortAndSlice sort) {

@@ -45,9 +45,10 @@ import org.hsqldb.types.IntervalMonthData;
 import org.hsqldb.types.IntervalSecondData;
 import org.hsqldb.types.IntervalType;
 import org.hsqldb.types.NumberType;
-import org.hsqldb.types.TimeData;
+import org.hsqldb.types.RowType;
 import org.hsqldb.types.TimestampData;
 import org.hsqldb.types.Type;
+import org.hsqldb.types.Type.TypedComparator;
 import org.hsqldb.types.Types;
 
 /**
@@ -57,7 +58,7 @@ import org.hsqldb.types.Types;
  *
  * @author Campbell Boucher-Burnet (boucherb@users dot sourceforge.net)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.0.1
+ * @version 2.2.9
  * @since 1.7.2
  *
  */
@@ -85,8 +86,8 @@ public class SetFunction implements Serializable {
     private BigDecimal currentBigDecimal;
     private Object     currentValue;
 
-    SetFunction(int setType, Type type, Type returnType, boolean isDistinct,
-                ArrayType arrayType) {
+    SetFunction(Session session, int setType, Type type, Type returnType,
+                boolean isDistinct, ArrayType arrayType) {
 
         this.setType    = setType;
         this.type       = type;
@@ -96,6 +97,18 @@ public class SetFunction implements Serializable {
             this.isDistinct = true;
             this.arrayType  = arrayType;
             distinctValues  = new HashSet();
+
+            if (type.isRowType() || type.isArrayType()) {
+                TypedComparator comparator = Type.newComparator(session);
+                SortAndSlice    sort       = new SortAndSlice();
+                int length = type.isRowType()
+                             ? ((RowType) type).getTypesArray().length
+                             : 1;
+
+                sort.prepareMultiColumn(length);
+                comparator.setType(type, sort);
+                distinctValues.setComparator(comparator);
+            }
         }
 
         if (setType == OpTypes.VAR_SAMP || setType == OpTypes.STDDEV_SAMP) {
@@ -143,20 +156,20 @@ public class SetFunction implements Serializable {
 
                     case Types.SQL_INTERVAL : {
                         if (item instanceof IntervalSecondData) {
-                            addLong( ( (IntervalSecondData) item).getSeconds());
+                            addLong(((IntervalSecondData) item).getSeconds());
 
-                            currentLong += ( (IntervalSecondData) item).getNanos();
+                            currentLong +=
+                                ((IntervalSecondData) item).getNanos();
 
                             if (Math.abs(currentLong)
-                                >= DTIType.nanoScaleFactors[0]) {
+                                    >= DTIType.nanoScaleFactors[0]) {
                                 addLong(currentLong
                                         / DTIType.nanoScaleFactors[0]);
 
                                 currentLong %= DTIType.nanoScaleFactors[0];
                             }
-                        }
-                        else if (item instanceof IntervalMonthData) {
-                            addLong( ( (IntervalMonthData) item).units);
+                        } else if (item instanceof IntervalMonthData) {
+                            addLong(((IntervalMonthData) item).units);
                         }
 
                         return;
@@ -164,19 +177,18 @@ public class SetFunction implements Serializable {
                     case Types.SQL_DATE :
                     case Types.SQL_TIMESTAMP :
                     case Types.SQL_TIMESTAMP_WITH_TIME_ZONE : {
-                            addLong( ( (TimestampData) item).getSeconds());
+                        addLong(((TimestampData) item).getSeconds());
 
-                            currentLong += ( (TimestampData) item).getNanos();
+                        currentLong += ((TimestampData) item).getNanos();
 
-                            if (Math.abs(currentLong)
+                        if (Math.abs(currentLong)
                                 >= DTIType.nanoScaleFactors[0]) {
-                                addLong(currentLong
-                                        / DTIType.nanoScaleFactors[0]);
+                            addLong(currentLong / DTIType.nanoScaleFactors[0]);
 
-                                currentLong %= DTIType.nanoScaleFactors[0];
-                            }
+                            currentLong %= DTIType.nanoScaleFactors[0];
+                        }
 
-                            currentDouble = ( (TimestampData) item).getZone();
+                        currentDouble = ((TimestampData) item).getZone();
 
                         return;
                     }
@@ -359,8 +371,9 @@ public class SetFunction implements Serializable {
                             throw Error.error(ErrorCode.X_22015);
                         }
 
-
-                        return new TimestampData(bi.longValue(), (int) currentLong, (int) currentDouble);
+                        return new TimestampData(bi.longValue(),
+                                                 (int) currentLong,
+                                                 (int) currentDouble);
                     }
                     default :
                         throw Error.runtimeError(ErrorCode.U_S0500,

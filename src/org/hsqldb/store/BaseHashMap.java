@@ -35,6 +35,7 @@ import java.util.NoSuchElementException;
 
 import org.hsqldb.lib.ArrayCounter;
 import org.hsqldb.lib.Iterator;
+import org.hsqldb.lib.ObjectComparator;
 
 /**
  * Base class for hash tables or sets. The exact type of the structure is
@@ -45,7 +46,7 @@ import org.hsqldb.lib.Iterator;
  * Special getOrAddXXX() methods are used for object maps in some subclasses.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 1.9.0
+ * @version 2.2.9
  * @since 1.7.2
  */
 public class BaseHashMap {
@@ -114,12 +115,13 @@ public class BaseHashMap {
     protected Object[]  objectValueTable2;
 
     //
-    final float       loadFactor;
-    final int         initialCapacity;
-    int               threshold;
-    protected int     maxCapacity;
-    protected int     purgePolicy = NO_PURGE;
-    protected boolean minimizeOnEmpty;
+    final float                loadFactor;
+    final int                  initialCapacity;
+    int                        threshold;
+    protected int              maxCapacity;
+    protected int              purgePolicy = NO_PURGE;
+    protected boolean          minimizeOnEmpty;
+    protected ObjectComparator comparator;
 
     //
     boolean hasZeroKey;
@@ -204,7 +206,7 @@ public class BaseHashMap {
             tempKey = objectKeyTable[lookup];
 
             if (key.equals(tempKey)) {
-                return lookup;
+                break;
             }
         }
 
@@ -220,7 +222,7 @@ public class BaseHashMap {
             tempKey = intKeyTable[lookup];
 
             if (key == tempKey) {
-                return lookup;
+                break;
             }
         }
 
@@ -236,7 +238,23 @@ public class BaseHashMap {
             tempKey = longKeyTable[lookup];
 
             if (key == tempKey) {
-                return lookup;
+                break;
+            }
+        }
+
+        return lookup;
+    }
+
+    protected int getObjectLookup(long key) {
+
+        int  lookup = hashIndex.getLookup((int) key);
+        long tempKey;
+
+        for (; lookup >= 0; lookup = hashIndex.getNextLookup(lookup)) {
+            tempKey = comparator.longKey(objectKeyTable[lookup]);
+
+            if (tempKey == key) {
+                break;
             }
         }
 
@@ -270,7 +288,11 @@ public class BaseHashMap {
                 return null;
             }
 
-            hash = objectKey.hashCode();
+            if (comparator == null) {
+                hash = objectKey.hashCode();
+            } else {
+                hash = comparator.hashCode(objectKey);
+            }
         }
 
         int    index       = hashIndex.getHashIndex(hash);
@@ -282,8 +304,15 @@ public class BaseHashMap {
                 lastLookup = lookup,
                 lookup = hashIndex.getNextLookup(lookup)) {
             if (isObjectKey) {
-                if (objectKeyTable[lookup].equals(objectKey)) {
-                    break;
+                if (comparator == null) {
+                    if (objectKeyTable[lookup].equals(objectKey)) {
+                        break;
+                    }
+                } else {
+                    if (comparator.compare(objectKeyTable[lookup], objectKey)
+                            == 0) {
+                        break;
+                    }
                 }
             } else if (isIntKey) {
                 if (longKey == intKeyTable[lookup]) {
@@ -357,13 +386,11 @@ public class BaseHashMap {
         }
 
         if (hashIndex.elementCount >= threshold) {
-
-            // should throw maybe, if reset returns false?
             if (reset()) {
                 return addOrRemove(longKey, longValue, objectKey, objectValue,
                                    remove);
             } else {
-                return null;
+                throw new NoSuchElementException("BaseHashMap");
             }
         }
 
@@ -420,7 +447,11 @@ public class BaseHashMap {
                 return null;
             }
 
-            hash = objectKey.hashCode();
+            if (comparator == null) {
+                hash = objectKey.hashCode();
+            } else {
+                hash = comparator.hashCode(objectKey);
+            }
         }
 
         int     index       = hashIndex.getHashIndex(hash);
@@ -433,9 +464,38 @@ public class BaseHashMap {
                 lastLookup = lookup,
                 lookup = hashIndex.getNextLookup(lookup)) {
             if (isObjectKey) {
-                if (objectKeyTable[lookup].equals(objectKey)) {
-                    if (removeKey) {
-                        while (true) {
+                if (comparator == null) {
+                    if (objectKeyTable[lookup].equals(objectKey)) {}
+                    else {
+                        continue;
+                    }
+                } else {
+                    if (comparator.compare(objectKeyTable[lookup], objectKey)
+                            == 0) {}
+                    else {
+                        continue;
+                    }
+                }
+
+                if (removeKey) {
+                    while (true) {
+                        objectKeyTable[lookup]   = null;
+                        returnValue              = objectValueTable[lookup];
+                        objectValueTable[lookup] = null;
+
+                        hashIndex.unlinkNode(index, lastLookup, lookup);
+
+                        multiValueTable[lookup] = false;
+                        lookup                  = hashIndex.hashTable[index];
+
+                        if (lookup < 0
+                                || !objectKeyTable[lookup].equals(objectKey)) {
+                            return returnValue;
+                        }
+                    }
+                } else {
+                    if (objectValueTable[lookup].equals(objectValue)) {
+                        if (removeValue) {
                             objectKeyTable[lookup]   = null;
                             returnValue = objectValueTable[lookup];
                             objectValueTable[lookup] = null;
@@ -443,36 +503,16 @@ public class BaseHashMap {
                             hashIndex.unlinkNode(index, lastLookup, lookup);
 
                             multiValueTable[lookup] = false;
-                            lookup = hashIndex.hashTable[index];
+                            lookup                  = lastLookup;
 
-                            if (lookup < 0
-                                    || !objectKeyTable[lookup].equals(
-                                        objectKey)) {
-                                return returnValue;
-                            }
-                        }
-                    } else {
-                        if (objectValueTable[lookup].equals(objectValue)) {
-                            if (removeValue) {
-                                objectKeyTable[lookup]   = null;
-                                returnValue = objectValueTable[lookup];
-                                objectValueTable[lookup] = null;
-
-                                hashIndex.unlinkNode(index, lastLookup,
-                                                     lookup);
-
-                                multiValueTable[lookup] = false;
-                                lookup                  = lastLookup;
-
-                                return returnValue;
-                            } else {
-                                return objectValueTable[lookup];
-                            }
+                            return returnValue;
+                        } else {
+                            return objectValueTable[lookup];
                         }
                     }
-
-                    multiValue = true;
                 }
+
+                multiValue = true;
             } else if (isIntKey) {
                 if (longKey == intKeyTable[lookup]) {
                     if (removeKey) {
@@ -540,14 +580,12 @@ public class BaseHashMap {
         }
 
         if (hashIndex.elementCount >= threshold) {
-
-            // should throw maybe, if reset returns false?
             if (reset()) {
                 return addOrRemoveMultiVal(longKey, longValue, objectKey,
                                            objectValue, removeKey,
                                            removeValue);
             } else {
-                return null;
+                throw new NoSuchElementException("BaseHashMap");
             }
         }
 
@@ -740,6 +778,69 @@ public class BaseHashMap {
         }
 
         // not found
+        return returnValue;
+    }
+
+    /**
+     * For object sets using long key attribute of object for equality and
+     * hash
+     */
+    protected Object addOrRemoveObject(Object object, long longKey,
+                                       boolean remove) {
+
+        int    hash        = (int) longKey;
+        int    index       = hashIndex.getHashIndex(hash);
+        int    lookup      = hashIndex.getLookup(hash);
+        int    lastLookup  = -1;
+        Object returnValue = null;
+
+        for (; lookup >= 0;
+                lastLookup = lookup,
+                lookup = hashIndex.getNextLookup(lookup)) {
+            returnValue = objectKeyTable[lookup];
+
+            if (comparator.longKey(returnValue) == longKey) {
+                break;
+            }
+        }
+
+        if (lookup >= 0) {
+            if (remove) {
+                objectKeyTable[lookup] = null;
+
+                hashIndex.unlinkNode(index, lastLookup, lookup);
+
+                if (accessTable != null) {
+                    accessTable[lookup] = 0;
+                }
+
+                if (minimizeOnEmpty && hashIndex.elementCount == 0) {
+                    rehash(initialCapacity);
+                }
+            } else {
+                objectKeyTable[lookup] = object;
+            }
+
+            return returnValue;
+        } else if (remove) {
+            return null;
+        }
+
+        if (hashIndex.elementCount >= threshold) {
+            if (reset()) {
+                return addOrRemoveObject(object, longKey, remove);
+            } else {
+                throw new NoSuchElementException("BaseHashMap");
+            }
+        }
+
+        lookup                 = hashIndex.linkNode(index, lastLookup);
+        objectKeyTable[lookup] = object;
+
+        if (accessTable != null) {
+            accessTable[lookup] = ++accessCount;
+        }
+
         return returnValue;
     }
 
@@ -1205,6 +1306,10 @@ public class BaseHashMap {
         return hashIndex.elementCount == 0;
     }
 
+    protected void setComparator(ObjectComparator comparator) {
+        this.comparator = comparator;
+    }
+
     protected boolean containsKey(Object key) {
 
         if (key == null) {
@@ -1517,6 +1622,7 @@ public class BaseHashMap {
 
             if (isList) {
                 removeRow(lookup);
+
                 lookup--;
             }
         }

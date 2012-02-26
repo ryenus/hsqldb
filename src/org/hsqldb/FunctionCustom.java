@@ -75,7 +75,7 @@ import org.hsqldb.types.Types;
  * Some functions are translated into equivalent SQL Standard functions.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.1.1
+ * @version 2.2.9
  * @since 1.9.0
  */
 public class FunctionCustom extends FunctionSQL {
@@ -1141,11 +1141,8 @@ public class FunctionCustom extends FunctionSQL {
                 long millis = date.getTime();
                 int  nanos  = 0;
 
-                if (funcType == FUNC_TO_DATE) {
-                    millis = HsqlDateTime.convertToNormalisedDate(millis,
-                            format.getCalendar());
-                } else {
-                    nanos = ((int) (millis % 1000)) * 100000;
+                if (funcType == FUNC_TO_TIMESTAMP) {
+                    nanos = ((int) (millis % 1000)) * 1000000;
                 }
 
                 return new TimestampData(millis / 1000, nanos);
@@ -2213,7 +2210,7 @@ public class FunctionCustom extends FunctionSQL {
                     throw Error.error(ErrorCode.X_42567);
                 }
 
-                dataType = funcType == FUNC_TO_DATE ? Type.SQL_DATE
+                dataType = funcType == FUNC_TO_DATE ? Type.SQL_TIMESTAMP_NO_FRACTION
                                                     : Type.SQL_TIMESTAMP;
 
                 return;
