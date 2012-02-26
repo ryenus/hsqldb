@@ -37,12 +37,13 @@ import org.hsqldb.lib.ArrayListIdentity;
 import org.hsqldb.lib.HsqlList;
 import org.hsqldb.store.ValuePool;
 import org.hsqldb.types.ArrayType;
+import org.hsqldb.types.RowType;
 
 /**
  * Implementation of aggregate operations
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.0.1
+ * @version 2.2.9
  * @since 1.9.0
  */
 public class ExpressionAggregate extends Expression {
@@ -228,6 +229,10 @@ public class ExpressionAggregate extends Expression {
             }
         }
 
+        if (nodes[LEFT].getDegree() > 1) {
+            nodes[LEFT].dataType = new RowType(nodes[LEFT].nodeDataTypes);
+        }
+
         if (nodes[LEFT].isUnresolvedParam()) {
             throw Error.error(ErrorCode.X_42567);
         }
@@ -272,7 +277,7 @@ public class ExpressionAggregate extends Expression {
         }
 
         if (currValue == null) {
-            currValue = new SetFunction(opType, nodes[LEFT].dataType,
+            currValue = new SetFunction(session, opType, nodes[LEFT].dataType,
                                         dataType, isDistinctAggregate,
                                         arrayType);
         }

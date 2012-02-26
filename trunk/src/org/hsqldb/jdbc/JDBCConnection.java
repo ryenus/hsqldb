@@ -510,7 +510,7 @@ import org.hsqldb.types.Type;
  * </div> <!-- end release-specific documentation -->
  * @author Campbell Boucher-Burnet (boucherb@users dot sourceforge.net)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.2.1
+ * @version 2.2.9
  * @revised JDK 1.6, HSQLDB 2.0
  * @revised JDK 1.7, HSQLDB 2.1.0
  * @see JDBCDriver
@@ -1662,8 +1662,13 @@ public class JDBCConnection implements Connection {
         checkClosed();
 
         try {
+            int holdability = rsHoldability;
+            if (resultSetConcurrency == JDBCResultSet.CONCUR_UPDATABLE) {
+                holdability = JDBCResultSet.CLOSE_CURSORS_AT_COMMIT;
+            }
+
             return new JDBCPreparedStatement(this, sql, resultSetType,
-                    resultSetConcurrency, rsHoldability,
+                    resultSetConcurrency, holdability,
                     ResultConstants.RETURN_NO_GENERATED_KEYS, null, null);
         } catch (HsqlException e) {
             throw Util.sqlException(e);
@@ -2352,7 +2357,10 @@ public class JDBCConnection implements Connection {
      * <code>TYPE_SCROLL_INSENSITIVE</code>,
      * <code>CONCUR_READ_ONLY</code>,
      * <code>CONCUR_UPDATABLE</code>
-     * results. <p>
+     * results.<p>
+     * <code>HOLD_CURSORS_OVER_COMMIT</code> is supported only when
+     * <code>CONCUR_READ_ONLY</code> is requested.<p>
+     *
      *
      * If an unsupported combination is requested, a SQLWarning is issued on
      * this Connection and the closest supported combination is used instead. <p>

@@ -75,7 +75,7 @@ public final class SortAndSlice {
     public int[]   colIndexes;
     public boolean isGenerated;
 
-    SortAndSlice() {}
+    public SortAndSlice() {}
 
     public HsqlArrayList getExpressionList() {
         return exprList;
@@ -119,6 +119,17 @@ public final class SortAndSlice {
         sortDescending = new boolean[1];
         sortNullsLast  = new boolean[1];
         sortOrder[0]   = colIndex;
+    }
+
+    public void prepareMultiColumn(int count) {
+
+        sortOrder      = new int[count];
+        sortDescending = new boolean[count];
+        sortNullsLast  = new boolean[count];
+
+        for (int i = 0; i < count; i++) {
+            sortOrder[i] = i;
+        }
     }
 
     public void prepare(int degree) {

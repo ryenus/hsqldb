@@ -48,7 +48,7 @@ import org.hsqldb.store.ValuePool;
  * Session execution context and temporary data structures
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.2.7
+ * @version 2.2.9
  * @since 1.9.0
  */
 public class SessionContext {

@@ -741,7 +741,8 @@ class TransferDb extends DataAccessPoint {
 
         try {
             stmt           = conn.createStatement();
-            select_rs      = stmt.executeQuery(TTable.Stmts.sSourceSelect);
+            select_rs = stmt.executeQuery(TTable.Stmts.sSourceSelect
+                                          + " WHERE 1 = 2");
             select_rsmdata = select_rs.getMetaData();
             col = meta.getColumns(TTable.Stmts.sDatabaseToConvert,
                                   TTable.Stmts.sSchema,
@@ -803,7 +804,9 @@ class TransferDb extends DataAccessPoint {
                     }
 
                     datatype += ")";
-                } else if (type == Types.CHAR || type == Types.VARCHAR || type == Types.BINARY || type == Types.VARBINARY) {
+                } else if (type == Types.CHAR || type == Types.VARCHAR
+                           || type == Types.BINARY
+                           || type == Types.VARBINARY) {
                     datatype += "(" + Integer.toString(column_size) + ")";
                 } else if (rsmdata_isAutoIncrement) {
                     datatype = "SERIAL";
@@ -815,6 +818,7 @@ class TransferDb extends DataAccessPoint {
                             || type == Types.BINARY || type == Types.DATE
                             || type == Types.TIME || type == Types.TIMESTAMP) {
                         if (!DefaultVal.startsWith("'")) {
+
 //                            DefaultVal = "\'" + DefaultVal + "\'";
                         }
                     }

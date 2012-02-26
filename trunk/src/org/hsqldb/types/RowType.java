@@ -43,12 +43,13 @@ import org.hsqldb.error.ErrorCode;
  * Class for ROW type objects.<p>
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.0.0
+ * @version 2.2.9
  * @since 2.0.0
  */
 public class RowType extends Type {
 
-    final Type[] dataTypes;
+    final Type[]    dataTypes;
+    TypedComparator comparator;
 
     public RowType(Type[] dataTypes) {
 
@@ -432,6 +433,37 @@ public class RowType extends Type {
         }
 
         return false;
+    }
+
+    public int hashCode(Object a) {
+
+        if (a == null) {
+            return 0;
+        }
+
+        int      hash  = 0;
+        Object[] array = (Object[]) a;
+
+        for (int i = 0; i < dataTypes.length && i < 4; i++) {
+            hash += dataTypes[i].hashCode(array[i]);
+        }
+
+        return hash;
+    }
+
+    synchronized TypedComparator getComparator(Session session) {
+
+        if (comparator == null) {
+            TypedComparator c    = Type.newComparator(session);
+            SortAndSlice    sort = new SortAndSlice();
+
+            sort.prepareMultiColumn(dataTypes.length);
+            c.setType(this, sort);
+
+            comparator = c;
+        }
+
+        return comparator;
     }
 
     public static String convertToSQLString(Object[] array, Type[] types,
