@@ -46,7 +46,7 @@ import org.hsqldb.store.BaseHashMap;
  * to DataFileCache.<p>
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.2.6
+ * @version 2.2.9
  * @since 1.8.0
  */
 public class Cache extends BaseHashMap {
@@ -359,7 +359,7 @@ public class Cache extends BaseHashMap {
         static final int COMPARE_LAST_ACCESS = 0;
         static final int COMPARE_POSITION    = 1;
         static final int COMPARE_SIZE        = 2;
-        private int      compareType = COMPARE_POSITION;
+        private int      compareType         = COMPARE_POSITION;
 
         CachedObjectComparator() {}
 

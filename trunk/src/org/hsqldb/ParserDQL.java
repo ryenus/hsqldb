@@ -2599,6 +2599,23 @@ public class ParserDQL extends ParserBase {
 
                 break;
             }
+            case Tokens.ROW_NUMBER : {
+                read();
+
+                if (token.tokenType == Tokens.OPENBRACKET) {
+                    read();
+                    readThis(Tokens.CLOSEBRACKET);
+                    readThis(Tokens.OVER);
+                    readThis(Tokens.OPENBRACKET);
+                    readThis(Tokens.CLOSEBRACKET);
+                } else {
+                    rewind(position);
+
+                    break;
+                }
+
+                return new ExpressionColumn(OpTypes.ROWNUM);
+            }
             case Tokens.ROWNUM : {
                 read();
 
