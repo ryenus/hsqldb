@@ -391,7 +391,7 @@ public class RangeVariable implements Cloneable {
         }
 
         return null;
-            }
+    }
 
     private boolean resolvesSchemaAndTableName(String schemaName,
             String tableName) {
@@ -502,8 +502,8 @@ public class RangeVariable implements Cloneable {
                                 HashSet exclude) {
 
         if (subRange == this) {
-        Table         table = getTable();
-        int           count = table.getColumnCount();
+            Table table = getTable();
+            int   count = table.getColumnCount();
 
             addTableColumns(expression, 0, count, exclude);
         }
