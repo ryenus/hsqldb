@@ -108,6 +108,8 @@ public class RowStoreAVLDiskData extends RowStoreAVLDisk {
 
     public void removeAll() {
 
+        destroy();
+
         elementCount = 0;
 
         ArrayUtil.fillArray(accessorList, null);
@@ -213,6 +215,7 @@ public class RowStoreAVLDiskData extends RowStoreAVLDisk {
      */
     public void release() {
 
+        destroy();
         ArrayUtil.fillArray(accessorList, null);
         table.database.logger.closeTextCache((Table) table);
 

@@ -1,9 +1,8 @@
 package org.hsqldb.persist;
 
-import java.util.Comparator;
-
 import org.hsqldb.lib.ArraySort;
 import org.hsqldb.lib.Iterator;
+import org.hsqldb.lib.ObjectComparator;
 import org.hsqldb.lib.StopWatch;
 import org.hsqldb.store.BaseHashMap;
 
@@ -47,6 +46,7 @@ public class Cache extends BaseHashMap {
         rowComparator    = new CachedObjectComparator();
         rowTable         = new CachedObject[capacity];
         cacheBytesLength = 0;
+        comparator       = rowComparator;
     }
 
     /**
@@ -57,22 +57,6 @@ public class Cache extends BaseHashMap {
 
     long getTotalCachedBlockSize() {
         return cacheBytesLength;
-    }
-
-    protected int getLookup(long key) {
-
-        int          lookup = hashIndex.getLookup((int) key);
-        CachedObject tempKey;
-
-        for (; lookup >= 0; lookup = hashIndex.getNextLookup(lookup)) {
-            tempKey = (CachedObject) objectKeyTable[lookup];
-
-            if (tempKey.getPos() == key) {
-                return lookup;
-            }
-        }
-
-        return lookup;
     }
 
     /**
@@ -86,7 +70,7 @@ public class Cache extends BaseHashMap {
             updateObjectAccessCounts();
         }
 
-        int lookup = getLookup(pos);
+        int lookup = getObjectLookup(pos);
 
         if (lookup == -1) {
             return null;
@@ -121,7 +105,7 @@ public class Cache extends BaseHashMap {
             updateObjectAccessCounts();
         }
 
-        super.addOrRemove(0, 0, row, null, false);
+        super.addOrRemoveObject(row, row.getPos(), false);
         row.setInMemory(true);
 
         cacheBytesLength += storageSize;
@@ -130,39 +114,20 @@ public class Cache extends BaseHashMap {
     /**
      * Removes an object from memory cache. Does not release the file storage.
      */
-    synchronized CachedObject release(long i) {
+    synchronized CachedObject release(long pos) {
 
-        int          hash        = (int) i;
-        int          index       = hashIndex.getHashIndex(hash);
-        int          lookup      = hashIndex.getLookup(hash);
-        int          lastLookup  = -1;
-        CachedObject returnValue = null;
+        CachedObject r = (CachedObject) super.addOrRemoveObject(null,
+            pos, true);
 
-        for (; lookup >= 0;
-                lastLookup = lookup,
-                lookup = hashIndex.getNextLookup(lookup)) {
-            returnValue = (CachedObject) objectKeyTable[lookup];
-
-            if (returnValue.getPos() == i) {
-                break;
-            }
-        }
-
-        if (lookup >= 0) {
-            objectKeyTable[lookup] = null;
-
-            hashIndex.unlinkNode(index, lastLookup, lookup);
-
-            accessTable[lookup] = 0;
-        } else {
+        if (r == null) {
             return null;
         }
 
-        cacheBytesLength -= returnValue.getStorageSize();
+        cacheBytesLength -= r.getStorageSize();
 
-        returnValue.setInMemory(false);
+        r.setInMemory(false);
 
-        return returnValue;
+        return r;
     }
 
     /**
@@ -360,12 +325,12 @@ public class Cache extends BaseHashMap {
         cacheBytesLength = 0;
     }
 
-    static final class CachedObjectComparator implements Comparator {
+    static final class CachedObjectComparator implements ObjectComparator {
 
         static final int COMPARE_LAST_ACCESS = 0;
         static final int COMPARE_POSITION    = 1;
         static final int COMPARE_SIZE        = 2;
-        private int      compareType;
+        private int      compareType = COMPARE_POSITION;
 
         CachedObjectComparator() {}
 
@@ -396,6 +361,14 @@ public class Cache extends BaseHashMap {
             return diff == 0 ? 0
                              : diff > 0 ? 1
                                         : -1;
+        }
+
+        public int hashCode(Object o) {
+            return o.hashCode();
+        }
+
+        public long longKey(Object o) {
+            return ((CachedObject) o).getPos();
         }
     }
 }

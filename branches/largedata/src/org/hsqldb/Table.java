@@ -31,7 +31,7 @@ import org.hsqldb.types.Type;
  * Extensively rewritten and extended in successive versions of HSQLDB.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.2.7
+ * @version 2.2.9
  * @since 1.6.1
  */
 public class Table extends TableBase implements SchemaObject {
@@ -1575,7 +1575,7 @@ public class Table extends TableBase implements SchemaObject {
      *  Shortcut for creating default PK's.
      */
     public void createPrimaryKey() {
-        createPrimaryKey(null, null, false);
+        createPrimaryKey(null, ValuePool.emptyIntArray, false);
     }
 
     /**
@@ -1589,13 +1589,12 @@ public class Table extends TableBase implements SchemaObject {
             throw Error.runtimeError(ErrorCode.U_S0500, "Table");
         }
 
-        if (columns == null || columns.length == 0) {
+        if (columns == null) {
             columns = ValuePool.emptyIntArray;
-            indexName = SqlInvariants.SYSTEM_INDEX_HSQLNAME;
-        } else {
-            for (int i = 0; i < columns.length; i++) {
-                getColumn(columns[i]).setPrimaryKey(true);
-            }
+        }
+
+        for (int i = 0; i < columns.length; i++) {
+            getColumn(columns[i]).setPrimaryKey(true);
         }
 
         primaryKeyCols = columns;
@@ -2434,7 +2433,7 @@ public class Table extends TableBase implements SchemaObject {
         PersistentStore store =
             database.persistentStoreCollection.getStore(this);
         long[] roots = new long[indexList.length * 2 + 1];
-        int   i     = 0;
+        int    i     = 0;
 
         for (int index = 0; index < indexList.length; index++) {
             CachedObject accessor = store.getAccessor(indexList[index]);
@@ -2490,7 +2489,7 @@ public class Table extends TableBase implements SchemaObject {
         }
 
         ParserDQL p     = new ParserDQL(session, new Scanner(s));
-        long[]     roots = new long[getIndexCount() * 2 + 1];
+        long[]    roots = new long[getIndexCount() * 2 + 1];
 
         p.read();
 

@@ -311,8 +311,8 @@ public class Logger {
             sqlLogPath = database.getPath() + sqlLogFileExtension;
         }
 
-        appLog = new SimpleLog(appLogPath, propEventLogLevel);
-        sqlLog = new SimpleLog(sqlLogPath, propSqlLogLevel);
+        appLog = new SimpleLog(appLogPath, propEventLogLevel, false);
+        sqlLog = new SimpleLog(sqlLogPath, propSqlLogLevel, true);
 
         database.setReferentialIntegrity(propRefIntegrity);
 
@@ -784,8 +784,8 @@ public class Logger {
             String sql       = statement.getSQL();
             String values    = "";
 
-            if (sql.length() > 100) {
-                sql.substring(0, 100);
+            if (sql.length() > 256) {
+                sql.substring(0, 256);
             }
 
             if (level == SimpleLog.LOG_DETAIL) {
@@ -797,7 +797,7 @@ public class Logger {
                 }
             }
 
-            sqlLog.logContext(SimpleLog.LOG_DETAIL, sessionId, sql, values);
+            sqlLog.logContext(level, sessionId, sql, values);
         }
     }
 
@@ -826,18 +826,6 @@ public class Logger {
             return false;
         } else {
             return log.hasCache();
-        }
-    }
-
-    /**
-     * Records a Log entry representing start of a session or a new connection
-     * action on the specified Session object.
-     */
-    public synchronized void writeStartSession(Session session) {
-
-        if (loggingEnabled) {
-            log.writeOtherStatement(session,
-                                    session.getUser().getConnectUserSQL());
         }
     }
 
@@ -893,16 +881,6 @@ public class Logger {
 
         if (loggingEnabled) {
             log.writeCommitStatement(session);
-        }
-    }
-
-    /**
-     * Used at transaction commit
-     */
-    public synchronized void writeRollbackStatement(Session session) {
-
-        if (loggingEnabled) {
-            log.writeOtherStatement(session, "ROLLBACK");
         }
     }
 
