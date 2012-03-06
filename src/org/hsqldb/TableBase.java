@@ -289,7 +289,7 @@ public class TableBase {
         for (int i = 0; i < indexList.length; i++) {
             Index index     = indexList[i];
             int[] cols      = index.getColumns();
-            int   colsCount = index.getVisibleColumns();
+            int   colsCount = index.getColumnCount();
 
             if (colsCount == 0) {
                 continue;
