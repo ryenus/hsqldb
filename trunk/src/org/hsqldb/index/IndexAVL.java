@@ -109,7 +109,7 @@ import org.hsqldb.types.Type;
  * An Index object also holds information on table columns (in the form of int
  * indexes) that are covered by it.<p>
  *
- *  New class derived from Hypersonic SQL code and enhanced in HSQLDB. <p>
+ * New class derived from Hypersonic SQL code and enhanced in HSQLDB. <p>
  *
  * @author Thomas Mueller (Hypersonic SQL Group)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
@@ -268,10 +268,7 @@ public class IndexAVL implements Index {
         sb.append(' ').append(Tokens.T_ON).append(' ');
         sb.append(((Table) table).getName().getSchemaQualifiedStatementName());
 
-        int[] col = getColumns();
-        int   len = getVisibleColumns();
-
-        sb.append(((Table) table).getColumnListSQL(col, len));
+        sb.append(((Table) table).getColumnListSQL(colIndex, colIndex.length));
 
         return sb.toString();
     }
@@ -295,13 +292,6 @@ public class IndexAVL implements Index {
 
     public long getPersistenceId() {
         return persistenceId;
-    }
-
-    /**
-     * Returns the count of visible columns used
-     */
-    public int getVisibleColumns() {
-        return colIndex.length;
     }
 
     /**

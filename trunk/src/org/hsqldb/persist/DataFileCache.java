@@ -558,8 +558,9 @@ public class DataFileCache {
 
             dataFile.synch();
 
-            fileModified  = false;
-            cacheModified = false;
+            fileModified          = false;
+            cacheModified         = false;
+            fileStartFreePosition = fileFreePosition;
 
             if (shadowFile != null) {
                 shadowFile.close();
@@ -1032,7 +1033,9 @@ public class DataFileCache {
 
             time = cache.saveAllTimer.elapsedTime() - time;
 
-            database.logger.logDetailEvent("shadow copy [time, size] " + time + " " + shadowFile.getSavedLength());
+            database.logger.logDetailEvent("shadow copy [time, size] " + time
+                                           + " "
+                                           + shadowFile.getSavedLength());
         }
     }
 

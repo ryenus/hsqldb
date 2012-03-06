@@ -70,8 +70,6 @@ public interface Index extends SchemaObject {
     /**
      * Returns the count of visible columns used
      */
-    public int getVisibleColumns();
-
     public int getColumnCount();
 
     /**
