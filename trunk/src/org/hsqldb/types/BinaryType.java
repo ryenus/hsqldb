@@ -651,7 +651,13 @@ public class BinaryType extends Type {
             return null;
         }
 
-        byte[] bytes    = ((BlobData) data).getBytes();
+        long length = ((BlobData) data).length(session);
+
+        if (length > Integer.MAX_VALUE) {
+            throw Error.error(ErrorCode.X_22027);
+        }
+
+        byte[] bytes    = ((BlobData) data).getBytes(session, 0, (int) length);
         int    endindex = bytes.length;
 
         if (trailing) {
@@ -754,9 +760,10 @@ public class BinaryType extends Type {
         if (typeCode == Types.SQL_BLOB) {
             BlobData blob = session.createBlob(length);
 
-            blob.setBytes(session, 0, ((BlobData) b).getBytes());
+            blob.setBytes(session, 0, ((BlobData) a), 0,
+                          ((BlobData) a).length(session));
             blob.setBytes(session, ((BlobData) a).length(session),
-                          ((BlobData) b).getBytes());
+                          ((BlobData) b), 0, ((BlobData) b).length(session));
 
             return blob;
         } else {

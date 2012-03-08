@@ -44,6 +44,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+
 import javax.sql.rowset.serial.SerialBlob;
 
 import org.hsqldb.jdbc.JDBCBlob;
@@ -151,7 +152,6 @@ public class TestLobs extends TestBase {
             Statement st = connection.createStatement();
 
             st.executeUpdate("DROP TABLE blo IF EXISTS");
-
             st.executeUpdate("CREATE TABLE blo (id INTEGER, b blob( 100))");
 
             PreparedStatement ps = connection.prepareStatement(
@@ -287,8 +287,7 @@ public class TestLobs extends TestBase {
 
             rs.next();
 
-            Clob clob2 = rs.getClob(2);
-
+            Clob   clob2  = rs.getClob(2);
             String string = rs.getString(2);
             int data1 = clob1.getSubString(1, data.length()).indexOf("insert");
             int data2 = clob2.getSubString(1, data.length()).indexOf("INSERT");
@@ -636,8 +635,7 @@ public class TestLobs extends TestBase {
             ps.setString(1, value);
             ps.executeUpdate();
 
-            String dq1 = "select CHARACTER_LENGTH(clobfield) from clobtest;";
-
+            String dq1   = "select CHARACTER_LENGTH(clobfield) from clobtest;";
             ResultSet rs = statement.executeQuery(dq1);
 
             rs.next();
@@ -645,7 +643,6 @@ public class TestLobs extends TestBase {
             int length = rs.getInt(1);
 
             assertTrue(value.length() == length);
-
             rs.close();
 
             String dq3 = "delete from clobtest;";
@@ -654,7 +651,7 @@ public class TestLobs extends TestBase {
 
             char[] testChars = new char[11111];
 
-            for (int i = 0, j = 32; i < testChars.length ; i++, j++) {
+            for (int i = 0, j = 32; i < testChars.length; i++, j++) {
                 if (j > 255) {
                     j = 32;
                 }
@@ -662,9 +659,8 @@ public class TestLobs extends TestBase {
                 testChars[i] = (char) j;
             }
 
-
-            ps.setCharacterStream(1, new CharArrayReader(testChars), testChars.length);
-
+            ps.setCharacterStream(1, new CharArrayReader(testChars),
+                                  testChars.length);
             ps.executeUpdate();
 
             String dq2 = "select clobfield from clobtest;";
@@ -673,23 +669,20 @@ public class TestLobs extends TestBase {
 
             rs.next();
 
-            Reader reader = rs.getCharacterStream(1);
-
+            Reader reader   = rs.getCharacterStream(1);
             char[] newChars = new char[testChars.length];
 
-                try {
-                    reader.read(newChars);
-                } catch (IOException e) {
-                    fail("test failure");
-                }
-            for (int i = 0; i < testChars.length ; i++) {
+            try {
+                reader.read(newChars);
+            } catch (IOException e) {
+                fail("test failure");
+            }
 
+            for (int i = 0; i < testChars.length; i++) {
                 if (testChars[i] != newChars[i]) {
                     fail("test failure");
                 }
             }
-
-
         } catch (SQLException e) {
             e.printStackTrace();
             fail("test failure");
@@ -711,15 +704,13 @@ public class TestLobs extends TestBase {
             String dml0 = "insert into clobtest(clobfield) values ?";
             String            value = "0123456789";
             PreparedStatement ps    = connection.prepareStatement(dml0);
+            Clob              clob  = connection.createClob();
 
-            Clob clob = connection.createClob();
             clob.setString(1, value);
-
             ps.setClob(1, clob);
             ps.executeUpdate();
 
-            String dq1 = "select CHARACTER_LENGTH(clobfield) from clobtest;";
-
+            String dq1   = "select CHARACTER_LENGTH(clobfield) from clobtest;";
             ResultSet rs = statement.executeQuery(dq1);
 
             rs.next();
@@ -727,7 +718,6 @@ public class TestLobs extends TestBase {
             int length = rs.getInt(1);
 
             assertTrue(value.length() == length);
-
             rs.close();
 
             String dq3 = "delete from clobtest;";
@@ -736,7 +726,7 @@ public class TestLobs extends TestBase {
 
             char[] testChars = new char[11111];
 
-            for (int i = 0, j = 32; i < testChars.length ; i++, j++) {
+            for (int i = 0, j = 32; i < testChars.length; i++, j++) {
                 if (j > 255) {
                     j = 32;
                 }
@@ -744,9 +734,8 @@ public class TestLobs extends TestBase {
                 testChars[i] = (char) j;
             }
 
-
-            ps.setCharacterStream(1, new CharArrayReader(testChars), testChars.length);
-
+            ps.setCharacterStream(1, new CharArrayReader(testChars),
+                                  testChars.length);
             ps.executeUpdate();
 
             String dq2 = "select clobfield from clobtest;";
@@ -755,23 +744,20 @@ public class TestLobs extends TestBase {
 
             rs.next();
 
-            Reader reader = rs.getCharacterStream(1);
-
+            Reader reader   = rs.getCharacterStream(1);
             char[] newChars = new char[testChars.length];
 
-                try {
-                    reader.read(newChars);
-                } catch (IOException e) {
-                    fail("test failure");
-                }
-            for (int i = 0; i < testChars.length ; i++) {
+            try {
+                reader.read(newChars);
+            } catch (IOException e) {
+                fail("test failure");
+            }
 
+            for (int i = 0; i < testChars.length; i++) {
                 if (testChars[i] != newChars[i]) {
                     fail("test failure");
                 }
             }
-
-
         } catch (SQLException e) {
             e.printStackTrace();
             fail("test failure");
@@ -779,21 +765,25 @@ public class TestLobs extends TestBase {
     }
 
     public void testClobH() {
+
         try {
-            String ddl1 = "create procedure PUBLIC.PROC_A(out p1 clob, out p2 int) READS SQL DATA BEGIN ATOMIC SET p1 = 'dafsdfasdfaefafeajfiwejifpjajsidojfakmvkamsdjfadpsjfoajsdifjaos'; SET p2 = 0; end";
+            String ddl1 =
+                "create procedure PUBLIC.PROC_A(out p1 clob, out p2 int) READS SQL DATA BEGIN ATOMIC SET p1 = 'dafsdfasdfaefafeajfiwejifpjajsidojfakmvkamsdjfadpsjfoajsdifjaos'; SET p2 = 0; end";
             String dml0 = "call PUBLIC.PROC_A(?, ?)";
+
             statement.execute(ddl1);
-            CallableStatement ps    = connection.prepareCall(dml0);
+
+            CallableStatement ps = connection.prepareCall(dml0);
+
             ps.registerOutParameter(1, java.sql.Types.CLOB);
             ps.registerOutParameter(2, java.sql.Types.INTEGER);
             ps.execute();
 
             String string = ps.getClob(1).getSubString(1, 10);
-            System.out.println(string);
 
+            System.out.println(string);
         } catch (SQLException e) {
             e.printStackTrace();
-
         }
     }
 
@@ -801,17 +791,14 @@ public class TestLobs extends TestBase {
 
         try {
             String ddl1 = "DROP TABLE BLOBTEST IF EXISTS";
-            String ddl2 =
-                "CREATE TABLE BLOBTEST(A INTEGER, B BLOB)";
+            String ddl2 = "CREATE TABLE BLOBTEST(A INTEGER, B BLOB)";
 
             statement.execute(ddl1);
             statement.execute(ddl2);
-        }
-        catch (SQLException e) {}
-
+        } catch (SQLException e) {}
 
         try {
-            String dml0 = "insert into blobtest values(1, ?)";
+            String            dml0 = "insert into blobtest values(1, ?)";
             String            dql0 = "select * from blobtest";
             PreparedStatement ps   = connection.prepareStatement(dml0);
             byte[]            data = new byte[] {
@@ -821,8 +808,8 @@ public class TestLobs extends TestBase {
             connection.setAutoCommit(false);
 
             Blob blob = connection.createBlob();
-            blob.setBytes(1,data);
 
+            blob.setBytes(1, data);
             ps.setBlob(1, blob);
             ps.executeUpdate();
 
@@ -832,8 +819,8 @@ public class TestLobs extends TestBase {
             ps.setBlob(1, blob);
             ps.executeUpdate();
             ps.close();
-
             connection.commit();
+
             ps = connection.prepareStatement(dql0);
 
             ResultSet rs = ps.executeQuery();
@@ -853,8 +840,49 @@ public class TestLobs extends TestBase {
             e.printStackTrace();
             fail("test failure");
         }
+    }
 
+    public void testBlobI() {
 
+        try {
+            Statement st = connection.createStatement();
+
+            st.executeUpdate("drop table BLOBTEST if exists");
+            st.executeUpdate("create table BLOBTEST (BT_BLOB BLOB)");
+            System.out.println("Running insert...");
+
+            PreparedStatement insert =
+                connection.prepareStatement("insert into BLOBTEST values(?)");
+
+            insert.setBytes(1, new byte[]{});
+            insert.executeUpdate();
+            System.out.println("Running update...");
+
+            PreparedStatement update = connection.prepareStatement(
+                "update BLOBTEST set BT_BLOB = CONCAT(BT_BLOB,?)");
+
+            update.setBytes(1, new byte[] {
+                1, 2, 3
+            });
+            update.executeUpdate();
+            System.out.println("Running select...");
+
+            PreparedStatement select = connection.prepareStatement(
+                "select BT_BLOB from BLOBTEST");
+            ResultSet result = select.executeQuery();
+
+            System.out.println("Results: " + result.getFetchSize());
+
+            while (result.next()) {
+                byte[] data = result.getBytes(1);
+
+                System.out.println("Result: " + data == null ? "null"
+                                                             : data.length);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            fail("test failure");
+        }
     }
 
 /*
@@ -904,7 +932,6 @@ public class TestLobs extends TestBase {
          }
      }
 */
-
     protected void tearDown() {
 
         try {
