@@ -102,11 +102,13 @@ public class BinaryData implements BlobData {
 
         data = new byte[(int) length];
 
-        System.arraycopy(b1.getBytes(), 0, data, 0, (int) b1.length(session));
-        System.arraycopy(b2.getBytes(), 0, data, (int) b1.length(session),
+        System.arraycopy(b1.getBytes(session, 0, (int) b1.length(session)), 0,
+                         data, 0, (int) b1.length(session));
+        System.arraycopy(b2.getBytes(session, 0, (int) b2.length(session)), 0,
+                         data, (int) b1.length(session),
                          (int) b2.length(session));
 
-        this.bitLength = (b1.length(session) + b2.length(session)) * 8;
+        this.bitLength = (int) length * 8;
     }
 
     public BinaryData(byte[] data, long bitLength) {
@@ -195,6 +197,18 @@ public class BinaryData implements BlobData {
         setBytes(session, pos, bytes, 0, bytes.length);
     }
 
+    public void setBytes(SessionInterface session, long pos, BlobData b,
+                         long offset, long length) {
+
+        if (length > Integer.MAX_VALUE) {
+            throw new IndexOutOfBoundsException();
+        }
+
+        byte[] bytes = b.getBytes(session, offset, (int) length);
+
+        setBytes(session, pos, bytes, 0, bytes.length);
+    }
+
     public void setBinaryStream(SessionInterface session, long pos,
                                 InputStream in) {
 
@@ -234,7 +248,8 @@ public class BinaryData implements BlobData {
             return -1;
         }
 
-        byte[] bytes = pattern.getBytes();
+        byte[] bytes = pattern.getBytes(session, 0,
+                                        (int) pattern.length(session));
 
         return position(session, bytes, start);
     }
