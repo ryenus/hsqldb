@@ -740,7 +740,7 @@ class TransferDb extends DataAccessPoint {
         ResultSetMetaData select_rsmdata = null;
 
         try {
-            stmt           = conn.createStatement();
+            stmt = conn.createStatement();
             select_rs = stmt.executeQuery(TTable.Stmts.sSourceSelect
                                           + " WHERE 1 = 2");
             select_rsmdata = select_rs.getMetaData();

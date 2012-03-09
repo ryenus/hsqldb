@@ -59,7 +59,7 @@ import org.hsqldb.types.Types;
  * timezone.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.2.6
+ * @version 2.2.9
  * @since 1.7.0
  */
 public class HsqlDateTime {
@@ -178,7 +178,7 @@ public class HsqlDateTime {
         }
     }
 
-    public static void resetToDate(Calendar cal) {
+    private static void resetToDate(Calendar cal) {
 
         cal.set(Calendar.HOUR_OF_DAY, 0);
         cal.set(Calendar.MINUTE, 0);
@@ -186,7 +186,7 @@ public class HsqlDateTime {
         cal.set(Calendar.MILLISECOND, 0);
     }
 
-    public static void resetToTime(Calendar cal) {
+    private static void resetToTime(Calendar cal) {
 
         cal.set(Calendar.YEAR, 1970);
         cal.set(Calendar.MONTH, 0);
@@ -200,15 +200,17 @@ public class HsqlDateTime {
         calendar.clear();
 
         synchronized (tempCalGMT) {
-            tempCalGMT.setTimeInMillis(millis);
-            calendar.set(tempCalGMT.get(Calendar.YEAR),
-                         tempCalGMT.get(Calendar.MONTH),
-                         tempCalGMT.get(Calendar.DAY_OF_MONTH),
-                         tempCalGMT.get(Calendar.HOUR_OF_DAY),
-                         tempCalGMT.get(Calendar.MINUTE),
-                         tempCalGMT.get(Calendar.SECOND));
+            synchronized (calendar) {
+                tempCalGMT.setTimeInMillis(millis);
+                calendar.set(tempCalGMT.get(Calendar.YEAR),
+                             tempCalGMT.get(Calendar.MONTH),
+                             tempCalGMT.get(Calendar.DAY_OF_MONTH),
+                             tempCalGMT.get(Calendar.HOUR_OF_DAY),
+                             tempCalGMT.get(Calendar.MINUTE),
+                             tempCalGMT.get(Calendar.SECOND));
 
-            return calendar.getTimeInMillis();
+                return calendar.getTimeInMillis();
+            }
         }
     }
 
@@ -216,16 +218,18 @@ public class HsqlDateTime {
             long millis) {
 
         synchronized (tempCalGMT) {
-            tempCalGMT.clear();
-            calendar.setTimeInMillis(millis);
-            tempCalGMT.set(calendar.get(Calendar.YEAR),
-                           calendar.get(Calendar.MONTH),
-                           calendar.get(Calendar.DAY_OF_MONTH),
-                           calendar.get(Calendar.HOUR_OF_DAY),
-                           calendar.get(Calendar.MINUTE),
-                           calendar.get(Calendar.SECOND));
+            synchronized (calendar) {
+                tempCalGMT.clear();
+                calendar.setTimeInMillis(millis);
+                tempCalGMT.set(calendar.get(Calendar.YEAR),
+                               calendar.get(Calendar.MONTH),
+                               calendar.get(Calendar.DAY_OF_MONTH),
+                               calendar.get(Calendar.HOUR_OF_DAY),
+                               calendar.get(Calendar.MINUTE),
+                               calendar.get(Calendar.SECOND));
 
-            return tempCalGMT.getTimeInMillis();
+                return tempCalGMT.getTimeInMillis();
+            }
         }
     }
 
@@ -650,8 +654,8 @@ public class HsqlDateTime {
         if (matchIndex >= 0) {
             Calendar      cal         = format.getCalendar();
             int           matchLength = 2;
-            int           dayOfMonth   = cal.get(Calendar.DAY_OF_MONTH);
-            int           weekOfMonth  = ((dayOfMonth - 1) / 7) + 1;
+            int           dayOfMonth  = cal.get(Calendar.DAY_OF_MONTH);
+            int           weekOfMonth = ((dayOfMonth - 1) / 7) + 1;
             StringBuilder sb          = new StringBuilder(result);
 
             sb.replace(matchIndex, matchIndex + matchLength,
@@ -700,7 +704,6 @@ public class HsqlDateTime {
                     sb.append(javaDateTokens[index]);
 
                     i = tokenizer.matchOffset;
-
                 } else {
                     if (tokenizer.isQuoteChar(ch)) {
                         ch = '\'';

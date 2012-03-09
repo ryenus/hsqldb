@@ -386,8 +386,7 @@ public class TableBase {
 
     public final Index createAndAddIndexStructure(HsqlName name,
             int[] columns, boolean[] descending, boolean[] nullsLast,
-            boolean unique, boolean constraint, boolean forward
-            ) {
+            boolean unique, boolean constraint, boolean forward) {
 
         Index newindex = createIndexStructure(name, columns, descending,
                                               nullsLast, unique, constraint,

@@ -746,6 +746,15 @@ public final class NumberType extends Type {
                 double ad = ((Number) a).doubleValue();
                 double bd = ((Number) b).doubleValue();
 
+                if (Double.isNaN(ad)) {
+                    return Double.isNaN(bd) ? 0
+                                            : -1;
+                }
+
+                if (Double.isNaN(bd)) {
+                    return 1;
+                }
+
                 return (ad > bd) ? 1
                                  : (bd > ad ? -1
                                             : 0);

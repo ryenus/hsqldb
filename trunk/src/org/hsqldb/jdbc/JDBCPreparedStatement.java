@@ -1576,7 +1576,10 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
         }
 
         Type outType = parameterTypes[i];
-        long millis  = HsqlDateTime.convertMillisFromCalendar(cal,
+        Calendar calendar   = cal == null ? session.getCalendar()
+                : cal;
+
+        long millis  = HsqlDateTime.convertMillisFromCalendar(calendar,
             x.getTime());
 
         millis = HsqlDateTime.getNormalisedDate(millis);
@@ -1589,7 +1592,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
 
                 break;
             case Types.SQL_TIMESTAMP_WITH_TIME_ZONE :
-                int zoneOffset = HsqlDateTime.getZoneMillis(cal, millis);
+                int zoneOffset = HsqlDateTime.getZoneMillis(calendar, millis);
 
                 parameterValues[i] = new TimestampData(millis / 1000, 0,
                         zoneOffset / 1000);
