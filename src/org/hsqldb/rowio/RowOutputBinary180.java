@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2010, The HSQL Development Group
+/* Copyright (c) 2001-2011, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,6 +31,9 @@
 
 package org.hsqldb.rowio;
 
+import java.util.Calendar;
+import java.util.GregorianCalendar;
+
 import org.hsqldb.HsqlDateTime;
 import org.hsqldb.types.TimeData;
 import org.hsqldb.types.TimestampData;
@@ -39,10 +42,12 @@ import org.hsqldb.types.Types;
 
 /**
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 1.9.0
+ * @version 2.2.9
  * @since 1.9.0
  */
 public class RowOutputBinary180 extends RowOutputBinary {
+
+    Calendar tempCalDefault = new GregorianCalendar();
 
     public RowOutputBinary180(int initialSize, int scale) {
         super(initialSize, scale);
@@ -52,9 +57,7 @@ public class RowOutputBinary180 extends RowOutputBinary {
 
         long millis = o.getSeconds() * 1000L;
 
-        millis =
-            HsqlDateTime.convertMillisToCalendar(HsqlDateTime.tempCalDefault,
-                millis);
+        millis = HsqlDateTime.convertMillisToCalendar(tempCalDefault, millis);
 
         writeLong(millis);
         writeLong(o.getSeconds() * 1000L);
@@ -65,8 +68,8 @@ public class RowOutputBinary180 extends RowOutputBinary {
         if (type.typeCode == Types.SQL_TIME) {
             long millis = o.getSeconds() * 1000L;
 
-            millis = HsqlDateTime.convertMillisToCalendar(
-                HsqlDateTime.tempCalDefault, millis);
+            millis = HsqlDateTime.convertMillisToCalendar(tempCalDefault,
+                    millis);
 
             writeLong(millis);
         } else {
@@ -81,8 +84,8 @@ public class RowOutputBinary180 extends RowOutputBinary {
         if (type.typeCode == Types.SQL_TIMESTAMP) {
             long millis = o.getSeconds() * 1000L;
 
-            millis = HsqlDateTime.convertMillisToCalendar(
-                HsqlDateTime.tempCalDefault, millis);
+            millis = HsqlDateTime.convertMillisToCalendar(tempCalDefault,
+                    millis);
 
             writeLong(millis);
             writeInt(o.getNanos());

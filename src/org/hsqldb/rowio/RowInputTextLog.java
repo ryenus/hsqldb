@@ -33,6 +33,8 @@ package org.hsqldb.rowio;
 
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.util.Calendar;
+import java.util.GregorianCalendar;
 
 import org.hsqldb.HsqlDateTime;
 import org.hsqldb.HsqlException;
@@ -62,19 +64,20 @@ import org.hsqldb.types.Type;
  * Class for reading the data for a database row from the script file.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.0.1
+ * @version 2.2.9
  * @since 1.7.3
  */
 public class RowInputTextLog extends RowInputBase
 implements RowInputInterface {
 
-    Scanner scanner;
-    String  tableName  = null;
-    String  schemaName = null;
-    int     statementType;
-    Object  value;
-    boolean version18;
-    boolean noSeparators;
+    Scanner  scanner;
+    String   tableName  = null;
+    String   schemaName = null;
+    int      statementType;
+    Object   value;
+    boolean  version18;
+    boolean  noSeparators;
+    Calendar tempCalDefault = new GregorianCalendar();
 
     public RowInputTextLog() {
 
@@ -309,8 +312,9 @@ implements RowInputInterface {
 
         if (version18) {
             java.sql.Time dateTime = java.sql.Time.valueOf((String) value);
-            long millis = HsqlDateTime.convertMillisFromCalendar(
-                HsqlDateTime.tempCalDefault, dateTime.getTime());
+            long millis =
+                HsqlDateTime.convertMillisFromCalendar(tempCalDefault,
+                    dateTime.getTime());
 
             millis = HsqlDateTime.getNormalisedTime(millis);
 
@@ -330,8 +334,9 @@ implements RowInputInterface {
 
         if (version18) {
             java.sql.Date dateTime = java.sql.Date.valueOf((String) value);
-            long millis = HsqlDateTime.convertMillisFromCalendar(
-                HsqlDateTime.tempCalDefault, dateTime.getTime());
+            long millis =
+                HsqlDateTime.convertMillisFromCalendar(tempCalDefault,
+                    dateTime.getTime());
 
             millis = HsqlDateTime.getNormalisedDate(millis);
 
@@ -352,8 +357,9 @@ implements RowInputInterface {
         if (version18) {
             java.sql.Timestamp dateTime =
                 java.sql.Timestamp.valueOf((String) value);
-            long millis = HsqlDateTime.convertMillisFromCalendar(
-                HsqlDateTime.tempCalDefault, dateTime.getTime());
+            long millis =
+                HsqlDateTime.convertMillisFromCalendar(tempCalDefault,
+                    dateTime.getTime());
             int nanos = dateTime.getNanos();
 
             nanos = ((DateTimeType) type).normaliseFraction(nanos, type.scale);

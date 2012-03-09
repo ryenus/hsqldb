@@ -563,6 +563,15 @@ public class LobManager {
             int bOffset = 0;
             int aOffset = 0;
 
+            if (aLength == 0) {
+                return b.length == 0 ? 0
+                                     : -1;
+            }
+
+            if (b.length == 0) {
+                return 1;
+            }
+
             while (true) {
                 int aBlockOffset = aAddresses[aIndex][LOBS.BLOCK_ADDR]
                                    + aOffset;
@@ -616,32 +625,6 @@ public class LobManager {
         writeLock.lock();
 
         try {
-            Object[] data = getLobHeader(a.getId());
-
-            // abnormal case
-            if (data == null) {
-                return 1;
-            }
-
-            long lengthA = ((Long) data[LOB_IDS.LOB_LENGTH]).longValue();
-
-            data = getLobHeader(b.getId());
-
-            // abnormal case
-            if (data == null) {
-                return -1;
-            }
-
-            long lengthB = ((Long) data[LOB_IDS.LOB_LENGTH]).longValue();
-
-            if (lengthA > lengthB) {
-                return 1;
-            }
-
-            if (lengthA < lengthB) {
-                return -1;
-            }
-
             return compareBytes(a.getId(), b.getId());
         } finally {
             writeLock.unlock();
@@ -661,6 +644,15 @@ public class LobManager {
             int aIndex  = 0;
             int bOffset = 0;
             int aOffset = 0;
+
+            if (aLength == 0) {
+                return b.length() == 0 ? 0
+                                       : -1;
+            }
+
+            if (b.length() == 0) {
+                return 1;
+            }
 
             while (true) {
                 int aBlockOffset = aAddresses[aIndex][LOBS.BLOCK_ADDR]
@@ -722,12 +714,27 @@ public class LobManager {
 
     private int compareBytes(long aID, long bID) {
 
+        Object[] data    = getLobHeader(aID);
+        long     aLength = ((Long) data[LOB_IDS.LOB_LENGTH]).longValue();
+
+        data = getLobHeader(bID);
+
+        long    bLength    = ((Long) data[LOB_IDS.LOB_LENGTH]).longValue();
         int[][] aAddresses = getBlockAddresses(aID, 0, Integer.MAX_VALUE);
         int[][] bAddresses = getBlockAddresses(bID, 0, Integer.MAX_VALUE);
         int     aIndex     = 0;
         int     bIndex     = 0;
         int     aOffset    = 0;
         int     bOffset    = 0;
+
+        if (aLength == 0) {
+            return bLength == 0 ? 0
+                                : -1;
+        }
+
+        if (bLength == 0) {
+            return 1;
+        }
 
         while (true) {
             int aBlockOffset = aAddresses[aIndex][LOBS.BLOCK_ADDR] + aOffset;
@@ -783,6 +790,15 @@ public class LobManager {
         int     bIndex     = 0;
         int     aOffset    = 0;
         int     bOffset    = 0;
+
+        if (aLength == 0) {
+            return bLength == 0 ? 0
+                                : -1;
+        }
+
+        if (bLength == 0) {
+            return 1;
+        }
 
         while (true) {
             int aBlockOffset = aAddresses[aIndex][LOBS.BLOCK_ADDR] + aOffset;
