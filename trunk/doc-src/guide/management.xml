@@ -1745,6 +1745,36 @@
       <literal>sql.enforce_names</literal>.</simpara>
 
       <indexterm significance="preferred" type="sql">
+        <primary>SET DATABASE SQL REGULAR NAMES</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">SET DATABASE SQL REGULAR
+      NAMES</emphasis></simpara>
+
+      <simpara><emphasis>set database sql regular names
+      statement</emphasis></simpara>
+
+      <simpara><literal>&lt;set database sql regular names statement&gt; ::=
+      SET DATABASE SQL REGULAR NAMES { TRUE | FALSE }</literal></simpara>
+
+      <simpara>Enable or disable use of the underscore character at the
+      begining, or the dollar character anywhere in database object names such
+      as columns and tables. The default is <literal>TRUE</literal>, meaning
+      disabled.</simpara>
+
+      <simpara>SQL Standard does not allow the underscore character at the
+      start of names, and does not allow the dollar character anywhere in a
+      name. This setting can be changed for compatibility with existing
+      database or for porting databases which include names that do not
+      conform to the Standard.</simpara>
+
+      <simpara>Only a user with the DBA role can execute this
+      statement.</simpara>
+
+      <simpara>This is equivalent to the connection property
+      <literal>sql.regular_names</literal>.</simpara>
+
+      <indexterm significance="preferred" type="sql">
         <primary>SET DATABASE SQL REFERENCES</primary>
       </indexterm>
 
