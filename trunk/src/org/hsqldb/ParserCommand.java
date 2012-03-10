@@ -1073,6 +1073,15 @@ public class ParserCommand extends ParserDDL {
                         flag     = processTrueOrFalseObject();
                         break;
 
+                    case Tokens.REGULAR :
+                        read();
+
+                        readThis(Tokens.NAMES);
+
+                        property = HsqlDatabaseProperties.sql_regular_names;
+                        flag     = processTrueOrFalseObject();
+                        break;
+
                     case Tokens.REFERENCES :
                         read();
 

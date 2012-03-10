@@ -587,6 +587,9 @@ public class StatementCommand extends Statement {
                 if (property == HsqlDatabaseProperties.sql_enforce_names) {
                     session.database.setStrictNames(mode);
                 } else if (property
+                           == HsqlDatabaseProperties.sql_regular_names) {
+                    session.database.setRegularNames(mode);
+                } else if (property
                            == HsqlDatabaseProperties.sql_enforce_size) {
                     session.database.setStrictColumnSize(mode);
                 } else if (property

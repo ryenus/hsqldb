@@ -52,6 +52,7 @@ public class Token {
     boolean isDelimitedPrePrefix;
     boolean isDelimitedPrePrePrefix;
     boolean isUndelimitedIdentifier;
+    boolean hasIrregularChar;
     boolean isReservedIdentifier;
     boolean isCoreReservedIdentifier;
     boolean isHostParameter;
@@ -81,6 +82,7 @@ public class Token {
         isDelimitedPrePrefix     = false;
         isDelimitedPrePrePrefix  = false;
         isUndelimitedIdentifier  = false;
+        hasIrregularChar         = false;
         isReservedIdentifier     = false;
         isCoreReservedIdentifier = false;
         isHostParameter          = false;
@@ -108,6 +110,7 @@ public class Token {
         token.isDelimitedPrePrefix     = isDelimitedPrePrefix;
         token.isDelimitedPrePrePrefix  = isDelimitedPrePrePrefix;
         token.isUndelimitedIdentifier  = isUndelimitedIdentifier;
+        token.hasIrregularChar         = hasIrregularChar;
         token.isReservedIdentifier     = isReservedIdentifier;
         token.isCoreReservedIdentifier = isCoreReservedIdentifier;
         token.isHostParameter          = isHostParameter;

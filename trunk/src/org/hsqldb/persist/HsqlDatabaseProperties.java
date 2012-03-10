@@ -226,6 +226,7 @@ public class HsqlDatabaseProperties extends HsqlProperties {
         "sql.enforce_strict_size";    // synonym for sql_enforce_size
     public static final String sql_enforce_refs  = "sql.enforce_refs";
     public static final String sql_enforce_names = "sql.enforce_names";
+    public static final String sql_regular_names = "sql.regular_names";
     public static final String sql_enforce_types = "sql.enforce_types";
     public static final String sql_enforce_tdcd  = "sql.enforce_tdc_delete";
     public static final String sql_enforce_tdcu  = "sql.enforce_tdc_update";
@@ -358,6 +359,9 @@ public class HsqlDatabaseProperties extends HsqlProperties {
         dbMeta.put(sql_enforce_names,
                    HsqlProperties.getMeta(sql_enforce_names, SQL_PROPERTY,
                                           false));
+        dbMeta.put(sql_regular_names,
+                   HsqlProperties.getMeta(sql_regular_names, SQL_PROPERTY,
+                                          true));
         dbMeta.put(sql_enforce_refs,
                    HsqlProperties.getMeta(sql_enforce_refs, SQL_PROPERTY,
                                           false));

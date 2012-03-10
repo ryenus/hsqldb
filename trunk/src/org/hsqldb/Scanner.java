@@ -855,9 +855,10 @@ public class Scanner {
             return false;
         }
 
-        char start = sqlString.charAt(currentPosition);
+        char    start     = sqlString.charAt(currentPosition);
+        boolean irregular = start == '_' || start == '$';
 
-        if (!Character.isLetter(start)) {
+        if (!irregular && !Character.isLetter(start)) {
             token.tokenString = Character.toString(start);
             token.tokenType   = Tokens.X_UNKNOWN_TOKEN;
             token.isMalformed = true;
@@ -869,6 +870,12 @@ public class Scanner {
 
         for (; i < limit; i++) {
             char c = sqlString.charAt(i);
+
+            if (c == '$') {
+                irregular = true;
+
+                continue;
+            }
 
             if (c == '_' || Character.isLetterOrDigit(c)) {
                 continue;
@@ -923,6 +930,10 @@ public class Scanner {
                         break;
                 }
             }
+        }
+
+        if (irregular) {
+            token.hasIrregularChar = true;
         }
 
         return true;
@@ -1714,6 +1725,8 @@ public class Scanner {
                  * identifier chain must not have catalog identifier
                  * character set specification to be included in the token.dataType
                  */
+                int startPosition = currentPosition;
+
                 currentPosition++;
 
                 scanIdentifierChain();
@@ -1722,8 +1735,7 @@ public class Scanner {
                     return;
                 }
 
-                if (token.tokenType != Tokens.X_IDENTIFIER
-                        || token.namePrePrefix != null) {
+                if (token.tokenType != Tokens.X_IDENTIFIER) {
 
                     /** @todo 1.9.0 - review message malformed character set identifier */
                     token.tokenType   = Tokens.X_MALFORMED_STRING;
@@ -1732,12 +1744,21 @@ public class Scanner {
                     return;
                 }
 
-                token.charsetSchema = token.namePrefix;
-                token.charsetName   = token.tokenString;
-
                 scanSeparator();
 
                 if (charAt(currentPosition) == '\'') {
+                    if (token.namePrePrefix != null) {
+
+                        /** @todo 1.9.0 - review message malformed character set identifier */
+                        token.tokenType   = Tokens.X_MALFORMED_STRING;
+                        token.isMalformed = true;
+
+                        return;
+                    }
+
+                    token.charsetSchema = token.namePrefix;
+                    token.charsetName   = token.tokenString;
+
                     scanCharacterString();
 
                     token.tokenType = Tokens.X_VALUE;
@@ -1746,9 +1767,12 @@ public class Scanner {
                     token.isDelimiter = true;
 
                     return;
-                }
-                break;
+                } else {
+                    position(startPosition);
+                    resetState();
 
+                    break;
+                }
             case '0' :
             case '1' :
             case '2' :
@@ -1768,6 +1792,10 @@ public class Scanner {
         }
 
         scanIdentifierChain();
+        setIdentifierProperties();
+    }
+
+    private void setIdentifierProperties() {
 
         if (token.tokenType == Tokens.X_IDENTIFIER) {
             token.isUndelimitedIdentifier = true;
@@ -1778,7 +1806,7 @@ public class Scanner {
 
                 if (token.tokenType == Tokens.X_IDENTIFIER) {
                     token.tokenType = Tokens.getNonKeywordID(token.tokenString,
-                                                             Tokens.X_IDENTIFIER);
+                            Tokens.X_IDENTIFIER);
                 } else {
                     token.isReservedIdentifier = true;
                     token.isCoreReservedIdentifier =
