@@ -329,6 +329,13 @@ public class ParserBase {
         }
     }
 
+    void checkIsIrregularCharInIdentifier() {
+
+        if (scanner.token.hasIrregularChar) {
+            throw unexpectedToken();
+        }
+    }
+
     boolean isIdentifier() {
         return scanner.token.isUndelimitedIdentifier
                || scanner.token.isDelimitedIdentifier;

@@ -107,6 +107,10 @@ public class ParserDQL extends ParserBase {
         } else {
             checkIsNonCoreReservedIdentifier();
         }
+
+        if (database.sqlRegularNames) {
+            checkIsIrregularCharInIdentifier();
+        }
     }
 
     Type readTypeDefinition(boolean allowCollation, boolean includeUserTypes) {
@@ -2029,9 +2033,8 @@ public class ParserDQL extends ParserBase {
             case OpTypes.VAR_POP :
             case OpTypes.VAR_SAMP :
                 if (all || distinct) {
-                    throw Error.error(ErrorCode.X_42582, all ? Tokens.T_ALL
-                                                             : Tokens
-                                                             .T_DISTINCT);
+                    throw unexpectedToken(all ? Tokens.T_ALL
+                                              : Tokens.T_DISTINCT);
                 }
                 break;
 

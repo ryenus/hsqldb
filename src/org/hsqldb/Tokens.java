@@ -719,6 +719,7 @@ public class Tokens {
     static final String        T_RAW                  = "RAW";
     static final String        T_READONLY             = "READONLY";
     static final String        T_REFERENTIAL          = "REFERENTIAL";
+    public static final String T_REGULAR              = "REGULAR";
     static final String        T_RENAME               = "RENAME";
     static final String        T_RESTRICT             = "RESTRICT";
     static final String        T_ROWNUM               = "ROWNUM";
@@ -1495,20 +1496,21 @@ public class Tokens {
     static final int RAW            = 617;
     static final int READONLY       = 618;
     static final int REFERENTIAL    = 619;
-    static final int RENAME         = 620;
-    static final int RESET          = 621;
-    static final int ROWNUM         = 622;
-    static final int SCRIPT         = 623;
-    static final int SEPARATOR      = 624;
-    static final int SHUTDOWN       = 625;
-    static final int SYNTAX         = 626;
-    static final int TDC            = 627;
-    static final int TEMP           = 628;
-    static final int TEXT           = 629;
-    static final int TTI            = 630;
-    static final int TYPES          = 631;
-    static final int VARCHAR2       = 632;
-    static final int WRITE_DELAY    = 633;
+    static final int REGULAR        = 620;
+    static final int RENAME         = 621;
+    static final int RESET          = 622;
+    static final int ROWNUM         = 623;
+    static final int SCRIPT         = 624;
+    static final int SEPARATOR      = 625;
+    static final int SHUTDOWN       = 626;
+    static final int SYNTAX         = 627;
+    static final int TDC            = 628;
+    static final int TEMP           = 629;
+    static final int TEXT           = 630;
+    static final int TTI            = 631;
+    static final int TYPES          = 632;
+    static final int VARCHAR2       = 633;
+    static final int WRITE_DELAY    = 634;
 
     //
     static final int        ACOS                       = 640;
@@ -2191,6 +2193,7 @@ public class Tokens {
         commandSet.put(T_READ, READ);
         commandSet.put(T_READONLY, READONLY);
         commandSet.put(T_REFERENTIAL, REFERENTIAL);
+        commandSet.put(T_REGULAR, REGULAR);
         commandSet.put(T_RENAME, RENAME);
         commandSet.put(T_REPEATABLE, REPEATABLE);
         commandSet.put(T_RESET, RESET);

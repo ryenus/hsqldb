@@ -503,6 +503,8 @@ public class Logger {
                 HsqlDatabaseProperties.hsqldb_tx_conflict_rollback);
         database.sqlEnforceNames = database.databaseProperties.isPropertyTrue(
             HsqlDatabaseProperties.sql_enforce_names);
+        database.sqlRegularNames = database.databaseProperties.isPropertyTrue(
+            HsqlDatabaseProperties.sql_regular_names);
         database.sqlEnforceRefs = database.databaseProperties.isPropertyTrue(
             HsqlDatabaseProperties.sql_enforce_refs);
         database.sqlEnforceSize = database.databaseProperties.isPropertyTrue(
@@ -1484,6 +1486,10 @@ public class Logger {
             return String.valueOf(database.sqlEnforceNames);
         }
 
+        if (HsqlDatabaseProperties.sql_regular_names.equals(name)) {
+            return String.valueOf(database.sqlRegularNames);
+        }
+
         if (HsqlDatabaseProperties.sql_enforce_types.equals(name)) {
             return String.valueOf(database.sqlEnforceTypes);
         }
@@ -1571,6 +1577,13 @@ public class Logger {
         sb.append("SET DATABASE ").append(Tokens.T_SQL).append(' ');
         sb.append(Tokens.T_NAMES).append(' ');
         sb.append(database.sqlEnforceNames ? Tokens.T_TRUE
+                                           : Tokens.T_FALSE);
+        list.add(sb.toString());
+        sb.setLength(0);
+        sb.append("SET DATABASE ").append(Tokens.T_SQL).append(' ');
+        sb.append(Tokens.T_REGULAR).append(' ');
+        sb.append(Tokens.T_NAMES).append(' ');
+        sb.append(database.sqlRegularNames ? Tokens.T_TRUE
                                            : Tokens.T_FALSE);
         list.add(sb.toString());
         sb.setLength(0);

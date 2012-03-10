@@ -99,6 +99,7 @@ public class Database {
     public boolean                sqlEnforceRefs         = false;
     public boolean                sqlEnforceSize         = true;
     public boolean                sqlEnforceNames        = false;
+    public boolean                sqlRegularNames        = true;
     public boolean                sqlEnforceTDCD         = true;
     public boolean                sqlEnforceTDCU         = true;
     public boolean                sqlTranslateTTI        = true;
@@ -439,6 +440,10 @@ public class Database {
 
     public void setStrictNames(boolean mode) {
         sqlEnforceNames = mode;
+    }
+
+    public void setRegularNames(boolean mode) {
+        sqlRegularNames = mode;
     }
 
     public void setStrictColumnSize(boolean mode) {
