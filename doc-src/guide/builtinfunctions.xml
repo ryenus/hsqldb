@@ -37,11 +37,11 @@
     </keywordset>
 
     <legalnotice>
-      <para>Copyright 2010-2012 Fred Toussi. Permission is granted to distribute
-      this document without any alteration under the terms of the HSQLDB
-      license. Additional permission is granted to the HSQL Development Group
-      to distribute this document with or without alterations under the terms
-      of the HSQLDB license.</para>
+      <para>Copyright 2010-2012 Fred Toussi. Permission is granted to
+      distribute this document without any alteration under the terms of the
+      HSQLDB license. Additional permission is granted to the HSQL Development
+      Group to distribute this document with or without alterations under the
+      terms of the HSQLDB license.</para>
     </legalnotice>
   </info>
 
@@ -1640,8 +1640,8 @@ WIDTH_BUCKET( 200, 10, 110, 10)
       for MONTH and DAY, or zero, for the rest of the fields. For example
       rounding a timestamp value on the DAY field results in midnight the same
       date or midnight the next day if the time is at or after 12 noon. If the
-      second argument is omitted, the datetime value is rounded to the
-      nearest day. (HyperSQL)</para>
+      second argument is omitted, the datetime value is rounded to the nearest
+      day. (HyperSQL)</para>
 
       <indexterm significance="preferred" type="sql">
         <primary>TRUNC function datetime</primary>
@@ -1724,6 +1724,10 @@ TIMESTAMP '2008-11-22 20:30:40.000000'
       <programlisting>TO_CHAR ( TIMESTAMP'2008-02-01 20:30:40', 'YYYY BC MONTH, DAY HH' )
 
 2008 AD February, Friday 8
+
+TO_CHAR ( TIMESTAMP'2008-02-01 20:30:40', '"The Date is" YYYY BC MONTH, DAY HH' )
+
+The Date is 2008 AD February, Friday 8
 </programlisting>
 
       <para>The format is internally translated to a
@@ -1731,8 +1735,8 @@ TIMESTAMP '2008-11-22 20:30:40.000000'
       Separator characters (space, comma, period, hyphen, colon, semicolon,
       forward slash) can be included between the pattern elements. Unsupported
       format strings should not be used. You can include a string literal
-      inside the format string by enclosing it in double quotes.
-      (HyperSQL)</para>
+      inside the format string by enclosing it in double quotes (see the
+      second example above). (HyperSQL)</para>
 
       <indexterm significance="preferred" type="sql">
         <primary>TO_DATE function</primary>
@@ -1743,9 +1747,9 @@ TIMESTAMP '2008-11-22 20:30:40.000000'
       <para><literal>TO_DATE ( &lt;char value expr&gt;, &lt;char value
       expr&gt; )</literal></para>
 
-      <para>This function translates a formatted datetime sting to a DATE
-      according to the format given in the second argument. See TO_TIMESTAMP
-      below for further details.</para>
+      <para>This function translates a formatted datetime sting to a
+      TIMESTAMP(0) according to the format given in the second argument. See
+      TO_TIMESTAMP below for further details.</para>
 
       <indexterm significance="preferred" type="sql">
         <primary>TO_TIMESTAMP function</primary>
@@ -1756,13 +1760,14 @@ TIMESTAMP '2008-11-22 20:30:40.000000'
       <para><literal>TO_TIMESTAMP ( &lt;char value expr&gt;, &lt;char value
       expr&gt; )</literal></para>
 
-      <para>This function translates a formatted datetime sting to a TIMESTAMP
-      according to the format given in the second argument. The format string
-      can contain pattern elements from the list given below, plus punctuation
-      and space characters. The pattern should contain all the necessary
-      fields to construct a date, including, year, month, day of month, etc.
-      The returned timestamp can then be cast into DATE or TIME types if
-      necessary. An example, including the result, is given below:</para>
+      <para>This function translates a formatted datetime sting to a
+      TIMESTAMP(6) according to the format given in the second argument. The
+      format string can contain pattern elements from the list given below,
+      plus punctuation and space characters. The pattern should contain all
+      the necessary fields to construct a date, including, year, month, day of
+      month, etc. The returned timestamp can then be cast into DATE or TIME
+      types if necessary. An example, including the result, is given
+      below:</para>
 
       <programlisting>TO_TIMESTAMP ( '22/11/2008 20:30:40', 'DD/MM/YYYY HH:MI:SS' )
 
@@ -1771,7 +1776,7 @@ TIMESTAMP '2008-11-22 20:30:40.000000'
 
       <para>The format strings that can be used for TO_DATE and TO_TIMESTAMP
       are more restrictive than those used for TO_CHAR, because the format
-      string must contain all the elements needed to build a full DATE or
+      string must contain the elements needed to build a full DATE or
       TIMESTAMP value. The format is internally translated to a
       <classname>java.text.SimpleDateFormat</classname> format string.
       Unsupported format strings should not be used. You can include a string
@@ -1853,14 +1858,15 @@ TIMESTAMP '2008-11-22 20:30:40.000000'
 
               <entry><para>Week of year (1-53) where week 1 starts on the
               first day of the year and continues to the seventh day of the
-              year.</para></entry>
+              year (not a calendar week).</para></entry>
             </row>
 
             <row>
               <entry><literal>W</literal></entry>
 
               <entry><para>Week of month (1-5) where week 1 starts on the
-              first day of the month and ends on the seventh.</para></entry>
+              first day of the month and ends on the seventh (not a calendar
+              week).</para></entry>
             </row>
 
             <row>
@@ -2600,12 +2606,22 @@ D          I
 
     <para><literal>ROWNUM()</literal></para>
 
+    <indexterm significance="preferred" type="sql">
+      <primary>ROW_NUMBER function</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">ROW_NUMBER</emphasis></simpara>
+
+    <para><literal>ROW_NUMBER() OVER()</literal></para>
+
     <para>Returns the current row number (from 1) being processed in a select
     statement. This has the same semantics as the ROWNUM pseudo-column in
     Oracle syntax mode, but can be used in any syntax mode. The function is
-    always used in a SELECT statement. The ROWNUM of a row is incremented as
-    the rows are added to the result set. It is therefore possible to use a
+    used in a SELECT of DELETE statement. The ROWNUM of a row is incremented
+    as the rows are added to the result set. It is therefore possible to use a
     condition such as WHERE ROWNUM() &lt; 10, but not ROWNUM() &gt; 10 or
-    ROWNUM = 10. (HyperSQL)</para>
+    ROWNUM = 10. The <literal>ROW_NUMBER() OVER()</literal> alternative
+    performs the same function and is included for compatibility with other
+    database engines.(HyperSQL)</para>
   </section>
 </chapter>
