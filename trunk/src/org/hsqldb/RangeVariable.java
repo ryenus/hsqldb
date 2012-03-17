@@ -119,7 +119,7 @@ public class RangeVariable implements Cloneable {
     boolean isGenerated;
 
     public RangeVariable(HashMappedList variables, SimpleName rangeName,
-                  boolean isVariable, int rangeType) {
+                         boolean isVariable, int rangeType) {
 
         this.variables   = variables;
         this.rangeType   = rangeType;
@@ -134,8 +134,10 @@ public class RangeVariable implements Cloneable {
             new RangeVariableConditions(this, false) };
     }
 
-    public RangeVariable(Table table, SimpleName alias, OrderedHashSet columnList,
-                  SimpleName[] columnNameList, CompileContext compileContext) {
+    public RangeVariable(Table table, SimpleName alias,
+                         OrderedHashSet columnList,
+                         SimpleName[] columnNameList,
+                         CompileContext compileContext) {
 
         rangeType        = TABLE_RANGE;
         rangeTable       = table;
@@ -506,7 +508,7 @@ public class RangeVariable implements Cloneable {
      * Add all columns to a list of expressions
      */
     public int addTableColumns(HsqlArrayList exprList, int position,
-                        HashSet exclude) {
+                               HashSet exclude) {
 
         Table table = getTable();
         int   count = table.getColumnCount();
@@ -549,8 +551,8 @@ public class RangeVariable implements Cloneable {
         return -1;
     }
 
-    protected void addTableColumns(Expression expression, int start, int count,
-                         HashSet exclude) {
+    protected void addTableColumns(Expression expression, int start,
+                                   int count, HashSet exclude) {
 
         Table         table = getTable();
         HsqlArrayList list  = new HsqlArrayList();
@@ -765,6 +767,10 @@ public class RangeVariable implements Cloneable {
         if (whereConditions[0].hasIndexCondition()) {
             conditions = whereConditions;
         }
+
+        sb.append(b).append("cardinality=");
+        sb.append(conditions[0].rangeIndex.size(session,
+                rangeTable.getRowStore(session))).append("\n");
 
         boolean fullScan = !conditions[0].hasIndexCondition();
 
@@ -1622,7 +1628,7 @@ public class RangeVariable implements Cloneable {
          * @param colCount number of columns searched
          */
         public void addIndexCondition(Expression[] exprList, Index index,
-                               int colCount) {
+                                      int colCount) {
 
             int indexColCount = index.getColumnCount();
 

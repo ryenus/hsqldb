@@ -241,8 +241,10 @@ public class FunctionCustom extends FunctionSQL {
         customRegularFuncMap.put(Tokens.CURTIME, FUNC_LOCALTIME);
         customRegularFuncMap.put(Tokens.DATABASE, FUNC_DATABASE);
         customRegularFuncMap.put(Tokens.DATABASE_NAME, FUNC_DATABASE_NAME);
-        customRegularFuncMap.put(Tokens.DATABASE_ISOLATION_LEVEL, FUNC_DATABASE_ISOLATION_LEVEL);
-        customRegularFuncMap.put(Tokens.DATABASE_TIMEZONE, FUNC_DATABASE_TIMEZONE);
+        customRegularFuncMap.put(Tokens.DATABASE_ISOLATION_LEVEL,
+                                 FUNC_DATABASE_ISOLATION_LEVEL);
+        customRegularFuncMap.put(Tokens.DATABASE_TIMEZONE,
+                                 FUNC_DATABASE_TIMEZONE);
         customRegularFuncMap.put(Tokens.DATABASE_VERSION, FUNC_DATABASE_VERSION);
         customRegularFuncMap.put(Tokens.DATEADD, FUNC_DATEADD);
         customRegularFuncMap.put(Tokens.DATEDIFF, FUNC_DATEDIFF);
@@ -260,9 +262,12 @@ public class FunctionCustom extends FunctionSQL {
         customRegularFuncMap.put(Tokens.IDENTITY, FUNC_IDENTITY);
         customRegularFuncMap.put(Tokens.INSERT, FUNC_OVERLAY_CHAR);
         customRegularFuncMap.put(Tokens.IS_AUTOCOMMIT, FUNC_ISAUTOCOMMIT);
-        customRegularFuncMap.put(Tokens.IS_READONLY_DATABASE, FUNC_ISREADONLYDATABASE);
-        customRegularFuncMap.put(Tokens.IS_READONLY_DATABASE_FILES, FUNC_ISREADONLYDATABASEFILES);
-        customRegularFuncMap.put(Tokens.IS_READONLY_SESSION, FUNC_ISREADONLYSESSION);
+        customRegularFuncMap.put(Tokens.IS_READONLY_DATABASE,
+                                 FUNC_ISREADONLYDATABASE);
+        customRegularFuncMap.put(Tokens.IS_READONLY_DATABASE_FILES,
+                                 FUNC_ISREADONLYDATABASEFILES);
+        customRegularFuncMap.put(Tokens.IS_READONLY_SESSION,
+                                 FUNC_ISREADONLYSESSION);
         customRegularFuncMap.put(Tokens.ISOLATION_LEVEL, FUNC_ISOLATION_LEVEL);
         customRegularFuncMap.put(Tokens.LCASE, FUNC_FOLD_LOWER);
         customRegularFuncMap.put(Tokens.LEFT, FUNC_LEFT);
@@ -286,7 +291,8 @@ public class FunctionCustom extends FunctionSQL {
         customRegularFuncMap.put(Tokens.RAWTOHEX, FUNC_RAWTOHEX);
         customRegularFuncMap.put(Tokens.REGEXP_MATCHES, FUNC_REGEXP_MATCHES);
         customRegularFuncMap.put(Tokens.REGEXP_SUBSTRING, FUNC_REGEXP_SUBSTRING);
-        customRegularFuncMap.put(Tokens.REGEXP_SUBSTRING_ARRAY, FUNC_REGEXP_SUBSTRING_ARRAY);
+        customRegularFuncMap.put(Tokens.REGEXP_SUBSTRING_ARRAY,
+                                 FUNC_REGEXP_SUBSTRING_ARRAY);
         customRegularFuncMap.put(Tokens.REPEAT, FUNC_REPEAT);
         customRegularFuncMap.put(Tokens.REPLACE, FUNC_REPLACE);
         customRegularFuncMap.put(Tokens.REVERSE, FUNC_REVERSE);
@@ -299,7 +305,8 @@ public class FunctionCustom extends FunctionSQL {
         customRegularFuncMap.put(Tokens.SECONDS_MIDNIGHT, FUNC_EXTRACT);
         customRegularFuncMap.put(Tokens.SEQUENCE_ARRAY, FUNC_SEQUENCE_ARRAY);
         customRegularFuncMap.put(Tokens.SESSION_ID, FUNC_SESSION_ID);
-        customRegularFuncMap.put(Tokens.SESSION_ISOLATION_LEVEL, FUNC_SESSION_ISOLATION_LEVEL);
+        customRegularFuncMap.put(Tokens.SESSION_ISOLATION_LEVEL,
+                                 FUNC_SESSION_ISOLATION_LEVEL);
         customRegularFuncMap.put(Tokens.SESSION_TIMEZONE, FUNC_SESSION_TIMEZONE);
         customRegularFuncMap.put(Tokens.SIGN, FUNC_SIGN);
         customRegularFuncMap.put(Tokens.SIN, FUNC_SIN);
@@ -316,7 +323,8 @@ public class FunctionCustom extends FunctionSQL {
         customRegularFuncMap.put(Tokens.TO_DATE, FUNC_TO_DATE);
         customRegularFuncMap.put(Tokens.TO_NUMBER, FUNC_TO_NUMBER);
         customRegularFuncMap.put(Tokens.TO_TIMESTAMP, FUNC_TO_TIMESTAMP);
-        customRegularFuncMap.put(Tokens.TRANSACTION_CONTROL, FUNC_TRANSACTION_CONTROL);
+        customRegularFuncMap.put(Tokens.TRANSACTION_CONTROL,
+                                 FUNC_TRANSACTION_CONTROL);
         customRegularFuncMap.put(Tokens.TRANSACTION_ID, FUNC_TRANSACTION_ID);
         customRegularFuncMap.put(Tokens.TRANSACTION_SIZE, FUNC_TRANSACTION_SIZE);
         customRegularFuncMap.put(Tokens.TRUNC, FUNC_TRUNC);
@@ -1528,23 +1536,19 @@ public class FunctionCustom extends FunctionSQL {
                     e++;
                 }
 
-                if (e == 4) {
-                    return ValuePool.getInt(e);
-                }
-
                 int js = 1;
 
                 for (int i = 1; i < 4; i++) {
                     for (int j = js; j < 4; j++) {
                         if (s1[j] == s2[i]) {
                             e++;
-                            i++;
-                            js++;
+
+                            js = j + 1;
+
+                            break;
                         }
                     }
                 }
-
-                e = 0;
 
                 return ValuePool.getInt(e);
             }
@@ -2175,17 +2179,17 @@ public class FunctionCustom extends FunctionSQL {
                     nodes[0].dataType = Type.SQL_VARCHAR_DEFAULT;
                 }
 
-/*
-                if (nodes[1] != null) {
-                    if (nodes[1].dataType == null) {
-                        nodes[1].dataType = Type.SQL_VARCHAR_DEFAULT;
-                    }
+                /*
+                                if (nodes[1] != null) {
+                                    if (nodes[1].dataType == null) {
+                 nodes[1].dataType = Type.SQL_VARCHAR_DEFAULT;
+                                    }
 
-                    if (!nodes[1].dataType.isCharacterType()) {
-                        throw Error.error(ErrorCode.X_42563);
-                    }
-                }
-*/
+                                    if (!nodes[1].dataType.isCharacterType()) {
+                                        throw Error.error(ErrorCode.X_42563);
+                                    }
+                                }
+                 */
                 if (!nodes[0].dataType.isCharacterType()) {
                     throw Error.error(ErrorCode.X_42563);
                 }
@@ -2210,8 +2214,9 @@ public class FunctionCustom extends FunctionSQL {
                     throw Error.error(ErrorCode.X_42567);
                 }
 
-                dataType = funcType == FUNC_TO_DATE ? Type.SQL_TIMESTAMP_NO_FRACTION
-                                                    : Type.SQL_TIMESTAMP;
+                dataType = funcType == FUNC_TO_DATE
+                           ? Type.SQL_TIMESTAMP_NO_FRACTION
+                           : Type.SQL_TIMESTAMP;
 
                 return;
             }
@@ -2402,7 +2407,6 @@ public class FunctionCustom extends FunctionSQL {
                     }
 
                     dataType = nodes[0].dataType;
-
                 } else {
                     dataType = nodes[0].dataType;
 
@@ -2795,11 +2799,11 @@ public class FunctionCustom extends FunctionSQL {
 
                 // LOCATE
                 StringBuffer sb = new StringBuffer(Tokens.T_LOCATE).append(
-                    Tokens.T_OPENBRACKET).append(nodes[0].getSQL())         //
-                    .append(Tokens.T_COMMA).append(nodes[1].getSQL());      //
+                    Tokens.T_OPENBRACKET).append(nodes[0].getSQL()).append(
+                    Tokens.T_COMMA).append(nodes[1].getSQL());
 
                 if (nodes.length > 3 && nodes[3] != null) {
-                    sb.append(Tokens.T_COMMA).append(nodes[3].getSQL());    //
+                    sb.append(Tokens.T_COMMA).append(nodes[3].getSQL());
                 }
 
                 sb.append(Tokens.T_CLOSEBRACKET).toString();
@@ -2888,20 +2892,20 @@ public class FunctionCustom extends FunctionSQL {
                     ((Number) nodes[0].getValue(null)).intValue());
 
                 return new StringBuffer(Tokens.T_TIMESTAMPADD).append(
-                    Tokens.T_OPENBRACKET).append(token)                     //
-                    .append(Tokens.T_COMMA).append(nodes[1].getSQL())       //
-                    .append(Tokens.T_COMMA).append(nodes[2].getSQL())       //
-                    .append(Tokens.T_CLOSEBRACKET).toString();
+                    Tokens.T_OPENBRACKET).append(token).append(
+                    Tokens.T_COMMA).append(nodes[1].getSQL()).append(
+                    Tokens.T_COMMA).append(nodes[2].getSQL()).append(
+                    Tokens.T_CLOSEBRACKET).toString();
             }
             case FUNC_TIMESTAMPDIFF : {
                 String token = Tokens.getSQLTSIString(
                     ((Number) nodes[0].getValue(null)).intValue());
 
                 return new StringBuffer(Tokens.T_TIMESTAMPDIFF).append(
-                    Tokens.T_OPENBRACKET).append(token)                     //
-                    .append(Tokens.T_COMMA).append(nodes[1].getSQL())       //
-                    .append(Tokens.T_COMMA).append(nodes[2].getSQL())       //
-                    .append(Tokens.T_CLOSEBRACKET).toString();
+                    Tokens.T_OPENBRACKET).append(token).append(
+                    Tokens.T_COMMA).append(nodes[1].getSQL()).append(
+                    Tokens.T_COMMA).append(nodes[2].getSQL()).append(
+                    Tokens.T_CLOSEBRACKET).toString();
             }
             case FUNC_UNIX_TIMESTAMP :
             case FUNC_RAND : {
@@ -2953,8 +2957,8 @@ public class FunctionCustom extends FunctionSQL {
             case FUNC_HEXTORAW :
             case FUNC_RAWTOHEX :
             case FUNC_LOB_ID : {
-                return new StringBuffer(name).append('(')                   //
-                    .append(nodes[0].getSQL()).append(')').toString();
+                return new StringBuffer(name).append('(').append(
+                    nodes[0].getSQL()).append(')').toString();
             }
             case FUNC_ATAN2 :
             case FUNC_BITAND :
@@ -2974,9 +2978,9 @@ public class FunctionCustom extends FunctionSQL {
             case FUNC_REGEXP_MATCHES :
             case FUNC_REGEXP_SUBSTRING :
             case FUNC_REGEXP_SUBSTRING_ARRAY : {
-                return new StringBuffer(name).append('(')                   //
-                    .append(nodes[0].getSQL()).append(Tokens.T_COMMA)       //
-                    .append(nodes[1].getSQL()).append(')').toString();
+                return new StringBuffer(name).append('(').append(
+                    nodes[0].getSQL()).append(Tokens.T_COMMA).append(
+                    nodes[1].getSQL()).append(')').toString();
             }
             case FUNC_DIAGNOSTICS : {
                 StringBuffer sb = new StringBuffer(name).append('(');
@@ -2989,10 +2993,10 @@ public class FunctionCustom extends FunctionSQL {
             }
             case FUNC_SEQUENCE_ARRAY :
             case FUNC_REPLACE : {
-                return new StringBuffer(name).append('(')                   //
-                    .append(nodes[0].getSQL()).append(Tokens.T_COMMA)       //
-                    .append(nodes[1].getSQL()).append(Tokens.T_COMMA)       //
-                    .append(nodes[2].getSQL()).append(')').toString();
+                return new StringBuffer(name).append('(').append(
+                    nodes[0].getSQL()).append(Tokens.T_COMMA).append(
+                    nodes[1].getSQL()).append(Tokens.T_COMMA).append(
+                    nodes[2].getSQL()).append(')').toString();
             }
             default :
                 return super.getSQL();
@@ -3005,8 +3009,8 @@ public class FunctionCustom extends FunctionSQL {
      * input <code>String</code> are ignored. <p>
      *
      * This method was rewritten for HSQLDB to comply with the description at
-     * <a href="http://www.archives.gov/genealogy/census/soundex.html">
-     * http://www.archives.gov/genealogy/census/soundex.html </a>.<p>
+     * <a href="http://www.archives.gov/research/census/soundex.html">
+     * http://www.archives.gov/research/census/soundex.html </a>.<p>
      * @param s the <code>String</code> for which to calculate the 4 character
      *      <code>SOUNDEX</code> value
      * @return the 4 character <code>SOUNDEX</code> value for the given

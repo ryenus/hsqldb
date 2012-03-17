@@ -915,8 +915,8 @@ public class ArrayUtil {
      * of copied bytes.
      */
     public static int copyBytes(long sourceOffset, byte[] source,
-                                 int sourceOff, int length, long destOffset,
-                                 byte[] dest) {
+                                int sourceOff, int length, long destOffset,
+                                byte[] dest) {
 
         if (sourceOffset + sourceOff >= destOffset + dest.length
                 || sourceOffset + sourceOff + length <= destOffset) {
@@ -953,6 +953,36 @@ public class ArrayUtil {
      */
     public static void copyArray(Object source, Object dest, int count) {
         System.arraycopy(source, 0, dest, 0, count);
+    }
+
+    public static void copyMoveSegment(Object source, Object dest, int size,
+                                       int index, int segmentSize,
+                                       int destIndex) {
+
+        boolean forward   = index < destIndex;
+        int     sliceSize = forward ? index
+                                    : destIndex;
+
+        System.arraycopy(source, 0, dest, 0, sliceSize);
+
+        sliceSize = forward ? size - destIndex - segmentSize:
+            size - index - segmentSize;
+
+        int sliceIndex = forward ? destIndex + segmentSize
+                                 : index + segmentSize;
+
+        System.arraycopy(source, sliceIndex, dest, sliceIndex, sliceSize);
+        System.arraycopy(source, index, dest, destIndex, segmentSize);
+
+        sliceSize  = Math.abs(index - destIndex);
+        sliceIndex = forward ? index + segmentSize
+                             : destIndex;
+
+        int targetSliceIndex = forward ? index
+                                       : destIndex + segmentSize;
+
+        System.arraycopy(source, sliceIndex, dest, targetSliceIndex,
+                         sliceSize);
     }
 
     /**
