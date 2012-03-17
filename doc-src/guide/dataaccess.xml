@@ -1905,100 +1905,8 @@ invoice_date &lt; ALL (SELECT holiday_date FROM holidays)
       <programlisting>startdate IS DISTINCT FROM enddate</programlisting>
     </section>
 
-    <section xml:id="dac_other_syntax_elements">
-      <title>Other Syntax Elements</title>
-
-      <indexterm significance="preferred" type="sql">
-        <primary>search condition</primary>
-      </indexterm>
-
-      <simpara><emphasis role="bold">search condition</emphasis></simpara>
-
-      <simpara><emphasis>search condition</emphasis></simpara>
-
-      <simpara><literal>&lt;search condition&gt; ::= &lt;boolean value
-      expression&gt;</literal></simpara>
-
-      <simpara>Specify a condition that is TRUE, FALSE, or UNKNOWN. A search
-      condition is often a predicate.</simpara>
-
-      <indexterm significance="preferred" type="sql">
-        <primary>PATH</primary>
-      </indexterm>
-
-      <simpara><emphasis role="bold">PATH</emphasis></simpara>
-
-      <simpara><emphasis>path specification</emphasis></simpara>
-
-      <simpara><literal>&lt;path specification&gt; ::= PATH &lt;schema name
-      list&gt;</literal></simpara>
-
-      <simpara><literal>&lt;schema name list&gt; ::= &lt;schema name&gt; [ {
-      &lt;comma&gt; &lt;schema name&gt; }... ]</literal></simpara>
-
-      <simpara>Specify an order for searching for a user-defined SQL-invoked
-      routine. This is not currently supported by HyperSQL.</simpara>
-
-      <indexterm significance="preferred" type="sql">
-        <primary>routine invocation</primary>
-      </indexterm>
-
-      <simpara><emphasis role="bold">routine invocation</emphasis></simpara>
-
-      <simpara><emphasis>routine invocation</emphasis></simpara>
-
-      <simpara><literal>&lt;routine invocation&gt; ::= &lt;routine name&gt;
-      &lt;SQL argument list&gt;</literal></simpara>
-
-      <simpara><literal>&lt;routine name&gt; ::= [ &lt;schema name&gt;
-      &lt;period&gt; ] &lt;qualified identifier&gt;</literal></simpara>
-
-      <simpara><literal>&lt;SQL argument list&gt; ::= &lt;left paren&gt; [
-      &lt;SQL argument&gt; [ { &lt;comma&gt; &lt;SQL argument&gt; }... ] ]
-      &lt;right paren&gt;</literal></simpara>
-
-      <simpara><literal>&lt;SQL argument&gt; ::= &lt;value expression&gt; |
-      &lt;target specification&gt;</literal></simpara>
-
-      <simpara>Invoke an SQL-invoked routine. Examples are given in the <link
-      endterm="sqlroutines-title" xlink:href="#sqlroutines-chapt"></link>
-      chapter.</simpara>
-
-      <indexterm significance="preferred" type="sql">
-        <primary>COLLATE</primary>
-      </indexterm>
-
-      <simpara><emphasis role="bold">COLLATE</emphasis></simpara>
-
-      <simpara><emphasis>collate clause</emphasis></simpara>
-
-      <simpara><literal>&lt;collate clause&gt; ::= COLLATE &lt;collation
-      name&gt;</literal></simpara>
-
-      <simpara>Specify a default collation for a column or for an ORDER BY
-      expression. This is supported by HyperSQL from version 2.1.</simpara>
-
-      <indexterm significance="preferred" type="sql">
-        <primary>CONSTRAINT</primary>
-      </indexterm>
-
-      <simpara><emphasis role="bold">CONSTRAINT</emphasis></simpara>
-
-      <simpara><emphasis>constraint name definition</emphasis></simpara>
-
-      <simpara><literal>&lt;constraint name definition&gt; ::= CONSTRAINT
-      &lt;constraint name&gt;</literal></simpara>
-
-      <simpara><literal>&lt;constraint characteristics&gt; ::= &lt;constraint
-      check time&gt; [ [ NOT ] DEFERRABLE ] | [ NOT ] DEFERRABLE [
-      &lt;constraint check time&gt; ]</literal></simpara>
-
-      <simpara><literal>&lt;constraint check time&gt; ::= INITIALLY DEFERRED |
-      INITIALLY IMMEDIATE</literal></simpara>
-
-      <simpara>Specify the name of a constraint and its characteristics. This
-      is an optional element of CONSTRAINT definition, not yet supported by
-      HyperSQL.</simpara>
+    <section>
+      <title>Aggregate Functions</title>
 
       <indexterm significance="preferred" type="sql">
         <primary>aggregate function</primary>
@@ -2032,8 +1940,8 @@ invoice_date &lt; ALL (SELECT holiday_date FROM holidays)
 
       <simpara><literal>&lt;array aggregate function&gt; ::= { ARRAY_AGG |
       GROUP_CONCAT } &lt;left paren&gt; [ &lt;set quantifier&gt; ] &lt;value
-      expression&gt; [ &lt;order by clause&gt; ] [ &lt;separator&gt; ]
-      &lt;right paren&gt;</literal></simpara>
+      expression&gt; [ &lt;order by clause&gt; ] [ SEPARATOR &lt;separator&gt;
+      ] &lt;right paren&gt;</literal></simpara>
 
       <simpara><literal>&lt;separator&gt; ::= &lt;character string
       literal&gt;</literal></simpara>
@@ -2153,6 +2061,102 @@ LASTNAME  C2
 Steel     Robert * Laura * John                   
 King      Robert * Julia * James * George         
 Sommer    Robert * Janet</programlisting>
+    </section>
+
+    <section xml:id="dac_other_syntax_elements">
+      <title>Other Syntax Elements</title>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>search condition</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">search condition</emphasis></simpara>
+
+      <simpara><emphasis>search condition</emphasis></simpara>
+
+      <simpara><literal>&lt;search condition&gt; ::= &lt;boolean value
+      expression&gt;</literal></simpara>
+
+      <simpara>Specify a condition that is TRUE, FALSE, or UNKNOWN. A search
+      condition is often a predicate.</simpara>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>PATH</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">PATH</emphasis></simpara>
+
+      <simpara><emphasis>path specification</emphasis></simpara>
+
+      <simpara><literal>&lt;path specification&gt; ::= PATH &lt;schema name
+      list&gt;</literal></simpara>
+
+      <simpara><literal>&lt;schema name list&gt; ::= &lt;schema name&gt; [ {
+      &lt;comma&gt; &lt;schema name&gt; }... ]</literal></simpara>
+
+      <simpara>Specify an order for searching for a user-defined SQL-invoked
+      routine. This is not currently supported by HyperSQL.</simpara>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>routine invocation</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">routine invocation</emphasis></simpara>
+
+      <simpara><emphasis>routine invocation</emphasis></simpara>
+
+      <simpara><literal>&lt;routine invocation&gt; ::= &lt;routine name&gt;
+      &lt;SQL argument list&gt;</literal></simpara>
+
+      <simpara><literal>&lt;routine name&gt; ::= [ &lt;schema name&gt;
+      &lt;period&gt; ] &lt;qualified identifier&gt;</literal></simpara>
+
+      <simpara><literal>&lt;SQL argument list&gt; ::= &lt;left paren&gt; [
+      &lt;SQL argument&gt; [ { &lt;comma&gt; &lt;SQL argument&gt; }... ] ]
+      &lt;right paren&gt;</literal></simpara>
+
+      <simpara><literal>&lt;SQL argument&gt; ::= &lt;value expression&gt; |
+      &lt;target specification&gt;</literal></simpara>
+
+      <simpara>Invoke an SQL-invoked routine. Examples are given in the <link
+      endterm="sqlroutines-title" xlink:href="#sqlroutines-chapt"></link>
+      chapter.</simpara>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>COLLATE</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">COLLATE</emphasis></simpara>
+
+      <simpara><emphasis>collate clause</emphasis></simpara>
+
+      <simpara><literal>&lt;collate clause&gt; ::= COLLATE &lt;collation
+      name&gt;</literal></simpara>
+
+      <simpara>Specify a default collation for a column or for an ORDER BY
+      expression. This is supported by HyperSQL from version 2.1.</simpara>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>CONSTRAINT</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">CONSTRAINT</emphasis></simpara>
+
+      <simpara><emphasis>constraint name definition</emphasis></simpara>
+
+      <simpara><literal>&lt;constraint name definition&gt; ::= CONSTRAINT
+      &lt;constraint name&gt;</literal></simpara>
+
+      <simpara><literal>&lt;constraint characteristics&gt; ::= &lt;constraint
+      check time&gt; [ [ NOT ] DEFERRABLE ] | [ NOT ] DEFERRABLE [
+      &lt;constraint check time&gt; ]</literal></simpara>
+
+      <simpara><literal>&lt;constraint check time&gt; ::= INITIALLY DEFERRED |
+      INITIALLY IMMEDIATE</literal></simpara>
+
+      <simpara>Specify the name of a constraint and its characteristics. This
+      is an optional element of CONSTRAINT definition, not yet supported by
+      HyperSQL.</simpara>
     </section>
   </section>
 
