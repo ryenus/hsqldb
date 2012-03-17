@@ -1912,7 +1912,7 @@ public class Expression implements Cloneable {
         return targetSet;
     }
 
-    boolean isTargetRangeVariables(RangeVariable range) {
+    boolean isConditionRangeVariable(RangeVariable range) {
         return false;
     }
 

@@ -1072,10 +1072,6 @@ public class ExpressionColumn extends Expression {
         return isParam;
     }
 
-    boolean isTargetRangeVariables(RangeVariable range) {
-        return rangeVariable == range;
-    }
-
     RangeVariable[] getJoinRangeVariables(RangeVariable[] ranges) {
 
         if (opType == OpTypes.COLUMN) {

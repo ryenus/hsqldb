@@ -2074,7 +2074,7 @@ public class ExpressionLogical extends Expression {
         return true;
     }
 
-    boolean isTargetRangeVariables(RangeVariable range) {
+    boolean isConditionRangeVariable(RangeVariable range) {
 
         if (nodes[LEFT].getRangeVariable() == range) {
             return true;
