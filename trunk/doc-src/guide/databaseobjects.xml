@@ -717,7 +717,14 @@ INSERT INTO movies (starid, movieid, title) VALUES (CURRENT VALUE FOR seq, 10, '
 
       <simpara>A <literal>&lt;regular identifier&gt;</literal> is a special
       sequence of characters. It consists of letters, digits and the
-      underscore characters. It must begin with a letter.</simpara>
+      underscore characters. It must begin with a letter. All the letters are
+      translated to their upper-case version.</simpara>
+
+      <simpara>The database setting, <literal>SET DATABASE SQL REGULAR NAMES
+      FALSE</literal> can be used to relax the rules for regular identifer.
+      With this setting, an underscore character can appear at the start of
+      the regular identifier, and the dollar sign character can be used in the
+      identifier.</simpara>
 
       <simpara>A <literal>&lt;SQL language identifier&gt;</literal> is similar
       to <literal>&lt;regular identifier&gt;</literal> but the letters can
@@ -728,8 +735,13 @@ INSERT INTO movies (starid, movieid, title) VALUES (CURRENT VALUE FOR seq, 10, '
       as an undelimited identifier, it represents the same identifier. For
       example "JOHN" is the same identifier as JOHN. In a <literal>&lt;regular
       identifier&gt;</literal> the case-normal form is considered for
-      comparison. This form consists of the upper-case of equivalent of all
-      the letters.</simpara>
+      comparison. This form consists of the upper-case equivalent of all the
+      letters. When a database object is created with one of the CREATE
+      statements or renamed with the ALTER statement, if the name is enclosed
+      in double quotes, the exact name is used as the case-normal form. But if
+      it is not enclosed in double quotes, the name is converted to uppercase
+      and this uppercase version is stored in the database as the case-normal
+      form.</simpara>
 
       <simpara>The character sequence length of all identifiers must be
       between 1 and 128 characters.</simpara>

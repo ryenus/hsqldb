@@ -62,62 +62,15 @@
     rights on some of the schemas or the objects they contain. The persistent
     elements of an SQL environment are database objects</para>
 
-    <para>Each database object has a name. A name is an identifier and is
-    unique within its name-space. Authorizations names follow the rules
-    described below and the case-normal form is stored in the database. When
-    connecting to a database, the user name and password must match the case
-    of the case-normal form.</para>
+    <para>Authorizations names are stored in the database in the case-normal
+    form. When connecting to a database via JDBC, the user name and password
+    must match the case of this case-normal form.</para>
 
-    <indexterm significance="preferred" type="sql">
-      <primary>identifier definition</primary>
-    </indexterm>
-
-    <simpara><emphasis role="bold">identifier</emphasis></simpara>
-
-    <simpara><emphasis>definition of identifier</emphasis></simpara>
-
-    <simpara><literal>&lt;identifier&gt; ::= &lt;regular identifier&gt; |
-    &lt;delimited identifier&gt; | &lt;SQL language identifier&gt;
-    </literal></simpara>
-
-    <simpara><literal>&lt;delimited identifier&gt; ::= &lt;double quote&gt;
-    &lt;character sequence&gt; &lt;double quote&gt;</literal></simpara>
-
-    <simpara><literal>&lt;regular identifier&gt; ::= &lt;special character
-    sequence&gt;</literal></simpara>
-
-    <simpara><literal>&lt;SQL language identifier&gt; ::= &lt;special
-    character sequence&gt;</literal></simpara>
-
-    <simpara>A <literal>&lt;delimited identifier&gt;</literal> is a sequence
-    of characters enclosed with double-quote symbols. All characters are
-    allowed in the character sequence.</simpara>
-
-    <simpara>A <literal>&lt;regular identifier&gt;</literal> is a special
-    sequence of characters. It consists of letters, digits and the underscore
-    characters. It must begin with a letter.</simpara>
-
-    <simpara>A <literal>&lt;SQL language identifier&gt;</literal> is similar
-    to <literal>&lt;regular identifier&gt;</literal> but the letters can range
-    only from A-Z in the ASCII character set. This type of identifier is used
-    for names of CHARACTER SET objects.</simpara>
-
-    <simpara>If the character sequence of a delimited identifier is the same
-    as an undelimited identifier, it represents the same identifier. For
-    example "JOHN" is the same identifier as JOHN. In a <literal>&lt;regular
-    identifier&gt;</literal> the case-normal form is considered for
-    comparison. This form consists of the upper-case of equivalent of all the
-    letters.</simpara>
-
-    <simpara>The character sequence length of all identifiers must be between
-    1 and 128 characters.</simpara>
-
-    <simpara>A reserved word is one that is used by the SQL Standard for
-    special purposes. It is similar to a <literal>&lt;regular
-    identifier&gt;</literal> but it cannot be used as an identifier for user
-    objects. If a reserved word is enclosed in double quote characters, it
-    becomes a quoted identifier and can be used for database
-    objects.</simpara>
+    <para>When a user is created with the CREATE USER statement, if the user
+    name is enclosed in double quotes, the exact name is used as the
+    case-normal form. But if it is not enclosed in double quotes, the name is
+    converted to uppercase and this uppercase version is stored in the
+    database as the case-normal form.</para>
   </section>
 
   <section xml:id="acc_auth_and_access_ctrl">
