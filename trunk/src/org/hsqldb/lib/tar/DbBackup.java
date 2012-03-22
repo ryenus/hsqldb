@@ -62,6 +62,7 @@ import org.hsqldb.lib.InputStreamInterface;
  * @see #setAbortUponModify(boolean)
  * @author Blaine Simpson (blaine dot simpson at admc dot com)
  * @version 2.2.8
+ * @since 2.0.0
  */
 public class DbBackup {
 
