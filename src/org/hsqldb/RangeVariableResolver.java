@@ -110,27 +110,6 @@ public class RangeVariableResolver {
 
         firstLeftJoinIndex  = rangeVariables.length;
         firstRightJoinIndex = rangeVariables.length;
-
-        for (int i = 0; i < rangeVariables.length; i++) {
-            RangeVariable range = rangeVariables[i];
-
-            if (range.isLeftJoin) {
-                if (firstLeftJoinIndex == rangeVariables.length) {
-                    firstLeftJoinIndex = i;
-                }
-
-                hasOuterJoin = true;
-            }
-
-            if (range.isRightJoin) {
-                if (firstRightJoinIndex == rangeVariables.length) {
-                    firstRightJoinIndex = i;
-                }
-
-                hasOuterJoin = true;
-            }
-        }
-
         inExpressions       = new Expression[rangeVariables.length];
         inInJoin            = new boolean[rangeVariables.length];
         tempJoinExpressions = new HsqlArrayList[rangeVariables.length];
@@ -167,17 +146,29 @@ public class RangeVariableResolver {
                                    tempJoinExpressions[i]);
         }
 
-        conditions = null;
+        for (int i = 0; i < rangeVariables.length; i++) {
+            RangeVariable range = rangeVariables[i];
 
-        if (!sortAndSlice.usingIndex
-                || sortAndSlice.primaryTableIndex == null) {
-            for (int i = 0; i < rangeVariables.length; i++) {
-                rangeVarSet.add(rangeVariables[i]);
+            if (range.isLeftJoin) {
+                if (firstLeftJoinIndex == rangeVariables.length) {
+                    firstLeftJoinIndex = i;
+                }
+
+                hasOuterJoin = true;
             }
 
-            reorder();
-            rangeVarSet.clear();
+            if (range.isRightJoin) {
+                if (firstRightJoinIndex == rangeVariables.length) {
+                    firstRightJoinIndex = i;
+                }
+
+                hasOuterJoin = true;
+            }
         }
+
+        conditions = null;
+
+        reorder();
 
         for (int i = 0; i < rangeVariables.length; i++) {
             rangeVarSet.add(rangeVariables[i]);
@@ -190,11 +181,18 @@ public class RangeVariableResolver {
 
     void reorder() {
 
-        if (rangeVariables.length == 1 || firstLeftJoinIndex == 1
+        if (rangeVariables.length == 1
                 || firstRightJoinIndex != rangeVariables.length) {
             return;
         }
 
+        if (firstLeftJoinIndex == 1) {
+            return;
+        }
+
+        if (sortAndSlice.usingIndex && sortAndSlice.primaryTableIndex != null) {
+            return;
+        }
         for (int i = 0; i < rangeVariables.length; i++) {
             if (!rangeVariables[i].rangeTable.isSchemaBaseTable()) {
                 return;
