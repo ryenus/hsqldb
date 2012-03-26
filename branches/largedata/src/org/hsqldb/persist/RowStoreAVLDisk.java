@@ -304,13 +304,14 @@ public class RowStoreAVLDisk extends RowStoreAVL {
             return null;
         }
 
+/*
         if (!node.isInMemory()) {
             RowAVL row = (RowAVL) get(node.getPos(), false);
 
             node                            = row.getNode(key.getPosition());
             accessorList[key.getPosition()] = node;
         }
-
+*/
         return node;
     }
 
