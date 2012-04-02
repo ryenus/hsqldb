@@ -37,13 +37,10 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.sql.Timestamp;
 import java.util.TimeZone;
 
 import junit.framework.TestCase;
-
-import java.util.Locale;
-import java.util.Calendar;
-import java.sql.Timestamp;
 
 /**
  * Date Test Case.
@@ -106,6 +103,8 @@ public class TestDatetimeSimple extends TestCase {
     }
 
     public void testSimple() throws SQLException {
+
+        TestUtil.deleteDatabase("/hsql/tests/testdatetimesimple");
 
         Connection conn = DriverManager.getConnection(connectionURL, "SA", "");
         ResultSet         rs;
@@ -202,6 +201,8 @@ public class TestDatetimeSimple extends TestCase {
     }
 
     public void testValues() throws SQLException {
+
+        TestUtil.deleteDatabase("/hsql/tests/testdatetimesimple");
 
         Connection conn = DriverManager.getConnection(connectionURL, "SA", "");
         ResultSet          rs;

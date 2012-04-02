@@ -420,7 +420,7 @@ public class ParserRoutine extends ParserDML {
     /**
      * Creates SET Statement for PSM or session variables from this parse context.
      */
-    Statement compileSetStatement(RangeVariable rangeVars[]) {
+    StatementSet compileSetStatement(RangeVariable rangeVars[]) {
 
         read();
 
@@ -455,11 +455,14 @@ public class ParserRoutine extends ParserDML {
         resolveOuterReferencesAndTypes(rangeVars, expression);
 
         for (int i = 0; i < targets.length; i++) {
-            if (targets[i].getColumn().getParameterMode()
+            ColumnSchema col = targets[i].getColumn();
+
+            if (col.getParameterMode()
                     == SchemaObject.ParameterModes.PARAM_IN) {
 
                 // todo - use more specific error message
-                throw Error.error(ErrorCode.X_0U000);
+                throw Error.error(ErrorCode.X_0U000,
+                                  col.getName().statementName);
             }
 
             if (!targets[i].getDataType().canBeAssignedFrom(
@@ -1466,29 +1469,26 @@ public class ParserRoutine extends ParserDML {
                     }
 
                     if (routine.isTrigger()) {
-                        if (routine.triggerOperation
-                                == StatementTypes.DELETE_WHERE) {
-                            cs = compileSetStatement(rangeVariables);
+                        if (routine.triggerType == TriggerDef.BEFORE
+                                && routine.triggerOperation
+                                   != StatementTypes.DELETE_WHERE) {
+                            int position = super.getPosition();
 
-                            break;
-                        }
+                            try {
+                                cs = compileTriggerSetStatement(
+                                    routine.triggerTable, rangeVariables);
 
-                        if (routine.triggerType != TriggerDef.BEFORE) {
-                            cs = compileSetStatement(rangeVariables);
+                                break;
+                            } catch (HsqlException e) {
+                                rewind(position);
 
-                            break;
-                        }
-
-                        int position = super.getPosition();
-
-                        try {
-                            cs = compileTriggerSetStatement(
-                                routine.triggerTable, rangeVariables);
-                        } catch (HsqlException e) {
-                            rewind(position);
-
+                                cs = compileSetStatement(rangeVariables);
+                            }
+                        } else {
                             cs = compileSetStatement(rangeVariables);
                         }
+
+                        ((StatementSet) cs).checkIsNotColumnTarget();
                     } else {
                         cs = compileSetStatement(rangeVariables);
                     }

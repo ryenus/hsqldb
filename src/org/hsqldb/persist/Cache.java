@@ -354,6 +354,11 @@ public class Cache extends BaseHashMap {
         cacheBytesLength = 0;
     }
 
+
+    public Iterator getIterator() {
+        return new BaseHashIterator();
+    }
+
     static final class CachedObjectComparator implements ObjectComparator {
 
         static final int COMPARE_LAST_ACCESS = 0;
