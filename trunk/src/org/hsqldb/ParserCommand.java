@@ -295,6 +295,7 @@ public class ParserCommand extends ParserDDL {
             case StatementTypes.COMMIT_WORK :
             case StatementTypes.ROLLBACK_WORK :
             case StatementTypes.SET_USER_PASSWORD :
+            case StatementTypes.EXPLAIN_PLAN :
                 break;
 
             default :
@@ -1075,7 +1076,6 @@ public class ParserCommand extends ParserDDL {
 
                     case Tokens.REGULAR :
                         read();
-
                         readThis(Tokens.NAMES);
 
                         property = HsqlDatabaseProperties.sql_regular_names;
@@ -1613,8 +1613,15 @@ public class ParserCommand extends ParserDDL {
             readThis(Tokens.CHAIN);
         }
 
-        return new StatementSession(StatementTypes.COMMIT_WORK,
-                                    new Object[]{ Boolean.valueOf(chain) });
+        String sql = chain ? StatementSession.commitAndChainStatement.sql
+                           : StatementSession.commitNoChainStatement.sql;
+        Statement st = new StatementSession(StatementTypes.COMMIT_WORK,
+                                            new Object[]{
+                                                Boolean.valueOf(chain) });
+
+        st.setSQL(sql);
+
+        return st;
     }
 
     private Statement compileStartTransaction() {
@@ -1722,8 +1729,15 @@ public class ParserCommand extends ParserDDL {
             }
         }
 
-        return new StatementSession(StatementTypes.ROLLBACK_WORK,
-                                    new Object[]{ Boolean.valueOf(chain) });
+        String sql = chain ? StatementSession.rollbackAndChainStatement.sql
+                           : StatementSession.rollbackNoChainStatement.sql;
+        Statement st = new StatementSession(StatementTypes.ROLLBACK_WORK,
+                                            new Object[]{
+                                                Boolean.valueOf(chain) });
+
+        st.setSQL(sql);
+
+        return st;
     }
 
     private Statement compileSavepoint() {
