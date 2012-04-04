@@ -397,7 +397,12 @@ public class JDBCResultSet implements ResultSet {
         if (navigator == null) {
             return;
         }
-        navigator.release();
+
+        if (ResultProperties.isHeld(rsProperties)) {
+            session.closeNavigator(navigator.getId());
+        } else {
+            navigator.release();
+        }
 
         navigator = null;
 

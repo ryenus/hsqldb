@@ -217,6 +217,9 @@ public class SessionData {
             }
 
             resultMap.put(result.getResultId(), result);
+
+            result.rsProperties =
+                ResultProperties.addIsHeld(result.rsProperties, true);
         }
 
         if (copy) {
@@ -261,7 +264,9 @@ public class SessionData {
 
         Result result = (Result) resultMap.remove(id);
 
-        result.getNavigator().release();
+        if (result != null) {
+            result.getNavigator().release();
+        }
     }
 
     public void closeAllNavigators() {

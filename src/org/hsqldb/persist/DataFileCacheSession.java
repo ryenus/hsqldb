@@ -32,9 +32,11 @@
 package org.hsqldb.persist;
 
 import org.hsqldb.Database;
+import org.hsqldb.RowAVLDisk;
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
 import org.hsqldb.lib.FileUtil;
+import org.hsqldb.lib.Iterator;
 
 /**
  * A file-based row store for temporary CACHED table persistence.<p>
@@ -120,4 +122,17 @@ public class DataFileCacheSession extends DataFileCache {
             writeLock.unlock();
         }
     }
+
+    public void clear() {
+
+        Iterator it = cache.getIterator();
+
+        while(it.hasNext()) {
+            RowAVLDisk row = (RowAVLDisk) it.next();
+            row.setInMemory(false);
+            row.destroy();
+        }
+        super.clear();
+    }
+
 }

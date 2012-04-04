@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2010, The HSQL Development Group
+/* Copyright (c) 2001-2011, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -46,6 +46,7 @@ public class ResultProperties {
     static final int idx_scrollable = 2;
     static final int idx_updatable  = 3;
     static final int idx_sensitive  = 4;
+    static final int idx_isheld     = 5;
 
     //
     public static final int defaultPropsValue   = 0;
@@ -122,6 +123,11 @@ public class ResultProperties {
                                                    : false;
     }
 
+    public static boolean isHeld(int props) {
+        return (props & (1 << idx_isheld)) == 0 ? true
+                                                   : false;
+    }
+
     public static int addUpdatable(int props, boolean flag) {
         return flag ? props | ((1) << idx_updatable)
                     : props & (~(1 << idx_updatable));
@@ -135,5 +141,10 @@ public class ResultProperties {
     public static int addScrollable(int props, boolean flag) {
         return flag ? props | ((1) << idx_scrollable)
                     : props & (~(1 << idx_scrollable));
+    }
+
+    public static int addIsHeld(int props, boolean flag) {
+        return flag ? props | ((1) << idx_isheld)
+                    : props & (~(1 << idx_isheld));
     }
 }

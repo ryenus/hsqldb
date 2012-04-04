@@ -179,16 +179,6 @@ public class RowSetNavigatorClient extends RowSetNavigator {
         return true;
     }
 
-    public void close() {
-
-        if (session != null) {
-            if (currentOffset == 0 && table.length == size) {}
-            else {
-                session.closeNavigator(id);
-            }
-        }
-    }
-
     public void readSimple(RowInputInterface in,
                            ResultMetaData meta) throws IOException {
 

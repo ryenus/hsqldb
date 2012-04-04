@@ -221,7 +221,7 @@ public class SessionContext {
 
         for (int i = 0; i < count; i++) {
             if (rangeIterators[i] != null) {
-                rangeIterators[i].reset();
+                rangeIterators[i].release();
 
                 rangeIterators[i] = null;
             }
@@ -250,7 +250,14 @@ public class SessionContext {
                     position + 4);
         }
 
-        rangeIterators[iterator.getRangePosition()] = iterator;
+        rangeIterators[position] = iterator;
+    }
+
+    public void unsetRangeIterator(RangeIterator iterator) {
+
+        int position = iterator.getRangePosition();
+
+        rangeIterators[position] = null;
     }
 
     /**

@@ -832,4 +832,8 @@ public abstract class StatementDMQL extends Statement {
     public boolean isCatalogChange() {
         return false;
     }
+
+    public void clearStructures(Session session) {
+        session.sessionContext.clearStructures(this);
+    }
 }
