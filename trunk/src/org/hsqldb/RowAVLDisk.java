@@ -262,8 +262,17 @@ public class RowAVLDisk extends RowAVL {
     }
 
     public void destroy() {
+
+        NodeAVL n = nPrimaryNode;
+
+        while (n != null) {
+            NodeAVL last = n;
+
+            n          = n.nNext;
+            last.nNext = null;
+        }
+
         nPrimaryNode = null;
-        table        = null;
     }
 
     public synchronized boolean keepInMemory(boolean keep) {

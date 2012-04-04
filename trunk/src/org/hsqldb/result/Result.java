@@ -938,20 +938,6 @@ public class Result {
         return rsProperties;
     }
 
-    /**
-     * For DATA
-     */
-    public void setDataResultProperties(int maxRows, int fetchSize,
-                                        int resultSetScrollability,
-                                        int resultSetConcurrency,
-                                        int resultSetHoldability) {
-
-        updateCount    = maxRows;
-        this.fetchSize = fetchSize;
-        rsProperties = ResultProperties.getValueForJDBC(resultSetScrollability,
-                resultSetConcurrency, resultSetHoldability);
-    }
-
     public static Result newDataHeadResult(SessionInterface session,
                                            Result source, int offset,
                                            int count) {

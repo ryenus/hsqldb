@@ -1487,6 +1487,8 @@ public class QuerySpecification extends QueryExpression {
                     }
                 }
             }
+
+            session.sessionContext.unsetRangeIterator(navigator);
         }
 
         navigator.reset();

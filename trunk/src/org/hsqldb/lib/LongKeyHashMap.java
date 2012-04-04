@@ -68,9 +68,9 @@ public class LongKeyHashMap extends BaseHashMap {
 
     public Object get(long key) {
 
-        try {
-            readLock.lock();
+        readLock.lock();
 
+        try {
             int lookup = getLookup(key);
 
             if (lookup != -1) {
@@ -85,9 +85,9 @@ public class LongKeyHashMap extends BaseHashMap {
 
     public Object put(long key, Object value) {
 
-        try {
-            writeLock.lock();
+        writeLock.lock();
 
+        try {
             return super.addOrRemove(key, 0, null, value, false);
         } finally {
             writeLock.unlock();
@@ -96,9 +96,9 @@ public class LongKeyHashMap extends BaseHashMap {
 
     public boolean containsValue(Object value) {
 
-        try {
-            readLock.lock();
+        readLock.lock();
 
+        try {
             return super.containsValue(value);
         } finally {
             readLock.unlock();
@@ -107,9 +107,9 @@ public class LongKeyHashMap extends BaseHashMap {
 
     public Object remove(long key) {
 
-        try {
-            writeLock.lock();
+        writeLock.lock();
 
+        try {
             return super.addOrRemove(key, 0, null, null, true);
         } finally {
             writeLock.unlock();
@@ -118,20 +118,31 @@ public class LongKeyHashMap extends BaseHashMap {
 
     public boolean containsKey(long key) {
 
-        try {
-            readLock.lock();
+        readLock.lock();
 
+        try {
             return super.containsKey(key);
         } finally {
             readLock.unlock();
         }
     }
 
-    public Object[] toArray() {
+    public void clear() {
+
+        writeLock.lock();
 
         try {
-            readLock.lock();
+            super.clear();
+        } finally {
+            writeLock.unlock();
+        }
+    }
 
+    public Object[] toArray() {
+
+        readLock.lock();
+
+        try {
             Object[] array = new Object[size()];
             int      i     = 0;
             Iterator it    = LongKeyHashMap.this.new BaseHashIterator(false);
