@@ -124,8 +124,8 @@ public class ResultProperties {
     }
 
     public static boolean isHeld(int props) {
-        return (props & (1 << idx_isheld)) == 0 ? true
-                                                   : false;
+        return (props & (1 << idx_isheld)) == 0 ? false
+                                                : true;
     }
 
     public static int addUpdatable(int props, boolean flag) {
