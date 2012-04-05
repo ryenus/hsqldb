@@ -35,7 +35,7 @@ package org.hsqldb.result;
  * Execute properties for SELECT statements.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 1.9.0
+ * @version 2.2.9
  * @since 1.9.0
  */
 public class ResultProperties {
