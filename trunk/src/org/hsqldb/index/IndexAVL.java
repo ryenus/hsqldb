@@ -389,7 +389,7 @@ public class IndexAVL implements Index {
     /**
      * Returns the node count.
      */
-    public int size(Session session, PersistentStore store) {
+    public long size(Session session, PersistentStore store) {
 
         readLock.lock();
 
@@ -400,7 +400,7 @@ public class IndexAVL implements Index {
         }
     }
 
-    public int sizeUnique(PersistentStore store) {
+    public long sizeUnique(PersistentStore store) {
 
         readLock.lock();
 

@@ -39,7 +39,7 @@ import org.hsqldb.store.BaseHashMap;
 /**
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.2.6
+ * @version 2.2.9
  * @since 1.9.0
  */
 public class LongKeyHashMap extends BaseHashMap {

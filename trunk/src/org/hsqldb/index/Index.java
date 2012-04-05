@@ -42,7 +42,7 @@ import org.hsqldb.types.Type;
 /**
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.0.1
+ * @version 2.2.9
  * @since 1.9.0
  */
 public interface Index extends SchemaObject {
@@ -133,9 +133,9 @@ public interface Index extends SchemaObject {
     /**
      * Returns the node count.
      */
-    public int size(Session session, PersistentStore store);
+    public long size(Session session, PersistentStore store);
 
-    public int sizeUnique(PersistentStore store);
+    public long sizeUnique(PersistentStore store);
 
     public boolean isEmpty(PersistentStore store);
 
