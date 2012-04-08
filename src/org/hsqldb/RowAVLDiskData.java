@@ -47,7 +47,7 @@ import org.hsqldb.rowio.RowOutputInterface;
  *
  * @author Bob Preston (sqlbob@users dot sourceforge.net)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.0.1
+ * @version 2.2.9
  * @version 1.7.0
  */
 public class RowAVLDiskData extends RowAVL {
@@ -66,8 +66,8 @@ public class RowAVLDiskData extends RowAVL {
 
         setNewNodes(store);
 
-        hasDataChanged = true;
         this.store     = store;
+        hasDataChanged = true;
     }
 
     /**
@@ -183,6 +183,10 @@ public class RowAVLDiskData extends RowAVL {
 
     public synchronized void setChanged(boolean changed) {
         hasDataChanged = changed;
+    }
+
+    public boolean isNew() {
+        return false;
     }
 
     public boolean hasChanged() {

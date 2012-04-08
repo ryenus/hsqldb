@@ -107,7 +107,7 @@ public class RowAVLDisk extends RowAVL {
     int              keepCount;
     volatile boolean isInMemory;
     int              accessCount;
-
+    boolean          isNew;
     /**
      *  Flag indicating unwritten data.
      */
@@ -131,7 +131,7 @@ public class RowAVLDisk extends RowAVL {
 
         setNewNodes(store);
 
-        hasDataChanged = hasNodesChanged = true;
+        hasDataChanged = hasNodesChanged = isNew = true;
     }
 
     /**
@@ -212,6 +212,10 @@ public class RowAVLDisk extends RowAVL {
      */
     public synchronized void setChanged(boolean changed) {
         hasDataChanged = changed;
+    }
+
+    public boolean isNew() {
+        return isNew;
     }
 
     /**
@@ -350,6 +354,7 @@ public class RowAVLDisk extends RowAVL {
             out.writeEnd();
 
             hasDataChanged = false;
+            isNew          = false;
         }
     }
 

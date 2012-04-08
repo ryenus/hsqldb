@@ -59,6 +59,8 @@ public interface CachedObject {
 
     void setPos(long pos);
 
+    boolean isNew();
+
     boolean hasChanged();
 
     boolean isKeepInMemory();
