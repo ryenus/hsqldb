@@ -806,6 +806,8 @@ public class IndexAVL implements Index {
             x = x.set(store, isleft, ((RowAVL) row).getNode(position));
 
             balance(store, x, isleft);
+        } catch (RuntimeException e) {
+            throw e;
         } finally {
             store.writeUnlock();
             writeLock.unlock();
@@ -994,6 +996,8 @@ public class IndexAVL implements Index {
                 isleft = x.isFromLeft(store);
                 n      = x.getParent(store);
             }
+        } catch (RuntimeException e) {
+            throw e;
         } finally {
             store.writeUnlock();
             writeLock.unlock();

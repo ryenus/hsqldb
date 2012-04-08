@@ -572,6 +572,10 @@ public class NodeAVLDisk extends NodeAVL {
 
     public void setPos(long pos) {}
 
+    public boolean isNew() {
+        return false;
+    }
+
     public boolean hasChanged() {
         return false;
     }
