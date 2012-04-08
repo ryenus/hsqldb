@@ -293,6 +293,7 @@ public class RowOutputBinary extends RowOutputBase {
     public int getSize(int[] array) {
         return 4 + array.length * 5;
     }
+
     /**
      * Calculate the size of byte array required to store a row.
      *
@@ -468,11 +469,11 @@ public class RowOutputBinary extends RowOutputBase {
         storageSize = 0;
     }
 
-    public void setBuffer(byte[] buffer) {
+    public void reset(byte[] buffer) {
 
-        this.buffer = buffer;
+        super.reset(buffer);
 
-        reset();
+        storageSize = 0;
     }
 
     public RowOutputInterface duplicate() {

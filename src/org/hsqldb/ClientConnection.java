@@ -493,7 +493,7 @@ public class ClientConnection implements SessionInterface {
         Result result = Result.newResult(dataInput, rowIn);
 
         result.readAdditionalResults(this, dataInput, rowIn);
-        rowOut.setBuffer(mainBuffer);
+        rowOut.reset(mainBuffer);
         rowIn.resetRow(mainBuffer.length);
 
         return result;

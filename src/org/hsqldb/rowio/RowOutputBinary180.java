@@ -60,7 +60,6 @@ public class RowOutputBinary180 extends RowOutputBinary {
         millis = HsqlDateTime.convertMillisToCalendar(tempCalDefault, millis);
 
         writeLong(millis);
-        writeLong(o.getSeconds() * 1000L);
     }
 
     protected void writeTime(TimeData o, Type type) {

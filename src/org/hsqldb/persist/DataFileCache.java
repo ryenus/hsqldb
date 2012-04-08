@@ -83,7 +83,7 @@ public class DataFileCache {
 
     //
     DataFileBlockManager     freeBlocks;
-    private static final int initIOBufferSize = 256;
+    static final int initIOBufferSize = 4096;
 
     //
     protected String   dataFileName;
@@ -583,23 +583,21 @@ public class DataFileCache {
 
     protected void initBuffers() {
 
-        if (rowOut == null
-                || rowOut.getOutputStream().getBuffer().length
-                   > initIOBufferSize) {
+        if (rowOut == null) {
             if (is180) {
-                rowOut = new RowOutputBinary180(256, cachedRowPadding);
+                rowOut = new RowOutputBinary180(initIOBufferSize, cachedRowPadding);
             } else {
                 rowOut = new RowOutputBinaryEncode(database.logger.getCrypto(),
-                                                   256, cachedRowPadding);
+                                                   initIOBufferSize, cachedRowPadding);
             }
         }
 
-        if (rowIn == null || rowIn.getBuffer().length > initIOBufferSize) {
+        if (rowIn == null) {
             if (is180) {
-                rowIn = new RowInputBinary180(new byte[256]);
+                rowIn = new RowInputBinary180(new byte[initIOBufferSize]);
             } else {
                 rowIn = new RowInputBinaryDecode(database.logger.getCrypto(),
-                                                 new byte[256]);
+                                                 new byte[initIOBufferSize]);
             }
         }
     }
@@ -734,6 +732,10 @@ public class DataFileCache {
             int i = setFilePos(object);
 
             cache.put(i, object);
+
+            if (object.getStorageSize() > initIOBufferSize) {
+                rowOut.reset(object.getStorageSize());
+            }
         } finally {
             writeLock.unlock();
         }

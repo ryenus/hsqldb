@@ -368,11 +368,6 @@ implements DataOutput {
         return this.buffer;
     }
 
-    public void setBuffer(byte[] buffer) {
-        count       = 0;
-        this.buffer = buffer;
-    }
-
     public void ensureRoom(int extra) {
 
         int newcount = count + extra;

@@ -51,10 +51,11 @@ import org.hsqldb.store.BaseHashMap;
  */
 public class Cache extends BaseHashMap {
 
-    final DataFileCache                  dataFileCache;
-    private int                          capacity;         // number of Rows
-    private long                         bytesCapacity;    // number of bytes
-    private final CachedObjectComparator rowComparator;
+    final DataFileCache                        dataFileCache;
+    private int                                capacity;         // number of Rows
+    private long                               bytesCapacity;    // number of bytes
+    private final CachedObjectComparator       rowComparator;
+    private final BaseHashMap.BaseHashIterator objectIterator;
 
 //
     private CachedObject[] rowTable;
@@ -77,6 +78,7 @@ public class Cache extends BaseHashMap {
         rowComparator    = new CachedObjectComparator();
         rowTable         = new CachedObject[capacity];
         cacheBytesLength = 0;
+        objectIterator   = new BaseHashIterator();
     }
 
     /**
@@ -217,31 +219,37 @@ public class Cache extends BaseHashMap {
 
         updateAccessCounts();
 
-        int                          removeCount = size() / 2;
+        int removeCount  = size() / 2;
         int accessTarget = getAccessCountCeiling(removeCount, removeCount / 8);
-        BaseHashMap.BaseHashIterator it          = new BaseHashIterator();
-        int                          savecount   = 0;
+        int savecount    = 0;
 
-        for (; it.hasNext(); ) {
-            CachedObject row                = (CachedObject) it.next();
-            int          currentAccessCount = it.getAccessCount();
-            boolean      oldRow = currentAccessCount <= accessTarget;
+        objectIterator.reset(false);
 
-            if (oldRow) {
+        for (; objectIterator.hasNext(); ) {
+            CachedObject row = (CachedObject) objectIterator.next();
+            int          currentAccessCount = objectIterator.getAccessCount();
+            boolean newRow = row.isNew()
+                             && row.getStorageSize()
+                                >= DataFileCache.initIOBufferSize;
+            boolean oldRow = currentAccessCount <= accessTarget;
+
+            if (oldRow || newRow) {
                 synchronized (row) {
                     if (row.isKeepInMemory()) {
-                        it.setAccessCount(accessTarget + 1);
+                        objectIterator.setAccessCount(accessTarget + 1);
                     } else {
                         if (row.hasChanged()) {
                             rowTable[savecount++] = row;
                         }
 
-                        row.setInMemory(false);
-                        it.remove();
+                        if (oldRow) {
+                            row.setInMemory(false);
+                            objectIterator.remove();
 
-                        cacheBytesLength -= row.getStorageSize();
+                            cacheBytesLength -= row.getStorageSize();
 
-                        removeCount--;
+                            removeCount--;
+                        }
                     }
                 }
             }
@@ -259,15 +267,15 @@ public class Cache extends BaseHashMap {
 
     synchronized void forceCleanUp() {
 
-        BaseHashMap.BaseHashIterator it = new BaseHashIterator();
+        objectIterator.reset(false);
 
-        for (; it.hasNext(); ) {
-            CachedObject row = (CachedObject) it.next();
+        for (; objectIterator.hasNext(); ) {
+            CachedObject row = (CachedObject) objectIterator.next();
 
             synchronized (row) {
                 if (!row.hasChanged() && !row.isKeepInMemory()) {
                     row.setInMemory(false);
-                    it.remove();
+                    objectIterator.remove();
 
                     cacheBytesLength -= row.getStorageSize();
                 }
@@ -304,17 +312,18 @@ public class Cache extends BaseHashMap {
      */
     synchronized void saveAll() {
 
-        Iterator it        = new BaseHashIterator();
-        int      savecount = 0;
+        int savecount = 0;
 
-        for (; it.hasNext(); ) {
+        objectIterator.reset(false);
+
+        for (; objectIterator.hasNext(); ) {
             if (savecount == rowTable.length) {
                 saveRows(savecount);
 
                 savecount = 0;
             }
 
-            CachedObject r = (CachedObject) it.next();
+            CachedObject r = (CachedObject) objectIterator.next();
 
             if (r.hasChanged()) {
                 rowTable[savecount] = r;
@@ -354,9 +363,11 @@ public class Cache extends BaseHashMap {
         cacheBytesLength = 0;
     }
 
-
     public Iterator getIterator() {
-        return new BaseHashIterator();
+
+        objectIterator.reset(false);
+
+        return objectIterator;
     }
 
     static final class CachedObjectComparator implements ObjectComparator {

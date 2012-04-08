@@ -45,7 +45,7 @@ import org.hsqldb.store.BitMap;
  * Wrapper for random access file for incremental backup of the .data file.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.2.8
+ * @version 2.2.9
  * @since 1.9.0
  */
 public class RAShadowFile {
@@ -59,8 +59,8 @@ public class RAShadowFile {
     final BitMap                bitMap;
     boolean                     zeroPageSet;
     long                        savedLength;
-    HsqlByteArrayOutputStream byteArrayOutputStream =
-        new HsqlByteArrayOutputStream(new byte[]{});
+    byte[]                      buffer;
+    HsqlByteArrayOutputStream   byteArrayOutputStream;
 
     RAShadowFile(Database database, RandomAccessInterface source,
                  String pathName, long maxSize, int pageSize) {
@@ -77,7 +77,9 @@ public class RAShadowFile {
             bitSize++;
         }
 
-        bitMap = new BitMap(bitSize);
+        bitMap                = new BitMap(bitSize);
+        buffer                = new byte[pageSize + 12];
+        byteArrayOutputStream = new HsqlByteArrayOutputStream(buffer);
     }
 
     void copy(long fileOffset, int size) throws IOException {
@@ -127,9 +129,13 @@ public class RAShadowFile {
         long writePos = dest.length();
 
         try {
-            byte[] buffer = new byte[pageSize + 12];
+            byteArrayOutputStream.reset();
 
-            byteArrayOutputStream.setBuffer(buffer);
+            if (readSize < pageSize) {
+                byteArrayOutputStream.fill(0, buffer.length);
+                byteArrayOutputStream.reset();
+            }
+
             byteArrayOutputStream.writeInt(pageSize);
             byteArrayOutputStream.writeLong(position);
             source.seek(position);

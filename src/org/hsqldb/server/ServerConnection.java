@@ -390,7 +390,7 @@ class ServerConnection implements Runnable {
         }
 
         resultOut.write(session, dataOutput, rowOut);
-        rowOut.setBuffer(mainBuffer);
+        rowOut.reset(mainBuffer);
         rowIn.resetRow(mainBuffer.length);
 
         if (terminate) {
