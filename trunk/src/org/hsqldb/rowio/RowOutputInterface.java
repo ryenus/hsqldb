@@ -77,11 +77,16 @@ public interface RowOutputInterface extends Cloneable {
     // returns the underlying HsqlByteArrayOutputStream
     HsqlByteArrayOutputStream getOutputStream();
 
-    // sets the byte[] buffer
-    public void setBuffer(byte[] mainBuffer);
+    byte[] getBuffer();
 
     // resets the byte[] buffer, ready for processing new row
     void reset();
+
+    // performs reset() and ensures byte[] buffer is at least newSize
+    void reset(int newSize);
+
+    // sets the byte[] buffer
+    void reset(byte[] mainBuffer);
 
     // returns the current size
     int size();

@@ -110,6 +110,10 @@ public class Row implements CachedObject {
         position = pos;
     }
 
+    public boolean isNew() {
+        return false;
+    }
+
     public boolean hasChanged() {
         return false;
     }

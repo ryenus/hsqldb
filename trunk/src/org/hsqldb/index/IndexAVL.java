@@ -267,7 +267,6 @@ public class IndexAVL implements Index {
         sb.append(getName().statementName);
         sb.append(' ').append(Tokens.T_ON).append(' ');
         sb.append(((Table) table).getName().getSchemaQualifiedStatementName());
-
         sb.append(((Table) table).getColumnListSQL(colIndex, colIndex.length));
 
         return sb.toString();
@@ -799,6 +798,8 @@ public class IndexAVL implements Index {
             x = x.set(store, isleft, ((RowAVL) row).getNode(position));
 
             balance(store, x, isleft);
+        } catch (RuntimeException e) {
+            throw e;
         } finally {
             store.writeUnlock();
             writeLock.unlock();
@@ -987,6 +988,8 @@ public class IndexAVL implements Index {
                 isleft = x.isFromLeft(store);
                 n      = x.getParent(store);
             }
+        } catch (RuntimeException e) {
+            throw e;
         } finally {
             store.writeUnlock();
             writeLock.unlock();

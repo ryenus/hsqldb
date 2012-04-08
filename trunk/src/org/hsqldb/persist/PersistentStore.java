@@ -147,6 +147,8 @@ public interface PersistentStore {
 
     void reindex(Session session, Index index);
 
+    void setReadOnly(boolean readonly);
+
     void writeLock();
 
     void writeUnlock();

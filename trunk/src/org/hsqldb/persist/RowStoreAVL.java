@@ -477,6 +477,8 @@ public abstract class RowStoreAVL implements PersistentStore {
         }
     }
 
+    public void setReadOnly(boolean readOnly) {}
+
     public void writeLock() {}
 
     public void writeUnlock() {}

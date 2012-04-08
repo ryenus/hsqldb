@@ -325,6 +325,11 @@ public class RowStoreAVLDisk extends RowStoreAVL {
         throw Error.runtimeError(ErrorCode.U_S0500, "RowStoreAVLDisk");
     }
 
+    public void setReadOnly(boolean readOnly) {
+
+        // called on insert or delete errors
+    }
+
     public void writeLock() {
         cache.writeLock.lock();
     }
