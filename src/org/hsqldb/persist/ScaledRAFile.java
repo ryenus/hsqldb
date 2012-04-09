@@ -123,17 +123,17 @@ final class ScaledRAFile implements RandomAccessInterface {
             return new ScaledRAFileInJar(name);
         } else if (type == DATA_FILE_TEXT) {
             ScaledRAFile ra = new ScaledRAFile(database, name, readonly,
-                                               false);
+                                               false, true);
 
             return ra;
         } else if (type == DATA_FILE_RAF) {
-            return new ScaledRAFile(database, name, readonly, true);
+            return new ScaledRAFile(database, name, readonly, true, false);
         } else {
             java.io.File fi     = new java.io.File(name);
             long         length = fi.length();
 
             if (length > database.logger.propNioMaxSize) {
-                return new ScaledRAFile(database, name, readonly, true);
+                return new ScaledRAFile(database, name, readonly, true, false);
             }
 
             try {
@@ -141,13 +141,14 @@ final class ScaledRAFile implements RandomAccessInterface {
 
                 return new ScaledRAFileHybrid(database, name, readonly);
             } catch (Exception e) {
-                return new ScaledRAFile(database, name, readonly, true);
+                return new ScaledRAFile(database, name, readonly, true, false);
             }
         }
     }
 
     ScaledRAFile(Database database, String name, boolean readonly,
-                 boolean extendLengthToBlock)
+                 boolean extendLengthToBlock,
+                 boolean commitOnChange)
                  throws FileNotFoundException, IOException {
 
         this.database     = database;
@@ -156,8 +157,8 @@ final class ScaledRAFile implements RandomAccessInterface {
         this.extendLength = extendLengthToBlock;
 
         String accessMode = readonly ? "r"
-                                     : extendLength ? "rw"
-                                                    : "rws";
+                                     : commitOnChange ? "rws"
+                                                      : "rw";
 
         this.file      = new RandomAccessFile(name, accessMode);
         buffer         = new byte[bufferSize];

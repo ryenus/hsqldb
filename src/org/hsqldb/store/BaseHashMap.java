@@ -1518,9 +1518,8 @@ public class BaseHashMap {
             this.keys = keys;
         }
 
-        public void reset(boolean keys) {
+        public void reset() {
 
-            this.keys    = keys;
             this.lookup  = -1;
             this.counter = 0;
             this.removed = false;

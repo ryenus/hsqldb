@@ -48,7 +48,10 @@ import org.hsqldb.lib.Iterator;
 public class DataFileCacheSession extends DataFileCache {
 
     public DataFileCacheSession(Database db, String baseFileName) {
+
         super(db, baseFileName);
+
+        logEvents = false;
     }
 
     /**
@@ -74,7 +77,8 @@ public class DataFileCacheSession extends DataFileCache {
     public void open(boolean readonly) {
 
         try {
-            dataFile = new ScaledRAFile(database, dataFileName, false, false);
+            dataFile = new ScaledRAFile(database, dataFileName, false, false,
+                                        false);
             fileFreePosition = initialFreePos;
 
             initBuffers();
@@ -101,7 +105,7 @@ public class DataFileCacheSession extends DataFileCache {
         writeLock.lock();
 
         try {
-            cache.clear();
+            clear();
 
             if (dataFile != null) {
                 dataFile.close();
@@ -127,12 +131,13 @@ public class DataFileCacheSession extends DataFileCache {
 
         Iterator it = cache.getIterator();
 
-        while(it.hasNext()) {
+        while (it.hasNext()) {
             RowAVLDisk row = (RowAVLDisk) it.next();
+
             row.setInMemory(false);
             row.destroy();
         }
+
         super.clear();
     }
-
 }
