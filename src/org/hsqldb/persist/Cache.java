@@ -51,10 +51,10 @@ import org.hsqldb.store.BaseHashMap;
  */
 public class Cache extends BaseHashMap {
 
-    final DataFileCache                  dataFileCache;
-    private int                          capacity;         // number of Rows
-    private long                         bytesCapacity;    // number of bytes
-    private final CachedObjectComparator rowComparator;
+    final DataFileCache                        dataFileCache;
+    private int                                capacity;         // number of Rows
+    private long                               bytesCapacity;    // number of bytes
+    private final CachedObjectComparator       rowComparator;
     private final BaseHashMap.BaseHashIterator objectIterator;
 
 //
