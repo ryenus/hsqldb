@@ -60,7 +60,7 @@ import org.hsqldb.store.BitMap;
  * Rewritten for 1.8.0 and 2.x
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.2.8
+ * @version 2.2.9
  * @since 1.7.2
  */
 public class DataFileCache {
@@ -82,13 +82,14 @@ public class DataFileCache {
     static final int MIN_INITIAL_FREE_POS = 32;
 
     //
-    DataFileBlockManager     freeBlocks;
-    static final int initIOBufferSize = 4096;
+    DataFileBlockManager freeBlocks;
+    static final int     initIOBufferSize = 4096;
 
     //
     protected String   dataFileName;
     protected String   backupFileName;
     protected Database database;
+    protected boolean  logEvents = true;
 
     // this flag is used externally to determine if a backup is required
     protected boolean fileModified;
@@ -175,7 +176,7 @@ public class DataFileCache {
 
         fileFreePosition = initialFreePos;
 
-        database.logger.logInfoEvent("dataFileCache open start");
+        logInfoEvent("dataFileCache open start");
 
         try {
             boolean isNio = database.logger.propNioDataFile;
@@ -307,9 +308,9 @@ public class DataFileCache {
                 new DataFileBlockManager(database.logger.propMaxFreeBlocks,
                                          dataFileScale, 0, freesize);
 
-            database.logger.logInfoEvent("dataFileCache open end");
+            logInfoEvent("dataFileCache open end");
         } catch (Throwable t) {
-            database.logger.logSevereEvent("dataFileCache open failed", t);
+            logSevereEvent("dataFileCache open failed", t);
             close(false);
 
             throw Error.error(t, ErrorCode.FILE_IO_ERROR,
@@ -374,7 +375,7 @@ public class DataFileCache {
 
             fileModified = true;
         } catch (Throwable t) {
-            database.logger.logSevereEvent("backupFile failed", t);
+            logSevereEvent("backupFile failed", t);
         } finally {
             writeLock.unlock();
         }
@@ -456,7 +457,7 @@ public class DataFileCache {
             }
 
             dataFile.close();
-            database.logger.logDetailEvent("dataFileCache file close");
+            logDetailEvent("dataFileCache file close");
 
             dataFile = null;
 
@@ -473,7 +474,7 @@ public class DataFileCache {
         } catch (HsqlException e) {
             throw e;
         } catch (Throwable t) {
-            database.logger.logSevereEvent("dataFileCache close failed", t);
+            logSevereEvent("dataFileCache close failed", t);
 
             throw Error.error(t, ErrorCode.FILE_IO_ERROR,
                               ErrorCode.M_DataFileCache_close, new Object[] {
@@ -531,9 +532,9 @@ public class DataFileCache {
                 return;
             }
 
-            database.logger.logInfoEvent("dataFileCache commit start");
+            logInfoEvent("dataFileCache commit start");
             cache.saveAll();
-            database.logger.logDetailEvent("dataFileCache save data");
+            logDetailEvent("dataFileCache save data");
 
             if (fileModified || freeBlocks.isModified()) {
 
@@ -568,9 +569,9 @@ public class DataFileCache {
                 shadowFile = null;
             }
 
-            database.logger.logDetailEvent("dataFileCache commit end");
+            logDetailEvent("dataFileCache commit end");
         } catch (Throwable t) {
-            database.logger.logSevereEvent("dataFileCache commit failed", t);
+            logSevereEvent("dataFileCache commit failed", t);
 
             throw Error.error(t, ErrorCode.FILE_IO_ERROR,
                               ErrorCode.M_DataFileCache_close, new Object[] {
@@ -585,10 +586,12 @@ public class DataFileCache {
 
         if (rowOut == null) {
             if (is180) {
-                rowOut = new RowOutputBinary180(initIOBufferSize, cachedRowPadding);
+                rowOut = new RowOutputBinary180(initIOBufferSize,
+                                                cachedRowPadding);
             } else {
                 rowOut = new RowOutputBinaryEncode(database.logger.getCrypto(),
-                                                   initIOBufferSize, cachedRowPadding);
+                                                   initIOBufferSize,
+                                                   cachedRowPadding);
             }
         }
 
@@ -697,9 +700,8 @@ public class DataFileCache {
             newFreePosition = fileFreePosition + rowSize;
 
             if (newFreePosition > maxDataFileSize) {
-                database.logger.logSevereEvent(
-                    "data file reached maximum size " + this.dataFileName,
-                    null);
+                logSevereEvent("data file reached maximum size "
+                               + this.dataFileName, null);
 
                 throw Error.error(ErrorCode.DATA_FILE_IS_FULL);
             }
@@ -707,9 +709,8 @@ public class DataFileCache {
             boolean result = dataFile.ensureLength(newFreePosition);
 
             if (!result) {
-                database.logger.logSevereEvent(
-                    "data file cannot be enlarged - disk spacee "
-                    + this.dataFileName, null);
+                logSevereEvent("data file cannot be enlarged - disk spacee "
+                               + this.dataFileName, null);
 
                 throw Error.error(ErrorCode.DATA_FILE_IS_FULL);
             }
@@ -868,9 +869,8 @@ public class DataFileCache {
                 } catch (OutOfMemoryError err) {
                     cache.forceCleanUp();
                     System.gc();
-                    database.logger.logSevereEvent(dataFileName
-                                                   + " getFromFile out of mem "
-                                                   + pos, err);
+                    logSevereEvent(dataFileName + " getFromFile out of mem "
+                                   + pos, err);
 
                     if (j > 0) {
                         throw err;
@@ -892,8 +892,7 @@ public class DataFileCache {
 
             return object;
         } catch (HsqlException e) {
-            database.logger.logSevereEvent(dataFileName + " getFromFile "
-                                           + pos, e);
+            logSevereEvent(dataFileName + " getFromFile " + pos, e);
 
             throw e;
         } finally {
@@ -972,11 +971,11 @@ public class DataFileCache {
                 rows[i] = null;
             }
         } catch (HsqlException e) {
-            database.logger.logSevereEvent("saveRows failed", e);
+            logSevereEvent("saveRows failed", e);
 
             throw e;
         } catch (Throwable e) {
-            database.logger.logSevereEvent("saveRows failed", e);
+            logSevereEvent("saveRows failed", e);
 
             throw Error.error(ErrorCode.DATA_FILE_ERROR, e);
         } finally {
@@ -997,7 +996,7 @@ public class DataFileCache {
             setFileModified();
             saveRowNoLock(row);
         } catch (Throwable e) {
-            database.logger.logSevereEvent("saveRow failed", e);
+            logSevereEvent("saveRow failed", e);
 
             throw Error.error(ErrorCode.DATA_FILE_ERROR, e);
         } finally {
@@ -1035,9 +1034,8 @@ public class DataFileCache {
 
             time = cache.saveAllTimer.elapsedTime() - time;
 
-            database.logger.logDetailEvent("shadow copy [time, size] " + time
-                                           + " "
-                                           + shadowFile.getSavedLength());
+            logDetailEvent("shadow copy [time, size] " + time + " "
+                           + shadowFile.getSavedLength());
         }
     }
 
@@ -1080,7 +1078,7 @@ public class DataFileCache {
                                      FileArchiver.COMPRESSION_ZIP);
             }
         } catch (IOException e) {
-            database.logger.logSevereEvent("backupFile failed", e);
+            logSevereEvent("backupFile failed", e);
 
             throw Error.error(ErrorCode.DATA_FILE_ERROR, e);
         } finally {
@@ -1246,8 +1244,8 @@ public class DataFileCache {
                 dataFile.writeInt(flags);
                 dataFile.synch();
                 cache.saveAllTimer.stop();
-                database.logger.logDetailEvent(
-                    "flags set " + cache.saveAllTimer.elapsedTime());
+                logDetailEvent("flags set "
+                               + cache.saveAllTimer.elapsedTime());
 
                 fileModified = true;
             }
@@ -1276,5 +1274,26 @@ public class DataFileCache {
 
     public RAShadowFile getShadowFile() {
         return shadowFile;
+    }
+
+    private void logSevereEvent(String message, Throwable t) {
+
+        if (logEvents) {
+            logSevereEvent(message, t);
+        }
+    }
+
+    public void logInfoEvent(String message) {
+
+        if (logEvents) {
+            database.logger.logInfoEvent(message);
+        }
+    }
+
+    public void logDetailEvent(String message) {
+
+        if (logEvents) {
+            database.logger.logDetailEvent(message);
+        }
     }
 }

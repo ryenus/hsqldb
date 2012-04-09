@@ -223,7 +223,7 @@ public class Cache extends BaseHashMap {
         int accessTarget = getAccessCountCeiling(removeCount, removeCount / 8);
         int savecount    = 0;
 
-        objectIterator.reset(false);
+        objectIterator.reset();
 
         for (; objectIterator.hasNext(); ) {
             CachedObject row = (CachedObject) objectIterator.next();
@@ -267,7 +267,7 @@ public class Cache extends BaseHashMap {
 
     synchronized void forceCleanUp() {
 
-        objectIterator.reset(false);
+        objectIterator.reset();
 
         for (; objectIterator.hasNext(); ) {
             CachedObject row = (CachedObject) objectIterator.next();
@@ -314,7 +314,7 @@ public class Cache extends BaseHashMap {
 
         int savecount = 0;
 
-        objectIterator.reset(false);
+        objectIterator.reset();
 
         for (; objectIterator.hasNext(); ) {
             if (savecount == rowTable.length) {
@@ -365,7 +365,7 @@ public class Cache extends BaseHashMap {
 
     public Iterator getIterator() {
 
-        objectIterator.reset(false);
+        objectIterator.reset();
 
         return objectIterator;
     }

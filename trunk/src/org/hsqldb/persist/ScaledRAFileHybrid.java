@@ -192,7 +192,7 @@ public final class ScaledRAFileHybrid implements RandomAccessInterface {
             }
         }
 
-        store = new ScaledRAFile(database, fileName, isReadOnly, true);
+        store = new ScaledRAFile(database, fileName, isReadOnly, true, false);
 
         store.seek(currentPosition);
     }
