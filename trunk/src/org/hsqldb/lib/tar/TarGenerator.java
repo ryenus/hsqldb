@@ -194,7 +194,8 @@ public class TarGenerator {
 
     public void queueEntry(String entryPath, InputStreamInterface is)
             throws FileNotFoundException, TarMalformatException {
-        entryQueue.add(new TarEntrySupplicant(entryPath, is, archive, 0L));
+        entryQueue.add(new TarEntrySupplicant(entryPath, is, archive,
+                paxThreshold));
     }
 
     /**
