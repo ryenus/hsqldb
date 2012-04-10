@@ -79,6 +79,7 @@ public class Cache extends BaseHashMap {
         rowTable         = new CachedObject[capacity];
         cacheBytesLength = 0;
         objectIterator   = new BaseHashIterator(true);
+        comparator       = rowComparator;
     }
 
     /**
