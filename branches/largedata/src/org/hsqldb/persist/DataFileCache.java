@@ -711,7 +711,7 @@ public class DataFileCache {
 
             if (!result) {
                 logSevereEvent("data file cannot be enlarged - disk spacee "
-                    + this.dataFileName, null);
+                               + this.dataFileName, null);
 
                 throw Error.error(ErrorCode.DATA_FILE_IS_FULL);
             }
@@ -871,7 +871,7 @@ public class DataFileCache {
                     cache.forceCleanUp();
                     System.gc();
                     logSevereEvent(dataFileName + " getFromFile out of mem "
-                                                   + pos, err);
+                                   + pos, err);
 
                     if (j > 0) {
                         throw err;
@@ -1036,7 +1036,7 @@ public class DataFileCache {
             time = cache.saveAllTimer.elapsedTime() - time;
 
             logDetailEvent("shadow copy [time, size] " + time + " "
-                                           + shadowFile.getSavedLength());
+                           + shadowFile.getSavedLength());
         }
     }
 
