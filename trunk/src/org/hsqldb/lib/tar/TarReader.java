@@ -364,7 +364,6 @@ public class TarReader {
                 outPipe.close();
             } finally {
                 outPipe = null;  // Encourage buffer GC
-                inPipe = null;  // Encourage buffer GC
             }
         }
 
