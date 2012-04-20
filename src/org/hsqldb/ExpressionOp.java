@@ -735,6 +735,11 @@ public class ExpressionOp extends Expression {
             case OpTypes.PREFIX : {
                 if (nodes[LEFT].dataType.isCharacterType()) {
                     Object        value = nodes[RIGHT].getValue(session);
+
+                    if (value == null) {
+                        return null;
+                    }
+
                     CharacterType type = (CharacterType) nodes[RIGHT].dataType;
                     long length =
                         ((CharacterType) nodes[RIGHT].dataType).size(session,
@@ -743,15 +748,28 @@ public class ExpressionOp extends Expression {
                     type  = (CharacterType) nodes[LEFT].dataType;
                     value = nodes[LEFT].getValue(session);
 
+                    if (value == null) {
+                        return null;
+                    }
+
                     return type.substring(session, value, 0, length, true,
                                           false);
                 } else {
                     BinaryData value =
                         (BinaryData) nodes[RIGHT].getValue(session);
+
+                    if (value == null) {
+                        return null;
+                    }
+
                     long       length = value.length(session);
                     BinaryType type   = (BinaryType) nodes[LEFT].dataType;
 
                     value = (BinaryData) nodes[LEFT].getValue(session);
+
+                    if (value == null) {
+                        return null;
+                    }
 
                     return type.substring(session, value, 0, length, true);
                 }

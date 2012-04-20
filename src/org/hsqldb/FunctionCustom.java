@@ -1230,7 +1230,7 @@ public class FunctionCustom extends FunctionSQL {
             }
             case FUNC_UNIX_TIMESTAMP : {
                 if (nodes[0] == null) {
-                    TimestampData ts = session.getCurrentTimestamp(false);
+                    TimestampData ts = session.getCurrentTimestamp(true);
 
                     return Long.valueOf(ts.getSeconds());
                 } else {
