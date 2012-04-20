@@ -544,6 +544,7 @@ public class HsqlDateTime {
         Types.SQL_INTERVAL_MONTH,
         -1, -1,
         DTIType.WEEK_OF_YEAR, -1, Types.SQL_INTERVAL_DAY, Types.SQL_INTERVAL_DAY,
+        -1,
         Types.SQL_INTERVAL_HOUR, -1, Types.SQL_INTERVAL_HOUR,
         Types.SQL_INTERVAL_MINUTE,
         Types.SQL_INTERVAL_SECOND,
