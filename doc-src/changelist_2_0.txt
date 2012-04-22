@@ -1,7 +1,14 @@
+22 April 2012 - SVN 4977
+-- fixed issue with datetime TRUNC and ROUND functions
+-- fixed issues with a number of functions
+-- fixed issue causing reduced speed and memory leak with disk based result sets
+-- fixed issues with comparison of lobs and lobs file exceeding 2GB
+-- fixed issues with hot backup
+-- fixed all other issues reported in bug tracker and forums
+-- extended batch execution to procedure calls
 26 February 2012 - SVN 4944
 -- fixed regression in DECODE function
 -- fixed issue with ROWNUM when correlated supqueries were used
--- fixed all other issues reported in bug tracker
 -- added support for COUNT(DISTINCT ...) with multiple arguments
 -- added support for SQL log level 1-3
 -- extended ORA syntax compatibility mode
