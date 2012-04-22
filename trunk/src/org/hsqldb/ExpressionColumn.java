@@ -704,7 +704,17 @@ public class ExpressionColumn extends Expression {
                     if (alias != null) {
                         return alias.getStatementName();
                     } else {
-                        return columnName;
+                        if (tableName == null) {
+                            return columnName;
+                        }
+
+                        StringBuffer sb = new StringBuffer();
+
+                        sb.append(tableName);
+                        sb.append('.');
+                        sb.append(columnName);
+
+                        return sb.toString();
                     }
                 }
 
