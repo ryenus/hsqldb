@@ -1270,7 +1270,8 @@ public class Session implements SessionInterface {
         boolean isTX = cs.isTransactionStatement();
 
         if (!isTX) {
-            if (database.logger.getSqlEventLogLevel() >= SimpleLog.LOG_NORMAL) {
+            if (database.logger.getSqlEventLogLevel()
+                    >= SimpleLog.LOG_NORMAL) {
                 sessionContext.setDynamicArguments(pvals);
                 database.logger.logStatementEvent(this, cs, pvals,
                                                   SimpleLog.LOG_NORMAL);
@@ -1320,7 +1321,8 @@ public class Session implements SessionInterface {
             //        tempActionHistory.add("sql execute " + cs.sql + " " + actionTimestamp + " " + rowActionList.size());
             sessionContext.setDynamicArguments(pvals);
 
-            if (database.logger.getSqlEventLogLevel() >= SimpleLog.LOG_NORMAL) {
+            if (database.logger.getSqlEventLogLevel()
+                    >= SimpleLog.LOG_NORMAL) {
                 database.logger.logStatementEvent(this, cs, pvals,
                                                   SimpleLog.LOG_NORMAL);
             }
@@ -1440,6 +1442,8 @@ public class Session implements SessionInterface {
                 // void return type and select statements with
                 // a single row/column containg null
                 updateCounts[count++] = ResultConstants.SUCCESS_NO_INFO;
+            } else if (in.mode == ResultConstants.CALL_RESPONSE) {
+                updateCounts[count++] = ResultConstants.SUCCESS_NO_INFO;
             } else if (in.mode == ResultConstants.ERROR) {
                 updateCounts = ArrayUtil.arraySlice(updateCounts, 0, count);
                 error        = in;
@@ -1494,6 +1498,8 @@ public class Session implements SessionInterface {
                 // stored procedure calls to methods with
                 // void return type and select statements with
                 // a single row/column containg null
+                updateCounts[count++] = ResultConstants.SUCCESS_NO_INFO;
+            } else if (in.mode == ResultConstants.CALL_RESPONSE) {
                 updateCounts[count++] = ResultConstants.SUCCESS_NO_INFO;
             } else if (in.mode == ResultConstants.ERROR) {
                 updateCounts = ArrayUtil.arraySlice(updateCounts, 0, count);

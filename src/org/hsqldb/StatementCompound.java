@@ -477,7 +477,7 @@ public class StatementCompound extends Statement {
 
     private Result executeForLoop(Session session) {
 
-        Result queryResult = loopCursor.getResult(session);
+        Result queryResult = loopCursor.execute(session);
 
         if (queryResult.isError()) {
             return queryResult;

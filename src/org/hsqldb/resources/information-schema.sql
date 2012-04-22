@@ -176,7 +176,6 @@ VALUES
 ('F021', 'Basic information schema', '', '', 'YES', NULL, ''),
 ('F021', 'Basic information schema', '01', 'COLUMNS view', 'YES', NULL, ''),
 ('F021', 'Basic information schema', '02', 'TABLES view', 'YES', NULL, ''),
-('T655', 'Cyclically dependent routines', '', '', 'NO', NULL, ''),
 ('F021', 'Basic information schema', '03', 'VIEWS view', 'YES', NULL, ''),
 ('F021', 'Basic information schema', '04', 'TABLE_CONSTRAINTS view', 'YES', NULL, ''),
 ('F021', 'Basic information schema', '05', 'REFERENTIAL_CONSTRAINTS view', 'YES', NULL, ''),
@@ -375,6 +374,7 @@ VALUES
 ('S095', 'Array constructors by query', '', '', 'YES', NULL, ''),
 ('S096', 'Optional array bounds', '', '', 'YES', NULL, ''),
 ('S097', 'Array element assignment', '', '', 'YES', NULL, ''),
+('S098', 'ARRAY_AGG', '', '', 'YES', NULL, ''),
 ('S111', 'ONLY in query expressions', '', '', 'NO', NULL, ''),
 ('S151', 'Type predicate', '', '', 'NO', NULL, ''),
 ('S161', 'Subtype treatment', '', '', 'NO', NULL, ''),
@@ -470,7 +470,8 @@ VALUES
 ('T325', 'Qualified SQL parameter references', '', '', 'NO', NULL, ''),
 ('T326', 'Table functions', '', '', 'YES', NULL, ''),
 ('T331', 'Basic roles', '', '', 'YES', NULL, ''),
-('T332', 'Extended roles', '', '', 'NO', NULL, ''),
+('T332', 'Extended roles', '', '', 'YES', NULL, 'except GRANTED BY'),
+('T341', 'Overloading of SQL-invoked functions and SQL-invoked procedures', '', '', 'YES', NULL, ''),
 ('T351', 'Bracketed SQL comments (/*...*/ comments)', '', '', 'YES', NULL, ''),
 ('T401', 'INSERT into a cursor', '', '', 'NO', NULL, 'yes via JDBC'),
 ('T411', 'UPDATE statement: SET ROW option', '', '', 'NO', NULL, ''),
@@ -501,7 +502,8 @@ VALUES
 ('T651', 'SQL-schema statements in SQL routines', '', '', 'NO', NULL, ''),
 ('T652', 'SQL-dynamic statements in SQL routines', '', '', 'NO', NULL, ''),
 ('T653', 'SQL-schema statements in external routines', '', '', 'NO', NULL, ''),
-('T654', 'SQL-dynamic statements in external routines', '', '', 'YES', NULL, '');
+('T654', 'SQL-dynamic statements in external routines', '', '', 'YES', NULL, ''),
+('T655', 'Cyclically dependent routines', '', '', 'YES', NULL, '');
 /*sql_packages*/
 VALUES
 ( 'PKG001', 'Enhanced datetime facilities','YES', CAST(NULL AS CHARACTER), '' ),
