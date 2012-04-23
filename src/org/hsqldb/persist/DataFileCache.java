@@ -1279,7 +1279,7 @@ public class DataFileCache {
     private void logSevereEvent(String message, Throwable t) {
 
         if (logEvents) {
-            logSevereEvent(message, t);
+            database.logger.logSevereEvent(message, t);
         }
     }
 
