@@ -108,10 +108,6 @@ final class ScaledRAFileSimple implements RandomAccessInterface {
         return readOnly;
     }
 
-    public boolean wasNio() {
-        return false;
-    }
-
     public boolean ensureLength(long newLong) {
         return true;
     }

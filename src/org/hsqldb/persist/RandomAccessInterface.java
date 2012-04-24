@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2010, The HSQL Development Group
+/* Copyright (c) 2001-2011, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -33,6 +33,11 @@ package org.hsqldb.persist;
 
 import java.io.IOException;
 
+/**
+* @author Fred Toussi (fredt@users dot sourceforge.net)
+* @version  2.2.9
+* @since 2.0.0
+*/
 public interface RandomAccessInterface {
 
     long length() throws IOException;
@@ -58,8 +63,6 @@ public interface RandomAccessInterface {
     void close() throws IOException;
 
     boolean isReadOnly();
-
-    boolean wasNio();
 
     void synch();
 

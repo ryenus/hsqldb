@@ -198,10 +198,6 @@ final class ScaledRAFileInJar implements RandomAccessInterface {
         return true;
     }
 
-    public boolean wasNio() {
-        return false;
-    }
-
     private long getLength() throws IOException {
 
         int count = 0;
