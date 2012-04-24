@@ -53,8 +53,9 @@ public final class ScaledRAFileHybrid implements RandomAccessInterface {
     final Database        database;
     final String          fileName;
     final boolean         isReadOnly;
-    boolean               wasNio;
-    long                  maxLength = Long.MAX_VALUE;
+    boolean               preNio;
+    boolean               isNio;
+    long initialMaxLength = ScaledRAFileNIO.largeBufferSize / 2;
     RandomAccessInterface store;
 
     public ScaledRAFileHybrid(Database database, String name,
@@ -120,24 +121,22 @@ public final class ScaledRAFileHybrid implements RandomAccessInterface {
         return store.isReadOnly();
     }
 
-    public boolean wasNio() {
-        return wasNio;
-    }
-
     public boolean ensureLength(long newLength) {
 
-        if (newLength < maxLength && store.ensureLength(newLength)) {
+        if (newLength <= initialMaxLength) {
+            return store.ensureLength(newLength);
+        } else if (preNio) {
+            try {
+                newStore(newLength);
+            } catch (IOException e) {}
+        }
+
+        if (store.ensureLength(newLength)) {
             return true;
-        }
-
-        if (wasNio && !store.wasNio()) {
-            return false;
-        }
-
-        try {
-            newStore(newLength);
-        } catch (IOException e) {
-            return false;
+        } else if (isNio) {
+            try {
+                newStore(newLength);
+            } catch (IOException e) {}
         }
 
         return store.ensureLength(newLength);
@@ -159,39 +158,35 @@ public final class ScaledRAFileHybrid implements RandomAccessInterface {
 
         long currentPosition = 0;
 
-        if (store != null) {
+        if (store == null) {
+            preNio = requiredPosition <= database.logger.propNioMaxSize;
+        } else {
             currentPosition = store.getFilePointer();
 
             store.synch();
             store.close();
         }
 
-        if (wasNio) {
-            maxLength = Long.MAX_VALUE;
-        } else if (requiredPosition <= database.logger.propNioMaxSize) {
-            if (requiredPosition >= ScaledRAFileNIO.largeBufferSize / 2) {
-                try {
-                    store =
-                        new ScaledRAFileNIO(database, fileName, isReadOnly,
+        if (preNio && initialMaxLength <= requiredPosition) {
+            try {
+                store = new ScaledRAFileNIO(database, fileName, isReadOnly,
                                             requiredPosition,
                                             database.logger.propNioMaxSize);
 
-                    store.seek(currentPosition);
+                store.seek(currentPosition);
 
-                    wasNio = true;
+                preNio = false;
+                isNio  = true;
 
-                    return;
-                } catch (Throwable e) {
+                return;
+            } catch (Throwable e) {
+                preNio = false;
 
-                    // log event
-                } finally {
-                    maxLength = Long.MAX_VALUE;
-                }
-            } else {
-                maxLength = ScaledRAFileNIO.largeBufferSize / 2;
+                // log event
             }
         }
 
+        isNio = false;
         store = new ScaledRAFile(database, fileName, isReadOnly, true, false);
 
         store.seek(currentPosition);

@@ -51,7 +51,7 @@ import org.hsqldb.Database;
  * closed.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version  2.0.1
+ * @version  2.2.9
  * @since 1.8.0.5
  */
 final class ScaledRAFileNIO implements RandomAccessInterface {
@@ -87,16 +87,13 @@ final class ScaledRAFileNIO implements RandomAccessInterface {
         this.database  = database;
         this.maxLength = maxLength;
 
-        long         fileLength;
-        java.io.File fi = new java.io.File(name);
-
-        fileLength = fi.length();
+        java.io.File tempFile = new java.io.File(name);
 
         if (readOnly) {
-            requiredLength = fileLength;
+            requiredLength = tempFile.length();
         } else {
-            if (fileLength > requiredLength) {
-                requiredLength = fileLength;
+            if (tempFile.length() > requiredLength) {
+                requiredLength = tempFile.length();
             }
 
             requiredLength =
@@ -116,6 +113,8 @@ final class ScaledRAFileNIO implements RandomAccessInterface {
             bufferPosition  = 0;
             currentPosition = 0;
         } else {
+            close();
+
             IOException io = new IOException("NIO buffer allocation failed");
 
             throw io;
@@ -397,10 +396,6 @@ final class ScaledRAFileNIO implements RandomAccessInterface {
         return readOnly;
     }
 
-    public boolean wasNio() {
-        return true;
-    }
-
     public boolean ensureLength(long newLength) {
 
         if (newLength > maxLength) {
@@ -433,10 +428,10 @@ final class ScaledRAFileNIO implements RandomAccessInterface {
                 file.writeByte(0);
             }
 
-            MappedByteBuffer newBuffer = channel.map(mapMode, fileLength,
-                newBufferLength);
             MappedByteBuffer[] newBuffers =
                 new MappedByteBuffer[buffers.length + 1];
+            MappedByteBuffer newBuffer = channel.map(mapMode, fileLength,
+                newBufferLength);
 
             System.arraycopy(buffers, 0, newBuffers, 0, buffers.length);
 
