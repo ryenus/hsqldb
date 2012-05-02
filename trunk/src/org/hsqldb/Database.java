@@ -536,11 +536,14 @@ public class Database {
 
     void closeIfLast() {
 
-        if (shutdownOnNoConnection && sessionManager.isEmpty()
-                && dbState == this.DATABASE_ONLINE) {
-            try {
-                close(CLOSEMODE_NORMAL);
-            } catch (HsqlException e) {}
+        if (sessionManager.isEmpty() && dbState == this.DATABASE_ONLINE) {
+            if (shutdownOnNoConnection) {
+                try {
+                    close(CLOSEMODE_NORMAL);
+                } catch (HsqlException e) {}
+            } else {
+                logger.synchLog();
+            }
         }
     }
 

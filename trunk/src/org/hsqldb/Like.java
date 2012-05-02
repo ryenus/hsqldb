@@ -95,7 +95,7 @@ import org.hsqldb.types.Type;
 // fredt@users 20031006 - patch 1.7.2 - reuse Like objects for all rows
 // fredt@users 1.9.0 - LIKE for binary strings
 // fredt@users 1.9.0 - CompareAt() changes for performance suggested by Gary Frost
-class Like {
+class Like implements Cloneable {
 
     private static final BinaryData maxByteValue =
         new BinaryData(new byte[]{ -128 }, false);
@@ -422,5 +422,14 @@ class Like {
         sb.append(']');
 
         return sb.toString();
+    }
+
+    public Like duplicate() {
+
+        try {
+            return (Like) super.clone();
+        } catch (CloneNotSupportedException ex) {
+            throw Error.runtimeError(ErrorCode.U_S0500, "Expression");
+        }
     }
 }

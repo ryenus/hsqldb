@@ -917,6 +917,13 @@ public class Logger {
         }
     }
 
+    public synchronized void synchLog() {
+
+        if (loggingEnabled) {
+            log.synchLog();
+        }
+    }
+
     /**
      *  Checkpoints the database. <p>
      *
