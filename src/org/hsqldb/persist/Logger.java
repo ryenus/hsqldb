@@ -917,6 +917,13 @@ public class Logger {
         }
     }
 
+    public synchronized void synchLog() {
+
+        if (loggingEnabled) {
+            log.synchLog();
+        }
+    }
+
     /**
      *  Checkpoints the database. <p>
      *
@@ -1326,23 +1333,9 @@ public class Logger {
 
         ArrayUtil.projectRow(table.getColumnTypes(), columns, colTypes);
 
-        switch (table.getTableType()) {
-
-            case TableBase.MEMORY_TABLE :
-                return new IndexAVLMemory(index.getName(),
-                                          index.getPersistenceId(), table,
-                                          columns, modeFlags, modeFlags,
-                                          colTypes, false, false, false,
-                                          false);
-
-            case TableBase.CACHED_TABLE :
-            case TableBase.TEXT_TABLE :
-                return new IndexAVL(index.getName(), index.getPersistenceId(),
-                                    table, columns, modeFlags, modeFlags,
-                                    colTypes, false, false, false, false);
-        }
-
-        throw Error.runtimeError(ErrorCode.U_S0500, "Logger");
+        return newIndex(index.getName(), index.getPersistenceId(), table,
+                        columns, modeFlags, modeFlags, colTypes, false, false,
+                        false, false);
     }
 
     public String getValueStringForProperty(String name) {
