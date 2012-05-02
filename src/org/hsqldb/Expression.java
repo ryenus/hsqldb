@@ -1062,23 +1062,23 @@ public class Expression implements Cloneable {
                 break;
 
             case OpTypes.ARRAY : {
-                boolean hasUndefined = false;
-                Type    nodeDataType = null;
+                Type nodeDataType = null;
 
                 for (int i = 0; i < nodes.length; i++) {
-                    if (nodes[i].dataType == null) {
-                        hasUndefined = true;
-                    } else {
-                        nodeDataType =
-                            Type.getAggregateType(nodeDataType,
-                                                  nodes[i].dataType);
-                    }
+                    nodeDataType = Type.getAggregateType(nodeDataType,
+                                                         nodes[i].dataType);
                 }
 
-                if (hasUndefined) {
+                for (int i = 0; i < nodes.length; i++) {
+                    nodes[i].dataType = nodeDataType;
+                }
+
+                if (nodeDataType != null) {
                     for (int i = 0; i < nodes.length; i++) {
-                        if (nodes[i].dataType == null) {
-                            nodes[i].dataType = nodeDataType;
+                        if (nodes[i].valueData != null) {
+                            nodes[i].valueData =
+                                nodeDataType.convertToDefaultType(
+                                    session, nodes[i].valueData);
                         }
                     }
                 }
@@ -1818,17 +1818,23 @@ public class Expression implements Cloneable {
             }
         }
 
+        boolean added = false;
+
         if (typeSet.contains(opType)) {
             if (set == null) {
                 set = new OrderedHashSet();
             }
 
             set.add(this);
+
+            added = true;
         }
 
-        if (subQuery != null && subQuery.queryExpression != null) {
-            set = subQuery.queryExpression.collectAllExpressions(set, typeSet,
-                    stopAtTypeSet);
+        if (!added) {
+            if (subQuery != null && subQuery.queryExpression != null) {
+                set = subQuery.queryExpression.collectAllExpressions(set,
+                        typeSet, stopAtTypeSet);
+            }
         }
 
         return set;
