@@ -207,6 +207,7 @@ public class QueryExpression {
         }
 
         resolveTypesPartTwo(session);
+        resolveTypesPartThree(session);
     }
 
     public void resolveReferences(Session session,
@@ -380,6 +381,7 @@ public class QueryExpression {
 
         resolveTypesPartOne(session);
         resolveTypesPartTwo(session);
+        resolveTypesPartThree(session);
 
         isResolved = true;
     }
@@ -408,10 +410,12 @@ public class QueryExpression {
                                     leftQueryExpression.unionColumnMap,
                                     unionColumnTypes);
         leftQueryExpression.resolveTypesPartTwo(session);
+        leftQueryExpression.resolveTypesPartThree(session);
         ArrayUtil.projectRowReverse(rightQueryExpression.unionColumnTypes,
                                     rightQueryExpression.unionColumnMap,
                                     unionColumnTypes);
         rightQueryExpression.resolveTypesPartTwo(session);
+        rightQueryExpression.resolveTypesPartThree(session);
 
         //
         ResultMetaData leftMeta  = leftQueryExpression.getMetaData();
@@ -450,7 +454,6 @@ public class QueryExpression {
 
                 column.setNullability(rightNullability);
             }
-
         }
 
         if (unionCorresponding) {
@@ -489,6 +492,8 @@ public class QueryExpression {
 */
     }
 
+    void resolveTypesPartThree(Session session) {}
+
     public Object[] getValues(Session session) {
 
         Result r    = getResult(session, 2);
@@ -501,6 +506,10 @@ public class QueryExpression {
         } else {
             throw Error.error(ErrorCode.X_21000);
         }
+    }
+
+    public void addExtraConditions(Expression e) {
+        throw Error.runtimeError(ErrorCode.U_S0500, "QueryExpression");
     }
 
     public Object[] getSingleRowValues(Session session) {

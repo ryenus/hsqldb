@@ -330,7 +330,7 @@ public class ParserCommand extends ParserDDL {
             return cs;
         }
 
-        cs = compileDeclareCursor(false, null);
+        cs = compileDeclareCursor(false);
 
         if (cs == null) {
             throw lastError == null ? unexpectedToken()

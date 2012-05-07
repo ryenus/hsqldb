@@ -2089,15 +2089,14 @@ public class ExpressionLogical extends Expression {
 
     RangeVariable[] getJoinRangeVariables(RangeVariable[] ranges) {
 
-        OrderedHashSet set = new OrderedHashSet();
+        OrderedHashSet set = collectRangeVariables(ranges, null);
 
-        this.collectRangeVariables(ranges, set);
 
-        RangeVariable[] rangeArray = new RangeVariable[set.size()];
+        if (set != null) {
+            rangeArray = new RangeVariable[set.size()];
 
-        set.toArray(rangeArray);
-
-        this.rangeArray = rangeArray;
+            set.toArray(rangeArray);
+        }
 
         return rangeArray;
     }

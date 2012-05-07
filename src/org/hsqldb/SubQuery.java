@@ -56,7 +56,7 @@ import org.hsqldb.result.Result;
 class SubQuery implements Comparator {
 
     int                  level;
-    private boolean      isResolved;
+    private boolean      hasTable;
     private boolean      isCorrelated;
     private boolean      isExistsPredicate;
     private boolean      isRecursive;
@@ -153,7 +153,7 @@ class SubQuery implements Comparator {
     }
 
     public boolean isResolved() {
-        return isResolved;
+        return hasTable;
     }
 
     public boolean isCorrelated() {
@@ -183,7 +183,7 @@ class SubQuery implements Comparator {
     public void prepareTable(Session session, HsqlName name,
                              HsqlName[] columns) {
 
-        if (isResolved) {
+        if (hasTable) {
             return;
         }
 
@@ -213,12 +213,12 @@ class SubQuery implements Comparator {
         TableUtil.setTableIndexesForSubquery(table, uniqueRows || fullOrder,
                                              uniqueRows);
 
-        isResolved = true;
+        hasTable = true;
     }
 
     public void prepareTable(Session session) {
 
-        if (isResolved) {
+        if (hasTable) {
             return;
         }
 
@@ -254,7 +254,7 @@ class SubQuery implements Comparator {
             table.createPrimaryKey();
         }
 
-        isResolved = true;
+        hasTable = true;
     }
 
     public void setColumnNames(SimpleName[] names) {

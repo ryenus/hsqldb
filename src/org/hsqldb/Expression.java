@@ -743,6 +743,22 @@ public class Expression implements Cloneable {
 
             nodes[i].convertToSimpleColumn(expressions, replacements);
         }
+
+        if (subQuery != null) {
+            if (subQuery.queryExpression != null) {
+                OrderedHashSet set = new OrderedHashSet();
+
+                subQuery.queryExpression.collectAllExpressions(set,
+                        Expression.columnExpressionSet,
+                        Expression.emptyExpressionSet);
+
+                for (int i = 0; i < set.size(); i++) {
+                    Expression e = (Expression) set.get(i);
+
+                    e.convertToSimpleColumn(expressions, replacements);
+                }
+            }
+        }
     }
 
     boolean isAggregate() {
@@ -846,11 +862,12 @@ public class Expression implements Cloneable {
     /**
      * collects all range variables in expression tree
      */
-    void collectRangeVariables(RangeVariable[] rangeVariables, Set set) {
+    OrderedHashSet collectRangeVariables(RangeVariable[] rangeVariables,
+                                         OrderedHashSet set) {
 
         for (int i = 0; i < nodes.length; i++) {
             if (nodes[i] != null) {
-                nodes[i].collectRangeVariables(rangeVariables, set);
+                set = nodes[i].collectRangeVariables(rangeVariables, set);
             }
         }
 
@@ -862,10 +879,12 @@ public class Expression implements Cloneable {
                 for (int i = 0; i < unresolvedExpressions.size(); i++) {
                     Expression e = (Expression) unresolvedExpressions.get(i);
 
-                    e.collectRangeVariables(rangeVariables, set);
+                    set = e.collectRangeVariables(rangeVariables, set);
                 }
             }
         }
+
+        return set;
     }
 
     /**
@@ -901,6 +920,26 @@ public class Expression implements Cloneable {
 
         if (subQuery != null && subQuery.queryExpression != null) {
             if (subQuery.queryExpression.hasReference(range)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * return true if given RangeVariable is used in expression tree
+     */
+    boolean hasReference(RangeVariable[] ranges, int exclude) {
+
+        OrderedHashSet set = collectRangeVariables(ranges, null);
+
+        if (set == null) {
+            return false;
+        }
+
+        for (int j = 0; j < set.size(); j++) {
+            if (set.get(j) != ranges[exclude]) {
                 return true;
             }
         }
@@ -977,6 +1016,8 @@ public class Expression implements Cloneable {
             case OpTypes.ROW_SUBQUERY :
             case OpTypes.TABLE_SUBQUERY : {
                 QueryExpression queryExpression = subQuery.queryExpression;
+
+                queryExpression.resolveReferences(session, rangeVarArray);
 
                 if (!queryExpression.areColumnsResolved()) {
                     isCorrelated = true;
@@ -1846,6 +1887,9 @@ public class Expression implements Cloneable {
 
     OrderedHashSet collectAllSubqueries(OrderedHashSet set) {
 
+        int count = set == null ? 0
+                                : set.size();
+
         for (int i = 0; i < nodes.length; i++) {
             if (nodes[i] != null) {
                 set = nodes[i].collectAllSubqueries(set);
@@ -1864,6 +1908,18 @@ public class Expression implements Cloneable {
                     subQuery.queryExpression.getSubqueries();
 
                 set = OrderedHashSet.addAll(set, tempSet);
+            }
+
+            int newCount = set.size();
+
+            for (int i = count; i < newCount; i++) {
+                SubQuery sq = (SubQuery) set.get(i);
+
+                if (sq.isCorrelated()) {
+                    subQuery.setCorrelated();
+
+                    isCorrelated = true;
+                }
             }
         }
 
@@ -1889,8 +1945,9 @@ public class Expression implements Cloneable {
 
         OrderedHashSet set = null;
 
-        set = collectAllExpressions(set, subqueryAggregateExpressionSet,
-                                    emptyExpressionSet);
+        set = collectAllExpressions(set,
+                                    Expression.subqueryAggregateExpressionSet,
+                                    Expression.emptyExpressionSet);
 
         if (set != null && !set.isEmpty()) {
             throw Error.error(ErrorCode.X_0A000,

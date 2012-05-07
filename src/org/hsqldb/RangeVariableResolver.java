@@ -77,6 +77,7 @@ public class RangeVariableResolver {
     boolean hasOuterJoin = false;
     int     firstLeftJoinIndex;
     int     firstRightJoinIndex;
+    int     firstLateralJoinIndex;
 
     //
     OrderedIntHashSet     colIndexSetEqual = new OrderedIntHashSet();
@@ -110,6 +111,7 @@ public class RangeVariableResolver {
 
         firstLeftJoinIndex  = rangeVariables.length;
         firstRightJoinIndex = rangeVariables.length;
+        firstLateralJoinIndex  = rangeVariables.length;
         inExpressions       = new Expression[rangeVariables.length];
         inInJoin            = new boolean[rangeVariables.length];
         tempJoinExpressions = new HsqlArrayList[rangeVariables.length];
@@ -164,6 +166,12 @@ public class RangeVariableResolver {
 
                 hasOuterJoin = true;
             }
+
+            if (range.isLateral) {
+                if (firstLateralJoinIndex == rangeVariables.length) {
+                    firstLateralJoinIndex = i;
+                }
+            }
         }
 
         conditions = null;
@@ -190,15 +198,21 @@ public class RangeVariableResolver {
             return;
         }
 
+        if (firstLateralJoinIndex != rangeVariables.length) {
+            return;
+        }
+
         if (sortAndSlice.usingIndex && sortAndSlice.primaryTableIndex != null) {
             return;
         }
+
+/*
         for (int i = 0; i < rangeVariables.length; i++) {
             if (!rangeVariables[i].rangeTable.isSchemaBaseTable()) {
                 return;
             }
         }
-
+*/
         HsqlArrayList joins  = new HsqlArrayList();
         HsqlArrayList starts = new HsqlArrayList();
         HsqlArrayList others = new HsqlArrayList();
@@ -248,7 +262,9 @@ public class RangeVariableResolver {
         Expression    start    = null;
         int           position = 0;
         RangeVariable range    = null;
-        double cost =
+        double cost = 1024;
+
+        if(!(rangeVariables[0].rangeTable instanceof TableDerived))
             rangeVariables[0].rangeTable.getRowStore(session).elementCount();
 
         if (cost < Index.minimumSelectivity) {
