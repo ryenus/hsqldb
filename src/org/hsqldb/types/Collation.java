@@ -39,7 +39,6 @@ import org.hsqldb.HsqlNameManager;
 import org.hsqldb.HsqlNameManager.HsqlName;
 import org.hsqldb.SchemaObject;
 import org.hsqldb.Session;
-import org.hsqldb.SqlInvariants;
 import org.hsqldb.Tokens;
 import org.hsqldb.TypeInvariants;
 import org.hsqldb.error.Error;
@@ -56,14 +55,15 @@ import org.hsqldb.rights.Grantee;
  *
  * @author Frand Schoenheit (frank.schoenheit@sun dot com)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.0.1
+ * @version 2.2.9
  * @since 1.8.0
  */
 public class Collation implements SchemaObject {
 
-    public static final HashMap nameToJavaName    = new HashMap(101);
-    public static final HashMap dbNameToJavaName  = new HashMap(101);
-    public static final HashMap dbNameToCollation = new HashMap(11);
+    static String               defaultCollationName = "SQL_TEXT";
+    public static final HashMap nameToJavaName       = new HashMap(101);
+    public static final HashMap dbNameToJavaName     = new HashMap(101);
+    public static final HashMap dbNameToCollation    = new HashMap(11);
 
     static {
         nameToJavaName.put("Afrikaans", "af-ZA");
@@ -180,24 +180,22 @@ public class Collation implements SchemaObject {
         defaultCollation.charset = TypeInvariants.SQL_TEXT;
     }
 
-    final HsqlName name;
-    Collator       collator;
-    Locale         locale;
-    boolean        equalIsIdentical = true;
-    boolean        isFinal;
+    final HsqlName   name;
+    private Collator collator;
+    private Locale   locale;
+    private boolean  equalIsIdentical = true;
+    private boolean  isFinal;
+    private Boolean  padSpace;
 
     //
-    Charset  charset;
-    HsqlName sourceName;
+    private Charset  charset;
+    private HsqlName sourceName;
 
     private Collation() {
 
         locale = Locale.ENGLISH;
-
-        String language = locale.getDisplayLanguage(Locale.ENGLISH);
-
-        name = HsqlNameManager.newInfoSchemaObjectName(language, true,
-                SchemaObject.COLLATION);
+        name = HsqlNameManager.newInfoSchemaObjectName(defaultCollationName,
+                false, SchemaObject.COLLATION);
         this.isFinal = true;
     }
 
@@ -212,7 +210,8 @@ public class Collation implements SchemaObject {
         this.isFinal = true;
     }
 
-    public Collation(HsqlName name, Collation source, Charset charset) {
+    public Collation(HsqlName name, Collation source, Charset charset,
+                     Boolean padSpace) {
 
         this.name             = name;
         this.locale           = source.locale;
@@ -223,13 +222,14 @@ public class Collation implements SchemaObject {
         //
         this.charset    = charset;
         this.sourceName = source.name;
+        this.padSpace   = padSpace;
     }
 
     public static Collation getDefaultInstance() {
         return defaultCollation;
     }
 
-    public static Collation getDatabaseInstance() {
+    public static Collation newDatabaseInstance() {
 
         Collation collation = new Collation();
 
@@ -252,6 +252,12 @@ public class Collation implements SchemaObject {
 
         if (collation != null) {
             return collation;
+        }
+
+        if (defaultCollationName.equals(name)) {
+            dbNameToCollation.put(defaultCollationName, defaultCollation);
+
+            return defaultCollation;
         }
 
         String javaName = (String) dbNameToJavaName.get(name);
@@ -282,36 +288,55 @@ public class Collation implements SchemaObject {
         String language = locale.getDisplayLanguage(Locale.ENGLISH);
 
         try {
-            setCollation(language);
+            setCollation(language, null);
         } catch (HsqlException e) {}
     }
 
-    public void setCollation(String newName) {
-
-        String jname = (String) Collation.nameToJavaName.get(newName);
-
-        if (jname == null) {
-            jname = (String) Collation.dbNameToJavaName.get(newName);
-        }
-
-        if (jname == null) {
-            throw Error.error(ErrorCode.X_42501, newName);
-        }
+    public void setCollation(String newName, Boolean padSpace) {
 
         if (isFinal) {
             throw Error.error(ErrorCode.X_42503, newName);
         }
 
-        name.rename(newName, true);
+        if (defaultCollationName.equals(newName)) {
+            locale = Locale.ENGLISH;
 
-        String[] parts    = StringUtil.split(jname, "-");
-        String   language = parts[0];
-        String   country  = parts.length == 2 ? parts[1]
-                                              : "";
+            name.rename(defaultCollationName, false);
 
-        locale           = new Locale(language, country);
-        collator         = Collator.getInstance(locale);
-        equalIsIdentical = false;
+            collator         = null;
+            equalIsIdentical = true;
+        } else {
+            String jname = (String) Collation.nameToJavaName.get(newName);
+
+            if (jname == null) {
+                jname = (String) Collation.dbNameToJavaName.get(newName);
+            }
+
+            if (jname == null) {
+                throw Error.error(ErrorCode.X_42501, newName);
+            }
+
+            name.rename(newName, true);
+
+            String[] parts    = StringUtil.split(jname, "-");
+            String   language = parts[0];
+            String   country  = parts.length == 2 ? parts[1]
+                                                  : "";
+
+            locale           = new Locale(language, country);
+            collator         = Collator.getInstance(locale);
+            equalIsIdentical = false;
+        }
+
+        this.padSpace = null;
+
+        if (padSpace != null && !padSpace) {
+            this.padSpace = padSpace;
+        }
+    }
+
+    public boolean isPadSpace() {
+        return padSpace == null || padSpace.booleanValue();
     }
 
     /**
@@ -367,14 +392,14 @@ public class Collation implements SchemaObject {
      * any collation without a collator
      */
     public boolean isDefaultCollation() {
-        return collator == null;
+        return collator == null && padSpace == null;
     }
 
     /**
      * collation for individual object
      */
     public boolean isObjectCollation() {
-        return isFinal && collator != null;
+        return isFinal && (collator != null || padSpace != null);
     }
 
     public HsqlName getName() {
@@ -419,10 +444,41 @@ public class Collation implements SchemaObject {
         sb.append(Tokens.T_FROM).append(' ');
         sb.append(sourceName.statementName);
 
+        if (padSpace != null) {
+            sb.append(' ');
+
+            if (padSpace.booleanValue()) {
+                sb.append(Tokens.T_PAD).append(' ').append(Tokens.T_SPACE);
+            } else {
+                sb.append(Tokens.T_NO).append(' ').append(Tokens.T_PAD);
+            }
+        }
+
         return sb.toString();
     }
 
     public long getChangeTimestamp() {
         return 0;
+    }
+
+    public String getDatabaseCollationSQL() {
+
+        if (isDefaultCollation()) {
+            return null;
+        }
+
+        StringBuffer sb = new StringBuffer();
+
+        sb.append(Tokens.T_SET).append(' ');
+        sb.append(Tokens.T_DATABASE).append(' ');
+        sb.append(Tokens.T_COLLATION).append(' ');
+        sb.append(getName().statementName);
+
+        if (!isPadSpace()) {
+            sb.append(' ').append(Tokens.T_NO).append(' ');
+            sb.append(Tokens.T_PAD);
+        }
+
+        return sb.toString();
     }
 }

@@ -542,9 +542,12 @@ public class ParserDQL extends ParserBase {
                 try {
                     collation = Collation.getCollation(token.tokenString);
                 } catch (HsqlException e) {
+                    String schemaName =
+                        session.getSchemaName(token.namePrefix);
+
                     collation =
                         (Collation) database.schemaManager.getSchemaObject(
-                            token.tokenString, null, SchemaObject.COLLATION);
+                            token.tokenString, schemaName, SchemaObject.COLLATION);
                 }
 
                 read();

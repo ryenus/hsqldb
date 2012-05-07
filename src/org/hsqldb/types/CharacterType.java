@@ -49,7 +49,7 @@ import org.hsqldb.lib.java.JavaSystem;
  * Type subclass for CHARACTER, VARCHAR, etc.<p>
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.2.3
+ * @version 2.2.9
  * @since 1.9.0
  */
 public class CharacterType extends Type {
@@ -190,9 +190,7 @@ public class CharacterType extends Type {
     }
 
     public boolean hasCollation() {
-
-        // return collation != null && collation != Collation.defaultCollation;
-        return false;
+        return collation != Collation.defaultCollation;
     }
 
     public String getCollationDefinition() {
@@ -408,7 +406,7 @@ public class CharacterType extends Type {
         }
 
         if (b instanceof ClobData) {
-            return -session.database.lobManager.compare((ClobData) b,
+            return -session.database.lobManager.compare(collation, (ClobData) b,
                     (String) a);
         }
 
@@ -417,21 +415,27 @@ public class CharacterType extends Type {
         int    la = as.length();
         int    lb = bs.length();
 
-        if (la == lb) {}
-        else if (la > lb) {
-            char[] buffer = new char[la];
+        if (la == lb) {
 
-            bs.getChars(0, lb, buffer, 0);
-            ArrayUtil.fillArray(buffer, lb, ' ');
+            //
+        } else if (la > lb) {
+            if (collation.isPadSpace()) {
+                char[] buffer = new char[la];
 
-            bs = String.valueOf(buffer);
+                bs.getChars(0, lb, buffer, 0);
+                ArrayUtil.fillArray(buffer, lb, ' ');
+
+                bs = String.valueOf(buffer);
+            }
         } else {
-            char[] buffer = new char[lb];
+            if (collation.isPadSpace()) {
+                char[] buffer = new char[lb];
 
-            as.getChars(0, la, buffer, 0);
-            ArrayUtil.fillArray(buffer, la, ' ');
+                as.getChars(0, la, buffer, 0);
+                ArrayUtil.fillArray(buffer, la, ' ');
 
-            as = String.valueOf(buffer);
+                as = String.valueOf(buffer);
+            }
         }
 
         if (typeCode == Types.VARCHAR_IGNORECASE) {

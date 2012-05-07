@@ -391,8 +391,7 @@ public class StatementCommand extends Statement {
                     session.checkDDLWrite();
 
                     if (session.isProcessingScript) {
-                        session.database.logger.setDataFileScaleNoCheck(
-                            value);
+                        session.database.logger.setDataFileScaleNoCheck(value);
                     } else {
                         session.database.logger.setDataFileScale(value);
                     }
@@ -554,12 +553,13 @@ public class StatementCommand extends Statement {
             }
             case StatementTypes.SET_DATABASE_SQL_COLLATION : {
                 try {
-                    String name = (String) parameters[0];
+                    String  name      = (String) parameters[0];
+                    Boolean padSpaces = (Boolean) parameters[1];
 
                     /** @todo 1.9.0 - ensure no data in character columns */
                     session.checkAdmin();
                     session.checkDDLWrite();
-                    session.database.collation.setCollation(name);
+                    session.database.collation.setCollation(name, padSpaces);
                     session.database.schemaManager.setSchemaChangeTimestamp();
 
                     return Result.updateZeroResult;

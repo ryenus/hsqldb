@@ -65,6 +65,7 @@ import org.hsqldb.types.BlobData;
 import org.hsqldb.types.BlobDataID;
 import org.hsqldb.types.ClobData;
 import org.hsqldb.types.ClobDataID;
+import org.hsqldb.types.Collation;
 import org.hsqldb.types.Types;
 
 /**
@@ -641,7 +642,7 @@ public class LobManager {
     }
 
     // todo - implement as compareText()
-    public int compare(ClobData a, String b) {
+    public int compare(Collation collation, ClobData a, String b) {
 
         writeLock.lock();
 
@@ -685,7 +686,7 @@ public class LobManager {
                 }
 
                 String bString = b.substring(bOffset, bOffset + bLimit);
-                int    diff    = database.collation.compare(aString, bString);
+                int    diff    = collation.compare(aString, bString);
 
                 if (diff != 0) {
                     return diff;
@@ -721,13 +722,13 @@ public class LobManager {
         }
     }
 
-    public int compare(ClobData a, ClobData b) {
+    public int compare(Collation collation, ClobData a, ClobData b) {
 
         if (a.getId() == b.getId()) {
             return 0;
         }
 
-        return compareText(a.getId(), b.getId());
+        return compareText(collation, a.getId(), b.getId());
     }
 
     private int compareBytes(long aID, long bID) {
@@ -803,7 +804,7 @@ public class LobManager {
     }
 
     /** @todo - word-separator and end block zero issues */
-    private int compareText(long aID, long bID) {
+    private int compareText(Collation collation, long aID, long bID) {
 
         Object[] data    = getLobHeader(aID);
         long     aLength = ((Long) data[LOB_IDS.LOB_LENGTH]).longValue();
@@ -854,7 +855,7 @@ public class LobManager {
                                         (int) aLimit);
             String bString = new String(ArrayUtil.byteArrayToChars(bBytes), 0,
                                         (int) bLimit);
-            int diff = database.collation.compare(aString, bString);
+            int diff = collation.compare(aString, bString);
 
             if (diff != 0) {
                 return diff;

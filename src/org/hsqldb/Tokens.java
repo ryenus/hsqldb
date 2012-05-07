@@ -532,7 +532,7 @@ public class Tokens {
     static final String        T_OTHERS               = "OTHERS";
     public static final String T_OVERRIDING           = "OVERRIDING";
     public static final String T_P_FACTOR             = "P";
-    static final String        T_PAD                  = "PAD";
+    public static final String T_PAD                  = "PAD";
     static final String        T_PARAMETER_MODE       = "PARAMETER_MODE";
     static final String        T_PARAMETER_NAME       = "PARAMETER_NAME";
     static final String T_PARAMETER_ORDINAL_POSITION =
@@ -585,7 +585,7 @@ public class Tokens {
     static final String        T_SIMPLE               = "SIMPLE";
     public static final String T_SIZE                 = "SIZE";
     static final String        T_SOURCE               = "SOURCE";
-    static final String        T_SPACE                = "SPACE";
+    public static final String T_SPACE                = "SPACE";
     static final String        T_SPECIFIC_NAME        = "SPECIFIC_NAME";
     static final String        T_SQLDATA              = "SQLDATA";       // SQL/JRT
     static final String        T_STACKED              = "STACKED";
@@ -2186,6 +2186,7 @@ public class Tokens {
         commandSet.put(T_ORDINALITY, ORDINALITY);
         commandSet.put(T_OVERRIDING, OVERRIDING);
         commandSet.put(T_P_FACTOR, P);
+        commandSet.put(T_PAD, PAD);
         commandSet.put(T_PARTIAL, PARTIAL);
         commandSet.put(T_PASSWORD, PASSWORD);
         commandSet.put(T_PLACING, PLACING);

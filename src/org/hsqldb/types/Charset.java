@@ -181,6 +181,6 @@ public class Charset implements SchemaObject {
     }
 
     public static Charset getDefaultInstance() {
-        return TypeInvariants.UTF16;
+        return TypeInvariants.SQL_TEXT;
     }
 }

@@ -992,6 +992,8 @@ public class ParserCommand extends ParserDDL {
                     null);
             }
             case Tokens.COLLATION : {
+                Boolean padSpace = null;
+
                 read();
                 checkIsSimpleName();
 
@@ -999,7 +1001,19 @@ public class ParserCommand extends ParserDDL {
 
                 read();
 
-                Object[] args = new Object[]{ name };
+                if (readIfThis(Tokens.NO)) {
+                    readThis(Tokens.PAD);
+
+                    padSpace = Boolean.FALSE;
+                } else if (readIfThis(Tokens.PAD)) {
+                    readThis(Tokens.SPACE);
+
+                    padSpace = Boolean.TRUE;
+                }
+
+                Object[] args = new Object[] {
+                    name, padSpace
+                };
 
                 return new StatementCommand(
                     StatementTypes.SET_DATABASE_SQL_COLLATION, args, null,
