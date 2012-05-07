@@ -1423,12 +1423,19 @@
       <simpara><emphasis>set database collation statement</emphasis></simpara>
 
       <simpara><literal>&lt;set database collation statement&gt; ::= SET
-      DATABASE COLLATION &lt;collation name&gt;</literal></simpara>
+      DATABASE COLLATION &lt;collation name&gt; [ NO PAD | PAD SPACE
+      ]</literal></simpara>
 
-      <simpara>Each database can have its own collation. Sets the collation
-      from the set of collations supported by HyperSQL. Once this command has
-      been issued, the database can be opened in any JVM and will retain its
-      collation.</simpara>
+      <simpara>Each database can have its own default collation. Sets the
+      collation from the set of collations supported by HyperSQL. Once this
+      command has been issued, the database can be opened in any JVM and will
+      retain its collation.</simpara>
+
+      <simpara>All collations pad the shorter string with spaces when two
+      strings are compared. If NO PAD is specified, comparison is performed
+      without padding. The default system collation is named SQL_TEXT. To use
+      the default without padding use SET DATABASE COLLATION SQL_TEXT NO
+      PAD.</simpara>
 
       <simpara>Only a user with the DBA role can execute this
       statement.</simpara>
@@ -1590,7 +1597,7 @@
       <simpara>Set the concurrency control system for the database. It can be
       issued only when all sessions have been committed or rolled back. This
       command and its modes is discussed in the <link endterm="sessions-title"
-      xlink:href="#sqlroutines-chapt"></link> chapter.</simpara>
+      xlink:href="#sessions-chapt"></link> chapter.</simpara>
 
       <simpara>Only a user with the DBA role can execute this
       statement.</simpara>
@@ -1621,7 +1628,7 @@
       the transaction. It is provided for compatibility with other database
       engines which do not roll back the transaction upon deadlock. This
       command is also discussed in the <link endterm="sessions-title"
-      xlink:href="#sqlroutines-chapt"></link> chapter.</simpara>
+      xlink:href="#sessions-chapt"></link> chapter.</simpara>
 
       <simpara>Only a user with the DBA role can execute this
       statement.</simpara>

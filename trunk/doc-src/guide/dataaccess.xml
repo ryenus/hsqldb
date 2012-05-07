@@ -1013,7 +1013,7 @@ ALTER SEQUENCE MYCAT.MYSCHEMA.MYSEQUENCE RESTART WITH 100
       with similar functionality.</simpara>
 
       <indexterm significance="preferred" type="sql">
-        <primary>NULLIF expression</primary>
+        <primary> expression</primary>
       </indexterm>
 
       <simpara><emphasis role="bold">NULLIF</emphasis></simpara>

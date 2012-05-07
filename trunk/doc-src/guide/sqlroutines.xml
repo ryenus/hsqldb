@@ -789,8 +789,10 @@ CREATE FUNCTION an_hour_before_max (e_type INT)
       <literal>DYNAMIC RESULT SETS</literal> clause must be used to specify a
       value above zero. The <literal>DECLARE CURSOR</literal> statement is
       used after any variable declaration in compound statement block. The
-      <literal>&lt;open statement&gt;</literal> is then executed for the
-      cursor at the point where the result set should be populated.</para>
+      SELECT statement should be followed with FOR READ ONLY to avoid possible
+      error messages. The <literal>&lt;open statement&gt;</literal> is then
+      executed for the cursor at the point where the result set should be
+      populated.</para>
 
       <para>After the procedure is executed with a JDBC CallableStatement
       execute() method, all the result sets that were opened are returned to
@@ -805,7 +807,7 @@ CREATE FUNCTION an_hour_before_max (e_type INT)
 
       <programlisting>  BEGIN ATOMIC
     DECLARE temp_zero DATE;
-    DECLARE result CURSOR FOR SELECT * FROM INFORMATION_SCHEMA.TABLES WITH RETURN;
+    DECLARE result CURSOR WITH RETURN FOR SELECT * FROM INFORMATION_SCHEMA.TABLES FOR READ ONLY;
     -- more statements ...
     OPEN result;
   END
