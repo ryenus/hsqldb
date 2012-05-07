@@ -107,7 +107,9 @@ public class ExpressionColumnAccessor extends Expression {
     /**
      * collects all range variables in expression tree
      */
-    void collectRangeVariables(RangeVariable[] rangeVariables, Set set) {}
+    OrderedHashSet collectRangeVariables(RangeVariable[] rangeVariables, OrderedHashSet set) {
+        return set;
+    }
 
     Expression replaceAliasInOrderBy(Expression[] columns, int length) {
         return this;

@@ -114,6 +114,10 @@ public class TableDerived extends Table {
         return 0;
     }
 
+    public boolean isQueryBased() {
+        return true;
+    }
+
     public boolean isWritable() {
         return true;
     }

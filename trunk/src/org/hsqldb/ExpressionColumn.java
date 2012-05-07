@@ -905,23 +905,30 @@ public class ExpressionColumn extends Expression {
     /**
      * collects all range variables in expression tree
      */
-    void collectRangeVariables(RangeVariable[] rangeVariables, Set set) {
+    OrderedHashSet collectRangeVariables(RangeVariable[] rangeVariables,
+                                         OrderedHashSet set) {
 
         for (int i = 0; i < nodes.length; i++) {
             if (nodes[i] != null) {
-                nodes[i].collectRangeVariables(rangeVariables, set);
+                set = nodes[i].collectRangeVariables(rangeVariables, set);
             }
         }
 
         if (rangeVariable != null) {
             for (int i = 0; i < rangeVariables.length; i++) {
                 if (rangeVariables[i] == rangeVariable) {
+                    if (set == null) {
+                        set = new OrderedHashSet();
+                    }
+
                     set.add(rangeVariable);
 
                     break;
                 }
             }
         }
+
+        return set;
     }
 
     Expression replaceAliasInOrderBy(Expression[] columns, int length) {
@@ -1097,6 +1104,10 @@ public class ExpressionColumn extends Expression {
      */
     double costFactor(Session session, RangeVariable range, int operation) {
 
+        if (range.rangeTable instanceof TableDerived) {
+            return 1024;
+        }
+
         PersistentStore store = range.rangeTable.getRowStore(session);
         int indexType = range.rangeTable.indexTypeForColumn(session,
             columnIndex);
@@ -1132,5 +1143,14 @@ public class ExpressionColumn extends Expression {
 
         return factor < Index.minimumSelectivity ? Index.minimumSelectivity
                                                  : factor;
+    }
+
+    public Expression duplicate() {
+
+        if (opType == OpTypes.PARAMETER) {
+            return this;
+        }
+
+        return super.duplicate();
     }
 }

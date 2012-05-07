@@ -306,8 +306,9 @@ public class ParserDML extends ParserDQL {
         Type[] types = new Type[columnMap.length];
 
         ArrayUtil.projectRow(baseTable.getColumnTypes(), columnMap, types);
+        compileContext.setOuterRanges(outerRanges);
 
-        QueryExpression queryExpression = XreadQueryExpression(outerRanges);
+        QueryExpression queryExpression = XreadQueryExpression();
 
         queryExpression.setReturningResult();
         queryExpression.resolve(session, outerRanges, types);
@@ -444,6 +445,8 @@ public class ParserDML extends ParserDQL {
         if (table.isTriggerDeletable()) {
             rangeVariables[0].resetViewRageTableAsSubquery();
         }
+
+        compileContext.setOuterRanges(outerRanges);
 
         if (token.tokenType == Tokens.WHERE) {
             read();
@@ -829,8 +832,7 @@ public class ParserDML extends ParserDQL {
             if (token.tokenType == Tokens.SELECT) {
                 rewind(position);
 
-                SubQuery sq = XreadSubqueryBody(RangeVariable.emptyArray,
-                                                OpTypes.ROW_SUBQUERY);
+                SubQuery sq = XreadSubqueryBody(OpTypes.ROW_SUBQUERY);
 
                 if (degree != sq.queryExpression.getColumnCount()) {
                     throw Error.error(ErrorCode.X_42546);
@@ -951,8 +953,15 @@ public class ParserDML extends ParserDQL {
         table       = targetRange.rangeTable;
 
         readThis(Tokens.USING);
+        compileContext.setOuterRanges(outerRanges);
 
-        sourceRange = readTableOrSubquery(outerRanges);
+        sourceRange = readTableOrSubquery();
+
+        RangeVariable[] targetRanges = new RangeVariable[]{ targetRange };
+
+        sourceRange.resolveRangeTable(session, targetRanges, 1, outerRanges);;
+        sourceRange.resolveRangeTableTypes(session, targetRanges);
+        compileContext.setOuterRanges(RangeVariable.emptyArray);
 
         // parse ON search conditions
         readThis(Tokens.ON);

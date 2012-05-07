@@ -534,7 +534,7 @@ public class ParserBase {
         return val;
     }
 
-    Expression readDateTimeIntervalLiteral() {
+    Expression readDateTimeIntervalLiteral(Session session) {
 
         int pos = getPosition();
 
@@ -603,12 +603,17 @@ public class ParserBase {
                     read();
                 }
 
-                if (token.tokenType != Tokens.X_VALUE
-                        || token.dataType.typeCode != Types.SQL_CHAR) {
+                if (token.tokenType != Tokens.X_VALUE) {
                     break;
                 }
 
                 String s = token.tokenString;
+
+                /* INT literal accepted in addition to string literal */
+                if (token.dataType.typeCode != Types.SQL_INTEGER
+                        && token.dataType.typeCode != Types.SQL_CHAR) {
+                    break;
+                }
 
                 read();
 

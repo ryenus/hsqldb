@@ -70,8 +70,8 @@ public class Table extends TableBase implements SchemaObject {
     public static final Table[] emptyArray = new Table[]{};
 
     // main properties
-    private HsqlName tableName;
-    protected long   changeTimestamp;
+    protected HsqlName tableName;
+    protected long     changeTimestamp;
 
     //
     public HashMappedList columnList;          // columns in table
@@ -713,6 +713,10 @@ public class Table extends TableBase implements SchemaObject {
 
     public final boolean isView() {
         return isView;
+    }
+
+    public boolean isQueryBased() {
+        return false;
     }
 
     public boolean isCached() {

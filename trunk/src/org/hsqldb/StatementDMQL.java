@@ -271,13 +271,6 @@ public abstract class StatementDMQL extends Statement {
         return null;
     }
 
-    private void setParameters() {
-
-        for (int i = 0; i < parameters.length; i++) {
-            parameters[i].parameterIndex = i;
-        }
-    }
-
     void materializeSubQueries(Session session) {
 
         HashSet subqueryPopFlags = new HashSet();
@@ -355,7 +348,6 @@ public abstract class StatementDMQL extends Statement {
 
         parameters = compileContext.getParameters();
 
-        setParameters();
         setParameterMetaData();
 
         subqueries         = getSubqueries(session);

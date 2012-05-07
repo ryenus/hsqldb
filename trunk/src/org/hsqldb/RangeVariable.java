@@ -90,6 +90,7 @@ public class RangeVariable implements Cloneable {
     Expression joinCondition;
 
     //
+    boolean isLateral;
     boolean isLeftJoin;     // table joined with LEFT / FULL OUTER JOIN
     boolean isRightJoin;    // table joined with RIGHT / FULL OUTER JOIN
     boolean isBoundary;
@@ -185,10 +186,11 @@ public class RangeVariable implements Cloneable {
             throw Error.error(ErrorCode.X_42593);
         }
 
-        emptyData                    = rangeTable.getEmptyRowData();
-        columnsInGroupBy             = rangeTable.getNewColumnCheckList();
-        usedColumns                  = rangeTable.getNewColumnCheckList();
-        joinConditions[0].rangeIndex = rangeTable.getPrimaryIndex();
+        emptyData                     = rangeTable.getEmptyRowData();
+        columnsInGroupBy              = rangeTable.getNewColumnCheckList();
+        usedColumns                   = rangeTable.getNewColumnCheckList();
+        joinConditions[0].rangeIndex  = rangeTable.getPrimaryIndex();
+        whereConditions[0].rangeIndex = rangeTable.getPrimaryIndex();
     }
 
     public RangeVariable duplicate() {
@@ -650,6 +652,32 @@ public class RangeVariable implements Cloneable {
         return set;
     }
 
+    public OrderedHashSet collectAllExpressions(OrderedHashSet set,
+            OrderedIntHashSet typeSet, OrderedIntHashSet stopAtTypeSet) {
+
+        if (joinCondition != null) {
+            set = joinCondition.collectAllExpressions(set, typeSet,
+                    stopAtTypeSet);
+        }
+
+        Table    table    = rangeTable;
+        SubQuery subQuery = table.getSubQuery();
+
+        if (subQuery != null) {
+            if (subQuery.queryExpression != null) {
+                set = subQuery.queryExpression.collectAllExpressions(set,
+                        typeSet, stopAtTypeSet);
+            }
+
+            if (subQuery.dataExpression != null) {
+                set = subQuery.dataExpression.collectAllExpressions(set,
+                        typeSet, stopAtTypeSet);
+            }
+        }
+
+        return set;
+    }
+
     public void replaceColumnReference(RangeVariable range,
                                        Expression[] list) {
 
@@ -678,18 +706,12 @@ public class RangeVariable implements Cloneable {
             if (subQuery.dataExpression != null) {
                 HsqlList unresolved =
                     subQuery.dataExpression.resolveColumnReferences(session,
-                        RangeVariable.emptyArray, null);
+                        outerRanges, null);
 
-                if (unresolved != null) {
+                if (isLateral) {
                     unresolved =
                         subQuery.dataExpression.resolveColumnReferences(
                             session, rangeVariables, rangeCount, null, true);
-                }
-
-                if (unresolved != null) {
-                    unresolved =
-                        subQuery.dataExpression.resolveColumnReferences(
-                            session, outerRanges, null);
                 }
 
                 if (unresolved != null) {
@@ -706,12 +728,20 @@ public class RangeVariable implements Cloneable {
                 subQuery.queryExpression.resolveReferences(session,
                         outerRanges);
 
-                HsqlList list =
+                HsqlList unresolved =
                     subQuery.queryExpression.getUnresolvedExpressions();
 
-                // todo resolve against i ranges
-                HsqlList unresolved = Expression.resolveColumnSet(session,
-                    rangeVariables, rangeCount, list, null);
+                if (unresolved != null) {
+                    subQuery.setCorrelated();
+                }
+
+                if (isLateral) {
+                    unresolved = Expression.resolveColumnSet(session,
+                            rangeVariables, rangeCount, unresolved, null);
+                }
+
+                unresolved = Expression.resolveColumnSet(session, outerRanges,
+                        outerRanges.length, unresolved, null);
 
                 if (unresolved != null) {
                     throw Error.error(
@@ -719,12 +749,98 @@ public class RangeVariable implements Cloneable {
                         ((Expression) unresolved.get(0)).getSQL());
                 }
 
-                subQuery.queryExpression.resolveTypes(session);
+                subQuery.queryExpression.resolveTypesPartOne(session);
+                subQuery.queryExpression.resolveTypesPartTwo(session);
                 subQuery.prepareTable(session);
-                subQuery.setCorrelated();
                 setRangeTableVariables();
             }
         }
+    }
+
+    void resolveRangeTableTypes(Session session, RangeVariable[] ranges) {
+
+        Table    table    = rangeTable;
+        SubQuery subQuery = table.getSubQuery();
+
+        if (subQuery != null && subQuery.queryExpression != null) {
+            if (subQuery.view == null
+                    && subQuery.queryExpression
+                       instanceof QuerySpecification) {
+                QuerySpecification qs =
+                    (QuerySpecification) subQuery.queryExpression;
+
+                if (qs.isGrouped || qs.isAggregated
+                        || qs.sortAndSlice.hasLimit()
+                        || qs.sortAndSlice.hasOrder()) {
+
+                    //
+                } else if (qs.rangeVariables.length == 1
+                           & ranges.length == 1) {
+
+                    //
+                } else {
+                    moveConditionsToInner(ranges, qs.exprColumns);
+                }
+            }
+
+            subQuery.queryExpression.resolveTypesPartThree(session);
+        }
+    }
+
+    void moveConditionsToInner(RangeVariable[] ranges, Expression[] colExpr) {
+
+        Expression condition = null;
+        int        exclude   = ArrayUtil.find(ranges, this);
+
+        if (joinConditions.length > 1) {
+            return;
+        }
+
+        Expression[][] exprArrays = new Expression[][] {
+            joinConditions[0].indexCond, joinConditions[0].indexEndCond,
+            whereConditions[0].indexCond, whereConditions[0].indexEndCond
+        };
+
+        for (int count = 0; count < exprArrays.length; count++) {
+            Expression[] exprArray = exprArrays[count];
+
+            if (exprArray == null) {
+                continue;
+            }
+
+            for (int i = 0; i < exprArray.length; i++) {
+                if (exprArray[i].hasReference(ranges, exclude)) {
+                    continue;
+                }
+
+                Expression e = exprArray[i].duplicate();
+
+                e         = e.replaceColumnReferences(this, colExpr);
+                condition = ExpressionLogical.andExpressions(condition, e);
+            }
+        }
+
+        Expression e = joinConditions[0].nonIndexCondition;
+
+        if (e != null && !e.hasReference(ranges, exclude)) {
+            e         = e.duplicate();
+            e         = e.replaceColumnReferences(this, colExpr);
+            condition = ExpressionLogical.andExpressions(condition, e);
+        }
+
+        e = whereConditions[0].nonIndexCondition;
+
+        if (e != null && !e.hasReference(ranges, exclude)) {
+            e         = e.duplicate();
+            e         = e.replaceColumnReferences(this, colExpr);
+            condition = ExpressionLogical.andExpressions(condition, e);
+        }
+
+        if (condition == null) {
+            return;
+        }
+
+        rangeTable.getSubQuery().queryExpression.addExtraConditions(condition);
     }
 
     /**

@@ -82,7 +82,7 @@ public class ParserRoutine extends ParserDML {
                 case Tokens.TIME :
                 case Tokens.TIMESTAMP :
                 case Tokens.INTERVAL : {
-                    e = readDateTimeIntervalLiteral();
+                    e = readDateTimeIntervalLiteral(session);
 
                     if (e.dataType.typeCode != dataType.typeCode) {
 
@@ -316,9 +316,13 @@ public class ParserRoutine extends ParserDML {
     Statement compileSelectSingleRowStatement(RangeVariable[] rangeVars) {
 
         OrderedHashSet     variableNames = new OrderedHashSet();
-        QuerySpecification select        = XreadSelect();
         Type[]             targetTypes;
         LongDeque          colIndexList = new LongDeque();
+        QuerySpecification select;
+
+        compileContext.setOuterRanges(rangeVars);
+
+        select = XreadSelect();
 
         readThis(Tokens.INTO);
         readTargetSpecificationList(variableNames, rangeVars, colIndexList);
@@ -1018,15 +1022,15 @@ public class ParserRoutine extends ParserDML {
     private Object[] readLocalDeclarationList(Routine routine,
             StatementCompound context) {
 
-        HsqlArrayList list                = new HsqlArrayList();
-        final int     table               = 0;
-        final int     variableOrCondition = 1;
-        final int     cursor              = 2;
-        final int     handler             = 3;
-        int           objectType          = table;
-        RangeVariable[] rangeVariables = context == null
-                                         ? routine.getParameterRangeVariables()
-                                         : context.getRangeVariables();
+        HsqlArrayList   list                = new HsqlArrayList();
+        final int       table               = 0;
+        final int       variableOrCondition = 1;
+        final int       cursor              = 2;
+        final int       handler             = 3;
+        int             objectType          = table;
+        RangeVariable[] rangeVariables = getContextRanges(routine, context);
+
+        compileContext.setOuterRanges(rangeVariables);
 
         while (token.tokenType == Tokens.DECLARE) {
             Object var = null;
@@ -1049,7 +1053,7 @@ public class ParserRoutine extends ParserDML {
                     list.addAll((Object[]) var);
                 }
             } else if (objectType == cursor) {
-                var = compileDeclareCursor(true, rangeVariables);
+                var = compileDeclareCursor(true);
 
                 if (var == null) {
                     objectType = handler;
@@ -1371,11 +1375,9 @@ public class ParserRoutine extends ParserDML {
     Statement compileSQLProcedureStatementOrNull(Routine routine,
             StatementCompound context) {
 
-        Statement cs    = null;
-        HsqlName  label = null;
-        RangeVariable[] rangeVariables = context == null
-                                         ? routine.getParameterRangeVariables()
-                                         : context.getRangeVariables();
+        Statement       cs             = null;
+        HsqlName        label          = null;
+        RangeVariable[] rangeVariables = getContextRanges(routine, context);
 
         if (!routine.isTrigger() && isSimpleName() && !isReservedKey()) {
             label = readNewSchemaObjectName(SchemaObject.LABEL, false);
@@ -1634,6 +1636,10 @@ public class ParserRoutine extends ParserDML {
     private Statement compileReturnValue(Routine routine,
                                          StatementCompound context) {
 
+        RangeVariable[] rangeVariables = getContextRanges(routine, context);
+
+        compileContext.setOuterRanges(rangeVariables);
+
         Expression e = XreadValueExpressionOrNull();
 
         if (e == null) {
@@ -1790,10 +1796,9 @@ public class ParserRoutine extends ParserDML {
     private Statement compileFor(Routine routine, StatementCompound context,
                                  HsqlName label) {
 
-        RangeVariable[] rangeVariables = context == null
-                                         ? routine.getParameterRangeVariables()
-                                         : context.getRangeVariables();
+        RangeVariable[] rangeVariables = getContextRanges(routine, context);
 
+        compileContext.setOuterRanges(rangeVariables);
         readThis(Tokens.FOR);
 
         StatementQuery cursorStatement =
@@ -2158,12 +2163,18 @@ public class ParserRoutine extends ParserDML {
                                         StatementCompound context,
                                         Expression e) {
 
-        RangeVariable[] rangeVars = routine.getParameterRangeVariables();
-
-        if (context != null) {
-            rangeVars = context.getRangeVariables();
-        }
+        RangeVariable[] rangeVars = getContextRanges(routine, context);
 
         resolveOuterReferencesAndTypes(rangeVars, e);
+    }
+
+    RangeVariable[] getContextRanges(Routine routine,
+                                     StatementCompound context) {
+
+        if (context == null) {
+            return routine.getParameterRangeVariables();
+        } else {
+            return context.getRangeVariables();
+        }
     }
 }

@@ -75,6 +75,7 @@ public class QuerySpecification extends QueryExpression {
     public boolean        isDistinctSelect;
     public boolean        isAggregated;
     public boolean        isGrouped;
+    public boolean        isOrderSensitive;
     RangeVariable[]       rangeVariables;
     private HsqlArrayList rangeVariableList;
     int                   startInnerRange = -1;
@@ -161,6 +162,15 @@ public class QuerySpecification extends QueryExpression {
 
     void addRangeVariable(RangeVariable rangeVar) {
         rangeVariableList.add(rangeVar);
+    }
+
+    RangeVariable[] getCurrentRangeVariableArray() {
+
+        RangeVariable[] array = new RangeVariable[rangeVariableList.size()];
+
+        rangeVariableList.toArray(array);
+
+        return array;
     }
 
     // range variable sub queries are resolves fully
@@ -301,6 +311,7 @@ public class QuerySpecification extends QueryExpression {
 
         resolveTypesPartOne(session);
         resolveTypesPartTwo(session);
+        resolveTypesPartThree(session);
         ArrayUtil.copyArray(resultTable.colTypes, unionColumnTypes,
                             unionColumnTypes.length);
     }
@@ -351,6 +362,13 @@ public class QuerySpecification extends QueryExpression {
         setUpdatability();
         createResultMetaData(session);
         createTable(session);
+    }
+
+    void resolveTypesPartThree(Session session) {
+
+        if (isResolved) {
+            return;
+        }
 
         if (isMergeable) {
             mergeQuery();
@@ -362,7 +380,20 @@ public class QuerySpecification extends QueryExpression {
         setAggregateConditions(session);
         sortAndSlice.setSortRange(this);
 
+        for (int i = 0; i < rangeVariables.length; i++) {
+            rangeVariables[i].resolveRangeTableTypes(session, rangeVariables);
+        }
+
         isResolved = true;
+    }
+
+    public void addExtraConditions(Expression e) {
+
+        if (isAggregated || isGrouped) {
+            throw Error.runtimeError(ErrorCode.U_S0500, "QueryExpression");
+        }
+
+        queryCondition = ExpressionLogical.andExpressions(queryCondition, e);
     }
 
     /**
@@ -771,19 +802,22 @@ public class QuerySpecification extends QueryExpression {
         throw Error.error(ErrorCode.X_42576);
     }
 
-    void collectRangeVariables(RangeVariable[] rangeVars, Set set) {
+    OrderedHashSet collectRangeVariables(RangeVariable[] rangeVars,
+                                         OrderedHashSet set) {
 
         for (int i = 0; i < indexStartAggregates; i++) {
-            exprColumns[i].collectRangeVariables(rangeVars, set);
+            set = exprColumns[i].collectRangeVariables(rangeVars, set);
         }
 
         if (queryCondition != null) {
-            queryCondition.collectRangeVariables(rangeVars, set);
+            set = queryCondition.collectRangeVariables(rangeVars, set);
         }
 
         if (havingCondition != null) {
-            havingCondition.collectRangeVariables(rangeVars, set);
+            set = havingCondition.collectRangeVariables(rangeVars, set);
         }
+
+        return set;
     }
 
     /**
@@ -1904,13 +1938,15 @@ public class QuerySpecification extends QueryExpression {
 
     void setMergeability() {
 
-        if (isGrouped || isDistinctSelect) {
+        isOrderSensitive = sortAndSlice.hasLimit() || sortAndSlice.hasOrder();
+
+        if (isOrderSensitive) {
             isMergeable = false;
 
             return;
         }
 
-        if (sortAndSlice.hasLimit() || sortAndSlice.hasOrder()) {
+        if (isGrouped || isDistinctSelect) {
             isMergeable = false;
 
             return;
@@ -2284,6 +2320,11 @@ public class QuerySpecification extends QueryExpression {
                     stopAtTypeSet);
         }
 
+        for (int i = 0; i < rangeVariables.length; i++) {
+            rangeVariables[i].collectAllExpressions(set, typeSet,
+                    stopAtTypeSet);
+        }
+
         return set;
     }
 
@@ -2409,6 +2450,10 @@ public class QuerySpecification extends QueryExpression {
         for (int i = 0; i < rangeVariables.length; i++) {
             Table    rangeTable = rangeVariables[i].rangeTable;
             HsqlName name       = rangeTable.getName();
+
+            if (rangeTable.isView()) {
+                continue;
+            }
 
             if (rangeTable.isReadOnly() || rangeTable.isTemp()) {
                 continue;
