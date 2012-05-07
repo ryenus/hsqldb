@@ -1038,6 +1038,22 @@
     as a value of DOUBLE type. (JDBC)</para>
 
     <indexterm significance="preferred" type="sql">
+      <primary>TO_NUMBER function</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">TRUNC</emphasis></simpara>
+
+    <para><literal>TRUNC ( &lt;num value expr&gt; [, &lt;int value expr&gt;] )
+    </literal></para>
+
+    <para>This is a similar to the <literal>TRUNCATE</literal> function when
+    the first argument is numeric. If the second argument is omitted, zero is
+    used in its place.</para>
+
+    <para>The datetime version is discussed in the next section.
+    (HyperSQL)</para>
+
+    <indexterm significance="preferred" type="sql">
       <primary>TRUNC function numeric</primary>
     </indexterm>
 
@@ -1584,6 +1600,30 @@ WIDTH_BUCKET( 200, 10, 110, 10)
       <para>(JDBC)</para>
 
       <indexterm significance="preferred" type="sql">
+        <primary>DATE_ADD function</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">DATE_ADD</emphasis></simpara>
+
+      <para><literal>DATE_ADD ( &lt;datetime value expr&gt; , &lt;interval
+      value expr&gt; )</literal></para>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>DATE_SUB function</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">DATE_SUB</emphasis></simpara>
+
+      <para><literal>DATE_SUB ( &lt;datetime value expr&gt; , &lt;interval
+      value expr&gt; )</literal></para>
+
+      <para>These functions are equivalent to arithmetic addition and
+      subtraction, &lt;datetime value expr&gt; + &lt;interval value expr&gt;
+      and &lt;datetime value expr&gt; - &lt;interval value expr&gt;. The
+      functions are provided for compatibility with other databases.
+      (HyperSQL) </para>
+
+      <indexterm significance="preferred" type="sql">
         <primary>DATEADD function</primary>
       </indexterm>
 
@@ -1654,15 +1694,15 @@ WIDTH_BUCKET( 200, 10, 110, 10)
 
       <para>Similar to the ROUND function, the <literal>&lt;num value expr&gt;
       </literal>is of DATE, TIME or TIMESTAMP type. The <literal>&lt;char
-      value expr&gt;</literal> is a format string for YEAR, MONTH, WEEK OF
-      YEAR, DAY, HOUR, MINUTE or SECOND as listed in the table for TO_CHAR and
-      TO_DATE format elements (see above). The datetime value is truncated
-      after the specified field and the rest of the fields to the right are
-      set to one for MONTH and DAY, or zero, for the rest of the fields. For
-      example applying TRUNC to a timestamp value on the DAY field results in
-      midnight the same date. Examples of ROUND and TRUNC functions are given
-      below. If the second argument is omitted, the datetime value is
-      truncated to midnight the same date. (HyperSQL)</para>
+      value expr&gt;</literal> is a format string, such as 'YY' or 'MM', for
+      YEAR, MONTH, WEEK OF YEAR, DAY, HOUR, MINUTE or SECOND as listed in the
+      table for TO_CHAR and TO_DATE format elements (see below). The datetime
+      value is truncated after the specified field and the rest of the fields
+      to the right are set to one for MONTH and DAY, or zero, for the rest of
+      the fields. For example applying TRUNC to a timestamp value on the DAY
+      field results in midnight the same date. Examples of ROUND and TRUNC
+      functions are given below. If the second argument is omitted, the
+      datetime value is truncated to midnight the same date. (HyperSQL)</para>
 
       <programlisting>ROUND ( TIMESTAMP'2008-08-01 20:30:40', 'YYYY' )
 
@@ -2071,6 +2111,26 @@ D          I
 
     <para>General functions can take different types of arguments. Some
     General Functions accept a variable number of arguments.</para>
+
+    <para>Also see the <link endterm="dataaccess-title" os=""
+    xlink:href="#dataaccess-chapt"></link> chapter for SQL expressions that
+    are similar to functions, for example CAST and NULLIF.</para>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>CASEWHEN function</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">CASEWHEN</emphasis></simpara>
+
+    <para><literal>CASEWHEN( &lt;boolean value expr&gt;, &lt;value expr 2&gt;,
+    &lt;value expr 3&gt; )</literal></para>
+
+    <para>If the <literal>&lt;boolean value expr&gt;</literal> is true,
+    returns <literal>&lt;value expr 2&gt;</literal> otherwise returns
+    <literal>&lt;value expr 3&gt;. Use a CASE WHEN expression instead for more
+    extensive capabilities and options.</literal> CASE WHEN is documented in
+    the <link endterm="dataaccess-title" os=""
+    xlink:href="#dataaccess-chapt"></link> chapter. (HyperSQL)</para>
 
     <indexterm significance="preferred" type="sql">
       <primary>COALESCE function</primary>
