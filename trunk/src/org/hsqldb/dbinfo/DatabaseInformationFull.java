@@ -2036,11 +2036,29 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
 
         //
         // Intermediate holders
-        Iterator collations;
-        String   collation;
-        String   collationSchema = SqlInvariants.PUBLIC_SCHEMA;
-        String   padAttribute    = "NO PAD";
-        Object[] row;
+        Iterator  collations;
+        Collation collation;
+        String    collationName;
+        String    collationSchema;
+        String    padAttribute    = "PAD SPACE";
+        Object[]  row;
+
+        collations = database.schemaManager.databaseObjectIterator(
+            SchemaObject.COLLATION);
+
+        while (collations.hasNext()) {
+            row                    = t.getEmptyRowData();
+            collation              = (Collation) collations.next();
+            collationSchema        = collation.getSchemaName().name;
+            collationName          = collation.getName().name;
+            row[collation_catalog] = database.getCatalogName().name;
+            row[collation_schema]  = collationSchema;
+            row[collation_name]    = collationName;
+            row[pad_attribute]     = collation.isPadSpace() ? "PAD SPACE"
+                                                            : "NO PAD";
+
+            t.insertSys(session, store, row);
+        }
 
         // Initialization
         collations = Collation.nameToJavaName.keySet().iterator();
@@ -2048,10 +2066,11 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         // Do it.
         while (collations.hasNext()) {
             row                    = t.getEmptyRowData();
-            collation              = (String) collations.next();
+            collationSchema        = "INFORMATION_SCHEMA";
+            collationName          = (String) collations.next();
             row[collation_catalog] = database.getCatalogName().name;
             row[collation_schema]  = collationSchema;
-            row[collation_name]    = collation;
+            row[collation_name]    = collationName;
             row[pad_attribute]     = padAttribute;
 
             t.insertSys(session, store, row);
@@ -6088,7 +6107,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         Schema[] schemas;
         Schema   schema;
         String   dcsSchema = SqlInvariants.INFORMATION_SCHEMA;
-        String   dcsName   = ValuePool.getString(Tokens.T_UTF16);
+        String   dcsName   = "SQL_TEXT";
         String   sqlPath   = null;
         Grantee  user      = session.getGrantee();
         Object[] row;

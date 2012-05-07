@@ -173,11 +173,6 @@ public final class ColumnSchema extends ColumnBase implements SchemaObject {
 
         sb.append(dataType.getTypeDefinition());
 
-        if (dataType.hasCollation()) {
-            sb.append(' ').append(Tokens.T_COLLATE).append(' ');
-            sb.append(dataType.getCollationDefinition());
-        }
-
         return sb.toString();
     }
 

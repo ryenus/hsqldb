@@ -217,7 +217,7 @@ public class Database {
                 new PersistentStoreCollectionDatabase();
             isReferentialIntegrity = true;
             sessionManager         = new SessionManager(this);
-            collation              = collation.getDatabaseInstance();
+            collation              = collation.newDatabaseInstance();
             dbInfo = DatabaseInformation.newDatabaseInformation(this);
             txManager              = new TransactionManager2PL(this);
 
@@ -659,18 +659,19 @@ public class Database {
     public String[] getSettingsSQL() {
 
         HsqlArrayList list = new HsqlArrayList();
+        StringBuffer  sb   = new StringBuffer();
 
         if (!getCatalogName().name.equals(
                 HsqlNameManager.DEFAULT_CATALOG_NAME)) {
             String name = getCatalogName().statementName;
 
-            list.add("ALTER CATALOG PUBLIC RENAME TO " + name);
+            sb.append("ALTER CATALOG PUBLIC RENAME TO ").append(name);
+            list.add(sb.toString());
+            sb.setLength(0);
         }
 
         if (!collation.isDefaultCollation()) {
-            String name = collation.getName().statementName;
-
-            list.add("SET DATABASE COLLATION " + name);
+            list.add(collation.getDatabaseCollationSQL());
         }
 
         HashMappedList lobTables =
@@ -680,14 +681,13 @@ public class Database {
             Table table = (Table) lobTables.get(i);
 
             if (table.isCached()) {
-                StringBuffer sb = new StringBuffer();
-
                 sb.append(Tokens.T_SET).append(' ').append(Tokens.T_TABLE);
                 sb.append(' ');
                 sb.append(table.getName().getSchemaQualifiedStatementName());
                 sb.append(' ').append(Tokens.T_TYPE).append(' ');
                 sb.append(Tokens.T_CACHED);
                 list.add(sb.toString());
+                sb.setLength(0);
             }
         }
 

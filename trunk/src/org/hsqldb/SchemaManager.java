@@ -47,6 +47,7 @@ import org.hsqldb.lib.StringConverter;
 import org.hsqldb.lib.WrapperIterator;
 import org.hsqldb.navigator.RowIterator;
 import org.hsqldb.rights.Grantee;
+import org.hsqldb.types.Collation;
 import org.hsqldb.types.Type;
 
 /**
@@ -96,6 +97,7 @@ public class SchemaManager {
             schema.charsetLookup.add(TypeInvariants.SQL_TEXT);
             schema.charsetLookup.add(TypeInvariants.SQL_IDENTIFIER_CHARSET);
             schema.charsetLookup.add(TypeInvariants.SQL_CHARACTER);
+            schema.collationLookup.add(Collation.getDefaultInstance());
         } catch (HsqlException e) {}
     }
 

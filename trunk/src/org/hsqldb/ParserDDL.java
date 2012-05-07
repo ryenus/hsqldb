@@ -159,6 +159,7 @@ public class ParserDDL extends ParserRoutine {
                         case Tokens.TYPE :
                         case Tokens.VIEW :
                             break;
+
                         default :
                             throw unexpectedToken(Tokens.T_OR);
                     }
@@ -1851,10 +1852,16 @@ public class ParserDDL extends ParserRoutine {
 
         sourceName.setSchemaIfNull(session.getCurrentSchemaHsqlName());
 
+        Boolean padSpace = null;
+
         if (readIfThis(Tokens.NO)) {
             readThis(Tokens.PAD);
+
+            padSpace = Boolean.FALSE;
         } else if (readIfThis(Tokens.PAD)) {
             readThis(Tokens.SPACE);
+
+            padSpace = Boolean.TRUE;
         }
 
         Charset charset =
@@ -1879,7 +1886,7 @@ public class ParserDDL extends ParserRoutine {
                               sourceName.getSchemaQualifiedStatementName());
         }
 
-        Collation  collation      = new Collation(name, source, charset);
+        Collation  collation = new Collation(name, source, charset, padSpace);
         String     sql            = getLastPart();
         Object[]   args           = new Object[]{ collation };
         HsqlName[] writeLockNames = database.schemaManager.catalogNameArray;

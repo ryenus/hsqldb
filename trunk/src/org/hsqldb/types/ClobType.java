@@ -43,7 +43,7 @@ import org.hsqldb.lib.StringConverter;
  * Type object for CLOB.<p>
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.0.1
+ * @version 2.2.9
  * @since 1.9.0
  */
 public final class ClobType extends CharacterType {
@@ -133,11 +133,12 @@ public final class ClobType extends CharacterType {
         }
 
         if (b instanceof String) {
-            return session.database.lobManager.compare((ClobData) a,
-                    (String) b);
+            return session.database.lobManager.compare(collation,
+                    (ClobData) a, (String) b);
         }
 
-        return session.database.lobManager.compare((ClobData) a, (ClobData) b);
+        return session.database.lobManager.compare(collation, (ClobData) a,
+                (ClobData) b);
     }
 
     public Object convertToDefaultType(SessionInterface session, Object a) {
