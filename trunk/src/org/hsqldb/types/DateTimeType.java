@@ -50,7 +50,7 @@ import org.hsqldb.lib.StringConverter;
  * Type subclass for DATE, TIME and TIMESTAMP.<p>
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.2.7
+ * @version 2.2.9
  * @since 1.9.0
  */
 public final class DateTimeType extends DTIType {
@@ -1155,10 +1155,12 @@ public final class DateTimeType extends DTIType {
         long millis = getMillis(a);
 
         millis = HsqlDateTime.getTruncatedPart(millis, part);
+        millis -= getZoneMillis(a);
 
         switch (typeCode) {
 
             case Types.SQL_TIME_WITH_TIME_ZONE :
+                millis = HsqlDateTime.getNormalisedTime(millis);
             case Types.SQL_TIME : {
                 return new TimeData((int) (millis / 1000), 0,
                                     ((TimeData) a).getZone());
@@ -1184,11 +1186,14 @@ public final class DateTimeType extends DTIType {
         long millis = getMillis(a);
 
         millis = HsqlDateTime.getRoundedPart(millis, part);
+        millis -= getZoneMillis(a);
 
         switch (typeCode) {
 
             case Types.SQL_TIME_WITH_TIME_ZONE :
             case Types.SQL_TIME : {
+                millis = HsqlDateTime.getNormalisedTime(millis);
+
                 return new TimeData((int) (millis / 1000), 0,
                                     ((TimeData) a).getZone());
             }
@@ -1317,6 +1322,20 @@ public final class DateTimeType extends DTIType {
             millis =
                 (((TimestampData) dateTime)
                     .getSeconds() + ((TimestampData) dateTime).getZone()) * 1000;
+        }
+
+        return millis;
+    }
+
+    long getZoneMillis(Object dateTime) {
+
+        long millis;
+
+        if (typeCode == Types.SQL_TIME
+                || typeCode == Types.SQL_TIME_WITH_TIME_ZONE) {
+            millis = ((TimeData) dateTime).getZone() * 1000;
+        } else {
+            millis = ((TimestampData) dateTime).getZone() * 1000;
         }
 
         return millis;
