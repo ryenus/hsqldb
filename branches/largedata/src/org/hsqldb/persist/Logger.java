@@ -1174,10 +1174,14 @@ public class Logger {
 
     public void setNioMaxSize(int value) {
 
-        checkPower(value, 11);
-
         if (value < 8) {
             throw Error.error(ErrorCode.X_42556);
+        }
+
+        if (!ArrayUtil.isTwoPower(value, 10)) {
+            if (value < 1024 || value % 512 != 0) {
+                throw Error.error(ErrorCode.X_42556);
+            }
         }
 
         propNioMaxSize = value * 1024L * 1024L;
@@ -1964,18 +1968,20 @@ public class Logger {
 
                     if (hasCache()) {
                         DataFileCache dataFileCache = getCache();
-
-                        file = new File(dataFileCache.dataFileName);
-                        isw = new InputStreamWrapper(
-                            new FileInputStream(file));
-
-                        isw.setSizeLimit(dataFileCache.fileStartFreePosition);
-                        backup.setStream(dataFileExtension, isw);
-
                         RAShadowFile shadowFile =
                             dataFileCache.getShadowFile();
 
-                        if (shadowFile != null) {
+                        if (shadowFile == null) {
+                            backup.setFileIgnore(dataFileExtension);
+                        } else {
+                            file = new File(dataFileCache.dataFileName);
+                            isw = new InputStreamWrapper(
+                                new FileInputStream(file));
+
+                            isw.setSizeLimit(
+                                dataFileCache.fileStartFreePosition);
+                            backup.setStream(dataFileExtension, isw);
+
                             InputStreamInterface isi =
                                 shadowFile.getInputStream();
 
@@ -1985,9 +1991,12 @@ public class Logger {
 
                     // log
                     file = new File(log.getLogFileName());
-                    isw  = new InputStreamWrapper(new FileInputStream(file));
 
-                    isw.setSizeLimit(file.length());
+                    long fileLength = file.length();
+
+                    isw = new InputStreamWrapper(new FileInputStream(file));
+
+                    isw.setSizeLimit(fileLength);
                     backup.setStream(logFileExtension, isw);
                 }
 

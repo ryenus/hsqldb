@@ -257,6 +257,14 @@ public class DataFileCache {
                 if (wrongVersion) {
                     throw Error.error(ErrorCode.WRONG_DATABASE_FILE_VERSION);
                 }
+
+                if (isSaved && isIncremental) {
+                    boolean existsBackup = fa.isStreamElement(backupFileName);
+
+                    if (existsBackup) {
+                        isSaved = false;
+                    }
+                }
             }
 
             if (isSaved) {
@@ -493,7 +501,7 @@ public class DataFileCache {
         try {
             cache.clear();
 
-            fileFreePosition = initialFreePos;
+            fileStartFreePosition = fileFreePosition = initialFreePos;
 
             freeBlocks.clear();
             initBuffers();
