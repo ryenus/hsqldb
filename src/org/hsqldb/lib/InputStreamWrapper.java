@@ -36,11 +36,10 @@ import java.io.InputStream;
 
 /**
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.0
- * @since 2.3.0
+ * @version 2.2.9
+ * @since 2.2.8
  */
-public class InputStreamWrapper
-implements InputStreamInterface {
+public class InputStreamWrapper implements InputStreamInterface {
 
     InputStream is;
     long        limitSize   = -1;
@@ -58,9 +57,16 @@ implements InputStreamInterface {
 
         int byteread = is.read();
 
-        if (byteread >= 0) {
-            fetchedSize++;
+        if (byteread < 0) {
+            if (limitSize == -1) {
+                return -1;
+            } else {
+                throw new IOException("stream not reached the end"
+                                      + fetchedSize + " " + limitSize);
+            }
         }
+
+        fetchedSize++;
 
         return byteread;
     }
@@ -81,9 +87,16 @@ implements InputStreamInterface {
 
         int count = is.read(bytes, offset, length);
 
-        if (count >= 0) {
-            fetchedSize += count;
+        if (count < 0) {
+            if (limitSize == -1) {
+                return -1;
+            } else {
+                throw new IOException("stream not reached the end"
+                                      + fetchedSize + " " + limitSize);
+            }
         }
+
+        fetchedSize += count;
 
         return count;
     }

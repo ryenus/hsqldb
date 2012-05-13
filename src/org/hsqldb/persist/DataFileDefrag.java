@@ -60,7 +60,7 @@ import org.hsqldb.store.BitMap;
  *  image after translating the old pointers to the new.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version    2.2.7
+ * @version    2.2.9
  * @since      1.7.2
  */
 final class DataFileDefrag {
@@ -148,12 +148,6 @@ final class DataFileDefrag {
                                                + t.getName().name);
             }
 
-            int padding =
-                (int) (ArrayUtil.getBinaryNormalisedCeiling(fileOffset, ScaledRAFile.bufferSize)
-                       - fileOffset);
-            byte[] bytes = new byte[padding];
-
-            randomAccessOut.write(bytes, 0, padding);
             randomAccessOut.seek(DataFileCache.LONG_FREE_POS_POS);
             randomAccessOut.writeLong(fileOffset);
 

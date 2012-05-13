@@ -476,7 +476,7 @@ public class HsqlDatabaseProperties extends HsqlProperties {
                                           SQL_PROPERTY, 0, 0, 1024 * 1024));
         dbMeta.put(hsqldb_nio_max_size,
                    HsqlProperties.getMeta(hsqldb_nio_max_size, SQL_PROPERTY,
-                                          256, 64, 2048));
+                                          256, 64, 262144));
     }
 
     private Database database;
