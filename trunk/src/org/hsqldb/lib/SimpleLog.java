@@ -177,6 +177,7 @@ public class SimpleLog {
         StackTraceElement[] elements = temp.getStackTrace();
 
         if (elements.length > 1) {
+            sb.append(' ');
             sb.append(elements[1].getClassName()).append('.');
             sb.append(elements[1].getMethodName());
         }
@@ -184,6 +185,7 @@ public class SimpleLog {
         elements = t.getStackTrace();
 
         if (elements.length > 0) {
+            sb.append(' ');
             sb.append(elements[0].getClassName()).append('.');
             sb.append(' ').append(elements[0].getMethodName());
         }

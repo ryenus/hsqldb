@@ -59,6 +59,7 @@ public class RAShadowFile {
     final BitMap                bitMap;
     boolean                     zeroPageSet;
     long                        savedLength;
+    long                        synchLength;
     byte[]                      buffer;
     HsqlByteArrayOutputStream   byteArrayOutputStream;
 
@@ -183,6 +184,8 @@ public class RAShadowFile {
     public void synch() {
 
         if (dest != null) {
+            synchLength = savedLength;
+
             dest.synch();
         }
     }
@@ -250,9 +253,12 @@ public class RAShadowFile {
 
             int byteread = is.read();
 
-            if (byteread >= 0) {
-                fetchedSize++;
+            if (byteread < 0) {
+                throw new IOException("backup file not complete "
+                                      + fetchedSize + " " + limitSize);
             }
+
+            fetchedSize++;
 
             return byteread;
         }
@@ -278,9 +284,12 @@ public class RAShadowFile {
 
             int count = is.read(bytes, offset, length);
 
-            if (count >= 0) {
-                fetchedSize += count;
+            if (count < 0) {
+                throw new IOException("backup file not complete "
+                                      + fetchedSize + " " + limitSize);
             }
+
+            fetchedSize += count;
 
             return count;
         }
@@ -315,14 +324,18 @@ public class RAShadowFile {
 
         private void initialise() {
 
-            if (savedLength > 0) {
+            limitSize = synchLength;
+
+            database.logger.logDetailEvent("shadow file size for backup: "
+                                           + limitSize);
+
+            if (limitSize > 0) {
                 try {
                     is = new FileInputStream(pathName);
                 } catch (FileNotFoundException e) {}
             }
 
             initialised = true;
-            limitSize   = savedLength;
         }
     }
 }

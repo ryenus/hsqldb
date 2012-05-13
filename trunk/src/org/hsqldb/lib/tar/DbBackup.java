@@ -61,7 +61,7 @@ import org.hsqldb.lib.InputStreamInterface;
  * @see #setOverWrite(boolean)
  * @see #setAbortUponModify(boolean)
  * @author Blaine Simpson (blaine dot simpson at admc dot com)
- * @version 2.2.8
+ * @version 2.2.9
  * @since 2.0.0
  */
 public class DbBackup {
@@ -178,6 +178,7 @@ public class DbBackup {
     File[]                 componentFiles;
     InputStreamInterface[] componentStreams;
     boolean[]              existList;
+    boolean[]              ignoreList;
 
     /**
      * Instantiate a DbBackup instance for creating a Database Instance backup.
@@ -203,6 +204,7 @@ public class DbBackup {
         };
         componentStreams = new InputStreamInterface[componentFiles.length];
         existList        = new boolean[componentFiles.length];
+        ignoreList       = new boolean[componentFiles.length];
     }
 
     /**
@@ -231,6 +233,17 @@ public class DbBackup {
         for (int i = 0; i < componentFiles.length; i++) {
             if (componentFiles[i].getName().endsWith(fileExtension)) {
                 componentStreams[i] = is;
+
+                break;
+            }
+        }
+    }
+
+    public void setFileIgnore(String fileExtension) {
+
+        for (int i = 0; i < componentFiles.length; i++) {
+            if (componentFiles[i].getName().endsWith(fileExtension)) {
+                ignoreList[i] = true;
 
                 break;
             }
@@ -295,6 +308,10 @@ public class DbBackup {
 
                 // We've already verified that required files exist, therefore
                 // there is no error condition here.
+            }
+
+            if (ignoreList[i]) {
+                continue;
             }
 
             if (componentStreams[i] == null) {
