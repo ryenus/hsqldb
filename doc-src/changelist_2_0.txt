@@ -1,11 +1,13 @@
--- improved support for collations
+14 May 2010 SVN 4991
+-- fixed issues with hot backup
+-- improved name resolution with nested subqueries
+-- improved support for collations with NO PAD
 -- added support for MySQL style DATE_ADD, DATE_SUB and interval expressions
 22 April 2012 - SVN 4977
 -- fixed issue with datetime TRUNC and ROUND functions
 -- fixed issues with a number of functions
 -- fixed issue causing reduced speed and memory leak with disk based result sets
 -- fixed issues with comparison of lobs and lobs file exceeding 2GB
--- fixed issues with hot backup
 -- fixed all other issues reported in bug tracker and forums
 -- extended batch execution to procedure calls
 26 February 2012 - SVN 4944

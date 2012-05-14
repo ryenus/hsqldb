@@ -98,7 +98,7 @@
         <listitem>
           <para>HyperSQL Built-In Functions</para>
 
-          <para>Several additional built-in functions are available for some
+          <para>Many additional built-in functions are available for some
           useful operations. Some of these functions return the current
           setting for the session and the database. The General Functions
           accept arguments of different types and return values based on
@@ -118,8 +118,7 @@
     tokens are separated with the vertical bar ( <literal>&lt;vertical
     bar&gt;</literal> ). At the end of each function definition, the standard
     which specifies the function is noted in parentheses as JDBC or HyperSQL,
-    unless the function is in the SQL/Foundation part of the SQL
-    Standard.</para>
+    or the SQL/Foundation part of the SQL Standard.</para>
   </section>
 
   <section xml:id="bfc_string_binary_functions">
@@ -1041,16 +1040,13 @@
       <primary>TO_NUMBER function</primary>
     </indexterm>
 
-    <simpara><emphasis role="bold">TRUNC</emphasis></simpara>
+    <simpara><emphasis role="bold">TO_NUMBER</emphasis></simpara>
 
-    <para><literal>TRUNC ( &lt;num value expr&gt; [, &lt;int value expr&gt;] )
-    </literal></para>
+    <para><literal>TO_NUMBER ( &lt;char value expr&gt; ) </literal></para>
 
-    <para>This is a similar to the <literal>TRUNCATE</literal> function when
-    the first argument is numeric. If the second argument is omitted, zero is
-    used in its place.</para>
-
-    <para>The datetime version is discussed in the next section.
+    <para>Performs a cast from character to DECIMAL number. The character
+    string must consist of digits and can have a decimal point. Use the SQL
+    Standard CAST expression instead of this non-standard function.
     (HyperSQL)</para>
 
     <indexterm significance="preferred" type="sql">
@@ -1621,7 +1617,7 @@ WIDTH_BUCKET( 200, 10, 110, 10)
       subtraction, &lt;datetime value expr&gt; + &lt;interval value expr&gt;
       and &lt;datetime value expr&gt; - &lt;interval value expr&gt;. The
       functions are provided for compatibility with other databases.
-      (HyperSQL) </para>
+      (HyperSQL)</para>
 
       <indexterm significance="preferred" type="sql">
         <primary>DATEADD function</primary>
