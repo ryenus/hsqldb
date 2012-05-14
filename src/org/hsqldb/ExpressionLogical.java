@@ -873,8 +873,10 @@ public class ExpressionLogical extends Expression {
                 }
             }
 
-            if (opType == OpTypes.EQUAL || opType == OpTypes.NOT_EQUAL) {}
-            else {
+            if (opType == OpTypes.EQUAL || opType == OpTypes.NOT_EQUAL) {
+
+                //
+            } else {
                 if (nodes[LEFT].dataType.isArrayType()
                         || nodes[LEFT].dataType.isLobType()
                         || nodes[RIGHT].dataType.isLobType()) {
@@ -882,14 +884,19 @@ public class ExpressionLogical extends Expression {
                 }
             }
 
+            if (nodes[LEFT].opType == OpTypes.ROWNUM
+                    && nodes[RIGHT].opType == OpTypes.VALUE) {
+                isTerminal = true;
+            }
+
+            if (nodes[LEFT].dataType.typeComparisonGroup
+                    != nodes[RIGHT].dataType.typeComparisonGroup) {
+                throw Error.error(ErrorCode.X_42562);
+            }
+
             if (nodes[LEFT].opType == OpTypes.VALUE
                     && nodes[RIGHT].opType == OpTypes.VALUE) {
                 setAsConstantValue(session);
-            }
-
-            if (nodes.length == 2 && nodes[LEFT].opType == OpTypes.ROWNUM
-                    && nodes[RIGHT].opType == OpTypes.VALUE) {
-                isTerminal = true;
             }
         }
     }
@@ -960,8 +967,10 @@ public class ExpressionLogical extends Expression {
     private boolean convertDateTimeLiteral(Session session, Expression a,
                                            Expression b) {
 
-        if (a.dataType.isDateTimeType()) {}
-        else if (b.dataType.isDateTimeType()) {
+        if (a.dataType.isDateTimeType()) {
+
+            //
+        } else if (b.dataType.isDateTimeType()) {
             Expression c = a;
 
             a = b;
@@ -2090,7 +2099,6 @@ public class ExpressionLogical extends Expression {
     RangeVariable[] getJoinRangeVariables(RangeVariable[] ranges) {
 
         OrderedHashSet set = collectRangeVariables(ranges, null);
-
 
         if (set != null) {
             rangeArray = new RangeVariable[set.size()];

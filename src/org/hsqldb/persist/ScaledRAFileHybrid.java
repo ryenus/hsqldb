@@ -45,7 +45,7 @@ import org.hsqldb.Database;
  * closed and a new one opened, up to the maximum size.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.0.1
+ * @version 2.2.9
  * @since 1.7.2
  */
 public final class ScaledRAFileHybrid implements RandomAccessInterface {
