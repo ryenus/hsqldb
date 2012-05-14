@@ -1013,7 +1013,7 @@ ALTER SEQUENCE MYCAT.MYSCHEMA.MYSEQUENCE RESTART WITH 100
       with similar functionality.</simpara>
 
       <indexterm significance="preferred" type="sql">
-        <primary> expression</primary>
+        <primary>expression</primary>
       </indexterm>
 
       <simpara><emphasis role="bold">NULLIF</emphasis></simpara>
@@ -2133,8 +2133,12 @@ Sommer    Robert * Janet</programlisting>
       <simpara><literal>&lt;collate clause&gt; ::= COLLATE &lt;collation
       name&gt;</literal></simpara>
 
-      <simpara>Specify a default collation for a column or for an ORDER BY
-      expression. This is supported by HyperSQL from version 2.1.</simpara>
+      <simpara>Specify a collation for a column or for an ORDER BY expression.
+      This collation is used for comparing the values of the column in
+      different rows. Comparison can happens during the execution of SELECT,
+      UPDATE or DELETE statements, when a UNIQUE constraint or index is
+      defined on the column, or when the the rows are sorted by an ORDER BY
+      clause.</simpara>
 
       <indexterm significance="preferred" type="sql">
         <primary>CONSTRAINT</primary>
@@ -3147,10 +3151,10 @@ GEN PAR    CHILD
 
       <para>The defaults are ASC and NULLS FIRST.</para>
 
-      <para>For character columns of an ORDER BY expression, if a
-      <literal>&lt;collate clause&gt;</literal> is not specified then the
-      collation of the column, or the default collation of the database is
-      used.</para>
+      <para>A collation is used for columns of an ORDER BY expression that are
+      of the type CHAR or VARCHAR. If a <literal>&lt;collate
+      clause&gt;</literal> is not specified then the collation of the column,
+      or the default collation of the database is used.</para>
 
       <para>An ORDER BY operation can sometimes be optimised by the engine
       when it can use the same index for accessing the table data and

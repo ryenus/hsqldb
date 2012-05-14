@@ -279,7 +279,7 @@
       </listitem>
 
       <listitem>
-        <para>The nio implementation has been improved</para>
+        <para>The NIO file access implementation has been improved</para>
       </listitem>
     </itemizedlist>
 
@@ -290,15 +290,16 @@
     backups are recommended. HyperSQL 2.2 has built-in database backup and
     restore features, discussed elsewhere in this chapter.</para>
 
-    <para>A note regarding the nio implementation: This implementation applies
-    only to CACHED table data in the .data file. Other files are not accessed
-    via nio. There has been an issue with some JVM implementations of nio not
-    releasing the file buffers after they were closed. HyperSQL uses a
-    workaround which is recommended with Sun JVM's. This does not apply to
-    other JVM's. In such environments, it is therefore recommended to test the
-    CHECKPOINT DEFRAG operation and the shutting down and restarting the
-    database inside the same Java process extensively with nio. Use of nio can
-    be turned off if necessary.</para>
+    <para>A note regarding the NIO file access implementation: This
+    implementation applies only to CACHED table data in the
+    <literal>.data</literal> file. Other files are not accessed via NIO. There
+    has been an issue with some JVM implementations of nio not releasing the
+    file buffers after they were closed. HyperSQL uses a workaround which is
+    recommended for Sun JVM's. This does not apply to other JVM's. In such
+    environments, it is therefore recommended to test the CHECKPOINT DEFRAG
+    operation and the shutting down and restarting the database inside the
+    same Java process extensively with NIO. Use of NIO can be turned off if
+    necessary.</para>
 
     <section xml:id="mtc_acid">
       <title>Atomicity, Consistency, Isolation, Durability</title>
@@ -1254,8 +1255,9 @@
 
           <listitem>
             <para>Normal shutdown saves all the database files, then deletes
-            the .log file (and the .backup file in the default mode). The
-            database opens without delay on next used.</para>
+            the .log file (and the .backup file in the default mode). This
+            does the same thing as CHECKPOINT, but closes the database when it
+            completes. The database opens without delay on next used.</para>
           </listitem>
         </varlistentry>
 
@@ -1377,7 +1379,9 @@
       <simpara>Closes the database files, rewrites the script file, deletes
       the log file and opens the database. If <literal>DEFRAG</literal> is
       specified, also shrinks the <literal>*.data</literal> file to its
-      minimum size. Only a user with the DBA role can execute this
+      minimum size.</simpara>
+
+      <simpara>Only a user with the DBA role can execute this
       statement.</simpara>
 
       <simpara>Only a user with the DBA role can execute this
@@ -2507,7 +2511,8 @@
       TRUE | FALSE }</literal></simpara>
 
       <simpara>Sets the access method of the .data file. The default is TRUE
-      and uses the Java nio classes to access the file.</simpara>
+      and uses the Java nio classes to access the file via memory-mapped
+      buffers.</simpara>
 
       <simpara>Only a user with the DBA role can execute this
       statement.</simpara>
@@ -2528,8 +2533,8 @@
 
       <simpara>Sets The maximum size of .data file in megabytes that can use
       the nio access method. When the file gets larger than this limit,
-      non-nio access methods are used. Values 64, 128, 256, 512, 1024, 2048
-      can be used. The default is 256MB.</simpara>
+      non-nio access methods are used. Values 64, 128, 256, 512, 1024 and
+      larger multiples of 512 can be used. The default is 256MB.</simpara>
 
       <simpara>Only a user with the DBA role can execute this
       statement.</simpara>

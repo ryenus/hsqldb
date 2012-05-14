@@ -2380,8 +2380,9 @@
               <entry nameend="c3" namest="c1"><para>The maximum size of .data
               file in mega bytes that can use the nio access method. When the
               file gets larger than this limit, non-nio access methods are
-              used. Values 64, 128, 256, 512, 1024, 2048 can be used. The
-              default is 256MB.</para><para><programlisting>SET FILES NIO SIZE &lt;numeric value&gt;</programlisting></para></entry>
+              used. Values 64, 128, 256, 512, 1024, and larger multiples of
+              512 can be used. The default is
+              256MB.</para><para><programlisting>SET FILES NIO SIZE &lt;numeric value&gt;</programlisting></para></entry>
             </row>
           </tbody>
         </tgroup>

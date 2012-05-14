@@ -174,14 +174,14 @@
       <para>Data for CLOB and BLOB columns is not cached and does not affect
       the CACHED table memory cache.</para>
 
-      <para>The use of Java nio file access method also increases memory
-      usage. Access with nio improves database update speed and is used by
+      <para>The use of Java NIO file access method also increases memory
+      usage. Access with NIO improves database update speed and is used by
       default for data files up to 256 MB. For minimal memory use, nio access
       should be disabled.</para>
 
-      <para>The operating system usually allocates a large amount of memory to
-      cache files for read operations. Therefore when a lot of memory is
-      available to the operating system, all database operations perform
+      <para>The operating system usually allocates a large amount of buffer
+      memory for speed up file read operations. Therefore when a lot of memory
+      is available to the operating system, all database operations perform
       faster.</para>
     </section>
 
@@ -524,6 +524,23 @@
           redone.</para>
         </listitem>
       </orderedlist>
+    </section>
+
+    <section>
+      <title>Using NIO File Access</title>
+
+      <para>This method of file access uses the operating system's
+      memory-mapped file buffer for the <literal>.data</literal> file. For
+      larger databases with CACHED tables, use of nio improves database access
+      speed significantly. Performance improvements can be tenfold or even
+      higher. By default, NIO is used for .data files from 16 MB up to 256 MB.
+      You can increase the limit with the SET FILES NIO SIZE &lt;value&gt;
+      statement. There should be enough RAM available to accommodate the
+      memory mapped buffers. For vary large nio usage, a 64 bit JVM must be
+      used. The memory is not taken from the JVM memory allocation, therefore
+      there is no need to increase the -Xmx parameter of the JVM. If not
+      enough memory is available for the specified value, nio is not used.
+      </para>
     </section>
 
     <section xml:id="dec_server_db">
@@ -886,11 +903,10 @@
       <title>What version to Pull</title>
 
       <para>The best option for most developers is to use our
-        <emphasis>snapshot repository</emphasis>, or at least to
-        depend upon the latest public version of HyperSQL with a range pattern
-        like <literal>[2,)</literal>.
-        Here are exceptional cases where you should depend on a static version.
-        <itemizedlist>
+      <emphasis>snapshot repository</emphasis>, or at least to depend upon the
+      latest public version of HyperSQL with a range pattern like
+      <literal>[2,)</literal>. Here are exceptional cases where you should
+      depend on a static version. <itemizedlist>
           <listitem>
             <simpara>Your application has code dependencies upon
             version-specific details of the HyperSQL distribution. In this
@@ -916,67 +932,67 @@
             <simpara>You need precisely reproducible builds.</simpara>
           </listitem>
         </itemizedlist>If none of these situations apply to you, then follow
-      the suggestions in the appropriate sections below. If
-      you need to specify a specific version, follow the instructions in the
-      range-versioning section but change the version range
-      specifications to literal versions like <literal>2.2.7</literal>.</para>
-      </section>
+      the suggestions in the appropriate sections below. If you need to
+      specify a specific version, follow the instructions in the
+      range-versioning section but change the version range specifications to
+      literal versions like <literal>2.2.7</literal>.</para>
+    </section>
 
-      <section><title>Using the HyperSQL Snapshot Repository</title>
+    <section>
+      <title>Using the HyperSQL Snapshot Repository</title>
+
       <subtitle>Use the Latest &amp; Greatest with Snapshots</subtitle>
 
-      <simpara>The HyperSQL Snapshot repository resides at
-        <link xlink:href="http://hsqldb.org/repos/"/>
-      </simpara>
+      <simpara>The HyperSQL Snapshot repository resides at <link
+      xlink:href="http://hsqldb.org/repos/"></link></simpara>
 
       <note xml:id="dec_classifier_limit">
         <title>Limitation of Classifiers</title>
 
         <simpara><emphasis>Classifiers</emphasis> are incompatible with real
-        repository <emphasis>snapshots</emphasis>.
-        Builders can only publish one jar variant per product, and at this time
-        our snapshot jars are always built debug-enabled with Java 6.</simpara>
+        repository <emphasis>snapshots</emphasis>. Builders can only publish
+        one jar variant per product, and at this time our snapshot jars are
+        always built debug-enabled with Java 6.</simpara>
       </note>
 
-      <simpara>
-        Where you insert the &lt;repository&gt; element depends on whether you
-        want the definition to be personal, shared, or project-specific, so see
-        the Maven documentation about that.
-        But you can paste this element verbatim:
-      </simpara>
+      <simpara>Where you insert the &lt;repository&gt; element depends on
+      whether you want the definition to be personal, shared, or
+      project-specific, so see the Maven documentation about that. But you can
+      paste this element verbatim:</simpara>
+
       <example>
         <title>HyperSQL Snapshot Repository Definition</title>
 
-        <programlisting><![CDATA[    <repository>
-      <releases>
-        <enabled>false</enabled>
-      </releases>
-      <snapshots>
-        <enabled>true</enabled>
-        <updatePolicy>always</updatePolicy>
-        <checksumPolicy>fail</checksumPolicy>
-      </snapshots>
-      <id>hsqldb_snapshots</id>
-      <name>HyperSQL Snapshots</name>
-      <url>http://hsqldb.org/repos</url>
-      <layout>default</layout>
-    </repository>]]></programlisting>
+        <programlisting>    &lt;repository&gt;
+      &lt;releases&gt;
+        &lt;enabled&gt;false&lt;/enabled&gt;
+      &lt;/releases&gt;
+      &lt;snapshots&gt;
+        &lt;enabled&gt;true&lt;/enabled&gt;
+        &lt;updatePolicy&gt;always&lt;/updatePolicy&gt;
+        &lt;checksumPolicy&gt;fail&lt;/checksumPolicy&gt;
+      &lt;/snapshots&gt;
+      &lt;id&gt;hsqldb_snapshots&lt;/id&gt;
+      &lt;name&gt;HyperSQL Snapshots&lt;/name&gt;
+      &lt;url&gt;http://hsqldb.org/repos&lt;/url&gt;
+      &lt;layout&gt;default&lt;/layout&gt;
+    &lt;/repository&gt;</programlisting>
       </example>
 
-    <section xml:id="dec_hsqldb_snap_dep_examples">
-      <title>Snapshot Dependency Specification Examples</title>
+      <section xml:id="dec_hsqldb_snap_dep_examples">
+        <title>Snapshot Dependency Specification Examples</title>
 
-      <example>
-        <title>Sample Snapshot Ivy Dependency</title>
+        <example>
+          <title>Sample Snapshot Ivy Dependency</title>
 
-        <programlisting>
+          <programlisting>
        &lt;dependency org="org.hsqldb" name="hsqldb" rev="SNAPSHOT" conf="buildOnly"/&gt;</programlisting>
-      </example>
+        </example>
 
-      <example>
-        <title>Sample Snapshot Maven Dependency</title>
+        <example>
+          <title>Sample Snapshot Maven Dependency</title>
 
-        <programlisting>
+          <programlisting>
         &lt;dependency&gt;
           &lt;groupId&gt;org.hsqldb&lt;groupId&gt;
           &lt;artifactId&gt;hsqldb&lt;artifactId&gt;
@@ -985,45 +1001,47 @@
           &lt;scope&gt;test&lt;scope&gt;
           --&gt;
         &lt;dependency&gt;</programlisting>
-      </example>
+        </example>
 
-      <example>
-        <title>Sample Snapshot Gradle Dependency</title>
+        <example>
+          <title>Sample Snapshot Gradle Dependency</title>
 
-        <programlisting>
+          <programlisting>
     dependencies.compile (group: 'org.hsqldb', name: 'hsqldb', version:'SNAPSHOT')
     dependencies {
         runtime 'org.hsqldb:hsqldb:SNAPSHOT',
                 'org.hsqldb:sqltool:SNAPSHOT'
     }</programlisting>
-      </example>
+        </example>
 
-      <para>If you want to use an <filename>ivy.xml</filename> file with a
-      Gradle build, you will need use the <link
-      xlink:href="https://github.com/unsaved/gradle-ivyxml-plugin"> Ivyxml
-      Gradle Plugin</link>. It just takes a few links of code in your
-      <filename>build.gradle</filename> file to hook in
-      <literal>ivyxml</literal>. See the <link
-      xlink:href="https://github.com/unsaved/gradle-ivyxml-plugin/raw/master/README.txt">
-      Ivyxml documentation</link> to see exactly how. <example>
-          <title>Sample Snapshot ivy.xml loaded by Ivyxml plugin</title>
+        <para>If you want to use an <filename>ivy.xml</filename> file with a
+        Gradle build, you will need use the <link
+        xlink:href="https://github.com/unsaved/gradle-ivyxml-plugin"> Ivyxml
+        Gradle Plugin</link>. It just takes a few links of code in your
+        <filename>build.gradle</filename> file to hook in
+        <literal>ivyxml</literal>. See the <link
+        xlink:href="https://github.com/unsaved/gradle-ivyxml-plugin/raw/master/README.txt">
+        Ivyxml documentation</link> to see exactly how. <example>
+            <title>Sample Snapshot ivy.xml loaded by Ivyxml plugin</title>
 
-          <programlisting>
+            <programlisting>
     &lt;ivy-module version="2.0"&gt;
     ...
     &lt;dependency org="org.hsqldb" name="hsqldb" rev="SNAPSHOT"/&gt;</programlisting>
-        </example></para>
+          </example></para>
 
-      <example>
-        <title>Sample Snapshot Groovy Dependency, using Grape</title>
+        <example>
+          <title>Sample Snapshot Groovy Dependency, using Grape</title>
 
-        <programlisting>
+          <programlisting>
 @Grab(group='org.hsqldb', module='hsqldb', version='SNAPSHOT')</programlisting>
-      </example>
-    </section>
+        </example>
+      </section>
     </section>
 
-      <section><title>Range Versioning</title>
+    <section>
+      <title>Range Versioning</title>
+
       <subtitle>Keeping up-to-date with Range Dependencies</subtitle>
 
       <note xml:id="dec_maven_range">
@@ -1041,36 +1059,36 @@
         you should depend on a specific version instead.</simpara>
       </note>
 
-    <section xml:id="dec_hsqldb_dyn_dep_examples">
-      <title>Range Dependency Specification Examples</title>
+      <section xml:id="dec_hsqldb_dyn_dep_examples">
+        <title>Range Dependency Specification Examples</title>
 
-      <important>
-        <simpara>For all examples below, when a range pattern is given, it means
-        the latest version equal or greater than version <literal>2</literal>.
-        If a classifier is shown, it is optional and you can skip it to get
-        the default (no-classifier) jar.</simpara>
-      </important>
+        <important>
+          <simpara>For all examples below, when a range pattern is given, it
+          means the latest version equal or greater than version
+          <literal>2</literal>. If a classifier is shown, it is optional and
+          you can skip it to get the default (no-classifier) jar.</simpara>
+        </important>
 
-      <example>
-        <title>Sample Range Ivy Dependency</title>
+        <example>
+          <title>Sample Range Ivy Dependency</title>
 
-        <programlisting>
+          <programlisting>
        &lt;dependency org="org.hsqldb" name="hsqldb" rev="[2,)" conf="j6-&gt;default"/&gt;</programlisting>
 
-        <simpara>I give no example here of specifying a
-        <emphasis>classifier</emphasis> in <filename>ivy.xml</filename>
-        because I have so far failed to get that to succeed.
-        Classifiers in in <filename>ivy.xml</filename>
-        are supported if using Gradle, as covered below.</simpara>
-      </example>
+          <simpara>I give no example here of specifying a
+          <emphasis>classifier</emphasis> in <filename>ivy.xml</filename>
+          because I have so far failed to get that to succeed. Classifiers in
+          in <filename>ivy.xml</filename> are supported if using Gradle, as
+          covered below.</simpara>
+        </example>
 
-      <example>
-        <title>Sample Range Maven Dependency</title>
+        <example>
+          <title>Sample Range Maven Dependency</title>
 
-        <simpara>See <link xlink:href="#dec_maven_range">note above</link> about
-        Maven range specifications.</simpara>
+          <simpara>See <link xlink:href="#dec_maven_range">note above</link>
+          about Maven range specifications.</simpara>
 
-        <programlisting>
+          <programlisting>
         &lt;dependency&gt;
           &lt;groupId&gt;org.hsqldb&lt;groupId&gt;
           &lt;artifactId&gt;hsqldb&lt;artifactId&gt;
@@ -1081,42 +1099,42 @@
           &lt;classifier&gt;jdk5&lt;classifier&gt;
           --&gt;
         &lt;dependency&gt;</programlisting>
-      </example>
+        </example>
 
-      <example>
-        <title>Sample Range Gradle Dependency</title>
+        <example>
+          <title>Sample Range Gradle Dependency</title>
 
-        <programlisting>
+          <programlisting>
     dependencies.compile (group: 'org.hsqldb', name: 'hsqldb', version:'[2,)', classifier: 'jdk5')
     dependencies {
         runtime 'org.hsqldb:hsqldb:[2,):jdk6debug@jar',
                 'org.hsqldb:sqltool:[2,):jdk6debug@jar'
     }</programlisting>
-      </example>
+        </example>
 
-      <para>If you want to use an <filename>ivy.xml</filename> file with a
-      Gradle build, you will need use the <link
-      xlink:href="https://github.com/unsaved/gradle-ivyxml-plugin"> Ivyxml
-      Gradle Plugin</link>. It just takes a few links of code in your
-      <filename>build.gradle</filename> file to hook in
-      <literal>ivyxml</literal>. See the <link
-      xlink:href="https://github.com/unsaved/gradle-ivyxml-plugin/raw/master/README.txt">
-      Ivyxml documentation</link> to see exactly how. <example>
-          <title>Sample Range ivy.xml loaded by Ivyxml plugin</title>
+        <para>If you want to use an <filename>ivy.xml</filename> file with a
+        Gradle build, you will need use the <link
+        xlink:href="https://github.com/unsaved/gradle-ivyxml-plugin"> Ivyxml
+        Gradle Plugin</link>. It just takes a few links of code in your
+        <filename>build.gradle</filename> file to hook in
+        <literal>ivyxml</literal>. See the <link
+        xlink:href="https://github.com/unsaved/gradle-ivyxml-plugin/raw/master/README.txt">
+        Ivyxml documentation</link> to see exactly how. <example>
+            <title>Sample Range ivy.xml loaded by Ivyxml plugin</title>
 
-          <programlisting>
+            <programlisting>
     &lt;ivy-module version="2.0" xmlns:m="http://ant.apache.org/ivy/maven"&gt;
     ...
     &lt;dependency org="org.hsqldb" name="hsqldb" rev="[2,)" m:classifier="jdk5"/&gt;</programlisting>
-        </example></para>
+          </example></para>
 
-      <example>
-        <title>Sample Range Groovy Dependency, using Grape</title>
+        <example>
+          <title>Sample Range Groovy Dependency, using Grape</title>
 
-        <programlisting>
+          <programlisting>
 @Grab(group='org.hsqldb', module='hsqldb', version='[2,)', classifier='jdk6debug')</programlisting>
-      </example>
-    </section>
+        </example>
+      </section>
     </section>
   </section>
 </chapter>
