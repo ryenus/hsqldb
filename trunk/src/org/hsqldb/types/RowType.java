@@ -486,8 +486,8 @@ public class RowType extends Type {
 
             value = types[i].convertToSQLString(array[i]);
 
-            if (maxUnitLength > 7 && value.length() > maxUnitLength) {
-                sb.append(value.substring(0, maxUnitLength - 4));
+            if (maxUnitLength > 10 && value.length() > maxUnitLength) {
+                sb.append(value.substring(0, maxUnitLength - 5));
                 sb.append(" ...");
             } else {
                 sb.append(value);
