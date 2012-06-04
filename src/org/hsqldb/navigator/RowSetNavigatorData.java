@@ -347,7 +347,6 @@ implements Comparator {
             }
         }
 
-        other.release();
         reset();
     }
 
@@ -361,7 +360,6 @@ implements Comparator {
             add(currentData);
         }
 
-        other.release();
         reset();
     }
 
@@ -379,7 +377,6 @@ implements Comparator {
             }
         }
 
-        other.release();
         reset();
     }
 
@@ -419,7 +416,6 @@ implements Comparator {
             remove();
         }
 
-        other.release();
         reset();
     }
 
@@ -437,7 +433,6 @@ implements Comparator {
             }
         }
 
-        other.release();
         reset();
     }
 
@@ -475,7 +470,6 @@ implements Comparator {
             }
         }
 
-        other.release();
         reset();
     }
 
