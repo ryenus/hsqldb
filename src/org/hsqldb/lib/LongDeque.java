@@ -200,6 +200,10 @@ public class LongDeque {
         }
     }
 
+    public void zeroSize() {
+        firstindex = endindex = elementCount = 0;
+    }
+
     public int indexOf(long value) {
 
         for (int i = 0; i < elementCount; i++) {
