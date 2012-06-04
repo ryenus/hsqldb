@@ -49,7 +49,8 @@ public interface Set extends Collection {
 
 /*
     Object[] toArray();
-    Object[] toArray(Object a[]);
+
+    void toArray(Object a[]);
 */
     boolean add(Object o);
 

@@ -180,7 +180,9 @@ implements XADataSource, Serializable, Referenceable
             }
         }
 
-        return (Xid[]) preparedSet.toArray(new Xid[0]);
+        Xid[] array = new Xid[preparedSet.size()];
+        preparedSet.toArray(array);
+        return array;
     }
 
     /**

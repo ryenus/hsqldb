@@ -77,18 +77,19 @@ public class OrderedHashSet extends HashSet implements HsqlList, Set {
             return add(key);
         }
 
-        Object[] set = toArray(new Object[size()]);
+        Object[] array = new Object[size()];
 
+        toArray(array);
         super.clear();
 
         for (int i = 0; i < index; i++) {
-            add(set[i]);
+            add(array[i]);
         }
 
         add(key);
 
-        for (int i = index; i < set.length; i++) {
-            add(set[i]);
+        for (int i = index; i < array.length; i++) {
+            add(array[i]);
         }
 
         return true;
@@ -107,6 +108,10 @@ public class OrderedHashSet extends HashSet implements HsqlList, Set {
         checkRange(index);
 
         return objectKeyTable[index];
+    }
+
+    public void toArray(Object[] array) {
+        System.arraycopy(super.objectKeyTable, 0, array, 0, array.length);
     }
 
     public int getIndex(Object key) {

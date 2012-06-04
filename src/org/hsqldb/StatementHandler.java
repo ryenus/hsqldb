@@ -135,8 +135,9 @@ public class StatementHandler extends Statement {
     }
 
     public String[] getConditionStates() {
-        return (String[]) conditionStates.toArray(
-            new String[conditionStates.size()]);
+        String[] array = new String[conditionStates.size()];
+        conditionStates.toArray(array);
+        return array;
     }
 
     public void resolve(Session session) {
