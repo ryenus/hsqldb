@@ -274,6 +274,31 @@ public class BaseHashMap {
         return valuesIterator;
     }
 
+    protected int valueCount(Object key, int hash) {
+
+        int lookup = getLookup(key, hash);
+
+        if (lookup == -1) {
+            return 0;
+        }
+
+        int count = 1;
+
+        while (true) {
+            lookup = BaseHashMap.this.hashIndex.getNextLookup(lookup);
+
+            if (lookup == -1) {
+                break;
+            }
+
+            if (BaseHashMap.this.objectKeyTable[lookup].equals(key)) {
+                count++;
+            }
+        }
+
+        return count;
+    }
+
     /**
      * generic method for adding or removing keys
      */
@@ -760,6 +785,7 @@ public class BaseHashMap {
                 lastLookup = lookup,
                 lookup = hashIndex.getNextLookup(lookup)) {
             if (objectKeyTable[lookup].equals(objectKey)) {
+                returnValue            = objectKeyTable[lookup];
                 objectKeyTable[lookup] = null;
 
                 hashIndex.unlinkNode(index, lastLookup, lookup);
@@ -1079,60 +1105,62 @@ public class BaseHashMap {
      */
     void removeFromElementArrays(int lookup) {
 
-        int arrayLength = hashIndex.linkTable.length;
+        // this is newNodePointer post-removal
+        int lastPointer = hashIndex.newNodePointer;
+
 
         if (isIntKey) {
             Object array = intKeyTable;
 
             System.arraycopy(array, lookup + 1, array, lookup,
-                             arrayLength - lookup - 1);
+                             lastPointer - lookup);
 
-            intKeyTable[arrayLength - 1] = 0;
+            intKeyTable[lastPointer] = 0;
         }
 
         if (isLongKey) {
             Object array = longKeyTable;
 
             System.arraycopy(array, lookup + 1, array, lookup,
-                             arrayLength - lookup - 1);
+                             lastPointer - lookup);
 
-            longKeyTable[arrayLength - 1] = 0;
+            longKeyTable[lastPointer] = 0;
         }
 
         if (isObjectKey || objectKeyTable != null) {
             Object array = objectKeyTable;
 
             System.arraycopy(array, lookup + 1, array, lookup,
-                             arrayLength - lookup - 1);
+                             lastPointer - lookup);
 
-            objectKeyTable[arrayLength - 1] = null;
+            objectKeyTable[lastPointer] = null;
         }
 
         if (isIntValue) {
             Object array = intValueTable;
 
             System.arraycopy(array, lookup + 1, array, lookup,
-                             arrayLength - lookup - 1);
+                             lastPointer - lookup);
 
-            intValueTable[arrayLength - 1] = 0;
+            intValueTable[lastPointer] = 0;
         }
 
         if (isLongValue) {
             Object array = longValueTable;
 
             System.arraycopy(array, lookup + 1, array, lookup,
-                             arrayLength - lookup - 1);
+                             lastPointer - lookup);
 
-            longValueTable[arrayLength - 1] = 0;
+            longValueTable[lastPointer] = 0;
         }
 
         if (isObjectValue) {
             Object array = objectValueTable;
 
             System.arraycopy(array, lookup + 1, array, lookup,
-                             arrayLength - lookup - 1);
+                             lastPointer - lookup);
 
-            objectValueTable[arrayLength - 1] = null;
+            objectValueTable[lastPointer] = null;
         }
     }
 

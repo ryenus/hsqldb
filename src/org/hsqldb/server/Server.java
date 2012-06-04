@@ -232,7 +232,7 @@ import org.hsqldb.result.ResultConstants;
  * is started as part of a larger framework. <p>
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.1.1
+ * @version 2.2.9
  * @since 1.7.2
  *
  * @jmx.mbean
@@ -763,10 +763,6 @@ public class Server implements HsqlSocketRequestHandler {
         if (serverProtocol == ServerConstants.SC_PROTOCOL_HSQL) {
             r   = new ServerConnection(s, this);
             ctn = ((ServerConnection) r).getConnectionThreadName();
-
-            synchronized (serverConnSet) {
-                serverConnSet.add(r);
-            }
         } else {
             r   = new WebServerConnection(s, (WebServer) this);
             ctn = ((WebServerConnection) r).getConnectionThreadName();
@@ -1449,7 +1445,6 @@ public class Server implements HsqlSocketRequestHandler {
 
             if (sc.dbID == id) {
                 sc.signalClose();
-                serverConnSet.remove(sc);
             }
         }
 
@@ -2136,7 +2131,7 @@ public class Server implements HsqlSocketRequestHandler {
      * this method exists immediately, otherwise, the result is to fully
      * shut down the server.
      */
-    private void releaseServerSocket() {
+    private synchronized void releaseServerSocket() {
 
         printWithThread("releaseServerSocket() entered");
 
@@ -2341,13 +2336,15 @@ public class Server implements HsqlSocketRequestHandler {
         }
 
         // Be nice and let applications exit if there are no
-        // running connection threads
+        // running connection threads - wait at most 100 ms per active thread
         if (serverConnectionThreadGroup != null) {
             if (!serverConnectionThreadGroup.isDestroyed()) {
-                for (int i = 0; serverConnectionThreadGroup.activeCount() > 0;
-                        i++) {
-                    int count;
+                int count = serverConnectionThreadGroup.activeCount();
 
+                for (int i = 0;
+                        serverConnectionThreadGroup.activeCount() > 0
+                        && i < count;
+                        i++) {
                     try {
                         Thread.sleep(100);
                     } catch (Exception e) {

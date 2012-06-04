@@ -77,6 +77,7 @@ import java.io.EOFException;
 import java.io.IOException;
 import java.net.Socket;
 import java.net.SocketException;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.hsqldb.ClientConnection;
 import org.hsqldb.ColumnBase;
@@ -121,7 +122,7 @@ import org.hsqldb.types.Type;
  *
  * @author Thomas Mueller (Hypersonic SQL Group)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.0.1
+ * @version 2.2.9
  * @since Hypersonic SQL
  */
 class ServerConnection implements Runnable {
@@ -135,15 +136,19 @@ class ServerConnection implements Runnable {
     private Server           server;
     private DataInputStream  dataInput;
     private DataOutputStream dataOutput;
-    private static int       mCurrentThread = 0;
     private int              mThread;
     static final int         BUFFER_SIZE = 0x1000;
     final byte[]             mainBuffer  = new byte[BUFFER_SIZE];
     RowOutputInterface       rowOut;
     RowInputBinary           rowIn;
     Thread                   runnerThread;
-    protected static String  TEXTBANNER_PART1 = null;
-    protected static String  TEXTBANNER_PART2 = null;
+
+    //
+    private static AtomicInteger mCurrentThread = new AtomicInteger(0);
+
+    //
+    protected static String TEXTBANNER_PART1 = null;
+    protected static String TEXTBANNER_PART2 = null;
 
     static {
         int serverBundleHandle =
@@ -192,10 +197,7 @@ class ServerConnection implements Runnable {
 
         this.socket = socket;
         this.server = server;
-
-        synchronized (ServerConnection.class) {
-            mThread = mCurrentThread++;
-        }
+        mThread     = mCurrentThread.getAndIncrement();
 
         synchronized (server.serverConnSet) {
             server.serverConnSet.add(this);
@@ -227,15 +229,17 @@ class ServerConnection implements Runnable {
         }
 
         // fredt@user - closing the socket is to stop this thread
-        try {
-            synchronized (this) {
+        synchronized (this) {
+            try {
                 if (socket != null) {
                     socket.close();
-                }
-            }
-        } catch (IOException e) {}
 
-        socket = null;
+                    socket = null;
+                }
+            } catch (IOException e) {}
+
+            socket = null;
+        }
 
         synchronized (server.serverConnSet) {
             server.serverConnSet.remove(this);

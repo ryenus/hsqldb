@@ -198,10 +198,15 @@ public class DatabaseManager {
 
     public static void shutdownDatabases(Server server, int shutdownMode) {
 
-        HashSet    databases = (HashSet) serverMap.get(server);
-        Database[] dbArray   = new Database[databases.size()];
+        Database[] dbArray;
 
-        databases.toArray(dbArray);
+        synchronized (serverMap) {
+            HashSet databases = (HashSet) serverMap.get(server);
+
+            dbArray = new Database[databases.size()];
+
+            databases.toArray(dbArray);
+        }
 
         for (int i = 0; i < dbArray.length; i++) {
             dbArray[i].close(shutdownMode);
@@ -429,24 +434,9 @@ public class DatabaseManager {
      * Deregisters a server completely.
      */
     public static void deRegisterServer(Server server) {
-        serverMap.remove(server);
-    }
 
-    /**
-     * Deregisters a server as serving a given database. Not yet used.
-     */
-    private static void deRegisterServer(Server server, Database db) {
-
-        Iterator it = serverMap.values().iterator();
-
-        for (; it.hasNext(); ) {
-            HashSet databases = (HashSet) it.next();
-
-            databases.remove(db);
-
-            if (databases.isEmpty()) {
-                it.remove();
-            }
+        synchronized (serverMap) {
+            serverMap.remove(server);
         }
     }
 
@@ -455,13 +445,15 @@ public class DatabaseManager {
      */
     private static void registerServer(Server server, Database db) {
 
-        if (!serverMap.containsKey(server)) {
-            serverMap.put(server, new HashSet());
+        synchronized (serverMap) {
+            if (!serverMap.containsKey(server)) {
+                serverMap.put(server, new HashSet());
+            }
+
+            HashSet databases = (HashSet) serverMap.get(server);
+
+            databases.add(db);
         }
-
-        HashSet databases = (HashSet) serverMap.get(server);
-
-        databases.add(db);
     }
 
     /**
@@ -470,13 +462,30 @@ public class DatabaseManager {
      */
     private static void notifyServers(Database db) {
 
-        Iterator it = serverMap.keySet().iterator();
+        Server[] servers;
 
-        for (; it.hasNext(); ) {
-            Server  server    = (Server) it.next();
-            HashSet databases = (HashSet) serverMap.get(server);
+        synchronized (serverMap) {
+            servers = new Server[serverMap.size()];
 
-            if (databases.contains(db)) {
+            serverMap.keysToArray(servers);
+        }
+
+        for (int i = 0; i < servers.length; i++) {
+            Server  server = servers[i];
+            HashSet databases;
+            boolean removed = false;
+
+            synchronized (serverMap) {
+                databases = (HashSet) serverMap.get(server);
+            }
+
+            if (databases != null) {
+                synchronized (databases) {
+                    removed = databases.remove(db);
+                }
+            }
+
+            if (removed) {
                 server.notify(ServerConstants.SC_DATABASE_SHUTDOWN,
                               db.databaseID);
             }
