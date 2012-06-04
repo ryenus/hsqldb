@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2010, The HSQL Development Group
+/* Copyright (c) 2001-2011, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -116,7 +116,7 @@ public final class MD5 {
      *      algorithm is not available through the
      *      java.security.MessageDigest spi
      */
-    public String digest(String string) throws RuntimeException {
+    public static final String digest(String string) throws RuntimeException {
         return encode(string, "ISO-8859-1");
     }
     /**
@@ -134,7 +134,7 @@ public final class MD5 {
      *      java.security.MessageDigest spi or the requested
      *      encoding is not available
      */
-    public static byte[] digest(String string,
+    public static final byte[] digest(String string,
                                       String encoding)
                                       throws RuntimeException {
 

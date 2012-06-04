@@ -87,6 +87,13 @@ public class MultiValueHashMap extends BaseHashMap {
         return super.containsValue(value);
     }
 
+    public int valueCount(Object key) {
+
+        int hash = key.hashCode();
+
+        return super.valueCount(key, hash);
+    }
+
     public void putAll(HashMap t) {
 
         Iterator it = t.keySet.iterator();
