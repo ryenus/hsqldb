@@ -734,16 +734,16 @@ public class Logger {
         */
     }
 
-    public void setEventLogLevel(int level, boolean sqlLog) {
+    public void setEventLogLevel(int level, boolean logSql) {
 
         if (level < SimpleLog.LOG_NONE || level > SimpleLog.LOG_DETAIL) {
             throw Error.error(ErrorCode.X_42556);
         }
 
-        if (sqlLog) {
+        if (logSql) {
             propSqlLogLevel = level;
 
-            this.sqlLog.setLevel(level);
+            sqlLog.setLevel(level);
         } else {
             propEventLogLevel = level;
 
@@ -806,28 +806,19 @@ public class Logger {
     public void logStatementEvent(Session session, Statement statement,
                                   Object[] paramValues, int level) {
 
-        getEventLogger();
-
-        if (sqlLogger != null) {
-            sqlLogger.finest(statement.getSQL());
-        }
-
         if (sqlLog != null && level <= propSqlLogLevel) {
             String sessionId = Long.toString(session.getId());
             String sql       = statement.getSQL();
             String values    = "";
 
             if (sql.length() > 256) {
-                sql.substring(0, 256);
+                sql = sql.substring(0, 256);
             }
 
-            if (level == SimpleLog.LOG_DETAIL) {
-                if (paramValues != null && paramValues.length > 0) {
-                    values = RowType.convertToSQLString(
-                        paramValues,
-                        statement.getParametersMetaData().getParameterTypes(),
-                        32);
-                }
+            if (paramValues != null && paramValues.length > 0) {
+                values = RowType.convertToSQLString(
+                    paramValues,
+                    statement.getParametersMetaData().getParameterTypes(), 32);
             }
 
             sqlLog.logContext(level, sessionId, sql, values);
@@ -1571,6 +1562,16 @@ public class Logger {
         sb.append(' ').append(propEventLogLevel);
         list.add(sb.toString());
         sb.setLength(0);
+
+        if (propEventLogLevel != SimpleLog.LOG_NONE) {
+            sb.append("SET DATABASE ").append(Tokens.T_EVENT).append(' ');
+            sb.append(Tokens.T_LOG).append(' ').append(Tokens.T_SQL);
+            sb.append(' ').append(Tokens.T_LEVEL);
+            sb.append(' ').append(propEventLogLevel);
+            list.add(sb.toString());
+            sb.setLength(0);
+        }
+
         sb.append("SET DATABASE ").append(Tokens.T_SQL).append(' ');
         sb.append(Tokens.T_NAMES).append(' ');
         sb.append(database.sqlEnforceNames ? Tokens.T_TRUE
