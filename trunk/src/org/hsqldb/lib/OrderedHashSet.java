@@ -39,7 +39,7 @@ package org.hsqldb.lib;
  * This class does not store null elements.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 1.9.0
+ * @version 2.2.9
  * @since 1.9.0
  */
 public class OrderedHashSet extends HashSet implements HsqlList, Set {
@@ -52,23 +52,14 @@ public class OrderedHashSet extends HashSet implements HsqlList, Set {
     }
 
     public boolean remove(Object key) {
-
-        int oldSize = size();
-
-        super.removeObject(key, true);
-
-        return oldSize != size();
+        return super.removeObject(key, true) != null;
     }
 
     public Object remove(int index) throws IndexOutOfBoundsException {
 
         checkRange(index);
 
-        Object result = objectKeyTable[index];
-
-        remove(result);
-
-        return result;
+        return super.removeObject(objectKeyTable[index], true);
     }
 
     public boolean insert(int index,
@@ -151,7 +142,7 @@ public class OrderedHashSet extends HashSet implements HsqlList, Set {
     }
 
     public static OrderedHashSet addAll(OrderedHashSet first,
-                                          OrderedHashSet second) {
+                                        OrderedHashSet second) {
 
         if (second == null) {
             return first;
@@ -166,8 +157,7 @@ public class OrderedHashSet extends HashSet implements HsqlList, Set {
         return first;
     }
 
-    public static OrderedHashSet add(OrderedHashSet first,
-                                          Object value) {
+    public static OrderedHashSet add(OrderedHashSet first, Object value) {
 
         if (value == null) {
             return first;

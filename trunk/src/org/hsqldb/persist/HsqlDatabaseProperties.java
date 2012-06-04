@@ -55,6 +55,7 @@ public class HsqlDatabaseProperties extends HsqlProperties {
     private static final String hsqldb_method_class_names =
         "hsqldb.method_class_names";
     private static HashSet accessibleJavaMethodNames;
+    private static boolean allowFullPath;
 
     static {
         try {
@@ -67,6 +68,14 @@ public class HsqlDatabaseProperties extends HsqlProperties {
 
                 for (int i = 0; i < names.length; i++) {
                     accessibleJavaMethodNames.add(names[i]);
+                }
+            }
+
+            prop = System.getProperty(hsqldb_method_class_names);
+
+            if (prop != null) {
+                if (Boolean.valueOf(prop)) {
+                    allowFullPath = true;
                 }
             }
         } catch (Exception e) {}
@@ -267,7 +276,7 @@ public class HsqlDatabaseProperties extends HsqlProperties {
         // text table defaults
         textMeta.put(textdb_allow_full_path,
                      HsqlProperties.getMeta(textdb_allow_full_path,
-                                            SYSTEM_PROPERTY, false));
+                                            SYSTEM_PROPERTY, allowFullPath));
         textMeta.put(textdb_quoted,
                      HsqlProperties.getMeta(textdb_quoted, SQL_PROPERTY,
                                             true));

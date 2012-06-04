@@ -1763,13 +1763,11 @@ public class SchemaManager {
             getCascadingReferencesTo(name, set);
         }
 
-        for (int i = 0; i < set.size(); i++) {
+        for (int i = set.size() - 1; i >= 0; i--) {
             HsqlName name = (HsqlName) set.get(i);
 
             if (name.schema == schema) {
                 set.remove(i);
-
-                i--;
             }
         }
     }

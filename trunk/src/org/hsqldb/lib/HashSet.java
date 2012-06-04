@@ -134,9 +134,6 @@ public class HashSet extends BaseHashMap implements Set {
 
     /** returns true if removed */
     public boolean remove(Object key) {
-
-        int oldSize = size();
-
         return super.removeObject(key, false) != null;
     }
 
