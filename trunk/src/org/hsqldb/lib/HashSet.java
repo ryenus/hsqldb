@@ -162,19 +162,19 @@ public class HashSet extends BaseHashMap implements Set {
         return result;
     }
 
-    public Object[] toArray(Object[] a) {
-
-        if (a == null || a.length < size()) {
-            a = new Object[size()];
-        }
+    public void toArray(Object[] a) {
 
         Iterator it = iterator();
 
         for (int i = 0; it.hasNext(); i++) {
             a[i] = it.next();
         }
+    }
 
-        return a;
+    public Object[] toArray() {
+        Object[] array = new Object[size()];
+        toArray(array);
+        return array;
     }
 
     public Iterator iterator() {

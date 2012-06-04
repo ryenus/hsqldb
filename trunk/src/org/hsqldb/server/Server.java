@@ -53,7 +53,6 @@ import org.hsqldb.lib.IntKeyHashMap;
 import org.hsqldb.lib.Iterator;
 import org.hsqldb.lib.StopWatch;
 import org.hsqldb.lib.StringUtil;
-import org.hsqldb.lib.WrapperIterator;
 import org.hsqldb.lib.java.JavaSystem;
 import org.hsqldb.persist.HsqlDatabaseProperties;
 import org.hsqldb.persist.HsqlProperties;
@@ -388,18 +387,21 @@ public class Server implements HsqlSocketRequestHandler {
      */
     public synchronized void signalCloseAllServerConnections() {
 
-        Iterator it;
+        Iterator           it;
+        ServerConnection[] array;
 
         printWithThread("signalCloseAllServerConnections() entered");
 
         synchronized (serverConnSet) {
 
             // snapshot
-            it = new WrapperIterator(serverConnSet.toArray(null));
+            array = new ServerConnection[serverConnSet.size()];
+
+            serverConnSet.toArray(array);
         }
 
-        for (; it.hasNext(); ) {
-            ServerConnection sc = (ServerConnection) it.next();
+        for (int i = 0; i < array.length; i++) {
+            ServerConnection sc = array[i];
 
             printWithThread("Closing " + sc);
 
@@ -1419,8 +1421,9 @@ public class Server implements HsqlSocketRequestHandler {
      */
     final synchronized void releaseDatabase(int id) {
 
-        Iterator it;
-        boolean  found = false;
+        Iterator           it;
+        boolean            found = false;
+        ServerConnection[] array;
 
         printWithThread("releaseDatabase(" + id + ") entered");
 
@@ -1437,11 +1440,13 @@ public class Server implements HsqlSocketRequestHandler {
         }
 
         synchronized (serverConnSet) {
-            it = new WrapperIterator(serverConnSet.toArray(null));
+            array = new ServerConnection[serverConnSet.size()];
+
+            serverConnSet.toArray(array);
         }
 
-        while (it.hasNext()) {
-            ServerConnection sc = (ServerConnection) it.next();
+        for (int i = 0; i < array.length; i++) {
+            ServerConnection sc = array[i];
 
             if (sc.dbID == id) {
                 sc.signalClose();

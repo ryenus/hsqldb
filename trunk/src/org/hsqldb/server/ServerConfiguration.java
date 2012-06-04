@@ -180,7 +180,11 @@ public final class ServerConfiguration implements ServerConstants {
             set.add(InetAddress.getByName("loopback").getHostName());
         } catch (Exception e) {}
 
-        return (String[]) set.toArray(new String[set.size()]);
+        String[] array = new String[set.size()];
+
+        set.toArray(array);
+
+        return array;
     }
 
     /**
