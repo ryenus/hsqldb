@@ -41,6 +41,7 @@ import org.hsqldb.lib.HashMappedList;
 import org.hsqldb.lib.HsqlList;
 import org.hsqldb.lib.OrderedHashSet;
 import org.hsqldb.lib.Set;
+import org.hsqldb.navigator.RangeIterator;
 import org.hsqldb.persist.PersistentStore;
 import org.hsqldb.store.ValuePool;
 import org.hsqldb.types.Type;
@@ -339,8 +340,14 @@ public class ExpressionColumn extends Expression {
 
     String getColumnName() {
 
-        if (opType == OpTypes.COLUMN && column != null) {
-            return column.getName().name;
+        switch (opType) {
+            case OpTypes.COLUMN:
+            case OpTypes.PARAMETER:
+            case OpTypes.VARIABLE:
+
+                if (column != null) {
+                    return column.getName().name;
+                }
         }
 
         return getAlias();
@@ -617,9 +624,9 @@ public class ExpressionColumn extends Expression {
                     .triggerArguments[rangeVariable.rangePosition][columnIndex];
             }
             case OpTypes.COLUMN : {
-                Object value =
-                    session.sessionContext
-                        .rangeIterators[rangeVariable.rangePosition]
+                RangeIterator[] iterators = session.sessionContext
+                        .rangeIterators;
+                Object value = iterators[rangeVariable.rangePosition]
                         .getCurrent(columnIndex);
 
                 if (dataType != column.dataType) {
@@ -862,8 +869,9 @@ public class ExpressionColumn extends Expression {
                     sb.append(c.tableName + '.');
                 }
 
-                throw Error.error(ErrorCode.X_42501,
-                                  sb.toString() + c.getColumnName());
+                sb.append(c.getColumnName());
+
+                throw Error.error(ErrorCode.X_42501, sb.toString());
             } else {
                 OrderedHashSet newSet = new OrderedHashSet();
 

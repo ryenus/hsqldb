@@ -288,6 +288,7 @@ public class SetFunction implements Serializable {
         }
 
         if (setType == OpTypes.COUNT) {
+
             if (isDistinct && type.isCharacterType()) {
                 Object[] array = new Object[distinctValues.size()];
 
