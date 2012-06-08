@@ -1563,7 +1563,7 @@ public class Logger {
         list.add(sb.toString());
         sb.setLength(0);
 
-        if (propEventLogLevel != SimpleLog.LOG_NONE) {
+        if (propSqlLogLevel != SimpleLog.LOG_NONE) {
             sb.append("SET DATABASE ").append(Tokens.T_EVENT).append(' ');
             sb.append(Tokens.T_LOG).append(' ').append(Tokens.T_SQL);
             sb.append(' ').append(Tokens.T_LEVEL);
