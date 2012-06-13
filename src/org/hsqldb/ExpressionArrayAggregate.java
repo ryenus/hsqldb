@@ -41,7 +41,6 @@ import org.hsqldb.types.ArrayType;
 import org.hsqldb.types.NumberType;
 import org.hsqldb.types.RowType;
 import org.hsqldb.types.Type;
-import org.hsqldb.types.Types;
 
 /**
  * Implementation of array aggregate operations
@@ -162,11 +161,11 @@ public class ExpressionArrayAggregate extends Expression {
     }
 
     public HsqlList resolveColumnReferences(Session session,
-            RangeVariable[] rangeVarArray, int rangeCount,
-            HsqlList unresolvedSet, boolean acceptsSequences) {
+            RangeGroup rangeGroup, int rangeCount,
+            RangeGroup[] rangeGroups, HsqlList unresolvedSet, boolean acceptsSequences) {
 
         HsqlList conditionSet = condition.resolveColumnReferences(session,
-            rangeVarArray, rangeCount, null, false);
+            rangeGroup, rangeCount, rangeGroups, null, false);
 
         if (conditionSet != null) {
             ExpressionColumn.checkColumnsResolved(conditionSet);
@@ -397,5 +396,16 @@ public class ExpressionArrayAggregate extends Expression {
 
     public void setCondition(Expression e) {
         condition = e;
+    }
+
+    public Expression duplicate() {
+
+        ExpressionArrayAggregate e = (ExpressionArrayAggregate) super.duplicate();
+
+        if (condition != null) {
+            e.condition = condition.duplicate();
+        }
+
+        return e;
     }
 }

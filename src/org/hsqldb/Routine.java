@@ -61,7 +61,7 @@ import org.hsqldb.types.Types;
  * @version 2.0.1
  * @since 1.9.0
  */
-public class Routine implements SchemaObject, Cloneable {
+public class Routine implements SchemaObject, RangeGroup, Cloneable {
 
     public static final int NO_SQL       = 1;
     public static final int CONTAINS_SQL = 2;
@@ -753,8 +753,12 @@ public class Routine implements SchemaObject, Cloneable {
         return parameterList.getIndex(name);
     }
 
-    public RangeVariable[] getParameterRangeVariables() {
+    public RangeVariable[] getRangeVariables() {
         return ranges;
+    }
+
+    public void setCorrelated() {
+        //
     }
 
     public int getVariableCount() {

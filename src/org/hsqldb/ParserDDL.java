@@ -35,6 +35,7 @@ import java.lang.reflect.Method;
 
 import org.hsqldb.HsqlNameManager.HsqlName;
 import org.hsqldb.HsqlNameManager.SimpleName;
+import org.hsqldb.RangeGroup.RangeGroupSimple;
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
 import org.hsqldb.index.Index;
@@ -2063,6 +2064,8 @@ public class ParserDDL extends ParserRoutine {
         Table[]         transitions  = new Table[4];
         RangeVariable[] rangeVars    = new RangeVariable[4];
         String          conditionSQL = null;
+        RangeGroup[] rangeGroups = new RangeGroup[]{
+            new RangeGroup.RangeGroupSimple(rangeVars) };
 
         if (token.tokenType == Tokens.REFERENCING) {
             read();
@@ -2287,7 +2290,7 @@ public class ParserDDL extends ParserRoutine {
             readThis(Tokens.CLOSEBRACKET);
 
             HsqlList unresolved = condition.resolveColumnReferences(session,
-                rangeVars, null);
+                new RangeGroupSimple(rangeVars), rangeGroups, null);
 
             ExpressionColumn.checkColumnsResolved(unresolved);
             condition.resolveTypes(session, null);

@@ -49,16 +49,16 @@ import org.hsqldb.types.RowType;
 public class ExpressionAggregate extends Expression {
 
     boolean    isDistinctAggregate;
-    Expression condition = Expression.EXPR_TRUE;
     ArrayType  arrayType;
 
     ExpressionAggregate(int type, boolean distinct, Expression e) {
 
         super(type);
 
-        nodes               = new Expression[UNARY];
+        nodes               = new Expression[BINARY];
         isDistinctAggregate = distinct;
         nodes[LEFT]         = e;
+        nodes[RIGHT]        = Expression.EXPR_TRUE;
     }
 
     boolean isSelfAggregate() {
@@ -202,11 +202,11 @@ public class ExpressionAggregate extends Expression {
     }
 
     public HsqlList resolveColumnReferences(Session session,
-            RangeVariable[] rangeVarArray, int rangeCount,
-            HsqlList unresolvedSet, boolean acceptsSequences) {
+            RangeGroup rangeGroup, int rangeCount,
+            RangeGroup[] rangeGroups, HsqlList unresolvedSet, boolean acceptsSequences) {
 
-        HsqlList conditionSet = condition.resolveColumnReferences(session,
-            rangeVarArray, rangeCount, null, false);
+        HsqlList conditionSet = nodes[RIGHT].resolveColumnReferences(session,
+            rangeGroup, rangeCount, rangeGroups, null, false);
 
         if (conditionSet != null) {
             ExpressionColumn.checkColumnsResolved(conditionSet);
@@ -250,7 +250,7 @@ public class ExpressionAggregate extends Expression {
 
         dataType = SetFunction.getType(session, opType, nodes[LEFT].dataType);
 
-        condition.resolveTypes(session, null);
+        nodes[RIGHT].resolveTypes(session, null);
     }
 
     public boolean equals(Expression other) {
@@ -261,9 +261,7 @@ public class ExpressionAggregate extends Expression {
 
         ExpressionAggregate o = (ExpressionAggregate) other;
 
-        if (opType == other.opType && exprSubType == other.exprSubType
-                && isDistinctAggregate == o.isDistinctAggregate
-                && condition.equals(o.condition)) {
+        if (isDistinctAggregate == o.isDistinctAggregate) {
             return super.equals(other);
         }
 
@@ -272,7 +270,7 @@ public class ExpressionAggregate extends Expression {
 
     public Object updateAggregatingValue(Session session, Object currValue) {
 
-        if (!condition.testCondition(session)) {
+        if (!nodes[RIGHT].testCondition(session)) {
             return currValue;
         }
 
@@ -309,14 +307,14 @@ public class ExpressionAggregate extends Expression {
     }
 
     public Expression getCondition() {
-        return condition;
+        return nodes[RIGHT];
     }
 
     public boolean hasCondition() {
-        return condition != null && condition != Expression.EXPR_TRUE;
+        return nodes[RIGHT] != Expression.EXPR_TRUE;
     }
 
     public void setCondition(Expression e) {
-        condition = e;
+        nodes[RIGHT] = e;
     }
 }

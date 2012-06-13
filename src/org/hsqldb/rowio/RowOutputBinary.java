@@ -57,15 +57,15 @@ import org.hsqldb.types.Types;
  *
  * @author Bob Preston (sqlbob@users dot sourceforge.net)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.6.7
+ * @version 2.2.7
  * @since 1.7.0
  */
 public class RowOutputBinary extends RowOutputBase {
 
-    protected static final int INT_STORE_SIZE = 4;
-    int                        storageSize;
-    final int                  scale;    // 2 to power n where n >= 0
-    final int                  mask;
+    public static final int INT_STORE_SIZE = 4;
+    int                     storageSize;
+    final int               scale;    // 2 to power n where n >= 0
+    final int               mask;
 
     public RowOutputBinary(int initialSize, int scale) {
 

@@ -292,6 +292,13 @@ public class View extends TableDerived {
         super.removeTrigger(td);
     }
 
+    /**
+     * Overridden to disable SET TABLE READONLY DDL for View objects.
+     */
+    public void setDataReadOnly(boolean value) {
+        throw Error.error(ErrorCode.X_28000);
+    }
+
     public int getCheckOption() {
         return check;
     }
@@ -307,13 +314,6 @@ public class View extends TableDerived {
         statement = sql;
     }
 
-    /**
-     * Overridden to disable SET TABLE READONLY DDL for View objects.
-     */
-    public void setDataReadOnly(boolean value) {
-        throw Error.error(ErrorCode.X_28000);
-    }
-
     public void collectAllFunctionExpressions(OrderedHashSet collector) {
 
         // filter schemaObjectNames
@@ -325,5 +325,15 @@ public class View extends TableDerived {
 
     public SubQuery[] getSubqueries() {
         return viewSubqueries;
+    }
+
+    public QueryExpression newQueryExpression(Session session) {
+        ParserDQL p = new ParserDQL(session, new Scanner(statement));
+
+        p.read();
+
+        SubQuery sq    = p.XreadViewSubquery(this);
+        return sq.queryExpression;
+
     }
 }

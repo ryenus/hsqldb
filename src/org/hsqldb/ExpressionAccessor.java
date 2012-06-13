@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2010, The HSQL Development Group
+/* Copyright (c) 2001-2011, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -59,8 +59,8 @@ public class ExpressionAccessor extends Expression {
     }
 
     public HsqlList resolveColumnReferences(Session session,
-            RangeVariable[] rangeVarArray, int rangeCount,
-            HsqlList unresolvedSet, boolean acceptsSequences) {
+            RangeGroup rangeGroup, int rangeCount,
+            RangeGroup[] rangeGroups, HsqlList unresolvedSet, boolean acceptsSequences) {
 
         for (int i = 0; i < nodes.length; i++) {
             if (nodes[i] == null) {
@@ -68,8 +68,7 @@ public class ExpressionAccessor extends Expression {
             }
 
             unresolvedSet = nodes[i].resolveColumnReferences(session,
-                    rangeVarArray, rangeCount, unresolvedSet,
-                    acceptsSequences);
+                    rangeGroup, rangeCount, rangeGroups, unresolvedSet, acceptsSequences);
         }
 
         return unresolvedSet;

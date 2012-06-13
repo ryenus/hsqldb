@@ -72,7 +72,7 @@ public class ExpressionColumnAccessor extends Expression {
         return column.getNameString();
     }
 
-    ColumnSchema getColumn() {
+    public ColumnSchema getColumn() {
         return column;
     }
 
@@ -81,8 +81,8 @@ public class ExpressionColumnAccessor extends Expression {
     }
 
     public HsqlList resolveColumnReferences(Session session,
-            RangeVariable[] rangeVarArray, int rangeCount,
-            HsqlList unresolvedSet, boolean acceptsSequences) {
+            RangeGroup rangeGroup, int rangeCount,
+            RangeGroup[] rangeGroups, HsqlList unresolvedSet, boolean acceptsSequences) {
         return unresolvedSet;
     }
 

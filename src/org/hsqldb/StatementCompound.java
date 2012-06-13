@@ -49,7 +49,7 @@ import org.hsqldb.types.Type;
  * @version 2.2.7
  * @since 1.9.0
  */
-public class StatementCompound extends Statement {
+public class StatementCompound extends Statement implements RangeGroup {
 
     final boolean       isLoop;
     HsqlName            label;
@@ -781,7 +781,7 @@ public class StatementCompound extends Statement {
 
         if (variables.length == 0) {
             if (parent == null) {
-                rangeVariables = root.getParameterRangeVariables();
+                rangeVariables = root.getRangeVariables();
             } else {
                 rangeVariables = parent.rangeVariables;
             }
@@ -814,7 +814,7 @@ public class StatementCompound extends Statement {
         scopeVariables = list;
 
         RangeVariable[] parameterRangeVariables =
-            root.getParameterRangeVariables();
+            root.getRangeVariables();
         RangeVariable range = new RangeVariable(list, null, true,
             RangeVariable.VARIALBE_RANGE);
 
@@ -949,4 +949,9 @@ public class StatementCompound extends Statement {
     public RangeVariable[] getRangeVariables() {
         return rangeVariables;
     }
+
+    public void setCorrelated() {
+        //
+    }
+
 }

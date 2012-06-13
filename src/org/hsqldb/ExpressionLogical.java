@@ -230,6 +230,10 @@ public class ExpressionLogical extends Expression {
                 case OpTypes.PARAMETER :
                 case OpTypes.VARIABLE :
                     isSingleColumnCondition = true;
+
+                    if (opType == OpTypes.EQUAL) {
+                        isSingleColumnEqual = true;
+                    }
                     break;
             }
         } else if (nodes[RIGHT].opType == OpTypes.COLUMN) {
@@ -240,6 +244,10 @@ public class ExpressionLogical extends Expression {
                 case OpTypes.PARAMETER :
                 case OpTypes.VARIABLE :
                     isSingleColumnCondition = true;
+
+                    if (opType == OpTypes.EQUAL) {
+                        isSingleColumnEqual = true;
+                    }
                     break;
             }
         }

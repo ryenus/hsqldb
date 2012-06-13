@@ -2040,7 +2040,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         Collation collation;
         String    collationName;
         String    collationSchema;
-        String    padAttribute    = "PAD SPACE";
+        String    padAttribute = "PAD SPACE";
         Object[]  row;
 
         collations = database.schemaManager.databaseObjectIterator(
@@ -2857,7 +2857,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
                         while (iterator.hasNext()) {
                             ExpressionColumn expr =
                                 (ExpressionColumn) iterator.next();
-                            HsqlName name = expr.getBaseColumnHsqlName();
+                            HsqlName name = expr.getColumn().getName();
 
                             if (name.type != SchemaObject.COLUMN) {
                                 continue;

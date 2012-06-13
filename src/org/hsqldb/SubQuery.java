@@ -114,16 +114,19 @@ class SubQuery implements Comparator {
                 }
                 break;
         }
+
+        queryExpression.subQuery = this;
     }
 
     SubQuery(Database database, int level, QueryExpression queryExpression,
              SubQuery sq) {
 
-        this.level             = level;
-        this.queryExpression   = queryExpression;
-        this.database          = database;
-        this.isRecursive       = true;
-        this.recursiveSubQuery = sq;
+        this.level               = level;
+        this.queryExpression     = queryExpression;
+        this.database            = database;
+        this.isRecursive         = true;
+        this.recursiveSubQuery   = sq;
+        queryExpression.subQuery = this;
     }
 
     SubQuery(Database database, int level, Expression dataExpression,

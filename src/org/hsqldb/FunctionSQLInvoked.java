@@ -66,11 +66,11 @@ public class FunctionSQLInvoked extends Expression {
     }
 
     public HsqlList resolveColumnReferences(Session session,
-            RangeVariable[] rangeVarArray, int rangeCount,
-            HsqlList unresolvedSet, boolean acceptsSequences) {
+            RangeGroup rangeGroup, int rangeCount,
+            RangeGroup[] rangeGroups, HsqlList unresolvedSet, boolean acceptsSequences) {
 
         HsqlList conditionSet = condition.resolveColumnReferences(session,
-            rangeVarArray, rangeCount, null, false);
+            rangeGroup, rangeCount, rangeGroups, null, false);
 
         if (conditionSet != null) {
             ExpressionColumn.checkColumnsResolved(conditionSet);
@@ -85,9 +85,7 @@ public class FunctionSQLInvoked extends Expression {
 
             return unresolvedSet;
         } else {
-            return super.resolveColumnReferences(session, rangeVarArray,
-                                                 rangeCount, unresolvedSet,
-                                                 acceptsSequences);
+            return super.resolveColumnReferences(session, rangeGroup, rangeCount, rangeGroups, unresolvedSet, acceptsSequences);
         }
     }
 
