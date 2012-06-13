@@ -545,8 +545,14 @@ public class Expression implements Cloneable {
     boolean isComposedOf(Expression exprList[], int start, int end,
                          OrderedIntHashSet excludeSet) {
 
-        if (opType == OpTypes.VALUE) {
-            return true;
+        switch (opType) {
+
+            case OpTypes.VALUE :
+            case OpTypes.DYNAMIC_PARAM :
+            case OpTypes.PARAMETER :
+            case OpTypes.VARIABLE : {
+                return true;
+            }
         }
 
         if (excludeSet.contains(opType)) {
@@ -608,8 +614,8 @@ public class Expression implements Cloneable {
     /**
      * For HAVING only.
      */
-    boolean isComposedOf(OrderedHashSet expressions,
-                         RangeGroup[] rangeGroups, OrderedIntHashSet excludeSet) {
+    boolean isComposedOf(OrderedHashSet expressions, RangeGroup[] rangeGroups,
+                         OrderedIntHashSet excludeSet) {
 
         if (opType == OpTypes.VALUE || opType == OpTypes.DYNAMIC_PARAM
                 || opType == OpTypes.PARAMETER || opType == OpTypes.VARIABLE) {
@@ -627,7 +633,7 @@ public class Expression implements Cloneable {
         }
 
         if (opType == OpTypes.COLUMN) {
-            for (int i = 0 ; i < rangeGroups.length; i++) {
+            for (int i = 0; i < rangeGroups.length; i++) {
                 RangeVariable[] ranges = rangeGroups[i].getRangeVariables();
 
                 for (int j = 0; j < ranges.length; j++) {
@@ -678,7 +684,8 @@ public class Expression implements Cloneable {
 
         for (int i = 0; i < nodes.length; i++) {
             result &= (nodes[i] == null
-                       || nodes[i].isComposedOf(expressions, rangeGroups, excludeSet));
+                       || nodes[i].isComposedOf(expressions, rangeGroups,
+                                                excludeSet));
         }
 
         return result;
@@ -889,7 +896,8 @@ public class Expression implements Cloneable {
         }
 
         if (subQuery != null && subQuery.queryExpression != null) {
-                set = subQuery.queryExpression.collectRangeVariables(rangeVariables, set);
+            set = subQuery.queryExpression.collectRangeVariables(
+                rangeVariables, set);
         }
 
         return set;
@@ -979,20 +987,19 @@ public class Expression implements Cloneable {
 
             case OpTypes.TABLE :
             case OpTypes.VALUELIST : {
-
                 if (subQuery != null) {
                     if (rangeGroup.getRangeVariables().length > rangeCount) {
                         RangeVariable[] rangeVars =
                             (RangeVariable[]) ArrayUtil.resizeArray(
                                 rangeGroup.getRangeVariables(), rangeCount);
 
-                        rangeGroup = new RangeGroupSimple(rangeVars, rangeGroup);
+                        rangeGroup = new RangeGroupSimple(rangeVars,
+                                                          rangeGroup);
                     }
 
                     rangeGroups =
                         (RangeGroup[]) ArrayUtil.toAdjustedArray(rangeGroups,
-                                                                 rangeGroup, rangeGroups.length,
-                                                                 1);
+                            rangeGroup, rangeGroups.length, 1);
                     rangeGroup = new RangeGroupSimple(subQuery);
                     rangeCount = 0;
                 }

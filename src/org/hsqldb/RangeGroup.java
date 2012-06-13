@@ -79,7 +79,7 @@ public interface RangeGroup {
 
     public static class RangeGroupEmpty implements RangeGroup {
 
-        public RangeGroupEmpty() {
+        RangeGroupEmpty() {
 
             //
         }
