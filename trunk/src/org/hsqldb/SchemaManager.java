@@ -208,7 +208,7 @@ public class SchemaManager {
                     sequence.getName());
             }
 
-            schema.clearStructures();
+            schema.release();
             schemaMap.remove(name);
 
             if (defaultSchemaHsqlName.name.equals(name)) {
@@ -258,7 +258,7 @@ public class SchemaManager {
         }
     }
 
-    public void clearStructures() {
+    public void release() {
 
         writeLock.lock();
 
@@ -268,7 +268,7 @@ public class SchemaManager {
             while (it.hasNext()) {
                 Schema schema = (Schema) it.next();
 
-                schema.clearStructures();
+                schema.release();
             }
         } finally {
             writeLock.unlock();

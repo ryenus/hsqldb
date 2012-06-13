@@ -127,7 +127,7 @@ public class DataFileCacheSession extends DataFileCache {
         }
     }
 
-    public void clear() {
+    protected void clear() {
 
         Iterator it = cache.getIterator();
 
@@ -138,6 +138,10 @@ public class DataFileCacheSession extends DataFileCache {
             row.destroy();
         }
 
-        super.clear();
+        cache.clear();
+
+        fileStartFreePosition = fileFreePosition = initialFreePos;
+
+        initBuffers();
     }
 }

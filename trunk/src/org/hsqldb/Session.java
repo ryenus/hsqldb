@@ -220,7 +220,7 @@ public class Session implements SessionInterface {
         } catch (HsqlException e) {}
 
         sessionData.closeAllNavigators();
-        sessionData.persistentStoreCollection.clearAllTables();
+        sessionData.persistentStoreCollection.release();
         statementManager.reset();
         database.sessionManager.removeSession(this);
         database.closeIfLast();

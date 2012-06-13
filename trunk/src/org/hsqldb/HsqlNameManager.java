@@ -59,14 +59,14 @@ import org.hsqldb.error.ErrorCode;
  * than all the existing names.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.0.1
+ * @version 2.2.9
  * @since 1.7.2
  */
 public final class HsqlNameManager {
 
     public static final String DEFAULT_CATALOG_NAME = "PUBLIC";
     private static final HsqlNameManager staticManager =
-        new HsqlNameManager(null);
+        new HsqlNameManager();
 
     static {
         staticManager.serialNumber = Integer.MIN_VALUE;
@@ -86,14 +86,24 @@ public final class HsqlNameManager {
     private int      serialNumber = 1;        // 0 is reserved in lookups
     private int      sysNumber    = 10000;    // avoid name clash in older scripts
     private HsqlName catalogName;
+    private boolean  sqlRegularNames;
+
+    public HsqlNameManager() {
+        sqlRegularNames = true;
+    }
 
     public HsqlNameManager(Database database) {
         catalogName = new HsqlName(this, DEFAULT_CATALOG_NAME,
                                    SchemaObject.CATALOG, false);
+        sqlRegularNames = database.sqlRegularNames;
     }
 
     public HsqlName getCatalogName() {
         return catalogName;
+    }
+
+    public void setSqlRegularNames(boolean value) {
+        sqlRegularNames = value;
     }
 
     public static HsqlName newSystemObjectName(String name, int type) {
@@ -447,7 +457,7 @@ public final class HsqlNameManager {
 
         public void rename(String name, boolean isquoted) {
 
-            if (name.length() > 128) {
+            if (manager.sqlRegularNames && name.length() > 128) {
                 throw Error.error(ErrorCode.X_42501, name);
             }
 

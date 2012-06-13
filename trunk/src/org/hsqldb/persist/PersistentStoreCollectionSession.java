@@ -48,7 +48,7 @@ import org.hsqldb.store.ValuePool;
  * TableBase.getPersistenceId().
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.2.7
+ * @version 2.2.9
  * @since 1.9.0
  */
 public class PersistentStoreCollectionSession
@@ -367,5 +367,9 @@ implements PersistentStoreCollection {
 
             resultCache = null;
         }
+    }
+
+    public void release() {
+        clearAllTables();
     }
 }
