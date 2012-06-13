@@ -304,6 +304,7 @@ public class LobManager {
 
     public void close() {
         lobStore.close();
+        lobStore = null;
     }
 
     public LobStore getLobStore() {

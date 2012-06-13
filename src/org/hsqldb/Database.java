@@ -61,7 +61,7 @@ import org.hsqldb.types.Collation;
  * It holds the data structures that form an HSQLDB database instance.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.2.6
+ * @version 2.2.9
  * @since 1.9.0
  */
 public class Database {
@@ -271,7 +271,11 @@ public class Database {
     void clearStructures() {
 
         if (schemaManager != null) {
-            schemaManager.clearStructures();
+            schemaManager.release();
+        }
+
+        if (checkpointRunner != null) {
+            checkpointRunner.stop();
         }
 
         granteeManager   = null;
@@ -443,7 +447,10 @@ public class Database {
     }
 
     public void setRegularNames(boolean mode) {
+
         sqlRegularNames = mode;
+
+        nameManager.setSqlRegularNames(mode);
     }
 
     public void setStrictColumnSize(boolean mode) {
@@ -607,7 +614,8 @@ public class Database {
             }
         }
 
-        checkpointRunner.stop();
+        lobManager = null;
+
         logger.releaseLock();
         setState(DATABASE_SHUTDOWN);
         clearStructures();

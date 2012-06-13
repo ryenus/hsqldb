@@ -493,17 +493,12 @@ public class DataFileCache {
         }
     }
 
-    public void clear() {
+    protected void clear() {
 
         writeLock.lock();
 
         try {
             cache.clear();
-
-            fileStartFreePosition = fileFreePosition = initialFreePos;
-
-            freeBlocks.clear();
-            initBuffers();
         } finally {
             writeLock.unlock();
         }
@@ -517,11 +512,7 @@ public class DataFileCache {
             storeCount += adjust;
 
             if (storeCount == 0) {
-                if (shadowFile == null) {
                     clear();
-                } else {
-                    cache.clear();
-                }
             }
         } finally {
             writeLock.unlock();

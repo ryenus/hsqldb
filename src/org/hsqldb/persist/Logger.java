@@ -647,6 +647,9 @@ public class Logger {
                     log.close(true);
                     break;
             }
+
+            database.persistentStoreCollection.release();
+
         } catch (Throwable e) {
             database.logger.logSevereEvent("error closing log", e);
 

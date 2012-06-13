@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2010, The HSQL Development Group
+/* Copyright (c) 2001-2011, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -83,6 +83,10 @@ public class ArraySort {
 
         int baseIndex    = start;
         int currentIndex = start + 1;
+
+        if (array.length == 0) {
+            return 0;
+        }
 
         for (; currentIndex < limit; currentIndex++) {
             int compare = comparator.compare(array[baseIndex],

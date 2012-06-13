@@ -356,7 +356,7 @@ public final class Schema implements SchemaObject {
         }
     }
 
-    void clearStructures() {
+    void release() {
 
         tableList.clear();
         sequenceList.clear();
