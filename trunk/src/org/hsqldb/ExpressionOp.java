@@ -306,8 +306,8 @@ public class ExpressionOp extends Expression {
     }
 
     public HsqlList resolveColumnReferences(Session session,
-            RangeVariable[] rangeVarArray, int rangeCount,
-            HsqlList unresolvedSet, boolean acceptsSequences) {
+            RangeGroup rangeGroup, int rangeCount,
+            RangeGroup[] rangeGroups, HsqlList unresolvedSet, boolean acceptsSequences) {
 
         if (opType == OpTypes.VALUE) {
             return unresolvedSet;
@@ -326,8 +326,7 @@ public class ExpressionOp extends Expression {
             }
 
             unresolvedSet = nodes[i].resolveColumnReferences(session,
-                    rangeVarArray, rangeCount, unresolvedSet,
-                    acceptsSequences);
+                    rangeGroup, rangeCount, rangeGroups, unresolvedSet, acceptsSequences);
         }
 
         return unresolvedSet;

@@ -32,6 +32,7 @@
 package org.hsqldb;
 
 import org.hsqldb.HsqlNameManager.HsqlName;
+import org.hsqldb.RangeGroup.RangeGroupSimple;
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
 import org.hsqldb.lib.Iterator;
@@ -44,7 +45,7 @@ import org.hsqldb.types.Types;
  * Implementation of SQL table column metadata.<p>
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.0.1
+ * @version 2.2.9
  * @since 1.9.0
  */
 public final class ColumnSchema extends ColumnBase implements SchemaObject {
@@ -137,7 +138,7 @@ public final class ColumnSchema extends ColumnBase implements SchemaObject {
 
         generatingExpression.resetColumnReferences();
         generatingExpression.resolveCheckOrGenExpression(session,
-                ((Table) table).defaultRanges, false);
+                new RangeGroupSimple(((Table) table).defaultRanges), false);
 
         if (dataType.typeComparisonGroup
                 != generatingExpression.getDataType().typeComparisonGroup) {

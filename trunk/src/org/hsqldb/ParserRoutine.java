@@ -32,6 +32,7 @@
 package org.hsqldb;
 
 import org.hsqldb.HsqlNameManager.HsqlName;
+import org.hsqldb.RangeGroup.RangeGroupSimple;
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
 import org.hsqldb.lib.ArrayUtil;
@@ -313,19 +314,22 @@ public class ParserRoutine extends ParserDML {
         throw Error.error(ErrorCode.X_34000);
     }
 
-    Statement compileSelectSingleRowStatement(RangeVariable[] rangeVars) {
+    Statement compileSelectSingleRowStatement(RangeGroup[] rangeGroups) {
 
         OrderedHashSet     variableNames = new OrderedHashSet();
         Type[]             targetTypes;
         LongDeque          colIndexList = new LongDeque();
         QuerySpecification select;
 
-        compileContext.setOuterRanges(rangeVars);
+        compileContext.setOuterRanges(rangeGroups);
 
         select = XreadSelect();
 
         readThis(Tokens.INTO);
-        readTargetSpecificationList(variableNames, rangeVars, colIndexList);
+
+        RangeVariable[] ranges = rangeGroups[0].getRangeVariables();
+
+        readTargetSpecificationList(variableNames, ranges, colIndexList);
         XreadTableExpression(select);
         select.setReturningResult();
 
@@ -351,7 +355,7 @@ public class ParserRoutine extends ParserDML {
         }
 
         select.setReturningResult();
-        select.resolve(session, rangeVars, targetTypes);
+        select.resolve(session, rangeGroups, targetTypes);
 
         if (select.getColumnCount() != variables.length) {
             throw Error.error(ErrorCode.X_42564, Tokens.T_INTO);
@@ -366,7 +370,7 @@ public class ParserRoutine extends ParserDML {
     /**
      * Creates GET DIAGNOSTICS.
      */
-    Statement compileGetStatement(RangeVariable rangeVars[]) {
+    Statement compileGetStatement(RangeVariable[] rangeVars) {
 
         read();
         readThis(Tokens.DIAGNOSTICS);
@@ -374,6 +378,8 @@ public class ParserRoutine extends ParserDML {
         OrderedHashSet targetSet    = new OrderedHashSet();
         HsqlArrayList  exprList     = new HsqlArrayList();
         LongDeque      colIndexList = new LongDeque();
+        RangeGroup[] rangeGroups = new RangeGroup[]{
+            new RangeGroupSimple(rangeVars) };
 
         readGetClauseList(rangeVars, targetSet, colIndexList, exprList);
 
@@ -396,10 +402,10 @@ public class ParserRoutine extends ParserDML {
         targetSet.toArray(targets);
 
         for (int i = 0; i < targets.length; i++) {
-            this.resolveOuterReferencesAndTypes(rangeVars, targets[i]);
+            resolveOuterReferencesAndTypes(rangeGroups, targets[i]);
         }
 
-        resolveOuterReferencesAndTypes(rangeVars, expression);
+        resolveOuterReferencesAndTypes(rangeGroups, expression);
 
         for (int i = 0; i < targets.length; i++) {
             if (targets[i].getColumn().getParameterMode()
@@ -424,7 +430,7 @@ public class ParserRoutine extends ParserDML {
     /**
      * Creates SET Statement for PSM or session variables from this parse context.
      */
-    StatementSet compileSetStatement(RangeVariable rangeVars[]) {
+    StatementSet compileSetStatement(RangeVariable[] rangeVars) {
 
         read();
 
@@ -485,7 +491,7 @@ public class ParserRoutine extends ParserDML {
      * Creates SET Statement for a trigger row from this parse context.
      */
     StatementDMQL compileTriggerSetStatement(Table table,
-            RangeVariable[] rangeVars) {
+            RangeGroup[] rangeGroups) {
 
         read();
 
@@ -494,7 +500,7 @@ public class ParserRoutine extends ParserDML {
         OrderedHashSet targetSet = new OrderedHashSet();
         HsqlArrayList  exprList  = new HsqlArrayList();
         RangeVariable[] targetRangeVars = new RangeVariable[]{
-            rangeVars[TriggerDef.NEW_ROW] };
+            rangeGroups[0].getRangeVariables()[TriggerDef.NEW_ROW] };
         LongDeque colIndexList = new LongDeque();
 
         readSetClauseList(targetRangeVars, targetSet, colIndexList, exprList);
@@ -508,19 +514,19 @@ public class ParserRoutine extends ParserDML {
         targetSet.toArray(targets);
 
         for (int i = 0; i < targets.length; i++) {
-            this.resolveOuterReferencesAndTypes(RangeVariable.emptyArray,
-                                                targets[i]);
+            resolveOuterReferencesAndTypes(RangeGroup.emptyArray, targets[i]);
         }
 
         updateExpressions = new Expression[exprList.size()];
 
         exprList.toArray(updateExpressions);
-        resolveUpdateExpressions(table, rangeVars, columnMap,
-                                 updateExpressions, RangeVariable.emptyArray);
+        resolveUpdateExpressions(table, RangeGroup.emptyGroup, columnMap,
+                                 updateExpressions, rangeGroups);
 
         StatementDMQL cs = new StatementSet(session, targets, table,
-                                            rangeVars, columnMap,
-                                            updateExpressions, compileContext);
+                                            rangeGroups[0].getRangeVariables(),
+                                            columnMap, updateExpressions,
+                                            compileContext);
 
         return cs;
     }
@@ -1022,15 +1028,18 @@ public class ParserRoutine extends ParserDML {
     private Object[] readLocalDeclarationList(Routine routine,
             StatementCompound context) {
 
-        HsqlArrayList   list                = new HsqlArrayList();
-        final int       table               = 0;
-        final int       variableOrCondition = 1;
-        final int       cursor              = 2;
-        final int       handler             = 3;
-        int             objectType          = table;
-        RangeVariable[] rangeVariables = getContextRanges(routine, context);
+        HsqlArrayList list                = new HsqlArrayList();
+        final int     table               = 0;
+        final int     variableOrCondition = 1;
+        final int     cursor              = 2;
+        final int     handler             = 3;
+        int           objectType          = table;
+        RangeGroup[]  rangeGroups         = new RangeGroup[1];
 
-        compileContext.setOuterRanges(rangeVariables);
+        rangeGroups[0] = context == null ? routine
+                                         : context;
+
+        compileContext.setOuterRanges(rangeGroups);
 
         while (token.tokenType == Tokens.DECLARE) {
             Object var = null;
@@ -1053,7 +1062,7 @@ public class ParserRoutine extends ParserDML {
                     list.addAll((Object[]) var);
                 }
             } else if (objectType == cursor) {
-                var = compileDeclareCursor(true);
+                var = compileDeclareCursor(rangeGroups, true);
 
                 if (var == null) {
                     objectType = handler;
@@ -1377,7 +1386,10 @@ public class ParserRoutine extends ParserDML {
 
         Statement       cs             = null;
         HsqlName        label          = null;
-        RangeVariable[] rangeVariables = getContextRanges(routine, context);
+        RangeGroup      rangeGroup     = context == null ? routine
+                                                         : context;
+        RangeVariable[] rangeVariables = rangeGroup.getRangeVariables();
+        RangeGroup[]    rangeGroups    = new RangeGroup[]{ rangeGroup };
 
         if (!routine.isTrigger() && isSimpleName() && !isReservedKey()) {
             label = readNewSchemaObjectName(SchemaObject.LABEL, false);
@@ -1419,7 +1431,7 @@ public class ParserRoutine extends ParserDML {
                         throw unexpectedToken();
                     }
 
-                    cs = compileSelectSingleRowStatement(rangeVariables);
+                    cs = compileSelectSingleRowStatement(rangeGroups);
 
                     break;
                 }
@@ -1430,7 +1442,7 @@ public class ParserRoutine extends ParserDML {
                         throw unexpectedToken();
                     }
 
-                    cs = compileInsertStatement(rangeVariables);
+                    cs = compileInsertStatement(rangeGroups);
                     break;
 
                 case Tokens.UPDATE :
@@ -1438,7 +1450,7 @@ public class ParserRoutine extends ParserDML {
                         throw unexpectedToken();
                     }
 
-                    cs = compileUpdateStatement(rangeVariables);
+                    cs = compileUpdateStatement(rangeGroups);
                     break;
 
                 case Tokens.DELETE :
@@ -1446,7 +1458,7 @@ public class ParserRoutine extends ParserDML {
                         throw unexpectedToken();
                     }
 
-                    cs = compileDeleteStatement(rangeVariables);
+                    cs = compileDeleteStatement(rangeGroups);
                     break;
 
                 case Tokens.TRUNCATE :
@@ -1462,7 +1474,7 @@ public class ParserRoutine extends ParserDML {
                         throw unexpectedToken();
                     }
 
-                    cs = compileMergeStatement(rangeVariables);
+                    cs = compileMergeStatement(rangeGroups);
                     break;
 
                 case Tokens.SET :
@@ -1478,7 +1490,7 @@ public class ParserRoutine extends ParserDML {
 
                             try {
                                 cs = compileTriggerSetStatement(
-                                    routine.triggerTable, rangeVariables);
+                                    routine.triggerTable, rangeGroups);
 
                                 break;
                             } catch (HsqlException e) {
@@ -1510,7 +1522,7 @@ public class ParserRoutine extends ParserDML {
                         throw unexpectedToken();
                     }
 
-                    cs = compileCallStatement(rangeVariables, true);
+                    cs = compileCallStatement(rangeGroups, true);
 
                     Routine proc = ((StatementProcedure) cs).procedure;
 
@@ -1636,9 +1648,12 @@ public class ParserRoutine extends ParserDML {
     private Statement compileReturnValue(Routine routine,
                                          StatementCompound context) {
 
-        RangeVariable[] rangeVariables = getContextRanges(routine, context);
+        RangeGroup[] rangeGroups = new RangeGroup[1];
 
-        compileContext.setOuterRanges(rangeVariables);
+        rangeGroups[0] = context == null ? routine
+                                         : context;
+
+        compileContext.setOuterRanges(rangeGroups);
 
         Expression e = XreadValueExpressionOrNull();
 
@@ -1796,14 +1811,18 @@ public class ParserRoutine extends ParserDML {
     private Statement compileFor(Routine routine, StatementCompound context,
                                  HsqlName label) {
 
-        RangeVariable[] rangeVariables = getContextRanges(routine, context);
+        RangeGroup[] rangeGroups = new RangeGroup[1];
 
-        compileContext.setOuterRanges(rangeVariables);
+        rangeGroups[0] = context == null ? routine
+                                         : context;
+
+        compileContext.setOuterRanges(rangeGroups);
         readThis(Tokens.FOR);
 
         StatementQuery cursorStatement =
-            compileCursorSpecification(ResultProperties.defaultPropsValue,
-                                       false, rangeVariables);
+            compileCursorSpecification(rangeGroups,
+                                       ResultProperties.defaultPropsValue,
+                                       false);
 
         readThis(Tokens.DO);
 
@@ -2163,18 +2182,17 @@ public class ParserRoutine extends ParserDML {
                                         StatementCompound context,
                                         Expression e) {
 
-        RangeVariable[] rangeVars = getContextRanges(routine, context);
+        RangeGroup rangeGroup = context == null ? routine
+                                                : context;
 
-        resolveOuterReferencesAndTypes(rangeVars, e);
+        resolveOuterReferencesAndTypes(new RangeGroup[]{ rangeGroup }, e);
     }
 
-    RangeVariable[] getContextRanges(Routine routine,
-                                     StatementCompound context) {
+    void resolveOuterReferencesAndTypes(RangeVariable[] rangeVars,
+                                        Expression e) {
 
-        if (context == null) {
-            return routine.getParameterRangeVariables();
-        } else {
-            return context.getRangeVariables();
-        }
+        RangeGroup rangeGroup = new RangeGroupSimple(rangeVars);
+
+        resolveOuterReferencesAndTypes(new RangeGroup[]{ rangeGroup }, e);
     }
 }

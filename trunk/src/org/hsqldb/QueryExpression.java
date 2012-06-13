@@ -65,7 +65,7 @@ import org.hsqldb.types.Types;
  * - Result metadata for the final result of QueryExpression
  *
  */
-public class QueryExpression {
+public class QueryExpression implements RangeGroup {
 
     public static final int NOUNION       = 0,
                             UNION         = 1,
@@ -92,6 +92,8 @@ public class QueryExpression {
     HsqlList unresolvedExpressions;
 
     //
+    boolean isReferencesResolved;
+    boolean isPartResolved;
     boolean isResolved;
 
     //
@@ -103,12 +105,14 @@ public class QueryExpression {
 
     //
     View    view;
+    boolean isBaseMergeable;
     boolean isMergeable;
     boolean isUpdatable;
     boolean isInsertable;
     boolean isCheckable;
     boolean isTopLevel;
     boolean acceptsSequences;
+    boolean isCorrelated;
 
     //
     public TableBase resultTable;
@@ -119,6 +123,9 @@ public class QueryExpression {
 
     //
     CompileContext compileContext;
+
+    //
+    SubQuery subQuery;
 
     QueryExpression(CompileContext compileContext) {
         this.compileContext = compileContext;
@@ -132,6 +139,19 @@ public class QueryExpression {
 
         sortAndSlice             = SortAndSlice.noSort;
         this.leftQueryExpression = leftQueryExpression;
+    }
+
+    public RangeVariable[] getRangeVariables() {
+        return RangeVariable.emptyArray;
+    }
+
+    public void setCorrelated() {
+
+        if (subQuery != null) {
+            subQuery.setCorrelated();
+        }
+
+        isCorrelated = true;
     }
 
     void addUnion(QueryExpression queryExpression, int unionType) {
@@ -161,7 +181,7 @@ public class QueryExpression {
         isFullOrder = true;
 
         if (leftQueryExpression == null) {
-            if (isResolved) {
+            if (isPartResolved) {
                 ((QuerySpecification) this).createFullIndex(null);
             }
 
@@ -174,21 +194,21 @@ public class QueryExpression {
 
     public void resolve(Session session) {
 
-        resolveReferences(session, RangeVariable.emptyArray);
+        resolveReferences(session, RangeGroup.emptyArray);
         ExpressionColumn.checkColumnsResolved(unresolvedExpressions);
         resolveTypes(session);
     }
 
-    public void resolve(Session session, RangeVariable[] outerRanges,
+    public void resolve(Session session, RangeGroup[] rangeGroups,
                         Type[] targetTypes) {
 
-        resolveReferences(session, outerRanges);
+        resolveReferences(session, rangeGroups);
 
         if (unresolvedExpressions != null) {
             for (int i = 0; i < unresolvedExpressions.size(); i++) {
                 Expression e = (Expression) unresolvedExpressions.get(i);
                 HsqlList list = e.resolveColumnReferences(session,
-                    outerRanges, null);
+                    RangeGroup.emptyGroup, rangeGroups, null);
 
                 ExpressionColumn.checkColumnsResolved(list);
             }
@@ -210,13 +230,21 @@ public class QueryExpression {
         resolveTypesPartThree(session);
     }
 
-    public void resolveReferences(Session session,
-                                  RangeVariable[] outerRanges) {
+    public void resolveReferences(Session session, RangeGroup[] rangeGroups) {
 
-        leftQueryExpression.resolveReferences(session, outerRanges);
-        rightQueryExpression.resolveReferences(session, outerRanges);
+        if (isReferencesResolved) {
+            return;
+        }
+
+        leftQueryExpression.resolveReferences(session, rangeGroups);
+        rightQueryExpression.resolveReferences(session, rangeGroups);
         addUnresolvedExpressions(leftQueryExpression.unresolvedExpressions);
         addUnresolvedExpressions(rightQueryExpression.unresolvedExpressions);
+
+        if (leftQueryExpression.isCorrelated
+                || rightQueryExpression.isCorrelated) {
+            setCorrelated();
+        }
 
         if (!unionCorresponding) {
             columnCount = leftQueryExpression.getColumnCount();
@@ -234,7 +262,8 @@ public class QueryExpression {
             ArrayUtil.fillSequence(leftQueryExpression.unionColumnMap);
             resolveColumnRefernecesInUnionOrderBy();
 
-            accessibleColumns = leftQueryExpression.accessibleColumns;
+            accessibleColumns    = leftQueryExpression.accessibleColumns;
+            isReferencesResolved = true;
 
             return;
         }
@@ -314,6 +343,8 @@ public class QueryExpression {
         accessibleColumns = new boolean[columnCount];
 
         ArrayUtil.fillArray(accessibleColumns, true);
+
+        isReferencesResolved = true;
     }
 
     /**
@@ -382,8 +413,6 @@ public class QueryExpression {
         resolveTypesPartOne(session);
         resolveTypesPartTwo(session);
         resolveTypesPartThree(session);
-
-        isResolved = true;
     }
 
     void resolveTypesPartOne(Session session) {
@@ -478,6 +507,8 @@ public class QueryExpression {
                 queryExpression = queryExpression.leftQueryExpression;
             }
         }
+
+        isPartResolved = true;
 /*
         // disallow lobs
         ResultMetaData meta = getMetaData();
@@ -492,7 +523,9 @@ public class QueryExpression {
 */
     }
 
-    void resolveTypesPartThree(Session session) {}
+    void resolveTypesPartThree(Session session) {
+        isResolved = true;
+    }
 
     public Object[] getValues(Session session) {
 
@@ -677,8 +710,18 @@ public class QueryExpression {
 
         OrderedHashSet subqueries = leftQueryExpression.getSubqueries();
 
-        return OrderedHashSet.addAll(subqueries,
-                                     rightQueryExpression.getSubqueries());
+        subqueries =
+            OrderedHashSet.addAll(subqueries,
+                                  rightQueryExpression.getSubqueries());
+
+/*
+        if (subQuery != null && subqueries != null) {
+            for (int i = 0; i < subqueries.size(); i++) {
+                SubQuery sq = (SubQuery) subqueries.get(i);
+            }
+        }
+*/
+        return subqueries;
     }
 
     public boolean isSingleColumn() {
@@ -759,8 +802,24 @@ public class QueryExpression {
     }
 
     public boolean areColumnsResolved() {
-        return unresolvedExpressions == null
-               || unresolvedExpressions.isEmpty();
+
+        if (unresolvedExpressions == null || unresolvedExpressions.isEmpty()) {
+            return true;
+        }
+
+        for (int i = 0; i < unresolvedExpressions.size(); i++) {
+            Expression e = (Expression) unresolvedExpressions.get(i);
+
+            if (e.getRangeVariable() == null) {
+                return false;
+            }
+
+            if (e.getRangeVariable().rangeType == RangeVariable.TABLE_RANGE) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     String[] getColumnNames() {
@@ -805,6 +864,18 @@ public class QueryExpression {
         if (rightQueryExpression != null) {
             set = rightQueryExpression.collectAllExpressions(set, typeSet,
                     stopAtTypeSet);
+        }
+
+        return set;
+    }
+
+    OrderedHashSet collectRangeVariables(RangeVariable[] rangeVars,
+                                         OrderedHashSet set) {
+
+        set = leftQueryExpression.collectRangeVariables(rangeVars, set);
+
+        if (rightQueryExpression != null) {
+            set = rightQueryExpression.collectRangeVariables(rangeVars, set);
         }
 
         return set;
@@ -1022,10 +1093,10 @@ public class QueryExpression {
                        other.rightQueryExpression));
     }
 
-    public void replaceColumnReference(RangeVariable range,
-                                       Expression[] list) {
-        leftQueryExpression.replaceColumnReference(range, list);
-        rightQueryExpression.replaceColumnReference(range, list);
+    public void replaceColumnReferences(RangeVariable range,
+                                        Expression[] list) {
+        leftQueryExpression.replaceColumnReferences(range, list);
+        rightQueryExpression.replaceColumnReferences(range, list);
     }
 
     public void replaceRangeVariables(RangeVariable[] ranges,

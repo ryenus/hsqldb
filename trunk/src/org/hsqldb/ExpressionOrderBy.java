@@ -132,14 +132,14 @@ public class ExpressionOrderBy extends Expression {
 
         StringBuffer sb = new StringBuffer();
 
-        for (int i = 0; i < blanks; i++) {
-            sb.append(' ');
-        }
-
         sb.append(getLeftNode().describe(session, blanks));
 
         if (isDescending) {
-            sb.append(Tokens.T_DESC).append(' ');
+            for (int i = 0; i < blanks; i++) {
+                sb.append(' ');
+            }
+
+            sb.append(Tokens.T_DESC).append('\n');
         }
 
         return sb.toString();

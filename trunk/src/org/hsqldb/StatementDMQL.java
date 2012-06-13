@@ -352,7 +352,7 @@ public abstract class StatementDMQL extends Statement {
 
         subqueries         = getSubqueries(session);
         rangeIteratorCount = compileContext.getRangeVarCount();
-        rangeVariables     = compileContext.getRangeVariables();
+        rangeVariables     = compileContext.getAllRangeVariables();
         sequences          = compileContext.getSequences();
         routines           = compileContext.getRoutines();
 

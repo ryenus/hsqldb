@@ -34,10 +34,12 @@ package org.hsqldb;
 import org.hsqldb.HsqlNameManager.HsqlName;
 import org.hsqldb.HsqlNameManager.SimpleName;
 import org.hsqldb.ParserDQL.CompileContext;
+import org.hsqldb.RangeGroup.RangeGroupSimple;
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
 import org.hsqldb.index.Index;
 import org.hsqldb.lib.ArrayListIdentity;
+import org.hsqldb.lib.ArrayUtil;
 import org.hsqldb.lib.HsqlArrayList;
 import org.hsqldb.lib.HsqlList;
 import org.hsqldb.lib.OrderedHashSet;
@@ -193,6 +195,9 @@ public class Expression implements Cloneable {
 
     //
     boolean isSingleColumnCondition;
+
+    //
+    boolean isSingleColumnEqual;
 
     //
     Collation collation;
@@ -604,7 +609,7 @@ public class Expression implements Cloneable {
      * For HAVING only.
      */
     boolean isComposedOf(OrderedHashSet expressions,
-                         OrderedIntHashSet excludeSet) {
+                         RangeGroup[] rangeGroups, OrderedIntHashSet excludeSet) {
 
         if (opType == OpTypes.VALUE || opType == OpTypes.DYNAMIC_PARAM
                 || opType == OpTypes.PARAMETER || opType == OpTypes.VARIABLE) {
@@ -618,6 +623,18 @@ public class Expression implements Cloneable {
         for (int i = 0; i < expressions.size(); i++) {
             if (equals(expressions.get(i))) {
                 return true;
+            }
+        }
+
+        if (opType == OpTypes.COLUMN) {
+            for (int i = 0 ; i < rangeGroups.length; i++) {
+                RangeVariable[] ranges = rangeGroups[i].getRangeVariables();
+
+                for (int j = 0; j < ranges.length; j++) {
+                    if (ranges[j] == getRangeVariable()) {
+                        return true;
+                    }
+                }
             }
         }
 
@@ -661,7 +678,7 @@ public class Expression implements Cloneable {
 
         for (int i = 0; i < nodes.length; i++) {
             result &= (nodes[i] == null
-                       || nodes[i].isComposedOf(expressions, excludeSet));
+                       || nodes[i].isComposedOf(expressions, rangeGroups, excludeSet));
         }
 
         return result;
@@ -679,7 +696,7 @@ public class Expression implements Cloneable {
         }
 
         if (subQuery != null && subQuery.queryExpression != null) {
-            subQuery.queryExpression.replaceColumnReference(range, list);
+            subQuery.queryExpression.replaceColumnReferences(range, list);
         }
 
         return this;
@@ -872,16 +889,7 @@ public class Expression implements Cloneable {
         }
 
         if (subQuery != null && subQuery.queryExpression != null) {
-            HsqlList unresolvedExpressions =
-                subQuery.queryExpression.getUnresolvedExpressions();
-
-            if (unresolvedExpressions != null) {
-                for (int i = 0; i < unresolvedExpressions.size(); i++) {
-                    Expression e = (Expression) unresolvedExpressions.get(i);
-
-                    set = e.collectRangeVariables(rangeVariables, set);
-                }
-            }
+                set = subQuery.queryExpression.collectRangeVariables(rangeVariables, set);
         }
 
         return set;
@@ -951,15 +959,16 @@ public class Expression implements Cloneable {
      * resolve tables and collect unresolved column expressions
      */
     public HsqlList resolveColumnReferences(Session session,
-            RangeVariable[] rangeVarArray, HsqlList unresolvedSet) {
+            RangeGroup rangeGroup, RangeGroup[] rangeGroups,
+            HsqlList unresolvedSet) {
 
-        return resolveColumnReferences(session, rangeVarArray,
-                                       rangeVarArray.length, unresolvedSet,
-                                       true);
+        return resolveColumnReferences(session, rangeGroup,
+                                       rangeGroup.getRangeVariables().length,
+                                       rangeGroups, unresolvedSet, true);
     }
 
     public HsqlList resolveColumnReferences(Session session,
-            RangeVariable[] rangeVarArray, int rangeCount,
+            RangeGroup rangeGroup, int rangeCount, RangeGroup[] rangeGroups,
             HsqlList unresolvedSet, boolean acceptsSequences) {
 
         if (opType == OpTypes.VALUE) {
@@ -970,27 +979,36 @@ public class Expression implements Cloneable {
 
             case OpTypes.TABLE :
             case OpTypes.VALUELIST : {
-                HsqlList localSet = null;
+
+                if (subQuery != null) {
+                    if (rangeGroup.getRangeVariables().length > rangeCount) {
+                        RangeVariable[] rangeVars =
+                            (RangeVariable[]) ArrayUtil.resizeArray(
+                                rangeGroup.getRangeVariables(), rangeCount);
+
+                        rangeGroup = new RangeGroupSimple(rangeVars, rangeGroup);
+                    }
+
+                    rangeGroups =
+                        (RangeGroup[]) ArrayUtil.toAdjustedArray(rangeGroups,
+                                                                 rangeGroup, rangeGroups.length,
+                                                                 1);
+                    rangeGroup = new RangeGroupSimple(subQuery);
+                    rangeCount = 0;
+                }
 
                 for (int i = 0; i < nodes.length; i++) {
                     if (nodes[i] == null) {
                         continue;
                     }
 
-                    localSet = nodes[i].resolveColumnReferences(session,
-                            RangeVariable.emptyArray, localSet);
+                    unresolvedSet = nodes[i].resolveColumnReferences(session,
+                            rangeGroup, rangeCount, rangeGroups,
+                            unresolvedSet, acceptsSequences);
                 }
 
-                if (localSet != null) {
+                if (subQuery != null && subQuery.isCorrelated()) {
                     isCorrelated = true;
-
-                    if (subQuery != null) {
-                        subQuery.setCorrelated();
-                    }
-
-                    unresolvedSet = Expression.resolveColumnSet(session,
-                            rangeVarArray, rangeCount, localSet,
-                            unresolvedSet);
                 }
 
                 return unresolvedSet;
@@ -1003,7 +1021,7 @@ public class Expression implements Cloneable {
             }
 
             unresolvedSet = nodes[i].resolveColumnReferences(session,
-                    rangeVarArray, rangeCount, unresolvedSet,
+                    rangeGroup, rangeCount, rangeGroups, unresolvedSet,
                     acceptsSequences);
         }
 
@@ -1015,16 +1033,28 @@ public class Expression implements Cloneable {
             case OpTypes.ARRAY_SUBQUERY :
             case OpTypes.ROW_SUBQUERY :
             case OpTypes.TABLE_SUBQUERY : {
+                RangeVariable[] rangeVars = rangeGroup.getRangeVariables();
+
+                if (rangeVars.length > rangeCount) {
+                    rangeVars =
+                        (RangeVariable[]) ArrayUtil.resizeArray(rangeVars,
+                            rangeCount);
+                    rangeGroup = new RangeGroupSimple(rangeVars, rangeGroup);
+                }
+
+                rangeGroups =
+                    (RangeGroup[]) ArrayUtil.toAdjustedArray(rangeGroups,
+                        rangeGroup, rangeGroups.length, 1);
+
                 QueryExpression queryExpression = subQuery.queryExpression;
 
-                queryExpression.resolveReferences(session, rangeVarArray);
+                queryExpression.resolveReferences(session, rangeGroups);
+
+                if (subQuery.isCorrelated()) {
+                    isCorrelated = true;
+                }
 
                 if (!queryExpression.areColumnsResolved()) {
-                    isCorrelated = true;
-
-                    subQuery.setCorrelated();
-
-                    // take to enclosing context
                     if (unresolvedSet == null) {
                         unresolvedSet = new ArrayListIdentity();
                     }
@@ -1314,7 +1344,7 @@ public class Expression implements Cloneable {
         return getAlias();
     }
 
-    ColumnSchema getColumn() {
+    public ColumnSchema getColumn() {
         return null;
     }
 
@@ -1592,8 +1622,9 @@ public class Expression implements Cloneable {
         QuerySpecification s = new QuerySpecification(compileContext);
         RangeVariable[] ranges = new RangeVariable[]{
             new RangeVariable(t, null, null, null, compileContext) };
+        RangeGroup rangeGroup = new RangeGroupSimple(ranges);
 
-        e.resolveCheckOrGenExpression(session, ranges, true);
+        e.resolveCheckOrGenExpression(session, rangeGroup, true);
 
         s.exprColumns    = new Expression[1];
         s.exprColumns[0] = EXPR_TRUE;
@@ -1607,18 +1638,19 @@ public class Expression implements Cloneable {
 
         s.queryCondition = condition;
 
-        s.resolveReferences(session, RangeVariable.emptyArray);
+        s.resolveReferences(session, RangeGroup.emptyArray);
         s.resolveTypes(session);
 
         return s;
     }
 
     public void resolveCheckOrGenExpression(Session session,
-            RangeVariable[] ranges, boolean isCheck) {
+            RangeGroup rangeGroup, boolean isCheck) {
 
         boolean        nonDeterministic = false;
         OrderedHashSet set              = new OrderedHashSet();
-        HsqlList unresolved = resolveColumnReferences(session, ranges, null);
+        HsqlList unresolved = resolveColumnReferences(session, rangeGroup,
+            RangeGroup.emptyArray, null);
 
         ExpressionColumn.checkColumnsResolved(unresolved);
         resolveTypes(session, null);
@@ -1738,6 +1770,8 @@ public class Expression implements Cloneable {
 
         set.clear();
         collectObjectNames(set);
+
+        RangeVariable[] ranges = rangeGroup.getRangeVariables();
 
         for (int i = 0; i < set.size(); i++) {
             HsqlName name = (HsqlName) set.get(i);
@@ -1887,9 +1921,6 @@ public class Expression implements Cloneable {
 
     OrderedHashSet collectAllSubqueries(OrderedHashSet set) {
 
-        int count = set == null ? 0
-                                : set.size();
-
         for (int i = 0; i < nodes.length; i++) {
             if (nodes[i] != null) {
                 set = nodes[i].collectAllSubqueries(set);
@@ -1897,30 +1928,32 @@ public class Expression implements Cloneable {
         }
 
         if (subQuery != null) {
+            OrderedHashSet tempSet = null;
+
+            if (subQuery.queryExpression != null) {
+                tempSet = subQuery.queryExpression.getSubqueries();
+
+                int count = tempSet == null ? 0
+                                            : tempSet.size();
+
+                for (int i = 0; i < count; i++) {
+                    SubQuery sq = (SubQuery) tempSet.get(i);
+
+                    if (sq.isCorrelated()) {
+                        subQuery.setCorrelated();
+
+                        isCorrelated = true;
+                    }
+                }
+
+                set = OrderedHashSet.addAll(set, tempSet);
+            }
+
             if (set == null) {
                 set = new OrderedHashSet();
             }
 
             set.add(subQuery);
-
-            if (subQuery.queryExpression != null) {
-                OrderedHashSet tempSet =
-                    subQuery.queryExpression.getSubqueries();
-
-                set = OrderedHashSet.addAll(set, tempSet);
-            }
-
-            int newCount = set.size();
-
-            for (int i = count; i < newCount; i++) {
-                SubQuery sq = (SubQuery) set.get(i);
-
-                if (sq.isCorrelated()) {
-                    subQuery.setCorrelated();
-
-                    isCorrelated = true;
-                }
-            }
         }
 
         return set;
@@ -1957,19 +1990,29 @@ public class Expression implements Cloneable {
 
     static HsqlList resolveColumnSet(Session session,
                                      RangeVariable[] rangeVars,
-                                     int rangeCount, HsqlList sourceSet,
-                                     HsqlList targetSet) {
+                                     RangeGroup[] rangeGroups,
+                                     HsqlList sourceSet) {
+        return resolveColumnSet(session, rangeVars, rangeVars.length,
+                                rangeGroups, sourceSet, null);
+    }
+
+    static HsqlList resolveColumnSet(Session session,
+                                     RangeVariable[] rangeVars,
+                                     int rangeCount, RangeGroup[] rangeGroups,
+                                     HsqlList sourceSet, HsqlList targetSet) {
 
         if (sourceSet == null) {
             return targetSet;
         }
 
+        RangeGroup rangeGroup = new RangeGroupSimple(rangeVars);
+
         for (int i = 0; i < sourceSet.size(); i++) {
             Expression e = (Expression) sourceSet.get(i);
 
-            targetSet = e.resolveColumnReferences(session, rangeVars,
-                                                  rangeCount, targetSet,
-                                                  false);
+            targetSet = e.resolveColumnReferences(session, rangeGroup,
+                                                  rangeCount, rangeGroups,
+                                                  targetSet, false);
         }
 
         return targetSet;

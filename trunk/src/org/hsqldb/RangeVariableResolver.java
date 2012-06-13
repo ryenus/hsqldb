@@ -37,6 +37,7 @@ import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
 import org.hsqldb.index.Index;
 import org.hsqldb.lib.ArrayUtil;
+import org.hsqldb.lib.HashMap;
 import org.hsqldb.lib.HsqlArrayList;
 import org.hsqldb.lib.IntKeyIntValueHashMap;
 import org.hsqldb.lib.Iterator;
@@ -49,7 +50,7 @@ import org.hsqldb.lib.OrderedIntHashSet;
  * processing and which indexes are used for table access.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.0.1
+ * @version 2.2.9
  * @since 1.9.0
  */
 public class RangeVariableResolver {
@@ -65,7 +66,7 @@ public class RangeVariableResolver {
     HsqlArrayList[] tempJoinExpressions;
     HsqlArrayList[] joinExpressions;
     HsqlArrayList[] whereExpressions;
-    HsqlArrayList   queryExpressions = new HsqlArrayList();
+    HsqlArrayList   queryConditions = new HsqlArrayList();
 
     //
     Expression[] inExpressions;
@@ -74,16 +75,19 @@ public class RangeVariableResolver {
     boolean      expandInExpression = true;
 
     //
-    boolean hasOuterJoin = false;
-    int     firstLeftJoinIndex;
-    int     firstRightJoinIndex;
-    int     firstLateralJoinIndex;
+    int firstLeftJoinIndex;
+    int firstRightJoinIndex;
+    int lastRightJoinIndex;
+    int firstLateralJoinIndex;
+    int firstOuterJoinIndex;
+    int lastOuterJoinIndex;
 
     //
     OrderedIntHashSet     colIndexSetEqual = new OrderedIntHashSet();
     IntKeyIntValueHashMap colIndexSetOther = new IntKeyIntValueHashMap();
     OrderedHashSet        tempSet          = new OrderedHashSet();
-    MultiValueHashMap     tempMap          = new MultiValueHashMap();
+    HashMap               tempMap          = new HashMap();
+    MultiValueHashMap     tempMultiMap     = new MultiValueHashMap();
 
     RangeVariableResolver(QuerySpecification select) {
 
@@ -109,12 +113,13 @@ public class RangeVariableResolver {
 
     private void initialise() {
 
-        firstLeftJoinIndex  = rangeVariables.length;
-        firstRightJoinIndex = rangeVariables.length;
-        firstLateralJoinIndex  = rangeVariables.length;
-        inExpressions       = new Expression[rangeVariables.length];
-        inInJoin            = new boolean[rangeVariables.length];
-        tempJoinExpressions = new HsqlArrayList[rangeVariables.length];
+        firstLeftJoinIndex    = rangeVariables.length;
+        firstRightJoinIndex   = rangeVariables.length;
+        firstLateralJoinIndex = rangeVariables.length;
+        firstOuterJoinIndex   = rangeVariables.length;
+        inExpressions         = new Expression[rangeVariables.length];
+        inInJoin              = new boolean[rangeVariables.length];
+        tempJoinExpressions   = new HsqlArrayList[rangeVariables.length];
 
         for (int i = 0; i < rangeVariables.length; i++) {
             tempJoinExpressions[i] = new HsqlArrayList();
@@ -137,9 +142,11 @@ public class RangeVariableResolver {
 
         this.session = session;
 
-        decomposeAndConditions(session, conditions, queryExpressions);
+        decomposeAndConditions(session, conditions, queryConditions);
 
         for (int i = 0; i < rangeVariables.length; i++) {
+            rangeVarSet.add(rangeVariables[i]);
+
             if (rangeVariables[i].joinCondition == null) {
                 continue;
             }
@@ -148,15 +155,50 @@ public class RangeVariableResolver {
                                    tempJoinExpressions[i]);
         }
 
+        for (int j = 0; j < queryConditions.size(); j++) {
+            Expression e = (Expression) queryConditions.get(j);
+
+            if (e == ExpressionLogical.EXPR_TRUE) {
+                continue;
+            }
+
+            if (e.isSingleColumnEqual || e.isColumnEqual) {
+                RangeVariable range = e.getLeftNode().getRangeVariable();
+
+                if (e.getLeftNode().opType == OpTypes.COLUMN
+                        && range != null) {
+                    int index = rangeVarSet.getIndex(range);
+
+                    if (index > 0) {
+                        rangeVariables[index].isLeftJoin      = false;
+                        rangeVariables[index - 1].isRightJoin = false;
+                    }
+                }
+
+                range = e.getRightNode().getRangeVariable();
+
+                if (e.getRightNode().opType == OpTypes.COLUMN
+                        && range != null) {
+                    int index = rangeVarSet.getIndex(range);
+
+                    if (index > 0) {
+                        rangeVariables[index].isLeftJoin      = false;
+                        rangeVariables[index - 1].isRightJoin = false;
+                    }
+                }
+            }
+        }
+
         for (int i = 0; i < rangeVariables.length; i++) {
-            RangeVariable range = rangeVariables[i];
+            RangeVariable range   = rangeVariables[i];
+            boolean       isOuter = false;
 
             if (range.isLeftJoin) {
                 if (firstLeftJoinIndex == rangeVariables.length) {
                     firstLeftJoinIndex = i;
                 }
 
-                hasOuterJoin = true;
+                isOuter = true;
             }
 
             if (range.isRightJoin) {
@@ -164,224 +206,34 @@ public class RangeVariableResolver {
                     firstRightJoinIndex = i;
                 }
 
-                hasOuterJoin = true;
+                lastRightJoinIndex = i;
+                isOuter            = true;
             }
 
             if (range.isLateral) {
                 if (firstLateralJoinIndex == rangeVariables.length) {
                     firstLateralJoinIndex = i;
                 }
+
+                isOuter = true;
+            }
+
+            if (isOuter) {
+                if (firstOuterJoinIndex == rangeVariables.length) {
+                    firstOuterJoinIndex = i;
+                }
+
+                lastOuterJoinIndex = i;
             }
         }
+
+        expandConditions();
 
         conditions = null;
 
         reorder();
-
-        for (int i = 0; i < rangeVariables.length; i++) {
-            rangeVarSet.add(rangeVariables[i]);
-        }
-
         assignToLists();
-        expandConditions();
         assignToRangeVariables();
-    }
-
-    void reorder() {
-
-        if (rangeVariables.length == 1
-                || firstRightJoinIndex != rangeVariables.length) {
-            return;
-        }
-
-        if (firstLeftJoinIndex == 1) {
-            return;
-        }
-
-        if (firstLateralJoinIndex != rangeVariables.length) {
-            return;
-        }
-
-        if (sortAndSlice.usingIndex && sortAndSlice.primaryTableIndex != null) {
-            return;
-        }
-
-/*
-        for (int i = 0; i < rangeVariables.length; i++) {
-            if (!rangeVariables[i].rangeTable.isSchemaBaseTable()) {
-                return;
-            }
-        }
-*/
-        HsqlArrayList joins  = new HsqlArrayList();
-        HsqlArrayList starts = new HsqlArrayList();
-        HsqlArrayList others = new HsqlArrayList();
-
-        for (int i = 0; i < firstLeftJoinIndex; i++) {
-            HsqlArrayList tempJoins = tempJoinExpressions[i];
-
-            for (int j = 0; j < tempJoins.size(); j++) {
-                Expression e = (Expression) tempJoins.get(j);
-
-                if (e.isColumnEqual) {
-                    joins.add(e);
-                } else if (e.isSingleColumnCondition) {
-                    starts.add(e);
-                } else {
-                    others.add(e);
-                }
-            }
-        }
-
-        for (int i = 0; i < queryExpressions.size(); i++) {
-            Expression      e      = (Expression) queryExpressions.get(i);
-            RangeVariable[] ranges = e.getJoinRangeVariables(rangeVariables);
-            int count =
-                ArrayUtil.countCommonElements((Object[]) rangeVariables,
-                                              firstLeftJoinIndex,
-                                              (Object[]) ranges);
-
-            if (count != ranges.length) {
-                continue;
-            }
-
-            if (e.isColumnEqual) {
-                joins.add(e);
-            } else if (e.isSingleColumnCondition) {
-                starts.add(e);
-            } else {
-                others.add(e);
-            }
-        }
-
-        if (starts.size() == 0) {
-            return;
-        }
-
-        // choose start expressions
-        Expression    start    = null;
-        int           position = 0;
-        RangeVariable range    = null;
-        double cost = 1024;
-
-        if(!(rangeVariables[0].rangeTable instanceof TableDerived))
-            rangeVariables[0].rangeTable.getRowStore(session).elementCount();
-
-        if (cost < Index.minimumSelectivity) {
-            cost = Index.minimumSelectivity;
-        }
-
-        if (rangeVariables[0].rangeTable.getTableType()
-                == TableBase.CACHED_TABLE) {
-            cost *= Index.cachedFactor;
-        }
-
-        for (int i = 0; i < starts.size(); i++) {
-            Expression e = (Expression) starts.get(i);
-
-            range = e.getJoinRangeVariables(rangeVariables)[0];
-
-            double currentCost = e.costFactor(session, range, OpTypes.EQUAL);
-
-            if (range == rangeVariables[0]) {
-                start = null;
-
-                break;
-            }
-
-            if (currentCost < cost) {
-                start = e;
-            }
-        }
-
-        if (start == null) {
-            return;
-        }
-
-        //
-        position = ArrayUtil.find(rangeVariables, range);
-
-        if (position <= 0) {
-            return;
-        }
-
-        RangeVariable[] newRanges = new RangeVariable[rangeVariables.length];
-
-        ArrayUtil.copyArray(rangeVariables, newRanges, rangeVariables.length);
-
-        newRanges[position] = newRanges[0];
-        newRanges[0]        = range;
-        position            = 1;
-
-        for (; position < firstLeftJoinIndex; position++) {
-            boolean found = false;
-
-            for (int i = 0; i < joins.size(); i++) {
-                Expression e = (Expression) joins.get(i);
-
-                if (e == null) {
-                    continue;
-                }
-
-                int newPosition = getJoinedRangePosition(e, position,
-                    newRanges);
-
-                if (newPosition >= position) {
-                    range                  = newRanges[position];
-                    newRanges[position]    = newRanges[newPosition];
-                    newRanges[newPosition] = range;
-
-                    joins.set(i, null);
-
-                    found = true;
-
-                    break;
-                }
-            }
-
-            if (!found) {
-                break;
-            }
-        }
-
-        if (position != firstLeftJoinIndex) {
-            return;
-        }
-
-        ArrayUtil.copyArray(newRanges, rangeVariables, rangeVariables.length);
-        joins.clear();
-
-        for (int i = 0; i < firstLeftJoinIndex; i++) {
-            HsqlArrayList tempJoins = tempJoinExpressions[i];
-
-            joins.addAll(tempJoins);
-            tempJoins.clear();
-        }
-
-        tempJoinExpressions[firstLeftJoinIndex - 1].addAll(joins);
-    }
-
-    int getJoinedRangePosition(Expression e, int position,
-                               RangeVariable[] currentRanges) {
-
-        int             found  = -1;
-        RangeVariable[] ranges = e.getJoinRangeVariables(currentRanges);
-
-        for (int i = 0; i < ranges.length; i++) {
-            for (int j = 0; j < currentRanges.length; j++) {
-                if (ranges[i] == currentRanges[j]) {
-                    if (j >= position) {
-                        if (found > 0) {
-                            return -1;
-                        } else {
-                            found = j;
-                        }
-                    }
-                }
-            }
-        }
-
-        return found;
     }
 
     /**
@@ -474,107 +326,57 @@ public class RangeVariableResolver {
         return Expression.EXPR_FALSE;
     }
 
-    /**
-     * Assigns the conditions to separate lists
-     */
-    void assignToLists() {
-
-        int lastBoundary   = 0;
-        int lastOuterIndex = -1;
-        int lastRightIndex = -1;
-
-        for (int i = 0; i < rangeVariables.length; i++) {
-            if (rangeVariables[i].isLeftJoin) {
-                lastOuterIndex = i;
-            }
-
-            if (rangeVariables[i].isRightJoin) {
-                lastOuterIndex = i;
-                lastRightIndex = i;
-            }
-
-            if (rangeVariables[i].isBoundary) {
-                lastBoundary = i;
-            }
-
-            if (lastOuterIndex == i) {
-                joinExpressions[i].addAll(tempJoinExpressions[i]);
-            } else {
-                int start = lastOuterIndex + 1;
-
-                if (lastBoundary > start) {
-                    start = lastBoundary;
-                }
-
-                for (int j = 0; j < tempJoinExpressions[i].size(); j++) {
-                    assignToJoinLists(
-                        (Expression) tempJoinExpressions[i].get(j),
-                        joinExpressions, start);
-                }
-            }
-        }
-
-        for (int i = 0; i < queryExpressions.size(); i++) {
-            assignToJoinLists((Expression) queryExpressions.get(i),
-                              whereExpressions, lastRightIndex);
-        }
-    }
-
-    /**
-     * Assigns a single condition to the relevant list of conditions
-     *
-     * Parameter first indicates the first range variable to which condition
-     * can be assigned
-     */
-    void assignToJoinLists(Expression e, HsqlArrayList[] expressionLists,
-                           int first) {
-
-        tempSet.clear();
-        e.collectRangeVariables(rangeVariables, tempSet);
-
-        int index = rangeVarSet.getLargestIndex(tempSet);
-
-        // condition is independent of tables if no range variable is found
-        if (index == -1) {
-            index = 0;
-        }
-
-        // condition is assigned to first non-outer range variable
-        if (index < first) {
-            index = first;
-        }
-
-        if (e instanceof ExpressionLogical) {
-            if (((ExpressionLogical) e).isTerminal) {
-                index = expressionLists.length - 1;
-            }
-        }
-
-        expressionLists[index].add(e);
-    }
-
     void expandConditions() {
 
-        if (hasOuterJoin) {
-            return;
+        HsqlArrayList[] array = tempJoinExpressions;
+        int             start = 0;
+        int             limit = rangeVariables.length;
+
+        if (firstRightJoinIndex == rangeVariables.length) {
+            if (firstLeftJoinIndex != rangeVariables.length) {
+                limit = firstLeftJoinIndex;
+            }
+
+            moveConditions(tempJoinExpressions, start, limit, queryConditions,
+                           -1);
         }
 
-        expandConditions(joinExpressions, true);
-        expandConditions(whereExpressions, false);
-    }
+        for (int i = 0; i < firstOuterJoinIndex; i++) {
+            moveConditions(tempJoinExpressions, 0, firstOuterJoinIndex,
+                           tempJoinExpressions[i], i);
+        }
 
-    void expandConditions(HsqlArrayList[] array, boolean isJoin) {
-
-        for (int i = 0; i < rangeVariables.length; i++) {
+        for (int i = 0; i < firstOuterJoinIndex; i++) {
             HsqlArrayList list = array[i];
 
-            tempMap.clear();
+            tempMultiMap.clear();
             tempSet.clear();
+            tempMap.clear();
 
-            boolean hasChain = false;
+            boolean hasValEqual = false;
+            boolean hasColEqual = false;
+            boolean hasChain    = false;
 
             for (int j = 0; j < list.size(); j++) {
                 Expression e = (Expression) list.get(j);
+
+                if (e == ExpressionLogical.EXPR_TRUE) {
+                    continue;
+                }
+
+                if (e.isSingleColumnEqual) {
+                    hasValEqual = true;
+
+                    if (e.getLeftNode().opType == OpTypes.COLUMN) {
+                        tempMap.put(e.getLeftNode().getColumn(),
+                                    e.getRightNode());
+                    } else if (e.getRightNode().opType == OpTypes.COLUMN) {
+                        tempMap.put(e.getRightNode().getColumn(),
+                                    e.getLeftNode());
+                    }
+
+                    continue;
+                }
 
                 if (!e.isColumnEqual) {
                     continue;
@@ -585,28 +387,69 @@ public class RangeVariableResolver {
                     continue;
                 }
 
-                if (e.getLeftNode().getRangeVariable() == rangeVariables[i]) {
-                    tempMap.put(e.getLeftNode().getColumn(), e.getRightNode());
+                if (e.getLeftNode().getRangeVariable() == null
+                        || e.getRightNode().getRangeVariable() == null) {
+                    continue;
+                }
 
-                    if (!tempSet.add(e.getLeftNode().getColumn())) {
+                int idx =
+                    rangeVarSet.getIndex(e.getLeftNode().getRangeVariable());
+
+                if (idx < 0) {
+                    e.isSingleColumnEqual = true;
+
+                    tempMap.put(e.getRightNode().getColumn(), e.getLeftNode());
+
+                    continue;
+                }
+
+                if (idx >= firstOuterJoinIndex) {
+                    continue;
+                }
+
+                idx = rangeVarSet.getIndex(
+                    e.getRightNode().getRangeVariable());
+
+                if (idx < 0) {
+                    e.isSingleColumnEqual = true;
+
+                    tempMap.put(e.getRightNode().getColumn(), e.getLeftNode());
+
+                    continue;
+                }
+
+                if (idx >= firstOuterJoinIndex) {
+                    continue;
+                }
+
+                hasColEqual = true;
+
+                if (e.getLeftNode().getRangeVariable() == rangeVariables[i]) {
+                    ColumnSchema column = e.getLeftNode().getColumn();
+
+                    tempMultiMap.put(column, e.getRightNode());
+
+                    if (tempMultiMap.valueCount(column) > 1) {
                         hasChain = true;
                     }
                 } else if (e.getRightNode().getRangeVariable()
                            == rangeVariables[i]) {
-                    tempMap.put(e.getRightNode().getColumn(), e.getLeftNode());
+                    ColumnSchema column = e.getRightNode().getColumn();
 
-                    if (!tempSet.add(e.getRightNode().getColumn())) {
+                    tempMultiMap.put(column, e.getLeftNode());
+
+                    if (tempMultiMap.valueCount(column) > 1) {
                         hasChain = true;
                     }
                 }
             }
 
             if (hasChain) {
-                Iterator keyIt = tempMap.keySet().iterator();
+                Iterator keyIt = tempMultiMap.keySet().iterator();
 
                 while (keyIt.hasNext()) {
                     Object   key = keyIt.next();
-                    Iterator it  = tempMap.get(key);
+                    Iterator it  = tempMultiMap.get(key);
 
                     tempSet.clear();
 
@@ -625,6 +468,57 @@ public class RangeVariableResolver {
                         }
                     }
                 }
+            }
+
+            if (hasColEqual && hasValEqual) {
+                Iterator keyIt = tempMultiMap.keySet().iterator();
+
+                while (keyIt.hasNext()) {
+                    Object     key = keyIt.next();
+                    Expression e1  = (Expression) tempMap.get(key);
+
+                    if (e1 != null) {
+                        Iterator it = tempMultiMap.get(key);
+
+                        while (it.hasNext()) {
+                            Expression e2 = (Expression) it.next();
+                            Expression e  = new ExpressionLogical(e1, e2);
+                            int index =
+                                rangeVarSet.getIndex(e2.getRangeVariable());
+
+                            array[index].add(e);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    void moveConditions(HsqlArrayList[] lists, int rangeStart, int rangeLimit,
+                        HsqlArrayList list, int listIndex) {
+
+        for (int j = 0; j < list.size(); j++) {
+            Expression e = (Expression) list.get(j);
+
+            tempSet.clear();
+            e.collectRangeVariables(rangeVariables, tempSet);
+
+            int index = rangeVarSet.getSmallestIndex(tempSet);
+
+            if (index < rangeStart) {
+                continue;
+            }
+
+            index = rangeVarSet.getLargestIndex(tempSet);
+
+            if (index >= rangeLimit) {
+                continue;
+            }
+
+            if (index != listIndex) {
+                list.remove(j);
+                lists[index].add(e);
+                j--;
             }
         }
     }
@@ -649,6 +543,253 @@ public class RangeVariableResolver {
         }
 
         array[index].add(e);
+    }
+
+    void reorder() {
+
+        if (rangeVariables.length == 1
+                || firstRightJoinIndex != rangeVariables.length) {
+            return;
+        }
+
+        if (firstLeftJoinIndex == 1) {
+            return;
+        }
+
+        if (firstLateralJoinIndex != rangeVariables.length) {
+            return;
+        }
+
+        if (sortAndSlice.usingIndex
+                && sortAndSlice.primaryTableIndex != null) {
+            return;
+        }
+
+/*
+        for (int i = 0; i < rangeVariables.length; i++) {
+            if (!rangeVariables[i].rangeTable.isSchemaBaseTable()) {
+                return;
+            }
+        }
+*/
+        HsqlArrayList joins  = new HsqlArrayList();
+        HsqlArrayList starts = new HsqlArrayList();
+
+        for (int i = 0; i < firstLeftJoinIndex; i++) {
+            HsqlArrayList tempJoins = tempJoinExpressions[i];
+
+            for (int j = 0; j < tempJoins.size(); j++) {
+                Expression e = (Expression) tempJoins.get(j);
+
+                if (e.isColumnEqual) {
+                    joins.add(e);
+                } else if (e.isSingleColumnCondition) {
+                    starts.add(e);
+                }
+            }
+        }
+
+        if (starts.size() == 0) {
+            return;
+        }
+
+        // choose start expressions
+        Expression    start    = null;
+        int           position = 0;
+        RangeVariable range    = null;
+        double        cost     = 1024;
+
+        if (!(rangeVariables[0].rangeTable instanceof TableDerived)) {
+            cost = rangeVariables[0].rangeTable.getRowStore(
+                session).elementCount();
+        }
+
+        if (cost < Index.minimumSelectivity) {
+            cost = Index.minimumSelectivity;
+        }
+
+        if (rangeVariables[0].rangeTable.getTableType()
+                == TableBase.CACHED_TABLE) {
+            cost *= Index.cachedFactor;
+        }
+
+        for (int i = 0; i < starts.size(); i++) {
+            Expression e = (Expression) starts.get(i);
+
+            range = e.getJoinRangeVariables(rangeVariables)[0];
+
+            double currentCost = e.costFactor(session, range, OpTypes.EQUAL);
+
+            if (currentCost < cost) {
+                start = e;
+            }
+        }
+
+        if (start == null) {
+            return;
+        }
+
+        //
+        position = rangeVarSet.getIndex(range);
+
+        if (position <= 0) {
+            return;
+        }
+
+        RangeVariable[] newRanges = new RangeVariable[rangeVariables.length];
+
+        ArrayUtil.copyArray(rangeVariables, newRanges, rangeVariables.length);
+
+        newRanges[position] = newRanges[0];
+        newRanges[0]        = range;
+        position            = 1;
+
+        for (; position < firstLeftJoinIndex; position++) {
+            boolean found = false;
+
+            for (int i = 0; i < joins.size(); i++) {
+                Expression e = (Expression) joins.get(i);
+
+                if (e == null) {
+                    continue;
+                }
+
+                int newPosition = getJoinedRangePosition(e, position,
+                    newRanges);
+
+                if (newPosition >= position) {
+                    range                  = newRanges[position];
+                    newRanges[position]    = newRanges[newPosition];
+                    newRanges[newPosition] = range;
+
+                    joins.set(i, null);
+
+                    found = true;
+
+                    break;
+                }
+            }
+
+            if (!found) {
+                break;
+            }
+        }
+
+        if (position != firstLeftJoinIndex) {
+            return;
+        }
+
+        ArrayUtil.copyArray(newRanges, rangeVariables, rangeVariables.length);
+        joins.clear();
+
+        for (int i = 0; i < firstLeftJoinIndex; i++) {
+            HsqlArrayList tempJoins = tempJoinExpressions[i];
+
+            joins.addAll(tempJoins);
+            tempJoins.clear();
+        }
+
+        tempJoinExpressions[firstLeftJoinIndex - 1].addAll(joins);
+        rangeVarSet.clear();
+
+        for (int i = 0; i < rangeVariables.length; i++) {
+            rangeVarSet.add(rangeVariables[i]);
+        }
+    }
+
+    int getJoinedRangePosition(Expression e, int position,
+                               RangeVariable[] currentRanges) {
+
+        int             found  = -1;
+        RangeVariable[] ranges = e.getJoinRangeVariables(currentRanges);
+
+        for (int i = 0; i < ranges.length; i++) {
+            for (int j = 0; j < currentRanges.length; j++) {
+                if (ranges[i] == currentRanges[j]) {
+                    if (j >= position) {
+                        if (found > 0) {
+                            return -1;
+                        } else {
+                            found = j;
+                        }
+                    }
+                }
+            }
+        }
+
+        return found;
+    }
+
+    /**
+     * Assigns the conditions to separate lists
+     */
+    void assignToLists() {
+
+        int lastOuterIndex = -1;
+
+        for (int i = 0; i < rangeVariables.length; i++) {
+            if (rangeVariables[i].isLeftJoin) {
+                lastOuterIndex = i;
+            }
+
+            if (rangeVariables[i].isRightJoin) {
+                lastOuterIndex = i;
+            }
+
+            if (lastOuterIndex == i) {
+                joinExpressions[i].addAll(tempJoinExpressions[i]);
+            } else {
+                int start = lastOuterIndex + 1;
+
+                for (int j = 0; j < tempJoinExpressions[i].size(); j++) {
+                    assignToJoinLists(
+                        (Expression) tempJoinExpressions[i].get(j),
+                        joinExpressions, start);
+                }
+            }
+        }
+
+        for (int i = 0; i < queryConditions.size(); i++) {
+            assignToJoinLists((Expression) queryConditions.get(i),
+                              whereExpressions, lastRightJoinIndex);
+        }
+    }
+
+    /**
+     * Assigns a single condition to the relevant list of conditions
+     *
+     * Parameter first indicates the first range variable to which condition
+     * can be assigned
+     */
+    void assignToJoinLists(Expression e, HsqlArrayList[] expressionLists,
+                           int first) {
+
+        if (e == null) {
+            return;
+        }
+
+        tempSet.clear();
+        e.collectRangeVariables(rangeVariables, tempSet);
+
+        int index = rangeVarSet.getLargestIndex(tempSet);
+
+        // condition is independent of tables if no range variable is found
+        if (index == -1) {
+            index = 0;
+        }
+
+        // condition is assigned to first non-outer range variable
+        if (index < first) {
+            index = first;
+        }
+
+        if (e instanceof ExpressionLogical) {
+            if (((ExpressionLogical) e).isTerminal) {
+                index = expressionLists.length - 1;
+            }
+        }
+
+        expressionLists[index].add(e);
     }
 
     /**

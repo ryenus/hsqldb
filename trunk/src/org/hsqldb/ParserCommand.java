@@ -32,6 +32,7 @@
 package org.hsqldb;
 
 import org.hsqldb.HsqlNameManager.HsqlName;
+import org.hsqldb.RangeGroup.RangeGroupSimple;
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
 import org.hsqldb.lib.HsqlArrayList;
@@ -142,8 +143,8 @@ public class ParserCommand extends ParserDDL {
             case Tokens.OPENBRACKET :
             case Tokens.SELECT :
             case Tokens.TABLE : {
-                cs = compileCursorSpecification(props, false,
-                                                RangeVariable.emptyArray);
+                cs = compileCursorSpecification(RangeGroup.emptyArray, props,
+                                                false);
 
                 break;
             }
@@ -155,22 +156,22 @@ public class ParserCommand extends ParserDDL {
 
             // DML
             case Tokens.INSERT : {
-                cs = compileInsertStatement(RangeVariable.emptyArray);
+                cs = compileInsertStatement(RangeGroup.emptyArray);
 
                 break;
             }
             case Tokens.UPDATE : {
-                cs = compileUpdateStatement(RangeVariable.emptyArray);
+                cs = compileUpdateStatement(RangeGroup.emptyArray);
 
                 break;
             }
             case Tokens.MERGE : {
-                cs = compileMergeStatement(RangeVariable.emptyArray);
+                cs = compileMergeStatement(RangeGroup.emptyArray);
 
                 break;
             }
             case Tokens.DELETE : {
-                cs = compileDeleteStatement(RangeVariable.emptyArray);
+                cs = compileDeleteStatement(RangeGroup.emptyArray);
 
                 break;
             }
@@ -183,7 +184,9 @@ public class ParserCommand extends ParserDDL {
             // PROCEDURE
             case Tokens.CALL : {
                 cs = compileCallStatement(
-                    session.sessionContext.sessionVariablesRange, false);
+                    new RangeGroup[]{ new RangeGroupSimple(
+                        session.sessionContext
+                            .sessionVariablesRange) }, false);
 
                 break;
             }
@@ -330,7 +333,7 @@ public class ParserCommand extends ParserDDL {
             return cs;
         }
 
-        cs = compileDeclareCursor(false);
+        cs = compileDeclareCursor(RangeGroup.emptyArray, false);
 
         if (cs == null) {
             throw lastError == null ? unexpectedToken()
@@ -1888,7 +1891,7 @@ public class ParserCommand extends ParserDDL {
             e = XreadIntervalValueExpression();
 
             HsqlList unresolved = e.resolveColumnReferences(session,
-                RangeVariable.emptyArray, null);
+                RangeGroup.emptyGroup, RangeGroup.emptyArray, null);
 
             ExpressionColumn.checkColumnsResolved(unresolved);
             e.resolveTypes(session, null);

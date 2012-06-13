@@ -54,16 +54,41 @@ public class RangeVariableJoined extends RangeVariable {
     RangeVariable[] rangeArray;
 
     public RangeVariableJoined(Table table, SimpleName alias,
-                        OrderedHashSet columnList,
-                        SimpleName[] columnNameList,
-                        CompileContext compileContext) {
+                               OrderedHashSet columnList,
+                               SimpleName[] columnNameList,
+                               CompileContext compileContext) {
 
         super(table, alias, columnList, columnNameList, compileContext);
+
+        setParameters();
+    }
+
+    private void setParameters() {
 
         QuerySpecification qs =
             (QuerySpecification) this.rangeTable.getQueryExpression();
 
         this.rangeArray = qs.rangeVariables;
+
+        for (int i = 0; i < rangeArray.length; i++) {
+            if (rangeArray[i].isLeftJoin) {
+                hasLeftJoin = true;
+            }
+
+            if (rangeArray[i].isRightJoin) {
+                hasRightJoin = true;
+            }
+
+            if (rangeArray[i].isLateral) {
+                hasLateral = true;
+            }
+
+            break;
+        }
+    }
+
+    public RangeVariable[] getBaseRangeVariables() {
+        return rangeArray;
     }
 
     public void setRangeTableVariables() {
@@ -210,7 +235,7 @@ public class RangeVariableJoined extends RangeVariable {
      * Add all columns to a list of expressions
      */
     public int addTableColumns(HsqlArrayList exprList, int position,
-                        HashSet exclude) {
+                               HashSet exclude) {
         return super.addTableColumns(exprList, position, exclude);
     }
 
@@ -275,12 +300,9 @@ public class RangeVariableJoined extends RangeVariable {
         super.replaceRangeVariables(ranges, newRanges);
     }
 
-    public void resolveRangeTable(Session session,
-                                  RangeVariable[] rangeVariables,
-                                  int rangeCount,
-                                  RangeVariable[] outerRanges) {
-        super.resolveRangeTable(session, rangeVariables, rangeCount,
-                                RangeVariable.emptyArray);
+    public void resolveRangeTable(Session session, RangeGroup rangeGroup,
+                                  RangeGroup[] rangeGroups) {
+        super.resolveRangeTable(session, rangeGroup, rangeGroups);
     }
 
     /**
