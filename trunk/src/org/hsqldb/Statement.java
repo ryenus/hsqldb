@@ -179,10 +179,6 @@ public abstract class Statement {
 
     public void resolve(Session session) {}
 
-    public RangeVariable[] getRangeVariables() {
-        return RangeVariable.emptyArray;
-    }
-
     public final HsqlName[] getTableNamesForRead() {
         return readTableNames;
     }

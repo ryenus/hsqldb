@@ -72,7 +72,7 @@ public class ParserDML extends ParserDQL {
         boolean       overridingSystem  = false;
         boolean       assignsToIdentity = false;
 
-        range           = readSimpleRangeVariable(StatementTypes.INSERT);
+        range           = readRangeVariableForDataChange(StatementTypes.INSERT);
         table           = range.getTable();
         columnCheckList = null;
         columnMap       = table.getColumnMap();
@@ -358,7 +358,7 @@ public class ParserDML extends ParserDQL {
             readThis(Tokens.TABLE);
 
             rangeVariables = new RangeVariable[]{
-                readSimpleRangeVariable(StatementTypes.TRUNCATE) };
+                readRangeVariableForDataChange(StatementTypes.TRUNCATE) };
             table      = rangeVariables[0].getTable();
             objectName = table.getName();
             isTable    = true;
@@ -440,7 +440,7 @@ public class ParserDML extends ParserDQL {
         Table           table          = null;
 
         rangeVariables = new RangeVariable[]{
-            readSimpleRangeVariable(StatementTypes.DELETE_WHERE) };
+            readRangeVariableForDataChange(StatementTypes.DELETE_WHERE) };
         table = rangeVariables[0].getTable();
 
         if (table.isTriggerDeletable()) {
@@ -547,7 +547,7 @@ public class ParserDML extends ParserDQL {
         LongDeque      colIndexList = new LongDeque();
         HsqlArrayList  exprList     = new HsqlArrayList();
         RangeVariable[] rangeVariables = {
-            readSimpleRangeVariable(StatementTypes.UPDATE_WHERE) };
+            readRangeVariableForDataChange(StatementTypes.UPDATE_WHERE) };
         RangeGroup rangeGroup = new RangeGroupSimple(rangeVariables);
         Table      table      = rangeVariables[0].rangeTable;
         Table      baseTable  = table.isTriggerUpdatable() ? table
@@ -936,7 +936,7 @@ public class ParserDML extends ParserDQL {
         read();
         readThis(Tokens.INTO);
 
-        targetRange = readSimpleRangeVariable(StatementTypes.MERGE);
+        targetRange = readRangeVariableForDataChange(StatementTypes.MERGE);
         table       = targetRange.rangeTable;
 
         readThis(Tokens.USING);

@@ -226,13 +226,14 @@ public class View extends TableDerived {
     }
 
     public boolean isInsertable() {
-        return isTriggerInsertable ? false : super.isInsertable();
+        return isTriggerInsertable ? false
+                                   : super.isInsertable();
     }
 
     public boolean isUpdatable() {
-        return isTriggerUpdatable ? false : super.isUpdatable();
+        return isTriggerUpdatable ? false
+                                  : super.isUpdatable();
     }
-
 
     void addTrigger(TriggerDef td, HsqlName otherName) {
 
@@ -328,12 +329,13 @@ public class View extends TableDerived {
     }
 
     public QueryExpression newQueryExpression(Session session) {
-        ParserDQL p = new ParserDQL(session, new Scanner(statement));
 
-        p.read();
 
-        SubQuery sq    = p.XreadViewSubquery(this);
-        return sq.queryExpression;
+       ParserDQL p = session.database.sessionManager.newSysSession().parser;
 
+       p.reset(statement);
+       p.read();
+
+        return p.XreadViewQueryExpression(this);
     }
 }

@@ -808,10 +808,6 @@ public abstract class StatementDMQL extends Statement {
 
     public void resolve(Session session) {}
 
-    public RangeVariable[] getRangeVariables() {
-        return rangeVariables;
-    }
-
     public final boolean isCatalogLock() {
         return false;
     }

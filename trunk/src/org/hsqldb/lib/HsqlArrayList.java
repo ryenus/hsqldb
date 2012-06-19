@@ -38,7 +38,7 @@ import java.util.Comparator;
 
 /**
  * Intended as an asynchronous alternative to Vector.  Use HsqlLinkedList
- * instead if its better suited.
+ * instead if it's better suited.
  *
  * @author dnordahl@users
  * @version 1.9.0
@@ -222,10 +222,10 @@ public class HsqlArrayList extends BaseList implements HsqlList {
 
         elementCount--;
 
+        elementData[elementCount] = null;
+
         if (elementCount == 0) {
             clear();
-        } else {
-            elementData[elementCount] = null;
         }
 
         return removedObj;

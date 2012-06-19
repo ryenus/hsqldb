@@ -295,6 +295,7 @@ public final class ExpressionLike extends ExpressionLogical {
                                                Type.SQL_VARCHAR);
             likeObject = null;
 
+            setEqualityMode();
             return;
         }
 
