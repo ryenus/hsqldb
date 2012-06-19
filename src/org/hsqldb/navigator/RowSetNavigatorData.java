@@ -315,7 +315,7 @@ implements Comparator {
         return (Object[]) idMap.get(rowId);
     }
 
-    public void copy(RowSetNavigatorData other, int[] rightColumnIndexes) {
+    public void copy(RowSetNavigator other, int[] rightColumnIndexes) {
 
         while (other.hasNext()) {
             Object[] currentData = other.getNext();

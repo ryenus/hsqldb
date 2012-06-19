@@ -1421,6 +1421,10 @@ public class Expression implements Cloneable {
                                 : subQuery.getTable();
     }
 
+    public SubQuery getSubQuery() {
+        return subQuery;
+    }
+
     public void materialise(Session session) {
 
         if (subQuery == null) {

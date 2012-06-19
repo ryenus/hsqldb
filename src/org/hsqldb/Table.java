@@ -2925,4 +2925,9 @@ public class Table extends TableBase implements SchemaObject {
     public QueryExpression getQueryExpression() {
         return null;
     }
+
+    public Expression getDataExpression() {
+        return null;
+    }
+
 }

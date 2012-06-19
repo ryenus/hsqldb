@@ -809,12 +809,6 @@ public final class DateTimeType extends DTIType {
         throw Error.error(ErrorCode.X_42561);
     }
 
-    /*
-                return (Time) Type.SQL_TIME.getJavaDateObject(session, t, 0);
-        java.sql.Timestamp value = new java.sql.Timestamp(
-            (((TimestampData) o).getSeconds() - ((TimestampData) o)
-                .getZone()) * 1000);
-    */
     public Object convertSQLToJavaGMT(SessionInterface session, Object a) {
 
         long millis;

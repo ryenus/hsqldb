@@ -181,6 +181,8 @@ class SubQuery implements Comparator {
 
         table = new TableDerived(database, name, TableBase.SYSTEM_SUBQUERY,
                                  queryExpression, this);
+
+        table.dataExpression = dataExpression;
     }
 
     public void prepareTable(Session session, HsqlName name,
@@ -194,6 +196,7 @@ class SubQuery implements Comparator {
             table = new TableDerived(database, name,
                                      TableBase.SYSTEM_SUBQUERY,
                                      queryExpression, this);
+            table.dataExpression = dataExpression;
         }
 
         table.columnCount = queryExpression.getColumnCount();
@@ -239,6 +242,7 @@ class SubQuery implements Comparator {
                 TableUtil.setTableIndexesForSubquery(table,
                                                      uniqueRows || fullOrder,
                                                      uniqueRows);
+                table.dataExpression = dataExpression;
             } else {
                 table.columnList  = queryExpression.getColumns();
                 table.columnCount = queryExpression.getColumnCount();
@@ -298,7 +302,7 @@ class SubQuery implements Comparator {
 
             if (isRecursive) {
                 result = queryExpression.getResultRecursive(session,
-                        recursiveSubQuery.table);
+                        recursiveSubQuery.table, recursiveSubQuery.getNavigator(session));
             } else {
                 result = queryExpression.getResult(session,
                                                    isExistsPredicate ? 1

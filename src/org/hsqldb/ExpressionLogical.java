@@ -96,9 +96,12 @@ public class ExpressionLogical extends Expression {
             colIndexRight);
 
         nodes        = new Expression[BINARY];
-        dataType     = Type.SQL_BOOLEAN;
         nodes[LEFT]  = leftExpression;
         nodes[RIGHT] = rightExpression;
+
+        setEqualityMode();
+
+        dataType     = Type.SQL_BOOLEAN;
     }
 
     /**

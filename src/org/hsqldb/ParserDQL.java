@@ -1725,7 +1725,7 @@ public class ParserDQL extends ParserBase {
         return sortAndSlice;
     }
 
-    protected RangeVariable readSimpleRangeVariable(int operation) {
+    protected RangeVariable readRangeVariableForDataChange(int operation) {
 
         Table      table = readTableName();
         SimpleName alias = null;
@@ -1839,10 +1839,15 @@ public class ParserDQL extends ParserBase {
         switch (token.tokenType) {
 
             case Tokens.OPENBRACKET : {
-                table = XreadTableSubqueryOrNull();
+                table = XreadTableSubqueryOrNull(false);
 
                 if (table == null) {
-                    SubQuery sq = XreadJoinedTableAsSubquery();
+                    SubQuery sq = XreadJoinedTableAsSubqueryOrNull();
+
+                    if (sq == null) {
+                        table = XreadTableSubqueryOrNull(true);
+                        break;
+                    }
 
                     table       = sq.getTable();
                     joinedTable = true;
@@ -1851,7 +1856,7 @@ public class ParserDQL extends ParserBase {
                 break;
             }
             case Tokens.UNNEST : {
-                Expression e = XreadCollectionDerivedTable();
+                Expression e = XreadCollectionDerivedTable(false);
 
                 table     = e.getTable();
                 isLateral = true;
@@ -3863,9 +3868,8 @@ public class ParserDQL extends ParserBase {
         switch (token.tokenType) {
 
             case Tokens.UNNEST :
-                e = XreadCollectionDerivedTable();
+                e = XreadCollectionDerivedTable(true);
 
-                e.getTable().getSubQuery().setUniqueRows();
                 readThis(Tokens.CLOSEBRACKET);
                 this.readCloseBrackets(brackets);
                 break;
@@ -4200,7 +4204,7 @@ public class ParserDQL extends ParserBase {
         return new Expression(OpTypes.TABLE_SUBQUERY, sq);
     }
 
-    Table XreadTableSubqueryOrNull() {
+    Table XreadTableSubqueryOrNull(boolean parens) {
 
         boolean joinedTable = false;
         int     position;
@@ -4217,6 +4221,12 @@ public class ParserDQL extends ParserBase {
             case Tokens.WITH :
                 break;
 
+            case Tokens.OPENBRACKET :
+                if (parens) {
+                    break;
+                }
+
+            // fall through
             default :
                 joinedTable = true;
         }
@@ -4235,30 +4245,34 @@ public class ParserDQL extends ParserBase {
         }
     }
 
-    SubQuery XreadJoinedTableAsSubquery() {
-
-        readThis(Tokens.OPENBRACKET);
+    SubQuery XreadJoinedTableAsSubqueryOrNull() {
 
         int position = getPosition();
 
+        readThis(Tokens.OPENBRACKET);
         compileContext.incrementDepth();
 
         QuerySpecification qs = XreadJoinedTableAsView();
 
         qs.resolveReferences(session, compileContext.getOuterRanges());
-        qs.resolveTypesPartOne(session);
-        qs.resolveTypesPartTwo(session);
 
         if (qs.rangeVariables.length < 2) {
-            throw unexpectedTokenRequire(Tokens.T_JOIN);
+            compileContext.decrementDepth();
+            rewind(position);
+
+            return null;
         }
+
+        qs.resolveTypesPartOne(session);
+        qs.resolveTypesPartTwo(session);
 
         SubQuery sq = new SubQuery(database, compileContext.subqueryDepth, qs,
                                    OpTypes.TABLE_SUBQUERY);
 
+        readThis(Tokens.CLOSEBRACKET);
+
         sq.sql = getLastPart(position);
 
-        readThis(Tokens.CLOSEBRACKET);
         sq.prepareTable(session);
         compileContext.decrementDepth();
 
@@ -4311,12 +4325,13 @@ public class ParserDQL extends ParserBase {
         compileContext.incrementDepth();
         compileContext.incrementDepth();
 
-        QueryExpression queryExpression = XreadSimpleTable();
+        QuerySpecification leftQuerySpecification = XreadSimpleTable();
 
-        queryExpression.resolve(session);
+        leftQuerySpecification.resolve(session);
 
         SubQuery sq = new SubQuery(database, compileContext.subqueryDepth,
-                                   queryExpression, OpTypes.TABLE_SUBQUERY);
+                                   leftQuerySpecification,
+                                   OpTypes.TABLE_SUBQUERY);
 
         compileContext.decrementDepth();
         sq.prepareTable(session, name, columnNames);
@@ -4324,15 +4339,14 @@ public class ParserDQL extends ParserBase {
         compileContext.registerSubquery(name.name, sq);
 
         if (token.tokenType == Tokens.UNION) {
-            int             unionType            = XreadUnionType();
-            QueryExpression rightQueryExpression = XreadSimpleTable();
+            int                unionType               = XreadUnionType();
+            QuerySpecification rightQuerySpecification = XreadSimpleTable();
+            QueryExpression queryExpression =
+                new QueryExpression(compileContext, leftQuerySpecification);
 
-            queryExpression = new QueryExpression(compileContext,
-                                                  queryExpression);
-
-            rightQueryExpression.resolveReferences(session,
-                                                   RangeGroup.emptyArray);
-            queryExpression.addUnion(rightQueryExpression, unionType);
+            rightQuerySpecification.resolveReferences(session,
+                    RangeGroup.emptyArray);
+            queryExpression.addUnion(rightQuerySpecification, unionType);
             queryExpression.resolve(session);
             queryExpression.createTable(session);
 
@@ -4389,6 +4403,28 @@ public class ParserDQL extends ParserBase {
         compileContext.decrementDepth();
 
         return sq;
+    }
+
+    QueryExpression XreadViewQueryExpression(View view) {
+
+        compileContext.incrementDepth();
+
+        QueryExpression queryExpression;
+
+        try {
+            queryExpression = XreadQueryExpression();
+        } catch (HsqlException e) {
+            queryExpression = XreadJoinedTableAsView();
+        }
+
+        queryExpression.setView(view);
+        queryExpression.resolveReferences(session, RangeGroup.emptyArray);
+        queryExpression.resolveTypesPartOne(session);
+        queryExpression.resolveTypesPartTwo(session);
+
+        compileContext.decrementDepth();
+
+        return queryExpression;
     }
 
     Expression XreadContextuallyTypedTable(int degree) {
@@ -4619,7 +4655,7 @@ public class ParserDQL extends ParserBase {
         return column.getAccessor();
     }
 
-    Expression XreadCollectionDerivedTable() {
+    Expression XreadCollectionDerivedTable(boolean uniqueRows) {
 
         boolean ordinality = false;
         int     position   = getPosition();
@@ -4657,6 +4693,10 @@ public class ParserDQL extends ParserBase {
         Expression e = new ExpressionTable(array, null, ordinality);
         SubQuery sq = new SubQuery(database, compileContext.subqueryDepth, e,
                                    OpTypes.TABLE_SUBQUERY);
+
+        if (uniqueRows) {
+            sq.setUniqueRows();
+        }
 
         sq.createTable();
 

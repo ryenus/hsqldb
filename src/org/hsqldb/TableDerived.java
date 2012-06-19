@@ -49,6 +49,7 @@ import org.hsqldb.types.Type;
 public class TableDerived extends Table {
 
     QueryExpression queryExpression;
+    Expression      dataExpression;
     View            view;
     SubQuery        subQuery;
 
@@ -87,8 +88,9 @@ public class TableDerived extends Table {
                 throw Error.runtimeError(ErrorCode.U_S0500, "Table");
         }
 
+        this.subQuery = subQuery;
+
         this.queryExpression = queryExpression;
-        this.subQuery        = subQuery;
     }
 
     public TableDerived(Database database, HsqlName name, int type,
@@ -103,9 +105,9 @@ public class TableDerived extends Table {
 
         this(database, name, type, (QueryExpression) null, (SubQuery) null);
 
-        this.colTypes          = columnTypes;
-        this.columnList        = columnList;
-        columnCount            = columnList.size();
+        this.colTypes   = columnTypes;
+        this.columnList = columnList;
+        columnCount     = columnList.size();
 
         createPrimaryKey(null, pkColumns, true);
     }
@@ -154,5 +156,9 @@ public class TableDerived extends Table {
 
     public QueryExpression getQueryExpression() {
         return queryExpression;
+    }
+
+    public Expression getDataExpression() {
+        return dataExpression;
     }
 }

@@ -657,20 +657,19 @@ public class QueryExpression implements RangeGroup {
         return first;
     }
 
-    Result getResultRecursive(Session session, TableDerived table) {
+    Result getResultRecursive(Session session, TableDerived table, RowSetNavigatorData navi) {
 
         Result              tempResult;
-        RowSetNavigatorData tempNavigator;
         RowSetNavigatorData rowSet = new RowSetNavigatorData(session, this);
         Result              result = Result.newResult(rowSet);
 
-        rowSet.copy(table.getSubQuery().getNavigator(session), unionColumnMap);
+        rowSet.copy(navi, unionColumnMap);
 
         result.metaData = resultMetaData;
 
         for (int round = 0; ; round++) {
             tempResult    = rightQueryExpression.getResult(session, 0);
-            tempNavigator = (RowSetNavigatorData) tempResult.getNavigator();
+            RowSetNavigatorData tempNavigator = (RowSetNavigatorData) tempResult.getNavigator();
 
             if (tempNavigator.isEmpty()) {
                 break;
