@@ -535,10 +535,8 @@ public class TestSqlPersistent extends TestCase {
 
                 // cause errors
                 ps.setString(5, "three");
-                assertTrue(false);
-            } catch (SQLException e) {
-                System.out.println("rubbish");
-            }
+                fail("update did not fail");
+            } catch (SQLException e) {}
 
             {
                 stmnt.execute("drop table CDTYPE if exists");

@@ -44,7 +44,6 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-
 import javax.sql.rowset.serial.SerialBlob;
 
 import org.hsqldb.jdbc.JDBCBlob;
@@ -67,6 +66,7 @@ public class TestLobs extends TestBase {
 
     protected void setUp() {
 
+        System.out.println("SetUp (sub-)test: " + getName());
         super.setUp();
 
         try {
@@ -78,6 +78,8 @@ public class TestLobs extends TestBase {
     }
 
     public void testBlobA() {
+
+        System.out.println("Starting (sub-)test: " + getName());
 
         try {
             String ddl0 = "DROP TABLE BLOBTEST IF EXISTS";
@@ -132,6 +134,8 @@ public class TestLobs extends TestBase {
     }
 
     public void testBlobB() {
+
+        System.out.println("Starting (sub-)test: " + getName());
 
         ResultSet rs;
         byte[]    ba;
@@ -251,6 +255,8 @@ public class TestLobs extends TestBase {
 
     public void testClobA() {
 
+        System.out.println("Starting (sub-)test: " + getName());
+
         try {
             String ddl0 = "DROP TABLE CLOBTEST IF EXISTS";
             String ddl1 =
@@ -300,6 +306,8 @@ public class TestLobs extends TestBase {
     }
 
     public void testClobB() {
+
+        System.out.println("Starting (sub-)test: " + getName());
 
         try {
             String ddl0 = "DROP TABLE CLOBTEST IF EXISTS";
@@ -366,6 +374,8 @@ public class TestLobs extends TestBase {
     }
 
     public void testClobC() {
+
+        System.out.println("Starting (sub-)test: " + getName());
 
         try {
             String ddl0 = "DROP TABLE VARIABLE IF EXISTS";
@@ -457,6 +467,8 @@ public class TestLobs extends TestBase {
 
     public void testClobD() {
 
+        System.out.println("Starting (sub-)test: " + getName());
+
         try {
             String ddl0 = "DROP TABLE VARIABLE IF EXISTS";
             String ddl1 =
@@ -525,6 +537,8 @@ public class TestLobs extends TestBase {
     }
 
     public void testClobE() {
+
+        System.out.println("Starting (sub-)test: " + getName());
 
         try {
             String ddl0 = "DROP TABLE VARIABLE IF EXISTS";
@@ -618,6 +632,8 @@ public class TestLobs extends TestBase {
 
     public void testClobF() {
 
+        System.out.println("Starting (sub-)test: " + getName());
+
         try {
             String ddl0 = "DROP TABLE CLOBTEST IF EXISTS";
             String ddl1 =
@@ -690,6 +706,8 @@ public class TestLobs extends TestBase {
     }
 
     public void testClobG() {
+
+        System.out.println("Starting (sub-)test: " + getName());
 
         try {
             String ddl0 = "DROP TABLE CLOBTEST IF EXISTS";
@@ -766,6 +784,8 @@ public class TestLobs extends TestBase {
 
     public void testClobH() {
 
+        System.out.println("Starting (sub-)test: " + getName());
+
         try {
             String ddl1 =
                 "create procedure PUBLIC.PROC_A(out p1 clob, out p2 int) READS SQL DATA BEGIN ATOMIC SET p1 = 'dafsdfasdfaefafeajfiwejifpjajsidojfakmvkamsdjfadpsjfoajsdifjaos'; SET p2 = 0; end";
@@ -788,6 +808,8 @@ public class TestLobs extends TestBase {
     }
 
     public void testBlobH() {
+
+        System.out.println("Starting (sub-)test: " + getName());
 
         try {
             String ddl1 = "DROP TABLE BLOBTEST IF EXISTS";
@@ -844,6 +866,8 @@ public class TestLobs extends TestBase {
 
     public void testBlobI() {
 
+        System.out.println("Starting (sub-)test: " + getName());
+
         try {
             Statement st = connection.createStatement();
 
@@ -867,8 +891,8 @@ public class TestLobs extends TestBase {
             update.executeUpdate();
             System.out.println("Running select...");
 
-            PreparedStatement select = connection.prepareStatement(
-                "select BT_BLOB from BLOBTEST");
+            PreparedStatement select =
+                connection.prepareStatement("select BT_BLOB from BLOBTEST");
             ResultSet result = select.executeQuery();
 
             System.out.println("Results: " + result.getFetchSize());
@@ -934,12 +958,17 @@ public class TestLobs extends TestBase {
 */
     protected void tearDown() {
 
+        System.out.println("TearDown (sub-)test: " + getName());
+
         try {
             statement = connection.createStatement();
 
             statement.execute("SHUTDOWN");
             statement.close();
-            connection.close();
+
+            if (!isNetwork) {
+                connection.close();
+            }
         } catch (Exception e) {}
 
         super.tearDown();
