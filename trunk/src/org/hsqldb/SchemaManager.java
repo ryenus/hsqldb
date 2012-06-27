@@ -2089,7 +2089,9 @@ public class SchemaManager {
                     break;
                 }
                 case SchemaObject.COLUMN : {
-                    if (object.getReferences().isEmpty()) {
+                    OrderedHashSet refs = object.getReferences();
+
+                    if (refs == null || refs.isEmpty()) {
                         return;
                     }
 

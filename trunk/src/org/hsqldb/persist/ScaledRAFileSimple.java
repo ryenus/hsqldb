@@ -38,7 +38,7 @@ import java.io.RandomAccessFile;
 import org.hsqldb.Database;
 
 /**
- * This class is a simple wapper for a random access file such as used
+ * This class is a simple wrapper for a random access file such as used
  * for backup and lobs.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)

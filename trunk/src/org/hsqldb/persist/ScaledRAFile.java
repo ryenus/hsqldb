@@ -43,7 +43,7 @@ import org.hsqldb.lib.HsqlByteArrayInputStream;
 import org.hsqldb.lib.HsqlByteArrayOutputStream;
 
 /**
- * This class is a wapper for a random access file such as that used for
+ * This class is a wrapper for a random access file such as that used for
  * CACHED table storage.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)

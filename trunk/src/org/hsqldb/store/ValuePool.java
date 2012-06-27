@@ -57,7 +57,7 @@ public class ValuePool {
     static ValuePoolHashMap bigdecimalPool;
     static ValuePoolHashMap stringPool;
     static ValuePoolHashMap datePool;
-    static final int        SPACE_STRING_SIZE       = 50;
+    static final int        SPACE_STRING_SIZE       = 64;
     static final int        DEFAULT_VALUE_POOL_SIZE = 8192;
     static final int[]      defaultPoolLookupSize   = new int[] {
         DEFAULT_VALUE_POOL_SIZE, DEFAULT_VALUE_POOL_SIZE,

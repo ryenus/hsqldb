@@ -300,7 +300,7 @@ public class Table extends TableBase implements SchemaObject {
             ColumnSchema   column = getColumn(i);
             OrderedHashSet refs   = column.getReferences();
 
-            if (!refs.isEmpty()) {
+            if (refs != null && !refs.isEmpty()) {
                 set.add(column.getName());
             }
         }
