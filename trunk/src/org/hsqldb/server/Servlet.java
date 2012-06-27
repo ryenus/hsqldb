@@ -73,7 +73,6 @@ package org.hsqldb.server;
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
-
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -84,6 +83,7 @@ import org.hsqldb.DatabaseURL;
 import org.hsqldb.HsqlException;
 import org.hsqldb.Session;
 import org.hsqldb.lib.DataOutputStream;
+import org.hsqldb.lib.HsqlByteArrayOutputStream;
 import org.hsqldb.persist.HsqlProperties;
 import org.hsqldb.result.Result;
 import org.hsqldb.result.ResultConstants;
@@ -133,7 +133,7 @@ import org.hsqldb.rowio.RowOutputBinary;
  *
  * @author Thomas Mueller (Hypersonic SQL Group)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.0.1
+ * @version 2.2.9
  * @since Hypersonic SQL
  */
 public class Servlet extends javax.servlet.http.HttpServlet {
@@ -267,8 +267,9 @@ public class Servlet extends javax.servlet.http.HttpServlet {
                 resultIn.setSessionId(sessionID);
 
                 Result resultOut;
+                int    type = resultIn.getType();
 
-                if (resultIn.getType() == ResultConstants.CONNECT) {
+                if (type == ResultConstants.CONNECT) {
                     try {
                         session = DatabaseManager.newSession(
                             dbType, dbPath, resultIn.getMainString(),
@@ -284,6 +285,23 @@ public class Servlet extends javax.servlet.http.HttpServlet {
                     } catch (HsqlException e) {
                         resultOut = Result.newErrorResult(e);
                     }
+                } else if (type == ResultConstants.DISCONNECT
+                           || type == ResultConstants.RESETSESSION) {
+
+                    // Upon DISCONNECT 6 bytes are read by the ClientConnectionHTTP": mode (1 byte), a length (int), and an 'additional results (1 byte)
+                    response.setHeader("Cache-Control", "no-cache");    // DB-traffic should not be cached by proxy's
+                    response.setContentType("application/octet-stream");
+                    response.setContentLength(6);
+
+                    // Only acquire output-stream after headers are set
+                    dataOut = new DataOutputStream(response.getOutputStream());
+
+                    dataOut.writeByte(ResultConstants.DISCONNECT);      // Mode
+                    dataOut.writeInt(4);                                //Length Int of first result is always read! Minvalue is 4: It is the number of bytes of the current result (it includes the length of this Int itself)
+                    dataOut.writeByte(ResultConstants.NONE);            // No Additional results
+                    dataOut.close();
+
+                    return;
                 } else {
                     int  dbId      = resultIn.getDatabaseId();
                     long sessionId = resultIn.getSessionId();
@@ -295,14 +313,19 @@ public class Servlet extends javax.servlet.http.HttpServlet {
                     resultOut = session.execute(resultIn);
                 }
 
-                //
-                response.setContentType("application/octet-stream");
-                response.setContentLength(rowOut.size());
+                HsqlByteArrayOutputStream memStream =
+                    new HsqlByteArrayOutputStream();
+                DataOutputStream tempOutput = new DataOutputStream(memStream);
 
-                //
+                resultOut.write(session, tempOutput, rowOut);
+                response.setHeader("Cache-Control", "no-cache");        // DB-traffic should not be cached by proxy's
+                response.setContentType("application/octet-stream");
+                response.setContentLength(memStream.size());
+
+                // Only acquire output-stream after headers are set
                 dataOut = new DataOutputStream(response.getOutputStream());
 
-                resultOut.write(session, dataOut, rowOut);
+                memStream.writeTo(dataOut);
 
                 iQueries++;
             } catch (HsqlException e) {}
