@@ -636,7 +636,11 @@ public class Routine implements SchemaObject, RangeGroup, Cloneable {
         for (int i = 0; i < parameterTypes.length; i++) {
             ColumnSchema param = (ColumnSchema) parameterList.get(i);
 
-            set.addAll(param.getReferences());
+            OrderedHashSet refs = param.getReferences();
+
+            if (refs != null) {
+                set.addAll(refs);
+            }
         }
 
         if (statement != null) {

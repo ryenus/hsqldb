@@ -715,7 +715,11 @@ public class StatementCompound extends Statement implements RangeGroup {
         OrderedHashSet set                = new OrderedHashSet();
 
         for (int i = 0; i < variables.length; i++) {
-            set.addAll(variables[i].getReferences());
+            OrderedHashSet refs = variables[i].getReferences();
+
+            if (refs != null) {
+                set.addAll(refs);
+            }
         }
 
         if (condition != null) {
