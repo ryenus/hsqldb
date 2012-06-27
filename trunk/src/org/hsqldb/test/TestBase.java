@@ -45,20 +45,43 @@ import junit.framework.TestResult;
 /**
  * HSQLDB TestBugBase Junit test case. <p>
  *
+ * By setting the booleans isNetwork, isHTTP, isUseTestServlet below, you can execute all tests that derive from this TestBase class
+ * using either the embedded HSQL server mode in both HSQL or HTTP protocol, or target the HSQL-Servlet mode running in for example
+ * Tomcat.
+ *
+ * When running against the Servlet: This assumes you have a WebApplication called HSQLwebApp running in for example Tomcat, with hsqldb.jar
+ * (or better hsqldbtest.jar renamed to hsqldb.jar) in the WEB-INF/lib directory and web.xml containing something like this:<p>
+ *      <code>
+ * {@literal
+ *    <servlet>
+ *      <servlet-name>test</servlet-name>
+ *      <servlet-class>org.hsqldb.server.Servlet</servlet-class>
+ *      <init-param>
+ *            <param-name>hsqldb.server.database</param-name>
+ *            <param-value>mem:test</param-value>
+ *      </init-param>
+ *      <load-on-startup>1</load-on-startup>
+ *    </servlet>
+ *
+ *    <servlet-mapping>
+ *      <servlet-name>test</servlet-name>
+ *      <url-pattern>/test</url-pattern>
+ *    </servlet-mapping>
+ * }</code>
  * @author  boucherb@users
  * @version 1.7.2
  * @since 1.7.2
  */
 public abstract class TestBase extends TestCase {
 
-    //  change the url to reflect your preferred db location and name
     String  serverProps;
     String  url;
     String  user     = "sa";
     String  password = "";
     Server  server;
     boolean isNetwork = true;
-    boolean isHTTP    = false;
+    boolean isHTTP    = true;    // Set false to test HSQL protocol, true to test HTTP, in which case you can use isUseTestServlet to target either HSQL's webserver, or the Servlet server-mode
+    boolean isServlet = false;
 
     public TestBase(String name) {
         super(name);
@@ -77,23 +100,33 @@ public abstract class TestBase extends TestCase {
     protected void setUp() {
 
         if (isNetwork) {
+
+            //  change the url to reflect your preferred db location and name
             if (url == null) {
-                url = isHTTP ? "jdbc:hsqldb:http://localhost:8085/test"
-                             : "jdbc:hsqldb:hsql://localhost/test";
+                if (isServlet) {
+                    url = "jdbc:hsqldb:http://localhost:8080/HSQLwebApp/test";
+                } else if (isHTTP) {
+                    url = "jdbc:hsqldb:http://localhost:8085/test";
+                } else {
+                    url = "jdbc:hsqldb:hsql://localhost/test";
+                }
             }
 
-            server = isHTTP ? new WebServer()
-                            : new Server();
+            if (!isServlet) {
+                server = isHTTP ? new WebServer()
+                                : new Server();
 
-            if (isHTTP) {
-                server.setPort(8085);
+                if (isHTTP) {
+                    server.setPort(8085);
+                }
+
+                server.setDatabaseName(0, "test");
+                server.setDatabasePath(
+                    0, "mem:test;sql.enforce_strict_size=true");
+                server.setLogWriter(null);
+                server.setErrWriter(null);
+                server.start();
             }
-
-            server.setDatabaseName(0, "test");
-            server.setDatabasePath(0, "mem:test;sql.enforce_strict_size=true");
-            server.setLogWriter(null);
-            server.setErrWriter(null);
-            server.start();
         } else {
             if (url == null) {
                 url = "jdbc:hsqldb:file:test;sql.enforce_strict_size=true";
@@ -110,7 +143,7 @@ public abstract class TestBase extends TestCase {
 
     protected void tearDown() {
 
-        if (isNetwork) {
+        if (isNetwork && !isServlet) {
             server.stop();
 
             server = null;

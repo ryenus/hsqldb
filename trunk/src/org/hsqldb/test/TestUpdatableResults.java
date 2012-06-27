@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2010, The HSQL Development Group
+/* Copyright (c) 2001-2011, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -48,7 +48,8 @@ public class TestUpdatableResults extends TestBase {
             Connection c = newConnection();
             Statement st = c.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE,
                                              ResultSet.CONCUR_UPDATABLE);
-            String s = "CREATE TABLE T (I INTEGER, C CHARACTER(10), B BIT(4) DEFAULT B'')";
+            String s =
+                "CREATE TABLE T (I INTEGER, C CHARACTER(10), B BIT(4) DEFAULT B'')";
 
             st.execute(s);
 
@@ -68,22 +69,16 @@ public class TestUpdatableResults extends TestBase {
 
             ResultSet rs = st.executeQuery(s);
 
-
             rs.absolute(10);
             rs.updateString(2, "UPDATE10");
             rs.updateRow();
-
             rs.absolute(11);
             rs.deleteRow();
-
             rs.moveToInsertRow();
-
             rs.updateInt(1, 1011);
             rs.updateString(2, "INSERT1011");
             rs.updateString(3, "0101");
-
             rs.insertRow();
-
             rs.close();
 
             rs = st.executeQuery(s);
@@ -94,6 +89,11 @@ public class TestUpdatableResults extends TestBase {
                                    + rs.getString(3));
             }
 
+            st.execute("SHUTDOWN");
+
+            if (!isNetwork) {
+                c.close();
+            }
         } catch (Exception e) {
             System.out.print(e);
         }

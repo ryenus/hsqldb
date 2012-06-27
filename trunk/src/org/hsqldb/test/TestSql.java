@@ -42,6 +42,7 @@ import java.sql.Types;
 
 import junit.framework.TestCase;
 import junit.framework.TestResult;
+
 import java.sql.Date;
 
 /**
@@ -95,7 +96,6 @@ public class TestSql extends TestBase {
 
             {
                 System.out.println("Testing DatabaseMetaData methods");
-
                 System.out.println(md.getDatabaseMajorVersion());
                 System.out.println(md.getDatabaseMinorVersion());
                 System.out.println(md.getDatabaseProductName());
@@ -107,7 +107,6 @@ public class TestSql extends TestBase {
                 System.out.println(md.getDriverVersion());
                 System.out.println(md.getExtraNameCharacters());
                 System.out.println(md.getIdentifierQuoteString());
-
                 System.out.println(md.getJDBCMajorVersion());
                 System.out.println(md.getJDBCMinorVersion());
                 System.out.println(md.getMaxBinaryLiteralLength());
@@ -129,14 +128,12 @@ public class TestSql extends TestBase {
                 System.out.println(md.getMaxUserNameLength());
                 System.out.println(md.getNumericFunctions());
                 System.out.println(md.getProcedureTerm());
-
                 System.out.println(md.getResultSetHoldability());
                 System.out.println(md.getSchemaTerm());
                 System.out.println(md.getSearchStringEscape());
                 System.out.println(
                     "Testing DatabaseMetaData.getSQLKeywords()");
                 System.out.println(md.getSQLKeywords());
-
                 System.out.println(md.getSQLStateType());
                 System.out.println(
                     "Testing DatabaseMetaData.getStringFunctions()");
@@ -463,10 +460,8 @@ public class TestSql extends TestBase {
 
                 // cause errors
                 ps.setString(5, "three");
-                assertTrue(false);
-            } catch (SQLException e) {
-                System.out.println("rubbish");
-            }
+                fail("update did not fail");
+            } catch (SQLException e) {}
 
             {
                 stmnt.execute("drop table CDTYPE if exists");
@@ -783,7 +778,6 @@ public class TestSql extends TestBase {
         ps.executeUpdate();
     }
 
-
     static byte[] b1 = {
         0, 1, -128, 44, 12
     };
@@ -795,13 +789,15 @@ public class TestSql extends TestBase {
 
         Statement sStatement = null;
         ResultSet r;
-        boolean mismatch;
-       sStatement = connection.createStatement();
+        boolean   mismatch;
+
+        sStatement = connection.createStatement();
 
         try {
 
             // prepared statements
-            String s = "create table bintest(id int primary key, bin varbinary(100))";
+            String s =
+                "create table bintest(id int primary key, bin varbinary(100))";
 
             sStatement.execute(s);
 
@@ -811,18 +807,15 @@ public class TestSql extends TestBase {
 
             p.clearParameters();
             p.setInt(1, 10);
-
             p.setBytes(2, b1);
             p.executeUpdate();
-
             p.clearParameters();
             p.setInt(1, 20);
-
             p.setBytes(2, b2);
             p.executeUpdate();
 
-            byte[]  b1n;
-            byte[]  b2n;
+            byte[] b1n;
+            byte[] b2n;
 
             s = "select \"org.hsqldb.lib.ArrayUtil.countStartElementsAt\"(bin,0, ?) "
                 + "from bintest";
@@ -865,8 +858,7 @@ public class TestSql extends TestBase {
             r.next();
 
             b1n = r.getBytes(1);
-
-            s = "create table obj(id int,o object)";
+            s   = "create table obj(id int,o object)";
 
             sStatement.execute(s);
 
@@ -918,7 +910,10 @@ public class TestSql extends TestBase {
 
         try {
             stmnt.execute("SHUTDOWN");
-            connection.close();
+
+            if (!isNetwork) {
+                connection.close();
+            }
         } catch (Exception e) {
             e.printStackTrace();
             System.out.println("TestSql.tearDown() error: " + e.getMessage());

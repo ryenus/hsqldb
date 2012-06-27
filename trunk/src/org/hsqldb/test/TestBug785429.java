@@ -53,13 +53,21 @@ public class TestBug785429 extends TestBase {
         super(name);
     }
 
+    protected void setUp() {
+
+        super.setUp();
+
+        try {
+            conn = super.newConnection();
+
+            conn.setAutoCommit(false);
+
+            stmt = conn.createStatement();
+        } catch (Exception e) {}
+    }
+
     public void test() throws Exception {
 
-        Connection conn = newConnection();
-
-        conn.setAutoCommit(false);
-
-        Statement         stmt = conn.createStatement();
         String            sql;
         String            msg;
         PreparedStatement ps;
@@ -68,10 +76,8 @@ public class TestBug785429 extends TestBase {
 
         stmt.executeUpdate("drop table testA if exists;");
         stmt.executeUpdate("drop table testB if exists;");
-        stmt.executeUpdate(
-            "create table testA(oid binary(2), data integer);");
-        stmt.executeUpdate(
-            "create table testB(oid binary(2), data integer);");
+        stmt.executeUpdate("create table testA(oid binary(2), data integer);");
+        stmt.executeUpdate("create table testB(oid binary(2), data integer);");
         stmt.executeUpdate("insert into testA values(X'0001',1);");
         stmt.executeUpdate("insert into testB values(X'0001',1);");
 
@@ -135,6 +141,22 @@ public class TestBug785429 extends TestBase {
         msg = sql + ": row count:";
 
         assertEquals(msg, 1, rowcount);
+    }
+
+    protected void tearDown() {
+
+        try {
+            stmt.execute("SHUTDOWN");
+
+            if (!isNetwork) {
+                conn.close();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            System.out.println("TestSql.tearDown() error: " + e.getMessage());
+        }
+
+        super.tearDown();
     }
 
     public static void main(String[] args) throws Exception {
