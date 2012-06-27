@@ -31,24 +31,31 @@
 
 package org.hsqldb;
 
+import java.io.BufferedInputStream;
+import java.io.DataInputStream;
 import java.io.IOException;
-import java.io.OutputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
 
-import org.hsqldb.lib.InOutUtil;
+import org.hsqldb.lib.DataOutputStream;
+import org.hsqldb.lib.HsqlByteArrayOutputStream;
 import org.hsqldb.result.Result;
 
 /**
- * HTTP protocol session proxy implementation. Uses the updated HSQLDB HTTP
- * sub protocol.
+ * HTTP protocol session proxy implementation. Uses the updated HSQLDB HTTP sub
+ * protocol.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 1.9.0
+ * @version 2.2.9
  * @since 1.7.2
  */
 public class ClientConnectionHTTP extends ClientConnection {
 
-    static final String ENCODING = "8859_1";
-    static final int    IDLENGTH = 12;    // length of int + long for db and session IDs
+    static final String ENCODING = "ISO-8859-1";
+    static final int    IDLENGTH = 12;    // length of int + long for db and session
+
+    // IDs
+    private HttpURLConnection httpConnection = null;
 
     public ClientConnectionHTTP(String host, int port, String path,
                                 String database, boolean isTLS, String user,
@@ -57,54 +64,99 @@ public class ClientConnectionHTTP extends ClientConnection {
               timeZoneSeconds);
     }
 
+    // Empty since HTTP has an empty handshake() method. execute() will open connection
+    // when it needs to
     protected void initConnection(String host, int port, boolean isTLS) {}
+
+    /**
+     * This just opens (a new or re-uses a connection) Keep-Alive.
+     *
+     * Contrary to before, the dataOutput and dataInput are not connected to the
+     * connection's Output- and Input-Streams here, because when connecting to
+     * the input stream here, somehow rules out writing to the output stream.
+     */
+    protected void openConnection(String host, int port, boolean isTLS) {
+
+        try {
+            URL    url = null;
+            String s   = "";
+
+            if (!path.endsWith("/")) {
+                s = "/";
+            }
+
+            s = "http://" + host + ":" + port + path + s + database;
+
+            if (isTLS) {
+                url = new URL("https://" + host + ":" + port + path + s
+                              + database);    // PROTECT/servlet/hsqldb
+            } else {
+                url = new URL(s);             // PROTECT/servlet/hsqldb
+            }
+
+            httpConnection = (HttpURLConnection) url.openConnection();
+
+            httpConnection.setDefaultUseCaches(false);
+        } catch (IOException e) {
+            e.printStackTrace(System.out);
+        }
+    }
+
+    protected void closeConnection() {
+
+        //httpConnection.disconnect();
+    }                                         // In Keep-Alive scenario, this is empty
 
     public synchronized Result execute(Result r) {
 
-        super.openConnection(host, port, isTLS);
+        openConnection(host, port, isTLS);
 
         Result result = super.execute(r);
 
-        super.closeConnection();
+        closeConnection();
 
         return result;
     }
 
     protected void write(Result r) throws IOException, HsqlException {
 
-        dataOutput.write("POST ".getBytes(ENCODING));
-        dataOutput.write(path.getBytes(ENCODING));
-        dataOutput.write(" HTTP/1.0\r\n".getBytes(ENCODING));
-        dataOutput.write(
-            "Content-Type: application/octet-stream\r\n".getBytes(ENCODING));
-        dataOutput.write(("Content-Length: " + rowOut.size() + IDLENGTH
-                          + "\r\n").getBytes(ENCODING));
-        dataOutput.write("\r\n".getBytes(ENCODING));
+        HsqlByteArrayOutputStream memStream  = new HsqlByteArrayOutputStream();
+        DataOutputStream          tempOutput = new DataOutputStream(memStream);
+
+        r.write(this, tempOutput, rowOut);
+        httpConnection.setRequestMethod("POST");
+        httpConnection.setDoOutput(true);
+        httpConnection.setUseCaches(false);
+
+        //httpConnection.setRequestProperty("Accept-Encoding", "gzip");
+        httpConnection.setRequestProperty("Content-Type",
+                                          "application/octet-stream");
+        httpConnection.setRequestProperty("Content-Length",
+                                          String.valueOf(IDLENGTH
+                                              + memStream.size()));
+
+        dataOutput = new DataOutputStream(httpConnection.getOutputStream());
+
         dataOutput.writeInt(r.getDatabaseId());
         dataOutput.writeLong(r.getSessionId());
-        r.write(this, dataOutput, rowOut);
+        memStream.writeTo(dataOutput);
+        dataOutput.flush();
     }
 
     protected Result read() throws IOException, HsqlException {
 
-        // fredt - for WebServer 4 lines should be skipped
-        // for Servlet, number of lines depends on Servlet container
-        // stop skipping after the blank line
+        dataInput = new DataInputStream(
+            new BufferedInputStream(httpConnection.getInputStream()));
+
         rowOut.reset();
 
-        for (;;) {
-            int count = InOutUtil.readLine(dataInput, (OutputStream) rowOut);
-
-            if (count <= 2) {
-                break;
-            }
-        }
-
-        //
         Result result = Result.newResult(dataInput, rowIn);
 
         result.readAdditionalResults(this, dataInput, rowIn);
+        dataInput.close();    // Added to ensure connection is returned to Java
 
+        // engine for transparent re-use of Keep-alive
+        // connections (Aart)
         return result;
     }
 
