@@ -32,6 +32,7 @@
 package org.hsqldb.jdbc;
 
 import java.io.PrintWriter;
+import java.io.Serializable;
 import java.sql.SQLException;
 import java.util.Properties;
 
@@ -49,11 +50,12 @@ import javax.sql.CommonDataSource;
  * @revised JDK 1.7, HSQLDB 2.0.1
  */
 //#ifdef JAVA6
-public abstract class JDBCCommonDataSource implements CommonDataSource {
+public abstract class JDBCCommonDataSource
+implements CommonDataSource, Serializable {
 
 //#else
 /*
-public abstract class JDBCCommonDataSource {
+public abstract class JDBCCommonDataSource implements Serializable {
 */
 
 //#endif JAVA6
@@ -318,7 +320,7 @@ public abstract class JDBCCommonDataSource {
     public void setProperties(Properties props) {
 
         connectionProps = (props == null) ? new Properties()
-                : (Properties) props.clone();
+                                          : (Properties) props.clone();
 
         if (user != null) {
             props.setProperty("user", user);
@@ -347,13 +349,12 @@ public abstract class JDBCCommonDataSource {
      * @since JDK 1.7 M11 2010/09/10 (b123), HSQLDB 2.0.1
      */
 //#ifdef JAVA6
-    public java.util.logging
-            .Logger getParentLogger() throws java.sql
-                .SQLFeatureNotSupportedException {
+    public java.util.logging.Logger getParentLogger()
+    throws java.sql.SQLFeatureNotSupportedException {
         throw (java.sql.SQLFeatureNotSupportedException) Util.notSupported();
     }
 
-//#endif    
+//#endif
     // ------------------------ internal implementation ------------------------
     protected Properties connectionProps = new Properties();
 
