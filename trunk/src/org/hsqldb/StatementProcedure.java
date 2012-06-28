@@ -47,7 +47,7 @@ import org.hsqldb.types.Type;
  * Implementation of Statement for callable procedures.<p>
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.0.1
+ * @version 2.2.9
  * @since 1.9.0
  */
 public class StatementProcedure extends StatementDMQL {
@@ -287,7 +287,7 @@ public class StatementProcedure extends StatementDMQL {
         return r;
     }
 
-    SubQuery[] getSubqueries(Session session) {
+    TableDerived[] getSubqueries(Session session) {
 
         OrderedHashSet subQueries = null;
 
@@ -300,17 +300,17 @@ public class StatementProcedure extends StatementDMQL {
         }
 
         if (subQueries == null || subQueries.size() == 0) {
-            return SubQuery.emptySubqueryArray;
+            return TableDerived.emptyArray;
         }
 
-        SubQuery[] subQueryArray = new SubQuery[subQueries.size()];
+        TableDerived[] subQueryArray = new TableDerived[subQueries.size()];
 
         subQueries.toArray(subQueryArray);
         ArraySort.sort(subQueryArray, 0, subQueryArray.length,
                        subQueryArray[0]);
 
         for (int i = 0; i < subqueries.length; i++) {
-            subQueryArray[i].prepareTable(session);
+            subQueryArray[i].prepareTable();
         }
 
         return subQueryArray;

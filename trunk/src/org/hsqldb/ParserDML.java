@@ -46,7 +46,7 @@ import org.hsqldb.types.Type;
  * Parser for DML statements
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.2.1
+ * @version 2.2.9
  * @since 1.9.0
  */
 public class ParserDML extends ParserDQL {
@@ -72,7 +72,10 @@ public class ParserDML extends ParserDQL {
         boolean       overridingSystem  = false;
         boolean       assignsToIdentity = false;
 
-        range           = readRangeVariableForDataChange(StatementTypes.INSERT);
+        range = readRangeVariableForDataChange(StatementTypes.INSERT);
+
+        range.resolveRangeTableTypes(session, RangeVariable.emptyArray);
+
         table           = range.getTable();
         columnCheckList = null;
         columnMap       = table.getColumnMap();
@@ -443,10 +446,6 @@ public class ParserDML extends ParserDQL {
             readRangeVariableForDataChange(StatementTypes.DELETE_WHERE) };
         table = rangeVariables[0].getTable();
 
-        if (table.isTriggerDeletable()) {
-            rangeVariables[0].resetViewRageTableAsSubquery();
-        }
-
         compileContext.setOuterRanges(rangeGroups);
 
         if (token.tokenType == Tokens.WHERE) {
@@ -526,6 +525,11 @@ public class ParserDML extends ParserDQL {
             rangeVariables = resolver.rangeVariables;
         }
 
+        for (int i = 0; i < rangeVariables.length; i++) {
+            rangeVariables[i].resolveRangeTableTypes(session,
+                    RangeVariable.emptyArray);
+        }
+
         Statement cs = new StatementDML(session, table, rangeVariables,
                                         compileContext, restartIdentity,
                                         StatementTypes.DELETE_WHERE);
@@ -552,10 +556,6 @@ public class ParserDML extends ParserDQL {
         Table      table      = rangeVariables[0].rangeTable;
         Table      baseTable  = table.isTriggerUpdatable() ? table
                                                            : table.getBaseTable();
-
-        if (table.isTriggerUpdatable()) {
-            rangeVariables[0].resetViewRageTableAsSubquery();
-        }
 
         readThis(Tokens.SET);
         readSetClauseList(rangeVariables, targetSet, colIndexList, exprList);
@@ -661,6 +661,11 @@ public class ParserDML extends ParserDQL {
             rangeVariables = resolver.rangeVariables;
         }
 
+        for (int i = 0; i < rangeVariables.length; i++) {
+            rangeVariables[i].resolveRangeTableTypes(session,
+                    RangeVariable.emptyArray);
+        }
+
         if (table != baseTable) {
             int[] baseColumnMap = table.getBaseTableColumnMap();
             int[] newColumnMap  = new int[columnMap.length];
@@ -745,7 +750,7 @@ public class ParserDML extends ParserDQL {
                 ExpressionColumn.checkColumnsResolved(unresolved);
                 expr.resolveTypes(session, null);
 
-                int count = expr.subQuery.queryExpression.getColumnCount();
+                int count = expr.table.queryExpression.getColumnCount();
 
                 for (int j = 0; j < count; j++, i++) {
                     if (enforcedDefaultIndex == columnMap[i]) {
@@ -819,13 +824,13 @@ public class ParserDML extends ParserDQL {
             if (token.tokenType == Tokens.SELECT) {
                 rewind(position);
 
-                SubQuery sq = XreadSubqueryBody(OpTypes.ROW_SUBQUERY);
+                TableDerived td = XreadSubqueryTableBody(OpTypes.ROW_SUBQUERY);
 
-                if (degree != sq.queryExpression.getColumnCount()) {
+                if (degree != td.queryExpression.getColumnCount()) {
                     throw Error.error(ErrorCode.X_42546);
                 }
 
-                Expression e = new Expression(OpTypes.ROW_SUBQUERY, sq);
+                Expression e = new Expression(OpTypes.ROW_SUBQUERY, td);
 
                 expressions.add(e);
 
@@ -1053,6 +1058,11 @@ public class ParserDML extends ParserDQL {
         resolver.processConditions(session);
 
         fullRangeVars = resolver.rangeVariables;
+
+        for (int i = 0; i < fullRangeVars.length; i++) {
+            fullRangeVars[i].resolveRangeTableTypes(session,
+                    RangeVariable.emptyArray);
+        }
 
         if (insertExpression != null) {
             unresolved = insertExpression.resolveColumnReferences(session,

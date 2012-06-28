@@ -58,7 +58,7 @@ public final class ColumnSchema extends ColumnBase implements SchemaObject {
     private Expression     defaultExpression;
     private Expression     generatingExpression;
     private NumberSequence sequence;
-    private OrderedHashSet references = new OrderedHashSet();
+    private OrderedHashSet references;
     private OrderedHashSet generatedColumnReferences;
     private Expression     accessor;
 
@@ -138,7 +138,8 @@ public final class ColumnSchema extends ColumnBase implements SchemaObject {
 
         generatingExpression.resetColumnReferences();
         generatingExpression.resolveCheckOrGenExpression(session,
-                new RangeGroupSimple(((Table) table).defaultRanges), false);
+                new RangeGroupSimple(((Table) table).getDefaultRanges()),
+                false);
 
         if (dataType.typeComparisonGroup
                 != generatingExpression.getDataType().typeComparisonGroup) {
@@ -362,7 +363,9 @@ public final class ColumnSchema extends ColumnBase implements SchemaObject {
 
     private void setReferences() {
 
-        references.clear();
+        if (references != null) {
+            references.clear();
+        }
 
         if (generatedColumnReferences != null) {
             generatedColumnReferences.clear();
@@ -371,28 +374,38 @@ public final class ColumnSchema extends ColumnBase implements SchemaObject {
         if (dataType.isDomainType() || dataType.isDistinctType()) {
             HsqlName name = ((SchemaObject) dataType).getName();
 
+            if (references == null) {
+                references = new OrderedHashSet();
+            }
+
             references.add(name);
         }
 
         if (generatingExpression != null) {
-            generatingExpression.collectObjectNames(references);
+            OrderedHashSet set = new OrderedHashSet();
 
-            Iterator it = references.iterator();
+            generatingExpression.collectObjectNames(set);
+
+            Iterator it = set.iterator();
 
             while (it.hasNext()) {
                 HsqlName name = (HsqlName) it.next();
 
                 if (name.type == SchemaObject.COLUMN
                         || name.type == SchemaObject.TABLE) {
-                    it.remove();
-
-                    if (generatedColumnReferences == null) {
-                        generatedColumnReferences = new OrderedHashSet();
-                    }
-
                     if (name.type == SchemaObject.COLUMN) {
+                        if (generatedColumnReferences == null) {
+                            generatedColumnReferences = new OrderedHashSet();
+                        }
+
                         generatedColumnReferences.add(name);
                     }
+                } else {
+                    if (references == null) {
+                        references = new OrderedHashSet();
+                    }
+
+                    references.add(name);
                 }
             }
         }

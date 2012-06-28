@@ -288,10 +288,6 @@ public class RangeVariableJoined extends RangeVariable {
         super.resetConditions();
     }
 
-    public OrderedHashSet getSubqueries() {
-        return super.getSubqueries();
-    }
-
     public void replaceColumnReference(RangeVariable range,
                                        Expression[] list) {}
 

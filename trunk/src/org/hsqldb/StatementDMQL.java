@@ -136,7 +136,7 @@ public abstract class StatementDMQL extends Statement {
     /**
      * Subqueries inverse usage depth order
      */
-    SubQuery[] subqueries = SubQuery.emptySubqueryArray;
+    TableDerived[] subqueries = TableDerived.emptyArray;
 
     /**
      * Total number of RangeIterator objects used
@@ -276,20 +276,20 @@ public abstract class StatementDMQL extends Statement {
         HashSet subqueryPopFlags = new HashSet();
 
         for (int i = 0; i < subqueries.length; i++) {
-            SubQuery sq = subqueries[i];
+            TableDerived td = subqueries[i];
 
-            // VIEW working tables may be reused in a single query but they are filled only once
-            if (!subqueryPopFlags.add(sq)) {
+            if (!subqueryPopFlags.add(td)) {
                 continue;
             }
 
-            if (!sq.isCorrelated()) {
-                sq.materialise(session);
+            if (!td.isCorrelated()) {
+                td.materialise(session);
             }
         }
     }
 
-    SubQuery[] getSubqueries(Session session) {
+
+    TableDerived[] getSubqueries(Session session) {
 
         OrderedHashSet subQueries = null;
 
@@ -328,18 +328,14 @@ public abstract class StatementDMQL extends Statement {
         }
 
         if (subQueries == null || subQueries.size() == 0) {
-            return SubQuery.emptySubqueryArray;
+            return TableDerived.emptyArray;
         }
 
-        SubQuery[] subQueryArray = new SubQuery[subQueries.size()];
+        TableDerived[] subQueryArray = new TableDerived[subQueries.size()];
 
         subQueries.toArray(subQueryArray);
         ArraySort.sort(subQueryArray, 0, subQueryArray.length,
                        subQueryArray[0]);
-
-        for (int i = 0; i < subQueryArray.length; i++) {
-            subQueryArray[i].prepareTable(session);
-        }
 
         return subQueryArray;
     }
@@ -703,7 +699,7 @@ public abstract class StatementDMQL extends Statement {
         sb.append("SUBQUERIES[");
 
         for (int i = 0; i < subqueries.length; i++) {
-            sb.append("\n[level=").append(subqueries[i].level).append('\n');
+            sb.append("\n[level=").append(subqueries[i].depth).append('\n');
 
             if (subqueries[i].queryExpression == null) {
                 for (int j = 0; j < blanks; j++) {

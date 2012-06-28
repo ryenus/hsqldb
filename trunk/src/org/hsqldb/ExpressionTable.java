@@ -56,12 +56,11 @@ public class ExpressionTable extends Expression {
     /**
      * Creates an UNNEST ARRAY or MULTISET expression
      */
-    ExpressionTable(Expression[] e, SubQuery sq, boolean ordinality) {
+    ExpressionTable(Expression[] e, boolean ordinality) {
 
         super(OpTypes.TABLE);
 
         nodes           = e;
-        this.subQuery   = sq;
         this.ordinality = ordinality;
     }
 
@@ -112,9 +111,9 @@ public class ExpressionTable extends Expression {
                 nodeDataTypes =
                     ((RowType) nodes[LEFT].dataType).getTypesArray();
 
-                subQuery.prepareTable(session);
+                table.prepareTable();
 
-                subQuery.getTable().columnList =
+                table.columnList =
                     ((FunctionSQLInvoked) nodes[LEFT]).routine.getTable()
                         .columnList;
                 isTable = true;
@@ -147,7 +146,7 @@ public class ExpressionTable extends Expression {
             nodeDataTypes[nodes.length] = Type.SQL_INTEGER;
         }
 
-        subQuery.prepareTable(session);
+        table.prepareTable();
     }
 
     public Result getResult(Session session) {
@@ -155,10 +154,10 @@ public class ExpressionTable extends Expression {
         switch (opType) {
 
             case OpTypes.TABLE : {
-                RowSetNavigatorData navigator = subQuery.getNavigator(session);
+                RowSetNavigatorData navigator = table.getNavigator(session);
                 Result              result    = Result.newResult(navigator);
 
-                result.metaData = subQuery.queryExpression.getMetaData();
+                result.metaData = table.queryExpression.getMetaData();
 
                 return result;
             }
@@ -173,7 +172,7 @@ public class ExpressionTable extends Expression {
         switch (opType) {
 
             case OpTypes.TABLE : {
-                return subQuery.queryExpression.getValues(session);
+                return table.queryExpression.getValues(session);
             }
             default :
                 throw Error.runtimeError(ErrorCode.U_S0500, "Expression");
@@ -187,7 +186,7 @@ public class ExpressionTable extends Expression {
             case OpTypes.TABLE : {
                 materialise(session);
 
-                Object[] value = subQuery.getValues(session);
+                Object[] value = table.getValues(session);
 
                 if (value.length == 1) {
                     return ((Object[]) value)[0];

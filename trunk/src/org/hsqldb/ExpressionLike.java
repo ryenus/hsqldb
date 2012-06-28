@@ -43,7 +43,7 @@ import org.hsqldb.types.Types;
  *
  * @author Campbell Boucher-Burnet (boucherb@users dot sourceforge.net)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.2.5
+ * @version 2.2.9
  * @since 1.9.0
  */
 public final class ExpressionLike extends ExpressionLogical {
@@ -76,13 +76,14 @@ public final class ExpressionLike extends ExpressionLogical {
     }
 
     public HsqlList resolveColumnReferences(Session session,
-            RangeGroup rangeGroup, int rangeCount,
-            RangeGroup[] rangeGroups, HsqlList unresolvedSet, boolean acceptsSequences) {
+            RangeGroup rangeGroup, int rangeCount, RangeGroup[] rangeGroups,
+            HsqlList unresolvedSet, boolean acceptsSequences) {
 
         for (int i = 0; i < nodes.length; i++) {
             if (nodes[i] != null) {
                 unresolvedSet = nodes[i].resolveColumnReferences(session,
-                        rangeGroup, rangeCount, rangeGroups, unresolvedSet, acceptsSequences);
+                        rangeGroup, rangeCount, rangeGroups, unresolvedSet,
+                        acceptsSequences);
             }
         }
 
@@ -296,6 +297,7 @@ public final class ExpressionLike extends ExpressionLogical {
             likeObject = null;
 
             setEqualityMode();
+
             return;
         }
 

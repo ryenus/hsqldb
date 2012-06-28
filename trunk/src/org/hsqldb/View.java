@@ -34,7 +34,6 @@ package org.hsqldb;
 import org.hsqldb.HsqlNameManager.HsqlName;
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
-import org.hsqldb.lib.ArraySort;
 import org.hsqldb.lib.OrderedHashSet;
 
 // fredt@users 20020420 - patch523880 by leptipre@users - VIEW support - modified
@@ -45,22 +44,15 @@ import org.hsqldb.lib.OrderedHashSet;
  *
  * @author leptipre@users
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.0.0
+ * @version 2.2.9
  * @since 1.7.0
  */
 public class View extends TableDerived {
 
-    SubQuery       viewSubQuery;
     private String statement;
 
     //
     private HsqlName[] columnNames;
-
-    /**
-     * List of subqueries in this view in order of materialization. Last
-     * element is the view itself.
-     */
-    SubQuery[] viewSubqueries;
 
     /**
      * Names of SCHEMA objects referenced in VIEW
@@ -70,13 +62,10 @@ public class View extends TableDerived {
     /**
      * check option
      */
-    private int check;
+    private int checkOption;
 
     //
     private Table baseTable;
-
-    //
-    Expression checkExpression;
 
     //
     boolean isTriggerInsertable;
@@ -88,7 +77,7 @@ public class View extends TableDerived {
         super(db, name, TableBase.VIEW_TABLE);
 
         this.columnNames = columnNames;
-        this.check       = check;
+        this.checkOption = check;
     }
 
     public int getType() {
@@ -112,17 +101,18 @@ public class View extends TableDerived {
 
         p.read();
 
-        viewSubQuery    = p.XreadViewSubquery(this);
-        queryExpression = viewSubQuery.queryExpression;
+        TableDerived viewSubQueryTable = p.XreadViewSubqueryTable(this, true);
+
+        queryExpression = viewSubQueryTable.queryExpression;
 
         if (getColumnCount() == 0) {
             if (columnNames == null) {
                 columnNames =
-                    viewSubQuery.queryExpression.getResultColumnNames();
+                    viewSubQueryTable.queryExpression.getResultColumnNames();
             }
 
             if (columnNames.length
-                    != viewSubQuery.queryExpression.getColumnCount()) {
+                    != viewSubQueryTable.queryExpression.getColumnCount()) {
                 throw Error.error(ErrorCode.X_42593, getName().statementName);
             }
 
@@ -131,47 +121,18 @@ public class View extends TableDerived {
         }
 
         //
-        OrderedHashSet set = queryExpression.getSubqueries();
-
-        if (set == null) {
-            viewSubqueries = new SubQuery[]{ viewSubQuery };
-        } else {
-            set.add(viewSubQuery);
-
-            viewSubqueries = new SubQuery[set.size()];
-
-            set.toArray(viewSubqueries);
-            ArraySort.sort(viewSubqueries, 0, viewSubqueries.length,
-                           viewSubqueries[0]);
-        }
-
-        for (int i = 0; i < viewSubqueries.length; i++) {
-            if (viewSubqueries[i].parentView == null) {
-                viewSubqueries[i].parentView = this;
-            }
-
-            viewSubqueries[i].prepareTable(session);
-        }
-
-        //
-        viewSubQuery.getTable().view       = this;
-        viewSubQuery.getTable().columnList = columnList;
         schemaObjectNames = p.compileContext.getSchemaObjectNames();
-        baseTable                          = queryExpression.getBaseTable();
+        canRecompile      = true;
+        baseTable         = queryExpression.getBaseTable();
 
         if (baseTable == null) {
             return;
         }
 
-        switch (check) {
+        switch (checkOption) {
 
             case SchemaObject.ViewCheckModes.CHECK_NONE :
-                break;
-
             case SchemaObject.ViewCheckModes.CHECK_LOCAL :
-                checkExpression = queryExpression.getCheckCondition();
-                break;
-
             case SchemaObject.ViewCheckModes.CHECK_CASCADE :
                 break;
 
@@ -207,10 +168,6 @@ public class View extends TableDerived {
 
     public int[] getUpdatableColumns() {
         return queryExpression.getBaseTableColumnMap();
-    }
-
-    public long getChangeTimestamp() {
-        return changeTimestamp;
     }
 
     public boolean isTriggerInsertable() {
@@ -301,7 +258,7 @@ public class View extends TableDerived {
     }
 
     public int getCheckOption() {
-        return check;
+        return checkOption;
     }
 
     /**
@@ -315,27 +272,33 @@ public class View extends TableDerived {
         statement = sql;
     }
 
-    public void collectAllFunctionExpressions(OrderedHashSet collector) {
+    public TableDerived newDerivedTable(Session session) {
 
-        // filter schemaObjectNames
-    }
+        TableDerived td;
 
-    public Table getSubqueryTable() {
-        return viewSubQuery.getTable();
-    }
+        if (isRecompiled()) {
+            ParserDQL p = new ParserDQL(session, new Scanner(statement));
 
-    public SubQuery[] getSubqueries() {
-        return viewSubqueries;
-    }
+            p.reset(statement,
+                    session.parser.compileContext.getRangeVarCount());
+            p.read();
 
-    public QueryExpression newQueryExpression(Session session) {
+            td = p.XreadViewSubqueryTable(this, false);
 
+            session.parser.compileContext.setNextRangeVarIndex(
+                p.compileContext.getRangeVarCount());;
+        } else {
+            td = new TableDerived(database, tableName, TableBase.VIEW_TABLE,
+                                  queryExpression, null, OpTypes.NONE, 1);
+            td.columnList  = columnList;
+            td.columnCount = columnList.size();
 
-       ParserDQL p = session.database.sessionManager.newSysSession().parser;
+            td.createPrimaryKey();
 
-       p.reset(statement);
-       p.read();
+            td.triggerList  = triggerList;
+            td.triggerLists = triggerLists;
+        }
 
-        return p.XreadViewQueryExpression(this);
+        return td;
     }
 }

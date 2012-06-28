@@ -45,11 +45,11 @@ public interface RangeGroup {
 
         RangeVariable[] ranges;
         RangeGroup      baseGroup;
-        SubQuery        sq;
+        TableDerived    table;
 
-        public RangeGroupSimple(SubQuery sq) {
+        public RangeGroupSimple(TableDerived table) {
             ranges = RangeVariable.emptyArray;
-            this.sq = sq;
+            this.table = table;
         }
 
         public RangeGroupSimple(RangeVariable[] ranges, RangeGroup baseGroup) {
@@ -71,8 +71,8 @@ public interface RangeGroup {
                 baseGroup.setCorrelated();
             }
 
-            if (sq != null) {
-                sq.setCorrelated();
+            if (table != null) {
+                table.setCorrelated();
             }
         }
     }

@@ -292,6 +292,15 @@ public class Table extends TableBase implements SchemaObject {
         return set;
     }
 
+    public RangeVariable[] getDefaultRanges() {
+
+        if (defaultRanges == null) {
+            defaultRanges = new RangeVariable[]{ new RangeVariable(this, 0) };
+        }
+
+        return defaultRanges;
+    }
+
     public OrderedHashSet getReferencesForDependents() {
 
         OrderedHashSet set = new OrderedHashSet();
@@ -1684,8 +1693,6 @@ public class Table extends TableBase implements SchemaObject {
         }
 
         resetDefaultsFlag();
-
-        defaultRanges = new RangeVariable[]{ new RangeVariable(this, 0) };
     }
 
     void setColumnTypeVars(int i) {
@@ -2756,7 +2763,7 @@ public class Table extends TableBase implements SchemaObject {
                     Expression e = getColumn(i).getGeneratingExpression();
                     RangeIteratorBase range =
                         session.sessionContext.getCheckIterator(
-                            defaultRanges[0]);
+                            getDefaultRanges()[0]);
 
                     range.currentData = data;
                     data[i]           = e.getValue(session, colTypes[i]);
@@ -2918,10 +2925,6 @@ public class Table extends TableBase implements SchemaObject {
         return database.persistentStoreCollection.getStore(this);
     }
 
-    public SubQuery getSubQuery() {
-        return null;
-    }
-
     public QueryExpression getQueryExpression() {
         return null;
     }
@@ -2930,4 +2933,9 @@ public class Table extends TableBase implements SchemaObject {
         return null;
     }
 
+    public void prepareTable() {}
+
+    public void materialise(Session session) {}
+
+    public void materialiseCorrelated(Session session) {}
 }

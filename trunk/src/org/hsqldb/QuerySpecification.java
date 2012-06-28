@@ -150,8 +150,6 @@ public class QuerySpecification extends QueryExpression {
         isMergeable     = true;
 
         resolveReferences(session, RangeGroup.emptyArray);
-        resolveTypesPartOne(session);
-        resolveTypesPartTwo(session);
     }
 
     QuerySpecification(CompileContext compileContext) {
@@ -348,22 +346,24 @@ public class QuerySpecification extends QueryExpression {
 
     void resolveTypesPartOne(Session session) {
 
-        if (isPartResolved) {
+        if (isPartOneResolved) {
             return;
         }
 
-        resolveExpressionTypes(session, rowExpression);
+        resolveExpressionTypes(session);
         resolveAggregates();
 
         for (int i = 0; i < unionColumnTypes.length; i++) {
             unionColumnTypes[i] = Type.getAggregateType(unionColumnTypes[i],
                     exprColumns[i].getDataType());
         }
+
+        isPartOneResolved = true;
     }
 
     void resolveTypesPartTwo(Session session) {
 
-        if (isPartResolved) {
+        if (isPartTwoResolved) {
             return;
         }
 
@@ -405,7 +405,7 @@ public class QuerySpecification extends QueryExpression {
             mergeQuery();
         }
 
-        isPartResolved = true;
+        isPartTwoResolved = true;
     }
 
     void resolveTypesPartThree(Session session) {
@@ -424,13 +424,17 @@ public class QuerySpecification extends QueryExpression {
             rangeVariables[i].resolveRangeTableTypes(session, rangeVariables);
         }
 
-        isResolved = true;
+        rangeVariableList = null;
+        tempSet           = null;
+        compileContext    = null;
+        outerRanges       = null;
+        isResolved        = true;
     }
 
     public void addExtraConditions(Expression e) {
 
         if (isAggregated || isGrouped) {
-            throw Error.runtimeError(ErrorCode.U_S0500, "QueryExpression");
+            return;
         }
 
         queryCondition = ExpressionLogical.andExpressions(queryCondition, e);
@@ -810,6 +814,8 @@ public class QuerySpecification extends QueryExpression {
 
         exprColumnList.toArray(exprColumns);
 
+        exprColumnList = null;
+
         for (int i = 0; i < indexLimitVisible; i++) {
             exprColumns[i].queryTableColumnIndex = i;
         }
@@ -868,12 +874,12 @@ public class QuerySpecification extends QueryExpression {
     /**
      * Sets the types of all the expressions used in this SELECT list.
      */
-    public void resolveExpressionTypes(Session session, Expression parent) {
+    public void resolveExpressionTypes(Session session) {
 
         for (int i = 0; i < indexStartAggregates; i++) {
             Expression e = exprColumns[i];
 
-            e.resolveTypes(session, parent);
+            e.resolveTypes(session, rowExpression);
 
             if (e.getType() == OpTypes.ROW) {
                 throw Error.error(ErrorCode.X_42565);
@@ -885,7 +891,7 @@ public class QuerySpecification extends QueryExpression {
             }
         }
 
-        for (int i = 0, len = rangeVariables.length; i < len; i++) {
+        for (int i = 0; i < rangeVariables.length; i++) {
             Expression e = rangeVariables[i].getJoinCondition();
 
             if (e != null) {
@@ -1337,6 +1343,7 @@ public class QuerySpecification extends QueryExpression {
      */
     Result getResult(Session session, int maxrows) {
 
+//todo single row
         Result r = getSingleResult(session, maxrows);
 
         r.getNavigator().reset();
@@ -1387,8 +1394,11 @@ public class QuerySpecification extends QueryExpression {
         }
 
         if (this.isSimpleCount) {
-            Object[]        data  = new Object[indexLimitData];
-            Table           table = rangeVariables[0].getTable();
+            Object[] data  = new Object[indexLimitData];
+            Table    table = rangeVariables[0].getTable();
+
+            table.materialise(session);
+
             PersistentStore store = table.getRowStore(session);
             long            count = store.elementCount(session);
 
@@ -1751,7 +1761,7 @@ public class QuerySpecification extends QueryExpression {
         }
     }
 
-    void createFullIndex(Session session) {
+    private void createFullIndex(Session session) {
 
         int[] fullCols = new int[indexLimitVisible];
 
@@ -1794,7 +1804,8 @@ public class QuerySpecification extends QueryExpression {
 
         try {
             resultTable = new TableDerived(session.database, tableName,
-                                           tableType, columnTypes, columnList);
+                                           tableType, columnTypes, columnList,
+                                           ValuePool.emptyIntArray);
         } catch (Exception e) {}
     }
 
@@ -1887,7 +1898,11 @@ public class QuerySpecification extends QueryExpression {
 
         StringBuffer sb;
         String       temp;
-        String       b = ValuePool.spaceString.substring(0, blanks);
+        StringBuffer b = new StringBuffer(blanks);
+
+        for (int i = 0; i < blanks; i++) {
+            b.append(' ');
+        }
 
         sb = new StringBuffer();
 
@@ -2195,90 +2210,29 @@ public class QuerySpecification extends QueryExpression {
                 return;
             }
 
-            if (baseQueryExpression.view == null) {
-                rangeVariables[0] = baseSelect.rangeVariables[0];
+            rangeVariables[0] = baseSelect.rangeVariables[0];
 
-                rangeVariables[0].resetConditions();
+            rangeVariables[0].resetConditions();
 
-                Expression[] newExprColumns = new Expression[indexLimitData];
+            for (int i = 0; i < indexLimitData; i++) {
+                Expression e = exprColumns[i];
 
-                for (int i = 0; i < indexLimitData; i++) {
-                    Expression e = exprColumns[i];
-
-                    newExprColumns[i] = e.replaceColumnReferences(rangeVar,
-                            baseSelect.exprColumns);
-                }
-
-                exprColumns = newExprColumns;
-
-                if (localQueryCondition != null) {
-                    localQueryCondition =
-                        localQueryCondition.replaceColumnReferences(rangeVar,
-                            baseSelect.exprColumns);
-                }
-
-                Expression baseQueryCondition = baseSelect.queryCondition;
-
-                checkQueryCondition = baseSelect.checkQueryCondition;
-                queryCondition =
-                    ExpressionLogical.andExpressions(baseQueryCondition,
-                                                     localQueryCondition);
-            } else {
-                RangeVariable[] newRangeVariables = new RangeVariable[1];
-
-                newRangeVariables[0] =
-                    baseSelect.rangeVariables[0].duplicate();
-                newRangeVariables[0].rangePosition =
-                    rangeVariables[0].rangePosition;
-
-                Expression[] newBaseExprColumns =
-                    new Expression[baseSelect.indexLimitData];
-
-                for (int i = 0; i < baseSelect.indexLimitData; i++) {
-                    Expression e = baseSelect.exprColumns[i].duplicate();
-
-                    newBaseExprColumns[i] = e;
-
-                    e.replaceRangeVariables(baseSelect.rangeVariables,
-                                            newRangeVariables);
-                }
-
-                for (int i = 0; i < indexLimitData; i++) {
-                    Expression e = exprColumns[i];
-
-                    exprColumns[i] = e.replaceColumnReferences(rangeVar,
-                            newBaseExprColumns);
-                }
-
-                Expression baseQueryCondition = baseSelect.queryCondition;
-
-                if (baseQueryCondition != null) {
-                    baseQueryCondition = baseQueryCondition.duplicate();
-
-                    baseQueryCondition.replaceRangeVariables(
-                        baseSelect.rangeVariables, newRangeVariables);
-                }
-
-                if (localQueryCondition != null) {
-                    localQueryCondition =
-                        localQueryCondition.replaceColumnReferences(rangeVar,
-                            newBaseExprColumns);
-                }
-
-                checkQueryCondition = baseSelect.checkQueryCondition;
-
-                if (checkQueryCondition != null) {
-                    checkQueryCondition = checkQueryCondition.duplicate();
-
-                    checkQueryCondition.replaceRangeVariables(
-                        baseSelect.rangeVariables, newRangeVariables);
-                }
-
-                queryCondition =
-                    ExpressionLogical.andExpressions(baseQueryCondition,
-                                                     localQueryCondition);
-                rangeVariables = newRangeVariables;
+                exprColumns[i] = e.replaceColumnReferences(rangeVar,
+                        baseSelect.exprColumns);
             }
+
+            if (localQueryCondition != null) {
+                localQueryCondition =
+                    localQueryCondition.replaceColumnReferences(rangeVar,
+                        baseSelect.exprColumns);
+            }
+
+            Expression baseQueryCondition = baseSelect.queryCondition;
+
+            checkQueryCondition = baseSelect.checkQueryCondition;
+            queryCondition =
+                ExpressionLogical.andExpressions(baseQueryCondition,
+                                                 localQueryCondition);
         }
 
         if (view != null) {

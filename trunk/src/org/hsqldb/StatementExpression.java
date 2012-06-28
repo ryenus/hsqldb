@@ -92,7 +92,7 @@ public class StatementExpression extends StatementDMQL {
         return sb.toString();
     }
 
-    SubQuery[] getSubqueries(Session session) {
+    TableDerived[] getSubqueries(Session session) {
 
         OrderedHashSet subQueries = null;
 
@@ -101,17 +101,17 @@ public class StatementExpression extends StatementDMQL {
         }
 
         if (subQueries == null || subQueries.size() == 0) {
-            return SubQuery.emptySubqueryArray;
+            return TableDerived.emptyArray;
         }
 
-        SubQuery[] subQueryArray = new SubQuery[subQueries.size()];
+        TableDerived[] subQueryArray = new TableDerived[subQueries.size()];
 
         subQueries.toArray(subQueryArray);
         ArraySort.sort(subQueryArray, 0, subQueryArray.length,
                        subQueryArray[0]);
 
         for (int i = 0; i < subqueries.length; i++) {
-            subQueryArray[i].prepareTable(session);
+            subQueryArray[i].prepareTable();
         }
 
         return subQueryArray;

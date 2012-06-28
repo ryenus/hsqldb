@@ -93,9 +93,13 @@ public class ParserDQL extends ParserBase {
      * @param sql a new SQL character sequence to replace the current one
      */
     void reset(String sql) {
+        reset(sql, 1);
+    }
+
+    void reset(String sql, int rangeVarIndex) {
 
         super.reset(sql);
-        compileContext.reset();
+        compileContext.reset(rangeVarIndex);
 
         lastError = null;
     }
@@ -875,13 +879,12 @@ public class ParserDQL extends ParserBase {
                 readThis(Tokens.AS);
                 readThis(Tokens.OPENBRACKET);
 
-                SubQuery subQuery;
+                TableDerived td;;
 
-                subQuery =
-                    XreadTableNamedSubqueryBody(queryName, nameList,
-                                                recursive
-                                                ? OpTypes.RECURSIVE_SUBQUERY
-                                                : OpTypes.TABLE_SUBQUERY);
+                td = XreadTableNamedSubqueryBody(queryName, nameList,
+                                                 recursive
+                                                 ? OpTypes.RECURSIVE_SUBQUERY
+                                                 : OpTypes.TABLE_SUBQUERY);
 
                 readThis(Tokens.CLOSEBRACKET);
 
@@ -890,7 +893,7 @@ public class ParserDQL extends ParserBase {
                 }
 
                 if (recursive && token.tokenType == Tokens.CYCLE) {
-                    Table    table           = subQuery.getTable();
+                    Table    table           = td;
                     int[]    cycleColumnList = readColumnList(table, false);
                     HsqlName name;
 
@@ -949,7 +952,7 @@ public class ParserDQL extends ParserBase {
                         true, false, null);
                 }
 
-                compileContext.registerSubquery(queryName.name, subQuery);
+                compileContext.registerSubquery(queryName.name, td);
 
                 if (token.tokenType == Tokens.COMMA) {
                     read();
@@ -1096,7 +1099,7 @@ public class ParserDQL extends ParserBase {
                 Table table = readTableName();
 
                 if (table.isView()) {
-                    table = ((View) table).getSubqueryTable();
+                    table = ((View) table).newDerivedTable(session);
                 }
 
                 select = new QuerySpecification(session, table,
@@ -1107,10 +1110,10 @@ public class ParserDQL extends ParserBase {
             case Tokens.VALUES : {
                 read();
 
-                SubQuery sq = XreadRowValueExpressionList();
+                TableDerived td = XreadRowValueExpressionList();
 
-                select = new QuerySpecification(session, sq.getTable(),
-                                                compileContext, true);
+                select = new QuerySpecification(session, td, compileContext,
+                                                true);
 
                 break;
             }
@@ -1216,9 +1219,10 @@ public class ParserDQL extends ParserBase {
 
                     compileContext.incrementDepth();
 
-                    SubQuery sq = prepareSubquery(valueList);
+                    TableDerived td = prepareSubqueryTable(valueList,
+                                                           OpTypes.VALUELIST);
 
-                    select = new QuerySpecification(session, sq.getTable(),
+                    select = new QuerySpecification(session, td,
                                                     compileContext, true);
 
                     compileContext.decrementDepth();
@@ -1799,6 +1803,8 @@ public class ParserDQL extends ParserBase {
                 case StatementTypes.TRUNCATE :
                     throw Error.error(ErrorCode.X_42545);
             }
+
+            table = ((View) table).newDerivedTable(session);
         }
 
         RangeVariable range = new RangeVariable(table, alias, null, null,
@@ -1813,15 +1819,23 @@ public class ParserDQL extends ParserBase {
             return null;
         }
 
-        SubQuery sq = compileContext.getNamedSubQuery(token.tokenString);
+        TableDerived td = compileContext.getNamedSubQuery(token.tokenString);
 
-        if (sq == null) {
+        if (td == null) {
             return null;
         }
 
         read();
 
-        return sq.getTable();
+        if (td.isRecompiled()) {
+            td = td.newDerivedTable(session);
+        } else {
+
+            // after first use of named subqueries
+            td.canRecompile = true;
+        }
+
+        return td;
     }
 
     /**
@@ -1842,21 +1856,22 @@ public class ParserDQL extends ParserBase {
                 table = XreadTableSubqueryOrNull(false);
 
                 if (table == null) {
-                    SubQuery sq = XreadJoinedTableAsSubqueryOrNull();
+                    table = XreadJoinedTableAsSubqueryOrNull();
 
-                    if (sq == null) {
+                    if (table == null) {
                         table = XreadTableSubqueryOrNull(true);
+
                         break;
                     }
 
-                    table       = sq.getTable();
                     joinedTable = true;
                 }
 
                 break;
             }
             case Tokens.UNNEST : {
-                Expression e = XreadCollectionDerivedTable(false);
+                Expression e =
+                    XreadCollectionDerivedTable(OpTypes.TABLE_SUBQUERY);
 
                 table     = e.getTable();
                 isLateral = true;
@@ -1886,7 +1901,7 @@ public class ParserDQL extends ParserBase {
                 }
 
                 if (table.isView()) {
-                    table = ((View) table).getSubqueryTable();
+                    table = ((View) table).newDerivedTable(session);
                 }
             }
         }
@@ -2379,12 +2394,13 @@ public class ParserDQL extends ParserBase {
                     case Tokens.TABLE :
                     case Tokens.VALUES :
                     case Tokens.SELECT :
-                        SubQuery sq = null;
+                        TableDerived td = null;
 
                         rewind(subqueryPosition);
 
                         try {
-                            sq = XreadSubqueryBody(OpTypes.SCALAR_SUBQUERY);
+                            td = XreadSubqueryTableBody(
+                                OpTypes.SCALAR_SUBQUERY);
 
                             readThis(Tokens.CLOSEBRACKET);
                         } catch (HsqlException ex) {
@@ -2400,10 +2416,10 @@ public class ParserDQL extends ParserBase {
                             return null;
                         }
 
-                        if (sq.queryExpression.isSingleColumn()) {
-                            e = new Expression(OpTypes.SCALAR_SUBQUERY, sq);
+                        if (td.queryExpression.isSingleColumn()) {
+                            e = new Expression(OpTypes.SCALAR_SUBQUERY, td);
                         } else {
-                            e = new Expression(OpTypes.ROW_SUBQUERY, sq);
+                            e = new Expression(OpTypes.ROW_SUBQUERY, td);
                         }
 
                         if (readCloseBrackets(brackets) != brackets) {
@@ -2652,11 +2668,12 @@ public class ParserDQL extends ParserBase {
                 read();
                 readThis(Tokens.OPENBRACKET);
 
-                SubQuery sq = XreadSubqueryBody(OpTypes.TABLE_SUBQUERY);
+                TableDerived td =
+                    XreadSubqueryTableBody(OpTypes.TABLE_SUBQUERY);
 
                 readThis(Tokens.CLOSEBRACKET);
 
-                return new Expression(OpTypes.TABLE_SUBQUERY, sq);
+                return new Expression(OpTypes.TABLE_SUBQUERY, td);
             }
             default :
                 if (isCoreReservedKey()) {
@@ -3831,9 +3848,9 @@ public class ParserDQL extends ParserBase {
             case Tokens.SELECT :
                 rewind(position);
 
-                SubQuery sq = XreadSubqueryBody(OpTypes.IN);
+                TableDerived td = XreadSubqueryTableBody(OpTypes.IN);
 
-                e = new Expression(OpTypes.TABLE_SUBQUERY, sq);
+                e = new Expression(OpTypes.TABLE_SUBQUERY, td);
 
                 readThis(Tokens.CLOSEBRACKET);
                 break;
@@ -3868,7 +3885,7 @@ public class ParserDQL extends ParserBase {
         switch (token.tokenType) {
 
             case Tokens.UNNEST :
-                e = XreadCollectionDerivedTable(true);
+                e = XreadCollectionDerivedTable(OpTypes.IN);
 
                 readThis(Tokens.CLOSEBRACKET);
                 this.readCloseBrackets(brackets);
@@ -3880,9 +3897,9 @@ public class ParserDQL extends ParserBase {
             case Tokens.SELECT : {
                 rewind(position);
 
-                SubQuery sq = XreadSubqueryBody(OpTypes.IN);
+                TableDerived td = XreadSubqueryTableBody(OpTypes.IN);
 
-                e = new Expression(OpTypes.TABLE_SUBQUERY, sq);
+                e = new Expression(OpTypes.TABLE_SUBQUERY, td);
 
                 readThis(Tokens.CLOSEBRACKET);
 
@@ -4128,11 +4145,12 @@ public class ParserDQL extends ParserBase {
                     case Tokens.SELECT :
                         rewind(position);
 
-                        SubQuery sq = XreadSubqueryBody(OpTypes.ROW_SUBQUERY);
+                        TableDerived td =
+                            XreadSubqueryTableBody(OpTypes.ROW_SUBQUERY);
 
                         readThis(Tokens.CLOSEBRACKET);
 
-                        return new Expression(OpTypes.ROW_SUBQUERY, sq);
+                        return new Expression(OpTypes.ROW_SUBQUERY, td);
 
                     default :
                         rewind(position);
@@ -4197,11 +4215,11 @@ public class ParserDQL extends ParserBase {
 
         readThis(Tokens.OPENBRACKET);
 
-        SubQuery sq = XreadSubqueryBody(mode);
+        TableDerived td = XreadSubqueryTableBody(mode);
 
         readThis(Tokens.CLOSEBRACKET);
 
-        return new Expression(OpTypes.TABLE_SUBQUERY, sq);
+        return new Expression(OpTypes.TABLE_SUBQUERY, td);
     }
 
     Table XreadTableSubqueryOrNull(boolean parens) {
@@ -4236,16 +4254,15 @@ public class ParserDQL extends ParserBase {
 
             return null;
         } else {
-            SubQuery sq = XreadSubqueryBody(OpTypes.TABLE_SUBQUERY);
+            TableDerived td = XreadSubqueryTableBody(OpTypes.TABLE_SUBQUERY);
 
-            sq.createTable();
             readThis(Tokens.CLOSEBRACKET);
 
-            return sq.getTable();
+            return td;
         }
     }
 
-    SubQuery XreadJoinedTableAsSubqueryOrNull() {
+    TableDerived XreadJoinedTableAsSubqueryOrNull() {
 
         int position = getPosition();
 
@@ -4266,17 +4283,14 @@ public class ParserDQL extends ParserBase {
         qs.resolveTypesPartOne(session);
         qs.resolveTypesPartTwo(session);
 
-        SubQuery sq = new SubQuery(database, compileContext.subqueryDepth, qs,
-                                   OpTypes.TABLE_SUBQUERY);
+        TableDerived td = newSubQueryTable(qs, OpTypes.TABLE_SUBQUERY);
 
         readThis(Tokens.CLOSEBRACKET);
-
-        sq.sql = getLastPart(position);
-
-        sq.prepareTable(session);
+        td.setSQL(getLastPart(position));
+        td.prepareTable();
         compileContext.decrementDepth();
 
-        return sq;
+        return td;
     }
 
     QuerySpecification XreadJoinedTableAsView() {
@@ -4290,35 +4304,32 @@ public class ParserDQL extends ParserBase {
         return select;
     }
 
-    SubQuery XreadTableNamedSubqueryBody(HsqlName name,
-                                         HsqlName[] columnNames, int type) {
+    TableDerived XreadTableNamedSubqueryBody(HsqlName name,
+            HsqlName[] columnNames, int type) {
 
         switch (type) {
 
             case OpTypes.RECURSIVE_SUBQUERY : {
-                SubQuery sq = XreadRecursiveSubqueryBody(name, columnNames);
+                TableDerived td = XreadRecursiveSubqueryBody(name,
+                    columnNames);
 
-                return sq;
+                return td;
             }
             case OpTypes.TABLE_SUBQUERY : {
-                SubQuery sq = XreadSubqueryBody(type);
+                TableDerived td = XreadSubqueryTableBody(name, type);
 
-                sq.queryExpression.resolveReferences(session,
-                                                     RangeGroup.emptyArray);;
-                ExpressionColumn.checkColumnsResolved(
-                    sq.queryExpression.unresolvedExpressions);
-                sq.queryExpression.resolveTypes(session);
-                sq.prepareTable(session, name, columnNames);
+                td.queryExpression.resolve(session);
+                td.prepareTable(columnNames);
 
-                return sq;
+                return td;
             }
             default :
                 throw super.unexpectedToken();
         }
     }
 
-    SubQuery XreadRecursiveSubqueryBody(HsqlName name,
-                                        HsqlName[] columnNames) {
+    TableDerived XreadRecursiveSubqueryBody(HsqlName name,
+            HsqlName[] columnNames) {
 
         int position = getPosition();
 
@@ -4329,60 +4340,89 @@ public class ParserDQL extends ParserBase {
 
         leftQuerySpecification.resolve(session);
 
-        SubQuery sq = new SubQuery(database, compileContext.subqueryDepth,
-                                   leftQuerySpecification,
-                                   OpTypes.TABLE_SUBQUERY);
+        TableDerived td = newSubQueryTable(name, leftQuerySpecification,
+                                           OpTypes.TABLE_SUBQUERY);
 
         compileContext.decrementDepth();
-        sq.prepareTable(session, name, columnNames);
+        td.prepareTable(columnNames);
         compileContext.initSubqueryNames();
-        compileContext.registerSubquery(name.name, sq);
+        compileContext.registerSubquery(name.name, td);
+        checkIsThis(Tokens.UNION);
 
-        if (token.tokenType == Tokens.UNION) {
-            int                unionType               = XreadUnionType();
-            QuerySpecification rightQuerySpecification = XreadSimpleTable();
-            QueryExpression queryExpression =
-                new QueryExpression(compileContext, leftQuerySpecification);
+        int                unionType               = XreadUnionType();
+        QuerySpecification rightQuerySpecification = XreadSimpleTable();
+        QueryExpression queryExpression = new QueryExpression(compileContext,
+            leftQuerySpecification);
 
-            rightQuerySpecification.resolveReferences(session,
-                    RangeGroup.emptyArray);
-            queryExpression.addUnion(rightQuerySpecification, unionType);
-            queryExpression.resolve(session);
-            queryExpression.createTable(session);
+        rightQuerySpecification.resolveReferences(session,
+                RangeGroup.emptyArray);
+        queryExpression.addUnion(rightQuerySpecification, unionType);
 
-            sq = new SubQuery(database, compileContext.subqueryDepth,
-                              queryExpression, sq);
+        queryExpression.isRecursive    = true;
+        queryExpression.recursiveTable = td;
 
-            sq.prepareTable(session, name, columnNames);
-        } else {
-            throw unexpectedTokenRequire(Tokens.T_UNION);
-        }
+        queryExpression.resolve(session);
+        queryExpression.createTable(session);
 
-        sq.sql = getLastPart(position);
+        TableDerived maintd = newSubQueryTable(name, queryExpression,
+                                               OpTypes.TABLE_SUBQUERY);
 
+        maintd.prepareTable(columnNames);
+        maintd.setSQL(getLastPart(position));
         compileContext.decrementDepth();
 
-        return sq;
+        return maintd;
     }
 
-    SubQuery XreadSubqueryBody(int type) {
+    TableDerived newSubQueryTable(Expression e, int opType) {
+
+        HsqlName name = database.nameManager.getSubqueryTableName();
+        TableDerived td = new TableDerived(database, name,
+                                           TableBase.SYSTEM_SUBQUERY, null, e,
+                                           opType, compileContext.getDepth());
+
+        return td;
+    }
+
+    TableDerived newSubQueryTable(QueryExpression qe, int opType) {
+        return newSubQueryTable(null, qe, opType);
+    }
+
+    TableDerived newSubQueryTable(HsqlName name, QueryExpression qe,
+                                  int opType) {
+
+        if (name == null) {
+            name = database.nameManager.getSubqueryTableName();
+        }
+
+        TableDerived td = new TableDerived(database, name,
+                                           TableBase.SYSTEM_SUBQUERY, qe,
+                                           null, opType,
+                                           compileContext.getDepth());
+
+        return td;
+    }
+
+    TableDerived XreadSubqueryTableBody(int type) {
+        return XreadSubqueryTableBody(null, type);
+    }
+
+    TableDerived XreadSubqueryTableBody(HsqlName name, int type) {
 
         int position = getPosition();
 
         compileContext.incrementDepth();
 
         QueryExpression queryExpression = XreadQueryExpression();
-        SubQuery sq = new SubQuery(database, compileContext.subqueryDepth,
-                                   queryExpression, type);
+        TableDerived    td = newSubQueryTable(name, queryExpression, type);
 
-        sq.sql = getLastPart(position);
-
+        td.setSQL(getLastPart(position));
         compileContext.decrementDepth();
 
-        return sq;
+        return td;
     }
 
-    SubQuery XreadViewSubquery(View view) {
+    TableDerived XreadViewSubqueryTable(View view, boolean resolve) {
 
         compileContext.incrementDepth();
 
@@ -4395,14 +4435,32 @@ public class ParserDQL extends ParserBase {
         }
 
         queryExpression.setView(view);
-        queryExpression.resolve(session);
+        queryExpression.resolveReferences(session, RangeGroup.emptyArray);
+        queryExpression.resolveTypesPartOne(session);
+        queryExpression.resolveTypesPartTwo(session);
 
-        SubQuery sq = new SubQuery(database, compileContext.subqueryDepth,
-                                   queryExpression, view);
+        if (resolve) {
+            queryExpression.resolveTypesPartThree(session);
+        }
+
+        TableDerived td = new TableDerived(database, view.getName(),
+                                           TableBase.VIEW_TABLE,
+                                           queryExpression, null,
+                                           OpTypes.NONE,
+                                           compileContext.getDepth());
+
+        td.view        = view;
+        td.columnList  = view.columnList;
+        td.columnCount = view.columnList.size();
+
+        td.createPrimaryKey();
+
+        td.triggerList  = view.triggerList;
+        td.triggerLists = view.triggerLists;
 
         compileContext.decrementDepth();
 
-        return sq;
+        return td;
     }
 
     QueryExpression XreadViewQueryExpression(View view) {
@@ -4421,7 +4479,6 @@ public class ParserDQL extends ParserBase {
         queryExpression.resolveReferences(session, RangeGroup.emptyArray);
         queryExpression.resolveTypesPartOne(session);
         queryExpression.resolveTypesPartTwo(session);
-
         compileContext.decrementDepth();
 
         return queryExpression;
@@ -4504,30 +4561,31 @@ public class ParserDQL extends ParserBase {
 
         compileContext.incrementDepth();
 
-        Expression e = XreadInValueList(degree);
-        SubQuery sq = new SubQuery(database, compileContext.subqueryDepth, e,
-                                   OpTypes.IN);
+        Expression   e  = XreadInValueList(degree);
+        TableDerived td = newSubQueryTable(e, OpTypes.IN);
 
-        sq.sql = getLastPart(position);
+        td.setSQL(getLastPart(position));
+
+        e.table = td;
 
         compileContext.decrementDepth();
 
         return e;
     }
 
-    private SubQuery XreadRowValueExpressionList() {
+    private TableDerived XreadRowValueExpressionList() {
 
         compileContext.incrementDepth();
 
-        Expression e  = XreadRowValueExpressionListBody();
-        SubQuery   sq = prepareSubquery(e);
+        Expression   e  = XreadRowValueExpressionListBody();
+        TableDerived td = prepareSubqueryTable(e, OpTypes.VALUELIST);
 
         compileContext.decrementDepth();
 
-        return sq;
+        return td;
     }
 
-    private SubQuery prepareSubquery(Expression e) {
+    private TableDerived prepareSubqueryTable(Expression e, int type) {
 
         HsqlList unresolved = e.resolveColumnReferences(session,
             RangeGroup.emptyGroup, compileContext.getOuterRanges(), null);
@@ -4536,12 +4594,11 @@ public class ParserDQL extends ParserBase {
         e.resolveTypes(session, null);
         e.prepareTable(session, null, e.nodes[0].nodes.length);
 
-        SubQuery sq = new SubQuery(database, compileContext.subqueryDepth, e,
-                                   OpTypes.VALUELIST);
+        TableDerived td = this.newSubQueryTable(e, type);
 
-        sq.prepareTable(session);
+        td.prepareTable();
 
-        return sq;
+        return td;
     }
 
     Expression XreadRowValueExpressionListBody() {
@@ -4655,7 +4712,7 @@ public class ParserDQL extends ParserBase {
         return column.getAccessor();
     }
 
-    Expression XreadCollectionDerivedTable(boolean uniqueRows) {
+    Expression XreadCollectionDerivedTable(int type) {
 
         boolean ordinality = false;
         int     position   = getPosition();
@@ -4690,18 +4747,10 @@ public class ParserDQL extends ParserBase {
             ordinality = true;
         }
 
-        Expression e = new ExpressionTable(array, null, ordinality);
-        SubQuery sq = new SubQuery(database, compileContext.subqueryDepth, e,
-                                   OpTypes.TABLE_SUBQUERY);
+        Expression   e  = new ExpressionTable(array, ordinality);
+        TableDerived td = newSubQueryTable(e, type);
 
-        if (uniqueRows) {
-            sq.setUniqueRows();
-        }
-
-        sq.createTable();
-
-        sq.sql = getLastPart(position);
-
+        td.setSQL(getLastPart(position));
         compileContext.decrementDepth();
 
         return e;
@@ -4726,15 +4775,11 @@ public class ParserDQL extends ParserBase {
 
         readThis(Tokens.CLOSEBRACKET);
 
-        e = new ExpressionTable(new Expression[]{ e }, null, false);
+        e = new ExpressionTable(new Expression[]{ e }, false);
 
-        SubQuery sq = new SubQuery(database, compileContext.subqueryDepth, e,
-                                   OpTypes.TABLE_SUBQUERY);
+        TableDerived td = newSubQueryTable(e, OpTypes.TABLE_SUBQUERY);
 
-        sq.createTable();
-
-        sq.sql = getLastPart(position);
-
+        td.setSQL(getLastPart(position));
         compileContext.decrementDepth();
 
         return e;
@@ -4745,23 +4790,22 @@ public class ParserDQL extends ParserBase {
         readThis(Tokens.LATERAL);
         readThis(Tokens.OPENBRACKET);
 
-        SubQuery sq = XreadSubqueryBody(OpTypes.TABLE_SUBQUERY);
+        TableDerived td = XreadSubqueryTableBody(OpTypes.TABLE_SUBQUERY);
 
-        sq.createTable();
         readThis(Tokens.CLOSEBRACKET);
 
-        return new Expression(OpTypes.TABLE_SUBQUERY, sq);
+        return new Expression(OpTypes.TABLE_SUBQUERY, td);
     }
 
     Expression XreadArrayConstructor() {
 
         readThis(Tokens.OPENBRACKET);
 
-        SubQuery sq = XreadSubqueryBody(OpTypes.TABLE_SUBQUERY);
+        TableDerived td = XreadSubqueryTableBody(OpTypes.TABLE_SUBQUERY);
 
         readThis(Tokens.CLOSEBRACKET);
 
-        return new Expression(OpTypes.ARRAY_SUBQUERY, sq);
+        return new Expression(OpTypes.ARRAY_SUBQUERY, td);
     }
 
     // Additional Common Elements
@@ -6138,6 +6182,7 @@ public class ParserDQL extends ParserBase {
 
         //
         private int           subqueryDepth;
+        private int           maxSubqueryDepth;
         private HsqlArrayList namedSubqueries;
 
         //
@@ -6152,9 +6197,6 @@ public class ParserDQL extends ParserBase {
 
         //
         private RangeGroup[] outerRangeGroups;
-
-        //
-        SubQuery[] subqueries = new SubQuery[8];
 
         //
         private int rangeVarIndex = 0;
@@ -6177,7 +6219,8 @@ public class ParserDQL extends ParserBase {
 
             rangeVariables.clear();
 
-            subqueryDepth = 0;
+            subqueryDepth    = 0;
+            maxSubqueryDepth = 0;
 
             parameters.clear();
             usedSequences.clear();
@@ -6189,8 +6232,6 @@ public class ParserDQL extends ParserBase {
 
             outerRangeGroups = RangeGroup.emptyArray;
 
-            ArrayUtil.fillArray(subqueries, null);
-
             //
             currentDomain               = null;
             contextuallyTypedExpression = false;
@@ -6200,8 +6241,15 @@ public class ParserDQL extends ParserBase {
             return subqueryDepth;
         }
 
+        public int getMaxDepth() {
+            return maxSubqueryDepth;
+        }
+
         public void incrementDepth() {
+
             subqueryDepth++;
+
+            maxSubqueryDepth = subqueryDepth;
         }
 
         public void decrementDepth() {
@@ -6237,6 +6285,10 @@ public class ParserDQL extends ParserBase {
             range.level         = subqueryDepth;
 
             rangeVariables.add(range);
+        }
+
+        public void setNextRangeVarIndex(int n) {
+            rangeVarIndex = n;
         }
 
         public int getNextRangeVarIndex() {
@@ -6325,11 +6377,11 @@ public class ParserDQL extends ParserBase {
             }
         }
 
-        private void registerSubquery(String name, SubQuery subquery) {
+        private void registerSubquery(String name, TableDerived td) {
 
             HashMappedList set =
                 (HashMappedList) namedSubqueries.get(subqueryDepth);
-            boolean added = set.add(name, subquery);
+            boolean added = set.add(name, td);
 
             if (!added) {
                 throw Error.error(ErrorCode.X_42504);
@@ -6347,7 +6399,7 @@ public class ParserDQL extends ParserBase {
             }
         }
 
-        private SubQuery getNamedSubQuery(String name) {
+        private TableDerived getNamedSubQuery(String name) {
 
             if (namedSubqueries == null) {
                 return null;
@@ -6364,10 +6416,10 @@ public class ParserDQL extends ParserBase {
                     continue;
                 }
 
-                SubQuery sq = (SubQuery) set.get(name);
+                TableDerived td = (TableDerived) set.get(name);
 
-                if (sq != null) {
-                    return sq;
+                if (td != null) {
+                    return td;
                 }
             }
 

@@ -124,9 +124,6 @@ public class RangeVariable implements Cloneable {
     //
     boolean isGenerated;
 
-    //
-    SubQuery subQuery;
-
     public RangeVariable(HashMappedList variables, SimpleName rangeName,
                          boolean isVariable, int rangeType) {
 
@@ -141,6 +138,17 @@ public class RangeVariable implements Cloneable {
             new RangeVariableConditions(this, true) };
         whereConditions = new RangeVariableConditions[]{
             new RangeVariableConditions(this, false) };
+
+        switch (rangeType) {
+
+            case TRANSITION_RANGE :
+            case PARAMETER_RANGE :
+            case VARIALBE_RANGE :
+                break;
+
+            default :
+                throw Error.runtimeError(ErrorCode.U_S0500, "RangeVariable");
+        }
     }
 
     public RangeVariable(Table table, SimpleName alias,
@@ -160,9 +168,7 @@ public class RangeVariable implements Cloneable {
 
         compileContext.registerRangeVariable(this);
 
-        SubQuery subQuery = rangeTable.getSubQuery();
-
-        if (subQuery == null || subQuery.isResolved()) {
+        if (rangeTable.getColumnCount() != 0) {
             setRangeTableVariables();
         }
     }
@@ -180,11 +186,6 @@ public class RangeVariable implements Cloneable {
             new RangeVariableConditions(this, true) };
         whereConditions = new RangeVariableConditions[]{
             new RangeVariableConditions(this, false) };
-    }
-
-    public void resetViewRageTableAsSubquery() {
-        rangeTable                   = ((View) rangeTable).getSubqueryTable();
-        joinConditions[0].rangeIndex = rangeTable.getPrimaryIndex();
     }
 
     public void setRangeTableVariables() {
@@ -231,7 +232,10 @@ public class RangeVariable implements Cloneable {
     }
 
     public void addColumn(int columnIndex) {
-        usedColumns[columnIndex] = true;
+
+        if (usedColumns != null) {
+            usedColumns[columnIndex] = true;
+        }
     }
 
     public void addAllColumns() {}
@@ -633,16 +637,10 @@ public class RangeVariable implements Cloneable {
         }
 
         if (rangeTable instanceof TableDerived) {
-            QueryExpression baseQueryExpression =
+            QueryExpression queryExpression =
                 ((TableDerived) rangeTable).getQueryExpression();
 
-            if (((TableDerived) rangeTable).view != null) {
-                if (set == null) {
-                    set = new OrderedHashSet();
-                }
-
-                set.addAll(((TableDerived) rangeTable).view.getSubqueries());
-            } else if (baseQueryExpression == null) {
+            if (queryExpression == null) {
                 Expression dataExpression =
                     ((TableDerived) rangeTable).getDataExpression();
 
@@ -650,13 +648,14 @@ public class RangeVariable implements Cloneable {
                     if (set == null) {
                         set = new OrderedHashSet();
                     }
+
                     OrderedHashSet.addAll(set, dataExpression.getSubqueries());
                 }
             } else {
-                OrderedHashSet temp = baseQueryExpression.getSubqueries();
+                OrderedHashSet temp = queryExpression.getSubqueries();
 
                 set = OrderedHashSet.addAll(set, temp);
-                set = OrderedHashSet.add(set, rangeTable.getSubQuery());
+                set = OrderedHashSet.add(set, rangeTable);
             }
         }
 
@@ -671,19 +670,17 @@ public class RangeVariable implements Cloneable {
                     stopAtTypeSet);
         }
 
-        Table    table    = rangeTable;
-        SubQuery subQuery = table.getSubQuery();
+        QueryExpression queryExpression = rangeTable.getQueryExpression();
+        Expression      dataExpression  = rangeTable.getDataExpression();
 
-        if (subQuery != null) {
-            if (subQuery.queryExpression != null) {
-                set = subQuery.queryExpression.collectAllExpressions(set,
-                        typeSet, stopAtTypeSet);
-            }
+        if (queryExpression != null) {
+            set = queryExpression.collectAllExpressions(set, typeSet,
+                    stopAtTypeSet);
+        }
 
-            if (subQuery.dataExpression != null) {
-                set = subQuery.dataExpression.collectAllExpressions(set,
-                        typeSet, stopAtTypeSet);
-            }
+        if (dataExpression != null) {
+            set = dataExpression.collectAllExpressions(set, typeSet,
+                    stopAtTypeSet);
         }
 
         return set;
@@ -692,19 +689,16 @@ public class RangeVariable implements Cloneable {
     public void replaceColumnReferences(RangeVariable range,
                                         Expression[] list) {
 
-        Table    table    = rangeTable;
-        SubQuery subQuery = table.getSubQuery();
+        QueryExpression queryExpression = rangeTable.getQueryExpression();
+        Expression      dataExpression  = rangeTable.getDataExpression();
 
-        if (subQuery != null) {
-            if (subQuery.dataExpression != null) {
-                subQuery.dataExpression =
-                    subQuery.dataExpression.replaceColumnReferences(range,
-                        list);
-            }
+        if (dataExpression != null) {
+            dataExpression = dataExpression.replaceColumnReferences(range,
+                    list);
+        }
 
-            if (subQuery.queryExpression != null) {
-                subQuery.queryExpression.replaceColumnReferences(range, list);
-            }
+        if (queryExpression != null) {
+            queryExpression.replaceColumnReferences(range, list);
         }
 
         if (joinCondition != null) {
@@ -731,61 +725,55 @@ public class RangeVariable implements Cloneable {
     public void resolveRangeTable(Session session, RangeGroup rangeGroup,
                                   RangeGroup[] rangeGroups) {
 
-        Table    table    = rangeTable;
-        SubQuery subQuery = table.getSubQuery();
+        Table           table           = rangeTable;
+        QueryExpression queryExpression = rangeTable.getQueryExpression();
+        Expression      dataExpression  = rangeTable.getDataExpression();
 
-        if (subQuery != null) {
-            rangeGroups = (RangeGroup[]) ArrayUtil.toAdjustedArray(rangeGroups,
-                    rangeGroup, rangeGroups.length, 1);
+        if (queryExpression == null && dataExpression == null) {
+            return;
+        }
 
-            if (subQuery.dataExpression != null) {
-                HsqlList unresolved =
-                    subQuery.dataExpression.resolveColumnReferences(session,
-                        RangeGroup.emptyGroup, rangeGroups, null);
+        rangeGroups = (RangeGroup[]) ArrayUtil.toAdjustedArray(rangeGroups,
+                rangeGroup, rangeGroups.length, 1);
 
-                unresolved = Expression.resolveColumnSet(session,
-                        RangeVariable.emptyArray, RangeGroup.emptyArray,
-                        unresolved);
+        if (dataExpression != null) {
+            HsqlList unresolved =
+                dataExpression.resolveColumnReferences(session,
+                    RangeGroup.emptyGroup, rangeGroups, null);
 
-                ExpressionColumn.checkColumnsResolved(unresolved);
-                subQuery.dataExpression.resolveTypes(session, null);
-                setRangeTableVariables();
-            }
+            unresolved = Expression.resolveColumnSet(session,
+                    RangeVariable.emptyArray, RangeGroup.emptyArray,
+                    unresolved);
 
-            if (subQuery.queryExpression != null) {
-                if (subQuery.isResolved()) {
+            ExpressionColumn.checkColumnsResolved(unresolved);
+            dataExpression.resolveTypes(session, null);
+            setRangeTableVariables();
+        }
 
-                    // views and some subqueries are already resolved
-                }
+        if (queryExpression != null) {
+            queryExpression.resolveReferences(session, rangeGroups);
 
-                subQuery.queryExpression.resolveReferences(session,
-                        rangeGroups);
+            HsqlList unresolved = queryExpression.getUnresolvedExpressions();
 
-                HsqlList unresolved =
-                    subQuery.queryExpression.getUnresolvedExpressions();
+            unresolved = Expression.resolveColumnSet(session,
+                    RangeVariable.emptyArray, RangeGroup.emptyArray,
+                    unresolved);
 
-                unresolved = Expression.resolveColumnSet(session,
-                        RangeVariable.emptyArray, RangeGroup.emptyArray,
-                        unresolved);
-
-                ExpressionColumn.checkColumnsResolved(unresolved);
-                subQuery.queryExpression.resolveTypesPartOne(session);
-                subQuery.queryExpression.resolveTypesPartTwo(session);
-                subQuery.prepareTable(session);
-                setRangeTableVariables();
-            }
+            ExpressionColumn.checkColumnsResolved(unresolved);
+            queryExpression.resolveTypesPartOne(session);
+            queryExpression.resolveTypesPartTwo(session);
+            rangeTable.prepareTable();
+            setRangeTableVariables();
         }
     }
 
     void resolveRangeTableTypes(Session session, RangeVariable[] ranges) {
 
-        Table    table    = rangeTable;
-        SubQuery subQuery = table.getSubQuery();
+        QueryExpression queryExpression = rangeTable.getQueryExpression();
 
-        if (subQuery != null && subQuery.queryExpression != null) {
-            if (subQuery.queryExpression instanceof QuerySpecification) {
-                QuerySpecification qs =
-                    (QuerySpecification) subQuery.queryExpression;
+        if (queryExpression != null) {
+            if (queryExpression instanceof QuerySpecification) {
+                QuerySpecification qs = (QuerySpecification) queryExpression;
 
                 if (qs.isGrouped || qs.isAggregated || qs.isOrderSensitive) {
 
@@ -795,7 +783,7 @@ public class RangeVariable implements Cloneable {
                 }
             }
 
-            subQuery.queryExpression.resolveTypesPartThree(session);
+            queryExpression.resolveTypesPartThree(session);
         }
     }
 
@@ -857,22 +845,16 @@ public class RangeVariable implements Cloneable {
         }
 
         if (conditionsList.size() == 0) {
+            if (rangeTable.isView()) {
+                ((TableDerived) rangeTable).resetToView();
+            }
+
             return;
         }
 
-        SubQuery subQuery = rangeTable.getSubQuery();
+        QueryExpression queryExpression = rangeTable.getQueryExpression();
 
-        if (rangeTable.isView()) {
-            return;
-        }
-
-        if (rangeTable.isView()) {
-            subQuery.queryExpression =
-                subQuery.view.newQueryExpression(session);
-            subQuery.getTable().queryExpression = subQuery.queryExpression;
-        }
-
-        colExpr = ((QuerySpecification) subQuery.queryExpression).exprColumns;
+        colExpr = ((QuerySpecification) queryExpression).exprColumns;
 
         for (int i = 0; i < conditionsList.size(); i++) {
             Expression e = (Expression) conditionsList.get(i);
@@ -884,7 +866,7 @@ public class RangeVariable implements Cloneable {
             }
         }
 
-        subQuery.queryExpression.addExtraConditions(condition);
+        queryExpression.addExtraConditions(condition);
     }
 
     private static void addConditionsToList(HsqlArrayList list,
@@ -895,8 +877,12 @@ public class RangeVariable implements Cloneable {
         }
 
         for (int i = 0; i < array.length; i++) {
-            if (array[i] != null && array[i].isSingleColumnCondition) {
-                list.add(array[i]);
+            if (array[i] != null) {
+                if (array[i].isSingleColumnCondition
+                        || array[i].isSingleColumnNull
+                        || array[i].isSingleColumnNotNull) {
+                    list.add(array[i]);
+                }
             }
         }
     }
@@ -912,7 +898,11 @@ public class RangeVariable implements Cloneable {
     public String describe(Session session, int blanks) {
 
         StringBuffer sb;
-        String       b = ValuePool.spaceString.substring(0, blanks);
+        StringBuffer b = new StringBuffer(blanks);
+
+        for (int i = 0; i < blanks; i++) {
+            b.append(' ');
+        }
 
         sb = new StringBuffer();
 
@@ -1238,11 +1228,7 @@ public class RangeVariable implements Cloneable {
                 return;
             }
 
-            SubQuery subQuery = rangeVar.rangeTable.getSubQuery();
-
-            if (subQuery != null && subQuery.isCorrelated()) {
-                subQuery.materialiseCorrelated(session);
-            }
+            rangeVar.rangeTable.materialiseCorrelated(session);
 
             if (conditions[condIndex].indexCond == null) {
                 if (conditions[condIndex].reversed) {
@@ -1901,7 +1887,11 @@ public class RangeVariable implements Cloneable {
         String describe(Session session, int blanks) {
 
             StringBuffer sb = new StringBuffer();
-            String       b  = ValuePool.spaceString.substring(0, blanks);
+            StringBuffer b  = new StringBuffer(blanks);
+
+            for (int i = 0; i < blanks; i++) {
+                b.append(' ');
+            }
 
             sb.append("index=").append(rangeIndex.getName().name).append("\n");
 
