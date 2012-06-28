@@ -551,8 +551,8 @@
 
       <para>The internally-generated, individual sql log for the database can
       be enabled with the <literal>SET DATABASE EVENT LOG SQL LEVEL</literal>
-      statement, described in the next section. As all the executed statements
-      are logged, there is an impact on speed. So you should only use this for
+      statement, described in this chapter. As all the executed statements are
+      logged, there is an impact on speed. So you should only use this for
       debugging. Two levels of sql logging are supported.</para>
     </section>
 
@@ -572,7 +572,7 @@
 
       <para>The internally-generated, individual log for the database can be
       enabled with the <literal>SET DATABASE EVENT LOG LEVEL</literal>
-      statement, described in the next section. This method of logging is very
+      statement, described in this chapter. This method of logging is very
       useful for desktop application deployment, as it provides an ongoing
       record of database operations.</para>
     </section>
@@ -889,7 +889,9 @@
 
         <listitem>
           <para>You may need to use <literal>SET DATABASE SQL TDC { DELETE |
-          UPDATE }</literal> FALSE statements.</para>
+          UPDATE } FALSE</literal> statements, as PostgreSQL does not enforce
+          the subtle rules of the Standard for foreign key cascading deletes
+          and updates.</para>
         </listitem>
       </itemizedlist>
     </section>
