@@ -139,6 +139,7 @@ public class TestDataStructures extends TestCase {
                     } catch (Exception ex) {
                         vectorException = true;
                     }
+                    compareLists(arrayList, deque, vector);
                     break;
 
                 case GET :
@@ -214,6 +215,7 @@ public class TestDataStructures extends TestCase {
                     } catch (Exception ex) {
                         vectorException = true;
                     }
+                    compareLists(arrayList, deque, vector);
                     break;
 
                 case OPTIMIZE :

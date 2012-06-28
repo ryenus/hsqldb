@@ -616,7 +616,7 @@ public class StatementDML extends StatementDMQL {
                 for (int j = 0; j < values.length; j++, i++) {
                     int colIndex = columnMap[i];
                     Type colType =
-                        expr.subQuery.queryExpression.getMetaData()
+                        expr.table.queryExpression.getMetaData()
                             .columnTypes[j];
 
                     data[colIndex] = colTypes[colIndex].convertToType(session,

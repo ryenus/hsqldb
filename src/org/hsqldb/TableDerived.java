@@ -31,27 +31,41 @@
 
 package org.hsqldb;
 
+import java.util.Comparator;
+
 import org.hsqldb.HsqlNameManager.HsqlName;
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
 import org.hsqldb.lib.ArrayUtil;
 import org.hsqldb.lib.HashMappedList;
-import org.hsqldb.store.ValuePool;
+import org.hsqldb.navigator.RowIterator;
+import org.hsqldb.navigator.RowSetNavigatorData;
+import org.hsqldb.navigator.RowSetNavigatorDataTable;
+import org.hsqldb.persist.PersistentStore;
+import org.hsqldb.result.Result;
 import org.hsqldb.types.Type;
 
 /**
  * Table with data derived from a query expression.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.2.7
+ * @version 2.2.9
  * @since 1.9.0
  */
-public class TableDerived extends Table {
+public class TableDerived extends Table implements Comparator {
 
+    //
+    public final static TableDerived[] emptyArray = new TableDerived[]{};
+
+    //
     QueryExpression queryExpression;
     Expression      dataExpression;
+    boolean         uniqueRows;
+    boolean         uniquePredicate;
+    String          sql;
     View            view;
-    SubQuery        subQuery;
+    int             depth;
+    boolean         canRecompile = false;
 
     public TableDerived(Database database, HsqlName name, int type) {
 
@@ -64,52 +78,72 @@ public class TableDerived extends Table {
             case TableBase.SYSTEM_TABLE :
             case TableBase.FUNCTION_TABLE :
             case TableBase.VIEW_TABLE :
-                break;
-
-            default :
-                throw Error.runtimeError(ErrorCode.U_S0500, "Table");
-        }
-    }
-
-    public TableDerived(Database database, HsqlName name, int type,
-                        QueryExpression queryExpression, SubQuery subQuery) {
-
-        super(database, name, type);
-
-        switch (type) {
-
-            case TableBase.CHANGE_SET_TABLE :
-            case TableBase.SYSTEM_SUBQUERY :
-            case TableBase.VIEW_TABLE :
             case TableBase.RESULT_TABLE :
+            case TableBase.SYSTEM_SUBQUERY :
                 break;
 
             default :
                 throw Error.runtimeError(ErrorCode.U_S0500, "Table");
         }
-
-        this.subQuery = subQuery;
-
-        this.queryExpression = queryExpression;
-    }
-
-    public TableDerived(Database database, HsqlName name, int type,
-                        Type[] columnTypes, HashMappedList columnList) {
-        this(database, name, type, columnTypes, columnList,
-             ValuePool.emptyIntArray);
     }
 
     public TableDerived(Database database, HsqlName name, int type,
                         Type[] columnTypes, HashMappedList columnList,
                         int[] pkColumns) {
 
-        this(database, name, type, (QueryExpression) null, (SubQuery) null);
+        this(database, name, type);
 
         this.colTypes   = columnTypes;
         this.columnList = columnList;
         columnCount     = columnList.size();
 
         createPrimaryKey(null, pkColumns, true);
+    }
+
+    public TableDerived(Database database, HsqlName name, int type,
+                        QueryExpression queryExpression,
+                        Expression dataExpression, int opType, int depth) {
+
+        super(database, name, type);
+
+        switch (type) {
+
+            case TableBase.SYSTEM_SUBQUERY :
+            case TableBase.VIEW_TABLE :
+                break;
+
+            default :
+                throw Error.runtimeError(ErrorCode.U_S0500, "Table");
+        }
+
+        this.queryExpression = queryExpression;
+        this.dataExpression  = dataExpression;
+        this.depth           = depth;
+
+        switch (opType) {
+
+            case OpTypes.EXISTS :
+                queryExpression.setSingleRow();
+                break;
+
+            case OpTypes.IN :
+                if (queryExpression != null) {
+                    queryExpression.setFullOrder();
+                }
+
+                uniqueRows = true;
+                break;
+
+            case OpTypes.UNIQUE :
+                queryExpression.setFullOrder();
+
+                uniquePredicate = true;
+                break;
+        }
+
+        if (dataExpression != null) {
+            dataExpression.table = this;
+        }
     }
 
     public int getId() {
@@ -125,17 +159,59 @@ public class TableDerived extends Table {
     }
 
     public boolean isInsertable() {
+
+        if (view != null && view.isTriggerInsertable) {
+            return false;
+        }
+
         return queryExpression == null ? false
                                        : queryExpression.isInsertable();
     }
 
     public boolean isUpdatable() {
+
+        if (view != null && view.isTriggerUpdatable) {
+            return false;
+        }
+
         return queryExpression == null ? false
                                        : queryExpression.isUpdatable();
     }
 
     public int[] getUpdatableColumns() {
+
+        if (queryExpression != null) {
+            return queryExpression.getBaseTableColumnMap();
+        }
+
         return defaultColumnMap;
+    }
+
+    public boolean isTriggerInsertable() {
+
+        if (view != null) {
+            return view.isTriggerInsertable;
+        }
+
+        return false;
+    }
+
+    public boolean isTriggerUpdatable() {
+
+        if (view != null) {
+            return view.isTriggerUpdatable;
+        }
+
+        return false;
+    }
+
+    public boolean isTriggerDeletable() {
+
+        if (view != null) {
+            return view.isTriggerDeletable;
+        }
+
+        return false;
     }
 
     public Table getBaseTable() {
@@ -150,15 +226,273 @@ public class TableDerived extends Table {
                                            .getBaseTableColumnMap();
     }
 
-    public SubQuery getSubQuery() {
-        return subQuery;
-    }
-
     public QueryExpression getQueryExpression() {
         return queryExpression;
     }
 
     public Expression getDataExpression() {
         return dataExpression;
+    }
+
+    public void prepareTable() {
+
+        if (columnCount > 0) {
+            return;
+        }
+
+        if (dataExpression != null) {
+            TableUtil.addAutoColumns(this, dataExpression.nodeDataTypes);
+            setTableIndexesForSubquery();
+        }
+
+        if (queryExpression != null) {
+            columnList  = queryExpression.getColumns();
+            columnCount = queryExpression.getColumnCount();
+
+            setTableIndexesForSubquery();
+        }
+    }
+
+    public void prepareTable(HsqlName[] columns) {
+
+        columnCount = queryExpression.getColumnCount();
+        columnList  = queryExpression.getColumns();
+
+        if (columns != null) {
+            if (columns.length != columnList.size()) {
+                throw Error.error(ErrorCode.X_42593);
+            }
+
+            for (int i = 0; i < columnCount; i++) {
+                columnList.setKey(i, columns[i].name);
+
+                ColumnSchema col = (ColumnSchema) columnList.get(i);
+
+                col.getName().rename(columns[i]);
+            }
+        }
+
+        setTableIndexesForSubquery();
+    }
+
+    private void setTableIndexesForSubquery() {
+
+        int[] cols = null;
+
+        if (uniqueRows || uniquePredicate) {
+            cols = new int[getColumnCount()];
+
+            ArrayUtil.fillSequence(cols);
+        }
+
+        int pkcols[] = uniqueRows ? cols
+                                  : null;
+
+        createPrimaryKey(null, pkcols, false);
+
+        if (uniqueRows) {
+            fullIndex = getPrimaryIndex();
+        } else if (uniquePredicate) {
+            fullIndex = createIndexForColumns(null, cols);
+        }
+    }
+
+    void setCorrelated() {
+
+        if (dataExpression != null) {
+            dataExpression.isCorrelated = true;
+        }
+
+        if (queryExpression != null) {
+            queryExpression.isCorrelated = true;
+        }
+    }
+
+    boolean isCorrelated() {
+
+        if (dataExpression != null) {
+            return dataExpression.isCorrelated;
+        }
+
+        if (queryExpression != null) {
+            return queryExpression.isCorrelated;
+        }
+
+        return false;
+    }
+
+    boolean hasUniqueNotNullRows(Session session) {
+        return getNavigator(session).hasUniqueNotNullRows(session);
+    }
+
+    void resetToView() {
+        queryExpression = view.getQueryExpression();
+    }
+
+    public void materialise(Session session) {
+
+        session.sessionContext.pushStatementState();
+
+        try {
+            PersistentStore store;
+
+            // table constructors
+            if (dataExpression != null) {
+                store = session.sessionData.getSubqueryRowStore(this);
+
+                dataExpression.insertValuesIntoSubqueryTable(session, store);
+
+                return;
+            }
+
+            if (queryExpression == null) {
+                return;
+            }
+
+            Result result;
+
+            result = queryExpression.getResult(session, 0);
+
+            if (uniqueRows) {
+                RowSetNavigatorData navigator =
+                    ((RowSetNavigatorData) result.getNavigator());
+
+                navigator.removeDuplicates(session);
+            }
+
+            store = session.sessionData.getSubqueryRowStore(this);
+
+            insertResult(session, store, result);
+            result.getNavigator().release();
+        } finally {
+            session.sessionContext.popStatementState();
+        }
+    }
+
+    public void materialiseCorrelated(Session session) {
+
+        if (isCorrelated()) {
+            materialise(session);
+        }
+    }
+
+    public boolean isRecompiled() {
+
+        if (canRecompile && queryExpression instanceof QuerySpecification) {
+            QuerySpecification qs = (QuerySpecification) queryExpression;
+
+            if (qs.isAggregated || qs.isGrouped || qs.isOrderSensitive) {
+                return false;
+            } else {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    public TableDerived newDerivedTable(Session session) {
+
+        TableDerived td = this;
+
+        if (isRecompiled()) {
+            ParserDQL p = new ParserDQL(session, new Scanner());
+
+            p.reset(sql, session.parser.compileContext.getRangeVarCount());
+            p.read();
+
+            td = p.XreadSubqueryTableBody(tableName, OpTypes.TABLE_SUBQUERY);
+
+            session.parser.compileContext.setNextRangeVarIndex(
+                p.compileContext.getRangeVarCount());;
+            td.queryExpression.resolve(session);
+
+            td.columnList   = columnList;
+            td.columnCount  = columnList.size();
+            td.triggerList  = triggerList;
+            td.triggerLists = triggerLists;
+            td.view         = view;
+
+            td.createPrimaryKey();
+        }
+
+        return td;
+    }
+
+    public Object[] getValues(Session session) {
+
+        RowIterator it = rowIterator(session);
+
+        if (it.hasNext()) {
+            Row row = it.getNextRow();
+
+            if (it.hasNext()) {
+                throw Error.error(ErrorCode.X_21000);
+            }
+
+            return row.getData();
+        } else {
+            return new Object[getColumnCount()];
+        }
+    }
+
+    public Object getValue(Session session) {
+
+        Object[] data = getValues(session);
+
+        return data[0];
+    }
+
+    public RowSetNavigatorData getNavigator(Session session) {
+
+        RowSetNavigatorData navigator = new RowSetNavigatorDataTable(session,
+            this);
+
+        return navigator;
+    }
+
+    public void setSQL(String sql) {
+        this.sql = sql;
+    }
+
+    /**
+     * This results in the following sort order:
+     *
+     * view subqueries, then other subqueries
+     *
+     *    view subqueries:
+     *        views sorted by creation order (earlier declaration first)
+     *
+     *    other subqueries:
+     *        subqueries sorted by depth within select query
+     *
+     */
+    public int compare(Object a, Object b) {
+
+        TableDerived sqa = (TableDerived) a;
+        TableDerived sqb = (TableDerived) b;
+
+//        return sqb.depth - sqa.depth;
+        if (sqa.view != null && sqb.view != null) {
+            int ia = database.schemaManager.getTableIndex(sqa.view);
+            int ib = database.schemaManager.getTableIndex(sqb.view);
+
+            if (ia == -1) {
+                ia = database.schemaManager.getTables(
+                    sqa.view.getSchemaName().name).size();
+            }
+
+            if (ib == -1) {
+                ib = database.schemaManager.getTables(
+                    sqb.view.getSchemaName().name).size();
+            }
+
+            int diff = ia - ib;
+
+            return diff == 0 ? sqb.depth - sqa.depth
+                             : diff;
+        } else {
+            return sqb.depth - sqa.depth;
+        }
     }
 }

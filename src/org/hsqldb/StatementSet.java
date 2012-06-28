@@ -126,7 +126,7 @@ public class StatementSet extends StatementDMQL {
         checkAccessRights(session);
     }
 
-    SubQuery[] getSubqueries(Session session) {
+    TableDerived[] getSubqueries(Session session) {
 
         OrderedHashSet subQueries = null;
 
@@ -135,17 +135,17 @@ public class StatementSet extends StatementDMQL {
         }
 
         if (subQueries == null || subQueries.size() == 0) {
-            return SubQuery.emptySubqueryArray;
+            return TableDerived.emptyArray;
         }
 
-        SubQuery[] subQueryArray = new SubQuery[subQueries.size()];
+        TableDerived[] subQueryArray = new TableDerived[subQueries.size()];
 
         subQueries.toArray(subQueryArray);
         ArraySort.sort(subQueryArray, 0, subQueryArray.length,
                        subQueryArray[0]);
 
         for (int i = 0; i < subqueries.length; i++) {
-            subQueryArray[i].prepareTable(session);
+            subQueryArray[i].prepareTable();
         }
 
         return subQueryArray;
@@ -376,7 +376,7 @@ public class StatementSet extends StatementDMQL {
         if (expression.getType() == OpTypes.ROW) {
             values = expression.getRowValue(session);
         } else if (expression.getType() == OpTypes.ROW_SUBQUERY) {
-            values = expression.subQuery.queryExpression.getSingleRowValues(
+            values = expression.table.queryExpression.getSingleRowValues(
                 session);
 
             if (values == null) {

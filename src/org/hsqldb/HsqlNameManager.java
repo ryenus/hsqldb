@@ -64,9 +64,8 @@ import org.hsqldb.error.ErrorCode;
  */
 public final class HsqlNameManager {
 
-    public static final String DEFAULT_CATALOG_NAME = "PUBLIC";
-    private static final HsqlNameManager staticManager =
-        new HsqlNameManager();
+    public static final String           DEFAULT_CATALOG_NAME = "PUBLIC";
+    private static final HsqlNameManager staticManager = new HsqlNameManager();
 
     static {
         staticManager.serialNumber = Integer.MIN_VALUE;
@@ -87,15 +86,20 @@ public final class HsqlNameManager {
     private int      sysNumber    = 10000;    // avoid name clash in older scripts
     private HsqlName catalogName;
     private boolean  sqlRegularNames;
+    HsqlName         subqueryTableName;
 
     public HsqlNameManager() {
         sqlRegularNames = true;
     }
 
     public HsqlNameManager(Database database) {
+
         catalogName = new HsqlName(this, DEFAULT_CATALOG_NAME,
                                    SchemaObject.CATALOG, false);
         sqlRegularNames = database.sqlRegularNames;
+        subqueryTableName = new HsqlName(this, SqlInvariants.SYSTEM_SUBQUERY,
+                                         false, SchemaObject.TABLE);
+        subqueryTableName.schema = SqlInvariants.SYSTEM_SCHEMA_HSQLNAME;
     }
 
     public HsqlName getCatalogName() {
@@ -197,13 +201,7 @@ public final class HsqlNameManager {
      * Same name string but different objects and serial number
      */
     public HsqlName getSubqueryTableName() {
-
-        HsqlName hsqlName = new HsqlName(this, SqlInvariants.SYSTEM_SUBQUERY,
-                                         false, SchemaObject.TABLE);
-
-        hsqlName.schema = SqlInvariants.SYSTEM_SCHEMA_HSQLNAME;
-
-        return hsqlName;
+        return subqueryTableName;
     }
 
     /**
@@ -326,7 +324,7 @@ public final class HsqlNameManager {
         private SimpleName() {}
 
         private SimpleName(String name, boolean isNameQuoted) {
-            this.name         = name;
+            this.name         = new String(name);
             this.isNameQuoted = isNameQuoted;
         }
 
@@ -463,7 +461,7 @@ public final class HsqlNameManager {
 
             // get rid of the excess
             this.name          = new String(name);
-            this.statementName = name;
+            this.statementName = this.name;
             this.isNameQuoted  = isquoted;
 
             if (isNameQuoted) {

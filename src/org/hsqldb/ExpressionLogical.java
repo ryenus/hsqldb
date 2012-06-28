@@ -101,7 +101,7 @@ public class ExpressionLogical extends Expression {
 
         setEqualityMode();
 
-        dataType     = Type.SQL_BOOLEAN;
+        dataType = Type.SQL_BOOLEAN;
     }
 
     /**
@@ -198,6 +198,15 @@ public class ExpressionLogical extends Expression {
             default :
                 throw Error.runtimeError(ErrorCode.U_S0500,
                                          "ExpressionLogical");
+        }
+
+        if (opType == OpTypes.IS_NULL
+                && nodes[LEFT].opType == OpTypes.COLUMN) {
+            isSingleColumnNull = true;
+        }
+
+        if (opType == OpTypes.NOT && nodes[LEFT].isSingleColumnNull) {
+            isSingleColumnNotNull = true;
         }
     }
 
@@ -1066,11 +1075,7 @@ public class ExpressionLogical extends Expression {
 
         if (nodes[RIGHT].opType == OpTypes.VALUELIST) {
             nodes[RIGHT].prepareTable(session, nodes[LEFT], degree);
-            nodes[RIGHT].subQuery.prepareTable(session);
-
-            if (nodes[RIGHT].isCorrelated) {
-                nodes[RIGHT].subQuery.setCorrelated();
-            }
+            nodes[RIGHT].table.prepareTable();
         }
 
         // encounterd in system generated MATCH predicates
@@ -1160,7 +1165,7 @@ public class ExpressionLogical extends Expression {
             case OpTypes.UNIQUE : {
                 nodes[LEFT].materialise(session);
 
-                return nodes[LEFT].subQuery.hasUniqueNotNullRows(session)
+                return nodes[LEFT].table.hasUniqueNotNullRows(session)
                        ? Boolean.TRUE
                        : Boolean.FALSE;
             }
@@ -1610,20 +1615,20 @@ public class ExpressionLogical extends Expression {
 
     private Boolean testAllAnyCondition(Session session) {
 
-        Object[] rowData  = (Object[]) nodes[LEFT].getRowValue(session);
-        SubQuery subquery = nodes[RIGHT].subQuery;
+        Object[]     rowData = (Object[]) nodes[LEFT].getRowValue(session);
+        TableDerived td      = nodes[RIGHT].table;
 
-        subquery.materialiseCorrelated(session);
+        td.materialiseCorrelated(session);
 
-        Boolean result = getAllAnyValue(session, rowData, subquery);
+        Boolean result = getAllAnyValue(session, rowData, td);
 
         return result;
     }
 
     private Boolean getAllAnyValue(Session session, Object[] data,
-                                   SubQuery subquery) {
+                                   TableDerived td) {
 
-        Table           table = subquery.getTable();
+        Table           table = td;
         boolean         empty = table.isEmpty(session);
         Index           index = table.getFullIndex();
         RowIterator     it;

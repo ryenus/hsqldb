@@ -168,9 +168,7 @@ public class Expression implements Cloneable {
     protected Object       valueData;
     protected Expression[] nodes;
     Type[]                 nodeDataTypes;
-
-    // QUERY - in single value selects, IN, EXISTS etc.
-    SubQuery subQuery;
+    TableDerived           table;
 
     // for query and value lists, etc
     boolean isCorrelated;
@@ -192,12 +190,10 @@ public class Expression implements Cloneable {
 
     //
     boolean isColumnEqual;
-
-    //
     boolean isSingleColumnCondition;
-
-    //
     boolean isSingleColumnEqual;
+    boolean isSingleColumnNull;
+    boolean isSingleColumnNotNull;
 
     //
     Collation collation;
@@ -212,7 +208,7 @@ public class Expression implements Cloneable {
     /**
      * Creates a SUBQUERY expression.
      */
-    Expression(int type, SubQuery sq) {
+    Expression(int type, TableDerived table) {
 
         switch (type) {
 
@@ -237,8 +233,8 @@ public class Expression implements Cloneable {
                 throw Error.runtimeError(ErrorCode.U_S0500, "Expression");
         }
 
-        nodes    = emptyArray;
-        subQuery = sq;
+        nodes      = emptyArray;
+        this.table = table;
     }
 
     /**
@@ -401,7 +397,7 @@ public class Expression implements Cloneable {
             case OpTypes.ROW_SUBQUERY :
             case OpTypes.TABLE_SUBQUERY :
                 sb.append("QUERY ");
-                sb.append(subQuery.queryExpression.describe(session, blanks));
+                sb.append(table.queryExpression.describe(session, blanks));
 
                 return sb.toString();
 
@@ -468,12 +464,11 @@ public class Expression implements Cloneable {
             case OpTypes.ARRAY_SUBQUERY :
             case OpTypes.ROW_SUBQUERY :
             case OpTypes.TABLE_SUBQUERY :
-                return (subQuery.queryExpression.isEquivalent(
-                    other.subQuery.queryExpression));
+                return (table.queryExpression.isEquivalent(
+                    other.table.queryExpression));
 
             default :
-                return equals(nodes, other.nodes)
-                       && equals(subQuery, other.subQuery);
+                return equals(nodes, other.nodes);
         }
     }
 
@@ -702,8 +697,8 @@ public class Expression implements Cloneable {
             nodes[i] = nodes[i].replaceColumnReferences(range, list);
         }
 
-        if (subQuery != null && subQuery.queryExpression != null) {
-            subQuery.queryExpression.replaceColumnReferences(range, list);
+        if (table != null && table.queryExpression != null) {
+            table.queryExpression.replaceColumnReferences(range, list);
         }
 
         return this;
@@ -720,8 +715,8 @@ public class Expression implements Cloneable {
             nodes[i].replaceRangeVariables(ranges, newRanges);
         }
 
-        if (subQuery != null && subQuery.queryExpression != null) {
-            subQuery.queryExpression.replaceRangeVariables(ranges, newRanges);
+        if (table != null && table.queryExpression != null) {
+            table.queryExpression.replaceRangeVariables(ranges, newRanges);
         }
     }
 
@@ -768,11 +763,11 @@ public class Expression implements Cloneable {
             nodes[i].convertToSimpleColumn(expressions, replacements);
         }
 
-        if (subQuery != null) {
-            if (subQuery.queryExpression != null) {
+        if (table != null) {
+            if (table.queryExpression != null) {
                 OrderedHashSet set = new OrderedHashSet();
 
-                subQuery.queryExpression.collectAllExpressions(set,
+                table.queryExpression.collectAllExpressions(set,
                         Expression.columnExpressionSet,
                         Expression.emptyExpressionSet);
 
@@ -895,9 +890,9 @@ public class Expression implements Cloneable {
             }
         }
 
-        if (subQuery != null && subQuery.queryExpression != null) {
-            set = subQuery.queryExpression.collectRangeVariables(
-                rangeVariables, set);
+        if (table != null && table.queryExpression != null) {
+            set = table.queryExpression.collectRangeVariables(rangeVariables,
+                    set);
         }
 
         return set;
@@ -914,9 +909,9 @@ public class Expression implements Cloneable {
             }
         }
 
-        if (subQuery != null) {
-            if (subQuery.queryExpression != null) {
-                subQuery.queryExpression.collectObjectNames(set);
+        if (table != null) {
+            if (table.queryExpression != null) {
+                table.queryExpression.collectObjectNames(set);
             }
         }
     }
@@ -934,8 +929,8 @@ public class Expression implements Cloneable {
             }
         }
 
-        if (subQuery != null && subQuery.queryExpression != null) {
-            if (subQuery.queryExpression.hasReference(range)) {
+        if (table != null && table.queryExpression != null) {
+            if (table.queryExpression.hasReference(range)) {
                 return true;
             }
         }
@@ -987,7 +982,7 @@ public class Expression implements Cloneable {
 
             case OpTypes.TABLE :
             case OpTypes.VALUELIST : {
-                if (subQuery != null) {
+                if (table != null) {
                     if (rangeGroup.getRangeVariables().length > rangeCount) {
                         RangeVariable[] rangeVars =
                             (RangeVariable[]) ArrayUtil.resizeArray(
@@ -1000,7 +995,7 @@ public class Expression implements Cloneable {
                     rangeGroups =
                         (RangeGroup[]) ArrayUtil.toAdjustedArray(rangeGroups,
                             rangeGroup, rangeGroups.length, 1);
-                    rangeGroup = new RangeGroupSimple(subQuery);
+                    rangeGroup = new RangeGroupSimple(table);
                     rangeCount = 0;
                 }
 
@@ -1012,10 +1007,6 @@ public class Expression implements Cloneable {
                     unresolvedSet = nodes[i].resolveColumnReferences(session,
                             rangeGroup, rangeCount, rangeGroups,
                             unresolvedSet, acceptsSequences);
-                }
-
-                if (subQuery != null && subQuery.isCorrelated()) {
-                    isCorrelated = true;
                 }
 
                 return unresolvedSet;
@@ -1053,13 +1044,9 @@ public class Expression implements Cloneable {
                     (RangeGroup[]) ArrayUtil.toAdjustedArray(rangeGroups,
                         rangeGroup, rangeGroups.length, 1);
 
-                QueryExpression queryExpression = subQuery.queryExpression;
+                QueryExpression queryExpression = table.queryExpression;
 
                 queryExpression.resolveReferences(session, rangeGroups);
-
-                if (subQuery.isCorrelated()) {
-                    isCorrelated = true;
-                }
 
                 if (!queryExpression.areColumnsResolved()) {
                     if (unresolvedSet == null) {
@@ -1098,7 +1085,7 @@ public class Expression implements Cloneable {
             case OpTypes.ARRAY_SUBQUERY :
             case OpTypes.ROW_SUBQUERY :
             case OpTypes.TABLE_SUBQUERY :
-                if (subQuery != null) {
+                if (table != null) {
                     if (unresolvedSet == null) {
                         unresolvedSet = new OrderedHashSet();
                     }
@@ -1166,10 +1153,10 @@ public class Expression implements Cloneable {
                 return;
             }
             case OpTypes.ARRAY_SUBQUERY : {
-                QueryExpression queryExpression = subQuery.queryExpression;
+                QueryExpression queryExpression = table.queryExpression;
 
                 queryExpression.resolveTypes(session);
-                subQuery.prepareTable(session);
+                table.prepareTable();
 
                 nodeDataTypes = queryExpression.getColumnTypes();
                 dataType      = nodeDataTypes[0];
@@ -1184,10 +1171,10 @@ public class Expression implements Cloneable {
             }
             case OpTypes.ROW_SUBQUERY :
             case OpTypes.TABLE_SUBQUERY : {
-                QueryExpression queryExpression = subQuery.queryExpression;
+                QueryExpression queryExpression = table.queryExpression;
 
                 queryExpression.resolveTypes(session);
-                subQuery.prepareTable(session);
+                table.prepareTable();
 
                 nodeDataTypes = queryExpression.getColumnTypes();
                 dataType      = nodeDataTypes[0];
@@ -1405,11 +1392,11 @@ public class Expression implements Cloneable {
             case OpTypes.TABLE :
             case OpTypes.ROW_SUBQUERY :
             case OpTypes.TABLE_SUBQUERY :
-                if (subQuery == null) {
+                if (table == null) {
                     return nodeDataTypes.length;
                 }
 
-                return subQuery.queryExpression.getColumnCount();
+                return table.queryExpression.getColumnCount();
 
             default :
                 return 1;
@@ -1417,24 +1404,19 @@ public class Expression implements Cloneable {
     }
 
     public Table getTable() {
-        return subQuery == null ? null
-                                : subQuery.getTable();
-    }
-
-    public SubQuery getSubQuery() {
-        return subQuery;
+        return table;
     }
 
     public void materialise(Session session) {
 
-        if (subQuery == null) {
+        if (table == null) {
             return;
         }
 
-        if (subQuery.isCorrelated()) {
-            subQuery.materialiseCorrelated(session);
+        if (table.isCorrelated()) {
+            table.materialiseCorrelated(session);
         } else {
-            subQuery.materialise(session);
+            table.materialise(session);
         }
     }
 
@@ -1473,7 +1455,7 @@ public class Expression implements Cloneable {
             }
             case OpTypes.ROW_SUBQUERY :
             case OpTypes.TABLE_SUBQUERY : {
-                return subQuery.queryExpression.getValues(session);
+                return table.queryExpression.getValues(session);
             }
             default :
                 throw Error.runtimeError(ErrorCode.U_S0500, "Expression");
@@ -1517,9 +1499,9 @@ public class Expression implements Cloneable {
                 return array;
             }
             case OpTypes.ARRAY_SUBQUERY : {
-                subQuery.materialiseCorrelated(session);
+                table.materialiseCorrelated(session);
 
-                RowSetNavigatorData nav   = subQuery.getNavigator(session);
+                RowSetNavigatorData nav   = table.getNavigator(session);
                 int                 size  = nav.getSize();
                 Object[]            array = new Object[size];
 
@@ -1535,9 +1517,9 @@ public class Expression implements Cloneable {
             }
             case OpTypes.TABLE_SUBQUERY :
             case OpTypes.ROW_SUBQUERY : {
-                subQuery.materialiseCorrelated(session);
+                table.materialiseCorrelated(session);
 
-                Object[] value = subQuery.getValues(session);
+                Object[] value = table.getValues(session);
 
                 if (value.length == 1) {
                     return ((Object[]) value)[0];
@@ -1555,7 +1537,7 @@ public class Expression implements Cloneable {
         switch (opType) {
 
             case OpTypes.ARRAY : {
-                RowSetNavigatorData navigator = subQuery.getNavigator(session);
+                RowSetNavigatorData navigator = table.getNavigator(session);
                 Object[]            array = new Object[navigator.getSize()];
 
                 navigator.beforeFirst();
@@ -1569,12 +1551,12 @@ public class Expression implements Cloneable {
                 return Result.newPSMResult(array);
             }
             case OpTypes.TABLE_SUBQUERY : {
-                subQuery.materialiseCorrelated(session);
+                table.materialiseCorrelated(session);
 
-                RowSetNavigatorData navigator = subQuery.getNavigator(session);
+                RowSetNavigatorData navigator = table.getNavigator(session);
                 Result              result    = Result.newResult(navigator);
 
-                result.metaData = subQuery.queryExpression.getMetaData();
+                result.metaData = table.queryExpression.getMetaData();
 
                 return result;
             }
@@ -1631,15 +1613,12 @@ public class Expression implements Cloneable {
         compileContext.reset(0);
 
         QuerySpecification s = new QuerySpecification(compileContext);
-        RangeVariable[] ranges = new RangeVariable[]{
-            new RangeVariable(t, null, null, null, compileContext) };
-        RangeGroup rangeGroup = new RangeGroupSimple(ranges);
+        RangeVariable range = new RangeVariable(t, null, null, null,
+            compileContext);
+        RangeVariable[] ranges     = new RangeVariable[]{ range };
+        RangeGroup      rangeGroup = new RangeGroupSimple(ranges);
 
         e.resolveCheckOrGenExpression(session, rangeGroup, true);
-
-        s.exprColumns    = new Expression[1];
-        s.exprColumns[0] = EXPR_TRUE;
-        s.rangeVariables = ranges;
 
         if (Type.SQL_BOOLEAN != e.getDataType()) {
             throw Error.error(ErrorCode.X_42568);
@@ -1647,10 +1626,10 @@ public class Expression implements Cloneable {
 
         Expression condition = new ExpressionLogical(OpTypes.NOT, e);
 
-        s.queryCondition = condition;
-
-        s.resolveReferences(session, RangeGroup.emptyArray);
-        s.resolveTypes(session);
+        s.addSelectColumnExpression(EXPR_TRUE);
+        s.addRangeVariable(session, range);
+        s.addQueryCondition(condition);
+        s.resolve(session);
 
         return s;
     }
@@ -1917,8 +1896,8 @@ public class Expression implements Cloneable {
         }
 
         if (!added) {
-            if (subQuery != null && subQuery.queryExpression != null) {
-                set = subQuery.queryExpression.collectAllExpressions(set,
+            if (table != null && table.queryExpression != null) {
+                set = table.queryExpression.collectAllExpressions(set,
                         typeSet, stopAtTypeSet);
             }
         }
@@ -1938,33 +1917,19 @@ public class Expression implements Cloneable {
             }
         }
 
-        if (subQuery != null) {
+        if (table != null) {
             OrderedHashSet tempSet = null;
 
-            if (subQuery.queryExpression != null) {
-                tempSet = subQuery.queryExpression.getSubqueries();
-
-                int count = tempSet == null ? 0
-                                            : tempSet.size();
-
-                for (int i = 0; i < count; i++) {
-                    SubQuery sq = (SubQuery) tempSet.get(i);
-
-                    if (sq.isCorrelated()) {
-                        subQuery.setCorrelated();
-
-                        isCorrelated = true;
-                    }
-                }
-
-                set = OrderedHashSet.addAll(set, tempSet);
+            if (table.queryExpression != null) {
+                tempSet = table.queryExpression.getSubqueries();
+                set     = OrderedHashSet.addAll(set, tempSet);
             }
 
             if (set == null) {
                 set = new OrderedHashSet();
             }
 
-            set.add(subQuery);
+            set.add(table);
         }
 
         return set;
@@ -1975,11 +1940,11 @@ public class Expression implements Cloneable {
      */
     public boolean isCorrelated() {
 
-        if (subQuery == null) {
+        if (table == null) {
             return false;
         }
 
-        return subQuery.isCorrelated();
+        return table.isCorrelated();
     }
 
     /**

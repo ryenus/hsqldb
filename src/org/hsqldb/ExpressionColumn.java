@@ -222,9 +222,7 @@ public class ExpressionColumn extends Expression {
         dataType      = column.getDataType();
         rangeVariable = range;
 
-        if (range.rangeType == RangeVariable.TABLE_RANGE) {
-            rangeVariable.addColumn(columnIndex);
-        }
+        rangeVariable.addColumn(columnIndex);
     }
 
     public byte getNullability() {
