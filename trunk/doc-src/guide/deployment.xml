@@ -276,10 +276,14 @@
 
     <para>When using an <glossterm>in-process</glossterm> database, when the
     last connection to the database is closed, the database still remains
-    open. An explicit SHUTDOWN command, with or without an argument, is
-    required to close the database. A connection property on the connection
-    URL or in a properties object can be used to shutdown the database when
-    the last connection is closed.</para>
+    open, waiting for the next connection to be made. From version 2.2.9, each
+    time the last connection is closed all the data changes are logged and
+    synched to disk.</para>
+
+    <para>An explicit SHUTDOWN command, with or without an argument, is
+    required to close the database. A connection property, shutdown=true, can
+    be used on the connection URL or in a properties object to shutdown the
+    database when the last connection is closed.</para>
 
     <para>When using a server database (and to some extent, an
     <glossterm>in-process</glossterm> database), care must be taken to avoid
@@ -534,13 +538,13 @@
       larger databases with CACHED tables, use of nio improves database access
       speed significantly. Performance improvements can be tenfold or even
       higher. By default, NIO is used for .data files from 16 MB up to 256 MB.
-      You can increase the limit with the SET FILES NIO SIZE &lt;value&gt;
-      statement. There should be enough RAM available to accommodate the
-      memory mapped buffers. For vary large nio usage, a 64 bit JVM must be
-      used. The memory is not taken from the JVM memory allocation, therefore
-      there is no need to increase the -Xmx parameter of the JVM. If not
-      enough memory is available for the specified value, nio is not used.
-      </para>
+      You can increase the limit with the <literal>SET FILES NIO SIZE
+      &lt;value&gt;</literal> statement. There should be enough RAM available
+      to accommodate the memory mapped buffers. For vary large nio usage, a 64
+      bit JVM must be used. The memory is not taken from the JVM memory
+      allocation, therefore there is no need to increase the -Xmx parameter of
+      the JVM. If not enough memory is available for the specified value, nio
+      is not used.</para>
     </section>
 
     <section xml:id="dec_server_db">
@@ -774,6 +778,16 @@
     issues (and enhancements) are listed here.</para>
 
     <itemizedlist>
+      <listitem>
+        <para>By default, when comparison strings, the shorter string is
+        padded with spaces. This has an effect on comparing
+        <literal>'test'</literal> and <literal>'test '</literal> which are now
+        considered equal, despite the length difference. This behaviour is
+        controlled by the default PAD SPACE property of collations, which can
+        be changed to NO PAD. See the statement <literal>SET DATABASE
+        COLLATION &lt;name&gt; [ PAD SPACE | NO PAD ]</literal>.</para>
+      </listitem>
+
       <listitem>
         <para>User names and passwords are case-sensitive. Check the .script
         file of a database for the correct case of user name and password and

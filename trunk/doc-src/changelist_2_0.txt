@@ -1,4 +1,12 @@
-14 May 2010 SVN 4991
+28 June 2012 SVN 5009 snapshot
+-- improved optimisation of queries with views and subqueries
+-- improved support for complex, nested queries
+4 June 2012 SVN 4997
+-- fixed issue with server sometimes not exiting at shutdown
+-- fixed regression with recursive queries
+-- END is no longer a reserved keywords
+-- property for SQL logging is now persisted
+14 May 2012 SVN 4991
 -- fixed issues with hot backup
 -- improved name resolution with nested subqueries
 -- improved support for collations with NO PAD
