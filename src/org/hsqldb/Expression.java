@@ -1046,15 +1046,26 @@ public class Expression implements Cloneable {
 
                 QueryExpression queryExpression = table.queryExpression;
 
-                queryExpression.resolveReferences(session, rangeGroups);
+                if (queryExpression != null) {
+                    queryExpression.resolveReferences(session, rangeGroups);
 
-                if (!queryExpression.areColumnsResolved()) {
-                    if (unresolvedSet == null) {
-                        unresolvedSet = new ArrayListIdentity();
+                    if (!queryExpression.areColumnsResolved()) {
+                        if (unresolvedSet == null) {
+                            unresolvedSet = new ArrayListIdentity();
+                        }
+
+                        unresolvedSet.addAll(
+                            queryExpression.getUnresolvedExpressions());
                     }
+                }
 
-                    unresolvedSet.addAll(
-                        queryExpression.getUnresolvedExpressions());
+                Expression dataExpression = table.dataExpression;
+
+                if (dataExpression != null) {
+                    unresolvedSet =
+                        dataExpression.resolveColumnReferences(session,
+                            rangeGroup, rangeCount, rangeGroups,
+                            unresolvedSet, acceptsSequences);
                 }
 
                 break;
@@ -1173,10 +1184,19 @@ public class Expression implements Cloneable {
             case OpTypes.TABLE_SUBQUERY : {
                 QueryExpression queryExpression = table.queryExpression;
 
-                queryExpression.resolveTypes(session);
+                if (queryExpression != null) {
+                    queryExpression.resolveTypes(session);
+                }
+
+                Expression dataExpression = table.dataExpression;
+
+                if (dataExpression != null) {
+                    dataExpression.resolveTypes(session, null);
+                }
+
                 table.prepareTable();
 
-                nodeDataTypes = queryExpression.getColumnTypes();
+                nodeDataTypes = table.getColumnTypes();
                 dataType      = nodeDataTypes[0];
 
                 break;

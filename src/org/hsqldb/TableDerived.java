@@ -241,8 +241,10 @@ public class TableDerived extends Table implements Comparator {
         }
 
         if (dataExpression != null) {
-            TableUtil.addAutoColumns(this, dataExpression.nodeDataTypes);
-            setTableIndexesForSubquery();
+            if (columnCount == 0) {
+                TableUtil.addAutoColumns(this, dataExpression.nodeDataTypes);
+                setTableIndexesForSubquery();
+            }
         }
 
         if (queryExpression != null) {
@@ -255,8 +257,15 @@ public class TableDerived extends Table implements Comparator {
 
     public void prepareTable(HsqlName[] columns) {
 
-        columnCount = queryExpression.getColumnCount();
-        columnList  = queryExpression.getColumns();
+        if (dataExpression != null) {
+
+            // columns prepared
+        }
+
+        if (queryExpression != null) {
+            columnCount = queryExpression.getColumnCount();
+            columnList  = queryExpression.getColumns();
+        }
 
         if (columns != null) {
             if (columns.length != columnList.size()) {
@@ -288,7 +297,9 @@ public class TableDerived extends Table implements Comparator {
         int pkcols[] = uniqueRows ? cols
                                   : null;
 
-        createPrimaryKey(null, pkcols, false);
+        if (primaryKeyCols == null) {
+            createPrimaryKey(null, pkcols, false);
+        }
 
         if (uniqueRows) {
             fullIndex = getPrimaryIndex();

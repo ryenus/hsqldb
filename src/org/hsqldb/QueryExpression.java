@@ -117,6 +117,8 @@ public class QueryExpression implements RangeGroup {
     boolean isSingleRow;
     boolean acceptsSequences;
     boolean isCorrelated;
+    boolean isTable;
+    boolean isValueList;
 
     //
     TableDerived recursiveTable;

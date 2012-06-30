@@ -962,10 +962,6 @@ public class ParserDML extends ParserDQL {
 
         mergeCondition = XreadBooleanValueExpression();
 
-        if (mergeCondition.getDataType() != Type.SQL_BOOLEAN) {
-            throw Error.error(ErrorCode.X_42568);
-        }
-
         RangeVariable[] fullRangeVars   = new RangeVariable[] {
             sourceRange, targetRange
         };
