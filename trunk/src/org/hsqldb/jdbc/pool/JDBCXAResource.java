@@ -328,7 +328,7 @@ public class JDBCXAResource implements XAResource {
         }
 
         try {
-            ((SessionInterface) connection).prepareCommit();
+            connection.getSession().prepareCommit();
         } catch (HsqlException e) {
             state = XA_STATE_PREPARED;  // ??? didn't prepare
 
