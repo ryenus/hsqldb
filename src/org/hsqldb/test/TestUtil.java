@@ -730,8 +730,6 @@ class ResultSetParsedSection extends ParsedSection {
 
             while (results.next()) {
                 if (count < getExpectedRows().length) {
-
-//                    String[] expectedFields = getExpectedRows()[count].split(delim);
                     String[] expectedFields =
                         StringUtil.split(getExpectedRows()[count], delim);
 
