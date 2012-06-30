@@ -4318,7 +4318,10 @@ public class ParserDQL extends ParserBase {
             case OpTypes.TABLE_SUBQUERY : {
                 TableDerived td = XreadSubqueryTableBody(name, type);
 
-                td.queryExpression.resolve(session);
+                if (td.queryExpression != null) {
+                    td.queryExpression.resolve(session);
+                }
+
                 td.prepareTable(columnNames);
 
                 return td;
@@ -4414,7 +4417,15 @@ public class ParserDQL extends ParserBase {
         compileContext.incrementDepth();
 
         QueryExpression queryExpression = XreadQueryExpression();
-        TableDerived    td = newSubQueryTable(name, queryExpression, type);
+        TableDerived    td              = null;
+
+        if (queryExpression.isValueList) {
+            td = ((QuerySpecification) queryExpression).getValueListTable();
+        }
+
+        if (td == null) {
+            td = newSubQueryTable(name, queryExpression, type);
+        }
 
         td.setSQL(getLastPart(position));
         compileContext.decrementDepth();

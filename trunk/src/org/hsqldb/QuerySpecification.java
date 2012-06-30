@@ -72,7 +72,6 @@ public class QuerySpecification extends QueryExpression {
 
     //
     public int            resultRangePosition;
-    public boolean        isValueList;
     public boolean        isDistinctSelect;
     public boolean        isAggregated;
     public boolean        isGrouped;
@@ -148,8 +147,9 @@ public class QuerySpecification extends QueryExpression {
         sortAndSlice    = SortAndSlice.noSort;
         isBaseMergeable = true;
         isMergeable     = true;
+        isTable         = true;
 
-        resolveReferences(session, RangeGroup.emptyArray);
+//        resolveReferences(session, RangeGroup.emptyArray);
     }
 
     QuerySpecification(CompileContext compileContext) {
@@ -175,6 +175,27 @@ public class QuerySpecification extends QueryExpression {
                 - 1);
 
         range.isBoundary = true;
+    }
+
+    public TableDerived getValueListTable() {
+
+        if (isValueList) {
+            RangeVariable range = null;
+
+            if (rangeVariables == null) {
+                if (rangeVariableList.size() == 1) {
+                    range = (RangeVariable) rangeVariableList.get(0);
+                }
+            } else if (rangeVariables.length == 1) {
+                range = rangeVariables[0];
+            }
+
+            if (range != null) {
+                return (TableDerived) range.getTable();
+            }
+        }
+
+        return null;
     }
 
     public RangeVariable[] getRangeVariables() {
