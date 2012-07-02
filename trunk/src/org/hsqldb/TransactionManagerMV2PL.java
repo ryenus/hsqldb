@@ -33,8 +33,8 @@ package org.hsqldb;
 
 import org.hsqldb.HsqlNameManager.HsqlName;
 import org.hsqldb.lib.HsqlDeque;
-import org.hsqldb.lib.IntKeyHashMapConcurrent;
 import org.hsqldb.lib.LongDeque;
+import org.hsqldb.lib.LongKeyHashMap;
 import org.hsqldb.persist.CachedObject;
 import org.hsqldb.persist.PersistentStore;
 
@@ -42,7 +42,7 @@ import org.hsqldb.persist.PersistentStore;
  * Manages rows involved in transactions
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.0.1
+ * @version 2.2.9
  * @since 2.0.0
  */
 public class TransactionManagerMV2PL extends TransactionManagerCommon
@@ -56,7 +56,7 @@ implements TransactionManager {
 
         database        = db;
         lobSession      = database.sessionManager.getSysLobSession();
-        rowActionMap    = new IntKeyHashMapConcurrent(10000);
+        rowActionMap    = new LongKeyHashMap(10000);
         txModel         = MVLOCKS;
         catalogNameList = new HsqlName[]{ database.getCatalogName() };
     }
@@ -285,7 +285,7 @@ implements TransactionManager {
         return action.canRead(session, TransactionManager.ACTION_READ);
     }
 
-    public boolean canRead(Session session, int id, int mode) {
+    public boolean canRead(Session session, long id, int mode) {
 
         RowAction action = (RowAction) rowActionMap.get(id);
 

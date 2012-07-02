@@ -37,6 +37,7 @@ import org.hsqldb.HsqlException;
 import org.hsqldb.Row;
 import org.hsqldb.RowAVL;
 import org.hsqldb.RowAVLDisk;
+import org.hsqldb.RowAVLDiskLarge;
 import org.hsqldb.RowAction;
 import org.hsqldb.Session;
 import org.hsqldb.Table;
@@ -61,6 +62,7 @@ public class RowStoreAVLDisk extends RowStoreAVL {
 
     DataFileCache      cache;
     RowOutputInterface rowOut;
+    boolean            largeData;
 
     public RowStoreAVLDisk(PersistentStoreCollection manager,
                            DataFileCache cache, Table table) {
@@ -79,6 +81,8 @@ public class RowStoreAVLDisk extends RowStoreAVL {
         }
 
         manager.setStore(table, this);
+
+        largeData = database.logger.getDataFileFactor() > 1;
     }
 
     public boolean isMemory() {
@@ -96,14 +100,14 @@ public class RowStoreAVLDisk extends RowStoreAVL {
         database.txManager.setTransactionInfo(row);
     }
 
-    public CachedObject get(int key) {
+    public CachedObject get(long key) {
 
         CachedObject object = cache.get(key, this, false);
 
         return object;
     }
 
-    public CachedObject get(int key, boolean keep) {
+    public CachedObject get(long key, boolean keep) {
 
         CachedObject object = cache.get(key, this, keep);
 
@@ -117,7 +121,7 @@ public class RowStoreAVLDisk extends RowStoreAVL {
         return object;
     }
 
-    public int getStorageSize(int i) {
+    public int getStorageSize(long i) {
         return cache.get(i, this, false).getStorageSize();
     }
 
@@ -135,7 +139,11 @@ public class RowStoreAVLDisk extends RowStoreAVL {
     public CachedObject get(RowInputInterface in) {
 
         try {
+            if (largeData) {
+                return new RowAVLDiskLarge(table, in);
+            } else {
             return new RowAVLDisk(table, in);
+            }
         } catch (IOException e) {
             throw Error.error(ErrorCode.DATA_FILE_ERROR, e);
         }
@@ -148,7 +156,13 @@ public class RowStoreAVLDisk extends RowStoreAVL {
     public CachedObject getNewCachedObject(Session session, Object object,
                                            boolean tx) {
 
-        Row row = new RowAVLDisk(table, (Object[]) object, this);
+        Row row;
+
+        if (largeData) {
+            row = new RowAVLDiskLarge(table, (Object[]) object, this);
+        } else {
+            row = new RowAVLDisk(table, (Object[]) object, this);
+        }
 
         add(row);
 
@@ -181,13 +195,13 @@ public class RowStoreAVLDisk extends RowStoreAVL {
         ArrayUtil.fillArray(accessorList, null);
     }
 
-    public void remove(int i) {
+    public void remove(long i) {
         cache.remove(i, this);
     }
 
-    public void removePersistence(int i) {}
+    public void removePersistence(long i) {}
 
-    public void release(int i) {
+    public void release(long i) {
         cache.release(i);
     }
 
@@ -300,7 +314,7 @@ public class RowStoreAVLDisk extends RowStoreAVL {
         accessorList[index.getPosition()] = accessor;
     }
 
-    public void setAccessor(Index key, int accessor) {
+    public void setAccessor(Index key, long accessor) {
 
         CachedObject object = get(accessor, false);
 

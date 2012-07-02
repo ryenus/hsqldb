@@ -807,6 +807,7 @@ public class Database {
 
                 sysSession.executeCompiledStatement(
                     checkpoint, ValuePool.emptyObjectArray);
+                sysSession.commit(false);
                 sysSession.close();
 
                 waiting = false;

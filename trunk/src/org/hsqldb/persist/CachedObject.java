@@ -31,14 +31,14 @@
 
 package org.hsqldb.persist;
 
-import org.hsqldb.lib.IntLookup;
+import org.hsqldb.lib.LongLookup;
 import org.hsqldb.rowio.RowOutputInterface;
 
 /**
  * Interface for an object stored in the memory cache.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 1.9.0
+ * @version 2.2.9
  * @since 1.8.0
  */
 public interface CachedObject {
@@ -55,9 +55,9 @@ public interface CachedObject {
 
     int getStorageSize();
 
-    int getPos();
+    long getPos();
 
-    void setPos(int pos);
+    void setPos(long pos);
 
     boolean isNew();
 
@@ -79,5 +79,5 @@ public interface CachedObject {
 
     void write(RowOutputInterface out);
 
-    void write(RowOutputInterface out, IntLookup lookup);
+    void write(RowOutputInterface out, LongLookup lookup);
 }

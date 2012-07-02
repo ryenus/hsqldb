@@ -135,6 +135,7 @@ public class Logger {
     boolean propRefIntegrity = true;
     int     propLobBlockSize = 32 * 1024;
     int     propScriptFormat = 0;
+    boolean propLargeData;
 
     //
     Log               log;
@@ -445,6 +446,16 @@ public class Logger {
             HsqlDatabaseProperties.hsqldb_cache_free_count);
         propMaxFreeBlocks = ArrayUtil.getTwoPowerFloor(propMaxFreeBlocks);
 
+        if (database.urlProperties.isPropertyTrue(
+                HsqlDatabaseProperties.hsqldb_large_data, false)) {
+            propLargeData = true;
+        }
+
+        if (!database.urlProperties.isPropertyTrue(
+                HsqlDatabaseProperties.sql_pad_space, true)) {
+            database.collation.setPadding(false);
+        }
+
         if (!isNewDatabase && !version18) {
             return;
         }
@@ -649,7 +660,6 @@ public class Logger {
             }
 
             database.persistentStoreCollection.release();
-
         } catch (Throwable e) {
             database.logger.logSevereEvent("error closing log", e);
 
@@ -1113,7 +1123,8 @@ public class Logger {
     }
 
     public int getDataFileFactor() {
-        return 1;
+        return propLargeData ? 128
+                             : 1;
     }
 
     public void setLobFileScale(int value) {

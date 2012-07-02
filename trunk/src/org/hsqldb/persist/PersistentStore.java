@@ -66,19 +66,21 @@ public interface PersistentStore {
     void set(CachedObject object);
 
     /** get object */
-    CachedObject get(int key);
+    CachedObject get(long key);
 
     /** get object with keep, ensuring future gets will return the same instance of the object */
-    CachedObject get(int key, boolean keep);
+    CachedObject get(long key, boolean keep);
 
     CachedObject get(CachedObject object, boolean keep);
 
-    int getStorageSize(int key);
+    int getStorageSize(long key);
 
     /** add new object */
     void add(CachedObject object);
 
     CachedObject get(RowInputInterface in);
+
+    CachedObject get(CachedObject object, RowInputInterface in);
 
     CachedObject getNewInstance(int size);
 
@@ -86,15 +88,15 @@ public interface PersistentStore {
                                     boolean tx);
 
     /** remove the persisted image but not the cached copy */
-    void removePersistence(int i);
+    void removePersistence(long i);
 
     void removeAll();
 
     /** remove both persisted and cached copies */
-    void remove(int i);
+    void remove(long i);
 
     /** remove the cached copies */
-    void release(int i);
+    void release(long i);
 
     /** commit persisted image */
     void commitPersistence(CachedObject object);
@@ -126,15 +128,15 @@ public interface PersistentStore {
 
     void setAccessor(Index key, CachedObject accessor);
 
-    void setAccessor(Index key, int accessor);
+    void setAccessor(Index key, long accessor);
 
-    int elementCount();
+    long elementCount();
 
-    int elementCount(Session session);
+    long elementCount(Session session);
 
-    int elementCountUnique(Index index);
+    long elementCountUnique(Index index);
 
-    void setElementCount(Index key, int size, int uniqueSize);
+    void setElementCount(Index key, long size, long uniqueSize);
 
     boolean hasNull(int pos);
 

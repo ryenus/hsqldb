@@ -119,7 +119,7 @@ public class RowInputText extends RowInputBase implements RowInputInterface {
         longvarSepLen   = longvarSep.length();
     }
 
-    public void setSource(String text, int pos, int byteSize) {
+    public void setSource(String text, long pos, int byteSize) {
 
         size      = byteSize;
         this.text = text;

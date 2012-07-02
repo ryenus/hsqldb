@@ -2511,14 +2511,13 @@ public class Table extends TableBase implements SchemaObject {
         int i = 0;
 
         for (int index = 0; index < indexList.length; index++) {
-            store.setAccessor(indexList[index], (int) roots[i++]);
+            store.setAccessor(indexList[index], roots[i++]);
         }
 
         long size = roots[indexList.length * 2];
 
         for (int index = 0; index < indexList.length; index++) {
-            store.setElementCount(indexList[index], (int) size,
-                                  (int) roots[i++]);
+            store.setElementCount(indexList[index], size, roots[i++]);
         }
     }
 

@@ -56,8 +56,6 @@ import org.hsqldb.rowio.RowInputInterface;
  */
 public class RowStoreAVLDiskData extends RowStoreAVLDisk {
 
-    RowAVLDiskData currentRow;
-
     public RowStoreAVLDiskData(PersistentStoreCollection manager,
                                Table table) {
         super(manager, null, table);
@@ -65,18 +63,9 @@ public class RowStoreAVLDiskData extends RowStoreAVLDisk {
 
     public CachedObject get(CachedObject object, boolean keep) {
 
-        writeLock();
-
-        try {
-            currentRow = (RowAVLDiskData) object;
             object     = cache.get(object, this, keep);
 
             return object;
-        } finally {
-            currentRow = null;
-
-            writeUnlock();
-        }
     }
 
     public void add(CachedObject object) {
@@ -96,22 +85,25 @@ public class RowStoreAVLDiskData extends RowStoreAVLDisk {
     public CachedObject get(RowInputInterface in) {
 
         try {
-            Object[] data = RowAVLDiskData.getRowData(table, in);
+            RowAVLDiskData row = new RowAVLDiskData(this, table, in);
 
-            if (currentRow == null) {
-                RowAVLDiskData row = new RowAVLDiskData(this, table, data);
+            row.setPos(in.getPos());
+            row.setStorageSize(in.getSize());
+            row.setChanged(false);
+            ((TextCache) cache).addInit(row);
 
-                row.setPos(in.getPos());
-                row.setStorageSize(in.getSize());
-                row.setChanged(false);
-                ((TextCache) cache).addInit(row);
+            return row;
+        } catch (IOException e) {
+            throw Error.error(ErrorCode.TEXT_FILE_IO, e);
+        }
+    }
 
-                return row;
-            }
+    public CachedObject get(CachedObject object, RowInputInterface in) {
 
-            currentRow.setData(data);
+        try {
+            ((RowAVLDiskData) object).getRowData(table, in);
 
-            return currentRow;
+            return object;
         } catch (IOException e) {
             throw Error.error(ErrorCode.TEXT_FILE_IO, e);
         }
@@ -146,7 +138,7 @@ public class RowStoreAVLDiskData extends RowStoreAVLDisk {
         ArrayUtil.fillArray(accessorList, null);
     }
 
-    public void remove(int i) {
+    public void remove(long i) {
         cache.remove(i, this);
     }
 
@@ -154,7 +146,7 @@ public class RowStoreAVLDiskData extends RowStoreAVLDisk {
         cache.removePersistence(row);
     }
 
-    public void release(int i) {
+    public void release(long i) {
         cache.release(i);
     }
 

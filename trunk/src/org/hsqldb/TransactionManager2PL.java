@@ -38,7 +38,7 @@ import org.hsqldb.persist.PersistentStore;
  * Manages rows involved in transactions
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.0.1
+ * @version 2.2.9
  * @since 2.0.0
  */
 public class TransactionManager2PL extends TransactionManagerCommon
@@ -238,7 +238,7 @@ implements TransactionManager {
         return true;
     }
 
-    public boolean canRead(Session session, int id, int mode) {
+    public boolean canRead(Session session, long id, int mode) {
         return true;
     }
 

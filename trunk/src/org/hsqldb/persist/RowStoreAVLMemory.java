@@ -77,11 +77,11 @@ public class RowStoreAVLMemory extends RowStoreAVL implements PersistentStore {
 
     public void set(CachedObject object) {}
 
-    public CachedObject get(int i) {
+    public CachedObject get(long i) {
         throw Error.runtimeError(ErrorCode.U_S0500, "RowStoreAVMemory");
     }
 
-    public CachedObject get(int i, boolean keep) {
+    public CachedObject get(long i, boolean keep) {
         throw Error.runtimeError(ErrorCode.U_S0500, "RowStoreAVLMemory");
     }
 
@@ -89,7 +89,7 @@ public class RowStoreAVLMemory extends RowStoreAVL implements PersistentStore {
         return object;
     }
 
-    public int getStorageSize(int i) {
+    public int getStorageSize(long i) {
         return 0;
     }
 
@@ -134,11 +134,11 @@ public class RowStoreAVLMemory extends RowStoreAVL implements PersistentStore {
         ArrayUtil.fillArray(accessorList, null);
     }
 
-    public void remove(int i) {}
+    public void remove(long i) {}
 
-    public void removePersistence(int i) {}
+    public void removePersistence(long i) {}
 
-    public void release(int i) {}
+    public void release(long i) {}
 
     public void commitPersistence(CachedObject row) {}
 
@@ -222,5 +222,5 @@ public class RowStoreAVLMemory extends RowStoreAVL implements PersistentStore {
         accessorList[index.getPosition()] = accessor;
     }
 
-    public void setAccessor(Index key, int accessor) {}
+    public void setAccessor(Index key, long accessor) {}
 }

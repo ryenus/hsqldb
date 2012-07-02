@@ -55,7 +55,7 @@ import org.hsqldb.types.Types;
  *
  * @author Bob Preston (sqlbob@users dot sourceforge.net)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.0.0
+ * @version 2.2.9
  * @since 1.7.0
  */
 abstract class RowInputBase extends HsqlByteArrayInputStream {
@@ -63,7 +63,7 @@ abstract class RowInputBase extends HsqlByteArrayInputStream {
     static final int NO_POS = -1;
 
     // fredt - initialisation may be unnecessary as it's done in resetRow()
-    protected int filePos = NO_POS;
+    protected long filePos = NO_POS;
     protected int size;
 
     RowInputBase() {
@@ -80,7 +80,7 @@ abstract class RowInputBase extends HsqlByteArrayInputStream {
         size = buf.length;
     }
 
-    public int getPos() {
+    public long getPos() {
 
         if (filePos == NO_POS) {
 
@@ -282,7 +282,7 @@ abstract class RowInputBase extends HsqlByteArrayInputStream {
      *  byte[] buffer by an external routine.
      *
      */
-    public void resetRow(int filepos, int rowsize) throws IOException {
+    public void resetRow(long filepos, int rowsize) throws IOException {
 
         mark = 0;
 

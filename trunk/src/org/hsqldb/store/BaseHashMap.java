@@ -845,6 +845,10 @@ public class BaseHashMap {
                 }
             } else {
                 objectKeyTable[lookup] = object;
+
+                if (accessTable != null) {
+                    accessTable[lookup] = ++accessCount;
+                }
             }
 
             return returnValue;
@@ -1107,7 +1111,6 @@ public class BaseHashMap {
 
         // this is newNodePointer post-removal
         int lastPointer = hashIndex.newNodePointer;
-
 
         if (isIntKey) {
             Object array = intKeyTable;

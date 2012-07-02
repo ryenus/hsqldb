@@ -72,7 +72,7 @@ package org.hsqldb.index;
 
 import org.hsqldb.Row;
 import org.hsqldb.RowAVLDisk;
-import org.hsqldb.lib.IntLookup;
+import org.hsqldb.lib.LongLookup;
 import org.hsqldb.persist.CachedObject;
 import org.hsqldb.persist.PersistentStore;
 import org.hsqldb.rowio.RowOutputInterface;
@@ -228,9 +228,9 @@ public class NodeAVL implements CachedObject {
 
     public void write(RowOutputInterface out) {}
 
-    public void write(RowOutputInterface out, IntLookup lookup) {}
+    public void write(RowOutputInterface out, LongLookup lookup) {}
 
-    public int getPos() {
+    public long getPos() {
         return 0;
     }
 
@@ -255,7 +255,7 @@ public class NodeAVL implements CachedObject {
         return 0;
     }
 
-    public void setPos(int pos) {}
+    public void setPos(long pos) {}
 
     public boolean isNew() {
         return false;
@@ -289,5 +289,4 @@ public class NodeAVL implements CachedObject {
     public boolean isMemory() {
         return true;
     }
-
 }

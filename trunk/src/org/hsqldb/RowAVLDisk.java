@@ -76,7 +76,7 @@ import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
 import org.hsqldb.index.NodeAVL;
 import org.hsqldb.index.NodeAVLDisk;
-import org.hsqldb.lib.IntLookup;
+import org.hsqldb.lib.LongLookup;
 import org.hsqldb.persist.PersistentStore;
 import org.hsqldb.rowio.RowInputInterface;
 import org.hsqldb.rowio.RowOutputInterface;
@@ -203,7 +203,7 @@ public class RowAVLDisk extends RowAVL {
      *
      * @param pos position in data file
      */
-    public void setPos(int pos) {
+    public void setPos(long pos) {
         position = pos;
     }
 
@@ -358,7 +358,7 @@ public class RowAVLDisk extends RowAVL {
         }
     }
 
-    public void write(RowOutputInterface out, IntLookup lookup) {
+    public void write(RowOutputInterface out, LongLookup lookup) {
 
         out.writeSize(storageSize);
 

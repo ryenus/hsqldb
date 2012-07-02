@@ -42,7 +42,7 @@ import org.hsqldb.error.ErrorCode;
  * case.
  *
  * @author Bob Preston (sqlbob@users dot sourceforge.net)
- * @version 1.9.0
+ * @version 2.2.9
  * @since 1.7.0
  */
 public class RowInputTextQuoted extends RowInputText {
@@ -57,7 +57,7 @@ public class RowInputTextQuoted extends RowInputText {
         super(fieldSep, varSep, longvarSep, allQuoted);
     }
 
-    public void setSource(String text, int pos, int byteSize) {
+    public void setSource(String text, long pos, int byteSize) {
 
         super.setSource(text, pos, byteSize);
 

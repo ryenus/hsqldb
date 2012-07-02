@@ -41,7 +41,7 @@ import org.hsqldb.persist.PersistentStore;
  * Represents the chain of insert / delete / rollback / commit actions on a row.
  *
  * @author Fred Toussi (fredt@users dot sourceforge dot net)
- * @version 2.2.7
+ * @version 2.2.9
  * @since 2.0.0
  */
 public class RowAction extends RowActionBase {
@@ -50,7 +50,7 @@ public class RowAction extends RowActionBase {
     final TableBase       table;
     final PersistentStore store;
     Row                   memoryRow;
-    int                   rowId;
+    long                  rowId;
     boolean               isMemory;
     RowAction             updatedAction;
 
@@ -572,11 +572,11 @@ public class RowAction extends RowActionBase {
         return actionType;
     }
 
-    public synchronized int getPos() {
+    public synchronized long getPos() {
         return rowId;
     }
 
-    synchronized void setPos(int pos) {
+    synchronized void setPos(long pos) {
         rowId = pos;
     }
 

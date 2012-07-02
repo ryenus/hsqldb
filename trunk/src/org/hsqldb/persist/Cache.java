@@ -68,8 +68,8 @@ public class Cache extends BaseHashMap {
 
     Cache(DataFileCache dfc) {
 
-        super(dfc.capacity(), BaseHashMap.intKeyOrValue,
-              BaseHashMap.objectKeyOrValue, true);
+        super(dfc.capacity(), BaseHashMap.objectKeyOrValue,
+              BaseHashMap.noKeyOrValue, true);
 
         maxCapacity      = dfc.capacity();
         dataFileCache    = dfc;
@@ -78,14 +78,15 @@ public class Cache extends BaseHashMap {
         rowComparator    = new CachedObjectComparator();
         rowTable         = new CachedObject[capacity];
         cacheBytesLength = 0;
-        objectIterator   = new BaseHashIterator();
+        objectIterator   = new BaseHashIterator(true);
+        comparator       = rowComparator;
     }
 
     /**
      *  Structural initialisations take place here. This allows the Cache to
      *  be resized while the database is in operation.
      */
-    void init(int capacity, long bytesCapacity) {}
+    void resize(int capacity, long bytesCapacity) {}
 
     long getTotalCachedBlockSize() {
         return cacheBytesLength;
@@ -94,7 +95,7 @@ public class Cache extends BaseHashMap {
     /**
      * Returns a row if in memory cache.
      */
-    public synchronized CachedObject get(int pos) {
+    public synchronized CachedObject get(long pos) {
 
         if (accessCount > ACCESS_MAX) {
             updateAccessCounts();
@@ -102,7 +103,7 @@ public class Cache extends BaseHashMap {
             updateObjectAccessCounts();
         }
 
-        int lookup = getLookup(pos);
+        int lookup = getObjectLookup(pos);
 
         if (lookup == -1) {
             return null;
@@ -110,7 +111,7 @@ public class Cache extends BaseHashMap {
 
         accessTable[lookup] = ++accessCount;
 
-        CachedObject object = (CachedObject) objectValueTable[lookup];
+        CachedObject object = (CachedObject) objectKeyTable[lookup];
 
         return object;
     }
@@ -118,7 +119,7 @@ public class Cache extends BaseHashMap {
     /**
      * Adds a row to the cache.
      */
-    synchronized void put(int key, CachedObject row) {
+    synchronized void put(long key, CachedObject row) {
 
         int storageSize = row.getStorageSize();
 
@@ -137,7 +138,7 @@ public class Cache extends BaseHashMap {
             updateObjectAccessCounts();
         }
 
-        super.addOrRemove(key, row, null, false);
+        super.addOrRemoveObject(row, row.getPos(), false);
         row.setInMemory(true);
 
         cacheBytesLength += storageSize;
@@ -146,9 +147,10 @@ public class Cache extends BaseHashMap {
     /**
      * Removes an object from memory cache. Does not release the file storage.
      */
-    synchronized CachedObject release(int i) {
+    synchronized CachedObject release(long pos) {
 
-        CachedObject r = (CachedObject) super.addOrRemove(i, null, null, true);
+        CachedObject r = (CachedObject) super.addOrRemoveObject(null,
+            pos, true);
 
         if (r == null) {
             return null;
@@ -164,11 +166,11 @@ public class Cache extends BaseHashMap {
     /**
      * Replace a row in the cache.
      */
-    synchronized void replace(int key, CachedObject row) {
+    synchronized void replace(long key, CachedObject row) {
 
         int lookup = super.getLookup(key);
 
-        super.objectValueTable[lookup] = row;
+        objectKeyTable[lookup] = row;
     }
 
     private void updateAccessCounts() {
@@ -176,8 +178,8 @@ public class Cache extends BaseHashMap {
         CachedObject r;
         int          count;
 
-        for (int i = 0; i < objectValueTable.length; i++) {
-            r = (CachedObject) objectValueTable[i];
+        for (int i = 0; i < objectKeyTable.length; i++) {
+            r = (CachedObject) objectKeyTable[i];
 
             if (r != null) {
                 count = r.getAccessCount();
@@ -194,8 +196,8 @@ public class Cache extends BaseHashMap {
         CachedObject r;
         int          count;
 
-        for (int i = 0; i < objectValueTable.length; i++) {
-            r = (CachedObject) objectValueTable[i];
+        for (int i = 0; i < objectKeyTable.length; i++) {
+            r = (CachedObject) objectKeyTable[i];
 
             if (r != null) {
                 count = accessTable[i];
@@ -385,7 +387,7 @@ public class Cache extends BaseHashMap {
 
         public int compare(Object a, Object b) {
 
-            int diff;
+            long diff;
 
             switch (compareType) {
 

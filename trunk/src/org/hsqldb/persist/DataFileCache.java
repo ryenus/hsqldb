@@ -163,7 +163,8 @@ public class DataFileCache {
         cacheReadonly   = database.logger.propFilesReadOnly;
         maxCacheRows    = database.logger.propCacheMaxRows;
         maxCacheBytes   = database.logger.propCacheMaxSize;
-        maxDataFileSize = (long) Integer.MAX_VALUE * dataFileScale;
+        maxDataFileSize = (long) Integer.MAX_VALUE * dataFileScale
+                          * database.logger.getDataFileFactor();
         dataFile        = null;
         shadowFile      = null;
     }
@@ -512,7 +513,7 @@ public class DataFileCache {
             storeCount += adjust;
 
             if (storeCount == 0) {
-                    clear();
+                clear();
             }
         } finally {
             writeLock.unlock();
@@ -663,7 +664,7 @@ public class DataFileCache {
      * Removes the row from the cache data structures.
      * Adds the file space for the row to the list of free positions.
      */
-    public void remove(int i, PersistentStore store) {
+    public void remove(long i, PersistentStore store) {
 
         writeLock.lock();
 
@@ -688,14 +689,14 @@ public class DataFileCache {
      * Free space is requested from the block manager if it exists.
      * Otherwise the file is grown to accommodate it.
      */
-    int setFilePos(CachedObject r) {
+    long setFilePos(CachedObject r) {
 
         int  rowSize = r.getStorageSize();
-        int  i       = freeBlocks.get(rowSize);
+        long i       = freeBlocks.get(rowSize);
         long newFreePosition;
 
         if (i == -1) {
-            i               = (int) (fileFreePosition / dataFileScale);
+            i               = fileFreePosition / dataFileScale;
             newFreePosition = fileFreePosition + rowSize;
 
             if (newFreePosition > maxDataFileSize) {
@@ -729,7 +730,7 @@ public class DataFileCache {
         try {
             cacheModified = true;
 
-            int i = setFilePos(object);
+            long i = setFilePos(object);
 
             cache.put(i, object);
 
@@ -741,7 +742,7 @@ public class DataFileCache {
         }
     }
 
-    public int getStorageSize(int i) {
+    public int getStorageSize(long i) {
 
         readLock.lock();
 
@@ -763,7 +764,7 @@ public class DataFileCache {
         writeLock.lock();
 
         try {
-            int pos = object.getPos();
+            long pos = object.getPos();
 
             cache.replace(pos, object);
         } finally {
@@ -776,7 +777,7 @@ public class DataFileCache {
 
         readLock.lock();
 
-        int pos;
+        long pos;
 
         try {
             if (object.isInMemory()) {
@@ -809,7 +810,7 @@ public class DataFileCache {
         return getFromFile(pos, store, keep);
     }
 
-    public CachedObject get(int pos, PersistentStore store, boolean keep) {
+    public CachedObject get(long pos, PersistentStore store, boolean keep) {
 
         CachedObject object;
 
@@ -836,7 +837,7 @@ public class DataFileCache {
         return getFromFile(pos, store, keep);
     }
 
-    private CachedObject getFromFile(int pos, PersistentStore store,
+    private CachedObject getFromFile(long pos, PersistentStore store,
                                      boolean keep) {
 
         CachedObject object = null;
@@ -910,7 +911,7 @@ public class DataFileCache {
         }
     }
 
-    protected int readSize(int pos) {
+    protected int readSize(long pos) {
 
         writeLock.lock();
 
@@ -925,7 +926,7 @@ public class DataFileCache {
         }
     }
 
-    protected RowInputInterface readObject(int pos) {
+    protected RowInputInterface readObject(long pos) {
 
         try {
             dataFile.seek((long) pos * dataFileScale);
@@ -941,7 +942,7 @@ public class DataFileCache {
         }
     }
 
-    public CachedObject release(int pos) {
+    public CachedObject release(long pos) {
 
         writeLock.lock();
 

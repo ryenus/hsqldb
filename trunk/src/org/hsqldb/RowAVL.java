@@ -176,8 +176,7 @@ public class RowAVL extends Row {
         while (n != null) {
             n.delete();
 
-            n.iBalance = 0;
-            n          = n.nNext;
+            n = n.nNext;
         }
     }
 
