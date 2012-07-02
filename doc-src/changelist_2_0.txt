@@ -1,4 +1,4 @@
-2 July 2012 SVN 5015 snapshot
+2 July 2012 SVN 5017 snapshot
 -- added integrated support for large data
 28 June 2012 SVN 5009 snapshot
 -- improved optimisation of queries with views and subqueries
