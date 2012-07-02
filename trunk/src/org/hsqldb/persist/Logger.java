@@ -1552,7 +1552,7 @@ public class Logger {
         return null;
     }
 
-    public String[] getPropertiesSQL() {
+    public String[] getPropertiesSQL(boolean indexRoots) {
 
         HsqlArrayList list = new HsqlArrayList();
         StringBuffer  sb   = new StringBuffer();
@@ -1832,11 +1832,21 @@ public class Logger {
         sb.append(' ').append(Tokens.T_ROWS).append(' ');
         sb.append(propCacheMaxRows);
         list.add(sb.toString());
-        sb.setLength(0);
-        sb.append("SET FILES ").append(Tokens.T_SCALE);
-        sb.append(' ').append(propDataFileScale);
-        list.add(sb.toString());
-        sb.setLength(0);
+
+        {
+            int fileScale = propDataFileScale;
+
+            if (!indexRoots && fileScale < 32) {
+                fileScale = 32;
+            }
+
+            sb.setLength(0);
+            sb.append("SET FILES ").append(Tokens.T_SCALE);
+            sb.append(' ').append(fileScale);
+            list.add(sb.toString());
+            sb.setLength(0);
+        }
+
         sb.append("SET FILES ").append(Tokens.T_LOB).append(' ').append(
             Tokens.T_SCALE);
         sb.append(' ').append(getLobFileScale());

@@ -459,7 +459,7 @@ public class HsqlDatabaseProperties extends HsqlProperties {
         // this property is normally 8 - or 1 for old databases from early versions
         dbMeta.put(hsqldb_cache_file_scale,
                    HsqlProperties.getMeta(hsqldb_cache_file_scale,
-                                          SQL_PROPERTY, 8, new int[] {
+                                          SQL_PROPERTY, 32, new int[] {
             1, 8, 16, 32, 64, 128, 256, 512, 1024
         }));
 

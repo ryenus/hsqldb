@@ -714,7 +714,7 @@ public class Database {
         Result r = Result.newSingleColumnResult("COMMAND");
 
         // properties
-        String[] list = logger.getPropertiesSQL();
+        String[] list = logger.getPropertiesSQL(indexRoots);
 
         addRows(r, list);
 
