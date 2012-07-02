@@ -44,6 +44,7 @@ import org.hsqldb.lib.HsqlArrayList;
 import org.hsqldb.lib.HsqlList;
 import org.hsqldb.lib.OrderedHashSet;
 import org.hsqldb.lib.OrderedIntHashSet;
+import org.hsqldb.lib.OrderedLongHashSet;
 import org.hsqldb.navigator.RangeIterator;
 import org.hsqldb.navigator.RowIterator;
 import org.hsqldb.persist.PersistentStore;
@@ -1136,7 +1137,7 @@ public class RangeVariable implements Cloneable {
         int                       condIndex = 0;
 
         //
-        OrderedIntHashSet lookup;
+        OrderedLongHashSet lookup;
 
         //
         Object[] currentJoinData = null;
@@ -1157,7 +1158,7 @@ public class RangeVariable implements Cloneable {
             joinConditions     = rangeVar.joinConditions;
 
             if (rangeVar.isRightJoin) {
-                lookup = new OrderedIntHashSet();
+                lookup = new OrderedLongHashSet();
             }
 
             conditions = rangeVar.joinConditions;

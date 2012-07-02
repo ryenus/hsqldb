@@ -41,9 +41,9 @@ import org.hsqldb.error.ErrorCode;
 import org.hsqldb.lib.ArrayUtil;
 import org.hsqldb.lib.HashMap;
 import org.hsqldb.lib.HsqlArrayList;
-import org.hsqldb.lib.IntKeyHashMapConcurrent;
 import org.hsqldb.lib.Iterator;
 import org.hsqldb.lib.LongDeque;
+import org.hsqldb.lib.LongKeyHashMap;
 import org.hsqldb.lib.MultiValueHashMap;
 import org.hsqldb.lib.OrderedHashSet;
 
@@ -51,7 +51,7 @@ import org.hsqldb.lib.OrderedHashSet;
  * Shared code for TransactionManager classes
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.2.7
+ * @version 2.2.9
  * @since 2.0.0
  */
 class TransactionManagerCommon {
@@ -81,7 +81,7 @@ class TransactionManagerCommon {
     // functional unit - cached table transactions
 
     /** Map : rowID -> RowAction */
-    public IntKeyHashMapConcurrent rowActionMap;
+    public LongKeyHashMap rowActionMap;
 
     void setTransactionControl(Session session, int mode) {
 

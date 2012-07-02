@@ -410,6 +410,11 @@ public class IndexAVL implements Index {
         }
     }
 
+    public double selectivity(Session session, PersistentStore store,
+                              int count) {
+        return 1;
+    }
+
     public int getNodeCount(Session session, PersistentStore store) {
 
         int count = 0;
@@ -692,7 +697,11 @@ public class IndexAVL implements Index {
         }
 
         if (useRowId) {
-            return newRow.getPos() - existingRow.getPos();
+            long diff = newRow.getPos() - existingRow.getPos();
+
+            return diff == 0L ? 0
+                              : diff > 0L ? 1
+                                          : -1;
         }
 
         return 0;

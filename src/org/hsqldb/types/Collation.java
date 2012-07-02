@@ -282,6 +282,15 @@ public class Collation implements SchemaObject {
         return collation;
     }
 
+    public void setPadding(boolean padSpace) {
+
+        if (isFinal) {
+            throw Error.error(ErrorCode.X_42503);
+        }
+
+        this.padSpace = padSpace;
+    }
+
     public void setCollationAsLocale() {
 
         Locale locale   = Locale.getDefault();

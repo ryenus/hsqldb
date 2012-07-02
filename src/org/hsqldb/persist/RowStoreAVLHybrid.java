@@ -114,7 +114,7 @@ public class RowStoreAVLHybrid extends RowStoreAVL implements PersistentStore {
 
     public void set(CachedObject object) {}
 
-    public CachedObject get(int i) {
+    public CachedObject get(long i) {
 
         try {
             if (isCached) {
@@ -128,7 +128,7 @@ public class RowStoreAVLHybrid extends RowStoreAVL implements PersistentStore {
         }
     }
 
-    public CachedObject get(int i, boolean keep) {
+    public CachedObject get(long i, boolean keep) {
 
         try {
             if (isCached) {
@@ -155,7 +155,7 @@ public class RowStoreAVLHybrid extends RowStoreAVL implements PersistentStore {
         }
     }
 
-    public int getStorageSize(int i) {
+    public int getStorageSize(long i) {
 
         try {
             if (isCached) {
@@ -260,16 +260,16 @@ public class RowStoreAVLHybrid extends RowStoreAVL implements PersistentStore {
         }
     }
 
-    public void remove(int i) {
+    public void remove(long i) {
 
         if (isCached) {
             cache.remove(i, this);
         }
     }
 
-    public void removePersistence(int i) {}
+    public void removePersistence(long i) {}
 
-    public void release(int i) {
+    public void release(long i) {
 
         if (isCached) {
             cache.release(i);
@@ -368,7 +368,7 @@ public class RowStoreAVLHybrid extends RowStoreAVL implements PersistentStore {
         accessorList[index.getPosition()] = accessor;
     }
 
-    public void setAccessor(Index key, int accessor) {}
+    public void setAccessor(Index key, long accessor) {}
 
     public synchronized void resetAccessorKeys(Index[] keys) {
 

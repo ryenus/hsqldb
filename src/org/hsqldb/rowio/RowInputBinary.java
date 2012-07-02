@@ -59,7 +59,7 @@ import org.hsqldb.types.Types;
  *
  * @author Bob Preston (sqlbob@users dot sourceforge.net)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.2.7
+ * @version 2.2.9
  * @since 1.7.0
  */
 public class RowInputBinary extends RowInputBase
@@ -299,7 +299,7 @@ implements org.hsqldb.rowio.RowInputInterface {
      *  byte[] buffer by an external routine.
      *
      */
-    public void resetRow(int filepos, int rowsize) throws IOException {
+    public void resetRow(long filepos, int rowsize) throws IOException {
 
         if (out != null) {
             out.reset(rowsize);

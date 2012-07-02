@@ -38,7 +38,7 @@ import org.hsqldb.persist.PersistentStore;
  * Manages rows involved in transactions
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.2.7
+ * @version 2.2.9
  * @since 2.0.0
  */
 public interface TransactionManager {
@@ -75,7 +75,7 @@ public interface TransactionManager {
     // functional unit - accessibility of rows
     public boolean canRead(Session session, Row row, int mode, int[] colMap);
 
-    public boolean canRead(Session session, int id, int mode);
+    public boolean canRead(Session session, long id, int mode);
 
     public boolean commitTransaction(Session session);
 

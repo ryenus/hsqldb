@@ -88,10 +88,10 @@ public class RowAVLDiskData extends RowAVL {
         this.store     = store;
     }
 
-    public static Object[] getRowData(TableBase t,
+    public void getRowData(TableBase t,
                                       RowInputInterface in)
                                       throws IOException {
-        return in.readData(t.getColumnTypes());
+        rowData = in.readData(t.getColumnTypes());
     }
 
     public void setData(Object[] data) {
@@ -215,7 +215,7 @@ public class RowAVLDiskData extends RowAVL {
      *
      * @param pos position in data file
      */
-    public void setPos(int pos) {
+    public void setPos(long pos) {
         position = pos;
     }
 

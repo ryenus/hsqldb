@@ -226,6 +226,7 @@ public class HsqlDatabaseProperties extends HsqlProperties {
         "hsqldb.write_delay_millis";
     public static final String hsqldb_full_log_replay =
         "hsqldb.full_log_replay";
+    public static final String hsqldb_large_data       = "hsqldb.large_data";
 
     //
     public static final String sql_ref_integrity       = "sql.ref_integrity";
@@ -254,6 +255,7 @@ public class HsqlDatabaseProperties extends HsqlProperties {
         "jdbc.translate_tti_types";
     public static final String sql_identity_is_pk = "sql.identity_is_pk";
     public static final String sql_longvar_is_lob = "sql.longvar_is_lob";
+    public static final String sql_pad_space      = "sql.pad_space";
 
     //
     public static final String textdb_cache_scale = "textdb.cache_scale";

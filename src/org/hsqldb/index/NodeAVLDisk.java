@@ -76,7 +76,7 @@ import org.hsqldb.Row;
 import org.hsqldb.RowAVLDisk;
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
-import org.hsqldb.lib.IntLookup;
+import org.hsqldb.lib.LongLookup;
 import org.hsqldb.persist.PersistentStore;
 import org.hsqldb.rowio.RowInputInterface;
 import org.hsqldb.rowio.RowOutputInterface;
@@ -161,7 +161,7 @@ public class NodeAVLDisk extends NodeAVL {
         return false;
     }
 
-    public int getPos() {
+    public long getPos() {
         return row.getPos();
     }
 
@@ -346,12 +346,7 @@ public class NodeAVLDisk extends NodeAVL {
         row.setNodesChanged();
 
         node.iParent = n == null ? NO_POS
-                                 : n.getPos();
-
-        if (n != null && !n.isInMemory()) {
-            n = findNode(store, n.getPos());
-        }
-
+                                 : (int) n.getPos();
         node.nParent = (NodeAVLDisk) n;
 
         row.keepInMemory(false);
@@ -399,12 +394,7 @@ public class NodeAVLDisk extends NodeAVL {
         row.setNodesChanged();
 
         node.iLeft = n == null ? NO_POS
-                               : n.getPos();
-
-        if (n != null && !n.isInMemory()) {
-            n = findNode(store, n.getPos());
-        }
-
+                               : (int) n.getPos();
         node.nLeft = (NodeAVLDisk) n;
 
         row.keepInMemory(false);
@@ -429,12 +419,7 @@ public class NodeAVLDisk extends NodeAVL {
         row.setNodesChanged();
 
         node.iRight = n == null ? NO_POS
-                                : n.getPos();
-
-        if (n != null && !n.isInMemory()) {
-            n = findNode(store, n.getPos());
-        }
-
+                                : (int) n.getPos();
         node.nRight = (NodeAVLDisk) n;
 
         row.keepInMemory(false);
@@ -461,27 +446,17 @@ public class NodeAVLDisk extends NodeAVL {
 
     public void replace(PersistentStore store, Index index, NodeAVL n) {
 
-        NodeAVLDisk node = this;
-        RowAVLDisk  row  = this.row;
-
-        if (!row.keepInMemory(true)) {
-            row  = (RowAVLDisk) store.get(this.row, true);
-            node = (NodeAVLDisk) row.getNode(iId);
-        }
-
-        if (node.iParent == NO_POS) {
+        if (iParent == NO_POS) {
             if (n != null) {
                 n = n.setParent(store, null);
             }
 
             store.setAccessor(index, n);
         } else {
-            boolean isFromLeft = node.isFromLeft(store);
+            boolean isFromLeft = isFromLeft(store);
 
-            node.getParent(store).set(store, isFromLeft, n);
+            getParent(store).set(store, isFromLeft, n);
         }
-
-        row.keepInMemory(false);
     }
 
     boolean equals(NodeAVL n) {
@@ -531,7 +506,7 @@ public class NodeAVLDisk extends NodeAVL {
                                          : iParent);
     }
 
-    public void write(RowOutputInterface out, IntLookup lookup) {
+    public void write(RowOutputInterface out, LongLookup lookup) {
 
         out.writeInt(iBalance);
         out.writeInt(getTranslatePointer(iLeft, lookup));
@@ -539,7 +514,7 @@ public class NodeAVLDisk extends NodeAVL {
         out.writeInt(getTranslatePointer(iParent, lookup));
     }
 
-    private static int getTranslatePointer(int pointer, IntLookup lookup) {
+    private static int getTranslatePointer(int pointer, LongLookup lookup) {
 
         int newPointer = 0;
 
@@ -547,7 +522,7 @@ public class NodeAVLDisk extends NodeAVL {
             if (lookup == null) {
                 newPointer = pointer;
             } else {
-                newPointer = lookup.lookup(pointer);
+                newPointer = (int) lookup.lookup(pointer);
             }
         }
 
@@ -570,7 +545,7 @@ public class NodeAVLDisk extends NodeAVL {
         return 0;
     }
 
-    public void setPos(int pos) {}
+    public void setPos(long pos) {}
 
     public boolean isNew() {
         return false;

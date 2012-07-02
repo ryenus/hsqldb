@@ -40,12 +40,12 @@ import org.hsqldb.types.Type;
  *
  * @author Bob Preston (sqlbob@users dot sourceforge.net)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 1.9.0
+ * @version 2.2.9
  * @since 1.7.0
  */
 public interface RowInputInterface {
 
-    int getPos();
+    long getPos();
 
     int getSize();
 
@@ -63,7 +63,7 @@ public interface RowInputInterface {
 
     Object[] readData(Type[] colTypes) throws IOException;
 
-    void resetRow(int filePos, int size) throws IOException;
+    void resetRow(long filePos, int size) throws IOException;
 
     byte[] getBuffer();
 }

@@ -65,7 +65,7 @@ public abstract class RowStoreAVL implements PersistentStore {
     Index[]                   indexList    = Index.emptyArray;
     CachedObject[]            accessorList = CachedObject.emptyArray;
     TableBase                 table;
-    int                       elementCount;
+    long                      elementCount;
     boolean[]                 nullsList;
 
     // for result tables
@@ -95,28 +95,32 @@ public abstract class RowStoreAVL implements PersistentStore {
 
     public abstract void set(CachedObject object);
 
-    public abstract CachedObject get(int key, boolean keep);
+    public abstract CachedObject get(long key, boolean keep);
 
     public abstract CachedObject get(CachedObject object, boolean keep);
 
-    public abstract int getStorageSize(int key);
+    public abstract int getStorageSize(long key);
 
     public abstract void add(CachedObject object);
 
     public abstract CachedObject get(RowInputInterface in);
+
+    public CachedObject get(CachedObject object, RowInputInterface in) {
+        return object;
+    }
 
     public abstract CachedObject getNewInstance(int size);
 
     public abstract CachedObject getNewCachedObject(Session session,
             Object object, boolean tx);
 
-    public abstract void removePersistence(int i);
+    public abstract void removePersistence(long i);
 
     public abstract void removeAll();
 
-    public abstract void remove(int i);
+    public abstract void remove(long i);
 
-    public abstract void release(int i);
+    public abstract void release(long i);
 
     public abstract void commitPersistence(CachedObject object);
 
@@ -244,7 +248,7 @@ public abstract class RowStoreAVL implements PersistentStore {
 
     public abstract void setAccessor(Index key, CachedObject accessor);
 
-    public abstract void setAccessor(Index key, int accessor);
+    public abstract void setAccessor(Index key, long accessor);
 
     public void resetAccessorKeys(Index[] keys) {
 
@@ -321,7 +325,7 @@ public abstract class RowStoreAVL implements PersistentStore {
         return indexList;
     }
 
-    public int elementCount() {
+    public long elementCount() {
 
         Index index = this.indexList[0];
 
@@ -332,7 +336,7 @@ public abstract class RowStoreAVL implements PersistentStore {
         return elementCount;
     }
 
-    public int elementCount(Session session) {
+    public long elementCount(Session session) {
 
         Index index = this.indexList[0];
 
@@ -359,11 +363,11 @@ public abstract class RowStoreAVL implements PersistentStore {
         return elementCount;
     }
 
-    public int elementCountUnique(Index index) {
+    public long elementCountUnique(Index index) {
         return 0;
     }
 
-    public void setElementCount(Index key, int size, int uniqueSize) {
+    public void setElementCount(Index key, long size, long uniqueSize) {
         elementCount = size;
     }
 

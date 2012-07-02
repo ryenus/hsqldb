@@ -31,7 +31,7 @@
 
 package org.hsqldb;
 
-import org.hsqldb.lib.IntLookup;
+import org.hsqldb.lib.LongLookup;
 import org.hsqldb.persist.CachedObject;
 import org.hsqldb.persist.PersistentStore;
 import org.hsqldb.rowio.RowOutputInterface;
@@ -40,11 +40,11 @@ import org.hsqldb.rowio.RowOutputInterface;
  * Base class for a database row object.
  *
  * @author Fred Toussi (fredt@users dot sourceforge dot net)
- * @version 2.0.1
+ * @version 2.2.9
  */
 public class Row implements CachedObject {
 
-    int                       position;
+    long                      position;
     Object[]                  rowData;
     public volatile RowAction rowAction;
     protected TableBase       table;
@@ -98,7 +98,7 @@ public class Row implements CachedObject {
         return 0;
     }
 
-    public int getPos() {
+    public long getPos() {
         return position;
     }
 
@@ -106,7 +106,7 @@ public class Row implements CachedObject {
         return ((long) table.getId() << 40) + position;
     }
 
-    public void setPos(int pos) {
+    public void setPos(long pos) {
         position = pos;
     }
 
@@ -148,7 +148,7 @@ public class Row implements CachedObject {
 
     public void write(RowOutputInterface out) {}
 
-    public void write(RowOutputInterface out, IntLookup lookup) {}
+    public void write(RowOutputInterface out, LongLookup lookup) {}
 
     /**
      * Lifetime scope of this method is limited depends on the operations
@@ -178,6 +178,6 @@ public class Row implements CachedObject {
      * @return file position of row
      */
     public int hashCode() {
-        return position;
+        return (int) position;
     }
 }

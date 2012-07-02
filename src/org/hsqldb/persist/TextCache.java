@@ -42,7 +42,7 @@ import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
 import org.hsqldb.lib.FileUtil;
 import org.hsqldb.lib.HsqlByteArrayOutputStream;
-import org.hsqldb.lib.IntKeyHashMap;
+import org.hsqldb.lib.LongKeyHashMap;
 import org.hsqldb.rowio.RowInputText;
 import org.hsqldb.rowio.RowInputTextQuoted;
 import org.hsqldb.rowio.RowOutputText;
@@ -68,7 +68,7 @@ import org.hsqldb.scriptio.ScriptWriterText;
  *
  * @author Bob Preston (sqlbob@users dot sourceforge.net)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.2.7
+ * @version 2.2.9
  * @since 1.7.0
  */
 public class TextCache extends DataFileCache {
@@ -79,7 +79,7 @@ public class TextCache extends DataFileCache {
     //state of Cache
     protected String          header;
     protected Table           table;
-    private IntKeyHashMap     uncommittedCache;
+    private LongKeyHashMap    uncommittedCache;
     HsqlByteArrayOutputStream buffer = new HsqlByteArrayOutputStream(128);
 
     //
@@ -97,7 +97,7 @@ public class TextCache extends DataFileCache {
         super(table.database, name);
 
         this.table       = table;
-        uncommittedCache = new IntKeyHashMap();
+        uncommittedCache = new LongKeyHashMap();
     }
 
     protected void initParams(Database database, String fileSettingsString) {
@@ -256,7 +256,7 @@ public class TextCache extends DataFileCache {
     /**
      * Does not extend the end of file.
      */
-    int setFilePos(CachedObject r) {
+    long setFilePos(CachedObject r) {
 
         int  rowSize         = r.getStorageSize();
         long newFreePosition = fileFreePosition + rowSize;
@@ -268,7 +268,7 @@ public class TextCache extends DataFileCache {
             throw Error.error(ErrorCode.DATA_FILE_IS_FULL);
         }
 
-        int i = (int) fileFreePosition;
+        long i = fileFreePosition;
 
         r.setPos(i);
         clearRowImage(r);
@@ -281,7 +281,7 @@ public class TextCache extends DataFileCache {
     /**
      *
      */
-    public void remove(int pos, PersistentStore store) {
+    public void remove(long pos, PersistentStore store) {
 
         writeLock.lock();
 
@@ -362,6 +362,13 @@ public class TextCache extends DataFileCache {
         writeLock.lock();
 
         try {
+
+            CachedObject existing = cache.get(object.getPos());
+
+            if (existing != null) {
+                return object;
+            }
+
             try {
                 buffer.reset(object.getStorageSize());
                 dataFile.seek(object.getPos());
@@ -373,7 +380,7 @@ public class TextCache extends DataFileCache {
 
                 ((RowInputText) rowIn).setSource(rowString, object.getPos(),
                                                  buffer.size());
-                store.get(rowIn);
+                store.get(object, rowIn);
                 cache.put(object.getPos(), object);
 
                 return object;
@@ -391,7 +398,7 @@ public class TextCache extends DataFileCache {
         }
     }
 
-    public CachedObject get(int i, PersistentStore store, boolean keep) {
+    public CachedObject get(long i, PersistentStore store, boolean keep) {
         throw Error.runtimeError(ErrorCode.U_S0500, "TextCache");
     }
 
