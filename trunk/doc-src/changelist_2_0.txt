@@ -1,6 +1,9 @@
+2 July 2012 SVN 5015 snapshot
+-- added integrated support for large data
 28 June 2012 SVN 5009 snapshot
 -- improved optimisation of queries with views and subqueries
 -- improved support for complex, nested queries
+-- improved name resolution in SQL statements in functions and triggers
 4 June 2012 SVN 4997
 -- fixed issue with server sometimes not exiting at shutdown
 -- fixed regression with recursive queries

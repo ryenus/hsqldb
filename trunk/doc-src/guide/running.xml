@@ -627,8 +627,8 @@
       </example></para>
 
     <para>A database has many optional properties, described in the <link
-    endterm="deployment-title" xlink:arcrole=""
-    xlink:href="#deployment-chapt"></link> chapter. You can specify most of
+    endterm="management-title" xlink:arcrole=""
+    xlink:href="#management-chapt"></link> chapter. You can specify most of
     these properties on the URL or in the connection properties for the first
     connection that creates the database. See the <link
     endterm="dbproperties-title" xlink:arcrole=""

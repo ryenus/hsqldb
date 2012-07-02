@@ -589,11 +589,11 @@
     scale, it is sometimes not practical to perform the first step of this
     procedure (with the old jar). You can ignore the first step but you may
     lose part of the database statements that are stored in the .log file.
-    Therefore you need test with databases created with your application to
+    Therefore you need to test with databases created with your application to
     make sure typical statements that are logged in the .log file are
     compatible with the new version. Examples of known incompatible statements
-    are those used for changing the data type or default values of
-    column.</para>
+    are some DDL statements used for changing the data type or default values
+    of column.</para>
 
     <para>A note about SHUTDOWN modes. SHUTDOWN COMPACT is equivalent to
     SHUTDOWN SCRIPT plus opening the database and then performing a simple
@@ -949,7 +949,7 @@
       the suggestions in the appropriate sections below. If you need to
       specify a specific version, follow the instructions in the
       range-versioning section but change the version range specifications to
-      literal versions like <literal>2.2.7</literal>.</para>
+      literal versions like <literal>2.2.9</literal>.</para>
     </section>
 
     <section>
