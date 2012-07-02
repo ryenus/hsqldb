@@ -547,7 +547,7 @@
     <title>Database Properties in Connection URL and Properties</title>
 
     <para>The database engine has several properties that are listed in the
-    <link endterm="deployment-title" xlink:href="#deployment-chapt"></link>
+    <link endterm="management-title" xlink:href="#management-chapt"></link>
     chapter. These properties can be changed via SQL commands after a
     connection is made to the database. It is possible to specify most of
     these properties in the connection properties or as part of the URL string
@@ -578,7 +578,7 @@
     the URL or in connection properties are listed. For each property that can
     also be set with an SQL statement, the statement is also given. These
     statements are described more extensively in the <link
-    endterm="deployment-title" xlink:href="#deployment-chapt"></link>
+    endterm="management-title" xlink:href="#management-chapt"></link>
     chapter.</para>
 
     <table frame="all" pgwide="1" tocentry="1">
@@ -1057,7 +1057,7 @@
       </table>
 
       <table frame="all" pgwide="1" tocentry="1">
-        <title>Decimal Scale of AVG Values</title>
+        <title>Decimal Scale of Division and AVG Values</title>
 
         <tgroup align="left" cols="3">
           <colspec colname="c1" colwidth="6.5cm" />
@@ -1126,7 +1126,7 @@
 
               <entry><literal>true</literal></entry>
 
-              <entry>behaviour expressions returning of DOUBLE NaN</entry>
+              <entry>behaviour of expressions returning DOUBLE NaN</entry>
             </row>
 
             <row>
@@ -1165,13 +1165,55 @@
 
               <entry><literal>true</literal></entry>
 
-              <entry>behaviour expressions returning of DOUBLE NaN</entry>
+              <entry>ordering of NULL values</entry>
             </row>
 
             <row>
-              <entry nameend="c3" namest="c1"><para>This property, when set
+              <entry nameend="c3" namest="c1"><para>By default, nulls appear
+              before not-null values when a result set is ordered without
+              specifying NULLS FIRST or NULLS LAST. This property, when set
               false, causes nulls to appear by default after not-null values
               in result sets with ORDER BY</para><para><programlisting>SET DATABASE SQL NULLS FIRST { TRUE | FALSE }</programlisting></para></entry>
+            </row>
+          </tbody>
+        </tgroup>
+      </table>
+
+      <table frame="all" pgwide="1" tocentry="1">
+        <title>String comparison with padding</title>
+
+        <tgroup align="left" cols="3">
+          <colspec colname="c1" colwidth="6.5cm" />
+
+          <colspec colname="c2" colwidth="1.5cm" />
+
+          <colspec colname="c3" />
+
+          <thead>
+            <row>
+              <entry>Name</entry>
+
+              <entry>Default</entry>
+
+              <entry>Description</entry>
+            </row>
+          </thead>
+
+          <tbody valign="top">
+            <row>
+              <entry><property>sql.pad_space</property></entry>
+
+              <entry><literal>true</literal></entry>
+
+              <entry>ordering of strings with trailing spaces</entry>
+            </row>
+
+            <row>
+              <entry nameend="c3" namest="c1"><para>By default, when two strings arecompared, he shorter string is
+              padded with spaces before comparison. When this property is set
+              false, no padding takes place before
+              comparison.</para><para>Before version 2.0, HSQLDB used NO PAD
+              comparison. If you need the old behaviour, use this property when opening an older database.</para><para><programlisting>SET DEFAULT COLLATION &lt;collation name&gt; [ NO PAD | PAD SPACE ]</programlisting></para></entry>
             </row>
           </tbody>
         </tgroup>
@@ -1673,6 +1715,46 @@
       </table>
 
       <table frame="all" pgwide="1" tocentry="1">
+        <title>Huge database files and tables</title>
+
+        <tgroup align="left" cols="3">
+          <colspec colname="c1" colwidth="6.5cm" />
+
+          <colspec colname="c2" colwidth="1.5cm" />
+
+          <colspec colname="c3" />
+
+          <thead>
+            <row>
+              <entry>Name</entry>
+
+              <entry>Default</entry>
+
+              <entry>Description</entry>
+            </row>
+          </thead>
+
+          <tbody valign="top">
+            <row>
+              <entry><property>hsqldb.large_data</property></entry>
+
+              <entry><literal>false</literal></entry>
+
+              <entry>enable huge database files</entry>
+            </row>
+
+            <row>
+              <entry nameend="c3" namest="c1"><para>By default, up to 2
+              billion rows can be stored in disk-based CACHED tables. Setting
+              this property to true increases the limit to 512 billion rows.
+              This property is used as a connection
+              property.</para><para><programlisting>this property cannot be set with an SQL statement - it can be used as a connection property for the connection that opens the database</programlisting></para></entry>
+            </row>
+          </tbody>
+        </tgroup>
+      </table>
+
+      <table frame="all" pgwide="1" tocentry="1">
         <title>Temporary Result Rows in Memory</title>
 
         <tgroup align="left" cols="3">
@@ -1953,16 +2035,17 @@
             <row>
               <entry><property>hsqldb.cache_file_scale</property></entry>
 
-              <entry><literal>8</literal></entry>
+              <entry><literal>32</literal></entry>
 
               <entry>unit used for storage of rows in the .data file</entry>
             </row>
 
             <row>
               <entry nameend="c3" namest="c1"><para>The default value
-              corresponds to a maximum size of 16 GB for the .data file. This
-              can be increased to 16, 32, 64 or 128, resulting in up to 256 GB
-              storage size.</para><para><programlisting>SET FILES SCALE &lt;numeric value&gt;</programlisting></para></entry>
+              corresponds to a maximum size of 64 GB for the .data file. This
+              can be increased to 64, 128, 256, 512, or 1024
+              resulting in up to 2 TB GB storage. Settings below 32 in older databases are preserved until a SHUTDOWN COMPACT
+              size.</para><para><programlisting>SET FILES SCALE &lt;numeric value&gt;</programlisting></para></entry>
             </row>
           </tbody>
         </tgroup>
@@ -2045,7 +2128,7 @@
               and shutdown.</para><para>When the property is false, the .data
               file is backed up entirely at the time of checkpoint and
               shutdown. Up to version 1.8, HSQLDB supported only full
-              backup.</para><para><programlisting>SET FILES INCREMENT BACKUP { TRUE | FALSE }</programlisting></para></entry>
+              backup.</para><para><programlisting>SET FILES BACKUP INCREMENT { TRUE | FALSE }</programlisting></para></entry>
             </row>
           </tbody>
         </tgroup>

@@ -1720,7 +1720,8 @@ UPDATE t SET scores[2] = 123, names[2] = 'Reds' WHERE id = 10
     the string.</para>
 
     <para>Indexes are used for ORDER BY clauses if the same index is used for
-    selection and ordering of rows. It is possible to force the use of index for ORDER BY.</para>
+    selection and ordering of rows. It is possible to force the use of index
+    for ORDER BY.</para>
   </section>
 
   <section xml:id="sgc_query_opt">
@@ -1825,8 +1826,8 @@ UPDATE t SET scores[2] = 123, names[2] = 'Reds' WHERE id = 10
       of building the whole result set, which can be huge. This also works for
       joined tables when the ORDER BY clause is on the columns of the first
       table in a join. Indexes are used in the same way when ORDER BY ... DESC
-      is specified in the query. Note that unlike other RDBMS, HyperSQL does
-      not need or create DESC indexes. It can use any ordinary, ascending
+      is specified in the query. Note that unlike some other RDBMS, HyperSQL
+      does not need or create DESC indexes. It can use any ordinary, ascending
       index for ORDER BY ... DESC.</para>
 
       <para>If there is an equality or range condition (e.g. EQUALS, GREATER
