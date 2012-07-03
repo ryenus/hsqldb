@@ -690,6 +690,13 @@ public class QuerySpecification extends QueryExpression {
                 }
             }
         }
+
+        if (isMergeable && !isAggregated && !isGrouped) {
+            list = expression.collectAllSubqueries(null);
+            if (list != null) {
+                isMergeable = false;
+            }
+        }
     }
 
     private Expression resolveColumnReferencesInGroupBy(Session session,
