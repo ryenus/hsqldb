@@ -863,6 +863,11 @@ public class RangeVariable implements Cloneable {
             if (!e.hasReference(ranges, exclude)) {
                 e         = e.duplicate();
                 e         = e.replaceColumnReferences(this, colExpr);
+
+                if (e.collectAllSubqueries(null) != null) {
+                    return;
+                }
+
                 condition = ExpressionLogical.andExpressions(condition, e);
             }
         }
