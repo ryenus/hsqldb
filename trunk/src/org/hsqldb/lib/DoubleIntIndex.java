@@ -44,7 +44,8 @@ import java.util.NoSuchElementException;
  * findXXX() methods return the array index into the list
  * pair containing a matching key or value, or  or -1 if not found.<p>
  *
- * Sorting methods originally contributed by Tony Lai.
+ * Sorting methods originally contributed by Tony Lai (tony_lai@users dot sourceforge.net).
+ * Non-recursive implementation of fast quicksort added by Sergio Bossa sbtourist@users dot sourceforge.net)
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
  * @version 2.2.9
@@ -258,6 +259,7 @@ public class DoubleIntIndex implements IntLookup, LongLookup {
     }
 
     public int add(long key, long value) {
+
         if (key > Integer.MAX_VALUE || key < Integer.MIN_VALUE) {
             throw new java.lang.IllegalArgumentException();
         }
@@ -314,12 +316,12 @@ public class DoubleIntIndex implements IntLookup, LongLookup {
     }
 
     public long lookup(long key) throws NoSuchElementException {
+
         if (key > Integer.MAX_VALUE || key < Integer.MIN_VALUE) {
             throw new NoSuchElementException();
         }
 
-        return lookup ((int) key);
-
+        return lookup((int) key);
     }
 
     public int lookup(int key) throws NoSuchElementException {
@@ -338,7 +340,8 @@ public class DoubleIntIndex implements IntLookup, LongLookup {
         return getValue(i);
     }
 
-    public long lookup (long key, long def) {
+    public long lookup(long key, long def) {
+
         if (key > Integer.MAX_VALUE || key < Integer.MIN_VALUE) {
             return def;
         }
@@ -564,7 +567,62 @@ public class DoubleIntIndex implements IntLookup, LongLookup {
         return low;
     }
 
+    public synchronized void sort() {
+        fastQuickSort();
+    }
+
+    /**
+     * fast quicksort using a stack on the heap to reduce stack use
+     */
     private synchronized void fastQuickSort() {
+
+        DoubleIntIndex indices   = new DoubleIntIndex(32, false);
+        int            threshold = 16;
+
+        indices.push(0, count - 1);
+
+        while (indices.size() > 0) {
+            int start = indices.peekKey();
+            int end   = indices.peekValue();
+
+            indices.pop();
+
+            if (end - start >= threshold) {
+                int pivot = partition(start, end, start + ((end - start) / 2));
+
+                indices.push(start, pivot - 1);
+                indices.push(pivot + 1, end);
+            } else {
+                insertionSort(start, end);
+            }
+        }
+
+        sorted = true;
+    }
+
+    private int partition(int start, int end, int pivot) {
+
+        int store = start;
+
+        swap(pivot, end);
+
+        for (int i = start; i <= end - 1; i++) {
+            if (lessThan(i, end)) {
+                swap(i, store);
+
+                store++;
+            }
+        }
+
+        swap(store, end);
+
+        return store;
+    }
+
+    /**
+     * fast quicksort with recursive quicksort implementation
+     */
+    private synchronized void fastQuickSortRecursive() {
 
         quickSort(0, count - 1);
         insertionSort(0, count - 1);
@@ -744,5 +802,44 @@ public class DoubleIntIndex implements IntLookup, LongLookup {
 
         keys[count]   = 0;
         values[count] = 0;
+    }
+
+    /**
+     * peek the key at top of stack
+     * @return int key
+     */
+    private int peekKey() {
+        return getKey(count - 1);
+    }
+
+    /**
+     * peek the value at top of stack
+     * @return int value
+     */
+    private int peekValue() {
+        return getValue(count - 1);
+    }
+
+    /**
+     * pop the pair at top of stack
+     * @return boolean if there was an element
+     */
+    private boolean pop() {
+
+        if (count > 0) {
+            count--;
+
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * push key, value pair
+     * @return boolean true if susseful
+     */
+    private boolean push(int key, int value) {
+        return addUnsorted(key, value);
     }
 }
