@@ -1616,8 +1616,14 @@ WIDTH_BUCKET( 200, 10, 110, 10)
       <para>These functions are equivalent to arithmetic addition and
       subtraction, &lt;datetime value expr&gt; + &lt;interval value expr&gt;
       and &lt;datetime value expr&gt; - &lt;interval value expr&gt;. The
-      functions are provided for compatibility with other databases.
-      (HyperSQL)</para>
+      functions are provided for compatibility with other databases. The
+      supported interval units are the standard SQL interval unit listed in
+      other chapters of this guide. (HyperSQL)</para>
+
+      <programlisting>DATE_ADD ( DATE '2008-11-22', INTERVAL 3 MONTH )
+
+TIMESTAMP_ADD ( TIMESTAMP '2008-11-22 20:30:40', INTERVAL 20 HOUR )
+</programlisting>
 
       <indexterm significance="preferred" type="sql">
         <primary>DATEADD function</primary>
@@ -1690,7 +1696,7 @@ WIDTH_BUCKET( 200, 10, 110, 10)
 
       <para>Similar to the ROUND function, the <literal>&lt;num value expr&gt;
       </literal>is of DATE, TIME or TIMESTAMP type. The <literal>&lt;char
-      value expr&gt;</literal> is a format string, such as 'YY' or 'MM', for
+      value expr&gt;</literal> is a format string (such as 'YY' or 'MM') for
       YEAR, MONTH, WEEK OF YEAR, DAY, HOUR, MINUTE or SECOND as listed in the
       table for TO_CHAR and TO_DATE format elements (see below). The datetime
       value is truncated after the specified field and the rest of the fields
@@ -1813,11 +1819,14 @@ TIMESTAMP '2008-11-22 20:30:40.000000'
       <para>The format strings that can be used for TO_DATE and TO_TIMESTAMP
       are more restrictive than those used for TO_CHAR, because the format
       string must contain the elements needed to build a full DATE or
-      TIMESTAMP value. The format is internally translated to a
+      TIMESTAMP value. For example, you cannot use the 'WW', 'W', 'HH' or
+      'HH12' format elements with TO_DATE or TO_TIMESTAMP</para>
+
+      <para>The format is internally translated to a
       <classname>java.text.SimpleDateFormat</classname> format string.
-      Unsupported format strings should not be used. You can include a string
-      literal inside the format string by enclosing it in double quotes.
-      (HyperSQL)</para>
+      Unsupported format strings should not be used. With TO_CHAR, you can
+      include a string literal inside the format string by enclosing it in
+      double quotes. (HyperSQL)</para>
 
       <para>The supported format components are all uppercase as
       follows:</para>
