@@ -39,8 +39,6 @@ import org.hsqldb.persist.TextCache;
 import org.hsqldb.persist.TextFileReader;
 import org.hsqldb.rowio.RowInputInterface;
 
-// tony_lai@users 20020820 - patch 595099 - user define PK name
-
 /**
  * Subclass of Table to handle TEXT data source. <p>
  *

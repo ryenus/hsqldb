@@ -38,7 +38,6 @@ import java.lang.reflect.Array;
  *
  * @author Campbell Boucher-Burnet (boucherb@users dot sourceforge.net)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @author Nitin Chauhan
  * @version 2.2.6
  * @since 1.7.0
  */
@@ -321,24 +320,6 @@ public class StringUtil {
         }
 
         return sb.toString();
-    }
-
-    /**
-     * Appends a pair of string to the string buffer, using the separator between
-     * and terminator at the end
-     * @param b the buffer
-     * @param s1 first string
-     * @param s2 second string
-     * @param separator separator string
-     * @param terminator terminator string
-     */
-    public static void appendPair(StringBuffer b, String s1, String s2,
-                                  String separator, String terminator) {
-
-        b.append(s1);
-        b.append(separator);
-        b.append(s2);
-        b.append(terminator);
     }
 
     /**
