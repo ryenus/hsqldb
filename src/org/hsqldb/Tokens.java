@@ -38,9 +38,8 @@ import org.hsqldb.lib.OrderedIntHashSet;
 /**
  * Defines and enumerates reserved and non-reserved SQL keywords.<p>
  *
- * @author Nitin Chauhan (initial work)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.2.7
+ * @version 2.2.9
  * @since 1.7.2
  */
 public class Tokens {
