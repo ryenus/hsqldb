@@ -39,8 +39,8 @@ import java.util.Comparator;
  *
  * Searches an ordered array.<p>
  *
- * @author Tony Lai
- * @author Fred Toussi
+ * @author Tony Lai (tony_lai@users dot sourceforge.net)
+ * @author Fred Toussi (fredt@users dot sourceforge.net)
  * @version 2.0.1
  * @since 1.9.0
  */

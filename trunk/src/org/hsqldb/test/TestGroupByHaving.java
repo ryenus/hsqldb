@@ -42,7 +42,7 @@ import junit.framework.TestCase;
 /**
  * Test cases for HSQL aggregates and HAVING clause.
  *
- * @author Tony Lai
+ * @author Tony Lai ((tony_lai@users dot sourceforge.net)
  */
 
 // fredt@users - modified to remove dependecy on DBUnit
