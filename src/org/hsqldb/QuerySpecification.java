@@ -693,6 +693,7 @@ public class QuerySpecification extends QueryExpression {
 
         if (isMergeable && !isAggregated && !isGrouped) {
             list = expression.collectAllSubqueries(null);
+
             if (list != null) {
                 isMergeable = false;
             }
@@ -1174,7 +1175,7 @@ public class QuerySpecification extends QueryExpression {
                 if (!exprColumns[i].isComposedOf(
                         exprColumns, indexLimitVisible,
                         indexLimitVisible + groupByColumnCount,
-                        Expression.subqueryAggregateExpressionSet)) {
+                        Expression.aggregateFunctionSet)) {
                     tempSet.add(exprColumns[i]);
                 }
             }
@@ -2331,6 +2332,31 @@ public class QuerySpecification extends QueryExpression {
     }
 
     public OrderedHashSet collectAllSubqueries(OrderedHashSet set) {
+        return set;
+    }
+
+    public OrderedHashSet collectOuterColumnExpressions(OrderedHashSet set,
+            OrderedHashSet exclude) {
+
+        set = collectAllExpressions(set, Expression.columnExpressionSet,
+                                    Expression.subqueryAggregateExpressionSet);
+
+        for (int i = set.size() - 1; i >= 0; i--) {
+            Expression col = (Expression) set.get(i);
+
+            if (ArrayUtil.find(rangeVariables, col.getRangeVariable()) >= 0) {
+                set.remove(i);
+            }
+
+            if (exclude.contains(col)) {
+                set.remove(i);
+            }
+        }
+
+        if (set.isEmpty()) {
+            set = null;
+        }
+
         return set;
     }
 

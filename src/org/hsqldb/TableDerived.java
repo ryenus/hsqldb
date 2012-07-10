@@ -506,4 +506,8 @@ public class TableDerived extends Table implements Comparator {
             return sqb.depth - sqa.depth;
         }
     }
+
+    public void setDataTimestamp(long timestamp) {
+        // no op
+    }
 }

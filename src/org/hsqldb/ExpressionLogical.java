@@ -232,6 +232,8 @@ public class ExpressionLogical extends Expression {
             switch (nodes[RIGHT].opType) {
 
                 case OpTypes.COLUMN :
+                    isColumnCondition = true;
+
                     if (opType == OpTypes.EQUAL) {
                         isColumnEqual = true;
                     }

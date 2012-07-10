@@ -1068,7 +1068,7 @@ public final class DateTimeType extends DTIType {
                                              "DateTimeType");
                 } else if (b instanceof IntervalSecondData) {
                     return addSeconds((TimeData) a,
-                                      (int) ((IntervalSecondData) b).units,
+                                      ((IntervalSecondData) b).units,
                                       ((IntervalSecondData) b).nanos);
                 }
                 break;
@@ -1081,7 +1081,7 @@ public final class DateTimeType extends DTIType {
                                      (int) ((IntervalMonthData) b).units);
                 } else if (b instanceof IntervalSecondData) {
                     return addSeconds((TimestampData) a,
-                                      (int) ((IntervalSecondData) b).units,
+                                      ((IntervalSecondData) b).units,
                                       ((IntervalSecondData) b).nanos);
                 }
                 break;
@@ -1116,7 +1116,7 @@ public final class DateTimeType extends DTIType {
                                              "DateTimeType");
                 } else if (b instanceof IntervalSecondData) {
                     return addSeconds((TimeData) a,
-                                      -(int) ((IntervalSecondData) b).units,
+                                      -((IntervalSecondData) b).units,
                                       -((IntervalSecondData) b).nanos);
                 }
                 break;
@@ -1129,7 +1129,7 @@ public final class DateTimeType extends DTIType {
                                      -(int) ((IntervalMonthData) b).units);
                 } else if (b instanceof IntervalSecondData) {
                     return addSeconds((TimestampData) a,
-                                      -(int) ((IntervalSecondData) b).units,
+                                      -((IntervalSecondData) b).units,
                                       -((IntervalSecondData) b).nanos);
                 }
                 break;
@@ -1663,8 +1663,7 @@ public final class DateTimeType extends DTIType {
         }
     }
 
-    /** @todo - overflow */
-    public static TimeData addSeconds(TimeData source, int seconds,
+    public static TimeData addSeconds(TimeData source, long seconds,
                                       int nanos) {
 
         nanos   += source.getNanos();
@@ -1680,7 +1679,7 @@ public final class DateTimeType extends DTIType {
         seconds += source.getSeconds();
         seconds %= (24 * 60 * 60);
 
-        TimeData ti = new TimeData(seconds, nanos, source.getZone());
+        TimeData ti = new TimeData((int) seconds, nanos, source.getZone());
 
         return ti;
     }
@@ -1703,8 +1702,7 @@ public final class DateTimeType extends DTIType {
         }
     }
 
-    /** @todo - overflow */
-    public static TimestampData addSeconds(TimestampData source, int seconds,
+    public static TimestampData addSeconds(TimestampData source, long seconds,
                                            int nanos) {
 
         nanos   += source.getNanos();

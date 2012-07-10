@@ -70,9 +70,12 @@ class TransactionManagerCommon {
     /** live transactions keeping committed transactions from being merged */
     LongDeque liveTransactionTimestamps = new LongDeque();
 
-    /** live transactions keeping committed transactions from being merged */
+    /** global timestamp for database */
     AtomicLong globalChangeTimestamp = new AtomicLong(1);
-    int        transactionCount      = 0;
+    long       globalDataChangeTimestamp;
+
+    //
+    int transactionCount = 0;
 
     //
     HashMap           tableWriteLocks = new HashMap();

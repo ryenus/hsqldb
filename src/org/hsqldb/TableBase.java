@@ -106,7 +106,7 @@ public class TableBase {
     protected boolean isLogged;
     private boolean   isTransactional = true;
     boolean           hasLobColumn;
-
+    long              dataTimestamp;
     //
     TableBase() {}
 
@@ -540,5 +540,9 @@ public class TableBase {
         return store == null
                ? session.sessionData.persistentStoreCollection.getStore(this)
                : store;
+    }
+
+    public void setDataTimestamp(long timestamp) {
+        // no op
     }
 }

@@ -80,6 +80,9 @@ public abstract class Statement {
     /** compileTimestamp */
     long compileTimestamp;
 
+    /** dataTimestamp */
+    long dataTimestamp;
+
     /** table names read - for concurrency control */
     HsqlName[] readTableNames = HsqlName.emptyArray;
 
@@ -119,10 +122,15 @@ public abstract class Statement {
 
     public void setCompileTimestamp(long ts) {
         compileTimestamp = ts;
+        dataTimestamp = ts;
     }
 
     public long getCompileTimestamp() {
         return compileTimestamp;
+    }
+
+    public long getDataTimestamp() {
+        return dataTimestamp;
     }
 
     public final void setSQL(String sql) {

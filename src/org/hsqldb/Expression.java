@@ -189,6 +189,7 @@ public class Expression implements Cloneable {
     int rangePosition = -1;
 
     //
+    boolean isColumnCondition;
     boolean isColumnEqual;
     boolean isSingleColumnCondition;
     boolean isSingleColumnEqual;
@@ -574,7 +575,6 @@ public class Expression implements Cloneable {
             case OpTypes.ARRAY :
             case OpTypes.ARRAY_SUBQUERY :
             case OpTypes.TABLE_SUBQUERY :
-            case OpTypes.ROW_SUBQUERY :
 
             //
             case OpTypes.COUNT :
@@ -589,6 +589,29 @@ public class Expression implements Cloneable {
             case OpTypes.VAR_POP :
             case OpTypes.VAR_SAMP :
                 return false;
+
+            case OpTypes.ROW_SUBQUERY : {
+                if (table == null) {
+                    break;
+                }
+
+                if (!(table.getQueryExpression()
+                        instanceof QuerySpecification)) {
+                    return false;
+                }
+
+                QuerySpecification qs =
+                    (QuerySpecification) table.getQueryExpression();
+                OrderedHashSet set = new OrderedHashSet();
+
+                for (int i = start; i < end; i++) {
+                    if (exprList[i].opType == OpTypes.COLUMN) {
+                        set.add(exprList[i]);
+                    }
+                }
+
+                return qs.collectOuterColumnExpressions(null, set) == null;
+            }
         }
 
         if (nodes.length == 0) {

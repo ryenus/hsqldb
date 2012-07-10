@@ -118,6 +118,10 @@ import org.hsqldb.types.Type;
  */
 public class IndexAVL implements Index {
 
+    private static final IndexRowIterator emptyIterator =
+        new IndexRowIterator(null, (PersistentStore) null, null, null, 0,
+                             false, false);
+
     // fields
     private final long       persistenceId;
     protected final HsqlName name;
@@ -134,11 +138,9 @@ public class IndexAVL implements Index {
     protected final boolean  isConstraint;
     private final boolean    isForward;
     private boolean          isClustered;
-    private static final IndexRowIterator emptyIterator =
-        new IndexRowIterator(null, (PersistentStore) null, null, null, 0,
-                             false, false);
-    protected TableBase table;
-    int                 position;
+    protected TableBase      table;
+    int                      position;
+    private IndexUse[]       asArray;
 
     //
     Object[] nullData;
@@ -183,6 +185,7 @@ public class IndexAVL implements Index {
         this.isForward     = forward;
         this.table         = table;
         this.colCheck      = table.getNewColumnCheckList();
+        this.asArray = new IndexUse[]{ new IndexUse(this, colIndex.length) };
 
         ArrayUtil.intIndexesToBooleanArray(colIndex, colCheck);
 
@@ -277,6 +280,10 @@ public class IndexAVL implements Index {
     }
 
     // IndexInterface
+    public IndexUse[] asArray() {
+        return asArray;
+    }
+
     public RowIterator emptyIterator() {
         return emptyIterator;
     }
@@ -410,9 +417,122 @@ public class IndexAVL implements Index {
         }
     }
 
-    public double selectivity(Session session, PersistentStore store,
-                              int count) {
-        return 1;
+    public double[] searchCost(Session session, PersistentStore store) {
+
+        boolean  probeDeeper = false;
+        int      counter     = 1;
+        double[] changes     = new double[colIndex.length];
+        int      depth       = 0;
+        int[]    depths      = new int[1];
+
+        readLock.lock();
+
+        try {
+            NodeAVL node = getAccessor(store);
+            NodeAVL temp = node;
+
+            if (node == null) {
+                return new double[colIndex.length];
+            }
+
+            while (true) {
+                node = temp;
+                temp = node.getLeft(store);
+
+                if (temp == null) {
+                    break;
+                }
+
+                if (depth == Index.probeDepth) {
+                    probeDeeper = true;
+
+                    break;
+                }
+
+                depth++;
+            }
+
+            while (true) {
+                temp  = next(store, node, depth, probeDepth, depths);
+                depth = depths[0];
+
+                if (temp == null) {
+                    break;
+                }
+
+                compareRowForChange(session, node.getData(store),
+                                    temp.getData(store), changes);
+
+                node = temp;
+
+                counter++;
+            }
+
+            if (probeDeeper) {
+                double[] factors = new double[colIndex.length];
+                int extras = probeFactor(session, store, factors, true)
+                             + probeFactor(session, store, factors, false);
+
+                for (int i = 0; i < colIndex.length; i++) {
+                    factors[i] /= 2;
+
+                    for (int j = 0; j < factors[i]; j++) {
+                        changes[i] *= 2;
+                    }
+                }
+            }
+
+            long rowCount = store.elementCount();
+
+            for (int i = 0; i < colIndex.length; i++) {
+                if (changes[i] == 0) {
+                    changes[i] = 1;
+                }
+
+                changes[i] = rowCount / changes[i];
+
+                if (changes[i] < 2) {
+                    changes[i] = 2;
+                }
+            }
+
+            StringBuffer s = new StringBuffer();
+
+            s.append("count " + rowCount + " columns " + colIndex.length
+                     + " selectivity " + changes[0]);
+            System.out.println(s);
+
+            return changes;
+        } finally {
+            readLock.unlock();
+        }
+    }
+
+    int probeFactor(Session session, PersistentStore store, double[] changes,
+                    boolean left) {
+
+        int     depth = 0;
+        NodeAVL x     = getAccessor(store);
+        NodeAVL n     = x;
+
+        if (x == null) {
+            return 0;
+        }
+
+        while (n != null) {
+            x = n;
+            n = left ? x.getLeft(store)
+                     : x.getRight(store);
+
+            depth++;
+
+            if (depth > probeDepth && n != null) {
+                compareRowForChange(session, x.getData(store),
+                                    n.getData(store), changes);
+            }
+        }
+
+        return depth - probeDepth;
     }
 
     public int getNodeCount(Session session, PersistentStore store) {
@@ -623,6 +743,22 @@ public class IndexAVL implements Index {
         }
 
         return 0;
+    }
+
+    public void compareRowForChange(Session session, Object[] a, Object[] b,
+                                    double[] changes) {
+
+        for (int j = 0; j < colIndex.length; j++) {
+            boolean lastDiff = false;
+            int i = colTypes[j].compare(session, a[colIndex[j]],
+                                        b[colIndex[j]]);
+
+            if (lastDiff || i != 0) {
+                changes[j]++;
+
+                lastDiff = true;
+            }
+        }
     }
 
     public int compareRow(Session session, Object[] a, Object[] b) {
@@ -1317,6 +1453,53 @@ public class IndexAVL implements Index {
             temp = x;
             x    = x.getParent(store);
         }
+
+        return x;
+    }
+
+    NodeAVL next(PersistentStore store, NodeAVL x, int depth, int maxDepth,
+                 int[] depths) {
+
+        NodeAVL temp = depth == maxDepth ? null
+                                         : x.getRight(store);
+
+        if (temp != null) {
+            depth++;
+
+            x    = temp;
+            temp = depth == maxDepth ? null
+                                     : x.getLeft(store);
+
+            while (temp != null) {
+                depth++;
+
+                x = temp;
+
+                if (depth == maxDepth) {
+                    temp = null;
+                } else {
+                    temp = x.getLeft(store);
+                }
+            }
+
+            depths[0] = depth;
+
+            return x;
+        }
+
+        temp = x;
+        x    = x.getParent(store);
+
+        depth--;
+
+        while (x != null && x.isRight(temp)) {
+            temp = x;
+            x    = x.getParent(store);
+
+            depth--;
+        }
+
+        depths[0] = depth;
 
         return x;
     }
