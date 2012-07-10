@@ -55,7 +55,7 @@ import org.hsqldb.rights.Grantee;
  *  Development of the trigger implementation sponsored by Logicscope
  *  Realisations Ltd
  *
- * @author Peter Hudson (peterhudson@users dot sourceforge.net)- Logicscope Realisations Ltd
+ * @author Peter Hudson (peterhudson@users dot sourceforge.net)
  * @version  2.0.1
  * @since hsqldb 1.61
  */

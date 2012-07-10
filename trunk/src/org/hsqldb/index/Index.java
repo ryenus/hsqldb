@@ -57,7 +57,10 @@ public interface Index extends SchemaObject {
     int    probeDepth         = 4;
 
     //
-    Index[] emptyArray = new Index[]{};
+    Index[]    emptyArray    = new Index[]{};
+    IndexUse[] emptyUseArray = new IndexUse[]{};
+
+    IndexUse[] asArray();
 
     RowIterator emptyIterator();
 
@@ -136,6 +139,8 @@ public interface Index extends SchemaObject {
     public long size(Session session, PersistentStore store);
 
     public long sizeUnique(PersistentStore store);
+
+    public double[] searchCost(Session session, PersistentStore store);
 
     public boolean isEmpty(PersistentStore store);
 
@@ -239,4 +244,15 @@ public interface Index extends SchemaObject {
                                    int fieldcount);
 
     public int compareRow(Session session, Object[] a, Object[] b);
+
+    public static class IndexUse {
+
+        public Index index;
+        public int   columnCount;
+
+        public IndexUse(Index index, int columnCount) {
+            this.index       = index;
+            this.columnCount = columnCount;
+        }
+    }
 }

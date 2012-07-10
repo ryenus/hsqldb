@@ -130,6 +130,9 @@ public interface PersistentStore {
 
     void setAccessor(Index key, long accessor);
 
+    public double searchCost(Session session, Index idx, int count,
+                              int opType);
+
     long elementCount();
 
     long elementCount(Session session);

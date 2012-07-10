@@ -239,7 +239,11 @@ public class RangeVariable implements Cloneable {
         }
     }
 
-    public void addAllColumns() {}
+    public void addAllColumns() {
+        if (usedColumns != null) {
+            ArrayUtil.fillArray(usedColumns, true);
+        }
+    }
 
     public void addNamedJoinColumnExpression(String name, Expression e) {
 

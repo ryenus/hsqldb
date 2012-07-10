@@ -36,6 +36,7 @@ import org.hsqldb.RangeVariable.RangeIteratorBase;
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
 import org.hsqldb.index.Index;
+import org.hsqldb.index.Index.IndexUse;
 import org.hsqldb.lib.ArrayUtil;
 import org.hsqldb.lib.HashMappedList;
 import org.hsqldb.lib.HsqlArrayList;
@@ -57,9 +58,7 @@ import org.hsqldb.types.Collation;
 import org.hsqldb.types.Type;
 
 /**
- * Holds the data structures and methods for creation of a database table.
- *
- * Extensively rewritten and extended in successive versions of HSQLDB.
+ * Holds the data structures and methods for creation of a named database table.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
  * @version 2.2.9
@@ -2351,8 +2350,10 @@ public class Table extends TableBase implements SchemaObject {
         int i = bestIndexForColumn[col];
 
         if (i > -1) {
-            return indexList[i].isUnique() ? Index.INDEX_UNIQUE
-                                           : Index.INDEX_NON_UNIQUE;
+            return indexList[i].isUnique()
+                   && indexList[i].getColumnCount() == 1 ? Index.INDEX_UNIQUE
+                                                         : Index
+                                                         .INDEX_NON_UNIQUE;
         }
 
         switch (tableType) {
@@ -2419,20 +2420,18 @@ public class Table extends TableBase implements SchemaObject {
      *
      * synchronized required for shared INFORMATION_SCHEMA etc. tables
      */
-    synchronized Index getIndexForColumns(Session session,
-                                          OrderedIntHashSet set,
-                                          boolean ordered) {
+    synchronized IndexUse[] getIndexForColumns(Session session,
+            OrderedIntHashSet set, int opType, boolean ordered) {
 
-        int   maxMatchCount = 0;
-        Index selected      = null;
+        IndexUse[] indexUse = Index.emptyUseArray;
 
         if (set.isEmpty()) {
-            return null;
+            return Index.emptyUseArray;
         }
 
         for (int i = 0, count = indexList.length; i < count; i++) {
-            Index currentindex = getIndex(i);
-            int[] indexcols    = currentindex.getColumns();
+            Index currentIndex = getIndex(i);
+            int[] indexcols    = currentIndex.getColumns();
             int matchCount = ordered ? set.getOrderedStartMatchCount(indexcols)
                                      : set.getStartMatchCount(indexcols);
 
@@ -2441,29 +2440,46 @@ public class Table extends TableBase implements SchemaObject {
             }
 
             if (matchCount == set.size()) {
-                return currentindex;
+                return currentIndex.asArray();
             }
 
-            if (matchCount > maxMatchCount) {
-                maxMatchCount = matchCount;
-                selected      = currentindex;
+            if (matchCount == currentIndex.getColumnCount()) {
+                if (currentIndex.isUnique()) {
+                    return currentIndex.asArray();
+                }
+            }
+
+            if (indexUse.length == 0
+                    && matchCount == currentIndex.getColumnCount()) {
+                indexUse = currentIndex.asArray();
+            } else {
+                IndexUse[] newList = new IndexUse[indexUse.length + 1];
+
+                ArrayUtil.copyArray(indexUse, newList, indexUse.length);
+
+                newList[newList.length - 1] = new IndexUse(currentIndex,
+                        matchCount);
+                indexUse = newList;
             }
         }
 
         // index is not full;
         switch (tableType) {
 
-//            case TableBase.MEMORY_TABLE :
             case TableBase.FUNCTION_TABLE :
             case TableBase.SYSTEM_SUBQUERY :
             case TableBase.INFO_SCHEMA_TABLE :
             case TableBase.VIEW_TABLE :
             case TableBase.TEMP_TABLE : {
-                selected = createIndexForColumns(session, set.toArray());
+                Index selected = createIndexForColumns(session, set.toArray());
+
+                if (selected != null) {
+                    indexUse = selected.asArray();
+                }
             }
         }
 
-        return selected;
+        return indexUse;
     }
 
     /**
@@ -2922,6 +2938,10 @@ public class Table extends TableBase implements SchemaObject {
         }
 
         return database.persistentStoreCollection.getStore(this);
+    }
+
+    public void setDataTimestamp(long timestamp) {
+        dataTimestamp = timestamp;
     }
 
     public QueryExpression getQueryExpression() {

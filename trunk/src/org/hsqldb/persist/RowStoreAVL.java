@@ -34,6 +34,7 @@ package org.hsqldb.persist;
 import org.hsqldb.ColumnSchema;
 import org.hsqldb.Database;
 import org.hsqldb.HsqlException;
+import org.hsqldb.OpTypes;
 import org.hsqldb.Row;
 import org.hsqldb.RowAVL;
 import org.hsqldb.Session;
@@ -65,8 +66,11 @@ public abstract class RowStoreAVL implements PersistentStore {
     Index[]                   indexList    = Index.emptyArray;
     CachedObject[]            accessorList = CachedObject.emptyArray;
     TableBase                 table;
+    long                      baseElementCount;
     long                      elementCount;
     boolean[]                 nullsList;
+    double[][]                searchCost;
+    boolean                   isSchemaStore;
 
     // for result tables
     // for INFORMATION SCHEMA tables
@@ -163,6 +167,11 @@ public abstract class RowStoreAVL implements PersistentStore {
         row.delete(this);
 
         elementCount--;
+
+        if (elementCount > 16 * 1024 && elementCount < baseElementCount / 2) {
+            baseElementCount = elementCount;
+            searchCost       = null;
+        }
     }
 
     public void indexRow(Session session, Row row) {
@@ -195,6 +204,12 @@ public abstract class RowStoreAVL implements PersistentStore {
             }
 
             elementCount++;
+
+            if (elementCount > 16 * 1024
+                    && elementCount > baseElementCount * 2) {
+                baseElementCount = elementCount;
+                searchCost       = null;
+            }
         } catch (HsqlException e) {
             int count = i;
 
@@ -253,6 +268,8 @@ public abstract class RowStoreAVL implements PersistentStore {
     public void resetAccessorKeys(Index[] keys) {
 
         Index[] oldIndexList = indexList;
+
+        searchCost = null;
 
         if (indexList.length == 0 || accessorList[0] == null) {
             indexList    = keys;
@@ -323,6 +340,31 @@ public abstract class RowStoreAVL implements PersistentStore {
 
     public Index[] getAccessorKeys() {
         return indexList;
+    }
+
+    public synchronized double searchCost(Session session, Index index,
+                                          int count, int opType) {
+
+        if (opType != OpTypes.EQUAL) {
+            return elementCount / 2;
+        }
+
+        if (index.isUnique() && count == index.getColumnCount()) {
+            return 1;
+        }
+
+        int position = index.getPosition();
+
+        if (searchCost == null || searchCost.length <= position) {
+            searchCost = new double[indexList.length][];
+        }
+
+        if (searchCost[position] == null) {
+            searchCost[index.getPosition()] =
+                indexList[index.getPosition()].searchCost(session, this);
+        }
+
+        return searchCost[index.getPosition()][count - 1];
     }
 
     public long elementCount() {
