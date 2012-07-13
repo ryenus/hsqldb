@@ -59,6 +59,7 @@ import org.hsqldb.persist.PersistentStore;
 public class RangeVariableResolver {
 
     Session         session;
+    QuerySpecification select;
     RangeVariable[] rangeVariables;
     Expression      conditions;
     OrderedHashSet  rangeVarSet = new OrderedHashSet();
@@ -94,6 +95,7 @@ public class RangeVariableResolver {
 
     RangeVariableResolver(QuerySpecification select) {
 
+        this.select         = select;
         this.rangeVariables = select.rangeVariables;
         this.conditions     = select.queryCondition;
         this.compileContext = select.compileContext;
@@ -237,6 +239,28 @@ public class RangeVariableResolver {
         reorder();
         assignToLists();
         assignToRangeVariables();
+
+        // rangePositionInJoin and the two bounds are used only together, regardless of any IN ranges added
+        if (select != null) {
+            select.startInnerRange = 0;
+            select.endInnerRange   = rangeVariables.length;
+
+            if (firstRightJoinIndex < rangeVariables.length) {
+                select.startInnerRange = firstRightJoinIndex;
+            }
+
+            if (firstLeftJoinIndex < rangeVariables.length) {
+                select.endInnerRange = firstLeftJoinIndex;
+            }
+        }
+
+        for (int i = 0; i < rangeVariables.length; i++) {
+            rangeVariables[i].rangePositionInJoin = i;
+        }
+
+        if (expandInExpression && inExpressionCount != 0) {
+            setInConditionsAsTables();
+        }
     }
 
     /**
@@ -601,10 +625,10 @@ public class RangeVariableResolver {
             }
         }
 
-        reorderedRanges(starts, joins);
+        reorderRanges(starts, joins);
     }
 
-    void reorderedRanges(HsqlArrayList starts, HsqlArrayList joins) {
+    void reorderRanges(HsqlArrayList starts, HsqlArrayList joins) {
 
         if (starts.size() == 0) {
             return;
@@ -650,7 +674,7 @@ public class RangeVariableResolver {
                     index = table.getIndexForColumn(session, colIndex);
 
                     if (index != null) {
-                        cost = table.getRowStore(session).elementCount();
+                        cost = table.getRowStore(session).elementCount() / 2;
 
                         if (colIndexSetOther.get(colIndex, 0) > 1) {
                             cost /= 2;
@@ -903,10 +927,6 @@ public class RangeVariableResolver {
 
                 assignToRangeVariable(conditions, whereExpressions[i]);
             }
-        }
-
-        if (expandInExpression && inExpressionCount != 0) {
-            setInConditionsAsTables();
         }
     }
 

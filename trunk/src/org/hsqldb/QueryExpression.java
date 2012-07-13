@@ -502,7 +502,7 @@ public class QueryExpression implements RangeGroup {
             }
         }
 
-        if (unionCorresponding) {
+        if (unionCorresponding || isRecursive) {
             resultMetaData = leftQueryExpression.getMetaData().getNewMetaData(
                 leftQueryExpression.unionColumnMap);
 

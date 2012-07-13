@@ -91,7 +91,8 @@ public class ExpressionValue extends Expression {
         switch (opType) {
 
             case OpTypes.VALUE :
-                sb.append("VALUE = ").append(valueData);
+                sb.append("VALUE = ").append(
+                    dataType.convertToSQLString(valueData));
                 sb.append(", TYPE = ").append(dataType.getNameString());
 
                 return sb.toString();

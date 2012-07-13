@@ -103,7 +103,7 @@ public class QuerySpecification extends QueryExpression {
     public boolean isUniqueResultRows;
 
     //
-    Type[]                    columnTypes;
+    Type[]                    resultColumnTypes;
     private ArrayListIdentity aggregateSet;
 
     //
@@ -230,30 +230,6 @@ public class QuerySpecification extends QueryExpression {
 
             rangeVariables[i].resolveRangeTable(session, rangeGroup,
                                                 rangeGroups);
-
-            rangeVariables[i].rangePositionInJoin = i;
-
-            if (rangeVariables[i].isLeftJoin) {
-                if (endInnerRange == -1) {
-                    endInnerRange = i;
-                }
-            }
-
-            if (rangeVariables[i].isRightJoin) {
-                startInnerRange = i;
-            }
-        }
-
-        if (startInnerRange < 0) {
-            startInnerRange = 0;
-        }
-
-        if (endInnerRange < 0) {
-            endInnerRange = rangeVariables.length;
-        }
-
-        if (startInnerRange > endInnerRange) {
-            endInnerRange = rangeVariables.length;
         }
     }
 
@@ -419,6 +395,7 @@ public class QuerySpecification extends QueryExpression {
         checkLobUsage();
         setMergeability();
         setUpdatability();
+        setResultColumnTypes();
         createResultMetaData(session);
         createTable(session);
 
@@ -444,6 +421,8 @@ public class QuerySpecification extends QueryExpression {
         for (int i = 0; i < rangeVariables.length; i++) {
             rangeVariables[i].resolveRangeTableTypes(session, rangeVariables);
         }
+
+        setResultNullability();
 
         rangeVariableList = null;
         tempSet           = null;
@@ -1671,72 +1650,15 @@ public class QuerySpecification extends QueryExpression {
 
     private void createResultMetaData(Session session) {
 
-        columnTypes = new Type[indexLimitData];
-
-        for (int i = 0; i < indexStartAggregates; i++) {
-            Expression e = exprColumns[i];
-
-            columnTypes[i] = e.getDataType();
-        }
-
-        for (int i = indexLimitVisible; i < indexLimitRowId; i++) {
-            if (i == indexLimitVisible) {
-                columnTypes[i] = Type.SQL_BIGINT;
-            } else {
-                columnTypes[i] = Type.SQL_ALL_TYPES;
-            }
-        }
-
-        for (int i = indexLimitRowId; i < indexLimitData; i++) {
-            Expression e = exprColumns[i];
-
-            columnTypes[i] = e.getDataType();
-        }
-
-        resultMetaData = ResultMetaData.newResultMetaData(columnTypes,
+        resultMetaData = ResultMetaData.newResultMetaData(resultColumnTypes,
                 columnMap, indexLimitVisible, indexLimitRowId);
 
         for (int i = 0; i < indexLimitVisible; i++) {
-            byte nullability = SchemaObject.Nullability.NULLABLE_UNKNOWN;
             Expression   e           = exprColumns[i];
             ColumnSchema tableColumn = null;
             ColumnBase   column;
 
             resultMetaData.columnTypes[i] = e.getDataType();
-
-            switch (e.getType()) {
-
-                case OpTypes.COLUMN :
-                    tableColumn = e.getColumn();
-
-                    if (tableColumn != null) {
-                        RangeVariable range = e.getRangeVariable();
-
-                        if (range != null) {
-                            if (range.rangePositionInJoin >= startInnerRange
-                                    && range.rangePositionInJoin
-                                       < endInnerRange) {
-                                resultMetaData.columns[i]      = tableColumn;
-                                resultMetaData.columnLabels[i] = e.getAlias();
-
-                                continue;
-                            }
-                        }
-                    }
-                    break;
-
-                case OpTypes.SEQUENCE :
-                case OpTypes.COALESCE :
-                case OpTypes.ROWNUM :
-                    nullability = SchemaObject.Nullability.NO_NULLS;
-                    break;
-
-                case OpTypes.VALUE :
-                    nullability = e.valueData == null
-                                  ? SchemaObject.Nullability.NULLABLE
-                                  : SchemaObject.Nullability.NO_NULLS;
-                    break;
-            }
 
             if (tableColumn == null) {
                 column = new ColumnBase();
@@ -1748,10 +1670,33 @@ public class QuerySpecification extends QueryExpression {
             }
 
             column.setType(e.getDataType());
-            column.setNullability(nullability);
 
             resultMetaData.columns[i]      = column;
             resultMetaData.columnLabels[i] = e.getAlias();
+        }
+    }
+
+    private void setResultNullability() {
+
+        for (int i = 0; i < indexLimitVisible; i++) {
+            Expression e           = exprColumns[i];
+            byte       nullability = e.getNullability();
+
+            if (e.opType == OpTypes.COLUMN) {
+                RangeVariable range = e.getRangeVariable();
+
+                if (range != null) {
+                    if (range.rangePositionInJoin >= startInnerRange
+                            && range.rangePositionInJoin < endInnerRange) {
+
+                        //
+                    } else {
+                        nullability = SchemaObject.Nullability.NULLABLE;
+                    }
+                }
+            }
+
+            resultMetaData.columns[i].setNullability(nullability);
         }
     }
 
@@ -1801,17 +1746,39 @@ public class QuerySpecification extends QueryExpression {
         resultTable.fullIndex = fullIndex;
     }
 
+    private void setResultColumnTypes() {
+
+        resultColumnTypes = new Type[indexLimitData];
+
+        for (int i = 0; i < indexStartAggregates; i++) {
+            Expression e = exprColumns[i];
+
+            resultColumnTypes[i] = e.getDataType();
+        }
+
+        for (int i = indexLimitVisible; i < indexLimitRowId; i++) {
+            if (i == indexLimitVisible) {
+                resultColumnTypes[i] = Type.SQL_BIGINT;
+            } else {
+                resultColumnTypes[i] = Type.SQL_ALL_TYPES;
+            }
+        }
+
+        for (int i = indexLimitRowId; i < indexLimitData; i++) {
+            Expression e = exprColumns[i];
+
+            resultColumnTypes[i] = e.getDataType();
+        }
+    }
+
     void createResultTable(Session session) {
 
-        HsqlName       tableName;
-        HashMappedList columnList;
-        int            tableType;
-
-        tableName = session.database.nameManager.getSubqueryTableName();
-        tableType = persistenceScope == TableBase.SCOPE_STATEMENT
-                    ? TableBase.SYSTEM_SUBQUERY
-                    : TableBase.RESULT_TABLE;
-        columnList = new HashMappedList();
+        HsqlName tableName =
+            session.database.nameManager.getSubqueryTableName();
+        int tableType = persistenceScope == TableBase.SCOPE_STATEMENT
+                        ? TableBase.SYSTEM_SUBQUERY
+                        : TableBase.RESULT_TABLE;
+        HashMappedList columnList = new HashMappedList();
 
         for (int i = 0; i < indexLimitVisible; i++) {
             Expression e          = exprColumns[i];
@@ -1833,7 +1800,7 @@ public class QuerySpecification extends QueryExpression {
 
         try {
             resultTable = new TableDerived(session.database, tableName,
-                                           tableType, columnTypes, columnList,
+                                           tableType, resultColumnTypes, columnList,
                                            ValuePool.emptyIntArray);
         } catch (Exception e) {}
     }
@@ -2482,13 +2449,13 @@ public class QuerySpecification extends QueryExpression {
 
     public Type[] getColumnTypes() {
 
-        if (columnTypes.length == indexLimitVisible) {
-            return columnTypes;
+        if (resultColumnTypes.length == indexLimitVisible) {
+            return resultColumnTypes;
         }
 
         Type[] types = new Type[indexLimitVisible];
 
-        ArrayUtil.copyArray(columnTypes, types, types.length);
+        ArrayUtil.copyArray(resultColumnTypes, types, types.length);
 
         return types;
     }

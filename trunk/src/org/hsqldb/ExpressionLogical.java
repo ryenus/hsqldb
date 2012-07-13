@@ -229,6 +229,8 @@ public class ExpressionLogical extends Expression {
     void setEqualityMode() {
 
         if (nodes[LEFT].opType == OpTypes.COLUMN) {
+            nodes[LEFT].nullability = SchemaObject.Nullability.NO_NULLS;
+
             switch (nodes[RIGHT].opType) {
 
                 case OpTypes.COLUMN :
@@ -237,6 +239,9 @@ public class ExpressionLogical extends Expression {
                     if (opType == OpTypes.EQUAL) {
                         isColumnEqual = true;
                     }
+
+                    nodes[RIGHT].nullability =
+                        SchemaObject.Nullability.NO_NULLS;
                     break;
 
                 case OpTypes.VALUE :
@@ -251,6 +256,8 @@ public class ExpressionLogical extends Expression {
                     break;
             }
         } else if (nodes[RIGHT].opType == OpTypes.COLUMN) {
+            nodes[RIGHT].nullability = SchemaObject.Nullability.NO_NULLS;
+
             switch (nodes[LEFT].opType) {
 
                 case OpTypes.VALUE :
@@ -518,7 +525,8 @@ public class ExpressionLogical extends Expression {
         switch (opType) {
 
             case OpTypes.VALUE :
-                sb.append("VALUE = ").append(valueData);
+                sb.append("VALUE = ").append(
+                    dataType.convertToSQLString(valueData));
                 sb.append(", TYPE = ").append(dataType.getNameString());
 
                 return sb.toString();

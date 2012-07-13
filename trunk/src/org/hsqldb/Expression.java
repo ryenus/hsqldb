@@ -195,6 +195,7 @@ public class Expression implements Cloneable {
     boolean isSingleColumnEqual;
     boolean isSingleColumnNull;
     boolean isSingleColumnNotNull;
+    byte    nullability = SchemaObject.Nullability.NULLABLE_UNKNOWN;
 
     //
     Collation collation;
@@ -379,7 +380,8 @@ public class Expression implements Cloneable {
         switch (opType) {
 
             case OpTypes.VALUE :
-                sb.append("VALUE = ").append(valueData);
+                sb.append("VALUE = ").append(
+                    dataType.convertToSQLString(valueData));
                 sb.append(", TYPE = ").append(dataType.getNameString());
 
                 return sb.toString();
@@ -1400,7 +1402,7 @@ public class Expression implements Cloneable {
     }
 
     byte getNullability() {
-        return SchemaObject.Nullability.NULLABLE_UNKNOWN;
+        return nullability;
     }
 
     Type getNodeDataType(int i) {

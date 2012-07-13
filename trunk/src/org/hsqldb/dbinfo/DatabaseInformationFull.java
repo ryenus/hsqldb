@@ -5291,8 +5291,9 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
             row[specific_schema]  = routine.getSchemaName().name;
             row[specific_name]    = routine.getSpecificName().name;
             row[jar_catalog]      = database.getCatalogName().name;
-            row[jar_schema] = database.schemaManager.getSQLJSchemaHsqlName();
-            row[jar_name]         = "CLASSPATH";
+            row[jar_schema] =
+                database.schemaManager.getSQLJSchemaHsqlName().name;
+            row[jar_name] = "CLASSPATH";
 
             t.insertSys(session, store, row);
         }
