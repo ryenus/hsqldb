@@ -220,7 +220,7 @@ public final class SortAndSlice {
             return;
         }
 
-        if (select == null || hasNullsLast) {
+        if (select == null) {
             return;
         }
 
@@ -229,6 +229,8 @@ public final class SortAndSlice {
         }
 
         colIndexes = new int[columnCount];
+
+        boolean isNullable = false;
 
         for (int i = 0; i < columnCount; i++) {
             Expression e = ((Expression) exprList.get(i)).getLeftNode();
@@ -243,6 +245,15 @@ public final class SortAndSlice {
             }
 
             colIndexes[i] = e.columnIndex;
+
+            if (e.getColumn().getNullability()
+                    != SchemaObject.Nullability.NO_NULLS) {
+                isNullable = true;
+            }
+        }
+
+        if (hasNullsLast && isNullable) {
+            return;
         }
 
         int count = ArrayUtil.countTrueElements(sortDescending);

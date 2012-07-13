@@ -340,9 +340,10 @@ public class RowSetNavigatorDataTable extends RowSetNavigatorData {
     public void union(Session session, RowSetNavigatorData other) {
 
         Object[] currentData;
+        int      colCount = table.getColumnTypes().length;
 
         removeDuplicates(session);
-        reset();
+        other.reset();
 
         while (other.hasNext()) {
             currentData = other.getNext();
@@ -352,7 +353,7 @@ public class RowSetNavigatorDataTable extends RowSetNavigatorData {
             if (!it.hasNext()) {
                 currentData =
                     (Object[]) ArrayUtil.resizeArrayIfDifferent(currentData,
-                        table.getColumnCount());
+                        colCount);
 
                 add(currentData);
             }
@@ -364,7 +365,6 @@ public class RowSetNavigatorDataTable extends RowSetNavigatorData {
     public void intersect(Session session, RowSetNavigatorData other) {
 
         removeDuplicates(session);
-        reset();
         other.sortFull(session);
 
         while (hasNext()) {
@@ -425,7 +425,6 @@ public class RowSetNavigatorDataTable extends RowSetNavigatorData {
     public void except(Session session, RowSetNavigatorData other) {
 
         removeDuplicates(session);
-        reset();
         other.sortFull(session);
 
         while (hasNext()) {
@@ -525,6 +524,8 @@ public class RowSetNavigatorDataTable extends RowSetNavigatorData {
                 lastRowData = currentData;
             }
         }
+
+        reset();
     }
 
     public void trim(int limitstart, int limitcount) {

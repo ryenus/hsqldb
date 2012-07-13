@@ -4365,7 +4365,6 @@ public class ParserDQL extends ParserBase {
         queryExpression.recursiveTable = td;
 
         queryExpression.resolve(session);
-        queryExpression.createTable(session);
 
         TableDerived maintd = newSubQueryTable(name, queryExpression,
                                                OpTypes.TABLE_SUBQUERY);

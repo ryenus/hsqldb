@@ -138,7 +138,7 @@ public class TableBase {
         copy.persistenceId    = database.persistentStoreCollection.getNextId();
         copy.database         = database;
         copy.colTypes         = colTypes;
-        copy.columnCount      = colTypes.length;
+        copy.columnCount      = columnCount;
         copy.primaryKeyCols   = primaryKeyCols;
         copy.primaryKeyTypes  = primaryKeyTypes;
         copy.indexList        = indexList;

@@ -2053,6 +2053,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
         resultSetMetaData = null;
         pmd               = null;
         connection        = null;
+        session           = null;
         resultIn          = null;
         resultOut         = null;
         isClosed          = true;

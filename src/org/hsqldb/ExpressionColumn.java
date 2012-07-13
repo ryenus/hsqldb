@@ -230,7 +230,11 @@ public class ExpressionColumn extends Expression {
         switch (opType) {
 
             case OpTypes.COLUMN :
-                return column.getNullability();
+                if (nullability == SchemaObject.Nullability.NULLABLE_UNKNOWN) {
+                    return column.getNullability();
+                }
+
+                return nullability;
 
             case OpTypes.SEQUENCE :
             case OpTypes.COALESCE :
@@ -780,6 +784,7 @@ public class ExpressionColumn extends Expression {
     protected String describe(Session session, int blanks) {
 
         StringBuffer sb = new StringBuffer(64);
+
         for (int i = 0; i < blanks; i++) {
             sb.append(' ');
         }
@@ -836,7 +841,6 @@ public class ExpressionColumn extends Expression {
 
             // shouldn't get here
         }
-
 
         sb.append('\n');
 
