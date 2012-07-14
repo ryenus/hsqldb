@@ -73,8 +73,8 @@ import org.hsqldb.HsqlException;
  * N.b. The JDBC Spec does not state whether the prepare and forget
  * methods are XAResource-specific or XADataSource-specific.
  *
- * @version 2.0.1
- * @since HSQLDB v. 1.9.0
+ * @version 2.2.9
+ * @since 2.0.0
  * @author Blaine Simpson (blaine dot simpson at admc dot com)
  * @see javax.transaction.xa.XAResource
  */
@@ -109,8 +109,10 @@ public class JDBCXAResource implements XAResource {
     }
 
     /**
-     * @throws XAException if the given Xid is the not the Xid of the
-     *                     current transaction for this XAResource object.
+     *
+     * @throws XAException if the given Xid is the not the Xid of the current
+     *   transaction for this XAResource object.
+     * @param xid Xid
      */
     private void validateXid(Xid xid) throws XAException {
 
@@ -130,9 +132,12 @@ public class JDBCXAResource implements XAResource {
     }
 
     /**
-     * @param connection A non-wrapped JDBCConnection which we need in
-     *        order to do real (non-wrapped) commits, rollbacks, etc.
-     *        This is not for the end user.  We need the real thing.
+     * Constructs a resource using the given data source and connection.
+     *
+     * @param xaDataSource JDBCXADataSource
+     * @param connection A non-wrapped JDBCConnection which we need in order to
+     *   do real (non-wrapped) commits, rollbacks, etc. This is not for the end
+     *   user. We need the real thing.
      */
     public JDBCXAResource(JDBCXADataSource xaDataSource,
                           JDBCConnection connection) {
@@ -145,9 +150,13 @@ public class JDBCXAResource implements XAResource {
     }
 
     /**
-     * Per the JDBC 3.0 spec, this commits the transaction for the
-     * specified Xid, not necessarily for the transaction associated
-     * with this XAResource object.
+     * Per the JDBC 3.0 spec, this commits the transaction for the specified
+     * Xid, not necessarily for the transaction associated with this XAResource
+     * object.
+     *
+     * @param xid Xid
+     * @param onePhase boolean
+     * @throws XAException
      */
     public void commit(Xid xid, boolean onePhase) throws XAException {
 
@@ -169,17 +178,11 @@ public class JDBCXAResource implements XAResource {
     /**
      * This commits the connection associated with <i>this</i> XAResource.
      *
-     * @throws javax.transaction.xa.XAException generically, since the more
-     * specific exceptions require a JTA API to compile.
-     */
-    /*
-    * @throws javax.transaction.HeuristicRollbackException
-    *         if work was rolled back.
-    *         since these specific exceptions require a JTA API.
-    * @throws javax.transaction.HeuristicMixedException
-    *         if some work was committed and some work was rolled back
-    */
-    public void commitThis(boolean onePhase) throws XAException {
+     * @throws XAException generically, since the more specific exceptions
+     *   require a JTA API to compile.
+      * @param onePhase boolean
+      */
+     public void commitThis(boolean onePhase) throws XAException {
 
         if (onePhase && state == XA_STATE_PREPARED) {
             throw new XAException(
@@ -241,15 +244,15 @@ public class JDBCXAResource implements XAResource {
     }
 
     /**
-     * The XAResource API spec indicates implies that this is only for
-     * 2-phase transactions.
-     * I guess that one-phase transactions need to call rollback() to abort.
-     *
-     * I think we want this JDBCXAResource instance to be garbage-collectable
-     * after (a) this method is called, and (b) the tx manager releases its
-     * handle to it.
+     * The XAResource API spec indicates implies that this is only for 2-phase
+     * transactions. I guess that one-phase transactions need to call rollback()
+     * to abort. I think we want this JDBCXAResource instance to be
+     * garbage-collectable after (a) this method is called, and (b) the tx
+     * manager releases its handle to it.
      *
      * @see javax.transaction.xa.XAResource#forget(Xid)
+     * @param xid Xid
+     * @throws XAException
      */
     public void forget(Xid xid) throws XAException {
 
@@ -272,16 +275,23 @@ public class JDBCXAResource implements XAResource {
         state = XA_STATE_INITIAL;
     }
 
-    /** @todo:  Implement */
+    /**
+     *
+     * @todo: Implement
+     * @throws XAException
+     * @return int
+     */
     public int getTransactionTimeout() throws XAException {
         throw new XAException("Transaction timeouts not implemented yet");
     }
 
     /**
-     * Stub.  See implementation comment in the method for why this is
-     * not implemented yet.
+     * Stub. See implementation comment in the method for why this is not
+     * implemented yet.
      *
      * @return false.
+     * @param xares XAResource
+     * @throws XAException
      */
     public boolean isSameRM(XAResource xares) throws XAException {
 
@@ -293,10 +303,12 @@ public class JDBCXAResource implements XAResource {
     }
 
     /**
-     * Vote on whether to commit the global transaction.
-     * We assume Xid may be different from this, as in commit() method.
+     * Vote on whether to commit the global transaction. We assume Xid may be
+     * different from this, as in commit() method.
+     *
      * @throws XAException to vote negative.
-     * @return commitType of XA_RDONLY or XA_OK.  (Actually only XA_OK now).
+     * @return commitType of XA_RDONLY or XA_OK. (Actually only XA_OK now).
+     * @param xid Xid
      */
     public int prepare(Xid xid) throws XAException {
 
@@ -341,20 +353,26 @@ public class JDBCXAResource implements XAResource {
     }
 
     /**
-     * Obtain a list of Xids of the current <i>resource manager</i>
-     * for XAResources currently in the 'prepared' * state.
+     * Obtain a list of Xids of the current <i>resource manager</i> for
+     * XAResources currently in the 'prepared' * state. According to the JDBC
+     * 3.0 spec, the Xids of a specific resource manager are those of the same
+     * XADataSource.
      *
-     * According to the JDBC 3.0 spec, the Xids of a specific resource
-     * manager are those of the same XADataSource.
+     * @param flag int
+     * @throws XAException
+     * @return Xid[]
      */
     public Xid[] recover(int flag) throws XAException {
         return xaDataSource.getPreparedXids();
     }
 
     /**
-     * Per the JDBC 3.0 spec, this rolls back the transaction for the
-     * specified Xid, not necessarily for the transaction associated
-     * with this XAResource object.
+     * Per the JDBC 3.0 spec, this rolls back the transaction for the specified
+     * Xid, not necessarily for the transaction associated with this XAResource
+     * object.
+     *
+     * @param xid Xid
+     * @throws XAException
      */
     public void rollback(Xid xid) throws XAException {
 
@@ -400,7 +418,11 @@ public class JDBCXAResource implements XAResource {
     }
 
     /**
-     * @todo:  Implement
+     *
+     * @todo: Implement
+     * @param seconds int
+     * @throws XAException
+     * @return boolean
      */
     public boolean setTransactionTimeout(int seconds) throws XAException {
         throw new XAException("Transaction timeouts not implemented yet");

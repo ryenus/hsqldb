@@ -51,7 +51,7 @@ import org.hsqldb.store.ValuePool;
  * allow saving and loading.<p>
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.1.1
+ * @version 2.2.9
  * @since 1.7.0
  */
 public class HsqlProperties {
@@ -135,11 +135,18 @@ public class HsqlProperties {
     }
 
     public int getIntegerProperty(String key, int defaultValue) {
+        return getIntegerProperty(stringProps, key, defaultValue);
+    }
 
-        String prop = getProperty(key);
+    public static int getIntegerProperty(Properties props, String key,
+                                         int defaultValue) {
+
+        String prop = props.getProperty(key);
 
         try {
             if (prop != null) {
+                prop = prop.trim();
+
                 defaultValue = Integer.parseInt(prop);
             }
         } catch (NumberFormatException e) {}
@@ -158,6 +165,8 @@ public class HsqlProperties {
         if (value == null) {
             return defaultValue;
         }
+
+        value = value.trim();
 
         return value.toLowerCase().equals("true");
     }

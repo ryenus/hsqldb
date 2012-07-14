@@ -139,7 +139,7 @@ import org.hsqldb.persist.HsqlProperties;
  * <hr>
  * @author Campbell Boucher-Burnet (boucherb@users dot sourceforge.net)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.0.1
+ * @version 2.2.9
  * @revised JDK 1.7, HLSQLDB 2.0.1
  * </div> <!-- end release-specific documentation -->
  *
@@ -293,20 +293,10 @@ public class JDBCDriver implements Driver {
 
         long timeout = 0;
 
-        if (info != null && info.containsKey("loginTimeout")) {
-            String loginTimeoutProperty = info.getProperty("loginTimeout");
-
-            if (loginTimeoutProperty != null) {
-                loginTimeoutProperty = loginTimeoutProperty.trim();
-
-                if (loginTimeoutProperty.length() > 0) {
-                    try {
-                        timeout = Integer.parseInt(loginTimeoutProperty);
-                    } catch (NumberFormatException nfe) {
-                    }
-                }
-            }
+        if (info != null) {
+            timeout = HsqlProperties.getIntegerProperty(info, "loginTimeout", 0);
         }
+
         props.addProperties(info);
 
         if (timeout == 0) {

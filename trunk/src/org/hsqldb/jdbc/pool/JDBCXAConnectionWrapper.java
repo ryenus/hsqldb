@@ -50,8 +50,8 @@ import java.sql.Savepoint;
  * based on the session / session proxy of the JDBCXAConnection object in the
  * constructor. (fredt)<p>
  *
- * @version 2.0.1
- * @since HSQLDB v. 1.9.0
+ * @version 2.2.9
+ * @since 2.0.0
  * @author Blaine Simpson (blaine dot simpson at admc dot com)
  * @see org.hsqldb.jdbc.JDBCConnection
  */
@@ -151,9 +151,10 @@ public class JDBCXAConnectionWrapper extends JDBCConnection {
     private JDBCXAResource xaResource;
 
     public JDBCXAConnectionWrapper(JDBCXAResource xaResource,
+                                   JDBCXAConnection xaConnection,
                                    JDBCConnection databaseConnection)
                                    throws SQLException {
-        // TODO: Review JDBCXADataSource and this class.
+        // todo: Review JDBCXADataSource and this class.
         //       Under current implementation, because we do not pass a
         //       JDBCXAConnection instance to the constructor to pick
         //       up the connectionClosed event listener callback, calling
@@ -165,7 +166,8 @@ public class JDBCXAConnectionWrapper extends JDBCConnection {
         //       In other words, due to this current implementation detail,
         //       JDBCXADataSource cannot cooperate with a pooling implementation
         //       to reuse physical connections.
-        super(databaseConnection, null);
+        //       fixed - the event listener works
+        super(databaseConnection, xaConnection);
 
         xaResource.setConnection(this);
 

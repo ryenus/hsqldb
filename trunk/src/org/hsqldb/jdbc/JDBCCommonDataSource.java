@@ -222,42 +222,6 @@ public abstract class JDBCCommonDataSource implements Serializable {
     }
 
     /**
-     * Sets the description attribute of the data source. <p>
-     *
-     * @param description the new value for the attribute
-     */
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    /**
-     * Sets the data source name attribute of the data source. <p>
-     *
-     * @param dataSourceName the new value for the attribute
-     */
-    public void setDataSourceName(String dataSourceName) {
-        this.dataSourceName = dataSourceName;
-    }
-
-    /**
-     * Sets the network protocol attribute of the data source. <p>
-     *
-     * @param networkProtocol the new value for the attribute
-     */
-    public void setNetworkProtocol(String networkProtocol) {
-        this.networkProtocol = networkProtocol;
-    }
-
-    /**
-     * Sets the server name attribute of the data source <p>
-     *
-     * @param serverName the new value for the property
-     */
-    public void setServerName(String serverName) {
-        this.serverName = serverName;
-    }
-
-    /**
      * Synonym for setUrl(String). <p>
      *
      * @param databaseName the new value for the attribute

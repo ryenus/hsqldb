@@ -50,7 +50,7 @@ import org.hsqldb.jdbc.JDBCConnection;
  * the JDBCXAResource. This puts the object in the inUse state.
  * When the user connection is closed, the object is put in the free state.
  *
- * @version 2.0.1
+ * @version 2.2.9
  * @since HSQLDB 2.0
  * @author Fred Toussi (fredt at users.sourceforge.net)
  * @see javax.sql.XAConnection
@@ -71,8 +71,11 @@ public class JDBCXAConnection extends JDBCPooledConnection implements XAConnecti
 
     /**
      * Returns a connection that can be used by the user application.
+     *
+     * @throws SQLException if a lease has already been given on this connection
+     * @return Connection
      */
-    public Connection getConnection() throws SQLException {
+    synchronized public Connection getConnection() throws SQLException {
 
         if (isInUse) {
             throw new SQLException("Connection in use");
@@ -81,7 +84,7 @@ public class JDBCXAConnection extends JDBCPooledConnection implements XAConnecti
         isInUse = true;
 
 
-        return new JDBCXAConnectionWrapper(xaResource, connection);
+        return new JDBCXAConnectionWrapper(xaResource, this, connection);
     }
 
     public void close() throws SQLException {

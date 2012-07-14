@@ -42,8 +42,16 @@ import javax.naming.spi.ObjectFactory;
 import javax.sql.DataSource;
 
 /**
- * A JNDI ObjectFactory for creating {@link JDBCDataSource JDBCDataSource}
- * object instances.
+ * A JNDI ObjectFactory for creating data sources supported by HyperSQL
+ *  {@link org.hsqldb.jdbc.JDBCDataSource JDBCDataSource} for plain
+ *  connections for the end user.
+ *  {@link org.hsqldb.jdbc.JDBCPool JDBCPool} for pooled plain
+ *   connections for the end user.
+ *  {@link org.hsqldb.jdbc.pool.JDBCPooledDataSource JDBCPooledDataSource} for
+ *  PooleConnection objects used
+ *  by external connection pooling software.
+ *  {@link org.hsqldb.jdbc.pool.JDBCXADataSource JDBCXADataSource} for
+ *  XAConnection objects used by external connection pooling software.
  *
  * @author Darin DeForest (deforest@users dot sourceforge.net) original version
  * @author Fred Toussi (fredt@users dot sourceforge.net)
@@ -56,8 +64,8 @@ public class JDBCDataSourceFactory implements ObjectFactory {
      * Static method to create a JDBCDataSource instance using the
      * given properties for url, user, password, etc.
      */
-    public static DataSource createDataSource(
-            Properties props) throws Exception {
+    public static DataSource createDataSource(Properties props)
+    throws Exception {
 
         JDBCDataSource ds =
             (JDBCDataSource) Class.forName(bdsClassName).newInstance();
@@ -66,6 +74,7 @@ public class JDBCDataSourceFactory implements ObjectFactory {
         if (value == null) {
             value = props.getProperty(urlName);
         }
+
         ds.setDatabase(value);
 
         value = props.getProperty(userName);
@@ -73,6 +82,7 @@ public class JDBCDataSourceFactory implements ObjectFactory {
         if (value == null) {
             value = props.getProperty(userNameName);
         }
+
         ds.setUser(value);
 
         value = props.getProperty(passwordName);
@@ -87,8 +97,7 @@ public class JDBCDataSourceFactory implements ObjectFactory {
             if (value.length() > 0) {
                 try {
                     ds.setLoginTimeout(Integer.parseInt(value));
-                } catch (NumberFormatException nfe) {
-                }
+                } catch (NumberFormatException nfe) {}
             }
         }
 
@@ -96,15 +105,21 @@ public class JDBCDataSourceFactory implements ObjectFactory {
     }
 
     /**
-     * Creates a JDBCDataSource, JDBCPooledDataSource or JDBCXADataSource object
-     * using the javax.naming.Reference object specified.<p>
+     * Creates a DataSource object using the javax.naming.Reference object
+     * specified.<p>
      *
-     * The Reference object's class name should be one of the three supported
-     * data source class names and it should support the properties, database,
+     * The Reference object's class name should be one of the four supported
+     * data source class names and it must support the properties, database,
      * user and password. It may optionally support the logingTimeout property.
      *
+     * HyperSQL's JDBCPooledDataSource and JDBCXADataSource object are intended
+     * as factories used by a connection pooling DataSource.<p>
+     * JDBCDataSource is a factory for normal connections and can be accessed
+     * directly by user applications.<p>
+     * JDBCPool is a connection pool accessed directly by user applications.<p>
+     *
      * @param obj The reference information used in creating a
-     *      JDBCDatasource object.
+     *      Datasource object.
      * @param name ignored
      * @param nameCtx ignored
      * @param environment ignored
@@ -122,8 +137,9 @@ public class JDBCDataSourceFactory implements ObjectFactory {
         Reference ref       = (Reference) obj;
         String    className = ref.getClassName();
 
-        if (className.equals(bdsClassName) || className.equals(pdsClassName)
-                || className.equals(xdsClassName)) {
+        if (bdsClassName.equals(className) || poolClassName.equals(className)
+                || pdsClassName.equals(className)
+                || xdsClassName.equals(className)) {
             RefAddr refAddr;
             Object  value;
             JDBCCommonDataSource ds =
@@ -134,11 +150,13 @@ public class JDBCDataSourceFactory implements ObjectFactory {
             if (refAddr == null) {
                 throw new Exception(className + ": RefAddr not set: database");
             }
+
             value = refAddr.getContent();
 
             if (!(value instanceof String)) {
                 throw new Exception(className + ": invalid RefAddr: database");
             }
+
             ds.setDatabase((String) value);
 
             refAddr = ref.get("user");
@@ -146,11 +164,13 @@ public class JDBCDataSourceFactory implements ObjectFactory {
             if (refAddr == null) {
                 throw new Exception(className + ": RefAddr not set: user");
             }
+
             value = ref.get("user").getContent();
 
             if (!(value instanceof String)) {
                 throw new Exception(className + ": invalid RefAddr: user");
             }
+
             ds.setUser((String) value);
 
             refAddr = ref.get("password");
@@ -165,6 +185,7 @@ public class JDBCDataSourceFactory implements ObjectFactory {
                                         + ": invalid RefAddr: password");
                 }
             }
+
             ds.setPassword((String) value);
 
             refAddr = ref.get("loginTimeout");
@@ -179,8 +200,7 @@ public class JDBCDataSourceFactory implements ObjectFactory {
                         try {
                             ds.setLoginTimeout(
                                 Integer.parseInt(loginTimeoutContent));
-                        } catch (NumberFormatException nfe) {
-                        }
+                        } catch (NumberFormatException nfe) {}
                     }
                 }
             }
@@ -206,11 +226,11 @@ public class JDBCDataSourceFactory implements ObjectFactory {
      */
     private static final String bdsClassName =
         "org.hsqldb.jdbc.JDBCDataSource";
+    private static final String poolClassName = "org.hsqldb.jdbc.JDBCPool";
     private static final String pdsClassName =
         "org.hsqldb.jdbc.pool.JDBCPooledDataSource";
     private static final String xdsClassName =
         "org.hsqldb.jdbc.pool.JDBCXADataSource";
 
-    public JDBCDataSourceFactory() {
-    }
+    public JDBCDataSourceFactory() {}
 }
