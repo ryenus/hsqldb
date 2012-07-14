@@ -47,15 +47,19 @@ import org.hsqldb.jdbc.JDBCConnectionEventListener;
 import org.hsqldb.lib.OrderedHashSet;
 
 /**
- * PooledConnection implementations. Maintains a lifetime connection to the
- * database. The getConnection() method establishes a lease on the lifetime
- * connection and returns a special JDBCConnection (userConnection) that is
- * valid until it is closed. Has two states, reported by isInUse(), indicating
- * if a lease has been given or not (if a userConnection is in use or not).<p>
+ * An implementations of {@link javax.sql.PooledConnection PooledConnection}
+ * for use by connection pooling software.<p>
+ * The class maintains a lifetime connection to the database. The
+ * getConnection() method establishes a lease on the lifetime connection
+ * and returns a special JDBCConnection (userConnection) that is
+ * valid until it is closed.<p>
+ *
+ * This class uses a dedicated HyperSQL method to guarantee each lease on the
+ * connection starts with the original state of the connection.<p>
  *
  * The ConnectionEventLister objects that have been registered with this
  * PooledConnection are notified when each lease expires, or an unrecoverable
- * error occurs on the connection to the database.
+ * error occurs on the connection to the database.<p>
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
  * @version 2.0.1
@@ -109,7 +113,7 @@ implements PooledConnection, JDBCConnectionEventListener {
 
         userConnection = null;
 
-        release();
+        reset();
 
         for (int i = 0; i < listeners.size(); i++) {
             ConnectionEventListener connectionEventListener =
@@ -123,7 +127,7 @@ implements PooledConnection, JDBCConnectionEventListener {
 
         ConnectionEvent event = new ConnectionEvent(this, e);
 
-        release();
+        reset();
 
         for (int i = 0; i < listeners.size(); i++) {
             ConnectionEventListener connectionEventListener =
@@ -134,8 +138,8 @@ implements PooledConnection, JDBCConnectionEventListener {
     }
 
     /**
-     * Returns true if getConnection() has been called and the userConnection
-     * is still open.
+     * Returns true if getConnection() has been called and a leas has been
+     * given.
      */
     synchronized public boolean isInUse() {
         return isInUse;
@@ -143,6 +147,32 @@ implements PooledConnection, JDBCConnectionEventListener {
 
     /**
      * Force close the userConnection, no close event is fired.
+     */
+    synchronized public void reset() {
+
+        if (userConnection != null) {
+
+            // userConnection is already closed in normal use
+            try {
+                userConnection.close();
+            } catch (SQLException e) {
+
+                // check connection problems
+            }
+        }
+
+        try {
+            connection.reset();
+        } catch (SQLException e) {
+
+            // check connection problems
+        }
+
+        isInUse = false;
+    }
+
+    /**
+     * Force close the userConnection, and connection, no close event is fired.
      */
     synchronized public void release() {
 
@@ -158,7 +188,7 @@ implements PooledConnection, JDBCConnectionEventListener {
         }
 
         try {
-            connection.reset();
+            connection.close();
         } catch (SQLException e) {
 
             // check connection problems

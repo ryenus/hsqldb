@@ -626,7 +626,7 @@ public class Session implements SessionInterface {
     }
 
     /**
-     * Clear structures and reset variables to original.
+     * Clear structures and reset variables to original. For JDBC use only.
      */
     public synchronized void resetSession() {
 
@@ -641,6 +641,7 @@ public class Session implements SessionInterface {
         statementManager.reset();
 
         sessionContext.lastIdentity = ValuePool.INTEGER_0;
+        sessionContext.isAutoCommit = Boolean.TRUE;
 
         setResultMemoryRowCount(database.getResultMaxMemoryRows());
 
@@ -1104,6 +1105,13 @@ public class Session implements SessionInterface {
                     case ResultConstants.TX_SAVEPOINT_NAME_ROLLBACK :
                         try {
                             rollbackToSavepoint(cmd.getMainString());
+                        } catch (Throwable t) {
+                            return Result.newErrorResult(t);
+                        }
+                        break;
+                    case ResultConstants.PREPARECOMMIT :
+                        try {
+                            prepareCommit();
                         } catch (Throwable t) {
                             return Result.newErrorResult(t);
                         }
