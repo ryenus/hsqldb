@@ -237,6 +237,7 @@ public final class ResultMetaData {
         column.setNullability((byte) (in & 0x00000003));
         column.setIdentity((in & 0x00000004) != 0);
         column.setWriteable((in & 0x00000008) != 0);
+        column.setSearchable((in & 0x00000010) != 0);
     }
 
     private static int encodeTableColumnAttrs(ColumnBase column) {
@@ -249,6 +250,10 @@ public final class ResultMetaData {
 
         if (column.isWriteable()) {
             out |= 0x00000008;
+        }
+
+        if (column.isSearchable()) {
+            out |= 0x00000010;
         }
 
         return out;

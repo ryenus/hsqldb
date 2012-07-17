@@ -1658,15 +1658,16 @@ public class QuerySpecification extends QueryExpression {
             ColumnSchema tableColumn = null;
             ColumnBase   column;
 
+            tableColumn = e.getColumn();
+
             resultMetaData.columnTypes[i] = e.getDataType();
 
             if (tableColumn == null) {
                 column = new ColumnBase();
             } else {
                 column = new ColumnBase(session.database.getCatalogName().name,
-                                        tableColumn.getSchemaNameString(),
-                                        tableColumn.getTableNameString(),
-                                        tableColumn.getNameString());
+                                        tableColumn);
+                column.setWriteable(tableColumn.isWriteable());
             }
 
             column.setType(e.getDataType());

@@ -192,7 +192,7 @@ public class LobManager {
     private static final String deleteLobCallSQL =
         "CALL SYSTEM_LOBS.DELETE_LOB(?, ?)";
     private static final String deleteUnusedCallSQL =
-        "CALL SYSTEM_LOBS.DELETE_UNUSED(?)";
+        "CALL SYSTEM_LOBS.DELETE_UNUSED_LOBS(?)";
     private static final String getLobCountSQL =
         "SELECT COUNT(*) FROM SYSTEM_LOBS.LOB_IDS";
 
@@ -490,33 +490,22 @@ public class LobManager {
             }
 
             Session[] sessions = database.sessionManager.getAllSessions();
-            LongDeque ids      = new LongDeque();
-
+            long firstLobID = Long.MAX_VALUE;
             for (int i = 0; i < sessions.length; i++) {
                 if (sessions[i].isClosed()) {
                     continue;
                 }
 
-                LongDeque sessionIDs = sessions[i].sessionData.getNewLobIDs();
+                long sessionLobID = sessions[i].sessionData.getFirstLobID();
 
-                if (sessionIDs != null) {
-                    ids.addAll(sessionIDs);
+                if (sessionLobID != 0 && sessionLobID < firstLobID) {
+                    firstLobID = sessionLobID;
                 }
-            }
-
-            long[] idArray = new long[ids.size()];
-
-            ids.toArray(idArray);
-
-            Object[] idObjectArray = new Object[idArray.length];
-
-            for (int i = 0; i < idArray.length; i++) {
-                idObjectArray[i] = Long.valueOf(idArray[i]);
             }
 
             Object params[] = new Object[1];
 
-            params[0] = idObjectArray;
+            params[0] = new Long(firstLobID);
 
             Result result =
                 sysLobSession.executeCompiledStatement(deleteUnusedLobs,

@@ -963,9 +963,7 @@ public class Logger {
             database.sessionManager.resetLoggedSchemas();
             database.logger.logInfoEvent("Checkpoint end");
         } else if (!isFileDatabase()) {
-            if (!database.txManager.isMVCC()) {
-                database.lobManager.deleteUnusedLobs();
-            }
+            database.lobManager.deleteUnusedLobs();
         }
 
         checkpointRequired = false;
