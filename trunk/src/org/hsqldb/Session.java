@@ -599,7 +599,7 @@ public class Session implements SessionInterface {
         rowActionList.clear();
         sessionData.persistentStoreCollection.clearTransactionTables();
         sessionData.closeAllTransactionNavigators();
-        sessionData.clearNewLobIDs();
+        sessionData.clearLobOps();
 
         lockStatement = null;
 
@@ -637,7 +637,7 @@ public class Session implements SessionInterface {
         rollback(false);
         sessionData.closeAllNavigators();
         sessionData.persistentStoreCollection.clearAllTables();
-        sessionData.clearNewLobIDs();
+        sessionData.clearLobOps();
         statementManager.reset();
 
         sessionContext.lastIdentity = ValuePool.INTEGER_0;

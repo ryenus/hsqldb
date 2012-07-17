@@ -532,5 +532,5 @@ public class JDBCPool implements DataSource, Serializable, Referenceable,
     AtomicIntegerArray       states;
     JDBCPooledConnection[]   connections;
     JDBCPooledDataSource     source;
-    boolean                  closed;
+    volatile boolean         closed;
 }

@@ -393,11 +393,7 @@ public class Log {
         database.logger.logInfoEvent("checkpointClose start");
         synchLog();
         database.lobManager.synch();
-
-        if (!database.txManager.isMVCC()) {
-            database.lobManager.deleteUnusedLobs();
-        }
-
+        database.lobManager.deleteUnusedLobs();
         deleteOldDataFiles();
 
         try {

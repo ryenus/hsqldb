@@ -86,9 +86,6 @@ public class SessionData {
     HashMap sequenceMap;
     HashMap sequenceUpdateMap;
 
-    // LOBS
-    LongDeque newLobIDs;
-
     public SessionData(Database database, Session session) {
 
         this.database = database;
@@ -305,34 +302,27 @@ public class SessionData {
     }
 
     // lob creation
+    boolean hasLobOps;
+    long    firstNewLobID;
+
     public void registerNewLob(long lobID) {
-
-        if (newLobIDs == null) {
-            newLobIDs = new LongDeque();
-        }
-
-        newLobIDs.add(lobID);
-
-        hasLobOps = true;
+        firstNewLobID = lobID;
+        hasLobOps     = true;
     }
 
-    public LongDeque getNewLobIDs() {
-        return newLobIDs;
+    public void clearLobOps() {
+        firstNewLobID = 0;
+        hasLobOps     = false;
     }
 
-    public void clearNewLobIDs() {
-
-        if (newLobIDs != null) {
-            newLobIDs.clear();
-        }
+    public long getFirstLobID() {
+        return firstNewLobID;
     }
 
     // lobs in results
     LongKeyLongValueHashMap resultLobs = new LongKeyLongValueHashMap();
 
     // lobs in transaction
-    boolean hasLobOps;
-
     public void adjustLobUsageCount(Object value, int adjust) {
 
         if (session.isProcessingLog || session.isProcessingScript) {
