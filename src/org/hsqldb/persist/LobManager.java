@@ -54,7 +54,6 @@ import org.hsqldb.error.ErrorCode;
 import org.hsqldb.lib.ArrayUtil;
 import org.hsqldb.lib.HashMappedList;
 import org.hsqldb.lib.LineGroupReader;
-import org.hsqldb.lib.LongDeque;
 import org.hsqldb.navigator.RowSetNavigator;
 import org.hsqldb.result.Result;
 import org.hsqldb.result.ResultLob;
