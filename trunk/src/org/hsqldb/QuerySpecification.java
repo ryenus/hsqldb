@@ -1667,7 +1667,6 @@ public class QuerySpecification extends QueryExpression {
             } else {
                 column = new ColumnBase(session.database.getCatalogName().name,
                                         tableColumn);
-                column.setWriteable(tableColumn.isWriteable());
             }
 
             column.setType(e.getDataType());
