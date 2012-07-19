@@ -2665,6 +2665,35 @@ I D          S
       different types of join, each producing the result table in a different
       way.</para>
 
+      <para><literal>&lt;joined table&gt; ::= &lt;cross join&gt; |
+      &lt;qualified join&gt; | &lt;natural join&gt;</literal></para>
+
+      <para><literal>&lt;cross join&gt; ::= &lt;table reference&gt; CROSS JOIN
+      &lt;table factor&gt; </literal></para>
+
+      <para><literal>&lt;qualified join&gt; ::= &lt;table reference&gt; | [
+      &lt;join type&gt; ] JOIN &lt;table reference&gt; &lt;join
+      specification&gt; &lt;natural join&gt; ::= &lt;table reference&gt;
+      NATURAL [ &lt;join type&gt; ] JOIN &lt;table factor&gt;</literal></para>
+
+      <para><literal>&lt;join specification&gt; ::= &lt;join condition&gt; |
+      &lt;named columns join&gt;</literal></para>
+
+      <para><literal>&lt;join condition&gt; ::= ON &lt;search
+      condition&gt;</literal></para>
+
+      <para><literal>&lt;named columns join&gt; ::= USING &lt;left paren&gt;
+      &lt;join column list&gt; &lt;right paren&gt;</literal></para>
+
+      <para><literal>&lt;join type&gt; ::= INNER | &lt;outer join type&gt; [
+      OUTER ] </literal></para>
+
+      <para><literal>&lt;outer join type&gt; ::= LEFT | RIGHT |
+      FULL</literal></para>
+
+      <para><literal>&lt;join column list&gt; ::= &lt;column name
+      list&gt;</literal></para>
+
       <indexterm significance="preferred" type="sql">
         <primary>CROSS JOIN</primary>
       </indexterm>
@@ -2679,10 +2708,19 @@ I D          S
       the rows of the CROSS JOIN table form the Cartesian product of the rows
       of the two table operands.</para>
 
-      <para>The CROSS JOIN can be expressed in two forms. The first form is
-      <literal>A CROSS JOIN B</literal>. The second form is <literal>A,
-      B</literal>. This type of join is not generally very useful, as it
-      returns large result tables.</para>
+      <para>Conditions are not allowed as part of a cross join, which is
+      simply <literal>A CROSS JOIN B</literal>. Any conditions in a WHERE
+      clause are later applied to the table resulting from the cross
+      join.</para>
+
+      <para>Tables in the FROM CLAUSE separated with commas, are equivalent to
+      cross joins between the tables. Two joined tables separated with a
+      comma, such as <literal>A, B</literal>, is equivalent to (A) CROSS JOIN
+      (B), which means the joined tables A and B are populated separately
+      before they are joined.</para>
+
+      <para>CROSS JOIN is not is not generally very useful, as it returns
+      large result tables unless WHERE conditions are used. </para>
 
       <indexterm significance="preferred" type="sql">
         <primary>UNION JOIN</primary>
@@ -2713,6 +2751,9 @@ I D          S
       <para>Equijoin is a condition join in which the search condition is an
       equality condition between on or more pairs of columns from the two
       table. Equijoin is the most commonly used type of join.</para>
+
+      <programlisting>SELECT a.*, b.* FROM a INNTER JOIN b ON a.col_one = b.col_two
+</programlisting>
 
       <indexterm significance="preferred" type="sql">
         <primary>JOIN USING</primary>
@@ -2755,6 +2796,15 @@ I D          S
       aggregation inherits properties from both types. For example DECIMAL(8)
       and DECIMAL (6,2) results in DECIMAL (8,2).</para>
 
+      <para>In the examples below, the rows are joined exactly the same way,
+      but the first query contains a.col_two and b.col_two together with all
+      the rest of the columns of both tables, while the second query returns
+      only one copy of col_two.</para>
+
+      <programlisting>SELECT * FROM a INNER JOIN b ON a.col_two = b.col_two
+SELECT * FROM a INNER JOIN b USING (col_two)
+</programlisting>
+
       <indexterm significance="preferred" type="sql">
         <primary>OUTER JOIN</primary>
       </indexterm>
@@ -2763,7 +2813,7 @@ I D          S
 
       <para>LEFT, RIGHT and FULL OUTER JOIN</para>
 
-      <para>The three qualifiers can be added to all types of JOIN apart from
+      <para>The three qualifiers can be added to all types of JOIN except
       CROSS JOIN and UNION JOIN. First the new table is populated with the
       rows from the original join. If LEFT is specified, all the rows from the
       first table that did not make it into the new table are extended to the
@@ -2776,6 +2826,9 @@ I D          S
       OUTER JOIN B ON (&lt;search condition&gt;)</literal> or <literal>A
       NATURAL FULL OUTER JOIN B</literal> or <literal>A FULL OUTER JOIN B
       USING (&lt;comma separated column name list&gt;)</literal>.</para>
+
+      <programlisting>SELECT a.*, b.* FROM a LEFT OUTER JOIN b ON a.col_one = b.col_two
+</programlisting>
     </section>
 
     <section xml:id="dac_selection">
@@ -2786,10 +2839,10 @@ I D          S
       condition used to limit the rows that from a result table (selection of
       rows, not columns). In SQL, simple selection is expressed with a WHERE
       condition appended to a single table or a joined table. In some cases,
-      this method of selection is the only method available. But when it is
-      possible to perform the selection with join conditions, this is the
-      better method, as it results in a clearer expression of the
-      query.</para>
+      this method of selection is the only method available. For example in
+      DELETE and UPDATE statements. But when it is possible to perform the
+      selection with join conditions, this is the better method, as it results
+      in a clearer expression of the query.</para>
     </section>
 
     <section xml:id="dac_projection">
