@@ -1,4 +1,4 @@
-14 July 1010 SVN 5026
+19 July 2012 SVN 5030 snapshot
 -- further code review and minor fixes
 -- new simple connection pool class org.hsqldb.jdbc.JDBCPool
 2 July 2012 SVN 5017 snapshot
