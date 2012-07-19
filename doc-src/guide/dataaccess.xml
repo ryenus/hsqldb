@@ -2673,8 +2673,10 @@ I D          S
 
       <para><literal>&lt;qualified join&gt; ::= &lt;table reference&gt; | [
       &lt;join type&gt; ] JOIN &lt;table reference&gt; &lt;join
-      specification&gt; &lt;natural join&gt; ::= &lt;table reference&gt;
-      NATURAL [ &lt;join type&gt; ] JOIN &lt;table factor&gt;</literal></para>
+      specification&gt;</literal></para>
+
+      <para><literal>&lt;natural join&gt; ::= &lt;table reference&gt; NATURAL
+      [ &lt;join type&gt; ] JOIN &lt;table factor&gt;</literal></para>
 
       <para><literal>&lt;join specification&gt; ::= &lt;join condition&gt; |
       &lt;named columns join&gt;</literal></para>
