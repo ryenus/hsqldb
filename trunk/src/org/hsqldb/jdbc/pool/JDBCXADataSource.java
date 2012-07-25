@@ -61,10 +61,16 @@ import org.hsqldb.lib.Iterator;
 
 /**
  * Connection factory for JDBCXAConnections.
- * For use by XA data source factories, not by end users.
+ * For use by XA data source factories, not by end users.<p>
  *
- * @version 2.0.1
- * @since HSQLDB v. 1.9.0
+ * The {@link org.hsqldb.jdbc.JDBCDataSourceFactory} can be used to get
+ * instances of this class.<p>
+ *
+ * The methods of the superclass, {@link org.hsqldb.jdbc.JDBCommonDataSource},
+ * are used for settings the HyperSQL server and user.<p>
+ *
+ * @version 2.2.9
+ * @since 2.0.0
  * @author Blaine Simpson (blaine dot simpson at admc dot com)
  * @see javax.sql.XADataSource
  * @see org.hsqldb.jdbc.pool.JDBCXAConnection

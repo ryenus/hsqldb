@@ -31,6 +31,8 @@
 
 package org.hsqldb;
 
+import org.hsqldb.error.Error;
+import org.hsqldb.error.ErrorCode;
 import org.hsqldb.persist.CachedObject;
 import org.hsqldb.persist.PersistentStore;
 
@@ -223,8 +225,12 @@ implements TransactionManager {
         RowAction action = row.rowAction;
 
         if (action == null) {
+/*
             System.out.println("null insert action " + session + " "
                                + session.actionTimestamp);
+*/
+            throw Error.runtimeError(ErrorCode.GENERAL_ERROR,
+                                     "null insert action ");
         }
 
         store.indexRow(session, row);

@@ -304,8 +304,6 @@ public class Cache extends BaseHashMap {
         saveRowCount += count;
 
         saveAllTimer.stop();
-
-        //
         logSaveRowsEvent(count, startTime);
     }
 
@@ -335,6 +333,14 @@ public class Cache extends BaseHashMap {
         }
 
         saveRows(savecount);
+    }
+
+    void logSynchEvent() {
+
+        StringBuffer sb = new StringBuffer();
+
+        sb.append("cache sync");
+        dataFileCache.database.logger.logDetailEvent(sb.toString());
     }
 
     void logSaveRowsEvent(int saveCount, long startTime) {

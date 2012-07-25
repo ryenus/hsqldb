@@ -1046,6 +1046,18 @@ public class ArrayUtil {
     }
 
     /**
+     * Fills the double array with a value
+     */
+    public static void fillArray(double[] array, double value) {
+
+        int to = array.length;
+
+        while (--to >= 0) {
+            array[to] = value;
+        }
+    }
+
+    /**
      * Fills the int array with a value
      */
     public static void fillArray(boolean[] array, boolean value) {

@@ -51,11 +51,11 @@ import org.hsqldb.jdbc.JDBCConnection;
 import org.hsqldb.jdbc.JDBCDriver;
 
 /**
- * A data source that implements javax.sql.ConnectionPoolDataSource.
- * For use by XA data source factories, not by end users.
+ * A data source that implements {@link javax.sql.ConnectionPoolDataSource}.<p>
+ * For use by connection pooling software, not by end users.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.0.1
+ * @version 2.2.9
  * @since JDK 1.2, HSQLDB 2.0
  */
 public class JDBCPooledDataSource extends JDBCCommonDataSource

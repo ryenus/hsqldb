@@ -534,7 +534,6 @@ public class DataFileCache {
 
             logInfoEvent("dataFileCache commit start");
             cache.saveAll();
-            logDetailEvent("dataFileCache save data");
 
             if (fileModified || freeBlocks.isModified()) {
 
@@ -558,6 +557,7 @@ public class DataFileCache {
             }
 
             dataFile.synch();
+            cache.logSynchEvent();
 
             fileModified          = false;
             cacheModified         = false;
