@@ -471,7 +471,7 @@ public class JDBCPool implements DataSource, Serializable, Referenceable,
 
     /**
      * Creates a connection pool with the maximum size of 8. The database and
-     * connection settings are made before the {@link getConnection} is called.
+     * connection settings are made before the {@link #getConnection()} is called.
      */
     public JDBCPool() {
         this(10);
@@ -479,7 +479,7 @@ public class JDBCPool implements DataSource, Serializable, Referenceable,
 
     /**
      * Creates a connection pool with the given maximum size. The database and
-     * connection settings are made before the {@link getConnection} is called.
+     * connection settings are made before the {@link #getConnection()} is called.
      *
      * @param size int maximum size of the pool
      */

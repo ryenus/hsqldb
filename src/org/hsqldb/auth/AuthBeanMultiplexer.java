@@ -220,7 +220,7 @@ public class AuthBeanMultiplexer {
      *       resulting in a SQLException for the authenticating application.
      * </OL>
      *
-     * @see HyperSQL User Guide, System Management and Deployment Issues
+     * @see HyperSQL User Guide, System Management
      *         chapter, Authentication Settings subsection.
      * @throws IllegalArgumentException if no AuthFunctionBean has been set for
      *         specified dbName.

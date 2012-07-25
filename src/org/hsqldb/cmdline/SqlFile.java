@@ -1584,7 +1584,7 @@ public class SqlFile {
 
                 if (other.charAt(other.length() - 1) == '*') {
                     other = other.substring(0, other.length()-1).trim();
-                    if (other.length() < 1) 
+                    if (other.length() < 1)
                         throw new BadSpecial(DSV_M_SYNTAX_MSG);
                     skipPrefix = null;
                 }
@@ -2093,7 +2093,7 @@ public class SqlFile {
 
                     stream = proc.getInputStream();
 
-                    while ((i = stream.read(ba)) > 0) 
+                    while ((i = stream.read(ba)) > 0)
                         stdprint(new String(ba, 0, i));
 
                     stream.close();
@@ -2181,13 +2181,13 @@ public class SqlFile {
             e = SqlFile.pastName(inString.substring(slashIndex + 1), 0);
 
             // In this case, e is the exact length of the var name.
-            if (e < 1) 
+            if (e < 1)
                 throw new SqlToolError(SqltoolRB.plalias_malformat.getString());
 
             varName  = inString.substring(slashIndex + 1, slashIndex + 1 + e);
             varValue = shared.userVars.get(varName);
 
-            if (varValue == null) 
+            if (varValue == null)
                 throw new SqlToolError(
                         SqltoolRB.plvar_undefined.getString(varName));
 
@@ -2702,7 +2702,7 @@ public class SqlFile {
                     String beMessage = be.getMessage();
 
                     // Handle "while" and plain breaks (by doing nothing)
-                    if (beMessage != null && !beMessage.equals("while")) 
+                    if (beMessage != null && !beMessage.equals("while"))
                         throw be;
                 } catch (QuitNow qn) {
                     throw qn;
@@ -2944,7 +2944,7 @@ public class SqlFile {
             "varset pattern matched but captured " + m.groupCount() + " groups";
 
         String varName  = m.group(1);
-        // Test for ambiguous form:  * VARNAME_ 
+        // Test for ambiguous form:  * VARNAME_
         // Ambibuous whether _ is part of varname or operator.
         if (derefed.trim().equals(varName + '_'))
             throw new BadSpecial(SqltoolRB.pl_unknown.getString(tokens[0]));
@@ -4033,7 +4033,7 @@ public class SqlFile {
                         // so we can make the decision after all rows are
                         // read in.
                         if (filter != null
-                            && (val == null || filter.matcher(val).find())) 
+                            && (val == null || filter.matcher(val).find()))
                             filteredOut = false;
 
                         ///////////////////////////////
@@ -4148,7 +4148,7 @@ public class SqlFile {
                         dsvSafe(headerArray[i]);
                         pwDsv.print(headerArray[i]);
 
-                        if (i < headerArray.length - 1) 
+                        if (i < headerArray.length - 1)
                             pwDsv.print(dsvColDelim);
                     }
 
@@ -4422,7 +4422,7 @@ public class SqlFile {
         for (int i = 0; i < headerArray.length; i++) {
             if (htmlMode) continue;
 
-            if (headerArray[i].length() > maxWidth[i]) 
+            if (headerArray[i].length() > maxWidth[i])
                 maxWidth[i] = headerArray[i].length();
         }
 
@@ -4891,7 +4891,7 @@ public class SqlFile {
      * value displayable.
      * </P>
      *
-     * @see <A href="http://java.sun.com/docs/books/tutorial/jdbc/basics/retrieving.html">http://java.sun.com/docs/books/tutorial/jdbc/basics/retrieving.html</A>
+     * @see <A href="http://java.sun.com/docs/books/tutorial/jdbc/basics/retrieving.html"> http://java.sun.com/docs/books/tutorial/jdbc/basics/retrieving.html</A>
      *      The table on this page lists the most common SqlTypes, all of which
      *      must implement toString()
      * @see java.sql.Types
@@ -5295,7 +5295,7 @@ public class SqlFile {
                     || (skipPrefix != null
                             && trimmedLine.startsWith(skipPrefix))) continue;
             if (trimmedLine.startsWith("targettable=")) {
-                if (tableName == null) 
+                if (tableName == null)
                     tableName = trimmedLine.substring(
                             "targettable=".length()).trim();
                 continue;
@@ -5969,7 +5969,7 @@ public class SqlFile {
                         inlineNestMatcher.group(2));
             } else {
                 subNestingCommand = nestingCommand(token);
-                if (subNestingCommand != null) 
+                if (subNestingCommand != null)
                     token.nestedBlock = seekTokenSource(subNestingCommand);
             }
             newTS.add(token);
