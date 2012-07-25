@@ -34,7 +34,7 @@ if not "%JAVA_HOME%" == "" (
     "%JAVA_HOME:/=\%\bin\java" -version > nul 2>&1
     if ERRORLEVEL 1 (
         echo:
-        echo Please fix your JAVA_HOME env. variable.  Executable 'java' does not exist: '%JAVA_HOME:/=\%\bin\java.*'
+        echo Please fix your JAVA_HOME env. variable.  Executable 'java' does not exist.
         echo:
         pause
         exit /b
