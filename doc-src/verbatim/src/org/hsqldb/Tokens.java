@@ -38,9 +38,8 @@ import org.hsqldb.lib.OrderedIntHashSet;
 /**
  * Defines and enumerates reserved and non-reserved SQL keywords.<p>
  *
- * @author Nitin Chauhan (initial work)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.2.7
+ * @version 2.2.9
  * @since 1.7.2
  */
 public class Tokens {
@@ -532,7 +531,7 @@ public class Tokens {
     static final String        T_OTHERS               = "OTHERS";
     public static final String T_OVERRIDING           = "OVERRIDING";
     public static final String T_P_FACTOR             = "P";
-    static final String        T_PAD                  = "PAD";
+    public static final String T_PAD                  = "PAD";
     static final String        T_PARAMETER_MODE       = "PARAMETER_MODE";
     static final String        T_PARAMETER_NAME       = "PARAMETER_NAME";
     static final String T_PARAMETER_ORDINAL_POSITION =
@@ -585,7 +584,7 @@ public class Tokens {
     static final String        T_SIMPLE               = "SIMPLE";
     public static final String T_SIZE                 = "SIZE";
     static final String        T_SOURCE               = "SOURCE";
-    static final String        T_SPACE                = "SPACE";
+    public static final String T_SPACE                = "SPACE";
     static final String        T_SPECIFIC_NAME        = "SPECIFIC_NAME";
     static final String        T_SQLDATA              = "SQLDATA";       // SQL/JRT
     static final String        T_STACKED              = "STACKED";
@@ -719,6 +718,7 @@ public class Tokens {
     static final String        T_RAW                  = "RAW";
     static final String        T_READONLY             = "READONLY";
     static final String        T_REFERENTIAL          = "REFERENTIAL";
+    public static final String T_REGULAR              = "REGULAR";
     static final String        T_RENAME               = "RENAME";
     static final String        T_RESTRICT             = "RESTRICT";
     static final String        T_ROWNUM               = "ROWNUM";
@@ -816,6 +816,8 @@ public class Tokens {
     static final String        T_COT              = "COT";
     static final String        T_CRYPT_KEY        = "CRYPT_KEY";
     static final String        T_DATABASE_NAME    = "DATABASE_NAME";
+    static final String        T_DATE_ADD         = "DATE_ADD";
+    static final String        T_DATE_SUB         = "DATE_SUB";
     static final String        T_DATEADD          = "DATEADD";
     static final String        T_DATEDIFF         = "DATEDIFF";
     static final String        T_DECODE           = "DECODE";
@@ -1495,20 +1497,21 @@ public class Tokens {
     static final int RAW            = 617;
     static final int READONLY       = 618;
     static final int REFERENTIAL    = 619;
-    static final int RENAME         = 620;
-    static final int RESET          = 621;
-    static final int ROWNUM         = 622;
-    static final int SCRIPT         = 623;
-    static final int SEPARATOR      = 624;
-    static final int SHUTDOWN       = 625;
-    static final int SYNTAX         = 626;
-    static final int TDC            = 627;
-    static final int TEMP           = 628;
-    static final int TEXT           = 629;
-    static final int TTI            = 630;
-    static final int TYPES          = 631;
-    static final int VARCHAR2       = 632;
-    static final int WRITE_DELAY    = 633;
+    static final int REGULAR        = 620;
+    static final int RENAME         = 621;
+    static final int RESET          = 622;
+    static final int ROWNUM         = 623;
+    static final int SCRIPT         = 624;
+    static final int SEPARATOR      = 625;
+    static final int SHUTDOWN       = 626;
+    static final int SYNTAX         = 627;
+    static final int TDC            = 628;
+    static final int TEMP           = 629;
+    static final int TEXT           = 630;
+    static final int TTI            = 631;
+    static final int TYPES          = 632;
+    static final int VARCHAR2       = 633;
+    static final int WRITE_DELAY    = 634;
 
     //
     static final int        ACOS                       = 640;
@@ -1536,95 +1539,97 @@ public class Tokens {
     static final int        DATABASE_NAME              = 662;
     static final int        DATABASE_TIMEZONE          = 663;
     static final int        DATABASE_VERSION           = 664;
-    static final int        DATEADD                    = 665;
-    static final int        DATEDIFF                   = 666;
-    public static final int DAY_NAME                   = 667;
-    public static final int DAY_OF_MONTH               = 668;
-    public static final int DAY_OF_WEEK                = 669;
-    public static final int DAY_OF_YEAR                = 670;
-    static final int        DAYNAME                    = 671;
-    static final int        DAYOFMONTH                 = 672;
-    static final int        DAYOFWEEK                  = 673;
-    static final int        DAYOFYEAR                  = 674;
-    static final int        DAYS                       = 675;
-    static final int        DECODE                     = 676;
-    static final int        DEGREES                    = 677;
-    static final int        DIFFERENCE                 = 678;
-    static final int        DMOD                       = 679;
-    static final int        HEXTORAW                   = 680;
-    static final int        GREATEST                   = 681;
-    static final int        GROUP_CONCAT               = 682;
-    static final int        IFNULL                     = 683;
-    static final int        IS_AUTOCOMMIT              = 684;
-    static final int        IS_READONLY_DATABASE       = 685;
-    static final int        IS_READONLY_DATABASE_FILES = 686;
-    static final int        IS_READONLY_SESSION        = 687;
-    static final int        ISOLATION_LEVEL            = 688;
-    static final int        ISNULL                     = 689;
-    static final int        LCASE                      = 690;
-    static final int        LEAST                      = 691;
-    static final int        LOAD_FILE                  = 692;
-    static final int        LOCATE                     = 693;
-    static final int        LOB                        = 694;
-    static final int        LOG                        = 695;
-    static final int        LOG10                      = 696;
-    static final int        LPAD                       = 697;
-    static final int        LTRIM                      = 698;
-    static final int        LOB_ID                     = 699;
-    public static final int MONTH_NAME                 = 700;
-    static final int        MONTHNAME                  = 701;
-    static final int        MVCC                       = 702;
-    static final int        MVLOCKS                    = 703;
-    static final int        NIO                        = 704;
-    static final int        NOW                        = 705;
-    static final int        OCTETLENGTH                = 706;
-    static final int        PI                         = 707;
-    static final int        POSITION_ARRAY             = 708;
-    public static final int QUARTER                    = 709;
-    static final int        RADIANS                    = 710;
-    static final int        RAND                       = 711;
-    static final int        RAWTOHEX                   = 712;
-    static final int        REGEXP_MATCHES             = 713;
-    static final int        REGEXP_SUBSTRING           = 714;
-    static final int        REGEXP_SUBSTRING_ARRAY     = 715;
-    static final int        REPLACE                    = 716;
-    static final int        REVERSE                    = 717;
-    static final int        ROUND                      = 718;
-    static final int        ROUNDMAGIC                 = 719;
-    static final int        RTRIM                      = 720;
-    static final int        RPAD                       = 721;
-    public static final int SECONDS_MIDNIGHT           = 722;
-    static final int        SEQUENCE_ARRAY             = 723;
-    static final int        SESSION_ID                 = 724;
-    static final int        SESSION_ISOLATION_LEVEL    = 725;
-    static final int        SESSION_TIMEZONE           = 726;
-    static final int        SIGN                       = 727;
-    static final int        SIN                        = 728;
-    static final int        SORT_ARRAY                 = 729;
-    static final int        SOUNDEX                    = 730;
-    static final int        SPACE_WORD                 = 731;
-    static final int        SUBSTR                     = 732;
-    static final int        SYSDATE                    = 733;
-    static final int        SYSTIMESTAMP               = 734;
-    static final int        TAN                        = 735;
-    static final int        TIMESTAMPADD               = 736;
-    static final int        TIMESTAMPDIFF              = 737;
-    static final int        TIMEZONE                   = 738;
-    static final int        TO_CHAR                    = 739;
-    static final int        TO_DATE                    = 740;
-    static final int        TO_NUMBER                  = 741;
-    static final int        TO_TIMESTAMP               = 742;
-    static final int        TODAY                      = 743;
-    static final int        TOP                        = 744;
-    static final int        TRANSACTION_CONTROL        = 755;
-    static final int        TRANSACTION_ID             = 756;
-    static final int        TRANSACTION_SIZE           = 757;
-    static final int        TRUNC                      = 758;
-    static final int        UCASE                      = 759;
-    static final int        UNIX_TIMESTAMP             = 760;
-    static final int        UUID                       = 761;
-    static final int        WEEK                       = 762;
-    public static final int WEEK_OF_YEAR               = 763;
+    static final int        DATE_ADD                   = 665;
+    static final int        DATE_SUB                   = 666;
+    static final int        DATEADD                    = 667;
+    static final int        DATEDIFF                   = 668;
+    public static final int DAY_NAME                   = 669;
+    public static final int DAY_OF_MONTH               = 670;
+    public static final int DAY_OF_WEEK                = 671;
+    public static final int DAY_OF_YEAR                = 672;
+    static final int        DAYNAME                    = 673;
+    static final int        DAYOFMONTH                 = 674;
+    static final int        DAYOFWEEK                  = 675;
+    static final int        DAYOFYEAR                  = 676;
+    static final int        DAYS                       = 677;
+    static final int        DECODE                     = 678;
+    static final int        DEGREES                    = 679;
+    static final int        DIFFERENCE                 = 680;
+    static final int        DMOD                       = 681;
+    static final int        HEXTORAW                   = 682;
+    static final int        GREATEST                   = 683;
+    static final int        GROUP_CONCAT               = 684;
+    static final int        IFNULL                     = 685;
+    static final int        IS_AUTOCOMMIT              = 686;
+    static final int        IS_READONLY_DATABASE       = 687;
+    static final int        IS_READONLY_DATABASE_FILES = 688;
+    static final int        IS_READONLY_SESSION        = 689;
+    static final int        ISOLATION_LEVEL            = 690;
+    static final int        ISNULL                     = 691;
+    static final int        LCASE                      = 692;
+    static final int        LEAST                      = 693;
+    static final int        LOAD_FILE                  = 694;
+    static final int        LOCATE                     = 695;
+    static final int        LOB                        = 696;
+    static final int        LOG                        = 697;
+    static final int        LOG10                      = 698;
+    static final int        LPAD                       = 699;
+    static final int        LTRIM                      = 700;
+    static final int        LOB_ID                     = 701;
+    public static final int MONTH_NAME                 = 702;
+    static final int        MONTHNAME                  = 703;
+    static final int        MVCC                       = 704;
+    static final int        MVLOCKS                    = 705;
+    static final int        NIO                        = 706;
+    static final int        NOW                        = 707;
+    static final int        OCTETLENGTH                = 708;
+    static final int        PI                         = 709;
+    static final int        POSITION_ARRAY             = 710;
+    public static final int QUARTER                    = 711;
+    static final int        RADIANS                    = 712;
+    static final int        RAND                       = 713;
+    static final int        RAWTOHEX                   = 714;
+    static final int        REGEXP_MATCHES             = 715;
+    static final int        REGEXP_SUBSTRING           = 716;
+    static final int        REGEXP_SUBSTRING_ARRAY     = 717;
+    static final int        REPLACE                    = 718;
+    static final int        REVERSE                    = 719;
+    static final int        ROUND                      = 720;
+    static final int        ROUNDMAGIC                 = 721;
+    static final int        RTRIM                      = 722;
+    static final int        RPAD                       = 723;
+    public static final int SECONDS_MIDNIGHT           = 724;
+    static final int        SEQUENCE_ARRAY             = 725;
+    static final int        SESSION_ID                 = 726;
+    static final int        SESSION_ISOLATION_LEVEL    = 727;
+    static final int        SESSION_TIMEZONE           = 728;
+    static final int        SIGN                       = 729;
+    static final int        SIN                        = 730;
+    static final int        SORT_ARRAY                 = 731;
+    static final int        SOUNDEX                    = 732;
+    static final int        SPACE_WORD                 = 733;
+    static final int        SUBSTR                     = 734;
+    static final int        SYSDATE                    = 735;
+    static final int        SYSTIMESTAMP               = 736;
+    static final int        TAN                        = 737;
+    static final int        TIMESTAMPADD               = 738;
+    static final int        TIMESTAMPDIFF              = 739;
+    static final int        TIMEZONE                   = 740;
+    static final int        TO_CHAR                    = 741;
+    static final int        TO_DATE                    = 742;
+    static final int        TO_NUMBER                  = 743;
+    static final int        TO_TIMESTAMP               = 744;
+    static final int        TODAY                      = 755;
+    static final int        TOP                        = 756;
+    static final int        TRANSACTION_CONTROL        = 757;
+    static final int        TRANSACTION_ID             = 758;
+    static final int        TRANSACTION_SIZE           = 759;
+    static final int        TRUNC                      = 760;
+    static final int        UCASE                      = 761;
+    static final int        UNIX_TIMESTAMP             = 762;
+    static final int        UUID                       = 763;
+    static final int        WEEK                       = 764;
+    public static final int WEEK_OF_YEAR               = 765;
 
     //
     static final int        ASTERISK         = 771;
@@ -2180,6 +2185,7 @@ public class Tokens {
         commandSet.put(T_ORDINALITY, ORDINALITY);
         commandSet.put(T_OVERRIDING, OVERRIDING);
         commandSet.put(T_P_FACTOR, P);
+        commandSet.put(T_PAD, PAD);
         commandSet.put(T_PARTIAL, PARTIAL);
         commandSet.put(T_PASSWORD, PASSWORD);
         commandSet.put(T_PLACING, PLACING);
@@ -2191,6 +2197,7 @@ public class Tokens {
         commandSet.put(T_READ, READ);
         commandSet.put(T_READONLY, READONLY);
         commandSet.put(T_REFERENTIAL, REFERENTIAL);
+        commandSet.put(T_REGULAR, REGULAR);
         commandSet.put(T_RENAME, RENAME);
         commandSet.put(T_REPEATABLE, REPEATABLE);
         commandSet.put(T_RESET, RESET);
@@ -2301,6 +2308,8 @@ public class Tokens {
         commandSet.put(T_COS, COS);
         commandSet.put(T_COT, COT);
         commandSet.put(T_DATABASE_NAME, DATABASE_NAME);
+        commandSet.put(T_DATE_ADD, DATE_ADD);
+        commandSet.put(T_DATE_SUB, DATE_SUB);
         commandSet.put(T_DATEADD, DATEADD);
         commandSet.put(T_DATEDIFF, DATEDIFF);
         commandSet.put(T_DAY_NAME, DAY_NAME);
@@ -2459,9 +2468,9 @@ public class Tokens {
         short[] keyword = {
             AS, AND, ALL, ANY, AT, AVG, BY, BETWEEN, BOTH, CALL, CASE, CAST,
             CORRESPONDING, CONVERT, COUNT, COALESCE, CREATE, CROSS, DEFAULT,
-            DISTINCT, DO, DROP, ELSE, END, EVERY, EXISTS, EXCEPT, FOR, FROM,
-            FULL, GRANT, GROUP, HAVING, INTO, IS, IN, INTERSECT, JOIN, INNER,
-            LEFT, LEADING, LIKE, MAX, MIN, NATURAL, NULLIF, NOT, ON, ORDER, OR,
+            DISTINCT, DO, DROP, ELSE, EVERY, EXISTS, EXCEPT, FOR, FROM, FULL,
+            GRANT, GROUP, HAVING, INTO, IS, IN, INTERSECT, JOIN, INNER, LEFT,
+            LEADING, LIKE, MAX, MIN, NATURAL, NULLIF, NOT, ON, ORDER, OR,
             OUTER, PRIMARY, REFERENCES, RIGHT, SELECT, SET, SOME, STDDEV_POP,
             STDDEV_SAMP, SUM, TABLE, THEN, TO, TRAILING, TRIGGER, UNION,
             UNIQUE, USING, VALUES, VAR_POP, VAR_SAMP, WHEN, WHERE, WITH,

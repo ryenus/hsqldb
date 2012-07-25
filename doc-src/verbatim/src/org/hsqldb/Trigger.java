@@ -76,7 +76,7 @@ List compiled by Andrew Knight (quozzbat@users)
  * The interface an HSQLDB TRIGGER must implement. The user-supplied class that
  * implements this must have a default constructor.
  *
- * @author Peter Hudson
+ * @author Peter Hudson (peterhudson@users dot sourceforge.net)
  * @version 1.9.0
  * @since 1.7.0
  */
