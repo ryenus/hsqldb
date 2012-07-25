@@ -466,7 +466,7 @@ public class HsqlDatabaseProperties extends HsqlProperties {
         // integral defaults for user defined props - ranges
         dbMeta.put(hsqldb_log_size,
                    HsqlProperties.getMeta(hsqldb_log_size, SQL_PROPERTY, 50,
-                                          0, 1000));
+                                          0, 4 * 1024));
         dbMeta.put(hsqldb_defrag_limit,
                    HsqlProperties.getMeta(hsqldb_defrag_limit, SQL_PROPERTY,
                                           0, 0, 100));
@@ -475,16 +475,17 @@ public class HsqlDatabaseProperties extends HsqlProperties {
                                           0, 0, 1000000));
         dbMeta.put(hsqldb_cache_size,
                    HsqlProperties.getMeta(hsqldb_cache_size, SQL_PROPERTY,
-                                          10000, 100, 1000000));
+                                          10000, 100, 4 * 1024 * 1024));
         dbMeta.put(hsqldb_cache_rows,
                    HsqlProperties.getMeta(hsqldb_cache_rows, SQL_PROPERTY,
-                                          50000, 100, 1000000));
+                                          50000, 100, 4 * 1024 * 1024));
         dbMeta.put(hsqldb_cache_free_count,
                    HsqlProperties.getMeta(hsqldb_cache_free_count,
                                           SQL_PROPERTY, 512, 0, 4096));
         dbMeta.put(hsqldb_result_max_memory_rows,
                    HsqlProperties.getMeta(hsqldb_result_max_memory_rows,
-                                          SQL_PROPERTY, 0, 0, 1024 * 1024));
+                                          SQL_PROPERTY, 0, 0,
+                                          4 * 1024 * 1024));
         dbMeta.put(hsqldb_nio_max_size,
                    HsqlProperties.getMeta(hsqldb_nio_max_size, SQL_PROPERTY,
                                           256, 64, 262144));

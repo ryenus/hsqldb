@@ -496,12 +496,13 @@ public class IndexAVL implements Index {
                 }
             }
 
+/*
             StringBuffer s = new StringBuffer();
 
             s.append("count " + rowCount + " columns " + colIndex.length
                      + " selectivity " + changes[0]);
             System.out.println(s);
-
+*/
             return changes;
         } finally {
             readLock.unlock();

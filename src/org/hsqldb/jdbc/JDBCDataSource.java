@@ -93,7 +93,7 @@ import javax.sql.DataSource;
  * This implementation of data source is a basic implementation and does not
  * perform connection pooling.<p>
  *
- * The getter and setter methods of the parent class, JDBCCommonDataSource,
+ * The getter and setter methods of the parent class, {@link JDBCCommonDataSource},
  * can be used.<p>
  * </div>
  * <!-- end Release-specific documentation -->

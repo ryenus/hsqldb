@@ -32,6 +32,8 @@
 package org.hsqldb;
 
 import org.hsqldb.HsqlNameManager.HsqlName;
+import org.hsqldb.error.Error;
+import org.hsqldb.error.ErrorCode;
 import org.hsqldb.lib.HsqlDeque;
 import org.hsqldb.lib.LongDeque;
 import org.hsqldb.lib.LongKeyHashMap;
@@ -220,11 +222,16 @@ implements TransactionManager {
         for (int i = start; i < limit; i++) {
             RowAction action = (RowAction) list[i];
 
-            if (action != null) {
-                action.rollback(session, timestamp);
-            } else {
-                System.out.println("null action in rollback " + start);
+            if (action == null) {
+/*
+            System.out.println("null insert action " + session + " "
+                               + session.actionTimestamp);
+*/
+                throw Error.runtimeError(ErrorCode.GENERAL_ERROR,
+                                         "null rollback action ");
             }
+
+            action.rollback(session, timestamp);
         }
 
         // rolled back transactions can always be merged as they have never been
@@ -261,8 +268,12 @@ implements TransactionManager {
         RowAction action = row.rowAction;
 
         if (action == null) {
+/*
             System.out.println("null insert action " + session + " "
                                + session.actionTimestamp);
+*/
+            throw Error.runtimeError(ErrorCode.GENERAL_ERROR,
+                                     "null insert action ");
         }
 
         if (table.tableType == TableBase.CACHED_TABLE) {

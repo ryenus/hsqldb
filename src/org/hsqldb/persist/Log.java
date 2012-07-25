@@ -75,7 +75,7 @@ import org.hsqldb.scriptio.ScriptWriterText;
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
  * @author Bob Preston (sqlbob@users dot sourceforge.net) - text table support
- * @version 2.2.8
+ * @version 2.2.9
  * @since 1.8.0
  */
 public class Log {
@@ -787,6 +787,10 @@ public class Log {
             File   file = new File(database.getCanonicalPath());
             File[] list = file.getParentFile().listFiles();
 
+            if (list == null) {
+                return;
+            }
+
             for (int i = 0; i < list.length; i++) {
                 if (list[i].getName().startsWith(file.getName())
                         && list[i].getName().endsWith(
@@ -806,6 +810,10 @@ public class Log {
 
             File   file = new File(database.logger.tempDirectoryPath);
             File[] list = file.listFiles();
+
+            if (list == null) {
+                return;
+            }
 
             for (int i = 0; i < list.length; i++) {
                 list[i].delete();

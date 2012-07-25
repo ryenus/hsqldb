@@ -284,11 +284,16 @@ implements TransactionManager {
         for (int i = start; i < limit; i++) {
             RowAction action = (RowAction) list[i];
 
-            if (action != null) {
-                action.rollback(session, timestamp);
-            } else {
-                System.out.println("null action in rollback " + start);
+            if (action == null) {
+/*
+            System.out.println("null insert action " + session + " "
+                               + session.actionTimestamp);
+*/
+                throw Error.runtimeError(ErrorCode.GENERAL_ERROR,
+                                         "null rollback action ");
             }
+
+            action.rollback(session, timestamp);
         }
 
         // rolled back transactions can always be merged as they have never been
@@ -383,14 +388,19 @@ implements TransactionManager {
                                 PersistentStore store, Row row,
                                 int[] changedColumns) {
 
-        RowAction action        = row.rowAction;
-        Session   actionSession = null;
-        boolean   redoAction    = false;
-        boolean   redoWait      = true;
-        HsqlException cause     = null;
+        RowAction     action        = row.rowAction;
+        Session       actionSession = null;
+        boolean       redoAction    = false;
+        boolean       redoWait      = true;
+        HsqlException cause         = null;
+
         if (action == null) {
+/*
             System.out.println("null insert action " + session + " "
                                + session.actionTimestamp);
+*/
+            throw Error.runtimeError(ErrorCode.GENERAL_ERROR,
+                                     "null insert action ");
         }
 
         if (table.tableType == TableBase.CACHED_TABLE) {
@@ -405,7 +415,7 @@ implements TransactionManager {
             }
 
             redoAction = true;
-            cause = e;
+            cause      = e;
         }
 
         if (!redoAction) {
@@ -452,7 +462,7 @@ implements TransactionManager {
                 redoCount++;
             } else {
                 session.abortTransaction = session.txConflictRollback;
-                session.redoAction = false;
+                session.redoAction       = false;
             }
 
             throw Error.error(cause, ErrorCode.X_40501, null);
