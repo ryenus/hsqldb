@@ -343,12 +343,16 @@
 
       <para>If you do not want to run a Server instance, and you need
       persistence between tests in different processes, then you should use a
-      <glossterm>file:</glossterm> database. You can use the
-      <literal>shutdown=true</literal> connection property to ensure the
-      database is persisted fully after the connections are closed. An
-      alternative option is to use <literal>hsqldb.write_delay=false</literal>
-      connection property, but this is slightly slower than the other
-      option.</para>
+      <glossterm>file:</glossterm> database. From version 2.2.9 when the last
+      existing connection to the database is closed, the latest changes to the
+      database are persisted fully. The database is still in an open state
+      until it is shut down. You can use the <literal>shutdown=true</literal>
+      connection property to close the database automatically after the
+      connections are closed. An alternative option is to use
+      <literal>hsqldb.write_delay=false</literal> connection property, but
+      this is slightly slower than the other option and should be used in
+      situations where the test application does not close the
+      connections.</para>
 
       <para>It has been reported that some data access frameworks do not close
       all their connection to the database after the tests. In such
@@ -363,7 +367,8 @@
       being sent to the database. Note that UPDATE statements are represented
       by a DELETE followed by an INSERT statement. Statements are written out
       when the connection commits. The write delay also has an effect on how
-      soon the statements are written out.</para>
+      soon the statements are written out. By default, the write delay is 0.5
+      second.</para>
 
       <para>The new SQL logging feature in version 2.2.x and later records all
       executed statements and can be used for debugging your
@@ -386,9 +391,9 @@
 
       <para>In this usage, the amount of data change is often limited and
       there is often a requirement to persist the data immediately. The
-      default write delay of .5 second is fine for many applications. You can
+      default write delay of 0.5 second is fine for many applications. You can
       also use the property <literal>hsqldb.write_delay_millis=100</literal>
-      to reduce it to .1 second, or the property
+      to reduce it to 0.1 second, or the property
       <literal>hsqldb.write_delay=false</literal> to force a disk sync after
       each commit. Before the application is closed, you should perform the
       SHUTDOWN command to ensure the database is opened instantly when it is
@@ -449,7 +454,7 @@
     </section>
 
     <section xml:id="dec_no_logging">
-      <title>Using HyperSQL Without Logging</title>
+      <title>Using HyperSQL Without Logging Data Change</title>
 
       <para>All file database that are not readonly, write changes to the .log
       file. There are scenarios where writing to the .log file can be turned
@@ -698,7 +703,8 @@
 
         <listitem>
           <para>Version 2.0 does not accept unquoted table or column names
-          which begin with an underscore</para>
+          which begin with an underscore, unless the connection
+          <literal>sql.regular_names</literal> is set false.</para>
         </listitem>
 
         <listitem>
@@ -775,7 +781,8 @@
     versions and has many more features. For these reasons, there may be some
     compatibility issues when converting old database, or using applications
     that were written for version 1.8.x or earlier. Some of the potential
-    issues (and enhancements) are listed here.</para>
+    issues (and enhancements) are listed here. See the full list of connection
+    properties for alternatives.</para>
 
     <itemizedlist>
       <listitem>

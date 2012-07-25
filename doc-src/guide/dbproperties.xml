@@ -1209,11 +1209,14 @@
             </row>
 
             <row>
-              <entry nameend="c3" namest="c1"><para>By default, when two strings arecompared, he shorter string is
-              padded with spaces before comparison. When this property is set
-              false, no padding takes place before
-              comparison.</para><para>Before version 2.0, HSQLDB used NO PAD
-              comparison. If you need the old behaviour, use this property when opening an older database.</para><para><programlisting>SET DEFAULT COLLATION &lt;collation name&gt; [ NO PAD | PAD SPACE ]</programlisting></para></entry>
+              <entry nameend="c3" namest="c1"><para>By default, when two
+              strings are compared, he shorter string is padded with spaces
+              before comparison. When this property is set false, no padding
+              takes place before comparison. Without padding, the shorter
+              string is never equal to the longer one.</para><para>Before
+              version 2.0, HSQLDB used NO PAD comparison. If you need the old
+              behaviour, use this property when opening an older
+              database.</para><para><programlisting>SET DEFAULT COLLATION &lt;collation name&gt; [ NO PAD | PAD SPACE ]</programlisting></para></entry>
             </row>
           </tbody>
         </tgroup>
@@ -1954,7 +1957,7 @@
             <row>
               <entry nameend="c3" namest="c1"><para>Indicates the maximum
               number of rows of cached tables that are held in
-              memory.</para><para>The value can range between 100-1,000,000.
+              memory.</para><para>The value can range between 100- 4 billion.
               If the value is set via SET FILES then it becomes effective
               after the next database SHUTDOWN or
               CHECKPOINT.</para><para><programlisting>SET FILES CACHE ROWS &lt;numeric value&gt;</programlisting></para></entry>
@@ -2001,10 +2004,10 @@
               types of objects in database rows, for example with binary
               objects the factor is less than 2, with character strings, the
               factor is just over 2 and with date and timestamp objects the
-              factor is over 3.</para><para>The value can range between
-              100-1,000,000. The default is 10,000, representing 10,000
-              kilobytes. If the value is set via SET FILES then it becomes
-              effective after the next database SHUTDOWN or
+              factor is over 3.</para><para>The value can range between 100 KB
+              - 4 GB. The default is 10,000, representing 10,000 kilobytes. If
+              the value is set via SET FILES then it becomes effective after
+              the next database SHUTDOWN or
               CHECKPOINT.</para><para><programlisting>SET FILES CACHE SIZE &lt;numeric value&gt;</programlisting></para></entry>
             </row>
           </tbody>
@@ -2043,9 +2046,9 @@
             <row>
               <entry nameend="c3" namest="c1"><para>The default value
               corresponds to a maximum size of 64 GB for the .data file. This
-              can be increased to 64, 128, 256, 512, or 1024
-              resulting in up to 2 TB GB storage. Settings below 32 in older databases are preserved until a SHUTDOWN COMPACT
-              size.</para><para><programlisting>SET FILES SCALE &lt;numeric value&gt;</programlisting></para></entry>
+              can be increased to 64, 128, 256, 512, or 1024 resulting in up
+              to 2 TB GB storage. Settings below 32 in older databases are
+              preserved until a SHUTDOWN COMPACT.</para><para><programlisting>SET FILES SCALE &lt;numeric value&gt;</programlisting></para></entry>
             </row>
           </tbody>
         </tgroup>
