@@ -170,7 +170,7 @@
       it is being received. LOB data should be retrieved from the database
       using a JDBC ResultSet method. When a streaming method is used to
       retrieve a LOB, it is retrieved in large chunks in a transparent manner.
-      LOB data can also be retreived as String or byte[], but these methods
+      LOB data can also be retrieved as String or byte[], but these methods
       use more memory and may not be practical for large objects.</para>
 
       <para>LOB data is not duplicated in the database when a lob is copied
@@ -240,13 +240,14 @@
       this, the property can be included in the URL of the first connection to
       the database.</para>
 
-      <para>There is another option which allows MEMORY tables to be writable,
-      but without persisting the changes at SHUTDOWN. This option is activated
-      with the property, value pair, <literal>files_readonly=true</literal>,
-      which can be added to the <filename>.properties</filename> file of the
-      database, or included in the URL of the first connection to the
-      database. This option is useful for running application tests which
-      operate on a predefined dataset.</para>
+      <para>There is another option which allows MEMORY tables to be
+      writeable, but without persisting the changes at SHUTDOWN. This option
+      is activated with the property, value pair,
+      <literal>files_readonly=true</literal>, which can be added to the
+      <filename>.properties</filename> file of the database, or included in
+      the URL of the first connection to the database. This option is useful
+      for running application tests which operate on a predefined
+      dataset.</para>
     </section>
   </section>
 
@@ -589,7 +590,7 @@
       message, so they can be identified in a multi-database server
       context.</para>
 
-      <para>As the default JDK logging framework has several shotcomings,
+      <para>As the default JDK logging framework has several shortcomings,
       HyperSQL configures this logging framework for better operation. If you
       do not want HyperSQL to configure the JDK logging framework, you should
       include the system level property
@@ -1073,7 +1074,7 @@
         <listitem>
           <para>Fine control over MVCC deadlock avoidance is provided by the
           <literal>&lt;set database transaction rollback on conflict
-          statement&gt;</literal> and the corresonding
+          statement&gt;</literal> and the corresponding
           <literal>hsqldb.tx_conflict_rollback</literal> connection
           property.</para>
         </listitem>
@@ -1772,9 +1773,9 @@
       SET DATABASE SQL REGULAR NAMES { TRUE | FALSE }</literal></simpara>
 
       <simpara>Enable or disable use of the underscore character at the
-      begining, or the dollar character anywhere in database object names such
-      as columns and tables. The default is <literal>TRUE</literal>, meaning
-      disabled.</simpara>
+      beginning, or the dollar character anywhere in database object names
+      such as columns and tables. The default is <literal>TRUE</literal>,
+      meaning disabled.</simpara>
 
       <simpara>SQL Standard does not allow the underscore character at the
       start of names, and does not allow the dollar character anywhere in a

@@ -724,7 +724,7 @@ INSERT INTO movies (starid, movieid, title) VALUES (CURRENT VALUE FOR seq, 10, '
       translated to their upper-case version.</simpara>
 
       <simpara>The database setting, <literal>SET DATABASE SQL REGULAR NAMES
-      FALSE</literal> can be used to relax the rules for regular identifer.
+      FALSE</literal> can be used to relax the rules for regular identifier.
       With this setting, an underscore character can appear at the start of
       the regular identifier, and the dollar sign character can be used in the
       identifier.</simpara>
@@ -1547,14 +1547,14 @@ INSERT INTO t (id, firstname, lastname, fullname) VALUES (2, 'Pink', 'Panther', 
       </indexterm>
 
       <simpara><emphasis role="bold">SET TABLE
-      writability</emphasis></simpara>
+      writeability</emphasis></simpara>
 
       <simpara><emphasis>set table write property</emphasis></simpara>
 
       <simpara><literal>&lt;set table read only statement&gt; ::= SET TABLE
       &lt;table name&gt; { READ ONLY | READ WRITE }</literal></simpara>
 
-      <simpara>Set the writeability property of a table. Tables are writable
+      <simpara>Set the writeability property of a table. Tables are writeable
       by default. This statement can be used to change the property between
       <literal>READ ONLY</literal> and <literal>READ WRITE</literal>. This is
       a feature of HyperSQL.</simpara>
@@ -2939,7 +2939,7 @@ alter specific routine zero_pad_01
       that does not pad spaces before comparing two strings. For example,
       CREATE COLLATION FRENCH_NOPAD FOR SQL_TEXT FROM SQL_TEXT NO PAD, results
       in a French collation without padding. This collation can be used for
-      sorting or for individual coloumns of tables.</simpara>
+      sorting or for individual columns of tables.</simpara>
 
       <indexterm significance="preferred" type="sql">
         <primary>DROP COLLATION</primary>
