@@ -1239,9 +1239,9 @@ WIDTH_BUCKET( 200, 10, 110, 10)
 
       <para><literal>NOW ()</literal></para>
 
-      <para>This function is equivalent to <literal>LOCALTIMESTAMP. It can be
-      used as a no-arg function as the empty parentheses are optional.
-      (HyperSQL)</literal></para>
+      <para>This function is equivalent to <literal>LOCALTIMESTAMP</literal>.
+      It can be used as a no-arg function as the parens are optional.
+      (HyperSQL)</para>
 
       <indexterm significance="preferred" type="sql">
         <primary>CURDATE function</primary>
@@ -1251,8 +1251,8 @@ WIDTH_BUCKET( 200, 10, 110, 10)
 
       <para><literal>CURDATE ()</literal></para>
 
-      <para>This function is equivalent to<literal> CURRENT_DATE.
-      </literal>(JDBC)</para>
+      <para>This function is equivalent to<literal> CURRENT_DATE</literal>.
+      (JDBC)</para>
 
       <indexterm significance="preferred" type="sql">
         <primary>CURTIME function</primary>
@@ -1273,7 +1273,7 @@ WIDTH_BUCKET( 200, 10, 110, 10)
 
       <para><literal>SYSDATE</literal></para>
 
-      <para>This function is equivalent to<literal> LOCALTIMESTAMP.
+      <para>This function is equivalent to <literal>LOCALTIMESTAMP.
       </literal>(HyperSQL)</para>
 
       <indexterm significance="preferred" type="sql">
@@ -1284,8 +1284,9 @@ WIDTH_BUCKET( 200, 10, 110, 10)
 
       <para><literal>SYSTIMESTAMP</literal></para>
 
-      <para>This no-arg function is equivalent to<literal> CURRENT_TIMESTAMP
-      and is enabled in Oracle syntax mode only. </literal>(HyperSQL)</para>
+      <para>This no-arg function is equivalent to
+      <literal>CURRENT_TIMESTAMP</literal> and is enabled in ORA syntax mode
+      only. (HyperSQL)</para>
 
       <indexterm significance="preferred" type="sql">
         <primary>TODAY function</primary>

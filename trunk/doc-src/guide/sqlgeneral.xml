@@ -214,7 +214,7 @@
       BLOB or CLOB is inserted into the database. The file will grow as new
       lobs are inserted into the database. In version 2.x, the *.lobs file is
       never deleted even if all lobs are deleted from the database (In this
-      case you can delete the .lobs file after a SHTUDOWN).</para>
+      case you can delete the .lobs file after a SHUTDOWN).</para>
     </section>
   </section>
 
@@ -726,11 +726,12 @@ LONGVARBINARY
       has a maximum width and shorter strings are not padded.</para>
 
       <para>Before the introduction of the BOOLEAN type to the SQL Standard, a
-      sigle-bit string of the type BIT(1) was commonly used. For compatibility
-      with other products that do not conform to, or extend, the SQL Standard,
-      HyperSQL allows values of BIT and BIT VARYING types with length 1 to be
-      converted to and from the BOOLEAN type. BOOLEAN TRUE is considered equal
-      to B'1', BOOLEAN FALSE is considered equal to B'0'.</para>
+      single-bit string of the type BIT(1) was commonly used. For
+      compatibility with other products that do not conform to, or extend, the
+      SQL Standard, HyperSQL allows values of BIT and BIT VARYING types with
+      length 1 to be converted to and from the BOOLEAN type. BOOLEAN TRUE is
+      considered equal to B'1', BOOLEAN FALSE is considered equal to
+      B'0'.</para>
 
       <para>For the same reason, numeric values can be assigned to columns and
       variables of the type BIT(1). For assignment, the numeric value zero is

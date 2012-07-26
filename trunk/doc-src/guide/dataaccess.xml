@@ -2722,7 +2722,7 @@ I D          S
       before they are joined.</para>
 
       <para>CROSS JOIN is not is not generally very useful, as it returns
-      large result tables unless WHERE conditions are used. </para>
+      large result tables unless WHERE conditions are used.</para>
 
       <indexterm significance="preferred" type="sql">
         <primary>UNION JOIN</primary>
@@ -2754,7 +2754,7 @@ I D          S
       equality condition between on or more pairs of columns from the two
       table. Equijoin is the most commonly used type of join.</para>
 
-      <programlisting>SELECT a.*, b.* FROM a INNTER JOIN b ON a.col_one = b.col_two
+      <programlisting>SELECT a.*, b.* FROM a INNER JOIN b ON a.col_one = b.col_two
 </programlisting>
 
       <indexterm significance="preferred" type="sql">

@@ -2505,9 +2505,9 @@
 
             <row>
               <entry nameend="c3" namest="c1"><para>The .log file is processed
-              during recovery after a forced shutwon. Out of memory conditions
-              always abort the startup. Any other exception stops the
-              processing of the .log file and by default, continues the
+              during recovery after a forced shutdwon. Out of memory
+              conditions always abort the startup. Any other exception stops
+              the processing of the .log file and by default, continues the
               startup process. If this property is true, the startup process
               is stopped if any exception occurs. Exceptions are usually
               caused by incomplete lines of SQL statements near the end of the
