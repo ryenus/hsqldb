@@ -6145,17 +6145,16 @@ public class ParserDQL extends ParserBase {
 
     StatementDMQL compileShortCursorSpecification(int props) {
 
-        QueryExpression queryExpression = XreadQueryExpression();
+        QueryExpression select = XreadSimpleTable();
 
         if (ResultProperties.isUpdatable(props)) {
-            queryExpression.isUpdatable = true;
+            select.isUpdatable = true;
         }
 
-        queryExpression.setReturningResult();
-        queryExpression.resolve(session);
+        select.setReturningResult();
+        select.resolve(session);
 
-        StatementDMQL cs = new StatementQuery(session, queryExpression,
-                                              compileContext);
+        StatementDMQL cs = new StatementQuery(session, select, compileContext);
 
         return cs;
     }

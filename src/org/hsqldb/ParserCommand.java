@@ -149,6 +149,12 @@ public class ParserCommand extends ParserDDL {
                 break;
             }
             case Tokens.VALUES : {
+                RangeGroup[] ranges = new RangeGroup[]{
+                    new RangeGroupSimple(
+                        session.sessionContext.sessionVariablesRange) };
+
+                compileContext.setOuterRanges(ranges);
+
                 cs = compileShortCursorSpecification(props);
 
                 break;
