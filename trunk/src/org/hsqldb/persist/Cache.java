@@ -336,11 +336,7 @@ public class Cache extends BaseHashMap {
     }
 
     void logSynchEvent() {
-
-        StringBuffer sb = new StringBuffer();
-
-        sb.append("cache sync");
-        dataFileCache.database.logger.logDetailEvent(sb.toString());
+        dataFileCache.logDetailEvent("cache sync");
     }
 
     void logSaveRowsEvent(int saveCount, long startTime) {
@@ -358,7 +354,7 @@ public class Cache extends BaseHashMap {
         sb.append(dataFileCache.database.txManager.getGlobalChangeTimestamp());
 
 //
-        dataFileCache.database.logger.logDetailEvent(sb.toString());
+        dataFileCache.logDetailEvent(sb.toString());
     }
 
     /**

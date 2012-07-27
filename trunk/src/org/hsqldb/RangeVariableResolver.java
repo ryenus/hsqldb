@@ -60,11 +60,11 @@ public class RangeVariableResolver {
 
     Session         session;
     QuerySpecification select;
-    RangeVariable[] rangeVariables;
-    Expression      conditions;
-    OrderedHashSet  rangeVarSet = new OrderedHashSet();
-    CompileContext  compileContext;
-    SortAndSlice    sortAndSlice = SortAndSlice.noSort;
+    RangeVariable[]    rangeVariables;
+    Expression         conditions;
+    OrderedHashSet     rangeVarSet = new OrderedHashSet();
+    CompileContext     compileContext;
+    SortAndSlice       sortAndSlice = SortAndSlice.noSort;
 
     //
     HsqlArrayList[] tempJoinExpressions;
@@ -656,8 +656,8 @@ public class RangeVariableResolver {
 
                 PersistentStore store = table.getRowStore(session);
                 double currentCost = store.searchCost(session, index,
-                                                       indexes[j].columnCount,
-                                                       OpTypes.EQUAL);
+                                                      indexes[j].columnCount,
+                                                      OpTypes.EQUAL);
 
                 if (currentCost < cost) {
                     cost     = currentCost;
@@ -1313,8 +1313,8 @@ public class RangeVariableResolver {
                         conditions.rangeVar.rangeTable.getRowStore(session);
                     double currentCost =
                         store.searchCost(session, indexes[i].index,
-                                          indexes[i].columnCount,
-                                          OpTypes.EQUAL);
+                                         indexes[i].columnCount,
+                                         OpTypes.EQUAL);
 
                     if (currentCost < cost) {
                         cost  = currentCost;

@@ -230,6 +230,12 @@ public class ParserDQL extends ParserBase {
                         typeNumber     = Types.LONGVARCHAR;
                         readByteOrChar = true;
                         break;
+
+                    case Tokens.CITEXT :
+                        if (database.sqlSyntaxPgs) {
+                            typeNumber = Types.VARCHAR_IGNORECASE;
+                        }
+                        break;
                 }
             }
 
@@ -473,7 +479,14 @@ public class ParserDQL extends ParserBase {
                     }
                 }
             case Types.SQL_CLOB :
+                isCharacter = true;
+                break;
+
             case Types.VARCHAR_IGNORECASE :
+                if (!hasLength) {
+                    length = 32 * 1024;
+                }
+
                 isCharacter = true;
                 break;
 
