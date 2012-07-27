@@ -43,12 +43,11 @@ import java.nio.channels.FileChannel.MapMode;
 import org.hsqldb.Database;
 
 /**
- * New NIO version of ScaledRAFile. This class is used only for storing a CACHED
+ * NIO version of ScaledRAFile. This class is used only for storing a CACHED
  * TABLE .data file and cannot be used for TEXT TABLE source files.
  *
- * Due to various issues with java.nio classes, this class will use a mapped
- * channel of fixed size. After reaching this size, the file and channel are
- * closed.
+ * Once the maximum data file size allowed for NIO is reached, an ordinary
+ * ScaledRAFile is used for data access.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
  * @version  2.2.9
