@@ -16,7 +16,7 @@
        the root element, so we can use them anywhere in this file. -->
 
   <info>
-    <title xml:id="openoffice-title">HyperSQL with OpenOffice.org</title>
+    <title xml:id="openoffice-title">HyperSQL with OpenOffice</title>
 
     <subtitle>How to use HyperSQL with OpenOffice.org</subtitle>
 
@@ -45,37 +45,47 @@
   </info>
 
   <section xml:id="ooa_overview">
-    <title>HyperSQL with OpenOffice.org</title>
+    <title>HyperSQL with OpenOffice</title>
 
-    <simpara>OpenOffice / LibreOffice includes HyperSQL and uses it for
-    embedded databases. Our collaboration with OpenOffice.org developers over
-    the last few years has benefited the development and maturity of HyperSQL.
-    Before integration into OOo, HSQLDB was intended solely for
-    application-specific database access. The application developer was
-    expected to resolve any integration issues. Because OpenOffice.org is used
-    by a vast range of users, from schoolchildren to corporate developers, a
-    much higher level of quality assurance has been required and we have
-    achieved it with constant help and feedback from OOo users and
+    <simpara>OpenOffice.org / LibreOffice / ApacheOpenOffice includes HyperSQL
+    and uses it for embedded databases. Our collaboration with OpenOffice.org
+    developers over the last few years has benefited the development and
+    maturity of HyperSQL. Before integration into OOo, HSQLDB was intended
+    solely for application-specific database access. The application developer
+    was expected to resolve any integration issues. Because OpenOffice.org is
+    used by a vast range of users, from schoolchildren to corporate
+    developers, a much higher level of quality assurance has been required. We
+    have achieved it with constant help and feedback from OOo users and
     developers.</simpara>
 
     <simpara>Apart from embedded use, you may want to use OpenOffice /
     LibreOffice with a HyperSQL server instance. The typical use for this is
-    to allow multiple office users accessing the same database. There is,
-    however, a strong case for using OOo to develop your database schema and
-    application, even if the database is intended for your own
-    application.</simpara>
+    to allow multiple office users access to the same database.</simpara>
+
+    <simpara>There is also a strong case for using OpenOffice to develop your
+    database schema and application, even if the database is intended for your
+    own application, rather than OpenOffice.</simpara>
+
+    <simpara>HSQLDB version 1.8.0 is included in OOo, ApacheOpenOffice and
+    LibreOffice 3.2, 3.3, 3.4 and 3.5. You can simply replace the jar with an
+    HSQLDB version 2.2.9 jar to use the latest capabilities. Databases that
+    have been opened with the new jar can no longer be opened with the older
+    version jars.</simpara>
+
+    <simpara>HSQLDB version 2.x jar will hopefully be included in the future
+    versions of ApacheOpenOffice and LibreOffice.</simpara>
   </section>
 
   <section xml:id="ooa_database_tool">
-    <title>Using OpenOffice as a Database Tool</title>
+    <title>Using OpenOffice / LibreOffice as a Database Tool</title>
 
-    <simpara>OpenOffice.org is a very powerful database front end. If you want
-    to create schemas, edit tables, edit the database contents manually,
-    design and produce well-formatted reports, then OpenOffice.org is probably
-    the best open source tools currently available.</simpara>
+    <simpara>OpenOffice is a powerful database front end. If you want to
+    create schemas, edit tables, edit the database contents manually, design
+    and produce well-formatted reports, then OpenOffice is probably the best
+    open source tools currently available.</simpara>
 
-    <simpara>To connect from OpenOffice.org to your database, first run a
-    local server instance for the database. This is describes in the Network
+    <simpara>To connect from OpenOffice to your database, first run a local
+    server instance for the database. This is describes in the Network
     Listeners chapter of this guide.</simpara>
 
     <simpara>When you connect from OpenOffice.org, you must specify connection
@@ -88,11 +98,8 @@
     the PUBLIC schema. This limitation will hopefully disappear in the future
     versions of OOo.</simpara>
 
-    <simpara>When using of HyperSQL with OOo, you should use the HyperSQL jar
-    that is supplied with OpenOffice if you are accessing .odb documents with
-    contained databases. For Server and external databases, you can replace
-    the jar with the latest HyperSQL jar. There wil hopefuly be a version 2.x
-    jar in the future versions of OpenOffice.</simpara>
+    <simpara>There wil hopefuly be a version 2.x jar in the future versions of
+    OpenOffice.</simpara>
   </section>
 
   <section xml:id="ooa_db_files_convert">
