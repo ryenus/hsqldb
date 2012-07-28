@@ -26,7 +26,7 @@
   -->
 
    <property file='build/build.properties'/>
-   <property name="hsqldb.version" value="2.2.9-SNAPSHOT"/>
+   <property name="hsqldb.version" value="2.2.9"/>
 
    <tstamp>
        <format property="timestamp" pattern="yyyy/MM/dd-HH:mm:ss"
@@ -369,6 +369,7 @@ examples:
          <exclude name="org/hsqldb/jdbc/JDBCNClob.java"/>
          <exclude name="org/hsqldb/jdbc/JDBCRowId.java"/>
          <exclude name="org/hsqldb/jdbc/JDBCSQLXML.java"/>
+         <exclude name="org/hsqldb/jdbc/JDBCPool.java"/>
 <!-- TODO
          <exclude name="org/hsqldb/jdbc/jdbcConflictingRowImpl.java"/>
          <exclude name="org/hsqldb/jdbc/jdbcDataSetImpl.java"/>
@@ -432,6 +433,7 @@ examples:
          <include name="org/hsqldb/jdbc/JDBCNClob.java"/>
          <include name="org/hsqldb/jdbc/JDBCRowId.java"/>
          <include name="org/hsqldb/jdbc/JDBCSQLXML.java"/>
+         <include name="org/hsqldb/jdbc/JDBCPool.java"/>
 <!-- TODO
          <include name="org/hsqldb/jdbc/jdbcConflictingRowImpl.java"/>
          <include name="org/hsqldb/jdbc/jdbcDataSetImpl.java"/>
