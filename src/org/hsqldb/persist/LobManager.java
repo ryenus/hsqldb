@@ -302,7 +302,9 @@ public class LobManager {
     }
 
     public void close() {
+
         lobStore.close();
+
         lobStore = null;
     }
 
@@ -488,8 +490,9 @@ public class LobManager {
                 return Result.updateZeroResult;
             }
 
-            Session[] sessions = database.sessionManager.getAllSessions();
-            long firstLobID = Long.MAX_VALUE;
+            Session[] sessions   = database.sessionManager.getAllSessions();
+            long      firstLobID = Long.MAX_VALUE;
+
             for (int i = 0; i < sessions.length; i++) {
                 if (sessions[i].isClosed()) {
                     continue;

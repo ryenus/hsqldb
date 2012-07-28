@@ -144,6 +144,7 @@ public class Logger {
     boolean           cryptLobs;
     public FileAccess fileAccess;
     public boolean    isStoredFileAccess;
+    public boolean    isNewStoredFileAccess;
     String            tempDirectoryPath;
 
     //
@@ -195,6 +196,9 @@ public class Logger {
         String fileaccess_class_name =
             (String) database.getURLProperties().getProperty(
                 HsqlDatabaseProperties.url_fileaccess_class_name);
+        String storage_class_name =
+            (String) database.getURLProperties().getProperty(
+                HsqlDatabaseProperties.url_storage_class_name);
         boolean hasFileProps = false;
         boolean hasScript    = false;
 
@@ -203,9 +207,28 @@ public class Logger {
                 HsqlDatabaseProperties.url_storage_key);
 
             try {
-                Class zclass = Class.forName(fileaccess_class_name);
-                Constructor constructor = zclass.getConstructor(new Class[]{
-                    Object.class });
+                Class fileAccessClass = null;
+                Class storageClass    = null;
+
+                try {
+                    ClassLoader classLoader =
+                        Thread.currentThread().getContextClassLoader();
+
+                    fileAccessClass =
+                        classLoader.loadClass(fileaccess_class_name);
+                    storageClass = classLoader.loadClass(storage_class_name);
+                } catch (ClassNotFoundException e) {
+                    fileAccessClass = Class.forName(fileaccess_class_name);
+                    storageClass    = Class.forName(storage_class_name);
+                }
+
+                if (storageClass.isAssignableFrom(RandomAccessInterface.class)) {
+                    isNewStoredFileAccess = true;
+                }
+
+                Constructor constructor =
+                    fileAccessClass.getConstructor(new Class[]{
+                        Object.class });
 
                 fileAccess =
                     (FileAccess) constructor.newInstance(new Object[]{
@@ -1196,6 +1219,10 @@ public class Logger {
 
     public boolean isStoredFileAccess() {
         return isStoredFileAccess;
+    }
+
+    public boolean isNewStoredFileAccess() {
+        return isNewStoredFileAccess;
     }
 
     public boolean isFileDatabase() {

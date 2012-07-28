@@ -41,13 +41,14 @@ import java.lang.reflect.Constructor;
 import org.hsqldb.Database;
 import org.hsqldb.lib.HsqlByteArrayInputStream;
 import org.hsqldb.lib.HsqlByteArrayOutputStream;
+import org.hsqldb.lib.Storage;
 
 /**
  * This class is a wrapper for a random access file such as that used for
  * CACHED table storage.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version  2.0.1
+ * @version  2.2.9
  * @since  1.7.2
  */
 final class ScaledRAFile implements RandomAccessInterface {
@@ -97,15 +98,32 @@ final class ScaledRAFile implements RandomAccessInterface {
                     HsqlDatabaseProperties.url_storage_class_name);
                 String skey = database.getURLProperties().getProperty(
                     HsqlDatabaseProperties.url_storage_key);
-                Class       zclass      = Class.forName(cname);
-                Constructor constructor = zclass.getConstructor(new Class[] {
+                Class storageClass;
+
+                try {
+                    ClassLoader classLoader =
+                        Thread.currentThread().getContextClassLoader();
+
+                    storageClass = classLoader.loadClass(cname);
+                } catch (ClassNotFoundException e) {
+                    storageClass = Class.forName(cname);
+                }
+
+                Constructor constructor =
+                    storageClass.getConstructor(new Class[] {
                     String.class, Boolean.class, Object.class
                 });
-
-                return (RandomAccessInterface) constructor.newInstance(
-                    new Object[] {
+                Object accessor = constructor.newInstance(new Object[] {
                     name, new Boolean(readonly), skey
                 });
+
+                if (accessor instanceof RandomAccessInterface) {
+                    return (RandomAccessInterface) accessor;
+                } else if (accessor instanceof org.hsqldb.lib.Storage) {
+                    return new ScaledRAStorageWrapper((Storage) accessor);
+                } else {
+                    throw new IOException();
+                }
             } catch (ClassNotFoundException e) {
                 throw new IOException();
             } catch (NoSuchMethodException e) {

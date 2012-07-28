@@ -172,6 +172,10 @@ public class HsqlDatabaseProperties extends HsqlProperties {
     private static final String hsqldb_modified = "modified";
 
     //
+    public static final String hsqldb_compatible_version =
+        "hsqldb.compatible_version";
+
+    //
     public static final String runtime_gc_interval = "runtime.gc_interval";
 
     //
@@ -226,7 +230,7 @@ public class HsqlDatabaseProperties extends HsqlProperties {
         "hsqldb.write_delay_millis";
     public static final String hsqldb_full_log_replay =
         "hsqldb.full_log_replay";
-    public static final String hsqldb_large_data       = "hsqldb.large_data";
+    public static final String hsqldb_large_data = "hsqldb.large_data";
 
     //
     public static final String sql_ref_integrity       = "sql.ref_integrity";
@@ -592,6 +596,16 @@ public class HsqlDatabaseProperties extends HsqlProperties {
             }
 
             props.setProperty(hsqldb_version, THIS_VERSION);
+
+            // when used with embedded databases in OOo, AOO and LO, older versions
+            if (database.logger.isStoredFileAccess()) {
+                if (!database.logger.isNewStoredFileAccess()) {
+                    props.setProperty(hsqldb_version, VERSION_STRING_1_8_0);
+                }
+
+                props.setProperty(hsqldb_compatible_version, THIS_VERSION);
+            }
+
             props.setProperty(hsqldb_modified, getProperty(hsqldb_modified));
             props.save(fileName + ".properties" + ".new");
             fa.renameElement(fileName + ".properties" + ".new",
