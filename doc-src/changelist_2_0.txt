@@ -1,8 +1,11 @@
+28 July Svn 5043 snapshot
+-- support for use in OO and LO version 3.2 and later
 19 July 2012 SVN 5030 snapshot
 -- further code review and minor fixes
 -- new simple connection pool class org.hsqldb.jdbc.JDBCPool
 2 July 2012 SVN 5017 snapshot
 -- added integrated support for large data
+-- enhanecments to Servlet and WebServer
 28 June 2012 SVN 5009 snapshot
 -- improved optimisation of queries with views and subqueries
 -- improved support for complex, nested queries
