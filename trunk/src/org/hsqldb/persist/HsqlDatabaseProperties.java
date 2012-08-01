@@ -322,6 +322,9 @@ public class HsqlDatabaseProperties extends HsqlProperties {
         dbMeta.put(hsqldb_modified,
                    HsqlProperties.getMeta(hsqldb_modified, FILE_PROPERTY,
                                           null));
+        dbMeta.put(hsqldb_compatible_version,
+                   HsqlProperties.getMeta(hsqldb_compatible_version,
+                                          FILE_PROPERTY, null));
 
         // boolean defaults for protected props
         dbMeta.put(hsqldb_readonly,
@@ -975,7 +978,8 @@ public class HsqlDatabaseProperties extends HsqlProperties {
     public boolean isVersion18() {
 
         String version =
-            getStringProperty(HsqlDatabaseProperties.hsqldb_version);
+            getProperty(HsqlDatabaseProperties.hsqldb_compatible_version,
+                        THIS_VERSION);
 
         return version.substring(0, 4).equals("1.8.");
     }

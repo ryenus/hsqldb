@@ -1019,10 +1019,10 @@ public class LobManager {
 
         int sourceIndex = 0;
         int targetIndex = 0;
+        int sourceOffset = 0;
+        int targetOffset = 0;
 
         while (true) {
-            int sourceOffset = 0;
-            int targetOffset = 0;
             byte[] bytes = getLobStore().getBlockBytes(
                 source[sourceIndex][LOBS.BLOCK_ADDR] + sourceOffset, 1);
 
