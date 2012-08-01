@@ -2210,7 +2210,7 @@ public class QuerySpecification extends QueryExpression {
 
             rangeVariables[0].resetConditions();
 
-            for (int i = 0; i < indexLimitData; i++) {
+            for (int i = 0; i < indexLimitExpressions; i++) {
                 Expression e = exprColumns[i];
 
                 exprColumns[i] = e.replaceColumnReferences(rangeVar,

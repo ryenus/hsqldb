@@ -110,10 +110,6 @@ final class ScaledRAStorageWrapper implements RandomAccessInterface {
         return false;
     }
 
-    public Database getDatabase() {
-        return null;
-    }
-
     public void synch() {
         //
     }

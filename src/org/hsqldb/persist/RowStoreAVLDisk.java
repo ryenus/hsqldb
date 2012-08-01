@@ -142,7 +142,7 @@ public class RowStoreAVLDisk extends RowStoreAVL {
             if (largeData) {
                 return new RowAVLDiskLarge(table, in);
             } else {
-            return new RowAVLDisk(table, in);
+                return new RowAVLDisk(table, in);
             }
         } catch (IOException e) {
             throw Error.error(ErrorCode.DATA_FILE_ERROR, e);
