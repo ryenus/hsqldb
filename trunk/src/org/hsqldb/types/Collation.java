@@ -185,7 +185,7 @@ public class Collation implements SchemaObject {
     private Locale   locale;
     private boolean  equalIsIdentical = true;
     private boolean  isFinal;
-    private Boolean  padSpace;
+    private boolean  padSpace = true;
 
     //
     private Charset  charset;
@@ -297,7 +297,7 @@ public class Collation implements SchemaObject {
         String language = locale.getDisplayLanguage(Locale.ENGLISH);
 
         try {
-            setCollation(language, null);
+            setCollation(language, false);
         } catch (HsqlException e) {}
     }
 
@@ -337,15 +337,11 @@ public class Collation implements SchemaObject {
             equalIsIdentical = false;
         }
 
-        this.padSpace = null;
-
-        if (padSpace != null && !padSpace) {
-            this.padSpace = padSpace;
-        }
+        this.padSpace = padSpace;
     }
 
     public boolean isPadSpace() {
-        return padSpace == null || padSpace.booleanValue();
+        return padSpace;
     }
 
     /**
@@ -401,14 +397,14 @@ public class Collation implements SchemaObject {
      * any collation without a collator
      */
     public boolean isDefaultCollation() {
-        return collator == null && padSpace == null;
+        return collator == null && padSpace;
     }
 
     /**
      * collation for individual object
      */
     public boolean isObjectCollation() {
-        return isFinal && (collator != null || padSpace != null);
+        return isFinal && collator != null;
     }
 
     public HsqlName getName() {
@@ -452,15 +448,12 @@ public class Collation implements SchemaObject {
         sb.append(charset.name.getSchemaQualifiedStatementName()).append(' ');
         sb.append(Tokens.T_FROM).append(' ');
         sb.append(sourceName.statementName);
+        sb.append(' ');
 
-        if (padSpace != null) {
-            sb.append(' ');
-
-            if (padSpace.booleanValue()) {
-                sb.append(Tokens.T_PAD).append(' ').append(Tokens.T_SPACE);
-            } else {
-                sb.append(Tokens.T_NO).append(' ').append(Tokens.T_PAD);
-            }
+        if (padSpace) {
+            sb.append(Tokens.T_PAD).append(' ').append(Tokens.T_SPACE);
+        } else {
+            sb.append(Tokens.T_NO).append(' ').append(Tokens.T_PAD);
         }
 
         return sb.toString();
@@ -472,20 +465,18 @@ public class Collation implements SchemaObject {
 
     public String getDatabaseCollationSQL() {
 
-        if (isDefaultCollation()) {
-            return null;
-        }
-
         StringBuffer sb = new StringBuffer();
 
         sb.append(Tokens.T_SET).append(' ');
         sb.append(Tokens.T_DATABASE).append(' ');
         sb.append(Tokens.T_COLLATION).append(' ');
         sb.append(getName().statementName);
+        sb.append(' ');
 
-        if (!isPadSpace()) {
-            sb.append(' ').append(Tokens.T_NO).append(' ');
-            sb.append(Tokens.T_PAD);
+        if (padSpace) {
+            sb.append(Tokens.T_PAD).append(' ').append(Tokens.T_SPACE);
+        } else {
+            sb.append(Tokens.T_NO).append(' ').append(Tokens.T_PAD);
         }
 
         return sb.toString();

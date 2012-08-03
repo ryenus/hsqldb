@@ -160,13 +160,13 @@ public class DataFileCache {
             initialFreePos = dataFileScale;
         }
 
-        cacheReadonly   = database.logger.propFilesReadOnly;
-        maxCacheRows    = database.logger.propCacheMaxRows;
-        maxCacheBytes   = database.logger.propCacheMaxSize;
+        cacheReadonly = database.logger.propFilesReadOnly;
+        maxCacheRows  = database.logger.propCacheMaxRows;
+        maxCacheBytes = database.logger.propCacheMaxSize;
         maxDataFileSize = (long) Integer.MAX_VALUE * dataFileScale
                           * database.logger.getDataFileFactor();
-        dataFile        = null;
-        shadowFile      = null;
+        dataFile   = null;
+        shadowFile = null;
     }
 
     /**
@@ -920,6 +920,8 @@ public class DataFileCache {
 
             return dataFile.readInt();
         } catch (IOException e) {
+            logSevereEvent("readSize", e, pos);
+
             throw Error.error(ErrorCode.DATA_FILE_ERROR, e);
         } finally {
             writeLock.unlock();
@@ -938,6 +940,8 @@ public class DataFileCache {
 
             return rowIn;
         } catch (IOException e) {
+            logSevereEvent("readObject", e, pos);
+
             throw Error.error(ErrorCode.DATA_FILE_ERROR, e);
         }
     }
@@ -997,6 +1001,7 @@ public class DataFileCache {
             saveRowNoLock(row);
         } catch (Throwable e) {
             logSevereEvent("saveRow failed", e);
+            logSevereEvent("saveRow", e, row.getPos());
 
             throw Error.error(ErrorCode.DATA_FILE_ERROR, e);
         } finally {
@@ -1013,6 +1018,8 @@ public class DataFileCache {
             dataFile.write(rowOut.getOutputStream().getBuffer(), 0,
                            rowOut.getOutputStream().size());
         } catch (IOException e) {
+            logSevereEvent("saveRow", e, row.getPos());
+
             throw Error.error(ErrorCode.DATA_FILE_ERROR, e);
         }
     }
@@ -1274,6 +1281,19 @@ public class DataFileCache {
 
     public RAShadowFile getShadowFile() {
         return shadowFile;
+    }
+
+    private void logSevereEvent(String message, Throwable t, long position) {
+
+        if (logEvents) {
+            StringBuffer sb = new StringBuffer(message);
+
+            sb.append(' ').append(position);
+
+            message = sb.toString();
+
+            database.logger.logSevereEvent(message, t);
+        }
     }
 
     private void logSevereEvent(String message, Throwable t) {

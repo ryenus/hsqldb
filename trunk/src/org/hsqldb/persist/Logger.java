@@ -222,7 +222,8 @@ public class Logger {
                     storageClass    = Class.forName(storage_class_name);
                 }
 
-                if (storageClass.isAssignableFrom(RandomAccessInterface.class)) {
+                if (storageClass.isAssignableFrom(
+                        RandomAccessInterface.class)) {
                     isNewStoredFileAccess = true;
                 }
 
@@ -262,6 +263,9 @@ public class Logger {
 
             if (database.databaseProperties.isVersion18()) {
                 exists = hasFileProps;
+
+                database.databaseProperties.setProperty(
+                    HsqlDatabaseProperties.hsqldb_inc_backup, false);
             } else {
                 exists = hasScript;
 
@@ -476,6 +480,10 @@ public class Logger {
 
         if (!database.urlProperties.isPropertyTrue(
                 HsqlDatabaseProperties.sql_pad_space, true)) {
+            database.collation.setPadding(false);
+        }
+
+        if (version18 && isStoredFileAccess) {
             database.collation.setPadding(false);
         }
 

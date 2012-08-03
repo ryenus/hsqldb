@@ -553,8 +553,9 @@ public class StatementCommand extends Statement {
             }
             case StatementTypes.SET_DATABASE_SQL_COLLATION : {
                 try {
-                    String  name      = (String) parameters[0];
-                    Boolean padSpaces = (Boolean) parameters[1];
+                    String name = (String) parameters[0];
+                    boolean padSpaces =
+                        ((Boolean) parameters[1]).booleanValue();
 
                     /** @todo 1.9.0 - ensure no data in character columns */
                     session.checkAdmin();

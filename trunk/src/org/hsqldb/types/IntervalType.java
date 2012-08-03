@@ -688,10 +688,13 @@ public final class IntervalType extends DTIType {
         sb.append(Tokens.T_INTERVAL).append(' ');
         sb.append('\'').append(convertToString(a)).append('\'').append(' ');
         sb.append(Tokens.SQL_INTERVAL_FIELD_NAMES[startPartIndex]);
-        sb.append(' ');
-        sb.append(Tokens.T_TO);
-        sb.append(' ');
-        sb.append(Tokens.SQL_INTERVAL_FIELD_NAMES[endPartIndex]);
+
+        if (startPartIndex != endPartIndex) {
+            sb.append(' ');
+            sb.append(Tokens.T_TO);
+            sb.append(' ');
+            sb.append(Tokens.SQL_INTERVAL_FIELD_NAMES[endPartIndex]);
+        }
 
         return sb.toString();
     }

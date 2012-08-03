@@ -1020,6 +1020,15 @@ public class ParserCommand extends ParserDDL {
                     padSpace = Boolean.TRUE;
                 }
 
+                if (padSpace == null) {
+                    if (session.isProcessingScript()
+                            && database.getProperties().isVersion18()) {
+                        padSpace = Boolean.FALSE;
+                    } else {
+                        padSpace = Boolean.TRUE;
+                    }
+                }
+
                 Object[] args = new Object[] {
                     name, padSpace
                 };
