@@ -721,28 +721,6 @@ public class FunctionCustom extends FunctionSQL {
                 return new ExpressionArithmetic(OpTypes.CONCAT,
                                                 nodes[Expression.LEFT],
                                                 nodes[Expression.RIGHT]);
-
-            case FUNC_DATE_ADD :
-            case FUNC_DATE_SUB : {
-                if (nodes[Expression.LEFT].dataType.isCharacterType()) {
-                    nodes[Expression.LEFT] =
-                        new ExpressionOp(nodes[Expression.LEFT],
-                                         Type.SQL_TIMESTAMP);
-                }
-
-                if (nodes[Expression.RIGHT].dataType.isIntegralType()) {
-                    nodes[Expression.RIGHT] =
-                        new ExpressionOp(nodes[Expression.RIGHT],
-                                         Type.SQL_INTERVAL_DAY);
-                }
-
-                int opType = funcType == FUNC_DATE_ADD ? OpTypes.ADD
-                                                       : OpTypes.SUBTRACT;
-
-                return new ExpressionArithmetic(opType,
-                                                nodes[Expression.LEFT],
-                                                nodes[Expression.RIGHT]);
-            }
         }
 
         return super.getFunctionExpression();
@@ -1081,6 +1059,21 @@ public class FunctionCustom extends FunctionSQL {
                         throw Error.runtimeError(ErrorCode.U_S0500,
                                                  "FunctionCustom");
                 }
+            }
+            case FUNC_DATE_ADD : {
+                if (data[0] == null || data[1] == null) {
+                    return null;
+                }
+
+                return dataType.add(data[0], data[1], nodes[RIGHT].dataType);
+            }
+            case FUNC_DATE_SUB : {
+                if (data[0] == null || data[1] == null) {
+                    return null;
+                }
+
+                return dataType.subtract(data[0], data[1],
+                                         nodes[RIGHT].dataType);
             }
             case FUNC_DAYS : {
                 if (data[0] == null) {
@@ -2076,6 +2069,35 @@ public class FunctionCustom extends FunctionSQL {
 
                 return;
             }
+            case FUNC_DATE_ADD :
+            case FUNC_DATE_SUB : {
+                if (nodes[0].dataType == null) {
+                    nodes[0].dataType = Type.SQL_DATE;
+                }
+
+                if (nodes[1].dataType == null) {
+                    nodes[1].dataType = Type.SQL_INTEGER;
+                }
+
+                if (nodes[Expression.LEFT].dataType.isCharacterType()) {
+                    nodes[Expression.LEFT] =
+                        new ExpressionOp(nodes[Expression.LEFT],
+                                         Type.SQL_TIMESTAMP);
+                }
+
+                if (nodes[Expression.RIGHT].dataType.isIntegralType()) {
+                    nodes[Expression.RIGHT] =
+                        new ExpressionOp(nodes[Expression.RIGHT],
+                                         Type.SQL_INTERVAL_DAY);
+                }
+
+                nodes[0].resolveTypes(session, this);
+                nodes[1].resolveTypes(session, this);
+
+                dataType = nodes[0].dataType;
+
+                return;
+            }
             case FUNC_DAYS : {
                 if (nodes[0].dataType == null) {
                     nodes[0].dataType = Type.SQL_DATE;
@@ -2942,6 +2964,14 @@ public class FunctionCustom extends FunctionSQL {
                     Tokens.T_COMMA).append(nodes[2].getSQL()).append(
                     Tokens.T_CLOSEBRACKET).toString();
             }
+            case FUNC_DATE_ADD :
+                return new StringBuffer(nodes[0].getSQL()).append(' ').append(
+                    '+').append(nodes[1].getSQL()).toString();
+
+            case FUNC_DATE_SUB :
+                return new StringBuffer(nodes[0].getSQL()).append(' ').append(
+                    '-').append(nodes[1].getSQL()).toString();
+
             case FUNC_UNIX_TIMESTAMP :
             case FUNC_RAND : {
                 StringBuffer sb = new StringBuffer(name).append('(');

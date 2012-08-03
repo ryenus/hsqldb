@@ -172,8 +172,7 @@ public class HsqlDatabaseProperties extends HsqlProperties {
     private static final String hsqldb_modified = "modified";
 
     //
-    public static final String hsqldb_compatible_version =
-        "hsqldb.compatible_version";
+    public static final String hsqldb_cache_version = "hsqldb.cache_version";
 
     //
     public static final String runtime_gc_interval = "runtime.gc_interval";
@@ -322,9 +321,9 @@ public class HsqlDatabaseProperties extends HsqlProperties {
         dbMeta.put(hsqldb_modified,
                    HsqlProperties.getMeta(hsqldb_modified, FILE_PROPERTY,
                                           null));
-        dbMeta.put(hsqldb_compatible_version,
-                   HsqlProperties.getMeta(hsqldb_compatible_version,
-                                          FILE_PROPERTY, null));
+        dbMeta.put(hsqldb_cache_version,
+                   HsqlProperties.getMeta(hsqldb_cache_version, FILE_PROPERTY,
+                                          null));
 
         // boolean defaults for protected props
         dbMeta.put(hsqldb_readonly,
@@ -600,13 +599,14 @@ public class HsqlDatabaseProperties extends HsqlProperties {
 
             props.setProperty(hsqldb_version, THIS_VERSION);
 
-            // when used with embedded databases in OOo, AOO and LO, older versions
             if (database.logger.isStoredFileAccess()) {
                 if (!database.logger.isNewStoredFileAccess()) {
-                    props.setProperty(hsqldb_version, VERSION_STRING_1_8_0);
-                }
 
-                props.setProperty(hsqldb_compatible_version, THIS_VERSION);
+// when jar is used with embedded databases in AOO 3.4 and recent(2012) LO this
+// line can be uncommented to circumvent hard-coded check in OOo code in
+// drivers/hsqldb/HDriver.cxx
+//                    props.setProperty(hsqldb_version, VERSION_STRING_1_8_0);
+                }
             }
 
             props.setProperty(hsqldb_modified, getProperty(hsqldb_modified));
@@ -978,9 +978,9 @@ public class HsqlDatabaseProperties extends HsqlProperties {
     public boolean isVersion18() {
 
         String version =
-            getProperty(HsqlDatabaseProperties.hsqldb_compatible_version,
+            getProperty(HsqlDatabaseProperties.hsqldb_cache_version,
                         THIS_VERSION);
 
-        return version.substring(0, 4).equals("1.8.");
+        return version.substring(0, 4).equals("1.7.");
     }
 }
