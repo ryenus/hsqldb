@@ -1573,7 +1573,7 @@ WIDTH_BUCKET( 200, 10, 110, 10)
       adding integers representing units of time directly to datetime values
       using the arithmetic plus operator. It also supports subtracting one
       <literal>&lt;datetime value expr&gt;</literal> from another in the given
-      units of days using the minus operator. An example of
+      units of date or time using the minus operator. An example of
       <literal>&lt;datetime value expr&gt; + &lt;numeric value expression&gt;
       &lt;datetime field&gt; </literal>is <literal>LOCALTIMESTAMP + 5
       DAY</literal>. An example of <literal>( &lt;datetime value expr&gt; -
@@ -1592,9 +1592,12 @@ WIDTH_BUCKET( 200, 10, 110, 10)
       type.</para>
 
       <para><literal>TIMESTAMPDIFF</literal> is evaluated as &lt;datetime
-      value expr 2&gt; - &lt;datetime value expr 1&gt;.</para>
+      value expr 2&gt; - &lt;datetime value expr 1&gt;. (JDBC)</para>
 
-      <para>(JDBC)</para>
+      <programlisting>TIMESTAMPADD ( SQL_TSI_MONTH, 3, DATE '2008-11-22' )
+
+TIMESTAMPDIFF ( SQL_TSI_HOUR, TIMESTAMP '2008-11-20 20:30:40', TIMESTAMP '2008-11-21 21:30:40' )
+</programlisting>
 
       <indexterm significance="preferred" type="sql">
         <primary>DATE_ADD function</primary>
@@ -1623,7 +1626,7 @@ WIDTH_BUCKET( 200, 10, 110, 10)
 
       <programlisting>DATE_ADD ( DATE '2008-11-22', INTERVAL 3 MONTH )
 
-TIMESTAMP_ADD ( TIMESTAMP '2008-11-22 20:30:40', INTERVAL 20 HOUR )
+DATE_SUB ( TIMESTAMP '2008-11-22 20:30:40', INTERVAL 20 HOUR )
 </programlisting>
 
       <indexterm significance="preferred" type="sql">
@@ -1664,6 +1667,11 @@ TIMESTAMP_ADD ( TIMESTAMP '2008-11-22 20:30:40', INTERVAL 20 HOUR )
       &lt;datetime value expr 2&gt;</literal>, which is different from the
       main form. This form is compatible with some other database engines.
       (HyperSQL}</para>
+
+      <programlisting>DATEADD ( 'month', 3, DATE '2008-11-22' )
+
+DATEDIFF ( 'hour', TIMESTAMP '2008-11-22 20:30:40', TIMESTAMP '2008-11-22 00:30:40' )
+</programlisting>
 
       <indexterm significance="preferred" type="sql">
         <primary>ROUND function datetime</primary>
