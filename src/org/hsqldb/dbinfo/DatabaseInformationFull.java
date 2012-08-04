@@ -882,16 +882,17 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
      * <pre class="SqlCodeExample">
      * KEY (VARCHAR)       VALUE (VARCHAR)
      * ------------------- ---------------
-     * SESSION_ID          the id of the calling session
-     * AUTOCOMMIT          YES: session is in autocommit mode, else NO
-     * USER                the name of user connected in the calling session
-     * (was READ_ONLY)
-     * SESSION_READONLY    TRUE: session is in read-only mode, else FALSE
-     * (new)
-     * DATABASE_READONLY   TRUE: database is in read-only mode, else FALSE
-     * MAXROWS             the MAXROWS setting in the calling session
+     * AUTOCOMMIT          TRUE / FALSE (session is in autocommit mode or not)
+     * CURRENT SCHEMA      the name of current schema
+     * CURRENT STATEMENT   current SQL statement
      * DATABASE            the name of the database
+     * DATABASE READONLY   TRUE / FALSE (database is in read-only mode or not)
      * IDENTITY            the last identity value used by calling session
+     * IGNORECASE          IGNORECASE property for new VARCHAR columns
+     * ISOLATION_LEVEL     transaction isolation level of session
+     * SESSION_ID          the id of the calling session
+     * SESSION READONLY    TRUE / FALSE (session is in read-only mode or not)
+     * USER                the name of user connected in the calling session
      * </pre>
      *
      * <b>Note:</b>  This table <em>may</em> become deprecated in a future
@@ -1023,6 +1024,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
      * TRANSACTION_SIZE   BIGINT    # of undo items in current transaction
      * WAITING_FOR_THIS   VARCHAR   comma separated list of sessions waiting for this one
      * THIS_WAITING_FOR   VARCHAR   comma separated list of sessions this session is waiting for
+     * CURRENT_STATEMENT  VARCHAR   SQL statement currently running
      * LATCH_COUNT        INTEGER   latch count for session
      * </pre> <p>
      *
