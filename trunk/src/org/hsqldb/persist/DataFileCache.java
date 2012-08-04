@@ -175,6 +175,12 @@ public class DataFileCache {
      */
     public void open(boolean readonly) {
 
+        if (database.logger.isStoredFileAccess()) {
+            openStoredFileAccess(readonly);
+
+            return;
+        }
+
         fileFreePosition = initialFreePos;
 
         logInfoEvent("dataFileCache open start");
@@ -183,9 +189,7 @@ public class DataFileCache {
             boolean isNio = database.logger.propNioDataFile;
             int     fileType;
 
-            if (database.logger.isStoredFileAccess()) {
-                fileType = ScaledRAFile.DATA_FILE_STORED;
-            } else if (database.isFilesInJar()) {
+            if (database.isFilesInJar()) {
                 fileType = ScaledRAFile.DATA_FILE_JAR;
             } else if (isNio) {
                 fileType = ScaledRAFile.DATA_FILE_NIO;
@@ -222,13 +226,7 @@ public class DataFileCache {
             boolean isSaved       = false;
 
             if (preexists) {
-                if (database.logger.isStoredFileAccess()) {
-                    dataFile = ScaledRAFile.newScaledRAFile(database,
-                            dataFileName, true, ScaledRAFile.DATA_FILE_STORED);
-                } else {
-                    dataFile = new ScaledRAFileSimple(database, dataFileName,
-                                                      "r");
-                }
+                dataFile = new ScaledRAFileSimple(database, dataFileName, "r");
 
                 long    length       = dataFile.length();
                 boolean wrongVersion = false;
@@ -303,6 +301,92 @@ public class DataFileCache {
 
                 fileFreePosition      = dataFile.readLong();
                 fileStartFreePosition = fileFreePosition;
+
+                openShadowFile();
+            } else {
+                initNewFile();
+            }
+
+            initBuffers();
+
+            fileModified  = false;
+            cacheModified = false;
+            freeBlocks =
+                new DataFileBlockManager(database.logger.propMaxFreeBlocks,
+                                         dataFileScale, 0, freesize);
+
+            logInfoEvent("dataFileCache open end");
+        } catch (Throwable t) {
+            logSevereEvent("dataFileCache open failed", t);
+            close(false);
+
+            throw Error.error(t, ErrorCode.FILE_IO_ERROR,
+                              ErrorCode.M_DataFileCache_open, new Object[] {
+                t.toString(), dataFileName
+            });
+        }
+    }
+
+    void openStoredFileAccess(boolean readonly) {
+
+        fileFreePosition = initialFreePos;
+
+        logInfoEvent("dataFileCache open start");
+
+        try {
+            int fileType = ScaledRAFile.DATA_FILE_STORED;
+
+            if (readonly) {
+                dataFile = ScaledRAFile.newScaledRAFile(database,
+                        dataFileName, readonly, fileType);
+
+                dataFile.seek(FLAGS_POS);
+
+                int flags = dataFile.readInt();
+
+                is180 = !BitMap.isSet(flags, FLAG_190);
+
+                dataFile.seek(LONG_FREE_POS_POS);
+
+                fileFreePosition = dataFile.readLong();
+
+                initBuffers();
+
+                return;
+            }
+
+            long    freesize      = 0;
+            boolean preexists     = fa.isStreamElement(dataFileName);
+            boolean isIncremental = database.logger.propIncrementBackup;
+            boolean restore = database.getProperties().getDBModified()
+                              == HsqlDatabaseProperties.FILES_MODIFIED;
+
+            if (preexists && restore) {
+                if (isIncremental) {
+                    preexists = restoreBackupIncremental();
+                } else {
+                    preexists = restoreBackup();
+                }
+            }
+
+            dataFile = ScaledRAFile.newScaledRAFile(database, dataFileName,
+                    readonly, fileType);
+
+            if (preexists) {
+                dataFile.seek(LONG_EMPTY_SIZE);
+
+                freesize = dataFile.readLong();
+
+                dataFile.seek(LONG_FREE_POS_POS);
+
+                fileFreePosition      = dataFile.readLong();
+                fileStartFreePosition = fileFreePosition;
+
+                dataFile.seek(FLAGS_POS);
+
+                int flags = dataFile.readInt();
+
+                is180 = !BitMap.isSet(flags, FLAG_190);
 
                 openShadowFile();
             } else {
@@ -975,12 +1059,8 @@ public class DataFileCache {
                 rows[i] = null;
             }
         } catch (HsqlException e) {
-            logSevereEvent("saveRows failed", e);
-
             throw e;
         } catch (Throwable e) {
-            logSevereEvent("saveRows failed", e);
-
             throw Error.error(ErrorCode.DATA_FILE_ERROR, e);
         } finally {
             initBuffers();
@@ -1000,7 +1080,6 @@ public class DataFileCache {
             setFileModified();
             saveRowNoLock(row);
         } catch (Throwable e) {
-            logSevereEvent("saveRow failed", e);
             logSevereEvent("saveRow", e, row.getPos());
 
             throw Error.error(ErrorCode.DATA_FILE_ERROR, e);
@@ -1018,7 +1097,7 @@ public class DataFileCache {
             dataFile.write(rowOut.getOutputStream().getBuffer(), 0,
                            rowOut.getOutputStream().size());
         } catch (IOException e) {
-            logSevereEvent("saveRow", e, row.getPos());
+            logSevereEvent("saveRowNoLock", e, row.getPos());
 
             throw Error.error(ErrorCode.DATA_FILE_ERROR, e);
         }
