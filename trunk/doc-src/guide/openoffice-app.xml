@@ -67,10 +67,10 @@
     own application, rather than OpenOffice.</simpara>
 
     <simpara>HSQLDB version 1.8.0 is included in OOo, ApacheOpenOffice and
-    LibreOffice 3.2, 3.3, 3.4 and 3.5. You can simply replace the jar with an
-    HSQLDB version 2.2.9 jar to use the latest capabilities. Databases that
-    have been opened with the new jar can no longer be opened with the older
-    version jars.</simpara>
+    LibreOffice 3.x. You can simply replace the jar with an HSQLDB version
+    2.2.9 jar to use the latest capabilities with external databases. It is
+    not yet possible to create and use embedded databases with this
+    version.</simpara>
 
     <simpara>HSQLDB version 2.x jar will hopefully be included in the future
     versions of ApacheOpenOffice and LibreOffice.</simpara>
