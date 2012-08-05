@@ -1,0 +1,209 @@
+/**
+ * Invoke this build file with Gradle's -b switch for POM- or
+ * Maven-publishing related tasks.
+ *
+ * Unfortunately, it is impractical to encpsulate all of the needed processing
+ * here, so there is some tight coupling between this file and "build.gradle".
+ * (This file loads/applies "build.gradle").
+ *
+ * The tasks pulled in by this file require several properties to be set,
+ * for populating a POM file and for specifying (and optionally authenticating
+ * to a Maven repository server.
+ *
+ *****************************************************************************
+ * Instructions for doing a full, public release:
+ *
+ * Make sure that your "build.properties" file has setting 'build.dist=true'.
+ * Right after doing the build of the zip distributable with JDK 6 and
+ * javac.debug of false, publish the same exact jar files that are in the zip.
+ * Use -x switches to prevent rebuilds of the jars which have been checksummed
+ * by 'build-dist' not by 'mvn-pub'.
+ *
+ * <PRE><CODE>
+ *     gradlew -x sqltool -x osgi -b mvn-pub.gradle
+ * </CODE></PRE>
+ *
+ * Now, for each alternative, adjust environment and build properties, like
+ * by setting env var JAVA_HOME or build property 'build.debug', and run
+ *
+ * <PRE><CODE>
+ *   gradlew -Pclassifier=NEW_CLASSIFIER -b mvn-pub.gradle clean-all uploadArchives
+ * </CODE></PRE>
+ * The clean-all will wipe .../doc, but the .../doc and everything else from
+ * your original dist build will be retained in .../dist/*.zip.
+ *****************************************************************************
+ * For snapshot builds, just publish jar-pairs individually, exactly as
+ * described * in the 2nd part of "Instructions for doing a full, public
+ * release:" above, beginning  with "Now, for each alternative".
+ * (In this case, clean-all really will blow away your only docs, so either
+ * back them up or regenerate them afterwards).
+ *
+ * @author Blaine Simpson  (blaine dot simpson at admc dot com)
+ */
+
+buildscript { dependencies {
+    // This 'buildscript' only here because with current version of Gradle,
+    // 'buildscript' is only honored from the top-level build file executed.
+    // When we "apply" 'build.gradle, the 'buildscript' there will be ignored.
+    classpath fileTree(dir: '.', include: 'gradle-javaPropFile-plugin-*.jar')
+    classpath fileTree(dir: '.', include: 'gradle-ivyxml-plugin-*.jar')
+} }
+
+apply plugin: 'java'
+apply plugin: 'maven'
+/*  Disabling PGP signing for now.
+apply plugin: 'signing'
+
+signing {
+    sign configurations.archives
+}
+*/
+
+mvnBuild = true
+apply from: 'build.gradle'
+defaultTasks 'uploadArchives'
+
+configurations {
+    deployJars
+}
+
+if (project.hasProperty('mavenRepository.dest.url')
+        && project.property('mavenRepository.dest.url').startsWith('scp://')) {
+    repositories { mavenCentral() }
+    dependencies {
+        deployJars 'org.apache.maven.wagon:wagon-ssh:latest.milestone'
+    }
+}
+
+// description attribute of project is always set, but may be null
+if (!project.hasProperty('description') ||
+        project.property('description') == null)
+    project.description = 'HSQLDB - Lightweight 100% Java SQL Database Engine'
+if (!project.hasProperty('title')) title = 'HyperSQL Database'
+
+uploadArchives {
+    def authMap = [:]
+    if (project.hasProperty('mavenRepository.dest.username'))
+        authMap['userName'] = project.property('mavenRepository.dest.username')
+    if (project.hasProperty('mavenRepository.dest.password'))
+        authMap['password'] = project.property('mavenRepository.dest.password')
+    if (project.hasProperty('mavenRepository.dest.privateKey'))
+        authMap['privateKey'] =
+                project.property('mavenRepository.dest.privateKey')
+
+    repositories.mavenDeployer {
+        configuration = configurations.deployJars
+        //  Disabling PGP signing for now.
+        //beforeDeployment { MavenDeployment deployment -> signPom(deployment) }
+        if (project.hasProperty('mavenRepository.dest.url'))
+            repository(url: project.property('mavenRepository.dest.url')) {
+                authentication(authMap)
+            }
+        [
+            addFilter('hsqldb') {artifact, file -> artifact.name == 'hsqldb'},
+            addFilter('sqltool') {artifact, file -> artifact.name == 'sqltool'}
+        ].each { pom -> pom.project {
+            // The hasProperty tests are necessary even for required variables
+            // because this code is evaluated even if the uploadArchives task
+            // will never be executed.
+            if (project.hasProperty('title')) name project.property('title')
+            if (project.hasProperty('description'))
+                description project.property('description')
+            if (project.hasProperty('url')) url project.property('url')
+            if (project.hasProperty('inceptionYear'))
+                inceptionYear project.property('inceptionYear')
+            scm {
+                if (project.hasProperty('scm.url'))
+                    url project.property('scm.url')
+                if (project.hasProperty('scm.connection'))
+                    connection project.property('scm.connection')
+                if (project.hasProperty('scm.tag'))
+                    tag project.property('scm.tag')
+            }
+            if (project.hasProperty('org.name')
+                    || project.hasProperty('org.url')) organization {
+                if (project.hasProperty('org.name'))
+                    name project.property('org.name')
+                if (project.hasProperty('org.url'))
+                    url project.property('org.url')
+            }
+            licenses {
+                license {
+                    name 'HSQLDB License, a BSD open source license'
+                    url 'http://hsqldb.org/web/hsqlLicense.html'
+                    distribution 'repo'
+                }
+            }
+            if (project.hasProperty('developer.name')
+                    || project.hasProperty('developer.email')) developers {
+                developer {
+                    if (project.hasProperty('developer.id'))
+                        id project.property('developer.id')
+                    if (project.hasProperty('developer.name'))
+                        name project.property('developer.name')
+                    if (project.hasProperty('developer.email'))
+                        email project.property('developer.email')
+                }
+            }
+        } }
+    }
+}
+
+uploadArchives { doFirst {
+    ['title', 'group', 'mavenRepository.dest.url', 'scm.connection',
+            'scm.url', 'url', 'inceptionYear', 'description'].each {
+        assert (project.hasProperty(it) && project.property(it) != null
+                && project.property(it) != '') :
+            """Property '$it' is required by 'uploadArchives' task.
+"""
+    }
+} }
+
+// This is because jar.inputs is read-only
+// Funny name is work-around for Gradle sequencing bug
+task zJarDep << {
+    if (jar.archivePath.exists() && jar.archivePath.lastModified()
+            < file('../lib/hsqldb-osgi.jar').lastModified()) {
+        println "Deleting $jar.archivePath.absolutePath"
+        jar.archivePath.delete()
+    }
+}
+
+jar << {
+    File srcFile = file('../lib/hsqldb-osgi.jar')
+    jar.archivePath.setBytes(srcFile.bytes)
+}
+
+jar.dependsOn = [osgi, zJarDep]
+if (project.hasProperty('classifier')) jar.classifier = project.classifier
+
+clean.dependsOn = [prohibitionMap['clean']]
+
+// This is because jar.inputs is read-only
+// Funny name is work-around for Gradle sequencing bug
+task zSqltoolJarDep << {
+    if (sqltoolJar.archivePath.exists() && sqltoolJar.archivePath.lastModified()
+            < file('../lib/sqltool.jar').lastModified()) {
+        println "Deleting $sqltoolJar.archivePath.absolutePath"
+        sqltoolJar.archivePath.delete()
+    }
+}
+
+task sqltoolJar(dependsOn: [sqltool, zSqltoolJarDep], type: Jar) {
+    baseName = 'sqltool'
+    if (project.hasProperty('classifier')) classifier = project.classifier
+}
+
+sqltoolJar << {
+    File srcFile = file('../lib/sqltool.jar')
+    sqltoolJar.archivePath.setBytes(srcFile.bytes)
+}
+ 
+// add javadoc/source jar tasks as artifacts
+artifacts {
+    archives sqltoolJar
+/*
+    archives sourcesJar
+    archives javadocJar
+*/
+}
