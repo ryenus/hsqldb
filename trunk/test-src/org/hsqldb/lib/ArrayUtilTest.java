@@ -62,6 +62,26 @@ public class ArrayUtilTest extends TestCase {
         System.out.println(x == true && y == true && c.length == a.length - 1
                            && d.length == b.length);
 
+        // test copy
+        int[] z = new int[b.length];
+
+        b = new int[] {
+            1, 3, 5, 7, 11, 13, 17, 19, 23
+        };
+
+        System.out.println(StringUtil.arrayToString(b));
+        ArrayUtil.copyMoveSegment(b, z, b.length, 2, 3, 5);
+        System.out.println(StringUtil.arrayToString(z));
+        ArrayUtil.fillArray(z, 0);
+        ArrayUtil.copyMoveSegment(b, z, b.length, 6, 3, 5);
+        System.out.println(StringUtil.arrayToString(z));
+        ArrayUtil.fillArray(z, 0);
+        ArrayUtil.copyMoveSegment(b, z, b.length, 6, 2, 1);
+        System.out.println(StringUtil.arrayToString(z));
+        ArrayUtil.fillArray(z, 0);
+        ArrayUtil.copyMoveSegment(b, z, b.length, 0, 3, 6);
+        System.out.println(StringUtil.arrayToString(z));
+
         // test reorderMaps
         int[] arr0 = new int[] {
             5, 0, 9, 3
@@ -76,7 +96,6 @@ public class ArrayUtilTest extends TestCase {
         System.out.println(StringUtil.arrayToString(arr0));
         System.out.println(StringUtil.arrayToString(arr1));
         System.out.println(StringUtil.arrayToString(arr2));
-
         ArrayUtil.reorderMaps(arr0, arr1, arr2);
         System.out.println(StringUtil.arrayToString(arr1));
         System.out.println(StringUtil.arrayToString(arr2));
