@@ -1,7 +1,6 @@
-28 July Svn 5043 snapshot
--- support for use in OO and LO version 3.2 and later
-19 July 2012 SVN 5030 snapshot
--- further code review and minor fixes
+05 August 2012 - version 2.2.9
+-- code review and minor fixes
+-- improved support for use in OO and LO version 3.2 and later
 -- new simple connection pool class org.hsqldb.jdbc.JDBCPool
 2 July 2012 SVN 5017 snapshot
 -- added integrated support for large data
@@ -25,7 +24,6 @@
 -- fixed issues with a number of functions
 -- fixed issue causing reduced speed and memory leak with disk based result sets
 -- fixed issues with comparison of lobs and lobs file exceeding 2GB
--- fixed all other issues reported in bug tracker and forums
 -- extended batch execution to procedure calls
 26 February 2012 - SVN 4944
 -- fixed regression in DECODE function
