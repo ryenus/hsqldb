@@ -16,5 +16,5 @@ create cached table testtable (
 insert into TESTTABLE(aString, firstNum, aDate, secondNum, thirdNum, aName)
   values (' XYZ ', 22, '2003-11-10', 18, 3, 'my name goes here');
 
-select trim(aString) from testtable;
+/*rXYZ*/select trim(aString) from testtable;
 drop table testtable;
