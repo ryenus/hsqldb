@@ -1362,20 +1362,15 @@ public class LobManager {
             }
 
             long length    = ((Long) data[LOB_IDS.LOB_LENGTH]).longValue();
-            long newLength = length;
-
-            if (offset + dataLength > length) {
-                newLength = offset + dataLength;
-            }
-
             Result result = setBytesBA(lobID, offset, dataBytes, dataLength);
 
             if (result.isError()) {
                 return result;
             }
 
-            if (newLength > length) {
-                setLength(lobID, newLength);
+            if (offset + dataLength > length) {
+                length = offset + dataLength;
+                result = setLength(lobID, length);
 
                 if (result.isError()) {
                     return result;
