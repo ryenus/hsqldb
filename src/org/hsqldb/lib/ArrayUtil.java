@@ -949,6 +949,26 @@ public class ArrayUtil {
     }
 
     /**
+     * Copy the source to dest, returning dest or an enlarged array of result is
+     * larger than dest.
+     */
+    public static byte[] copyBytes(byte[] source, byte[] dest,
+                                   int destOffset) {
+
+        if (source.length + destOffset > dest.length) {
+            byte[] newDest = new byte[source.length + destOffset];
+
+            System.arraycopy(dest, 0, newDest, 0, dest.length);
+
+            dest = newDest;
+        }
+
+        System.arraycopy(source, 0, dest, destOffset, source.length);
+
+        return dest;
+    }
+
+    /**
      * Convenience wrapper for System.arraycopy().
      */
     public static void copyArray(Object source, Object dest, int count) {
@@ -965,8 +985,8 @@ public class ArrayUtil {
 
         System.arraycopy(source, 0, dest, 0, sliceSize);
 
-        sliceSize = forward ? size - destIndex - segmentSize:
-            size - index - segmentSize;
+        sliceSize = forward ? size - destIndex - segmentSize
+                            : size - index - segmentSize;
 
         int sliceIndex = forward ? destIndex + segmentSize
                                  : index + segmentSize;
