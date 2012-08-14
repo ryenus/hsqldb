@@ -35,24 +35,6 @@ import java.sql.Connection;
 
 public class TestScript extends TestBase {
 
-//    String path = "TestSelf01UDAggregates.txt";
-//    String path = "TestSelf01hsqldb_schema.txt";
-//    String path = "TestSelf01WithSubquery.txt";
-//     String path = "TestSelf01RecursiveQueries.txt";
-//    String path = "TestSelf02UpdatableViews.txt";
-//    String path = "TestSelf04UnionCorresponding.txt";
-//    String path = "TestSelf07OrderLimitNulls.txt";
-//    String path = "TestSelf06Generated.txt";
-//    String path = "TestSelf01TempTables.txt";
-//    String path = "TestSelfTriggers2.txt";
-//    String path = "TestSelf01Function.txt";
-//    String path = "TestSelf01Procedure.txt";
-//    String path = "TestSelf01Problems.txt";
-//    String path = "TestSelf01Subquery.txt";
-//    String path = "TestSelf01Triggers.txt";
-//    String path = "TestSelf02UpdatableViews.txt";
-//    String path = "TestSelf02Merge.txt";
-//    String path = "TestAny.txt";
 //    String path = "TestSelf.txt";
 //    String path = "TestSelfArrays.txt";
 //    String path = "TestSelf3PartNames.txt";
@@ -99,7 +81,7 @@ public class TestScript extends TestBase {
 //    String path = "TestSelfViews.txt";
 //    String path = "TestSelfViewGrants.txt";
 //    String path = "TestSelfSeqRightsA.txt";
-//      String path = "TestSelfSysTables.txt";
+//    String path = "TestSelfSysTables.txt";
 //    String path = "TestTemp.txt";
     public TestScript(String name) {
         super(name, null, false, false);

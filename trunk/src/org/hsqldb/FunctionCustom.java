@@ -2993,7 +2993,7 @@ public class FunctionCustom extends FunctionSQL {
 
                 sb.append(nodes[0].getSQL());
 
-                if (nodes[1] != null) {
+                if (nodes.length > 1 && nodes[1] != null) {
                     sb.append(',').append(nodes[1].getSQL());
                 }
 

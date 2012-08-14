@@ -122,8 +122,8 @@ public class TableBase {
         this.colTypes    = colTypes;
         columnCount      = colTypes.length;
         primaryKeyCols   = new int[]{};
-        primaryKeyTypes  = new Type[]{};
-        indexList        = new Index[0];
+        primaryKeyTypes  = Type.emptyArray;
+        indexList        = Index.emptyArray;
 
         createPrimaryIndex(primaryKeyCols, primaryKeyTypes, null);
     }

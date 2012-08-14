@@ -90,7 +90,7 @@ import org.hsqldb.types.Type;
  *  storage.<p>
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.2.9
+ * @version 2.3.0
  * @since 1.7.0
  */
 public class Logger {
@@ -1303,7 +1303,6 @@ public class Logger {
 
                 return new RowStoreAVLDisk(collection, cache, (Table) table);
 
-            case TableBase.FUNCTION_TABLE :
             case TableBase.MEMORY_TABLE :
             case TableBase.SYSTEM_TABLE :
                 return new RowStoreAVLMemory(collection, (Table) table);
@@ -1322,6 +1321,7 @@ public class Logger {
             case TableBase.CHANGE_SET_TABLE :
                 return new RowStoreDataChange(session, collection, table);
 
+            case TableBase.FUNCTION_TABLE :
             case TableBase.RESULT_TABLE :
             case TableBase.SYSTEM_SUBQUERY :
             case TableBase.VIEW_TABLE :
@@ -2090,12 +2090,12 @@ public class Logger {
             return path;
         }
 
+        if (propTextAllowFullPath) {
+            return path;
+        }
+
         if (path.indexOf("..") != -1) {
-            if (database.logger.propTextAllowFullPath) {
-                return FileUtil.getFileUtil().canonicalOrAbsolutePath(path);
-            } else {
-                return null;
-            }
+            return null;
         }
 
         String fullPath =

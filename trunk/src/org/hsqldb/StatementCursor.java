@@ -32,13 +32,14 @@
 package org.hsqldb;
 
 import org.hsqldb.ParserDQL.CompileContext;
+import org.hsqldb.lib.OrderedHashSet;
 import org.hsqldb.result.Result;
 
 /**
  * Implementation of Statement for PSM and trigger assignment.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.0.1
+ * @version 2.3.0
  * @since 2.0.1
  */
 public class StatementCursor extends StatementQuery {
@@ -92,4 +93,10 @@ public class StatementCursor extends StatementQuery {
 
         return Result.updateZeroResult;
     }
+
+    /**
+     * always readonly
+     */
+    void collectTableNamesForWrite(OrderedHashSet set) {}
+
 }

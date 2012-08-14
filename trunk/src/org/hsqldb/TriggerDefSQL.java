@@ -31,10 +31,7 @@
 
 package org.hsqldb;
 
-import org.hsqldb.error.Error;
-import org.hsqldb.error.ErrorCode;
 import org.hsqldb.lib.OrderedHashSet;
-import org.hsqldb.store.ValuePool;
 import org.hsqldb.result.Result;
 
 /**

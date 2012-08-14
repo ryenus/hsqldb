@@ -50,7 +50,7 @@ import org.hsqldb.types.Type;
  * Implementation of column, variable, parameter, etc. access operations.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.2.9
+ * @version 2.3.0
  * @since 1.9.0
  */
 public class ExpressionColumn extends Expression {
@@ -956,20 +956,24 @@ public class ExpressionColumn extends Expression {
         return set;
     }
 
-    Expression replaceAliasInOrderBy(Expression[] columns, int length) {
+    Expression replaceAliasInOrderBy(Session session, Expression[] columns,
+                                     int length) {
 
         for (int i = 0; i < nodes.length; i++) {
             if (nodes[i] == null) {
                 continue;
             }
 
-            nodes[i] = nodes[i].replaceAliasInOrderBy(columns, length);
+            nodes[i] = nodes[i].replaceAliasInOrderBy(session, columns,
+                    length);
         }
 
         switch (opType) {
 
             case OpTypes.COALESCE :
             case OpTypes.COLUMN : {
+                int matchIndex = -1;
+
                 for (int i = 0; i < length; i++) {
                     SimpleName aliasName = columns[i].alias;
                     String     alias     = aliasName == null ? null
@@ -977,24 +981,52 @@ public class ExpressionColumn extends Expression {
 
                     if (schema == null && tableName == null
                             && columnName.equals(alias)) {
-                        return columns[i];
+                        if (matchIndex < 0) {
+                            matchIndex = i;
+                        } else if (session.database.sqlEnforceRefs) {
+                            String message = getColumnName();
+
+                            throw Error.error(ErrorCode.X_42580, message);
+                        }
                     }
+                }
+
+                if (matchIndex >= 0) {
+                    return columns[matchIndex];
                 }
 
                 for (int i = 0; i < length; i++) {
                     if (columns[i] instanceof ExpressionColumn) {
                         if (this.equals(columns[i])) {
-                            return columns[i];
+                            if (matchIndex < 0) {
+                                matchIndex = i;
+                            } else if (session.database.sqlEnforceRefs) {
+                                String message = getColumnName();
+
+                                throw Error.error(ErrorCode.X_42580, message);
+                            }
                         }
 
                         if (tableName == null && schema == null
                                 && columnName
                                     .equals(((ExpressionColumn) columns[i])
                                         .columnName)) {
-                            return columns[i];
+                            if (matchIndex < 0) {
+                                matchIndex = i;
+                            } else if (session.database.sqlEnforceRefs) {
+                                String message = getColumnName();
+
+                                throw Error.error(ErrorCode.X_42580, message);
+                            }
                         }
                     }
                 }
+
+                if (matchIndex >= 0) {
+                    return columns[matchIndex];
+                }
+
+                break;
             }
             default :
         }
