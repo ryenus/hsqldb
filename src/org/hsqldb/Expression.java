@@ -60,7 +60,7 @@ import org.hsqldb.types.Types;
  *
  * @author Campbell Boucher-Burnet (boucherb@users dot sourceforge.net)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.2.9
+ * @version 2.3.0
  * @since 1.9.0
  */
 public class Expression implements Cloneable {
@@ -890,14 +890,16 @@ public class Expression implements Cloneable {
     /**
      * return the expression for an alias used in an ORDER BY clause
      */
-    Expression replaceAliasInOrderBy(Expression[] columns, int length) {
+    Expression replaceAliasInOrderBy(Session session, Expression[] columns,
+                                     int length) {
 
         for (int i = 0; i < nodes.length; i++) {
             if (nodes[i] == null) {
                 continue;
             }
 
-            nodes[i] = nodes[i].replaceAliasInOrderBy(columns, length);
+            nodes[i] = nodes[i].replaceAliasInOrderBy(session, columns,
+                    length);
         }
 
         return this;

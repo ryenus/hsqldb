@@ -58,7 +58,7 @@ import org.hsqldb.rowio.RowOutputInterface;
  * @version 2.2.9
  * @since 1.9.0
  */
-public class RowStoreAVLDisk extends RowStoreAVL {
+public class RowStoreAVLDisk extends RowStoreAVL implements PersistentStore {
 
     DataFileCache      cache;
     RowOutputInterface rowOut;

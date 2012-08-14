@@ -297,7 +297,7 @@ public class Tokens {
     static final String        T_SAVEPOINT         = "SAVEPOINT";
     static final String        T_SCOPE             = "SCOPE";
     static final String        T_SCROLL            = "SCROLL";
-    static final String        T_SEARCH            = "SEARCH";
+    public static final String T_SEARCH            = "SEARCH";
     public static final String T_SECOND            = "SECOND";
     public static final String T_SELECT            = "SELECT";
     static final String        T_SENSITIVE         = "SENSITIVE";
@@ -352,7 +352,7 @@ public class Tokens {
     public static final String T_UPDATE            = "UPDATE";
     static final String        T_UPPER             = "UPPER";
     public static final String T_USER              = "USER";
-    static final String        T_USING             = "USING";
+    public static final String T_USING             = "USING";
     static final String        T_VALUE             = "VALUE";
     static final String        T_VALUES            = "VALUES";
     static final String        T_VAR_POP           = "VAR_POP";
@@ -375,7 +375,7 @@ public class Tokens {
     static final String        T_ASTERISK       = "*";
     public static final String T_COMMA          = ",";
     static final String        T_CIRCUMFLEX     = "^";
-    static final String        T_CLOSEBRACKET   = ")";
+    public static final String T_CLOSEBRACKET   = ")";
     static final String        T_COLON          = ":";
     static final String        T_CONCAT         = "||";
     public static final String T_DIVIDE         = "/";
@@ -390,7 +390,7 @@ public class Tokens {
     static final String        T_MINUS          = "-";
     static final String        T_NOT_EQUALS     = "<>";
     static final String        T_NOT_EQUALS_ALT = "!=";
-    static final String        T_OPENBRACKET    = "(";
+    public static final String T_OPENBRACKET    = "(";
     static final String        T_QUESTION       = "?";
     public static final String T_RIGHTBRACKET   = "]";
     static final String        T_SEMICOLON      = ";";
@@ -673,6 +673,7 @@ public class Tokens {
     static final String        T_IGNORECASE           = "IGNORECASE";
     static final String        T_IMMEDIATELY          = "IMMEDIATELY";
     public static final String T_INDEX                = "INDEX";
+    public static final String T_INDEXER              = "INDEXER";
     public static final String T_INITIAL              = "INITIAL";
     public static final String T_INTEGRITY            = "INTEGRITY";
     static final String        T_IS_AUTOCOMMIT        = "IS_AUTOCOMMIT";
@@ -1515,6 +1516,9 @@ public class Tokens {
     static final int VARCHAR2       = 634;
     static final int WRITE_DELAY    = 635;
 
+	//
+    static final int INDEXER        = 636;
+
     //
     static final int        ACOS                       = 640;
     static final int        ACTION_ID                  = 641;
@@ -2134,6 +2138,7 @@ public class Tokens {
         commandSet.put(T_INCLUDING, INCLUDING);
         commandSet.put(T_INCREMENT, INCREMENT);
         commandSet.put(T_INDEX, INDEX);
+        commandSet.put(T_INDEXER, INDEXER);
         commandSet.put(T_INITIAL, INITIAL);
         commandSet.put(T_INPUT, INPUT);
         commandSet.put(T_INSTEAD, INSTEAD);

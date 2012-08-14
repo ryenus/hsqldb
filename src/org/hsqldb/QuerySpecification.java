@@ -65,7 +65,7 @@ import org.hsqldb.types.Types;
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
  *
- * @version 2.2.9
+ * @version 2.3.0
  * @since 1.9.0
  */
 public class QuerySpecification extends QueryExpression {
@@ -517,7 +517,7 @@ public class QuerySpecification extends QueryExpression {
                 }
             }
 
-            e.replaceAliasInOrderBy(exprColumns, indexLimitVisible);
+            e.replaceAliasInOrderBy(session, exprColumns, indexLimitVisible);
             resolveColumnReferencesAndAllocate(session, e,
                                                rangeVariables.length,
                                                RangeGroup.emptyArray, false);
@@ -693,9 +693,8 @@ public class QuerySpecification extends QueryExpression {
 
             // if not resolved, resolve as simple alias
             if (expression.getType() == OpTypes.COLUMN) {
-                Expression resolved =
-                    expression.replaceAliasInOrderBy(exprColumns,
-                                                     indexLimitVisible);
+                Expression resolved = expression.replaceAliasInOrderBy(session,
+                    exprColumns, indexLimitVisible);
 
                 if (resolved != expression) {
                     return resolved;
@@ -1658,8 +1657,7 @@ public class QuerySpecification extends QueryExpression {
             ColumnSchema tableColumn = null;
             ColumnBase   column;
 
-            tableColumn = e.getColumn();
-
+            tableColumn                   = e.getColumn();
             resultMetaData.columnTypes[i] = e.getDataType();
 
             if (tableColumn == null) {
@@ -1800,7 +1798,8 @@ public class QuerySpecification extends QueryExpression {
 
         try {
             resultTable = new TableDerived(session.database, tableName,
-                                           tableType, resultColumnTypes, columnList,
+                                           tableType, resultColumnTypes,
+                                           columnList,
                                            ValuePool.emptyIntArray);
         } catch (Exception e) {}
     }

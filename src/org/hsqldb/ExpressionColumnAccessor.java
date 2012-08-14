@@ -40,7 +40,7 @@ import org.hsqldb.types.Type;
  * Implementation of column used as assignment target.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.2.9
+ * @version 2.3.0
  * @since 2.0.0
  */
 public class ExpressionColumnAccessor extends Expression {
@@ -81,8 +81,8 @@ public class ExpressionColumnAccessor extends Expression {
     }
 
     public HsqlList resolveColumnReferences(Session session,
-            RangeGroup rangeGroup, int rangeCount,
-            RangeGroup[] rangeGroups, HsqlList unresolvedSet, boolean acceptsSequences) {
+            RangeGroup rangeGroup, int rangeCount, RangeGroup[] rangeGroups,
+            HsqlList unresolvedSet, boolean acceptsSequences) {
         return unresolvedSet;
     }
 
@@ -107,11 +107,13 @@ public class ExpressionColumnAccessor extends Expression {
     /**
      * collects all range variables in expression tree
      */
-    OrderedHashSet collectRangeVariables(RangeVariable[] rangeVariables, OrderedHashSet set) {
+    OrderedHashSet collectRangeVariables(RangeVariable[] rangeVariables,
+                                         OrderedHashSet set) {
         return set;
     }
 
-    Expression replaceAliasInOrderBy(Expression[] columns, int length) {
+    Expression replaceAliasInOrderBy(Session session, Expression[] columns,
+                                     int length) {
         return this;
     }
 
