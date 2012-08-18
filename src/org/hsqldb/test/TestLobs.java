@@ -58,9 +58,9 @@ public class TestLobs extends TestBase {
 
     public TestLobs(String name) {
 
-        super(name);
+//        super(name);
 
-//        super(name, "jdbc:hsqldb:file:test3", false, false);
+        super(name, "jdbc:hsqldb:file:test3", false, false);
 //        super(name, "jdbc:hsqldb:mem:test3", false, false);
     }
 
@@ -788,8 +788,8 @@ public class TestLobs extends TestBase {
 
         try {
             String ddl1 =
-                "create procedure PUBLIC.PROC_A(out p1 clob, out p2 int) READS SQL DATA BEGIN ATOMIC SET p1 = 'dafsdfasdfaefafeajfiwejifpjajsidojfakmvkamsdjfadpsjfoajsdifjaos'; SET p2 = 0; end";
-            String dml0 = "call PUBLIC.PROC_A(?, ?)";
+                "create procedure PUBLIC.PROC_H(out p1 clob, out p2 int) READS SQL DATA BEGIN ATOMIC SET p1 = 'dafsdfasdfaefafeajfiwejifpjajsidojfakmvkamsdjfadpsjfoajsdifjaos'; SET p2 = 0; end";
+            String dml0 = "call PUBLIC.PROC_H(?, ?)";
 
             statement.execute(ddl1);
 

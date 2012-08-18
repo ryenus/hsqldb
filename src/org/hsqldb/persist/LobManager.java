@@ -69,7 +69,7 @@ import org.hsqldb.types.Types;
 
 /**
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.2.9
+ * @version 2.3.0
  * @since 1.9.0
  */
 public class LobManager {
@@ -165,7 +165,8 @@ public class LobManager {
         int LOB_ID     = 1;
     }
 
-    //BLOCK_ADDR INT, BLOCK_COUNT INT, TX_ID BIGINT
+    private static final String existsBlocksSQL =
+        "SELECT * FROM SYSTEM_LOBS.BLOCKS LIMIT 1";
     private static final String initialiseBlocksSQL =
         "INSERT INTO SYSTEM_LOBS.BLOCKS VALUES(?,?,?)";
     private static final String getLobSQL =
@@ -275,8 +276,17 @@ public class LobManager {
 
     public void initialiseLobSpace() {
 
-        Statement statement =
-            sysLobSession.compileStatement(initialiseBlocksSQL);
+        Statement statement = sysLobSession.compileStatement(existsBlocksSQL);
+        Result          result    = statement.execute(sysLobSession);
+        RowSetNavigator navigator = result.getNavigator();
+        int             size      = navigator.getSize();
+
+        if (size > 0) {
+            return;
+        }
+
+        statement = sysLobSession.compileStatement(initialiseBlocksSQL);
+
         Object[] params = new Object[3];
 
         params[0] = ValuePool.INTEGER_0;
@@ -295,15 +305,23 @@ public class LobManager {
         } else if (database.getType() == DatabaseURL.S_FILE) {
             lobStore   = new LobStoreRAFile(database, lobBlockSize);
             byteBuffer = new byte[lobBlockSize];
+
+            if (!database.isFilesReadOnly()) {
+                initialiseLobSpace();
+            }
         } else {
             lobStore   = new LobStoreMem(lobBlockSize);
             byteBuffer = new byte[lobBlockSize];
+
+            initialiseLobSpace();
         }
     }
 
     public void close() {
 
-        lobStore.close();
+        if (lobStore != null) {
+            lobStore.close();
+        }
 
         lobStore = null;
     }
@@ -1017,8 +1035,8 @@ public class LobManager {
 
     private void copyBlockSet(int[][] source, int[][] target) {
 
-        int sourceIndex = 0;
-        int targetIndex = 0;
+        int sourceIndex  = 0;
+        int targetIndex  = 0;
         int sourceOffset = 0;
         int targetOffset = 0;
 
@@ -1361,7 +1379,7 @@ public class LobManager {
                 return Result.newErrorResult(Error.error(ErrorCode.X_0F502));
             }
 
-            long length    = ((Long) data[LOB_IDS.LOB_LENGTH]).longValue();
+            long   length = ((Long) data[LOB_IDS.LOB_LENGTH]).longValue();
             Result result = setBytesBA(lobID, offset, dataBytes, dataLength);
 
             if (result.isError()) {
