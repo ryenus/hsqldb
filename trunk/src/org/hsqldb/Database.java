@@ -238,7 +238,6 @@ public class Database {
 
                 userManager.createFirstUser(username, password);
                 schemaManager.createPublicSchema();
-                lobManager.initialiseLobSpace();
                 logger.checkpoint(false);
             }
 

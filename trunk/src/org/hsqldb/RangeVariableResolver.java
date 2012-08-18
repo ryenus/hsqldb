@@ -58,7 +58,7 @@ import org.hsqldb.persist.PersistentStore;
  */
 public class RangeVariableResolver {
 
-    Session         session;
+    Session            session;
     QuerySpecification select;
     RangeVariable[]    rangeVariables;
     Expression         conditions;

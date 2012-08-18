@@ -62,7 +62,7 @@ import org.hsqldb.types.Types;
  * Scans for SQL tokens.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.2.9
+ * @version 2.3.0
  * @since 1.9.0
  */
 public class Scanner {
@@ -600,6 +600,8 @@ public class Scanner {
                 hexCount = 8;
             }
 
+            position = nextIndex;
+
             for (; hexIndex < hexCount; hexIndex++) {
                 int character = token.tokenString.charAt(position++);
 
@@ -620,9 +622,9 @@ public class Scanner {
             }
 
             charWriter.write(hexValue & (hexValue & 0xffff));
-
-            token.tokenValue = charWriter.toString();
         }
+
+        token.tokenValue = charWriter.toString();
     }
 
     /**
