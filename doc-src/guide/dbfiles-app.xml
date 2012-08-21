@@ -327,7 +327,7 @@
       </procedure>
     </section>
 
-    <section>
+    <section xml:id="dfa_db_file_restore">
       <title>Restore</title>
 
       <para>The current <filename>test.data</filename> file is not necessarily

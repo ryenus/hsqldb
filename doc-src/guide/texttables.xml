@@ -492,7 +492,7 @@
     </itemizedlist>
   </section>
 
-  <section xml:id="trc_transactions">
+  <section xml:id="ttc_transactions">
     <title>Transactions</title>
 
     <para>Text tables fully support transactions. New or changed rows that
