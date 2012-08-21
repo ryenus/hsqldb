@@ -665,7 +665,7 @@ java org.hsqldb.util.DatabaseManagerSwing --urlid urlid</screen>
       </keywordset>
     </info>
 
-    <section xml:id="trantool_intro-sect">
+    <section xml:id="dbm_trantool_intro-sect">
       <title>Brief Introduction</title>
 
       <para>Transfer Tool is a GUI program for transferring SQL schema and

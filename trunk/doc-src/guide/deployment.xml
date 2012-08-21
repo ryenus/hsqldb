@@ -535,7 +535,7 @@
       </orderedlist>
     </section>
 
-    <section>
+    <section xml:id="dec_nio_access">
       <title>Using NIO File Access</title>
 
       <para>This method of file access uses the operating system's
@@ -959,7 +959,7 @@
       literal versions like <literal>2.2.9</literal>.</para>
     </section>
 
-    <section>
+    <section xml:id="dec_snapshot_repos">
       <title>Using the HyperSQL Snapshot Repository</title>
 
       <subtitle>Use the Latest &amp; Greatest with Snapshots</subtitle>
@@ -1060,7 +1060,7 @@
       </section>
     </section>
 
-    <section>
+    <section xml:id="dec_maven_range_version">
       <title>Range Versioning</title>
 
       <subtitle>Keeping up-to-date with Range Dependencies</subtitle>

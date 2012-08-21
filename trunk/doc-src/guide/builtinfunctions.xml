@@ -668,7 +668,7 @@
     <literal>&lt;char value expr&gt;</literal> . (Foundation)</para>
   </section>
 
-  <section xml:id="builtin_functions_numeric_sect">
+  <section xml:id="bfc_numeric_functions">
     <title>Numeric Functions</title>
 
     <indexterm significance="preferred" type="sql">

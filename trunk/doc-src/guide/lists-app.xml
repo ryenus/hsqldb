@@ -148,7 +148,7 @@
     <simpara>YEAR</simpara>
   </section>
 
-  <section xml:id="dfa_disallowed_keywords">
+  <section xml:id="lta_disallowed_keywords">
     <title>List of SQL Keywords Disallowed as HyperSQL Identifiers</title>
 
     <para>When the default <literal>SET DATABASE SQL NAMES FALSE</literal>
@@ -164,7 +164,7 @@
 
     <simpara>DEFAULT • DISTINCT • DROP</simpara>
 
-    <simpara>ELSE • END • EVERY • EXISTS • EXCEPT</simpara>
+    <simpara>ELSE • EVERY • EXISTS • EXCEPT</simpara>
 
     <simpara>FOR • FROM • FULL</simpara>
 
@@ -199,7 +199,7 @@
     <simpara>WHEN • WHERE • WITH</simpara>
   </section>
 
-  <section xml:id="dfa_function_keywords">
+  <section xml:id="lta_function_keywords">
     <title>Special Function Keywords</title>
 
     <para>HyperSQL supports SQL Standard functions that are called without

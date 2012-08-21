@@ -59,7 +59,7 @@
     reports the versions of Java and Ant actually used.</simpara>
   </section>
 
-  <section xml:id="gradle-invoke--sect">
+  <section xml:id="bga_gradle_invoke">
     <title>Building with Gradle</title>
 
     <simpara>As noted above, Java SDK 5 or later is required.</simpara>
@@ -397,7 +397,7 @@
     </section>
   </section>
 
-  <section xml:id="building-ant-sect">
+  <section xml:id="bga_building_ant">
     <title>Building with Apache Ant</title>
 
     <titleabbrev>Building with Ant</titleabbrev>

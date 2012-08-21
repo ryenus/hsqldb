@@ -1456,6 +1456,7 @@ ARRAY (SELECT lastname FROM namestable ORDER BY id)
 UPDATE t SET names = ARRAY['LARGE', 'SMALL'] WHERE id = 12
 UPDATE t SET names = ARRAY['LARGE', 'SMALL'] WHERE id &lt; 12 AND scores = ARRAY[3,4]
 </programlisting>
+      </informalexample>
 
         <para>When using a PreparedStatement with an ARRAY parameter, an
         object of the type java.sql.Array must be used to set the parameter.
@@ -1463,7 +1464,7 @@ UPDATE t SET names = ARRAY['LARGE', 'SMALL'] WHERE id &lt; 12 AND scores = ARRAY
         used for constructing a java.sql.Array object in the user's
         application. Code fragment below:</para>
 
-        <informalexample>
+      <informalexample>
           <programlisting>    String sql = "UPDATE t SET names = ? WHERE id = ?";
     PreparedStatement ps = connection.prepareStatement(sql)
     Object[] data = new Object[]{"one", "two"};
@@ -1474,8 +1475,28 @@ UPDATE t SET names = ARRAY['LARGE', 'SMALL'] WHERE id &lt; 12 AND scores = ARRAY
     ps.setInt(2, 1000);
     ps.executeUpdate();
 </programlisting>
-        </informalexample>
       </informalexample>
+
+      <section xml:id="sgc_trigraph">
+        <title>Trigraph</title>
+
+        <para>A trigraph is a substitute for &lt;left bracket&gt; and
+        &lt;right bracket&gt;.</para>
+
+        <para><literal>&lt;left bracket trigraph&gt; ::= ??( </literal></para>
+
+        <para><literal>&lt;right bracket trigraph&gt; ::= ??)</literal></para>
+
+        <para>The example below shows the use of trigraphs instead of
+        brackets.</para>
+
+        <informalexample>
+          <programlisting>INSERT INTO t VALUES 10, ARRAY??(1,2,3??), ARRAY['HOT', 'COLD']
+UPDATE t SET names = ARRAY ??('LARGE', 'SMALL'??) WHERE id = 12
+UPDATE t SET names = ARRAY['LARGE', 'SMALL'] WHERE id &lt; 12 AND scores = ARRAY[3,4]
+</programlisting>
+        </informalexample>
+      </section>
     </section>
 
     <section xml:id="sgc_array_ref">

@@ -344,11 +344,10 @@
     file catalog when a shutdown takes place. It automatically recovers from
     an abnormal termination and preserves the data when the catalog is opened
     next time. In an ideal operating environment, where there is no OS crash,
-    disk failure, bugs in code, etc. there would be no need regularly to
-    backup a database. This is meant to say, the engine performs the routine
-    shutdown procedure internally, therefore backing up catalogs is an
-    insurance policy against all sorts of misadventure that are not under the
-    control of the database engine.</para>
+    disk failure, bugs in code, etc. there would be no need to backup a
+    database. Ttherefore backing up catalogs is an insurance policy against
+    all sorts of misadventure that are not under the control of the database
+    engine.</para>
 
     <para>The data for each catalog consists of up to 5 files in the same
     directory with the endings such as <literal>*.properties</literal>,
@@ -360,6 +359,9 @@
     archive. The backup can be performed by a command given in a JDBC session
     if the target database catalog is running, or on the command-line if the
     target catalog has been shutdown.</simpara>
+
+    <simpara>It is not recommended to backup the database file with an
+    external file backup program while the database is running.</simpara>
 
     <section xml:id="mtc_online_backup">
       <title>Making Online Backups</title>
@@ -579,7 +581,7 @@
       record of database operations.</para>
     </section>
 
-    <section>
+    <section xml:id="mtc_jdc_logging">
       <title>Log4J and JDK logging</title>
 
       <para>HyperSQL also supports log4J and JDK logging. The same event
