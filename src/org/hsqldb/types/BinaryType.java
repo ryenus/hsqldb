@@ -435,6 +435,18 @@ public class BinaryType extends Type {
             return b;    // never a blob
         }
 
+        if (otherType.typeCode == Types.SQL_BLOB) {
+            long blobLength = b.length(session);
+
+            if (blobLength > precision) {
+                throw Error.error(ErrorCode.X_22001);
+            }
+
+            byte[] bytes = b.getBytes(session, 0, (int) blobLength);
+
+            b = new BinaryData(bytes, false);
+        }
+
         if (b.length(session) > precision
                 && b.nonZeroLength(session) > precision) {
             if (!cast) {
@@ -442,18 +454,6 @@ public class BinaryType extends Type {
             }
 
             session.addWarning(Error.error(ErrorCode.W_01004));
-        }
-
-        if (otherType.typeCode == Types.SQL_BLOB) {
-            long blobLength = b.length(session);
-
-            if (blobLength > precision) {
-                throw Error.error(ErrorCode.X_22501);
-            }
-
-            byte[] bytes = b.getBytes(session, 0, (int) blobLength);
-
-            b = new BinaryData(bytes, false);
         }
 
         switch (typeCode) {

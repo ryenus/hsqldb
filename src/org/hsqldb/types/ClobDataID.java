@@ -219,6 +219,7 @@ public class ClobDataID implements ClobData {
 
     public long nonSpaceLength(SessionInterface session) {
 
+        // todo - implement the next method call in Session
         ResultLob resultOut = ResultLob.newLobGetTruncateLength(id);
         Result    resultIn  = session.execute(resultOut);
 

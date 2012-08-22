@@ -43,7 +43,7 @@ import org.hsqldb.lib.StringConverter;
  * Type object for BLOB.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.0.1
+ * @version 2.3.0
  * @since 1.9.0
  */
 public final class BlobType extends BinaryType {
@@ -111,24 +111,24 @@ public final class BlobType extends BinaryType {
         return sb.toString();
     }
 
-    public boolean acceptsPrecision() {
-        return true;
-    }
-
-    public boolean requiresPrecision() {
-        return false;
-    }
-
-    public long getMaxPrecision() {
-        return maxBlobPrecision;
-    }
-
     public boolean isBinaryType() {
         return true;
     }
 
     public boolean isLobType() {
         return true;
+    }
+
+    public boolean acceptsPrecision() {
+        return true;
+    }
+
+    public long getMaxPrecision() {
+        return maxBlobPrecision;
+    }
+
+    public boolean requiresPrecision() {
+        return false;
     }
 
     public int compare(Session session, Object a, Object b) {
@@ -158,6 +158,51 @@ public final class BlobType extends BinaryType {
         return a;
     }
 
+    public Object castToType(SessionInterface session, Object a,
+                             Type otherType) {
+
+        if (a == null) {
+            return null;
+        }
+
+        if (otherType.typeCode == Types.SQL_BLOB) {
+            BlobData b          = (BlobData) a;
+            long     blobLength = b.length(session);
+
+            if (blobLength > precision) {
+                blobLength = precision;
+
+                session.addWarning(Error.error(ErrorCode.W_01004));
+
+                b = b.getBlob(session, 0, blobLength);
+
+                return b;
+            }
+
+            return a;
+        }
+
+        if (otherType.typeCode == Types.SQL_BINARY
+                || otherType.typeCode == Types.SQL_VARBINARY) {
+            BlobData b          = (BlobData) a;
+            long     blobLength = b.length(session);
+
+            if (blobLength > precision) {
+                blobLength = precision;
+
+                session.addWarning(Error.error(ErrorCode.W_01004));
+            }
+
+            BlobData blob = session.createBlob(b.length(session));
+
+            blob.setBytes(session, 0, b.getBytes(), 0, (int) blobLength);
+
+            return blob;
+        }
+
+        throw Error.error(ErrorCode.X_42561);
+    }
+
     public Object convertToType(SessionInterface session, Object a,
                                 Type otherType) {
 
@@ -166,12 +211,25 @@ public final class BlobType extends BinaryType {
         }
 
         if (otherType.typeCode == Types.SQL_BLOB) {
+            BlobData b          = (BlobData) a;
+            long     blobLength = b.length(session);
+
+            if (blobLength > precision) {
+                throw Error.error(ErrorCode.X_22001);
+            }
+
             return a;
         }
 
         if (otherType.typeCode == Types.SQL_BINARY
                 || otherType.typeCode == Types.SQL_VARBINARY) {
-            BlobData b    = (BlobData) a;
+            BlobData b          = (BlobData) a;
+            long     blobLength = b.length(session);
+
+            if (blobLength > precision) {
+                throw Error.error(ErrorCode.X_22001);
+            }
+
             BlobData blob = session.createBlob(b.length(session));
 
             blob.setBytes(session, 0, b.getBytes());
@@ -182,10 +240,38 @@ public final class BlobType extends BinaryType {
         throw Error.error(ErrorCode.X_42561);
     }
 
+    public Object convertJavaToSQL(SessionInterface session, Object a) {
+
+        if (a == null) {
+            return null;
+        }
+
+        if (a instanceof JDBCBlobClient) {
+            return ((JDBCBlobClient) a).getBlob();
+        }
+
+        throw Error.error(ErrorCode.X_42561);
+    }
+
+    public Object convertSQLToJava(SessionInterface session, Object a) {
+
+        if (a == null) {
+            return null;
+        }
+
+        if (a instanceof BlobDataID) {
+            BlobDataID blob = (BlobDataID) a;
+
+            return new JDBCBlobClient(session, blob);
+        }
+
+        throw Error.error(ErrorCode.X_42561);
+    }
+
     public Object convertToDefaultType(SessionInterface session, Object a) {
 
         if (a == null) {
-            return a;
+            return null;
         }
 
         // conversion to Blob via PreparedStatement.setObject();
@@ -216,33 +302,5 @@ public final class BlobType extends BinaryType {
         byte[] bytes = ((BlobData) a).getBytes();
 
         return StringConverter.byteArrayToSQLHexString(bytes);
-    }
-
-    public Object convertJavaToSQL(SessionInterface session, Object a) {
-
-        if (a == null) {
-            return null;
-        }
-
-        if (a instanceof JDBCBlobClient) {
-            return ((JDBCBlobClient) a).getBlob();
-        }
-
-        throw Error.error(ErrorCode.X_42561);
-    }
-
-    public Object convertSQLToJava(SessionInterface session, Object a) {
-
-        if (a == null) {
-            return null;
-        }
-
-        if (a instanceof BlobDataID) {
-            BlobDataID blob = (BlobDataID) a;
-
-            return new JDBCBlobClient(session, blob);
-        }
-
-        throw Error.error(ErrorCode.X_42561);
     }
 }
