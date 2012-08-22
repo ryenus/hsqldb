@@ -185,6 +185,7 @@ public class BlobDataID implements BlobData {
 
     public long nonZeroLength(SessionInterface session) {
 
+        // todo - implement the next method call in Session
         ResultLob resultOut = ResultLob.newLobGetTruncateLength(id);
         Result    resultIn  = session.execute(resultOut);
 

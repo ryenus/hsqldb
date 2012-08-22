@@ -49,7 +49,7 @@ import org.hsqldb.lib.java.JavaSystem;
  * Type subclass for CHARACTER, VARCHAR, etc.<p>
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.2.9
+ * @version 2.3.0
  * @since 1.9.0
  */
 public class CharacterType extends Type {
@@ -406,8 +406,8 @@ public class CharacterType extends Type {
         }
 
         if (b instanceof ClobData) {
-            return -session.database.lobManager.compare(collation, (ClobData) b,
-                    (String) a);
+            return -session.database.lobManager.compare(collation,
+                    (ClobData) b, (String) a);
         }
 
         String as = (String) a;
@@ -564,13 +564,13 @@ public class CharacterType extends Type {
                 long length = ((ClobData) a).length(session);
 
                 if (precision != 0 && length > precision) {
-                    if (((ClobData) a).nonSpaceLength(session) > precision) {
-                        if (!cast) {
-                            throw Error.error(ErrorCode.X_22001);
-                        }
 
-                        session.addWarning(Error.error(ErrorCode.W_01004));
+                    // todo nonSpaceLength() not yet implemented for CLOB
+                    if (!cast) {
+                        throw Error.error(ErrorCode.X_22001);
                     }
+
+                    session.addWarning(Error.error(ErrorCode.W_01004));
                 }
 
                 switch (typeCode) {

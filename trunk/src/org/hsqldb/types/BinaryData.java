@@ -256,7 +256,7 @@ public class BinaryData implements BlobData {
 
     public long nonZeroLength(SessionInterface session) {
 
-        // temp
+        // todo - implement
         return data.length;
     }
 
