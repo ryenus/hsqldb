@@ -37,7 +37,7 @@ import org.hsqldb.lib.DoubleIntIndex;
  * Maintains a list of free file blocks with fixed capacity.<p>
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.2.9
+ * @version 2.3.0
  * @since 1.8.0
  */
 public class DataFileBlockManager {
@@ -52,6 +52,7 @@ public class DataFileBlockManager {
     private long           requestSize;
 
     // reporting vars
+    long    freeBlockSize;
     long    lostFreeBlockSize;
     boolean isModified;
 
@@ -93,6 +94,8 @@ public class DataFileBlockManager {
 
         if (pos < Integer.MAX_VALUE) {
             lookup.add((int) pos, rowSize);
+
+            freeBlockSize += rowSize;
         }
     }
 
@@ -122,19 +125,26 @@ public class DataFileBlockManager {
 
         lookup.remove(index);
 
+        freeBlockSize -= rowSize;
+
         if (difference >= midSize) {
             int pos = key + (rowSize / scale);
 
             lookup.add(pos, difference);
         } else {
             lostFreeBlockSize += difference;
+            freeBlockSize     -= difference;
         }
 
         return key;
     }
 
-    int size() {
+    int freeBlockCount() {
         return lookup.size();
+    }
+
+    long freeBlockSize() {
+        return freeBlockSize;
     }
 
     long getLostBlocksSize() {
