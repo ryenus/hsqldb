@@ -47,7 +47,7 @@ import org.hsqldb.lib.StringUtil;
  * Manages a .properties file for a database.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.2.9
+ * @version 2.3.0
  * @since 1.7.0
  */
 public class HsqlDatabaseProperties extends HsqlProperties {
@@ -437,6 +437,8 @@ public class HsqlDatabaseProperties extends HsqlProperties {
         dbMeta.put(sql_longvar_is_lob,
                    HsqlProperties.getMeta(sql_longvar_is_lob, SQL_PROPERTY,
                                           false));
+        dbMeta.put(sql_pad_space,
+                   HsqlProperties.getMeta(sql_pad_space, SQL_PROPERTY, true));
         dbMeta.put(hsqldb_write_delay,
                    HsqlProperties.getMeta(hsqldb_write_delay, SQL_PROPERTY,
                                           true));

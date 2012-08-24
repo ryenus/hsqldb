@@ -113,7 +113,7 @@ import org.hsqldb.types.Type;
  *
  * @author Campbell Boucher-Burnet (boucherb@users dot sourceforge.net)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.2.1
+ * @version 2.3.0
  * @since 1.7.2
  */
 final class DatabaseInformationFull
@@ -413,13 +413,13 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
      *
      * <pre class="SqlCodeExample">
      * CACHE_FILE          CHARACTER_DATA   absolute path of cache data file
-     * MAX_CACHE_SIZE      INTEGER   maximum allowable cached Row objects
-     * MAX_CACHE_BYTE_SIZE INTEGER   maximum allowable size of cached Row objects
-     * CACHE_LENGTH        INTEGER   number of data bytes currently cached
-     * CACHE_SIZE          INTEGER   number of rows currently cached
-     * FREE_BYTES          INTEGER   total bytes in available file allocation units
-     * FREE_COUNT          INTEGER   total # of allocation units available
-     * FREE_POS            INTEGER   largest file position allocated + 1
+     * MAX_CACHE_SIZE      BIGINT   maximum allowable cached Row objects
+     * MAX_CACHE_BYTE_SIZE BIGINT   maximum allowable size of cached Row objects
+     * CACHE_LENGTH        BIGINT   number of data bytes currently cached
+     * CACHE_SIZE          BIGINT   number of rows currently cached
+     * FREE_BYTES          BIGINT   total bytes in available file allocation units
+     * FREE_COUNT          BIGINT   total # of allocation units available
+     * FREE_POS            BIGINT   largest file position allocated + 1
      * </pre> <p>
      *
      * <b>Notes:</b> <p>
@@ -452,6 +452,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
             addColumn(t, "MAX_CACHE_BYTES", CARDINAL_NUMBER);    // not null
             addColumn(t, "CACHE_SIZE", CARDINAL_NUMBER);         // not null
             addColumn(t, "CACHE_BYTES", CARDINAL_NUMBER);        // not null
+            addColumn(t, "FILE_LOST_BYTES", CARDINAL_NUMBER);    // not null
             addColumn(t, "FILE_FREE_BYTES", CARDINAL_NUMBER);    // not null
             addColumn(t, "FILE_FREE_COUNT", CARDINAL_NUMBER);    // not null
             addColumn(t, "FILE_FREE_POS", CARDINAL_NUMBER);      // not null
@@ -471,9 +472,10 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         final int imax_cache_bytes = 2;
         final int icache_size      = 3;
         final int icache_length    = 4;
-        final int ifree_bytes      = 5;
-        final int ifree_count      = 6;
-        final int ifree_pos        = 7;
+        final int ilost_bytes      = 5;
+        final int ifree_bytes      = 6;
+        final int ifree_count      = 7;
+        final int ifree_pos        = 8;
 
         //
         DataFileCache cache = null;
@@ -482,9 +484,6 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         Iterator      caches;
         Iterator      tables;
         Table         table;
-        int           iFreeBytes;
-        int           iLargestFreeItem;
-        long          lSmallestFreeItem;
 
         // Initialization
         cacheSet = new HashSet();
@@ -523,6 +522,8 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
             row[icache_size] = ValuePool.getLong(cache.getCachedObjectCount());
             row[icache_length] =
                 ValuePool.getLong(cache.getTotalCachedBlockSize());
+            row[ilost_bytes] =
+                ValuePool.getLong(cache.getLostBlockSize());
             row[ifree_bytes] =
                 ValuePool.getLong(cache.getTotalFreeBlockSize());
             row[ifree_count] = ValuePool.getLong(cache.getFreeBlockCount());
@@ -1025,7 +1026,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
      * WAITING_FOR_THIS   VARCHAR   comma separated list of sessions waiting for this one
      * THIS_WAITING_FOR   VARCHAR   comma separated list of sessions this session is waiting for
      * CURRENT_STATEMENT  VARCHAR   SQL statement currently running
-     * LATCH_COUNT        INTEGER   latch count for session
+     * LATCH_COUNT        BIGINT    latch count for session
      * </pre> <p>
      *
      * @return a <code>Table</code> object describing all visible
@@ -3920,8 +3921,8 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
      * TABLE_SCHEMA                    VARCHAR   table schema
      * TABLE_NAME                      VARCHAR   table name
      * COLUMN_NAME                     VARCHAR   column name
-     * ORDINAL_POSITION                INT
-     * POSITION_IN_UNIQUE_CONSTRAINT   INT
+     * ORDINAL_POSITION                BIGINT
+     * POSITION_IN_UNIQUE_CONSTRAINT   BIGINT
      * </pre> <p>
      *
      * The ORDINAL_POSITION column refers to the position of the column in the
@@ -6198,7 +6199,8 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
     /**
      * SQL:2008 VIEW<p>
      *
-     * The SQL_IMPLEMENTATION_INFO view is empty.<p>
+     * The SQL_IMPLEMENTATION_INFO shows some properties and capabilities
+     * of the database engine .<p>
      *
      */
     Table SQL_IMPLEMENTATION_INFO(Session session, PersistentStore store) {

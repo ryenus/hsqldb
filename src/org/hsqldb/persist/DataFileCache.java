@@ -1269,12 +1269,16 @@ public class DataFileCache {
         return cache.getTotalCachedBlockSize();
     }
 
-    public int getFreeBlockCount() {
-        return freeBlocks.size();
+    public long getLostBlockSize() {
+        return freeBlocks.getLostBlocksSize();
     }
 
-    public int getTotalFreeBlockSize() {
-        return 0;
+    public int getFreeBlockCount() {
+        return freeBlocks.freeBlockCount();
+    }
+
+    public long getTotalFreeBlockSize() {
+        return freeBlocks.freeBlockSize();
     }
 
     public long getFileFreePos() {
