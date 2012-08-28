@@ -3957,7 +3957,7 @@ public class ParserDDL extends ParserRoutine {
             throw Error.error(ErrorCode.X_42561);
         }
 
-        Type type = readTypeDefinition(false, true);
+        Type type = readTypeDefinition(true, true);
 
         if (column.isIdentity()) {
             if (!type.isIntegralType()) {
@@ -4315,7 +4315,9 @@ public class ParserDDL extends ParserRoutine {
                 Statement cs =
                     new StatementCommand(StatementTypes.SET_USER_PASSWORD,
                                          args);
-                String sql = userObject.getSetPasswordDigestSQL();
+                String sql =
+                    userObject.getSetUserPasswordDigestSQL(userObject,
+                        password, isDigest);
 
                 cs.setSQL(sql);
 

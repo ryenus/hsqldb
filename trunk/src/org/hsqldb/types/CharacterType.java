@@ -1174,6 +1174,8 @@ public class CharacterType extends Type {
                 if (length < fixedTypesLength) {
                     return charArray[(int) length];
                 }
+
+            // fall through
             case Types.SQL_VARCHAR :
             case Types.VARCHAR_IGNORECASE :
                 return new CharacterType(type, (int) length);

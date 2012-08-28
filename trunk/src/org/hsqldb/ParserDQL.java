@@ -538,7 +538,7 @@ public class ParserDQL extends ParserBase {
         Collation collation = database.collation;
         Charset   charset   = null;
 
-        if (isCharacter) {
+        if (isCharacter && allowCollation) {
             if (token.tokenType == Tokens.CHARACTER) {
                 read();
                 readThis(Tokens.SET);

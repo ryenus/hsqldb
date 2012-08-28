@@ -967,8 +967,6 @@ public class StatementCommand extends Statement {
                                 table.getSchemaName());
                     }
 
-                    session.setScripting(true);
-
                     TableWorks tw = new TableWorks(session, table);
 
                     tw.setTableType(session, type);
@@ -1037,7 +1035,6 @@ public class StatementCommand extends Statement {
                     boolean isDigest = (Boolean) parameters[2];
 
                     session.checkDDLWrite();
-                    session.setScripting(true);
                     session.database.userManager.setPassword(session, user,
                             password, isDigest);
 
