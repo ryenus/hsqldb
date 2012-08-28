@@ -552,7 +552,6 @@ public class ParserCommand extends ParserDDL {
 
         int position = super.getPosition();
 
-        session.setScripting(false);
         read();
 
         switch (token.tokenType) {

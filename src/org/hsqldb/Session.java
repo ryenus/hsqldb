@@ -121,7 +121,6 @@ public class Session implements SessionInterface {
     private int        sessionMaxRows;
     private final long sessionId;
     int                sessionTxId = -1;
-    private boolean    script;
     boolean            ignoreCase;
 
     // internal connection
@@ -811,27 +810,6 @@ public class Session implements SessionInterface {
 
     public synchronized int getStreamBlockSize() {
         return lobStreamBlockSize;
-    }
-
-    /**
-     *  A switch to set scripting on the basis of type of statement executed.
-     *  Afterwards the method reponsible for logging uses
-     *  isScripting() to determine if logging is required for the executed
-     *  statement. (fredt@users)
-     *
-     * @param  script The new scripting value
-     */
-    void setScripting(boolean script) {
-        this.script = script;
-    }
-
-    /**
-     * Getter for scripting attribute.
-     *
-     * @return  scripting for the last statement.
-     */
-    boolean isScripting() {
-        return script;
     }
 
     /**
