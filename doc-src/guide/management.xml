@@ -916,7 +916,7 @@
 
       <itemizedlist>
         <listitem>
-          <para>Win HyperSQL, an UPDATE statement can update UNIQUE and
+          <para>With HyperSQL, an UPDATE statement can update UNIQUE and
           PRIMARY KEY columns of a table without causing an exception due to
           temporary violation of constraints. These constraints are checked at
           the end of execution, therefore there is no need for an ORDER BY
@@ -2031,7 +2031,7 @@
       <simpara><emphasis role="bold">SET DATABASE SQL CONVERT
       TRUNCATE</emphasis></simpara>
 
-      <simpara><emphasis>set database sql unique convert
+      <simpara><emphasis>set database sql convert
       truncate</emphasis></simpara>
 
       <simpara><literal>&lt;set database sql convert truncate statement&gt;
