@@ -2307,6 +2307,10 @@ public class QuerySpecification extends QueryExpression {
         set = collectAllExpressions(set, Expression.columnExpressionSet,
                                     Expression.subqueryAggregateExpressionSet);
 
+        if (set == null) {
+            return null;
+        }
+
         for (int i = set.size() - 1; i >= 0; i--) {
             Expression col = (Expression) set.get(i);
 
