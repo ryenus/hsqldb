@@ -137,7 +137,9 @@
       TABLE</literal> statement. The table definition lasts only for the
       duration of the session and is not persisted in the database. The table
       can be declared in the middle of a transaction without committing the
-      transaction.</para>
+      transaction. If a schema name is needed to reference these tables in a
+      given SQL statement, the pseudo schema names <literal>MODULE</literal>
+      or <literal>SESSION</literal> can be used.</para>
 
       <para>When the session commits, the contents of all temporary tables are
       cleared by default. If the table definition statements includes ON
@@ -145,9 +147,10 @@
       place.</para>
 
       <para>The rows in temporary tables are stored in memory by default. If
-      the <literal>hsqldb.result_max_memory_rows</literal> ( SET SESSION
-      RESULT MEMORY ROWS &lt;row count&gt; ) has been specified, tables with
-      row count above the setting are stored on disk.</para>
+      the <literal>hsqldb.result_max_memory_rows</literal> property has been
+      set or the <literal>SET SESSION RESULT MEMORY ROWS &lt;row
+      count&gt;</literal> has been specified, tables with row count above the
+      setting are stored on disk.</para>
     </section>
 
     <section xml:id="sgc_persist_tables">
@@ -1458,14 +1461,14 @@ UPDATE t SET names = ARRAY['LARGE', 'SMALL'] WHERE id &lt; 12 AND scores = ARRAY
 </programlisting>
       </informalexample>
 
-        <para>When using a PreparedStatement with an ARRAY parameter, an
-        object of the type java.sql.Array must be used to set the parameter.
-        The <classname>org.hsqldb.jdbc.JDBCArrayBasic</classname> class can be
-        used for constructing a java.sql.Array object in the user's
-        application. Code fragment below:</para>
+      <para>When using a PreparedStatement with an ARRAY parameter, an object
+      of the type java.sql.Array must be used to set the parameter. The
+      <classname>org.hsqldb.jdbc.JDBCArrayBasic</classname> class can be used
+      for constructing a java.sql.Array object in the user's application. Code
+      fragment below:</para>
 
       <informalexample>
-          <programlisting>    String sql = "UPDATE t SET names = ? WHERE id = ?";
+        <programlisting>    String sql = "UPDATE t SET names = ? WHERE id = ?";
     PreparedStatement ps = connection.prepareStatement(sql)
     Object[] data = new Object[]{"one", "two"};
     // default types defined in org.hsqldb.types.Type can be used
