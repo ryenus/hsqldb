@@ -112,17 +112,17 @@ import org.hsqldb.types.Type;
  *
  *  When the database or server is shutdown, the signalClose() method is called
  *  for all current ServerConnection instances. This will call the private
- *  close() method unless the ServerConnection thread itself has caused the
- *  shutdown. In this case, the keepAlive flag is set to false, allowing the
- *  thread to terminate once it has returned the result of the operation to
- *  the client.
+ *  close() method. If the ServerConnection thread itself has caused the
+ *  shutdown it returns the result of the operation to the client.
  *  (fredt@users)<p>
  *
- * Rewritten in  HSQLDB version 1.7.2, based on original Hypersonic code.
+ * Rewritten in HSQLDB version 1.7.2, based on original Hypersonic code.<p>
+ * ODBC support added for version 2.0.0 by Blaine Simpson.<p>
  *
+ * @author Blaine Simpson (unsaved@users dot sourceforge.net
  * @author Thomas Mueller (Hypersonic SQL Group)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.2.9
+ * @version 2.3.0
  * @since Hypersonic SQL
  */
 class ServerConnection implements Runnable {
@@ -212,9 +212,15 @@ class ServerConnection implements Runnable {
 
         keepAlive = false;
 
-        if (!Thread.currentThread().equals(runnerThread)) {
-            close();
+        if (Thread.currentThread().equals(runnerThread)) {
+            Result resultOut = Result.updateZeroResult;
+
+            try {
+                resultOut.write(session, dataOutput, rowOut);
+            } catch (Throwable t) {}
         }
+
+        close();
     }
 
     /**

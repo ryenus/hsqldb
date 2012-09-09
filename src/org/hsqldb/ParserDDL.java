@@ -167,6 +167,8 @@ public class ParserDDL extends ParserRoutine {
 
                     isOrReplace = true;
                 }
+                break;
+
             default :
         }
 
@@ -582,6 +584,13 @@ public class ParserDDL extends ParserRoutine {
 
                 if (isModule) {
                     name = readNewSchemaObjectName(objectType, false);
+
+                    if (!ifExists && token.tokenType == Tokens.IF) {
+                        read();
+                        readThis(Tokens.EXISTS);
+
+                        ifExists = true;
+                    }
 
                     Object[] args = new Object[] {
                         name, Boolean.valueOf(ifExists)
@@ -3862,6 +3871,8 @@ public class ParserDDL extends ParserRoutine {
                         read();
                         break;
                 }
+
+                break;
             }
             case Tokens.GENERATED :
                 return compileAlterColumnAddSequence(table, column,
@@ -4315,9 +4326,8 @@ public class ParserDDL extends ParserRoutine {
                 Statement cs =
                     new StatementCommand(StatementTypes.SET_USER_PASSWORD,
                                          args);
-                String sql =
-                    userObject.getSetUserPasswordDigestSQL(userObject,
-                        password, isDigest);
+                String sql = userObject.getSetUserPasswordDigestSQL(userObject,
+                    password, isDigest);
 
                 cs.setSQL(sql);
 
