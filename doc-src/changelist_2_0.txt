@@ -1,3 +1,17 @@
+10 September 2012 - svn 5071 snapshot
+-- fixed regession with the result returned after a SHUTDOWN 
+-- fixed regression with non-correlated scalar subqueries causing NPE
+-- fixed regression with FUNCTION and PROCEDURE local tables data change logging
+-- fixed regression with script file with CREATE TYPE with character types
+-- fixed issue with DECLARE CURSOR in routines using write locks and requiring MODIFIES SQL DATA
+-- fixed issue with TRUNCATE function causing NPE when used in column GENERATED ALWAYS expression
+-- fixed issue with escape in Unicode string which caused only the part before the escape to return from Scanner
+-- fixed issue with upgraded version 1.8.0 databases which did not have lob space
+-- fixed issue with logging changed password after ALTER USER ... SET PASSWORD ...
+-- improved text table source textdb.allow_full_path=true to allow absolute full paths
+-- improved sql.enforce_references=true to catch ambiguous references in ORDER BY columns
+-- improved ORA syntax compatibility mode
+-- added support for terminal DROP TABLE ... IF EXISTS for local temporary tables
 05 August 2012 - version 2.2.9
 -- code review and minor fixes
 -- improved support for use in OO and LO version 3.2 and later
