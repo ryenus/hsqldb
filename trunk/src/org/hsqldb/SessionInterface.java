@@ -32,6 +32,7 @@
 package org.hsqldb;
 
 import java.io.InputStream;
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
 
 import org.hsqldb.jdbc.JDBCConnection;
@@ -49,7 +50,7 @@ import org.hsqldb.types.TimestampData;
  * the session level.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.0.1
+ * @version 2.2.9
  * @since 1.7.2
  */
 public interface SessionInterface {
@@ -146,4 +147,6 @@ public interface SessionInterface {
     void setJDBCConnection(JDBCConnection connection);
 
     String getDatabaseUniqueName();
+
+    SimpleDateFormat getSimpleDateFormatGMT();
 }
