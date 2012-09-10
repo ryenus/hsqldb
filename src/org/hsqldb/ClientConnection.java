@@ -36,8 +36,10 @@ import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.Socket;
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
+import java.util.Locale;
 import java.util.TimeZone;
 
 import org.hsqldb.error.Error;
@@ -64,7 +66,7 @@ import org.hsqldb.types.TimestampData;
  * protocol.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.2.6
+ * @version 2.3.0
  * @since 1.7.2
  */
 public class ClientConnection implements SessionInterface {
@@ -106,6 +108,7 @@ public class ClientConnection implements SessionInterface {
     private Scanner  scanner;
     private String   zoneString;
     private Calendar calendar;
+    SimpleDateFormat simpleDateFormatGMT;
 
     //
     JDBCConnection connection;
@@ -590,6 +593,19 @@ public class ClientConnection implements SessionInterface {
 
     public String getDatabaseUniqueName() {
         return databaseUniqueName;
+    }
+
+    public SimpleDateFormat getSimpleDateFormatGMT() {
+
+        if (simpleDateFormatGMT == null) {
+            simpleDateFormatGMT = new SimpleDateFormat("MMMM", Locale.ENGLISH);
+
+            Calendar cal = new GregorianCalendar(TimeZone.getTimeZone("GMT"));
+
+            simpleDateFormatGMT.setCalendar(cal);
+        }
+
+        return simpleDateFormatGMT;
     }
 
     /**

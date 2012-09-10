@@ -50,7 +50,7 @@ import org.hsqldb.lib.StringConverter;
  * Type subclass for DATE, TIME and TIMESTAMP.<p>
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.2.9
+ * @version 2.3.0
  * @since 1.9.0
  */
 public final class DateTimeType extends DTIType {
@@ -503,8 +503,14 @@ public final class DateTimeType extends DTIType {
                     case Types.SQL_TIME :
                     case Types.SQL_TIMESTAMP_WITH_TIME_ZONE :
                     case Types.SQL_TIMESTAMP : {
-                        return session.getScanner().convertToDatetimeInterval(
-                            session, (String) a, this);
+                        try {
+                            return session.getScanner()
+                                .convertToDatetimeInterval(session,
+                                                           (String) a, this);
+                        } catch (HsqlException e) {
+                            return convertToDatetimeSpecial(session,
+                                                            (String) a, this);
+                        }
                     }
                 }
                 break;
@@ -1720,5 +1726,42 @@ public final class DateTimeType extends DTIType {
                                              source.getZone());
 
         return ts;
+    }
+
+    public static TimestampData convertToDatetimeSpecial(
+            SessionInterface session, String s, DateTimeType type) {
+
+        switch (type.typeCode) {
+
+            case Types.SQL_TIMESTAMP :
+                if (session instanceof Session
+                        && ((Session) session).database.sqlSyntaxOra) {
+                    String pattern;
+
+                    if (s.length() == 11) {
+                        pattern = "DD-MON-YYYY";
+                    } else if (s.length() == 20) {
+                        pattern = "DD-MON-YYYY HH24:MI:SS";
+                    } else {
+                        break;
+                    }
+
+                    SimpleDateFormat format = session.getSimpleDateFormatGMT();
+                    Date date = HsqlDateTime.toDate(s, pattern, format);
+
+                    return new TimestampData(date.getTime() / 1000, 0, 0);
+                }
+
+            //
+            case Types.SQL_TIMESTAMP_WITH_TIME_ZONE :
+
+            //
+            case Types.SQL_DATE :
+            case Types.SQL_TIME :
+            case Types.SQL_TIME_WITH_TIME_ZONE :
+            default :
+        }
+
+        throw Error.error(ErrorCode.X_22007);
     }
 }
