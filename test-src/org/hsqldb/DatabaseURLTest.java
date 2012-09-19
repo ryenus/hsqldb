@@ -32,7 +32,9 @@ package org.hsqldb;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 import org.hsqldb.persist.HsqlProperties;
+import org.hsqldb.testbase.ForSubject;
 
+@ForSubject(DatabaseURL.class)
 public class DatabaseURLTest extends junit.framework.TestCase {
 
     public void testHsqldbUrls() {

@@ -39,9 +39,15 @@ import java.sql.Connection;
 import java.sql.Statement;
 import java.sql.SQLException;
 import java.sql.DriverManager;
+import junit.framework.Test;
+import junit.framework.TestSuite;
+import junit.textui.TestRunner;
 import org.hsqldb.jdbc.JDBCArrayBasic;
 import org.hsqldb.types.Type;
 import org.hsqldb.lib.FrameworkLogger;
+import org.hsqldb.testbase.BaseTestCase;
+import org.hsqldb.testbase.ForSubject;
+import org.hsqldb.testbase.OfMethod;
 
 /**
  * Test method naming convention:
@@ -55,7 +61,7 @@ import org.hsqldb.lib.FrameworkLogger;
  *       the auth. function provides roles, or both.
  * </UL>
  */
-public class AuthFunctionTest extends junit.framework.TestCase {
+public class AuthFunctionTest extends BaseTestCase {
     private static FrameworkLogger logger =
             FrameworkLogger.getLog(AuthFunctionTest.class);
 
@@ -125,6 +131,8 @@ public class AuthFunctionTest extends junit.framework.TestCase {
         }
     }
 
+    @ForSubject(AuthFunctionTest.class)
+    @OfMethod("twoRolesFn(java.lang.s]String,java.lang.String,java.lang.String)")
     public void testRemoteAccountRemoteRoles() throws SQLException {
         Statement st = null;
         Connection authedCon = null;
@@ -165,6 +173,8 @@ public class AuthFunctionTest extends junit.framework.TestCase {
         }
     }
 
+    @ForSubject(AuthFunctionTest.class)
+    @OfMethod("twoRolesFn(java.lang.s]String,java.lang.String,java.lang.String)")
     public void testLocalUserAccountLocalRemoteRoles() throws SQLException {
         Statement st = null;
         Connection authedCon = null;
@@ -214,6 +224,8 @@ public class AuthFunctionTest extends junit.framework.TestCase {
         }
     }
 
+    @ForSubject(AuthFunctionUtils.class)
+    @OfMethod("nullFn(java.lang.String,java.lang.String,java.lang.String)")
     public void testLocalUserAccountLocalRoles() throws SQLException {
         Statement st = null;
         Connection authedCon = null;
@@ -264,6 +276,8 @@ public class AuthFunctionTest extends junit.framework.TestCase {
         }
     }
 
+    @ForSubject(AuthFunctionUtils.class)
+    @OfMethod("noRoleFn(java.lang.String,java.lang.String,java.lang.String)")
     public void testLocalUserAccountLocalRemote0Roles() throws SQLException {
         Statement st = null;
         Connection authedCon = null;
@@ -314,6 +328,8 @@ public class AuthFunctionTest extends junit.framework.TestCase {
         }
     }
 
+    @ForSubject(AuthFunctionUtils.class)
+    @OfMethod("nullFn(java.lang.String,java.lang.String,java.lang.String)")
     public void testVirtualAccount() throws SQLException {
         Statement st = null;
         Connection authedCon = null;
@@ -352,6 +368,8 @@ public class AuthFunctionTest extends junit.framework.TestCase {
         }
     }
 
+    @ForSubject(AuthFunctionUtils.class)
+    @OfMethod("nullFn(java.lang.String,java.lang.String,java.lang.String)")
     public void testLocalOnlyAccess() throws SQLException {
         Statement st = null;
         Connection authedCon = null;
@@ -429,6 +447,8 @@ public class AuthFunctionTest extends junit.framework.TestCase {
         }
     }
 
+    @ForSubject(AuthFunctionTest.class)
+    @OfMethod("schemaS2Fn(java.lang.String,java.lang.String,java.lang.String)")
     public void testPullSchema() throws SQLException {
         Statement st = null;
         Connection authedCon = null;
@@ -477,6 +497,8 @@ public class AuthFunctionTest extends junit.framework.TestCase {
         }
     }
 
+    @ForSubject(AuthFunctionTest.class)
+    @OfMethod("twoRolesFn(java.lang.String,java.lang.String,java.lang.String)")
     public void testNoPullSchema() throws SQLException {
         Statement st = null;
         Connection authedCon = null;
@@ -527,15 +549,22 @@ public class AuthFunctionTest extends junit.framework.TestCase {
         }
     }
 
+    public static Test suite() {
+        return new TestSuite(AuthFunctionTest.class);
+    }
+
     /**
      * This method allows to easily run this unit test independent of the other
      * unit tests, and without dealing with Ant or unrelated test suites.
      */
     static public void main(String[] sa) {
-        junit.textui.TestRunner runner = new junit.textui.TestRunner();
-        junit.framework.TestResult result =
-            runner.run(runner.getTest(AuthFunctionTest.class.getName()));
+        if (sa.length > 0 && sa[0].startsWith("-g")) {
+            junit.swingui.TestRunner.run(AuthFunctionTest.class);
+        } else {
+            junit.framework.TestResult result = TestRunner.run(suite());
+            
+            System.exit(result.wasSuccessful() ? 0 : 1);
+        }
 
-        System.exit(result.wasSuccessful() ? 0 : 1);
     }
 }

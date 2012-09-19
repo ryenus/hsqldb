@@ -30,11 +30,15 @@
 package org.hsqldb.store;
 
 import junit.framework.Test;
-import junit.framework.TestCase;
 import junit.framework.TestSuite;
+import org.hsqldb.testbase.BaseTestCase;
+import org.hsqldb.testbase.ForSubject;
+import org.hsqldb.testbase.OfMethod;
 
-public class BitMapTest extends TestCase {
+@ForSubject(BitMap.class)
+public class BitMapTest extends BaseTestCase {
 
+    @OfMethod({"leftShift([byte,int","and([byte,byte,int"})
     public void testBitMap() {
 
         byte[] map = new byte[]{

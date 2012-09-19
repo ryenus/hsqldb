@@ -46,14 +46,19 @@ import java.net.URL;
 import java.sql.Blob;
 import java.sql.Clob;
 import java.sql.Connection;
+import java.sql.DatabaseMetaData;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
+import java.sql.SQLFeatureNotSupportedException;
 import java.sql.Statement;
 import java.text.MessageFormat;
 import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.jar.JarEntry;
+import org.hsqldb.error.ErrorCode;
+import org.hsqldb.jdbc.JDBCResultSetTest;
+import org.hsqldb.jdbc.testbase.SqlState;
 import org.hsqldb.lib.IntValueHashMap;
 import org.hsqldb.lib.OrderedHashSet;
 import org.hsqldb.testbase.ConnectionFactory.ConnectionFactoryEventListener;
@@ -75,6 +80,10 @@ public abstract class BaseTestCase extends junit.framework.TestCase {
     public static final String DEFAULT_URL = "jdbc:hsqldb:mem:testcase";
     public static final String DEFAULT_USER = "SA";
     public static final String BTCK_CLOSE_EMBEDDED_DATABASES_ON_TEARDOWN = "close.embedded.databases.on.teardown";
+    public static final int DEFAULT_INCOMPATIBLE_DATA_TYPE_CONVERSION_ERROR_CODE = -ErrorCode.X_42561;
+    public static final int DEFAULT_RESULT_SET_AFTER_LAST_ERROR_CODE = -ErrorCode.X_24504;
+    public static final int DEFAULT_RESULT_SET_BEFORE_FIRST_ERROR_CODE = -ErrorCode.X_24504;
+    public static final int DEFAULT_RESULT_SET_CLOSED_ERROR_CODE = -ErrorCode.X_24501;
     //
     protected static final IntValueHashMap s_fieldValueMap =
             new IntValueHashMap();
@@ -154,8 +163,8 @@ public abstract class BaseTestCase extends junit.framework.TestCase {
     private ConnectionFactory.ConnectionFactoryEventListener m_embeddedDatabaseCloser;
 
     /**
-     * by computing a shallow string representation
-     * of the given array. <p>
+     * by computing a shallow string representation of the given array. <p>
+     *
      * @param array for which to produce the string representation.
      * @return the string representation.
      */
@@ -178,10 +187,11 @@ public abstract class BaseTestCase extends junit.framework.TestCase {
 
     /**
      * for the given array objects.
+     *
      * @param expected array
      * @param actual array
-     * @return an "arrays not equal" failure message
-     * describing the given values.
+     * @return an "arrays not equal" failure message describing the given
+     * values.
      */
     protected static String arraysNotEqualMessage(Object expected, Object actual) {
         // TODO:  implement cf-style message, but with either context info
@@ -194,6 +204,7 @@ public abstract class BaseTestCase extends junit.framework.TestCase {
 
     /**
      * with special handling for Java array objects.
+     *
      * @param expected object
      * @param actual object
      * @throws java.lang.Exception as thrown by any internal operation.
@@ -289,6 +300,7 @@ public abstract class BaseTestCase extends junit.framework.TestCase {
 
     /**
      * in terms of producing the same character sequence. <p>
+     *
      * @param expected reader; must not be null.
      * @param actual reader; must not be null.
      * @throws java.lang.Exception if an I/0 error occurs.
@@ -366,6 +378,7 @@ public abstract class BaseTestCase extends junit.framework.TestCase {
 
     /**
      * in terms of producing the same octet sequence. <p>
+     *
      * @param expected octet sequence, as an InputStream; must not be null
      * @param actual octet sequence, as an InputStream; must not be null
      * @throws java.lang.Exception if an I/0 error occurs.
@@ -421,6 +434,7 @@ public abstract class BaseTestCase extends junit.framework.TestCase {
      * for multi-arrays, returns 'N' (n-dimensional). <p>
      *
      * for (non-null, non-array) object ref, returns 'O' (Object).
+     *
      * @return a character code representing the component type.
      * @param o for which to produce the component descriptor.
      */
@@ -447,6 +461,11 @@ public abstract class BaseTestCase extends junit.framework.TestCase {
             return 'O'; // non-array object instance
         }
     }
+    protected boolean m_resultSetConcurrencyDetermined;
+    protected boolean m_supportsForwardOnlyUpdates;
+    protected boolean m_supportsScrollInsensitiveUpdates;
+    protected boolean m_supportsScrollSensitiveUpdates;
+    protected boolean m_supportsUpdates;
 
     /**
      * for file: or jar: resources.
@@ -527,8 +546,9 @@ public abstract class BaseTestCase extends junit.framework.TestCase {
 
     /**
      *
-     * that produces, tracks and closes the JDBC
-     * objects used by this test suite. <p>
+     * that produces, tracks and closes the JDBC objects used by this test
+     * suite. <p>
+     *
      * @return the factory.
      */
     protected ConnectionFactory connectionFactory() {
@@ -559,33 +579,41 @@ public abstract class BaseTestCase extends junit.framework.TestCase {
             throw new RuntimeException(
                     "No such resource on CLASSPATH: [" + fullResource + "]");
         }
-        ScriptIterator it = new ScriptIterator(url);
         Connection conn = null;
         Statement stmt = null;
+        ScriptIterator it = new ScriptIterator(url);
         String sql = null;
         try {
             conn = newConnection();
-            stmt = conn.createStatement();
+            stmt = connectionFactory().createStatement(conn);
             while (it.hasNext()) {
                 sql = (String) it.next();
                 stmt.execute(sql);
             }
             conn.commit();
         } catch (Exception e) {
+            if (e instanceof SQLException) {
+                String sqlState = ((SQLException) e).getSQLState();
+                int sqlCode = ((SQLException) e).getErrorCode();
+
+                println("SQL State: " + sqlState);
+                println("SQL Code: " + sqlCode);
+            }
             println("error executing sql:");
             println(sql);
+
             throw e;
         } finally {
             if (stmt != null) {
                 try {
                     stmt.close();
-                } catch (SQLException se) {
+                } catch (Exception e) {
                 }
             }
             if (conn != null) {
                 try {
                     conn.close();
-                } catch (SQLException se) {
+                } catch (Exception e) {
                 }
             }
         }
@@ -607,6 +635,7 @@ public abstract class BaseTestCase extends junit.framework.TestCase {
 
     /**
      * as defined in system properties.
+     *
      * @return defined value.
      */
     public String getDriver() {
@@ -646,9 +675,23 @@ public abstract class BaseTestCase extends junit.framework.TestCase {
                 translatePropertyKey(key),
                 defaultValue);
     }
+    
+    /**
+     * for the given key.
+     *
+     * @param key to match.
+     * @param defaultValue when there is no matching property.
+     * @return the matching value.
+     */
+    public double getDoubleProperty(final String key, final double defaultValue) {
+        return PropertyGetter.getDoubleProperty(
+                translatePropertyKey(key),
+                defaultValue);
+    }    
 
     /**
      * as defined in system properties.
+     *
      * @return defined value.
      */
     public String getPassword() {
@@ -671,6 +714,7 @@ public abstract class BaseTestCase extends junit.framework.TestCase {
 
     /**
      * as defined in system properties.
+     *
      * @return defined value.
      */
     public String getUrl() {
@@ -679,6 +723,7 @@ public abstract class BaseTestCase extends junit.framework.TestCase {
 
     /**
      * as defined in system properties.
+     *
      * @return defined value.
      */
     public String getUser() {
@@ -686,9 +731,8 @@ public abstract class BaseTestCase extends junit.framework.TestCase {
     }
 
     /**
-     * with the driver, url, user and password
-     * specified by the corresponding protected
-     * accessors of this class. <p>
+     * with the driver, url, user and password specified by the corresponding
+     * protected accessors of this class. <p>
      *
      * @return a new connection.
      * @throws java.lang.Exception thrown by any internal operation.
@@ -709,6 +753,7 @@ public abstract class BaseTestCase extends junit.framework.TestCase {
 
     /**
      * to standard output.
+     *
      * @param msg to print
      */
     protected void print(Object msg) {
@@ -732,6 +777,7 @@ public abstract class BaseTestCase extends junit.framework.TestCase {
 
     /**
      * to standard output.
+     *
      * @param msg to print
      */
     protected final void println(final Object msg) {
@@ -800,6 +846,7 @@ public abstract class BaseTestCase extends junit.framework.TestCase {
 //    }
     /**
      * to standard output.
+     *
      * @param method
      * @param msg to print
      */
@@ -855,7 +902,6 @@ public abstract class BaseTestCase extends junit.framework.TestCase {
             return method.getAnnotation(ForSubject.class).value().getCanonicalName();
         }
 
-
         if (getClass().isAnnotationPresent(ForSubject.class)) {
             return getClass().getAnnotation(ForSubject.class).value().getCanonicalName();
         }
@@ -890,17 +936,20 @@ public abstract class BaseTestCase extends junit.framework.TestCase {
     private String getSubjectMethodName(Method method) {
 
         if (method != null && method.isAnnotationPresent(OfMethod.class)) {
-            return method.getAnnotation(OfMethod.class).value();
+            String[] result = method.getAnnotation(OfMethod.class).value();
+
+            return (result.length == 1) ? result[0] : Arrays.toString(result);
         }
 
         if (getClass().isAnnotationPresent(OfMethod.class)) {
-            return getClass().getAnnotation(OfMethod.class).value();
+            String[] result = getClass().getAnnotation(OfMethod.class).value();
+
+            return (result.length == 1) ? result[0] : Arrays.toString(result);
         }
 
         if (method == null) {
             return null;
         }
-
 
         String methodName = method.getName();
 
@@ -971,10 +1020,12 @@ public abstract class BaseTestCase extends junit.framework.TestCase {
     @Override
     protected void setUp() throws Exception {
         super.setUp();
+        connectionFactory().closeRegisteredObjects();
     }
 
     /**
-     * Determines if teardown attempts to closes any open in-process database instances.
+     * Determines if teardown attempts to closes any open in-process database
+     * instances.
      *
      * @return true if so, else false.
      */
@@ -1024,8 +1075,8 @@ public abstract class BaseTestCase extends junit.framework.TestCase {
     /**
      * Activates any configured ConnectionFactoryEventLiseners. <p>
      *
-     * Invoked before the main teardown behavior occurs, providing
-     * a facility for controlling event listener registration / invocation 
+     * Invoked before the main teardown behavior occurs, providing a facility
+     * for controlling event listener registration / invocation
      *
      * @throws Exception
      */
@@ -1034,15 +1085,15 @@ public abstract class BaseTestCase extends junit.framework.TestCase {
     }
 
     /**
-     * Performs test teardown, which includes preTeardown and postTeardown<p>  
-     * 
+     * Performs test teardown, which includes preTeardown and postTeardown<p>
+     *
      * It is highly recommended to use the pre and post methods, rather than
      * overriding the teardown method, which contains important base
-     * functionality while other teardown work may need to come either before
-     * or after this.
+     * functionality while other teardown work may need to come either before or
+     * after this.
      *
-     * @throws java.lang.Exception if any, thrown as part of tearing down
-     *         the test fixture.
+     * @throws java.lang.Exception if any, thrown as part of tearing down the
+     * test fixture.
      */
     @Override
     protected void tearDown() throws Exception {
@@ -1083,7 +1134,7 @@ public abstract class BaseTestCase extends junit.framework.TestCase {
 
     /**
      * Invoked before the main teardown behavior occurs.
-     * 
+     *
      * @throws Exception
      */
     protected void postTearDown() throws Exception {
@@ -1110,8 +1161,175 @@ public abstract class BaseTestCase extends junit.framework.TestCase {
     }
 
     protected void stubTestResult() {
+        stubTestResult("The test case is only a stub.");
+    }
+
+    protected void stubTestResult(String message) {
         if (isFailStubTestCase()) {
-            fail("The test case is only a stub.");
+            fail(message);
         }
+    }
+
+    protected boolean isTestARRAY() {
+        return getBooleanProperty("test.types.array", false);
+    }
+
+        
+    protected boolean isTestDISTINCT() {
+        return getBooleanProperty("test.types.distinct", false);
+    }
+    
+    protected boolean isTestJAVA_OBJECT() {
+        return getBooleanProperty("test.types.distinct", false);
+    } 
+    
+    protected boolean isTestOTHER() {
+        return getBooleanProperty("test.types.distinct", false);
+    }     
+    
+    protected boolean isTestREF() {
+        return getBooleanProperty("test.types.ref", false);
+    }
+
+    protected boolean isTestROWID() {
+        return getBooleanProperty("test.types.rowid", false);
+    }
+    
+    protected boolean isTestSTRUCT() {
+        return getBooleanProperty("test.types.struct", false);
+    }  
+
+    protected boolean isTestSQLXML() {
+        return getBooleanProperty("test.types.sqlxml", false);
+    }
+
+    protected boolean isTestUpdates() throws Exception {
+        return supportsUpdates() && getBooleanProperty("test.result.set.updates", true);
+    }
+
+    /**
+     * Checks to ensure either sql feature not supported with sql state '0A...'
+     * or sql exception with error code that indicates statement is closed.
+     *
+     * @param ex to check
+     */
+    protected void checkResultSetAfterLastOrNotSupportedException(SQLException ex) {
+        if (ex instanceof SQLFeatureNotSupportedException) {
+            assertEquals("0A", ex.getSQLState().substring(0, 2));
+        } else {
+            assertEquals("sql state", SqlState.Exception.InvalidCursorState.IdentifiedCursorNotPositionedOnRowIn_UPDATE_DELETE_SET_or_GET_Statement.Value, ex.getSQLState());
+            assertEquals("Error code for: " + ex.toString(), this.getResultSetAfterLastErrorCode(), ex.getErrorCode());
+        }
+    }
+
+    /**
+     * Checks to ensure either sql feature not supported with sql state '0A...'
+     * or sql exception with error code that indicates statement is closed.
+     *
+     * @param ex to check
+     */
+    protected void checkResultSetBeforeFirstOrNotSupportedException(SQLException ex) {
+        if (ex instanceof SQLFeatureNotSupportedException) {
+            assertEquals("0A", ex.getSQLState().substring(0, 2));
+        } else {
+            assertEquals("sql state", SqlState.Exception.InvalidCursorState.IdentifiedCursorNotPositionedOnRowIn_UPDATE_DELETE_SET_or_GET_Statement.Value, ex.getSQLState());
+            assertEquals("Error code for: " + ex.toString(), getResultSetBeforeFirstErrorCode(), ex.getErrorCode());
+        }
+    }
+
+    /**
+     * Checks to ensure either sql feature not supported with sql state '0A...'
+     * or sql exception with error code that indicates statement is closed.
+     *
+     * @param ex to check
+     */
+    protected void checkResultSetClosedOrNotSupportedException(SQLException ex) {
+        if (ex instanceof SQLFeatureNotSupportedException) {
+            assertEquals("0A", ex.getSQLState().substring(0, 2));
+        } else {
+            assertEquals("sql state", SqlState.Exception.InvalidCursorState.IdentifiedCursorIsNotOpen.Value, ex.getSQLState());
+            assertEquals("Error code for: " + ex.toString(), getResultSetClosedErrorCode(), ex.getErrorCode());
+        }
+    }
+
+    protected void determineResultSetConcurrency() throws Exception {
+        if (m_resultSetConcurrencyDetermined) {
+            return;
+        }
+        Connection conn = newConnection();
+        DatabaseMetaData dbmd = conn.getMetaData();
+        m_supportsForwardOnlyUpdates = dbmd.supportsResultSetConcurrency(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_UPDATABLE);
+        m_supportsScrollInsensitiveUpdates = dbmd.supportsResultSetConcurrency(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_UPDATABLE);
+        m_supportsScrollSensitiveUpdates = dbmd.supportsResultSetConcurrency(ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_UPDATABLE);
+        m_supportsUpdates = m_supportsForwardOnlyUpdates || m_supportsScrollInsensitiveUpdates || m_supportsScrollSensitiveUpdates;
+        m_resultSetConcurrencyDetermined = true;
+    }
+
+    protected int getIncompatibleDataTypeConversionErrorCode() {
+        return getIntProperty("result.set.incompatible.data.type.conversion.error.code", DEFAULT_INCOMPATIBLE_DATA_TYPE_CONVERSION_ERROR_CODE);
+    }
+
+    protected int getResultSetAfterLastErrorCode() {
+        return getIntProperty("result.set.after.last.error.code", DEFAULT_RESULT_SET_AFTER_LAST_ERROR_CODE);
+    }
+
+    protected int getResultSetBeforeFirstErrorCode() {
+        return getIntProperty("result.set.before.first.error.code", DEFAULT_RESULT_SET_BEFORE_FIRST_ERROR_CODE);
+    }
+
+    protected int getResultSetClosedErrorCode() {
+        return getIntProperty("result.set.closed.error.code", DEFAULT_RESULT_SET_CLOSED_ERROR_CODE);
+    }
+
+    // Forward-Only, Read-Only
+    protected ResultSet newForwardOnlyReadOnlyResultSet(String query) throws Exception {
+        return newReadOnlyResultSet(ResultSet.TYPE_FORWARD_ONLY, query);
+    }
+
+    protected ResultSet newReadOnlyResultSet(int type, String query) throws Exception {
+        return newResultSet(type, ResultSet.CONCUR_READ_ONLY, query);
+    }
+
+    protected ResultSet newResultSet(int type, int concur, String query) throws Exception, SQLException {
+        Connection conn = newConnection();
+        conn.setAutoCommit(false);
+        Statement stmt = conn.createStatement(type, concur);
+        connectionFactory().registerStatement(stmt);
+        ResultSet rs = connectionFactory().executeQuery(query, stmt);
+        return rs;
+    }
+
+    // Scrollable, Read-Only
+    protected ResultSet newScrollableInsensitiveReadOnlyResultSet(String query) throws Exception {
+        return newReadOnlyResultSet(ResultSet.TYPE_SCROLL_INSENSITIVE, query);
+    }
+
+    // Scrollable, Updatable
+    protected ResultSet newScrollableInsensitiveUpdateableResultSet(String query) throws Exception {
+        return newResultSet(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_UPDATABLE, query);
+    }
+
+    protected boolean supportsForwardOnlyUpdates() throws Exception {
+        determineResultSetConcurrency();
+        return m_supportsForwardOnlyUpdates;
+    }
+
+    protected boolean supportsScrollInsensitiveUpdates() throws Exception {
+        determineResultSetConcurrency();
+        return m_supportsScrollInsensitiveUpdates;
+    }
+
+    protected boolean supportsScrollSensitiveUpdates() throws Exception {
+        determineResultSetConcurrency();
+        return m_supportsScrollSensitiveUpdates;
+    }
+
+    protected boolean supportsUpdates() throws Exception {
+        determineResultSetConcurrency();
+        return m_supportsUpdates;
+    }
+
+    protected boolean isTestDATALINK() {
+        return getBooleanProperty("test.types.datalink", true);
     }
 }

@@ -53,6 +53,8 @@ import junit.framework.Test;
 import junit.framework.TestSuite;
 import org.hsqldb.lib.StringConverter;
 import org.hsqldb.jdbc.testbase.BaseJdbcTestCase;
+import org.hsqldb.testbase.ForSubject;
+import org.hsqldb.testbase.OfMethod;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -61,6 +63,7 @@ import org.w3c.dom.NodeList;
  *
  * @author Campbell Boucher-Burnet (boucherb@users dot sourceforge.net)
  */
+@ForSubject(SQLXML.class)
 public class JDBCSQLXMLTest extends BaseJdbcTestCase {
 
     public JDBCSQLXMLTest(String testName) {
@@ -192,6 +195,7 @@ public class JDBCSQLXMLTest extends BaseJdbcTestCase {
     /**
      * Test of free method, of class org.hsqldb.jdbc.JDBCSQLXML.
      */
+    @OfMethod("free()")
     public void testFree() throws Exception {
         SQLXML instance = newMyDoc();
 
@@ -201,6 +205,7 @@ public class JDBCSQLXMLTest extends BaseJdbcTestCase {
     /**
      * Test of getBinaryStream method, of class org.hsqldb.jdbc.JDBCSQLXML.
      */
+    @OfMethod("getBinaryStream()")
     public void testGetBinaryStream() throws Exception {
         SQLXML instance = newMyDoc();
 
@@ -218,6 +223,7 @@ public class JDBCSQLXMLTest extends BaseJdbcTestCase {
     /**
      * Test of setBinaryStream method, of class org.hsqldb.jdbc.JDBCSQLXML.
      */
+    @OfMethod("setBinaryStream()")
     public void testSetBinaryStream() throws Exception {
         SQLXML instance = new JDBCSQLXML();
         OutputStream os = instance.setBinaryStream();
@@ -253,6 +259,7 @@ public class JDBCSQLXMLTest extends BaseJdbcTestCase {
     /**
      * Test of getCharacterStream method, of class org.hsqldb.jdbc.JDBCSQLXML.
      */
+    @OfMethod("getCharacterStream()")
     public void testGetCharacterStream() throws Exception {
         SQLXML instance = newMyDoc();
 
@@ -270,6 +277,7 @@ public class JDBCSQLXMLTest extends BaseJdbcTestCase {
     /**
      * Test of setCharacterStream method, of class org.hsqldb.jdbc.JDBCSQLXML.
      */
+    @OfMethod("setCharacterStream()")
     public void testSetCharacterStream() throws Exception {
         SQLXML instance = new JDBCSQLXML();
         Writer writer = instance.setCharacterStream();
@@ -295,6 +303,7 @@ public class JDBCSQLXMLTest extends BaseJdbcTestCase {
     /**
      * Test of getString method, of class org.hsqldb.jdbc.JDBCSQLXML.
      */
+    @OfMethod("getString()")
     public void testGetString() throws Exception {
         SQLXML instance = newMyDoc();
 
@@ -316,6 +325,7 @@ public class JDBCSQLXMLTest extends BaseJdbcTestCase {
     /**
      * Test of setString method, of class org.hsqldb.jdbc.JDBCSQLXML.
      */
+    @OfMethod("setString()")
     public void testSetString() throws Exception {
         String expected = "<kid id='1'><stuff id='2'>Is fun</stuff></kid>";
 
@@ -333,6 +343,7 @@ public class JDBCSQLXMLTest extends BaseJdbcTestCase {
     /**
      * Test of getSource method, of class org.hsqldb.jdbc.JDBCSQLXML.
      */
+    @OfMethod("getSource(Class<T extends Source>)")
     public void testGetDOMSource() throws Exception {
         String expected = "<kid id='1'><stuff id='2'>Is fun</stuff></kid>";
 
@@ -350,6 +361,7 @@ public class JDBCSQLXMLTest extends BaseJdbcTestCase {
     /**
      * Test of getSource method, of class org.hsqldb.jdbc.JDBCSQLXML.
      */
+    @OfMethod("getSource(Class<T extends Source>)")
     public void testGetSAXSource() throws Exception {
         String expected = "<kid id='1'><stuff id='2'>Is fun</stuff></kid>";
 
@@ -367,6 +379,7 @@ public class JDBCSQLXMLTest extends BaseJdbcTestCase {
     /**
      * Test of getSource method, of class org.hsqldb.jdbc.JDBCSQLXML.
      */
+    @OfMethod("getSource(Class<T extends Source>)")
     public void testGetStAXSource() throws Exception {
         String expected = "<kid id='1'><stuff id='2'>Is fun</stuff></kid>";
 
@@ -384,6 +397,7 @@ public class JDBCSQLXMLTest extends BaseJdbcTestCase {
     /**
      * Test of getSource method, of class org.hsqldb.jdbc.JDBCSQLXML.
      */
+    @OfMethod("getSource(Class<T extends Source>)")
     public void testGetStreamSource() throws Exception {
         String expected = "<kid id='1'><stuff id='2'>Is fun</stuff></kid>";
 
@@ -401,6 +415,7 @@ public class JDBCSQLXMLTest extends BaseJdbcTestCase {
     /**
      * Test of setResult method, of class org.hsqldb.jdbc.JDBCSQLXML.
      */
+    @OfMethod("getResult(Class<T extends Result>)")
     public void testSetDOMResult() throws Exception {
         String expected = "<kid id='1'><stuff id='2'>Is fun</stuff></kid>";
 
@@ -421,6 +436,7 @@ public class JDBCSQLXMLTest extends BaseJdbcTestCase {
     /**
      * Test of setResult method, of class org.hsqldb.jdbc.JDBCSQLXML.
      */
+    @OfMethod("getResult(Class<T extends Result>)")
     public void testSetSAXResult() throws Exception {
         String expected = "<kid id='1'><stuff id='2'>Is fun</stuff></kid>";
 
@@ -440,6 +456,7 @@ public class JDBCSQLXMLTest extends BaseJdbcTestCase {
     /**
      * Test of setResult method, of class org.hsqldb.jdbc.JDBCSQLXML.
      */
+    @OfMethod("getResult(Class<T extends Result>)")
     public void testSetStAXResult() throws Exception {
         String expected = "<kid id='1'><stuff id='2'>Is fun</stuff></kid>";
 
@@ -461,6 +478,7 @@ public class JDBCSQLXMLTest extends BaseJdbcTestCase {
     /**
      * Test of setResult method, of class org.hsqldb.jdbc.JDBCSQLXML.
      */
+    @OfMethod("getResult(Class<T extends Result>)")
     public void testSetStreamResult() throws Exception {
         String expected = "<kid id='1'><stuff id='2'>Is fun</stuff></kid>";
 

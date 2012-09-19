@@ -36,6 +36,7 @@ import org.hsqldb.lib.HashSet;
 import org.hsqldb.lib.IntKeyHashMap;
 import org.hsqldb.lib.IntKeyIntValueHashMap;
 import org.hsqldb.lib.Set;
+import org.hsqldb.testbase.BaseTestCase;
 
 /**
  * Abstract JDBC-focused Junit test case. <p>
@@ -44,7 +45,7 @@ import org.hsqldb.lib.Set;
  * @version 1.9.0
  * @since 1.7.2
  */
-public abstract class BaseJdbcTestCase extends org.hsqldb.testbase.BaseTestCase {
+public abstract class BaseJdbcTestCase extends BaseTestCase {
 
     // We need a way of confirming compliance with
     // Tables B5 and B6 of JDBC 4.0 spec., outlining
@@ -114,13 +115,13 @@ public abstract class BaseJdbcTestCase extends org.hsqldb.testbase.BaseTestCase 
         "LONGVARBINARY",
         "DATE",
         "TIME",
-        "TIMESTAMP",
-        "ARRAY", // ......................................................... 20
+        "TIMESTAMP",        
+        "CLOB",  // ......................................................... 20
         "BLOB",
-        "CLOB",
-        "STRUCT",
+        "ARRAY",
         "REF",
-        "DATALINK", // ...................................................... 25
+        "DATALINK",
+        "STRUCT", // ........................................................ 25
         "JAVA_OBJECT",
         "ROWID",
         "NCHAR",
@@ -150,7 +151,7 @@ public abstract class BaseJdbcTestCase extends org.hsqldb.testbase.BaseTestCase 
         //I I G..........................X H
         //N N E..........................M E
         //T T R..........................L R
-        //0123456789012345678901234567890123
+        //                      0123456789012345678901234567890123
         {"getByte",            "1111111111111100000000000001000001"},
         {"getShort",           "1111111111111100000000000000000001"},
         {"getInt",             "1111111111111100000000000000000001"},
@@ -197,10 +198,12 @@ public abstract class BaseJdbcTestCase extends org.hsqldb.testbase.BaseTestCase 
         //I I G..........................X H
         //N N E..........................M E
         //T T R..........................L R
-        //0123456789012345678901234567890123
+        //                          0123456789012345678901234567890123
         {String.class,             "1111111111111111111100000000111001"},
         {BigDecimal.class,         "1111111111111100000000000000000001"},
         {Boolean.class,            "1111111111111100000000000000000001"},
+        {Byte.class,               "1111111111111100000000000000000001"},
+        {Short.class,              "1111111111111100000000000000000001"},
         {Integer.class,            "1111111111111100000000000000000001"},
         {Long.class,               "1111111111111100000000000000000001"},
         {Float.class,              "1111111111111100000000000000000001"},
@@ -333,7 +336,7 @@ public abstract class BaseJdbcTestCase extends org.hsqldb.testbase.BaseTestCase 
      * method is required to accept instances of the given class when the target
      * site has the given java.sql.Types SQL data type.
      */
-    protected static boolean isRequiredSetObject(Class clazz, int dataType) {
+    protected static boolean isRequiredSetObject(Class<?> clazz, int dataType) {
         String[] requiredSet = (String[]) jdbcSetObjectMap.get(clazz);
         int      pos         = dataTypeMap.get(dataType);
 
@@ -351,7 +354,7 @@ public abstract class BaseJdbcTestCase extends org.hsqldb.testbase.BaseTestCase 
      */
     protected static Set getRequiredSetObject(int dataType) {
         return (Set) jdbcInverseSetObjectMap.get(dataType);
-    }
+    }    
 
     /**
      * Constructs a new JdbcTestCase.

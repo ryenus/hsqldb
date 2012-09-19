@@ -27,16 +27,31 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-
-
 package org.hsqldb.server;
 
 import java.io.InputStream;
 import java.io.IOException;
+import junit.framework.Test;
+import junit.framework.TestSuite;
+import org.hsqldb.testbase.BaseTestCase;
+import org.hsqldb.testbase.ForSubject;
+import org.hsqldb.testbase.OfMethod;
 
-public class OdbcPacketInputStreamTest extends junit.framework.TestCase {
+@ForSubject(OdbcPacketInputStream.class)
+public class OdbcPacketInputStreamTest extends BaseTestCase {
+
     protected long distinguishableLong = 0x0203040506070809L;
 
+    @OfMethod({"newOdbcPacketInputStream(char,java.io.InputStream)",
+        "readShort()",
+        "readInt()",
+        "readLong()",
+        "readByte()",
+        "readChar()",
+        "readString()",
+        "readSizedString()",
+        "available()",
+        "close()"})
     public void testTypeMix() throws IOException {
         byte[] buffer = new byte[1024];
         String resPath = "/org/hsqldb/resources/odbcPacket.data";
@@ -53,7 +68,7 @@ public class OdbcPacketInputStreamTest extends junit.framework.TestCase {
         }
         try {
             inPacket = OdbcPacketInputStream.newOdbcPacketInputStream(
-                (char) packetType, is);
+                    (char) packetType, is);
         } catch (IOException ioe) {
             fail("Failed to instantiate OdbcPacketInputStream object: "
                     + ioe);
@@ -70,7 +85,7 @@ public class OdbcPacketInputStreamTest extends junit.framework.TestCase {
         assertEquals("Mungled char", 'k', inPacket.readByteChar());
         assertEquals("Mungled String", "Ein gro\u00df Baum\nwith blossom",
                 inPacket.readString(27));
-          // I know this length from manual testing when writing the string.
+        // I know this length from manual testing when writing the string.
         assertEquals("Mungled String", "Another string", inPacket.readString());
         assertEquals("Mungled String", "Ein gro\u00df Baum\nmit blossom",
                 inPacket.readSizedString());
@@ -79,15 +94,21 @@ public class OdbcPacketInputStreamTest extends junit.framework.TestCase {
         inPacket.close();
     }
 
-    /**
+    public static Test suite() {
+        return new TestSuite(OdbcPacketInputStreamTest.class);
+    }
+
+     /**
      * This method allows to easily run this unit test independent of the other
      * unit tests, and without dealing with Ant or unrelated test suites.
      */
-    public static void main(String[] sa) {
-        junit.textui.TestRunner runner = new junit.textui.TestRunner();
-        junit.framework.TestResult result =
-            runner.run(runner.getTest(OdbcPacketInputStreamTest.class.getName()));
+    public static void main(java.lang.String[] args) {
+        if (args.length > 0 && args[0].startsWith("-g")) {
+            junit.swingui.TestRunner.run(ServerSuite.class);
+        } else {
+            junit.framework.TestResult result = junit.textui.TestRunner.run(suite());
 
-        System.exit(result.wasSuccessful() ? 0 : 1);
+            System.exit(result.wasSuccessful() ? 0 : 1);
+        }
     }
 }

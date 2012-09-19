@@ -38,10 +38,14 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.io.Reader;
 import java.io.StringWriter;
+import java.net.URL;
 import java.net.URLDecoder;
+import java.nio.charset.Charset;
 import junit.framework.Test;
-import junit.framework.TestCase;
 import junit.framework.TestSuite;
+import org.hsqldb.testbase.BaseTestCase;
+import org.hsqldb.testbase.ForSubject;
+import org.hsqldb.testbase.OfMethod;
 
 /* $Id$ */
 
@@ -49,7 +53,8 @@ import junit.framework.TestSuite;
  *
  * @author Campbell Boucher-Burnet (boucherb@users dot sourceforge.net)
  */
-public class PreprocessorTest extends TestCase {
+@ForSubject(Preprocessor.class)
+public class PreprocessorTest extends BaseTestCase {
 
     public PreprocessorTest(String testName) {
         super(testName);
@@ -65,7 +70,7 @@ public class PreprocessorTest extends TestCase {
         InputStream    is = new FileInputStream(file);
         Reader         r  = new InputStreamReader(is, "UTF8");
         BufferedReader br = new BufferedReader(r);
-        StringBuffer   sb = new StringBuffer((int)file.length());
+        StringBuilder  sb = new StringBuilder((int)file.length());
         StringWriter   sw = new StringWriter();
         PrintWriter    pw = new PrintWriter(sw);
         String         line;
@@ -80,10 +85,10 @@ public class PreprocessorTest extends TestCase {
     /**
      * Test of preprocessBatch method, of class org.hsqldb.util.preprocessor.Preprocessor.
      */
+    @OfMethod("preprocessBatch(java.io.File,java.io.File,java.lang.String[],java.lang.String,java.lang.String,int,java.lang.String,org.hsqldb.lib.preprocessor.IResolver)")
     public void testPreprocessBatch() throws Exception {
-        System.out.println("preprocessBatch");
-
-        String srcpath      = URLDecoder.decode(getClass().getResource("ATest.src").getFile());
+        URL       srcurl    = getClass().getResource("ATest.src");
+        String    srcpath   = URLDecoder.decode(srcurl.getFile(),Charset.defaultCharset().name());
         File      srcfile   = new File(srcpath);
         File      sourceDir = srcfile.getParentFile();
         File      targetDir = sourceDir;

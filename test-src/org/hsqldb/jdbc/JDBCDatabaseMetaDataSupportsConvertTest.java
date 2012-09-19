@@ -89,15 +89,6 @@ public final class JDBCDatabaseMetaDataSupportsConvertTest
         {"interval_hour_to_second", s_hsqldb_types_fqn + ".SQL_INTERVAL_HOUR_TO_SECOND"},
         {"interval_minute_to_second", s_hsqldb_types_fqn + ".SQL_INTERVAL_MINUTE_TO_SECOND"}
     };
-    private static final JDBCDatabaseMetaDataSupportsConvertTest s_instance = new JDBCDatabaseMetaDataSupportsConvertTest();
-
-    private static JDBCDatabaseMetaDataSupportsConvertTest getInstance() {
-        return s_instance;
-    }
-
-    private JDBCDatabaseMetaDataSupportsConvertTest() {
-        super();
-    }
 
     /**
      * Constructs a new test case for the given pair of type index values.
@@ -127,26 +118,26 @@ public final class JDBCDatabaseMetaDataSupportsConvertTest
         return s_type_name_and_field[i][0];
     }
 
-    @Override
-    protected int getSQLTypeCount() {
+    static int getSQLTypeCount() {
         return s_type_name_and_field.length;
     }
-
+    
     /**
      * of tests for this test case.
      *
      * @return the suite of tests for this test case.
      */
     public static Test suite() {
-        return getInstance().createTestSuite("JDBCDatabaseMetaDataSupportsConvertTest");
-    }
+        return BaseDatabaseMetaDataSupportsConvertTestCase.createTestSuite(
+                JDBCDatabaseMetaDataSupportsConvertTest.class, getSQLTypeCount());
+    }     
 
     /**
      * runs the tests returned by suite().
      *
-     * @param argList ignored.
+     * @param args ignored.
      */
-    public static void main(java.lang.String[] argList) {
+    public static void main(java.lang.String[] args) {
         junit.textui.TestRunner.run(suite());
     }
 }

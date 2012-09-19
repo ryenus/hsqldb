@@ -493,7 +493,7 @@ public abstract class BaseScriptedTestCase extends BaseTestCase {
             } catch (Exception x) {
                 java.io.StringWriter sw = new java.io.StringWriter();
                 java.io.PrintWriter pw = new java.io.PrintWriter(sw);				
-                x.printStackTrace(pw);			
+                x.printStackTrace(pw);
                 m_message = sw.toString();
             }
 

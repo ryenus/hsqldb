@@ -118,6 +118,24 @@ public class PropertyGetter {
 
         return rval;
     }
+    
+    public static double getDoubleProperty(final String key, final double defaultValue) {
+        String propertyValue = PropertyGetter.getProperty(key, null);
+        double rval = defaultValue;
+
+        if (propertyValue != null) {
+            propertyValue = propertyValue.trim();
+
+            if (propertyValue.length() > 0) {
+                try {
+                    rval = Double.parseDouble(propertyValue);
+                } catch (Exception ex) {
+                }
+            }
+        }
+
+        return rval;
+    }    
 
     /**
      * Construction disabled - pure utility class.

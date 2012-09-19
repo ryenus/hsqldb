@@ -37,13 +37,18 @@ import java.sql.Array;
 import java.sql.Statement;
 import java.sql.SQLException;
 import java.util.Arrays;
-import java.util.List;
 import java.util.Collections;
 import java.sql.Connection;
 import java.sql.DriverManager;
+import junit.framework.Test;
+import junit.framework.TestSuite;
+import junit.textui.TestRunner;
 import org.hsqldb.lib.FrameworkLogger;
+import org.hsqldb.testbase.BaseTestCase;
+import org.hsqldb.testbase.ForSubject;
 
-public class AuthBeanMultiplexerTest extends junit.framework.TestCase {
+@ForSubject(AuthBeanMultiplexer.class)
+public class AuthBeanMultiplexerTest extends BaseTestCase {
     private static FrameworkLogger logger =
             FrameworkLogger.getLog(AuthBeanMultiplexerTest.class);
 
@@ -91,7 +96,7 @@ public class AuthBeanMultiplexerTest extends junit.framework.TestCase {
         Array res = null;
 
         try {
-            plexer.authenticate("DUMMY_NAME_12345", "x", "y");
+            AuthBeanMultiplexer.authenticate("DUMMY_NAME_12345", "x", "y");
             fail("Use of uninitialized AuthBeanMultiplexer did not throw");
         } catch (RuntimeException re) {
             // Intentionally empty.  Expect this.
@@ -106,7 +111,7 @@ public class AuthBeanMultiplexerTest extends junit.framework.TestCase {
                         purposefullyBrokenAuthFunctionBean,
                         denyingAuthFunctionBean})));
         try {
-            res = plexer.authenticate("DUMMY_NAME_12345", "u", "p");
+            res = AuthBeanMultiplexer.authenticate("DUMMY_NAME_12345", "u", "p");
         } catch (Exception e) {
             fail("2-role success test threw: " + e);
         }
@@ -119,7 +124,7 @@ public class AuthBeanMultiplexerTest extends junit.framework.TestCase {
                     + AuthFunctionUtils.toStrings(res));
         }
         try {
-            res = plexer.authenticate("WRONG_NAME123456", "u", "p");
+            res = AuthBeanMultiplexer.authenticate("WRONG_NAME123456", "u", "p");
             fail("Authenticating against non-configured DB name did not throw");
         } catch (IllegalArgumentException iae) {
             // Intentionally empty.  Expect this
@@ -153,7 +158,7 @@ public class AuthBeanMultiplexerTest extends junit.framework.TestCase {
                         twoRolePermittingAuthFunctionBean,
                         denyingAuthFunctionBean})));
         try {
-            res = plexer.authenticate("DUMMY_NAME_12345", "u", "p");
+            res = AuthBeanMultiplexer.authenticate("DUMMY_NAME_12345", "u", "p");
         } catch (Exception e) {
             fail("2-role success AFTER RTE test threw: " + e);
         }
@@ -171,7 +176,7 @@ public class AuthBeanMultiplexerTest extends junit.framework.TestCase {
                         twoRolePermittingAuthFunctionBean,
                 })));
         try {
-            plexer.authenticate("DUMMY_NAME_12345", "u", "p");
+            AuthBeanMultiplexer.authenticate("DUMMY_NAME_12345", "u", "p");
             fail("Denial test did not throw");
         } catch (RuntimeException e) {
             fail("Denial test threw: " + e);
@@ -186,7 +191,7 @@ public class AuthBeanMultiplexerTest extends junit.framework.TestCase {
                         purposefullyBrokenAuthFunctionBean
                 })));
         try {
-            plexer.authenticate("DUMMY_NAME_12345", "u", "p");
+            AuthBeanMultiplexer.authenticate("DUMMY_NAME_12345", "u", "p");
             fail("RTE test did not throw");
         } catch (RuntimeException e) {
             // Purposefully empty.  Expected.
@@ -266,15 +271,21 @@ public class AuthBeanMultiplexerTest extends junit.framework.TestCase {
         }
     }
 
+    public static Test suite() {
+        return new TestSuite(AuthBeanMultiplexerTest.class);
+    }
+
     /**
      * This method allows to easily run this unit test independent of the other
      * unit tests, and without dealing with Ant or unrelated test suites.
      */
     static public void main(String[] sa) {
-        junit.textui.TestRunner runner = new junit.textui.TestRunner();
-        junit.framework.TestResult result =
-            runner.run(runner.getTest(AuthBeanMultiplexerTest.class.getName()));
+        if (sa.length > 0 && sa[0].startsWith("-g")) {
+            junit.swingui.TestRunner.run(AuthBeanMultiplexerTest.class);
+        } else {
+            junit.framework.TestResult result = TestRunner.run(suite());
 
-        System.exit(result.wasSuccessful() ? 0 : 1);
+            System.exit(result.wasSuccessful() ? 0 : 1);
+        }
     }
 }

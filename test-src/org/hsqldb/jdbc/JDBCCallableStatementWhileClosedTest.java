@@ -27,7 +27,6 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-
 package org.hsqldb.jdbc;
 
 import java.io.InputStream;
@@ -51,9 +50,10 @@ import org.hsqldb.error.ErrorCode;
 import org.hsqldb.jdbc.testbase.BaseJdbcTestCase;
 import org.hsqldb.testbase.ForSubject;
 import java.io.ByteArrayInputStream;
+import java.sql.Blob;
+import org.hsqldb.testbase.OfMethod;
 
 // TODO:  See if this can be done reflectively.
-
 /**
  *
  * @author Campbell Boucher-Burnet (boucherb@users dot sourceforge.net)
@@ -141,8 +141,7 @@ public class JDBCCallableStatementWhileClosedTest extends BaseJdbcTestCase {
      * @throws java.lang.Exception
      */
     protected CallableStatement newClosedCall() throws Exception {
-        CallableStatement instance
-                = connectionFactory().prepareCall(getSql(), newConnection());
+        CallableStatement instance = connectionFactory().prepareCall(getSql(), newConnection());
 
         instance.close();
 
@@ -156,7 +155,7 @@ public class JDBCCallableStatementWhileClosedTest extends BaseJdbcTestCase {
      */
     protected void checkException(SQLException ex) {
         if (ex instanceof SQLFeatureNotSupportedException) {
-            assertEquals("0A", ex.getSQLState().substring(0,2));
+            assertEquals("0A", ex.getSQLState().substring(0, 2));
         } else {
             assertEquals(
                     "Error code is not 'statement closed' for exception: "
@@ -170,6 +169,12 @@ public class JDBCCallableStatementWhileClosedTest extends BaseJdbcTestCase {
      * Test of registerOutParameter method, of interface java.sql.CallableStatement
      * @throws java.lang.Exception
      */
+    @OfMethod({"registerOutParameter(java.lang.String,int)",
+        "registerOutParameter(java.lang.String,int,java.lang.String)",
+        "registerOutParameter(java.lang.String,int,int)",
+        "registerOutParameter(int,int)",
+        "registerOutParameter(int,int,java.lang.String)",
+        "registerOutParameter(int,int,int)"})
     public void testRegisterOutParameter() throws Exception {
         CallableStatement instance = newClosedCall();
 
@@ -220,6 +225,7 @@ public class JDBCCallableStatementWhileClosedTest extends BaseJdbcTestCase {
      * Test of wasNull method, of interface java.sql.CallableStatement
      * @throws java.lang.Exception
      */
+    @OfMethod("wasNull()")
     public void testWasNull() throws Exception {
         CallableStatement instance = newClosedCall();
 
@@ -235,6 +241,7 @@ public class JDBCCallableStatementWhileClosedTest extends BaseJdbcTestCase {
      * Test of getString method, of interface java.sql.CallableStatement
      * @throws java.lang.Exception
      */
+    @OfMethod({"getString(java.lang.String)", "getString(int)"})
     public void testGetString() throws Exception {
         CallableStatement instance = newClosedCall();
 
@@ -257,6 +264,7 @@ public class JDBCCallableStatementWhileClosedTest extends BaseJdbcTestCase {
      * Test of getBoolean method, of interface java.sql.CallableStatement
      * @throws java.lang.Exception
      */
+    @OfMethod({"getBoolean(java.lang.String)", "getBoolean(int)"})
     public void testGetBoolean() throws Exception {
         CallableStatement instance = newClosedCall();
 
@@ -279,6 +287,7 @@ public class JDBCCallableStatementWhileClosedTest extends BaseJdbcTestCase {
      * Test of getByte method, of interface java.sql.CallableStatement
      * @throws java.lang.Exception
      */
+    @OfMethod({"getByte(java.lang.String)", "getByte(int)"})
     public void testGetByte() throws Exception {
         CallableStatement instance = newClosedCall();
 
@@ -301,6 +310,7 @@ public class JDBCCallableStatementWhileClosedTest extends BaseJdbcTestCase {
      * Test of getShort method, of interface java.sql.CallableStatement
      * @throws java.lang.Exception
      */
+    @OfMethod({"getShort(java.lang.String)", "getShort(int)"})
     public void testGetShort() throws Exception {
         CallableStatement instance = newClosedCall();
 
@@ -323,6 +333,7 @@ public class JDBCCallableStatementWhileClosedTest extends BaseJdbcTestCase {
      * Test of getInt method, of interface java.sql.CallableStatement
      * @throws java.lang.Exception
      */
+    @OfMethod({"getInt(java.lang.String)", "getInt(int)"})
     public void testGetInt() throws Exception {
         CallableStatement instance = newClosedCall();
 
@@ -345,6 +356,7 @@ public class JDBCCallableStatementWhileClosedTest extends BaseJdbcTestCase {
      * Test of getLong method, of interface java.sql.CallableStatement
      * @throws java.lang.Exception
      */
+    @OfMethod({"getLong(java.lang.String)", "getLong(int)"})
     public void testGetLong() throws Exception {
         CallableStatement instance = newClosedCall();
 
@@ -367,6 +379,7 @@ public class JDBCCallableStatementWhileClosedTest extends BaseJdbcTestCase {
      * Test of getFloat method, of interface java.sql.CallableStatement
      * @throws java.lang.Exception
      */
+    @OfMethod({"getFloat(java.lang.String)", "getFloat(int)"})
     public void testGetFloat() throws Exception {
         CallableStatement instance = newClosedCall();
 
@@ -389,6 +402,7 @@ public class JDBCCallableStatementWhileClosedTest extends BaseJdbcTestCase {
      * Test of getDouble method, of interface java.sql.CallableStatement
      * @throws java.lang.Exception
      */
+    @OfMethod({"getDouble(java.lang.String)", "getDouble(int)"})
     public void testGetDouble() throws Exception {
         CallableStatement instance = newClosedCall();
 
@@ -412,6 +426,7 @@ public class JDBCCallableStatementWhileClosedTest extends BaseJdbcTestCase {
      * @throws java.lang.Exception
      */
     @SuppressWarnings("deprecation")
+    @OfMethod({"getBigDecimal(java.lang.String)", "getBigDecimal(int)", "getBigDecimal(int,int)"})
     public void testGetBigDecimal() throws Exception {
         CallableStatement instance = newClosedCall();
 
@@ -439,6 +454,7 @@ public class JDBCCallableStatementWhileClosedTest extends BaseJdbcTestCase {
      * Test of getBytes method, of interface java.sql.CallableStatement
      * @throws java.lang.Exception
      */
+    @OfMethod({"getBytes(java.lang.String)", "getBytes(int)"})
     public void testGetBytes() throws Exception {
         CallableStatement instance = newClosedCall();
 
@@ -461,6 +477,10 @@ public class JDBCCallableStatementWhileClosedTest extends BaseJdbcTestCase {
      * Test of getDate method, of interface java.sql.CallableStatement
      * @throws java.lang.Exception
      */
+    @OfMethod({"getDate(java.lang.String)",
+        "getDate(java.lang.String,java.util.Calendar)",
+        "getDate(int)",
+        "getDate(int,java.util.Calendar)"})
     public void testGetDate() throws Exception {
         CallableStatement instance = newClosedCall();
 
@@ -497,6 +517,10 @@ public class JDBCCallableStatementWhileClosedTest extends BaseJdbcTestCase {
      * Test of getTime method, of interface java.sql.CallableStatement
      * @throws java.lang.Exception
      */
+    @OfMethod({"getTime(java.lang.String)",
+        "getTime(java.lang.String,java.util.Calendar)",
+        "getTime(int)",
+        "getTime(int,java.util.Calendar)"})
     public void testGetTime() throws Exception {
         CallableStatement instance = newClosedCall();
 
@@ -533,6 +557,10 @@ public class JDBCCallableStatementWhileClosedTest extends BaseJdbcTestCase {
      * Test of getTimestamp method, of interface java.sql.CallableStatement
      * @throws java.lang.Exception
      */
+    @OfMethod({"getTimestamp(java.lang.String)",
+        "getTimestamp(java.lang.String,java.util.Calendar)",
+        "getTimestamp(int)",
+        "getTimestamp(int,java.util.Calendar)"})
     public void testGetTimestamp() throws Exception {
         CallableStatement instance = newClosedCall();
 
@@ -569,6 +597,10 @@ public class JDBCCallableStatementWhileClosedTest extends BaseJdbcTestCase {
      * Test of getObject method, of interface java.sql.CallableStatement
      * @throws java.lang.Exception
      */
+    @OfMethod({"getObject(java.lang.String)",
+        "getObject(java.lang.String,java.util.Map<java.lang.String,java.lang.Class<?>>)",
+        "getObject(int)",
+        "getObject(int,java.util.Map<java.lang.String,java.lang.Class<?>>)"})
     public void testGetObject() throws Exception {
         CallableStatement instance = newClosedCall();
 
@@ -580,7 +612,7 @@ public class JDBCCallableStatementWhileClosedTest extends BaseJdbcTestCase {
         }
 
         try {
-            instance.getObject(getParameterIndex(), new HashMap<String,Class<?>>());
+            instance.getObject(getParameterIndex(), new HashMap<String, Class<?>>());
             fail("Allowed get object by parameter index and type map after close.");
         } catch (SQLException ex) {
             checkException(ex);
@@ -594,7 +626,7 @@ public class JDBCCallableStatementWhileClosedTest extends BaseJdbcTestCase {
         }
 
         try {
-            instance.getObject(getParameterName(), new HashMap<String,Class<?>>());
+            instance.getObject(getParameterName(), new HashMap<String, Class<?>>());
             fail("Allowed get object by parameter name and type map after close.");
         } catch (SQLException ex) {
             checkException(ex);
@@ -605,6 +637,7 @@ public class JDBCCallableStatementWhileClosedTest extends BaseJdbcTestCase {
      * Test of getRef method, of interface java.sql.CallableStatement
      * @throws java.lang.Exception
      */
+    @OfMethod({"getRef(java.lang.String)", "getRef(int)"})
     public void testGetRef() throws Exception {
         CallableStatement instance = newClosedCall();
 
@@ -627,6 +660,7 @@ public class JDBCCallableStatementWhileClosedTest extends BaseJdbcTestCase {
      * Test of getBlob method, of interface java.sql.CallableStatement
      * @throws java.lang.Exception
      */
+    @OfMethod({"getBlob(java.lang.String)", "getBlob(int)"})
     public void testGetBlob() throws Exception {
         CallableStatement instance = newClosedCall();
 
@@ -649,6 +683,7 @@ public class JDBCCallableStatementWhileClosedTest extends BaseJdbcTestCase {
      * Test of getClob method, of interface java.sql.CallableStatement
      * @throws java.lang.Exception
      */
+    @OfMethod({"getClob(java.lang.String)", "getClob(int)"})
     public void testGetClob() throws Exception {
         CallableStatement instance = newClosedCall();
 
@@ -671,6 +706,7 @@ public class JDBCCallableStatementWhileClosedTest extends BaseJdbcTestCase {
      * Test of getArray method, of interface java.sql.CallableStatement
      * @throws java.lang.Exception
      */
+    @OfMethod({"getArray(java.lang.String)", "getArray(int)"})
     public void testGetArray() throws Exception {
         CallableStatement instance = newClosedCall();
 
@@ -693,6 +729,7 @@ public class JDBCCallableStatementWhileClosedTest extends BaseJdbcTestCase {
      * Test of getURL method, of interface java.sql.CallableStatement
      * @throws java.lang.Exception
      */
+    @OfMethod({"getURL(java.lang.String)", "getURL(int)"})
     public void testGetURL() throws Exception {
         CallableStatement instance = newClosedCall();
 
@@ -715,6 +752,7 @@ public class JDBCCallableStatementWhileClosedTest extends BaseJdbcTestCase {
      * Test of setURL method, of interface java.sql.CallableStatement
      * @throws java.lang.Exception
      */
+    @OfMethod({"setURL(java.lang.String,java.net.URL)", "setURL(int,java.net.URL)"})
     public void testSetURL() throws Exception {
         CallableStatement instance = newClosedCall();
 
@@ -737,6 +775,10 @@ public class JDBCCallableStatementWhileClosedTest extends BaseJdbcTestCase {
      * Test of setNull method, of interface java.sql.CallableStatement
      * @throws java.lang.Exception
      */
+    @OfMethod({"setNull(java.lang.String, int)",
+        "setNull(java.lang.String,int,java.lang.String)",
+        "setNull(int, int)",
+        "setNull(int,int,java.lang.String)"})
     public void testSetNull() throws Exception {
         CallableStatement instance = newClosedCall();
 
@@ -773,6 +815,7 @@ public class JDBCCallableStatementWhileClosedTest extends BaseJdbcTestCase {
      * Test of setBoolean method, of interface java.sql.CallableStatement
      * @throws java.lang.Exception
      */
+    @OfMethod({"setBoolean(java.lang.String,boolean)", "setBoolean(int,boolean)"})
     public void testSetBoolean() throws Exception {
         CallableStatement instance = newClosedCall();
 
@@ -795,18 +838,19 @@ public class JDBCCallableStatementWhileClosedTest extends BaseJdbcTestCase {
      * Test of setByte method, of interface java.sql.CallableStatement
      * @throws java.lang.Exception
      */
+    @OfMethod({"setByte(java.lang.String,byte)", "setByte(int,byte)"})
     public void testSetByte() throws Exception {
         CallableStatement instance = newClosedCall();
 
         try {
-            instance.setByte(getParameterName(), (byte)0);
+            instance.setByte(getParameterName(), (byte) 0);
             fail("Allowed set byte by parameter name after close.");
         } catch (SQLException ex) {
             checkException(ex);
         }
 
         try {
-            instance.setByte(getParameterIndex(), (byte)0);
+            instance.setByte(getParameterIndex(), (byte) 0);
             fail("Allowed set byte by parameter index after close.");
         } catch (SQLException ex) {
             checkException(ex);
@@ -817,18 +861,19 @@ public class JDBCCallableStatementWhileClosedTest extends BaseJdbcTestCase {
      * Test of setShort method, of interface java.sql.CallableStatement
      * @throws java.lang.Exception
      */
+    @OfMethod({"setShort(java.lang.String,short)", "setShort(int,short)"})
     public void testSetShort() throws Exception {
         CallableStatement instance = newClosedCall();
 
         try {
-            instance.setShort(getParameterName(), (short)0);
+            instance.setShort(getParameterName(), (short) 0);
             fail("Allowed set byte by parameter name after close.");
         } catch (SQLException ex) {
             checkException(ex);
         }
 
         try {
-            instance.setShort(getParameterIndex(), (short)0);
+            instance.setShort(getParameterIndex(), (short) 0);
             fail("Allowed set short by parameter index after close.");
         } catch (SQLException ex) {
             checkException(ex);
@@ -839,6 +884,7 @@ public class JDBCCallableStatementWhileClosedTest extends BaseJdbcTestCase {
      * Test of setInt method, of interface java.sql.CallableStatement
      * @throws java.lang.Exception
      */
+    @OfMethod({"setInt(java.lang.String,int)", "setInt(int,int)"})
     public void testSetInt() throws Exception {
         CallableStatement instance = newClosedCall();
 
@@ -861,6 +907,7 @@ public class JDBCCallableStatementWhileClosedTest extends BaseJdbcTestCase {
      * Test of setLong method, of interface java.sql.CallableStatement
      * @throws java.lang.Exception
      */
+    @OfMethod({"setLong(java.lang.String,long)", "setLong(int,long)"})
     public void testSetLong() throws Exception {
         CallableStatement instance = newClosedCall();
 
@@ -883,6 +930,7 @@ public class JDBCCallableStatementWhileClosedTest extends BaseJdbcTestCase {
      * Test of setFloat method, of interface java.sql.CallableStatement
      * @throws java.lang.Exception
      */
+    @OfMethod({"setFloat(java.lang.String,float)", "setFloat(int,float)"})
     public void testSetFloat() throws Exception {
         CallableStatement instance = newClosedCall();
 
@@ -905,6 +953,7 @@ public class JDBCCallableStatementWhileClosedTest extends BaseJdbcTestCase {
      * Test of setDouble method, of interface java.sql.CallableStatement
      * @throws java.lang.Exception
      */
+    @OfMethod({"setDouble(java.lang.String,double)", "setDouble(int,double)"})
     public void testSetDouble() throws Exception {
         CallableStatement instance = newClosedCall();
 
@@ -927,6 +976,7 @@ public class JDBCCallableStatementWhileClosedTest extends BaseJdbcTestCase {
      * Test of setBigDecimal method, of interface java.sql.CallableStatement
      * @throws java.lang.Exception
      */
+    @OfMethod({"setBigDecimal(java.lang.String,java.math.BigDecimal)", "setBigDecimal(int,java.math.BigDecimal)"})
     public void testSetBigDecimal() throws Exception {
         CallableStatement instance = newClosedCall();
 
@@ -949,6 +999,7 @@ public class JDBCCallableStatementWhileClosedTest extends BaseJdbcTestCase {
      * Test of setString method, of interface java.sql.CallableStatement
      * @throws java.lang.Exception
      */
+    @OfMethod({"setString(java.lang.String,java.lang.String)", "setString(int,java.lang.String)"})
     public void testSetString() throws Exception {
         CallableStatement instance = newClosedCall();
 
@@ -971,6 +1022,7 @@ public class JDBCCallableStatementWhileClosedTest extends BaseJdbcTestCase {
      * Test of setBytes method, of interface java.sql.CallableStatement
      * @throws java.lang.Exception
      */
+    @OfMethod({"setBytes(java.lang.String,[B)", "setBytes(int,[B)"})
     public void testSetBytes() throws Exception {
         CallableStatement instance = newClosedCall();
 
@@ -993,6 +1045,10 @@ public class JDBCCallableStatementWhileClosedTest extends BaseJdbcTestCase {
      * Test of setDate method, of interface java.sql.CallableStatement
      * @throws java.lang.Exception
      */
+    @OfMethod({"setDate(java.lang.String,java.sql.Date)",
+        "setDate(java.lang.String,java.sql.Date,java.util.Calendar)",
+        "setDate(int,java.sql.Date)",
+        "setDate(int,java.sql.Date,java.util.Calendar)"})
     public void testSetDate() throws Exception {
         CallableStatement instance = newClosedCall();
 
@@ -1029,6 +1085,10 @@ public class JDBCCallableStatementWhileClosedTest extends BaseJdbcTestCase {
      * Test of setTime method, of interface java.sql.CallableStatement
      * @throws java.lang.Exception
      */
+    @OfMethod({"setTime(java.lang.String,java.sql.Time)",
+        "setTime(java.lang.String,java.sql.Time,java.util.Calendar)",
+        "setTime(int,java.sql.Time)",
+        "setTime(int,java.sql.Time,java.util.Calendar)"})
     public void testSetTime() throws Exception {
         CallableStatement instance = newClosedCall();
 
@@ -1065,6 +1125,10 @@ public class JDBCCallableStatementWhileClosedTest extends BaseJdbcTestCase {
      * Test of setTimestamp method, of interface java.sql.CallableStatement
      * @throws java.lang.Exception
      */
+    @OfMethod({"setTimestamp(java.lang.String,java.sql.Timeastamp)",
+        "setTimestamp(java.lang.String,java.sql.Timestamp,java.util.Calendar)",
+        "setTimestamp(int,java.sql.Timestamp)",
+        "setTimestamp(int,java.sql.Timestamp,java.util.Calendar)"})
     public void testSetTimestamp() throws Exception {
         CallableStatement instance = newClosedCall();
 
@@ -1101,19 +1165,58 @@ public class JDBCCallableStatementWhileClosedTest extends BaseJdbcTestCase {
      * Test of setAsciiStream method, of interface java.sql.CallableStatement
      * @throws java.lang.Exception
      */
+    @OfMethod({"setAsciiStream(java.lang.String,java.io.InputStream)",
+        "setAsciiStream(int,java.io.InputStream)",
+        "setAsciiStream(java.lang.String,java.io.InputStream,int)",
+        "setAsciiStream(java.lang.String,java.io.InputStream,long)",
+        "setAsciiStream(int,java.io.InputStream,int)",
+        "setAsciiStream(int,java.io.InputStream,long)"})
     public void testSetAsciiStream() throws Exception {
+        String parameterName = getParameterName();
+        int parameterIndex = getParameterIndex();
+        InputStream is = new ByteArrayInputStream("1".getBytes());
+        int intLength = 1;
+        long longLength = 1L;
         CallableStatement instance = newClosedCall();
 
         try {
-            instance.setAsciiStream(getParameterName(),  new ByteArrayInputStream(new byte[]{}));
-            fail("Allowed set ascii stream by parameter name after close.");
+            instance.setAsciiStream(parameterName, is);
+            fail("Allowed set ascii stream by parameter name after close");
         } catch (SQLException ex) {
             checkException(ex);
         }
 
         try {
-            instance.setAsciiStream(getParameterIndex(),  new ByteArrayInputStream(new byte[]{}));
-            fail("Allowed set ascii stream by parameter index after close.");
+            instance.setAsciiStream(parameterIndex, is);
+            fail("Allowed set ascii stream by parameter index after close");
+        } catch (SQLException ex) {
+            checkException(ex);
+        }
+
+        try {
+            instance.setAsciiStream(parameterName, is, intLength);
+            fail("Allowed set ascii stream by parameter name and int length after close");
+        } catch (SQLException ex) {
+            checkException(ex);
+        }
+
+        try {
+            instance.setAsciiStream(parameterName, is, longLength);
+            fail("Allowed set ascii stream by parameter name and long length after close");
+        } catch (SQLException ex) {
+            checkException(ex);
+        }
+
+        try {
+            instance.setAsciiStream(parameterIndex, is, intLength);
+            fail("Allowed set ascii stream by parameter index and int length after close");
+        } catch (SQLException ex) {
+            checkException(ex);
+        }
+
+        try {
+            instance.setAsciiStream(parameterIndex, is, longLength);
+            fail("Allowed set ascii stream by parameter index and long length after close");
         } catch (SQLException ex) {
             checkException(ex);
         }
@@ -1123,19 +1226,58 @@ public class JDBCCallableStatementWhileClosedTest extends BaseJdbcTestCase {
      * Test of setBinaryStream method, of interface java.sql.CallableStatement
      * @throws java.lang.Exception
      */
+    @OfMethod({"setBinaryStream(java.lang.String,java.io.InputStream)",
+        "setBinaryStreamm(int,java.io.InputStream)",
+        "setBinaryStream(java.lang.String,java.io.InputStream,int)",
+        "setBinaryStream(java.lang.String,java.io.InputStream,long)",
+        "setBinaryStream(int,java.io.InputStream,int)",
+        "setBinaryStream(int,java.io.InputStream,long)"})
     public void testSetBinaryStream() throws Exception {
+        String parameterName = getParameterName();
+        int parameterIndex = getParameterIndex();
+        InputStream is = new ByteArrayInputStream("1".getBytes());
+        int intLength = 1;
+        long longLength = 1L;
         CallableStatement instance = newClosedCall();
 
         try {
-            instance.setBinaryStream(getParameterName(), new ByteArrayInputStream(new byte[]{}));
-            fail("Allowed set binary stream by parameter name after close.");
+            instance.setBinaryStream(parameterName, is);
+            fail("Allowed set ascii stream by parameter name after close");
         } catch (SQLException ex) {
             checkException(ex);
         }
 
         try {
-            instance.setAsciiStream(getParameterIndex(), new ByteArrayInputStream(new byte[]{}));
-            fail("Allowed set ascii stream by parameter index after close.");
+            instance.setBinaryStream(parameterIndex, is);
+            fail("Allowed set ascii stream by parameter index after close");
+        } catch (SQLException ex) {
+            checkException(ex);
+        }
+
+        try {
+            instance.setBinaryStream(parameterName, is, intLength);
+            fail("Allowed set ascii stream by parameter name and int length after close");
+        } catch (SQLException ex) {
+            checkException(ex);
+        }
+
+        try {
+            instance.setBinaryStream(parameterName, is, longLength);
+            fail("Allowed set ascii stream by parameter name and long length after close");
+        } catch (SQLException ex) {
+            checkException(ex);
+        }
+
+        try {
+            instance.setBinaryStream(parameterIndex, is, intLength);
+            fail("Allowed set ascii stream by parameter index and int length after close");
+        } catch (SQLException ex) {
+            checkException(ex);
+        }
+
+        try {
+            instance.setBinaryStream(parameterIndex, is, longLength);
+            fail("Allowed set ascii stream by parameter index and long length after close");
         } catch (SQLException ex) {
             checkException(ex);
         }
@@ -1145,6 +1287,12 @@ public class JDBCCallableStatementWhileClosedTest extends BaseJdbcTestCase {
      * Test of setObject method, of interface java.sql.CallableStatement
      * @throws java.lang.Exception
      */
+    @OfMethod({"setObject(java.lang.String,java.lang.Object",
+        "setObject(int,java.lang.Object",
+        "setObject(java.lang.String,java.lang.Object,int",
+        "setObject(int,java.lang.Object,int",
+        "setObject(java.lang.String,java.lang.Object,int,int",
+        "setObject(int,java.lang.Object,int,int"})
     public void testSetObject() throws Exception {
         String parameterName = getParameterName();
         int parameterIndex = getParameterIndex();
@@ -1190,7 +1338,7 @@ public class JDBCCallableStatementWhileClosedTest extends BaseJdbcTestCase {
 
         try {
             instance.setObject(parameterIndex, x, targetSqlType, scale);
-            fail("Allowed set object by parameter index, target sql type and scale after close");
+            fail("Allowed set object by parameter index, target sql type and scale or length after close");
         } catch (SQLException ex) {
             checkException(ex);
         }
@@ -1200,6 +1348,12 @@ public class JDBCCallableStatementWhileClosedTest extends BaseJdbcTestCase {
      * Test of setCharacterStream method, of interface java.sql.CallableStatement
      * @throws java.lang.Exception
      */
+    @OfMethod({"setCharacterStream(java.lang.String,java.io.Reader)",
+        "setCharacterStream(int,java.io.Reader)",
+        "setCharacterStream(java.lang.String,java.io.Reader,int)",
+        "setCharacterStream(java.lang.String,java.io.Reader,long)",
+        "setCharacterStream(int,java.io.Reader,int)",
+        "setCharacterStream(int,java.io.Reader,long)"})
     public void testSetCharacterStream() throws Exception {
         String parameterName = getParameterName();
         int parameterIndex = getParameterIndex();
@@ -1255,6 +1409,7 @@ public class JDBCCallableStatementWhileClosedTest extends BaseJdbcTestCase {
      * Test of getRowId method, of interface java.sql.CallableStatement
      * @throws java.lang.Exception
      */
+    @OfMethod({"getRowId(java.lang.String)","getRowId(int)"})
     public void testGetRowId() throws Exception {
         String parameterName = getParameterName();
         int parameterIndex = getParameterIndex();
@@ -1279,6 +1434,7 @@ public class JDBCCallableStatementWhileClosedTest extends BaseJdbcTestCase {
      * Test of setRowId method, of interface java.sql.CallableStatement
      * @throws java.lang.Exception
      */
+    @OfMethod({"setRowId(java.lang.String,java.sql.RowId)","setRowId(int,java.sql.RowId)"})
     public void testSetRowId() throws Exception {
         String parameterName = getParameterName();
         int parameterIndex = getParameterIndex();
@@ -1304,6 +1460,7 @@ public class JDBCCallableStatementWhileClosedTest extends BaseJdbcTestCase {
      * Test of setNString method, of interface java.sql.CallableStatement
      * @throws java.lang.Exception
      */
+    @OfMethod({"setNString(java.lang.String,java.lang.String)","setNString(int,java.lang.String)"})
     public void testSetNString() throws Exception {
         String parameterName = getParameterName();
         int parameterIndex = getParameterIndex();
@@ -1329,61 +1486,74 @@ public class JDBCCallableStatementWhileClosedTest extends BaseJdbcTestCase {
      * Test of setNCharacterStream method, of interface java.sql.CallableStatement
      * @throws java.lang.Exception
      */
+    @OfMethod({"setNCharacterStream(java.lang.String,java.io.Reader)",
+        "setNCharacterStream(int,java.io.Reader)",
+        "setNCharacterStream(java.lang.String,java.io.Reader,long)",
+        "setNCharacterStream(int,java.io.Reader,long)"})
     public void testSetNCharacterStream() throws Exception {
         String parameterName = getParameterName();
         int parameterIndex = getParameterIndex();
         CallableStatement instance = newClosedCall();
+        Reader reader = new StringReader("1");
+        long longLength = 1L;
 
         try {
-            instance.setNCharacterStream(parameterName, new StringReader("1"));
+            instance.setNCharacterStream(parameterName, reader);
             fail("Allowed set ncharacter stream by parameter name after close");
         } catch (SQLException ex) {
             checkException(ex);
         }
 
         try {
-            instance.setNCharacterStream(parameterIndex, new StringReader("1"));
+            instance.setNCharacterStream(parameterIndex, reader);
             fail("Allowed set ncharacter stream by parameter index after close");
         } catch (SQLException ex) {
             checkException(ex);
         }
 
         try {
-            instance.setNCharacterStream(parameterName, new StringReader("1"), 1);
-            fail("Allowed set ncharacter stream by parameter name and length after close");
+            instance.setNCharacterStream(parameterName, reader, longLength);
+            fail("Allowed set ncharacter stream by parameter name and long length after close");
         } catch (SQLException ex) {
             checkException(ex);
         }
 
         try {
-            instance.setNCharacterStream(parameterIndex, new StringReader("1"), 1);
-            fail("Allowed set ncharacter stream by parameter index and length after close");
+            instance.setNCharacterStream(parameterIndex, reader, longLength);
+            fail("Allowed set ncharacter stream by parameter index and long length after close");
         } catch (SQLException ex) {
             checkException(ex);
         }
-
     }
 
     /**
      * Test of setNClob method, of interface java.sql.CallableStatement
      * @throws java.lang.Exception
      */
+    @OfMethod({"setNClob(java.lang.String,java.io.Reader)",
+        "setNClob(int,java.io.Reader)",
+        "setNClob(java.lang.String,java.io.Reader,int)",
+        "setNClob(java.lang.String,java.io.Reader,long)",
+        "setNClob(int,java.io.Reader,int)",
+        "setNClob(int,java.io.Reader,long)"})
     public void testSetNClob() throws Exception {
         String parameterName = getParameterName();
         int parameterIndex = getParameterIndex();
         CallableStatement instance = newClosedCall();
         NClob nclob = newConnection().createNClob();
+        Reader reader = new StringReader("1");
         nclob.setString(1, "1");
+        long longLength = 1L;
 
         try {
-            instance.setNClob(parameterName,nclob);
+            instance.setNClob(parameterName, nclob);
             fail("Allowed set nclob by parameter name after close");
         } catch (SQLException ex) {
             checkException(ex);
         }
 
         try {
-            instance.setNClob(parameterName, new StringReader("1"));
+            instance.setNClob(parameterName, reader);
             fail("Allowed set nclob using reader by parameter name after close");
         } catch (SQLException ex) {
             checkException(ex);
@@ -1397,26 +1567,25 @@ public class JDBCCallableStatementWhileClosedTest extends BaseJdbcTestCase {
         }
 
         try {
-            instance.setNClob(parameterIndex, new StringReader("1"));
+            instance.setNClob(parameterIndex, reader);
             fail("Allowed set nclob using reader by parameter index after close");
         } catch (SQLException ex) {
             checkException(ex);
         }
 
         try {
-            instance.setNClob(parameterName, new StringReader("1"), 1);
-            fail("Allowed set nclob using reader and length by parameter name after close");
+            instance.setNClob(parameterName, reader, longLength);
+            fail("Allowed set nclob using reader and long length by parameter name after close");
         } catch (SQLException ex) {
             checkException(ex);
         }
 
         try {
-            instance.setNClob(parameterIndex, new StringReader("1"), 1);
-            fail("Allowed set nclob using reader and length by parameter index after close");
+            instance.setNClob(parameterIndex, reader, longLength);
+            fail("Allowed set nclob using reader and long length by parameter index after close");
         } catch (SQLException ex) {
             checkException(ex);
         }
-
     }
 
     /**
@@ -1426,42 +1595,50 @@ public class JDBCCallableStatementWhileClosedTest extends BaseJdbcTestCase {
     public void testSetClob() throws Exception {
         String parameterName = getParameterName();
         int parameterIndex = getParameterIndex();
-
-        long length = 0L;
         CallableStatement instance = newClosedCall();
-        Clob x = newConnection().createClob(); // this will never get used
+        Clob clob = newConnection().createClob();
+        Reader reader = new StringReader("1");
+        clob.setString(1, "1");
+        long longLength = 1L;
 
         try {
-            instance.setClob(parameterName, x);
+            instance.setClob(parameterName, clob);
             fail("Allowed set clob by parameter name after close");
         } catch (SQLException ex) {
             checkException(ex);
         }
 
         try {
-            instance.setClob(parameterName, new StringReader("1"));
-            fail("Allowed set clob with reader by parameter name after close");
+            instance.setClob(parameterName, reader);
+            fail("Allowed set clob using reader by parameter name after close");
         } catch (SQLException ex) {
             checkException(ex);
         }
 
         try {
-            instance.setClob(parameterIndex, x);
+            instance.setClob(parameterIndex, clob);
             fail("Allowed set clob by parameter index after close");
         } catch (SQLException ex) {
             checkException(ex);
         }
 
         try {
-            instance.setClob(parameterName, new StringReader("1"), length);
-            fail("Allowed set clob with reader and length by parameter name after close");
+            instance.setClob(parameterIndex, reader);
+            fail("Allowed set clob using reader by parameter index after close");
         } catch (SQLException ex) {
             checkException(ex);
         }
 
         try {
-            instance.setClob(parameterIndex, new StringReader("1"), length);
-            fail("Allowed set clob with reader and length by parameter index after close");
+            instance.setClob(parameterName, reader, longLength);
+            fail("Allowed set clob using reader and long length by parameter name after close");
+        } catch (SQLException ex) {
+            checkException(ex);
+        }
+
+        try {
+            instance.setNClob(parameterIndex, reader, longLength);
+            fail("Allowed set nclob using reader and long length by parameter index after close");
         } catch (SQLException ex) {
             checkException(ex);
         }
@@ -1474,14 +1651,45 @@ public class JDBCCallableStatementWhileClosedTest extends BaseJdbcTestCase {
     public void testSetBlob() throws Exception {
         String parameterName = getParameterName();
         int parameterIndex = getParameterIndex();
-        InputStream inputStream = null;
+
         long length = 0L;
-        CallableStatement instance = null;
+        CallableStatement instance = newClosedCall();
+        Blob x = newConnection().createBlob(); // this will never get used
 
-        //instance.setBlob(parameterName, inputStream, length);
+        try {
+            instance.setBlob(parameterName, x);
+            fail("Allowed set blob by parameter name after close");
+        } catch (SQLException ex) {
+            checkException(ex);
+        }
 
-        // TODO review the generated test code and remove the default call to fail.
-        stubTestResult();
+        try {
+            instance.setBlob(parameterName, new ByteArrayInputStream(new byte[]{(byte) 1}));
+            fail("Allowed set blob with input Stream by parameter name after close");
+        } catch (SQLException ex) {
+            checkException(ex);
+        }
+
+        try {
+            instance.setBlob(parameterIndex, x);
+            fail("Allowed set blob by parameter index after close");
+        } catch (SQLException ex) {
+            checkException(ex);
+        }
+
+        try {
+            instance.setBlob(parameterName, new ByteArrayInputStream(new byte[]{(byte) 1}), length);
+            fail("Allowed set blob with reader and length by parameter name after close");
+        } catch (SQLException ex) {
+            checkException(ex);
+        }
+
+        try {
+            instance.setBlob(parameterIndex, new ByteArrayInputStream(new byte[]{(byte) 1}), length);
+            fail("Allowed set blob with reader and length by parameter index after close");
+        } catch (SQLException ex) {
+            checkException(ex);
+        }
     }
 
     /**
@@ -1489,14 +1697,47 @@ public class JDBCCallableStatementWhileClosedTest extends BaseJdbcTestCase {
      * @throws java.lang.Exception
      */
     public void testGetNClob() throws Exception {
-        int parameterIndex = 0;
-        CallableStatement instance = null;
+        String parameterName = getParameterName();
+        int parameterIndex = getParameterIndex();
 
-        NClob expResult = null;
+        long length = 0L;
+        CallableStatement instance = newClosedCall();
+        NClob x = newConnection().createNClob(); // this will never get used
 
+        try {
+            instance.setNClob(parameterName, x);
+            fail("Allowed set nclob by parameter name after close");
+        } catch (SQLException ex) {
+            checkException(ex);
+        }
 
-        // TODO review the generated test code and remove the default call to fail.
-        stubTestResult();
+        try {
+            instance.setNClob(parameterName, new StringReader("1"));
+            fail("Allowed set nclob with reader by parameter name after close");
+        } catch (SQLException ex) {
+            checkException(ex);
+        }
+
+        try {
+            instance.setNClob(parameterIndex, x);
+            fail("Allowed set nclob by parameter index after close");
+        } catch (SQLException ex) {
+            checkException(ex);
+        }
+
+        try {
+            instance.setNClob(parameterName, new StringReader("1"), length);
+            fail("Allowed set nclob with reader and length by parameter name after close");
+        } catch (SQLException ex) {
+            checkException(ex);
+        }
+
+        try {
+            instance.setNClob(parameterIndex, new StringReader("1"), length);
+            fail("Allowed set nclob with reader and length by parameter index after close");
+        } catch (SQLException ex) {
+            checkException(ex);
+        }
     }
 
     /**
@@ -1504,14 +1745,26 @@ public class JDBCCallableStatementWhileClosedTest extends BaseJdbcTestCase {
      * @throws java.lang.Exception
      */
     public void testSetSQLXML() throws Exception {
-        String parameterName = "";
-        SQLXML xmlObject = null;
-        CallableStatement instance = null;
+        String parameterName = getParameterName();
+        int parameterIndex = getParameterIndex();
 
-        //instance.setSQLXML(parameterName, xmlObject);
+        long length = 0L;
+        CallableStatement instance = newClosedCall();
+        SQLXML x = newConnection().createSQLXML(); // this will never get used
 
-        // TODO review the generated test code and remove the default call to fail.
-        stubTestResult();
+        try {
+            instance.setSQLXML(parameterName, x);
+            fail("Allowed set sqlxml by parameter name after close");
+        } catch (SQLException ex) {
+            checkException(ex);
+        }
+
+        try {
+            instance.setSQLXML(parameterIndex, x);
+            fail("Allowed set sqlxml by parameter name after close");
+        } catch (SQLException ex) {
+            checkException(ex);
+        }
     }
 
     /**
@@ -1519,15 +1772,21 @@ public class JDBCCallableStatementWhileClosedTest extends BaseJdbcTestCase {
      * @throws java.lang.Exception
      */
     public void testGetSQLXML() throws Exception {
-        int parameterIndex = 0;
-        CallableStatement instance = null;
+        CallableStatement instance = newClosedCall();
 
-        SQLXML expResult = null;
-//        SQLXML result = instance.getSQLXML(parameterIndex);
-//        assertEquals(expResult, result);
+        try {
+            instance.getSQLXML(getParameterName());
+            fail("Allowed get sqlxml by parameter name after close.");
+        } catch (SQLException ex) {
+            checkException(ex);
+        }
 
-        // TODO review the generated test code and remove the default call to fail.
-        stubTestResult();
+        try {
+            instance.getSQLXML(getParameterIndex());
+            fail("Allowed get sqlxml by parameter index after close.");
+        } catch (SQLException ex) {
+            checkException(ex);
+        }
     }
 
     /**
@@ -1535,15 +1794,21 @@ public class JDBCCallableStatementWhileClosedTest extends BaseJdbcTestCase {
      * @throws java.lang.Exception
      */
     public void testGetNString() throws Exception {
-        int parameterIndex = 0;
-        CallableStatement instance = null;
+        CallableStatement instance = newClosedCall();
 
-        String expResult = "";
-//        String result = instance.getNString(parameterIndex);
-//        assertEquals(expResult, result);
+        try {
+            instance.getNString(getParameterName());
+            fail("Allowed get nstring by parameter name after close.");
+        } catch (SQLException ex) {
+            checkException(ex);
+        }
 
-        // TODO review the generated test code and remove the default call to fail.
-        stubTestResult();
+        try {
+            instance.getNString(getParameterIndex());
+            fail("Allowed get nstring by parameter index after close.");
+        } catch (SQLException ex) {
+            checkException(ex);
+        }
     }
 
     /**
@@ -1551,15 +1816,21 @@ public class JDBCCallableStatementWhileClosedTest extends BaseJdbcTestCase {
      * @throws java.lang.Exception
      */
     public void testGetNCharacterStream() throws Exception {
-        int parameterIndex = 0;
-        CallableStatement instance = null;
+        CallableStatement instance = newClosedCall();
 
-        Reader expResult = null;
-//        Reader result = instance.getNCharacterStream(parameterIndex);
-//        assertEquals(expResult, result);
+        try {
+            instance.getNCharacterStream(getParameterName());
+            fail("Allowed get ncharacter stream by parameter name after close.");
+        } catch (SQLException ex) {
+            checkException(ex);
+        }
 
-        // TODO review the generated test code and remove the default call to fail.
-        stubTestResult();
+        try {
+            instance.getNCharacterStream(getParameterIndex());
+            fail("Allowed get ncharacter stream by parameter index after close.");
+        } catch (SQLException ex) {
+            checkException(ex);
+        }
     }
 
     /**
@@ -1567,15 +1838,21 @@ public class JDBCCallableStatementWhileClosedTest extends BaseJdbcTestCase {
      * @throws java.lang.Exception
      */
     public void testGetCharacterStream() throws Exception {
-        int parameterIndex = 0;
-        CallableStatement instance = null;
+        CallableStatement instance = newClosedCall();
 
-        Reader expResult = null;
-//        Reader result = instance.getCharacterStream(parameterIndex);
-//        assertEquals(expResult, result);
+        try {
+            instance.getCharacterStream(getParameterName());
+            fail("Allowed get character stream by parameter name after close.");
+        } catch (SQLException ex) {
+            checkException(ex);
+        }
 
-        // TODO review the generated test code and remove the default call to fail.
-        stubTestResult();
+        try {
+            instance.getCharacterStream(getParameterIndex());
+            fail("Allowed get character stream by parameter index after close.");
+        } catch (SQLException ex) {
+            checkException(ex);
+        }
     }
 
     /**
@@ -1583,17 +1860,16 @@ public class JDBCCallableStatementWhileClosedTest extends BaseJdbcTestCase {
      * @throws java.lang.Exception
      */
     public void testClose() throws Exception {
-        //in this suite, no test is necessary for this method
-        JDBCCallableStatement instance = null;
+        CallableStatement instance = newClosedCall();
 
-//        instance.close();
-
-        // TODO review the generated test code and remove the default call to fail.
-//        fail("The test case is a prototype.");
+        try {
+            instance.close();
+        } catch (SQLException ex) {
+            fail(ex.toString());
+        }
     }
 
     public static void main(java.lang.String[] argList) {
         junit.textui.TestRunner.run(suite());
     }
-
 }

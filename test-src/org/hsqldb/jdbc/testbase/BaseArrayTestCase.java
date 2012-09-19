@@ -208,7 +208,7 @@ public abstract class BaseArrayTestCase extends BaseJdbcTestCase {
             array.free();
             try {
                 array.getArray();
-                //fail("getArray() suceeded after free()");
+                fail("getArray() suceeded after free()");
             } catch (SQLException ex) {
             }
             try {

@@ -37,12 +37,15 @@ import java.sql.Savepoint;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 import org.hsqldb.jdbc.testbase.BaseJdbcTestCase;
+import org.hsqldb.testbase.ForSubject;
+import org.hsqldb.testbase.OfMethod;
 
 /**
  * Test of of interface java.sql.Savepoint.
  *
  * @author Campbell Boucher-Burnet (boucherb@users dot sourceforge.net)
  */
+@ForSubject(Savepoint.class)
 public class JDBCSavepointTest extends BaseJdbcTestCase {
 
     public JDBCSavepointTest(String testName) {
@@ -68,6 +71,7 @@ public class JDBCSavepointTest extends BaseJdbcTestCase {
     /**
      * Test of getSavepointId method, of interface java.sql.Savepoint.
      */
+    @OfMethod("getSavepointId()")
     public void testGetSavepointId() throws Exception {
         Connection conn = super.newConnection();
         Savepoint sp = null;
@@ -98,6 +102,7 @@ public class JDBCSavepointTest extends BaseJdbcTestCase {
     /**
      * Test of getSavepointName method, of interface java.sql.Savepoint.
      */
+    @OfMethod("getSavepointName()")
     public void testGetSavepointName() throws Exception {
         Connection conn = super.newConnection();
         Savepoint sp = null;

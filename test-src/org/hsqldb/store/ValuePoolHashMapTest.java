@@ -30,11 +30,15 @@
 package org.hsqldb.store;
 
 import junit.framework.Test;
-import junit.framework.TestCase;
 import junit.framework.TestSuite;
+import org.hsqldb.testbase.BaseTestCase;
+import org.hsqldb.testbase.ForSubject;
+import org.hsqldb.testbase.OfMethod;
 
-public class ValuePoolHashMapTest extends TestCase {
+@ForSubject(ValuePoolHashMap.class)
+public class ValuePoolHashMapTest extends BaseTestCase {
 
+    @OfMethod("getOrAddInteger(int)")
     public void testValuePoolHashMap() {
 
         int BIGRANGE = 100000;
@@ -60,9 +64,6 @@ public class ValuePoolHashMapTest extends TestCase {
                     if (intObject.intValue() != intValue) {
                         throw new Exception("Value mismatch");
                     }
-
-                    //                    System.out.print(intValue);
-                    //                    System.out.print(' ');
                 }
 
                 System.out.println("Count " + maxCount + " " + sw.elapsedTime());
@@ -83,7 +84,7 @@ public class ValuePoolHashMapTest extends TestCase {
                 System.out.println("Count new Integer() " + maxCount + " " + sw.elapsedTime());
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            printException(e);
         }
     }
 

@@ -46,12 +46,15 @@ import java.util.Map;
 import junit.framework.TestSuite;
 
 import org.hsqldb.error.ErrorCode;
+import org.hsqldb.testbase.ForSubject;
+import org.hsqldb.testbase.OfMethod;
 
 /**
- * Test of class org.hsqldb.jdbc.Util.
+ * Test of class {@link org.hsqldb.jdbc.Util}.
  *
  * @author Campbell Boucher-Burnet (boucherb@users dot sourceforge.net)
  */
+@ForSubject(Util.class)
 public class UtilTest extends BaseJdbcTestCase {
 
     private static final Object[][] s_exceptions = new Object[][] {
@@ -222,7 +225,7 @@ public class UtilTest extends BaseJdbcTestCase {
             null    // calculated below, in static initializer
         }
     };
-    private static final Map s_classMap = new HashMap();
+    private static final Map<Class<?>,int[]> s_classMap = new HashMap<Class<?>,int[]>();
 
     static List<Integer> getErrorCodes()
     {
@@ -251,7 +254,7 @@ public class UtilTest extends BaseJdbcTestCase {
             int[]   codes = (int[]) s_exceptions[j][1];
 
             for(int k = 0; k < codes.length; k++) {
-                list.remove(new Integer(codes[k]));
+                list.remove(Integer.valueOf(codes[k]));
             }
         }
 
@@ -264,7 +267,7 @@ public class UtilTest extends BaseJdbcTestCase {
         s_exceptions[s_exceptions.length - 1][1] = nontransientcodes;
 
         for (int i = 0; i < s_exceptions.length; i++) {
-            s_classMap.put(s_exceptions[i][0], s_exceptions[i][1]);
+            s_classMap.put((Class<?>)s_exceptions[i][0], (int[]) s_exceptions[i][1]);
         }
     }
 
@@ -322,12 +325,12 @@ public class UtilTest extends BaseJdbcTestCase {
     }
 
     protected void checkErrorCode(SQLException se,
-                                  Class clazz) throws Exception {
+                                  Class<?> clazz) throws Exception {
 
         int     errorCode    = Math.abs(se.getErrorCode());
         String  errorMessage = se.getMessage();
         String  sqlState     = se.getSQLState();
-        int[]   codes        = (int[]) s_classMap.get(clazz);
+        int[]   codes        = s_classMap.get(clazz);
         boolean found        = false;
 
         for (int i = 0; i < codes.length; i++) {
@@ -345,7 +348,7 @@ public class UtilTest extends BaseJdbcTestCase {
         }
     }
 
-    public static void main(java.lang.String[] argList) throws Exception {
+    public static void main(String[] argList) throws Exception {
         junit.textui.TestRunner.run(suite());
     }
 
@@ -380,6 +383,7 @@ public class UtilTest extends BaseJdbcTestCase {
     private int m_vendorCode;
 
     @Override
+    @OfMethod("sqlException(int,java.lang.String)")
     protected void runTest() throws Throwable {
 
         println(getName());

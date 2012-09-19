@@ -27,15 +27,21 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-
-
 package org.hsqldb.lib.tar;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.File;
+import junit.framework.Test;
+import junit.framework.TestSuite;
+import junit.textui.TestRunner;
+import org.hsqldb.testbase.BaseTestCase;
+import org.hsqldb.testbase.ForSubject;
+import org.hsqldb.testbase.OfMethod;
 
-public class PIFGeneratorTest extends junit.framework.TestCase {
+@ForSubject(PIFGenerator.class)
+public class PIFGeneratorTest extends BaseTestCase {
+
     static protected byte[] loadResByteFile(String resPath) {
         InputStream is = null;
         int bytesRead = 0;
@@ -49,8 +55,8 @@ public class PIFGeneratorTest extends junit.framework.TestCase {
                         + "Res file '" + resPath + "' not accessible");
             }
             ba = new byte[is.available()];
-            while (bytesRead < ba.length &&
-                    (retval = is.read(ba, bytesRead, ba.length - bytesRead))
+            while (bytesRead < ba.length
+                    && (retval = is.read(ba, bytesRead, ba.length - bytesRead))
                     > 0) {
                 bytesRead += retval;
             }
@@ -59,10 +65,12 @@ public class PIFGeneratorTest extends junit.framework.TestCase {
                     "Unexpected resource problem with Res file '"
                     + resPath + "' not accessible", ioe);
         } finally {
-            if (is != null) try {
-                is.close();
-            } catch (IOException ioe) {
-                // Intentionally doing nothing
+            if (is != null) {
+                try {
+                    is.close();
+                } catch (IOException ioe) {
+                    // Intentionally doing nothing
+                }
             }
         }
         if (bytesRead != ba.length) {
@@ -72,16 +80,17 @@ public class PIFGeneratorTest extends junit.framework.TestCase {
         return ba;
     }
 
-    public void testXrecord() {
+    @OfMethod({"loadResByteFile(java.lang.String)",
+        "getName()",
+        "toByteArray()",
+        "addRecord(java.lang.String, boolean)",
+        "addRecord(java.lang.String, int)",
+        "addRecord(java.lang.String, long)",
+        "addRecord(java.lang.String, java.lang.String)"})
+    public void testXrecord() throws Exception {
         byte[] expectedHeaderData = PIFGeneratorTest.loadResByteFile(
                 "/org/hsqldb/resources/pif.data");
-        // Would like to load this one time with a JUnit v. 4 @BeforeClass
-        // method
-        File f = new File("build.xml");
-        if (!f.exists()) {
-            throw new RuntimeException(
-                "Test environment misconfigured.  File 'build.xml' inaccessible");
-        }
+        File f = new File(".");
         PIFGenerator pif = new PIFGenerator(f);
         try {
             populate(pif);
@@ -90,19 +99,21 @@ public class PIFGeneratorTest extends junit.framework.TestCase {
         } catch (TarMalformatException tme) {
             fail("Failed to populate PIF:" + tme);
         }
-        assertTrue("Bad PIF record name", pif.getName().endsWith("/build.xml"));
 
-        //assertArrayEquals(expectedHeaderData, pif.toByteArray());
-        // Arg.  All of the following work can be done with the single line
-        // above with JUnit v. 4.
-        byte[] pifBytes = pif.toByteArray();
-        assertEquals(expectedHeaderData.length, pifBytes.length);
-        for (int i = 0; i < expectedHeaderData.length; i++) {
-            assertEquals(expectedHeaderData[i], pifBytes[i]);
-        }
+        assertTrue("Bad PIF record name",
+                pif.getName().indexOf("/PaxHeaders.") > 0);
+
+        assertJavaArrayEquals(expectedHeaderData, pif.toByteArray());
     }
 
-    public void testGrecord() {
+         @OfMethod({"loadResByteFile(java.lang.String)",
+        "getName()",
+        "toByteArray()",
+        "addRecord(java.lang.String, boolean)",
+        "addRecord(java.lang.String, int)",
+        "addRecord(java.lang.String, long)",
+        "addRecord(java.lang.String, java.lang.String)"})
+    public void testGrecord() throws Exception {
         byte[] expectedHeaderData = PIFGeneratorTest.loadResByteFile(
                 "/org/hsqldb/resources/pif.data");
         // Would like to load this one time with a JUnit v. 4 @BeforeClass
@@ -116,16 +127,9 @@ public class PIFGeneratorTest extends junit.framework.TestCase {
             fail("Failed to populate PIF:" + ioe);
         }
         assertTrue("Bad PIF record name",
-                pif.getName().indexOf("GlobalHead") > 0);
+                pif.getName().indexOf("/GlobalHead.") > 0);
 
-        //assertArrayEquals(expectedHeaderData, pif.toByteArray());
-        // Arg.  All of the following work can be done with the single line
-        // above with JUnit v. 4.
-        byte[] pifBytes = pif.toByteArray();
-        assertEquals(expectedHeaderData.length, pifBytes.length);
-        for (int i = 0; i < expectedHeaderData.length; i++) {
-            assertEquals(expectedHeaderData[i], pifBytes[i]);
-        }
+        assertJavaArrayEquals(expectedHeaderData, pif.toByteArray());
     }
 
     protected void populate(PIFGenerator pif)
@@ -135,17 +139,21 @@ public class PIFGeneratorTest extends junit.framework.TestCase {
         pif.addRecord("k2", "234");    // total 10
         pif.addRecord("k3", "2345");   // total 11
         pif.addRecord("k4",
-                      "2345678901234567890123456789012345678901234567890"
-                      + "123456789012345678901234567890123456789012");     //total 98
+                "2345678901234567890123456789012345678901234567890"
+                + "123456789012345678901234567890123456789012");     //total 98
 
         // Impossible to get total of 99.
         pif.addRecord("k5",
-                      "2345678901234567890123456789012345678901234567890"
-                      + "1234567890123456789012345678901234567890123");    //total 100
+                "2345678901234567890123456789012345678901234567890"
+                + "1234567890123456789012345678901234567890123");    //total 100
         pif.addRecord("int1234", 1234);
         pif.addRecord("long1234", 1234);
         pif.addRecord("boolTrue", true);
         pif.addRecord("boolFalse", false);
+    }
+
+    public static Test suite() {
+        return new TestSuite(PIFGeneratorTest.class);
     }
 
     /**
@@ -153,10 +161,12 @@ public class PIFGeneratorTest extends junit.framework.TestCase {
      * unit tests, and without dealing with Ant or unrelated test suites.
      */
     public static void main(String[] sa) {
-        junit.textui.TestRunner runner = new junit.textui.TestRunner();
-        junit.framework.TestResult result =
-            runner.run(runner.getTest(PIFGeneratorTest.class.getName()));
+        if (sa.length > 0 && sa[0].startsWith("-g")) {
+            junit.swingui.TestRunner.run(PIFGeneratorTest.class);
+        } else {
+            junit.framework.TestResult result = TestRunner.run(suite());
 
-        System.exit(result.wasSuccessful() ? 0 : 1);
+            System.exit(result.wasSuccessful() ? 0 : 1);
+        }
     }
 }
