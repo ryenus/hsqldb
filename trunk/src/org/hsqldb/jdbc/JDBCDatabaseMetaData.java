@@ -3410,7 +3410,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      * <P>Only privileges matching the column name criteria are
      * returned.  They are ordered by COLUMN_NAME and PRIVILEGE.
      *
-     * <P>Each privilige description has the following columns:
+     * <P>Each privilege description has the following columns:
      *  <OL>
      *  <LI><B>TABLE_CAT</B> String => table catalog (may be <code>null</code>)
      *  <LI><B>TABLE_SCHEM</B> String => table schema (may be <code>null</code>)
