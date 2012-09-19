@@ -30,19 +30,27 @@
 package org.hsqldb.lib;
 
 import junit.framework.Test;
-import junit.framework.TestCase;
 import junit.framework.TestSuite;
 import java.util.Comparator;
+import org.hsqldb.testbase.BaseTestCase;
+import org.hsqldb.testbase.ForSubject;
+import org.hsqldb.testbase.OfMethod;
 
-public class HsqlArrayHeapTest extends TestCase {
+/**
+ *
+ * @author Campbell Boucher-Burnet (boucherb@users dot sourceforge.net)
+ */
+@ForSubject(HsqlArrayHeap.class)
+public class HsqlArrayHeapTest extends BaseTestCase {
 
     public HsqlArrayHeapTest(String name) {
         super(name);
     }
 
+    @OfMethod({"add(java.lang.Object)", "size()", "remove()", "peek()", "isEmpty()"})
     public void testHsqlArrayHeap() {
 
-        Comparator oc = new Comparator() {
+        Comparator<Object> oc = new Comparator<Object>() {
 
             @Override
             public int compare(Object a, Object b) {
@@ -69,7 +77,7 @@ public class HsqlArrayHeapTest extends TestCase {
         };
         HsqlHeap ah = new HsqlArrayHeap(6, oc);
 
-        System.out.println("isEmpty() : " + ah.isEmpty());
+        assertTrue("isEmpty()", ah.isEmpty());
 
         int[] ai = new int[]{
             3, 99, 7, 9, -42, 2, 1, 23, -7
@@ -77,29 +85,28 @@ public class HsqlArrayHeapTest extends TestCase {
         int least = Integer.MIN_VALUE;
 
         for (int i = 0; i < ai.length; i++) {
-            System.out.println("add()     : new Integer(" + ai[i] + ")");
+            println("add()     : new Integer(" + ai[i] + ")");
             ah.add(new Integer(ai[i]));
-            System.out.println("size()    : " + ah.size());
+            println("size()    : " + ah.size());
         }
 
         while (ah.size() > 0) {
             int current = ((Integer) ah.remove()).intValue();
 
-            if (current < least) {
-                throw new RuntimeException("bad heap invariant");
-            }
+            println("remove()  : " + current);
+            println("size()    : " + ah.size());
+
+            assertFalse("bad heap invariant: current < least", current < least);
 
             least = current;
-
-            System.out.println("remove()  : " + current);
-            System.out.println("size()    : " + ah.size());
         }
 
-        System.out.println("peak() : " + ah.peek());
-        System.out.println("isEmpty() : " + ah.isEmpty());
-        System.out.println("remove()  : " + ah.remove());
-        System.out.println("size()    : " + ah.size());
-        System.out.println("isEmpty() : " + ah.isEmpty());
+        assertNull("peak()",ah.peek());
+        assertTrue("isEmpty()", ah.isEmpty());
+        assertNull("remove()", ah.remove());
+        assertEquals("size()", 0, ah.size());
+        assertTrue("isEmpty()", ah.isEmpty());
+        assertFalse("isFull()", ah.isFull());
     }
 
     public static Test suite() {

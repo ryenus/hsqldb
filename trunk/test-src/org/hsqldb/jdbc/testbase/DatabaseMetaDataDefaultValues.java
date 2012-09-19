@@ -27,7 +27,6 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-
 package org.hsqldb.jdbc.testbase;
 
 import java.lang.reflect.Method;
@@ -42,17 +41,25 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.hsqldb.testbase.PropertyGetter;
 
 /**
- * A basis for
+ * A basis for supplying java.sql.DataaseMetaData 'getXXX', 'isXXX' and other
+ * pure accessor method default value lookup.
+ *
+ * This is a start toward upgrading the test suite to allow cross driver testing
+ * with spi style bases and inheritance. 
+ *
  * @author Campbell Boucher-Burnet (boucherb@users dot sourceforge.net)
  * @version 2.1
  * @since HSQLDB 2.1
  */
-public final class DatabaseMetaDataDefaultValues {
+public class DatabaseMetaDataDefaultValues {
     //
+
     private static final int StandardMaxIdentifierLength = 128;
     //
     private static double s_javaVersion = 0D;
@@ -66,13 +73,29 @@ public final class DatabaseMetaDataDefaultValues {
         }
         return s_javaVersion;
     }
-    
-    public static final DatabaseMetaDataDefaultValues Instance = new DatabaseMetaDataDefaultValues();
 
+    public static DatabaseMetaDataDefaultValues newInstance(String prefix) {
+        String fqn = PropertyGetter.getProperty(
+                prefix + ".dbmd.default.values.class",
+                DatabaseMetaDataDefaultValues.class.getName());
+
+        if (!DatabaseMetaDataDefaultValues.class.getName().equals(fqn)) {
+            try {
+                return (DatabaseMetaDataDefaultValues) Class.forName(fqn).newInstance();
+            } catch (InstantiationException ex) {
+                Logger.getLogger(DatabaseMetaDataDefaultValues.class.getName()).log(Level.SEVERE, null, ex);
+            } catch (IllegalAccessException ex) {
+                Logger.getLogger(DatabaseMetaDataDefaultValues.class.getName()).log(Level.SEVERE, null, ex);
+            } catch (ClassNotFoundException ex) {
+                Logger.getLogger(DatabaseMetaDataDefaultValues.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+
+        return new DatabaseMetaDataDefaultValues();
+    }
 
     // for subclases
-    private DatabaseMetaDataDefaultValues() {
-    }
+    protected DatabaseMetaDataDefaultValues() {}
 
     public boolean allProceduresAreCallable() {
         return true;
@@ -293,6 +316,10 @@ public final class DatabaseMetaDataDefaultValues {
 
     public boolean isCatalogAtStart() {
         return true;
+    }
+
+    public boolean isReadOnly() {
+        return false;
     }
 
     public String getCatalogSeparator() {
@@ -719,10 +746,10 @@ public final class DatabaseMetaDataDefaultValues {
                     "(?<=[^A-Z])(?=[A-Z])",
                     "(?<=[A-Za-z])(?=[^A-Za-z])"), ".").toLowerCase();
             //
-            Object value = method.invoke(DatabaseMetaDataDefaultValues.Instance,
+            Object value = method.invoke(DatabaseMetaDataDefaultValues.newInstance(prefix),
                     noArgs);
 
-            key = key.replace("get.","");
+            key = key.replace("get.", "");
 
             propertyList.add(prefix + ".dbmd." + key + "=" + value);
         }
@@ -747,7 +774,7 @@ public final class DatabaseMetaDataDefaultValues {
                 ? "hsqldb.test.suite"
                 : args[0];
 
-        for (Iterator itr = asPropertyList(prefix).iterator(); itr.hasNext();) {
+        for (Iterator<String> itr = asPropertyList(prefix).iterator(); itr.hasNext();) {
             System.out.println(itr.next());
         }
     }

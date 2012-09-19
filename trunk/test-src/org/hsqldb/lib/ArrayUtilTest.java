@@ -30,11 +30,18 @@
 package org.hsqldb.lib;
 
 import junit.framework.Test;
-import junit.framework.TestCase;
 import junit.framework.TestSuite;
+import org.hsqldb.testbase.BaseTestCase;
+import org.hsqldb.testbase.ForSubject;
+import org.hsqldb.testbase.OfMethod;
 
-public class ArrayUtilTest extends TestCase {
+@ForSubject(ArrayUtil.class)
+public class ArrayUtilTest extends BaseTestCase {
 
+    @OfMethod({"copyArray(java.lang.Object,java.lang.Object,int)",
+        "sortArray(java.lang.Object)",
+        "haveEqualSets(java.lang.Object,java.lang.Object,int)",
+        "reorderMaps([I,[I)"})
     public void testArrayUtil() {
 
         int[] a = new int[] {
@@ -60,7 +67,7 @@ public class ArrayUtilTest extends TestCase {
 
         System.out.println("test passed: ");
         System.out.println(x == true && y == true && c.length == a.length - 1
-                           && d.length == b.length);
+                && d.length == b.length);
 
         // test copy
         int[] z = new int[b.length];

@@ -34,16 +34,19 @@ package org.hsqldb.auth;
 import java.util.Set;
 import java.util.HashSet;
 import java.util.Arrays;
-import java.sql.Array;
 import java.sql.Connection;
 import java.sql.Statement;
 import java.sql.SQLException;
 import java.sql.DriverManager;
-import org.hsqldb.jdbc.JDBCArrayBasic;
-import org.hsqldb.types.Type;
+import junit.framework.Test;
+import junit.framework.TestSuite;
+import junit.textui.TestRunner;
 import org.hsqldb.lib.FrameworkLogger;
+import org.hsqldb.testbase.BaseTestCase;
+import org.hsqldb.testbase.ForSubject;
 
-public class SlaveAuthBeanTest extends junit.framework.TestCase {
+@ForSubject(HsqldbSlaveAuthBean.class)
+public class SlaveAuthBeanTest extends BaseTestCase {
     private static FrameworkLogger logger =
             FrameworkLogger.getLog(SlaveAuthBeanTest.class);
 
@@ -182,15 +185,21 @@ public class SlaveAuthBeanTest extends junit.framework.TestCase {
         }
     }
 
+    public static Test suite() {
+        return new TestSuite(JaasAuthBeanTest.class);
+    }
+
     /**
      * This method allows to easily run this unit test independent of the other
      * unit tests, and without dealing with Ant or unrelated test suites.
      */
     public static void main(String[] sa) {
-        junit.textui.TestRunner runner = new junit.textui.TestRunner();
-        junit.framework.TestResult result =
-            runner.run(runner.getTest(SlaveAuthBeanTest.class.getName()));
+        if (sa.length > 0 && sa[0].startsWith("-g")) {
+            junit.swingui.TestRunner.run(SlaveAuthBeanTest.class);
+        } else {
+            junit.framework.TestResult result = TestRunner.run(suite());
 
-        System.exit(result.wasSuccessful() ? 0 : 1);
+            System.exit(result.wasSuccessful() ? 0 : 1);
+        }
     }
 }

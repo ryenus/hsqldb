@@ -31,8 +31,10 @@
 package org.hsqldb.util.preprocessor;
 
 import junit.framework.Test;
-import junit.framework.TestCase;
 import junit.framework.TestSuite;
+import org.hsqldb.testbase.BaseTestCase;
+import org.hsqldb.testbase.ForSubject;
+import org.hsqldb.testbase.OfMethod;
 
 /* $Id$ */
 
@@ -40,7 +42,8 @@ import junit.framework.TestSuite;
  *
  * @author Campbell Boucher-Burnet (boucherb@users dot sourceforge.net)
  */
-public class OptionTest extends TestCase {
+@ForSubject(Option.class)
+public class OptionTest extends BaseTestCase {
 
     public OptionTest(String testName) {
         super(testName);
@@ -55,9 +58,8 @@ public class OptionTest extends TestCase {
     /**
      * Test of isDefault method, of class org.hsqldb.util.preprocessor.Option.
      */
+    @OfMethod("isDefault(int)")
     public void testIsDefault() {
-        System.out.println("isDefault");
-
         assertEquals(true,  Option.isDefault(Option.DEFAULT));
 
         int start = Option.BACKUP;
@@ -75,9 +77,8 @@ public class OptionTest extends TestCase {
     /**
      * Test of setDefault method, of class org.hsqldb.util.preprocessor.Option.
      */
+    @OfMethod("setDefault(int,boolean)")
     public void testSetDefault() {
-        System.out.println("setDefault");
-
         int     options   = ~Option.DEFAULT;
         boolean _default  = true;
         int     expResult = Option.DEFAULT;
@@ -89,9 +90,8 @@ public class OptionTest extends TestCase {
     /**
      * Test of isBackup method, of class org.hsqldb.util.preprocessor.Option.
      */
+    @OfMethod("isBackup(int)")
     public void testIsBackup() {
-        System.out.println("isBackup");
-
         int     options   = Option.BACKUP;
         boolean expResult = true;
         boolean result    = Option.isBackup(options);
@@ -102,9 +102,8 @@ public class OptionTest extends TestCase {
     /**
      * Test of setBackup method, of class org.hsqldb.util.preprocessor.Option.
      */
+    @OfMethod("setBackup(int,boolean)")
     public void testSetBackup() {
-        System.out.println("setBackup");
-
         int options    = Option.DEFAULT;
         boolean backup = true;
         int expResult  = Option.BACKUP;
@@ -116,9 +115,8 @@ public class OptionTest extends TestCase {
     /**
      * Test of isFilter method, of class org.hsqldb.util.preprocessor.Option.
      */
+     @OfMethod("isFilter(int)")
     public void testIsFilter() {
-        System.out.println("isFilter");
-
         int     options   = Option.FILTER;
         boolean expResult = true;
         boolean result    = Option.isFilter(options);
@@ -129,9 +127,8 @@ public class OptionTest extends TestCase {
     /**
      * Test of setFilter method, of class org.hsqldb.util.preprocessor.Option.
      */
+    @OfMethod("setFilter(int,boolean)")
     public void testSetFilter() {
-        System.out.println("setFilter");
-
         int     options   = Option.DEFAULT;
         boolean filter    = true;
         int     expResult = Option.FILTER;
@@ -143,9 +140,8 @@ public class OptionTest extends TestCase {
     /**
      * Test of isIndent method, of class org.hsqldb.util.preprocessor.Option.
      */
+     @OfMethod("isIdent(int)")
     public void testIsIndent() {
-        System.out.println("isIndent");
-
         int     options   = Option.INDENT;
         boolean expResult = true;
         boolean result    = Option.isIndent(options);
@@ -156,9 +152,8 @@ public class OptionTest extends TestCase {
     /**
      * Test of setIndent method, of class org.hsqldb.util.preprocessor.Option.
      */
+    @OfMethod("setIdent(int,boolean)")
     public void testSetIndent() {
-        System.out.println("setIndent");
-
         int     options   = Option.DEFAULT;
         boolean indent    = true;
         int     expResult = Option.INDENT;
@@ -170,9 +165,8 @@ public class OptionTest extends TestCase {
     /**
      * Test of isTestOnly method, of class org.hsqldb.util.preprocessor.Option.
      */
+     @OfMethod("isTestOnly(int)")
     public void testIsTestOnly() {
-        System.out.println("isTestOnly");
-
         int     options   = Option.TEST_ONLY;
         boolean expResult = true;
         boolean result    = Option.isTestOnly(options);
@@ -183,9 +177,8 @@ public class OptionTest extends TestCase {
     /**
      * Test of setTestOnly method, of class org.hsqldb.util.preprocessor.Option.
      */
+    @OfMethod("setTestOnly(int,boolean)")
     public void testSetTestOnly() {
-        System.out.println("setTestOnly");
-
         int     options   = Option.DEFAULT;
         boolean testOnly  = true;
         int     expResult = Option.TEST_ONLY;
@@ -197,9 +190,8 @@ public class OptionTest extends TestCase {
     /**
      * Test of isVerbose method, of class org.hsqldb.util.preprocessor.Option.
      */
+     @OfMethod("isVerbose(int)")
     public void testIsVerbose() {
-        System.out.println("isVerbose");
-
         int     options   = Option.VERBOSE;
         boolean expResult = true;
         boolean result    = Option.isVerbose(options);
@@ -210,9 +202,8 @@ public class OptionTest extends TestCase {
     /**
      * Test of setVerbose method, of class org.hsqldb.util.preprocessor.Option.
      */
+    @OfMethod("setVerbose(int,boolean)")
     public void testSetVerbose() {
-        System.out.println("setVerbose");
-
         int     options   = Option.DEFAULT;
         boolean verbose   = true;
         int     expResult = Option.VERBOSE;
@@ -220,5 +211,4 @@ public class OptionTest extends TestCase {
 
         assertEquals(expResult, result);
     }
-
 }

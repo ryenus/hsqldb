@@ -31,25 +31,27 @@
 
 package org.hsqldb.auth;
 
-import java.util.Set;
 import java.util.HashSet;
 import java.util.Arrays;
 import java.util.regex.Pattern;
-import java.sql.Array;
 import java.sql.Connection;
 import java.sql.Statement;
 import java.sql.SQLException;
 import java.sql.DriverManager;
-import org.hsqldb.jdbc.JDBCArrayBasic;
-import org.hsqldb.types.Type;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.OutputStream;
 import java.io.InputStream;
 import java.io.IOException;
+import junit.framework.Test;
+import junit.framework.TestSuite;
+import junit.textui.TestRunner;
 import org.hsqldb.lib.FrameworkLogger;
+import org.hsqldb.testbase.BaseTestCase;
+import org.hsqldb.testbase.ForSubject;
 
-public class JaasAuthBeanTest extends junit.framework.TestCase {
+@ForSubject(JaasAuthBean.class)
+public class JaasAuthBeanTest extends BaseTestCase {
     private static FrameworkLogger logger =
             FrameworkLogger.getLog(JaasAuthBeanTest.class);
 
@@ -252,15 +254,21 @@ public class JaasAuthBeanTest extends junit.framework.TestCase {
         }
     }
 
+    public static Test suite() {
+        return new TestSuite(JaasAuthBeanTest.class);
+    }
+
     /**
      * This method allows to easily run this unit test independent of the other
      * unit tests, and without dealing with Ant or unrelated test suites.
      */
     public static void main(String[] sa) {
-        junit.textui.TestRunner runner = new junit.textui.TestRunner();
-        junit.framework.TestResult result =
-            runner.run(runner.getTest(JaasAuthBeanTest.class.getName()));
+        if (sa.length > 0 && sa[0].startsWith("-g")) {
+            junit.swingui.TestRunner.run(JaasAuthBeanTest.class);
+        } else {
+            junit.framework.TestResult result = TestRunner.run(suite());
 
-        System.exit(result.wasSuccessful() ? 0 : 1);
+            System.exit(result.wasSuccessful() ? 0 : 1);
+        }
     }
 }

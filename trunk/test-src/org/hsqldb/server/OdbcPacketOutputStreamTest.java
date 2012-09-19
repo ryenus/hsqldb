@@ -38,11 +38,26 @@ import java.io.ByteArrayOutputStream;
 import java.io.ByteArrayInputStream;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import junit.framework.Test;
+import junit.framework.TestSuite;
+import org.hsqldb.testbase.BaseTestCase;
+import org.hsqldb.testbase.ForSubject;
+import org.hsqldb.testbase.OfMethod;
 
-public class OdbcPacketOutputStreamTest extends junit.framework.TestCase {
+@ForSubject(OdbcPacketOutputStream.class)
+public class OdbcPacketOutputStreamTest extends BaseTestCase {
     protected OdbcPacketOutputStream targetPacket = null;
     protected long distinguishableLong = 0x0203040506070809L;
 
+    @OfMethod({"writeShort(short)",
+        "writeInt(int)",
+        "writeLong(long)",
+        "writeByte(byte)",
+        "writeByteChar(char)",
+        "getSize()",
+        "write(java.lang.String,boolean)",
+        "writeSized(java.lang.String)",
+        "xmit(char,org.hsqldb.lib.DataOutputStream)"})
     public void testTypeMix() throws IOException {
         byte[] buffer = new byte[1024];
         String resPath = "/org/hsqldb/resources/odbcPacket.data";
@@ -131,6 +146,7 @@ public class OdbcPacketOutputStreamTest extends junit.framework.TestCase {
             + ((ba[++offset] & 0xffL) << 8) + (ba[++offset] & 0xffL));
     }
 
+    @OfMethod("writeShort(short)")
     public void testShort() throws IOException {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
 
@@ -156,6 +172,7 @@ public class OdbcPacketOutputStreamTest extends junit.framework.TestCase {
             OdbcPacketOutputStreamTest.shortFromByteArray(ba, 7));
     }
 
+    @OfMethod("writeInt(int)")
     public void testInt() throws IOException {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
 
@@ -181,6 +198,7 @@ public class OdbcPacketOutputStreamTest extends junit.framework.TestCase {
             OdbcPacketOutputStreamTest.intFromByteArray(ba, 9));
     }
 
+    @OfMethod("writeLong(long)")
     public void testLong() throws IOException {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
 
@@ -204,6 +222,7 @@ public class OdbcPacketOutputStreamTest extends junit.framework.TestCase {
             OdbcPacketOutputStreamTest.longFromByteArray(ba, 13));
     }
 
+    @OfMethod("writeByte(byte)")
     public void testeByte() throws IOException {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
 
@@ -227,6 +246,7 @@ public class OdbcPacketOutputStreamTest extends junit.framework.TestCase {
             (byte) (distinguishableLong & 0xff), ba[6]);
     }
 
+    @OfMethod("writeByteChar(char)")
     public void testChar() throws IOException {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
 
@@ -255,6 +275,7 @@ public class OdbcPacketOutputStreamTest extends junit.framework.TestCase {
         utfReader.close();
     }
 
+    @OfMethod("write(java.lang.String,boolean)")
     public void testString() throws IOException {
         /** TODO:  Test high-order characters */
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -281,6 +302,7 @@ public class OdbcPacketOutputStreamTest extends junit.framework.TestCase {
             utfReader.ready());
     }
 
+    @OfMethod("write(java.lang.String,boolean)")
     public void testNullTermdString() throws IOException {
         /** TODO:  Test high-order characters */
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -326,7 +348,7 @@ public class OdbcPacketOutputStreamTest extends junit.framework.TestCase {
             utfReader.ready());
     }
 
-
+    @OfMethod("writeSized(java.lang.String)")
     public void testSizedString() throws IOException {
         /** TODO:  Test high-order characters */
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -372,6 +394,7 @@ public class OdbcPacketOutputStreamTest extends junit.framework.TestCase {
         utfReader.close();
     }
 
+    @OfMethod("getSize()")
     public void testReset() throws IOException {
         assertEquals("New packet size wrong", 4, targetPacket.getSize());
         testInt();
@@ -380,15 +403,21 @@ public class OdbcPacketOutputStreamTest extends junit.framework.TestCase {
         assertEquals("New packet size wrong", 4, targetPacket.getSize());
     }
 
-    /**
+    public static Test suite() {
+        return new TestSuite(OdbcPacketOutputStreamTest.class);
+    }
+
+     /**
      * This method allows to easily run this unit test independent of the other
      * unit tests, and without dealing with Ant or unrelated test suites.
      */
-    public static void main(String[] sa) {
-            junit.textui.TestRunner runner = new junit.textui.TestRunner();
-            junit.framework.TestResult result =
-                runner.run(runner.getTest(OdbcPacketOutputStreamTest.class.getName()));
+    public static void main(java.lang.String[] args) {
+        if (args.length > 0 && args[0].startsWith("-g")) {
+            junit.swingui.TestRunner.run(OdbcPacketOutputStreamTest.class);
+        } else {
+            junit.framework.TestResult result = junit.textui.TestRunner.run(suite());
 
             System.exit(result.wasSuccessful() ? 0 : 1);
+        }
     }
 }

@@ -30,11 +30,15 @@
 package org.hsqldb.persist;
 
 import junit.framework.Test;
-import junit.framework.TestCase;
 import junit.framework.TestSuite;
+import org.hsqldb.testbase.BaseTestCase;
+import org.hsqldb.testbase.ForSubject;
+import org.hsqldb.testbase.OfMethod;
 
-public class HsqlPropertiesTest extends TestCase {
+@ForSubject( HsqlProperties.class)
+public class HsqlPropertiesTest extends BaseTestCase {
 
+    @OfMethod("delimitedArgPairsToProps(java.lang.String,java.lang.String,java.lang.String,java.lang.String")
     public void testHsqlProperties() {
 
         HsqlProperties props1 = HsqlProperties.delimitedArgPairsToProps("-dbname.0", "=",
@@ -45,9 +49,7 @@ public class HsqlPropertiesTest extends TestCase {
     }
 
     public static Test suite() {
-        TestSuite suite = new TestSuite(HsqlPropertiesTest.class);
-
-        return suite;
+        return new TestSuite(HsqlPropertiesTest.class);
     }
 
     public static void main(String[] args) {

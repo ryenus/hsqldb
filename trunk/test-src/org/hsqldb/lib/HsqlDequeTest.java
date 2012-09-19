@@ -30,15 +30,19 @@
 package org.hsqldb.lib;
 
 import junit.framework.Test;
-import junit.framework.TestCase;
 import junit.framework.TestSuite;
+import org.hsqldb.testbase.BaseTestCase;
+import org.hsqldb.testbase.ForSubject;
+import org.hsqldb.testbase.OfMethod;
 
-public class HsqlDequeTest extends TestCase {
+@ForSubject(HsqlDeque.class)
+public class HsqlDequeTest extends  BaseTestCase {
 
     public HsqlDequeTest(String name) {
         super(name);
     }
 
+    @OfMethod({"add(java.langObject)","removeFirst()", "addFirst()", "removeFirst(), iterator()"})
     public void testHsqlDeque() {
 
         HsqlDeque d = new HsqlDeque();
@@ -53,7 +57,7 @@ public class HsqlDequeTest extends TestCase {
         d.add(new Integer(10));
 
         for (int i = 0; i < d.size(); i++) {
-            System.out.println(d.get(i));
+            println(d.get(i));
         }
 
         System.out.println();
@@ -61,7 +65,7 @@ public class HsqlDequeTest extends TestCase {
         d.add(new Integer(12));
 
         for (int i = 0; i < d.size(); i++) {
-            System.out.println(d.get(i));
+            println(d.get(i));
         }
 
         d.addFirst(new Integer(1));
@@ -70,31 +74,29 @@ public class HsqlDequeTest extends TestCase {
         d.addFirst(new Integer(-2));
 
         for (int i = 0; i < d.size(); i++) {
-            System.out.println(d.get(i));
+            println(d.get(i));
         }
 
-        System.out.println();
+        println();
         d.removeFirst();
         d.removeFirst();
         d.removeFirst();
 
         for (int i = 0; i < d.size(); i++) {
-            System.out.println(d.get(i));
+            println(d.get(i));
         }
 
-        System.out.println();
+       println();
 
         Iterator it = d.iterator();
 
         for (; it.hasNext();) {
-            System.out.println(it.next());
+            println(it.next());
         }
     }
 
     public static Test suite() {
-        TestSuite suite = new TestSuite(HsqlDequeTest.class);
-
-        return suite;
+        return new TestSuite(HsqlDequeTest.class);
     }
 
     public static void main(String[] args) {

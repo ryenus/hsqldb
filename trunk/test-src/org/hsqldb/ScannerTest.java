@@ -35,7 +35,9 @@ import org.hsqldb.types.Types;
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
+import org.hsqldb.testbase.ForSubject;
 
+@ForSubject(Scanner.class)
 public class ScannerTest extends TestCase {
 
     // todo - fredt - needs to use a session from a database instance

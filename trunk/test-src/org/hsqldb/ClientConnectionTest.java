@@ -29,6 +29,9 @@
  */
 package org.hsqldb;
 
+import org.hsqldb.testbase.ForSubject;
+
+@ForSubject(ClientConnection.class)
 public class ClientConnectionTest extends junit.framework.TestCase {
 
     /* TODO:  Test some ipv6 addresses.

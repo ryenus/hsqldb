@@ -31,6 +31,7 @@ package org.hsqldb.jdbc.testbase;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
+import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import junit.framework.Test;
 import junit.framework.TestSuite;
@@ -39,22 +40,42 @@ import org.hsqldb.testbase.OfMethod;
 
 /**
  * Exhaustively tests the supportsConvert(int,int) method of
- * interface java.sql.DatabaseMetaData.
+ * interface java.sql.DatabaseMetaData. <p>
+ *
+ * Note that concrete subclasses <em>must</em> provide a public default
+ * constructor that delegates to the protected default constructor of this
+ * class (in order to provide access to concrete implementations of 
+ * {@link #getSQLTypeCode(int)} and {@link #getSQLTypeName(int)}. <p>
+ * 
+ * In order to automate exhaustive combinatoric testing, concrete subclasses
+ * must also provide a <tt>public static TestCase suite()</tt> method that 
+ * delegates to {@link #createTestSuite(java.lang.Class)}, passing their own
+ * @{link Class} and the supported type count (one greater than the maximum 
+ * valid index than can be passed to the concrete implementation of 
+ * {@link #getSQLTypeCode(int)} or  {@link #getSQLTypeName(int)}.  <p>
+ * 
+ * Finally, for each supported conversion, there must be a <tt>'true'</tt> 
+ * valued entry in either the <tt>/org/hsqldb.resources/test.properties</tt>
+ * or the <tt>/org/hsqldb.resources/test-dbmd-convert.properties</tt> resource
+ * (in that order of precedence) whose key matches the output of 
+ * {@link #translatePropertyKey(java.lang.String)} when the input value is of
+ * the form  <tt>'dbmd.supports.convert.to.${target-type-name}.from.${source-type-name}'</tt>
+ * where <tt>${target-type-name}</tt> and <tt>${source-type-name}</tt> are values
+ * returned from invocation of {@link #getSQLTypeName(int)}
  *
  * @author Campbell Boucher-Burnet (boucherb@users dot sourceforge.net)
- * @version 2.1.0
+ * @version 2.2.9
  * @since HSQLDB 2.1.0
  */
 @ForSubject(java.sql.DatabaseMetaData.class)
+@OfMethod("supportsConvert(int,int")
 public abstract class BaseDatabaseMetaDataSupportsConvertTestCase extends BaseJdbcTestCase {
 
     private final int m_toIndex;
     private final int m_fromIndex;
 
-    // for subclasses
-    protected BaseDatabaseMetaDataSupportsConvertTestCase() {
-        this(0, 0);
-    }
+    private static DatabaseMetaData s_dbmd;
+
 
     /**
      * Constructs a new test case for the given pair of type index values.
@@ -86,43 +107,74 @@ public abstract class BaseDatabaseMetaDataSupportsConvertTestCase extends BaseJd
         return m_toIndex;
     }
 
+    /**
+     * Suite execution performance optimization property getter.
+     *
+     * This value is used to optimize suite execution performance.  In particular,
+     * if this method returns false, then a single DatabaseMetaData instance
+     * is used for all tests in the suite and the Connection from which it is
+     * obtained is closed immediately after the instance is first obtained,
+     * in order to prevent resource leakage.  This can save a tremedous amount
+     * of execution time over being required to open and close a new connection
+     * (and possibly a new embedded database instance) for each pair of types
+     * to be tested.
+     *
+     * @return true if the Connection instance associated with a
+     *         DatabaseMetaData instance must be open in order to
+     *         successfully invoke the supportsConvert(int,int) method;
+     *         otherwise false
+     */
+    protected boolean isSupportsConvertInvocationRequiresOpenConnection(){
+        return getBooleanProperty("dbmd.supports.convert.invocation.requires.open.connection", false);
+    }
+
     protected DatabaseMetaData getMetaData() throws Exception {
-        return newConnection().getMetaData();
+        if (isSupportsConvertInvocationRequiresOpenConnection()) {
+            return newConnection().getMetaData();
+        } else {
+            if (s_dbmd == null) {
+                Connection conn = newConnection();
+                s_dbmd = conn.getMetaData();
+                conn.close();
+            }
+
+            return s_dbmd;
+        }
     }
 
     /**
-     * name from which the JDBC type code is reflectively determined.
-     * @param i
-     * @return the SQL type's JDBC type code field name for the ith type to be tested.
+     * @param i index of type for which to fetch the code
+     * @return the SQL type's JDBC type code for the ith type to be tested.
      */
     protected abstract int getSQLTypeCode(int i);
 
     /**
      *
-     * @param i
+     * @param i index of type for which to fetch the name
      * @return the SQL type name for the ith type to be tested.
      */
     protected abstract String getSQLTypeName(int i);
 
     /**
-     *
-     * @return the number of types to be combinatorially tested.
+     * 
+     * @param clazz that provides the concrete test case implementation.
+     * @param typeCount one greater than the maximum valid index than can be 
+     *        passed to {@link #getSQLTypeCode(int)} or 
+     *        {@link #getSQLTypeName(int)} 
+     * @return a suite of test cases; 1 for each possible from/to data type pair
      */
-    protected abstract int getSQLTypeCount();
+    protected static TestSuite createTestSuite(
+            Class<? extends BaseDatabaseMetaDataSupportsConvertTestCase> clazz,
+            int typeCount) {
+        TestSuite suite = new TestSuite(clazz.getName());
+        Class<?>[] parameterTypes = new Class<?>[]{int.class, int.class};
 
-    protected final TestSuite createTestSuite(String name) {
-        final TestSuite suite = new TestSuite(name);
-        final int count = getSQLTypeCount();
-        final Class clazz = getClass();
-        final Class[] signature = new Class[]{int.class, int.class};
-
-        Constructor<? extends Test> constructor;
         try {
-            constructor = clazz.getConstructor(signature);
-            
-            for (int toIndex = 0; toIndex < count; toIndex++) {
-                for (int fromIndex = 0; fromIndex < count; fromIndex++) {
-                    suite.addTest(constructor.newInstance(toIndex, fromIndex));
+            Constructor<? extends Test> ctor = clazz.getConstructor(parameterTypes);
+
+            for (int toIndex = 0; toIndex < typeCount; toIndex++) {
+                for (int fromIndex = 0; fromIndex < typeCount; fromIndex++) {
+                    suite.addTest(ctor.newInstance(toIndex, fromIndex));
                 }
             }
 
@@ -150,7 +202,6 @@ public abstract class BaseDatabaseMetaDataSupportsConvertTestCase extends BaseJd
     }
 
     @Override
-    @OfMethod("supportsConvert(int,int)")
     protected final void runTest() throws Throwable {
         final int fromIndex = getFromIndex();
         final int toIndex = getToIndex();
@@ -166,10 +217,10 @@ public abstract class BaseDatabaseMetaDataSupportsConvertTestCase extends BaseJd
         //long end = System.currentTimeMillis();
 
         //if ((end-start) > 0) {
-            //System.out.println('!');
+            //println('!');
         //}
         if (expectedResult != actualResult) {
-            System.out.println("CHECK FOR MISSING TEST PROPERTY: " + translatePropertyKey(propertyName) + "=" + actualResult);
+            println("CHECK FOR MISSING TEST PROPERTY: " + translatePropertyKey(propertyName) + "=" + actualResult);
         }
         assertEquals(expectedResult, actualResult);
     }

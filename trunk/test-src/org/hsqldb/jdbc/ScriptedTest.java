@@ -82,6 +82,7 @@ public class ScriptedTest extends BaseScriptedTestCase {
      * 
      * @return
      */
+    @SuppressWarnings("CallToThreadDumpStack")
     protected Test getSuite() {
         TestSuite suite = new TestSuite("ScriptTest");
 

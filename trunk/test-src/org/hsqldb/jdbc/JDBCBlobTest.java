@@ -46,7 +46,7 @@ import org.hsqldb.testbase.ForSubject;
 public class JDBCBlobTest extends BaseBlobTestCase {
 
     // saves on creating/destroying database instances and connections
-    // without sacrificing test accuracy.
+    // (versus connection.createBlob()) without sacrificing test accuracy.
     static class TestSubject extends JDBCBlob {
         TestSubject() {
             super();

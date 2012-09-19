@@ -43,8 +43,7 @@ import org.hsqldb.persist.LockFile;
  * @version 2.2.5
  * @since 2.0.1
  */
-public final class HsqldbEmbeddedDatabaseDeleter implements ConnectionFactory.ConnectionFactoryEventListener {
-    
+public final class HsqldbEmbeddedDatabaseDeleter implements ConnectionFactory.ConnectionFactoryEventListener {    
 
     //<editor-fold defaultstate="collapsed" desc="Logging Support">
     private static final java.util.logging.Level INFO_LEVEL = java.util.logging.Level.INFO;

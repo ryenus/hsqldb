@@ -27,8 +27,6 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-
-
 package org.hsqldb.testbase;
 
 import java.io.Closeable;
@@ -67,25 +65,25 @@ public final class ConnectionFactory {
 
     // <editor-fold defaultstate="collapsed" desc="Registered Object Collections">
     private final class ConnectionRegistration {
+
         final Connection m_connection;
         final boolean m_rollback;
-        
-        ConnectionRegistration(Connection connection, boolean rollback){
+
+        ConnectionRegistration(Connection connection, boolean rollback) {
             m_connection = connection;
             m_rollback = rollback;
         }
-        
+
         Connection getConnection() {
             return m_connection;
         }
-        
+
         boolean isRollback() {
             return m_rollback;
         }
     }
     @SuppressWarnings("CollectionWithoutInitialCapacity")
-    private final List<ConnectionRegistration> m_connectionRegistrations 
-            = new ArrayList<ConnectionRegistration>();
+    private final List<ConnectionRegistration> m_connectionRegistrations = new ArrayList<ConnectionRegistration>();
     @SuppressWarnings("CollectionWithoutInitialCapacity")
     private final List<Statement> m_statements = new ArrayList<Statement>();
     @SuppressWarnings("CollectionWithoutInitialCapacity")
@@ -99,9 +97,7 @@ public final class ConnectionFactory {
     @SuppressWarnings("CollectionWithoutInitialCapacity")
     private final List<SQLXML> m_xmls = new ArrayList<SQLXML>();
     @SuppressWarnings("CollectionWithoutInitialCapacity")
-    private final List<Closeable> m_closeable = new ArrayList<Closeable> ();
-
-
+    private final List<Closeable> m_closeable = new ArrayList<Closeable>();
 
     // </editor-fold>
 
@@ -114,9 +110,7 @@ public final class ConnectionFactory {
 
         void finishedClosingRegisteredObjects(ConnectionFactory source);
     }
-
-    private final List<ConnectionFactoryEventListener> m_listeners 
-            = new ArrayList<ConnectionFactoryEventListener>(2);
+    private final List<ConnectionFactoryEventListener> m_listeners = new ArrayList<ConnectionFactoryEventListener>(2);
 
     public void addEventListener(ConnectionFactoryEventListener l) {
         if (!m_listeners.contains(l)) {
@@ -144,18 +138,18 @@ public final class ConnectionFactory {
      * @param conn to track for close.
      */
     public void registerConnection(Connection conn) {
-        registerConnection(conn,isRollbackConnectionBeforeClose());
+        registerConnection(conn, isRollbackConnectionBeforeClose());
     }
-    
+
     /**
      * to be closed at teardown.
      *
      * @param conn to track for close.
      * @param rollback
-     */    
+     */
     public void registerConnection(Connection conn, boolean rollback) {
-        m_connectionRegistrations.add(new ConnectionRegistration(conn,rollback));
-    }    
+        m_connectionRegistrations.add(new ConnectionRegistration(conn, rollback));
+    }
 
     /**
      * to be closed at teardown.
@@ -190,9 +184,8 @@ public final class ConnectionFactory {
     public void registerSQLXML(SQLXML xml) {
         m_xmls.add(xml);
     }
-    
+
     public void registerClosable(java.io.Closeable closable) {
-        
     }
 
     public boolean isRollbackConnectionBeforeClose() {
@@ -214,6 +207,7 @@ public final class ConnectionFactory {
                 }
             }
         }
+        m_xmls.clear();
         for (Array array : m_arrays) {
             if (array != null) {
                 try {
@@ -222,6 +216,7 @@ public final class ConnectionFactory {
                 }
             }
         }
+        m_arrays.clear();
         for (Blob blob : m_blobs) {
             if (blob != null) {
                 try {
@@ -230,7 +225,8 @@ public final class ConnectionFactory {
                 }
             }
         }
-       for (Clob clob : m_clobs) {
+        m_blobs.clear();
+        for (Clob clob : m_clobs) {
             if (clob != null) {
                 try {
                     clob.free();
@@ -238,6 +234,7 @@ public final class ConnectionFactory {
                 }
             }
         }
+        m_clobs.clear();
         for (ResultSet rs : m_resultSets) {
             if (rs != null) {
                 try {
@@ -246,7 +243,7 @@ public final class ConnectionFactory {
                 }
             }
         }
-
+        m_resultSets.clear();
         for (Statement stmt : m_statements) {
             if (stmt != null) {
                 try {
@@ -255,11 +252,11 @@ public final class ConnectionFactory {
                 }
             }
         }
-
+        m_statements.clear();
         for (ConnectionRegistration reg : m_connectionRegistrations) {
             final Connection conn = reg.getConnection();
             final boolean rollback = reg.isRollback();
-            
+
             if (conn != null) {
                 if (rollback) {
                     try {
@@ -274,6 +271,8 @@ public final class ConnectionFactory {
             }
         }
 
+        m_connectionRegistrations.clear();
+
         final List<ConnectionFactoryEventListener> list = m_listeners;
 
         for (int i = 0; i < list.size(); i++) {
@@ -286,6 +285,8 @@ public final class ConnectionFactory {
             }
 
         }
+
+        
     }
     // </editor-fold>
 

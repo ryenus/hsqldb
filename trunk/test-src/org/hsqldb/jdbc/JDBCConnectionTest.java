@@ -382,7 +382,7 @@ public class JDBCConnectionTest extends BaseJdbcTestCase {
 
         assertEquals(expResult, result);
 
-        super.executeScript("setup-dual-table.sql");
+        executeScript("setup-dual-table.sql");
 
         conn.setReadOnly(true);
 

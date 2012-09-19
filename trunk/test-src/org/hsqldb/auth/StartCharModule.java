@@ -31,7 +31,6 @@
 
 package org.hsqldb.auth;
 
-import java.io.IOException;
 import java.security.Principal;
 import javax.security.auth.spi.LoginModule;
 import java.util.Map;

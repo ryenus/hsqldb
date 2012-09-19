@@ -27,21 +27,41 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package org.hsqldb.testbase;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+package org.hsqldb.server;
+
+import junit.framework.Test;
+import junit.framework.TestCase;
+
+
+import junit.framework.TestSuite;
+import junit.textui.TestRunner;
 
 /**
  *
  * @author Campbell Boucher-Burnet (boucherb@users dot sourceforge.net)
- * @version 2.0.1
- * @since 2.0.1
  */
-@Target({ElementType.METHOD, ElementType.TYPE})
-@Retention(RetentionPolicy.RUNTIME)
-public @interface OfMethod {
-    String[] value();
+public class ServerSuite extends TestCase {
+
+    public ServerSuite(String testName) {
+        super(testName);
+    }
+
+    public static Test suite() {
+        TestSuite suite = new TestSuite("ServerSuite");
+
+        suite.addTest(OdbcPacketInputStreamTest.suite());
+
+        return suite;
+    }
+
+    public static void main(java.lang.String[] args) {
+        if (args.length > 0 && args[0].startsWith("-g")) {
+            junit.swingui.TestRunner.run(ServerSuite.class);
+        } else {
+            junit.framework.TestResult result = TestRunner.run(suite());
+
+            System.exit(result.wasSuccessful() ? 0 : 1);
+        }
+    }
 }

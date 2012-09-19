@@ -37,12 +37,15 @@ import junit.framework.Test;
 import junit.framework.TestSuite;
 import org.hsqldb.lib.StringConverter;
 import org.hsqldb.jdbc.testbase.BaseJdbcTestCase;
+import org.hsqldb.testbase.ForSubject;
+import org.hsqldb.testbase.OfMethod;
 
 /**
  * Test of class org.hsqldb.jdbc.jdbcRowId.
  *
  * @author Campbell Boucher-Burnet (boucherb@users dot sourceforge.net)
  */
+@ForSubject(RowId.class)
 public class JDBCRowIdTest extends BaseJdbcTestCase {
 
     public JDBCRowIdTest(String testName) {
@@ -76,6 +79,7 @@ public class JDBCRowIdTest extends BaseJdbcTestCase {
     /**
      * Test of equals method, of interface java.sql.RowId.
      */
+    @OfMethod("equals(java.lang.Object")
     public void testEquals() throws Exception {
         RowId id1         = newRowId("02b7abfe");
         RowId id2         = newRowId(StringConverter.hexStringToByteArray("02b7abfe"));
@@ -88,6 +92,7 @@ public class JDBCRowIdTest extends BaseJdbcTestCase {
     /**
      * Test of getBytes method, of interface java.sql.RowId.
      */
+    @OfMethod("getBytes()")
     public void testGetBytes() throws Exception {
         byte[] expResult = StringConverter.hexStringToByteArray("02b7abfe");
         byte[] result    = newRowId("02b7abfe").getBytes();
@@ -98,6 +103,7 @@ public class JDBCRowIdTest extends BaseJdbcTestCase {
     /**
      * Test of toString method, of interface java.sql.RowId.
      */
+    @OfMethod("toString()")
     public void testToString() throws Exception {
         RowId  rid       = newRowId("02b7abfe");
         String expResult = "02b7abfe";
@@ -109,6 +115,7 @@ public class JDBCRowIdTest extends BaseJdbcTestCase {
     /**
      * Test of hashCode method, of interface java.sql.RowId.
      */
+    @OfMethod("hashCode()")
     public void testHashCode() throws Exception {
         byte[] bytes  = StringConverter.hexStringToByteArray("02b7abfe");
         RowId  rid    = newRowId("02b7abfe");
