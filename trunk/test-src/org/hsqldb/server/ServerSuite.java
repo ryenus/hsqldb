@@ -51,6 +51,7 @@ public class ServerSuite extends TestCase {
         TestSuite suite = new TestSuite("ServerSuite");
 
         suite.addTest(OdbcPacketInputStreamTest.suite());
+        suite.addTest(OdbcPacketOutputStreamTest.suite());
 
         return suite;
     }
