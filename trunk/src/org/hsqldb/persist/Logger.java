@@ -2098,6 +2098,10 @@ public class Logger {
             return null;
         }
 
+        if (database.getType() == DatabaseURL.S_MEM) {
+            return path;
+        }
+
         String fullPath =
             new File(new File(database.getPath()
                               + ".properties").getAbsolutePath()).getParent();

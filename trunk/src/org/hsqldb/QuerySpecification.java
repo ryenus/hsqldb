@@ -398,10 +398,7 @@ public class QuerySpecification extends QueryExpression {
         setResultColumnTypes();
         createResultMetaData(session);
         createTable(session);
-
-        if (isBaseMergeable) {
-            mergeQuery();
-        }
+        mergeQuery();
 
         isPartTwoResolved = true;
     }
@@ -477,6 +474,14 @@ public class QuerySpecification extends QueryExpression {
             resolveColumnReferencesAndAllocate(session, exprColumns[i],
                                                rangeVariables.length,
                                                rangeGroups, acceptsSequences);
+
+            if (!isGrouped && !isDistinctSelect) {
+                HsqlList list = exprColumns[i].collectAllSubqueries(null);
+
+                if (list != null) {
+                    isMergeable = false;
+                }
+            }
         }
 
         for (int i = indexLimitVisible; i < indexStartHaving; i++) {
@@ -667,14 +672,6 @@ public class QuerySpecification extends QueryExpression {
 
                     unresolvedExpressions.add(e);
                 }
-            }
-        }
-
-        if (isMergeable && !isAggregated && !isGrouped) {
-            list = expression.collectAllSubqueries(null);
-
-            if (list != null) {
-                isMergeable = false;
             }
         }
     }
@@ -2180,30 +2177,15 @@ public class QuerySpecification extends QueryExpression {
 
     void mergeQuery() {
 
-        RangeVariable rangeVar            = rangeVariables[0];
-        Table         table               = rangeVar.getTable();
-        Expression    localQueryCondition = queryCondition;
+        RangeVariable   rangeVar            = rangeVariables[0];
+        Table           table               = rangeVar.getTable();
+        Expression      localQueryCondition = queryCondition;
+        QueryExpression baseQueryExpression = table.getQueryExpression();
 
-        if (table instanceof TableDerived) {
-            QueryExpression baseQueryExpression =
-                ((TableDerived) table).getQueryExpression();
-
-            if (baseQueryExpression == null
-                    || !baseQueryExpression.isMergeable) {
-                isBaseMergeable = false;
-
-                return;
-            }
-
+        if (isBaseMergeable && baseQueryExpression != null
+                && baseQueryExpression.isMergeable) {
             QuerySpecification baseSelect =
                 baseQueryExpression.getMainSelect();
-
-            if (baseSelect.rangeVariables.length != 1) {
-                isBaseMergeable = false;
-                isMergeable     = false;
-
-                return;
-            }
 
             rangeVariables[0] = baseSelect.rangeVariables[0];
 

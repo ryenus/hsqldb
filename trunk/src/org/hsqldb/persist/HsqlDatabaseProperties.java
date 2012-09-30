@@ -54,6 +54,8 @@ public class HsqlDatabaseProperties extends HsqlProperties {
 
     private static final String hsqldb_method_class_names =
         "hsqldb.method_class_names";
+    public static final String textdb_allow_full_path =
+        "textdb.allow_full_path";
     private static HashSet accessibleJavaMethodNames;
     private static boolean allowFullPath;
 
@@ -71,7 +73,7 @@ public class HsqlDatabaseProperties extends HsqlProperties {
                 }
             }
 
-            prop = System.getProperty(hsqldb_method_class_names);
+            prop = System.getProperty(textdb_allow_full_path);
 
             if (prop != null) {
                 if (Boolean.valueOf(prop)) {
@@ -264,11 +266,9 @@ public class HsqlDatabaseProperties extends HsqlProperties {
     public static final String textdb_cache_scale = "textdb.cache_scale";
     public static final String textdb_cache_size_scale =
         "textdb.cache_size_scale";
-    public static final String textdb_cache_rows = "textdb.cache_rows";
-    public static final String textdb_cache_size = "textdb.cache_size";
-    public static final String textdb_all_quoted = "textdb.all_quoted";
-    public static final String textdb_allow_full_path =
-        "textdb.allow_full_path";
+    public static final String textdb_cache_rows   = "textdb.cache_rows";
+    public static final String textdb_cache_size   = "textdb.cache_size";
+    public static final String textdb_all_quoted   = "textdb.all_quoted";
     public static final String textdb_encoding     = "textdb.encoding";
     public static final String textdb_ignore_first = "textdb.ignore_first";
     public static final String textdb_quoted       = "textdb.quoted";
