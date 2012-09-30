@@ -3,7 +3,7 @@
 --
 -- Tests for add / drop primary key constraints
 --
-drop table testtable if exists;
+drop table testtable if exists cascade;
 create cached table testtable (
     aString              varchar(256)                   not null,
     firstNum             integer                        not null,
