@@ -3,7 +3,7 @@
 --
 -- Tests for Query results, especially the neutrality of constraints and indexes
 --
-drop table TESTTABLE if exists;
+drop table TESTTABLE if exists cascade;
 
 create cached table TESTTABLE (
     aString              varchar(256)                   not null,

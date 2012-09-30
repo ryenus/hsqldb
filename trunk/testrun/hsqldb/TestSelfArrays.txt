@@ -19,7 +19,7 @@ CREATE TABLE iarray (i BIGINT PRIMARY KEY, ar INTEGER ARRAY);
 
 INSERT INTO iarray VALUES (1, array [11, null, 13]);
 INSERT INTO iarray VALUES (2, null);
-INSERT INTO iarray VALUES (3, array [21, 22]);
+INSERT INTO iarray VALUES 3, array ??(21, 22??);
 
 /*c3*/SELECT * FROM iarray;
 
@@ -35,6 +35,7 @@ SELECT firstname, lastname, (SELECT SUM(total) FROM invoice WHERE customerid = c
 SELECT firstname, lastname, a.c FROM customer, LATERAL(SELECT SUM(total) FROM invoice WHERE customerid = customer.id) a (c)
 
 --
+/*e*/select * from customer, (select sum(invoice.total) from invoice where invoice.customerid = customer.id)
 select * from customer, lateral(select sum(invoice.total) from invoice where invoice.customerid = customer.id)
 explain plan for select * from customer where firstname in(unnest(?))
 

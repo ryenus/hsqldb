@@ -3,6 +3,8 @@
 --
 -- Parser tests for insert and delete queries
 --
+drop table testtable if exists cascade
+
 create cached table testtable (
     aString              varchar(256)                   not null,
     firstNum             integer                        not null,
