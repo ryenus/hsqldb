@@ -1604,7 +1604,7 @@ INSERT INTO t (id, firstname, lastname, fullname) VALUES (2, 'Pink', 'Panther', 
 
           <listitem>
             <para>character encoding for text and character fields, for
-            example, encoding=UTF-8</para>
+            example, encoding=UTF-8. UTF-16 cannot be used.</para>
           </listitem>
         </varlistentry>
 
@@ -1618,20 +1618,30 @@ INSERT INTO t (id, firstname, lastname, fullname) VALUES (2, 'Pink', 'Panther', 
         </varlistentry>
 
         <varlistentry>
-          <term>cache_scale= &lt;numeric value&gt;</term>
+          <term>cache_rows= &lt;numeric value&gt;</term>
 
           <listitem>
-            <para>exponent to calculate rows of the text file in cache.
-            Default is 8, equivalent to nearly 800 rows</para>
+            <para>rows of the text file in the cache. Default is 1000
+            rows</para>
           </listitem>
         </varlistentry>
 
         <varlistentry>
-          <term>cache_size_scale = &lt;numeric value&gt;r</term>
+          <term>cache_size = &lt;numeric value&gt;r</term>
 
           <listitem>
-            <para>exponent to calculate average size of each row in cache.
-            Default is 8, equivalent to 256 bytes per row.</para>
+            <para>total size of the row in the cache. Default is 100
+            KB.</para>
+          </listitem>
+        </varlistentry>
+
+        <varlistentry>
+          <term>cache_scale= &lt;numeric value&gt; and cache_size_scale =
+          &lt;numeric value&gt;</term>
+
+          <listitem>
+            <para>deprecated properties, replaced by cached_rows and
+            cache_size properties above.</para>
           </listitem>
         </varlistentry>
 
@@ -1730,10 +1740,10 @@ INSERT INTO t (id, firstname, lastname, fullname) VALUES (2, 'Pink', 'Panther', 
       </variablelist>
 
       <simpara>In the example below, the text source of the table is set to
-      "myfile", the field separator to the pipe symbol, and the long varchar
+      "myfile", the field separator to the pipe symbol, and the varchar
       separator to the tilde symbol.</simpara>
 
-      <programlisting>    SET TABLE mytable SOURCE 'myfile;fs=|;vs=.;lvs=~'</programlisting>
+      <programlisting>    SET TABLE mytable SOURCE 'myfile;fs=|;vs=.;vs=~'</programlisting>
 
       <simpara>Only a user with the DBA role can execute this
       statement.</simpara>

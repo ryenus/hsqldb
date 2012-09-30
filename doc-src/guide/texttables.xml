@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-
 <!DOCTYPE book [
-  <!ENTITY % dummy22 SYSTEM "../entities/global.ent"> %dummy22;
+<!ENTITY % dummy22 SYSTEM "../entities/global.ent">
+%dummy22;
 ]>
 <chapter version="5.0" xml:id="texttables-chapt"
          xmlns="http://docbook.org/ns/docbook"
@@ -93,13 +93,13 @@
       <title>Definition of Tables</title>
 
       <para>Text Tables are defined similarly to conventional tables with the
-      added TEXT keyword:</para>
+      added TEXT keyword.</para>
 
       <programlisting>    CREATE TEXT TABLE &lt;tablename&gt; (&lt;column definition&gt; [&lt;constraint definition&gt;])</programlisting>
 
       <para>The table is at first empty and cannot be written to. An
       additional SET command specifies the file and the separator character
-      that the Text table uses:</para>
+      that the Text table uses. It assigns the file to the table.</para>
 
       <programlisting>   SET TABLE &lt;tablename&gt; SOURCE &lt;quoted_filename_and_options&gt; [DESC]</programlisting>
     </section>
@@ -128,8 +128,8 @@
 
             <listitem>
               <para>Constraints, including foreign keys referencing this
-              table, are kept intact. It is the responsibility of the
-              administrator to ensure their integrity.</para>
+              table, are kept intact but not checked. It is the responsibility
+              of the administrator to ensure their integrity.</para>
             </listitem>
           </orderedlist>
 
@@ -328,6 +328,90 @@
       <para>The properties used in earlier versions, namely the
       <varname>textdb.cache_scale</varname> and the
       <varname>textdb.cache_size_scale</varname> can still be used.</para>
+
+      <variablelist>
+        <title>Supported Properties</title>
+
+        <varlistentry>
+          <term>quoted = { true | false }</term>
+
+          <listitem>
+            <para>default is true. If false, treats double quotes as normal
+            characters</para>
+          </listitem>
+        </varlistentry>
+
+        <varlistentry>
+          <term>all_quoted = { true | false }</term>
+
+          <listitem>
+            <para>default is false. If true, adds double quotes around all
+            fields.</para>
+          </listitem>
+        </varlistentry>
+
+        <varlistentry>
+          <term>encoding = &lt;encoding name&gt;</term>
+
+          <listitem>
+            <para>character encoding for text and character fields, for
+            example, encoding=UTF-8. UTF-16 cannot be used.</para>
+          </listitem>
+        </varlistentry>
+
+        <varlistentry>
+          <term>ignore_first = { true | false }</term>
+
+          <listitem>
+            <para>default is false. If true ignores the first line of the
+            file</para>
+          </listitem>
+        </varlistentry>
+
+        <varlistentry>
+          <term>cache_rows= &lt;numeric value&gt;</term>
+
+          <listitem>
+            <para>rows of the text file in the cache. Default is 1000
+            rows</para>
+          </listitem>
+        </varlistentry>
+
+        <varlistentry>
+          <term>cache_size = &lt;numeric value&gt;r</term>
+
+          <listitem>
+            <para>total size of the rows in the cache. Default is 100
+            KB.</para>
+          </listitem>
+        </varlistentry>
+
+        <varlistentry>
+          <term>cache_scale= &lt;numeric value&gt; and cache_size_scale =
+          &lt;numeric value&gt;</term>
+
+          <listitem>
+            <para>deprecated properties, replaced by cached_rows and
+            cache_size properties above.</para>
+          </listitem>
+        </varlistentry>
+
+        <varlistentry>
+          <term>fs = &lt;unquoted character&gt;</term>
+
+          <listitem>
+            <para>field separator</para>
+          </listitem>
+        </varlistentry>
+
+        <varlistentry>
+          <term>vs = &lt;unquoted character&gt;</term>
+
+          <listitem>
+            <para>varchar separator</para>
+          </listitem>
+        </varlistentry>
+      </variablelist>
     </section>
 
     <section xml:id="ttc_disconnect">
@@ -344,13 +428,13 @@
       the table can be re-connected to it with <programlisting>    SET TABLE mytable SOURCE ON</programlisting></para>
 
       <para>When a database is opened, if the source file for an existing text
-      table is missing the table remains disconnected from its data source,
+      table is missing, the table remains disconnected from its data source
       but the source description is preserved. This allows the missing source
       file to be added to the directory and the table re-connected to it with
       the above command.</para>
 
       <para>Disconnecting text tables from their source has several uses.
-      While disconnected, the text source can be edited outside HSQLDB
+      While disconnected, the text source can be edited outside HSQLDB,
       provided data integrity is respected. When large text sources are used,
       and several constraints or indexes need to be created on the table, it
       is possible to disconnect the source during the creation of constraints
@@ -435,6 +519,28 @@
         are connected to a source. First use the SET TABLE &lt;name&gt; SOURCE
         OFF, make the changes, then turn the source ON.</para>
       </listitem>
+
+      <listitem>
+        <para>Use the default setting (quoted=true) for selective quoting of
+        fields. Those fields that need quoting are quoted, other not.</para>
+      </listitem>
+
+      <listitem>
+        <para>Use the quoted=false setting to avoid quoting of fields
+        completely. With this setting any quote character is considered part
+        of the text.</para>
+      </listitem>
+
+      <listitem>
+        <para>Use the all_quoted=true setting to force all fields to be
+        quoted.</para>
+      </listitem>
+
+      <listitem>
+        <para>SHUTDOWN COMPACT results in a complet rewrite of text table
+        sources that are open at the time. The settings for quoted and
+        all_quoted are applied for the rewrite.</para>
+      </listitem>
     </itemizedlist>
   </section>
 
@@ -462,7 +568,7 @@
       </listitem>
 
       <listitem>
-        <para><literal>quoted=false</literal></para>
+        <para><literal>quoted=true</literal></para>
       </listitem>
 
       <listitem>
