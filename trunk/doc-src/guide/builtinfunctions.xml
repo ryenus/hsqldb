@@ -2286,7 +2286,14 @@ D          I
     <para>Returns a BLOB or CLOB containing the URL or file path specified in
     the first argument. If used with a single argument, the function returns a
     BLOB. If used with two arguments, the function returns a CLOB and the
-    second argument is the character encoding of the file. (HyperSQL)</para>
+    second argument is the character encoding of the file.</para>
+
+    <para>The file path is interpreted the same way as a TEXT TABLE source
+    file location. The hsqldb.allow_full_path system property must be set true
+    in order to access files outside the directory structure of the database
+    files.</para>
+
+    <para>(HyperSQL)</para>
 
     <indexterm significance="preferred" type="sql">
       <primary>NULLIF function</primary>
