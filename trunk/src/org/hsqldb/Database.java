@@ -110,6 +110,7 @@ public class Database {
     public int                    sqlAvgScale            = 0;
     public boolean                sqlDoubleNaN           = true;
     public boolean                sqlLongvarIsLob        = false;
+    public boolean                sqlIgnoreCase          = false;
     public boolean                sqlSyntaxDb2           = false;
     public boolean                sqlSyntaxMss           = false;
     public boolean                sqlSyntaxMys           = false;
@@ -502,6 +503,10 @@ public class Database {
 
     public void setLongVarIsLob(boolean mode) {
         sqlLongvarIsLob = mode;
+    }
+
+    public void setIgnoreCase(boolean mode) {
+        sqlIgnoreCase = mode;
     }
 
     public void setSyntaxDb2(boolean mode) {

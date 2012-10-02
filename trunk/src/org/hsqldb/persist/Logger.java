@@ -574,6 +574,8 @@ public class Logger {
             HsqlDatabaseProperties.sql_double_nan);
         database.sqlLongvarIsLob = database.databaseProperties.isPropertyTrue(
             HsqlDatabaseProperties.sql_longvar_is_lob);
+        database.sqlIgnoreCase = database.databaseProperties.isPropertyTrue(
+            HsqlDatabaseProperties.sql_ignore_case);
         database.sqlSyntaxDb2 = database.databaseProperties.isPropertyTrue(
             HsqlDatabaseProperties.sql_syntax_db2);
         database.sqlSyntaxMss = database.databaseProperties.isPropertyTrue(
@@ -1537,6 +1539,10 @@ public class Logger {
             return String.valueOf(database.sqlLongvarIsLob);
         }
 
+        if (HsqlDatabaseProperties.sql_ignore_case.equals(name)) {
+            return String.valueOf(database.sqlIgnoreCase);
+        }
+
 /*
         if (HsqlDatabaseProperties.sql_identity_is_pk.equals(name)) {
             return null;
@@ -1720,6 +1726,15 @@ public class Logger {
                                            : Tokens.T_FALSE);
         list.add(sb.toString());
         sb.setLength(0);
+
+        if (database.sqlIgnoreCase) {
+            sb.append("SET DATABASE ").append(Tokens.T_SQL).append(' ');
+            sb.append(Tokens.T_IGNORECASE).append(' ');
+            sb.append(database.sqlIgnoreCase ? Tokens.T_TRUE
+                                             : Tokens.T_FALSE);
+            list.add(sb.toString());
+            sb.setLength(0);
+        }
 
         if (database.sqlSyntaxDb2) {
             sb.append("SET DATABASE ").append(Tokens.T_SQL).append(' ');
@@ -1985,6 +2000,12 @@ public class Logger {
             });
         }
 
+        if (archiveFile.exists()) {
+            throw Error.error(null, ErrorCode.BACKUP_ERROR, 0, new Object[] {
+                "file exists", archiveFile.getName()
+            });
+        }
+
         if (blocking) {
             log.checkpointClose();
         }
@@ -2084,22 +2105,36 @@ public class Logger {
      *  hsqldb.allow_full_path is false. Returns the path otherwise.
      *
      */
-    public String getSecurePath(String path) {
+    public String getSecurePath(String path, boolean includeRes) {
 
         if (database.getType() == DatabaseURL.S_RES) {
-            return path;
-        }
-
-        if (propTextAllowFullPath) {
-            return path;
-        }
-
-        if (path.indexOf("..") != -1) {
-            return null;
+            if (includeRes) {
+                return path;
+            } else {
+                return null;
+            }
         }
 
         if (database.getType() == DatabaseURL.S_MEM) {
-            return path;
+            if (propTextAllowFullPath) {
+                return path;
+            } else {
+                return null;
+            }
+        }
+
+        // absolute paths
+        if (path.startsWith("/") || path.startsWith("\\")
+                || path.indexOf(":") != -1) {
+            if (propTextAllowFullPath) {
+                return path;
+            }
+        }
+
+        if (path.startsWith("..")) {
+            if (!propTextAllowFullPath) {
+                return null;
+            }
         }
 
         String fullPath =
@@ -2123,7 +2158,7 @@ public class Logger {
 
         closeTextCache(table);
 
-        source = getSecurePath(source);
+        source = getSecurePath(source, true);
 
         if (source == null) {
             throw (Error.error(ErrorCode.ACCESS_IS_DENIED, source));

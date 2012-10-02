@@ -380,7 +380,7 @@ public class ParserCommand extends ParserDDL {
 
         read();
 
-        if (!session.isProcessingLog) {
+        if (!session.isProcessingLog()) {
             readThis(Tokens.PASSWORD);
 
             password = readPassword();
@@ -1213,6 +1213,13 @@ public class ParserCommand extends ParserDDL {
 
                         flag     = processTrueOrFalseObject();
                         property = HsqlDatabaseProperties.sql_longvar_is_lob;
+                        break;
+
+                    case Tokens.IGNORECASE :
+                        read();
+
+                        flag     = processTrueOrFalseObject();
+                        property = HsqlDatabaseProperties.sql_ignore_case;
                         break;
 
                     case Tokens.SYNTAX :
