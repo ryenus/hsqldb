@@ -2125,13 +2125,13 @@ public class Logger {
 
         // absolute paths
         if (path.startsWith("/") || path.startsWith("\\")
-                || path.indexOf(":") != -1) {
+                || path.indexOf(":") > -1) {
             if (propTextAllowFullPath) {
                 return path;
             }
         }
 
-        if (path.startsWith("..")) {
+        if (path.indexOf("..") > -1) {
             if (!propTextAllowFullPath) {
                 return null;
             }

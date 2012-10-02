@@ -129,8 +129,8 @@ public class ScriptReaderText extends ScriptReaderBase {
                 } else if (cs.getType() == StatementTypes.CREATE_ROUTINE) {
 
                     // ignore legacy references
-                    if (result.getMainString().contains(
-                            "org.hsqldb.Library")) {
+                    if (result.getMainString().indexOf("org.hsqldb.Library")
+                            > -1) {
                         continue;
                     }
                 }
