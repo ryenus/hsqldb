@@ -670,7 +670,7 @@ public class Tokens {
     static final String        T_GROUP_CONCAT         = "GROUP_CONCAT";
     static final String        T_HEADER               = "HEADER";
     static final String        T_IFNULL               = "IFNULL";
-    static final String        T_IGNORECASE           = "IGNORECASE";
+    public static final String T_IGNORECASE           = "IGNORECASE";
     static final String        T_IMMEDIATELY          = "IMMEDIATELY";
     public static final String T_INDEX                = "INDEX";
     public static final String T_INDEXER              = "INDEXER";

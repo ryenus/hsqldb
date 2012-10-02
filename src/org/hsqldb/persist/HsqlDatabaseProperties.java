@@ -261,6 +261,7 @@ public class HsqlDatabaseProperties extends HsqlProperties {
     public static final String sql_identity_is_pk = "sql.identity_is_pk";
     public static final String sql_longvar_is_lob = "sql.longvar_is_lob";
     public static final String sql_pad_space      = "sql.pad_space";
+    public static final String sql_ignore_case    = "sql.ignore_case";
 
     //
     public static final String textdb_cache_scale = "textdb.cache_scale";
@@ -439,6 +440,9 @@ public class HsqlDatabaseProperties extends HsqlProperties {
                                           false));
         dbMeta.put(sql_pad_space,
                    HsqlProperties.getMeta(sql_pad_space, SQL_PROPERTY, true));
+        dbMeta.put(sql_ignore_case,
+                   HsqlProperties.getMeta(sql_ignore_case, SQL_PROPERTY,
+                                          false));
         dbMeta.put(hsqldb_write_delay,
                    HsqlProperties.getMeta(hsqldb_write_delay, SQL_PROPERTY,
                                           true));

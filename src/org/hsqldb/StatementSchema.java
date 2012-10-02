@@ -1038,7 +1038,7 @@ public class StatementSchema extends Statement {
                     session.checkDDLWrite();
 
                     if (schemaManager.schemaExists(name.name)) {
-                        if (session.isProcessingScript
+                        if (session.isProcessingScript()
                                 && SqlInvariants.PUBLIC_SCHEMA.equals(
                                     name.name)) {}
                         else {
@@ -1480,7 +1480,7 @@ public class StatementSchema extends Statement {
     static void checkSchemaUpdateAuthorisation(Session session,
             HsqlName schema) {
 
-        if (session.isProcessingLog) {
+        if (session.isProcessingLog()) {
             return;
         }
 

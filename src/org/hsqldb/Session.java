@@ -121,7 +121,7 @@ public class Session implements SessionInterface {
     private int        sessionMaxRows;
     private final long sessionId;
     int                sessionTxId = -1;
-    boolean            ignoreCase;
+    private boolean    ignoreCase;
 
     // internal connection
     private JDBCConnection intConnection;
@@ -170,6 +170,7 @@ public class Session implements SessionInterface {
         waitingSessions             = new OrderedHashSet();
         tempSet                     = new OrderedHashSet();
         isolationLevelDefault       = database.defaultIsolationLevel;
+        ignoreCase                  = database.sqlIgnoreCase;
         isolationLevel              = isolationLevelDefault;
         txConflictRollback          = database.txConflictRollback;
         isReadOnlyDefault           = readonly;
@@ -650,7 +651,7 @@ public class Session implements SessionInterface {
         setZoneSeconds(sessionTimeZoneSeconds);
 
         sessionMaxRows = 0;
-        ignoreCase     = false;
+        ignoreCase     = database.sqlIgnoreCase;
 
         setIsolation(isolationLevelDefault);
 
@@ -1087,6 +1088,7 @@ public class Session implements SessionInterface {
                             return Result.newErrorResult(t);
                         }
                         break;
+
                     case ResultConstants.PREPARECOMMIT :
                         try {
                             prepareCommit();

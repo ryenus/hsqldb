@@ -301,7 +301,7 @@ public class ParserDQL extends ParserBase {
 
         if (Types.requiresPrecision(typeNumber)
                 && token.tokenType != Tokens.OPENBRACKET
-                && database.sqlEnforceSize && !session.isProcessingScript) {
+                && database.sqlEnforceSize && !session.isProcessingScript()) {
             throw Error.error(ErrorCode.X_42599,
                               Type.getDefaultType(typeNumber).getNameString());
         }
@@ -531,8 +531,10 @@ public class ParserDQL extends ParserBase {
                 break;
         }
 
-        if (session.ignoreCase && typeNumber == Types.SQL_VARCHAR) {
-            typeNumber = Types.VARCHAR_IGNORECASE;
+        if (session.isIgnorecase() && typeNumber == Types.SQL_VARCHAR) {
+            if (!session.isProcessingScript()) {
+                typeNumber = Types.VARCHAR_IGNORECASE;
+            }
         }
 
         Collation collation = database.collation;
@@ -731,7 +733,7 @@ public class ParserDQL extends ParserBase {
         int i = 0;
 
         while (true) {
-            if (session.isProcessingScript) {
+            if (session.isProcessingScript()) {
 
                 // for old scripts
                 if (!isSimpleName()) {
@@ -1808,7 +1810,7 @@ public class ParserDQL extends ParserBase {
                         break;
                     }
 
-                    if (session.isProcessingScript) {
+                    if (session.isProcessingScript()) {
                         break;
                     }
 

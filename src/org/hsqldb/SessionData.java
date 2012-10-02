@@ -325,7 +325,7 @@ public class SessionData {
     // lobs in transaction
     public void adjustLobUsageCount(Object value, int adjust) {
 
-        if (session.isProcessingLog || session.isProcessingScript) {
+        if (session.isProcessingLog() || session.isProcessingScript()) {
             return;
         }
 
@@ -351,7 +351,7 @@ public class SessionData {
             return;
         }
 
-        if (session.isProcessingLog || session.isProcessingScript) {
+        if (session.isProcessingLog() || session.isProcessingScript()) {
             return;
         }
 
@@ -595,7 +595,7 @@ public class SessionData {
 
         session.checkAdmin();
 
-        filename = database.logger.getSecurePath(filename);
+        filename = database.logger.getSecurePath(filename, false);
 
         if (filename == null) {
             throw (Error.error(ErrorCode.ACCESS_IS_DENIED, filename));
@@ -637,7 +637,7 @@ public class SessionData {
 
         session.checkAdmin();
 
-        filename = database.logger.getSecurePath(filename);
+        filename = database.logger.getSecurePath(filename, false);
 
         if (filename == null) {
             throw (Error.error(ErrorCode.ACCESS_IS_DENIED, filename));

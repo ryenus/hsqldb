@@ -372,7 +372,7 @@ public class StatementCommand extends Statement {
                     session.checkAdmin();
                     session.checkDDLWrite();
 
-                    if (session.isProcessingScript) {
+                    if (session.isProcessingScript()) {
                         session.database.logger.setLobFileScaleNoCheck(value);
                     } else {
                         session.database.logger.setLobFileScale(value);
@@ -390,7 +390,7 @@ public class StatementCommand extends Statement {
                     session.checkAdmin();
                     session.checkDDLWrite();
 
-                    if (session.isProcessingScript) {
+                    if (session.isProcessingScript()) {
                         session.database.logger.setDataFileScaleNoCheck(value);
                     } else {
                         session.database.logger.setDataFileScale(value);
@@ -628,6 +628,10 @@ public class StatementCommand extends Statement {
                 } else if (property
                            == HsqlDatabaseProperties.sql_longvar_is_lob) {
                     session.database.setLongVarIsLob(mode);
+                } else if (property
+                           == HsqlDatabaseProperties.sql_ignore_case) {
+                    session.database.setIgnoreCase(mode);
+                    session.setIgnoreCase(mode);
                 } else if (property == HsqlDatabaseProperties.sql_syntax_db2) {
                     session.database.setSyntaxDb2(mode);
                 } else if (property == HsqlDatabaseProperties.sql_syntax_mss) {

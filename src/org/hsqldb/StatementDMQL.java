@@ -288,7 +288,6 @@ public abstract class StatementDMQL extends Statement {
         }
     }
 
-
     TableDerived[] getSubqueries(Session session) {
 
         OrderedHashSet subQueries = null;
@@ -387,7 +386,7 @@ public abstract class StatementDMQL extends Statement {
     void checkAccessRights(Session session) {
 
         if (targetTable != null && !targetTable.isTemp()) {
-            if (!session.isProcessingScript) {
+            if (!session.isProcessingScript()) {
                 targetTable.checkDataReadOnly();
             }
 

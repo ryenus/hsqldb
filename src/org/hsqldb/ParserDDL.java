@@ -4932,7 +4932,7 @@ public class ParserDDL extends ParserRoutine {
 
     void checkSchemaUpdateAuthorisation(HsqlName schema) {
 
-        if (session.isProcessingLog) {
+        if (session.isProcessingLog()) {
             return;
         }
 
@@ -5129,7 +5129,7 @@ public class ParserDDL extends ParserRoutine {
 
     void checkSchemaUpdateAuthorisation(Session session, HsqlName schema) {
 
-        if (session.isProcessingLog) {
+        if (session.isProcessingLog()) {
             return;
         }
 

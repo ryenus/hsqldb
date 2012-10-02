@@ -120,7 +120,7 @@ public class TableWorks {
                 || c.core.deleteAction
                    == SchemaObject.ReferentialAction.SET_NULL;
 
-        if (check && !session.isProcessingScript) {
+        if (check && !session.isProcessingScript()) {
             for (int i = 0; i < c.core.refCols.length; i++) {
                 ColumnSchema col = table.getColumn(c.core.refCols[i]);
 
@@ -1278,7 +1278,7 @@ public class TableWorks {
             return;
         }
 
-        if (session.isProcessingScript) {
+        if (session.isProcessingScript()) {
             return;
         }
 
