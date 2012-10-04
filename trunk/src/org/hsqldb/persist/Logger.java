@@ -1687,7 +1687,7 @@ public class Logger {
         sb.append("SET DATABASE ").append(Tokens.T_SQL).append(' ');
         sb.append(Tokens.T_NULLS).append(' ');
         sb.append(Tokens.T_FIRST).append(' ');
-        sb.append(database.sqlUniqueNulls ? Tokens.T_TRUE
+        sb.append(database.sqlNullsFirst ? Tokens.T_TRUE
                                           : Tokens.T_FALSE);
         list.add(sb.toString());
         sb.setLength(0);
@@ -1718,14 +1718,17 @@ public class Logger {
                                         : Tokens.T_FALSE);
         list.add(sb.toString());
         sb.setLength(0);
-        sb.append("SET DATABASE ").append(Tokens.T_SQL).append(' ');
-        sb.append(Tokens.T_LONGVAR).append(' ');
-        sb.append(Tokens.T_IS).append(' ');
-        sb.append(Tokens.T_LOB).append(' ');
-        sb.append(database.sqlLongvarIsLob ? Tokens.T_TRUE
-                                           : Tokens.T_FALSE);
-        list.add(sb.toString());
-        sb.setLength(0);
+
+        if (database.sqlLongvarIsLob) {
+            sb.append("SET DATABASE ").append(Tokens.T_SQL).append(' ');
+            sb.append(Tokens.T_LONGVAR).append(' ');
+            sb.append(Tokens.T_IS).append(' ');
+            sb.append(Tokens.T_LOB).append(' ');
+            sb.append(database.sqlLongvarIsLob ? Tokens.T_TRUE
+                      : Tokens.T_FALSE);
+            list.add(sb.toString());
+            sb.setLength(0);
+        }
 
         if (database.sqlIgnoreCase) {
             sb.append("SET DATABASE ").append(Tokens.T_SQL).append(' ');
