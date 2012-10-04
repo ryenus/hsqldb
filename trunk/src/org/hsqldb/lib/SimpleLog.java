@@ -46,7 +46,7 @@ import org.hsqldb.HsqlDateTime;
  * and minor errors.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.2.9
+ * @version 2.3.0
  * @since 1.8.0
  */
 public class SimpleLog {
@@ -142,6 +142,7 @@ public class SimpleLog {
         sb.append(logTypeNames[atLevel]).append(' ').append(message);
         writer.println(sb.toString());
         sb.setLength(0);
+        writer.flush();
     }
 
     public synchronized void logContext(int atLevel, String prefix,
@@ -156,6 +157,7 @@ public class SimpleLog {
         sb.append(' ').append(message).append(' ').append(suffix);
         writer.println(sb.toString());
         sb.setLength(0);
+        writer.flush();
     }
 
     public synchronized void logContext(Throwable t, String message,
@@ -194,6 +196,7 @@ public class SimpleLog {
         sb.append(' ').append(t.toString());
         writer.println(sb.toString());
         sb.setLength(0);
+        writer.flush();
     }
 
     public void flush() {

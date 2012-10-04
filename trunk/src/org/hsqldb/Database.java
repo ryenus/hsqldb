@@ -595,15 +595,15 @@ public class Database {
         }
 
         /**
-         * @todo  fredt - impact of possible error conditions in closing the log
-         * should be investigated for the CLOSEMODE_COMPACT mode
+         * impact of possible error conditions in closing the log
+         * for the CLOSEMODE_COMPACT mode
          */
-        logger.closePersistence(closemode);
+        boolean result = logger.closePersistence(closemode);
         lobManager.close();
         sessionManager.close();
 
         try {
-            if (closemode == CLOSEMODE_COMPACT) {
+            if (result && closemode == CLOSEMODE_COMPACT) {
                 clearStructures();
                 reopen();
                 setState(DATABASE_CLOSING);
