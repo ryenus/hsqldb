@@ -32,7 +32,7 @@
 package org.hsqldb.persist;
 
 import org.hsqldb.Database;
-import org.hsqldb.RowAVLDisk;
+import org.hsqldb.Row;
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
 import org.hsqldb.lib.FileUtil;
@@ -132,7 +132,7 @@ public class DataFileCacheSession extends DataFileCache {
         Iterator it = cache.getIterator();
 
         while (it.hasNext()) {
-            RowAVLDisk row = (RowAVLDisk) it.next();
+            Row row = (Row) it.next();
 
             row.setInMemory(false);
             row.destroy();
