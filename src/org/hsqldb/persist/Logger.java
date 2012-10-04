@@ -665,6 +665,8 @@ public class Logger {
      */
     public boolean closePersistence(int closemode) {
 
+        boolean result = true;
+
         if (log == null) {
             closeAllTextCaches(false);
 
@@ -696,9 +698,7 @@ public class Logger {
         } catch (Throwable e) {
             database.logger.logSevereEvent("error closing log", e);
 
-            log = null;
-
-            return false;
+            result = false;
         }
 
         database.logger.logInfoEvent("Database closed");
@@ -706,11 +706,12 @@ public class Logger {
         log = null;
 
         appLog.close();
+        sqlLog.close();
 
         logsStatements = false;
         loggingEnabled = false;
 
-        return true;
+        return result;
     }
 
     String newUniqueName() {
@@ -1688,7 +1689,7 @@ public class Logger {
         sb.append(Tokens.T_NULLS).append(' ');
         sb.append(Tokens.T_FIRST).append(' ');
         sb.append(database.sqlNullsFirst ? Tokens.T_TRUE
-                                          : Tokens.T_FALSE);
+                                         : Tokens.T_FALSE);
         list.add(sb.toString());
         sb.setLength(0);
         sb.append("SET DATABASE ").append(Tokens.T_SQL).append(' ');
@@ -1725,7 +1726,7 @@ public class Logger {
             sb.append(Tokens.T_IS).append(' ');
             sb.append(Tokens.T_LOB).append(' ');
             sb.append(database.sqlLongvarIsLob ? Tokens.T_TRUE
-                      : Tokens.T_FALSE);
+                                               : Tokens.T_FALSE);
             list.add(sb.toString());
             sb.setLength(0);
         }
