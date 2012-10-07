@@ -333,8 +333,6 @@ public abstract class StatementDMQL extends Statement {
         TableDerived[] subQueryArray = new TableDerived[subQueries.size()];
 
         subQueries.toArray(subQueryArray);
-        ArraySort.sort(subQueryArray, 0, subQueryArray.length,
-                       subQueryArray[0]);
 
         return subQueryArray;
     }

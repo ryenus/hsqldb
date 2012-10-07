@@ -307,7 +307,6 @@ public class BinaryData implements BlobData {
                 code = code * 31 + (0xff & data[i]);
             }
 
-            code     += data.length;
             hashCode = code;
         }
 

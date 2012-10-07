@@ -141,8 +141,6 @@ public class StatementSet extends StatementDMQL {
         TableDerived[] subQueryArray = new TableDerived[subQueries.size()];
 
         subQueries.toArray(subQueryArray);
-        ArraySort.sort(subQueryArray, 0, subQueryArray.length,
-                       subQueryArray[0]);
 
         for (int i = 0; i < subqueries.length; i++) {
             subQueryArray[i].prepareTable();
@@ -376,8 +374,8 @@ public class StatementSet extends StatementDMQL {
         if (expression.getType() == OpTypes.ROW) {
             values = expression.getRowValue(session);
         } else if (expression.getType() == OpTypes.ROW_SUBQUERY) {
-            values = expression.table.queryExpression.getSingleRowValues(
-                session);
+            values =
+                expression.table.queryExpression.getSingleRowValues(session);
 
             if (values == null) {
 

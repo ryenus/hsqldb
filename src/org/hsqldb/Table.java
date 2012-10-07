@@ -2546,7 +2546,7 @@ public class Table extends TableBase implements SchemaObject {
             throw Error.error(ErrorCode.X_42501, tableName.name);
         }
 
-        ParserDQL p     = new ParserDQL(session, new Scanner(s));
+        ParserDQL p     = new ParserDQL(session, new Scanner(s), null);
         long[]    roots = new long[getIndexCount() * 2 + 1];
 
         p.read();

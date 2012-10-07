@@ -306,8 +306,6 @@ public class StatementProcedure extends StatementDMQL {
         TableDerived[] subQueryArray = new TableDerived[subQueries.size()];
 
         subQueries.toArray(subQueryArray);
-        ArraySort.sort(subQueryArray, 0, subQueryArray.length,
-                       subQueryArray[0]);
 
         for (int i = 0; i < subqueries.length; i++) {
             subQueryArray[i].prepareTable();

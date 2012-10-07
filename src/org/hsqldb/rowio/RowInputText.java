@@ -165,8 +165,18 @@ public class RowInputText extends RowInputBase implements RowInputInterface {
             s    = text.substring(start, next);
             next += sepLen;
 
-            if (s.trim().length() == 0) {
+            int trimLength = s.trim().length();
+
+            if (trimLength == 0) {
                 s = null;
+            } else if (trimLength < s.length()) {
+                trimLength = s.length() - 1;
+
+                while (s.charAt(trimLength) < ' ') {
+                    trimLength--;
+                }
+
+                s = s.substring(0, trimLength + 1);
             }
         } catch (Exception e) {
             Object[] messages = new Object[] {

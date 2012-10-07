@@ -1655,9 +1655,8 @@ public class Expression implements Cloneable {
     static QuerySpecification getCheckSelect(Session session, Table t,
             Expression e) {
 
-        CompileContext compileContext = new CompileContext(session, null);
-
-        compileContext.reset(0);
+        CompileContext compileContext = new CompileContext(session, null, null);
+        compileContext.setNextRangeVarIndex(0);
 
         QuerySpecification s = new QuerySpecification(compileContext);
         RangeVariable range = new RangeVariable(t, null, null, null,

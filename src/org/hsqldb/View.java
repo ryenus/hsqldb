@@ -44,7 +44,7 @@ import org.hsqldb.lib.OrderedHashSet;
  *
  * @author leptipre@users
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.2.9
+ * @version 2.3.0
  * @since 1.7.0
  */
 public class View extends TableDerived {
@@ -97,7 +97,7 @@ public class View extends TableDerived {
      */
     public void compile(Session session, SchemaObject parentObject) {
 
-        ParserDQL p = new ParserDQL(session, new Scanner(statement));
+        ParserDQL p = new ParserDQL(session, new Scanner(statement), null);
 
         p.read();
 
@@ -277,16 +277,13 @@ public class View extends TableDerived {
         TableDerived td;
 
         if (isRecompiled()) {
-            ParserDQL p = new ParserDQL(session, new Scanner(statement));
+            ParserDQL p = new ParserDQL(session, new Scanner(),
+                                        session.parser.compileContext);
 
-            p.reset(statement,
-                    session.parser.compileContext.getRangeVarCount());
+            p.reset(statement);
             p.read();
 
             td = p.XreadViewSubqueryTable(this, false);
-
-            session.parser.compileContext.setNextRangeVarIndex(
-                p.compileContext.getRangeVarCount());;
         } else {
             td = new TableDerived(database, tableName, TableBase.VIEW_TABLE,
                                   queryExpression, null, OpTypes.NONE, 1);

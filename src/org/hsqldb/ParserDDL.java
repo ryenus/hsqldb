@@ -1726,7 +1726,7 @@ public class ParserDDL extends ParserRoutine {
 
         readIfThis(Tokens.AS);
 
-        Type       type = readTypeDefinition(false, false).duplicate();
+        Type       type = readTypeDefinition(true, false).duplicate();
         Expression defaultClause = null;
 
         if (readIfThis(Tokens.DEFAULT)) {
@@ -3921,7 +3921,7 @@ public class ParserDDL extends ParserRoutine {
                 sequence = new NumberSequence(null, type);
             }
         } else {
-            type = readTypeDefinition(false, true);
+            type = readTypeDefinition(true, true);
 
             switch (token.tokenType) {
 

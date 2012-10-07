@@ -526,6 +526,10 @@ implements Comparator {
             }
         }
 
+        for (int i = lastRowPos + 1; i < size; i++) {
+            table[i] = null;
+        }
+
         super.size = lastRowPos + 1;
 
         reset();

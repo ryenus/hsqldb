@@ -62,7 +62,7 @@ import org.hsqldb.types.Types;
  * Parser for DQL statements
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.2.9
+ * @version 2.3.0
  * @since 1.9.0
  */
 public class ParserDQL extends ParserBase {
@@ -78,13 +78,13 @@ public class ParserDQL extends ParserBase {
      * @param  session the connected context
      * @param  t the token source from which to parse commands
      */
-    ParserDQL(Session session, Scanner t) {
+    ParserDQL(Session session, Scanner t, CompileContext baseContext) {
 
         super(t);
 
-        this.session   = session;
-        database       = session.getDatabase();
-        compileContext = new CompileContext(session, this);
+        this.session        = session;
+        this.database       = session.getDatabase();
+        this.compileContext = new CompileContext(session, this, baseContext);
     }
 
     /**
@@ -93,13 +93,9 @@ public class ParserDQL extends ParserBase {
      * @param sql a new SQL character sequence to replace the current one
      */
     void reset(String sql) {
-        reset(sql, 1);
-    }
-
-    void reset(String sql, int rangeVarIndex) {
 
         super.reset(sql);
-        compileContext.reset(rangeVarIndex);
+        compileContext.reset();
 
         lastError = null;
     }
@@ -6201,12 +6197,12 @@ public class ParserDQL extends ParserBase {
 
     public static final class CompileContext {
 
-        final Session    session;
-        final ParserBase parser;
+        final Session        session;
+        final ParserBase     parser;
+        final CompileContext baseContext;
 
         //
         private int           subqueryDepth;
-        private int           maxSubqueryDepth;
         private HsqlArrayList namedSubqueries;
 
         //
@@ -6225,27 +6221,31 @@ public class ParserDQL extends ParserBase {
         //
         private int rangeVarIndex = 0;
 
-        public CompileContext(Session session, ParserBase parser) {
+        public CompileContext(Session session) {
+            this(session, null, null);
+        }
 
-            this.session = session;
-            this.parser  = parser;
+        public CompileContext(Session session, ParserBase parser,
+                              CompileContext baseContext) {
+
+            this.session     = session;
+            this.parser      = parser;
+            this.baseContext = baseContext;
 
             reset();
         }
 
         public void reset() {
-            reset(1);
-        }
 
-        public void reset(int n) {
-
-            rangeVarIndex = n;
+            if (baseContext == null) {
+                rangeVarIndex = 1;
+                subqueryDepth = 0;
+            } else {
+                rangeVarIndex = baseContext.getRangeVarCount();
+                subqueryDepth = baseContext.getDepth();
+            }
 
             rangeVariables.clear();
-
-            subqueryDepth    = 0;
-            maxSubqueryDepth = 0;
-
             parameters.clear();
             usedSequences.clear();
             usedRoutines.clear();
@@ -6265,19 +6265,22 @@ public class ParserDQL extends ParserBase {
             return subqueryDepth;
         }
 
-        public int getMaxDepth() {
-            return maxSubqueryDepth;
-        }
-
         public void incrementDepth() {
 
             subqueryDepth++;
 
-            maxSubqueryDepth = subqueryDepth;
+            if (baseContext != null) {
+                baseContext.subqueryDepth++;
+            }
         }
 
         public void decrementDepth() {
+
             subqueryDepth--;
+
+            if (baseContext != null) {
+                baseContext.subqueryDepth--;
+            }
         }
 
         public void rewind(int position) {
@@ -6316,7 +6319,17 @@ public class ParserDQL extends ParserBase {
         }
 
         public int getNextRangeVarIndex() {
-            return rangeVarIndex++;
+
+            int index;
+
+            if (baseContext != null) {
+                index         = baseContext.getNextRangeVarIndex();
+                rangeVarIndex = index + 1;
+
+                return index;
+            } else {
+                return rangeVarIndex++;
+            }
         }
 
         public int getRangeVarCount() {
