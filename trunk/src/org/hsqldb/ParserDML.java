@@ -52,7 +52,7 @@ import org.hsqldb.types.Type;
 public class ParserDML extends ParserDQL {
 
     ParserDML(Session session, Scanner t) {
-        super(session, t);
+        super(session, t, null);
     }
 
     /**

@@ -49,10 +49,10 @@ import org.hsqldb.types.Type;
  * Table with data derived from a query expression.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.2.9
+ * @version 2.3.0
  * @since 1.9.0
  */
-public class TableDerived extends Table implements Comparator {
+public class TableDerived extends Table {
 
     //
     public final static TableDerived[] emptyArray = new TableDerived[]{};
@@ -144,6 +144,33 @@ public class TableDerived extends Table implements Comparator {
         if (dataExpression != null) {
             dataExpression.table = this;
         }
+    }
+
+    public TableDerived newDerivedTable(Session session) {
+
+        TableDerived td = this;
+
+        if (isRecompiled()) {
+            ParserDQL p = new ParserDQL(session, new Scanner(),
+                                        session.parser.compileContext);
+
+            p.reset(sql);
+            p.read();
+
+            td = p.XreadSubqueryTableBody(tableName, OpTypes.TABLE_SUBQUERY);
+
+            td.queryExpression.resolve(session);
+
+            td.columnList   = columnList;
+            td.columnCount  = columnList.size();
+            td.triggerList  = triggerList;
+            td.triggerLists = triggerLists;
+            td.view         = view;
+
+            td.createPrimaryKey();
+        }
+
+        return td;
     }
 
     public int getId() {
@@ -402,34 +429,6 @@ public class TableDerived extends Table implements Comparator {
         return false;
     }
 
-    public TableDerived newDerivedTable(Session session) {
-
-        TableDerived td = this;
-
-        if (isRecompiled()) {
-            ParserDQL p = new ParserDQL(session, new Scanner());
-
-            p.reset(sql, session.parser.compileContext.getRangeVarCount());
-            p.read();
-
-            td = p.XreadSubqueryTableBody(tableName, OpTypes.TABLE_SUBQUERY);
-
-            session.parser.compileContext.setNextRangeVarIndex(
-                p.compileContext.getRangeVarCount());;
-            td.queryExpression.resolve(session);
-
-            td.columnList   = columnList;
-            td.columnCount  = columnList.size();
-            td.triggerList  = triggerList;
-            td.triggerLists = triggerLists;
-            td.view         = view;
-
-            td.createPrimaryKey();
-        }
-
-        return td;
-    }
-
     public Object[] getValues(Session session) {
 
         RowIterator it = rowIterator(session);
@@ -466,48 +465,8 @@ public class TableDerived extends Table implements Comparator {
         this.sql = sql;
     }
 
-    /**
-     * This results in the following sort order:
-     *
-     * view subqueries, then other subqueries
-     *
-     *    view subqueries:
-     *        views sorted by creation order (earlier declaration first)
-     *
-     *    other subqueries:
-     *        subqueries sorted by depth within select query
-     *
-     */
-    public int compare(Object a, Object b) {
-
-        TableDerived sqa = (TableDerived) a;
-        TableDerived sqb = (TableDerived) b;
-
-//        return sqb.depth - sqa.depth;
-        if (sqa.view != null && sqb.view != null) {
-            int ia = database.schemaManager.getTableIndex(sqa.view);
-            int ib = database.schemaManager.getTableIndex(sqb.view);
-
-            if (ia == -1) {
-                ia = database.schemaManager.getTables(
-                    sqa.view.getSchemaName().name).size();
-            }
-
-            if (ib == -1) {
-                ib = database.schemaManager.getTables(
-                    sqb.view.getSchemaName().name).size();
-            }
-
-            int diff = ia - ib;
-
-            return diff == 0 ? sqb.depth - sqa.depth
-                             : diff;
-        } else {
-            return sqb.depth - sqa.depth;
-        }
-    }
-
     public void setDataTimestamp(long timestamp) {
+
         // no op
     }
 }
