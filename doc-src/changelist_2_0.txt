@@ -1,5 +1,5 @@
-02 October 2012 - svn 5081 snapshot
--- fixed regression with some updatable views
+07 October 2012 - svn 5087 snapshot
+-- fixed regression with some nested views
 -- added global IGNORECASE property
 10 September 2012 - svn 5071 snapshot
 -- fixed regession with the result returned after a SHUTDOWN 
