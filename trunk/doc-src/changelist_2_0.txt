@@ -1,4 +1,5 @@
-07 October 2012 - svn 5087 snapshot
+12 October 2012 - svn 5089 snapshot
+-- fixed issue with LOBs in res: databases
 -- fixed regression with some nested views
 -- added global IGNORECASE property
 10 September 2012 - svn 5071 snapshot
