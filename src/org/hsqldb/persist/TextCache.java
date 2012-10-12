@@ -118,7 +118,7 @@ public class TextCache extends DataFileCache {
         //-- Get size and scale
         maxDataFileSize  = Integer.MAX_VALUE;
         cachedRowPadding = 1;
-        dataFileScale   = 1;
+        dataFileScale    = 1;
     }
 
     protected void initBuffers() {

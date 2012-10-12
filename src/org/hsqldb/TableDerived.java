@@ -464,9 +464,4 @@ public class TableDerived extends Table {
     public void setSQL(String sql) {
         this.sql = sql;
     }
-
-    public void setDataTimestamp(long timestamp) {
-
-        // no op
-    }
 }

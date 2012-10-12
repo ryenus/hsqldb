@@ -44,7 +44,7 @@ import org.hsqldb.types.Type;
  * The  base of all HSQLDB table implementations.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.2.7
+ * @version 2.3.0
  * @since 1.7.2
  */
 public class TableBase {
@@ -106,7 +106,7 @@ public class TableBase {
     protected boolean isLogged;
     private boolean   isTransactional = true;
     boolean           hasLobColumn;
-    long              dataTimestamp;
+
     //
     TableBase() {}
 
@@ -540,9 +540,5 @@ public class TableBase {
         return store == null
                ? session.sessionData.persistentStoreCollection.getStore(this)
                : store;
-    }
-
-    public void setDataTimestamp(long timestamp) {
-        // no op
     }
 }

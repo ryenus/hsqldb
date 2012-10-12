@@ -73,8 +73,6 @@ public interface PersistentStore {
 
     CachedObject get(CachedObject object, boolean keep);
 
-    int getStorageSize(long key);
-
     /** add new object */
     void add(CachedObject object);
 
@@ -86,9 +84,6 @@ public interface PersistentStore {
 
     CachedObject getNewCachedObject(Session session, Object object,
                                     boolean tx);
-
-    /** remove the persisted image but not the cached copy */
-    void removePersistence(long i);
 
     void removeAll();
 

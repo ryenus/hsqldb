@@ -89,10 +89,6 @@ public class RowStoreAVLMemory extends RowStoreAVL implements PersistentStore {
         return object;
     }
 
-    public int getStorageSize(long i) {
-        return 0;
-    }
-
     public void add(CachedObject object) {}
 
     public CachedObject get(RowInputInterface in) {
@@ -135,8 +131,6 @@ public class RowStoreAVLMemory extends RowStoreAVL implements PersistentStore {
     }
 
     public void remove(long i) {}
-
-    public void removePersistence(long i) {}
 
     public void release(long i) {}
 

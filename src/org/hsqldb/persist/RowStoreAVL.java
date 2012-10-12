@@ -103,8 +103,6 @@ public abstract class RowStoreAVL implements PersistentStore {
 
     public abstract CachedObject get(CachedObject object, boolean keep);
 
-    public abstract int getStorageSize(long key);
-
     public abstract void add(CachedObject object);
 
     public abstract CachedObject get(RowInputInterface in);
@@ -117,8 +115,6 @@ public abstract class RowStoreAVL implements PersistentStore {
 
     public abstract CachedObject getNewCachedObject(Session session,
             Object object, boolean tx);
-
-    public abstract void removePersistence(long i);
 
     public abstract void removeAll();
 

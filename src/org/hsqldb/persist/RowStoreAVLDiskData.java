@@ -142,10 +142,6 @@ public class RowStoreAVLDiskData extends RowStoreAVLDisk {
         cache.remove(i, this);
     }
 
-    public void removePersistence(Row row) {
-        cache.removePersistence(row);
-    }
-
     public void release(long i) {
         cache.release(i);
     }
@@ -174,7 +170,7 @@ public class RowStoreAVLDiskData extends RowStoreAVLDisk {
         switch (changeAction) {
 
             case RowAction.ACTION_DELETE :
-                removePersistence(row);
+                cache.removePersistence(row);
                 break;
 
             case RowAction.ACTION_INSERT :
