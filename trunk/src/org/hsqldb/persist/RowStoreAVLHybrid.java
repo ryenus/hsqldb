@@ -155,19 +155,6 @@ public class RowStoreAVLHybrid extends RowStoreAVL implements PersistentStore {
         }
     }
 
-    public int getStorageSize(long i) {
-
-        try {
-            if (isCached) {
-                return cache.get(i, this, false).getStorageSize();
-            } else {
-                return 0;
-            }
-        } catch (HsqlException e) {
-            return 0;
-        }
-    }
-
     public void add(CachedObject object) {
 
         if (isCached) {
@@ -266,8 +253,6 @@ public class RowStoreAVLHybrid extends RowStoreAVL implements PersistentStore {
             cache.remove(i, this);
         }
     }
-
-    public void removePersistence(long i) {}
 
     public void release(long i) {
 

@@ -2940,10 +2940,6 @@ public class Table extends TableBase implements SchemaObject {
         return database.persistentStoreCollection.getStore(this);
     }
 
-    public void setDataTimestamp(long timestamp) {
-        dataTimestamp = timestamp;
-    }
-
     public QueryExpression getQueryExpression() {
         return null;
     }

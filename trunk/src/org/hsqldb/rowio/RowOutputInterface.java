@@ -69,7 +69,6 @@ public interface RowOutputInterface extends Cloneable {
     void writeData(int l, Type[] types, Object[] data, HashMappedList cols,
                    int[] primarykeys);
 
-    // independent of the this object, calls only a static method
     int getSize(Row row);
 
     int getStorageSize(int size);

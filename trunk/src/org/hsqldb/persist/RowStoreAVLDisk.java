@@ -121,10 +121,6 @@ public class RowStoreAVLDisk extends RowStoreAVL implements PersistentStore {
         return object;
     }
 
-    public int getStorageSize(long i) {
-        return cache.get(i, this, false).getStorageSize();
-    }
-
     public void add(CachedObject object) {
 
         int size = object.getRealSize(rowOut);
@@ -198,8 +194,6 @@ public class RowStoreAVLDisk extends RowStoreAVL implements PersistentStore {
     public void remove(long i) {
         cache.remove(i, this);
     }
-
-    public void removePersistence(long i) {}
 
     public void release(long i) {
         cache.release(i);

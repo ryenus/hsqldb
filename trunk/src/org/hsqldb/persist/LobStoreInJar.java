@@ -42,14 +42,14 @@ import org.hsqldb.error.ErrorCode;
 
 /**
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.2.6
+ * @version 2.3.0
  * @since 1.9.0
  */
 public class LobStoreInJar implements LobStore {
 
     final int       lobBlockSize;
     Database        database;
-    DataInputStream file;
+    DataInputStream dataInput;
     final String    fileName;
 
     //
@@ -69,17 +69,13 @@ public class LobStoreInJar implements LobStore {
 
     public byte[] getBlockBytes(int blockAddress, int blockCount) {
 
-        if (file == null) {
-            throw Error.error(ErrorCode.FILE_IO_ERROR);
-        }
-
         try {
             long   address   = (long) blockAddress * lobBlockSize;
             int    count     = blockCount * lobBlockSize;
             byte[] dataBytes = new byte[count];
 
             fileSeek(address);
-            file.readFully(dataBytes, 0, count);
+            dataInput.readFully(dataBytes, 0, count);
 
             realPosition = address + count;
 
@@ -102,8 +98,8 @@ public class LobStoreInJar implements LobStore {
     public void close() {
 
         try {
-            if (file != null) {
-                file.close();
+            if (dataInput != null) {
+                dataInput.close();
             }
         } catch (Throwable t) {
             throw Error.error(ErrorCode.DATA_FILE_ERROR, t);
@@ -112,8 +108,8 @@ public class LobStoreInJar implements LobStore {
 
     private void resetStream() throws IOException {
 
-        if (file != null) {
-            file.close();
+        if (dataInput != null) {
+            dataInput.close();
         }
 
         InputStream fis = null;
@@ -138,13 +134,13 @@ public class LobStoreInJar implements LobStore {
             }
         }
 
-        file         = new DataInputStream(fis);
+        dataInput    = new DataInputStream(fis);
         realPosition = 0;
     }
 
     private void fileSeek(long position) throws IOException {
 
-        if (file == null) {
+        if (dataInput == null) {
             resetStream();
         }
 
@@ -157,7 +153,7 @@ public class LobStoreInJar implements LobStore {
         }
 
         while (position > skipPosition) {
-            skipPosition += file.skip(position - skipPosition);
+            skipPosition += dataInput.skip(position - skipPosition);
         }
 
         realPosition = position;
