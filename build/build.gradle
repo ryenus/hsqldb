@@ -36,6 +36,7 @@ apply plugin: 'ivyxml'
 import com.admc.gradle.JavaPropFile
 def buildPropertiesFile = file('build.properties')
 def localBookPropertiesFile = file('local-docbook.properties')
+propFileLoader.typeCasting = true
 if (buildPropertiesFile.isFile()) propFileLoader.load(buildPropertiesFile)
 if (localBookPropertiesFile.isFile())
     propFileLoader.load(localBookPropertiesFile)
@@ -744,7 +745,6 @@ Other tasks
     def hardTaskDescriptions =
             ['tasks', 'help', 'explainprops', 'explainjars'] as Set
     Matcher pMatcher
-    NEXT_TASK:
     getTasks().each { t ->
         assert t.name.length() > 0: 'Task with 0 length name encountered.'
         if (t.description != null) {
