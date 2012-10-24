@@ -57,7 +57,7 @@ public interface ErrorCode {
 
     //
     int M_TEXT_SOURCE_FIELD_ERROR       = 41;      // Error in text source field
-    int M_TextCache_openning_file_error = 42;      // openning file: $$ error: $$
+    int M_TextCache_opening_file_error  = 42;      // openning file: $$ error: $$
     int M_TextCache_closing_file_error  = 43;      // closing file: $$ error: $$
     int M_TextCache_purging_file_error  = 44;      // purging file: $$ error: $$
 

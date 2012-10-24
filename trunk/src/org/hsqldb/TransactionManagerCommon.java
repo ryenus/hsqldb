@@ -46,12 +46,13 @@ import org.hsqldb.lib.LongDeque;
 import org.hsqldb.lib.LongKeyHashMap;
 import org.hsqldb.lib.MultiValueHashMap;
 import org.hsqldb.lib.OrderedHashSet;
+import org.hsqldb.persist.CachedObject;
 
 /**
  * Shared code for TransactionManager classes
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.2.9
+ * @version 2.3.0
  * @since 2.0.0
  */
 class TransactionManagerCommon {
@@ -143,7 +144,11 @@ class TransactionManagerCommon {
         }
     }
 
-    void persistCommit(Session session, Object[] list, int limit) {
+    void adjustLobUsage(Session session) {
+
+        int      limit               = session.rowActionList.size();
+        Object[] list                = session.rowActionList.getArray();
+        long     lastActionTimestamp = session.actionTimestamp;
 
         for (int i = 0; i < limit; i++) {
             RowAction action = (RowAction) list[i];
@@ -152,14 +157,14 @@ class TransactionManagerCommon {
                 continue;
             }
 
-            int type = action.getCommitTypeOn(session.actionTimestamp);
-            Row row  = action.memoryRow;
-
-            if (row == null) {
-                row = (Row) action.store.get(action.getPos(), false);
-            }
-
             if (action.table.hasLobColumn) {
+                int type = action.getCommitTypeOn(lastActionTimestamp);
+                Row row  = action.memoryRow;
+
+                if (row == null) {
+                    row = (Row) action.store.get(action.getPos(), false);
+                }
+
                 switch (type) {
 
                     case RowActionBase.ACTION_INSERT :
@@ -175,26 +180,49 @@ class TransactionManagerCommon {
                     case RowActionBase.ACTION_INSERT_DELETE :
                     default :
                 }
+            }
+        }
 
-                int newLimit = session.rowActionList.size();
+        int newLimit = session.rowActionList.size();
 
-                if (newLimit > limit) {
-                    list = session.rowActionList.getArray();
+        if (newLimit > limit) {
+            for (int i = limit; i < newLimit; i++) {
+                RowAction lobAction = (RowAction) session.rowActionList.get(i);
 
-                    for (int j = limit; j < newLimit; j++) {
-                        RowAction lobAction = (RowAction) list[j];
+                lobAction.commit(session);
+            }
+        }
+    }
 
-                        lobAction.commit(session);
-                    }
+    void persistCommit(Session session) {
 
-                    limit = newLimit;
-                }
+        int      limit       = session.rowActionList.size();
+        Object[] list        = session.rowActionList.getArray();
+        boolean  writeCommit = false;
+
+        for (int i = 0; i < limit; i++) {
+            RowAction action = (RowAction) list[i];
+
+            if (action.type == RowActionBase.ACTION_NONE) {
+                continue;
+            }
+
+            int type = action.getCommitTypeOn(session.actionTimestamp);
+            Row row  = action.memoryRow;
+
+            if (row == null) {
+                row = (Row) action.store.get(action.getPos(), false);
+            }
+
+            if (action.table.tableType != TableBase.TEMP_TABLE) {
+                writeCommit = true;
             }
 
             try {
                 action.store.commitRow(session, row, type, txModel);
 
-                if (txModel == TransactionManager.LOCKS) {
+                if (txModel == TransactionManager.LOCKS
+                        || action.table.tableType == TableBase.TEMP_TABLE) {
                     action.setAsNoOp();
 
                     row.rowAction = null;
@@ -205,7 +233,7 @@ class TransactionManagerCommon {
         }
 
         try {
-            if (limit > 0) {
+            if (limit > 0 && writeCommit) {
                 database.logger.writeCommitStatement(session);
             }
         } catch (HsqlException e) {
@@ -213,11 +241,29 @@ class TransactionManagerCommon {
         }
     }
 
+    void removeTransactionInfo(CachedObject object) {}
+
     void finaliseRows(Session session, Object[] list, int start, int limit,
                       boolean commit) {
 
+        if (!commit) {
+            for (int i = limit - 1; i >= start; i--) {
+                RowAction action = (RowAction) list[i];
+
+                if (action.table.tableType == TableBase.TEMP_TABLE) {
+                    action.store.rollbackRow(session, action.memoryRow,
+                                             action.commitRollbackType,
+                                             txModel);
+                }
+            }
+        }
+
         for (int i = start; i < limit; i++) {
             RowAction action = (RowAction) list[i];
+
+            if (!commit && action.table.tableType == TableBase.TEMP_TABLE) {
+                continue;
+            }
 
             if (action.table.tableType == TableBase.CACHED_TABLE) {
                 if (action.type == RowActionBase.ACTION_NONE) {
@@ -230,7 +276,14 @@ class TransactionManagerCommon {
 
                             // remove only if not changed
                             if (action.type == RowActionBase.ACTION_NONE) {
-                                rowActionMap.remove(action.getPos());
+                                Row row = action.memoryRow;
+
+                                if (row == null) {
+                                    row = (Row) action.store.get(
+                                        action.getPos(), false);
+                                }
+
+                                removeTransactionInfo(row);
                             }
                         }
                     } finally {
@@ -264,6 +317,7 @@ class TransactionManagerCommon {
     }
 
     /**
+     * for multiversion rows
      * merge a given list of transaction rollback action with given timestamp
      */
     void mergeRolledBackTransaction(Session session, long timestamp,

@@ -79,7 +79,7 @@ public class TestUtil {
 
         StopWatch sw = new StopWatch(true);
 
-        TestUtil.testScripts("testrun/hsqldb");
+        TestUtil.testScripts("testrun/hsqldb", sw);
         System.out.println(sw.currentElapsedTimeToMessage("Total time :"));
     }
 
@@ -124,7 +124,7 @@ public class TestUtil {
         }
     }
 
-    static void testScripts(String directory) {
+    static void testScripts(String directory, StopWatch sw) {
 
         TestUtil.deleteDatabase("test1");
 
@@ -148,10 +148,11 @@ public class TestUtil {
                 String fname = filelist[i];
 
                 if (fname.startsWith("TestSelf") && fname.endsWith(".txt")) {
-                    print("Openning DB");
-
+                    long elapsed = sw.elapsedTime();
                     cConnection = DriverManager.getConnection(url, user,
                             password);
+                    print("Opened DB in " + (double) (sw.elapsedTime() - elapsed) / 1000 + " s" );
+
 
                     testScript(cConnection, absolute + File.separator + fname);
                     cConnection.close();

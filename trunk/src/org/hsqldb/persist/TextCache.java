@@ -68,7 +68,7 @@ import org.hsqldb.scriptio.ScriptWriterText;
  *
  * @author Bob Preston (sqlbob@users dot sourceforge.net)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.2.9
+ * @version 2.3.0
  * @since 1.7.0
  */
 public class TextCache extends DataFileCache {
@@ -116,7 +116,7 @@ public class TextCache extends DataFileCache {
         maxCacheBytes = textFileSettings.getMaxCacheBytes();
 
         //-- Get size and scale
-        maxDataFileSize  = Integer.MAX_VALUE;
+        maxDataFileSize  = Integer.MAX_VALUE * Logger.largeDataFactor;
         cachedRowPadding = 1;
         dataFileScale    = 1;
     }
@@ -159,16 +159,16 @@ public class TextCache extends DataFileCache {
                     readonly, type);
             fileFreePosition = dataFile.length();
 
-            if (fileFreePosition > Integer.MAX_VALUE) {
+            if (fileFreePosition > maxDataFileSize) {
                 throw Error.error(ErrorCode.DATA_FILE_IS_FULL);
             }
 
             initBuffers();
 
-            freeBlocks = new DataFileBlockManager(0, dataFileScale, 0, 0);
+            freeBlocks = new TableSpaceManagerText(this);
         } catch (Throwable t) {
             throw Error.error(t, ErrorCode.FILE_IO_ERROR,
-                              ErrorCode.M_TextCache_openning_file_error,
+                              ErrorCode.M_TextCache_opening_file_error,
                               new Object[] {
                 t.toString(), dataFileName
             });
@@ -256,24 +256,14 @@ public class TextCache extends DataFileCache {
     /**
      * Does not extend the end of file.
      */
-    long setFilePos(CachedObject r) {
+    public long setFilePos(CachedObject r,
+                           TableSpaceManager tableSpaceManager) {
 
-        int  rowSize         = r.getStorageSize();
-        long newFreePosition = fileFreePosition + rowSize;
-
-        if (newFreePosition > maxDataFileSize) {
-            database.logger.logSevereEvent("data file reached maximum size "
-                                           + this.dataFileName, null);
-
-            throw Error.error(ErrorCode.DATA_FILE_IS_FULL);
-        }
-
-        long i = fileFreePosition;
+        int  rowSize = r.getStorageSize();
+        long i       = tableSpaceManager.getFilePosition(rowSize, false);
 
         r.setPos(i);
         clearRowImage(r);
-
-        fileFreePosition = newFreePosition;
 
         return i;
     }
@@ -281,18 +271,19 @@ public class TextCache extends DataFileCache {
     /**
      *
      */
-    public void remove(long pos, PersistentStore store) {
+    public void remove(CachedObject object, TableSpaceManager spaceManager) {
 
         writeLock.lock();
 
         try {
+            long         pos = object.getPos();
             CachedObject row = (CachedObject) uncommittedCache.remove(pos);
 
             if (row != null) {
                 return;
             }
 
-            row = cache.release(pos);
+            cache.release(pos);
         } finally {
             writeLock.unlock();
         }
@@ -333,7 +324,7 @@ public class TextCache extends DataFileCache {
         writeLock.lock();
 
         try {
-            cache.put(object.getPos(), object);
+            cache.put(object);
         } finally {
             writeLock.unlock();
         }
@@ -344,7 +335,6 @@ public class TextCache extends DataFileCache {
         writeLock.lock();
 
         try {
-            setFilePos(object);
             uncommittedCache.put(object.getPos(), object);
         } finally {
             writeLock.unlock();
@@ -362,7 +352,6 @@ public class TextCache extends DataFileCache {
         writeLock.lock();
 
         try {
-
             CachedObject existing = cache.get(object.getPos());
 
             if (existing != null) {
@@ -381,7 +370,7 @@ public class TextCache extends DataFileCache {
                 ((RowInputText) rowIn).setSource(rowString, object.getPos(),
                                                  buffer.size());
                 store.get(object, rowIn);
-                cache.put(object.getPos(), object);
+                cache.put(object);
 
                 return object;
             } catch (IOException err) {
@@ -403,6 +392,7 @@ public class TextCache extends DataFileCache {
     }
 
     protected void saveRows(CachedObject[] rows, int offset, int count) {
+
         // no-op
     }
 
@@ -418,7 +408,7 @@ public class TextCache extends DataFileCache {
             setFileModified();
             saveRowNoLock(row);
             uncommittedCache.remove(row.getPos());
-            cache.put(row.getPos(), row);
+            cache.put(row);
         } catch (Throwable e) {
             database.logger.logSevereEvent("saveRow failed", e);
 

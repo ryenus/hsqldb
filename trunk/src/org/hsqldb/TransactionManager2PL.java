@@ -40,7 +40,7 @@ import org.hsqldb.persist.PersistentStore;
  * Manages rows involved in transactions
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.2.9
+ * @version 2.3.0
  * @since 2.0.0
  */
 public class TransactionManager2PL extends TransactionManagerCommon
@@ -109,7 +109,8 @@ implements TransactionManager {
                 action.commit(session);
             }
 
-            persistCommit(session, list, limit);
+            adjustLobUsage(session);
+            persistCommit(session);
             endTransactionTPL(session);
         } finally {
             writeLock.unlock();
@@ -198,7 +199,8 @@ implements TransactionManager {
         session.rowActionList.setSize(start);
     }
 
-    public RowAction addDeleteAction(Session session, Table table, Row row,
+    public RowAction addDeleteAction(Session session, Table table,
+                                     PersistentStore store, Row row,
                                      int[] colMap) {
 
         RowAction action;
@@ -208,9 +210,6 @@ implements TransactionManager {
         }
 
         session.rowActionList.add(action);
-
-        PersistentStore store = table.getRowStore(session);
-
         store.delete(session, row);
 
         row.rowAction = null;
@@ -240,19 +239,24 @@ implements TransactionManager {
     }
 
 // functional unit - accessibility of rows
-    public boolean canRead(Session session, Row row, int mode, int[] colMap) {
+    public boolean canRead(Session session, PersistentStore store, Row row,
+                           int mode, int[] colMap) {
         return true;
     }
 
-    public boolean canRead(Session session, long id, int mode) {
+    public boolean canRead(Session session, PersistentStore store, long id,
+                           int mode) {
         return true;
     }
+
+    public void addTransactionInfo(CachedObject object) {}
 
     /**
      * add transaction info to a row just loaded from the cache. called only
      * for CACHED tables
      */
-    public void setTransactionInfo(CachedObject object) {}
+    public void setTransactionInfo(PersistentStore store,
+                                   CachedObject object) {}
 
     public void removeTransactionInfo(CachedObject object) {}
 

@@ -58,28 +58,28 @@ public class RowStoreAVLDiskData extends RowStoreAVLDisk {
 
     public RowStoreAVLDiskData(PersistentStoreCollection manager,
                                Table table) {
-        super(manager, null, table);
+        super(manager, table);
     }
 
     public CachedObject get(CachedObject object, boolean keep) {
 
-            object     = cache.get(object, this, keep);
+        object = cache.get(object, this, keep);
 
-            return object;
+        return object;
     }
 
-    public void add(CachedObject object) {
+    public void add(Session session, CachedObject object, boolean tx) {
 
-        writeLock();
+        int size = object.getRealSize(cache.rowOut);
 
-        try {
-            int size = object.getRealSize(cache.rowOut);
+        object.setStorageSize(size);
+        cache.setFilePos(object, cache.freeBlocks);
 
-            object.setStorageSize(size);
-            cache.add(object);
-        } finally {
-            writeUnlock();
+        if (tx) {
+            RowAction.addInsertAction(session, table, (Row) object);
         }
+
+        cache.add(object);
     }
 
     public CachedObject get(RowInputInterface in) {
@@ -114,11 +114,7 @@ public class RowStoreAVLDiskData extends RowStoreAVLDisk {
 
         Row row = new RowAVLDiskData(this, table, (Object[]) object);
 
-        add(row);
-
-        if (tx) {
-            RowAction.addInsertAction(session, table, row);
-        }
+        add(session, row, tx);
 
         return row;
     }
@@ -138,12 +134,8 @@ public class RowStoreAVLDiskData extends RowStoreAVLDisk {
         ArrayUtil.fillArray(accessorList, null);
     }
 
-    public void remove(long i) {
-        cache.remove(i, this);
-    }
-
-    public void release(long i) {
-        cache.release(i);
+    public void remove(CachedObject object) {
+        cache.remove(object, cache.freeBlocks);
     }
 
     public CachedObject getAccessor(Index key) {
@@ -181,17 +173,17 @@ public class RowStoreAVLDiskData extends RowStoreAVLDisk {
 
                 // INSERT + DELETE
                 if (txModel == TransactionManager.LOCKS) {
-                    remove(row.getPos());
+                    remove(row);
                 } else {
                     delete(session, row);
-                    remove(row.getPos());
+                    remove(row);
                 }
                 break;
 
             case RowAction.ACTION_DELETE_FINAL :
                 if (txModel != TransactionManager.LOCKS) {
                     delete(session, row);
-                    remove(row.getPos());
+                    remove(row);
                 }
                 break;
         }
@@ -212,7 +204,7 @@ public class RowStoreAVLDiskData extends RowStoreAVLDisk {
             case RowAction.ACTION_INSERT :
                 if (txModel == TransactionManager.LOCKS) {
                     delete(session, row);
-                    remove(row.getPos());
+                    remove(row);
                 } else {}
                 break;
 
@@ -220,10 +212,10 @@ public class RowStoreAVLDiskData extends RowStoreAVLDisk {
 
                 // INSERT + DELETE
                 if (txModel == TransactionManager.LOCKS) {
-                    remove(row.getPos());
+                    remove(row);
                 } else {
                     delete(session, row);
-                    remove(row.getPos());
+                    remove(row);
                 }
                 break;
         }

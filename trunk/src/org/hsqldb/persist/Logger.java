@@ -158,6 +158,10 @@ public class Logger {
 
     //
     AtomicInteger    backupState     = new AtomicInteger();
+
+    //
+    static final int largeDataFactor = 128;
+    //
     static final int stateNormal     = 0;
     static final int stateBackup     = 1;
     static final int stateCheckpoint = 2;
@@ -1155,7 +1159,7 @@ public class Logger {
     }
 
     public int getDataFileFactor() {
-        return propLargeData ? 128
+        return propLargeData ? largeDataFactor
                              : 1;
     }
 
