@@ -52,9 +52,15 @@
     user-defined functions written in SQL and Java languages. User-defined
     functions are covered in the <link endterm="sqlroutines-title"
     xlink:href="#sqlroutines-chapt"></link> chapter. If a built-in function is
-    not available, you can write your own using procedural SQL or Java.
-    Built-in aggregate functions are discussed in chapters that cover SQL in
-    general.</para>
+    not available, you can write your own using procedural SQL or Java.</para>
+
+    <para>Built-in aggregate functions such as <literal>SUM,</literal>
+    <literal>MAX</literal>, <literal>ARRAY_AGG</literal>,
+    <literal>GROUP_CONCAT</literal> are covered in the <link
+    endterm="dataaccess-title" xlink:href="#dataaccess-chapt"></link> chapter,
+    which covers SQL in general. SQL expressions such as
+    <literal>COALESCE</literal>, <literal>NULLIF</literal> and
+    <literal>CAST</literal> are also discussed there.</para>
 
     <para>The built-in functions fall into three groups:</para>
 
@@ -2289,9 +2295,9 @@ D          I
     second argument is the character encoding of the file.</para>
 
     <para>The file path is interpreted the same way as a TEXT TABLE source
-    file location. The hsqldb.allow_full_path system property must be set true
-    in order to access files outside the directory structure of the database
-    files.</para>
+    file location. The <literal>hsqldb.allow_full_path</literal> system
+    property must be set <literal>true</literal> in order to access files
+    outside the directory structure of the database files.</para>
 
     <para>(HyperSQL)</para>
 

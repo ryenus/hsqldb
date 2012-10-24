@@ -3777,7 +3777,7 @@ MERGE INTO t USING (VALUES(CAST(? AS INT))) AS vals(x) ON t.id = vals.x
     <para>The keyword <literal>ROW_COUNT</literal> specifies the row count
     returned by the last executed statement. For INSERT, UPDATE, DELETE and
     MERGE statements, this is the number of rows affected by the statement.
-    This is the same value as returned by JDBC execute() methods. For all
+    This is the same value as returned by JDBC <literal>executeUpdate()</literal> methods. For all
     other statements, zero is returned.</para>
 
     <para>The value of <literal>ROW_COUNT</literal> is stored in the specified
