@@ -327,7 +327,8 @@
 
       <para>The properties used in earlier versions, namely the
       <varname>textdb.cache_scale</varname> and the
-      <varname>textdb.cache_size_scale</varname> can still be used.</para>
+      <varname>textdb.cache_size_scale</varname> can still be used for
+      backward compatibility, but the new properties are preferred.</para>
 
       <variablelist>
         <title>Supported Properties</title>
@@ -473,15 +474,15 @@
       <listitem>
         <para>By default, all-in-memory databases cannot use text tables. To
         enable this capability the <varname>textdb.allow_full_path</varname>
-        property must be set true as a Java system property. The text file
-        path is used as submitted and interpreted as an absolute path or a
-        path relative to the Java process execute path. These text tables are
-        always read only.</para>
+        property must be set <literal>true</literal> as a Java system
+        property. The text file path is used as submitted and interpreted as
+        an absolute path as described above, or a path relative to the Java
+        process execute path. These text tables are always read-only.</para>
       </listitem>
 
       <listitem>
-        <para>Databases store in jars or as files on the claspath and opened
-        with the res: protocol can reference read-only text files. Thes files
+        <para>Databases store in jars or as files on the classpath and opened
+        with the res: protocol can reference read-only text files. These files
         are opened as resources. The file path is an absolute path beginning
         with a forward slash.</para>
       </listitem>
@@ -547,7 +548,7 @@
       </listitem>
 
       <listitem>
-        <para>SHUTDOWN COMPACT results in a complet rewrite of text table
+        <para>SHUTDOWN COMPACT results in a complete rewrite of text table
         sources that are open at the time. The settings for quoted and
         all_quoted are applied for the rewrite.</para>
       </listitem>
