@@ -1696,6 +1696,23 @@ public class ParserDDL extends ParserRoutine {
 
         read();
 
+        boolean ifNot = false;
+
+        if (token.tokenType == Tokens.IF) {
+            int position = getPosition();
+
+            read();
+
+            if (token.tokenType == Tokens.NOT) {
+                read();
+                readThis(Tokens.EXISTS);
+
+                ifNot = true;
+            } else {
+                rewind(position);
+            }
+        }
+
         /*
                 CREATE SEQUENCE <name>
                 [AS {INTEGER | BIGINT}]
@@ -1708,7 +1725,9 @@ public class ParserDDL extends ParserRoutine {
         readSequenceOptions(sequence, true, false, false);
 
         String     sql            = getLastPart();
-        Object[]   args           = new Object[]{ sequence };
+        Object[]   args           = new Object[]{ sequence,
+        Boolean.valueOf(ifNot)
+        };
         HsqlName[] writeLockNames = database.schemaManager.catalogNameArray;
 
         return new StatementSchema(sql, StatementTypes.CREATE_SEQUENCE, args,

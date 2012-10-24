@@ -31,51 +31,32 @@
 
 package org.hsqldb.persist;
 
-import java.io.IOException;
-
-import org.hsqldb.HsqlException;
-import org.hsqldb.Row;
-import org.hsqldb.RowDiskDataChange;
-import org.hsqldb.Session;
-import org.hsqldb.TableBase;
-import org.hsqldb.rowio.RowInputInterface;
-
-/*
- * Implementation of PersistentStore for data change lists.
+/**
+ * Manages allocation of space for rows.<p>
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
  * @version 2.3.0
- * @since 2.2.7
+ * @since 2.3.0
  */
-public class RowStoreDataChange extends RowStoreAVLHybrid {
+public interface TableSpaceManager {
 
-    public RowStoreDataChange(Session session,
-                              PersistentStoreCollection manager,
-                              TableBase table) {
+    /**
+     * Deallocates a deleted block
+     */
+    void add(long pos, int rowSize);
 
-        super(session, manager, table, true);
+    /**
+     * Allocates a block
+     */
+    long getFilePosition(int rowSize, boolean asBlocks);
 
-        super.changeToDiskTable(session);
-    }
+    int freeBlockCount();
 
-    public CachedObject getNewCachedObject(Session session, Object object,
-                                           boolean tx) {
+    long freeBlockSize();
 
-        Row row = new RowDiskDataChange(table, (Object[]) object, this, null);
+    long getLostBlocksSize();
 
-        add(session, row, tx);
+    boolean isModified();
 
-        return row;
-    }
-
-    public CachedObject get(RowInputInterface in) {
-
-        try {
-            return new RowDiskDataChange(session, table, in);
-        } catch (HsqlException e) {
-            return null;
-        } catch (IOException e1) {
-            return null;
-        }
-    }
+    void clear();
 }

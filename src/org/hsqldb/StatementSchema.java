@@ -1099,7 +1099,8 @@ public class StatementSchema extends Statement {
                 }
             }
             case StatementTypes.CREATE_SEQUENCE : {
-                NumberSequence sequence = (NumberSequence) arguments[0];
+                NumberSequence sequence    = (NumberSequence) arguments[0];
+                Boolean        ifNotExists = (Boolean) arguments[1];
 
                 try {
                     setOrCheckObjectName(session, null, sequence.getName(),
@@ -1108,7 +1109,11 @@ public class StatementSchema extends Statement {
 
                     break;
                 } catch (HsqlException e) {
-                    return Result.newErrorResult(e, sql);
+                    if (ifNotExists != null && ifNotExists.booleanValue()) {
+                        return Result.updateZeroResult;
+                    } else {
+                        return Result.newErrorResult(e, sql);
+                    }
                 }
             }
             case StatementTypes.CREATE_DOMAIN : {

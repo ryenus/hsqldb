@@ -607,8 +607,10 @@ public class Database {
                 clearStructures();
                 reopen();
                 setState(DATABASE_CLOSING);
+                sessionManager.closeAllSessions();
                 logger.closePersistence(CLOSEMODE_NORMAL);
                 lobManager.close();
+                sessionManager.close();
             }
         } catch (Throwable t) {
             if (t instanceof HsqlException) {

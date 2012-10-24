@@ -38,7 +38,7 @@ import org.hsqldb.persist.PersistentStore;
  * Manages rows involved in transactions
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.2.9
+ * @version 2.3.0
  * @since 2.0.0
  */
 public interface TransactionManager {
@@ -55,7 +55,8 @@ public interface TransactionManager {
 
     public long getGlobalChangeTimestamp();
 
-    public RowAction addDeleteAction(Session session, Table table, Row row,
+    public RowAction addDeleteAction(Session session, Table table,
+                                     PersistentStore store, Row row,
                                      int[] colMap);
 
     public void addInsertAction(Session session, Table table,
@@ -73,9 +74,11 @@ public interface TransactionManager {
     public void beginTransaction(Session session);
 
     // functional unit - accessibility of rows
-    public boolean canRead(Session session, Row row, int mode, int[] colMap);
+    public boolean canRead(Session session, PersistentStore store, Row row,
+                           int mode, int[] colMap);
 
-    public boolean canRead(Session session, long id, int mode);
+    public boolean canRead(Session session, PersistentStore store, long id,
+                           int mode);
 
     public boolean commitTransaction(Session session);
 
@@ -98,10 +101,16 @@ public interface TransactionManager {
     public void setTransactionControl(Session session, int mode);
 
     /**
+     * store transaction info for a new row. called only
+     * for CACHED tables
+     */
+    public void addTransactionInfo(CachedObject object);
+
+    /**
      * add transaction info to a row just loaded from the cache. called only
      * for CACHED tables
      */
-    public void setTransactionInfo(CachedObject object);
+    public void setTransactionInfo(PersistentStore store, CachedObject object);
 
     /**
      * remove the transaction info

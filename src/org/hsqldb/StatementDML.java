@@ -1040,11 +1040,12 @@ public class StatementDML extends StatementDMQL {
         navigator.beforeFirst();
 
         while (navigator.next()) {
-            Row   row            = navigator.getCurrentRow();
-            Table currentTable   = ((Table) row.getTable());
+            Row             row          = navigator.getCurrentRow();
+            Table           currentTable = ((Table) row.getTable());
             int[] changedColumns = navigator.getCurrentChangedColumns();
+            PersistentStore store        = currentTable.getRowStore(session);
 
-            session.addDeleteAction(currentTable, row, changedColumns);
+            session.addDeleteAction(currentTable, store, row, changedColumns);
         }
 
         navigator.beforeFirst();
@@ -1198,7 +1199,8 @@ public class StatementDML extends StatementDMQL {
             while (it.hasNext()) {
                 Row row = it.getNextRow();
 
-                session.addDeleteAction((Table) row.getTable(), row, null);
+                session.addDeleteAction((Table) row.getTable(), store, row,
+                                        null);
             }
 
             if (restartIdentity && targetTable.identitySequence != null) {
@@ -1271,11 +1273,12 @@ public class StatementDML extends StatementDMQL {
         boolean hasUpdate = false;
 
         while (navigator.next()) {
-            Row      row          = navigator.getCurrentRow();
-            Object[] data         = navigator.getCurrentChangedData();
-            Table    currentTable = ((Table) row.getTable());
+            Row             row          = navigator.getCurrentRow();
+            Object[]        data         = navigator.getCurrentChangedData();
+            Table           currentTable = ((Table) row.getTable());
+            PersistentStore store        = currentTable.getRowStore(session);
 
-            session.addDeleteAction(currentTable, row, null);
+            session.addDeleteAction(currentTable, store, row, null);
 
             if (data != null) {
                 hasUpdate = true;

@@ -180,7 +180,7 @@ public class StringConverter {
         int    l = s.length();
         int    n;
         int    bitIndex = 0;
-        BitMap map      = new BitMap(l);
+        BitMap map      = new BitMap(l, true);
 
         for (int j = 0; j < l; j++) {
             char c = s.charAt(j);

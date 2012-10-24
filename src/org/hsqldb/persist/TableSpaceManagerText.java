@@ -31,51 +31,74 @@
 
 package org.hsqldb.persist;
 
-import java.io.IOException;
+import org.hsqldb.error.Error;
+import org.hsqldb.error.ErrorCode;
 
-import org.hsqldb.HsqlException;
-import org.hsqldb.Row;
-import org.hsqldb.RowDiskDataChange;
-import org.hsqldb.Session;
-import org.hsqldb.TableBase;
-import org.hsqldb.rowio.RowInputInterface;
-
-/*
- * Implementation of PersistentStore for data change lists.
+/**
+ * Maintains a list of free file blocks with fixed capacity.<p>
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
  * @version 2.3.0
- * @since 2.2.7
+ * @since 2.3.0
  */
-public class RowStoreDataChange extends RowStoreAVLHybrid {
+public class TableSpaceManagerText implements TableSpaceManager {
 
-    public RowStoreDataChange(Session session,
-                              PersistentStoreCollection manager,
-                              TableBase table) {
+    DataFileCache cache;
+    final int     scale;
 
-        super(session, manager, table, true);
-
-        super.changeToDiskTable(session);
+    public TableSpaceManagerText(DataFileCache cache) {
+        this.cache = cache;
+        this.scale = cache.dataFileScale;
     }
 
-    public CachedObject getNewCachedObject(Session session, Object object,
-                                           boolean tx) {
+    /**
+     */
+    public void add(long pos, int rowSize) {}
 
-        Row row = new RowDiskDataChange(table, (Object[]) object, this, null);
+    /**
+     * Returns the position of a free block or 0.
+     */
+    public long getFilePosition(int rowSize, boolean asBlocks) {
 
-        add(session, row, tx);
-
-        return row;
-    }
-
-    public CachedObject get(RowInputInterface in) {
+        cache.writeLock.lock();
 
         try {
-            return new RowDiskDataChange(session, table, in);
-        } catch (HsqlException e) {
-            return null;
-        } catch (IOException e1) {
-            return null;
+            long i;
+            long newFreePosition;
+
+            i               = cache.fileFreePosition / scale;
+            newFreePosition = cache.fileFreePosition + rowSize;
+
+            if (newFreePosition > cache.maxDataFileSize) {
+                cache.logSevereEvent("data file reached maximum size "
+                                     + cache.dataFileName, null);
+
+                throw Error.error(ErrorCode.DATA_FILE_IS_FULL);
+            }
+
+            cache.fileFreePosition = newFreePosition;
+
+            return i;
+        } finally {
+            cache.writeLock.unlock();
         }
     }
+
+    public int freeBlockCount() {
+        return 0;
+    }
+
+    public long freeBlockSize() {
+        return 0;
+    }
+
+    public long getLostBlocksSize() {
+        return 0;
+    }
+
+    public boolean isModified() {
+        return false;
+    }
+
+    public void clear() {}
 }

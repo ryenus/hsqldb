@@ -237,12 +237,13 @@ public class ScriptRunner {
 
                         current.beginAction(dummy);
 
-                        Table    table = scr.getCurrentTable();
-                        Object[] data  = scr.getData();
+                        Table           table = scr.getCurrentTable();
+                        PersistentStore store = table.getRowStore(current);
+                        Object[]        data  = scr.getData();
                         Row row = table.getDeleteRowFromLog(current, data);
 
                         if (row != null) {
-                            current.addDeleteAction(table, row, null);
+                            current.addDeleteAction(table, store, row, null);
                         }
 
                         current.endAction(Result.updateOneResult);

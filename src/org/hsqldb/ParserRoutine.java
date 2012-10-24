@@ -1098,7 +1098,7 @@ public class ParserRoutine extends ParserDML {
 
             name.schema = SqlInvariants.MODULE_HSQLNAME;
 
-            Table table = new Table(database, name, TableBase.FUNCTION_TABLE);
+            Table table = new Table(database, name, TableBase.TEMP_TABLE);
 
             readTableDefinition(routine, table);
 

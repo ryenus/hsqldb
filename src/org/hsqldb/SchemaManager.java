@@ -54,7 +54,7 @@ import org.hsqldb.types.Type;
  * Manages all SCHEMA related database objects
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version  2.2.7
+ * @version  2.3.0
  * @since 1.8.0
  */
 public class SchemaManager {
@@ -998,7 +998,16 @@ public class SchemaManager {
             }
         }
 
-        database.persistentStoreCollection.releaseStore(table);
+        if (table.tableType == TableBase.TEMP_TABLE) {
+            Session sessions[] = database.sessionManager.getAllSessions();
+
+            for (int i = 0; i < sessions.length; i++) {
+                sessions[i].sessionData.persistentStoreCollection.setStore(
+                    table, null);
+            }
+        } else {
+            database.persistentStoreCollection.releaseStore(table);
+        }
     }
 
     public void setTable(int index, Table table) {

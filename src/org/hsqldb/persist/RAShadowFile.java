@@ -78,7 +78,7 @@ public class RAShadowFile {
             bitSize++;
         }
 
-        bitMap                = new BitMap(bitSize);
+        bitMap                = new BitMap(bitSize, false);
         buffer                = new byte[pageSize + 12];
         byteArrayOutputStream = new HsqlByteArrayOutputStream(buffer);
     }

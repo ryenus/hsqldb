@@ -31,6 +31,8 @@
 
 package org.hsqldb.persist;
 
+import org.hsqldb.error.Error;
+import org.hsqldb.error.ErrorCode;
 import org.hsqldb.lib.DoubleIntIndex;
 
 /**
@@ -40,8 +42,9 @@ import org.hsqldb.lib.DoubleIntIndex;
  * @version 2.3.0
  * @since 1.8.0
  */
-public class DataFileBlockManager {
+public class DataFileBlockManager implements TableSpaceManager {
 
+    private DataFileCache  cache;
     private DoubleIntIndex lookup;
     private final int      capacity;
     private int            midSize;
@@ -59,15 +62,16 @@ public class DataFileBlockManager {
     /**
      *
      */
-    public DataFileBlockManager(int capacity, int scale, int reuseMin,
-                                long lostSize) {
+    public DataFileBlockManager(DataFileCache cache, int capacity,
+                                int reuseMin, long lostSize) {
 
-        lookup = new DoubleIntIndex(capacity, true);
+        this.cache = cache;
+        lookup     = new DoubleIntIndex(capacity, true);
 
         lookup.setValuesSearchTarget();
 
         this.capacity          = capacity;
-        this.scale             = scale;
+        this.scale             = cache.dataFileScale;
         this.reuseMin          = reuseMin;
         this.lostFreeBlockSize = lostSize;
         this.midSize           = 128;    // arbitrary initial value
@@ -75,7 +79,7 @@ public class DataFileBlockManager {
 
     /**
      */
-    void add(long pos, int rowSize) {
+    public void add(long pos, int rowSize) {
 
         isModified = true;
 
@@ -99,63 +103,105 @@ public class DataFileBlockManager {
         }
     }
 
+    long getNewBlock(int rowSize, boolean asBlocks) {
+
+        cache.writeLock.lock();
+
+        try {
+            long i;
+            long newFreePosition;
+
+            i               = cache.fileFreePosition / scale;
+            newFreePosition = cache.fileFreePosition + rowSize;
+
+            if (newFreePosition > cache.maxDataFileSize) {
+                cache.logSevereEvent("data file reached maximum size "
+                                     + cache.dataFileName, null);
+
+                throw Error.error(ErrorCode.DATA_FILE_IS_FULL);
+            }
+
+            boolean result = cache.dataFile.ensureLength(newFreePosition);
+
+            if (!result) {
+                cache.logSevereEvent(
+                    "data file cannot be enlarged - disk spacee "
+                    + cache.dataFileName, null);
+
+                throw Error.error(ErrorCode.DATA_FILE_IS_FULL);
+            }
+
+            cache.fileFreePosition = newFreePosition;
+
+            return i;
+        } finally {
+            cache.writeLock.unlock();
+        }
+    }
+
     /**
      * Returns the position of a free block or 0.
      */
-    int get(int rowSize) {
+    public long getFilePosition(int rowSize, boolean asBlocks) {
 
-        if (capacity == 0 || rowSize < reuseMin) {
-            return -1;
+        cache.writeLock.lock();
+
+        try {
+            if (capacity == 0 || rowSize < reuseMin) {
+                return getNewBlock(rowSize, asBlocks);
+            }
+
+            int index = lookup.findFirstGreaterEqualKeyIndex(rowSize);
+
+            if (index == -1) {
+                return getNewBlock(rowSize, asBlocks);
+            }
+
+            // statistics for successful requests only - to be used later for midSize
+            requestCount++;
+
+            requestSize += rowSize;
+
+            int length     = lookup.getValue(index);
+            int difference = length - rowSize;
+            int key        = lookup.getKey(index);
+
+            lookup.remove(index);
+
+            freeBlockSize -= rowSize;
+
+            if (difference >= midSize) {
+                int pos = key + (rowSize / scale);
+
+                lookup.add(pos, difference);
+            } else {
+                lostFreeBlockSize += difference;
+                freeBlockSize     -= difference;
+            }
+
+            return key;
+        } finally {
+            cache.writeLock.unlock();
         }
-
-        int index = lookup.findFirstGreaterEqualKeyIndex(rowSize);
-
-        if (index == -1) {
-            return -1;
-        }
-
-        // statistics for successful requests only - to be used later for midSize
-        requestCount++;
-
-        requestSize += rowSize;
-
-        int length     = lookup.getValue(index);
-        int difference = length - rowSize;
-        int key        = lookup.getKey(index);
-
-        lookup.remove(index);
-
-        freeBlockSize -= rowSize;
-
-        if (difference >= midSize) {
-            int pos = key + (rowSize / scale);
-
-            lookup.add(pos, difference);
-        } else {
-            lostFreeBlockSize += difference;
-            freeBlockSize     -= difference;
-        }
-
-        return key;
     }
 
-    int freeBlockCount() {
+    public int freeBlockCount() {
         return lookup.size();
     }
 
-    long freeBlockSize() {
+    public long freeBlockSize() {
         return freeBlockSize;
     }
 
-    long getLostBlocksSize() {
+    public long getLostBlocksSize() {
         return lostFreeBlockSize;
     }
 
-    boolean isModified() {
+    public boolean isModified() {
         return isModified;
     }
 
-    void clear() {
+    public void clear() {
         removeBlocks(lookup.size());
     }
 
