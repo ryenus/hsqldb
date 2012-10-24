@@ -55,7 +55,7 @@ import org.hsqldb.types.Type;
  * Base implementation of PersistentStore for different table types.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.2.9
+ * @version 2.3.0
  * @since 1.9.0
  */
 public abstract class RowStoreAVL implements PersistentStore {
@@ -68,6 +68,7 @@ public abstract class RowStoreAVL implements PersistentStore {
     TableBase                 table;
     long                      baseElementCount;
     long                      elementCount;
+    long                      storageSize;
     boolean[]                 nullsList;
     double[][]                searchCost;
     boolean                   isSchemaStore;
@@ -103,7 +104,7 @@ public abstract class RowStoreAVL implements PersistentStore {
 
     public abstract CachedObject get(CachedObject object, boolean keep);
 
-    public abstract void add(CachedObject object);
+    public abstract void add(Session session, CachedObject object, boolean tx);
 
     public abstract CachedObject get(RowInputInterface in);
 
@@ -118,9 +119,7 @@ public abstract class RowStoreAVL implements PersistentStore {
 
     public abstract void removeAll();
 
-    public abstract void remove(long i);
-
-    public abstract void release(long i);
+    public abstract void remove(CachedObject object);
 
     public abstract void commitPersistence(CachedObject object);
 
@@ -216,7 +215,7 @@ public abstract class RowStoreAVL implements PersistentStore {
                 indexList[i].delete(session, this, row);
             }
 
-            remove(row.getPos());
+            remove(row);
 
             throw e;
         }
@@ -407,6 +406,14 @@ public abstract class RowStoreAVL implements PersistentStore {
 
     public void setElementCount(Index key, long size, long uniqueSize) {
         elementCount = size;
+    }
+
+    public long getStorageSize() {
+        return storageSize;
+    }
+
+    public void setStorageSize(long size) {
+        storageSize = size;
     }
 
     public boolean hasNull(int pos) {

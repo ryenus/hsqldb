@@ -154,15 +154,6 @@ public class RowAVLDiskData extends RowAVL {
         return newnode;
     }
 
-    /**
-     *  Used when data is re-read from the disk into the Cache. The Row is
-     *  already indexed so it is linked with the Node in the primary index.
-     *  the Nodes is made separetly.
-     */
-    void setPrimaryNode(NodeAVL primary) {
-        nPrimaryNode = primary;
-    }
-
     public int getRealSize(RowOutputInterface out) {
         return out.getSize(this);
     }

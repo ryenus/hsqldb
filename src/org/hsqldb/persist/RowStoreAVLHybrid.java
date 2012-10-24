@@ -39,7 +39,6 @@ import org.hsqldb.RowAVL;
 import org.hsqldb.RowAVLDisk;
 import org.hsqldb.RowAction;
 import org.hsqldb.Session;
-import org.hsqldb.Table;
 import org.hsqldb.TableBase;
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
@@ -55,7 +54,7 @@ import org.hsqldb.rowio.RowInputInterface;
  * Implementation of PersistentStore for result sets.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.2.9
+ * @version 2.3.0
  * @since 1.9.0
  */
 public class RowStoreAVLHybrid extends RowStoreAVL implements PersistentStore {
@@ -155,7 +154,7 @@ public class RowStoreAVLHybrid extends RowStoreAVL implements PersistentStore {
         }
     }
 
-    public void add(CachedObject object) {
+    public void add(Session session, CachedObject object, boolean tx) {
 
         if (isCached) {
             int size = object.getRealSize(cache.rowOut);
@@ -164,6 +163,7 @@ public class RowStoreAVLHybrid extends RowStoreAVL implements PersistentStore {
             size = cache.rowOut.getStorageSize(size);
 
             object.setStorageSize(size);
+            cache.setFilePos(object, cache.freeBlocks);
             cache.add(object);
         }
 
@@ -204,32 +204,19 @@ public class RowStoreAVLHybrid extends RowStoreAVL implements PersistentStore {
             }
         }
 
+        Row row;
+
         if (isCached) {
-            Row row = new RowAVLDisk(table, (Object[]) object, this);
-
-            add(row);
-
-            if (tx) {
-                RowAction.addInsertAction(session, (Table) table, row);
-            }
-
-            return row;
+            row = new RowAVLDisk(table, (Object[]) object, this);
         } else {
-            int id  = rowIdSequence++;
-            Row row = new RowAVL(table, (Object[]) object, id, this);
+            int id = rowIdSequence++;
 
-            add(row);
-
-            if (tx) {
-                RowAction action = new RowAction(session, table,
-                                                 RowAction.ACTION_INSERT, row,
-                                                 null);
-
-                row.rowAction = action;
-            }
-
-            return row;
+            row = new RowAVL(table, (Object[]) object, id, this);
         }
+
+        add(session, row, tx);
+
+        return row;
     }
 
     public void removeAll() {
@@ -247,17 +234,10 @@ public class RowStoreAVLHybrid extends RowStoreAVL implements PersistentStore {
         }
     }
 
-    public void remove(long i) {
+    public void remove(CachedObject object) {
 
         if (isCached) {
-            cache.remove(i, this);
-        }
-    }
-
-    public void release(long i) {
-
-        if (isCached) {
-            cache.release(i);
+            cache.remove(object, cache.freeBlocks);
         }
     }
 
@@ -269,7 +249,7 @@ public class RowStoreAVLHybrid extends RowStoreAVL implements PersistentStore {
         switch (changeAction) {
 
             case RowAction.ACTION_DELETE :
-                remove(row.getPos());
+                remove(row);
                 break;
 
             case RowAction.ACTION_INSERT :
@@ -278,11 +258,12 @@ public class RowStoreAVLHybrid extends RowStoreAVL implements PersistentStore {
             case RowAction.ACTION_INSERT_DELETE :
 
                 // INSERT + DELEETE
-                remove(row.getPos());
+                remove(row);
                 break;
 
             case RowAction.ACTION_DELETE_FINAL :
                 delete(session, row);
+                remove(row);
                 break;
         }
     }
@@ -302,13 +283,13 @@ public class RowStoreAVLHybrid extends RowStoreAVL implements PersistentStore {
 
             case RowAction.ACTION_INSERT :
                 delete(session, row);
-                remove(row.getPos());
+                remove(row);
                 break;
 
             case RowAction.ACTION_INSERT_DELETE :
 
                 // INSERT + DELEETE
-                remove(row.getPos());
+                remove(row);
                 break;
         }
     }

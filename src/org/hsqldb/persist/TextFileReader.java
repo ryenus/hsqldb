@@ -45,7 +45,7 @@ import org.hsqldb.rowio.RowInputText;
  *
  * @author Bob Preston (sqlbob@users dot sourceforge.net)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.2.7
+ * @version 2.3.0
  * @since 2.2.7
 */
 public class TextFileReader {
@@ -68,7 +68,7 @@ public class TextFileReader {
         this.buffer           = new HsqlByteArrayOutputStream(128);
     }
 
-    public RowInputInterface readObject(int pos) {
+    public RowInputInterface readObject(long pos) {
 
         boolean hasQuote  = false;
         boolean complete  = false;
@@ -252,11 +252,11 @@ public class TextFileReader {
      *
      * If none found return -1
      */
-    private int findNextUsedLinePos(int pos) {
+    private long findNextUsedLinePos(long pos) {
 
         try {
-            int     firstPos   = pos;
-            int     currentPos = pos;
+            long     firstPos   = pos;
+            long     currentPos = pos;
             boolean wasCR      = false;
 
             dataFile.seek(pos);

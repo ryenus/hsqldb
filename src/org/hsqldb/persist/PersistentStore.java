@@ -42,7 +42,7 @@ import org.hsqldb.rowio.RowInputInterface;
  * Interface for a store for CachedObject objects.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.2.9
+ * @version 2.3.0
  * @since 1.9.0
  */
 public interface PersistentStore {
@@ -74,7 +74,7 @@ public interface PersistentStore {
     CachedObject get(CachedObject object, boolean keep);
 
     /** add new object */
-    void add(CachedObject object);
+    void add(Session session, CachedObject object, boolean tx);
 
     CachedObject get(RowInputInterface in);
 
@@ -88,10 +88,7 @@ public interface PersistentStore {
     void removeAll();
 
     /** remove both persisted and cached copies */
-    void remove(long i);
-
-    /** remove the cached copies */
-    void release(long i);
+    void remove(CachedObject object);
 
     /** commit persisted image */
     void commitPersistence(CachedObject object);
@@ -135,6 +132,10 @@ public interface PersistentStore {
     long elementCountUnique(Index index);
 
     void setElementCount(Index key, long size, long uniqueSize);
+
+    long getStorageSize();
+
+    void setStorageSize(long size);
 
     boolean hasNull(int pos);
 

@@ -155,6 +155,10 @@ public class RowSetNavigatorDataTable extends RowSetNavigatorData {
 
         mainIndex = fullIndex;
 
+        if (iterator != null) {
+            iterator.release();
+        }
+
         reset();
     }
 
@@ -166,6 +170,10 @@ public class RowSetNavigatorDataTable extends RowSetNavigatorData {
             }
 
             mainIndex = orderIndex;
+
+            if (iterator != null) {
+                iterator.release();
+            }
 
             reset();
         }
@@ -265,6 +273,10 @@ public class RowSetNavigatorDataTable extends RowSetNavigatorData {
     public void reset() {
 
         super.reset();
+
+        if (iterator != null) {
+            iterator.release();
+        }
 
         iterator = mainIndex.firstRow(session, store);
     }
@@ -387,7 +399,6 @@ public class RowSetNavigatorDataTable extends RowSetNavigatorData {
         Object[]    otherData = null;
 
         sortFull(session);
-        reset();
         other.sortFull(session);
 
         it = fullIndex.emptyIterator();
@@ -447,7 +458,6 @@ public class RowSetNavigatorDataTable extends RowSetNavigatorData {
         Object[]    otherData = null;
 
         sortFull(session);
-        reset();
         other.sortFull(session);
 
         it = fullIndex.emptyIterator();
@@ -483,7 +493,6 @@ public class RowSetNavigatorDataTable extends RowSetNavigatorData {
     public boolean hasUniqueNotNullRows(Session session) {
 
         sortFull(session);
-        reset();
 
         Object[] lastRowData = null;
 
@@ -509,7 +518,6 @@ public class RowSetNavigatorDataTable extends RowSetNavigatorData {
     public void removeDuplicates(Session session) {
 
         sortFull(session);
-        reset();
 
         Object[] lastRowData = null;
 

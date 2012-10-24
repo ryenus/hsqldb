@@ -214,9 +214,10 @@ public class StatementSession extends Statement {
 
         super(type);
 
-        this.isTransactionStatement = true;
-        this.readTableNames         = readNames;
-        writeTableNames             = writeNames;
+        isTransactionStatement = true;
+        isLogged               = false;
+        readTableNames         = readNames;
+        writeTableNames        = writeNames;
 
         switch (type) {
 

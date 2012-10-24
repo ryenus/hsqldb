@@ -46,7 +46,7 @@ import org.hsqldb.rowio.RowInputInterface;
  * data is read from and written to a text format data file.
  *
  * @author Bob Preston (sqlbob@users dot sourceforge.net)
- * @version 2.2.7
+ * @version 2.3.0
  */
 public class TextTable extends org.hsqldb.Table {
 
@@ -111,7 +111,7 @@ public class TextTable extends org.hsqldb.Table {
 
             // read and insert all the rows from the source file
             Row row     = null;
-            int nextpos = 0;
+            long nextpos = 0;
 
             if (cache.isIgnoreFirstLine()) {
                 nextpos += reader.readHeaderLine();

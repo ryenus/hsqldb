@@ -33,18 +33,20 @@ package org.hsqldb.persist;
 
 import org.hsqldb.Row;
 import org.hsqldb.RowAVL;
+import org.hsqldb.RowAction;
 import org.hsqldb.Session;
 import org.hsqldb.Table;
 import org.hsqldb.TableBase;
 import org.hsqldb.index.Index;
 import org.hsqldb.index.NodeAVL;
+import org.hsqldb.index.NodeAVLDisk;
 import org.hsqldb.navigator.RowIterator;
 
 /*
  * Implementation of PersistentStore for information schema and temp tables.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.2.9
+ * @version 2.3.0
  * @since 2.0.1
  */
 public class RowStoreAVLHybridExtended extends RowStoreAVLHybrid {
@@ -55,6 +57,8 @@ public class RowStoreAVLHybridExtended extends RowStoreAVLHybrid {
         super(session, manager, table, diskBased);
     }
 
+    public void set(CachedObject object) {}
+
     public CachedObject getNewCachedObject(Session session, Object object,
                                            boolean tx) {
 
@@ -63,6 +67,39 @@ public class RowStoreAVLHybridExtended extends RowStoreAVLHybrid {
         }
 
         return super.getNewCachedObject(session, object, tx);
+    }
+
+    public void add(Session session, CachedObject object, boolean tx) {
+
+        if (isCached) {
+            int size = object.getRealSize(cache.rowOut);
+
+            size += indexList.length * NodeAVLDisk.SIZE_IN_BYTE;
+            size = cache.rowOut.getStorageSize(size);
+
+            object.setStorageSize(size);
+            cache.setFilePos(object, cache.freeBlocks);
+
+            if (tx) {
+                RowAction.addInsertAction(session, (Table) table,
+                                          (Row) object);
+            }
+
+            cache.add(object);
+        } else {
+            if (tx) {
+                RowAction.addInsertAction(session, (Table) table,
+                                          (Row) object);
+            }
+        }
+
+        Object[] data = ((Row) object).getData();
+
+        for (int i = 0; i < nullsList.length; i++) {
+            if (data[i] == null) {
+                nullsList[i] = true;
+            }
+        }
     }
 
     public void indexRow(Session session, Row row) {
@@ -84,14 +121,76 @@ public class RowStoreAVLHybridExtended extends RowStoreAVLHybrid {
         super.indexRow(session, row);
     }
 
+    public void commitRow(Session session, Row row, int changeAction,
+                          int txModel) {
+
+        Object[] data = row.getData();
+
+        switch (changeAction) {
+
+            case RowAction.ACTION_DELETE :
+                remove(row);
+                break;
+
+            case RowAction.ACTION_INSERT :
+                break;
+
+            case RowAction.ACTION_INSERT_DELETE :
+                remove(row);
+                break;
+
+            case RowAction.ACTION_DELETE_FINAL :
+                delete(session, row);
+                remove(row);
+                break;
+        }
+    }
+
+    public void rollbackRow(Session session, Row row, int changeAction,
+                            int txModel) {
+
+        switch (changeAction) {
+
+            case RowAction.ACTION_DELETE :
+                row = (Row) get(row, true);
+
+                ((RowAVL) row).setNewNodes(this);
+                row.keepInMemory(false);
+                indexRow(session, row);
+                break;
+
+            case RowAction.ACTION_INSERT :
+                delete(session, row);
+                remove(row);
+                break;
+
+            case RowAction.ACTION_INSERT_DELETE :
+                remove(row);
+                break;
+        }
+    }
+
     /**
      * Row might have changed from memory to disk or indexes added
      */
     public void delete(Session session, Row row) {
 
-        row = ((Table) table).getDeleteRowFromLog(session, row.getData());
+        NodeAVL node  = ((RowAVL) row).getNode(0);
+        int     count = 0;
 
-        super.delete(session, row);
+        while (node != null) {
+            count++;
+
+            node = node.nNext;
+        }
+
+        if ((isCached && row.isMemory()) || count != indexList.length) {
+            row = ((Table) table).getDeleteRowFromLog(session, row.getData());
+        }
+
+        if (row != null) {
+            super.delete(session, row);
+        }
     }
 
     public CachedObject getAccessor(Index key) {
