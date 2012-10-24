@@ -1,3 +1,6 @@
+24 October 2012 - svn 5096 snapshot
+-- fixed various minor issues in different areas
+-- fixed issues with some disk-based TEMP tables used in multiversion transaction modes
 12 October 2012 - svn 5089 snapshot
 -- fixed issue with LOBs in res: databases
 -- fixed regression with some nested views
