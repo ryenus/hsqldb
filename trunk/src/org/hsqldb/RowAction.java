@@ -671,6 +671,8 @@ public class RowAction extends RowActionBase {
             }
         }
 
+        commitRollbackType = (byte) rollbackAction;
+
         return rollbackAction;
     }
 

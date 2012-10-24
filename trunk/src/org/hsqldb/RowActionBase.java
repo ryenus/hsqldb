@@ -63,6 +63,7 @@ public class RowActionBase {
     long                     actionTimestamp;
     long                     commitTimestamp;
     byte                     type;
+    byte                     commitRollbackType;
     boolean                  deleteComplete;
     boolean                  rolledback;
     boolean                  prepared;

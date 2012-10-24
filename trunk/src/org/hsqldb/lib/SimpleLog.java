@@ -138,6 +138,10 @@ public class SimpleLog {
             return;
         }
 
+        if (writer == null) {
+            return;
+        }
+
         sb.append(HsqlDateTime.getSystemTimeString()).append(' ');
         sb.append(logTypeNames[atLevel]).append(' ').append(message);
         writer.println(sb.toString());
@@ -149,6 +153,10 @@ public class SimpleLog {
                                         String message, String suffix) {
 
         if (level < atLevel) {
+            return;
+        }
+
+        if (writer == null) {
             return;
         }
 

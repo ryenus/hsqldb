@@ -36,17 +36,18 @@ package org.hsqldb.store;
  * manipulate int, byte and byte[] values as bit maps.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 1.9.0
+ * @version 2.3.0
  * @since 1.8.0
 */
 public class BitMap {
 
-    int   defaultCapacity;
-    int   capacity;
-    int[] map;
-    int   limitPos;
+    int           defaultCapacity;
+    int           capacity;
+    int[]         map;
+    int           limitPos;
+    final boolean extendCapacity;
 
-    public BitMap(int initialCapacity) {
+    public BitMap(int initialCapacity, boolean extend) {
 
         int words = initialCapacity / 32;
 
@@ -57,6 +58,15 @@ public class BitMap {
         defaultCapacity = capacity = words * 32;
         map             = new int[words];
         limitPos        = 0;
+        extendCapacity  = extend;
+    }
+
+    public BitMap(int[] map) {
+
+        this.map        = map;
+        defaultCapacity = capacity = map.length * 32;
+        limitPos        = capacity;
+        extendCapacity  = false;
     }
 
     public int size() {
@@ -152,6 +162,10 @@ public class BitMap {
         return get(pos) == 1;
     }
 
+    public int[] getInts() {
+        return map;
+    }
+
     public byte[] getBytes() {
 
         byte[] buf = new byte[(limitPos + 7) / 8];
@@ -192,6 +206,10 @@ public class BitMap {
     }
 
     private void doubleCapacity() {
+
+        if (!extendCapacity) {
+            throw new ArrayStoreException("BitMap extend");
+        }
 
         int[] newmap = new int[map.length * 2];
 

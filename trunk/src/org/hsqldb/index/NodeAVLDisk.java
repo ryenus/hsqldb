@@ -72,7 +72,7 @@ package org.hsqldb.index;
 
 import java.io.IOException;
 
-import org.hsqldb.Row;
+import org.hsqldb.RowAVL;
 import org.hsqldb.RowAVLDisk;
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
@@ -165,7 +165,7 @@ public class NodeAVLDisk extends NodeAVL {
         return row.getPos();
     }
 
-    public Row getRow(PersistentStore store) {
+    public RowAVL getRow(PersistentStore store) {
 
         if (!row.isInMemory()) {
             return (RowAVLDisk) store.get(this.row, false);

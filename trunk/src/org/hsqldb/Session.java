@@ -76,7 +76,7 @@ import org.hsqldb.types.Type.TypedComparator;
  * Implementation of SQL sessions.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.2.9
+ * @version 2.3.0
  * @since 1.7.0
  */
 public class Session implements SessionInterface {
@@ -416,7 +416,8 @@ public class Session implements SessionInterface {
      * @param  row the deleted row
      * @throws  HsqlException
      */
-    public void addDeleteAction(Table table, Row row, int[] colMap) {
+    public void addDeleteAction(Table table, PersistentStore store, Row row,
+                                int[] colMap) {
 
 //        tempActionHistory.add("add delete action " + actionTimestamp);
         if (abortTransaction) {
@@ -424,7 +425,7 @@ public class Session implements SessionInterface {
 //            throw Error.error(ErrorCode.X_40001);
         }
 
-        database.txManager.addDeleteAction(this, table, row, colMap);
+        database.txManager.addDeleteAction(this, table, store, row, colMap);
     }
 
     void addInsertAction(Table table, PersistentStore store, Row row,

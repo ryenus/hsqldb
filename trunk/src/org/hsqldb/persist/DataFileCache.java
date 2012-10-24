@@ -60,7 +60,7 @@ import org.hsqldb.store.BitMap;
  * Rewritten for 1.8.0 and 2.x
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.2.9
+ * @version 2.3.0
  * @since 1.7.2
  */
 public class DataFileCache {
@@ -82,8 +82,9 @@ public class DataFileCache {
     static final int MIN_INITIAL_FREE_POS = 32;
 
     //
-    DataFileBlockManager freeBlocks;
-    static final int     initIOBufferSize = 4096;
+    public TableSpaceManager freeBlocks;
+    static final int         initIOBufferSize = 4096;
+    private static final int diskBlockSize    = 4096;
 
     //
     protected String   dataFileName;
@@ -312,8 +313,9 @@ public class DataFileCache {
             fileModified  = false;
             cacheModified = false;
             freeBlocks =
-                new DataFileBlockManager(database.logger.propMaxFreeBlocks,
-                                         dataFileScale, 0, freesize);
+                new DataFileBlockManager(this,
+                                         database.logger.propMaxFreeBlocks, 0,
+                                         freesize);
 
             logInfoEvent("dataFileCache open end");
         } catch (Throwable t) {
@@ -398,8 +400,9 @@ public class DataFileCache {
             fileModified  = false;
             cacheModified = false;
             freeBlocks =
-                new DataFileBlockManager(database.logger.propMaxFreeBlocks,
-                                         dataFileScale, 0, freesize);
+                new DataFileBlockManager(this,
+                                         database.logger.propMaxFreeBlocks, 0,
+                                         freesize);
 
             logInfoEvent("dataFileCache open end");
         } catch (Throwable t) {
@@ -748,18 +751,13 @@ public class DataFileCache {
      * Removes the row from the cache data structures.
      * Adds the file space for the row to the list of free positions.
      */
-    public void remove(long i, PersistentStore store) {
+    public void remove(CachedObject object, TableSpaceManager spaceManager) {
 
         writeLock.lock();
 
         try {
-            CachedObject r = release(i);
-
-            if (r != null) {
-                int size = r.getStorageSize();
-
-                freeBlocks.add(i, size);
-            }
+            release(object.getPos());
+            spaceManager.add(object.getPos(), object.getStorageSize());
         } finally {
             writeLock.unlock();
         }
@@ -773,34 +771,11 @@ public class DataFileCache {
      * Free space is requested from the block manager if it exists.
      * Otherwise the file is grown to accommodate it.
      */
-    long setFilePos(CachedObject r) {
+    public long setFilePos(CachedObject r,
+                           TableSpaceManager tableSpaceManager) {
 
         int  rowSize = r.getStorageSize();
-        long i       = freeBlocks.get(rowSize);
-        long newFreePosition;
-
-        if (i == -1) {
-            i               = fileFreePosition / dataFileScale;
-            newFreePosition = fileFreePosition + rowSize;
-
-            if (newFreePosition > maxDataFileSize) {
-                logSevereEvent("data file reached maximum size "
-                               + this.dataFileName, null);
-
-                throw Error.error(ErrorCode.DATA_FILE_IS_FULL);
-            }
-
-            boolean result = dataFile.ensureLength(newFreePosition);
-
-            if (!result) {
-                logSevereEvent("data file cannot be enlarged - disk spacee "
-                               + this.dataFileName, null);
-
-                throw Error.error(ErrorCode.DATA_FILE_IS_FULL);
-            }
-
-            fileFreePosition = newFreePosition;
-        }
+        long i       = tableSpaceManager.getFilePosition(rowSize, false);
 
         r.setPos(i);
 
@@ -814,9 +789,7 @@ public class DataFileCache {
         try {
             cacheModified = true;
 
-            long i = setFilePos(object);
-
-            cache.put(i, object);
+            cache.put(object);
 
             if (object.getStorageSize() > initIOBufferSize) {
                 rowOut.reset(object.getStorageSize());
@@ -964,9 +937,7 @@ public class DataFileCache {
 
             // for text tables with empty rows at the beginning,
             // pos may move forward in readObject
-            pos = object.getPos();
-
-            cache.put(pos, object);
+            cache.put(object);
 
             if (keep) {
                 object.keepInMemory(true);
@@ -1379,21 +1350,21 @@ public class DataFileCache {
         }
     }
 
-    private void logSevereEvent(String message, Throwable t) {
+    void logSevereEvent(String message, Throwable t) {
 
         if (logEvents) {
             database.logger.logSevereEvent(message, t);
         }
     }
 
-    public void logInfoEvent(String message) {
+    void logInfoEvent(String message) {
 
         if (logEvents) {
             database.logger.logInfoEvent(message);
         }
     }
 
-    public void logDetailEvent(String message) {
+    void logDetailEvent(String message) {
 
         if (logEvents) {
             database.logger.logDetailEvent(message);

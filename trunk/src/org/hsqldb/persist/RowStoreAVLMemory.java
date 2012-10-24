@@ -89,7 +89,7 @@ public class RowStoreAVLMemory extends RowStoreAVL implements PersistentStore {
         return object;
     }
 
-    public void add(CachedObject object) {}
+    public void add(Session session, CachedObject object, boolean tx) {}
 
     public CachedObject get(RowInputInterface in) {
         return null;
@@ -130,7 +130,7 @@ public class RowStoreAVLMemory extends RowStoreAVL implements PersistentStore {
         ArrayUtil.fillArray(accessorList, null);
     }
 
-    public void remove(long i) {}
+    public void remove(CachedObject object) {}
 
     public void release(long i) {}
 
@@ -179,7 +179,7 @@ public class RowStoreAVLMemory extends RowStoreAVL implements PersistentStore {
             case RowAction.ACTION_INSERT :
                 if (txModel == TransactionManager.LOCKS) {
                     delete(session, row);
-                    remove(row.getPos());
+                    remove(row);
                 }
                 break;
 
@@ -187,7 +187,7 @@ public class RowStoreAVLMemory extends RowStoreAVL implements PersistentStore {
 
                 // INSERT + DELETE
                 if (txModel == TransactionManager.LOCKS) {
-                    remove(row.getPos());
+                    remove(row);
                 }
                 break;
         }

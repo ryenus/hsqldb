@@ -119,7 +119,7 @@ public class Cache extends BaseHashMap {
     /**
      * Adds a row to the cache.
      */
-    synchronized void put(long key, CachedObject row) {
+    synchronized void put(CachedObject row) {
 
         int storageSize = row.getStorageSize();
 
@@ -149,8 +149,8 @@ public class Cache extends BaseHashMap {
      */
     synchronized CachedObject release(long pos) {
 
-        CachedObject r = (CachedObject) super.addOrRemoveObject(null,
-            pos, true);
+        CachedObject r = (CachedObject) super.addOrRemoveObject(null, pos,
+            true);
 
         if (r == null) {
             return null;

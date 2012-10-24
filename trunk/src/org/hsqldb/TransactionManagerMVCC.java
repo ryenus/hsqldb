@@ -46,7 +46,7 @@ import org.hsqldb.persist.PersistentStore;
  * Manages rows involved in transactions
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.2.9
+ * @version 2.3.0
  * @since 2.0.0
  */
 public class TransactionManagerMVCC extends TransactionManagerCommon
@@ -163,7 +163,7 @@ implements TransactionManager {
 
                 if (!rowact.canCommit(session, session.tempSet)) {
 
-//                System.out.println("commit conflicts " + session + " " + session.actionTimestamp);
+//                  System.out.println("commit conflicts " + session + " " + session.actionTimestamp);
                     return false;
                 }
             }
@@ -187,7 +187,8 @@ implements TransactionManager {
                 current.abortTransaction = true;
             }
 
-            persistCommit(session, list, limit);
+            adjustLobUsage(session);
+            persistCommit(session);
 
             int newLimit = session.rowActionList.size();
 
@@ -201,8 +202,9 @@ implements TransactionManager {
             }
 
             // session.actionTimestamp is the committed tx timestamp
-            if (getFirstLiveTransactionTimestamp() > session.actionTimestamp
-                    || session == lobSession) {
+            if (session == lobSession
+                    || getFirstLiveTransactionTimestamp()
+                       > session.actionTimestamp) {
                 mergeTransaction(session, list, 0, limit,
                                  session.actionTimestamp);
                 finaliseRows(session, list, 0, limit, true);
@@ -310,12 +312,14 @@ implements TransactionManager {
         session.rowActionList.setSize(start);
     }
 
-    public RowAction addDeleteAction(Session session, Table table, Row row,
+    public RowAction addDeleteAction(Session session, Table table,
+                                     PersistentStore store, Row row,
                                      int[] colMap) {
 
-        RowAction action = addDeleteActionToRow(session, table, row, colMap);
-        Session   actionSession = null;
-        boolean   redoAction    = true;
+        RowAction action = addDeleteActionToRow(session, table, store, row,
+            colMap);
+        Session actionSession = null;
+        boolean redoAction    = true;
 
         if (action == null) {
             writeLock.lock();
@@ -403,10 +407,6 @@ implements TransactionManager {
                                      "null insert action ");
         }
 
-        if (table.tableType == TableBase.CACHED_TABLE) {
-            rowActionMap.put(action.getPos(), action);
-        }
-
         try {
             store.indexRow(session, row);
         } catch (HsqlException e) {
@@ -472,29 +472,23 @@ implements TransactionManager {
     }
 
 // functional unit - accessibility of rows
-    public boolean canRead(Session session, Row row, int mode, int[] colMap) {
+    public boolean canRead(Session session, PersistentStore store, Row row,
+                           int mode, int[] colMap) {
 
         RowAction action = row.rowAction;
 
-        if (mode == TransactionManager.ACTION_READ) {
-            if (action == null) {
-                return true;
-            }
+        if (action == null) {
+            return true;
+        } else if (action.table.tableType == TableBase.TEMP_TABLE) {
+            return true;
+        }
 
+        if (mode == TransactionManager.ACTION_READ) {
             return action.canRead(session, TransactionManager.ACTION_READ);
         }
 
         if (mode == ACTION_REF) {
-            boolean result;
-
-            if (action == null) {
-                result = true;
-            } else {
-                result = action.canRead(session,
-                                        TransactionManager.ACTION_READ);
-            }
-
-            return result;
+            return action.canRead(session, TransactionManager.ACTION_READ);
 /*
             if (result) {
                 synchronized (row) {
@@ -551,14 +545,15 @@ implements TransactionManager {
 */
         }
 
-        if (action == null) {
-            return true;
-        }
-
         return action.canRead(session, mode);
     }
 
-    public boolean canRead(Session session, long id, int mode) {
+    public boolean canRead(Session session, PersistentStore store, long id,
+                           int mode) {
+
+        if (store.getTable().tableType == TableBase.TEMP_TABLE) {
+            return true;
+        }
 
         RowAction action = (RowAction) rowActionMap.get(id);
 
@@ -569,20 +564,37 @@ implements TransactionManager {
         return action.canRead(session, mode);
     }
 
-    /**
-     * add transaction info to a row just loaded from the cache. called only
-     * for CACHED tables
-     */
-    public void setTransactionInfo(CachedObject object) {
+    public void addTransactionInfo(CachedObject object) {
 
         if (object.isMemory()) {
             return;
         }
 
-        Row       row    = (Row) object;
-        RowAction rowact = (RowAction) rowActionMap.get(row.position);
+        Row row = (Row) object;
 
-        row.rowAction = rowact;
+        if (row.getTable().tableType == TableBase.CACHED_TABLE) {
+            rowActionMap.put(object.getPos(), row.rowAction);
+        }
+    }
+
+    /**
+     * add transaction info to a row just loaded from the cache. called only
+     * for CACHED tables
+     */
+    public void setTransactionInfo(PersistentStore store,
+                                   CachedObject object) {
+
+        if (object.isMemory()) {
+            return;
+        }
+
+        Row row = (Row) object;
+
+        if (row.getTable().tableType == TableBase.CACHED_TABLE) {
+            RowAction rowact = (RowAction) rowActionMap.get(row.getPos());
+
+            row.rowAction = rowact;
+        }
     }
 
     /**
@@ -594,7 +606,11 @@ implements TransactionManager {
             return;
         }
 
-        rowActionMap.remove(object.getPos());
+        Row row = (Row) object;
+
+        if (row.getTable().tableType == TableBase.CACHED_TABLE) {
+            rowActionMap.remove(row.getPos());
+        }
     }
 
     /**
@@ -735,40 +751,58 @@ implements TransactionManager {
         }
     }
 
-    RowAction addDeleteActionToRow(Session session, Table table, Row row,
+    RowAction addDeleteActionToRow(Session session, Table table,
+                                   PersistentStore store, Row row,
                                    int[] colMap) {
 
         RowAction action = null;
 
         synchronized (row) {
-            if (table.tableType == TableBase.CACHED_TABLE) {
-                Lock mapLock = rowActionMap.getWriteLock();
+            switch (table.tableType) {
 
-                mapLock.lock();
+                case TableBase.CACHED_TABLE : {
+                    Lock mapLock = rowActionMap.getWriteLock();
 
-                try {
+                    mapLock.lock();
 
-                    /* using rowActionMap as source */
-                    action = (RowAction) rowActionMap.get(row.getPos());
+                    try {
 
-                    if (action == null) {
-                        action = RowAction.addDeleteAction(session, table,
-                                                           row, colMap);
+                        /* using rowActionMap as source */
+                        action = (RowAction) rowActionMap.get(row.getPos());
 
-                        if (action != null) {
-                            rowActionMap.put(row.getPos(), action);
+                        if (action == null) {
+                            action = RowAction.addDeleteAction(session, table,
+                                                               row, colMap);
+
+                            if (action != null) {
+                                addTransactionInfo(row);
+                            }
+                        } else {
+                            row.rowAction = action;
+                            action = RowAction.addDeleteAction(session, table,
+                                                               row, colMap);
                         }
-                    } else {
-                        row.rowAction = action;
-                        action = RowAction.addDeleteAction(session, table,
-                                                           row, colMap);
+                    } finally {
+                        mapLock.unlock();
                     }
-                } finally {
-                    mapLock.unlock();
+
+                    break;
                 }
-            } else {
-                action = RowAction.addDeleteAction(session, table, row,
-                                                   colMap);
+                case TableBase.TEMP_TABLE : {
+                    action = RowAction.addDeleteAction(session, table, row,
+                                                       colMap);
+
+                    store.delete(session, row);
+
+                    row.rowAction = null;
+
+                    break;
+                }
+                case TableBase.MEMORY_TABLE :
+                default : {
+                    action = RowAction.addDeleteAction(session, table, row,
+                                                       colMap);
+                }
             }
         }
 

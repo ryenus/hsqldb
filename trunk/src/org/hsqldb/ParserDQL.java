@@ -692,7 +692,7 @@ public class ParserDQL extends ParserBase {
 
     HsqlName[] readColumnNames(HsqlName tableName) {
 
-        BitMap         quotedFlags = new BitMap(32);
+        BitMap         quotedFlags = new BitMap(32, true);
         OrderedHashSet set         = readColumnNames(quotedFlags, false);
         HsqlName[]     colList     = new HsqlName[set.size()];
 
@@ -768,7 +768,7 @@ public class ParserDQL extends ParserBase {
 
     SimpleName[] readColumnNameList(OrderedHashSet set) {
 
-        BitMap columnNameQuoted = new BitMap(32);
+        BitMap columnNameQuoted = new BitMap(32, true);
 
         readThis(Tokens.OPENBRACKET);
         readColumnNameList(set, columnNameQuoted, false);

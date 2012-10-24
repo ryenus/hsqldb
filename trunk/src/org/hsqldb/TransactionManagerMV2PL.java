@@ -44,7 +44,7 @@ import org.hsqldb.persist.PersistentStore;
  * Manages rows involved in transactions
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.2.9
+ * @version 2.3.0
  * @since 2.0.0
  */
 public class TransactionManagerMV2PL extends TransactionManagerCommon
@@ -134,7 +134,8 @@ implements TransactionManager {
                 action.commit(session);
             }
 
-            persistCommit(session, list, limit);
+            adjustLobUsage(session);
+            persistCommit(session);
 
             int newLimit = session.rowActionList.size();
 
@@ -148,8 +149,9 @@ implements TransactionManager {
             }
 
             // session.actionTimestamp is the committed tx timestamp
-            if (getFirstLiveTransactionTimestamp() > session.actionTimestamp
-                    || session == lobSession) {
+            if (session == lobSession
+                    || getFirstLiveTransactionTimestamp()
+                       > session.actionTimestamp) {
                 mergeTransaction(session, list, 0, limit,
                                  session.actionTimestamp);
                 finaliseRows(session, list, 0, limit, true);
@@ -241,22 +243,25 @@ implements TransactionManager {
         session.rowActionList.setSize(start);
     }
 
-    public RowAction addDeleteAction(Session session, Table table, Row row,
+    public RowAction addDeleteAction(Session session, Table table,
+                                     PersistentStore store, Row row,
                                      int[] colMap) {
 
         RowAction action;
-        boolean   newAction;
 
         synchronized (row) {
-            newAction = row.rowAction == null;
-            action    = RowAction.addDeleteAction(session, table, row, colMap);
+            action = RowAction.addDeleteAction(session, table, row, colMap);
+        }
+
+        if (table.tableType == TableBase.CACHED_TABLE) {
+            addTransactionInfo(row);
+        } else if (table.tableType == TableBase.TEMP_TABLE) {
+            store.delete(session, row);
+
+            row.rowAction = null;
         }
 
         session.rowActionList.add(action);
-
-        if (newAction && table.tableType == TableBase.CACHED_TABLE) {
-            rowActionMap.put(action.getPos(), action);
-        }
 
         return action;
     }
@@ -276,16 +281,13 @@ implements TransactionManager {
                                      "null insert action ");
         }
 
-        if (table.tableType == TableBase.CACHED_TABLE) {
-            rowActionMap.put(action.getPos(), action);
-        }
-
         store.indexRow(session, row);
         session.rowActionList.add(action);
     }
 
 // functional unit - accessibility of rows
-    public boolean canRead(Session session, Row row, int mode, int[] colMap) {
+    public boolean canRead(Session session, PersistentStore store, Row row,
+                           int mode, int[] colMap) {
 
         RowAction action = row.rowAction;
 
@@ -293,32 +295,60 @@ implements TransactionManager {
             return true;
         }
 
+        if (action.table.tableType == TableBase.TEMP_TABLE) {
+            return true;
+        }
+
         return action.canRead(session, TransactionManager.ACTION_READ);
     }
 
-    public boolean canRead(Session session, long id, int mode) {
+    public boolean canRead(Session session, PersistentStore store, long id,
+                           int mode) {
+
+        if (store.getTable().tableType == TableBase.TEMP_TABLE) {
+            return true;
+        }
 
         RowAction action = (RowAction) rowActionMap.get(id);
 
-        return action == null ? true
-                              : action.canRead(session,
-                                               TransactionManager.ACTION_READ);
+        if (action == null) {
+            return true;
+        }
+
+        return action.canRead(session, mode);
+    }
+
+    public void addTransactionInfo(CachedObject object) {
+
+        if (object.isMemory()) {
+            return;
+        }
+
+        Row row = (Row) object;
+
+        if (row.getTable().tableType == TableBase.CACHED_TABLE) {
+            rowActionMap.put(object.getPos(), row.rowAction);
+        }
     }
 
     /**
      * add transaction info to a row just loaded from the cache. called only
      * for CACHED tables
      */
-    public void setTransactionInfo(CachedObject object) {
+    public void setTransactionInfo(PersistentStore store,
+                                   CachedObject object) {
 
         if (object.isMemory()) {
             return;
         }
 
-        Row       row    = (Row) object;
-        RowAction rowact = (RowAction) rowActionMap.get(row.position);
+        Row row = (Row) object;
 
-        row.rowAction = rowact;
+        if (row.getTable().tableType == TableBase.CACHED_TABLE) {
+            RowAction rowact = (RowAction) rowActionMap.get(row.getPos());
+
+            row.rowAction = rowact;
+        }
     }
 
     /**
