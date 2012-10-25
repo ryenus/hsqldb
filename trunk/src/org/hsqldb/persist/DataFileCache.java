@@ -161,7 +161,7 @@ public class DataFileCache {
             initialFreePos = dataFileScale;
         }
 
-        cacheReadonly = database.logger.propFilesReadOnly;
+        cacheReadonly = database.isFilesReadOnly();
         maxCacheRows  = database.logger.propCacheMaxRows;
         maxCacheBytes = database.logger.propCacheMaxSize;
         maxDataFileSize = (long) Integer.MAX_VALUE * dataFileScale

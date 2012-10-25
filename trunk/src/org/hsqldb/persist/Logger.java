@@ -113,8 +113,6 @@ public class Logger {
 
     //
     boolean propIsFileDatabase;
-    boolean propFilesReadOnly;
-    boolean propDatabaseReadOnly;
     boolean propIncrementBackup;
     boolean propNioDataFile;
     long    propNioMaxSize    = 256 * 1024 * 1024L;
@@ -157,10 +155,11 @@ public class Logger {
     public boolean isSingleFile;
 
     //
-    AtomicInteger    backupState     = new AtomicInteger();
+    AtomicInteger backupState = new AtomicInteger();
 
     //
     static final int largeDataFactor = 128;
+
     //
     static final int stateNormal     = 0;
     static final int stateBackup     = 1;
@@ -600,10 +599,17 @@ public class Logger {
             HsqlDatabaseProperties.hsqldb_applog);
         propSqlLogLevel = database.databaseProperties.getIntegerProperty(
             HsqlDatabaseProperties.hsqldb_sqllog);
-        propFilesReadOnly = database.databaseProperties.isPropertyTrue(
-            HsqlDatabaseProperties.hsqldb_files_readonly);
-        propDatabaseReadOnly = database.databaseProperties.isPropertyTrue(
-            HsqlDatabaseProperties.hsqldb_readonly);
+
+        if (database.databaseProperties.isPropertyTrue(
+                HsqlDatabaseProperties.hsqldb_files_readonly)) {
+            database.setReadOnly();
+        }
+
+        if (database.databaseProperties.isPropertyTrue(
+                HsqlDatabaseProperties.hsqldb_readonly)) {
+            database.setFilesReadOnly();
+        }
+
         propIncrementBackup = database.databaseProperties.isPropertyTrue(
             HsqlDatabaseProperties.hsqldb_inc_backup);
         propNioDataFile = database.databaseProperties.isPropertyTrue(

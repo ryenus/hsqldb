@@ -303,10 +303,11 @@ public class LobManager {
         if (database.getType() == DatabaseURL.S_RES) {
             lobStore = new LobStoreInJar(database, lobBlockSize);
         } else if (database.getType() == DatabaseURL.S_FILE) {
-            lobStore   = new LobStoreRAFile(database, lobBlockSize);
-            byteBuffer = new byte[lobBlockSize];
+            lobStore = new LobStoreRAFile(database, lobBlockSize);
 
             if (!database.isFilesReadOnly()) {
+                byteBuffer = new byte[lobBlockSize];
+
                 initialiseLobSpace();
             }
         } else {
@@ -651,7 +652,7 @@ public class LobManager {
         }
     }
 
-    // todo - implement as compareText()
+    /** @todo - implement as compareText() */
     public int compare(Collation collation, ClobData a, String b) {
 
         writeLock.lock();
@@ -930,6 +931,10 @@ public class LobManager {
     public Result createDuplicateLob(long lobID, long newLength,
                                      boolean duplicate) {
 
+        if (byteBuffer == null) {
+            throw Error.error(ErrorCode.DATA_IS_READONLY);
+        }
+
         writeLock.lock();
 
         try {
@@ -1012,7 +1017,7 @@ public class LobManager {
         }
     }
 
-    // todo - currently returns whole length
+    /** @todo - currently returns whole length */
     public Result getTruncateLength(long lobID) {
 
         writeLock.lock();
@@ -1370,6 +1375,10 @@ public class LobManager {
             return ResultLob.newLobSetResponse(lobID, 0);
         }
 
+        if (byteBuffer == null) {
+            throw Error.error(ErrorCode.DATA_IS_READONLY);
+        }
+
         writeLock.lock();
 
         try {
@@ -1408,6 +1417,10 @@ public class LobManager {
             return ResultLob.newLobSetResponse(lobID, 0);
         }
 
+        if (byteBuffer == null) {
+            throw Error.error(ErrorCode.DATA_IS_READONLY);
+        }
+
         writeLock.lock();
 
         try {
@@ -1423,6 +1436,10 @@ public class LobManager {
 
         if (chars.length == 0) {
             return ResultLob.newLobSetResponse(lobID, 0);
+        }
+
+        if (byteBuffer == null) {
+            throw Error.error(ErrorCode.DATA_IS_READONLY);
         }
 
         writeLock.lock();
@@ -1465,6 +1482,10 @@ public class LobManager {
             return ResultLob.newLobSetResponse(lobID, 0);
         }
 
+        if (byteBuffer == null) {
+            throw Error.error(ErrorCode.DATA_IS_READONLY);
+        }
+
         writeLock.lock();
 
         try {
@@ -1488,6 +1509,10 @@ public class LobManager {
     }
 
     public Result truncate(long lobID, long offset) {
+
+        if (byteBuffer == null) {
+            throw Error.error(ErrorCode.DATA_IS_READONLY);
+        }
 
         writeLock.lock();
 

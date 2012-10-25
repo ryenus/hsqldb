@@ -631,7 +631,7 @@ public class Database {
         // calls
         DatabaseManager.removeDatabase(this);
 
-        // todo - when hsqldb.sql. logging is supported, add another call
+        // todo - when hsqldb.sql. framework logging is supported, add another call
         FrameworkLogger.clearLoggers("hsqldb.db." + getUniqueName());
 
         if (he != null) {
