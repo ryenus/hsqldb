@@ -520,8 +520,12 @@ public class TableBase {
     }
 
     /**
-     * @todo - this is wrong, as it returns true when table has no rows,
-     * but not where it has rows that are not visible by session
+     * @todo - this is not for general use, as it returns true when table has no
+     * rows, but not where it has rows that are not visible by session.
+     * current usage is fine.
+     */
+
+    /**
      *  Returns true if the table has any rows at all.
      */
     public final boolean isEmpty(Session session) {

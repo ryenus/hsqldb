@@ -254,9 +254,8 @@ public class BinaryData implements BlobData {
         return position(session, bytes, start);
     }
 
+    /** @todo - implement */
     public long nonZeroLength(SessionInterface session) {
-
-        // todo - implement
         return data.length;
     }
 

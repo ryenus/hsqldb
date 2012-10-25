@@ -940,7 +940,7 @@ public class TableWorks {
 
                     for (int i = 0; i < cols.length; i++) {
 
-                        // todo - check if table arrays relect the not-null correctly
+                        // todo - check if table arrays reflect the not-null correctly
                         tn.getColumn(cols[i]).setPrimaryKey(false);
                         tn.setColumnTypeVars(cols[i]);
                     }

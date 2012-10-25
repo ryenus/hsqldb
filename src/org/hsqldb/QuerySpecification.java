@@ -889,6 +889,10 @@ public class QuerySpecification extends QueryExpression {
                 throw Error.error(ErrorCode.X_42565);
             }
 
+            if(e.getType() == OpTypes.ROW_SUBQUERY && e.getDegree() > 1) {
+                throw Error.error(ErrorCode.X_42565);
+            }
+
             if (e.getDataType() != null
                     && e.getDataType().typeCode == Types.SQL_ROW) {
                 throw Error.error(ErrorCode.X_42565);
@@ -2175,6 +2179,11 @@ public class QuerySpecification extends QueryExpression {
         }
     }
 
+    /**
+     * isBaseMergeable is simply a flag to allow merging the current query
+     * isMergeable is a flag to allow this to act as base for a query
+     *
+     */
     void mergeQuery() {
 
         RangeVariable   rangeVar            = rangeVariables[0];
