@@ -238,16 +238,36 @@
 
       <para>It is also possible to open a normal database as readonly. For
       this, the property can be included in the URL of the first connection to
-      the database.</para>
+      the database. </para>
+
+      <para>With readonly databases, it is still possible to insert and delete
+      rows in TEMP tables.</para>
+    </section>
+
+    <section>
+      <title>RES and Files Readonly Databases</title>
 
       <para>There is another option which allows MEMORY tables to be
       writeable, but without persisting the changes at SHUTDOWN. This option
       is activated with the property, value pair,
       <literal>files_readonly=true</literal>, which can be added to the
       <filename>.properties</filename> file of the database, or included in
-      the URL of the first connection to the database. This option is useful
-      for running application tests which operate on a predefined
-      dataset.</para>
+      the URL of the first connection to the database.</para>
+
+      <para>A <glossterm>res:</glossterm> catalog, is a set of database files
+      on the classpath (inside a jar or alongside class files). The database
+      is opened with a URL in the form of
+      <literal>jdbc:hsqldb:res:&lt;database path&gt;</literal>. These
+      databases are always <literal>files_readonly</literal> and have the same
+      restrictions as <literal>files_readonly</literal>
+      <glossterm>file:</glossterm> catalogs.</para>
+
+      <para>CACHED tables and LOBS in these catalogs are readonly. It is not
+      possible to create new LOBs in these catalogs, but you can use existing
+      LOBs in new rows.</para>
+
+      <para>These options are useful for running application tests which
+      operate on a predefined dataset.</para>
     </section>
   </section>
 
