@@ -203,9 +203,13 @@ public class DatabaseManager {
         synchronized (serverMap) {
             HashSet databases = (HashSet) serverMap.get(server);
 
-            dbArray = new Database[databases.size()];
+            if (databases == null) {
+                dbArray = new Database[0];
+            } else {
+                dbArray = new Database[databases.size()];
 
-            databases.toArray(dbArray);
+                databases.toArray(dbArray);
+            }
         }
 
         for (int i = 0; i < dbArray.length; i++) {
