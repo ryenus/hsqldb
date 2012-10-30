@@ -1635,6 +1635,16 @@ public class Session implements SessionInterface {
         }
     }
 
+    synchronized TimestampData getSystemTimestamp() {
+
+        long     millis = System.currentTimeMillis();
+        int      nanos  = (int) (millis % 1000) * 1000000;
+        TimeZone zone   = TimeZone.getDefault();
+        int      offset = zone.getOffset(millis) / 1000;
+
+        return new TimestampData(millis / 1000, nanos, offset);
+    }
+
     private void resetCurrentTimestamp() {
 
         if (currentTimestampSCN != actionTimestamp) {
@@ -2010,6 +2020,7 @@ public class Session implements SessionInterface {
 
     // session zone
     Calendar calendar;
+    Calendar calendarGMT;
 
     public Calendar getCalendar() {
 
@@ -2024,6 +2035,26 @@ public class Session implements SessionInterface {
         }
 
         return calendar;
+    }
+
+    public Calendar getCalendarGMT() {
+
+        if (calendarGMT == null) {
+            calendarGMT = new GregorianCalendar(TimeZone.getTimeZone("GMT"));
+        }
+
+        return calendarGMT;
+    }
+
+    public SimpleDateFormat getSimpleDateFormatGMT() {
+
+        if (simpleDateFormatGMT == null) {
+            simpleDateFormatGMT = new SimpleDateFormat("MMMM", Locale.ENGLISH);
+
+            simpleDateFormatGMT.setCalendar(getCalendarGMT());
+        }
+
+        return simpleDateFormatGMT;
     }
 
     // services
@@ -2082,19 +2113,6 @@ public class Session implements SessionInterface {
         }
 
         return clientProperties;
-    }
-
-    public SimpleDateFormat getSimpleDateFormatGMT() {
-
-        if (simpleDateFormatGMT == null) {
-            simpleDateFormatGMT = new SimpleDateFormat("MMMM", Locale.ENGLISH);
-
-            Calendar cal = new GregorianCalendar(TimeZone.getTimeZone("GMT"));
-
-            simpleDateFormatGMT.setCalendar(cal);
-        }
-
-        return simpleDateFormatGMT;
     }
 
     // SEQUENCE current values

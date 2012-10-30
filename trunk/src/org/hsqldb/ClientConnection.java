@@ -108,6 +108,7 @@ public class ClientConnection implements SessionInterface {
     private Scanner  scanner;
     private String   zoneString;
     private Calendar calendar;
+    private Calendar calendarGMT;
     SimpleDateFormat simpleDateFormatGMT;
 
     //
@@ -553,6 +554,28 @@ public class ClientConnection implements SessionInterface {
         return calendar;
     }
 
+    public Calendar getCalendarGMT() {
+
+        if (calendarGMT == null) {
+            calendar = new GregorianCalendar(TimeZone.getTimeZone("GMT"));
+        }
+
+        return calendarGMT;
+    }
+
+    public SimpleDateFormat getSimpleDateFormatGMT() {
+
+        if (simpleDateFormatGMT == null) {
+            simpleDateFormatGMT = new SimpleDateFormat("MMMM", Locale.ENGLISH);
+
+            Calendar cal = new GregorianCalendar(TimeZone.getTimeZone("GMT"));
+
+            simpleDateFormatGMT.setCalendar(cal);
+        }
+
+        return simpleDateFormatGMT;
+    }
+
     public TimestampData getCurrentDate() {
 
         long currentMillis = System.currentTimeMillis();
@@ -593,19 +616,6 @@ public class ClientConnection implements SessionInterface {
 
     public String getDatabaseUniqueName() {
         return databaseUniqueName;
-    }
-
-    public SimpleDateFormat getSimpleDateFormatGMT() {
-
-        if (simpleDateFormatGMT == null) {
-            simpleDateFormatGMT = new SimpleDateFormat("MMMM", Locale.ENGLISH);
-
-            Calendar cal = new GregorianCalendar(TimeZone.getTimeZone("GMT"));
-
-            simpleDateFormatGMT.setCalendar(cal);
-        }
-
-        return simpleDateFormatGMT;
     }
 
     /**

@@ -148,8 +148,6 @@ public class QuerySpecification extends QueryExpression {
         isBaseMergeable = true;
         isMergeable     = true;
         isTable         = true;
-
-//        resolveReferences(session, RangeGroup.emptyArray);
     }
 
     QuerySpecification(CompileContext compileContext) {
@@ -480,6 +478,12 @@ public class QuerySpecification extends QueryExpression {
 
                 if (list != null) {
                     isMergeable = false;
+                }
+
+                if (exprColumns[i].opType == OpTypes.ROWNUM) {
+                    isOrderSensitive = true;
+                    isMergeable      = false;
+                    isBaseMergeable  = false;
                 }
             }
         }
@@ -889,7 +893,7 @@ public class QuerySpecification extends QueryExpression {
                 throw Error.error(ErrorCode.X_42565);
             }
 
-            if(e.getType() == OpTypes.ROW_SUBQUERY && e.getDegree() > 1) {
+            if (e.getType() == OpTypes.ROW_SUBQUERY && e.getDegree() > 1) {
                 throw Error.error(ErrorCode.X_42565);
             }
 
@@ -2001,7 +2005,7 @@ public class QuerySpecification extends QueryExpression {
 
     void setMergeability() {
 
-        isOrderSensitive = sortAndSlice.hasLimit() || sortAndSlice.hasOrder();
+        isOrderSensitive |= sortAndSlice.hasLimit() || sortAndSlice.hasOrder();
 
         if (isOrderSensitive) {
             isMergeable = false;

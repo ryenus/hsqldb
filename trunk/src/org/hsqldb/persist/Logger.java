@@ -602,12 +602,12 @@ public class Logger {
 
         if (database.databaseProperties.isPropertyTrue(
                 HsqlDatabaseProperties.hsqldb_files_readonly)) {
-            database.setReadOnly();
+            database.setFilesReadOnly();
         }
 
         if (database.databaseProperties.isPropertyTrue(
                 HsqlDatabaseProperties.hsqldb_readonly)) {
-            database.setFilesReadOnly();
+            database.setReadOnly();
         }
 
         propIncrementBackup = database.databaseProperties.isPropertyTrue(

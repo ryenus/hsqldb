@@ -134,6 +134,10 @@ public interface SessionInterface {
 
     Calendar getCalendar();
 
+    Calendar getCalendarGMT();
+
+    SimpleDateFormat getSimpleDateFormatGMT();
+
     TimestampData getCurrentDate();
 
     int getZoneSeconds();
@@ -147,6 +151,4 @@ public interface SessionInterface {
     void setJDBCConnection(JDBCConnection connection);
 
     String getDatabaseUniqueName();
-
-    SimpleDateFormat getSimpleDateFormatGMT();
 }

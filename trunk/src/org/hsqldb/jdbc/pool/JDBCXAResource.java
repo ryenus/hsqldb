@@ -214,13 +214,19 @@ public class JDBCXAResource implements XAResource {
         dispose();
     }
 
-    private void dispose() {
+    private void dispose() throws XAException {
 
         state = XA_STATE_DISPOSED;
 
         xaDataSource.removeResource(xid);
 
         xid = null;
+
+        try {
+            connection.setAutoCommit(originalAutoCommitMode);    // real/phys.
+        } catch (SQLException se) {
+            throw new XAException(se.toString());
+        }
     }
 
     public void end(Xid xid, int flags) throws XAException {
@@ -235,12 +241,6 @@ public class JDBCXAResource implements XAResource {
         if (flags == XAResource.TMSUCCESS) {}
 
         state = XA_STATE_ENDED;
-
-        try {
-            connection.setAutoCommit(originalAutoCommitMode);    // real/phys.
-        } catch (SQLException se) {
-            throw new XAException(se.toString());
-        }
     }
 
     /**
@@ -399,7 +399,7 @@ public class JDBCXAResource implements XAResource {
      */
     public void rollbackThis() throws XAException {
 
-        if (state != XA_STATE_PREPARED) {
+        if (state != XA_STATE_PREPARED && state != XA_STATE_ENDED) {
             throw new XAException("Invalid XAResource state");
         }
 
