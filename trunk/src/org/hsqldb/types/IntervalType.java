@@ -820,7 +820,7 @@ public final class IntervalType extends DTIType {
         }
     }
 
-    public Object add(Object a, Object b, Type otherType) {
+    public Object add(Session session, Object a, Object b, Type otherType) {
 
         if (a == null || b == null) {
             return null;
@@ -858,7 +858,8 @@ public final class IntervalType extends DTIType {
         }
     }
 
-    public Object subtract(Object a, Object b, Type otherType) {
+    public Object subtract(Session session, Object a, Object b,
+                           Type otherType) {
 
         if (a == null || b == null) {
             return null;
@@ -1593,7 +1594,7 @@ public final class IntervalType extends DTIType {
         return getSecondPart(seconds, nanos);
     }
 
-    public long convertToLong(Object interval) {
+    public long convertToLongEndUnits(Object interval) {
 
         switch (endIntervalType) {
 
@@ -1610,6 +1611,29 @@ public final class IntervalType extends DTIType {
                 long seconds = ((IntervalSecondData) interval).units;
 
                 return (seconds / DTIType.yearToSecondFactors[endPartIndex]);
+            }
+            default :
+                throw Error.runtimeError(ErrorCode.U_S0500, "IntervalType");
+        }
+    }
+
+    public double convertToDoubleStartUnits(Object interval) {
+
+        switch (startIntervalType) {
+
+            case Types.SQL_INTERVAL_YEAR :
+            case Types.SQL_INTERVAL_MONTH :
+                double months = ((IntervalMonthData) interval).units;
+
+                return (months / DTIType.yearToSecondFactors[startPartIndex]);
+
+            case Types.SQL_INTERVAL_DAY :
+            case Types.SQL_INTERVAL_HOUR :
+            case Types.SQL_INTERVAL_MINUTE :
+            case Types.SQL_INTERVAL_SECOND : {
+                double seconds = ((IntervalSecondData) interval).units;
+
+                return (seconds / DTIType.yearToSecondFactors[startPartIndex]);
             }
             default :
                 throw Error.runtimeError(ErrorCode.U_S0500, "IntervalType");

@@ -38,7 +38,7 @@ import org.hsqldb.error.ErrorCode;
  * Implementation of data item for INTERVAL SECOND.<p>
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 1.9.0
+ * @version 2.3.0
  * @since 1.9.0
  */
 public class IntervalSecondData {
@@ -49,6 +49,15 @@ public class IntervalSecondData {
     //
     final long units;
     final int  nanos;
+
+    public static IntervalSecondData newInterval(double value, int typeCode) {
+
+        int index = DTIType.intervalIndexMap.get(typeCode);
+
+        value *= DTIType.yearToSecondFactors[index];
+
+        return new IntervalSecondData((long) value, 0);
+    }
 
     public static IntervalSecondData newIntervalDay(long days,
             IntervalType type) {

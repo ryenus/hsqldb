@@ -406,6 +406,10 @@ public abstract class Type implements SchemaObject, Cloneable {
         return false;
     }
 
+    public boolean isDateOrTimestampType() {
+        return false;
+    }
+
     public boolean isIntervalType() {
         return false;
     }
@@ -515,11 +519,12 @@ public abstract class Type implements SchemaObject, Cloneable {
         throw Error.runtimeError(ErrorCode.U_S0500, "Type");
     }
 
-    public Object add(Object a, Object b, Type otherType) {
+    public Object add(Session session, Object a, Object b, Type otherType) {
         throw Error.runtimeError(ErrorCode.U_S0500, "Type");
     }
 
-    public Object subtract(Object a, Object b, Type otherType) {
+    public Object subtract(Session session, Object a, Object b,
+                           Type otherType) {
         throw Error.runtimeError(ErrorCode.U_S0500, "Type");
     }
 

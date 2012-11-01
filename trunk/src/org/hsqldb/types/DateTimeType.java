@@ -233,6 +233,24 @@ public final class DateTimeType extends DTIType {
         return true;
     }
 
+    public boolean isDateOrTimestampType() {
+
+        switch (typeCode) {
+
+            case Types.SQL_DATE :
+            case Types.SQL_TIMESTAMP :
+            case Types.SQL_TIMESTAMP_WITH_TIME_ZONE :
+                return true;
+
+            case Types.SQL_TIME :
+            case Types.SQL_TIME_WITH_TIME_ZONE :
+                return false;
+
+            default :
+                throw Error.runtimeError(ErrorCode.U_S0500, "DateTimeType");
+        }
+    }
+
     public boolean isDateTimeTypeWithZone() {
         return withTimeZone;
     }
@@ -361,7 +379,7 @@ public final class DateTimeType extends DTIType {
                                 return Type.SQL_INTERVAL_DAY_MAX_PRECISION;
                             } else {
                                 return Type
-                                    .SQL_INTERVAL_SECOND_MAX_FRACTION_MAX_PRECISION;
+                                    .SQL_INTERVAL_DAY_TO_SECOND_MAX_PRECISION;
                             }
                         }
                     }
@@ -1049,7 +1067,7 @@ public final class DateTimeType extends DTIType {
         return -1;
     }
 
-    public Object add(Object a, Object b, Type otherType) {
+    public Object add(Session session, Object a, Object b, Type otherType) {
 
         if (a == null || b == null) {
             return null;
@@ -1083,7 +1101,7 @@ public final class DateTimeType extends DTIType {
             case Types.SQL_TIMESTAMP_WITH_TIME_ZONE :
             case Types.SQL_TIMESTAMP :
                 if (b instanceof IntervalMonthData) {
-                    return addMonths((TimestampData) a,
+                    return addMonths(session, (TimestampData) a,
                                      (int) ((IntervalMonthData) b).units);
                 } else if (b instanceof IntervalSecondData) {
                     return addSeconds((TimestampData) a,
@@ -1098,7 +1116,8 @@ public final class DateTimeType extends DTIType {
         throw Error.runtimeError(ErrorCode.U_S0500, "DateTimeType");
     }
 
-    public Object subtract(Object a, Object b, Type otherType) {
+    public Object subtract(Session session, Object a, Object b,
+                           Type otherType) {
 
         if (a == null || b == null) {
             return null;
@@ -1131,7 +1150,7 @@ public final class DateTimeType extends DTIType {
             case Types.SQL_TIMESTAMP_WITH_TIME_ZONE :
             case Types.SQL_TIMESTAMP :
                 if (b instanceof IntervalMonthData) {
-                    return addMonths((TimestampData) a,
+                    return addMonths(session, (TimestampData) a,
                                      -(int) ((IntervalMonthData) b).units);
                 } else if (b instanceof IntervalSecondData) {
                     return addSeconds((TimestampData) a,
@@ -1307,6 +1326,23 @@ public final class DateTimeType extends DTIType {
 
         return HsqlDateTime.getDateTimePart(millis, calendarPart) / divisor
                + increment;
+    }
+
+    public Object getLastDayOfMonth(Session session, Object dateTime) {
+
+        TimestampData ts     = (TimestampData) dateTime;
+        Calendar      cal    = session.getCalendarGMT();
+        long          millis = (ts.getSeconds() + ts.getZone()) * 1000;
+
+        HsqlDateTime.setTimeInMillis(cal, millis);
+        cal.set(Calendar.DAY_OF_MONTH, 1);
+        cal.add(Calendar.MONTH, 1);
+        cal.add(Calendar.DAY_OF_MONTH, -1);
+
+        millis = cal.getTimeInMillis();
+
+        return new TimestampData(millis / 1000 - ts.getZone(), 0,
+                                 ts.getZone());
     }
 
     long getMillis(Object dateTime) {
@@ -1582,13 +1618,13 @@ public final class DateTimeType extends DTIType {
         b[0] = commonType.castToType(session, b[0], tb[0]);
 
         if (ta[1].isIntervalType()) {
-            a[1] = commonType.add(a[0], a[1], ta[1]);
+            a[1] = commonType.add(session, a[0], a[1], ta[1]);
         } else {
             a[1] = commonType.castToType(session, a[1], ta[1]);
         }
 
         if (tb[1].isIntervalType()) {
-            b[1] = commonType.add(b[0], b[1], tb[1]);
+            b[1] = commonType.add(session, b[0], b[1], tb[1]);
         } else {
             b[1] = commonType.castToType(session, b[1], tb[1]);
         }
@@ -1619,6 +1655,99 @@ public final class DateTimeType extends DTIType {
         }
 
         return Boolean.FALSE;
+    }
+
+    public static BigDecimal subtractMonths(Session session, TimestampData a,
+            TimestampData b) {
+
+        long    s1    = (a.getSeconds() + a.getZone()) * 1000;
+        long    s2    = (b.getSeconds() + b.getZone()) * 1000;
+        boolean minus = false;
+
+        if (s1 < s2) {
+            minus = true;
+
+            long temp = s1;
+
+            s1 = s2;
+            s2 = temp;
+        }
+
+        s1 = HsqlDateTime.getNormalisedDate(session.getCalendarGMT(), s1);
+        s2 = HsqlDateTime.getNormalisedDate(session.getCalendarGMT(), s2);
+
+        Calendar cal = session.getCalendarGMT();
+
+        cal.setTimeInMillis(s1);
+
+        int lastDay1;
+        int months1 = cal.get(Calendar.MONTH) + cal.get(Calendar.YEAR) * 12;
+        int day1    = cal.get(Calendar.DAY_OF_MONTH);
+
+        cal.set(Calendar.DAY_OF_MONTH, 1);
+
+        long millis = cal.getTimeInMillis();
+
+        cal.add(Calendar.MONTH, 1);
+
+        millis = cal.getTimeInMillis();
+
+        cal.add(Calendar.DAY_OF_MONTH, -1);
+
+        millis   = cal.getTimeInMillis();
+        lastDay1 = cal.get(Calendar.DAY_OF_MONTH);
+
+        cal.setTimeInMillis(s2);
+
+        int lastDay2;
+        int months2 = cal.get(Calendar.MONTH) + cal.get(Calendar.YEAR) * 12;
+        int day2    = cal.get(Calendar.DAY_OF_MONTH);
+
+        cal.set(Calendar.DAY_OF_MONTH, 1);
+
+        millis = cal.getTimeInMillis();
+
+        cal.add(Calendar.MONTH, 1);
+
+        millis = cal.getTimeInMillis();
+
+        cal.add(Calendar.DAY_OF_MONTH, -1);
+
+        millis   = cal.getTimeInMillis();
+        lastDay2 = cal.get(Calendar.DAY_OF_MONTH);
+
+        double months;
+        double days;
+
+        if (day1 == day2 || (day1 == lastDay1 && day2 == lastDay2)) {
+            months = months1 - months2;
+
+            if (minus) {
+                months = -months;
+            }
+
+            return BigDecimal.valueOf(months);
+        } else if (day2 > day1) {
+            months = months1 - months2 - 1;
+            days   = lastDay2 - day2 + day1;
+            months += days / 31;
+
+            if (minus) {
+                months = -months;
+            }
+
+            return BigDecimal.valueOf(months);
+        } else {
+            months = months1 - months2;
+            days   = day1 - day2;
+            months += days / 31;
+
+            if (minus) {
+                months = -months;
+            }
+
+            return BigDecimal.valueOf(months);
+        }
     }
 
     //
@@ -1691,21 +1820,19 @@ public final class DateTimeType extends DTIType {
     }
 
     /** @todo - overflow */
-    public static TimestampData addMonths(TimestampData source, int months) {
+    public static TimestampData addMonths(Session session,
+                                          TimestampData source, int months) {
 
-        int n = source.getNanos();
+        int      n   = source.getNanos();
+        Calendar cal = session.getCalendarGMT();
 
-        synchronized (HsqlDateTime.tempCalGMT) {
-            HsqlDateTime.setTimeInMillis(HsqlDateTime.tempCalGMT,
-                                         source.getSeconds() * 1000);
-            HsqlDateTime.tempCalGMT.add(Calendar.MONTH, months);
+        HsqlDateTime.setTimeInMillis(cal, source.getSeconds() * 1000);
+        cal.add(Calendar.MONTH, months);
 
-            TimestampData ts =
-                new TimestampData(HsqlDateTime.tempCalGMT.getTimeInMillis()
-                                  / 1000, n, source.getZone());
+        TimestampData ts = new TimestampData(cal.getTimeInMillis() / 1000, n,
+                                             source.getZone());
 
-            return ts;
-        }
+        return ts;
     }
 
     public static TimestampData addSeconds(TimestampData source, long seconds,
@@ -1738,10 +1865,14 @@ public final class DateTimeType extends DTIType {
                         && ((Session) session).database.sqlSyntaxOra) {
                     String pattern;
 
-                    if (s.length() == 11) {
+                    if (s.length() == 9) {
+                        pattern = "DD-MON-YY";
+                    } else if (s.length() == 11) {
                         pattern = "DD-MON-YYYY";
                     } else if (s.length() == 20) {
                         pattern = "DD-MON-YYYY HH24:MI:SS";
+                    } else if (s.length() > 20) {
+                        pattern = "DD-MON-YYYY HH24:MI:SS.FF";
                     } else {
                         break;
                     }

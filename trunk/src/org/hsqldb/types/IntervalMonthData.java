@@ -38,12 +38,21 @@ import org.hsqldb.error.ErrorCode;
  * Implementation of data item for INTERVAL MONTH.<p>
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 1.9.0
+ * @version 2.3.0
  * @since 1.9.0
  */
 public class IntervalMonthData {
 
     public final long units;
+
+    public static IntervalMonthData newInterval(double value, int typeCode) {
+
+        int index = DTIType.intervalIndexMap.get(typeCode);
+
+        value *= DTIType.yearToSecondFactors[index];
+
+        return new IntervalMonthData((long) value);
+    }
 
     public static IntervalMonthData newIntervalYear(long years,
             IntervalType type) {

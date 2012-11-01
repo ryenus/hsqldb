@@ -844,27 +844,22 @@ public final class NumberType extends Type {
         }
 
         if (otherType.isIntervalType()) {
-            int endType = ((IntervalType) otherType).endIntervalType;
+            int startType = ((IntervalType) otherType).startIntervalType;
 
-            switch (endType) {
+            switch (startType) {
 
                 case Types.SQL_INTERVAL_YEAR :
                 case Types.SQL_INTERVAL_MONTH :
                 case Types.SQL_INTERVAL_DAY :
                 case Types.SQL_INTERVAL_HOUR :
-                case Types.SQL_INTERVAL_MINUTE : {
-                    Long value = ValuePool.getLong(
-                        ((IntervalType) otherType).convertToLong(a));
-
-                    return convertToType(session, value, Type.SQL_BIGINT);
-                }
+                case Types.SQL_INTERVAL_MINUTE :
                 case Types.SQL_INTERVAL_SECOND : {
-                    long seconds = ((IntervalSecondData) a).units;
-                    long nanos   = ((IntervalSecondData) a).nanos;
-                    BigDecimal value =
-                        ((DTIType) otherType).getSecondPart(seconds, nanos);
+                    double value =
+                        ((IntervalType) otherType).convertToDoubleStartUnits(
+                            a);
 
-                    return value;
+                    return convertToType(session, Double.valueOf(value),
+                                         Type.SQL_DOUBLE);
                 }
             }
         }
@@ -1453,7 +1448,7 @@ public final class NumberType extends Type {
         return 0;
     }
 
-    public Object add(Object a, Object b, Type otherType) {
+    public Object add(Session session, Object a, Object b, Type otherType) {
 
         if (a == null || b == null) {
             return null;
@@ -1502,7 +1497,8 @@ public final class NumberType extends Type {
         }
     }
 
-    public Object subtract(Object a, Object b, Type otherType) {
+    public Object subtract(Session session, Object a, Object b,
+                           Type otherType) {
 
         if (a == null || b == null) {
             return null;
@@ -1671,7 +1667,7 @@ public final class NumberType extends Type {
         }
     }
 
-    public Object modulo(Object a, Object b, Type otherType) {
+    public Object modulo(Session session, Object a, Object b, Type otherType) {
 
         if (!otherType.isNumberType()) {
             throw Error.error(ErrorCode.X_42561);
@@ -1681,7 +1677,7 @@ public final class NumberType extends Type {
 
         temp = multiply(temp, b);
         temp = convertToDefaultType(null, temp);
-        temp = subtract(a, temp, this);
+        temp = subtract(session, a, temp, this);
 
         return convertToTypeLimits(null, temp);
     }

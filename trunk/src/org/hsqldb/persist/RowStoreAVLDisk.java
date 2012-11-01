@@ -131,7 +131,7 @@ public class RowStoreAVLDisk extends RowStoreAVL implements PersistentStore {
         size = rowOut.getStorageSize(size);
 
         object.setStorageSize(size);
-        cache.setFilePos(object, cache.freeBlocks);
+        cache.setFilePos(object, cache.freeBlocks, false);
 
         if (tx) {
             Row row = (Row) object;
