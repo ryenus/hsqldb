@@ -556,8 +556,10 @@
     corresponding SQL command is given for each property.</para>
 
     <para>If the properties are used for connection to an existing database,
-    they are ignored. The exceptions are the following property settings that
-    are allowed for the first connection to an existing database:
+    they are ignored.</para>
+
+    <para>The exceptions are the following property settings that are allowed
+    for the first connection to an existing database:
     <literal>readonly=true</literal>, <literal>files_readonly=true</literal>,
     <literal>hsqldb.lock_file=false</literal>,
     <literal>hsqldb.sqllog=1-3</literal>. These specific property / value

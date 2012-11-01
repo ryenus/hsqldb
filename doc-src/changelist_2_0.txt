@@ -1,5 +1,11 @@
+01 November 2012 - svn 5103
+-- fixed issue with some correlated subqueris in where clause
+-- fixed issue with ROWNUM in inner selects
+-- fixed various minor issues
+-- improved support for DATE and TIMESTAMP subtraction without explicit INTERVAL type
+-- added support for ADD_MONTHS, LAST_DAY, MONTHS_BETWEEN and other Oracle style functions
 24 October 2012 - svn 5096 snapshot
--- fixed various minor issues in different areas
+-- fixed various minor issues
 -- fixed issues with some disk-based TEMP tables used in multiversion transaction modes
 12 October 2012 - svn 5089 snapshot
 -- fixed issue with LOBs in res: databases
