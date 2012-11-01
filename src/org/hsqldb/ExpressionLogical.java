@@ -1873,7 +1873,7 @@ public class ExpressionLogical extends Expression {
 
             case OpTypes.EQUAL :
                 if (exprSubType == OpTypes.ANY_QUANTIFIED) {
-                    if (nodes[RIGHT].isCorrelated) {
+                    if (nodes[RIGHT].isCorrelated()) {
                         return null;
                     }
 
@@ -1895,6 +1895,10 @@ public class ExpressionLogical extends Expression {
             case OpTypes.SMALLER :
             case OpTypes.SMALLER_EQUAL :
                 if (exprSubType != 0 && exprSubType != OpTypes.LIKE) {
+                    return null;
+                }
+
+                if (nodes[RIGHT].isCorrelated()) {
                     return null;
                 }
 

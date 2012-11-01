@@ -127,6 +127,10 @@ public class FunctionSQL extends Expression {
         Tokens.X_OPTION, 3, Tokens.OPENBRACKET, Tokens.X_POS_INTEGER,
         Tokens.CLOSEBRACKET
     };
+    static final short[] optionalDoubleParamList = new short[] {
+        Tokens.OPENBRACKET, Tokens.QUESTION, Tokens.X_OPTION, 2, Tokens.COMMA,
+        Tokens.QUESTION, Tokens.CLOSEBRACKET
+    };
     static final short[] doubleParamList = new short[] {
         Tokens.OPENBRACKET, Tokens.QUESTION, Tokens.COMMA, Tokens.QUESTION,
         Tokens.CLOSEBRACKET
@@ -740,8 +744,8 @@ public class FunctionSQL extends Expression {
                 }
 
                 // result type is the same as nodes[1]
-                Object value = ((NumberType) nodes[0].dataType).modulo(data[0],
-                    data[1], nodes[0].dataType);
+                Object value = ((NumberType) nodes[0].dataType).modulo(session,
+                    data[0], data[1], nodes[0].dataType);
 
                 return dataType.convertToType(session, value,
                                               nodes[0].dataType);
@@ -852,13 +856,14 @@ public class FunctionSQL extends Expression {
 
                         if (nodes[0].dataType.compare(
                                 session, data[0], data[2]) >= 0) {
-                            return dataType.add(data[3], ValuePool.INTEGER_1,
+                            return dataType.add(session, data[3],
+                                                ValuePool.INTEGER_1,
                                                 Type.SQL_INTEGER);
                         }
 
-                        temp = subType.subtract(data[0], data[1],
+                        temp = subType.subtract(session, data[0], data[1],
                                                 nodes[0].dataType);
-                        temp2 = subType.subtract(data[2], data[1],
+                        temp2 = subType.subtract(session, data[2], data[1],
                                                  nodes[0].dataType);
 
                         break;
@@ -871,13 +876,14 @@ public class FunctionSQL extends Expression {
 
                         if (nodes[0].dataType.compare(
                                 session, data[0], data[2]) <= 0) {
-                            return dataType.add(data[3], ValuePool.INTEGER_1,
+                            return dataType.add(session, data[3],
+                                                ValuePool.INTEGER_1,
                                                 Type.SQL_INTEGER);
                         }
 
-                        temp = subType.subtract(data[1], data[0],
+                        temp = subType.subtract(session, data[1], data[0],
                                                 nodes[0].dataType);
-                        temp2 = subType.subtract(data[1], data[2],
+                        temp2 = subType.subtract(session, data[1], data[2],
                                                  nodes[0].dataType);
 
                         break;
@@ -900,7 +906,7 @@ public class FunctionSQL extends Expression {
                 temp = opType.divide(session, temp, temp2);
                 temp = dataType.convertToDefaultType(session, temp);
 
-                return dataType.add(temp, ValuePool.INTEGER_1,
+                return dataType.add(session, temp, ValuePool.INTEGER_1,
                                     Type.SQL_INTEGER);
             }
             case FUNC_SUBSTRING_CHAR : {
@@ -1163,6 +1169,11 @@ public class FunctionSQL extends Expression {
                 return session.sessionData.currentValue;
 
             case FUNC_CURRENT_DATE :
+                if (session.database.sqlSyntaxOra) {
+                    return dataType.convertToTypeLimits(
+                        session, session.getCurrentTimestamp(false));
+                }
+
                 return session.getCurrentDate();
 
             case FUNC_CURRENT_TIME :
@@ -1721,7 +1732,13 @@ public class FunctionSQL extends Expression {
                 break;
 
             case FUNC_CURRENT_DATE :
-                dataType = CharacterType.SQL_DATE;
+                if (session.database.sqlSyntaxOra) {
+                    dataType = Type.SQL_TIMESTAMP_NO_FRACTION;
+
+                    break;
+                }
+
+                dataType = Type.SQL_DATE;
                 break;
 
             case FUNC_CURRENT_TIME : {

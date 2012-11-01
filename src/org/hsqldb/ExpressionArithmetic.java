@@ -230,8 +230,8 @@ public class ExpressionArithmetic extends Expression {
     }
 
     public HsqlList resolveColumnReferences(Session session,
-            RangeGroup rangeGroup, int rangeCount,
-            RangeGroup[] rangeGroups, HsqlList unresolvedSet, boolean acceptsSequences) {
+            RangeGroup rangeGroup, int rangeCount, RangeGroup[] rangeGroups,
+            HsqlList unresolvedSet, boolean acceptsSequences) {
 
         if (opType == OpTypes.VALUE) {
             return unresolvedSet;
@@ -243,7 +243,8 @@ public class ExpressionArithmetic extends Expression {
             }
 
             unresolvedSet = nodes[i].resolveColumnReferences(session,
-                    rangeGroup, rangeCount, rangeGroups, unresolvedSet, acceptsSequences);
+                    rangeGroup, rangeCount, rangeGroups, unresolvedSet,
+                    acceptsSequences);
         }
 
         return unresolvedSet;
@@ -628,10 +629,10 @@ public class ExpressionArithmetic extends Expression {
         switch (opType) {
 
             case OpTypes.ADD :
-                return dataType.add(a, b, nodes[RIGHT].dataType);
+                return dataType.add(session, a, b, nodes[RIGHT].dataType);
 
             case OpTypes.SUBTRACT :
-                return dataType.subtract(a, b, nodes[RIGHT].dataType);
+                return dataType.subtract(session, a, b, nodes[RIGHT].dataType);
 
             case OpTypes.MULTIPLY :
                 return dataType.multiply(a, b);

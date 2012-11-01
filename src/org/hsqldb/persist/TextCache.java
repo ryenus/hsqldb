@@ -116,7 +116,7 @@ public class TextCache extends DataFileCache {
         maxCacheBytes = textFileSettings.getMaxCacheBytes();
 
         //-- Get size and scale
-        maxDataFileSize  = Integer.MAX_VALUE * Logger.largeDataFactor;
+        maxDataFileSize  = (long) Integer.MAX_VALUE * Logger.largeDataFactor;
         cachedRowPadding = 1;
         dataFileScale    = 1;
     }
@@ -257,7 +257,8 @@ public class TextCache extends DataFileCache {
      * Does not extend the end of file.
      */
     public long setFilePos(CachedObject r,
-                           TableSpaceManager tableSpaceManager) {
+                           TableSpaceManager tableSpaceManager,
+                           boolean asBlock) {
 
         int  rowSize = r.getStorageSize();
         long i       = tableSpaceManager.getFilePosition(rowSize, false);

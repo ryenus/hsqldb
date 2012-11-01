@@ -163,7 +163,7 @@ public class RowStoreAVLHybrid extends RowStoreAVL implements PersistentStore {
             size = cache.rowOut.getStorageSize(size);
 
             object.setStorageSize(size);
-            cache.setFilePos(object, cache.freeBlocks);
+            cache.setFilePos(object, cache.freeBlocks, false);
             cache.add(object);
         }
 

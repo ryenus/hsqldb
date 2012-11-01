@@ -77,7 +77,7 @@ public class DataFileCache {
     // file format fields
     static final int LONG_EMPTY_SIZE      = 4;        // empty space size
     static final int LONG_FREE_POS_POS    = 12;       // where iFreePos is saved
-    static final int LONG_EMPTY_INDEX_POS = 20;       // empty space index
+    static final int LONG_SPACE_LIST_POS  = 20;       // empty space index
     static final int FLAGS_POS            = 28;
     static final int MIN_INITIAL_FREE_POS = 32;
 
@@ -772,10 +772,11 @@ public class DataFileCache {
      * Otherwise the file is grown to accommodate it.
      */
     public long setFilePos(CachedObject r,
-                           TableSpaceManager tableSpaceManager) {
+                           TableSpaceManager tableSpaceManager,
+                           boolean asBlock) {
 
         int  rowSize = r.getStorageSize();
-        long i       = tableSpaceManager.getFilePosition(rowSize, false);
+        long i       = tableSpaceManager.getFilePosition(rowSize, asBlock);
 
         r.setPos(i);
 
@@ -867,6 +868,34 @@ public class DataFileCache {
         return getFromFile(pos, store, keep);
     }
 
+    public CachedObject get(long pos, int size, PersistentStore store,
+                            boolean keep) {
+
+        CachedObject object;
+
+        if (pos < 0) {
+            return null;
+        }
+
+        readLock.lock();
+
+        try {
+            object = cache.get(pos);
+
+            if (object != null) {
+                if (keep) {
+                    object.keepInMemory(true);
+                }
+
+                return object;
+            }
+        } finally {
+            readLock.unlock();
+        }
+
+        return getFromFile(pos, size, store, keep);
+    }
+
     public CachedObject get(long pos, PersistentStore store, boolean keep) {
 
         CachedObject object;
@@ -955,6 +984,67 @@ public class DataFileCache {
         }
     }
 
+    private CachedObject getFromFile(long pos, int size,
+                                     PersistentStore store, boolean keep) {
+
+        CachedObject object = null;
+
+        writeLock.lock();
+
+        try {
+            object = cache.get(pos);
+
+            if (object != null) {
+                if (keep) {
+                    object.keepInMemory(true);
+                }
+
+                return object;
+            }
+
+            for (int j = 0; j < 2; j++) {
+                try {
+                    RowInputInterface rowInput = readObject(pos, size);
+
+                    if (rowInput == null) {
+                        return null;
+                    }
+
+                    object = store.get(rowInput);
+
+                    break;
+                } catch (OutOfMemoryError err) {
+                    cache.forceCleanUp();
+                    System.gc();
+                    logSevereEvent(dataFileName + " getFromFile out of mem "
+                                   + pos, err);
+
+                    if (j > 0) {
+                        throw err;
+                    }
+                }
+            }
+
+            // for text tables with empty rows at the beginning,
+            // pos may move forward in readObject
+            cache.put(object);
+
+            if (keep) {
+                object.keepInMemory(true);
+            }
+
+            store.set(object);
+
+            return object;
+        } catch (HsqlException e) {
+            logSevereEvent(dataFileName + " getFromFile " + pos, e);
+
+            throw e;
+        } finally {
+            writeLock.unlock();
+        }
+    }
+
     RowInputInterface getRaw(int i) {
 
         writeLock.lock();
@@ -992,6 +1082,21 @@ public class DataFileCache {
 
             rowIn.resetRow(pos, size);
             dataFile.read(rowIn.getBuffer(), 4, size - 4);
+
+            return rowIn;
+        } catch (IOException e) {
+            logSevereEvent("readObject", e, pos);
+
+            throw Error.error(ErrorCode.DATA_FILE_ERROR, e);
+        }
+    }
+
+    protected RowInputInterface readObject(long pos, int size) {
+
+        try {
+            dataFile.seek((long) pos * dataFileScale);
+            rowIn.resetRow(pos, size);
+            dataFile.read(rowIn.getBuffer(), 0, size);
 
             return rowIn;
         } catch (IOException e) {
@@ -1223,6 +1328,45 @@ public class DataFileCache {
             if (fa.isStreamElement(backupFileName)) {
                 fa.removeElement(backupFileName);
             }
+        } finally {
+            writeLock.unlock();
+        }
+    }
+
+    public long getFileSpace(int[] blockSize) {
+
+        // normalise pos on boundary
+        writeLock.lock();
+
+        try {
+            long position = fileFreePosition;
+            long newFreePosition;
+
+            if (fileFreePosition == initialFreePos) {
+                blockSize[0] -= initialFreePos;
+            }
+
+            newFreePosition = fileFreePosition + blockSize[0];
+
+            if (newFreePosition > maxDataFileSize) {
+                logSevereEvent("data file reached maximum size "
+                               + this.dataFileName, null);
+
+                throw Error.error(ErrorCode.DATA_FILE_IS_FULL);
+            }
+
+            boolean result = dataFile.ensureLength(newFreePosition);
+
+            if (!result) {
+                logSevereEvent("data file cannot be enlarged - disk spacee "
+                               + this.dataFileName, null);
+
+                throw Error.error(ErrorCode.DATA_FILE_IS_FULL);
+            }
+
+            fileFreePosition = newFreePosition;
+
+            return position;
         } finally {
             writeLock.unlock();
         }

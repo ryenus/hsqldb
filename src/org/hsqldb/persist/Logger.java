@@ -889,7 +889,7 @@ public class Logger {
     /**
      * Returns the Cache object or null if one doesn't exist.
      */
-    private DataFileCache getCache() {
+    public DataFileCache getCache() {
 
         if (log == null) {
             return null;

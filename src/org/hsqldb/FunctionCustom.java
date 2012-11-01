@@ -75,7 +75,7 @@ import org.hsqldb.types.Types;
  * Some functions are translated into equivalent SQL Standard functions.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.2.9
+ * @version 2.3.0
  * @since 1.9.0
  */
 public class FunctionCustom extends FunctionSQL {
@@ -104,91 +104,106 @@ public class FunctionCustom extends FunctionSQL {
     //
     private static final int FUNC_ACOS                     = 71;
     private static final int FUNC_ACTION_ID                = 72;
-    private static final int FUNC_ASCII                    = 73;
-    private static final int FUNC_ASIN                     = 74;
-    private static final int FUNC_ATAN                     = 75;
-    private static final int FUNC_ATAN2                    = 76;
-    private static final int FUNC_BITAND                   = 77;
-    private static final int FUNC_BITANDNOT                = 78;
-    private static final int FUNC_BITNOT                   = 79;
-    private static final int FUNC_BITOR                    = 80;
-    private static final int FUNC_BITXOR                   = 81;
-    private static final int FUNC_CHAR                     = 82;
-    private static final int FUNC_CONCAT                   = 83;
-    private static final int FUNC_COS                      = 84;
-    private static final int FUNC_COT                      = 85;
-    private static final int FUNC_CRYPT_KEY                = 86;
-    private static final int FUNC_DATABASE                 = 87;
-    private static final int FUNC_DATABASE_ISOLATION_LEVEL = 88;
-    private static final int FUNC_DATABASE_NAME            = 89;
-    private static final int FUNC_DATABASE_TIMEZONE        = 90;
-    private static final int FUNC_DATABASE_VERSION         = 91;
-    private static final int FUNC_DATE_ADD                 = 92;
-    private static final int FUNC_DATE_SUB                 = 93;
-    private static final int FUNC_DATEADD                  = 94;
-    private static final int FUNC_DATEDIFF                 = 95;
-    private static final int FUNC_DAYS                     = 96;
-    private static final int FUNC_DEGREES                  = 97;
-    private static final int FUNC_DIAGNOSTICS              = 98;
-    private static final int FUNC_DIFFERENCE               = 99;
-    private static final int FUNC_HEXTORAW                 = 100;
-    private static final int FUNC_IDENTITY                 = 101;
-    private static final int FUNC_ISAUTOCOMMIT             = 102;
-    private static final int FUNC_ISOLATION_LEVEL          = 103;
-    private static final int FUNC_ISREADONLYDATABASE       = 104;
-    private static final int FUNC_ISREADONLYDATABASEFILES  = 105;
-    private static final int FUNC_ISREADONLYSESSION        = 106;
-    private static final int FUNC_LEFT                     = 107;
-    private static final int FUNC_LOAD_FILE                = 108;
-    private static final int FUNC_LOB_ID                   = 109;
-    private static final int FUNC_LOCATE                   = 110;
-    private static final int FUNC_LOG10                    = 111;
-    private static final int FUNC_LPAD                     = 112;
-    private static final int FUNC_LTRIM                    = 113;
-    private static final int FUNC_PI                       = 114;
-    private static final int FUNC_POSITION_ARRAY           = 115;
-    private static final int FUNC_RADIANS                  = 116;
-    private static final int FUNC_RAND                     = 117;
-    private static final int FUNC_RAWTOHEX                 = 118;
-    private static final int FUNC_REGEXP_MATCHES           = 119;
-    private static final int FUNC_REGEXP_SUBSTRING         = 120;
-    private static final int FUNC_REGEXP_SUBSTRING_ARRAY   = 121;
-    private static final int FUNC_REPEAT                   = 122;
-    private static final int FUNC_REPLACE                  = 123;
-    private static final int FUNC_REVERSE                  = 124;
-    private static final int FUNC_RIGHT                    = 125;
-    private static final int FUNC_ROUND                    = 126;
-    private static final int FUNC_ROUNDMAGIC               = 127;
-    private static final int FUNC_RPAD                     = 128;
-    private static final int FUNC_RTRIM                    = 129;
-    private static final int FUNC_SECONDS_MIDNIGHT         = 130;
-    private static final int FUNC_SEQUENCE_ARRAY           = 131;
-    private static final int FUNC_SESSION_ID               = 132;
-    private static final int FUNC_SESSION_ISOLATION_LEVEL  = 133;
-    private static final int FUNC_SESSION_TIMEZONE         = 134;
-    private static final int FUNC_SIGN                     = 135;
-    private static final int FUNC_SIN                      = 136;
-    private static final int FUNC_SOUNDEX                  = 137;
-    private static final int FUNC_SORT_ARRAY               = 138;
-    private static final int FUNC_SPACE                    = 139;
-    private static final int FUNC_SUBSTR                   = 140;
-    private static final int FUNC_SYSDATE                  = 141;
-    private static final int FUNC_TAN                      = 142;
-    private static final int FUNC_TIMESTAMP                = 143;
-    private static final int FUNC_TIMESTAMPADD             = 144;
-    private static final int FUNC_TIMESTAMPDIFF            = 145;
-    private static final int FUNC_TIMEZONE                 = 146;
-    private static final int FUNC_TO_CHAR                  = 147;
-    private static final int FUNC_TO_DATE                  = 148;
-    private static final int FUNC_TO_NUMBER                = 149;
-    private static final int FUNC_TO_TIMESTAMP             = 150;
-    private static final int FUNC_TRANSACTION_CONTROL      = 151;
-    private static final int FUNC_TRANSACTION_ID           = 152;
-    private static final int FUNC_TRANSACTION_SIZE         = 153;
-    private static final int FUNC_TRUNC                    = 154;
-    private static final int FUNC_TRUNCATE                 = 155;
-    private static final int FUNC_UUID                     = 156;
-    private static final int FUNC_UNIX_TIMESTAMP           = 157;
+    private static final int FUNC_ADD_MONTHS               = 73;
+    private static final int FUNC_ASCII                    = 74;
+    private static final int FUNC_ASIN                     = 75;
+    private static final int FUNC_ATAN                     = 76;
+    private static final int FUNC_ATAN2                    = 77;
+    private static final int FUNC_BITAND                   = 78;
+    private static final int FUNC_BITANDNOT                = 79;
+    private static final int FUNC_BITNOT                   = 80;
+    private static final int FUNC_BITOR                    = 81;
+    private static final int FUNC_BITXOR                   = 82;
+    private static final int FUNC_CHAR                     = 83;
+    private static final int FUNC_CONCAT                   = 84;
+    private static final int FUNC_COS                      = 85;
+    private static final int FUNC_COT                      = 86;
+    private static final int FUNC_CRYPT_KEY                = 87;
+    private static final int FUNC_DATABASE                 = 88;
+    private static final int FUNC_DATABASE_ISOLATION_LEVEL = 89;
+    private static final int FUNC_DATABASE_NAME            = 90;
+    private static final int FUNC_DATABASE_TIMEZONE        = 91;
+    private static final int FUNC_DATABASE_VERSION         = 92;
+    private static final int FUNC_DATE_ADD                 = 93;
+    private static final int FUNC_DATE_SUB                 = 94;
+    private static final int FUNC_DATEADD                  = 95;
+    private static final int FUNC_DATEDIFF                 = 96;
+    private static final int FUNC_DAYS                     = 97;
+    private static final int FUNC_DBTIMEZONE               = 98;
+    private static final int FUNC_DEGREES                  = 99;
+    private static final int FUNC_DIAGNOSTICS              = 100;
+    private static final int FUNC_DIFFERENCE               = 101;
+    private static final int FUNC_FROM_TZ                  = 102;
+    private static final int FUNC_HEXTORAW                 = 103;
+    private static final int FUNC_IDENTITY                 = 104;
+    private static final int FUNC_ISAUTOCOMMIT             = 105;
+    private static final int FUNC_ISOLATION_LEVEL          = 106;
+    private static final int FUNC_ISREADONLYDATABASE       = 107;
+    private static final int FUNC_ISREADONLYDATABASEFILES  = 108;
+    private static final int FUNC_ISREADONLYSESSION        = 109;
+    private static final int FUNC_LAST_DAY                 = 110;
+    private static final int FUNC_LEFT                     = 111;
+    private static final int FUNC_LOAD_FILE                = 112;
+    private static final int FUNC_LOB_ID                   = 113;
+    private static final int FUNC_LOCATE                   = 114;
+    private static final int FUNC_LOG10                    = 115;
+    private static final int FUNC_LPAD                     = 116;
+    private static final int FUNC_LTRIM                    = 117;
+    private static final int FUNC_MONTHS_BETWEEN           = 118;
+    private static final int FUNC_NEW_TIME                 = 119;
+    private static final int FUNC_NEXT_DAY                 = 120;
+    private static final int FUNC_NUMTODSINTERVAL          = 121;
+    private static final int FUNC_NUMTOYMINTERVAL          = 122;
+    private static final int FUNC_PI                       = 123;
+    private static final int FUNC_POSITION_ARRAY           = 124;
+    private static final int FUNC_RADIANS                  = 125;
+    private static final int FUNC_RAND                     = 126;
+    private static final int FUNC_RAWTOHEX                 = 127;
+    private static final int FUNC_REGEXP_MATCHES           = 128;
+    private static final int FUNC_REGEXP_SUBSTRING         = 129;
+    private static final int FUNC_REGEXP_SUBSTRING_ARRAY   = 130;
+    private static final int FUNC_REPEAT                   = 131;
+    private static final int FUNC_REPLACE                  = 132;
+    private static final int FUNC_REVERSE                  = 133;
+    private static final int FUNC_RIGHT                    = 134;
+    private static final int FUNC_ROUND                    = 135;
+    private static final int FUNC_ROUNDMAGIC               = 136;
+    private static final int FUNC_RPAD                     = 137;
+    private static final int FUNC_RTRIM                    = 138;
+    private static final int FUNC_SECONDS_MIDNIGHT         = 139;
+    private static final int FUNC_SEQUENCE_ARRAY           = 140;
+    private static final int FUNC_SESSION_ID               = 141;
+    private static final int FUNC_SESSION_ISOLATION_LEVEL  = 142;
+    private static final int FUNC_SESSION_TIMEZONE         = 143;
+    private static final int FUNC_SESSIONTIMEZONE          = 144;
+    private static final int FUNC_SIGN                     = 145;
+    private static final int FUNC_SIN                      = 146;
+    private static final int FUNC_SOUNDEX                  = 147;
+    private static final int FUNC_SORT_ARRAY               = 148;
+    private static final int FUNC_SPACE                    = 149;
+    private static final int FUNC_SUBSTR                   = 150;
+    private static final int FUNC_SYS_EXTRACT_UTC          = 151;
+    private static final int FUNC_SYSDATE                  = 152;
+    private static final int FUNC_SYSTIMESTAMP             = 153;
+    private static final int FUNC_TAN                      = 154;
+    private static final int FUNC_TIMESTAMP                = 155;
+    private static final int FUNC_TIMESTAMPADD             = 156;
+    private static final int FUNC_TIMESTAMPDIFF            = 157;
+    private static final int FUNC_TIMEZONE                 = 158;
+    private static final int FUNC_TO_CHAR                  = 159;
+    private static final int FUNC_TO_DATE                  = 160;
+    private static final int FUNC_TO_DSINTERVAL            = 161;
+    private static final int FUNC_TO_YMINTERVAL            = 162;
+    private static final int FUNC_TO_NUMBER                = 163;
+    private static final int FUNC_TO_TIMESTAMP             = 164;
+    private static final int FUNC_TO_TIMESTAMP_TZ          = 165;
+    private static final int FUNC_TRANSACTION_CONTROL      = 166;
+    private static final int FUNC_TRANSACTION_ID           = 167;
+    private static final int FUNC_TRANSACTION_SIZE         = 168;
+    private static final int FUNC_TRUNC                    = 169;
+    private static final int FUNC_TRUNCATE                 = 170;
+    private static final int FUNC_UUID                     = 171;
+    private static final int FUNC_UNIX_TIMESTAMP           = 172;
 
     //
     static final IntKeyIntValueHashMap customRegularFuncMap =
@@ -222,6 +237,7 @@ public class FunctionCustom extends FunctionSQL {
         //
         customRegularFuncMap.put(Tokens.ACOS, FUNC_ACOS);
         customRegularFuncMap.put(Tokens.ACTION_ID, FUNC_ACTION_ID);
+        customRegularFuncMap.put(Tokens.ADD_MONTHS, FUNC_ADD_MONTHS);
         customRegularFuncMap.put(Tokens.ARRAY_SORT, FUNC_SORT_ARRAY);
         customRegularFuncMap.put(Tokens.ASCII, FUNC_ASCII);
         customRegularFuncMap.put(Tokens.ASIN, FUNC_ASIN);
@@ -258,9 +274,11 @@ public class FunctionCustom extends FunctionSQL {
         customRegularFuncMap.put(Tokens.DAYOFWEEK, FUNC_EXTRACT);
         customRegularFuncMap.put(Tokens.DAYOFYEAR, FUNC_EXTRACT);
         customRegularFuncMap.put(Tokens.DAYS, FUNC_DAYS);
+        customRegularFuncMap.put(Tokens.DBTIMEZONE, FUNC_DBTIMEZONE);
         customRegularFuncMap.put(Tokens.DEGREES, FUNC_DEGREES);
         customRegularFuncMap.put(Tokens.DIAGNOSTICS, FUNC_DIAGNOSTICS);
         customRegularFuncMap.put(Tokens.DIFFERENCE, FUNC_DIFFERENCE);
+        customRegularFuncMap.put(Tokens.FROM_TZ, FUNC_FROM_TZ);
         customRegularFuncMap.put(Tokens.HEXTORAW, FUNC_HEXTORAW);
         customRegularFuncMap.put(Tokens.HOUR, FUNC_EXTRACT);
         customRegularFuncMap.put(Tokens.IDENTITY, FUNC_IDENTITY);
@@ -273,6 +291,7 @@ public class FunctionCustom extends FunctionSQL {
         customRegularFuncMap.put(Tokens.IS_READONLY_SESSION,
                                  FUNC_ISREADONLYSESSION);
         customRegularFuncMap.put(Tokens.ISOLATION_LEVEL, FUNC_ISOLATION_LEVEL);
+        customRegularFuncMap.put(Tokens.LAST_DAY, FUNC_LAST_DAY);
         customRegularFuncMap.put(Tokens.LCASE, FUNC_FOLD_LOWER);
         customRegularFuncMap.put(Tokens.LEFT, FUNC_LEFT);
         customRegularFuncMap.put(Tokens.LENGTH, FUNC_CHAR_LENGTH);
@@ -286,6 +305,11 @@ public class FunctionCustom extends FunctionSQL {
         customRegularFuncMap.put(Tokens.MINUTE, FUNC_EXTRACT);
         customRegularFuncMap.put(Tokens.MONTH, FUNC_EXTRACT);
         customRegularFuncMap.put(Tokens.MONTHNAME, FUNC_EXTRACT);
+        customRegularFuncMap.put(Tokens.MONTHS_BETWEEN, FUNC_MONTHS_BETWEEN);
+        customRegularFuncMap.put(Tokens.NEW_TIME, FUNC_NEW_TIME);
+//        customRegularFuncMap.put(Tokens.NEXT_DAY, FUNC_NEXT_DAY);
+        customRegularFuncMap.put(Tokens.NUMTODSINTERVAL, FUNC_NUMTODSINTERVAL);
+        customRegularFuncMap.put(Tokens.NUMTOYMINTERVAL, FUNC_NUMTOYMINTERVAL);
         customRegularFuncMap.put(Tokens.OCTETLENGTH, FUNC_OCTET_LENGTH);
         customRegularFuncMap.put(Tokens.PI, FUNC_PI);
         customRegularFuncMap.put(Tokens.POSITION_ARRAY, FUNC_POSITION_ARRAY);
@@ -312,12 +336,16 @@ public class FunctionCustom extends FunctionSQL {
         customRegularFuncMap.put(Tokens.SESSION_ISOLATION_LEVEL,
                                  FUNC_SESSION_ISOLATION_LEVEL);
         customRegularFuncMap.put(Tokens.SESSION_TIMEZONE, FUNC_SESSION_TIMEZONE);
+        customRegularFuncMap.put(Tokens.SESSIONTIMEZONE, FUNC_SESSIONTIMEZONE);
         customRegularFuncMap.put(Tokens.SIGN, FUNC_SIGN);
         customRegularFuncMap.put(Tokens.SIN, FUNC_SIN);
         customRegularFuncMap.put(Tokens.SORT_ARRAY, FUNC_SORT_ARRAY);
         customRegularFuncMap.put(Tokens.SOUNDEX, FUNC_SOUNDEX);
         customRegularFuncMap.put(Tokens.SPACE, FUNC_SPACE);
         customRegularFuncMap.put(Tokens.SUBSTR, FUNC_SUBSTRING_CHAR);
+        customRegularFuncMap.put(Tokens.SYS_EXTRACT_UTC, FUNC_SYS_EXTRACT_UTC);
+        customRegularFuncMap.put(Tokens.SYSDATE, FUNC_SYSDATE);
+        customRegularFuncMap.put(Tokens.SYSTIMESTAMP, FUNC_SYSTIMESTAMP);
         customRegularFuncMap.put(Tokens.TAN, FUNC_TAN);
         customRegularFuncMap.put(Tokens.TIMESTAMP, FUNC_TIMESTAMP);
         customRegularFuncMap.put(Tokens.TIMESTAMPADD, FUNC_TIMESTAMPADD);
@@ -325,8 +353,11 @@ public class FunctionCustom extends FunctionSQL {
         customRegularFuncMap.put(Tokens.TIMEZONE, FUNC_TIMEZONE);
         customRegularFuncMap.put(Tokens.TO_CHAR, FUNC_TO_CHAR);
         customRegularFuncMap.put(Tokens.TO_DATE, FUNC_TO_DATE);
+        customRegularFuncMap.put(Tokens.TO_DSINTERVAL, FUNC_TO_DSINTERVAL);
+        customRegularFuncMap.put(Tokens.TO_YMINTERVAL, FUNC_TO_YMINTERVAL);
         customRegularFuncMap.put(Tokens.TO_NUMBER, FUNC_TO_NUMBER);
         customRegularFuncMap.put(Tokens.TO_TIMESTAMP, FUNC_TO_TIMESTAMP);
+//      customRegularFuncMap.put(Tokens.TO_TIMESTAMP_TZ, FUNC_TO_TIMESTAMP_TZ);
         customRegularFuncMap.put(Tokens.TRANSACTION_CONTROL,
                                  FUNC_TRANSACTION_CONTROL);
         customRegularFuncMap.put(Tokens.TRANSACTION_ID, FUNC_TRANSACTION_ID);
@@ -345,8 +376,6 @@ public class FunctionCustom extends FunctionSQL {
         new IntKeyIntValueHashMap();
 
     static {
-        customValueFuncMap.put(Tokens.SYSDATE, FUNC_LOCALTIMESTAMP);
-        customValueFuncMap.put(Tokens.SYSTIMESTAMP, FUNC_CURRENT_TIMESTAMP);
         customValueFuncMap.put(Tokens.TODAY, FUNC_CURRENT_DATE);
         customValueFuncMap.put(Tokens.NOW, FUNC_LOCALTIMESTAMP);
     }
@@ -376,11 +405,9 @@ public class FunctionCustom extends FunctionSQL {
             case Tokens.UCASE :
                 return new FunctionSQL(id);
 
-            case Tokens.SYSTIMESTAMP :
             case Tokens.CURDATE :
             case Tokens.CURTIME :
             case Tokens.TODAY :
-            case Tokens.SYSDATE :
             case Tokens.NOW : {
                 FunctionSQL function = new FunctionSQL(id);
 
@@ -468,12 +495,18 @@ public class FunctionCustom extends FunctionSQL {
 
         switch (id) {
 
+            case FUNC_SYSDATE :
+            case FUNC_SYSTIMESTAMP :
+                parseList = optionalNoParamList;
+                break;
+
             case FUNC_ACTION_ID :
             case FUNC_DATABASE :
             case FUNC_DATABASE_ISOLATION_LEVEL :
             case FUNC_DATABASE_NAME :
             case FUNC_DATABASE_TIMEZONE :
             case FUNC_DATABASE_VERSION :
+            case FUNC_DBTIMEZONE :
             case FUNC_ISAUTOCOMMIT :
             case FUNC_ISOLATION_LEVEL :
             case FUNC_ISREADONLYDATABASE :
@@ -483,6 +516,7 @@ public class FunctionCustom extends FunctionSQL {
             case FUNC_SESSION_ID :
             case FUNC_SESSION_ISOLATION_LEVEL :
             case FUNC_SESSION_TIMEZONE :
+            case FUNC_SESSIONTIMEZONE :
             case FUNC_TIMEZONE :
             case FUNC_TRANSACTION_CONTROL :
             case FUNC_TRANSACTION_ID :
@@ -501,6 +535,7 @@ public class FunctionCustom extends FunctionSQL {
             case FUNC_DEGREES :
             case FUNC_DAYS :
             case FUNC_HEXTORAW :
+            case FUNC_LAST_DAY :
             case FUNC_LOB_ID :
             case FUNC_LOG10 :
             case FUNC_RADIANS :
@@ -511,29 +546,42 @@ public class FunctionCustom extends FunctionSQL {
             case FUNC_SIN :
             case FUNC_SOUNDEX :
             case FUNC_SPACE :
+            case FUNC_SYS_EXTRACT_UTC :
             case FUNC_TAN :
+            case FUNC_TO_DSINTERVAL :
+            case FUNC_TO_YMINTERVAL :
             case FUNC_TO_NUMBER :
                 parseList = singleParamList;
                 break;
 
-            case FUNC_TO_CHAR :
-            case FUNC_TO_DATE :
-            case FUNC_TO_TIMESTAMP :
-            case FUNC_CONCAT :
-            case FUNC_LEFT :
+            case FUNC_ADD_MONTHS :
             case FUNC_ATAN2 :
+            case FUNC_CONCAT :
+            case FUNC_CRYPT_KEY :
             case FUNC_BITAND :
             case FUNC_BITANDNOT :
             case FUNC_BITOR :
             case FUNC_BITXOR :
             case FUNC_DIFFERENCE :
+            case FUNC_FROM_TZ :
+            case FUNC_LEFT :
+            case FUNC_MONTHS_BETWEEN :
+            case FUNC_NEXT_DAY :
+            case FUNC_NUMTODSINTERVAL :
+            case FUNC_NUMTOYMINTERVAL :
             case FUNC_REGEXP_MATCHES :
             case FUNC_REGEXP_SUBSTRING :
             case FUNC_REGEXP_SUBSTRING_ARRAY :
             case FUNC_REPEAT :
-            case FUNC_CRYPT_KEY :
             case FUNC_RIGHT :
+            case FUNC_TO_CHAR :
                 parseList = doubleParamList;
+                break;
+
+            case FUNC_TO_DATE :
+            case FUNC_TO_TIMESTAMP :
+            case FUNC_TO_TIMESTAMP_TZ :
+                parseList = optionalDoubleParamList;
                 break;
 
             case FUNC_DATEDIFF :
@@ -550,6 +598,7 @@ public class FunctionCustom extends FunctionSQL {
                 break;
 
             case FUNC_DATEADD :
+            case FUNC_NEW_TIME :
             case FUNC_SEQUENCE_ARRAY :
                 parseList = tripleParamList;
                 break;
@@ -646,10 +695,7 @@ public class FunctionCustom extends FunctionSQL {
             case FUNC_TIMESTAMP :
             case FUNC_TRUNC :
             case FUNC_TRUNCATE :
-                parseList = new short[] {
-                    Tokens.OPENBRACKET, Tokens.QUESTION, Tokens.X_OPTION, 2,
-                    Tokens.COMMA, Tokens.QUESTION, Tokens.CLOSEBRACKET
-                };
+                parseList = optionalDoubleParamList;
                 break;
 
             case FUNC_RAND :
@@ -858,7 +904,7 @@ public class FunctionCustom extends FunctionSQL {
 
                     list.add(current);
 
-                    Object newValue = type.add(current, data[2],
+                    Object newValue = type.add(session, current, data[2],
                                                nodes[2].getDataType());
 
                     compare = type.compare(session, current, newValue);
@@ -901,7 +947,7 @@ public class FunctionCustom extends FunctionSQL {
                         t = Type.SQL_INTERVAL_SECOND_MAX_FRACTION;
                         o = new IntervalSecondData(seconds, nanos, t);
 
-                        return dataType.add(source, o, t);
+                        return dataType.add(session, source, o, t);
                     }
                     case Tokens.SQL_TSI_MILLI_SECOND : {
                         long seconds = units / 1000;
@@ -910,55 +956,55 @@ public class FunctionCustom extends FunctionSQL {
                         t = Type.SQL_INTERVAL_SECOND_MAX_FRACTION;
                         o = new IntervalSecondData(seconds, nanos, t);
 
-                        return dataType.add(source, o, t);
+                        return dataType.add(session, source, o, t);
                     }
                     case Tokens.SQL_TSI_SECOND :
                         t = Type.SQL_INTERVAL_SECOND_MAX_PRECISION;
                         o = IntervalSecondData.newIntervalSeconds(units, t);
 
-                        return dataType.add(source, o, t);
+                        return dataType.add(session, source, o, t);
 
                     case Tokens.SQL_TSI_MINUTE :
                         t = Type.SQL_INTERVAL_MINUTE_MAX_PRECISION;
                         o = IntervalSecondData.newIntervalMinute(units, t);
 
-                        return dataType.add(source, o, t);
+                        return dataType.add(session, source, o, t);
 
                     case Tokens.SQL_TSI_HOUR :
                         t = Type.SQL_INTERVAL_HOUR_MAX_PRECISION;
                         o = IntervalSecondData.newIntervalHour(units, t);
 
-                        return dataType.add(source, o, t);
+                        return dataType.add(session, source, o, t);
 
                     case Tokens.SQL_TSI_DAY :
                         t = Type.SQL_INTERVAL_DAY_MAX_PRECISION;
                         o = IntervalSecondData.newIntervalDay(units, t);
 
-                        return dataType.add(source, o, t);
+                        return dataType.add(session, source, o, t);
 
                     case Tokens.SQL_TSI_WEEK :
                         t = Type.SQL_INTERVAL_DAY_MAX_PRECISION;
                         o = IntervalSecondData.newIntervalDay(units * 7, t);
 
-                        return dataType.add(source, o, t);
+                        return dataType.add(session, source, o, t);
 
                     case Tokens.SQL_TSI_MONTH :
                         t = Type.SQL_INTERVAL_MONTH_MAX_PRECISION;
                         o = IntervalMonthData.newIntervalMonth(units, t);
 
-                        return dataType.add(source, o, t);
+                        return dataType.add(session, source, o, t);
 
                     case Tokens.SQL_TSI_QUARTER :
                         t = Type.SQL_INTERVAL_MONTH_MAX_PRECISION;
                         o = IntervalMonthData.newIntervalMonth(units * 3, t);
 
-                        return dataType.add(source, o, t);
+                        return dataType.add(session, source, o, t);
 
                     case Tokens.SQL_TSI_YEAR :
                         t = Type.SQL_INTERVAL_YEAR_MAX_PRECISION;
                         o = IntervalMonthData.newIntervalMonth(units * 12, t);
 
-                        return dataType.add(source, o, t);
+                        return dataType.add(session, source, o, t);
 
                     default :
                         throw Error.runtimeError(ErrorCode.U_S0500,
@@ -992,7 +1038,8 @@ public class FunctionCustom extends FunctionSQL {
                         t = Type.SQL_INTERVAL_SECOND_MAX_PRECISION;
 
                         IntervalSecondData interval =
-                            (IntervalSecondData) t.subtract(a, b, null);
+                            (IntervalSecondData) t.subtract(session, a, b,
+                                                            null);
 
                         return new Long(
                             DTIType.limitNanoseconds * interval.getSeconds()
@@ -1002,7 +1049,8 @@ public class FunctionCustom extends FunctionSQL {
                         t = Type.SQL_INTERVAL_SECOND_MAX_PRECISION;
 
                         IntervalSecondData interval =
-                            (IntervalSecondData) t.subtract(a, b, null);
+                            (IntervalSecondData) t.subtract(session, a, b,
+                                                            null);
 
                         return new Long(1000 * interval.getSeconds()
                                         + interval.getNanos() / 1000000);
@@ -1010,50 +1058,52 @@ public class FunctionCustom extends FunctionSQL {
                     case Tokens.SQL_TSI_SECOND :
                         t = Type.SQL_INTERVAL_SECOND_MAX_PRECISION;
 
-                        return new Long(t.convertToLong(t.subtract(a, b,
-                                null)));
+                        return new Long(t.convertToLongEndUnits(t.subtract(session, a,
+                                b, null)));
 
                     case Tokens.SQL_TSI_MINUTE :
                         t = Type.SQL_INTERVAL_MINUTE_MAX_PRECISION;
 
-                        return new Long(t.convertToLong(t.subtract(a, b,
-                                null)));
+                        return new Long(t.convertToLongEndUnits(t.subtract(session, a,
+                                b, null)));
 
                     case Tokens.SQL_TSI_HOUR :
                         t = Type.SQL_INTERVAL_HOUR_MAX_PRECISION;
 
-                        return new Long(t.convertToLong(t.subtract(a, b,
-                                null)));
+                        return new Long(t.convertToLongEndUnits(t.subtract(session, a,
+                                b, null)));
 
                     case Tokens.SQL_TSI_DAY :
                         t = Type.SQL_INTERVAL_DAY_MAX_PRECISION;
 
-                        return new Long(t.convertToLong(t.subtract(a, b,
-                                null)));
+                        return new Long(t.convertToLongEndUnits(t.subtract(session, a,
+                                b, null)));
 
                     case Tokens.SQL_TSI_WEEK :
                         t = Type.SQL_INTERVAL_DAY_MAX_PRECISION;
 
-                        return new Long(t.convertToLong(t.subtract(a, b, null))
-                                        / 7);
+                        return new Long(
+                            t.convertToLongEndUnits(t.subtract(session, a, b, null))
+                            / 7);
 
                     case Tokens.SQL_TSI_MONTH :
                         t = Type.SQL_INTERVAL_MONTH_MAX_PRECISION;
 
-                        return new Long(t.convertToLong(t.subtract(a, b,
-                                null)));
+                        return new Long(t.convertToLongEndUnits(t.subtract(session, a,
+                                b, null)));
 
                     case Tokens.SQL_TSI_QUARTER :
                         t = Type.SQL_INTERVAL_MONTH_MAX_PRECISION;
 
-                        return new Long(t.convertToLong(t.subtract(a, b, null))
-                                        / 3);
+                        return new Long(
+                            t.convertToLongEndUnits(t.subtract(session, a, b, null))
+                            / 3);
 
                     case Tokens.SQL_TSI_YEAR :
                         t = Type.SQL_INTERVAL_YEAR_MAX_PRECISION;
 
-                        return new Long(t.convertToLong(t.subtract(a, b,
-                                null)));
+                        return new Long(t.convertToLongEndUnits(t.subtract(session, a,
+                                b, null)));
 
                     default :
                         throw Error.runtimeError(ErrorCode.U_S0500,
@@ -1065,14 +1115,15 @@ public class FunctionCustom extends FunctionSQL {
                     return null;
                 }
 
-                return dataType.add(data[0], data[1], nodes[RIGHT].dataType);
+                return dataType.add(session, data[0], data[1],
+                                    nodes[RIGHT].dataType);
             }
             case FUNC_DATE_SUB : {
                 if (data[0] == null || data[1] == null) {
                     return null;
                 }
 
-                return dataType.subtract(data[0], data[1],
+                return dataType.subtract(session, data[0], data[1],
                                          nodes[RIGHT].dataType);
             }
             case FUNC_DAYS : {
@@ -1082,8 +1133,8 @@ public class FunctionCustom extends FunctionSQL {
 
                 IntervalSecondData diff =
                     (IntervalSecondData) Type.SQL_INTERVAL_DAY_MAX_PRECISION
-                        .subtract(data[0], DateTimeType.epochTimestamp,
-                                  Type.SQL_DATE);
+                        .subtract(session, data[0],
+                                  DateTimeType.epochTimestamp, Type.SQL_DATE);
 
                 return ValuePool.getInt((int) (diff.getSeconds()
                                                / (24 * 60 * 60) + 1));
@@ -1844,6 +1895,184 @@ public class FunctionCustom extends FunctionSQL {
 
                 return array;
             }
+            case FUNC_ADD_MONTHS : {
+                if (data[0] == null) {
+                    return null;
+                }
+
+                if (data[1] == null) {
+                    return null;
+                }
+
+                // check is last day of month and treat different
+                return null;
+            }
+            case FUNC_DBTIMEZONE : {
+                TimestampData timestamp = session.getSystemTimestamp(true);
+                IntervalSecondData zone =
+                    new IntervalSecondData(timestamp.getZone(), 0);
+
+                return Type.SQL_INTERVAL_HOUR_TO_MINUTE.convertToString(zone);
+            }
+            case FUNC_FROM_TZ : {
+                if (data[0] == null || data[1] == null) {
+                    return null;
+                }
+
+                TimestampData timestamp = (TimestampData) data[0];
+                IntervalSecondData zone =
+                    (IntervalSecondData) Type.SQL_INTERVAL_HOUR_TO_MINUTE
+                        .convertToDefaultType(session, data[1]);
+
+                return new TimestampData(
+                    timestamp.getSeconds() - zone.getSeconds(),
+                    timestamp.getNanos(), (int) zone.getSeconds());
+            }
+            case FUNC_LAST_DAY : {
+                if (data[0] == null) {
+                    return null;
+                }
+
+                return Type.SQL_TIMESTAMP_NO_FRACTION.getLastDayOfMonth(
+                    session, data[0]);
+            }
+            case FUNC_MONTHS_BETWEEN : {
+                if (data[0] == null || data[1] == null) {
+                    return null;
+                }
+
+                return DateTimeType.subtractMonths(session,
+                                                   (TimestampData) data[0],
+                                                   (TimestampData) data[1]);
+            }
+            case FUNC_NEW_TIME : {
+                if (data[0] == null || data[1] == null || data[2] == null) {
+                    return null;
+                }
+
+                IntervalSecondData zone1 =
+                    (IntervalSecondData) Type.SQL_INTERVAL_HOUR_TO_MINUTE
+                        .convertToDefaultType(session, data[1]);
+                IntervalSecondData zone2 =
+                    (IntervalSecondData) Type.SQL_INTERVAL_HOUR_TO_MINUTE
+                        .convertToDefaultType(session, data[1]);
+                Object val =
+                    Type.SQL_TIMESTAMP_WITH_TIME_ZONE.changeZone(data[0],
+                        Type.SQL_TIMESTAMP, (int) zone2.getSeconds(),
+                        (int) zone1.getSeconds());
+
+                return Type.SQL_TIMESTAMP.convertToType(session, val,
+                        Type.SQL_TIMESTAMP_WITH_TIME_ZONE);
+            }
+            case FUNC_NEXT_DAY : {
+                if (data[0] == null || data[1] == null) {
+                    return null;
+                }
+            }
+            case FUNC_NUMTODSINTERVAL : {
+                if (data[0] == null || data[1] == null) {
+                    return null;
+                }
+
+                Object st = Type.SQL_VARCHAR.trim(session, data[1], ' ', true,
+                                                  true);
+
+                st = Type.SQL_VARCHAR.upper(session, st);
+                st = Type.SQL_VARCHAR.convertToDefaultType(session, st);
+
+                int token    = Tokens.get((String) st);
+                int typeCode = IntervalType.getFieldNameTypeForToken(token);
+
+                switch (typeCode) {
+
+                    case Types.SQL_INTERVAL_DAY :
+                    case Types.SQL_INTERVAL_HOUR :
+                    case Types.SQL_INTERVAL_MINUTE :
+                    case Types.SQL_INTERVAL_SECOND :
+                        break;
+
+                    default :
+                        throw Error.error(ErrorCode.X_42566);
+                }
+
+                double value = ((Number) data[0]).doubleValue();
+
+                return IntervalSecondData.newInterval(value, typeCode);
+            }
+            case FUNC_NUMTOYMINTERVAL : {
+                if (data[0] == null || data[1] == null) {
+                    return null;
+                }
+
+                Object st = Type.SQL_VARCHAR.trim(session, data[1], ' ', true,
+                                                  true);
+
+                st = Type.SQL_VARCHAR.upper(session, st);
+                st = Type.SQL_VARCHAR.convertToDefaultType(session, st);
+
+                int token    = Tokens.get((String) st);
+                int typeCode = IntervalType.getFieldNameTypeForToken(token);
+
+                switch (typeCode) {
+
+                    case Types.SQL_INTERVAL_YEAR :
+                    case Types.SQL_INTERVAL_MONTH :
+                        break;
+
+                    default :
+                        throw Error.error(ErrorCode.X_42566);
+                }
+
+                double value = ((Number) data[0]).doubleValue();
+
+                return IntervalMonthData.newInterval(value, typeCode);
+            }
+            case FUNC_SESSIONTIMEZONE : {
+                IntervalSecondData zone =
+                    new IntervalSecondData(session.sessionTimeZoneSeconds, 0);
+
+                return Type.SQL_INTERVAL_HOUR_TO_MINUTE.convertToString(zone);
+            }
+            case FUNC_SYS_EXTRACT_UTC : {
+                if (data[0] == null) {
+                    return null;
+                }
+
+                return Type.SQL_TIMESTAMP_WITH_TIME_ZONE.changeZone(data[0],
+                        Type.SQL_TIMESTAMP_WITH_TIME_ZONE, 0, 0);
+            }
+            case FUNC_SYSDATE : {
+                TimestampData timestamp = session.getSystemTimestamp(false);
+
+                return Type.SQL_TIMESTAMP_NO_FRACTION.convertToType(session,
+                        timestamp, Type.SQL_TIMESTAMP);
+
+                //
+            }
+            case FUNC_SYSTIMESTAMP : {
+                return session.getSystemTimestamp(true);
+            }
+            case FUNC_TO_DSINTERVAL : {
+                if (data[0] == null) {
+                    return null;
+                }
+
+                return Type.SQL_INTERVAL_DAY_TO_SECOND.convertToType(session,
+                        data[0], Type.SQL_VARCHAR);
+            }
+            case FUNC_TO_YMINTERVAL : {
+                if (data[0] == null) {
+                    return null;
+                }
+
+                return Type.SQL_INTERVAL_YEAR_TO_MONTH_MAX_PRECISION
+                    .convertToType(session, data[0], Type.SQL_VARCHAR);
+            }
+            case FUNC_TO_TIMESTAMP_TZ : {
+                if (data[0] == null || data[1] == null) {
+                    return null;
+                }
+            }
             default :
                 throw Error.runtimeError(ErrorCode.U_S0500, "FunctionCustom");
         }
@@ -2260,6 +2489,16 @@ public class FunctionCustom extends FunctionSQL {
             case FUNC_TO_TIMESTAMP : {
                 if (nodes[0].dataType == null) {
                     nodes[0].dataType = Type.SQL_VARCHAR_DEFAULT;
+                }
+
+                if (nodes[1] == null) {
+                    String format = "DD-MON-YYYY HH24:MI:SS";
+
+                    if (funcType == FUNC_TO_TIMESTAMP) {
+                        format = "DD-MON-YYYY HH24:MI:SS.FF";
+                    }
+
+                    nodes[1] = new ExpressionValue(format, Type.SQL_VARCHAR);
                 }
 
                 if (nodes[1].dataType == null) {
@@ -2843,6 +3082,195 @@ public class FunctionCustom extends FunctionSQL {
 
                 break;
             }
+            case FUNC_ADD_MONTHS :
+                if (nodes[0].dataType == null) {
+                    nodes[0].dataType = Type.SQL_TIMESTAMP_NO_FRACTION;
+                }
+
+                if (!nodes[0].dataType.isDateOrTimestampType()) {
+                    throw Error.error(ErrorCode.X_42563);
+                }
+
+                dataType = Type.SQL_TIMESTAMP_NO_FRACTION;
+                break;
+
+            case FUNC_DBTIMEZONE :
+                dataType = CharacterType.getCharacterType(Types.SQL_VARCHAR,
+                        6);
+                break;
+
+            case FUNC_FROM_TZ :
+                if (nodes[0].dataType == null) {
+                    nodes[0].dataType = Type.SQL_TIMESTAMP;
+                }
+
+                if (nodes[1].dataType == null) {
+                    nodes[1].dataType = Type.SQL_VARCHAR;
+                }
+
+                dataType = Type.SQL_TIMESTAMP_WITH_TIME_ZONE;
+                break;
+
+            case FUNC_LAST_DAY :
+                if (nodes[0].dataType == null) {
+                    nodes[0].dataType = Type.SQL_TIMESTAMP_NO_FRACTION;
+                }
+
+                if (!nodes[0].dataType.isDateOrTimestampType()) {
+                    throw Error.error(ErrorCode.X_42563);
+                }
+
+                dataType = Type.SQL_TIMESTAMP_NO_FRACTION;
+                break;
+
+            case FUNC_MONTHS_BETWEEN :
+                if (nodes[0].dataType == null) {
+                    nodes[0].dataType = Type.SQL_TIMESTAMP_NO_FRACTION;
+                }
+
+                if (nodes[1].dataType == null) {
+                    nodes[1].dataType = Type.SQL_TIMESTAMP_NO_FRACTION;
+                }
+
+                if (!nodes[0].dataType.isDateOrTimestampType()) {
+                    throw Error.error(ErrorCode.X_42563);
+                }
+
+                if (!nodes[1].dataType.isDateOrTimestampType()) {
+                    throw Error.error(ErrorCode.X_42563);
+                }
+
+                dataType = Type.SQL_DECIMAL_DEFAULT;
+                break;
+
+            case FUNC_NEW_TIME :
+                if (nodes[0].dataType == null) {
+                    nodes[0].dataType = Type.SQL_TIMESTAMP_NO_FRACTION;
+                }
+
+                if (nodes[1].dataType == null) {
+                    nodes[1].dataType = Type.SQL_VARCHAR;
+                }
+
+                if (nodes[2].dataType == null) {
+                    nodes[2].dataType = Type.SQL_VARCHAR;
+                }
+
+                dataType = Type.SQL_TIMESTAMP_NO_FRACTION;
+                break;
+
+            case FUNC_NEXT_DAY :
+                if (nodes[0].dataType == null) {
+                    nodes[0].dataType = Type.SQL_TIMESTAMP_NO_FRACTION;
+                }
+
+                if (nodes[1].dataType == null) {
+                    nodes[1].dataType = Type.SQL_VARCHAR;
+                }
+
+                dataType = Type.SQL_TIMESTAMP_NO_FRACTION;
+                break;
+
+            case FUNC_NUMTODSINTERVAL :
+                if (nodes[0].dataType == null) {
+                    nodes[0].dataType = Type.SQL_DOUBLE;
+                }
+
+                if (nodes[1].dataType == null) {
+                    nodes[1].dataType = Type.SQL_VARCHAR;
+                }
+
+                if (!nodes[0].dataType.isNumberType()) {
+                    throw Error.error(ErrorCode.X_42563);
+                }
+
+                if (!nodes[1].dataType.isCharacterType()) {
+                    throw Error.error(ErrorCode.X_42563);
+                }
+
+                dataType = Type.SQL_INTERVAL_DAY_TO_SECOND_MAX_PRECISION;
+                break;
+
+            case FUNC_NUMTOYMINTERVAL :
+                if (nodes[0].dataType == null) {
+                    nodes[0].dataType = Type.SQL_DOUBLE;
+                }
+
+                if (nodes[1].dataType == null) {
+                    nodes[1].dataType = Type.SQL_VARCHAR;
+                }
+
+                if (!nodes[0].dataType.isNumberType()) {
+                    throw Error.error(ErrorCode.X_42563);
+                }
+
+                if (!nodes[1].dataType.isCharacterType()) {
+                    throw Error.error(ErrorCode.X_42563);
+                }
+
+                dataType = Type.SQL_INTERVAL_YEAR_TO_MONTH_MAX_PRECISION;
+                break;
+
+            case FUNC_SESSIONTIMEZONE :
+                dataType = CharacterType.getCharacterType(Types.SQL_VARCHAR,
+                        6);
+                break;
+
+            case FUNC_SYS_EXTRACT_UTC :
+                if (nodes[0].dataType == null) {
+                    nodes[0].dataType = Type.SQL_TIMESTAMP_WITH_TIME_ZONE;
+                }
+
+                dataType = Type.SQL_TIMESTAMP;
+                break;
+
+            case FUNC_SYSDATE :
+                dataType = Type.SQL_TIMESTAMP_NO_FRACTION;
+                break;
+
+            case FUNC_SYSTIMESTAMP :
+                dataType = Type.SQL_TIMESTAMP_WITH_TIME_ZONE;
+                break;
+
+            case FUNC_TO_DSINTERVAL :
+                if (nodes[0].dataType == null) {
+                    nodes[0].dataType = Type.SQL_VARCHAR;
+                }
+
+                dataType = Type.SQL_INTERVAL_DAY_TO_SECOND_MAX_PRECISION;
+                break;
+
+            case FUNC_TO_YMINTERVAL :
+                if (nodes[0].dataType == null) {
+                    nodes[0].dataType = Type.SQL_VARCHAR;
+                }
+
+                dataType = Type.SQL_INTERVAL_YEAR_TO_MONTH_MAX_PRECISION;
+                break;
+
+            case FUNC_TO_TIMESTAMP_TZ :
+                if (nodes[0].dataType == null) {
+                    nodes[0].dataType = Type.SQL_VARCHAR_DEFAULT;
+                }
+
+                if (nodes[1] == null) {
+                    String format = "DD-MON-YYYY HH24:MI:SS:FF TZH:TZM";
+
+                    nodes[1] = new ExpressionValue(format, Type.SQL_VARCHAR);
+                }
+
+                if (nodes[1].dataType == null) {
+                    nodes[1].dataType = Type.SQL_VARCHAR;
+                }
+
+                if (!nodes[0].dataType.isCharacterType()
+                        || !nodes[1].dataType.isCharacterType()) {
+                    throw Error.error(ErrorCode.X_42567);
+                }
+
+                dataType = Type.SQL_TIMESTAMP_WITH_TIME_ZONE;
+                break;
+
             default :
                 throw Error.runtimeError(ErrorCode.U_S0500, "FunctionCustom");
         }
@@ -3063,9 +3491,44 @@ public class FunctionCustom extends FunctionSQL {
                     nodes[1].getSQL()).append(Tokens.T_COMMA).append(
                     nodes[2].getSQL()).append(')').toString();
             }
+            case FUNC_DBTIMEZONE :
+            case FUNC_SESSIONTIMEZONE :
+            case FUNC_SYSDATE :
+            case FUNC_SYSTIMESTAMP :
+            case FUNC_SYS_EXTRACT_UTC :
+            case FUNC_LAST_DAY :
+            case FUNC_NEXT_DAY :
+            case FUNC_TO_DSINTERVAL :
+            case FUNC_TO_YMINTERVAL :
+            case FUNC_ADD_MONTHS :
+            case FUNC_FROM_TZ :
+            case FUNC_MONTHS_BETWEEN :
+            case FUNC_NUMTODSINTERVAL :
+            case FUNC_NUMTOYMINTERVAL :
+            case FUNC_TO_TIMESTAMP_TZ :
+            case FUNC_NEW_TIME :
+                return getSQLSimple();
+
             default :
                 return super.getSQL();
         }
+    }
+
+    private String getSQLSimple() {
+
+        StringBuffer sb = new StringBuffer(name).append('(');
+
+        for (int i = 0; i < nodes.length; i++) {
+            if (i > 0) {
+                sb.append(',');
+            }
+
+            sb.append(nodes[i].getSQL());
+        }
+
+        sb.append(')');
+
+        return sb.toString();
     }
 
     /**
