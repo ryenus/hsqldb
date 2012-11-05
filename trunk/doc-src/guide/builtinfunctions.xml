@@ -222,7 +222,38 @@
     string formed by concatenation of the arguments. Minimum number of
     arguments is 2. Equivalent to the SQL concatenation expression
     <literal>&lt;value expr 1&gt; || &lt;value expr 2&gt; [ || ...] </literal>
-    . (JDBC)</para>
+    .</para>
+
+    <para>Handling of null values in the CONCAT function depends on the
+    database property <literal>sql.concat_nulls</literal> ( <literal>SET
+    DATABASE SQL SYNTAX CONCAT NULLS { TRUE || FALSE }</literal> ). By
+    default, any null value will cause the function to return null. If the
+    property is set false, then NULL values are replaced with empty
+    strings.</para>
+
+    <para> (JDBC)</para>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>CONCAT_WS function</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">CONCAT_WS</emphasis></simpara>
+
+    <para><literal>CONCAT_WS ( &lt;char value separator&gt;, &lt;char value
+    expr 1&gt;, &lt;char value expr 2&gt; [, ...] )</literal></para>
+
+    <para>The arguments are character strings. Returns a string formed by
+    concatenation of the arguments from the second argument, using the
+    separator from the first argument. Minimum number of arguments is 3.
+    Equivalent to the SQL concatenation expression <literal>&lt;value expr
+    1&gt; || &lt;separator&gt; || &lt;value expr 2&gt; [ || ...]</literal> .
+    The function ignores null values and returns an empty string if all values
+    are null. It returns null only if the separator is null.</para>
+
+    <para>This function is similar to a MySQL function of the same
+    name.</para>
+
+    <para>(HyperSQL)</para>
 
     <indexterm significance="preferred" type="sql">
       <primary>DIFFERENCE function</primary>
@@ -1169,6 +1200,16 @@ WIDTH_BUCKET( 200, 10, 110, 10)
       INTERVAL HOUR TO MINUTE value. (HyperSQL)</para>
 
       <indexterm significance="preferred" type="sql">
+        <primary>SESSIONTIMEZONE function</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">SESSIONTIMEZONE</emphasis></simpara>
+
+      <para><literal>SESSIONTIMEZONE()</literal></para>
+
+      <para>Same as SESSION_TIMEZONE. (HyperSQL)</para>
+
+      <indexterm significance="preferred" type="sql">
         <primary>DATABASE_TIMEZONE function</primary>
       </indexterm>
 
@@ -1179,6 +1220,12 @@ WIDTH_BUCKET( 200, 10, 110, 10)
       <para>Returns the time zone for the database engine. This is based on
       where the database server process is located. Returns an INTERVAL HOUR
       TO MINUTE value. (HyperSQL)</para>
+
+      <simpara><emphasis role="bold">DBTIMEZONE</emphasis></simpara>
+
+      <para><literal>DBTIMEZONE()</literal></para>
+
+      <para>Same as DATABASE_TIMEZONE. (HyperSQL)</para>
     </section>
 
     <section xml:id="bfc_current_datetime">
@@ -1551,6 +1598,76 @@ WIDTH_BUCKET( 200, 10, 110, 10)
 
     <section xml:id="bfc_datetime_arithmetic">
       <title>Functions for Datetime Arithmetic</title>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>ADD_MONTHS function</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">ADD_MONTHS</emphasis></simpara>
+
+      <para><literal>ADD_MONTHS ( &lt;datetime value expr&gt;, &lt;numeric
+      value expr&gt;)</literal></para>
+
+      <para>This function is similar but different to simple addition a MONTH
+      interval to a datetime value. The SQL Standard expression,
+      <literal>&lt;datetime value expr&gt; + n MONTH</literal>, when used with
+      the last day of a short month such as February, returns a date that has
+      the same day of the month in the target month. The
+      <literal>ADD_MONTHS</literal> function adjusts the target day to the
+      last day of the target month. For all other days, the behaviour is the
+      same.(HyperSQL)</para>
+
+      <para>The example below compares the output of the function and the
+      expression.</para>
+
+      <para><programlisting>VALUES ADD_MONTHS ( DATE '2012-02-29' , 1), DATE '2012-02-29' + 1 MONTH
+
+C1                  C2         
+------------------- ---------- 
+2012-03-31 00:00:00 2012-03-29 
+</programlisting></para>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>LAST_DAY function</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">LAST_DAY</emphasis></simpara>
+
+      <para><literal>LAST_DAY ( &lt;datetime value expr&gt; )</literal></para>
+
+      <para>Returns the last day of the month for the given argument,
+      preserving the year, month, hour, minute and secend fields of the date.
+      The type of the result is always TIMESTAMP(0). (HyperSQL)</para>
+
+      <para><programlisting>VALUES LAST_DAY ( TIMESTAMP '2012-02-14 12:30:44')
+
+C1                  
+------------------- 
+2012-02-29 12:30:44 
+</programlisting></para>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>MONTHS_BETWEEN function</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">MONTHS_BETWEEN</emphasis></simpara>
+
+      <para><literal>MONTHS_BETWEEN ( &lt;datetime value expr1&gt; ,
+      &lt;datetime value expr2&gt; )</literal></para>
+
+      <para>Returns the a number (not an INTERVAL) possibly with a fraction,
+      representing the number of months between two days. If both dates have
+      the same day of month, or are on the last day of the month, the result
+      is an exact numeric. Otherwise, the fraction is calculated base on 31
+      days per month. You can cast the resulting value into INTERVAL MONTH and
+      use it for datetime arithmetic. (HyperSQL)</para>
+
+      <para><programlisting>VALUES MONTHS_BETWEEN ( TIMESTAMP '2013-02-14 12:30:44', TIMESTAMP '2012-01-04 12:30:44')
+
+C1                                  
+----------------------------------- 
+13.32258064516129000000000000000000 
+</programlisting></para>
 
       <indexterm significance="preferred" type="sql">
         <primary>TIMESTAMPADD function</primary>
