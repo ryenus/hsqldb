@@ -483,17 +483,21 @@
     specified as <literal>file:C:/files/mydatabase</literal> is opened and the
     database alias <literal>xdb</literal> is assigned to the database. After
     this, the next connection to the specified alias will connect to the same
-    database. The database path can also point to a mem: database. If you use
-    database properties on the URL, these properties are used when the new
-    database is created. If no database properties are used on the URL, you can
-    also specify the path with filepath=&lt;path&gt;. Examples below:</para>
+    database. Any database path on the URL is ignored if the alias is serving
+    a database. </para>
+
+    <para>The database path can point to a <literal>file:</literal> or
+    <literal>mem:</literal> database.</para>
+
+    <para>If you use database properties on the URL, these properties are used
+    when the new database is created. If no database properties are used on
+    the URL, you can also specify the path with
+    <literal>filepath=&lt;path&gt;</literal>. Examples below:</para>
 
     <programlisting>Connection c = DriverManager.getConnection("jdbc:hsqldb:hsql://localhost/xdb;file:C:/files/mydatabase", "SA", "");
 Connection c = DriverManager.getConnection("jdbc:hsqldb:hsql://localhost/xdb;mem:test;sql.enforce_types=true", "SA", "");
 Connection c = DriverManager.getConnection("jdbc:hsqldb:hsql://localhost/xdb;filepath=file:C:/files/mydatabase", "SA", "");
 </programlisting>
-
-    <para>The path can be a file: or mem: database.</para>
   </section>
 
   <section xml:id="lsc_db_props_startup">
@@ -515,8 +519,9 @@ Connection c = DriverManager.getConnection("jdbc:hsqldb:hsql://localhost/xdb;fil
 
     <para>The specified properties apply only to a new database. They have no
     effect on an existing database apart from a few properties such as
-    readonly listed in the <link endterm="dbproperties-title"
-    xlink:href="#dbproperties-chapt"></link> chapter.</para>
+    <literal>readonly</literal> listed in the <link
+    endterm="dbproperties-title" xlink:href="#dbproperties-chapt"></link>
+    chapter.</para>
   </section>
 
   <section xml:id="lsc_tls">
