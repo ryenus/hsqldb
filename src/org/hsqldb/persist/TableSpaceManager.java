@@ -43,7 +43,7 @@ public interface TableSpaceManager {
     /**
      * Deallocates a deleted block
      */
-    void add(long pos, int rowSize);
+    void release(long pos, int rowSize);
 
     /**
      * Allocates a block

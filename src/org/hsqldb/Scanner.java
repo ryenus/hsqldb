@@ -2436,7 +2436,7 @@ public class Scanner {
     public synchronized BinaryData convertToBit(String s) {
 
         BitMap map      = new BitMap(32, true);
-        int    bitIndex = map.size();
+        int    bitIndex = 0;
 
         reset(s);
         resetState();

@@ -49,7 +49,7 @@ import org.hsqldb.types.Types;
  *
  * @author Campbell Boucher-Burnet (boucherb@users dot sourceforge.net)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.0.1
+ * @version 2.3.0
  * @since 1.9.0
  */
 public class ExpressionOp extends Expression {
@@ -58,6 +58,25 @@ public class ExpressionOp extends Expression {
         OpTypes.LIMIT,
         new ExpressionValue(ValuePool.INTEGER_0, Type.SQL_INTEGER),
         new ExpressionValue(ValuePool.INTEGER_1, Type.SQL_INTEGER));
+
+    /**
+     * Creates a multiple arg operation expression
+     */
+    ExpressionOp(int type, Expression[] exprArray) {
+
+        super(type);
+
+        switch (opType) {
+
+            case OpTypes.CONCAT_WS :
+                nodes = exprArray;
+
+                return;
+
+            default :
+                throw Error.runtimeError(ErrorCode.U_S0500, "ExpressionOp");
+        }
+    }
 
     /**
      * Creates a special binary operation expression
@@ -238,6 +257,17 @@ public class ExpressionOp extends Expression {
                 sb.append(right);
                 break;
 
+            case OpTypes.CONCAT_WS :
+                sb.append(Tokens.T_CONCAT_WS).append(Tokens.OPENBRACKET);
+                sb.append(left);
+
+                for (int i = 0; i < nodes.length; i++) {
+                    sb.append(',').append(nodes[i].getSQL());
+                }
+
+                sb.append(Tokens.CLOSEBRACKET);
+                break;
+
             default :
                 throw Error.runtimeError(ErrorCode.U_S0500, "ExpressionOp");
         }
@@ -289,6 +319,10 @@ public class ExpressionOp extends Expression {
             case OpTypes.CASEWHEN :
                 sb.append(Tokens.T_CASEWHEN).append(' ');
                 break;
+
+            case OpTypes.CONCAT_WS :
+                sb.append(Tokens.T_CONCAT_WS).append(' ');
+                break;
         }
 
         if (getLeftNode() != null) {
@@ -307,8 +341,8 @@ public class ExpressionOp extends Expression {
     }
 
     public HsqlList resolveColumnReferences(Session session,
-            RangeGroup rangeGroup, int rangeCount,
-            RangeGroup[] rangeGroups, HsqlList unresolvedSet, boolean acceptsSequences) {
+            RangeGroup rangeGroup, int rangeCount, RangeGroup[] rangeGroups,
+            HsqlList unresolvedSet, boolean acceptsSequences) {
 
         if (opType == OpTypes.VALUE) {
             return unresolvedSet;
@@ -327,7 +361,8 @@ public class ExpressionOp extends Expression {
             }
 
             unresolvedSet = nodes[i].resolveColumnReferences(session,
-                    rangeGroup, rangeCount, rangeGroups, unresolvedSet, acceptsSequences);
+                    rangeGroup, rangeCount, rangeGroups, unresolvedSet,
+                    acceptsSequences);
         }
 
         return unresolvedSet;
@@ -451,6 +486,14 @@ public class ExpressionOp extends Expression {
                 // (how to get the value when the condition in
                 // the parent evaluates to false).
                 resolveTypesForCaseWhen(session);
+                break;
+
+            case OpTypes.CONCAT_WS :
+                for (int i = 0; i < nodes.length; i++) {
+                    nodes[i].dataType = Type.SQL_VARCHAR_DEFAULT;
+                }
+
+                dataType = Type.SQL_VARCHAR_DEFAULT;
                 break;
 
             case OpTypes.ALTERNATIVE :
@@ -734,7 +777,7 @@ public class ExpressionOp extends Expression {
 
             case OpTypes.PREFIX : {
                 if (nodes[LEFT].dataType.isCharacterType()) {
-                    Object        value = nodes[RIGHT].getValue(session);
+                    Object value = nodes[RIGHT].getValue(session);
 
                     if (value == null) {
                         return null;
@@ -802,6 +845,34 @@ public class ExpressionOp extends Expression {
                     return nodes[RIGHT].nodes[RIGHT].getValue(session,
                             dataType);
                 }
+            }
+            case OpTypes.CONCAT_WS : {
+                String sep = (String) nodes[LEFT].getValue(session);
+
+                if (sep == null) {
+                    return null;
+                }
+
+                StringBuffer sb       = new StringBuffer("");
+                boolean      hasValue = false;
+
+                for (int i = 1; i < nodes.length; i++) {
+                    String value = (String) nodes[i].getValue(session);
+
+                    if (value == null) {
+                        continue;
+                    }
+
+                    if (hasValue) {
+                        sb.append(sep);
+                    }
+
+                    sb.append(value);
+
+                    hasValue = true;
+                }
+
+                return sb.toString();
             }
             case OpTypes.ZONE_MODIFIER : {
                 Object leftValue  = nodes[LEFT].getValue(session);

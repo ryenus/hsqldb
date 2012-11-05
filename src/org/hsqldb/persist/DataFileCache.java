@@ -757,7 +757,7 @@ public class DataFileCache {
 
         try {
             release(object.getPos());
-            spaceManager.add(object.getPos(), object.getStorageSize());
+            spaceManager.release(object.getPos(), object.getStorageSize());
         } finally {
             writeLock.unlock();
         }

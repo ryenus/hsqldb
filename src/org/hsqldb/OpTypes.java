@@ -108,6 +108,7 @@ public interface OpTypes {
         GROUP_CONCAT         = 83,
         PREFIX               = 84,
         MEDIAN               = 85,
+        CONCAT_WS            = 86,
         CAST                 = 91,    // other operations
         ZONE_MODIFIER        = 92,
         CASEWHEN             = 93,
