@@ -79,7 +79,7 @@ public class DataFileBlockManager implements TableSpaceManager {
 
     /**
      */
-    public void add(long pos, int rowSize) {
+    public void release(long pos, int rowSize) {
 
         isModified = true;
 

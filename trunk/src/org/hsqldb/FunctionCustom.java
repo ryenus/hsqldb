@@ -1058,52 +1058,58 @@ public class FunctionCustom extends FunctionSQL {
                     case Tokens.SQL_TSI_SECOND :
                         t = Type.SQL_INTERVAL_SECOND_MAX_PRECISION;
 
-                        return new Long(t.convertToLongEndUnits(t.subtract(session, a,
-                                b, null)));
+                        return new Long(
+                            t.convertToLongEndUnits(
+                                t.subtract(session, a, b, null)));
 
                     case Tokens.SQL_TSI_MINUTE :
                         t = Type.SQL_INTERVAL_MINUTE_MAX_PRECISION;
 
-                        return new Long(t.convertToLongEndUnits(t.subtract(session, a,
-                                b, null)));
+                        return new Long(
+                            t.convertToLongEndUnits(
+                                t.subtract(session, a, b, null)));
 
                     case Tokens.SQL_TSI_HOUR :
                         t = Type.SQL_INTERVAL_HOUR_MAX_PRECISION;
 
-                        return new Long(t.convertToLongEndUnits(t.subtract(session, a,
-                                b, null)));
+                        return new Long(
+                            t.convertToLongEndUnits(
+                                t.subtract(session, a, b, null)));
 
                     case Tokens.SQL_TSI_DAY :
                         t = Type.SQL_INTERVAL_DAY_MAX_PRECISION;
 
-                        return new Long(t.convertToLongEndUnits(t.subtract(session, a,
-                                b, null)));
+                        return new Long(
+                            t.convertToLongEndUnits(
+                                t.subtract(session, a, b, null)));
 
                     case Tokens.SQL_TSI_WEEK :
                         t = Type.SQL_INTERVAL_DAY_MAX_PRECISION;
 
                         return new Long(
-                            t.convertToLongEndUnits(t.subtract(session, a, b, null))
-                            / 7);
+                            t.convertToLongEndUnits(
+                                t.subtract(session, a, b, null)) / 7);
 
                     case Tokens.SQL_TSI_MONTH :
                         t = Type.SQL_INTERVAL_MONTH_MAX_PRECISION;
 
-                        return new Long(t.convertToLongEndUnits(t.subtract(session, a,
-                                b, null)));
+                        return new Long(
+                            t.convertToLongEndUnits(
+                                t.subtract(session, a, b, null)));
 
                     case Tokens.SQL_TSI_QUARTER :
                         t = Type.SQL_INTERVAL_MONTH_MAX_PRECISION;
 
                         return new Long(
-                            t.convertToLongEndUnits(t.subtract(session, a, b, null))
-                            / 3);
+                            t.convertToLongEndUnits(
+                                t.subtract(session, a, b, null)) / 3);
 
                     case Tokens.SQL_TSI_YEAR :
                         t = Type.SQL_INTERVAL_YEAR_MAX_PRECISION;
 
-                        return new Long(t.convertToLongEndUnits(t.subtract(session, a,
-                                b, null)));
+                        return new Long(
+                            t.convertToLongEndUnits(
+                                t.subtract(session, a, b, null)));
 
                     default :
                         throw Error.runtimeError(ErrorCode.U_S0500,
@@ -1904,8 +1910,11 @@ public class FunctionCustom extends FunctionSQL {
                     return null;
                 }
 
-                // check is last day of month and treat different
-                return null;
+                TimestampData ts     = (TimestampData) data[0];
+                int           months = ((Number) data[1]).intValue();
+
+                return Type.SQL_TIMESTAMP_NO_FRACTION.addMonthsSpecial(session,
+                        ts, months);
             }
             case FUNC_DBTIMEZONE : {
                 TimestampData timestamp = session.getSystemTimestamp(true);
@@ -1941,9 +1950,8 @@ public class FunctionCustom extends FunctionSQL {
                     return null;
                 }
 
-                return DateTimeType.subtractMonths(session,
-                                                   (TimestampData) data[0],
-                                                   (TimestampData) data[1]);
+                return DateTimeType.subtractMonthsSpecial(session,
+                        (TimestampData) data[0], (TimestampData) data[1]);
             }
             case FUNC_NEW_TIME : {
                 if (data[0] == null || data[1] == null || data[2] == null) {

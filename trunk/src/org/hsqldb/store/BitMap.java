@@ -87,6 +87,76 @@ public class BitMap {
         limitPos = 0;
     }
 
+    public void setRange(int pos, int count) {
+        setOrUnsetRange(pos, count, true);
+    }
+
+    public void unsetRange(int pos, int count) {
+        setOrUnsetRange(pos, count, false);
+    }
+
+    private void setOrUnsetRange(int pos, int count, boolean set) {
+
+        if (pos + count > capacity) {
+            doubleCapacity();
+        }
+
+        if (pos + count >= limitPos) {
+            limitPos = pos + count + 1;
+        }
+
+        int windex    = pos >> 5;
+        int windexend = (pos + count - 1) >> 5;
+
+        if (windex == windexend) {
+            int mask    = 0xffffffff >>> (pos & 0x1F);
+            int maskend = 0x80000000 >> ((pos + count - 1) & 0x1F);
+
+            mask &= maskend;
+
+            int word = map[windex];
+
+            if (set) {
+                map[windex] = (word | mask);
+            } else {
+                mask        = ~mask;
+                map[windex] = (word & mask);
+            }
+
+            return;
+        }
+
+        int mask = 0xffffffff >>> (pos & 0x1F);
+        int word = map[windex];
+
+        if (set) {
+            map[windex] = (word | mask);
+        } else {
+            mask        = ~mask;
+            map[windex] = (word & mask);
+        }
+
+        mask = 0x80000000 >> ((pos + count - 1) & 0x1F);
+        word = map[windexend];
+
+        if (set) {
+            map[windexend] = (word | mask);
+        } else {
+            mask           = ~mask;
+            map[windexend] = (word & mask);
+        }
+
+        for (int i = windex + 1; i < windexend; i++) {
+            map[i] = set ? 0xffffffff
+                         : 0;
+        }
+    }
+
+    public int setValue(int pos, boolean set) {
+        return set ? set(pos)
+                   : unset(pos);
+    }
+
     /**
      * Sets pos and returns old value
      */
@@ -140,14 +210,8 @@ public class BitMap {
 
     public int get(int pos) {
 
-        while (pos >= capacity) {
-            doubleCapacity();
-        }
-
         if (pos >= limitPos) {
-            limitPos = pos + 1;
-
-            return 0;
+            throw new ArrayIndexOutOfBoundsException(pos);
         }
 
         int windex = pos >> 5;
@@ -162,7 +226,36 @@ public class BitMap {
         return get(pos) == 1;
     }
 
-    public int[] getInts() {
+    public int bitCount() {
+
+        int setCount = 0;
+
+        for (int windex = 0; windex < limitPos / 32; windex++) {
+            int word = map[windex];
+
+            if (word == 0) {
+                continue;
+            }
+
+            if (word == -1) {
+                setCount += 32;
+
+                continue;
+            }
+
+            setCount += Integer.bitCount(word);
+        }
+
+        if (limitPos % 32 != 0) {
+            int word = map[limitPos / 23];
+
+            setCount += Integer.bitCount(word);
+        }
+
+        return setCount;
+    }
+
+    public int[] getIntArray() {
         return map;
     }
 

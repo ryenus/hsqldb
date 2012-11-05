@@ -53,7 +53,7 @@ public class TableSpaceManagerSession implements TableSpaceManager {
 
     /**
      */
-    public void add(long pos, int rowSize) {}
+    public void release(long pos, int rowSize) {}
 
     /**
      * Returns the position of a free block or 0.

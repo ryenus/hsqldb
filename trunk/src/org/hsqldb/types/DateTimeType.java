@@ -1328,6 +1328,35 @@ public final class DateTimeType extends DTIType {
                + increment;
     }
 
+    public Object addMonthsSpecial(Session session, Object dateTime,
+                                   int months) {
+
+        TimestampData ts     = (TimestampData) dateTime;
+        Calendar      cal    = session.getCalendarGMT();
+        long          millis = (ts.getSeconds() + ts.getZone()) * 1000;
+        boolean       lastDay;
+
+        HsqlDateTime.setTimeInMillis(cal, millis);
+        cal.set(Calendar.DAY_OF_MONTH, 1);
+        cal.add(Calendar.MONTH, 1);
+        cal.add(Calendar.DAY_OF_MONTH, -1);
+
+        lastDay = millis == cal.getTimeInMillis();
+
+        HsqlDateTime.setTimeInMillis(cal, millis);
+        cal.add(Calendar.MONTH, months);
+
+        if (lastDay) {
+            cal.set(Calendar.DAY_OF_MONTH, 1);
+            cal.add(Calendar.MONTH, 1);
+            cal.add(Calendar.DAY_OF_MONTH, -1);
+        }
+
+        millis = cal.getTimeInMillis();
+
+        return new TimestampData(millis / 1000, 0, 0);
+    }
+
     public Object getLastDayOfMonth(Session session, Object dateTime) {
 
         TimestampData ts     = (TimestampData) dateTime;
@@ -1341,8 +1370,7 @@ public final class DateTimeType extends DTIType {
 
         millis = cal.getTimeInMillis();
 
-        return new TimestampData(millis / 1000 - ts.getZone(), 0,
-                                 ts.getZone());
+        return new TimestampData(millis / 1000, 0, 0);
     }
 
     long getMillis(Object dateTime) {
@@ -1657,8 +1685,8 @@ public final class DateTimeType extends DTIType {
         return Boolean.FALSE;
     }
 
-    public static BigDecimal subtractMonths(Session session, TimestampData a,
-            TimestampData b) {
+    public static BigDecimal subtractMonthsSpecial(Session session,
+            TimestampData a, TimestampData b) {
 
         long    s1    = (a.getSeconds() + a.getZone()) * 1000;
         long    s2    = (b.getSeconds() + b.getZone()) * 1000;
