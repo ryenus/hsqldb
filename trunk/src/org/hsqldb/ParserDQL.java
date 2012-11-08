@@ -743,8 +743,8 @@ public class ParserDQL extends ParserBase {
                 throw Error.error(ErrorCode.X_42577, token.tokenString);
             }
 
-            if (quotedFlags != null && isDelimitedIdentifier()) {
-                quotedFlags.set(i);
+            if (quotedFlags != null) {
+                quotedFlags.setValue(i, isDelimitedIdentifier());
             }
 
             read();
@@ -5347,9 +5347,8 @@ public class ParserDQL extends ParserBase {
 
     private Expression readConcatSeparatorExpressionOrNull() {
 
-        HsqlArrayList array = new HsqlArrayList();
-
-        int position = getPosition();
+        HsqlArrayList array    = new HsqlArrayList();
+        int           position = getPosition();
 
         read();
 
@@ -5360,30 +5359,33 @@ public class ParserDQL extends ParserBase {
         }
 
         Expression e = XreadValueExpression();
-        array.add(e);
 
+        array.add(e);
         readThis(Tokens.COMMA);
 
         e = XreadValueExpression();
 
         array.add(e);
-
         readThis(Tokens.COMMA);
 
         do {
-            e   = XreadValueExpression();
+            e = XreadValueExpression();
+
             array.add(e);
 
             if (token.tokenType == Tokens.COMMA) {
                 readThis(Tokens.COMMA);
             } else if (token.tokenType == Tokens.CLOSEBRACKET) {
                 readThis(Tokens.CLOSEBRACKET);
+
                 break;
             }
         } while (true);
 
         Expression[] expressions = new Expression[array.size()];
+
         array.toArray(expressions);
+
         return new ExpressionOp(OpTypes.CONCAT_WS, expressions);
     }
 
