@@ -1615,7 +1615,8 @@ WIDTH_BUCKET( 200, 10, 110, 10)
       the same day of the month in the target month. The
       <literal>ADD_MONTHS</literal> function adjusts the target day to the
       last day of the target month. For all other days, the behaviour is the
-      same.(HyperSQL)</para>
+      same. This function always returns a TIMESTAMP(0) value, regardless of
+      the type of the argument. (HyperSQL)</para>
 
       <para>The example below compares the output of the function and the
       expression.</para>
