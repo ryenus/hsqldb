@@ -312,10 +312,8 @@ public class DataFileCache {
 
             fileModified  = false;
             cacheModified = false;
-            freeBlocks =
-                new DataFileBlockManager(this,
-                                         database.logger.propMaxFreeBlocks, 0,
-                                         freesize);
+            freeBlocks = new TableSpaceManagerDefault(this,
+                    database.logger.propMaxFreeBlocks, freesize);
 
             logInfoEvent("dataFileCache open end");
         } catch (Throwable t) {
@@ -399,10 +397,8 @@ public class DataFileCache {
 
             fileModified  = false;
             cacheModified = false;
-            freeBlocks =
-                new DataFileBlockManager(this,
-                                         database.logger.propMaxFreeBlocks, 0,
-                                         freesize);
+            freeBlocks = new TableSpaceManagerDefault(this,
+                    database.logger.propMaxFreeBlocks, freesize);
 
             logInfoEvent("dataFileCache open end");
         } catch (Throwable t) {
