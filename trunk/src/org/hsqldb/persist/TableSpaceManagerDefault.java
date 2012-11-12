@@ -42,14 +42,13 @@ import org.hsqldb.lib.DoubleIntIndex;
  * @version 2.3.0
  * @since 1.8.0
  */
-public class DataFileBlockManager implements TableSpaceManager {
+public class TableSpaceManagerDefault implements TableSpaceManager {
 
     private DataFileCache  cache;
     private DoubleIntIndex lookup;
     private final int      capacity;
     private int            midSize;
     private final int      scale;
-    private final int      reuseMin;
     private long           releaseCount;
     private long           requestCount;
     private long           requestSize;
@@ -62,8 +61,8 @@ public class DataFileBlockManager implements TableSpaceManager {
     /**
      *
      */
-    public DataFileBlockManager(DataFileCache cache, int capacity,
-                                int reuseMin, long lostSize) {
+    public TableSpaceManagerDefault(DataFileCache cache, int capacity,
+                                    long lostSize) {
 
         this.cache = cache;
         lookup     = new DoubleIntIndex(capacity, true);
@@ -72,7 +71,6 @@ public class DataFileBlockManager implements TableSpaceManager {
 
         this.capacity          = capacity;
         this.scale             = cache.dataFileScale;
-        this.reuseMin          = reuseMin;
         this.lostFreeBlockSize = lostSize;
         this.midSize           = 128;    // arbitrary initial value
     }
@@ -83,7 +81,7 @@ public class DataFileBlockManager implements TableSpaceManager {
 
         isModified = true;
 
-        if (capacity == 0 || rowSize < reuseMin) {
+        if (capacity == 0) {
             lostFreeBlockSize += rowSize;
 
             return;
@@ -147,7 +145,7 @@ public class DataFileBlockManager implements TableSpaceManager {
         cache.writeLock.lock();
 
         try {
-            if (capacity == 0 || rowSize < reuseMin) {
+            if (capacity == 0) {
                 return getNewBlock(rowSize, asBlocks);
             }
 
