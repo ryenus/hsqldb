@@ -36,7 +36,7 @@ import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
 
 /**
- * Invariant schema object namess.
+ * Invariant schema objects.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
  * @version 2.2.7

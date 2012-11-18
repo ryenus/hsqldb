@@ -56,6 +56,8 @@ public interface RowOutputInterface extends Cloneable {
 
     void writeByte(int i);
 
+    void writeChar(int i);
+
     void writeShort(int i);
 
     void writeInt(int i);

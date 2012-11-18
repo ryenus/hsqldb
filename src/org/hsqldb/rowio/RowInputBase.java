@@ -301,6 +301,25 @@ abstract class RowInputBase extends HsqlByteArrayInputStream {
         buffer[3] = (byte) ((rowsize >>> 0) & 0xFF);
     }
 
+    /**
+     *  Used to reset the row, ready for a new row to be written into the
+     *  byte[] buffer by an external routine.
+     *
+     */
+    public void resetBlock(long filepos, int rowsize) throws IOException {
+
+        mark = 0;
+
+        reset();
+
+        if (buffer.length < rowsize) {
+            buffer = new byte[rowsize];
+        }
+
+        filePos   = filepos;
+        size      = count = rowsize;
+    }
+
     public byte[] getBuffer() {
         return buffer;
     }

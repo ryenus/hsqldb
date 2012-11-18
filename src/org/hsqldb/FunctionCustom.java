@@ -2361,7 +2361,22 @@ public class FunctionCustom extends FunctionSQL {
 
                 if (nodes[0].dataType == null) {
                     if (single) {
-                        nodes[0].dataType = Type.SQL_DECIMAL;
+                        if (parent instanceof ExpressionLogical
+                                || parent instanceof ExpressionArithmetic) {
+                            for (int i = 0; i < parent.nodes.length; i++) {
+                                if (parent.nodes[i].dataType != null) {
+                                    nodes[0].dataType =
+                                        parent.nodes[i].dataType;
+
+                                    break;
+                                }
+                            }
+                        }
+
+                        if (nodes[0].dataType == null
+                                || nodes[0].dataType.isNumberType()) {
+                            nodes[0].dataType = Type.SQL_DECIMAL;
+                        }
                     } else {
                         if (nodes[1].dataType == null) {
                             nodes[1].dataType = Type.SQL_INTEGER;
