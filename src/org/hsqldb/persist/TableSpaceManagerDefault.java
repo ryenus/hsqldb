@@ -36,7 +36,7 @@ import org.hsqldb.error.ErrorCode;
 import org.hsqldb.lib.DoubleIntIndex;
 
 /**
- * Maintains a list of free file blocks with fixed capacity.<p>
+ * Maintains a list of free file blocks.<p>
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
  * @version 2.3.0
@@ -73,6 +73,10 @@ public class TableSpaceManagerDefault implements TableSpaceManager {
         this.scale             = cache.dataFileScale;
         this.lostFreeBlockSize = lostSize;
         this.midSize           = 128;    // arbitrary initial value
+    }
+
+    public int getSpaceID() {
+        return DataSpaceManager.tableIdDefault;
     }
 
     /**
@@ -197,10 +201,6 @@ public class TableSpaceManagerDefault implements TableSpaceManager {
 
     public boolean isModified() {
         return isModified;
-    }
-
-    public void clear() {
-        removeBlocks(lookup.size());
     }
 
     private void resetList() {

@@ -39,9 +39,12 @@ import org.hsqldb.lib.HashMappedList;
 import org.hsqldb.lib.Iterator;
 import org.hsqldb.lib.OrderedHashSet;
 import org.hsqldb.lib.java.JavaSystem;
+import org.hsqldb.persist.DataFileCache;
+import org.hsqldb.persist.DataSpaceManager;
 import org.hsqldb.persist.HsqlDatabaseProperties;
 import org.hsqldb.persist.HsqlProperties;
 import org.hsqldb.persist.PersistentStore;
+import org.hsqldb.persist.TableSpaceManager;
 import org.hsqldb.result.Result;
 import org.hsqldb.result.ResultMetaData;
 import org.hsqldb.rights.User;
@@ -51,7 +54,7 @@ import org.hsqldb.scriptio.ScriptWriterText;
  * Implementation of Statement for SQL commands.<p>
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.2.8
+ * @version 2.3.0
  * @since 1.9.0
  */
 public class StatementCommand extends Statement {
@@ -129,6 +132,7 @@ public class StatementCommand extends Statement {
             case StatementTypes.SET_DATABASE_FILES_CACHE_ROWS :
             case StatementTypes.SET_DATABASE_FILES_CACHE_SIZE :
             case StatementTypes.SET_DATABASE_FILES_SCALE :
+            case StatementTypes.SET_DATABASE_FILES_SPACE :
             case StatementTypes.SET_DATABASE_FILES_DEFRAG :
             case StatementTypes.SET_DATABASE_FILES_LOBS_SCALE :
             case StatementTypes.SET_DATABASE_FILES_LOG :
@@ -154,6 +158,8 @@ public class StatementCommand extends Statement {
                 break;
 
             case StatementTypes.SET_TABLE_CLUSTERED :
+            case StatementTypes.SET_TABLE_NEW_TABLESPACE :
+            case StatementTypes.SET_TABLE_SET_TABLESPACE :
                 group = StatementTypes.X_HSQLDB_SCHEMA_MANIPULATION;
                 break;
 
@@ -395,6 +401,19 @@ public class StatementCommand extends Statement {
                     } else {
                         session.database.logger.setDataFileScale(value);
                     }
+
+                    return Result.updateZeroResult;
+                } catch (HsqlException e) {
+                    return Result.newErrorResult(e, sql);
+                }
+            }
+            case StatementTypes.SET_DATABASE_FILES_SPACE : {
+                try {
+                    boolean value = ((Boolean) parameters[0]).booleanValue();
+
+                    session.checkAdmin();
+                    session.checkDDLWrite();
+                    session.database.logger.setDataFileSpaces(value);
 
                     return Result.updateZeroResult;
                 } catch (HsqlException e) {
@@ -819,6 +838,80 @@ public class StatementCommand extends Statement {
 
                     session.checkAdmin();
                     session.database.close(mode);
+
+                    return Result.updateZeroResult;
+                } catch (HsqlException e) {
+                    return Result.newErrorResult(e, sql);
+                }
+            }
+            case StatementTypes.SET_TABLE_NEW_TABLESPACE : {
+                try {
+                    HsqlName name = (HsqlName) parameters[0];
+                    Table table =
+                        session.database.schemaManager.getTable(session,
+                            name.name, name.schema.name);
+                    DataFileCache cache = session.database.logger.getCache();
+
+                    if (table.getTableType() != TableBase.CACHED_TABLE) {
+                        return Result.updateZeroResult;
+                    }
+
+                    if (cache == null) {
+                        return Result.updateZeroResult;
+                    }
+
+                    if (table.getSpaceID()
+                            != DataSpaceManager.tableIdDefault) {
+                        return Result.updateZeroResult;
+                    }
+
+                    DataSpaceManager dataSpace = cache.spaceManager;
+                    TableSpaceManager tableSpace =
+                        dataSpace.getNewTableSpace();
+
+                    table.setSpaceID(tableSpace.getSpaceID());
+
+                    PersistentStore store = table.getRowStore(session);
+
+                    store.setSpaceManager(tableSpace);
+
+                    return Result.updateZeroResult;
+                } catch (HsqlException e) {
+                    return Result.newErrorResult(e, sql);
+                }
+            }
+            case StatementTypes.SET_TABLE_SET_TABLESPACE : {
+                try {
+                    HsqlName name    = (HsqlName) parameters[0];
+                    Integer  storeid = (Integer) parameters[1];
+                    Table table =
+                        session.database.schemaManager.getTable(session,
+                            name.name, name.schema.name);
+                    DataFileCache cache = session.database.logger.getCache();
+
+                    if (!session.isProcessingScript()) {
+                        return Result.updateZeroResult;
+                    }
+
+                    if (table.getTableType() != TableBase.CACHED_TABLE) {
+                        return Result.updateZeroResult;
+                    }
+
+                    if (cache == null) {
+                        return Result.updateZeroResult;
+                    }
+
+                    if (table.getSpaceID()
+                            != DataSpaceManager.tableIdDefault) {
+                        return Result.updateZeroResult;
+                    }
+
+                    DataSpaceManager dataSpace = cache.spaceManager;
+                    TableSpaceManager tableSpace =
+                        dataSpace.getTableSpace(storeid.intValue());
+                    PersistentStore store = table.getRowStore(session);
+
+                    store.setSpaceManager(tableSpace);
 
                     return Result.updateZeroResult;
                 } catch (HsqlException e) {

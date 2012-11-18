@@ -39,7 +39,9 @@ import org.hsqldb.lib.ArrayUtil;
 import org.hsqldb.lib.HsqlArrayList;
 import org.hsqldb.lib.OrderedHashSet;
 import org.hsqldb.navigator.RowIterator;
+import org.hsqldb.persist.DataSpaceManager;
 import org.hsqldb.persist.PersistentStore;
+import org.hsqldb.persist.TableSpaceManager;
 import org.hsqldb.rights.Grantee;
 import org.hsqldb.types.Type;
 import org.hsqldb.types.Types;
@@ -1307,6 +1309,19 @@ public class TableWorks {
                 database.persistentStoreCollection.getStore(oldTable);
             PersistentStore newStore =
                 database.persistentStoreCollection.getStore(newTable);
+
+            if (newTable.isCached()
+                    && oldTable.getSpaceID()
+                       != DataSpaceManager.tableIdDefault) {
+                TableSpaceManager tableSpace =
+                    database.logger.getCache().spaceManager.getNewTableSpace();
+
+                newTable.setSpaceID(tableSpace.getSpaceID());
+
+                PersistentStore store = newTable.getRowStore(session);
+
+                store.setSpaceManager(tableSpace);
+            }
 
             try {
                 newStore.moveData(session, oldStore, colIndex, adjust);

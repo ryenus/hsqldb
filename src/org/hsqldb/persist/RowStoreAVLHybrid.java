@@ -59,11 +59,11 @@ import org.hsqldb.rowio.RowInputInterface;
  */
 public class RowStoreAVLHybrid extends RowStoreAVL implements PersistentStore {
 
-    DataFileCacheSession cache;
-    private int          maxMemoryRowCount;
-    private boolean      useDisk;
-    boolean              isCached;
-    int                  rowIdSequence = 0;
+    DataFileCache   cache;
+    private int     maxMemoryRowCount;
+    private boolean useDisk;
+    boolean         isCached;
+    int             rowIdSequence = 0;
 
     public RowStoreAVLHybrid(Session session,
                              PersistentStoreCollection manager,
@@ -163,7 +163,7 @@ public class RowStoreAVLHybrid extends RowStoreAVL implements PersistentStore {
             size = cache.rowOut.getStorageSize(size);
 
             object.setStorageSize(size);
-            cache.setFilePos(object, cache.freeBlocks, false);
+            cache.setFilePos(object, spaceManager, false);
             cache.add(object);
         }
 
@@ -237,7 +237,7 @@ public class RowStoreAVLHybrid extends RowStoreAVL implements PersistentStore {
     public void remove(CachedObject object) {
 
         if (isCached) {
-            cache.remove(object, cache.freeBlocks);
+            cache.remove(object, spaceManager);
         }
     }
 
@@ -361,6 +361,8 @@ public class RowStoreAVLHybrid extends RowStoreAVL implements PersistentStore {
         cache = ((PersistentStoreCollectionSession) manager).getResultCache();
 
         if (cache != null) {
+            spaceManager = cache.spaceManager.getNewTableSpace();
+
             IndexAVL    idx      = (IndexAVL) indexList[0];
             NodeAVL     root     = (NodeAVL) accessorList[0];
             RowIterator iterator = table.rowIterator(this);

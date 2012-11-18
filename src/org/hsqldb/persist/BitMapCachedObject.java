@@ -31,72 +31,81 @@
 
 package org.hsqldb.persist;
 
-import org.hsqldb.Table;
-import org.hsqldb.TableBase;
-import org.hsqldb.lib.Iterator;
-import org.hsqldb.lib.LongKeyHashMap;
+import java.io.IOException;
+
+import org.hsqldb.lib.LongLookup;
+import org.hsqldb.rowio.RowInputInterface;
+import org.hsqldb.rowio.RowOutputInterface;
+import org.hsqldb.error.ErrorCode;
+import org.hsqldb.error.Error;
+import org.hsqldb.store.BitMap;
 
 /**
  * @author Fred Toussi (fredt@users dot sourceforge.net)
  * @version 2.3.0
- * @since 1.9.0
+ * @since 2.3.0
  */
-public class PersistentStoreCollectionDatabase
-implements PersistentStoreCollection {
+public class BitMapCachedObject extends CachedObjectBase {
 
-    private long                 persistentStoreIdSequence;
-    private final LongKeyHashMap rowStoreMap = new LongKeyHashMap();
+    public final static int fileSizeFactor = 4;
 
-    public void setStore(Object key, PersistentStore store) {
+    //
+    BitMap bitMap;
 
-        long persistenceId = ((TableBase) key).getPersistenceId();
-
-        if (store == null) {
-            rowStoreMap.remove(persistenceId);
-        } else {
-            rowStoreMap.put(persistenceId, store);
-        }
+    public BitMapCachedObject(int capacity) {
+        bitMap     = new BitMap(new int[capacity]);
+        hasChanged = true;
     }
 
-    public PersistentStore getStore(Object key) {
-
-        long persistenceId = ((TableBase) key).getPersistenceId();
-        PersistentStore store =
-            (PersistentStore) rowStoreMap.get(persistenceId);
-
-        return store;
+    public CachedObject newInstance(int size) {
+        return new BitMapCachedObject(size);
     }
 
-    public void releaseStore(Table table) {
+    public void read(RowInputInterface in) {
 
-        PersistentStore store =
-            (PersistentStore) rowStoreMap.get(table.getPersistenceId());
+        this.position = in.getPos();
 
-        if (store != null) {
-            store.removeAll();
-            store.release();
-            rowStoreMap.remove(table.getPersistenceId());
+        int[] array    = bitMap.getIntArray();
+        int   capacity = array.length;
+
+        try {
+            for (int i = 0; i < capacity; i++) {
+                array[i] = in.readInt();
+            }
+        } catch (IOException e) {
+            throw Error.error(ErrorCode.GENERAL_IO_ERROR, e);
         }
+
+        hasChanged = false;
     }
 
-    public long getNextId() {
-        return persistentStoreIdSequence++;
+    public int getDefaultCapacity() {
+        return bitMap.getIntArray().length;
     }
 
-    public void release() {
+    public int getRealSize(RowOutputInterface out) {
+        return bitMap.getIntArray().length * PersistentStore.INT_STORE_SIZE;
+    }
 
-        if (rowStoreMap.isEmpty()) {
-            return;
+    public void write(RowOutputInterface out) {
+
+        int[] array    = bitMap.getIntArray();
+        int   capacity = array.length;
+
+        for (int i = 0; i < capacity; i++) {
+            out.writeInt(array[i]);
         }
 
-        Iterator it = rowStoreMap.values().iterator();
+        out.writeEnd();
 
-        while (it.hasNext()) {
-            PersistentStore store = (PersistentStore) it.next();
+        hasChanged = false;
+    }
 
-            store.release();
-        }
+    public void write(RowOutputInterface out, LongLookup lookup) {
+        write(out);
+    }
 
-        rowStoreMap.clear();
+    public BitMap getBitMap() {
+        return bitMap;
     }
 }

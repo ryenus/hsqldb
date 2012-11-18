@@ -31,72 +31,36 @@
 
 package org.hsqldb.persist;
 
-import org.hsqldb.Table;
-import org.hsqldb.TableBase;
-import org.hsqldb.lib.Iterator;
-import org.hsqldb.lib.LongKeyHashMap;
-
 /**
  * @author Fred Toussi (fredt@users dot sourceforge.net)
  * @version 2.3.0
- * @since 1.9.0
+ * @since 2.3.0
  */
-public class PersistentStoreCollectionDatabase
-implements PersistentStoreCollection {
+public interface DataSpaceManager {
 
-    private long                 persistentStoreIdSequence;
-    private final LongKeyHashMap rowStoreMap = new LongKeyHashMap();
+    int tableIdEmpty     = 0;
+    int tableIdDirectory = 1;
+    int tableIdDefault   = 2;
+    int tableIdFirst     = 3;
 
-    public void setStore(Object key, PersistentStore store) {
+    //
+    int fixedBlockSizeUnit = 4096;
 
-        long persistenceId = ((TableBase) key).getPersistenceId();
+    void resetDataFile(DataFileCache cache);
 
-        if (store == null) {
-            rowStoreMap.remove(persistenceId);
-        } else {
-            rowStoreMap.put(persistenceId, store);
-        }
-    }
+    TableSpaceManager getDefaultTableSpace();
 
-    public PersistentStore getStore(Object key) {
+    TableSpaceManager getTableSpace(int spaceId);
 
-        long persistenceId = ((TableBase) key).getPersistenceId();
-        PersistentStore store =
-            (PersistentStore) rowStoreMap.get(persistenceId);
+    TableSpaceManager getNewTableSpace();
 
-        return store;
-    }
+    void freeTableSpace(int spaceId);
 
-    public void releaseStore(Table table) {
+    long getLostBlocksSize();
 
-        PersistentStore store =
-            (PersistentStore) rowStoreMap.get(table.getPersistenceId());
+    long freeBlockCount();
 
-        if (store != null) {
-            store.removeAll();
-            store.release();
-            rowStoreMap.remove(table.getPersistenceId());
-        }
-    }
+    long freeBlockSize();
 
-    public long getNextId() {
-        return persistentStoreIdSequence++;
-    }
-
-    public void release() {
-
-        if (rowStoreMap.isEmpty()) {
-            return;
-        }
-
-        Iterator it = rowStoreMap.values().iterator();
-
-        while (it.hasNext()) {
-            PersistentStore store = (PersistentStore) it.next();
-
-            store.release();
-        }
-
-        rowStoreMap.clear();
-    }
+    boolean isModified();
 }

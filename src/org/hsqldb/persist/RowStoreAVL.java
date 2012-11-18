@@ -63,6 +63,7 @@ public abstract class RowStoreAVL implements PersistentStore {
     Session                   session;
     Database                  database;
     PersistentStoreCollection manager;
+    TableSpaceManager         spaceManager;
     Index[]                   indexList    = Index.emptyArray;
     CachedObject[]            accessorList = CachedObject.emptyArray;
     TableBase                 table;
@@ -124,6 +125,14 @@ public abstract class RowStoreAVL implements PersistentStore {
     public abstract void commitPersistence(CachedObject object);
 
     public abstract DataFileCache getCache();
+
+    public TableSpaceManager getSpaceManager() {
+        return spaceManager;
+    }
+
+    public void setSpaceManager(TableSpaceManager manager) {
+        spaceManager = manager;
+    }
 
     public abstract void setCache(DataFileCache cache);
 
@@ -406,14 +415,6 @@ public abstract class RowStoreAVL implements PersistentStore {
 
     public void setElementCount(Index key, long size, long uniqueSize) {
         elementCount = size;
-    }
-
-    public long getStorageSize() {
-        return storageSize;
-    }
-
-    public void setStorageSize(long size) {
-        storageSize = size;
     }
 
     public boolean hasNull(int pos) {

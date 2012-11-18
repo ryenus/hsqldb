@@ -2595,6 +2595,37 @@ public class SchemaManager {
         }
     }
 
+    public String[] getTableSpaceSQL() {
+
+        readLock.lock();
+
+        try {
+            HsqlArrayList tableList = getAllTables(false);
+            HsqlArrayList list      = new HsqlArrayList();
+
+            for (int i = 0; i < tableList.size(); i++) {
+                Table t = (Table) tableList.get(i);
+
+
+                if (t.isCached()) {
+                    String ddl = t.getSQLForTableSpace();
+
+                    if (ddl != null) {
+                        list.add(ddl);
+                    }
+                }
+            }
+
+            String[] array = new String[list.size()];
+
+            list.toArray(array);
+
+            return array;
+        } finally {
+            readLock.unlock();
+        }
+    }
+
     public String[] getIndexRootsSQL() {
 
         readLock.lock();
@@ -2606,12 +2637,11 @@ public class SchemaManager {
             HsqlArrayList list       = new HsqlArrayList();
 
             for (int i = 0; i < rootsArray.length; i++) {
-                Table t = (Table) tableList.get(i);
+                Table table = (Table) tableList.get(i);
 
                 if (rootsArray[i] != null && rootsArray[i].length > 0
                         && rootsArray[i][0] != -1) {
-                    String ddl = ((Table) tableList.get(i)).getIndexRootsSQL(
-                        rootsArray[i]);
+                    String ddl = table.getIndexRootsSQL(rootsArray[i]);
 
                     list.add(ddl);
                 }

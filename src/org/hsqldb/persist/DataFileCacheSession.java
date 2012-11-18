@@ -83,7 +83,7 @@ public class DataFileCacheSession extends DataFileCache {
 
             initBuffers();
 
-            freeBlocks = new TableSpaceManagerSession(this);
+            spaceManager = new DataSpaceManagerSimple(this);
         } catch (Throwable t) {
             database.logger.logWarningEvent("Failed to open Session RA file",
                                             t);
@@ -122,6 +122,21 @@ public class DataFileCacheSession extends DataFileCache {
                               ErrorCode.M_DataFileCache_close, new Object[] {
                 t.toString(), dataFileName
             });
+        } finally {
+            writeLock.unlock();
+        }
+    }
+
+    public void adjustStoreCount(int adjust) {
+
+        writeLock.lock();
+
+        try {
+            storeCount += adjust;
+
+            if (storeCount == 0) {
+                clear();
+            }
         } finally {
             writeLock.unlock();
         }

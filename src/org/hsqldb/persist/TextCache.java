@@ -165,7 +165,7 @@ public class TextCache extends DataFileCache {
 
             initBuffers();
 
-            freeBlocks = new TableSpaceManagerText(this);
+            spaceManager = new DataSpaceManagerSimple(this);
         } catch (Throwable t) {
             throw Error.error(t, ErrorCode.FILE_IO_ERROR,
                               ErrorCode.M_TextCache_opening_file_error,

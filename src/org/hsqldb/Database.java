@@ -599,6 +599,7 @@ public class Database {
          * for the CLOSEMODE_COMPACT mode
          */
         boolean result = logger.closePersistence(closemode);
+
         lobManager.close();
         sessionManager.close();
 
@@ -739,6 +740,10 @@ public class Database {
 
         // optional comments on tables etc.
         list = schemaManager.getCommentsArray();
+
+        addRows(r, list);
+
+        list = schemaManager.getTableSpaceSQL();
 
         addRows(r, list);
 

@@ -74,7 +74,8 @@ public class RowStoreAVLDisk extends RowStoreAVL implements PersistentStore {
 
         cache.adjustStoreCount(1);
 
-        largeData = database.logger.getDataFileFactor() > 1;
+        largeData    = database.logger.getDataFileFactor() > 1;
+        spaceManager = cache.spaceManager.getTableSpace(table.getSpaceID());
     }
 
     protected RowStoreAVLDisk(PersistentStoreCollection manager, Table table) {
@@ -131,7 +132,7 @@ public class RowStoreAVLDisk extends RowStoreAVL implements PersistentStore {
         size = rowOut.getStorageSize(size);
 
         object.setStorageSize(size);
-        cache.setFilePos(object, cache.freeBlocks, false);
+        cache.setFilePos(object, spaceManager, false);
 
         if (tx) {
             Row row = (Row) object;
@@ -196,10 +197,12 @@ public class RowStoreAVLDisk extends RowStoreAVL implements PersistentStore {
         elementCount = 0;
 
         ArrayUtil.fillArray(accessorList, null);
+
+        cache.spaceManager.freeTableSpace(spaceManager.getSpaceID());
     }
 
     public void remove(CachedObject object) {
-        cache.remove(object, cache.freeBlocks);
+        cache.remove(object, spaceManager);
     }
 
     public void commitPersistence(CachedObject row) {}
@@ -280,8 +283,12 @@ public class RowStoreAVLDisk extends RowStoreAVL implements PersistentStore {
         return cache;
     }
 
+    /**
+     * Works only for TEXT TABLE as others need specific spaceManager
+     */
     public void setCache(DataFileCache cache) {
-        this.cache = cache;
+        this.cache        = cache;
+        this.spaceManager = cache.spaceManager.getNewTableSpace();
     }
 
     public void release() {
