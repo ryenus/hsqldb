@@ -42,11 +42,9 @@ import org.hsqldb.error.ErrorCode;
 public class TableSpaceManagerText implements TableSpaceManager {
 
     DataFileCache cache;
-    final int     scale;
 
     public TableSpaceManagerText(DataFileCache cache) {
         this.cache = cache;
-        this.scale = cache.dataFileScale;
     }
 
     public int getSpaceID() {
@@ -68,7 +66,7 @@ public class TableSpaceManagerText implements TableSpaceManager {
             long i;
             long newFreePosition;
 
-            i               = cache.fileFreePosition / scale;
+            i               = cache.fileFreePosition;
             newFreePosition = cache.fileFreePosition + rowSize;
 
             if (newFreePosition > cache.maxDataFileSize) {
