@@ -32,13 +32,14 @@
 package org.hsqldb.persist;
 
 import org.hsqldb.lib.LongLookup;
+import org.hsqldb.rowio.RowInputInterface;
 import org.hsqldb.rowio.RowOutputInterface;
 
 /**
  * Interface for an object stored in the memory cache.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.2.9
+ * @version 2.3.0
  * @since 1.8.0
  */
 public interface CachedObject {
@@ -76,6 +77,10 @@ public interface CachedObject {
     void destroy();
 
     int getRealSize(RowOutputInterface out);
+
+    void read(RowInputInterface in);
+
+    int getDefaultCapacity();
 
     void write(RowOutputInterface out);
 

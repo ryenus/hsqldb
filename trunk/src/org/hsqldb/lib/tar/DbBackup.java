@@ -222,6 +222,7 @@ public class DbBackup {
             new File(dbDir, instanceName + ".script"), };
         componentStreams = new InputStreamInterface[componentFiles.length];
         existList        = new boolean[componentFiles.length];
+        ignoreList       = new boolean[componentFiles.length];
         abortUponModify  = false;
     }
 

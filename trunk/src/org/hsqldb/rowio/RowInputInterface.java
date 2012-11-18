@@ -55,6 +55,8 @@ public interface RowInputInterface {
 
     byte readByte() throws IOException;
 
+    char readChar() throws IOException;
+
     short readShort() throws IOException;
 
     int readInt() throws IOException;
@@ -64,6 +66,8 @@ public interface RowInputInterface {
     Object[] readData(Type[] colTypes) throws IOException;
 
     void resetRow(long filePos, int size) throws IOException;
+
+    void resetBlock(long filePos, int size) throws IOException;
 
     byte[] getBuffer();
 }

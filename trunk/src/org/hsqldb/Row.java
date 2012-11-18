@@ -35,12 +35,13 @@ import org.hsqldb.lib.LongLookup;
 import org.hsqldb.persist.CachedObject;
 import org.hsqldb.persist.PersistentStore;
 import org.hsqldb.rowio.RowOutputInterface;
+import org.hsqldb.rowio.RowInputInterface;
 
 /**
  * Base class for a database row object.
  *
  * @author Fred Toussi (fredt@users dot sourceforge dot net)
- * @version 2.2.9
+ * @version 2.3.0
  */
 public class Row implements CachedObject {
 
@@ -145,6 +146,12 @@ public class Row implements CachedObject {
     public TableBase getTable() {
         return table;
     }
+
+    public int getDefaultCapacity() {
+        return 0;
+    }
+
+    public void read(RowInputInterface in) {}
 
     public void write(RowOutputInterface out) {}
 

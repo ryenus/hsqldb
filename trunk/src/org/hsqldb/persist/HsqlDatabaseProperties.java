@@ -231,7 +231,8 @@ public class HsqlDatabaseProperties extends HsqlProperties {
         "hsqldb.write_delay_millis";
     public static final String hsqldb_full_log_replay =
         "hsqldb.full_log_replay";
-    public static final String hsqldb_large_data = "hsqldb.large_data";
+    public static final String hsqldb_large_data  = "hsqldb.large_data";
+    public static final String hsqldb_file_spaces = "hsqldb.file_spaces";
 
     //
     public static final String sql_ref_integrity       = "sql.ref_integrity";
@@ -446,11 +447,17 @@ public class HsqlDatabaseProperties extends HsqlProperties {
         dbMeta.put(hsqldb_write_delay,
                    HsqlProperties.getMeta(hsqldb_write_delay, SQL_PROPERTY,
                                           true));
+        dbMeta.put(hsqldb_large_data,
+                   HsqlProperties.getMeta(hsqldb_large_data, SQL_PROPERTY,
+                                          false));
+        dbMeta.put(hsqldb_file_spaces,
+                   HsqlProperties.getMeta(hsqldb_file_spaces, SQL_PROPERTY,
+                                          false));
+
+        // integral defaults for user-defined props - sets
         dbMeta.put(hsqldb_write_delay_millis,
                    HsqlProperties.getMeta(hsqldb_write_delay_millis,
                                           SQL_PROPERTY, 500, 0, 10000));
-
-        // integral defaults for user-defined props - sets
         dbMeta.put(hsqldb_applog,
                    HsqlProperties.getMeta(hsqldb_applog, SQL_PROPERTY, 0, 0,
                                           3));

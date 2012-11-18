@@ -77,6 +77,7 @@ import org.hsqldb.lib.LongLookup;
 import org.hsqldb.persist.CachedObject;
 import org.hsqldb.persist.PersistentStore;
 import org.hsqldb.rowio.RowOutputInterface;
+import org.hsqldb.rowio.RowInputInterface;
 
 // fredt@users 20020221 - patch 513005 by sqlbob@users (RMP)
 // fredt@users 20020920 - path 1.7.1 - refactoring to cut mamory footprint
@@ -105,9 +106,9 @@ public class NodeAVL implements CachedObject {
     public NodeAVL   nNext;    // node of next index (nNext==null || nNext.iId=iId+1)
 
     //
-    protected NodeAVL nLeft;
-    protected NodeAVL nRight;
-    protected NodeAVL nParent;
+    protected NodeAVL   nLeft;
+    protected NodeAVL   nRight;
+    protected NodeAVL   nParent;
     protected final Row row;
 
     NodeAVL() {
@@ -190,7 +191,7 @@ public class NodeAVL implements CachedObject {
 
     public NodeAVL child(PersistentStore store, boolean isleft) {
         return isleft ? getLeft(store)
-            : getRight(store);
+                      : getRight(store);
     }
 
     public NodeAVL set(PersistentStore store, boolean isLeft, NodeAVL n) {
@@ -227,6 +228,12 @@ public class NodeAVL implements CachedObject {
 
     public void setInMemory(boolean in) {}
 
+    public int getDefaultCapacity() {
+        return 0;
+    }
+
+    public void read(RowInputInterface in) {}
+
     public void write(RowOutputInterface out) {}
 
     public void write(RowOutputInterface out, LongLookup lookup) {}
@@ -242,7 +249,6 @@ public class NodeAVL implements CachedObject {
     protected Object[] getData(PersistentStore store) {
         return row.getData();
     }
-
 
     public void updateAccessCount(int count) {}
 

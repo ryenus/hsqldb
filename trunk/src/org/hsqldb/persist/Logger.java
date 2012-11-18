@@ -134,6 +134,7 @@ public class Logger {
     int     propLobBlockSize = 32 * 1024;
     int     propScriptFormat = 0;
     boolean propLargeData;
+    boolean propFileSpaces;
 
     //
     Log               log;
@@ -479,6 +480,11 @@ public class Logger {
         if (database.urlProperties.isPropertyTrue(
                 HsqlDatabaseProperties.hsqldb_large_data, false)) {
             propLargeData = true;
+        }
+
+        if (database.urlProperties.isPropertyTrue(
+                HsqlDatabaseProperties.hsqldb_file_spaces, false)) {
+            propFileSpaces = true;
         }
 
         if (!database.urlProperties.isPropertyTrue(
@@ -1167,6 +1173,10 @@ public class Logger {
     public int getDataFileFactor() {
         return propLargeData ? largeDataFactor
                              : 1;
+    }
+
+    public void setDataFileSpaces(boolean value) {
+        propFileSpaces = value;
     }
 
     public void setLobFileScale(int value) {
@@ -1938,15 +1948,14 @@ public class Logger {
         list.add(sb.toString());
         sb.setLength(0);
 
-        /*
-        if (propTempDirectoryPath != null) {
-            sb.append("SET FILES ").append(Tokens.T_TEMP).append(' ');
-            sb.append(Tokens.T_PATH).append(' ');
-            sb.append(propTempDirectoryPath);
+        if (propFileSpaces) {
+            sb.append("SET FILES ").append(Tokens.T_SPACE).append(' ');
+            sb.append(propFileSpaces ? Tokens.T_TRUE
+                                     : Tokens.T_FALSE);
             list.add(sb.toString());
             sb.setLength(0);
         }
-        */
+        
         String[] array = new String[list.size()];
 
         list.toArray(array);

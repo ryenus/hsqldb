@@ -37,7 +37,7 @@ import java.lang.reflect.Array;
  * Collection of static methods for operations on arrays
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.2.6
+ * @version 2.3.0
  * @since 1.7.2
  */
 public class ArrayUtil {
@@ -1604,6 +1604,20 @@ public class ArrayUtil {
 
         return a.length < b.length ? -1
                                    : 1;
+    }
+
+    /**
+     * uses 2**scale form and returns a multipe of this that is larger or equal to value
+     */
+    public static long getBinaryMultipleCeiling(long value, long unit) {
+
+        long newSize = value & -unit;
+
+        if (newSize != value) {
+            newSize += unit;
+        }
+
+        return newSize;
     }
 
     /**

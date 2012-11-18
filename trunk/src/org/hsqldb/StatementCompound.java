@@ -437,6 +437,8 @@ public class StatementCompound extends Statement implements RangeGroup {
                     switch (handler.handlerType) {
 
                         case StatementHandler.CONTINUE :
+                            session.rollbackAction();
+
                             result = Result.updateZeroResult;
                             break;
 
@@ -448,6 +450,8 @@ public class StatementCompound extends Statement implements RangeGroup {
                             break;
 
                         case StatementHandler.EXIT :
+                            session.rollbackAction();
+
                             result = Result.newPSMResult(StatementTypes.LEAVE,
                                                          null, null);
                             break;
@@ -817,8 +821,7 @@ public class StatementCompound extends Statement implements RangeGroup {
 
         scopeVariables = list;
 
-        RangeVariable[] parameterRangeVariables =
-            root.getRangeVariables();
+        RangeVariable[] parameterRangeVariables = root.getRangeVariables();
         RangeVariable range = new RangeVariable(list, null, true,
             RangeVariable.VARIALBE_RANGE);
 
@@ -955,7 +958,7 @@ public class StatementCompound extends Statement implements RangeGroup {
     }
 
     public void setCorrelated() {
+
         //
     }
-
 }

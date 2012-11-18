@@ -189,26 +189,27 @@ public interface StatementTypes {
     int SET_DATABASE_FILES_READ_ONLY_FILES     = 1022;
     int SET_DATABASE_FILES_SCALE               = 1023;
     int SET_DATABASE_FILES_SCRIPT_FORMAT       = 1024;
-    int SET_DATABASE_FILES_TEMP_PATH           = 1025;
-    int SET_DATABASE_FILES_WRITE_DELAY         = 1026;
-    int SET_DATABASE_DEFAULT_INITIAL_SCHEMA    = 1031;
-    int SET_DATABASE_DEFAULT_TABLE_TYPE        = 1032;
-    int SET_DATABASE_AUTHENTICATION            = 1033;
-    int SET_DATABASE_GC                        = 1034;
-    int SET_DATABASE_PROPERTY                  = 1035;
-    int SET_DATABASE_PASSWORD_CHECK            = 1036;
-    int SET_DATABASE_READ_ONLY                 = 1037;
-    int SET_DATABASE_READ_ONLY_FILES           = 1039;
-    int SET_DATABASE_RESULT_MEMORY_ROWS        = 1040;
-    int SET_DATABASE_SQL_COLLATION             = 1041;
-    int SET_SESSION_SQL_IGNORECASE             = 1042;
-    int SET_DATABASE_SQL_REFERENTIAL_INTEGRITY = 1046;
-    int SET_DATABASE_SQL                       = 1047;
-    int SET_DATABASE_TEXT_SOURCE               = 1048;
-    int SET_DATABASE_TRANSACTION_CONTROL       = 1049;
-    int SET_DATABASE_DEFAULT_ISOLATION_LEVEL   = 1050;
-    int SET_DATABASE_TRANSACTION_CONFLICT      = 1051;
-    int SET_DATABASE_UNIQUE_NAME               = 1052;
+    int SET_DATABASE_FILES_SPACE               = 1025;
+    int SET_DATABASE_FILES_TEMP_PATH           = 1026;
+    int SET_DATABASE_FILES_WRITE_DELAY         = 1031;
+    int SET_DATABASE_DEFAULT_INITIAL_SCHEMA    = 1032;
+    int SET_DATABASE_DEFAULT_TABLE_TYPE        = 1033;
+    int SET_DATABASE_AUTHENTICATION            = 1034;
+    int SET_DATABASE_GC                        = 1035;
+    int SET_DATABASE_PROPERTY                  = 1036;
+    int SET_DATABASE_PASSWORD_CHECK            = 1037;
+    int SET_DATABASE_READ_ONLY                 = 1039;
+    int SET_DATABASE_READ_ONLY_FILES           = 1040;
+    int SET_DATABASE_RESULT_MEMORY_ROWS        = 1041;
+    int SET_DATABASE_SQL_COLLATION             = 1042;
+    int SET_SESSION_SQL_IGNORECASE             = 1046;
+    int SET_DATABASE_SQL_REFERENTIAL_INTEGRITY = 1047;
+    int SET_DATABASE_SQL                       = 1048;
+    int SET_DATABASE_TEXT_SOURCE               = 1049;
+    int SET_DATABASE_TRANSACTION_CONTROL       = 1050;
+    int SET_DATABASE_DEFAULT_ISOLATION_LEVEL   = 1051;
+    int SET_DATABASE_TRANSACTION_CONFLICT      = 1052;
+    int SET_DATABASE_UNIQUE_NAME               = 1053;
 
     // hsqldb user settings
     int SET_USER_LOCAL          = 1060;
@@ -248,23 +249,30 @@ public interface StatementTypes {
     int ALTER_COLUMN_TYPE_IDENTITY  = 1090;
 
     //
-    int EXPLAIN_PLAN            = 1191;
-    int RENAME_OBJECT           = 1192;
-    int SET_TABLE_INDEX         = 1193;
-    int SET_TABLE_READONLY      = 1194;
-    int SET_TABLE_SOURCE        = 1195;
-    int SET_TABLE_SOURCE_HEADER = 1196;
-    int SET_TABLE_TYPE          = 1197;
-    int SET_TABLE_CLUSTERED     = 1198;
-    int LOG_SCHEMA_STATEMENT    = 1199;
+    int EXPLAIN_PLAN             = 1191;
+    int RENAME_OBJECT            = 1192;
+    int SET_TABLE_INDEX          = 1193;
+    int SET_TABLE_READONLY       = 1194;
+    int SET_TABLE_SOURCE         = 1195;
+    int SET_TABLE_SOURCE_HEADER  = 1196;
+    int SET_TABLE_TYPE           = 1197;
+    int SET_TABLE_CLUSTERED      = 1198;
+    int SET_TABLE_NEW_TABLESPACE = 1199;
+    int SET_TABLE_SET_TABLESPACE = 1200;
+    int LOG_SCHEMA_STATEMENT     = 1201;
 
     // hsqldb sql implementation
-    int CONDITION = 1201;                         // element of IF
-    int HANDLER   = 1202;
-    int DDL       = 1203;
-    int CHECK     = 1204;
-    int TRUNCATE  = 1205;
+    int CONDITION = 1211;                         // element of IF
+    int HANDLER   = 1212;
+    int DDL       = 1213;
+    int CHECK     = 1214;
+    int TRUNCATE  = 1215;
 
+    //
+    int CREATE_SEARCH = 1301;
+    int DROP_SEARCH   = 1302;
+
+    //
     // hsqldb groups
     int X_SQL_SCHEMA_DEFINITION      = 2001;
     int X_SQL_SCHEMA_MANIPULATION    = 2002;
