@@ -115,7 +115,7 @@ public class TextCache extends DataFileCache {
         maxCacheRows  = textFileSettings.getMaxCacheRows();
         maxCacheBytes = textFileSettings.getMaxCacheBytes();
 
-        //-- Get size and scale
+        // max size is 256G
         maxDataFileSize  = (long) Integer.MAX_VALUE * Logger.largeDataFactor;
         cachedRowPadding = 1;
         dataFileScale    = 1;
