@@ -40,6 +40,8 @@ package org.hsqldb.persist;
  */
 public interface TableSpaceManager {
 
+    int getSpaceID();
+
     /**
      * Deallocates a deleted block
      */
@@ -57,6 +59,4 @@ public interface TableSpaceManager {
     long getLostBlocksSize();
 
     boolean isModified();
-
-    void clear();
 }

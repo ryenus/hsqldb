@@ -47,9 +47,10 @@ import org.hsqldb.rowio.RowInputInterface;
  */
 public interface PersistentStore {
 
-    int               INT_STORE_SIZE  = 4;
-    int               LONG_STORE_SIZE = 8;
-    PersistentStore[] emptyArray      = new PersistentStore[]{};
+    int               SHORT_STORE_SIZE = 2;
+    int               INT_STORE_SIZE   = 4;
+    int               LONG_STORE_SIZE  = 8;
+    PersistentStore[] emptyArray       = new PersistentStore[]{};
 
     TableBase getTable();
 
@@ -112,6 +113,10 @@ public interface PersistentStore {
 
     void setCache(DataFileCache cache);
 
+    TableSpaceManager getSpaceManager();
+
+    void setSpaceManager(TableSpaceManager manager);
+
     void release();
 
     PersistentStore getAccessorStore(Index index);
@@ -123,7 +128,7 @@ public interface PersistentStore {
     void setAccessor(Index key, long accessor);
 
     public double searchCost(Session session, Index idx, int count,
-                              int opType);
+                             int opType);
 
     long elementCount();
 
@@ -132,10 +137,6 @@ public interface PersistentStore {
     long elementCountUnique(Index index);
 
     void setElementCount(Index key, long size, long uniqueSize);
-
-    long getStorageSize();
-
-    void setStorageSize(long size);
 
     boolean hasNull(int pos);
 

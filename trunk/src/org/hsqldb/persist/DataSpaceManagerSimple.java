@@ -31,72 +31,63 @@
 
 package org.hsqldb.persist;
 
-import org.hsqldb.Table;
-import org.hsqldb.TableBase;
-import org.hsqldb.lib.Iterator;
-import org.hsqldb.lib.LongKeyHashMap;
-
 /**
  * @author Fred Toussi (fredt@users dot sourceforge.net)
  * @version 2.3.0
- * @since 1.9.0
+ * @since 2.3.0
  */
-public class PersistentStoreCollectionDatabase
-implements PersistentStoreCollection {
+public class DataSpaceManagerSimple implements DataSpaceManager {
 
-    private long                 persistentStoreIdSequence;
-    private final LongKeyHashMap rowStoreMap = new LongKeyHashMap();
+    TableSpaceManager defaultSpaceManager;
 
-    public void setStore(Object key, PersistentStore store) {
+    DataSpaceManagerSimple(DataFileCache cache) {
+        resetDataFile(cache);
+    }
 
-        long persistenceId = ((TableBase) key).getPersistenceId();
+    public void resetDataFile(DataFileCache cache) {
 
-        if (store == null) {
-            rowStoreMap.remove(persistenceId);
+        if (cache instanceof DataFileCacheSession) {
+            defaultSpaceManager = new TableSpaceManagerSimple(cache);
+        } else if (cache instanceof TextCache) {
+            defaultSpaceManager = new TableSpaceManagerText(cache);
         } else {
-            rowStoreMap.put(persistenceId, store);
+            int capacity = cache.database.logger.propMaxFreeBlocks;
+
+            defaultSpaceManager = new TableSpaceManagerDefault(cache, capacity,
+                    cache.lostSpaceSize);
         }
     }
 
-    public PersistentStore getStore(Object key) {
-
-        long persistenceId = ((TableBase) key).getPersistenceId();
-        PersistentStore store =
-            (PersistentStore) rowStoreMap.get(persistenceId);
-
-        return store;
+    public TableSpaceManager getDefaultTableSpace() {
+        return defaultSpaceManager;
     }
 
-    public void releaseStore(Table table) {
-
-        PersistentStore store =
-            (PersistentStore) rowStoreMap.get(table.getPersistenceId());
-
-        if (store != null) {
-            store.removeAll();
-            store.release();
-            rowStoreMap.remove(table.getPersistenceId());
-        }
+    public TableSpaceManager getTableSpace(int spaceId) {
+        return defaultSpaceManager;
     }
 
-    public long getNextId() {
-        return persistentStoreIdSequence++;
+    public TableSpaceManager getNewTableSpace() {
+        return defaultSpaceManager;
     }
 
-    public void release() {
+    public void freeTableSpace(int spaceId) {
 
-        if (rowStoreMap.isEmpty()) {
-            return;
-        }
+        //
+    }
 
-        Iterator it = rowStoreMap.values().iterator();
+    public long getLostBlocksSize() {
+        return defaultSpaceManager.getLostBlocksSize();
+    }
 
-        while (it.hasNext()) {
-            PersistentStore store = (PersistentStore) it.next();
+    public long freeBlockCount() {
+        return defaultSpaceManager.freeBlockCount();
+    }
 
-            store.release();
-        }
+    public long freeBlockSize() {
+        return defaultSpaceManager.freeBlockSize();
+    }
 
-        rowStoreMap.clear();
+    public boolean isModified() {
+        return defaultSpaceManager.isModified();
     }
 }

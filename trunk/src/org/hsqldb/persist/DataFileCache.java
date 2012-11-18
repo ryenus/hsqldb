@@ -82,7 +82,7 @@ public class DataFileCache {
     static final int MIN_INITIAL_FREE_POS = 32;
 
     //
-    public TableSpaceManager freeBlocks;
+    public DataSpaceManager  spaceManager;
     static final int         initIOBufferSize = 4096;
     private static final int diskBlockSize    = 4096;
 
@@ -101,8 +101,12 @@ public class DataFileCache {
     protected boolean cacheReadonly;
 
     //
-    protected int     cachedRowPadding;
+    protected int cachedRowPadding;
+
+    //
     protected int     initialFreePos;
+    protected long    lostSpaceSize;
+    protected long    spaceManagerPosition;
     protected long    fileStartFreePosition;
     protected boolean hasRowInfo = false;
     protected int     storeCount;
@@ -216,12 +220,15 @@ public class DataFileCache {
 
                 fileFreePosition = dataFile.readLong();
 
+                dataFile.seek(LONG_SPACE_LIST_POS);
+
+                spaceManagerPosition = dataFile.readLong();
+
                 initBuffers();
 
                 return;
             }
 
-            long    freesize      = 0;
             boolean preexists     = fa.isStreamElement(dataFileName);
             boolean isIncremental = database.logger.propIncrementBackup;
             boolean isSaved       = false;
@@ -296,12 +303,16 @@ public class DataFileCache {
 
                 dataFile.seek(LONG_EMPTY_SIZE);
 
-                freesize = dataFile.readLong();
+                lostSpaceSize = dataFile.readLong();
 
                 dataFile.seek(LONG_FREE_POS_POS);
 
                 fileFreePosition      = dataFile.readLong();
                 fileStartFreePosition = fileFreePosition;
+
+                dataFile.seek(LONG_SPACE_LIST_POS);
+
+                spaceManagerPosition = dataFile.readLong();
 
                 openShadowFile();
             } else {
@@ -312,8 +323,12 @@ public class DataFileCache {
 
             fileModified  = false;
             cacheModified = false;
-            freeBlocks = new TableSpaceManagerDefault(this,
-                    database.logger.propMaxFreeBlocks, freesize);
+
+            if (spaceManagerPosition != 0 || database.logger.propFileSpaces) {
+                spaceManager = new DataSpaceManagerBlocks(this);
+            } else {
+                spaceManager = new DataSpaceManagerSimple(this);
+            }
 
             logInfoEvent("dataFileCache open end");
         } catch (Throwable t) {
@@ -397,8 +412,7 @@ public class DataFileCache {
 
             fileModified  = false;
             cacheModified = false;
-            freeBlocks = new TableSpaceManagerDefault(this,
-                    database.logger.propMaxFreeBlocks, freesize);
+            spaceManager  = new DataSpaceManagerSimple(this);
 
             logInfoEvent("dataFileCache open end");
         } catch (Throwable t) {
@@ -594,10 +608,6 @@ public class DataFileCache {
 
         try {
             storeCount += adjust;
-
-            if (storeCount == 0) {
-                clear();
-            }
         } finally {
             writeLock.unlock();
         }
@@ -618,15 +628,17 @@ public class DataFileCache {
             logInfoEvent("dataFileCache commit start");
             cache.saveAll();
 
-            if (fileModified || freeBlocks.isModified()) {
+            if (fileModified || spaceManager.isModified()) {
 
                 // set empty
                 dataFile.seek(LONG_EMPTY_SIZE);
-                dataFile.writeLong(freeBlocks.getLostBlocksSize());
+                dataFile.writeLong(spaceManager.getLostBlocksSize());
 
                 // set end
                 dataFile.seek(LONG_FREE_POS_POS);
                 dataFile.writeLong(fileFreePosition);
+                dataFile.seek(LONG_SPACE_LIST_POS);
+                dataFile.writeLong(spaceManagerPosition);
 
                 // set saved flag;
                 dataFile.seek(FLAGS_POS);
@@ -1091,7 +1103,7 @@ public class DataFileCache {
 
         try {
             dataFile.seek((long) pos * dataFileScale);
-            rowIn.resetRow(pos, size);
+            rowIn.resetBlock(pos, size);
             dataFile.read(rowIn.getBuffer(), 0, size);
 
             return rowIn;
@@ -1329,6 +1341,40 @@ public class DataFileCache {
         }
     }
 
+    /**
+     * Delta always results in block multiples
+     */
+    public long enlargeFileSpace(long delta) {
+
+        writeLock.lock();
+
+        try {
+            long position = fileFreePosition;
+
+            if (position + delta > maxDataFileSize) {
+                logSevereEvent("data file reached maximum size "
+                               + this.dataFileName, null);
+
+                throw Error.error(ErrorCode.DATA_FILE_IS_FULL);
+            }
+
+            boolean result = dataFile.ensureLength(position + delta);
+
+            if (!result) {
+                logSevereEvent("data file cannot be enlarged - disk spacee "
+                               + this.dataFileName, null);
+
+                throw Error.error(ErrorCode.DATA_FILE_IS_FULL);
+            }
+
+            fileFreePosition += delta;
+
+            return position;
+        } finally {
+            writeLock.unlock();
+        }
+    }
+
     public long getFileSpace(int[] blockSize) {
 
         // normalise pos on boundary
@@ -1381,15 +1427,15 @@ public class DataFileCache {
     }
 
     public long getLostBlockSize() {
-        return freeBlocks.getLostBlocksSize();
+        return spaceManager.getLostBlocksSize();
     }
 
-    public int getFreeBlockCount() {
-        return freeBlocks.freeBlockCount();
+    public long getFreeBlockCount() {
+        return spaceManager.freeBlockCount();
     }
 
     public long getTotalFreeBlockSize() {
-        return freeBlocks.freeBlockSize();
+        return spaceManager.freeBlockSize();
     }
 
     public long getFileFreePos() {

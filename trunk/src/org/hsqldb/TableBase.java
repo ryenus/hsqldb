@@ -37,6 +37,7 @@ import org.hsqldb.error.ErrorCode;
 import org.hsqldb.index.Index;
 import org.hsqldb.lib.ArrayUtil;
 import org.hsqldb.navigator.RowIterator;
+import org.hsqldb.persist.DataSpaceManager;
 import org.hsqldb.persist.PersistentStore;
 import org.hsqldb.types.Type;
 
@@ -74,6 +75,7 @@ public class TableBase {
     public PersistentStore store;
     public int             persistenceScope;
     public long            persistenceId;
+    int                    tableSpace = DataSpaceManager.tableIdDefault;
 
     // columns in table
     int[]  primaryKeyCols;                      // column numbers for primary key
@@ -152,6 +154,14 @@ public class TableBase {
 
     public long getPersistenceId() {
         return persistenceId;
+    }
+
+    public int getSpaceID() {
+        return tableSpace;
+    }
+
+    public void setSpaceID(int id) {
+        tableSpace = id;
     }
 
     int getId() {

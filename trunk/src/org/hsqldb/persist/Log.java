@@ -519,7 +519,7 @@ public class Log {
 
         long limit = database.logger.propCacheDefragLimit
                      * cache.getFileFreePos() / 100;
-        long lostSize = cache.freeBlocks.getLostBlocksSize();
+        long lostSize = cache.spaceManager.getLostBlocksSize();
 
         return limit > 0 && lostSize > limit;
     }

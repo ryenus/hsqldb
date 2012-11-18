@@ -39,12 +39,12 @@ import org.hsqldb.error.ErrorCode;
  * @version 2.3.0
  * @since 2.3.0
  */
-public class TableSpaceManagerText implements TableSpaceManager {
+public class TableSpaceManagerSimple implements TableSpaceManager {
 
     DataFileCache cache;
     final int     scale;
 
-    public TableSpaceManagerText(DataFileCache cache) {
+    public TableSpaceManagerSimple(DataFileCache cache) {
         this.cache = cache;
         this.scale = cache.dataFileScale;
     }
@@ -74,6 +74,16 @@ public class TableSpaceManagerText implements TableSpaceManager {
             if (newFreePosition > cache.maxDataFileSize) {
                 cache.logSevereEvent("data file reached maximum size "
                                      + cache.dataFileName, null);
+
+                throw Error.error(ErrorCode.DATA_FILE_IS_FULL);
+            }
+
+            boolean result = cache.dataFile.ensureLength(newFreePosition);
+
+            if (!result) {
+                cache.logSevereEvent(
+                    "data file cannot be enlarged - disk spacee "
+                    + cache.dataFileName, null);
 
                 throw Error.error(ErrorCode.DATA_FILE_IS_FULL);
             }

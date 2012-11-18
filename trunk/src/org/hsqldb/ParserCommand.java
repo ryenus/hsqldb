@@ -51,7 +51,7 @@ import org.hsqldb.types.Types;
  * Parser for session and management statements
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.2.8
+ * @version 2.3.0
  * @since 1.9.0
  */
 public class ParserCommand extends ParserDDL {
@@ -774,111 +774,7 @@ public class ParserCommand extends ParserDDL {
                     StatementTypes.SET_DATABASE_DEFAULT_TABLE_TYPE, args);
             }
             case Tokens.TABLE : {
-                read();
-
-                Table    t    = readTableName();
-                Object[] args = new Object[] {
-                    t.getName(), null
-                };
-
-                switch (token.tokenType) {
-
-                    default : {
-                        throw unexpectedToken();
-                    }
-                    case Tokens.SOURCE :
-                        read();
-
-                        return compileTableSource(t);
-
-                    case Tokens.READ : {
-                        read();
-
-                        boolean readonly = false;
-
-                        if (token.tokenType == Tokens.WRITE) {
-                            read();
-                        } else {
-                            readThis(Tokens.ONLY);
-
-                            readonly = true;
-                        }
-
-                        args[1] = Boolean.valueOf(readonly);
-
-                        return new StatementCommand(
-                            StatementTypes.SET_TABLE_READONLY, args, null,
-                            new HsqlName[]{ t.getName() });
-                    }
-
-                    // deprecated
-                    case Tokens.READONLY : {
-                        read();
-
-                        Boolean readonly = processTrueOrFalseObject();
-
-                        args[1] = readonly;
-
-                        return new StatementCommand(
-                            StatementTypes.SET_TABLE_READONLY, args, null,
-                            new HsqlName[]{ t.getName() });
-                    }
-                    case Tokens.INDEX : {
-                        String value;
-
-                        read();
-                        checkIsValue();
-
-                        value = token.tokenString;
-
-                        read();
-
-                        args[1] = value;
-
-                        return new StatementCommand(
-                            StatementTypes.SET_TABLE_INDEX, args, null,
-                            new HsqlName[]{ t.getName() });
-                    }
-                    case Tokens.TYPE : {
-                        read();
-
-                        int newType;
-
-                        if (token.tokenType == Tokens.CACHED) {
-                            newType = TableBase.CACHED_TABLE;
-                        } else if (token.tokenType == Tokens.MEMORY) {
-                            newType = TableBase.MEMORY_TABLE;
-                        } else {
-                            throw super.unexpectedToken();
-                        }
-
-                        read();
-
-                        args[1] = new Integer(newType);
-
-                        return new StatementCommand(
-                            StatementTypes.SET_TABLE_TYPE, args, null,
-                            new HsqlName[]{ t.getName() });
-                    }
-                    case Tokens.CLUSTERED : {
-                        read();
-                        readThis(Tokens.ON);
-
-                        OrderedHashSet set = new OrderedHashSet();
-
-                        readThis(Tokens.OPENBRACKET);
-                        readSimpleColumnNames(set, t, false);
-                        readThis(Tokens.CLOSEBRACKET);
-
-                        int[] colIndex = t.getColumnIndexes(set);
-
-                        args[1] = colIndex;
-
-                        return new StatementCommand(
-                            StatementTypes.SET_TABLE_CLUSTERED, args, null,
-                            new HsqlName[]{ t.getName() });
-                    }
-                }
+                return compileSetTable();
             }
             case Tokens.WRITE_DELAY : {
                 read();
@@ -974,6 +870,146 @@ public class ParserCommand extends ParserDDL {
 
                 return compileSetStatement(
                     session.sessionContext.sessionVariablesRange);
+            }
+        }
+    }
+
+    StatementCommand compileSetTable() {
+
+        read();
+
+        Table    table = readTableName();
+        Object[] args  = new Object[] {
+            table.getName(), null
+        };
+
+        switch (token.tokenType) {
+
+            default : {
+                throw unexpectedToken();
+            }
+            case Tokens.SOURCE :
+                read();
+
+                return compileTableSource(table);
+
+            case Tokens.READ : {
+                read();
+
+                boolean readonly = false;
+
+                if (token.tokenType == Tokens.WRITE) {
+                    read();
+                } else {
+                    readThis(Tokens.ONLY);
+
+                    readonly = true;
+                }
+
+                args[1] = Boolean.valueOf(readonly);
+
+                return new StatementCommand(StatementTypes.SET_TABLE_READONLY,
+                                            args, null,
+                                            new HsqlName[]{ table.getName() });
+            }
+
+            // deprecated
+            case Tokens.READONLY : {
+                read();
+
+                Boolean readonly = processTrueOrFalseObject();
+
+                args[1] = readonly;
+
+                return new StatementCommand(StatementTypes.SET_TABLE_READONLY,
+                                            args, null,
+                                            new HsqlName[]{ table.getName() });
+            }
+            case Tokens.INDEX : {
+                String value;
+
+                read();
+                checkIsValue();
+
+                value = token.tokenString;
+
+                read();
+
+                args[1] = value;
+
+                return new StatementCommand(StatementTypes.SET_TABLE_INDEX,
+                                            args, null,
+                                            new HsqlName[]{ table.getName() });
+            }
+            case Tokens.TYPE : {
+                read();
+
+                int newType;
+
+                if (token.tokenType == Tokens.CACHED) {
+                    newType = TableBase.CACHED_TABLE;
+                } else if (token.tokenType == Tokens.MEMORY) {
+                    newType = TableBase.MEMORY_TABLE;
+                } else {
+                    throw super.unexpectedToken();
+                }
+
+                read();
+
+                args[1] = new Integer(newType);
+
+                return new StatementCommand(StatementTypes.SET_TABLE_TYPE,
+                                            args, null,
+                                            new HsqlName[]{ table.getName() });
+            }
+            case Tokens.CLUSTERED : {
+                read();
+                readThis(Tokens.ON);
+
+                OrderedHashSet set = new OrderedHashSet();
+
+                readThis(Tokens.OPENBRACKET);
+                readSimpleColumnNames(set, table, false);
+                readThis(Tokens.CLOSEBRACKET);
+
+                int[] colIndex = table.getColumnIndexes(set);
+
+                args[1] = colIndex;
+
+                return new StatementCommand(StatementTypes.SET_TABLE_CLUSTERED,
+                                            args, null,
+                                            new HsqlName[]{ table.getName() });
+            }
+            case Tokens.NEW : {
+                read();
+                readThis(Tokens.SPACE);
+
+                args = new Object[]{ table.getName() };
+
+                HsqlName[] writeLockNames =
+                    database.schemaManager.getCatalogAndBaseTableNames(
+                        table.getName());
+
+                return new StatementCommand(
+                    StatementTypes.SET_TABLE_NEW_TABLESPACE, args, null,
+                    writeLockNames);
+            }
+            case Tokens.SPACE : {
+                read();
+
+                Integer id = super.readIntegerObject();
+
+                args = new Object[] {
+                    table.getName(), id
+                };
+
+                HsqlName[] writeLockNames =
+                    database.schemaManager.getCatalogAndBaseTableNames(
+                        table.getName());
+
+                return new StatementCommand(
+                    StatementTypes.SET_TABLE_SET_TABLESPACE, args, null,
+                    writeLockNames);
             }
         }
     }
@@ -1395,6 +1431,14 @@ public class ParserCommand extends ParserDDL {
 
                 value = readIntegerObject();
                 type  = StatementTypes.SET_DATABASE_FILES_SCALE;
+
+                break;
+            }
+            case Tokens.SPACE : {
+                read();
+
+                flag = processTrueOrFalseObject();
+                type  = StatementTypes.SET_DATABASE_FILES_SPACE;
 
                 break;
             }
@@ -2162,7 +2206,7 @@ public class ParserCommand extends ParserDDL {
                                     new Object[]{ cs });
     }
 
-    private Statement compileTableSource(Table t) {
+    private StatementCommand compileTableSource(Table t) {
 
         boolean  isSourceHeader = false;
         boolean  isDesc         = false;

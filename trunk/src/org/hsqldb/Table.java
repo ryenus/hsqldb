@@ -48,6 +48,7 @@ import org.hsqldb.navigator.RowIterator;
 import org.hsqldb.navigator.RowSetNavigator;
 import org.hsqldb.navigator.RowSetNavigatorDataChange;
 import org.hsqldb.persist.CachedObject;
+import org.hsqldb.persist.DataSpaceManager;
 import org.hsqldb.persist.PersistentStore;
 import org.hsqldb.result.Result;
 import org.hsqldb.rights.Grantee;
@@ -578,6 +579,21 @@ public class Table extends TableBase implements SchemaObject {
         sb.append(getName().getSchemaQualifiedStatementName());
         sb.append(' ').append(Tokens.T_CLUSTERED).append(' ');
         sb.append(Tokens.T_ON).append(' ').append(colList);
+
+        return sb.toString();
+    }
+
+    public String getSQLForTableSpace() {
+
+        if (!isCached() || tableSpace == DataSpaceManager.tableIdDefault) {
+            return null;
+        }
+
+        StringBuffer sb = new StringBuffer(64);
+
+        sb.append(Tokens.T_SET).append(' ').append(Tokens.T_TABLE).append(' ');
+        sb.append(getName().getSchemaQualifiedStatementName());
+        sb.append(' ').append(Tokens.T_SPACE).append(' ').append(tableSpace);
 
         return sb.toString();
     }

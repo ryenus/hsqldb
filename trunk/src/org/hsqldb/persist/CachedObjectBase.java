@@ -31,72 +31,93 @@
 
 package org.hsqldb.persist;
 
-import org.hsqldb.Table;
-import org.hsqldb.TableBase;
-import org.hsqldb.lib.Iterator;
-import org.hsqldb.lib.LongKeyHashMap;
+import org.hsqldb.error.Error;
+import org.hsqldb.error.ErrorCode;
 
-/**
- * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.0
- * @since 1.9.0
- */
-public class PersistentStoreCollectionDatabase
-implements PersistentStoreCollection {
+public abstract class CachedObjectBase implements CachedObject {
 
-    private long                 persistentStoreIdSequence;
-    private final LongKeyHashMap rowStoreMap = new LongKeyHashMap();
+    boolean isMemory;
+    long    position;
+    int     realSize;
+    int     storageSize;
+    boolean isInMemory;
+    boolean hasChanged;
+    int     keepCount;
+    int     accessCount;
 
-    public void setStore(Object key, PersistentStore store) {
+    public boolean isMemory() {
+        return isMemory;
+    }
 
-        long persistenceId = ((TableBase) key).getPersistenceId();
+    public void updateAccessCount(int count) {
+        accessCount = count;
+    }
 
-        if (store == null) {
-            rowStoreMap.remove(persistenceId);
+    public int getAccessCount() {
+        return accessCount;
+    }
+
+    public void setStorageSize(int size) {
+        storageSize = size;
+    }
+
+    public int getStorageSize() {
+        return storageSize;
+    }
+
+    public long getPos() {
+        return position;
+    }
+
+    public void setPos(long pos) {
+        position = pos;
+    }
+
+    public boolean isNew() {
+        return false;
+    }
+
+    public boolean hasChanged() {
+        return hasChanged;
+    }
+
+    public boolean isKeepInMemory() {
+        return keepCount > 0;
+    }
+
+    public boolean keepInMemory(boolean keep) {
+
+        if (!isInMemory) {
+            return false;
+        }
+
+        if (keep) {
+            keepCount++;
         } else {
-            rowStoreMap.put(persistenceId, store);
-        }
-    }
+            keepCount--;
 
-    public PersistentStore getStore(Object key) {
-
-        long persistenceId = ((TableBase) key).getPersistenceId();
-        PersistentStore store =
-            (PersistentStore) rowStoreMap.get(persistenceId);
-
-        return store;
-    }
-
-    public void releaseStore(Table table) {
-
-        PersistentStore store =
-            (PersistentStore) rowStoreMap.get(table.getPersistenceId());
-
-        if (store != null) {
-            store.removeAll();
-            store.release();
-            rowStoreMap.remove(table.getPersistenceId());
-        }
-    }
-
-    public long getNextId() {
-        return persistentStoreIdSequence++;
-    }
-
-    public void release() {
-
-        if (rowStoreMap.isEmpty()) {
-            return;
+            if (keepCount < 0) {
+                throw Error.runtimeError(ErrorCode.U_S0500,
+                                         "SimpleCachedObject - keep count");
+            }
         }
 
-        Iterator it = rowStoreMap.values().iterator();
-
-        while (it.hasNext()) {
-            PersistentStore store = (PersistentStore) it.next();
-
-            store.release();
-        }
-
-        rowStoreMap.clear();
+        return true;
     }
+
+    public boolean isInMemory() {
+        return isInMemory;
+    }
+
+    public void setInMemory(boolean in) {
+        isInMemory = in;
+    }
+
+    public int hashCode() {
+        return (int) position;
+    }
+
+    public void restore() {}
+
+    public void destroy() {}
 }
