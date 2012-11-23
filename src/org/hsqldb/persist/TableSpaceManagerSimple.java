@@ -53,8 +53,6 @@ public class TableSpaceManagerSimple implements TableSpaceManager {
         return DataSpaceManager.tableIdDefault;
     }
 
-    /**
-     */
     public void release(long pos, int rowSize) {}
 
     /**
@@ -68,8 +66,8 @@ public class TableSpaceManagerSimple implements TableSpaceManager {
             long i;
             long newFreePosition;
 
-            i               = cache.fileFreePosition / scale;
-            newFreePosition = cache.fileFreePosition + rowSize;
+            i               = cache.getFileFreePos() / scale;
+            newFreePosition = cache.getFileFreePos() + rowSize;
 
             if (newFreePosition > cache.maxDataFileSize) {
                 cache.logSevereEvent("data file reached maximum size "
@@ -96,6 +94,19 @@ public class TableSpaceManagerSimple implements TableSpaceManager {
         }
     }
 
+    public boolean hasFileRoom(int blockSize) {
+
+        long newFreePosition = cache.getFileFreePos() + blockSize;
+
+        return cache.dataFile.ensureLength(newFreePosition);
+    }
+
+    public void addFileBlock(long blockPos, long blockFreePos,
+                             long blockLimit) {}
+
+    public void initialiseFileBlock(long blockPos, long blockFreePos,
+                                    long blockLimit) {}
+
     public int freeBlockCount() {
         return 0;
     }
@@ -106,9 +117,5 @@ public class TableSpaceManagerSimple implements TableSpaceManager {
 
     public long getLostBlocksSize() {
         return 0;
-    }
-
-    public boolean isModified() {
-        return false;
     }
 }

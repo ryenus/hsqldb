@@ -63,4 +63,8 @@ public interface DataSpaceManager {
     long freeBlockSize();
 
     boolean isModified();
+
+    void close();
+
+    void reopen();
 }

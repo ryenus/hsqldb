@@ -98,7 +98,7 @@ public abstract class CachedObjectBase implements CachedObject {
 
             if (keepCount < 0) {
                 throw Error.runtimeError(ErrorCode.U_S0500,
-                                         "SimpleCachedObject - keep count");
+                                         "CachedObjectBase - keep count");
             }
         }
 

@@ -52,11 +52,16 @@ public interface TableSpaceManager {
      */
     long getFilePosition(int rowSize, boolean asBlocks);
 
+    boolean hasFileRoom(int blockSize);
+
+    void addFileBlock(long blockPos, long blockFreePos, long blockLimit);
+
+    public void initialiseFileBlock(long blockPos, long blockFreePos,
+                                    long blockLimit);
+
     int freeBlockCount();
 
     long freeBlockSize();
 
     long getLostBlocksSize();
-
-    boolean isModified();
 }

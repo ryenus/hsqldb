@@ -113,8 +113,8 @@ public class TableSpaceManagerDefault implements TableSpaceManager {
             long i;
             long newFreePosition;
 
-            i               = cache.fileFreePosition / scale;
-            newFreePosition = cache.fileFreePosition + rowSize;
+            i               = cache.getFileFreePos() / scale;
+            newFreePosition = cache.getFileFreePos() + rowSize;
 
             if (newFreePosition > cache.maxDataFileSize) {
                 cache.logSevereEvent("data file reached maximum size "
@@ -199,9 +199,18 @@ public class TableSpaceManagerDefault implements TableSpaceManager {
         return lostFreeBlockSize;
     }
 
-    public boolean isModified() {
-        return isModified;
+    public boolean hasFileRoom(int blockSize) {
+
+        long newFreePosition = cache.getFileFreePos() + blockSize;
+
+        return cache.dataFile.ensureLength(newFreePosition);
     }
+
+    public void addFileBlock(long blockPos, long blockFreePos,
+                             long blockLimit) {}
+
+    public void initialiseFileBlock(long blockPos, long blockFreePos,
+                                    long blockLimit) {}
 
     private void resetList() {
 
@@ -226,6 +235,4 @@ public class TableSpaceManagerDefault implements TableSpaceManager {
 
         lookup.removeRange(0, blocks);
     }
-
-    private void checkIntegrity() throws NullPointerException {}
 }

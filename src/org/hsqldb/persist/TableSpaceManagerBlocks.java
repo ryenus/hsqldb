@@ -52,14 +52,12 @@ public class TableSpaceManagerBlocks implements TableSpaceManager {
     //
     private DoubleIntIndex lookup;
     private final int      capacity;
-    private int            midSize;
     private long           releaseCount;
     private long           requestCount;
     private long           requestSize;
 
     // reporting vars
     long    freeBlockSize;
-    long    lostFreeBlockSize;
     boolean isModified;
 
     //
@@ -70,12 +68,11 @@ public class TableSpaceManagerBlocks implements TableSpaceManager {
     /**
      *
      */
-    public TableSpaceManagerBlocks(DataSpaceManagerBlocks spaceManager,
-                                   int tableId, int fileBlockSize,
-                                   int capacity, int fileScale,
-                                   long lostSize) {
+    public TableSpaceManagerBlocks(DataSpaceManager spaceManager, int tableId,
+                                   int fileBlockSize, int capacity,
+                                   int fileScale, long lostSize) {
 
-        this.spaceManager  = spaceManager;
+        this.spaceManager  = (DataSpaceManagerBlocks) spaceManager;
         this.scale         = fileScale;
         this.spaceID       = tableId;
         this.mainBlockSize = fileBlockSize;
@@ -83,9 +80,7 @@ public class TableSpaceManagerBlocks implements TableSpaceManager {
 
         lookup.setValuesSearchTarget();
 
-        this.capacity          = capacity;
-        this.lostFreeBlockSize = lostSize;
-        this.midSize           = 128;    // arbitrary initial value
+        this.capacity = capacity;
     }
 
     public boolean hasFileRoom(int blockSize) {
@@ -144,6 +139,19 @@ public class TableSpaceManagerBlocks implements TableSpaceManager {
 
     long getNewBlock(int rowSize, boolean asBlocks) {
 
+        if (asBlocks) {
+            rowSize = (int) ArrayUtil.getBinaryMultipleCeiling(rowSize,
+                    DataSpaceManager.fixedBlockSizeUnit);
+        }
+
+        if (freshBlockFreePos + rowSize > freshBlockLimit) {
+            boolean result = getNewMainBlock(rowSize);
+
+            if (!result) {
+                return -1;
+            }
+        }
+
         long position = freshBlockFreePos;
 
         if (asBlocks) {
@@ -154,21 +162,9 @@ public class TableSpaceManagerBlocks implements TableSpaceManager {
 
             if (released > 0) {
                 release(freshBlockFreePos / scale, (int) released);
+
+                freshBlockFreePos = position;
             }
-
-            freshBlockFreePos = position;
-            rowSize = (int) ArrayUtil.getBinaryMultipleCeiling(rowSize,
-                    DataSpaceManager.fixedBlockSizeUnit);
-        }
-
-        if (rowSize > freshBlockLimit - freshBlockFreePos) {
-            boolean result = getNewMainBlock(rowSize);
-
-            if (!result) {
-                return -1;
-            }
-
-            position = freshBlockFreePos;
         }
 
         freshBlockFreePos += rowSize;
@@ -192,15 +188,8 @@ public class TableSpaceManagerBlocks implements TableSpaceManager {
 //            System.out.println(pos + "  " + rowSize);
         }
 
-        if (capacity == 0) {
-            lostFreeBlockSize += rowSize;
-
-            return;
-        }
-
         releaseCount++;
 
-        //
         if (lookup.size() == capacity) {
             resetList();
         }
@@ -243,16 +232,13 @@ public class TableSpaceManagerBlocks implements TableSpaceManager {
 
         lookup.remove(index);
 
-        if (difference >= midSize) {
+        if (difference > 0) {
             int pos = key + (rowSize / scale);
 
             lookup.add(pos, difference);
-
-            freeBlockSize -= rowSize;
-        } else {
-            lostFreeBlockSize += difference;
-            freeBlockSize     -= length;
         }
+
+        freeBlockSize -= rowSize;
 
         return key;
     }
@@ -266,35 +252,25 @@ public class TableSpaceManagerBlocks implements TableSpaceManager {
     }
 
     public long getLostBlocksSize() {
-        return lostFreeBlockSize;
+        return 0;
     }
 
-    public boolean isModified() {
-        return isModified;
+    public void close() {
+
+        spaceManager.freeTableSpace(spaceID, lookup);
+        spaceManager.freeTableSpace(spaceID, freshBlockFreePos,
+                                    freshBlockLimit);
+        lookup.removeAll();
+
+        freshBlockPos     = 0;
+        freshBlockFreePos = 0;
+        freshBlockLimit   = 0;
     }
 
-    private void resetList() {
+    public void resetList() {
 
-        if (requestCount != 0) {
-            midSize = (int) (requestSize / requestCount);
-        }
-
-        int first = lookup.findFirstGreaterEqualSlotIndex(midSize);
-
-        if (first < lookup.size() / 4) {
-            first = lookup.size() / 4;
-        }
-
-        removeBlocks(first);
-    }
-
-    private void removeBlocks(int blocks) {
-
-        for (int i = 0; i < blocks; i++) {
-            lostFreeBlockSize += lookup.getValue(i);
-            freeBlockSize     -= lookup.getValue(i);
-        }
-
-        lookup.removeRange(0, blocks);
+        spaceManager.freeTableSpace(spaceID, lookup);
+        lookup.setValuesSearchTarget();
+        lookup.removeAll();
     }
 }
