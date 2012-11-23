@@ -407,8 +407,10 @@ public class Log {
 
         try {
             if (cache != null) {
+                cache.spaceManager.close();
                 cache.commitChanges();
                 cache.backupFile(false);
+                cache.spaceManager.reopen();
             }
         } catch (Throwable ee) {
 
@@ -476,7 +478,7 @@ public class Log {
      */
     public void defrag() {
 
-        if (cache.fileFreePosition == cache.initialFreePos) {
+        if (cache.getFileFreePos() == cache.initialFreePos) {
             return;
         }
 

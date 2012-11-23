@@ -82,8 +82,15 @@ public class BitMap {
      */
     public void reset() {
 
-        map      = new int[defaultCapacity / 32];
-        capacity = defaultCapacity;
+        if (capacity == defaultCapacity) {
+            for (int i = 0; i < map.length; i++) {
+                map[i] = 0;
+            }
+        } else {
+            map      = new int[defaultCapacity / 32];
+            capacity = defaultCapacity;
+        }
+
         limitPos = 0;
     }
 
@@ -101,8 +108,8 @@ public class BitMap {
             doubleCapacity();
         }
 
-        if (pos + count >= limitPos) {
-            limitPos = pos + count + 1;
+        if (pos + count > limitPos) {
+            limitPos = pos + count;
         }
 
         int windex    = pos >> 5;
@@ -247,12 +254,37 @@ public class BitMap {
         }
 
         if (limitPos % 32 != 0) {
-            int word = map[limitPos / 23];
+            int word = map[limitPos / 32];
 
             setCount += Integer.bitCount(word);
         }
 
         return setCount;
+    }
+
+    /**
+     * Only for word boundary map size
+     */
+    public int countSetBitsLow() {
+
+        int count  = 0;
+        int windex = (limitPos / 32) - 1;
+
+        for (; windex >= 0; windex--) {
+            if (map[windex] == 0xffffffff) {
+                count += 32;
+
+                continue;
+            }
+
+            int val = countSetBitsLow(map[windex]);
+
+            count += val;
+
+            break;
+        }
+
+        return count;
     }
 
     public int[] getIntArray() {
@@ -311,6 +343,25 @@ public class BitMap {
         System.arraycopy(map, 0, newmap, 0, map.length);
 
         map = newmap;
+    }
+
+    /**
+     * count the set bits at the low end
+     */
+    public static int countSetBitsLow(int map) {
+
+        int mask  = 0x01;
+        int count = 0;
+
+        for (; count < 32; count++) {
+            if ((map & mask) == 0) {
+                break;
+            }
+
+            map = map >> 1;
+        }
+
+        return count;
     }
 
     /**

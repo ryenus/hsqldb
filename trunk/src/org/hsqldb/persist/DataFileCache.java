@@ -552,6 +552,8 @@ public class DataFileCache {
                 return;
             }
 
+            spaceManager.close();
+
             if (write) {
                 commitChanges();
             } else {
@@ -1472,8 +1474,6 @@ public class DataFileCache {
 
     protected void setFileModified() {
 
-        writeLock.lock();
-
         try {
             if (!fileModified) {
 
@@ -1497,9 +1497,6 @@ public class DataFileCache {
                 fileModified = true;
             }
         } catch (Throwable t) {}
-        finally {
-            writeLock.unlock();
-        }
     }
 
     public int getFlags() {

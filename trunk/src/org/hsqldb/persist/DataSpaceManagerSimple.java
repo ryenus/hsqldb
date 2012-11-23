@@ -31,6 +31,9 @@
 
 package org.hsqldb.persist;
 
+import org.hsqldb.error.ErrorCode;
+import org.hsqldb.error.Error;
+
 /**
  * @author Fred Toussi (fredt@users dot sourceforge.net)
  * @version 2.3.0
@@ -53,8 +56,8 @@ public class DataSpaceManagerSimple implements DataSpaceManager {
         } else {
             int capacity = cache.database.logger.propMaxFreeBlocks;
 
-            defaultSpaceManager = new TableSpaceManagerDefault(cache, capacity,
-                    cache.lostSpaceSize);
+            defaultSpaceManager = new TableSpaceManagerDefault(cache,
+                    capacity, cache.lostSpaceSize);
         }
     }
 
@@ -88,6 +91,10 @@ public class DataSpaceManagerSimple implements DataSpaceManager {
     }
 
     public boolean isModified() {
-        return defaultSpaceManager.isModified();
+        return false;
     }
+
+    public void close() {}
+
+    public void reopen() {}
 }
