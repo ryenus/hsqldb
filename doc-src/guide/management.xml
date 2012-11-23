@@ -97,6 +97,64 @@
         </itemizedlist></para>
     </section>
 
+    <section>
+      <title>Database Types</title>
+
+      <para>There are three types of database, <literal>mem:</literal>,
+      <literal>file:</literal> and <literal>res:</literal>. The mem: type is
+      stored all in memory and not persisted to file. The
+      <literal>file:</literal> type is persisted to file. The
+      <literal>res:</literal> type is also based on files, but the files are
+      loaded from the classpath, similar to resource and class files. Changes
+      to the data in <literal>file:</literal> databases are persisted, unless
+      the database is <literal>readonly</literal>, or
+      <literal>files_readonly</literal> (using optional property settings).
+      Changes to <literal>res:</literal> databases are not persisted.</para>
+
+      <section xml:id="mtc_readonly_database">
+        <title>Readonly Databases</title>
+
+        <para>A <glossterm>file:</glossterm> catalog can be made readonly
+        permanently, or it can be opened as readonly. To make the database
+        readonly, the property, value pair, <literal>readonly=true</literal>
+        can be added to the <filename>.properties</filename> file of the
+        database.</para>
+
+        <para>It is also possible to open a normal database as readonly. For
+        this, the property can be included in the URL of the first connection
+        to the database.</para>
+
+        <para>With readonly databases, it is still possible to insert and
+        delete rows in TEMP tables.</para>
+      </section>
+
+      <section>
+        <title>RES and Files Readonly Databases</title>
+
+        <para>There is another option which allows MEMORY tables to be
+        writeable, but without persisting the changes at SHUTDOWN. This option
+        is activated with the property, value pair,
+        <literal>files_readonly=true</literal>, which can be added to the
+        <filename>.properties</filename> file of the database, or included in
+        the URL of the first connection to the database.</para>
+
+        <para>A <glossterm>res:</glossterm> catalog, is a set of database
+        files on the classpath (inside a jar or alongside class files). The
+        database is opened with a URL in the form of
+        <literal>jdbc:hsqldb:res:&lt;database path&gt;</literal>. These
+        databases are always <literal>files_readonly</literal> and have the
+        same restrictions as <literal>files_readonly</literal>
+        <glossterm>file:</glossterm> catalogs.</para>
+
+        <para>CACHED tables and LOBS in these catalogs are readonly. It is not
+        possible to create new LOBs in these catalogs, but you can use
+        existing LOBs in new rows.</para>
+
+        <para>These options are useful for running application tests which
+        operate on a predefined dataset.</para>
+      </section>
+    </section>
+
     <section xml:id="mtc_table_types">
       <title>Tables</title>
 
@@ -218,56 +276,13 @@
         <listitem>
           <para>The file system must have enough spare room both for the
           'permanent' and 'temporary' files. The default maximum size of the
-          *.log file is 50MB. The *.data file can grow to up to 16GB (more if
+          *.log file is 50MB. The *.data file can grow to up to 64GB (more if
           the default has been increased). The .backup file can be up to the
           size of the *.data file. The *.lobs file can grow to several
           terabytes. The temporary files created at the time of a SHUTDOWN can
           be equal in size to the *.script file and the .data file.</para>
         </listitem>
       </itemizedlist>
-    </section>
-
-    <section xml:id="mtc_readonly_database">
-      <title>Readonly Databases</title>
-
-      <para>A <glossterm>file:</glossterm> catalog can be made readonly
-      permanently, or it can be opened as readonly. To make the database
-      readonly, the property, value pair, <literal>readonly=true</literal> can
-      be added to the <filename>.properties</filename> file of the
-      database.</para>
-
-      <para>It is also possible to open a normal database as readonly. For
-      this, the property can be included in the URL of the first connection to
-      the database. </para>
-
-      <para>With readonly databases, it is still possible to insert and delete
-      rows in TEMP tables.</para>
-    </section>
-
-    <section>
-      <title>RES and Files Readonly Databases</title>
-
-      <para>There is another option which allows MEMORY tables to be
-      writeable, but without persisting the changes at SHUTDOWN. This option
-      is activated with the property, value pair,
-      <literal>files_readonly=true</literal>, which can be added to the
-      <filename>.properties</filename> file of the database, or included in
-      the URL of the first connection to the database.</para>
-
-      <para>A <glossterm>res:</glossterm> catalog, is a set of database files
-      on the classpath (inside a jar or alongside class files). The database
-      is opened with a URL in the form of
-      <literal>jdbc:hsqldb:res:&lt;database path&gt;</literal>. These
-      databases are always <literal>files_readonly</literal> and have the same
-      restrictions as <literal>files_readonly</literal>
-      <glossterm>file:</glossterm> catalogs.</para>
-
-      <para>CACHED tables and LOBS in these catalogs are readonly. It is not
-      possible to create new LOBs in these catalogs, but you can use existing
-      LOBs in new rows.</para>
-
-      <para>These options are useful for running application tests which
-      operate on a predefined dataset.</para>
     </section>
   </section>
 
@@ -365,9 +380,8 @@
     an abnormal termination and preserves the data when the catalog is opened
     next time. In an ideal operating environment, where there is no OS crash,
     disk failure, bugs in code, etc. there would be no need to backup a
-    database. Ttherefore backing up catalogs is an insurance policy against
-    all sorts of misadventure that are not under the control of the database
-    engine.</para>
+    database. Backing up catalogs is an insurance policy against all sorts of
+    misadventure that are not under the control of the database engine.</para>
 
     <para>The data for each catalog consists of up to 5 files in the same
     directory with the endings such as <literal>*.properties</literal>,
@@ -1366,8 +1380,10 @@
 
       <simpara>If SCRIPT is specified, the backup will contain a
       <literal>*.script</literal> file, which contain all the data and
-      settings of the database. Otherwise, it consists of the current snapshot
-      of all database files.</simpara>
+      settings of the database. This type of backup is suitable for smaller
+      databases. With larger databases, this takes a long time. When the
+      SCRIPT option is no used, the backup set will consist of the current
+      snapshot of all database files.</simpara>
 
       <simpara>If NOT COMPRESSED is specified, the backup is a tar file,
       without compression. Otherwise, it is in gzip format.</simpara>
@@ -1403,9 +1419,12 @@
       [DEFRAG]</literal></simpara>
 
       <simpara>Closes the database files, rewrites the script file, deletes
-      the log file and opens the database. If <literal>DEFRAG</literal> is
-      specified, also shrinks the <literal>*.data</literal> file to its
-      minimum size.</simpara>
+      the log file and reopens the database.</simpara>
+
+      <simpara>If <literal>DEFRAG</literal> is specified, also shrinks the
+      <literal>*.data</literal> file to its minimum size. CHECKPOINT DEFRAG
+      time depends on the size of the database and can take a long time with
+      huge databases.</simpara>
 
       <simpara>Only a user with the DBA role can execute this
       statement.</simpara>
