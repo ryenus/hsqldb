@@ -1793,7 +1793,7 @@
             <row>
               <entry nameend="c3" namest="c1"><para>By default, up to 2
               billion rows can be stored in disk-based CACHED tables. Setting
-              this property to true increases the limit to 512 billion rows.
+              this property to true increases the limit to 256 billion rows.
               This property is used as a connection
               property.</para><para><programlisting>this property cannot be set with an SQL statement - it can be used as a connection property for the connection that opens the database</programlisting></para></entry>
             </row>
@@ -2352,6 +2352,47 @@
       </table>
 
       <table frame="all" pgwide="1" tocentry="1">
+        <title>Compression of the .script file</title>
+
+        <tgroup align="left" cols="3">
+          <colspec colname="c1" colwidth="6.5cm" />
+
+          <colspec colname="c2" colwidth="1.5cm" />
+
+          <colspec colname="c3" />
+
+          <thead>
+            <row>
+              <entry>Name</entry>
+
+              <entry>Default</entry>
+
+              <entry>Description</entry>
+            </row>
+          </thead>
+
+          <tbody valign="top">
+            <row>
+              <entry><property>hsqldb.script_format</property></entry>
+
+              <entry><literal>0</literal></entry>
+
+              <entry>compressed .script file</entry>
+            </row>
+
+            <row>
+              <entry nameend="c3" namest="c1"><para>If the property is set
+              with the value 3, the .script file is stored in compressed
+              format. This is useful for large script files. The .script is no
+              longer readable when the
+              <literal>hsqldb.script_format=3</literal> has been
+              used.</para><para><programlisting>This property cannot be set with an SQL statement</programlisting></para></entry>
+            </row>
+          </tbody>
+        </tgroup>
+      </table>
+
+      <table frame="all" pgwide="1" tocentry="1">
         <title>Logging Data Change Statements Frequency</title>
 
         <tgroup align="left" cols="3">
@@ -2377,16 +2418,17 @@
 
               <entry><literal>true</literal></entry>
 
-              <entry>write delay for writing and performing sync() of log file
-              entries</entry>
+              <entry>write delay performing fsync of log file entries</entry>
             </row>
 
             <row>
               <entry nameend="c3" namest="c1"><para>If the property is true,
               the default WRITE DELAY property of the database is used, which
               is 500 milliseconds. If the property is false, the WRITE DELAY
-              is set to 0 seconds. The SQL command for this property allows
-              more precise control over the
+              is set to 0 seconds. The log is written to file regardless of
+              this property. The property controls the fsync that forces the
+              written log to be persisted to disk. The SQL command for this
+              property allows more precise control over the
               property.</para><para><programlisting>SET FILES WRITE DELAY {{ TRUE | FALSE } | &lt;seconds value&gt; | &lt;milliseconds value&gt; MILLIS</programlisting></para></entry>
             </row>
           </tbody>
@@ -2419,14 +2461,16 @@
 
               <entry><literal>500</literal></entry>
 
-              <entry>write delay for writing log file entries</entry>
+              <entry>write delay for performing fsync of log file
+              entries</entry>
             </row>
 
             <row>
               <entry nameend="c3" namest="c1"><para>If the property is used,
               the WRITE DELAY property of the database is set the given value
-              in milliseconds. The SQL command for this property allows the
-              same level of control over the
+              in milliseconds. The property controls the fsync that forces the
+              written log to be persisted to disk. The SQL command for this
+              property allows the same level of control over the
               property.</para><para><programlisting>SET FILES WRITE DELAY {{ TRUE | FALSE } | &lt;seconds value&gt; | &lt;milliseconds value&gt; MILLIS</programlisting></para></entry>
             </row>
           </tbody>
