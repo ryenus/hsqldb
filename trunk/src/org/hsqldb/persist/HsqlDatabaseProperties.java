@@ -232,7 +232,7 @@ public class HsqlDatabaseProperties extends HsqlProperties {
     public static final String hsqldb_full_log_replay =
         "hsqldb.full_log_replay";
     public static final String hsqldb_large_data  = "hsqldb.large_data";
-    public static final String hsqldb_file_spaces = "hsqldb.file_spaces";
+    public static final String hsqldb_file_space = "hsqldb.file_space";
 
     //
     public static final String sql_ref_integrity       = "sql.ref_integrity";
@@ -450,8 +450,8 @@ public class HsqlDatabaseProperties extends HsqlProperties {
         dbMeta.put(hsqldb_large_data,
                    HsqlProperties.getMeta(hsqldb_large_data, SQL_PROPERTY,
                                           false));
-        dbMeta.put(hsqldb_file_spaces,
-                   HsqlProperties.getMeta(hsqldb_file_spaces, SQL_PROPERTY,
+        dbMeta.put(hsqldb_file_space,
+                   HsqlProperties.getMeta(hsqldb_file_space, SQL_PROPERTY,
                                           false));
 
         // integral defaults for user-defined props - sets

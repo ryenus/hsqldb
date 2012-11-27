@@ -45,7 +45,7 @@ import org.hsqldb.lib.ArrayUtil;
 public class TableSpaceManagerBlocks implements TableSpaceManager {
 
     DataSpaceManagerBlocks spaceManager;
-    private int            scale;
+    private final int      scale;
     int                    mainBlockSize;
     int                    spaceID;
 
@@ -107,7 +107,7 @@ public class TableSpaceManagerBlocks implements TableSpaceManager {
         this.freshBlockLimit   = blockLimit;
     }
 
-    boolean getNewMainBlock(int rowSize) {
+    boolean getNewMainBlock(long rowSize) {
 
         long released = freshBlockLimit - freshBlockFreePos;
 
@@ -124,7 +124,7 @@ public class TableSpaceManagerBlocks implements TableSpaceManager {
             blockCount++;
         }
 
-        long position = spaceManager.getFileSpace(spaceID, blockCount);
+        long position = spaceManager.getFileBlocks(spaceID, blockCount);
 
         if (position < 0) {
             return false;
@@ -137,7 +137,7 @@ public class TableSpaceManagerBlocks implements TableSpaceManager {
         return true;
     }
 
-    long getNewBlock(int rowSize, boolean asBlocks) {
+    long getNewBlock(long rowSize, boolean asBlocks) {
 
         if (asBlocks) {
             rowSize = (int) ArrayUtil.getBinaryMultipleCeiling(rowSize,
@@ -204,21 +204,38 @@ public class TableSpaceManagerBlocks implements TableSpaceManager {
     /**
      * Returns the position of a free block or 0.
      */
-    synchronized public long getFilePosition(int rowSize, boolean asBlocks) {
+    synchronized public long getFilePosition(long rowSize, boolean asBlocks) {
 
         if (capacity == 0) {
             return getNewBlock(rowSize, asBlocks);
         }
 
-        // todo asBlocks for reuse
         if (asBlocks) {
+            rowSize = ArrayUtil.getBinaryMultipleCeiling(rowSize,
+                    DataSpaceManager.fixedBlockSizeUnit);
+        }
+
+        if (rowSize > Integer.MAX_VALUE) {
             return getNewBlock(rowSize, asBlocks);
         }
 
-        int index = lookup.findFirstGreaterEqualKeyIndex(rowSize);
+        int index = lookup.findFirstGreaterEqualKeyIndex((int) rowSize);
 
         if (index == -1) {
             return getNewBlock(rowSize, asBlocks);
+        }
+
+        if (asBlocks) {
+            for (; index < lookup.size(); index++) {
+                if (lookup.getValue(index)
+                        % (DataSpaceManager.fixedBlockSizeUnit / scale) == 0) {
+                    break;
+                }
+            }
+
+            if (index == lookup.size()) {
+                return getNewBlock(rowSize, asBlocks);
+            }
         }
 
         // statistics for successful requests only - to be used later for midSize
@@ -227,13 +244,13 @@ public class TableSpaceManagerBlocks implements TableSpaceManager {
         requestSize += rowSize;
 
         int length     = lookup.getValue(index);
-        int difference = length - rowSize;
+        int difference = length - (int) rowSize;
         int key        = lookup.getKey(index);
 
         lookup.remove(index);
 
         if (difference > 0) {
-            int pos = key + (rowSize / scale);
+            int pos = key + ((int) rowSize / scale);
 
             lookup.add(pos, difference);
         }

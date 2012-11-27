@@ -65,6 +65,10 @@ public abstract class CachedObjectBase implements CachedObject {
         return storageSize;
     }
 
+    final public boolean isBlock() {
+        return true;
+    }
+
     public long getPos() {
         return position;
     }

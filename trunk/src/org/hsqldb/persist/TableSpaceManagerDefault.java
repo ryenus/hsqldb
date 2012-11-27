@@ -34,6 +34,7 @@ package org.hsqldb.persist;
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
 import org.hsqldb.lib.DoubleIntIndex;
+import org.hsqldb.lib.ArrayUtil;
 
 /**
  * Maintains a list of free file blocks.<p>
@@ -45,10 +46,10 @@ import org.hsqldb.lib.DoubleIntIndex;
 public class TableSpaceManagerDefault implements TableSpaceManager {
 
     private DataFileCache  cache;
+    private final int      scale;
     private DoubleIntIndex lookup;
     private final int      capacity;
     private int            midSize;
-    private final int      scale;
     private long           releaseCount;
     private long           requestCount;
     private long           requestSize;
@@ -70,7 +71,7 @@ public class TableSpaceManagerDefault implements TableSpaceManager {
         lookup.setValuesSearchTarget();
 
         this.capacity          = capacity;
-        this.scale             = cache.dataFileScale;
+        this.scale             = cache.getDataFileScale();
         this.lostFreeBlockSize = lostSize;
         this.midSize           = 128;    // arbitrary initial value
     }
@@ -105,16 +106,23 @@ public class TableSpaceManagerDefault implements TableSpaceManager {
         }
     }
 
-    long getNewBlock(int rowSize, boolean asBlocks) {
+    long getNewBlock(long rowSize, boolean asBlocks) {
 
         cache.writeLock.lock();
 
         try {
             long i;
+            long position;
             long newFreePosition;
 
-            i               = cache.getFileFreePos() / scale;
-            newFreePosition = cache.getFileFreePos() + rowSize;
+            position = cache.getFileFreePos();
+
+            if (asBlocks) {
+                position = ArrayUtil.getBinaryMultipleCeiling(position,
+                        DataSpaceManager.fixedBlockSizeUnit);
+            }
+
+            newFreePosition = position + rowSize;
 
             if (newFreePosition > cache.maxDataFileSize) {
                 cache.logSevereEvent("data file reached maximum size "
@@ -135,7 +143,7 @@ public class TableSpaceManagerDefault implements TableSpaceManager {
 
             cache.fileFreePosition = newFreePosition;
 
-            return i;
+            return position / scale;
         } finally {
             cache.writeLock.unlock();
         }
@@ -144,7 +152,7 @@ public class TableSpaceManagerDefault implements TableSpaceManager {
     /**
      * Returns the position of a free block or 0.
      */
-    public long getFilePosition(int rowSize, boolean asBlocks) {
+    public long getFilePosition(long rowSize, boolean asBlocks) {
 
         cache.writeLock.lock();
 
@@ -153,10 +161,33 @@ public class TableSpaceManagerDefault implements TableSpaceManager {
                 return getNewBlock(rowSize, asBlocks);
             }
 
-            int index = lookup.findFirstGreaterEqualKeyIndex(rowSize);
+            if (asBlocks) {
+                rowSize = ArrayUtil.getBinaryMultipleCeiling(rowSize,
+                        DataSpaceManager.fixedBlockSizeUnit);
+            }
+
+        if (rowSize > Integer.MAX_VALUE) {
+            return getNewBlock(rowSize, asBlocks);
+        }
+
+            int index = lookup.findFirstGreaterEqualKeyIndex((int) rowSize);
 
             if (index == -1) {
                 return getNewBlock(rowSize, asBlocks);
+            }
+
+            if (asBlocks) {
+                for (; index < lookup.size(); index++) {
+                    if (lookup.getValue(index)
+                            % (DataSpaceManager.fixedBlockSizeUnit
+                               / scale) == 0) {
+                        break;
+                    }
+                }
+
+                if (index == lookup.size()) {
+                    return getNewBlock(rowSize, asBlocks);
+                }
             }
 
             // statistics for successful requests only - to be used later for midSize
@@ -165,7 +196,7 @@ public class TableSpaceManagerDefault implements TableSpaceManager {
             requestSize += rowSize;
 
             int length     = lookup.getValue(index);
-            int difference = length - rowSize;
+            int difference = length - (int) rowSize;
             int key        = lookup.getKey(index);
 
             lookup.remove(index);
@@ -173,7 +204,7 @@ public class TableSpaceManagerDefault implements TableSpaceManager {
             freeBlockSize -= rowSize;
 
             if (difference >= midSize) {
-                int pos = key + (rowSize / scale);
+                int pos = key + ((int) rowSize / scale);
 
                 lookup.add(pos, difference);
             } else {
@@ -224,15 +255,10 @@ public class TableSpaceManagerDefault implements TableSpaceManager {
             first = lookup.size() / 4;
         }
 
-        removeBlocks(first);
-    }
-
-    private void removeBlocks(int blocks) {
-
-        for (int i = 0; i < blocks; i++) {
+        for (int i = 0; i < first; i++) {
             lostFreeBlockSize += lookup.getValue(i);
         }
 
-        lookup.removeRange(0, blocks);
+        lookup.removeRange(0, first);
     }
 }

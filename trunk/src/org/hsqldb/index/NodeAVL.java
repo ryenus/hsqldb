@@ -262,6 +262,10 @@ public class NodeAVL implements CachedObject {
         return 0;
     }
 
+    final public boolean isBlock() {
+        return false;
+    }
+
     public void setPos(long pos) {}
 
     public boolean isNew() {

@@ -73,7 +73,7 @@ public final class BundleHandler {
      * The resource path prefix of the <code>ResourceBundle</code> objects
      * handled by this class.
      */
-    private static final String prefix = "org/hsqldb/resources/";
+    private static final String prefix = "org.hsqldb.resources.";
 
     /** JDK 1.1 compliance */
     private static final Method newGetBundleMethod = getNewGetBundleMethod();

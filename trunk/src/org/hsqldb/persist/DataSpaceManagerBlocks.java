@@ -63,7 +63,6 @@ public class DataSpaceManagerBlocks implements DataSpaceManager {
     //
     DirectoryBlockCachedObject firstDirectory;
 
-    // todo - initialise
     int spaceIdSequence = tableIdFirst;
 
     //
@@ -84,7 +83,7 @@ public class DataSpaceManagerBlocks implements DataSpaceManager {
     public DataSpaceManagerBlocks(DataFileCache dataFileCache) {
 
         cache            = dataFileCache;
-        dataFileScale    = cache.dataFileScale;
+        dataFileScale    = cache.getDataFileScale();
         fileBlockSize    = bitmapIntSize * 32 * dataFileScale;
         ba               = new BlockAccessor();
         spaceManagerList = new IntKeyHashMap();
@@ -165,9 +164,9 @@ public class DataSpaceManagerBlocks implements DataSpaceManager {
 
         rootBlock = (IntArrayCachedObject) rootStore.get(root.getPos(), true);
 
-        createFileSpaceInDirectory(defaultSpaceBlockCount,
+        createFileBlocksInDirectory(defaultSpaceBlockCount,
                                    directorySpaceBlockCount, tableIdDirectory);
-        createFileSpaceInDirectory(0, defaultSpaceBlockCount, tableIdDefault);
+        createFileBlocksInDirectory(0, defaultSpaceBlockCount, tableIdDefault);
 
         int index = getBlockIndexLimit();
 
@@ -193,7 +192,7 @@ public class DataSpaceManagerBlocks implements DataSpaceManager {
     /**
      * try available blocks first, then get fresh block
      */
-    public long getFileSpace(int tableId, int blockCount) {
+    public long getFileBlocks(int tableId, int blockCount) {
 
         cache.writeLock.lock();
 
@@ -203,14 +202,14 @@ public class DataSpaceManagerBlocks implements DataSpaceManager {
             if (index > 0) {
                 return index * this.fileBlockSize;
             } else {
-                return getNewFileSpace(tableId, blockCount);
+                return getNewFileBlocks(tableId, blockCount);
             }
         } finally {
             cache.writeLock.unlock();
         }
     }
 
-    private long getNewFileSpace(int tableId, int blockCount) {
+    private long getNewFileBlocks(int tableId, int blockCount) {
 
         cache.writeLock.lock();
 
@@ -227,7 +226,7 @@ public class DataSpaceManagerBlocks implements DataSpaceManager {
 
                 int index = getBlockIndexLimit();
 
-                createFileSpaceInDirectory(index, 1, tableIdDirectory);
+                createFileBlocksInDirectory(index, 1, tableIdDirectory);
 
                 index = getBlockIndexLimit();
 
@@ -251,7 +250,7 @@ public class DataSpaceManagerBlocks implements DataSpaceManager {
             long filePosition = cache.enlargeFileSpace(blockCount
                 * fileBlockSize);
 
-            createFileSpaceInDirectory(index, blockCount, tableId);
+            createFileBlocksInDirectory(index, blockCount, tableId);
 
             // integrity check
             index = getBlockIndexLimit();
@@ -266,19 +265,19 @@ public class DataSpaceManagerBlocks implements DataSpaceManager {
         }
     }
 
-    void createFileSpaceInDirectory(int fileBlockIndex, int blockCount,
+    void createFileBlocksInDirectory(int fileBlockIndex, int blockCount,
                                     int tableId) {
 
         for (int i = 0; i < blockCount; i++) {
-            createFileSpaceInDirectory(fileBlockIndex + i, tableId);
+            createFileBlocksInDirectory(fileBlockIndex + i, tableId);
         }
     }
 
-    private void createFileSpaceInDirectory(int fileBlockIndex, int tableId) {
+    private void createFileBlocksInDirectory(int fileBlockIndex, int tableId) {
 
         DirectoryBlockCachedObject directory =
             getOrCreateDirectory(fileBlockIndex);
-        int index = fileBlockIndex % blockSize;
+        int blockOffset = fileBlockIndex % blockSize;
 
         //
         BitMapCachedObject bitMap =
@@ -289,7 +288,7 @@ public class DataSpaceManagerBlocks implements DataSpaceManager {
         int bitmapBlockPos = (int) (bitMap.getPos() * dataFileScale
                                     / fixedBlockSizeUnit);
 
-        updateDirectory(directory, index, tableId, bitmapBlockPos);
+        updateDirectory(directory, blockOffset, tableId, bitmapBlockPos);
     }
 
     private DirectoryBlockCachedObject getDirectory(int fileBlockIndex,

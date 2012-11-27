@@ -77,7 +77,7 @@ public class DataFileCache {
     // file format fields
     static final int LONG_EMPTY_SIZE      = 4;        // empty space size
     static final int LONG_FREE_POS_POS    = 12;       // where iFreePos is saved
-    static final int LONG_SPACE_LIST_POS  = 20;       // empty space index
+    static final int INT_SPACE_LIST_POS   = 24;       // empty space index
     static final int FLAGS_POS            = 28;
     static final int MIN_INITIAL_FREE_POS = 32;
 
@@ -220,9 +220,10 @@ public class DataFileCache {
 
                 fileFreePosition = dataFile.readLong();
 
-                dataFile.seek(LONG_SPACE_LIST_POS);
+                dataFile.seek(INT_SPACE_LIST_POS);
 
-                spaceManagerPosition = dataFile.readLong();
+                spaceManagerPosition = dataFile.readInt()
+                                       * DataSpaceManager.fixedBlockSizeUnit;
 
                 initBuffers();
 
@@ -310,9 +311,10 @@ public class DataFileCache {
                 fileFreePosition      = dataFile.readLong();
                 fileStartFreePosition = fileFreePosition;
 
-                dataFile.seek(LONG_SPACE_LIST_POS);
+                dataFile.seek(INT_SPACE_LIST_POS);
 
-                spaceManagerPosition = dataFile.readLong();
+                spaceManagerPosition = dataFile.readInt()
+                                       * DataSpaceManager.fixedBlockSizeUnit;
 
                 openShadowFile();
             } else {
@@ -426,29 +428,80 @@ public class DataFileCache {
         }
     }
 
-    void initNewFile() throws IOException {
+    public DataFileCache(Database db, String baseFileName, boolean defrag) {
 
-        fileFreePosition      = initialFreePos;
-        fileStartFreePosition = initialFreePos;
+        this.database    = db;
+        dataFileName     = baseFileName + Logger.newFileExtension;
+        dataFileScale    = database.logger.getDataFileScale();
+        cachedRowPadding = 8;
 
-        dataFile.seek(LONG_FREE_POS_POS);
-        dataFile.writeLong(fileFreePosition);
-
-        // set shadowed flag;
-        int flags = 0;
-
-        if (database.logger.propIncrementBackup) {
-            flags = BitMap.set(flags, FLAG_ISSHADOWED);
+        if (dataFileScale > 8) {
+            cachedRowPadding = dataFileScale;
         }
 
-        flags = BitMap.set(flags, FLAG_ISSAVED);
-        flags = BitMap.set(flags, FLAG_190);
+        initialFreePos = MIN_INITIAL_FREE_POS;
 
-        dataFile.seek(FLAGS_POS);
-        dataFile.writeInt(flags);
-        dataFile.synch();
+        if (initialFreePos < dataFileScale) {
+            initialFreePos = dataFileScale;
+        }
 
-        is180 = false;
+        maxCacheRows  = 1024;
+        maxCacheBytes = 1024 * 4096;
+        maxDataFileSize = (long) Integer.MAX_VALUE * dataFileScale
+                          * database.logger.getDataFileFactor();
+
+        try {
+            if (database.logger.isStoredFileAccess()) {
+                dataFile = ScaledRAFile.newScaledRAFile(database,
+                        dataFileName, false, ScaledRAFile.DATA_FILE_STORED);
+            } else {
+                dataFile = new ScaledRAFileSimple(database, dataFileName,
+                                                  "rw");
+            }
+        } catch (IOException e) {
+            throw Error.error(ErrorCode.FILE_IO_ERROR, e);
+        }
+
+        //
+        cache = new Cache(this);
+
+        initNewFile();
+        initBuffers();
+
+        if (database.logger.propFileSpaces) {
+            spaceManager = new DataSpaceManagerBlocks(this);
+        } else {
+            spaceManager = new DataSpaceManagerSimple(this);
+        }
+    }
+
+    void initNewFile() {
+
+        try {
+            fileFreePosition      = initialFreePos;
+            fileStartFreePosition = initialFreePos;
+
+            dataFile.seek(LONG_FREE_POS_POS);
+            dataFile.writeLong(fileFreePosition);
+
+            // set shadowed flag;
+            int flags = 0;
+
+            if (database.logger.propIncrementBackup) {
+                flags = BitMap.set(flags, FLAG_ISSHADOWED);
+            }
+
+            flags = BitMap.set(flags, FLAG_ISSAVED);
+            flags = BitMap.set(flags, FLAG_190);
+
+            dataFile.seek(FLAGS_POS);
+            dataFile.writeInt(flags);
+            dataFile.synch();
+
+            is180 = false;
+        } catch (IOException e) {
+            throw Error.error(ErrorCode.FILE_IO_ERROR, e);
+        }
     }
 
     void openShadowFile() {
@@ -639,8 +692,12 @@ public class DataFileCache {
                 // set end
                 dataFile.seek(LONG_FREE_POS_POS);
                 dataFile.writeLong(fileFreePosition);
-                dataFile.seek(LONG_SPACE_LIST_POS);
-                dataFile.writeLong(spaceManagerPosition);
+                dataFile.seek(INT_SPACE_LIST_POS);
+
+                int pos = (int) (spaceManagerPosition
+                                 / DataSpaceManager.fixedBlockSizeUnit);
+
+                dataFile.writeInt(pos);
 
                 // set saved flag;
                 dataFile.seek(FLAGS_POS);
@@ -1454,6 +1511,10 @@ public class DataFileCache {
 
     public String getFileName() {
         return dataFileName;
+    }
+
+    public int getDataFileScale() {
+        return dataFileScale;
     }
 
     public boolean hasRowInfo() {

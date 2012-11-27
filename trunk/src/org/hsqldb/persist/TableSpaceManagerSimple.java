@@ -46,7 +46,7 @@ public class TableSpaceManagerSimple implements TableSpaceManager {
 
     public TableSpaceManagerSimple(DataFileCache cache) {
         this.cache = cache;
-        this.scale = cache.dataFileScale;
+        this.scale = cache.getDataFileScale();
     }
 
     public int getSpaceID() {
@@ -58,7 +58,7 @@ public class TableSpaceManagerSimple implements TableSpaceManager {
     /**
      * Returns the position of a free block or 0.
      */
-    public long getFilePosition(int rowSize, boolean asBlocks) {
+    public long getFilePosition(long rowSize, boolean asBlocks) {
 
         cache.writeLock.lock();
 

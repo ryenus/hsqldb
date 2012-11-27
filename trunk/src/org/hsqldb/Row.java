@@ -89,6 +89,10 @@ public class Row implements CachedObject {
         return 0;
     }
 
+    final public boolean isBlock() {
+        return false;
+    }
+
     public boolean isMemory() {
         return true;
     }

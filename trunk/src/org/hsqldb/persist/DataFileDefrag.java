@@ -39,13 +39,11 @@ import org.hsqldb.Table;
 import org.hsqldb.TableBase;
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
-import org.hsqldb.lib.ArrayUtil;
 import org.hsqldb.lib.DoubleIntIndex;
 import org.hsqldb.lib.HsqlArrayList;
 import org.hsqldb.lib.StopWatch;
 import org.hsqldb.navigator.RowIterator;
 import org.hsqldb.rowio.RowOutputInterface;
-import org.hsqldb.store.BitMap;
 
 // oj@openoffice.org - changed to file access api
 
@@ -60,11 +58,12 @@ import org.hsqldb.store.BitMap;
  *  image after translating the old pointers to the new.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version    2.2.9
+ * @version    2.3.0
  * @since      1.7.2
  */
 final class DataFileDefrag {
 
+    DataFileCache         dataFileOut;
     RandomAccessInterface randomAccessOut;
     long                  fileOffset;
     StopWatch             stopw = new StopWatch();
@@ -79,7 +78,7 @@ final class DataFileDefrag {
 
         this.database     = db;
         this.dataCache    = cache;
-        this.scale        = cache.dataFileScale;
+        this.scale        = cache.getDataFileScale();
         this.dataFileName = dataFileName;
     }
 
@@ -109,27 +108,14 @@ final class DataFileDefrag {
             }
         }
 
-        if (maxSize > Integer.MAX_VALUE / 2) {
+        if (maxSize > Integer.MAX_VALUE) {
             throw Error.error(ErrorCode.X_2200T);
         }
 
         try {
-            pointerLookup = new DoubleIntIndex((int) maxSize, false);
-
-            // write out the end of file position
-            if (database.logger.isStoredFileAccess()) {
-                randomAccessOut = ScaledRAFile.newScaledRAFile(database,
-                        dataFileName + Logger.newFileExtension, false,
-                        ScaledRAFile.DATA_FILE_STORED);
-            } else {
-                randomAccessOut = new ScaledRAFileSimple(database,
-                        dataFileName + Logger.newFileExtension, "rw");
-            }
-
-            randomAccessOut.write(new byte[dataCache.initialFreePos], 0,
-                                  dataCache.initialFreePos);
-
-            fileOffset = dataCache.initialFreePos;
+            pointerLookup   = new DoubleIntIndex((int) maxSize, false);
+            dataFileOut     = new DataFileCache(database, dataFileName, true);
+            randomAccessOut = dataFileOut.dataFile;
 
             for (int i = 0, tSize = allTables.size(); i < tSize; i++) {
                 Table t = (Table) allTables.get(i);
@@ -148,22 +134,8 @@ final class DataFileDefrag {
                                                + t.getName().name);
             }
 
-            randomAccessOut.seek(DataFileCache.LONG_FREE_POS_POS);
-            randomAccessOut.writeLong(fileOffset);
-
-            // set shadowed flag;
-            int flags = 0;
-
-            if (database.logger.propIncrementBackup) {
-                flags = BitMap.set(flags, DataFileCache.FLAG_ISSHADOWED);
-            }
-
-            flags = BitMap.set(flags, DataFileCache.FLAG_190);
-            flags = BitMap.set(flags, DataFileCache.FLAG_ISSAVED);
-
-            randomAccessOut.seek(DataFileCache.FLAGS_POS);
-            randomAccessOut.writeInt(flags);
-            randomAccessOut.synch();
+            dataFileOut.spaceManager.close();
+            dataFileOut.commitChanges();
             randomAccessOut.close();
 
             randomAccessOut = null;
@@ -213,37 +185,22 @@ final class DataFileDefrag {
         }
     }
 
-    /**
-     * called from outside after the complete end of defrag
-     */
-    void updateTableIndexRoots() {
-
-        HsqlArrayList allTables = database.schemaManager.getAllTables(true);
-
-        for (int i = 0, size = allTables.size(); i < size; i++) {
-            Table t = (Table) allTables.get(i);
-
-            if (t.getTableType() == TableBase.CACHED_TABLE) {
-                long[] rootsArray = rootsList[i];
-
-                t.setIndexRoots(rootsArray);
-            }
-        }
-    }
-
     long[] writeTableToDataFile(Table table) throws IOException {
 
         Session session = database.getSessionManager().getSysSession();
         PersistentStore    store      = table.getRowStore(session);
         RowOutputInterface rowOut     = dataCache.rowOut.duplicate();
         long[]             rootsArray = table.getIndexRootsArray();
-        long               pos        = fileOffset;
-        long               count      = 0;
+        long               pos;
+        long               count = 0;
 
         pointerLookup.removeAll();
         pointerLookup.setKeysSearchTarget();
         database.logger.logDetailEvent("lookup begins " + table.getName().name
                                        + " " + stopw.elapsedTime());
+
+        TableSpaceManager space =
+            dataFileOut.spaceManager.getTableSpace(table.getSpaceID());
 
         // all rows
         RowIterator it = table.rowIteratorClustered(store);
@@ -251,7 +208,9 @@ final class DataFileDefrag {
         for (; it.hasNext(); count++) {
             CachedObject row = it.getNextRow();
 
-            pointerLookup.addUnsorted((int) row.getPos(), (int) (pos / scale));
+            pos = space.getFilePosition(row.getStorageSize(), false);
+
+            pointerLookup.addUnsorted((int) row.getPos(), (int) (pos));
 
             if (count != 0 && count % 100000 == 0) {
                 database.logger.logDetailEvent("pointer pair for row " + count
@@ -273,6 +232,11 @@ final class DataFileDefrag {
 
             rowOut.reset();
             row.write(rowOut, pointerLookup);
+
+            pos        = pointerLookup.lookup((int) row.getPos());
+            fileOffset = pos * scale;
+
+            randomAccessOut.seek(fileOffset);
             randomAccessOut.write(rowOut.getOutputStream().getBuffer(), 0,
                                   rowOut.size());
 
