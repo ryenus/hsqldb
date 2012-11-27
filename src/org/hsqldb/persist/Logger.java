@@ -483,7 +483,7 @@ public class Logger {
         }
 
         if (database.urlProperties.isPropertyTrue(
-                HsqlDatabaseProperties.hsqldb_file_spaces, false)) {
+                HsqlDatabaseProperties.hsqldb_file_space, false)) {
             propFileSpaces = true;
         }
 
@@ -1955,7 +1955,7 @@ public class Logger {
             list.add(sb.toString());
             sb.setLength(0);
         }
-        
+
         String[] array = new String[list.size()];
 
         list.toArray(array);

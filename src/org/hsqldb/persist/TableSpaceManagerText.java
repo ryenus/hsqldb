@@ -56,7 +56,7 @@ public class TableSpaceManagerText implements TableSpaceManager {
     /**
      * Returns the position of a free block or 0.
      */
-    public long getFilePosition(int rowSize, boolean asBlocks) {
+    public long getFilePosition(long rowSize, boolean asBlocks) {
 
         cache.writeLock.lock();
 

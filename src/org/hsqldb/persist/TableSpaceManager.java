@@ -50,7 +50,7 @@ public interface TableSpaceManager {
     /**
      * Allocates a block
      */
-    long getFilePosition(int rowSize, boolean asBlocks);
+    long getFilePosition(long rowSize, boolean asBlocks);
 
     boolean hasFileRoom(int blockSize);
 

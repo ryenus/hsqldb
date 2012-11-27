@@ -56,6 +56,8 @@ public interface CachedObject {
 
     int getStorageSize();
 
+    boolean isBlock();
+
     long getPos();
 
     void setPos(long pos);
