@@ -2093,7 +2093,7 @@ public class ParserDDL extends ParserRoutine {
         RangeVariable[] rangeVars    = new RangeVariable[4];
         String          conditionSQL = null;
         RangeGroup[] rangeGroups = new RangeGroup[]{
-            new RangeGroup.RangeGroupSimple(rangeVars) };
+            new RangeGroup.RangeGroupSimple(rangeVars, false) };
 
         if (token.tokenType == Tokens.REFERENCING) {
             read();
@@ -2318,7 +2318,7 @@ public class ParserDDL extends ParserRoutine {
             readThis(Tokens.CLOSEBRACKET);
 
             HsqlList unresolved = condition.resolveColumnReferences(session,
-                new RangeGroupSimple(rangeVars), rangeGroups, null);
+                rangeGroups[0], rangeGroups, null);
 
             ExpressionColumn.checkColumnsResolved(unresolved);
             condition.resolveTypes(session, null);

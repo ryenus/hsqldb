@@ -453,7 +453,8 @@ public class ParserDML extends ParserDQL {
 
             condition = XreadBooleanValueExpression();
 
-            RangeGroup rangeGroup = new RangeGroupSimple(rangeVariables);
+            RangeGroup rangeGroup = new RangeGroupSimple(rangeVariables,
+                false);
             HsqlList unresolved = condition.resolveColumnReferences(session,
                 rangeGroup, rangeGroups, null);
 
@@ -552,7 +553,7 @@ public class ParserDML extends ParserDQL {
         HsqlArrayList  exprList     = new HsqlArrayList();
         RangeVariable[] rangeVariables = {
             readRangeVariableForDataChange(StatementTypes.UPDATE_WHERE) };
-        RangeGroup rangeGroup = new RangeGroupSimple(rangeVariables);
+        RangeGroup rangeGroup = new RangeGroupSimple(rangeVariables, false);
         Table      table      = rangeVariables[0].rangeTable;
         Table      baseTable  = table.isTriggerUpdatable() ? table
                                                            : table.getBaseTable();
@@ -951,9 +952,8 @@ public class ParserDML extends ParserDQL {
 
         RangeVariable[] targetRanges = new RangeVariable[]{ targetRange };
 
-        sourceRange.resolveRangeTable(session,
-                                      new RangeGroupSimple(targetRanges),
-                                      rangeGroups);;
+        sourceRange.resolveRangeTable(
+            session, new RangeGroupSimple(targetRanges, false), rangeGroups);;
         sourceRange.resolveRangeTableTypes(session, targetRanges);
         compileContext.setOuterRanges(RangeGroup.emptyArray);
 
@@ -967,8 +967,9 @@ public class ParserDML extends ParserDQL {
         };
         RangeVariable[] sourceRangeVars = new RangeVariable[]{ sourceRange };
         RangeVariable[] targetRangeVars = new RangeVariable[]{ targetRange };
-        RangeGroup      fullRangeGroup  = new RangeGroupSimple(fullRangeVars);
-        RangeGroup sourceRangeGroup = new RangeGroupSimple(sourceRangeVars);
+        RangeGroup fullRangeGroup = new RangeGroupSimple(fullRangeVars, false);
+        RangeGroup sourceRangeGroup = new RangeGroupSimple(sourceRangeVars,
+            false);
 
         // parse WHEN clause(s) and convert lists to arrays
         insertColumnMap       = table.getColumnMap();

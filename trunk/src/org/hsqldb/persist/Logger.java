@@ -870,18 +870,24 @@ public class Logger {
                                   Object[] paramValues, int level) {
 
         if (sqlLog != null && level <= propSqlLogLevel) {
-            String sessionId = Long.toString(session.getId());
-            String sql       = statement.getSQL();
-            String values    = "";
+            String sessionId   = Long.toString(session.getId());
+            String sql         = statement.getSQL();
+            String values      = "";
+            int    paramLength = 0;
 
-            if (sql.length() > 256) {
-                sql = sql.substring(0, 256);
+            if (propSqlLogLevel < SimpleLog.LOG_DETAIL) {
+                if (sql.length() > 256) {
+                    sql = sql.substring(0, 256);
+                }
+
+                paramLength = 32;
             }
 
             if (paramValues != null && paramValues.length > 0) {
                 values = RowType.convertToSQLString(
                     paramValues,
-                    statement.getParametersMetaData().getParameterTypes(), 32);
+                    statement.getParametersMetaData().getParameterTypes(),
+                    paramLength);
             }
 
             sqlLog.logContext(level, sessionId, sql, values);

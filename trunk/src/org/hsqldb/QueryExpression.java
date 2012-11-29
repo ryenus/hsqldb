@@ -156,6 +156,10 @@ public class QueryExpression implements RangeGroup {
         isCorrelated = true;
     }
 
+    public boolean isVariable() {
+        return false;
+    }
+
     public void setSingleRow() {
         isSingleRow = true;
     }
