@@ -197,7 +197,6 @@ public class RowStoreAVLDisk extends RowStoreAVL implements PersistentStore {
         elementCount = 0;
 
         ArrayUtil.fillArray(accessorList, null);
-
         cache.spaceManager.freeTableSpace(spaceManager.getSpaceID());
     }
 

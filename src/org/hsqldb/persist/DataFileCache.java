@@ -1434,45 +1434,6 @@ public class DataFileCache {
         }
     }
 
-    public long getFileSpace(int[] blockSize) {
-
-        // normalise pos on boundary
-        writeLock.lock();
-
-        try {
-            long position = fileFreePosition;
-            long newFreePosition;
-
-            if (fileFreePosition == initialFreePos) {
-                blockSize[0] -= initialFreePos;
-            }
-
-            newFreePosition = fileFreePosition + blockSize[0];
-
-            if (newFreePosition > maxDataFileSize) {
-                logSevereEvent("data file reached maximum size "
-                               + this.dataFileName, null);
-
-                throw Error.error(ErrorCode.DATA_FILE_IS_FULL);
-            }
-
-            boolean result = dataFile.ensureLength(newFreePosition);
-
-            if (!result) {
-                logSevereEvent("data file cannot be enlarged - disk spacee "
-                               + this.dataFileName, null);
-
-                throw Error.error(ErrorCode.DATA_FILE_IS_FULL);
-            }
-
-            fileFreePosition = newFreePosition;
-
-            return position;
-        } finally {
-            writeLock.unlock();
-        }
-    }
-
     public int capacity() {
         return maxCacheRows;
     }

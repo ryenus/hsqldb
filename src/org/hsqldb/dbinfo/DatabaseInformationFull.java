@@ -55,6 +55,7 @@ import org.hsqldb.Session;
 import org.hsqldb.SqlInvariants;
 import org.hsqldb.Statement;
 import org.hsqldb.Table;
+import org.hsqldb.TableBase;
 import org.hsqldb.TextTable;
 import org.hsqldb.Tokens;
 import org.hsqldb.TriggerDef;
@@ -189,6 +190,9 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
 
             case SYSTEM_TEXTTABLES :
                 return SYSTEM_TEXTTABLES(session, store);
+
+            case SYSTEM_TABLESTATS :
+                return SYSTEM_TABLESTATS(session, store);
 
             // SQL views
             case ADMINISTRABLE_ROLE_AUTHORIZATIONS :
@@ -522,8 +526,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
             row[icache_size] = ValuePool.getLong(cache.getCachedObjectCount());
             row[icache_length] =
                 ValuePool.getLong(cache.getTotalCachedBlockSize());
-            row[ilost_bytes] =
-                ValuePool.getLong(cache.getLostBlockSize());
+            row[ilost_bytes] = ValuePool.getLong(cache.getLostBlockSize());
             row[ifree_bytes] =
                 ValuePool.getLong(cache.getTotalFreeBlockSize());
             row[ifree_count] = ValuePool.getLong(cache.getFreeBlockCount());
@@ -1293,6 +1296,88 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
                 row[iid] = ((TextTable) table).isDescDataSource()
                            ? Boolean.TRUE
                            : Boolean.FALSE;
+            }
+
+            t.insertSys(session, store, row);
+        }
+
+        return t;
+    }
+
+    Table SYSTEM_TABLESTATS(Session session, PersistentStore store) {
+
+        Table t = sysTables[SYSTEM_TABLESTATS];
+
+        if (t == null) {
+            t = createBlankTable(sysTableHsqlNames[SYSTEM_TABLESTATS]);
+
+            addColumn(t, "TABLE_CATALOG", SQL_IDENTIFIER);
+            addColumn(t, "TABLE_SCHEMA", SQL_IDENTIFIER);
+            addColumn(t, "TABLE_NAME", SQL_IDENTIFIER);
+            addColumn(t, "CARDINALITY", CARDINAL_NUMBER);
+            addColumn(t, "TABLE_SPACE", CARDINAL_NUMBER);
+            addColumn(t, "USED_SPACE", CARDINAL_NUMBER);
+            addColumn(t, "USED_MEMORY", CARDINAL_NUMBER);
+
+            //
+            HsqlName name = HsqlNameManager.newInfoSchemaObjectName(
+                sysTableHsqlNames[SYSTEM_TABLESTATS].name, false,
+                SchemaObject.INDEX);
+
+            t.createPrimaryKeyConstraint(name, new int[] {
+                0, 1, 2,
+            }, false);
+
+            return t;
+        }
+
+        // intermediate holders
+        Iterator  tables;
+        Table     table;
+        Object[]  row;
+        final int table_catalog = 0;
+        final int table_schema  = 1;
+        final int table_name    = 2;
+        final int cardinality   = 3;
+        final int table_space   = 4;
+        final int used_space    = 5;
+        final int used_memory   = 6;
+
+        // Initialization
+        tables = allTables();
+
+        // Do it.
+        while (tables.hasNext()) {
+            table = (Table) tables.next();
+
+            if (!isAccessibleTable(session, table)) {
+                continue;
+            }
+
+            row                = t.getEmptyRowData();
+            row[table_catalog] = database.getCatalogName().name;
+            row[table_schema]  = table.getSchemaName().name;
+            row[table_name]    = table.getName().name;
+
+            switch (table.getTableType()) {
+
+                case TableBase.INFO_SCHEMA_TABLE :
+                case TableBase.VIEW_TABLE :
+                case TableBase.TEMP_TABLE :
+                case TableBase.TEMP_TEXT_TABLE :
+                    continue;
+                default :
+                    break;
+            }
+
+            PersistentStore tableStore = table.getRowStore(session);
+
+            row[cardinality] = Long.valueOf(tableStore.elementCount());
+
+            if (table.isCached()) {
+                row[table_space] = Long.valueOf(table.getSpaceID());
+                row[used_space]  = null;
+                row[used_memory] = null;
             }
 
             t.insertSys(session, store, row);
