@@ -34,6 +34,7 @@ package org.hsqldb.test;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.Reader;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -209,13 +210,12 @@ public class TestSqlPersistent extends TestCase {
 
             // JAVA 2 specific
             // as character stream via a Reader
-            /*
             Reader re = rs.getCharacterStream(2);
 
             while ((c = re.read()) > -1) {
                 System.out.print((char) c);
             }
-            */
+
 
             // retrieving objects inserted into the third column
             stringValueResult = rs.getObject(3);

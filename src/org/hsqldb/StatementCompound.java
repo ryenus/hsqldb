@@ -961,4 +961,8 @@ public class StatementCompound extends Statement implements RangeGroup {
 
         //
     }
+
+    public boolean isVariable() {
+        return true;
+    }
 }

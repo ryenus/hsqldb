@@ -137,9 +137,10 @@ public final class ColumnSchema extends ColumnBase implements SchemaObject {
         }
 
         generatingExpression.resetColumnReferences();
-        generatingExpression.resolveCheckOrGenExpression(session,
-                new RangeGroupSimple(((Table) table).getDefaultRanges()),
-                false);
+        generatingExpression.resolveCheckOrGenExpression(
+            session,
+            new RangeGroupSimple(((Table) table).getDefaultRanges(), false),
+            false);
 
         if (dataType.typeComparisonGroup
                 != generatingExpression.getDataType().typeComparisonGroup) {

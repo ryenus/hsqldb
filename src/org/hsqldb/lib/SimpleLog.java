@@ -143,7 +143,12 @@ public class SimpleLog {
         }
 
         sb.append(HsqlDateTime.getSystemTimeString()).append(' ');
-        sb.append(logTypeNames[atLevel]).append(' ').append(message);
+
+        if (!isSQL) {
+            sb.append(logTypeNames[atLevel]).append(' ');
+        }
+
+        sb.append(message);
         writer.println(sb.toString());
         sb.setLength(0);
         writer.flush();
@@ -161,8 +166,13 @@ public class SimpleLog {
         }
 
         sb.append(HsqlDateTime.getSystemTimeString()).append(' ');
-        sb.append(logTypeNames[atLevel]).append(' ').append(prefix);
-        sb.append(' ').append(message).append(' ').append(suffix);
+
+        if (!isSQL) {
+            sb.append(logTypeNames[atLevel]).append(' ');
+        }
+
+        sb.append(prefix).append(' ');
+        sb.append(message).append(' ').append(suffix);
         writer.println(sb.toString());
         sb.setLength(0);
         writer.flush();
@@ -180,7 +190,12 @@ public class SimpleLog {
         }
 
         sb.append(HsqlDateTime.getSystemTimeString()).append(' ');
-        sb.append(logTypeNames[atLevel]).append(' ').append(message);
+
+        if (!isSQL) {
+            sb.append(logTypeNames[atLevel]).append(' ');
+        }
+
+        sb.append(message);
 
 //#ifdef JAVA4
         Throwable           temp     = new Throwable();

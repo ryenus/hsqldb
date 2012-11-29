@@ -765,6 +765,10 @@ public class Routine implements SchemaObject, RangeGroup, Cloneable {
         //
     }
 
+    public boolean isVariable() {
+        return true;
+    }
+
     public int getVariableCount() {
         return variableCount;
     }

@@ -149,9 +149,8 @@ public class ParserCommand extends ParserDDL {
                 break;
             }
             case Tokens.VALUES : {
-                RangeGroup[] ranges = new RangeGroup[]{
-                    new RangeGroupSimple(
-                        session.sessionContext.sessionVariablesRange) };
+                RangeGroup[] ranges =
+                    session.sessionContext.sessionVariableRangeGroups;
 
                 compileContext.setOuterRanges(ranges);
 
@@ -190,9 +189,7 @@ public class ParserCommand extends ParserDDL {
             // PROCEDURE
             case Tokens.CALL : {
                 cs = compileCallStatement(
-                    new RangeGroup[]{ new RangeGroupSimple(
-                        session.sessionContext
-                            .sessionVariablesRange) }, false);
+                    session.sessionContext.sessionVariableRangeGroups, false);
 
                 break;
             }
@@ -205,7 +202,7 @@ public class ParserCommand extends ParserDDL {
             // diagnostic
             case Tokens.GET :
                 cs = compileGetStatement(
-                    session.sessionContext.sessionVariablesRange);
+                    session.sessionContext.sessionVariableRangeGroups);
                 break;
 
             case Tokens.START :
@@ -869,6 +866,7 @@ public class ParserCommand extends ParserDDL {
                 rewind(position);
 
                 return compileSetStatement(
+                    session.sessionContext.sessionVariableRangeGroups,
                     session.sessionContext.sessionVariablesRange);
             }
         }
@@ -1438,7 +1436,7 @@ public class ParserCommand extends ParserDDL {
                 read();
 
                 flag = processTrueOrFalseObject();
-                type  = StatementTypes.SET_DATABASE_FILES_SPACE;
+                type = StatementTypes.SET_DATABASE_FILES_SPACE;
 
                 break;
             }

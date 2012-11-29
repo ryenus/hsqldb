@@ -41,14 +41,17 @@ public interface RangeGroup {
 
     void setCorrelated();
 
+    boolean isVariable();
+
     public static class RangeGroupSimple implements RangeGroup {
 
         RangeVariable[] ranges;
         RangeGroup      baseGroup;
         TableDerived    table;
+        boolean         isVariable;
 
         public RangeGroupSimple(TableDerived table) {
-            ranges = RangeVariable.emptyArray;
+            ranges     = RangeVariable.emptyArray;
             this.table = table;
         }
 
@@ -57,8 +60,9 @@ public interface RangeGroup {
             this.baseGroup = baseGroup;
         }
 
-        public RangeGroupSimple(RangeVariable[] ranges) {
-            this.ranges = ranges;
+        public RangeGroupSimple(RangeVariable[] ranges, boolean isVariable) {
+            this.ranges     = ranges;
+            this.isVariable = isVariable;
         }
 
         public RangeVariable[] getRangeVariables() {
@@ -74,6 +78,10 @@ public interface RangeGroup {
             if (table != null) {
                 table.setCorrelated();
             }
+        }
+
+        public boolean isVariable() {
+            return isVariable;
         }
     }
 
@@ -91,6 +99,10 @@ public interface RangeGroup {
         public void setCorrelated() {
 
             //
+        }
+
+        public boolean isVariable() {
+            return false;
         }
     }
 }

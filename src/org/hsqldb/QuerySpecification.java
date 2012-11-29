@@ -641,8 +641,17 @@ public class QuerySpecification extends QueryExpression {
                 if (e.isSelfAggregate()) {
                     for (int j = 0; j < e.nodes.length; j++) {
                         HsqlList colList = e.nodes[j].resolveColumnReferences(
-                            session, this, count, rangeGroups, null,
+                            session, this, count, RangeGroup.emptyArray, null,
                             false);
+
+                        for (int k = 0; k < rangeGroups.length; k++) {
+                            if (rangeGroups[k].isVariable()) {
+                                colList = Expression.resolveColumnSet(
+                                    session,
+                                    rangeGroups[k].getRangeVariables(),
+                                    RangeGroup.emptyArray, colList);
+                            }
+                        }
 
                         resolved &= colList == null;
                     }

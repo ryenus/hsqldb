@@ -1655,14 +1655,16 @@ public class Expression implements Cloneable {
     static QuerySpecification getCheckSelect(Session session, Table t,
             Expression e) {
 
-        CompileContext compileContext = new CompileContext(session, null, null);
+        CompileContext compileContext = new CompileContext(session, null,
+            null);
+
         compileContext.setNextRangeVarIndex(0);
 
         QuerySpecification s = new QuerySpecification(compileContext);
         RangeVariable range = new RangeVariable(t, null, null, null,
             compileContext);
         RangeVariable[] ranges     = new RangeVariable[]{ range };
-        RangeGroup      rangeGroup = new RangeGroupSimple(ranges);
+        RangeGroup      rangeGroup = new RangeGroupSimple(ranges, false);
 
         e.resolveCheckOrGenExpression(session, rangeGroup, true);
 
@@ -2027,7 +2029,7 @@ public class Expression implements Cloneable {
             return targetSet;
         }
 
-        RangeGroup rangeGroup = new RangeGroupSimple(rangeVars);
+        RangeGroup rangeGroup = new RangeGroupSimple(rangeVars, false);
 
         for (int i = 0; i < sourceSet.size(); i++) {
             Expression e = (Expression) sourceSet.get(i);

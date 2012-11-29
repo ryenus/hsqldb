@@ -31,6 +31,7 @@
 
 package org.hsqldb;
 
+import org.hsqldb.RangeGroup.RangeGroupSimple;
 import org.hsqldb.RangeVariable.RangeIteratorBase;
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
@@ -64,6 +65,7 @@ public class SessionContext {
     //
     HashMappedList  sessionVariables;
     RangeVariable[] sessionVariablesRange;
+    RangeGroup[]    sessionVariableRangeGroups;
 
     //
     private HsqlArrayList stack;
@@ -118,6 +120,8 @@ public class SessionContext {
         sessionVariablesRange = new RangeVariable[1];
         sessionVariablesRange[0] = new RangeVariable(sessionVariables, null,
                 true, RangeVariable.VARIALBE_RANGE);
+        sessionVariableRangeGroups = new RangeGroup[]{
+            new RangeGroupSimple(sessionVariablesRange, true) };
         isAutoCommit = Boolean.FALSE;
         isReadOnly   = Boolean.FALSE;
         noSQL        = Boolean.FALSE;
