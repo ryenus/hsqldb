@@ -435,6 +435,10 @@ public class RangeVariable implements Cloneable {
         return tableAlias != null;
     }
 
+    public boolean isVariable() {
+        return variables != null;
+    }
+
     public SimpleName getTableAlias() {
         return tableAlias == null ? rangeTable.getName()
                                   : tableAlias;

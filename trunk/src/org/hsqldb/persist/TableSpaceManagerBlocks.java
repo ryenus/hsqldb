@@ -182,12 +182,6 @@ public class TableSpaceManagerBlocks implements TableSpaceManager {
 
         isModified = true;
 
-        // test code
-        if (rowSize > 4000) {
-
-//            System.out.println(pos + "  " + rowSize);
-        }
-
         releaseCount++;
 
         if (lookup.size() == capacity) {

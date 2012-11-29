@@ -134,6 +134,8 @@ final class DataFileDefrag {
                                                + t.getName().name);
             }
 
+            dataFileOut.fileModified = true;
+
             dataFileOut.spaceManager.close();
             dataFileOut.commitChanges();
             randomAccessOut.close();
@@ -188,27 +190,24 @@ final class DataFileDefrag {
     long[] writeTableToDataFile(Table table) throws IOException {
 
         Session session = database.getSessionManager().getSysSession();
-        PersistentStore    store      = table.getRowStore(session);
-        RowOutputInterface rowOut     = dataCache.rowOut.duplicate();
-        long[]             rootsArray = table.getIndexRootsArray();
-        long               pos;
-        long               count = 0;
+        PersistentStore    store  = table.getRowStore(session);
+        RowOutputInterface rowOut = dataCache.rowOut.duplicate();
+        TableSpaceManager space =
+            dataFileOut.spaceManager.getTableSpace(table.getSpaceID());
+        long[] rootsArray = table.getIndexRootsArray();
+        long   count      = 0;
 
         pointerLookup.removeAll();
         pointerLookup.setKeysSearchTarget();
         database.logger.logDetailEvent("lookup begins " + table.getName().name
                                        + " " + stopw.elapsedTime());
 
-        TableSpaceManager space =
-            dataFileOut.spaceManager.getTableSpace(table.getSpaceID());
-
         // all rows
         RowIterator it = table.rowIteratorClustered(store);
 
         for (; it.hasNext(); count++) {
             CachedObject row = it.getNextRow();
-
-            pos = space.getFilePosition(row.getStorageSize(), false);
+            long pos = space.getFilePosition(row.getStorageSize(), false);
 
             pointerLookup.addUnsorted((int) row.getPos(), (int) (pos));
 
@@ -217,8 +216,6 @@ final class DataFileDefrag {
                                                + " " + row.getPos() + " "
                                                + pos);
             }
-
-            pos += row.getStorageSize();
         }
 
         database.logger.logDetailEvent("table read " + table.getName().name
@@ -233,7 +230,8 @@ final class DataFileDefrag {
             rowOut.reset();
             row.write(rowOut, pointerLookup);
 
-            pos        = pointerLookup.lookup((int) row.getPos());
+            long pos = pointerLookup.lookup((int) row.getPos());
+
             fileOffset = pos * scale;
 
             randomAccessOut.seek(fileOffset);
