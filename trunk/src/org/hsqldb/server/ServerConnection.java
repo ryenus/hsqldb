@@ -292,7 +292,7 @@ class ServerConnection implements Runnable {
                         throw Error.error(
                             null, ErrorCode.SERVER_VERSIONS_INCOMPATIBLE, 0,
                             new String[] {
-                            verString, HsqlDatabaseProperties.hsqldb_version
+                            verString, HsqlDatabaseProperties.THIS_VERSION
                         });
                     }
 

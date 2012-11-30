@@ -572,6 +572,8 @@ public class Logger {
             HsqlDatabaseProperties.sql_concat_nulls);
         database.sqlNullsFirst = database.databaseProperties.isPropertyTrue(
             HsqlDatabaseProperties.sql_nulls_first);
+        database.sqlNullsOrder = database.databaseProperties.isPropertyTrue(
+            HsqlDatabaseProperties.sql_nulls_order);
         database.sqlUniqueNulls = database.databaseProperties.isPropertyTrue(
             HsqlDatabaseProperties.sql_unique_nulls);
         database.sqlConvertTruncate =
@@ -1715,6 +1717,13 @@ public class Logger {
         sb.append(Tokens.T_NULLS).append(' ');
         sb.append(Tokens.T_FIRST).append(' ');
         sb.append(database.sqlNullsFirst ? Tokens.T_TRUE
+                                         : Tokens.T_FALSE);
+        list.add(sb.toString());
+        sb.setLength(0);
+        sb.append("SET DATABASE ").append(Tokens.T_SQL).append(' ');
+        sb.append(Tokens.T_NULLS).append(' ');
+        sb.append(Tokens.T_ORDER).append(' ');
+        sb.append(database.sqlNullsOrder ? Tokens.T_TRUE
                                          : Tokens.T_FALSE);
         list.add(sb.toString());
         sb.setLength(0);

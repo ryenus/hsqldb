@@ -1698,19 +1698,28 @@ public class ParserDQL extends ParserBase {
         SortAndSlice sortAndSlice = new SortAndSlice();
 
         while (true) {
-            Expression        e = XreadValueExpression();
-            ExpressionOrderBy o = new ExpressionOrderBy(e);
+            Expression        e         = XreadValueExpression();
+            ExpressionOrderBy o         = new ExpressionOrderBy(e);
+            boolean           isDesc    = false;
+            boolean           nullsLast = false;
 
             if (token.tokenType == Tokens.DESC) {
                 o.setDescending();
+
+                isDesc = true;
+
                 read();
             } else if (token.tokenType == Tokens.ASC) {
                 read();
             }
 
-            if (!database.sqlNullsFirst) {
-                o.setNullsLast(true);
+            if (database.sqlNullsOrder) {
+                nullsLast = !database.sqlNullsFirst;
+            } else {
+                nullsLast = !(database.sqlNullsFirst ^ isDesc);
             }
+
+            o.setNullsLast(nullsLast);
 
             if (token.tokenType == Tokens.NULLS) {
                 read();
