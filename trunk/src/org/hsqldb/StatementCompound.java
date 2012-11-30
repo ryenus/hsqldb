@@ -46,7 +46,7 @@ import org.hsqldb.types.Type;
  * Implementation of Statement for PSM compound statements.
 
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.2.7
+ * @version 2.3.0
  * @since 1.9.0
  */
 public class StatementCompound extends Statement implements RangeGroup {
@@ -63,7 +63,7 @@ public class StatementCompound extends Statement implements RangeGroup {
     //
     ColumnSchema[]    variables = ColumnSchema.emptyArray;
     StatementCursor[] cursors   = StatementCursor.emptyArray;
-    HashMappedList    scopeVariables;
+    HashMappedList    scopeVariables = new HashMappedList();
     RangeVariable[]   rangeVariables = RangeVariable.emptyArray;
     Table[]           tables         = Table.emptyArray;
     HashMappedList    scopeTables;
