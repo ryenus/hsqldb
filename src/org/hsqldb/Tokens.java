@@ -245,7 +245,7 @@ public class Tokens {
     public static final String T_ONLY              = "ONLY";
     static final String        T_OPEN              = "OPEN";
     static final String        T_OR                = "OR";
-    static final String        T_ORDER             = "ORDER";
+    public static final String T_ORDER             = "ORDER";
     static final String        T_OUT               = "OUT";
     static final String        T_OUTER             = "OUTER";
     static final String        T_OVER              = "OVER";

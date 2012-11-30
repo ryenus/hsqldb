@@ -635,6 +635,9 @@ public class StatementCommand extends Statement {
                            == HsqlDatabaseProperties.sql_nulls_first) {
                     session.database.setNullsFirst(mode);
                 } else if (property
+                           == HsqlDatabaseProperties.sql_nulls_order) {
+                    session.database.setNullsOrder(mode);
+                } else if (property
                            == HsqlDatabaseProperties.sql_unique_nulls) {
                     session.database.setUniqueNulls(mode);
                 } else if (property

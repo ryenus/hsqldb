@@ -1202,10 +1202,16 @@ public class ParserCommand extends ParserDDL {
 
                     case Tokens.NULLS :
                         read();
-                        readThis(Tokens.FIRST);
 
-                        flag     = processTrueOrFalseObject();
-                        property = HsqlDatabaseProperties.sql_nulls_first;
+                        if (readIfThis(Tokens.FIRST)) {
+                            property = HsqlDatabaseProperties.sql_nulls_first;
+                        } else {
+                            readThis(Tokens.ORDER);
+
+                            property = HsqlDatabaseProperties.sql_nulls_order;
+                        }
+
+                        flag = processTrueOrFalseObject();
                         break;
 
                     case Tokens.UNIQUE :

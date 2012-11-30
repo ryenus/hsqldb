@@ -106,6 +106,7 @@ public class Database {
     public boolean                sqlConcatNulls         = true;
     public boolean                sqlUniqueNulls         = true;
     public boolean                sqlNullsFirst          = true;
+    public boolean                sqlNullsOrder          = true;
     public boolean                sqlConvertTruncate     = true;
     public int                    sqlAvgScale            = 0;
     public boolean                sqlDoubleNaN           = true;
@@ -479,6 +480,10 @@ public class Database {
 
     public void setNullsFirst(boolean mode) {
         sqlNullsFirst = mode;
+    }
+
+    public void setNullsOrder(boolean mode) {
+        sqlNullsOrder = mode;
     }
 
     public void setConcatNulls(boolean mode) {
