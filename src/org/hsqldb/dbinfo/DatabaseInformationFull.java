@@ -1315,7 +1315,8 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
             addColumn(t, "TABLE_SCHEMA", SQL_IDENTIFIER);
             addColumn(t, "TABLE_NAME", SQL_IDENTIFIER);
             addColumn(t, "CARDINALITY", CARDINAL_NUMBER);
-            addColumn(t, "TABLE_SPACE", CARDINAL_NUMBER);
+            addColumn(t, "SPACE_ID", CARDINAL_NUMBER);
+            addColumn(t, "ALLOCATED_SPACE", CARDINAL_NUMBER);
             addColumn(t, "USED_SPACE", CARDINAL_NUMBER);
             addColumn(t, "USED_MEMORY", CARDINAL_NUMBER);
 
@@ -1339,9 +1340,10 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         final int table_schema  = 1;
         final int table_name    = 2;
         final int cardinality   = 3;
-        final int table_space   = 4;
-        final int used_space    = 5;
-        final int used_memory   = 6;
+        final int space_id      = 4;
+        final int alloc_space   = 5;
+        final int used_space    = 6;
+        final int used_memory   = 7;
 
         // Initialization
         tables = allTables();
@@ -1375,7 +1377,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
             row[cardinality] = Long.valueOf(tableStore.elementCount());
 
             if (table.isCached()) {
-                row[table_space] = Long.valueOf(table.getSpaceID());
+                row[space_id]    = Long.valueOf(table.getSpaceID());
                 row[used_space]  = null;
                 row[used_memory] = null;
             }
