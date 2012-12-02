@@ -1573,8 +1573,10 @@
       and the session number, followed by the SQL statement and JDBC arguments
       if any.</simpara>
 
-      <simpara>Levels 1 and 2 are supported. Level 1 only logs commits and
-      rollbacks, while Level 2 logs all statements.</simpara>
+      <simpara>Levels 1, 2 and 3 are supported. Level 1 only logs commits and
+      rollbacks, while Level 2 and 3 log all statements. Level 2 truncates
+      long statements, while level 3 reports the full statement and parameter
+      values.</simpara>
 
       <simpara>The logged lines are stored in a file with the extension
       <literal>.sql.log</literal> alongside the main database files.</simpara>
@@ -1584,6 +1586,22 @@
 
       <simpara>This is equivalent to the connection property
       <literal>hsqldb.sqllog</literal>.</simpara>
+
+      <simpara>An extract from an .sql.log file created with log Level 3 is
+      shown below. The numbers after the timestamp (10 and 1) show the session
+      number. The values for prepared statement parameters are shown in
+      parentheses at the end of the statement.</simpara>
+
+      <example>
+        <title>SQL Log Example</title>
+
+        <screen>2012-11-29 10:40:40.250 10 INSERT INTO TEST_CLOB VALUES (1,'Ut wisi enim ad minim veniam, quis nostrud exerci') 
+2012-11-29 10:40:40.250 1 INSERT INTO SYSTEM_LOBS.LOB_IDS VALUES(?, ?, ?, ?) (1,49,0,40)
+2012-11-29 10:40:40.250 1 COMMIT 
+2012-11-29 10:40:40.265 1 CALL SYSTEM_LOBS.ALLOC_BLOCKS(?, ?, ?) (1,0,1)
+2012-11-29 10:40:40.265 1 COMMIT 
+</screen>
+      </example>
 
       <indexterm significance="preferred" type="sql">
         <primary>SET DATABASE GC</primary>

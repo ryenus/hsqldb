@@ -1565,9 +1565,16 @@ UPDATE t SET scores[2] = 123, names[2] = 'Reds' WHERE id = 10
 
       <para><emphasis>FUNCTIONS</emphasis></para>
 
-      <para>Four functions operate on arrays. Details are described in the
+      <para>Seven functions operate on arrays. Details are described in the
       <link endterm="builtinfunctions-title"
       xlink:href="#builtinfunctions-chapt"></link> chapter.</para>
+
+      <para><literal>ARRAY_AGG</literal> is an aggregate function and produces
+      an array containing values from differnt rows of a SELECT
+      statement.</para>
+
+      <para><literal>SEQUENCE_ARRAY</literal> creates an array with sequential
+      elements.</para>
 
       <para><literal>CARDINALITY &lt;left paren&gt; &lt;array value
       expression&gt; &lt;right paren&gt;</literal></para>
@@ -1579,6 +1586,14 @@ UPDATE t SET scores[2] = 123, names[2] = 'Reds' WHERE id = 10
       integer. CARDINALITY returns the element count, while MAX_CARDINALITY
       returns the maximum declared cardinality of an array.</para>
 
+      <para><literal>POSITION_ARRAY &lt;left paren&gt; &lt;value
+      expression&gt; IN &lt;array value expression&gt; [FROM &lt;numeric value
+      expression&gt;] &lt;right paren&gt;</literal></para>
+
+      <para>The POSITION_ARRAY function returns the position of the first
+      match for the &lt;value expression&gt; from the start or from the given
+      start position when &lt;numeric value expression&gt; is used.</para>
+
       <para><literal>TRIM_ARRAY &lt;left paren&gt; &lt;array value
       expression&gt; &lt;comma&gt; &lt;numeric value expression&gt; &lt;right
       paren&gt;</literal></para>
@@ -1588,12 +1603,14 @@ UPDATE t SET scores[2] = 123, names[2] = 'Reds' WHERE id = 10
       <literal>&lt;array value expression&gt;</literal> can be any expression
       that evaluates to an array.</para>
 
-      <para><literal>ARRAY_SORT &lt;left paren&gt; &lt;array value
-      expression&gt; &lt;right paren&gt;</literal></para>
+      <para><literal>SORTE_RRAY &lt;left paren&gt; &lt;array value
+      expression&gt; [ { ASC | DESC } ] [ NULLS { FIRST | LAST } ] &lt;right
+      paren&gt;</literal></para>
 
-      <para>The ARRAY_SORT function returns a sorted copy of an array. NULL
-      elements appear at the beginning of the new array. This function is a
-      HyperSQL extension and not part of the SQL Standard.</para>
+      <para>The SORT_ARRAY function returns a sorted copy of an array. NULL
+      elements appear at the beginning of the new array. You can change the
+      sort direction or the position of NULL elements with the option
+      keywords.</para>
 
       <para><emphasis>CAST</emphasis></para>
 
@@ -1621,13 +1638,35 @@ UPDATE t SET scores[2] = 123, names[2] = 'Reds' WHERE id = 10
       in the <link endterm="dataaccess-title" xlink:arcrole=""
       xlink:href="#dataaccess-chapt"></link> chapter.</para>
 
+      <para><emphasis>INLINE CONSTRUCTOR</emphasis></para>
+
+      <para>Array constructors can be used in SELECT and other statements. For
+      example, an array constructor with a subquery can return the values from
+      several rows as one array.</para>
+
+      <simpara>The example below shows an ARRAY constructor with a correlated
+      subquery to return the list of order values for each customer. The
+      CUSTOMER table that is included for tests in the DatabaseManager GUI app
+      is the source of the data.</simpara>
+
+      <programlisting>SELECT FIRSTNAME, LASTNAME, ARRAY(SELECT INVOICE.TOTAL FROM INVOICE WHERE CUSTOMERID = CUSTOMER.ID) AS ORDERS FROM CUSTOMER
+
+FIRSTNAME LASTNAME  ORDERS                                    
+--------- --------- -------------------------------------- 
+Laura     Steel     ARRAY[2700.90,4235.70]                 
+Robert    King      ARRAY[4761.60]                         
+Robert    Sommer    ARRAY[]                                
+Michael   Smith     ARRAY[3420.30]                         
+                                   
+</programlisting>
+
       <para><emphasis>COMPARISON</emphasis></para>
 
       <para>Arrays can be compared for equality, but they cannot be compared
-      for ordering or ranges. Array expressions are therefore not allowed in
-      an ORDER BY clause, or in a comparison expression such as GREATER THAN.
-      Two arrays are equal if they have the same length and the values at each
-      index position are either equal or both NULL.</para>
+      for ordering values or range comparison. Array expressions are therefore
+      not allowed in an ORDER BY clause, or in a comparison expression such as
+      GREATER THAN. Two arrays are equal if they have the same length and the
+      values at each index position are either equal or both NULL.</para>
 
       <para><emphasis>USER DEFINED FUNCTIONS and PROCEDURES</emphasis></para>
 
