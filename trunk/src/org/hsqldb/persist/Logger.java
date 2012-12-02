@@ -1187,6 +1187,10 @@ public class Logger {
         propFileSpaces = value;
     }
 
+    public boolean isDataFileSpaces() {
+        return propFileSpaces;
+    }
+
     public void setLobFileScale(int value) {
 
         if (propLobBlockSize == value * 1024) {

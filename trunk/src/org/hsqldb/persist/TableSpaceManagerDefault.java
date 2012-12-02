@@ -100,7 +100,7 @@ public class TableSpaceManagerDefault implements TableSpaceManager {
         }
 
         if (pos < Integer.MAX_VALUE) {
-            lookup.add((int) pos, rowSize);
+            lookup.add(pos, rowSize);
 
             freeBlockSize += rowSize;
         }
@@ -204,7 +204,7 @@ public class TableSpaceManagerDefault implements TableSpaceManager {
             freeBlockSize -= rowSize;
 
             if (difference >= midSize) {
-                int pos = key + ((int) rowSize / scale);
+                long pos = key + (rowSize / scale);
 
                 lookup.add(pos, difference);
             } else {

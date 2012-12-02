@@ -1696,7 +1696,7 @@ class ServerConnection implements Runnable {
 
             // This is what old HyperSQL versions always send
             // TODO:  Consider sending client a 1.8-compatible SQLException
-            server.print("A pre-9.0 client attempted to connect.  "
+            server.print("A pre-version 2.0 client attempted to connect.  "
                          + "We rejected them.");
 
             return;

@@ -48,7 +48,7 @@ import java.util.NoSuchElementException;
  * Non-recursive implementation of fast quicksort added by Sergio Bossa sbtourist@users dot sourceforge.net)
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.2.9
+ * @version 2.3.0
  * @since 1.8.0
  */
 public class DoubleIntIndex implements IntLookup, LongLookup {
@@ -134,6 +134,19 @@ public class DoubleIntIndex implements IntLookup, LongLookup {
 
     public synchronized int capacity() {
         return capacity;
+    }
+
+    public synchronized boolean addUnsorted(long key, long value) {
+
+        if (key > Integer.MAX_VALUE || key < Integer.MIN_VALUE) {
+            throw new java.lang.IllegalArgumentException();
+        }
+
+        if (value > Integer.MAX_VALUE || value < Integer.MIN_VALUE) {
+            throw new java.lang.IllegalArgumentException();
+        }
+
+        return addUnsorted((int) key, (int) value);
     }
 
     /**
@@ -272,11 +285,11 @@ public class DoubleIntIndex implements IntLookup, LongLookup {
     }
 
     /**
-     * Adds a pair, maintaining sorted order
+     * Adds a pair, maintaining sort order on
      * current search target column.
      * @param key the key
      * @param value the value
-     * @return index of added key or -1 if key exists
+     * @return index of added key or -1 if full
      */
     public synchronized int add(int key, int value) {
 
@@ -374,6 +387,10 @@ public class DoubleIntIndex implements IntLookup, LongLookup {
         }
 
         return getValue(i);
+    }
+
+    public void clear() {
+        removeAll();
     }
 
     public int lookupFirstGreaterEqual(int key) throws NoSuchElementException {

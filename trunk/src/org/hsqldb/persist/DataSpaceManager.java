@@ -46,8 +46,6 @@ public interface DataSpaceManager {
     //
     int fixedBlockSizeUnit = 4096;
 
-    void resetDataFile(DataFileCache cache);
-
     TableSpaceManager getDefaultTableSpace();
 
     TableSpaceManager getTableSpace(int spaceId);

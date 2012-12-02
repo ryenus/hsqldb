@@ -78,7 +78,7 @@ public class RowStoreAVLHybridExtended extends RowStoreAVLHybrid {
             size = cache.rowOut.getStorageSize(size);
 
             object.setStorageSize(size);
-            cache.setFilePos(object, spaceManager, false);
+            cache.setFilePos(object, tableSpace, false);
 
             if (tx) {
                 RowAction.addInsertAction(session, (Table) table,
