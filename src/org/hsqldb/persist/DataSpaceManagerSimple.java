@@ -31,9 +31,6 @@
 
 package org.hsqldb.persist;
 
-import org.hsqldb.error.ErrorCode;
-import org.hsqldb.error.Error;
-
 /**
  * @author Fred Toussi (fredt@users dot sourceforge.net)
  * @version 2.3.0
@@ -44,10 +41,6 @@ public class DataSpaceManagerSimple implements DataSpaceManager {
     TableSpaceManager defaultSpaceManager;
 
     DataSpaceManagerSimple(DataFileCache cache) {
-        resetDataFile(cache);
-    }
-
-    public void resetDataFile(DataFileCache cache) {
 
         if (cache instanceof DataFileCacheSession) {
             defaultSpaceManager = new TableSpaceManagerSimple(cache);

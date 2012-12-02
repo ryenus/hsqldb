@@ -428,10 +428,10 @@ public class DataFileCache {
         }
     }
 
-    public DataFileCache(Database db, String baseFileName, boolean defrag) {
+    public DataFileCache(Database db, String sourceFileName, boolean defrag) {
 
         this.database    = db;
-        dataFileName     = baseFileName + Logger.newFileExtension;
+        dataFileName     = sourceFileName + Logger.newFileExtension;
         dataFileScale    = database.logger.getDataFileScale();
         cachedRowPadding = 8;
 
@@ -1228,6 +1228,19 @@ public class DataFileCache {
             throw Error.error(ErrorCode.DATA_FILE_ERROR, e);
         } finally {
             writeLock.unlock();
+        }
+    }
+
+    public void saveRowOutput(long pos) {
+
+        try {
+            dataFile.seek(pos * dataFileScale);
+            dataFile.write(rowOut.getOutputStream().getBuffer(), 0,
+                           rowOut.getOutputStream().size());
+        } catch (IOException e) {
+            logSevereEvent("saveRowOutput", e, pos);
+
+            throw Error.error(ErrorCode.DATA_FILE_ERROR, e);
         }
     }
 

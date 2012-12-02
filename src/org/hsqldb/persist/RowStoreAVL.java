@@ -63,7 +63,7 @@ public abstract class RowStoreAVL implements PersistentStore {
     Session                   session;
     Database                  database;
     PersistentStoreCollection manager;
-    TableSpaceManager         spaceManager;
+    TableSpaceManager         tableSpace;
     Index[]                   indexList    = Index.emptyArray;
     CachedObject[]            accessorList = CachedObject.emptyArray;
     TableBase                 table;
@@ -127,11 +127,11 @@ public abstract class RowStoreAVL implements PersistentStore {
     public abstract DataFileCache getCache();
 
     public TableSpaceManager getSpaceManager() {
-        return spaceManager;
+        return tableSpace;
     }
 
     public void setSpaceManager(TableSpaceManager manager) {
-        spaceManager = manager;
+        tableSpace = manager;
     }
 
     public abstract void setCache(DataFileCache cache);
@@ -420,6 +420,8 @@ public abstract class RowStoreAVL implements PersistentStore {
     public boolean hasNull(int pos) {
         return false;
     }
+
+    public void moveDataToSpace() {}
 
     /**
      * Moves the data from an old store to new after changes to table

@@ -33,11 +33,21 @@ package org.hsqldb.lib;
 
 import java.util.NoSuchElementException;
 
+/**
+ *
+ * @author Fred Toussi (fredt@users dot sourceforge.net)
+ * @version 2.3.0
+ * @since 1.8.0
+ */
 public interface LongLookup {
 
     int add(long key, long value);
 
+    boolean addUnsorted(long key, long value);
+
     long lookup(long key) throws NoSuchElementException;
 
     long lookup(long key, long def);
+
+    void clear();
 }

@@ -34,7 +34,6 @@ package org.hsqldb.persist;
 import java.io.IOException;
 
 import org.hsqldb.Database;
-import org.hsqldb.Session;
 import org.hsqldb.Table;
 import org.hsqldb.TableBase;
 import org.hsqldb.error.Error;
@@ -43,7 +42,6 @@ import org.hsqldb.lib.DoubleIntIndex;
 import org.hsqldb.lib.HsqlArrayList;
 import org.hsqldb.lib.StopWatch;
 import org.hsqldb.navigator.RowIterator;
-import org.hsqldb.rowio.RowOutputInterface;
 
 // oj@openoffice.org - changed to file access api
 
@@ -65,7 +63,6 @@ final class DataFileDefrag {
 
     DataFileCache         dataFileOut;
     RandomAccessInterface randomAccessOut;
-    long                  fileOffset;
     StopWatch             stopw = new StopWatch();
     String                dataFileName;
     long[][]              rootsList;
@@ -116,6 +113,8 @@ final class DataFileDefrag {
             pointerLookup   = new DoubleIntIndex((int) maxSize, false);
             dataFileOut     = new DataFileCache(database, dataFileName, true);
             randomAccessOut = dataFileOut.dataFile;
+
+            pointerLookup.setKeysSearchTarget();
 
             for (int i = 0, tSize = allTables.size(); i < tSize; i++) {
                 Table t = (Table) allTables.get(i);
@@ -187,78 +186,32 @@ final class DataFileDefrag {
         }
     }
 
-    long[] writeTableToDataFile(Table table) throws IOException {
+    long[] writeTableToDataFile(Table table) {
 
-        Session session = database.getSessionManager().getSysSession();
-        PersistentStore    store  = table.getRowStore(session);
-        RowOutputInterface rowOut = dataCache.rowOut.duplicate();
+        PersistentStore store =
+            table.database.persistentStoreCollection.getStore(table);
         TableSpaceManager space =
             dataFileOut.spaceManager.getTableSpace(table.getSpaceID());
         long[] rootsArray = table.getIndexRootsArray();
-        long   count      = 0;
 
-        pointerLookup.removeAll();
-        pointerLookup.setKeysSearchTarget();
+        pointerLookup.clear();
         database.logger.logDetailEvent("lookup begins " + table.getName().name
                                        + " " + stopw.elapsedTime());
-
-        // all rows
-        RowIterator it = table.rowIteratorClustered(store);
-
-        for (; it.hasNext(); count++) {
-            CachedObject row = it.getNextRow();
-            long pos = space.getFilePosition(row.getStorageSize(), false);
-
-            pointerLookup.addUnsorted((int) row.getPos(), (int) (pos));
-
-            if (count != 0 && count % 100000 == 0) {
-                database.logger.logDetailEvent("pointer pair for row " + count
-                                               + " " + row.getPos() + " "
-                                               + pos);
-            }
-        }
-
-        database.logger.logDetailEvent("table read " + table.getName().name
-                                       + " " + stopw.elapsedTime());
-
-        count = 0;
-        it    = table.rowIteratorClustered(store);
-
-        for (; it.hasNext(); count++) {
-            CachedObject row = it.getNextRow();
-
-            rowOut.reset();
-            row.write(rowOut, pointerLookup);
-
-            long pos = pointerLookup.lookup((int) row.getPos());
-
-            fileOffset = pos * scale;
-
-            randomAccessOut.seek(fileOffset);
-            randomAccessOut.write(rowOut.getOutputStream().getBuffer(), 0,
-                                  rowOut.size());
-
-            fileOffset += row.getStorageSize();
-
-            if (count != 0 && count % 100000 == 0) {
-                database.logger.logDetailEvent("rows count " + count + " "
-                                               + stopw.elapsedTime());
-            }
-        }
+        RowStoreAVLDisk.moveDataToSpace(store, dataFileOut, space,
+                                        pointerLookup);
 
         for (int i = 0; i < table.getIndexCount(); i++) {
             if (rootsArray[i] == -1) {
                 continue;
             }
 
-            int lookupIndex =
-                pointerLookup.findFirstEqualKeyIndex((int) rootsArray[i]);
+            long pos = pointerLookup.lookup(rootsArray[i], -1);
 
-            if (lookupIndex == -1) {
+            if (pos == -1) {
                 throw Error.error(ErrorCode.DATA_FILE_ERROR);
             }
 
-            rootsArray[i] = pointerLookup.getValue(lookupIndex);
+            rootsArray[i] = pos;
         }
 
         database.logger.logDetailEvent("table written "
@@ -273,21 +226,23 @@ final class DataFileDefrag {
 
     static boolean checkAllTables(Database database) {
 
-        Session       session   = database.getSessionManager().getSysSession();
         HsqlArrayList allTables = database.schemaManager.getAllTables(true);
 
         for (int i = 0, tSize = allTables.size(); i < tSize; i++) {
-            Table t     = (Table) allTables.get(i);
-            int   count = 0;
+            Table table = (Table) allTables.get(i);
+            PersistentStore store =
+                table.database.persistentStoreCollection.getStore(table);
+            int count = 0;
 
-            if (t.getTableType() == TableBase.CACHED_TABLE) {
-                RowIterator it = t.rowIterator(session);
+            if (table.getTableType() == TableBase.CACHED_TABLE) {
+                RowIterator it = store.rowIterator();
 
                 for (; it.hasNext(); count++) {
                     CachedObject row = it.getNextRow();
                 }
 
-                System.out.println("table " + t.getName().name + " " + count);
+                System.out.println("table " + table.getName().name + " "
+                                   + count);
             }
         }
 

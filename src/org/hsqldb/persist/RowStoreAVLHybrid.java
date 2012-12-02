@@ -163,7 +163,7 @@ public class RowStoreAVLHybrid extends RowStoreAVL implements PersistentStore {
             size = cache.rowOut.getStorageSize(size);
 
             object.setStorageSize(size);
-            cache.setFilePos(object, spaceManager, false);
+            cache.setFilePos(object, tableSpace, false);
             cache.add(object);
         }
 
@@ -237,7 +237,7 @@ public class RowStoreAVLHybrid extends RowStoreAVL implements PersistentStore {
     public void remove(CachedObject object) {
 
         if (isCached) {
-            cache.remove(object, spaceManager);
+            cache.remove(object, tableSpace);
         }
     }
 
@@ -361,7 +361,7 @@ public class RowStoreAVLHybrid extends RowStoreAVL implements PersistentStore {
         cache = ((PersistentStoreCollectionSession) manager).getResultCache();
 
         if (cache != null) {
-            spaceManager = cache.spaceManager.getNewTableSpace();
+            tableSpace = cache.spaceManager.getNewTableSpace();
 
             IndexAVL    idx      = (IndexAVL) indexList[0];
             NodeAVL     root     = (NodeAVL) accessorList[0];

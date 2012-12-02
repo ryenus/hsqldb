@@ -62,8 +62,7 @@ public class DataSpaceManagerBlocks implements DataSpaceManager {
 
     //
     DirectoryBlockCachedObject firstDirectory;
-
-    int spaceIdSequence = tableIdFirst;
+    int                        spaceIdSequence = tableIdFirst;
 
     //
     int blockSize         = 1024 * 2;
@@ -165,7 +164,8 @@ public class DataSpaceManagerBlocks implements DataSpaceManager {
         rootBlock = (IntArrayCachedObject) rootStore.get(root.getPos(), true);
 
         createFileBlocksInDirectory(defaultSpaceBlockCount,
-                                   directorySpaceBlockCount, tableIdDirectory);
+                                    directorySpaceBlockCount,
+                                    tableIdDirectory);
         createFileBlocksInDirectory(0, defaultSpaceBlockCount, tableIdDefault);
 
         int index = getBlockIndexLimit();
@@ -266,7 +266,7 @@ public class DataSpaceManagerBlocks implements DataSpaceManager {
     }
 
     void createFileBlocksInDirectory(int fileBlockIndex, int blockCount,
-                                    int tableId) {
+                                     int tableId) {
 
         for (int i = 0; i < blockCount; i++) {
             createFileBlocksInDirectory(fileBlockIndex + i, tableId);
@@ -491,11 +491,6 @@ public class DataSpaceManagerBlocks implements DataSpaceManager {
         return defaultSpaceManager;
     }
 
-    public void resetDataFile(DataFileCache cache) {
-
-        // todo
-    }
-
     public TableSpaceManager getTableSpace(int spaceId) {
 
         if (spaceId == DataSpaceManager.tableIdDefault) {
@@ -572,7 +567,7 @@ public class DataSpaceManagerBlocks implements DataSpaceManager {
         spaceList.setKeysSearchTarget();
         spaceList.sort();
 
-        // todo - assert spaceId matches directory
+        // spaceId may be the tableIdDefault for moved spaces
         for (int i = 0; i < spaceList.size(); i++) {
             int position = spaceList.getKey(i);
             int units    = spaceList.getValue(i) / dataFileScale;

@@ -76,7 +76,7 @@ public class RowStoreAVLDiskData extends RowStoreAVLDisk {
             int size = object.getRealSize(cache.rowOut);
 
             object.setStorageSize(size);
-            cache.setFilePos(object, spaceManager, false);
+            cache.setFilePos(object, tableSpace, false);
 
             if (tx) {
                 RowAction.addInsertAction(session, table, (Row) object);
@@ -141,7 +141,7 @@ public class RowStoreAVLDiskData extends RowStoreAVLDisk {
     }
 
     public void remove(CachedObject object) {
-        cache.remove(object, spaceManager);
+        cache.remove(object, tableSpace);
     }
 
     public CachedObject getAccessor(Index key) {

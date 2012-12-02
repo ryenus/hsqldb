@@ -144,6 +144,8 @@ public interface PersistentStore {
 
     Index[] getAccessorKeys();
 
+    void moveDataToSpace();
+
     void moveData(Session session, PersistentStore other, int colindex,
                   int adjust);
 

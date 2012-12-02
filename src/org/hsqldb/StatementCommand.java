@@ -855,12 +855,16 @@ public class StatementCommand extends Statement {
                             name.name, name.schema.name);
                     DataFileCache cache = session.database.logger.getCache();
 
-                    if (table.getTableType() != TableBase.CACHED_TABLE) {
-                        return Result.updateZeroResult;
+                    if (!table.isCached()) {
+                        throw Error.error(ErrorCode.DATA_IS_READONLY);
                     }
 
                     if (cache == null) {
                         return Result.updateZeroResult;
+                    }
+
+                    if (!session.database.logger.isDataFileSpaces()) {
+                        throw Error.error(ErrorCode.DATA_IS_READONLY);
                     }
 
                     if (table.getSpaceID()
@@ -877,6 +881,7 @@ public class StatementCommand extends Statement {
                     PersistentStore store = table.getRowStore(session);
 
                     store.setSpaceManager(tableSpace);
+
 
                     return Result.updateZeroResult;
                 } catch (HsqlException e) {
