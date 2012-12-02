@@ -1916,12 +1916,13 @@
 
             <row>
               <entry nameend="c3" namest="c1"><para>The default level 0
-              indicates no logging. Level 1 currently logs only commits and
-              rollbacks. Level 2 currently logs all the SQL statements
-              executed, together with their parameter values. Level 3 will be
-              supported in the future. The events are logged in a file ending
-              with ".sql.log". This property applies to existing file:
-              databases as well as new databases.</para><para><programlisting>SET DATABASE EVENT LOG SQL LEVEL { 0 | 1 | 2 }</programlisting></para></entry>
+              indicates no logging. Level 1 logs only commits and rollbacks.
+              Level 2 logs all the SQL statements executed, together with
+              their parameter values. Long statements and parameter values are
+              truncated. Level 3 is similar to Level 2 but does not truncate
+              long statements and values. The events are logged in a file
+              ending with ".sql.log". This property applies to existing file:
+              databases as well as new databases.</para><para><programlisting>SET DATABASE EVENT LOG SQL LEVEL { 0 | 1 | 2 | 3}</programlisting></para></entry>
             </row>
           </tbody>
         </tgroup>
