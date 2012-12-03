@@ -1182,6 +1182,48 @@
       </table>
 
       <table frame="all" pgwide="1" tocentry="1">
+        <title>Sort order of NULL values with DESC</title>
+
+        <tgroup align="left" cols="3">
+          <colspec colname="c1" colwidth="6.5cm" />
+
+          <colspec colname="c2" colwidth="1.5cm" />
+
+          <colspec colname="c3" />
+
+          <thead>
+            <row>
+              <entry>Name</entry>
+
+              <entry>Default</entry>
+
+              <entry>Description</entry>
+            </row>
+          </thead>
+
+          <tbody valign="top">
+            <row>
+              <entry><property>sql.nulls_order</property></entry>
+
+              <entry><literal>true</literal></entry>
+
+              <entry>ordering of NULL values when DESC is used</entry>
+            </row>
+
+            <row>
+              <entry nameend="c3" namest="c1"><para>By default, when an ORDER
+              BY clause that does not specify NULLS FIRST or NULLS LAST is
+              used, nulls are ordered according to the
+              <literal>sql.nulls_first</literal> setting even when DESC is
+              used after ORDER BY. This property, when set false, causes nulls
+              to appear in the opposite position when DESC is
+              used.</para><para><programlisting>SET DATABASE SQL NULLS ORDER { TRUE | FALSE }</programlisting></para></entry>
+            </row>
+          </tbody>
+        </tgroup>
+      </table>
+
+      <table frame="all" pgwide="1" tocentry="1">
         <title>String comparison with padding</title>
 
         <tgroup align="left" cols="3">
