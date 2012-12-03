@@ -1122,6 +1122,14 @@
         </listitem>
 
         <listitem>
+          <para>If your application relies on Oracle behaviour for ordering of
+          nulls in SELECT statements with ORDER BY, but without NULLS FIRST or
+          NULLS LAST, use both <literal>&lt;set database sql nulls last
+          statement&gt;</literal> and <literal>&lt;set database sql nulls
+          order statement&gt;</literal> to change the defaults.</para>
+        </listitem>
+
+        <listitem>
           <para>If you use the non-standard concatenation of possibly NULL
           values in your select statements, you may need to change the setting
           for <literal>&lt;set database sql concat nulls
@@ -2197,6 +2205,36 @@
 
       <simpara>This is equivalent to the connection property
       <literal>sql.nulls_first</literal>.</simpara>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>SET DATABASE SQL NULLS ORDER</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">SET DATABASE SQL NULLS
+      ORDER</emphasis></simpara>
+
+      <simpara><emphasis>set database sql nulls order</emphasis></simpara>
+
+      <simpara><literal>&lt;set database sql nulls order&gt; ::= SET DATABASE
+      SQL NULLS ORDER { TRUE | FALSE }</literal></simpara>
+
+      <simpara>When the property is <literal>TRUE</literal>, nulls appear
+      according to the value of NULL FIRST property as described
+      above.</simpara>
+
+      <simpara>When set <literal>FALSE</literal>, nulls appear according to
+      the value of NULLS FIRST when DESC is not used in the ORDER BY clause.
+      But if DESC is used, the position of nulls is reversed. Some databases,
+      including Oracle, return nulls in this manner when DESC is used in ORDER
+      BY.</simpara>
+
+      <simpara>The property is <literal>TRUE</literal> by default.</simpara>
+
+      <simpara>Only a user with the DBA role can execute this
+      statement.</simpara>
+
+      <simpara>This is equivalent to the connection property
+      <literal>sql.nulls_order</literal>.</simpara>
 
       <indexterm significance="preferred" type="sql">
         <primary>SET DATABASE SQL IGNORECASE</primary>
