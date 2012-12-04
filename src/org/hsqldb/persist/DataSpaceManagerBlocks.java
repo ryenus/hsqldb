@@ -642,6 +642,10 @@ public class DataSpaceManagerBlocks implements DataSpaceManager {
         return 0;
     }
 
+    public int getFileBlockSize() {
+        return fileBlockSize;
+    }
+
     public boolean isModified() {
         return true;
     }

@@ -62,6 +62,7 @@ public abstract class DTIType extends Type {
         0, 12, 0, 24, 60, 60, 1000000000
     };
     public static final int    INTERVAL_MONTH_INDEX         = 1;
+    public static final int    INTERVAL_SECOND_INDEX        = 5;
     public static final int    INTERVAL_FRACTION_PART_INDEX = 6;
     public static final long[] precisionLimits              = {
         1, 10, 100, 1000, 10000, 100000, 1000000, 10000000, 100000000,
@@ -470,6 +471,7 @@ public abstract class DTIType extends Type {
     public static final int defaultIntervalPrecision          = 2;
     public static final int defaultIntervalFractionPrecision  = 6;
     public static final int maxIntervalPrecision              = 9;
+    public static final int maxIntervalSecondPrecision        = 12;
     public static final int maxFractionPrecision              = 9;
     public static final int limitNanoseconds                  = 1000000000;
 

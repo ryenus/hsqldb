@@ -617,7 +617,7 @@ public class ParserBase {
 
                 read();
 
-                IntervalType dataType = readIntervalType(false);
+                IntervalType dataType = readIntervalType(true);
                 Object       interval = scanner.newInterval(s, dataType);
 
                 dataType = (IntervalType) scanner.dateTimeType;
@@ -639,9 +639,8 @@ public class ParserBase {
 
     IntervalType readIntervalType(boolean maxPrecisionDefault) {
 
-        int precision = maxPrecisionDefault ? IntervalType.maxIntervalPrecision
-                                            : -1;
-        int scale = -1;
+        int precision = -1;
+        int scale     = -1;
         int startToken;
         int endToken;
 
@@ -703,6 +702,14 @@ public class ParserBase {
                                         startToken);
         int endIndex = ArrayUtil.find(Tokens.SQL_INTERVAL_FIELD_CODES,
                                       endToken);
+
+        if (precision == -1 && maxPrecisionDefault) {
+            if (startIndex == IntervalType.INTERVAL_SECOND_INDEX) {
+                precision = IntervalType.maxIntervalSecondPrecision;
+            } else {
+                precision = IntervalType.maxIntervalPrecision;
+            }
+        }
 
         return IntervalType.getIntervalType(startIndex, endIndex, precision,
                                             scale);

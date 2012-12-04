@@ -88,6 +88,10 @@ public abstract class SimpleStore implements PersistentStore {
         }
     }
 
+    public boolean canRead(Session session, long pos) {
+        return true;
+    }
+
     public void commitPersistence(CachedObject object) {}
 
     public CachedObject getNewCachedObject(Session session, Object object,

@@ -77,6 +77,8 @@ public interface PersistentStore {
     /** add new object */
     void add(Session session, CachedObject object, boolean tx);
 
+    boolean canRead(Session session, long key);
+
     CachedObject get(RowInputInterface in);
 
     CachedObject get(CachedObject object, RowInputInterface in);

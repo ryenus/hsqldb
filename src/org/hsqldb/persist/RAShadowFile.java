@@ -97,9 +97,14 @@ public class RAShadowFile {
             return;
         }
 
-        long endOffset       = fileOffset + size;
-        int  startPageOffset = (int) (fileOffset / pageSize);
-        int  endPageOffset   = (int) (endOffset / pageSize);
+        long endOffset = fileOffset + size;
+
+        if (endOffset > maxSize) {
+            endOffset = maxSize;
+        }
+
+        int startPageOffset = (int) (fileOffset / pageSize);
+        int endPageOffset   = (int) (endOffset / pageSize);
 
         if (endOffset % pageSize == 0) {
             endPageOffset--;

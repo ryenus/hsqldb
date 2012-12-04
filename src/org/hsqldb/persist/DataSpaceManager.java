@@ -62,6 +62,8 @@ public interface DataSpaceManager {
 
     boolean isModified();
 
+    int getFileBlockSize();
+
     void close();
 
     void reopen();
