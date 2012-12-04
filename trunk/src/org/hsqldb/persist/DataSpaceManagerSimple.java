@@ -83,6 +83,10 @@ public class DataSpaceManagerSimple implements DataSpaceManager {
         return defaultSpaceManager.freeBlockSize();
     }
 
+    public int getFileBlockSize() {
+        return Integer.MAX_VALUE;
+    }
+
     public boolean isModified() {
         return false;
     }

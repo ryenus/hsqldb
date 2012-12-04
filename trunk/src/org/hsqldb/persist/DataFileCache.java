@@ -1128,7 +1128,7 @@ public class DataFileCache {
         writeLock.lock();
 
         try {
-            dataFile.seek((long) pos * dataFileScale);
+            dataFile.seek(pos * dataFileScale);
 
             return dataFile.readInt();
         } catch (IOException e) {
@@ -1143,7 +1143,7 @@ public class DataFileCache {
     protected RowInputInterface readObject(long pos) {
 
         try {
-            dataFile.seek((long) pos * dataFileScale);
+            dataFile.seek(pos * dataFileScale);
 
             int size = dataFile.readInt();
 
@@ -1161,7 +1161,7 @@ public class DataFileCache {
     protected RowInputInterface readObject(long pos, int size) {
 
         try {
-            dataFile.seek((long) pos * dataFileScale);
+            dataFile.seek(pos * dataFileScale);
             rowIn.resetBlock(pos, size);
             dataFile.read(rowIn.getBuffer(), 0, size);
 
@@ -1249,7 +1249,7 @@ public class DataFileCache {
         try {
             rowOut.reset();
             row.write(rowOut);
-            dataFile.seek((long) row.getPos() * dataFileScale);
+            dataFile.seek(row.getPos() * dataFileScale);
             dataFile.write(rowOut.getOutputStream().getBuffer(), 0,
                            rowOut.getOutputStream().size());
         } catch (IOException e) {
@@ -1267,7 +1267,7 @@ public class DataFileCache {
 
             for (int i = offset; i < offset + count; i++) {
                 CachedObject row     = rows[i];
-                long         seekpos = (long) row.getPos() * dataFileScale;
+                long         seekpos = row.getPos() * dataFileScale;
 
                 shadowFile.copy(seekpos, row.getStorageSize());
             }
@@ -1284,7 +1284,7 @@ public class DataFileCache {
     protected void copyShadow(CachedObject row) throws IOException {
 
         if (shadowFile != null) {
-            long seekpos = (long) row.getPos() * dataFileScale;
+            long seekpos = row.getPos() * dataFileScale;
 
             shadowFile.copy(seekpos, row.getStorageSize());
             shadowFile.synch();

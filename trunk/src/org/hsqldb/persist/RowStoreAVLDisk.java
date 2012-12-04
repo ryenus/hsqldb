@@ -149,6 +149,8 @@ public class RowStoreAVLDisk extends RowStoreAVL implements PersistentStore {
         }
 
         cache.add(object);
+
+        storageSize += size;
     }
 
     public CachedObject get(RowInputInterface in) {
@@ -204,7 +206,10 @@ public class RowStoreAVLDisk extends RowStoreAVL implements PersistentStore {
     }
 
     public void remove(CachedObject object) {
+
         cache.remove(object, tableSpace);
+
+        storageSize -= object.getStorageSize();
     }
 
     public void commitPersistence(CachedObject row) {}

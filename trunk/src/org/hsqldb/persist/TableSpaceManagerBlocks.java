@@ -272,6 +272,7 @@ public class TableSpaceManagerBlocks implements TableSpaceManager {
         spaceManager.freeTableSpace(spaceID, freshBlockFreePos,
                                     freshBlockLimit);
         lookup.removeAll();
+        lookup.setValuesSearchTarget();
 
         freshBlockPos     = 0;
         freshBlockFreePos = 0;

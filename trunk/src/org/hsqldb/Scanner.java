@@ -2181,7 +2181,7 @@ public class Scanner {
         int    firstPart     = type.startPartIndex;
         int    lastPart      = type.endPartIndex;
         long   totalValue    = 0;
-        int    currentValue  = 0;
+        long   currentValue  = 0;
         int    i             = intervalPosition;
         int    currentPart   = firstPart;
         int    currentDigits = 0;
@@ -2232,7 +2232,7 @@ public class Scanner {
 
                     int factor = factors[currentPart];
 
-                    totalValue        += (long) currentValue * factor;
+                    totalValue        += currentValue * factor;
                     intervalPrecision = currentDigits;
                 } else {
                     if (currentValue >= limits[currentPart]) {

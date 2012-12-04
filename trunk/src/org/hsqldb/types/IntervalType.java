@@ -1147,8 +1147,16 @@ public final class IntervalType extends DTIType {
         int endType   = DTIType.intervalParts[endIndex];
         int type      = DTIType.intervalTypes[startIndex][endIndex];
 
-        if (precision == 0 || precision > DTIType.maxIntervalPrecision
+        if (precision == 0
                 || fractionPrecision > DTIType.maxFractionPrecision) {
+            throw Error.error(ErrorCode.X_42592);
+        }
+
+        if (startIndex == DTIType.INTERVAL_SECOND_INDEX) {
+            if (precision > DTIType.maxIntervalSecondPrecision) {
+                throw Error.error(ErrorCode.X_42592);
+            }
+        } else if (precision > DTIType.maxIntervalPrecision) {
             throw Error.error(ErrorCode.X_42592);
         }
 

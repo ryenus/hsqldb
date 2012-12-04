@@ -228,7 +228,7 @@ final class DataFileDefrag {
 
         HsqlArrayList allTables = database.schemaManager.getAllTables(true);
 
-        for (int i = 0, tSize = allTables.size(); i < tSize; i++) {
+        for (int i = 0; i < allTables.size(); i++) {
             Table table = (Table) allTables.get(i);
             PersistentStore store =
                 table.database.persistentStoreCollection.getStore(table);
