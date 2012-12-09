@@ -204,6 +204,7 @@ public class FunctionCustom extends FunctionSQL {
     private static final int FUNC_TRUNCATE                 = 170;
     private static final int FUNC_UUID                     = 171;
     private static final int FUNC_UNIX_TIMESTAMP           = 172;
+    private static final int FUNC_UNIX_MILLIS              = 173;
 
     //
     static final IntKeyIntValueHashMap customRegularFuncMap =
@@ -233,6 +234,7 @@ public class FunctionCustom extends FunctionSQL {
         nonDeterministicFuncSet.add(FUNC_TRANSACTION_SIZE);
         nonDeterministicFuncSet.add(FUNC_UUID);
         nonDeterministicFuncSet.add(FUNC_UNIX_TIMESTAMP);
+        nonDeterministicFuncSet.add(FUNC_UNIX_MILLIS);
 
         //
         customRegularFuncMap.put(Tokens.ACOS, FUNC_ACOS);
@@ -365,6 +367,7 @@ public class FunctionCustom extends FunctionSQL {
         customRegularFuncMap.put(Tokens.TRUNC, FUNC_TRUNC);
         customRegularFuncMap.put(Tokens.TRUNCATE, FUNC_TRUNCATE);
         customRegularFuncMap.put(Tokens.UCASE, FUNC_FOLD_UPPER);
+        customRegularFuncMap.put(Tokens.UNIX_MILLIS, FUNC_UNIX_MILLIS);
         customRegularFuncMap.put(Tokens.UNIX_TIMESTAMP, FUNC_UNIX_TIMESTAMP);
         customRegularFuncMap.put(Tokens.UUID, FUNC_UUID);
         customRegularFuncMap.put(Tokens.WEEK, FUNC_EXTRACT);
@@ -614,6 +617,7 @@ public class FunctionCustom extends FunctionSQL {
                 };
                 break;
 
+            case FUNC_UNIX_MILLIS :
             case FUNC_UNIX_TIMESTAMP :
             case FUNC_UUID :
                 parseList = optionalSingleParamList;
@@ -1309,19 +1313,37 @@ public class FunctionCustom extends FunctionSQL {
                     }
                 }
             }
-            case FUNC_UNIX_TIMESTAMP : {
-                if (nodes[0] == null) {
-                    TimestampData ts = session.getCurrentTimestamp(true);
+            case FUNC_UNIX_MILLIS : {
+                TimestampData ts;
 
-                    return Long.valueOf(ts.getSeconds());
+                if (nodes[0] == null) {
+                    ts = session.getCurrentTimestamp(true);
                 } else {
                     if (data[0] == null) {
                         return null;
                     }
 
-                    return Long.valueOf(
-                        ((TimestampData) data[0]).getSeconds());
+                    ts = (TimestampData) data[0];
                 }
+
+                long millis = ts.getSeconds() * 1000 + ts.getNanos() / 1000000;
+
+                return Long.valueOf(millis);
+            }
+            case FUNC_UNIX_TIMESTAMP : {
+                TimestampData ts;
+
+                if (nodes[0] == null) {
+                    ts = session.getCurrentTimestamp(true);
+                } else {
+                    if (data[0] == null) {
+                        return null;
+                    }
+
+                    ts = (TimestampData) data[0];
+                }
+
+                return Long.valueOf(ts.getSeconds());
             }
             case FUNC_ACOS : {
                 if (data[0] == null) {
@@ -2373,8 +2395,11 @@ public class FunctionCustom extends FunctionSQL {
                             }
                         }
 
-                        if (nodes[0].dataType == null
-                                || nodes[0].dataType.isNumberType()) {
+                        if (nodes[0].dataType == null) {
+                            nodes[0].dataType = Type.SQL_DECIMAL;
+                        }
+
+                        if (nodes[0].dataType.isNumberType()) {
                             nodes[0].dataType = Type.SQL_DECIMAL;
                         }
                     } else {
@@ -2614,6 +2639,7 @@ public class FunctionCustom extends FunctionSQL {
 
                 break;
             }
+            case FUNC_UNIX_MILLIS :
             case FUNC_UNIX_TIMESTAMP : {
                 if (nodes[0] != null) {
                     if (nodes[0].dataType == null) {
@@ -3423,6 +3449,7 @@ public class FunctionCustom extends FunctionSQL {
                 return new StringBuffer(nodes[0].getSQL()).append(' ').append(
                     '-').append(nodes[1].getSQL()).toString();
 
+            case FUNC_UNIX_MILLIS :
             case FUNC_UNIX_TIMESTAMP :
             case FUNC_RAND : {
                 StringBuffer sb = new StringBuffer(name).append('(');
