@@ -46,7 +46,7 @@ import org.hsqldb.lib.ObjectComparator;
  * Special getOrAddXXX() methods are used for object maps in some subclasses.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.2.9
+ * @version 2.3.0
  * @since 1.7.2
  */
 public class BaseHashMap {
@@ -140,7 +140,8 @@ public class BaseHashMap {
     protected static final int PURGE_QUARTER = 3;
 
     //
-    public static final int ACCESS_MAX = Integer.MAX_VALUE - (1 << 20);
+    public static final int      ACCESS_MAX = Integer.MAX_VALUE - (1 << 20);
+    public static final Object[] emptyObjectArray = new Object[]{};
 
     protected BaseHashMap(int initialCapacity, int keyType, int valueType,
                           boolean hasAccessCount)

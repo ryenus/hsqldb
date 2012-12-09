@@ -39,7 +39,7 @@ import org.hsqldb.store.BaseHashMap;
 /**
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.2.9
+ * @version 2.3.0
  * @since 1.9.0
  */
 public class LongKeyHashMap extends BaseHashMap {
@@ -143,6 +143,10 @@ public class LongKeyHashMap extends BaseHashMap {
         readLock.lock();
 
         try {
+            if (isEmpty()) {
+                return emptyObjectArray;
+            }
+
             Object[] array = new Object[size()];
             int      i     = 0;
             Iterator it    = LongKeyHashMap.this.new BaseHashIterator(false);
@@ -161,9 +165,9 @@ public class LongKeyHashMap extends BaseHashMap {
 
         int i = 0;
 
-        try {
-            readLock.lock();
+        readLock.lock();
 
+        try {
             for (; i < array.length; i++) {
                 if (!super.containsKey(array[i])) {
                     break;

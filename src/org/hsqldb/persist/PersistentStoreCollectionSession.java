@@ -48,7 +48,7 @@ import org.hsqldb.store.ValuePool;
  * TableBase.getPersistenceId().
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.2.9
+ * @version 2.3.0
  * @since 1.9.0
  */
 public class PersistentStoreCollectionSession
@@ -58,7 +58,8 @@ implements PersistentStoreCollection {
     private final LongKeyHashMap rowStoreMapSession     = new LongKeyHashMap();
     private LongKeyHashMap       rowStoreMapTransaction = new LongKeyHashMap();
     private LongKeyHashMap       rowStoreMapStatement   = new LongKeyHashMap();
-    private HsqlDeque            rowStoreListStatement;
+    private LongKeyHashMap       rowStoreMapRoutine     = new LongKeyHashMap();
+    private HsqlDeque            rowStoreListStack;
 
     public PersistentStoreCollectionSession(Session session) {
         this.session = session;
@@ -70,6 +71,13 @@ implements PersistentStoreCollection {
 
         switch (table.persistenceScope) {
 
+            case TableBase.SCOPE_ROUTINE :
+                if (store == null) {
+                    rowStoreMapRoutine.remove(table.getPersistenceId());
+                } else {
+                    rowStoreMapRoutine.put(table.getPersistenceId(), store);
+                }
+                break;
             case TableBase.SCOPE_STATEMENT :
                 if (store == null) {
                     rowStoreMapStatement.remove(table.getPersistenceId());
@@ -114,6 +122,17 @@ implements PersistentStoreCollection {
             PersistentStore store;
 
             switch (table.persistenceScope) {
+
+                case TableBase.SCOPE_ROUTINE :
+                    store = (PersistentStore) rowStoreMapRoutine.get(
+                        table.getPersistenceId());
+
+                    if (store == null) {
+                        store = session.database.logger.newStore(session,
+                                this, table);
+                    }
+
+                    return store;
 
                 case TableBase.SCOPE_STATEMENT :
                     store = (PersistentStore) rowStoreMapStatement.get(
@@ -166,6 +185,7 @@ implements PersistentStoreCollection {
         clearSessionTables();
         clearTransactionTables();
         clearStatementTables();
+        clearRoutineTables();
         closeResultCache();
     }
 
@@ -238,6 +258,23 @@ implements PersistentStoreCollection {
         rowStoreMapStatement.clear();
     }
 
+    public void clearRoutineTables() {
+
+        if (rowStoreMapRoutine.isEmpty()) {
+            return;
+        }
+
+        Iterator it = rowStoreMapRoutine.values().iterator();
+
+        while (it.hasNext()) {
+            PersistentStore store = (PersistentStore) it.next();
+
+            store.release();
+        }
+
+        rowStoreMapRoutine.clear();
+    }
+
     public void registerIndex(Table table) {
 
         PersistentStore store = findStore(table);
@@ -254,6 +291,11 @@ implements PersistentStoreCollection {
         PersistentStore store = null;
 
         switch (table.persistenceScope) {
+
+            case TableBase.SCOPE_ROUTINE :
+                store = (PersistentStore) rowStoreMapRoutine.get(
+                    table.getPersistenceId());
+                break;
 
             case TableBase.SCOPE_STATEMENT :
                 store = (PersistentStore) rowStoreMapStatement.get(
@@ -299,27 +341,45 @@ implements PersistentStoreCollection {
         setStore(oldTable, null);
     }
 
-    public void push() {
+    public void push(boolean isRoutine) {
 
-        if (rowStoreListStatement == null) {
-            rowStoreListStatement = new HsqlDeque();
-        }
-
-        if (rowStoreMapStatement.isEmpty()) {
-            rowStoreListStatement.add(ValuePool.emptyObjectArray);
-
-            return;
+        if (rowStoreListStack == null) {
+            rowStoreListStack = new HsqlDeque();
         }
 
         Object[] array = rowStoreMapStatement.toArray();
 
-        rowStoreListStatement.add(array);
+        rowStoreListStack.add(array);
+
         rowStoreMapStatement.clear();
+
+        if (isRoutine) {
+            array = rowStoreMapRoutine.toArray();
+
+            rowStoreListStack.add(array);
+
+            rowStoreMapRoutine.clear();
+        }
     }
 
-    public void pop() {
+    public void pop(boolean isRoutine) {
 
-        Object[] array = (Object[]) rowStoreListStatement.removeLast();
+        Object[] array;
+
+        if (isRoutine) {
+            array = (Object[]) rowStoreListStack.removeLast();
+
+            clearRoutineTables();
+
+            for (int i = 0; i < array.length; i++) {
+                PersistentStore store = (PersistentStore) array[i];
+
+                rowStoreMapRoutine.put(store.getTable().getPersistenceId(),
+                                         store);
+            }
+        }
+
+        array = (Object[]) rowStoreListStack.removeLast();
 
         clearStatementTables();
 
@@ -329,6 +389,7 @@ implements PersistentStoreCollection {
             rowStoreMapStatement.put(store.getTable().getPersistenceId(),
                                      store);
         }
+
     }
 
     DataFileCacheSession resultCache;

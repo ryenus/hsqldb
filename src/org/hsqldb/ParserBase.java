@@ -617,7 +617,7 @@ public class ParserBase {
 
                 read();
 
-                IntervalType dataType = readIntervalType(true);
+                IntervalType dataType = readIntervalType(false);
                 Object       interval = scanner.newInterval(s, dataType);
 
                 dataType = (IntervalType) scanner.dateTimeType;

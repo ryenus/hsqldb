@@ -49,7 +49,7 @@ import org.hsqldb.store.ValuePool;
  * Session execution context and temporary data structures
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.2.9
+ * @version 2.3.0
  * @since 1.9.0
  */
 public class SessionContext {
@@ -128,12 +128,16 @@ public class SessionContext {
     }
 
     public void push() {
+        push(false);
+    }
 
-        if (session.sessionContext.depth > 256) {
+    private void push(boolean isRoutine) {
+
+        if (depth > 256) {
             throw Error.error(ErrorCode.GENERAL_ERROR);
         }
 
-        session.sessionData.persistentStoreCollection.push();
+        session.sessionData.persistentStoreCollection.push(isRoutine);
 
         if (stack == null) {
             stack = new HsqlArrayList(32, true);
@@ -166,8 +170,12 @@ public class SessionContext {
     }
 
     public void pop() {
+        pop(false);
+    }
 
-        session.sessionData.persistentStoreCollection.pop();
+    private void pop(boolean isRoutine) {
+
+        session.sessionData.persistentStoreCollection.pop(isRoutine);
 
         rownum = ((Integer) stack.remove(stack.size() - 1)).intValue();
         currentMaxRows = ((Integer) stack.remove(stack.size() - 1)).intValue();
@@ -185,6 +193,14 @@ public class SessionContext {
         diagnosticsVariables = (Object[]) stack.remove(stack.size() - 1);
 
         depth--;
+    }
+
+    public void pushRoutineInvocation() {
+        push(true);
+    }
+
+    public void popRoutineInvocation() {
+        pop(true);
     }
 
     public void pushDynamicArguments(Object[] args) {
