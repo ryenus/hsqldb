@@ -1100,6 +1100,8 @@ public class ParserRoutine extends ParserDML {
 
             Table table = new Table(database, name, TableBase.TEMP_TABLE);
 
+            table.persistenceScope = TableBase.SCOPE_ROUTINE;
+
             readTableDefinition(routine, table);
 
             return table;

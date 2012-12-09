@@ -212,6 +212,18 @@ public final class BlobType extends BinaryType {
             return null;
         }
 
+        if (otherType.typeCode == Types.SQL_BLOB) {
+            b = (BlobData) a;
+
+            long blobLength = b.length(session);
+
+            if (blobLength > precision) {
+                throw Error.error(ErrorCode.X_22001);
+            }
+
+            return a;
+        }
+
         if (otherType.typeCode == Types.SQL_CLOB) {
             a         = Type.SQL_VARCHAR.convertToType(session, a, otherType);
             otherType = Type.SQL_VARCHAR;
@@ -221,16 +233,6 @@ public final class BlobType extends BinaryType {
                 || otherType.typeCode == Types.SQL_CHAR) {
             a         = session.getScanner().convertToBinary((String) a);
             otherType = Type.SQL_VARBINARY;
-        }
-
-        if (otherType.typeCode == Types.SQL_BLOB) {
-            long blobLength = b.length(session);
-
-            if (blobLength > precision) {
-                throw Error.error(ErrorCode.X_22001);
-            }
-
-            return a;
         }
 
         if (otherType.typeCode == Types.SQL_BINARY

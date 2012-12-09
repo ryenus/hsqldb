@@ -980,7 +980,7 @@ public class Routine implements SchemaObject, RangeGroup, Cloneable {
         Result result;
 
         if (push) {
-            session.sessionContext.push();
+            session.sessionContext.pushRoutineInvocation();
         }
 
         if (isPSM()) {
@@ -1023,7 +1023,7 @@ public class Routine implements SchemaObject, RangeGroup, Cloneable {
         }
 
         if (push) {
-            session.sessionContext.pop();
+            session.sessionContext.popRoutineInvocation();
         }
 
         return result;

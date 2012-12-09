@@ -66,6 +66,7 @@ public class TableBase {
     public static final int CHANGE_SET_TABLE  = 13;
 
     //
+    public static final int SCOPE_ROUTINE     = 20;
     public static final int SCOPE_STATEMENT   = 21;
     public static final int SCOPE_TRANSACTION = 22;
     public static final int SCOPE_SESSION     = 23;

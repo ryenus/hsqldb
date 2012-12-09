@@ -1909,7 +1909,8 @@ public class ParserDQL extends ParserBase {
             case Tokens.TABLE : {
                 Expression e = XreadTableFunctionDerivedTable();
 
-                table = e.getTable();
+                table     = e.getTable();
+                isLateral = true;
 
                 break;
             }
@@ -4370,6 +4371,8 @@ public class ParserDQL extends ParserBase {
 
         QuerySpecification leftQuerySpecification = XreadSimpleTable();
 
+        leftQuerySpecification.resolveReferences(session,
+                compileContext.getOuterRanges());
         leftQuerySpecification.resolve(session);
 
         TableDerived td = newSubQueryTable(name, leftQuerySpecification,
@@ -4387,7 +4390,7 @@ public class ParserDQL extends ParserBase {
             leftQuerySpecification);
 
         rightQuerySpecification.resolveReferences(session,
-                RangeGroup.emptyArray);
+                compileContext.getOuterRanges());
         queryExpression.addUnion(rightQuerySpecification, unionType);
 
         queryExpression.isRecursive    = true;
