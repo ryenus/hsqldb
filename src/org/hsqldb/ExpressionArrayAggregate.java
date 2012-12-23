@@ -46,7 +46,7 @@ import org.hsqldb.types.Type;
  * Implementation of array aggregate operations
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.2.6
+ * @version 2.3.0
  * @since 2.0.1
  */
 public class ExpressionArrayAggregate extends Expression {
@@ -161,8 +161,8 @@ public class ExpressionArrayAggregate extends Expression {
     }
 
     public HsqlList resolveColumnReferences(Session session,
-            RangeGroup rangeGroup, int rangeCount,
-            RangeGroup[] rangeGroups, HsqlList unresolvedSet, boolean acceptsSequences) {
+            RangeGroup rangeGroup, int rangeCount, RangeGroup[] rangeGroups,
+            HsqlList unresolvedSet, boolean acceptsSequences) {
 
         HsqlList conditionSet = condition.resolveColumnReferences(session,
             rangeGroup, rangeCount, rangeGroups, null, false);
@@ -350,11 +350,13 @@ public class ExpressionArrayAggregate extends Expression {
                         sb.append(separator);
                     }
 
-                    Object[] row = (Object[]) array[i];
-                    String value =
-                        exprType.convertToString(row[row.length - 1]);
+                    Object[] row   = (Object[]) array[i];
+                    Object   value = row[row.length - 1];
+                    String string =
+                        (String) Type.SQL_VARCHAR.convertToType(session,
+                            value, exprType);
 
-                    sb.append(value);
+                    sb.append(string);
                 }
 
                 return sb.toString();
@@ -400,7 +402,8 @@ public class ExpressionArrayAggregate extends Expression {
 
     public Expression duplicate() {
 
-        ExpressionArrayAggregate e = (ExpressionArrayAggregate) super.duplicate();
+        ExpressionArrayAggregate e =
+            (ExpressionArrayAggregate) super.duplicate();
 
         if (condition != null) {
             e.condition = condition.duplicate();

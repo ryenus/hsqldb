@@ -43,7 +43,7 @@ import org.hsqldb.error.ErrorCode;
  */
 public class IntervalMonthData {
 
-    public final long units;
+    public final int units;
 
     public static IntervalMonthData newInterval(double value, int typeCode) {
 
@@ -74,11 +74,11 @@ public class IntervalMonthData {
             months -= (months % 12);
         }
 
-        this.units = months;
+        this.units = (int) months;
     }
 
     public IntervalMonthData(long months) {
-        this.units = months;
+        this.units = (int) months;
     }
 
     public boolean equals(Object other) {

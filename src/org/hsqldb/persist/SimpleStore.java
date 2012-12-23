@@ -33,13 +33,14 @@ package org.hsqldb.persist;
 
 import org.hsqldb.HsqlException;
 import org.hsqldb.Row;
+import org.hsqldb.RowAction;
 import org.hsqldb.Session;
 import org.hsqldb.TableBase;
+import org.hsqldb.error.Error;
+import org.hsqldb.error.ErrorCode;
 import org.hsqldb.index.Index;
 import org.hsqldb.navigator.RowIterator;
 import org.hsqldb.rowio.RowInputInterface;
-import org.hsqldb.error.ErrorCode;
-import org.hsqldb.error.Error;
 
 /**
  * @author Fred Toussi (fredt@users dot sourceforge.net)
@@ -160,7 +161,8 @@ public abstract class SimpleStore implements PersistentStore {
         return false;
     }
 
-    public void resetAccessorKeys(Index[] keys) throws HsqlException {}
+    public void resetAccessorKeys(Session session,
+                                  Index[] keys) throws HsqlException {}
 
     public void setMemory(boolean mode) {}
 
@@ -212,4 +214,6 @@ public abstract class SimpleStore implements PersistentStore {
 
     public void rollbackRow(Session session, Row row, int changeAction,
                             int txModel) {}
+
+    public void postCommitAction(Session session, RowAction rowAction) {}
 }

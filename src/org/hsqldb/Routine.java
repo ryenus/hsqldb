@@ -58,7 +58,7 @@ import org.hsqldb.types.Types;
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
  *
- * @version 2.0.1
+ * @version 2.3.0
  * @since 1.9.0
  */
 public class Routine implements SchemaObject, RangeGroup, Cloneable {
@@ -634,9 +634,8 @@ public class Routine implements SchemaObject, RangeGroup, Cloneable {
         OrderedHashSet set = new OrderedHashSet();
 
         for (int i = 0; i < parameterTypes.length; i++) {
-            ColumnSchema param = (ColumnSchema) parameterList.get(i);
-
-            OrderedHashSet refs = param.getReferences();
+            ColumnSchema   param = (ColumnSchema) parameterList.get(i);
+            OrderedHashSet refs  = param.getReferences();
 
             if (refs != null) {
                 set.addAll(refs);
@@ -762,6 +761,7 @@ public class Routine implements SchemaObject, RangeGroup, Cloneable {
     }
 
     public void setCorrelated() {
+
         //
     }
 
@@ -887,16 +887,17 @@ public class Routine implements SchemaObject, RangeGroup, Cloneable {
         }
 
         Result head = null;
+
         for (; i + extraArg < data.length; i++) {
             ResultSet rs = ((ResultSet[]) data[i + extraArg])[0];
 
             if (rs != null) {
                 if (rs instanceof JDBCResultSet) {
-                    Result r    = ((JDBCResultSet) rs).result;
+                    Result r = ((JDBCResultSet) rs).result;
 
                     if (head == null) {
                         callArguments[i] = r;
-                        head = r;
+                        head             = r;
                     } else {
                         head.addChainedResult(r);
                     }
@@ -1074,7 +1075,8 @@ public class Routine implements SchemaObject, RangeGroup, Cloneable {
             if (routine.isProcedure()) {
                 for (int j = offset; j < params.length; j++) {
                     if (params[j].isArray()
-                            && java.sql.ResultSet.class.isAssignableFrom(params[j].getComponentType())) {
+                            && java.sql.ResultSet.class.isAssignableFrom(
+                                params[j].getComponentType())) {
                         matchedParamCount = j - offset;
 
                         break;
@@ -1356,7 +1358,9 @@ public class Routine implements SchemaObject, RangeGroup, Cloneable {
 
         for (int j = offset; j < params.length; j++) {
             Type methodParamType = Types.getParameterSQLType(params[j]);
-            ColumnSchema param = new ColumnSchema(null, methodParamType,
+            HsqlName colName = session.database.nameManager.newHsqlName("C"
+                + (j - offset + 1), false, SchemaObject.PARAMETER);
+            ColumnSchema param = new ColumnSchema(colName, methodParamType,
                                                   !params[j].isPrimitive(),
                                                   false, null);
 

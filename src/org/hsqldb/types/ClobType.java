@@ -168,7 +168,7 @@ public final class ClobType extends CharacterType {
             return null;
         }
 
-        return ((ClobData) a).toString();
+        return Long.toString(((BlobData) a).getId());
     }
 
     public String convertToSQLString(Object a) {
@@ -177,9 +177,7 @@ public final class ClobType extends CharacterType {
             return Tokens.T_NULL;
         }
 
-        String s = convertToString(a);
-
-        return StringConverter.toQuotedString(s, '\'', true);
+        return convertToString(a);
     }
 
     public Object convertJavaToSQL(SessionInterface session, Object a) {

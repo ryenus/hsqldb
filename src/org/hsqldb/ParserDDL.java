@@ -1315,8 +1315,9 @@ public class ParserDDL extends ParserRoutine {
                             c.getName().name, table.getSchemaName(),
                             table.getName(), SchemaObject.INDEX);
 
-                    Index index = table.createAndAddIndexStructure(indexName,
-                        c.core.mainCols, null, null, true, true, false);
+                    Index index = table.createAndAddIndexStructure(session,
+                        indexName, c.core.mainCols, null, null, true, true,
+                        false);
                     Constraint newconstraint = new Constraint(c.getName(),
                         table, index, SchemaObject.ConstraintTypes.UNIQUE);
 
@@ -1419,7 +1420,7 @@ public class ParserDDL extends ParserRoutine {
 
         HsqlName refIndexName = session.database.nameManager.newAutoName("IDX",
             table.getSchemaName(), table.getName(), SchemaObject.INDEX);
-        Index index = table.createAndAddIndexStructure(refIndexName,
+        Index index = table.createAndAddIndexStructure(session, refIndexName,
             c.core.refCols, null, null, false, true, isForward);
         HsqlName mainName = session.database.nameManager.newAutoName("REF",
             c.getName().name, table.getSchemaName(), table.getName(),
@@ -1725,8 +1726,8 @@ public class ParserDDL extends ParserRoutine {
         readSequenceOptions(sequence, true, false, false);
 
         String     sql            = getLastPart();
-        Object[]   args           = new Object[]{ sequence,
-        Boolean.valueOf(ifNot)
+        Object[]   args           = new Object[] {
+            sequence, Boolean.valueOf(ifNot)
         };
         HsqlName[] writeLockNames = database.schemaManager.catalogNameArray;
 
@@ -1745,7 +1746,7 @@ public class ParserDDL extends ParserRoutine {
 
         readIfThis(Tokens.AS);
 
-        Type       type = readTypeDefinition(true, false).duplicate();
+        Type       type          = readTypeDefinition(true, false).duplicate();
         Expression defaultClause = null;
 
         if (readIfThis(Tokens.DEFAULT)) {
@@ -3653,6 +3654,10 @@ public class ParserDDL extends ParserRoutine {
                 mainTableName.name, mainTableName.schema.name);
 
         c.setColumnsIndexes(table);
+
+        if (c.core.mainCols.length != c.core.refCols.length) {
+            throw Error.error(ErrorCode.X_42593);
+        }
 
         String   sql  = getLastPart();
         Object[] args = new Object[] {

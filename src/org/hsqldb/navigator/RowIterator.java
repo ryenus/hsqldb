@@ -47,7 +47,7 @@ public interface RowIterator {
 
     boolean hasNext();
 
-    void remove();
+    void removeCurrent();
 
     boolean setRowColumns(boolean[] columns);
 

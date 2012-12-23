@@ -51,10 +51,15 @@ import org.hsqldb.navigator.RowIterator;
  */
 public class RowStoreAVLHybridExtended extends RowStoreAVLHybrid {
 
+    Session session;
+
     public RowStoreAVLHybridExtended(Session session,
                                      PersistentStoreCollection manager,
                                      TableBase table, boolean diskBased) {
+
         super(session, manager, table, diskBased);
+
+        this.session = session;
     }
 
     public void set(CachedObject object) {}
@@ -63,7 +68,7 @@ public class RowStoreAVLHybridExtended extends RowStoreAVLHybrid {
                                            boolean tx) {
 
         if (indexList != table.getIndexList()) {
-            resetAccessorKeys(table.getIndexList());
+            resetAccessorKeys(session, table.getIndexList());
         }
 
         return super.getNewCachedObject(session, object, tx);
@@ -114,7 +119,7 @@ public class RowStoreAVLHybridExtended extends RowStoreAVLHybrid {
         }
 
         if (count != indexList.length) {
-            resetAccessorKeys(table.getIndexList());
+            resetAccessorKeys(session, table.getIndexList());
             ((RowAVL) row).setNewNodes(this);
         }
 
@@ -198,7 +203,7 @@ public class RowStoreAVLHybridExtended extends RowStoreAVLHybrid {
         int position = key.getPosition();
 
         if (position >= accessorList.length || indexList[position] != key) {
-            resetAccessorKeys(table.getIndexList());
+            resetAccessorKeys(session, table.getIndexList());
 
             return getAccessor(key);
         }
@@ -206,7 +211,7 @@ public class RowStoreAVLHybridExtended extends RowStoreAVLHybrid {
         return accessorList[position];
     }
 
-    public synchronized void resetAccessorKeys(Index[] keys) {
+    public synchronized void resetAccessorKeys(Session session, Index[] keys) {
 
         if (indexList.length == 0 || accessorList[0] == null) {
             indexList    = keys;
@@ -221,7 +226,7 @@ public class RowStoreAVLHybridExtended extends RowStoreAVLHybrid {
             return;
         }
 
-        super.resetAccessorKeys(keys);
+        super.resetAccessorKeys(session, keys);
     }
 
     private void resetAccessorKeysForCached() {

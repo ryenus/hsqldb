@@ -545,6 +545,10 @@ public class DataSpaceManagerBlocks implements DataSpaceManager {
                     break;
                 }
 
+                cache.releaseRange(ba.currentBlockIndex * fileBlockItemSize,
+                                   (ba.currentBlockIndex + 1)
+                                   * fileBlockItemSize);
+
                 ba.currentDir.getTableIdArray()[ba.currentBlockOffset] =
                     tableIdEmpty;
                 ba.currentDir.getFreeSpaceArray()[ba.currentBlockOffset] = 0;

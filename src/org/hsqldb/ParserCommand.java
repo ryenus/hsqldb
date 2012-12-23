@@ -32,7 +32,6 @@
 package org.hsqldb;
 
 import org.hsqldb.HsqlNameManager.HsqlName;
-import org.hsqldb.RangeGroup.RangeGroupSimple;
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
 import org.hsqldb.lib.HsqlArrayList;
@@ -488,51 +487,27 @@ public class ParserCommand extends ParserDDL {
 
     private StatementCommand compileSetProperty() {
 
+        // command is a no-op from 1.9
         read();
 
-        String                 property;
-        Object                 value;
-        HsqlDatabaseProperties props = database.getProperties();
+        String property;
+        Object value;
 
         checkIsSimpleName();
         checkIsDelimitedIdentifier();
 
         property = token.tokenString;
 
-        boolean isboolean  = props.isBoolean(token.tokenString);
-        boolean isintegral = props.isIntegral(token.tokenString);
-        boolean isstring   = props.isString(token.tokenString);
-
-        if (!(isboolean || isintegral || isstring)) {
-            throw Error.error(ErrorCode.X_42555, property);
-        }
-
-        int typeCode = isboolean ? Types.SQL_BOOLEAN
-                                 : isintegral ? Types.SQL_INTEGER
-                                              : Types.SQL_CHAR;
-
         read();
 
         if (token.tokenType == Tokens.TRUE) {
             value = Boolean.TRUE;
-
-            if (!isboolean) {
-                throw Error.error(ErrorCode.X_42563, token.tokenString);
-            }
         } else if (token.tokenType == Tokens.FALSE) {
             value = Boolean.FALSE;
-
-            if (!isboolean) {
-                throw Error.error(ErrorCode.X_42563, token.tokenString);
-            }
         } else {
             checkIsValue();
 
             value = token.tokenValue;
-
-            if (token.dataType.typeCode != typeCode) {
-                throw Error.error(ErrorCode.X_42563, token.tokenString);
-            }
         }
 
         read();

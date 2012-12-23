@@ -1267,11 +1267,11 @@ public class Table extends TableBase implements SchemaObject {
                                                    idx.isForward());
 
             newIdx.setClustered(idx.isClustered());
-            tn.addIndex(newIdx);
+            tn.addIndex(session, newIdx);
         }
 
         if (index != null) {
-            tn.addIndex(index);
+            tn.addIndex(session, index);
         }
 
         HsqlArrayList newList = new HsqlArrayList();
@@ -2177,8 +2177,9 @@ public class Table extends TableBase implements SchemaObject {
             getSchemaName(), getName(), SchemaObject.INDEX);
 
         try {
-            index = createAndAddIndexStructure(indexName, columns, null, null,
-                                               false, false, false);
+            index = createAndAddIndexStructure(session, indexName, columns,
+                                               null, null, false, false,
+                                               false);
         } catch (Throwable t) {
             return null;
         }
@@ -2190,7 +2191,7 @@ public class Table extends TableBase implements SchemaObject {
 
                 // session may be an unregisterd sys session
                 session.sessionData.persistentStoreCollection.registerIndex(
-                    this);
+                    session, this);
 
                 break;
             }
@@ -2735,7 +2736,7 @@ public class Table extends TableBase implements SchemaObject {
     }
 
     /**
-     * For system operations outside transaction constrol
+     * For system operations outside transaction control
      */
     public void insertData(Session session, PersistentStore store,
                            Object[] data) {

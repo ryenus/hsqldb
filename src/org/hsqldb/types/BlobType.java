@@ -303,9 +303,8 @@ public final class BlobType extends BinaryType {
             return null;
         }
 
-        byte[] bytes = ((BlobData) a).getBytes();
 
-        return StringConverter.byteArrayToHexString(bytes);
+        return Long.toString (((BlobData) a).getId());
     }
 
     public String convertToSQLString(Object a) {
@@ -314,8 +313,6 @@ public final class BlobType extends BinaryType {
             return Tokens.T_NULL;
         }
 
-        byte[] bytes = ((BlobData) a).getBytes();
-
-        return StringConverter.byteArrayToSQLHexString(bytes);
+        return convertToString(a);
     }
 }

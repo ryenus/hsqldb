@@ -480,6 +480,7 @@ public class QueryExpression implements RangeGroup {
             byte rightNullability =
                 rightMeta.columns[rightIndex].getNullability();
 
+            // redundant after 2.2.9 changes
             if (column instanceof ColumnSchema
                     && rightMeta.columns[rightIndex] instanceof ColumnBase) {
                 column = new ColumnBase();
@@ -950,8 +951,8 @@ public class QueryExpression implements RangeGroup {
 
         ArrayUtil.fillSequence(fullCols);
 
-        fullIndex = resultTable.createAndAddIndexStructure(null, fullCols,
-                null, null, false, false, false);
+        fullIndex = resultTable.createAndAddIndexStructure(session, null,
+                fullCols, null, null, false, false, false);
         resultTable.fullIndex = fullIndex;
     }
 

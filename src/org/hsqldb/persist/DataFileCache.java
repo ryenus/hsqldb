@@ -43,6 +43,7 @@ import org.hsqldb.error.ErrorCode;
 import org.hsqldb.lib.FileAccess;
 import org.hsqldb.lib.FileArchiver;
 import org.hsqldb.lib.FileUtil;
+import org.hsqldb.lib.Iterator;
 import org.hsqldb.rowio.RowInputBinary180;
 import org.hsqldb.rowio.RowInputBinaryDecode;
 import org.hsqldb.rowio.RowInputInterface;
@@ -605,7 +606,9 @@ public class DataFileCache {
                 return;
             }
 
-            spaceManager.close();
+            if (spaceManager != null) {
+                spaceManager.close();
+            }
 
             if (write) {
                 commitChanges();
@@ -1170,6 +1173,27 @@ public class DataFileCache {
             logSevereEvent("readObject", e, pos);
 
             throw Error.error(ErrorCode.DATA_FILE_ERROR, e);
+        }
+    }
+
+    public void releaseRange(long start, long limit) {
+
+        writeLock.lock();
+
+        try {
+            Iterator it = cache.getIterator();
+
+            while (it.hasNext()) {
+                CachedObject o   = (CachedObject) it.next();
+                long         pos = o.getPos();
+
+                if (pos >= start && pos < limit) {
+                    o.setInMemory(false);
+                    it.remove();
+                }
+            }
+        } finally {
+            writeLock.unlock();
         }
     }
 

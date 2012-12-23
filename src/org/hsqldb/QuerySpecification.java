@@ -1105,16 +1105,6 @@ public class QuerySpecification extends QueryExpression {
     }
 
     void checkLobUsage() {
-
-        if (!isDistinctSelect && !isGrouped) {
-            return;
-        }
-
-        for (int i = 0; i < indexStartHaving; i++) {
-            if (exprColumns[i].dataType.isLobType()) {
-                throw Error.error(ErrorCode.X_42534);
-            }
-        }
     }
 
     private void resolveGroups() {
@@ -1610,7 +1600,7 @@ public class QuerySpecification extends QueryExpression {
 
                 if (!Boolean.TRUE.equals(
                         data[indexLimitVisible + groupByColumnCount])) {
-                    navigator.remove();
+                    navigator.removeCurrent();
                 }
             }
 
@@ -1733,7 +1723,7 @@ public class QuerySpecification extends QueryExpression {
                 groupCols[i] = indexLimitVisible + i;
             }
 
-            groupIndex = resultTable.createAndAddIndexStructure(null,
+            groupIndex = resultTable.createAndAddIndexStructure(session, null,
                     groupCols, null, null, false, false, false);
         } else if (isAggregated) {
             groupIndex = mainIndex;
@@ -1742,8 +1732,8 @@ public class QuerySpecification extends QueryExpression {
         if (isUpdatable && view == null) {
             int[] idCols = new int[]{ indexLimitVisible };
 
-            idIndex = resultTable.createAndAddIndexStructure(null, idCols,
-                    null, null, false, false, false);
+            idIndex = resultTable.createAndAddIndexStructure(session, null,
+                    idCols, null, null, false, false, false);
         }
     }
 
@@ -1753,8 +1743,8 @@ public class QuerySpecification extends QueryExpression {
 
         ArrayUtil.fillSequence(fullCols);
 
-        fullIndex = resultTable.createAndAddIndexStructure(null, fullCols,
-                null, null, false, false, false);
+        fullIndex = resultTable.createAndAddIndexStructure(session, null,
+                fullCols, null, null, false, false, false);
         resultTable.fullIndex = fullIndex;
     }
 

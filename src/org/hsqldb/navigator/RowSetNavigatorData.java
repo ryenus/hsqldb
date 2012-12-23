@@ -270,7 +270,7 @@ implements Comparator {
         return super.next();
     }
 
-    public void remove() {
+    public void removeCurrent() {
 
         System.arraycopy(table, currentPos + 1, table, currentPos,
                          size - currentPos - 1);
@@ -373,7 +373,7 @@ implements Comparator {
             boolean  hasRow      = other.containsRow(currentData);
 
             if (!hasRow) {
-                remove();
+                removeCurrent();
             }
         }
 
@@ -413,7 +413,7 @@ implements Comparator {
                 continue;
             }
 
-            remove();
+            removeCurrent();
         }
 
         reset();
@@ -429,7 +429,7 @@ implements Comparator {
             boolean  hasRow      = other.containsRow(currentData);
 
             if (hasRow) {
-                remove();
+                removeCurrent();
             }
         }
 
@@ -466,7 +466,7 @@ implements Comparator {
                     && queryExpression.fullIndex.compareRowNonUnique(
                         session, currentData, otherData,
                         queryExpression.fullIndex.getColumnCount()) == 0) {
-                remove();
+                removeCurrent();
             }
         }
 
@@ -552,7 +552,7 @@ implements Comparator {
 
             for (int i = 0; i < limitstart; i++) {
                 next();
-                remove();
+                removeCurrent();
             }
         }
 
@@ -568,7 +568,7 @@ implements Comparator {
 
         while (hasNext()) {
             next();
-            remove();
+            removeCurrent();
         }
 
         reset();
@@ -682,7 +682,7 @@ implements Comparator {
             return pos < size - 1;
         }
 
-        public void remove() {}
+        public void removeCurrent() {}
 
         public boolean setRowColumns(boolean[] columns) {
             return false;

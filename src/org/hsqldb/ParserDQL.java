@@ -2103,8 +2103,9 @@ public class ParserDQL extends ParserBase {
                                                     separator);
             }
             default :
-                if (e.getType() == OpTypes.ASTERISK) {
-                    throw unexpectedToken();
+                if (e.getType() == OpTypes.MULTICOLUMN
+                        || e.getType() == OpTypes.ASTERISK) {
+                    throw unexpectedToken(Tokens.T_ASTERISK);
                 }
         }
 

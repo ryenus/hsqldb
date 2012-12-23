@@ -54,8 +54,6 @@ public interface RangeIterator extends RowIterator {
 
     Object getRowidObject();
 
-    void remove();
-
     void reset();
 
     int getRangePosition();

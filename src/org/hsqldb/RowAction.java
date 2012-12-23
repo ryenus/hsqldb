@@ -748,7 +748,7 @@ public class RowAction extends RowActionBase {
         mergeExpiredRefActions();
     }
 
-    synchronized boolean canRead(Session session, int mode) {
+    public synchronized boolean canRead(Session session, int mode) {
 
         long threshold;
         int  actionType = ACTION_NONE;
