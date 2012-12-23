@@ -285,6 +285,10 @@ public class RowStoreAVLDisk extends RowStoreAVL implements PersistentStore {
         }
     }
 
+    public void postCommitAction(Session session, RowAction action) {
+        database.txManager.removeTransactionInfo(action.getPos());
+    }
+
     //
     public DataFileCache getCache() {
         return cache;

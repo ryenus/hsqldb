@@ -325,6 +325,8 @@ implements TransactionManager {
         return;
     }
 
+    public void removeTransactionInfo(long id) {}
+
     void endTransaction(Session session) {
 
         if (session.isTransaction) {

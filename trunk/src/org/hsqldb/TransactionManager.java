@@ -116,4 +116,6 @@ public interface TransactionManager {
      * remove the transaction info
      */
     public void removeTransactionInfo(CachedObject object);
+
+    public void removeTransactionInfo(long id);
 }
