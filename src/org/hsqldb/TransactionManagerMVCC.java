@@ -31,8 +31,6 @@
 
 package org.hsqldb;
 
-import java.util.concurrent.locks.Lock;
-
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
 import org.hsqldb.lib.HashSet;
@@ -197,7 +195,7 @@ implements TransactionManager {
 
                 mergeTransaction(session, list, limit, newLimit,
                                  session.actionTimestamp);
-                finaliseRows(session, list, limit, newLimit, true);
+                finaliseRows(session, list, limit, newLimit);
                 session.rowActionList.setSize(limit);
             }
 
@@ -207,7 +205,7 @@ implements TransactionManager {
                        > session.actionTimestamp) {
                 mergeTransaction(session, list, 0, limit,
                                  session.actionTimestamp);
-                finaliseRows(session, list, 0, limit, true);
+                finaliseRows(session, list, 0, limit);
             } else {
                 if (session.rowActionList.size() > 0) {
                     list = session.rowActionList.toArray();
@@ -304,7 +302,7 @@ implements TransactionManager {
 
         try {
             mergeRolledBackTransaction(session, timestamp, list, start, limit);
-            finaliseRows(session, list, start, limit, false);
+            finaliseRollback(session, list, start, limit);
         } finally {
             writeLock.unlock();
         }
@@ -613,6 +611,25 @@ implements TransactionManager {
         }
     }
 
+    public void removeTransactionInfo(long id) {
+
+        rowActionMap.getWriteLock().lock();
+
+        try {
+            RowAction action = (RowAction) rowActionMap.get(id);
+
+            synchronized (action) {
+
+                // remove only if not changed
+                if (action.type == RowActionBase.ACTION_NONE) {
+                    rowActionMap.remove(id);
+                }
+            }
+        } finally {
+            rowActionMap.getWriteLock().unlock();
+        }
+    }
+
     /**
      * add a list of actions to the end of queue
      */
@@ -662,7 +679,7 @@ implements TransactionManager {
 
             mergeTransaction(session, actions, 0, actions.length,
                              commitTimestamp);
-            finaliseRows(session, actions, 0, actions.length, true);
+            finaliseRows(session, actions, 0, actions.length);
         }
     }
 
@@ -761,9 +778,7 @@ implements TransactionManager {
             switch (table.tableType) {
 
                 case TableBase.CACHED_TABLE : {
-                    Lock mapLock = rowActionMap.getWriteLock();
-
-                    mapLock.lock();
+                    rowActionMap.getWriteLock().lock();
 
                     try {
 
@@ -783,7 +798,7 @@ implements TransactionManager {
                                                                row, colMap);
                         }
                     } finally {
-                        mapLock.unlock();
+                        rowActionMap.getWriteLock().unlock();
                     }
 
                     break;

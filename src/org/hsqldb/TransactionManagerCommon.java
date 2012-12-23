@@ -241,79 +241,64 @@ class TransactionManagerCommon {
         }
     }
 
-    void removeTransactionInfo(CachedObject object) {}
+    void finaliseRows(Session session, Object[] list, int start, int limit) {
 
-    void finaliseRows(Session session, Object[] list, int start, int limit,
-                      boolean commit) {
+        for (int i = start; i < limit; i++) {
+            RowAction action = (RowAction) list[i];
 
-        if (!commit) {
-            for (int i = limit - 1; i >= start; i--) {
-                RowAction action = (RowAction) list[i];
+            postCommitAction(session, action);
+        }
+    }
 
-                if (action.table.tableType == TableBase.TEMP_TABLE) {
-                    action.store.rollbackRow(session, action.memoryRow,
-                                             action.commitRollbackType,
-                                             txModel);
+    void postCommitAction(Session session, RowAction action) {
+
+        if (action.type == RowActionBase.ACTION_NONE) {
+            action.store.postCommitAction(session, action);
+        }
+
+        if (action.type == RowActionBase.ACTION_DELETE_FINAL
+                && !action.deleteComplete) {
+            try {
+                action.deleteComplete = true;
+
+                if (action.table.getTableType() == TableBase.TEMP_TABLE) {
+                    return;
                 }
+
+                Row row = action.memoryRow;
+
+                if (row == null) {
+                    row = (Row) action.store.get(action.getPos(), false);
+                }
+
+                action.store.commitRow(session, row, action.type, txModel);
+            } catch (Exception e) {
+
+//                    throw unexpectedException(e.getMessage());
+            }
+        }
+    }
+
+    void finaliseRollback(Session session, Object[] list, int start,
+                          int limit) {
+
+        for (int i = limit - 1; i >= start; i--) {
+            RowAction action = (RowAction) list[i];
+
+            if (action.table.tableType == TableBase.TEMP_TABLE) {
+                action.store.rollbackRow(session, action.memoryRow,
+                                         action.commitRollbackType, txModel);
             }
         }
 
         for (int i = start; i < limit; i++) {
             RowAction action = (RowAction) list[i];
 
-            if (!commit && action.table.tableType == TableBase.TEMP_TABLE) {
+            if (action.table.tableType == TableBase.TEMP_TABLE) {
                 continue;
             }
 
-            if (action.table.tableType == TableBase.CACHED_TABLE) {
-                if (action.type == RowActionBase.ACTION_NONE) {
-
-                    Lock mapLock = rowActionMap.getWriteLock();
-
-                    mapLock.lock();
-
-                    try {
-                        synchronized (action) {
-
-                            // remove only if not changed
-                            if (action.type == RowActionBase.ACTION_NONE) {
-                                Row row = action.memoryRow;
-
-                                if (row == null) {
-                                    row = (Row) action.store.get(
-                                        action.getPos(), false);
-                                }
-
-                                removeTransactionInfo(row);
-                            }
-                        }
-                    } finally {
-                        mapLock.unlock();
-                    }
-                }
-            }
-
-            if (action.type == RowActionBase.ACTION_DELETE_FINAL
-                    && !action.deleteComplete) {
-                try {
-                    action.deleteComplete = true;
-
-                    if (action.table.getTableType() == TableBase.TEMP_TABLE) {
-                        continue;
-                    }
-
-                    Row row = action.memoryRow;
-
-                    if (row == null) {
-                        row = (Row) action.store.get(action.getPos(), false);
-                    }
-
-                    action.store.commitRow(session, row, action.type, txModel);
-                } catch (Exception e) {
-
-//                    throw unexpectedException(e.getMessage());
-                }
-            }
+            postCommitAction(session, action);
         }
     }
 

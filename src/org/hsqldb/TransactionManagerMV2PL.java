@@ -144,7 +144,7 @@ implements TransactionManager {
 
                 mergeTransaction(session, list, limit, newLimit,
                                  session.actionTimestamp);
-                finaliseRows(session, list, limit, newLimit, true);
+                finaliseRows(session, list, limit, newLimit);
                 session.rowActionList.setSize(limit);
             }
 
@@ -154,7 +154,7 @@ implements TransactionManager {
                        > session.actionTimestamp) {
                 mergeTransaction(session, list, 0, limit,
                                  session.actionTimestamp);
-                finaliseRows(session, list, 0, limit, true);
+                finaliseRows(session, list, 0, limit);
             } else {
                 list = session.rowActionList.toArray();
 
@@ -239,7 +239,7 @@ implements TransactionManager {
         // rolled back transactions can always be merged as they have never been
         // seen by other sessions
         mergeRolledBackTransaction(session, timestamp, list, start, limit);
-        finaliseRows(session, list, start, limit, false);
+        finaliseRollback(session, list, start, limit);
         session.rowActionList.setSize(start);
     }
 
@@ -363,6 +363,25 @@ implements TransactionManager {
         rowActionMap.remove(object.getPos());
     }
 
+    public void removeTransactionInfo(long id) {
+
+        rowActionMap.getWriteLock().lock();
+
+        try {
+            RowAction action = (RowAction) rowActionMap.get(id);
+
+            synchronized (action) {
+
+                // remove only if not changed
+                if (action.type == RowActionBase.ACTION_NONE) {
+                    rowActionMap.remove(id);
+                }
+            }
+        } finally {
+            rowActionMap.getWriteLock().unlock();
+        }
+    }
+
     /**
      * add a list of actions to the end of queue
      */
@@ -412,7 +431,7 @@ implements TransactionManager {
 
             mergeTransaction(session, actions, 0, actions.length,
                              commitTimestamp);
-            finaliseRows(session, actions, 0, actions.length, true);
+            finaliseRows(session, actions, 0, actions.length);
         }
     }
 
