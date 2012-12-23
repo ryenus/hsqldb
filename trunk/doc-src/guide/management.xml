@@ -2218,15 +2218,18 @@
       <simpara><literal>&lt;set database sql nulls order&gt; ::= SET DATABASE
       SQL NULLS ORDER { TRUE | FALSE }</literal></simpara>
 
+      <simpara>When NULLS FIRST or NULLS LAST is used explicitly in the ORDER
+      BY clause, this property is ignored.</simpara>
+
       <simpara>When the property is <literal>TRUE</literal>, nulls appear
       according to the value of NULL FIRST property as described
       above.</simpara>
 
       <simpara>When set <literal>FALSE</literal>, nulls appear according to
-      the value of NULLS FIRST when DESC is not used in the ORDER BY clause.
-      But if DESC is used, the position of nulls is reversed. Some databases,
-      including Oracle, return nulls in this manner when DESC is used in ORDER
-      BY.</simpara>
+      the value of NULLS FIRST property when DESC is not used in the ORDER BY
+      clause. But if DESC is used, the position of nulls is reversed. Some
+      databases, including MySQL and Oracle, return nulls in this manner when
+      DESC is used in ORDER BY.</simpara>
 
       <simpara>The property is <literal>TRUE</literal> by default.</simpara>
 
