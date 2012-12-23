@@ -536,9 +536,9 @@ public class IndexAVL implements Index {
         return depth - probeDepth;
     }
 
-    public int getNodeCount(Session session, PersistentStore store) {
+    public long getNodeCount(Session session, PersistentStore store) {
 
-        int count = 0;
+        long count = 0;
 
         readLock.lock();
 
@@ -2054,7 +2054,7 @@ public class IndexAVL implements Index {
                                : row.getData();
         }
 
-        public void remove() {
+        public void removeCurrent() {
             store.delete(session, lastrow);
             store.remove(lastrow);
         }

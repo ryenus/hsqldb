@@ -117,7 +117,7 @@ public abstract class RowSetNavigator implements RangeIterator {
     /**
      * Remove current row
      */
-    public abstract void remove();
+    public abstract void removeCurrent();
 
     /**
      * Reset to initial state

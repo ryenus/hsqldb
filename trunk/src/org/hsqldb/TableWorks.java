@@ -341,7 +341,7 @@ public class TableWorks {
                                                          SchemaObject.INDEX);
 
                     // create an autonamed index
-                    index = tn.createAndAddIndexStructure(indexName,
+                    index = tn.createAndAddIndexStructure(session, indexName,
                                                           c.getMainColumns(),
                                                           null, null, true,
                                                           true, false);
@@ -395,7 +395,7 @@ public class TableWorks {
                                                          table.getName(),
                                                          SchemaObject.INDEX);
 
-                    index = tn.createAndAddIndexStructure(indexName,
+                    index = tn.createAndAddIndexStructure(session, indexName,
                                                           c.getRefColumns(),
                                                           null, null, false,
                                                           true, isForward);
@@ -734,7 +734,7 @@ public class TableWorks {
         index = table.getIndex(indexName);
 
         if (table.isIndexingMutable()) {
-            table.dropIndex(index.getPosition());
+            table.dropIndex(session, index.getPosition());
         } else {
             OrderedHashSet indexSet = new OrderedHashSet();
 

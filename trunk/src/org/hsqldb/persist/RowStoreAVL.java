@@ -37,6 +37,7 @@ import org.hsqldb.HsqlException;
 import org.hsqldb.OpTypes;
 import org.hsqldb.Row;
 import org.hsqldb.RowAVL;
+import org.hsqldb.RowAction;
 import org.hsqldb.Session;
 import org.hsqldb.Table;
 import org.hsqldb.TableBase;
@@ -60,7 +61,6 @@ import org.hsqldb.types.Type;
  */
 public abstract class RowStoreAVL implements PersistentStore {
 
-    Session                   session;
     Database                  database;
     PersistentStoreCollection manager;
     TableSpaceManager         tableSpace;
@@ -127,6 +127,8 @@ public abstract class RowStoreAVL implements PersistentStore {
     public abstract void remove(CachedObject object);
 
     public abstract void commitPersistence(CachedObject object);
+
+    public void postCommitAction(Session session, RowAction action) {}
 
     public abstract DataFileCache getCache();
 
@@ -273,7 +275,7 @@ public abstract class RowStoreAVL implements PersistentStore {
 
     public abstract void setAccessor(Index key, long accessor);
 
-    public void resetAccessorKeys(Index[] keys) {
+    public void resetAccessorKeys(Session session, Index[] keys) {
 
         Index[] oldIndexList = indexList;
 
@@ -297,11 +299,11 @@ public abstract class RowStoreAVL implements PersistentStore {
         int            position     = 0;
 
         if (diff < -1) {
-            throw Error.runtimeError(ErrorCode.U_S0500, "RowStoreAV");
+            throw Error.runtimeError(ErrorCode.U_S0500, "RowStoreAVL");
         } else if (diff == -1) {
             limit = keys.length;
         } else if (diff == 0) {
-            throw Error.runtimeError(ErrorCode.U_S0500, "RowStoreAV");
+            throw Error.runtimeError(ErrorCode.U_S0500, "RowStoreAVL");
         } else if (diff == 1) {
             ;
         } else {
@@ -316,8 +318,8 @@ public abstract class RowStoreAVL implements PersistentStore {
 
             tempKeys[position] = keys[position];
 
-            resetAccessorKeys(tempKeys);
-            resetAccessorKeys(keys);
+            resetAccessorKeys(session, tempKeys);
+            resetAccessorKeys(session, keys);
 
             return;
         }
@@ -380,7 +382,7 @@ public abstract class RowStoreAVL implements PersistentStore {
         Index index = this.indexList[0];
 
         if (elementCount < 0) {
-            elementCount = ((IndexAVL) index).getNodeCount(session, this);
+            elementCount = ((IndexAVL) index).getNodeCount(null, this);
         }
 
         return elementCount;
@@ -573,7 +575,7 @@ public abstract class RowStoreAVL implements PersistentStore {
                 // count before inserting
                 rowCount++;
 
-                newIndex.insert(session, this, row);
+                newIndex.insert(null, this, row);
             }
 
             return true;

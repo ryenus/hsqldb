@@ -32,6 +32,7 @@
 package org.hsqldb.persist;
 
 import org.hsqldb.Row;
+import org.hsqldb.RowAction;
 import org.hsqldb.Session;
 import org.hsqldb.TableBase;
 import org.hsqldb.index.Index;
@@ -105,6 +106,8 @@ public interface PersistentStore {
 
     void rollbackRow(Session session, Row row, int changeAction, int txModel);
 
+    void postCommitAction(Session session, RowAction rowAction);
+
     //
     void indexRows(Session session);
 
@@ -142,7 +145,7 @@ public interface PersistentStore {
 
     boolean hasNull(int pos);
 
-    void resetAccessorKeys(Index[] keys);
+    void resetAccessorKeys(Session session, Index[] keys);
 
     Index[] getAccessorKeys();
 

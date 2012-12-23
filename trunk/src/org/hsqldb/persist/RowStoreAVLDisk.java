@@ -338,7 +338,7 @@ public class RowStoreAVLDisk extends RowStoreAVL implements PersistentStore {
         setAccessor(key, object);
     }
 
-    public void resetAccessorKeys(Index[] keys) {
+    public void resetAccessorKeys(Session session, Index[] keys) {
 
         if (indexList.length == 0 || accessorList[0] == null) {
             indexList    = keys;

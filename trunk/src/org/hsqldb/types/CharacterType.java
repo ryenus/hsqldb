@@ -1142,7 +1142,7 @@ public class CharacterType extends Type {
             return this;
         }
 
-        return new CharacterType(this.collation, this.typeCode, length);
+        return getCharacterType(this.typeCode, length, this.collation);
     }
 
     public static int getRightTrimSise(String s, char trim) {

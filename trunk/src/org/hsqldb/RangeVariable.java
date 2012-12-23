@@ -1099,7 +1099,7 @@ public class RangeVariable implements Cloneable {
                                       : ValuePool.getLong(getRowId());
         }
 
-        public void remove() {}
+        public void removeCurrent() {}
 
         public void reset() {
 
@@ -1210,7 +1210,7 @@ public class RangeVariable implements Cloneable {
             return false;
         }
 
-        public void remove() {}
+        public void removeCurrent() {}
 
         public void reset() {
 
@@ -1585,7 +1585,7 @@ public class RangeVariable implements Cloneable {
             return false;
         }
 
-        public void remove() {}
+        public void removeCurrent() {}
 
         public void release() {
 

@@ -228,7 +228,7 @@ public class RowSetNavigatorDataTable extends RowSetNavigatorData {
         if (it.hasNext()) {
             Row row = it.getNextRow();
 
-            it.remove();
+            it.removeCurrent();
             it.release();
 
             size--;
@@ -258,10 +258,10 @@ public class RowSetNavigatorDataTable extends RowSetNavigatorData {
         return result;
     }
 
-    public void remove() {
+    public void removeCurrent() {
 
         if (currentRow != null) {
-            iterator.remove();
+            iterator.removeCurrent();
 
             currentRow = null;
 
@@ -384,7 +384,7 @@ public class RowSetNavigatorDataTable extends RowSetNavigatorData {
             boolean  hasRow      = other.containsRow(currentData);
 
             if (!hasRow) {
-                remove();
+                removeCurrent();
             }
         }
 
@@ -427,7 +427,7 @@ public class RowSetNavigatorDataTable extends RowSetNavigatorData {
                 continue;
             }
 
-            remove();
+            removeCurrent();
         }
 
         other.release();
@@ -443,7 +443,7 @@ public class RowSetNavigatorDataTable extends RowSetNavigatorData {
             boolean  hasRow      = other.containsRow(currentData);
 
             if (hasRow) {
-                remove();
+                removeCurrent();
             }
         }
 
@@ -483,7 +483,7 @@ public class RowSetNavigatorDataTable extends RowSetNavigatorData {
                     && fullIndex.compareRowNonUnique(
                         session, currentData, otherData,
                         fullIndex.getColumnCount()) == 0) {
-                remove();
+                removeCurrent();
             }
         }
 
@@ -527,7 +527,7 @@ public class RowSetNavigatorDataTable extends RowSetNavigatorData {
             if (lastRowData != null
                     && fullIndex.compareRow(session, lastRowData, currentData)
                        == 0) {
-                remove();
+                removeCurrent();
             } else {
                 lastRowData = currentData;
             }
@@ -553,7 +553,7 @@ public class RowSetNavigatorDataTable extends RowSetNavigatorData {
 
             for (int i = 0; i < limitstart; i++) {
                 next();
-                remove();
+                removeCurrent();
             }
         }
 
@@ -569,7 +569,7 @@ public class RowSetNavigatorDataTable extends RowSetNavigatorData {
 
         while (hasNext()) {
             next();
-            remove();
+            removeCurrent();
         }
     }
 

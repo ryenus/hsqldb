@@ -49,11 +49,15 @@ import org.hsqldb.rowio.RowInputInterface;
  */
 public class RowStoreDataChange extends RowStoreAVLHybrid {
 
+    Session session;
+
     public RowStoreDataChange(Session session,
                               PersistentStoreCollection manager,
                               TableBase table) {
 
         super(session, manager, table, true);
+
+        this.session = session;
 
         super.changeToDiskTable(session);
     }

@@ -221,18 +221,20 @@ public class RowType extends Type {
             return Tokens.T_NULL;
         }
 
-        Object[]     arra = (Object[]) a;
-        StringBuffer sb   = new StringBuffer();
+        Object[]     array = (Object[]) a;
+        StringBuffer sb    = new StringBuffer();
 
         sb.append(Tokens.T_ROW);
         sb.append('(');
 
-        for (int i = 0; i < arra.length; i++) {
+        for (int i = 0; i < array.length; i++) {
             if (i > 0) {
                 sb.append(',');
             }
 
-            sb.append(dataTypes[i].convertToSQLString(arra[i]));
+            String string = dataTypes[i].convertToSQLString(array[i]);
+
+            sb.append(string);
         }
 
         sb.append(')');
@@ -484,13 +486,13 @@ public class RowType extends Type {
                 sb.append(',');
             }
 
-            value = types[i].convertToSQLString(array[i]);
+            String string = types[i].convertToSQLString(array[i]);
 
-            if (maxUnitLength > 10 && value.length() > maxUnitLength) {
-                sb.append(value.substring(0, maxUnitLength - 5));
+            if (maxUnitLength > 10 && string.length() > maxUnitLength) {
+                sb.append(string.substring(0, maxUnitLength - 4));
                 sb.append(" ...");
             } else {
-                sb.append(value);
+                sb.append(string);
             }
         }
 

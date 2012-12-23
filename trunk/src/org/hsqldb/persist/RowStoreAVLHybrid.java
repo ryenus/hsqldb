@@ -69,7 +69,6 @@ public class RowStoreAVLHybrid extends RowStoreAVL implements PersistentStore {
                              PersistentStoreCollection manager,
                              TableBase table, boolean diskBased) {
 
-        this.session           = session;
         this.manager           = manager;
         this.table             = table;
         this.maxMemoryRowCount = session.getResultMemoryRowCount();
@@ -92,7 +91,7 @@ public class RowStoreAVLHybrid extends RowStoreAVL implements PersistentStore {
 */
 
 //
-        resetAccessorKeys(table.getIndexList());
+        resetAccessorKeys(session, table.getIndexList());
         manager.setStore(table, this);
 
         nullsList = new boolean[table.getColumnCount()];
@@ -336,7 +335,7 @@ public class RowStoreAVLHybrid extends RowStoreAVL implements PersistentStore {
 
     public void setAccessor(Index key, long accessor) {}
 
-    public synchronized void resetAccessorKeys(Index[] keys) {
+    public synchronized void resetAccessorKeys(Session session, Index[] keys) {
 
         if (indexList.length == 0 || accessorList[0] == null) {
             indexList    = keys;
@@ -349,7 +348,7 @@ public class RowStoreAVLHybrid extends RowStoreAVL implements PersistentStore {
             throw Error.runtimeError(ErrorCode.U_S0500, "RowStoreAVLHybrid");
         }
 
-        super.resetAccessorKeys(keys);
+        super.resetAccessorKeys(session, keys);
     }
 
     public boolean hasNull(int pos) {

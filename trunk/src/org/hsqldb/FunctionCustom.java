@@ -1842,8 +1842,9 @@ public class FunctionCustom extends FunctionSQL {
 
                 String value;
 
-                if (nodes[0].dataType.isCharacterType()
-                        && !nodes[0].dataType.isLobType()) {
+                if (nodes[0].dataType.typeCode == Types.SQL_CLOB) {
+                    value = (String) Type.SQL_VARCHAR.convertToType(session, data[0], nodes[0].dataType);
+                } else if (nodes[0].dataType.isCharacterType()) {
                     value = (String) data[0];
                 } else {
                     value = nodes[0].dataType.convertToString(data[0]);

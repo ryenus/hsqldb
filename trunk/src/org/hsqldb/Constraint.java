@@ -231,6 +231,10 @@ public final class Constraint implements SchemaObject {
                     throw Error.error(ErrorCode.X_42534);
                 }
             }
+
+            if (core.mainCols.length != core.refCols.length) {
+                throw Error.error(ErrorCode.X_42593);
+            }
         } else if (mainColSet != null) {
             core.mainCols = table.getColumnIndexes(mainColSet);
 
@@ -978,15 +982,18 @@ public final class Constraint implements SchemaObject {
         } else {
             QuerySpecification s = Expression.getCheckSelect(session, table,
                 check);
-            Result r = s.getResult(session, 1);
 
-            if (r.getNavigator().getSize() != 0) {
-                String[] info = new String[] {
-                    name.statementName, table.getName().statementName
-                };
+            if (table.getRowStore(session).elementCount() > 0) {
+                Result r = s.getResult(session, 1);
 
-                throw Error.error(null, ErrorCode.X_23513,
-                                  ErrorCode.CONSTRAINT, info);
+                if (r.getNavigator().getSize() != 0) {
+                    String[] info = new String[] {
+                        name.statementName, table.getName().statementName
+                    };
+
+                    throw Error.error(null, ErrorCode.X_23513,
+                                      ErrorCode.CONSTRAINT, info);
+                }
             }
 
             rangeVariable = s.rangeVariables[0];

@@ -267,6 +267,7 @@ class TransactionManagerCommon {
 
             if (action.table.tableType == TableBase.CACHED_TABLE) {
                 if (action.type == RowActionBase.ACTION_NONE) {
+
                     Lock mapLock = rowActionMap.getWriteLock();
 
                     mapLock.lock();

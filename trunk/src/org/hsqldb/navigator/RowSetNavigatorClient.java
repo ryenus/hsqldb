@@ -125,7 +125,7 @@ public class RowSetNavigatorClient extends RowSetNavigator {
         throw Error.runtimeError(ErrorCode.U_S0500, "RowSetNavigatorClient");
     }
 
-    public void remove() {
+    public void removeCurrent() {
         throw Error.runtimeError(ErrorCode.U_S0500, "RowSetNavigatorClient");
     }
 

@@ -382,6 +382,10 @@ public class TableBase {
         }
     }
 
+    public boolean[] getColumnNotNull() {
+        return this.colNotNull;
+    }
+
     public final void createPrimaryIndex(int[] pkcols, Type[] pktypes,
                                          HsqlName name) {
 
@@ -391,19 +395,20 @@ public class TableBase {
             false);
 
         try {
-            addIndex(newIndex);
+            addIndex(null, newIndex);
         } catch (HsqlException e) {}
     }
 
-    public final Index createAndAddIndexStructure(HsqlName name,
-            int[] columns, boolean[] descending, boolean[] nullsLast,
-            boolean unique, boolean constraint, boolean forward) {
+    public final Index createAndAddIndexStructure(Session session,
+            HsqlName name, int[] columns, boolean[] descending,
+            boolean[] nullsLast, boolean unique, boolean constraint,
+            boolean forward) {
 
         Index newindex = createIndexStructure(name, columns, descending,
                                               nullsLast, unique, constraint,
                                               forward);
 
-        addIndex(newindex);
+        addIndex(session, newindex);
 
         return newindex;
     }
@@ -438,7 +443,7 @@ public class TableBase {
      *  to remove a given index from a MEMORY or TEXT table. Not for PK index.
      *
      */
-    public void dropIndex(int todrop) {
+    public void dropIndex(Session session, int todrop) {
 
         indexList = (Index[]) ArrayUtil.toAdjustedArray(indexList, null,
                 todrop, -1);
@@ -450,11 +455,11 @@ public class TableBase {
         setBestRowIdentifiers();
 
         if (store != null) {
-            store.resetAccessorKeys(indexList);
+            store.resetAccessorKeys(session, indexList);
         }
     }
 
-    final void addIndex(Index index) {
+    final void addIndex(Session session, Index index) {
 
         int i = 0;
 
@@ -477,7 +482,7 @@ public class TableBase {
 
         if (store != null) {
             try {
-                store.resetAccessorKeys(indexList);
+                store.resetAccessorKeys(session, indexList);
             } catch (HsqlException e) {
                 indexList = (Index[]) ArrayUtil.toAdjustedArray(indexList,
                         null, index.getPosition(), -1);
@@ -513,8 +518,8 @@ public class TableBase {
                                    boolean[] nullsLast, boolean unique,
                                    boolean constraint, boolean forward) {
 
-        Index newIndex = createAndAddIndexStructure(name, columns, descending,
-            nullsLast, unique, constraint, forward);
+        Index newIndex = createAndAddIndexStructure(session, name, columns,
+            descending, nullsLast, unique, constraint, forward);
 
         return newIndex;
     }
