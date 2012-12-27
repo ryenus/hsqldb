@@ -3705,7 +3705,12 @@ public class ParserDQL extends ParserBase {
                 if (token.tokenType == Tokens.NULL) {
                     read();
 
-                    e = new ExpressionLogical(OpTypes.IS_NULL, l);
+                    if (hasNot) {
+                        e = new ExpressionLogical(OpTypes.IS_NOT_NULL, l);
+                        hasNot = false;
+                    } else {
+                        e = new ExpressionLogical(OpTypes.IS_NULL, l);
+                    }
 
                     break;
                 }

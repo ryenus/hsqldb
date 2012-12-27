@@ -96,6 +96,7 @@ public class Session implements SessionInterface {
     int isolationLevel        = SessionInterface.TX_READ_COMMITTED;
     boolean                 isReadOnlyIsolation;
     int                     actionIndex;
+    long                    actionStartTimestamp;
     long                    actionTimestamp;
     long                    transactionTimestamp;
     long                    transactionEndTimestamp;
@@ -717,13 +718,13 @@ public class Session implements SessionInterface {
         database.txManager.rollbackSavepoint(this, 0);
     }
 
-    public synchronized void rollbackAction() {
+    public synchronized void rollbackAction(int start, long timestamp) {
 
         if (isClosed) {
             return;
         }
 
-        database.txManager.rollbackAction(this);
+        database.txManager.rollbackPartial(this, start, timestamp);
     }
 
     /**

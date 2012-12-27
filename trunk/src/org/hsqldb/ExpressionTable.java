@@ -234,13 +234,13 @@ public class ExpressionTable extends Expression {
         Object[][] array = new Object[nodes.length][];
 
         for (int i = 0; i < array.length; i++) {
-            Object[] data = (Object[]) nodes[i].getValue(session);
+            Object[] values = (Object[]) nodes[i].getValue(session);
 
-            if (data == null) {
-                data = ValuePool.emptyObjectArray;
+            if (values == null) {
+                values = ValuePool.emptyObjectArray;
             }
 
-            array[i] = data;
+            array[i] = values;
         }
 
         for (int i = 0; ; i++) {

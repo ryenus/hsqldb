@@ -1317,6 +1317,22 @@ public class ParserRoutine extends ParserDML {
         readThis(Tokens.BEGIN);
         readThis(Tokens.ATOMIC);
 
+        if (label == null) {
+            String            labelString;
+            StatementCompound parent = context;
+            int               level  = 0;
+
+            while (parent != null) {
+                level++;
+
+                parent = parent.parent;
+            }
+
+            labelString = "_" + level;
+            label = session.database.nameManager.newHsqlName(labelString,
+                    false, SchemaObject.LABEL);
+        }
+
         StatementCompound statement =
             new StatementCompound(StatementTypes.BEGIN_END, label);
 

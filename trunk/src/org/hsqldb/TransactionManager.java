@@ -55,6 +55,8 @@ public interface TransactionManager {
 
     public long getGlobalChangeTimestamp();
 
+    public long getNextGlobalChangeTimestamp();
+
     public RowAction addDeleteAction(Session session, Table table,
                                      PersistentStore store, Row row,
                                      int[] colMap);
@@ -97,6 +99,8 @@ public interface TransactionManager {
     public void rollbackAction(Session session);
 
     public void rollbackSavepoint(Session session, int index);
+
+    public void rollbackPartial(Session session, int start, long timestamp);
 
     public void setTransactionControl(Session session, int mode);
 
