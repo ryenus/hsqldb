@@ -350,7 +350,7 @@ class TransactionManagerCommon {
     /**
      * gets the next timestamp for an action
      */
-    long nextChangeTimestamp() {
+    public long getNextGlobalChangeTimestamp() {
         return globalChangeTimestamp.incrementAndGet();
     }
 

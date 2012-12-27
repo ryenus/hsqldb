@@ -61,8 +61,8 @@ public class StatementCompound extends Statement implements RangeGroup {
     boolean             isAtomic;
 
     //
-    ColumnSchema[]    variables = ColumnSchema.emptyArray;
-    StatementCursor[] cursors   = StatementCursor.emptyArray;
+    ColumnSchema[]    variables      = ColumnSchema.emptyArray;
+    StatementCursor[] cursors        = StatementCursor.emptyArray;
     HashMappedList    scopeVariables = new HashMappedList();
     RangeVariable[]   rangeVariables = RangeVariable.emptyArray;
     Table[]           tables         = Table.emptyArray;
@@ -373,15 +373,18 @@ public class StatementCompound extends Statement implements RangeGroup {
         }
 
         for (int i = 0; i < statements.length; i++) {
-            result = statements[i].execute(session);
+            result = executeProtected(session, statements[i]);
             result = handleCondition(session, result);
 
             if (result.isError()) {
                 break;
             }
 
-            if (result.getType() == ResultConstants.VALUE
-                    || result.getType() == ResultConstants.DATA) {
+            if (result.getType() == ResultConstants.VALUE) {
+                break;
+            }
+
+            if (result.getType() == ResultConstants.DATA) {
                 break;
             }
         }
@@ -437,8 +440,6 @@ public class StatementCompound extends Statement implements RangeGroup {
                     switch (handler.handlerType) {
 
                         case StatementHandler.CONTINUE :
-                            session.rollbackAction();
-
                             result = Result.updateZeroResult;
                             break;
 
@@ -450,26 +451,26 @@ public class StatementCompound extends Statement implements RangeGroup {
                             break;
 
                         case StatementHandler.EXIT :
-                            session.rollbackAction();
-
                             result = Result.newPSMResult(StatementTypes.LEAVE,
-                                                         null, null);
+                                                         labelString, null);
                             break;
                     }
 
-                    Result actionResult = handler.statement.execute(session);
+                    Result actionResult = executeProtected(session,
+                                                           handler.statement);
 
                     if (actionResult.isError()) {
                         result = actionResult;
 
-                        handleCondition(session, result);
-                    } else {
-                        return result;
+                        // parent should handle this
+                    } else if (actionResult.getType()
+                               == ResultConstants.VALUE) {
+                        result = actionResult;
                     }
                 }
             }
 
-            if (parent != null) {
+            if (result.isError() && parent != null) {
 
                 // unhandled exception condition
                 return parent.handleCondition(session, result);
@@ -498,7 +499,8 @@ public class StatementCompound extends Statement implements RangeGroup {
                                 queryResult.metaData.getColumnCount());
 
             for (int i = 0; i < statements.length; i++) {
-                result = statements[i].execute(session);
+                result = executeProtected(session, statements[i]);
+                result = handleCondition(session, result);
 
                 if (result.isError()) {
                     break;
@@ -569,11 +571,8 @@ public class StatementCompound extends Statement implements RangeGroup {
             }
 
             for (int i = 0; i < statements.length; i++) {
-                result = statements[i].execute(session);
-
-                if (result.isError()) {
-                    break;
-                }
+                result = executeProtected(session, statements[i]);
+                result = handleCondition(session, result);
 
                 if (result.getType() == ResultConstants.VALUE) {
                     break;
@@ -652,7 +651,7 @@ public class StatementCompound extends Statement implements RangeGroup {
                     break;
                 }
 
-                result = statements[i].execute(session);
+                result = executeProtected(session, statements[i]);
 
                 if (result.isError()) {
                     break;
@@ -671,7 +670,8 @@ public class StatementCompound extends Statement implements RangeGroup {
                 continue;
             }
 
-            result = statements[i].execute(session);
+            result = executeProtected(session, statements[i]);
+            result = handleCondition(session, result);
 
             if (result.isError()) {
                 break;
@@ -680,6 +680,22 @@ public class StatementCompound extends Statement implements RangeGroup {
             if (result.getType() == ResultConstants.VALUE) {
                 break;
             }
+        }
+
+        return result;
+    }
+
+    private Result executeProtected(Session session, Statement statement) {
+
+        int actionIndex = session.rowActionList.size();
+
+        session.actionTimestamp =
+            session.database.txManager.getNextGlobalChangeTimestamp();
+
+        Result result = statement.execute(session);
+
+        if (result.isError()) {
+            session.rollbackAction(actionIndex, session.actionTimestamp);
         }
 
         return result;

@@ -68,7 +68,8 @@ public interface OpTypes {
         CONCAT               = 36,    // concatenation
         LIKE_ARG             = 37,
         CASEWHEN_COALESCE    = 38,
-        EQUAL                = 41,    // logical - comparison
+        IS_NOT_NULL          = 39,    // logical - comparison
+        EQUAL                = 41,
         GREATER_EQUAL        = 42,
         GREATER              = 43,
         SMALLER              = 44,

@@ -79,7 +79,7 @@ implements TransactionManager {
 
     public boolean prepareCommitActions(Session session) {
 
-        session.actionTimestamp = nextChangeTimestamp();
+        session.actionTimestamp = getNextGlobalChangeTimestamp();
 
         return true;
     }
@@ -98,7 +98,7 @@ implements TransactionManager {
         try {
 
             // new actionTimestamp used for commitTimestamp
-            session.actionTimestamp         = nextChangeTimestamp();
+            session.actionTimestamp         = getNextGlobalChangeTimestamp();
             session.transactionEndTimestamp = session.actionTimestamp;
 
             endTransaction(session);
@@ -124,7 +124,7 @@ implements TransactionManager {
     public void rollback(Session session) {
 
         session.abortTransaction        = false;
-        session.actionTimestamp         = nextChangeTimestamp();
+        session.actionTimestamp         = getNextGlobalChangeTimestamp();
         session.transactionEndTimestamp = session.actionTimestamp;
 
         rollbackPartial(session, 0, session.transactionTimestamp);
@@ -154,7 +154,9 @@ implements TransactionManager {
     }
 
     public void rollbackAction(Session session) {
-        rollbackPartial(session, session.actionIndex, session.actionTimestamp);
+
+        rollbackPartial(session, session.actionIndex,
+                        session.actionStartTimestamp);
         endActionTPL(session);
     }
 
@@ -162,7 +164,7 @@ implements TransactionManager {
      * rollback the row actions from start index in list and
      * the given timestamp
      */
-    void rollbackPartial(Session session, int start, long timestamp) {
+    public void rollbackPartial(Session session, int start, long timestamp) {
 
         Object[] list  = session.rowActionList.getArray();
         int      limit = session.rowActionList.size();
@@ -263,7 +265,7 @@ implements TransactionManager {
     public void beginTransaction(Session session) {
 
         if (!session.isTransaction) {
-            session.actionTimestamp      = nextChangeTimestamp();
+            session.actionTimestamp      = getNextGlobalChangeTimestamp();
             session.transactionTimestamp = session.actionTimestamp;
             session.isTransaction        = true;
 
@@ -313,7 +315,8 @@ implements TransactionManager {
 
     public void beginActionResume(Session session) {
 
-        session.actionTimestamp = nextChangeTimestamp();
+        session.actionTimestamp      = getNextGlobalChangeTimestamp();
+        session.actionStartTimestamp = session.actionTimestamp;
 
         if (!session.isTransaction) {
             session.transactionTimestamp = session.actionTimestamp;

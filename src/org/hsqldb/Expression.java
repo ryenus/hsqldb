@@ -1361,10 +1361,11 @@ public class Expression implements Cloneable {
                                        PersistentStore store) {
 
         for (int i = 0; i < nodes.length; i++) {
-            Object[] data = nodes[i].getRowValue(session);
+            Object[] values = nodes[i].getRowValue(session);
+            Object[] data   = store.getTable().getEmptyRowData();
 
             for (int j = 0; j < nodeDataTypes.length; j++) {
-                data[j] = nodeDataTypes[j].convertToType(session, data[j],
+                data[j] = nodeDataTypes[j].convertToType(session, values[j],
                         nodes[i].nodes[j].dataType);
             }
 

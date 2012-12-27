@@ -95,7 +95,7 @@ implements TransactionManager {
         writeLock.lock();
 
         try {
-            session.actionTimestamp = nextChangeTimestamp();
+            session.actionTimestamp = getNextGlobalChangeTimestamp();
 
             for (int i = 0; i < limit; i++) {
                 RowAction action = (RowAction) list[i];
@@ -123,7 +123,7 @@ implements TransactionManager {
         try {
 
             // new actionTimestamp used for commitTimestamp
-            session.actionTimestamp         = nextChangeTimestamp();
+            session.actionTimestamp         = getNextGlobalChangeTimestamp();
             session.transactionEndTimestamp = session.actionTimestamp;
 
             endTransaction(session);
@@ -177,7 +177,7 @@ implements TransactionManager {
 
         try {
             session.abortTransaction        = false;
-            session.actionTimestamp         = nextChangeTimestamp();
+            session.actionTimestamp         = getNextGlobalChangeTimestamp();
             session.transactionEndTimestamp = session.actionTimestamp;
 
             rollbackPartial(session, 0, session.transactionTimestamp);
@@ -204,7 +204,9 @@ implements TransactionManager {
     }
 
     public void rollbackAction(Session session) {
-        rollbackPartial(session, session.actionIndex, session.actionTimestamp);
+
+        rollbackPartial(session, session.actionIndex,
+                        session.actionStartTimestamp);
         endActionTPL(session);
     }
 
@@ -212,7 +214,7 @@ implements TransactionManager {
      * rollback the row actions from start index in list and
      * the given timestamp
      */
-    void rollbackPartial(Session session, int start, long timestamp) {
+    public void rollbackPartial(Session session, int start, long timestamp) {
 
         Object[] list  = session.rowActionList.getArray();
         int      limit = session.rowActionList.size();
@@ -250,15 +252,29 @@ implements TransactionManager {
         RowAction action;
 
         synchronized (row) {
-            action = RowAction.addDeleteAction(session, table, row, colMap);
-        }
+            switch (table.tableType) {
 
-        if (table.tableType == TableBase.CACHED_TABLE) {
+                case TableBase.CACHED_TABLE :
+                    action = RowAction.addDeleteAction(session, table, row,
+                                                       colMap);
+
             addTransactionInfo(row);
-        } else if (table.tableType == TableBase.TEMP_TABLE) {
+                    break;
+
+                case TableBase.TEMP_TABLE :
+                    action = RowAction.addDeleteAction(session, table, row,
+                                                       colMap);
+
             store.delete(session, row);
 
             row.rowAction = null;
+                    break;
+
+                case TableBase.MEMORY_TABLE :
+                default :
+                    action = RowAction.addDeleteAction(session, table, row,
+                                                       colMap);
+            }
         }
 
         session.rowActionList.add(action);
@@ -441,7 +457,7 @@ implements TransactionManager {
 
         try {
             if (!session.isTransaction) {
-                session.actionTimestamp      = nextChangeTimestamp();
+                session.actionTimestamp      = getNextGlobalChangeTimestamp();
                 session.transactionTimestamp = session.actionTimestamp;
                 session.isTransaction        = true;
 
@@ -505,13 +521,14 @@ implements TransactionManager {
         writeLock.lock();
 
         try {
-            session.actionTimestamp = nextChangeTimestamp();
+            session.actionTimestamp = getNextGlobalChangeTimestamp();
 
             if (!session.isTransaction) {
                 session.transactionTimestamp = session.actionTimestamp;
                 session.isTransaction        = true;
 
-                liveTransactionTimestamps.addLast(session.actionTimestamp);
+                liveTransactionTimestamps.addLast(
+                    session.transactionTimestamp);
 
                 transactionCount++;
             }

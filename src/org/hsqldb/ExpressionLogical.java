@@ -191,6 +191,7 @@ public class ExpressionLogical extends Expression {
             case OpTypes.UNIQUE :
             case OpTypes.EXISTS :
             case OpTypes.IS_NULL :
+            case OpTypes.IS_NOT_NULL :
             case OpTypes.NOT :
                 dataType = Type.SQL_BOOLEAN;
                 break;
@@ -713,21 +714,72 @@ public class ExpressionLogical extends Expression {
 
                 break;
             }
-            case OpTypes.IS_NULL :
-                if (nodes[LEFT].isUnresolvedParam()) {
-                    if (session.database.sqlEnforceTypes) {
-                        throw Error.error(ErrorCode.X_42563);
+            case OpTypes.IS_NOT_NULL :
+            case OpTypes.IS_NULL : {
+                switch (nodes[LEFT].opType) {
+
+                    case OpTypes.ROW : {
+                        Expression[] sourceNodes = nodes[LEFT].nodes;
+                        Expression   result      = null;
+
+                        for (int i = 0; i < sourceNodes.length; i++) {
+                            Expression node;
+
+                            node = new ExpressionLogical(OpTypes.IS_NULL,
+                                                         sourceNodes[i]);
+
+                            if (opType == OpTypes.IS_NOT_NULL) {
+                                node = new ExpressionLogical(OpTypes.NOT,
+                                                             node);
+                            }
+
+                            result = andExpressions(result, node);
+                        }
+
+                        opType = OpTypes.AND;
+                        nodes  = result.nodes;
+
+                        resolveTypes(session, parent);
+
+                        break;
                     }
+                    case OpTypes.ROW_SUBQUERY :
+                    case OpTypes.TABLE_SUBQUERY : {
+                        break;
+                    }
+                    default : {
+                        if (nodes[LEFT].isUnresolvedParam()) {
+                            if (session.database.sqlEnforceTypes) {
+                                throw Error.error(ErrorCode.X_42563);
+                            }
 
-                    nodes[LEFT].dataType = Type.SQL_VARCHAR_DEFAULT;
+                            nodes[LEFT].dataType = Type.SQL_VARCHAR_DEFAULT;
+                        }
+
+                        if (opType == OpTypes.IS_NOT_NULL) {
+                            Expression node;
+
+                            node = new ExpressionLogical(OpTypes.IS_NULL,
+                                                         nodes[LEFT]);
+                            nodes[LEFT] = node;
+                            opType      = OpTypes.NOT;
+
+                            resolveTypes(session, parent);
+
+                            break;
+                        }
+
+                        if (nodes[LEFT].opType == OpTypes.VALUE) {
+                            setAsConstantValue(session);
+                        }
+
+                        break;
+                    }
                 }
 
-                if (nodes[LEFT].opType == OpTypes.VALUE) {
-                    setAsConstantValue(session);
-                }
                 break;
-
-            case OpTypes.NOT :
+            }
+            case OpTypes.NOT : {
                 if (nodes[LEFT].isUnresolvedParam()) {
                     nodes[LEFT].dataType = Type.SQL_BOOLEAN;
 
@@ -750,8 +802,9 @@ public class ExpressionLogical extends Expression {
                 }
 
                 dataType = Type.SQL_BOOLEAN;
-                break;
 
+                break;
+            }
             case OpTypes.OVERLAPS :
                 resolveTypesForOverlaps();
                 break;
@@ -1146,10 +1199,34 @@ public class ExpressionLogical extends Expression {
                 return ((NumberType) dataType).negate(
                     nodes[LEFT].getValue(session, nodes[LEFT].dataType));
 
-            case OpTypes.IS_NULL :
+            case OpTypes.IS_NOT_NULL :
+            case OpTypes.IS_NULL : {
+                switch (nodes[LEFT].opType) {
+
+                    case OpTypes.ROW :
+                    case OpTypes.ROW_SUBQUERY :
+                    case OpTypes.TABLE_SUBQUERY : {
+                        Object[] values = nodes[LEFT].getRowValue(session);
+
+                        for (int i = 0; i < values.length; i++) {
+                            if (values[i] == null) {
+                                if (opType == OpTypes.IS_NOT_NULL) {
+                                    return Boolean.FALSE;
+                                }
+                            } else {
+                                if (opType == OpTypes.IS_NULL) {
+                                    return Boolean.FALSE;
+                                }
+                            }
+                        }
+
+                        return Boolean.TRUE;
+                    }
+                }
+
                 return nodes[LEFT].getValue(session) == null ? Boolean.TRUE
                                                              : Boolean.FALSE;
-
+            }
             case OpTypes.OVERLAPS : {
                 Object[] left  = nodes[LEFT].getRowValue(session);
                 Object[] right = nodes[RIGHT].getRowValue(session);
