@@ -1,5 +1,12 @@
+09 December 2012 - svn 5127
+-- added support for CONCAT_WS and UNIX_MILLIS functions
+-- added support for table spaces
+-- added INFORMATION_SCHEMA.SYSTEM_TABLESTATS
+-- added SET DATABASE SQL NULLS ORDER and the property sql.nulls_order for the default sort order of nulls
+-- improved name resolution in queries within SQL routines
+-- fixed various minor issues
 01 November 2012 - svn 5103
--- fixed issue with some correlated subqueris in where clause
+-- fixed issue with some correlated subqueries in where clause
 -- fixed issue with ROWNUM in inner selects
 -- fixed various minor issues
 -- improved support for DATE and TIMESTAMP subtraction without explicit INTERVAL type
@@ -8,7 +15,7 @@
 -- fixed various minor issues
 -- fixed issues with some disk-based TEMP tables used in multiversion transaction modes
 12 October 2012 - svn 5089 snapshot
--- fixed issue with LOBs in res: databases
+-- fixed issue with access to LOBs in res: databases
 -- fixed regression with some nested views
 -- added global IGNORECASE property
 10 September 2012 - svn 5071 snapshot
