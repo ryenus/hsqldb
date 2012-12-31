@@ -65,9 +65,9 @@ public class DataSpaceManagerBlocks implements DataSpaceManager {
     int                        spaceIdSequence = tableIdFirst;
 
     //
-    int blockSize         = 1024 * 2;
-    int bitmapIntSize     = 1024 * 2;
-    int fileBlockItemSize = bitmapIntSize * 32;
+    int blockSize          = 1024 * 2;
+    int bitmapIntSize      = 1024 * 2;
+    int fileBlockItemCount = bitmapIntSize * 32;
     int fileBlockSize;
     int dataFileScale;
 
@@ -545,9 +545,9 @@ public class DataSpaceManagerBlocks implements DataSpaceManager {
                     break;
                 }
 
-                cache.releaseRange(ba.currentBlockIndex * fileBlockItemSize,
+                cache.releaseRange(ba.currentBlockIndex * fileBlockItemCount,
                                    (ba.currentBlockIndex + 1)
-                                   * fileBlockItemSize);
+                                   * fileBlockItemCount);
 
                 ba.currentDir.getTableIdArray()[ba.currentBlockOffset] =
                     tableIdEmpty;
@@ -598,9 +598,9 @@ public class DataSpaceManagerBlocks implements DataSpaceManager {
         for (; units > 0; ) {
 
             // count can cover more than one file block
-            int blockIndex   = (int) (position / fileBlockItemSize);
-            int offset       = (int) (position % fileBlockItemSize);
-            int currentUnits = fileBlockItemSize - offset;
+            int blockIndex   = (int) (position / fileBlockItemCount);
+            int offset       = (int) (position % fileBlockItemCount);
+            int currentUnits = fileBlockItemCount - offset;
 
             if (currentUnits > units) {
                 currentUnits = units;
@@ -624,7 +624,7 @@ public class DataSpaceManagerBlocks implements DataSpaceManager {
             units                       -= currentUnits;
             position                    += currentUnits;
 
-            if (freeUnitsInBlock == fileBlockItemSize) {
+            if (freeUnitsInBlock == fileBlockItemCount) {
                 ba.currentDir.getTableIdArray()[ba.currentBlockOffset] =
                     tableIdEmpty;
                 ba.currentDir.getFreeSpaceArray()[ba.currentBlockOffset] = 0;
@@ -726,7 +726,7 @@ public class DataSpaceManagerBlocks implements DataSpaceManager {
                 (char) freeUnitsInBlock;
             ba.currentDir.hasChanged = true;
 
-            ba.currentBitMap.bitMap.unsetRange(fileBlockItemSize - freeItems,
+            ba.currentBitMap.bitMap.unsetRange(fileBlockItemCount - freeItems,
                                                freeItems);
 
             ba.currentBitMap.hasChanged = true;

@@ -299,7 +299,7 @@ implements org.hsqldb.rowio.RowInputInterface {
      *  byte[] buffer by an external routine.
      *
      */
-    public void resetRow(long filepos, int rowsize) throws IOException {
+    public void resetRow(long filepos, int rowsize) {
 
         if (out != null) {
             out.reset(rowsize);

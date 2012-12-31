@@ -1013,13 +1013,9 @@ public class DataFileCache {
 
             for (int j = 0; j < 2; j++) {
                 try {
-                    RowInputInterface rowInput = readObject(pos);
+                    readObject(pos);
 
-                    if (rowInput == null) {
-                        return null;
-                    }
-
-                    object = store.get(rowInput);
+                    object = store.get(rowIn);
 
                     break;
                 } catch (OutOfMemoryError err) {
@@ -1029,7 +1025,12 @@ public class DataFileCache {
                                    + pos, err);
 
                     if (j > 0) {
-                        throw err;
+                        HsqlException ex = Error.error(ErrorCode.OUT_OF_MEMORY,
+                                                       err);
+
+                        ex.info = rowIn;
+
+                        throw ex;
                     }
                 }
             }
@@ -1074,13 +1075,9 @@ public class DataFileCache {
 
             for (int j = 0; j < 2; j++) {
                 try {
-                    RowInputInterface rowInput = readObject(pos, size);
+                    readObject(pos, size);
 
-                    if (rowInput == null) {
-                        return null;
-                    }
-
-                    object = store.get(rowInput);
+                    object = store.get(rowIn);
 
                     break;
                 } catch (OutOfMemoryError err) {
@@ -1120,13 +1117,15 @@ public class DataFileCache {
         writeLock.lock();
 
         try {
-            return readObject(i);
+            readObject(i);
+
+            return rowIn;
         } finally {
             writeLock.unlock();
         }
     }
 
-    protected int readSize(long pos) {
+    private int readSize(long pos) {
 
         writeLock.lock();
 
@@ -1143,7 +1142,7 @@ public class DataFileCache {
         }
     }
 
-    protected RowInputInterface readObject(long pos) {
+    private void readObject(long pos) {
 
         try {
             dataFile.seek(pos * dataFileScale);
@@ -1152,27 +1151,35 @@ public class DataFileCache {
 
             rowIn.resetRow(pos, size);
             dataFile.read(rowIn.getBuffer(), 4, size - 4);
-
-            return rowIn;
         } catch (IOException e) {
             logSevereEvent("readObject", e, pos);
 
-            throw Error.error(ErrorCode.DATA_FILE_ERROR, e);
+            HsqlException ex = Error.error(ErrorCode.DATA_FILE_ERROR, e);
+
+            if (rowIn.getPos() != pos) {
+                rowIn.resetRow(pos, 0);
+            }
+
+            ex.info = rowIn;
+
+            throw ex;
         }
     }
 
-    protected RowInputInterface readObject(long pos, int size) {
+    protected void readObject(long pos, int size) {
 
         try {
-            dataFile.seek(pos * dataFileScale);
             rowIn.resetBlock(pos, size);
+            dataFile.seek(pos * dataFileScale);
             dataFile.read(rowIn.getBuffer(), 0, size);
-
-            return rowIn;
         } catch (IOException e) {
             logSevereEvent("readObject", e, pos);
 
-            throw Error.error(ErrorCode.DATA_FILE_ERROR, e);
+            HsqlException ex = Error.error(ErrorCode.DATA_FILE_ERROR, e);
+
+            ex.info = rowIn;
+
+            throw ex;
         }
     }
 

@@ -189,7 +189,10 @@ public class RowStoreAVLDisk extends RowStoreAVL implements PersistentStore {
     public void indexRow(Session session, Row row) {
 
         try {
+            row = (Row) get(row, true);
+
             super.indexRow(session, row);
+            row.keepInMemory(false);
         } catch (HsqlException e) {
             database.txManager.removeTransactionInfo(row);
 
@@ -318,6 +321,11 @@ public class RowStoreAVLDisk extends RowStoreAVL implements PersistentStore {
         if (node == null) {
             return null;
         }
+
+        RowAVL row = (RowAVL) get(node.getRow(this), false);
+
+        node                            = row.getNode(key.getPosition());
+        accessorList[key.getPosition()] = node;
 
         return node;
     }

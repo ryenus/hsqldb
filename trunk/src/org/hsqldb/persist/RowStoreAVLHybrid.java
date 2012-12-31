@@ -218,6 +218,18 @@ public class RowStoreAVLHybrid extends RowStoreAVL implements PersistentStore {
         return row;
     }
 
+    public void indexRow(Session session, Row row) {
+
+        try {
+            row = (Row) get(row, true);
+
+            super.indexRow(session, row);
+            row.keepInMemory(false);
+        } catch (HsqlException e) {
+            throw e;
+        }
+    }
+
     public void removeAll() {
 
         if (!isCached) {
@@ -324,6 +336,22 @@ public class RowStoreAVLHybrid extends RowStoreAVL implements PersistentStore {
 
     public void delete(Session session, Row row) {
         super.delete(session, row);
+    }
+
+    public CachedObject getAccessor(Index key) {
+
+        NodeAVL node = (NodeAVL) accessorList[key.getPosition()];
+
+        if (node == null) {
+            return null;
+        }
+
+        RowAVL row = (RowAVL) get(node.getRow(this), false);
+
+        node                            = row.getNode(key.getPosition());
+        accessorList[key.getPosition()] = node;
+
+        return node;
     }
 
     public void setAccessor(Index key, CachedObject accessor) {
