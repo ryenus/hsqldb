@@ -1110,9 +1110,17 @@ public class Routine implements SchemaObject, RangeGroup, Cloneable {
                             || methodReturnType.isCharacterType())) {
 
                     //
-                } else if (methodReturnType.typeCode
-                           != routine.returnType.typeCode) {
-                    continue;
+                } else {
+                    int routineRetType = routine.returnType.typeCode;
+
+                    if (routineRetType == Types.SQL_NUMERIC) {
+                        routineRetType = Types.SQL_DECIMAL;
+                    }
+
+                    if (methodReturnType.typeCode
+                            != routineRetType) {
+                        continue;
+                    }
                 }
             }
 
@@ -1147,8 +1155,13 @@ public class Routine implements SchemaObject, RangeGroup, Cloneable {
 
                 // exact type for number
                 if (result && routine.parameterTypes[j].isNumberType()) {
-                    result = routine.parameterTypes[j].typeCode
-                             == methodParamType.typeCode;
+                    int routineParamType = routine.parameterTypes[j].typeCode;
+
+                    if (routineParamType == Types.SQL_NUMERIC) {
+                        routineParamType = Types.SQL_DECIMAL;
+                    }
+
+                    result = routineParamType == methodParamType.typeCode;
                 }
 
                 if (isInOut

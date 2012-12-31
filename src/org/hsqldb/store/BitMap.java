@@ -233,6 +233,17 @@ public class BitMap {
         return get(pos) == 1;
     }
 
+    public int countSet(int pos, int count) {
+        int set = 0;
+        for (int i = pos; i < pos + count; i++) {
+            if (isSet(i)) {
+                set++;
+            }
+        }
+
+        return set;
+    }
+
     public int bitCount() {
 
         int setCount = 0;

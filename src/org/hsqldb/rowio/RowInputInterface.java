@@ -65,9 +65,9 @@ public interface RowInputInterface {
 
     Object[] readData(Type[] colTypes) throws IOException;
 
-    void resetRow(long filePos, int size) throws IOException;
+    void resetRow(long filePos, int size);
 
-    void resetBlock(long filePos, int size) throws IOException;
+    void resetBlock(long filePos, int size);
 
     byte[] getBuffer();
 }

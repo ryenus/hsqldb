@@ -282,7 +282,7 @@ abstract class RowInputBase extends HsqlByteArrayInputStream {
      *  byte[] buffer by an external routine.
      *
      */
-    public void resetRow(long filepos, int rowsize) throws IOException {
+    public void resetRow(long filepos, int rowsize) {
 
         mark = 0;
 
@@ -306,7 +306,7 @@ abstract class RowInputBase extends HsqlByteArrayInputStream {
      *  byte[] buffer by an external routine.
      *
      */
-    public void resetBlock(long filepos, int rowsize) throws IOException {
+    public void resetBlock(long filepos, int rowsize) {
 
         mark = 0;
 

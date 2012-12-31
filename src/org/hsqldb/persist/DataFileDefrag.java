@@ -223,29 +223,4 @@ final class DataFileDefrag {
     public long[][] getIndexRoots() {
         return rootsList;
     }
-
-    static boolean checkAllTables(Database database) {
-
-        HsqlArrayList allTables = database.schemaManager.getAllTables(true);
-
-        for (int i = 0; i < allTables.size(); i++) {
-            Table table = (Table) allTables.get(i);
-            PersistentStore store =
-                table.database.persistentStoreCollection.getStore(table);
-            int count = 0;
-
-            if (table.getTableType() == TableBase.CACHED_TABLE) {
-                RowIterator it = store.rowIterator();
-
-                for (; it.hasNext(); count++) {
-                    CachedObject row = it.getNextRow();
-                }
-
-                System.out.println("table " + table.getName().name + " "
-                                   + count);
-            }
-        }
-
-        return true;
-    }
 }
