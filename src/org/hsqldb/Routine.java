@@ -102,6 +102,8 @@ public class Routine implements SchemaObject, RangeGroup, Cloneable {
 
     //
     boolean isAggregate;
+    boolean isIndex;
+    boolean isSearch;
 
     //
     private String  methodName;

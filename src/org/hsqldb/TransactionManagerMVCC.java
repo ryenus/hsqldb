@@ -303,7 +303,6 @@ implements TransactionManager {
 
         try {
             mergeRolledBackTransaction(session, timestamp, list, start, limit);
-            finaliseRollback(session, list, start, limit);
         } finally {
             writeLock.unlock();
         }
@@ -779,7 +778,7 @@ implements TransactionManager {
         synchronized (row) {
             switch (table.tableType) {
 
-                case TableBase.CACHED_TABLE : 
+                case TableBase.CACHED_TABLE :
                     rowActionMap.getWriteLock().lock();
 
                     try {
@@ -803,8 +802,8 @@ implements TransactionManager {
                         rowActionMap.getWriteLock().unlock();
                     }
                     break;
-                
-                case TableBase.TEMP_TABLE : 
+
+                case TableBase.TEMP_TABLE :
                     action = RowAction.addDeleteAction(session, table, row,
                                                        colMap);
 
@@ -812,11 +811,11 @@ implements TransactionManager {
 
                     row.rowAction = null;
                     break;
-                
+
                 case TableBase.MEMORY_TABLE :
                 default :
                     action = RowAction.addDeleteAction(session, table, row,
-                                                       colMap);                
+                                                       colMap);
             }
         }
 

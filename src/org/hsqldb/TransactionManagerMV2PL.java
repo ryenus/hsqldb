@@ -241,7 +241,6 @@ implements TransactionManager {
         // rolled back transactions can always be merged as they have never been
         // seen by other sessions
         mergeRolledBackTransaction(session, timestamp, list, start, limit);
-        finaliseRollback(session, list, start, limit);
         session.rowActionList.setSize(start);
     }
 

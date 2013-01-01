@@ -253,6 +253,15 @@ public abstract class Type implements SchemaObject, Cloneable {
 
     public abstract int compare(Session session, Object a, Object b);
 
+    public int compare(Session session, Object a, Object b, int opType) {
+
+        if (a == b) {
+            return 0;
+        }
+
+        return compare(session, a, b);
+    }
+
     public int compare(Session session, Object a, Object b,
                        SortAndSlice sort) {
 

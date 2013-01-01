@@ -1071,7 +1071,8 @@ public class RangeVariableResolver {
                 case OpTypes.SMALLER :
                 case OpTypes.SMALLER_EQUAL :
                 case OpTypes.GREATER :
-                case OpTypes.GREATER_EQUAL : {
+                case OpTypes.GREATER_EQUAL :
+                case OpTypes.GREATER_EQUAL_PRE : {
                     if (e.getLeftNode().getRangeVariable()
                             != conditions.rangeVar) {
                         continue;
@@ -1454,7 +1455,8 @@ public class RangeVariableResolver {
                 case OpTypes.SMALLER :
                 case OpTypes.SMALLER_EQUAL :
                 case OpTypes.GREATER :
-                case OpTypes.GREATER_EQUAL : {
+                case OpTypes.GREATER_EQUAL :
+                case OpTypes.GREATER_EQUAL_PRE : {
                     if (cols[0] == e.getLeftNode().getColumnIndex()) {
                         if (e.getRightNode() != null
                                 && !e.getRightNode().isCorrelated()) {

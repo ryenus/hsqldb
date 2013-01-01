@@ -272,18 +272,24 @@ public class RowStoreAVLDisk extends RowStoreAVL implements PersistentStore {
                 break;
 
             case RowAction.ACTION_INSERT :
-                if (txModel == TransactionManager.LOCKS) {
-                    delete(session, row);
-                    remove(row);
-                }
+                delete(session, row);
+
+                // remove info after delete but before removing persistence
+                database.txManager.removeTransactionInfo(row);
+                remove(row);
                 break;
 
             case RowAction.ACTION_INSERT_DELETE :
+                if (txModel != TransactionManager.LOCKS) {
 
-                // INSERT + DELETE
-                if (txModel == TransactionManager.LOCKS) {
-                    remove(row);
+                    // INSERT + DELETE
+                    delete(session, row);
+
+                    // remove info after delete but before removing persistence
+                    database.txManager.removeTransactionInfo(row);
                 }
+
+                remove(row);
                 break;
         }
     }
