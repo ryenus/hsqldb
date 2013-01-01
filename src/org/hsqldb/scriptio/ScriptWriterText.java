@@ -66,7 +66,7 @@ import org.hsqldb.rowio.RowOutputTextLog;
  *
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.0.1
+ * @version 2.3.0
  * @since 1.7.2
  */
 public class ScriptWriterText extends ScriptWriterBase {
@@ -184,9 +184,12 @@ public class ScriptWriterText extends ScriptWriterBase {
     public void writeLogStatement(Session session,
                                   String s) throws IOException {
 
-        schemaToLog = session.currentSchema;
+        if (session != null) {
+            schemaToLog = session.currentSchema;
 
-        writeSessionIdAndSchema(session);
+            writeSessionIdAndSchema(session);
+        }
+
         rowOut.reset();
         rowOut.writeString(s);
         rowOut.write(BYTES_LINE_SEP);
@@ -195,8 +198,8 @@ public class ScriptWriterText extends ScriptWriterBase {
         needsSync = true;
     }
 
-    protected void writeRow(Session session, Row row,
-                            Table table) throws IOException {
+    public void writeRow(Session session, Row row,
+                         Table table) throws IOException {
 
         schemaToLog = table.getName().schema;
 
@@ -212,7 +215,7 @@ public class ScriptWriterText extends ScriptWriterBase {
         writeRowOutToFile();
     }
 
-    protected void writeTableInit(Table t) throws IOException {
+    public void writeTableInit(Table t) throws IOException {
 
         if (t.isEmpty(currentSession)) {
             return;
@@ -230,7 +233,7 @@ public class ScriptWriterText extends ScriptWriterBase {
     }
 
     public void writeOtherStatement(Session session,
-                                  String s) throws IOException {
+                                    String s) throws IOException {
 
         writeLogStatement(session, s);
 

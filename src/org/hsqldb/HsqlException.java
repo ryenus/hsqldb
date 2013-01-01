@@ -58,7 +58,7 @@ public class HsqlException extends RuntimeException {
     private int    level;
     private int    statementGroup;
     private int    statementCode;
-
+    public  Object info;
     /**
      * @param message String
      * @param state XOPEN / SQL code for exception
