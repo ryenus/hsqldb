@@ -69,8 +69,9 @@ public interface OpTypes {
         LIKE_ARG             = 37,
         CASEWHEN_COALESCE    = 38,
         IS_NOT_NULL          = 39,    // logical - comparison
-        EQUAL                = 41,
-        GREATER_EQUAL        = 42,
+        EQUAL                = 40,
+        GREATER_EQUAL        = 41,
+        GREATER_EQUAL_PRE    = 42,
         GREATER              = 43,
         SMALLER              = 44,
         SMALLER_EQUAL        = 45,

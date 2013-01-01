@@ -1716,20 +1716,27 @@ public class Logger {
         sb.append(database.sqlConcatNulls ? Tokens.T_TRUE
                                           : Tokens.T_FALSE);
         list.add(sb.toString());
-        sb.setLength(0);
-        sb.append("SET DATABASE ").append(Tokens.T_SQL).append(' ');
-        sb.append(Tokens.T_NULLS).append(' ');
-        sb.append(Tokens.T_FIRST).append(' ');
-        sb.append(database.sqlNullsFirst ? Tokens.T_TRUE
-                                         : Tokens.T_FALSE);
-        list.add(sb.toString());
-        sb.setLength(0);
-        sb.append("SET DATABASE ").append(Tokens.T_SQL).append(' ');
-        sb.append(Tokens.T_NULLS).append(' ');
-        sb.append(Tokens.T_ORDER).append(' ');
-        sb.append(database.sqlNullsOrder ? Tokens.T_TRUE
-                                         : Tokens.T_FALSE);
-        list.add(sb.toString());
+
+        if (!database.sqlNullsFirst) {
+            sb.setLength(0);
+            sb.append("SET DATABASE ").append(Tokens.T_SQL).append(' ');
+            sb.append(Tokens.T_NULLS).append(' ');
+            sb.append(Tokens.T_FIRST).append(' ');
+            sb.append(database.sqlNullsFirst ? Tokens.T_TRUE
+                                             : Tokens.T_FALSE);
+            list.add(sb.toString());
+        }
+
+        if (!database.sqlNullsOrder) {
+            sb.setLength(0);
+            sb.append("SET DATABASE ").append(Tokens.T_SQL).append(' ');
+            sb.append(Tokens.T_NULLS).append(' ');
+            sb.append(Tokens.T_ORDER).append(' ');
+            sb.append(database.sqlNullsOrder ? Tokens.T_TRUE
+                                             : Tokens.T_FALSE);
+            list.add(sb.toString());
+        }
+
         sb.setLength(0);
         sb.append("SET DATABASE ").append(Tokens.T_SQL).append(' ');
         sb.append(Tokens.T_UNIQUE).append(' ');

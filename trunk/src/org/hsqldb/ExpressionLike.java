@@ -325,10 +325,8 @@ public final class ExpressionLike extends ExpressionLogical {
             Expression equ = new ExpressionLogical(OpTypes.EQUAL, cast,
                                                    prefix);
 
-            equ = new ExpressionLogical(OpTypes.GREATER_EQUAL, nodes[LEFT],
+            equ = new ExpressionLogical(OpTypes.GREATER_EQUAL_PRE, nodes[LEFT],
                                         prefix, equ);
-
-            equ.setSubType(OpTypes.LIKE);
 
             nodes        = new Expression[BINARY];
             likeObject   = null;

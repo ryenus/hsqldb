@@ -129,8 +129,6 @@ public class RowStoreAVLHybridExtended extends RowStoreAVLHybrid {
     public void commitRow(Session session, Row row, int changeAction,
                           int txModel) {
 
-        Object[] data = row.getData();
-
         switch (changeAction) {
 
             case RowAction.ACTION_DELETE :
@@ -141,6 +139,8 @@ public class RowStoreAVLHybridExtended extends RowStoreAVLHybrid {
                 break;
 
             case RowAction.ACTION_INSERT_DELETE :
+
+                // INSERT + DELEETE
                 remove(row);
                 break;
 
@@ -170,6 +170,8 @@ public class RowStoreAVLHybridExtended extends RowStoreAVLHybrid {
                 break;
 
             case RowAction.ACTION_INSERT_DELETE :
+
+                // INSERT + DELEETE
                 remove(row);
                 break;
         }

@@ -279,29 +279,6 @@ class TransactionManagerCommon {
         }
     }
 
-    void finaliseRollback(Session session, Object[] list, int start,
-                          int limit) {
-
-        for (int i = limit - 1; i >= start; i--) {
-            RowAction action = (RowAction) list[i];
-
-            if (action.table.tableType == TableBase.TEMP_TABLE) {
-                action.store.rollbackRow(session, action.memoryRow,
-                                         action.commitRollbackType, txModel);
-            }
-        }
-
-        for (int i = start; i < limit; i++) {
-            RowAction action = (RowAction) list[i];
-
-            if (action.table.tableType == TableBase.TEMP_TABLE) {
-                continue;
-            }
-
-            postCommitAction(session, action);
-        }
-    }
-
     /**
      * for multiversion rows
      * merge a given list of transaction rollback action with given timestamp
@@ -331,6 +308,13 @@ class TransactionManagerCommon {
             synchronized (row) {
                 action.mergeRollback(session, timestamp, row);
             }
+        }
+
+        for (int i = limit - 1; i >= start; i--) {
+            RowAction action = (RowAction) list[i];
+
+            action.store.rollbackRow(session, action.memoryRow,
+                                     action.commitRollbackType, txModel);
         }
     }
 

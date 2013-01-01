@@ -240,6 +240,7 @@ public class RangeVariable implements Cloneable {
     }
 
     public void addAllColumns() {
+
         if (usedColumns != null) {
             ArrayUtil.fillArray(usedColumns, true);
         }
@@ -869,8 +870,8 @@ public class RangeVariable implements Cloneable {
             Expression e = (Expression) conditionsList.get(i);
 
             if (!e.hasReference(ranges, exclude)) {
-                e         = e.duplicate();
-                e         = e.replaceColumnReferences(this, colExpr);
+                e = e.duplicate();
+                e = e.replaceColumnReferences(this, colExpr);
 
                 if (e.collectAllSubqueries(null) != null) {
                     return;
@@ -1313,8 +1314,9 @@ public class RangeVariable implements Cloneable {
                     if (range < 0) {
                         switch (exprType) {
 
-                            case OpTypes.GREATER_EQUAL :
                             case OpTypes.GREATER :
+                            case OpTypes.GREATER_EQUAL :
+                            case OpTypes.GREATER_EQUAL_PRE :
                                 value = null;
                                 break;
 
@@ -1689,7 +1691,8 @@ public class RangeVariable implements Cloneable {
             switch (e.getType()) {
 
                 case OpTypes.GREATER :
-                case OpTypes.GREATER_EQUAL : {
+                case OpTypes.GREATER_EQUAL :
+                case OpTypes.GREATER_EQUAL_PRE : {
 
                     // replaces existing condition
                     if (opType == OpTypes.NOT) {
@@ -1702,7 +1705,7 @@ public class RangeVariable implements Cloneable {
                             opType                            = e.opType;
                             opTypes[indexedColumnCount - 1]   = e.opType;
 
-                            if (e.exprSubType == OpTypes.LIKE
+                            if (e.getType() == OpTypes.GREATER_EQUAL_PRE
                                     && indexedColumnCount == 1) {
                                 indexEndCond[indexedColumnCount - 1] =
                                     ExpressionLogical.andExpressions(
@@ -1720,6 +1723,7 @@ public class RangeVariable implements Cloneable {
                 case OpTypes.SMALLER_EQUAL : {
                     if (opType == OpTypes.GREATER
                             || opType == OpTypes.GREATER_EQUAL
+                            || opType == OpTypes.GREATER_EQUAL_PRE
                             || opType == OpTypes.NOT) {
                         if (opTypeEnd != OpTypes.MAX) {
                             break;
@@ -1824,9 +1828,10 @@ public class RangeVariable implements Cloneable {
 
                 case OpTypes.GREATER :
                 case OpTypes.GREATER_EQUAL :
+                case OpTypes.GREATER_EQUAL_PRE :
                     indexCond = exprList;
 
-                    if (exprList[0].exprSubType == OpTypes.LIKE) {
+                    if (exprList[0].getType() == OpTypes.GREATER_EQUAL_PRE) {
                         indexEndCond[0] = indexEndCondition =
                             exprList[0].nodes[2];
                     }

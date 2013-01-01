@@ -135,6 +135,7 @@ public class ExpressionLogical extends Expression {
 
             case OpTypes.EQUAL :
             case OpTypes.GREATER_EQUAL :
+            case OpTypes.GREATER_EQUAL_PRE :
             case OpTypes.GREATER :
             case OpTypes.SMALLER :
             case OpTypes.SMALLER_EQUAL :
@@ -421,6 +422,7 @@ public class ExpressionLogical extends Expression {
                 return sb.toString();
 
             case OpTypes.GREATER_EQUAL :
+            case OpTypes.GREATER_EQUAL_PRE :
                 sb.append(left).append(">=").append(right);
 
                 return sb.toString();
@@ -551,6 +553,7 @@ public class ExpressionLogical extends Expression {
                 break;
 
             case OpTypes.GREATER_EQUAL :
+            case OpTypes.GREATER_EQUAL_PRE :
                 sb.append("GREATER_EQUAL");
                 break;
 
@@ -661,6 +664,7 @@ public class ExpressionLogical extends Expression {
 
             case OpTypes.EQUAL :
             case OpTypes.GREATER_EQUAL :
+            case OpTypes.GREATER_EQUAL_PRE :
             case OpTypes.GREATER :
             case OpTypes.SMALLER :
             case OpTypes.SMALLER_EQUAL :
@@ -1308,6 +1312,7 @@ public class ExpressionLogical extends Expression {
             case OpTypes.GREATER :
             case OpTypes.GREATER_EQUAL :
             case OpTypes.SMALLER_EQUAL :
+            case OpTypes.GREATER_EQUAL_PRE :
             case OpTypes.SMALLER :
             case OpTypes.NOT_EQUAL : {
                 if (exprSubType == OpTypes.ANY_QUANTIFIED
@@ -1357,7 +1362,7 @@ public class ExpressionLogical extends Expression {
             return null;
         }
 
-        result = nodes[LEFT].dataType.compare(session, left, right);
+        result = nodes[LEFT].dataType.compare(session, left, right, opType);
 
         switch (opType) {
 
@@ -1374,6 +1379,7 @@ public class ExpressionLogical extends Expression {
                                   : Boolean.FALSE;
 
             case OpTypes.GREATER_EQUAL :
+            case OpTypes.GREATER_EQUAL_PRE :
                 return result >= 0 ? Boolean.TRUE
                                    : Boolean.FALSE;
 
@@ -1471,6 +1477,7 @@ public class ExpressionLogical extends Expression {
                                   : Boolean.FALSE;
 
             case OpTypes.GREATER_EQUAL :
+            case OpTypes.GREATER_EQUAL_PRE :
                 if (hasNull) {
                     return null;
                 }
@@ -1795,6 +1802,7 @@ public class ExpressionLogical extends Expression {
                         return comparefirst;
 
                     case OpTypes.GREATER_EQUAL :
+                    case OpTypes.GREATER_EQUAL_PRE :
                         return comparefirst;
 
                     case OpTypes.SMALLER :
@@ -1855,6 +1863,7 @@ public class ExpressionLogical extends Expression {
                         return comparelast;
 
                     case OpTypes.GREATER_EQUAL :
+                    case OpTypes.GREATER_EQUAL_PRE :
                         return comparelast;
 
                     case OpTypes.SMALLER :
@@ -1969,9 +1978,10 @@ public class ExpressionLogical extends Expression {
             // fall through
             case OpTypes.GREATER :
             case OpTypes.GREATER_EQUAL :
+            case OpTypes.GREATER_EQUAL_PRE :
             case OpTypes.SMALLER :
             case OpTypes.SMALLER_EQUAL :
-                if (exprSubType != 0 && exprSubType != OpTypes.LIKE) {
+                if (exprSubType != 0) {
                     return null;
                 }
 
@@ -2069,6 +2079,7 @@ public class ExpressionLogical extends Expression {
         switch (opType) {
 
             case OpTypes.GREATER_EQUAL :
+            case OpTypes.GREATER_EQUAL_PRE :
                 i = OpTypes.SMALLER_EQUAL;
                 break;
 
@@ -2289,6 +2300,7 @@ public class ExpressionLogical extends Expression {
             }
             case OpTypes.GREATER :
             case OpTypes.GREATER_EQUAL :
+            case OpTypes.GREATER_EQUAL_PRE :
             case OpTypes.SMALLER :
             case OpTypes.SMALLER_EQUAL : {
                 cost = costFactorColumns(session, rangeVar);

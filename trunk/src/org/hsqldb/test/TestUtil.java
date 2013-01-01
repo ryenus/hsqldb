@@ -131,7 +131,6 @@ public class TestUtil {
         try {
             Class.forName("org.hsqldb.jdbc.JDBCDriver");
 
-//            String     url = "jdbc:hsqldb:test1;crypt_key=604a6105889da65326bf35790a923932;crypt_type=blowfish";
             String     url = "jdbc:hsqldb:test1;sql.enforce_strict_size=true";
             String     user        = "sa";
             String     password    = "";
@@ -149,21 +148,19 @@ public class TestUtil {
 
                 if (fname.startsWith("TestSelf") && fname.endsWith(".txt")) {
                     long elapsed = sw.elapsedTime();
+
                     cConnection = DriverManager.getConnection(url, user,
                             password);
-                    print("Opened DB in " + (double) (sw.elapsedTime() - elapsed) / 1000 + " s" );
 
-
+                    print("Opened DB in "
+                          + (double) (sw.elapsedTime() - elapsed) / 1000
+                          + " s");
                     testScript(cConnection, absolute + File.separator + fname);
                     cConnection.close();
                 }
             }
 
             cConnection = DriverManager.getConnection(url, user, password);
-
-//            cConnection.createStatement().execute("SHUTDOWN");
-//            TestUtil.deleteDatabase("test1");
-//            TestUtil.checkDatabaseFilesDeleted("test1");
         } catch (Exception e) {
             e.printStackTrace();
             print("TestUtil init error: " + e.toString());
@@ -267,7 +264,7 @@ public class TestUtil {
     static void test(Statement stat, String s, String sourceName, int line) {
 
         //maintain the interface for this method
-        HsqlArrayList section = new HsqlArrayList();
+        HsqlArrayList section = new HsqlArrayList(new String[8], 0);
 
         section.add(s);
         testSection(stat, section, sourceName, line);
@@ -336,7 +333,7 @@ public class TestUtil {
         if (!pSection.test(stat)) {
             System.out.println("Section starting at " + scriptName + ':'
                                + line + " returned an unexpected result: "
-                               + pSection);
+                               + pSection.getTestResultString());
 
             if (TestUtil.abortOnErr) {
                 throw new TestRuntimeException(scriptName + ": " + line
@@ -350,17 +347,14 @@ public class TestUtil {
      * @param aSection Vector containing the section of script
      * @return a ParesedSection object
      */
-    private static ParsedSection parsedSectionFactory(HsqlArrayList aSection) {
+    private static ParsedSection parsedSectionFactory(
+            HsqlArrayList sectionLines) {
 
         //type of the section
         char type = ' ';
 
-        //section represented as an array of Strings, one for each significant
-        //line in the section
-        String[] rows = null;
-
         //read the first line of the Vector...
-        String topLine = (String) aSection.get(0);
+        String topLine = (String) sectionLines.get(0);
 
         //...and check it for the type...
         if (topLine.startsWith("/*")) {
@@ -377,28 +371,6 @@ public class TestUtil {
             if (!ParsedSection.isValidCode(type)) {
                 return null;
             }
-
-            //...strip out the type declaration...
-            topLine = topLine.substring(3);
-        }
-
-        //if, after stripping out the declaration from topLine, the length of topLine
-        //is greater than 0, then keep the rest of the line, as the first row.
-        //Otherwise it will be discarded, and the offset (between the array and the vector)
-        //set to 1.
-        int offset = 0;
-
-        if (topLine.trim().length() > 0) {
-            rows    = new String[aSection.size()];
-            rows[0] = topLine;
-        } else {
-            rows   = new String[aSection.size() - 1];
-            offset = 1;
-        }
-
-        //pull the rest of aSection into the rows array.
-        for (int i = (1 - offset); i < rows.length; i++) {
-            rows[i] = (String) aSection.get(i + offset);
         }
 
         //then pass this to the constructor for the ParsedSection class that
@@ -406,41 +378,41 @@ public class TestUtil {
         switch (type) {
 
             case 'u' :
-                return new UpdateParsedSection(rows);
+                return new UpdateParsedSection(sectionLines);
 
             case 's' :
-                return new SilentParsedSection(rows);
+                return new SilentParsedSection(sectionLines);
 
             case 'w' :
-                return new WaitSection(rows);
+                return new WaitSection(sectionLines);
 
             case 'p' :
-                return new ProceedSection(rows);
+                return new ProceedSection(sectionLines);
 
             case 'r' :
-                return new ResultSetParsedSection(rows);
+                return new ResultSetParsedSection(sectionLines);
 
             case 'o' :
-                return new ResultSetOutputParsedSection(rows);
+                return new ResultSetOutputParsedSection(sectionLines);
 
             case 'c' :
-                return new CountParsedSection(rows);
+                return new CountParsedSection(sectionLines);
 
             case 'd' :
-                return new DisplaySection(rows);
+                return new DisplaySection(sectionLines);
 
             case 'e' :
-                return new ExceptionParsedSection(rows);
+                return new ExceptionParsedSection(sectionLines);
 
             case ' ' :
-                return new BlankParsedSection(rows);
+                return new BlankParsedSection(sectionLines);
 
             default :
 
                 //if we arrive here, then we should have a valid code,
                 //since we validated it earlier, so return an
                 //IgnoreParsedSection object
-                return new IgnoreParsedSection(rows, type);
+                return new IgnoreParsedSection(sectionLines, type);
         }
     }
 
@@ -506,39 +478,61 @@ abstract class ParsedSection {
      * @param aLines Array of the script lines containing the section of script.
      * database
      */
-    protected ParsedSection(String[] aLines) {
-
-        lines = aLines;
+    protected ParsedSection(HsqlArrayList linesArray) {
 
         //read the lines array backwards to get out the SQL String
         //using a StringBuffer for efficency until we've got the whole String
         StringBuffer sqlBuff  = new StringBuffer();
         int          endIndex = 0;
-        int          k        = lines.length - 1;
+        int          k;
+        String       s = (String) linesArray.get(0);
 
-        do {
+        if (s.startsWith("/*")) {
 
-            //check to see if the row contains the end of the result set
-            if ((endIndex = lines[k].indexOf("*/")) != -1) {
-
-                //then this is the end of the result set
-                sqlBuff.insert(0, lines[k].substring(endIndex + 2));
-
-                lines[k] = lines[k].substring(0, endIndex);
-
-                if (lines[k].length() == 0) {
-                    resEndRow = k - 1;
-                } else {
-                    resEndRow = k;
-                }
-
-                break;
+            //if, after stripping out the declaration from topLine, the length of topLine
+            //is greater than 0, then keep the rest of the line, as the first row.
+            //Otherwise it will be discarded, and the offset (between the array and the vector)
+            //set to 1.
+            if (s.length() == 3) {
+                lines = (String[]) linesArray.toArray(1, linesArray.size());
             } else {
-                sqlBuff.insert(0, lines[k]);
+                lines    = (String[]) linesArray.toArray();
+                lines[0] = lines[0].substring(3);
             }
 
-            k--;
-        } while (k >= 0);
+            k = lines.length - 1;
+
+            do {
+
+                //check to see if the row contains the end of the result set
+                if ((endIndex = lines[k].indexOf("*/")) != -1) {
+
+                    //then this is the end of the result set
+                    sqlBuff.insert(0, lines[k].substring(endIndex + 2));
+
+                    lines[k] = lines[k].substring(0, endIndex);
+
+                    if (lines[k].length() == 0) {
+                        resEndRow = k - 1;
+                    } else {
+                        resEndRow = k;
+                    }
+
+                    break;
+                } else {
+                    sqlBuff.insert(0, lines[k]);
+                }
+
+                k--;
+            } while (k >= 0);
+        } else {
+            lines = (String[]) linesArray.toArray();
+
+            for (k = 0; k < lines.length; k++) {
+                sqlBuff.append(lines[k]);
+                sqlBuff.append(LS);
+            }
+        }
 
         //set sqlString value
         sqlString = sqlBuff.toString();
@@ -548,32 +542,25 @@ abstract class ParsedSection {
      * String representation of this ParsedSection
      * @return String representation of this ParsedSection
      */
-    public String toString() {
+    protected String getTestResultString() {
 
         StringBuffer b = new StringBuffer();
 
         b.append(LS + "******" + LS);
-        b.append("contents of lines array:" + LS);
-
-        for (int i = 0; i < lines.length; i++) {
-            if (lines[i].trim().length() > 0) {
-                b.append("line ").append(i).append(": ").append(
-                    lines[i]).append(LS);
-            }
-        }
-
         b.append("Type: ");
         b.append(getType()).append(LS);
         b.append("SQL: ").append(getSql()).append(LS);
-        b.append("results:").append(LS);
-        b.append(getResultString());
+        b.append("expected results:").append(LS);
+        b.append(getResultString()).append(LS);
 
         //check to see if the message field has been populated
         if (getMessage() != null) {
-            b.append("\nmessage:").append(LS);
-            b.append(getMessage());
+            b.append(LS + "message:").append(LS);
+            b.append(getMessage()).append(LS);
         }
 
+        b.append("actual results:").append(LS);
+        b.append(getActualResultString());
         b.append(LS + "******" + LS);
 
         return b.toString();
@@ -584,6 +571,14 @@ abstract class ParsedSection {
      * @return The expected result(s) for the test
      */
     protected abstract String getResultString();
+
+    /**
+     * returns a String representation of the actual result for the test
+     * @return The expected result(s) for the test
+     */
+    protected String getActualResultString() {
+        return "";
+    }
 
     /**
      *  returns the error message for the section
@@ -673,15 +668,16 @@ class ResultSetParsedSection extends ParsedSection {
 
     private String   delim = System.getProperty("TestUtilFieldDelimiter", ",");
     private String[] expectedRows = null;
+    private String[] actualRows   = null;
 
     /**
      * constructs a new instance of ResultSetParsedSection, interpreting
      * the supplied results as one or more lines of delimited field values
      * @param lines String[]
      */
-    protected ResultSetParsedSection(String[] lines) {
+    protected ResultSetParsedSection(HsqlArrayList linesArray) {
 
-        super(lines);
+        super(linesArray);
 
         type = 'r';
 
@@ -697,10 +693,27 @@ class ResultSetParsedSection extends ParsedSection {
 
     protected String getResultString() {
 
-        StringBuffer printVal = new StringBuffer();
+        StringBuffer printVal     = new StringBuffer();
+        String[]     expectedRows = getExpectedRows();
 
-        for (int i = 0; i < getExpectedRows().length; i++) {
-            printVal.append(getExpectedRows()[i]).append(LS);
+        for (int i = 0; i < expectedRows.length; i++) {
+            printVal.append(expectedRows[i]).append(LS);
+        }
+
+        return printVal.toString();
+    }
+
+    protected String getActualResultString() {
+
+        StringBuffer printVal   = new StringBuffer();
+        String[]     actualRows = getActualRows();
+
+        if (actualRows == null) {
+            return "no result";
+        }
+
+        for (int i = 0; i < actualRows.length; i++) {
+            printVal.append(actualRows[i]).append(LS);
         }
 
         return printVal.toString();
@@ -726,17 +739,49 @@ class ResultSetParsedSection extends ParsedSection {
             }
 
             //iterate over the ResultSet
-            ResultSet results = aStatement.getResultSet();
-            int       count   = 0;
+            HsqlArrayList list     = new HsqlArrayList(new String[1][], 0);
+            ResultSet     results  = aStatement.getResultSet();
+            int           colCount = results.getMetaData().getColumnCount();
 
             while (results.next()) {
-                if (count < getExpectedRows().length) {
+                String[] row = new String[colCount];
+
+                for (int i = 0; i < colCount; i++) {
+                    row[i] = results.getString(i + 1);
+                }
+
+                list.add(row);
+            }
+
+            results.close();
+
+            actualRows = new String[list.size()];
+
+            for (int i = 0; i < list.size(); i++) {
+                String[]     row = (String[]) list.get(i);
+                StringBuffer sb  = new StringBuffer();
+
+                for (int j = 0; j < row.length; j++) {
+                    if (j > 0) {
+                        sb.append(',');
+                    }
+
+                    sb.append(row[j]);
+                }
+
+                actualRows[i] = sb.toString();
+            }
+
+            String[] expectedRows = getExpectedRows();
+            int      count        = 0;
+
+            for (; count < list.size(); count++) {
+                if (count < expectedRows.length) {
                     String[] expectedFields =
-                        StringUtil.split(getExpectedRows()[count], delim);
+                        StringUtil.split(expectedRows[count], delim);
 
                     //check that we have the number of columns expected...
-                    if (results.getMetaData().getColumnCount()
-                            == expectedFields.length) {
+                    if (colCount == expectedFields.length) {
 
                         //...and if so, check that the column values are as expected...
                         int j = 0;
@@ -744,7 +789,7 @@ class ResultSetParsedSection extends ParsedSection {
                         for (int i = 0; i < expectedFields.length; i++) {
                             j = i + 1;
 
-                            String actual = results.getString(j);
+                            String actual = ((String[]) list.get(count))[i];
 
                             //...including null values...
                             if (actual == null) {    //..then we have a null
@@ -752,47 +797,50 @@ class ResultSetParsedSection extends ParsedSection {
                                 //...check to see if we were expecting it...
                                 if (!expectedFields[i].equalsIgnoreCase(
                                         "NULL")) {
-                                    throw new Exception(
-                                        "Expected row " + count
-                                        + " of the ResultSet to contain:" + LS
-                                        + getExpectedRows()[count] + LS
-                                        + "but field " + j
-                                        + " contained NULL");
+                                    message = "Expected row " + (count + 1)
+                                              + " of the ResultSet to contain:"
+                                              + LS + expectedRows[count] + LS
+                                              + "but field " + j
+                                              + " contained NULL";
+
+                                    break;
                                 }
                             } else if (!actual.equals(expectedFields[i])) {
 
                                 //then the results are different
-                                throw new Exception(
-                                    "Expected row " + (count + 1)
-                                    + " of the ResultSet to contain:" + LS
-                                    + getExpectedRows()[count] + LS
-                                    + "but field " + j + " contained "
-                                    + results.getString(j));
+                                message = "Expected row " + (count + 1)
+                                          + " of the ResultSet to contain:"
+                                          + LS + expectedRows[count] + LS
+                                          + "but field " + j + " contained "
+                                          + actual;
+
+                                break;
                             }
                         }
                     } else {
 
                         //we have the wrong number of columns
-                        throw new Exception(
-                            "Expected the ResultSet to contain "
-                            + expectedFields.length
-                            + " fields, but it contained "
-                            + results.getMetaData().getColumnCount()
-                            + " fields.");
+                        message = "Expected the ResultSet to contain "
+                                  + expectedFields.length
+                                  + " fields, but it contained " + colCount
+                                  + " fields.";
                     }
                 }
 
-                count++;
+                if (message != null) {
+                    break;
+                }
             }
 
             //check that we got as many rows as expected
-            if (count != getExpectedRows().length) {
+            if (count != expectedRows.length) {
+                if (message == null) {
 
-                //we don't have the expected number of rows
-                throw new Exception("Expected the ResultSet to contain "
-                                    + getExpectedRows().length
-                                    + " rows, but it contained " + count
-                                    + " rows.");
+                    //we don't have the expected number of rows
+                    message = "Expected the ResultSet to contain "
+                              + expectedRows.length
+                              + " rows, but it contained " + count + " rows.";
+                }
             }
         } catch (Exception x) {
             message = x.toString();
@@ -800,11 +848,15 @@ class ResultSetParsedSection extends ParsedSection {
             return false;
         }
 
-        return true;
+        return message == null;
     }
 
     private String[] getExpectedRows() {
         return expectedRows;
+    }
+
+    private String[] getActualRows() {
+        return actualRows;
     }
 }
 
@@ -819,9 +871,9 @@ class ResultSetOutputParsedSection extends ParsedSection {
      * the supplied results as one or more lines of delimited field values
      * @param lines String[]
      */
-    protected ResultSetOutputParsedSection(String[] lines) {
+    protected ResultSetOutputParsedSection(HsqlArrayList linesArray) {
 
-        super(lines);
+        super(linesArray);
 
         type = 'o';
     }
@@ -885,9 +937,9 @@ class UpdateParsedSection extends ParsedSection {
     //expected update count
     int countWeWant;
 
-    protected UpdateParsedSection(String[] lines) {
+    protected UpdateParsedSection(HsqlArrayList linesArray) {
 
-        super(lines);
+        super(linesArray);
 
         type        = 'u';
         countWeWant = Integer.parseInt(lines[0]);
@@ -949,11 +1001,11 @@ class WaitSection extends ParsedSection {
     Waiter  waiter          = null;
     boolean enforceSequence = false;
 
-    protected WaitSection(String[] inLines) {
+    protected WaitSection(HsqlArrayList linesArray) {
 
         /* Can't user the super constructor, since it does funny things when
          * constructing the SQL Buffer, which we don't need. */
-        lines = inLines;
+        lines = (String[]) linesArray.toArray();
 
         int    closeCmd = lines[0].indexOf("*/");
         String cmd      = lines[0].substring(0, closeCmd);
@@ -1041,11 +1093,11 @@ class ProceedSection extends ParsedSection {
     Waiter  waiter          = null;
     boolean enforceSequence = false;
 
-    protected ProceedSection(String[] inLines) {
+    protected ProceedSection(HsqlArrayList linesArray) {
 
         /* Can't use the super constructor, since it does funny things when
          * constructing the SQL Buffer, which we don't need. */
-        lines = inLines;
+        lines = (String[]) linesArray.toArray();
 
         int    closeCmd = lines[0].indexOf("*/");
         String cmd      = lines[0].substring(0, closeCmd);
@@ -1080,7 +1132,7 @@ class ProceedSection extends ParsedSection {
         StringBuffer sb = new StringBuffer();
 
         if (lines.length == 1 && lines[0].trim().length() < 1) {
-            return null;
+            return "";
         }
 
         for (int i = 0; i < lines.length; i++) {
@@ -1107,15 +1159,15 @@ class ProceedSection extends ParsedSection {
 /** Represents a ParsedSection for silent execution */
 class SilentParsedSection extends ParsedSection {
 
-    protected SilentParsedSection(String[] lines) {
+    protected SilentParsedSection(HsqlArrayList linesArray) {
 
-        super(lines);
+        super(linesArray);
 
         type = 's';
     }
 
     protected String getResultString() {
-        return null;
+        return "";
     }
 
     protected boolean test(Statement aStatement) {
@@ -1134,9 +1186,9 @@ class CountParsedSection extends ParsedSection {
     //expected row count
     private int countWeWant;
 
-    protected CountParsedSection(String[] lines) {
+    protected CountParsedSection(HsqlArrayList linesArray) {
 
-        super(lines);
+        super(linesArray);
 
         type        = 'c';
         countWeWant = Integer.parseInt(lines[0]);
@@ -1204,9 +1256,9 @@ class ExceptionParsedSection extends ParsedSection {
     private String    expectedState = null;
     private Throwable caught        = null;
 
-    protected ExceptionParsedSection(String[] lines) {
+    protected ExceptionParsedSection(HsqlArrayList linesArray) {
 
-        super(lines);
+        super(linesArray);
 
         expectedState = lines[0].trim();
 
@@ -1249,22 +1301,22 @@ class ExceptionParsedSection extends ParsedSection {
 /** Represents a ParsedSection for a section with blank type */
 class BlankParsedSection extends ParsedSection {
 
-    protected BlankParsedSection(String[] lines) {
+    protected BlankParsedSection(HsqlArrayList linesArray) {
 
-        super(lines);
+        super(linesArray);
 
         type = ' ';
     }
 
     protected String getResultString() {
-        return message;
+        return "";
     }
 }
 
 /** Represents a ParsedSection that is to be ignored */
 class IgnoreParsedSection extends ParsedSection {
 
-    protected IgnoreParsedSection(String[] inLines, char aType) {
+    protected IgnoreParsedSection(HsqlArrayList sectionLines, char aType) {
 
         /* Extremely ambiguous to use input parameter of same exact
          * variable name as the superclass member "lines".
@@ -1273,7 +1325,7 @@ class IgnoreParsedSection extends ParsedSection {
         // Inefficient to parse this into SQL when we aren't going to use
         // it as SQL.  Should probably just be removed to use the
         // super() constructor.
-        super(inLines);
+        super(sectionLines);
 
         type = aType;
     }
@@ -1286,11 +1338,11 @@ class IgnoreParsedSection extends ParsedSection {
 /** Represents a Section to be Displayed, not executed */
 class DisplaySection extends ParsedSection {
 
-    protected DisplaySection(String[] inLines) {
+    protected DisplaySection(HsqlArrayList sectionLines) {
 
         /* Can't user the super constructor, since it does funny things when
          * constructing the SQL Buffer, which we don't need. */
-        lines = inLines;
+        lines = (String[]) sectionLines.toArray();
 
         int firstSlash = lines[0].indexOf('/');
 

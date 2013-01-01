@@ -177,18 +177,14 @@ public class RowStoreAVLMemory extends RowStoreAVL implements PersistentStore {
                 break;
 
             case RowAction.ACTION_INSERT :
-                if (txModel == TransactionManager.LOCKS) {
-                    delete(session, row);
-                    remove(row);
-                }
+                delete(session, row);
+                remove(row);
                 break;
 
             case RowAction.ACTION_INSERT_DELETE :
 
                 // INSERT + DELETE
-                if (txModel == TransactionManager.LOCKS) {
-                    remove(row);
-                }
+                remove(row);
                 break;
         }
     }

@@ -31,19 +31,19 @@
 
 package org.hsqldb.types;
 
+import org.hsqldb.OpTypes;
 import org.hsqldb.Session;
 import org.hsqldb.SessionInterface;
 import org.hsqldb.Tokens;
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
 import org.hsqldb.jdbc.JDBCClobClient;
-import org.hsqldb.lib.StringConverter;
 
 /**
  * Type object for CLOB.<p>
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.2.9
+ * @version 2.3.0
  * @since 1.9.0
  */
 public final class ClobType extends CharacterType {
@@ -119,6 +119,10 @@ public final class ClobType extends CharacterType {
 
     /** @todo - collation comparison */
     public int compare(Session session, Object a, Object b) {
+        return compare(session, a, b, OpTypes.EQUAL);
+    }
+
+    public int compare(Session session, Object a, Object b, int opType) {
 
         if (a == b) {
             return 0;

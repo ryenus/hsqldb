@@ -392,6 +392,10 @@ public class CharacterType extends Type {
     }
 
     public int compare(Session session, Object a, Object b) {
+        return compare(session, a, b, OpTypes.EQUAL);
+    }
+
+    public int compare(Session session, Object a, Object b, int opType) {
 
         if (a == b) {
             return 0;
@@ -419,7 +423,7 @@ public class CharacterType extends Type {
 
             //
         } else if (la > lb) {
-            if (collation.isPadSpace()) {
+            if (collation.isPadSpace() && opType != OpTypes.GREATER_EQUAL_PRE) {
                 char[] buffer = new char[la];
 
                 bs.getChars(0, lb, buffer, 0);
@@ -428,7 +432,7 @@ public class CharacterType extends Type {
                 bs = String.valueOf(buffer);
             }
         } else {
-            if (collation.isPadSpace()) {
+            if (collation.isPadSpace() && opType != OpTypes.GREATER_EQUAL_PRE) {
                 char[] buffer = new char[lb];
 
                 as.getChars(0, la, buffer, 0);
