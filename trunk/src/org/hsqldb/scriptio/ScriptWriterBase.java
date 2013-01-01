@@ -109,6 +109,7 @@ public abstract class ScriptWriterBase implements Runnable {
      */
     boolean          isDump;
     boolean          includeCachedData;
+    boolean          includeIndexRoots;
     long             byteCount;
     long             lineCount;
     volatile boolean needsSync;
@@ -130,6 +131,7 @@ public abstract class ScriptWriterBase implements Runnable {
 
         this.database          = db;
         this.includeCachedData = includeCachedData;
+        this.includeIndexRoots = !includeCachedData;
         currentSession         = database.sessionManager.getSysSession();
 
         // start with neutral schema - no SET SCHEMA to log
@@ -159,6 +161,7 @@ public abstract class ScriptWriterBase implements Runnable {
         this.database          = db;
         this.isDump            = isDump;
         this.includeCachedData = includeCachedData;
+        this.includeIndexRoots = !includeCachedData;
         outFile                = file;
         currentSession         = database.sessionManager.getSysSession();
 
@@ -167,6 +170,14 @@ public abstract class ScriptWriterBase implements Runnable {
             currentSession.currentSchema;
 
         openFile();
+    }
+
+    public void setIncludeIndexRoots(boolean include) {
+        this.includeIndexRoots = include;
+    }
+
+    public void setIncludeCachedData(boolean include) {
+        this.includeCachedData = include;
     }
 
     protected abstract void initBuffers();
@@ -227,7 +238,7 @@ public abstract class ScriptWriterBase implements Runnable {
 
                 fileStreamOut = null;
                 outDescriptor = null;
-                isClosed = true;
+                isClosed      = true;
             }
         } catch (IOException e) {
             throw Error.error(ErrorCode.FILE_IO_ERROR);
@@ -275,14 +286,14 @@ public abstract class ScriptWriterBase implements Runnable {
 
     protected void finishStream() throws IOException {}
 
-    protected void writeDDL() throws IOException {
+    public void writeDDL() throws IOException {
 
-        Result ddlPart = database.getScript(!includeCachedData);
+        Result ddlPart = database.getScript(includeIndexRoots);
 
         writeSingleColumnResult(ddlPart);
     }
 
-    protected void writeExistingData() throws IOException {
+    public void writeExistingData() throws IOException {
 
         // start with blank schema - SET SCHEMA to log
         currentSession.loggedSchema = null;
@@ -345,9 +356,9 @@ public abstract class ScriptWriterBase implements Runnable {
         writeDataTerm();
     }
 
-    protected void writeTableInit(Table t) throws IOException {}
+    public void writeTableInit(Table t) throws IOException {}
 
-    protected void writeTableTerm(Table t) throws IOException {}
+    public void writeTableTerm(Table t) throws IOException {}
 
     protected void writeSingleColumnResult(Result r) throws IOException {
 
@@ -360,8 +371,8 @@ public abstract class ScriptWriterBase implements Runnable {
         }
     }
 
-    abstract void writeRow(Session session, Row row,
-                           Table table) throws IOException;
+    public abstract void writeRow(Session session, Row row,
+                                  Table table) throws IOException;
 
     protected abstract void writeDataTerm() throws IOException;
 
