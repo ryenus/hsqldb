@@ -37,7 +37,7 @@ import org.hsqldb.error.ErrorCode;
 
 /**
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.2.6
+ * @version 2.3.0
  * @since 1.9.0
  */
 public class LobStoreRAFile implements LobStore {
@@ -141,6 +141,31 @@ public class LobStoreRAFile implements LobStore {
 
     public int getBlockSize() {
         return lobBlockSize;
+    }
+
+    public long getLength() {
+
+        if (file == null) {
+            openFile();
+        }
+
+        try {
+            return file.length();
+        } catch (Throwable t) {
+            throw Error.error(ErrorCode.DATA_FILE_ERROR, t);
+        }
+    }
+
+    public void setLength(long length) {
+
+        try {
+            if (file != null) {
+                file.setLength(length);
+                file.synch();
+            }
+        } catch (Throwable t) {
+            throw Error.error(ErrorCode.DATA_FILE_ERROR, t);
+        }
     }
 
     public void close() {

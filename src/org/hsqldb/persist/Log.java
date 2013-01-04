@@ -338,6 +338,8 @@ public class Log {
             return;
         }
 
+        database.lobManager.deleteUnusedLobs();
+
         boolean result = checkpointClose();
 
         if (result) {
@@ -393,7 +395,6 @@ public class Log {
         database.logger.logInfoEvent("checkpointClose start");
         synchLog();
         database.lobManager.synch();
-        database.lobManager.deleteUnusedLobs();
         deleteOldDataFiles();
 
         try {

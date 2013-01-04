@@ -35,7 +35,7 @@ import org.hsqldb.lib.HsqlArrayList;
 
 /**
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.2.6
+ * @version 2.3.0
  * @since 1.9.0
  */
 public class LobStoreMem implements LobStore {
@@ -138,6 +138,17 @@ public class LobStoreMem implements LobStore {
 
     public int getBlockSize() {
         return lobBlockSize;
+    }
+
+    public long getLength() {
+        return (long) byteStoreList.size() * largeBlockSize;
+    }
+
+    public void setLength(long length) {
+
+        int largeBlockIndex = (int) (length / largeBlockSize);
+
+        byteStoreList.setSize(largeBlockIndex + 1);
     }
 
     public void close() {

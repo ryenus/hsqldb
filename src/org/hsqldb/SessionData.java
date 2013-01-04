@@ -306,8 +306,12 @@ public class SessionData {
     long    firstNewLobID;
 
     public void registerNewLob(long lobID) {
-        firstNewLobID = lobID;
-        hasLobOps     = true;
+
+        if (firstNewLobID == 0) {
+            firstNewLobID = lobID;
+        }
+
+        hasLobOps = true;
     }
 
     public void clearLobOps() {
