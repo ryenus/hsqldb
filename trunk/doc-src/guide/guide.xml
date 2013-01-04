@@ -62,7 +62,7 @@
     </keywordset>
 
     <legalnotice>
-      <para>Copyright 2002-2011 The HSQL Development Group. Permission is
+      <para>Copyright 2002-2013 The HSQL Development Group. Permission is
       granted to distribute this document without any alteration under the
       terms of the HSQLDB license. You are not allowed to distribute or
       display this document on the web in an altered form.</para>
@@ -81,7 +81,7 @@
     first released in 2010, includes a complete rewrite of most parts of the
     database engine.</para>
 
-    <para>This documentation covers the latest HyperSQL version 2.2. This
+    <para>This documentation covers the latest HyperSQL version 2.3. This
     documentation is regularly improved and updated. The latest, updated
     version can be found at http://hsqldb.org/doc/2.0/</para>
 
