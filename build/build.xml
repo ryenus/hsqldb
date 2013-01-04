@@ -26,7 +26,7 @@
   -->
 
    <property file='build/build.properties'/>
-   <property name="hsqldb.version" value="2.2.9"/>
+   <property name="hsqldb.version" value="2.3.0"/>
 
    <tstamp>
        <format property="timestamp" pattern="yyyy/MM/dd-HH:mm:ss"
@@ -969,7 +969,7 @@ examples:
            failonerror="true"
            windowtitle="${hsqldb.title} ${hsqldb.version} API"
            doctitle="${hsqldb.title} ${hsqldb.version}"
-           bottom="&lt;i&gt;Copyright &#169; 2001 - 2010 HSQL Development Group.&lt;/i&gt;">
+           bottom="&lt;i&gt;Copyright &#169; 2001 - 2013 HSQL Development Group.&lt;/i&gt;">
            <classpath>
              <pathelement location="${servletapi.lib}"/>
              <pathelement location="${junit38.lib}"/>
@@ -1007,7 +1007,7 @@ examples:
            failonerror="true"
            windowtitle="${hsqldb.title} ${hsqldb.version} Product Dev. API"
            doctitle="${hsqldb.title} ${hsqldb.version} Product"
-           bottom="&lt;i&gt;Copyright &#169; 2001 - 2010 HSQL Development Group.&lt;/i&gt;">
+           bottom="&lt;i&gt;Copyright &#169; 2001 - 2013 HSQL Development Group.&lt;/i&gt;">
            <fileset dir="src" includes="**/*.java"/>
            <!-- Fileset is really good for maintenance and control purposes,
                 but it makes the generator produce an incredible amount of
