@@ -102,10 +102,9 @@ public class LobManager {
     Statement updateLobUsage;
     Statement getNextLobId;
     Statement deleteUnusedLobs;
+    Statement mergeUnusedSpace;
+    Statement getLobUseLimit;
     Statement getLobCount;
-
-    //
-    boolean usageCountChanged;
 
     //
     ReadWriteLock lock      = new ReentrantReadWriteLock();
@@ -193,6 +192,10 @@ public class LobManager {
         "CALL SYSTEM_LOBS.DELETE_LOB(?, ?)";
     private static final String deleteUnusedCallSQL =
         "CALL SYSTEM_LOBS.DELETE_UNUSED_LOBS(?)";
+    private static final String mergeUnusedSpaceSQL =
+        "CALL SYSTEM_LOBS.MERGE_EMPTY_BLOCKS()";
+    private static final String getLobUseLimitSQL =
+        "SELECT * FROM SYSTEM_LOBS.LOBS WHERE BLOCK_ADDR = (SELECT MAX(BLOCK_ADDR) FROM SYSTEM_LOBS.LOBS)";
     private static final String getLobCountSQL =
         "SELECT COUNT(*) FROM SYSTEM_LOBS.LOB_IDS";
 
@@ -268,7 +271,10 @@ public class LobManager {
             getNextLobId   = sysLobSession.compileStatement(getNextLobIdSQL);
             deleteUnusedLobs =
                 sysLobSession.compileStatement(deleteUnusedCallSQL);
-            getLobCount = sysLobSession.compileStatement(getLobCountSQL);
+            mergeUnusedSpace =
+                sysLobSession.compileStatement(mergeUnusedSpaceSQL);
+            getLobUseLimit = sysLobSession.compileStatement(getLobUseLimitSQL);
+            getLobCount    = sysLobSession.compileStatement(getLobCountSQL);
         } finally {
             writeLock.unlock();
         }
@@ -337,12 +343,12 @@ public class LobManager {
     }
 
     //
-    private long getNewLobID() {
+    private Long getNewLobID() {
 
         Result result = getNextLobId.execute(sysLobSession);
 
         if (result.isError()) {
-            return 0;
+            return Long.valueOf(0);
         }
 
         RowSetNavigator navigator = result.getNavigator();
@@ -351,12 +357,14 @@ public class LobManager {
         if (!next) {
             navigator.release();
 
-            return 0;
+            return Long.valueOf(0);
         }
 
         Object[] data = navigator.getCurrent();
 
-        return ((Long) data[0]).longValue();
+        navigator.release();
+
+        return (Long) data[0];
     }
 
     private Object[] getLobHeader(long lobID) {
@@ -433,11 +441,11 @@ public class LobManager {
         writeLock.lock();
 
         try {
-            long           lobID    = getNewLobID();
+            Long           lobID    = getNewLobID();
             ResultMetaData meta     = createLob.getParametersMetaData();
             Object         params[] = new Object[meta.getColumnCount()];
 
-            params[LOB_IDS.LOB_ID]          = ValuePool.getLong(lobID);
+            params[LOB_IDS.LOB_ID]          = lobID;
             params[LOB_IDS.LOB_LENGTH]      = ValuePool.getLong(length);
             params[LOB_IDS.LOB_USAGE_COUNT] = ValuePool.INTEGER_0;
             params[LOB_IDS.LOB_TYPE]        = ValuePool.getInt(Types.SQL_BLOB);
@@ -445,9 +453,7 @@ public class LobManager {
             Result result = sysLobSession.executeCompiledStatement(createLob,
                 params);
 
-            usageCountChanged = true;
-
-            return lobID;
+            return lobID.longValue();
         } finally {
             writeLock.unlock();
         }
@@ -458,11 +464,11 @@ public class LobManager {
         writeLock.lock();
 
         try {
-            long           lobID    = getNewLobID();
+            Long           lobID    = getNewLobID();
             ResultMetaData meta     = createLob.getParametersMetaData();
             Object         params[] = new Object[meta.getColumnCount()];
 
-            params[LOB_IDS.LOB_ID]          = ValuePool.getLong(lobID);
+            params[LOB_IDS.LOB_ID]          = lobID;
             params[LOB_IDS.LOB_LENGTH]      = ValuePool.getLong(length);
             params[LOB_IDS.LOB_USAGE_COUNT] = ValuePool.INTEGER_0;
             params[LOB_IDS.LOB_TYPE]        = ValuePool.getInt(Types.SQL_CLOB);
@@ -470,9 +476,7 @@ public class LobManager {
             Result result = sysLobSession.executeCompiledStatement(createLob,
                 params);
 
-            usageCountChanged = true;
-
-            return lobID;
+            return lobID.longValue();
         } finally {
             writeLock.unlock();
         }
@@ -492,8 +496,6 @@ public class LobManager {
             Result result =
                 sysLobSession.executeCompiledStatement(deleteLobCall, params);
 
-            usageCountChanged = true;
-
             return result;
         } finally {
             writeLock.unlock();
@@ -505,7 +507,7 @@ public class LobManager {
         writeLock.lock();
 
         try {
-            if (!usageCountChanged) {
+            if (lobStore == null || byteBuffer == null) {
                 return Result.updateZeroResult;
             }
 
@@ -532,9 +534,57 @@ public class LobManager {
                 sysLobSession.executeCompiledStatement(deleteUnusedLobs,
                     params);
 
-            usageCountChanged = false;
+            if (result.isError()) {
+                return result;
+            }
 
-            return result;
+            result = sysLobSession.executeCompiledStatement(mergeUnusedSpace,
+                    ValuePool.emptyObjectArray);
+
+            if (result.isError()) {
+                return result;
+            }
+
+            result = sysLobSession.executeCompiledStatement(getLobUseLimit,
+                    ValuePool.emptyObjectArray);
+
+            if (result.isError()) {
+                return result;
+            }
+
+            RowSetNavigator navigator = result.getNavigator();
+            boolean         next      = navigator.next();
+
+            if (!next) {
+                navigator.release();
+
+                return Result.updateOneResult;
+            }
+
+            Object[] data = navigator.getCurrent();
+
+            if (data[LOBS.BLOCK_ADDR] == null
+                    || data[LOBS.BLOCK_COUNT] == null) {
+                return Result.updateOneResult;
+            }
+
+            long sizeLimit = ((Integer) data[LOBS.BLOCK_ADDR]).intValue()
+                             + ((Integer) data[LOBS.BLOCK_COUNT]).intValue();
+
+            sizeLimit *= lobBlockSize;
+
+            long currentLength = lobStore.getLength();
+
+            if (currentLength > sizeLimit) {
+                database.logger.logInfoEvent("lob file truncated to usage");;
+                lobStore.setLength(sizeLimit);
+                lobStore.synch();
+            } else if (currentLength < sizeLimit) {
+                database.logger.logInfoEvent(
+                    "lob file reported smaller than usage");;
+            }
+
+            return Result.updateOneResult;
         } finally {
             writeLock.unlock();
         }
@@ -910,7 +960,7 @@ public class LobManager {
     public Result getLob(long lobID, long offset, long length) {
 
         if (offset == 0) {
-            return createDuplicateLob(lobID, length, false);
+            return createDuplicateLob(lobID, length);
         }
 
         throw Error.runtimeError(ErrorCode.U_S0500, "LobManager");
@@ -925,11 +975,10 @@ public class LobManager {
         }
 
         return createDuplicateLob(lobID,
-                                  ((ResultLob) result).getBlockLength(), true);
+                                  ((ResultLob) result).getBlockLength());
     }
 
-    public Result createDuplicateLob(long lobID, long newLength,
-                                     boolean duplicate) {
+    public Result createDuplicateLob(long lobID, long newLength) {
 
         if (byteBuffer == null) {
             throw Error.error(ErrorCode.DATA_IS_READONLY);
@@ -944,19 +993,13 @@ public class LobManager {
                 return Result.newErrorResult(Error.error(ErrorCode.X_0F502));
             }
 
-            long length = ((Long) data[LOB_IDS.LOB_LENGTH]).longValue();
-
-            if (!duplicate && length <= newLength) {
-                return ResultLob.newLobCreateBlobResponse(lobID);
-            }
-
-            long   newLobID = getNewLobID();
+            Long   newLobID = getNewLobID();
             Object params[] = new Object[data.length];
 
-            params[LOB_IDS.LOB_ID] = ValuePool.getLong(newLobID);
-            params[1]              = data[1];
-            params[2]              = data[2];
-            params[3]              = data[3];
+            params[LOB_IDS.LOB_ID]          = newLobID;
+            params[LOB_IDS.LOB_LENGTH]      = Long.valueOf(newLength);
+            params[LOB_IDS.LOB_USAGE_COUNT] = ValuePool.INTEGER_0;
+            params[LOB_IDS.LOB_TYPE]        = data[LOB_IDS.LOB_TYPE];
 
             Result result = sysLobSession.executeCompiledStatement(createLob,
                 params);
@@ -965,10 +1008,9 @@ public class LobManager {
                 return result;
             }
 
-            usageCountChanged = true;
-
             if (newLength == 0) {
-                return ResultLob.newLobSetResponse(newLobID, newLength);
+                return ResultLob.newLobSetResponse(newLobID.longValue(),
+                                                   newLength);
             }
 
             long byteLength = newLength;
@@ -984,12 +1026,12 @@ public class LobManager {
                 newBlockCount++;
             }
 
-            createBlockAddresses(newLobID, 0, newBlockCount);
+            createBlockAddresses(newLobID.longValue(), 0, newBlockCount);
 
             // copy the contents
             int[][] sourceBlocks = getBlockAddresses(lobID, 0,
                 Integer.MAX_VALUE);
-            int[][] targetBlocks = getBlockAddresses(newLobID, 0,
+            int[][] targetBlocks = getBlockAddresses(newLobID.longValue(), 0,
                 Integer.MAX_VALUE);
 
             try {
@@ -1011,7 +1053,8 @@ public class LobManager {
                 getLobStore().setBlockBytes(bytes, blockOffset, 1);
             }
 
-            return ResultLob.newLobSetResponse(newLobID, newLength);
+            return ResultLob.newLobSetResponse(newLobID.longValue(),
+                                               newLength);
         } finally {
             writeLock.unlock();
         }

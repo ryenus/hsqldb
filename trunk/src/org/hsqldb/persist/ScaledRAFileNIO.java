@@ -50,7 +50,7 @@ import org.hsqldb.Database;
  * ScaledRAFile is used for data access.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version  2.2.9
+ * @version  2.3.0
  * @since 1.8.0.5
  */
 final class ScaledRAFileNIO implements RandomAccessInterface {

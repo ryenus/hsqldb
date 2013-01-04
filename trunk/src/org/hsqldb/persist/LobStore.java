@@ -33,7 +33,7 @@ package org.hsqldb.persist;
 
 /**
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.2.6
+ * @version 2.3.0
  * @since 1.9.0
  */
 public interface LobStore {
@@ -47,7 +47,11 @@ public interface LobStore {
 
     int getBlockSize();
 
+    void setLength(long length);
+
+    long getLength();
+
     void close();
 
-    public void synch();
+    void synch();
 }

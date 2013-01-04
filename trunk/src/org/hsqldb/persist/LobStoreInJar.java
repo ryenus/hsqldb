@@ -95,6 +95,12 @@ public class LobStoreInJar implements LobStore {
         return lobBlockSize;
     }
 
+    public long getLength() {
+        return 0;
+    }
+
+    public void setLength(long length) {}
+
     public void close() {
 
         try {
@@ -105,6 +111,8 @@ public class LobStoreInJar implements LobStore {
             throw Error.error(ErrorCode.DATA_FILE_ERROR, t);
         }
     }
+
+    public void synch() {}
 
     private void resetStream() throws IOException {
 
@@ -158,6 +166,4 @@ public class LobStoreInJar implements LobStore {
 
         realPosition = position;
     }
-
-    public void synch() {}
 }
