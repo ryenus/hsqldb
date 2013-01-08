@@ -223,10 +223,6 @@ public class Table extends TableBase implements SchemaObject {
         if (database.isFilesReadOnly() && isFileBased()) {
             this.isReadOnly = true;
         }
-
-        if (!isSessionBased) {
-            createDefaultStore();
-        }
     }
 
     /** trigger transition table */
@@ -243,13 +239,6 @@ public class Table extends TableBase implements SchemaObject {
         this.constraintList = Constraint.emptyArray;
 
         createPrimaryKey();
-    }
-
-    public void createDefaultStore() {
-
-        store = database.logger.newStore(null,
-                                         database.persistentStoreCollection,
-                                         this);
     }
 
     public int getType() {

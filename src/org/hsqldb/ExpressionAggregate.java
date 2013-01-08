@@ -43,7 +43,7 @@ import org.hsqldb.types.RowType;
  * Implementation of aggregate operations
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.2.9
+ * @version 2.3.0
  * @since 1.9.0
  */
 public class ExpressionAggregate extends Expression {
@@ -299,7 +299,7 @@ public class ExpressionAggregate extends Expression {
     public Object getAggregatedValue(Session session, Object currValue) {
 
         if (currValue == null) {
-            return opType == OpTypes.COUNT ? ValuePool.INTEGER_0
+            return opType == OpTypes.COUNT ? Long.valueOf(0)
                                            : null;
         }
 

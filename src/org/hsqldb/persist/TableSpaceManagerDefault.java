@@ -62,8 +62,7 @@ public class TableSpaceManagerDefault implements TableSpaceManager {
     /**
      *
      */
-    public TableSpaceManagerDefault(DataFileCache cache, int capacity,
-                                    long lostSize) {
+    public TableSpaceManagerDefault(DataFileCache cache, int capacity) {
 
         this.cache = cache;
         lookup     = new DoubleIntIndex(capacity, true);
@@ -72,7 +71,7 @@ public class TableSpaceManagerDefault implements TableSpaceManager {
 
         this.capacity          = capacity;
         this.scale             = cache.getDataFileScale();
-        this.lostFreeBlockSize = lostSize;
+        this.lostFreeBlockSize = cache.lostSpaceSize;
         this.midSize           = 128;    // arbitrary initial value
     }
 
@@ -216,14 +215,6 @@ public class TableSpaceManagerDefault implements TableSpaceManager {
         } finally {
             cache.writeLock.unlock();
         }
-    }
-
-    public int freeBlockCount() {
-        return lookup.size();
-    }
-
-    public long freeBlockSize() {
-        return freeBlockSize;
     }
 
     public long getLostBlocksSize() {

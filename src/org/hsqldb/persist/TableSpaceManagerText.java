@@ -95,14 +95,6 @@ public class TableSpaceManagerText implements TableSpaceManager {
     public void initialiseFileBlock(long blockPos, long blockFreePos,
                                     long blockLimit) {}
 
-    public int freeBlockCount() {
-        return 0;
-    }
-
-    public long freeBlockSize() {
-        return 0;
-    }
-
     public long getLostBlocksSize() {
         return 0;
     }

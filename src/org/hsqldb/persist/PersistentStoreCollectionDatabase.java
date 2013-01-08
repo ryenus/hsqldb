@@ -31,6 +31,7 @@
 
 package org.hsqldb.persist;
 
+import org.hsqldb.Database;
 import org.hsqldb.Table;
 import org.hsqldb.TableBase;
 import org.hsqldb.lib.Iterator;
@@ -44,8 +45,13 @@ import org.hsqldb.lib.LongKeyHashMap;
 public class PersistentStoreCollectionDatabase
 implements PersistentStoreCollection {
 
+    private Database             database;
     private long                 persistentStoreIdSequence;
     private final LongKeyHashMap rowStoreMap = new LongKeyHashMap();
+
+    public PersistentStoreCollectionDatabase(Database db) {
+        this.database = db;
+    }
 
     public void setStore(Object key, PersistentStore store) {
 
@@ -63,6 +69,11 @@ implements PersistentStoreCollection {
         long persistenceId = ((TableBase) key).getPersistenceId();
         PersistentStore store =
             (PersistentStore) rowStoreMap.get(persistenceId);
+
+        if (store == null) {
+            store = database.logger.newStore(null, this, (TableBase) key);
+            ((TableBase) key).store = store;
+        }
 
         return store;
     }

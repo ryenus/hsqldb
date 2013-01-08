@@ -1494,14 +1494,6 @@ public class DataFileCache {
         return spaceManager.getLostBlocksSize();
     }
 
-    public long getFreeBlockCount() {
-        return spaceManager.freeBlockCount();
-    }
-
-    public long getTotalFreeBlockSize() {
-        return spaceManager.freeBlockSize();
-    }
-
     public long getFileFreePos() {
         return fileFreePosition;
     }

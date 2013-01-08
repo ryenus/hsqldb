@@ -1337,7 +1337,7 @@ public class ParserDDL extends ParserRoutine {
                 }
                 case SchemaObject.ConstraintTypes.CHECK : {
                     try {
-                        c.prepareCheckConstraint(session, table, false);
+                        c.prepareCheckConstraint(session, table);
                     } catch (HsqlException e) {
                         if (session.isProcessingScript()) {
                             break;
@@ -1789,7 +1789,7 @@ public class ParserDDL extends ParserRoutine {
         for (int i = 0; i < tempConstraints.size(); i++) {
             Constraint c = (Constraint) tempConstraints.get(i);
 
-            c.prepareCheckConstraint(session, null, false);
+            c.prepareCheckConstraint(session, null);
             userTypeModifier.addConstraint(c);
         }
 

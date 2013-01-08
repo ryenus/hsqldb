@@ -49,7 +49,7 @@ import org.hsqldb.types.Type;
  * by the constraint.<p>
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.0.1
+ * @version 2.3.0
  * @since 1.6.0
  */
 public final class Constraint implements SchemaObject {
@@ -784,12 +784,6 @@ public final class Constraint implements SchemaObject {
      */
     void checkCheckConstraint(Session session, Table table, Object[] data) {
 
-/*
-        if (session.compiledStatementExecutor.rangeIterators[1] == null) {
-            session.compiledStatementExecutor.rangeIterators[1] =
-                rangeVariable.getIterator(session);
-        }
-*/
         RangeIteratorBase it =
             session.sessionContext.getCheckIterator(rangeVariable);
 
@@ -949,6 +943,19 @@ public final class Constraint implements SchemaObject {
 
     void recompile(Session session, Table newTable) {
 
+        check = getNewCheckExpression(session);
+
+        // this workaround is here to stop LIKE optimisation (for proper scripting)
+        QuerySpecification checkSelect = Expression.getCheckSelect(session,
+            newTable, check);
+
+        rangeVariable = checkSelect.rangeVariables[0];
+
+        rangeVariable.setForCheckConstraint();
+    }
+
+    private Expression getNewCheckExpression(Session session) {
+
         String    ddl     = check.getSQL();
         Scanner   scanner = new Scanner(ddl);
         ParserDQL parser  = new ParserDQL(session, scanner, null);
@@ -960,19 +967,10 @@ public final class Constraint implements SchemaObject {
 
         Expression condition = parser.XreadBooleanValueExpression();
 
-        check = condition;
-
-        // this workaround is here to stop LIKE optimisation (for proper scripting)
-        QuerySpecification s = Expression.getCheckSelect(session, newTable,
-            check);
-
-        rangeVariable = s.rangeVariables[0];
-
-        rangeVariable.setForCheckConstraint();
+        return condition;
     }
 
-    void prepareCheckConstraint(Session session, Table table,
-                                boolean checkValues) {
+    void prepareCheckConstraint(Session session, Table table) {
 
         // to ensure no subselects etc. are in condition
         check.checkValidCheckConstraint();
@@ -980,23 +978,14 @@ public final class Constraint implements SchemaObject {
         if (table == null) {
             check.resolveTypes(session, null);
         } else {
-            QuerySpecification s = Expression.getCheckSelect(session, table,
-                check);
-
-            if (table.getRowStore(session).elementCount() > 0) {
-                Result r = s.getResult(session, 1);
-
-                if (r.getNavigator().getSize() != 0) {
-                    String[] info = new String[] {
-                        name.statementName, table.getName().statementName
-                    };
-
-                    throw Error.error(null, ErrorCode.X_23513,
-                                      ErrorCode.CONSTRAINT, info);
-                }
+            if (table.store != null) {
+                table.store = table.store;
             }
 
-            rangeVariable = s.rangeVariables[0];
+            QuerySpecification checkSelect = Expression.getCheckSelect(session,
+                table, check);
+
+            rangeVariable = checkSelect.rangeVariables[0];
 
             // removes reference to the Index object in range variable
             rangeVariable.setForCheckConstraint();
@@ -1009,6 +998,25 @@ public final class Constraint implements SchemaObject {
             notNullColumnIndex =
                 check.getLeftNode().getLeftNode().getColumnIndex();
             isNotNull = true;
+        }
+    }
+
+    void checkCheckConstraint(Session session, Table table) {
+
+        if (table.getRowStore(session).elementCount() > 0) {
+            Expression newCheck = getNewCheckExpression(session);
+            QuerySpecification checkSelect = Expression.getCheckSelect(session,
+                table, newCheck);
+            Result r = checkSelect.getResult(session, 1);
+
+            if (r.getNavigator().getSize() != 0) {
+                String[] info = new String[] {
+                    name.statementName, table.getName().statementName
+                };
+
+                throw Error.error(null, ErrorCode.X_23513,
+                                  ErrorCode.CONSTRAINT, info);
+            }
         }
     }
 }

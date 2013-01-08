@@ -32,7 +32,6 @@
 package org.hsqldb;
 
 import java.util.concurrent.atomic.AtomicLong;
-import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import org.hsqldb.HsqlNameManager.HsqlName;
@@ -46,7 +45,6 @@ import org.hsqldb.lib.LongDeque;
 import org.hsqldb.lib.LongKeyHashMap;
 import org.hsqldb.lib.MultiValueHashMap;
 import org.hsqldb.lib.OrderedHashSet;
-import org.hsqldb.persist.CachedObject;
 
 /**
  * Shared code for TransactionManager classes
