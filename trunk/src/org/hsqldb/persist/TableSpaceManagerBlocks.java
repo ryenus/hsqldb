@@ -254,14 +254,6 @@ public class TableSpaceManagerBlocks implements TableSpaceManager {
         return key;
     }
 
-    public int freeBlockCount() {
-        return lookup.size();
-    }
-
-    public long freeBlockSize() {
-        return freeBlockSize;
-    }
-
     public long getLostBlocksSize() {
         return 0;
     }

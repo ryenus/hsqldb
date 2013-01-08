@@ -71,8 +71,8 @@ public class DataSpaceManagerBlocks implements DataSpaceManager {
     int fileBlockSize;
     int dataFileScale;
 
-    //
-    int totalFileBlockCount;
+    // fragmented space count
+    long totalFragmentItemCount;
 
     //
     BlockAccessor ba;
@@ -81,11 +81,12 @@ public class DataSpaceManagerBlocks implements DataSpaceManager {
 
     public DataSpaceManagerBlocks(DataFileCache dataFileCache) {
 
-        cache            = dataFileCache;
-        dataFileScale    = cache.getDataFileScale();
-        fileBlockSize    = bitmapIntSize * 32 * dataFileScale;
-        ba               = new BlockAccessor();
-        spaceManagerList = new IntKeyHashMap();
+        cache                  = dataFileCache;
+        dataFileScale          = cache.getDataFileScale();
+        fileBlockSize          = bitmapIntSize * 32 * dataFileScale;
+        ba                     = new BlockAccessor();
+        spaceManagerList       = new IntKeyHashMap();
+        totalFragmentItemCount = cache.lostSpaceSize / dataFileScale;
 
         //
         directorySpaceManager = new TableSpaceManagerBlocks(this,
@@ -576,6 +577,8 @@ public class DataSpaceManagerBlocks implements DataSpaceManager {
             int position = spaceList.getKey(i);
             int units    = spaceList.getValue(i) / dataFileScale;
 
+            totalFragmentItemCount += units;
+
             freeTableSpacePart(spaceId, position, units);
         }
 
@@ -635,15 +638,7 @@ public class DataSpaceManagerBlocks implements DataSpaceManager {
     }
 
     public long getLostBlocksSize() {
-        return 0;
-    }
-
-    public long freeBlockCount() {
-        return 0;
-    }
-
-    public long freeBlockSize() {
-        return 0;
+        return totalFragmentItemCount * dataFileScale;
     }
 
     public int getFileBlockSize() {

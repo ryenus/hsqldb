@@ -50,7 +50,7 @@ public class DataSpaceManagerSimple implements DataSpaceManager {
             int capacity = cache.database.logger.propMaxFreeBlocks;
 
             defaultSpaceManager = new TableSpaceManagerDefault(cache,
-                    capacity, cache.lostSpaceSize);
+                    capacity);
         }
     }
 
@@ -73,14 +73,6 @@ public class DataSpaceManagerSimple implements DataSpaceManager {
 
     public long getLostBlocksSize() {
         return defaultSpaceManager.getLostBlocksSize();
-    }
-
-    public long freeBlockCount() {
-        return defaultSpaceManager.freeBlockCount();
-    }
-
-    public long freeBlockSize() {
-        return defaultSpaceManager.freeBlockSize();
     }
 
     public int getFileBlockSize() {

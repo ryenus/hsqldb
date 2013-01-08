@@ -257,16 +257,16 @@ implements TransactionManager {
                     action = RowAction.addDeleteAction(session, table, row,
                                                        colMap);
 
-            addTransactionInfo(row);
+                    addTransactionInfo(row);
                     break;
 
                 case TableBase.TEMP_TABLE :
                     action = RowAction.addDeleteAction(session, table, row,
                                                        colMap);
 
-            store.delete(session, row);
+                    store.delete(session, row);
 
-            row.rowAction = null;
+                    row.rowAction = null;
                     break;
 
                 case TableBase.MEMORY_TABLE :

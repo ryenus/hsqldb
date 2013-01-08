@@ -420,7 +420,7 @@ public class TableWorks {
 
                     addCheck = true;
 
-                    c.prepareCheckConstraint(session, tn, false);
+                    c.prepareCheckConstraint(session, tn);
                     tn.addConstraint(c);
 
                     if (c.isNotNull()) {
@@ -701,7 +701,8 @@ public class TableWorks {
 
         checkModifyTable();
         database.schemaManager.checkSchemaObjectNotExists(c.getName());
-        c.prepareCheckConstraint(session, table, true);
+        c.prepareCheckConstraint(session, table);
+        c.checkCheckConstraint(session, table);
         table.addConstraint(c);
 
         if (c.isNotNull()) {
@@ -1163,7 +1164,8 @@ public class TableWorks {
                                SchemaObject.ConstraintTypes.CHECK);
             c.check = new ExpressionLogical(column);
 
-            c.prepareCheckConstraint(session, table, true);
+            c.prepareCheckConstraint(session, table);
+            c.checkCheckConstraint(session, table);
             column.setNullable(false);
             table.addConstraint(c);
             table.setColumnTypeVars(colIndex);
@@ -1305,11 +1307,6 @@ public class TableWorks {
                     oldTable, newTable, colIndex, adjust);
             }
         } else {
-            PersistentStore oldStore =
-                database.persistentStoreCollection.getStore(oldTable);
-            PersistentStore newStore =
-                database.persistentStoreCollection.getStore(newTable);
-
             if (newTable.isCached()
                     && oldTable.getSpaceID()
                        != DataSpaceManager.tableIdDefault) {
@@ -1317,11 +1314,12 @@ public class TableWorks {
                     database.logger.getCache().spaceManager.getNewTableSpace();
 
                 newTable.setSpaceID(tableSpace.getSpaceID());
-
-                PersistentStore store = newTable.getRowStore(session);
-
-                store.setSpaceManager(tableSpace);
             }
+
+            PersistentStore oldStore =
+                database.persistentStoreCollection.getStore(oldTable);
+            PersistentStore newStore =
+                database.persistentStoreCollection.getStore(newTable);
 
             try {
                 newStore.moveData(session, oldStore, colIndex, adjust);

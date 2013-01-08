@@ -216,7 +216,7 @@ public class Database {
             userManager    = new UserManager(this);
             schemaManager  = new SchemaManager(this);
             persistentStoreCollection =
-                new PersistentStoreCollectionDatabase();
+                new PersistentStoreCollectionDatabase(this);
             isReferentialIntegrity = true;
             sessionManager         = new SessionManager(this);
             collation              = collation.newDatabaseInstance();

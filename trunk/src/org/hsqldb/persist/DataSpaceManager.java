@@ -56,10 +56,6 @@ public interface DataSpaceManager {
 
     long getLostBlocksSize();
 
-    long freeBlockCount();
-
-    long freeBlockSize();
-
     boolean isModified();
 
     int getFileBlockSize();

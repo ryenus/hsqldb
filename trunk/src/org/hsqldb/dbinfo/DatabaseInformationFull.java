@@ -457,8 +457,6 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
             addColumn(t, "CACHE_SIZE", CARDINAL_NUMBER);         // not null
             addColumn(t, "CACHE_BYTES", CARDINAL_NUMBER);        // not null
             addColumn(t, "FILE_LOST_BYTES", CARDINAL_NUMBER);    // not null
-            addColumn(t, "FILE_FREE_BYTES", CARDINAL_NUMBER);    // not null
-            addColumn(t, "FILE_FREE_COUNT", CARDINAL_NUMBER);    // not null
             addColumn(t, "FILE_FREE_POS", CARDINAL_NUMBER);      // not null
 
             HsqlName name = HsqlNameManager.newInfoSchemaObjectName(
@@ -477,9 +475,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         final int icache_size      = 3;
         final int icache_length    = 4;
         final int ilost_bytes      = 5;
-        final int ifree_bytes      = 6;
-        final int ifree_count      = 7;
-        final int ifree_pos        = 8;
+        final int ifree_pos        = 6;
 
         //
         DataFileCache cache = null;
@@ -527,9 +523,6 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
             row[icache_length] =
                 ValuePool.getLong(cache.getTotalCachedBlockSize());
             row[ilost_bytes] = ValuePool.getLong(cache.getLostBlockSize());
-            row[ifree_bytes] =
-                ValuePool.getLong(cache.getTotalFreeBlockSize());
-            row[ifree_count] = ValuePool.getLong(cache.getFreeBlockCount());
             row[ifree_pos]   = ValuePool.getLong(cache.getFileFreePos());
 
             t.insertSys(session, store, row);

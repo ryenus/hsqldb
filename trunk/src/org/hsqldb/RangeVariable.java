@@ -612,8 +612,10 @@ public class RangeVariable implements Cloneable {
      * table or drop index
      */
     public void setForCheckConstraint() {
-        joinConditions[0].rangeIndex = null;
-        rangePosition                = 0;
+
+        joinConditions[0].rangeIndex  = null;
+        whereConditions[0].rangeIndex = null;
+        rangePosition                 = 0;
     }
 
     /**
@@ -634,8 +636,12 @@ public class RangeVariable implements Cloneable {
         joinConditions = new RangeVariableConditions[]{
             new RangeVariableConditions(this, true) };
         joinConditions[0].rangeIndex = index;
+
+        //
+        index = whereConditions[0].rangeIndex;
         whereConditions = new RangeVariableConditions[]{
             new RangeVariableConditions(this, false) };
+        whereConditions[0].rangeIndex = index;
     }
 
     public OrderedHashSet getSubqueries() {
