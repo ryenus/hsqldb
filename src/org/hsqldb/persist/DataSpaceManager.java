@@ -31,6 +31,8 @@
 
 package org.hsqldb.persist;
 
+import org.hsqldb.lib.DoubleIntIndex;
+
 /**
  * @author Fred Toussi (fredt@users dot sourceforge.net)
  * @version 2.3.0
@@ -50,9 +52,15 @@ public interface DataSpaceManager {
 
     TableSpaceManager getTableSpace(int spaceId);
 
-    TableSpaceManager getNewTableSpace();
+    int getNewTableSpace();
+
+    long getFileBlocks(int tableId, int blockCount);
 
     void freeTableSpace(int spaceId);
+
+    void freeTableSpace(int spaceId, DoubleIntIndex spaceList);
+
+    void freeTableSpace(int spaceId, long offset, long limit);
 
     long getLostBlocksSize();
 

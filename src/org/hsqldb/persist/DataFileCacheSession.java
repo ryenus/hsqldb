@@ -96,6 +96,8 @@ public class DataFileCacheSession extends DataFileCache {
         }
     }
 
+    protected void setFileModified() {}
+
     /**
      *  Parameter write is always false. The backing file is simply closed and
      *  deleted.

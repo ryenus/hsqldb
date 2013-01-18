@@ -1045,8 +1045,6 @@ public class Logger {
 
     /**
      *  Sets logging on or off.
-     *
-     * @param  megas size in MB
      */
     public synchronized void setLogData(boolean mode) {
 
@@ -1082,7 +1080,7 @@ public class Logger {
      *  A value of 0 will severly slow down logging when autocommit is on,
      *  or many short transactions are committed.
      *
-     * @param  delay in milliseconds
+     * @param delay in milliseconds
      */
     public synchronized void setWriteDelay(int delay) {
 
@@ -1184,7 +1182,35 @@ public class Logger {
     }
 
     public void setDataFileSpaces(boolean value) {
+
         propFileSpaces = value;
+
+        if (hasCache()) {
+            DataFileCache dataCache = getCache();
+            boolean       result    = dataCache.setTableSpaceManager(value);
+
+            if (!result) {
+                return;
+            }
+
+            HsqlArrayList allTables =
+                database.schemaManager.getAllTables(true);
+
+            for (int i = 0; i < allTables.size(); i++) {
+                Table table = (Table) allTables.get(i);
+
+                if (table.isCached()) {
+                    PersistentStore store =
+                        table.database.persistentStoreCollection.getStore(
+                            table);
+                    TableSpaceManager tableSpace =
+                        dataCache.spaceManager.getTableSpace(
+                            table.getSpaceID());
+
+                    store.setSpaceManager(tableSpace);
+                }
+            }
+        }
     }
 
     public boolean isDataFileSpaces() {
@@ -1664,13 +1690,17 @@ public class Logger {
                                            : Tokens.T_FALSE);
         list.add(sb.toString());
         sb.setLength(0);
-        sb.append("SET DATABASE ").append(Tokens.T_SQL).append(' ');
-        sb.append(Tokens.T_REGULAR).append(' ');
-        sb.append(Tokens.T_NAMES).append(' ');
-        sb.append(database.sqlRegularNames ? Tokens.T_TRUE
-                                           : Tokens.T_FALSE);
-        list.add(sb.toString());
-        sb.setLength(0);
+
+        if (!database.sqlRegularNames) {
+            sb.append("SET DATABASE ").append(Tokens.T_SQL).append(' ');
+            sb.append(Tokens.T_REGULAR).append(' ');
+            sb.append(Tokens.T_NAMES).append(' ');
+            sb.append(database.sqlRegularNames ? Tokens.T_TRUE
+                                               : Tokens.T_FALSE);
+            list.add(sb.toString());
+            sb.setLength(0);
+        }
+
         sb.append("SET DATABASE ").append(Tokens.T_SQL).append(' ');
         sb.append(Tokens.T_REFERENCES).append(' ');
         sb.append(database.sqlEnforceRefs ? Tokens.T_TRUE

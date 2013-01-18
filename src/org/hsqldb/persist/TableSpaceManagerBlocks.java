@@ -44,10 +44,10 @@ import org.hsqldb.lib.ArrayUtil;
  */
 public class TableSpaceManagerBlocks implements TableSpaceManager {
 
-    DataSpaceManagerBlocks spaceManager;
-    private final int      scale;
-    int                    mainBlockSize;
-    int                    spaceID;
+    DataSpaceManager  spaceManager;
+    private final int scale;
+    int               mainBlockSize;
+    int               spaceID;
 
     //
     private DoubleIntIndex lookup;
@@ -70,9 +70,9 @@ public class TableSpaceManagerBlocks implements TableSpaceManager {
      */
     public TableSpaceManagerBlocks(DataSpaceManager spaceManager, int tableId,
                                    int fileBlockSize, int capacity,
-                                   int fileScale, long lostSize) {
+                                   int fileScale) {
 
-        this.spaceManager  = (DataSpaceManagerBlocks) spaceManager;
+        this.spaceManager  = spaceManager;
         this.scale         = fileScale;
         this.spaceID       = tableId;
         this.mainBlockSize = fileBlockSize;
@@ -109,12 +109,6 @@ public class TableSpaceManagerBlocks implements TableSpaceManager {
 
     boolean getNewMainBlock(long rowSize) {
 
-        long released = freshBlockLimit - freshBlockFreePos;
-
-        if (released > 0) {
-            release(freshBlockFreePos / scale, (int) released);
-        }
-
         int blockSize  = mainBlockSize;
         int blockCount = 1;
 
@@ -128,6 +122,18 @@ public class TableSpaceManagerBlocks implements TableSpaceManager {
 
         if (position < 0) {
             return false;
+        }
+
+        if (position == freshBlockLimit) {
+            freshBlockLimit += blockSize;
+
+            return true;
+        }
+
+        long released = freshBlockLimit - freshBlockFreePos;
+
+        if (released > 0) {
+            release(freshBlockFreePos / scale, (int) released);
         }
 
         freshBlockPos     = position;
@@ -254,10 +260,6 @@ public class TableSpaceManagerBlocks implements TableSpaceManager {
         return key;
     }
 
-    public long getLostBlocksSize() {
-        return 0;
-    }
-
     public void close() {
 
         spaceManager.freeTableSpace(spaceID, lookup);
@@ -271,10 +273,10 @@ public class TableSpaceManagerBlocks implements TableSpaceManager {
         freshBlockLimit   = 0;
     }
 
-    public void resetList() {
+    private void resetList() {
 
         spaceManager.freeTableSpace(spaceID, lookup);
-        lookup.setValuesSearchTarget();
         lookup.removeAll();
+        lookup.setValuesSearchTarget();
     }
 }

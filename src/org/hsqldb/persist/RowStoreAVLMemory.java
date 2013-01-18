@@ -95,10 +95,6 @@ public class RowStoreAVLMemory extends RowStoreAVL implements PersistentStore {
         return null;
     }
 
-    public CachedObject getNewInstance(int size) {
-        return null;
-    }
-
     public CachedObject getNewCachedObject(Session session, Object object,
                                            boolean tx) {
 
@@ -204,13 +200,4 @@ public class RowStoreAVLMemory extends RowStoreAVL implements PersistentStore {
 
         elementCount = 0;
     }
-
-    public void setAccessor(Index key, CachedObject accessor) {
-
-        Index index = (Index) key;
-
-        accessorList[index.getPosition()] = accessor;
-    }
-
-    public void setAccessor(Index key, long accessor) {}
 }

@@ -1374,11 +1374,11 @@ public class ParserCommand extends ParserDDL {
 
         read();
 
-        String  name;
-        int     type  = 0;
-        Boolean flag  = null;
-        Integer value = null;
-        Boolean mode  = null;
+        int        type  = 0;
+        Boolean    flag  = null;
+        Integer    value = null;
+        Boolean    mode  = null;
+        HsqlName[] names = database.schemaManager.getCatalogNameArray();
 
         checkDatabaseUpdateAuthorisation();
 
@@ -1410,14 +1410,17 @@ public class ParserCommand extends ParserDDL {
 
                 value = readIntegerObject();
                 type  = StatementTypes.SET_DATABASE_FILES_SCALE;
+                names = database.schemaManager.getCatalogAndBaseTableNames();
 
                 break;
             }
             case Tokens.SPACE : {
                 read();
+                super.checkIsThis(Tokens.TRUE);
 
-                flag = processTrueOrFalseObject();
-                type = StatementTypes.SET_DATABASE_FILES_SPACE;
+                flag  = processTrueOrFalseObject();
+                type  = StatementTypes.SET_DATABASE_FILES_SPACE;
+                names = database.schemaManager.getCatalogAndBaseTableNames();
 
                 break;
             }
@@ -1427,6 +1430,7 @@ public class ParserCommand extends ParserDDL {
 
                 value = readIntegerObject();
                 type  = StatementTypes.SET_DATABASE_FILES_LOBS_SCALE;
+                names = database.schemaManager.getCatalogAndBaseTableNames();
 
                 break;
             }
@@ -1546,8 +1550,7 @@ public class ParserCommand extends ParserDDL {
                                : (Object) flag;
         args[1] = mode;
 
-        return new StatementCommand(
-            type, args, null, database.schemaManager.getCatalogNameArray());
+        return new StatementCommand(type, args, null, names);
     }
 
     Object[] processTransactionCharacteristics() {

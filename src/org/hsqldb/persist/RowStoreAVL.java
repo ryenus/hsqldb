@@ -117,7 +117,9 @@ public abstract class RowStoreAVL implements PersistentStore {
         return object;
     }
 
-    public abstract CachedObject getNewInstance(int size);
+    public CachedObject getNewInstance(int size) {
+        throw Error.runtimeError(ErrorCode.U_S0500, "RowStoreAVL");
+    }
 
     public abstract CachedObject getNewCachedObject(Session session,
             Object object, boolean tx);
@@ -271,9 +273,14 @@ public abstract class RowStoreAVL implements PersistentStore {
         return index.firstRow(this);
     }
 
-    public abstract void setAccessor(Index key, CachedObject accessor);
+    public void setAccessor(Index key, CachedObject accessor) {
 
-    public abstract void setAccessor(Index key, long accessor);
+        Index index = (Index) key;
+
+        accessorList[index.getPosition()] = accessor;
+    }
+
+    public void setAccessor(Index key, long accessor) {}
 
     public void resetAccessorKeys(Session session, Index[] keys) {
 

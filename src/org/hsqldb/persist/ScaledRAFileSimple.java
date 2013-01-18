@@ -42,7 +42,7 @@ import org.hsqldb.Database;
  * for backup and lobs.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version  2.0.1
+ * @version  2.3.0
  * @since  1.9.0
  */
 final class ScaledRAFileSimple implements RandomAccessInterface {
@@ -108,7 +108,19 @@ final class ScaledRAFileSimple implements RandomAccessInterface {
         return readOnly;
     }
 
-    public boolean ensureLength(long newLong) {
+    public boolean ensureLength(long newLength) {
+
+        try {
+            if (!readOnly && file.length() < newLength) {
+                file.seek(newLength - 1);
+                file.writeByte(0);
+            }
+        } catch (IOException e) {
+            database.logger.logWarningEvent("data file enlarge failed ", e);
+
+            return false;
+        }
+
         return true;
     }
 
@@ -131,8 +143,12 @@ final class ScaledRAFileSimple implements RandomAccessInterface {
 
         try {
             file.getFD().sync();
-        } catch (IOException e) {
-            database.logger.logSevereEvent("RA file sync error ", e);
+        } catch (Throwable t) {
+            try {
+                file.getFD().sync();
+            } catch (Throwable tt) {
+                database.logger.logSevereEvent("RA file sync error ", t);
+            }
         }
     }
 }

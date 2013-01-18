@@ -190,10 +190,6 @@ public class RowStoreAVLHybrid extends RowStoreAVL implements PersistentStore {
         return null;
     }
 
-    public CachedObject getNewInstance(int size) {
-        return null;
-    }
-
     public CachedObject getNewCachedObject(Session session, Object object,
                                            boolean tx) {
 
@@ -354,15 +350,6 @@ public class RowStoreAVLHybrid extends RowStoreAVL implements PersistentStore {
         return node;
     }
 
-    public void setAccessor(Index key, CachedObject accessor) {
-
-        Index index = (Index) key;
-
-        accessorList[index.getPosition()] = accessor;
-    }
-
-    public void setAccessor(Index key, long accessor) {}
-
     public synchronized void resetAccessorKeys(Session session, Index[] keys) {
 
         if (indexList.length == 0 || accessorList[0] == null) {
@@ -388,7 +375,8 @@ public class RowStoreAVLHybrid extends RowStoreAVL implements PersistentStore {
         cache = ((PersistentStoreCollectionSession) manager).getResultCache();
 
         if (cache != null) {
-            tableSpace = cache.spaceManager.getNewTableSpace();
+            tableSpace = cache.spaceManager.getTableSpace(
+                DataSpaceManager.tableIdDefault);
 
             IndexAVL    idx      = (IndexAVL) indexList[0];
             NodeAVL     root     = (NodeAVL) accessorList[0];

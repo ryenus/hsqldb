@@ -59,6 +59,7 @@ public abstract class Type implements SchemaObject, Cloneable {
 
     //
     public final int        typeComparisonGroup;
+    public final int        typeDataGroup;
     public final int        typeCode;
     public final long       precision;
     public final int        scale;
@@ -71,6 +72,8 @@ public abstract class Type implements SchemaObject, Cloneable {
         this.typeCode            = type;
         this.precision           = precision;
         this.scale               = scale;
+        this.typeDataGroup = typeCode == Types.SQL_CHAR ? Types.SQL_VARCHAR
+                                                        : typeCode;
     }
 
     // interface specific methods

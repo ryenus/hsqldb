@@ -423,7 +423,8 @@ public class CharacterType extends Type {
 
             //
         } else if (la > lb) {
-            if (collation.isPadSpace() && opType != OpTypes.GREATER_EQUAL_PRE) {
+            if (collation.isPadSpace()
+                    && opType != OpTypes.GREATER_EQUAL_PRE) {
                 char[] buffer = new char[la];
 
                 bs.getChars(0, lb, buffer, 0);
@@ -432,7 +433,8 @@ public class CharacterType extends Type {
                 bs = String.valueOf(buffer);
             }
         } else {
-            if (collation.isPadSpace() && opType != OpTypes.GREATER_EQUAL_PRE) {
+            if (collation.isPadSpace()
+                    && opType != OpTypes.GREATER_EQUAL_PRE) {
                 char[] buffer = new char[lb];
 
                 as.getChars(0, la, buffer, 0);
@@ -500,11 +502,15 @@ public class CharacterType extends Type {
 
                 return a;
             }
-            case Types.SQL_CLOB :
+            case Types.SQL_CLOB : {
+                ClobData clob = (ClobData) a;
 
-                /** @todo implement */
+                if (clob.length(session) > precision) {
+                    throw Error.error(ErrorCode.X_22001);
+                }
+
                 return a;
-
+            }
             default :
                 throw Error.runtimeError(ErrorCode.U_S0500, "CharacterType");
         }

@@ -280,7 +280,7 @@ public class ParserDML extends ParserDQL {
 
         columnCheckList = table.getColumnCheckList(columnMap);
 
-        if (baseTable != null && table != baseTable) {
+        if (table != baseTable) {
             int[] baseColumnMap = table.getBaseTableColumnMap();
             int[] newColumnMap  = new int[columnMap.length];
 
@@ -545,18 +545,23 @@ public class ParserDML extends ParserDQL {
 
         read();
 
-        Expression[]   updateExpressions;
-        int[]          columnMap;
-        boolean[]      columnCheckList;
-        OrderedHashSet targetSet    = new OrderedHashSet();
-        LongDeque      colIndexList = new LongDeque();
-        HsqlArrayList  exprList     = new HsqlArrayList();
-        RangeVariable[] rangeVariables = {
+        Expression[]    updateExpressions;
+        int[]           columnMap;
+        boolean[]       columnCheckList;
+        OrderedHashSet  targetSet    = new OrderedHashSet();
+        LongDeque       colIndexList = new LongDeque();
+        HsqlArrayList   exprList     = new HsqlArrayList();
+        RangeVariable[] rangeVariables;
+        RangeGroup      rangeGroup;
+        Table           table;
+        Table           baseTable;
+
+        rangeVariables = new RangeVariable[]{
             readRangeVariableForDataChange(StatementTypes.UPDATE_WHERE) };
-        RangeGroup rangeGroup = new RangeGroupSimple(rangeVariables, false);
-        Table      table      = rangeVariables[0].rangeTable;
-        Table      baseTable  = table.isTriggerUpdatable() ? table
-                                                           : table.getBaseTable();
+        rangeGroup = new RangeGroupSimple(rangeVariables, false);
+        table      = rangeVariables[0].rangeTable;
+        baseTable  = table.isTriggerUpdatable() ? table
+                                                : table.getBaseTable();
 
         readThis(Tokens.SET);
         readSetClauseList(rangeVariables, targetSet, colIndexList, exprList);

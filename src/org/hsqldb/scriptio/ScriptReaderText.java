@@ -208,10 +208,8 @@ public class ScriptReaderText extends ScriptReaderBase {
         if (!sessionChanged) {
 
             //fredt temporary solution - should read bytes directly from buffer
-            String s;
-
             try {
-                s = dataStreamIn.readLine();
+                rawStatement = dataStreamIn.readLine();
             } catch (EOFException e) {
                 return false;
             } catch (IOException e) {
@@ -221,7 +219,7 @@ public class ScriptReaderText extends ScriptReaderBase {
             lineCount++;
 
             //        System.out.println(lineCount);
-            statement = StringConverter.unicodeStringToString(s);
+            statement = StringConverter.unicodeStringToString(rawStatement);
 
             if (statement == null) {
                 return false;

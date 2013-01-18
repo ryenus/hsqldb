@@ -63,10 +63,10 @@ public class TableSpaceManagerSimple implements TableSpaceManager {
         cache.writeLock.lock();
 
         try {
-            long i;
+            long position;
             long newFreePosition;
 
-            i               = cache.getFileFreePos() / scale;
+            position        = cache.getFileFreePos() / scale;
             newFreePosition = cache.getFileFreePos() + rowSize;
 
             if (newFreePosition > cache.maxDataFileSize) {
@@ -76,29 +76,16 @@ public class TableSpaceManagerSimple implements TableSpaceManager {
                 throw Error.error(ErrorCode.DATA_FILE_IS_FULL);
             }
 
-            boolean result = cache.dataFile.ensureLength(newFreePosition);
-
-            if (!result) {
-                cache.logSevereEvent(
-                    "data file cannot be enlarged - disk spacee "
-                    + cache.dataFileName, null);
-
-                throw Error.error(ErrorCode.DATA_FILE_IS_FULL);
-            }
-
             cache.fileFreePosition = newFreePosition;
 
-            return i;
+            return position;
         } finally {
             cache.writeLock.unlock();
         }
     }
 
     public boolean hasFileRoom(int blockSize) {
-
-        long newFreePosition = cache.getFileFreePos() + blockSize;
-
-        return cache.dataFile.ensureLength(newFreePosition);
+        return true;
     }
 
     public void addFileBlock(long blockPos, long blockFreePos,
@@ -107,7 +94,5 @@ public class TableSpaceManagerSimple implements TableSpaceManager {
     public void initialiseFileBlock(long blockPos, long blockFreePos,
                                     long blockLimit) {}
 
-    public long getLostBlocksSize() {
-        return 0;
-    }
+    public void close() {}
 }

@@ -71,8 +71,8 @@ public class DataSpaceManagerBlocks implements DataSpaceManager {
     int fileBlockSize;
     int dataFileScale;
 
-    // fragmented space count
-    long totalFragmentItemCount;
+    // fragmented space size
+    long totalFragmentSize;
 
     //
     BlockAccessor ba;
@@ -81,18 +81,18 @@ public class DataSpaceManagerBlocks implements DataSpaceManager {
 
     public DataSpaceManagerBlocks(DataFileCache dataFileCache) {
 
-        cache                  = dataFileCache;
-        dataFileScale          = cache.getDataFileScale();
-        fileBlockSize          = bitmapIntSize * 32 * dataFileScale;
-        ba                     = new BlockAccessor();
-        spaceManagerList       = new IntKeyHashMap();
-        totalFragmentItemCount = cache.lostSpaceSize / dataFileScale;
+        cache             = dataFileCache;
+        dataFileScale     = cache.getDataFileScale();
+        fileBlockSize     = bitmapIntSize * 32 * dataFileScale;
+        ba                = new BlockAccessor();
+        spaceManagerList  = new IntKeyHashMap();
+        totalFragmentSize = cache.lostSpaceSize;
 
         //
         directorySpaceManager = new TableSpaceManagerBlocks(this,
-                tableIdDirectory, fileBlockSize, 0, dataFileScale, 0);
+                tableIdDirectory, fileBlockSize, 0, dataFileScale);
         defaultSpaceManager = new TableSpaceManagerBlocks(this,
-                tableIdDefault, fileBlockSize, 2048, dataFileScale, 0);
+                tableIdDefault, fileBlockSize, 2048, dataFileScale);
 
         spaceManagerList.put(tableIdDirectory, directorySpaceManager);
         spaceManagerList.put(tableIdDefault, defaultSpaceManager);
@@ -140,7 +140,7 @@ public class DataSpaceManagerBlocks implements DataSpaceManager {
     private void initNewSpaceDirectory() {
 
         long currentSize = cache.getFileFreePos();
-        long totalBlocks = currentSize / fileBlockSize + 1;
+        long totalBlocks = (currentSize / fileBlockSize) + 1;
         long lastFreePosition = cache.enlargeFileSpace(totalBlocks
             * fileBlockSize - currentSize);
 
@@ -408,9 +408,8 @@ public class DataSpaceManagerBlocks implements DataSpaceManager {
 
         ba.initialise(false);
 
-        DirectoryBlockCachedObject directory  = null;
-        int                        foundIndex = -1;
-        int                        lastIndex  = -1;
+        int foundIndex = -1;
+        int lastIndex  = -1;
 
         for (;;) {
             boolean result = ba.nextBlockForTable(tableIdEmpty);
@@ -508,24 +507,17 @@ public class DataSpaceManagerBlocks implements DataSpaceManager {
         if (manager == null) {
             manager = new TableSpaceManagerBlocks(
                 this, spaceId, fileBlockSize,
-                cache.database.logger.propMaxFreeBlocks, dataFileScale, 0);
+                cache.database.logger.propMaxFreeBlocks, dataFileScale);
 
             initialiseTableSpace(manager);
+            spaceManagerList.put(spaceId, manager);
         }
 
         return manager;
     }
 
-    public TableSpaceManager getNewTableSpace() {
-
-        int spaceId = getNewSpaceId();
-        TableSpaceManagerBlocks manager = new TableSpaceManagerBlocks(this,
-            spaceId, fileBlockSize, cache.database.logger.propMaxFreeBlocks,
-            dataFileScale, 0);
-
-        spaceManagerList.put(spaceId, manager);
-
-        return manager;
+    public int getNewTableSpace() {
+        return getNewSpaceId();
     }
 
     public void freeTableSpace(int spaceId) {
@@ -566,7 +558,7 @@ public class DataSpaceManagerBlocks implements DataSpaceManager {
         }
     }
 
-    void freeTableSpace(int spaceId, DoubleIntIndex spaceList) {
+    public void freeTableSpace(int spaceId, DoubleIntIndex spaceList) {
 
         ba.initialise(true);
         spaceList.setKeysSearchTarget();
@@ -575,9 +567,10 @@ public class DataSpaceManagerBlocks implements DataSpaceManager {
         // spaceId may be the tableIdDefault for moved spaces
         for (int i = 0; i < spaceList.size(); i++) {
             int position = spaceList.getKey(i);
-            int units    = spaceList.getValue(i) / dataFileScale;
+            int size     = spaceList.getValue(i);
+            int units    = size / dataFileScale;
 
-            totalFragmentItemCount += units;
+            totalFragmentSize += size;
 
             freeTableSpacePart(spaceId, position, units);
         }
@@ -585,7 +578,7 @@ public class DataSpaceManagerBlocks implements DataSpaceManager {
         ba.reset();
     }
 
-    void freeTableSpace(int spaceId, long offset, long limit) {
+    public void freeTableSpace(int spaceId, long offset, long limit) {
 
         ba.initialise(true);
 
@@ -638,7 +631,7 @@ public class DataSpaceManagerBlocks implements DataSpaceManager {
     }
 
     public long getLostBlocksSize() {
-        return totalFragmentItemCount * dataFileScale;
+        return totalFragmentSize;
     }
 
     public int getFileBlockSize() {

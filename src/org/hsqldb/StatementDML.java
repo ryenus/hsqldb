@@ -944,7 +944,10 @@ public class StatementDML extends StatementDMQL {
             } else {
 
                 // DYNAMIC_PARAM and PARAMETER expressions may have wider values
-                value = type.convertToType(session, value, e.dataType);
+                if (e.dataType == null
+                        || type.typeDataGroup != e.dataType.typeDataGroup) {
+                    value = type.convertToType(session, value, e.dataType);
+                }
             }
 
             data[colIndex] = value;

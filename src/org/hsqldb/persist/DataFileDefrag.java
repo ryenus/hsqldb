@@ -31,8 +31,6 @@
 
 package org.hsqldb.persist;
 
-import java.io.IOException;
-
 import org.hsqldb.Database;
 import org.hsqldb.Table;
 import org.hsqldb.TableBase;
@@ -41,9 +39,6 @@ import org.hsqldb.error.ErrorCode;
 import org.hsqldb.lib.DoubleIntIndex;
 import org.hsqldb.lib.HsqlArrayList;
 import org.hsqldb.lib.StopWatch;
-import org.hsqldb.navigator.RowIterator;
-
-// oj@openoffice.org - changed to file access api
 
 /**
  *  Routine to defrag the *.data file.
@@ -62,7 +57,6 @@ import org.hsqldb.navigator.RowIterator;
 final class DataFileDefrag {
 
     DataFileCache         dataFileOut;
-    RandomAccessInterface randomAccessOut;
     StopWatch             stopw = new StopWatch();
     String                dataFileName;
     long[][]              rootsList;
@@ -110,9 +104,8 @@ final class DataFileDefrag {
         }
 
         try {
-            pointerLookup   = new DoubleIntIndex((int) maxSize, false);
-            dataFileOut     = new DataFileCache(database, dataFileName, true);
-            randomAccessOut = dataFileOut.dataFile;
+            pointerLookup = new DoubleIntIndex((int) maxSize, false);
+            dataFileOut   = new DataFileCache(database, dataFileName, true);
 
             pointerLookup.setKeysSearchTarget();
 
@@ -123,8 +116,6 @@ final class DataFileDefrag {
                     long[] rootsArray = writeTableToDataFile(t);
 
                     rootsList[i] = rootsArray;
-
-                    randomAccessOut.synch();
                 } else {
                     rootsList[i] = null;
                 }
@@ -135,11 +126,9 @@ final class DataFileDefrag {
 
             dataFileOut.fileModified = true;
 
-            dataFileOut.spaceManager.close();
-            dataFileOut.commitChanges();
-            randomAccessOut.close();
+            dataFileOut.close(true);
 
-            randomAccessOut = null;
+            dataFileOut = null;
 
             for (int i = 0, size = rootsList.length; i < size; i++) {
                 long[] roots = rootsList[i];
@@ -150,10 +139,6 @@ final class DataFileDefrag {
                         + org.hsqldb.lib.StringUtil.getList(roots, ",", ""));
                 }
             }
-        } catch (IOException e) {
-            error = e;
-
-            throw Error.error(ErrorCode.FILE_IO_ERROR, e);
         } catch (OutOfMemoryError e) {
             error = e;
 
@@ -164,8 +149,8 @@ final class DataFileDefrag {
             throw Error.error(ErrorCode.GENERAL_ERROR, t);
         } finally {
             try {
-                if (randomAccessOut != null) {
-                    randomAccessOut.close();
+                if (dataFileOut != null) {
+                    dataFileOut.close(false);
                 }
             } catch (Throwable t) {}
 

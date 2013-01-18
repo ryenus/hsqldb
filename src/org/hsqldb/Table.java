@@ -2595,6 +2595,8 @@ public class Table extends TableBase implements SchemaObject {
             setGeneratedColumns(session, data);
         }
 
+        enforceTypeLimits(session, data);
+
         if (hasDomainColumns || hasNotNullColumns) {
             enforceRowConstraints(session, data);
         }
