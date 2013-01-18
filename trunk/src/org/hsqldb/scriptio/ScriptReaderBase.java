@@ -41,7 +41,7 @@ import org.hsqldb.persist.PersistentStore;
  * Base class for all script readers.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 1.9.0
+ * @version 2.3.0
  * @since 1.7.2
  */
 public abstract class ScriptReaderBase {
@@ -75,6 +75,7 @@ public abstract class ScriptReaderBase {
     boolean         sessionChanged;
     Object[]        rowData;
     long            sequenceValue;
+    String          rawStatement;
     String          statement;
     Table           currentTable;
     PersistentStore currentStore;

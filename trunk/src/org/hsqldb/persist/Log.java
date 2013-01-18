@@ -399,9 +399,9 @@ public class Log {
 
         try {
             writeScript(false);
-        } catch (Throwable e) {
+        } catch (Throwable t) {
             deleteNewScript();
-            database.logger.logSevereEvent("checkpoint failed - recovered", e);
+            database.logger.logSevereEvent("checkpoint failed - recovered", t);
 
             return false;
         }
@@ -413,7 +413,7 @@ public class Log {
                 cache.backupFile(false);
                 cache.spaceManager.reopen();
             }
-        } catch (Throwable ee) {
+        } catch (Throwable t) {
 
             // backup failed perhaps due to lack of disk space
             deleteNewScript();
@@ -423,10 +423,9 @@ public class Log {
                 if (!cache.isFileOpen()) {
                     cache.open(false);
                 }
-            } catch (Throwable e1) {}
+            } catch (Throwable tt) {}
 
-            database.logger.logSevereEvent("checkpoint failed - recovered",
-                                           ee);
+            database.logger.logSevereEvent("checkpoint failed - recovered", t);
 
             return false;
         }

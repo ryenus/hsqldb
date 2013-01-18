@@ -59,5 +59,5 @@ public interface TableSpaceManager {
     public void initialiseFileBlock(long blockPos, long blockFreePos,
                                     long blockLimit);
 
-    long getLostBlocksSize();
+    public void close();
 }

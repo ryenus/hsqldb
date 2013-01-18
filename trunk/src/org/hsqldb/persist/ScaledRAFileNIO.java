@@ -478,8 +478,9 @@ final class ScaledRAFileNIO implements RandomAccessInterface {
             try {
                 buffers[i].force();
             } catch (Throwable t) {
-                database.logger.logSevereEvent("NIO buffer force error "
-                                               + JVM_ERROR + " ", t);
+                database.logger.logWarningEvent("NIO buffer force error: pos "
+                                                + i * largeBufferSize
+                                                + " ", t);
 
                 error = true;
             }
@@ -490,8 +491,9 @@ final class ScaledRAFileNIO implements RandomAccessInterface {
                 try {
                     buffers[i].force();
                 } catch (Throwable t) {
-                    database.logger.logSevereEvent("NIO buffer force error "
-                                                   + JVM_ERROR + " ", t);
+                    database.logger.logWarningEvent("NIO buffer force error "
+                                                    + i * largeBufferSize
+                                                    + " ", t);
                 }
             }
         }
@@ -501,8 +503,7 @@ final class ScaledRAFileNIO implements RandomAccessInterface {
 
             buffersModified = false;
         } catch (Throwable t) {
-            database.logger.logSevereEvent("NIO RA file sync error "
-                                           + JVM_ERROR + " ", t);
+            database.logger.logSevereEvent("NIO RA file sync error ", t);
         }
     }
 

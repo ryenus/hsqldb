@@ -77,7 +77,7 @@ public class RowStoreAVLDisk extends RowStoreAVL implements PersistentStore {
 
         cache.adjustStoreCount(1);
 
-        largeData  = database.logger.getDataFileFactor() > 1;
+        largeData  = database.logger.propLargeData;
         tableSpace = cache.spaceManager.getTableSpace(table.getSpaceID());
     }
 
@@ -164,10 +164,6 @@ public class RowStoreAVLDisk extends RowStoreAVL implements PersistentStore {
         } catch (IOException e) {
             throw Error.error(ErrorCode.DATA_FILE_ERROR, e);
         }
-    }
-
-    public CachedObject getNewInstance(int size) {
-        return null;
     }
 
     public CachedObject getNewCachedObject(Session session, Object object,
@@ -307,8 +303,7 @@ public class RowStoreAVLDisk extends RowStoreAVL implements PersistentStore {
      * Works only for TEXT TABLE as others need specific spaceManager
      */
     public void setCache(DataFileCache cache) {
-        this.cache      = cache;
-        this.tableSpace = cache.spaceManager.getNewTableSpace();
+        throw Error.runtimeError(ErrorCode.U_S0500, "RowStoreAVLDisk");
     }
 
     public void release() {
@@ -334,13 +329,6 @@ public class RowStoreAVLDisk extends RowStoreAVL implements PersistentStore {
         accessorList[key.getPosition()] = node;
 
         return node;
-    }
-
-    public void setAccessor(Index key, CachedObject accessor) {
-
-        Index index = (Index) key;
-
-        accessorList[index.getPosition()] = accessor;
     }
 
     public void setAccessor(Index key, long accessor) {

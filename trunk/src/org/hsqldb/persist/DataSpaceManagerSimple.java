@@ -31,6 +31,8 @@
 
 package org.hsqldb.persist;
 
+import org.hsqldb.lib.DoubleIntIndex;
+
 /**
  * @author Fred Toussi (fredt@users dot sourceforge.net)
  * @version 2.3.0
@@ -38,19 +40,31 @@ package org.hsqldb.persist;
  */
 public class DataSpaceManagerSimple implements DataSpaceManager {
 
+    DataFileCache     cache;
     TableSpaceManager defaultSpaceManager;
+    int               fileBlockSize = DataSpaceManager.fixedBlockSizeUnit;
+    long              totalFragmentSize;
+    int               spaceIdSequence = tableIdFirst;
 
+    /**
+     * Used for readonly, Text and Session data files
+     */
     DataSpaceManagerSimple(DataFileCache cache) {
+
+        this.cache = cache;
 
         if (cache instanceof DataFileCacheSession) {
             defaultSpaceManager = new TableSpaceManagerSimple(cache);
         } else if (cache instanceof TextCache) {
-            defaultSpaceManager = new TableSpaceManagerText(cache);
+            defaultSpaceManager = new TableSpaceManagerSimple(cache);
         } else {
             int capacity = cache.database.logger.propMaxFreeBlocks;
 
-            defaultSpaceManager = new TableSpaceManagerDefault(cache,
-                    capacity);
+            defaultSpaceManager = new TableSpaceManagerBlocks(this,
+                    DataSpaceManager.tableIdDefault, fileBlockSize, capacity,
+                    cache.dataFileScale);
+
+            initialiseTableSpace();
         }
     }
 
@@ -59,20 +73,43 @@ public class DataSpaceManagerSimple implements DataSpaceManager {
     }
 
     public TableSpaceManager getTableSpace(int spaceId) {
+
+        if (spaceId >= spaceIdSequence) {
+            spaceIdSequence = spaceId + 1;
+        }
+
         return defaultSpaceManager;
     }
 
-    public TableSpaceManager getNewTableSpace() {
-        return defaultSpaceManager;
+    public int getNewTableSpace() {
+        return spaceIdSequence++;
     }
 
-    public void freeTableSpace(int spaceId) {
+    public long getFileBlocks(int tableId, int blockCount) {
 
-        //
+        long filePosition = cache.enlargeFileSpace(blockCount * fileBlockSize);
+
+        return filePosition;
+    }
+
+    public void freeTableSpace(int spaceId) {}
+
+    public void freeTableSpace(int spaceId, DoubleIntIndex spaceList) {
+
+        for (int i = 0; i < spaceList.size(); i++) {
+            totalFragmentSize += spaceList.getValue(i);
+        }
+    }
+
+    public void freeTableSpace(int spaceId, long offset, long limit) {
+
+        if (cache.fileFreePosition == limit) {
+            cache.fileFreePosition = offset;
+        }
     }
 
     public long getLostBlocksSize() {
-        return defaultSpaceManager.getLostBlocksSize();
+        return totalFragmentSize;
     }
 
     public int getFileBlockSize() {
@@ -83,7 +120,22 @@ public class DataSpaceManagerSimple implements DataSpaceManager {
         return false;
     }
 
-    public void close() {}
+    public void close() {
+        defaultSpaceManager.close();
+    }
 
-    public void reopen() {}
+    public void reopen() {
+        initialiseTableSpace();
+    }
+
+    private void initialiseTableSpace() {
+
+        long currentSize = cache.getFileFreePos();
+        long totalBlocks = (currentSize / fileBlockSize) + 1;
+        long lastFreePosition = cache.enlargeFileSpace(totalBlocks
+            * fileBlockSize - currentSize);
+
+        defaultSpaceManager.initialiseFileBlock((totalBlocks - 1)
+                * fileBlockSize, lastFreePosition, cache.getFileFreePos());
+    }
 }

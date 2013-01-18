@@ -315,8 +315,8 @@ public class TextCache extends DataFileCache {
             out.write(ScriptWriterText.BYTES_LINE_SEP);
             dataFile.seek(row.getPos());
             dataFile.write(out.getBuffer(), 0, out.size());
-        } catch (IOException e) {
-            throw Error.runtimeError(ErrorCode.U_S0500, e.getMessage());
+        } catch (Throwable t) {
+            throw Error.runtimeError(ErrorCode.U_S0500, t.getMessage());
         }
     }
 
@@ -374,10 +374,10 @@ public class TextCache extends DataFileCache {
                 cache.put(object);
 
                 return object;
-            } catch (IOException err) {
+            } catch (Throwable t) {
                 database.logger.logSevereEvent(dataFileName
                                                + " getFromFile problem "
-                                               + object.getPos(), err);
+                                               + object.getPos(), t);
                 cache.forceCleanUp();
                 System.gc();
 
@@ -462,8 +462,8 @@ public class TextCache extends DataFileCache {
             dataFile.write(buf, 0, buf.length);
 
             fileFreePosition = buf.length;
-        } catch (IOException e) {
-            throw Error.error(ErrorCode.TEXT_FILE_IO, e);
+        } catch (Throwable t) {
+            throw Error.error(ErrorCode.TEXT_FILE_IO, t);
         }
     }
 

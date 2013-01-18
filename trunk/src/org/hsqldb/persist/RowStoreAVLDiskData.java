@@ -46,6 +46,7 @@ import org.hsqldb.error.ErrorCode;
 import org.hsqldb.index.Index;
 import org.hsqldb.lib.ArrayUtil;
 import org.hsqldb.rowio.RowInputInterface;
+import org.hsqldb.rowio.RowOutputInterface;
 
 /*
  * Implementation of PersistentStore for TEXT tables.
@@ -54,11 +55,28 @@ import org.hsqldb.rowio.RowInputInterface;
  * @version 2.3.0
  * @since 1.9.0
  */
-public class RowStoreAVLDiskData extends RowStoreAVLDisk {
+public class RowStoreAVLDiskData extends RowStoreAVL {
+
+    DataFileCache      cache;
+    RowOutputInterface rowOut;
 
     public RowStoreAVLDiskData(PersistentStoreCollection manager,
                                Table table) {
-        super(manager, table);
+        this.database     = table.database;
+        this.manager      = manager;
+        this.table        = table;
+        this.indexList    = table.getIndexList();
+        this.accessorList = new CachedObject[indexList.length];
+
+        manager.setStore(table, this);
+    }
+
+
+    public CachedObject get(long key, boolean keep) {
+
+        CachedObject object = cache.get(key, this, keep);
+
+        return object;
     }
 
     public CachedObject get(CachedObject object, boolean keep) {
@@ -129,7 +147,22 @@ public class RowStoreAVLDiskData extends RowStoreAVLDisk {
         super.indexRow(session, row);
     }
 
+    public boolean isMemory() {
+        return false;
+    }
+
+    public int getAccessCount() {
+        return cache.getAccessCount();
+    }
+
     public void set(CachedObject object) {}
+
+    public CachedObject get(long key) {
+
+        CachedObject object = cache.get(key, this, false);
+
+        return object;
+    }
 
     public void removeAll() {
 
@@ -225,6 +258,17 @@ public class RowStoreAVLDiskData extends RowStoreAVLDisk {
                 }
                 break;
         }
+    }
+
+    public DataFileCache getCache() {
+        return cache;
+    }
+
+    public void setCache(DataFileCache cache) {
+
+        this.cache = cache;
+        this.tableSpace =
+            cache.spaceManager.getTableSpace(DataSpaceManager.tableIdDefault);
     }
 
     /**

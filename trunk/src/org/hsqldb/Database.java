@@ -408,6 +408,24 @@ public class Database {
     }
 
     /**
+     * throws if database is not a normal read / write file database
+     */
+    public void checkDatabaseIsFiles() {
+
+        if (!getType().equals(DatabaseURL.S_FILE)) {
+            throw Error.error(ErrorCode.DATABASE_IS_NON_FILE);
+        }
+
+        if (isFilesReadOnly()) {
+            throw Error.error(ErrorCode.DATABASE_IS_READONLY);
+        }
+
+        if (logger.isStoredFileAccess()) {
+            throw Error.error(ErrorCode.DATABASE_IS_NON_FILE);
+        }
+    }
+
+    /**
      *  Returns the UserManager for this Database.
      */
     public UserManager getUserManager() {

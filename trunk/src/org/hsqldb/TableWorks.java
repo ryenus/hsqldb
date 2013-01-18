@@ -1310,10 +1310,10 @@ public class TableWorks {
             if (newTable.isCached()
                     && oldTable.getSpaceID()
                        != DataSpaceManager.tableIdDefault) {
-                TableSpaceManager tableSpace =
+                int tableSpaceID =
                     database.logger.getCache().spaceManager.getNewTableSpace();
 
-                newTable.setSpaceID(tableSpace.getSpaceID());
+                newTable.setSpaceID(tableSpaceID);
             }
 
             PersistentStore oldStore =

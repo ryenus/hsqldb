@@ -335,10 +335,6 @@ public class Cache extends BaseHashMap {
         saveRows(savecount);
     }
 
-    void logSynchEvent() {
-        dataFileCache.logDetailEvent("cache sync");
-    }
-
     void logSaveRowsEvent(int saveCount, long startTime) {
 
         StringBuffer sb = new StringBuffer();

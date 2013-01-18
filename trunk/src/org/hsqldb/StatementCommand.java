@@ -264,33 +264,8 @@ public class StatementCommand extends Statement {
                 try {
                     session.checkAdmin();
 
-                    if (!session.database.getType().equals(
-                            DatabaseURL.S_FILE)) {
-
-                        // Do not enforce this constraint for SCRIPT type
-                        // backup.
-                        return Result.newErrorResult(
-                            Error.error(ErrorCode.DATABASE_IS_NON_FILE));
-
-                        // If we were to back up res: type DB's, could use
-                        // DatabasURL.isFileBasedDataType(), but I see no
-                        // point to back up one of these.
-                    }
-
-                    if (session.database.isReadOnly()) {
-
-                        // Do not enforce this constraint for SCRIPT type
-                        // backup.
-                        return Result.newErrorResult(
-                            Error.error(ErrorCode.DATABASE_IS_MEMORY_ONLY),
-                            null);
-                    }
-
-                    if (session.database.logger.isStoredFileAccess()) {
-                        return Result.newErrorResult(
-                            Error.error(ErrorCode.DATABASE_IS_NON_FILE), null);
-                    }
-
+                    // toto may not want to enforce this constraint for SCRIPT type backup.
+                    session.database.checkDatabaseIsFiles();
                     session.database.logger.backup(path, script, blocking,
                                                    compressed);
 
@@ -413,6 +388,7 @@ public class StatementCommand extends Statement {
 
                     session.checkAdmin();
                     session.checkDDLWrite();
+                    session.database.checkDatabaseIsFiles();
                     session.database.logger.setDataFileSpaces(value);
 
                     return Result.updateZeroResult;
@@ -873,15 +849,15 @@ public class StatementCommand extends Statement {
                     }
 
                     DataSpaceManager dataSpace = cache.spaceManager;
+                    int tableSpaceID           = dataSpace.getNewTableSpace();
+
+                    table.setSpaceID(tableSpaceID);
+
                     TableSpaceManager tableSpace =
-                        dataSpace.getNewTableSpace();
-
-                    table.setSpaceID(tableSpace.getSpaceID());
-
+                        dataSpace.getTableSpace(tableSpaceID);
                     PersistentStore store = table.getRowStore(session);
 
                     store.setSpaceManager(tableSpace);
-
 
                     return Result.updateZeroResult;
                 } catch (HsqlException e) {
@@ -891,7 +867,7 @@ public class StatementCommand extends Statement {
             case StatementTypes.SET_TABLE_SET_TABLESPACE : {
                 try {
                     HsqlName name    = (HsqlName) parameters[0];
-                    Integer  storeid = (Integer) parameters[1];
+                    int      spaceid = ((Integer) parameters[1]).intValue();
                     Table table =
                         session.database.schemaManager.getTable(session,
                             name.name, name.schema.name);
@@ -914,9 +890,11 @@ public class StatementCommand extends Statement {
                         return Result.updateZeroResult;
                     }
 
+                    table.setSpaceID(spaceid);
+
                     DataSpaceManager dataSpace = cache.spaceManager;
                     TableSpaceManager tableSpace =
-                        dataSpace.getTableSpace(storeid.intValue());
+                        dataSpace.getTableSpace(spaceid);
                     PersistentStore store = table.getRowStore(session);
 
                     store.setSpaceManager(tableSpace);

@@ -48,7 +48,7 @@ import org.hsqldb.lib.Storage;
  * CACHED table storage.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version  2.2.9
+ * @version  2.3.0
  * @since  1.7.2
  */
 final class ScaledRAFile implements RandomAccessInterface {
@@ -410,8 +410,12 @@ final class ScaledRAFile implements RandomAccessInterface {
 
         try {
             fileDescriptor.sync();
-        } catch (IOException e) {
-            database.logger.logSevereEvent("RA file sync error ", e);
+        } catch (Throwable t) {
+            try {
+                fileDescriptor.sync();
+            } catch (Throwable tt) {
+                database.logger.logSevereEvent("RA file sync error ", t);
+            }
         }
     }
 

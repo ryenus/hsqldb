@@ -155,11 +155,11 @@ public class RAShadowFile {
             dest.seek(0);
             dest.setLength(writePos);
             close();
-            database.logger.logWarningEvent("pos" + position + " " + readSize,
-                                            t);
+            database.logger.logSevereEvent("shadow backup failure pos "
+                                           + position + " " + readSize, t);
 
             throw JavaSystem.toIOException(t);
-        } finally {}
+        }
     }
 
     private void open() throws IOException {
