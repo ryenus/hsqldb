@@ -741,7 +741,6 @@ public class RangeVariable implements Cloneable {
     public void resolveRangeTable(Session session, RangeGroup rangeGroup,
                                   RangeGroup[] rangeGroups) {
 
-        Table           table           = rangeTable;
         QueryExpression queryExpression = rangeTable.getQueryExpression();
         Expression      dataExpression  = rangeTable.getDataExpression();
 

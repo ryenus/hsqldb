@@ -275,26 +275,13 @@ public class View extends TableDerived {
     public TableDerived newDerivedTable(Session session) {
 
         TableDerived td;
+        ParserDQL p = new ParserDQL(session, new Scanner(),
+                                    session.parser.compileContext);
 
-        if (isRecompiled()) {
-            ParserDQL p = new ParserDQL(session, new Scanner(),
-                                        session.parser.compileContext);
+        p.reset(statement);
+        p.read();
 
-            p.reset(statement);
-            p.read();
-
-            td = p.XreadViewSubqueryTable(this, false);
-        } else {
-            td = new TableDerived(database, tableName, TableBase.VIEW_TABLE,
-                                  queryExpression, null, OpTypes.NONE, 1);
-            td.columnList  = columnList;
-            td.columnCount = columnList.size();
-
-            td.createPrimaryKey();
-
-            td.triggerList  = triggerList;
-            td.triggerLists = triggerLists;
-        }
+        td = p.XreadViewSubqueryTable(this, false);
 
         return td;
     }

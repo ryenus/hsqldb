@@ -2004,7 +2004,7 @@ public class QuerySpecification extends QueryExpression {
 
     void setMergeability() {
 
-        isOrderSensitive |= sortAndSlice.hasLimit() || sortAndSlice.hasOrder();
+        isOrderSensitive |= sortAndSlice.hasLimit();
 
         if (isOrderSensitive) {
             isMergeable = false;

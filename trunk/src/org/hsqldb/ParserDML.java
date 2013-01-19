@@ -475,43 +475,18 @@ public class ParserDML extends ParserDQL {
 
         if (table != baseTable) {
             QuerySpecification baseSelect =
-                ((TableDerived) table).getQueryExpression().getMainSelect();
-            RangeVariable[] newRangeVariables =
-                (RangeVariable[]) ArrayUtil.duplicateArray(
-                    baseSelect.rangeVariables);
-
-            newRangeVariables[0] = baseSelect.rangeVariables[0].duplicate();
-
-            Expression[] newBaseExprColumns =
-                new Expression[baseSelect.indexLimitData];
-
-            for (int i = 0; i < baseSelect.indexLimitData; i++) {
-                Expression e = baseSelect.exprColumns[i].duplicate();
-
-                newBaseExprColumns[i] = e;
-
-                e.replaceRangeVariables(baseSelect.rangeVariables,
-                                        newRangeVariables);
-            }
-
-            Expression baseQueryCondition = baseSelect.queryCondition;
-
-            if (baseQueryCondition != null) {
-                baseQueryCondition = baseQueryCondition.duplicate();
-
-                baseQueryCondition.replaceRangeVariables(rangeVariables,
-                        newRangeVariables);
-            }
+                table.getQueryExpression().getMainSelect();
 
             if (condition != null) {
                 condition =
                     condition.replaceColumnReferences(rangeVariables[0],
-                                                      newBaseExprColumns);
+                                                      baseSelect.exprColumns);
             }
 
-            rangeVariables = newRangeVariables;
-            condition = ExpressionLogical.andExpressions(baseQueryCondition,
-                    condition);
+            condition =
+                ExpressionLogical.andExpressions(baseSelect.queryCondition,
+                                                 condition);
+            rangeVariables = baseSelect.rangeVariables;
         }
 
         if (condition != null) {
@@ -611,48 +586,22 @@ public class ParserDML extends ParserDQL {
         if (table != baseTable) {
             QuerySpecification baseSelect =
                 ((TableDerived) table).getQueryExpression().getMainSelect();
-            RangeVariable[] newRangeVariables =
-                (RangeVariable[]) ArrayUtil.duplicateArray(
-                    baseSelect.rangeVariables);
-
-            newRangeVariables[0] = baseSelect.rangeVariables[0].duplicate();
-
-            Expression[] newBaseExprColumns =
-                new Expression[baseSelect.indexLimitData];
-
-            for (int i = 0; i < baseSelect.indexLimitData; i++) {
-                Expression e = baseSelect.exprColumns[i].duplicate();
-
-                newBaseExprColumns[i] = e;
-
-                e.replaceRangeVariables(baseSelect.rangeVariables,
-                                        newRangeVariables);
-            }
-
-            Expression baseQueryCondition = baseSelect.queryCondition;
-
-            if (baseQueryCondition != null) {
-                baseQueryCondition = baseQueryCondition.duplicate();
-
-                baseQueryCondition.replaceRangeVariables(rangeVariables,
-                        newRangeVariables);
-            }
 
             if (condition != null) {
                 condition =
                     condition.replaceColumnReferences(rangeVariables[0],
-                                                      newBaseExprColumns);
+                                                      baseSelect.exprColumns);
             }
 
             for (int i = 0; i < updateExpressions.length; i++) {
                 updateExpressions[i] =
                     updateExpressions[i].replaceColumnReferences(
-                        rangeVariables[0], newBaseExprColumns);
+                        rangeVariables[0], baseSelect.exprColumns);
             }
 
-            rangeVariables = newRangeVariables;
-            condition = ExpressionLogical.andExpressions(baseQueryCondition,
+            condition = ExpressionLogical.andExpressions(baseSelect.queryCondition,
                     condition);
+            rangeVariables = baseSelect.rangeVariables;
         }
 
         if (condition != null) {
