@@ -80,9 +80,9 @@ buildscript { dependencies {
 
 import org.apache.tools.ant.types.Path
 
-addlAntBuildFiles = [file('build-dist.xml')]
+project.ext.addlAntBuildFiles = [file('build-dist.xml')]
 
-addlAntBuildClosures = [{
+project.ext.addlAntBuildClosures = [{
         it.import.find{it.@file = 'build-gradled.xml'}
         it.@name = it.@name.text() + '_gradled'
         it.attributes().remove('basedir')
