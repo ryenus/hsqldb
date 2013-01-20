@@ -11,7 +11,7 @@ if "%OS%"=="Windows_NT" setlocal
 @rem Add default JVM options here. You can also use JAVA_OPTS and GRADLE_OPTS to pass JVM options to this script.
 set DEFAULT_JVM_OPTS=
 
-:: Customization by blaine of HSQL Development Group:
+:: Customization by Blaine Simpson of HSQL Development Group:
 if "%JAVA_OPTS%" == "" set JAVA_OPTS=-Xms256m -Xmx1g -XX:MaxPermSize=256m
 
 set DIRNAME=%~dp0
