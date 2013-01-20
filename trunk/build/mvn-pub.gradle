@@ -2,18 +2,17 @@
  * Invoke this build file with Gradle's -b switch for POM- or
  * Maven-publishing related tasks.
  *
- * Unfortunately, it is impractical to encpsulate all of the needed processing
+ * Unfortunately, it is impractical to encapsulate all of the needed processing
  * here, so there is some tight coupling between this file and "build.gradle".
  * (This file loads/applies "build.gradle").
  *
  * The tasks pulled in by this file require several properties to be set,
  * for populating a POM file and for specifying (and optionally authenticating
- * to a Maven repository server.
+ * to a Maven repository server).
  *
  *****************************************************************************
  * Instructions for doing a full, public release:
  *
- * Make sure that your "build.properties" file has setting 'build.dist=true'.
  * Right after doing the build of the zip distributable with JDK 6 and
  * javac.debug of false, publish the same exact jar files that are in the zip.
  * Use -x switches to prevent rebuilds of the jars which have been checksummed
@@ -33,7 +32,7 @@
  * your original dist build will be retained in .../dist/*.zip.
  *****************************************************************************
  * For snapshot builds, just publish jar-pairs individually, exactly as
- * described * in the 2nd part of "Instructions for doing a full, public
+ * described in the 2nd part of "Instructions for doing a full, public
  * release:" above, beginning  with "Now, for each alternative".
  * (In this case, clean-all really will blow away your only docs, so either
  * back them up or regenerate them afterwards).
@@ -57,7 +56,7 @@ signing {
     sign configurations.archives
 }
 
-mvnBuild = true
+project.ext.mvnBuild = true
 apply from: 'build.gradle'
 defaultTasks 'uploadArchives'
 
@@ -85,7 +84,7 @@ if (project.hasProperty('mavenRepository.dest.url')) {
 if (!project.hasProperty('description') ||
         project.property('description') == null)
     project.description = 'HSQLDB - Lightweight 100% Java SQL Database Engine'
-if (!project.hasProperty('title')) title = 'HyperSQL Database'
+if (!project.hasProperty('title')) project.ext.set('title', 'HyperSQL Database')
 
 uploadArchives {
     def authMap = [:]

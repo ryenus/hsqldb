@@ -43,10 +43,13 @@ if (localBookPropertiesFile.isFile())
 
 repositories { mavenCentral() }
 
-if (!project.hasProperty('mvnBuild')) mvnBuild = false
+if (!project.hasProperty('mvnBuild')) project.ext.mvnBuild = false
+task checkIt << {
+    println "mvnBuild is " + project.mvnBuild
+}
 
 if (!project.hasProperty('retainGradled'))
-    retainGradled = (project.hasProperty('gradled.retain')
+    ext.retainGradled = (project.hasProperty('gradled.retain')
         && Boolean.parseBoolean(project.property('gradled.retain')))
 
 configurations {
@@ -223,8 +226,8 @@ File[] resequenceAntDependencies(String fileNameInsertion,
     //    and ouput dep lists 'dependListsOut'
     // Purposefully not declaring 'renameMap' and 'prohibitionMap'
     // so they will make project.* so we can share them.
-    renameMap = [:]       // String -> String
-    prohibitionMap = [:]
+    project.ext.set('renameMap', [:])      // String -> String
+    project.ext.prohibitionMap = [:]
     def dependListsOut = [:]  // name -> List<String>
     def outList               // Strings
 
@@ -331,14 +334,15 @@ File[] resequenceAntDependencies(String fileNameInsertion,
 }
 
 // RESEQUENCE
-project['resequence.destDir'] = file('..')
+project.ext.set('resequence.destDir', file('..'))
 // The top-level entry Build file must be first!!!
-sourceAntBuildFiles = [file('build.xml'), file('build-docbook.xml')]
+project.ext.set('sourceAntBuildFiles',
+  [file('build.xml'), file('build-docbook.xml')])
 if (project.hasProperty('addlAntBuildFiles'))
     sourceAntBuildFiles = addlAntBuildFiles + sourceAntBuildFiles
 //throw new GradleException(sourceAntBuildFiles.join(','))
 
-antBuildClosures = [{
+project.ext.set('antBuildClosures', [{
         it.import.@file = 'build-docbook-gradled.xml'
         it.@name = it.@name.text() + '_gradled'
         it.attributes().remove('basedir')
@@ -347,21 +351,21 @@ antBuildClosures = [{
         it.@name = it.@name.text() + '_gradled'
         it.import.replaceNode {}
         // Global var because needed for our replacement task definition below
-        ivySetupTaskName = '-ivy-setup'
+        project.ext.set('ivySetupTaskName', '-ivy-setup')
         if (project.renameMap.containsKey(ivySetupTaskName))
                 ivySetupTaskName = project.renameMap.get(ivySetupTaskName)
         it.appendNode { target(name: ivySetupTaskName) }
     }
-]
+])
 if (project.hasProperty('addlAntBuildClosures'))
     antBuildClosures = addlAntBuildClosures + antBuildClosures
 
 File[] outFs = resequenceAntDependencies(
-        '-gradled', antBuildClosures, (mvnBuild ? javaPluginTasks : null),
+        '-gradled', antBuildClosures, (project.mvnBuild ? javaPluginTasks : null),
         sourceAntBuildFiles)
 
 ant.importBuild(outFs[0].absolutePath)
-if (!retainGradled) outFs.each { it.deleteOnExit() }
+if (!ext.retainGradled) outFs.each { it.deleteOnExit() }
 version = ant.properties['hsqldb.version']  // Inherit version from "build.xml"
 
 // This block generates wrapper tasks for the sole purpose of preventing the
@@ -377,7 +381,7 @@ getTasks().each { t ->
     if (t.name.indexOf('.') > 0) t.description = null
     m = candidatePattern.matcher(t.name)
     if (!m.matches()) return
-    if (mvnBuild && javaPluginTasks.contains(m.group(1)))
+    if (project.mvnBuild && javaPluginTasks.contains(m.group(1)))
         prohibitionMap[m.group(1)] = t.name
     else
         tasksToMake[t] = m.group(1)
