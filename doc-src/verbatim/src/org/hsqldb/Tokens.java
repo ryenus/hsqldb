@@ -245,7 +245,7 @@ public class Tokens {
     public static final String T_ONLY              = "ONLY";
     static final String        T_OPEN              = "OPEN";
     static final String        T_OR                = "OR";
-    static final String        T_ORDER             = "ORDER";
+    public static final String T_ORDER             = "ORDER";
     static final String        T_OUT               = "OUT";
     static final String        T_OUTER             = "OUTER";
     static final String        T_OVER              = "OVER";
@@ -886,6 +886,7 @@ public class Tokens {
     static final String        T_TODAY            = "TODAY";
     static final String        T_UCASE            = "UCASE";
     static final String        T_UUID             = "UUID";
+    static final String        T_UNIX_MILLIS      = "UNIX_MILLIS";
     static final String        T_UNIX_TIMESTAMP   = "UNIX_TIMESTAMP";
 
     //
@@ -1663,10 +1664,11 @@ public class Tokens {
     static final int        TRUNC                      = 775;
     static final int        TZ_OFFSET                  = 776;
     static final int        UCASE                      = 777;
-    static final int        UNIX_TIMESTAMP             = 778;
-    static final int        UUID                       = 779;
-    static final int        WEEK                       = 780;
-    public static final int WEEK_OF_YEAR               = 781;
+    static final int        UNIX_MILLIS                = 778;
+    static final int        UNIX_TIMESTAMP             = 779;
+    static final int        UUID                       = 780;
+    static final int        WEEK                       = 781;
+    public static final int WEEK_OF_YEAR               = 782;
 
     //
     static final int        ASTERISK         = 801;
@@ -2433,6 +2435,7 @@ public class Tokens {
         commandSet.put(T_TRANSACTION_SIZE, TRANSACTION_SIZE);
         commandSet.put(T_TZ_OFFSET, TZ_OFFSET);
         commandSet.put(T_UUID, UUID);
+        commandSet.put(T_UNIX_MILLIS, UNIX_MILLIS);
         commandSet.put(T_UNIX_TIMESTAMP, UNIX_TIMESTAMP);
         commandSet.put(T_WEEK, WEEK);
         commandSet.put(T_WEEK_OF_YEAR, WEEK_OF_YEAR);
