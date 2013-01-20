@@ -69,10 +69,10 @@ if (project.hasProperty('mavenRepository.dest.url')) {
     assert url != null:
         '''Property 'mavenRepository.dest.url' may not be null
 '''
-    assert url instanceof URL:
+    assert url instanceof URL || url instanceof String:
         ('''Property 'mavenRepository.dest.url' must be of type URL.  Is a '''
                 + url.class.name + '\n')
-    if (url.protocol == 'scp') {
+    if (url instanceof String && url.startsWith('scp')) {
         repositories { mavenCentral() }
         dependencies {
             deployJars 'org.apache.maven.wagon:wagon-ssh:latest.milestone'
@@ -98,7 +98,9 @@ uploadArchives {
 
     repositories.mavenDeployer {
         configuration = configurations.deployJars
-        beforeDeployment { MavenDeployment deployment -> signPom(deployment) }
+        beforeDeployment {
+            MavenDeployment deployment -> signing.signPom(deployment)
+        }
         if (project.hasProperty('mavenRepository.dest.url'))
             repository(url: project.property('mavenRepository.dest.url')) {
                 authentication(authMap)
@@ -161,13 +163,23 @@ uploadArchives { doFirst {
             """Property '$it' is required by 'uploadArchives' task.
 """
     }
-    ['mavenRepository.dest.url', 'scm.url', 'url', 'org.url'].each {
+    ['scm.url', 'url', 'org.url'].each {
         assert project.property(it) != null:
             """Property '$it' may not be null
 """
         assert (!project.hasProperty(it)
                 || project.property(it) instanceof URL):
             ("""Property '$it' must be of type URL.  Is a """
+                    + project.property(it).class.name + '\n')
+    }
+    ['mavenRepository.dest.url'].each {
+        assert project.property(it) != null:
+            """Property '$it' may not be null
+"""
+        assert (!project.hasProperty(it)
+                || project.property(it) instanceof URL
+                || project.property(it) instanceof String):
+            ("""Property '$it' must be of type URL or String.  Is a """
                     + project.property(it).class.name + '\n')
     }
 } }
