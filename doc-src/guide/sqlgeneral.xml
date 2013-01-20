@@ -1067,7 +1067,7 @@ CAST (&lt;value&gt; AS TIME WITH TIME ZONE)</programlisting>
           <row>
             <entry><para>LOCALTIME</para></entry>
 
-            <entry><para>TIMESTAMP WITHOUT TIME ZONE</para></entry>
+            <entry><para>TIME WITHOUT TIME ZONE</para></entry>
           </row>
 
           <row>
@@ -1078,6 +1078,11 @@ CAST (&lt;value&gt; AS TIME WITH TIME ZONE)</programlisting>
         </tbody>
       </tgroup>
     </informaltable>
+
+    <para>HyperSQL supports a very extensive range of functions for
+    conversion, extraction and manipulation of DATE and TIMESTAMP values. See
+    the <link endterm="builtinfuncs-title"
+    xlink:href="#builtinfuncs-chap"></link> chapter.</para>
 
     <simpara><emphasis role="bold">Session Time Zone
     Displacement</emphasis></simpara>
@@ -1143,6 +1148,30 @@ CAST (&lt;value&gt; AS TIME WITH TIME ZONE)</programlisting>
     ZONE. You can use the URL property
     <literal>hsqldb.translate_dti_types=false</literal> to override the
     default behaviour.</para>
+
+    <simpara><emphasis role="bold">Non-Standard
+    Extensions</emphasis></simpara>
+
+    <para>HyperSQL version 2.3.0 supports some extenstions to the SQL standard
+    treatment of datetime and interval types. For example, the Standard
+    expression to add a number of days to a date has an explicit INTERVAL
+    value but HSQLDB also allows an integer to be used without specifying DAY.
+    Examples of some Standard expressions and their non-standard alternatives
+    are given below:</para>
+
+    <para><informalexample>
+        <programlisting>-- standard forms
+CURRENT_DATE + '2' DAY
+SELECT (LOCALTIMESTAMP - atimestampcolumn) DAY TO SECOND FROM atable
+
+-- non-standard forms
+CURRENT_DATE + 2
+SELECT LOCALTIMESTAMP - atimestampcolumn FROM atable
+</programlisting>
+      </informalexample></para>
+
+    <para>It is recommended to use the SQL Standard syntax as it is more
+    precise and avoids ambiguity.</para>
   </section>
 
   <section xml:id="sgc_interval_typs">
@@ -1535,6 +1564,12 @@ UPDATE t SET names = ARRAY['LARGE', 'SMALL'] WHERE id &lt; 12 AND scores = ARRAY
       array index when an assignment is performed. The examples below
       demonstrates how elements of the array are referenced in SELECT and an
       UPDATE statement.</para>
+
+      <para><informalexample>
+          <programlisting>SELECT scores[ranking], names[ranking] FROM t JOIN t1 on (t.id = t1.tid)
+UPDATE t SET scores[2] = 123, names[2] = 'Reds' WHERE id = 10
+</programlisting>
+        </informalexample></para>
 
       <para><informalexample>
           <programlisting>SELECT scores[ranking], names[ranking] FROM t JOIN t1 on (t.id = t1.tid)
