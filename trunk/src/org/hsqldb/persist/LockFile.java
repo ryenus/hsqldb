@@ -1078,8 +1078,6 @@ public class LockFile {
             throw new FileSecurityException(this, "openRAF", ex);
         } catch (FileNotFoundException ex) {
             throw new UnexpectedFileNotFoundException(this, "openRAF", ex);
-        } catch (IOException ex) {
-            throw new UnexpectedFileIOException(this, "openRAF", ex);
         }
     }
 
