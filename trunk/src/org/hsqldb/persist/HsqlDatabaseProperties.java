@@ -464,7 +464,7 @@ public class HsqlDatabaseProperties extends HsqlProperties {
                                           SQL_PROPERTY, 500, 0, 10000));
         dbMeta.put(hsqldb_applog,
                    HsqlProperties.getMeta(hsqldb_applog, SQL_PROPERTY, 0, 0,
-                                          3));
+                                          4));
         dbMeta.put(hsqldb_sqllog,
                    HsqlProperties.getMeta(hsqldb_sqllog, SQL_PROPERTY, 0, 0,
                                           3));

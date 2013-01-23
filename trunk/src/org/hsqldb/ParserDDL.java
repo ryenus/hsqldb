@@ -58,7 +58,7 @@ import org.hsqldb.types.UserTypeModifier;
  * Parser for DDL statements
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.2.9
+ * @version 2.3.0
  * @since 1.9.0
  */
 public class ParserDDL extends ParserRoutine {
@@ -2671,6 +2671,36 @@ public class ParserDDL extends ParserRoutine {
             isIdentity   = true;
             isPKIdentity = true;
             sequence     = new NumberSequence(null, 0, 1, typeObject);
+        }
+
+        // non-standard GENERATED after constraints
+        if (token.tokenType == Tokens.GENERATED && !isIdentity
+                && !isGenerated) {
+            read();
+
+            if (token.tokenType == Tokens.BY) {
+                read();
+                readThis(Tokens.DEFAULT);
+            } else {
+                readThis(Tokens.ALWAYS);
+
+                generatedAlways = true;
+            }
+
+            readThis(Tokens.AS);
+            readThis(Tokens.IDENTITY);
+
+            sequence = new NumberSequence(null, typeObject);
+
+            sequence.setAlways(generatedAlways);
+
+            if (token.tokenType == Tokens.OPENBRACKET) {
+                read();
+                readSequenceOptions(sequence, false, false, true);
+                readThis(Tokens.CLOSEBRACKET);
+            }
+
+            isIdentity = true;
         }
 
         if (isIdentity) {
