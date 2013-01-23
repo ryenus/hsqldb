@@ -326,7 +326,7 @@ public class FunctionSQLInvoked extends Expression {
     }
 
     public boolean hasCondition() {
-        return condition != null && condition != Expression.EXPR_TRUE;
+        return condition != null && !condition.isTrue();
     }
 
     public void setCondition(Expression e) {

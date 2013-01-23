@@ -107,6 +107,9 @@ public class LobManager {
     Statement getLobCount;
 
     //
+    boolean usageCountChanged;
+
+    //
     ReadWriteLock lock      = new ReentrantReadWriteLock();
     Lock          writeLock = lock.writeLock();
 
@@ -453,6 +456,8 @@ public class LobManager {
             Result result = sysLobSession.executeCompiledStatement(createLob,
                 params);
 
+            usageCountChanged = true;
+
             return lobID.longValue();
         } finally {
             writeLock.unlock();
@@ -476,6 +481,8 @@ public class LobManager {
             Result result = sysLobSession.executeCompiledStatement(createLob,
                 params);
 
+            usageCountChanged = true;
+
             return lobID.longValue();
         } finally {
             writeLock.unlock();
@@ -496,6 +503,8 @@ public class LobManager {
             Result result =
                 sysLobSession.executeCompiledStatement(deleteLobCall, params);
 
+            usageCountChanged = true;
+
             return result;
         } finally {
             writeLock.unlock();
@@ -507,7 +516,7 @@ public class LobManager {
         writeLock.lock();
 
         try {
-            if (lobStore == null || byteBuffer == null) {
+            if (lobStore == null || byteBuffer == null || !usageCountChanged) {
                 return Result.updateZeroResult;
             }
 
@@ -1007,6 +1016,8 @@ public class LobManager {
             if (result.isError()) {
                 return result;
             }
+
+            usageCountChanged = true;
 
             if (newLength == 0) {
                 return ResultLob.newLobSetResponse(newLobID.longValue(),

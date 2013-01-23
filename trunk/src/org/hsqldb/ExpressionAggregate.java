@@ -311,7 +311,7 @@ public class ExpressionAggregate extends Expression {
     }
 
     public boolean hasCondition() {
-        return nodes[RIGHT] != Expression.EXPR_TRUE;
+        return !nodes[RIGHT].isTrue();
     }
 
     public void setCondition(Expression e) {

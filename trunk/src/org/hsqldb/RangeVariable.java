@@ -851,8 +851,7 @@ public class RangeVariable implements Cloneable {
         for (int i = conditionsList.size() - 1; i >= 0; i--) {
             Expression e = (Expression) conditionsList.get(i);
 
-            if (e == null || e == ExpressionLogical.EXPR_TRUE
-                    || e.hasReference(ranges, exclude)) {
+            if (e == null || e.isTrue() || e.hasReference(ranges, exclude)) {
                 conditionsList.remove(i);
 
                 continue;

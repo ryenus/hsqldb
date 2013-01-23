@@ -74,6 +74,7 @@ import org.hsqldb.lib.SimpleLog;
 import org.hsqldb.lib.StringUtil;
 import org.hsqldb.lib.tar.DbBackup;
 import org.hsqldb.lib.tar.TarMalformatException;
+import org.hsqldb.result.Result;
 import org.hsqldb.scriptio.ScriptWriterBase;
 import org.hsqldb.scriptio.ScriptWriterText;
 import org.hsqldb.types.RowType;
@@ -801,7 +802,7 @@ public class Logger {
 
     public void setEventLogLevel(int level, boolean logSql) {
 
-        if (level < SimpleLog.LOG_NONE || level > SimpleLog.LOG_DETAIL) {
+        if (level < SimpleLog.LOG_NONE || level > SimpleLog.LOG_EXTRA) {
             throw Error.error(ErrorCode.X_42556);
         }
 
@@ -810,6 +811,10 @@ public class Logger {
 
             sqlLog.setLevel(level);
         } else {
+            if (level > SimpleLog.LOG_DETAIL) {
+                level = SimpleLog.LOG_DETAIL;
+            }
+
             propEventLogLevel = level;
 
             appLog.setLevel(level);
@@ -869,7 +874,8 @@ public class Logger {
     }
 
     public void logStatementEvent(Session session, Statement statement,
-                                  Object[] paramValues, int level) {
+                                  Object[] paramValues, Result result,
+                                  int level) {
 
         if (sqlLog != null && level <= propSqlLogLevel) {
             String sessionId   = Long.toString(session.getId());
@@ -890,6 +896,24 @@ public class Logger {
                     paramValues,
                     statement.getParametersMetaData().getParameterTypes(),
                     paramLength);
+            }
+
+            if (propSqlLogLevel == SimpleLog.LOG_EXTRA) {
+                StringBuffer sb = new StringBuffer(values);
+
+                sb.append(' ').append('[');
+
+                if (result.isError()) {
+                    sb.append(result.getSubString());
+                } else if (result.isData()) {
+                    sb.append(result.getNavigator().getSize());
+                } else if (result.isUpdateCount()) {
+                    sb.append(result.getUpdateCount());
+                }
+
+                sb.append(']');
+
+                values = sb.toString();
             }
 
             sqlLog.logContext(level, sessionId, sql, values);
