@@ -117,10 +117,6 @@ public class StatementCommand extends Statement {
             case StatementTypes.SET_DATABASE_UNIQUE_NAME :
             case StatementTypes.SET_DATABASE_FILES_WRITE_DELAY :
             case StatementTypes.SET_DATABASE_FILES_TEMP_PATH :
-                isTransactionStatement = false;
-                group                  = StatementTypes.X_HSQLDB_SETTING;
-                break;
-
             case StatementTypes.SET_DATABASE_FILES_EVENT_LOG :
                 isTransactionStatement = false;
                 group                  = StatementTypes.X_HSQLDB_SETTING;

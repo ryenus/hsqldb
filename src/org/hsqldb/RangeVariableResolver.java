@@ -163,7 +163,7 @@ public class RangeVariableResolver {
         for (int j = 0; j < queryConditions.size(); j++) {
             Expression e = (Expression) queryConditions.get(j);
 
-            if (e == ExpressionLogical.EXPR_TRUE) {
+            if (e.isTrue()) {
                 continue;
             }
 
@@ -281,11 +281,11 @@ public class RangeVariableResolver {
             arg1 = decomposeAndConditions(session, arg1, conditions);
             arg2 = decomposeAndConditions(session, arg2, conditions);
 
-            if (arg1 == Expression.EXPR_TRUE) {
+            if (arg1.isTrue()) {
                 return arg2;
             }
 
-            if (arg2 == Expression.EXPR_TRUE) {
+            if (arg2.isTrue()) {
                 return arg1;
             }
 
@@ -308,7 +308,7 @@ public class RangeVariableResolver {
             }
         }
 
-        if (e != Expression.EXPR_TRUE) {
+        if (!e.isTrue()) {
             conditions.add(e);
         }
 
@@ -333,11 +333,11 @@ public class RangeVariableResolver {
             arg1 = decomposeOrConditions(arg1, conditions);
             arg2 = decomposeOrConditions(arg2, conditions);
 
-            if (arg1 == Expression.EXPR_FALSE) {
+            if (arg1.isFalse()) {
                 return arg2;
             }
 
-            if (arg2 == Expression.EXPR_FALSE) {
+            if (arg2.isFalse()) {
                 return arg1;
             }
 
@@ -346,7 +346,7 @@ public class RangeVariableResolver {
             return e;
         }
 
-        if (e != Expression.EXPR_FALSE) {
+        if (!e.isFalse()) {
             conditions.add(e);
         }
 
@@ -389,7 +389,7 @@ public class RangeVariableResolver {
             for (int j = 0; j < list.size(); j++) {
                 Expression e = (Expression) list.get(j);
 
-                if (e == ExpressionLogical.EXPR_TRUE) {
+                if (e.isTrue()) {
                     continue;
                 }
 
@@ -1098,12 +1098,12 @@ public class RangeVariableResolver {
 
         if (!hasIndex) {
             setNonEqualityConditions(conditions, exprList, rangeVarIndex);
+
+            hasIndex = conditions.hasIndex();
         }
 
         if (rangeVarIndex == 0 && sortAndSlice.usingIndex) {
             hasIndex = true;
-        } else {
-            hasIndex = conditions.hasIndex();
         }
 
         boolean isOR = false;
@@ -1117,15 +1117,9 @@ public class RangeVariableResolver {
                 }
 
                 if (e.getType() == OpTypes.OR) {
-
-                    hasIndex = ((ExpressionLogical) e).isIndexable(
-                        conditions.rangeVar);
-
-                    if (hasIndex) {
-                        hasIndex = setOrConditions(conditions,
-                                                   (ExpressionLogical) e,
-                                                   rangeVarIndex);
-                    }
+                    hasIndex = setOrConditions(conditions,
+                                               (ExpressionLogical) e,
+                                               rangeVarIndex);
 
                     if (hasIndex) {
                         exprList.set(j, null);

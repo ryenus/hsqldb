@@ -55,6 +55,7 @@ public class SimpleLog {
     public static final int LOG_ERROR  = 1;
     public static final int LOG_NORMAL = 2;
     public static final int LOG_DETAIL = 3;
+    public static final int LOG_EXTRA  = 4;
 
     //
     public static final String   logTypeNameEngine = "ENGINE";

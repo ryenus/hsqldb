@@ -619,6 +619,7 @@ public class Session implements SessionInterface {
 
         if (database.logger.getSqlEventLogLevel() > 0) {
             database.logger.logStatementEvent(this, endTX, null,
+                                              Result.updateZeroResult,
                                               SimpleLog.LOG_ERROR);
         }
 /* debug 190
@@ -1269,10 +1270,13 @@ public class Session implements SessionInterface {
         boolean isTX = cs.isTransactionStatement();
 
         if (!isTX) {
+
+            // statements such as DISCONNECT may close the session
             if (database.logger.getSqlEventLogLevel()
                     >= SimpleLog.LOG_NORMAL) {
                 sessionContext.setDynamicArguments(pvals);
                 database.logger.logStatementEvent(this, cs, pvals,
+                                                  Result.updateZeroResult,
                                                   SimpleLog.LOG_NORMAL);
             }
 
@@ -1320,13 +1324,14 @@ public class Session implements SessionInterface {
             //        tempActionHistory.add("sql execute " + cs.sql + " " + actionTimestamp + " " + rowActionList.size());
             sessionContext.setDynamicArguments(pvals);
 
+            r = cs.execute(this);
+
             if (database.logger.getSqlEventLogLevel()
                     >= SimpleLog.LOG_NORMAL) {
-                database.logger.logStatementEvent(this, cs, pvals,
+                database.logger.logStatementEvent(this, cs, pvals, r,
                                                   SimpleLog.LOG_NORMAL);
             }
 
-            r             = cs.execute(this);
             lockStatement = sessionContext.currentStatement;
 
             //        tempActionHistory.add("sql execute end " + actionTimestamp + " " + rowActionList.size());
