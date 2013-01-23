@@ -1634,11 +1634,13 @@ public class Expression implements Cloneable {
     }
 
     public boolean isTrue() {
-        return opType == OpTypes.VALUE && valueData == Boolean.TRUE;
+        return opType == OpTypes.VALUE && valueData instanceof Boolean
+               && ((Boolean) valueData).booleanValue();
     }
 
     public boolean isFalse() {
-        return opType == OpTypes.VALUE && valueData == Boolean.FALSE;
+        return opType == OpTypes.VALUE && valueData instanceof Boolean
+               && !((Boolean) valueData).booleanValue();
     }
 
     public boolean isIndexable(RangeVariable range) {
