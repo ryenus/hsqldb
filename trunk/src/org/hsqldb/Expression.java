@@ -149,6 +149,14 @@ public class Expression implements Cloneable {
         functionExpressionSet.add(OpTypes.FUNCTION);
     }
 
+    static final OrderedIntHashSet sequenceExpressionSet =
+        new OrderedIntHashSet();
+
+    static {
+        sequenceExpressionSet.add(OpTypes.ROWNUM);
+        sequenceExpressionSet.add(OpTypes.SEQUENCE);
+    }
+
     static final OrderedIntHashSet emptyExpressionSet =
         new OrderedIntHashSet();
 
