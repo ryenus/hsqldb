@@ -480,7 +480,11 @@ public class QuerySpecification extends QueryExpression {
                     isMergeable = false;
                 }
 
-                if (exprColumns[i].opType == OpTypes.ROWNUM) {
+                list = exprColumns[i].collectAllExpressions(null,
+                        Expression.sequenceExpressionSet,
+                        Expression.subqueryAggregateExpressionSet);
+
+                if (list != null) {
                     isOrderSensitive = true;
                     isMergeable      = false;
                     isBaseMergeable  = false;
@@ -1104,8 +1108,7 @@ public class QuerySpecification extends QueryExpression {
         //
     }
 
-    void checkLobUsage() {
-    }
+    void checkLobUsage() {}
 
     private void resolveGroups() {
 
