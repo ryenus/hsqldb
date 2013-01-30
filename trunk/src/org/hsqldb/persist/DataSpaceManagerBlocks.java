@@ -630,6 +630,27 @@ public class DataSpaceManagerBlocks implements DataSpaceManager {
         }
     }
 
+    public int findTableSpace(long position) {
+
+        int blockIndex = (int) (position / fileBlockItemCount);
+
+        ba.initialise(false);
+
+        boolean result = ba.moveToBlock(blockIndex);
+
+        if (!result) {
+            ba.reset();
+
+            return DataSpaceManager.tableIdDefault;
+        }
+
+        int id = ba.currentDir.getTableIdArray()[ba.currentBlockOffset];
+
+        ba.reset();
+
+        return id;
+    }
+
     public long getLostBlocksSize() {
         return totalFragmentSize;
     }

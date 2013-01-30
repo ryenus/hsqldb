@@ -54,7 +54,7 @@ import org.hsqldb.types.Types;
  * Implementation of Statement for DML statements.<p>
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.2.9
+ * @version 2.3.0
  * @since 1.9.0
  */
 
@@ -83,8 +83,9 @@ public class StatementDML extends StatementDMQL {
      * Instantiate this as a DELETE statement
      */
     StatementDML(Session session, Table targetTable,
-                 RangeVariable[] rangeVars, CompileContext compileContext,
-                 boolean restartIdentity, int type) {
+                 RangeVariable targetRange, RangeVariable[] rangeVars,
+                 CompileContext compileContext, boolean restartIdentity,
+                 int type) {
 
         super(StatementTypes.DELETE_WHERE, StatementTypes.X_SQL_DATA_CHANGE,
               session.getCurrentSchemaHsqlName());
@@ -103,16 +104,16 @@ public class StatementDML extends StatementDMQL {
             isTruncate = true;
         }
 
-        targetRangeVariables[0].addAllColumns();
+        targetRange.addAllColumns();
     }
 
     /**
      * Instantiate this as an UPDATE statement.
      */
     StatementDML(Session session, Expression[] targets, Table targetTable,
-                 RangeVariable rangeVars[], int[] updateColumnMap,
-                 Expression[] colExpressions, boolean[] checkColumns,
-                 CompileContext compileContext) {
+                 RangeVariable targetRange, RangeVariable rangeVars[],
+                 int[] updateColumnMap, Expression[] colExpressions,
+                 boolean[] checkColumns, CompileContext compileContext) {
 
         super(StatementTypes.UPDATE_WHERE, StatementTypes.X_SQL_DATA_CHANGE,
               session.getCurrentSchemaHsqlName());
@@ -130,13 +131,14 @@ public class StatementDML extends StatementDMQL {
         setupChecks();
         setDatabseObjects(session, compileContext);
         checkAccessRights(session);
-        targetRangeVariables[0].addAllColumns();
+        targetRange.addAllColumns();
     }
 
     /**
      * Instantiate this as a MERGE statement.
      */
     StatementDML(Session session, Expression[] targets,
+                 RangeVariable sourceRange, RangeVariable targetRange,
                  RangeVariable[] targetRangeVars, int[] insertColMap,
                  int[] updateColMap, boolean[] checkColumns,
                  Expression mergeCondition, Expression insertExpr,
@@ -146,8 +148,8 @@ public class StatementDML extends StatementDMQL {
               session.getCurrentSchemaHsqlName());
 
         this.targets     = targets;
-        this.sourceTable = targetRangeVars[0].rangeTable;
-        this.targetTable = targetRangeVars[1].rangeTable;
+        this.sourceTable = sourceRange.rangeTable;
+        this.targetTable = targetRange.rangeTable;
         this.baseTable   = targetTable.isTriggerUpdatable() ? targetTable
                                                             : targetTable
                                                             .getBaseTable();
