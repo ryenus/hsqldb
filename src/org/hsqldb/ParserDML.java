@@ -46,7 +46,7 @@ import org.hsqldb.types.Type;
  * Parser for DML statements
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.2.9
+ * @version 2.3.0
  * @since 1.9.0
  */
 public class ParserDML extends ParserDQL {
@@ -354,17 +354,19 @@ public class ParserDML extends ParserDQL {
         RangeVariable[] rangeVariables  = null;
         Table           table           = null;
         HsqlName[]      writeTableNames = null;
+        RangeVariable   targetRange     = null;
 
         readThis(Tokens.TRUNCATE);
 
         if (token.tokenType == Tokens.TABLE) {
             readThis(Tokens.TABLE);
 
-            rangeVariables = new RangeVariable[]{
-                readRangeVariableForDataChange(StatementTypes.TRUNCATE) };
-            table      = rangeVariables[0].getTable();
-            objectName = table.getName();
-            isTable    = true;
+            targetRange =
+                readRangeVariableForDataChange(StatementTypes.TRUNCATE);
+            rangeVariables = new RangeVariable[]{ targetRange };
+            table          = rangeVariables[0].getTable();
+            objectName     = table.getName();
+            isTable        = true;
         } else {
             readThis(Tokens.SCHEMA);
 
@@ -421,8 +423,9 @@ public class ParserDML extends ParserDQL {
                                         writeTableNames);
         }
 
-        Statement cs = new StatementDML(session, table, rangeVariables,
-                                        compileContext, restartIdentity,
+        Statement cs = new StatementDML(session, table, targetRange,
+                                        rangeVariables, compileContext,
+                                        restartIdentity,
                                         StatementTypes.TRUNCATE);
 
         return cs;
@@ -433,18 +436,19 @@ public class ParserDML extends ParserDQL {
      */
     Statement compileDeleteStatement(RangeGroup[] rangeGroups) {
 
-        Expression condition       = null;
-        boolean    restartIdentity = false;
+        Expression      condition       = null;
+        boolean         restartIdentity = false;
+        RangeVariable   targetRange;
+        RangeVariable[] rangeVariables;
+        Table           table;
 
         readThis(Tokens.DELETE);
         readThis(Tokens.FROM);
 
-        RangeVariable[] rangeVariables = null;
-        Table           table          = null;
-
-        rangeVariables = new RangeVariable[]{
-            readRangeVariableForDataChange(StatementTypes.DELETE_WHERE) };
-        table = rangeVariables[0].getTable();
+        targetRange =
+            readRangeVariableForDataChange(StatementTypes.DELETE_WHERE);
+        rangeVariables = new RangeVariable[]{ targetRange };
+        table          = rangeVariables[0].getTable();
 
         compileContext.setOuterRanges(rangeGroups);
 
@@ -494,7 +498,7 @@ public class ParserDML extends ParserDQL {
 
             RangeVariableResolver resolver =
                 new RangeVariableResolver(rangeVariables, null,
-                                          compileContext);
+                                          compileContext, false);
 
             resolver.processConditions(session);
 
@@ -506,8 +510,9 @@ public class ParserDML extends ParserDQL {
                     RangeVariable.emptyArray);
         }
 
-        Statement cs = new StatementDML(session, table, rangeVariables,
-                                        compileContext, restartIdentity,
+        Statement cs = new StatementDML(session, table, targetRange,
+                                        rangeVariables, compileContext,
+                                        restartIdentity,
                                         StatementTypes.DELETE_WHERE);
 
         return cs;
@@ -526,17 +531,19 @@ public class ParserDML extends ParserDQL {
         OrderedHashSet  targetSet    = new OrderedHashSet();
         LongDeque       colIndexList = new LongDeque();
         HsqlArrayList   exprList     = new HsqlArrayList();
+        RangeVariable   targetRange;
         RangeVariable[] rangeVariables;
         RangeGroup      rangeGroup;
         Table           table;
         Table           baseTable;
 
-        rangeVariables = new RangeVariable[]{
-            readRangeVariableForDataChange(StatementTypes.UPDATE_WHERE) };
-        rangeGroup = new RangeGroupSimple(rangeVariables, false);
-        table      = rangeVariables[0].rangeTable;
-        baseTable  = table.isTriggerUpdatable() ? table
-                                                : table.getBaseTable();
+        targetRange =
+            readRangeVariableForDataChange(StatementTypes.UPDATE_WHERE);
+        rangeVariables = new RangeVariable[]{ targetRange };
+        rangeGroup     = new RangeGroupSimple(rangeVariables, false);
+        table          = rangeVariables[0].rangeTable;
+        baseTable      = table.isTriggerUpdatable() ? table
+                                                    : table.getBaseTable();
 
         readThis(Tokens.SET);
         readSetClauseList(rangeVariables, targetSet, colIndexList, exprList);
@@ -599,8 +606,9 @@ public class ParserDML extends ParserDQL {
                         rangeVariables[0], baseSelect.exprColumns);
             }
 
-            condition = ExpressionLogical.andExpressions(baseSelect.queryCondition,
-                    condition);
+            condition =
+                ExpressionLogical.andExpressions(baseSelect.queryCondition,
+                                                 condition);
             rangeVariables = baseSelect.rangeVariables;
         }
 
@@ -609,7 +617,7 @@ public class ParserDML extends ParserDQL {
 
             RangeVariableResolver resolver =
                 new RangeVariableResolver(rangeVariables, null,
-                                          compileContext);
+                                          compileContext, false);
 
             resolver.processConditions(session);
 
@@ -637,8 +645,8 @@ public class ParserDML extends ParserDQL {
         }
 
         StatementDMQL cs = new StatementDML(session, targets, table,
-                                            rangeVariables, columnMap,
-                                            updateExpressions,
+                                            targetRange, rangeVariables,
+                                            columnMap, updateExpressions,
                                             columnCheckList, compileContext);
 
         return cs;
@@ -1004,7 +1012,8 @@ public class ParserDML extends ParserDQL {
         fullRangeVars[1].addJoinCondition(mergeCondition);
 
         RangeVariableResolver resolver =
-            new RangeVariableResolver(fullRangeVars, null, compileContext);
+            new RangeVariableResolver(fullRangeVars, null, compileContext,
+                                      false);
 
         resolver.processConditions(session);
 
@@ -1025,7 +1034,8 @@ public class ParserDML extends ParserDQL {
             insertExpression.resolveTypes(session, null);
         }
 
-        StatementDMQL cs = new StatementDML(session, targets, fullRangeVars,
+        StatementDMQL cs = new StatementDML(session, targets, sourceRange,
+                                            targetRange, fullRangeVars,
                                             insertColumnMap, updateColumnMap,
                                             insertColumnCheckList,
                                             mergeCondition, insertExpression,

@@ -53,7 +53,7 @@ import org.hsqldb.persist.PersistentStore;
  * processing and which indexes are used for table access.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.2.9
+ * @version 2.3.0
  * @since 1.9.0
  */
 public class RangeVariableResolver {
@@ -65,6 +65,7 @@ public class RangeVariableResolver {
     OrderedHashSet     rangeVarSet = new OrderedHashSet();
     CompileContext     compileContext;
     SortAndSlice       sortAndSlice = SortAndSlice.noSort;
+    boolean            reorder;
 
     //
     HsqlArrayList[] tempJoinExpressions;
@@ -100,6 +101,7 @@ public class RangeVariableResolver {
         this.conditions     = select.queryCondition;
         this.compileContext = select.compileContext;
         this.sortAndSlice   = select.sortAndSlice;
+        this.reorder        = true;
 
 //        this.expandInExpression = select.checkQueryCondition == null;
         initialise();
@@ -107,11 +109,12 @@ public class RangeVariableResolver {
 
     RangeVariableResolver(RangeVariable[] rangeVariables,
                           Expression conditions,
-                          CompileContext compileContext) {
+                          CompileContext compileContext, boolean reorder) {
 
         this.rangeVariables = rangeVariables;
         this.conditions     = conditions;
         this.compileContext = compileContext;
+        this.reorder        = reorder;
 
         initialise();
     }
@@ -589,6 +592,10 @@ public class RangeVariableResolver {
  *
  */
     void reorder() {
+
+        if (!reorder) {
+            return;
+        }
 
         if (rangeVariables.length == 1
                 || firstRightJoinIndex != rangeVariables.length) {

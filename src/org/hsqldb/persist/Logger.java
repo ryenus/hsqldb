@@ -1508,6 +1508,10 @@ public class Logger {
             return String.valueOf(appLog.getLevel());
         }
 
+        if (HsqlDatabaseProperties.hsqldb_sqllog.equals(name)) {
+            return String.valueOf(sqlLog.getLevel());
+        }
+
         if (HsqlDatabaseProperties.hsqldb_lob_file_scale.equals(name)) {
             return String.valueOf(propLobBlockSize);
         }
