@@ -33,12 +33,14 @@ package org.hsqldb.sample;
 
 import java.util.Properties;
 
+import org.hsqldb.util.DatabaseManager;
+
 /*
  * How to customize DatabaseManager with pluggable connection types.
  *
  * @version 1.7.0
  */
-public class DatabaseManagerSample extends org.hsqldb.util.DatabaseManager {
+public class DatabaseManagerSample extends DatabaseManager {
 
     static {
         Properties p = new Properties();

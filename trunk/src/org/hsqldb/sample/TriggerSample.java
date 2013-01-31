@@ -219,8 +219,7 @@ public class TriggerSample implements Trigger {
 
             // do nothing
         } else {
-            throw org.hsqldb.error.Error.error(ErrorCode.GENERAL_ERROR,
-                                               msg);
+            throw Error.error(ErrorCode.GENERAL_ERROR, msg);
         }
     }
 

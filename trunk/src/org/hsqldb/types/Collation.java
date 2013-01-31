@@ -238,11 +238,11 @@ public class Collation implements SchemaObject {
         return collation;
     }
 
-    public static org.hsqldb.lib.Iterator getCollationsIterator() {
+    public static Iterator getCollationsIterator() {
         return nameToJavaName.keySet().iterator();
     }
 
-    public static org.hsqldb.lib.Iterator getLocalesIterator() {
+    public static Iterator getLocalesIterator() {
         return nameToJavaName.values().iterator();
     }
 

@@ -39,6 +39,7 @@ import java.util.Vector;
 import org.hsqldb.lib.HsqlArrayList;
 import org.hsqldb.lib.HsqlDeque;
 import org.hsqldb.lib.HsqlList;
+import org.hsqldb.lib.Iterator;
 import org.hsqldb.lib.StopWatch;
 
 import junit.framework.TestCase;
@@ -370,7 +371,7 @@ public class TestDataStructures extends TestCase {
             return false;
         }
 
-        org.hsqldb.lib.Iterator listElements   = list.iterator();
+        Iterator listElements   = list.iterator();
         Enumeration             vectorElements = vector.elements();
         Object                  listObj        = null;
         Object                  vectorObj      = null;
@@ -411,7 +412,7 @@ public class TestDataStructures extends TestCase {
             System.out.println(d.get(i));
         }
 
-        org.hsqldb.lib.Iterator it = d.iterator();
+        Iterator it = d.iterator();
 
         for (int i = 0; it.hasNext(); i++) {
             Integer value = (Integer) it.next();

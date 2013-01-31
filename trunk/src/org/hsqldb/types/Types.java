@@ -579,7 +579,7 @@ public class Types {
         javaTypeNumbers.put("java.lang.Void", Types.SQL_ALL_TYPES);
 
         //
-        illegalParameterClasses = new org.hsqldb.lib.HashSet();
+        illegalParameterClasses = new HashSet();
 
         illegalParameterClasses.add(Byte.TYPE);
         illegalParameterClasses.add(Short.TYPE);

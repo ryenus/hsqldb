@@ -31,9 +31,10 @@
 
 package org.hsqldb.server;
 
-import java.io.ByteArrayOutputStream;
-import java.io.DataOutputStream;
 import java.io.IOException;
+
+import org.hsqldb.lib.DataOutputStream;
+import org.hsqldb.lib.HsqlByteArrayOutputStream;
 
 /**
  * Atomic transmission packet from HyperSQL server to ODBC client.
@@ -50,14 +51,16 @@ import java.io.IOException;
  * </CODE>
  */
 class OdbcPacketOutputStream extends DataOutputStream {
-    private ByteArrayOutputStream byteArrayOutputStream;
-    private ByteArrayOutputStream stringWriterOS = new ByteArrayOutputStream();
+
+    private HsqlByteArrayOutputStream byteArrayOutputStream;
+    private HsqlByteArrayOutputStream stringWriterOS =
+        new HsqlByteArrayOutputStream();
     private DataOutputStream stringWriterDos =
         new DataOutputStream(stringWriterOS);
-    private int packetStart = 0; // Stream's "written" at start of packet.
+    private int packetStart = 0;    // Stream's "written" at start of packet.
 
     public int getSize() {
-        return written - packetStart;
+        return super.count - packetStart;
     }
 
     /**
@@ -67,58 +70,72 @@ class OdbcPacketOutputStream extends DataOutputStream {
         write(s, true);
     }
 
-    synchronized void write(String s, boolean nullTerm)
-    throws IOException {
+    synchronized void write(String s, boolean nullTerm) throws IOException {
+
         stringWriterDos.writeUTF(s);
         write(stringWriterOS.toByteArray(), 2, stringWriterOS.size() - 2);
         stringWriterOS.reset();
+
         if (nullTerm) {
             writeByte(0);
         }
     }
 
     synchronized void writeSized(String s) throws IOException {
-        stringWriterDos.writeUTF(s);
-        byte[] ba = stringWriterOS.toByteArray();
-        stringWriterOS.reset();
 
+        stringWriterDos.writeUTF(s);
+
+        byte[] ba = stringWriterOS.toByteArray();
+
+        stringWriterOS.reset();
         writeInt(ba.length - 2);
         write(ba, 2, ba.length - 2);
     }
 
     synchronized void reset() throws IOException {
+
         byteArrayOutputStream.reset();
-        packetStart = written;
-        writeInt(-1); // length placeholder
+
+        packetStart = count;
+
+        writeInt(-1);    // length placeholder
     }
 
     static OdbcPacketOutputStream newOdbcPacketOutputStream()
     throws IOException {
-        return new OdbcPacketOutputStream(new ByteArrayOutputStream());
+        return new OdbcPacketOutputStream(new HsqlByteArrayOutputStream());
     }
 
     protected OdbcPacketOutputStream(
-    ByteArrayOutputStream byteArrayOutputStream) throws IOException {
+            HsqlByteArrayOutputStream byteArrayOutputStream)
+            throws IOException {
+
         super(byteArrayOutputStream);
+
         this.byteArrayOutputStream = byteArrayOutputStream;
+
         reset();
     }
 
     /**
      * @return packet size (which does not count the type byte).
      */
-    synchronized int xmit(
-    char packetType, org.hsqldb.lib.DataOutputStream destinationStream)
-    throws IOException {
+    synchronized int xmit(char packetType,
+                          DataOutputStream destinationStream)
+                          throws IOException {
+
         byte[] ba = byteArrayOutputStream.toByteArray();
+
         ba[0] = (byte) (ba.length >> 24);
         ba[1] = (byte) (ba.length >> 16);
         ba[2] = (byte) (ba.length >> 8);
         ba[3] = (byte) ba.length;
+
         reset();
         destinationStream.writeByte(packetType);
         destinationStream.write(ba);
         destinationStream.flush();
+
         return ba.length;
     }
 

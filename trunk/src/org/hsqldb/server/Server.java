@@ -970,7 +970,7 @@ public class Server implements HsqlSocketRequestHandler {
 
         checkRunning(false);
 
-        if (org.hsqldb.lib.StringUtil.isEmpty(address)) {
+        if (StringUtil.isEmpty(address)) {
             address = ServerConstants.SC_DEFAULT_ADDRESS;
         }
 
@@ -2039,7 +2039,7 @@ public class Server implements HsqlSocketRequestHandler {
         address       = getAddress();
         port          = getPort();
 
-        if (org.hsqldb.lib.StringUtil.isEmpty(address)
+        if (StringUtil.isEmpty(address)
                 || ServerConstants.SC_DEFAULT_ADDRESS.equalsIgnoreCase(
                     address.trim())) {
             socket = socketFactory.createServerSocket(port);

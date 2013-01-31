@@ -37,6 +37,8 @@ import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 
+import org.hsqldb.persist.HsqlDatabaseProperties;
+
 /**
  * Base class for producing the Socket objects used by HSQLDB.
  *
@@ -70,8 +72,7 @@ public class HsqlSocketFactory {
      *      of the wrong type
      * @return a new factory
      */
-    public static HsqlSocketFactory getInstance(boolean tls)
-    throws Exception {
+    public static HsqlSocketFactory getInstance(boolean tls) throws Exception {
         return tls ? getSSLImpl()
                    : getPlainImpl();
     }
@@ -148,7 +149,8 @@ public class HsqlSocketFactory {
 
         synchronized (HsqlSocketFactory.class) {
             if (sslImpl == null) {
-                sslImpl = newFactory("org.hsqldb.server.HsqlSocketFactorySecure");
+                sslImpl = newFactory(HsqlDatabaseProperties.hsqldb_package_name
+                                     + ".server.HsqlSocketFactorySecure");
             }
         }
 

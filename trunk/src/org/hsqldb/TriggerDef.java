@@ -678,7 +678,7 @@ public class TriggerDef implements Runnable, SchemaObject {
         }
     }
 
-    static class DefaultTrigger implements org.hsqldb.Trigger {
+    static class DefaultTrigger implements Trigger {
 
         public void fire(int i, String name, String table, Object[] row1,
                          Object[] row2) {
