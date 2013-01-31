@@ -48,7 +48,7 @@ import org.hsqldb.rowio.RowInputInterface;
  * @author Bob Preston (sqlbob@users dot sourceforge.net)
  * @version 2.3.0
  */
-public class TextTable extends org.hsqldb.Table {
+public class TextTable extends Table {
 
     String  dataSource  = "";
     boolean isReversed  = false;

@@ -62,9 +62,9 @@ import org.hsqldb.types.Types;
  * @version 2.2.9
  * @since 1.7.0
  */
-public class RowInputBinary extends RowInputBase
-implements org.hsqldb.rowio.RowInputInterface {
+public class RowInputBinary extends RowInputBase implements RowInputInterface {
 
+    public boolean          ignoreDataErrors;
     private RowOutputBinary out;
 
     public RowInputBinary(byte[] buf) {
@@ -245,6 +245,11 @@ implements org.hsqldb.rowio.RowInputInterface {
     }
 
     public Object[] readData(Type[] colTypes) throws IOException {
+
+        if (ignoreDataErrors) {
+            return new Object[colTypes.length];
+        }
+
         return super.readData(colTypes);
     }
 

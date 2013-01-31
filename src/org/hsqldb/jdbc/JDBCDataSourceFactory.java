@@ -41,6 +41,8 @@ import javax.naming.RefAddr;
 import javax.naming.spi.ObjectFactory;
 import javax.sql.DataSource;
 
+import org.hsqldb.persist.HsqlDatabaseProperties;
+
 /**
  * A JNDI ObjectFactory for creating data sources supported by HyperSQL
  *  {@link org.hsqldb.jdbc.JDBCDataSource JDBCDataSource} for plain
@@ -225,12 +227,15 @@ public class JDBCDataSourceFactory implements ObjectFactory {
      * class names
      */
     private static final String bdsClassName =
-        "org.hsqldb.jdbc.JDBCDataSource";
-    private static final String poolClassName = "org.hsqldb.jdbc.JDBCPool";
+        HsqlDatabaseProperties.hsqldb_package_name + ".jdbc.JDBCDataSource";
+    private static final String poolClassName =
+        HsqlDatabaseProperties.hsqldb_package_name + ".jdbc.JDBCPool";
     private static final String pdsClassName =
-        "org.hsqldb.jdbc.pool.JDBCPooledDataSource";
+        HsqlDatabaseProperties.hsqldb_package_name
+        + ".jdbc.pool.JDBCPooledDataSource";
     private static final String xdsClassName =
-        "org.hsqldb.jdbc.pool.JDBCXADataSource";
+        HsqlDatabaseProperties.hsqldb_package_name
+        + ".jdbc.pool.JDBCXADataSource";
 
     public JDBCDataSourceFactory() {}
 }

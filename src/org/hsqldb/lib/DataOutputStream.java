@@ -31,20 +31,22 @@
 
 package org.hsqldb.lib;
 
-import java.io.EOFException;
+import java.io.DataOutput;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Reader;
+import java.io.UTFDataFormatException;
 
 /**
  * A wrapper for OutputStream
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.0.1
+ * @version 2.3.0
  * @since 1.9.0
  */
-public class DataOutputStream extends java.io.BufferedOutputStream {
+public class DataOutputStream extends java.io.BufferedOutputStream
+implements DataOutput {
 
     byte[] tempBuffer = new byte[8];
 
@@ -125,12 +127,13 @@ public class DataOutputStream extends java.io.BufferedOutputStream {
     public long write(InputStream inputStream,
                       long length) throws IOException {
 
-        byte[] data = new byte[1024];
-        long totalCount = 0;
+        byte[] data       = new byte[1024];
+        long   totalCount = 0;
+
         while (true) {
             long count = length - totalCount;
 
-            if (count > data.length ) {
+            if (count > data.length) {
                 count = data.length;
             }
 
@@ -141,9 +144,69 @@ public class DataOutputStream extends java.io.BufferedOutputStream {
             }
 
             write(data, 0, (int) count);
+
             totalCount += count;
         }
 
         return totalCount;
+    }
+
+    public void writeBoolean(boolean v) throws IOException {
+
+        int val = v ? 1
+                    : 0;
+
+        write(val);
+    }
+
+    public void writeShort(int v) throws IOException {
+
+        int count = 0;
+
+        tempBuffer[count++] = (byte) (v >> 8);
+        tempBuffer[count++] = (byte) v;
+
+        write(tempBuffer, 0, count);
+    }
+
+    public void writeFloat(float v) throws IOException {
+        writeInt(Float.floatToIntBits(v));
+    }
+
+    public void writeDouble(double v) throws IOException {
+        writeLong(Double.doubleToLongBits(v));
+    }
+
+    public void writeBytes(String s) throws IOException {
+
+        int length = s.length();
+
+        for (int i = 0; i < length; i++) {
+            out.write((byte) s.charAt(i));
+        }
+    }
+
+    public void writeUTF(String str) throws IOException {
+
+        int len = str.length();
+
+        if (len > 0xffff) {
+            throw new UTFDataFormatException();
+        }
+
+        int bytecount = StringConverter.getUTFSize(str);
+
+        if (bytecount > 0xffff) {
+            throw new UTFDataFormatException();
+        }
+
+        //
+        writeChar(bytecount);
+
+        HsqlByteArrayOutputStream bao =
+            new HsqlByteArrayOutputStream(bytecount);
+
+        StringConverter.stringToUTFBytes(str, bao);
+        this.write(bao.getBuffer(), 0, bao.size());
     }
 }

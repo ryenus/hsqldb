@@ -49,6 +49,7 @@ import javax.sql.CommonDataSource;
 import org.hsqldb.jdbc.JDBCCommonDataSource;
 import org.hsqldb.jdbc.JDBCConnection;
 import org.hsqldb.jdbc.JDBCDriver;
+import org.hsqldb.persist.HsqlDatabaseProperties;
 
 /**
  * A data source that implements {@link javax.sql.ConnectionPoolDataSource}.<p>
@@ -98,8 +99,9 @@ implements ConnectionPoolDataSource, Serializable, Referenceable
      */
     public Reference getReference() throws NamingException {
 
-        String    cname = "org.hsqldb.jdbc.JDBCDataSourceFactory";
-        Reference ref   = new Reference(getClass().getName(), cname, null);
+        String cname = HsqlDatabaseProperties.hsqldb_package_name
+                       + ".jdbc.JDBCDataSourceFactory";
+        Reference ref = new Reference(getClass().getName(), cname, null);
 
         ref.add(new StringRefAddr("database", getDatabase()));
         ref.add(new StringRefAddr("user", getUser()));

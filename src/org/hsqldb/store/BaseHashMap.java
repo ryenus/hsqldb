@@ -1426,7 +1426,7 @@ public class BaseHashMap {
     /**
      * Currently only for object maps
      */
-    protected class ValuesIterator implements org.hsqldb.lib.Iterator {
+    protected class ValuesIterator implements Iterator {
 
         int    lookup = -1;
         Object key;

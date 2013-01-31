@@ -52,6 +52,8 @@ import org.hsqldb.lib.StringUtil;
  */
 public class HsqlDatabaseProperties extends HsqlProperties {
 
+    public static final String hsqldb_package_name = "org.hsqldb";
+    public static final String hsqldb_package_path = "/org/hsqldb";
     private static final String hsqldb_method_class_names =
         "hsqldb.method_class_names";
     public static final String textdb_allow_full_path =
@@ -231,7 +233,7 @@ public class HsqlDatabaseProperties extends HsqlProperties {
         "hsqldb.write_delay_millis";
     public static final String hsqldb_full_log_replay =
         "hsqldb.full_log_replay";
-    public static final String hsqldb_large_data  = "hsqldb.large_data";
+    public static final String hsqldb_large_data = "hsqldb.large_data";
     public static final String hsqldb_file_space = "hsqldb.file_space";
 
     //

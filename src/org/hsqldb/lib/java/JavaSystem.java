@@ -78,7 +78,13 @@ public class JavaSystem {
 
 //#else
 /*
-        return new IOException(t.getMessage());
+        IOException e = new IOException(t.toString());
+        try {
+            e.initCause(t);
+        } catch (Throwable e1) {}
+
+        return e;
+
 */
 
 //#endif JAVA6

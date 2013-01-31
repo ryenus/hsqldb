@@ -121,8 +121,7 @@ public class LineGroupReader {
                 return list;
             }
 
-            line = line.substring(
-                0, org.hsqldb.lib.StringUtil.rightTrimSize(line));
+            line = line.substring(0, StringUtil.rightTrimSize(line));
 
             //if the line is blank or a comment, then ignore it
             if (line.length() == 0 || isIgnoredLine(line)) {
@@ -205,6 +204,7 @@ public class LineGroupReader {
     }
 
     public void close() {
+
         try {
             reader.close();
         } catch (Exception e) {}

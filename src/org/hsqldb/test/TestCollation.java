@@ -31,6 +31,15 @@
 
 package org.hsqldb.test;
 
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.Locale;
+
+import org.hsqldb.lib.HashSet;
+import org.hsqldb.lib.Iterator;
+import org.hsqldb.lib.Set;
 import org.hsqldb.types.Collation;
 
 /**
@@ -39,10 +48,10 @@ import org.hsqldb.types.Collation;
  */
 public class TestCollation extends TestBase {
 
-    java.sql.Statement      statement;
-    java.sql.Connection     connection;
-    org.hsqldb.lib.Iterator collIterator;
-    org.hsqldb.lib.Iterator localeIterator;
+    Statement  statement;
+    Connection connection;
+    Iterator   collIterator;
+    Iterator   localeIterator;
 
     /** Creates a new instance of TestCollation */
     public TestCollation(String name) {
@@ -87,7 +96,7 @@ public class TestCollation extends TestBase {
                 getSetCollationStmt(
                     "ThisIsDefinitlyNoValidCollationIdentifier"));
             fail("database did not reject invalid collation name");
-        } catch (java.sql.SQLException e) {}
+        } catch (SQLException e) {}
 
         // let's check whether the DB accepts all known collations
         int count = 0;
@@ -97,7 +106,7 @@ public class TestCollation extends TestBase {
 
             try {
                 statement.execute(getSetCollationStmt(collationName));
-            } catch (java.sql.SQLException e) {
+            } catch (SQLException e) {
                 fail("could not set collation '" + collationName
                      + "'\n  exception message: " + e.getMessage());
             }
@@ -117,9 +126,8 @@ public class TestCollation extends TestBase {
         // whether it is really feasible. The doc states "returns a list of all installed Locales".
         // The "installed" puzzles me - maybe this is really different per installation, and not only
         // per JDK version?
-        java.util.Locale[] availableLocales =
-            java.util.Locale.getAvailableLocales();
-        org.hsqldb.lib.Set existenceCheck = new org.hsqldb.lib.HashSet();
+        Locale[] availableLocales = Locale.getAvailableLocales();
+        Set      existenceCheck   = new HashSet();
 
         for (int i = 0; i < availableLocales.length; ++i) {
             String availaleName = availableLocales[i].getLanguage();
@@ -201,13 +209,11 @@ public class TestCollation extends TestBase {
      */
     protected String checkSorting(String collationName) {
 
-        String stmt1 =
-            "DROP TABLE WORDLIST IF EXISTS;";
+        String stmt1 = "DROP TABLE WORDLIST IF EXISTS;";
         String stmt2 =
             "CREATE TEXT TABLE WORDLIST ( ID INTEGER, WORD VARCHAR(50) );";
-        String stmt3 =
-            "SET TABLE WORDLIST SOURCE \"" + collationName
-            + ".csv;encoding=UTF-8\"";
+        String stmt3 = "SET TABLE WORDLIST SOURCE \"" + collationName
+                       + ".csv;encoding=UTF-8\"";
         String selectStmt    = "SELECT ID, WORD FROM WORDLIST ORDER BY WORD";
         String returnMessage = "";
 
@@ -219,7 +225,7 @@ public class TestCollation extends TestBase {
             statement.execute(stmt2);
             statement.execute(stmt3);
 
-            java.sql.ResultSet results = statement.executeQuery(selectStmt);
+            ResultSet results = statement.executeQuery(selectStmt);
 
             while (results.next()) {
                 int expectedPosition = results.getInt(1);
@@ -235,7 +241,7 @@ public class TestCollation extends TestBase {
                            + "  found position    : " + foundPosition + "\n";
                 }
             }
-        } catch (java.sql.SQLException e) {
+        } catch (SQLException e) {
             return "testing collation '" + collationName
                    + "' failed\n  exception message: " + e.getMessage() + "\n";
         }

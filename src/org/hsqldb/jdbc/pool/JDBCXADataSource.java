@@ -56,6 +56,7 @@ import org.hsqldb.jdbc.Util;
 import org.hsqldb.lib.HashMap;
 import org.hsqldb.lib.HashSet;
 import org.hsqldb.lib.Iterator;
+import org.hsqldb.persist.HsqlDatabaseProperties;
 
 // @(#)$Id$
 
@@ -94,8 +95,10 @@ implements XADataSource, Serializable, Referenceable
         System.err.print("Executing " + getClass().getName()
                          + ".getXAConnection()...");
 */
+
         // Use JDBCDriver directly so there is no need to regiser with DriverManager
-        JDBCConnection connection = (JDBCConnection) JDBCDriver.getConnection(url, connectionProps);
+        JDBCConnection connection =
+            (JDBCConnection) JDBCDriver.getConnection(url, connectionProps);
         JDBCXAConnection xaConnection = new JDBCXAConnection(this, connection);
 
         return xaConnection;
@@ -135,8 +138,9 @@ implements XADataSource, Serializable, Referenceable
      */
     public Reference getReference() throws NamingException {
 
-        String    cname = "org.hsqldb.jdbc.JDBCDataSourceFactory";
-        Reference ref   = new Reference(getClass().getName(), cname, null);
+        String cname = HsqlDatabaseProperties.hsqldb_package_name
+                       + ".jdbc.JDBCDataSourceFactory";
+        Reference ref = new Reference(getClass().getName(), cname, null);
 
         ref.add(new StringRefAddr("database", getDatabase()));
         ref.add(new StringRefAddr("user", getUser()));
@@ -187,7 +191,9 @@ implements XADataSource, Serializable, Referenceable
         }
 
         Xid[] array = new Xid[preparedSet.size()];
+
         preparedSet.toArray(array);
+
         return array;
     }
 

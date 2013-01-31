@@ -42,6 +42,7 @@ import java.sql.RowIdLifetime;
 import java.sql.SQLException;
 
 import org.hsqldb.FunctionCustom;
+import org.hsqldb.lib.StringConverter;
 import org.hsqldb.lib.StringUtil;
 import org.hsqldb.persist.HsqlDatabaseProperties;
 import org.hsqldb.types.Type;
@@ -6243,7 +6244,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
     void setConnectionDefaultSchema(String schemaName) throws SQLException {
 
         execute("SET SCHEMA "
-                + org.hsqldb.lib.StringConverter.toQuotedString(schemaName,
+                + StringConverter.toQuotedString(schemaName,
                     '"', true));
     }
 

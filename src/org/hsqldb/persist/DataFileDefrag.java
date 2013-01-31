@@ -39,6 +39,7 @@ import org.hsqldb.error.ErrorCode;
 import org.hsqldb.lib.DoubleIntIndex;
 import org.hsqldb.lib.HsqlArrayList;
 import org.hsqldb.lib.StopWatch;
+import org.hsqldb.lib.StringUtil;
 
 /**
  *  Routine to defrag the *.data file.
@@ -136,7 +137,7 @@ final class DataFileDefrag {
                 if (roots != null) {
                     database.logger.logDetailEvent(
                         "roots: "
-                        + org.hsqldb.lib.StringUtil.getList(roots, ",", ""));
+                        + StringUtil.getList(roots, ",", ""));
                 }
             }
         } catch (OutOfMemoryError e) {

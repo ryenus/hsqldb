@@ -47,6 +47,8 @@ import javax.naming.Referenceable;
 import javax.naming.StringRefAddr;
 import javax.sql.DataSource;
 
+import org.hsqldb.persist.HsqlDatabaseProperties;
+
 /**
  * <p>A factory for connections to the physical data source that this
  * <code>DataSource</code> object represents.  An alternative to the
@@ -255,7 +257,8 @@ public class JDBCDataSource extends JDBCCommonDataSource implements DataSource,
      */
     public Reference getReference() throws NamingException {
 
-        String    cname = "org.hsqldb.jdbc.JDBCDataSourceFactory";
+        String    cname = HsqlDatabaseProperties.hsqldb_package_name
+                          + ".jdbc.JDBCDataSourceFactory";
         Reference ref   = new Reference(getClass().getName(), cname, null);
 
         ref.add(new StringRefAddr("database", getDatabase()));
