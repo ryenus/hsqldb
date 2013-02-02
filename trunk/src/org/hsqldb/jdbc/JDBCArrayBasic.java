@@ -248,7 +248,7 @@ public class JDBCArrayBasic implements Array {
         checkClosed();
 
         if (!JDBCClobClient.isInLimits(data.length, index - 1, count)) {
-            throw Util.outOfRangeArgument();
+            throw JDBCUtil.outOfRangeArgument();
         }
 
         Object[] slice = new Object[count];
@@ -510,7 +510,7 @@ public class JDBCArrayBasic implements Array {
                                    int count) throws SQLException {
 
         if (!JDBCClobClient.isInLimits(data.length, position, count)) {
-            throw Util.outOfRangeArgument();
+            throw JDBCUtil.outOfRangeArgument();
         }
 
         Type[] types = new Type[2];

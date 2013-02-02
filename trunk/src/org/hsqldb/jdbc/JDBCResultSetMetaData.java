@@ -845,7 +845,7 @@ public class JDBCResultSetMetaData implements ResultSetMetaData {
             return (T) this;
         }
 
-        throw Util.invalidArgument("iface: " + iface);
+        throw JDBCUtil.invalidArgument("iface: " + iface);
     }
 
 //#endif JAVA6
@@ -944,7 +944,7 @@ public class JDBCResultSetMetaData implements ResultSetMetaData {
     private void checkColumn(int column) throws SQLException {
 
         if (column < 1 || column > columnCount) {
-            throw Util.sqlException(ErrorCode.JDBC_COLUMN_NOT_FOUND,
+            throw JDBCUtil.sqlException(ErrorCode.JDBC_COLUMN_NOT_FOUND,
                                     String.valueOf(column));
         }
     }

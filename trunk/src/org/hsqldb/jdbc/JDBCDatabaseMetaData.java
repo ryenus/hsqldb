@@ -3465,7 +3465,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
             String table, String columnNamePattern) throws SQLException {
 
         if (table == null) {
-            throw Util.nullArgument("table");
+            throw JDBCUtil.nullArgument("table");
         }
 /*
         if (wantsIsNull(columnNamePattern)) {
@@ -3656,7 +3656,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
             String table, int scope, boolean nullable) throws SQLException {
 
         if (table == null) {
-            throw Util.nullArgument("table");
+            throw JDBCUtil.nullArgument("table");
         }
 
         String scopeIn;
@@ -3676,7 +3676,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
 
                 break;
             default :
-                throw Util.invalidArgument("scope");
+                throw JDBCUtil.invalidArgument("scope");
         }
         catalog = translateCatalog(catalog);
         schema  = translateSchema(schema);
@@ -3758,7 +3758,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
                                        String table) throws SQLException {
 
         if (table == null) {
-            throw Util.nullArgument("table");
+            throw JDBCUtil.nullArgument("table");
         }
         catalog = translateCatalog(catalog);
         schema  = translateSchema(schema);
@@ -3827,7 +3827,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
                                     String table) throws SQLException {
 
         if (table == null) {
-            throw Util.nullArgument("table");
+            throw JDBCUtil.nullArgument("table");
         }
         catalog = translateCatalog(catalog);
         schema  = translateSchema(schema);
@@ -3943,7 +3943,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
                                      String table) throws SQLException {
 
         if (table == null) {
-            throw Util.nullArgument("table");
+            throw JDBCUtil.nullArgument("table");
         }
         catalog = translateCatalog(catalog);
         schema  = translateSchema(schema);
@@ -4059,7 +4059,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
                                      String table) throws SQLException {
 
         if (table == null) {
-            throw Util.nullArgument("table");
+            throw JDBCUtil.nullArgument("table");
         }
         catalog = translateCatalog(catalog);
         schema  = translateSchema(schema);
@@ -4186,11 +4186,11 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
             String foreignTable) throws SQLException {
 
         if (parentTable == null) {
-            throw Util.nullArgument("parentTable");
+            throw JDBCUtil.nullArgument("parentTable");
         }
 
         if (foreignTable == null) {
-            throw Util.nullArgument("foreignTable");
+            throw JDBCUtil.nullArgument("foreignTable");
         }
         parentCatalog  = translateCatalog(parentCatalog);
         foreignCatalog = translateCatalog(foreignCatalog);
@@ -4377,7 +4377,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
                                   boolean approximate) throws SQLException {
 
         if (table == null) {
-            throw Util.nullArgument("table");
+            throw JDBCUtil.nullArgument("table");
         }
         catalog = translateCatalog(catalog);
         schema  = translateSchema(schema);
@@ -5792,7 +5792,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
             return (T) this;
         }
 
-        throw Util.invalidArgument("iface: " + iface);
+        throw JDBCUtil.invalidArgument("iface: " + iface);
     }
 
 //#endif JAVA6
@@ -5886,7 +5886,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
     public ResultSet getPseudoColumns(
             String catalog, String schemaPattern, String tableNamePattern,
             String columnNamePattern) throws SQLException {
-        throw Util.notSupported();
+        throw JDBCUtil.notSupported();
     }
 
     /**

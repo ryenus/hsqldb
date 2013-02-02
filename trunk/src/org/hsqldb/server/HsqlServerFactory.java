@@ -36,11 +36,11 @@ import java.sql.SQLException;
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
 import org.hsqldb.HsqlException;
-import org.hsqldb.jdbc.Util;
+import org.hsqldb.jdbc.JDBCUtil;
 import org.hsqldb.persist.HsqlProperties;
 
 // fredt@users 20020215 - patch 461556 by paul-h@users - modified
-// minor changes to support the new HsqlServerProperties class
+// minor changes to support the new ServerProperties class
 // boucherb@users 20030501 - Server now implements HsqlSocketRequestHandler
 
 /**
@@ -77,9 +77,10 @@ public class HsqlServerFactory {
             Throwable t = server.getServerError();
 
             if (t instanceof HsqlException) {
-                throw Util.sqlException((HsqlException) t);
+                throw JDBCUtil.sqlException((HsqlException) t);
             } else {
-                throw Util.sqlException(Error.error(ErrorCode.GENERAL_ERROR));
+                throw JDBCUtil.sqlException(
+                    Error.error(ErrorCode.GENERAL_ERROR));
             }
         }
 

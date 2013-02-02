@@ -76,11 +76,11 @@ public class JDBCSavepoint implements Savepoint {
     JDBCSavepoint(String name, JDBCConnection conn) throws SQLException {
 
         if (name == null) {
-            throw Util.nullArgument("name");
+            throw JDBCUtil.nullArgument("name");
         }
 
         if (conn == null) {
-            throw Util.nullArgument("conn");
+            throw JDBCUtil.nullArgument("conn");
         }
 
         this.name       = name;
@@ -91,7 +91,7 @@ public class JDBCSavepoint implements Savepoint {
     JDBCSavepoint(JDBCConnection conn) throws SQLException {
 
         if (conn == null) {
-            throw Util.nullArgument("conn");
+            throw JDBCUtil.nullArgument("conn");
         }
 
         this.id         = conn.getSavepointID();
@@ -112,7 +112,7 @@ public class JDBCSavepoint implements Savepoint {
             return id;
         }
 
-        throw Util.notSupported();
+        throw JDBCUtil.notSupported();
     }
 
     /**
@@ -129,7 +129,7 @@ public class JDBCSavepoint implements Savepoint {
             return name;
         }
 
-        throw Util.notSupported();
+        throw JDBCUtil.notSupported();
     }
 
     public String toString() {

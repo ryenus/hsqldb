@@ -276,7 +276,7 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
 
         if (parameterModes[--parameterIndex]
                 == SchemaObject.ParameterModes.PARAM_IN) {
-            throw Util.invalidArgument();
+            throw JDBCUtil.invalidArgument();
         }
     }
 
@@ -686,7 +686,7 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
         }
 
         if (scale < 0) {
-            throw Util.outOfRangeArgument();
+            throw JDBCUtil.outOfRangeArgument();
         }
 
         BigDecimal bd = getBigDecimal(parameterIndex);
@@ -931,7 +931,7 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
                 try {
                     return ((JavaObjectData) o).getObject();
                 } catch (HsqlException e) {
-                    throw Util.sqlException(e);
+                    throw JDBCUtil.sqlException(e);
                 }
             }
             default :
@@ -1045,7 +1045,7 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
 
         checkGetParameterIndex(parameterIndex);
 
-        throw Util.notSupported();
+        throw JDBCUtil.notSupported();
     }
 
 //#else
@@ -1093,7 +1093,7 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
 
         checkGetParameterIndex(parameterIndex);
 
-        throw Util.notSupported();
+        throw JDBCUtil.notSupported();
     }
 
     /**
@@ -1140,7 +1140,7 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
             return new JDBCBlobClient(session, (BlobDataID) o);
         }
 
-        throw Util.sqlException(ErrorCode.X_42561);
+        throw JDBCUtil.sqlException(ErrorCode.X_42561);
     }
 
     /**
@@ -1188,7 +1188,7 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
             return new JDBCClobClient(session, (ClobDataID) o);
         }
 
-        throw Util.sqlException(ErrorCode.X_42561);
+        throw JDBCUtil.sqlException(ErrorCode.X_42561);
     }
 
     /**
@@ -1228,7 +1228,7 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
         Type type = parameterMetaData.columnTypes[parameterIndex - 1];
 
         if (!type.isArrayType()) {
-            throw Util.sqlException(ErrorCode.X_42561);
+            throw JDBCUtil.sqlException(ErrorCode.X_42561);
         }
 
         Object[] data = (Object[]) parameterValues[parameterIndex - 1];
@@ -1698,7 +1698,7 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
 
         checkGetParameterIndex(parameterIndex);
 
-        throw Util.notSupported();
+        throw JDBCUtil.notSupported();
     }
 
 //#endif JAVA4
@@ -3633,7 +3633,7 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
 
         checkGetParameterIndex(parameterIndex);
 
-        throw Util.notSupported();
+        throw JDBCUtil.notSupported();
     }
 
 //#endif JAVA6
@@ -3913,7 +3913,7 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
 
         checkGetParameterIndex(parameterIndex);
 
-        throw Util.notSupported();
+        throw JDBCUtil.notSupported();
     }
 
 //#endif JAVA6
@@ -4013,7 +4013,7 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
 
         checkGetParameterIndex(parameterIndex);
 
-        throw Util.notSupported();
+        throw JDBCUtil.notSupported();
     }
 
 //#endif JAVA6
@@ -4095,7 +4095,7 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
 
         checkGetParameterIndex(parameterIndex);
 
-        throw Util.notSupported();
+        throw JDBCUtil.notSupported();
     }
 
 //#endif JAVA6
@@ -4183,7 +4183,7 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
 
         checkGetParameterIndex(parameterIndex);
 
-        throw Util.notSupported();
+        throw JDBCUtil.notSupported();
     }
 
 //#endif JAVA6
@@ -4274,7 +4274,7 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
             return new StringReader((String) o);
         }
 
-        throw Util.sqlException(ErrorCode.X_42561);
+        throw JDBCUtil.sqlException(ErrorCode.X_42561);
     }
 
 //#endif JAVA6
@@ -4390,7 +4390,7 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
             String msg = "Maximum ASCII input octet length exceeded: "
                          + length;    // NOI18N
 
-            throw Util.sqlException(ErrorCode.JDBC_INPUTSTREAM_ERROR, msg);
+            throw JDBCUtil.sqlException(ErrorCode.JDBC_INPUTSTREAM_ERROR, msg);
         }
         this.setAsciiStream(parameterName, x, (int) length);
     }
@@ -4427,7 +4427,7 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
             String msg = "Maximum Binary input octet length exceeded: "
                          + length;    // NOI18N
 
-            throw Util.sqlException(ErrorCode.JDBC_INPUTSTREAM_ERROR, msg);
+            throw JDBCUtil.sqlException(ErrorCode.JDBC_INPUTSTREAM_ERROR, msg);
         }
         setBinaryStream(parameterName, x, (int) length);
     }
@@ -4465,7 +4465,7 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
         if (length > Integer.MAX_VALUE) {
             String msg = "Maximum character input length exceeded: " + length;    // NOI18N
 
-            throw Util.sqlException(ErrorCode.JDBC_INPUTSTREAM_ERROR, msg);
+            throw JDBCUtil.sqlException(ErrorCode.JDBC_INPUTSTREAM_ERROR, msg);
         }
         setCharacterStream(parameterName, reader, (int) length);
     }
@@ -4837,7 +4837,7 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
             return index + 1;
         }
 
-        throw Util.sqlException(ErrorCode.JDBC_COLUMN_NOT_FOUND,
+        throw JDBCUtil.sqlException(ErrorCode.JDBC_COLUMN_NOT_FOUND,
                                 parameterName);
     }
 
@@ -4932,7 +4932,7 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
                              + ", value: " + stringValue;
                 HsqlException err = Error.error(ErrorCode.X_42561, msg);
 
-                throw Util.sqlException(err, e);
+                throw JDBCUtil.sqlException(err, e);
             }
         }
 
@@ -4989,7 +4989,7 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
             return getResultSet();
         }
 
-        throw Util.sqlException(ErrorCode.X_07504);
+        throw JDBCUtil.sqlException(ErrorCode.X_07504);
     }
 
 

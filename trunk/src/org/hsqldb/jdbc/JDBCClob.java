@@ -194,12 +194,12 @@ public class JDBCClob implements Clob {
         final int    dlen = data.length();
 
         if (pos < MIN_POS || pos > dlen) {
-            Util.outOfRangeArgument("pos: " + pos);
+            JDBCUtil.outOfRangeArgument("pos: " + pos);
         }
         pos--;
 
         if (length < 0 || length > dlen - pos) {
-            throw Util.outOfRangeArgument("length: " + length);
+            throw JDBCUtil.outOfRangeArgument("length: " + length);
         }
 
         return (pos == 0 && length == dlen) ? data
@@ -269,7 +269,7 @@ public class JDBCClob implements Clob {
         final String data = getData();
 
         if (start < MIN_POS) {
-            throw Util.outOfRangeArgument("start: " + start);
+            throw JDBCUtil.outOfRangeArgument("start: " + start);
         }
 
         if (searchstr == null || start > MAX_POS) {
@@ -306,7 +306,7 @@ public class JDBCClob implements Clob {
         final String data = getData();
 
         if (start < MIN_POS) {
-            throw Util.outOfRangeArgument("start: " + start);
+            throw JDBCUtil.outOfRangeArgument("start: " + start);
         }
 
         if (searchstr == null) {
@@ -408,7 +408,7 @@ public class JDBCClob implements Clob {
     public int setString(long pos, String str) throws SQLException {
 
         if (str == null) {
-            throw Util.nullArgument("str");
+            throw JDBCUtil.nullArgument("str");
         }
 
         return setString(pos, str, 0, str.length());
@@ -489,27 +489,27 @@ public class JDBCClob implements Clob {
         if (!m_createdByConnection) {
 
             /** @todo - better error message */
-            throw Util.notSupported();
+            throw JDBCUtil.notSupported();
         }
 
         String data = getData();
 
         if (str == null) {
-            throw Util.nullArgument("str");
+            throw JDBCUtil.nullArgument("str");
         }
 
         final int strlen = str.length();
 
         if (offset < 0 || offset > strlen) {
-            throw Util.outOfRangeArgument("offset: " + offset);
+            throw JDBCUtil.outOfRangeArgument("offset: " + offset);
         }
 
         if (len > strlen - offset) {
-            throw Util.outOfRangeArgument("len: " + len);
+            throw JDBCUtil.outOfRangeArgument("len: " + len);
         }
 
         if (pos < MIN_POS || pos > 1L + (Integer.MAX_VALUE - len)) {
-            throw Util.outOfRangeArgument("pos: " + pos);
+            throw JDBCUtil.outOfRangeArgument("pos: " + pos);
         }
 
         final int    dlen = data.length();
@@ -615,12 +615,12 @@ public class JDBCClob implements Clob {
         if (!m_createdByConnection) {
 
             /** @todo - Better error message */
-            throw Util.notSupported();
+            throw JDBCUtil.notSupported();
         }
         checkClosed();
 
         if (pos < MIN_POS || pos > MAX_POS) {
-            throw Util.outOfRangeArgument("pos: " + pos);
+            throw JDBCUtil.outOfRangeArgument("pos: " + pos);
         }
 
         return new java.io.ByteArrayOutputStream() {
@@ -715,12 +715,12 @@ public class JDBCClob implements Clob {
         if (!m_createdByConnection) {
 
             /** @todo - better error message */
-            throw Util.notSupported();
+            throw JDBCUtil.notSupported();
         }
         checkClosed();
 
         if (pos < MIN_POS || pos > MAX_POS) {
-            throw Util.outOfRangeArgument("pos: " + pos);
+            throw JDBCUtil.outOfRangeArgument("pos: " + pos);
         }
 
         return new java.io.StringWriter() {
@@ -790,7 +790,7 @@ public class JDBCClob implements Clob {
 
             // nothing has changed, so there's nothing to be done
         } else if (len < 0 || len > dlen) {
-            throw Util.outOfRangeArgument("len: " + len);
+            throw JDBCUtil.outOfRangeArgument("len: " + len);
         } else {
 
             // no need to get rid of slack
@@ -842,7 +842,7 @@ public class JDBCClob implements Clob {
                                      long length) throws SQLException {
 
         if (length > Integer.MAX_VALUE) {
-            throw Util.outOfRangeArgument("length: " + length);
+            throw JDBCUtil.outOfRangeArgument("length: " + length);
         }
 
         return new StringReader(getSubString(pos, (int) length));
@@ -875,7 +875,7 @@ public class JDBCClob implements Clob {
     public JDBCClob(final String data) throws SQLException {
 
         if (data == null) {
-            throw Util.nullArgument();
+            throw JDBCUtil.nullArgument();
         }
         m_data                = data;
         m_createdByConnection = false;
@@ -889,7 +889,7 @@ public class JDBCClob implements Clob {
     protected synchronized void checkClosed() throws SQLException {
 
         if (m_closed) {
-            throw Util.sqlException(ErrorCode.X_07501);
+            throw JDBCUtil.sqlException(ErrorCode.X_07501);
         }
     }
 

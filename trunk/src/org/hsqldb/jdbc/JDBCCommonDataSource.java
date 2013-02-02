@@ -315,7 +315,7 @@ public abstract class JDBCCommonDataSource implements Serializable {
 //#ifdef JAVA6
     public java.util.logging.Logger getParentLogger()
     throws java.sql.SQLFeatureNotSupportedException {
-        throw (java.sql.SQLFeatureNotSupportedException) Util.notSupported();
+        throw (java.sql.SQLFeatureNotSupportedException) JDBCUtil.notSupported();
     }
 
 //#endif

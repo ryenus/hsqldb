@@ -262,13 +262,13 @@ public class JDBCClobClient implements Clob {
         checkClosed();
 
         if (!isInLimits(Long.MAX_VALUE, pos - 1, length)) {
-            throw Util.outOfRangeArgument();
+            throw JDBCUtil.outOfRangeArgument();
         }
 
         try {
             return clob.getSubString(session, pos - 1, length);
         } catch (HsqlException e) {
-            throw Util.sqlException(e);
+            throw JDBCUtil.sqlException(e);
         }
     }
 
@@ -287,7 +287,7 @@ public class JDBCClobClient implements Clob {
         try {
             return clob.length(session);
         } catch (HsqlException e) {
-            throw Util.sqlException(e);
+            throw JDBCUtil.sqlException(e);
         }
     }
 
@@ -308,14 +308,14 @@ public class JDBCClobClient implements Clob {
                                       long start) throws SQLException {
 
         if (!isInLimits(Long.MAX_VALUE, start - 1, 0)) {
-            throw Util.outOfRangeArgument();
+            throw JDBCUtil.outOfRangeArgument();
         }
         checkClosed();
 
         try {
             return clob.position(session, searchstr, start - 1);
         } catch (HsqlException e) {
-            throw Util.sqlException(e);
+            throw JDBCUtil.sqlException(e);
         }
     }
 
@@ -336,7 +336,7 @@ public class JDBCClobClient implements Clob {
                                       long start) throws SQLException {
 
         if (!isInLimits(Long.MAX_VALUE, start - 1, 0)) {
-            throw Util.outOfRangeArgument();
+            throw JDBCUtil.outOfRangeArgument();
         }
 
         if (searchstr instanceof JDBCClobClient) {
@@ -345,7 +345,7 @@ public class JDBCClobClient implements Clob {
             try {
                 return clob.position(session, searchClob, start - 1);
             } catch (HsqlException e) {
-                throw Util.sqlException(e);
+                throw JDBCUtil.sqlException(e);
             }
         }
 
@@ -370,11 +370,11 @@ public class JDBCClobClient implements Clob {
         checkClosed();
 
         if (pos < 1) {
-            throw Util.outOfRangeArgument("pos: " + pos);
+            throw JDBCUtil.outOfRangeArgument("pos: " + pos);
         }
 
         if (!isWritable) {
-            throw Util.notUpdatableColumn();
+            throw JDBCUtil.notUpdatableColumn();
         }
         startUpdate();
 
@@ -492,11 +492,11 @@ public class JDBCClobClient implements Clob {
         checkClosed();
 
         if (pos < 1) {
-            throw Util.outOfRangeArgument("pos: " + pos);
+            throw JDBCUtil.outOfRangeArgument("pos: " + pos);
         }
 
         if (!isWritable) {
-            throw Util.notUpdatableColumn();
+            throw JDBCUtil.notUpdatableColumn();
         }
         startUpdate();
 
@@ -568,16 +568,16 @@ public class JDBCClobClient implements Clob {
                                       int len) throws SQLException {
 
         if (!isInLimits(str.length(), offset, len)) {
-            throw Util.outOfRangeArgument();
+            throw JDBCUtil.outOfRangeArgument();
         }
         checkClosed();
 
         if (pos < 1) {
-            throw Util.outOfRangeArgument("pos: " + pos);
+            throw JDBCUtil.outOfRangeArgument("pos: " + pos);
         }
 
         if (!isWritable) {
-            throw Util.notUpdatableColumn();
+            throw JDBCUtil.notUpdatableColumn();
         }
         startUpdate();
 
@@ -588,7 +588,7 @@ public class JDBCClobClient implements Clob {
 
             return len;
         } catch (HsqlException e) {
-            throw Util.sqlException(e);
+            throw JDBCUtil.sqlException(e);
         }
     }
 
@@ -604,14 +604,14 @@ public class JDBCClobClient implements Clob {
     public synchronized void truncate(long len) throws SQLException {
 
         if (len < 0) {
-            throw Util.outOfRangeArgument("len: " + len);
+            throw JDBCUtil.outOfRangeArgument("len: " + len);
         }
         checkClosed();
 
         try {
             clob.truncate(session, len);
         } catch (HsqlException e) {
-            throw Util.sqlException(e);
+            throw JDBCUtil.sqlException(e);
         }
     }
 
@@ -661,7 +661,7 @@ public class JDBCClobClient implements Clob {
             long length) throws SQLException {
 
         if (!isInLimits(Long.MAX_VALUE, pos - 1, length)) {
-            throw Util.outOfRangeArgument();
+            throw JDBCUtil.outOfRangeArgument();
         }
         checkClosed();
 
@@ -673,7 +673,7 @@ public class JDBCClobClient implements Clob {
         try {
             return clob.getChars(session, position - 1, length);
         } catch (HsqlException e) {
-            throw Util.sqlException(e);
+            throw JDBCUtil.sqlException(e);
         }
     }
 
@@ -731,7 +731,7 @@ public class JDBCClobClient implements Clob {
     private void checkClosed() throws SQLException {
 
         if (isClosed) {
-            throw Util.sqlException(ErrorCode.X_07501);
+            throw JDBCUtil.sqlException(ErrorCode.X_07501);
         }
     }
 
@@ -756,6 +756,6 @@ public class JDBCClobClient implements Clob {
         } catch (IllegalCharsetNameException x) {
         }
 
-        throw Util.sqlException(new UnsupportedEncodingException(csn));
+        throw JDBCUtil.sqlException(new UnsupportedEncodingException(csn));
     }
 }

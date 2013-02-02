@@ -52,7 +52,7 @@ import org.hsqldb.error.ErrorCode;
 import org.hsqldb.jdbc.JDBCCommonDataSource;
 import org.hsqldb.jdbc.JDBCConnection;
 import org.hsqldb.jdbc.JDBCDriver;
-import org.hsqldb.jdbc.Util;
+import org.hsqldb.jdbc.JDBCUtil;
 import org.hsqldb.lib.HashMap;
 import org.hsqldb.lib.HashSet;
 import org.hsqldb.lib.Iterator;
@@ -119,14 +119,14 @@ implements XADataSource, Serializable, Referenceable
                                         String password) throws SQLException {
 
         if (user == null || password == null) {
-            throw Util.nullArgument();
+            throw JDBCUtil.nullArgument();
         }
 
         if (user.equals(this.user) && password.equals(this.password)) {
             return getXAConnection();
         }
 
-        throw Util.sqlException(Error.error(ErrorCode.X_28000));
+        throw JDBCUtil.sqlException(Error.error(ErrorCode.X_28000));
     }
 
     /**
