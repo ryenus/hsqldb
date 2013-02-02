@@ -143,17 +143,17 @@ class JDBCStatementBase {
     void checkClosed() throws SQLException {
 
         if (isClosed) {
-            throw Util.sqlException(ErrorCode.X_07501);
+            throw JDBCUtil.sqlException(ErrorCode.X_07501);
         }
 
         if (connection.isClosed) {
             close();
 
-            throw Util.sqlException(ErrorCode.X_08503);
+            throw JDBCUtil.sqlException(ErrorCode.X_08503);
         }
 
         if (connectionIncarnation != connection.incarnation ) {
-            throw Util.sqlException(ErrorCode.X_08503);
+            throw JDBCUtil.sqlException(ErrorCode.X_08503);
         }
     }
 
@@ -178,7 +178,7 @@ class JDBCStatementBase {
             current = current.getUnlinkChainedResult();
 
             if (current.getType() == ResultConstants.WARNING) {
-                SQLWarning w = Util.sqlWarning(current);
+                SQLWarning w = JDBCUtil.sqlWarning(current);
 
                 if (rootWarning == null) {
                     rootWarning = w;

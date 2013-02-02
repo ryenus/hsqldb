@@ -642,7 +642,7 @@ public class JDBCConnection implements Connection {
                     JDBCResultSet.CONCUR_READ_ONLY, rsHoldability,
                     ResultConstants.RETURN_NO_GENERATED_KEYS, null, null);
         } catch (HsqlException e) {
-            throw Util.sqlException(e);
+            throw JDBCUtil.sqlException(e);
         }
     }
 
@@ -705,7 +705,7 @@ public class JDBCConnection implements Connection {
 
             return stmt;
         } catch (HsqlException e) {
-            throw Util.sqlException(e);
+            throw JDBCUtil.sqlException(e);
         }
     }
 
@@ -975,7 +975,7 @@ public class JDBCConnection implements Connection {
         try {
             sessionProxy.setAutoCommit(autoCommit);
         } catch (HsqlException e) {
-            throw Util.sqlException(e);
+            throw JDBCUtil.sqlException(e);
         }
     }
 
@@ -997,7 +997,7 @@ public class JDBCConnection implements Connection {
         try {
             return sessionProxy.isAutoCommit();
         } catch (HsqlException e) {
-            throw Util.sqlException(e);
+            throw JDBCUtil.sqlException(e);
         }
     }
 
@@ -1030,7 +1030,7 @@ public class JDBCConnection implements Connection {
         try {
             sessionProxy.commit(false);
         } catch (HsqlException e) {
-            throw Util.sqlException(e);
+            throw JDBCUtil.sqlException(e);
         }
     }
 
@@ -1075,7 +1075,7 @@ public class JDBCConnection implements Connection {
         try {
             sessionProxy.rollback(false);
         } catch (HsqlException e) {
-            throw Util.sqlException(e);
+            throw JDBCUtil.sqlException(e);
         }
     }
 
@@ -1250,7 +1250,7 @@ public class JDBCConnection implements Connection {
         try {
             sessionProxy.setReadOnlyDefault(readOnly);
         } catch (HsqlException e) {
-            throw Util.sqlException(e);
+            throw JDBCUtil.sqlException(e);
         }
     }
 
@@ -1271,7 +1271,7 @@ public class JDBCConnection implements Connection {
         try {
             return sessionProxy.isReadOnlyDefault();
         } catch (HsqlException e) {
-            throw Util.sqlException(e);
+            throw JDBCUtil.sqlException(e);
         }
     }
 
@@ -1318,7 +1318,7 @@ public class JDBCConnection implements Connection {
         try {
             sessionProxy.setAttribute(SessionInterface.INFO_CATALOG, catalog);
         } catch (HsqlException e) {
-            throw Util.sqlException(e);
+            throw JDBCUtil.sqlException(e);
         }
     }
 
@@ -1352,7 +1352,7 @@ public class JDBCConnection implements Connection {
             return (String) sessionProxy.getAttribute(
                 SessionInterface.INFO_CATALOG);
         } catch (HsqlException e) {
-            throw Util.sqlException(e);
+            throw JDBCUtil.sqlException(e);
         }
     }
 
@@ -1408,13 +1408,13 @@ public class JDBCConnection implements Connection {
             case TRANSACTION_SERIALIZABLE :
                 break;
             default :
-                throw Util.invalidArgument();
+                throw JDBCUtil.invalidArgument();
         }
 
         try {
             sessionProxy.setIsolationDefault(level);
         } catch (HsqlException e) {
-            throw Util.sqlException(e);
+            throw JDBCUtil.sqlException(e);
         }
     }
 
@@ -1454,7 +1454,7 @@ public class JDBCConnection implements Connection {
         try {
             return sessionProxy.getIsolation();
         } catch (HsqlException e) {
-            throw Util.sqlException(e);
+            throw JDBCUtil.sqlException(e);
         }
     }
 
@@ -1673,7 +1673,7 @@ public class JDBCConnection implements Connection {
                     resultSetConcurrency, holdability,
                     ResultConstants.RETURN_NO_GENERATED_KEYS, null, null);
         } catch (HsqlException e) {
-            throw Util.sqlException(e);
+            throw JDBCUtil.sqlException(e);
         }
     }
 
@@ -1742,7 +1742,7 @@ public class JDBCConnection implements Connection {
             return new JDBCCallableStatement(this, sql, resultSetType,
                     resultSetConcurrency, rsHoldability);
         } catch (HsqlException e) {
-            throw Util.sqlException(e);
+            throw JDBCUtil.sqlException(e);
         }
     }
 
@@ -1855,7 +1855,7 @@ public class JDBCConnection implements Connection {
 
         checkClosed();
 
-        throw Util.notSupported();
+        throw JDBCUtil.notSupported();
     }
 
 //#else
@@ -1915,7 +1915,7 @@ public class JDBCConnection implements Connection {
             case JDBCResultSet.CLOSE_CURSORS_AT_COMMIT :
                 break;
             default :
-                throw Util.invalidArgument();
+                throw JDBCUtil.invalidArgument();
         }
         rsHoldability = holdability;
     }
@@ -2000,7 +2000,7 @@ public class JDBCConnection implements Connection {
         checkClosed();
 
         if (JDBCDatabaseMetaData.JDBC_MAJOR >= 4 && getAutoCommit()) {
-            throw Util.sqlException(ErrorCode.X_3B001);
+            throw JDBCUtil.sqlException(ErrorCode.X_3B001);
         }
 
         JDBCSavepoint savepoint = new JDBCSavepoint(this);
@@ -2008,7 +2008,7 @@ public class JDBCConnection implements Connection {
         try {
             sessionProxy.savepoint(savepoint.name);
         } catch (HsqlException e) {
-            Util.throwError(e);
+            JDBCUtil.throwError(e);
         }
 
         return savepoint;
@@ -2059,21 +2059,21 @@ public class JDBCConnection implements Connection {
         checkClosed();
 
         if (JDBCDatabaseMetaData.JDBC_MAJOR >= 4 && getAutoCommit()) {
-            throw Util.sqlException(ErrorCode.X_3B001);
+            throw JDBCUtil.sqlException(ErrorCode.X_3B001);
         }
 
         if (name == null) {
-            throw Util.nullArgument();
+            throw JDBCUtil.nullArgument();
         }
 
         if (name.startsWith("SYSTEM_SAVEPOINT_")) {
-            throw Util.invalidArgument();
+            throw JDBCUtil.invalidArgument();
         }
 
         try {
             sessionProxy.savepoint(name);
         } catch (HsqlException e) {
-            Util.throwError(e);
+            JDBCUtil.throwError(e);
         }
 
         return new JDBCSavepoint(name, this);
@@ -2130,33 +2130,33 @@ public class JDBCConnection implements Connection {
         checkClosed();
 
         if (savepoint == null) {
-            throw Util.nullArgument();
+            throw JDBCUtil.nullArgument();
         }
 
         if (!(savepoint instanceof JDBCSavepoint)) {
             String msg = Error.getMessage(ErrorCode.X_3B001);
 
-            throw Util.invalidArgument(msg);
+            throw JDBCUtil.invalidArgument(msg);
         }
         sp = (JDBCSavepoint) savepoint;
 
         if (JDBCDatabaseMetaData.JDBC_MAJOR >= 4 && sp.name == null) {
             String msg = Error.getMessage(ErrorCode.X_3B001);
 
-            throw Util.invalidArgument(msg);
+            throw JDBCUtil.invalidArgument(msg);
         }
 
         if (this != sp.connection) {
             String msg = Error.getMessage(ErrorCode.X_3B001);
 
-            throw Util.invalidArgument(msg);
+            throw JDBCUtil.invalidArgument(msg);
         }
 
         if (JDBCDatabaseMetaData.JDBC_MAJOR >= 4 && getAutoCommit()) {
             sp.name       = null;
             sp.connection = null;
 
-            throw Util.sqlException(ErrorCode.X_3B001);
+            throw JDBCUtil.sqlException(ErrorCode.X_3B001);
         }
 
         try {
@@ -2167,7 +2167,7 @@ public class JDBCConnection implements Connection {
                 sp.name       = null;
             }
         } catch (HsqlException e) {
-            throw Util.sqlException(e);
+            throw JDBCUtil.sqlException(e);
         }
     }
 
@@ -2219,33 +2219,33 @@ public class JDBCConnection implements Connection {
         checkClosed();
 
         if (savepoint == null) {
-            throw Util.nullArgument();
+            throw JDBCUtil.nullArgument();
         }
 
         if (!(savepoint instanceof JDBCSavepoint)) {
             String msg = Error.getMessage(ErrorCode.X_3B001);
 
-            throw Util.invalidArgument(msg);
+            throw JDBCUtil.invalidArgument(msg);
         }
         sp = (JDBCSavepoint) savepoint;
 
         if (JDBCDatabaseMetaData.JDBC_MAJOR >= 4 && sp.name == null) {
             String msg = Error.getMessage(ErrorCode.X_3B001);
 
-            throw Util.invalidArgument(msg);
+            throw JDBCUtil.invalidArgument(msg);
         }
 
         if (this != sp.connection) {
             String msg = Error.getMessage(ErrorCode.X_3B001);
 
-            throw Util.invalidArgument(msg);
+            throw JDBCUtil.invalidArgument(msg);
         }
 
         if (JDBCDatabaseMetaData.JDBC_MAJOR >= 4 && getAutoCommit()) {
             sp.name       = null;
             sp.connection = null;
 
-            throw Util.sqlException(ErrorCode.X_3B001);
+            throw JDBCUtil.sqlException(ErrorCode.X_3B001);
         }
 
         try {
@@ -2256,7 +2256,7 @@ public class JDBCConnection implements Connection {
                 sp.name       = null;
             }
         } catch (HsqlException e) {
-            throw Util.sqlException(e);
+            throw JDBCUtil.sqlException(e);
         }
     }
 
@@ -2413,7 +2413,7 @@ public class JDBCConnection implements Connection {
                     resultSetConcurrency, resultSetHoldability,
                     ResultConstants.RETURN_NO_GENERATED_KEYS, null, null);
         } catch (HsqlException e) {
-            throw Util.sqlException(e);
+            throw JDBCUtil.sqlException(e);
         }
     }
 
@@ -2490,7 +2490,7 @@ public class JDBCConnection implements Connection {
             return new JDBCCallableStatement(this, sql, resultSetType,
                     resultSetConcurrency, resultSetHoldability);
         } catch (HsqlException e) {
-            throw Util.sqlException(e);
+            throw JDBCUtil.sqlException(e);
         }
     }
 
@@ -2566,7 +2566,7 @@ public class JDBCConnection implements Connection {
             if (autoGeneratedKeys != ResultConstants.RETURN_GENERATED_KEYS
                     && autoGeneratedKeys
                        != ResultConstants.RETURN_NO_GENERATED_KEYS) {
-                throw Util.invalidArgument("autoGeneratedKeys");
+                throw JDBCUtil.invalidArgument("autoGeneratedKeys");
             }
 
             return new JDBCPreparedStatement(this, sql,
@@ -2574,7 +2574,7 @@ public class JDBCConnection implements Connection {
                     JDBCResultSet.CONCUR_READ_ONLY, rsHoldability,
                     autoGeneratedKeys, null, null);
         } catch (HsqlException e) {
-            throw Util.sqlException(e);
+            throw JDBCUtil.sqlException(e);
         }
     }
 
@@ -2651,7 +2651,7 @@ public class JDBCConnection implements Connection {
                     ResultConstants.RETURN_GENERATED_KEYS_COL_INDEXES,
                     columnIndexes, null);
         } catch (HsqlException e) {
-            throw Util.sqlException(e);
+            throw JDBCUtil.sqlException(e);
         }
     }
 
@@ -2729,7 +2729,7 @@ public class JDBCConnection implements Connection {
                     ResultConstants.RETURN_GENERATED_KEYS_COL_NAMES, null,
                     columnNames);
         } catch (HsqlException e) {
-            throw Util.sqlException(e);
+            throw JDBCUtil.sqlException(e);
         }
     }
 
@@ -2867,7 +2867,7 @@ public class JDBCConnection implements Connection {
     public boolean isValid(int timeout) throws SQLException {
 
         if (timeout < 0) {
-            throw Util.outOfRangeArgument("timeout: " + timeout);
+            throw JDBCUtil.outOfRangeArgument("timeout: " + timeout);
         }
 
         if (this.isInternal) {
@@ -2992,7 +2992,7 @@ public class JDBCConnection implements Connection {
 
         SQLClientInfoException ex = new SQLClientInfoException();
 
-        ex.initCause(Util.notSupported());
+        ex.initCause(JDBCUtil.notSupported());
 
         throw ex;
     }
@@ -3042,9 +3042,9 @@ public class JDBCConnection implements Connection {
         SQLClientInfoException ex = new SQLClientInfoException();
 
         if (this.isClosed) {
-            ex.initCause(Util.connectionClosedException());
+            ex.initCause(JDBCUtil.connectionClosedException());
         } else {
-            ex.initCause(Util.notSupported());
+            ex.initCause(JDBCUtil.notSupported());
         }
 
         throw ex;
@@ -3147,20 +3147,20 @@ public class JDBCConnection implements Connection {
         checkClosed();
 
         if (typeName == null) {
-            throw Util.nullArgument();
+            throw JDBCUtil.nullArgument();
         }
         typeName = typeName.toUpperCase();
 
         int typeCode = Type.getTypeNr(typeName);
 
         if (typeCode < 0) {
-            throw Util.invalidArgument(typeName);
+            throw JDBCUtil.invalidArgument(typeName);
         }
 
         Type type = Type.getDefaultType(typeCode);
 
         if (type.isArrayType() || type.isLobType() || type.isRowType()) {
-            throw Util.invalidArgument(typeName);
+            throw JDBCUtil.invalidArgument(typeName);
         }
 
         Object[] newData = new Object[elements.length];
@@ -3172,7 +3172,7 @@ public class JDBCConnection implements Connection {
                 newData[i] = type.convertToTypeLimits(sessionProxy, o);
             }
         } catch (HsqlException e) {
-            throw Util.sqlException(e);
+            throw JDBCUtil.sqlException(e);
         }
 
         return new JDBCArray(newData, type, this);
@@ -3198,7 +3198,7 @@ public class JDBCConnection implements Connection {
 
         checkClosed();
 
-        throw Util.notSupported();
+        throw JDBCUtil.notSupported();
     }
 
 //#endif JAVA6
@@ -3232,7 +3232,7 @@ public class JDBCConnection implements Connection {
             return (T) this;
         }
 
-        throw Util.invalidArgument("iface: " + iface);
+        throw JDBCUtil.invalidArgument("iface: " + iface);
     }
 
 //#endif JAVA6
@@ -3288,9 +3288,9 @@ public class JDBCConnection implements Connection {
         checkClosed();
 
         if (schema == null) {
-            Util.nullArgument("schema");
+            JDBCUtil.nullArgument("schema");
         } else if (schema.length() == 0) {
-            Util.invalidArgument("Zero-length schema");
+            JDBCUtil.invalidArgument("Zero-length schema");
         } else {
             (new JDBCDatabaseMetaData(this)).setConnectionDefaultSchema(
                 schema);
@@ -3355,7 +3355,7 @@ public class JDBCConnection implements Connection {
             java.util.concurrent.Executor executor) throws SQLException {
 
         if (executor == null) {
-            throw Util.nullArgument("executor");
+            throw JDBCUtil.nullArgument("executor");
         }
         close();
     }
@@ -3458,7 +3458,7 @@ public class JDBCConnection implements Connection {
 
         checkClosed();
 
-        throw Util.notSupported();
+        throw JDBCUtil.notSupported();
     }
 
 //#endif
@@ -3596,14 +3596,14 @@ public class JDBCConnection implements Connection {
                         database, isTLS, user, password, zoneSeconds);
                 isNetConn = true;
             } else {    // alias: type not yet implemented
-                throw Util.invalidArgument(connType);
+                throw JDBCUtil.invalidArgument(connType);
             }
             sessionProxy.setJDBCConnection(this);
 
             connProperties   = props;
             clientProperties = sessionProxy.getClientProperties();
         } catch (HsqlException e) {
-            throw Util.sqlException(e);
+            throw JDBCUtil.sqlException(e);
         }
     }
 
@@ -3709,7 +3709,7 @@ public class JDBCConnection implements Connection {
     synchronized void checkClosed() throws SQLException {
 
         if (isClosed) {
-            throw Util.connectionClosedException();
+            throw JDBCUtil.connectionClosedException();
         }
     }
 
@@ -3753,7 +3753,7 @@ public class JDBCConnection implements Connection {
 
             this.sessionProxy.resetSession();
         } catch (HsqlException e) {
-            throw Util.sqlException(ErrorCode.X_08006, e.getMessage(), e);
+            throw JDBCUtil.sqlException(ErrorCode.X_08006, e.getMessage(), e);
         }
     }
 
@@ -3835,7 +3835,7 @@ public class JDBCConnection implements Connection {
         } else {
             i--;
 
-            throw Util.sqlException(
+            throw JDBCUtil.sqlException(
                 Error.error(
                     ErrorCode.JDBC_CONNECTION_NATIVE_SQL, sql.substring(i)));
         }

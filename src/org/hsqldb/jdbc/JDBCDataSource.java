@@ -129,16 +129,16 @@ public class JDBCDataSource extends JDBCCommonDataSource implements DataSource,
     public Connection getConnection() throws SQLException {
 
         if (url == null) {
-            throw Util.nullArgument("url");
+            throw JDBCUtil.nullArgument("url");
         }
 
         if (connectionProps == null) {
             if (user == null) {
-                throw Util.invalidArgument("user");
+                throw JDBCUtil.invalidArgument("user");
             }
 
             if (password == null) {
-                throw Util.invalidArgument("password");
+                throw JDBCUtil.invalidArgument("password");
             }
 
             return getConnection(user, password);
@@ -166,11 +166,11 @@ public class JDBCDataSource extends JDBCCommonDataSource implements DataSource,
                                     String password) throws SQLException {
 
         if (username == null) {
-            throw Util.invalidArgument("user");
+            throw JDBCUtil.invalidArgument("user");
         }
 
         if (password == null) {
-            throw Util.invalidArgument("password");
+            throw JDBCUtil.invalidArgument("password");
         }
 
         Properties props = new Properties();
@@ -220,7 +220,7 @@ public class JDBCDataSource extends JDBCCommonDataSource implements DataSource,
             return (T) this;
         }
 
-        throw Util.invalidArgument("iface: " + iface);
+        throw JDBCUtil.invalidArgument("iface: " + iface);
     }
 
 //#endif JAVA6

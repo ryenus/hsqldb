@@ -805,14 +805,14 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
         final int ver = JDBCDatabaseMetaData.JDBC_MAJOR;
 
         if (x == null) {
-            throw Util.nullArgument("x");
+            throw JDBCUtil.nullArgument("x");
         }
 
         // CHECKME:  Is JDBC4 clarification of UNICODE stream format retroactive?
         if ((ver < 4) && (length % 2 != 0)) {
             msg = "Odd length argument for UTF16 encoded stream: " + length;
 
-            throw Util.invalidArgument(msg);
+            throw JDBCUtil.invalidArgument(msg);
         }
 
         String       encoding = (ver < 4) ? "UTF16"
@@ -831,7 +831,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
                 writer.write(buff, 0, charsRead);
             }
         } catch (IOException ex) {
-            throw Util.sqlException(ErrorCode.SERVER_TRANSFER_CORRUPTED,
+            throw JDBCUtil.sqlException(ErrorCode.SERVER_TRANSFER_CORRUPTED,
                                     ex.toString(), ex);
         }
         setParameter(parameterIndex, writer.toString());
@@ -1137,7 +1137,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
         try {
             performPreExecute();
         } catch (HsqlException e) {
-            throw Util.sqlException(e);
+            throw JDBCUtil.sqlException(e);
         }
 
         int      len              = parameterValues.length;
@@ -1215,7 +1215,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
      * JDBCParameterMetaData)
      */
     public void setRef(int parameterIndex, Ref x) throws SQLException {
-        throw Util.notSupported();
+        throw JDBCUtil.notSupported();
     }
 
     /**
@@ -1273,7 +1273,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
 
                 break;
             default :
-                throw Util.invalidArgument();
+                throw JDBCUtil.invalidArgument();
         }
     }
 
@@ -1298,7 +1298,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
         if (length > Integer.MAX_VALUE) {
             String msg = "Maximum Blob input octet length exceeded: " + length;    // NOI18N
 
-            throw Util.sqlException(ErrorCode.JDBC_INPUTSTREAM_ERROR, msg);
+            throw JDBCUtil.sqlException(ErrorCode.JDBC_INPUTSTREAM_ERROR, msg);
         }
 
         try {
@@ -1308,7 +1308,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
 
             setParameter(parameterIndex, out.toByteArray());
         } catch (Throwable e) {
-            throw Util.sqlException(ErrorCode.JDBC_INPUTSTREAM_ERROR,
+            throw JDBCUtil.sqlException(ErrorCode.JDBC_INPUTSTREAM_ERROR,
                                     e.toString(), e);
         }
     }
@@ -1367,7 +1367,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
 
                 return;
             default :
-                throw Util.invalidArgument();
+                throw JDBCUtil.invalidArgument();
         }
     }
 
@@ -1389,7 +1389,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
         if (length > Integer.MAX_VALUE) {
             String msg = "Max Clob input character length exceeded: " + length;    // NOI18N
 
-            throw Util.sqlException(ErrorCode.JDBC_INPUTSTREAM_ERROR, msg);
+            throw JDBCUtil.sqlException(ErrorCode.JDBC_INPUTSTREAM_ERROR, msg);
         }
 
         try {
@@ -1398,7 +1398,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
 
             setParameter(parameterIndex, writer.toString());
         } catch (Throwable e) {
-            throw Util.sqlException(ErrorCode.SERVER_TRANSFER_CORRUPTED,
+            throw JDBCUtil.sqlException(ErrorCode.SERVER_TRANSFER_CORRUPTED,
                                     e.toString(), e);
         }
     }
@@ -1435,7 +1435,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
         Type type = this.parameterMetaData.columnTypes[parameterIndex - 1];
 
         if (!type.isArrayType()) {
-            throw Util.sqlException(ErrorCode.X_42561);
+            throw JDBCUtil.sqlException(ErrorCode.X_42561);
         }
 
         if (x == null) {
@@ -1463,7 +1463,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
             } else {
 
                 // if foreign data is not Object[]
-                throw Util.notSupported();
+                throw JDBCUtil.notSupported();
             }
         }
         parameterValues[parameterIndex - 1] = data;
@@ -1599,7 +1599,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
 
                 break;
             default :
-                throw Util.sqlException(ErrorCode.X_42561);
+                throw JDBCUtil.sqlException(ErrorCode.X_42561);
         }
         parameterSet[i] = Boolean.TRUE;
     }
@@ -1667,7 +1667,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
 
                 break;
             default :
-                throw Util.sqlException(ErrorCode.X_42561);
+                throw JDBCUtil.sqlException(ErrorCode.X_42561);
         }
         parameterValues[i] = new TimeData((int) (millis / 1000), 0,
                 zoneOffset / 1000);
@@ -1761,7 +1761,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
 
                 break;
             default :
-                throw Util.sqlException(ErrorCode.X_42561);
+                throw JDBCUtil.sqlException(ErrorCode.X_42561);
         }
         parameterSet[i] = Boolean.TRUE;
     }
@@ -1902,7 +1902,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
         checkStatementType(StatementTypes.RETURN_COUNT);
 
         if (!isBatch) {
-            throw Util.sqlExceptionSQL(ErrorCode.X_07506);
+            throw JDBCUtil.sqlExceptionSQL(ErrorCode.X_07506);
         }
         generatedResult = null;
 
@@ -1913,7 +1913,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
         try {
             resultIn = session.execute(resultOut);
         } catch (HsqlException e) {
-            throw Util.sqlException(e);
+            throw JDBCUtil.sqlException(e);
         } finally {
             performPostExecute();
             resultOut.getNavigator().clear();
@@ -1922,7 +1922,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
         }
 
         if (resultIn.mode == ResultConstants.ERROR) {
-            throw Util.sqlException(resultIn);
+            throw JDBCUtil.sqlException(resultIn);
         }
 
         RowSetNavigator navigator    = resultIn.getNavigator();
@@ -1978,7 +1978,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
      * @throws SQLException always
      */
     public void addBatch(String sql) throws SQLException {
-        throw Util.notSupported();
+        throw JDBCUtil.notSupported();
     }
 
     /**
@@ -1991,7 +1991,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
      */
     public synchronized ResultSet executeQuery(
             String sql) throws SQLException {
-        throw Util.notSupported();
+        throw JDBCUtil.notSupported();
     }
 
     /**
@@ -2003,7 +2003,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
      * @return nothing
      */
     public boolean execute(String sql) throws SQLException {
-        throw Util.notSupported();
+        throw JDBCUtil.notSupported();
     }
 
     /**
@@ -2015,7 +2015,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
      * @return nothing
      */
     public int executeUpdate(String sql) throws SQLException {
-        throw Util.notSupported();
+        throw JDBCUtil.notSupported();
     }
 
     /**
@@ -2059,7 +2059,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
         isClosed          = true;
 
         if (he != null) {
-            throw Util.sqlException(he);
+            throw JDBCUtil.sqlException(he);
         }
     }
 
@@ -2138,7 +2138,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
 //#ifdef JAVA4
     public void setURL(int parameterIndex,
                        java.net.URL x) throws SQLException {
-        throw Util.notSupported();
+        throw JDBCUtil.notSupported();
     }
 
 //#endif JAVA4
@@ -2187,32 +2187,32 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
 //#ifdef JAVA4
     public int executeUpdate(String sql,
                              int autoGeneratedKeys) throws SQLException {
-        throw Util.notSupported();
+        throw JDBCUtil.notSupported();
     }
 
     public boolean execute(String sql,
                            int autoGeneratedKeys) throws SQLException {
-        throw Util.notSupported();
+        throw JDBCUtil.notSupported();
     }
 
     public int executeUpdate(String sql,
                              int[] columnIndexes) throws SQLException {
-        throw Util.notSupported();
+        throw JDBCUtil.notSupported();
     }
 
     public boolean execute(String sql,
                            int[] columnIndexes) throws SQLException {
-        throw Util.notSupported();
+        throw JDBCUtil.notSupported();
     }
 
     public int executeUpdate(String sql,
                              String[] columnNames) throws SQLException {
-        throw Util.notSupported();
+        throw JDBCUtil.notSupported();
     }
 
     public boolean execute(String sql,
                            String[] columnNames) throws SQLException {
-        throw Util.notSupported();
+        throw JDBCUtil.notSupported();
     }
 
 //#endif JAVA4
@@ -2381,7 +2381,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
 
 //#ifdef JAVA6
     public void setRowId(int parameterIndex, RowId x) throws SQLException {
-        throw Util.notSupported();
+        throw JDBCUtil.notSupported();
     }
 
 //#endif JAVA6
@@ -2565,7 +2565,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
 //#ifdef JAVA6
     public void setSQLXML(int parameterIndex,
                           SQLXML xmlObject) throws SQLException {
-        throw Util.notSupported();
+        throw JDBCUtil.notSupported();
     }
 
 //#endif JAVA6
@@ -2611,7 +2611,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
             java.io.InputStream x, long length) throws SQLException {
 
         if (length < 0) {
-            throw Util.sqlException(ErrorCode.JDBC_INVALID_ARGUMENT,
+            throw JDBCUtil.sqlException(ErrorCode.JDBC_INVALID_ARGUMENT,
                                     "length: " + length);
         }
         setAscStream(parameterIndex, x, (long) length);
@@ -2621,11 +2621,11 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
                       long length) throws SQLException {
 
         if (length > Integer.MAX_VALUE) {
-            Util.sqlException(ErrorCode.X_22001);
+            JDBCUtil.sqlException(ErrorCode.X_22001);
         }
 
         if (x == null) {
-            throw Util.nullArgument("x");
+            throw JDBCUtil.nullArgument("x");
         }
 
         try {
@@ -2636,7 +2636,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
             }
             setParameter(parameterIndex, s);
         } catch (IOException e) {
-            throw Util.sqlException(ErrorCode.JDBC_INPUTSTREAM_ERROR, null, e);
+            throw JDBCUtil.sqlException(ErrorCode.JDBC_INPUTSTREAM_ERROR, null, e);
         }
     }
 
@@ -2673,7 +2673,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
             java.io.InputStream x, long length) throws SQLException {
 
         if (length < 0) {
-            throw Util.sqlException(ErrorCode.JDBC_INVALID_ARGUMENT,
+            throw JDBCUtil.sqlException(ErrorCode.JDBC_INVALID_ARGUMENT,
                                     "length: " + length);
         }
         setBinStream(parameterIndex, x, length);
@@ -2695,7 +2695,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
         if (length > Integer.MAX_VALUE) {
             String msg = "Maximum Blob input length exceeded: " + length;
 
-            throw Util.sqlException(ErrorCode.JDBC_INPUTSTREAM_ERROR, msg);
+            throw JDBCUtil.sqlException(ErrorCode.JDBC_INPUTSTREAM_ERROR, msg);
         }
 
         try {
@@ -2708,7 +2708,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
             }
             setParameter(parameterIndex, output.toByteArray());
         } catch (Throwable e) {
-            throw Util.sqlException(ErrorCode.JDBC_INPUTSTREAM_ERROR,
+            throw JDBCUtil.sqlException(ErrorCode.JDBC_INPUTSTREAM_ERROR,
                                     e.toString(), e);
         }
     }
@@ -2746,7 +2746,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
             java.io.Reader reader, long length) throws SQLException {
 
         if (length < 0) {
-            throw Util.sqlException(ErrorCode.JDBC_INVALID_ARGUMENT,
+            throw JDBCUtil.sqlException(ErrorCode.JDBC_INVALID_ARGUMENT,
                                     "length: " + length);
         }
         setCharStream(parameterIndex, reader, length);
@@ -2766,7 +2766,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
         if (length > Integer.MAX_VALUE) {
             String msg = "Maximum Clob input length exceeded: " + length;
 
-            throw Util.sqlException(ErrorCode.JDBC_INPUTSTREAM_ERROR, msg);
+            throw JDBCUtil.sqlException(ErrorCode.JDBC_INPUTSTREAM_ERROR, msg);
         }
 
         try {
@@ -2779,7 +2779,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
             }
             setParameter(parameterIndex, writer.toString());
         } catch (Throwable e) {
-            throw Util.sqlException(ErrorCode.JDBC_INPUTSTREAM_ERROR,
+            throw JDBCUtil.sqlException(ErrorCode.JDBC_INPUTSTREAM_ERROR,
                                     e.toString(), e);
         }
     }
@@ -3115,7 +3115,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
         }
 
         if (max < 0) {
-            throw Util.outOfRangeArgument();
+            throw JDBCUtil.outOfRangeArgument();
         }
     }
 
@@ -3166,7 +3166,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
         }
 
         if (max < 0) {
-            throw Util.outOfRangeArgument();
+            throw JDBCUtil.outOfRangeArgument();
         }
         maxRows = max;
     }
@@ -3240,7 +3240,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
         }
 
         if (seconds < 0) {
-            throw Util.outOfRangeArgument();
+            throw JDBCUtil.outOfRangeArgument();
         }
 
         if (seconds > Short.MAX_VALUE) {
@@ -3499,7 +3499,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
         if (direction != JDBCResultSet.FETCH_FORWARD
                 && direction != JDBCResultSet.FETCH_REVERSE
                 && direction != JDBCResultSet.FETCH_UNKNOWN) {
-            throw Util.notSupported();
+            throw JDBCUtil.notSupported();
         }
         fetchDirection = direction;
     }
@@ -3579,7 +3579,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
         }
 
         if (rows < 0) {
-            throw Util.outOfRangeArgument();
+            throw JDBCUtil.outOfRangeArgument();
         }
         fetchSize = rows;
     }
@@ -3824,7 +3824,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
             return (T) this;
         }
 
-        throw Util.invalidArgument("iface: " + iface);
+        throw JDBCUtil.invalidArgument("iface: " + iface);
     }
 
 //#endif JAVA6
@@ -3902,7 +3902,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
         Result in = session.execute(resultOut);
 
         if (in.mode == ResultConstants.ERROR) {
-            throw Util.sqlException(in);
+            throw JDBCUtil.sqlException(in);
         }
         rootWarning = null;
 
@@ -3912,7 +3912,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
             current = current.getUnlinkChainedResult();
 
             if (current.isWarning()) {
-                SQLWarning w = Util.sqlWarning(current);
+                SQLWarning w = JDBCUtil.sqlWarning(current);
 
                 if (rootWarning == null) {
                     rootWarning = w;
@@ -4003,9 +4003,9 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
 
         if (type != statementRetType) {
             if (statementRetType == StatementTypes.RETURN_COUNT) {
-                throw Util.sqlException(ErrorCode.X_07504);
+                throw JDBCUtil.sqlException(ErrorCode.X_07504);
             } else {
-                throw Util.sqlException(ErrorCode.X_07503);
+                throw JDBCUtil.sqlException(ErrorCode.X_07503);
             }
         }
     }
@@ -4019,7 +4019,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
         if (i < 1 || i > parameterValues.length) {
             String msg = "parameter index out of range: " + i;
 
-            throw Util.outOfRangeArgument(msg);
+            throw JDBCUtil.outOfRangeArgument(msg);
         }
     }
 
@@ -4039,13 +4039,13 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
         if (i < 1 || i > parameterValues.length) {
             String msg = "parameter index out of range: " + i;
 
-            throw Util.outOfRangeArgument(msg);
+            throw JDBCUtil.outOfRangeArgument(msg);
         }
 
         if (parameterModes[i - 1] == SchemaObject.ParameterModes.PARAM_OUT) {
             String msg = "Not IN or INOUT mode for parameter: " + i;
 
-            throw Util.invalidArgument(msg);
+            throw JDBCUtil.invalidArgument(msg);
         }
     }
 
@@ -4067,7 +4067,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
         if (i < 1 || i > parameterValues.length) {
             msg = "parameter index out of range: " + i;
 
-            throw Util.outOfRangeArgument(msg);
+            throw JDBCUtil.outOfRangeArgument(msg);
         }
 
         int mode = parameterModes[i - 1];
@@ -4083,7 +4083,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
                 msg = "Not OUT or INOUT mode: " + mode + " for parameter: "
                       + i;
 
-                throw Util.invalidArgument(msg);
+                throw JDBCUtil.invalidArgument(msg);
         }
     }
 
@@ -4105,7 +4105,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
         for (int i = 0; i < parameterSet.length; i++) {
             if (parameterModes[i] != SchemaObject.ParameterModes.PARAM_OUT) {
                 if (parameterSet[i] == null) {
-                    throw Util.sqlException(ErrorCode.JDBC_PARAMETER_NOT_SET);
+                    throw JDBCUtil.sqlException(ErrorCode.JDBC_PARAMETER_NOT_SET);
                 }
             }
         }
@@ -4144,9 +4144,9 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
                         break;
                     }
                 } catch (HsqlException e) {
-                    Util.throwError(e);
+                    JDBCUtil.throwError(e);
                 }
-                Util.throwError(Error.error(ErrorCode.X_42563));
+                JDBCUtil.throwError(Error.error(ErrorCode.X_42563));
             case Types.SQL_BIT :
             case Types.SQL_BIT_VARYING :
                 try {
@@ -4174,9 +4174,9 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
                         break;
                     }
                 } catch (HsqlException e) {
-                    Util.throwError(e);
+                    JDBCUtil.throwError(e);
                 }
-                Util.throwError(Error.error(ErrorCode.X_42563));
+                JDBCUtil.throwError(Error.error(ErrorCode.X_42563));
 
             // fall through
             case Types.SQL_BINARY :
@@ -4194,9 +4194,9 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
                         break;
                     }
                 } catch (HsqlException e) {
-                    Util.throwError(e);
+                    JDBCUtil.throwError(e);
                 }
-                Util.throwError(Error.error(ErrorCode.X_42563));
+                JDBCUtil.throwError(Error.error(ErrorCode.X_42563));
 
                 break;
             case Types.SQL_ARRAY :
@@ -4222,7 +4222,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
 
                     break;
                 }
-                Util.throwError(Error.error(ErrorCode.X_42563));
+                JDBCUtil.throwError(Error.error(ErrorCode.X_42563));
             case Types.SQL_BLOB :
                 setBlobParameter(i + 1, o);
 
@@ -4247,7 +4247,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
 
                     break;
                 } catch (HsqlException e) {
-                    Util.throwError(e);
+                    JDBCUtil.throwError(e);
                 }
             }
             case Types.TINYINT :
@@ -4275,7 +4275,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
 
                     break;
                 } catch (HsqlException e) {
-                    Util.throwError(e);
+                    JDBCUtil.throwError(e);
                 }
             case Types.SQL_VARCHAR : {
                 if (o instanceof String) {
@@ -4308,7 +4308,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
 
                     break;
                 } catch (HsqlException e) {
-                    Util.throwError(e);
+                    JDBCUtil.throwError(e);
                 }
         }
         parameterValues[i] = o;
@@ -4358,7 +4358,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
 
             if (is.session.getDatabaseUniqueName().equals(
                     session.getDatabaseUniqueName())) {
-                throw Util.sqlException(ErrorCode.JDBC_INVALID_ARGUMENT,
+                throw JDBCUtil.sqlException(ErrorCode.JDBC_INVALID_ARGUMENT,
                                         "invalid Reader");
             }
             parameterValues[i - 1] = o;
@@ -4381,7 +4381,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
             return;
         }
 
-        throw Util.invalidArgument();
+        throw JDBCUtil.invalidArgument();
     }
 
     /**
@@ -4428,7 +4428,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
 
             if (is.session.getDatabaseUniqueName().equals(
                     session.getDatabaseUniqueName())) {
-                throw Util.sqlException(ErrorCode.JDBC_INVALID_ARGUMENT,
+                throw JDBCUtil.sqlException(ErrorCode.JDBC_INVALID_ARGUMENT,
                                         "invalid Reader");
             }
 
@@ -4453,7 +4453,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
             return;
         }
 
-        throw Util.invalidArgument();
+        throw JDBCUtil.invalidArgument();
     }
 
     /**
@@ -4491,7 +4491,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
             case Types.SQL_BINARY :
             case Types.SQL_VARBINARY :
             case Types.OTHER :
-                throw Util.sqlException(Error.error(ErrorCode.X_42563));
+                throw JDBCUtil.sqlException(Error.error(ErrorCode.X_42563));
             default :
                 setParameter(i, new Integer(value));
         }
@@ -4523,7 +4523,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
             case Types.SQL_BINARY :
             case Types.SQL_VARBINARY :
             case Types.OTHER :
-                throw Util.sqlException(Error.error(ErrorCode.X_42563));
+                throw JDBCUtil.sqlException(Error.error(ErrorCode.X_42563));
             default :
                 setParameter(i, new Long(value));
         }
@@ -4643,7 +4643,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
         checkParametersSet();
 
         if (isBatch) {
-            throw Util.sqlExceptionSQL(ErrorCode.X_07505);
+            throw JDBCUtil.sqlExceptionSQL(ErrorCode.X_07505);
         }
 
         //
@@ -4659,13 +4659,13 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
 
             resultIn = session.execute(resultOut);
         } catch (HsqlException e) {
-            throw Util.sqlException(e);
+            throw JDBCUtil.sqlException(e);
         } finally {
             performPostExecute();
         }
 
         if (resultIn.mode == ResultConstants.ERROR) {
-            throw Util.sqlException(resultIn);
+            throw JDBCUtil.sqlException(resultIn);
         }
 
         if (resultIn.isData()) {

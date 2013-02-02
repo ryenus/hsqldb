@@ -183,7 +183,7 @@ public class TestJavaFunctions extends TestBase {
         }
 
         if (end > 1000) {
-            throw org.hsqldb.jdbc.Util.invalidArgument(
+            throw org.hsqldb.jdbc.JDBCUtil.invalidArgument(
                 "value larger than 100");
         }
 

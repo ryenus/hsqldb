@@ -96,7 +96,7 @@ public class JDBCBlobFile implements java.sql.Blob {
         try {
             return m_file.length();
         } catch (Exception e) {
-            throw Util.sqlException(e);
+            throw JDBCUtil.sqlException(e);
         }
     }
 
@@ -139,7 +139,7 @@ public class JDBCBlobFile implements java.sql.Blob {
         } catch (SQLException ex) {
             throw ex;
         } catch (Exception ex) {
-            throw Util.sqlException(ex);
+            throw JDBCUtil.sqlException(ex);
         } finally {
             if (is != null) {
                 try {
@@ -188,7 +188,7 @@ public class JDBCBlobFile implements java.sql.Blob {
                          final long start) throws SQLException {
 
         if (start < 1) {
-            throw Util.outOfRangeArgument("start: " + start);
+            throw JDBCUtil.outOfRangeArgument("start: " + start);
         } else if (pattern == null || pattern.length == 0
                    || start > length()) {
             return -1L;
@@ -207,7 +207,7 @@ public class JDBCBlobFile implements java.sql.Blob {
         } catch (SQLException ex) {
             throw ex;
         } catch (Exception ex) {
-            throw Util.sqlException(ex);
+            throw JDBCUtil.sqlException(ex);
         } finally {
             if (is != null) {
                 try {
@@ -240,13 +240,13 @@ public class JDBCBlobFile implements java.sql.Blob {
         long patternLength;
 
         if (start < 1) {
-            throw Util.outOfRangeArgument("start: " + start);
+            throw JDBCUtil.outOfRangeArgument("start: " + start);
         } else if ((patternLength = (pattern == null) ? 0
                                                       : pattern.length()) == 0 || start
                                                       > length()) {
             return -1L;
         } else if (patternLength > Integer.MAX_VALUE) {
-            throw Util.outOfRangeArgument("pattern.length(): "
+            throw JDBCUtil.outOfRangeArgument("pattern.length(): "
                                           + patternLength);
         }
 
@@ -363,7 +363,7 @@ public class JDBCBlobFile implements java.sql.Blob {
                         final int len) throws SQLException {
 
         if (bytes == null) {
-            throw Util.nullArgument("bytes");
+            throw JDBCUtil.nullArgument("bytes");
         }
 
         final OutputStream os = setBinaryStream(pos);
@@ -371,7 +371,7 @@ public class JDBCBlobFile implements java.sql.Blob {
         try {
             os.write(bytes, offset, len);
         } catch (Exception ex) {
-            throw Util.sqlException(ex);
+            throw JDBCUtil.sqlException(ex);
         } finally {
             try {
                 os.close();
@@ -425,7 +425,7 @@ public class JDBCBlobFile implements java.sql.Blob {
     public OutputStream setBinaryStream(final long pos) throws SQLException {
 
         if (pos < 1) {
-            throw Util.invalidArgument("pos: " + pos);
+            throw JDBCUtil.invalidArgument("pos: " + pos);
         }
 
         checkClosed();
@@ -446,7 +446,7 @@ public class JDBCBlobFile implements java.sql.Blob {
                 }
             };
         } catch (Exception ex) {
-            throw Util.sqlException(ex);
+            throw JDBCUtil.sqlException(ex);
         }
 
         m_streams.add(adapter);
@@ -491,7 +491,7 @@ public class JDBCBlobFile implements java.sql.Blob {
     public void truncate(long len) throws SQLException {
 
         if (len < 0) {
-            throw Util.invalidArgument("len: " + len);
+            throw JDBCUtil.invalidArgument("len: " + len);
         }
 
         checkClosed();
@@ -503,7 +503,7 @@ public class JDBCBlobFile implements java.sql.Blob {
 
             randomAccessFile.setLength(len);
         } catch (Exception ex) {
-            throw Util.sqlException(ex);
+            throw JDBCUtil.sqlException(ex);
         } finally {
             if (randomAccessFile != null) {
                 try {
@@ -607,7 +607,7 @@ public class JDBCBlobFile implements java.sql.Blob {
                                        final long length) throws SQLException {
 
         if (pos < 1) {
-            throw Util.outOfRangeArgument("pos: " + pos);
+            throw JDBCUtil.outOfRangeArgument("pos: " + pos);
         }
 
         checkClosed();
@@ -627,7 +627,7 @@ public class JDBCBlobFile implements java.sql.Blob {
                 }
             };
         } catch (Exception ex) {
-            throw Util.sqlException(ex);
+            throw JDBCUtil.sqlException(ex);
         }
 
         m_streams.add(result);
@@ -721,7 +721,7 @@ public class JDBCBlobFile implements java.sql.Blob {
             m_file = File.createTempFile(TEMP_FILE_PREFIX,
                                          TEMP_FILE_SUFFIX).getCanonicalFile();
         } catch (Exception ex) {
-            throw Util.sqlException(ex);
+            throw JDBCUtil.sqlException(ex);
         }
     }
 
@@ -761,7 +761,7 @@ public class JDBCBlobFile implements java.sql.Blob {
         try {
             m_file = file.getCanonicalFile();
         } catch (Exception ex) {
-            throw Util.sqlException(ex);
+            throw JDBCUtil.sqlException(ex);
         }
 
         checkIsFile( /*checkExists*/false);
@@ -775,30 +775,30 @@ public class JDBCBlobFile implements java.sql.Blob {
         try {
             exists = m_file.exists();
         } catch (Exception ex) {
-            throw Util.sqlException(ex);
+            throw JDBCUtil.sqlException(ex);
         }
 
         if (exists) {
             try {
                 isFile = m_file.isFile();
             } catch (Exception ex) {
-                throw Util.sqlException(ex);
+                throw JDBCUtil.sqlException(ex);
             }
         }
 
         if (exists) {
             if (!isFile) {
-                throw Util.invalidArgument("Is not a file: " + m_file);
+                throw JDBCUtil.invalidArgument("Is not a file: " + m_file);
             }
         } else if (checkExists) {
-            throw Util.invalidArgument("Does not exist: " + m_file);
+            throw JDBCUtil.invalidArgument("Does not exist: " + m_file);
         }
     }
 
     private void checkClosed() throws SQLException {
 
         if (m_closed) {
-            throw Util.sqlException(ErrorCode.X_07501);
+            throw JDBCUtil.sqlException(ErrorCode.X_07501);
         }
     }
 
@@ -810,7 +810,7 @@ public class JDBCBlobFile implements java.sql.Blob {
                 m_file.createNewFile();
             }
         } catch (Exception ex) {
-            throw Util.sqlException(ex);
+            throw JDBCUtil.sqlException(ex);
         }
 
         checkIsFile( /*checkExists*/true);

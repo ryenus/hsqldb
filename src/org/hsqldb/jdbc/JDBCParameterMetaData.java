@@ -288,7 +288,7 @@ public class JDBCParameterMetaData
             return (T) this;
         }
 
-        throw Util.invalidArgument("iface: " + iface);
+        throw JDBCUtil.invalidArgument("iface: " + iface);
     }
 
 //#endif JAVA6
@@ -387,7 +387,7 @@ public class JDBCParameterMetaData
         if (param < 1 || param > parameterCount) {
             String msg = param + " is out of range";
 
-            throw Util.outOfRangeArgument(msg);
+            throw JDBCUtil.outOfRangeArgument(msg);
         }
     }
 

@@ -66,7 +66,7 @@ public class JDBCBlobClient implements Blob {
         try {
             return blob.length(session);
         } catch (HsqlException e) {
-            throw Util.sqlException(e);
+            throw JDBCUtil.sqlException(e);
         }
     }
 
@@ -89,13 +89,13 @@ public class JDBCBlobClient implements Blob {
                                         int length) throws SQLException {
 
         if (!isInLimits(Long.MAX_VALUE, pos - 1, length)) {
-            throw Util.outOfRangeArgument();
+            throw JDBCUtil.outOfRangeArgument();
         }
 
         try {
             return blob.getBytes(session, pos - 1, length);
         } catch (HsqlException e) {
-            throw Util.sqlException(e);
+            throw JDBCUtil.sqlException(e);
         }
     }
 
@@ -127,7 +127,7 @@ public class JDBCBlobClient implements Blob {
                                       long start) throws SQLException {
 
         if (!isInLimits(Long.MAX_VALUE, start - 1, 0)) {
-            throw Util.outOfRangeArgument();
+            throw JDBCUtil.outOfRangeArgument();
         }
 
         try {
@@ -139,7 +139,7 @@ public class JDBCBlobClient implements Blob {
 
             return position;
         } catch (HsqlException e) {
-            throw Util.sqlException(e);
+            throw JDBCUtil.sqlException(e);
         }
     }
 
@@ -159,7 +159,7 @@ public class JDBCBlobClient implements Blob {
                                       long start) throws SQLException {
 
         if (!isInLimits(Long.MAX_VALUE, start - 1, 0)) {
-            throw Util.outOfRangeArgument();
+            throw JDBCUtil.outOfRangeArgument();
         }
 
         if (pattern instanceof JDBCBlobClient) {
@@ -174,12 +174,12 @@ public class JDBCBlobClient implements Blob {
 
                 return position;
             } catch (HsqlException e) {
-                throw Util.sqlException(e);
+                throw JDBCUtil.sqlException(e);
             }
         }
 
         if (!isInLimits(Integer.MAX_VALUE, 0, pattern.length())) {
-            throw Util.outOfRangeArgument();
+            throw JDBCUtil.outOfRangeArgument();
         }
 
         byte[] bytePattern = pattern.getBytes(1, (int) pattern.length());
@@ -227,15 +227,15 @@ public class JDBCBlobClient implements Blob {
                                      int len) throws SQLException {
 
         if (!isInLimits(bytes.length, offset, len)) {
-            throw Util.outOfRangeArgument();
+            throw JDBCUtil.outOfRangeArgument();
         }
 
         if (!isInLimits(Long.MAX_VALUE, pos - 1, len)) {
-            throw Util.outOfRangeArgument();
+            throw JDBCUtil.outOfRangeArgument();
         }
 
         if (!isWritable) {
-            throw Util.notUpdatableColumn();
+            throw JDBCUtil.notUpdatableColumn();
         }
 
         startUpdate();
@@ -245,7 +245,7 @@ public class JDBCBlobClient implements Blob {
 
             return len;
         } catch (HsqlException e) {
-            throw Util.sqlException(e);
+            throw JDBCUtil.sqlException(e);
         }
     }
 
@@ -262,7 +262,7 @@ public class JDBCBlobClient implements Blob {
      */
     public synchronized OutputStream setBinaryStream(long pos)
     throws SQLException {
-        throw Util.notSupported();
+        throw JDBCUtil.notSupported();
     }
 
     /**
@@ -279,7 +279,7 @@ public class JDBCBlobClient implements Blob {
         try {
             blob.truncate(session, len);
         } catch (HsqlException e) {
-            throw Util.sqlException(e);
+            throw JDBCUtil.sqlException(e);
         }
     }
 
@@ -324,7 +324,7 @@ public class JDBCBlobClient implements Blob {
             long length) throws SQLException {
 
         if (!isInLimits(Long.MAX_VALUE, pos - 1, length)) {
-            throw Util.outOfRangeArgument();
+            throw JDBCUtil.outOfRangeArgument();
         }
 
         return new BlobInputStream(session, blob, pos - 1, length);
@@ -385,7 +385,7 @@ public class JDBCBlobClient implements Blob {
     private void checkClosed() throws SQLException {
 
         if (isClosed) {
-            throw Util.sqlException(ErrorCode.X_07501);
+            throw JDBCUtil.sqlException(ErrorCode.X_07501);
         }
     }
 

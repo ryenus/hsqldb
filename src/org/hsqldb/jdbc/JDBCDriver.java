@@ -284,7 +284,7 @@ public class JDBCDriver implements Driver {
         if (props == null) {
 
             // supposed to be an HSQLDB driver url but has errors
-            throw Util.invalidArgument();
+            throw JDBCUtil.invalidArgument();
         } else if (props.isEmpty()) {
 
             // is not an HSQLDB driver url
@@ -368,7 +368,7 @@ public class JDBCDriver implements Driver {
             return conn[0];
         }
 
-        throw Util.sqlException(ErrorCode.X_08501);
+        throw JDBCUtil.sqlException(ErrorCode.X_08501);
     }
 
     /**
@@ -540,7 +540,7 @@ public class JDBCDriver implements Driver {
     public java.util.logging
             .Logger getParentLogger() throws java.sql
                 .SQLFeatureNotSupportedException {
-        throw (java.sql.SQLFeatureNotSupportedException) Util.notSupported();
+        throw (java.sql.SQLFeatureNotSupportedException) JDBCUtil.notSupported();
     }
 
 //#endif

@@ -39,7 +39,7 @@ import java.sql.SQLException;
 
 import org.hsqldb.HsqlException;
 import org.hsqldb.Session;
-import org.hsqldb.jdbc.Util;
+import org.hsqldb.jdbc.JDBCUtil;
 import org.hsqldb.types.Type;
 import org.hsqldb.types.Types;
 
@@ -484,7 +484,7 @@ public class PgType {
     static final void throwError(HsqlException e) throws SQLException {
 
 //#ifdef JAVA6
-        throw Util.sqlException(e.getMessage(), e.getSQLState(),
+        throw JDBCUtil.sqlException(e.getMessage(), e.getSQLState(),
             e.getErrorCode(), e);
 
 //#else

@@ -467,7 +467,7 @@ public class JDBCResultSet implements ResultSet {
             long length = x.length(session);
 
             if (length > Integer.MAX_VALUE) {
-                Util.throwError(Error.error(ErrorCode.X_42561));
+                JDBCUtil.throwError(Error.error(ErrorCode.X_42561));
             }
 
             return x.getSubString(session, 0, (int) length);
@@ -737,7 +737,7 @@ public class JDBCResultSet implements ResultSet {
                                     int scale) throws SQLException {
 
         if (scale < 0) {
-            throw Util.outOfRangeArgument();
+            throw JDBCUtil.outOfRangeArgument();
         }
 
         BigDecimal bd = getBigDecimal(columnIndex);
@@ -791,7 +791,7 @@ public class JDBCResultSet implements ResultSet {
             long length = x.length(session);
 
             if (length > Integer.MAX_VALUE) {
-                Util.throwError(Error.error(ErrorCode.X_42561));
+                JDBCUtil.throwError(Error.error(ErrorCode.X_42561));
             }
 
             return x.getBytes(session, 0, (int) length);
@@ -1055,7 +1055,7 @@ public class JDBCResultSet implements ResultSet {
             return new ByteArrayInputStream(b);
         }
 
-        throw Util.sqlException(ErrorCode.X_42561);
+        throw JDBCUtil.sqlException(ErrorCode.X_42561);
     }
 
     //======================================================================
@@ -1685,7 +1685,7 @@ public class JDBCResultSet implements ResultSet {
                 try {
                     return ((JavaObjectData) o).getObject();
                 } catch (HsqlException e) {
-                    throw Util.sqlException(e);
+                    throw JDBCUtil.sqlException(e);
                 }
             }
             default :
@@ -1785,7 +1785,7 @@ public class JDBCResultSet implements ResultSet {
         checkClosed();
 
         if (columnLabel == null) {
-            throw Util.nullArgument();
+            throw JDBCUtil.nullArgument();
         }
 
         int columnIndex;
@@ -1834,7 +1834,7 @@ public class JDBCResultSet implements ResultSet {
             int position = columnLabel.indexOf('.');
 
             if (position < 0) {
-                throw Util.sqlException(ErrorCode.JDBC_COLUMN_NOT_FOUND,
+                throw JDBCUtil.sqlException(ErrorCode.JDBC_COLUMN_NOT_FOUND,
                                         columnLabel);
             }
 
@@ -1871,7 +1871,7 @@ public class JDBCResultSet implements ResultSet {
         }
 
         if (columnIndex < 0) {
-            throw Util.sqlException(ErrorCode.JDBC_COLUMN_NOT_FOUND,
+            throw JDBCUtil.sqlException(ErrorCode.JDBC_COLUMN_NOT_FOUND,
                                     columnLabel);
         }
         columnIndex++;
@@ -1932,7 +1932,7 @@ public class JDBCResultSet implements ResultSet {
             return new StringReader((String) o);
         }
 
-        throw Util.sqlException(ErrorCode.X_42561);
+        throw JDBCUtil.sqlException(ErrorCode.X_42561);
     }
 
     /**
@@ -2185,7 +2185,7 @@ public class JDBCResultSet implements ResultSet {
         checkNotForwardOnly();
 
         if (isOnInsertRow || isRowUpdated) {
-            throw Util.sqlExceptionSQL(ErrorCode.X_24513);
+            throw JDBCUtil.sqlExceptionSQL(ErrorCode.X_24513);
         }
         navigator.beforeFirst();
     }
@@ -2211,7 +2211,7 @@ public class JDBCResultSet implements ResultSet {
         checkNotForwardOnly();
 
         if (isOnInsertRow || isRowUpdated) {
-            throw Util.sqlExceptionSQL(ErrorCode.X_24513);
+            throw JDBCUtil.sqlExceptionSQL(ErrorCode.X_24513);
         }
         navigator.afterLast();
     }
@@ -2238,7 +2238,7 @@ public class JDBCResultSet implements ResultSet {
         checkNotForwardOnly();
 
         if (isOnInsertRow || isRowUpdated) {
-            throw Util.sqlExceptionSQL(ErrorCode.X_24513);
+            throw JDBCUtil.sqlExceptionSQL(ErrorCode.X_24513);
         }
 
         return navigator.first();
@@ -2266,7 +2266,7 @@ public class JDBCResultSet implements ResultSet {
         checkNotForwardOnly();
 
         if (isOnInsertRow || isRowUpdated) {
-            throw Util.sqlExceptionSQL(ErrorCode.X_24513);
+            throw JDBCUtil.sqlExceptionSQL(ErrorCode.X_24513);
         }
 
         return navigator.last();
@@ -2350,7 +2350,7 @@ public class JDBCResultSet implements ResultSet {
         checkNotForwardOnly();
 
         if (isOnInsertRow || isRowUpdated) {
-            throw Util.sqlExceptionSQL(ErrorCode.X_24513);
+            throw JDBCUtil.sqlExceptionSQL(ErrorCode.X_24513);
         }
 
         if (row > 0) {
@@ -2396,7 +2396,7 @@ public class JDBCResultSet implements ResultSet {
         checkNotForwardOnly();
 
         if (isOnInsertRow || isRowUpdated) {
-            throw Util.sqlExceptionSQL(ErrorCode.X_24513);
+            throw JDBCUtil.sqlExceptionSQL(ErrorCode.X_24513);
         }
 
         return navigator.relative(rows);
@@ -2436,7 +2436,7 @@ public class JDBCResultSet implements ResultSet {
         checkNotForwardOnly();
 
         if (isOnInsertRow || isRowUpdated) {
-            throw Util.sqlExceptionSQL(ErrorCode.X_24513);
+            throw JDBCUtil.sqlExceptionSQL(ErrorCode.X_24513);
         }
         rootWarning = null;
 
@@ -2500,7 +2500,7 @@ public class JDBCResultSet implements ResultSet {
                 break;
             }
             default : {
-                throw Util.notSupported();
+                throw JDBCUtil.notSupported();
             }
         }
     }
@@ -2571,7 +2571,7 @@ public class JDBCResultSet implements ResultSet {
     public void setFetchSize(int rows) throws SQLException {
 
         if (rows < 0) {
-            throw Util.outOfRangeArgument();
+            throw JDBCUtil.outOfRangeArgument();
         }
     }
 
@@ -4375,7 +4375,7 @@ public class JDBCResultSet implements ResultSet {
      * JDBCResultSet)
      */
     public Ref getRef(int columnIndex) throws SQLException {
-        throw Util.notSupported();
+        throw JDBCUtil.notSupported();
     }
 
     /**
@@ -4436,7 +4436,7 @@ public class JDBCResultSet implements ResultSet {
             return new JDBCBlob(b);
         }
 
-        throw Util.sqlException(ErrorCode.X_42561);
+        throw JDBCUtil.sqlException(ErrorCode.X_42561);
     }
 
     /**
@@ -4496,7 +4496,7 @@ public class JDBCResultSet implements ResultSet {
             return new JDBCClob((String) o);
         }
 
-        throw Util.sqlException(ErrorCode.X_42561);
+        throw JDBCUtil.sqlException(ErrorCode.X_42561);
     }
 
     /**
@@ -4533,7 +4533,7 @@ public class JDBCResultSet implements ResultSet {
         Object[] data = (Object[]) getCurrent()[columnIndex - 1];
 
         if (!type.isArrayType()) {
-            throw Util.sqlException(ErrorCode.X_42561);
+            throw JDBCUtil.sqlException(ErrorCode.X_42561);
         }
 
         if (trackNull(data)) {
@@ -5017,7 +5017,7 @@ public class JDBCResultSet implements ResultSet {
      */
 //#ifdef JAVA4
     public java.net.URL getURL(int columnIndex) throws SQLException {
-        throw Util.notSupported();
+        throw JDBCUtil.notSupported();
     }
 
 //#endif JAVA4
@@ -5053,7 +5053,7 @@ public class JDBCResultSet implements ResultSet {
      */
 //#ifdef JAVA4
     public java.net.URL getURL(String columnLabel) throws SQLException {
-        throw Util.notSupported();
+        throw JDBCUtil.notSupported();
     }
 
 //#endif JAVA4
@@ -5089,7 +5089,7 @@ public class JDBCResultSet implements ResultSet {
 //#ifdef JAVA4
     public void updateRef(int columnIndex,
                           java.sql.Ref x) throws SQLException {
-        throw Util.notSupported();
+        throw JDBCUtil.notSupported();
     }
 
 //#endif JAVA4
@@ -5125,7 +5125,7 @@ public class JDBCResultSet implements ResultSet {
 //#ifdef JAVA4
     public void updateRef(String columnLabel,
                           java.sql.Ref x) throws SQLException {
-        throw Util.notSupported();
+        throw JDBCUtil.notSupported();
     }
 
 //#endif JAVA4
@@ -5371,7 +5371,7 @@ public class JDBCResultSet implements ResultSet {
      */
 //#ifdef JAVA6
     public RowId getRowId(int columnIndex) throws SQLException {
-        throw Util.notSupported();
+        throw JDBCUtil.notSupported();
     }
 
 //#endif JAVA6
@@ -5406,7 +5406,7 @@ public class JDBCResultSet implements ResultSet {
      */
 //#ifdef JAVA6
     public RowId getRowId(String columnLabel) throws SQLException {
-        throw Util.notSupported();
+        throw JDBCUtil.notSupported();
     }
 
 //#endif JAVA6
@@ -5441,7 +5441,7 @@ public class JDBCResultSet implements ResultSet {
      */
 //#ifdef JAVA6
     public void updateRowId(int columnIndex, RowId x) throws SQLException {
-        throw Util.notSupported();
+        throw JDBCUtil.notSupported();
     }
 
 //#endif JAVA6
@@ -5478,7 +5478,7 @@ public class JDBCResultSet implements ResultSet {
      */
 //#ifdef JAVA6
     public void updateRowId(String columnLabel, RowId x) throws SQLException {
-        throw Util.notSupported();
+        throw JDBCUtil.notSupported();
     }
 
 //#endif JAVA6
@@ -5705,7 +5705,7 @@ public class JDBCResultSet implements ResultSet {
                 } else if (object instanceof SQLXML) {
                     sqlxml = (SQLXML) object;
                 } else {
-                    throw Util.notSupported();
+                    throw JDBCUtil.notSupported();
                 }
 
                 break;
@@ -5790,13 +5790,13 @@ public class JDBCResultSet implements ResultSet {
 
                     sqlxml = new JDBCSQLXML(clob.getCharacterStream());
                 } else {
-                    throw Util.notSupported();
+                    throw JDBCUtil.notSupported();
                 }
 
                 break;
             }
             default : {
-                throw Util.notSupported();
+                throw JDBCUtil.notSupported();
             }
         }
 
@@ -6978,7 +6978,7 @@ public class JDBCResultSet implements ResultSet {
             return (T) this;
         }
 
-        throw Util.invalidArgument("iface: " + iface);
+        throw JDBCUtil.invalidArgument("iface: " + iface);
     }
 
 //#endif JAVA6
@@ -7197,21 +7197,21 @@ public class JDBCResultSet implements ResultSet {
         final RowSetNavigator lnavigator = this.navigator;
 
         if (lnavigator == null) {
-            throw Util.sqlException(ErrorCode.X_24501);
+            throw JDBCUtil.sqlException(ErrorCode.X_24501);
         } else if (lnavigator.isEmpty()) {
-            throw Util.sqlException(ErrorCode.X_24504, ErrorCode.M_RS_EMPTY);
+            throw JDBCUtil.sqlException(ErrorCode.X_24504, ErrorCode.M_RS_EMPTY);
         } else if (lnavigator.isBeforeFirst()) {
-            throw Util.sqlException(ErrorCode.X_24504,
+            throw JDBCUtil.sqlException(ErrorCode.X_24504,
                                     ErrorCode.M_RS_BEFORE_FIRST);
         } else if (lnavigator.isAfterLast()) {
-            throw Util.sqlException(ErrorCode.X_24504,
+            throw JDBCUtil.sqlException(ErrorCode.X_24504,
                                     ErrorCode.M_RS_AFTER_LAST);
         }
 
         Object[] data = lnavigator.getCurrent();
 
         if (data == null) {
-            throw Util.sqlException(ErrorCode.X_24501);
+            throw JDBCUtil.sqlException(ErrorCode.X_24501);
         }
 
         return data;
@@ -7225,7 +7225,7 @@ public class JDBCResultSet implements ResultSet {
     private void checkClosed() throws SQLException {
 
         if (navigator == null) {
-            throw Util.sqlException(ErrorCode.X_24501);
+            throw JDBCUtil.sqlException(ErrorCode.X_24501);
         }
     }
 
@@ -7238,11 +7238,11 @@ public class JDBCResultSet implements ResultSet {
     protected void checkColumn(int columnIndex) throws SQLException {
 
         if (navigator == null) {
-            throw Util.sqlException(ErrorCode.X_24501);
+            throw JDBCUtil.sqlException(ErrorCode.X_24501);
         }
 
         if (columnIndex < 1 || columnIndex > columnCount) {
-            throw Util.sqlException(ErrorCode.JDBC_COLUMN_NOT_FOUND,
+            throw JDBCUtil.sqlException(ErrorCode.JDBC_COLUMN_NOT_FOUND,
                                     String.valueOf(columnIndex));
         }
     }
@@ -7309,7 +7309,7 @@ public class JDBCResultSet implements ResultSet {
                              + " to " + targetType.getJDBCClassName()
                              + ", value: " + stringValue;
 
-                Util.throwError(Error.error(ErrorCode.X_42561, msg));
+                JDBCUtil.throwError(Error.error(ErrorCode.X_42561, msg));
             }
         }
 
@@ -7319,7 +7319,7 @@ public class JDBCResultSet implements ResultSet {
     private void checkNotForwardOnly() throws SQLException {
 
         if (!isScrollable) {
-            throw Util.notSupported();
+            throw JDBCUtil.notSupported();
         }
     }
 
@@ -7341,7 +7341,7 @@ public class JDBCResultSet implements ResultSet {
         checkClosed();
 
         if (!isUpdatable) {
-            throw Util.notUpdatableColumn();
+            throw JDBCUtil.notUpdatableColumn();
         }
     }
 
@@ -7351,15 +7351,15 @@ public class JDBCResultSet implements ResultSet {
         checkColumn(columnIndex);
 
         if (!isUpdatable) {
-            throw Util.notUpdatableColumn();
+            throw JDBCUtil.notUpdatableColumn();
         }
 
         if (resultMetaData.colIndexes[--columnIndex] == -1) {
-            throw Util.notUpdatableColumn();
+            throw JDBCUtil.notUpdatableColumn();
         }
 
         if (!resultMetaData.columns[columnIndex].isWriteable()) {
-            throw Util.notUpdatableColumn();
+            throw JDBCUtil.notUpdatableColumn();
         }
     }
 
@@ -7430,7 +7430,7 @@ public class JDBCResultSet implements ResultSet {
             boolean set = preparedStatement.parameterSet[i] != null;
 
             if (!set) {
-                throw Util.sqlException(ErrorCode.X_24515);
+                throw JDBCUtil.sqlException(ErrorCode.X_24515);
             }
             preparedStatement.resultOut.metaData.columnTypes[i] =
                 preparedStatement.parameterTypes[i];
@@ -7578,7 +7578,7 @@ public class JDBCResultSet implements ResultSet {
             }
 
             if (sourceType.typeCode != targetType.typeCode) {
-                Util.throwError(Error.error(ErrorCode.X_42561));
+                JDBCUtil.throwError(Error.error(ErrorCode.X_42561));
             }
 
             return value;
@@ -7598,12 +7598,12 @@ public class JDBCResultSet implements ResultSet {
 
         public java.io.InputStream getBinaryStream(
                 int columnIndex) throws SQLException {
-            throw Util.notSupported();
+            throw JDBCUtil.notSupported();
         }
 
         public java.io.Reader getCharacterStream(
                 int columnIndex) throws SQLException {
-            throw Util.notSupported();
+            throw JDBCUtil.notSupported();
         }
 
         public Blob getBlob(int columnIndex) throws SQLException {
@@ -7623,7 +7623,7 @@ public class JDBCResultSet implements ResultSet {
                 return new JDBCBlob((byte[]) o);
             }
 
-            throw Util.sqlException(ErrorCode.X_42561);
+            throw JDBCUtil.sqlException(ErrorCode.X_42561);
         }
 
         public Clob getClob(int columnIndex) throws SQLException {
@@ -7643,17 +7643,17 @@ public class JDBCResultSet implements ResultSet {
                 return new JDBCClob((String) o);
             }
 
-            throw Util.sqlException(ErrorCode.X_42561);
+            throw JDBCUtil.sqlException(ErrorCode.X_42561);
         }
 
         public Time getTime(int columnIndex,
                             Calendar cal) throws SQLException {
-            throw Util.notSupported();
+            throw JDBCUtil.notSupported();
         }
 
         public Timestamp getTimestamp(int columnIndex,
                                       Calendar cal) throws SQLException {
-            throw Util.notSupported();
+            throw JDBCUtil.notSupported();
         }
     }
 }

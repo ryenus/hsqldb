@@ -179,12 +179,12 @@ public class JDBCBlob implements Blob {
         final int    dlen = data.length;
 
         if (pos < MIN_POS || pos > MIN_POS + dlen) {
-            throw Util.outOfRangeArgument("pos: " + pos);
+            throw JDBCUtil.outOfRangeArgument("pos: " + pos);
         }
         pos--;
 
         if (length < 0 || length > dlen - pos) {
-            throw Util.outOfRangeArgument("length: " + length);
+            throw JDBCUtil.outOfRangeArgument("length: " + length);
         }
 
         final byte[] result = new byte[length];
@@ -234,7 +234,7 @@ public class JDBCBlob implements Blob {
         final int    dlen = data.length;
 
         if (start < MIN_POS) {
-            throw Util.outOfRangeArgument("start: " + start);
+            throw JDBCUtil.outOfRangeArgument("start: " + start);
         } else if (start > dlen || pattern == null) {
             return -1L;
         }
@@ -277,7 +277,7 @@ public class JDBCBlob implements Blob {
         final int    dlen = data.length;
 
         if (start < MIN_POS) {
-            throw Util.outOfRangeArgument("start: " + start);
+            throw JDBCUtil.outOfRangeArgument("start: " + start);
         } else if (start > dlen || pattern == null) {
             return -1L;
         }
@@ -374,7 +374,7 @@ public class JDBCBlob implements Blob {
     public int setBytes(long pos, byte[] bytes) throws SQLException {
 
         if (bytes == null) {
-            throw Util.nullArgument("bytes");
+            throw JDBCUtil.nullArgument("bytes");
         }
 
         return (setBytes(pos, bytes, 0, bytes.length));
@@ -460,23 +460,23 @@ public class JDBCBlob implements Blob {
         if (!m_createdByConnection) {
 
             /** @todo - better error message */
-            throw Util.notSupported();
+            throw JDBCUtil.notSupported();
         }
 
         if (bytes == null) {
-            throw Util.nullArgument("bytes");
+            throw JDBCUtil.nullArgument("bytes");
         }
 
         if (offset < 0 || offset > bytes.length) {
-            throw Util.outOfRangeArgument("offset: " + offset);
+            throw JDBCUtil.outOfRangeArgument("offset: " + offset);
         }
 
         if (len > bytes.length - offset) {
-            throw Util.outOfRangeArgument("len: " + len);
+            throw JDBCUtil.outOfRangeArgument("len: " + len);
         }
 
         if (pos < MIN_POS || pos > 1L + (Integer.MAX_VALUE - len)) {
-            throw Util.outOfRangeArgument("pos: " + pos);
+            throw JDBCUtil.outOfRangeArgument("pos: " + pos);
         }
         pos--;
 
@@ -575,11 +575,11 @@ public class JDBCBlob implements Blob {
         if (!m_createdByConnection) {
 
             /** @todo - Better error message */
-            throw Util.notSupported();
+            throw JDBCUtil.notSupported();
         }
 
         if (pos < MIN_POS || pos > MAX_POS) {
-            throw Util.outOfRangeArgument("pos: " + pos);
+            throw JDBCUtil.outOfRangeArgument("pos: " + pos);
         }
         checkClosed();
 
@@ -641,7 +641,7 @@ public class JDBCBlob implements Blob {
         final byte[] data = getData();
 
         if (len < 0 || len > data.length) {
-            throw Util.outOfRangeArgument("len: " + len);
+            throw JDBCUtil.outOfRangeArgument("len: " + len);
         }
 
         if (len == data.length) {
@@ -702,12 +702,12 @@ public class JDBCBlob implements Blob {
         final int    dlen = data.length;
 
         if (pos < MIN_POS || pos > dlen) {
-            throw Util.outOfRangeArgument("pos: " + pos);
+            throw JDBCUtil.outOfRangeArgument("pos: " + pos);
         }
         pos--;
 
         if (length < 0 || length > dlen - pos) {
-            throw Util.outOfRangeArgument("length: " + length);
+            throw JDBCUtil.outOfRangeArgument("length: " + length);
         }
 
         if (pos == 0 && length == dlen) {
@@ -744,7 +744,7 @@ public class JDBCBlob implements Blob {
     public JDBCBlob(final byte[] data) throws SQLException {
 
         if (data == null) {
-            throw Util.nullArgument();
+            throw JDBCUtil.nullArgument();
         }
         m_data                = data;
         m_createdByConnection = false;
@@ -758,7 +758,7 @@ public class JDBCBlob implements Blob {
     protected synchronized void checkClosed() throws SQLException {
 
         if (m_closed) {
-            throw Util.sqlException(ErrorCode.X_07501);
+            throw JDBCUtil.sqlException(ErrorCode.X_07501);
         }
     }
 
