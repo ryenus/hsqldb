@@ -50,6 +50,7 @@ import org.hsqldb.jdbc.JDBCBlob;
 import org.hsqldb.jdbc.JDBCClob;
 import org.hsqldb.lib.HsqlByteArrayInputStream;
 import org.hsqldb.lib.StopWatch;
+import org.hsqldb.persist.HsqlDatabaseProperties;
 
 public class TestLobs extends TestBase {
 
@@ -59,8 +60,8 @@ public class TestLobs extends TestBase {
     public TestLobs(String name) {
 
 //        super(name);
-
         super(name, "jdbc:hsqldb:file:test3", false, false);
+
 //        super(name, "jdbc:hsqldb:mem:test3", false, false);
     }
 
@@ -299,6 +300,34 @@ public class TestLobs extends TestBase {
             int data2 = clob2.getSubString(1, data.length()).indexOf("INSERT");
 
             assertTrue(data1 == data2 && data1 > 0);
+            assertTrue(string.equals(clob2.getSubString(1, data.length())));
+            rs.close();
+
+            // test with stream
+            rs = ps.executeQuery();
+
+            rs.next();
+
+            InputStream  is = rs.getAsciiStream(2);
+            StringBuffer sb = new StringBuffer();
+
+            try {
+                while (true) {
+                    int c = is.read();
+
+                    if (c < 0) {
+                        break;
+                    }
+
+                    sb.append((char) c);
+                }
+            } catch (IOException ie) {}
+
+            string = rs.getString(2);
+
+            assertTrue(string.equals(sb.toString()));
+            rs.next();
+            rs.getAsciiStream(2);
         } catch (SQLException e) {
             e.printStackTrace();
             fail("test failure");
@@ -396,7 +425,9 @@ public class TestLobs extends TestBase {
             PreparedStatement ps = connection.prepareStatement(dml0);
 
             //
-            String resourceFileName  = "/org/hsqldb/resources/lob-schema.sql";
+            String resourceFileName  =
+                HsqlDatabaseProperties.hsqldb_package_path
+                + "/resources/lob-schema.sql";
             InputStreamReader reader = null;
 
             try {
@@ -787,8 +818,10 @@ public class TestLobs extends TestBase {
         System.out.println("Starting (sub-)test: " + getName());
 
         try {
-            String ddl1 =
-                "create procedure PUBLIC.PROC_H(out p1 clob, out p2 int) READS SQL DATA BEGIN ATOMIC SET p1 = 'dafsdfasdfaefafeajfiwejifpjajsidojfakmvkamsdjfadpsjfoajsdifjaos'; SET p2 = 0; end";
+
+            String ddl1 = "drop procedure PUBLIC.PROC_H if exists";
+            statement.execute(ddl1);
+            ddl1 =    "create procedure PUBLIC.PROC_H(out p1 clob, out p2 int) READS SQL DATA BEGIN ATOMIC SET p1 = 'dafsdfasdfaefafeajfiwejifpjajsidojfakmvkamsdjfadpsjfoajsdifjaos'; SET p2 = 0; end";
             String dml0 = "call PUBLIC.PROC_H(?, ?)";
 
             statement.execute(ddl1);

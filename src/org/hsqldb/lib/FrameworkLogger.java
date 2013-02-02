@@ -31,20 +31,22 @@
 
 package org.hsqldb.lib;
 
-import java.util.Enumeration;
-import java.util.logging.Level;
-import java.util.logging.ConsoleHandler;
-import java.util.logging.Logger;
-import java.util.logging.LogManager;
-import java.util.Map;
 import java.io.File;
 import java.io.FileInputStream;
-import java.util.Properties;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Set;
-import java.util.HashSet;
 import java.lang.reflect.Method;
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
+import java.util.logging.ConsoleHandler;
+import java.util.logging.Level;
+import java.util.logging.LogManager;
+import java.util.logging.Logger;
+
+import org.hsqldb.persist.HsqlDatabaseProperties;
 
 /**
  * A logging framework wrapper that supports java.util.logging and log4j.
@@ -258,6 +260,8 @@ public class FrameworkLogger {
 
         try {
             LogManager lm = LogManager.getLogManager();
+            String path =  HsqlDatabaseProperties.hsqldb_package_path
+                + "/resources/jdklogging-default.properties";
 
             if (isDefaultJdkConfig()) {
                 lm.reset();
@@ -268,8 +272,7 @@ public class FrameworkLogger {
                     new BasicTextJdkLogFormatter(false));
                 consoleHandler.setLevel(Level.INFO);
                 lm.readConfiguration(
-                    FrameworkLogger.class.getResourceAsStream(
-                        "/org/hsqldb/resources/jdklogging-default.properties"));
+                    FrameworkLogger.class.getResourceAsStream(path));
 
                 Logger cmdlineLogger = Logger.getLogger("org.hsqldb.cmdline");
 
