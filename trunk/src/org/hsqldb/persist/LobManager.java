@@ -75,7 +75,8 @@ import org.hsqldb.types.Types;
 public class LobManager {
 
     static final String resourceFileName =
-        "/org/hsqldb/resources/lob-schema.sql";
+        HsqlDatabaseProperties.hsqldb_package_path
+        + "/resources/lob-schema.sql";
     static final String[] starters = new String[]{ "/*" };
 
     //
@@ -172,23 +173,23 @@ public class LobManager {
     private static final String initialiseBlocksSQL =
         "INSERT INTO SYSTEM_LOBS.BLOCKS VALUES(?,?,?)";
     private static final String getLobSQL =
-        "SELECT * FROM SYSTEM_LOBS.LOB_IDS WHERE LOB_ID = ?";
+        "SELECT * FROM SYSTEM_LOBS.LOB_IDS WHERE LOB_IDS.LOB_ID = ?";
     private static final String getLobPartSQL =
-        "SELECT * FROM SYSTEM_LOBS.LOBS WHERE LOB_ID = ? AND BLOCK_OFFSET + BLOCK_COUNT > ? AND BLOCK_OFFSET < ? ORDER BY BLOCK_OFFSET";
+        "SELECT * FROM SYSTEM_LOBS.LOBS WHERE LOBS.LOB_ID = ? AND BLOCK_OFFSET + BLOCK_COUNT > ? AND BLOCK_OFFSET < ? ORDER BY BLOCK_OFFSET";
     private static final String deleteLobPartCallSQL =
         "CALL SYSTEM_LOBS.DELETE_BLOCKS(?,?,?,?)";
     private static final String createLobSQL =
         "INSERT INTO SYSTEM_LOBS.LOB_IDS VALUES(?, ?, ?, ?)";
     private static final String updateLobLengthSQL =
-        "UPDATE SYSTEM_LOBS.LOB_IDS SET LOB_LENGTH = ? WHERE LOB_ID = ?";
+        "UPDATE SYSTEM_LOBS.LOB_IDS SET LOB_LENGTH = ? WHERE LOB_IDS.LOB_ID = ?";
     private static final String createLobPartCallSQL =
         "CALL SYSTEM_LOBS.ALLOC_BLOCKS(?, ?, ?)";
     private static final String divideLobPartCallSQL =
         "CALL SYSTEM_LOBS.DIVIDE_BLOCK(?, ?)";
     private static final String getSpanningBlockSQL =
-        "SELECT * FROM SYSTEM_LOBS.LOBS WHERE LOB_ID = ? AND ? > BLOCK_OFFSET AND ? < BLOCK_OFFSET + BLOCK_COUNT";
+        "SELECT * FROM SYSTEM_LOBS.LOBS WHERE LOBS.LOB_ID = ? AND ? > BLOCK_OFFSET AND ? < BLOCK_OFFSET + BLOCK_COUNT";
     private static final String updateLobUsageSQL =
-        "UPDATE SYSTEM_LOBS.LOB_IDS SET LOB_USAGE_COUNT = (CASE LOB_USAGE_COUNT WHEN 2147483647 THEN 0 ELSE LOB_USAGE_COUNT END) + ? WHERE LOB_ID = ?";
+        "UPDATE SYSTEM_LOBS.LOB_IDS SET LOB_USAGE_COUNT = LOB_USAGE_COUNT + ? WHERE LOB_IDS.LOB_ID = ?";
     private static final String getNextLobIdSQL =
         "VALUES NEXT VALUE FOR SYSTEM_LOBS.LOB_ID";
     private static final String deleteLobCallSQL =

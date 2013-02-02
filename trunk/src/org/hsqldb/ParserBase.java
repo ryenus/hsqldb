@@ -52,7 +52,7 @@ import org.hsqldb.types.Types;
  */
 public class ParserBase {
 
-    private Scanner scanner;
+    protected Scanner scanner;
     protected Token token;
 
     //

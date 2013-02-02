@@ -32,7 +32,6 @@
 package org.hsqldb;
 
 import org.hsqldb.HsqlNameManager.HsqlName;
-import org.hsqldb.RangeGroup.RangeGroupSimple;
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
 import org.hsqldb.lib.ArrayUtil;
@@ -50,7 +49,7 @@ import org.hsqldb.types.Types;
  * Parser for SQL stored procedures and functions - PSM
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.2.9
+ * @version 2.3.0
  * @since 1.9.0
  */
 public class ParserRoutine extends ParserDML {
@@ -171,7 +170,8 @@ public class ParserRoutine extends ParserDML {
             e = readCollection(OpTypes.ARRAY);
 
             if (e.nodes.length > 0) {
-                throw Error.error(ErrorCode.X_42562);
+                throw Error.parseError(ErrorCode.X_42562, null,
+                                       scanner.getLineNumber());
             }
 
             e.dataType = dataType;
@@ -184,7 +184,8 @@ public class ParserRoutine extends ParserDML {
 
             if (dataType.typeComparisonGroup
                     != e.getDataType().typeComparisonGroup) {
-                throw Error.error(ErrorCode.X_42562);
+                throw Error.parseError(ErrorCode.X_42562, null,
+                                       scanner.getLineNumber());
             }
 
             return e;
@@ -311,7 +312,8 @@ public class ParserRoutine extends ParserDML {
             }
         }
 
-        throw Error.error(ErrorCode.X_34000);
+        throw Error.parseError(ErrorCode.X_34000, null,
+                               scanner.getLineNumber());
     }
 
     Statement compileSelectSingleRowStatement(RangeGroup[] rangeGroups) {
@@ -348,7 +350,8 @@ public class ParserRoutine extends ParserDML {
                     == SchemaObject.ParameterModes.PARAM_IN) {
 
                 // todo - use more specific error message
-                throw Error.error(ErrorCode.X_0U000);
+                throw Error.parseError(ErrorCode.X_0U000, null,
+                                       scanner.getLineNumber());
             }
 
             targetTypes[i] = variables[i].getDataType();
@@ -383,7 +386,8 @@ public class ParserRoutine extends ParserDML {
         readGetClauseList(rangeVars, targetSet, colIndexList, exprList);
 
         if (exprList.size() > 1) {
-            throw Error.error(ErrorCode.X_42602);
+            throw Error.parseError(ErrorCode.X_42602, null,
+                                   scanner.getLineNumber());
         }
 
         Expression expression = (Expression) exprList.get(0);
@@ -411,12 +415,14 @@ public class ParserRoutine extends ParserDML {
                     == SchemaObject.ParameterModes.PARAM_IN) {
 
                 // todo - use more specific error message
-                throw Error.error(ErrorCode.X_0U000);
+                throw Error.parseError(ErrorCode.X_0U000, null,
+                                       scanner.getLineNumber());
             }
 
             if (!targets[i].getDataType().canBeAssignedFrom(
                     expression.getNodeDataType(i))) {
-                throw Error.error(ErrorCode.X_42561);
+                throw Error.parseError(ErrorCode.X_42561, null,
+                                       scanner.getLineNumber());
             }
         }
 
@@ -441,7 +447,8 @@ public class ParserRoutine extends ParserDML {
         readSetClauseList(rangeVars, targetSet, colIndexList, exprList);
 
         if (exprList.size() > 1) {
-            throw Error.error(ErrorCode.X_42602);
+            throw Error.parseError(ErrorCode.X_42602, null,
+                                   scanner.getLineNumber());
         }
 
         Expression expression = (Expression) exprList.get(0);
@@ -477,7 +484,8 @@ public class ParserRoutine extends ParserDML {
 
             if (!targets[i].getDataType().canBeAssignedFrom(
                     expression.getNodeDataType(i))) {
-                throw Error.error(ErrorCode.X_42561);
+                throw Error.parseError(ErrorCode.X_42561, null,
+                                       scanner.getLineNumber());
             }
         }
 
@@ -552,7 +560,8 @@ public class ParserRoutine extends ParserDML {
                 routine.getSpecificName());
 
             if (!set.isEmpty()) {
-                throw Error.error(ErrorCode.X_42502);
+                throw Error.parseError(ErrorCode.X_42502, null,
+                                       scanner.getLineNumber());
             }
         }
 
@@ -1301,7 +1310,8 @@ public class ParserRoutine extends ParserDML {
         String sqlState = token.tokenString;
 
         if (token.tokenString.length() != 5) {
-            throw Error.error(ErrorCode.X_42607);
+            throw Error.parseError(ErrorCode.X_42607, null,
+                                   scanner.getLineNumber());
         }
 
         read();
@@ -1689,7 +1699,8 @@ public class ParserRoutine extends ParserDML {
         resolveOuterReferencesAndTypes(routine, context, e);
 
         if (routine.isProcedure()) {
-            throw Error.error(ErrorCode.X_42602);
+            throw Error.parseError(ErrorCode.X_42602, null,
+                                   scanner.getLineNumber());
         }
 
         return new StatementExpression(session, compileContext,

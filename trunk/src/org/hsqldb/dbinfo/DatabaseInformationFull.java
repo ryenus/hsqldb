@@ -124,14 +124,14 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
 
     static {
         synchronized (DatabaseInformationFull.class) {
-            final String resourceFileName =
-                "/org/hsqldb/resources/information-schema.sql";
+            final String path = HsqlDatabaseProperties.hsqldb_package_path
+                                + "/resources/information-schema.sql";
             final String[] starters = new String[]{ "/*" };
             InputStream fis = (InputStream) AccessController.doPrivileged(
                 new PrivilegedAction() {
 
                 public InputStream run() {
-                    return getClass().getResourceAsStream(resourceFileName);
+                    return getClass().getResourceAsStream(path);
                 }
             });
             InputStreamReader reader = null;
