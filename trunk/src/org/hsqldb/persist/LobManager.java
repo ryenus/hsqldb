@@ -588,7 +588,10 @@ public class LobManager {
             if (currentLength > sizeLimit) {
                 database.logger.logInfoEvent("lob file truncated to usage");;
                 lobStore.setLength(sizeLimit);
-                lobStore.synch();
+
+                try {
+                    lobStore.synch();
+                } catch (Throwable t) {}
             } else if (currentLength < sizeLimit) {
                 database.logger.logInfoEvent(
                     "lob file reported smaller than usage");;
@@ -1768,7 +1771,9 @@ public class LobManager {
                 writeLock.lock();
 
                 try {
-                    lobStore.synch();
+                    try {
+                        lobStore.synch();
+                    } catch (Throwable t) {}
 
                     storeModified = false;
                 } finally {

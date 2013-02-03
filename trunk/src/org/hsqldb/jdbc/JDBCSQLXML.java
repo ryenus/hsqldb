@@ -846,7 +846,7 @@ public class JDBCSQLXML implements SQLXML {
     public synchronized void setString(String value) throws SQLException {
 
         if (value == null) {
-            throw Util.nullArgument("value");
+            throw JDBCUtil.nullArgument("value");
         }
         checkWritable();
         setStringImpl(value);
@@ -1108,7 +1108,7 @@ public class JDBCSQLXML implements SQLXML {
     protected void init(Source source) throws SQLException {
 
         if (source == null) {
-            throw Util.nullArgument("source");
+            throw JDBCUtil.nullArgument("source");
         }
 
         Transformer           transformer =
@@ -1154,7 +1154,7 @@ public class JDBCSQLXML implements SQLXML {
     protected void setGZipData(byte[] data) throws SQLException {
 
         if (data == null) {
-            throw Util.nullArgument("data");
+            throw JDBCUtil.nullArgument("data");
         }
         this.gzdata = data;
     }
@@ -1481,7 +1481,7 @@ public class JDBCSQLXML implements SQLXML {
             return createStAXSource(sourceClass);
         }
 
-        throw Util.invalidArgument("sourceClass: " + sourceClass);
+        throw JDBCUtil.invalidArgument("sourceClass: " + sourceClass);
     }
 
     /**
@@ -1702,7 +1702,7 @@ public class JDBCSQLXML implements SQLXML {
             return createStAXResult(resultClass);
         }
 
-        throw Util.invalidArgument("resultClass: " + resultClass);
+        throw JDBCUtil.invalidArgument("resultClass: " + resultClass);
     }
 
     /**
@@ -1894,7 +1894,7 @@ public class JDBCSQLXML implements SQLXML {
             Exception ex = (cause instanceof Exception) ? (Exception) cause
                     : new Exception(cause);
 
-            return Util.sqlException(ErrorCode.GENERAL_ERROR,
+            return JDBCUtil.sqlException(ErrorCode.GENERAL_ERROR,
                                      "SQLXML DOM instantiation failed: "
                                      + cause, ex);
         }
@@ -1910,7 +1910,7 @@ public class JDBCSQLXML implements SQLXML {
             Exception ex = (cause instanceof Exception) ? (Exception) cause
                     : new Exception(cause);
 
-            return Util.sqlException(ErrorCode.GENERAL_ERROR,
+            return JDBCUtil.sqlException(ErrorCode.GENERAL_ERROR,
                                      "SQLXML Source instantiation failed: "
                                      + cause, ex);
         }
@@ -1926,7 +1926,7 @@ public class JDBCSQLXML implements SQLXML {
             Exception ex = (cause instanceof Exception) ? (Exception) cause
                     : new Exception(cause);
 
-            return Util.sqlException(ErrorCode.GENERAL_ERROR,
+            return JDBCUtil.sqlException(ErrorCode.GENERAL_ERROR,
                                      "SQLXML Result instantiation failed: "
                                      + cause, ex);
         }
@@ -1942,7 +1942,7 @@ public class JDBCSQLXML implements SQLXML {
             Exception ex = (cause instanceof Exception) ? (Exception) cause
                     : new Exception(cause);
 
-            return Util.sqlException(ErrorCode.GENERAL_ERROR,
+            return JDBCUtil.sqlException(ErrorCode.GENERAL_ERROR,
                                      "parse failed: " + cause, ex);
         }
 
@@ -1957,7 +1957,7 @@ public class JDBCSQLXML implements SQLXML {
             Exception ex = (cause instanceof Exception) ? (Exception) cause
                     : new Exception(cause);
 
-            return Util.sqlException(ErrorCode.GENERAL_ERROR,
+            return JDBCUtil.sqlException(ErrorCode.GENERAL_ERROR,
                                      "transform failed: " + cause, ex);
         }
 
@@ -1967,7 +1967,7 @@ public class JDBCSQLXML implements SQLXML {
          * @return a new SQLXML not readable exception
          */
         static SQLException notReadable() {
-            return Util.sqlException(ErrorCode.GENERAL_IO_ERROR,
+            return JDBCUtil.sqlException(ErrorCode.GENERAL_IO_ERROR,
                                      "SQLXML in not readable state");
         }
 
@@ -1978,7 +1978,7 @@ public class JDBCSQLXML implements SQLXML {
          */
         static SQLException notReadable(String reason) {
 
-            return Util.sqlException(ErrorCode.GENERAL_IO_ERROR,
+            return JDBCUtil.sqlException(ErrorCode.GENERAL_IO_ERROR,
                                      "SQLXML in not readable state: "
                                      + reason);
         }
@@ -1989,7 +1989,7 @@ public class JDBCSQLXML implements SQLXML {
          * @return a new SQLXML not writable exception
          */
         static SQLException notWritable() {
-            return Util.sqlException(ErrorCode.GENERAL_IO_ERROR,
+            return JDBCUtil.sqlException(ErrorCode.GENERAL_IO_ERROR,
                                      "SQLXML in not writable state");
         }
 
@@ -1999,7 +1999,7 @@ public class JDBCSQLXML implements SQLXML {
          * @return never
          */
         static SQLException directUpdateByLocatorNotSupported() {
-            return Util.sqlException(ErrorCode.X_0A000,
+            return JDBCUtil.sqlException(ErrorCode.X_0A000,
                                      "SQLXML direct update by locator");
         }
 
@@ -2009,7 +2009,7 @@ public class JDBCSQLXML implements SQLXML {
          * @return a new SQLXML in freed state exception
          */
         static SQLException inFreedState() {
-            return Util.sqlException(ErrorCode.GENERAL_ERROR,
+            return JDBCUtil.sqlException(ErrorCode.GENERAL_ERROR,
                                      "SQLXML in freed state");
         }
     }

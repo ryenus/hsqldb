@@ -57,7 +57,6 @@ import org.hsqldb.jdbc.pool.JDBCPooledDataSource;
 import org.hsqldb.jdbc.pool.JDBCPooledConnection;
 import org.hsqldb.persist.HsqlDatabaseProperties;
 
-
 /**
  * <!-- start Release-specific documentation -->
  * <div class="ReleaseSpecificDocumentation">
@@ -130,7 +129,7 @@ public class JDBCPool implements DataSource, Serializable, Referenceable,
             } catch (InterruptedException e) {}
         }
 
-        throw Util.invalidArgument();
+        throw JDBCUtil.invalidArgument();
     }
 
     /**
@@ -176,7 +175,7 @@ public class JDBCPool implements DataSource, Serializable, Referenceable,
             return (T) this;
         }
 
-        throw Util.invalidArgument("iface: " + iface);
+        throw JDBCUtil.invalidArgument("iface: " + iface);
     }
 
     /**
@@ -466,7 +465,7 @@ public class JDBCPool implements DataSource, Serializable, Referenceable,
 //#ifdef JAVA6
     public java.util.logging.Logger getParentLogger()
     throws java.sql.SQLFeatureNotSupportedException {
-        throw (java.sql.SQLFeatureNotSupportedException) Util.notSupported();
+        throw (java.sql.SQLFeatureNotSupportedException) JDBCUtil.notSupported();
     }
 
     // ------------------------ custom public methods ------------------------
@@ -500,7 +499,7 @@ public class JDBCPool implements DataSource, Serializable, Referenceable,
     public void close(int wait) throws SQLException {
 
         if (wait <0 || wait > 60) {
-            throw Util.outOfRangeArgument();
+            throw JDBCUtil.outOfRangeArgument();
         }
         if (closed) {
             return;

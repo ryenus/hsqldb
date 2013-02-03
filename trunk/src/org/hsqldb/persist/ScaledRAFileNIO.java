@@ -31,9 +31,9 @@
 
 package org.hsqldb.persist;
 
+import java.io.FileDescriptor;
 import java.io.IOException;
 import java.io.RandomAccessFile;
-import java.io.FileDescriptor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.nio.MappedByteBuffer;
@@ -41,6 +41,9 @@ import java.nio.channels.FileChannel;
 import java.nio.channels.FileChannel.MapMode;
 
 import org.hsqldb.Database;
+import org.hsqldb.error.Error;
+import org.hsqldb.error.ErrorCode;
+import org.hsqldb.lib.java.JavaSystem;
 
 /**
  * NIO version of ScaledRAFile. This class is used only for storing a CACHED
@@ -72,7 +75,7 @@ final class ScaledRAFileNIO implements RandomAccessInterface {
     private MappedByteBuffer buffers[] = new MappedByteBuffer[]{};
 
     //
-    private static final String JVM_ERROR = "JVM threw unsupported Exception";
+    private static final String JVM_ERROR = "NIO access failed";
 
     //
     static final int largeBufferScale = 24;
@@ -81,7 +84,7 @@ final class ScaledRAFileNIO implements RandomAccessInterface {
                                         << largeBufferScale;
 
     ScaledRAFileNIO(Database database, String name, boolean readOnly,
-                    long requiredLength, long maxLength) throws Throwable {
+                    long requiredLength, long maxLength) throws IOException {
 
         this.database  = database;
         this.maxLength = maxLength;
@@ -125,7 +128,7 @@ final class ScaledRAFileNIO implements RandomAccessInterface {
         try {
             return file.length();
         } catch (IOException e) {
-            database.logger.logWarningEvent("nio", e);
+            database.logger.logWarningEvent(JVM_ERROR, e);
 
             throw e;
         } catch (Throwable e) {
@@ -147,23 +150,15 @@ final class ScaledRAFileNIO implements RandomAccessInterface {
             positionBufferSeek(newPos);
             buffer.position((int) (newPos - bufferPosition));
         } catch (IllegalArgumentException e) {
-            database.logger.logWarningEvent("nio", e);
-
-            IOException io = new IOException(e.toString());
-
-            try {
-                io.initCause(e);
-            } catch (Throwable e1) {}
-
-            throw io;
-        } catch (Throwable e) {
             database.logger.logWarningEvent(JVM_ERROR, e);
 
-            IOException io = new IOException(e.toString());
+            IOException io = JavaSystem.toIOException(e);
 
-            try {
-                io.initCause(e);
-            } catch (Throwable e1) {}
+            throw io;
+        } catch (Throwable t) {
+            database.logger.logWarningEvent(JVM_ERROR, t);
+
+            IOException io = JavaSystem.toIOException(t);
 
             throw io;
         }
@@ -228,14 +223,10 @@ final class ScaledRAFileNIO implements RandomAccessInterface {
                     break;
                 }
             }
-        } catch (Throwable e) {
-            database.logger.logWarningEvent(JVM_ERROR, e);
+        } catch (Throwable t) {
+            database.logger.logWarningEvent(JVM_ERROR, t);
 
-            IOException io = new IOException(e.toString());
-
-            try {
-                io.initCause(e);
-            } catch (Throwable e1) {}
+            IOException io = JavaSystem.toIOException(t);
 
             throw io;
         }
@@ -249,14 +240,10 @@ final class ScaledRAFileNIO implements RandomAccessInterface {
             positionBufferMove(4);
 
             return value;
-        } catch (Throwable e) {
-            database.logger.logWarningEvent(JVM_ERROR, e);
+        } catch (Throwable t) {
+            database.logger.logWarningEvent(JVM_ERROR, t);
 
-            IOException io = new IOException(e.toString());
-
-            try {
-                io.initCause(e);
-            } catch (Throwable e1) {}
+            IOException io = JavaSystem.toIOException(t);
 
             throw io;
         }
@@ -270,14 +257,10 @@ final class ScaledRAFileNIO implements RandomAccessInterface {
             positionBufferMove(8);
 
             return value;
-        } catch (Throwable e) {
-            database.logger.logWarningEvent(JVM_ERROR, e);
+        } catch (Throwable t) {
+            database.logger.logWarningEvent(JVM_ERROR, t);
 
-            IOException io = new IOException(e.toString());
-
-            try {
-                io.initCause(e);
-            } catch (Throwable e1) {}
+            IOException io = JavaSystem.toIOException(t);
 
             throw io;
         }
@@ -306,14 +289,10 @@ final class ScaledRAFileNIO implements RandomAccessInterface {
                     break;
                 }
             }
-        } catch (Throwable e) {
-            database.logger.logWarningEvent(JVM_ERROR, e);
+        } catch (Throwable t) {
+            database.logger.logWarningEvent(JVM_ERROR, t);
 
-            IOException io = new IOException(e.toString());
-
-            try {
-                io.initCause(e);
-            } catch (Throwable e1) {}
+            IOException io = JavaSystem.toIOException(t);
 
             throw io;
         }
@@ -326,14 +305,10 @@ final class ScaledRAFileNIO implements RandomAccessInterface {
 
             buffer.putInt(i);
             positionBufferMove(4);
-        } catch (Throwable e) {
-            database.logger.logWarningEvent(JVM_ERROR, e);
+        } catch (Throwable t) {
+            database.logger.logWarningEvent(JVM_ERROR, t);
 
-            IOException io = new IOException(e.toString());
-
-            try {
-                io.initCause(e);
-            } catch (Throwable e1) {}
+            IOException io = JavaSystem.toIOException(t);
 
             throw io;
         }
@@ -346,14 +321,10 @@ final class ScaledRAFileNIO implements RandomAccessInterface {
 
             buffer.putLong(i);
             positionBufferMove(8);
-        } catch (Throwable e) {
-            database.logger.logWarningEvent(JVM_ERROR, e);
+        } catch (Throwable t) {
+            database.logger.logWarningEvent(JVM_ERROR, t);
 
-            IOException io = new IOException(e.toString());
-
-            try {
-                io.initCause(e);
-            } catch (Throwable e1) {}
+            IOException io = JavaSystem.toIOException(t);
 
             throw io;
         }
@@ -377,15 +348,10 @@ final class ScaledRAFileNIO implements RandomAccessInterface {
             file.close();
 
             // System.gc();
-        } catch (Throwable e) {
-            database.logger.logWarningEvent("NIO buffer close error "
-                                            + JVM_ERROR + " ", e);
+        } catch (Throwable t) {
+            database.logger.logWarningEvent("NIO buffer close error", t);
 
-            IOException io = new IOException(e.toString());
-
-            try {
-                io.initCause(e);
-            } catch (Throwable e1) {}
+            IOException io = JavaSystem.toIOException(t);
 
             throw io;
         }
@@ -472,7 +438,8 @@ final class ScaledRAFileNIO implements RandomAccessInterface {
 
     public void synch() {
 
-        boolean error = false;
+        boolean error    = false;
+        int     errIndex = 0;
 
         for (int i = 0; i < buffers.length; i++) {
             try {
@@ -482,12 +449,16 @@ final class ScaledRAFileNIO implements RandomAccessInterface {
                                                 + i * largeBufferSize
                                                 + " ", t);
 
+                if (!error) {
+                    errIndex = i;
+                }
+
                 error = true;
             }
         }
 
         if (error) {
-            for (int i = 0; i < buffers.length; i++) {
+            for (int i = errIndex; i < buffers.length; i++) {
                 try {
                     buffers[i].force();
                 } catch (Throwable t) {
@@ -504,6 +475,8 @@ final class ScaledRAFileNIO implements RandomAccessInterface {
             buffersModified = false;
         } catch (Throwable t) {
             database.logger.logSevereEvent("NIO RA file sync error ", t);
+
+            throw Error.error(t, ErrorCode.FILE_IO_ERROR, null);
         }
     }
 
