@@ -39,6 +39,8 @@ import java.io.RandomAccessFile;
 import java.lang.reflect.Constructor;
 
 import org.hsqldb.Database;
+import org.hsqldb.error.Error;
+import org.hsqldb.error.ErrorCode;
 import org.hsqldb.lib.HsqlByteArrayInputStream;
 import org.hsqldb.lib.HsqlByteArrayOutputStream;
 import org.hsqldb.lib.Storage;
@@ -414,7 +416,9 @@ final class ScaledRAFile implements RandomAccessInterface {
             try {
                 fileDescriptor.sync();
             } catch (Throwable tt) {
-                database.logger.logSevereEvent("RA file sync error ", t);
+                database.logger.logSevereEvent("RA file sync error ", tt);
+
+                throw Error.error(t, ErrorCode.FILE_IO_ERROR, null);
             }
         }
     }

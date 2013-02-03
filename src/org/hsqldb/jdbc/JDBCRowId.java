@@ -102,7 +102,7 @@ public final class JDBCRowId implements RowId {
     public JDBCRowId(final byte[] id) throws SQLException {
 
         if (id == null) {
-            throw Util.nullArgument("id");
+            throw JDBCUtil.nullArgument("id");
         }
         this.id = id;
     }
@@ -129,13 +129,13 @@ public final class JDBCRowId implements RowId {
     public JDBCRowId(final String hex) throws SQLException {
 
         if (hex == null) {
-            throw Util.nullArgument("hex");
+            throw JDBCUtil.nullArgument("hex");
         }
 
         try {
             this.id = StringConverter.hexStringToByteArray(hex);
         } catch (IOException e) {
-            throw Util.sqlException(ErrorCode.JDBC_INVALID_ARGUMENT,
+            throw JDBCUtil.sqlException(ErrorCode.JDBC_INVALID_ARGUMENT,
                                     "hex: " + e);
 
             // .illegalHexadecimalCharacterSequenceArgumentException("hex", e);

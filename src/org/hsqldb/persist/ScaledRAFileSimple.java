@@ -36,6 +36,8 @@ import java.io.IOException;
 import java.io.RandomAccessFile;
 
 import org.hsqldb.Database;
+import org.hsqldb.error.Error;
+import org.hsqldb.error.ErrorCode;
 
 /**
  * This class is a simple wrapper for a random access file such as used
@@ -148,6 +150,8 @@ final class ScaledRAFileSimple implements RandomAccessInterface {
                 file.getFD().sync();
             } catch (Throwable tt) {
                 database.logger.logSevereEvent("RA file sync error ", t);
+
+                throw Error.error(t, ErrorCode.FILE_IO_ERROR, null);
             }
         }
     }
