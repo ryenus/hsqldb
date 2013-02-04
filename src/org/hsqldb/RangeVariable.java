@@ -805,48 +805,42 @@ public class RangeVariable implements Cloneable {
     void moveConditionsToInner(Session session, RangeVariable[] ranges) {
 
         Expression[]  colExpr;
-        int           exclude        = ArrayUtil.find(ranges, this);
-        HsqlArrayList conditionsList = new HsqlArrayList();
-        Expression    condition      = null;
+        int           exclude;
+        HsqlArrayList conditionsList;
+        Expression    condition = null;
 
-        if (isRightJoin) {
-            if (whereConditions.length > 1) {
-                return;
-            }
-
-            addConditionsToList(conditionsList, whereConditions[0].indexCond);
-
-            if (whereConditions[0].indexCond != null
-                    && whereConditions[0].indexCond[0]
-                       != whereConditions[0].indexEndCond[0]) {
-                addConditionsToList(conditionsList,
-                                    whereConditions[0].indexEndCond);
-            }
-
-            RangeVariableResolver.decomposeAndConditions(session,
-                    whereConditions[0].nonIndexCondition, conditionsList);
-        } else {
-            if (joinConditions.length > 1 || whereConditions.length > 1) {
-                return;
-            }
-
-            addConditionsToList(conditionsList, joinConditions[0].indexCond);
-
-            if (joinConditions[0].indexCond != null
-                    && joinConditions[0].indexCond[0]
-                       != joinConditions[0].indexEndCond[0]) {
-                addConditionsToList(conditionsList,
-                                    joinConditions[0].indexEndCond);
-            }
-
-            addConditionsToList(conditionsList, whereConditions[0].indexCond);
-            addConditionsToList(conditionsList,
-                                whereConditions[0].indexEndCond);
-            RangeVariableResolver.decomposeAndConditions(session,
-                    joinConditions[0].nonIndexCondition, conditionsList);
-            RangeVariableResolver.decomposeAndConditions(session,
-                    whereConditions[0].nonIndexCondition, conditionsList);
+        if (whereConditions.length > 1) {
+            return;
         }
+
+        if (joinConditions.length > 1) {
+            return;
+        }
+
+        for (int i = 0; i < ranges.length; i++) {
+            if (ranges[i].isLeftJoin || ranges[i].isRightJoin) {
+                return;
+            }
+        }
+
+        exclude        = ArrayUtil.find(ranges, this);
+        conditionsList = new HsqlArrayList();
+
+        addConditionsToList(conditionsList, joinConditions[0].indexCond);
+
+        if (joinConditions[0].indexCond != null
+                && joinConditions[0].indexCond[0]
+                   != joinConditions[0].indexEndCond[0]) {
+            addConditionsToList(conditionsList,
+                                joinConditions[0].indexEndCond);
+        }
+
+        addConditionsToList(conditionsList, whereConditions[0].indexCond);
+        addConditionsToList(conditionsList, whereConditions[0].indexEndCond);
+        RangeVariableResolver.decomposeAndConditions(session,
+                joinConditions[0].nonIndexCondition, conditionsList);
+        RangeVariableResolver.decomposeAndConditions(session,
+                whereConditions[0].nonIndexCondition, conditionsList);
 
         for (int i = conditionsList.size() - 1; i >= 0; i--) {
             Expression e = (Expression) conditionsList.get(i);
