@@ -18,12 +18,11 @@ org/hsqldb/jdbc/JDBCResultSet.java
 org/hsqldb/jdbc/JDBCResultSetMetaData.java
 org/hsqldb/jdbc/JDBCStatement.java
 org/hsqldb/jdbc/JDBCStatementBase.java
-org/hsqldb/jdbc/Util.java
+org/hsqldb/jdbc/JDBCUtil.java
 org/hsqldb/jdbc/pool/JDBCPooledDataSource.java
 org/hsqldb/jdbc/pool/JDBCPooledConnection.java
 org/hsqldb/jdbc/pool/JDBCXAConnectionWrapper.java
 org/hsqldb/jdbc/pool/JDBCXADataSource.java
-org/hsqldb/jdbc/Util.java
 org/hsqldb/lib/java/JavaSystem.java
 org/hsqldb/lib/SimpleLog.java
 org/hsqldb/lib/StringConverter.java
