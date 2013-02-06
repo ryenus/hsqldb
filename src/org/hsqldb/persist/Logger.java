@@ -927,7 +927,7 @@ public class Logger {
     /**
      * Returns the Cache object or null if one doesn't exist.
      */
-    public DataFileCache getCache() {
+    public synchronized DataFileCache getCache() {
 
         if (log == null) {
             return null;
@@ -939,7 +939,7 @@ public class Logger {
     /**
      * Returns true if Cache object exists.
      */
-    private boolean hasCache() {
+    private synchronized boolean hasCache() {
 
         if (log == null) {
             return false;
@@ -1205,7 +1205,7 @@ public class Logger {
                              : 1;
     }
 
-    public void setDataFileSpaces(boolean value) {
+    public synchronized void setDataFileSpaces(boolean value) {
 
         propFileSpaces = value;
 

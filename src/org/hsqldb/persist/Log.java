@@ -153,9 +153,9 @@ public class Log {
 
             case HsqlDatabaseProperties.FILES_MODIFIED_NEW :
                 renameNewDataFile();
-                renameNewBackup();
                 renameNewScript();
                 deleteLog();
+                backupData();
                 properties.setDBModified(
                     HsqlDatabaseProperties.FILES_NOT_MODIFIED);
 
@@ -216,7 +216,6 @@ public class Log {
                 cache.deleteBackup();
             } else {
                 cache.backupFile(false);
-                cache.renameBackupFile();
             }
         }
 
@@ -255,48 +254,21 @@ public class Log {
         fa.removeElement(fileName + Logger.backupFileExtension);
     }
 
-    void deleteData() {
-        fa.removeElement(fileName + Logger.dataFileExtension);
-    }
+    void backupData() {
 
-    void backupData() throws IOException {
-
-        if (database.logger.propIncrementBackup) {
-            fa.removeElement(fileName + Logger.backupFileExtension);
-
-            return;
-        }
-
-        if (fa.isStreamElement(fileName + Logger.dataFileExtension)) {
-            FileArchiver.archive(
-                fileName + Logger.dataFileExtension,
-                fileName + Logger.backupFileExtension
-                + Logger.newFileExtension, database.logger.getFileAccess(),
-                                           FileArchiver.COMPRESSION_ZIP);
-        }
+        DataFileCache.backupFile(database,
+                                 fileName + Logger.dataFileExtension,
+                                 fileName + Logger.backupFileExtension, false);
     }
 
     void renameNewDataFile() {
-
-        if (fa.isStreamElement(fileName + Logger.dataFileExtension
-                               + Logger.newFileExtension)) {
-            fa.renameElement(fileName + Logger.dataFileExtension
-                             + Logger.newFileExtension, fileName
-                                 + Logger.dataFileExtension);
-        }
+        DataFileCache.renameDataFile(database,
+                                     fileName + Logger.dataFileExtension);
     }
 
     void renameNewBackup() {
-
-        // required for inc backup
-        fa.removeElement(fileName + Logger.backupFileExtension);
-
-        if (fa.isStreamElement(fileName + Logger.backupFileExtension
-                               + Logger.newFileExtension)) {
-            fa.renameElement(fileName + Logger.backupFileExtension
-                             + Logger.newFileExtension, fileName
-                                 + Logger.backupFileExtension);
-        }
+        DataFileCache.renameBackupFile(database,
+                                       fileName + Logger.backupFileExtension);
     }
 
     void renameNewScript() {
@@ -410,7 +382,12 @@ public class Log {
             if (cache != null) {
                 cache.spaceManager.close();
                 cache.commitChanges();
-                cache.backupFile(false);
+                properties.setProperty(
+                    HsqlDatabaseProperties.hsqldb_script_format,
+                    database.logger.propScriptFormat);
+                properties.setDBModified(
+                    HsqlDatabaseProperties.FILES_MODIFIED_NEW);
+                cache.backupFile(true);
                 cache.spaceManager.reopen();
             }
         } catch (Throwable t) {
@@ -431,9 +408,6 @@ public class Log {
         }
 
         closeLog();
-        properties.setProperty(HsqlDatabaseProperties.hsqldb_script_format,
-                               database.logger.propScriptFormat);
-        properties.setDBModified(HsqlDatabaseProperties.FILES_MODIFIED_NEW);
         deleteLog();
         renameNewScript();
         renameNewBackup();
