@@ -65,7 +65,7 @@ import org.hsqldb.result.Result;
  * @version 2.0.1
  * @since 1.7.2
  */
-public class Util {
+public class JDBCUtil {
 
     static final void throwError(HsqlException e) throws SQLException {
 
