@@ -1744,7 +1744,7 @@ public class FunctionSQL extends Expression {
             case FUNC_CURRENT_TIME : {
                 int precision = DateTimeType.defaultTimeFractionPrecision;
 
-                if (nodes[0] != null) {
+                if (nodes.length > 0 && nodes[0] != null) {
                     precision = ((Integer) nodes[0].valueData).intValue();
                 }
 

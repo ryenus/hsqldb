@@ -64,7 +64,7 @@ implements PersistentStoreCollection {
         }
     }
 
-    public PersistentStore getStore(Object key) {
+    synchronized public PersistentStore getStore(Object key) {
 
         long persistenceId = ((TableBase) key).getPersistenceId();
         PersistentStore store =

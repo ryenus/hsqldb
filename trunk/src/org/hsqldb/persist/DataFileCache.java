@@ -576,15 +576,21 @@ public class DataFileCache {
      * Restores a compressed backup or the .data file.
      */
     private boolean restoreBackup() {
+        return restoreBackup(database, dataFileName, backupFileName);
+    }
 
-        // in case data file cannot be deleted, reset it
-        deleteFile();
+    static boolean restoreBackup(Database database, String dataFileName,
+                                 String backupFileName) {
 
         try {
-            FileAccess fa = database.logger.getFileAccess();
+            FileAccess fileAccess = database.logger.getFileAccess();
 
-            if (fa.isStreamElement(backupFileName)) {
-                FileArchiver.unarchive(backupFileName, dataFileName, fa,
+            // in case data file cannot be deleted, reset it
+            deleteFile(database, dataFileName);
+
+            if (fileAccess.isStreamElement(backupFileName)) {
+                FileArchiver.unarchive(backupFileName, dataFileName,
+                                       fileAccess,
                                        FileArchiver.COMPRESSION_ZIP);
 
                 return true;
@@ -592,7 +598,7 @@ public class DataFileCache {
 
             return false;
         } catch (Throwable t) {
-            logSevereEvent("restoreBackup failed", t);
+            database.logger.logSevereEvent("restoreBackup failed", t);
 
             throw Error.error(t, ErrorCode.FILE_IO_ERROR,
                               ErrorCode.M_Message_Pair, new Object[] {
@@ -605,19 +611,31 @@ public class DataFileCache {
      * Restores in from an incremental backup
      */
     private boolean restoreBackupIncremental() {
+        return restoreBackupIncremental(database, dataFileName,
+                                        backupFileName);
+    }
+
+    /**
+     * Restores in from an incremental backup
+     */
+    static boolean restoreBackupIncremental(Database database,
+            String dataFileName, String backupFileName) {
 
         try {
-            if (fa.isStreamElement(backupFileName)) {
+            FileAccess fileAccess = database.logger.getFileAccess();
+
+            if (fileAccess.isStreamElement(backupFileName)) {
                 RAShadowFile.restoreFile(database, backupFileName,
                                          dataFileName);
-                deleteBackup();
+                deleteFile(database, backupFileName);
 
                 return true;
             }
 
             return false;
         } catch (Throwable e) {
-            logSevereEvent("restoreBackupIncremental failed", e);
+            database.logger.logSevereEvent("restoreBackupIncremental failed",
+                                           e);
 
             throw Error.error(ErrorCode.FILE_IO_ERROR, e);
         }
@@ -862,10 +880,11 @@ public class DataFileCache {
 
         try {
             release(object.getPos());
-            spaceManager.release(object.getPos(), object.getStorageSize());
         } finally {
             writeLock.unlock();
         }
+
+        spaceManager.release(object.getPos(), object.getStorageSize());
     }
 
     public void removePersistence(CachedObject object) {}
@@ -1373,13 +1392,18 @@ public class DataFileCache {
      * @throws  HsqlException
      */
     void backupFile(boolean newFile) {
+        backupFile(database, dataFileName, backupFileName, newFile);
+    }
 
-        writeLock.lock();
+    static void backupFile(Database database, String dataFileName,
+                           String backupFileName, boolean newFile) {
 
         try {
+            FileAccess fa = database.logger.getFileAccess();
+
             if (database.logger.propIncrementBackup) {
                 if (fa.isStreamElement(backupFileName)) {
-                    deleteBackup();
+                    deleteFile(database, backupFileName);
                 }
 
                 return;
@@ -1390,38 +1414,40 @@ public class DataFileCache {
                                   ? dataFileName + Logger.newFileExtension
                                   : dataFileName;
 
+                if (!newFile) {
+                    deleteFile(database, backupFileName);
+                }
+
                 FileArchiver.archive(filename,
                                      backupFileName + Logger.newFileExtension,
-                                     database.logger.getFileAccess(),
-                                     FileArchiver.COMPRESSION_ZIP);
+                                     fa, FileArchiver.COMPRESSION_ZIP);
             }
         } catch (Throwable t) {
-            logSevereEvent("backupFile failed ", t);
+            database.logger.logSevereEvent("backupFile failed ", t);
 
             throw Error.error(ErrorCode.DATA_FILE_ERROR, t);
-        } finally {
-            writeLock.unlock();
         }
     }
 
     void renameBackupFile() {
+        renameBackupFile(database, backupFileName);
+    }
 
-        writeLock.lock();
+    static void renameBackupFile(Database database, String backupFileName) {
 
-        try {
-            if (database.logger.propIncrementBackup) {
-                deleteBackup();
+        FileAccess fileAccess = database.logger.getFileAccess();
 
-                return;
-            }
+        if (database.logger.propIncrementBackup) {
+            deleteFile(database, backupFileName);
 
-            if (fa.isStreamElement(backupFileName + Logger.newFileExtension)) {
-                deleteBackup();
-                fa.renameElement(backupFileName + Logger.newFileExtension,
-                                 backupFileName);
-            }
-        } finally {
-            writeLock.unlock();
+            return;
+        }
+
+        if (fileAccess.isStreamElement(backupFileName
+                                       + Logger.newFileExtension)) {
+            deleteFile(database, backupFileName);
+            fileAccess.renameElement(backupFileName + Logger.newFileExtension,
+                                     backupFileName);
         }
     }
 
@@ -1431,62 +1457,50 @@ public class DataFileCache {
      * @throws  HsqlException
      */
     void renameDataFile() {
+        renameDataFile(database, dataFileName);
+    }
 
-        writeLock.lock();
+    static void renameDataFile(Database database, String dataFileName) {
 
-        try {
-            if (fa.isStreamElement(dataFileName + Logger.newFileExtension)) {
-                deleteFile();
-                fa.renameElement(dataFileName + Logger.newFileExtension,
-                                 dataFileName);
-            }
-        } finally {
-            writeLock.unlock();
+        FileAccess fileAccess = database.logger.getFileAccess();
+
+        if (fileAccess.isStreamElement(dataFileName
+                                       + Logger.newFileExtension)) {
+            deleteFile(database, dataFileName);
+            fileAccess.renameElement(dataFileName + Logger.newFileExtension,
+                                     dataFileName);
         }
     }
 
     void deleteFile() {
+        deleteFile(database, dataFileName);
+    }
 
-        writeLock.lock();
+    static void deleteFile(Database database, String fileName) {
 
-        try {
+        FileAccess fileAccess = database.logger.getFileAccess();
 
-            // first attemp to delete
-            fa.removeElement(dataFileName);
+        // first attemp to delete
+        fileAccess.removeElement(fileName);
 
-            // OOo related code
-            if (database.logger.isStoredFileAccess()) {
-                return;
+        if (database.logger.isStoredFileAccess()) {
+            return;
+        }
+
+        if (fileAccess.isStreamElement(fileName)) {
+            database.logger.log.deleteOldDataFiles();
+            fileAccess.removeElement(fileName);
+
+            if (fileAccess.isStreamElement(fileName)) {
+                String discardName = FileUtil.newDiscardFileName(fileName);
+
+                fileAccess.renameElement(fileName, discardName);
             }
-
-            // OOo end
-            if (fa.isStreamElement(dataFileName)) {
-                this.database.logger.log.deleteOldDataFiles();
-                fa.removeElement(dataFileName);
-
-                if (fa.isStreamElement(dataFileName)) {
-                    String discardName =
-                        FileUtil.newDiscardFileName(dataFileName);
-
-                    fa.renameElement(dataFileName, discardName);
-                }
-            }
-        } finally {
-            writeLock.unlock();
         }
     }
 
     void deleteBackup() {
-
-        writeLock.lock();
-
-        try {
-            if (fa.isStreamElement(backupFileName)) {
-                fa.removeElement(backupFileName);
-            }
-        } finally {
-            writeLock.unlock();
-        }
+        deleteFile(database, backupFileName);
     }
 
     /**

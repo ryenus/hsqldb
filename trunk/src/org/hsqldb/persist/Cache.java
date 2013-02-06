@@ -125,7 +125,11 @@ public class Cache extends BaseHashMap {
 
         if (size() >= capacity
                 || storageSize + cacheBytesLength > bytesCapacity) {
-            cleanUp();
+            cleanUp(false);
+
+            if (size() >= capacity) {
+                forceCleanUp();
+            }
 
             if (size() >= capacity) {
                 forceCleanUp();
@@ -217,13 +221,18 @@ public class Cache extends BaseHashMap {
      * in the cache.
      *
      */
-    private synchronized void cleanUp() {
+    private synchronized void cleanUp(boolean all) {
 
         updateAccessCounts();
 
         int removeCount  = size() / 2;
         int accessTarget = getAccessCountCeiling(removeCount, removeCount / 8);
         int savecount    = 0;
+
+        if (all) {
+            removeCount  = size();
+            accessTarget = accessCount;
+        }
 
         objectIterator.reset();
 
@@ -251,6 +260,8 @@ public class Cache extends BaseHashMap {
                             cacheBytesLength -= row.getStorageSize();
 
                             removeCount--;
+                        } else {
+                            objectIterator.setAccessCount(accessTarget + 1);
                         }
                     }
                 }
@@ -269,6 +280,7 @@ public class Cache extends BaseHashMap {
 
     synchronized void forceCleanUp() {
 
+        cleanUp(true);
         objectIterator.reset();
 
         for (; objectIterator.hasNext(); ) {

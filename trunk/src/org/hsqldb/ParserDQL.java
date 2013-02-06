@@ -3706,7 +3706,7 @@ public class ParserDQL extends ParserBase {
                     read();
 
                     if (hasNot) {
-                        e = new ExpressionLogical(OpTypes.IS_NOT_NULL, l);
+                        e      = new ExpressionLogical(OpTypes.IS_NOT_NULL, l);
                         hasNot = false;
                     } else {
                         e = new ExpressionLogical(OpTypes.IS_NULL, l);
@@ -5625,6 +5625,16 @@ public class ParserDQL extends ParserBase {
 
         HsqlArrayList exprList      = new HsqlArrayList();
         boolean       isOpenBracket = token.tokenType == Tokens.OPENBRACKET;
+
+        if (!isOpenBracket) {
+            if (parseList[0] == Tokens.X_OPTION) {
+                return function;
+            } else {
+                rewind(position);
+
+                return null;
+            }
+        }
 
         try {
             readExpression(exprList, parseList, 0, parseList.length, false);
