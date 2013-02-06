@@ -745,7 +745,6 @@ examples:
                   org/hsqldb/lib/CharArrayWriter*,
                   org/hsqldb/resources/sql-state-messages.properties,
                   org/hsqldb/jdbc/JDBC*,
-                  org/hsqldb/jdbc/Util*,
                   org/hsqldb/jdbc/pool/*,
                   org/hsqldb/rights/Grantee.class,
                   org/hsqldb/rowio/RowOutputBase*,
