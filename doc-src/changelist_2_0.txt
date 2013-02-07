@@ -1,4 +1,8 @@
-04 January 2012 - 5139 - snapshot
+06 February 2013 - svn 5168 snapshot
+-- improved backward compatibility for use with embedded OpenOffice / LibreOffice databases
+-- fixed regression with some subquery tables used in OUTER joins
+-- fixed regression with some in MERGE statements
+04 January 2013 - svn 5139 - snapshot
 -- improved reuse of empty lob spaces
 -- fixed various minor issues 
 09 December 2012 - svn 5127
