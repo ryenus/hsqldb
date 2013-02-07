@@ -1052,7 +1052,7 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
 /*
     public Object getObject(int parameterIndex, Map map) throws SQLException {
             checkGetParameterIndex(parameterIndex);
-        throw Util.notSupported();
+        throw JDBCUtil.notSupported();
     }
 */
 
@@ -4880,7 +4880,7 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
         if (type == Integer.MIN_VALUE) {
             msg = "Parameter not registered: " + parameterIndex; //NOI18N
 
-            throw Util.sqlException(ErrorCode.INVALID_JDBC_ARGUMENT, msg);
+            throw JDBCUtil.sqlException(ErrorCode.INVALID_JDBC_ARGUMENT, msg);
         }
     }
 */

@@ -1864,7 +1864,7 @@ public class JDBCConnection implements Connection {
 
         checkClosed();
 
-        throw Util.notSupported();
+        throw JDBCUtil.notSupported();
     }
 */
 
