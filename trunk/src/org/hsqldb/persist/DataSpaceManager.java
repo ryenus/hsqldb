@@ -42,8 +42,8 @@ public interface DataSpaceManager {
 
     int tableIdEmpty     = 0;
     int tableIdDirectory = 1;
-    int tableIdDefault   = 2;
-    int tableIdFirst     = 3;
+    int tableIdDefault   = 7;
+    int tableIdFirst     = 8;
 
     //
     int fixedBlockSizeUnit = 4096;

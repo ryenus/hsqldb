@@ -172,7 +172,7 @@ public final class ClobType extends CharacterType {
             return null;
         }
 
-        return Long.toString(((BlobData) a).getId());
+        return Long.toString(((ClobData) a).getId());
     }
 
     public String convertToSQLString(Object a) {

@@ -71,7 +71,6 @@ class TransactionManagerCommon {
 
     /** global timestamp for database */
     AtomicLong globalChangeTimestamp = new AtomicLong(1);
-    long       globalDataChangeTimestamp;
 
     //
     int transactionCount = 0;

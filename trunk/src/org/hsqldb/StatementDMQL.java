@@ -369,6 +369,13 @@ public abstract class StatementDMQL extends Statement {
             set.toArray(readTableNames);
         }
 
+        if (readTableNames.length == 0 && writeTableNames.length == 0) {
+            if (type == StatementTypes.SELECT_CURSOR
+                    || type == StatementTypes.SELECT_SINGLE) {
+                isTransactionStatement = false;
+            }
+        }
+
         references = compileContext.getSchemaObjectNames();
 
         if (targetTable != null) {

@@ -72,10 +72,6 @@ public class StatementSchema extends Statement {
         this(sql, type, null, (HsqlName[]) null, null);
     }
 
-    StatementSchema(String sql, int type, Object[] args) {
-        this(sql, type, args, (HsqlName[]) null, null);
-    }
-
     StatementSchema(String sql, int type, Object[] args, HsqlName[] readName,
                     HsqlName[] writeName) {
 

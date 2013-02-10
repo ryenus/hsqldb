@@ -802,7 +802,7 @@ public class Logger {
 
     public void setEventLogLevel(int level, boolean logSql) {
 
-        if (level < SimpleLog.LOG_NONE || level > SimpleLog.LOG_EXTRA) {
+        if (level < SimpleLog.LOG_NONE || level > SimpleLog.LOG_RESULT) {
             throw Error.error(ErrorCode.X_42556);
         }
 
@@ -898,13 +898,13 @@ public class Logger {
                     paramLength);
             }
 
-            if (propSqlLogLevel == SimpleLog.LOG_EXTRA) {
+            if (propSqlLogLevel == SimpleLog.LOG_RESULT) {
                 StringBuffer sb = new StringBuffer(values);
 
                 sb.append(' ').append('[');
 
                 if (result.isError()) {
-                    sb.append(result.getSubString());
+                    sb.append(result.getErrorCode());
                 } else if (result.isData()) {
                     sb.append(result.getNavigator().getSize());
                 } else if (result.isUpdateCount()) {
@@ -927,7 +927,7 @@ public class Logger {
     /**
      * Returns the Cache object or null if one doesn't exist.
      */
-    public synchronized DataFileCache getCache() {
+    public DataFileCache getCache() {
 
         if (log == null) {
             return null;
@@ -939,7 +939,7 @@ public class Logger {
     /**
      * Returns true if Cache object exists.
      */
-    private synchronized boolean hasCache() {
+    private boolean hasCache() {
 
         if (log == null) {
             return false;
