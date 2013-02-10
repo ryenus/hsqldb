@@ -51,6 +51,9 @@ import org.hsqldb.types.Type;
  */
 public class RoutineSchema implements SchemaObject {
 
+    static RoutineSchema[] emptyArray = new RoutineSchema[]{};
+
+    //
     Routine[]        routines = Routine.emptyArray;
     int              routineType;
     private HsqlName name;
