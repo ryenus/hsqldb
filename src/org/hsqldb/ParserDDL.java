@@ -629,7 +629,7 @@ public class ParserDDL extends ParserRoutine {
         }
 
         if (object == null) {
-            writeLockNames = database.schemaManager.getCatalogNameArray();
+            writeLockNames = null;
         } else {
             name = object.getName();
             writeLockNames =
@@ -5080,7 +5080,8 @@ public class ParserDDL extends ParserRoutine {
             name, comment
         };
 
-        return new StatementSchema(null, StatementTypes.COMMENT, arguments);
+        return new StatementSchema(null, StatementTypes.COMMENT, arguments,
+                                   null, null);
     }
 
     Statement compileAlterSession() {

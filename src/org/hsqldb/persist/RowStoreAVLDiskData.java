@@ -62,6 +62,7 @@ public class RowStoreAVLDiskData extends RowStoreAVL {
 
     public RowStoreAVLDiskData(PersistentStoreCollection manager,
                                Table table) {
+
         this.database     = table.database;
         this.manager      = manager;
         this.table        = table;
@@ -70,7 +71,6 @@ public class RowStoreAVLDiskData extends RowStoreAVL {
 
         manager.setStore(table, this);
     }
-
 
     public CachedObject get(long key, boolean keep) {
 

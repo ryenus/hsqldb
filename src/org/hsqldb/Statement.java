@@ -197,6 +197,11 @@ public abstract class Statement {
                 if (type == StatementTypes.ALTER_SEQUENCE) {
                     return false;
                 }
+
+                if (writeTableNames.length == 0) {
+                    return false;
+                }
+
             case StatementTypes.X_SQL_SCHEMA_DEFINITION :
             case StatementTypes.X_HSQLDB_SCHEMA_MANIPULATION :
                 return true;

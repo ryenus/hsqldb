@@ -1270,11 +1270,14 @@ public class Session implements SessionInterface {
         boolean isTX = cs.isTransactionStatement();
 
         if (!isTX) {
+            actionTimestamp =
+                database.txManager.getNextGlobalChangeTimestamp();
+
+            sessionContext.setDynamicArguments(pvals);
 
             // statements such as DISCONNECT may close the session
             if (database.logger.getSqlEventLogLevel()
                     >= SimpleLog.LOG_NORMAL) {
-                sessionContext.setDynamicArguments(pvals);
                 database.logger.logStatementEvent(this, cs, pvals,
                                                   Result.updateZeroResult,
                                                   SimpleLog.LOG_NORMAL);

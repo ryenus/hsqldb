@@ -231,7 +231,7 @@ public class Cache extends BaseHashMap {
 
         if (all) {
             removeCount  = size();
-            accessTarget = accessCount;
+            accessTarget = accessCount + 1;
         }
 
         objectIterator.reset();
@@ -242,13 +242,13 @@ public class Cache extends BaseHashMap {
             boolean newRow = row.isNew()
                              && row.getStorageSize()
                                 >= DataFileCache.initIOBufferSize;
-            boolean oldRow = currentAccessCount <= accessTarget;
+            boolean oldRow = currentAccessCount < accessTarget;
 
             if (oldRow || newRow) {
+                objectIterator.setAccessCount(accessTarget);
+
                 synchronized (row) {
-                    if (row.isKeepInMemory()) {
-                        objectIterator.setAccessCount(accessTarget + 1);
-                    } else {
+                    if (!row.isKeepInMemory()) {
                         if (row.hasChanged()) {
                             rowTable[savecount++] = row;
                         }
@@ -260,8 +260,6 @@ public class Cache extends BaseHashMap {
                             cacheBytesLength -= row.getStorageSize();
 
                             removeCount--;
-                        } else {
-                            objectIterator.setAccessCount(accessTarget + 1);
                         }
                     }
                 }
@@ -287,7 +285,7 @@ public class Cache extends BaseHashMap {
             CachedObject row = (CachedObject) objectIterator.next();
 
             synchronized (row) {
-                if (!row.hasChanged() && !row.isKeepInMemory()) {
+                if (!row.isKeepInMemory() && !row.hasChanged()) {
                     row.setInMemory(false);
                     objectIterator.remove();
 
