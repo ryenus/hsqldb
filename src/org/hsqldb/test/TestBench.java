@@ -173,6 +173,7 @@ class TestBench {
         System.out.println("Number of clients: " + n_clients);
         System.out.println("Number of transactions per client: "
                            + n_txn_per_client);
+        System.out.println("Execution rounds: " + rounds);
         System.out.println();
 
         if (DriverName.equals("org.hsqldb.jdbc.JDBCDriver")
@@ -231,15 +232,15 @@ class TestBench {
             long tempTime = System.currentTimeMillis() - startTime;
 
             startTime = System.currentTimeMillis();
-            guardian = connect(url, user, password);
+            guardian  = connect(url, user, password);
 
             checkSums(guardian);
             connectClose(guardian);
             System.out.println("Total time: " + tempTime / 1000D + " seconds");
             System.out.println(
                 "sum check time: "
-                + (System.currentTimeMillis() - startTime / 1000D)
-                + " seconds");
+                + (System.currentTimeMillis() - startTime)
+                + " milliseconds");
         } catch (Exception E) {
             System.out.println(E.getMessage());
             E.printStackTrace();
@@ -402,6 +403,14 @@ class TestBench {
             Statement Stmt = Conn.createStatement();
             String    Query;
 
+            if (url.contains("hsqldb")) {
+                try {
+                    Query = "DROP PROCEDURE UPDATE_PROC";
+
+                    Stmt.execute(Query);
+                } catch (Exception e) {}
+            }
+
             Query = "DROP TABLE history";
 
             Stmt.execute(Query);
@@ -423,7 +432,8 @@ class TestBench {
             Stmt.clearWarnings();
             Conn.commit();
             Stmt.close();
-        } catch (Exception E) {}
+        } catch (Exception e) {
+        }
 
         System.out.println("Creates tables");
 

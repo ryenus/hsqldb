@@ -368,22 +368,19 @@ public class StringConverter {
         }
 
         final int len = s.length();
-        char[]    chars;
         int       extras = 0;
 
         if (len == 0) {
             return;
         }
 
-        chars = s.toCharArray();
-
         b.ensureRoom(len * 2 + 5);
 
         for (int i = 0; i < len; i++) {
-            char c = chars[i];
+            char c = s.charAt(i);
 
             if (c == '\\') {
-                if ((i < len - 1) && (chars[i + 1] == 'u')) {
+                if ((i < len - 1) && (s.charAt(i + 1) == 'u')) {
                     b.writeNoCheck(c);    // encode the \ as unicode, so 'u' is ignored
                     b.writeNoCheck('u');
                     b.writeNoCheck('0');
