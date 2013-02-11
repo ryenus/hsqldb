@@ -291,7 +291,7 @@ public class DataFileCache {
                     boolean existsBackup = fa.isStreamElement(backupFileName);
 
                     if (!existsBackup) {
-                        backupFile(false);
+                        backupDataFile(false);
                     }
                 }
             } else {
@@ -830,7 +830,7 @@ public class DataFileCache {
             cache.clear();
 
             if (!database.logger.propIncrementBackup) {
-                backupFile(true);
+                backupNewDataFile(true);
             }
 
             database.schemaManager.setTempIndexRoots(dfd.getIndexRoots());
@@ -1391,11 +1391,16 @@ public class DataFileCache {
      *
      * @throws  HsqlException
      */
-    void backupFile(boolean newFile) {
+    void backupDataFile(boolean newFile) {
         backupFile(database, dataFileName, backupFileName, newFile);
     }
 
-    static void backupFile(Database database, String dataFileName,
+    void backupNewDataFile(boolean newFile) {
+        backupFile(database, dataFileName + Logger.newFileExtension,
+                   backupFileName, newFile);
+    }
+
+    static void backupFile(Database database, String fileName,
                            String backupFileName, boolean newFile) {
 
         try {
@@ -1409,18 +1414,19 @@ public class DataFileCache {
                 return;
             }
 
-            if (fa.isStreamElement(dataFileName)) {
-                String filename = newFile
-                                  ? dataFileName + Logger.newFileExtension
-                                  : dataFileName;
-
+            if (fa.isStreamElement(fileName)) {
                 if (!newFile) {
                     deleteFile(database, backupFileName);
                 }
 
-                FileArchiver.archive(filename,
-                                     backupFileName + Logger.newFileExtension,
-                                     fa, FileArchiver.COMPRESSION_ZIP);
+                String backupSaveName = backupFileName;
+
+                if (newFile) {
+                    backupSaveName += Logger.newFileExtension;
+                }
+
+                FileArchiver.archive(fileName, backupSaveName, fa,
+                                     FileArchiver.COMPRESSION_ZIP);
             }
         } catch (Throwable t) {
             database.logger.logSevereEvent("backupFile failed ", t);

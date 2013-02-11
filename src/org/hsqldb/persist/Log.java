@@ -215,7 +215,7 @@ public class Log {
                 cache.deleteFile();
                 cache.deleteBackup();
             } else {
-                cache.backupFile(false);
+                cache.backupDataFile(false);
             }
         }
 
@@ -387,7 +387,7 @@ public class Log {
                     database.logger.propScriptFormat);
                 properties.setDBModified(
                     HsqlDatabaseProperties.FILES_MODIFIED_NEW);
-                cache.backupFile(true);
+                cache.backupDataFile(true);
                 cache.spaceManager.reopen();
             }
         } catch (Throwable t) {
