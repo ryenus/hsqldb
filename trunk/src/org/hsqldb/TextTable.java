@@ -216,7 +216,7 @@ public class TextTable extends Table {
      * High level command to assign a data source to the table definition.
      * Reassigns only if the data source or direction has changed.
      */
-    protected void setDataSource(Session session, String dataSourceNew,
+    void setDataSource(Session session, String dataSourceNew,
                                  boolean isReversedNew, boolean createFile) {
 
         if (getTableType() == Table.TEMP_TEXT_TABLE) {
@@ -262,7 +262,7 @@ public class TextTable extends Table {
         throw Error.error(ErrorCode.TEXT_TABLE_HEADER);
     }
 
-    public String getHeader() {
+    private String getHeader() {
 
         PersistentStore store =
             database.persistentStoreCollection.getStore(this);
@@ -279,13 +279,13 @@ public class TextTable extends Table {
      * Used by INSERT, DELETE, UPDATE operations. This class will return
      * a more appropriate message when there is no data source.
      */
-    void checkDataReadOnly() {
+    public void checkDataReadOnly() {
 
         if (dataSource.length() == 0) {
             throw Error.error(ErrorCode.TEXT_TABLE_UNKNOWN_DATA_SOURCE);
         }
 
-        if (isReadOnly) {
+        if (isDataReadOnly()) {
             throw Error.error(ErrorCode.DATA_IS_READONLY);
         }
     }
@@ -307,7 +307,7 @@ public class TextTable extends Table {
             }
 
             if (isConnected()) {
-                store.getCache().close(true);
+                store.getCache().close();
                 store.getCache().open(value);
             }
         }
@@ -315,13 +315,16 @@ public class TextTable extends Table {
         isReadOnly = value;
     }
 
-    boolean isIndexCached() {
-        return false;
-    }
+    /**
+     * Adds commitPersistence() call
+     */
+    public void insertData(Session session, PersistentStore store,
+                           Object[] data) {
 
-    void setIndexRoots(String s) {
+        Row row = (Row) store.getNewCachedObject(session, data, false);
 
-        // do nothing
+        store.indexRow(session, row);
+        store.commitPersistence(row);
     }
 
     String getDataSourceDDL() {
@@ -364,17 +367,5 @@ public class TextTable extends Table {
         sb.append(header);
 
         return sb.toString();
-    }
-
-    /**
-     * Adds commitPersistence() call
-     */
-    public void insertData(Session session, PersistentStore store,
-                           Object[] data) {
-
-        Row row = (Row) store.getNewCachedObject(session, data, false);
-
-        store.indexRow(session, row);
-        store.commitPersistence(row);
     }
 }

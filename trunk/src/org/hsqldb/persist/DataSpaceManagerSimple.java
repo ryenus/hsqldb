@@ -65,6 +65,8 @@ public class DataSpaceManagerSimple implements DataSpaceManager {
                     cache.dataFileScale);
 
             initialiseTableSpace();
+
+            cache.spaceManagerPosition = 0;
         }
     }
 
@@ -81,7 +83,7 @@ public class DataSpaceManagerSimple implements DataSpaceManager {
         return defaultSpaceManager;
     }
 
-    public int getNewTableSpace() {
+    public int getNewTableSpaceID() {
         return spaceIdSequence++;
     }
 
@@ -94,17 +96,21 @@ public class DataSpaceManagerSimple implements DataSpaceManager {
 
     public void freeTableSpace(int spaceId) {}
 
-    public void freeTableSpace(int spaceId, DoubleIntIndex spaceList) {
+    public void freeTableSpace(int spaceId, DoubleIntIndex spaceList,
+                               long offset, long limit) {
 
         for (int i = 0; i < spaceList.size(); i++) {
             totalFragmentSize += spaceList.getValue(i);
         }
-    }
-
-    public void freeTableSpace(int spaceId, long offset, long limit) {
 
         if (cache.fileFreePosition == limit) {
-            cache.fileFreePosition = offset;
+            cache.writeLock.lock();
+
+            try {
+                cache.fileFreePosition = offset;
+            } finally {
+                cache.writeLock.unlock();
+            }
         }
     }
 
@@ -117,15 +123,11 @@ public class DataSpaceManagerSimple implements DataSpaceManager {
     }
 
     public boolean isModified() {
-        return false;
+        return true;
     }
 
-    public void close() {
-        defaultSpaceManager.close();
-    }
-
-    public void reopen() {
-        initialiseTableSpace();
+    public void reset() {
+        defaultSpaceManager.reset();
     }
 
     private void initialiseTableSpace() {

@@ -162,7 +162,10 @@ public class RowStoreAVLHybrid extends RowStoreAVL implements PersistentStore {
             size = cache.rowOut.getStorageSize(size);
 
             object.setStorageSize(size);
-            cache.setFilePos(object, tableSpace, false);
+
+            long pos = tableSpace.getFilePosition(size, false);
+
+            object.setPos(pos);
             cache.add(object);
         }
 
@@ -372,7 +375,8 @@ public class RowStoreAVLHybrid extends RowStoreAVL implements PersistentStore {
 
     public final void changeToDiskTable(Session session) {
 
-        cache = ((PersistentStoreCollectionSession) manager).getResultCache();
+        cache =
+            ((PersistentStoreCollectionSession) manager).getSessionDataCache();
 
         if (cache != null) {
             tableSpace = cache.spaceManager.getTableSpace(

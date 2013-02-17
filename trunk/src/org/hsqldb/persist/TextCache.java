@@ -177,16 +177,15 @@ public class TextCache extends DataFileCache {
         cacheReadonly = readonly;
     }
 
-    void reopen() {
-        open(cacheReadonly);
+    public void release() {
+        close();
     }
-
     /**
      *  Writes newly created rows to disk. In the current implentation,
      *  such rows have already been saved, so this method just removes a
      *  source file that has no rows.
      */
-    public void close(boolean write) {
+    public void close() {
 
         if (dataFile == null) {
             return;
@@ -232,7 +231,7 @@ public class TextCache extends DataFileCache {
             uncommittedCache.clear();
 
             if (cacheReadonly) {
-                close(false);
+                release();
             } else {
                 if (dataFile != null) {
                     dataFile.close();
@@ -251,22 +250,6 @@ public class TextCache extends DataFileCache {
         } finally {
             writeLock.unlock();
         }
-    }
-
-    /**
-     * Does not extend the end of file.
-     */
-    public long setFilePos(CachedObject r,
-                           TableSpaceManager tableSpaceManager,
-                           boolean asBlock) {
-
-        int  rowSize = r.getStorageSize();
-        long i       = tableSpaceManager.getFilePosition(rowSize, false);
-
-        r.setPos(i);
-        clearRowImage(r);
-
-        return i;
     }
 
     /**
@@ -378,7 +361,7 @@ public class TextCache extends DataFileCache {
                 database.logger.logSevereEvent(dataFileName
                                                + " getFromFile problem "
                                                + object.getPos(), t);
-                cache.forceCleanUp();
+                cache.clearUnchanged();
                 System.gc();
 
                 return object;

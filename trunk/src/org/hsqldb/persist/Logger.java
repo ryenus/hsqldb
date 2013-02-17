@@ -195,7 +195,7 @@ public class Logger {
      * @throws  HsqlException if there is a problem, such as the case when
      *      the specified files are in use by another process
      */
-    public void openPersistence() {
+    public void open() {
 
         // oj@openoffice.org - changed to file access api
         String fileaccess_class_name =
@@ -682,7 +682,7 @@ public class Logger {
      * @return  true if closed with no problems or false if a problem was
      *        encountered.
      */
-    public boolean closePersistence(int closemode) {
+    public boolean close(int closemode) {
 
         boolean result = true;
 
@@ -1205,7 +1205,7 @@ public class Logger {
                              : 1;
     }
 
-    public synchronized void setDataFileSpaces(boolean value) {
+    public void setDataFileSpaces(boolean value) {
 
         propFileSpaces = value;
 
@@ -1217,23 +1217,7 @@ public class Logger {
                 return;
             }
 
-            HsqlArrayList allTables =
-                database.schemaManager.getAllTables(true);
-
-            for (int i = 0; i < allTables.size(); i++) {
-                Table table = (Table) allTables.get(i);
-
-                if (table.isCached()) {
-                    PersistentStore store =
-                        table.database.persistentStoreCollection.getStore(
-                            table);
-                    TableSpaceManager tableSpace =
-                        dataCache.spaceManager.getTableSpace(
-                            table.getSpaceID());
-
-                    store.setSpaceManager(tableSpace);
-                }
-            }
+            database.persistentStoreCollection.setNewTableSpaces();
         }
     }
 
@@ -2288,7 +2272,7 @@ public class Logger {
 
         if (c != null) {
             try {
-                c.close(true);
+                c.close();
             } catch (HsqlException e) {}
         }
     }
@@ -2304,7 +2288,7 @@ public class Logger {
             if (script && !textCache.table.isDataReadOnly()) {
                 textCache.purge();
             } else {
-                textCache.close(true);
+                textCache.close();
             }
         }
     }
@@ -2320,5 +2304,9 @@ public class Logger {
         }
 
         return false;
+    }
+
+    public boolean isNewDatabase() {
+        return isNewDatabase;
     }
 }

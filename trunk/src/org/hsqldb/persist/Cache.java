@@ -46,7 +46,7 @@ import org.hsqldb.store.BaseHashMap;
  * to DataFileCache.<p>
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.2.9
+ * @version 2.3.0
  * @since 1.8.0
  */
 public class Cache extends BaseHashMap {
@@ -56,6 +56,7 @@ public class Cache extends BaseHashMap {
     private long                               bytesCapacity;    // number of bytes
     private final CachedObjectComparator       rowComparator;
     private final BaseHashMap.BaseHashIterator objectIterator;
+    private boolean                            updateAccess;
 
 //
     private CachedObject[] rowTable;
@@ -79,6 +80,7 @@ public class Cache extends BaseHashMap {
         rowTable         = new CachedObject[capacity];
         cacheBytesLength = 0;
         objectIterator   = new BaseHashIterator(true);
+        updateAccess     = true;
         comparator       = rowComparator;
     }
 
@@ -95,9 +97,9 @@ public class Cache extends BaseHashMap {
     /**
      * Returns a row if in memory cache.
      */
-    public synchronized CachedObject get(long pos) {
+    public CachedObject get(long pos) {
 
-        if (accessCount > ACCESS_MAX) {
+        if (accessCount > ACCESS_MAX && updateAccess) {
             updateAccessCounts();
             resetAccessCount();
             updateObjectAccessCounts();
@@ -119,7 +121,7 @@ public class Cache extends BaseHashMap {
     /**
      * Adds a row to the cache.
      */
-    synchronized void put(CachedObject row) {
+    void put(CachedObject row) {
 
         int storageSize = row.getStorageSize();
 
@@ -128,15 +130,15 @@ public class Cache extends BaseHashMap {
             cleanUp(false);
 
             if (size() >= capacity) {
-                forceCleanUp();
+                clearUnchanged();
             }
 
             if (size() >= capacity) {
-                forceCleanUp();
+                cleanUp(true);
             }
         }
 
-        if (accessCount > ACCESS_MAX) {
+        if (accessCount > ACCESS_MAX && updateAccess) {
             updateAccessCounts();
             resetAccessCount();
             updateObjectAccessCounts();
@@ -151,7 +153,7 @@ public class Cache extends BaseHashMap {
     /**
      * Removes an object from memory cache. Does not release the file storage.
      */
-    synchronized CachedObject release(long pos) {
+    CachedObject release(long pos) {
 
         CachedObject r = (CachedObject) super.addOrRemoveObject(null, pos,
             true);
@@ -170,7 +172,7 @@ public class Cache extends BaseHashMap {
     /**
      * Replace a row in the cache.
      */
-    synchronized void replace(long key, CachedObject row) {
+    void replace(long key, CachedObject row) {
 
         int lookup = super.getLookup(key);
 
@@ -218,12 +220,14 @@ public class Cache extends BaseHashMap {
      * the rows with the lowest access count.
      *
      * Index operations require that up to 5 recently accessed rows remain
-     * in the cache.
+     * in the cache. This is ensured by prior calling keepInMemory().
      *
      */
-    private synchronized void cleanUp(boolean all) {
+    private void cleanUp(boolean all) {
 
-        updateAccessCounts();
+        if (updateAccess) {
+            updateAccessCounts();
+        }
 
         int removeCount  = size() / 2;
         int accessTarget = getAccessCountCeiling(removeCount, removeCount / 8);
@@ -239,29 +243,33 @@ public class Cache extends BaseHashMap {
         for (; objectIterator.hasNext(); ) {
             CachedObject row = (CachedObject) objectIterator.next();
             int          currentAccessCount = objectIterator.getAccessCount();
+            boolean      oldRow = currentAccessCount < accessTarget;
             boolean newRow = row.isNew()
                              && row.getStorageSize()
                                 >= DataFileCache.initIOBufferSize;
-            boolean oldRow = currentAccessCount < accessTarget;
 
-            if (oldRow || newRow) {
-                objectIterator.setAccessCount(accessTarget);
+            if (!oldRow && !newRow) {
+                continue;
+            }
 
-                synchronized (row) {
-                    if (!row.isKeepInMemory()) {
-                        if (row.hasChanged()) {
-                            rowTable[savecount++] = row;
-                        }
+            objectIterator.setAccessCount(accessTarget);
 
-                        if (oldRow) {
-                            row.setInMemory(false);
-                            objectIterator.remove();
+            synchronized (row) {
+                if (row.isKeepInMemory()) {
+                    continue;
+                }
 
-                            cacheBytesLength -= row.getStorageSize();
+                if (row.hasChanged()) {
+                    rowTable[savecount++] = row;
+                }
 
-                            removeCount--;
-                        }
-                    }
+                if (oldRow) {
+                    row.setInMemory(false);
+                    objectIterator.remove();
+
+                    cacheBytesLength -= row.getStorageSize();
+
+                    removeCount--;
                 }
             }
 
@@ -276,9 +284,8 @@ public class Cache extends BaseHashMap {
         saveRows(savecount);
     }
 
-    synchronized void forceCleanUp() {
+    void clearUnchanged() {
 
-        cleanUp(true);
         objectIterator.reset();
 
         for (; objectIterator.hasNext(); ) {
@@ -320,7 +327,7 @@ public class Cache extends BaseHashMap {
     /**
      * Writes out all modified cached Rows.
      */
-    synchronized void saveAll() {
+    void saveAll() {
 
         int savecount = 0;
 
@@ -366,7 +373,7 @@ public class Cache extends BaseHashMap {
     /**
      * clears out the memory cache
      */
-    synchronized public void clear() {
+    public void clear() {
 
         super.clear();
 

@@ -135,7 +135,10 @@ public class RowStoreAVLDisk extends RowStoreAVL implements PersistentStore {
         size = rowOut.getStorageSize(size);
 
         object.setStorageSize(size);
-        cache.setFilePos(object, tableSpace, false);
+
+        long pos = tableSpace.getFilePosition(size, false);
+
+        object.setPos(pos);
 
         if (tx) {
             Row row = (Row) object;
@@ -359,6 +362,28 @@ public class RowStoreAVLDisk extends RowStoreAVL implements PersistentStore {
     public void setReadOnly(boolean readOnly) {
 
         // called on insert or delete errors
+    }
+
+/*
+        long estimate = getSpaceSizeEstimate();
+        long min      = cache.spaceManager.getFileBlockSize() / 4;
+        long max      = 2 * 1024 * 1024;
+
+        if (min < estimate && estimate < max) {
+
+            // mveDataToSpace
+        }
+*/
+    private long getSpaceSizeEstimate() {
+
+        if (elementCount == 0) {
+            return 0;
+        }
+
+        CachedObject accessor = getAccessor(indexList[0]);
+        CachedObject row      = get(accessor.getPos());
+
+        return row.getStorageSize() * elementCount;
     }
 
     public void moveDataToSpace() {

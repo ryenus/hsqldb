@@ -68,7 +68,6 @@ public class DataFileCacheSession extends DataFileCache {
         maxCacheRows      = 2048;
         maxCacheBytes     = maxCacheRows * 1024;
         maxDataFileSize   = (long) Integer.MAX_VALUE * dataFileScale;
-        dataFile          = null;
     }
 
     /**
@@ -87,7 +86,7 @@ public class DataFileCacheSession extends DataFileCache {
         } catch (Throwable t) {
             database.logger.logWarningEvent("Failed to open Session RA file",
                                             t);
-            close(false);
+            release();
 
             throw Error.error(t, ErrorCode.FILE_IO_ERROR,
                               ErrorCode.M_DataFileCache_open, new Object[] {
@@ -102,7 +101,7 @@ public class DataFileCacheSession extends DataFileCache {
      *  Parameter write is always false. The backing file is simply closed and
      *  deleted.
      */
-    public void close(boolean write) {
+    public void close() {
 
         writeLock.lock();
 

@@ -46,19 +46,21 @@ import org.hsqldb.rowio.RowOutputInterface;
  */
 public class DirectoryBlockCachedObject extends CachedObjectBase {
 
-    public final static int fileSizeFactor = 10;
+    public final static int fileSizeFactor = 12;
 
     //
     int[]  tableIds;
     int[]  bitmapAddress;
     char[] freeSpace;
+    char[] freeSpaceBlock;
 
     public DirectoryBlockCachedObject(int capacity) {
 
-        this.tableIds      = new int[capacity];
-        this.bitmapAddress = new int[capacity];
-        this.freeSpace     = new char[capacity];
-        hasChanged         = true;
+        tableIds       = new int[capacity];
+        bitmapAddress  = new int[capacity];
+        freeSpace      = new char[capacity];
+        freeSpaceBlock = new char[capacity];
+        hasChanged     = true;
     }
 
     public CachedObject newInstance(int size) {
@@ -83,6 +85,10 @@ public class DirectoryBlockCachedObject extends CachedObjectBase {
             for (int i = 0; i < capacity; i++) {
                 freeSpace[i] = in.readChar();
             }
+
+            for (int i = 0; i < capacity; i++) {
+                freeSpaceBlock[i] = in.readChar();
+            }
         } catch (IOException e) {
             throw Error.error(ErrorCode.GENERAL_IO_ERROR, e);
         }
@@ -95,10 +101,7 @@ public class DirectoryBlockCachedObject extends CachedObjectBase {
     }
 
     public int getRealSize(RowOutputInterface out) {
-
-        return tableIds.length
-               * (PersistentStore.INT_STORE_SIZE * 2
-                  + PersistentStore.SHORT_STORE_SIZE);
+        return tableIds.length * (PersistentStore.INT_STORE_SIZE * 3);
     }
 
     public void write(RowOutputInterface out) {
@@ -115,6 +118,10 @@ public class DirectoryBlockCachedObject extends CachedObjectBase {
 
         for (int i = 0; i < capacity; i++) {
             out.writeChar(freeSpace[i]);
+        }
+
+        for (int i = 0; i < capacity; i++) {
+            out.writeChar(freeSpaceBlock[i]);
         }
 
         out.writeEnd();
@@ -136,5 +143,9 @@ public class DirectoryBlockCachedObject extends CachedObjectBase {
 
     public char[] getFreeSpaceArray() {
         return freeSpace;
+    }
+
+    public char[] getFreeBlockArray() {
+        return freeSpaceBlock;
     }
 }

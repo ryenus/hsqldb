@@ -1311,7 +1311,8 @@ public class TableWorks {
                     && oldTable.getSpaceID()
                        != DataSpaceManager.tableIdDefault) {
                 int tableSpaceID =
-                    database.logger.getCache().spaceManager.getNewTableSpace();
+                    database.logger.getCache().spaceManager
+                        .getNewTableSpaceID();
 
                 newTable.setSpaceID(tableSpaceID);
             }

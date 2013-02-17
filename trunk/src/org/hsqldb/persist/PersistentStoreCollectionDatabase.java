@@ -78,6 +78,23 @@ implements PersistentStoreCollection {
         return store;
     }
 
+    public void release() {
+
+        if (rowStoreMap.isEmpty()) {
+            return;
+        }
+
+        Iterator it = rowStoreMap.values().iterator();
+
+        while (it.hasNext()) {
+            PersistentStore store = (PersistentStore) it.next();
+
+            store.release();
+        }
+
+        rowStoreMap.clear();
+    }
+
     public void releaseStore(Table table) {
 
         PersistentStore store =
@@ -94,9 +111,11 @@ implements PersistentStoreCollection {
         return persistentStoreIdSequence++;
     }
 
-    public void release() {
+    public void setNewTableSpaces() {
 
-        if (rowStoreMap.isEmpty()) {
+        DataFileCache dataCache = database.logger.getCache();
+
+        if (dataCache == null) {
             return;
         }
 
@@ -105,9 +124,46 @@ implements PersistentStoreCollection {
         while (it.hasNext()) {
             PersistentStore store = (PersistentStore) it.next();
 
-            store.release();
+            if (store == null) {
+                continue;
+            }
+
+            TableBase table = store.getTable();
+
+            if (table.getTableType() == TableBase.CACHED_TABLE) {
+                TableSpaceManager tableSpace =
+                    dataCache.spaceManager.getTableSpace(table.getSpaceID());
+
+                store.setSpaceManager(tableSpace);
+            }
+        }
+    }
+
+    public void setNewDataSpaceManager() {
+
+        DataFileCache dataCache = database.logger.getCache();
+
+        if (dataCache == null) {
+            return;
         }
 
-        rowStoreMap.clear();
+        Iterator it = rowStoreMap.values().iterator();
+
+        while (it.hasNext()) {
+            PersistentStore store = (PersistentStore) it.next();
+
+            if (store == null) {
+                continue;
+            }
+
+            TableBase table = store.getTable();
+
+            if (table.getTableType() == TableBase.CACHED_TABLE) {
+                TableSpaceManager tableSpace = store.getSpaceManager();
+
+                tableSpace.setSpaceManager(dataCache.spaceManager,
+                                           table.getSpaceID());
+            }
+        }
     }
 }

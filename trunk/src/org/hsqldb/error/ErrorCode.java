@@ -130,7 +130,7 @@ public interface ErrorCode {
     int UNSUPPORTED_FILENAME_SUFFIX = 462;         // S1000 Unsupported suffix in file name '$$'.  (Supported suffixes:  $$)
     int COMPRESSION_SUFFIX_MISMATCH = 463;         // S1000 Mismatch between specified compression mode '$$' and file name '$$'
     int DATABASE_IS_NON_FILE = 464;                // S1000 Database is non-file type
-    int DATABASE_NOT_EXISTS  = 465;                // S1000 Database does not exists
+    int DATABASE_NOT_EXISTS  = 465;                // S1000 Database does not exist
     int DATA_FILE_ERROR      = 466;                // S1000 Data File input/output error
     int GENERAL_IO_ERROR     = 467;                // S1000 IO error
     int DATA_FILE_IS_FULL    = 468;                // S1000 Data file size limit is reached

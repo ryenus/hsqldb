@@ -108,6 +108,7 @@ public class RowAVLDisk extends RowAVL {
     volatile boolean isInMemory;
     int              accessCount;
     boolean          isNew;
+
     /**
      *  Flag indicating unwritten data.
      */
@@ -372,6 +373,8 @@ public class RowAVLDisk extends RowAVL {
 
         out.writeData(this, table.colTypes);
         out.writeEnd();
+
+        isNew = false;
     }
 
     /**

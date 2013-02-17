@@ -170,8 +170,6 @@ public class DataFileCache {
         maxCacheBytes = database.logger.propCacheMaxSize;
         maxDataFileSize = (long) Integer.MAX_VALUE * dataFileScale
                           * database.logger.getDataFileFactor();
-        dataFile   = null;
-        shadowFile = null;
     }
 
     /**
@@ -258,12 +256,12 @@ public class DataFileCache {
 
                 dataFile.close();
 
-                if (length > maxDataFileSize) {
-                    if (database.logger.propLargeData) {
-                        throw Error.error(
-                            ErrorCode.WRONG_DATABASE_FILE_VERSION,
-                            "requires large database support");
-                    } else {
+                if (wrongVersion) {
+                    throw Error.error(ErrorCode.WRONG_DATABASE_FILE_VERSION);
+                }
+
+                if (!database.logger.propLargeData) {
+                    if (length > (maxDataFileSize / 8) * 7) {
                         database.logger.propLargeData = true;
                         maxDataFileSize =
                             (long) Integer.MAX_VALUE * dataFileScale
@@ -271,8 +269,9 @@ public class DataFileCache {
                     }
                 }
 
-                if (wrongVersion) {
-                    throw Error.error(ErrorCode.WRONG_DATABASE_FILE_VERSION);
+                if (length > maxDataFileSize) {
+                    throw Error.error(ErrorCode.DATA_FILE_IS_FULL,
+                                      String.valueOf(maxDataFileSize));
                 }
 
                 if (isSaved && isIncremental) {
@@ -346,7 +345,7 @@ public class DataFileCache {
             logInfoEvent("dataFileCache open end");
         } catch (Throwable t) {
             logSevereEvent("dataFileCache open failed", t);
-            close(false);
+            release();
 
             throw Error.error(t, ErrorCode.FILE_IO_ERROR,
                               ErrorCode.M_DataFileCache_open, new Object[] {
@@ -358,7 +357,7 @@ public class DataFileCache {
     boolean setTableSpaceManager(boolean tableSpace) {
 
         if (tableSpace && spaceManagerPosition == 0) {
-            spaceManager.close();
+            spaceManager.reset();
 
             spaceManager = new DataSpaceManagerBlocks(this);
 
@@ -366,7 +365,7 @@ public class DataFileCache {
         }
 
         if (!tableSpace && spaceManagerPosition != 0) {
-            spaceManager.close();
+            spaceManager.reset();
 
             spaceManager = new DataSpaceManagerSimple(this);
 
@@ -451,7 +450,7 @@ public class DataFileCache {
             logInfoEvent("dataFileCache open end");
         } catch (Throwable t) {
             logSevereEvent("dataFileCache open failed", t);
-            close(false);
+            release();
 
             throw Error.error(t, ErrorCode.FILE_IO_ERROR,
                               ErrorCode.M_DataFileCache_open, new Object[] {
@@ -536,7 +535,7 @@ public class DataFileCache {
         }
     }
 
-    void openShadowFile() {
+    private void openShadowFile() {
 
         if (database.logger.propIncrementBackup
                 && fileFreePosition != initialFreePos) {
@@ -641,6 +640,31 @@ public class DataFileCache {
         }
     }
 
+    public void release() {
+
+        writeLock.lock();
+
+        try {
+            if (dataFile == null) {
+                return;
+            }
+
+            if (shadowFile != null) {
+                shadowFile.close();
+
+                shadowFile = null;
+            }
+
+            dataFile.close();
+            logDetailEvent("dataFileCache file closed");
+
+            dataFile = null;
+        } catch (Throwable t) {}
+        finally {
+            writeLock.unlock();
+        }
+    }
+
     /**
      *  Parameter write indicates either an orderly close, or a fast close
      *  without backup.
@@ -650,7 +674,7 @@ public class DataFileCache {
      *  When true, writes out all cached rows that have been modified and the
      *  free position pointer for the *.data file and then closes the file.
      */
-    public void close(boolean write) {
+    public void close() {
 
         writeLock.lock();
 
@@ -659,28 +683,11 @@ public class DataFileCache {
                 return;
             }
 
-            if (spaceManager != null) {
-                spaceManager.close();
-            }
-
-            if (write) {
-                commitChanges();
-            } else {
-                if (shadowFile != null) {
-                    shadowFile.close();
-
-                    shadowFile = null;
-                }
-            }
-
+            reset();
             dataFile.close();
             logDetailEvent("dataFileCache file close end");
 
             dataFile = null;
-
-            if (!write) {
-                return;
-            }
 
             boolean empty = fileFreePosition == initialFreePos;
 
@@ -724,10 +731,14 @@ public class DataFileCache {
         }
     }
 
+    public void reopen() {
+        openShadowFile();
+    }
+
     /**
      * Commits all the changes to the file
      */
-    public void commitChanges() {
+    public void reset() {
 
         writeLock.lock();
 
@@ -737,35 +748,32 @@ public class DataFileCache {
             }
 
             logInfoEvent("dataFileCache commit start");
+            spaceManager.reset();
             cache.saveAll();
 
-            if (fileModified || spaceManager.isModified()) {
+            // set empty
+            dataFile.seek(LONG_EMPTY_SIZE);
+            dataFile.writeLong(spaceManager.getLostBlocksSize());
 
-                // set empty
-                dataFile.seek(LONG_EMPTY_SIZE);
-                dataFile.writeLong(spaceManager.getLostBlocksSize());
+            // set end
+            dataFile.seek(LONG_FREE_POS_POS);
+            dataFile.writeLong(fileFreePosition);
+            dataFile.seek(INT_SPACE_LIST_POS);
 
-                // set end
-                dataFile.seek(LONG_FREE_POS_POS);
-                dataFile.writeLong(fileFreePosition);
-                dataFile.seek(INT_SPACE_LIST_POS);
+            int pos = (int) (spaceManagerPosition
+                             / DataSpaceManager.fixedBlockSizeUnit);
 
-                int pos = (int) (spaceManagerPosition
-                                 / DataSpaceManager.fixedBlockSizeUnit);
+            dataFile.writeInt(pos);
 
-                dataFile.writeInt(pos);
+            // set saved flag;
+            dataFile.seek(FLAGS_POS);
 
-                // set saved flag;
-                dataFile.seek(FLAGS_POS);
+            int flags = dataFile.readInt();
 
-                int flags = dataFile.readInt();
+            flags = BitMap.set(flags, FLAG_ISSAVED);
 
-                flags = BitMap.set(flags, FLAG_ISSAVED);
-
-                dataFile.seek(FLAGS_POS);
-                dataFile.writeInt(flags);
-            }
-
+            dataFile.seek(FLAGS_POS);
+            dataFile.writeInt(flags);
             dataFile.synch();
             logDetailEvent("file sync end");
 
@@ -826,7 +834,7 @@ public class DataFileCache {
                 dataFileName);
 
             dfd.process();
-            close(true);
+            close();
             cache.clear();
 
             if (!database.logger.propIncrementBackup) {
@@ -888,24 +896,6 @@ public class DataFileCache {
     }
 
     public void removePersistence(CachedObject object) {}
-
-    /**
-     * Allocates file space for the row. <p>
-     *
-     * Free space is requested from the block manager if it exists.
-     * Otherwise the file is grown to accommodate it.
-     */
-    public long setFilePos(CachedObject r,
-                           TableSpaceManager tableSpaceManager,
-                           boolean asBlock) {
-
-        int  rowSize = r.getStorageSize();
-        long i       = tableSpaceManager.getFilePosition(rowSize, asBlock);
-
-        r.setPos(i);
-
-        return i;
-    }
 
     public void add(CachedObject object) {
 
@@ -1074,7 +1064,7 @@ public class DataFileCache {
                     break;
                 } catch (Throwable t) {
                     if (t instanceof OutOfMemoryError) {
-                        cache.forceCleanUp();
+                        cache.clearUnchanged();
                         System.gc();
                         logSevereEvent(dataFileName
                                        + " getFromFile out of mem " + pos, t);
@@ -1144,7 +1134,7 @@ public class DataFileCache {
 
                     break;
                 } catch (OutOfMemoryError err) {
-                    cache.forceCleanUp();
+                    cache.clearUnchanged();
                     System.gc();
                     logSevereEvent(dataFileName + " getFromFile out of mem "
                                    + pos, err);
@@ -1415,17 +1405,13 @@ public class DataFileCache {
             }
 
             if (fa.isStreamElement(fileName)) {
-                if (!newFile) {
+                if (newFile) {
+                    backupFileName += Logger.newFileExtension;
+                } else {
                     deleteFile(database, backupFileName);
                 }
 
-                String backupSaveName = backupFileName;
-
-                if (newFile) {
-                    backupSaveName += Logger.newFileExtension;
-                }
-
-                FileArchiver.archive(fileName, backupSaveName, fa,
+                FileArchiver.archive(fileName, backupFileName, fa,
                                      FileArchiver.COMPRESSION_ZIP);
             }
         } catch (Throwable t) {

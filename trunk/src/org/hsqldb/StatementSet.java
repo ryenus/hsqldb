@@ -331,7 +331,7 @@ public class StatementSet extends StatementDMQL {
             Table    rangeTable = rangeVariables[i].rangeTable;
             HsqlName name       = rangeTable.getName();
 
-            if (rangeTable.isReadOnly() || rangeTable.isTemp()) {
+            if (rangeTable.isDataReadOnly() || rangeTable.isTemp()) {
                 continue;
             }
 
