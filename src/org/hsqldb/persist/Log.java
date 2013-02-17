@@ -201,7 +201,7 @@ public class Log {
         database.logger.closeAllTextCaches(script);
 
         if (cache != null) {
-            cache.close(true);
+            cache.close();
         }
 
         // set this one last to save the props
@@ -230,7 +230,7 @@ public class Log {
     void shutdown() {
 
         if (cache != null) {
-            cache.close(false);
+            cache.release();
         }
 
         database.logger.closeAllTextCaches(false);
@@ -339,19 +339,10 @@ public class Log {
         }
 
         if (defrag) {
-            try {
-                defrag();
-                database.sessionManager.resetLoggedSchemas();
-
-                return;
-            } catch (Throwable e) {
-                database.logger.logSevereEvent("defrag failed", e);
-
-                // do normal checkpoint
-            }
+            defrag();
+        } else {
+            checkpoint();
         }
-
-        checkpoint();
     }
 
     /**
@@ -380,15 +371,13 @@ public class Log {
 
         try {
             if (cache != null) {
-                cache.spaceManager.close();
-                cache.commitChanges();
+                cache.reset();
                 properties.setProperty(
                     HsqlDatabaseProperties.hsqldb_script_format,
                     database.logger.propScriptFormat);
                 properties.setDBModified(
                     HsqlDatabaseProperties.FILES_MODIFIED_NEW);
                 cache.backupDataFile(true);
-                cache.spaceManager.reopen();
             }
         } catch (Throwable t) {
 
@@ -432,7 +421,7 @@ public class Log {
 
         try {
             if (cache != null) {
-                cache.openShadowFile();
+                cache.reopen();
             }
 
             if (dbLogWriter != null) {
@@ -452,10 +441,6 @@ public class Log {
      */
     public void defrag() {
 
-        if (cache.getFileFreePos() == cache.initialFreePos) {
-            return;
-        }
-
         database.logger.logInfoEvent("defrag start");
 
         try {
@@ -471,6 +456,9 @@ public class Log {
             deleteOldDataFiles();
 
             DataFileDefrag dfd = cache.defrag();
+
+            database.persistentStoreCollection.setNewDataSpaceManager();
+            database.sessionManager.resetLoggedSchemas();
         } catch (HsqlException e) {
             throw e;
         } catch (Throwable e) {
@@ -723,7 +711,7 @@ public class Log {
                 scr.close();
 
                 if (cache != null) {
-                    cache.close(false);
+                    cache.release();
                 }
 
                 database.logger.closeAllTextCaches(false);

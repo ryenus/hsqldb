@@ -845,7 +845,7 @@ public class StatementCommand extends Statement {
                     }
 
                     DataSpaceManager dataSpace = cache.spaceManager;
-                    int tableSpaceID           = dataSpace.getNewTableSpace();
+                    int tableSpaceID           = dataSpace.getNewTableSpaceID();
 
                     table.setSpaceID(tableSpaceID);
 

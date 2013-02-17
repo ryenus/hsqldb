@@ -107,18 +107,11 @@ public class TableSpaceManagerBlocks implements TableSpaceManager {
         this.freshBlockLimit   = blockLimit;
     }
 
-    boolean getNewMainBlock(long rowSize) {
+    boolean getNewMainBlock(int rowSize) {
 
-        int blockSize  = mainBlockSize;
-        int blockCount = 1;
-
-        while (blockSize < rowSize) {
-            blockSize += blockSize;
-
-            blockCount++;
-        }
-
-        long position = spaceManager.getFileBlocks(spaceID, blockCount);
+        int  blockCount = (mainBlockSize + rowSize) / mainBlockSize;
+        int  blockSize  = blockCount * mainBlockSize;
+        long position   = spaceManager.getFileBlocks(spaceID, blockCount);
 
         if (position < 0) {
             return false;
@@ -143,7 +136,7 @@ public class TableSpaceManagerBlocks implements TableSpaceManager {
         return true;
     }
 
-    long getNewBlock(long rowSize, boolean asBlocks) {
+    long getNewBlock(int rowSize, boolean asBlocks) {
 
         if (asBlocks) {
             rowSize = (int) ArrayUtil.getBinaryMultipleCeiling(rowSize,
@@ -182,8 +175,6 @@ public class TableSpaceManagerBlocks implements TableSpaceManager {
         return spaceID;
     }
 
-    /**
-     */
     synchronized public void release(long pos, int rowSize) {
 
         isModified = true;
@@ -204,22 +195,18 @@ public class TableSpaceManagerBlocks implements TableSpaceManager {
     /**
      * Returns the position of a free block or 0.
      */
-    synchronized public long getFilePosition(long rowSize, boolean asBlocks) {
+    synchronized public long getFilePosition(int rowSize, boolean asBlocks) {
 
         if (capacity == 0) {
             return getNewBlock(rowSize, asBlocks);
         }
 
         if (asBlocks) {
-            rowSize = ArrayUtil.getBinaryMultipleCeiling(rowSize,
+            rowSize = (int) ArrayUtil.getBinaryMultipleCeiling(rowSize,
                     DataSpaceManager.fixedBlockSizeUnit);
         }
 
-        if (rowSize > Integer.MAX_VALUE) {
-            return getNewBlock(rowSize, asBlocks);
-        }
-
-        int index = lookup.findFirstGreaterEqualKeyIndex((int) rowSize);
+        int index = lookup.findFirstGreaterEqualKeyIndex(rowSize);
 
         if (index == -1) {
             return getNewBlock(rowSize, asBlocks);
@@ -227,8 +214,9 @@ public class TableSpaceManagerBlocks implements TableSpaceManager {
 
         if (asBlocks) {
             for (; index < lookup.size(); index++) {
-                if (lookup.getValue(index)
-                        % (DataSpaceManager.fixedBlockSizeUnit / scale) == 0) {
+                long pos = lookup.getKey(index);
+
+                if (pos % (DataSpaceManager.fixedBlockSizeUnit / scale) == 0) {
                     break;
                 }
             }
@@ -244,7 +232,7 @@ public class TableSpaceManagerBlocks implements TableSpaceManager {
         requestSize += rowSize;
 
         int length     = lookup.getValue(index);
-        int difference = length - (int) rowSize;
+        int difference = length - rowSize;
         int key        = lookup.getKey(index);
 
         lookup.remove(index);
@@ -260,10 +248,9 @@ public class TableSpaceManagerBlocks implements TableSpaceManager {
         return key;
     }
 
-    public void close() {
+    public void reset() {
 
-        spaceManager.freeTableSpace(spaceID, lookup);
-        spaceManager.freeTableSpace(spaceID, freshBlockFreePos,
+        spaceManager.freeTableSpace(spaceID, lookup, freshBlockFreePos,
                                     freshBlockLimit);
         lookup.removeAll();
         lookup.setValuesSearchTarget();
@@ -273,9 +260,15 @@ public class TableSpaceManagerBlocks implements TableSpaceManager {
         freshBlockLimit   = 0;
     }
 
+    public void setSpaceManager(DataSpaceManager spaceManager, int spaceID) {
+        this.spaceManager = spaceManager;
+        this.spaceID      = spaceID;
+    }
+
     private void resetList() {
 
-        spaceManager.freeTableSpace(spaceID, lookup);
+        spaceManager.freeTableSpace(spaceID, lookup, freshBlockFreePos,
+                                    freshBlockFreePos);
         lookup.removeAll();
         lookup.setValuesSearchTarget();
     }

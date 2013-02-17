@@ -57,14 +57,14 @@ import org.hsqldb.lib.StringUtil;
  */
 final class DataFileDefrag {
 
-    DataFileCache         dataFileOut;
-    StopWatch             stopw = new StopWatch();
-    String                dataFileName;
-    long[][]              rootsList;
-    Database              database;
-    DataFileCache         dataCache;
-    int                   scale;
-    DoubleIntIndex        pointerLookup;
+    DataFileCache  dataFileOut;
+    StopWatch      stopw = new StopWatch();
+    String         dataFileName;
+    long[][]       rootsList;
+    Database       database;
+    DataFileCache  dataCache;
+    int            scale;
+    DoubleIntIndex pointerLookup;
 
     DataFileDefrag(Database db, DataFileCache cache, String dataFileName) {
 
@@ -97,6 +97,19 @@ final class DataFileDefrag {
                 if (size > maxSize) {
                     maxSize = size;
                 }
+
+                // temp code to fix obsolete space ids
+                int spaceID = table.getSpaceID();
+
+                if (spaceID != DataSpaceManager.tableIdDefault
+                        && spaceID < DataSpaceManager.tableIdFirst) {
+                    table.setSpaceID(
+                        dataCache.spaceManager.getNewTableSpaceID());
+                    store.getSpaceManager().setSpaceManager(
+                        dataCache.spaceManager, table.getSpaceID());
+                }
+
+                // end temp code
             }
         }
 
@@ -127,7 +140,7 @@ final class DataFileDefrag {
 
             dataFileOut.fileModified = true;
 
-            dataFileOut.close(true);
+            dataFileOut.close();
 
             dataFileOut = null;
 
@@ -135,9 +148,9 @@ final class DataFileDefrag {
                 long[] roots = rootsList[i];
 
                 if (roots != null) {
-                    database.logger.logDetailEvent(
-                        "roots: "
-                        + StringUtil.getList(roots, ",", ""));
+                    database.logger.logDetailEvent("roots: "
+                                                   + StringUtil.getList(roots,
+                                                       ",", ""));
                 }
             }
         } catch (OutOfMemoryError e) {
@@ -151,7 +164,7 @@ final class DataFileDefrag {
         } finally {
             try {
                 if (dataFileOut != null) {
-                    dataFileOut.close(false);
+                    dataFileOut.release();
                 }
             } catch (Throwable t) {}
 

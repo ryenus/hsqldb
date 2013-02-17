@@ -230,7 +230,7 @@ public class Database {
             schemaManager.createSystemTables();
 
             // completed metadata
-            logger.openPersistence();
+            logger.open();
 
             isNew = logger.isNewDatabase;
 
@@ -248,7 +248,7 @@ public class Database {
 
             checkpointRunner = new CheckpointRunner();
         } catch (Throwable e) {
-            logger.closePersistence(Database.CLOSEMODE_IMMEDIATELY);
+            logger.close(Database.CLOSEMODE_IMMEDIATELY);
             logger.releaseLock();
             setState(DATABASE_SHUTDOWN);
             clearStructures();
@@ -621,7 +621,7 @@ public class Database {
          * impact of possible error conditions in closing the log
          * for the CLOSEMODE_COMPACT mode
          */
-        boolean result = logger.closePersistence(closemode);
+        boolean result = logger.close(closemode);
 
         lobManager.close();
         sessionManager.close();
@@ -632,7 +632,7 @@ public class Database {
                 reopen();
                 setState(DATABASE_CLOSING);
                 sessionManager.closeAllSessions();
-                logger.closePersistence(CLOSEMODE_NORMAL);
+                logger.close(CLOSEMODE_NORMAL);
                 lobManager.close();
                 sessionManager.close();
             }

@@ -94,7 +94,10 @@ public class RowStoreAVLDiskData extends RowStoreAVL {
             int size = object.getRealSize(cache.rowOut);
 
             object.setStorageSize(size);
-            cache.setFilePos(object, tableSpace, false);
+
+            long pos = tableSpace.getFilePosition(size, false);
+
+            object.setPos(pos);
 
             if (tx) {
                 RowAction.addInsertAction(session, table, (Row) object);

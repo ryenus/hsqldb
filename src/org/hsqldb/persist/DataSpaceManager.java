@@ -52,15 +52,14 @@ public interface DataSpaceManager {
 
     TableSpaceManager getTableSpace(int spaceId);
 
-    int getNewTableSpace();
+    int getNewTableSpaceID();
 
     long getFileBlocks(int tableId, int blockCount);
 
     void freeTableSpace(int spaceId);
 
-    void freeTableSpace(int spaceId, DoubleIntIndex spaceList);
-
-    void freeTableSpace(int spaceId, long offset, long limit);
+    public void freeTableSpace(int spaceId, DoubleIntIndex spaceList,
+                               long offset, long limit);
 
     long getLostBlocksSize();
 
@@ -68,7 +67,5 @@ public interface DataSpaceManager {
 
     int getFileBlockSize();
 
-    void close();
-
-    void reopen();
+    void reset();
 }

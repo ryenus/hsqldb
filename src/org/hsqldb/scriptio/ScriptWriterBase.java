@@ -326,7 +326,7 @@ public abstract class ScriptWriterBase implements Runnable {
                         break;
 
                     case TableBase.TEXT_TABLE :
-                        script = includeCachedData && !t.isReadOnly();
+                        script = includeCachedData && !t.isDataReadOnly();
                         break;
                 }
 

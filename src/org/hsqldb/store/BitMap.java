@@ -244,7 +244,7 @@ public class BitMap {
         return set;
     }
 
-    public int bitCount() {
+    public int countSetBits() {
 
         int setCount = 0;
 
@@ -276,7 +276,7 @@ public class BitMap {
     /**
      * Only for word boundary map size
      */
-    public int countSetBitsLow() {
+    public int countSetBitsEnd() {
 
         int count  = 0;
         int windex = (limitPos / 32) - 1;

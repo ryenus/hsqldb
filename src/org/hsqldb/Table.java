@@ -62,7 +62,7 @@ import org.hsqldb.types.Type;
  * Holds the data structures and methods for creation of a named database table.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.2.9
+ * @version 2.3.0
  * @since 1.6.1
  */
 public class Table extends TableBase implements SchemaObject {
@@ -749,22 +749,15 @@ public class Table extends TableBase implements SchemaObject {
      * indexes. Only CACHED tables return false.
      */
     final boolean isIndexingMutable() {
-        return !isIndexCached();
-    }
-
-    /**
-     *  Returns true if table is CACHED
-     */
-    boolean isIndexCached() {
-        return isCached;
+        return !isCached;
     }
 
     /**
      * Used by INSERT, DELETE, UPDATE operations
      */
-    void checkDataReadOnly() {
+    public void checkDataReadOnly() {
 
-        if (isReadOnly) {
+        if (isDataReadOnly()) {
             throw Error.error(ErrorCode.DATA_IS_READONLY);
         }
     }

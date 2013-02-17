@@ -2482,7 +2482,7 @@ public class QuerySpecification extends QueryExpression {
                 continue;
             }
 
-            if (rangeTable.isReadOnly() || rangeTable.isTemp()) {
+            if (rangeTable.isDataReadOnly() || rangeTable.isTemp()) {
                 continue;
             }
 

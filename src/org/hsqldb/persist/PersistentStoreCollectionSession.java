@@ -186,7 +186,7 @@ implements PersistentStoreCollection {
         clearTransactionTables();
         clearStatementTables();
         clearRoutineTables();
-        closeResultCache();
+        closeSessionDataCache();
     }
 
     public void clearResultTables(long actionTimestamp) {
@@ -394,7 +394,7 @@ implements PersistentStoreCollection {
 
     DataFileCacheSession resultCache;
 
-    public DataFileCacheSession getResultCache() {
+    public DataFileCacheSession getSessionDataCache() {
 
         if (resultCache == null) {
             String path = session.database.logger.getTempDirectoryPath();
@@ -418,11 +418,11 @@ implements PersistentStoreCollection {
         return resultCache;
     }
 
-    public void closeResultCache() {
+    private void closeSessionDataCache() {
 
         if (resultCache != null) {
             try {
-                resultCache.close(false);
+                resultCache.release();
                 resultCache.deleteFile();
             } catch (HsqlException e) {}
 
