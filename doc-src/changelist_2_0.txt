@@ -1,3 +1,4 @@
+17 February 2012 - svn 5174 snapshot
 06 February 2013 - svn 5168 snapshot
 -- improved backward compatibility for use with embedded OpenOffice / LibreOffice databases
 -- fixed regression with some subquery tables used in OUTER joins
