@@ -366,6 +366,53 @@
       sync() call. In practice, many systems are generally reliable in this
       respect.</para>
     </section>
+
+    <section>
+      <title>System Operations</title>
+
+      <para>A database is opened when the first connection is successfully
+      made. It remains open until the <literal>SHUTDOWN</literal> command is
+      issued. If the connection property shutdown=true is used for the first
+      connection to the database, the database is shutdown when the last
+      connection is closed. Otherwise the database remains open and will
+      accept the next connection attempt.</para>
+
+      <para>The <literal>SHUTDOWN</literal> command shuts down the database
+      properly and allows the database to be reopened quickly. This command
+      may take some seconds as it saves all the modified data in the
+      .<literal>script</literal> and <literal>.data</literal> files. Variants
+      of <literal>SHUTDOWN</literal> such as <literal>SHUTDOWN
+      COMPACT</literal> and <literal>SHUTDOWN SCRIPT</literal> can be used
+      from time to time to reduce the overall size of the database files.
+      Another variant is <literal>SHUTDOWN IMMEDIATELY</literal> which ensures
+      all changes to data are stored in the <literal>.log</literal> file but
+      does not save the changes in .<literal>script</literal> and
+      <literal>.data</literal> files. The shutdown is performed quickly but
+      the database will take much longer to reopen.</para>
+
+      <para>During the lifetime of the database the checkpoint operation may
+      be performed from time to time. The <literal>SET FILES LOG SIZE &lt;
+      value &gt;</literal> setting and its equivalent URL property determine
+      the frequency of automatic checkpoints. An online backup also performs a
+      checkpoint when the backup is not a hot backup. A checkpoint can be
+      performed by the user at any time using the
+      <literal>CHECKPOINT</literal> statement. The main purpose of checkpoints
+      is to reduce the total size of database files and to allow a quick
+      restart in case the database is closed without a proper shutdown. The
+      <literal>CHECKPOINT DEFRAG</literal> variant compacts the
+      <literal>.data</literal> file the same way as <literal>SHUTDOWN
+      COMPACT</literal> does. Obviously this variant takes much longer than a
+      normal <literal>CHECKPOINT</literal>. A database setting allows a
+      <literal>CHECKPOINT DEFRAG</literal> to be performed automatically when
+      wasted space in the <literal>.data</literal> file exceeds the specified
+      percentage.</para>
+
+      <para>In a multi-user application, automatic or user-initiated
+      checkpoints are delayed until all other sessions have committed or
+      rolled back. During a checkpoint, other sessions cannot access the
+      database tables but can access the <literal>INFORMATION_SCHEMA</literal>
+      system tables.</para>
+    </section>
   </section>
 
   <section xml:id="mtc_backup">
@@ -395,7 +442,9 @@
     target catalog has been shutdown.</simpara>
 
     <simpara>It is not recommended to backup the database file with an
-    external file backup program while the database is running.</simpara>
+    external file backup program while the database is running. The resulting
+    backup will probably be inconsistent and not useful for restoring the
+    database</simpara>
 
     <section xml:id="mtc_online_backup">
       <title>Making Online Backups</title>
@@ -403,13 +452,24 @@
       <simpara>To back up a running catalog, obtain a JDBC connection and
       issue a <literal>BACKUP DATABASE</literal> command in SQL. In its most
       simple form, the command format below will backup the database as a
-      single <literal>.tar.gz</literal> file to the given directory.</simpara>
+      single <literal>.tar.gz</literal> file to the given directory. This type
+      of backup performs a checkpoint immediately before backing up the
+      files.</simpara>
 
       <programlisting>  BACKUP DATABASE TO &lt;directory name&gt; BLOCKING</programlisting>
 
       <simpara>The <emphasis>directory name</emphasis> must end with a slash
       to distinguish it as a directory, and the whole string must be in single
       quotes like so: <literal>'subdir/nesteddir/'</literal>.</simpara>
+
+      <simpara>Normal backup may take a long time with very large databases.
+      Hot backup may be used in those situations. This type of backup does not
+      perform a checkpoint and allows access to the database while backup is
+      in progress.</simpara>
+
+      <programlisting>  BACKUP DATABASE TO &lt;directory name&gt; NOT BLOCKING</programlisting>
+
+      <simpara></simpara>
 
       <simpara>See the next section under Statements for details about the
       command and its options. See the sections below about restoring a
@@ -1430,12 +1490,14 @@
       the log file and reopens the database.</simpara>
 
       <simpara>If <literal>DEFRAG</literal> is specified, also shrinks the
-      <literal>*.data</literal> file to its minimum size. CHECKPOINT DEFRAG
-      time depends on the size of the database and can take a long time with
-      huge databases.</simpara>
+      <literal>*.data</literal> file to its minimum size. <literal>CHECKPOINT
+      DEFRAG</literal> time depends on the size of the database and can take a
+      long time with huge databases.</simpara>
 
-      <simpara>Only a user with the DBA role can execute this
-      statement.</simpara>
+      <simpara>A checkpoint on a multi-user database waits until all other
+      sessions have committed or rolled back. While the checkpoint is in
+      progress other sessions are kept waiting. Checkpoint does not close any
+      sessions.</simpara>
 
       <simpara>Only a user with the DBA role can execute this
       statement.</simpara>
@@ -1490,9 +1552,9 @@
 
       <simpara>All collations pad the shorter string with spaces when two
       strings are compared. If NO PAD is specified, comparison is performed
-      without padding. The default system collation is named SQL_TEXT. To use
-      the default without padding use SET DATABASE COLLATION SQL_TEXT NO
-      PAD.</simpara>
+      without padding. The default system collation is named
+      <literal>SQL_TEXT</literal>. To use the default without padding use
+      <literal>SET DATABASE COLLATION SQL_TEXT NO PAD</literal>.</simpara>
 
       <simpara>Only a user with the DBA role can execute this
       statement.</simpara>
@@ -1514,7 +1576,7 @@
       <simpara>Sets the maximum number of rows of each result set and internal
       temporary table that is held in memory. Temporary tables includes views,
       schema-based and session-based TEMPORARY tables, transient tables for
-      subqueries, and INFORMATION_SCHEMA tables.</simpara>
+      subqueries, and <literal>INFORMATION_SCHEMA</literal> tables.</simpara>
 
       <simpara>This setting applies to all sessions. Individual sessions can
       change the value with the <literal>SET SESSION RESULT MEMORY

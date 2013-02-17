@@ -862,16 +862,20 @@ CREATE FUNCTION an_hour_before_max (e_type INT)
       the data changes performed by the previous (successful)
       statements.</para>
 
-      <para>The conditions can be general conditions, or specific conditions.
-      Among general conditions that can be specified,
+      <para>The conditions can be general conditions, or specific
+      conditions.</para>
+
+      <para>Among general conditions that can be specified,
       <literal>SQLEXCEPTION</literal> covers all exceptions,
       <literal>SQLWARNING</literal> covers all warnings, while <literal>NOT
       FOUND</literal> covers the not-found condition, which is raised when a
       DELETE, UPDATE, INSERT or MERGE statement completes without actually
-      affecting any row. Alternatively, one or more specific conditions can be
-      specified (separated with commas) which apply to specific exceptions or
-      warnings or classes or exceptions or warnings. A specific condition is
-      specified with <literal>SQLSTATE &lt;value&gt;</literal>, for example
+      affecting any row.</para>
+
+      <para>Alternatively, one or more specific conditions can be specified
+      (separated with commas) which apply to specific exceptions or warnings
+      or classes or exceptions or warnings. A specific condition is specified
+      with <literal>SQLSTATE &lt;value&gt;</literal>, for example
       <literal>SQLSTATE 'W_01003'</literal> specifies the warning raised after
       a SQL statement is executed which contains an aggregate function which
       encounters a null value during execution. An example is given below
@@ -898,26 +902,43 @@ CREATE FUNCTION an_hour_before_max (e_type INT)
 
       <para>A handler declaration may specify an <literal>&lt;SQL procedure
       statement&gt;</literal> to be performed when the handler is activated.
-      When an exception occurs, the example below performs the
-      <literal>UNDO</literal> as in the previous example, then inserts the
-      (invalid) data into a separate table.</para>
+      In the example below the handler performs the <literal>UNDO</literal> as
+      in the previous example then inserts the (invalid) data into a separate
+      table.</para>
 
-      <programlisting>DECLARE UNDO HANDLER FOR SQLEXCEPTION
-    INSERT INTO invalid_customers VALUES(firstanme, lastname, address);</programlisting>
+      <programlisting>CREATE PROCEDURE new_customer(IN firstname VARCHAR(50), IN lastname VARCHAR(50), IN address VARCHAR(100))
+    MODIFIES SQL DATA
+  label_one: BEGIN ATOMIC
+    DECLARE temp_id INTEGER;
+    DECLARE UNDO HANDLER FOR SQLEXCEPTION
+    INSERT INTO invalid_customers VALUES(firstanme, lastname, address);
+    -- last statement is part of the handler
+    INSERT INTO CUSTOMERS VALUES (DEFAULT, firstname, lastname, CURRENT_TIMESTAMP);
+    SET temp_id = IDENTITY();
+    INSERT INTO ADDRESSES VALUES (DEFAULT, temp_id, address);
+  END
+</programlisting>
 
-      <para>The <literal>&lt;SQL procedure statement&gt;</literal> is required
-      by the SQL Standard but is optional in HyperSQL. If the execution of the
-      <literal>&lt;SQL procedure statement&gt;</literal> specified in the
-      handler declaration throws an exception itself, then it is handled by
-      the handlers that are currently active at an enclosing (outer)
-      <literal>BEGIN ... END</literal> block. The <literal>&lt;SQL procedure
-      statement&gt;</literal> can itself be a compound statement with its own
-      handlers.</para>
+      <para>The <literal>&lt;SQL procedure statement&gt;</literal> in the
+      handler declaration is required by the SQL Standard but is optional in
+      HyperSQL. If the execution of the <literal>&lt;SQL procedure
+      statement&gt;</literal> specified in the handler declaration throws an
+      exception itself, then it is handled by the handlers that are currently
+      active at an enclosing (outer) <literal>BEGIN ... END</literal> block.
+      The <literal>&lt;SQL procedure statement&gt;</literal> can itself be a
+      compound statement with its own handlers.</para>
 
-      <para>When an <literal>SQLEXCEPTION</literal> or
-      <literal>SQLWARNING</literal> is handled by a handler, the statement
-      that caused the exception will have no effect. The handler then performs
-      its actions:</para>
+      <para>When a handler handles an exception condition such as the general
+      <literal>SQLEXCEPTION</literal> or some specific
+      <literal>SQLSTATE</literal>, any changes made by the statement that
+      caused the exception will be rolled back. For example, execution of a
+      single update statement that modifies several rows will not change any
+      row if an exception occurs during the update of one of the rows. The
+      handler action affects the changes made by statements that were executed
+      successfully before the exception occured.</para>
+
+      <para>Actions performed by different types of handler are listed
+      below:</para>
 
       <itemizedlist>
         <listitem>
