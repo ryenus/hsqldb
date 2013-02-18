@@ -167,32 +167,12 @@ examples:
    </target>
 
     <target name="codeswitcher" depends="-prepare"
-            description="uses +-JAVA2 +-JAVA4 +-JAVA5 +-JAVA6 +-JAVA7 etc">
+            description="uses +-JAVA4 +-JAVA5 +-JAVA6 +-JAVA7 etc">
       <javac destdir="classes">
          <src path="src"/>
          <include name="org/hsqldb/util/CodeSwitcher.java"/>
       </javac>
       <antcall target="-update-switch-branch"/>
-    </target>
-
-    <target name="switchtojava1target" depends="codeswitcher"
-            description="self explanatory">
-      <java classname="org.hsqldb.util.CodeSwitcher" classpath="classes" >
-        <arg file="${swsrc}/org/hsqldb/lib/java/JavaSystem.java"/>
-        <arg file="${swsrc}/org/hsqldb/util/DatabaseManager.java"/>
-        <arg file="${swsrc}/org/hsqldb/util/ConnectionDialogCommon.java"/>
-        <arg value="-JAVA2FULL"/>
-      </java>
-    </target>
-
-    <target name="switchoffjava1target" depends="codeswitcher"
-            description="self explanatory">
-      <java classname="org.hsqldb.util.CodeSwitcher" classpath="classes" >
-         <arg file="${swsrc}/org/hsqldb/lib/java/JavaSystem.java"/>
-         <arg file="${swsrc}/org/hsqldb/util/DatabaseManager.java"/>
-         <arg file="${swsrc}/org/hsqldb/util/ConnectionDialogCommon.java"/>
-         <arg value="+JAVA2FULL"/>
-       </java>
     </target>
 
     <target name="switchtodeprecatedjdbc" depends="codeswitcher"
@@ -221,26 +201,9 @@ examples:
             description="Execute code switchers, other than for JVM version">
     </target>
 
-    <target name="switchtojdk12" depends="switches" unless="ant.java.iscjava14"
-            description="self explanatory" if="ant.java.iscjava12">
-      <java classname="org.hsqldb.util.CodeSwitcher" classpath="classes" >
-          <arg value="+JAVA2"/>
-          <arg value="-JAVA4"/>
-          <arg value="-JAVA5"/>
-          <arg value="-JAVA6"/>
-          <arg value="-JAVA7"/>
-          <arg value="--pathlist=${basedir}/build/jdkcodeswitch.list"/>
-          <arg value="--basedir=${swsrc}"/>
-          <!-- Since these paths are interpreted by the JVM, not ant,
-               the path must be relative to run dir (build), not the
-               Ant basedir -->
-      </java>
-    </target>
-
     <target name="switchtojdk14" depends="switches" unless="ant.java.iscjava15"
             description="self explanatory" if="ant.java.iscjava14">
       <java classname="org.hsqldb.util.CodeSwitcher" classpath="classes" >
-          <arg value="+JAVA2"/>
           <arg value="+JAVA4"/>
           <arg value="-JAVA5"/>
           <arg value="-JAVA6"/>
@@ -256,7 +219,6 @@ examples:
     <target name="switchtojdk15" depends="switches" unless="ant.java.iscjava16"
       description="self explanatory" if="ant.java.iscjava15">
       <java classname="org.hsqldb.util.CodeSwitcher" classpath="classes" >
-          <arg value="+JAVA2"/>
           <arg value="+JAVA4"/>
           <arg value="+JAVA5"/>
           <arg value="-JAVA6"/>
@@ -272,7 +234,6 @@ examples:
     <target name="switchtojdk16" depends="switches"
             description="self explanatory" if="ant.java.iscjava16">
       <java classname="org.hsqldb.util.CodeSwitcher" classpath="classes" >
-          <arg value="+JAVA2"/>
           <arg value="+JAVA4"/>
           <arg value="+JAVA5"/>
           <arg value="+JAVA6"/>
@@ -288,7 +249,6 @@ examples:
     <target name="switchtojdk17" depends="switches"
             description="self explanatory" if="ant.java.iscjava17">
       <java classname="org.hsqldb.util.CodeSwitcher" classpath="classes" >
-          <arg value="+JAVA2"/>
           <arg value="+JAVA4"/>
           <arg value="+JAVA5"/>
           <arg value="+JAVA6"/>
@@ -302,7 +262,7 @@ examples:
     </target>
 
     <target name="store" description="compiles the /store folder"
-            depends="switchtojdk12,switchtojdk14,
+            depends="switchtojdk14,
                      switchtojdk15,switchtojdk16,
                      switchtojdk17">
       <javac srcdir="${swsrc}"
