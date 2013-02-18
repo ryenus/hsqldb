@@ -145,8 +145,7 @@ public class HsqlProperties {
 
         try {
             if (prop != null) {
-                prop = prop.trim();
-
+                prop         = prop.trim();
                 defaultValue = Integer.parseInt(prop);
             }
         } catch (NumberFormatException e) {}
@@ -265,11 +264,10 @@ public class HsqlProperties {
 
         OutputStream        fos = fa.openOutputStreamElement(fileString);
         FileAccess.FileSync outDescriptor = fa.getFileSync(fos);
+        String name = HsqlDatabaseProperties.PRODUCT_NAME + " "
+                      + HsqlDatabaseProperties.THIS_FULL_VERSION;
 
-        JavaSystem.saveProperties(
-            stringProps,
-            HsqlDatabaseProperties.PRODUCT_NAME + " "
-            + HsqlDatabaseProperties.THIS_FULL_VERSION, fos);
+        stringProps.store(fos, name);
         fos.flush();
         outDescriptor.sync();
         fos.close();

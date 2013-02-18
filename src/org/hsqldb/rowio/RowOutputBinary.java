@@ -191,7 +191,7 @@ public class RowOutputBinary extends RowOutputBase {
     protected void writeDecimal(BigDecimal o, Type type) {
 
         int        scale   = o.scale();
-        BigInteger bigint  = JavaSystem.unscaledValue(o);
+        BigInteger bigint  = o.unscaledValue();
         byte[]     bytearr = bigint.toByteArray();
 
         writeByteArray(bytearr);
@@ -356,7 +356,7 @@ public class RowOutputBinary extends RowOutputBase {
                 s += 8;
 
                 BigDecimal bigdecimal = (BigDecimal) o;
-                BigInteger bigint     = JavaSystem.unscaledValue(bigdecimal);
+                BigInteger bigint     = bigdecimal.unscaledValue();
 
                 s += bigint.toByteArray().length;
                 break;

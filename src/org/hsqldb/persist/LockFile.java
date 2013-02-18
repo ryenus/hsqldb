@@ -791,7 +791,6 @@ public class LockFile {
         long lastHeartbeat;
         long length = 0;
 
-//#ifdef JAVA2FULL
         try {
             if (withCreateNewFile) {
                 try {
@@ -810,21 +809,6 @@ public class LockFile {
             throw new FileSecurityException(this, "checkHeartbeat", se);
         }
 
-//#else
-/*
-
-        if (!file.exists()) {
-            if (withCreateNewFile) {
-                openRAF();
-                closeRAF();
-            }
-            return;
-        }
-
-        length = file.length();
-*/
-
-//#endif JAVA2
         if (length != USED_REGION) {
             if (length == 0) {
                 file.delete();
