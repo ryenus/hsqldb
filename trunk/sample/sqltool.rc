@@ -67,8 +67,11 @@ password
 
 #urlid cardiff2
 #url jdbc:oracle:thin:@aegir.admc.com:1521:TRAFFIC_SID
-# Thin URLs must specify both port and SID, there are no defaults.
+# Thin SID URLs must specify both port and SID, there are no defaults.
 # Oracle listens to 1521 by default, so that's what you will usually specify.
+# But can alternatively use global service name (not tnsnames.ora service
+# alias, in which case the port does default to 1521):
+#url jdbc:oracle:thin:@centos.admc.com/tstsid.admc
 #username blaine
 #password secretpassword
 #driver oracle.jdbc.OracleDriver
