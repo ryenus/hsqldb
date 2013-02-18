@@ -31,25 +31,17 @@
 
 package org.hsqldb.lib.java;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
-import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.sql.DriverManager;
-import java.util.Properties;
-import java.text.Collator;
-import java.io.RandomAccessFile;
 
 /**
- * Handles the differences between JDK 1.1.x and 1.2.x and above
+ * Handles the differences between JDK 5 and above
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 1.9.0
+ * @version 2.3.0
  */
 public class JavaSystem {
 
@@ -143,121 +135,13 @@ public class JavaSystem {
 //#endif JAVA6
     }
 
-    public static int compareIngnoreCase(String a, String b) {
-
-//#ifdef JAVA2FULL
-        return a.compareToIgnoreCase(b);
-
-//#else
-/*
-        return a.toUpperCase().compareTo(b.toUpperCase());
-*/
-
-//#endif JAVA2
-    }
-
-    public static double parseDouble(String s) {
-
-//#ifdef JAVA2FULL
-        return Double.parseDouble(s);
-
-//#else
-/*
-        return new Double(s).doubleValue();
-*/
-
-//#endif JAVA2
-    }
-
-    public static BigInteger unscaledValue(BigDecimal o) {
-
-//#ifdef JAVA2FULL
-        return o.unscaledValue();
-
-//#else
-/*
-        int scale = o.scale();
-        return o.movePointRight(scale).toBigInteger();
-*/
-
-//#endif
-    }
-
     public static void setLogToSystem(boolean value) {
 
-//#ifdef JAVA2FULL
         try {
             PrintWriter newPrintWriter = (value) ? new PrintWriter(System.out)
                                                  : null;
 
             DriverManager.setLogWriter(newPrintWriter);
         } catch (Exception e) {}
-
-//#else
-/*
-        try {
-            PrintStream newOutStream = (value) ? System.out
-                                               : null;
-            DriverManager.setLogStream(newOutStream);
-        } catch (Exception e){}
-*/
-
-//#endif
-    }
-
-    public static void deleteOnExit(File f) {
-
-//#ifdef JAVA2FULL
-        f.deleteOnExit();
-
-//#endif
-    }
-
-    public static void saveProperties(Properties props, String name,
-                                      OutputStream os) throws IOException {
-
-//#ifdef JAVA2FULL
-        props.store(os, name);
-
-//#else
-/*
-        props.save(os, name);
-*/
-
-//#endif
-    }
-
-    public static void runFinalizers() {
-
-//#ifdef JAVA2FULL
-        System.runFinalizersOnExit(true);
-
-//#endif
-    }
-
-    public static boolean createNewFile(File file) {
-
-//#ifdef JAVA2FULL
-        try {
-            return file.createNewFile();
-        } catch (IOException e) {}
-
-        return false;
-
-//#else
-/*
-        return true;
-*/
-
-//#endif
-    }
-
-    public static void setRAFileLength(RandomAccessFile raFile,
-                                       long length) throws IOException {
-
-//#ifdef JAVA2FULL
-        raFile.setLength(length);
-
-//#endif
     }
 }

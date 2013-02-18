@@ -375,7 +375,7 @@ public class Collation implements SchemaObject {
         int i;
 
         if (collator == null) {
-            i = JavaSystem.compareIngnoreCase(a, b);
+            i = a.compareToIgnoreCase(b);
         } else {
             i = collator.compare(toUpperCase(a), toUpperCase(b));
         }

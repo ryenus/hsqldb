@@ -106,7 +106,6 @@ implements ActionListener, WindowListener, KeyListener {
     static final int       iMaxRecent   = 24;
     private static boolean TT_AVAILABLE = false;
 
-//#ifdef JAVA2FULL
     static {
         try {
             Class.forName(DatabaseManager.class.getPackage().getName()
@@ -116,7 +115,6 @@ implements ActionListener, WindowListener, KeyListener {
         } catch (Throwable t) {}
     }
 
-//#endif
     private static final String HELP_TEXT =
         "See the forums, mailing lists, and HSQLDB User Guide\n"
         + "at http://hsqldb.org.\n\n"

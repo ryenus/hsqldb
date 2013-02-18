@@ -155,7 +155,6 @@ public class TestBug778213 extends TestBase {
 
         conn = newConnection();
 
-//#ifdef JAVA4
         try {
             pstmt = conn.prepareStatement("create table test(id int)");
 
@@ -164,8 +163,6 @@ public class TestBug778213 extends TestBase {
         } finally {
             conn.close();
         }
-
-//#endif JAVA4
     }
 
     /* Runs TestBug778213_Part3 test from the command line*/

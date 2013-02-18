@@ -150,7 +150,7 @@ public class FileUtil implements FileAccess {
      *       machine terminates
      */
     public void deleteOnExit(File f) {
-        JavaSystem.deleteOnExit(f);
+        f.deleteOnExit();
     }
 
     /**

@@ -1119,7 +1119,7 @@ public class Scanner {
 
             case Types.SQL_DOUBLE :
                 try {
-                    double d = JavaSystem.parseDouble(token.tokenString);
+                    double d = Double.parseDouble(token.tokenString);
                     long   l = Double.doubleToLongBits(d);
 
                     token.tokenValue = ValuePool.getDouble(l);

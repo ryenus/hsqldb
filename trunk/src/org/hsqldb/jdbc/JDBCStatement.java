@@ -1051,11 +1051,6 @@ public class JDBCStatement extends JDBCStatementBase implements Statement {
      * results in an exception. The size of the returned array equals the
      * number of commands that were executed successfully.<p>
      *
-     * When the product is built under the JAVA1 target, an exception
-     * is never thrown and it is the responsibility of the client software to
-     * check the size of the  returned update count array to determine if any
-     * batch items failed.  To build and run under the JAVA2 target, JDK/JRE
-     * 1.3 or higher must be used.
      * </div>
      * <!-- end release-specific documentation -->
      *

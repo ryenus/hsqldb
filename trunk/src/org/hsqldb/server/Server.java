@@ -412,7 +412,7 @@ public class Server implements HsqlSocketRequestHandler {
         printWithThread("signalCloseAllServerConnections() exited");
     }
 
-    protected void finalize() throws Throwable {
+    protected void finalize() {
 
         if (serverThread != null) {
             releaseServerSocket();

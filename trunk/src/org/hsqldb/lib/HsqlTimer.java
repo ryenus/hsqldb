@@ -56,8 +56,7 @@ import java.util.Date;
 public final class HsqlTimer implements Comparator, ThreadFactory {
 
     /** The priority queue for the scheduled tasks. */
-    protected final TaskQueue taskQueue = new TaskQueue(16,
-        (Comparator) this);
+    protected final TaskQueue taskQueue = new TaskQueue(16, (Comparator) this);
 
     /** The inner runnable that executes tasks in the background thread. */
     protected final TaskRunner taskRunner = new TaskRunner();
@@ -482,12 +481,10 @@ public final class HsqlTimer implements Comparator, ThreadFactory {
     /** Sets the background thread to null. */
     protected synchronized void clearThread() {
 
-//#ifdef JAVA2FULL
         try {
             taskRunnerThread.setContextClassLoader(null);
         } catch (Throwable t) {}
 
-//#endif JAVA2FULL
         taskRunnerThread = null;
     }
 
@@ -547,7 +544,9 @@ public final class HsqlTimer implements Comparator, ThreadFactory {
                             // ensure that really late tasks don't
                             // completely saturate the head of the
                             // task queue
-                            period = 0;     /** @todo : is -1, -2 ... fairer? */
+                            period = 0;
+
+                            /** @todo : is -1, -2 ... fairer? */
                         } else if (late > 0) {
 
                             // compensate for scheduling overruns
