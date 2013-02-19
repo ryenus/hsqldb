@@ -46,7 +46,6 @@ import org.hsqldb.Table;
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
 import org.hsqldb.lib.FileAccess;
-import org.hsqldb.lib.FileArchiver;
 import org.hsqldb.scriptio.ScriptReaderBase;
 import org.hsqldb.scriptio.ScriptReaderDecode;
 import org.hsqldb.scriptio.ScriptReaderText;
@@ -274,6 +273,7 @@ public class Log {
     void renameNewScript() {
 
         if (fa.isStreamElement(scriptFileName + Logger.newFileExtension)) {
+            fa.removeElement(scriptFileName);
             fa.renameElement(scriptFileName + Logger.newFileExtension,
                              scriptFileName);
         }
@@ -338,6 +338,12 @@ public class Log {
             defrag = true;
         }
 
+        // test code
+        /*
+        if (database.logger.isStoredFileAccess) {
+            defrag = false;
+        }
+        */
         if (defrag) {
             defrag();
         } else {
