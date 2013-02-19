@@ -55,7 +55,7 @@ import org.hsqldb.lib.HsqlArrayList;
  * @version 1.7.2
  * @since 1.7.2
  */
-public final class BundleHandler {
+public final class ResourceBundleHandler {
 
     /** Used to synchronize access */
     private static final Object mutex = new Object();
@@ -79,7 +79,7 @@ public final class BundleHandler {
     private static final Method newGetBundleMethod = getNewGetBundleMethod();
 
     /** Pure utility class: external construction disabled. */
-    private BundleHandler() {}
+    private ResourceBundleHandler() {}
 
     /**
      * Getter for property locale. <p>
