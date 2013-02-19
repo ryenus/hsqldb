@@ -130,7 +130,7 @@ class WebServerConnection implements Runnable {
 
     // default mime type mappings
     private static final int hnd_content_types =
-        BundleHandler.getBundleHandle("content-types", null);
+        BundleHandler.getBundleHandle("webserver-content-types", null);
 
     /**
      * Creates a new WebServerConnection to the specified WebServer on the

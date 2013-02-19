@@ -244,7 +244,7 @@ public class Server implements HsqlSocketRequestHandler {
 
 //
     protected static final int serverBundleHandle =
-        BundleHandler.getBundleHandle("org_hsqldb_Server_messages", null);
+        BundleHandler.getBundleHandle("org_hsqldb_server_Server_messages", null);
 
 //
     ServerProperties serverProperties;

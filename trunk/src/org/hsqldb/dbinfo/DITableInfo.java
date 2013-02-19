@@ -95,8 +95,8 @@ final class DITableInfo {
             BundleHandler.setLocale(Locale.getDefault());
 
             hnd_column_remarks =
-                BundleHandler.getBundleHandle("column-remarks", null);
-            hnd_table_remarks = BundleHandler.getBundleHandle("table-remarks",
+                BundleHandler.getBundleHandle("info-column-remarks", null);
+            hnd_table_remarks = BundleHandler.getBundleHandle("info-table-remarks",
                     null);
 
             BundleHandler.setLocale(oldLocale);
