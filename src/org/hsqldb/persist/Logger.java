@@ -609,6 +609,11 @@ public class Logger {
         propSqlLogLevel = database.databaseProperties.getIntegerProperty(
             HsqlDatabaseProperties.hsqldb_sqllog);
 
+        // test code
+        /*
+        propEventLogLevel = 2;
+        propSqlLogLevel = 2;
+        */
         if (database.databaseProperties.isPropertyTrue(
                 HsqlDatabaseProperties.hsqldb_files_readonly)) {
             database.setFilesReadOnly();
