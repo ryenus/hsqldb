@@ -35,7 +35,7 @@ import java.util.Locale;
 
 import org.hsqldb.Table;
 import org.hsqldb.TableBase;
-import org.hsqldb.resources.BundleHandler;
+import org.hsqldb.resources.ResourceBundleHandler;
 import org.hsqldb.store.ValuePool;
 
 /**
@@ -89,17 +89,19 @@ final class DITableInfo {
 
         Locale oldLocale;
 
-        synchronized (BundleHandler.class) {
-            oldLocale = BundleHandler.getLocale();
+        synchronized (ResourceBundleHandler.class) {
+            oldLocale = ResourceBundleHandler.getLocale();
 
-            BundleHandler.setLocale(Locale.getDefault());
+            ResourceBundleHandler.setLocale(Locale.getDefault());
 
             hnd_column_remarks =
-                BundleHandler.getBundleHandle("info-column-remarks", null);
-            hnd_table_remarks = BundleHandler.getBundleHandle("info-table-remarks",
+                ResourceBundleHandler.getBundleHandle("info-column-remarks",
+                    null);
+            hnd_table_remarks =
+                ResourceBundleHandler.getBundleHandle("info-table-remarks",
                     null);
 
-            BundleHandler.setLocale(oldLocale);
+            ResourceBundleHandler.setLocale(oldLocale);
         }
     }
 
@@ -158,7 +160,7 @@ final class DITableInfo {
 
         key = getName() + "_" + getColName(i);
 
-        return BundleHandler.getString(hnd_column_remarks, key);
+        return ResourceBundleHandler.getString(hnd_column_remarks, key);
     }
 
     /**
@@ -205,7 +207,7 @@ final class DITableInfo {
     String getRemark() {
 
         return (table.getTableType() == TableBase.INFO_SCHEMA_TABLE)
-               ? BundleHandler.getString(hnd_table_remarks, getName())
+               ? ResourceBundleHandler.getString(hnd_table_remarks, getName())
                : table.getName().comment;
     }
 
@@ -232,9 +234,10 @@ final class DITableInfo {
                 return "SYSTEM TABLE";
 
             default :
-                if (table.getOwner().isSystem() ) {
+                if (table.getOwner().isSystem()) {
                     return "SYSTEM TABLE";
                 }
+
                 return "TABLE";
         }
     }

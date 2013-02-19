@@ -90,7 +90,7 @@ import org.hsqldb.error.ErrorCode;
 import org.hsqldb.lib.DataOutputStream;
 import org.hsqldb.navigator.RowSetNavigator;
 import org.hsqldb.persist.HsqlDatabaseProperties;
-import org.hsqldb.resources.BundleHandler;
+import org.hsqldb.resources.ResourceBundleHandler;
 import org.hsqldb.result.Result;
 import org.hsqldb.result.ResultConstants;
 import org.hsqldb.result.ResultMetaData;
@@ -151,8 +151,8 @@ class ServerConnection implements Runnable {
     protected static String TEXTBANNER_PART2 = null;
 
     static {
-        int serverBundleHandle =
-            BundleHandler.getBundleHandle("org_hsqldb_server_Server_messages", null);
+        int serverBundleHandle = ResourceBundleHandler.getBundleHandle(
+            "org_hsqldb_server_Server_messages", null);
 
         if (serverBundleHandle < 0) {
             throw new RuntimeException(
@@ -162,9 +162,9 @@ class ServerConnection implements Runnable {
             // Not necessary to localize message.
         }
 
-        TEXTBANNER_PART1 = BundleHandler.getString(serverBundleHandle,
+        TEXTBANNER_PART1 = ResourceBundleHandler.getString(serverBundleHandle,
                 "textbanner.part1");
-        TEXTBANNER_PART2 = BundleHandler.getString(serverBundleHandle,
+        TEXTBANNER_PART2 = ResourceBundleHandler.getString(serverBundleHandle,
                 "textbanner.part2");
 
         if (TEXTBANNER_PART1 == null || TEXTBANNER_PART2 == null) {
