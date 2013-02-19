@@ -56,7 +56,7 @@ import org.hsqldb.lib.StringUtil;
 import org.hsqldb.lib.java.JavaSystem;
 import org.hsqldb.persist.HsqlDatabaseProperties;
 import org.hsqldb.persist.HsqlProperties;
-import org.hsqldb.resources.BundleHandler;
+import org.hsqldb.resources.ResourceBundleHandler;
 import org.hsqldb.result.Result;
 import org.hsqldb.result.ResultConstants;
 
@@ -244,7 +244,8 @@ public class Server implements HsqlSocketRequestHandler {
 
 //
     protected static final int serverBundleHandle =
-        BundleHandler.getBundleHandle("org_hsqldb_server_Server_messages", null);
+        ResourceBundleHandler.getBundleHandle(
+            "org_hsqldb_server_Server_messages", null);
 
 //
     ServerProperties serverProperties;
@@ -542,7 +543,8 @@ public class Server implements HsqlSocketRequestHandler {
      * @return the command line and properties options help for this Server
      */
     public String getHelpString() {
-        return BundleHandler.getString(serverBundleHandle, "server.help");
+        return ResourceBundleHandler.getString(serverBundleHandle,
+                                               "server.help");
     }
 
     /**
@@ -1488,7 +1490,7 @@ public class Server implements HsqlSocketRequestHandler {
             return;
         }
 
-        resource = BundleHandler.getString(serverBundleHandle, key);
+        resource = ResourceBundleHandler.getString(serverBundleHandle, key);
 
         if (resource == null) {
             return;
@@ -2449,7 +2451,8 @@ public class Server implements HsqlSocketRequestHandler {
      * @param key for message
      */
     protected static void printHelp(String key) {
-        System.out.println(BundleHandler.getString(serverBundleHandle, key));
+        System.out.println(ResourceBundleHandler.getString(serverBundleHandle,
+                key));
     }
 
     /**

@@ -35,7 +35,7 @@ import java.lang.reflect.Field;
 
 import org.hsqldb.HsqlException;
 import org.hsqldb.lib.StringUtil;
-import org.hsqldb.resources.BundleHandler;
+import org.hsqldb.resources.ResourceBundleHandler;
 import org.hsqldb.result.Result;
 
 /**
@@ -55,7 +55,7 @@ public class Error {
     //
     private static final String errPropsName = "sql-state-messages";
     private static final int bundleHandle =
-        BundleHandler.getBundleHandle(errPropsName, null);
+        ResourceBundleHandler.getBundleHandle(errPropsName, null);
     private static final String MESSAGE_TAG      = "$$";
     private static final int    SQL_STATE_DIGITS = 5;
     private static final int    SQL_CODE_DIGITS  = 4;
@@ -278,7 +278,7 @@ public class Error {
         String key = StringUtil.toZeroPaddedString(code, SQL_CODE_DIGITS,
             SQL_CODE_DIGITS);
 
-        return BundleHandler.getString(bundleHandle, key);
+        return ResourceBundleHandler.getString(bundleHandle, key);
     }
 
     public static HsqlException error(final Result result) {

@@ -54,7 +54,7 @@ import org.hsqldb.lib.ArrayUtil;
 import org.hsqldb.lib.DataOutputStream;
 import org.hsqldb.lib.InOutUtil;
 import org.hsqldb.persist.HsqlDatabaseProperties;
-import org.hsqldb.resources.BundleHandler;
+import org.hsqldb.resources.ResourceBundleHandler;
 import org.hsqldb.result.Result;
 import org.hsqldb.result.ResultConstants;
 import org.hsqldb.rowio.RowInputBinary;
@@ -130,7 +130,7 @@ class WebServerConnection implements Runnable {
 
     // default mime type mappings
     private static final int hnd_content_types =
-        BundleHandler.getBundleHandle("webserver-content-types", null);
+        ResourceBundleHandler.getBundleHandle("webserver-content-types", null);
 
     /**
      * Creates a new WebServerConnection to the specified WebServer on the
@@ -175,8 +175,8 @@ class WebServerConnection implements Runnable {
 
         // if not found, search default mapping
         if (mimeType == null && key.length() > 1) {
-            mimeType = BundleHandler.getString(hnd_content_types,
-                                               key.substring(1));
+            mimeType = ResourceBundleHandler.getString(hnd_content_types,
+                    key.substring(1));
         }
 
         return mimeType == null ? ServerConstants.SC_DEFAULT_WEB_MIME
@@ -547,21 +547,21 @@ class WebServerConnection implements Runnable {
 
             case HttpURLConnection.HTTP_BAD_REQUEST :
                 msg = getHead(HEADER_BAD_REQUEST, false, null, 0);
-                msg += BundleHandler.getString(WebServer.webBundleHandle,
-                                               "BAD_REQUEST");
+                msg += ResourceBundleHandler.getString(
+                    WebServer.webBundleHandle, "BAD_REQUEST");
                 break;
 
             case HttpURLConnection.HTTP_FORBIDDEN :
                 msg = getHead(HEADER_FORBIDDEN, false, null, 0);
-                msg += BundleHandler.getString(WebServer.webBundleHandle,
-                                               "FORBIDDEN");
+                msg += ResourceBundleHandler.getString(
+                    WebServer.webBundleHandle, "FORBIDDEN");
                 break;
 
             case HttpURLConnection.HTTP_NOT_FOUND :
             default :
                 msg = getHead(HEADER_NOT_FOUND, false, null, 0);
-                msg += BundleHandler.getString(WebServer.webBundleHandle,
-                                               "NOT_FOUND");
+                msg += ResourceBundleHandler.getString(
+                    WebServer.webBundleHandle, "NOT_FOUND");
                 break;
         }
 
