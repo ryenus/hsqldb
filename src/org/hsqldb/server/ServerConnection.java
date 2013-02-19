@@ -152,7 +152,7 @@ class ServerConnection implements Runnable {
 
     static {
         int serverBundleHandle =
-            BundleHandler.getBundleHandle("org_hsqldb_Server_messages", null);
+            BundleHandler.getBundleHandle("org_hsqldb_server_Server_messages", null);
 
         if (serverBundleHandle < 0) {
             throw new RuntimeException(

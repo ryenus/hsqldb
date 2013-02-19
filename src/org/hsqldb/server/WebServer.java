@@ -122,7 +122,7 @@ public class WebServer extends Server {
      * Handle to resource bundle providing i18n for things like
      * HTTP error pages.
      */
-    static int webBundleHandle = BundleHandler.getBundleHandle("webserver",
+    static int webBundleHandle = BundleHandler.getBundleHandle("webserver-pages",
         null);
 
     public WebServer() {
