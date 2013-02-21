@@ -1003,7 +1003,7 @@ public class FunctionSQL extends Expression {
                     throw Error.error(ErrorCode.X_22027);
                 }
 
-                int character = string.charAt(0);
+                char character = string.charAt(0);
 
                 return ((CharacterType) dataType).trim(session, data[2],
                                                        character, leading,

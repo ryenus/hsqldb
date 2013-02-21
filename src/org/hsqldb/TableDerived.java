@@ -284,15 +284,7 @@ public class TableDerived extends Table {
 
     public void prepareTable(HsqlName[] columns) {
 
-        if (dataExpression != null) {
-
-            // columns prepared
-        }
-
-        if (queryExpression != null) {
-            columnCount = queryExpression.getColumnCount();
-            columnList  = queryExpression.getColumns();
-        }
+        prepareTable();
 
         if (columns != null) {
             if (columns.length != columnList.size()) {
@@ -304,11 +296,9 @@ public class TableDerived extends Table {
 
                 ColumnSchema col = (ColumnSchema) columnList.get(i);
 
-                col.getName().rename(columns[i]);
+                col.setName(columns[i]);
             }
         }
-
-        setTableIndexesForSubquery();
     }
 
     private void setTableIndexesForSubquery() {

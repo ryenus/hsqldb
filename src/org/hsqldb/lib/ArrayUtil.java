@@ -1559,11 +1559,11 @@ public class ArrayUtil {
 
         while (count < 16) {
             if (count == 0) {
-                v = (int) hi >>> 32;
+                v = (int) (hi >>> 32);
             } else if (count == 4) {
                 v = (int) hi;
             } else if (count == 8) {
-                v = (int) lo >>> 32;
+                v = (int) (lo >>> 32);
             } else {
                 v = (int) lo;
             }
@@ -1594,8 +1594,8 @@ public class ArrayUtil {
                 continue;
             }
 
-            return a[i] < b[i] ? -1
-                               : 1;
+            return (((int) a[i]) & 0xff) > (((int) b[i]) & 0xff) ? 1
+                                                                 : -1;
         }
 
         if (a.length == b.length) {

@@ -845,12 +845,7 @@ public class Expression implements Cloneable {
     }
 
     SimpleName getSimpleName() {
-
-        if (alias != null) {
-            return alias;
-        }
-
-        return null;
+        return alias;
     }
 
     /**
