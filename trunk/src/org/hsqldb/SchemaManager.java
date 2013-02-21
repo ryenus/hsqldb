@@ -2402,6 +2402,14 @@ public class SchemaManager {
         }
     }
 
+    public HsqlName getObjectName(String name, String schema, int type) {
+
+        SchemaObject object = getSchemaObject(name, schema, type);
+
+        return object == null ? null
+                              : object.getName();
+    }
+
     public String[] getSQLArray() {
 
         readLock.lock();
@@ -2605,7 +2613,6 @@ public class SchemaManager {
 
             for (int i = 0; i < tableList.size(); i++) {
                 Table t = (Table) tableList.get(i);
-
 
                 if (t.isCached()) {
                     String ddl = t.getSQLForTableSpace();

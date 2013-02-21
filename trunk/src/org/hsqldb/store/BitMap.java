@@ -592,28 +592,6 @@ public class BitMap {
         }
     }
 
-    public static int compare(byte[] a, byte[] b) {
-
-        int shortLength = a.length > b.length ? b.length
-                                              : a.length;
-
-        for (int i = 0; i < shortLength; i++) {
-            if (a[i] == b[i]) {
-                continue;
-            }
-
-            return (((int) a[i]) & 0xff) > (((int) b[i]) & 0xff) ? 1
-                                                                 : -1;
-        }
-
-        if (a.length == b.length) {
-            return 0;
-        }
-
-        return a.length > b.length ? 1
-                                   : -1;
-    }
-
     public static byte[] and(byte[] a, byte[] b) {
 
         int    length      = a.length > b.length ? a.length

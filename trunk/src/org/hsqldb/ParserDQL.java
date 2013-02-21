@@ -186,35 +186,37 @@ public class ParserDQL extends ParserBase {
                         if (token.tokenType == Tokens.OPENBRACKET) {
                             read();
 
-                            boolean isInt     = false;
-                            int     precision = readInteger();
-                            int     scale     = 0;
+                            int precision = readInteger();
+                            int scale     = 0;
 
                             if (token.tokenType == Tokens.COMMA) {
                                 read();
 
                                 scale = readInteger();
-                            } else if (precision < 10) {
-                                isInt = true;
                             }
 
                             readThis(Tokens.CLOSEBRACKET);
 
-                            return isInt ? Type.SQL_INTEGER
-                                         : Type.getType(Types.SQL_DECIMAL,
-                                                        null, null, precision,
-                                                        scale);
+                            return Type.getType(Types.SQL_DECIMAL, null, null,
+                                                precision, scale);
                         } else {
-                            return Type.SQL_DOUBLE;
+                            return Type.SQL_DECIMAL_DEFAULT;
                         }
                     case Tokens.RAW :
                         typeNumber = Types.SQL_VARBINARY;
                         break;
 
                     case Tokens.VARCHAR2 :
-                    case Tokens.NVARCHAR2 :
-                        typeNumber     = Types.SQL_VARCHAR;
                         readByteOrChar = true;
+                        typeNumber     = Types.SQL_VARCHAR;
+                        break;
+
+                    case Tokens.NVARCHAR2 :
+                        typeNumber = Types.SQL_VARCHAR;
+                        break;
+
+                    case Tokens.NCHAR :
+                        typeNumber = Types.SQL_CHAR;
                         break;
                 }
             }
@@ -254,6 +256,10 @@ public class ParserDQL extends ParserBase {
                     readThis(Tokens.OBJECT);
 
                     typeNumber = Types.SQL_CLOB;
+                } else {
+                    if (database.sqlSyntaxOra) {
+                        readByteOrChar = true;
+                    }
                 }
                 break;
 
@@ -369,8 +375,6 @@ public class ParserDQL extends ParserBase {
                         read();
                     } else if (token.tokenType == Tokens.OCTETS) {
                         read();
-
-                        length /= 2;
                     }
                 }
 
@@ -1216,22 +1220,29 @@ public class ParserDQL extends ParserBase {
 
                     select.exprColumnList.toArray(exprList);
 
+                    Expression row = new Expression(OpTypes.ROW, exprList);
+
+                    exprList = new Expression[]{ row };
+
                     Expression valueList = new Expression(OpTypes.VALUELIST,
                                                           exprList);
 
-                    for (int i = 0; i < valueList.nodes.length; i++) {
-                        if (valueList.nodes[i].opType != OpTypes.ROW) {
-                            valueList.nodes[i] =
-                                new Expression(OpTypes.ROW,
-                                               new Expression[]{
-                                                   valueList.nodes[i] });
+                    compileContext.incrementDepth();
+
+                    HsqlName[] colNames = new HsqlName[row.getDegree()];
+
+                    for (int i = 0; i < colNames.length; i++) {
+                        SimpleName name = row.nodes[i].getSimpleName();
+
+                        if (name == null) {
+                            colNames[i] = HsqlNameManager.getAutoColumnName(i);
+                        } else {
+                            colNames[i] = HsqlNameManager.getColumnName(name);
                         }
                     }
 
-                    compileContext.incrementDepth();
-
                     TableDerived td = prepareSubqueryTable(valueList,
-                                                           OpTypes.VALUELIST);
+                                                           colNames);
 
                     select = new QuerySpecification(session, td,
                                                     compileContext, true);
@@ -4626,14 +4637,15 @@ public class ParserDQL extends ParserBase {
         compileContext.incrementDepth();
 
         Expression   e  = XreadRowValueExpressionListBody();
-        TableDerived td = prepareSubqueryTable(e, OpTypes.VALUELIST);
+        TableDerived td = prepareSubqueryTable(e, null);
 
         compileContext.decrementDepth();
 
         return td;
     }
 
-    private TableDerived prepareSubqueryTable(Expression e, int type) {
+    private TableDerived prepareSubqueryTable(Expression e,
+            HsqlName[] colNames) {
 
         HsqlList unresolved = e.resolveColumnReferences(session,
             RangeGroup.emptyGroup, compileContext.getOuterRanges(), null);
@@ -4642,9 +4654,9 @@ public class ParserDQL extends ParserBase {
         e.resolveTypes(session, null);
         e.prepareTable(session, null, e.nodes[0].nodes.length);
 
-        TableDerived td = this.newSubQueryTable(e, type);
+        TableDerived td = this.newSubQueryTable(e, OpTypes.VALUELIST);
 
-        td.prepareTable();
+        td.prepareTable(colNames);
 
         return td;
     }

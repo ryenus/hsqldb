@@ -59,7 +59,7 @@ import org.hsqldb.error.ErrorCode;
  * than all the existing names.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.2.9
+ * @version 2.3.0
  * @since 1.7.2
  */
 public final class HsqlNameManager {
@@ -232,6 +232,11 @@ public final class HsqlNameManager {
         return hsqlName;
     }
 
+    public static HsqlName getColumnName(SimpleName name) {
+        return new HsqlName(staticManager, name.name, name.isNameQuoted,
+                            SchemaObject.COLUMN);
+    }
+
     /**
      * Column index i is 0 based, returns 1 based numbered column.
      */
@@ -241,7 +246,8 @@ public final class HsqlNameManager {
             return autoColumnNames[i];
         }
 
-        return new HsqlName(staticManager, "C_" + (i + 1), 0, false);
+        return new HsqlName(staticManager, "C_" + (i + 1),
+                            SchemaObject.COLUMN, false);
     }
 
     /**
@@ -305,11 +311,6 @@ public final class HsqlNameManager {
         name.parent = parent;
 
         return name;
-    }
-
-    void resetNumbering() {
-        sysNumber    = 0;
-        serialNumber = 0;
     }
 
     public static SimpleName getSimpleName(String name, boolean isNameQuoted) {

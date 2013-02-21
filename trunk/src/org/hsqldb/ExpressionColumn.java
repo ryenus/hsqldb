@@ -336,6 +336,10 @@ public class ExpressionColumn extends Expression {
                 if (column != null) {
                     return column.getName().name;
                 }
+
+                if (columnName != null) {
+                    return columnName;
+                }
         }
 
         return getAlias();

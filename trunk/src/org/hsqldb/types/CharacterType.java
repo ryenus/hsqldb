@@ -969,7 +969,7 @@ public class CharacterType extends Type {
         return collation.toLowerCase((String) data);
     }
 
-    public Object trim(SessionInterface session, Object data, int trim,
+    public Object trim(SessionInterface session, Object data, char trim,
                        boolean leading, boolean trailing) {
 
         if (data == null) {

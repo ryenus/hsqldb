@@ -172,7 +172,7 @@ public final class BooleanType extends Type {
             case Types.SQL_CHAR :
             case Types.SQL_VARCHAR :
             case Types.VARCHAR_IGNORECASE : {
-                a = ((CharacterType) otherType).trim(session, a, (int) ' ',
+                a = ((CharacterType) otherType).trim(session, a, ' ',
                                                      true, true);
 
                 if (((String) a).equalsIgnoreCase(Tokens.T_TRUE)) {
