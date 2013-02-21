@@ -313,7 +313,6 @@ class ConnectionDialogCommon {
 
     public static void setHomeDir() {
 
-//#ifdef JAVA2FULL
         if (homedir == null) {
             try {
                 Class c =
@@ -331,7 +330,5 @@ class ConnectionDialogCommon {
                     "No access to home directory.  Continuing without...");
             }
         }
-
-//#endif
     }
 }
