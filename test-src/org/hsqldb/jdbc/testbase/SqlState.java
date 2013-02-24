@@ -35,7 +35,7 @@ import java.io.Serializable;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-import org.hsqldb.resources.BundleHandler;
+import org.hsqldb.resources.ResourceBundleHandler;
 
 /**
  * Encapsulates an SQLSTATE parameter value, as described in
@@ -641,13 +641,13 @@ public abstract class SqlState implements Serializable {
          *
          */
         public static final int SQLSTATE_CONDITION_BUNDLE_ID =
-                BundleHandler.getBundleHandle("sqlstate-condition",
+                ResourceBundleHandler.getBundleHandle("sqlstate-condition",
                 SqlState.class.getClassLoader());
         /**
          *
          */
         public static final int SQLSTATE_SUBCONDITION_BUNDLE_ID =
-                BundleHandler.getBundleHandle("sqlstate-subcondition",
+                ResourceBundleHandler.getBundleHandle("sqlstate-subcondition",
                 SqlState.class.getClassLoader());
 
         /**
@@ -913,7 +913,7 @@ public abstract class SqlState implements Serializable {
          * @return
          */
         public static String conditionForSqlStateClass(final String sqlStateClass) {
-            return BundleHandler.getString(Constant.SQLSTATE_CONDITION_BUNDLE_ID,
+            return ResourceBundleHandler.getString(Constant.SQLSTATE_CONDITION_BUNDLE_ID,
                     sqlStateClass);
         }
 
@@ -923,7 +923,7 @@ public abstract class SqlState implements Serializable {
          * @return
          */
         public static String subConditionForSqlState(final String sqlState) {
-            return BundleHandler.getString(Constant.SQLSTATE_SUBCONDITION_BUNDLE_ID,
+            return ResourceBundleHandler.getString(Constant.SQLSTATE_SUBCONDITION_BUNDLE_ID,
                     sqlState);
         }
 

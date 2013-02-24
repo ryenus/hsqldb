@@ -29,19 +29,22 @@
  */
 package org.hsqldb.lib.tar;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.File;
-import junit.framework.Test;
-import junit.framework.TestSuite;
-import junit.textui.TestRunner;
+
+import org.hsqldb.persist.HsqlDatabaseProperties;
 import org.hsqldb.testbase.BaseTestCase;
 import org.hsqldb.testbase.ForSubject;
 import org.hsqldb.testbase.OfMethod;
+import junit.framework.Test;
+import junit.framework.TestSuite;
+import junit.textui.TestRunner;
 
 @ForSubject(PIFGenerator.class)
 public class PIFGeneratorTest extends BaseTestCase {
 
+    static final String pifResPath = "org/hsqldb/resources/pif.data";
     static protected byte[] loadResByteFile(String resPath) {
         InputStream is = null;
         int bytesRead = 0;
@@ -88,8 +91,7 @@ public class PIFGeneratorTest extends BaseTestCase {
         "addRecord(java.lang.String, long)",
         "addRecord(java.lang.String, java.lang.String)"})
     public void testXrecord() throws Exception {
-        byte[] expectedHeaderData = PIFGeneratorTest.loadResByteFile(
-                "/org/hsqldb/resources/pif.data");
+        byte[] expectedHeaderData = PIFGeneratorTest.loadResByteFile(pifResPath);
         File f = new File(".");
         PIFGenerator pif = new PIFGenerator(f);
         try {
@@ -114,8 +116,7 @@ public class PIFGeneratorTest extends BaseTestCase {
         "addRecord(java.lang.String, long)",
         "addRecord(java.lang.String, java.lang.String)"})
     public void testGrecord() throws Exception {
-        byte[] expectedHeaderData = PIFGeneratorTest.loadResByteFile(
-                "/org/hsqldb/resources/pif.data");
+        byte[] expectedHeaderData = PIFGeneratorTest.loadResByteFile(pifResPath);
         // Would like to load this one time with a JUnit v. 4 @BeforeClass
         // method
         PIFGenerator pif = new PIFGenerator(1);

@@ -30,7 +30,7 @@
 
 package org.hsqldb.testbase;
 
-import org.hsqldb.resources.BundleHandler;
+import org.hsqldb.resources.ResourceBundleHandler;
 
 /**
  * Centralized facility for retrieving test suite properties. <p>
@@ -50,8 +50,8 @@ import org.hsqldb.resources.BundleHandler;
  * @since 2.0.1
  */
 public class PropertyGetter {
-    public static final int BH_TEST = BundleHandler.getBundleHandle("test", null);
-    public static final int BH_TEST_DBMD_CONVERT = BundleHandler.getBundleHandle("test-dbmd-convert", null);
+    public static final int BH_TEST = ResourceBundleHandler.getBundleHandle("test", null);
+    public static final int BH_TEST_DBMD_CONVERT = ResourceBundleHandler.getBundleHandle("test-dbmd-convert", null);
     
     /**
      * for the given key.
@@ -70,10 +70,10 @@ public class PropertyGetter {
         } catch (SecurityException se) {
         }
         if (value == null) {
-            value = BundleHandler.getString(BH_TEST, key);
+            value = ResourceBundleHandler.getString(BH_TEST, key);
         }
         if (value == null) {
-            value = BundleHandler.getString(BH_TEST_DBMD_CONVERT, key);
+            value = ResourceBundleHandler.getString(BH_TEST_DBMD_CONVERT, key);
         }
         if (value == null) {
             value = defaultValue;

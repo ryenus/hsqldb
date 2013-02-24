@@ -56,7 +56,7 @@ public abstract class BaseScriptedTestCase extends BaseTestCase {
     protected BaseScriptedTestCase() {
         super();
     }
-    
+
     /**
      *
      * @param name of script resource.

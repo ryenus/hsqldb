@@ -44,20 +44,20 @@ import org.hsqldb.testbase.OfMethod;
  *
  * Note that concrete subclasses <em>must</em> provide a public default
  * constructor that delegates to the protected default constructor of this
- * class (in order to provide access to concrete implementations of 
+ * class (in order to provide access to concrete implementations of
  * {@link #getSQLTypeCode(int)} and {@link #getSQLTypeName(int)}. <p>
- * 
+ *
  * In order to automate exhaustive combinatoric testing, concrete subclasses
- * must also provide a <tt>public static TestCase suite()</tt> method that 
+ * must also provide a <tt>public static TestCase suite()</tt> method that
  * delegates to {@link #createTestSuite(java.lang.Class)}, passing their own
- * @{link Class} and the supported type count (one greater than the maximum 
- * valid index than can be passed to the concrete implementation of 
+ * @{link Class} and the supported type count (one greater than the maximum
+ * valid index than can be passed to the concrete implementation of
  * {@link #getSQLTypeCode(int)} or  {@link #getSQLTypeName(int)}.  <p>
- * 
- * Finally, for each supported conversion, there must be a <tt>'true'</tt> 
- * valued entry in either the <tt>/org/hsqldb.resources/test.properties</tt>
- * or the <tt>/org/hsqldb.resources/test-dbmd-convert.properties</tt> resource
- * (in that order of precedence) whose key matches the output of 
+ *
+ * Finally, for each supported conversion, there must be a <tt>'true'</tt>
+ * valued entry in either the <tt>/org/hsqldb/resources/test.properties</tt>
+ * or the <tt>/org/hsqldb/resources/test-dbmd-convert.properties</tt> resource
+ * (in that order of precedence) whose key matches the output of
  * {@link #translatePropertyKey(java.lang.String)} when the input value is of
  * the form  <tt>'dbmd.supports.convert.to.${target-type-name}.from.${source-type-name}'</tt>
  * where <tt>${target-type-name}</tt> and <tt>${source-type-name}</tt> are values
@@ -156,11 +156,11 @@ public abstract class BaseDatabaseMetaDataSupportsConvertTestCase extends BaseJd
     protected abstract String getSQLTypeName(int i);
 
     /**
-     * 
+     *
      * @param clazz that provides the concrete test case implementation.
-     * @param typeCount one greater than the maximum valid index than can be 
-     *        passed to {@link #getSQLTypeCode(int)} or 
-     *        {@link #getSQLTypeName(int)} 
+     * @param typeCount one greater than the maximum valid index than can be
+     *        passed to {@link #getSQLTypeCode(int)} or
+     *        {@link #getSQLTypeName(int)}
      * @return a suite of test cases; 1 for each possible from/to data type pair
      */
     protected static TestSuite createTestSuite(

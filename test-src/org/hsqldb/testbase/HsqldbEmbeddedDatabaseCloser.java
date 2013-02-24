@@ -31,6 +31,9 @@
 
 package org.hsqldb.testbase;
 
+import org.hsqldb.DatabaseManager;
+import org.hsqldb.Database;
+
 /**
  * Closes all in-process HSQLDB database instances that reachable via the
  * class loader context that loaded the org.hsqldb.DatabaseManager class
@@ -48,7 +51,7 @@ public class HsqldbEmbeddedDatabaseCloser implements ConnectionFactory.Connectio
 
     @Override
     public void finishedClosingRegisteredObjects(ConnectionFactory source) {
-        org.hsqldb.DatabaseManager.closeDatabases(org.hsqldb.Database.CLOSEMODE_IMMEDIATELY);
+        DatabaseManager.closeDatabases(Database.CLOSEMODE_IMMEDIATELY);
     }
 
 }
