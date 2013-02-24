@@ -54,7 +54,7 @@ import org.hsqldb.testbase.OfMethod;
  *
  * @author Campbell Boucher-Burnet (boucherb@users dot sourceforge.net)
  */
-@ForSubject(Util.class)
+@ForSubject(JDBCUtil.class)
 public class UtilTest extends BaseJdbcTestCase {
 
     private static final Object[][] s_exceptions = new Object[][] {
@@ -388,7 +388,7 @@ public class UtilTest extends BaseJdbcTestCase {
 
         println(getName());
 
-        SQLException ex = Util.sqlException(m_vendorCode, "");
+        SQLException ex = JDBCUtil.sqlException(m_vendorCode, "");
 
         checkSQLException(ex);
     }

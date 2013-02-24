@@ -29,11 +29,14 @@
  */
 package org.hsqldb.store;
 
-import junit.framework.Test;
-import junit.framework.TestSuite;
+import java.util.Random;
+
+import org.hsqldb.lib.StopWatch;
 import org.hsqldb.testbase.BaseTestCase;
 import org.hsqldb.testbase.ForSubject;
 import org.hsqldb.testbase.OfMethod;
+import junit.framework.Test;
+import junit.framework.TestSuite;
 
 @ForSubject(ValuePoolHashMap.class)
 public class ValuePoolHashMapTest extends BaseTestCase {
@@ -44,8 +47,8 @@ public class ValuePoolHashMapTest extends BaseTestCase {
         int BIGRANGE = 100000;
         int SMALLRANGE = 50000;
         int POOLSIZE = 100000;
-        java.util.Random randomgen = new java.util.Random();
-        org.hsqldb.lib.StopWatch sw = new org.hsqldb.lib.StopWatch();
+        Random randomgen = new java.util.Random();
+        StopWatch sw = new org.hsqldb.lib.StopWatch();
         ValuePoolHashMap map = new ValuePoolHashMap(POOLSIZE, POOLSIZE,
                 BaseHashMap.PURGE_HALF);
         int maxCount = 5000000;

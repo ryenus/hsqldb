@@ -31,18 +31,20 @@
 
 package org.hsqldb.server;
 
-import java.io.InputStream;
-import java.io.IOException;
-import org.hsqldb.lib.DataOutputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.ByteArrayInputStream;
 import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
-import junit.framework.Test;
-import junit.framework.TestSuite;
+
+import org.hsqldb.lib.DataOutputStream;
+import org.hsqldb.persist.HsqlDatabaseProperties;
 import org.hsqldb.testbase.BaseTestCase;
 import org.hsqldb.testbase.ForSubject;
 import org.hsqldb.testbase.OfMethod;
+import junit.framework.Test;
+import junit.framework.TestSuite;
 
 @ForSubject(OdbcPacketOutputStream.class)
 public class OdbcPacketOutputStreamTest extends BaseTestCase {

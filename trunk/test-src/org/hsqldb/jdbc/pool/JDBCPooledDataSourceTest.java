@@ -133,7 +133,7 @@ public class JDBCPooledDataSourceTest extends BaseJdbcTestCase {
                 statementErrorEventStatement[0] = event.getStatement();
             }
         });
-        
+
         assertEquals(false, connectionClosedEventOccured[0]);
         assertEquals(false, connection.isClosed());
 
@@ -160,7 +160,7 @@ public class JDBCPooledDataSourceTest extends BaseJdbcTestCase {
         PooledConnection pooledConnection = testSubject.getPooledConnection(user, password);
 
         Connection connection = pooledConnection.getConnection();
-        
+
         assertEquals(testSubject.getUser(), connection.getMetaData().getUserName());
 
         connection.close();

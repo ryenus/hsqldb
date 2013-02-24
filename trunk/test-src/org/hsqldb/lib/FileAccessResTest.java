@@ -33,13 +33,15 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import junit.framework.Test;
-import junit.framework.TestSuite;
+
 import org.hsqldb.lib.FileAccess.FileSync;
 import org.hsqldb.lib.FileUtil.FileAccessRes;
+import org.hsqldb.persist.HsqlDatabaseProperties;
 import org.hsqldb.testbase.BaseTestCase;
 import org.hsqldb.testbase.ForSubject;
 import org.hsqldb.testbase.OfMethod;
+import junit.framework.Test;
+import junit.framework.TestSuite;
 
 /**
  *
@@ -71,7 +73,8 @@ public class FileAccessResTest extends BaseTestCase {
      */
     @OfMethod("openInputStreamElement(java.lang.String)")
     public void testOpenInputStreamElement() throws Exception {
-        String streamName = "/org/hsqldb/resources/sql-state-messages.properties";
+        String streamName = HsqlDatabaseProperties.hsqldb_package_path
+                            + "/resources/sql-state-messages.properties";
         FileAccessRes testSubject = getTestSubject();
         InputStream result = null;
 
@@ -123,8 +126,8 @@ public class FileAccessResTest extends BaseTestCase {
     public void testIsStreamElement() {
         System.out.println("isStreamElement");
         FileAccessRes testSubject = getTestSubject();
-        assertTrue(testSubject.isStreamElement("/org/hsqldb/resources/content-types.properties"));
-        assertFalse(testSubject.isStreamElement("/org/hsqldb/resources/content-types.unexpected-extension"));
+        assertTrue(testSubject.isStreamElement("/org/hsqldb/resources/webserver-content-types.properties"));
+        assertFalse(testSubject.isStreamElement("/org/hsqldb/resources/webserver-content-types.unexpected-extension"));
     }
 
     /**
