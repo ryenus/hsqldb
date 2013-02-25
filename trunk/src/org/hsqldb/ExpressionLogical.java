@@ -677,19 +677,19 @@ public class ExpressionLogical extends Expression {
 
                 if (nodes[LEFT].opType == OpTypes.VALUE) {
                     if (nodes[RIGHT].opType == OpTypes.VALUE) {
-                        setAsConstantValue(session);
+                        setAsConstantValue(session, parent);
                     } else {
                         Object value = nodes[LEFT].getValue(session);
 
                         if (value == null || Boolean.FALSE.equals(value)) {
-                            setAsConstantValue(Boolean.FALSE);
+                            setAsConstantValue(Boolean.FALSE, parent);
                         }
                     }
                 } else if (nodes[RIGHT].opType == OpTypes.VALUE) {
                     Object value = nodes[RIGHT].getValue(session);
 
                     if (value == null || Boolean.FALSE.equals(value)) {
-                        setAsConstantValue(Boolean.FALSE);
+                        setAsConstantValue(Boolean.FALSE, parent);
                     }
                 }
 
@@ -700,19 +700,19 @@ public class ExpressionLogical extends Expression {
 
                 if (nodes[LEFT].opType == OpTypes.VALUE) {
                     if (nodes[RIGHT].opType == OpTypes.VALUE) {
-                        setAsConstantValue(session);
+                        setAsConstantValue(session, parent);
                     } else {
                         Object value = nodes[LEFT].getValue(session);
 
                         if (Boolean.TRUE.equals(value)) {
-                            setAsConstantValue(Boolean.TRUE);
+                            setAsConstantValue(Boolean.TRUE, parent);
                         }
                     }
                 } else if (nodes[RIGHT].opType == OpTypes.VALUE) {
                     Object value = nodes[RIGHT].getValue(session);
 
                     if (Boolean.TRUE.equals(value)) {
-                        setAsConstantValue(Boolean.TRUE);
+                        setAsConstantValue(Boolean.TRUE, parent);
                     }
                 }
 
@@ -774,7 +774,7 @@ public class ExpressionLogical extends Expression {
                         }
 
                         if (nodes[LEFT].opType == OpTypes.VALUE) {
-                            setAsConstantValue(session);
+                            setAsConstantValue(session, parent);
                         }
 
                         break;
@@ -792,7 +792,7 @@ public class ExpressionLogical extends Expression {
 
                 if (nodes[LEFT].opType == OpTypes.VALUE) {
                     if (nodes[LEFT].dataType.isBooleanType()) {
-                        setAsConstantValue(session);
+                        setAsConstantValue(session, parent);
 
                         break;
                     } else {
@@ -983,7 +983,7 @@ public class ExpressionLogical extends Expression {
 
             if (nodes[LEFT].opType == OpTypes.VALUE
                     && nodes[RIGHT].opType == OpTypes.VALUE) {
-                setAsConstantValue(session);
+                setAsConstantValue(session, parent);
             }
         }
     }

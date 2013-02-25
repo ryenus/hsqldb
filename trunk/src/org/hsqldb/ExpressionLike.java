@@ -138,7 +138,7 @@ public final class ExpressionLike extends ExpressionLogical {
             isEscapeFixedConstant = nodes[ESCAPE].opType == OpTypes.VALUE;
 
             if (isEscapeFixedConstant) {
-                nodes[ESCAPE].setAsConstantValue(session);
+                nodes[ESCAPE].setAsConstantValue(session, parent);
 
                 if (nodes[ESCAPE].dataType == null) {
                     throw Error.error(ErrorCode.X_42567);
@@ -257,7 +257,7 @@ public final class ExpressionLike extends ExpressionLogical {
 
         if (isRightArgFixedConstant && isEscapeFixedConstant) {
             if (nodes[LEFT].opType == OpTypes.VALUE) {
-                setAsConstantValue(session);
+                setAsConstantValue(session, parent);
 
                 likeObject = null;
 
@@ -283,7 +283,7 @@ public final class ExpressionLike extends ExpressionLogical {
         }
 
         if (likeObject.isEquivalentToUnknownPredicate()) {
-            this.setAsConstantValue(session);
+            this.setAsConstantValue(session, parent);
 
             likeObject = null;
 

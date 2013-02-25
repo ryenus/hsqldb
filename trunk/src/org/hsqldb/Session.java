@@ -1900,8 +1900,9 @@ public class Session implements SessionInterface {
                     id, cmd.getOffset(), (int) cmd.getBlockLength());
             }
             case ResultLob.LobResultTypes.REQUEST_SET_CHARS : {
-                return database.lobManager.setChars(id, cmd.getOffset(),
-                                                    cmd.getCharArray());
+                return database.lobManager.setChars(
+                    id, cmd.getOffset(), cmd.getCharArray(),
+                    (int) cmd.getBlockLength());
             }
             case ResultLob.LobResultTypes.REQUEST_TRUNCATE : {
                 return database.lobManager.truncate(id, cmd.getOffset());

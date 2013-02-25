@@ -340,9 +340,16 @@ public class RangeVariable implements Cloneable {
 
     public boolean reverseOrder() {
 
-        joinConditions[0].reverseIndexCondition();
+        if (joinConditions.length == 1) {
+            if (joinConditions[0].indexedColumnCount
+                    == joinConditions[0].rangeIndex.getColumnCount()) {
+                joinConditions[0].reverseIndexCondition();
 
-        return true;
+                return true;
+            }
+        }
+
+        return false;
     }
 
     public OrderedHashSet getColumnNames() {
@@ -1883,21 +1890,23 @@ public class RangeVariable implements Cloneable {
         public void reverseIndexCondition() {
 
             if (opType == OpTypes.EQUAL || opType == OpTypes.IS_NULL) {
-                return;
+
+                //
+            } else {
+                indexEndCondition = null;
+
+                for (int i = 0; i < indexedColumnCount; i++) {
+                    Expression e = indexCond[i];
+
+                    indexCond[i]    = indexEndCond[i];
+                    indexEndCond[i] = e;
+                    indexEndCondition =
+                        ExpressionLogical.andExpressions(indexEndCondition, e);
+                }
+
+                opType = opTypeEnd;
             }
 
-            indexEndCondition = null;
-
-            for (int i = 0; i < indexedColumnCount; i++) {
-                Expression e = indexCond[i];
-
-                indexCond[i]    = indexEndCond[i];
-                indexEndCond[i] = e;
-                indexEndCondition =
-                    ExpressionLogical.andExpressions(indexEndCondition, e);
-            }
-
-            opType   = opTypeEnd;
             reversed = true;
         }
 

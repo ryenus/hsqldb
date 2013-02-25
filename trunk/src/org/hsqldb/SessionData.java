@@ -67,7 +67,7 @@ import org.hsqldb.types.LobData;
  * Session semi-persistent data structures
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.2.7
+ * @version 2.3.0
  * @since 1.9.0
  */
 public class SessionData {
@@ -458,7 +458,7 @@ public class SessionData {
 
                     countStream.setCount(clobLength * 2);
                     database.lobManager.setCharsForNewClob(
-                        clobId, countStream, result.getBlockLength(), false);
+                        clobId, countStream, result.getBlockLength());
 
                     break;
                 }
@@ -480,7 +480,7 @@ public class SessionData {
                     long   dataLength = result.getBlockLength();
                     char[] charArray  = result.getCharArray();
                     Result actionResult = database.lobManager.setChars(clobId,
-                        result.getOffset(), charArray);
+                        result.getOffset(), charArray, (int) dataLength);
 
                     break;
                 }
@@ -505,6 +505,10 @@ public class SessionData {
             byteArrayOS.reset();
             byteArrayOS.write(stream, bufferLength);
 
+            if (byteArrayOS.size() == 0) {
+                return;
+            }
+
             byte[] byteArray = byteArrayOS.getBuffer();
             Result actionResult =
                 database.lobManager.setBytes(result.getLobID(), currentOffset,
@@ -520,10 +524,15 @@ public class SessionData {
 
     private void allocateClobSegments(ResultLob result,
                                       Reader reader) throws IOException {
+        allocateClobSegments(result.getLobID(), result.getOffset(), reader);
+    }
 
-        long            currentOffset = result.getOffset();
+    private void allocateClobSegments(long lobID, long offset,
+                                      Reader reader) throws IOException {
+
         int             bufferLength  = session.getStreamBlockSize();
         CharArrayWriter charWriter    = new CharArrayWriter(bufferLength);
+        long            currentOffset = offset;
 
         while (true) {
             charWriter.reset();
@@ -531,13 +540,12 @@ public class SessionData {
 
             char[] charArray = charWriter.getBuffer();
 
-            if (charWriter.size() < bufferLength) {
-                charArray = charWriter.toCharArray();
+            if (charWriter.size() == 0) {
+                return;
             }
 
-            Result actionResult =
-                database.lobManager.setChars(result.getLobID(), currentOffset,
-                                             charArray);
+            Result actionResult = database.lobManager.setChars(lobID,
+                currentOffset, charArray, charWriter.size());
 
             currentOffset += charWriter.size();
 
@@ -597,21 +605,7 @@ public class SessionData {
 
     ClobData createClobFromFile(String filename, String encoding) {
 
-        session.checkAdmin();
-
-        filename = database.logger.getSecurePath(filename, false);
-
-        if (filename == null) {
-            throw (Error.error(ErrorCode.ACCESS_IS_DENIED, filename));
-        }
-
-        File    file   = new File(filename);
-        boolean exists = file.exists();
-
-        if (!exists) {
-            throw Error.error(ErrorCode.FILE_IO_ERROR);
-        }
-
+        File        file       = getFile(filename);
         long        fileLength = file.length();
         InputStream is         = null;
 
@@ -622,10 +616,7 @@ public class SessionData {
 
             Reader reader = new InputStreamReader(is, encoding);
 
-            is = new ReaderInputStream(reader);
-
-            database.lobManager.setCharsForNewClob(clob.getId(), is,
-                                                   fileLength, true);
+            allocateClobSegments(clob.getId(), 0, reader);
 
             return clob;
         } catch (IOException e) {
@@ -639,21 +630,7 @@ public class SessionData {
 
     BlobData createBlobFromFile(String filename) {
 
-        session.checkAdmin();
-
-        filename = database.logger.getSecurePath(filename, false);
-
-        if (filename == null) {
-            throw (Error.error(ErrorCode.ACCESS_IS_DENIED, filename));
-        }
-
-        File    file   = new File(filename);
-        boolean exists = file.exists();
-
-        if (!exists) {
-            throw Error.error(ErrorCode.FILE_IO_ERROR);
-        }
-
+        File        file       = getFile(filename);
         long        fileLength = file.length();
         InputStream is         = null;
 
@@ -673,6 +650,26 @@ public class SessionData {
                 is.close();
             } catch (Exception e) {}
         }
+    }
+
+    private File getFile(String filename) {
+
+        session.checkAdmin();
+
+        filename = database.logger.getSecurePath(filename, false);
+
+        if (filename == null) {
+            throw (Error.error(ErrorCode.ACCESS_IS_DENIED, filename));
+        }
+
+        File    file   = new File(filename);
+        boolean exists = file.exists();
+
+        if (!exists) {
+            throw Error.error(ErrorCode.FILE_IO_ERROR);
+        }
+
+        return file;
     }
 
     // sequences
