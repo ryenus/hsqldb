@@ -1404,7 +1404,15 @@ public class ParserDQL extends ParserBase {
                 case Tokens.RIGHT :
                 case Tokens.INNER :
                 case Tokens.FULL : {
+                    boolean using = token.tokenType == Tokens.USING;
+
                     range.setJoinType(left, right);
+
+                    if (natural || using) {
+                        range.resolveRangeTable(
+                            session, RangeGroup.emptyGroup,
+                            compileContext.getOuterRanges());
+                    }
 
                     if (natural) {
                         OrderedHashSet columns =
@@ -1415,7 +1423,7 @@ public class ParserDQL extends ParserBase {
 
                         range.addJoinCondition(condition);
                         select.addRangeVariable(session, range);
-                    } else if (token.tokenType == Tokens.USING) {
+                    } else if (using) {
                         read();
 
                         OrderedHashSet columns = new OrderedHashSet();
