@@ -1236,14 +1236,14 @@ public class Expression implements Cloneable {
         }
     }
 
-    void setAsConstantValue(Session session) {
+    void setAsConstantValue(Session session, Expression parent) {
 
         valueData = getValue(session);
         opType    = OpTypes.VALUE;
         nodes     = emptyArray;
     }
 
-    void setAsConstantValue(Object value) {
+    void setAsConstantValue(Object value, Expression parent) {
 
         valueData = value;
         opType    = OpTypes.VALUE;

@@ -91,9 +91,9 @@ public class StatementDML extends StatementDMQL {
               session.getCurrentSchemaHsqlName());
 
         this.targetTable = targetTable;
-        this.baseTable   = targetTable.getBaseTable() == null ? targetTable
-                                                              : targetTable
-                                                              .getBaseTable();
+        this.baseTable   = targetTable.isTriggerDeletable() ? targetTable
+                                                            : targetTable
+                                                            .getBaseTable();
         this.targetRangeVariables = rangeVars;
         this.restartIdentity      = restartIdentity;
 
@@ -120,9 +120,9 @@ public class StatementDML extends StatementDMQL {
 
         this.targets     = targets;
         this.targetTable = targetTable;
-        this.baseTable   = targetTable.getBaseTable() == null ? targetTable
-                                                              : targetTable
-                                                              .getBaseTable();
+        this.baseTable   = targetTable.isTriggerUpdatable() ? targetTable
+                                                            : targetTable
+                                                            .getBaseTable();
         this.updateColumnMap      = updateColumnMap;
         this.updateExpressions    = colExpressions;
         this.updateCheckColumns   = checkColumns;

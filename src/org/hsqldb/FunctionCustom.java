@@ -227,6 +227,9 @@ public class FunctionCustom extends FunctionSQL {
         nonDeterministicFuncSet.add(FUNC_SESSION_ID);
         nonDeterministicFuncSet.add(FUNC_SESSION_ISOLATION_LEVEL);
         nonDeterministicFuncSet.add(FUNC_SESSION_TIMEZONE);
+        nonDeterministicFuncSet.add(FUNC_SESSIONTIMEZONE);
+        nonDeterministicFuncSet.add(FUNC_SYSDATE);
+        nonDeterministicFuncSet.add(FUNC_SYSTIMESTAMP);
         nonDeterministicFuncSet.add(FUNC_TIMESTAMP);
         nonDeterministicFuncSet.add(FUNC_TIMEZONE);
         nonDeterministicFuncSet.add(FUNC_TRANSACTION_CONTROL);

@@ -394,7 +394,7 @@ public class ExpressionOp extends Expression {
                 if (nodes[LEFT].opType == OpTypes.VALUE
                         && (nodes[RIGHT] == null
                             || nodes[RIGHT].opType == OpTypes.VALUE)) {
-                    setAsConstantValue(session);
+                    setAsConstantValue(session, parent);
 
                     break;
                 }
@@ -410,7 +410,7 @@ public class ExpressionOp extends Expression {
                 }
 
                 if (node.opType == OpTypes.VALUE) {
-                    setAsConstantValue(session);
+                    setAsConstantValue(session, parent);
 
                     node.dataType  = dataType;
                     node.valueData = valueData;

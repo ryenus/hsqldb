@@ -93,7 +93,7 @@ public class LobManager {
 
     //
     Statement getLob;
-    Statement getLobPart;
+    Statement getSpanningBlocks;
     Statement deleteLobCall;
     Statement deleteLobPartCall;
     Statement divideLobPartCall;
@@ -186,8 +186,6 @@ public class LobManager {
         "CALL SYSTEM_LOBS.ALLOC_BLOCKS(?, ?, ?)";
     private static final String divideLobPartCallSQL =
         "CALL SYSTEM_LOBS.DIVIDE_BLOCK(?, ?)";
-    private static final String getSpanningBlockSQL =
-        "SELECT * FROM SYSTEM_LOBS.LOBS WHERE LOBS.LOB_ID = ? AND ? > BLOCK_OFFSET AND ? < BLOCK_OFFSET + BLOCK_COUNT";
     private static final String updateLobUsageSQL =
         "UPDATE SYSTEM_LOBS.LOB_IDS SET LOB_USAGE_COUNT = LOB_USAGE_COUNT + ? WHERE LOB_IDS.LOB_ID = ?";
     private static final String getNextLobIdSQL =
@@ -260,7 +258,7 @@ public class LobManager {
 
         try {
             getLob     = sysLobSession.compileStatement(getLobSQL);
-            getLobPart = sysLobSession.compileStatement(getLobPartSQL);
+            getSpanningBlocks = sysLobSession.compileStatement(getLobPartSQL);
             createLob  = sysLobSession.compileStatement(createLobSQL);
             createLobPartCall =
                 sysLobSession.compileStatement(createLobPartCallSQL);
@@ -1075,7 +1073,7 @@ public class LobManager {
         }
     }
 
-    /** @todo - currently returns whole length */
+    /** @todo - currently unused and returns whole length */
     public Result getTruncateLength(long lobID) {
 
         writeLock.lock();
@@ -1356,7 +1354,7 @@ public class LobManager {
     }
 
     private Result setBytesIS(long lobID, InputStream inputStream,
-                              long length, boolean adjustLength) {
+                              long length) {
 
         long writeLength     = 0;
         int  blockLimit      = (int) (length / lobBlockSize);
@@ -1391,12 +1389,7 @@ public class LobManager {
                                                     localLength);
 
                         if (read == -1) {
-                            if (adjustLength) {
-                                read = localLength;
-                            } else {
-                                return Result.newErrorResult(
-                                    new EOFException());
-                            }
+                            return Result.newErrorResult(new EOFException());
                         } else {
                             writeLength += read;
                         }
@@ -1482,7 +1475,7 @@ public class LobManager {
         writeLock.lock();
 
         try {
-            Result result = setBytesIS(lobID, inputStream, length, false);
+            Result result = setBytesIS(lobID, inputStream, length);
 
             return result;
         } finally {
@@ -1490,9 +1483,10 @@ public class LobManager {
         }
     }
 
-    public Result setChars(long lobID, long offset, char[] chars) {
+    public Result setChars(long lobID, long offset, char[] chars,
+                           int dataLength) {
 
-        if (chars.length == 0) {
+        if (dataLength == 0) {
             return ResultLob.newLobSetResponse(lobID, 0);
         }
 
@@ -1510,16 +1504,16 @@ public class LobManager {
             }
 
             long   length = ((Long) data[LOB_IDS.LOB_LENGTH]).longValue();
-            byte[] bytes  = ArrayUtil.charArrayToBytes(chars);
+            byte[] bytes  = ArrayUtil.charArrayToBytes(chars, dataLength);
             Result result = setBytesBA(lobID, offset * 2, bytes,
-                                       chars.length * 2);
+                                       dataLength * 2);
 
             if (result.isError()) {
                 return result;
             }
 
-            if (offset + chars.length > length) {
-                length = offset + chars.length;
+            if (offset + dataLength > length) {
+                length = offset + dataLength;
                 result = setLength(lobID, length);
 
                 if (result.isError()) {
@@ -1534,7 +1528,7 @@ public class LobManager {
     }
 
     public Result setCharsForNewClob(long lobID, InputStream inputStream,
-                                     long length, boolean adjustLength) {
+                                     long length) {
 
         if (length == 0) {
             return ResultLob.newLobSetResponse(lobID, 0);
@@ -1547,8 +1541,7 @@ public class LobManager {
         writeLock.lock();
 
         try {
-            Result result = setBytesIS(lobID, inputStream, length * 2,
-                                       adjustLength);
+            Result result = setBytesIS(lobID, inputStream, length * 2);
 
             if (result.isError()) {
                 return result;
@@ -1648,7 +1641,7 @@ public class LobManager {
 
     private int[][] getBlockAddresses(long lobID, int offset, int limit) {
 
-        ResultMetaData meta     = getLobPart.getParametersMetaData();
+        ResultMetaData meta     = getSpanningBlocks.getParametersMetaData();
         Object         params[] = new Object[meta.getColumnCount()];
 
         params[GET_LOB_PART.LOB_ID]       = ValuePool.getLong(lobID);
@@ -1657,7 +1650,7 @@ public class LobManager {
 
         sysLobSession.sessionContext.pushDynamicArguments(params);
 
-        Result result = getLobPart.execute(sysLobSession);
+        Result result = getSpanningBlocks.execute(sysLobSession);
 
         sysLobSession.sessionContext.pop();
 

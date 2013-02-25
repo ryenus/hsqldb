@@ -297,12 +297,9 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * This method still <em>always</em> returns
-     * <code>true</code>. <p>
-     *
-     * In a future release, the plugin interface may be modified to allow
-     * implementors to report different values here, based on their
-     * implementations.
+     * This method <em>always</em> returns
+     * <code>true because the listed procedures are those which
+     * the current user can use</code>. <p>
      * </div>
      * <!-- end release-specific documentation -->
      *
@@ -324,9 +321,8 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      *
      * HSQLDB always reports <code>true</code>.<p>
      *
-     * Please note that the default HSQLDB <code>getTables</code> behaviour is
-     * omit from the list of <em>requested</em> tables only those to which the
-     * invoking user has <em>no</em> access of any kind. <p>
+     * The <code>getTables</code> call returns the list of tables to which the
+     * invoking user has some access rights. <p>
      *
      * </div>
      * <!-- end release-specific documentation -->
@@ -375,8 +371,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Starting with 1.7.2, this makes
-     * an SQL call to the new isReadOnlyDatabase function
+     * This makes an SQL call to the isReadOnlyDatabase function
      * which provides correct determination of the read-only status for
      * both local and remote database instances.
      * </div>
@@ -410,7 +405,10 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * By default HSQLDB sorts null at start; this method always returns <code>false</code>.
+     * By default HSQLDB sorts null at start and
+     * this method returns <code>false</code>.
+     * But a different value is returned if <code>sql.nulls_first</code> or
+     * <code>sql.nulls_lasst</code> properties have a non-default value.
      * </div>
      * <!-- end release-specific documentation -->
      *
@@ -418,7 +416,8 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      * @exception SQLException if a database access error occurs
      */
     public boolean nullsAreSortedHigh() throws SQLException {
-        return false;
+        setCurrentProperties();
+        return !nullsFirst & !nullsOrder;
     }
 
     /**
@@ -434,7 +433,10 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * By default HSQLDB sorts null at the start; this method always returns <code>false</code>.
+     * By default HSQLDB sorts null at start and
+     * this method returns <code>false</code>.
+     * But a different value is returned if <code>sql.nulls_first</code> or
+     * <code>sql.nulls_lasst</code> properties have a non-default value.
      * </div>
      * <!-- end release-specific documentation -->
      *
@@ -443,7 +445,8 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      * @exception SQLException if a database access error occurs
      */
     public boolean nullsAreSortedLow() throws SQLException {
-        return false;
+        setCurrentProperties();
+        return nullsFirst & !nullsOrder;
     }
 
     /**
@@ -454,7 +457,10 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * By default HSQLDB sorts null at the start; this method always returns <code>true</code>.
+     * By default HSQLDB sorts null at start and
+     * this method returns <code>true</code>.
+     * But a different value is returned if <code>sql.nulls_first</code> or
+     * <code>sql.nulls_lasst</code> properties have a non-default value.<p>
      * Use NULLS LAST in the ORDER BY clause to sort null at the end.
      * </div>
      * <!-- end release-specific documentation -->
@@ -463,7 +469,8 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      * @exception SQLException if a database access error occurs
      */
     public boolean nullsAreSortedAtStart() throws SQLException {
-        return true;
+        setCurrentProperties();
+        return nullsFirst & nullsOrder;
     }
 
     /**
@@ -474,7 +481,11 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * By default HSQLDB sorts null at the start; this method always returns <code>true</code>.
+     * By default HSQLDB sorts null at start and
+     * this method returns <code>false</code>.
+     * But a different value is returned if <code>sql.nulls_first</code> or
+     * <code>sql.nulls_lasst</code> properties have a non-default value.<p>
+     * Use NULLS LAST in the ORDER BY clause to sort null at the end.
      * </div>
      * <!-- end release-specific documentation -->
      *
@@ -482,7 +493,8 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      * @exception SQLException if a database access error occurs
      */
     public boolean nullsAreSortedAtEnd() throws SQLException {
-        return false;
+        setCurrentProperties();
+        return !nullsFirst & nullsOrder;
     }
 
     /**
@@ -899,8 +911,8 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * HSQLDB does not support using any "extra" characters in unquoted
-     * identifier names; this method always returns the empty String.
+     * By default HSQLDB does not support using any "extra" characters in
+     * unquoted identifier names; this method always returns the empty String.
      * </div>
      * <!-- end release-specific documentation -->
      *
@@ -988,8 +1000,11 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * HSQLDB supports this; this method always
-     * returns <code>true</code>.
+     * By default HSQLDB returns NULL when NULL and non-NULL values
+     * are concatenated.
+     * By default this method returns <code>false</code>.
+     * But a different value is returned if the <code>sql.concat_nulls</code>
+     * property has a non-default value.<p>
      * </div>
      * <!-- end release-specific documentation -->
      *
@@ -998,7 +1013,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      * @exception SQLException if a database access error occurs
      */
     public boolean nullPlusNonNullIsNull() throws SQLException {
-        return true;
+        return concatNulls;
     }
 
     /**
@@ -1099,8 +1114,8 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * HSQLDB requires that table correlation names are different from the
-     * names of the tables; this method always returns <code>true</code>.
+     * HSQLDB does not require that table correlation names are different from the
+     * names of the tables; this method always returns <code>false</code>.
      * </div>
      * <!-- end release-specific documentation -->
      *
@@ -1109,7 +1124,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      * @exception SQLException if a database access error occurs
      */
     public boolean supportsDifferentTableCorrelationNames() throws SQLException {
-        return true;
+        return false;
     }
 
     /**
@@ -3438,9 +3453,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      * Therefore, care must be taken to specify name arguments precisely
      * (including case) as they are stored in the database. <p>
      *
-     * Since 1.7.2, this feature is supported by default. If the jar is
-     * compiled without org.hsqldb.dbinfo.DatabaseInformationMain, the feature is
-     * not supported. The default implementation is
+     * This feature is supported by default. The default implementation is
      * {@link org.hsqldb.dbinfo.DatabaseInformationMain}.
      * </div>
      * <!-- end release-specific documentation -->
@@ -5924,6 +5937,14 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
     final private boolean useSchemaDefault;
 
     /**
+     * NULL related properties are updated on each call.
+     */
+    private boolean concatNulls = true;
+    private boolean nullsFirst = true;
+    private boolean nullsOrder = true;
+    private boolean uniqueNulls = true;
+
+    /**
      * A CSV list representing the SQL IN list to use when generating
      * queries for <code>getBestRowIdentifier</code> when the
      * <code>scope</code> argument is <code>bestRowSession</code>.
@@ -6216,6 +6237,32 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
         return (s != null && s.length() == 0);
     }
 
+    private void setCurrentProperties() throws SQLException {
+        ResultSet rs = executeSelect("SYSTEM_PROPERTIES",
+           "PROPERTY_NAME IN "+
+           "('sql.concat_nulls', 'sql.nulls_first' , 'sql.nulls_order', 'sql.unique_nulls')");
+
+        while(rs.next()) {
+            String prop = rs.getString(2);
+            boolean value = Boolean.valueOf(rs.getString(3));
+
+            if (prop.equals("sql.concat_nulls")) {
+                concatNulls = value;
+            } else
+
+            if (prop.equals("sql.nulls_first")) {
+                nullsFirst = value;
+            } else
+
+            if (prop.equals("sql.nulls_order")) {
+                nullsOrder = value;
+            } else
+
+            if (prop.equals("sql.unique_nulls")) {
+                uniqueNulls = value;
+            }
+        }
+    }
     /**
      * Returns the name of the default schema for database.
      */

@@ -276,7 +276,7 @@ public class ExpressionArithmetic extends Expression {
                 }
 
                 if (nodes[LEFT].opType == OpTypes.VALUE) {
-                    setAsConstantValue(session);
+                    setAsConstantValue(session, parent);
                 }
                 break;
 
@@ -483,7 +483,7 @@ public class ExpressionArithmetic extends Expression {
 
         if (nodes[LEFT].opType == OpTypes.VALUE
                 && nodes[RIGHT].opType == OpTypes.VALUE) {
-            setAsConstantValue(session);
+            setAsConstantValue(session, parent);
         }
     }
 
@@ -566,7 +566,7 @@ public class ExpressionArithmetic extends Expression {
 
         if (nodes[LEFT].opType == OpTypes.VALUE
                 && nodes[RIGHT].opType == OpTypes.VALUE) {
-            setAsConstantValue(session);
+            setAsConstantValue(session, parent);
         }
     }
 
