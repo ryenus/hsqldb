@@ -1922,13 +1922,16 @@ public class QuerySpecification extends QueryExpression {
                 index = exprColumns[i].columnIndex;
             }
 
-            sb.append(b).append(exprColumns[index].describe(session, 2));
+            sb.append(b);
 
+            temp = exprColumns[index].describe(session, 2);
+
+            sb.append(temp.substring(0, temp.length() - 1));
             if (resultMetaData.columns[i].getNullability()
                     == SchemaObject.Nullability.NO_NULLS) {
-                sb.append(" not nullable");
+                sb.append(" not nullable\n");
             } else {
-                sb.append(" nullable");
+                sb.append(" nullable\n");
             }
         }
 

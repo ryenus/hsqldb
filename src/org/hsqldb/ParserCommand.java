@@ -1426,10 +1426,18 @@ public class ParserCommand extends ParserDDL {
             }
             case Tokens.LOB : {
                 read();
-                readThis(Tokens.SCALE);
 
-                value = readIntegerObject();
-                type  = StatementTypes.SET_DATABASE_FILES_LOBS_SCALE;
+                if (readIfThis(Tokens.SCALE)) {
+                    value = readIntegerObject();
+                    type  = StatementTypes.SET_DATABASE_FILES_LOBS_SCALE;
+                } else {
+                    readThis(Tokens.COMPRESSED);
+
+                    type  = StatementTypes.SET_DATABASE_FILES_LOBS_COMPRESSED;
+
+                    flag = processTrueOrFalseObject();
+                }
+
                 names = database.schemaManager.getCatalogAndBaseTableNames();
 
                 break;

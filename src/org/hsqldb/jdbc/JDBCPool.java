@@ -206,8 +206,7 @@ public class JDBCPool implements DataSource, Serializable, Referenceable,
      *          while retrieving the reference.
      */
     public Reference getReference() throws NamingException {
-        String    cname = HsqlDatabaseProperties.hsqldb_package_name
-                          + ".jdbc.JDBCDataSourceFactory";
+        String    cname = "org.hsqldb.jdbc.JDBCDataSourceFactory";
         Reference ref   = new Reference(getClass().getName(), cname, null);
 
         ref.add(new StringRefAddr("database", source.getDatabase()));

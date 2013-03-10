@@ -203,21 +203,6 @@ public class RangeVariable implements Cloneable {
         whereConditions[0].rangeIndex = rangeTable.getPrimaryIndex();
     }
 
-    public RangeVariable duplicate() {
-
-        RangeVariable r = null;
-
-        try {
-            r = (RangeVariable) super.clone();
-        } catch (CloneNotSupportedException ex) {
-            throw Error.runtimeError(ErrorCode.U_S0500, "RangeVariable");
-        }
-
-        r.resetConditions();
-
-        return r;
-    }
-
     public void setJoinType(boolean isLeft, boolean isRight) {
 
         isLeftJoin  = isLeft;
@@ -341,12 +326,9 @@ public class RangeVariable implements Cloneable {
     public boolean reverseOrder() {
 
         if (joinConditions.length == 1) {
-            if (joinConditions[0].indexedColumnCount
-                    == joinConditions[0].rangeIndex.getColumnCount()) {
-                joinConditions[0].reverseIndexCondition();
+            joinConditions[0].reverseIndexCondition();
 
-                return true;
-            }
+            return true;
         }
 
         return false;
@@ -388,6 +370,13 @@ public class RangeVariable implements Cloneable {
     public int findColumn(String schemaName, String tableName,
                           String columnName) {
 
+        if (namedJoinColumnExpressions != null
+                && namedJoinColumnExpressions.containsKey(columnName)) {
+            if (tableName != null) {
+                return -1;
+            }
+        }
+
         if (resolvesSchemaAndTableName(schemaName, tableName)) {
             return findColumn(columnName);
         }
@@ -402,11 +391,6 @@ public class RangeVariable implements Cloneable {
      * @return int index or -1 if not found
      */
     private int findColumn(String columnName) {
-
-        if (namedJoinColumnExpressions != null
-                && namedJoinColumnExpressions.containsKey(columnName)) {
-            return -1;
-        }
 
         if (variables != null) {
             return variables.getIndex(columnName);

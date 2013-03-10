@@ -1662,15 +1662,8 @@ public class JDBCConnection implements Connection {
         checkClosed();
 
         try {
-            int holdability = rsHoldability;
-
-/*
-            if (resultSetConcurrency == JDBCResultSet.CONCUR_UPDATABLE) {
-                holdability = JDBCResultSet.CLOSE_CURSORS_AT_COMMIT;
-            }
-*/
             return new JDBCPreparedStatement(this, sql, resultSetType,
-                    resultSetConcurrency, holdability,
+                    resultSetConcurrency, rsHoldability,
                     ResultConstants.RETURN_NO_GENERATED_KEYS, null, null);
         } catch (HsqlException e) {
             throw JDBCUtil.sqlException(e);

@@ -59,7 +59,7 @@ import org.hsqldb.lib.Set;
  * @author Fred Toussi (fredt@users dot sourceforge.net)
  * @author Blaine Simpson (blaine dot simpson at admc dot com)
  *
- * @version 2.0.1
+ * @version 2.3.0
  * @since 1.8.0
  * @see Grantee
  */
@@ -618,6 +618,13 @@ public class GranteeManager {
         map.put(name.name, g);
 
         return g;
+    }
+
+    /**
+     * Only used for a recently added user with no dependencies
+     */
+    public void removeNewUser(HsqlName name) {
+        map.remove(name.name);
     }
 
     /**

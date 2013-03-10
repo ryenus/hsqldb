@@ -260,8 +260,8 @@ public class FrameworkLogger {
 
         try {
             LogManager lm = LogManager.getLogManager();
-            String path =  HsqlDatabaseProperties.hsqldb_package_path
-                + "/resources/jdklogging-default.properties";
+            String path =
+                "/org/hsqldb/resources/jdklogging-default.properties";
 
             if (isDefaultJdkConfig()) {
                 lm.reset();

@@ -73,7 +73,7 @@ import org.hsqldb.HsqlException;
  * N.b. The JDBC Spec does not state whether the prepare and forget
  * methods are XAResource-specific or XADataSource-specific.
  *
- * @version 2.2.9
+ * @version 2.3.0
  * @since 2.0.0
  * @author Blaine Simpson (blaine dot simpson at admc dot com)
  * @see javax.transaction.xa.XAResource
@@ -425,7 +425,7 @@ public class JDBCXAResource implements XAResource {
      * @return boolean
      */
     public boolean setTransactionTimeout(int seconds) throws XAException {
-        throw new XAException("Transaction timeouts not implemented yet");
+        return false;
     }
 
     public void start(Xid xid, int flags) throws XAException {

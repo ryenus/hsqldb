@@ -1013,8 +1013,8 @@ public class StatementSchema extends Statement {
                 try {
                     session.checkAdmin();
                     session.checkDDLWrite();
-                    session.database.getUserManager().createUser(name,
-                            password, isDigest);
+                    session.database.getUserManager().createUser(session,
+                            name, password, isDigest);
 
                     if (admin) {
                         session.database.getGranteeManager().grant(name.name,

@@ -133,6 +133,7 @@ public class Logger {
     int     propTxMode       = TransactionManager.LOCKS;
     boolean propRefIntegrity = true;
     int     propLobBlockSize = 32 * 1024;
+    boolean propCompressLobs;
     int     propScriptFormat = 0;
     boolean propLargeData;
     boolean propFileSpaces;
@@ -1259,6 +1260,26 @@ public class Logger {
         return propLobBlockSize / 1024;
     }
 
+    public void setLobFileCompressed(boolean value) {
+
+        if (propCompressLobs == value) {
+            return;
+        }
+
+        if (database.lobManager.getLobCount() > 0) {
+            throw Error.error(ErrorCode.DATA_FILE_IN_USE);
+        }
+
+        propCompressLobs = value;
+
+        database.lobManager.close();
+        database.lobManager.open();
+    }
+
+    public void setLobFileCompressedNoCheck(boolean value) {
+        propCompressLobs = value;
+    }
+
     public void setDefagLimit(int value) {
         propCacheDefragLimit = value;
     }
@@ -1503,6 +1524,10 @@ public class Logger {
 
         if (HsqlDatabaseProperties.hsqldb_lob_file_scale.equals(name)) {
             return String.valueOf(propLobBlockSize);
+        }
+
+        if (HsqlDatabaseProperties.hsqldb_lob_file_compressed.equals(name)) {
+            return String.valueOf(propCompressLobs);
         }
 
         if (HsqlDatabaseProperties.hsqldb_cache_file_scale.equals(name)) {
@@ -1997,6 +2022,16 @@ public class Logger {
         sb.append(' ').append(getLobFileScale());
         list.add(sb.toString());
         sb.setLength(0);
+
+        if (propCompressLobs) {
+            sb.append("SET FILES ").append(Tokens.T_LOB).append(' ').append(
+                Tokens.T_COMPRESSED);
+            sb.append(' ').append(propCompressLobs ? Tokens.T_TRUE
+                                                   : Tokens.T_FALSE);
+            list.add(sb.toString());
+            sb.setLength(0);
+        }
+
         sb.append("SET FILES ").append(Tokens.T_DEFRAG);
         sb.append(' ').append(propCacheDefragLimit);
         list.add(sb.toString());

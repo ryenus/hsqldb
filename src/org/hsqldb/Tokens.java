@@ -714,6 +714,7 @@ public class Tokens {
     public static final String T_PASSWORD             = "PASSWORD";
     static final String        T_PLAN                 = "PLAN";
     public static final String T_PGS                  = "PGS";
+    static final String        T_PREVVAL              = "PREVVAL";
     static final String        T_PROPERTY             = "PROPERTY";
     static final String        T_QUEUE                = "QUEUE";
     static final String        T_RAW                  = "RAW";
@@ -1512,28 +1513,29 @@ public class Tokens {
     static final int OFF            = 614;
     static final int PASSWORD       = 615;
     static final int PLAN           = 616;
-    static final int PROPERTY       = 617;
-    static final int RAW            = 618;
-    static final int READONLY       = 619;
-    static final int REFERENTIAL    = 620;
-    static final int REGULAR        = 621;
-    static final int RENAME         = 622;
-    static final int RESET          = 623;
-    static final int ROWNUM         = 624;
-    static final int SCRIPT         = 625;
-    static final int SEPARATOR      = 626;
-    static final int SHUTDOWN       = 627;
-    static final int SYNTAX         = 628;
-    static final int TDC            = 629;
-    static final int TEMP           = 630;
-    static final int TEXT           = 631;
-    static final int TTI            = 632;
-    static final int TYPES          = 633;
-    static final int VARCHAR2       = 634;
-    static final int WRITE_DELAY    = 635;
+    static final int PREVVAL        = 617;
+    static final int PROPERTY       = 618;
+    static final int RAW            = 619;
+    static final int READONLY       = 620;
+    static final int REFERENTIAL    = 621;
+    static final int REGULAR        = 622;
+    static final int RENAME         = 623;
+    static final int RESET          = 624;
+    static final int ROWNUM         = 625;
+    static final int SCRIPT         = 626;
+    static final int SEPARATOR      = 627;
+    static final int SHUTDOWN       = 628;
+    static final int SYNTAX         = 629;
+    static final int TDC            = 630;
+    static final int TEMP           = 631;
+    static final int TEXT           = 632;
+    static final int TTI            = 633;
+    static final int TYPES          = 634;
+    static final int VARCHAR2       = 635;
+    static final int WRITE_DELAY    = 636;
 
     //
-    static final int INDEXER = 636;
+    static final int INDEXER = 637;
 
     //
     static final int        ACOS                       = 640;
@@ -2232,6 +2234,7 @@ public class Tokens {
         commandSet.put(T_PLACING, PLACING);
         commandSet.put(T_PLAN, PLAN);
         commandSet.put(T_PRESERVE, PRESERVE);
+        commandSet.put(T_PREVVAL, PREVVAL);
         commandSet.put(T_PRIVILEGES, PRIVILEGES);
         commandSet.put(T_PROPERTY, PROPERTY);
         commandSet.put(T_RAW, RAW);

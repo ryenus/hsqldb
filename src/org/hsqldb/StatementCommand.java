@@ -131,6 +131,7 @@ public class StatementCommand extends Statement {
             case StatementTypes.SET_DATABASE_FILES_SPACE :
             case StatementTypes.SET_DATABASE_FILES_DEFRAG :
             case StatementTypes.SET_DATABASE_FILES_LOBS_SCALE :
+            case StatementTypes.SET_DATABASE_FILES_LOBS_COMPRESSED :
             case StatementTypes.SET_DATABASE_FILES_LOG :
             case StatementTypes.SET_DATABASE_FILES_LOG_SIZE :
             case StatementTypes.SET_DATABASE_FILES_NIO :
@@ -353,6 +354,25 @@ public class StatementCommand extends Statement {
                         session.database.logger.setLobFileScaleNoCheck(value);
                     } else {
                         session.database.logger.setLobFileScale(value);
+                    }
+
+                    return Result.updateZeroResult;
+                } catch (HsqlException e) {
+                    return Result.newErrorResult(e, sql);
+                }
+            }
+            case StatementTypes.SET_DATABASE_FILES_LOBS_COMPRESSED : {
+                try {
+                    boolean mode = ((Boolean) parameters[0]).booleanValue();
+
+                    session.checkAdmin();
+                    session.checkDDLWrite();
+
+                    if (session.isProcessingScript()) {
+                        session.database.logger.setLobFileCompressedNoCheck(
+                            mode);
+                    } else {
+                        session.database.logger.setLobFileCompressed(mode);
                     }
 
                     return Result.updateZeroResult;
@@ -845,7 +865,7 @@ public class StatementCommand extends Statement {
                     }
 
                     DataSpaceManager dataSpace = cache.spaceManager;
-                    int tableSpaceID           = dataSpace.getNewTableSpaceID();
+                    int tableSpaceID = dataSpace.getNewTableSpaceID();
 
                     table.setSpaceID(tableSpaceID);
 

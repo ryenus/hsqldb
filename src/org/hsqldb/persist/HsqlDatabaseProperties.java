@@ -52,8 +52,6 @@ import org.hsqldb.lib.StringUtil;
  */
 public class HsqlDatabaseProperties extends HsqlProperties {
 
-    public static final String hsqldb_package_name = "org.hsqldb";
-    public static final String hsqldb_package_path = "/org/hsqldb";
     private static final String hsqldb_method_class_names =
         "hsqldb.method_class_names";
     public static final String textdb_allow_full_path =
@@ -209,6 +207,8 @@ public class HsqlDatabaseProperties extends HsqlProperties {
     public static final String hsqldb_applog         = "hsqldb.applog";
     public static final String hsqldb_sqllog         = "hsqldb.sqllog";
     public static final String hsqldb_lob_file_scale = "hsqldb.lob_file_scale";
+    public static final String hsqldb_lob_file_compressed =
+        "hsqldb.lob_compressed";
     public static final String hsqldb_cache_file_scale =
         "hsqldb.cache_file_scale";
     public static final String hsqldb_cache_free_count =
@@ -480,6 +480,9 @@ public class HsqlDatabaseProperties extends HsqlProperties {
                                           32, new int[] {
             1, 2, 4, 8, 16, 32
         }));
+        dbMeta.put(hsqldb_lob_file_compressed,
+                   HsqlProperties.getMeta(hsqldb_lob_file_compressed,
+                                          SQL_PROPERTY, false));
 
         // this property is normally 8 - or 1 for old databases from early versions
         dbMeta.put(hsqldb_cache_file_scale,

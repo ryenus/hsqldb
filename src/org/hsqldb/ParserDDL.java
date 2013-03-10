@@ -2870,7 +2870,8 @@ public class ParserDDL extends ParserRoutine {
                     break;
                 }
                 default :
-                    if (database.sqlSyntaxOra && isSimpleName()) {
+                    if ((database.sqlSyntaxOra || database.sqlSyntaxDb2)
+                            && isSimpleName()) {
                         if (token.tokenString.equals("NOCACHE")
                                 || token.tokenString.equals("NOCYCLE")
                                 || token.tokenString.equals("NOMAXVALUE")
