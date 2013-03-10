@@ -910,24 +910,36 @@ public class ArrayUtil {
 
     /**
      * Byte arrays source and dest each begin at an offset in the common space.
-     * If there is an overlap between dest and the first length elements of
+     * If there is an overlap between dest and the first sourceLength elements of
      * the source, the overlapping elements are copied to dest. Returns count
      * of copied bytes.
      */
     public static int copyBytes(long sourceOffset, byte[] source,
-                                int sourceOff, int length, long destOffset,
-                                byte[] dest) {
+                                int sourceOff, int sourceLength,
+                                long destOffset, byte[] dest, int destLength) {
 
-        if (sourceOffset + sourceOff >= destOffset + dest.length
-                || sourceOffset + sourceOff + length <= destOffset) {
+        if (sourceOff >= source.length) {
+            return 0;
+        }
+
+        if (sourceOff + sourceLength > source.length) {
+            sourceLength = source.length - sourceOff;
+        }
+
+        if (destLength > dest.length) {
+            destLength = dest.length;
+        }
+
+        if (sourceOffset + sourceOff >= destOffset + destLength
+                || sourceOffset + sourceOff + sourceLength <= destOffset) {
             return 0;
         }
 
         long sourceIndex = destOffset - sourceOffset;
         long destIndex   = 0;
-        int  sourceLimit = sourceOff + length;
+        int  sourceLimit = sourceOff + sourceLength;
 
-        if (sourceIndex > 0) {
+        if (sourceIndex >= 0) {
             if (sourceIndex < sourceOff) {
                 sourceIndex = sourceOff;
             }
@@ -936,16 +948,16 @@ public class ArrayUtil {
             sourceIndex = sourceOff;
         }
 
-        length = sourceLimit - (int) sourceIndex;
+        sourceLength = sourceLimit - (int) sourceIndex;
 
-        if (length > dest.length - destIndex) {
-            length = dest.length - (int) destIndex;
+        if (sourceLength > destLength - destIndex) {
+            sourceLength = destLength - (int) destIndex;
         }
 
         System.arraycopy(source, (int) sourceIndex, dest, (int) destIndex,
-                         length);
+                         sourceLength);
 
-        return length;
+        return sourceLength;
     }
 
     /**

@@ -57,7 +57,7 @@ import org.hsqldb.result.Result;
  * @author Campbell Boucher-Burnet (boucherb@users dot sourceforge.net)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
  *
- * @version 2.1.1
+ * @version 2.3.0
  * @since 1.7.2
  * @see  User
  */
@@ -107,19 +107,27 @@ public final class UserManager {
      *        (This will catch attempts to create Reserved grantee names).
      *  </OL>
      */
-    public User createUser(HsqlName name, String password, boolean isDigest) {
+    public User createUser(Session session, HsqlName name, String password,
+                           boolean isDigest) {
 
         // This will throw an appropriate exception if grantee already exists,
         // regardless of whether the name is in any User, Role, etc. list.
         User user = granteeManager.addUser(name);
 
-        user.setPassword(password, isDigest);
+        if (session == null) {
+            user.setPassword(password, isDigest);
+        } else {
+            try {
+                setPassword(session, user, password, isDigest);
+            } catch (HsqlException e) {
+                granteeManager.removeNewUser(name);
 
-        boolean success = userList.add(name.name, user);
-
-        if (!success) {
-            throw Error.error(ErrorCode.X_28503, name.statementName);
+                throw e;
+            }
         }
+
+        // this cannot fail
+        boolean success = userList.add(name.name, user);
 
         return user;
     }
@@ -143,7 +151,7 @@ public final class UserManager {
 
         Result result = pwCheckFunction.invoke(session,
                                                new Object[]{ password }, null,
-                                               false);
+                                               true);
         Boolean check = (Boolean) result.getValueObject();
 
         if (check == null || !check.booleanValue()) {
@@ -205,7 +213,7 @@ public final class UserManager {
         HsqlName name =
             granteeManager.database.nameManager.newHsqlName(username,
                 isQuoted, SchemaObject.GRANTEE);
-        User user = createUser(name, password, false);
+        User user = createUser(null, name, password, false);
 
         user.isLocalOnly = true;
 
@@ -260,7 +268,7 @@ public final class UserManager {
                 granteeManager.database.nameManager.newHsqlName(name, true,
                     SchemaObject.GRANTEE);
 
-            user                = createUser(hsqlName, "", false);
+            user                = createUser(null, hsqlName, "", false);
             user.isExternalOnly = true;
         }
 

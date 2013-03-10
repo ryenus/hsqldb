@@ -138,9 +138,8 @@ implements XADataSource, Serializable, Referenceable
      */
     public Reference getReference() throws NamingException {
 
-        String cname = HsqlDatabaseProperties.hsqldb_package_name
-                       + ".jdbc.JDBCDataSourceFactory";
-        Reference ref = new Reference(getClass().getName(), cname, null);
+        String    cname = "org.hsqldb.jdbc.JDBCDataSourceFactory";
+        Reference ref   = new Reference(getClass().getName(), cname, null);
 
         ref.add(new StringRefAddr("database", getDatabase()));
         ref.add(new StringRefAddr("user", getUser()));

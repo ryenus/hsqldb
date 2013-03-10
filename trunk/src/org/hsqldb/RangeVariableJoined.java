@@ -95,21 +95,6 @@ public class RangeVariableJoined extends RangeVariable {
         super.setRangeTableVariables();
     }
 
-    public RangeVariable duplicate() {
-
-        RangeVariable r = null;
-
-        try {
-            r = (RangeVariable) super.clone();
-        } catch (CloneNotSupportedException ex) {
-            throw Error.runtimeError(ErrorCode.U_S0500, "RangeVariable");
-        }
-
-        r.resetConditions();
-
-        return r;
-    }
-
     public void setJoinType(boolean isLeft, boolean isRight) {
         super.setJoinType(isLeft, isRight);
     }
@@ -131,7 +116,14 @@ public class RangeVariableJoined extends RangeVariable {
     }
 
     public ExpressionColumn getColumnExpression(String name) {
-        return super.getColumnExpression(name);
+
+        ExpressionColumn col = super.getColumnExpression(name);
+
+        if (col == null) {
+            col = rangeArray[0].getColumnExpression(name);
+        }
+
+        return col;
     }
 
     public Table getTable() {
@@ -179,17 +171,49 @@ public class RangeVariableJoined extends RangeVariable {
             return super.findColumn(schemaName, tableName, columnName);
         }
 
-        int count = 0;
+        boolean hasNamed = rangeArray[0].namedJoinColumnExpressions != null;
+        int     count    = 0;
+
+        if (hasNamed) {
+            count = rangeArray[0].namedJoinColumnExpressions.size();
+
+            if (rangeArray[0].namedJoinColumnExpressions.containsKey(
+                    columnName)) {
+                if (tableName != null) {
+                    return -1;
+                }
+
+                return super.findColumn(schemaName, tableName, columnName);
+            }
+        }
 
         for (int i = 0; i < rangeArray.length; i++) {
-            int colIndex = rangeArray[i].findColumn(schemaName, tableName,
-                columnName);
+            RangeVariable currentRange = rangeArray[i];
+            int colIndex = currentRange.findColumn(schemaName, tableName,
+                                                   columnName);
 
             if (colIndex > -1) {
-                return count + colIndex;
+                if (!hasNamed) {
+                    return count + colIndex;
+                }
+
+                for (int j = 0; j < colIndex; j++) {
+                    ColumnSchema col = currentRange.rangeTable.getColumn(j);
+
+                    if (!currentRange.namedJoinColumnExpressions.containsKey(
+                            col.getNameString())) {
+                        count++;
+                    }
+                }
+
+                return count;
             }
 
-            count += rangeArray[i].rangeTable.getColumnCount();
+            count += currentRange.rangeTable.getColumnCount();
+
+            if (hasNamed) {
+                count -= currentRange.namedJoinColumnExpressions.size();
+            }
         }
 
         return -1;
@@ -249,6 +273,10 @@ public class RangeVariableJoined extends RangeVariable {
     }
 
     protected int getFirstColumnIndex(RangeVariable subRange) {
+
+        if (subRange == this) {
+            return 0;
+        }
 
         int count = 0;
 

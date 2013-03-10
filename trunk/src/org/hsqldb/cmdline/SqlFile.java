@@ -4133,7 +4133,7 @@ public class SqlFile {
                         condlPrintln("", false);
                     }
 
-                    condlPrintln("<TBODY></TABLE>", true);
+                    condlPrintln("</TBODY></TABLE>", true);
 
                     if (interactive && rows.size() != 1)
                         stdprintln(LS + SqltoolRB.rows_fetched.getString(

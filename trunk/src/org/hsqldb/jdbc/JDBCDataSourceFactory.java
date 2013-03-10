@@ -226,16 +226,10 @@ public class JDBCDataSourceFactory implements ObjectFactory {
     /**
      * class names
      */
-    private static final String bdsClassName =
-        HsqlDatabaseProperties.hsqldb_package_name + ".jdbc.JDBCDataSource";
-    private static final String poolClassName =
-        HsqlDatabaseProperties.hsqldb_package_name + ".jdbc.JDBCPool";
-    private static final String pdsClassName =
-        HsqlDatabaseProperties.hsqldb_package_name
-        + ".jdbc.pool.JDBCPooledDataSource";
-    private static final String xdsClassName =
-        HsqlDatabaseProperties.hsqldb_package_name
-        + ".jdbc.pool.JDBCXADataSource";
+    private static final String bdsClassName = "org.hsqldb.jdbc.JDBCDataSource";
+    private static final String poolClassName = "org.hsqldb.jdbc.JDBCPool";
+    private static final String pdsClassName = "org.hsqldb.jdbc.pool.JDBCPooledDataSource";
+    private static final String xdsClassName = "org.hsqldb.jdbc.pool.JDBCXADataSource";
 
     public JDBCDataSourceFactory() {}
 }

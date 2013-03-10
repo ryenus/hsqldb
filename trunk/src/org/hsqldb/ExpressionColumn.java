@@ -236,8 +236,8 @@ public class ExpressionColumn extends Expression {
 
                 return nullability;
 
-            case OpTypes.SEQUENCE :
             case OpTypes.COALESCE :
+            case OpTypes.SEQUENCE :
             case OpTypes.ROWNUM :
                 return SchemaObject.Nullability.NO_NULLS;
 
@@ -374,8 +374,15 @@ public class ExpressionColumn extends Expression {
             case OpTypes.DYNAMIC_PARAM :
             case OpTypes.ASTERISK :
             case OpTypes.SIMPLE_COLUMN :
-            case OpTypes.COALESCE :
             case OpTypes.DIAGNOSTICS_VARIABLE :
+                break;
+
+            case OpTypes.COALESCE :
+                for (int i = 0; i < nodes.length; i++) {
+                    nodes[i].resolveColumnReferences(session, rangeGroup,
+                                                     rangeGroups,
+                                                     unresolvedSet);
+                }
                 break;
 
             case OpTypes.COLUMN :
@@ -432,9 +439,13 @@ public class ExpressionColumn extends Expression {
                     return unresolvedSet;
                 }
 
-                if (session.database.sqlSyntaxOra) {
+                if (session.database.sqlSyntaxOra
+                        || session.database.sqlSyntaxDb2) {
                     if (acceptsSequences && tableName != null) {
-                        if (Tokens.T_CURRVAL.equals(columnName)) {
+                        if (Tokens.T_CURRVAL.equals(columnName)
+                            ||Tokens.T_PREVVAL.equals(columnName)
+
+                            ) {
                             NumberSequence seq =
                                 session.database.schemaManager.getSequence(
                                     tableName, session.getSchemaName(schema),
@@ -511,14 +522,16 @@ public class ExpressionColumn extends Expression {
     private boolean resolveColumnReference(RangeVariable rangeVar,
                                            boolean outer) {
 
-        Expression e = rangeVar.getColumnExpression(columnName);
+        if (tableName == null) {
+            Expression e = rangeVar.getColumnExpression(columnName);
 
-        if (e != null) {
-            opType   = e.opType;
-            nodes    = e.nodes;
-            dataType = e.dataType;
+            if (e != null) {
+                opType   = e.opType;
+                nodes    = e.nodes;
+                dataType = e.dataType;
 
-            return true;
+                return true;
+            }
         }
 
         int colIndex = rangeVar.findColumn(schema, tableName, columnName);
@@ -611,6 +624,8 @@ public class ExpressionColumn extends Expression {
 
             case OpTypes.COALESCE : {
                 Type type = null;
+
+                nullability = SchemaObject.Nullability.NO_NULLS;
 
                 for (int i = 0; i < nodes.length; i++) {
                     type = Type.getAggregateType(nodes[i].dataType, type);
@@ -726,6 +741,8 @@ public class ExpressionColumn extends Expression {
                 StringBuffer sb = new StringBuffer(Tokens.T_ROWNUM);
 
                 sb.append('(').append(')');
+
+                return sb.toString();
             }
             case OpTypes.COLUMN : {
                 if (column == null) {

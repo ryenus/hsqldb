@@ -149,8 +149,8 @@ public class HsqlSocketFactory {
 
         synchronized (HsqlSocketFactory.class) {
             if (sslImpl == null) {
-                sslImpl = newFactory(HsqlDatabaseProperties.hsqldb_package_name
-                                     + ".server.HsqlSocketFactorySecure");
+                sslImpl =
+                    newFactory("org.hsqldb.server.HsqlSocketFactorySecure");
             }
         }
 

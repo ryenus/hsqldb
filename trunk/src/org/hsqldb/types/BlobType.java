@@ -48,8 +48,9 @@ import org.hsqldb.lib.StringConverter;
  */
 public final class BlobType extends BinaryType {
 
-    public static final long maxBlobPrecision = 1024L * 1024 * 1024 * 1024;
-    public static final int  defaultBlobSize  = 1024 * 1024 * 16;
+    public static final long maxBlobPrecision     = 1024L * 1024 * 1024 * 1024;
+    public static final int  defaultBlobSize      = 1024 * 1024 * 1024;
+    public static final int  defaultShortBlobSize = 16 * 1024 * 1024;
 
     public BlobType(long precision) {
         super(Types.SQL_BLOB, precision);
@@ -303,8 +304,7 @@ public final class BlobType extends BinaryType {
             return null;
         }
 
-
-        return Long.toString (((BlobData) a).getId());
+        return Long.toString(((BlobData) a).getId());
     }
 
     public String convertToSQLString(Object a) {

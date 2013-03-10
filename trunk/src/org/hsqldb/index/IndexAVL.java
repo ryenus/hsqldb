@@ -1672,8 +1672,12 @@ public class IndexAVL implements Index {
                         case OpTypes.IS_NULL :
                         case OpTypes.EQUAL : {
                             result = x;
-                            n      = x.getLeft(store);
 
+                            if (reversed) {
+                                n = x.getRight(store);
+                            } else {
+                                n = x.getLeft(store);
+                            }
                             break;
                         }
                         case OpTypes.NOT :

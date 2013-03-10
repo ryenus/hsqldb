@@ -39,6 +39,7 @@ import java.security.Principal;
 import java.security.Provider;
 import java.security.PublicKey;
 import java.security.Security;
+
 import javax.net.ssl.HandshakeCompletedEvent;
 import javax.net.ssl.HandshakeCompletedListener;
 import javax.net.ssl.SSLServerSocket;
@@ -132,8 +133,8 @@ implements HandshakeCompletedListener {
 
         SSLServerSocket ss;
 
-        ss = (SSLServerSocket) getServerSocketFactoryImpl()
-            .createServerSocket(port);
+        ss = (SSLServerSocket) getServerSocketFactoryImpl().createServerSocket(
+            port);
 
         if (Error.TRACESYSTEMOUT) {
             Error.printSystemOut("[" + this + "]: createServerSocket()");
@@ -162,8 +163,8 @@ implements HandshakeCompletedListener {
         InetAddress     addr;
 
         addr = InetAddress.getByName(address);
-        ss = (SSLServerSocket) getServerSocketFactoryImpl()
-            .createServerSocket(port, 128, addr);
+        ss = (SSLServerSocket) getServerSocketFactoryImpl().createServerSocket(
+            port, 128, addr);
 
         if (Error.TRACESYSTEMOUT) {
             Error.printSystemOut("[" + this + "]: createServerSocket()");
@@ -353,8 +354,7 @@ implements HandshakeCompletedListener {
             // TLS_HOSTNAME_MISMATCH
             throw new UnknownHostException(
                 Error.getMessage(
-                    ErrorCode.M_SERVER_SECURE_VERIFY_3, 0,
-                    new Object[] {
+                    ErrorCode.M_SERVER_SECURE_VERIFY_3, 0, new Object[] {
                 CN, host
             }));
         }
@@ -374,8 +374,7 @@ implements HandshakeCompletedListener {
             Error.printSystemOut(
                 "------------------------------------------------");
             Error.printSystemOut("socket:      : " + socket);
-            Error.printSystemOut("cipher suite : "
-                                 + session.getCipherSuite());
+            Error.printSystemOut("cipher suite : " + session.getCipherSuite());
 
             sessionId = StringConverter.byteArrayToHexString(session.getId());
 
