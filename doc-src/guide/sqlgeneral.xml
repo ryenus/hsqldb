@@ -215,9 +215,13 @@
       <para>Lobs are logically stored in columns of tables. Their physical
       storage is a separate *.lobs file. This file is created as soon as a
       BLOB or CLOB is inserted into the database. The file will grow as new
-      lobs are inserted into the database. In version 2.x, the *.lobs file is
-      never deleted even if all lobs are deleted from the database (In this
-      case you can delete the .lobs file after a SHUTDOWN).</para>
+      lobs are inserted into the database. In version 2, the *.lobs file is
+      never deleted even if all lobs are deleted from the database. In this
+      case you can delete the .lobs file after a SHUTDOWN. When a CHECKPOINT
+      happens, the space used for deleted lobs is freed and is reused for
+      future lobs. By default, clobs are stored without compression. You can
+      use a database setting to enable compression of clobs. This can
+      significantly reduce the storage size of clobs. </para>
     </section>
   </section>
 
@@ -609,7 +613,7 @@
       units of kilobyte (K, 1024), megabyte (M, 1024 * 1024) or gigabyte (G,
       1024 * 1024 * 1024), using the <literal>&lt;multiplier&gt;</literal>. If
       CLOB is used without specifying the length, the length defaults to
-      16M.</para>
+      1GB.</para>
 
       <simpara><literal>&lt;character string type&gt; ::= { CHARACTER | CHAR }
       [ &lt;left paren&gt; &lt;character length&gt; &lt;right paren&gt; ] | {
@@ -688,7 +692,7 @@ LONGVARCHAR
       units of kilobyte (K, 1024), megabyte (M, 1024 * 1024) or gigabyte (G,
       1024 * 1024 * 1024), using the <literal>&lt;multiplier&gt;</literal>. If
       BLOB is used without specifying the length, the length defaults to
-      16M.</para>
+      1GB.</para>
 
       <simpara><literal>&lt;binary string type&gt; ::= BINARY [ &lt;left
       paren&gt; &lt;length&gt; &lt;right paren&gt; ] | { BINARY VARYING |

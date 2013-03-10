@@ -118,7 +118,8 @@
         permanently, or it can be opened as readonly. To make the database
         readonly, the property, value pair, <literal>readonly=true</literal>
         can be added to the <filename>.properties</filename> file of the
-        database.</para>
+        database. The SHUTDOWN command must be used to close the database
+        before making this change.</para>
 
         <para>It is also possible to open a normal database as readonly. For
         this, the property can be included in the URL of the first connection
@@ -160,8 +161,8 @@
 
       <para>TEXT tables are designed for special applications where the data
       has to be in an interchangeable format, such as CSV (comma separated
-      values). TEXT tables should not be used for routine storage of
-      data.</para>
+      values). TEXT tables should not be used for routine storage of data that
+      changes a lot.</para>
 
       <para>MEMORY tables and CACHED tables are generally used for data
       storage. The difference between the two is as follows:</para>
@@ -221,7 +222,7 @@
       to each LOB. You can reduced this if your LOBs are generally
       smaller.</para>
 
-      <para>LOB data should be store in the database using a JDBC
+      <para>LOB data should be stored in the database using a JDBC
       PreparedStatement object. The streaming methods send the LOB to the
       database in one operation as a binary or character stream. Inside the
       database, the disk space is allocated as needed and the data is saved as
@@ -254,6 +255,7 @@
 
         <screen>  SET TABLE SYSTEM_LOBS.BLOCKS TYPE CACHED
   SET TABLE SYSTEM_LOBS.LOBS TYPE CACHED
+  SET TABLE SYSTEM_LOBS.PARTS TYPE CACHED
   SET TABLE SYSTEM_LOBS.LOB_IDS TYPE CACHED
 </screen>
       </example>
@@ -281,6 +283,13 @@
           size of the *.data file. The *.lobs file can grow to several
           terabytes. The temporary files created at the time of a SHUTDOWN can
           be equal in size to the *.script file and the .data file.</para>
+        </listitem>
+
+        <listitem>
+          <para>In desktop deployments, virus checker programs may interfere
+          with the creation and modification of database files. You should
+          exclude the directory containing the database files from virus
+          checking.</para>
         </listitem>
       </itemizedlist>
     </section>
@@ -359,12 +368,12 @@
       WRITE DELAY MILLIS. A zero delay setting results in an
       FileDescriptor#sync() call each time a transaction commits. A timed
       delay means the FileDescriptor#sync() call is executed in the given
-      intervals and only the last transactions committed in the interval may
-      be lost. The sync() call is also made at all critical points, including
-      when a file is about to be closed. Durability of files requires a
-      reliable JVM and disk storage system that stores the data safely with a
-      sync() call. In practice, many systems are generally reliable in this
-      respect.</para>
+      intervals and only the last transactions committed in the time interval
+      may be lost. The default time interval is 0.5 second. The sync() call is
+      also made at all critical points, including when a file is about to be
+      closed. Durability of files requires a reliable JVM and disk storage
+      system that stores the data safely with a sync() call. In practice, many
+      systems are generally reliable in this respect.</para>
     </section>
 
     <section>
@@ -435,11 +444,11 @@
     <literal>*.script</literal>, etc., as detailed in previous
     chapters.</para>
 
-    <simpara>HyperSQL 2.2 includes commands to backup the database files into
-    a single <literal>.tar</literal> or <literal>.tar.gz</literal> file
-    archive. The backup can be performed by a command given in a JDBC session
-    if the target database catalog is running, or on the command-line if the
-    target catalog has been shutdown.</simpara>
+    <simpara>HyperSQL 2 includes commands to backup the database files into a
+    single <literal>.tar</literal> or <literal>.tar.gz</literal> file archive.
+    The backup can be performed by a command given in a JDBC session if the
+    target database catalog is running, or on the command-line if the target
+    catalog has been shutdown.</simpara>
 
     <simpara>It is not recommended to backup the database file with an
     external file backup program while the database is running. The resulting
@@ -529,7 +538,8 @@
       <filename>dbdir</filename> specifies a directory path, without the
       catalog file base name. The files will be created with the names stored
       in the tar file (and which you can see as described in the preceding
-      section).</para>
+      section). After restoring the database, you can connect to it as
+      usual.</para>
     </section>
   </section>
 
@@ -800,7 +810,7 @@
       realm of users and passwords.</para>
 
       <para>The first user for a new database has the DBA role. This user name
-      need was always SA in older versions of HSQLDB, but not in the latest
+      was always SA in older versions of HSQLDB, but not in the latest
       versions. The name of the first DBA user and its password can be
       specified when the database is created by the first connection to the
       database. These settings are then stored in the database.</para>
@@ -867,7 +877,7 @@
     testing and development targeted at other databases. Over the years, this
     usage resulted in developers finding and reporting many obscure bugs in
     HyperSQL, which have all been fixed in the latest version. Also, HyperSQL
-    2.0 has been written to the SQL Standard and avoids the traps caused by
+    2 has been written to the SQL Standard and avoids the traps caused by
     superficial imitation of existing RDBMS.</para>
 
     <para>HyperSQL has many property settings that relax conformance to the
@@ -1555,6 +1565,11 @@
       without padding. The default system collation is named
       <literal>SQL_TEXT</literal>. To use the default without padding use
       <literal>SET DATABASE COLLATION SQL_TEXT NO PAD</literal>.</simpara>
+
+      <simpara>After you change the collation for a database that contains
+      collated data, you must execute <literal>SHUTDOWN COMPACT</literal> or
+      <literal>SHUTDOWN SCRIPT</literal> in order to recreate the
+      indexes.</simpara>
 
       <simpara>Only a user with the DBA role can execute this
       statement.</simpara>
@@ -2840,6 +2855,32 @@
 
       <simpara>This is equivalent to the connection property
       <literal>hsqldb.lob_file_scale</literal>.</simpara>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>SET FILES LOB COMPRESSED</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">SET FILES LOB
+      COMPRESSED</emphasis></simpara>
+
+      <simpara><emphasis>set files lob compressed</emphasis></simpara>
+
+      <simpara><literal>&lt;set files lob compressed statement&gt; ::= SET
+      FILES LOB COMPRESSED { TRUE | FALSE }</literal></simpara>
+
+      <simpara>By default, lobs are not compressed for storage. When this
+      setting is <literal>TRUE</literal>, all CLOB values stored in the
+      database are compressed. Compression reduces the storage size but
+      increases the access time.</simpara>
+
+      <simpara>This command can be used only when there is no lob in the
+      database.</simpara>
+
+      <simpara>Only a user with the DBA role can execute this
+      statement.</simpara>
+
+      <simpara>This is equivalent to the connection property
+      <literal>hsqldb.lob_compressed</literal>.</simpara>
 
       <indexterm significance="preferred" type="sql">
         <primary>SET FILES SCRIPT FORMAT</primary>
