@@ -49,11 +49,54 @@
     </legalnotice>
   </info>
 
+  <section>
+    <title>Introduction</title>
+
+    <para>HyperSQL Database (HSQLDB ) is a modern relational database system.
+    Version 2.3 is the latest release of the all-new version 2 code. Written
+    from ground up to follow the international ISO SQL:2011 Standard, it
+    supports the complete set of the classic features, together with optional
+    features such as stored procedures and triggers.</para>
+
+    <para>HyperSQL is used for development, testing and deployment of database
+    applications.</para>
+
+    <para>Standard compliance is the most unique characteristic of HyperSQL
+    among several other distinctive features. HyperSQL can provide database
+    access within the user's application process, within an application
+    server, or as a separate server process. HyperSQL can run entirely in
+    memory, using dedicated fast memory structures as opposed to ram disk.
+    HyperSQL can use disk persistence in a flexible way, with reliable
+    crash-recovery. HyperSQL is the only open-source relational database
+    management system with a high performance dedicated lob storage system,
+    suitable for gigabytes of lob data. It is also the only relational
+    database that can create and access large comma delimited files as SQL
+    tables. HyperSQL supports three switchable transaction control models,
+    including fully multi threaded MVCC, and is suitable for high performance
+    transaction processing applications. HyperSQL is also suitable for
+    business intelligence, ETL and other applications that access large data
+    sets. HyperSQL has a wide range of enterprise deployment options, such as
+    XA transactions, connection pooling and remote authentication.</para>
+
+    <para>New SQL syntax compatibility modes have been added to HyperSQL.
+    These modes allow a high degree of compatibility with several other
+    database systems which use non-standard SQL syntax.</para>
+
+    <para>HyperSQL is written in the Java programming language and runs in a
+    Java virtual machine (JVM). It supports the JDBC interface for database
+    access.</para>
+
+    <para>This guide covers the database engine features, SQL syntax and
+    different modes of operation. The Server, JDBC interfaces, pooling and XA
+    components are documented in the JavaDoc. Utilities such as SqlTool and
+    DatabaseManager are covered in a separate Utilities Guide.</para>
+  </section>
+
   <section xml:id="rgc_hsqldb_jar">
     <title>The HSQLDB Jar</title>
 
-    <para>The HSQLDB jar package is located in the /lib directory of the ZIP
-    package and contains several components and programs.</para>
+    <para>The HSQLDB jar package, hsqldb.jar, is located in the /lib directory
+    of the ZIP package and contains several components and programs.</para>
 
     <itemizedlist>
       <title>Components of the Hsqldb jar package</title>
@@ -70,16 +113,15 @@
         <para>Database Manager (GUI database access tool, with Swing and AWT
         versions)</para>
       </listitem>
-
-      <listitem>
-        <para>Sql Tool (command line database access tool)</para>
-      </listitem>
     </itemizedlist>
 
     <para>The HyperSQL RDBMS and JDBC Driver provide the core functionality.
-    An additional jar contains Sql Tool (command line database access tool).
-    SqlTool and the DatabaseManagers are general-purpose database tools that
-    can be used with any database engine that has a JDBC driver.</para>
+    DatabaseManagers are general-purpose database access tools that can be
+    used with any database engine that has a JDBC driver.</para>
+
+    <para>An additional jar, sqltool.jar, contains Sql Tool, command line
+    database access tool. This is a general purpose command line database
+    access tool that can be ued with other database engines as well.</para>
   </section>
 
   <section xml:id="rgc_access_tools">
@@ -203,8 +245,8 @@
       <para>When the engine closes the database at a shutdown, it creates
       temporary files with the extension <literal>.new</literal> which it then
       renames to those listed above. These files should not be deleted by the
-      user. At the time of the next startup, all such files will be deleted by
-      the database engine. In some circumstances, a
+      user. At the time of the next startup, all such files will be renamed or
+      deleted by the database engine. In some circumstances, a
       <filename>test.data.xxx.old</filename> is created and deleted afterwards
       by the database engine. The user can delete these
       <filename>test.data.xxx.old</filename> files.</para>
@@ -374,13 +416,13 @@
       started independently from the servlet engine. The
       <filename>Servlet</filename> class, in the HSQLDB jar, should be
       installed on the application server to provide the connection. The
-      database is specified using an application server property. Refer to the
-      source file <filename xlink:href="#Servlet.java-link">
+      database file path is specified using an application server property.
+      Refer to the source file <filename xlink:href="#Servlet.java-link">
       src/org/hsqldb/server/Servlet.java</filename> to see the details.</para>
 
-      <para>Both HTTP Server and Servlet modes can only be accessed using the
-      JDBC driver at the client end. They do not provide a web front end to
-      the database. The Servlet mode can serve only a single database.</para>
+      <para>Both HTTP Server and Servlet modes can be accessed using the JDBC
+      driver at the client end. They do not provide a web front end to the
+      database. The Servlet mode can serve multiple databases.</para>
 
       <para>Please note that you do not normally use this mode if you are
       using the database engine in an application server. In this situation,

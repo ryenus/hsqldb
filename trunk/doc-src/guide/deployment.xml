@@ -206,13 +206,13 @@
       have tested with over 100 GB of lobs without any loss of
       performance.</para>
 
-      <para>By default, HyperSQL 2.0 uses memory-based tables for the lob
-      schema (not the actual lob data). Therefore it is practical to store
-      about 100,000 individual lobs in the database with the default JVM
-      memory allocation. More lobs can be stored with larger JVM memory
-      allocations. In order to store more than a few hundreds of thousands of
-      lobs, you can change the lob schema storage to CACHED tables with the
-      following statements:</para>
+      <para>By default, HyperSQL 2 uses memory-based tables for the lob schema
+      (not the actual lob data). Therefore it is practical to store about
+      100,000 individual lobs in the database with the default JVM memory
+      allocation. More lobs can be stored with larger JVM memory allocations.
+      In order to store more than a few hundreds of thousands of lobs, you can
+      change the lob schema storage to CACHED tables with the following
+      statements:</para>
 
       <example>
         <title>Using CACHED tables for the LOB schema</title>
@@ -506,7 +506,8 @@
 
         <listitem>
           <para>Perform all the bulk operations, using batched prepared
-          statements. A batch size of 1000 to 10000 is adequate.</para>
+          statements. A batch size of 1000 to 10000 is adequate. Perform
+          commit after each batch.</para>
         </listitem>
 
         <listitem>
@@ -527,7 +528,7 @@
         <listitem>
           <para>If things go wrong during the bulk operation, for example when
           a unique constraint violation aborts the operation, and you want to
-          redo the operation, just use SHUTDOWN IMMEDIATELY instead of
+          redo the whole operation, just use SHUTDOWN IMMEDIATELY instead of
           CHECKPOINT. When you restart the database it will revert to the
           state at the first CHECKPOINT and the bulk operation can be
           redone.</para>
