@@ -1,4 +1,8 @@
-17 February 2012 - svn 5174 snapshot
+10 March 2013 - svn 5203
+-- increased default max size of BLOB and CLOB to BLOB(1G) and CLOB(1G)
+-- added support for compressed CLOB and and encrypted lobs
+-- improved DatabaseMetaData reporting of actual settings for null ordering
+-- improved DB2 and ORA syntax compatibility modes
 06 February 2013 - svn 5168 snapshot
 -- improved backward compatibility for use with embedded OpenOffice / LibreOffice databases
 -- fixed regression with some subquery tables used in OUTER joins
