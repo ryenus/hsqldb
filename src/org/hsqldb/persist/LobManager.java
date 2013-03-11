@@ -359,7 +359,7 @@ public class LobManager {
         cryptLobs    = database.logger.cryptLobs;
         compressLobs = database.logger.propCompressLobs;
 
-        if (compressLobs) {
+        if (compressLobs || cryptLobs) {
             inflater   = new Inflater();
             deflater   = new Deflater(Deflater.BEST_SPEED);
             dataBuffer = new byte[largeBufferBlockSize];
