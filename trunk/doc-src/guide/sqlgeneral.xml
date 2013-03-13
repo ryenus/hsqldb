@@ -52,11 +52,11 @@
   <section xml:id="sgc_standards">
     <title>Standards Support</title>
 
-    <para>HyperSQL 2.0 supports the dialect of SQL defined by SQL standards
-    92, 1999, 2003 and 2008. This means where a feature of the standard is
+    <para>HyperSQL 2 supports the dialect of SQL defined by SQL standards 92,
+    1999, 2003, 2008 and 2011. This means where a feature of the standard is
     supported, e.g. left outer join, the syntax is that specified by the
     standard text. Almost all syntactic features of SQL-92 up to Advanced
-    Level are supported, as well as SQL:2008 core and many optional features
+    Level are supported, as well as SQL:2011 core and many optional features
     of this standard. Work is in progress for a formal declaration of
     conformance.</para>
 
@@ -82,6 +82,9 @@
     or queries. The full list of SQL reserved words is in the appendix <link
     endterm="lists-title" xlink:href="#lists-app"></link> .</para>
 
+    <para>There are several user-defined properties to control the strict
+    application of the SQL Standard in different areas.</para>
+
     <para>If you have to use a reserved keyword as the name of a database
     object, you can enclose it in double quotes.</para>
 
@@ -96,12 +99,12 @@
     <link
     xlink:href="http://www.postgresql.org/files/documentation/books/aw_pgsql/index.html">PostgreSQL:
     Introduction and Concepts</link> by Bruce Momjian, which is available on
-    the web. Most of the core SQL coverage in the book applies also to
-    HyperSQL. There are some differences in keywords supported by one and not
-    the other engine (OUTER, OID's, etc.) or used differently
-    (IDENTITY/SERIAL, TRIGGER, SEQUENCE, etc.).</para>
+    the web. Most of the core SQL coverage in the book applies to HyperSQL as
+    well. There are some differences in keywords supported by one and not the
+    other engine (OUTER, OID's, etc.) or used differently (IDENTITY/SERIAL,
+    TRIGGER, SEQUENCE, etc.).</para>
 
-    <para>In HyperSQL version 2.0, all features of JDBC4 that apply to the
+    <para>In HyperSQL version 2, all features of JDBC4 that apply to the
     capabilities of HSQLDB are fully supported. The relevant JDBC classes are
     thoroughly documented with additional clarifications and HyperSQL specific
     comments. See the <link xlink:href="#javadoc-link">JavaDoc</link> for the
@@ -208,21 +211,6 @@
       statements access different types of tables uniformly. No change to
       statements is needed to access different types of table.</para>
     </section>
-
-    <section xml:id="sgc_lob_data">
-      <title>Lob Data</title>
-
-      <para>Lobs are logically stored in columns of tables. Their physical
-      storage is a separate *.lobs file. This file is created as soon as a
-      BLOB or CLOB is inserted into the database. The file will grow as new
-      lobs are inserted into the database. In version 2, the *.lobs file is
-      never deleted even if all lobs are deleted from the database. In this
-      case you can delete the .lobs file after a SHUTDOWN. When a CHECKPOINT
-      happens, the space used for deleted lobs is freed and is reused for
-      future lobs. By default, clobs are stored without compression. You can
-      use a database setting to enable compression of clobs. This can
-      significantly reduce the storage size of clobs. </para>
-    </section>
   </section>
 
   <section xml:id="sgc_data_type_guide">
@@ -321,7 +309,7 @@
       </listitem>
     </itemizedlist>
 
-    <para>HyperSQL 2.2.x has several compatibility modes which allow the type
+    <para>HyperSQL 2.3 has several compatibility modes which allow the type
     names that are used by other RDBMS to be accepted and translated into the
     closest SQL Standard type. For example the type TEXT, supported by MySQL
     and PostgreSQL is translated in these compatibility modes.</para>
@@ -554,7 +542,7 @@
       IN (1, 2, NULL) does not return true if x is NULL.</para>
 
       <para>In previous versions of HyperSQL, BIT was simply an alias for
-      BOOLEAN. In version 2.0, BIT is a single-bit bit map.</para>
+      BOOLEAN. In version 2, BIT is a single-bit bit map.</para>
 
       <simpara><literal>&lt;boolean type&gt; ::= BOOLEAN</literal></simpara>
 
@@ -711,7 +699,7 @@ LONGVARCHAR
 VARBINARY(2)
 BINARY VARYING(2)
 BLOB(1000)
-BLOB(30K)
+BLOB(30G)
 BINARY LARGE OBJECT(1M)
 LONGVARBINARY
 </programlisting>
@@ -762,6 +750,63 @@ BIT VARYING(2)
 </programlisting>
     </section>
 
+    <section xml:id="sgc_lob_data">
+      <title>Lob Data</title>
+
+      <para>BLOB and CLOB are lob types. These types are used for very long
+      strings that do not necessarily fit in memory. Small lobs that fit in
+      memory can be accessed just like BINARY or VARCHAR column data. But lobs
+      are usually much larger and therefore accessed with special JDBC
+      methods.</para>
+
+      <para>To insert a lob into a table, or to update a column of lob type
+      with a new lob, you can use the <literal>setBinaryStream()</literal> and
+      <literal>setCharacterStream()</literal> methods of JDBC
+      <literal>java.sql.PreparedStatement</literal>. These are very efficient
+      methods for long lobs. Other methods are also supported. If the data for
+      the BLOB or CLOB is already a memory object, you can use the
+      <literal>setBytes()</literal> or <literal>setString()</literal> methods,
+      which are efficient for memory data. Another method is to obtain a lob
+      with the <literal>getBlob()</literal> and <literal>getClob()</literal>
+      methods of <literal>java.sql.Connection</literal>, populate its data,
+      then use the <literal>setBlob()</literal> or
+      <literal>setClob()</literal> methods of
+      <literal>PreparedStatement</literal>. Yet another method allows to
+      create instances of <literal>org.hsqldb.jdbc.JDBCBlobFile</literal> and
+      <literal>org.hsqldb.jdbc.JDBCClobFile</literal> and construct a large
+      lob for use with <literal>setBlob()</literal> and
+      <literal>setClob()</literal> methods.</para>
+
+      <para>A lob is retrieved from a ResultSet with the
+      <literal>getBlob()</literal> or <literal>getClob()</literal> method. The
+      steaming methods of the lob objects are then used to access the data.
+      HyperSQL also allows efficient access to chunks of lobs with
+      <literal>getBytes()</literal> or <literal>getString()</literal> methods.
+      Furthermore, parts of a BLOB or CLOB already stored in a table can be
+      modified. An updatable <literal>ResultSet</literal> is used to select
+      the row from the table. The <literal>getBlob()</literal> or
+      <literal>getClob()</literal> methods of <literal>ResultSet</literal> are
+      used to access the lob as a <literal>java.sql.Blob</literal> or
+      <literal>java.sql.Clob</literal> object. The
+      <literal>setBytes()</literal> and <literal>setString()</literal> methods
+      of these objects can be used to modify the lob. Finally the
+      <literal>updateRow()</literal> method of the
+      <literal>ResultSet</literal> is used to update the lob in the row. Note
+      these modifications are not allowed with compressed or encrypted
+      lobs.</para>
+
+      <para>Lobs are logically stored in columns of tables. Their physical
+      storage is a separate *.lobs file. This file is created as soon as a
+      BLOB or CLOB is inserted into the database. The file will grow as new
+      lobs are inserted into the database. In version 2, the *.lobs file is
+      never deleted even if all lobs are deleted from the database. In this
+      case you can delete the *.lobs file after a SHUTDOWN. When a CHECKPOINT
+      happens, the space used for deleted lobs is freed and is reused for
+      future lobs. By default, clobs are stored without compression. You can
+      use a database setting to enable compression of clobs. This can
+      significantly reduce the storage size of clobs.</para>
+    </section>
+
     <section xml:id="sgc_java_objects">
       <title>Storage and Handling of Java Objects</title>
 
@@ -801,9 +846,9 @@ BIT VARYING(2)
       ignored. HSQLDB 1.8 enforced correctness but included an option to
       enforce the length, precision or scale.</para>
 
-      <para>In HyperSQL 2.0, length, precision and scale qualifiers are always
+      <para>In HyperSQL 2, length, precision and scale qualifiers are always
       enforced. For backward compatibility, when older databases which had the
-      property hsqldb.enforce_strict_size=false are converted to version 2.0,
+      property hsqldb.enforce_strict_size=false are converted to version 2,
       this property is retained. However, this is a temporary measure. You
       should test your application to ensure the length, precision and scale
       that is used for column definitions is appropriate for the application
@@ -1781,7 +1826,7 @@ Michael   Smith     ARRAY[3420.30]
     atable(c1);</literal>. So you do not need to specify an extra index if you
     require one on the first column of the list.</para>
 
-    <para>In HyperSQL 2.0, a multi-column index will speed up queries that
+    <para>In HyperSQL 2, a multi-column index will speed up queries that
     contain joins or values on the first n columns of the index. You need NOT
     declare additional individual indexes on those columns unless you use
     queries that search only on a subset of the columns. For example, rows of

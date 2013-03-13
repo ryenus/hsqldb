@@ -37,7 +37,7 @@
     </keywordset>
 
     <legalnotice>
-      <para>Copyright 2002-2012 Fred Toussi. Permission is granted to
+      <para>Copyright 2002-2013 Fred Toussi. Permission is granted to
       distribute this document without any alteration under the terms of the
       HSQLDB license. Additional permission is granted to the HSQL Development
       Group to distribute this document with or without alterations under the
@@ -298,93 +298,95 @@
     is built into the OS in closing them.</para>
   </section>
 
+  <section xml:id="dec_app_dev_testing">
+    <title>Application Development and Testing</title>
+
+    <para>First thing to be aware of is the SQL conformance settings of
+    HyperSQL. By default version 2 applies stricter conformance rules than
+    version 1.8 and catches long strings or decimal values that do not fit
+    within the specified length or precision settings. However, there are
+    several conformance settings that are turned off by default. This is to
+    enable easier migration from earlier versions, and also greater
+    compatibility with databases such as MySQL that are sometimes very liberal
+    with type conversions. The conformance settings are listed in the System
+    Management chapter and their connection property equivalents are listed in
+    the Database Properties chapter. Ideally, all the settings that are not
+    for syntax compatibility with other databases should have a true value for
+    best error checking. You can turn on the settings for syntax compatibility
+    with another database if you are porting or testing applications targeted
+    at the other database.</para>
+
+    <para>For application unit testing you can use an all-in-memory,
+    in-process database.</para>
+
+    <para>If the tests are all run in one process, then the contents of a
+    <glossterm>mem:</glossterm> database survives between tests. To release
+    the contents you can use the SHUTDOWN command (an SQL command). You can
+    even use multiple <glossterm>mem:</glossterm> databases in your tests and
+    SHUTDOWN each one separately.</para>
+
+    <para>If the tests are in different processes and you want to keep the
+    data between the tests, the best solution is to use a Server instance that
+    has a <glossterm>mem:</glossterm> database. After the tests are done, you
+    can SHUTDOWN this database, which will shutdown the server.</para>
+
+    <para>The Server has an option that allows databases to be created as
+    needed by making a connection (see the Listeners Chapter). This option is
+    useful for testing, as your server is never shut down when a database is
+    shutdown. Each time you connect to the <glossterm>mem:</glossterm>
+    database that is served by the Server, the database is created if it does
+    not exist (i.e. has been previously shut down).</para>
+
+    <para>If you do not want to run a Server instance, and you need
+    persistence between tests in different processes, then you should use a
+    <glossterm>file:</glossterm> database. From version 2.2.9 when the last
+    existing connection to the database is closed, the latest changes to the
+    database are persisted fully with fsync. The database is still in an open
+    state until it is shut down. You can use the
+    <literal>shutdown=true</literal> connection property to close the database
+    automatically after the connections are closed.</para>
+
+    <para>An alternative option is to use
+    <literal>hsqldb.write_delay=false</literal> connection property, but this
+    is slightly slower than the other option and should be used in situations
+    where the test application does not close the connections. This option
+    uses fsync after each commit. Even if the test process is aborted without
+    shutting down the connections, all committed data is saved. It has been
+    reported that some data access frameworks do not close all their
+    connection to the database after the tests. In such situations, you need
+    to use this option if you want the data to persist at the end of the
+    tests</para>
+
+    <para>You may actually want to use a <glossterm>file:</glossterm>
+    database, or a server instance that serves a <glossterm>file:</glossterm>
+    database in preference to a <glossterm>mem:</glossterm> database. As
+    HyperSQL logs the DDL and DML statements in the .log file, this file can
+    be used to check what is being sent to the database. Note that UPDATE
+    statements are represented by a DELETE followed by an INSERT statement.
+    Statements are written out when the connection commits. The write delay
+    also has an effect on how soon the statements are written out. By default,
+    the write delay is 0.5 second.</para>
+
+    <para>The new SQL logging feature in version 2.2.x and later records all
+    executed statements and can be used for debugging your application.</para>
+
+    <para>Some types of tests start with a database that already contains the
+    tables and data, and perform various operations on it during the tests.
+    You can create and populate the initial database then set the property
+    "files_readonly=true" in the .properties file of the database. The tests
+    can then modify the database, but these modifications are not persisted
+    after the tests have completed.</para>
+
+    <para>Databases with "files_readonly=true" can be placed within the
+    classpath and in a jar file. In this case, the connection URL must use the
+    res: protocol, which treats the database as a resource.</para>
+  </section>
+
   <section xml:id="dec_tweaking">
     <title>Tweaking the Mode of Operation</title>
 
     <para>Different modes of operation and settings are used for different
     purposes. Some scenarios are discussed below:</para>
-
-    <section xml:id="dec_app_dev_testing">
-      <title>Application Development and Testing</title>
-
-      <para>First thing to be aware of is the SQL conformance settings of
-      HyperSQL. By default version 2.0 applies stricter conformance rules than
-      version 1.8 and catches long strings or decimal values that do not fit
-      within the specified length or precision settings. However, there are
-      several conformance settings that are turned off by default. This is to
-      enable easier migration from earlier versions, and also greater
-      compatibility with databases such as MySQL that are sometimes very
-      liberal with type conversions. The conformance settings are listed in
-      the System Management chapter and their connection property equivalents
-      are listed in the Database Properties chapter. Ideally, all the settings
-      should have a true value for best error checking.</para>
-
-      <para>For application unit testing you can use an all-in-memory,
-      in-process database.</para>
-
-      <para>If the tests are all run in one process, then the contents of a
-      <glossterm>mem:</glossterm> database survives between tests. To release
-      the contents you can use the SHUTDOWN command (an SQL command). You can
-      even use multiple <glossterm>mem:</glossterm> databases in your tests
-      and SHUTDOWN each one separately.</para>
-
-      <para>If the tests are in different processes and you want to keep the
-      data between the tests, the best solution is to use a Server instance
-      that has a <glossterm>mem:</glossterm> database. After the tests are
-      done, you can SHUTDOWN this database, which will shutdown the
-      server.</para>
-
-      <para>The Server has an option that allows databases to be created as
-      needed by making a connection (see the Listeners Chapter). This option
-      is useful for testing, as your server is never shut down when a database
-      is shutdown. Each time you connect to the <glossterm>mem:</glossterm>
-      database that is served by the Server, the database is created if it
-      does not exist (i.e. has been previously shut down).</para>
-
-      <para>If you do not want to run a Server instance, and you need
-      persistence between tests in different processes, then you should use a
-      <glossterm>file:</glossterm> database. From version 2.2.9 when the last
-      existing connection to the database is closed, the latest changes to the
-      database are persisted fully. The database is still in an open state
-      until it is shut down. You can use the <literal>shutdown=true</literal>
-      connection property to close the database automatically after the
-      connections are closed. An alternative option is to use
-      <literal>hsqldb.write_delay=false</literal> connection property, but
-      this is slightly slower than the other option and should be used in
-      situations where the test application does not close the
-      connections.</para>
-
-      <para>It has been reported that some data access frameworks do not close
-      all their connection to the database after the tests. In such
-      situations, you need to use zero WRITE DELAY if you want the data to
-      persist at the end of the tests</para>
-
-      <para>You may actually want to use a <glossterm>file:</glossterm>
-      database, or a server instance that serves a
-      <glossterm>file:</glossterm> database in preference to a
-      <glossterm>mem:</glossterm> database. As HyperSQL logs the DDL and DML
-      statements in the .log file, this file can be used to check what is
-      being sent to the database. Note that UPDATE statements are represented
-      by a DELETE followed by an INSERT statement. Statements are written out
-      when the connection commits. The write delay also has an effect on how
-      soon the statements are written out. By default, the write delay is 0.5
-      second.</para>
-
-      <para>The new SQL logging feature in version 2.2.x and later records all
-      executed statements and can be used for debugging your
-      application.</para>
-
-      <para>Some types of tests start with a database that already contains
-      the tables and data, and perform various operations on it during the
-      tests. You can create and populate the initial database then set the
-      property "files_readonly=true" in the .properties file of the database.
-      The tests can then modify the database, but these modifications are not
-      persisted after the tests have completed.</para>
-
-      <para>Databases with "files_readonly=true" can be placed within the
-      classpath and in a jar file. In this case, the connection URL must use
-      the res: protocol, which treats the database as a resource.</para>
-    </section>
 
     <section xml:id="dec_embedded_desktop_db">
       <title>Embedded Databases in Desktop Applications</title>
@@ -394,7 +396,7 @@
       default write delay of 0.5 second is fine for many applications. You can
       also use the property <literal>hsqldb.write_delay_millis=100</literal>
       to reduce it to 0.1 second, or the property
-      <literal>hsqldb.write_delay=false</literal> to force a disk sync after
+      <literal>hsqldb.write_delay=false</literal> to force a disk fsync after
       each commit. Before the application is closed, you should perform the
       SHUTDOWN command to ensure the database is opened instantly when it is
       next opened. Note you don't need to use SHUTDOWN COMPACT as
@@ -430,12 +432,18 @@
       WebServer instance programmatically, but you could also use the class
       <classname>org.hsqldb.util.MainInvoker</classname> to start up your
       application and a HyperSQL Server or WebServer without any programming.
-      <example>
+      MainInvoker is a general-purpose utility class to invoke the main
+      methods of multiple classes. Each main class is followed by its
+      arguments (if any), then an empty string to separate it from the next
+      main class.<example>
           <title>MainInvoker Example</title>
 
-          <screen>  java -cp path/to/your/app.jar:path/to/hsqldb.jar your.App "" org.hsqldb.server.Server</screen>
+          <screen>  java -cp path/to/your/app.jar:path/to/hsqldb.jar org.hsqldb.util.MainInvoker com.your.main.App "" org.hsqldb.server.Server</screen>
         </example> (Use ; instead of : to delimit classpath elements on
-      Windows). Specify the same <glossterm>in-process</glossterm> JDBC URL to
+      Windows). The empty string separates your com.your.main.App invocation
+      from the org.hsqldb.server.</para>
+
+      <para>Specify the same <glossterm>in-process</glossterm> JDBC URL to
       your app and in the <filename>server.properties</filename> file. You can
       then connect to the database from outside using a JDBC URL like
       <literal>jdbc:hsqldb:hsql://hostname</literal>, while connecting from
@@ -778,7 +786,7 @@
   <section xml:id="dec_backware_compatibility">
     <title>Backward Compatibility Issues</title>
 
-    <para>HyperSQL 2.0 conforms to the SQL Standard better than previous
+    <para>HyperSQL 2 conforms to the SQL Standard better than previous
     versions and has many more features. For these reasons, there may be some
     compatibility issues when converting old database, or using applications
     that were written for version 1.8.x or earlier. Some of the potential
@@ -965,7 +973,12 @@
 
       <subtitle>Use the Latest &amp; Greatest with Snapshots</subtitle>
 
-      <simpara>The HyperSQL Snapshot repository resides at <link
+      <simpara>For application testing, you may want to use the latest HSQLDB
+      snapshot jar instead of the latest release jar. Snapshot jars contain
+      fixes for reported bugs and the new features as they are being tested
+      for the next release version. You can use the snapshot jars where you
+      would normally include a dependency to a release jar as a Maven
+      artifact. The HyperSQL Snapshot repository resides at <link
       xlink:href="http://hsqldb.org/repos/"></link></simpara>
 
       <note xml:id="dec_classifier_limit">

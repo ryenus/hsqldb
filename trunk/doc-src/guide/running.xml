@@ -41,7 +41,7 @@
     </keywordset>
 
     <legalnotice>
-      <para>Copyright 2002-2012 Fred Toussi. Permission is granted to
+      <para>Copyright 2002-2013 Fred Toussi. Permission is granted to
       distribute this document without any alteration under the terms of the
       HSQLDB license. Additional permission is granted to the HSQL Development
       Group to distribute this document with or without alterations under the
@@ -74,7 +74,7 @@
     tables. HyperSQL supports three switchable transaction control models,
     including fully multi threaded MVCC, and is suitable for high performance
     transaction processing applications. HyperSQL is also suitable for
-    business intelligence, ETL and other applications that access large data
+    business intelligence, ETL and other applications that process large data
     sets. HyperSQL has a wide range of enterprise deployment options, such as
     XA transactions, connection pooling and remote authentication.</para>
 
