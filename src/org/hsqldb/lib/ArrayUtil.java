@@ -1406,7 +1406,12 @@ public class ArrayUtil {
 
     public static char[] byteArrayToChars(byte[] bytes) {
 
-        char[] chars = new char[bytes.length / 2];
+        return byteArrayToChars(bytes, bytes.length);
+    }
+
+    public static char[] byteArrayToChars(byte[] bytes, int bytesLength) {
+
+        char[] chars = new char[bytesLength / 2];
 
         for (int i = 0, j = 0; j < chars.length; i += 2, j++) {
             chars[j] = (char) ((bytes[i] << 8) + (bytes[i + 1] & 0xff));
@@ -1598,11 +1603,15 @@ public class ArrayUtil {
      * all the elements are equal to the other's elements, -1 is returned.
      */
     public static int compare(byte[] a, byte[] b) {
+        return compare(a, a.length, b, b.length);
+    }
 
-        int length = a.length;
+    public static int compare(byte[] a, int aLength, byte[] b, int bLength) {
 
-        if (length > b.length) {
-            length = b.length;
+        int length = aLength;
+
+        if (length > bLength) {
+            length = bLength;
         }
 
         for (int i = 0; i < length; i++) {
@@ -1614,11 +1623,11 @@ public class ArrayUtil {
                                                                  : -1;
         }
 
-        if (a.length == b.length) {
+        if (aLength == bLength) {
             return 0;
         }
 
-        return a.length < b.length ? -1
+        return aLength < bLength ? -1
                                    : 1;
     }
 

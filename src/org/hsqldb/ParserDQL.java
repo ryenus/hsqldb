@@ -1721,10 +1721,13 @@ public class ParserDQL extends ParserBase {
         SortAndSlice sortAndSlice = new SortAndSlice();
 
         while (true) {
-            Expression        e         = XreadValueExpression();
-            ExpressionOrderBy o         = new ExpressionOrderBy(e);
+            Expression        e;
+            ExpressionOrderBy o;
             boolean           isDesc    = false;
             boolean           nullsLast = false;
+
+            e = XreadValueExpression();
+            o = new ExpressionOrderBy(e);
 
             if (token.tokenType == Tokens.DESC) {
                 o.setDescending();
@@ -2890,21 +2893,20 @@ public class ParserDQL extends ParserBase {
             case Tokens.COLLATE : {
                 read();
 
-                if (token.namePrefix == null) {
-                    Collation collation;
+                Collation collation;
 
-                    try {
-                        collation = Collation.getCollation(token.tokenString);
-                    } catch (HsqlException ex) {
-                        collation =
-                            (Collation) database.schemaManager.getSchemaObject(
-                                session.getSchemaName(token.namePrefix),
-                                token.tokenString, SchemaObject.COLLATION);
-                    }
-
-                    e.setCollation(collation);
-                    read();
+                try {
+                    collation = Collation.getCollation(token.tokenString);
+                } catch (HsqlException ex) {
+                    collation =
+                        (Collation) database.schemaManager.getSchemaObject(
+                            token.tokenString,
+                            session.getSchemaName(token.namePrefix),
+                            SchemaObject.COLLATION);
                 }
+
+                e.setCollation(collation);
+                read();
             }
         }
 
@@ -3147,8 +3149,8 @@ public class ParserDQL extends ParserBase {
 
     Expression XreadCharacterValueExpression() {
 
-        Expression   e         = XreadCharacterPrimary();
-        SchemaObject collation = readCollateClauseOrNull();
+        Expression e         = XreadCharacterPrimary();
+        Collation  collation = readCollateClauseOrNull();
 
         while (token.tokenType == Tokens.CONCAT) {
             read();
@@ -4867,16 +4869,16 @@ public class ParserDQL extends ParserBase {
     }
 
     // Additional Common Elements
-    SchemaObject readCollateClauseOrNull() {
+    Collation readCollateClauseOrNull() {
 
         if (token.tokenType == Tokens.COLLATE) {
             read();
 
             SchemaObject collation =
-                database.schemaManager.getSchemaObject(token.namePrefix,
-                    token.tokenString, SchemaObject.COLLATION);
+                database.schemaManager.getSchemaObject(token.tokenString,
+                    token.namePrefix, SchemaObject.COLLATION);
 
-            return collation;
+            return (Collation) collation;
         }
 
         return null;
