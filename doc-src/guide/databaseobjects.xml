@@ -37,7 +37,7 @@
     </keywordset>
 
     <legalnotice>
-      <para>Copyright 2009-2012 Fred Toussi. Permission is granted to
+      <para>Copyright 2009-2013 Fred Toussi. Permission is granted to
       distribute this document without any alteration under the terms of the
       HSQLDB license. Additional permission is granted to the HSQL Development
       Group to distribute this document with or without alterations under the
@@ -213,26 +213,26 @@
       sorts according to the Unicode code of the characters,
       UNICODE_SIMPLE.</simpara>
 
-      <simpara>There are several predefined collations. These collations
-      belong to INFORMATION_SCHEMA. However, when they are referenced in a
-      statement, there is no need for a schema prefix.</simpara>
-
-      <simpara>There is a separate name-space for collations..</simpara>
-
       <simpara>Collations for a large number of languages are supported by
-      HyperSQL.</simpara>
+      HyperSQL. These collations belong to INFORMATION_SCHEMA. However, when
+      they are referenced in a statement, there is no need for a schema
+      prefix.</simpara>
+
+      <simpara>User defined collations can be created in each schema. There is
+      a separate name-space for collations in each schema. </simpara>
 
       <simpara>HyperSQL support a default collation for the whole database.
       Optionally, a different collation can be specified for each table column
-      that is defined as CHAR or VARCHAR. Also, a different collation can be
-      used in an ORDER BY clause.</simpara>
+      that is defined as CHAR or VARCHAR. A different collation can also be
+      used in an ORDER BY clause. For example <literal>ORDER BY LASTNAME
+      COLLATE "French"</literal>.</simpara>
 
       <simpara>When comparing two strings, all collation pad the shorter
       string with spaces before comparing the two strings of equal length. You
       can change the default database collation with one that does not pad the
-      string with spaces before comparison. See SET DATABASE COLLATION
-      statement in the <link endterm="management-title" os=""
-      xlink:href="#management-chapt"></link> chapter.</simpara>
+      string with spaces before comparison. See the COLLATE keyword and SET
+      DATABASE COLLATION statement in the <link endterm="management-title"
+      os="" xlink:href="#management-chapt"></link> chapter.</simpara>
     </section>
 
     <section xml:id="dbc_distinct_types">
@@ -622,7 +622,7 @@ INSERT INTO movies (starid, movieid, title) VALUES (CURRENT VALUE FOR seq, 10, '
 
       <para>An ASSERTION is a top-level schema objects. It consists of a
       <literal>&lt;search condition&gt;</literal> that must not be false (can
-      be unknown).</para>
+      be unknown). HyperSQL does not yet support assertions.</para>
 
       <para>Assertions share a name-space with constraints</para>
     </section>
@@ -2947,9 +2947,10 @@ alter specific routine zero_pad_01
 
       <simpara>This statement is typically used when a collation is required
       that does not pad spaces before comparing two strings. For example,
-      CREATE COLLATION FRENCH_NOPAD FOR SQL_TEXT FROM SQL_TEXT NO PAD, results
-      in a French collation without padding. This collation can be used for
-      sorting or for individual columns of tables.</simpara>
+      <literal>CREATE COLLATION FRENCH_NOPAD FOR INFORMATION_SCHEMA.SQL_TEXT
+      FROM "French" NO PAD</literal>, results in a French collation without
+      padding. This collation can be used for sorting or for individual
+      columns of tables.</simpara>
 
       <indexterm significance="preferred" type="sql">
         <primary>DROP COLLATION</primary>
@@ -3868,7 +3869,8 @@ alter specific routine zero_pad_01
         <para>SYSTEM_SESSIONS</para>
 
         <para>Information on all open sessions in the database (when used by a
-        DBA user), or just the current session.</para>
+        DBA user), or just the current session. Includes the current
+        transaction state of each session.</para>
 
         <indexterm significance="preferred" type="sql">
           <primary>SYSTEM_TABLES</primary>
@@ -3878,6 +3880,15 @@ alter specific routine zero_pad_01
 
         <para>Information on tables and views for
         DatabaseMetaData.getTables</para>
+
+        <indexterm significance="preferred" type="sql">
+          <primary>SYSTEM_TABLESTATS</primary>
+        </indexterm>
+
+        <para>SYSTEM_TABLESTATS</para>
+
+        <para>Information on table spaces and cardinality for each
+        table</para>
 
         <indexterm significance="preferred" type="sql">
           <primary>SYSTEM_TABLETYPES</primary>

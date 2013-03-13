@@ -77,8 +77,8 @@
     It supports all core features and many of the optional features of
     SQL:2008.</para>
 
-    <para>The first versions of HSQLDB were released in 2001. Version 2.0,
-    first released in 2010, includes a complete rewrite of most parts of the
+    <para>The first versions of HSQLDB were released in 2001. Version 2, first
+    released in 2010, includes a complete rewrite of most parts of the
     database engine.</para>
 
     <para>This documentation covers the latest HyperSQL version 2.3. This
