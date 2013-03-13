@@ -343,7 +343,7 @@ public abstract class RowStoreAVL implements PersistentStore {
 
         try {
             if (diff > 0) {
-                insertIndexNodes(indexList[0], indexList[position]);
+                insertIndexNodes(session, indexList[0], indexList[position]);
             } else {
                 dropIndexFromRows(indexList[0], oldIndexList[position]);
             }
@@ -566,7 +566,7 @@ public abstract class RowStoreAVL implements PersistentStore {
         }
     }
 
-    boolean insertIndexNodes(Index primaryIndex, Index newIndex) {
+    boolean insertIndexNodes(Session session, Index primaryIndex, Index newIndex) {
 
         int           position = newIndex.getPosition();
         RowIterator   it       = primaryIndex.firstRow(this);
@@ -582,7 +582,7 @@ public abstract class RowStoreAVL implements PersistentStore {
                 // count before inserting
                 rowCount++;
 
-                newIndex.insert(null, this, row);
+                newIndex.insert(session, this, row);
             }
 
             return true;
