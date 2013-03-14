@@ -984,8 +984,8 @@ ALTER SEQUENCE MYCAT.MYSCHEMA.MYSEQUENCE RESTART WITH 100
       reference&gt; }... ] &lt;right paren&gt;</literal></simpara>
 
       <simpara>Specify a value derived by the application of a function to an
-      argument. Early releases of HyperSQL 2.0 do not support
-      <literal>&lt;grouping operation&gt;</literal> .</simpara>
+      argument. HyperSQL does not yet support <literal>&lt;grouping
+      operation&gt;</literal> .</simpara>
 
       <indexterm significance="preferred" type="sql">
         <primary>COALESCE expression</primary>
@@ -1977,7 +1977,7 @@ invoice_date &lt; ALL (SELECT holiday_date FROM holidays)
       returns the sum of values for <literal>acolumn</literal> in each
       group.</simpara>
 
-      <simpara> If all values are NULL, the aggregate function returns
+      <simpara>If all values are NULL, the aggregate function returns
       NULL.</simpara>
 
       <simpara>The SUM operations can be performed on numeric and interval
@@ -2461,35 +2461,6 @@ SELECT * FROM atable UNION SELECT * FROM anothertable
       the table in the &lt;from clause&gt; and removes the rows for which the
       search condition is not TRUE.</para>
 
-      <para>The <literal>&lt;group by clause&gt;</literal> is a comma
-      separated list of columns of the table in the <literal>&lt;from
-      clause&gt;</literal> or expressions based on the columns.</para>
-
-      <para>When a <literal>&lt;group by clause&gt;</literal> is used, only
-      the columns used in the <literal>&lt;group by clause&gt;</literal> or
-      expressions used there, can be used in the <literal>&lt;select
-      list&gt;</literal>, together with any <literal>&lt;aggregate
-      function&gt;</literal> on other columns. A <literal>&lt;group by
-      clause&gt;</literal> compares the rows and groups together the rows that
-      have the same values in the columns of the <literal>&lt;group by
-      clause&gt;</literal>. Then any <literal>&lt;aggregate
-      function&gt;</literal> in the <literal>&lt;select list&gt;</literal> is
-      performed on each group, and for each group, a row is formed that
-      contains the values of the columns of the <literal>&lt;group by
-      clause&gt;</literal> and the values returned from each
-      <literal>&lt;aggregate function&gt;.</literal> In the first example
-      below, a simple column reference is used in GROUP BY, while in the
-      second example, an expression is used.<programlisting>CREATE TABLE atable (a INT, b INT, c INT, d INT, e INT, f INT);
-SELECT d, e, f FROM atable WHERE a + b = c GROUP BY d, e, f
-SELECT d + e, SUM(f) FROM atable WHERE a + b = c GROUP BY d + e HAVING SUM(f) &gt; 2 AND d + e &gt; 4
-</programlisting></para>
-
-      <para>A <literal>&lt;having clause&gt;</literal> filters the rows of the
-      table that is formed after applying the <literal>&lt;group by
-      clause&gt;</literal> using its search condition. The search condition
-      must be an expression based on the expressions in the GROUP BY list or
-      the aggregate functions used.</para>
-
       <para>Table primary refers to different forms of table reference in the
       FROM clause.</para>
 
@@ -2666,7 +2637,7 @@ I D          S
         paren&gt;</literal></para>
       </section>
 
-      <section  xml:id="dac_col_name_list">
+      <section xml:id="dac_col_name_list">
         <title>Column Name List</title>
 
         <indexterm significance="preferred" type="sql">
@@ -3009,6 +2980,77 @@ SELECT x, y, z FROM atable AS t (u, v, w, x, y, z)  WHERE u + v = w</programlist
       of their columns when compared to another row). The other form of
       grouping is performed with the GROUP BY clause. This form is usually
       used together with aggregation.</para>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>GROUP BY</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">GROUP BY</emphasis></simpara>
+
+      <simpara><literal>&lt;group by clause&gt; ::= GROUP BY &lt;grouping
+      element&gt; [ { &lt;comma&gt; &lt;grouping element&gt; }...
+      ]</literal></simpara>
+
+      <simpara><literal>&lt;grouping element&gt; ::= &lt;column reference&gt;
+      [ &lt;collate clause&gt; ] </literal></simpara>
+
+      <para>The <literal>&lt;group by clause&gt;</literal> is a comma
+      separated list of columns of the table in the <literal>&lt;from
+      clause&gt;</literal> or expressions based on the columns.</para>
+
+      <para>When a <literal>&lt;group by clause&gt;</literal> is used, only
+      the columns used in the <literal>&lt;group by clause&gt;</literal> or
+      expressions used there, can be used in the <literal>&lt;select
+      list&gt;</literal>, together with any <literal>&lt;aggregate
+      function&gt;</literal> on other columns. In other words, the column
+      names or expressions listed in the GROUP BY cluase dictate what can be
+      used in the <literal>&lt;select list&gt;</literal>. After the rows of
+      the table formed by the <literal>&lt;from clause&gt;</literal> and the
+      <literal>&lt;where clause&gt;</literal> are finalised, the grouping
+      operation groups together the rows that have the same values in the
+      columns of the <literal>&lt;group by clause&gt;</literal>. Then any
+      <literal>&lt;aggregate function&gt;</literal> in the <literal>&lt;select
+      list&gt;</literal> is performed on each group, and for each group, a row
+      is formed that contains the values of the columns of the
+      <literal>&lt;group by clause&gt;</literal> and the values returned from
+      each <literal>&lt;aggregate function&gt;</literal>.</para>
+
+      <para>When the type of <literal>&lt;column reference&gt;</literal> is
+      character string, the <literal>&lt;collate clause&gt;</literal> can be
+      used to specify the collation used for grouping the rows. For example, a
+      collation that is not case sensitive can be used, or a collation for a
+      different language than the original collation of the column.</para>
+
+      <para>In the first example below, a simple column reference is used in
+      GROUP BY, while in the second example, an expression is
+      used.<programlisting>CREATE TABLE atable (a INT, b INT, c INT, d INT, e INT, f INT);
+SELECT d, e, f FROM atable WHERE a + b = c GROUP BY d, e, f
+SELECT d + e, SUM(f) FROM atable WHERE a + b = c GROUP BY d + e HAVING SUM(f) &gt; 2 AND d + e &gt; 4
+</programlisting></para>
+
+      <para>A <literal>&lt;having clause&gt;</literal> filters the rows of the
+      table that is formed after applying the <literal>&lt;group by
+      clause&gt;</literal> using its search condition. The search condition
+      must be an expression based on the expressions in the GROUP BY list or
+      the aggregate functions used.</para>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>DISTINCT</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">DISTINCT</emphasis></simpara>
+
+      <simpara><literal>SELECT DISTINCT</literal></simpara>
+
+      <para>When the keyword DISTINCT is used after SELECT, it works as a
+      shortcut replacement for a simple GROUP BY clause. The expressions in
+      the SELECT list are used directly as the <literal>&lt;group by
+      clause&gt;</literal>. The following examples of SELECT DISTINCT and
+      SELECT with GROUP BY are equivalent.</para>
+
+      <programlisting>SELECT DISTINCT d, e + f FROM atable WHERE a + b = c
+SELECT d, e + f FROM atable WHERE a + b = c GROUP BY d, e + f
+</programlisting>
     </section>
 
     <section xml:id="dac_aggregation">
@@ -3020,7 +3062,8 @@ SELECT x, y, z FROM atable AS t (u, v, w, x, y, z)  WHERE u + v = w</programlist
       performed by the COUNT function.</para>
 
       <para>Other common aggregate functions return the maximum, minimum and
-      average value among the values in different rows.</para>
+      average value among the values in different rows. Aggregate functions
+      were discussed earlier in this chapter.</para>
     </section>
 
     <section xml:id="dac_set_operations">
@@ -3238,12 +3281,40 @@ GEN PAR    CHILD
       &lt;collate clause&gt; ] [ ASC | DESC ] [ NULLS FIRST | NULLS LAST
       ]</literal></para>
 
-      <para>The defaults are ASC and NULLS FIRST.</para>
+      <para>The defaults are ASC and NULLS FIRST. Two database properties SQL
+      NULLS FIRST and SQL NULLS ORDER can be modified to change the default
+      behaviour.</para>
 
       <para>A collation is used for columns of an ORDER BY expression that are
       of the type CHAR or VARCHAR. If a <literal>&lt;collate
       clause&gt;</literal> is not specified then the collation of the column,
       or the default collation of the database is used.</para>
+
+      <para>The default collation for a database is ASCII, with lowercase
+      letters sorted after all uppercase letters. The example below shows the
+      effect of collation on an ordered list.</para>
+
+      <para><programlisting>-- default collation collation for the database is ASCII
+SELECT id, lastname FROM customer ORDER BY lastname
+ID LASTNAME 
+-- -------- 
+40 Clancy   
+36 King     
+35 White    
+6  king
+
+-- a language collation is used, it treats king and King as adjacent entries
+SELECT id, lastname FROM customer ORDER BY lastname COLLATE "English"
+ID LASTNAME 
+-- -------- 
+40 Clancy   
+6  king     
+36 King     
+35 White
+</programlisting>In the above example, if the LASTNAME column is itself
+      defined in the table definition with <literal>COLLATE
+      "English"</literal>, then the COLLATE clause is not necessary in the
+      ORDER BY expression.</para>
 
       <para>An ORDER BY operation can sometimes be optimised by the engine
       when it can use the same index for accessing the table data and
@@ -3777,8 +3848,9 @@ MERGE INTO t USING (VALUES(CAST(? AS INT))) AS vals(x) ON t.id = vals.x
     <para>The keyword <literal>ROW_COUNT</literal> specifies the row count
     returned by the last executed statement. For INSERT, UPDATE, DELETE and
     MERGE statements, this is the number of rows affected by the statement.
-    This is the same value as returned by JDBC <literal>executeUpdate()</literal> methods. For all
-    other statements, zero is returned.</para>
+    This is the same value as returned by JDBC
+    <literal>executeUpdate()</literal> methods. For all other statements, zero
+    is returned.</para>
 
     <para>The value of <literal>ROW_COUNT</literal> is stored in the specified
     target.</para>
