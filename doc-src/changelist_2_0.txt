@@ -1,3 +1,5 @@
+18 March 2013 - svn 5208
+-- improved support for setting collation strength and case-sensitivity
 10 March 2013 - svn 5203
 -- increased default max size of BLOB and CLOB to BLOB(1G) and CLOB(1G)
 -- added support for compressed CLOB and and encrypted lobs
