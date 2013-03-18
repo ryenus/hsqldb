@@ -59,7 +59,6 @@ public class CharacterType extends Type {
     static final long maxCharPrecision        = Integer.MAX_VALUE;
     Collation         collation;
     Charset           charset;
-    boolean           isEqualIdentical;
     String            nameString;
 
     public CharacterType(Collation collation, int type, long precision) {
@@ -67,14 +66,12 @@ public class CharacterType extends Type {
         super(Types.SQL_VARCHAR, type, precision, 0);
 
         if (collation == null) {
-            collation = Collation.defaultCollation;
+            collation = Collation.getDefaultInstance();
         }
 
         this.collation = collation;
         this.charset   = Charset.getDefaultInstance();
-        isEqualIdentical = this.collation.isEqualAlwaysIdentical()
-                           && type != Types.VARCHAR_IGNORECASE;
-        nameString = getNameStringPrivate();
+        nameString     = getNameStringPrivate();
     }
 
     /**
@@ -84,10 +81,9 @@ public class CharacterType extends Type {
 
         super(Types.SQL_VARCHAR, type, precision, 0);
 
-        this.collation   = Collation.getDefaultInstance();
-        this.charset     = Charset.getDefaultInstance();
-        isEqualIdentical = type != Types.VARCHAR_IGNORECASE;
-        nameString       = getNameStringPrivate();
+        this.collation = Collation.getDefaultInstance();
+        this.charset   = Charset.getDefaultInstance();
+        nameString     = getNameStringPrivate();
     }
 
     public int displaySize() {
@@ -103,7 +99,6 @@ public class CharacterType extends Type {
                 return Types.CHAR;
 
             case Types.SQL_VARCHAR :
-            case Types.VARCHAR_IGNORECASE :
                 return Types.VARCHAR;
 
             case Types.SQL_CLOB :
@@ -141,9 +136,6 @@ public class CharacterType extends Type {
             case Types.SQL_VARCHAR :
                 return Tokens.T_VARCHAR;
 
-            case Types.VARCHAR_IGNORECASE :
-                return Tokens.T_VARCHAR_IGNORECASE;
-
             case Types.SQL_CLOB :
                 return Tokens.T_CLOB;
 
@@ -161,9 +153,6 @@ public class CharacterType extends Type {
 
             case Types.SQL_VARCHAR :
                 return "CHARACTER VARYING";
-
-            case Types.VARCHAR_IGNORECASE :
-                return Tokens.T_VARCHAR_IGNORECASE;
 
             case Types.SQL_CLOB :
                 return "CHARACTER LARGE OBJECT";
@@ -189,19 +178,6 @@ public class CharacterType extends Type {
         return sb.toString();
     }
 
-    public boolean hasCollation() {
-        return collation != Collation.defaultCollation;
-    }
-
-    public String getCollationDefinition() {
-
-        if (hasCollation()) {
-            return collation.getName().getSchemaQualifiedStatementName();
-        }
-
-        return "";
-    }
-
     public boolean isCharacterType() {
         return true;
     }
@@ -215,8 +191,7 @@ public class CharacterType extends Type {
     }
 
     public boolean requiresPrecision() {
-        return typeCode == Types.SQL_VARCHAR
-               || typeCode == Types.VARCHAR_IGNORECASE;
+        return typeCode == Types.SQL_VARCHAR;
     }
 
     public int precedenceDegree(Type other) {
@@ -236,12 +211,6 @@ public class CharacterType extends Type {
                                                         : 2;
 
             case Types.SQL_VARCHAR :
-            case Types.VARCHAR_IGNORECASE :
-                if (other.typeCode == Types.SQL_VARCHAR
-                        || other.typeCode == Types.VARCHAR_IGNORECASE) {
-                    return 0;
-                }
-
                 return other.typeCode == Types.SQL_CLOB ? 4
                                                         : 2;
 
@@ -278,27 +247,12 @@ public class CharacterType extends Type {
                                                     other.getCollation());
 
             case Types.SQL_VARCHAR :
-                if (typeCode == Types.SQL_CLOB
-                        || typeCode == Types.VARCHAR_IGNORECASE) {
-                    return precision >= other.precision ? this
-                                                        : getCharacterType(
-                                                        typeCode,
-                                                        other.precision,
-                                                        other.getCollation());
-                } else {
-                    return other.precision >= precision ? other
-                                                        : getCharacterType(
-                                                        other.typeCode,
-                                                        precision,
-                                                        other.getCollation());
-                }
-            case Types.VARCHAR_IGNORECASE :
                 if (typeCode == Types.SQL_CLOB) {
                     return precision >= other.precision ? this
                                                         : getCharacterType(
                                                         typeCode,
                                                         other.precision,
-                                                        getCollation());
+                                                        other.getCollation());
                 } else {
                     return other.precision >= precision ? other
                                                         : getCharacterType(
@@ -358,15 +312,8 @@ public class CharacterType extends Type {
                 break;
 
             case Types.SQL_VARCHAR :
-                newType =
-                    (typeCode == Types.SQL_CLOB || typeCode == Types
-                        .VARCHAR_IGNORECASE) ? this
-                                             : other;
-                break;
-
-            case Types.VARCHAR_IGNORECASE :
-                newType = typeCode == Types.SQL_CLOB ? this
-                                                     : other;
+                newType = (typeCode == Types.SQL_CLOB) ? this
+                                                       : other;
                 break;
 
             case Types.SQL_CLOB :
@@ -388,7 +335,7 @@ public class CharacterType extends Type {
             }
         }
 
-        return getCharacterType(newType.typeCode, newPrecision);
+        return getCharacterType(newType.typeCode, newPrecision, collation);
     }
 
     public int compare(Session session, Object a, Object b) {
@@ -444,11 +391,7 @@ public class CharacterType extends Type {
             }
         }
 
-        if (typeCode == Types.VARCHAR_IGNORECASE) {
-            return collation.compareIgnoreCase(as, bs);
-        } else {
-            return collation.compare(as, bs);
-        }
+        return collation.compare(as, bs);
     }
 
     public Object convertToTypeLimits(SessionInterface session, Object a) {
@@ -488,8 +431,7 @@ public class CharacterType extends Type {
 
                 return new String(b);
             }
-            case Types.SQL_VARCHAR :
-            case Types.VARCHAR_IGNORECASE : {
+            case Types.SQL_VARCHAR : {
                 int slen = ((String) a).length();
 
                 if (slen > precision) {
@@ -532,8 +474,7 @@ public class CharacterType extends Type {
         switch (otherType.typeCode) {
 
             case Types.SQL_CHAR :
-            case Types.SQL_VARCHAR :
-            case Types.VARCHAR_IGNORECASE : {
+            case Types.SQL_VARCHAR : {
                 int length = ((String) a).length();
 
                 if (precision != 0 && length > precision) {
@@ -554,7 +495,6 @@ public class CharacterType extends Type {
                         return convertToTypeLimits(session, a);
 
                     case Types.SQL_VARCHAR :
-                    case Types.VARCHAR_IGNORECASE :
                         return a;
 
                     case Types.SQL_CLOB : {
@@ -586,8 +526,7 @@ public class CharacterType extends Type {
                 switch (typeCode) {
 
                     case Types.SQL_CHAR :
-                    case Types.SQL_VARCHAR :
-                    case Types.VARCHAR_IGNORECASE : {
+                    case Types.SQL_VARCHAR : {
                         if (length > maxCharPrecision) {
                             if (!cast) {
                                 throw Error.error(ErrorCode.X_22001);
@@ -736,8 +675,7 @@ public class CharacterType extends Type {
 
                 return new String(b);
             }
-            case Types.SQL_VARCHAR :
-            case Types.VARCHAR_IGNORECASE : {
+            case Types.SQL_VARCHAR : {
                 return (String) a;
             }
             default :
@@ -809,14 +747,6 @@ public class CharacterType extends Type {
 
     public Charset getCharacterSet() {
         return charset;
-    }
-
-    public boolean isEqualIdentical() {
-        return isEqualIdentical;
-    }
-
-    public boolean isCaseInsensitive() {
-        return typeCode == Types.VARCHAR_IGNORECASE;
     }
 
     public long position(SessionInterface session, Object data,
@@ -1187,7 +1117,6 @@ public class CharacterType extends Type {
 
             // fall through
             case Types.SQL_VARCHAR :
-            case Types.VARCHAR_IGNORECASE :
                 return new CharacterType(type, (int) length);
 
             case Types.SQL_CLOB :
@@ -1198,22 +1127,21 @@ public class CharacterType extends Type {
         }
     }
 
-    public static CharacterType getCharacterType(int type, long precision,
+    public static CharacterType getCharacterType(int type, long length,
             Collation collation) {
 
         if (collation == null) {
-            collation = Collation.defaultCollation;
+            collation = Collation.getDefaultInstance();
         }
 
         switch (type) {
 
             case Types.SQL_VARCHAR :
             case Types.SQL_CHAR :
-            case Types.VARCHAR_IGNORECASE :
-                return new CharacterType(collation, type, (int) precision);
+                return new CharacterType(collation, type, (int) length);
 
             case Types.SQL_CLOB :
-                CharacterType typeObject = new ClobType(precision);
+                CharacterType typeObject = new ClobType(length);
 
                 typeObject.collation = collation;
 

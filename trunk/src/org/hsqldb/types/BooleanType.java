@@ -170,8 +170,7 @@ public final class BooleanType extends Type {
 
             // fall through
             case Types.SQL_CHAR :
-            case Types.SQL_VARCHAR :
-            case Types.VARCHAR_IGNORECASE : {
+            case Types.SQL_VARCHAR : {
                 a = ((CharacterType) otherType).trim(session, a, ' ',
                                                      true, true);
 

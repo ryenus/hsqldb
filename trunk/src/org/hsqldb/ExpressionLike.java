@@ -196,59 +196,39 @@ public final class ExpressionLike extends ExpressionLogical {
             throw Error.error(ErrorCode.X_42567);
         }
 
-        switch (nodes[LEFT].dataType.typeComparisonGroup) {
+        int group = nodes[LEFT].dataType.typeComparisonGroup;
 
-            case Types.SQL_VARCHAR : {
-                if (nodes[RIGHT].dataType.isCharacterType()
-                        && (nodes[ESCAPE] == null
-                            || nodes[ESCAPE].dataType.isCharacterType())) {
-                    boolean ignoreCase =
-                        nodes[LEFT].dataType.typeCode == Types
-                            .VARCHAR_IGNORECASE || nodes[RIGHT].dataType
-                            .typeCode == Types.VARCHAR_IGNORECASE;
+        if (group == Types.SQL_VARCHAR) {
 
-                    likeObject.setIgnoreCase(ignoreCase);
-                } else {
-                    throw Error.error(ErrorCode.X_42563);
-                }
-
-                break;
+            //
+        } else if (group == Types.SQL_VARBINARY) {
+            likeObject.isBinary = true;
+        } else {
+            if (session.database.sqlEnforceTypes) {
+                throw Error.error(ErrorCode.X_42562);
             }
-            case Types.SQL_VARBINARY : {
-                if (nodes[RIGHT].dataType.isBinaryType()
-                        && (nodes[ESCAPE] == null
-                            || nodes[ESCAPE].dataType.isBinaryType())) {
-                    likeObject.isBinary = true;
-                } else {
-                    throw Error.error(ErrorCode.X_42563);
-                }
 
-                break;
-            }
-            case Types.OTHER : {
+            if (group == Types.OTHER) {
                 throw Error.error(ErrorCode.X_42563);
             }
-            default : {
-                if (session.database.sqlEnforceTypes) {
-                    throw Error.error(ErrorCode.X_42562);
-                }
 
-                nodes[LEFT] = ExpressionOp.getCastExpression(session,
-                        nodes[LEFT], Type.SQL_VARCHAR_DEFAULT);
+            nodes[LEFT] = ExpressionOp.getCastExpression(session, nodes[LEFT],
+                    Type.SQL_VARCHAR_DEFAULT);
+            group = Types.SQL_VARCHAR;
+        }
 
-                if (nodes[RIGHT].dataType.isCharacterType()
-                        && (nodes[ESCAPE] == null
-                            || nodes[ESCAPE].dataType.isCharacterType())) {
-                    boolean ignoreCase = nodes[RIGHT].dataType.typeCode
-                                         == Types.VARCHAR_IGNORECASE;
+        if (nodes[RIGHT].dataType.typeComparisonGroup != group
+                || (nodes[ESCAPE] != null
+                    && nodes[ESCAPE].dataType.typeComparisonGroup != group)) {
+            throw Error.error(ErrorCode.X_42563);
+        }
 
-                    likeObject.setIgnoreCase(ignoreCase);
-                } else {
-                    throw Error.error(ErrorCode.X_42563);
-                }
+        if (group == Types.SQL_VARCHAR) {
+            boolean ignoreCase =
+                !nodes[LEFT].dataType.getCollation().isCaseSensitive()
+                || !nodes[RIGHT].dataType.getCollation().isCaseSensitive();
 
-                break;
-            }
+            likeObject.setIgnoreCase(ignoreCase);
         }
 
         likeObject.dataType = nodes[LEFT].dataType;
@@ -325,9 +305,8 @@ public final class ExpressionLike extends ExpressionLogical {
             Expression equ = new ExpressionLogical(OpTypes.EQUAL, cast,
                                                    prefix);
 
-            equ = new ExpressionLogical(OpTypes.GREATER_EQUAL_PRE, nodes[LEFT],
-                                        prefix, equ);
-
+            equ = new ExpressionLogical(OpTypes.GREATER_EQUAL_PRE,
+                                        nodes[LEFT], prefix, equ);
             nodes        = new Expression[BINARY];
             likeObject   = null;
             nodes[LEFT]  = equ;

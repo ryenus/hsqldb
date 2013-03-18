@@ -252,7 +252,6 @@ public class RowInputText extends RowInputBase implements RowInputInterface {
                 break;
 
             case Types.SQL_VARCHAR :
-            case Types.VARCHAR_IGNORECASE :
                 s = readVarString();
                 break;
 

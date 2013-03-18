@@ -330,7 +330,6 @@ public class RowOutputBinary extends RowOutputBase {
 
             case Types.SQL_CHAR :
             case Types.SQL_VARCHAR :
-            case Types.VARCHAR_IGNORECASE :
                 s += INT_STORE_SIZE;
                 s += StringConverter.getUTFSize((String) o);
                 break;

@@ -513,7 +513,6 @@ public final class DateTimeType extends DTIType {
             //fall through
             case Types.SQL_CHAR :
             case Types.SQL_VARCHAR :
-            case Types.VARCHAR_IGNORECASE :
                 switch (this.typeCode) {
 
                     case Types.SQL_DATE :

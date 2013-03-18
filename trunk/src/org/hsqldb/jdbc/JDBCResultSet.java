@@ -5722,8 +5722,7 @@ public class JDBCResultSet implements ResultSet {
                 break;
             }
             case Types.SQL_CHAR :
-            case Types.SQL_VARCHAR :
-            case Types.VARCHAR_IGNORECASE : {
+            case Types.SQL_VARCHAR : {
                 java.io.Reader reader = getCharacterStream(columnIndex);
 
                 if (reader == null) {

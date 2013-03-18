@@ -98,6 +98,7 @@ public class SchemaManager {
             schema.charsetLookup.add(TypeInvariants.SQL_IDENTIFIER_CHARSET);
             schema.charsetLookup.add(TypeInvariants.SQL_CHARACTER);
             schema.collationLookup.add(Collation.getDefaultInstance());
+            schema.collationLookup.add(Collation.getDefaultIgnoreCaseInstance());
         } catch (HsqlException e) {}
     }
 
@@ -1143,6 +1144,28 @@ public class SchemaManager {
         } finally {
             writeLock.unlock();
         }
+    }
+
+    public Collation getCollation(Session session, String name,
+                                  String schemaName) {
+
+        Collation collation = null;
+
+        if (schemaName == null
+                || SqlInvariants.INFORMATION_SCHEMA.equals(schemaName)) {
+            try {
+                collation = Collation.getCollation(name);
+            } catch (HsqlException e) {}
+        }
+
+        if (collation == null) {
+            schemaName = session.getSchemaName(schemaName);
+
+            collation = (Collation) getSchemaObject(name, schemaName,
+                    SchemaObject.COLLATION);
+        }
+
+        return collation;
     }
 
     public NumberSequence getSequence(String name, String schemaName,

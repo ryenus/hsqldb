@@ -165,7 +165,6 @@ public class PgType {
                 return unknownSingleton;  // constant value
 
             case Types.SQL_VARCHAR: // = CHARACTER VARYING = LONGVARCHAR
-            case Types.VARCHAR_IGNORECASE: // Don't know if possible here
                 if (hType.precision < 0) {
                     throw new RecoverableOdbcFailure (
                         "Length/Precision value is below minimum value of 0");

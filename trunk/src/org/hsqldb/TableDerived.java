@@ -31,8 +31,6 @@
 
 package org.hsqldb;
 
-import java.util.Comparator;
-
 import org.hsqldb.HsqlNameManager.HsqlName;
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;

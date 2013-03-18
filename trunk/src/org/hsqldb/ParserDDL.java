@@ -1878,9 +1878,6 @@ public class ParserDDL extends ParserRoutine {
 
         HsqlName sourceName = readNewSchemaObjectName(SchemaObject.COLLATION,
             false);
-
-        sourceName.setSchemaIfNull(session.getCurrentSchemaHsqlName());
-
         Boolean padSpace = null;
 
         if (readIfThis(Tokens.NO)) {
@@ -1901,20 +1898,10 @@ public class ParserDDL extends ParserRoutine {
                               charsetName.getSchemaQualifiedStatementName());
         }
 
-        Collation source;
-
-        try {
-            source = Collation.getCollation(sourceName.name);
-        } catch (HsqlException e) {
-            source =
-                (Collation) database.schemaManager.getSchemaObject(sourceName);
-        }
-
-        if (source == null) {
-            throw Error.error(ErrorCode.X_42501,
-                              sourceName.getSchemaQualifiedStatementName());
-        }
-
+        String schemaName = sourceName.schema == null ? null
+                                                      : sourceName.schema.name;
+        Collation source = database.schemaManager.getCollation(session,
+            sourceName.name, schemaName);
         Collation  collation = new Collation(name, source, charset, padSpace);
         String     sql            = getLastPart();
         Object[]   args           = new Object[]{ collation };

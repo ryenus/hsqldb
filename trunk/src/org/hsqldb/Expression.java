@@ -1328,13 +1328,6 @@ public class Expression implements Cloneable {
                     }
                 }
             }
-
-            if (nodeDataTypes[j].isCharacterType()
-                    && !((CharacterType) nodeDataTypes[j])
-                        .isEqualIdentical()) {
-
-                // collation issues
-            }
         }
     }
 

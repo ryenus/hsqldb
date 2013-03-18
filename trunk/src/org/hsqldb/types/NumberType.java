@@ -872,8 +872,7 @@ public final class NumberType extends Type {
 
             // fall through
             case Types.SQL_CHAR :
-            case Types.SQL_VARCHAR :
-            case Types.VARCHAR_IGNORECASE : {
+            case Types.SQL_VARCHAR : {
                 a = session.getScanner().convertToNumber((String) a, this);
                 a = convertToDefaultType(session, a);
 
