@@ -37,11 +37,11 @@
     </keywordset>
 
     <legalnotice>
-      <para>Copyright 2010-2012 Fred Toussi. Permission is granted to distribute
-      this document without any alteration under the terms of the HSQLDB
-      license. Additional permission is granted to the HSQL Development Group
-      to distribute this document with or without alterations under the terms
-      of the HSQLDB license.</para>
+      <para>Copyright 2010-2012 Fred Toussi. Permission is granted to
+      distribute this document without any alteration under the terms of the
+      HSQLDB license. Additional permission is granted to the HSQL Development
+      Group to distribute this document with or without alterations under the
+      terms of the HSQLDB license.</para>
     </legalnotice>
   </info>
 
@@ -423,11 +423,11 @@
       SERIALIZABLE.</para>
 
       <para>The MVCC model is not covered directly by the Standard. Research
-      has established that the READ CONSISTENCY level fulfils the
-      requirements of (and is stronger than) the READ COMMITTED level. The
-      SNAPSHOT ISOLATION level is stronger than the READ CONSISTENCY level. It
-      avoids the three anomalies defined by the Standard, and is therefore
-      stronger than the REPEATABLE READ level as defined by the Standard. When
+      has established that the READ CONSISTENCY level fulfils the requirements
+      of (and is stronger than) the READ COMMITTED level. The SNAPSHOT
+      ISOLATION level is stronger than the READ CONSISTENCY level. It avoids
+      the three anomalies defined by the Standard, and is therefore stronger
+      than the REPEATABLE READ level as defined by the Standard. When
       operating with the MVCC model, HyperSQL treats a REPEATABLE READ or
       SERIALIZABLE setting for a transaction as SNAPSHOT ISOLATION.</para>
 
@@ -1065,14 +1065,21 @@
     <simpara><literal>&lt;set ignore case statement&gt; ::= SET IGNORECASE {
     TRUE | FALSE }</literal></simpara>
 
+    <simpara>This is a legacy method for creating case-insensitive columns.
+    Still supported but not recommended for use. </simpara>
+
     <simpara>Sets the type used for new VARCHAR table columns. By default,
-    character columns in new databases are case sensitive. If <literal>SET
+    character columns in new databases are case-sensitive. If <literal>SET
     IGNORECASE TRUE</literal> is used, all VARCHAR columns in new tables are
-    set to <literal>VARCHAR_IGNORECASE</literal>. It is possible to specify
-    the <literal>VARCHAR_IGNORECASE</literal> type for the definition of
-    individual columns. So it is possible to have some columns case sensitive
-    and some not, even in the same table. This statement must be switched
-    before creating tables. Existing tables and their data are not
-    affected.</simpara>
+    set to use a collation that converts strings to uppercase for comparison.
+    In the latest versions of HyperSQL you can specify the collations for the
+    database and for each column and have some columns case-sensitive and some
+    not, even in the same table. The collation's strength is used to force
+    case-insensitive comparison. Collations are discussed in the <link
+    endterm="databaseobjects-title" ns6:arcrole=""
+    ns6:href="#databaseobjects-chapt"></link> chapter.</simpara>
+
+    <simpara>This statement must be switched before creating tables. Existing
+    tables and their data are not affected.</simpara>
   </section>
 </chapter>

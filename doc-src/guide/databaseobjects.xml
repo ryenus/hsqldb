@@ -168,112 +168,186 @@
     <section xml:id="dbc_character_sets">
       <title>Character Sets</title>
 
-      <simpara>A CHARACTER SET is the whole or a subset of the UNICODE
-      character set.</simpara>
+      <para>A CHARACTER SET is the whole or a subset of the UNICODE character
+      set.</para>
 
-      <simpara>A character set name can only be a <literal>&lt;regular
+      <para>A character set name can only be a <literal>&lt;regular
       identifier&gt;</literal>. There is a separate name-space for character
-      sets.</simpara>
+      sets.</para>
 
-      <simpara>There are several predefined character sets. These character
-      sets belong to INFORMATION_SCHEMA. However, when they are referenced in
-      a statement, no schema prefix is necessary.</simpara>
+      <para>There are several predefined character sets. These character sets
+      belong to INFORMATION_SCHEMA. However, when they are referenced in a
+      statement, no schema prefix is necessary.</para>
 
-      <simpara>The following character sets, together with some others, have
-      been specified by the SQL Standard:</simpara>
+      <para>The following character sets, together with some others, have been
+      specified by the SQL Standard:</para>
 
-      <simpara>SQL_TEXT, SQL_IDENTIFIER, SQL_CHARACTER</simpara>
+      <para>SQL_TEXT, SQL_IDENTIFIER, SQL_CHARACTER</para>
 
-      <simpara>The SQL_CHARACTER consists of ASCII letters, digits and the
+      <para>The SQL_CHARACTER consists of ASCII letters, digits and the
       symbols used in the SQL language. SQL_TEXT and SQL_IDENTIFIER are
       implementation defined. HyperSQL defines SQL_TEXT as the UNICODE
       character set and SQL_IDENTIFIER as the UNICODE character set minus the
-      SQL language special characters.</simpara>
+      SQL language special characters.</para>
 
-      <simpara>SQL_TEXT consists of the full set of Unicode characters. These
+      <para>SQL_TEXT consists of the full set of Unicode characters. These
       characters can be used in strings and clobs stored in the database. The
       character repertoire of HyperSQL is the UTF16 character set, which
-      covers all possible character sets.</simpara>
+      covers all possible character sets.</para>
 
-      <simpara>If a predefined character set is specified for a table column,
+      <para>If a predefined character set is specified for a table column,
       then any string stored in the column must contain only characters from
       the specified character set. HyperSQL does not enforce the CHARACTER SET
       that is specified for a column and may accept any character string
-      supported by SQL_TEXT.</simpara>
+      supported by SQL_TEXT.</para>
     </section>
 
     <section xml:id="dbc_collations">
       <title>Collations</title>
 
-      <simpara>A COLLATION is the method used for ordering character strings
-      in ordered sets and to determine equivalence of two character
-      strings.</simpara>
+      <para>A COLLATION is the method used for ordering character strings in
+      ordered sets and to determine equivalence of two character
+      strings.</para>
 
-      <simpara>The system default collation is called SQL_TEXT. This collation
-      sorts according to the Unicode code of the characters,
-      UNICODE_SIMPLE.</simpara>
+      <para>The system collation is called SQL_TEXT. This collation sorts
+      according to the Unicode code of the characters, UNICODE_SIMPLE. The
+      system collation is always used for INFORMATION_SCHEMA tables.</para>
 
-      <simpara>Collations for a large number of languages are supported by
+      <para>The default database collation is the same as the system
+      collation. You can change this default, either with a language
+      collation, or with the SQL_TEXT_UCC. This collation is a
+      case-insensitive form of the UNICODE_SIMPLE collation.</para>
+
+      <para>Collations for a large number of languages are supported by
       HyperSQL. These collations belong to INFORMATION_SCHEMA. However, when
       they are referenced in a statement, there is no need for a schema
-      prefix.</simpara>
+      prefix.</para>
 
-      <simpara>User defined collations can be created in each schema. There is
-      a separate name-space for collations in each schema. </simpara>
+      <para>A different collation than the default collation can be specified
+      for each table column that is defined as CHAR or VARCHAR.</para>
 
-      <simpara>HyperSQL support a default collation for the whole database.
-      Optionally, a different collation can be specified for each table column
-      that is defined as CHAR or VARCHAR. A different collation can also be
-      used in an ORDER BY clause. For example <literal>ORDER BY LASTNAME
-      COLLATE "French"</literal>.</simpara>
+      <para>A collation can also be used in an ORDER BY clause.</para>
 
-      <simpara>When comparing two strings, all collation pad the shorter
-      string with spaces before comparing the two strings of equal length. You
-      can change the default database collation with one that does not pad the
-      string with spaces before comparison. See the COLLATE keyword and SET
-      DATABASE COLLATION statement in the <link endterm="management-title"
-      os="" xlink:href="#management-chapt"></link> chapter.</simpara>
+      <para>A collation can be used in the GROUP BY clause.</para>
+
+      <informalexample>
+        <programlisting>CREATE TABLE t (id INTEGER PRIMARY KEY, name VARCHAR(20) COLLATE "English")
+SELECT * FROM t ORDER BY name COLLATE "French"
+SELECT COUNT(*), name GROUP BY NAME COLLATE "ENGLISH 0"
+</programlisting>
+      </informalexample>
+
+      <para>In the examples above, the collation for the column is already
+      specified when it is defined. In the first SELECT statement, the column
+      is sorted using the French collation. In the second SELECT, the
+      <literal>"English 0"</literal> collation is used in the GROUP BY clause.
+      This collation is case insensitive, so the same name with different uses
+      of upper and lower case letters is considered the same and counted
+      together.</para>
+
+      <para>The supported collations are named according to the language. You
+      can see the list in the INFORMATION_SCHEMA.COLLATIONS view. You can use
+      just the name in double quotes for the default form of the collation. If
+      you add a strength between 0, 1, 2, 3, the case sensitivity and accent
+      sensitivity changes. The value 0 indicates least sensitivity to
+      differences. At this strength the collation is case-insensitive and
+      ignores differences between accented letters. At strength 1, differences
+      between accented letters are taken into account. At strength 2, both
+      case and accent are significant. Finally 3 indicates additional
+      sensitivity to different punctuation. A second parameter can also be
+      used with values 0 or 1, to indicate how decomposition of accented
+      characters for comparison is handled for languages that support such
+      characters. See the Java and ICU (International Components for Unicode)
+      collation documentation for more details on these values. For example,
+      possible forms of the French collation are <literal>"French"</literal>,
+      <literal>"French 0"</literal>, <literal>"French 1"</literal>, etc. and
+      <literal>"French 2 1"</literal>, etc. When the collation is specified
+      without strength, it seems the system defaults to strength 2, which is
+      case and accent sensitive.</para>
+
+      <para>When a collation is not explicitly used in the CREATE TABLE
+      statement for a column, then the database default collation is used for
+      this column. If you change the database default collation afterwards,
+      the new collation will be used.</para>
+
+      <para>With the older versions of HyperSQL the special type
+      VARCHAR_IGNORECASE was used as the column type for case-insensitive
+      comparison. Any column already defined as VARCHAR_IGNORECASE will be
+      compared exactly as before. In version 2.3.0 and later, this form is
+      represented by the addition of UCC after the collation name, for example
+      "French UCC". You can still use the SET IGNORECASE TRUE statement in
+      your session to force the UCC to be applied to the collation for the
+      VARCHAR columns of new tables. UCC stands for Upper Case Comparison.
+      Before comparing two strings, both are converted to uppercase using the
+      current collation. This is exactly how VARCHAR_IGNORECASE worked.</para>
+
+      <para>It is recommended to use the default SQL_TEXT collation for your
+      general CHAR or VARCHAR columns. For columns where a language collation
+      is desirable, the choice should be made very carefully, because names
+      that are very similar but only differ in the accents will be considered
+      equal in searches.</para>
+
+      <para>When comparing two strings, HyperSQL 2 pads the shorter string
+      with spaces in order to compare two strings of equal length. You can
+      change the default database collation with one that does not pad the
+      string with spaces before comparison. This method of comparison was used
+      in versions older than 2.</para>
+
+      <para>User defined collations can be created based on existing
+      collations to control the space padding. These collations are part of
+      the current schema.</para>
+
+      <para>See the COLLATE keyword and SET DATABASE COLLATION statement in
+      the <link endterm="management-title" os=""
+      xlink:href="#management-chapt"></link> chapter.</para>
+
+      <para>Important: If you change the default collation of a database when
+      there are tables containing data with CHAR or VARCHAR columns that are
+      part of an index, a primary key or a unique constraint, you must execute
+      SHUTDOWN COMPACT. If you do not do this, your queries and other
+      statements will show erratic behaviour and may result in unrecoverable
+      errors.</para>
     </section>
 
     <section xml:id="dbc_distinct_types">
       <title>Distinct Types</title>
 
-      <simpara>A distinct, user-defined TYPE is simply based on a built-in
-      type. A distinct TYPE is used in table definitions and in CAST
-      statements.</simpara>
+      <para>A distinct, user-defined TYPE is simply based on a built-in type.
+      A distinct TYPE is used in table definitions and in CAST
+      statements.</para>
 
-      <simpara>Distinct types share a name-space with domains.</simpara>
+      <para>Distinct types share a name-space with domains.</para>
     </section>
 
     <section xml:id="dbc_domains_info_schema">
       <title>Domains</title>
 
-      <simpara>A DOMAIN is a user-defined type, simply based on a built-in
-      type. A DOMAIN can have constraints that limit the values that the
-      DOMAIN can represent. A DOMAIN can be used in table definitions and in
-      CAST statements.</simpara>
+      <para>A DOMAIN is a user-defined type, simply based on a built-in type.
+      A DOMAIN can have constraints that limit the values that the DOMAIN can
+      represent. A DOMAIN can be used in table definitions and in CAST
+      statements.</para>
 
-      <simpara>Distinct types share a name-space with domains.</simpara>
+      <para>Distinct types share a name-space with domains.</para>
     </section>
 
     <section xml:id="dbc_number_sequence">
       <title>Number Sequences</title>
 
-      <simpara>A SEQUENCE object produces INTEGER values in sequence. The
+      <para>A SEQUENCE object produces INTEGER values in sequence. The
       SEQUENCE can be referenced in special contexts only within certain SQL
       statements. For each row where the object is referenced, its value is
-      incremented.</simpara>
+      incremented.</para>
 
-      <simpara>There is a separate name-space for SEQUENCE objects.</simpara>
+      <para>There is a separate name-space for SEQUENCE objects.</para>
 
-      <simpara>IDENTITY columns are columns of tables which have an internal,
+      <para>IDENTITY columns are columns of tables which have an internal,
       unnamed SEQUENCE object. HyperSQL also supports IDENTITY columns that
-      use a named SEQUENCE object.</simpara>
+      use a named SEQUENCE object.</para>
 
-      <simpara>SEQUENCE objects and IDENTITY columns are supported fully
-      according to the latest SQL 2008 Standard syntax.</simpara>
+      <para>SEQUENCE objects and IDENTITY columns are supported fully
+      according to the latest SQL 2008 Standard syntax.</para>
 
-      <simpara><emphasis role="bold">Sequences</emphasis></simpara>
+      <para><emphasis role="bold">Sequences</emphasis></para>
 
       <para>The SQL:2008 syntax and usage is different from what is supported
       by many existing database engines. Sequences are created with the
@@ -335,8 +409,8 @@ INSERT INTO childtable VALUES 5, CURRENT VALUE FOR mysequence;</programlisting>
       different session, causing a sequence value to be used twice
       unintentionally.</para>
 
-      <simpara><emphasis role="bold">Identity Auto-Increment
-      Columns</emphasis></simpara>
+      <para><emphasis role="bold">Identity Auto-Increment
+      Columns</emphasis></para>
 
       <para>Each table can contain a single auto-increment column, known as
       the IDENTITY column. An IDENTITY column is a SMALLINT, INTEGER, BIGINT,
@@ -430,32 +504,32 @@ INSERT INTO movies (starid, movieid, title) VALUES (CURRENT VALUE FOR seq, 10, '
     <section xml:id="dbc_tables">
       <title>Tables</title>
 
-      <simpara>In the SQL environment, tables are the most essential
-      components, as they hold all persistent data.</simpara>
+      <para>In the SQL environment, tables are the most essential components,
+      as they hold all persistent data.</para>
 
-      <simpara>If TABLE is considered as metadata (i.e. without its actual
-      data) it is called a <emphasis>relation</emphasis> in relational theory.
-      It has one or more columns, with each column having a distinct name and
-      a data type. A table usually has one or more constraints which limit the
+      <para>If TABLE is considered as metadata (i.e. without its actual data)
+      it is called a <emphasis>relation</emphasis> in relational theory. It
+      has one or more columns, with each column having a distinct name and a
+      data type. A table usually has one or more constraints which limit the
       values that can potentially be stored in the TABLE. These constraints
-      are discussed in the next section.</simpara>
+      are discussed in the next section.</para>
 
-      <simpara>A single column of the table can be defined as IDENTITY. The
+      <para>A single column of the table can be defined as IDENTITY. The
       values stored in this column are auto-generated and are based on an
       (unnamed) identity sequence, or optionally, a named SEQUENCE
-      object.</simpara>
+      object.</para>
     </section>
 
     <section xml:id="dbc_views">
       <title>Views</title>
 
-      <simpara>A VIEW is similar to a TABLE but it does not permanently
-      contain rows of data. A view is defined as a QUERY EXPRESSION, which is
-      often a SELECT statement that references views and tables, but it can
-      also consist of a TABLE CONSTRUCTOR that does not reference any tables
-      or views.</simpara>
+      <para>A VIEW is similar to a TABLE but it does not permanently contain
+      rows of data. A view is defined as a QUERY EXPRESSION, which is often a
+      SELECT statement that references views and tables, but it can also
+      consist of a TABLE CONSTRUCTOR that does not reference any tables or
+      views.</para>
 
-      <simpara>A view has many uses:</simpara>
+      <para>A view has many uses:</para>
 
       <itemizedlist>
         <listitem>
@@ -479,7 +553,7 @@ INSERT INTO movies (starid, movieid, title) VALUES (CURRENT VALUE FOR seq, 10, '
         </listitem>
       </itemizedlist>
 
-      <simpara>A VIEW that returns the columns of a single ordinary TABLE is
+      <para>A VIEW that returns the columns of a single ordinary TABLE is
       <glossterm>updatable</glossterm> if the query expression of the view is
       an updatable query expression as discussed in the <link
       endterm="dataaccess-title" os="" xlink:href="#dataaccess-chapt"></link>
@@ -492,66 +566,66 @@ INSERT INTO movies (starid, movieid, title) VALUES (CURRENT VALUE FOR seq, 10, '
       updated, or new rows are inserted, or rows are deleted, these changes
       are reflected in the base table. A VIEW definition may specify that the
       inserted or updated rows conform to the search condition of the view.
-      This is done with the CHECK OPTION clause.</simpara>
+      This is done with the CHECK OPTION clause.</para>
 
-      <simpara>A view that is not updatable according to the above paragraph
-      can be made updatable or insertable-into by adding INSTEAD OF triggers
-      to the view. These triggers contain statements to use the submitted data
-      to modify the contents of the underlying tables of the view separately.
-      For example, a view that represents a SELECT statements that joins two
+      <para>A view that is not updatable according to the above paragraph can
+      be made updatable or insertable-into by adding INSTEAD OF triggers to
+      the view. These triggers contain statements to use the submitted data to
+      modify the contents of the underlying tables of the view separately. For
+      example, a view that represents a SELECT statements that joins two
       tables can have an INSTEAD OF DELETE trigger with two DELETE statements,
       one for each table. Views that have an INSTEAD OF trigger are called
       TRIGGER INSERTABLE, TRIGGER UPDATABLE, etc. according to the triggers
-      that have been defined.</simpara>
+      that have been defined.</para>
 
-      <simpara>Views share a name-space with tables.</simpara>
+      <para>Views share a name-space with tables.</para>
     </section>
 
     <section xml:id="dbc_constraints">
       <title>Constraints</title>
 
-      <simpara>A CONSTRAINT is a child schema object and can belong to a
-      DOMAIN or a TABLE. CONSTRAINT objects can be defined without specifying
-      a name. In this case the system generates a name for the new object
-      beginning with "SYS_".</simpara>
+      <para>A CONSTRAINT is a child schema object and can belong to a DOMAIN
+      or a TABLE. CONSTRAINT objects can be defined without specifying a name.
+      In this case the system generates a name for the new object beginning
+      with "SYS_".</para>
 
       <!-- For some reason, without the quotes, the _ and . do not appear in
       the HTML output.  Can remove the quotes if this issue is taken care of
       or disappears.  -blaine -->
 
-      <simpara>In a DOMAIN, CHECK constraints can be defined that limits the
+      <para>In a DOMAIN, CHECK constraints can be defined that limits the
       value represented by the DOMAIN. These constraints work exactly like a
       CHECK constraint on a single column of a table as described
-      below.</simpara>
+      below.</para>
 
-      <simpara>In a TABLE, a constraint takes three basic forms.</simpara>
+      <para>In a TABLE, a constraint takes three basic forms.</para>
 
-      <simpara><emphasis role="bold">CHECK</emphasis></simpara>
+      <para><emphasis role="bold">CHECK</emphasis></para>
 
-      <simpara>A CHECK constraint consists of a <literal>&lt;search
+      <para>A CHECK constraint consists of a <literal>&lt;search
       condition&gt;</literal> that must not be false (can be unknown) for each
       row of the table. The <literal>&lt;search condition&gt;</literal> can
       reference all the columns of the current row, and if it contains a
       <literal>&lt;subquery&gt;</literal>, other tables and views in the
-      database (excluding its own table).</simpara>
+      database (excluding its own table).</para>
 
-      <simpara><emphasis role="bold">NOT NULL</emphasis></simpara>
+      <para><emphasis role="bold">NOT NULL</emphasis></para>
 
-      <simpara>A simple form of check constraint is the NOT NULL constraint,
-      which applies to a single column.</simpara>
+      <para>A simple form of check constraint is the NOT NULL constraint,
+      which applies to a single column.</para>
 
-      <simpara><emphasis role="bold">UNIQUE</emphasis></simpara>
+      <para><emphasis role="bold">UNIQUE</emphasis></para>
 
-      <simpara>A UNIQUE constraint is based on an equality comparison of
-      values of specific columns (taken together) of one row with the same
-      values from each of the other rows. The result of the comparison must
-      never be true (can be false or unknown). If a row of the table has NULL
-      in any of the columns of the constraint, it conforms to the constraint.
-      A unique constraint on multiple columns (c1, c2, c3, ..) means that in
-      no two rows, the sets of values for the columns can be equal unless at
-      lease one of them is NULL. Each single column taken by itself can have
-      repeat values in different rows. The following example satisfies a
-      UNIQUE constraint on the two columns</simpara>
+      <para>A UNIQUE constraint is based on an equality comparison of values
+      of specific columns (taken together) of one row with the same values
+      from each of the other rows. The result of the comparison must never be
+      true (can be false or unknown). If a row of the table has NULL in any of
+      the columns of the constraint, it conforms to the constraint. A unique
+      constraint on multiple columns (c1, c2, c3, ..) means that in no two
+      rows, the sets of values for the columns can be equal unless at lease
+      one of them is NULL. Each single column taken by itself can have repeat
+      values in different rows. The following example satisfies a UNIQUE
+      constraint on the two columns</para>
 
       <example>
         <title>Column values which satisfy a 2-column UNIQUE
@@ -597,24 +671,24 @@ INSERT INTO movies (starid, movieid, title) VALUES (CURRENT VALUE FOR seq, 10, '
       compared and it is disallowed to insert identical rows that contain at
       least one not-null value.</para>
 
-      <simpara><emphasis role="bold">PRIMARY KEY</emphasis></simpara>
+      <para><emphasis role="bold">PRIMARY KEY</emphasis></para>
 
-      <simpara>A PRIMARY KEY constraint is equivalent to a UNIQUE constraint
-      on one or more NOT NULL columns. Only one PRIMARY KEY can be defined in
-      each table.</simpara>
+      <para>A PRIMARY KEY constraint is equivalent to a UNIQUE constraint on
+      one or more NOT NULL columns. Only one PRIMARY KEY can be defined in
+      each table.</para>
 
-      <simpara><emphasis role="bold">FOREIGN KEY</emphasis></simpara>
+      <para><emphasis role="bold">FOREIGN KEY</emphasis></para>
 
-      <simpara>A FOREIGN key constraint is based on an equality comparison
+      <para>A FOREIGN key constraint is based on an equality comparison
       between values of specific columns (taken together) of each row with the
       values of the columns of a UNIQUE constraint on another table or the
       same table. The result of the comparison must never be false (can be
       unknown). A special form of FOREIGN KEY constraint, based on its CHECK
       clause, allows the result to be unknown only if the values for all
       columns are NULL. A FOREIGN key can be declared only if a UNIQUE
-      constraint exists on the referenced columns.</simpara>
+      constraint exists on the referenced columns.</para>
 
-      <simpara>Constraints share a name space with assertions.</simpara>
+      <para>Constraints share a name space with assertions.</para>
     </section>
 
     <section xml:id="dbc_assertions">
@@ -630,30 +704,29 @@ INSERT INTO movies (starid, movieid, title) VALUES (CURRENT VALUE FOR seq, 10, '
     <section xml:id="dbc_triggers">
       <title>Triggers</title>
 
-      <simpara>A TRIGGER is a child schema object that always belongs to a
-      TABLE or a VIEW.</simpara>
+      <para>A TRIGGER is a child schema object that always belongs to a TABLE
+      or a VIEW.</para>
 
-      <simpara>Each time a DELETE, UPDATE or INSERT is performed on the table
-      or view, additional actions are taken by the triggers that have been
-      declared on the table or view.</simpara>
+      <para>Each time a DELETE, UPDATE or INSERT is performed on the table or
+      view, additional actions are taken by the triggers that have been
+      declared on the table or view.</para>
 
-      <simpara>Triggers are discussed in detail in <link
-      endterm="triggers-title" os="" xlink:href="#triggers-chapt"></link>
-      chapter.</simpara>
+      <para>Triggers are discussed in detail in <link endterm="triggers-title"
+      os="" xlink:href="#triggers-chapt"></link> chapter.</para>
     </section>
 
     <section xml:id="dbc_routines">
       <title>Routines</title>
 
-      <simpara>Routines are user-defined functions or procedures. The names
-      and usage of functions and procedures are different. FUNCTION is a
-      routine that can be referenced in many types of statements. PROCEDURE is
-      a routine that can be referenced only in a CALL statement.</simpara>
+      <para>Routines are user-defined functions or procedures. The names and
+      usage of functions and procedures are different. FUNCTION is a routine
+      that can be referenced in many types of statements. PROCEDURE is a
+      routine that can be referenced only in a CALL statement.</para>
 
-      <simpara>There is a separate name-space for routines.</simpara>
+      <para>There is a separate name-space for routines.</para>
 
-      <simpara>Because of the possibility of overloading, each routine can
-      have more than one name. The name of the routine is the same for all
+      <para>Because of the possibility of overloading, each routine can have
+      more than one name. The name of the routine is the same for all
       overloaded variants, but each variant has a <glossterm>specific
       name</glossterm>, different from all other routine names and specific
       names in the schema. The <glossterm>specific name</glossterm> can be
@@ -662,11 +735,11 @@ INSERT INTO movies (starid, movieid, title) VALUES (CURRENT VALUE FOR seq, 10, '
       statements, which need to reference a specific variant of the routine.
       For example, if a routine has two signatures, each signature has its own
       <glossterm>specific name</glossterm>. This allows the user to drop one
-      of the signatures while keeping the other.</simpara>
+      of the signatures while keeping the other.</para>
 
-      <simpara>Routines are discussed in detail in chapter <link
+      <para>Routines are discussed in detail in chapter <link
       endterm="sqlroutines-title" os=""
-      xlink:href="#sqlroutines-chapt"></link> .</simpara>
+      xlink:href="#sqlroutines-chapt"></link> .</para>
     </section>
 
     <section xml:id="dbc_indexes">
@@ -681,25 +754,25 @@ INSERT INTO movies (starid, movieid, title) VALUES (CURRENT VALUE FOR seq, 10, '
   <section xml:id="dbc_schema_def_statements">
     <title>Statements for Schema Definition and Manipulation</title>
 
-    <simpara>Schemas and schema objects can be created, modified and dropped.
-    The SQL Standard defines a range of statements for this purpose. HyperSQL
+    <para>Schemas and schema objects can be created, modified and dropped. The
+    SQL Standard defines a range of statements for this purpose. HyperSQL
     supports many additional statements, especially for changing the
-    properties of existing schema objects.</simpara>
+    properties of existing schema objects.</para>
 
     <section xml:id="dbc_common_elements">
       <title>Common Elements and Statements</title>
 
-      <simpara>These elements and statements are used for different types of
+      <para>These elements and statements are used for different types of
       object. They are described here, before the statements that can use
-      them.</simpara>
+      them.</para>
 
       <indexterm significance="preferred" type="sql">
         <primary>identifier definition</primary>
       </indexterm>
 
-      <simpara><emphasis role="bold">identifier</emphasis></simpara>
+      <para><emphasis role="bold">identifier</emphasis></para>
 
-      <simpara><emphasis>definition of identifier</emphasis></simpara>
+      <para><emphasis>definition of identifier</emphasis></para>
 
       <simpara><literal>&lt;identifier&gt; ::= &lt;regular identifier&gt; |
       &lt;delimited identifier&gt; | &lt;SQL language identifier&gt;
@@ -714,28 +787,28 @@ INSERT INTO movies (starid, movieid, title) VALUES (CURRENT VALUE FOR seq, 10, '
       <simpara><literal>&lt;SQL language identifier&gt; ::= &lt;special
       character sequence&gt;</literal></simpara>
 
-      <simpara>A <literal>&lt;delimited identifier&gt;</literal> is a sequence
-      of characters enclosed with double-quote symbols. All characters are
-      allowed in the character sequence.</simpara>
+      <para>A <literal>&lt;delimited identifier&gt;</literal> is a sequence of
+      characters enclosed with double-quote symbols. All characters are
+      allowed in the character sequence.</para>
 
-      <simpara>A <literal>&lt;regular identifier&gt;</literal> is a special
+      <para>A <literal>&lt;regular identifier&gt;</literal> is a special
       sequence of characters. It consists of letters, digits and the
       underscore characters. It must begin with a letter. All the letters are
-      translated to their upper-case version.</simpara>
+      translated to their upper-case version.</para>
 
-      <simpara>The database setting, <literal>SET DATABASE SQL REGULAR NAMES
+      <para>The database setting, <literal>SET DATABASE SQL REGULAR NAMES
       FALSE</literal> can be used to relax the rules for regular identifier.
       With this setting, an underscore character can appear at the start of
       the regular identifier, and the dollar sign character can be used in the
-      identifier.</simpara>
+      identifier.</para>
 
-      <simpara>A <literal>&lt;SQL language identifier&gt;</literal> is similar
-      to <literal>&lt;regular identifier&gt;</literal> but the letters can
-      range only from A-Z in the ASCII character set. This type of identifier
-      is used for names of CHARACTER SET objects.</simpara>
+      <para>A <literal>&lt;SQL language identifier&gt;</literal> is similar to
+      <literal>&lt;regular identifier&gt;</literal> but the letters can range
+      only from A-Z in the ASCII character set. This type of identifier is
+      used for names of CHARACTER SET objects.</para>
 
-      <simpara>If the character sequence of a delimited identifier is the same
-      as an undelimited identifier, it represents the same identifier. For
+      <para>If the character sequence of a delimited identifier is the same as
+      an undelimited identifier, it represents the same identifier. For
       example "JOHN" is the same identifier as JOHN. In a <literal>&lt;regular
       identifier&gt;</literal> the case-normal form is considered for
       comparison. This form consists of the upper-case equivalent of all the
@@ -744,20 +817,19 @@ INSERT INTO movies (starid, movieid, title) VALUES (CURRENT VALUE FOR seq, 10, '
       in double quotes, the exact name is used as the case-normal form. But if
       it is not enclosed in double quotes, the name is converted to uppercase
       and this uppercase version is stored in the database as the case-normal
-      form.</simpara>
+      form.</para>
 
-      <simpara>The character sequence length of all identifiers must be
-      between 1 and 128 characters.</simpara>
+      <para>The character sequence length of all identifiers must be between 1
+      and 128 characters.</para>
 
-      <simpara>A reserved word is one that is used by the SQL Standard for
+      <para>A reserved word is one that is used by the SQL Standard for
       special purposes. It is similar to a <literal>&lt;regular
       identifier&gt;</literal> but it cannot be used as an identifier for user
       objects. If a reserved word is enclosed in double quote characters, it
-      becomes a quoted identifier and can be used for database
-      objects.</simpara>
+      becomes a quoted identifier and can be used for database objects.</para>
 
-      <simpara>Case sensitivity rules for identifiers can be described simply
-      as follows:</simpara>
+      <para>Case sensitivity rules for identifiers can be described simply as
+      follows:</para>
 
       <itemizedlist>
         <listitem>
@@ -772,8 +844,8 @@ INSERT INTO movies (starid, movieid, title) VALUES (CURRENT VALUE FOR seq, 10, '
         </listitem>
 
         <listitem>
-          <para>most database engines follow the same rule, except MySQL, and
-          in some respects, MS SQLServer.</para>
+          <para>most database engines follow the same rule, except, in some
+          respects, MySQL and MS SQLServer.</para>
         </listitem>
       </itemizedlist>
 
@@ -781,15 +853,15 @@ INSERT INTO movies (starid, movieid, title) VALUES (CURRENT VALUE FOR seq, 10, '
         <primary>CASCADE or RESTRICT</primary>
       </indexterm>
 
-      <simpara><emphasis role="bold">CASCADE or RESTRICT</emphasis></simpara>
+      <para><emphasis role="bold">CASCADE or RESTRICT</emphasis></para>
 
-      <simpara><emphasis>drop behavior</emphasis></simpara>
+      <para><emphasis>drop behavior</emphasis></para>
 
-      <simpara><literal>&lt;drop behavior&gt; ::= CASCADE |
-      RESTRICT</literal></simpara>
+      <para><literal>&lt;drop behavior&gt; ::= CASCADE |
+      RESTRICT</literal></para>
 
-      <simpara>The <literal>&lt;drop behavior&gt;</literal> is a required
-      element of statements that drop a SCHEMA or a schema object. If
+      <para>The <literal>&lt;drop behavior&gt;</literal> is a required element
+      of statements that drop a SCHEMA or a schema object. If
       <literal>&lt;drop behavior&gt;</literal> is not specified then
       <literal>RESTRICT</literal> is implicit. It determines the effect of the
       statement if there are other objects in the catalog that reference the
@@ -797,7 +869,7 @@ INSERT INTO movies (starid, movieid, title) VALUES (CURRENT VALUE FOR seq, 10, '
       fails if there are referencing objects. If CASCADE is specified, all the
       referencing objects are modified or dropped with cascading effect.
       Whether a referencing object is modified or dropped, depends on the kind
-      of schema object that is dropped.</simpara>
+      of schema object that is dropped.</para>
 
       <indexterm significance="preferred" type="sql">
         <primary>IF EXISTS</primary>
@@ -810,11 +882,11 @@ INSERT INTO movies (starid, movieid, title) VALUES (CURRENT VALUE FOR seq, 10, '
       <simpara><literal>&lt;if exists clause&gt; ::= IF
       EXISTS</literal></simpara>
 
-      <simpara>This clause is not part of the SQL standard and is a HyperSQL
+      <para>This clause is not part of the SQL standard and is a HyperSQL
       extension to some commands that drop objects (schemas, tables, views,
       sequences and indexes). If it is specified, then the statement does not
       return an error if the drop statement is issued on a non-existent
-      object.</simpara>
+      object.</para>
 
       <indexterm significance="preferred" type="sql">
         <primary>SPECIFIC</primary>
@@ -830,10 +902,10 @@ INSERT INTO movies (starid, movieid, title) VALUES (CURRENT VALUE FOR seq, 10, '
       <simpara><literal>&lt;routine type&gt; ::= ROUTINE | FUNCTION |
       PROCEDURE</literal></simpara>
 
-      <simpara>This clause is used in statements that need to specify one of
-      the multiple versions of an overloaded routine. The
-      <literal>&lt;specific name&gt;</literal> is the one specified in the
-      <literal>&lt;routine definition&gt;</literal> statement.</simpara>
+      <para>This clause is used in statements that need to specify one of the
+      multiple versions of an overloaded routine. The <literal>&lt;specific
+      name&gt;</literal> is the one specified in the <literal>&lt;routine
+      definition&gt;</literal> statement.</para>
     </section>
 
     <section xml:id="dbc_renaming">
@@ -858,11 +930,11 @@ INSERT INTO movies (starid, movieid, title) VALUES (CURRENT VALUE FOR seq, 10, '
       &lt;table name&gt; ALTER COLUMN &lt;name&gt; RENAME TO &lt;new
       name&gt;</literal></simpara>
 
-      <simpara>This statement is used to rename an existing object. It is not
+      <para>This statement is used to rename an existing object. It is not
       part of the SQL Standard. The specified <literal>&lt;name&gt;</literal>
       is the existing name, which can be qualified with a schema name, while
       the <literal>&lt;new name&gt;</literal> is the new name for the
-      object.</simpara>
+      object.</para>
     </section>
 
     <section xml:id="dbc_commenting">
@@ -880,7 +952,7 @@ INSERT INTO movies (starid, movieid, title) VALUES (CURRENT VALUE FOR seq, 10, '
       COLUMN | ROUTINE } &lt;name&gt; IS &lt;character string
       literal&gt;</literal></simpara>
 
-      <simpara>Adds a comment to the object metadata, which can later be read
+      <para>Adds a comment to the object metadata, which can later be read
       from an INFORMATION_SCHEMA view. This command is not part of the SQL
       Standard. The strange syntax is due to compatibility with other database
       engines that support the statement.<literal> The &lt;name&gt;</literal>
@@ -888,8 +960,7 @@ INSERT INTO movies (starid, movieid, title) VALUES (CURRENT VALUE FOR seq, 10, '
       consists of dot-separated<literal> &lt;table name&gt; . &lt;column
       name&gt;</literal>. The name of the table, view or routine can be a
       simple name. All names can be qualified with a schema name. If there is
-      already a comment on the object, the new comment will replace
-      it.</simpara>
+      already a comment on the object, the new comment will replace it.</para>
 
       <para>The comments appear in the results returned by JDBC
       DatabaseMetaData methods, getTables() and getColumns(). The
@@ -922,13 +993,13 @@ INSERT INTO movies (starid, movieid, title) VALUES (CURRENT VALUE FOR seq, 10, '
       the SQL standard, as these elements do not really belong to schema
       creation.</para>
 
-      <simpara><literal>&lt;schema definition&gt; ::= CREATE SCHEMA &lt;schema
+      <para><literal>&lt;schema definition&gt; ::= CREATE SCHEMA &lt;schema
       name clause&gt; [ &lt;schema character set specification&gt; ] [
-      &lt;schema element&gt;... ]</literal></simpara>
+      &lt;schema element&gt;... ]</literal></para>
 
-      <simpara><literal>&lt;schema name clause&gt; ::= &lt;schema name&gt; |
+      <para><literal>&lt;schema name clause&gt; ::= &lt;schema name&gt; |
       AUTHORIZATION &lt;authorization identifier&gt; | &lt;schema name&gt;
-      AUTHORIZATION &lt;authorization identifier&gt;</literal></simpara>
+      AUTHORIZATION &lt;authorization identifier&gt;</literal></para>
 
       <para>If the name of the schema is specified simply as
       <literal>&lt;schema name&gt;</literal>, then the AUTHORIZATION is the
@@ -938,7 +1009,7 @@ INSERT INTO movies (starid, movieid, title) VALUES (CURRENT VALUE FOR seq, 10, '
       schema is the same as the specified <literal>&lt;authorization
       identifier&gt;</literal>.</para>
 
-      <simpara><literal>&lt;schema element&gt; ::= &lt;table definition&gt; |
+      <para><literal>&lt;schema element&gt; ::= &lt;table definition&gt; |
       &lt;view definition&gt; | &lt;domain definition&gt; | &lt;character set
       definition&gt; | &lt;collation definition&gt; | &lt;transliteration
       definition&gt; | &lt;assertion definition&gt; | &lt;trigger
@@ -946,11 +1017,11 @@ INSERT INTO movies (starid, movieid, title) VALUES (CURRENT VALUE FOR seq, 10, '
       cast definition&gt; | &lt;user-defined ordering definition&gt; |
       &lt;transform definition&gt; | &lt;schema routine&gt; | &lt;sequence
       generator definition&gt; | &lt;grant statement&gt; | &lt;role
-      definition&gt;</literal></simpara>
+      definition&gt;</literal></para>
 
-      <simpara>An example of the command is given below. Note that a single
+      <para>An example of the command is given below. Note that a single
       semicolon appears at the end, there should be no semicolon between the
-      statements:</simpara>
+      statements:</para>
 
       <programlisting>    CREATE SCHEMA ACCOUNTS AUTHORIZATION DBA
         CREATE TABLE AB(A INTEGER, ...)
@@ -960,9 +1031,9 @@ INSERT INTO movies (starid, movieid, title) VALUES (CURRENT VALUE FOR seq, 10, '
         GRANT SELECT ON CD TO JOE;
 </programlisting>
 
-      <simpara>It is not really necessary to create a schema and all its
-      objects as one command. The schema can be created first, and its objects
-      can be created one by one.</simpara>
+      <para>It is not really necessary to create a schema and all its objects
+      as one command. The schema can be created first, and its objects can be
+      created one by one.</para>
 
       <indexterm significance="preferred" type="sql">
         <primary>DROP SCHEMA</primary>
@@ -976,11 +1047,11 @@ INSERT INTO movies (starid, movieid, title) VALUES (CURRENT VALUE FOR seq, 10, '
       EXISTS ] &lt;schema name&gt; [ IF EXISTS ] &lt;drop behavior&gt;
       </literal></simpara>
 
-      <simpara>This command destroys an existing schema. If <literal>&lt;drop
+      <para>This command destroys an existing schema. If <literal>&lt;drop
       behavior&gt;</literal> is <literal>RESTRICT</literal>, the schema must
       be empty, otherwise an error is raised. If <literal>CASCADE</literal> is
       specified, then all the objects contained in the schema are destroyed
-      with a CASCADE option.</simpara>
+      with a CASCADE option.</para>
     </section>
 
     <section xml:id="dbc_table_creation">
@@ -1018,7 +1089,7 @@ INSERT INTO movies (starid, movieid, title) VALUES (CURRENT VALUE FOR seq, 10, '
 
       <simpara><emphasis>like clause</emphasis></simpara>
 
-      <simpara>A <literal>&lt;like clause&gt;</literal> copies all column
+      <para>A <literal>&lt;like clause&gt;</literal> copies all column
       definitions from another table into the newly created table. Its three
       options indicate if the <literal>&lt;default clause&gt;</literal>,
       <literal>&lt;identity column specification&gt;</literal> and
@@ -1030,7 +1101,7 @@ INSERT INTO movies (starid, movieid, title) VALUES (CURRENT VALUE FOR seq, 10, '
       copied with the original columns, other constraints are not. The
       <literal>&lt;like clause&gt;</literal> can be used multiple times,
       allowing the new table to have copies of the column definitions of one
-      or more other tables.</simpara>
+      or more other tables.</para>
 
       <informalexample>
         <programlisting>CREATE TABLE t (id INTEGER PRIMARY KEY, LIKE atable INCLUDING DEFAULTS EXCLUDING IDENTITY)
@@ -1062,12 +1133,12 @@ INSERT INTO movies (starid, movieid, title) VALUES (CURRENT VALUE FOR seq, 10, '
       &lt;column name list&gt; &lt;right paren&gt; ] AS &lt;table subquery&gt;
       { WITH NO DATA | WITH DATA }</literal></simpara>
 
-      <simpara>An <literal>&lt;as subquery clause&gt;</literal> used in table
+      <para>An <literal>&lt;as subquery clause&gt;</literal> used in table
       definition creates a table based on a <literal>&lt;table
       subquery&gt;</literal>. This kind of table definition is similar to a
       view definition. If <literal>WITH DATA</literal> is specified, then the
       new table will contain the rows of data returned by the
-      <literal>&lt;table subquery&gt;</literal>.</simpara>
+      <literal>&lt;table subquery&gt;</literal>.</para>
 
       <informalexample>
         <programlisting>CREATE TABLE t (a, b, c) AS (SELECT * FROM atable) WITH DATA
@@ -1121,18 +1192,16 @@ INSERT INTO movies (starid, movieid, title) VALUES (CURRENT VALUE FOR seq, 10, '
 
       <simpara><emphasis>generated columns</emphasis></simpara>
 
-      <simpara>The value of a column can be autogenerated in two
-      ways.</simpara>
+      <para>The value of a column can be autogenerated in two ways.</para>
 
-      <simpara>One way is specific to columns of integral types (INTEGER,
-      BIGINT, etc.) and associates a sequence generator with the column. When
-      a new row is inserted into the table, the value of the column is
-      generated as the next available value in the sequence.</simpara>
+      <para>One way is specific to columns of integral types (INTEGER, BIGINT,
+      etc.) and associates a sequence generator with the column. When a new
+      row is inserted into the table, the value of the column is generated as
+      the next available value in the sequence.</para>
 
-      <simpara>The SQL Standard supports the use of unnamed sequences with the
+      <para>The SQL Standard supports the use of unnamed sequences with the
       IDENTITY keyword. In addition, HyperSQL supports the use of a named
-      SEQUENCE object, which must be in the same schema as the
-      table.</simpara>
+      SEQUENCE object, which must be in the same schema as the table.</para>
 
       <simpara><literal>&lt;identity column specification&gt; ::= GENERATED {
       ALWAYS | BY DEFAULT } AS IDENTITY [ &lt;left paren&gt; &lt;common
@@ -1142,45 +1211,45 @@ INSERT INTO movies (starid, movieid, title) VALUES (CURRENT VALUE FOR seq, 10, '
       GENERATED BY DEFAULT AS SEQUENCE &lt;sequence name&gt;
       </literal></simpara>
 
-      <simpara>The <literal>&lt;identity column specification&gt;</literal> or
+      <para>The <literal>&lt;identity column specification&gt;</literal> or
       <literal>&lt;identity column sequence specification&gt;</literal> can be
-      specified for only a single column of the table.</simpara>
+      specified for only a single column of the table.</para>
 
-      <simpara>The <literal>&lt;identity column specification&gt;</literal> is
+      <para>The <literal>&lt;identity column specification&gt;</literal> is
       used for columns which represent values based on an unnamed sequence
       generator. It is possible to insert a row into the table without
       specifying a value for the column. The value is then generated by the
       sequence generators according to its rules. An identity column may or
-      may not be the primary key. Example below:</simpara>
+      may not be the primary key. Example below:</para>
 
       <informalexample>
         <programlisting>CREATE TABLE t (id INTEGER GENERATED ALWAYS AS IDENTITY(START WITH 100), name VARCHAR(20) PRIMARY KEY)
 </programlisting>
       </informalexample>
 
-      <simpara>The <literal>&lt;identity column sequence
+      <para>The <literal>&lt;identity column sequence
       specification&gt;</literal> is used when the column values are based on
       a named SEQUENCE object (which must already exist). Example
-      below:</simpara>
+      below:</para>
 
       <informalexample>
         <programlisting>CREATE TABLE t (id INTEGER GENERATED BY DEFAULT AS SEQUENCE s, name VARCHAR(20) PRIMARY KEY)
 </programlisting>
       </informalexample>
 
-      <simpara>Inserting rows is done in the same way for a named or unnamed
+      <para>Inserting rows is done in the same way for a named or unnamed
       sequence generator. In both cases, if no value is specified to be
       inserted, or the DEFAULT keyword is used for the column, the value is
       generated by the sequence generator. If a value is specified, this value
       is used if the column definition has the BY DEFAULT specification. If
       the column definition has the ALWAYS specification, a value can be
       specified but the OVERRIDING SYSTEM VALUES must be specified in the
-      INSERT statement.</simpara>
+      INSERT statement.</para>
 
-      <simpara>The other way in which the column value is autogenerated is by
+      <para>The other way in which the column value is autogenerated is by
       using the values of other columns in the same row. This method is often
       used to create an index on a value that is derived from other column
-      values.</simpara>
+      values.</para>
 
       <simpara><literal>&lt;generation clause&gt; ::= GENERATED ALWAYS AS
       &lt;generation expression&gt;</literal></simpara>
@@ -1188,16 +1257,16 @@ INSERT INTO movies (starid, movieid, title) VALUES (CURRENT VALUE FOR seq, 10, '
       <simpara><literal>&lt;generation expression&gt; ::= &lt;left paren&gt;
       &lt;value expression&gt; &lt;right paren&gt;</literal></simpara>
 
-      <simpara>The <literal>&lt;generation clause&gt;</literal> is used for
+      <para>The <literal>&lt;generation clause&gt;</literal> is used for
       special columns which represent values based on the values held in other
       columns in the same row. The <literal>&lt;value expression&gt;</literal>
       must reference only other, non-generated, columns of the table in the
       same row. Any function used in the expression must be deterministic and
       must not access SQL-data. No <literal>&lt;query expression&gt;</literal>
       is allowed. When <literal>&lt;generation clause&gt;</literal> is used,
-      <literal>&lt;data type&gt;</literal> must be specified.</simpara>
+      <literal>&lt;data type&gt;</literal> must be specified.</para>
 
-      <simpara>A generated column can be part of a foreign key or unique
+      <para>A generated column can be part of a foreign key or unique
       constraints or a column of an index. This capability is the main reason
       for using generated columns. A generated column may contain a formula
       that computes a value based on the values of other columns. Fast
@@ -1206,13 +1275,13 @@ INSERT INTO movies (starid, movieid, title) VALUES (CURRENT VALUE FOR seq, 10, '
       to be unique, using a UNIQUE constraint on the table. The computed
       column cannot be overridden by user supplied values. When a row is
       updated and the column values change, the generated columns are computed
-      with the new values.</simpara>
+      with the new values.</para>
 
-      <simpara>When a row is inserted into a table, or an existing row is
+      <para>When a row is inserted into a table, or an existing row is
       updated, no value except DEFAULT can be specified for a generated
       column. In the example below, data is inserted into the non-generated
       columns and the generated column will contain 'Felix the Cat' or 'Pink
-      Panther'.</simpara>
+      Panther'.</para>
 
       <informalexample>
         <programlisting>CREATE TABLE t (id INTEGER PRIMARY KEY, 
@@ -1232,10 +1301,10 @@ INSERT INTO t (id, firstname, lastname, fullname) VALUES (2, 'Pink', 'Panther', 
 
       <simpara><emphasis>default clause</emphasis></simpara>
 
-      <simpara>A default clause can be used if GENERATED is not specified. If
-      a column has a <literal>&lt;default clause&gt;</literal> then it is
+      <para>A default clause can be used if GENERATED is not specified. If a
+      column has a <literal>&lt;default clause&gt;</literal> then it is
       possible to insert a row into the table without specifying a value for
-      the column.</simpara>
+      the column.</para>
 
       <simpara><literal>&lt;default clause&gt; ::= DEFAULT &lt;default
       option&gt;</literal></simpara>
@@ -1245,12 +1314,12 @@ INSERT INTO t (id, firstname, lastname, fullname) VALUES (2, 'Pink', 'Panther', 
       SESSION_USER | SYSTEM_USER | CURRENT_CATALOG | CURRENT_SCHEMA |
       CURRENT_PATH | NULL</literal></simpara>
 
-      <simpara>The type of the <literal>&lt;default option&gt;</literal> must
-      match the type of the column.</simpara>
+      <para>The type of the <literal>&lt;default option&gt;</literal> must
+      match the type of the column.</para>
 
-      <simpara>In PGS (PostgreSQL) compatibility mode, a NEXTVAL function can
-      be used. Also, in MSS compatibility mode, the default value can be
-      enclosed in parentheses.</simpara>
+      <para>In PGS (PostgreSQL) compatibility mode, a NEXTVAL function can be
+      used. Also, in MSS compatibility mode, the default value can be enclosed
+      in parentheses.</para>
 
       <indexterm significance="preferred" type="sql">
         <primary>CONSTRAINT name and characteristics</primary>
@@ -1271,7 +1340,7 @@ INSERT INTO t (id, firstname, lastname, fullname) VALUES (2, 'Pink', 'Panther', 
       <simpara><literal>&lt;constraint check time&gt; ::= INITIALLY DEFERRED |
       INITIALLY IMMEDIATE</literal></simpara>
 
-      <simpara>Specify the name of a constraint and its characteristics. By
+      <para>Specify the name of a constraint and its characteristics. By
       default the constraint is <literal>NOT DEFERRABLE</literal> and
       <literal>INITIALLY IMMEDIATE</literal>. This means the constraint is
       enforced as soon as a data change statement is executed. If
@@ -1281,7 +1350,7 @@ INSERT INTO t (id, firstname, lastname, fullname) VALUES (2, 'Pink', 'Panther', 
       SQL session. HyperSQL does not support deferring constraint enforcement.
       This feature of the SQL Standard has been criticised because it allows a
       session to read uncommitted data that violates database integrity
-      constraints but has not yet been checked.</simpara>
+      constraints but has not yet been checked.</para>
 
       <indexterm significance="preferred" type="sql">
         <primary>CONSTRAINT (table constraint)</primary>
@@ -1299,10 +1368,10 @@ INSERT INTO t (id, firstname, lastname, fullname) VALUES (2, 'Pink', 'Panther', 
       definition&gt; | &lt;referential constraint definition&gt; | &lt;check
       constraint definition&gt;</literal></simpara>
 
-      <simpara>Three kinds of constraint can be defined on a table: UNIQUE
+      <para>Three kinds of constraint can be defined on a table: UNIQUE
       (including PRIMARY KEY), FOREIGN KEY and CHECK. Each kind has its own
       rules to limit the values that can be specified for different columns in
-      each row of the table.</simpara>
+      each row of the table.</para>
 
       <indexterm significance="preferred" type="sql">
         <primary>UNIQUE constraint</primary>
@@ -1326,10 +1395,10 @@ INSERT INTO t (id, firstname, lastname, fullname) VALUES (2, 'Pink', 'Panther', 
       <simpara><literal>&lt;unique column list&gt; ::= &lt;column name
       list&gt;</literal></simpara>
 
-      <simpara>A unique constraint is specified on a single column or on
-      multiple columns. On each set of columns taken together, only one UNIQUE
+      <para>A unique constraint is specified on a single column or on multiple
+      columns. On each set of columns taken together, only one UNIQUE
       constraint can be specified. Each column of a PRIMARY KEY constraint has
-      an implicit NOT NULL constraint.</simpara>
+      an implicit NOT NULL constraint.</para>
 
       <simpara>If <literal>UNIQUE( VALUE )</literal> is specified, the
       constraint created on all columns of the table.</simpara>
@@ -1377,7 +1446,7 @@ INSERT INTO t (id, firstname, lastname, fullname) VALUES (2, 'Pink', 'Panther', 
       <simpara><literal>&lt;referential action&gt; ::= CASCADE | SET NULL |
       SET DEFAULT | RESTRICT | NO ACTION</literal></simpara>
 
-      <simpara>A referential constraint allows links to be established between
+      <para>A referential constraint allows links to be established between
       the rows of two tables. The specified list of <literal>&lt;referencing
       columns&gt;</literal> corresponds one by one to the columns of the
       specified list of <literal>&lt;referenced columns&gt;</literal> in
@@ -1385,10 +1454,10 @@ INSERT INTO t (id, firstname, lastname, fullname) VALUES (2, 'Pink', 'Panther', 
       table, a row must exist in the referenced table with equivalent values
       in the two column lists. There must exist a single unique constraint in
       the referenced table on all the <literal>&lt;referenced
-      columns&gt;</literal>.</simpara>
+      columns&gt;</literal>.</para>
 
-      <simpara>The <literal>[ MATCH match type ]</literal> clause is optional
-      and has an effect only on multi-column foreign keys and only on rows
+      <para>The <literal>[ MATCH match type ]</literal> clause is optional and
+      has an effect only on multi-column foreign keys and only on rows
       containing at least a NULL in one of the <literal>&lt;referencing
       columns&gt;</literal>. If the clause is not specified, MATCH SIMPLE is
       the default. If <literal>MATCH SIMPLE</literal> is specified, then any
@@ -1397,9 +1466,9 @@ INSERT INTO t (id, firstname, lastname, fullname) VALUES (2, 'Pink', 'Panther', 
       either all the column values must be NULL or none of them.
       <literal>MATCH PARTIAL</literal> allows any NULL but the non NULL values
       must match those of a row in the referenced table. HyperSQL does not
-      support <literal>MATCH PARTIAL</literal>.</simpara>
+      support <literal>MATCH PARTIAL</literal>.</para>
 
-      <simpara>Referential actions are specified with ON UPDATE and ON DELETE
+      <para>Referential actions are specified with ON UPDATE and ON DELETE
       clauses. These actions take place when a row in the referenced table
       (the parent table) has referencing rows in the referencing table and it
       is deleted or modified with any SQL statement. The default is NO ACTION.
@@ -1414,7 +1483,7 @@ INSERT INTO t (id, firstname, lastname, fullname) VALUES (2, 'Pink', 'Panther', 
       or UPDATE statement, the SET NULL option results in the columns of the
       referencing rows to be set to NULL. Similarly, the SET DEFAULT option
       results in the columns of the referencing rows to be set to their
-      default values.</simpara>
+      default values.</para>
 
       <indexterm significance="preferred" type="sql">
         <primary>CHECK constraint</primary>
@@ -1428,7 +1497,7 @@ INSERT INTO t (id, firstname, lastname, fullname) VALUES (2, 'Pink', 'Panther', 
       paren&gt; &lt;search condition&gt; &lt;right
       paren&gt;</literal></simpara>
 
-      <simpara>A CHECK constraint can exist for a TABLE or for a DOMAIN. The
+      <para>A CHECK constraint can exist for a TABLE or for a DOMAIN. The
       <literal>&lt;search condition&gt;</literal> evaluates to an SQL BOOLEAN
       value for each row of the table. Within the <literal>&lt;search
       condition&gt;</literal> all columns of the table row can be referenced.
@@ -1436,18 +1505,18 @@ INSERT INTO t (id, firstname, lastname, fullname) VALUES (2, 'Pink', 'Panther', 
       condition&gt;</literal> evaluates to TRUE or UNKNOWN. When a new row is
       inserted, or an existing row is updated, the <literal>&lt;search
       condition&gt;</literal> is evaluated and if it is FALSE, the insert or
-      update fails.</simpara>
+      update fails.</para>
 
-      <simpara>A CHECK constraint for a DOMAIN is similar. In its
+      <para>A CHECK constraint for a DOMAIN is similar. In its
       <literal>&lt;search condition&gt;</literal>, the term VALUE is used to
-      represents the value to which the DOMAIN applies.</simpara>
+      represents the value to which the DOMAIN applies.</para>
 
       <informalexample>
         <programlisting>CREATE TABLE t (a VARCHAR(20) CHECK (a IS NOT NULL AND CHARACTER_LENGTH(a) &gt; 2))
 </programlisting>
       </informalexample>
 
-      <simpara>The search condition of a CHECK constraint cannot contain any
+      <para>The search condition of a CHECK constraint cannot contain any
       function that is not deterministic. A check constraint is a data
       integrity constraint, therefore it must hold with respect to the rest of
       the data in the database. It cannot use values that are temporal or
@@ -1456,12 +1525,12 @@ INSERT INTO t (id, firstname, lastname, fullname) VALUES (2, 'Pink', 'Panther', 
       day-to-day. Some temporal expressions are retrospectively deterministic
       and are allowed in check constraints. For example, (CHECK VALUE &lt;
       CURRENT_DATE) is valid, because CURRENT_DATE will not move backwards in
-      time, but (CHECK VALUE &gt; CURRENT_DATE) is not acceptable.</simpara>
+      time, but (CHECK VALUE &gt; CURRENT_DATE) is not acceptable.</para>
 
-      <simpara>If you want to enforce the condition that a date value that is
+      <para>If you want to enforce the condition that a date value that is
       inserted into the database belongs to the future (at the time of
       insertion), or any similar constraint, then use a TRIGGER with the
-      desired condition.</simpara>
+      desired condition.</para>
 
       <indexterm significance="preferred" type="sql">
         <primary>DROP TABLE</primary>
@@ -1475,21 +1544,21 @@ INSERT INTO t (id, firstname, lastname, fullname) VALUES (2, 'Pink', 'Panther', 
       EXISTS ] &lt;table name&gt; [ IF EXISTS ] &lt;drop
       behavior&gt;</literal></simpara>
 
-      <simpara>Destroy a table. The default drop behaviour is RESTRICT and
-      will cause the statement to fail if there is any view, routine or
-      foreign key constraint that references the table. If <literal>&lt;drop
+      <para>Destroy a table. The default drop behaviour is RESTRICT and will
+      cause the statement to fail if there is any view, routine or foreign key
+      constraint that references the table. If <literal>&lt;drop
       behavior&gt;</literal> is <literal>CASCADE</literal>, it causes all
       schema objects that reference the table to drop. Referencing views are
       dropped. In the case of foreign key constraints that reference the
       table, the constraint is dropped, rather than the TABLE or DOMAIN that
-      contains it.</simpara>
+      contains it.</para>
     </section>
 
     <section xml:id="dbc_table_manupulation">
       <title>Table Manipulation</title>
 
-      <simpara>Table manipulation statements change the attributes of tables
-      or modify the objects such as columns and constraints.</simpara>
+      <para>Table manipulation statements change the attributes of tables or
+      modify the objects such as columns and constraints.</para>
 
       <indexterm significance="preferred" type="sql">
         <primary>SET TABLE CLUSTERED</primary>
@@ -1503,19 +1572,19 @@ INSERT INTO t (id, firstname, lastname, fullname) VALUES (2, 'Pink', 'Panther', 
       &lt;table name&gt; CLUSTERED ON &lt;left paren&gt; &lt;column name
       list&gt; &lt;right paren&gt;</literal></simpara>
 
-      <simpara>Set the row clustering property of a table. The &lt;column name
+      <para>Set the row clustering property of a table. The &lt;column name
       list&gt; is a list of column names that must correspond to the columns
       of an existing PRIMARY KEY, UNIQUE or FOREIGN KEY index, or to the
       columns of a user defined index. This statement is only valid for CACHED
-      or TEXT tables.</simpara>
+      or TEXT tables.</para>
 
-      <simpara>Tables rows are stored in the database files as they are
-      created, sometimes at the end of the file, sometimes in the middle of
-      the file. After a CHECKPOINT DEFRAG or SHUTDOWN COMPACT, the rows are
-      reordered according to the primary key of the table, or if there is no
-      primary key, in no particular order.</simpara>
+      <para>Tables rows are stored in the database files as they are created,
+      sometimes at the end of the file, sometimes in the middle of the file.
+      After a CHECKPOINT DEFRAG or SHUTDOWN COMPACT, the rows are reordered
+      according to the primary key of the table, or if there is no primary
+      key, in no particular order.</para>
 
-      <simpara>When several consecutive rows of a table are retrieved during
+      <para>When several consecutive rows of a table are retrieved during
       query execution it is more efficient to retrieve rows that are stored
       adjacent to one another. After executing this command, nothing changes
       until a CHECKPOINT DEFRAG or SHUTDOWN COMPACT or SHUTDOWN SCRIPT is
@@ -1523,7 +1592,7 @@ INSERT INTO t (id, firstname, lastname, fullname) VALUES (2, 'Pink', 'Panther', 
       clustered order. The property is stored in the database and applies to
       all future reordering of rows. Note that if extensive inserts or updates
       are performed on the tables, the rows will get out of order until the
-      next reordering.</simpara>
+      next reordering.</para>
 
       <indexterm significance="preferred" type="sql">
         <primary>SET TABLE TYPE</primary>
@@ -1881,7 +1950,7 @@ INSERT INTO t (id, firstname, lastname, fullname) VALUES (2, 'Pink', 'Panther', 
       CONSTRAINT &lt;constraint name&gt; &lt;drop
       behavior&gt;</literal></simpara>
 
-      <simpara>Destroy a constraint on a table. The <literal>&lt;drop
+      <para>Destroy a constraint on a table. The <literal>&lt;drop
       behavior&gt;</literal> has an effect only on UNIQUE and PRIMARY KEY
       constraints. If such a constraint is referenced by a FOREIGN KEY
       constraint, the FOREIGN KEY constraint will be dropped if
@@ -1890,7 +1959,7 @@ INSERT INTO t (id, firstname, lastname, fullname) VALUES (2, 'Pink', 'Panther', 
       VIEW or another kind of schema object, and a functional dependency
       relationship exists between these columns and the other columns in that
       query expression, then the VIEW or other schema object will be dropped
-      when <literal>CASCADE</literal> is specified.</simpara>
+      when <literal>CASCADE</literal> is specified.</para>
 
       <indexterm significance="preferred" type="sql">
         <primary>ALTER COLUMN</primary>
@@ -1952,12 +2021,12 @@ INSERT INTO t (id, firstname, lastname, fullname) VALUES (2, 'Pink', 'Panther', 
       <simpara><literal>&lt;alter column data type clause&gt; ::= SET DATA
       TYPE &lt;data type&gt;</literal></simpara>
 
-      <simpara>Change the declared type of a column. The (proposed) SQL
-      Standard allows only changes to type properties such as maximum length,
+      <para>Change the declared type of a column. The latest SQL Standard
+      allows only changes to type properties such as maximum length,
       precision, or scale, and only changes that cause the property to
       enlarge. HyperSQL allows changing the type if all the existing values
       can be cast into the new type without string truncation or loss of
-      significant digits.</simpara>
+      significant digits.</para>
 
       <indexterm significance="preferred" type="sql">
         <primary>add column identity generator</primary>
@@ -1995,10 +2064,9 @@ INSERT INTO t (id, firstname, lastname, fullname) VALUES (2, 'Pink', 'Panther', 
       sequence generator restart option&gt; | SET &lt;basic sequence generator
       option&gt;</literal></simpara>
 
-      <simpara>Change the properties of an identity column. This command is
+      <para>Change the properties of an identity column. This command is
       similar to the commands used for changing the properties of named
-      SEQUENCE objects discussed earlier and can use the same
-      options.</simpara>
+      SEQUENCE objects discussed earlier and can use the same options.</para>
 
       <programlisting>  ALTER TABLE mytable ALTER COLUMN id RESTART WITH 1000
   ALTER TABLE mytable ALTER COLUMN id SET INCREMENT BY 5
@@ -2015,9 +2083,9 @@ INSERT INTO t (id, firstname, lastname, fullname) VALUES (2, 'Pink', 'Panther', 
       <simpara><literal>&lt;drop column identity specification&gt; ::= DROP
       GENERATED</literal></simpara>
 
-      <simpara>Removes the identity generator from a column. After executing
-      this statement, the column values are no longer generated automatically.
-      This option is specific to HyperSQL</simpara>
+      <para>Removes the identity generator from a column. After executing this
+      statement, the column values are no longer generated automatically. This
+      option is specific to HyperSQL</para>
 
       <programlisting>  ALTER TABLE mytable ALTER COLUMN id DROP GENERATED
 </programlisting>
@@ -2106,11 +2174,11 @@ INSERT INTO t (id, firstname, lastname, fullname) VALUES (2, 'Pink', 'Panther', 
       name&gt; &lt;view specification&gt; AS &lt;query expression&gt; [ WITH [
       CASCADED | LOCAL ] CHECK OPTION ]</literal></simpara>
 
-      <simpara>Alter a view. The statement is otherwise identical to CREATE
-      VIEW. The new definition replaces the old. If there are database objects
-      such as routines or views that reference the view, then these objects
-      are recompiled with the new view definition. If the new definition is
-      not compatible, the statement fails.</simpara>
+      <para>Alter a view. The statement is otherwise identical to CREATE VIEW.
+      The new definition replaces the old. If there are database objects such
+      as routines or views that reference the view, then these objects are
+      recompiled with the new view definition. If the new definition is not
+      compatible, the statement fails.</para>
     </section>
 
     <section xml:id="dbc_domain_creation">
@@ -2133,14 +2201,13 @@ INSERT INTO t (id, firstname, lastname, fullname) VALUES (2, 'Pink', 'Panther', 
       definition&gt; ] &lt;check constraint definition&gt; [ &lt;constraint
       characteristics&gt; ]</literal></simpara>
 
-      <simpara>Define a domain. Although a DOMAIN is not strictly a type in
-      the SQL Standard, it can be informally considered as a type. A DOMAIN is
+      <para>Define a domain. Although a DOMAIN is not strictly a type in the
+      SQL Standard, it can be informally considered as a type. A DOMAIN is
       based on a <literal>&lt;predefined type&gt;</literal>, which is a base
       type defined by the Standard. It can have a <literal>&lt;default
       clause&gt;</literal>, similar to a column default clause. It can also
       have one or more CHECK constraints which limit the values that can be
-      assigned to a column or variable that has the DOMAIN as its
-      type.</simpara>
+      assigned to a column or variable that has the DOMAIN as its type.</para>
 
       <informalexample>
         <programlisting>CREATE DOMAIN valid_string AS VARCHAR(20) DEFAULT 'NO VALUE' CHECK (value IS NOT NULL AND CHARACTER_LENGTH(value) &gt; 2) 
@@ -2216,11 +2283,11 @@ INSERT INTO t (id, firstname, lastname, fullname) VALUES (2, 'Pink', 'Panther', 
       <simpara><literal>&lt;drop domain constraint definition&gt; ::= DROP
       CONSTRAINT &lt;constraint name&gt;</literal></simpara>
 
-      <simpara>Destroy a constraint on a domain. If the <literal>&lt;drop
+      <para>Destroy a constraint on a domain. If the <literal>&lt;drop
       behavior&gt;</literal> is <literal>CASCADE</literal>, and the constraint
       is a UNIQUE constraint which is referenced by a FOREIGN KEY constraint
       on another table, then the FOREIGN KEY constraint is also
-      dropped.</simpara>
+      dropped.</para>
 
       <indexterm significance="preferred" type="sql">
         <primary>DROP DOMAIN</primary>
@@ -2233,11 +2300,11 @@ INSERT INTO t (id, firstname, lastname, fullname) VALUES (2, 'Pink', 'Panther', 
       <simpara><literal>&lt;drop domain statement&gt; ::= DROP DOMAIN
       &lt;domain name&gt; &lt;drop behavior&gt;</literal></simpara>
 
-      <simpara>Destroy a domain. If <literal>&lt;drop behavior&gt;</literal>
-      is <literal>CASCADE</literal>, it works differently from most other
+      <para>Destroy a domain. If <literal>&lt;drop behavior&gt;</literal> is
+      <literal>CASCADE</literal>, it works differently from most other
       objects. If a table features a column of the specified DOMAIN, the
       column survives and inherits the DEFAULT CLAUSE, and the CHECK
-      CONSTRAINT of the DOMAIN.</simpara>
+      CONSTRAINT of the DOMAIN.</para>
     </section>
 
     <section xml:id="dbc_trigger_creation">
@@ -2302,7 +2369,7 @@ INSERT INTO t (id, firstname, lastname, fullname) VALUES (2, 'Pink', 'Panther', 
       <simpara><literal>&lt;new transition variable name&gt; ::=
       &lt;correlation name&gt;</literal></simpara>
 
-      <simpara>Trigger definition is a relatively complex statement. The
+      <para>Trigger definition is a relatively complex statement. The
       combination of <literal>&lt;trigger action time&gt;</literal> and
       <literal>&lt;trigger event&gt;</literal> determines the type of the
       trigger. Examples include BEFORE DELETE, AFTER UPDATE, INSTEAD OF
@@ -2310,9 +2377,9 @@ INSERT INTO t (id, firstname, lastname, fullname) VALUES (2, 'Pink', 'Panther', 
       ]</literal> is specified for an UPDATE trigger, then the trigger is
       activated only if one of the columns that is in the <literal>&lt;trigger
       column list&gt;</literal> is specified in the UPDATE statement that
-      activates the trigger.</simpara>
+      activates the trigger.</para>
 
-      <simpara>If a trigger is <literal>FOR EACH ROW</literal>, which is the
+      <para>If a trigger is <literal>FOR EACH ROW</literal>, which is the
       default option, then the trigger is activated for each row of the table
       that is affected by the execution of an SQL statement. Otherwise, it is
       activated once only per statement execution. In the first case, there is
@@ -2322,28 +2389,28 @@ INSERT INTO t (id, firstname, lastname, fullname) VALUES (2, 'Pink', 'Panther', 
       For INSERT triggers, there is only an after state. If a trigger is
       <literal>FOR EACH STATEMENT</literal>, then a transient table is created
       containing all the rows for the before state and another transient table
-      is created for the after state.</simpara>
+      is created for the after state.</para>
 
-      <simpara>The <literal>[ REFERENCING &lt;transition table or variable&gt;
+      <para>The <literal>[ REFERENCING &lt;transition table or variable&gt;
       ]</literal> is used to give a name to the before and after data row or
       table. This name can be referenced in the <literal>&lt;SQL procedure
-      statement&gt;</literal> to access the data.</simpara>
+      statement&gt;</literal> to access the data.</para>
 
-      <simpara>The optional <literal>&lt;triggered when clause&gt;</literal>
-      is a search condition, similar to the search condition of a DELETE or
-      UPDATE statement. If the search condition is not TRUE for a row, then
-      the trigger is not activated for that row.</simpara>
+      <para>The optional <literal>&lt;triggered when clause&gt;</literal> is a
+      search condition, similar to the search condition of a DELETE or UPDATE
+      statement. If the search condition is not TRUE for a row, then the
+      trigger is not activated for that row.</para>
 
-      <simpara>The <literal>&lt;SQL procedure statement&gt;</literal> is
-      limited to INSERT, DELETE, UPDATE and MERGE statements.</simpara>
+      <para>The <literal>&lt;SQL procedure statement&gt;</literal> is limited
+      to INSERT, DELETE, UPDATE and MERGE statements.</para>
 
-      <simpara>The <literal>&lt;HSQLDB trigger class FQN&gt;</literal> is a
+      <para>The <literal>&lt;HSQLDB trigger class FQN&gt;</literal> is a
       delimited identifier that contains the fully qualified name of a Java
       class that implements the <classname>org.hsqldb.Trigger</classname>
-      interface.</simpara>
+      interface.</para>
 
-      <simpara>Early releases of HyperSQL version 2.0 do not allow the use of
-      OLD TABLE or NEW TABLE in statement level trigger definitions.</simpara>
+      <para>HyperSQL do not yet allow the use of OLD TABLE or NEW TABLE in
+      statement level trigger definitions.</para>
 
       <indexterm significance="preferred" type="sql">
         <primary>DROP TRIGGER</primary>
@@ -2496,11 +2563,11 @@ INSERT INTO t (id, firstname, lastname, fullname) VALUES (2, 'Pink', 'Panther', 
       <simpara><literal>&lt;maximum returned result sets&gt; ::= &lt;unsigned
       integer&gt;</literal></simpara>
 
-      <simpara>Define an SQL-invoked routine. A few of the options are not
-      used by HyperSQL and have default behaviours. See the <link
+      <para>Define an SQL-invoked routine. A few of the options are not used
+      by HyperSQL and have default behaviours. See the <link
       endterm="sqlroutines-title" os=""
       xlink:href="#sqlroutines-chapt"></link> chapter for more details of
-      various options and examples.</simpara>
+      various options and examples.</para>
 
       <indexterm significance="preferred" type="sql">
         <primary>ALTER routine</primary>
@@ -2525,17 +2592,17 @@ INSERT INTO t (id, firstname, lastname, fullname) VALUES (2, 'Pink', 'Panther', 
       <simpara><literal>&lt;alter routine body&gt; ::= &lt;SQL routine
       body&gt;</literal></simpara>
 
-      <simpara>Alter the characteristic and the body of an SQL-invoked
-      routine. If RESTRICT is specified and the routine is already used in a a
+      <para>Alter the characteristic and the body of an SQL-invoked routine.
+      If RESTRICT is specified and the routine is already used in a a
       different routine or view definition, an exception is raised. Altering
       the routine changes the implementation without changing the parameters.
       Defining recursive SQL/PSM SQL functions is only possible by altering a
       non-recursive routine body. An example is given in the <link
       endterm="sqlroutines-title" os=""
-      xlink:href="#sqlroutines-chapt"></link> chapter.</simpara>
+      xlink:href="#sqlroutines-chapt"></link> chapter.</para>
 
-      <simpara>An example is given below for a function defined as a Java
-      method, then redefined as an SQL function.</simpara>
+      <para>An example is given below for a function defined as a Java method,
+      then redefined as an SQL function.</para>
 
       <programlisting>create function zero_pad(x bigint, digits int, maxsize int)
  returns char varying(100)
@@ -2634,8 +2701,8 @@ alter specific routine zero_pad_01
       <simpara><literal>&lt;sequence generator cycle option&gt; ::= CYCLE | NO
       CYCLE</literal></simpara>
 
-      <simpara>Define a named sequence generator. A SEQUENCE object generates
-      a sequence of integers according to the specified rules. The simple
+      <para>Define a named sequence generator. A SEQUENCE object generates a
+      sequence of integers according to the specified rules. The simple
       definition without the options defines a sequence of numbers in INTEGER
       type starting at 1 and incrementing by 1. By default the
       <literal>CYCLE</literal> property is set and the minimum and maximum
@@ -2647,11 +2714,11 @@ alter specific routine zero_pad_01
       highest or lowest value in range, the next value will respectively be
       the lowest or highest value in range. If <literal>NO CYCLE</literal> is
       specified, the use of the sequence generator results in an error once
-      the limit has been reached.</simpara>
+      the limit has been reached.</para>
 
-      <simpara>The integer types: SMALLINT, INTEGER, BIGINT, DECIMAL and
-      NUMERIC can be used as the type of the sequence. DECIMAL and NUMERIC
-      types must have a scale of 0 and a precision not exceeding 18.</simpara>
+      <para>The integer types: SMALLINT, INTEGER, BIGINT, DECIMAL and NUMERIC
+      can be used as the type of the sequence. DECIMAL and NUMERIC types must
+      have a scale of 0 and a precision not exceeding 18.</para>
 
       <indexterm significance="preferred" type="sql">
         <primary>ALTER SEQUENCE</primary>
@@ -2680,15 +2747,14 @@ alter specific routine zero_pad_01
       <simpara><literal>&lt;sequence generator restart value&gt; ::=
       &lt;signed numeric literal&gt;</literal></simpara>
 
-      <simpara>Change the definition of a named sequence generator. The same
+      <para>Change the definition of a named sequence generator. The same
       options that are used in the definition of the SEQUENCE can be used to
       alter it. The exception is the option for the start value which is
-      <literal>RESTART WITH</literal> for the ALTER SEQUENCE
-      statement.</simpara>
+      <literal>RESTART WITH</literal> for the ALTER SEQUENCE statement.</para>
 
-      <simpara>If RESTART is used by itself (without a value), then the
-      current value of the sequence is reset to the start value. Otherwise,
-      the current value is reset to the given restart value.</simpara>
+      <para>If RESTART is used by itself (without a value), then the current
+      value of the sequence is reset to the start value. Otherwise, the
+      current value is reset to the given restart value.</para>
 
       <indexterm significance="preferred" type="sql">
         <primary>DROP SEQUENCE</primary>
@@ -2703,10 +2769,10 @@ alter specific routine zero_pad_01
       SEQUENCE [ IF EXISTS ] &lt;sequence generator name&gt; [ IF EXISTS ]
       &lt;drop behavior&gt;</literal></simpara>
 
-      <simpara>Destroy an external sequence generator. If the
-      <literal>&lt;drop behavior&gt;</literal> is <literal>CASCADE</literal>,
-      then all objects that reference the sequence are dropped. These objects
-      can be VIEW, ROUTINE or TRIGGER objects.</simpara>
+      <para>Destroy an external sequence generator. If the <literal>&lt;drop
+      behavior&gt;</literal> is <literal>CASCADE</literal>, then all objects
+      that reference the sequence are dropped. These objects can be VIEW,
+      ROUTINE or TRIGGER objects.</para>
 
       <!-- From Foundation chapt. 13 -->
     </section>
@@ -2781,14 +2847,14 @@ alter specific routine zero_pad_01
       &lt;index name&gt; ON &lt;table name&gt; &lt;left paren&gt; {&lt;column
       name&gt; [ASC | DESC]}, ... &lt;right paren&gt;</literal></simpara>
 
-      <simpara>Creates an index on a group of columns of a table. The optional
+      <para>Creates an index on a group of columns of a table. The optional
       [ASC | DESC] specifies if the column is indexed in the ascending or
       descending order, but has no effect on how the index is created (it is
       allowed for compatibility with other database engines). HyperSQL can use
       all indexes in ascending or descending order as needed. Indexes should
       not duplicate the columns of PRIMARY KEY, UNIQUE or FOREIGN key
       constraints as each of these constraints creates an index
-      automatically.</simpara>
+      automatically.</para>
 
       <indexterm significance="preferred" type="sql">
         <primary>DROP INDEX</primary>
@@ -2895,13 +2961,13 @@ alter specific routine zero_pad_01
       <simpara><literal>&lt;character set source&gt; ::= GET &lt;character set
       specification&gt;</literal></simpara>
 
-      <simpara>Define a character set. A new CHARACTER SET is based on an
+      <para>Define a character set. A new CHARACTER SET is based on an
       existing CHARACTER SET. The optional <literal>&lt;collate
       clause&gt;</literal> specifies the collation to be used, otherwise the
       collation is inherited from the default collation for the source
       CHARACTER SET. Currently this statement has no effect, as the character
       set used by HSQLDB is Unicode and there is no need for subset character
-      sets.</simpara>
+      sets.</para>
 
       <indexterm significance="preferred" type="sql">
         <primary>DROP CHARACTER SET</primary>
@@ -2938,19 +3004,19 @@ alter specific routine zero_pad_01
       <simpara><literal>&lt;pad characteristic&gt; ::= NO PAD | PAD
       SPACE</literal></simpara>
 
-      <simpara>Define a collation. A new collation is based on an existing
+      <para>Define a collation. A new collation is based on an existing
       COLLATION and applies to an existing CHARACTER SET. The &lt;character
       set specification&gt; is always SQL_TEXT. The &lt;existing collation
       name&gt; is either SQL_TEXT or one of the language collations supported
       by HSQLDB. The <literal>&lt;pad characteristic&gt;</literal> specifies
-      whether strings are padded with spaces for comparison.</simpara>
+      whether strings are padded with spaces for comparison.</para>
 
-      <simpara>This statement is typically used when a collation is required
-      that does not pad spaces before comparing two strings. For example,
+      <para>This statement is typically used when a collation is required that
+      does not pad spaces before comparing two strings. For example,
       <literal>CREATE COLLATION FRENCH_NOPAD FOR INFORMATION_SCHEMA.SQL_TEXT
       FROM "French" NO PAD</literal>, results in a French collation without
       padding. This collation can be used for sorting or for individual
-      columns of tables.</simpara>
+      columns of tables.</para>
 
       <indexterm significance="preferred" type="sql">
         <primary>DROP COLLATION</primary>
@@ -2963,10 +3029,10 @@ alter specific routine zero_pad_01
       <simpara><literal>&lt;drop collation statement&gt; ::= DROP COLLATION
       &lt;collation name&gt; &lt;drop behavior&gt;</literal></simpara>
 
-      <simpara>Destroy a collation. If the <literal>&lt;drop
+      <para>Destroy a collation. If the <literal>&lt;drop
       behavior&gt;</literal> is <literal>CASCADE</literal>, then all
       references to the collation revert to the default collation that would
-      be in force if the dropped collation was not specified.</simpara>
+      be in force if the dropped collation was not specified.</para>
 
       <indexterm significance="preferred" type="sql">
         <primary>CREATE TRANSLATION</primary>
@@ -2997,8 +3063,8 @@ alter specific routine zero_pad_01
       <simpara><literal>&lt;transliteration routine&gt; ::= &lt;specific
       routine designator&gt;</literal></simpara>
 
-      <simpara>Define a character transliteration. This feature may be
-      supported in a future versions of HyperSQL.</simpara>
+      <para>Define a character transliteration. This feature may be supported
+      in a future versions of HyperSQL.</para>
 
       <indexterm significance="preferred" type="sql">
         <primary>DROP TRANSLATION</primary>
@@ -3041,8 +3107,8 @@ alter specific routine zero_pad_01
       <simpara><literal>&lt;drop assertion statement&gt; ::= DROP ASSERTION
       &lt;constraint name&gt; [ &lt;drop behavior&gt; ]</literal></simpara>
 
-      <simpara>Destroy an assertion. This feature may be supported in a future
-      versions of HyperSQL.</simpara>
+      <para>Destroy an assertion. This feature may be supported in a future
+      versions of HyperSQL.</para>
     </section>
   </section>
 

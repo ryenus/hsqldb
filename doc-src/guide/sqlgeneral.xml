@@ -633,6 +633,11 @@
       <simpara><literal>&lt;char length units&gt; ::= CHARACTERS |
       OCTETS</literal></simpara>
 
+      <para>Each character type has a collation. This is either a default
+      collation or stated explicitly with the COLLATE clause. Collations are
+      discussed in the <link endterm="databaseobjects-title" xlink:arcrole=""
+      xlink:href="#databaseobjects-chapt"></link> chapter.</para>
+
       <programlisting>CHAR(10)
 CHARACTER(10)
 VARCHAR(2)
@@ -1986,7 +1991,7 @@ Michael   Smith     ARRAY[3420.30]
       up to 1000 rows are processed and returned.</para>
 
       <informalexample>
-        <programlisting>    (TA is a very large table with an index on TA.COL3
+        <programlisting>    -- TA is a very large table with an index on TA.COL3
 
     SELECT * FROM TA JOIN TB ON TA.COL2 = TB.COL1 WHERE TA.COL3 &gt; 40000 ORDER BY TA.COL3 LIMIT 1000;
     SELECT * FROM TA JOIN TB ON TA.COL2 = TB.COL1 WHERE TA.COL3 &gt; 40000 AND TA.COL3 &lt; 100000 ORDER BY TA.COL3 DESC LIMIT 1000;
@@ -2003,7 +2008,7 @@ Michael   Smith     ARRAY[3420.30]
       rows.</para>
 
       <informalexample>
-        <programlisting>    (TA is a very large table with an index on TA.COL3 and a separate index on TA.COL1
+        <programlisting>    -- TA is a very large table with an index on TA.COL3 and a separate index on TA.COL1
 
     SELECT * FROM TA JOIN TB ON TA.COL2 = TB.COL1 WHERE TA.COL1 = 'SENT' AND TB.COL3 &gt; 40000 ORDER BY TB.COL3 LIMIT 1000 USING INDEX;
 </programlisting>
