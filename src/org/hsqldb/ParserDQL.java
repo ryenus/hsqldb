@@ -119,6 +119,7 @@ public class ParserDQL extends ParserBase {
         boolean hasLength      = false;
         boolean hasScale       = false;
         boolean isCharacter    = false;
+        boolean isIgnoreCase   = false;
         boolean readByteOrChar = false;
 
         checkIsIdentifier();
@@ -485,13 +486,10 @@ public class ParserDQL extends ParserBase {
                 break;
 
             case Types.VARCHAR_IGNORECASE :
-                if (!hasLength) {
-                    length = 32 * 1024;
-                }
+                typeNumber   = Types.SQL_VARCHAR;
+                isIgnoreCase = true;
 
-                isCharacter = true;
-                break;
-
+            // fall through
             case Types.SQL_VARCHAR :
                 if (database.sqlSyntaxDb2) {
                     if (readIfThis(Tokens.FOR)) {
@@ -513,6 +511,12 @@ public class ParserDQL extends ParserBase {
                 if (!hasLength) {
                     length = 32 * 1024;
                 }
+
+                if (session.isIgnorecase()) {
+                    if (!session.isProcessingScript()) {
+                        isIgnoreCase = true;
+                    }
+                }
                 break;
 
             case Types.SQL_BINARY :
@@ -531,12 +535,6 @@ public class ParserDQL extends ParserBase {
                     scale  = NumberType.defaultNumericScale;
                 }
                 break;
-        }
-
-        if (session.isIgnorecase() && typeNumber == Types.SQL_VARCHAR) {
-            if (!session.isProcessingScript()) {
-                typeNumber = Types.VARCHAR_IGNORECASE;
-            }
         }
 
         Collation collation = database.collation;
@@ -560,19 +558,12 @@ public class ParserDQL extends ParserBase {
                 read();
                 checkIsSimpleName();
 
-                try {
-                    collation = Collation.getCollation(token.tokenString);
-                } catch (HsqlException e) {
-                    String schemaName =
-                        session.getSchemaName(token.namePrefix);
-
-                    collation =
-                        (Collation) database.schemaManager.getSchemaObject(
-                            token.tokenString, schemaName,
-                            SchemaObject.COLLATION);
-                }
+                collation = database.schemaManager.getCollation(session,
+                        token.tokenString, token.namePrefix);
 
                 read();
+            } else if (isIgnoreCase) {
+                collation = Collation.getUpperCaseCompareCollation(collation);
             }
         }
 
@@ -2893,17 +2884,9 @@ public class ParserDQL extends ParserBase {
             case Tokens.COLLATE : {
                 read();
 
-                Collation collation;
-
-                try {
-                    collation = Collation.getCollation(token.tokenString);
-                } catch (HsqlException ex) {
-                    collation =
-                        (Collation) database.schemaManager.getSchemaObject(
-                            token.tokenString,
-                            session.getSchemaName(token.namePrefix),
-                            SchemaObject.COLLATION);
-                }
+                Collation collation =
+                    database.schemaManager.getCollation(session,
+                        token.tokenString, token.namePrefix);
 
                 e.setCollation(collation);
                 read();
@@ -4874,11 +4857,10 @@ public class ParserDQL extends ParserBase {
         if (token.tokenType == Tokens.COLLATE) {
             read();
 
-            SchemaObject collation =
-                database.schemaManager.getSchemaObject(token.tokenString,
-                    token.namePrefix, SchemaObject.COLLATION);
+            Collation collation = database.schemaManager.getCollation(session,
+                token.tokenString, token.namePrefix);
 
-            return (Collation) collation;
+            return collation;
         }
 
         return null;

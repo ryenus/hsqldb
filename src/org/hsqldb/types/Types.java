@@ -47,8 +47,8 @@ import org.hsqldb.persist.HsqlDatabaseProperties;
  * or those defined by ansi/iso SQL 2003 otherwise. A type sub-identifer
  * has been added to differentiate HSQLDB-specific type specializations.
  *
- * @author  boucherb@users
- * @version 2.0.1
+ * @author Campbell Boucher-Burnet (boucherb@users dot sourceforge.net)
+ * @version 2.3.0
  * @since 1.7.2
  */
 public class Types {
@@ -461,13 +461,6 @@ public class Types {
     public static final int TYPE_SUB_DEFAULT = 1;
 
     /**
-     * The IGNORECASE type sub-identifier. This indicates that an HSQLDB type
-     * with this sub-type, if supported,  is the closest thing HSQLDB offerers
-     * to the JDBC/SQL2003 type, except that case is ignored in comparisons
-     */
-    public static final int TYPE_SUB_IGNORECASE = TYPE_SUB_DEFAULT << 2;
-
-    /**
      * Every (type,type-sub) combination known in the HSQLDB context.
      * Not every combination need be supported as a table or procedure
      * column type -- such determinations are handled in DITypeInfo.
@@ -535,8 +528,6 @@ public class Types {
             TINYINT, TYPE_SUB_DEFAULT
         }, {
             SQL_VARCHAR, TYPE_SUB_DEFAULT
-        }, {
-            SQL_VARCHAR, TYPE_SUB_IGNORECASE
         }, {
             SQL_XML, TYPE_SUB_DEFAULT
         }
@@ -675,9 +666,6 @@ public class Types {
 
     /**
      * Types that accept precision params in column definition or casts.
-     * CHAR, VARCHAR and VARCHAR_IGNORECASE params
-     * are ignored when the sql.enforce_strict_types is false.
-     *
      */
     public static boolean acceptsPrecision(int type) {
 

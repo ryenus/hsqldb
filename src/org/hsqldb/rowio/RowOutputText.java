@@ -242,7 +242,6 @@ public class RowOutputText extends RowOutputBase {
         switch (type.typeCode) {
 
             case Types.SQL_VARCHAR :
-            case Types.VARCHAR_IGNORECASE :
                 nextSep    = varSep;
                 nextSepEnd = varSepEnd;
                 break;
@@ -268,7 +267,6 @@ public class RowOutputText extends RowOutputBase {
                 return;
 
             case Types.SQL_VARCHAR :
-            case Types.VARCHAR_IGNORECASE :
                 writeVarString(s);
 
                 return;

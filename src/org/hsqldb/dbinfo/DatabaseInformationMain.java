@@ -2606,7 +2606,7 @@ class DatabaseInformationMain extends DatabaseInformation {
             row[inullable] = ValuePool.INTEGER_1;
             row[icase_sensitive] =
                 type.isCharacterType()
-                && type.typeCode != Types.VARCHAR_IGNORECASE ? Boolean.TRUE
+                && type.getCollation().isCaseSensitive() ? Boolean.TRUE
                                                              : Boolean.FALSE;
 
             if (type.isLobType()) {

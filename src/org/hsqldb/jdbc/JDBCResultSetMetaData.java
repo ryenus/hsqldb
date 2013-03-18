@@ -193,7 +193,7 @@ public class JDBCResultSetMetaData implements ResultSetMetaData {
         Type type = translateType(resultMetaData.columnTypes[--column]);
 
         if (type.isCharacterType()) {
-            return !((CharacterType) type).isCaseInsensitive();
+            return type.getCollation().isCaseSensitive();
         }
 
         return false;

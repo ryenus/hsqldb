@@ -203,7 +203,6 @@ implements RowOutputInterface {
 
             case Types.SQL_CHAR :
             case Types.SQL_VARCHAR :
-            case Types.VARCHAR_IGNORECASE :
                 writeChar((String) o, t);
                 break;
 

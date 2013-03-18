@@ -150,7 +150,7 @@ import org.hsqldb.lib.java.JavaSystem;
  *
  * @author dmarshall@users
  * @author Bob Preston (sqlbob@users dot sourceforge.net)
- * @version 2.0.1
+ * @version 2.3.0
  * @since 1.7.0
  */
 public class DatabaseManagerSwing extends JApplet
@@ -2274,7 +2274,7 @@ implements ActionListener, WindowListener, KeyListener, MouseListener {
 
         String partOne = name.substring(0, dot);
         String partTwo = name.substring(dot + 1);
-        int    bracket = partTwo.indexOf("  (");
+        int    bracket = partTwo.indexOf(" (");
 
         if (bracket >= 0) {
             partTwo = partTwo.substring(0, bracket);
@@ -2540,7 +2540,7 @@ implements ActionListener, WindowListener, KeyListener, MouseListener {
                     }
 
                     String rowcount = displayRowCounts
-                                      ? (" " + DECFMT.format(rowCounts[i]))
+                                      ? (DECFMT.format(rowCounts[i]))
                                       : "";
                     String displayedName = schemaname + name + rowcount;
 

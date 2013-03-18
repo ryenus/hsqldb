@@ -1723,7 +1723,7 @@ public class QuerySpecification extends QueryExpression {
             int[] groupCols = new int[groupByColumnCount];
 
             for (int i = 0; i < groupByColumnCount; i++) {
-                groupCols[i] = indexLimitVisible + i;
+                groupCols[i] = indexLimitRowId + i;
             }
 
             groupIndex = resultTable.createAndAddIndexStructure(session, null,
@@ -1755,7 +1755,7 @@ public class QuerySpecification extends QueryExpression {
 
         resultColumnTypes = new Type[indexLimitData];
 
-        for (int i = 0; i < indexStartAggregates; i++) {
+        for (int i = 0; i < indexLimitVisible; i++) {
             Expression e = exprColumns[i];
 
             resultColumnTypes[i] = e.getDataType();
@@ -1770,9 +1770,14 @@ public class QuerySpecification extends QueryExpression {
         }
 
         for (int i = indexLimitRowId; i < indexLimitData; i++) {
-            Expression e = exprColumns[i];
+            Expression e    = exprColumns[i];
+            Type       type = e.getDataType();
 
-            resultColumnTypes[i] = e.getDataType();
+            if (type.getCollation() != e.collation && e.collation != null) {
+                type = Type.getType(type, e.collation);
+            }
+
+            resultColumnTypes[i] = type;
         }
     }
 
@@ -1927,6 +1932,7 @@ public class QuerySpecification extends QueryExpression {
             temp = exprColumns[index].describe(session, 2);
 
             sb.append(temp.substring(0, temp.length() - 1));
+
             if (resultMetaData.columns[i].getNullability()
                     == SchemaObject.Nullability.NO_NULLS) {
                 sb.append(" not nullable\n");

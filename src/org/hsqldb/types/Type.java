@@ -50,7 +50,7 @@ import org.hsqldb.rights.Grantee;
  * Base class for type objects.<p>
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.2.9
+ * @version 2.3.0
  * @since 1.9.0
  */
 public abstract class Type implements SchemaObject, Cloneable {
@@ -228,14 +228,6 @@ public abstract class Type implements SchemaObject, Cloneable {
      * Returns the full definition of the type, including parameters
      */
     public abstract String getDefinition();
-
-    public boolean hasCollation() {
-        return false;
-    }
-
-    public String getCollationDefinition() {
-        return "";
-    }
 
     public Collation getCollation() {
         return null;
@@ -645,11 +637,6 @@ public abstract class Type implements SchemaObject, Cloneable {
                           CharacterType.defaultVarcharPrecision);
     public static final ClobType SQL_CLOB =
         new ClobType(ClobType.defaultClobSize);
-    public static final CharacterType VARCHAR_IGNORECASE =
-        new CharacterType(Types.VARCHAR_IGNORECASE, 0);
-    public static final CharacterType VARCHAR_IGNORECASE_DEFAULT =
-        new CharacterType(Types.VARCHAR_IGNORECASE,
-                          CharacterType.defaultVarcharPrecision);
 
     // binary types
     public static final BitType SQL_BIT = new BitType(Types.SQL_BIT, 1);
@@ -841,9 +828,6 @@ public abstract class Type implements SchemaObject, Cloneable {
             case Types.SQL_VARCHAR :
                 return SQL_VARCHAR_DEFAULT;
 
-            case Types.VARCHAR_IGNORECASE :
-                return VARCHAR_IGNORECASE_DEFAULT;
-
             case Types.SQL_CLOB :
                 return SQL_CLOB;
 
@@ -1022,6 +1006,20 @@ public abstract class Type implements SchemaObject, Cloneable {
         }
     }
 
+    public static Type getType(Type type, Collation collation) {
+
+        if (type.getCollation() == collation) {
+            return type;
+        }
+
+        if (type.isCharacterType()) {
+            type                             = type.duplicate();
+            ((CharacterType) type).collation = collation;
+        }
+
+        return type;
+    }
+
     /**
      * Enforces precision and scale limits on type
      */
@@ -1036,7 +1034,6 @@ public abstract class Type implements SchemaObject, Cloneable {
 //                return SQL_ALL_TYPES; // needs changes to Expression type resolution
             case Types.SQL_CHAR :
             case Types.SQL_VARCHAR :
-            case Types.VARCHAR_IGNORECASE :
             case Types.SQL_CLOB :
                 return CharacterType.getCharacterType(type, precision,
                                                       collation);
