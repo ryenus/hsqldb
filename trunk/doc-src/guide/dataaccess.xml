@@ -3385,9 +3385,10 @@ SELECT a, b FROM atable WHERE d &lt; 5 ORDER BY absum OFFSET 3 LIMIT 2 /* altern
 
       <para>If there is an index on all the columns specified in the ORDER BY
       clause, it is normally used for slicing. In some queries, an index on
-      another column may take precedence. It is possible to add USING INDEX to
+      another column may take precedence because it is used to process the
+      WHERE condition. It is possible to add <literal>USING INDEX</literal> to
       the end of the slicing clause to force the use of the index for ordering
-      and slicing.</para>
+      and slicing, instead of the index for the WHERE condition.</para>
     </section>
   </section>
 
