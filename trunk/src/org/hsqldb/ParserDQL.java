@@ -2426,7 +2426,7 @@ public class ParserDQL extends ParserBase {
                 read();
 
                 int subqueryPosition = getPosition();
-                int brackets         = readOpenBrackets();
+                readOpenBrackets();
 
                 switch (token.tokenType) {
 
@@ -2459,10 +2459,6 @@ public class ParserDQL extends ParserBase {
                             e = new Expression(OpTypes.SCALAR_SUBQUERY, td);
                         } else {
                             e = new Expression(OpTypes.ROW_SUBQUERY, td);
-                        }
-
-                        if (readCloseBrackets(brackets) != brackets) {
-                            throw unexpectedToken();
                         }
 
                         return e;
@@ -3939,7 +3935,7 @@ public class ParserDQL extends ParserBase {
                 e = XreadCollectionDerivedTable(OpTypes.IN);
 
                 readThis(Tokens.CLOSEBRACKET);
-                this.readCloseBrackets(brackets);
+                readCloseBrackets(brackets);
                 break;
 
             case Tokens.WITH :
@@ -4187,7 +4183,7 @@ public class ParserDQL extends ParserBase {
                 read();
 
                 int position = getPosition();
-                int brackets = readOpenBrackets();
+                readOpenBrackets();
 
                 switch (token.tokenType) {
 
