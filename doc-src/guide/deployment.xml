@@ -217,9 +217,9 @@
       <example>
         <title>Using CACHED tables for the LOB schema</title>
 
-        <screen>  SET TABLE SYSTEM_LOBS.BLOCKS TYPE CACHED
-  SET TABLE SYSTEM_LOBS.LOBS TYPE CACHED
-  SET TABLE SYSTEM_LOBS.LOB_IDS TYPE CACHED
+        <screen> SET TABLE SYSTEM_LOBS.BLOCKS TYPE CACHED
+ SET TABLE SYSTEM_LOBS.LOBS TYPE CACHED
+ SET TABLE SYSTEM_LOBS.LOB_IDS TYPE CACHED
 </screen>
       </example>
     </section>
@@ -998,20 +998,20 @@
       <example>
         <title>HyperSQL Snapshot Repository Definition</title>
 
-        <programlisting>    &lt;repository&gt;
-      &lt;releases&gt;
-        &lt;enabled&gt;false&lt;/enabled&gt;
-      &lt;/releases&gt;
-      &lt;snapshots&gt;
-        &lt;enabled&gt;true&lt;/enabled&gt;
-        &lt;updatePolicy&gt;always&lt;/updatePolicy&gt;
-        &lt;checksumPolicy&gt;fail&lt;/checksumPolicy&gt;
-      &lt;/snapshots&gt;
-      &lt;id&gt;hsqldb_snapshots&lt;/id&gt;
-      &lt;name&gt;HyperSQL Snapshots&lt;/name&gt;
-      &lt;url&gt;http://hsqldb.org/repos&lt;/url&gt;
-      &lt;layout&gt;default&lt;/layout&gt;
-    &lt;/repository&gt;</programlisting>
+        <programlisting> &lt;repository&gt;
+   &lt;releases&gt;
+     &lt;enabled&gt;false&lt;/enabled&gt;
+   &lt;/releases&gt;
+   &lt;snapshots&gt;
+     &lt;enabled&gt;true&lt;/enabled&gt;
+     &lt;updatePolicy&gt;always&lt;/updatePolicy&gt;
+     &lt;checksumPolicy&gt;fail&lt;/checksumPolicy&gt;
+   &lt;/snapshots&gt;
+   &lt;id&gt;hsqldb_snapshots&lt;/id&gt;
+   &lt;name&gt;HyperSQL Snapshots&lt;/name&gt;
+   &lt;url&gt;http://hsqldb.org/repos&lt;/url&gt;
+   &lt;layout&gt;default&lt;/layout&gt;
+ &lt;/repository&gt;</programlisting>
       </example>
 
       <section xml:id="dec_hsqldb_snap_dep_examples">
@@ -1021,32 +1021,32 @@
           <title>Sample Snapshot Ivy Dependency</title>
 
           <programlisting>
-       &lt;dependency org="org.hsqldb" name="hsqldb" rev="SNAPSHOT" conf="buildOnly"/&gt;</programlisting>
+ &lt;dependency org="org.hsqldb" name="hsqldb" rev="SNAPSHOT" conf="buildOnly"/&gt;</programlisting>
         </example>
 
         <example>
           <title>Sample Snapshot Maven Dependency</title>
 
           <programlisting>
-        &lt;dependency&gt;
-          &lt;groupId&gt;org.hsqldb&lt;groupId&gt;
-          &lt;artifactId&gt;hsqldb&lt;artifactId&gt;
-          &lt;version&gt;SNAPSHOT&lt;version&gt;
-          &lt;!-- Scope defaults to "compile":
-          &lt;scope&gt;test&lt;scope&gt;
-          --&gt;
-        &lt;dependency&gt;</programlisting>
+ &lt;dependency&gt;
+   &lt;groupId&gt;org.hsqldb&lt;/groupId&gt;
+   &lt;artifactId&gt;hsqldb&lt;/artifactId&gt;
+   &lt;version&gt;SNAPSHOT&lt;/version&gt;
+   &lt;!-- Scope defaults to "compile":
+   &lt;scope&gt;test&lt;/scope&gt;
+   --&gt;
+ &lt;/dependency&gt;</programlisting>
         </example>
 
         <example>
           <title>Sample Snapshot Gradle Dependency</title>
 
           <programlisting>
-    dependencies.compile (group: 'org.hsqldb', name: 'hsqldb', version:'SNAPSHOT')
-    dependencies {
-        runtime 'org.hsqldb:hsqldb:SNAPSHOT',
-                'org.hsqldb:sqltool:SNAPSHOT'
-    }</programlisting>
+  dependencies.compile (group: 'org.hsqldb', name: 'hsqldb', version:'SNAPSHOT')
+  dependencies {
+      runtime 'org.hsqldb:hsqldb:SNAPSHOT',
+              'org.hsqldb:sqltool:SNAPSHOT'
+  }</programlisting>
         </example>
 
         <para>If you want to use an <filename>ivy.xml</filename> file with a
@@ -1060,9 +1060,9 @@
             <title>Sample Snapshot ivy.xml loaded by Ivyxml plugin</title>
 
             <programlisting>
-    &lt;ivy-module version="2.0"&gt;
-    ...
-    &lt;dependency org="org.hsqldb" name="hsqldb" rev="SNAPSHOT"/&gt;</programlisting>
+  &lt;ivy-module version="2.0"&gt;
+  ...
+  &lt;dependency org="org.hsqldb" name="hsqldb" rev="SNAPSHOT"/&gt;</programlisting>
           </example></para>
 
         <example>
@@ -1108,7 +1108,7 @@
           <title>Sample Range Ivy Dependency</title>
 
           <programlisting>
-       &lt;dependency org="org.hsqldb" name="hsqldb" rev="[2,)" conf="j6-&gt;default"/&gt;</programlisting>
+ &lt;dependency org="org.hsqldb" name="hsqldb" rev="[2,)" conf="j6-&gt;default"/&gt;</programlisting>
 
           <simpara>I give no example here of specifying a
           <emphasis>classifier</emphasis> in <filename>ivy.xml</filename>
@@ -1124,27 +1124,27 @@
           about Maven range specifications.</simpara>
 
           <programlisting>
-        &lt;dependency&gt;
-          &lt;groupId&gt;org.hsqldb&lt;groupId&gt;
-          &lt;artifactId&gt;hsqldb&lt;artifactId&gt;
-          &lt;version&gt;[2,)&lt;version&gt;
-          &lt;!-- Scope defaults to "compile":
-          &lt;scope&gt;test&lt;scope&gt;
-            Use a classifier to pull one of our alternative jars:
-          &lt;classifier&gt;jdk5&lt;classifier&gt;
-          --&gt;
-        &lt;dependency&gt;</programlisting>
+ &lt;dependency&gt;
+   &lt;groupId&gt;org.hsqldb&lt;/groupId&gt;
+   &lt;artifactId&gt;hsqldb&lt;/artifactId&gt;
+   &lt;version&gt;[2,)&lt;/version&gt;
+   &lt;!-- Scope defaults to "compile":
+   &lt;scope&gt;test&lt;/scope&gt;
+     Use a classifier to pull one of our alternative jars:
+   &lt;classifier&gt;jdk5&lt;/classifier&gt;
+   --&gt;
+ &lt;/dependency&gt;</programlisting>
         </example>
 
         <example>
           <title>Sample Range Gradle Dependency</title>
 
           <programlisting>
-    dependencies.compile (group: 'org.hsqldb', name: 'hsqldb', version:'[2,)', classifier: 'jdk5')
-    dependencies {
-        runtime 'org.hsqldb:hsqldb:[2,):jdk6debug@jar',
-                'org.hsqldb:sqltool:[2,):jdk6debug@jar'
-    }</programlisting>
+ dependencies.compile (group: 'org.hsqldb', name: 'hsqldb', version:'[2,)', classifier: 'jdk5')
+ dependencies {
+     runtime 'org.hsqldb:hsqldb:[2,):jdk6debug@jar',
+             'org.hsqldb:sqltool:[2,):jdk6debug@jar'
+ }</programlisting>
         </example>
 
         <para>If you want to use an <filename>ivy.xml</filename> file with a
@@ -1158,9 +1158,9 @@
             <title>Sample Range ivy.xml loaded by Ivyxml plugin</title>
 
             <programlisting>
-    &lt;ivy-module version="2.0" xmlns:m="http://ant.apache.org/ivy/maven"&gt;
-    ...
-    &lt;dependency org="org.hsqldb" name="hsqldb" rev="[2,)" m:classifier="jdk5"/&gt;</programlisting>
+ &lt;ivy-module version="2.0" xmlns:m="http://ant.apache.org/ivy/maven"&gt;
+ ...
+ &lt;dependency org="org.hsqldb" name="hsqldb" rev="[2,)" m:classifier="jdk5"/&gt;</programlisting>
           </example></para>
 
         <example>

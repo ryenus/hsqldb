@@ -253,10 +253,10 @@
       row into a triglog table after each row insert into the testtrig
       table.</para>
 
-      <programlisting>  CREATE TRIGGER trig AFTER INSERT ON testtrig 
-    REFERENCING NEW ROW AS newrow
-    FOR EACH ROW WHEN (newrow.id &gt; 1)
-    INSERT INTO TRIGLOG VALUES (newrow.id, newrow.data, 'inserted')
+      <programlisting> CREATE TRIGGER trig AFTER INSERT ON testtrig 
+   REFERENCING NEW ROW AS newrow
+   FOR EACH ROW WHEN (newrow.id &gt; 1)
+   INSERT INTO TRIGLOG VALUES (newrow.id, newrow.data, 'inserted')
 </programlisting>
 
       <para>In the example blow, the trigger code modifies the updated data if
@@ -266,13 +266,13 @@
       block and can contain all the SQL statements that are allowed in an
       SQL/PSM block.</para>
 
-      <programlisting>  CREATE TRIGGER t BEFORE UPDATE ON customer
-    REFERENCING NEW AS newrow FOR EACH ROW
-    BEGIN ATOMIC
-      IF LENGTH(newrow.firstname) &gt; 10 THEN
-        SET newrow.firstname = LOWER(newrow.firstname);
-      END IF;
-    END
+      <programlisting> CREATE TRIGGER t BEFORE UPDATE ON customer
+   REFERENCING NEW AS newrow FOR EACH ROW
+   BEGIN ATOMIC
+     IF LENGTH(newrow.firstname) &gt; 10 THEN
+       SET newrow.firstname = LOWER(newrow.firstname);
+     END IF;
+   END
 </programlisting>
     </section>
 
@@ -299,7 +299,7 @@
       different tables and triggers using the supplied arguments and take
       appropriate action.</para>
 
-      <programlisting>    fire (int triggerType, String name, String table, Object row1[], Object row2[])
+      <programlisting> fire (int triggerType, String name, String table, Object row1[], Object row2[])
 </programlisting>
 
       <para>The Java method for a synchronous trigger (see below) can modify
@@ -341,10 +341,10 @@
       trigger is not activated if the c2 column in the updated row is
       null.</para>
 
-      <programlisting>  CREATE TRIGGER TRIGBUR BEFORE UPDATE OF c1, c2, c3 ON testtrig 
-    referencing NEW ROW AS newrow
-    FOR EACH ROW WHEN (newrow.c2 IS NOT NULL)
-    CALL "org.hsqldb.test.TriggerClass"
+      <programlisting> CREATE TRIGGER TRIGBUR BEFORE UPDATE OF c1, c2, c3 ON testtrig 
+   referencing NEW ROW AS newrow
+   FOR EACH ROW WHEN (newrow.c2 IS NOT NULL)
+   CALL "org.hsqldb.test.TriggerClass"
 </programlisting>
 
       <para>Java functions can be called from an SQL trigger. So it is
@@ -352,13 +352,13 @@
       communication that are necessary for the trigger, and use SQL code for
       checks and alterations to data.</para>
 
-      <programlisting>  CREATE TRIGGER t BEFORE UPDATE ON customer
-    REFERENCING NEW AS newrow FOR EACH ROW
-    BEGIN ATOMIC
-      IF LENGTH(newrow.firstname) &gt; 10 THEN
-        CALL my_java_function(newrow.firstname, newrow.lastname);
-      END IF;
-    END
+      <programlisting> CREATE TRIGGER t BEFORE UPDATE ON customer
+   REFERENCING NEW AS newrow FOR EACH ROW
+   BEGIN ATOMIC
+     IF LENGTH(newrow.firstname) &gt; 10 THEN
+       CALL my_java_function(newrow.firstname, newrow.lastname);
+     END IF;
+   END
 </programlisting>
     </section>
   </section>
@@ -503,25 +503,25 @@
     that caused the trigger to execute.</simpara>
 
     <programlisting>/* the trigger throws an exception if a customer with the given last name already exists */
-  CREATE TRIGGER trigone BEFORE INSERT ON customer 
-    REFERENCING NEW ROW AS newrow
-    FOR EACH ROW WHEN (newrow.id &gt; 100)
-    BEGIN ATOMIC
-      IF EXISTS (SELECT * FROM CUSTOMER WHERE CUSTOMER.LASTNAME = NEW.LASTNAME) THEN
-        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'already exists';
-      END IF;
-    END
+ CREATE TRIGGER trigone BEFORE INSERT ON customer 
+   REFERENCING NEW ROW AS newrow
+   FOR EACH ROW WHEN (newrow.id &gt; 100)
+   BEGIN ATOMIC
+     IF EXISTS (SELECT * FROM CUSTOMER WHERE CUSTOMER.LASTNAME = NEW.LASTNAME) THEN
+       SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'already exists';
+     END IF;
+   END
 </programlisting>
 
     <programlisting>/* for each row inserted into the target, the trigger insert a row into the table used for logging */
-  CREATE TRIGGER trig AFTER INSERT ON testtrig 
-    BEFORE othertrigger  
-    REFERENCING NEW ROW AS newrow
-    FOR EACH ROW WHEN (newrow.id &gt; 1)
-    BEGIN ATOMIC
-      INSERT INTO triglog VALUES (newrow.id, newrow.data, 'inserted');
-      /* more statements can be included */
-    END
+ CREATE TRIGGER trig AFTER INSERT ON testtrig 
+   BEFORE othertrigger  
+   REFERENCING NEW ROW AS newrow
+   FOR EACH ROW WHEN (newrow.id &gt; 1)
+   BEGIN ATOMIC
+     INSERT INTO triglog VALUES (newrow.id, newrow.data, 'inserted');
+     /* more statements can be included */
+   END
 </programlisting>
 
     <simpara></simpara>

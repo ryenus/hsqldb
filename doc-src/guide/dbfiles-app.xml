@@ -161,8 +161,8 @@
       </listitem>
 
       <listitem>
-        <para>The <filename>test.script</filename> all the metadata and DDL
-        statements, followed by the data for MEMORY, CACHED and TEXT
+        <para>The <filename>test.script</filename> contains all the metadata
+        and DDL statements, followed by the data for MEMORY, CACHED and TEXT
         tables.</para>
       </listitem>
 
@@ -302,7 +302,7 @@
         <step>
           <para>If it is an existing database, check in the
           <filename>test.properties</filename> file if 'modified=yes'. In this
-          case the 'RESTORE' operation is performed before the database is
+          case the RESTORE operation is performed before the database is
           opened normally.</para>
         </step>
 
@@ -338,7 +338,7 @@
 
         <step>
           <para>Restore the old <filename>test.data</filename> file from the
-          backup. Depending on the backup mode, uncompress the
+          backup. Depending on the backup mode, decompress the
           <filename>test.backup</filename> and overwrite
           <filename>test.data</filename>, or copy the original sections from
           the <filename>test.backup</filename> file.</para>

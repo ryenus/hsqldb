@@ -54,17 +54,16 @@
     HyperSQL Listener (aka Server) on UNIX.</simpara>
 
     <simpara>Note that, unlike a traditional database server, there are many
-    use cases
-    where it makes sense to run HyperSQL without any listener. This type of
-    setup is called <glossterm>in-process</glossterm>, and is not covered
-    here, since there is no UNIX-specific setup in that case.</simpara>
+    use cases where it makes sense to run HyperSQL without any listener. This
+    type of setup is called <glossterm>in-process</glossterm>, and is not
+    covered here, since there is no UNIX-specific setup in that
+    case.</simpara>
 
-    <simpara>I intend to cover what I think is the most common
-    UNIX setup: To run a multi-user, externally-accessible catalog with
-    permanent data persistence. (By the latter I mean that data is stored to
-    disk so that the catalog data will persist across process shutdowns and
-    startups). I also cover how to run the Listener as a system
-    daemon.</simpara>
+    <simpara>I intend to cover what I think is the most common UNIX setup: To
+    run a multi-user, externally-accessible catalog with permanent data
+    persistence. (By the latter I mean that data is stored to disk so that the
+    catalog data will persist across process shutdowns and startups). I also
+    cover how to run the Listener as a system daemon.</simpara>
 
     <simpara>When I give sample shell commands below, I use commands which
     will work in Bourne-compatible shells, including Bash and Korn. Users who
@@ -83,9 +82,9 @@
 
     <simpara>If you want a binary package and we either don't provide it, or
     you prefer somebody else's build, you should still find out the current
-    version of HyperSQL available at SourceForge. It's very
-    likely that you can find a binary package for your UNIX variant with your
-    OS distributor, <link xlink:href="http://www.jpackage.org/"></link>, <link
+    version of HyperSQL available at SourceForge. It's very likely that you
+    can find a binary package for your UNIX variant with your OS distributor,
+    <link xlink:href="http://www.jpackage.org/"></link>, <link
     xlink:href="http://sunfreeware.com/"></link>, etc. Nowadays, most UNIXes
     have software package management systems which check Internet
     repositories. Just search the repositories for "hsqldb" and "hypersql".
@@ -118,15 +117,14 @@
           <para>This package is only for use by a Solaris super-user. It's a
           System V package. Download then uncompress the package with
           uncompress or gunzip <informalexample>
-              <screen>    uncompress filename.pkg.Z</screen>
+              <screen> uncompress filename.pkg.Z</screen>
             </informalexample> You can read about the package by running
           <informalexample>
-              <screen>    pkginfo -l -d filename.pkg</screen>
+              <screen> pkginfo -l -d filename.pkg</screen>
             </informalexample> Run pkgadd as root to install.</para>
 
           <informalexample>
-            <screen>
-    pkgadd -d filename.pkg</screen>
+            <screen> pkgadd -d filename.pkg</screen>
           </informalexample>
         </listitem>
       </varlistentry>
@@ -150,11 +148,11 @@
           it install it. The remainder of item explains a generic command-line
           method which should work with any Linux variant. After you download
           the rpm, you can read about it by running <informalexample>
-              <screen>    rpm -qip /path/to/file.rpm</screen>
+              <screen> rpm -qip /path/to/file.rpm</screen>
             </informalexample></para>
 
           <para>Rpms can be installed or upgraded by running <informalexample>
-              <screen>    rpm -Uvh /path/to/file.rpm</screen>
+              <screen> rpm -Uvh /path/to/file.rpm</screen>
             </informalexample> as root. Suse users may want to keep Yast aware
           of installed packages by running rpm through Yast: <literal>yast2 -i
           /path/to/file.rpm</literal>.</para>
@@ -175,8 +173,8 @@
           the version number in the directory tree somehow.</simpara>
 
           <informalexample>
-            <screen>    cd ancestor/of/new/hsqldb/home
-    unzip /path/to/file.zip</screen>
+            <screen> cd ancestor/of/new/hsqldb/home
+ unzip /path/to/file.zip</screen>
           </informalexample>
 
           <simpara>All the files in the zip archive will be extracted to
@@ -190,10 +188,9 @@
     <filename>hsqldb</filename> for zip file installations. Otherwise, use the
     utilities for your packaging system). The most important file of the
     HyperSQL system is <filename>hsqldb.jar</filename>, which resides in the
-    subdirectory <filename>lib</filename>.
-    Depending on who built your distribution, your file name may have a
-    version label in it, like <filename>hsqldb-1.2.3.4.jar</filename>.
-    </simpara>
+    subdirectory <filename>lib</filename>. Depending on who built your
+    distribution, your file name may have a version label in it, like
+    <filename>hsqldb-1.2.3.4.jar</filename>.</simpara>
 
     <important>
       <simpara>For the purposes of this chapter, I define
@@ -236,11 +233,11 @@
         version from <link xlink:href="http://ant.apache.org"></link>. cd to
         where you want Ant to live, and extract from the archive with
         <informalexample>
-            <screen>    unzip /path/to/file.zip</screen>
+            <screen> unzip /path/to/file.zip</screen>
           </informalexample>or<informalexample>
-            <screen>    tar -xzf /path/to/file.tar.gz</screen>
+            <screen> tar -xzf /path/to/file.tar.gz</screen>
           </informalexample>or<informalexample>
-            <screen>    bunzip2 -c /path/to/file.tar.bz2 | tar -xzf -</screen>
+            <screen> bunzip2 -c /path/to/file.tar.bz2 | tar -xzf -</screen>
           </informalexample> Everything will be installed into a new
         subdirectory named <filename>apache-ant- + version</filename>. You can
         rename the directory after the extraction if you wish.</para>
@@ -249,7 +246,7 @@
       <step>
         <para>Set the environmental variable <varname>JAVA_HOME</varname> to
         the base directory of your Java JRE or SDK, like <informalexample>
-            <screen>    export JAVA_HOME; JAVA_HOME=/usr/java/j2sdk1.4.0</screen>
+            <screen> export JAVA_HOME; JAVA_HOME=/usr/java/j2sdk1.4.0</screen>
           </informalexample> The location is entirely dependent upon your
         variety of UNIX. Sun's rpm distributions of Java normally install to
         <filename>/usr/java/something</filename>. Sun's System V package
@@ -269,7 +266,7 @@
         <para>cd to <varname>HSQLDB_HOME</varname><filename>/build</filename>.
         Make sure that the bin directory under your Ant home is in your search
         path. Run the following command. <informalexample>
-            <screen>    ant hsqldb</screen>
+            <screen> ant hsqldb</screen>
           </informalexample> This will build a new
         <varname>HSQLDB_HOME</varname><filename>/lib/hsqldb.jar</filename>.</para>
       </step>
@@ -307,7 +304,7 @@
         <para>If the account doesn't exist, then create it. On all system-5
         UNIXes and most hybrids (including Linux), you can run (as root)
         something like <informalexample>
-            <screen>    useradd -c 'HSQLDB Database Owner' -s /bin/bash -m hsqldb</screen>
+            <screen> useradd -c 'HSQLDB Database Owner' -s /bin/bash -m hsqldb</screen>
           </informalexample> (BSD-variant users can use a similar <literal>pw
         useradd hsqldb...</literal> command).</para>
       </step>
@@ -340,12 +337,12 @@
         <varname>CLASSPATH</varname> to the value of
         <varname>HSQLDB_HOME</varname> (as described above) plus
         "/lib/hsqldb.jar", like <informalexample>
-            <screen>    export CLASSPATH; CLASSPATH=/path/to/hsqldb/lib/hsqldb.jar</screen>
+            <screen> export CLASSPATH; CLASSPATH=/path/to/hsqldb/lib/hsqldb.jar</screen>
           </informalexample> In <varname>HSQLDB_OWNER</varname>'s home
         directory, run</para>
 
         <informalexample>
-          <screen>    nohup java org.hsqldb.server.Server &amp;</screen>
+          <screen> nohup java org.hsqldb.server.Server &amp;</screen>
         </informalexample>
 
         <simpara>This will start the Listener process in the background, and
@@ -360,18 +357,17 @@
 
   <section xml:id="uxc_access">
     <title>Accessing your Database</title>
-    <simpara>
-      We're going to use SqlTool to access the database, so you will need the
-      file <filename>sqltool.jar</filename> in addition to
-      <filename>hsqldb.jar</filename>.
-      If <filename>sqltool.jar</filename> isn't already sitting there beside
-      <filename>hsqldb.jar</filename> (they both come pre-built), build it
-      exactly as you would build <filename>hsqldb.jar</filename>, except use
-      ant target <literal>sqltool</literal>.
-      If your distribution came with a sqltool jar file with a version label,
-      like <filename>sqltool-1.2.3.4.jar</filename>, that's fine-- use that
-      file whenever I say <filename>sqltool.jar</filename> below.
-    </simpara>
+
+    <simpara>We're going to use SqlTool to access the database, so you will
+    need the file <filename>sqltool.jar</filename> in addition to
+    <filename>hsqldb.jar</filename>. If <filename>sqltool.jar</filename> isn't
+    already sitting there beside <filename>hsqldb.jar</filename> (they both
+    come pre-built), build it exactly as you would build
+    <filename>hsqldb.jar</filename>, except use ant target
+    <literal>sqltool</literal>. If your distribution came with a sqltool jar
+    file with a version label, like <filename>sqltool-1.2.3.4.jar</filename>,
+    that's fine-- use that file whenever I say
+    <filename>sqltool.jar</filename> below.</simpara>
 
     <simpara>Copy the file <filename
     xlink:href="#sqltool.rc-link">sample/sqltool.rc</filename> to the
@@ -390,23 +386,23 @@
     without listeners in other chapters of this guide.</simpara>
 
     <para>Run <classname>SqlTool</classname>. <informalexample>
-        <screen>    java -jar path/to/sqltool.jar localhost-sa</screen>
+        <screen> java -jar path/to/sqltool.jar localhost-sa</screen>
       </informalexample> If you get a prompt, then all is well. If security is
     of any concern to you at all, then you should change the privileged
     password in the database. Use the command <literal
     xlink:href="#set_password-sql">SET PASSWORD</literal> command to change
     SA's password. <informalexample>
-        <programlisting>    SET PASSWORD 'newpassword';</programlisting>
-      </informalexample>
-    Set a <emphasis>strong</emphasis> password!
-    </para>
-    <note><simpara>
-        If, like most UNIX System Administrators, you often need to make up
-        strong passwords, I highly suggest the great little program
-        <filename xlink:href="https://sourceforge.net/projects/pwgen/">pwgen</filename>.
-        You can probably get it where you get your other OS packages.
-        The command <literal>pwgen -1</literal> is usually all you need.
-    </simpara></note>
+        <programlisting> SET PASSWORD 'newpassword';</programlisting>
+      </informalexample> Set a <emphasis>strong</emphasis> password!</para>
+
+    <note>
+      <simpara>If, like most UNIX System Administrators, you often need to
+      make up strong passwords, I highly suggest the great little program
+      <filename
+      xlink:href="https://sourceforge.net/projects/pwgen/">pwgen</filename>.
+      You can probably get it where you get your other OS packages. The
+      command <literal>pwgen -1</literal> is usually all you need.</simpara>
+    </note>
 
     <simpara>Note that with SQL-conformant databases like HyperSQL 2.0, user
     names and passwords are case sensitive. If you don't quote the name, it
@@ -418,11 +414,11 @@
     <literal>\q</literal>.</simpara>
 
     <simpara>If you changed the SA password, then you need to update the
-    password in the <filename>sqltool.rc</filename> file accordingly.</simpara>
+    password in the <filename>sqltool.rc</filename> file
+    accordingly.</simpara>
 
     <simpara>You can, of course, also access the database with any JDBC client
-    program.
-    You will need to modify your classpath to include
+    program. You will need to modify your classpath to include
     <filename>hsqldb.jar</filename> as well as your client class(es). You can
     also use the other HSQLDB client programs, such as
     <classname>org.hsqldb.util.DatabasManagerSwing</classname>, a graphical
@@ -472,11 +468,9 @@
     table-like objects that need to be accessed by multiple database users,
     with the significant exception of any data which you want to keep secret.
     (Similarly with EXECUTE priv for routines and USAGE priv for other object
-    types).
-    Note that this is not at all equivalent to giving the world or the Internet
-    read access to your tables-- you are giving read access to people that have
-    been given accounts for the target database catalog.
-    </simpara>
+    types). Note that this is not at all equivalent to giving the world or the
+    Internet read access to your tables-- you are giving read access to people
+    that have been given accounts for the target database catalog.</simpara>
   </section>
 
   <section xml:id="uxc_shutdown">
@@ -485,7 +479,7 @@
     <para>Do a clean database shutdown when you are finished with the database
     catalog. You need to connect up as SA or some other Admin user, of course.
     With SqlTool, you can run <informalexample>
-        <screen>    java -jar path/to/sqltool.jar --sql 'shutdown;' localhost-sa</screen>
+        <screen> java -jar path/to/sqltool.jar --sql 'shutdown;' localhost-sa</screen>
       </informalexample> You don't have to worry about stopping the
     <classname>Listener</classname> because it shuts down automatically when
     all served database catalogs are shut down.</para>
@@ -580,8 +574,8 @@
           you will need to set up administrative access for each of these
           catalogs. If you are using our sample <filename
           xlink:href="#server.properties-link"> server.properties</filename>
-          file, you will just need to set up access for the
-          catalog specified with <literal>file:db0/dbo</literal>.</para>
+          file, you will just need to set up access for the catalog specified
+          with <literal>file:db0/dbo</literal>.</para>
 
           <note>
             <simpara>Pre-2.0 versions of the hsqldb init script required use
@@ -614,10 +608,10 @@
           <example>
             <title>example sqltool.rc stanza</title>
 
-            <programlisting>    urlid localhostdb1
-    url jdbc:hsqldb:hsql://localhost
-    username SA
-    password secret</programlisting>
+            <programlisting> urlid localhostdb1
+ url jdbc:hsqldb:hsql://localhost
+ username SA
+ password secret</programlisting>
           </example>
         </step>
 
@@ -639,11 +633,11 @@
           works.</emphasis></simpara>
 
           <para>Just run <informalexample>
-              <screen>    /path/to/hsqldb</screen>
+              <screen> /path/to/hsqldb</screen>
             </informalexample> as root to see the arguments you may use.
           Notice that you can run</para>
 
-          <para><screen>    /path/to/hsqldb status</screen>at any time to see
+          <para><screen> /path/to/hsqldb status</screen>at any time to see
           whether your HSQLDB <classname>Listener</classname> is
           running.</para>
 
@@ -676,7 +670,7 @@
           <filename>/Library/StartupItems/hsqldb</filename>, your init script
           is active (for portability reasons, it doesn't check for a setting
           in <filename>/etc/hostconfig</filename>). You can run it as a
-          <emphasis>Startup Item</emphasis> by running <screen>    SystemStarter {start|stop|restart} Hsqldb</screen>
+          <emphasis>Startup Item</emphasis> by running <screen> SystemStarter {start|stop|restart} Hsqldb</screen>
           Hsqldb is the service name. See the man page for
           <classname>SystemStarter</classname>. To disable the init script,
           wipe out the <filename>/Library/StartupItems/hsqldb</filename>
@@ -717,18 +711,17 @@
 
       <simpara>If your database really is not starting, then verify that you
       can <literal>su</literal> to the database owner account and start the
-      database. The command
-      <literal>su USERNAME -c ...</literal> won't work on most UNIXes unless
-      the target user has a real login shell. Therefore, if you try to tighten
-      up security by disabling this user's login shell, you will break the
-      init script. If these possibilities don't pan out, then debug the init
-      script or seek help, as described below.</simpara>
+      database. The command <literal>su USERNAME -c ...</literal> won't work
+      on most UNIXes unless the target user has a real login shell. Therefore,
+      if you try to tighten up security by disabling this user's login shell,
+      you will break the init script. If these possibilities don't pan out,
+      then debug the init script or seek help, as described below.</simpara>
 
       <para>To debug the init script, run it in verbose mode to see exactly
       what is happening (and perhaps manually run the steps that are suspect).
       To run an init script (in fact, any sh shell script) in verbose mode,
       use <literal>sh</literal> with the <literal>-x</literal> or
-      <literal>-v</literal> switch, like <screen>    sh -x path/to/hsqldb start</screen>
+      <literal>-v</literal> switch, like <screen> sh -x path/to/hsqldb start</screen>
       See the man page for <literal>sh</literal> if you don't know the
       difference between <literal>-v</literal> and
       <literal>-x</literal>.</para>
@@ -736,7 +729,7 @@
       <para>If you want troubleshooting help, use the HSQLDB lists/forums.
       Make sure to include the revision number from your
       <filename>hsqldb</filename> init script (it's towards the top in the
-      line that starts like "# $Id:"), and the output of a run of <screen>    sh -x path/to/hsqldb start &gt; /tmp/hstart.log 2&gt;&amp;1</screen></para>
+      line that starts like "# $Id:"), and the output of a run of <screen> sh -x path/to/hsqldb start &gt; /tmp/hstart.log 2&gt;&amp;1</screen></para>
     </section>
   </section>
 
@@ -760,7 +753,8 @@
     <varname>URLIDS</varname>, as described above and in the inline comments,
     and (2) replace variable <varname>HSQLDB_JAR_PATH</varname> with
     <varname>SQLTOOL_JAR_PATH</varname> which (if you haven't guessed) should
-    be set to the path to your <filename>sqltool.jar</filename> file.</simpara>
+    be set to the path to your <filename>sqltool.jar</filename>
+    file.</simpara>
 
     <simpara>Users who customized their init script will need to merge their
     customizations into the new init script.</simpara>

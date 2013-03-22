@@ -285,25 +285,34 @@
   <section xml:id="dpc_variables_url">
     <title>Variables In Connection URL</title>
 
-    <para>Two types of variables are allowed for mem: and file: database
-    URLs.</para>
+    <para>Two types of variables are allowed for file: database URLs. These
+    properties have an effect only if used for the first connection to the
+    database (the connection which opens the database). When running a server,
+    these variables have no effect on the connection URL but can be appended
+    to the database path URL in server.properties or the server command
+    line.</para>
 
-    <para>If the database part of a file: database begins with ~/ or ~\ the
-    tilde character is replaced with the value of the system property
-    "user.home" resulting in the database being created or accessed in this
-    directory, or one of its subdirectories. In the example below, the
-    database files for mydb are located in the user's home directory.</para>
+    <para>If the database part of a file: database begins with
+    <literal>~/</literal> or <literal>~\</literal> the tilde character is
+    replaced with the value of the system property
+    <literal>"user.home"</literal> resulting in the database being created or
+    accessed in this directory, or one of its subdirectories. In the examples
+    below, the database files for <literal>mydb</literal> and
+    <literal>filedb</literal> are located in the user's home directory.</para>
 
-    <programlisting>    jdbc:hsqldb:file:~/mydb;shutdown=true</programlisting>
+    <programlisting> jdbc:hsqldb:file:~/mydb
+ jdbc:hsqldb:file:~/filedb;shutdown=true
+</programlisting>
 
-    <para>If the database URL contains a string in the form of ${propname}
-    then the sequence of characters is replaced with the system property with
-    the given name. For example you can use this in the URL of a database that
-    is used in a web application and define the system property, "propname" in
-    the web application properties. In the example below, the string
-    ${mydbpath} is replaced with the value of the property, mydbpath</para>
+    <para>If the database URL contains a string in the form of
+    <literal>${propname}</literal> then the sequence of characters is replaced
+    with the system property with the given name. For example you can use this
+    in the URL of a database that is used in a web application and define the
+    system property, "propname" in the web application properties. In the
+    example below, the string <literal>${mydbpath}</literal> is replaced with
+    the value of the property, <literal>mydbpath</literal></para>
 
-    <programlisting>    jdbc:hsqldb:file:${mydbpath};sql.enforce_types=true</programlisting>
+    <programlisting> jdbc:hsqldb:file:${mydbpath}</programlisting>
   </section>
 
   <section xml:id="dpc_connection_props">
@@ -316,9 +325,13 @@
 
     <para>Connection properties are specified either by establishing the
     connection via the method call below, or the property can be appended to
-    the full Connection URL.</para>
+    the full Connection URL. The first three of these properties can be used
+    for any connection, including connection to a Server but the other three
+    have an effect only with the first connection to a file: or mem: database,
+    or when appended to the database path URL in server.properties or the
+    server command line.</para>
 
-    <programlisting>    DriverManager.getConnection (String url, Properties info);</programlisting>
+    <programlisting> DriverManager.getConnection (String url, Properties info);</programlisting>
 
     <table frame="all" pgwide="1" tocentry="1">
       <title>User and Password</title>
@@ -351,7 +364,7 @@
 
           <row>
             <entry nameend="c3" namest="c1"><para>Standard property. This
-            property is case sensitive. Example below:</para><programlisting>    jdbc:hsqldb:file:enrolments;user=aUserName;ifexists=true</programlisting></entry>
+            property is case sensitive. Example below:</para><programlisting> jdbc:hsqldb:file:enrolments;user=aUserName;ifexists=true</programlisting></entry>
           </row>
 
           <row>
@@ -364,12 +377,12 @@
 
           <row>
             <entry nameend="c3" namest="c1"><para>Standard property. This
-            property is case sensitive. Example below:</para><programlisting>    jdbc:hsqldb:file:enrolments;user=aUserName;password=3xLVz</programlisting><para>For
+            property is case sensitive. Example below:</para><programlisting> jdbc:hsqldb:file:enrolments;user=aUserName;password=3xLVz</programlisting><para>For
             compatibility with other engines, a non-standard form of
             specifying user and password is also supported. In this form, user
             name and password appear at the end of the URL string, prefixed
             respectively with the question mark and the
-            ampersand:</para><programlisting>    jdbc:hsqldb:file:enrolments;create=false?user=aUserName&amp;password=3xLVz</programlisting></entry>
+            ampersand:</para><programlisting> jdbc:hsqldb:file:enrolments;create=false?user=aUserName&amp;password=3xLVz</programlisting></entry>
           </row>
         </tbody>
       </tgroup>
@@ -413,7 +426,7 @@
             database.</para><para>The default is true. When the property is
             false, the above method returns the same value as
             <methodname>ResultSet.getColumnLabel(int column)</methodname>
-            Example below:</para><programlisting>    jdbc:hsqldb:hsql://localhost/enrolments;get_column_name=false</programlisting><para>When
+            Example below:</para><programlisting> jdbc:hsqldb:hsql://localhost/enrolments;get_column_name=false</programlisting><para>When
             a ResultSet is used inside a user-defined stored procedure, the
             default, true, is always used for this property.</para></entry>
           </row>
@@ -459,7 +472,7 @@
             <glossterm>file:</glossterm> database will be created if it does
             not exist.</para><para>Setting the property to true is useful when
             troubleshooting as no database is created if the URL is malformed.
-            Example below:</para><programlisting>    jdbc:hsqldb:file:enrolments;ifexists=true</programlisting></entry>
+            Example below:</para><programlisting> jdbc:hsqldb:file:enrolments;ifexists=true</programlisting></entry>
           </row>
 
           <row>
@@ -481,7 +494,7 @@
             database will be created if it does not exist.</para><para>Setting
             the property to true is useful when troubleshooting as no database
             is created if the URL is malformed. Example
-            below:</para><programlisting>    jdbc:hsqldb:file:enrolments;create=false</programlisting></entry>
+            below:</para><programlisting> jdbc:hsqldb:file:enrolments;create=false</programlisting></entry>
           </row>
         </tbody>
       </tgroup>
@@ -531,41 +544,52 @@
             environment to shutdown the database. Examples reported by users
             include web application servers, where the closing of the last
             connection coincides with the web app being shut
-            down.</para><programlisting>    jdbc:hsqldb:file:enrolments;shutdown=true</programlisting></entry>
+            down.</para><programlisting> jdbc:hsqldb:file:enrolments;shutdown=true</programlisting></entry>
           </row>
         </tbody>
       </tgroup>
     </table>
 
     <para>In addition, when the first connection to an
-    <glossterm>in-process</glossterm> file: or mem: database creates a new
-    database all the user-defined database properties can be specified as URL
-    properties. See the next section for details.</para>
+    <glossterm>in-process</glossterm> <literal>file:</literal> or
+    <literal>mem:</literal> database creates a new database all the
+    user-defined database properties can be specified as URL properties. See
+    the next section for details.</para>
   </section>
 
   <section xml:id="dpc_db_props_url">
     <title>Database Properties in Connection URL and Properties</title>
 
-    <para>The database engine has several properties that are listed in the
-    <link endterm="management-title" xlink:href="#management-chapt"></link>
-    chapter. These properties can be changed via SQL commands after a
-    connection is made to the database. It is possible to specify most of
-    these properties in the connection properties or as part of the URL string
-    when the first connection is made to a new file: or mem: database. This
-    allows the properties to be set without using any SQL commands. The
-    corresponding SQL command is given for each property.</para>
+    <para>Each database has several default settings (properties) that are
+    listed in the <link endterm="management-title"
+    xlink:href="#management-chapt"></link> chapter. These properties can be
+    changed via SQL commands after a connection is made to the database. It is
+    possible to specify most of these properties in the connection properties
+    or as part of the URL string when the first connection is made to a new
+    <literal>file:</literal> or <literal>mem:</literal> database. This allows
+    the properties to be set without using any SQL commands. The corresponding
+    SQL command is given for each property. For a server, these properties can
+    be appended to the database path URL in server.properties or the server
+    command line. </para>
+
+    <para>Note the prefered method of setting database properties is by using
+    a set of SQL statements. These statements can be used both for a new
+    database or an existing database, unlike URL properties that are generally
+    effective for new databases only.</para>
 
     <para>If the properties are used for connection to an existing database,
     they are ignored.</para>
 
     <para>The exceptions are the following property settings that are allowed
-    for the first connection to an existing database:
-    <literal>readonly=true</literal>, <literal>files_readonly=true</literal>,
+    for the first connection to an existing database (the connection which
+    reopens the database): <literal>readonly=true</literal>,
+    <literal>files_readonly=true</literal>,
     <literal>hsqldb.lock_file=false</literal>,
-    <literal>hsqldb.sqllog=1-3</literal>. These specific property / value
+    <literal>hsqldb.sqllog=1-3</literal>,
+    <literal>hsqldb.applog=1-3</literal>. These specific property / value
     pairs override the existing database properties. For example a normal
     database is opened as readonly, or the lock file is not created, or the
-    sqllog level is set to a value between 1 and 3.</para>
+    sql log level is set to a value between 1 and 3.</para>
 
     <para>Management of properties has changed since version 1.8. The old SET
     PROPERTY statement does not change a property and is ignored. The
@@ -574,7 +598,7 @@
     <para>In the example URL below, two properties are set for the first
     connection to a new database.</para>
 
-    <programlisting>    jdbc:hsqldb:file:enrolments;hsqldb.cache_rows=10000;hsqldb.nio_data_file=false</programlisting>
+    <programlisting> jdbc:hsqldb:file:enrolments;hsqldb.cache_rows=10000;hsqldb.nio_data_file=false</programlisting>
 
     <para>In the table below, database properties that can be used as part of
     the URL or in connection properties are listed. For each property that can
@@ -1298,11 +1322,11 @@
             <row>
               <entry nameend="c3" namest="c1"><para>When this propery is set
               true, all VARCHAR declarations in CREATE TABLE and other
-              statemenst are replaced with VARCHAR_IGNORECASE. This is
-              designed for compatibility with some databases that use
-              case-insensitive comparison. It is better to use
-              VARCHAR_INGNORECASE selectively for specific columns that
-              require it.</para><para><programlisting>SET DATABASE SQL IGNORECASE { TRUE | FALSE }</programlisting></para></entry>
+              statemenst are assigned an Upper Case Comparison collation,
+              SQL_TEXT_UCC. This is designed for compatibility with some
+              databases that use case-insensitive comparison. It is better to
+              specify the collation selectively for specific columns that
+              require it.</para><para><programlisting>SET DATABASE COLLATION SQL_TEXT_UCC</programlisting></para></entry>
             </row>
           </tbody>
         </tgroup>
@@ -1746,8 +1770,8 @@
 
               <entry><literal>false</literal></entry>
 
-              <entry>readonly database - is used to open an existing file:
-              database</entry>
+              <entry>readonly database - is used to open an existing
+              <literal>file:</literal> database</entry>
             </row>
 
             <row>
@@ -1789,7 +1813,7 @@
               <entry><literal>false</literal></entry>
 
               <entry>readonly files database - is used to open an existing
-              file: database</entry>
+              <literal>file:</literal> database</entry>
             </row>
 
             <row>
@@ -1829,7 +1853,8 @@
 
               <entry><literal>false</literal></entry>
 
-              <entry>enable huge database files</entry>
+              <entry>enable huge database files - can also be used to open an
+              existing <literal>file:</literal> database</entry>
             </row>
 
             <row>
@@ -1838,6 +1863,92 @@
               this property to true increases the limit to 256 billion rows.
               This property is used as a connection
               property.</para><para><programlisting>this property cannot be set with an SQL statement - it can be used as a connection property for the connection that opens the database</programlisting></para></entry>
+            </row>
+          </tbody>
+        </tgroup>
+      </table>
+
+      <table frame="all" pgwide="1" tocentry="1">
+        <title>Event Logging</title>
+
+        <tgroup align="left" cols="3">
+          <colspec colname="c1" colwidth="6.5cm" />
+
+          <colspec colname="c2" colwidth="1.5cm" />
+
+          <colspec colname="c3" />
+
+          <thead>
+            <row>
+              <entry>Name</entry>
+
+              <entry>Default</entry>
+
+              <entry>Description</entry>
+            </row>
+          </thead>
+
+          <tbody valign="top">
+            <row>
+              <entry><property>hsqldb.applog</property></entry>
+
+              <entry><literal>0</literal></entry>
+
+              <entry>application logging level - can also be used when
+              openning an existing <literal>file:</literal> database</entry>
+            </row>
+
+            <row>
+              <entry nameend="c3" namest="c1"><para>The default level 0
+              indicates no logging. Level 1 results in minimal logging,
+              including any failures. Level 2 indicates all events, including
+              ordinary events. LEVEL 3 adds details of some of the normal
+              operations. The events are logged in a file ending with
+              ".app.log".</para><para><programlisting>SET DATABASE EVENT LOG LEVEL { 0 | 1 | 2 | 3}</programlisting></para></entry>
+            </row>
+          </tbody>
+        </tgroup>
+      </table>
+
+      <table frame="all" pgwide="1" tocentry="1">
+        <title>SQL Logging</title>
+
+        <tgroup align="left" cols="3">
+          <colspec colname="c1" colwidth="6.5cm" />
+
+          <colspec colname="c2" colwidth="1.5cm" />
+
+          <colspec colname="c3" />
+
+          <thead>
+            <row>
+              <entry>Name</entry>
+
+              <entry>Default</entry>
+
+              <entry>Description</entry>
+            </row>
+          </thead>
+
+          <tbody valign="top">
+            <row>
+              <entry><property>hsqldb.sqllog</property></entry>
+
+              <entry><literal>0</literal></entry>
+
+              <entry>sql logging level - can also be used when openning an
+              existing <literal>file:</literal> database</entry>
+            </row>
+
+            <row>
+              <entry nameend="c3" namest="c1"><para>The default level 0
+              indicates no logging. Level 1 logs only commits and rollbacks.
+              Level 2 logs all the SQL statements executed, together with
+              their parameter values. Long statements and parameter values are
+              truncated. Level 3 is similar to Level 2 but does not truncate
+              long statements and values. The events are logged in a file
+              ending with ".sql.log". This property applies to existing file:
+              databases as well as new databases.</para><para><programlisting>SET DATABASE EVENT LOG SQL LEVEL { 0 | 1 | 2 | 3}</programlisting></para></entry>
             </row>
           </tbody>
         </tgroup>
@@ -1886,91 +1997,6 @@
       </table>
 
       <table frame="all" pgwide="1" tocentry="1">
-        <title>Event Logging</title>
-
-        <tgroup align="left" cols="3">
-          <colspec colname="c1" colwidth="6.5cm" />
-
-          <colspec colname="c2" colwidth="1.5cm" />
-
-          <colspec colname="c3" />
-
-          <thead>
-            <row>
-              <entry>Name</entry>
-
-              <entry>Default</entry>
-
-              <entry>Description</entry>
-            </row>
-          </thead>
-
-          <tbody valign="top">
-            <row>
-              <entry><property>hsqldb.applog</property></entry>
-
-              <entry><literal>0</literal></entry>
-
-              <entry>application logging level</entry>
-            </row>
-
-            <row>
-              <entry nameend="c3" namest="c1"><para>The default level 0
-              indicates no logging. Level 1 results in minimal logging,
-              including any failures. Level 2 indicates all events, including
-              ordinary events. LEVEL 3 adds details of some of the normal
-              operations. The events are logged in a file ending with
-              ".app.log".</para><para><programlisting>SET DATABASE EVENT LOG LEVEL { 0 | 1 | 2 | 3}</programlisting></para></entry>
-            </row>
-          </tbody>
-        </tgroup>
-      </table>
-
-      <table frame="all" pgwide="1" tocentry="1">
-        <title>SQL Logging</title>
-
-        <tgroup align="left" cols="3">
-          <colspec colname="c1" colwidth="6.5cm" />
-
-          <colspec colname="c2" colwidth="1.5cm" />
-
-          <colspec colname="c3" />
-
-          <thead>
-            <row>
-              <entry>Name</entry>
-
-              <entry>Default</entry>
-
-              <entry>Description</entry>
-            </row>
-          </thead>
-
-          <tbody valign="top">
-            <row>
-              <entry><property>hsqldb.sqllog</property></entry>
-
-              <entry><literal>0</literal></entry>
-
-              <entry>sql logging level - can also be used to open an existing
-              file: database</entry>
-            </row>
-
-            <row>
-              <entry nameend="c3" namest="c1"><para>The default level 0
-              indicates no logging. Level 1 logs only commits and rollbacks.
-              Level 2 logs all the SQL statements executed, together with
-              their parameter values. Long statements and parameter values are
-              truncated. Level 3 is similar to Level 2 but does not truncate
-              long statements and values. The events are logged in a file
-              ending with ".sql.log". This property applies to existing file:
-              databases as well as new databases.</para><para><programlisting>SET DATABASE EVENT LOG SQL LEVEL { 0 | 1 | 2 | 3}</programlisting></para></entry>
-            </row>
-          </tbody>
-        </tgroup>
-      </table>
-
-      <table frame="all" pgwide="1" tocentry="1">
         <title>Rows Cached In Memory</title>
 
         <tgroup align="left" cols="3">
@@ -1996,7 +2022,9 @@
 
               <entry><literal>512</literal></entry>
 
-              <entry>maximum number of unused space recovery</entry>
+              <entry>maximum number of unused space recovery - can also be
+              used when openning an existing <literal>file:</literal>
+              database</entry>
             </row>
 
             <row>
@@ -2045,9 +2073,9 @@
               <entry nameend="c3" namest="c1"><para>Indicates the maximum
               number of rows of cached tables that are held in
               memory.</para><para>The value can range between 100- 4 billion.
-              If the value is set via SET FILES then it becomes effective
-              after the next database SHUTDOWN or
-              CHECKPOINT.</para><para><programlisting>SET FILES CACHE ROWS &lt;numeric value&gt;</programlisting></para></entry>
+              If the value is set via SET FILES CACHE ROWS then it becomes
+              effective after the next database
+              SHUTDOWN.</para><para><programlisting>SET FILES CACHE ROWS &lt;numeric value&gt;</programlisting></para></entry>
             </row>
           </tbody>
         </tgroup>
@@ -2290,7 +2318,7 @@
               <entry><literal>true</literal></entry>
 
               <entry>use of lock file - can also be used with an existing
-              database</entry>
+              <literal>file:</literal> database</entry>
             </row>
 
             <row>

@@ -204,10 +204,10 @@
       <para>The default type of tables resulting from future CREATE TABLE
       statements can be specified with the SQL command:</para>
 
-      <para><programlisting>    SET DATABASE DEFAULT TABLE TYPE { CACHED | MEMORY };</programlisting>The
+      <para><programlisting> SET DATABASE DEFAULT TABLE TYPE { CACHED | MEMORY };</programlisting>The
       type of an existing table can be changed with the SQL command:</para>
 
-      <para><programlisting>    SET TABLE &lt;table name&gt; TYPE { CACHED | MEMORY };</programlisting>SQL
+      <para><programlisting> SET TABLE &lt;table name&gt; TYPE { CACHED | MEMORY };</programlisting>SQL
       statements access different types of tables uniformly. No change to
       statements is needed to access different types of table.</para>
     </section>
@@ -405,8 +405,8 @@
       return type of the function. For example:</para>
 
       <informalexample>
-        <programlisting>    CREATE TABLE t(a INTEGER, b BIGINT);
-    SELECT MAX(a), MAX(b) FROM t;</programlisting>
+        <programlisting> CREATE TABLE t(a INTEGER, b BIGINT);
+ SELECT MAX(a), MAX(b) FROM t;</programlisting>
       </informalexample>
 
       <para>will return a <classname>ResultSet</classname> where the type of
@@ -414,7 +414,7 @@
       second column is <classname>java.lang.Long</classname>. However,</para>
 
       <informalexample>
-        <programlisting>    SELECT MAX(a) + 1, MAX(b) + 1 FROM t;</programlisting>
+        <programlisting> SELECT MAX(a) + 1, MAX(b) + 1 FROM t;</programlisting>
       </informalexample>
 
       <para>will return <classname>java.lang.Long</classname> and
@@ -638,14 +638,14 @@
       discussed in the <link endterm="databaseobjects-title" xlink:arcrole=""
       xlink:href="#databaseobjects-chapt"></link> chapter.</para>
 
-      <programlisting>CHAR(10)
-CHARACTER(10)
-VARCHAR(2)
-CHAR VARYING(2)
-CLOB(1000)
-CLOB(30K)
-CHARACTER LARGE OBJECT(1M)
-LONGVARCHAR
+      <programlisting> CHAR(10)
+ CHARACTER(10)
+ VARCHAR(2)
+ CHAR VARYING(2)
+ CLOB(1000)
+ CLOB(30K)
+ CHARACTER LARGE OBJECT(1M)
+ LONGVARCHAR
 </programlisting>
     </section>
 
@@ -700,13 +700,13 @@ LONGVARCHAR
       <simpara><literal>&lt;length&gt; ::= &lt;unsigned
       integer&gt;</literal></simpara>
 
-      <programlisting>BINARY(10)
-VARBINARY(2)
-BINARY VARYING(2)
-BLOB(1000)
-BLOB(30G)
-BINARY LARGE OBJECT(1M)
-LONGVARBINARY
+      <programlisting> BINARY(10)
+ VARBINARY(2)
+ BINARY VARYING(2)
+ BLOB(1000)
+ BLOB(30G)
+ BINARY LARGE OBJECT(1M)
+ LONGVARBINARY
 </programlisting>
     </section>
 
@@ -749,9 +749,9 @@ LONGVARBINARY
       &lt;length&gt; &lt;right paren&gt; ] | BIT VARYING &lt;left paren&gt;
       &lt;length&gt; &lt;right paren&gt;</literal></simpara>
 
-      <programlisting>BIT
-BIT(10)
-BIT VARYING(2)
+      <programlisting> BIT
+ BIT(10)
+ BIT VARYING(2)
 </programlisting>
     </section>
 
@@ -948,19 +948,19 @@ BIT VARYING(2)
     <simpara><literal>&lt;time fractional seconds precision&gt; ::=
     &lt;unsigned integer&gt;</literal></simpara>
 
-    <programlisting>DATE
-TIME(6)
-TIMESTAMP(2) WITH TIME ZONE
+    <programlisting> DATE
+ TIME(6)
+ TIMESTAMP(2) WITH TIME ZONE
 </programlisting>
 
     <para>Examples of the string literals used to represent date time values,
     some with time zone, some without, are below:</para>
 
-    <programlisting>DATE '2008-08-22'
-TIMESTAMP '2008-08-08 20:08:08'
-TIMESTAMP '2008-08-08 20:08:08+8:00' /* Beijing */
-TIME '20:08:08.034900'
-TIME '20:08:08.034900-8:00' /* US Pacific */</programlisting>
+    <programlisting> DATE '2008-08-22'
+ TIMESTAMP '2008-08-08 20:08:08'
+ TIMESTAMP '2008-08-08 20:08:08+8:00' /* Beijing */
+ TIME '20:08:08.034900'
+ TIME '20:08:08.034900-8:00' /* US Pacific */</programlisting>
 
     <indexterm significance="preferred" type="sql">
       <primary>Time Zone</primary>
@@ -1023,7 +1023,7 @@ TIME '20:08:08.034900-8:00' /* US Pacific */</programlisting>
 
     <para>Example a:</para>
 
-    <programlisting>TIME '12:00:00' AT TIME ZONE INTERVAL '1:00' HOUR TO MINUTE
+    <programlisting> TIME '12:00:00' AT TIME ZONE INTERVAL '1:00' HOUR TO MINUTE
 </programlisting>
 
     <para>If the session’s time zone displacement is -'8:00', then in step 1,
@@ -1032,7 +1032,7 @@ TIME '20:08:08.034900-8:00' /* US Pacific */</programlisting>
 
     <para>Example b:</para>
 
-    <programlisting>TIME '12:00:00-5:00' AT TIME ZONE INTERVAL '1:00' HOUR TO MINUTE
+    <programlisting> TIME '12:00:00-5:00' AT TIME ZONE INTERVAL '1:00' HOUR TO MINUTE
 </programlisting>
 
     <para>Because the operand has a time zone, the result is independent of
@@ -1047,8 +1047,8 @@ TIME '20:08:08.034900-8:00' /* US Pacific */</programlisting>
 
     <para>CAST is used to for all other conversions. Examples:</para>
 
-    <programlisting>CAST (&lt;value&gt; AS TIME WITHOUT TIME ZONE)
-CAST (&lt;value&gt; AS TIME WITH TIME ZONE)</programlisting>
+    <programlisting> CAST (&lt;value&gt; AS TIME WITHOUT TIME ZONE)
+ CAST (&lt;value&gt; AS TIME WITH TIME ZONE)</programlisting>
 
     <para>In the first example, if <literal>&lt;value&gt;</literal> has a time
     zone component, it is simply dropped. For example TIME '12:00:00-5:00' is
@@ -1214,13 +1214,13 @@ CAST (&lt;value&gt; AS TIME WITH TIME ZONE)</programlisting>
     are given below:</para>
 
     <para><informalexample>
-        <programlisting>-- standard forms
-CURRENT_DATE + '2' DAY
-SELECT (LOCALTIMESTAMP - atimestampcolumn) DAY TO SECOND FROM atable
+        <programlisting> -- standard forms
+ CURRENT_DATE + '2' DAY
+ SELECT (LOCALTIMESTAMP - atimestampcolumn) DAY TO SECOND FROM atable
 
--- non-standard forms
-CURRENT_DATE + 2
-SELECT LOCALTIMESTAMP - atimestampcolumn FROM atable
+ -- non-standard forms
+ CURRENT_DATE + 2
+ SELECT LOCALTIMESTAMP - atimestampcolumn FROM atable
 </programlisting>
       </informalexample></para>
 
@@ -1280,11 +1280,11 @@ SELECT LOCALTIMESTAMP - atimestampcolumn FROM atable
 
     <para>Examples of INTERVAL type definition:</para>
 
-    <programlisting>INTERVAL YEAR TO MONTH
-INTERVAL YEAR(3)
-INTERVAL DAY(4) TO HOUR
-INTERVAL MINUTE(4) TO SECOND(6)
-INTERVAL SECOND(4,6)
+    <programlisting> INTERVAL YEAR TO MONTH
+ INTERVAL YEAR(3)
+ INTERVAL DAY(4) TO HOUR
+ INTERVAL MINUTE(4) TO SECOND(6)
+ INTERVAL SECOND(4,6)
 </programlisting>
 
     <para>The word INTERVAL indicates the general type name. The rest of the
@@ -1314,10 +1314,10 @@ INTERVAL SECOND(4,6)
     definition, with a string representing the interval value inserted after
     the word INTERVAL. Some examples of interval literal below:</para>
 
-    <programlisting>INTERVAL '145 23:12:19.345' DAY(3) TO SECOND(3)
-INTERVAL '3503:12:19.345' HOUR TO SECOND(3) /* equal to the first value */
-INTERVAL '19.345' SECOND(4,3) /* maximum number of digits for the second value is 4, and each value is expressed with three fraction digits. */
-INTERVAL '-23-10' YEAR(2) TO MONTH
+    <programlisting> INTERVAL '145 23:12:19.345' DAY(3) TO SECOND(3)
+ INTERVAL '3503:12:19.345' HOUR TO SECOND(3) /* equal to the first value */
+ INTERVAL '19.345' SECOND(4,3) /* maximum number of digits for the second value is 4, and each value is expressed with three fraction digits. */
+ INTERVAL '-23-10' YEAR(2) TO MONTH
 </programlisting>
 
     <para>Interval values of the types that are based on seconds can be cast
@@ -1329,8 +1329,8 @@ INTERVAL '-23-10' YEAR(2) TO MONTH
     field, nothing is lost from the interval value. Otherwise, the values for
     the missing least-significant fields are discarded. Examples:</para>
 
-    <programlisting>CAST ( INTERVAL '145 23:12:19' DAY TO SECOND AS INTERVAL DAY TO HOUR ) = INTERVAL '145 23' DAY TO HOUR
-CAST(INTERVAL '145 23' DAY TO HOUR AS INTERVAL DAY TO SECOND) = INTERVAL '145 23:00:00' DAY TO SECOND
+    <programlisting> CAST ( INTERVAL '145 23:12:19' DAY TO SECOND AS INTERVAL DAY TO HOUR ) = INTERVAL '145 23' DAY TO HOUR
+ CAST(INTERVAL '145 23' DAY TO HOUR AS INTERVAL DAY TO SECOND) = INTERVAL '145 23:00:00' DAY TO SECOND
 </programlisting>
 
     <para>A numeric value can be cast to an interval type. In this case the
@@ -1381,12 +1381,12 @@ CAST(INTERVAL '145 23' DAY TO HOUR AS INTERVAL DAY TO SECOND) = INTERVAL '145 23
     that represent an interval value, which is then added to the given date
     literal.</literal></para>
 
-    <programlisting>DATE '2000-01-01' + INTERVAL '1-10' YEAR TO MONTH /* interval literal */
-DATE '2000-01-01' + '1-10' YEAR TO MONTH /* the string '1-10' is cast into INTERVAL YEAR TO MONTH */
-DATE '2000-01-01' + 22 MONTH /* the integer 22 is cast into INTERVAL MONTH, same value as above */
-DATE '2000-01-01' - 22 DAY /* the integer 22 is cast into INTERVAL DAY */
-DATE '2000-01-01' + COL2 /* the type of COL2 must be an INTERVAL type */
-DATE '2000-01-01' + COL2 MONTH /* COL2 may be a number, it is cast into a MONTH interval */
+    <programlisting> DATE '2000-01-01' + INTERVAL '1-10' YEAR TO MONTH /* interval literal */
+ DATE '2000-01-01' + '1-10' YEAR TO MONTH /* the string '1-10' is cast into INTERVAL YEAR TO MONTH */
+ DATE '2000-01-01' + 22 MONTH /* the integer 22 is cast into INTERVAL MONTH, same value as above */
+ DATE '2000-01-01' - 22 DAY /* the integer 22 is cast into INTERVAL DAY */
+ DATE '2000-01-01' + COL2 /* the type of COL2 must be an INTERVAL type */
+ DATE '2000-01-01' + COL2 MONTH /* COL2 may be a number, it is cast into a MONTH interval */
 </programlisting>
 
     <simpara><emphasis role="bold">Datetime and Interval
@@ -1422,11 +1422,11 @@ DATE '2000-01-01' + COL2 MONTH /* COL2 may be a number, it is cast into a MONTH 
     fields. In the first example below, COL1 and COL2 are of the same datetime
     type, and the result is evaluated in INTERVAL YEAR TO MONTH type.</para>
 
-    <programlisting>(COL1 – COL2) YEAR TO MONTH /* the difference between two DATE or two TIEMSTAMP values in years and months */
-(CURRENT_DATE – COL3) DAY /* the number of days between the value of COL3 and the current date */
-(CURRENT_DATE - DATE '2000-01-01') YEAR TO MONTH /* the number of years and months since the beginning of this century */
-CURRENT_DATE - 2 DAY /* the date of the day before yesterday */
-(CURRENT_TIMESTAMP - TIMESTAMP '2009-01-01 00:00:00') DAY(4) TO SECOND(2) /* days to seconds since the given date */
+    <programlisting> (COL1 – COL2) YEAR TO MONTH /* the difference between two DATE or two TIEMSTAMP values in years and months */
+ (CURRENT_DATE – COL3) DAY /* the number of days between the value of COL3 and the current date */
+ (CURRENT_DATE - DATE '2000-01-01') YEAR TO MONTH /* the number of years and months since the beginning of this century */
+ CURRENT_DATE - 2 DAY /* the date of the day before yesterday */
+ (CURRENT_TIMESTAMP - TIMESTAMP '2009-01-01 00:00:00') DAY(4) TO SECOND(2) /* days to seconds since the given date */
 </programlisting>
 
     <para>The individual fields of both datetime and interval values can be
@@ -1501,11 +1501,12 @@ CURRENT_DATE - 2 DAY /* the date of the day before yesterday */
       maximum size of 10, which means each array can have between 0 and 10
       elements. The INTEGER array has the default maximum size of 1024. The
       scores column has a default clause with an empty array. The default
-      clause can be defined only as DEFAULT NULL or DEFAULT ARRAY[] and does
-      not allow arrays containing elements.</para>
+      clause can be defined only as <literal>DEFAULT NULL</literal> or
+      <literal>DEFAULT ARRAY[]</literal> and does not allow arrays containing
+      elements.</para>
 
       <informalexample>
-        <programlisting>CREATE TABLE t (id INT PRIMARY KEY, scores INT ARRAY DEFAULT ARRAY[], names VARCHAR(20) ARRAY[10])</programlisting>
+        <programlisting> CREATE TABLE t (id INT PRIMARY KEY, scores INT ARRAY DEFAULT ARRAY[], names VARCHAR(20) ARRAY[10])</programlisting>
       </informalexample>
 
       <para>An array can be constructed from value expressions or a query
@@ -1526,10 +1527,10 @@ CURRENT_DATE - 2 DAY /* the date of the day before yesterday */
       references or variables, function calls, or query expressions.</para>
 
       <informalexample>
-        <programlisting>ARRAY [ 1, 2, 3 ]
-ARRAY [ 'HOT', 'COLD' ]
-ARRAY [ var1, var2, CURRENT_DATE ]
-ARRAY (SELECT lastname FROM namestable ORDER BY id)
+        <programlisting> ARRAY [ 1, 2, 3 ]
+ ARRAY [ 'HOT', 'COLD' ]
+ ARRAY [ var1, var2, CURRENT_DATE ]
+ ARRAY (SELECT lastname FROM namestable ORDER BY id)
 </programlisting>
       </informalexample>
 
@@ -1538,9 +1539,9 @@ ARRAY (SELECT lastname FROM namestable ORDER BY id)
       search conditions:</para>
 
       <informalexample>
-        <programlisting>INSERT INTO t VALUES 10, ARRAY[1,2,3], ARRAY['HOT', 'COLD']
-UPDATE t SET names = ARRAY['LARGE', 'SMALL'] WHERE id = 12
-UPDATE t SET names = ARRAY['LARGE', 'SMALL'] WHERE id &lt; 12 AND scores = ARRAY[3,4]
+        <programlisting> INSERT INTO t VALUES 10, ARRAY[1,2,3], ARRAY['HOT', 'COLD']
+ UPDATE t SET names = ARRAY['LARGE', 'SMALL'] WHERE id = 12
+ UPDATE t SET names = ARRAY['LARGE', 'SMALL'] WHERE id &lt; 12 AND scores = ARRAY[3,4]
 </programlisting>
       </informalexample>
 
@@ -1551,15 +1552,15 @@ UPDATE t SET names = ARRAY['LARGE', 'SMALL'] WHERE id &lt; 12 AND scores = ARRAY
       fragment below:</para>
 
       <informalexample>
-        <programlisting>    String sql = "UPDATE t SET names = ? WHERE id = ?";
-    PreparedStatement ps = connection.prepareStatement(sql)
-    Object[] data = new Object[]{"one", "two"};
-    // default types defined in org.hsqldb.types.Type can be used
-    org.hsqldb.types.Type type = org.hsqldb.types.Type.SQL_VARCHAR_DEFAULT;
-    JDBCArrayBasic array = new JDBCArrayBasic(data, type);
-    ps.setArray(1, array);
-    ps.setInt(2, 1000);
-    ps.executeUpdate();
+        <programlisting> String sql = "UPDATE t SET names = ? WHERE id = ?";
+ PreparedStatement ps = connection.prepareStatement(sql)
+ Object[] data = new Object[]{"one", "two"};
+ // default types defined in org.hsqldb.types.Type can be used
+ org.hsqldb.types.Type type = org.hsqldb.types.Type.SQL_VARCHAR_DEFAULT;
+ JDBCArrayBasic array = new JDBCArrayBasic(data, type);
+ ps.setArray(1, array);
+ ps.setInt(2, 1000);
+ ps.executeUpdate();
 </programlisting>
       </informalexample>
 
@@ -1577,9 +1578,9 @@ UPDATE t SET names = ARRAY['LARGE', 'SMALL'] WHERE id &lt; 12 AND scores = ARRAY
         brackets.</para>
 
         <informalexample>
-          <programlisting>INSERT INTO t VALUES 10, ARRAY??(1,2,3??), ARRAY['HOT', 'COLD']
-UPDATE t SET names = ARRAY ??('LARGE', 'SMALL'??) WHERE id = 12
-UPDATE t SET names = ARRAY['LARGE', 'SMALL'] WHERE id &lt; 12 AND scores = ARRAY[3,4]
+          <programlisting> INSERT INTO t VALUES 10, ARRAY??(1,2,3??), ARRAY['HOT', 'COLD']
+ UPDATE t SET names = ARRAY ??('LARGE', 'SMALL'??) WHERE id = 12
+ UPDATE t SET names = ARRAY['LARGE', 'SMALL'] WHERE id &lt; 12 AND scores = ARRAY[3,4]
 </programlisting>
         </informalexample>
       </section>
@@ -1620,14 +1621,14 @@ UPDATE t SET names = ARRAY['LARGE', 'SMALL'] WHERE id &lt; 12 AND scores = ARRAY
       UPDATE statement.</para>
 
       <para><informalexample>
-          <programlisting>SELECT scores[ranking], names[ranking] FROM t JOIN t1 on (t.id = t1.tid)
-UPDATE t SET scores[2] = 123, names[2] = 'Reds' WHERE id = 10
+          <programlisting> SELECT scores[ranking], names[ranking] FROM t JOIN t1 on (t.id = t1.tid)
+ UPDATE t SET scores[2] = 123, names[2] = 'Reds' WHERE id = 10
 </programlisting>
         </informalexample></para>
 
       <para><informalexample>
-          <programlisting>SELECT scores[ranking], names[ranking] FROM t JOIN t1 on (t.id = t1.tid)
-UPDATE t SET scores[2] = 123, names[2] = 'Reds' WHERE id = 10
+          <programlisting> SELECT scores[ranking], names[ranking] FROM t JOIN t1 on (t.id = t1.tid)
+ UPDATE t SET scores[2] = 123, names[2] = 'Reds' WHERE id = 10
 </programlisting>
         </informalexample></para>
 
@@ -1659,8 +1660,9 @@ UPDATE t SET scores[2] = 123, names[2] = 'Reds' WHERE id = 10
       xlink:href="#builtinfunctions-chapt"></link> chapter.</para>
 
       <para><literal>ARRAY_AGG</literal> is an aggregate function and produces
-      an array containing values from differnt rows of a SELECT
-      statement.</para>
+      an array containing values from differnt rows of a SELECT statement.
+      Details are described in the <link endterm="dataaccess-title"
+      xlink:href="#dataaccess-chapt"></link> chapter.</para>
 
       <para><literal>SEQUENCE_ARRAY</literal> creates an array with sequential
       elements.</para>
@@ -1692,7 +1694,7 @@ UPDATE t SET scores[2] = 123, names[2] = 'Reds' WHERE id = 10
       <literal>&lt;array value expression&gt;</literal> can be any expression
       that evaluates to an array.</para>
 
-      <para><literal>SORTE_RRAY &lt;left paren&gt; &lt;array value
+      <para><literal>SORT_ARRAY &lt;left paren&gt; &lt;array value
       expression&gt; [ { ASC | DESC } ] [ NULLS { FIRST | LAST } ] &lt;right
       paren&gt;</literal></para>
 
@@ -1738,15 +1740,14 @@ UPDATE t SET scores[2] = 123, names[2] = 'Reds' WHERE id = 10
       CUSTOMER table that is included for tests in the DatabaseManager GUI app
       is the source of the data.</simpara>
 
-      <programlisting>SELECT FIRSTNAME, LASTNAME, ARRAY(SELECT INVOICE.TOTAL FROM INVOICE WHERE CUSTOMERID = CUSTOMER.ID) AS ORDERS FROM CUSTOMER
+      <programlisting> SELECT FIRSTNAME, LASTNAME, ARRAY(SELECT INVOICE.TOTAL FROM INVOICE WHERE CUSTOMERID = CUSTOMER.ID) AS ORDERS FROM CUSTOMER
 
-FIRSTNAME LASTNAME  ORDERS                                    
---------- --------- -------------------------------------- 
-Laura     Steel     ARRAY[2700.90,4235.70]                 
-Robert    King      ARRAY[4761.60]                         
-Robert    Sommer    ARRAY[]                                
-Michael   Smith     ARRAY[3420.30]                         
-                                   
+ FIRSTNAME LASTNAME  ORDERS                                    
+ --------- --------- -------------------------------------- 
+ Laura     Steel     ARRAY[2700.90,4235.70]                 
+ Robert    King      ARRAY[4761.60]                         
+ Robert    Sommer    ARRAY[]                                
+ Michael   Smith     ARRAY[3420.30]
 </programlisting>
 
       <para><emphasis>COMPARISON</emphasis></para>
@@ -1754,7 +1755,8 @@ Michael   Smith     ARRAY[3420.30]
       <para>Arrays can be compared for equality, but they cannot be compared
       for ordering values or range comparison. Array expressions are therefore
       not allowed in an ORDER BY clause, or in a comparison expression such as
-      GREATER THAN. Two arrays are equal if they have the same length and the
+      GREATER THAN. It is possible to define a UNIQUE constraint on a column
+      of ARRAY type. Two arrays are equal if they have the same length and the
       values at each index position are either equal or both NULL.</para>
 
       <para><emphasis>USER DEFINED FUNCTIONS and PROCEDURES</emphasis></para>
@@ -1854,11 +1856,10 @@ Michael   Smith     ARRAY[3420.30]
     is an index on <literal>TB.COL3</literal>):</para>
 
     <informalexample>
-      <programlisting>    (TB is a very large table with only a few rows where TB.COL3 = 4)
+      <programlisting> -- TB is a very large table with only a few rows where TB.COL3 = 4
 
-    SELECT * FROM TA JOIN TB ON TA.COL1 = TB.COL2 AND TB.COL3 = 4;
-
-    SELECT * FROM TB JOIN TA ON TA.COL1 = TB.COL2 AND TB.COL3 = 4;</programlisting>
+ SELECT * FROM TA JOIN TB ON TA.COL1 = TB.COL2 AND TB.COL3 = 4;
+ SELECT * FROM TB JOIN TA ON TA.COL1 = TB.COL2 AND TB.COL3 = 4;</programlisting>
     </informalexample>
 
     <para>The general rule is to put first the table that has a narrowing
@@ -1911,9 +1912,9 @@ Michael   Smith     ARRAY[3420.30]
       complete in a short time:</para>
 
       <informalexample>
-        <programlisting>    -- TC is a very large table
+        <programlisting> -- TC is a very large table
 
-    SELECT * FROM TC WHERE TC.FIRSTNAME = 'John' OR TC.LASTNAME = 'Smith' OR TC.LASTNAME = 'Williams'
+ SELECT * FROM TC WHERE TC.FIRSTNAME = 'John' OR TC.LASTNAME = 'Smith' OR TC.LASTNAME = 'Williams'
 </programlisting>
       </informalexample>
 
@@ -1942,7 +1943,7 @@ Michael   Smith     ARRAY[3420.30]
       the TB.COL3 below 1000000 is returned.</para>
 
       <informalexample>
-        <programlisting>    SELECT MAX(TB.COL3) FROM TB WHERE TB.COL &lt; 1000000
+        <programlisting> SELECT MAX(TB.COL3) FROM TB WHERE TB.COL &lt; 1000000
 </programlisting>
       </informalexample>
 
@@ -1959,12 +1960,10 @@ Michael   Smith     ARRAY[3420.30]
       TC.LASTNAME column. Similarly, a GROUP BY query on two columns can use
       an index that covers the two columns.</para>
 
-      <para><programlisting>    -- TC is a very large table
+      <para><programlisting> -- TC is a very large table
 
-    SELECT DISTINCT LASTNAME FROM TC WHERE TC.LASTNAME &gt; 'F'
-
-    SELECT STATE, LASTNAME FROM TC GROUP BY STATE, LASTNAME
-
+ SELECT DISTINCT LASTNAME FROM TC WHERE TC.LASTNAME &gt; 'F'
+ SELECT STATE, LASTNAME FROM TC GROUP BY STATE, LASTNAME
 </programlisting></para>
     </section>
 
@@ -1991,10 +1990,10 @@ Michael   Smith     ARRAY[3420.30]
       up to 1000 rows are processed and returned.</para>
 
       <informalexample>
-        <programlisting>    -- TA is a very large table with an index on TA.COL3
+        <programlisting> -- TA is a very large table with an index on TA.COL3
 
-    SELECT * FROM TA JOIN TB ON TA.COL2 = TB.COL1 WHERE TA.COL3 &gt; 40000 ORDER BY TA.COL3 LIMIT 1000;
-    SELECT * FROM TA JOIN TB ON TA.COL2 = TB.COL1 WHERE TA.COL3 &gt; 40000 AND TA.COL3 &lt; 100000 ORDER BY TA.COL3 DESC LIMIT 1000;
+ SELECT * FROM TA JOIN TB ON TA.COL2 = TB.COL1 WHERE TA.COL3 &gt; 40000 ORDER BY TA.COL3 LIMIT 1000;
+ SELECT * FROM TA JOIN TB ON TA.COL2 = TB.COL1 WHERE TA.COL3 &gt; 40000 AND TA.COL3 &lt; 100000 ORDER BY TA.COL3 DESC LIMIT 1000;
 </programlisting>
       </informalexample>
 
@@ -2008,9 +2007,9 @@ Michael   Smith     ARRAY[3420.30]
       rows.</para>
 
       <informalexample>
-        <programlisting>    -- TA is a very large table with an index on TA.COL3 and a separate index on TA.COL1
+        <programlisting> -- TA is a very large table with an index on TA.COL3 and a separate index on TA.COL1
 
-    SELECT * FROM TA JOIN TB ON TA.COL2 = TB.COL1 WHERE TA.COL1 = 'SENT' AND TB.COL3 &gt; 40000 ORDER BY TB.COL3 LIMIT 1000 USING INDEX;
+ SELECT * FROM TA JOIN TB ON TA.COL2 = TB.COL1 WHERE TA.COL1 = 'SENT' AND TB.COL3 &gt; 40000 ORDER BY TB.COL3 LIMIT 1000 USING INDEX;
 </programlisting>
       </informalexample>
 

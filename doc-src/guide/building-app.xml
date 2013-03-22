@@ -640,23 +640,23 @@ ant hsqldb
       <title>Example source code before CodeSwitcher is run</title>
 
       <programlisting>
-        ...
+ ...
 
-    //#ifdef JAVA2
+ //#ifdef JAVA2
 
-        properties.store(out,"hsqldb database");
+     properties.store(out,"hsqldb database");
 
-    //#else
+ //#else
 
-    /*
+ /*
 
-        properties.save(out,"hsqldb database");
+     properties.save(out,"hsqldb database");
 
-    */
+ */
 
-    //#endif
+ //#endif
 
-        ...</programlisting>
+ ...</programlisting>
     </example>
 
     <simpara>The next step is to run CodeSwitcher.</simpara>
@@ -665,7 +665,7 @@ ant hsqldb
       <title>CodeSwitcher command line invocation</title>
 
       <screen>
-    java org.hsqldb.util.CodeSwitcher . -JAVA2</screen>
+ java org.hsqldb.util.CodeSwitcher . -JAVA2</screen>
     </example>
 
     <simpara>The '.' means the program works on the current directory (all
@@ -676,23 +676,23 @@ ant hsqldb
       <title>Source code after CodeSwitcher processing</title>
 
       <programlisting>
-        ...
+     ...
 
-    //#ifdef JAVA2
+ //#ifdef JAVA2
 
-    /*
+ /*
 
-        pProperties.store(out,"hsqldb database");
+     pProperties.store(out,"hsqldb database");
 
-    */
+ */
 
-    //#else
+ //#else
 
-        pProperties.save(out,"hsqldb database");
+     pProperties.save(out,"hsqldb database");
 
-    //#endif
+ //#endif
 
-        ...</programlisting>
+     ...</programlisting>
     </example>
 
     <simpara>For detailed information on the command line options run
