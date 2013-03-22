@@ -74,25 +74,25 @@
       files named "mydb.*" and the public name (alias) of "xdb".</para>
 
       <informalexample>
-        <screen>    java -cp ../lib/hsqldb.jar org.hsqldb.server.Server --database.0 file:mydb --dbname.0 xdb</screen>
+        <screen> java -cp ../lib/hsqldb.jar org.hsqldb.server.Server --database.0 file:mydb --dbname.0 xdb</screen>
       </informalexample>
 
       <para>Alternatively, a server.properties file can be used for passing
       the arguments to the server. This file must be located in the directory
       where the command is issued.</para>
 
-      <screen>    java -cp ../lib/hsqldb.jar org.hsqldb.server.Server</screen>
+      <screen> java -cp ../lib/hsqldb.jar org.hsqldb.server.Server</screen>
 
       <para>Alternatively, you can specify the path of the server.properties
       file on the command line. In this case, the properties file can have any
       name or extension, but it should be a valid properties file.</para>
 
-      <screen>    java -cp ../lib/hsqldb.jar org.hsqldb.server.Server --props myserver.props</screen>
+      <screen> java -cp ../lib/hsqldb.jar org.hsqldb.server.Server --props myserver.props</screen>
 
       <para>Use the --help argument to see the list of available
       arguments.</para>
 
-      <screen>    java -cp ../lib/hsqldb.jar org.hsqldb.server.Server --help</screen>
+      <screen> java -cp ../lib/hsqldb.jar org.hsqldb.server.Server --help</screen>
 
       <para>The contents of the server.properties file is described in the
       next section.</para>
@@ -113,7 +113,7 @@
       the example command line above with the following:</para>
 
       <informalexample>
-        <screen>    java -cp ../lib/hsqldb.jar org.hsqldb.server.WebServer</screen>
+        <screen> java -cp ../lib/hsqldb.jar org.hsqldb.server.WebServer</screen>
       </informalexample>
 
       <para>The contents of the server.properties file is described in the
@@ -287,7 +287,7 @@
     <glossterm>mem:</glossterm>, <glossterm>file:</glossterm> or
     <glossterm>res:</glossterm> prefixes and connection properties as
     discussed under CONNECTIONS. For example, <informalexample>
-        <programlisting>    database.0=mem:temp;sql.enforce_strict_size=true;</programlisting>
+        <programlisting> database.0=mem:temp;sql.enforce_strict_size=true;</programlisting>
       </informalexample></para>
 
     <para>Properties or default values specific to
@@ -404,14 +404,14 @@
     <para>An example of the contents of a
     <filename>server.properties</filename> file is given below:</para>
 
-    <programlisting>    server.database.0=file:/opt/db/accounts
-    server.dbname.0=accounts
+    <programlisting> server.database.0=file:/opt/db/accounts
+ server.dbname.0=accounts
 
-    server.database.1=file:/opt/db/mydb
-    server.dbname.1=enrolments
+ server.database.1=file:/opt/db/mydb
+ server.dbname.1=enrolments
 
-    server.database.2=mem:adatabase
-    server.dbname.2=quickdb</programlisting>
+ server.database.2=mem:adatabase
+ server.dbname.2=quickdb</programlisting>
 
     <para>In the above example, the <filename>server.properties</filename>
     file indicates that the server provides access to 3 different databases.
@@ -446,17 +446,17 @@
     source. The example below sets the same properties as in the
     server.properties file example.</para>
 
-    <programlisting>    HsqlProperties p = new HsqlProperties();
-    p.setProperty("server.database.0","file:/opt/db/accounts");
-    p.setProperty("server.dbname.0","an_alias");
-    // set up the rest of properties
+    <programlisting> HsqlProperties p = new HsqlProperties();
+ p.setProperty("server.database.0","file:/opt/db/accounts");
+ p.setProperty("server.dbname.0","an_alias");
+ // set up the rest of properties
 
-    // alternative to the above is
-    Server server = new Server();
-    server.setProperties(p);
-    server.setLogWriter(null); // can use custom writer
-    server.setErrWriter(null); // can use custom writer
-    server.start();
+ // alternative to the above is
+ Server server = new Server();
+ server.setProperties(p);
+ server.setLogWriter(null); // can use custom writer
+ server.setErrWriter(null); // can use custom writer
+ server.start();
 </programlisting>
 
     <para>The Server object has several alternative methods for setting
@@ -484,7 +484,7 @@
     database alias <literal>xdb</literal> is assigned to the database. After
     this, the next connection to the specified alias will connect to the same
     database. Any database path on the URL is ignored if the alias is serving
-    a database. </para>
+    a database.</para>
 
     <para>The database path can point to a <literal>file:</literal> or
     <literal>mem:</literal> database.</para>
@@ -509,12 +509,12 @@ Connection c = DriverManager.getConnection("jdbc:hsqldb:hsql://localhost/xdb;fil
     below:</para>
 
     <programlisting>// example in server.propertie file
-    server.database.0=file:/opt/db/accounts;hsqldb.default_table_type=cached;sql.enforce_names=true
-    server.dbname.0=accounts
+ server.database.0=file:/opt/db/accounts;hsqldb.default_table_type=cached;sql.enforce_names=true
+ server.dbname.0=accounts
 
 // example for setting the property programatically
-    HsqlProperties p = new HsqlProperties();
-    p.setProperty("server.database.0","file:/opt/db/accounts;hsqldb.default_table_type=cached;sql.enforce_names=true");
+ HsqlProperties p = new HsqlProperties();
+ p.setProperty("server.database.0","file:/opt/db/accounts;hsqldb.default_table_type=cached;sql.enforce_names=true");
 </programlisting>
 
     <para>The specified properties apply only to a new database. They have no
@@ -660,7 +660,7 @@ Connection c = DriverManager.getConnection("jdbc:hsqldb:hsql://localhost/xdb;fil
         server keystore, then you can generate a X509 cert like this. <example>
             <title>Exporting certificate from the server's keystore</title>
 
-            <screen>    keytool -export -keystore server.store -alias existing_alias -file server.cer</screen>
+            <screen> keytool -export -keystore server.store -alias existing_alias -file server.cer</screen>
           </example> In this example, <filename>server.cer</filename> is the
         X509 certificate that you need for the next step.</para>
 
@@ -676,7 +676,7 @@ Connection c = DriverManager.getConnection("jdbc:hsqldb:hsql://localhost/xdb;fil
         <example>
           <title>Adding a certificate to the client keystore</title>
 
-          <screen>    keytool -import -trustcacerts -keystore trust.store -alias new_alias -file server.cer</screen>
+          <screen> keytool -import -trustcacerts -keystore trust.store -alias new_alias -file server.cer</screen>
         </example>
 
         <para>If you are making a new keystore, you probably want to start
@@ -697,7 +697,7 @@ Connection c = DriverManager.getConnection("jdbc:hsqldb:hsql://localhost/xdb;fil
         run your client program. For example <example>
             <title>Specifying your own trust store to a JDBC client</title>
 
-            <screen>    java -Djavax.net.ssl.trustStore=/home/blaine/trust.store -jar /path/to/hsqldb.jar dest-urlid</screen>
+            <screen> java -Djavax.net.ssl.trustStore=/home/blaine/trust.store -jar /path/to/hsqldb.jar dest-urlid</screen>
           </example> This example runs the program <link
         xlink:href="#unix-chapt">SqlTool</link>. SqlTool has built-in TLS
         support however, so, for SqlTool you can set
@@ -742,7 +742,7 @@ Connection c = DriverManager.getConnection("jdbc:hsqldb:hsql://localhost/xdb;fil
           <para>If you set any password in a .properties (or any other) file,
           you need to restrict access to the file. On a good operating system,
           you can do this like so: <informalexample>
-              <screen>    chmod 600 path/to/server.properties</screen>
+              <screen> chmod 600 path/to/server.properties</screen>
             </informalexample></para>
         </caution>
 
@@ -805,11 +805,11 @@ Connection c = DriverManager.getConnection("jdbc:hsqldb:hsql://localhost/xdb;fil
         <example>
           <title>Getting a pem-style private key into a JKS keystore</title>
 
-          <screen>    openssl pkcs8 -topk8 -outform DER -in Xpvk.pem -inform PEM -out Xpvk.pk8 -nocrypt
+          <screen> openssl pkcs8 -topk8 -outform DER -in Xpvk.pem -inform PEM -out Xpvk.pk8 -nocrypt
 
-    openssl x509 -in Xcert.pem -out Xcert.der -outform DER
+ openssl x509 -in Xcert.pem -out Xcert.der -outform DER
 
-    java DERImport new.keystore NEWALIAS Xpvk.pk8 Xcert.der</screen>
+ java DERImport new.keystore NEWALIAS Xpvk.pk8 Xcert.der</screen>
         </example>
 
         <important>
@@ -930,7 +930,7 @@ Connection c = DriverManager.getConnection("jdbc:hsqldb:hsql://localhost/xdb;fil
     <classname>ServerAcl</classname> class to test it. <example>
         <title>Validating and Testing an ACL file</title>
 
-        <screen>    java -cp path/to/hsqldb.jar org.hsqldb.server.ServerAcl path/to/acl.txt</screen>
+        <screen> java -cp path/to/hsqldb.jar org.hsqldb.server.ServerAcl path/to/acl.txt</screen>
       </example> If the specified ACL file fails validation, you will be given
     details about the problem. Otherwise, the validated rules will be
     displayed (including the implicit, default deny rules). You then type in

@@ -135,10 +135,10 @@
       <example>
         <title>User-defined Session Variables</title>
 
-        <screen>  DECLARE counter INTEGER DEFAULT 3;
-  DECLARE result VARCHAR(20) DEFAULT NULL;
-  SET counter=15;
-  CALL myroutine(counter, result)
+        <screen> DECLARE counter INTEGER DEFAULT 3;
+ DECLARE result VARCHAR(20) DEFAULT NULL;
+ SET counter=15;
+ CALL myroutine(counter, result)
 </screen>
       </example>
     </section>
@@ -175,12 +175,12 @@
       <para><example>
           <title>User-defined Temporary Session Tables</title>
 
-          <screen>  DECLARE LOCAL TEMPORARY TABLE buffer (id INTEGER PRIMARY KEY, textdata VARCHAR(100)) ON COMMIT PRESERVE ROWS
-  INSERT INTO module.buffer SELECT id, firstname || ' ' || lastname FROM customers
-  -- do some more work
-  DROP TABLE module.buffer
-  -- or use alternative pseudo schema name
-  DROP TABLE session.buffer
+          <screen> DECLARE LOCAL TEMPORARY TABLE buffer (id INTEGER PRIMARY KEY, textdata VARCHAR(100)) ON COMMIT PRESERVE ROWS
+ INSERT INTO module.buffer SELECT id, firstname || ' ' || lastname FROM customers
+ -- do some more work
+ DROP TABLE module.buffer
+ -- or use alternative pseudo schema name
+ DROP TABLE session.buffer
 </screen>
         </example>Session tables can be created inside a transaction.
       Automatic indexes are created and used on session tables when necessary
@@ -193,7 +193,7 @@
   <section xml:id="snc_tx_tx_cc">
     <title>Transactions and Concurrency Control</title>
 
-    <para>HyperSQL 2.0 has been fully redesigned to support different
+    <para>HyperSQL 2 has been fully redesigned to support different
     transaction isolation models. It no longer supports the old 1.8.x model
     with "dirty read". Although it is perfectly possible to add an
     implementation of the transaction manager that supports the legacy model,
@@ -202,7 +202,7 @@
     also allows you to choose different isolation levels for different
     simultaneous sessions.</para>
 
-    <para>HyperSQL 2.0 supports three concurrency control models,
+    <para>HyperSQL 2 supports three concurrency control models,
     two-phase-locking (2PL), which is the default, multiversion concurrency
     control (MVCC) and a hybrid model, which is 2PL plus multiversion rows.
     Within each model, it supports some of the 4 standard levels of
@@ -640,9 +640,9 @@
     <example>
       <title>Setting Transaction Characteristics</title>
 
-      <screen>  SET TRANSACTION READ ONLY
-  SET TRANSACTION ISOLATION LEVEL SERIALIZABLE
-  SET TRANSACTION READ WRITE, ISOLATION LEVEL READ COMMITTED
+      <screen> SET TRANSACTION READ ONLY
+ SET TRANSACTION ISOLATION LEVEL SERIALIZABLE
+ SET TRANSACTION READ WRITE, ISOLATION LEVEL READ COMMITTED
 </screen>
     </example>
 
@@ -704,7 +704,7 @@
     <example>
       <title>Locking Tables</title>
 
-      <screen>  LOCK TABLE table_a WRITE, table_b READ</screen>
+      <screen> LOCK TABLE table_a WRITE, table_b READ</screen>
     </example>
 
     <indexterm significance="preferred" type="sql">
@@ -792,11 +792,11 @@
     <example>
       <title>Rollback</title>
 
-      <screen>  -- perform some inserts, deletes, etc.
-  SAVEPOINT A
-  -- perform some inserts, deletes, selects etc.
-  ROLLBACK WORK TO SAVEPOINT A
-  -- all the work after the declaration of SAVEPOINT A is rolled back
+      <screen> -- perform some inserts, deletes, etc.
+ SAVEPOINT A
+ -- perform some inserts, deletes, selects etc.
+ ROLLBACK WORK TO SAVEPOINT A
+ -- all the work after the declaration of SAVEPOINT A is rolled back
 </screen>
     </example>
 
@@ -852,9 +852,9 @@
     <example>
       <title>Setting Session Characteristics</title>
 
-      <screen>  SET SESSION CHARACTERISTICS AS TRANSACTION READ ONLY
-  SET SESSION CHARACTERISTICS AS TRANSACTION ISOLATION LEVEL SERIALIZABLE
-  SET SESSION CHARACTERISTICS AS TRANSACTION READ WRITE, ISOLATION LEVEL READ COMMITTED
+      <screen> SET SESSION CHARACTERISTICS AS TRANSACTION READ ONLY
+ SET SESSION CHARACTERISTICS AS TRANSACTION ISOLATION LEVEL SERIALIZABLE
+ SET SESSION CHARACTERISTICS AS TRANSACTION READ WRITE, ISOLATION LEVEL READ COMMITTED
 </screen>
     </example>
 
@@ -881,8 +881,8 @@
     <example>
       <title>Setting Session Authorization</title>
 
-      <screen>  SET SESSION AUTHORIZATION 'FELIX'
-  SET SESSION AUTHORIZATION SESSION_USER
+      <screen> SET SESSION AUTHORIZATION 'FELIX'
+ SET SESSION AUTHORIZATION SESSION_USER
 </screen>
     </example>
 
@@ -930,8 +930,8 @@
     <example>
       <title>Setting Session Time Zone</title>
 
-      <screen>  SET TIME ZONE LOCAL
-  SET TIME ZONE INTERVAL '+6:00' HOUR TO MINUTE
+      <screen> SET TIME ZONE LOCAL
+ SET TIME ZONE INTERVAL '+6:00' HOUR TO MINUTE
 </screen>
     </example>
 
@@ -1066,7 +1066,7 @@
     TRUE | FALSE }</literal></simpara>
 
     <simpara>This is a legacy method for creating case-insensitive columns.
-    Still supported but not recommended for use. </simpara>
+    Still supported but not recommended for use.</simpara>
 
     <simpara>Sets the type used for new VARCHAR table columns. By default,
     character columns in new databases are case-sensitive. If <literal>SET

@@ -95,13 +95,13 @@
       <para>Text Tables are defined similarly to conventional tables with the
       added TEXT keyword.</para>
 
-      <programlisting>    CREATE TEXT TABLE &lt;tablename&gt; (&lt;column definition&gt; [&lt;constraint definition&gt;])</programlisting>
+      <programlisting> CREATE TEXT TABLE &lt;tablename&gt; (&lt;column definition&gt; [&lt;constraint definition&gt;])</programlisting>
 
       <para>The table is at first empty and cannot be written to. An
       additional SET command specifies the file and the separator character
       that the Text table uses. It assigns the file to the table.</para>
 
-      <programlisting>   SET TABLE &lt;tablename&gt; SOURCE &lt;quoted_filename_and_options&gt; [DESC]</programlisting>
+      <programlisting> SET TABLE &lt;tablename&gt; SOURCE &lt;quoted_filename_and_options&gt; [DESC]</programlisting>
     </section>
 
     <section xml:id="ttc_scope">
@@ -167,7 +167,7 @@
       example:</para>
 
       <informalexample>
-        <programlisting>    SET TABLE mytable SOURCE "myfile;fs=|"</programlisting>
+        <programlisting> SET TABLE mytable SOURCE "myfile;fs=|"</programlisting>
       </informalexample>
 
       <para>Since HSQLDB treats CHAR and VARCHAR strings the same, the ability
@@ -178,7 +178,7 @@
       (|) and vs as the period (.) then the data in the CSV file for a row
       will look like:</para>
 
-      <screen>    First field data|Second field data.Third field data</screen>
+      <screen> First field data|Second field data.Third field data</screen>
 
       <para>This facility in effect offers an extra, special separator which
       can be used in addition to the global separator. The following example
@@ -186,7 +186,7 @@
       separator to the period (.) within a SET TABLE SOURCE statement:</para>
 
       <informalexample>
-        <programlisting>    SET TABLE mytable SOURCE "myfile;fs=|;vs=."</programlisting>
+        <programlisting> SET TABLE mytable SOURCE "myfile;fs=|;vs=."</programlisting>
       </informalexample>
 
       <para>HSQLDB also recognises the following special indicators for
@@ -284,7 +284,7 @@
       specified within the <literal>SET TABLE SOURCE</literal>
       statement:</para>
 
-      <programlisting>    SET TABLE mytable SOURCE "myfile;ignore_first=true;all_quoted=true"</programlisting>
+      <programlisting> SET TABLE mytable SOURCE "myfile;ignore_first=true;all_quoted=true"</programlisting>
 
       <para>When the default options <literal>all_quoted=</literal>
       <literal>false</literal> and <literal>quoted=true</literal> are in
@@ -311,7 +311,7 @@
       ONLY, by placing the keyword "DESC" at the end of the SET TABLE SOURCE
       statement:</para>
 
-      <programlisting>    SET TABLE mytable SOURCE "myfile" DESC</programlisting>
+      <programlisting> SET TABLE mytable SOURCE "myfile" DESC</programlisting>
 
       <para>Text table source files are cached in memory. The maximum number
       of rows of data that are in memory at any time is controlled by the
@@ -323,7 +323,7 @@
       properties do not control the maximum size of each text table, which can
       be much larger. An example is given below:</para>
 
-      <programlisting>    SET TABLE mytable SOURCE "myfile;ignore_first=true;all_quoted=true;cache_rows=10000;cache_size=1000"</programlisting>
+      <programlisting> SET TABLE mytable SOURCE "myfile;ignore_first=true;all_quoted=true;cache_rows=10000;cache_size=1000"</programlisting>
 
       <para>The properties used in earlier versions, namely the
       <varname>textdb.cache_scale</varname> and the
@@ -422,11 +422,11 @@
       underlying data source, i.e. the text file.</para>
 
       <para>You can explicitly disconnect a text table from its file by
-      issuing the following statement: <programlisting>    SET TABLE mytable SOURCE OFF</programlisting></para>
+      issuing the following statement: <programlisting> SET TABLE mytable SOURCE OFF</programlisting></para>
 
       <para>Subsequently, <literal>mytable</literal> will be empty and
       read-only. However, the data source description will be preserved, and
-      the table can be re-connected to it with <programlisting>    SET TABLE mytable SOURCE ON</programlisting></para>
+      the table can be re-connected to it with <programlisting> SET TABLE mytable SOURCE ON</programlisting></para>
 
       <para>When a database is opened, if the source file for an existing text
       table is missing, the table remains disconnected from its data source
@@ -565,7 +565,7 @@
     string&gt; can be used to override the default global properties. An
     example is given below:</para>
 
-    <para><programlisting>    SET DATABASE TEXT TABLE DEFAULTS 'all_quoted=true;encoding=UTF-8;cache_rows=10000;cache_size=2000'</programlisting></para>
+    <para><programlisting> SET DATABASE TEXT TABLE DEFAULTS 'all_quoted=true;encoding=UTF-8;cache_rows=10000;cache_size=2000'</programlisting></para>
 
     <itemizedlist>
       <title>List of supported global properties</title>

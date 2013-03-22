@@ -231,7 +231,7 @@
     property is set false, then NULL values are replaced with empty
     strings.</para>
 
-    <para> (JDBC)</para>
+    <para>(JDBC)</para>
 
     <indexterm significance="preferred" type="sql">
       <primary>CONCAT_WS function</primary>
@@ -1155,17 +1155,17 @@
 
     <para>An example is given below:</para>
 
-    <programlisting>WIDTH_BUCKET( 5, 10, 110, 10)
-0
+    <programlisting> WIDTH_BUCKET( 5, 10, 110, 10)
+ 0
 
-WIDTH_BUCKET( 23, 10, 110, 10)
-2
+ WIDTH_BUCKET( 23, 10, 110, 10)
+ 2
 
-WIDTH_BUCKET( 100, 10, 110, 10)
-10
+ WIDTH_BUCKET( 100, 10, 110, 10)
+ 10
 
-WIDTH_BUCKET( 200, 10, 110, 10)
-11
+ WIDTH_BUCKET( 200, 10, 110, 10)
+ 11
 </programlisting>
   </section>
 
@@ -1621,11 +1621,11 @@ WIDTH_BUCKET( 200, 10, 110, 10)
       <para>The example below compares the output of the function and the
       expression.</para>
 
-      <para><programlisting>VALUES ADD_MONTHS ( DATE '2012-02-29' , 1), DATE '2012-02-29' + 1 MONTH
+      <para><programlisting> VALUES ADD_MONTHS ( DATE '2012-02-29' , 1), DATE '2012-02-29' + 1 MONTH
 
-C1                  C2         
-------------------- ---------- 
-2012-03-31 00:00:00 2012-03-29 
+ C1                  C2         
+ ------------------- ---------- 
+ 2012-03-31 00:00:00 2012-03-29 
 </programlisting></para>
 
       <indexterm significance="preferred" type="sql">
@@ -1640,11 +1640,11 @@ C1                  C2
       preserving the year, month, hour, minute and secend fields of the date.
       The type of the result is always TIMESTAMP(0). (HyperSQL)</para>
 
-      <para><programlisting>VALUES LAST_DAY ( TIMESTAMP '2012-02-14 12:30:44')
+      <para><programlisting> VALUES LAST_DAY ( TIMESTAMP '2012-02-14 12:30:44')
 
-C1                  
-------------------- 
-2012-02-29 12:30:44 
+ C1                  
+ ------------------- 
+ 2012-02-29 12:30:44 
 </programlisting></para>
 
       <indexterm significance="preferred" type="sql">
@@ -1663,11 +1663,11 @@ C1
       days per month. You can cast the resulting value into INTERVAL MONTH and
       use it for datetime arithmetic. (HyperSQL)</para>
 
-      <para><programlisting>VALUES MONTHS_BETWEEN ( TIMESTAMP '2013-02-14 12:30:44', TIMESTAMP '2012-01-04 12:30:44')
+      <para><programlisting> VALUES MONTHS_BETWEEN ( TIMESTAMP '2013-02-14 12:30:44', TIMESTAMP '2012-01-04 12:30:44')
 
-C1                                  
------------------------------------ 
-13.32258064516129000000000000000000 
+ C1                                  
+ ----------------------------------- 
+ 13.32258064516129000000000000000000 
 </programlisting></para>
 
       <indexterm significance="preferred" type="sql">
@@ -1718,9 +1718,9 @@ C1
       <para><literal>TIMESTAMPDIFF</literal> is evaluated as &lt;datetime
       value expr 2&gt; - &lt;datetime value expr 1&gt;. (JDBC)</para>
 
-      <programlisting>TIMESTAMPADD ( SQL_TSI_MONTH, 3, DATE '2008-11-22' )
+      <programlisting> TIMESTAMPADD ( SQL_TSI_MONTH, 3, DATE '2008-11-22' )
 
-TIMESTAMPDIFF ( SQL_TSI_HOUR, TIMESTAMP '2008-11-20 20:30:40', TIMESTAMP '2008-11-21 21:30:40' )
+ TIMESTAMPDIFF ( SQL_TSI_HOUR, TIMESTAMP '2008-11-20 20:30:40', TIMESTAMP '2008-11-21 21:30:40' )
 </programlisting>
 
       <indexterm significance="preferred" type="sql">
@@ -1748,9 +1748,9 @@ TIMESTAMPDIFF ( SQL_TSI_HOUR, TIMESTAMP '2008-11-20 20:30:40', TIMESTAMP '2008-1
       supported interval units are the standard SQL interval unit listed in
       other chapters of this guide. (HyperSQL)</para>
 
-      <programlisting>DATE_ADD ( DATE '2008-11-22', INTERVAL 3 MONTH )
+      <programlisting> DATE_ADD ( DATE '2008-11-22', INTERVAL 3 MONTH )
 
-DATE_SUB ( TIMESTAMP '2008-11-22 20:30:40', INTERVAL 20 HOUR )
+ DATE_SUB ( TIMESTAMP '2008-11-22 20:30:40', INTERVAL 20 HOUR )
 </programlisting>
 
       <indexterm significance="preferred" type="sql">
@@ -1792,9 +1792,9 @@ DATE_SUB ( TIMESTAMP '2008-11-22 20:30:40', INTERVAL 20 HOUR )
       main form. This form is compatible with some other database engines.
       (HyperSQL}</para>
 
-      <programlisting>DATEADD ( 'month', 3, DATE '2008-11-22' )
+      <programlisting> DATEADD ( 'month', 3, DATE '2008-11-22' )
 
-DATEDIFF ( 'hour', TIMESTAMP '2008-11-22 20:30:40', TIMESTAMP '2008-11-22 00:30:40' )
+ DATEDIFF ( 'hour', TIMESTAMP '2008-11-22 20:30:40', TIMESTAMP '2008-11-22 00:30:40' )
 </programlisting>
 
       <indexterm significance="preferred" type="sql">
@@ -1839,13 +1839,13 @@ DATEDIFF ( 'hour', TIMESTAMP '2008-11-22 20:30:40', TIMESTAMP '2008-11-22 00:30:
       functions are given below. If the second argument is omitted, the
       datetime value is truncated to midnight the same date. (HyperSQL)</para>
 
-      <programlisting>ROUND ( TIMESTAMP'2008-08-01 20:30:40', 'YYYY' )
+      <programlisting> ROUND ( TIMESTAMP'2008-08-01 20:30:40', 'YYYY' )
 
-'2009-01-01 00:00:00'
+ TIMESTAMP '2009-01-01 00:00:00'
 
-TRUNC ( TIMESTAMP'2008-08-01 20:30:40', 'YYYY' )
+ TRUNC ( TIMESTAMP'2008-08-01 20:30:40', 'YYYY' )
 
-'2008-01-01 00:00:00'
+ TIMESTAMP '2008-01-01 00:00:00'
 </programlisting>
     </section>
 
@@ -1877,9 +1877,9 @@ TRUNC ( TIMESTAMP'2008-08-01 20:30:40', 'YYYY' )
       and the second argument is the time part of the returned TIMESTAMP
       value. An example, including the result, is given below:</para>
 
-      <programlisting>TIMESTAMP ( '2008-11-22', '20:30:40' )
+      <programlisting> TIMESTAMP ( '2008-11-22', '20:30:40' )
 
-TIMESTAMP '2008-11-22 20:30:40.000000'
+ TIMESTAMP '2008-11-22 20:30:40.000000'
 </programlisting>
 
       <indexterm significance="preferred" type="sql">
@@ -1896,13 +1896,13 @@ TIMESTAMP '2008-11-22 20:30:40.000000'
       elements from the list given below, plus punctuation and space
       characters. An example, including the result, is given below:</para>
 
-      <programlisting>TO_CHAR ( TIMESTAMP'2008-02-01 20:30:40', 'YYYY BC MONTH, DAY HH' )
+      <programlisting> TO_CHAR ( TIMESTAMP'2008-02-01 20:30:40', 'YYYY BC MONTH, DAY HH' )
 
-2008 AD February, Friday 8
+ 2008 AD February, Friday 8
 
-TO_CHAR ( TIMESTAMP'2008-02-01 20:30:40', '"The Date is" YYYY BC MONTH, DAY HH' )
+ TO_CHAR ( TIMESTAMP'2008-02-01 20:30:40', '"The Date is" YYYY BC MONTH, DAY HH' )
 
-The Date is 2008 AD February, Friday 8
+ The Date is 2008 AD February, Friday 8
 </programlisting>
 
       <para>The format is internally translated to a
@@ -1944,9 +1944,9 @@ The Date is 2008 AD February, Friday 8
       types if necessary. An example, including the result, is given
       below:</para>
 
-      <programlisting>TO_TIMESTAMP ( '22/11/2008 20:30:40', 'DD/MM/YYYY HH:MI:SS' )
+      <programlisting> TO_TIMESTAMP ( '22/11/2008 20:30:40', 'DD/MM/YYYY HH:MI:SS' )
 
-TIMESTAMP '2008-11-22 20:30:40.000000'
+ TIMESTAMP '2008-11-22 20:30:40.000000'
 </programlisting>
 
       <para>The format strings that can be used for TO_DATE and TO_TIMESTAMP
@@ -2217,29 +2217,29 @@ TIMESTAMP '2008-11-22 20:30:40.000000'
     shown. The UNNEST table expression is used to form a table from the
     array.</para>
 
-    <programlisting>SEQUENCE_ARRAY(0, 100, 5)
+    <programlisting> SEQUENCE_ARRAY(0, 100, 5)
 
-ARRAY[0,5,10,15,20,25,30,35,40,45,50,55,60,65,70,75,80,85,90,95,100] 
+ ARRAY[0,5,10,15,20,25,30,35,40,45,50,55,60,65,70,75,80,85,90,95,100] 
 
-SELECT * FROM UNNEST(SEQUENCE_ARRAY(10, 12, 1))
+ SELECT * FROM UNNEST(SEQUENCE_ARRAY(10, 12, 1))
 
-C1 
--- 
-10 
-11 
-12 
+ C1 
+ -- 
+ 10 
+ 11 
+ 12 
 
-SELECT * FROM UNNEST(SEQUENCE_ARRAY(CURRENT_DATE, CURRENT_DATE + 6 DAY, 1 DAY)) WITH ORDINALITY AS T(D, I) 
+ SELECT * FROM UNNEST(SEQUENCE_ARRAY(CURRENT_DATE, CURRENT_DATE + 6 DAY, 1 DAY)) WITH ORDINALITY AS T(D, I) 
 
-D          I 
----------- - 
-2010-08-01 1 
-2010-08-02 2 
-2010-08-03 3 
-2010-08-04 4 
-2010-08-05 5 
-2010-08-06 6 
-2010-08-07 7
+ D          I 
+ ---------- - 
+ 2010-08-01 1 
+ 2010-08-02 2 
+ 2010-08-03 3 
+ 2010-08-04 4 
+ 2010-08-05 5 
+ 2010-08-06 6 
+ 2010-08-07 7
 
 </programlisting>
   </section>

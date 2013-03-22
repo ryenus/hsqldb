@@ -245,8 +245,8 @@
       description of the tables. Example below:</para>
 
       <para><informalexample>
-          <programlisting>SELECT * FROM INFORMATION_SCHEMA.SYSTEM_USERS 
-SELECT * FROM INFORMATION_SCHEMA.TABLE_PRIVILEGES
+          <programlisting> SELECT * FROM INFORMATION_SCHEMA.SYSTEM_USERS 
+ SELECT * FROM INFORMATION_SCHEMA.TABLE_PRIVILEGES
 </programlisting>
         </informalexample></para>
     </section>
@@ -612,11 +612,11 @@ SELECT * FROM INFORMATION_SCHEMA.TABLE_PRIVILEGES
     a user. Examples of GRANT statement are given below:</simpara>
 
     <informalexample>
-      <programlisting>GRANT ALL ON SEQUENCE aSequence TO roleOrUser 
-GRANT SELECT ON aTable TO roleOrUser  
-GRANT SELECT, UPDATE ON aTABLE TO roleOrUser1, roleOrUser2
-GRANT SELECT(columnA, columnB), UPDATE(columnA, columnB) ON TABLE aTable TO roleOrUser
-GRANT EXECUTE ON SPECIFIC ROUTINE aroutine_1234 TO rolOrUser
+      <programlisting> GRANT ALL ON SEQUENCE aSequence TO roleOrUser 
+ GRANT SELECT ON aTable TO roleOrUser  
+ GRANT SELECT, UPDATE ON aTABLE TO roleOrUser1, roleOrUser2
+ GRANT SELECT(columnA, columnB), UPDATE(columnA, columnB) ON TABLE aTable TO roleOrUser
+ GRANT EXECUTE ON SPECIFIC ROUTINE aroutine_1234 TO rolOrUser
 </programlisting>
     </informalexample>
 
@@ -648,12 +648,12 @@ GRANT EXECUTE ON SPECIFIC ROUTINE aroutine_1234 TO rolOrUser
     below:</simpara>
 
     <informalexample>
-      <programlisting>CREATE USER appuser
-CREATE ROLE approle
-GRANT approle TO appuser
-GRANT SELECT, UPDATE ON TABLE atable TO approle
-GRANT USAGE ON SEQUENCE asequence to approle
-GRANT EXECUTE ON ROUTINE aroutine TO approle
+      <programlisting> CREATE USER appuser
+ CREATE ROLE approle
+ GRANT approle TO appuser
+ GRANT SELECT, UPDATE ON TABLE atable TO approle
+ GRANT USAGE ON SEQUENCE asequence to approle
+ GRANT EXECUTE ON ROUTINE aroutine TO approle
 </programlisting>
     </informalexample>
 
