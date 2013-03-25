@@ -127,6 +127,7 @@ public class StatementCommand extends Statement {
             case StatementTypes.SET_DATABASE_DEFAULT_TABLE_TYPE :
             case StatementTypes.SET_DATABASE_FILES_CACHE_ROWS :
             case StatementTypes.SET_DATABASE_FILES_CACHE_SIZE :
+            case StatementTypes.SET_DATABASE_FILES_CHECK :
             case StatementTypes.SET_DATABASE_FILES_SCALE :
             case StatementTypes.SET_DATABASE_FILES_SPACE :
             case StatementTypes.SET_DATABASE_FILES_DEFRAG :
@@ -337,6 +338,19 @@ public class StatementCommand extends Statement {
                     }
 
                     session.database.logger.setCacheSize(value);
+
+                    return Result.updateZeroResult;
+                } catch (HsqlException e) {
+                    return Result.newErrorResult(e, sql);
+                }
+            }
+            case StatementTypes.SET_DATABASE_FILES_CHECK : {
+                try {
+                    int value = ((Integer) parameters[0]).intValue();
+
+                    session.checkAdmin();
+                    session.checkDDLWrite();
+                    session.database.logger.setFilesCheck(value);
 
                     return Result.updateZeroResult;
                 } catch (HsqlException e) {
@@ -744,17 +758,10 @@ public class StatementCommand extends Statement {
                     String property = (String) parameters[0];
                     Object value    = parameters[1];
 
-                    // command is a no-op from 1.9
                     session.checkAdmin();
                     session.checkDDLWrite();
 
-                    /*
-                    HsqlDatabaseProperties p =
-                        session.database.getProperties();
-
-                    p.setDatabaseProperty(property,
-                                          value.toString().toLowerCase());
-                    */
+                    // command is a no-op from 1.9
                     return Result.updateZeroResult;
                 } catch (HsqlException e) {
                     return Result.newErrorResult(e, sql);

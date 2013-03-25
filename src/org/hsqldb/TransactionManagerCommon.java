@@ -143,12 +143,11 @@ class TransactionManagerCommon {
 
     void adjustLobUsage(Session session) {
 
-        int      limit               = session.rowActionList.size();
-        Object[] list                = session.rowActionList.getArray();
-        long     lastActionTimestamp = session.actionTimestamp;
+        int  limit               = session.rowActionList.size();
+        long lastActionTimestamp = session.actionTimestamp;
 
         for (int i = 0; i < limit; i++) {
-            RowAction action = (RowAction) list[i];
+            RowAction action = (RowAction) session.rowActionList.get(i);
 
             if (action.type == RowActionBase.ACTION_NONE) {
                 continue;
@@ -193,12 +192,11 @@ class TransactionManagerCommon {
 
     void persistCommit(Session session) {
 
-        int      limit       = session.rowActionList.size();
-        Object[] list        = session.rowActionList.getArray();
-        boolean  writeCommit = false;
+        int     limit       = session.rowActionList.size();
+        boolean writeCommit = false;
 
         for (int i = 0; i < limit; i++) {
-            RowAction action = (RowAction) list[i];
+            RowAction action = (RowAction) session.rowActionList.get(i);
 
             if (action.type == RowActionBase.ACTION_NONE) {
                 continue;
@@ -318,8 +316,8 @@ class TransactionManagerCommon {
     /**
      * merge a transaction committed at a given timestamp.
      */
-    void mergeTransaction(Session session, Object[] list, int start,
-                          int limit, long timestamp) {
+    void mergeTransaction(Object[] list, int start, int limit,
+                          long timestamp) {
 
         for (int i = start; i < limit; i++) {
             RowAction rowact = (RowAction) list[i];

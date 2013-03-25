@@ -256,7 +256,7 @@ import org.hsqldb.types.Types;
  *
  * @author Campbell Boucher-Burnet (boucherb@users dot sourceforge.net)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.0
+ * @version 2.3.0
  * @since 1.7.2
  * @see JDBCConnection#prepareStatement
  * @see JDBCResultSet
@@ -3206,10 +3206,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * The minimum is 0, indicating no limit.
-     * In 2.0, calls to this method are ignored; HSQLDB waits an
-     * unlimited amount of time for statement execution
-     * requests to return.
+     * The maximum number of seconds to wait is 32767.
      * </div>
      * <!-- end release-specific documentation -->
      *

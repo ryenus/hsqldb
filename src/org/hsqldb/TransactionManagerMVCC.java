@@ -100,9 +100,6 @@ implements TransactionManager {
 
     public boolean prepareCommitActions(Session session) {
 
-        Object[] list  = session.rowActionList.getArray();
-        int      limit = session.rowActionList.size();
-
         if (session.abortTransaction) {
 
 //            System.out.println("cascade fail " + session + " " + session.actionTimestamp);
@@ -112,10 +109,12 @@ implements TransactionManager {
         writeLock.lock();
 
         try {
-            for (int i = 0; i < limit; i++) {
-                RowAction rowact = (RowAction) list[i];
+            int limit = session.rowActionList.size();
 
-                if (!rowact.canCommit(session, session.tempSet)) {
+            for (int i = 0; i < limit; i++) {
+                RowAction action = (RowAction) session.rowActionList.get(i);
+
+                if (!action.canCommit(session, session.tempSet)) {
 
 //                System.out.println("commit conflicts " + session + " " + session.actionTimestamp);
                     return false;
@@ -125,7 +124,7 @@ implements TransactionManager {
             session.actionTimestamp = getNextGlobalChangeTimestamp();
 
             for (int i = 0; i < limit; i++) {
-                RowAction action = (RowAction) list[i];
+                RowAction action = (RowAction) session.rowActionList.get(i);
 
                 action.prepareCommit(session);
             }
@@ -150,16 +149,15 @@ implements TransactionManager {
             return false;
         }
 
-        int      limit = session.rowActionList.size();
-        Object[] list  = session.rowActionList.getArray();
-
         writeLock.lock();
 
         try {
-            for (int i = 0; i < limit; i++) {
-                RowAction rowact = (RowAction) list[i];
+            int limit = session.rowActionList.size();
 
-                if (!rowact.canCommit(session, session.tempSet)) {
+            for (int i = 0; i < limit; i++) {
+                RowAction action = (RowAction) session.rowActionList.get(i);
+
+                if (!action.canCommit(session, session.tempSet)) {
 
 //                  System.out.println("commit conflicts " + session + " " + session.actionTimestamp);
                     return false;
@@ -173,7 +171,7 @@ implements TransactionManager {
             endTransaction(session);
 
             for (int i = 0; i < limit; i++) {
-                RowAction action = (RowAction) list[i];
+                RowAction action = (RowAction) session.rowActionList.get(i);
 
                 action.commit(session);
             }
@@ -191,9 +189,9 @@ implements TransactionManager {
             int newLimit = session.rowActionList.size();
 
             if (newLimit > limit) {
-                list = session.rowActionList.getArray();
+                Object[] list = session.rowActionList.getArray();
 
-                mergeTransaction(session, list, limit, newLimit,
+                mergeTransaction(list, limit, newLimit,
                                  session.actionTimestamp);
                 finaliseRows(session, list, limit, newLimit);
                 session.rowActionList.setSize(limit);
@@ -203,12 +201,13 @@ implements TransactionManager {
             if (session == lobSession
                     || getFirstLiveTransactionTimestamp()
                        > session.actionTimestamp) {
-                mergeTransaction(session, list, 0, limit,
-                                 session.actionTimestamp);
+                Object[] list = session.rowActionList.getArray();
+
+                mergeTransaction(list, 0, limit, session.actionTimestamp);
                 finaliseRows(session, list, 0, limit);
             } else {
                 if (session.rowActionList.size() > 0) {
-                    list = session.rowActionList.toArray();
+                    Object[] list = session.rowActionList.toArray();
 
                     addToCommittedQueue(session, list);
                 }
@@ -275,15 +274,14 @@ implements TransactionManager {
      */
     public void rollbackPartial(Session session, int start, long timestamp) {
 
-        Object[] list  = session.rowActionList.getArray();
-        int      limit = session.rowActionList.size();
+        int limit = session.rowActionList.size();
 
         if (start == limit) {
             return;
         }
 
         for (int i = start; i < limit; i++) {
-            RowAction action = (RowAction) list[i];
+            RowAction action = (RowAction) session.rowActionList.get(i);
 
             if (action == null) {
 /*
@@ -302,6 +300,8 @@ implements TransactionManager {
         writeLock.lock();
 
         try {
+            Object[] list = session.rowActionList.getArray();
+
             mergeRolledBackTransaction(session, timestamp, list, start, limit);
         } finally {
             writeLock.unlock();
@@ -677,8 +677,7 @@ implements TransactionManager {
                 }
             }
 
-            mergeTransaction(session, actions, 0, actions.length,
-                             commitTimestamp);
+            mergeTransaction(actions, 0, actions.length, commitTimestamp);
             finaliseRows(session, actions, 0, actions.length);
         }
     }

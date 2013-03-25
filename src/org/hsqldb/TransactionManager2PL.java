@@ -90,12 +90,10 @@ implements TransactionManager {
             return false;
         }
 
-        int      limit = session.rowActionList.size();
-        Object[] list  = session.rowActionList.getArray();
-
         writeLock.lock();
 
         try {
+            int limit = session.rowActionList.size();
 
             // new actionTimestamp used for commitTimestamp
             session.actionTimestamp         = getNextGlobalChangeTimestamp();
@@ -104,7 +102,7 @@ implements TransactionManager {
             endTransaction(session);
 
             for (int i = 0; i < limit; i++) {
-                RowAction action = (RowAction) list[i];
+                RowAction action = (RowAction) session.rowActionList.get(i);
 
                 action.commit(session);
             }
@@ -166,15 +164,14 @@ implements TransactionManager {
      */
     public void rollbackPartial(Session session, int start, long timestamp) {
 
-        Object[] list  = session.rowActionList.getArray();
-        int      limit = session.rowActionList.size();
+        int limit = session.rowActionList.size();
 
         if (start == limit) {
             return;
         }
 
         for (int i = limit - 1; i >= start; i--) {
-            RowAction action = (RowAction) list[i];
+            RowAction action = (RowAction) session.rowActionList.get(i);
 
             if (action == null || action.type == RowActionBase.ACTION_NONE
                     || action.type == RowActionBase.ACTION_DELETE_FINAL) {

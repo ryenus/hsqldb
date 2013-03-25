@@ -378,12 +378,14 @@ public class Table extends TableBase implements SchemaObject {
             sb.append(' ');
             sb.append(type.getTypeDefinition());
 
-            if (type.isCharacterType()) {
-                Collation collation = ((CharacterType) type).getCollation();
+            if (!type.isDistinctType() && !type.isDomainType()) {
+                if (type.isCharacterType()) {
+                    Collation collation =
+                        ((CharacterType) type).getCollation();
 
-                if (collation.isObjectCollation()) {
-                    sb.append(' ').append(Tokens.T_COLLATE).append(' ');
-                    sb.append(collation.getName().statementName);
+                    if (collation.isObjectCollation()) {
+                        sb.append(' ').append(collation.getCollateSQL());
+                    }
                 }
             }
 

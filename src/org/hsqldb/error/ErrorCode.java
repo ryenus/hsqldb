@@ -56,10 +56,10 @@ public interface ErrorCode {
     int M_HsqlProperties_load       = 28;          // properties name is null or empty
 
     //
-    int M_TEXT_SOURCE_FIELD_ERROR       = 41;      // Error in text source field
-    int M_TextCache_opening_file_error  = 42;      // openning file: $$ error: $$
-    int M_TextCache_closing_file_error  = 43;      // closing file: $$ error: $$
-    int M_TextCache_purging_file_error  = 44;      // purging file: $$ error: $$
+    int M_TEXT_SOURCE_FIELD_ERROR      = 41;       // Error in text source field
+    int M_TextCache_opening_file_error = 42;       // openning file: $$ error: $$
+    int M_TextCache_closing_file_error = 43;       // closing file: $$ error: $$
+    int M_TextCache_purging_file_error = 44;       // purging file: $$ error: $$
 
     //
     int M_DataFileCache_makeRow = 51;              // error $$ reading row - file $$
@@ -494,7 +494,8 @@ public interface ErrorCode {
     int X_40004 = 4864;                            // triggered action exception
 
     // HSQLDB internal tx management
-    int X_40501 = 4871;                            // transaction
+    int X_40501 = 4871;                            // MVCC transaction data change conflict
+    int X_40502 = 4872;                            // statement execution aborted: timeout reached
 
     // syntax error or access rule violation - xxxx
     int X_42000 = 5000;                            // syntax error or access rule violation - generic - 200x

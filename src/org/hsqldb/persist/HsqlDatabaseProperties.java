@@ -235,6 +235,7 @@ public class HsqlDatabaseProperties extends HsqlProperties {
         "hsqldb.full_log_replay";
     public static final String hsqldb_large_data = "hsqldb.large_data";
     public static final String hsqldb_file_space = "hsqldb.file_space";
+    public static final String hsqldb_file_check = "hsqldb.file_check";
 
     //
     public static final String sql_ref_integrity       = "sql.ref_integrity";
@@ -262,7 +263,6 @@ public class HsqlDatabaseProperties extends HsqlProperties {
     public static final String sql_syntax_pgs    = "sql.syntax_pgs";
     public static final String jdbc_translate_tti_types =
         "jdbc.translate_tti_types";
-    public static final String sql_identity_is_pk = "sql.identity_is_pk";
     public static final String sql_longvar_is_lob = "sql.longvar_is_lob";
     public static final String sql_pad_space      = "sql.pad_space";
     public static final String sql_ignore_case    = "sql.ignore_case";
@@ -439,9 +439,6 @@ public class HsqlDatabaseProperties extends HsqlProperties {
         dbMeta.put(sql_compare_in_locale,
                    HsqlProperties.getMeta(sql_compare_in_locale, SQL_PROPERTY,
                                           false));
-        dbMeta.put(sql_identity_is_pk,
-                   HsqlProperties.getMeta(sql_identity_is_pk, SQL_PROPERTY,
-                                          false));
         dbMeta.put(sql_longvar_is_lob,
                    HsqlProperties.getMeta(sql_longvar_is_lob, SQL_PROPERTY,
                                           false));
@@ -459,6 +456,10 @@ public class HsqlDatabaseProperties extends HsqlProperties {
         dbMeta.put(hsqldb_file_space,
                    HsqlProperties.getMeta(hsqldb_file_space, SQL_PROPERTY,
                                           false));
+
+        dbMeta.put(hsqldb_file_check,
+                   HsqlProperties.getMeta(hsqldb_file_check, SQL_PROPERTY,
+                                          0, new int[] {0,1}));
 
         // integral defaults for user-defined props - sets
         dbMeta.put(hsqldb_write_delay_millis,

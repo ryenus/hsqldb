@@ -98,7 +98,8 @@ public class SchemaManager {
             schema.charsetLookup.add(TypeInvariants.SQL_IDENTIFIER_CHARSET);
             schema.charsetLookup.add(TypeInvariants.SQL_CHARACTER);
             schema.collationLookup.add(Collation.getDefaultInstance());
-            schema.collationLookup.add(Collation.getDefaultIgnoreCaseInstance());
+            schema.collationLookup.add(
+                Collation.getDefaultIgnoreCaseInstance());
         } catch (HsqlException e) {}
     }
 
@@ -1160,7 +1161,6 @@ public class SchemaManager {
 
         if (collation == null) {
             schemaName = session.getSchemaName(schemaName);
-
             collation = (Collation) getSchemaObject(name, schemaName,
                     SchemaObject.COLLATION);
         }
@@ -1315,6 +1315,35 @@ public class SchemaManager {
         }
     }
 
+    public SchemaObject getCharacterSet(Session session, String name,
+                                        String schemaName) {
+
+        if (schemaName == null
+                || SqlInvariants.INFORMATION_SCHEMA.equals(schemaName)) {
+            if (name.equals("SQL_IDENTIFIER")) {
+                return TypeInvariants.SQL_IDENTIFIER_CHARSET;
+            }
+
+            if (name.equals("SQL_TEXT")) {
+                return TypeInvariants.SQL_TEXT;
+            }
+
+            if (name.equals("LATIN1")) {
+                return TypeInvariants.LATIN1;
+            }
+
+            if (name.equals("ASCII_GRAPHIC")) {
+                return TypeInvariants.ASCII_GRAPHIC;
+            }
+        }
+
+        if (schemaName == null) {
+            schemaName = session.getSchemaName(schemaName);
+        }
+
+        return getSchemaObject(name, schemaName, SchemaObject.CHARSET);
+    }
+
     public SchemaObject findSchemaObject(String name, String schemaName,
                                          int type) {
 
@@ -1341,22 +1370,6 @@ public class SchemaManager {
                     return schema.tableLookup.getObject(name);
 
                 case SchemaObject.CHARSET :
-                    if (name.equals("SQL_IDENTIFIER")) {
-                        return TypeInvariants.SQL_IDENTIFIER_CHARSET;
-                    }
-
-                    if (name.equals("SQL_TEXT")) {
-                        return TypeInvariants.SQL_TEXT;
-                    }
-
-                    if (name.equals("LATIN1")) {
-                        return TypeInvariants.LATIN1;
-                    }
-
-                    if (name.equals("ASCII_GRAPHIC")) {
-                        return TypeInvariants.ASCII_GRAPHIC;
-                    }
-
                     return schema.charsetLookup.getObject(name);
 
                 case SchemaObject.COLLATION :

@@ -70,18 +70,18 @@ public class FileArchiver {
                 infilename, outfilename, storage, COMPRESSION_ZIP);
     }
 
-    public static void copyFile(String infilename, String outfilename,
-                                    FileAccess storage) throws IOException {
-        FileArchiver.archive(
-                infilename, outfilename, storage, COMPRESSION_NONE);
-    }
-
     public static void restoreFile(String infilename, String outfilename,
                                       FileAccess storage) throws IOException {
         FileArchiver.unarchive(
                 infilename, outfilename, storage, COMPRESSION_NONE);
     }
     */
+    public static void copyFile(String infilename, String outfilename,
+                                FileAccess storage) throws IOException {
+        FileArchiver.archive(infilename, outfilename, storage,
+                             COMPRESSION_NONE);
+    }
+
     public static void archive(String infilename, String outfilename,
                                FileAccess storage,
                                int compressionType) throws IOException {
