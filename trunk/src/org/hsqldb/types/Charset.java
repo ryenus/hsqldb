@@ -34,8 +34,9 @@ package org.hsqldb.types;
 import org.hsqldb.HsqlNameManager.HsqlName;
 import org.hsqldb.SchemaObject;
 import org.hsqldb.Session;
-import org.hsqldb.TypeInvariants;
+import org.hsqldb.SqlInvariants;
 import org.hsqldb.Tokens;
+import org.hsqldb.TypeInvariants;
 import org.hsqldb.lib.OrderedHashSet;
 import org.hsqldb.rights.Grantee;
 
@@ -124,9 +125,21 @@ public class Charset implements SchemaObject {
 
         sb.append(Tokens.T_CREATE).append(' ').append(
             Tokens.T_CHARACTER).append(' ').append(Tokens.T_SET).append(' ');
-        sb.append(name.getSchemaQualifiedStatementName());
+
+        if (SqlInvariants.INFORMATION_SCHEMA.equals(name.schema.name)) {
+            sb.append(name.getStatementName());
+        } else {
+            sb.append(name.getSchemaQualifiedStatementName());
+        }
+
         sb.append(' ').append(Tokens.T_AS).append(' ').append(Tokens.T_GET);
-        sb.append(' ').append(base.getSchemaQualifiedStatementName());
+        sb.append(' ');
+
+        if (SqlInvariants.INFORMATION_SCHEMA.equals(base.schema.name)) {
+            sb.append(base.getStatementName());
+        } else {
+            sb.append(base.getSchemaQualifiedStatementName());
+        }
 
         return sb.toString();
     }

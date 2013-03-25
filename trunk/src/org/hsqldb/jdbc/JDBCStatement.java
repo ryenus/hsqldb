@@ -447,10 +447,7 @@ public class JDBCStatement extends JDBCStatementBase implements Statement {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * MAX_VALUE. The minimum is 0, indicating no limit.
-     * In version 2.0, calls to this method are ignored; HSQLDB waits an
-     * unlimited amount of time for statement execution
-     * requests to return.
+     * The maximum number of seconds to wait is 32767.
      * </div>
      * <!-- end release-specific documentation -->
      *

@@ -1405,6 +1405,15 @@ public class ParserCommand extends ParserDDL {
 
                 break;
             }
+            case Tokens.CHECK : {
+                read();
+
+                value = readIntegerObject();
+                type  = StatementTypes.SET_DATABASE_FILES_CHECK;
+                names = database.schemaManager.getCatalogNameArray();
+
+                break;
+            }
             case Tokens.SCALE : {
                 read();
 

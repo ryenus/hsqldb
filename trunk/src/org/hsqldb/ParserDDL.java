@@ -1809,7 +1809,7 @@ public class ParserDDL extends ParserRoutine {
 
         readThis(Tokens.AS);
 
-        Type type = readTypeDefinition(false, false).duplicate();
+        Type type = readTypeDefinition(true, false).duplicate();
 
         readIfThis(Tokens.FINAL);
 
@@ -1873,7 +1873,6 @@ public class ParserDDL extends ParserRoutine {
         HsqlName charsetName = readNewSchemaObjectName(SchemaObject.CHARSET,
             false);
 
-        charsetName.setSchemaIfNull(session.getCurrentSchemaHsqlName());
         readThis(Tokens.FROM);
 
         HsqlName sourceName = readNewSchemaObjectName(SchemaObject.COLLATION,
@@ -1890,16 +1889,21 @@ public class ParserDDL extends ParserRoutine {
             padSpace = Boolean.TRUE;
         }
 
+        String schemaName = charsetName.schema == null ? null
+                                                       : charsetName.schema
+                                                           .name;
         Charset charset =
-            (Charset) database.schemaManager.getSchemaObject(charsetName);
+            (Charset) database.schemaManager.getCharacterSet(session,
+                charsetName.name, schemaName);
 
         if (charset == null) {
             throw Error.error(ErrorCode.X_42501,
                               charsetName.getSchemaQualifiedStatementName());
         }
 
-        String schemaName = sourceName.schema == null ? null
-                                                      : sourceName.schema.name;
+        schemaName = sourceName.schema == null ? null
+                                               : sourceName.schema.name;
+
         Collation source = database.schemaManager.getCollation(session,
             sourceName.name, schemaName);
         Collation  collation = new Collation(name, source, charset, padSpace);

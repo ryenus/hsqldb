@@ -39,6 +39,7 @@ import org.hsqldb.HsqlNameManager;
 import org.hsqldb.HsqlNameManager.HsqlName;
 import org.hsqldb.SchemaObject;
 import org.hsqldb.Session;
+import org.hsqldb.SqlInvariants;
 import org.hsqldb.Tokens;
 import org.hsqldb.TypeInvariants;
 import org.hsqldb.error.Error;
@@ -500,10 +501,23 @@ public class Collation implements SchemaObject {
 
         sb.append(Tokens.T_CREATE).append(' ');
         sb.append(Tokens.T_COLLATION).append(' ');
-        sb.append(name.getSchemaQualifiedStatementName()).append(' ');
-        sb.append(Tokens.T_FOR).append(' ');
-        sb.append(charset.name.getSchemaQualifiedStatementName()).append(' ');
-        sb.append(Tokens.T_FROM).append(' ');
+
+        if (SqlInvariants.INFORMATION_SCHEMA.equals(name.schema.name)) {
+            sb.append(name.getStatementName());
+        } else {
+            sb.append(name.getSchemaQualifiedStatementName());
+        }
+
+        sb.append(' ').append(Tokens.T_FOR).append(' ');
+
+        if (SqlInvariants.INFORMATION_SCHEMA.equals(
+                charset.name.schema.name)) {
+            sb.append(charset.name.getStatementName());
+        } else {
+            sb.append(charset.name.getSchemaQualifiedStatementName());
+        }
+
+        sb.append(' ').append(Tokens.T_FROM).append(' ');
         sb.append(sourceName.statementName);
         sb.append(' ');
 
@@ -516,6 +530,16 @@ public class Collation implements SchemaObject {
 
     public long getChangeTimestamp() {
         return 0;
+    }
+
+    public String getCollateSQL() {
+
+        StringBuffer sb = new StringBuffer();
+
+        sb.append(Tokens.T_COLLATE).append(' ');
+        sb.append(getName().statementName);
+
+        return sb.toString();
     }
 
     public String getDatabaseCollationSQL() {
