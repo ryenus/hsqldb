@@ -348,7 +348,7 @@ public class LobManager {
         params[1] = ValuePool.getInt(totalBlockLimitCount);
         params[2] = ValuePool.getLong(0);
 
-        sysLobSession.executeCompiledStatement(statement, params);
+        sysLobSession.executeCompiledStatement(statement, params, 0);
     }
 
     public void open() {
@@ -510,7 +510,7 @@ public class LobManager {
             params[LOB_IDS.LOB_TYPE]        = ValuePool.getInt(Types.SQL_BLOB);
 
             Result result = sysLobSession.executeCompiledStatement(createLob,
-                params);
+                params, 0);
 
             usageChanged = true;
 
@@ -535,7 +535,7 @@ public class LobManager {
             params[LOB_IDS.LOB_TYPE]        = ValuePool.getInt(Types.SQL_CLOB);
 
             Result result = sysLobSession.executeCompiledStatement(createLob,
-                params);
+                params, 0);
 
             usageChanged = true;
 
@@ -557,7 +557,8 @@ public class LobManager {
             params[1] = ValuePool.getLong(0);
 
             Result result =
-                sysLobSession.executeCompiledStatement(deleteLobCall, params);
+                sysLobSession.executeCompiledStatement(deleteLobCall, params,
+                    0);
 
             usageChanged = true;
 
@@ -597,27 +598,28 @@ public class LobManager {
 
             Result result =
                 sysLobSession.executeCompiledStatement(deleteUnusedLobs,
-                    params);
+                    params, 0);
 
             if (result.isError()) {
                 return result;
             }
 
             result = sysLobSession.executeCompiledStatement(mergeUnusedSpace,
-                    ValuePool.emptyObjectArray);
+                    ValuePool.emptyObjectArray, 0);
 
             if (result.isError()) {
                 return result;
             }
 
             result = sysLobSession.executeCompiledStatement(getLobUseLimit,
-                    ValuePool.emptyObjectArray);
+                    ValuePool.emptyObjectArray, 0);
 
             if (result.isError()) {
                 return result;
             }
 
             usageChanged = false;
+
             RowSetNavigator navigator = result.getNavigator();
             boolean         next      = navigator.next();
 
@@ -1080,7 +1082,7 @@ public class LobManager {
             params[LOB_IDS.LOB_TYPE]        = data[LOB_IDS.LOB_TYPE];
 
             Result result = sysLobSession.executeCompiledStatement(createLob,
-                params);
+                params, 0);
 
             if (result.isError()) {
                 return result;
@@ -1711,7 +1713,7 @@ public class LobManager {
 
             Result result =
                 sysLobSession.executeCompiledStatement(deleteLobPartCall,
-                    params);
+                    params, 0);
 
             setLength(lobID, offset);
 
@@ -1730,7 +1732,7 @@ public class LobManager {
         params[UPDATE_LENGTH.LOB_ID]     = ValuePool.getLong(lobID);
 
         Result result = sysLobSession.executeCompiledStatement(updateLobLength,
-            params);
+            params, 0);
 
         return result;
     }
@@ -1804,7 +1806,8 @@ public class LobManager {
             ValuePool.getLong(sysLobSession.getTransactionTimestamp());
 
         Result result =
-            sysLobSession.executeCompiledStatement(deleteLobPartCall, params);
+            sysLobSession.executeCompiledStatement(deleteLobPartCall, params,
+                0);
     }
 
     private void divideBlockAddresses(long lobID, int offset) {
@@ -1816,7 +1819,8 @@ public class LobManager {
         params[DIVIDE_BLOCK.LOB_ID]       = ValuePool.getLong(lobID);
 
         Result result =
-            sysLobSession.executeCompiledStatement(divideLobPartCall, params);
+            sysLobSession.executeCompiledStatement(divideLobPartCall, params,
+                0);
     }
 
     private Result createBlockAddresses(long lobID, int offset, int count) {
@@ -1829,7 +1833,8 @@ public class LobManager {
         params[ALLOC_BLOCKS.LOB_ID]       = ValuePool.getLong(lobID);
 
         Result result =
-            sysLobSession.executeCompiledStatement(createLobPartCall, params);
+            sysLobSession.executeCompiledStatement(createLobPartCall, params,
+                0);
 
         return result;
     }
@@ -1846,7 +1851,7 @@ public class LobManager {
 
         Result result =
             sysLobSession.executeCompiledStatement(createSingleLobPartCall,
-                params);
+                params, 0);
 
         return result;
     }
@@ -1866,7 +1871,7 @@ public class LobManager {
         params[ALLOC_PART.LOB_ID]       = ValuePool.getLong(lobID);
 
         Result result = sysLobSession.executeCompiledStatement(createPart,
-            params);
+            params, 0);
 
         return result;
     }

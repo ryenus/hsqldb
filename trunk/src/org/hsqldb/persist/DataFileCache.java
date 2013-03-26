@@ -278,7 +278,13 @@ public class DataFileCache {
                     boolean existsBackup = fa.isStreamElement(backupFileName);
 
                     if (existsBackup) {
-                        isSaved = false;
+                        int dbState =
+                            database.databaseProperties.getDBModified();
+
+                        if (dbState == HsqlDatabaseProperties.FILES_MODIFIED) {
+                            isSaved = false;
+                            logInfoEvent("data file was saved but inc backup exists - restoring");
+                        }
                     }
                 }
             }
@@ -578,13 +584,24 @@ public class DataFileCache {
         return restoreBackup(database, dataFileName, backupFileName);
     }
 
+    static boolean restoreBackupFile(Database database, String dataFileName,
+                                     String backupFileName) {
+
+        if (database.logger.propIncrementBackup) {
+            return restoreBackupIncremental(database, dataFileName,
+                                            backupFileName);
+        } else {
+            return restoreBackup(database, dataFileName, backupFileName);
+        }
+    }
+
     static boolean restoreBackup(Database database, String dataFileName,
                                  String backupFileName) {
 
         try {
             FileAccess fileAccess = database.logger.getFileAccess();
 
-            // in case data file cannot be deleted, reset it
+            // todo - in case data file cannot be deleted, reset it
             deleteFile(database, dataFileName);
 
             if (fileAccess.isStreamElement(backupFileName)) {
@@ -640,6 +657,9 @@ public class DataFileCache {
         }
     }
 
+    /**
+     *  Abandons changed rows and closes the .data file.
+     */
     public void release() {
 
         writeLock.lock();
@@ -666,12 +686,7 @@ public class DataFileCache {
     }
 
     /**
-     *  Parameter write indicates either an orderly close, or a fast close
-     *  without backup.
-     *
-     *  When false, just closes the file.
-     *
-     *  When true, writes out all cached rows that have been modified and the
+     *  Writes out all cached rows that have been modified and the
      *  free position pointer for the *.data file and then closes the file.
      */
     public void close() {
@@ -867,9 +882,6 @@ public class DataFileCache {
             if (database.logger.log.dbLogWriter != null) {
                 database.logger.log.openLog();
             }
-
-            database.getProperties().setDBModified(
-                HsqlDatabaseProperties.FILES_MODIFIED);
 
             return dfd;
         } finally {
@@ -1399,6 +1411,11 @@ public class DataFileCache {
             if (database.logger.propIncrementBackup) {
                 if (fa.isStreamElement(backupFileName)) {
                     deleteFile(database, backupFileName);
+
+                    if (fa.isStreamElement(backupFileName)) {
+                        throw Error.error(ErrorCode.DATA_FILE_ERROR,
+                                          "cannot delete old backup file");
+                    }
                 }
 
                 return;
@@ -1409,6 +1426,11 @@ public class DataFileCache {
                     backupFileName += Logger.newFileExtension;
                 } else {
                     deleteFile(database, backupFileName);
+
+                    if (fa.isStreamElement(backupFileName)) {
+                        throw Error.error(ErrorCode.DATA_FILE_ERROR,
+                                          "cannot delete old backup file");
+                    }
                 }
 
                 FileArchiver.archive(fileName, backupFileName, fa,

@@ -115,7 +115,7 @@ public class ScriptReaderText extends ScriptReaderBase {
             try {
                 cs = session.compileStatement(statement);
                 result = session.executeCompiledStatement(cs,
-                        ValuePool.emptyObjectArray);
+                        ValuePool.emptyObjectArray, 0);
             } catch (HsqlException e) {
                 result = Result.newErrorResult(e);
             }
@@ -157,6 +157,8 @@ public class ScriptReaderText extends ScriptReaderBase {
 
     protected void readExistingData(Session session) {
 
+        ScriptWriterText scrwriter = null;
+
         try {
             String tablename = null;
 
@@ -183,8 +185,19 @@ public class ScriptReaderText extends ScriptReaderBase {
                                 currentTable);
                     }
 
-                    currentTable.insertFromScript(session, currentStore,
-                                                  rowData);
+                    try {
+                        currentTable.insertFromScript(session, currentStore,
+                                                      rowData);
+                    } catch (HsqlException ex) {
+                        if (scrwriter == null) {
+                            String name = database.getPath() + ".reject";
+
+                            scrwriter = new ScriptWriterText(database, name,
+                                                             true, true, true);
+                        }
+
+                        scrwriter.writeLogStatement(null, rawStatement);
+                    }
                 } else {
                     throw Error.error(ErrorCode.ERROR_IN_SCRIPT_FILE,
                                       statement);
@@ -200,6 +213,10 @@ public class ScriptReaderText extends ScriptReaderBase {
                               new Object[] {
                 new Integer(lineCount), t.toString()
             });
+        } finally {
+            if (scrwriter != null) {
+                scrwriter.close();
+            }
         }
     }
 

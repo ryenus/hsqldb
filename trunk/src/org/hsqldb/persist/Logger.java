@@ -137,6 +137,7 @@ public class Logger {
     int     propScriptFormat = 0;
     boolean propLargeData;
     boolean propFileSpaces;
+    int     propCheckPersistence;
 
     //
     Log               log;
@@ -341,22 +342,6 @@ public class Logger {
             }
 
             int value = database.urlProperties.getIntegerProperty(
-                HsqlDatabaseProperties.hsqldb_applog, -1);
-
-            if (value >= 0) {
-                database.databaseProperties.setProperty(
-                    HsqlDatabaseProperties.hsqldb_applog, value);
-            }
-
-            value = database.urlProperties.getIntegerProperty(
-                HsqlDatabaseProperties.hsqldb_sqllog, -1);
-
-            if (value >= 0) {
-                database.databaseProperties.setProperty(
-                    HsqlDatabaseProperties.hsqldb_sqllog, value);
-            }
-
-            value = database.urlProperties.getIntegerProperty(
                 HsqlDatabaseProperties.hsqldb_cache_free_count, -1);
 
             if (value >= 0) {
@@ -426,6 +411,21 @@ public class Logger {
         if (database.getUniqueName() == null) {
             database.setUniqueName(newUniqueName());
         }
+
+        // URL database properties that can override .script file settings
+        int level = database.urlProperties.getIntegerProperty(
+            HsqlDatabaseProperties.hsqldb_applog, -1);
+
+        if (level >= 0) {
+            setEventLogLevel(level, false);
+        }
+
+        level = database.urlProperties.getIntegerProperty(
+            HsqlDatabaseProperties.hsqldb_sqllog, -1);
+
+        if (level >= 0) {
+            setEventLogLevel(level, true);
+        }
     }
 
     private void setVariables() {
@@ -488,6 +488,9 @@ public class Logger {
                 HsqlDatabaseProperties.hsqldb_file_space, false)) {
             propFileSpaces = true;
         }
+
+        propCheckPersistence = database.databaseProperties.getIntegerProperty(
+            HsqlDatabaseProperties.hsqldb_file_check);
 
         if (!database.urlProperties.isPropertyTrue(
                 HsqlDatabaseProperties.sql_pad_space, true)) {
@@ -610,11 +613,6 @@ public class Logger {
         propSqlLogLevel = database.databaseProperties.getIntegerProperty(
             HsqlDatabaseProperties.hsqldb_sqllog);
 
-        // test code
-        /*
-        propEventLogLevel = 2;
-        propSqlLogLevel = 2;
-        */
         if (database.databaseProperties.isPropertyTrue(
                 HsqlDatabaseProperties.hsqldb_files_readonly)) {
             database.setFilesReadOnly();
@@ -673,16 +671,16 @@ public class Logger {
      * @param  closemode The mode in which to shut down the logging
      *      process
      *      <OL>
-     *        <LI> closemode -1 performs SHUTDOWN IMMEDIATELY, equivalent
+     *        <LI> CLOSEMODE_IMMEDIATELY performs SHUTDOWN IMMEDIATELY, equivalent
      *        to  a poweroff or crash.
-     *        <LI> closemode 0 performs a normal SHUTDOWN that
+     *        <LI> CLOSEMODE_NORMAL performs a normal SHUTDOWN that
      *        checkpoints the database normally.
-     *        <LI> closemode 1 performs a shutdown compact that scripts
+     *        <LI> CLOSEMODE_COMPACT performs a shutdown compact that scripts
      *        out the contents of any CACHED tables to the log then
      *        deletes the existing *.data file that contains the data
      *        for all CACHED table before the normal checkpoint process
      *        which in turn creates a new, compact *.data file.
-     *        <LI> closemode 2 performs a SHUTDOWN SCRIPT.
+     *        <LI> CLOSEMODE_SCRIPT performs a SHUTDOWN SCRIPT.
      *      </OL>
      *
      * @return  true if closed with no problems or false if a problem was
@@ -700,7 +698,6 @@ public class Logger {
 
         log.synchLog();
         database.lobManager.synch();
-        database.lobManager.deleteUnusedLobs();
 
         try {
             switch (closemode) {
@@ -1048,7 +1045,6 @@ public class Logger {
         if (logsStatements) {
             database.logger.logInfoEvent("Checkpoint start");
             log.checkpoint(mode);
-            database.sessionManager.resetLoggedSchemas();
             database.logger.logInfoEvent("Checkpoint end");
         } else if (!isFileDatabase()) {
             database.lobManager.deleteUnusedLobs();
@@ -1102,7 +1098,7 @@ public class Logger {
     /**
      *  Sets the log write delay mode to number of seconds. By default
      *  executed commands written to the log are committed fully at most
-     *  1 second after they are executed. This improves performance for
+     *  0.5 second after they are executed. This improves performance for
      *  applications that execute a large number
      *  of short running statements in a short period of time, but risks
      *  failing to log some possibly large number of statements in the
@@ -1229,6 +1225,13 @@ public class Logger {
 
     public boolean isDataFileSpaces() {
         return propFileSpaces;
+    }
+
+    public void setFilesCheck(int value) {
+
+        if (value == 1 || value == 0) {
+            propCheckPersistence = value;
+        }
     }
 
     public void setLobFileScale(int value) {
@@ -1523,7 +1526,7 @@ public class Logger {
         }
 
         if (HsqlDatabaseProperties.hsqldb_lob_file_scale.equals(name)) {
-            return String.valueOf(propLobBlockSize);
+            return String.valueOf(propLobBlockSize / 1024);
         }
 
         if (HsqlDatabaseProperties.hsqldb_lob_file_compressed.equals(name)) {
@@ -1535,15 +1538,15 @@ public class Logger {
         }
 
         if (HsqlDatabaseProperties.hsqldb_cache_free_count.equals(name)) {
-            return String.valueOf(this.propMaxFreeBlocks);
+            return String.valueOf(propMaxFreeBlocks);
         }
 
         if (HsqlDatabaseProperties.hsqldb_cache_rows.equals(name)) {
-            return String.valueOf(this.propCacheMaxRows);
+            return String.valueOf(propCacheMaxRows);
         }
 
         if (HsqlDatabaseProperties.hsqldb_cache_size.equals(name)) {
-            String.valueOf(this.propCacheMaxSize);
+            return String.valueOf(propCacheMaxSize / 1024);
         }
 
         if (HsqlDatabaseProperties.hsqldb_default_table_type.equals(name)) {
@@ -1553,12 +1556,32 @@ public class Logger {
         }
 
         if (HsqlDatabaseProperties.hsqldb_defrag_limit.equals(name)) {
-            return String.valueOf(this.propCacheDefragLimit);
+            return String.valueOf(propCacheDefragLimit);
+        }
+
+        if (HsqlDatabaseProperties.hsqldb_file_check.equals(name)) {
+            return String.valueOf(propCheckPersistence);
+        }
+
+        if (HsqlDatabaseProperties.hsqldb_file_space.equals(name)) {
+            return String.valueOf(propFileSpaces);
         }
 
         if (HsqlDatabaseProperties.hsqldb_files_readonly.equals(name)) {
             return database.databaseProperties.getPropertyString(
                 HsqlDatabaseProperties.hsqldb_files_readonly);
+        }
+
+        if (HsqlDatabaseProperties.hsqldb_inc_backup.equals(name)) {
+            return String.valueOf(propIncrementBackup);
+        }
+
+        if (HsqlDatabaseProperties.hsqldb_large_data.equals(name)) {
+            return String.valueOf(propLargeData);
+        }
+
+        if (HsqlDatabaseProperties.hsqldb_large_data.equals(name)) {
+            return String.valueOf(propLargeData);
         }
 
         if (HsqlDatabaseProperties.hsqldb_lock_file.equals(name)) {
@@ -1567,19 +1590,19 @@ public class Logger {
         }
 
         if (HsqlDatabaseProperties.hsqldb_log_data.equals(name)) {
-            return String.valueOf(this.propLogData);
+            return String.valueOf(propLogData);
         }
 
         if (HsqlDatabaseProperties.hsqldb_log_size.equals(name)) {
-            return String.valueOf(this.propLogSize);
+            return String.valueOf(propLogSize);
         }
 
         if (HsqlDatabaseProperties.hsqldb_nio_data_file.equals(name)) {
-            return String.valueOf(this.propNioDataFile);
+            return String.valueOf(propNioDataFile);
         }
 
         if (HsqlDatabaseProperties.hsqldb_nio_max_size.equals(name)) {
-            return String.valueOf(this.propNioMaxSize);
+            return String.valueOf(propNioMaxSize / (1024 * 1024));
         }
 
         if (HsqlDatabaseProperties.hsqldb_script_format.equals(name)) {
@@ -1587,7 +1610,11 @@ public class Logger {
         }
 
         if (HsqlDatabaseProperties.hsqldb_temp_directory.equals(name)) {
-            return null;
+            return tempDirectoryPath;
+        }
+
+        if (HsqlDatabaseProperties.hsqldb_tx_conflict_rollback.equals(name)) {
+            return String.valueOf(database.txConflictRollback);
         }
 
         if (HsqlDatabaseProperties.hsqldb_result_max_memory_rows.equals(
@@ -1596,67 +1623,106 @@ public class Logger {
         }
 
         if (HsqlDatabaseProperties.hsqldb_write_delay.equals(name)) {
-            return String.valueOf(this.propWriteDelay != 0);
+            return String.valueOf(propWriteDelay != 0);
         }
 
         if (HsqlDatabaseProperties.hsqldb_write_delay_millis.equals(name)) {
-            return String.valueOf(this.propWriteDelay);
+            return String.valueOf(propWriteDelay);
         }
 
-        if (HsqlDatabaseProperties.sql_ref_integrity.equals(name)) {
-            return database.isReferentialIntegrity() ? "true"
-                                                     : "false";
+        if (HsqlDatabaseProperties.sql_avg_scale.equals(name)) {
+            return String.valueOf(database.sqlAvgScale);
         }
 
-        if (HsqlDatabaseProperties.sql_compare_in_locale.equals(name)) {
-            return null;
+        if (HsqlDatabaseProperties.sql_concat_nulls.equals(name)) {
+            return String.valueOf(database.sqlConcatNulls);
         }
 
-        if (HsqlDatabaseProperties.sql_enforce_size.equals(name)) {
-            return String.valueOf(database.sqlEnforceSize);
+        if (HsqlDatabaseProperties.sql_convert_trunc.equals(name)) {
+            return String.valueOf(database.sqlConvertTruncate);
         }
 
-        if (HsqlDatabaseProperties.sql_enforce_refs.equals(name)) {
-            return String.valueOf(database.sqlEnforceRefs);
+        if (HsqlDatabaseProperties.sql_double_nan.equals(name)) {
+            return String.valueOf(database.sqlDoubleNaN);
         }
 
         if (HsqlDatabaseProperties.sql_enforce_names.equals(name)) {
             return String.valueOf(database.sqlEnforceNames);
         }
 
-        if (HsqlDatabaseProperties.sql_regular_names.equals(name)) {
-            return String.valueOf(database.sqlRegularNames);
+        if (HsqlDatabaseProperties.sql_enforce_refs.equals(name)) {
+            return String.valueOf(database.sqlEnforceRefs);
+        }
+
+        if (HsqlDatabaseProperties.sql_enforce_size.equals(name)) {
+            return String.valueOf(database.sqlEnforceSize);
+        }
+
+        if (HsqlDatabaseProperties.sql_enforce_tdcd.equals(name)) {
+            return String.valueOf(database.sqlEnforceTDCD);
+        }
+
+        if (HsqlDatabaseProperties.sql_enforce_tdcu.equals(name)) {
+            return String.valueOf(database.sqlEnforceTDCU);
         }
 
         if (HsqlDatabaseProperties.sql_enforce_types.equals(name)) {
             return String.valueOf(database.sqlEnforceTypes);
         }
 
-        if (HsqlDatabaseProperties.jdbc_translate_tti_types.equals(name)) {
-            return String.valueOf(database.sqlTranslateTTI);
+        if (HsqlDatabaseProperties.sql_ignore_case.equals(name)) {
+            return String.valueOf(database.sqlIgnoreCase);
         }
 
         if (HsqlDatabaseProperties.sql_longvar_is_lob.equals(name)) {
             return String.valueOf(database.sqlLongvarIsLob);
         }
 
-        if (HsqlDatabaseProperties.sql_ignore_case.equals(name)) {
-            return String.valueOf(database.sqlIgnoreCase);
+        if (HsqlDatabaseProperties.sql_nulls_first.equals(name)) {
+            return String.valueOf(database.sqlNullsFirst);
+        }
+
+        if (HsqlDatabaseProperties.sql_nulls_order.equals(name)) {
+            return String.valueOf(database.sqlNullsOrder);
+        }
+
+        if (HsqlDatabaseProperties.sql_syntax_db2.equals(name)) {
+            return String.valueOf(database.sqlSyntaxDb2);
+        }
+
+        if (HsqlDatabaseProperties.sql_syntax_mss.equals(name)) {
+            return String.valueOf(database.sqlSyntaxMss);
+        }
+
+        if (HsqlDatabaseProperties.sql_syntax_mys.equals(name)) {
+            return String.valueOf(database.sqlSyntaxMys);
+        }
+
+        if (HsqlDatabaseProperties.sql_syntax_ora.equals(name)) {
+            return String.valueOf(database.sqlSyntaxOra);
+        }
+
+        if (HsqlDatabaseProperties.sql_syntax_pgs.equals(name)) {
+            return String.valueOf(database.sqlSyntaxPgs);
+        }
+
+        if (HsqlDatabaseProperties.sql_ref_integrity.equals(name)) {
+            return String.valueOf(database.isReferentialIntegrity());
+        }
+
+        if (HsqlDatabaseProperties.sql_regular_names.equals(name)) {
+            return String.valueOf(database.sqlRegularNames);
+        }
+
+        if (HsqlDatabaseProperties.sql_unique_nulls.equals(name)) {
+            return String.valueOf(database.sqlUniqueNulls);
+        }
+
+        if (HsqlDatabaseProperties.jdbc_translate_tti_types.equals(name)) {
+            return String.valueOf(database.sqlTranslateTTI);
         }
 
 /*
-        if (HsqlDatabaseProperties.sql_identity_is_pk.equals(name)) {
-            return null;
-        }
-
-        if (HsqlDatabaseProperties.textdb_cache_scale.equals(name)) {
-            return null;
-        }
-
-        if (HsqlDatabaseProperties.textdb_cache_size_scale.equals(name)) {
-            return null;
-        }
-
         if (HsqlDatabaseProperties.textdb_all_quoted.equals(name)) {
             return null;
         }
@@ -2056,12 +2122,21 @@ public class Logger {
         list.add(sb.toString());
         sb.setLength(0);
 
-        if (propFileSpaces) {
-            sb.append("SET FILES ").append(Tokens.T_SPACE).append(' ');
-            sb.append(propFileSpaces ? Tokens.T_TRUE
-                                     : Tokens.T_FALSE);
+        if (propCheckPersistence != 0) {
+            sb.append("SET FILES ").append(Tokens.T_CHECK).append(' ');
+            sb.append(propCheckPersistence);
             list.add(sb.toString());
             sb.setLength(0);
+        }
+
+        {
+            if (propFileSpaces) {
+                sb.append("SET FILES ").append(Tokens.T_SPACE).append(' ');
+                sb.append(propFileSpaces ? Tokens.T_TRUE
+                                         : Tokens.T_FALSE);
+                list.add(sb.toString());
+                sb.setLength(0);
+            }
         }
 
         String[] array = new String[list.size()];
