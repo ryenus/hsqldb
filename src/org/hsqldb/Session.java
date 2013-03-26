@@ -104,6 +104,7 @@ public class Session implements SessionInterface {
     boolean                 isPreTransaction;
     boolean                 isTransaction;
     boolean                 isBatch;
+    volatile boolean        abortAction;
     volatile boolean        abortTransaction;
     volatile boolean        redoAction;
     HsqlArrayList           rowActionList;
@@ -113,6 +114,7 @@ public class Session implements SessionInterface {
     OrderedHashSet          tempSet;
     public CountUpDownLatch latch = new CountUpDownLatch();
     Statement               lockStatement;
+    TimeoutManager          timeoutManager;
 
     // current settings
     final String       zoneString;
@@ -189,6 +191,7 @@ public class Session implements SessionInterface {
 
         sessionData      = new SessionData(database, this);
         statementManager = new StatementManager(database);
+        timeoutManager   = new TimeoutManager();
     }
 
     void resetSchema() {
@@ -972,8 +975,9 @@ public class Session implements SessionInterface {
                     }
                 }
 
-                Object[] pvals  = (Object[]) cmd.valueData;
-                Result   result = executeCompiledStatement(cs, pvals);
+                Object[] pvals = (Object[]) cmd.valueData;
+                Result result = executeCompiledStatement(cs, pvals,
+                    cmd.queryTimeout);
 
                 result = performPostExecute(cmd, result);
 
@@ -1211,7 +1215,8 @@ public class Session implements SessionInterface {
             cs.setGeneratedColumnInfo(cmd.getGeneratedResultType(),
                                       cmd.getGeneratedResultMetaData());
 
-            result = executeCompiledStatement(cs, ValuePool.emptyObjectArray);
+            result = executeCompiledStatement(cs, ValuePool.emptyObjectArray,
+                                              cmd.queryTimeout);
 
             if (result.mode == ResultConstants.ERROR) {
                 break;
@@ -1226,7 +1231,7 @@ public class Session implements SessionInterface {
         try {
             Statement cs = compileStatement(sql);
             Result result = executeCompiledStatement(cs,
-                ValuePool.emptyObjectArray);
+                ValuePool.emptyObjectArray, 0);
 
             return result;
         } catch (HsqlException e) {
@@ -1234,7 +1239,8 @@ public class Session implements SessionInterface {
         }
     }
 
-    public Result executeCompiledStatement(Statement cs, Object[] pvals) {
+    public Result executeCompiledStatement(Statement cs, Object[] pvals,
+                                           int timeout) {
 
         Result r;
 
@@ -1308,10 +1314,22 @@ public class Session implements SessionInterface {
                 return Result.newErrorResult(Error.error(ErrorCode.X_40001));
             }
 
+            timeoutManager.startTimeout(timeout);
+
             try {
                 latch.await();
             } catch (InterruptedException e) {
                 abortTransaction = true;
+            }
+
+            boolean abort = timeoutManager.endTimeout();
+
+            if (abort) {
+                r = Result.newErrorResult(Error.error(ErrorCode.X_40502));
+
+                endAction(r);
+
+                break;
             }
 
             if (abortTransaction) {
@@ -1423,7 +1441,7 @@ public class Session implements SessionInterface {
 
         while (nav.hasNext()) {
             Object[] pvals = (Object[]) nav.getNext();
-            Result   in    = executeCompiledStatement(cs, pvals);
+            Result in = executeCompiledStatement(cs, pvals, cmd.queryTimeout);
 
             // On the client side, iterate over the vals and throw
             // a BatchUpdateException if a batch status value of
@@ -1484,7 +1502,10 @@ public class Session implements SessionInterface {
             String   sql  = (String) data[0];
 
             try {
-                in = executeDirectStatement(sql);
+                Statement cs = compileStatement(sql);
+
+                in = executeCompiledStatement(cs, ValuePool.emptyObjectArray,
+                                              cmd.queryTimeout);
             } catch (Throwable t) {
                 in = Result.newErrorResult(t);
 
@@ -1548,7 +1569,8 @@ public class Session implements SessionInterface {
                 actionType, baseTable, types, columnMap);
 
         Result resultOut =
-            executeCompiledStatement(sessionContext.rowUpdateStatement, pvals);
+            executeCompiledStatement(sessionContext.rowUpdateStatement, pvals,
+                                     cmd.queryTimeout);
 
         return resultOut;
     }
@@ -2140,7 +2162,7 @@ public class Session implements SessionInterface {
         return clientProperties;
     }
 
-    // SEQUENCE current values
+    // logging and SEQUENCE current values
     void logSequences() {
 
         HashMap map = sessionData.sequenceUpdateMap;
@@ -2227,5 +2249,70 @@ public class Session implements SessionInterface {
 
     String getSetSchemaStatement() {
         return "SET SCHEMA " + currentSchema.statementName;
+    }
+
+    // timeouts
+    class TimeoutManager {
+
+        boolean          added;
+        volatile long    actionTimestamp;
+        volatile int     currentTimeout;
+        volatile boolean aborted;
+
+        void startTimeout(int timeout) {
+
+            aborted = false;
+
+            if (timeout == 0) {
+                return;
+            }
+
+            currentTimeout  = timeout;
+            actionTimestamp = Session.this.actionTimestamp;
+
+            if (!added) {
+                database.timeoutRunner.addSession(Session.this);
+
+                added = true;
+            }
+        }
+
+        boolean endTimeout() {
+
+            boolean aborted = this.aborted;
+
+            currentTimeout = 0;
+            this.aborted   = false;
+
+            return aborted;
+        }
+
+        public boolean checkTimeout() {
+
+            if (currentTimeout == 0) {
+                return true;
+            }
+
+            if (aborted || actionTimestamp != Session.this.actionTimestamp) {
+                actionTimestamp = 0;
+                currentTimeout  = 0;
+                aborted         = false;
+
+                return true;
+            }
+
+            --currentTimeout;
+
+            if (currentTimeout <= 0) {
+                currentTimeout = 0;
+                aborted        = true;
+
+                latch.setCount(0);
+
+                return true;
+            }
+
+            return false;
+        }
     }
 }

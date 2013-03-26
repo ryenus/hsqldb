@@ -666,13 +666,14 @@ public class Result {
      * The parameters are set by this method as the Result is reused
      */
     public void setPreparedExecuteProperties(Object[] parameterValues,
-            int maxRows, int fetchSize, int resultProps) {
+            int maxRows, int fetchSize, int resultProps, int timeout) {
 
         mode              = ResultConstants.EXECUTE;
         valueData         = parameterValues;
         updateCount       = maxRows;
         this.fetchSize    = fetchSize;
         this.rsProperties = resultProps;
+        queryTimeout      = timeout;
     }
 
     /**
@@ -880,7 +881,7 @@ public class Result {
         updateCount              = maxRows;
         this.fetchSize           = fetchSize;
         this.statementReturnType = statementReturnType;
-        this.queryTimeout        = timeout;
+        queryTimeout             = timeout;
         rsProperties             = resultSetProperties;
         generateKeys             = keyMode;
         generatedMetaData =

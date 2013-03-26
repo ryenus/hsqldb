@@ -39,6 +39,7 @@ import org.hsqldb.lib.FrameworkLogger;
 import org.hsqldb.lib.HashMappedList;
 import org.hsqldb.lib.HsqlArrayList;
 import org.hsqldb.lib.HsqlTimer;
+import org.hsqldb.lib.OrderedHashSet;
 import org.hsqldb.persist.HsqlDatabaseProperties;
 import org.hsqldb.persist.HsqlProperties;
 import org.hsqldb.persist.LobManager;
@@ -144,6 +145,7 @@ public class Database {
 
     //
     public CheckpointRunner checkpointRunner;
+    public TimeoutRunner    timeoutRunner;
 
     //
     public static final int DATABASE_ONLINE       = 1;
@@ -247,6 +249,7 @@ public class Database {
             dbInfo.setWithContent(true);
 
             checkpointRunner = new CheckpointRunner();
+            timeoutRunner    = new TimeoutRunner();
         } catch (Throwable e) {
             logger.close(Database.CLOSEMODE_IMMEDIATELY);
             logger.releaseLock();
@@ -279,6 +282,10 @@ public class Database {
             checkpointRunner.stop();
         }
 
+        if (timeoutRunner != null) {
+            timeoutRunner.stop();
+        }
+
         granteeManager   = null;
         userManager      = null;
         nameManager      = null;
@@ -286,6 +293,7 @@ public class Database {
         sessionManager   = null;
         dbInfo           = null;
         checkpointRunner = null;
+        timeoutRunner    = null;
     }
 
     /**
@@ -827,6 +835,10 @@ public class Database {
         return urlProperties;
     }
 
+    public TimeoutRunner getTimeoutRunner() {
+        return timeoutRunner;
+    }
+
     class CheckpointRunner implements Runnable {
 
         private volatile boolean waiting;
@@ -839,13 +851,14 @@ public class Database {
                 Statement checkpoint =
                     ParserCommand.getAutoCheckpointStatement(Database.this);
 
-                sysSession.executeCompiledStatement(
-                    checkpoint, ValuePool.emptyObjectArray);
+                sysSession.executeCompiledStatement(checkpoint,
+                                                    ValuePool.emptyObjectArray,
+                                                    0);
                 sysSession.commit(false);
                 sysSession.close();
 
                 waiting = false;
-            } catch (Exception e) {
+            } catch (Throwable e) {
 
                 // ignore exceptions
                 // may be InterruptedException or IOException
@@ -875,6 +888,76 @@ public class Database {
 
             timerTask = null;
             waiting   = false;
+        }
+    }
+
+    class TimeoutRunner implements Runnable {
+
+        private Object timerTask;
+        OrderedHashSet sessionList;
+
+        public void run() {
+
+            try {
+                for (int i = sessionList.size() - 1; i >= 0; i--) {
+                    Session session = (Session) sessionList.get(i);
+
+                    if (session.isClosed()) {
+                        synchronized (this) {
+                            sessionList.remove(i);
+                        }
+
+                        continue;
+                    }
+
+                    boolean result = session.timeoutManager.checkTimeout();
+
+/*
+                    if (result) {
+                        synchronized (this) {
+                            sessionList.remove(i);
+                        }
+                    }
+*/
+                }
+            } catch (Throwable e) {
+
+                // ignore exceptions
+                // may be InterruptedException or IOException
+            }
+        }
+
+        public void start() {
+
+            sessionList = new OrderedHashSet();
+            timerTask = DatabaseManager.getTimer().schedulePeriodicallyAfter(0,
+                    1000, this, true);
+        }
+
+        public void stop() {
+
+            synchronized (this) {
+                if (timerTask == null) {
+                    return;
+                }
+
+                HsqlTimer.cancel(timerTask);
+                sessionList.clear();
+
+                timerTask   = null;
+                sessionList = null;
+            }
+        }
+
+        public void addSession(Session session) {
+
+            synchronized (this) {
+                if (timerTask == null) {
+                    start();
+                }
+
+                sessionList.add(session);
+            }
         }
     }
 }

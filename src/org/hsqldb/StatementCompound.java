@@ -432,8 +432,6 @@ public class StatementCompound extends Statement implements RangeGroup {
                  * schema manipulation conditions are never handled
                  */
                 if (handler.handlesCondition(sqlState)) {
-                    session.resetSchema();
-
                     String labelString = label == null ? null
                                                        : label.name;
 

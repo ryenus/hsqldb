@@ -201,7 +201,7 @@ public class ScriptRunner {
                             }
 
                             result = current.executeCompiledStatement(cs,
-                                    ValuePool.emptyObjectArray);
+                                    ValuePool.emptyObjectArray, 0);
                         } catch (Throwable e) {
                             result = Result.newErrorResult(e);
                         }

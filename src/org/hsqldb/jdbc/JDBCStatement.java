@@ -428,7 +428,7 @@ public class JDBCStatement extends JDBCStatementBase implements Statement {
 
         checkClosed();
 
-        return 0;
+        return queryTimeout;
     }
 
     /**

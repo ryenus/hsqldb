@@ -90,6 +90,7 @@ public class Log {
     private long                   maxLogSize;
     private int                    writeDelay;
     private DataFileCache          cache;
+    private boolean                isModified;
 
     Log(Database db) {
 
@@ -126,6 +127,7 @@ public class Log {
                 break;
 
             case HsqlDatabaseProperties.FILES_MODIFIED :
+                database.logger.logInfoEvent("open start - state modified");
                 deleteNewAndOldFiles();
                 deleteOldTempFiles();
 
@@ -151,6 +153,7 @@ public class Log {
                 break;
 
             case HsqlDatabaseProperties.FILES_MODIFIED_NEW :
+                database.logger.logInfoEvent("open start - state new files");
                 renameNewDataFile();
                 renameNewScript();
                 deleteLog();
@@ -161,6 +164,8 @@ public class Log {
             // continue as non-modified files
             // fall through
             case HsqlDatabaseProperties.FILES_NOT_MODIFIED :
+                database.logger.logInfoEvent(
+                    "open start - state not modified");
 
                 /**
                  * if startup is after a SHUTDOWN SCRIPT and there are CACHED
@@ -179,7 +184,6 @@ public class Log {
 
         if (!filesReadOnly) {
             openLog();
-            properties.setDBModified(HsqlDatabaseProperties.FILES_MODIFIED);
         }
     }
 
@@ -209,17 +213,42 @@ public class Log {
         properties.setDBModified(HsqlDatabaseProperties.FILES_MODIFIED_NEW);
         deleteLog();
 
+        boolean complete = true;
+
         if (cache != null) {
             if (script) {
                 cache.deleteFile();
                 cache.deleteBackup();
+
+                if (fa.isStreamElement(cache.dataFileName)) {
+                    database.logger.logInfoEvent("delete .data file failed ");
+
+                    complete = false;
+                }
+
+                if (fa.isStreamElement(cache.backupFileName)) {
+                    database.logger.logInfoEvent(
+                        "delete .backup file failed ");
+
+                    complete = false;
+                }
             } else {
                 cache.backupDataFile(false);
             }
         }
 
+        if (fa.isStreamElement(logFileName)) {
+            database.logger.logInfoEvent("delete .log file failed ");
+
+            complete = false;
+        }
+
         renameNewScript();
-        properties.setDBModified(HsqlDatabaseProperties.FILES_NOT_MODIFIED);
+
+        if (complete) {
+            properties.setDBModified(
+                HsqlDatabaseProperties.FILES_NOT_MODIFIED);
+        }
     }
 
     /**
@@ -279,6 +308,20 @@ public class Log {
         }
     }
 
+    boolean renameNewDataFileDone() {
+
+        return fa.isStreamElement(fileName + Logger.dataFileExtension)
+               && !fa.isStreamElement(fileName + Logger.dataFileExtension
+                                      + Logger.newFileExtension);
+    }
+
+    boolean renameNewScriptDone() {
+
+        return fa.isStreamElement(scriptFileName)
+               && !fa.isStreamElement(scriptFileName
+                                      + Logger.newFileExtension);
+    }
+
     void deleteNewScript() {
         fa.removeElement(scriptFileName + Logger.newFileExtension);
     }
@@ -310,12 +353,12 @@ public class Log {
             return;
         }
 
-        database.lobManager.deleteUnusedLobs();
-
         boolean result = checkpointClose();
 
+        checkpointReopen();
+
         if (result) {
-            checkpointReopen();
+            database.lobManager.deleteUnusedLobs();
         } else {
             database.logger.logSevereEvent(
                 "checkpoint failed - see previous error", null);
@@ -368,35 +411,21 @@ public class Log {
 
         try {
             writeScript(false);
-        } catch (Throwable t) {
-            deleteNewScript();
-            database.logger.logSevereEvent("checkpoint failed - recovered", t);
 
-            return false;
-        }
-
-        try {
             if (cache != null) {
                 cache.reset();
-                properties.setProperty(
-                    HsqlDatabaseProperties.hsqldb_script_format,
-                    database.logger.propScriptFormat);
-                properties.setDBModified(
-                    HsqlDatabaseProperties.FILES_MODIFIED_NEW);
                 cache.backupDataFile(true);
             }
+
+            properties.setProperty(HsqlDatabaseProperties.hsqldb_script_format,
+                                   database.logger.propScriptFormat);
+            properties.setDBModified(
+                HsqlDatabaseProperties.FILES_MODIFIED_NEW);
         } catch (Throwable t) {
 
             // backup failed perhaps due to lack of disk space
             deleteNewScript();
             deleteNewBackup();
-
-            try {
-                if (!cache.isFileOpen()) {
-                    cache.open(false);
-                }
-            } catch (Throwable tt) {}
-
             database.logger.logSevereEvent("checkpoint failed - recovered", t);
 
             return false;
@@ -433,8 +462,6 @@ public class Log {
             if (dbLogWriter != null) {
                 openLog();
             }
-
-            properties.setDBModified(HsqlDatabaseProperties.FILES_MODIFIED);
         } catch (Throwable e) {
             return false;
         }
@@ -559,6 +586,8 @@ public class Log {
         if (maxLogSize > 0 && dbLogWriter.size() > maxLogSize) {
             database.logger.setCheckpointRequired();
         }
+
+        setModified();
     }
 
     void writeInsertStatement(Session session, Row row, Table t) {
@@ -598,6 +627,8 @@ public class Log {
         if (maxLogSize > 0 && dbLogWriter.size() > maxLogSize) {
             database.logger.setCheckpointRequired();
         }
+
+        setModified();
     }
 
     void writeCommitStatement(Session session) {
@@ -610,6 +641,18 @@ public class Log {
 
         if (maxLogSize > 0 && dbLogWriter.size() > maxLogSize) {
             database.logger.setCheckpointRequired();
+        }
+
+        setModified();
+    }
+
+    private void setModified() {
+
+        if (!isModified) {
+            database.databaseProperties.setDBModified(
+                HsqlDatabaseProperties.FILES_MODIFIED);
+
+            isModified = true;
         }
     }
 
@@ -643,6 +686,8 @@ public class Log {
 
             dbLogWriter.setWriteDelay(writeDelay);
             dbLogWriter.start();
+
+            isModified = false;
         } catch (Throwable e) {
             throw Error.error(ErrorCode.FILE_IO_ERROR, logFileName);
         }

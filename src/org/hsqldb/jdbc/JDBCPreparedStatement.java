@@ -3187,7 +3187,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
             checkClosed();
         }
 
-        return 0;
+        return queryTimeout;
     }
 
     /**
@@ -4635,7 +4635,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
             resultOut.setPreparedResultUpdateProperties(parameterValues);
         } else {
             resultOut.setPreparedExecuteProperties(parameterValues, maxRows,
-                    fetchSize, rsProperties);
+                    fetchSize, rsProperties, queryTimeout);
         }
 
         try {
