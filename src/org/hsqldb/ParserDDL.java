@@ -3330,7 +3330,11 @@ public class ParserDDL extends ParserRoutine {
         }
 
         if (database.schemaManager.schemaExists(schemaName.name)) {
-            throw Error.error(ErrorCode.X_42504, schemaName.name);
+            if (session.isProcessingScript()
+                    && SqlInvariants.PUBLIC_SCHEMA.equals(schemaName.name)) {}
+            else {
+                throw Error.error(ErrorCode.X_42504, schemaName.name);
+            }
         }
 
         if (schemaName.name.equals(SqlInvariants.LOBS_SCHEMA)) {

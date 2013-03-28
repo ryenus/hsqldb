@@ -384,10 +384,12 @@ public class Logger {
 
         if (version18) {
             database.setUniqueName(newUniqueName());
+            database.schemaManager.createPublicSchema();
 
-            if (!hasScript) {
-                database.schemaManager.createPublicSchema();
-            }
+            HsqlName name = database.schemaManager.findSchemaHsqlName(
+                SqlInvariants.PUBLIC_SCHEMA);
+
+            database.schemaManager.setDefaultSchemaHsqlName(name);
         }
 
         log = new Log(database);
@@ -398,13 +400,6 @@ public class Logger {
         loggingEnabled = propLogData && !database.isFilesReadOnly();
 
         if (version18) {
-            HsqlName name = database.schemaManager.findSchemaHsqlName(
-                SqlInvariants.PUBLIC_SCHEMA);
-
-            if (name != null) {
-                database.schemaManager.setDefaultSchemaHsqlName(name);
-            }
-
             checkpoint(false);
         }
 
