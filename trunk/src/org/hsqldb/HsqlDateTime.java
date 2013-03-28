@@ -59,7 +59,7 @@ import org.hsqldb.types.Types;
  * timezone.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.2.9
+ * @version 2.3.0
  * @since 1.7.0
  */
 public class HsqlDateTime {
@@ -395,11 +395,25 @@ public class HsqlDateTime {
             switch (part) {
 
                 case DTIType.WEEK_OF_YEAR : {
-                    int year = tempCalGMT.get(Calendar.YEAR);
-                    int week = tempCalGMT.get(Calendar.WEEK_OF_YEAR);
+                    int dayYear = tempCalGMT.get(Calendar.DAY_OF_YEAR);
+                    int year    = tempCalGMT.get(Calendar.YEAR);
+                    int week    = tempCalGMT.get(Calendar.WEEK_OF_YEAR);
 
                     tempCalGMT.clear();
                     tempCalGMT.set(Calendar.YEAR, year);
+
+                    if (week == 1 && (dayYear > 356 || dayYear < 7)) {
+                        tempCalGMT.set(Calendar.DAY_OF_YEAR, dayYear);
+
+                        while (true) {
+                            if (tempCalGMT.get(Calendar.DAY_OF_WEEK) == 1) {
+                                return tempCalGMT.getTimeInMillis();
+                            }
+
+                            tempCalGMT.add(Calendar.DAY_OF_YEAR, -1);
+                        }
+                    }
+
                     tempCalGMT.set(Calendar.WEEK_OF_YEAR, week);
 
                     break;
@@ -462,18 +476,33 @@ public class HsqlDateTime {
                     break;
 
                 case DTIType.WEEK_OF_YEAR : {
-                    int year = tempCalGMT.get(Calendar.YEAR);
-                    int week = tempCalGMT.get(Calendar.WEEK_OF_YEAR);
-                    int day  = tempCalGMT.get(Calendar.DAY_OF_WEEK);
-
-                    if (day > 3) {
-                        week++;
-                    }
+                    int dayYear = tempCalGMT.get(Calendar.DAY_OF_YEAR);
+                    int year    = tempCalGMT.get(Calendar.YEAR);
+                    int week    = tempCalGMT.get(Calendar.WEEK_OF_YEAR);
+                    int day     = tempCalGMT.get(Calendar.DAY_OF_WEEK);
 
                     tempCalGMT.clear();
                     tempCalGMT.set(Calendar.YEAR, year);
-                    tempCalGMT.set(Calendar.WEEK_OF_YEAR, week);
 
+                    if( day > 3) {
+                        week++;
+                    }
+
+                    if (week == 1 && (dayYear > 356 || dayYear < 7)) {
+
+
+                        tempCalGMT.set(Calendar.DAY_OF_YEAR, dayYear);
+
+                        while (true) {
+                            if (tempCalGMT.get(Calendar.DAY_OF_WEEK) == 1) {
+                                return tempCalGMT.getTimeInMillis();
+                            }
+
+                            tempCalGMT.add(Calendar.DAY_OF_YEAR, -1);
+                        }
+                    }
+
+                    tempCalGMT.set(Calendar.WEEK_OF_YEAR, week);
                     return tempCalGMT.getTimeInMillis();
                 }
             }

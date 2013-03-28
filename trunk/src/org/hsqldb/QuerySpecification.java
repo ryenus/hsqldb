@@ -1289,7 +1289,7 @@ public class QuerySpecification extends QueryExpression {
         for (int i = 0; i < indexStartAggregates; i++) {
             Expression e = exprColumns[i];
 
-            if (!e.isAggregate() && !e.isCorrelated()) {
+            if (!e.isAggregate() /* && !e.isCorrelated() */) {
                 continue;
             }
 
