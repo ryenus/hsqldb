@@ -48,7 +48,9 @@ import org.hsqldb.result.ResultProperties;
 import org.hsqldb.store.BitMap;
 import org.hsqldb.store.ValuePool;
 import org.hsqldb.types.ArrayType;
+import org.hsqldb.types.BinaryType;
 import org.hsqldb.types.BlobType;
+import org.hsqldb.types.CharacterType;
 import org.hsqldb.types.Charset;
 import org.hsqldb.types.ClobType;
 import org.hsqldb.types.Collation;
@@ -327,7 +329,9 @@ public class ParserDQL extends ParserBase {
 
                     case Tokens.X_LOB_SIZE :
                         if (typeNumber == Types.SQL_BLOB
-                                || typeNumber == Types.SQL_CLOB) {
+                                || typeNumber == Types.SQL_CLOB
+                                || typeNumber == Types.SQL_VARBINARY
+                                || typeNumber == Types.SQL_VARCHAR) {
                             switch (token.lobMultiplierType) {
 
                                 case Tokens.K :
@@ -517,6 +521,10 @@ public class ParserDQL extends ParserBase {
                         isIgnoreCase = true;
                     }
                 }
+
+                if (length > CharacterType.maxCharPrecision) {
+                    throw Error.error(ErrorCode.X_42592);
+                }
                 break;
 
             case Types.SQL_BINARY :
@@ -525,6 +533,10 @@ public class ParserDQL extends ParserBase {
             case Types.SQL_VARBINARY :
                 if (!hasLength) {
                     length = 32 * 1024;
+                }
+
+                if (length > BinaryType.maxBinaryPrecision) {
+                    throw Error.error(ErrorCode.X_42592);
                 }
                 break;
 
@@ -2426,6 +2438,7 @@ public class ParserDQL extends ParserBase {
                 read();
 
                 int subqueryPosition = getPosition();
+
                 readOpenBrackets();
 
                 switch (token.tokenType) {
@@ -4183,6 +4196,7 @@ public class ParserDQL extends ParserBase {
                 read();
 
                 int position = getPosition();
+
                 readOpenBrackets();
 
                 switch (token.tokenType) {

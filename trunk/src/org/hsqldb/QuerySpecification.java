@@ -997,8 +997,6 @@ public class QuerySpecification extends QueryExpression {
 
         RangeVariable range = null;
 
-        tempSet.clear();
-
         int[] colMap = new int[indexLimitVisible];
 
         for (int i = 0; i < indexLimitVisible; i++) {
@@ -1023,11 +1021,7 @@ public class QuerySpecification extends QueryExpression {
             if (index != null) {
                 range.setSortIndex(index, false);
             }
-
-            return;
         }
-
-        colMap = range.rangeTable.getColumnIndexes(tempSet);
 
         range.setDistinctColumnsOnIndex(colMap);
     }

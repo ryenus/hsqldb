@@ -281,12 +281,12 @@ public class RangeVariable implements Cloneable {
 
         int[] indexColMap = joinConditions[0].rangeIndex.getColumns();
 
-        if (colMap.length != ArrayUtil.countTrueElements(usedColumns)) {
+        if (colMap.length > indexColMap.length) {
             return false;
         }
 
-        if (colMap.length == 1 && colMap[0] == indexColMap[0]) {
-            indexDistinctCount = 1;
+        if (ArrayUtil.haveEqualArrays(colMap, indexColMap, colMap.length)) {
+            indexDistinctCount = colMap.length;
 
             return true;
         }
@@ -1237,10 +1237,10 @@ public class RangeVariable implements Cloneable {
             if (conditions[condIndex].indexCond == null) {
                 if (conditions[condIndex].reversed) {
                     it = conditions[condIndex].rangeIndex.lastRow(session,
-                            store);
+                            store, rangeVar.indexDistinctCount);
                 } else {
                     it = conditions[condIndex].rangeIndex.firstRow(session,
-                            store);
+                            store, rangeVar.indexDistinctCount);
                 }
             } else {
                 getFirstRow();
