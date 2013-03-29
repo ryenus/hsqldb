@@ -2894,7 +2894,7 @@ public class Table extends TableBase implements SchemaObject {
             index = getPrimaryIndex();
         }
 
-        return index.firstRow(session, store);
+        return index.firstRow(session, store, 0);
     }
 
     public RowIterator rowIteratorClustered(PersistentStore store) {

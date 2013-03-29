@@ -56,7 +56,7 @@ public class CharacterType extends Type {
 
     static final int  defaultCharPrecision    = 256;
     static final int  defaultVarcharPrecision = 32 * 1024;
-    static final long maxCharPrecision        = Integer.MAX_VALUE;
+    public static final long maxCharPrecision        = Integer.MAX_VALUE;
     Collation         collation;
     Charset           charset;
     String            nameString;
@@ -331,6 +331,8 @@ public class CharacterType extends Type {
                 // throw Error.error(ErrorCode.X_42570);
                 newPrecision = maxCharPrecision;
             } else if (typeCode == Types.SQL_CHAR) {
+                newPrecision = maxCharPrecision;
+            } else if (typeCode == Types.SQL_VARCHAR) {
                 newPrecision = maxCharPrecision;
             }
         }

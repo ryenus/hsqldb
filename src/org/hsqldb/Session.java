@@ -104,7 +104,6 @@ public class Session implements SessionInterface {
     boolean                 isPreTransaction;
     boolean                 isTransaction;
     boolean                 isBatch;
-    volatile boolean        abortAction;
     volatile boolean        abortTransaction;
     volatile boolean        redoAction;
     HsqlArrayList           rowActionList;

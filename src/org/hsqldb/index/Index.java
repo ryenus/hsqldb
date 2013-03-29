@@ -210,14 +210,16 @@ public interface Index extends SchemaObject {
      *
      * @return Iterator for first row
      */
-    public RowIterator firstRow(Session session, PersistentStore store);
+    public RowIterator firstRow(Session session, PersistentStore store,
+                                int distinctCount);
 
     /**
      * Returns the row for the last node of the index
      *
      * @return last row
      */
-    public RowIterator lastRow(Session session, PersistentStore store);
+    public RowIterator lastRow(Session session, PersistentStore store,
+                               int distinctCount);
 
     /**
      * Compares two table rows based on the columns of this index. The rowColMap

@@ -1766,7 +1766,7 @@ public class ExpressionLogical extends Expression {
                 }
 
                 if (opType == OpTypes.NOT_EQUAL) {
-                    it = index.firstRow(session, store);
+                    it = index.firstRow(session, store, 0);
                 } else {
                     it = index.findFirstRowNotNull(session, store);
                 }
@@ -1778,7 +1778,7 @@ public class ExpressionLogical extends Expression {
                 }
 
                 firstdata = firstrow.getData();
-                lastrow   = index.lastRow(session, store).getNextRow();
+                lastrow   = index.lastRow(session, store, 0).getNextRow();
                 lastdata  = lastrow.getData();
 
                 Boolean comparefirst = compareValues(session, data, firstdata);
@@ -1823,7 +1823,7 @@ public class ExpressionLogical extends Expression {
                     return null;
                 }
 
-                it        = index.firstRow(session, store);
+                it        = index.firstRow(session, store, 0);
                 firstrow  = it.getNextRow();
                 firstdata = firstrow.getData();
 
@@ -1851,7 +1851,7 @@ public class ExpressionLogical extends Expression {
                                         : Boolean.TRUE;
                 }
 
-                lastrow  = index.lastRow(session, store).getNextRow();
+                lastrow  = index.lastRow(session, store, 0).getNextRow();
                 lastdata = lastrow.getData();
 
                 Boolean comparefirst = compareValues(session, data, firstdata);

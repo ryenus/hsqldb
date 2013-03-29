@@ -81,7 +81,7 @@ import org.hsqldb.lib.StringConverter;
  */
 public class BinaryType extends Type {
 
-    static final long maxBinaryPrecision = Integer.MAX_VALUE;
+    public static final long maxBinaryPrecision = Integer.MAX_VALUE;
 
     protected BinaryType(int type, long precision) {
         super(Types.SQL_VARBINARY, type, precision, 0);
