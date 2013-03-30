@@ -227,14 +227,42 @@ public class ParserDQL extends ParserBase {
             if (database.sqlSyntaxMys || database.sqlSyntaxPgs) {
                 switch (token.tokenType) {
 
+                    case Tokens.TINYTEXT :
+                        if (database.sqlSyntaxMys) {
+                            typeNumber     = Types.VARCHAR;
+                            readByteOrChar = true;
+                        }
+                        break;
+
                     case Tokens.TEXT :
                         typeNumber     = Types.LONGVARCHAR;
                         readByteOrChar = true;
                         break;
 
+                    case Tokens.MEDIUMTEXT :
+                    case Tokens.LONGTEXT :
+                        if (database.sqlSyntaxMys) {
+                            typeNumber     = Types.LONGVARCHAR;
+                            readByteOrChar = true;
+                        }
+                        break;
+
                     case Tokens.CITEXT :
                         if (database.sqlSyntaxPgs) {
                             typeNumber = Types.VARCHAR_IGNORECASE;
+                        }
+                        break;
+
+                    case Tokens.TINYBLOB :
+                        if (database.sqlSyntaxMys) {
+                            typeNumber = Types.VARBINARY;
+                        }
+                        break;
+
+                    case Tokens.MEDIUMBLOB :
+                    case Tokens.LONGBLOB :
+                        if (database.sqlSyntaxMys) {
+                            typeNumber = Types.LONGVARBINARY;
                         }
                         break;
                 }
