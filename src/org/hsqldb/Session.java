@@ -183,7 +183,7 @@ public class Session implements SessionInterface {
                                                  : Boolean.FALSE;
         sessionContext.isReadOnly   = isReadOnlyDefault ? Boolean.TRUE
                                                         : Boolean.FALSE;
-        parser                      = new ParserCommand(this, new Scanner());
+        parser = new ParserCommand(this, new Scanner(database));
 
         setResultMemoryRowCount(database.getResultMaxMemoryRows());
         resetSchema();
