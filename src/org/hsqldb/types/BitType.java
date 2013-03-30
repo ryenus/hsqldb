@@ -39,7 +39,7 @@ import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
 import org.hsqldb.lib.ArrayUtil;
 import org.hsqldb.lib.StringConverter;
-import org.hsqldb.store.BitMap;
+import org.hsqldb.map.BitMap;
 
 /**
  *

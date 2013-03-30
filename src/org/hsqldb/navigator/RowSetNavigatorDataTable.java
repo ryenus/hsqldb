@@ -34,7 +34,6 @@ package org.hsqldb.navigator;
 import java.io.IOException;
 
 import org.hsqldb.HsqlException;
-import org.hsqldb.OpTypes;
 import org.hsqldb.QueryExpression;
 import org.hsqldb.QuerySpecification;
 import org.hsqldb.Row;

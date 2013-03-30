@@ -33,7 +33,7 @@ package org.hsqldb.lib;
 
 import java.util.NoSuchElementException;
 
-import org.hsqldb.store.BaseHashMap;
+import org.hsqldb.map.BaseHashMap;
 
 /**
  * @author Fred Toussi (fredt@users dot sourceforge.net)

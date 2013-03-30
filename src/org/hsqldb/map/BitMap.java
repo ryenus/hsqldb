@@ -29,7 +29,7 @@
  */
 
 
-package org.hsqldb.store;
+package org.hsqldb.map;
 
 /**
  * Implementation of a bit map of any size, together with static methods to

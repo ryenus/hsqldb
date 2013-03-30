@@ -33,7 +33,7 @@ package org.hsqldb.lib;
 
 import java.io.LineNumberReader;
 
-import org.hsqldb.store.ValuePool;
+import org.hsqldb.map.ValuePool;
 
 /**
  * Uses a LineNumberReader and returns multiple consecutive lines which conform

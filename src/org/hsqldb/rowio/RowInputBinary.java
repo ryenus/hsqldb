@@ -37,7 +37,7 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 
 import org.hsqldb.lib.StringConverter;
-import org.hsqldb.store.ValuePool;
+import org.hsqldb.map.ValuePool;
 import org.hsqldb.types.BinaryData;
 import org.hsqldb.types.BlobData;
 import org.hsqldb.types.BlobDataID;

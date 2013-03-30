@@ -37,7 +37,6 @@ import org.hsqldb.Tokens;
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
 import org.hsqldb.jdbc.JDBCBlobClient;
-import org.hsqldb.lib.StringConverter;
 
 /**
  * Type object for BLOB.

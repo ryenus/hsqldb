@@ -31,10 +31,10 @@
 
 package org.hsqldb;
 
-import org.hsqldb.lib.StringConverter;
-import org.hsqldb.rights.Grantee;
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
+import org.hsqldb.lib.StringConverter;
+import org.hsqldb.rights.Grantee;
 
 /**
  * Provides Name Management for SQL objects. <p>

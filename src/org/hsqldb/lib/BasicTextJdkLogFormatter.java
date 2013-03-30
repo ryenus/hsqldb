@@ -31,12 +31,12 @@
 
 package org.hsqldb.lib;
 
-import java.io.StringWriter;
 import java.io.PrintWriter;
-import java.util.logging.Formatter;
-import java.util.logging.LogRecord;
+import java.io.StringWriter;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.logging.Formatter;
+import java.util.logging.LogRecord;
 
 /**
  * An implementation of java.util.logging.Formatter very close to

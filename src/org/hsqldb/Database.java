@@ -40,6 +40,7 @@ import org.hsqldb.lib.HashMappedList;
 import org.hsqldb.lib.HsqlArrayList;
 import org.hsqldb.lib.HsqlTimer;
 import org.hsqldb.lib.OrderedHashSet;
+import org.hsqldb.map.ValuePool;
 import org.hsqldb.persist.HsqlDatabaseProperties;
 import org.hsqldb.persist.HsqlProperties;
 import org.hsqldb.persist.LobManager;
@@ -49,7 +50,6 @@ import org.hsqldb.result.Result;
 import org.hsqldb.rights.GranteeManager;
 import org.hsqldb.rights.User;
 import org.hsqldb.rights.UserManager;
-import org.hsqldb.store.ValuePool;
 import org.hsqldb.types.Collation;
 
 // incorporates following contributions

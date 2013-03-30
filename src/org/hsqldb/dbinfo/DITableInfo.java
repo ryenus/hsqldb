@@ -35,8 +35,8 @@ import java.util.Locale;
 
 import org.hsqldb.Table;
 import org.hsqldb.TableBase;
+import org.hsqldb.map.ValuePool;
 import org.hsqldb.resources.ResourceBundleHandler;
-import org.hsqldb.store.ValuePool;
 
 /**
  * Provides extended information about HSQLDB tables and their

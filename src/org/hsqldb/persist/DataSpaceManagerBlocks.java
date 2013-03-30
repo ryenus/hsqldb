@@ -33,7 +33,6 @@ package org.hsqldb.persist;
 
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
-import org.hsqldb.store.BitMap;
 import org.hsqldb.lib.DoubleIntIndex;
 import org.hsqldb.lib.IntKeyHashMap;
 import org.hsqldb.lib.Iterator;

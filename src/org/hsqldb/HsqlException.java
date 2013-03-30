@@ -31,9 +31,9 @@
 
 package org.hsqldb;
 
-import org.hsqldb.result.Result;
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
+import org.hsqldb.result.Result;
 
 /**
  * Class encapsulating all exceptions that can be thrown within the engine.

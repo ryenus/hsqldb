@@ -31,8 +31,8 @@
 
 package org.hsqldb.persist;
 
-import org.hsqldb.lib.DoubleIntIndex;
 import org.hsqldb.lib.ArrayUtil;
+import org.hsqldb.lib.DoubleIntIndex;
 
 /**
  * Manages allocation of space for rows.<p>

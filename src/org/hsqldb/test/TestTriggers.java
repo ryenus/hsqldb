@@ -47,7 +47,7 @@ public class TestTriggers extends TestBase {
     Connection conn;
 
     public TestTriggers(String testName) {
-        super(testName, "jdbc:hsqldb:file:trigs", false, false);
+        super(testName, "jdbc:hsqldb:file:/hsql/testtrig/trigs", false, false);
     }
 
     public void setUp() {

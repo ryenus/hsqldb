@@ -74,7 +74,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.UTFDataFormatException;
 
-import org.hsqldb.store.BitMap;
+import org.hsqldb.map.BitMap;
 
 /**
  * Collection of static methods for converting strings between different

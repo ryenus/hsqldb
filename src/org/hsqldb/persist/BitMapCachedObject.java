@@ -33,12 +33,12 @@ package org.hsqldb.persist;
 
 import java.io.IOException;
 
+import org.hsqldb.error.Error;
+import org.hsqldb.error.ErrorCode;
 import org.hsqldb.lib.LongLookup;
+import org.hsqldb.map.BitMap;
 import org.hsqldb.rowio.RowInputInterface;
 import org.hsqldb.rowio.RowOutputInterface;
-import org.hsqldb.error.ErrorCode;
-import org.hsqldb.error.Error;
-import org.hsqldb.store.BitMap;
 
 /**
  * @author Fred Toussi (fredt@users dot sourceforge.net)

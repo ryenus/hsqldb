@@ -29,7 +29,7 @@
  */
 
 
-package org.hsqldb.store;
+package org.hsqldb.map;
 
 import org.hsqldb.types.TimestampData;
 

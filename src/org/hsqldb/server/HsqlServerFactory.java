@@ -33,11 +33,10 @@ package org.hsqldb.server;
 
 import java.sql.SQLException;
 
+import org.hsqldb.HsqlException;
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
-import org.hsqldb.HsqlException;
 import org.hsqldb.jdbc.JDBCUtil;
-import org.hsqldb.persist.HsqlProperties;
 
 // fredt@users 20020215 - patch 461556 by paul-h@users - modified
 // minor changes to support the new ServerProperties class

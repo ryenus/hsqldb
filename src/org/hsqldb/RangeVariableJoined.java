@@ -31,16 +31,14 @@
 
 package org.hsqldb;
 
-import org.hsqldb.lib.OrderedHashSet;
 import org.hsqldb.HsqlNameManager.SimpleName;
-import org.hsqldb.RangeVariable.RangeIteratorMain;
-import org.hsqldb.error.ErrorCode;
-import org.hsqldb.error.Error;
-import org.hsqldb.lib.HsqlArrayList;
-import org.hsqldb.lib.HashSet;
-import org.hsqldb.index.Index;
-import org.hsqldb.store.ValuePool;
 import org.hsqldb.ParserDQL.CompileContext;
+import org.hsqldb.RangeVariable.RangeIteratorMain;
+import org.hsqldb.index.Index;
+import org.hsqldb.lib.HashSet;
+import org.hsqldb.lib.HsqlArrayList;
+import org.hsqldb.lib.OrderedHashSet;
+import org.hsqldb.map.ValuePool;
 
 /**
  * Metadata for range joined variables

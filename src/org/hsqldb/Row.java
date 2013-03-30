@@ -34,8 +34,8 @@ package org.hsqldb;
 import org.hsqldb.lib.LongLookup;
 import org.hsqldb.persist.CachedObject;
 import org.hsqldb.persist.PersistentStore;
-import org.hsqldb.rowio.RowOutputInterface;
 import org.hsqldb.rowio.RowInputInterface;
+import org.hsqldb.rowio.RowOutputInterface;
 
 /**
  * Base class for a database row object.

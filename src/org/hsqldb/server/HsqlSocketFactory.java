@@ -37,8 +37,6 @@ import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 
-import org.hsqldb.persist.HsqlDatabaseProperties;
-
 /**
  * Base class for producing the Socket objects used by HSQLDB.
  *
