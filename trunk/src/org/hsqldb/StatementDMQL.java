@@ -39,10 +39,10 @@ import org.hsqldb.error.ErrorCode;
 import org.hsqldb.lib.ArrayUtil;
 import org.hsqldb.lib.HashSet;
 import org.hsqldb.lib.OrderedHashSet;
+import org.hsqldb.map.ValuePool;
 import org.hsqldb.result.Result;
 import org.hsqldb.result.ResultMetaData;
 import org.hsqldb.rights.Grantee;
-import org.hsqldb.store.ValuePool;
 
 /**
  * Statement implementation for DML and base DQL statements.

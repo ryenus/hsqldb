@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2010, The HSQL Development Group
+/* Copyright (c) 2001-2011, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,14 +31,14 @@
 
 package org.hsqldb;
 
+import org.hsqldb.HsqlNameManager.HsqlName;
+import org.hsqldb.types.CharacterType;
 import org.hsqldb.types.Charset;
-import org.hsqldb.types.Type;
 import org.hsqldb.types.DateTimeType;
+import org.hsqldb.types.NumberType;
+import org.hsqldb.types.Type;
 import org.hsqldb.types.Types;
 import org.hsqldb.types.UserTypeModifier;
-import org.hsqldb.types.NumberType;
-import org.hsqldb.types.CharacterType;
-import org.hsqldb.HsqlNameManager.HsqlName;
 
 public class TypeInvariants {
 

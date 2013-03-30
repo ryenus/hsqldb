@@ -31,12 +31,11 @@
 
 package org.hsqldb.util;
 
+import java.sql.Blob;
+import java.sql.Clob;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
-import java.sql.Clob;
-import java.sql.Blob;
-import java.sql.Types;
 import java.util.Hashtable;
 
 /**

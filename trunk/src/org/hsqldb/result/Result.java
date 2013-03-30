@@ -48,11 +48,11 @@ import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
 import org.hsqldb.lib.ArrayUtil;
 import org.hsqldb.lib.DataOutputStream;
+import org.hsqldb.map.ValuePool;
 import org.hsqldb.navigator.RowSetNavigator;
 import org.hsqldb.navigator.RowSetNavigatorClient;
 import org.hsqldb.rowio.RowInputBinary;
 import org.hsqldb.rowio.RowOutputInterface;
-import org.hsqldb.store.ValuePool;
 import org.hsqldb.types.Type;
 
 /**

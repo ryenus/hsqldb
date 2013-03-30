@@ -46,7 +46,6 @@ import org.hsqldb.lib.CountdownInputStream;
 import org.hsqldb.lib.HashMap;
 import org.hsqldb.lib.HsqlByteArrayOutputStream;
 import org.hsqldb.lib.Iterator;
-import org.hsqldb.lib.LongDeque;
 import org.hsqldb.lib.LongKeyHashMap;
 import org.hsqldb.lib.LongKeyLongValueHashMap;
 import org.hsqldb.lib.ReaderInputStream;

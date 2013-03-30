@@ -41,10 +41,10 @@ import org.hsqldb.lib.HashSet;
 import org.hsqldb.lib.HsqlTimer;
 import org.hsqldb.lib.IntKeyHashMap;
 import org.hsqldb.lib.Iterator;
+import org.hsqldb.map.ValuePool;
 import org.hsqldb.persist.HsqlProperties;
 import org.hsqldb.server.Server;
 import org.hsqldb.server.ServerConstants;
-import org.hsqldb.store.ValuePool;
 
 /**
  * Handles initial attempts to connect to HSQLDB databases within the JVM

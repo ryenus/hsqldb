@@ -34,7 +34,6 @@ package org.hsqldb.persist;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 
-import org.hsqldb.Database;
 import org.hsqldb.lib.Storage;
 
 /**

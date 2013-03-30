@@ -31,7 +31,7 @@
 
 package org.hsqldb.lib;
 
-import org.hsqldb.store.BaseHashMap;
+import org.hsqldb.map.BaseHashMap;
 
 /**
  * This class does not store null keys.

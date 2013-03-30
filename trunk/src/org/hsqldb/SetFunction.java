@@ -38,7 +38,7 @@ import java.math.BigInteger;
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
 import org.hsqldb.lib.HashSet;
-import org.hsqldb.store.ValuePool;
+import org.hsqldb.map.ValuePool;
 import org.hsqldb.types.ArrayType;
 import org.hsqldb.types.DTIType;
 import org.hsqldb.types.IntervalMonthData;
@@ -288,6 +288,8 @@ public class SetFunction implements Serializable {
         }
 
         if (setType == OpTypes.COUNT) {
+
+            // todo - strings embedded in array or row
             if (count > 0 && isDistinct && type.isCharacterType()) {
                 Object[] array = new Object[distinctValues.size()];
 

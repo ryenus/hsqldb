@@ -43,8 +43,7 @@ import org.hsqldb.lib.ArrayUtil;
 import org.hsqldb.lib.FileAccess;
 import org.hsqldb.lib.FileUtil;
 import org.hsqldb.lib.HashMap;
-import org.hsqldb.lib.java.JavaSystem;
-import org.hsqldb.store.ValuePool;
+import org.hsqldb.map.ValuePool;
 
 /**
  * Wrapper for java.util.Properties to limit values to Specific types and

@@ -37,7 +37,7 @@ import org.hsqldb.SessionInterface;
 import org.hsqldb.Tokens;
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
-import org.hsqldb.store.BitMap;
+import org.hsqldb.map.BitMap;
 
 /**
  * Type implementation for BOOLEAN.<p>

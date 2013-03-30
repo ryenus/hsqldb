@@ -37,8 +37,8 @@ import org.hsqldb.HsqlNameManager.HsqlName;
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
 import org.hsqldb.lib.OrderedHashSet;
+import org.hsqldb.map.ValuePool;
 import org.hsqldb.rights.Grantee;
-import org.hsqldb.store.ValuePool;
 import org.hsqldb.types.Type;
 import org.hsqldb.types.Types;
 

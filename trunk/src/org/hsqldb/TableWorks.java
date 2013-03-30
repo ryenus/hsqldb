@@ -41,7 +41,6 @@ import org.hsqldb.lib.OrderedHashSet;
 import org.hsqldb.navigator.RowIterator;
 import org.hsqldb.persist.DataSpaceManager;
 import org.hsqldb.persist.PersistentStore;
-import org.hsqldb.persist.TableSpaceManager;
 import org.hsqldb.rights.Grantee;
 import org.hsqldb.types.Type;
 import org.hsqldb.types.Types;

@@ -36,8 +36,8 @@ import org.hsqldb.error.ErrorCode;
 import org.hsqldb.lib.ArrayListIdentity;
 import org.hsqldb.lib.HsqlList;
 import org.hsqldb.lib.Set;
+import org.hsqldb.map.ValuePool;
 import org.hsqldb.result.Result;
-import org.hsqldb.store.ValuePool;
 import org.hsqldb.types.Type;
 
 /**

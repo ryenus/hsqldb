@@ -36,7 +36,7 @@ import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
 import org.hsqldb.lib.IntValueHashMap;
 import org.hsqldb.lib.OrderedIntHashSet;
-import org.hsqldb.store.ValuePool;
+import org.hsqldb.map.ValuePool;
 import org.hsqldb.types.BinaryData;
 import org.hsqldb.types.BinaryType;
 import org.hsqldb.types.BlobData;

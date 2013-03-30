@@ -32,7 +32,6 @@
 package org.hsqldb.types;
 
 import java.io.InputStream;
-import java.io.OutputStream;
 
 import org.hsqldb.SessionInterface;
 import org.hsqldb.error.Error;

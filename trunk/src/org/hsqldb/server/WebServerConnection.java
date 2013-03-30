@@ -52,6 +52,7 @@ import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
 import org.hsqldb.lib.ArrayUtil;
 import org.hsqldb.lib.DataOutputStream;
+import org.hsqldb.lib.HsqlByteArrayOutputStream;
 import org.hsqldb.lib.InOutUtil;
 import org.hsqldb.persist.HsqlDatabaseProperties;
 import org.hsqldb.resources.ResourceBundleHandler;
@@ -59,7 +60,6 @@ import org.hsqldb.result.Result;
 import org.hsqldb.result.ResultConstants;
 import org.hsqldb.rowio.RowInputBinary;
 import org.hsqldb.rowio.RowOutputBinary;
-import org.hsqldb.lib.HsqlByteArrayOutputStream;
 
 // fredt@users 20021002 - patch 1.7.1 - changed notification method
 // unsaved@users 20021113 - patch 1.7.2 - SSL support

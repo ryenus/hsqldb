@@ -32,8 +32,8 @@
 package org.hsqldb;
 
 import org.hsqldb.HsqlNameManager.HsqlName;
-import org.hsqldb.rights.Grantee;
 import org.hsqldb.lib.OrderedHashSet;
+import org.hsqldb.rights.Grantee;
 
 /**
  * SQL schema object interface

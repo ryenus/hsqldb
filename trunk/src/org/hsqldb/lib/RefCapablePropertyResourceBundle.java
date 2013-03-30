@@ -31,20 +31,20 @@
 
 package org.hsqldb.lib;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
-import java.util.PropertyResourceBundle;
-import java.util.Map;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Locale;
-import java.util.ResourceBundle;
+import java.util.Map;
 import java.util.MissingResourceException;
-import java.util.Enumeration;
-import java.util.regex.Pattern;
+import java.util.PropertyResourceBundle;
+import java.util.ResourceBundle;
 import java.util.regex.Matcher;
-import java.io.InputStream;
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
+import java.util.regex.Pattern;
 
 
 /* $Id$ */

@@ -35,7 +35,7 @@ import org.hsqldb.lib.ArraySort;
 import org.hsqldb.lib.Iterator;
 import org.hsqldb.lib.ObjectComparator;
 import org.hsqldb.lib.StopWatch;
-import org.hsqldb.store.BaseHashMap;
+import org.hsqldb.map.BaseHashMap;
 
 /**
  * New implementation of row caching for CACHED tables.<p>

@@ -43,7 +43,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.StringTokenizer;
 
-import org.hsqldb.store.BitMap;
+import org.hsqldb.map.BitMap;
 
 /**
  * A list of ACL permit and deny entries with a permitAccess method

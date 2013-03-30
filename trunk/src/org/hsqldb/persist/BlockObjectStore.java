@@ -31,13 +31,13 @@
 
 package org.hsqldb.persist;
 
-import org.hsqldb.Session;
-import org.hsqldb.rowio.RowInputInterface;
+import java.lang.reflect.Constructor;
+
 import org.hsqldb.HsqlException;
+import org.hsqldb.Session;
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
-
-import java.lang.reflect.Constructor;
+import org.hsqldb.rowio.RowInputInterface;
 
 public class BlockObjectStore extends SimpleStore {
 

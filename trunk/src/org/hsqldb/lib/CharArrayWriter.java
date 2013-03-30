@@ -31,9 +31,9 @@
 
 package org.hsqldb.lib;
 
+import java.io.EOFException;
 import java.io.IOException;
 import java.io.Reader;
-import java.io.EOFException;
 
 /**
  * A writer for char strings.

@@ -40,7 +40,6 @@ import org.hsqldb.error.ErrorCode;
 import org.hsqldb.lib.HsqlDeque;
 import org.hsqldb.lib.Iterator;
 import org.hsqldb.lib.LongKeyHashMap;
-import org.hsqldb.store.ValuePool;
 
 /**
  * Collection of PersistenceStore itmes currently used by a session.

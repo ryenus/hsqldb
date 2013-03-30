@@ -46,9 +46,9 @@ import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
 import org.hsqldb.lib.LineReader;
 import org.hsqldb.lib.StringConverter;
+import org.hsqldb.map.ValuePool;
 import org.hsqldb.result.Result;
 import org.hsqldb.rowio.RowInputTextLog;
-import org.hsqldb.store.ValuePool;
 import org.hsqldb.types.Type;
 
 /**

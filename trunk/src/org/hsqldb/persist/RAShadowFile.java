@@ -39,7 +39,7 @@ import org.hsqldb.Database;
 import org.hsqldb.lib.HsqlByteArrayOutputStream;
 import org.hsqldb.lib.InputStreamInterface;
 import org.hsqldb.lib.java.JavaSystem;
-import org.hsqldb.store.BitMap;
+import org.hsqldb.map.BitMap;
 
 /*
  * Wrapper for random access file for incremental backup of the .data file.

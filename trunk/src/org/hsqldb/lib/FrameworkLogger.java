@@ -46,8 +46,6 @@ import java.util.logging.Level;
 import java.util.logging.LogManager;
 import java.util.logging.Logger;
 
-import org.hsqldb.persist.HsqlDatabaseProperties;
-
 /**
  * A logging framework wrapper that supports java.util.logging and log4j.
  * <P/>

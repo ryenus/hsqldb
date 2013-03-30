@@ -43,13 +43,13 @@ import org.hsqldb.lib.FileAccess;
 import org.hsqldb.lib.FileArchiver;
 import org.hsqldb.lib.FileUtil;
 import org.hsqldb.lib.Iterator;
+import org.hsqldb.map.BitMap;
 import org.hsqldb.rowio.RowInputBinary180;
 import org.hsqldb.rowio.RowInputBinaryDecode;
 import org.hsqldb.rowio.RowInputInterface;
 import org.hsqldb.rowio.RowOutputBinary180;
 import org.hsqldb.rowio.RowOutputBinaryEncode;
 import org.hsqldb.rowio.RowOutputInterface;
-import org.hsqldb.store.BitMap;
 
 /**
  * Acts as a manager for CACHED table persistence.<p>

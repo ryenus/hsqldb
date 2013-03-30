@@ -41,9 +41,9 @@ import org.hsqldb.lib.HashMappedList;
 import org.hsqldb.lib.HsqlList;
 import org.hsqldb.lib.OrderedHashSet;
 import org.hsqldb.lib.Set;
+import org.hsqldb.map.ValuePool;
 import org.hsqldb.navigator.RangeIterator;
 import org.hsqldb.persist.PersistentStore;
-import org.hsqldb.store.ValuePool;
 import org.hsqldb.types.Type;
 
 /**

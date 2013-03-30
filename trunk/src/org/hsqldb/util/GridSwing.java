@@ -32,8 +32,8 @@
 package org.hsqldb.util;
 
 import java.util.Vector;
-import java.awt.Component;
 
+import java.awt.Component;
 import javax.swing.JTable;
 import javax.swing.event.TableModelEvent;
 import javax.swing.table.AbstractTableModel;

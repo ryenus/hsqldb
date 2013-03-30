@@ -33,11 +33,11 @@ package org.hsqldb;
 
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
+import org.hsqldb.map.ValuePool;
 import org.hsqldb.navigator.RowSetNavigator;
 import org.hsqldb.navigator.RowSetNavigatorData;
 import org.hsqldb.persist.PersistentStore;
 import org.hsqldb.result.Result;
-import org.hsqldb.store.ValuePool;
 import org.hsqldb.types.RowType;
 import org.hsqldb.types.Type;
 

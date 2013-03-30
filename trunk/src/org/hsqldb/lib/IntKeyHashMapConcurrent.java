@@ -31,10 +31,10 @@
 
 package org.hsqldb.lib;
 
-import org.hsqldb.store.BaseHashMap;
-
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
+
+import org.hsqldb.map.BaseHashMap;
 
 /**
  *

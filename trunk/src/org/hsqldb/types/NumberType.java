@@ -41,7 +41,7 @@ import org.hsqldb.Tokens;
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
 import org.hsqldb.lib.java.JavaSystem;
-import org.hsqldb.store.ValuePool;
+import org.hsqldb.map.ValuePool;
 
 /**
  * Type subclass for all NUMBER types.<p>

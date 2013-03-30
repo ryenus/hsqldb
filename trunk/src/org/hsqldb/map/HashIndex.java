@@ -29,7 +29,7 @@
  */
 
 
-package org.hsqldb.store;
+package org.hsqldb.map;
 
 /**
  * A chained bucket hash index implementation.

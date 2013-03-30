@@ -32,7 +32,6 @@
 package org.hsqldb.lib;
 
 import java.io.CharArrayReader;
-import java.io.CharArrayWriter;
 import java.io.IOException;
 import java.io.Writer;
 

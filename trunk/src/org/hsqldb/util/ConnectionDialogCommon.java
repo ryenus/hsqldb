@@ -42,8 +42,6 @@ import java.lang.reflect.Constructor;
 import java.util.Enumeration;
 import java.util.Hashtable;
 
-import org.hsqldb.lib.java.JavaSystem;
-
 // sqlbob@users 20020407 - patch 1.7.0 - reengineering
 // fredt@users - 20040508 - modified patch by lonbinder@users for saving settings
 // weconsultants@users - 20041114 - patch 1.8.0 - Added MySQL Connector/J jbcDriver and granulated imports

@@ -43,12 +43,12 @@ import org.hsqldb.lib.HsqlList;
 import org.hsqldb.lib.OrderedHashSet;
 import org.hsqldb.lib.OrderedIntHashSet;
 import org.hsqldb.lib.Set;
+import org.hsqldb.map.ValuePool;
 import org.hsqldb.navigator.RowIterator;
 import org.hsqldb.navigator.RowSetNavigatorData;
 import org.hsqldb.navigator.RowSetNavigatorDataTable;
 import org.hsqldb.result.Result;
 import org.hsqldb.result.ResultMetaData;
-import org.hsqldb.store.ValuePool;
 import org.hsqldb.types.Type;
 import org.hsqldb.types.Types;
 
