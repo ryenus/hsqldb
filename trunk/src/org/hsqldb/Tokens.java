@@ -687,11 +687,15 @@ public class Tokens {
     public static final String T_LOCK                 = "LOCK";
     public static final String T_LOCKS                = "LOCKS";
     public static final String T_LONG                 = "LONG";
+    public static final String T_LONGBLOB             = "LONGBLOB";
+    public static final String T_LONGTEXT             = "LONGTEXT";
     public static final String T_LONGVAR              = "LONGVAR";
     public static final String T_LONGVARBINARY        = "LONGVARBINARY";
     public static final String T_LONGVARCHAR          = "LONGVARCHAR";
     static final String        T_MAXROWS              = "MAXROWS";
     static final String        T_MEDIAN               = "MEDIAN";
+    static final String        T_MEDIUMBLOB           = "MEDIUMBLOB";
+    static final String        T_MEDIUMTEXT           = "MEDIUMTEXT";
     public static final String T_MEMORY               = "MEMORY";
     public static final String T_MILLIS               = "MILLIS";
     static final String        T_MINUS_EXCEPT         = "MINUS";
@@ -773,7 +777,9 @@ public class Tokens {
     public static final String T_TEXT                 = "TEXT";
     static final String        T_TIMESTAMPADD         = "TIMESTAMPADD";
     static final String        T_TIMESTAMPDIFF        = "TIMESTAMPDIFF";
+    public static final String T_TINYBLOB             = "TINYBLOB";
     public static final String T_TINYINT              = "TINYINT";
+    public static final String T_TINYTEXT             = "TINYTEXT";
     static final String        T_TOP                  = "TOP";
     public static final String T_TTI                  = "TTI";
     public static final String T_TYPES                = "TYPES";
@@ -1671,6 +1677,12 @@ public class Tokens {
     static final int        UUID                       = 780;
     static final int        WEEK                       = 781;
     public static final int WEEK_OF_YEAR               = 782;
+    static final int        LONGBLOB                   = 790;
+    static final int        LONGTEXT                   = 791;
+    static final int        MEDIUMBLOB                 = 792;
+    static final int        MEDIUMTEXT                 = 793;
+    static final int        TINYBLOB                   = 794;
+    static final int        TINYTEXT                   = 795;
 
     //
     static final int        ASTERISK         = 801;
@@ -2197,12 +2209,16 @@ public class Tokens {
         commandSet.put(T_LOCK, LOCK);
         commandSet.put(T_LOCKS, LOCKS);
         commandSet.put(T_LONG, LONG);
+        commandSet.put(T_LONGBLOB, LONGBLOB);
+        commandSet.put(T_LONGTEXT, LONGTEXT);
         commandSet.put(T_LONGVAR, LONGVAR);
         commandSet.put(T_M_FACTOR, M);
         commandSet.put(T_MATCHED, MATCHED);
         commandSet.put(T_MAXROWS, MAXROWS);
         commandSet.put(T_MAXVALUE, MAXVALUE);
         commandSet.put(T_MEDIAN, MEDIAN);
+        commandSet.put(T_MEDIUMBLOB, MEDIUMBLOB);
+        commandSet.put(T_MEDIUMTEXT, MEDIUMTEXT);
         commandSet.put(T_MEMORY, MEMORY);
         commandSet.put(T_MESSAGE_TEXT, MESSAGE_TEXT);
         commandSet.put(T_MILLIS, MILLIS);
@@ -2315,6 +2331,8 @@ public class Tokens {
         commandSet.put(T_TYPES, TYPES);
         commandSet.put(T_TIMESTAMPADD, TIMESTAMPADD);
         commandSet.put(T_TIMESTAMPDIFF, TIMESTAMPDIFF);
+        commandSet.put(T_TINYBLOB, TINYBLOB);
+        commandSet.put(T_TINYTEXT, TINYTEXT);
         commandSet.put(T_TOP, TOP);
         commandSet.put(T_TRANSACTION, TRANSACTION);
         commandSet.put(T_TRANSACTION_ACTIVE, TRANSACTION_ACTIVE);
