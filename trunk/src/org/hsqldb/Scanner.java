@@ -181,6 +181,7 @@ public class Scanner {
     int     limit;
     Token   token = new Token();
     boolean nullAndBooleanAsValue;
+    boolean backtickQuoting;
 
     //
     private boolean hasNonSpaceSeparator;
@@ -202,6 +203,13 @@ public class Scanner {
         new HsqlByteArrayOutputStream(byteBuffer);
 
     public Scanner() {}
+
+    public Scanner(Database database) {
+
+        if (database.sqlSyntaxMys) {
+            backtickQuoting = true;
+        }
+    }
 
     Scanner(String sql) {
         reset(sql);
@@ -773,6 +781,21 @@ public class Scanner {
         int c = charAt(currentPosition);
 
         switch (c) {
+
+            case '`' :
+                if (backtickQuoting) {
+                    charWriter.reset(charBuffer);
+                    scanStringPart('`');
+
+                    if (token.isMalformed) {
+                        return;
+                    }
+
+                    token.tokenType = Tokens.X_DELIMITED_IDENTIFIER;
+                    token.tokenString = charWriter.toString();
+                    token.isDelimiter = true;
+                }
+                break;
 
             case '"' :
                 charWriter.reset(charBuffer);
@@ -1622,6 +1645,12 @@ public class Scanner {
 
             case '\"' :
                 token.tokenType = Tokens.X_DELIMITED_IDENTIFIER;
+                break;
+
+            case '`' :
+                if (backtickQuoting) {
+                    token.tokenType = Tokens.X_DELIMITED_IDENTIFIER;
+                }
                 break;
 
             case '\'' :
