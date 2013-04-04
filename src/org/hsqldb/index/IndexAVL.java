@@ -1373,10 +1373,7 @@ public class IndexAVL implements Index {
         }
 
         if (distinctCount != 0) {
-            Object[] baseData = x.getData(store);
-
-            return findDistinctNode(session, store, baseData, colIndex,
-                                    distinctCount, false);
+            return findDistinctNode(session, store, x, distinctCount, false);
         }
 
         while (true) {
@@ -1408,10 +1405,7 @@ public class IndexAVL implements Index {
         }
 
         if (distinctCount != 0) {
-            Object[] baseData = x.getData(store);
-
-            return findDistinctNode(session, store, baseData, colIndex,
-                                    distinctCount, true);
+            return findDistinctNode(session, store, x, distinctCount, true);
         }
 
         while (true) {
@@ -1801,16 +1795,16 @@ public class IndexAVL implements Index {
     }
 
     NodeAVL findDistinctNode(Session session, PersistentStore store,
-                             Object[] rowdata, int[] rowColMap,
-                             int fieldCount, boolean reversed) {
+                             NodeAVL node, int fieldCount, boolean reversed) {
 
         readLock.lock();
 
         try {
-            NodeAVL x          = getAccessor(store);
-            NodeAVL n          = null;
-            NodeAVL result     = null;
-            Row     currentRow = null;
+            NodeAVL  x          = getAccessor(store);
+            NodeAVL  n          = null;
+            NodeAVL  result     = null;
+            Row      currentRow = null;
+            Object[] rowData    = node.getData(store);
 
             while (x != null) {
                 currentRow = x.getRow(store);
@@ -1818,7 +1812,7 @@ public class IndexAVL implements Index {
                 int i = 0;
 
                 i = compareRowNonUnique(session, currentRow.getData(),
-                                        rowdata, rowColMap, fieldCount);
+                                        rowData, colIndex, fieldCount);
 
                 if (reversed) {
                     if (i < 0) {

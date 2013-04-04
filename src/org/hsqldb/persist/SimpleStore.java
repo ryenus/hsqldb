@@ -85,7 +85,8 @@ public abstract class SimpleStore implements PersistentStore {
     public void remove(CachedObject object) {
 
         if (cache != null) {
-            cache.remove(object, spaceManager);
+            cache.remove(object);
+            spaceManager.release(object.getPos(), object.getStorageSize());
         }
     }
 

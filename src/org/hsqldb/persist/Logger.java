@@ -718,7 +718,7 @@ public class Logger {
             result = false;
         }
 
-        database.logger.logInfoEvent("Database closed");
+        logInfoEvent("Database closed");
 
         log = null;
 
@@ -1038,9 +1038,10 @@ public class Logger {
     void checkpointInternal(boolean mode) {
 
         if (logsStatements) {
-            database.logger.logInfoEvent("Checkpoint start");
+            logInfoEvent("Checkpoint start");
             log.checkpoint(mode);
-            database.logger.logInfoEvent("Checkpoint end");
+            logInfoEvent("Checkpoint end - txts: "
+                         + database.txManager.getGlobalChangeTimestamp());
         } else if (!isFileDatabase()) {
             database.lobManager.deleteUnusedLobs();
         }
@@ -2212,8 +2213,8 @@ public class Logger {
         }
 
         try {
-            database.logger.logInfoEvent("Initiating backup of instance '"
-                                         + instanceName + "'");
+            logInfoEvent("Initiating backup of instance '" + instanceName
+                         + "'");
 
             // By default, DbBackup will throw if archiveFile (or
             // corresponding work file) already exist.  That's just what we
@@ -2283,9 +2284,8 @@ public class Logger {
                 backup.write();
             }
 
-            database.logger.logInfoEvent("Successfully backed up instance '"
-                                         + instanceName + "' to '" + destPath
-                                         + "'");
+            logInfoEvent("Successfully backed up instance '" + instanceName
+                         + "' to '" + destPath + "'");
         } catch (IOException ioe) {
             throw Error.error(ErrorCode.FILE_IO_ERROR, ioe.toString());
         } catch (TarMalformatException tme) {

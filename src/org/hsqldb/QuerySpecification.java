@@ -76,6 +76,7 @@ public class QuerySpecification extends QueryExpression {
     public boolean        isAggregated;
     public boolean        isGrouped;
     public boolean        isOrderSensitive;
+    public boolean        isSimpleDistinct;
     RangeVariable[]       rangeVariables;
     private HsqlArrayList rangeVariableList;
     int                   startInnerRange = -1;
@@ -995,9 +996,8 @@ public class QuerySpecification extends QueryExpression {
             return;
         }
 
-        RangeVariable range = null;
-
-        int[] colMap = new int[indexLimitVisible];
+        RangeVariable range  = null;
+        int[]         colMap = new int[indexLimitVisible];
 
         for (int i = 0; i < indexLimitVisible; i++) {
             if (exprColumns[i].getType() != OpTypes.COLUMN) {
@@ -1016,14 +1016,14 @@ public class QuerySpecification extends QueryExpression {
         }
 
         if (!range.hasAnyIndexCondition()) {
-            Index index = range.rangeTable.getFullIndexForColumns(colMap);
+            Index index = range.rangeTable.getIndexForColumns(colMap);
 
             if (index != null) {
                 range.setSortIndex(index, false);
             }
         }
 
-        range.setDistinctColumnsOnIndex(colMap);
+        isSimpleDistinct = range.setDistinctColumnsOnIndex(colMap);
     }
 
     private void setAggregateConditions(Session session) {
@@ -1365,7 +1365,7 @@ public class QuerySpecification extends QueryExpression {
         Result              r         = buildResult(session, limits);
         RowSetNavigatorData navigator = (RowSetNavigatorData) r.getNavigator();
 
-        if (isDistinctSelect) {
+        if (isDistinctSelect && !isSimpleDistinct) {
             navigator.removeDuplicates(session);
         }
 
@@ -1385,7 +1385,8 @@ public class QuerySpecification extends QueryExpression {
 
         RowSetNavigatorData navigator = new RowSetNavigatorData(session,
             (QuerySpecification) this);
-        Result result = Result.newResult(navigator);
+        Result  result        = Result.newResult(navigator);
+        boolean resultGrouped = isGrouped && !isSimpleDistinct;
 
         result.metaData = resultMetaData;
 
@@ -1503,7 +1504,7 @@ public class QuerySpecification extends QueryExpression {
 
             Object[] groupData = null;
 
-            if (isAggregated || isGrouped) {
+            if (isAggregated || resultGrouped) {
                 groupData = navigator.getGroupData(data);
 
                 if (groupData != null) {
@@ -1533,7 +1534,7 @@ public class QuerySpecification extends QueryExpression {
                 result.setNavigator(navigator);
             }
 
-            if (isAggregated || isGrouped) {
+            if (isAggregated || resultGrouped) {
                 if (!sortAndSlice.isGenerated) {
                     continue;
                 }
@@ -1550,12 +1551,12 @@ public class QuerySpecification extends QueryExpression {
             rangeIterators[i].reset();
         }
 
-        if (!isGrouped && !isAggregated) {
+        if (!resultGrouped && !isAggregated) {
             return result;
         }
 
         if (isAggregated) {
-            if (!isGrouped && navigator.getSize() == 0) {
+            if (!resultGrouped && navigator.getSize() == 0) {
                 Object[] data = new Object[exprColumns.length];
 
                 for (int i = 0; i < indexStartAggregates; i++) {

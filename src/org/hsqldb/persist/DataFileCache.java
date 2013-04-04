@@ -283,7 +283,9 @@ public class DataFileCache {
 
                         if (dbState == HsqlDatabaseProperties.FILES_MODIFIED) {
                             isSaved = false;
-                            logInfoEvent("data file was saved but inc backup exists - restoring");
+
+                            logInfoEvent(
+                                "data file was saved but inc backup exists - restoring");
                         }
                     }
                 }
@@ -747,6 +749,7 @@ public class DataFileCache {
     }
 
     public void reopen() {
+        spaceManager.initialiseSpaces();
         openShadowFile();
     }
 
@@ -894,7 +897,7 @@ public class DataFileCache {
      * Removes the row from the cache data structures.
      * Adds the file space for the row to the list of free positions.
      */
-    public void remove(CachedObject object, TableSpaceManager spaceManager) {
+    public void remove(CachedObject object) {
 
         writeLock.lock();
 
@@ -903,8 +906,6 @@ public class DataFileCache {
         } finally {
             writeLock.unlock();
         }
-
-        spaceManager.release(object.getPos(), object.getStorageSize());
     }
 
     public void removePersistence(CachedObject object) {}

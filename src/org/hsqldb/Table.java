@@ -2401,12 +2401,27 @@ public class Table extends TableBase implements SchemaObject {
     }
 
     /**
-     *  Finds an existing index for a full column group
+     *  Finds an existing index for an ordered full column group
      */
     Index getFullIndexForColumns(int[] cols) {
 
         for (int i = 0; i < indexList.length; i++) {
             if (ArrayUtil.haveEqualArrays(indexList[i].getColumns(), cols,
+                                          cols.length)) {
+                return indexList[i];
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     *  Finds an existing index for an unordered full column group
+     */
+    Index getIndexForColumns(int[] cols) {
+
+        for (int i = 0; i < indexList.length; i++) {
+            if (ArrayUtil.haveEqualSets(indexList[i].getColumns(), cols,
                                           cols.length)) {
                 return indexList[i];
             }

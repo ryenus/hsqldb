@@ -201,7 +201,7 @@ public class RowStoreAVLDisk extends RowStoreAVL implements PersistentStore {
 
     public void removeAll() {
 
-        elementCount = 0;
+        elementCount.set(0);
 
         ArrayUtil.fillArray(accessorList, null);
         cache.spaceManager.freeTableSpace(tableSpace.getSpaceID());
@@ -209,7 +209,9 @@ public class RowStoreAVLDisk extends RowStoreAVL implements PersistentStore {
 
     public void remove(CachedObject object) {
 
-        cache.remove(object, tableSpace);
+        cache.remove(object);
+
+        tableSpace.release(object.getPos(), object.getStorageSize());
 
         storageSize -= object.getStorageSize();
     }
@@ -315,7 +317,7 @@ public class RowStoreAVLDisk extends RowStoreAVL implements PersistentStore {
         cache.adjustStoreCount(-1);
 
         cache        = null;
-        elementCount = 0;
+        elementCount.set(0);
     }
 
     public CachedObject getAccessor(Index key) {
@@ -376,14 +378,14 @@ public class RowStoreAVLDisk extends RowStoreAVL implements PersistentStore {
 */
     private long getSpaceSizeEstimate() {
 
-        if (elementCount == 0) {
+        if (elementCount.get() == 0) {
             return 0;
         }
 
         CachedObject accessor = getAccessor(indexList[0]);
         CachedObject row      = get(accessor.getPos());
 
-        return row.getStorageSize() * elementCount;
+        return row.getStorageSize() * elementCount.get();
     }
 
     public void moveDataToSpace() {
@@ -425,10 +427,12 @@ public class RowStoreAVLDisk extends RowStoreAVL implements PersistentStore {
 
             RowIterator it = rowIterator();
 
+            // todo - check this - must remove from old space, not new one
             while (it.hasNext()) {
                 Row row = it.getNextRow();
 
-                cache.remove(row, tableSpace);
+                cache.remove(row);
+                tableSpace.release(row.getPos(), row.getStorageSize());
             }
 
             accessorList = newAccessorList;

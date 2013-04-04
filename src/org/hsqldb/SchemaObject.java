@@ -71,6 +71,7 @@ public interface SchemaObject {
     int WRAPPER          = 25;
     int SERVER           = 26;
     int SUBQUERY         = 27;
+    int SEARCH           = 28;
 
     //
     SchemaObject[] emptyArray = new SchemaObject[]{};

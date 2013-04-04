@@ -170,14 +170,12 @@ public class RowStoreAVLDiskData extends RowStoreAVL {
     public void removeAll() {
 
         destroy();
-
-        elementCount = 0;
-
+        elementCount.set(0);
         ArrayUtil.fillArray(accessorList, null);
     }
 
     public void remove(CachedObject object) {
-        cache.remove(object, tableSpace);
+        cache.remove(object);
     }
 
     public CachedObject getAccessor(Index key) {
