@@ -1,3 +1,7 @@
+4 April - svn 5222
+-- improved data space reuse
+-- improved optimisation of SELECT DISTINCT and GROUP BY
+-- improved MYS syntax compatibility mode to support backtick quoted identifiers
 25 March 2013 - svn 5214
 -- added support for statement timeout
 18 March 2013 - svn 5208
