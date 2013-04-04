@@ -197,7 +197,7 @@ public class RowStoreAVLHybrid extends RowStoreAVL implements PersistentStore {
                                            boolean tx) {
 
         if (!isCached) {
-            if (useDisk && elementCount >= maxMemoryRowCount) {
+            if (useDisk && elementCount.get() >= maxMemoryRowCount) {
                 changeToDiskTable(session);
             }
         }
@@ -235,8 +235,7 @@ public class RowStoreAVLHybrid extends RowStoreAVL implements PersistentStore {
             destroy();
         }
 
-        elementCount = 0;
-
+        elementCount.set(0);
         ArrayUtil.fillArray(accessorList, null);
 
         for (int i = 0; i < nullsList.length; i++) {
@@ -247,7 +246,7 @@ public class RowStoreAVLHybrid extends RowStoreAVL implements PersistentStore {
     public void remove(CachedObject object) {
 
         if (isCached) {
-            cache.remove(object, tableSpace);
+            cache.remove(object);
         }
     }
 
@@ -329,8 +328,7 @@ public class RowStoreAVLHybrid extends RowStoreAVL implements PersistentStore {
         }
 
         manager.setStore(table, null);
-
-        elementCount = 0;
+        elementCount.set(0);
     }
 
     public void delete(Session session, Row row) {
@@ -387,9 +385,9 @@ public class RowStoreAVLHybrid extends RowStoreAVL implements PersistentStore {
             RowIterator iterator = table.rowIterator(this);
 
             ArrayUtil.fillArray(accessorList, null);
+            elementCount.set(0);
 
-            elementCount = 0;
-            isCached     = true;
+            isCached = true;
 
             cache.adjustStoreCount(1);
 

@@ -31,6 +31,8 @@
 
 package org.hsqldb.persist;
 
+import org.hsqldb.lib.DoubleIntIndex;
+
 /**
  * Manages allocation of space for rows.<p>
  *
@@ -56,10 +58,12 @@ public interface TableSpaceManager {
 
     void addFileBlock(long blockPos, long blockFreePos, long blockLimit);
 
-    public void initialiseFileBlock(long blockPos, long blockFreePos,
-                                    long blockLimit);
+    public void initialiseFileBlock(DoubleIntIndex lookup, long blockPos,
+                                    long blockFreePos, long blockLimit);
 
     public void reset();
+
+    public long getLostBlocksSize();
 
     public void setSpaceManager(DataSpaceManager spaceManager, int spaceID);
 }

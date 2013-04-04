@@ -97,7 +97,7 @@ final class DataFileDefrag {
                 if (size > maxSize) {
                     maxSize = size;
                 }
-
+/*
                 // temp code to fix obsolete space ids
                 int spaceID = table.getSpaceID();
 
@@ -110,6 +110,7 @@ final class DataFileDefrag {
                 }
 
                 // end temp code
+*/
             }
         }
 
@@ -212,6 +213,15 @@ final class DataFileDefrag {
 
             rootsArray[i] = pos;
         }
+
+        // log any discrepency in row count
+        if (rootsArray[table.getIndexCount() * 2] != pointerLookup.size()) {
+            database.logger.logSevereEvent("descrepency in row count "
+                                           + table.getName().name, null);
+        }
+
+        rootsArray[table.getIndexCount()]     = 0;
+        rootsArray[table.getIndexCount() * 2] = pointerLookup.size();
 
         database.logger.logDetailEvent("table written "
                                        + table.getName().name);

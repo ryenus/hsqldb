@@ -136,6 +136,29 @@ public class DoubleIntIndex implements IntLookup, LongLookup {
         return capacity;
     }
 
+    public int[] getKeys() {
+        return keys;
+    }
+
+    public int[] getValues() {
+        return values;
+    }
+
+    public long getTotalValues() {
+
+        long total = 0;
+
+        for (int i = 0; i < count; i++) {
+            total += values[i];
+        }
+
+        return total;
+    }
+
+    public void setSize(int newSize) {
+        count = newSize;
+    }
+
     public synchronized boolean addUnsorted(long key, long value) {
 
         if (key > Integer.MAX_VALUE || key < Integer.MIN_VALUE) {
@@ -505,32 +528,6 @@ public class DoubleIntIndex implements IntLookup, LongLookup {
     }
 
     /**
-     * Returns the index of the lowest element > the given search target
-     *     @return the index
-     */
-    private int binaryGreaterSearch() {
-
-        int low     = 0;
-        int high    = count;
-        int mid     = 0;
-        int compare = 0;
-
-        while (low < high) {
-            mid     = (low + high) / 2;
-            compare = compare(mid);
-
-            if (compare < 0) {
-                high = mid;
-            } else {
-                low = mid + 1;
-            }
-        }
-
-        return low == count ? -1
-                            : low;
-    }
-
-    /**
      * Returns the index of the lowest element >= the given search target,
      * or count
      *     @return the index
@@ -807,6 +804,13 @@ public class DoubleIntIndex implements IntLookup, LongLookup {
         ArrayUtil.clearArray(ArrayUtil.CLASS_CODE_INT, values, 0, count);
 
         count = 0;
+    }
+
+    public void copyTo(DoubleIntIndex other) {
+
+        System.arraycopy(keys, 0, other.keys, 0, count);
+        System.arraycopy(values, 0, other.values, 0, count);
+        other.setSize(count);
     }
 
     public final synchronized void remove(int position) {

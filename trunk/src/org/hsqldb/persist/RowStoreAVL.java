@@ -31,6 +31,8 @@
 
 package org.hsqldb.persist;
 
+import java.util.concurrent.atomic.AtomicLong;
+
 import org.hsqldb.ColumnSchema;
 import org.hsqldb.Database;
 import org.hsqldb.HsqlException;
@@ -68,7 +70,7 @@ public abstract class RowStoreAVL implements PersistentStore {
     CachedObject[]            accessorList = CachedObject.emptyArray;
     TableBase                 table;
     long                      baseElementCount;
-    long                      elementCount;
+    AtomicLong                elementCount = new AtomicLong();
     long                      storageSize;
     boolean[]                 nullsList;
     double[][]                searchCost;
@@ -178,10 +180,10 @@ public abstract class RowStoreAVL implements PersistentStore {
 
         row.delete(this);
 
-        elementCount--;
+        long count = elementCount.decrementAndGet();
 
-        if (elementCount > 16 * 1024 && elementCount < baseElementCount / 2) {
-            baseElementCount = elementCount;
+        if (count > 16 * 1024 && count < baseElementCount / 2) {
+            baseElementCount = count;
             searchCost       = null;
         }
     }
@@ -215,11 +217,10 @@ public abstract class RowStoreAVL implements PersistentStore {
                 throw e;
             }
 
-            elementCount++;
+            long count = elementCount.incrementAndGet();
 
-            if (elementCount > 16 * 1024
-                    && elementCount > baseElementCount * 2) {
-                baseElementCount = elementCount;
+            if (count > 16 * 1024 && count > baseElementCount * 2) {
+                baseElementCount = count;
                 searchCost       = null;
             }
         } catch (HsqlException e) {
@@ -363,7 +364,7 @@ public abstract class RowStoreAVL implements PersistentStore {
                                           int count, int opType) {
 
         if (opType != OpTypes.EQUAL) {
-            return elementCount / 2;
+            return elementCount.get() / 2;
         }
 
         if (index.isUnique() && count == index.getColumnCount()) {
@@ -388,19 +389,19 @@ public abstract class RowStoreAVL implements PersistentStore {
 
         Index index = this.indexList[0];
 
-        if (elementCount < 0) {
-            elementCount = ((IndexAVL) index).getNodeCount(null, this);
+        if (elementCount.get() < 0) {
+            elementCount.set(((IndexAVL) index).getNodeCount(null, this));
         }
 
-        return elementCount;
+        return elementCount.get();
     }
 
     public long elementCount(Session session) {
 
         Index index = this.indexList[0];
 
-        if (elementCount < 0) {
-            elementCount = ((IndexAVL) index).getNodeCount(session, this);
+        if (elementCount.get() < 0) {
+            elementCount.set(((IndexAVL) index).getNodeCount(session, this));
         }
 
         if (session != null) {
@@ -419,7 +420,7 @@ public abstract class RowStoreAVL implements PersistentStore {
             }
         }
 
-        return elementCount;
+        return elementCount.get();
     }
 
     public long elementCountUnique(Index index) {
@@ -427,7 +428,7 @@ public abstract class RowStoreAVL implements PersistentStore {
     }
 
     public void setElementCount(Index key, long size, long uniqueSize) {
-        elementCount = size;
+        elementCount.set(size);
     }
 
     public boolean hasNull(int pos) {
@@ -566,7 +567,8 @@ public abstract class RowStoreAVL implements PersistentStore {
         }
     }
 
-    boolean insertIndexNodes(Session session, Index primaryIndex, Index newIndex) {
+    boolean insertIndexNodes(Session session, Index primaryIndex,
+                             Index newIndex) {
 
         int           position = newIndex.getPosition();
         RowIterator   it       = primaryIndex.firstRow(this);

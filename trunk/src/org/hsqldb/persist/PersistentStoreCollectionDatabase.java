@@ -159,10 +159,10 @@ implements PersistentStoreCollection {
             TableBase table = store.getTable();
 
             if (table.getTableType() == TableBase.CACHED_TABLE) {
-                TableSpaceManager tableSpace = store.getSpaceManager();
+                TableSpaceManager tableSpace =
+                    dataCache.spaceManager.getTableSpace(table.getSpaceID());
 
-                tableSpace.setSpaceManager(dataCache.spaceManager,
-                                           table.getSpaceID());
+                store.setSpaceManager(tableSpace);
             }
         }
     }

@@ -74,7 +74,7 @@ public class DataSpaceManagerBlocks implements DataSpaceManager {
     //
     int freeItemCacheSize = 2048;
 
-    // fragmented space size
+    // todo - fragmented space size
     long totalFragmentSize;
 
     //
@@ -148,8 +148,9 @@ public class DataSpaceManagerBlocks implements DataSpaceManager {
         long lastFreePosition = cache.enlargeFileSpace(totalBlocks
             * fileBlockSize - currentSize);
 
-        defaultSpaceManager.initialiseFileBlock((totalBlocks - 1)
-                * fileBlockSize, lastFreePosition, cache.getFileFreePos());
+        defaultSpaceManager.initialiseFileBlock(null,
+                (totalBlocks - 1) * fileBlockSize, lastFreePosition,
+                cache.getFileFreePos());
 
         long directoryBlocksSize    = calculateDirectorySpace(totalBlocks);
         int  defaultSpaceBlockCount = (int) totalBlocks;
@@ -159,7 +160,7 @@ public class DataSpaceManagerBlocks implements DataSpaceManager {
         lastFreePosition = cache.enlargeFileSpace(directoryBlocksSize);
 
         // file block is empty
-        directorySpaceManager.initialiseFileBlock(lastFreePosition,
+        directorySpaceManager.initialiseFileBlock(null, lastFreePosition,
                 lastFreePosition, cache.getFileFreePos());
 
         IntArrayCachedObject root = new IntArrayCachedObject(blockSize);
@@ -574,14 +575,20 @@ public class DataSpaceManagerBlocks implements DataSpaceManager {
             spaceList.setKeysSearchTarget();
             spaceList.sort();
 
-            // real spaceId may be the tableIdDefault for moved spaces
+            // spaceId may be the tableIdDefault for moved spaces
+            int[] keys   = spaceList.getKeys();
+            int[] values = spaceList.getValues();
+
             for (int i = 0; i < spaceList.size(); i++) {
-                int position = spaceList.getKey(i);
-                int size     = spaceList.getValue(i);
+                int position = keys[i];
+                int size     = values[i];
                 int units    = size / dataFileScale;
 
                 freeTableSpacePart(position, units);
             }
+
+            spaceList.setValuesSearchTarget();
+            spaceList.sort();
 
             long position = offset / dataFileScale;
             int  units    = (int) ((limit - offset) / dataFileScale);
@@ -665,6 +672,18 @@ public class DataSpaceManagerBlocks implements DataSpaceManager {
         }
     }
 
+    public void initialiseSpaces() {
+
+        Iterator it = spaceManagerList.values().iterator();
+
+        while (it.hasNext()) {
+            TableSpaceManagerBlocks tableSpace =
+                (TableSpaceManagerBlocks) it.next();
+
+            initialiseTableSpace(tableSpace);
+        }
+    }
+
     private void initialiseTableSpace(TableSpaceManagerBlocks tableSpace) {
 
         int spaceId    = tableSpace.getSpaceID();
@@ -698,7 +717,8 @@ public class DataSpaceManagerBlocks implements DataSpaceManager {
         long blockPos  = (long) blockIndex * fileBlockSize;
 
         tableSpace.initialiseFileBlock(
-            blockPos, blockPos + (fileBlockSize - freeItems * dataFileScale),
+            null, blockPos,
+            blockPos + (fileBlockSize - freeItems * dataFileScale),
             blockPos + fileBlockSize);
 
         int freeUnitsInBlock = ba.getFreeSpaceValue();

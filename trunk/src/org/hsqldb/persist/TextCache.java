@@ -254,7 +254,7 @@ public class TextCache extends DataFileCache {
     /**
      *
      */
-    public void remove(CachedObject object, TableSpaceManager spaceManager) {
+    public void remove(CachedObject object) {
 
         writeLock.lock();
 

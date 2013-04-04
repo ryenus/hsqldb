@@ -96,15 +96,22 @@ public class TableSpaceManagerBlocks implements TableSpaceManager {
             release(freshBlockFreePos / scale, released);
         }
 
-        initialiseFileBlock(blockPos, blockFreePos, blockLimit);
+        initialiseFileBlock(null, blockPos, blockFreePos, blockLimit);
     }
 
-    public void initialiseFileBlock(long blockPos, long blockFreePos,
-                                    long blockLimit) {
+    public void initialiseFileBlock(DoubleIntIndex spaceList, long blockPos,
+                                    long blockFreePos, long blockLimit) {
 
         this.freshBlockPos     = blockPos;
         this.freshBlockFreePos = blockFreePos;
         this.freshBlockLimit   = blockLimit;
+        this.freeBlockSize     = 0;
+
+        if (spaceList != null) {
+            spaceList.copyTo(lookup);
+
+            freeBlockSize = spaceList.getTotalValues();
+        }
     }
 
     boolean getNewMainBlock(int rowSize) {
@@ -206,7 +213,15 @@ public class TableSpaceManagerBlocks implements TableSpaceManager {
                     DataSpaceManager.fixedBlockSizeUnit);
         }
 
-        int index = lookup.findFirstGreaterEqualKeyIndex(rowSize);
+        int index = -1;
+
+        if (lookup.size() > 0) {
+            if (lookup.getValue(0) >= rowSize) {
+                index = 0;
+            } else {
+                index = lookup.findFirstGreaterEqualKeyIndex(rowSize);
+            }
+        }
 
         if (index == -1) {
             return getNewBlock(rowSize, asBlocks);
@@ -250,14 +265,19 @@ public class TableSpaceManagerBlocks implements TableSpaceManager {
 
     public void reset() {
 
+        compactLookup();
         spaceManager.freeTableSpace(spaceID, lookup, freshBlockFreePos,
                                     freshBlockLimit);
         lookup.removeAll();
-        lookup.setValuesSearchTarget();
 
         freshBlockPos     = 0;
         freshBlockFreePos = 0;
         freshBlockLimit   = 0;
+        freeBlockSize     = 0;
+    }
+
+    public long getLostBlocksSize() {
+        return freeBlockSize;
     }
 
     public void setSpaceManager(DataSpaceManager spaceManager, int spaceID) {
@@ -267,9 +287,59 @@ public class TableSpaceManagerBlocks implements TableSpaceManager {
 
     private void resetList() {
 
+        if (compactLookup()) {
+            return;
+        }
+
+        // dummy args for file block release
         spaceManager.freeTableSpace(spaceID, lookup, freshBlockFreePos,
                                     freshBlockFreePos);
         lookup.removeAll();
+
+        freeBlockSize = 0;
+    }
+
+    private boolean compactLookup() {
+
+        lookup.setKeysSearchTarget();
+        lookup.sort();
+
+        int[] keys   = lookup.getKeys();
+        int[] values = lookup.getValues();
+        int   base   = 0;
+
+        for (int i = 1; i < lookup.size(); i++) {
+            int key   = keys[base];
+            int value = values[base];
+
+            if (key + value / scale == keys[i]) {
+                values[base] += values[i];    // base updated
+            } else {
+                base++;
+
+                if (base != i) {
+                    keys[base]   = keys[i];
+                    values[base] = values[i];
+                }
+            }
+        }
+
+        for (int i = base + 1; i < lookup.size(); i++) {
+            keys[i]   = 0;
+            values[i] = 0;
+        }
+
+        if (lookup.size() != base + 1) {
+            lookup.setSize(base + 1);
+            lookup.setValuesSearchTarget();
+            lookup.sort();
+
+            return true;
+        }
+
         lookup.setValuesSearchTarget();
+        lookup.sort();
+
+        return false;
     }
 }

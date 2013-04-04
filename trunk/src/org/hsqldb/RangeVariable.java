@@ -285,6 +285,14 @@ public class RangeVariable implements Cloneable {
             return false;
         }
 
+        if (colMap.length == indexColMap.length) {
+            if (ArrayUtil.haveEqualSets(colMap, indexColMap, colMap.length)) {
+                indexDistinctCount = colMap.length;
+
+                return true;
+            }
+        }
+
         if (ArrayUtil.haveEqualArrays(colMap, indexColMap, colMap.length)) {
             indexDistinctCount = colMap.length;
 

@@ -43,7 +43,7 @@ import org.hsqldb.types.Type;
  * Implementation of ORDER BY and LIMIT properties of query expressions.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.2.9
+ * @version 2.3.0
  * @since 1.9.0
  */
 public final class SortAndSlice {
@@ -192,6 +192,10 @@ public final class SortAndSlice {
 
     void setSortIndex(QuerySpecification select) {
 
+        if (this == noSort) {
+            return;
+        }
+
         if (isGenerated) {
             return;
         }
@@ -205,9 +209,15 @@ public final class SortAndSlice {
             }
         }
 
+        if (select == null) {
+            return;
+        }
+
         if (select.isDistinctSelect || select.isGrouped
                 || select.isAggregated) {
-            return;
+            if (!select.isSimpleDistinct) {
+                return;
+            }
         }
 
         if (columnCount == 0) {
@@ -217,10 +227,6 @@ public final class SortAndSlice {
 
             skipFullResult = true;
 
-            return;
-        }
-
-        if (select == null) {
             return;
         }
 
@@ -270,8 +276,18 @@ public final class SortAndSlice {
 
     void setSortRange(QuerySpecification select) {
 
-        if (primaryTableIndex == null) {
+        if (this == noSort) {
             return;
+        }
+
+        if (primaryTableIndex == null) {
+            if (select.isSimpleDistinct) {
+                setSortIndex(select);
+            }
+
+            if (primaryTableIndex == null) {
+                return;
+            }
         }
 
         Index rangeIndex = select.rangeVariables[0].getSortIndex();
@@ -373,6 +389,10 @@ public final class SortAndSlice {
 
     int[] getLimits(Session session, QueryExpression qe, int maxRows) {
 
+        if (this == noSort && maxRows == 0) {
+            return defaultLimits;
+        }
+
         int     skipRows   = 0;
         int     limitRows  = Integer.MAX_VALUE;
         int     limitFetch = Integer.MAX_VALUE;
@@ -418,9 +438,13 @@ public final class SortAndSlice {
         boolean simpleLimit = false;
 
         if (qe instanceof QuerySpecification) {
-            QuerySpecification qs = (QuerySpecification) qe;
+            QuerySpecification select = (QuerySpecification) qe;
 
-            if (!qs.isDistinctSelect && !qs.isGrouped) {
+            if (!select.isDistinctSelect && !select.isGrouped) {
+                simpleLimit = true;
+            }
+
+            if (select.isSimpleDistinct) {
                 simpleLimit = true;
             }
         }

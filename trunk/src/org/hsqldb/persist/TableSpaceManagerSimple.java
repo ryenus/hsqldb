@@ -33,6 +33,7 @@ package org.hsqldb.persist;
 
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
+import org.hsqldb.lib.DoubleIntIndex;
 
 /**
  * @author Fred Toussi (fredt@users dot sourceforge.net)
@@ -91,10 +92,14 @@ public class TableSpaceManagerSimple implements TableSpaceManager {
     public void addFileBlock(long blockPos, long blockFreePos,
                              long blockLimit) {}
 
-    public void initialiseFileBlock(long blockPos, long blockFreePos,
-                                    long blockLimit) {}
+    public void initialiseFileBlock(DoubleIntIndex lookup, long blockPos,
+                                    long blockFreePos, long blockLimit) {}
 
     public void reset() {}
+
+    public long getLostBlocksSize() {
+        return 0;
+    }
 
     public void setSpaceManager(DataSpaceManager spaceManager, int spaceID) {}
 }

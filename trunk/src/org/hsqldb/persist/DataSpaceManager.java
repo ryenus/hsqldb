@@ -67,5 +67,7 @@ public interface DataSpaceManager {
 
     int getFileBlockSize();
 
+    void initialiseSpaces();
+
     void reset();
 }
