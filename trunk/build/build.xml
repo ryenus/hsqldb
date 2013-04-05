@@ -261,7 +261,7 @@ examples:
        </java>
     </target>
 
-    <target name="store" description="compiles the /store folder"
+    <target name="map" description="compiles the /map folder"
             depends="switchtojdk14,
                      switchtojdk15,switchtojdk16,
                      switchtojdk17">
@@ -270,11 +270,11 @@ examples:
                  debug="${build.debug}"
                  optimize="${build.optimize}"
       >
-         <include name="org/hsqldb/store/**"/>
+         <include name="org/hsqldb/map/**"/>
       </javac>
     </target>
 
-    <target name="lib" depends="store"
+    <target name="lib" depends="map"
             description="compiles the JVM-independent lib classes">
       <javac srcdir="${swsrc}"
              destdir="classes"
@@ -315,7 +315,7 @@ examples:
          <include name="org/hsqldb/rowio/*.java"/>
          <include name="org/hsqldb/scriptio/*.java"/>
          <include name="org/hsqldb/server/*.java"/>
-         <include name="org/hsqldb/store/*.java"/>
+         <include name="org/hsqldb/map/*.java"/>
          <include name="org/hsqldb/types/*.java"/>
          <include name="org/hsqldb/rights/*.java"/>
          <exclude name="org/hsqldb/server/HsqlSocketFactorySecure.java" unless="ant.java.hasjsse"/>
@@ -715,9 +715,10 @@ examples:
                   org/hsqldb/rowio/RowInputInterface*,
                   org/hsqldb/persist/HsqlDatabaseProperties*,
                   org/hsqldb/persist/HsqlProperties*,
-                  org/hsqldb/store/ValuePool*,
-                  org/hsqldb/store/HashIndex*,
-                  org/hsqldb/store/BaseHashMap*,
+                  org/hsqldb/map/ValuePool*,
+                  org/hsqldb/map/HashIndex*,
+                  org/hsqldb/map/BaseHashMap*,
+                  org/hsqldb/map/BitMap*,
                   org/hsqldb/types/*,
                   org/hsqldb/Column*,
                   org/hsqldb/DatabaseURL*,

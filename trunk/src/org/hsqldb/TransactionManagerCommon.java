@@ -528,16 +528,18 @@ class TransactionManagerCommon {
         for (int i = 0; i < waitingCount; i++) {
             Session current = (Session) session.waitingSessions.get(i);
 
+/*
             if (!current.abortTransaction && current.tempSet.isEmpty()) {
 
-                // valid for top level statements
-//                boolean hasLocks = hasLocks(current, current.sessionContext.currentStatement);
-//                if (!hasLocks) {
-//                    System.out.println("trouble");
-//                    hasLocks(current, current.sessionContext.currentStatement);
-//                }
-            }
 
+                // test code valid only for top level statements
+                boolean hasLocks = hasLocks(current, current.sessionContext.currentStatement);
+                if (!hasLocks) {
+                    System.out.println("trouble");
+                }
+
+            }
+*/
             setWaitingSessionTPL(current);
         }
 
