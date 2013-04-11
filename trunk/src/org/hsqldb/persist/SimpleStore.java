@@ -90,7 +90,12 @@ public abstract class SimpleStore implements PersistentStore {
         }
     }
 
-    public boolean canRead(Session session, long pos) {
+    public boolean canRead(Session session, long pos, int mode, int[] colMap) {
+        return true;
+    }
+
+    public boolean canRead(Session session, CachedObject object, int mode,
+                           int[] colMap) {
         return true;
     }
 

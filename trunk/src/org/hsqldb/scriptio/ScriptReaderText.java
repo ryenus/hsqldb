@@ -57,7 +57,7 @@ import org.hsqldb.types.Type;
  * corresponds to ScriptWriterText.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- *  @version 2.1.1
+ *  @version 2.3.0
  *  @since 1.7.2
  */
 public class ScriptReaderText extends ScriptReaderBase {
@@ -145,12 +145,15 @@ public class ScriptReaderText extends ScriptReaderBase {
                     continue;
                 }
 
-                throw Error.error(result.getException(),
-                                  ErrorCode.ERROR_IN_SCRIPT_FILE,
-                                  ErrorCode.M_DatabaseScriptReader_read,
-                                  new Object[] {
+                HsqlException e =
+                    Error.error(result.getException(),
+                                ErrorCode.ERROR_IN_SCRIPT_FILE,
+                                ErrorCode.M_DatabaseScriptReader_read,
+                                new Object[] {
                     new Integer(lineCount), result.getMainString()
                 });
+
+                handleException(e);
             }
         }
     }
@@ -183,8 +186,12 @@ public class ScriptReaderText extends ScriptReaderBase {
                                 currentTable);
                     }
 
-                    currentTable.insertFromScript(session, currentStore,
-                                                  rowData);
+                    try {
+                        currentTable.insertFromScript(session, currentStore,
+                                                      rowData);
+                    } catch (HsqlException ex) {
+                        handleException(ex);
+                    }
                 } else {
                     throw Error.error(ErrorCode.ERROR_IN_SCRIPT_FILE,
                                       statement);
@@ -297,6 +304,29 @@ public class ScriptReaderText extends ScriptReaderBase {
 
         try {
             dataStreamIn.close();
+
+            if (scrwriter != null) {
+                scrwriter.close();
+            }
+
+            database.recoveryMode = 0;
         } catch (Exception e) {}
+    }
+
+    private void handleException(HsqlException e) {
+
+        if (database.recoveryMode == 0) {
+            throw e;
+        }
+
+        if (scrwriter == null) {
+            String name = database.getPath() + ".reject";
+
+            scrwriter = new ScriptWriterText(database, name, true, true, true);
+        }
+
+        try {
+            scrwriter.writeLogStatement(null, rawStatement);
+        } catch (Throwable t) {}
     }
 }

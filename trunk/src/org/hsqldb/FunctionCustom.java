@@ -68,6 +68,8 @@ import org.hsqldb.types.TimestampData;
 import org.hsqldb.types.Type;
 import org.hsqldb.types.Types;
 
+import java.util.Calendar;
+
 /**
  * Implementation of HSQLDB functions that are not defined by the
  * SQL standard.<p>
@@ -187,24 +189,25 @@ public class FunctionCustom extends FunctionSQL {
     private static final int FUNC_SYSTIMESTAMP             = 153;
     private static final int FUNC_TAN                      = 154;
     private static final int FUNC_TIMESTAMP                = 155;
-    private static final int FUNC_TIMESTAMPADD             = 156;
-    private static final int FUNC_TIMESTAMPDIFF            = 157;
-    private static final int FUNC_TIMEZONE                 = 158;
-    private static final int FUNC_TO_CHAR                  = 159;
-    private static final int FUNC_TO_DATE                  = 160;
-    private static final int FUNC_TO_DSINTERVAL            = 161;
-    private static final int FUNC_TO_YMINTERVAL            = 162;
-    private static final int FUNC_TO_NUMBER                = 163;
-    private static final int FUNC_TO_TIMESTAMP             = 164;
-    private static final int FUNC_TO_TIMESTAMP_TZ          = 165;
-    private static final int FUNC_TRANSACTION_CONTROL      = 166;
-    private static final int FUNC_TRANSACTION_ID           = 167;
-    private static final int FUNC_TRANSACTION_SIZE         = 168;
-    private static final int FUNC_TRUNC                    = 169;
-    private static final int FUNC_TRUNCATE                 = 170;
-    private static final int FUNC_UUID                     = 171;
-    private static final int FUNC_UNIX_TIMESTAMP           = 172;
-    private static final int FUNC_UNIX_MILLIS              = 173;
+    private static final int FUNC_TIMESTAMP_WITH_ZONE      = 156;
+    private static final int FUNC_TIMESTAMPADD             = 157;
+    private static final int FUNC_TIMESTAMPDIFF            = 158;
+    private static final int FUNC_TIMEZONE                 = 159;
+    private static final int FUNC_TO_CHAR                  = 160;
+    private static final int FUNC_TO_DATE                  = 161;
+    private static final int FUNC_TO_DSINTERVAL            = 162;
+    private static final int FUNC_TO_YMINTERVAL            = 163;
+    private static final int FUNC_TO_NUMBER                = 164;
+    private static final int FUNC_TO_TIMESTAMP             = 165;
+    private static final int FUNC_TO_TIMESTAMP_TZ          = 166;
+    private static final int FUNC_TRANSACTION_CONTROL      = 167;
+    private static final int FUNC_TRANSACTION_ID           = 168;
+    private static final int FUNC_TRANSACTION_SIZE         = 169;
+    private static final int FUNC_TRUNC                    = 170;
+    private static final int FUNC_TRUNCATE                 = 171;
+    private static final int FUNC_UUID                     = 172;
+    private static final int FUNC_UNIX_TIMESTAMP           = 173;
+    private static final int FUNC_UNIX_MILLIS              = 174;
 
     //
     static final IntKeyIntValueHashMap customRegularFuncMap =
@@ -353,6 +356,7 @@ public class FunctionCustom extends FunctionSQL {
         customRegularFuncMap.put(Tokens.SYSTIMESTAMP, FUNC_SYSTIMESTAMP);
         customRegularFuncMap.put(Tokens.TAN, FUNC_TAN);
         customRegularFuncMap.put(Tokens.TIMESTAMP, FUNC_TIMESTAMP);
+        customRegularFuncMap.put(Tokens.TIMESTAMP_WITH_ZONE, FUNC_TIMESTAMP_WITH_ZONE);
         customRegularFuncMap.put(Tokens.TIMESTAMPADD, FUNC_TIMESTAMPADD);
         customRegularFuncMap.put(Tokens.TIMESTAMPDIFF, FUNC_TIMESTAMPDIFF);
         customRegularFuncMap.put(Tokens.TIMEZONE, FUNC_TIMEZONE);
@@ -554,6 +558,7 @@ public class FunctionCustom extends FunctionSQL {
             case FUNC_SPACE :
             case FUNC_SYS_EXTRACT_UTC :
             case FUNC_TAN :
+            case FUNC_TIMESTAMP_WITH_ZONE :
             case FUNC_TO_DSINTERVAL :
             case FUNC_TO_YMINTERVAL :
             case FUNC_TO_NUMBER :
@@ -584,9 +589,14 @@ public class FunctionCustom extends FunctionSQL {
                 parseList = doubleParamList;
                 break;
 
+            case FUNC_LOAD_FILE :
+            case FUNC_ROUND :
+            case FUNC_TIMESTAMP :
             case FUNC_TO_DATE :
             case FUNC_TO_TIMESTAMP :
             case FUNC_TO_TIMESTAMP_TZ :
+            case FUNC_TRUNC :
+            case FUNC_TRUNCATE :
                 parseList = optionalDoubleParamList;
                 break;
 
@@ -695,14 +705,6 @@ public class FunctionCustom extends FunctionSQL {
                     Tokens.QUESTION, Tokens.COMMA, Tokens.QUESTION,
                     Tokens.CLOSEBRACKET
                 };
-                break;
-
-            case FUNC_LOAD_FILE :
-            case FUNC_ROUND :
-            case FUNC_TIMESTAMP :
-            case FUNC_TRUNC :
-            case FUNC_TRUNCATE :
-                parseList = optionalDoubleParamList;
                 break;
 
             case FUNC_RAND :
@@ -1278,6 +1280,37 @@ public class FunctionCustom extends FunctionSQL {
                 return new TimestampData(date.getSeconds()
                                          + time.getSeconds(), time.getNanos());
             }
+            case FUNC_TIMESTAMP_WITH_ZONE : {
+                long seconds;
+                int  nanos = 0;
+                int  zone;
+
+                if (data[0] == null) {
+                    return null;
+                }
+
+                if (nodes[0].dataType.isNumberType()) {
+                    seconds = ((Number) data[0]).longValue();
+                } else if (nodes[0].dataType.typeCode == Types.SQL_TIMESTAMP) {
+                    seconds = ((TimestampData) data[0]).getSeconds();
+                } else if (nodes[0].dataType.typeCode
+                           == Types.SQL_TIMESTAMP_WITH_TIME_ZONE) {
+                    seconds = ((TimestampData) data[0]).getSeconds();
+                } else {
+                    throw Error.error(ErrorCode.X_42566, (String) data[1]);
+                }
+
+                Calendar calendar = session.getCalendar();
+
+                synchronized (calendar) {
+                    seconds =
+                        HsqlDateTime.convertMillisToCalendar(
+                            calendar, seconds * 1000) / 1000;
+                    zone = HsqlDateTime.getZoneSeconds(calendar);
+                }
+
+                return new TimestampData(seconds, nanos, zone);
+            }
             case FUNC_PI :
                 return new Double(Math.PI);
 
@@ -1846,7 +1879,8 @@ public class FunctionCustom extends FunctionSQL {
                 String value;
 
                 if (nodes[0].dataType.typeCode == Types.SQL_CLOB) {
-                    value = (String) Type.SQL_VARCHAR.convertToType(session, data[0], nodes[0].dataType);
+                    value = (String) Type.SQL_VARCHAR.convertToType(session,
+                            data[0], nodes[0].dataType);
                 } else if (nodes[0].dataType.isCharacterType()) {
                     value = (String) data[0];
                 } else {
@@ -2617,6 +2651,25 @@ public class FunctionCustom extends FunctionSQL {
                 }
 
                 dataType = Type.SQL_TIMESTAMP;
+
+                return;
+            }
+            case FUNC_TIMESTAMP_WITH_ZONE : {
+                Type argType = nodes[0].dataType;
+
+                if (argType == null) {
+                    argType = nodes[0].dataType = Type.SQL_BIGINT;
+                }
+
+                if (argType.typeCode == Types.SQL_TIMESTAMP
+                        || argType.typeCode
+                           == Types.SQL_TIMESTAMP_WITH_TIME_ZONE) {}
+                else if (argType.isNumberType()) {}
+                else {
+                    throw Error.error(ErrorCode.X_42561);
+                }
+
+                dataType = Type.SQL_TIMESTAMP_WITH_TIME_ZONE;
 
                 return;
             }
@@ -3467,8 +3520,12 @@ public class FunctionCustom extends FunctionSQL {
                 return sb.toString();
             }
             case FUNC_LOAD_FILE :
-            case FUNC_TO_NUMBER :
             case FUNC_ROUND :
+            case FUNC_TIMESTAMP :
+            case FUNC_TO_DATE :
+            case FUNC_TO_NUMBER :
+            case FUNC_TO_TIMESTAMP :
+            case FUNC_TO_TIMESTAMP_TZ :
             case FUNC_TRUNC :
             case FUNC_TRUNCATE : {
                 StringBuffer sb = new StringBuffer(name).append('(');
@@ -3518,10 +3575,7 @@ public class FunctionCustom extends FunctionSQL {
             case FUNC_LEFT :
             case FUNC_RIGHT :
             case FUNC_CRYPT_KEY :
-            case FUNC_TIMESTAMP :
             case FUNC_TO_CHAR :
-            case FUNC_TO_DATE :
-            case FUNC_TO_TIMESTAMP :
             case FUNC_REGEXP_MATCHES :
             case FUNC_REGEXP_SUBSTRING :
             case FUNC_REGEXP_SUBSTRING_ARRAY : {
@@ -3559,7 +3613,6 @@ public class FunctionCustom extends FunctionSQL {
             case FUNC_MONTHS_BETWEEN :
             case FUNC_NUMTODSINTERVAL :
             case FUNC_NUMTOYMINTERVAL :
-            case FUNC_TO_TIMESTAMP_TZ :
             case FUNC_NEW_TIME :
                 return getSQLSimple();
 

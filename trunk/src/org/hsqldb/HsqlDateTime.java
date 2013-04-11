@@ -197,10 +197,9 @@ public class HsqlDateTime {
     public static long convertMillisToCalendar(Calendar calendar,
             long millis) {
 
-        calendar.clear();
-
         synchronized (tempCalGMT) {
             synchronized (calendar) {
+                calendar.clear();
                 tempCalGMT.setTimeInMillis(millis);
                 calendar.set(tempCalGMT.get(Calendar.YEAR),
                              tempCalGMT.get(Calendar.MONTH),
@@ -484,13 +483,11 @@ public class HsqlDateTime {
                     tempCalGMT.clear();
                     tempCalGMT.set(Calendar.YEAR, year);
 
-                    if( day > 3) {
+                    if (day > 3) {
                         week++;
                     }
 
                     if (week == 1 && (dayYear > 356 || dayYear < 7)) {
-
-
                         tempCalGMT.set(Calendar.DAY_OF_YEAR, dayYear);
 
                         while (true) {
@@ -503,6 +500,7 @@ public class HsqlDateTime {
                     }
 
                     tempCalGMT.set(Calendar.WEEK_OF_YEAR, week);
+
                     return tempCalGMT.getTimeInMillis();
                 }
             }

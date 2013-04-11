@@ -1219,6 +1219,7 @@ public class StatementSchema extends Statement {
 
                     trigger.table.addTrigger(trigger, otherName);
                     schemaManager.addSchemaObject(trigger);
+                    trigger.start();
 
                     break;
                 } catch (HsqlException e) {

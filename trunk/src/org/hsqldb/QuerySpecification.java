@@ -996,15 +996,47 @@ public class QuerySpecification extends QueryExpression {
             return;
         }
 
-        RangeVariable range  = null;
-        int[]         colMap = new int[indexLimitVisible];
+        for (int i = 0; i < rangeVariables.length; i++) {
+            if (rangeVariables[i].isLateral || rangeVariables[i].isLeftJoin
+                    || rangeVariables[i].isRightJoin) {
+                return;
+            }
+        }
+
+        RangeVariable range = null;
+        int[]         colMap;
+
+        if (isGrouped) {
+            colMap = new int[groupByColumnCount];
+
+            for (int i = 0; i < groupByColumnCount; i++) {
+                if (exprColumns[indexLimitRowId + i].getType()
+                        != OpTypes.COLUMN) {
+                    return;
+                }
+
+                if (range == null) {
+                    range =
+                        exprColumns[indexLimitRowId + i].getRangeVariable();
+                } else {
+                    if (range != exprColumns[indexLimitRowId + i]
+                            .getRangeVariable()) {
+                        return;
+                    }
+                }
+
+                colMap[i] = exprColumns[i].columnIndex;
+            }
+        } else {
+            colMap = new int[indexLimitVisible];
+        }
 
         for (int i = 0; i < indexLimitVisible; i++) {
             if (exprColumns[i].getType() != OpTypes.COLUMN) {
                 return;
             }
 
-            if (i == 0) {
+            if (range == null) {
                 range = exprColumns[i].getRangeVariable();
             } else {
                 if (range != exprColumns[i].getRangeVariable()) {
@@ -1012,7 +1044,9 @@ public class QuerySpecification extends QueryExpression {
                 }
             }
 
-            colMap[i] = exprColumns[i].columnIndex;
+            if (!isGrouped) {
+                colMap[i] = exprColumns[i].columnIndex;
+            }
         }
 
         if (!range.hasAnyIndexCondition()) {
@@ -1365,7 +1399,7 @@ public class QuerySpecification extends QueryExpression {
         Result              r         = buildResult(session, limits);
         RowSetNavigatorData navigator = (RowSetNavigatorData) r.getNavigator();
 
-        if (isDistinctSelect && !isSimpleDistinct) {
+        if (isDistinctSelect) {
             navigator.removeDuplicates(session);
         }
 

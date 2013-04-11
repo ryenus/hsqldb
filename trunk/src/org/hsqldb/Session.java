@@ -1703,25 +1703,6 @@ public class Session implements SessionInterface {
         }
     }
 
-    public int getZoneSeconds() {
-        return timeZoneSeconds;
-    }
-
-    public void setZoneSeconds(int seconds) {
-
-        if (seconds == sessionTimeZoneSeconds) {
-            calendar        = null;
-            timeZoneSeconds = sessionTimeZoneSeconds;
-        } else {
-            TimeZone zone = TimeZone.getDefault();
-
-            zone.setRawOffset(seconds * 1000);
-
-            calendar        = new GregorianCalendar(zone);
-            timeZoneSeconds = seconds;
-        }
-    }
-
     private Result getAttributesResult(int id) {
 
         Result   r    = Result.newSessionAttributesResult();
@@ -2065,8 +2046,17 @@ public class Session implements SessionInterface {
     }
 
     // session zone
-    Calendar calendar;
-    Calendar calendarGMT;
+    private Calendar calendar;
+    private Calendar calendarGMT;
+
+    public int getZoneSeconds() {
+        return timeZoneSeconds;
+    }
+
+    public void setZoneSeconds(int seconds) {
+
+        timeZoneSeconds = seconds;
+    }
 
     public Calendar getCalendar() {
 
