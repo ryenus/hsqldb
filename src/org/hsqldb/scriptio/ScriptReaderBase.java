@@ -70,17 +70,18 @@ public abstract class ScriptReaderBase {
 
     public abstract boolean readLoggedStatement(Session session);
 
-    int             statementType;
-    int             sessionNumber;
-    boolean         sessionChanged;
-    Object[]        rowData;
-    long            sequenceValue;
-    String          rawStatement;
-    String          statement;
-    Table           currentTable;
-    PersistentStore currentStore;
-    NumberSequence  currentSequence;
-    String          currentSchema;
+    int              statementType;
+    int              sessionNumber;
+    boolean          sessionChanged;
+    Object[]         rowData;
+    long             sequenceValue;
+    String           rawStatement;
+    String           statement;
+    Table            currentTable;
+    PersistentStore  currentStore;
+    NumberSequence   currentSequence;
+    String           currentSchema;
+    ScriptWriterText scrwriter;
 
     public int getStatementType() {
         return statementType;

@@ -71,8 +71,14 @@ public class Row implements CachedObject {
 
     boolean isDeleted(Session session, PersistentStore store) {
 
-        Row       row    = (Row) store.get(this, false);
-        RowAction action = row.rowAction;
+        RowAction action;
+        Row       row = (Row) store.get(this, false);
+
+        if (row == null) {
+            return true;
+        }
+
+        action = row.rowAction;
 
         if (action == null) {
             return false;

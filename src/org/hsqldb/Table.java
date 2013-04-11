@@ -1989,6 +1989,16 @@ public class Table extends TableBase implements SchemaObject {
         triggerList = TriggerDef.emptyArray;
     }
 
+    void terminateTriggers() {
+
+        // look in each trigger list of each type of trigger
+        for (int i = 0; i < TriggerDef.NUM_TRIGS; i++) {
+            for (int j = 0; j < triggerLists[i].length; j++) {
+                triggerLists[i][j].terminate();
+            }
+        }
+    }
+
     /**
      * Returns the index of the Index object of the given name or -1 if not found.
      */
@@ -2422,7 +2432,7 @@ public class Table extends TableBase implements SchemaObject {
 
         for (int i = 0; i < indexList.length; i++) {
             if (ArrayUtil.haveEqualSets(indexList[i].getColumns(), cols,
-                                          cols.length)) {
+                                        cols.length)) {
                 return indexList[i];
             }
         }

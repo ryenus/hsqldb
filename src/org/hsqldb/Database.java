@@ -118,6 +118,7 @@ public class Database {
     public boolean                sqlSyntaxMys           = false;
     public boolean                sqlSyntaxOra           = false;
     public boolean                sqlSyntaxPgs           = false;
+    public int                    recoveryMode           = 0;
     private boolean               isReferentialIntegrity = true;
     public HsqlDatabaseProperties databaseProperties;
     private final boolean         shutdownOnNoConnection;
@@ -186,6 +187,8 @@ public class Database {
         logger = new Logger(this);
         shutdownOnNoConnection =
             urlProperties.isPropertyTrue(HsqlDatabaseProperties.url_shutdown);
+        recoveryMode = urlProperties.getIntegerProperty(
+            HsqlDatabaseProperties.url_recover, 0);
         lobManager = new LobManager(this);
     }
 
@@ -911,7 +914,6 @@ public class Database {
                     }
 
                     boolean result = session.timeoutManager.checkTimeout();
-
 /*
                     if (result) {
                         synchronized (this) {

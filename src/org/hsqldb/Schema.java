@@ -358,6 +358,12 @@ public final class Schema implements SchemaObject {
 
     void release() {
 
+        for (int i = 0; i < tableList.size(); i++) {
+            Table table = (Table) tableList.get(i);
+
+            table.terminateTriggers();
+        }
+
         tableList.clear();
         sequenceList.clear();
 
