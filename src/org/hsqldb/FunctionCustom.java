@@ -1303,9 +1303,7 @@ public class FunctionCustom extends FunctionSQL {
                 Calendar calendar = session.getCalendar();
 
                 synchronized (calendar) {
-                    seconds =
-                        HsqlDateTime.convertMillisToCalendar(
-                            calendar, seconds * 1000) / 1000;
+                    calendar.setTimeInMillis(seconds * 1000);
                     zone = HsqlDateTime.getZoneSeconds(calendar);
                 }
 

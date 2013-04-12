@@ -755,6 +755,25 @@ public class ArrayUtil {
         }
     }
 
+    /**
+     * Returns true if all indexes and no other positions are true in
+     * arrb.
+     * arra must have no duplicates.
+     */
+    public static boolean areAllIntIndexesAsBooleanArray(int[] arra,
+            boolean[] arrb) {
+
+        for (int i = 0; i < arra.length; i++) {
+            if (arrb[arra[i]]) {
+                continue;
+            }
+
+            return false;
+        }
+
+        return arra.length == countTrueElements(arrb);
+    }
+
     public static boolean areAllIntIndexesInBooleanArray(int[] arra,
             boolean[] arrb) {
 

@@ -1836,10 +1836,10 @@ public class ParserDDL extends ParserRoutine {
         readIfThis(Tokens.AS);
         readThis(Tokens.GET);
 
-        String schema = session.getSchemaName(token.namePrefix);
+        String schema = token.namePrefix;
         Charset source =
-            (Charset) database.schemaManager.getSchemaObject(token.tokenString,
-                schema, SchemaObject.CHARSET);
+            (Charset) database.schemaManager.getCharacterSet(session, token.tokenString,
+                schema);
 
         read();
 
