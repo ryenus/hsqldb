@@ -1049,6 +1049,12 @@ public class QuerySpecification extends QueryExpression {
             }
         }
 
+        boolean check = ArrayUtil.areAllIntIndexesAsBooleanArray(colMap,range.usedColumns);
+
+        if (!check) {
+            return;
+        }
+
         if (!range.hasAnyIndexCondition()) {
             Index index = range.rangeTable.getIndexForColumns(colMap);
 

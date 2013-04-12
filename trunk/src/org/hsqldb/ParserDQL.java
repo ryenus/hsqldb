@@ -586,10 +586,9 @@ public class ParserDQL extends ParserBase {
                 readThis(Tokens.SET);
                 checkIsSchemaObjectName();
 
-                String schemaName = session.getSchemaName(token.namePrefix);
-
-                charset = (Charset) database.schemaManager.getSchemaObject(
-                    token.tokenString, schemaName, SchemaObject.CHARSET);
+                charset =
+                    (Charset) database.schemaManager.getCharacterSet(session,
+                        token.tokenString, token.namePrefix);
 
                 read();
             }
