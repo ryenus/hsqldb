@@ -1,4 +1,4 @@
-12 April - svn 5226 snapshot
+12 April - svn 5228 snapshot
 -- added TIMESTAMP_WITH_ZONE function
 -- fixed issue with AT <time zone> use with TIMESTAMP WITHOUT TIME ZONE
 -- fixed issue with TRIGGER with non-zero QUEUE setting
