@@ -1,14 +1,18 @@
+12 April - svn 5226 snapshot
+-- added TIMESTAMP_WITH_ZONE function
+-- fixed issue with AT <time zone> use with TIMESTAMP WITHOUT TIME ZONE
+-- fixed issue with TRIGGER with non-zero QUEUE setting
 4 April - svn 5222
 -- improved data space reuse
 -- improved optimisation of SELECT DISTINCT and GROUP BY
 -- improved MYS syntax compatibility mode to support backtick quoted identifiers
 25 March 2013 - svn 5214
--- added support for statement timeout
+-- added support for statement timeout via java.sql.Statement and PreparedStatement
 18 March 2013 - svn 5208
 -- improved support for setting collation strength and case-sensitivity
 10 March 2013 - svn 5203
 -- increased default max size of BLOB and CLOB to BLOB(1G) and CLOB(1G)
--- added support for compressed CLOB and and encrypted lobs
+-- added support for compressed and encrypted lobs
 -- improved DatabaseMetaData reporting of actual settings for null ordering
 -- improved DB2 and ORA syntax compatibility modes
 06 February 2013 - svn 5168 snapshot
