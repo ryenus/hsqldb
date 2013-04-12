@@ -767,7 +767,7 @@ public class LobManager {
         writeLock.lock();
 
         try {
-            if (cryptLobs) {
+            if (compressLobs || cryptLobs) {
                 return compareBytesCompressed(a.getId(), b.getId());
             } else {
                 return compareBytesNormal(a.getId(), b.getId());
@@ -1237,7 +1237,7 @@ public class LobManager {
         writeLock.lock();
 
         try {
-            if (cryptLobs) {
+            if (compressLobs || cryptLobs) {
                 return getBytesCompressed(lobID, offset, length, false);
             } else {
                 return getBytesNormal(lobID, offset, length);
@@ -1352,7 +1352,7 @@ public class LobManager {
         writeLock.lock();
 
         try {
-            if ((compressLobs && isClob) || cryptLobs) {
+            if (compressLobs || cryptLobs) {
                 return setBytesBACompressed(lobID, offset, dataBytes,
                                             dataLength, isClob);
             } else {
@@ -1455,7 +1455,7 @@ public class LobManager {
             return ResultLob.newLobSetResponse(lobID, 0);
         }
 
-        if ((compressLobs && isClob) || cryptLobs) {
+        if (compressLobs || cryptLobs) {
             return setBytesISCompressed(lobID, inputStream, length, isClob);
         } else {
             return setBytesISNormal(lobID, inputStream, length);
@@ -1977,18 +1977,16 @@ public class LobManager {
                     0);
         }
 
-        if (isClob) {
-            try {
-                inflater.setInput(data, 0, length);
+        try {
+            inflater.setInput(data, 0, length);
 
-                length = inflater.inflate(dataBuffer);
+            length = inflater.inflate(dataBuffer);
 
-                inflater.reset();
-            } catch (DataFormatException e) {}
-            catch (Throwable e) {}
-        } else {
-            System.arraycopy(data, 0, dataBuffer, 0, length);
-        }
+            inflater.reset();
+        } catch (DataFormatException e) {
+
+            //
+        } catch (Throwable e) {}
 
         int limit = (int) ArrayUtil.getBinaryMultipleCeiling(length,
             lobBlockSize);
@@ -2000,16 +1998,12 @@ public class LobManager {
 
     int deflate(byte[] data, int offset, int length, boolean isClob) {
 
-        if (isClob) {
-            deflater.setInput(data, offset, length);
-            deflater.finish();
+        deflater.setInput(data, offset, length);
+        deflater.finish();
 
-            length = deflater.deflate(dataBuffer);
+        length = deflater.deflate(dataBuffer);
 
-            deflater.reset();
-        } else {
-            System.arraycopy(data, offset, dataBuffer, 0, length);
-        }
+        deflater.reset();
 
         if (cryptLobs) {
             length = database.logger.getCrypto().encode(dataBuffer, 0, length,
