@@ -1281,9 +1281,10 @@ public class FunctionCustom extends FunctionSQL {
                                          + time.getSeconds(), time.getNanos());
             }
             case FUNC_TIMESTAMP_WITH_ZONE : {
-                long seconds;
-                int  nanos = 0;
-                int  zone;
+                Calendar calendar = session.getCalendar();
+                long     seconds;
+                int      nanos = 0;
+                int      zone;
 
                 if (data[0] == null) {
                     return null;
@@ -1293,6 +1294,9 @@ public class FunctionCustom extends FunctionSQL {
                     seconds = ((Number) data[0]).longValue();
                 } else if (nodes[0].dataType.typeCode == Types.SQL_TIMESTAMP) {
                     seconds = ((TimestampData) data[0]).getSeconds();
+                    seconds =
+                        HsqlDateTime.convertMillisToCalendar(
+                            calendar, seconds * 1000) / 1000;
                 } else if (nodes[0].dataType.typeCode
                            == Types.SQL_TIMESTAMP_WITH_TIME_ZONE) {
                     seconds = ((TimestampData) data[0]).getSeconds();
@@ -1300,10 +1304,9 @@ public class FunctionCustom extends FunctionSQL {
                     throw Error.error(ErrorCode.X_42566, (String) data[1]);
                 }
 
-                Calendar calendar = session.getCalendar();
-
                 synchronized (calendar) {
                     calendar.setTimeInMillis(seconds * 1000);
+
                     zone = HsqlDateTime.getZoneSeconds(calendar);
                 }
 
