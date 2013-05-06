@@ -7100,7 +7100,7 @@ public class JDBCResultSet implements ResultSet {
     /** The first warning in the chain. Null if there are no warnings. */
     private SQLWarning rootWarning;
 
-    //-------------------------- Package Attributes ----------------------------
+    // -------------------------- Package Attributes ----------------------------
 
     /**
      * The Statement that generated this result. Null if the result is
@@ -7488,16 +7488,9 @@ public class JDBCResultSet implements ResultSet {
      */
     public JDBCResultSet(JDBCConnection conn, JDBCStatementBase s, Result r,
                          ResultMetaData metaData) {
-
-        this.session    = conn == null ? null
-                                       : conn.sessionProxy;
+        this(conn, r, metaData);
         this.statement  = s;
-        this.result     = r;
-        this.connection = conn;
-        rsProperties    = r.rsProperties;
-        navigator       = r.getNavigator();
-        resultMetaData  = metaData;
-        columnCount     = resultMetaData.getColumnCount();
+
         isScrollable    = ResultProperties.isScrollable(rsProperties);
 
         if (ResultProperties.isUpdatable(rsProperties)) {
@@ -7511,13 +7504,8 @@ public class JDBCResultSet implements ResultSet {
                     break;
                 }
             }
-            preparedStatement = new JDBCPreparedStatement(s.connection,
-                    result);
-        }
 
-        if (conn != null && conn.clientProperties != null) {
-            translateTTIType = conn.clientProperties.isPropertyTrue(
-                HsqlDatabaseProperties.jdbc_translate_tti_types);
+            preparedStatement = new JDBCPreparedStatement(s.connection, result);
         }
     }
 
@@ -7528,14 +7516,16 @@ public class JDBCResultSet implements ResultSet {
                                        : conn.sessionProxy;
         this.result     = r;
         this.connection = conn;
-        rsProperties    = 0;
+        rsProperties    = r.rsProperties;
         navigator       = r.getNavigator();
         resultMetaData  = metaData;
         columnCount     = resultMetaData.getColumnCount();
 
-        if (conn != null && conn.clientProperties != null) {
-            translateTTIType = conn.clientProperties.isPropertyTrue(
-                HsqlDatabaseProperties.jdbc_translate_tti_types);
+        if (conn != null) {
+            if (conn.clientProperties != null) {
+                translateTTIType = conn.clientProperties.isPropertyTrue(
+                    HsqlDatabaseProperties.jdbc_translate_tti_types);
+            }
         }
     }
 

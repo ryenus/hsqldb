@@ -750,14 +750,13 @@ public class IndexAVL implements Index {
                                     double[] changes) {
 
         for (int j = 0; j < colIndex.length; j++) {
-            boolean lastDiff = false;
             int i = colTypes[j].compare(session, a[colIndex[j]],
                                         b[colIndex[j]]);
 
-            if (lastDiff || i != 0) {
-                changes[j]++;
-
-                lastDiff = true;
+            if (i != 0) {
+                for (; j < colIndex.length; j++) {
+                    changes[j]++;
+                }
             }
         }
     }

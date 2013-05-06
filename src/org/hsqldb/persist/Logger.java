@@ -480,12 +480,12 @@ public class Logger {
         }
 
         if (database.urlProperties.isPropertyTrue(
-                HsqlDatabaseProperties.hsqldb_file_space, false)) {
+                HsqlDatabaseProperties.hsqldb_files_space, false)) {
             propFileSpaces = true;
         }
 
         propCheckPersistence = database.databaseProperties.getIntegerProperty(
-            HsqlDatabaseProperties.hsqldb_file_check);
+            HsqlDatabaseProperties.hsqldb_files_check);
 
         if (!database.urlProperties.isPropertyTrue(
                 HsqlDatabaseProperties.sql_pad_space, true)) {
@@ -1555,11 +1555,11 @@ public class Logger {
             return String.valueOf(propCacheDefragLimit);
         }
 
-        if (HsqlDatabaseProperties.hsqldb_file_check.equals(name)) {
+        if (HsqlDatabaseProperties.hsqldb_files_check.equals(name)) {
             return String.valueOf(propCheckPersistence);
         }
 
-        if (HsqlDatabaseProperties.hsqldb_file_space.equals(name)) {
+        if (HsqlDatabaseProperties.hsqldb_files_space.equals(name)) {
             return String.valueOf(propFileSpaces);
         }
 
@@ -2174,38 +2174,64 @@ public class Logger {
         char   lastChar     = destPath.charAt(destPath.length() - 1);
         boolean generateName = (lastChar == '/'
                                 || lastChar == runtimeFileDelim.charValue());
-        String defaultCompressionSuffix = compressed ? ".tar.gz"
-                                                     : ".tar";
-        File archiveFile =
-            generateName
-            ? (new File(destPath.substring(0, destPath.length() - 1),
-                        instanceName + '-'
-                        + backupFileFormat.format(new java.util.Date())
-                        + defaultCompressionSuffix))
-            : (new File(destPath));
-        boolean nameImpliesCompress =
-            archiveFile.getName().endsWith(".tar.gz")
-            || archiveFile.getName().endsWith(".tgz");
+        File archiveFile;
 
-        if ((!nameImpliesCompress)
-                && !archiveFile.getName().endsWith(".tar")) {
-            throw Error.error(null, ErrorCode.UNSUPPORTED_FILENAME_SUFFIX, 0,
-                              new String[] {
-                archiveFile.getName(), ".tar, .tar.gz, .tgz"
-            });
-        }
+        if (asFiles) {
+            if (!generateName) {
+                throw Error.error(ErrorCode.UNSUPPORTED_FILENAME_SUFFIX);
+            }
 
-        if (compressed != nameImpliesCompress) {
-            throw Error.error(null, ErrorCode.COMPRESSION_SUFFIX_MISMATCH, 0,
-                              new Object[] {
-                new Boolean(compressed), archiveFile.getName()
-            });
-        }
+            destPath    = getSecurePath(destPath, false);
+            archiveFile = new File(destPath);
 
-        if (archiveFile.exists()) {
-            throw Error.error(null, ErrorCode.BACKUP_ERROR, 0, new Object[] {
-                "file exists", archiveFile.getName()
-            });
+            archiveFile.mkdirs();
+
+            File[] files = FileUtil.getDatabaseMainFileList(destPath
+                + instanceName);
+
+            if (files == null || files.length != 0) {
+                throw Error.error(ErrorCode.BACKUP_ERROR,
+                                  "files exists in directory");
+            }
+        } else {
+            String defaultSuffix = compressed ? ".tar.gz"
+                                              : ".tar";
+
+            if (generateName) {
+                archiveFile =
+                    (new File(destPath.substring(0, destPath.length() - 1),
+                              instanceName + '-'
+                              + backupFileFormat.format(new java.util.Date())
+                              + defaultSuffix));
+            } else {
+                archiveFile = new File(destPath);
+            }
+
+            boolean nameImpliesCompress =
+                archiveFile.getName().endsWith(".tar.gz")
+                || archiveFile.getName().endsWith(".tgz");
+
+            if ((!nameImpliesCompress)
+                    && !archiveFile.getName().endsWith(".tar")) {
+                throw Error.error(null, ErrorCode.UNSUPPORTED_FILENAME_SUFFIX,
+                                  0, new String[] {
+                    archiveFile.getName(), ".tar, .tar.gz, .tgz"
+                });
+            }
+
+            if (compressed != nameImpliesCompress) {
+                throw Error.error(null, ErrorCode.COMPRESSION_SUFFIX_MISMATCH,
+                                  0, new Object[] {
+                    new Boolean(compressed), archiveFile.getName()
+                });
+            }
+
+            if (archiveFile.exists()) {
+                throw Error.error(null, ErrorCode.BACKUP_ERROR, 0,
+                                  new Object[] {
+                    "file exists", archiveFile.getName()
+                });
+            }
         }
 
         if (blocking) {
@@ -2275,13 +2301,22 @@ public class Logger {
 
                     long fileLength = file.length();
 
-                    isw = new InputStreamWrapper(new FileInputStream(file));
+                    if (fileLength == 0) {
+                        backup.setFileIgnore(logFileExtension);
+                    } else {
+                        isw = new InputStreamWrapper(
+                            new FileInputStream(file));
 
-                    isw.setSizeLimit(fileLength);
-                    backup.setStream(logFileExtension, isw);
+                        isw.setSizeLimit(fileLength);
+                        backup.setStream(logFileExtension, isw);
+                    }
                 }
 
-                backup.write();
+                if (asFiles) {
+                    backup.writeAsFiles();
+                } else {
+                    backup.write();
+                }
             }
 
             logInfoEvent("Successfully backed up instance '" + instanceName

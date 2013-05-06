@@ -46,7 +46,7 @@ import org.hsqldb.result.Result;
  * protocol.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.2.9
+ * @version 2.3.0
  * @since 1.7.2
  */
 public class ClientConnectionHTTP extends ClientConnection {
@@ -58,9 +58,10 @@ public class ClientConnectionHTTP extends ClientConnection {
     private HttpURLConnection httpConnection = null;
 
     public ClientConnectionHTTP(String host, int port, String path,
-                                String database, boolean isTLS, String user,
+                                String database, boolean isTLS,
+                                boolean isTLSWrapper, String user,
                                 String password, int timeZoneSeconds) {
-        super(host, port, path, database, isTLS, user, password,
+        super(host, port, path, database, isTLS, isTLSWrapper, user, password,
               timeZoneSeconds);
     }
 

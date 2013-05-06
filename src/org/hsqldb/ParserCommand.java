@@ -1442,8 +1442,7 @@ public class ParserCommand extends ParserDDL {
                 } else {
                     readThis(Tokens.COMPRESSED);
 
-                    type  = StatementTypes.SET_DATABASE_FILES_LOBS_COMPRESSED;
-
+                    type = StatementTypes.SET_DATABASE_FILES_LOBS_COMPRESSED;
                     flag = processTrueOrFalseObject();
                 }
 
@@ -2027,9 +2026,10 @@ public class ParserCommand extends ParserDDL {
     private Statement compileBackup() {
 
         String  path;
-        Boolean blockingMode = null;    // Defaults to blocking
-        Boolean scriptMode   = null;    // Defaults to non-script
-        Boolean compression  = null;    // Defaults to compressed
+        Boolean blockingMode = null;    // defaults to blocking
+        Boolean scriptMode   = null;    // defaults to non-script
+        Boolean compression  = null;    // defaults to compressed
+        Boolean files        = null;    // defaults to false
 
         read();
         readThis(Tokens.DATABASE);
@@ -2100,6 +2100,18 @@ public class ParserCommand extends ParserDDL {
                     }
                     break;
 
+                case Tokens.AS :
+                    if (files != null) {
+                        throw unexpectedToken();
+                    }
+
+                    read();
+                    readThis(Tokens.FILES);
+
+                    files = Boolean.TRUE;
+
+                    break;
+
                 default :
                     break outerLoop;
             }
@@ -2117,6 +2129,10 @@ public class ParserCommand extends ParserDDL {
             compression = Boolean.TRUE;
         }
 
+        if (files == null) {
+            files = Boolean.FALSE;
+        }
+
         if (scriptMode) {
             if (!blockingMode) {
                 throw unexpectedToken(Tokens.T_NOT);
@@ -2127,7 +2143,7 @@ public class ParserCommand extends ParserDDL {
             blockingMode ? database.schemaManager.getCatalogAndBaseTableNames()
                          : HsqlName.emptyArray;
         Object[] args = new Object[] {
-            path, blockingMode, scriptMode, compression
+            path, blockingMode, scriptMode, compression, files
         };
         Statement cs = new StatementCommand(StatementTypes.DATABASE_BACKUP,
                                             args, null, names);

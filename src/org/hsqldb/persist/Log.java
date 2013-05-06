@@ -167,6 +167,9 @@ public class Log {
                 database.logger.logInfoEvent(
                     "open start - state not modified");
 
+                //now .log may be zero length with modified=no
+                deleteLog();
+
                 /**
                  * if startup is after a SHUTDOWN SCRIPT and there are CACHED
                  * or TEXT tables, perform a checkpoint so that the .script
@@ -490,7 +493,7 @@ public class Log {
 
             DataFileDefrag dfd = cache.defrag();
 
-            database.persistentStoreCollection.setNewDataSpaceManager();
+            database.persistentStoreCollection.setNewTableSpaces();
             database.sessionManager.resetLoggedSchemas();
         } catch (HsqlException e) {
             throw e;

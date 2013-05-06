@@ -58,7 +58,7 @@ public interface DataSpaceManager {
 
     void freeTableSpace(int spaceId);
 
-    public void freeTableSpace(int spaceId, DoubleIntIndex spaceList,
+    void freeTableSpace(int spaceId, DoubleIntIndex spaceList,
                                long offset, long limit);
 
     long getLostBlocksSize();
@@ -70,4 +70,6 @@ public interface DataSpaceManager {
     void initialiseSpaces();
 
     void reset();
+
+    boolean isMultiSpace();
 }

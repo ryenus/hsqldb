@@ -118,6 +118,7 @@ public class ClientConnection implements SessionInterface {
     String         path;
     String         database;
     boolean        isTLS;
+    boolean        isTLSWrapper;
     int            databaseID;
     String         clientPropertiesString;
     HsqlProperties clientProperties;
@@ -127,16 +128,18 @@ public class ClientConnection implements SessionInterface {
      * Establishes a connection to the server.
      */
     public ClientConnection(String host, int port, String path,
-                            String database, boolean isTLS, String user,
+                            String database, boolean isTLS,
+                            boolean isTLSWrapper, String user,
                             String password, int timeZoneSeconds) {
 
-        this.host        = host;
-        this.port        = port;
-        this.path        = path;
-        this.database    = database;
-        this.isTLS       = isTLS;
-        this.zoneSeconds = timeZoneSeconds;
-        this.zoneString  = TimeZone.getDefault().getID();
+        this.host         = host;
+        this.port         = port;
+        this.path         = path;
+        this.database     = database;
+        this.isTLS        = isTLS;
+        this.isTLSWrapper = isTLSWrapper;
+        this.zoneSeconds  = timeZoneSeconds;
+        this.zoneString   = TimeZone.getDefault().getID();
 
         initStructures();
 
@@ -177,8 +180,14 @@ public class ClientConnection implements SessionInterface {
     protected void openConnection(String host, int port, boolean isTLS) {
 
         try {
-            socket = HsqlSocketFactory.getInstance(isTLS).createSocket(host,
-                                                   port);
+            if (isTLSWrapper) {
+                socket =
+                    HsqlSocketFactory.getInstance(false).createSocket(host,
+                                                  port);
+            }
+
+            socket = HsqlSocketFactory.getInstance(isTLS).createSocket(socket,
+                                                   host, port);
 
             socket.setTcpNoDelay(true);
 

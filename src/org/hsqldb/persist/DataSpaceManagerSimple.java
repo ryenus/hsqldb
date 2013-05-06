@@ -133,10 +133,6 @@ public class DataSpaceManagerSimple implements DataSpaceManager {
         return true;
     }
 
-    public void reset() {
-        defaultSpaceManager.reset();
-    }
-
     public void initialiseSpaces() {
 
         long currentSize = cache.getFileFreePos();
@@ -154,4 +150,13 @@ public class DataSpaceManagerSimple implements DataSpaceManager {
 
         lookup = null;
     }
+
+    public void reset() {
+        defaultSpaceManager.reset();
+    }
+
+    public boolean isMultiSpace() {
+        return false;
+    }
+
 }

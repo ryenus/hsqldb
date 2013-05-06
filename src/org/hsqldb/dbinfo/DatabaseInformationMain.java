@@ -62,6 +62,7 @@ import org.hsqldb.rights.Grantee;
 import org.hsqldb.rights.GranteeManager;
 import org.hsqldb.rights.Right;
 import org.hsqldb.rights.User;
+import org.hsqldb.types.Charset;
 import org.hsqldb.types.DateTimeType;
 import org.hsqldb.types.IntervalType;
 import org.hsqldb.types.NumberType;
@@ -142,7 +143,7 @@ import org.hsqldb.types.Types;
  * (fredt@users) <p>
  * @author Campbell Boucher-Burnet (boucherb@users dot sourceforge.net)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.2.7
+ * @version 2.3.0
  * @since 1.7.2
  */
 class DatabaseInformationMain extends DatabaseInformation {
@@ -410,14 +411,14 @@ class DatabaseInformationMain extends DatabaseInformation {
 
         right = Right.fullRights;
 
+        gm.grantSystemToPublic(Charset.SQL_CHARACTER, right);
+        gm.grantSystemToPublic(Charset.SQL_IDENTIFIER_CHARSET, right);
+        gm.grantSystemToPublic(Charset.SQL_TEXT, right);
+        gm.grantSystemToPublic(TypeInvariants.SQL_IDENTIFIER, right);
         gm.grantSystemToPublic(TypeInvariants.YES_OR_NO, right);
         gm.grantSystemToPublic(TypeInvariants.TIME_STAMP, right);
         gm.grantSystemToPublic(TypeInvariants.CARDINAL_NUMBER, right);
         gm.grantSystemToPublic(TypeInvariants.CHARACTER_DATA, right);
-        gm.grantSystemToPublic(TypeInvariants.SQL_CHARACTER, right);
-        gm.grantSystemToPublic(TypeInvariants.SQL_IDENTIFIER_CHARSET, right);
-        gm.grantSystemToPublic(TypeInvariants.SQL_IDENTIFIER, right);
-        gm.grantSystemToPublic(TypeInvariants.SQL_TEXT, right);
     }
 
     /**
@@ -2607,7 +2608,7 @@ class DatabaseInformationMain extends DatabaseInformation {
             row[icase_sensitive] =
                 type.isCharacterType()
                 && type.getCollation().isCaseSensitive() ? Boolean.TRUE
-                                                             : Boolean.FALSE;
+                                                         : Boolean.FALSE;
 
             if (type.isLobType()) {
                 row[isearchable] = ValuePool.INTEGER_0;

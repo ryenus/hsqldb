@@ -34,10 +34,12 @@ package org.hsqldb.lib.tar;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Properties;
 
 import org.hsqldb.lib.InputStreamInterface;
+import org.hsqldb.lib.InputStreamWrapper;
 
 /**
  * Works with tar archives containing HSQLDB database instance backups.
@@ -54,14 +56,15 @@ import org.hsqldb.lib.InputStreamInterface;
  * See the main(String[]) method for details about command-line usage.
  * </P>
  *
- * @see <a href="../../../../../guide/deployment-chapt.html#deployment_backup-sect"
+ * @see <a href="../../../../../guide/management-chapt.html#mtc_backup"
  *      target="guide">
  *     The database backup section of the HyperSQL User Guide</a>
  * @see #main(String[])
  * @see #setOverWrite(boolean)
  * @see #setAbortUponModify(boolean)
  * @author Blaine Simpson (blaine dot simpson at admc dot com)
- * @version 2.2.9
+ * @author Fred Toussi (fredt@users dot sourceforge.net)
+ * @version 2.3.0
  * @since 2.0.0
  */
 public class DbBackup {
@@ -328,6 +331,50 @@ public class DbBackup {
 
         generator.write();
         checkFilesNotChanged(startTime);
+    }
+
+    public void writeAsFiles() throws IOException {
+
+        int bufferSize = 512
+                         * DbBackup.generateBufferBlockValue(componentFiles);
+        byte[] writeBuffer = new byte[bufferSize];
+
+        checkEssentialFiles();
+
+        for (int i = 0; i < componentFiles.length; i++) {
+            if (ignoreList[i]) {
+                continue;
+            }
+
+            if (!componentFiles[i].exists()) {
+                continue;
+            }
+
+            File outFile = new File(archiveFile, componentFiles[i].getName());
+            FileOutputStream fileOut = new FileOutputStream(outFile);
+
+            if (componentStreams[i] == null) {
+                componentStreams[i] = new InputStreamWrapper(
+                    new FileInputStream(componentFiles[i]));
+            }
+
+            InputStreamInterface instream = componentStreams[i];
+
+            while (true) {
+                int count = instream.read(writeBuffer, 0, writeBuffer.length);
+
+                if (count <= 0) {
+                    break;
+                }
+
+                fileOut.write(writeBuffer, 0, count);
+            }
+
+            instream.close();
+            fileOut.flush();
+            fileOut.getFD().sync();
+            fileOut.close();
+        }
     }
 
     void checkEssentialFiles()

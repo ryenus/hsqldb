@@ -44,6 +44,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+
 import javax.sql.rowset.serial.SerialBlob;
 
 import org.hsqldb.jdbc.JDBCBlob;
@@ -425,9 +426,7 @@ public class TestLobs extends TestBase {
             PreparedStatement ps = connection.prepareStatement(dml0);
 
             //
-            String resourceFileName  =
-                HsqlDatabaseProperties.hsqldb_package_path
-                + "/resources/lob-schema.sql";
+            String resourceFileName  = "/org/hsqldb/resources/lob-schema.sql";
             InputStreamReader reader = null;
 
             try {
@@ -818,10 +817,12 @@ public class TestLobs extends TestBase {
         System.out.println("Starting (sub-)test: " + getName());
 
         try {
-
             String ddl1 = "drop procedure PUBLIC.PROC_H if exists";
+
             statement.execute(ddl1);
-            ddl1 =    "create procedure PUBLIC.PROC_H(out p1 clob, out p2 int) READS SQL DATA BEGIN ATOMIC SET p1 = 'dafsdfasdfaefafeajfiwejifpjajsidojfakmvkamsdjfadpsjfoajsdifjaos'; SET p2 = 0; end";
+
+            ddl1 = "create procedure PUBLIC.PROC_H(out p1 clob, out p2 int) READS SQL DATA BEGIN ATOMIC SET p1 = 'dafsdfasdfaefafeajfiwejifpjajsidojfakmvkamsdjfadpsjfoajsdifjaos'; SET p2 = 0; end";
+
             String dml0 = "call PUBLIC.PROC_H(?, ?)";
 
             statement.execute(ddl1);

@@ -46,10 +46,10 @@ import org.hsqldb.lib.HsqlByteArrayInputStream;
  * A proof-of-concept prototype was first contributed by winfriedthom@users.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version  2.2.6
+ * @version  2.3.0
  * @since  1.8.0
  */
-final class ScaledRAFileInJar implements RandomAccessInterface {
+final class RAFileInJar implements RandomAccessInterface {
 
     DataInputStream          file;
     final String             fileName;
@@ -63,7 +63,7 @@ final class ScaledRAFileInJar implements RandomAccessInterface {
     long seekPosition;
     long realPosition;
 
-    ScaledRAFileInJar(String name) throws FileNotFoundException, IOException {
+    RAFileInJar(String name) throws FileNotFoundException, IOException {
 
         fileName   = name;
         fileLength = getLength();

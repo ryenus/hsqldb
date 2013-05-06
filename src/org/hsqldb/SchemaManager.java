@@ -47,6 +47,7 @@ import org.hsqldb.lib.StringConverter;
 import org.hsqldb.lib.WrapperIterator;
 import org.hsqldb.navigator.RowIterator;
 import org.hsqldb.rights.Grantee;
+import org.hsqldb.types.Charset;
 import org.hsqldb.types.Collation;
 import org.hsqldb.types.Type;
 
@@ -54,7 +55,7 @@ import org.hsqldb.types.Type;
  * Manages all SCHEMA related database objects
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version  2.3.0
+ * @version 2.3.0
  * @since 1.8.0
  */
 public class SchemaManager {
@@ -89,17 +90,17 @@ public class SchemaManager {
         schemaMap.put(schema.getName().name, schema);
 
         try {
+            schema.charsetLookup.add(Charset.SQL_TEXT);
+            schema.charsetLookup.add(Charset.SQL_IDENTIFIER_CHARSET);
+            schema.charsetLookup.add(Charset.SQL_CHARACTER);
+            schema.collationLookup.add(Collation.getDefaultInstance());
+            schema.collationLookup.add(
+                Collation.getDefaultIgnoreCaseInstance());
             schema.typeLookup.add(TypeInvariants.CARDINAL_NUMBER);
             schema.typeLookup.add(TypeInvariants.YES_OR_NO);
             schema.typeLookup.add(TypeInvariants.CHARACTER_DATA);
             schema.typeLookup.add(TypeInvariants.SQL_IDENTIFIER);
             schema.typeLookup.add(TypeInvariants.TIME_STAMP);
-            schema.charsetLookup.add(TypeInvariants.SQL_TEXT);
-            schema.charsetLookup.add(TypeInvariants.SQL_IDENTIFIER_CHARSET);
-            schema.charsetLookup.add(TypeInvariants.SQL_CHARACTER);
-            schema.collationLookup.add(Collation.getDefaultInstance());
-            schema.collationLookup.add(
-                Collation.getDefaultIgnoreCaseInstance());
         } catch (HsqlException e) {}
     }
 
@@ -1321,19 +1322,19 @@ public class SchemaManager {
         if (schemaName == null
                 || SqlInvariants.INFORMATION_SCHEMA.equals(schemaName)) {
             if (name.equals("SQL_IDENTIFIER")) {
-                return TypeInvariants.SQL_IDENTIFIER_CHARSET;
+                return Charset.SQL_IDENTIFIER_CHARSET;
             }
 
             if (name.equals("SQL_TEXT")) {
-                return TypeInvariants.SQL_TEXT;
+                return Charset.SQL_TEXT;
             }
 
             if (name.equals("LATIN1")) {
-                return TypeInvariants.LATIN1;
+                return Charset.LATIN1;
             }
 
             if (name.equals("ASCII_GRAPHIC")) {
-                return TypeInvariants.ASCII_GRAPHIC;
+                return Charset.ASCII_GRAPHIC;
             }
         }
 

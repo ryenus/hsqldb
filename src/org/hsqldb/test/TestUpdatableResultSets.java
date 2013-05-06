@@ -36,6 +36,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.sql.DriverManager;
 
 public class TestUpdatableResultSets extends TestBase {
 
@@ -117,6 +118,100 @@ public class TestUpdatableResultSets extends TestBase {
         }
     }
 
+    public void testDeletable() {
+
+        try {
+            statement.execute("drop table t1 if exists");
+            statement.execute(
+                "create table t1 (i int primary key, c varchar(10), t varbinary(3))");
+
+            String            insert = "insert into t1 values(?,?,?)";
+            String            select = "select i, c, t from t1";
+            PreparedStatement ps     = connection.prepareStatement(insert);
+
+            for (int i = 0; i < 10; i++) {
+                ps.setInt(1, i);
+                ps.setString(2, String.valueOf(i) + " s");
+                ps.setBytes(3, new byte[] {
+                    (byte) i, ' ', (byte) i
+                });
+                ps.execute();
+            }
+
+            connection.setAutoCommit(false);
+
+            ResultSet rs = statement.executeQuery(select);
+
+            while (rs.next()) {
+                String s = rs.getString(2);
+
+                rs.deleteRow();
+            }
+
+            rs.close();
+
+            rs = statement.executeQuery(select);
+
+            while (rs.next()) {
+                super.fail("rows not deleted");
+            }
+
+            connection.rollback();
+
+            rs = statement.executeQuery(select);
+
+            while (rs.next()) {
+                String s = rs.getString(2);
+
+                System.out.println(s);
+            }
+
+            connection.commit();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+
+    public void testDeletable2() {
+
+        try {
+            Connection c = DriverManager.getConnection("jdbc:hsqldb:mem:mytestdb",
+                "SA", "");
+            String createSQL =
+                "create table test (num INTEGER PRIMARY KEY, str VARCHAR(25))";
+            Statement createStmt = c.createStatement();
+            createStmt.execute(createSQL);
+            createStmt.close();
+            String ins = "insert into test (num,str) values (?,?)";
+            PreparedStatement pStmt = c.prepareStatement(ins);
+            for (int i = 0; i < 100; i++) {
+                pStmt.setInt(1, i);
+                pStmt.setString(2, "String" + i);
+                pStmt.execute();
+            }
+            // there should now be 100 rows in the table
+            String select = "SELECT * FROM test";
+            PreparedStatement stmt = c.prepareStatement(select,
+                ResultSet.
+                TYPE_SCROLL_INSENSITIVE,
+                ResultSet.CONCUR_UPDATABLE);
+            ResultSet rs = stmt.executeQuery();
+            rs.beforeFirst();
+            while (rs.next()) {
+                int num = rs.getInt("num");
+                if ( (num % 7) == 0) {
+                    System.out.println("Deleting row:" + num);
+                    rs.deleteRow();
+                }
+            }
+            Statement dropStmt = c.createStatement();
+            dropStmt.execute("drop table test;");
+            dropStmt.close();
+    } catch (SQLException e) {
+        e.printStackTrace();
+    }
+    }
     public void testScrollable() {
 
         try {

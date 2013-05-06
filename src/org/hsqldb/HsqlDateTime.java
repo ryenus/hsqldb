@@ -43,6 +43,7 @@ import org.hsqldb.error.ErrorCode;
 import org.hsqldb.lib.ArrayUtil;
 import org.hsqldb.lib.StringUtil;
 import org.hsqldb.types.DTIType;
+import org.hsqldb.types.TimestampData;
 import org.hsqldb.types.Types;
 
 /**
@@ -584,7 +585,7 @@ public class HsqlDateTime {
     /** Indicates end-of-input */
     private static final char e = 0xffff;
 
-    public static Date toDate(String string, String pattern,
+    public static TimestampData toDate(String string, String pattern,
                               SimpleDateFormat format) {
 
         Date   date;
@@ -615,7 +616,9 @@ public class HsqlDateTime {
             throw Error.error(ErrorCode.X_22007, e.toString());
         }
 
-        return date;
+        int nanos = ((int) (date.getTime() % 1000)) * 1000000;
+
+        return new TimestampData(date.getTime() / 1000, nanos, 0);
     }
 
     public static String toFormattedDate(Date date, String pattern,

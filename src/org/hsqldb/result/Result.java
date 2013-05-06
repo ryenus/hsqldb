@@ -53,6 +53,8 @@ import org.hsqldb.navigator.RowSetNavigator;
 import org.hsqldb.navigator.RowSetNavigatorClient;
 import org.hsqldb.rowio.RowInputBinary;
 import org.hsqldb.rowio.RowOutputInterface;
+import org.hsqldb.types.Charset;
+import org.hsqldb.types.Collation;
 import org.hsqldb.types.Type;
 
 /**
@@ -68,18 +70,20 @@ import org.hsqldb.types.Type;
  *
  * @author Campbell Boucher-Burnet (boucherb@users dot sourceforge.net)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.1.1
+ * @version 2.3.0
  * @since 1.9.0
  */
 public class Result {
 
-    public static final ResultMetaData sessionAttributesMetaData =
-        ResultMetaData.newResultMetaData(SessionInterface.INFO_LIMIT);
+    public static final ResultMetaData sessionAttributesMetaData;
 
     static {
+        SqlInvariants.isSystemSchemaName(SqlInvariants.SYSTEM_SCHEMA);
+        Charset.getDefaultInstance();
+        Collation.getDefaultInstance();
 
-        // required for correct initialisation of static variables
-        SqlInvariants.isSystemSchemaName("SYSTEM");
+        sessionAttributesMetaData =
+            ResultMetaData.newResultMetaData(SessionInterface.INFO_LIMIT);
 
         for (int i = 0; i < Session.INFO_LIMIT; i++) {
             sessionAttributesMetaData.columns[i] = new ColumnBase(null, null,

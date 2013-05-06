@@ -48,17 +48,17 @@ import org.hsqldb.Database;
  * @version 2.3.0
  * @since 1.7.2
  */
-public final class ScaledRAFileHybrid implements RandomAccessInterface {
+public final class RAFileHybrid implements RandomAccessInterface {
 
     final Database        database;
     final String          fileName;
     final boolean         isReadOnly;
     boolean               preNio;
     boolean               isNio;
-    long initialMaxLength = ScaledRAFileNIO.largeBufferSize / 2;
+    long initialMaxLength = RAFileNIO.largeBufferSize / 2;
     RandomAccessInterface store;
 
-    public ScaledRAFileHybrid(Database database, String name,
+    public RAFileHybrid(Database database, String name,
                               boolean readOnly) throws IOException {
 
         this.database   = database;
@@ -169,7 +169,7 @@ public final class ScaledRAFileHybrid implements RandomAccessInterface {
 
         if (preNio && initialMaxLength <= requiredPosition) {
             try {
-                store = new ScaledRAFileNIO(database, fileName, isReadOnly,
+                store = new RAFileNIO(database, fileName, isReadOnly,
                                             requiredPosition,
                                             database.logger.propNioMaxSize);
 
@@ -187,7 +187,7 @@ public final class ScaledRAFileHybrid implements RandomAccessInterface {
         }
 
         isNio = false;
-        store = new ScaledRAFile(database, fileName, isReadOnly, true, false);
+        store = new RAFile(database, fileName, isReadOnly, true, false);
 
         store.seek(currentPosition);
     }

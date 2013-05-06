@@ -62,7 +62,7 @@ import org.hsqldb.types.Collation;
  * It holds the data structures that form an HSQLDB database instance.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.2.9
+ * @version 2.3.0
  * @since 1.9.0
  */
 public class Database {
@@ -147,6 +147,9 @@ public class Database {
     //
     public CheckpointRunner checkpointRunner;
     public TimeoutRunner    timeoutRunner;
+
+    //
+    Result updateZeroResult = Result.updateZeroResult;
 
     //
     public static final int DATABASE_ONLINE       = 1;
@@ -711,7 +714,7 @@ public class Database {
         StringBuffer  sb   = new StringBuffer();
 
         if (!getCatalogName().name.equals(
-                HsqlNameManager.DEFAULT_CATALOG_NAME)) {
+                SqlInvariants.DEFAULT_CATALOG_NAME)) {
             String name = getCatalogName().statementName;
 
             sb.append("ALTER CATALOG PUBLIC RENAME TO ").append(name);

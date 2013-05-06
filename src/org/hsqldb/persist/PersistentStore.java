@@ -89,6 +89,8 @@ public interface PersistentStore {
 
     CachedObject getNewInstance(int size);
 
+    int getDefaultObjectSize();
+
     CachedObject getNewCachedObject(Session session, Object object,
                                     boolean tx);
 

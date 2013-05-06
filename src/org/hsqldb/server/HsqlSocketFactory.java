@@ -42,7 +42,7 @@ import java.net.Socket;
  *
  * @author Blaine Simpson (blaine dot simpson at admc dot com)
  * @author boucherb@users
- * @version 1.7.2
+ * @version 2.3.0
  * @since 1.7.2
  */
 public class HsqlSocketFactory {
@@ -106,6 +106,24 @@ public class HsqlSocketFactory {
     public ServerSocket createServerSocket(int port,
                                            String address) throws Exception {
         return new ServerSocket(port, 128, InetAddress.getByName(address));
+    }
+
+    /**
+     * If socket argument is not null, returns it. If it is null,
+     * reates a socket and connects it to the specified remote host at the
+     * specified remote port. This socket is configured using the socket options
+     * established for this factory.
+     *
+     * @return the socket
+     * @param socket the existing socket, can be null
+     * @param host the server host
+     * @param port the server port
+     * @throws Exception if a network error occurs
+     */
+    public Socket createSocket(Socket socket, String host,
+                               int port) throws Exception {
+        return socket == null ? new Socket(host, port)
+                              : socket;
     }
 
     /**

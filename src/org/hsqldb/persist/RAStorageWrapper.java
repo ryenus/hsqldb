@@ -41,14 +41,14 @@ import org.hsqldb.lib.Storage;
  * OpenOffice.org.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version  2.2.9
+ * @version  2.3.0
  * @since  2.2.9
  */
-final class ScaledRAStorageWrapper implements RandomAccessInterface {
+final class RAStorageWrapper implements RandomAccessInterface {
 
     final Storage file;
 
-    ScaledRAStorageWrapper(Storage virtualFile)
+    RAStorageWrapper(Storage virtualFile)
                            throws FileNotFoundException, IOException {
         this.file = virtualFile;
     }

@@ -56,7 +56,7 @@ import org.hsqldb.lib.java.JavaSystem;
  * @version  2.3.0
  * @since 1.8.0.5
  */
-final class ScaledRAFileNIO implements RandomAccessInterface {
+final class RAFileNIO implements RandomAccessInterface {
 
     private final Database   database;
     private final boolean    readOnly;
@@ -83,7 +83,7 @@ final class ScaledRAFileNIO implements RandomAccessInterface {
     static final long largeBufferMask = 0xffffffffffffffffl
                                         << largeBufferScale;
 
-    ScaledRAFileNIO(Database database, String name, boolean readOnly,
+    RAFileNIO(Database database, String name, boolean readOnly,
                     long requiredLength, long maxLength) throws IOException {
 
         this.database  = database;
@@ -99,7 +99,7 @@ final class ScaledRAFileNIO implements RandomAccessInterface {
             }
 
             requiredLength =
-                ScaledRAFile.getBinaryNormalisedCeiling(requiredLength,
+                RAFile.getBinaryNormalisedCeiling(requiredLength,
                     largeBufferScale);
         }
 

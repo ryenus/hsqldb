@@ -120,7 +120,7 @@ import org.hsqldb.lib.java.JavaSystem;
  * <!-- end release-specific documentation -->
  *
  * @author  boucherb@users
- * @version 2.0
+ * @version 2.3.0
  * @since JDK 1.2, HSQLDB 1.7.2
  * @revised JDK 1.6, HSQLDB 2.0
  */
@@ -785,6 +785,12 @@ public class JDBCClob implements Clob {
 
         final String data = getData();
         final long   dlen = data.length();
+
+        if (!m_createdByConnection) {
+
+            /** @todo - better error message */
+            throw JDBCUtil.notSupported();
+        }
 
         if (len == dlen) {
 

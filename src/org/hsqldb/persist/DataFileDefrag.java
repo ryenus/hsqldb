@@ -97,20 +97,6 @@ final class DataFileDefrag {
                 if (size > maxSize) {
                     maxSize = size;
                 }
-/*
-                // temp code to fix obsolete space ids
-                int spaceID = table.getSpaceID();
-
-                if (spaceID != DataSpaceManager.tableIdDefault
-                        && spaceID < DataSpaceManager.tableIdFirst) {
-                    table.setSpaceID(
-                        dataCache.spaceManager.getNewTableSpaceID());
-                    store.getSpaceManager().setSpaceManager(
-                        dataCache.spaceManager, table.getSpaceID());
-                }
-
-                // end temp code
-*/
             }
         }
 

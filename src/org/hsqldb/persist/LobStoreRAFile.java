@@ -71,10 +71,10 @@ public class LobStoreRAFile implements LobStore {
             boolean readonly = database.isFilesReadOnly();
 
             if (database.logger.isStoredFileAccess()) {
-                file = ScaledRAFile.newScaledRAFile(
-                    database, name, readonly, ScaledRAFile.DATA_FILE_STORED);
+                file = RAFile.newScaledRAFile(
+                    database, name, readonly, RAFile.DATA_FILE_STORED);
             } else {
-                file = new ScaledRAFileSimple(database, name, readonly ? "r"
+                file = new RAFileSimple(database, name, readonly ? "r"
                                                                        : "rws");
             }
         } catch (Throwable t) {

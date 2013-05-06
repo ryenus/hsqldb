@@ -258,6 +258,7 @@ public class StatementCommand extends Statement {
                 boolean blocking   = ((Boolean) parameters[1]).booleanValue();
                 boolean script     = ((Boolean) parameters[2]).booleanValue();
                 boolean compressed = ((Boolean) parameters[3]).booleanValue();
+                boolean files      = ((Boolean) parameters[4]).booleanValue();
 
                 try {
                     session.checkAdmin();
@@ -265,7 +266,7 @@ public class StatementCommand extends Statement {
                     // toto may not want to enforce this constraint for SCRIPT type backup.
                     session.database.checkDatabaseIsFiles();
                     session.database.logger.backup(path, script, blocking,
-                                                   compressed);
+                                                   compressed, files);
 
                     return Result.updateZeroResult;
                 } catch (HsqlException e) {
