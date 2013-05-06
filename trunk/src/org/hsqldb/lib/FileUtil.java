@@ -52,7 +52,7 @@ import org.hsqldb.lib.java.JavaSystem;
  * @author Campbell Boucher-Burnet (boucherb@users dot sourceforge.net)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
  * @author Ocke Janssen oj@openoffice.org
- * @version 2.1.1
+ * @version 2.3.0
  * @since 1.7.2
  */
 public class FileUtil implements FileAccess {
@@ -255,7 +255,7 @@ public class FileUtil implements FileAccess {
 
     /**
      * Retrieves the canonical path for the given path, or the absolute
-     * path if attemting to retrieve the canonical path fails.
+     * path if attempting to retrieve the canonical path fails.
      *
      * @param path the path for which to retrieve the canonical or
      *      absolute path
@@ -403,9 +403,9 @@ public class FileUtil implements FileAccess {
      * @param path full path or name of database (without a file extension)
      * @return currently always true
      */
-    public static boolean deleteOrRenameDatabaseFiles(String path) {
+    public static boolean deleteOrRenameDatabaseFiles(String dbNamePath) {
 
-        DatabaseFilenameFilter filter = new DatabaseFilenameFilter(path);
+        DatabaseFilenameFilter filter = new DatabaseFilenameFilter(dbNamePath);
         File[] fileList = filter.getExistingFileListInDirectory();
 
         for (int i = 0; i < fileList.length; i++) {
@@ -449,22 +449,38 @@ public class FileUtil implements FileAccess {
     /**
      * Utility method for user applications. Returns a list of files that
      * currently exist for a database. The list includes current database files
-     * as well as ".new", and ".old" versions of the files.
+     * as well as ".new", and ".old" versions of the files, plus any app logs.
      *
      * @param path full path or name of database (without a file extension)
      */
-    public static File[] getDatabaseFileList(String path) {
+    public static File[] getDatabaseFileList(String dbNamePath) {
 
-        DatabaseFilenameFilter filter = new DatabaseFilenameFilter(path);
+        DatabaseFilenameFilter filter = new DatabaseFilenameFilter(dbNamePath);
 
         return filter.getExistingFileListInDirectory();
     }
 
+    /**
+     * Returns a list of existing main files for a database. The list excludes
+     * non-essential files.
+     *
+     * @param path full path or name of database (without a file extension)
+     */
+    public static File[] getDatabaseMainFileList(String dbNamePath) {
+
+        DatabaseFilenameFilter filter = new DatabaseFilenameFilter(dbNamePath,
+            false);
+
+        return filter.getExistingFileListInDirectory();
+    }
+
+    static int discardSuffixLength = 9;
+
     public static String newDiscardFileName(String filename) {
 
         String timestamp = StringUtil.toPaddedString(
-            Integer.toHexString((int) System.currentTimeMillis()), 8, '0',
-            true);
+            Integer.toHexString((int) System.currentTimeMillis()),
+            discardSuffixLength - 1, '0', true);
         String discardName = filename + "." + timestamp + ".old";
 
         return discardName;
@@ -472,24 +488,32 @@ public class FileUtil implements FileAccess {
 
     static class DatabaseFilenameFilter implements FilenameFilter {
 
-        String[] suffixes = new String[] {
-            ".backup", ".properties", ".script", ".data", ".log", ".lck",
-            ".lobs", ".sql.log", ".app.log"
+        String[]        suffixes      = new String[] {
+            ".backup", ".properties", ".script", ".data", ".log", ".lobs",
         };
-        private String dbName;
-        private File   parent;
-        private File   canonicalFile;
+        String[]        extraSuffixes = new String[] {
+            ".lck", ".sql.log", ".app.log"
+        };
+        private String  dbName;
+        private File    parent;
+        private File    canonicalFile;
+        private boolean extraFiles;
 
-        DatabaseFilenameFilter(String dbName) {
+        DatabaseFilenameFilter(String dbNamePath) {
+            this(dbNamePath, true);
+        }
 
-            this.dbName   = dbName;
-            canonicalFile = new File(dbName);
+        DatabaseFilenameFilter(String dbNamePath, boolean extras) {
+
+            canonicalFile = new File(dbNamePath);
 
             try {
                 canonicalFile = canonicalFile.getCanonicalFile();
             } catch (Exception e) {}
 
-            parent = canonicalFile.getParentFile();
+            dbName     = canonicalFile.getName();
+            parent     = canonicalFile.getParentFile();
+            extraFiles = extras;
         }
 
         public File[] getCompleteMainFileSetList() {
@@ -537,23 +561,32 @@ public class FileUtil implements FileAccess {
             if (parent.equals(dir) && name.indexOf(dbName) == 0) {
                 String suffix = name.substring(dbName.length());
 
+                if (extraFiles) {
+                    for (int i = 0; i < extraSuffixes.length; i++) {
+                        if (suffix.equals(extraSuffixes[i])) {
+                            return true;
+                        }
+                    }
+                }
+
                 for (int i = 0; i < suffixes.length; i++) {
                     if (suffix.equals(suffixes[i])) {
                         return true;
                     }
 
-                    if (suffix.startsWith(suffixes[i])) {
-                        if (suffix.length() == suffixes[i].length()) {
-                            return true;
-                        }
+                    if (!extraFiles) {
+                        continue;
+                    }
 
+                    if (suffix.startsWith(suffixes[i])) {
                         if (name.endsWith(".new")) {
                             if (suffix.length() == suffixes[i].length() + 4) {
                                 return true;
                             }
                         } else if (name.endsWith(".old")) {
                             if (suffix.length()
-                                    == suffixes[i].length() + 9 + 4) {
+                                    == suffixes[i].length()
+                                       + discardSuffixLength + 4) {
                                 return true;
                             }
                         }

@@ -660,6 +660,18 @@ public class DataSpaceManagerBlocks implements DataSpaceManager {
         return true;
     }
 
+    public void initialiseSpaces() {
+
+        Iterator it = spaceManagerList.values().iterator();
+
+        while (it.hasNext()) {
+            TableSpaceManagerBlocks tableSpace =
+                (TableSpaceManagerBlocks) it.next();
+
+            initialiseTableSpace(tableSpace);
+        }
+    }
+
     public void reset() {
 
         Iterator it = spaceManagerList.values().iterator();
@@ -672,16 +684,8 @@ public class DataSpaceManagerBlocks implements DataSpaceManager {
         }
     }
 
-    public void initialiseSpaces() {
-
-        Iterator it = spaceManagerList.values().iterator();
-
-        while (it.hasNext()) {
-            TableSpaceManagerBlocks tableSpace =
-                (TableSpaceManagerBlocks) it.next();
-
-            initialiseTableSpace(tableSpace);
-        }
+    public boolean isMultiSpace() {
+        return true;
     }
 
     private void initialiseTableSpace(TableSpaceManagerBlocks tableSpace) {

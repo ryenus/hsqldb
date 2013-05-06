@@ -76,7 +76,7 @@ public class DataFileCacheSession extends DataFileCache {
     public void open(boolean readonly) {
 
         try {
-            dataFile = new ScaledRAFile(database, dataFileName, false, false,
+            dataFile = new RAFile(database, dataFileName, false, false,
                                         false);
             fileFreePosition = initialFreePos;
 

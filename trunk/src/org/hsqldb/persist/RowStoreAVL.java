@@ -135,6 +135,10 @@ public abstract class RowStoreAVL implements PersistentStore {
         throw Error.runtimeError(ErrorCode.U_S0500, "RowStoreAVL");
     }
 
+    public int getDefaultObjectSize() {
+        throw Error.runtimeError(ErrorCode.U_S0500, "RowStoreAVL");
+    }
+
     public abstract CachedObject getNewCachedObject(Session session,
             Object object, boolean tx);
 
@@ -195,8 +199,10 @@ public abstract class RowStoreAVL implements PersistentStore {
         long count = elementCount.decrementAndGet();
 
         if (count > 16 * 1024 && count < baseElementCount / 2) {
-            baseElementCount = count;
-            searchCost       = null;
+            synchronized (this) {
+                baseElementCount = count;
+                searchCost       = null;
+            }
         }
     }
 
@@ -232,8 +238,10 @@ public abstract class RowStoreAVL implements PersistentStore {
             long count = elementCount.incrementAndGet();
 
             if (count > 16 * 1024 && count > baseElementCount * 2) {
-                baseElementCount = count;
-                searchCost       = null;
+                synchronized (this) {
+                    baseElementCount = count;
+                    searchCost       = null;
+                }
             }
         } catch (HsqlException e) {
             int count = i;
@@ -577,6 +585,8 @@ public abstract class RowStoreAVL implements PersistentStore {
 
             backnode.nNext = backnode.nNext.nNext;
         }
+
+        it.release();
     }
 
     boolean insertIndexNodes(Session session, Index primaryIndex,
@@ -598,6 +608,8 @@ public abstract class RowStoreAVL implements PersistentStore {
 
                 newIndex.insert(session, this, row);
             }
+
+            it.release();
 
             return true;
         } catch (java.lang.OutOfMemoryError e) {
@@ -621,6 +633,8 @@ public abstract class RowStoreAVL implements PersistentStore {
 
             backnode.nNext = backnode.nNext.nNext;
         }
+
+        it.release();
 
         throw error;
     }

@@ -47,13 +47,13 @@ import org.hsqldb.error.ErrorCode;
  * @version  2.3.0
  * @since  1.9.0
  */
-final class ScaledRAFileSimple implements RandomAccessInterface {
+final class RAFileSimple implements RandomAccessInterface {
 
     final RandomAccessFile file;
     final boolean          readOnly;
     final Database         database;
 
-    ScaledRAFileSimple(Database database, String name,
+    RAFileSimple(Database database, String name,
                        String openMode)
                        throws FileNotFoundException, IOException {
 

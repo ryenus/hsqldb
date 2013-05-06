@@ -203,11 +203,12 @@ public class FunctionCustom extends FunctionSQL {
     private static final int FUNC_TRANSACTION_CONTROL      = 167;
     private static final int FUNC_TRANSACTION_ID           = 168;
     private static final int FUNC_TRANSACTION_SIZE         = 169;
-    private static final int FUNC_TRUNC                    = 170;
-    private static final int FUNC_TRUNCATE                 = 171;
-    private static final int FUNC_UUID                     = 172;
-    private static final int FUNC_UNIX_TIMESTAMP           = 173;
-    private static final int FUNC_UNIX_MILLIS              = 174;
+    private static final int FUNC_TRANSLATE                = 170;
+    private static final int FUNC_TRUNC                    = 171;
+    private static final int FUNC_TRUNCATE                 = 172;
+    private static final int FUNC_UUID                     = 173;
+    private static final int FUNC_UNIX_TIMESTAMP           = 174;
+    private static final int FUNC_UNIX_MILLIS              = 175;
 
     //
     static final IntKeyIntValueHashMap customRegularFuncMap =
@@ -371,6 +372,7 @@ public class FunctionCustom extends FunctionSQL {
                                  FUNC_TRANSACTION_CONTROL);
         customRegularFuncMap.put(Tokens.TRANSACTION_ID, FUNC_TRANSACTION_ID);
         customRegularFuncMap.put(Tokens.TRANSACTION_SIZE, FUNC_TRANSACTION_SIZE);
+        customRegularFuncMap.put(Tokens.TRANSLATE, FUNC_TRANSLATE);
         customRegularFuncMap.put(Tokens.TRUNC, FUNC_TRUNC);
         customRegularFuncMap.put(Tokens.TRUNCATE, FUNC_TRUNCATE);
         customRegularFuncMap.put(Tokens.UCASE, FUNC_FOLD_UPPER);
@@ -390,8 +392,9 @@ public class FunctionCustom extends FunctionSQL {
         customValueFuncMap.put(Tokens.NOW, FUNC_LOCALTIMESTAMP);
     }
 
-    private int     extractSpec;
-    private Pattern pattern;
+    private int                   extractSpec;
+    private Pattern               pattern;
+    private IntKeyIntValueHashMap charLookup;
 
     public static FunctionSQL newCustomFunction(String token, int tokenType) {
 
@@ -616,6 +619,7 @@ public class FunctionCustom extends FunctionSQL {
             case FUNC_DATEADD :
             case FUNC_NEW_TIME :
             case FUNC_SEQUENCE_ARRAY :
+            case FUNC_TRANSLATE :
                 parseList = tripleParamList;
                 break;
 
@@ -1234,16 +1238,14 @@ public class FunctionCustom extends FunctionSQL {
                 }
 
                 SimpleDateFormat format = session.getSimpleDateFormatGMT();
-                Date date = HsqlDateTime.toDate((String) data[0],
-                                                (String) data[1], format);
-                long millis = date.getTime();
-                int  nanos  = 0;
+                TimestampData value = HsqlDateTime.toDate((String) data[0],
+                    (String) data[1], format);
 
-                if (funcType == FUNC_TO_TIMESTAMP) {
-                    nanos = ((int) (millis % 1000)) * 1000000;
+                if (funcType == FUNC_TO_DATE) {
+                    value.clearNanos();
                 }
 
-                return new TimestampData(millis / 1000, nanos);
+                return value;
             }
             case FUNC_TIMESTAMP : {
                 boolean unary = nodes[1] == null;
@@ -2141,6 +2143,20 @@ public class FunctionCustom extends FunctionSQL {
                 if (data[0] == null || data[1] == null) {
                     return null;
                 }
+            }
+            case FUNC_TRANSLATE : {
+                if (data[0] == null || data[1] == null || data[2] == null) {
+                    return null;
+                }
+
+                IntKeyIntValueHashMap map = charLookup;
+
+                if (map == null) {
+                    map = getTranslationMap((String) data[1],
+                                            (String) data[2]);
+                }
+
+                return translateWithMap((String) data[0], map);
             }
             default :
                 throw Error.runtimeError(ErrorCode.U_S0500, "FunctionCustom");
@@ -3378,6 +3394,27 @@ public class FunctionCustom extends FunctionSQL {
                 dataType = Type.SQL_TIMESTAMP_WITH_TIME_ZONE;
                 break;
 
+            case FUNC_TRANSLATE :
+                for (int i = 0; i < nodes.length; i++) {
+                    if (nodes[i].dataType == null) {
+                        nodes[i].dataType = Type.SQL_VARCHAR_DEFAULT;
+                    }
+
+                    if (!nodes[i].dataType.isCharacterType()
+                            || nodes[i].dataType.isLobType()) {
+                        throw Error.error(ErrorCode.X_42563);
+                    }
+                }
+
+                if (nodes[1].valueData != null && nodes[2].valueData != null) {
+                    this.charLookup =
+                        getTranslationMap((String) nodes[1].valueData,
+                                          (String) nodes[2].valueData);
+                }
+
+                dataType = nodes[0].dataType;
+                break;
+
             default :
                 throw Error.runtimeError(ErrorCode.U_S0500, "FunctionCustom");
         }
@@ -3615,6 +3652,7 @@ public class FunctionCustom extends FunctionSQL {
             case FUNC_NUMTODSINTERVAL :
             case FUNC_NUMTOYMINTERVAL :
             case FUNC_NEW_TIME :
+            case FUNC_TRANSLATE :
                 return getSQLSimple();
 
             default :
@@ -3735,5 +3773,47 @@ public class FunctionCustom extends FunctionSQL {
         }
 
         return part;
+    }
+
+    IntKeyIntValueHashMap getTranslationMap(String source, String dest) {
+
+        IntKeyIntValueHashMap map = new IntKeyIntValueHashMap();
+
+        for (int i = 0; i < source.length(); i++) {
+            int character = source.charAt(i);
+
+            if (i >= dest.length()) {
+                map.put(character, -1);
+
+                continue;
+            }
+
+            int value = dest.charAt(i);
+
+            map.put(character, value);
+        }
+
+        return map;
+    }
+
+    String translateWithMap(String source, IntKeyIntValueHashMap map) {
+
+        StringBuffer sb = new StringBuffer(source.length());
+
+        for (int i = 0; i < source.length(); i++) {
+            int character = source.charAt(i);
+            int value     = map.get(character, -2);
+
+            if (value == -2) {
+                sb.append((char) character);
+            } else if (value == -1) {
+
+                //
+            } else {
+                sb.append((char) value);
+            }
+        }
+
+        return sb.toString();
     }
 }

@@ -40,91 +40,20 @@ import org.hsqldb.types.Type;
 import org.hsqldb.types.Types;
 import org.hsqldb.types.UserTypeModifier;
 
+/**
+ * Information Schema types.
+ *
+ * @author Fred Toussi (fredt@users dot sourceforge.net)
+ * @version 2.3.0
+ * @since 1.9.0
+ */
 public class TypeInvariants {
-
-    public static final Charset SQL_TEXT;
-    public static final Charset SQL_IDENTIFIER_CHARSET;
-    public static final Charset SQL_CHARACTER;
-    public static final Charset ASCII_GRAPHIC;    // == GRAPHIC_IRV
-    public static final Charset GRAPHIC_IRV;
-    public static final Charset ASCII_FULL;       // == ISO8BIT
-    public static final Charset ISO8BIT;
-    public static final Charset LATIN1;
-    public static final Charset UTF32;
-    public static final Charset UTF16;
-    public static final Charset UTF8;
-
-    static {
-        HsqlName name;
-
-        name = HsqlNameManager.newInfoSchemaObjectName("SQL_TEXT", false,
-                SchemaObject.CHARSET);
-        SQL_TEXT = new Charset(name);
-
-        //
-        name = HsqlNameManager.newInfoSchemaObjectName("SQL_IDENTIFIER",
-                false, SchemaObject.CHARSET);
-        SQL_IDENTIFIER_CHARSET = new Charset(name);
-
-        //
-        name = HsqlNameManager.newInfoSchemaObjectName("SQL_CHARACTER", false,
-                SchemaObject.CHARSET);
-        SQL_CHARACTER = new Charset(name);
-
-        //
-        name = HsqlNameManager.newInfoSchemaObjectName("LATIN1", false,
-                SchemaObject.CHARSET);
-        LATIN1 = new Charset(name);
-
-        //
-        name = HsqlNameManager.newInfoSchemaObjectName("ASCII_GRAPHIC", false,
-                SchemaObject.CHARSET);
-        ASCII_GRAPHIC = new Charset(name);
-
-        //
-        name = HsqlNameManager.newInfoSchemaObjectName("GRAPHIC_IRV", false,
-                SchemaObject.CHARSET);
-        GRAPHIC_IRV = new Charset(name);
-
-        //
-        name = HsqlNameManager.newInfoSchemaObjectName("ASCII_FULL", false,
-                SchemaObject.CHARSET);
-        ASCII_FULL = new Charset(name);
-
-        //
-        name = HsqlNameManager.newInfoSchemaObjectName("ISO8BIT", false,
-                SchemaObject.CHARSET);
-        ISO8BIT = new Charset(name);
-
-        //
-        name = HsqlNameManager.newInfoSchemaObjectName("UTF32", false,
-                SchemaObject.CHARSET);
-        UTF32 = new Charset(name);
-
-        //
-        name = HsqlNameManager.newInfoSchemaObjectName("UTF16", false,
-                SchemaObject.CHARSET);
-        UTF16 = new Charset(name);
-
-        //
-        name = HsqlNameManager.newInfoSchemaObjectName("UTF8", false,
-                SchemaObject.CHARSET);
-        UTF8 = new Charset(name);
-        /*
-         * Foundattion 4.2.1
-         * Character sets defined by standards or by SQL-implementations reside
-         * in the Information Schema (named INFORMATION_SCHEMA) in each catalog,
-         * as do collations defined by standards and collations,
-         * transliterations, and transcodings defined by SQL implementations.
-         */
-    }
 
     public static final Type CARDINAL_NUMBER;
     public static final Type YES_OR_NO;
     public static final Type CHARACTER_DATA;
     public static final Type SQL_IDENTIFIER;
     public static final Type TIME_STAMP;
-    public static final Type SQL_VARCHAR;
 
     static {
         HsqlName name;
@@ -163,8 +92,5 @@ public class TypeInvariants {
                                       Types.SQL_TIMESTAMP, 6);
         TIME_STAMP.userTypeModifier = new UserTypeModifier(name,
                 SchemaObject.DOMAIN, TIME_STAMP);
-
-        //
-        SQL_VARCHAR = Type.SQL_VARCHAR;
     }
 }

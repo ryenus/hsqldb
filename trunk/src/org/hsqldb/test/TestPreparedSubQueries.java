@@ -99,7 +99,9 @@ public class TestPreparedSubQueries extends TestCase {
             Class.forName("org.hsqldb.jdbc.JDBCDriver");
 
             con = java.sql.DriverManager.getConnection(url, "sa", "");
-        } catch (Exception e) {}
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     public void testA() {

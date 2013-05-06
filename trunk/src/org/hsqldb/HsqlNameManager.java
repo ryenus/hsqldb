@@ -64,7 +64,6 @@ import org.hsqldb.rights.Grantee;
  */
 public final class HsqlNameManager {
 
-    public static final String           DEFAULT_CATALOG_NAME = "PUBLIC";
     private static final HsqlNameManager staticManager = new HsqlNameManager();
 
     static {
@@ -94,7 +93,7 @@ public final class HsqlNameManager {
 
     public HsqlNameManager(Database database) {
 
-        catalogName = new HsqlName(this, DEFAULT_CATALOG_NAME,
+        catalogName = new HsqlName(this, SqlInvariants.DEFAULT_CATALOG_NAME,
                                    SchemaObject.CATALOG, false);
         sqlRegularNames = database.sqlRegularNames;
         subqueryTableName = new HsqlName(this, SqlInvariants.SYSTEM_SUBQUERY,

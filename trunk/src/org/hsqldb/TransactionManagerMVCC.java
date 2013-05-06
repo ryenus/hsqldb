@@ -780,7 +780,7 @@ implements TransactionManager {
         synchronized (row) {
             switch (table.tableType) {
 
-                case TableBase.CACHED_TABLE :
+                case TableBase.CACHED_TABLE : {
                     rowActionMap.getWriteLock().lock();
 
                     try {
@@ -795,25 +795,27 @@ implements TransactionManager {
                             if (action != null) {
                                 addTransactionInfo(row);
                             }
-                        } else {
+                        }
+                        else {
                             row.rowAction = action;
                             action = RowAction.addDeleteAction(session, table,
                                                                row, colMap);
                         }
-                    } finally {
+                    }
+                    finally {
                         rowActionMap.getWriteLock().unlock();
                     }
                     break;
-
-                case TableBase.TEMP_TABLE :
+                }
+                case TableBase.TEMP_TABLE : {
                     action = RowAction.addDeleteAction(session, table, row,
-                                                       colMap);
+                        colMap);
 
                     store.delete(session, row);
 
                     row.rowAction = null;
                     break;
-
+                }
                 case TableBase.MEMORY_TABLE :
                 default :
                     action = RowAction.addDeleteAction(session, table, row,

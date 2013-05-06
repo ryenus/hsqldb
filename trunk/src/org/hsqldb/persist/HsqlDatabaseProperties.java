@@ -193,6 +193,7 @@ public class HsqlDatabaseProperties extends HsqlProperties {
     public static final String url_storage_key = "storage_key";
     public static final String url_shutdown    = "shutdown";
     public static final String url_recover     = "recover";
+    public static final String url_tls_wrapper = "tls_wrapper";
 
     //
     public static final String url_crypt_key      = "crypt_key";
@@ -234,9 +235,9 @@ public class HsqlDatabaseProperties extends HsqlProperties {
         "hsqldb.write_delay_millis";
     public static final String hsqldb_full_log_replay =
         "hsqldb.full_log_replay";
-    public static final String hsqldb_large_data = "hsqldb.large_data";
-    public static final String hsqldb_file_space = "hsqldb.file_space";
-    public static final String hsqldb_file_check = "hsqldb.file_check";
+    public static final String hsqldb_large_data  = "hsqldb.large_data";
+    public static final String hsqldb_files_space = "hsqldb.files_space";
+    public static final String hsqldb_files_check = "hsqldb.files_check";
 
     //
     public static final String sql_ref_integrity       = "sql.ref_integrity";
@@ -454,13 +455,14 @@ public class HsqlDatabaseProperties extends HsqlProperties {
         dbMeta.put(hsqldb_large_data,
                    HsqlProperties.getMeta(hsqldb_large_data, SQL_PROPERTY,
                                           false));
-        dbMeta.put(hsqldb_file_space,
-                   HsqlProperties.getMeta(hsqldb_file_space, SQL_PROPERTY,
+        dbMeta.put(hsqldb_files_space,
+                   HsqlProperties.getMeta(hsqldb_files_space, SQL_PROPERTY,
                                           false));
-
-        dbMeta.put(hsqldb_file_check,
-                   HsqlProperties.getMeta(hsqldb_file_check, SQL_PROPERTY,
-                                          0, new int[] {0,1}));
+        dbMeta.put(hsqldb_files_check,
+                   HsqlProperties.getMeta(hsqldb_files_check, SQL_PROPERTY, 0,
+                                          new int[] {
+            0, 1
+        }));
 
         // integral defaults for user-defined props - sets
         dbMeta.put(hsqldb_write_delay_millis,

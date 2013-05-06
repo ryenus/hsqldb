@@ -193,15 +193,15 @@ public class DataFileCache {
             int     fileType;
 
             if (database.isFilesInJar()) {
-                fileType = ScaledRAFile.DATA_FILE_JAR;
+                fileType = RAFile.DATA_FILE_JAR;
             } else if (isNio) {
-                fileType = ScaledRAFile.DATA_FILE_NIO;
+                fileType = RAFile.DATA_FILE_NIO;
             } else {
-                fileType = ScaledRAFile.DATA_FILE_RAF;
+                fileType = RAFile.DATA_FILE_RAF;
             }
 
             if (readonly || database.isFilesInJar()) {
-                dataFile = ScaledRAFile.newScaledRAFile(database,
+                dataFile = RAFile.newScaledRAFile(database,
                         dataFileName, readonly, fileType);
 
                 dataFile.seek(FLAGS_POS);
@@ -235,7 +235,7 @@ public class DataFileCache {
             boolean isSaved       = false;
 
             if (preexists) {
-                dataFile = new ScaledRAFileSimple(database, dataFileName, "r");
+                dataFile = new RAFileSimple(database, dataFileName, "r");
 
                 long    length       = dataFile.length();
                 boolean wrongVersion = false;
@@ -309,7 +309,7 @@ public class DataFileCache {
                 }
             }
 
-            dataFile = ScaledRAFile.newScaledRAFile(database, dataFileName,
+            dataFile = RAFile.newScaledRAFile(database, dataFileName,
                     readonly, fileType);
 
             if (preexists) {
@@ -390,10 +390,10 @@ public class DataFileCache {
         logInfoEvent("dataFileCache open start");
 
         try {
-            int fileType = ScaledRAFile.DATA_FILE_STORED;
+            int fileType = RAFile.DATA_FILE_STORED;
 
             if (readonly) {
-                dataFile = ScaledRAFile.newScaledRAFile(database,
+                dataFile = RAFile.newScaledRAFile(database,
                         dataFileName, readonly, fileType);
 
                 dataFile.seek(FLAGS_POS);
@@ -425,7 +425,7 @@ public class DataFileCache {
                 }
             }
 
-            dataFile = ScaledRAFile.newScaledRAFile(database, dataFileName,
+            dataFile = RAFile.newScaledRAFile(database, dataFileName,
                     readonly, fileType);
 
             if (preexists) {
@@ -491,10 +491,10 @@ public class DataFileCache {
 
         try {
             if (database.logger.isStoredFileAccess()) {
-                dataFile = ScaledRAFile.newScaledRAFile(database,
-                        dataFileName, false, ScaledRAFile.DATA_FILE_STORED);
+                dataFile = RAFile.newScaledRAFile(database,
+                        dataFileName, false, RAFile.DATA_FILE_STORED);
             } else {
-                dataFile = new ScaledRAFileSimple(database, dataFileName,
+                dataFile = new RAFileSimple(database, dataFileName,
                                                   "rw");
             }
         } catch (Throwable t) {

@@ -1306,9 +1306,14 @@ public class TableWorks {
                     oldTable, newTable, colIndex, adjust);
             }
         } else {
-            if (newTable.isCached()
-                    && oldTable.getSpaceID()
-                       != DataSpaceManager.tableIdDefault) {
+            boolean newSpaceID = false;
+
+            if (newTable.isCached()) {
+                newSpaceID = oldTable.getSpaceID()
+                             != DataSpaceManager.tableIdDefault;
+            }
+
+            if (newSpaceID) {
                 int tableSpaceID =
                     database.logger.getCache().spaceManager
                         .getNewTableSpaceID();

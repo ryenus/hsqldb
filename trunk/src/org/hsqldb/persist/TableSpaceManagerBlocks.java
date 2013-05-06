@@ -83,7 +83,7 @@ public class TableSpaceManagerBlocks implements TableSpaceManager {
         this.capacity = capacity;
     }
 
-    public boolean hasFileRoom(int blockSize) {
+    public boolean hasFileRoom(long blockSize) {
         return freshBlockLimit - freshBlockFreePos > blockSize;
     }
 
@@ -114,11 +114,11 @@ public class TableSpaceManagerBlocks implements TableSpaceManager {
         }
     }
 
-    boolean getNewMainBlock(int rowSize) {
+    boolean getNewMainBlock(long rowSize) {
 
-        int  blockCount = (mainBlockSize + rowSize) / mainBlockSize;
-        int  blockSize  = blockCount * mainBlockSize;
-        long position   = spaceManager.getFileBlocks(spaceID, blockCount);
+        long blockCount = (mainBlockSize + rowSize) / mainBlockSize;
+        long blockSize  = blockCount * mainBlockSize;
+        long position = spaceManager.getFileBlocks(spaceID, (int) blockCount);
 
         if (position < 0) {
             return false;
@@ -143,7 +143,7 @@ public class TableSpaceManagerBlocks implements TableSpaceManager {
         return true;
     }
 
-    long getNewBlock(int rowSize, boolean asBlocks) {
+    long getNewBlock(long rowSize, boolean asBlocks) {
 
         if (asBlocks) {
             rowSize = (int) ArrayUtil.getBinaryMultipleCeiling(rowSize,
@@ -202,7 +202,7 @@ public class TableSpaceManagerBlocks implements TableSpaceManager {
     /**
      * Returns the position of a free block or 0.
      */
-    synchronized public long getFilePosition(int rowSize, boolean asBlocks) {
+    synchronized public long getFilePosition(long rowSize, boolean asBlocks) {
 
         if (capacity == 0) {
             return getNewBlock(rowSize, asBlocks);
@@ -218,8 +218,10 @@ public class TableSpaceManagerBlocks implements TableSpaceManager {
         if (lookup.size() > 0) {
             if (lookup.getValue(0) >= rowSize) {
                 index = 0;
+            } else if (rowSize > Integer.MAX_VALUE) {
+                index = -1;
             } else {
-                index = lookup.findFirstGreaterEqualKeyIndex(rowSize);
+                index = lookup.findFirstGreaterEqualKeyIndex((int) rowSize);
             }
         }
 
@@ -247,7 +249,7 @@ public class TableSpaceManagerBlocks implements TableSpaceManager {
         requestSize += rowSize;
 
         int length     = lookup.getValue(index);
-        int difference = length - rowSize;
+        int difference = length - (int) rowSize;
         int key        = lookup.getKey(index);
 
         lookup.remove(index);
@@ -280,9 +282,8 @@ public class TableSpaceManagerBlocks implements TableSpaceManager {
         return freeBlockSize;
     }
 
-    public void setSpaceManager(DataSpaceManager spaceManager, int spaceID) {
-        this.spaceManager = spaceManager;
-        this.spaceID      = spaceID;
+    public boolean isDefaultSpace() {
+        return spaceID == DataSpaceManager.tableIdDefault;
     }
 
     private void resetList() {

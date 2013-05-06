@@ -151,10 +151,10 @@ public class TextCache extends DataFileCache {
 
         try {
             int type = database.getType() == DatabaseURL.S_RES
-                       ? ScaledRAFile.DATA_FILE_JAR
-                       : ScaledRAFile.DATA_FILE_TEXT;
+                       ? RAFile.DATA_FILE_JAR
+                       : RAFile.DATA_FILE_TEXT;
 
-            dataFile = ScaledRAFile.newScaledRAFile(database, dataFileName,
+            dataFile = RAFile.newScaledRAFile(database, dataFileName,
                     readonly, type);
             fileFreePosition = dataFile.length();
 

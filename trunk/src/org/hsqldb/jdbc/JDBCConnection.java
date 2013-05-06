@@ -70,6 +70,7 @@ import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
 import org.hsqldb.lib.StringUtil;
 import org.hsqldb.persist.HsqlProperties;
+import org.hsqldb.persist.HsqlDatabaseProperties;
 import org.hsqldb.result.Result;
 import org.hsqldb.result.ResultConstants;
 import org.hsqldb.result.ResultProperties;
@@ -510,7 +511,7 @@ import org.hsqldb.types.Type;
  * </div> <!-- end release-specific documentation -->
  * @author Campbell Boucher-Burnet (boucherb@users dot sourceforge.net)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.2.9
+ * @version 2.3.0
  * @revised JDK 1.6, HSQLDB 2.0
  * @revised JDK 1.7, HSQLDB 2.1.0
  * @see JDBCDriver
@@ -3556,6 +3557,9 @@ public class JDBCConnection implements Connection {
         String database = props.getProperty("database");
         boolean isTLS = (connType == DatabaseURL.S_HSQLS
                          || connType == DatabaseURL.S_HTTPS);
+        boolean isTLSWrapper = props.isPropertyTrue(HsqlDatabaseProperties.url_tls_wrapper, false);
+
+        isTLSWrapper &= isTLS;
 
         if (user == null) {
             user = "SA";
@@ -3581,12 +3585,12 @@ public class JDBCConnection implements Connection {
             } else if (connType == DatabaseURL.S_HSQL
                        || connType == DatabaseURL.S_HSQLS) {
                 sessionProxy = new ClientConnection(host, port, path,
-                        database, isTLS, user, password, zoneSeconds);
+                        database, isTLS, isTLSWrapper, user, password, zoneSeconds);
                 isNetConn = true;
             } else if (connType == DatabaseURL.S_HTTP
                        || connType == DatabaseURL.S_HTTPS) {
                 sessionProxy = new ClientConnectionHTTP(host, port, path,
-                        database, isTLS, user, password, zoneSeconds);
+                        database, isTLS, isTLSWrapper, user, password, zoneSeconds);
                 isNetConn = true;
             } else {    // alias: type not yet implemented
                 throw JDBCUtil.invalidArgument(connType);

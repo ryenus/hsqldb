@@ -57,6 +57,7 @@ public class Cache extends BaseHashMap {
     private final CachedObjectComparator       rowComparator;
     private final BaseHashMap.BaseHashIterator objectIterator;
     private boolean                            updateAccess;
+    private long                               maxPositionOnCleanup;
 
 //
     private CachedObject[] rowTable;
@@ -282,6 +283,9 @@ public class Cache extends BaseHashMap {
 
         super.setAccessCountFloor(accessTarget);
         saveRows(savecount);
+
+        this.maxPositionOnCleanup = dataFileCache.fileFreePosition
+                                    / dataFileCache.dataFileScale;
     }
 
     void clearUnchanged() {

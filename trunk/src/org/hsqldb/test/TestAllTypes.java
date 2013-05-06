@@ -41,6 +41,7 @@ import java.sql.Statement;
 import java.util.Random;
 
 import org.hsqldb.lib.StopWatch;
+import java.math.BigDecimal;
 
 /**
  * Test large tables containing columns of different types.
@@ -49,7 +50,7 @@ import org.hsqldb.lib.StopWatch;
  */
 public class TestAllTypes {
 
-    protected String url = "jdbc:hsqldb:/hsql/testalltypes/test;hsqldb.sqllog=3";
+    protected String url = "jdbc:hsqldb:g:/hsql/testalltypes/test;hsqldb.sqllog=0";
 
 //    protected String url = "jdbc:hsqldb:hsql://localhost/yourtest";
     boolean    network = false;
@@ -94,11 +95,12 @@ public class TestAllTypes {
                 cConnection = DriverManager.getConnection(url, user, password);
                 sStatement  = cConnection.createStatement();
 
-                sStatement.execute("SET DATABASE EVENT LOG LEVEL 2");
-                sStatement.execute("SET FILES LOG SIZE " + 400);
-                sStatement.execute("SET FILES LOG FALSE");
+                sStatement.execute("SET DATABASE EVENT LOG LEVEL 3");
+                sStatement.execute("SET FILES LOG SIZE " + 100);
+                sStatement.execute("SET FILES LOG TRUE");
                 sStatement.execute("SET FILES WRITE DELAY " + writeDelay);
-                sStatement.execute("SET FILES CACHE SIZE 100000");
+                sStatement.execute("SET FILES CACHE ROWS 600000");
+                sStatement.execute("SET FILES CACHE SIZE 240000");
                 sStatement.execute("SHUTDOWN");
                 cConnection.close();
 
@@ -128,10 +130,11 @@ public class TestAllTypes {
                                                : "") + "TABLE test( id INT IDENTITY,"
                                                    + " firstname VARCHAR(128), "
                                                    + " lastname VARCHAR(128), "
-                                                   + " zip INTEGER, "
+                                                   + " zip SMALLINT, "
                                                    + " longfield BIGINT, "
                                                    + " doublefield DOUBLE, "
-                                                   + " bigdecimalfield DECIMAL, "
+                                                   + " bigdecimalfield DECIMAL(19), "
+                                                   + " bigdecimal2field DECIMAL(20,4), "
                                                    + " datefield DATE, "
                                                    + " filler VARCHAR(128)); ";
 
@@ -141,8 +144,16 @@ public class TestAllTypes {
         // adding this index will slow down  inserts a lot
         String ddl5 = "CREATE INDEX idx2 ON TEST (zip);";
 
+        // adding this index will slow down  inserts a lot
+        String ddl6 = "CREATE INDEX idx3 ON TEST (longfield);";
+
+        // adding this index will slow down  inserts a lot
+        String ddl7 = "CREATE INDEX idx4 ON TEST (bigdecimalfield);";
+
+        String ddl8 = "CREATE INDEX idx5 ON TEST (bigdecimal2field);";
+        String ddl9 = "CREATE INDEX idx6 ON TEST (datefield);";
         // referential integrity checks will slow down inserts a bit
-        String ddl6 =
+        String ddl26 =
             "ALTER TABLE test add constraint c1 FOREIGN KEY (zip) REFERENCES zip(zip);";
         String filler = "ABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
@@ -177,9 +188,16 @@ public class TestAllTypes {
             }
 
             if (addForeignKey) {
-                sStatement.execute(ddl6);
+                sStatement.execute(ddl26);
                 System.out.println("add foreign key");
             }
+
+            //
+
+            sStatement.execute(ddl6);
+            sStatement.execute(ddl7);
+            sStatement.execute(ddl8);
+            sStatement.execute(ddl9);
 
             int i;
 
@@ -188,7 +206,7 @@ public class TestAllTypes {
             }
 
             PreparedStatement ps = cConnection.prepareStatement(
-                "INSERT INTO test (firstname,lastname,zip,longfield,doublefield,bigdecimalfield,datefield) VALUES (?,?,?,?,?,?,?)");
+                "INSERT INTO test (firstname,lastname,zip,longfield,doublefield,bigdecimalfield,bigdecimal2field,datefield, filler) VALUES (?,?,?,?,?,?,?,?, ?)");
 
             ps.setString(1, "Julia                 ");
             ps.setString(2, "Clancy");
@@ -201,15 +219,15 @@ public class TestAllTypes {
 
                 ps.setLong(4, randomgen.nextLong());
                 ps.setDouble(5, randomgen.nextDouble());
-                ps.setBigDecimal(6, null);
+                ps.setBigDecimal(6, new BigDecimal(randomgen.nextLong()));
 
-//                ps.setDouble(6, randomgen.nextDouble());
-                ps.setDate(7, new java.sql.Date(nextIntRandom(randomgen, 1000)
+                ps.setBigDecimal(7, new BigDecimal(randomgen.nextDouble()));
+                ps.setDate(8, new java.sql.Date(nextIntRandom(randomgen, 1000)
                                                 * 24L * 3600 * 1000));
 
                 String varfiller = filler.substring(0, randomlength);
 
-//                ps.setString(8, nextrandom + varfiller);
+                ps.setString(9, nextrandom + varfiller);
                 ps.execute();
 
                 if (reportProgress && (i + 1) % 10000 == 0) {

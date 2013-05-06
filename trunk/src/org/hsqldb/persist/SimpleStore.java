@@ -52,6 +52,7 @@ public abstract class SimpleStore implements PersistentStore {
     public DataFileCache        cache;
     protected TableSpaceManager spaceManager;
     long                        storageSize;
+    protected int               defaultObjectSize;
 
     public void set(CachedObject object) {}
 
@@ -100,6 +101,10 @@ public abstract class SimpleStore implements PersistentStore {
     }
 
     public void commitPersistence(CachedObject object) {}
+
+    public int getDefaultObjectSize() {
+        return defaultObjectSize;
+    }
 
     public CachedObject getNewCachedObject(Session session, Object object,
                                            boolean tx) throws HsqlException {

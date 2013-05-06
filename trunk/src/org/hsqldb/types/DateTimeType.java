@@ -1916,9 +1916,7 @@ public final class DateTimeType extends DTIType {
                     }
 
                     SimpleDateFormat format = session.getSimpleDateFormatGMT();
-                    Date date = HsqlDateTime.toDate(s, pattern, format);
-
-                    return new TimestampData(date.getTime() / 1000, 0, 0);
+                    return HsqlDateTime.toDate(s, pattern, format);
                 }
 
             //

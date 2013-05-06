@@ -179,8 +179,8 @@ public class Collation implements SchemaObject {
     static final Collation defaultIgnoreCaseCollation = new Collation(false);
 
     static {
-        defaultCollation.charset           = TypeInvariants.SQL_TEXT;
-        defaultIgnoreCaseCollation.charset = TypeInvariants.SQL_TEXT;
+        defaultCollation.charset           = Charset.SQL_TEXT;
+        defaultIgnoreCaseCollation.charset = Charset.SQL_TEXT;
 
         dbNameToCollation.put(defaultCollationName, defaultCollation);
         dbNameToCollation.put(defaultIgnoreCaseCollationName,
@@ -229,7 +229,7 @@ public class Collation implements SchemaObject {
         isUnicodeSimple = false;
         this.name = HsqlNameManager.newInfoSchemaObjectName(name, true,
                 SchemaObject.COLLATION);
-        charset            = TypeInvariants.SQL_TEXT;
+        charset            = Charset.SQL_TEXT;
         isUpperCaseCompare = ucc;
         isFinal            = true;
     }

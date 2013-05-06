@@ -913,7 +913,7 @@ public class ParserDQL extends ParserBase {
                                                      isDelimitedIdentifier(),
                                                      SchemaObject.SUBQUERY);
 
-                queryName.schema = SqlInvariants.SYSTEM_SUBQUERY_HSQLNAME;
+                queryName.schema = SqlInvariants.SYSTEM_SCHEMA_HSQLNAME;
 
                 read();
 

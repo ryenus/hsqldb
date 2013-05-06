@@ -41,6 +41,7 @@ import java.lang.reflect.Constructor;
 import org.hsqldb.Database;
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
+import org.hsqldb.lib.ArrayUtil;
 import org.hsqldb.lib.HsqlByteArrayInputStream;
 import org.hsqldb.lib.HsqlByteArrayOutputStream;
 import org.hsqldb.lib.Storage;
@@ -50,10 +51,10 @@ import org.hsqldb.lib.Storage;
  * CACHED table storage.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version  2.3.0
+ * @version 2.3.0
  * @since  1.7.2
  */
-final class ScaledRAFile implements RandomAccessInterface {
+final class RAFile implements RandomAccessInterface {
 
     static final int DATA_FILE_RAF    = 0;
     static final int DATA_FILE_NIO    = 1;
@@ -122,7 +123,7 @@ final class ScaledRAFile implements RandomAccessInterface {
                 if (accessor instanceof RandomAccessInterface) {
                     return (RandomAccessInterface) accessor;
                 } else if (accessor instanceof org.hsqldb.lib.Storage) {
-                    return new ScaledRAStorageWrapper((Storage) accessor);
+                    return new RAStorageWrapper((Storage) accessor);
                 } else {
                     throw new IOException();
                 }
@@ -140,36 +141,34 @@ final class ScaledRAFile implements RandomAccessInterface {
         }
 
         if (type == DATA_FILE_JAR) {
-            return new ScaledRAFileInJar(name);
+            return new RAFileInJar(name);
         } else if (type == DATA_FILE_TEXT) {
-            ScaledRAFile ra = new ScaledRAFile(database, name, readonly,
-                                               false, true);
+            RAFile ra = new RAFile(database, name, readonly, false, true);
 
             return ra;
         } else if (type == DATA_FILE_RAF) {
-            return new ScaledRAFile(database, name, readonly, true, false);
+            return new RAFile(database, name, readonly, true, false);
         } else {
             java.io.File fi     = new java.io.File(name);
             long         length = fi.length();
 
             if (length > database.logger.propNioMaxSize) {
-                return new ScaledRAFile(database, name, readonly, true, false);
+                return new RAFile(database, name, readonly, true, false);
             }
 
             try {
                 Class.forName("java.nio.MappedByteBuffer");
 
-                return new ScaledRAFileHybrid(database, name, readonly);
+                return new RAFileHybrid(database, name, readonly);
             } catch (Exception e) {
-                return new ScaledRAFile(database, name, readonly, true, false);
+                return new RAFile(database, name, readonly, true, false);
             }
         }
     }
 
-    ScaledRAFile(Database database, String name, boolean readonly,
-                 boolean extendLengthToBlock,
-                 boolean commitOnChange)
-                 throws FileNotFoundException, IOException {
+    RAFile(Database database, String name, boolean readonly,
+            boolean extendLengthToBlock,
+            boolean commitOnChange) throws FileNotFoundException, IOException {
 
         this.database     = database;
         this.fileName     = name;
@@ -423,25 +422,9 @@ final class ScaledRAFile implements RandomAccessInterface {
         }
     }
 
-    private void writeToBuffer(byte[] b, int off, int len) throws IOException {
-
-        int copyLength = len;
-        int copyOffset = off;
-        int bufferPos  = (int) (seekPosition - bufferOffset);
-
-        if (bufferPos < 0) {
-            copyOffset -= bufferPos;
-            copyLength += bufferPos;
-            bufferPos  = 0;
-        }
-
-        int maxLength = (int) (bufferOffset + buffer.length - seekPosition);
-
-        if (maxLength < copyLength) {
-            copyLength = maxLength;
-        }
-
-        System.arraycopy(b, copyOffset, buffer, bufferPos, copyLength);
+    private int writeToBuffer(byte[] b, int off, int len) throws IOException {
+        return ArrayUtil.copyBytes(seekPosition - off, b, off, len,
+                                   bufferOffset, buffer, buffer.length);
     }
 
     private long getExtendLength(long position) {

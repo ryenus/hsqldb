@@ -39,6 +39,7 @@ import java.security.Principal;
 import java.security.Provider;
 import java.security.PublicKey;
 import java.security.Security;
+
 import javax.net.ssl.HandshakeCompletedEvent;
 import javax.net.ssl.HandshakeCompletedListener;
 import javax.net.ssl.SSLServerSocket;
@@ -58,7 +59,7 @@ import org.hsqldb.lib.StringConverter;
  * @author Campbell Boucher-Burnet (boucherb@users dot sourceforge.net)
  * @author Blaine Simpson (blaine dot simpson at admc dot com)
  *
- * @version 1.7.2
+ * @version 2.3.0
  * @since 1.7.2
  */
 public final class HsqlSocketFactorySecure extends HsqlSocketFactory
@@ -186,6 +187,37 @@ implements HandshakeCompletedListener {
         }
 
         Error.printSystemOut("----------------------------");
+    }
+
+    /**
+     * if socket argurment is not null, creates a secure Socket as a wapper for
+     * the normal, non-SSL socket. If the socket is null, create a new secure
+     * socket. The secure socket is configured using the
+     * socket options established for this factory.
+     *
+     * @return the socket
+     * @param socket the existing socket
+     * @param host the server host
+     * @param port the server port
+     * @throws Exception if a network or security provider error occurs
+     */
+    public Socket createSocket(Socket socket, String host,
+                               int port) throws Exception {
+
+        SSLSocket sslSocket;
+
+        if (socket == null) {
+            return createSocket(host, port);
+        }
+
+        sslSocket = (SSLSocket) getSocketFactoryImpl().createSocket(socket,
+                host, port, true);
+
+        sslSocket.addHandshakeCompletedListener(this);
+        sslSocket.startHandshake();
+        verify(host, sslSocket.getSession());
+
+        return sslSocket;
     }
 
     /**

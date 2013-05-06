@@ -39,7 +39,7 @@ import org.hsqldb.error.ErrorCode;
  * Invariant schema objects.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.2.7
+ * @version 2.3.0
  * @since 1.9.0
  */
 public class SqlInvariants {
@@ -63,18 +63,19 @@ public class SqlInvariants {
     public static final String SYSTEM_SUBQUERY = "SYSTEM_SUBQUERY";
 
     /** The role name reserved for the special PUBLIC pseudo-user. */
-    public static final String   PUBLIC_ROLE_NAME   = "PUBLIC";
-    public static final String   SYSTEM_SCHEMA      = "SYSTEM_SCHEMA";
-    public static final String   LOBS_SCHEMA        = "SYSTEM_LOBS";
-    public static final String   DEFINITION_SCHEMA  = "DEFINITION_SCHEMA";
-    public static final String   INFORMATION_SCHEMA = "INFORMATION_SCHEMA";
-    public static final String   SQLJ_SCHEMA        = "SQLJ";
-    public static final String   PUBLIC_SCHEMA      = "PUBLIC";
-    public static final String   CLASSPATH_NAME     = "CLASSPATH";
-    public static final String   MODULE             = "MODULE";
-    public static final String   DUAL               = "DUAL";
-    public static final String   DUMMY              = "DUMMY";
-    public static final String   IDX                = "IDX";
+    public static final String   PUBLIC_ROLE_NAME     = "PUBLIC";
+    public static final String   DEFAULT_CATALOG_NAME = "PUBLIC";
+    public static final String   SYSTEM_SCHEMA        = "SYSTEM_SCHEMA";
+    public static final String   LOBS_SCHEMA          = "SYSTEM_LOBS";
+    public static final String   DEFINITION_SCHEMA    = "DEFINITION_SCHEMA";
+    public static final String   INFORMATION_SCHEMA   = "INFORMATION_SCHEMA";
+    public static final String   SQLJ_SCHEMA          = "SQLJ";
+    public static final String   PUBLIC_SCHEMA        = "PUBLIC";
+    public static final String   CLASSPATH_NAME       = "CLASSPATH";
+    public static final String   MODULE               = "MODULE";
+    public static final String   DUAL                 = "DUAL";
+    public static final String   DUMMY                = "DUMMY";
+    public static final String   IDX                  = "IDX";
     public static final HsqlName INFORMATION_SCHEMA_HSQLNAME;
     public static final HsqlName SYSTEM_SCHEMA_HSQLNAME;
     public static final HsqlName LOBS_SCHEMA_HSQLNAME;

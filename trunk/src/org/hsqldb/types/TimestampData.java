@@ -41,7 +41,7 @@ package org.hsqldb.types;
 public class TimestampData {
 
     final long seconds;
-    final int  nanos;
+    int        nanos;
     final int  zone;
 
     public TimestampData(long seconds) {
@@ -75,6 +75,10 @@ public class TimestampData {
 
     public int getZone() {
         return zone;
+    }
+
+    public void clearNanos() {
+        nanos = 0;
     }
 
     public boolean equals(Object other) {

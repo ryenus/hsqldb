@@ -52,18 +52,18 @@ public interface TableSpaceManager {
     /**
      * Allocates a block
      */
-    long getFilePosition(int rowSize, boolean asBlocks);
+    long getFilePosition(long rowSize, boolean asBlocks);
 
-    boolean hasFileRoom(int blockSize);
+    boolean hasFileRoom(long blockSize);
 
     void addFileBlock(long blockPos, long blockFreePos, long blockLimit);
 
-    public void initialiseFileBlock(DoubleIntIndex lookup, long blockPos,
+    void initialiseFileBlock(DoubleIntIndex lookup, long blockPos,
                                     long blockFreePos, long blockLimit);
 
-    public void reset();
+    void reset();
 
-    public long getLostBlocksSize();
+    long getLostBlocksSize();
 
-    public void setSpaceManager(DataSpaceManager spaceManager, int spaceID);
+    boolean isDefaultSpace();
 }

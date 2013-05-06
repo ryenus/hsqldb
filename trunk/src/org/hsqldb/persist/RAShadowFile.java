@@ -165,10 +165,10 @@ public class RAShadowFile {
     private void open() throws IOException {
 
         if (database.logger.isStoredFileAccess()) {
-            dest = ScaledRAFile.newScaledRAFile(database, pathName, false,
-                                                ScaledRAFile.DATA_FILE_STORED);
+            dest = RAFile.newScaledRAFile(database, pathName, false,
+                                                RAFile.DATA_FILE_STORED);
         } else {
-            dest = new ScaledRAFileSimple(database, pathName, "rws");
+            dest = new RAFileSimple(database, pathName, "rws");
         }
     }
 
@@ -207,11 +207,11 @@ public class RAShadowFile {
             String pathName, String openMode) throws IOException {
 
         if (database.logger.isStoredFileAccess()) {
-            return ScaledRAFile.newScaledRAFile(database, pathName,
+            return RAFile.newScaledRAFile(database, pathName,
                                                 openMode.equals("r"),
-                                                ScaledRAFile.DATA_FILE_STORED);
+                                                RAFile.DATA_FILE_STORED);
         } else {
-            return new ScaledRAFileSimple(database, pathName, openMode);
+            return new RAFileSimple(database, pathName, openMode);
         }
     }
 

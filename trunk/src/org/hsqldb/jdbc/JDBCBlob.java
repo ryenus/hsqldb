@@ -119,7 +119,7 @@ import org.hsqldb.lib.java.JavaSystem;
  *
  * @author james house jhouse@part.net
  * @author boucherb@users
- * @version 2.0
+ * @version 2.3.0
  * @since JDK 1.2, HSQLDB 1.7.2
  * @revised JDK 1.6, HSQLDB 2.0
  */
@@ -639,6 +639,12 @@ public class JDBCBlob implements Blob {
     public void truncate(final long len) throws SQLException {
 
         final byte[] data = getData();
+
+        if (!m_createdByConnection) {
+
+            /** @todo - better error message */
+            throw JDBCUtil.notSupported();
+        }
 
         if (len < 0 || len > data.length) {
             throw JDBCUtil.outOfRangeArgument("len: " + len);
