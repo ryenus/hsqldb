@@ -1433,8 +1433,8 @@
       <simpara><emphasis>backup database statement</emphasis></simpara>
 
       <simpara><literal>&lt;backup database statement&gt; ::= BACKUP DATABASE
-      TO &lt;file path&gt; [SCRIPT] {[NOT] COMPRESSED} {[NOT]
-      BLOCKING}</literal></simpara>
+      TO &lt;file path&gt; [SCRIPT] {[NOT] COMPRESSED} {[NOT] BLOCKING} [AS
+      FILES]</literal></simpara>
 
       <simpara>Backup the database to specified <literal>&lt;file
       path&gt;</literal> for archiving purposes.</simpara>
@@ -1476,6 +1476,14 @@
       takes longer to restore and use than a normal backup set produced with
       the BLOCKING option. You can perform a CHECKPOINT just before a hot
       backup in order to reduce the size of the backup set.</simpara>
+
+      <simpara>If AS FILES is specified, the database files are copied to a
+      directory specified by &lt;file path&gt; without any compression. The
+      file path must be a directory. If the directory does not exist, it is
+      created. The file path may be absolute or relative. If it is relative,
+      it is interpreted as relative to the location of database files. When AS
+      FILES is specified, SCRIPT or COMPRESSED options are not available. The
+      backup can be performed as BLOCKING or not blocking.</simpara>
 
       <simpara>The HyperSQL jar also contains a program that creates an
       archive of an offline database. It also contains a program to expand an

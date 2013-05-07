@@ -355,11 +355,10 @@
     <literal>&lt;char value expr 2&gt;</literal>. If
     <literal>&lt;offset</literal>&gt; is specified, the search begins with the
     position indicated by <literal>&lt;offset&gt;</literal>. If the search is
-    not successful, 0 is returned. Equivalent to SQL/Foundation
+    not successful, 0 is returned. Without the third argument,<literal>
+    LOCATE</literal> is equivalent to the SQL Standard function
     <literal>POSITION(&lt;char value expr 1&gt; IN &lt;char value expr
-    2&gt;)</literal>. Without the third argument,<literal> LOCATE</literal> is
-    equivalent to the SQL Standard <literal>POSITION</literal> function.
-    (JDBC)</para>
+    2&gt;)</literal>. (JDBC)</para>
 
     <indexterm significance="preferred" type="sql">
       <primary>LPAD function</primary>
@@ -680,6 +679,30 @@
     <literal>&lt;trim octet&gt; </literal>are removed in the same manner as in
     the character version. If<literal> [ &lt;trim octet&gt; ]</literal> is not
     specified, the 0 octet is used as default. (Foundation)</para>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>TRANSLATE function</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">TRANSLATE</emphasis></simpara>
+
+    <para><literal>TRANSLATE( &lt;char value expr1&gt;, &lt;char value
+    expr2&gt;, &lt;char value expr3&gt; )</literal></para>
+
+    <para>Returns a character string based on <literal>&lt;char value
+    expr1&gt;</literal> source. Each character of the source is checked
+    against the characters in <literal>&lt;char value expr2&gt;</literal>. If
+    the character is not found, it is not modified. If the character is found,
+    then the character in the same position in <literal>&lt;char value
+    expr3&gt;</literal> is used. If <literal>&lt;char value
+    expr2&gt;</literal> is longer than <literal>&lt;char value
+    expr3&gt;</literal>, then those characters at the end that have no
+    counterpart in <literal>&lt;char value expr3&gt;</literal> are dropped
+    from the result. (HyperSQL)</para>
+
+    <programlisting> -- in this example any accented character in acolumn is replaced with one without an accent
+ TRANSLATE( acolumn, 'ÁÇÉÍÓÚÀÈÌÒÙÂÊÎÔÛÃÕËÜáçéíóúàèìòùâêîôûãõëü', 'ACEIOUAEIOUAEIOUAOEUaceiouaeiouaeiouaoeu');
+</programlisting>
 
     <indexterm significance="preferred" type="sql">
       <primary>UCASE function</primary>
@@ -1868,10 +1891,14 @@
       <para><literal>TIMESTAMP ( &lt;date value expr&gt;, &lt;time value
       expr&gt; )</literal></para>
 
-      <para>This function translates the arguments into a TIMESTAMP value.
-      When the single argument is a numeric value, it is interpreted as a Unix
-      timestamp in seconds. A single formatted date or timestamp string is
-      translated to a TIMESTAMP.</para>
+      <para>This function translates the arguments into a TIMESTAMP WIHOUT
+      TIME ZONE value.</para>
+
+      <para>When the single argument is a numeric value, it is interpreted as
+      a Unix timestamp in seconds.</para>
+
+      <para>When the single argument is a formatted date or timestamp string,
+      it is translated to a TIMESTAMP.</para>
 
       <para>When two arguments are used, the first argument is the date part
       and the second argument is the time part of the returned TIMESTAMP
@@ -1881,6 +1908,31 @@
 
  TIMESTAMP '2008-11-22 20:30:40.000000'
 </programlisting>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>TIMESTAMP_WITH_ZONE function</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">TIMESTAMP_WITH_ZONE</emphasis></simpara>
+
+      <para>TIMESTAMP_WITH_ZONE ( &lt;num value expr&gt; )</para>
+
+      <para>TIMESTAMP_WITH_ZONE ( &lt;char value expr&gt; )</para>
+
+      <para>This function translates the arguments into a TIMESTAMP WITH TIME
+      ZONE value.</para>
+
+      <para>When the single argument is a numeric value, it is interpreted as
+      a Unix timestamp in seconds.</para>
+
+      <para>When the single argument is TIMESTAMP, it is converted to
+      TIMESTAMP WITH TIME ZONE.</para>
+
+      <para>The time zone of the returned value is the local time zone at the
+      time of the timestamp argument. This accounts for daylight saving times.
+      For example, if the local time zone was +4:00 at the time of the given
+      Unix timestamp, the returned value is local timestamp at the time with
+      time zone +4:00.</para>
 
       <indexterm significance="preferred" type="sql">
         <primary>TO_CHAR function</primary>
