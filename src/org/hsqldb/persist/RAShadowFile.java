@@ -166,7 +166,7 @@ public class RAShadowFile {
 
         if (database.logger.isStoredFileAccess()) {
             dest = RAFile.newScaledRAFile(database, pathName, false,
-                                                RAFile.DATA_FILE_STORED);
+                                          RAFile.DATA_FILE_STORED);
         } else {
             dest = new RAFileSimple(database, pathName, "rws");
         }
@@ -208,8 +208,8 @@ public class RAShadowFile {
 
         if (database.logger.isStoredFileAccess()) {
             return RAFile.newScaledRAFile(database, pathName,
-                                                openMode.equals("r"),
-                                                RAFile.DATA_FILE_STORED);
+                                          openMode.equals("r"),
+                                          RAFile.DATA_FILE_STORED);
         } else {
             return new RAFileSimple(database, pathName, openMode);
         }

@@ -2143,14 +2143,14 @@ public class Logger {
     }
 
     public void backup(String destPath, boolean script, boolean blocking,
-                       boolean compressed) {
+                       boolean compressed, boolean files) {
 
         if (!backupState.compareAndSet(stateNormal, stateBackup)) {
-            throw Error.error(ErrorCode.BACKUP_ERROR, "BACKUP IN PROGRESS");
+            throw Error.error(ErrorCode.BACKUP_ERROR, "backup in progress");
         }
 
         try {
-            backupInternal(destPath, script, blocking, compressed);
+            backupInternal(destPath, script, blocking, compressed, files);
         } finally {
             backupState.set(stateNormal);
         }
@@ -2163,7 +2163,7 @@ public class Logger {
     DbBackup backup;
 
     void backupInternal(String destPath, boolean script, boolean blocking,
-                        boolean compressed) {
+                        boolean compressed, boolean asFiles) {
 
         String scriptName = null;
         String dbPath     = database.getPath();
@@ -2181,7 +2181,13 @@ public class Logger {
                 throw Error.error(ErrorCode.UNSUPPORTED_FILENAME_SUFFIX);
             }
 
-            destPath    = getSecurePath(destPath, false);
+            destPath = getSecurePath(destPath, false);
+
+            if (destPath == null) {
+                throw Error.error(ErrorCode.BACKUP_ERROR,
+                                  "access to directory denied");
+            }
+
             archiveFile = new File(destPath);
 
             archiveFile.mkdirs();
@@ -2364,6 +2370,8 @@ public class Logger {
                 || path.indexOf(":") > -1) {
             if (propTextAllowFullPath) {
                 return path;
+            } else {
+                return null;
             }
         }
 
