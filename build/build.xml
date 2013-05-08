@@ -338,8 +338,7 @@ examples:
          <exclude name="org/hsqldb/jdbc/jdbcRowSet.java"/>
 -->
 <!-- end JDBC 4 -->
-         <exclude name="org/hsqldb/persist/NIOLockFile.java"/>
-         <exclude name="org/hsqldb/persist/NIOScaledRAFile.java"/>
+         <exclude name="org/hsqldb/persist/RAFileNIO.java"/>
          <exclude name="org/hsqldb/rights/Grantee.java"/>
       </javac>
       <fixcrlf destdir="classes" preservelastmodified='true' eol="lf"
@@ -369,8 +368,7 @@ examples:
       <include name="org/hsqldb/jdbc/JDBCDataSource*.java"/>
       <include name="org/hsqldb/jdbc/JDBCParameterMetaData.java"/>
       <include name="org/hsqldb/jdbc/JDBCSavepoint.java"/>
-      <include name="org/hsqldb/persist/NIOLockFile.java"/>
-      <include name="org/hsqldb/persist/NIOScaledRAFile.java"/>
+      <include name="org/hsqldb/persist/RAFileNIO.java"/>
       </javac>
    </target>
 
