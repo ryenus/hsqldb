@@ -138,15 +138,44 @@ public class DataFileCache {
 
     public DataFileCache(Database db, String baseFileName) {
 
-        initParams(db, baseFileName);
+        initParams(db, baseFileName, false);
 
         cache = new Cache(this);
+    }
+
+    public DataFileCache(Database db, String baseFileName, boolean defrag) {
+
+        initParams(db, baseFileName, true);
+
+        cache = new Cache(this);
+
+        try {
+            if (database.logger.isStoredFileAccess()) {
+                dataFile = RAFile.newScaledRAFile(database, dataFileName,
+                                                  false,
+                                                  RAFile.DATA_FILE_STORED);
+            } else {
+                dataFile = new RAFileSimple(database, dataFileName, "rw");
+            }
+        } catch (Throwable t) {
+            throw Error.error(ErrorCode.FILE_IO_ERROR, t);
+        }
+
+        initNewFile();
+        initBuffers();
+
+        if (database.logger.isDataFileSpaces()) {
+            spaceManager = new DataSpaceManagerBlocks(this);
+        } else {
+            spaceManager = new DataSpaceManagerSimple(this);
+        }
     }
 
     /**
      * initial external parameters are set here.
      */
-    protected void initParams(Database database, String baseFileName) {
+    protected void initParams(Database database, String baseFileName,
+                              boolean defrag) {
 
         this.dataFileName   = baseFileName + Logger.dataFileExtension;
         this.backupFileName = baseFileName + Logger.backupFileExtension;
@@ -170,6 +199,13 @@ public class DataFileCache {
         maxCacheBytes = database.logger.propCacheMaxSize;
         maxDataFileSize = (long) Integer.MAX_VALUE * dataFileScale
                           * database.logger.getDataFileFactor();
+
+        if (defrag) {
+            this.dataFileName   = baseFileName + Logger.newFileExtension;
+            this.backupFileName = baseFileName + Logger.newFileExtension;
+            this.maxCacheRows  = 1024;
+            this.maxCacheBytes = 1024 * 4096;
+        }
     }
 
     /**
@@ -201,8 +237,8 @@ public class DataFileCache {
             }
 
             if (readonly || database.isFilesInJar()) {
-                dataFile = RAFile.newScaledRAFile(database,
-                        dataFileName, readonly, fileType);
+                dataFile = RAFile.newScaledRAFile(database, dataFileName,
+                                                  readonly, fileType);
 
                 dataFile.seek(FLAGS_POS);
 
@@ -310,7 +346,7 @@ public class DataFileCache {
             }
 
             dataFile = RAFile.newScaledRAFile(database, dataFileName,
-                    readonly, fileType);
+                                              readonly, fileType);
 
             if (preexists) {
                 dataFile.seek(FLAGS_POS);
@@ -393,8 +429,8 @@ public class DataFileCache {
             int fileType = RAFile.DATA_FILE_STORED;
 
             if (readonly) {
-                dataFile = RAFile.newScaledRAFile(database,
-                        dataFileName, readonly, fileType);
+                dataFile = RAFile.newScaledRAFile(database, dataFileName,
+                                                  readonly, fileType);
 
                 dataFile.seek(FLAGS_POS);
 
@@ -426,7 +462,7 @@ public class DataFileCache {
             }
 
             dataFile = RAFile.newScaledRAFile(database, dataFileName,
-                    readonly, fileType);
+                                              readonly, fileType);
 
             if (preexists) {
                 dataFile.seek(LONG_EMPTY_SIZE);
@@ -464,53 +500,6 @@ public class DataFileCache {
                               ErrorCode.M_DataFileCache_open, new Object[] {
                 t.toString(), dataFileName
             });
-        }
-    }
-
-    public DataFileCache(Database db, String sourceFileName, boolean defrag) {
-
-        this.database    = db;
-        dataFileName     = sourceFileName + Logger.newFileExtension;
-        dataFileScale    = database.logger.getDataFileScale();
-        cachedRowPadding = 8;
-
-        if (dataFileScale > 8) {
-            cachedRowPadding = dataFileScale;
-        }
-
-        initialFreePos = MIN_INITIAL_FREE_POS;
-
-        if (initialFreePos < dataFileScale) {
-            initialFreePos = dataFileScale;
-        }
-
-        maxCacheRows  = 1024;
-        maxCacheBytes = 1024 * 4096;
-        maxDataFileSize = (long) Integer.MAX_VALUE * dataFileScale
-                          * database.logger.getDataFileFactor();
-
-        try {
-            if (database.logger.isStoredFileAccess()) {
-                dataFile = RAFile.newScaledRAFile(database,
-                        dataFileName, false, RAFile.DATA_FILE_STORED);
-            } else {
-                dataFile = new RAFileSimple(database, dataFileName,
-                                                  "rw");
-            }
-        } catch (Throwable t) {
-            throw Error.error(ErrorCode.FILE_IO_ERROR, t);
-        }
-
-        //
-        cache = new Cache(this);
-
-        initNewFile();
-        initBuffers();
-
-        if (database.logger.isDataFileSpaces()) {
-            spaceManager = new DataSpaceManagerBlocks(this);
-        } else {
-            spaceManager = new DataSpaceManagerSimple(this);
         }
     }
 

@@ -408,7 +408,7 @@ public class Collation implements SchemaObject {
     }
 
     public boolean isUpperCaseCompare() {
-        return isUnicodeSimple;
+        return isUpperCaseCompare;
     }
 
     public boolean isCaseSensitive() {
