@@ -1,3 +1,5 @@
+14 May - svn 5238 snapshot
+-- added support for backup of database as set of files BACKUP DATABASE TO <path> AS FILES
 12 April - svn 5228 snapshot
 -- added TIMESTAMP_WITH_ZONE function
 -- fixed issue with AT <time zone> use with TIMESTAMP WITHOUT TIME ZONE
@@ -56,6 +58,7 @@
 -- improved sql.enforce_references=true to catch ambiguous references in ORDER BY columns
 -- improved ORA syntax compatibility mode
 -- added support for terminal DROP TABLE ... IF EXISTS for local temporary tables
+
 05 August 2012 - version 2.2.9
 -- code review and minor fixes
 -- improved support for use in OO and LO version 3.2 and later
@@ -95,9 +98,11 @@
 -- fixed issue with min(), max() optimisation for indexed columns
 -- fixed issue with some usages of UNNEST
 -- fixed issue with some NOT IN usage with NULL in list
+
 22 January 2012 - version 2.2.8
 -- fixed regression since 2.2.6 that affected database crash recovery
 -- added support for hot backup
+
 14 January 2012 - version 2.2.7
 -- fixed issue with NPE thrown with nio data files
 -- added SET DATABASE SQL NULLS FIRST and the property sql.nulls_first for the default sort order of nulls
@@ -106,6 +111,7 @@
 -- changed the JDBC object returned for INTERVAL values to String for the default jdbc.translate_tti_types=true setting
 -- improved syntax compatibility modes
 -- several minor improvements and bug fixes
+
 19 November 2011 - version 2.2.6
 -- fixed issue with memory use of large strings in cache
 -- fixed issue with FOR loops with ORDER BY in routines
@@ -134,6 +140,7 @@
 -- improved persistence reliability
 -- many minor improvements and bug fixes
 -- major improvements to SqlTool
+
 5 July 2011 - version 2.2.5
 -- fixed UNNEST in subquery
 -- fixed issue with INFORMATION_SCHEMA.ELEMENT_TYPES view
@@ -147,6 +154,7 @@
 -- improved query speed for some joins
 -- improved parameter type allocation for IN lists
 -- minor improvements
+
 12 Jun 2011 - version 2.2.4
 -- fixed reported issue 
 -- improved INFORMATION_SCHEMA concurrency
@@ -159,6 +167,7 @@
 -- improved IFNULL etc. functions that are based on CASE WHEN expressions
 -- improved Transfer Tool in HSQLDB transfers
 -- minor improvements
+
 22 May 2011 - version 2.2.2
 -- increased .data file limit to 2TB
 -- improved EXPLAIN PLAN
@@ -166,6 +175,7 @@
 -- improved TRUNCATE statement
 -- added support for text tables in mem: databases
 -- minor improvements
+
 16 May 2011 - version 2.2.1
 -- fixed regression in 2.2.0 with server TLS
 -- fixed regression in 2.2.0 with ResultSetMetaData schema names
@@ -175,6 +185,7 @@
 -- added auto checkpoints execution in separate session
 -- improved query speed for some LEFT OUTER joins
 -- added deletion of the temp directory at shutdown
+
 10 May 2011 - version 2.2.0
 -- fixed regression in 2.1.0 with database log created after a backup is completed not used for recovery
 -- fixed regression in 2.1.0 with alter table operation failures causing loss of table data 
@@ -193,6 +204,7 @@
 -- improvements to text table properties support
 -- improved table and database locking for DDL statements
 -- minor improvements and bug fixes
+
 14 Mar 2011 - Version 2.1.0
 -- added support for WITH RECURSIVE
 -- added support for ALTER INDEX <name> AS (<new column name list>) to change the indexed column list of an index
@@ -296,3 +308,5 @@
 07 June 2010 - SVN 3646
 -- fixed bug - SET FILES LOB SCALE did not change the store without a shutdown
 -- fixed bug #3012585 - multi-column FOREIGN KEY with mismatched order of PK columns did not work correctly
+
+06 June 2010 - version 2.0.0
