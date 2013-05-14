@@ -66,7 +66,7 @@ public abstract class BaseResultSetMetaDataTestCase extends BaseJdbcTestCase {
     protected int getPositiveIntProperty(String key) throws IllegalStateException {
         int value =  this.getIntProperty(key,
                 MIN_INT);
-        if (value <= ZERO) {
+        if (value < ZERO) {
 
             throw new IllegalStateException(
                     "Non-positive value configured for property key: "
@@ -131,7 +131,7 @@ public abstract class BaseResultSetMetaDataTestCase extends BaseJdbcTestCase {
     }
 
     protected int getExpectedColumnDisplaySize(int columnIndex) {
-        return getPositiveIntProperty("rsmd.column.display.size." + columnIndex);  
+        return getPositiveIntProperty("rsmd.column.display.size." + columnIndex);
     }
 
     protected String getExpectedColumnLabel(int columnIndex) {
@@ -146,8 +146,8 @@ public abstract class BaseResultSetMetaDataTestCase extends BaseJdbcTestCase {
         return this.getProperty("rsmd.schema.name." + columnIndex, NULL_STRING);
     }
 
-    protected int getExpectedPrecision(int columnIndex) {       
-        return getPositiveIntProperty("rsmd.precision." + columnIndex);      
+    protected int getExpectedPrecision(int columnIndex) {
+        return getPositiveIntProperty("rsmd.precision." + columnIndex);
     }
 
     protected int getExpectedScale(int columnIndex) {

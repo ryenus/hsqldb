@@ -21,7 +21,6 @@ create table all_types(
      ,c_tinyint            tinyint
      ,c_varbinary          varbinary(255)
      ,c_varchar            varchar(255)
-     ,c_varchar_ignorecase varchar_ignorecase(255)
      ,c_blob               blob(16)
      ,c_clob               clob(16)
      ,c_array              integer array[4]
@@ -48,7 +47,6 @@ insert into all_types(
      ,c_tinyint
      ,c_varbinary
      ,c_varchar
-     ,c_varchar_ignorecase
      ,c_blob
      ,c_clob
      ,c_array
@@ -73,7 +71,6 @@ insert into all_types(
     123,
     X'0123456789ABCDEF',
     'VARCHAR',
-    'VARCHAR_IGNORECASE',
     X'0123456789ABCDEF',
     'CLOB',
     array[1,2,3,4]

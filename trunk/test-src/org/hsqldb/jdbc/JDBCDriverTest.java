@@ -59,7 +59,7 @@ public class JDBCDriverTest extends BaseDriverTestCase {
 
     @Override
     protected int getExpectedMinorVersion() {
-        return getIntProperty("driver.minor.version", 2);
+        return getIntProperty("driver.minor.version", 3);
     }
 
     @Override

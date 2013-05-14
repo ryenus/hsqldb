@@ -21,7 +21,6 @@ create table all_array_types(
      ,c_tinyint            tinyint array[1]
      ,c_varbinary          varbinary(16) array[1]
      ,c_varchar            varchar(255) array[1]
-     ,c_varchar_ignorecase varchar_ignorecase(255) array[1]
 );
 
 insert into all_array_types(
@@ -45,7 +44,6 @@ insert into all_array_types(
      ,c_tinyint
      ,c_varbinary
      ,c_varchar
-     ,c_varchar_ignorecase
 ) values (
     1
     ,array[123456789]                  -- c_bigint
@@ -67,5 +65,4 @@ insert into all_array_types(
     ,array[123]                        -- c_tinyint
     ,array[X'0123456789ABCDEF']        -- c_varbinary
     ,array['VARCHAR']                  -- c_varchar
-    ,array['VARCHAR_IGNORECASE']       -- c_varchar_ignorecase
 );

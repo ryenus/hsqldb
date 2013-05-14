@@ -29,13 +29,13 @@
  */
 package org.hsqldb;
 
+import org.hsqldb.testbase.ForSubject;
 import org.hsqldb.types.IntervalType;
 import org.hsqldb.types.Type;
 import org.hsqldb.types.Types;
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
-import org.hsqldb.testbase.ForSubject;
 
 @ForSubject(Scanner.class)
 public class ScannerTest extends TestCase {

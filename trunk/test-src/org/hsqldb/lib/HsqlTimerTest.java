@@ -33,11 +33,12 @@ import java.io.File;
 import java.io.FileDescriptor;
 import java.io.IOException;
 import java.io.RandomAccessFile;
-import junit.framework.Test;
-import junit.framework.TestSuite;
+
 import org.hsqldb.testbase.BaseTestCase;
 import org.hsqldb.testbase.ForSubject;
 import org.hsqldb.testbase.OfMethod;
+import junit.framework.Test;
+import junit.framework.TestSuite;
 
 /**
  *
@@ -85,7 +86,6 @@ public class HsqlTimerTest extends BaseTestCase {
 
         Runnable task = new Runnable() {
 
-            @Override
             public void run() {
                 for (int i = 0; i < attemptedSyncsPerThread; i++) {
                     try {

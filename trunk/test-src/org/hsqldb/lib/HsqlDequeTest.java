@@ -29,11 +29,11 @@
  */
 package org.hsqldb.lib;
 
-import junit.framework.Test;
-import junit.framework.TestSuite;
 import org.hsqldb.testbase.BaseTestCase;
 import org.hsqldb.testbase.ForSubject;
 import org.hsqldb.testbase.OfMethod;
+import junit.framework.Test;
+import junit.framework.TestSuite;
 
 @ForSubject(HsqlDeque.class)
 public class HsqlDequeTest extends  BaseTestCase {

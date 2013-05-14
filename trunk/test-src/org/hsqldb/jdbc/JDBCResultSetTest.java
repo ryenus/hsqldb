@@ -175,7 +175,6 @@ public class JDBCResultSetTest extends BaseJdbcTestCase {
             + "c_tinyint       as tinyint_column, "
             + "c_varbinary     as varbinary_column, "
             + "c_varchar       as varchar_column, " // 20
-            + "c_varchar_ignorecase as varchar_ignorecase_column,"
             + "c_blob          as blob_column, "
             + "c_clob          as clob_column, "
             + "c_array         as array_column "
@@ -199,7 +198,6 @@ public class JDBCResultSetTest extends BaseJdbcTestCase {
         "c_tinyint",
         "c_varbinary",
         "c_varchar",
-        "c_varchar_ignorecase",
         "c_blob",
         "c_clob",
         "c_array"
@@ -223,7 +221,6 @@ public class JDBCResultSetTest extends BaseJdbcTestCase {
         "tinyint_column",
         "varbinary_column",
         "varchar_column",
-        "varchar_ignorecase_column",
         "blob_column",
         "clob_column",
         "array_column"
@@ -1510,9 +1507,9 @@ public class JDBCResultSetTest extends BaseJdbcTestCase {
 
     protected void handleTestSetDirectionAfterClose() throws Exception, SQLException {
         ResultSet rs = newForwardOnlyReadOnlyResultSet(getSelectFromAllTypes());
-        
+
         assertTrue(rs.next());
-        
+
         rs.close();
 
         try {

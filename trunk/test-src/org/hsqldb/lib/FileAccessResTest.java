@@ -36,7 +36,6 @@ import java.io.OutputStream;
 
 import org.hsqldb.lib.FileAccess.FileSync;
 import org.hsqldb.lib.FileUtil.FileAccessRes;
-import org.hsqldb.persist.HsqlDatabaseProperties;
 import org.hsqldb.testbase.BaseTestCase;
 import org.hsqldb.testbase.ForSubject;
 import org.hsqldb.testbase.OfMethod;
@@ -73,8 +72,7 @@ public class FileAccessResTest extends BaseTestCase {
      */
     @OfMethod("openInputStreamElement(java.lang.String)")
     public void testOpenInputStreamElement() throws Exception {
-        String streamName = HsqlDatabaseProperties.hsqldb_package_path
-                            + "/resources/sql-state-messages.properties";
+        String streamName = "/org/hsqldb/resources/sql-state-messages.properties";
         FileAccessRes testSubject = getTestSubject();
         InputStream result = null;
 
