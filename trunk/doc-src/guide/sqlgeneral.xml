@@ -94,15 +94,8 @@
     <literal>DROP TABLE mytable IF EXISTS</literal> are among such
     constructs.</para>
 
-    <para>Many print books cover SQL Standard syntax and can be consulted. For
-    a well-written basic guide to SQL with examples, you can also consult
-    <link
-    xlink:href="http://www.postgresql.org/files/documentation/books/aw_pgsql/index.html">PostgreSQL:
-    Introduction and Concepts</link> by Bruce Momjian, which is available on
-    the web. Most of the core SQL coverage in the book applies to HyperSQL as
-    well. There are some differences in keywords supported by one and not the
-    other engine (OUTER, OID's, etc.) or used differently (IDENTITY/SERIAL,
-    TRIGGER, SEQUENCE, etc.).</para>
+    <para>Many print books cover SQL Standard syntax and can be
+    consulted.</para>
 
     <para>In HyperSQL version 2, all features of JDBC4 that apply to the
     capabilities of HSQLDB are fully supported. The relevant JDBC classes are
@@ -319,7 +312,7 @@
     <title>Data Types and Operations</title>
 
     <para>HyperSQL supports all the types defined by SQL-92, plus BOOLEAN,
-    BINARY and LOB types that were added later to the SQL Standard. It also
+    BINARY and LOB types that were later added to the SQL Standard. It also
     supports the non-standard OTHER type to store serializable Java
     objects.</para>
 
@@ -385,9 +378,9 @@
       be optionally defined. For example, DECIMAL(10,2) means maximum total
       number of digits is 10 and there are always 2 digits after the decimal
       point, while DECIMAL(10) means 10 digits without a decimal point. The
-      bit-precision of FLOAT can also be defined, but in this case, it is
-      ignored and the default bit-precision of 64 is used. The default
-      precision of NUMERIC and DECIMAL (when not defined) is 100.</para>
+      bit-precision of FLOAT can be defined but it is ignored and the default
+      bit-precision of 64 is used. The default precision of NUMERIC and
+      DECIMAL (when not defined) is 100.</para>
 
       <para>Note: If a database has been set to ignore type precision limits
       with the SET DATABASE SQL SIZE FALSE command, then a type definition of
@@ -397,8 +390,9 @@
       <simpara><emphasis role="bold">Integral Types</emphasis></simpara>
 
       <para>In expressions, TINYINT, SMALLINT, INTEGER, BIGINT, NUMERIC and
-      DECIMAL (without a decimal point) are fully interchangeable, and no data
-      narrowing takes place.</para>
+      DECIMAL (without a decimal point) can be freely combined and no data
+      narrowing takes place. The resulting value is of a type that can support
+      all possible values.</para>
 
       <para>If the SELECT statement refers to a simple column or function,
       then the return type is the type corresponding to the column or the
@@ -445,8 +439,8 @@
       DECIMAL, depending on the value.</para>
 
       <para>Depending on the types of the operands, the result of the
-      operations is returned in a JDBC <classname>ResultSet</classname> in any
-      of related Java types: <classname>Integer</classname>,
+      operation is returned in a JDBC <classname>ResultSet</classname> in any
+      of the related Java types: <classname>Integer</classname>,
       <classname>Long</classname> or <classname>BigDecimal</classname>. The
       <methodname>ResultSet.getXXXX()</methodname> methods can be used to
       retrieve the values so long as the returned value can be represented by

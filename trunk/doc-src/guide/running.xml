@@ -54,29 +54,30 @@
 
     <para>HyperSQL Database (HSQLDB ) is a modern relational database system.
     Version 2.3 is the latest release of the all-new version 2 code. Written
-    from ground up to follow the international ISO SQL:2011 Standard, it
+    from ground up to follow the international ISO SQL:2011 standard, it
     supports the complete set of the classic features, together with optional
     features such as stored procedures and triggers.</para>
 
     <para>HyperSQL is used for development, testing and deployment of database
     applications.</para>
 
-    <para>Standard compliance is the most unique characteristic of HyperSQL
-    among several other distinctive features. HyperSQL can provide database
-    access within the user's application process, within an application
-    server, or as a separate server process. HyperSQL can run entirely in
-    memory, using dedicated fast memory structures as opposed to ram disk.
-    HyperSQL can use disk persistence in a flexible way, with reliable
-    crash-recovery. HyperSQL is the only open-source relational database
-    management system with a high performance dedicated lob storage system,
-    suitable for gigabytes of lob data. It is also the only relational
+    <para>Standard compliance is the most unique characteristic of HyperSQL.
+    There are several other distinctive features. HyperSQL can provide
+    database access within the user's application process, within an
+    application server, or as a separate server process. HyperSQL can run
+    entirely in memory using dedicated fast memory structures as opposed to
+    ram disk. HyperSQL can use disk persistence in a flexible way, with
+    reliable crash-recovery. HyperSQL is the only open-source relational
+    database management system with a high performance dedicated lob storage
+    system, suitable for gigabytes of lob data. It is also the only relational
     database that can create and access large comma delimited files as SQL
-    tables. HyperSQL supports three switchable transaction control models,
-    including fully multi threaded MVCC, and is suitable for high performance
-    transaction processing applications. HyperSQL is also suitable for
-    business intelligence, ETL and other applications that process large data
-    sets. HyperSQL has a wide range of enterprise deployment options, such as
-    XA transactions, connection pooling and remote authentication.</para>
+    tables. HyperSQL supports three live switchable transaction control
+    models, including fully multi threaded MVCC, and is suitable for high
+    performance transaction processing applications. HyperSQL is also suitable
+    for business intelligence, ETL and other applications that process large
+    data sets. HyperSQL has a wide range of enterprise deployment options,
+    such as XA transactions, connection pooling data sources and remote
+    authentication.</para>
 
     <para>New SQL syntax compatibility modes have been added to HyperSQL.
     These modes allow a high degree of compatibility with several other
@@ -85,6 +86,8 @@
     <para>HyperSQL is written in the Java programming language and runs in a
     Java virtual machine (JVM). It supports the JDBC interface for database
     access.</para>
+
+    <para>An ODBC driver is also available as a separate download.</para>
 
     <para>This guide covers the database engine features, SQL syntax and
     different modes of operation. The Server, JDBC interfaces, pooling and XA
