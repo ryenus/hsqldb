@@ -99,7 +99,8 @@ public class TextCache extends DataFileCache {
         uncommittedCache = new LongKeyHashMap();
     }
 
-    protected void initParams(Database database, String fileSettingsString) {
+    protected void initParams(Database database, String fileSettingsString,
+                              boolean defrag) {
 
         this.database    = database;
         fa               = FileUtil.getFileUtil();
@@ -155,7 +156,7 @@ public class TextCache extends DataFileCache {
                        : RAFile.DATA_FILE_TEXT;
 
             dataFile = RAFile.newScaledRAFile(database, dataFileName,
-                    readonly, type);
+                                              readonly, type);
             fileFreePosition = dataFile.length();
 
             if (fileFreePosition > maxDataFileSize) {
@@ -179,6 +180,7 @@ public class TextCache extends DataFileCache {
     public void release() {
         close();
     }
+
     /**
      *  Writes newly created rows to disk. In the current implentation,
      *  such rows have already been saved, so this method just removes a

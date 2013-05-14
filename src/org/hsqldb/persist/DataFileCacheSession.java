@@ -57,7 +57,8 @@ public class DataFileCacheSession extends DataFileCache {
     /**
      * Initial external parameters are set here. The size if fixed.
      */
-    protected void initParams(Database database, String baseFileName) {
+    protected void initParams(Database database, String baseFileName,
+                              boolean defrag) {
 
         this.dataFileName = baseFileName + ".data.tmp";
         this.database     = database;
@@ -76,8 +77,7 @@ public class DataFileCacheSession extends DataFileCache {
     public void open(boolean readonly) {
 
         try {
-            dataFile = new RAFile(database, dataFileName, false, false,
-                                        false);
+            dataFile = new RAFile(database, dataFileName, false, false, false);
             fileFreePosition = initialFreePos;
 
             initBuffers();

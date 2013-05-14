@@ -947,7 +947,8 @@ public class StatementDML extends StatementDMQL {
 
                 // DYNAMIC_PARAM and PARAMETER expressions may have wider values
                 if (e.dataType == null
-                        || type.typeDataGroup != e.dataType.typeDataGroup) {
+                        || type.typeDataGroup != e.dataType.typeDataGroup
+                        || type.isArrayType()) {
                     value = type.convertToType(session, value, e.dataType);
                 }
             }
