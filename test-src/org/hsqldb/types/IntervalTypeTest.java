@@ -29,12 +29,12 @@
  */
 package org.hsqldb.types;
 
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
 import org.hsqldb.testbase.BaseTestCase;
 import org.hsqldb.testbase.ForSubject;
 import org.hsqldb.testbase.OfMethod;
+import junit.framework.Test;
+import junit.framework.TestCase;
+import junit.framework.TestSuite;
 
 @ForSubject(IntervalType.class)
 @OfMethod("getIntervalType(int,long,int)")
@@ -135,7 +135,7 @@ public class IntervalTypeTest extends BaseTestCase {
 
     public static Test suite() {
         TestSuite suite = new TestSuite("IntervalType Test Suite");
-        
+
         for (int i = 0; i < s_parameters.length; i++) {
             suite.addTest(new IntervalTypeTest(s_parameters[i]));
         }

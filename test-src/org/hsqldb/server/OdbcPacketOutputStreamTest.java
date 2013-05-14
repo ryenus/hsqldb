@@ -39,7 +39,6 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 
 import org.hsqldb.lib.DataOutputStream;
-import org.hsqldb.persist.HsqlDatabaseProperties;
 import org.hsqldb.testbase.BaseTestCase;
 import org.hsqldb.testbase.ForSubject;
 import org.hsqldb.testbase.OfMethod;
@@ -415,7 +414,7 @@ public class OdbcPacketOutputStreamTest extends BaseTestCase {
      */
     public static void main(java.lang.String[] args) {
         if (args.length > 0 && args[0].startsWith("-g")) {
-            junit.swingui.TestRunner.run(OdbcPacketOutputStreamTest.class);
+//            junit.swingui.TestRunner.run(OdbcPacketOutputStreamTest.class);
         } else {
             junit.framework.TestResult result = junit.textui.TestRunner.run(suite());
 

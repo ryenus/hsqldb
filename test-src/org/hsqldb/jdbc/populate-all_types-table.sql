@@ -18,8 +18,7 @@ insert into all_types(
      c_timestamp,
      c_tinyint,
      c_varbinary,
-     c_varchar,
-     c_varchar_ignorecase
+     c_varchar
 ) values (
     2,
     123456789,
@@ -40,8 +39,7 @@ insert into all_types(
     current_timestamp,
     123,
     X'0123456789ABCDEF',
-    'VARCHAR',
-    'VARCHAR_IGNORECASE'
+    'VARCHAR'
 );
 insert into all_types(
      id,
@@ -63,8 +61,7 @@ insert into all_types(
      c_timestamp,
      c_tinyint,
      c_varbinary,
-     c_varchar,
-     c_varchar_ignorecase
+     c_varchar
 ) values (
     3,
     123456789,
@@ -85,8 +82,7 @@ insert into all_types(
     current_timestamp,
     123,
     X'0123456789ADBDEF',
-    'VARCHAR',
-    'VARCHAR_IGNORECASE'
+    'VARCHAR'
 );
 insert into all_types(
      id

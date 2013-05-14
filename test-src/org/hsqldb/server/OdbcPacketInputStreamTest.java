@@ -29,13 +29,14 @@
  */
 package org.hsqldb.server;
 
-import java.io.InputStream;
 import java.io.IOException;
-import junit.framework.Test;
-import junit.framework.TestSuite;
+import java.io.InputStream;
+
 import org.hsqldb.testbase.BaseTestCase;
 import org.hsqldb.testbase.ForSubject;
 import org.hsqldb.testbase.OfMethod;
+import junit.framework.Test;
+import junit.framework.TestSuite;
 
 @ForSubject(OdbcPacketInputStream.class)
 public class OdbcPacketInputStreamTest extends BaseTestCase {

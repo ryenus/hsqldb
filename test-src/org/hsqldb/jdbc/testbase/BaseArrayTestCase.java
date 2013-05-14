@@ -71,8 +71,7 @@ public abstract class BaseArrayTestCase extends BaseJdbcTestCase {
         "C_TIMESTAMP",
         "C_TINYINT",
         "C_VARBINARY",
-        "C_VARCHAR",
-        "C_VARCHAR_IGNORECASE"
+        "C_VARCHAR"
     };
 
     private static final int s_resultColumnCount = s_colNames.length;
@@ -95,8 +94,7 @@ public abstract class BaseArrayTestCase extends BaseJdbcTestCase {
         "TIMESTAMP",
         "TINYINT",
         "VARBINARY",
-        "VARCHAR",
-        "VARCHAR_IGNORECASE"
+        "VARCHAR"
     };
     private static final int[] s_baseTypes = new int[]{
         java.sql.Types.BIGINT,
@@ -137,8 +135,7 @@ public abstract class BaseArrayTestCase extends BaseJdbcTestCase {
         "ARRAY[TIMESTAMP'2010-07-04 23:06:49.005000']",
         "ARRAY[123]",
         "ARRAY[X'0123456789abcdef']",
-        "ARRAY['VARCHAR']",
-        "ARRAY['VARCHAR_IGNORECASE']"
+        "ARRAY['VARCHAR']"
     };
     private static final String s_setupScriptResourceName = "setup-all_array_types-table.sql";
     private static final String s_arraySelectStatement = "select t.{0} from all_array_types t where t.id = 1";

@@ -29,12 +29,13 @@
  */
 package org.hsqldb.lib;
 
-import junit.framework.Test;
-import junit.framework.TestSuite;
 import java.util.Comparator;
+
 import org.hsqldb.testbase.BaseTestCase;
 import org.hsqldb.testbase.ForSubject;
 import org.hsqldb.testbase.OfMethod;
+import junit.framework.Test;
+import junit.framework.TestSuite;
 
 /**
  *
@@ -52,7 +53,6 @@ public class HsqlArrayHeapTest extends BaseTestCase {
 
         Comparator<Object> oc = new Comparator<Object>() {
 
-            @Override
             public int compare(Object a, Object b) {
 
                 if (a == b) {
