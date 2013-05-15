@@ -1776,6 +1776,10 @@ public class ParserCommand extends ParserDDL {
 
         read();
 
+        if (token.tokenType == Tokens.WORK) {
+            read();
+        }
+
         if (token.tokenType == Tokens.TO) {
             read();
             readThis(Tokens.SAVEPOINT);
@@ -1792,10 +1796,6 @@ public class ParserCommand extends ParserDDL {
 
             return cs;
         } else {
-            if (token.tokenType == Tokens.WORK) {
-                read();
-            }
-
             if (token.tokenType == Tokens.AND) {
                 read();
 

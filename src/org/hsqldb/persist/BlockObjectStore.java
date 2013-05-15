@@ -39,6 +39,11 @@ import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
 import org.hsqldb.rowio.RowInputInterface;
 
+/**
+ * @author Fred Toussi (fredt@users dot sourceforge.net)
+ * @version 2.3.0
+ * @since 2.3.0
+ */
 public class BlockObjectStore extends SimpleStore {
 
     Class             objectClass;
