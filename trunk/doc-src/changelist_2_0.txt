@@ -1,4 +1,4 @@
-14 May - svn 5238 snapshot
+15 May - svn 5241 snapshot
 -- added support for backup of database as set of files BACKUP DATABASE TO <path> AS FILES
 12 April - svn 5228 snapshot
 -- added TIMESTAMP_WITH_ZONE function
