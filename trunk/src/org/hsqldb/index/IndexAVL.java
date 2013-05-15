@@ -113,7 +113,7 @@ import org.hsqldb.types.Type;
  *
  * @author Thomas Mueller (Hypersonic SQL Group)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.2.9
+ * @version 2.3.0
  * @since Hypersonic SQL
  */
 public class IndexAVL implements Index {
@@ -432,7 +432,7 @@ public class IndexAVL implements Index {
             NodeAVL temp = node;
 
             if (node == null) {
-                return new double[colIndex.length];
+                return changes;
             }
 
             while (true) {

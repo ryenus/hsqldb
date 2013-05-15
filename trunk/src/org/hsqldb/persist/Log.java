@@ -106,6 +106,9 @@ public class Log {
         writeDelay     = database.logger.propWriteDelay;
         filesReadOnly  = database.isFilesReadOnly();
         scriptFileName = fileName + Logger.scriptFileExtension;
+    }
+
+    void setupLogFile() {
         logFileName    = fileName + Logger.logFileExtension;
     }
 
@@ -335,6 +338,7 @@ public class Log {
     }
 
     void deleteLog() {
+        setupLogFile();
         fa.removeElement(logFileName);
     }
 
@@ -676,6 +680,8 @@ public class Log {
             return;
         }
 
+        setupLogFile();
+
         Crypto crypto = database.logger.getCrypto();
 
         try {
@@ -789,6 +795,8 @@ public class Log {
      * Performs all the commands in the .log file.
      */
     private void processLog() {
+
+        setupLogFile();
 
         if (fa.isStreamElement(logFileName)) {
             ScriptRunner.runScript(database, logFileName);
