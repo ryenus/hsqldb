@@ -233,7 +233,7 @@
       <informalexample>
         <programlisting> CREATE TABLE t (id INTEGER PRIMARY KEY, name VARCHAR(20) COLLATE "English")
  SELECT * FROM t ORDER BY name COLLATE "French"
- SELECT COUNT(*), name GROUP BY NAME COLLATE "ENGLISH 0"
+ SELECT COUNT(*), name FROM t GROUP BY name COLLATE "English 0"
 </programlisting>
       </informalexample>
 
@@ -284,7 +284,7 @@
       <para>It is recommended to use the default SQL_TEXT collation for your
       general CHAR or VARCHAR columns. For columns where a language collation
       is desirable, the choice should be made very carefully, because names
-      that are very similar but only differ in the accents will be considered
+      that are very similar but only differ in the accents may be considered
       equal in searches.</para>
 
       <para>When comparing two strings, HyperSQL 2 pads the shorter string
@@ -299,14 +299,17 @@
 
       <para>See the COLLATE keyword and SET DATABASE COLLATION statement in
       the <link endterm="management-title" os=""
-      xlink:href="#management-chapt"></link> chapter.</para>
+      xlink:href="#management-chapt"></link> chapter. The PAD SPACE or NO PAD
+      clause is used to control padding.</para>
 
-      <para>Important: If you change the default collation of a database when
-      there are tables containing data with CHAR or VARCHAR columns that are
-      part of an index, a primary key or a unique constraint, you must execute
-      SHUTDOWN COMPACT. If you do not do this, your queries and other
-      statements will show erratic behaviour and may result in unrecoverable
-      errors.</para>
+      <important>
+        <para>If you change the default collation of a database when there are
+        tables containing data with CHAR or VARCHAR columns that are part of
+        an index, a primary key or a unique constraint, you must execute
+        SHUTDOWN COMPACT or SHUTDOWN SCRIPT after the change. If you do not do
+        this, your queries and other statements will show erratic behaviour
+        and may result in unrecoverable errors.</para>
+      </important>
     </section>
 
     <section xml:id="dbc_distinct_types">

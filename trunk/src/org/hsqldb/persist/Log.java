@@ -109,7 +109,10 @@ public class Log {
     }
 
     void setupLogFile() {
-        logFileName    = fileName + Logger.logFileExtension;
+
+        if (logFileName == null) {
+            logFileName = fileName + Logger.logFileExtension;
+        }
     }
 
     /**
@@ -169,9 +172,6 @@ public class Log {
             case HsqlDatabaseProperties.FILES_NOT_MODIFIED :
                 database.logger.logInfoEvent(
                     "open start - state not modified");
-
-                //now .log may be zero length with modified=no
-                deleteLog();
 
                 /**
                  * if startup is after a SHUTDOWN SCRIPT and there are CACHED
@@ -681,6 +681,9 @@ public class Log {
         }
 
         setupLogFile();
+
+        //now .log may be zero length with modified=no
+        deleteLog();
 
         Crypto crypto = database.logger.getCrypto();
 
