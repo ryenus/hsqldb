@@ -263,8 +263,19 @@ public class StatementCommand extends Statement {
                 try {
                     session.checkAdmin();
 
-                    // toto may not want to enforce this constraint for SCRIPT type backup.
-                    session.database.checkDatabaseIsFiles();
+                    if (!session.database.getType().equals(
+                            DatabaseURL.S_FILE)) {
+                        throw Error.error(ErrorCode.DATABASE_IS_MEMORY_ONLY);
+                    }
+
+                    if (session.database.isFilesReadOnly()) {
+                        throw Error.error(ErrorCode.DATABASE_IS_READONLY);
+                    }
+
+                    if (session.database.logger.isStoredFileAccess()) {
+                        throw Error.error(ErrorCode.ACCESS_IS_DENIED);
+                    }
+
                     session.database.logger.backup(path, script, blocking,
                                                    compressed, files);
 
@@ -419,7 +430,15 @@ public class StatementCommand extends Statement {
 
                     session.checkAdmin();
                     session.checkDDLWrite();
-                    session.database.checkDatabaseIsFiles();
+
+                    if (session.database.getType().equals(DatabaseURL.S_RES)) {
+                        return Result.updateZeroResult;
+                    }
+
+                    if (session.database.isFilesReadOnly()) {
+                        return Result.updateZeroResult;
+                    }
+
                     session.database.logger.setDataFileSpaces(value);
 
                     return Result.updateZeroResult;
@@ -855,16 +874,11 @@ public class StatementCommand extends Statement {
                             name.name, name.schema.name);
                     DataFileCache cache = session.database.logger.getCache();
 
-                    if (!table.isCached()) {
-                        throw Error.error(ErrorCode.DATA_IS_READONLY);
-                    }
-
-                    if (cache == null) {
-                        return Result.updateZeroResult;
-                    }
+                    session.checkAdmin();
+                    session.checkDDLWrite();
 
                     if (!session.database.logger.isDataFileSpaces()) {
-                        throw Error.error(ErrorCode.DATA_IS_READONLY);
+                        throw Error.error(ErrorCode.ACCESS_IS_DENIED);
                     }
 
                     if (table.getSpaceID()
@@ -872,10 +886,21 @@ public class StatementCommand extends Statement {
                         return Result.updateZeroResult;
                     }
 
+                    // memory database
+                    if (cache == null) {
+                        return Result.updateZeroResult;
+                    }
+
                     DataSpaceManager dataSpace = cache.spaceManager;
                     int tableSpaceID = dataSpace.getNewTableSpaceID();
 
                     table.setSpaceID(tableSpaceID);
+
+                    // if cache exists, a memory table can get a space id
+                    // it can then be converted to cached
+                    if (!table.isCached()) {
+                        return Result.updateZeroResult;
+                    }
 
                     TableSpaceManager tableSpace =
                         dataSpace.getTableSpace(tableSpaceID);

@@ -395,26 +395,10 @@ public class HsqlDateTime {
             switch (part) {
 
                 case DTIType.WEEK_OF_YEAR : {
-                    int dayYear = tempCalGMT.get(Calendar.DAY_OF_YEAR);
-                    int year    = tempCalGMT.get(Calendar.YEAR);
-                    int week    = tempCalGMT.get(Calendar.WEEK_OF_YEAR);
+                    int dayWeek = tempCalGMT.get(Calendar.DAY_OF_WEEK);
 
-                    tempCalGMT.clear();
-                    tempCalGMT.set(Calendar.YEAR, year);
-
-                    if (week == 1 && (dayYear > 356 || dayYear < 7)) {
-                        tempCalGMT.set(Calendar.DAY_OF_YEAR, dayYear);
-
-                        while (true) {
-                            if (tempCalGMT.get(Calendar.DAY_OF_WEEK) == 1) {
-                                return tempCalGMT.getTimeInMillis();
-                            }
-
-                            tempCalGMT.add(Calendar.DAY_OF_YEAR, -1);
-                        }
-                    }
-
-                    tempCalGMT.set(Calendar.WEEK_OF_YEAR, week);
+                    tempCalGMT.add(Calendar.DAY_OF_YEAR, 1 - dayWeek);
+                    resetToDate(tempCalGMT);
 
                     break;
                 }
@@ -586,7 +570,7 @@ public class HsqlDateTime {
     private static final char e = 0xffff;
 
     public static TimestampData toDate(String string, String pattern,
-                              SimpleDateFormat format) {
+                                       SimpleDateFormat format) {
 
         Date   date;
         String javaPattern = HsqlDateTime.toJavaDatePattern(pattern);
