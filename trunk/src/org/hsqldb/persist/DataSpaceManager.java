@@ -58,8 +58,8 @@ public interface DataSpaceManager {
 
     void freeTableSpace(int spaceId);
 
-    void freeTableSpace(int spaceId, DoubleIntIndex spaceList,
-                               long offset, long limit);
+    void freeTableSpace(DoubleIntIndex spaceList, long offset,
+                               long limit, boolean full);
 
     long getLostBlocksSize();
 

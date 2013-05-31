@@ -791,8 +791,6 @@ implements WindowListener, ActionListener, ItemListener, Traceable {
             }
         }
 
-        if (s == null) {}
-
         if (s.equals("Start Transfer") || s.equals("ReStart Transfer")) {
             bStart.setLabel("ReStart Transfer");
             bStart.invalidate();

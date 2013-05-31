@@ -89,11 +89,10 @@ public class TableSpaceManagerSimple implements TableSpaceManager {
         return true;
     }
 
-    public void addFileBlock(long blockPos, long blockFreePos,
-                             long blockLimit) {}
+    public void addFileBlock(long blockFreePos, long blockLimit) {}
 
-    public void initialiseFileBlock(DoubleIntIndex lookup, long blockPos,
-                                    long blockFreePos, long blockLimit) {}
+    public void initialiseFileBlock(DoubleIntIndex lookup, long blockFreePos,
+                                    long blockLimit) {}
 
     public void reset() {}
 

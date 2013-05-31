@@ -1100,8 +1100,8 @@ public class ExpressionLogical extends Expression {
         }
 
         if (nodes[LEFT].nodes[0].dataType == null) {
-            nodes[LEFT].nodes[0].dataType = nodes[RIGHT].nodes[0].dataType =
-                Type.SQL_TIMESTAMP;
+            nodes[LEFT].nodes[0].dataType =  Type.SQL_TIMESTAMP;
+            nodes[RIGHT].nodes[0].dataType = Type.SQL_TIMESTAMP;
         }
 
         if (nodes[LEFT].nodes[1].isUnresolvedParam()) {

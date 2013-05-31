@@ -41,7 +41,7 @@ import java.util.Comparator;
  *
  * @author Tony Lai (tony_lai@users dot sourceforge.net)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.0.1
+ * @version 2.3.0
  * @since 1.9.0
  */
 public class ArraySort {
@@ -49,7 +49,7 @@ public class ArraySort {
     /**
      * Returns the index of the lowest element == the given search target,
      * or -1
-     * @return index or (- insert pos -1) if not found
+     * @return index or a negative value if not found
      */
     public static int searchFirst(Object[] array, int start, int limit,
                                   Object value, Comparator c) {
@@ -61,7 +61,7 @@ public class ArraySort {
         int found   = limit;
 
         while (low < high) {
-            mid     = (low + high) / 2;
+            mid     = (low + high) >>> 1;
             compare = c.compare(value, array[mid]);
 
             if (compare < 0) {
@@ -124,7 +124,7 @@ public class ArraySort {
         int v;
 
         if ((r - l) > M) {
-            i = (r + l) / 2;
+            i = (r + l) >>> 1;
 
             if (comparator.compare(array[i], array[l]) < 0) {
                 swap(array, l, i);    // Tri-Median Methode!

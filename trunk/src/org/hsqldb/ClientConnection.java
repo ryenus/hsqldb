@@ -570,7 +570,7 @@ public class ClientConnection implements SessionInterface {
     public Calendar getCalendarGMT() {
 
         if (calendarGMT == null) {
-            calendar = new GregorianCalendar(TimeZone.getTimeZone("GMT"));
+            calendarGMT = new GregorianCalendar(TimeZone.getTimeZone("GMT"));
         }
 
         return calendarGMT;

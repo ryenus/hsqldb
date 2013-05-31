@@ -446,7 +446,10 @@ public class Log {
         try {
             properties.setDBModified(
                 HsqlDatabaseProperties.FILES_NOT_MODIFIED);
-        } catch (Throwable e) {}
+        } catch (Throwable e) {
+            database.logger.logSevereEvent(
+                "logger.checkpointClose properties file save failed", e);
+        }
 
         database.logger.logInfoEvent("checkpointClose end");
 

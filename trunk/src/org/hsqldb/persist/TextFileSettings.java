@@ -40,7 +40,7 @@ import org.hsqldb.error.ErrorCode;
  *
  * @author Bob Preston (sqlbob@users dot sourceforge.net)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.2.6
+ * @version 2.3.0
  * @since 2.2.6
  */
 public class TextFileSettings {
@@ -73,8 +73,8 @@ public class TextFileSettings {
      *  are used to open the source file.<p>
      *
      *  Settings are used in this order: (1) settings specified in the
-     *  source string for the table (2) global database settings in
-     *  *.properties file (3) program defaults
+     *  source string for the table (2) global database settings
+     *  (3) program defaults
      */
     TextFileSettings(Database database, String fileSettingsString) {
 
@@ -85,11 +85,13 @@ public class TextFileSettings {
                 ";", "textdb");
         HsqlDatabaseProperties dbProps = database.getProperties();
 
-        //-- Get file name
         switch (tableprops.errorCodes.length) {
 
             case 0 :
+                // no source file name
                 this.dataFileName = null;
+                break;
+
             case 1 :
 
                 // source file name is the only key without a value

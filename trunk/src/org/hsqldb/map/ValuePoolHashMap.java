@@ -128,7 +128,7 @@ public class ValuePoolHashMap extends BaseHashMap {
         }
 
         lookup                 = hashIndex.linkNode(index, lastLookup);
-        testValue              = new Integer(intKey);
+        testValue              = Integer.valueOf(intKey);
         objectKeyTable[lookup] = testValue;
 
         if (accessCount > ACCESS_MAX) {
@@ -170,7 +170,7 @@ public class ValuePoolHashMap extends BaseHashMap {
         }
 
         lookup                 = hashIndex.linkNode(index, lastLookup);
-        testValue              = new Long(longKey);
+        testValue              = Long.valueOf(longKey);
         objectKeyTable[lookup] = testValue;
 
         if (accessCount > ACCESS_MAX) {

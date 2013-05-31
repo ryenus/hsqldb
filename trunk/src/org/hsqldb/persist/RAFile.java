@@ -117,7 +117,7 @@ final class RAFile implements RandomAccessInterface {
                     String.class, Boolean.class, Object.class
                 });
                 Object accessor = constructor.newInstance(new Object[] {
-                    name, new Boolean(readonly), skey
+                    name, Boolean.valueOf(readonly), skey
                 });
 
                 if (accessor instanceof RandomAccessInterface) {

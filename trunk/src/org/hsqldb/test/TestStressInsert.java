@@ -37,10 +37,8 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.Statement;
-import java.util.Random;
-
-import org.hsqldb.jdbc.JDBCBlob;
 import java.util.Arrays;
+import java.util.Random;
 
 /**
  * Test with small cache and very large row inserts
@@ -52,7 +50,7 @@ public class TestStressInsert {
     private PreparedStatement insertStmtB;
     private static final int  LOB_SIZE = 1024 * 1024;
     private static final int  MAX_SIZE = 4000;
-    private final Random      random   = new Random(0);
+    private final Random      random   = new Random();
     byte[]                    data     = getRandomBytes(LOB_SIZE);
 
     public void init() throws Exception {
@@ -218,7 +216,7 @@ public class TestStressInsert {
             TestStressInsert test = new TestStressInsert();
 
             test.init();
-            test.stressInsertB();
+            test.stressInsertA();
         } catch (Exception e) {
             e.printStackTrace();
         }

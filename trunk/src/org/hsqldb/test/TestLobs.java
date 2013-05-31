@@ -933,9 +933,9 @@ public class TestLobs extends TestBase {
 
             while (result.next()) {
                 byte[] data = result.getBytes(1);
-
-                System.out.println("Result: " + data == null ? "null"
-                                                             : data.length);
+                String s = data == null ? "null"
+                                        : String.valueOf(data.length);
+                System.out.println("Result: " + s);
             }
         } catch (SQLException e) {
             e.printStackTrace();

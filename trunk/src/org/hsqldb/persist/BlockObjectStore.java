@@ -50,7 +50,6 @@ public class BlockObjectStore extends SimpleStore {
     Constructor       constructor;
     int               storageSize;
     int               blockSize;
-    TableSpaceManager spaceManager;
 
     public BlockObjectStore(DataFileCache cache,
                             TableSpaceManager tableSpaceManager,
@@ -116,6 +115,12 @@ public class BlockObjectStore extends SimpleStore {
         CachedObject object = getNewInstance(blockSize);
 
         object.read(in);
+
+        int size = object.getRealSize(cache.rowOut);
+
+        size = cache.rowOut.getStorageSize(size);
+
+        object.setStorageSize(size);
 
         return object;
     }

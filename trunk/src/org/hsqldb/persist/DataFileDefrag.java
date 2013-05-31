@@ -201,9 +201,13 @@ final class DataFileDefrag {
         }
 
         // log any discrepency in row count
-        if (rootsArray[table.getIndexCount() * 2] != pointerLookup.size()) {
-            database.logger.logSevereEvent("descrepency in row count "
-                                           + table.getName().name, null);
+        long count = rootsArray[table.getIndexCount() * 2];
+
+        if (count != pointerLookup.size()) {
+            database.logger.logSevereEvent("discrepency in row count "
+                                           + table.getName().name + " "
+                                           + count + " "
+                                           + pointerLookup.size(), null);
         }
 
         rootsArray[table.getIndexCount()]     = 0;

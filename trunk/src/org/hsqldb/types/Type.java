@@ -597,7 +597,6 @@ public abstract class Type implements SchemaObject, Cloneable {
 
         TypedComparator(Session session) {
             this.session = session;
-            this.sort    = sort;
         }
 
         public int compare(Object a, Object b) {

@@ -763,6 +763,7 @@ public abstract class StatementDMQL extends Statement {
 
     private StringBuffer appendMultiColumns(StringBuffer sb, int[] columnMap) {
 
+        // todo - multiColVals is always null
         if (columnMap == null || multiColumnValues == null) {
             return sb;
         }

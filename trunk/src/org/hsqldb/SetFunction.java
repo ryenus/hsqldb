@@ -323,13 +323,13 @@ public class SetFunction implements Serializable {
                                                      count);
                         }
 
-                        return new Long(currentLong / count);
+                        return Long.valueOf(currentLong / count);
 
                     case Types.SQL_BIGINT : {
                         long value = getLongSum().divide(
                             BigInteger.valueOf(count)).longValue();
 
-                        return new Long(value);
+                        return Long.valueOf(value);
                     }
                     case Types.SQL_REAL :
                     case Types.SQL_FLOAT :
@@ -388,7 +388,7 @@ public class SetFunction implements Serializable {
                     case Types.TINYINT :
                     case Types.SQL_SMALLINT :
                     case Types.SQL_INTEGER :
-                        return new Long(currentLong);
+                        return Long.valueOf(currentLong);
 
                     case Types.SQL_BIGINT :
                         return new BigDecimal(getLongSum());

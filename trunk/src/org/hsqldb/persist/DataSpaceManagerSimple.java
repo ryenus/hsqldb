@@ -90,34 +90,48 @@ public class DataSpaceManagerSimple implements DataSpaceManager {
 
     public long getFileBlocks(int tableId, int blockCount) {
 
-        long filePosition = cache.enlargeFileSpace(blockCount * fileBlockSize);
+        long filePosition = cache.enlargeFileSpace((long)blockCount * fileBlockSize);
 
         return filePosition;
     }
 
     public void freeTableSpace(int spaceId) {}
 
-    public void freeTableSpace(int spaceId, DoubleIntIndex spaceList,
-                               long offset, long limit) {
+    public void freeTableSpace(DoubleIntIndex spaceList, long offset,
+                               long limit, boolean full) {
 
         totalFragmentSize += spaceList.getTotalValues();
 
-        if (cache.fileFreePosition == limit) {
-            cache.writeLock.lock();
+        if (full) {
+            if (cache.fileFreePosition == limit) {
+                cache.writeLock.lock();
 
-            try {
-                cache.fileFreePosition = offset;
-            } finally {
-                cache.writeLock.unlock();
+                try {
+                    cache.fileFreePosition = offset;
+                } finally {
+                    cache.writeLock.unlock();
+                }
+            } else {
+                totalFragmentSize += limit - offset;
+            }
+
+            if (spaceList.size() != 0) {
+                lookup = new DoubleIntIndex(spaceList.size(), true);
+
+                spaceList.copyTo(lookup);
             }
         } else {
-            totalFragmentSize += limit - offset;
-        }
+            compactLookup(spaceList, cache.dataFileScale);
+            spaceList.setValuesSearchTarget();
+            spaceList.sort();
 
-        if (spaceList.size() != 0) {
-            lookup = new DoubleIntIndex(spaceList.size(), true);
+            int extra = spaceList.size() - spaceList.capacity() / 2;
 
-            spaceList.copyTo(lookup);
+            if (extra > 0) {
+                spaceList.removeRange(0, extra);
+
+                totalFragmentSize -= spaceList.getTotalValues();
+            }
         }
     }
 
@@ -140,15 +154,13 @@ public class DataSpaceManagerSimple implements DataSpaceManager {
         long lastFreePosition = cache.enlargeFileSpace(totalBlocks
             * fileBlockSize - currentSize);
 
-        defaultSpaceManager.initialiseFileBlock(lookup,
-                (totalBlocks - 1) * fileBlockSize, lastFreePosition,
+        defaultSpaceManager.initialiseFileBlock(lookup, lastFreePosition,
                 cache.getFileFreePos());
 
         if (lookup != null) {
             totalFragmentSize -= lookup.getTotalValues();
+            lookup            = null;
         }
-
-        lookup = null;
     }
 
     public void reset() {
@@ -159,4 +171,46 @@ public class DataSpaceManagerSimple implements DataSpaceManager {
         return false;
     }
 
+    static boolean compactLookup(DoubleIntIndex lookup, int fileScale) {
+
+        lookup.setKeysSearchTarget();
+        lookup.sort();
+
+        if (lookup.size() == 0) {
+            return false;
+        }
+
+        int[] keys   = lookup.getKeys();
+        int[] values = lookup.getValues();
+        int   base   = 0;
+
+        for (int i = 1; i < lookup.size(); i++) {
+            int key   = keys[base];
+            int value = values[base];
+
+            if (key + value / fileScale == keys[i]) {
+                values[base] += values[i];    // base updated
+            } else {
+                base++;
+
+                if (base != i) {
+                    keys[base]   = keys[i];
+                    values[base] = values[i];
+                }
+            }
+        }
+
+        for (int i = base + 1; i < lookup.size(); i++) {
+            keys[i]   = 0;
+            values[i] = 0;
+        }
+
+        if (lookup.size() != base + 1) {
+            lookup.setSize(base + 1);
+
+            return true;
+        }
+
+        return false;
+    }
 }

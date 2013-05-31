@@ -571,11 +571,11 @@ public class SchemaManager {
 
     public HsqlName[] getCatalogAndBaseTableNames(HsqlName name) {
 
-        readLock.lock();
-
         if (name == null) {
             return catalogNameArray;
         }
+
+        readLock.lock();
 
         try {
             switch (name.type) {
@@ -1705,6 +1705,9 @@ public class SchemaManager {
                 case SchemaObject.COLUMN :
                     object = table.getColumn(table.getColumnIndex(name.name));
                     break;
+                    
+                default :
+                    continue;
             }
 
             removeReferencesFrom(object);
@@ -2846,7 +2849,7 @@ public class SchemaManager {
                 if (t.getTableType() == TableBase.CACHED_TABLE) {
                     long[] rootsArray = roots[i];
 
-                    if (roots != null) {
+                    if (rootsArray != null) {
                         t.setIndexRoots(rootsArray);
                     }
                 }

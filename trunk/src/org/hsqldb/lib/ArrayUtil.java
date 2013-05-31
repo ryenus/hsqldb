@@ -1472,7 +1472,7 @@ public class ArrayUtil {
         int mid  = 0;
 
         while (low < high) {
-            mid = (low + high) / 2;
+            mid = (low + high) >>> 1;
 
             if (ch < array[mid]) {
                 high = mid;
