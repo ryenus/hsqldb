@@ -3693,7 +3693,7 @@ public class ParserDDL extends ParserRoutine {
             database.schemaManager.getCatalogAndBaseTableNames(
                 table.getName());
 
-        if (mainTableName != null && mainTableName != table.getName()) {
+        if (mainTableName != table.getName()) {
             writeLockNames =
                 (HsqlName[]) ArrayUtil.toAdjustedArray(writeLockNames,
                     mainTableName, writeLockNames.length, 1);
