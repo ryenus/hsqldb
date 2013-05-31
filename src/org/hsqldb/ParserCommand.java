@@ -1425,7 +1425,6 @@ public class ParserCommand extends ParserDDL {
             }
             case Tokens.SPACE : {
                 read();
-                super.checkIsThis(Tokens.TRUE);
 
                 flag  = processTrueOrFalseObject();
                 type  = StatementTypes.SET_DATABASE_FILES_SPACE;
@@ -2109,7 +2108,6 @@ public class ParserCommand extends ParserDDL {
                     readThis(Tokens.FILES);
 
                     files = Boolean.TRUE;
-
                     break;
 
                 default :
