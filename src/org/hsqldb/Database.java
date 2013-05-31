@@ -879,7 +879,7 @@ public class Database {
         }
     }
 
-    class TimeoutRunner implements Runnable {
+    static class TimeoutRunner implements Runnable {
 
         private Object timerTask;
         OrderedHashSet sessionList;

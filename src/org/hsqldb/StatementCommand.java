@@ -108,6 +108,7 @@ public class StatementCommand extends Statement {
 
                 group    = StatementTypes.X_HSQLDB_DATABASE_OPERATION;
                 isLogged = false;
+                break;
             }
             case StatementTypes.DATABASE_BACKUP :
                 group    = StatementTypes.X_HSQLDB_DATABASE_OPERATION;

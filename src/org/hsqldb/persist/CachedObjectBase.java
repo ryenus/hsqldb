@@ -38,7 +38,6 @@ public abstract class CachedObjectBase implements CachedObject {
 
     boolean isMemory;
     long    position;
-    int     realSize;
     int     storageSize;
     boolean isInMemory;
     boolean hasChanged;

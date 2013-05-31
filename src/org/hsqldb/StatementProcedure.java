@@ -46,7 +46,7 @@ import org.hsqldb.types.Type;
  * Implementation of Statement for callable procedures.<p>
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.2.9
+ * @version 2.3.0
  * @since 1.9.0
  */
 public class StatementProcedure extends StatementDMQL {
@@ -148,11 +148,11 @@ public class StatementProcedure extends StatementDMQL {
         }
 
         for (int i = 0; i < arguments.length; i++) {
-            Expression e     = arguments[i];
-            Object     value = e.getValue(session);
+            Expression e = arguments[i];
 
             if (e != null) {
-                Type targetType = procedure.getParameter(i).getDataType();
+                Type   targetType = procedure.getParameter(i).getDataType();
+                Object value      = e.getValue(session);
 
                 data[i] = targetType.convertToType(session, value,
                                                    e.getDataType());

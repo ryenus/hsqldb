@@ -515,7 +515,7 @@ public class Expression implements Cloneable {
             return true;
         }
 
-        return (o1 == null) ? o2 == null
+        return (o1 == null) ? false
                             : o1.equals(o2);
     }
 

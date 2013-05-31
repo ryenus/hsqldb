@@ -104,7 +104,7 @@ public class DataFileCache {
     protected int cachedRowPadding;
 
     //
-    protected int     initialFreePos;
+    protected long    initialFreePos;
     protected long    lostSpaceSize;
     protected long    spaceManagerPosition;
     protected long    fileStartFreePosition;
@@ -203,8 +203,8 @@ public class DataFileCache {
         if (defrag) {
             this.dataFileName   = baseFileName + Logger.newFileExtension;
             this.backupFileName = baseFileName + Logger.newFileExtension;
-            this.maxCacheRows  = 1024;
-            this.maxCacheBytes = 1024 * 4096;
+            this.maxCacheRows   = 1024;
+            this.maxCacheBytes  = 1024 * 4096;
         }
     }
 
@@ -256,7 +256,7 @@ public class DataFileCache {
 
                 dataFile.seek(INT_SPACE_LIST_POS);
 
-                spaceManagerPosition = dataFile.readInt()
+                spaceManagerPosition = (long) dataFile.readInt()
                                        * DataSpaceManager.fixedBlockSizeUnit;
 
                 initBuffers();
@@ -366,7 +366,7 @@ public class DataFileCache {
 
                 dataFile.seek(INT_SPACE_LIST_POS);
 
-                spaceManagerPosition = dataFile.readInt()
+                spaceManagerPosition = (long) dataFile.readInt()
                                        * DataSpaceManager.fixedBlockSizeUnit;
 
                 openShadowFile();
@@ -388,7 +388,7 @@ public class DataFileCache {
 
             logInfoEvent("dataFileCache open end");
         } catch (Throwable t) {
-            logSevereEvent("dataFileCache open failed", t);
+            logSevereEvent("DataFileCache.open", t);
             release();
 
             throw Error.error(t, ErrorCode.FILE_IO_ERROR,
@@ -562,7 +562,7 @@ public class DataFileCache {
 
             fileModified = true;
         } catch (Throwable t) {
-            logSevereEvent("setIncrementalBackup failed", t);
+            logSevereEvent("DataFileCache.setIncrementalBackup", t);
         } finally {
             writeLock.unlock();
         }
@@ -605,7 +605,7 @@ public class DataFileCache {
 
             return false;
         } catch (Throwable t) {
-            database.logger.logSevereEvent("restoreBackup failed", t);
+            database.logger.logSevereEvent("DataFileCache.restoreBackup", t);
 
             throw Error.error(t, ErrorCode.FILE_IO_ERROR,
                               ErrorCode.M_Message_Pair, new Object[] {
@@ -641,8 +641,8 @@ public class DataFileCache {
 
             return false;
         } catch (Throwable e) {
-            database.logger.logSevereEvent("restoreBackupIncremental failed",
-                                           e);
+            database.logger.logSevereEvent(
+                "DataFileCache.restoreBackupIncremental", e);
 
             throw Error.error(ErrorCode.FILE_IO_ERROR, e);
         }
@@ -670,8 +670,9 @@ public class DataFileCache {
             logDetailEvent("dataFileCache file closed");
 
             dataFile = null;
-        } catch (Throwable t) {}
-        finally {
+        } catch (Throwable t) {
+            logSevereEvent("DataFileCache.release", t);
+        } finally {
             writeLock.unlock();
         }
     }
@@ -704,7 +705,7 @@ public class DataFileCache {
         } catch (HsqlException e) {
             throw e;
         } catch (Throwable t) {
-            logSevereEvent("dataFileCache close failed", t);
+            logSevereEvent("DataFileCache.close", t);
 
             throw Error.error(t, ErrorCode.FILE_IO_ERROR,
                               ErrorCode.M_DataFileCache_close, new Object[] {
@@ -796,7 +797,7 @@ public class DataFileCache {
 
             logInfoEvent("dataFileCache commit end");
         } catch (Throwable t) {
-            logSevereEvent("dataFileCache commit failed", t);
+            logSevereEvent("DataFileCache.reset commit", t);
 
             throw Error.error(t, ErrorCode.FILE_IO_ERROR,
                               ErrorCode.M_DataFileCache_close, new Object[] {
@@ -1189,7 +1190,7 @@ public class DataFileCache {
 
             return dataFile.readInt();
         } catch (Throwable t) {
-            logSevereEvent("readSize failed ", t, pos);
+            logSevereEvent("DataFileCache.readSize", t, pos);
 
             throw Error.error(ErrorCode.DATA_FILE_ERROR, t);
         } finally {
@@ -1207,7 +1208,7 @@ public class DataFileCache {
             rowIn.resetRow(pos, size);
             dataFile.read(rowIn.getBuffer(), 4, size - 4);
         } catch (Throwable t) {
-            logSevereEvent("readObject", t, pos);
+            logSevereEvent("DataFileCache.readObject", t, pos);
 
             HsqlException ex = Error.error(ErrorCode.DATA_FILE_ERROR, t);
 
@@ -1228,7 +1229,7 @@ public class DataFileCache {
             dataFile.seek(pos * dataFileScale);
             dataFile.read(rowIn.getBuffer(), 0, size);
         } catch (Throwable t) {
-            logSevereEvent("readObject failed", t, pos);
+            logSevereEvent("DataFileCache.readObject", t, pos);
 
             HsqlException ex = Error.error(ErrorCode.DATA_FILE_ERROR, t);
 
@@ -1312,7 +1313,7 @@ public class DataFileCache {
             dataFile.write(rowOut.getOutputStream().getBuffer(), 0,
                            rowOut.getOutputStream().size());
         } catch (Throwable t) {
-            logSevereEvent("saveRowOutput failed ", t, pos);
+            logSevereEvent("DataFileCache.saveRowOutput", t, pos);
 
             throw Error.error(ErrorCode.DATA_FILE_ERROR, t);
         }
@@ -1327,7 +1328,7 @@ public class DataFileCache {
             dataFile.write(rowOut.getOutputStream().getBuffer(), 0,
                            rowOut.getOutputStream().size());
         } catch (Throwable t) {
-            logSevereEvent("saveRowNoLock failed ", t, row.getPos());
+            logSevereEvent("DataFileCache.saveRowNoLock", t, row.getPos());
 
             throw Error.error(ErrorCode.DATA_FILE_ERROR, t);
         }
@@ -1350,7 +1351,7 @@ public class DataFileCache {
 
                 shadowFile.synch();
             } catch (Throwable t) {
-                logSevereEvent("copyShadow failed ", t, seekpos);
+                logSevereEvent("DataFileCache.copyShadow", t, seekpos);
 
                 throw Error.error(ErrorCode.DATA_FILE_ERROR, t);
             }
@@ -1371,7 +1372,7 @@ public class DataFileCache {
                 shadowFile.copy(seekpos, row.getStorageSize());
                 shadowFile.synch();
             } catch (Throwable t) {
-                logSevereEvent("copyShadow failed ", t, row.getPos());
+                logSevereEvent("DataFileCache.copyShadow", t, row.getPos());
 
                 throw Error.error(ErrorCode.DATA_FILE_ERROR, t);
             }
@@ -1427,7 +1428,7 @@ public class DataFileCache {
                                      FileArchiver.COMPRESSION_ZIP);
             }
         } catch (Throwable t) {
-            database.logger.logSevereEvent("backupFile failed ", t);
+            database.logger.logSevereEvent("DataFileCache.backupFile", t);
 
             throw Error.error(ErrorCode.DATA_FILE_ERROR, t);
         }
@@ -1615,7 +1616,7 @@ public class DataFileCache {
                 fileModified = true;
             }
         } catch (Throwable t) {
-            logSevereEvent("setFileModified failed", t);
+            logSevereEvent("DataFileCache.setFileModified", t);
 
             throw Error.error(ErrorCode.DATA_FILE_ERROR, t);
         }
@@ -1629,7 +1630,9 @@ public class DataFileCache {
             int flags = dataFile.readInt();
 
             return flags;
-        } catch (Throwable t) {}
+        } catch (Throwable t) {
+            logSevereEvent("DataFileCache.setFlags", t);
+        }
 
         return 0;
     }

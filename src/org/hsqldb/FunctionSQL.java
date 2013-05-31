@@ -1618,8 +1618,8 @@ public class FunctionSQL extends Expression {
             case FUNC_OVERLAY_BINARY : {
                 if (nodes[0].dataType == null) {
                     if (nodes[1].dataType == null) {
-                        nodes[0].dataType = nodes[1].dataType =
-                            Type.SQL_VARCHAR_DEFAULT;
+                        nodes[0].dataType = Type.SQL_VARCHAR_DEFAULT;
+                        nodes[1].dataType = Type.SQL_VARCHAR_DEFAULT;
 
                         // throw Error.error(ErrorCode.X_42567);
                     }

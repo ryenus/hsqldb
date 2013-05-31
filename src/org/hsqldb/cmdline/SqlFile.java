@@ -4339,7 +4339,6 @@ public class SqlFile {
      * buffer.
      */
     private boolean setBuf(Token newBuffer) {
-        if (buffer != null)
         if (buffer != null && buffer.equals(newBuffer)) return false;
         switch (newBuffer.type) {
             case Token.SQL_TYPE:

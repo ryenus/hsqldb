@@ -95,16 +95,16 @@ class TransactionManagerCommon {
         // statement runs as transaction
         writeLock.lock();
 
-        switch (txModel) {
-
-            case TransactionManager.MVCC :
-            case TransactionManager.MVLOCKS :
-                if (liveTransactionTimestamps.size() != 1) {
-                    throw Error.error(ErrorCode.X_25001);
-                }
-        }
-
         try {
+            switch (txModel) {
+
+                case TransactionManager.MVCC :
+                case TransactionManager.MVLOCKS :
+                    if (liveTransactionTimestamps.size() != 1) {
+                        throw Error.error(ErrorCode.X_25001);
+                    }
+            }
+
             switch (mode) {
 
                 case TransactionManager.MVCC : {

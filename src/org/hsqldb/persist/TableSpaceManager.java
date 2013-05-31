@@ -56,10 +56,10 @@ public interface TableSpaceManager {
 
     boolean hasFileRoom(long blockSize);
 
-    void addFileBlock(long blockPos, long blockFreePos, long blockLimit);
+    void addFileBlock(long blockFreePos, long blockLimit);
 
-    void initialiseFileBlock(DoubleIntIndex lookup, long blockPos,
-                                    long blockFreePos, long blockLimit);
+    void initialiseFileBlock(DoubleIntIndex lookup, long blockFreePos,
+                             long blockLimit);
 
     void reset();
 

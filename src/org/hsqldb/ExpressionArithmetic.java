@@ -314,11 +314,13 @@ public class ExpressionArithmetic extends Expression {
 
         if (nodes[LEFT].isUnresolvedParam()
                 && nodes[RIGHT].isUnresolvedParam()) {
-            nodes[LEFT].dataType = nodes[RIGHT].dataType = Type.SQL_INTEGER;
+            nodes[LEFT].dataType  = Type.SQL_INTEGER;
+            nodes[RIGHT].dataType = Type.SQL_INTEGER;
         }
 
         if (nodes[LEFT].dataType == null && nodes[RIGHT].dataType == null) {
-            nodes[LEFT].dataType = nodes[RIGHT].dataType = Type.SQL_INTEGER;
+            nodes[LEFT].dataType  = Type.SQL_INTEGER;
+            nodes[RIGHT].dataType = Type.SQL_INTEGER;
         }
 
         if (nodes[LEFT].isUnresolvedParam()) {

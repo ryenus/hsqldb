@@ -223,6 +223,9 @@ class TestBench {
 
             MemoryWatcher.start();
 
+            guardian  = connect(url, user, password);
+            checkSums(guardian);
+
             long startTime = System.currentTimeMillis();
 
             for (int i = 0; i < rounds; i++) {
@@ -443,7 +446,7 @@ class TestBench {
 
             Query = "CREATE TABLE branches ( "
                     + "Bid         INTEGER NOT NULL PRIMARY KEY, "
-                    + "Bbalance    INTEGER," + "filler      CHAR(88))";    /* pad to 100 bytes */
+                    + "Bbalance    INTEGER," + "filler      VARCHAR(88))";    /* pad to 100 bytes */
 
             Stmt.execute(Query);
             Stmt.clearWarnings();
@@ -451,7 +454,7 @@ class TestBench {
             Query = "CREATE TABLE tellers ("
                     + "Tid         INTEGER NOT NULL PRIMARY KEY,"
                     + "Bid         INTEGER," + "Tbalance    INTEGER,"
-                    + "filler      CHAR(84))";                             /* pad to 100 bytes */
+                    + "filler      VARCHAR(84))";                             /* pad to 100 bytes */
 
             if (createExtension.length() > 0) {
                 Query += createExtension;
@@ -463,7 +466,7 @@ class TestBench {
             Query = "CREATE TABLE accounts ("
                     + "Aid         INTEGER NOT NULL PRIMARY KEY, "
                     + "Bid         INTEGER, " + "Abalance    INTEGER, "
-                    + "filler      CHAR(84))";                             /* pad to 100 bytes */
+                    + "filler      VARCHAR(84))";                             /* pad to 100 bytes */
 
             if (createExtension.length() > 0) {
                 Query += createExtension;
@@ -475,7 +478,7 @@ class TestBench {
             Query = "CREATE TABLE history (" + "Tid         INTEGER, "
                     + "Bid         INTEGER, " + "Aid         INTEGER, "
                     + "delta       INTEGER, " + "tstime        TIMESTAMP, "
-                    + "filler      CHAR(22))";                             /* pad to 50 bytes  */
+                    + "filler      VARCHAR(22))";                             /* pad to 50 bytes  */
 
             Stmt.execute(Query);
             Stmt.clearWarnings();
@@ -545,12 +548,8 @@ class TestBench {
              */
             PreparedStatement pstmt = null;
 
-            try {
-                Query = "INSERT INTO branches(Bid,Bbalance) VALUES (?,0)";
-                pstmt = Conn.prepareStatement(Query);
-            } catch (SQLException Epstmt) {
-                pstmt = null;
-            }
+            Query = "INSERT INTO branches(Bid,Bbalance) VALUES (?,0)";
+            pstmt = Conn.prepareStatement(Query);
 
             System.out.println("Insert data in branches table");
 

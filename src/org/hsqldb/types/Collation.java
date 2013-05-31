@@ -246,7 +246,10 @@ public class Collation implements SchemaObject {
         //
         this.charset    = charset;
         this.sourceName = source.name;
-        this.padSpace   = padSpace;
+
+        if (padSpace != null) {
+            this.padSpace = padSpace.booleanValue();
+        }
     }
 
     public static Collation getDefaultInstance() {

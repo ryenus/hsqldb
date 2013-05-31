@@ -4477,7 +4477,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
             case Types.OTHER :
                 throw JDBCUtil.sqlException(Error.error(ErrorCode.X_42563));
             default :
-                setParameter(i, new Integer(value));
+                setParameter(i, Integer.valueOf(value));
         }
     }
 
@@ -4498,7 +4498,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
         switch (outType) {
 
             case Types.SQL_BIGINT :
-                Object o = new Long(value);
+                Object o = Long.valueOf(value);
 
                 parameterValues[i - 1] = o;
                 parameterSet[i - 1]    = Boolean.TRUE;
@@ -4509,7 +4509,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
             case Types.OTHER :
                 throw JDBCUtil.sqlException(Error.error(ErrorCode.X_42563));
             default :
-                setParameter(i, new Long(value));
+                setParameter(i, Long.valueOf(value));
         }
     }
 

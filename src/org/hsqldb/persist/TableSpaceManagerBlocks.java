@@ -31,6 +31,8 @@
 
 package org.hsqldb.persist;
 
+import org.hsqldb.error.Error;
+import org.hsqldb.error.ErrorCode;
 import org.hsqldb.lib.ArrayUtil;
 import org.hsqldb.lib.DoubleIntIndex;
 
@@ -57,11 +59,9 @@ public class TableSpaceManagerBlocks implements TableSpaceManager {
     private long           requestSize;
 
     // reporting vars
-    long    freeBlockSize;
     boolean isModified;
 
     //
-    long freshBlockPos     = 0;
     long freshBlockFreePos = 0;
     long freshBlockLimit   = 0;
 
@@ -87,8 +87,7 @@ public class TableSpaceManagerBlocks implements TableSpaceManager {
         return freshBlockLimit - freshBlockFreePos > blockSize;
     }
 
-    public void addFileBlock(long blockPos, long blockFreePos,
-                             long blockLimit) {
+    public void addFileBlock(long blockFreePos, long blockLimit) {
 
         int released = (int) (freshBlockLimit - freshBlockFreePos);
 
@@ -96,21 +95,17 @@ public class TableSpaceManagerBlocks implements TableSpaceManager {
             release(freshBlockFreePos / scale, released);
         }
 
-        initialiseFileBlock(null, blockPos, blockFreePos, blockLimit);
+        initialiseFileBlock(null, blockFreePos, blockLimit);
     }
 
-    public void initialiseFileBlock(DoubleIntIndex spaceList, long blockPos,
+    public void initialiseFileBlock(DoubleIntIndex spaceList,
                                     long blockFreePos, long blockLimit) {
 
-        this.freshBlockPos     = blockPos;
         this.freshBlockFreePos = blockFreePos;
         this.freshBlockLimit   = blockLimit;
-        this.freeBlockSize     = 0;
 
         if (spaceList != null) {
             spaceList.copyTo(lookup);
-
-            freeBlockSize = spaceList.getTotalValues();
         }
     }
 
@@ -136,7 +131,6 @@ public class TableSpaceManagerBlocks implements TableSpaceManager {
             release(freshBlockFreePos / scale, (int) released);
         }
 
-        freshBlockPos     = position;
         freshBlockFreePos = position;
         freshBlockLimit   = position + blockSize;
 
@@ -154,7 +148,7 @@ public class TableSpaceManagerBlocks implements TableSpaceManager {
             boolean result = getNewMainBlock(rowSize);
 
             if (!result) {
-                return -1;
+                throw Error.error(ErrorCode.DATA_FILE_IS_FULL);
             }
         }
 
@@ -194,8 +188,6 @@ public class TableSpaceManagerBlocks implements TableSpaceManager {
 
         if (pos < Integer.MAX_VALUE) {
             lookup.add(pos, rowSize);
-
-            freeBlockSize += rowSize;
         }
     }
 
@@ -260,26 +252,20 @@ public class TableSpaceManagerBlocks implements TableSpaceManager {
             lookup.add(pos, difference);
         }
 
-        freeBlockSize -= rowSize;
-
         return key;
     }
 
     public void reset() {
 
-        compactLookup();
-        spaceManager.freeTableSpace(spaceID, lookup, freshBlockFreePos,
-                                    freshBlockLimit);
-        lookup.removeAll();
+        spaceManager.freeTableSpace(lookup, freshBlockFreePos,
+                                    freshBlockLimit, true);
 
-        freshBlockPos     = 0;
         freshBlockFreePos = 0;
         freshBlockLimit   = 0;
-        freeBlockSize     = 0;
     }
 
     public long getLostBlocksSize() {
-        return freeBlockSize;
+        return lookup.getTotalValues();
     }
 
     public boolean isDefaultSpace() {
@@ -288,59 +274,8 @@ public class TableSpaceManagerBlocks implements TableSpaceManager {
 
     private void resetList() {
 
-        if (compactLookup()) {
-            return;
-        }
-
         // dummy args for file block release
-        spaceManager.freeTableSpace(spaceID, lookup, freshBlockFreePos,
-                                    freshBlockFreePos);
-        lookup.removeAll();
-
-        freeBlockSize = 0;
-    }
-
-    private boolean compactLookup() {
-
-        lookup.setKeysSearchTarget();
-        lookup.sort();
-
-        int[] keys   = lookup.getKeys();
-        int[] values = lookup.getValues();
-        int   base   = 0;
-
-        for (int i = 1; i < lookup.size(); i++) {
-            int key   = keys[base];
-            int value = values[base];
-
-            if (key + value / scale == keys[i]) {
-                values[base] += values[i];    // base updated
-            } else {
-                base++;
-
-                if (base != i) {
-                    keys[base]   = keys[i];
-                    values[base] = values[i];
-                }
-            }
-        }
-
-        for (int i = base + 1; i < lookup.size(); i++) {
-            keys[i]   = 0;
-            values[i] = 0;
-        }
-
-        if (lookup.size() != base + 1) {
-            lookup.setSize(base + 1);
-            lookup.setValuesSearchTarget();
-            lookup.sort();
-
-            return true;
-        }
-
-        lookup.setValuesSearchTarget();
-        lookup.sort();
-
-        return false;
+        spaceManager.freeTableSpace(lookup, freshBlockFreePos,
+                                    freshBlockFreePos, false);
     }
 }

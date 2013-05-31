@@ -978,10 +978,6 @@ public final class Constraint implements SchemaObject {
         if (table == null) {
             check.resolveTypes(session, null);
         } else {
-            if (table.store != null) {
-                table.store = table.store;
-            }
-
             QuerySpecification checkSelect = Expression.getCheckSelect(session,
                 table, check);
 
