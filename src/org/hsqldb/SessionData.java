@@ -655,7 +655,7 @@ public class SessionData {
 
         session.checkAdmin();
 
-        filename = database.logger.getSecurePath(filename, false);
+        filename = database.logger.getSecurePath(filename, false, false);
 
         if (filename == null) {
             throw (Error.error(ErrorCode.ACCESS_IS_DENIED, filename));

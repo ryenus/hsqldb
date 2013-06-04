@@ -344,7 +344,7 @@ public class Logger {
             int value = database.urlProperties.getIntegerProperty(
                 HsqlDatabaseProperties.hsqldb_cache_free_count, -1);
 
-            if (value >= 0) {
+            if (value >= 512) {
                 database.databaseProperties.setProperty(
                     HsqlDatabaseProperties.hsqldb_cache_free_count,
                     ArrayUtil.getTwoPowerFloor(value));
@@ -479,11 +479,6 @@ public class Logger {
             propLargeData = true;
         }
 
-        if (database.urlProperties.isPropertyTrue(
-                HsqlDatabaseProperties.hsqldb_files_space, false)) {
-            propFileSpaces = true;
-        }
-
         propCheckPersistence = database.databaseProperties.getIntegerProperty(
             HsqlDatabaseProperties.hsqldb_files_check);
 
@@ -498,6 +493,12 @@ public class Logger {
 
         if (!isNewDatabase && !version18) {
             return;
+        }
+
+        // apply only when set true
+        if (database.urlProperties.isPropertyTrue(
+                HsqlDatabaseProperties.hsqldb_files_space, false)) {
+            propFileSpaces = true;
         }
 
         if (tempDirectoryPath != null) {
@@ -2178,10 +2179,13 @@ public class Logger {
 
         if (asFiles) {
             if (!generateName) {
-                throw Error.error(ErrorCode.UNSUPPORTED_FILENAME_SUFFIX);
+                throw Error.error(null, ErrorCode.UNSUPPORTED_FILENAME_SUFFIX,
+                                  0, new String[] {
+                    "", "/"
+                });
             }
 
-            destPath = getSecurePath(destPath, false);
+            destPath = getSecurePath(destPath, true, false);
 
             if (destPath == null) {
                 throw Error.error(ErrorCode.BACKUP_ERROR,
@@ -2347,7 +2351,8 @@ public class Logger {
      *  hsqldb.allow_full_path is false. Returns the path otherwise.
      *
      */
-    public String getSecurePath(String path, boolean includeRes) {
+    public String getSecurePath(String path, boolean allowFull,
+                                boolean includeRes) {
 
         if (database.getType() == DatabaseURL.S_RES) {
             if (includeRes) {
@@ -2368,7 +2373,7 @@ public class Logger {
         // absolute paths
         if (path.startsWith("/") || path.startsWith("\\")
                 || path.indexOf(":") > -1) {
-            if (propTextAllowFullPath) {
+            if (allowFull || propTextAllowFullPath) {
                 return path;
             } else {
                 return null;
@@ -2376,7 +2381,10 @@ public class Logger {
         }
 
         if (path.indexOf("..") > -1) {
-            if (!propTextAllowFullPath) {
+            if (allowFull || propTextAllowFullPath) {
+
+                // allow
+            } else {
                 return null;
             }
         }
@@ -2402,7 +2410,7 @@ public class Logger {
 
         closeTextCache(table);
 
-        source = getSecurePath(source, true);
+        source = getSecurePath(source, false, true);
 
         if (source == null) {
             throw (Error.error(ErrorCode.ACCESS_IS_DENIED, source));
