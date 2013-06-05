@@ -280,6 +280,17 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
         }
     }
 
+    public ResultSet getResultSet() throws SQLException {
+
+        checkClosed();
+
+        ResultSet result = currentResultSet;
+
+        currentResultSet = null;
+
+        return result;
+    }
+
     /**
      * <!-- start generic documentation -->
      *
