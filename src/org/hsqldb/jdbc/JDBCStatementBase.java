@@ -152,7 +152,7 @@ class JDBCStatementBase {
             throw JDBCUtil.sqlException(ErrorCode.X_08503);
         }
 
-        if (connectionIncarnation != connection.incarnation ) {
+        if (connectionIncarnation != connection.incarnation) {
             throw JDBCUtil.sqlException(ErrorCode.X_08503);
         }
     }
@@ -216,6 +216,10 @@ class JDBCStatementBase {
 
         currentResultSet = null;
 
+        if (result == null) {
+            return JDBCResultSet.newEptyResultSet();
+        }
+
         return result;
     }
 
@@ -244,8 +248,7 @@ class JDBCStatementBase {
         currentResultSet = null;
 
         if (resultIn != null) {
-            currentResultSet = new JDBCResultSet(connection,
-                                                 this, resultIn,
+            currentResultSet = new JDBCResultSet(connection, this, resultIn,
                                                  resultIn.metaData);
 
             return true;
@@ -332,7 +335,9 @@ class JDBCStatementBase {
      * @since JDK 1.7 M11 2010/09/10 (b123), HSQLDB 2.0.1
      */
     public boolean isCloseOnCompletion() throws SQLException {
+
         checkClosed();
+
         return false;
     }
 }

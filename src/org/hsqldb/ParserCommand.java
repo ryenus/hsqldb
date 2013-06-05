@@ -117,7 +117,9 @@ public class ParserCommand extends ParserDDL {
                     throw Error.error(ErrorCode.X_07503);
                 }
             } else if (returnType == StatementTypes.RETURN_RESULT) {
-                throw Error.error(ErrorCode.X_07504);
+
+                // allow update count statements to return an empty result set
+                // throw Error.error(ErrorCode.X_07504);
             }
         }
 

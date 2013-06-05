@@ -82,6 +82,7 @@ import org.hsqldb.types.TimeData;
 import org.hsqldb.types.TimestampData;
 import org.hsqldb.types.Type;
 import org.hsqldb.types.Types;
+import org.hsqldb.navigator.RowSetNavigatorClient;
 
 /* $Id$ */
 
@@ -7542,6 +7543,12 @@ public class JDBCResultSet implements ResultSet {
     public static JDBCResultSet newJDBCResultSet(Result r,
             ResultMetaData metaData) {
         return new JDBCResultSetBasic(r, metaData);
+    }
+
+    public static JDBCResultSet newEptyResultSet() {
+        Result r = Result.newDataRowsResult(new RowSetNavigatorClient());
+
+        return new JDBCResultSetBasic(r, ResultMetaData.emptyResultMetaData);
     }
 
     static class JDBCResultSetBasic extends JDBCResultSet {
