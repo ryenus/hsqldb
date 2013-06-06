@@ -35,6 +35,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.SQLWarning;
 
+import org.hsqldb.StatementTypes;
 import org.hsqldb.error.ErrorCode;
 import org.hsqldb.result.Result;
 import org.hsqldb.result.ResultConstants;
@@ -217,7 +218,12 @@ class JDBCStatementBase {
         currentResultSet = null;
 
         if (result == null) {
-            return JDBCResultSet.newEptyResultSet();
+
+            // if statement has been used with executeQuery and the result is update count
+            // return an empty result for 1.8 compatibility
+            if (resultOut.getStatementType() == StatementTypes.RETURN_RESULT) {
+                return JDBCResultSet.newEptyResultSet();
+            }
         }
 
         return result;
