@@ -74,9 +74,6 @@ public class DataSpaceManagerBlocks implements DataSpaceManager {
     //
     int freeItemCacheSize = 2048;
 
-    // todo - fragmented space size
-    long totalFragmentSize;
-
     //
     BlockAccessor ba;
 
@@ -215,8 +212,8 @@ public class DataSpaceManagerBlocks implements DataSpaceManager {
 
     private long getNewFileBlocks(int tableId, int blockCount) {
 
-        long dirObjectSize = (long) BitMapCachedObject.fileSizeFactor * bitmapIntSize
-                             * blockCount;
+        long dirObjectSize = (long) BitMapCachedObject.fileSizeFactor
+                             * bitmapIntSize * blockCount;
 
         if (!directorySpaceManager.hasFileRoom(dirObjectSize)) {
             long filePosition = getNewFileBlocksNoCheck(tableIdDirectory, 1);
@@ -244,7 +241,8 @@ public class DataSpaceManagerBlocks implements DataSpaceManager {
             throw Error.error(ErrorCode.FILE_IO_ERROR);
         }
 
-        long filePosition = cache.enlargeFileSpace((long) blockCount * fileBlockSize);
+        long filePosition = cache.enlargeFileSpace((long) blockCount
+            * fileBlockSize);
 
         createFileBlocksInDirectory((int) index, blockCount, tableId);
 
@@ -671,7 +669,28 @@ public class DataSpaceManagerBlocks implements DataSpaceManager {
     }
 
     public long getLostBlocksSize() {
-        return totalFragmentSize;
+
+        long fragment = 0;
+
+        ba.initialise(false);
+
+        for (;;) {
+            boolean result = ba.nextBlock();
+
+            if (!result) {
+                break;
+            }
+
+            fragment += ba.getFreeSpaceValue() * dataFileScale;
+
+            if (ba.getTableId() == tableIdEmpty) {
+                fragment += fileBlockSize;
+            }
+        }
+
+        ba.reset();
+
+        return fragment;
     }
 
     public int getFileBlockSize() {

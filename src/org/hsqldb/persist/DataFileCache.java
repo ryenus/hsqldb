@@ -1555,7 +1555,14 @@ public class DataFileCache {
     }
 
     public long getLostBlockSize() {
-        return spaceManager.getLostBlocksSize();
+
+        readLock.lock();
+
+        try {
+            return spaceManager.getLostBlocksSize();
+        } finally {
+            readLock.unlock();
+        }
     }
 
     public long getFileFreePos() {
