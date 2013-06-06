@@ -68,6 +68,7 @@ import org.hsqldb.error.ErrorCode;
 import org.hsqldb.lib.IntValueHashMap;
 import org.hsqldb.lib.StringInputStream;
 import org.hsqldb.navigator.RowSetNavigator;
+import org.hsqldb.navigator.RowSetNavigatorClient;
 import org.hsqldb.result.Result;
 import org.hsqldb.result.ResultConstants;
 import org.hsqldb.result.ResultMetaData;
@@ -82,7 +83,6 @@ import org.hsqldb.types.TimeData;
 import org.hsqldb.types.TimestampData;
 import org.hsqldb.types.Type;
 import org.hsqldb.types.Types;
-import org.hsqldb.navigator.RowSetNavigatorClient;
 
 /* $Id$ */
 
@@ -316,7 +316,7 @@ import org.hsqldb.navigator.RowSetNavigatorClient;
  *
  * @author Campbell Boucher-Burnet (boucherb@users dot sourceforge.net)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.2.9
+ * @version 2.3.0
  * @since HSQLDB 1.9.0
  * @revised JDK 7, HSQLDB 2.0.1
  */
