@@ -7546,9 +7546,18 @@ public class JDBCResultSet implements ResultSet {
     }
 
     public static JDBCResultSet newEptyResultSet() {
-        Result r = Result.newDataRowsResult(new RowSetNavigatorClient());
+        ResultMetaData md = ResultMetaData.newResultMetaData(1);
 
-        return new JDBCResultSetBasic(r, ResultMetaData.emptyResultMetaData);
+        ColumnBase column =
+            new ColumnBase(null, null, null, "C1");
+        column.setType(Type.SQL_INTEGER);
+        md.columnTypes[0] = Type.SQL_INTEGER;
+
+        md.columns[0] = column;
+
+        Result r = Result.newSingleColumnResult(md);
+
+        return newJDBCResultSet(r, md);
     }
 
     static class JDBCResultSetBasic extends JDBCResultSet {
