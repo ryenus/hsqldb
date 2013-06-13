@@ -265,8 +265,6 @@ public class ClientConnection implements SessionInterface {
             return;
         }
 
-        isClosed = true;
-
         try {
             resultOut.setResultType(ResultConstants.DISCONNECT);
             execute(resultOut);
@@ -275,6 +273,8 @@ public class ClientConnection implements SessionInterface {
         try {
             closeConnection();
         } catch (Exception e) {}
+
+        isClosed = true;
     }
 
     public synchronized Object getAttribute(int id) {

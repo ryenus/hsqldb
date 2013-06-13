@@ -108,7 +108,7 @@ public class FrameworkLogger {
      * toString.
      * </p>
      */
-    public static String report() {
+    public static synchronized String report() {
 
         return new StringBuilder().append(loggerInstances.size()).append(
             " logger instances:  ").append(
@@ -318,7 +318,9 @@ public class FrameworkLogger {
             }
         }
 
-        loggerInstances.put(s, this);
+        synchronized (FrameworkLogger.class) {
+            loggerInstances.put(s, this);
+        }
     }
 
     /**
@@ -363,7 +365,7 @@ public class FrameworkLogger {
      *
      * @see #getLog(Class)
      */
-    public static FrameworkLogger getLog(String s) {
+    public static synchronized FrameworkLogger getLog(String s) {
 
         if (loggerInstances.containsKey(s)) {
             return (FrameworkLogger) loggerInstances.get(s);

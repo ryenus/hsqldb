@@ -57,30 +57,15 @@ public abstract class SimpleStore implements PersistentStore {
     public void set(CachedObject object) {}
 
     public CachedObject get(long i) {
-
-        try {
-            return cache.get(i, this, false);
-        } catch (HsqlException e) {
-            return null;
-        }
+        return cache.get(i, this, false);
     }
 
     public CachedObject get(CachedObject object, boolean keep) {
-
-        try {
-            return cache.get(object, this, keep);
-        } catch (HsqlException e) {
-            return null;
-        }
+        return cache.get(object, this, keep);
     }
 
     public CachedObject get(long i, boolean keep) {
-
-        try {
-            return cache.get(i, this, keep);
-        } catch (HsqlException e) {
-            return null;
-        }
+        return cache.get(i, this, keep);
     }
 
     public void remove(CachedObject object) {
