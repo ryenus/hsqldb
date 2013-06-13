@@ -445,10 +445,11 @@
     chapters.</para>
 
     <simpara>HyperSQL 2 includes commands to backup the database files into a
-    single <literal>.tar</literal> or <literal>.tar.gz</literal> file archive.
-    The backup can be performed by a command given in a JDBC session if the
-    target database catalog is running, or on the command-line if the target
-    catalog has been shutdown.</simpara>
+    single <literal>.tar</literal> or <literal>.tar.gz</literal> file archive,
+    or alternatively as copies of the database files. The backup can be
+    performed by a command given in a JDBC session if the target database
+    catalog is running, or on the command-line if the target catalog has been
+    shutdown.</simpara>
 
     <simpara>It is not recommended to backup the database file with an
     external file backup program while the database is running. The resulting
@@ -478,7 +479,9 @@
 
       <programlisting> BACKUP DATABASE TO &lt;directory name&gt; NOT BLOCKING</programlisting>
 
-      <simpara></simpara>
+      <simpara>If you add AS FILES to the statements, the database files are
+      backed up as separate files in the directory, without any gzip
+      compression or tar archiving.</simpara>
 
       <simpara>See the next section under Statements for details about the
       command and its options. See the sections below about restoring a
@@ -584,7 +587,9 @@
 
       <para>The files that are encrypted include the .script, .data, .backup
       and .log files. The .lobs file is not encrypted by default. The property
-      crypt_lobs=true must be specified to encrypt the .lobs file.</para>
+      crypt_lobs=true must be specified to encrypt the .lobs file. When this
+      property is used, the blobs and clobs are both compressed and
+      encrypted.</para>
     </section>
 
     <section xml:id="mtc_encrypted_speed">
@@ -1483,7 +1488,7 @@
       created. The file path may be absolute or relative. If it is relative,
       it is interpreted as relative to the location of database files. When AS
       FILES is specified, SCRIPT or COMPRESSED options are not available. The
-      backup can be performed as BLOCKING or not blocking.</simpara>
+      backup can be performed as BLOCKING or NOT BLOCKING.</simpara>
 
       <simpara>The HyperSQL jar also contains a program that creates an
       archive of an offline database. It also contains a program to expand an
@@ -2895,8 +2900,8 @@
       FILES LOB COMPRESSED { TRUE | FALSE }</literal></simpara>
 
       <simpara>By default, lobs are not compressed for storage. When this
-      setting is <literal>TRUE</literal>, all CLOB values stored in the
-      database are compressed. Compression reduces the storage size but
+      setting is <literal>TRUE</literal>, all BLOB and CLOB values stored in
+      the database are compressed. Compression reduces the storage size but
       increases the access time.</simpara>
 
       <simpara>This command can be used only when there is no lob in the
