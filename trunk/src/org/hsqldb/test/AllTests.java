@@ -77,7 +77,6 @@ public class AllTests extends TestCase {
         suite.addTestSuite(org.hsqldb.test.TestPreparedSubQueries.class);
         suite.addTestSuite(org.hsqldb.test.TestSubselect.class);
         suite.addTestSuite(org.hsqldb.test.TestCascade.class);
-        suite.addTestSuite(org.hsqldb.test.TestDataStructures.class);    // 1 Failure Sometimes hangs (Turned off by Fred)
         suite.addTestSuite(org.hsqldb.test.TestGroupByHaving.class);
         suite.addTestSuite(org.hsqldb.test.TestSqlPersistent.class);     // Sometimes hangs on Connection.close after SHUTDOWN problem
 

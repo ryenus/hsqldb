@@ -47,7 +47,7 @@ import org.hsqldb.map.ValuePool;
  * Type subclass for all NUMBER types.<p>
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.2.6
+ * @version 2.3.0
  * @since 1.9.0
  */
 public final class NumberType extends Type {
@@ -75,6 +75,8 @@ public final class NumberType extends Type {
         new NumberType(Types.NUMERIC, defaultNumericPrecision, 0);
 
     //
+    public static final BigDecimal MAX_DOUBLE =
+        BigDecimal.valueOf(Double.MAX_VALUE);
     public static final BigDecimal MAX_LONG =
         BigDecimal.valueOf(Long.MAX_VALUE);
     public static final BigDecimal MIN_LONG =
@@ -700,11 +702,7 @@ public final class NumberType extends Type {
                                                 : 0);
                 } else if (b instanceof BigDecimal) {
                     BigDecimal ad = convertToDecimal(a);
-                    int        i  = ad.compareTo((BigDecimal) b);
-
-                    return (i == 0) ? 0
-                                    : (i < 0 ? -1
-                                             : 1);
+                    return ad.compareTo((BigDecimal) b);
                 }
             }
 
@@ -721,19 +719,10 @@ public final class NumberType extends Type {
                     BigDecimal ad =
                         BigDecimal.valueOf(((Number) a).longValue());
                     BigDecimal bd = new BigDecimal(((Double) b).doubleValue());
-                    int        i  = ad.compareTo(bd);
-
-                    return (i == 0) ? 0
-                                    : (i < 0 ? -1
-                                             : 1);
+                    return ad.compareTo(bd);
                 } else if (b instanceof BigDecimal) {
-                    BigDecimal ad =
-                        BigDecimal.valueOf(((Number) a).longValue());
-                    int i = ad.compareTo((BigDecimal) b);
-
-                    return (i == 0) ? 0
-                                    : (i < 0 ? -1
-                                             : 1);
+                    BigDecimal ad = convertToDecimal(a);
+                    return ad.compareTo((BigDecimal) b);
                 }
             }
 
@@ -755,18 +744,12 @@ public final class NumberType extends Type {
                     return 1;
                 }
 
-                return (ad > bd) ? 1
-                                 : (bd > ad ? -1
-                                            : 0);
+                return Double.compare(ad, bd);
             }
             case Types.SQL_NUMERIC :
             case Types.SQL_DECIMAL : {
                 BigDecimal bd = convertToDecimal(b);
-                int        i  = ((BigDecimal) a).compareTo(bd);
-
-                return (i == 0) ? 0
-                                : (i < 0 ? -1
-                                         : 1);
+                return ((BigDecimal) a).compareTo(bd);
             }
             default :
                 throw Error.runtimeError(ErrorCode.U_S0500, "NumberType");
@@ -1163,24 +1146,11 @@ public final class NumberType extends Type {
      */
     private static Double convertToDouble(Object a) {
 
-        double value;
-
         if (a instanceof java.lang.Double) {
             return (Double) a;
-        } else if (a instanceof BigDecimal) {
-            BigDecimal bd = (BigDecimal) a;
-
-            value = bd.doubleValue();
-
-            int        signum = bd.signum();
-            BigDecimal bdd    = new BigDecimal(value + signum);
-
-            if (bdd.compareTo(bd) != signum) {
-                throw Error.error(ErrorCode.X_22003);
-            }
-        } else {
-            value = ((Number) a).doubleValue();
         }
+
+        double value = toDouble(a);
 
         return ValuePool.getDouble(Double.doubleToLongBits(value));
     }
@@ -1914,8 +1884,8 @@ public final class NumberType extends Type {
 
     public static boolean isInLongLimits(BigInteger result) {
 
-        if (MAX_LONG_BI.compareTo(result) < 0
-                || MIN_LONG_BI.compareTo(result) > 0) {
+        if (NumberType.MAX_LONG_BI.compareTo(result) < 0
+                || NumberType.MIN_LONG_BI.compareTo(result) > 0) {
             return false;
         }
 

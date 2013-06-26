@@ -149,7 +149,7 @@ public class ScriptReaderText extends ScriptReaderBase {
                     Error.error(result.getException(),
                                 ErrorCode.ERROR_IN_SCRIPT_FILE,
                                 ErrorCode.M_DatabaseScriptReader_read,
-                                new Object[] {
+                                new Object[] {database.getCanonicalPath(),
                     new Integer(lineCount), result.getMainString()
                 });
 
