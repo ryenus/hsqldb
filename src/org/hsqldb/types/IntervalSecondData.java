@@ -155,18 +155,19 @@ public class IntervalSecondData {
 
     public int compareTo(IntervalSecondData b) {
 
-        long diff = units - b.units;
-
-        if (diff == 0) {
-            diff = nanos - b.nanos;
-
-            if (diff == 0) {
+        if (units > b.units) {
+            return 1;
+        } else if (units < b.units) {
+            return -1;
+        } else {
+            if (nanos > b.nanos) {
+                return 1;
+            } else if (nanos < b.nanos) {
+                return -1;
+            } else {
                 return 0;
             }
         }
-
-        return diff > 0 ? 1
-                        : -1;
     }
 
     public long getSeconds() {

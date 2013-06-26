@@ -192,7 +192,6 @@ public class Database {
             urlProperties.isPropertyTrue(HsqlDatabaseProperties.url_shutdown);
         recoveryMode = urlProperties.getIntegerProperty(
             HsqlDatabaseProperties.url_recover, 0);
-        lobManager = new LobManager(this);
     }
 
     /**
@@ -219,6 +218,7 @@ public class Database {
         setState(DATABASE_OPENING);
 
         try {
+            lobManager     = new LobManager(this);
             nameManager    = new HsqlNameManager(this);
             granteeManager = new GranteeManager(this);
             userManager    = new UserManager(this);
@@ -292,6 +292,7 @@ public class Database {
             timeoutRunner.stop();
         }
 
+        lobManager       = null;
         granteeManager   = null;
         userManager      = null;
         nameManager      = null;
@@ -639,8 +640,6 @@ public class Database {
                 he = Error.error(ErrorCode.GENERAL_ERROR, t);
             }
         }
-
-        lobManager = null;
 
         logger.releaseLock();
         setState(DATABASE_SHUTDOWN);

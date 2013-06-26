@@ -415,10 +415,18 @@ class Like implements Cloneable {
         sb.append("iLen=").append(iLen).append('\n');
         sb.append("iFirstWildCard=").append(iFirstWildCard).append('\n');
         sb.append("cLike=");
-        sb.append(StringUtil.arrayToString(cLike));
+
+        if (cLike != null) {
+            sb.append(StringUtil.arrayToString(cLike));
+        }
+
         sb.append('\n');
         sb.append("wildCardType=");
-        sb.append(StringUtil.arrayToString(wildCardType));
+
+        if (wildCardType != null) {
+            sb.append(StringUtil.arrayToString(wildCardType));
+        }
+
         sb.append(']');
 
         return sb.toString();

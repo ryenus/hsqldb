@@ -96,14 +96,17 @@ public class IntervalMonthData {
 
     public int compareTo(IntervalMonthData b) {
 
-        long diff = units - b.units;
-
-        if (diff == 0) {
-            return 0;
+        if (units > b.units) {
+            return 1;
+        } else if (units < b.units) {
+            return -1;
         } else {
-            return diff > 0 ? 1
-                            : -1;
+            return 0;
         }
+    }
+
+    public long getMonths() {
+        return units;
     }
 
     public String toString() {
