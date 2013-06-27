@@ -109,7 +109,6 @@ public class TestStoredProcedure extends TestBase {
 
             rs.next();
             assertEquals(value, 2);
-
         } catch (Exception e) {
             assertTrue("unexpected error", false);
         } finally {
@@ -144,7 +143,6 @@ public class TestStoredProcedure extends TestBase {
                 "create function func2(varchar(20)) returns boolean "
                 + "SPECIFIC F2 LANGUAGE JAVA DETERMINISTIC NO SQL CALLED ON NULL INPUT EXTERNAL NAME 'CLASSPATH:org.hsqldb.test.TestStoredProcedure.funcTest2'");
 
-
             rs = statement.executeQuery("call func2('test')");
 
             rs.next();
@@ -166,6 +164,7 @@ public class TestStoredProcedure extends TestBase {
                 "grant execute on specific function public.f2 to testuser");
 
             boolean isResult = statement.execute("call func2('test')");
+
             assertTrue(isResult);
 
             rs = statement.getResultSet();
@@ -175,7 +174,6 @@ public class TestStoredProcedure extends TestBase {
             b = rs.getBoolean(1);
 
             assertTrue("test result not correct", b);
-
         } catch (Exception e) {
             assertTrue("unable to execute call to procedure", false);
         } finally {
@@ -195,11 +193,9 @@ public class TestStoredProcedure extends TestBase {
 
         CallableStatement cs =
             conn.prepareCall("call proc_inout_result(varone)");
-
         boolean isResult = cs.execute();
 
         assertFalse(isResult);
-
         cs.getMoreResults();
 
         ResultSet rs = cs.getResultSet();
@@ -222,11 +218,9 @@ public class TestStoredProcedure extends TestBase {
 
         CallableStatement cs =
             conn.prepareCall("call proc_inout_result_two(varone)");
-
         boolean isResult = cs.execute();
 
         assertFalse(isResult);
-
         cs.getMoreResults();
 
         ResultSet rs = cs.getResultSet();
@@ -234,15 +228,14 @@ public class TestStoredProcedure extends TestBase {
         rs.next();
         assertEquals(rs.getString(1), "SYSTEM_LOBS");
         assertEquals(rs.getString(2), "LOB_IDS");
-
         rs.close();
 
         if (cs.getMoreResults()) {
             rs = cs.getResultSet();
+
             rs.next();
             assertEquals(rs.getString(1), "SYSTEM_LOBS");
             assertEquals(rs.getString(2), "LOBS");
-
             rs.close();
         }
     }
@@ -260,10 +253,10 @@ public class TestStoredProcedure extends TestBase {
             conn.prepareCall("{call proc_inout_result_two_params(?)}");
 
         cs.setInt(1, 0);
+
         boolean isResult = cs.execute();
 
         assertFalse(isResult);
-
         cs.getMoreResults();
 
         ResultSet rs = cs.getResultSet();
@@ -271,15 +264,14 @@ public class TestStoredProcedure extends TestBase {
         rs.next();
         assertEquals(rs.getString(1), "SYSTEM_LOBS");
         assertEquals(rs.getString(2), "LOB_IDS");
-
         rs.close();
 
         if (cs.getMoreResults()) {
             rs = cs.getResultSet();
+
             rs.next();
             assertEquals(rs.getString(1), "SYSTEM_LOBS");
             assertEquals(rs.getString(2), "LOBS");
-
             rs.close();
         }
 
@@ -288,7 +280,6 @@ public class TestStoredProcedure extends TestBase {
         rs.next();
         assertEquals(rs.getString(1), "SYSTEM_LOBS");
         assertEquals(rs.getString(2), "LOB_IDS");
-
         rs.close();
     }
 
@@ -302,8 +293,7 @@ public class TestStoredProcedure extends TestBase {
             + "return table(select schema_name, schema_owner from information_schema.schemata where schema_owner=namep);");
 
         CallableStatement cs = conn.prepareCall("call func_table('_SYSTEM')");
-
-        boolean isResult = cs.execute();
+        boolean           isResult = cs.execute();
 
         assertTrue(isResult);
 
@@ -315,9 +305,8 @@ public class TestStoredProcedure extends TestBase {
         rs.close();
 
         //
-
-
         isResult = st.execute("call func_table('_SYSTEM')");
+
         assertTrue(isResult);
 
         rs = st.getResultSet();
@@ -326,7 +315,6 @@ public class TestStoredProcedure extends TestBase {
         assertEquals(rs.getString(1), "INFORMATION_SCHEMA");
         assertEquals(rs.getString(2), "_SYSTEM");
         rs.close();
-
     }
 
     public void testSix() throws SQLException {
@@ -345,12 +333,11 @@ public class TestStoredProcedure extends TestBase {
 
         CallableStatement cs = conn.prepareCall(
             "call get_columns_and_table('TABLES', 'INFORMATION_SCHEMA')");
-
         boolean isResult = cs.execute();
 
         assertFalse(isResult);
-
         cs.getMoreResults();
+
         ResultSet rs = cs.getResultSet();
 
         rs.next();
@@ -363,19 +350,19 @@ public class TestStoredProcedure extends TestBase {
             rs = cs.getResultSet();
 
             rs.next();
-            assertEquals("INFORMATION_SCHEMA",rs.getString(2));
+            assertEquals("INFORMATION_SCHEMA", rs.getString(2));
         }
 
-        cs = conn.prepareCall(
-            "call get_columns_and_table(?, ?)");
+        cs = conn.prepareCall("call get_columns_and_table(?, ?)");
 
         cs.setString(1, "TABLES");
         cs.setString(2, "INFORMATION_SCHEMA");
+
         isResult = cs.execute();
 
         assertFalse(isResult);
-
         cs.getMoreResults();
+
         rs = cs.getResultSet();
 
         rs.next();
@@ -388,17 +375,14 @@ public class TestStoredProcedure extends TestBase {
             rs = cs.getResultSet();
 
             rs.next();
-            assertEquals("INFORMATION_SCHEMA",rs.getString(2));
+            assertEquals("INFORMATION_SCHEMA", rs.getString(2));
         }
 
-
         st = conn.createStatement();
-
-        isResult = st.execute( "call get_columns_and_table('TABLES', 'INFORMATION_SCHEMA')");
-
+        isResult = st.execute(
+            "call get_columns_and_table('TABLES', 'INFORMATION_SCHEMA')");
 
         assertFalse(isResult);
-
         st.getMoreResults();
 
         rs = st.getResultSet();
@@ -413,16 +397,17 @@ public class TestStoredProcedure extends TestBase {
             rs = st.getResultSet();
 
             rs.next();
-            assertEquals("INFORMATION_SCHEMA",rs.getString(2));
+            assertEquals("INFORMATION_SCHEMA", rs.getString(2));
         }
 
-        PreparedStatement ps = conn.prepareStatement( "call get_columns_and_table('TABLES', 'INFORMATION_SCHEMA')");
+        PreparedStatement ps = conn.prepareStatement(
+            "call get_columns_and_table('TABLES', 'INFORMATION_SCHEMA')");
 
         isResult = ps.execute();
 
         assertFalse(isResult);
-
         ps.getMoreResults();
+
         rs = ps.getResultSet();
 
         rs.next();

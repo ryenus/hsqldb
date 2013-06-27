@@ -2329,8 +2329,8 @@ public class Table extends TableBase implements SchemaObject {
                 Constraint c = getNotNullConstraintForColumn(i);
 
                 if (c == null) {
-                    if (ArrayUtil.find(this.primaryKeyCols, i) > -1) {
-                        c = this.getPrimaryConstraint();
+                    if (ArrayUtil.find(primaryKeyCols, i) > -1) {
+                        c = getPrimaryConstraint();
                     }
                 }
 
@@ -2351,8 +2351,24 @@ public class Table extends TableBase implements SchemaObject {
 
     public void enforceTypeLimits(Session session, Object[] data) {
 
-        for (int i = 0; i < columnCount; i++) {
-            data[i] = colTypes[i].convertToTypeLimits(session, data[i]);
+        int i = 0;
+
+        try {
+            for (; i < columnCount; i++) {
+                data[i] = colTypes[i].convertToTypeLimits(session, data[i]);
+            }
+        } catch (HsqlException e) {
+            if (e.getErrorCode() == -ErrorCode.X_22001) {
+                ColumnSchema column = getColumn(i);
+                String[]     info   = new String[] {
+                    "", tableName.statementName, column.getName().statementName
+                };
+
+                throw Error.error(e, ErrorCode.X_22001,
+                                  ErrorCode.COLUMN_CONSTRAINT, info);
+            }
+
+            throw e;
         }
     }
 

@@ -332,7 +332,12 @@ public class LobManager {
     private void initialiseLobSpace() {
 
         Statement statement = sysLobSession.compileStatement(existsBlocksSQL);
-        Result          result    = statement.execute(sysLobSession);
+        Result    result    = statement.execute(sysLobSession);
+
+        if (result.isError()) {
+            throw result.getException();
+        }
+
         RowSetNavigator navigator = result.getNavigator();
         int             size      = navigator.getSize();
 
@@ -440,19 +445,18 @@ public class LobManager {
         sysLobSession.sessionContext.pop();
 
         if (result.isError()) {
-            return null;
+            throw result.getException();
         }
 
         RowSetNavigator navigator = result.getNavigator();
         boolean         next      = navigator.next();
+        Object[]        data      = null;
 
-        if (!next) {
-            navigator.release();
-
-            return null;
+        if (next) {
+            data = navigator.getCurrent();
         }
 
-        Object[] data = navigator.getCurrent();
+        navigator.release();
 
         return data;
     }
