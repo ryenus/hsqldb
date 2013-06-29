@@ -1874,22 +1874,14 @@ public final class NumberType extends Type {
 
     public static boolean isInLongLimits(BigDecimal result) {
 
-        if (NumberType.MIN_LONG.compareTo(result) > 0
-                || NumberType.MAX_LONG.compareTo(result) < 0) {
-            return false;
-        }
-
-        return true;
+       return NumberType.MIN_LONG.compareTo(result) <= 0
+                && NumberType.MAX_LONG.compareTo(result) >= 0;
     }
 
     public static boolean isInLongLimits(BigInteger result) {
 
-        if (NumberType.MAX_LONG_BI.compareTo(result) < 0
-                || NumberType.MIN_LONG_BI.compareTo(result) > 0) {
-            return false;
-        }
-
-        return true;
+        return NumberType.MIN_LONG_BI.compareTo(result) <= 0
+                && NumberType.MAX_LONG_BI.compareTo(result) >= 0;
     }
 
     public Object ceiling(Object a) {

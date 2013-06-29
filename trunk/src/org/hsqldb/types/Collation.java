@@ -417,7 +417,7 @@ public class Collation implements SchemaObject {
     public boolean isCaseSensitive() {
 
         // add support for case-sensitive language collations
-        return isUnicodeSimple;
+        return !isUpperCaseCompare;
     }
 
     /**
