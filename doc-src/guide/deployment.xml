@@ -344,7 +344,10 @@
     database are persisted fully with fsync. The database is still in an open
     state until it is shut down. You can use the
     <literal>shutdown=true</literal> connection property to close the database
-    automatically after the connections are closed.</para>
+    automatically after the connections are closed. The automatic sync and
+    shutdown are mainly for test environment. In production environments you
+    should execute the SHUTDOWN statement before your application is closed.
+    This ensurs a quick start next time you connect to the database.</para>
 
     <para>An alternative option is to use
     <literal>hsqldb.write_delay=false</literal> connection property, but this
