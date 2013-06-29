@@ -1,3 +1,5 @@
+30 June - svn 5256 snapshot 51
+-- added INSTR function
 15 May - svn 5241 snapshot
 -- added support for backup of database as set of files BACKUP DATABASE TO <path> AS FILES
 12 April - svn 5228 snapshot
@@ -12,6 +14,7 @@
 -- added support for statement timeout via java.sql.Statement and PreparedStatement
 18 March 2013 - svn 5208
 -- improved support for setting collation strength and case-sensitivity
+-- VARCHAR_IGNORECASE is no longer a type and is translated into the collation name
 10 March 2013 - svn 5203
 -- increased default max size of BLOB and CLOB to BLOB(1G) and CLOB(1G)
 -- added support for compressed and encrypted lobs
