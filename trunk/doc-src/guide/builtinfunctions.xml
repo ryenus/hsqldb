@@ -288,6 +288,23 @@
     &lt;length&gt; )</literal> . (JDBC)</para>
 
     <indexterm significance="preferred" type="sql">
+      <primary>INSTR function</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">INSTR</emphasis></simpara>
+
+    <para><literal>INSTR ( &lt;char value expr 1&gt;, &lt;char value expr
+    2&gt; [ , &lt;offset&gt; ] ) </literal></para>
+
+    <para>Returns as a BIGINT value the starting position of the first
+    occurrence of <literal>&lt;char value expr 2&gt;</literal> within
+    <literal>&lt;char value expr 1&gt;</literal>. If
+    <literal>&lt;offset</literal>&gt; is specified, the search begins with the
+    position indicated by <literal>&lt;offset&gt;</literal>. If the search is
+    not successful, 0 is returned. Similar to the <literal>LOCATE</literal>
+    function but the order of the arguments is reversed. (HyperSQL)</para>
+
+    <indexterm significance="preferred" type="sql">
       <primary>HEXTORAW function</primary>
     </indexterm>
 
