@@ -134,9 +134,6 @@ import org.hsqldb.types.Types;
  * <div class="ReleaseSpecificDocumentation">
  * <h3>HSQLDB-Specific Information:</h3> <p>
  *
- * As with many DBMS, HSQLDB support for stored procedures is not provided in
- * a completely standard fashion. <p>
- *
  * Beyond the XOpen/ODBC extended scalar functions, stored procedures are
  * typically supported in ways that vary greatly from one DBMS implementation
  * to the next.  So, it is almost guaranteed that the code for a stored
@@ -146,13 +143,13 @@ import org.hsqldb.types.Types;
  * from one DBMS product line to another almost invariably involves complex
  * porting issues and often may not be possible at all. <em>Be warned</em>. <p>
  *
- * One kind of HSQLDB stored procedures and functions is Java routines that map
- * directly onto the static methods of compiled Java classes found on the class
- * path of the engine at runtime. The CREATE PROCEDURE or CREATE FUNCTION
+ * One kind of HSQLDB stored procedures and functions is SQL/JRT, Java routines
+ * that map directly onto the static methods of compiled Java classes found on
+ * the class path of the engine at runtime. The CREATE PROCEDURE or CREATE FUNCTION
  * statements are used in SQL to support the Java methods.<p>
  *
- * The other kind of HSQLDB stored procedures is SQL routines that are created
- * as part of schemas.
+ * The other kind of HSQLDB stored procedures is SQL/PSM routines that are
+ * written entirely in the SQL procedural language.
  *
  * Overloaded methods are supported and resolved according to the type of
  * parameters.
@@ -174,7 +171,7 @@ import org.hsqldb.types.Types;
  * SELECT &lt;simple-expression&gt; FROM DUAL;
  * </PRE>
  *
- * HSQLDB functions can return a single result set. Procedures that
+ * HSQLDB functions can return a single result set. HSQLDB procedures can
  * return one or more result sets.
  *
  * Here is a very simple example of an HSQLDB stored procedure generating a
@@ -201,7 +198,7 @@ import org.hsqldb.types.Types;
  *
  * @author Campbell Boucher-Burnet (boucherb@users dot sourceforge.net)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.2.6
+ * @version 2.3.0
  * @since 1.7.2
  * @revised JDK 1.6, HSQLDB 2.0
  * @revised JDK 1.7, HSQLDB 2.0.1
@@ -281,14 +278,7 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
     }
 
     public ResultSet getResultSet() throws SQLException {
-
-        checkClosed();
-
-        ResultSet result = currentResultSet;
-
-        currentResultSet = null;
-
-        return result;
+        return super.getResultSet();
     }
 
     /**

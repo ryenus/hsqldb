@@ -3518,8 +3518,18 @@ public class JDBCConnection implements Connection {
 
     /** reuse count in ConnectionPool */
     int                         incarnation;
+
+    /** used by a JDBCPool or other custom ConnectionPool instance */
     boolean                     isPooled;
+
+    /** used by a JDBCPool or other custom ConnectionPool instance */
     JDBCConnectionEventListener poolEventListener;
+
+    /** connection URL indicates to close old result when Statement is reused */
+    boolean isCloseResultSet;
+
+    /** connection URL indicates to return column name in ResultMetadata */
+    boolean isUseColumnName = true;
 
     /**
      * Constructs a new external <code>Connection</code> to an HSQLDB
@@ -3599,6 +3609,13 @@ public class JDBCConnection implements Connection {
 
             connProperties   = props;
             clientProperties = sessionProxy.getClientProperties();
+
+            if (connProperties != null) {
+                isCloseResultSet = connProperties.isPropertyTrue(
+                    HsqlDatabaseProperties.url_close_result, false);
+                isUseColumnName = connProperties.isPropertyTrue(
+                    HsqlDatabaseProperties.url_get_column_name, true);
+            }
         } catch (HsqlException e) {
             throw JDBCUtil.sqlException(e);
         }
@@ -3664,6 +3681,13 @@ public class JDBCConnection implements Connection {
         clientProperties  = c.clientProperties;
         isPooled          = true;
         poolEventListener = eventListener;
+
+        if (connProperties != null) {
+            isCloseResultSet = connProperties.isPropertyTrue(
+                HsqlDatabaseProperties.url_close_result, false);
+            isUseColumnName = connProperties.isPropertyTrue(
+                HsqlDatabaseProperties.url_get_column_name, true);
+        }
     }
 
     /**
