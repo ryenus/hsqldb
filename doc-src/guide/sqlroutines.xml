@@ -2107,6 +2107,29 @@
       routine must also have the relevant access privileges on the tables that
       are used inside the Java method.</para>
     </section>
+
+    <section>
+      <title>Warning</title>
+
+      <para>The definition of SQL/JRT routines referencing the user's Java
+      static methods is stored in the .script file of the database.</para>
+
+      <para>If the database is opened in a Java environment that does not have
+      access to the referenced Java static methods on its classpath, the
+      SQL/JRT routines are not created when the database is opened. When the
+      database is closed, the routine definitions are lost.</para>
+
+      <para>There is a workaround to prevent opening the database when the
+      static method are not on the classpath. You can create an SQL/PSM
+      procedure which calls all the SQL/JRT functions and procedures in your
+      database. The calls should have the necessary dummy arguments. This
+      procedure will fail to be created when the referenced methods are not
+      accessible and will return "Error in script file". There is no need ever
+      to execute the procedure. However, to avoid accidental use, you can
+      ensure that it does not execute the SQL/JRT routines by adding a line
+      such as <literal>IF TRUE THEN RETURN;</literal> before any references to
+      the SQL/JRT routines.</para>
+    </section>
   </section>
 
   <section xml:id="src_aggregate_functions">

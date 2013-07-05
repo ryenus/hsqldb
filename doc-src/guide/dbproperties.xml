@@ -389,6 +389,60 @@
     </table>
 
     <table frame="all" pgwide="1" tocentry="1">
+      <title>Closing old ResultSet when Statement is reused</title>
+
+      <tgroup align="left" cols="3">
+        <colspec colname="c1" colwidth="7cm" />
+
+        <colspec colname="c2" colwidth="1.5cm" />
+
+        <colspec colname="c3" />
+
+        <thead>
+          <row>
+            <entry>Name</entry>
+
+            <entry>Default</entry>
+
+            <entry>Description</entry>
+          </row>
+        </thead>
+
+        <tbody valign="top">
+          <row>
+            <entry><property>close_result</property></entry>
+
+            <entry><literal>false</literal></entry>
+
+            <entry>closing the old result set when a new ResultSet is created
+            by a Statement</entry>
+          </row>
+
+          <row>
+            <entry nameend="c3" namest="c1"><para>This property is used for
+            compatibility with the JDBC specification. When true (the JDBC
+            specification), a <classname>ResultSet</classname> that was
+            previously returned by executing a
+            <classname>Statement</classname> or
+            <classname>PreparedStatement</classname> is closed as soon as the
+            <classname>Statement</classname> is executed
+            again.</para><para>The default is false as previous versions of
+            HSQLDB did not close old result set. The user application should
+            close old result sets when they are no longer needed and should
+            not rely on auto-closing side effect of executing the
+            Statement.</para><para>The default is false. When the property is
+            true, the old <classname>ResultSet</classname> is closed when a
+            <classname>Statement</classname> is re-executed. Example
+            below:</para><programlisting> jdbc:hsqldb:hsql://localhost/enrolments;close_result=true</programlisting><para>When
+            a <classname>ResultSet</classname> is used inside a user-defined
+            stored procedure, the default, false, is always used for this
+            property.</para></entry>
+          </row>
+        </tbody>
+      </tgroup>
+    </table>
+
+    <table frame="all" pgwide="1" tocentry="1">
       <title>Column Names in JDBC ResultSet</title>
 
       <tgroup align="left" cols="3">
@@ -427,8 +481,9 @@
             false, the above method returns the same value as
             <methodname>ResultSet.getColumnLabel(int column)</methodname>
             Example below:</para><programlisting> jdbc:hsqldb:hsql://localhost/enrolments;get_column_name=false</programlisting><para>When
-            a ResultSet is used inside a user-defined stored procedure, the
-            default, true, is always used for this property.</para></entry>
+            a <classname>ResultSet</classname> is used inside a user-defined
+            stored procedure, the default, true, is always used for this
+            property.</para></entry>
           </row>
         </tbody>
       </tgroup>
