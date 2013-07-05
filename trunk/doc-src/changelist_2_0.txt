@@ -1,3 +1,5 @@
+05 July svn 5259 snapshot 52
+-- added connection property, close_result
 30 June - svn 5256 snapshot 51
 -- added INSTR function
 15 May - svn 5241 snapshot
