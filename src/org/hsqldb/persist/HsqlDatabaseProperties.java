@@ -185,6 +185,7 @@ public class HsqlDatabaseProperties extends HsqlProperties {
     public static final String url_default_schema  = "default_schema";
     public static final String url_check_props     = "check_props";
     public static final String url_get_column_name = "get_column_name";
+    public static final String url_close_result    = "close_result";
 
     //
     public static final String url_storage_class_name = "storage_class_name";
@@ -631,7 +632,7 @@ public class HsqlDatabaseProperties extends HsqlProperties {
 // when jar is used with embedded databases in AOO 3.4 and recent(2012) LO this
 // line can be uncommented to circumvent hard-coded check in OOo code in
 // drivers/hsqldb/HDriver.cxx
-                    props.setProperty(hsqldb_version, VERSION_STRING_1_8_0);
+//                    props.setProperty(hsqldb_version, VERSION_STRING_1_8_0);
                 }
             }
 
