@@ -2358,14 +2358,16 @@ public class Table extends TableBase implements SchemaObject {
                 data[i] = colTypes[i].convertToTypeLimits(session, data[i]);
             }
         } catch (HsqlException e) {
-            if (e.getErrorCode() == -ErrorCode.X_22001) {
+            int code = e.getErrorCode();
+
+            if (code == -ErrorCode.X_22001 || code == -ErrorCode.X_22003
+                    || code == -ErrorCode.X_22008) {
                 ColumnSchema column = getColumn(i);
                 String[]     info   = new String[] {
                     "", tableName.statementName, column.getName().statementName
                 };
 
-                throw Error.error(e, ErrorCode.X_22001,
-                                  ErrorCode.COLUMN_CONSTRAINT, info);
+                throw Error.error(e, code, ErrorCode.COLUMN_CONSTRAINT, info);
             }
 
             throw e;

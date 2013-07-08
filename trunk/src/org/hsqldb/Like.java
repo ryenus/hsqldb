@@ -178,12 +178,12 @@ class Like implements Cloneable {
                                         (int) ((ClobData) o).length(session));
         }
 
-        return compareAt(o, 0, 0, iLen, length, cLike, wildCardType)
+        return compareAt(session, o, 0, 0, iLen, length, cLike, wildCardType)
                ? Boolean.TRUE
                : Boolean.FALSE;
     }
 
-    char getChar(Object o, int i) {
+    char getChar(Session session, Object o, int i) {
 
         char c;
 
@@ -192,6 +192,8 @@ class Like implements Cloneable {
         } else {
             if (o instanceof char[]) {
                 c = ((char[]) o)[i];
+            } else if (o instanceof ClobData) {
+                c = ((ClobData)o).getChars(session,i,1)[0];
             } else {
                 c = ((String) o).charAt(i);
             }
@@ -213,14 +215,16 @@ class Like implements Cloneable {
         return l;
     }
 
-    private boolean compareAt(Object o, int i, int j, int iLen, int jLen,
-                              char cLike[], int[] wildCardType) {
+    private boolean compareAt(Session session, Object o, int i, int j,
+                              int iLen, int jLen, char cLike[],
+                              int[] wildCardType) {
 
         for (; i < iLen; i++) {
             switch (wildCardType[i]) {
 
                 case 0 :                  // general character
-                    if ((j >= jLen) || (cLike[i] != getChar(o, j++))) {
+                    if ((j >= jLen)
+                            || (cLike[i] != getChar(session, o, j++))) {
                         return false;
                     }
                     break;
@@ -237,9 +241,9 @@ class Like implements Cloneable {
                     }
 
                     while (j < jLen) {
-                        if ((cLike[i] == getChar(o, j))
-                                && compareAt(o, i, j, iLen, jLen, cLike,
-                                             wildCardType)) {
+                        if ((cLike[i] == getChar(session, o, j))
+                                && compareAt(session, o, i, j, iLen, jLen,
+                                             cLike, wildCardType)) {
                             return true;
                         }
 
@@ -280,7 +284,7 @@ class Like implements Cloneable {
                     }
                 }
 
-                escapeChar = getChar(escape, 0);
+                escapeChar = getChar(session, escape, 0);
             }
         }
 
@@ -304,7 +308,7 @@ class Like implements Cloneable {
                 bPercent  = false;
 
         for (int i = 0; i < l; i++) {
-            char c = getChar(pattern, i);
+            char c = getChar(session, pattern, i);
 
             if (!bEscaping) {
                 if (escapeChar == c) {

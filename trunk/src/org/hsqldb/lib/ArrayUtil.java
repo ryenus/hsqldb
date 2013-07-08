@@ -419,6 +419,10 @@ public class ArrayUtil {
      */
     public static boolean haveCommonElement(int[] arra, int[] arrb) {
 
+        if (arra == null || arrb == null) {
+            return false;
+        }
+
         for (int i = 0; i < arra.length; i++) {
             int c = arra[i];
 
