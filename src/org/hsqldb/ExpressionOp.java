@@ -695,14 +695,20 @@ public class ExpressionOp extends Expression {
 
                     return new BinaryData(newArray, false);
                 } else {
-                    String left = (String) nodes[LEFT].getValue(session);
+                    String left =
+                        (String) Type.SQL_VARCHAR.convertToType(session,
+                            nodes[LEFT].getValue(session),
+                            nodes[LEFT].getDataType());
 
                     if (left == null) {
                         return null;
                     }
 
                     if (hasEscape) {
-                        String right = (String) nodes[RIGHT].getValue(session);
+                        String right =
+                            (String) Type.SQL_VARCHAR.convertToType(session,
+                                nodes[RIGHT].getValue(session),
+                                nodes[RIGHT].getDataType());
 
                         if (right == null) {
                             return null;

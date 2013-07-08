@@ -522,6 +522,17 @@ examples:
       <antcall target='-test14'/>
    </target>
 
+    <!--jar with (jdkversion-switched) sources, useful for reading/debugging the code from other projects, can be specified via maven too-->
+    <target name="hsqldbsources" description="builds jar file containing source code"
+            depends="switchtojdk14,
+                     switchtojdk15,
+					 switchtojdk16,
+                     switchtojdk17">
+        <jar jarfile="lib/hsqldb-sources.jar"
+             basedir="tmp/switchedsrc">
+        </jar>
+    </target>
+
     <target name="hsqldbtest" depends="test,swing, -prep-license-files"
             description="Build the hsqldbtest.jar (default plus test classes)">
         <jar jarfile="lib/hsqldbtest.jar"
