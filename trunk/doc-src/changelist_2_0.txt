@@ -1,3 +1,9 @@
+14 August 2013 svn 5264
+-- added support for LIKE with parametric escape character 
+-- added support for routine SIGNAL messages using variables
+-- fixed issue with NPE is some complex subqueries
+08 July 2013 - version 2.3.0
+-- improved data exception error messages
 05 July svn 5259 snapshot 52
 -- added connection property, close_result
 30 June - svn 5256 snapshot 51
