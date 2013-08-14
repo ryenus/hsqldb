@@ -41,14 +41,14 @@ import org.hsqldb.result.Result;
  * Implementation of Statement for simple PSM control statements.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.2.7
+ * @version 2.3.1
  * @since 1.9.0
  */
 public class StatementSimple extends Statement {
 
-    String   sqlState;
-    String   message;
-    HsqlName label;
+    String     sqlState;
+    Expression messageExpression;
+    HsqlName   label;
 
     //
     ColumnSchema[] variables;
@@ -63,14 +63,14 @@ public class StatementSimple extends Statement {
         this.label             = label;
     }
 
-    StatementSimple(int type, String sqlState, String message) {
+    StatementSimple(int type, String sqlState, Expression message) {
 
         super(type, StatementTypes.X_SQL_CONTROL);
 
         references             = new OrderedHashSet();
         isTransactionStatement = false;
         this.sqlState          = sqlState;
-        this.message           = message;
+        this.messageExpression = message;
     }
 
     public String getSQL() {
@@ -142,7 +142,7 @@ public class StatementSimple extends Statement {
             /** @todo - check sqlState against allowed values */
             case StatementTypes.SIGNAL :
             case StatementTypes.RESIGNAL :
-                HsqlException ex = Error.error(message, sqlState);
+                HsqlException ex = Error.error(getMessage(session), sqlState);
 
                 return Result.newErrorResult(ex);
 
@@ -153,6 +153,15 @@ public class StatementSimple extends Statement {
             default :
                 throw Error.runtimeError(ErrorCode.U_S0500, "");
         }
+    }
+
+    String getMessage(Session session) {
+
+        if (messageExpression == null) {
+            return null;
+        }
+
+        return (String) messageExpression.getValue(session);
     }
 
     public void resolve(Session session) {

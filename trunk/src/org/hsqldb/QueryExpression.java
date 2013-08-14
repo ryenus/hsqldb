@@ -896,6 +896,17 @@ public class QueryExpression implements RangeGroup {
         return set;
     }
 
+    OrderedHashSet collectRangeVariables(OrderedHashSet set) {
+
+        set = leftQueryExpression.collectRangeVariables(set);
+
+        if (rightQueryExpression != null) {
+            set = rightQueryExpression.collectRangeVariables(set);
+        }
+
+        return set;
+    }
+
     public void collectObjectNames(Set set) {
 
         leftQueryExpression.collectObjectNames(set);

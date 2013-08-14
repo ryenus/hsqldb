@@ -864,18 +864,28 @@ public class RangeVariable implements Cloneable {
         colExpr = ((QuerySpecification) queryExpression).exprColumns;
 
         for (int i = 0; i < conditionsList.size(); i++) {
-            Expression e = (Expression) conditionsList.get(i);
+            Expression     e   = (Expression) conditionsList.get(i);
+            OrderedHashSet set = e.collectRangeVariables(null);
 
-            if (!e.hasReference(ranges, exclude)) {
-                e = e.duplicate();
-                e = e.replaceColumnReferences(this, colExpr);
+            e = e.duplicate();
+            e = e.replaceColumnReferences(this, colExpr);
 
-                if (e.collectAllSubqueries(null) != null) {
-                    return;
-                }
-
-                condition = ExpressionLogical.andExpressions(condition, e);
+            if (e.collectAllSubqueries(null) != null) {
+                return;
             }
+
+            if (set != null) {
+                for (int j = 0; j < set.size(); j++) {
+                    RangeVariable range = (RangeVariable) set.get(j);
+
+                    if (this != range
+                            && range.rangeType == RangeVariable.TABLE_RANGE) {
+                        queryExpression.setCorrelated();
+                    }
+                }
+            }
+
+            condition = ExpressionLogical.andExpressions(condition, e);
         }
 
         queryExpression.addExtraConditions(condition);
