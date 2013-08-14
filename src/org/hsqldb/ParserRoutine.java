@@ -2108,8 +2108,8 @@ public class ParserRoutine extends ParserDML {
                                     StatementCompound context,
                                     HsqlName label) {
 
-        String sqlState;
-        String message = null;
+        String     sqlState;
+        Expression message = null;
 
         readThis(Tokens.SIGNAL);
         readThis(Tokens.SQLSTATE);
@@ -2120,7 +2120,13 @@ public class ParserRoutine extends ParserDML {
             readThis(Tokens.MESSAGE_TEXT);
             readThis(Tokens.EQUALS);
 
-            message = readQuotedString();
+            message = XreadSimpleValueSpecificationOrNull();
+
+            if (message == null) {
+                throw unexpectedToken();
+            }
+
+            resolveOuterReferencesAndTypes(routine, context, message);
         }
 
         StatementSimple cs = new StatementSimple(StatementTypes.SIGNAL,
@@ -2133,8 +2139,8 @@ public class ParserRoutine extends ParserDML {
                                       StatementCompound context,
                                       HsqlName label) {
 
-        String sqlState = null;
-        String message  = null;
+        String     sqlState = null;
+        Expression message  = null;
 
         readThis(Tokens.RESIGNAL);
 
@@ -2145,7 +2151,13 @@ public class ParserRoutine extends ParserDML {
                 readThis(Tokens.MESSAGE_TEXT);
                 readThis(Tokens.EQUALS);
 
-                message = readQuotedString();
+                message = XreadSimpleValueSpecificationOrNull();
+
+                if (message == null) {
+                    throw unexpectedToken();
+                }
+
+                resolveOuterReferencesAndTypes(routine, context, message);
             }
         }
 

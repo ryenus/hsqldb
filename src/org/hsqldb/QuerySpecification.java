@@ -893,6 +893,23 @@ public class QuerySpecification extends QueryExpression {
         return set;
     }
 
+    OrderedHashSet collectRangeVariables(OrderedHashSet set) {
+
+        for (int i = 0; i < indexStartAggregates; i++) {
+            set = exprColumns[i].collectRangeVariables(set);
+        }
+
+        if (queryCondition != null) {
+            set = queryCondition.collectRangeVariables(set);
+        }
+
+        if (havingCondition != null) {
+            set = havingCondition.collectRangeVariables(set);
+        }
+
+        return set;
+    }
+
     /**
      * Sets the types of all the expressions used in this SELECT list.
      */
@@ -1049,7 +1066,8 @@ public class QuerySpecification extends QueryExpression {
             }
         }
 
-        boolean check = ArrayUtil.areAllIntIndexesAsBooleanArray(colMap,range.usedColumns);
+        boolean check = ArrayUtil.areAllIntIndexesAsBooleanArray(colMap,
+            range.usedColumns);
 
         if (!check) {
             return;
