@@ -469,7 +469,7 @@
       DECIMAL type can be assigned to a column of SMALLINT or INTEGER, but a
       value with 15 digits cannot.</para>
 
-      <para>When a DECIMAL values is multiplied by a DECIMAL or integral type,
+      <para>When a DECIMAL value is multiplied by a DECIMAL or integral type,
       the resulting scale is the sum of the scales of the two terms. When they
       are divided, the result is a value with a scale (number of digits to the
       right of the decimal point) equal to the larger of the scales of the two
