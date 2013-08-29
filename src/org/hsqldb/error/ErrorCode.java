@@ -593,7 +593,7 @@ public interface ErrorCode {
     int X_42590 = 5590;                            // unexpected end of statement
 
     // other
-    int X_42591 = 5591;                            // cannot drop sole column of table
+    int X_42591 = 5591;                            // needs column or cannot drop sole column of table
     int X_42592 = 5592;                            // precision or scale out of range
     int X_42593 = 5593;                            // column count mismatch in column name list
     int X_42594 = 5594;                            // column count mismatch in UNION, INTERSECT, EXCEPT operation
