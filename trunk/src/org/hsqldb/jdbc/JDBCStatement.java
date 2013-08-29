@@ -86,7 +86,8 @@ import org.hsqldb.result.ResultProperties;
  * <h3>HSQLDB-Specific Information:</h3><p>
  * From version 2.0, the implementation meets the JDBC specification
  * requirment that any existing ResultSet is closed when execute() or
- * executeQuery() methods are called.
+ * executeQuery() methods are called. The connection property close_result=true
+ * is required for this behaviour.
  * <p>
  *
  * <b>JRE 1.1.x Notes:</b> <p>
@@ -133,7 +134,7 @@ import org.hsqldb.result.ResultProperties;
  *
  * @author Campbell Boucher-Burnet (boucherb@users dot sourceforge.net)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.0.1
+ * @version 2.3.0
  * @revised JDK 1.6, HSQLDB 2.0
  * @see JDBCConnection#createStatement
  * @see JDBCResultSet

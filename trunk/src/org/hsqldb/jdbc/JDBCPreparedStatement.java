@@ -170,7 +170,8 @@ import org.hsqldb.types.Types;
  *
  * From version 2.0, the implementation meets the JDBC specification
  * requirment that any existing ResultSet is closed when execute() or
- * executeQuery() methods are called.
+ * executeQuery() methods are called. The connection property close_result=true
+ * is required for this behaviour.
  * <p>
  * JDBCPreparedStatement objects are backed by
  * a true compiled parameteric representation. Hence, there are now significant
@@ -4265,9 +4266,13 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
                 if (o instanceof String) {
                     break;
                 } else {
-                    o = outType.convertToDefaultType(session, o);
+                    try {
+                        o = outType.convertToDefaultType(session, o);
 
-                    break;
+                        break;
+                    } catch (HsqlException e) {
+                        JDBCUtil.throwError(e);
+                    }
                 }
             }
             case Types.SQL_CHAR :

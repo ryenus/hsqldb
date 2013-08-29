@@ -55,7 +55,7 @@ import org.hsqldb.types.Type;
  * Manages all SCHEMA related database objects
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.0
+ * @version 2.3.1
  * @since 1.8.0
  */
 public class SchemaManager {
@@ -990,7 +990,7 @@ public class SchemaManager {
         database.getGranteeManager().removeDbObject(table.getName());
         table.releaseTriggers();
 
-        if (table.hasLobColumn()) {
+        if (!table.isView() && table.hasLobColumn()) {
             RowIterator it = table.rowIterator(session);
 
             while (it.hasNext()) {
@@ -1705,7 +1705,7 @@ public class SchemaManager {
                 case SchemaObject.COLUMN :
                     object = table.getColumn(table.getColumnIndex(name.name));
                     break;
-                    
+
                 default :
                     continue;
             }

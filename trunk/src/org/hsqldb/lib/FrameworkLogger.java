@@ -83,7 +83,7 @@ import java.util.logging.Logger;
  * configuration takes place.<p/>
  *
  * @author Blaine Simpson (blaine dot simpson at admc dot com)
- * @version 2.2.8
+ * @version 2.3.0
  * @since 1.9.0
  */
 public class FrameworkLogger {

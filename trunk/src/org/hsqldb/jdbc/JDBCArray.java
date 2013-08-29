@@ -539,7 +539,10 @@ public class JDBCArray implements Array {
         this.elementType  = type;
         this.arrayType    = arrayType;
         this.connection   = connection;
-        this.sessionProxy = connection.sessionProxy;
+
+        if (connection != null) {
+            this.sessionProxy = connection.sessionProxy;
+        }
     }
 
     public Object[] getArrayInternal() {

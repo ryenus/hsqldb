@@ -58,7 +58,7 @@ import org.hsqldb.types.UserTypeModifier;
  * Parser for DDL statements
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.0
+ * @version 2.3.1
  * @since 1.9.0
  */
 public class ParserDDL extends ParserRoutine {
@@ -1050,6 +1050,10 @@ public class ParserDDL extends ParserRoutine {
                     start     = false;
                     startPart = false;
             }
+        }
+
+        if (table.getColumnCount() == 0) {
+            throw Error.error(ErrorCode.X_42591);
         }
 
         if (token.tokenType == Tokens.ON) {
