@@ -113,7 +113,7 @@ import org.hsqldb.types.Type;
  *
  * @author Thomas Mueller (Hypersonic SQL Group)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.0
+ * @version 2.3.1
  * @since Hypersonic SQL
  */
 public class IndexAVL implements Index {
@@ -1169,10 +1169,6 @@ public class IndexAVL implements Index {
                                     int distinctCount, int compareType,
                                     boolean reversed, boolean[] map) {
 
-        if (compareType == OpTypes.MAX) {
-            return lastRow(session, store, 0);
-        }
-
         NodeAVL node = findNode(session, store, rowdata, defaultColMap,
                                 matchCount, compareType,
                                 TransactionManager.ACTION_READ, reversed);
@@ -1650,7 +1646,8 @@ public class IndexAVL implements Index {
                 fieldCount--;
 
                 if (compareType == OpTypes.SMALLER
-                        || compareType == OpTypes.SMALLER_EQUAL) {
+                        || compareType == OpTypes.SMALLER_EQUAL
+                        || compareType == OpTypes.MAX) {
                     reversed = true;
                 }
             }
@@ -1668,6 +1665,7 @@ public class IndexAVL implements Index {
                 if (i == 0) {
                     switch (compareType) {
 
+                        case OpTypes.MAX :
                         case OpTypes.IS_NULL :
                         case OpTypes.EQUAL : {
                             result = x;
