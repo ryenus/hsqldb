@@ -55,7 +55,7 @@ import org.hsqldb.types.Type;
  * Metadata for range variables, including conditions.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.2.9
+ * @version 2.3.0
  * @since 1.9.0
  */
 public class RangeVariable implements Cloneable {
@@ -333,7 +333,8 @@ public class RangeVariable implements Cloneable {
 
     public boolean reverseOrder() {
 
-        if (joinConditions.length == 1) {
+        if (joinConditions.length == 1
+                && joinConditions[0].indexedColumnCount > 0) {
             joinConditions[0].reverseIndexCondition();
 
             return true;
@@ -1812,7 +1813,7 @@ public class RangeVariable implements Cloneable {
          * @param index Index to use
          * @param colCount number of columns searched
          */
-        public void addIndexCondition(Expression[] exprList, Index index,
+        void addIndexCondition(Expression[] exprList, Index index,
                                       int colCount) {
 
             int indexColCount = index.getColumnCount();
@@ -1873,8 +1874,9 @@ public class RangeVariable implements Cloneable {
                         indexEndCondition =
                             ExpressionLogical.andExpressions(indexEndCondition,
                                                              e);
-                        opType     = e.opType;
-                        opTypes[0] = e.opType;
+                        opType        = e.opType;
+                        opTypes[0]    = e.opType;
+                        opTypesEnd[0] = e.opType;
                     }
 
                     opTypeEnd = opType;
@@ -1889,7 +1891,7 @@ public class RangeVariable implements Cloneable {
             hasIndex           = true;
         }
 
-        public void reverseIndexCondition() {
+        private void reverseIndexCondition() {
 
             if (opType == OpTypes.EQUAL || opType == OpTypes.IS_NULL) {
 
@@ -1898,15 +1900,19 @@ public class RangeVariable implements Cloneable {
                 indexEndCondition = null;
 
                 for (int i = 0; i < indexedColumnCount; i++) {
-                    Expression e = indexCond[i];
+                    Expression e             = indexCond[i];
+                    int        opTypeCurrent = opTypes[i];
 
                     indexCond[i]    = indexEndCond[i];
                     indexEndCond[i] = e;
                     indexEndCondition =
                         ExpressionLogical.andExpressions(indexEndCondition, e);
+                    opTypes[i]    = opTypesEnd[i];
+                    opTypesEnd[i] = opTypeCurrent;
                 }
 
-                opType = opTypeEnd;
+                opType    = opTypes[indexedColumnCount - 1];
+                opTypeEnd = opTypesEnd[indexedColumnCount - 1];
             }
 
             reversed = true;
@@ -1954,7 +1960,7 @@ public class RangeVariable implements Cloneable {
             return sb.toString();
         }
 
-        public void replaceColumnReferences(RangeVariable range,
+        private void replaceColumnReferences(RangeVariable range,
                                             Expression[] list) {
 
             if (indexCond != null) {
