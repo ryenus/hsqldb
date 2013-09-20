@@ -78,8 +78,9 @@ import org.hsqldb.persist.HsqlDatabaseProperties;
  * @since 2.2.9
  */
 @SuppressWarnings("serial")
-public class JDBCPool implements DataSource, Serializable, Referenceable,
-                   ConnectionEventListener, StatementEventListener, Wrapper {
+public class JDBCPool extends JDBCCommonDataSource implements DataSource,
+                   Serializable, Referenceable, ConnectionEventListener,
+                   StatementEventListener, Wrapper {
 
     /**
      * Retrieves a new connection using the properties that have already been
