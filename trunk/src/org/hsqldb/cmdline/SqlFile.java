@@ -5165,7 +5165,7 @@ public class SqlFile {
             offset = s.indexOf('"', prevOffset + 1);
             segLen = ((offset < 0) ? s.length() : offset)
                     - (prevOffset + 1);
-            if (segLen > 1)
+            if (segLen > 0)
                 // Here we insert non-quoted segments, replacing all
                 // dsvColSplitters.
                 sb.append(s.substring(
