@@ -1879,7 +1879,8 @@
 
         <listitem>
           <para>When the Java static method is invoked, the OUT and INOUT
-          arguments are passed as a single-element array.</para>
+          arguments are passed to the Java method as a single-element
+          array.</para>
         </listitem>
 
         <listitem>
@@ -1932,8 +1933,8 @@
 
    public static void getCustomerProcedure(int id, String[] firstn, String[] lastn)
        throws java.sql.SQLException {
-       firstn[0] = somevalue;
-       lastn[0] = somevalue;
+       firstn[0] = somevalue;  // parameter out value is assigned
+       lastn[0] = somevalue;   // parameter out value is assigned
    }
 
 </programlisting>
@@ -1948,9 +1949,9 @@
    DYNAMIC RESULT SETS 1
    EXTERNAL NAME 'CLASSPATH:org.hsqldb.test.Test01.newCustomerProcedure'
 
-   public static void newCustomerProcedure(String firstn, String lastn, String addr,
+   public static void newCustomerProcedure(String firstn, String lastn,
                        ResultSet[] result) throws java.sql.SQLException {
-       result[0] = someresultset;
+       result[0] = someresultset;  // dynamic result set is assigned
    }
 
 </programlisting>
