@@ -64,7 +64,7 @@ import org.hsqldb.types.Type;
  * Class for reading the data for a database row from the script file.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.2.9
+ * @version 2.3.1
  * @since 1.7.3
  */
 public class RowInputTextLog extends RowInputBase
@@ -299,7 +299,7 @@ implements RowInputInterface {
 
         BigDecimal bd = (BigDecimal) type.convertToDefaultType(null, value);
 
-        return (BigDecimal) type.convertToTypeLimits(null, bd);
+        return bd;
     }
 
     protected TimeData readTime(Type type) throws IOException {

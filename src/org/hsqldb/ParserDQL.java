@@ -64,7 +64,7 @@ import org.hsqldb.types.Types;
  * Parser for DQL statements
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.0
+ * @version 2.3.1
  * @since 1.9.0
  */
 public class ParserDQL extends ParserBase {
@@ -5627,6 +5627,10 @@ public class ParserDQL extends ParserBase {
                 new ExpressionValue((Object) null, (Type) null), current);
             Expression casewhen = new ExpressionOp(OpTypes.CASEWHEN,
                                                    condition, alternatives);
+
+            if (session.database.sqlSyntaxMys) {
+                casewhen.setSubType(OpTypes.CAST);
+            }
 
             if (c == null) {
                 c = casewhen;
