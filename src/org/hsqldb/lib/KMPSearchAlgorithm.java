@@ -36,7 +36,7 @@ import java.io.InputStream;
 import java.io.Reader;
 
 /**
- * Implements the Knuth–Morris–Pratt string search algorithm for searching
+ * Implements the Knuth-Morris-Pratt string search algorithm for searching
  * streams or arrays of octets or characters. <p>
  *
  * This algorithm is a good choice for searching large, forward-only access
@@ -66,7 +66,7 @@ import java.io.Reader;
  *     {@link String.indexOf(java.lang.String,int)}.
  * </ul>
  *
- * Note that the Boyer–Moore algorithm is generally considered to be the better
+ * Note that the Boyer-Moore algorithm is generally considered to be the better
  * practical, all-round exact sub-string search algorithm, but due to its
  * reverse pattern scan order, performance considerations dictate that it
  * requires more space and that is somewhat more complex to implement
@@ -78,15 +78,15 @@ import java.io.Reader;
  * streams, overall performance considerations require the use a circular buffer
  * of the same size as the search pattern to hold data from the searched stream
  * as it is being compared in reverse order to the search pattern.  Hence,
- * Boyer–Moore requires at minimum twice the memory required by Knuth–Morris–Pratt
+ * Boyer-Moore requires at minimum twice the memory required by Knuth-Morris-Pratt
  * to search for the same pattern and that factor has the greatest impact
  * precisely on the same class of patterns (larger) for which it is most
- * outperforms Knuth–Morris–Pratt.
+ * outperforms Knuth-Morris-Pratt.
  *
  * @author Campbell Boucher-Burnet (boucherb@users dot sourceforge.net)
  * @version 2.1
  * @since 2.1
- * @see <a href="http://en.wikipedia.org/wiki/Knuth%E2%80%93Morris%E2%80%93Pratt_algorithm">Knuthâ€“Morrisâ€“Pratt algorithm</a>
+ * @see <a href="http://en.wikipedia.org/wiki/Knuth%E2%80%93Morris%E2%80%93Pratt_algorithm">Knuth-Morris-Pratt algorithm</a>
  */
 public class KMPSearchAlgorithm {
 
