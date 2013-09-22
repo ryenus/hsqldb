@@ -11,17 +11,24 @@ now, due to known issues with the inability to apply DST (Daylight
 Savings Time) offsets to JDBC DATE objects.
 ************************************************************
 
+The test runners depend on the hsqldb.jar and sqltool.jar being in place in the ../../lib directory.
+
 
 HOW TO RUN
 
-    Typical usage (executes all tests).  From UNIX:
+    Typical usage (executes all tests).
+
+        cd .../testrun/sqltool
+        ../../build/gradlew
+    
+    or from UNIX shell:
 
         cd .../testrun/sqltool
         ./runtests.bash
 
-    or from Windows:
+    or from Windows shell:
 
-        cd .../testrun/sqltool
+        cd ...\testrun\sqltool
         runtests
 
     Run tests on any subset of SQL files:
@@ -41,6 +48,10 @@ HOW TO RUN
     at the end of the results.  To get details about the failure, re-run the
     same command with just one of the failed SQL scripts at a time, and
     with the Verbose option, like
+
+        ../../build/gradlew -Pverbose=true -Pscripts=failedscript.sql
+
+    or
 
         ./runtests.bash -v failedscript.sql
     or
