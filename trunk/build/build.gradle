@@ -213,14 +213,16 @@ File[] resequenceAntDependencies(String fileNameInsertion,
             + ''' name->Target's (just keys): ''' + targetsIn.keySet())
     logger.debug(dependListsIn.size() + " name->List's: $dependListsIn")
 
-    dependListsIn.values.each { dl ->
+    dependListsIn.values().each { dl ->
         dl.each { n ->
             if (!masterSeqList.contains(n))
                 recursivePush(n,
                         dependListsIn.values(), masterSeqList, inProcessStack)
         }
     }
-    logger.debug "RESULT:  $masterSeqList"
+    if (masterSeqList.size() < 1)
+        logger.warn("Warning.  0 masterSeqList elements");
+    logger.debug "masterSeqList:  $masterSeqList"
 
     // 2: Generate task-renaming maps 'renameMap' and 'prohibitionMap'
     //    and ouput dep lists 'dependListsOut'
@@ -234,6 +236,7 @@ File[] resequenceAntDependencies(String fileNameInsertion,
     masterSeqList.each { n ->
         renameMap[n] = String.format('%03d%s', renameMap.size() + 1, n)
     }
+    if (renameMap.size() < 1) logger.warn("Warning.  0 renameMap elements");
     dependListsIn.each { k, v ->
         outList = []
         dependListsOut[k] = outList
@@ -788,7 +791,7 @@ Other tasks
             }
         }
         def allDependees = [] as Set  // Purposefully excluding wrappees
-        dependOnMap.values.each { allDependees.addAll(it) }
+        dependOnMap.values().each { allDependees.addAll(it) }
         getTasks().each { t ->
             if (!allDependees.contains(t)
                     && !hardTaskDescriptions.contains(t.name)) {
