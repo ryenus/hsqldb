@@ -40,6 +40,7 @@
    <property name="description"
              value="HyperSQL Lightweight 100% Java SQL Database Engine"/>
    <property name="build.sysclasspath" value="ignore"/>
+   <property name="javac.encoding" value="ISO-8859-1"/>
    <property name="swsrc" value="${basedir}/tmp/switchedsrc/"/>
    <available property="switch.inplace"
               file="${swsrc}/org/hsqldb/package.html"/>
@@ -266,9 +267,10 @@ examples:
                      switchtojdk15,switchtojdk16,
                      switchtojdk17">
       <javac srcdir="${swsrc}"
+             encoding="${javac.encoding}"
              destdir="classes"
-                 debug="${build.debug}"
-                 optimize="${build.optimize}"
+             debug="${build.debug}"
+             optimize="${build.optimize}"
       >
          <include name="org/hsqldb/map/**"/>
       </javac>
@@ -278,8 +280,9 @@ examples:
             description="compiles the JVM-independent lib classes">
       <javac srcdir="${swsrc}"
              destdir="classes"
-                 debug="${build.debug}"
-                 optimize="${build.optimize}"
+             debug="${build.debug}"
+             optimize="${build.optimize}"
+             encoding="${javac.encoding}"
       >
          <exclude name="org/hsqldb/lib/AppendableException.java"/>
          <exclude name="org/hsqldb/lib/RefCapablePropertyResourceBundle.java"/>
@@ -297,9 +300,10 @@ examples:
       <fail unless='_servlet_available'
             message="Place Jar file for Servlet API at '${servletapi.lib}', or set property 'servletapi.lib'"/>
       <javac srcdir="${swsrc}"
+             encoding="${javac.encoding}"
              destdir="classes"
-                 debug="${build.debug}"
-                 optimize="${build.optimize}"
+             debug="${build.debug}"
+             optimize="${build.optimize}"
        >
          <classpath>
             <pathelement location="${servletapi.lib}"/>
@@ -349,9 +353,10 @@ examples:
    <target name="classes12" depends="classes" if="ant.java.iscjavamodern"
            description="compiles 1.2 specific classes">
       <javac srcdir="${swsrc}"
+             encoding="${javac.encoding}"
              destdir="classes"
-                 debug="${build.debug}"
-                 optimize="${build.optimize}"
+             debug="${build.debug}"
+             optimize="${build.optimize}"
        >
          <include name="org/hsqldb/jdbc/JDBCArray.java"/>
          <include name="org/hsqldb/jdbc/JDBCBlob.java"/>
@@ -362,7 +367,7 @@ examples:
    <target name="classes14" depends="classes12" if="ant.java.iscjava14"
            description="compiles 1.4 specific classes">
       <javac srcdir="${swsrc}" destdir="classes" debug="${build.debug}"
-                 optimize="${build.optimize}" >
+             encoding="${javac.encoding}" optimize="${build.optimize}" >
       <include name="org/hsqldb/jdbc/pool/*.java"/>
       <include name="org/hsqldb/jdbc/JDBCCommonDataSource.java"/>
       <include name="org/hsqldb/jdbc/JDBCDataSource*.java"/>
@@ -375,7 +380,7 @@ examples:
    <target name="classes15" depends="classes14" if="ant.java.iscjava15"
            description="compiles 1.5 specific classes">
       <javac srcdir="${swsrc}" destdir="classes" debug="${build.debug}"
-                 optimize="${build.optimize}" >
+             encoding="${javac.encoding}" optimize="${build.optimize}" >
         <include name="org/hsqldb/lib/AppendableException.java"/>
         <include name="org/hsqldb/lib/RefCapablePropertyResourceBundle.java"/>
         <include name="org/hsqldb/lib/RefCapableRBInterface.java"/>
@@ -387,7 +392,7 @@ examples:
    <target name="classes16" depends="classes15" if="ant.java.iscjava16"
            description="compiles 1.6 specific classes">
       <javac srcdir="${swsrc}" destdir="classes" debug="${build.debug}"
-                 optimize="${build.optimize}" >
+             encoding="${javac.encoding}" optimize="${build.optimize}" >
          <include name="org/hsqldb/jdbc/JDBCNClob.java"/>
          <include name="org/hsqldb/jdbc/JDBCRowId.java"/>
          <include name="org/hsqldb/jdbc/JDBCSQLXML.java"/>
@@ -414,6 +419,7 @@ examples:
       <!-- using antcall instead of depends so that it is not called if the
            target "if" above is false. -->
       <javac srcdir="${swsrc}"
+             encoding="${javac.encoding}"
              destdir="classes"
              debug="${build.debug}"
              optimize="${build.optimize}"
@@ -426,6 +432,7 @@ examples:
     <target name="util" depends="lib, -cmdline, -auth"
             description="compiles the util, cmdline, and auth folders">
       <javac srcdir="${swsrc}"
+             encoding="${javac.encoding}"
              destdir="classes"
              debug="${build.debug}"
              optimize="${build.optimize}"
@@ -442,6 +449,7 @@ examples:
 
     <target name="-preprocessor">
       <javac srcdir="src"
+             encoding="${javac.encoding}"
              destdir="classes"
              debug="${build.debug}"
              optimize="${build.optimize}"
@@ -455,6 +463,7 @@ examples:
             depends="-prepare, -update-switch-branch,
                      -conditionalize-sqlfile-scanner, -sqlfile-scanner">
       <javac srcdir="${swsrc}"
+             encoding="${javac.encoding}"
              destdir="classes"
              debug="${build.debug}"
              optimize="${build.optimize}"
@@ -466,6 +475,7 @@ examples:
     <!-- compiles the auth classes -->
     <target name="-auth" if="ant.java.iscjava15">
       <javac srcdir="${swsrc}"
+             encoding="${javac.encoding}"
              destdir="classes"
              debug="${build.debug}"
              optimize="${build.optimize}"
@@ -478,6 +488,7 @@ examples:
    <target name="swing" depends="util" unless="noswing"
            description="compiles the swing based classes in the util folder">
       <javac srcdir="${swsrc}"
+             encoding="${javac.encoding}"
              destdir="classes"
              debug="${build.debug}"
              optimize="${build.optimize}"
@@ -497,6 +508,7 @@ examples:
    <target name="scanner-driver" depends="util"
        description="Build Scanner Driver.  For SqlTool scanner developers.">
       <javac srcdir="${swsrc}"
+             encoding="${javac.encoding}"
              includes="org/hsqldb/test/SqlFileScannerDriver.java"
              destdir="classes"
              debug="${build.debug}"
@@ -507,9 +519,10 @@ examples:
    <target name="test" depends="-requireJunit, classes16"
            description="compiles the test package classes">
          <javac srcdir="${swsrc}"
-             destdir="classes"
-             debug="${build.debug}"
-             optimize="${build.optimize}"
+                encoding="${javac.encoding}"
+                destdir="classes"
+                debug="${build.debug}"
+                optimize="${build.optimize}"
          >
          <classpath>
             <pathelement location="${junit38.lib}"/>
@@ -526,7 +539,7 @@ examples:
     <target name="hsqldbsources" description="builds jar file containing source code"
             depends="switchtojdk14,
                      switchtojdk15,
-					 switchtojdk16,
+                     switchtojdk16,
                      switchtojdk17">
         <jar jarfile="lib/hsqldb-sources.jar"
              basedir="tmp/switchedsrc">
