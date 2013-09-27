@@ -83,7 +83,7 @@ import org.hsqldb.types.Type;
  * JDBC driver supports the data type.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.0.1
+ * @version 2.3.1
  * @since JDK 1.2, HSQLDB 2.0
  */
 public class JDBCArray implements Array {

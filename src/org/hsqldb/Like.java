@@ -87,7 +87,7 @@ import org.hsqldb.types.Type;
  * Enhanced in successive versions of HSQLDB.
  *
  * @author Thomas Mueller (Hypersonic SQL Group)
- * @version 2.0.1
+ * @version 2.3.1
  * @since Hypersonic SQL
  */
 
@@ -167,11 +167,11 @@ class Like implements Cloneable {
             return null;
         }
 
-        int length = getLength(session, o);
-
         if (isIgnoreCase) {
             o = ((CharacterType) dataType).upper(session, o);
         }
+
+        int length = getLength(session, o);
 
         if (o instanceof ClobData) {
             o = ((ClobData) o).getChars(session, 0,
