@@ -74,7 +74,7 @@ import org.hsqldb.persist.HsqlDatabaseProperties;
  * </div>
  * <!-- end Release-specific documentation -->
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.2.9
+ * @version 2.3.1
  * @since 2.2.9
  */
 @SuppressWarnings("serial")
