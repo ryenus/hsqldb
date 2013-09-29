@@ -67,7 +67,7 @@ import org.hsqldb.persist.HsqlDatabaseProperties;
  * The {@link org.hsqldb.jdbc.JDBCDataSourceFactory} can be used to get
  * instances of this class.<p>
  *
- * The methods of the superclass, {@link org.hsqldb.jdbc.JDBCommonDataSource},
+ * The methods of the superclass, {@link org.hsqldb.jdbc.JDBCCommonDataSource},
  * are used for settings the HyperSQL server and user.<p>
  *
  * @version 2.2.9

@@ -193,7 +193,6 @@ public class Logger {
      *  If the specified Database object is a new database, its database
      *  files are first created.
      *
-     * @param  db the Database
      * @throws  HsqlException if there is a problem, such as the case when
      *      the specified files are in use by another process
      */
@@ -1080,7 +1079,7 @@ public class Logger {
      *  Sets the type of script file, currently 0 for text (default)
      *  3 for compressed
      *
-     * @param  i The type
+     * @param  format The type
      */
     public synchronized void setScriptType(int format) {
 

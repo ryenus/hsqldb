@@ -162,7 +162,7 @@ public class Calculator {
      * Otherwise, all remainign atoms will be visited.
      * Every visited atom will be removed from 'atoms'.
      *
-     * @returns Value that all visited atoms reduce to.
+     * @return Value that all visited atoms reduce to.
      */
     public long reduce(int startAtomIndex, boolean stopAtParenClose) {
         // Every occurence of atoms.remove() below is an instance of reduction.

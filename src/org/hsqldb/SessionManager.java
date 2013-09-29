@@ -94,7 +94,6 @@ public class SessionManager {
      * @param db the database to which the new Session is initially connected
      * @param user the Session User
      * @param readonly the ReadOnly attribute for the new Session
-     * @param forLog true when session is for reading a log
      * @param timeZoneSeconds the session time zone second interval
      * @return Session
      */

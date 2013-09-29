@@ -975,7 +975,6 @@ public class StatementDML extends StatementDMQL {
      *
      * @param session Session
      * @param table Table
-     * @param updateList RowSetNavigatorDataChange
      * @return int
      */
     int update(Session session, Table table,

@@ -892,7 +892,7 @@ public class HsqlDateTime {
          * Matches the specified character against tokens.
          *
          * @param ch
-         * @param tokens
+         * @param position
          */
         public boolean next(char ch, int position) {
 

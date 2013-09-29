@@ -400,7 +400,7 @@ public class FileUtil implements FileAccess {
      * by adding a suffixe containting a hexadecimal timestamp portion and
      * the ".old" extension. Also deletes the ".tmp" directory.
      *
-     * @param path full path or name of database (without a file extension)
+     * @param dbNamePath full path or name of database (without a file extension)
      * @return currently always true
      */
     public static boolean deleteOrRenameDatabaseFiles(String dbNamePath) {
@@ -451,7 +451,7 @@ public class FileUtil implements FileAccess {
      * currently exist for a database. The list includes current database files
      * as well as ".new", and ".old" versions of the files, plus any app logs.
      *
-     * @param path full path or name of database (without a file extension)
+     * @param dbNamePath full path or name of database (without a file extension)
      */
     public static File[] getDatabaseFileList(String dbNamePath) {
 
@@ -464,7 +464,7 @@ public class FileUtil implements FileAccess {
      * Returns a list of existing main files for a database. The list excludes
      * non-essential files.
      *
-     * @param path full path or name of database (without a file extension)
+     * @param dbNamePath full path or name of database (without a file extension)
      */
     public static File[] getDatabaseMainFileList(String dbNamePath) {
 

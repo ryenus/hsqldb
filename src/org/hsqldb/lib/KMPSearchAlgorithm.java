@@ -63,7 +63,7 @@ import java.io.Reader;
  * <li>a worst case performance characteristic of only 2n
  * <li>a typical performance characteristic that is deemed to be
  *     2-3 times better than the naive search algorithm employed by
- *     {@link String.indexOf(java.lang.String,int)}.
+ *     {@link String#indexOf(java.lang.String,int)}.
  * </ul>
  *
  * Note that the Boyer-Moore algorithm is generally considered to be the better
@@ -243,7 +243,6 @@ public class KMPSearchAlgorithm {
      * @param table computed from the pattern that optimizes the search
      *        If null, automatically computed.
      * @param start position in source at which to start the search
-     * @return
      */
     public static int search(final byte[] source, final byte[] pattern,
                              int[] table, final int start) {
@@ -317,7 +316,6 @@ public class KMPSearchAlgorithm {
      * @param table computed from the pattern that optimizes the search
      *        If null, automatically computed.
      * @param start position in source at which to start the search
-     * @return
      */
     public static int search(final char[] source, final char[] pattern,
                              int[] table, final int start) {
@@ -387,7 +385,6 @@ public class KMPSearchAlgorithm {
      * @param pattern to be matched
      * @param table computed from the pattern that optimizes the search
      * @param start position in source at which to start the search
-     * @return
      */
     public static int search(final String source, final String pattern,
                              int[] table, final int start) {

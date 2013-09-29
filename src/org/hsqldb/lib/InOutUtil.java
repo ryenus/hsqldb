@@ -213,8 +213,8 @@ public final class InOutUtil {
      * the specified <tt>amount</tt> from the given input stream to the
      * given output stream, using a buffer of the given size.
      *
-     * @param inputStream from which to source characters
-     * @param outputStream to which to sink characters
+     * @param reader from which to source characters
+     * @param writer to which to sink characters
      * @param amount max # of characters to transfer.
      * @param bufferSize to use internally
      * @return the number of characters <i>actually</i> transfered.

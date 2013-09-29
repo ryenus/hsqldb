@@ -67,7 +67,7 @@ public class RowDiskDataChange extends RowAVLDisk {
      *  order to indicate the data needs saving.
      *
      * @param t table
-     * @param o row data
+     * @param data row data
      */
     public RowDiskDataChange(TableBase t, Object[] data,
                              PersistentStore store, Table targetTable) {

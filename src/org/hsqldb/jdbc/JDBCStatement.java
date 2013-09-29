@@ -1770,8 +1770,6 @@ public class JDBCStatement extends JDBCStatementBase implements Statement {
      * type.
      *
      * @param c the connection on which this statement will execute
-     * @param resultSetConcurrency int
-     * @param resultSetHoldability int
      */
     JDBCStatement(JDBCConnection c, int props) {
 
