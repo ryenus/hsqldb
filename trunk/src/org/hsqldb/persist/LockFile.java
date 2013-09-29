@@ -216,7 +216,7 @@ import org.hsqldb.lib.StringConverter;
  *
  * In particular, if {@link #USE_NIO_FILELOCK_PROPERTY} is true and the required
  * classes are available at static initialization, then <tt>newLockFile()</tt>
- * produces {@link org.hsqldb.persist.NIOLockFile NIOLockFile} instances.<p>
+ * produces org.hsqldb.persist.NIOLockFile instances.<p>
  *
  * When <tt>NIOLockFile</tt> instances are produced, then it is possible that
  * true kernel-enforced advisory or manditory file locking is used to protect
@@ -288,7 +288,7 @@ import org.hsqldb.lib.StringConverter;
  * Starting with 1.8.0.3, NIO-enhanced file lock attempts are turned off by
  * default. The general reasons for this are discussed above.  Anyone interested
  * in the reading the detailed research notes should refer to the overview of
- * {@link NIOLockFile}. If, after reviewing the notes and the capabilities of
+ * NIOLockFile. If, after reviewing the notes and the capabilities of
  * the intended target platform, one should still wish to enable NIO-enhanced
  * file lock attempts, it can be done by setting the system property {@link
  * #USE_NIO_FILELOCK_PROPERTY} true at JVM startup (for example, by using a

@@ -270,11 +270,11 @@ public class Server implements HsqlSocketRequestHandler {
     volatile long actionSequence;
 
 //
-    protected String            serverId;
-    protected int               serverProtocol;
-    protected ThreadGroup       serverConnectionThreadGroup;
-    protected HsqlSocketFactory socketFactory;
-    protected ServerSocket      socket;
+    protected String                serverId;
+    protected int                   serverProtocol;
+    protected ThreadGroup           serverConnectionThreadGroup;
+    protected HsqlSocketFactory     socketFactory;
+    protected volatile ServerSocket socket;
 
 //
     private Thread             serverThread;
