@@ -61,7 +61,7 @@
     </section>
 
     <section xml:id="sqltool_book_purpose-sect">
-        <title>Purpose, Coverage, Changes in Behavior</title>
+        <title>Purpose, Coverage, Recent Changes in Behavior</title>
       <note> <simpara>
         Due to many important improvements to SqlTool, both in terms of
         stability and features, all users of SqlTool are advised to use the
@@ -435,6 +435,9 @@
                 </simpara></listitem><listitem><simpara>
                     CSV exporting and importing with double-quote
                     delimiting and escaping.
+                    Fixed a bug that caused SqlTool to abort if it attempted to
+                    load a doube-quoted CSV field
+                    containing just one character of data.
                 </simpara></listitem><listitem><simpara>
                     New "<literal>* - VARNAME</literal>" PL command added to
                     explicitly unset/remove a variable.
