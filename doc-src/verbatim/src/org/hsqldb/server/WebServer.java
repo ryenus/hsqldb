@@ -33,7 +33,7 @@ package org.hsqldb.server;
 
 import org.hsqldb.lib.FileUtil;
 import org.hsqldb.persist.HsqlProperties;
-import org.hsqldb.resources.BundleHandler;
+import org.hsqldb.resources.ResourceBundleHandler;
 
 // fredt@users 20020215 - patch 1.7.0 by fredt
 // method rorganised to use new HsqlServerProperties class
@@ -122,8 +122,8 @@ public class WebServer extends Server {
      * Handle to resource bundle providing i18n for things like
      * HTTP error pages.
      */
-    static int webBundleHandle = BundleHandler.getBundleHandle("webserver",
-        null);
+    static int webBundleHandle =
+        ResourceBundleHandler.getBundleHandle("webserver-pages", null);
 
     public WebServer() {
         super(ServerConstants.SC_PROTOCOL_HTTP);
@@ -177,7 +177,6 @@ public class WebServer extends Server {
         // course, be overridden by whatever, if any, security policy
         // is in place.
         ServerConfiguration.translateDefaultNoSystemExitProperty(props);
-
         ServerConfiguration.translateAddressProperty(props);
 
         // finished setting up properties;
@@ -228,7 +227,8 @@ public class WebServer extends Server {
      * @return the command line and properties options help for this Server
      */
     public String getHelpString() {
-        return BundleHandler.getString(serverBundleHandle, "webserver.help");
+        return ResourceBundleHandler.getString(serverBundleHandle,
+                                               "webserver.help");
     }
 
     /**
