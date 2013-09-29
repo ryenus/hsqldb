@@ -310,8 +310,6 @@ public final class StatementManager {
      * removed from management.
      *
      * @param csid the compiled statment identifier
-     * @param sessionID the session identifier
-     * @param freeAll if true, remove all links to the session
      */
     synchronized void freeStatement(long csid) {
 

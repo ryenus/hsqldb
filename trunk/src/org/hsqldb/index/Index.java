@@ -162,8 +162,7 @@ public interface Index extends SchemaObject {
      *
      * @param session session object
      * @param store store object
-     * @param coldata array containing index column data
-     * @param match count of columns to match
+     * @param matchCount count of columns to match
      * @return iterator
      */
     public RowIterator findFirstRow(Session session, PersistentStore store,

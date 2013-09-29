@@ -2070,7 +2070,6 @@ class DatabaseInformationMain extends DatabaseInformation {
      * @param isNullable String
      * @param specificName the specific name of the procedure (typically but
      *   not limited to a fully qualified Java Method name and signature)
-     * @param jdbcSequence int
      */
     protected void addPColRows(Session session, Table t, HsqlArrayList l,
                                String cat, String schem, String pName,

@@ -475,7 +475,7 @@ abstract class ParsedSection {
 
     /**
      * Common constructor functions for this family.
-     * @param aLines Array of the script lines containing the section of script.
+     * @param linesArray Array of the script lines containing the section of script.
      * database
      */
     protected ParsedSection(HsqlArrayList linesArray) {
@@ -673,7 +673,6 @@ class ResultSetParsedSection extends ParsedSection {
     /**
      * constructs a new instance of ResultSetParsedSection, interpreting
      * the supplied results as one or more lines of delimited field values
-     * @param lines String[]
      */
     protected ResultSetParsedSection(HsqlArrayList linesArray) {
 
@@ -869,7 +868,6 @@ class ResultSetOutputParsedSection extends ParsedSection {
     /**
      * constructs a new instance of ResultSetParsedSection, interpreting
      * the supplied results as one or more lines of delimited field values
-     * @param lines String[]
      */
     protected ResultSetOutputParsedSection(HsqlArrayList linesArray) {
 

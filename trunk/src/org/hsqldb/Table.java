@@ -2057,7 +2057,6 @@ public class Table extends TableBase implements SchemaObject {
      *  Returns any unique Constraint using this index
      *
      * @param  index
-     * @return
      */
     public Constraint getUniqueConstraintForIndex(Index index) {
 

@@ -47,7 +47,7 @@ import java.util.logging.LogRecord;
  * class name, method name, etc.).
  *
  * @see Formatter
- * @see SimpleFormatter
+ * @see java.util.logging.SimpleFormatter
  * @author Blaine Simpson (blaine dot simpson at admc dot com)
  */
 public class BasicTextJdkLogFormatter extends Formatter {

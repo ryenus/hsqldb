@@ -888,8 +888,6 @@ public class JDBCResultSetMetaData implements ResultSetMetaData {
      *
      * @param meta the ResultMetaData object from which to construct a new
      *        JDBCResultSetMetaData object
-     * @param props the HsqlProperties object from which to construct a
-     *        new JDBCResultSetMetaData object
      * @throws SQLException if a database access error occurs
      */
     JDBCResultSetMetaData(ResultMetaData meta, boolean isUpdatable,

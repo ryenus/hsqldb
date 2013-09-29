@@ -4890,9 +4890,9 @@ public class SqlFile {
      * value displayable.
      * </P>
      *
-     * @see <A href="http://java.sun.com/docs/books/tutorial/jdbc/basics/retrieving.html"> http://java.sun.com/docs/books/tutorial/jdbc/basics/retrieving.html</A>
+     * @see <A href="http://java.sun.com/docs/books/tutorial/jdbc/basics/retrieving.html">http://java.sun.com/docs/books/tutorial/jdbc/basics/retrieving.html
      *      The table on this page lists the most common SqlTypes, all of which
-     *      must implement toString()
+     *      must implement toString()</A>
      * @see java.sql.Types
      */
     public static boolean canDisplayType(int i) {

@@ -700,7 +700,6 @@ public final class Constraint implements SchemaObject {
      * @param newTable referenct to the new version of the table
      * @param colIndex index at which table column is added or removed
      * @param adjust -1, 0, +1 to indicate if column is added or removed
-     * @
      */
     void updateTable(Session session, Table oldTable, Table newTable,
                      int colIndex, int adjust) {
@@ -890,9 +889,7 @@ public final class Constraint implements SchemaObject {
      *
      * @param session Session
      * @param row array of objects for a database row
-     * @param delete should we allow 'ON DELETE CASCADE' or 'ON UPDATE CASCADE'
      * @return iterator
-     * @
      */
     RowIterator findFkRef(Session session, Object[] row) {
 
