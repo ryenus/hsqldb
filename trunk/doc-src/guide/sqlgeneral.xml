@@ -1130,7 +1130,7 @@
     <para>HyperSQL supports a very extensive range of functions for
     conversion, extraction and manipulation of DATE and TIMESTAMP values. See
     the <link endterm="builtinfunctions-title"
-    xlink:href="#builtinfunctions-chap"></link> chapter.</para>
+    xlink:href="#builtinfunctions-chapt"></link> chapter.</para>
 
     <simpara><emphasis role="bold">Session Time Zone
     Displacement</emphasis></simpara>
