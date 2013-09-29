@@ -81,7 +81,7 @@ public abstract class TestBase extends TestCase {
     String  password = "";
     Server  server;
     boolean isNetwork = true;
-    boolean isHTTP    = true;    // Set false to test HSQL protocol, true to test HTTP, in which case you can use isUseTestServlet to target either HSQL's webserver, or the Servlet server-mode
+    boolean isHTTP    = false;    // Set false to test HSQL protocol, true to test HTTP, in which case you can use isUseTestServlet to target either HSQL's webserver, or the Servlet server-mode
     boolean isServlet = false;
 
     public TestBase(String name) {
@@ -129,7 +129,7 @@ public abstract class TestBase extends TestCase {
             }
         } else {
             if (url == null) {
-                url = "jdbc:hsqldb:file:test;sql.enforce_strict_size=true";
+                url = "jdbc:hsqldb:" + dbPath;
             }
         }
 
