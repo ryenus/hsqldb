@@ -12,7 +12,7 @@
         chunk.skip:  Set to 'true' to skip gen. of DocBook index.html, etc.
         fo.skip:  Set to 'true' to skip generation of DocBook intermediate
                   .fo files (which are a necessary step to generate PDF).
-        pdf.skip:  Set to 'true' to skip generateion of DocBook PDF docs.
+        pdf.skip:  Set to 'true' to skip generation of DocBook PDF docs.
         doc.name:  A few targets 'require' a doc name to be specified.
                    If you run a target and it complains that 'doc.name' needs
                    to be set, then set to 'guide' or 'util-guide'.
