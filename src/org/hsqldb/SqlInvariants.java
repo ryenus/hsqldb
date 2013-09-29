@@ -39,7 +39,7 @@ import org.hsqldb.error.ErrorCode;
  * Invariant schema objects.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.0
+ * @version 2.3.1
  * @since 1.9.0
  */
 public class SqlInvariants {
@@ -103,9 +103,11 @@ public class SqlInvariants {
         MODULE_HSQLNAME = HsqlNameManager.newSystemObjectName(MODULE,
                 SchemaObject.SCHEMA);
         DUAL_TABLE_HSQLNAME = HsqlNameManager.newSystemObjectName(DUAL,
-                SchemaObject.SCHEMA);
+                SchemaObject.TABLE);
+        DUAL_TABLE_HSQLNAME.schema = SYSTEM_SCHEMA_HSQLNAME;
         DUAL_COLUMN_HSQLNAME = HsqlNameManager.newSystemObjectName(DUMMY,
-                SchemaObject.SCHEMA);
+                SchemaObject.COLUMN);
+        DUAL_COLUMN_HSQLNAME.parent = DUAL_TABLE_HSQLNAME;
         SYSTEM_INDEX_HSQLNAME = HsqlNameManager.newSystemObjectName(IDX,
                 SchemaObject.INDEX);
 

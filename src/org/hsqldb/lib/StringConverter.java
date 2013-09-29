@@ -722,12 +722,11 @@ public class StringConverter {
     }
 
     /**
-     * Converts the string to an HTML representation in the ASCII character set.
+     * Converts the string to an HTML representation in the ASCII character set
+     * and appends it to a byte array output stream.
      *
-     * The string is treated as an SQL statement.
-     *
-     * @param b the byte array
-     * @return UUID string form
+     * @param b the output byte array output stream
+     * @param s the input string
      */
     public static void stringToHtmlBytes(HsqlByteArrayOutputStream b,
                                          String s) {

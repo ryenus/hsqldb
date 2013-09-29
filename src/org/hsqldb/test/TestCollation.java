@@ -56,7 +56,7 @@ public class TestCollation extends TestBase {
     /** Creates a new instance of TestCollation */
     public TestCollation(String name) {
 
-        super(name);
+        super(name, "jdbc:hsqldb:file:test", false, false);
 
         super.isNetwork = false;
     }
