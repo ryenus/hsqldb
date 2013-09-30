@@ -77,7 +77,7 @@ import java.util.Calendar;
  * Some functions are translated into equivalent SQL Standard functions.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.0
+ * @version 2.3.1
  * @since 1.9.0
  */
 public class FunctionCustom extends FunctionSQL {
@@ -1753,6 +1753,10 @@ public class FunctionCustom extends FunctionSQL {
                 String       replace = (String) data[2];
                 StringBuffer sb      = new StringBuffer();
                 int          start   = 0;
+
+                if (find.length() == 0) {
+                    return string;
+                }
 
                 while (true) {
                     int i = string.indexOf(find, start);
