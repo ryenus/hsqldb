@@ -59,7 +59,7 @@ import org.hsqldb.lib.StringConverter;
  * @author Campbell Boucher-Burnet (boucherb@users dot sourceforge.net)
  * @author Blaine Simpson (blaine dot simpson at admc dot com)
  *
- * @version 2.3.0
+ * @version 2.3.1
  * @since 1.7.2
  */
 public final class HsqlSocketFactorySecure extends HsqlSocketFactory
@@ -92,20 +92,7 @@ implements HandshakeCompletedListener {
      * through the newHsqlSocketFactory method instead.
      */
     protected HsqlSocketFactorySecure() throws Exception {
-
         super();
-
-        Provider p;
-        String   cls;
-
-        if (Security.getProvider("SunJSSE") == null) {
-            try {
-                p = (Provider) Class.forName(
-                    "com.sun.net.ssl.internal.ssl.Provider").newInstance();
-
-                Security.addProvider(p);
-            } catch (Exception e) {}
-        }
     }
 
 // ----------------------------- subclass overrides ----------------------------
