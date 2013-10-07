@@ -41,7 +41,7 @@ import org.hsqldb.error.ErrorCode;
  * Type subclass for untyped NULL values.<p>
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.0.1
+ * @version 2.3.1
  * @since 1.9.0
  */
 public final class NullType extends Type {
@@ -102,11 +102,11 @@ public final class NullType extends Type {
     }
 
     public String convertToString(Object a) {
-        throw Error.runtimeError(ErrorCode.U_S0500, "NullType");
+        return Tokens.T_NULL;
     }
 
     public String convertToSQLString(Object a) {
-        throw Error.runtimeError(ErrorCode.U_S0500, "NullType");
+        return Tokens.T_NULL;
     }
 
     public boolean canConvertFrom(Type otherType) {
