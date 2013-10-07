@@ -1,6 +1,6 @@
 Readme File
-2012/08/05-22:23:15
-This package contains HyperSQL v. 2.3.0
+
+This package contains HyperSQL v. 2.3.1
 
 HyperSQL is a relational database engine and a set of tools written in Java.
 HyperSQL is also known as HSQLDB.
