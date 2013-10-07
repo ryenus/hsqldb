@@ -76,7 +76,7 @@ import org.hsqldb.types.Type.TypedComparator;
  * Implementation of SQL sessions.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.0
+ * @version 2.3.1
  * @since 1.7.0
  */
 public class Session implements SessionInterface {
@@ -1560,12 +1560,9 @@ public class Session implements SessionInterface {
         Object[]        pvals     = (Object[]) cmd.valueData;
         Type[]          types     = cmd.metaData.columnTypes;
         StatementQuery  statement = (StatementQuery) result.getStatement();
-        QueryExpression qe        = statement.queryExpression;
-        Table           baseTable = qe.getBaseTable();
-        int[]           columnMap = qe.getBaseTableColumnMap();
 
         sessionContext.rowUpdateStatement.setRowActionProperties(result,
-                actionType, baseTable, types, columnMap);
+                actionType, statement, types);
 
         Result resultOut =
             executeCompiledStatement(sessionContext.rowUpdateStatement, pvals,

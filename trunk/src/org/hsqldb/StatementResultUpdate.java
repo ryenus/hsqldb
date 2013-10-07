@@ -46,7 +46,7 @@ import org.hsqldb.types.Type;
  * Implementation of Statement for updating result rows.<p>
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.2.7
+ * @version 2.3.1
  * @since 1.9.0
  */
 public class StatementResultUpdate extends StatementDML {
@@ -187,15 +187,21 @@ public class StatementResultUpdate extends StatementDML {
         return row;
     }
 
-    void setRowActionProperties(Result result, int action, Table table,
-                                Type[] types, int[] columnMap) {
+    void setRowActionProperties(Result result, int action,
+                                StatementQuery statement, Type[] types) {
+
+        QueryExpression qe = statement.queryExpression;
 
         this.result             = result;
         this.actionType         = action;
-        this.baseTable          = table;
+        this.baseTable          = qe.getBaseTable();
         this.types              = types;
-        this.baseColumnMap      = columnMap;
-        this.writeTableNames[0] = table.getName();
+        this.baseColumnMap      = qe.getBaseTableColumnMap();
+        this.writeTableNames[0] = baseTable.getName();
+
+        // used for statement logging - needs improvements to list only the updated values
+        this.sql                = statement.getSQL();
+        this.parameterMetaData  = qe.getMetaData();
     }
 
     void checkAccessRights(Session session) {
