@@ -31,7 +31,7 @@
  *      7: Double-check file "../readme.txt".
  *         May or may not need to be updated manually.
  *      8: Commit all of the work above.
- *      9: Verify that docs build successfully.
+ *      9: Verify that docs build successfully.  E.g. "gradlew -i regen-docs"
  *     10. Make a release tag.
  *
  *   USAGE:
