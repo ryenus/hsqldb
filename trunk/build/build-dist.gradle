@@ -24,15 +24,19 @@
  *         the "Last Changed Rev"s of SqlTool.java and SqlFile.java.
  *         Update the revision values in file
  *         "../doc-src/util-guide/entities/versions.ent" accordingly.
- *      4: Update property 'hsqldb.version' in file 'build.xml'.
- *      5: Execute task/target 'refresh-verbatim' to update code in our docs.
- *      6: Execute task/target 'update-readme' to substitute updated variables
+ *      4. Update THIS_VERSION, THIS_FULL_VERSION, MAJOR, MINOR, REVISION, and
+ *         perhaps THIS_CACHE_VERSION in
+ *         "../src/org/hsqldb/persist/HsqlDatabaseProperties.java"; and
+ *         DBMS_VERSION in "../src/org/hsqldb/resources/information-schema.sql".
+ *      5: Update property 'hsqldb.version' in file 'build.xml'.
+ *      6: Execute task/target 'refresh-verbatim' to update code in our docs.
+ *      7: Execute task/target 'update-readme' to substitute updated variables
  *         into some doc file(s).
- *      7: Double-check file "../readme.txt".
+ *      8: Double-check file "../readme.txt".
  *         May or may not need to be updated manually.
- *      8: Commit all of the work above.
- *      9: Verify that docs build successfully.  E.g. "gradlew -i regen-docs"
- *     10. Make a release tag.
+ *      9: Commit all of the work above.
+ *     10: Verify that docs build successfully.  E.g. "gradlew -i regen-docs"
+ *     11. Make a release tag.
  *
  *   USAGE:
  *       1: Set up your desired build environment (JAVA_HOME set, etc.).
