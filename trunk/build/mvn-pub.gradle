@@ -254,9 +254,10 @@ task sqltoolJavadocJar(type: Jar, dependsOn:javadoc) {
 }
 sqltoolJavadocJar.description = 'Build Sqltool javadoc jar file'
  
-// add javadoc/source jar tasks as artifacts
-artifacts {
-    archives sqltoolJar
+artifacts { archives sqltoolJar }
+
+// add javadoc/source jar tasks as artifacts, only if no classifier specified
+if (!project.hasProperty('classifier')) artifacts {
     archives sourcesJar
     archives javadocJar
     archives sqltoolSourcesJar
