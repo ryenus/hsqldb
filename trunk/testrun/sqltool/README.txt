@@ -17,16 +17,22 @@ The test runners depend on the hsqldb.jar and sqltool.jar being in place in the 
 HOW TO RUN
 
     Typical usage (executes all tests).
+    From UNIX shell
 
         cd .../testrun/sqltool
         ../../build/gradlew
     
-    or from UNIX shell:
+    or
 
         cd .../testrun/sqltool
         ./runtests.bash
 
-    or from Windows shell:
+    From Windows shell
+
+        cd ...\testrun\sqltool
+        ..\..\build\gradlew
+
+    or
 
         cd ...\testrun\sqltool
         runtests
@@ -50,14 +56,15 @@ HOW TO RUN
     with the Verbose option, like
 
         ../../build/gradlew -Pverbose=true -Pscripts=failedscript.sql
+        (to execute multiple files, delimit the scripts with just commas).
 
     or
 
-        ./runtests.bash -v failedscript.sql
+        ./runtests.bash -v failedscript.sql...
     or
-        runtests -v failedscript.sql
+        runtests -v failedscript.sql...
     or
-        groovy .../testrun/sqltool/runtests.groovy -v failedscript.sql
+        groovy .../testrun/sqltool/runtests.groovy -v failedscript.sql...
 
     To see all available invocation methods:
 
