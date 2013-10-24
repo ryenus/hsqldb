@@ -46,7 +46,7 @@ import org.hsqldb.types.Type;
  * Implementation of Statement for updating result rows.<p>
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.1
+ * @version 2.3.2
  * @since 1.9.0
  */
 public class StatementResultUpdate extends StatementDML {
@@ -150,7 +150,7 @@ public class StatementResultUpdate extends StatementDML {
             case ResultConstants.INSERT_CURSOR : {
                 Object[] data = baseTable.getNewRowData(session);
 
-                for (int i = 0; i < data.length; i++) {
+                for (int i = 0; i < baseColumnMap.length; i++) {
                     data[baseColumnMap[i]] = args[i];
                 }
 

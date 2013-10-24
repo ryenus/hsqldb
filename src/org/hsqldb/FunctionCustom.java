@@ -77,7 +77,7 @@ import java.util.Calendar;
  * Some functions are translated into equivalent SQL Standard functions.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.1
+ * @version 2.3.2
  * @since 1.9.0
  */
 public class FunctionCustom extends FunctionSQL {
@@ -3504,6 +3504,11 @@ public class FunctionCustom extends FunctionSQL {
 
                 return sb.toString();
             }
+            case FUNC_SYSDATE :
+            case FUNC_SYSTIMESTAMP :
+                return name;
+
+
             case FUNC_DATABASE :
             case FUNC_DATABASE_NAME :
             case FUNC_ISAUTOCOMMIT :
@@ -3651,8 +3656,6 @@ public class FunctionCustom extends FunctionSQL {
             }
             case FUNC_DBTIMEZONE :
             case FUNC_SESSIONTIMEZONE :
-            case FUNC_SYSDATE :
-            case FUNC_SYSTIMESTAMP :
             case FUNC_SYS_EXTRACT_UTC :
             case FUNC_LAST_DAY :
             case FUNC_NEXT_DAY :
