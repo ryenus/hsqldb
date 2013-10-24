@@ -64,7 +64,7 @@ import org.hsqldb.types.Types;
  * Parser for DQL statements
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.1
+ * @version 2.3.2
  * @since 1.9.0
  */
 public class ParserDQL extends ParserBase {
@@ -5772,7 +5772,10 @@ public class ParserDQL extends ParserBase {
                     }
 
                     if (initialExprIndex == exprList.size()) {
-                        exprList.add(null);
+
+                        if (parseList[i] != Tokens.OPENBRACKET) {
+                            exprList.add(null);
+                        }
                     }
 
                     i += elementCount - 1;

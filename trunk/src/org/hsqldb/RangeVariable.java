@@ -55,7 +55,7 @@ import org.hsqldb.types.Type;
  * Metadata for range variables, including conditions.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.1
+ * @version 2.3.2
  * @since 1.9.0
  */
 public class RangeVariable implements Cloneable {
@@ -333,8 +333,7 @@ public class RangeVariable implements Cloneable {
 
     public boolean reverseOrder() {
 
-        if (joinConditions.length == 1
-                && joinConditions[0].indexedColumnCount > 0) {
+        if (joinConditions.length == 1) {
             joinConditions[0].reverseIndexCondition();
 
             return true;
@@ -1814,7 +1813,7 @@ public class RangeVariable implements Cloneable {
          * @param colCount number of columns searched
          */
         void addIndexCondition(Expression[] exprList, Index index,
-                                      int colCount) {
+                               int colCount) {
 
             int indexColCount = index.getColumnCount();
 
@@ -1893,6 +1892,12 @@ public class RangeVariable implements Cloneable {
 
         private void reverseIndexCondition() {
 
+            if (indexedColumnCount == 0) {
+                reversed = true;
+
+                return;
+            }
+
             if (opType == OpTypes.EQUAL || opType == OpTypes.IS_NULL) {
 
                 //
@@ -1961,7 +1966,7 @@ public class RangeVariable implements Cloneable {
         }
 
         private void replaceColumnReferences(RangeVariable range,
-                                            Expression[] list) {
+                                             Expression[] list) {
 
             if (indexCond != null) {
                 for (int i = 0; i < indexCond.length; i++) {

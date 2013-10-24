@@ -59,7 +59,7 @@ import org.hsqldb.rights.Grantee;
  * than all the existing names.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.0
+ * @version 2.3.2
  * @since 1.7.2
  */
 public final class HsqlNameManager {
@@ -433,7 +433,8 @@ public final class HsqlNameManager {
                 }
             }
 
-            if (schema == null) {
+            if (schema == null
+                    || SqlInvariants.SYSTEM_SCHEMA.equals(schema.name)) {
                 return statementName;
             }
 
