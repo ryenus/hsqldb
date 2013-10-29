@@ -65,7 +65,7 @@ import org.hsqldb.types.Types;
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
  *
- * @version 2.3.0
+ * @version 2.3.2
  * @since 1.9.0
  */
 public class QuerySpecification extends QueryExpression {
@@ -2069,7 +2069,7 @@ public class QuerySpecification extends QueryExpression {
 
     void setMergeability() {
 
-        isOrderSensitive |= sortAndSlice.hasLimit();
+        isOrderSensitive |= sortAndSlice.hasLimit() || sortAndSlice.hasOrder();
 
         if (isOrderSensitive) {
             isMergeable = false;
