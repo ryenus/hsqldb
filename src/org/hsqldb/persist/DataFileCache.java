@@ -60,7 +60,7 @@ import org.hsqldb.rowio.RowOutputInterface;
  * Rewritten for 1.8.0 and 2.x
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.0
+ * @version 2.3.2
  * @since 1.7.2
  */
 public class DataFileCache {
@@ -164,7 +164,7 @@ public class DataFileCache {
         initNewFile();
         initBuffers();
 
-        if (database.logger.isDataFileSpaces()) {
+        if (database.logger.getDataFileSpaces() > 0) {
             spaceManager = new DataSpaceManagerBlocks(this);
         } else {
             spaceManager = new DataSpaceManagerSimple(this);
@@ -380,7 +380,7 @@ public class DataFileCache {
             cacheModified = false;
 
             if (spaceManagerPosition != 0
-                    || database.logger.isDataFileSpaces()) {
+                    || database.logger.getDataFileSpaces()>0) {
                 spaceManager = new DataSpaceManagerBlocks(this);
             } else {
                 spaceManager = new DataSpaceManagerSimple(this);
@@ -398,9 +398,9 @@ public class DataFileCache {
         }
     }
 
-    boolean setTableSpaceManager(boolean tableSpace) {
+    boolean setTableSpaceManager(int tableSpaceSize) {
 
-        if (tableSpace && spaceManagerPosition == 0) {
+        if (tableSpaceSize > 0 && spaceManagerPosition == 0) {
             spaceManager.reset();
 
             spaceManager = new DataSpaceManagerBlocks(this);
@@ -408,7 +408,7 @@ public class DataFileCache {
             return true;
         }
 
-        if (!tableSpace && spaceManagerPosition != 0) {
+        if (tableSpaceSize == 0 && spaceManagerPosition != 0) {
             spaceManager.reset();
 
             spaceManager = new DataSpaceManagerSimple(this);

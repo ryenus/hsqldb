@@ -51,7 +51,7 @@ import org.hsqldb.types.Type;
  * Implementation of Statement for DDL statements.<p>
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.1.1
+ * @version 2.3.2
  * @since 1.9.0
  */
 public class StatementSchema extends Statement {
@@ -670,6 +670,7 @@ public class StatementSchema extends Statement {
 
                     try {
                         schemaManager.recompileDependentObjects(set);
+                        schemaManager.replaceReferences(oldView, view);
                     } catch (HsqlException e) {
                         schemaManager.setTable(i, oldView);
                         schemaManager.recompileDependentObjects(set);

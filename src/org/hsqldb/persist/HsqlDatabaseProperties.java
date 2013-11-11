@@ -47,7 +47,7 @@ import org.hsqldb.lib.StringUtil;
  * Manages a .properties file for a database.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.0
+ * @version 2.3.2
  * @since 1.7.0
  */
 public class HsqlDatabaseProperties extends HsqlProperties {
@@ -149,13 +149,13 @@ public class HsqlDatabaseProperties extends HsqlProperties {
 
     // versions
     public static final String VERSION_STRING_1_8_0 = "1.8.0";
-    public static final String THIS_VERSION         = "2.3.1";
-    public static final String THIS_FULL_VERSION    = "2.3.1";
+    public static final String THIS_VERSION         = "2.3.2";
+    public static final String THIS_FULL_VERSION    = "2.3.2";
     public static final String THIS_CACHE_VERSION   = "2.0.0";
     public static final String PRODUCT_NAME         = "HSQL Database Engine";
     public static final int    MAJOR                = 2,
                                MINOR                = 3,
-                               REVISION             = 1;
+                               REVISION             = 2;
 
     /**
      * system properties supported by HSQLDB
@@ -458,7 +458,7 @@ public class HsqlDatabaseProperties extends HsqlProperties {
                                           false));
         dbMeta.put(hsqldb_files_space,
                    HsqlProperties.getMeta(hsqldb_files_space, SQL_PROPERTY,
-                                          false));
+                                          0, 0, 64));
         dbMeta.put(hsqldb_files_check,
                    HsqlProperties.getMeta(hsqldb_files_check, SQL_PROPERTY, 0,
                                           new int[] {
