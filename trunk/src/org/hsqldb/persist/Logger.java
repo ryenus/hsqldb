@@ -136,7 +136,7 @@ public class Logger {
     boolean propCompressLobs;
     int     propScriptFormat = 0;
     boolean propLargeData;
-    boolean propFileSpaces;
+    int     propFileSpaceValue;
     int     propCheckPersistence;
 
     //
@@ -494,10 +494,12 @@ public class Logger {
             return;
         }
 
-        // apply only when set true
-        if (database.urlProperties.isPropertyTrue(
-                HsqlDatabaseProperties.hsqldb_files_space, false)) {
-            propFileSpaces = true;
+        // apply only when larger than 0
+        int fileSpace = database.urlProperties.getIntegerProperty(
+            HsqlDatabaseProperties.hsqldb_files_space, 0);
+
+        if (fileSpace != 0) {
+            propFileSpaceValue = fileSpace;
         }
 
         if (tempDirectoryPath != null) {
@@ -1205,7 +1207,28 @@ public class Logger {
 
     public void setDataFileSpaces(boolean value) {
 
-        propFileSpaces = value;
+        if (value) {
+            setDataFileSpaces(propDataFileScale / 16);
+        } else {
+            setDataFileSpaces(0);
+        }
+    }
+
+    public void setDataFileSpaces(int value) {
+
+        if (propFileSpaceValue == value) {
+            return;
+        }
+
+        if (value != 0) {
+            checkPower(value, 6);
+        }
+
+        if (value > propDataFileScale / 16) {
+            value = propDataFileScale / 16;
+        }
+
+        propFileSpaceValue = value;
 
         if (hasCache()) {
             DataFileCache dataCache = getCache();
@@ -1219,8 +1242,8 @@ public class Logger {
         }
     }
 
-    public boolean isDataFileSpaces() {
-        return propFileSpaces;
+    public int getDataFileSpaces() {
+        return propFileSpaceValue;
     }
 
     public void setFilesCheck(int value) {
@@ -1560,7 +1583,7 @@ public class Logger {
         }
 
         if (HsqlDatabaseProperties.hsqldb_files_space.equals(name)) {
-            return String.valueOf(propFileSpaces);
+            return String.valueOf(propFileSpaceValue);
         }
 
         if (HsqlDatabaseProperties.hsqldb_files_readonly.equals(name)) {
@@ -2126,10 +2149,9 @@ public class Logger {
         }
 
         {
-            if (propFileSpaces) {
+            if (propFileSpaceValue != 0) {
                 sb.append("SET FILES ").append(Tokens.T_SPACE).append(' ');
-                sb.append(propFileSpaces ? Tokens.T_TRUE
-                                         : Tokens.T_FALSE);
+                sb.append(propFileSpaceValue);
                 list.add(sb.toString());
                 sb.setLength(0);
             }

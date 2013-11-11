@@ -39,7 +39,7 @@ import org.hsqldb.map.BaseHashMap;
 /**
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.0
+ * @version 2.3.2
  * @since 1.9.0
  */
 public class LongKeyHashMap extends BaseHashMap {
@@ -60,6 +60,10 @@ public class LongKeyHashMap extends BaseHashMap {
     throws IllegalArgumentException {
         super(initialCapacity, BaseHashMap.longKeyOrValue,
               BaseHashMap.objectKeyOrValue, false);
+    }
+
+    public Lock getReadLock() {
+        return readLock;
     }
 
     public Lock getWriteLock() {

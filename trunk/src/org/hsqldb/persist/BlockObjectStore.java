@@ -41,15 +41,15 @@ import org.hsqldb.rowio.RowInputInterface;
 
 /**
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.0
+ * @version 2.3.2
  * @since 2.3.0
  */
 public class BlockObjectStore extends SimpleStore {
 
-    Class             objectClass;
-    Constructor       constructor;
-    int               storageSize;
-    int               blockSize;
+    Class       objectClass;
+    Constructor constructor;
+    int         storageSize;
+    int         blockSize;
 
     public BlockObjectStore(DataFileCache cache,
                             TableSpaceManager tableSpaceManager,
@@ -102,7 +102,11 @@ public class BlockObjectStore extends SimpleStore {
 
         size = cache.rowOut.getStorageSize(size);
 
-        object.setStorageSize(size);
+        if (size > storageSize) {
+            throw Error.runtimeError(ErrorCode.U_S0500, "BlockObjectStore");
+        }
+
+        object.setStorageSize(storageSize);
 
         long pos = spaceManager.getFilePosition(size, true);
 
@@ -120,7 +124,11 @@ public class BlockObjectStore extends SimpleStore {
 
         size = cache.rowOut.getStorageSize(size);
 
-        object.setStorageSize(size);
+        if (size > storageSize) {
+            throw Error.runtimeError(ErrorCode.U_S0500, "BlockObjectStore");
+        }
+
+        object.setStorageSize(storageSize);
 
         return object;
     }

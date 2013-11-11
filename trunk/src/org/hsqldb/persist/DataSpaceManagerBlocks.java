@@ -39,7 +39,7 @@ import org.hsqldb.lib.Iterator;
 
 /**
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.0
+ * @version 2.3.2
  * @since 2.3.0
  */
 public class DataSpaceManagerBlocks implements DataSpaceManager {
@@ -65,9 +65,11 @@ public class DataSpaceManagerBlocks implements DataSpaceManager {
     int                        spaceIdSequence = tableIdFirst;
 
     //
-    int blockSize          = 1024 * 2;
-    int bitmapIntSize      = 1024 * 2;
-    int fileBlockItemCount = bitmapIntSize * 32;
+    int blockSize = 1024 * 2;
+    int bitmapStorageSize;
+    int bitmapIntSize;
+    int fileBlockItemCountLimit = 64 * 1024;
+    int fileBlockItemCount;
     int fileBlockSize;
     int dataFileScale;
 
@@ -79,13 +81,18 @@ public class DataSpaceManagerBlocks implements DataSpaceManager {
 
     DataSpaceManagerBlocks() {}
 
+//cache.database.logger.propMaxFreeBlocks
     public DataSpaceManagerBlocks(DataFileCache dataFileCache) {
 
-        cache            = dataFileCache;
-        dataFileScale    = cache.getDataFileScale();
-        fileBlockSize    = fileBlockItemCount * dataFileScale;
-        ba               = new BlockAccessor();
-        spaceManagerList = new IntKeyHashMap();
+        cache              = dataFileCache;
+        dataFileScale      = cache.getDataFileScale();
+        fileBlockSize = cache.database.logger.propFileSpaceValue * 1024 * 1024;
+        fileBlockItemCount = fileBlockSize / dataFileScale;
+        bitmapIntSize      = fileBlockItemCount / 32;
+        bitmapStorageSize  = bitmapIntSize < 1024 * 2 ? 1024
+                                                      : bitmapIntSize;
+        ba                 = new BlockAccessor();
+        spaceManagerList   = new IntKeyHashMap();
 
         //
         directorySpaceManager = new TableSpaceManagerBlocks(this,
@@ -110,7 +117,7 @@ public class DataSpaceManagerBlocks implements DataSpaceManager {
         bitMapStore = new BlockObjectStore(cache, directorySpaceManager,
                                            BitMapCachedObject.class,
                                            BitMapCachedObject.fileSizeFactor
-                                           * bitmapIntSize, bitmapIntSize);
+                                           * bitmapStorageSize, bitmapIntSize);
 
         if (cache.spaceManagerPosition == 0) {
             initNewSpaceDirectory();
@@ -183,9 +190,9 @@ public class DataSpaceManagerBlocks implements DataSpaceManager {
         long currentSize = IntArrayCachedObject.fileSizeFactor * blockSize;    // root
 
         currentSize += (long) DirectoryBlockCachedObject.fileSizeFactor
-                       * (blockCount + blockSize);                    // directory - approx
+                       * (blockCount + blockSize);                        // directory - approx
         currentSize += (long) BitMapCachedObject.fileSizeFactor
-                       * bitmapIntSize * (blockCount + blockSize);    // bitmaps
+                       * bitmapStorageSize * (blockCount + blockSize);    // bitmaps
 
         return currentSize / fileBlockSize + 1;
     }
@@ -213,7 +220,7 @@ public class DataSpaceManagerBlocks implements DataSpaceManager {
     private long getNewFileBlocks(int tableId, int blockCount) {
 
         long dirObjectSize = (long) BitMapCachedObject.fileSizeFactor
-                             * bitmapIntSize * blockCount;
+                             * bitmapStorageSize * blockCount;
 
         if (!directorySpaceManager.hasFileRoom(dirObjectSize)) {
             long filePosition = getNewFileBlocksNoCheck(tableIdDirectory, 1);

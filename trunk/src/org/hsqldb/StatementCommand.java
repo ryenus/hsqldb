@@ -54,7 +54,7 @@ import org.hsqldb.scriptio.ScriptWriterText;
  * Implementation of Statement for SQL commands.<p>
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.0
+ * @version 2.3.2
  * @since 1.9.0
  */
 public class StatementCommand extends Statement {
@@ -108,6 +108,7 @@ public class StatementCommand extends Statement {
 
                 group    = StatementTypes.X_HSQLDB_DATABASE_OPERATION;
                 isLogged = false;
+
                 break;
             }
             case StatementTypes.DATABASE_BACKUP :
@@ -427,8 +428,6 @@ public class StatementCommand extends Statement {
             }
             case StatementTypes.SET_DATABASE_FILES_SPACE : {
                 try {
-                    boolean value = ((Boolean) parameters[0]).booleanValue();
-
                     session.checkAdmin();
                     session.checkDDLWrite();
 
@@ -440,7 +439,16 @@ public class StatementCommand extends Statement {
                         return Result.updateZeroResult;
                     }
 
-                    session.database.logger.setDataFileSpaces(value);
+                    if (parameters[0] instanceof Boolean) {
+                        boolean value =
+                            ((Boolean) parameters[0]).booleanValue();
+
+                        session.database.logger.setDataFileSpaces(value);
+                    } else {
+                        int value = ((Integer) parameters[0]).intValue();
+
+                        session.database.logger.setDataFileSpaces(value);
+                    }
 
                     return Result.updateZeroResult;
                 } catch (HsqlException e) {
@@ -878,7 +886,7 @@ public class StatementCommand extends Statement {
                     session.checkAdmin();
                     session.checkDDLWrite();
 
-                    if (!session.database.logger.isDataFileSpaces()) {
+                    if (session.database.logger.getDataFileSpaces() == 0) {
                         throw Error.error(ErrorCode.ACCESS_IS_DENIED);
                     }
 

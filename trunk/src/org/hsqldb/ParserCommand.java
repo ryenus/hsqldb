@@ -50,7 +50,7 @@ import org.hsqldb.types.Types;
  * Parser for session and management statements
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.0
+ * @version 2.3.2
  * @since 1.9.0
  */
 public class ParserCommand extends ParserDDL {
@@ -1428,7 +1428,18 @@ public class ParserCommand extends ParserDDL {
             case Tokens.SPACE : {
                 read();
 
-                flag  = processTrueOrFalseObject();
+                if (token.tokenType == Tokens.TRUE) {
+                    flag = Boolean.TRUE;
+
+                    read();
+                } else if (token.tokenType == Tokens.FALSE) {
+                    flag  = Boolean.FALSE;
+
+                    read();
+                } else {
+                    value = readIntegerObject();
+                }
+
                 type  = StatementTypes.SET_DATABASE_FILES_SPACE;
                 names = database.schemaManager.getCatalogAndBaseTableNames();
 
