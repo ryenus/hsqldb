@@ -39,7 +39,7 @@ import org.hsqldb.lib.OrderedIntHashSet;
  * Defines and enumerates reserved and non-reserved SQL keywords.<p>
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.0
+ * @version 2.3.2
  * @since 1.7.2
  */
 public class Tokens {
@@ -2152,6 +2152,7 @@ public class Tokens {
         commandSet.put(T_COMPRESSED, COMPRESSED);
         commandSet.put(T_CONDITION_IDENTIFIER, Tokens.CONDITION_IDENTIFIER);
         commandSet.put(T_CONFLICT, CONFLICT);
+        commandSet.put(T_CONSTRAINTS, CONSTRAINTS);
         commandSet.put(T_CONTAINS, CONTAINS);
         commandSet.put(T_CONTINUE, CONTINUE);
         commandSet.put(T_CONTROL, CONTROL);

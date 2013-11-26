@@ -50,7 +50,7 @@ import org.hsqldb.lib.OrderedHashSet;
  * Shared code for TransactionManager classes
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.0
+ * @version 2.3.2
  * @since 2.0.0
  */
 class TransactionManagerCommon {
@@ -271,45 +271,6 @@ class TransactionManagerCommon {
 
 //                    throw unexpectedException(e.getMessage());
             }
-        }
-    }
-
-    /**
-     * for multiversion rows
-     * merge a given list of transaction rollback action with given timestamp
-     */
-    void mergeRolledBackTransaction(Session session, long timestamp,
-                                    Object[] list, int start, int limit) {
-
-        for (int i = start; i < limit; i++) {
-            RowAction action = (RowAction) list[i];
-            Row       row    = action.memoryRow;
-
-            if (row == null) {
-                if (action.type == RowAction.ACTION_NONE) {
-                    continue;
-                }
-
-                row = (Row) action.store.get(action.getPos(), false);
-            }
-
-            if (row == null) {
-
-                // only if transaction has been merged
-                // shouldn't normally happen
-                continue;
-            }
-
-            synchronized (row) {
-                action.mergeRollback(session, timestamp, row);
-            }
-        }
-
-        for (int i = limit - 1; i >= start; i--) {
-            RowAction action = (RowAction) list[i];
-
-            action.store.rollbackRow(session, action.memoryRow,
-                                     action.commitRollbackType, txModel);
         }
     }
 
