@@ -58,7 +58,7 @@ import org.hsqldb.types.UserTypeModifier;
  * Parser for DDL statements
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.1
+ * @version 2.3.2
  * @since 1.9.0
  */
 public class ParserDDL extends ParserRoutine {
@@ -623,6 +623,10 @@ public class ParserDDL extends ParserRoutine {
                 cascade = true;
 
                 read();
+
+                if (database.sqlSyntaxOra) {
+                    readIfThis(Tokens.CONSTRAINTS);
+                }
             } else if (token.tokenType == Tokens.RESTRICT) {
                 read();
             }
@@ -1842,8 +1846,8 @@ public class ParserDDL extends ParserRoutine {
 
         String schema = token.namePrefix;
         Charset source =
-            (Charset) database.schemaManager.getCharacterSet(session, token.tokenString,
-                schema);
+            (Charset) database.schemaManager.getCharacterSet(session,
+                token.tokenString, schema);
 
         read();
 

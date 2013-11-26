@@ -44,7 +44,7 @@ import org.hsqldb.persist.PersistentStore;
  * Manages rows involved in transactions
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.0
+ * @version 2.3.2
  * @since 2.0.0
  */
 public class TransactionManagerMVCC extends TransactionManagerCommon
@@ -280,27 +280,35 @@ implements TransactionManager {
             return;
         }
 
-        for (int i = start; i < limit; i++) {
+        for (int i = limit - 1; i >= start; i--) {
             RowAction action = (RowAction) session.rowActionList.get(i);
 
-            if (action == null) {
-                throw Error.runtimeError(ErrorCode.GENERAL_ERROR,
-                                         "TXManager - null rollback action ");
+            if (action == null || action.type == RowActionBase.ACTION_NONE
+                    || action.type == RowActionBase.ACTION_DELETE_FINAL) {
+                continue;
             }
 
-            action.rollback(session, timestamp);
-        }
+            Row row = action.memoryRow;
 
-        // rolled back transactions can always be merged as they have never been
-        // seen by other sessions
-        writeLock.lock();
+            if (row == null) {
+                row = (Row) action.store.get(action.getPos(), false);
+            }
 
-        try {
-            Object[] list = session.rowActionList.getArray();
+            if (row == null) {
+                continue;
+            }
 
-            mergeRolledBackTransaction(session, timestamp, list, start, limit);
-        } finally {
-            writeLock.unlock();
+            writeLock.lock();
+
+            try {
+                action.rollback(session, timestamp);
+
+                int type = action.mergeRollback(session, timestamp, row);
+
+                action.store.rollbackRow(session, row, type, txModel);
+            } finally {
+                writeLock.unlock();
+            }
         }
 
         session.rowActionList.setSize(start);
@@ -795,25 +803,25 @@ implements TransactionManager {
                             if (action != null) {
                                 addTransactionInfo(row);
                             }
-                        }
-                        else {
+                        } else {
                             row.rowAction = action;
                             action = RowAction.addDeleteAction(session, table,
                                                                row, colMap);
                         }
-                    }
-                    finally {
+                    } finally {
                         rowActionMap.getWriteLock().unlock();
                     }
+
                     break;
                 }
                 case TableBase.TEMP_TABLE : {
                     action = RowAction.addDeleteAction(session, table, row,
-                        colMap);
+                                                       colMap);
 
                     store.delete(session, row);
 
                     row.rowAction = null;
+
                     break;
                 }
                 case TableBase.MEMORY_TABLE :
