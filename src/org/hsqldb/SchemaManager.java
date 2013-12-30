@@ -55,7 +55,7 @@ import org.hsqldb.types.Type;
  * Manages all SCHEMA related database objects
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.1
+ * @version 2.3.2
  * @since 1.8.0
  */
 public class SchemaManager {
@@ -1079,6 +1079,7 @@ public class SchemaManager {
                     case SchemaObject.PROCEDURE :
                     case SchemaObject.FUNCTION :
                     case SchemaObject.SPECIFIC_ROUTINE :
+                    case SchemaObject.TRIGGER :
                         SchemaObject object = getSchemaObject(name);
 
                         object.compile(session, null);
@@ -1127,6 +1128,7 @@ public class SchemaManager {
                     case SchemaObject.PROCEDURE :
                     case SchemaObject.FUNCTION :
                     case SchemaObject.SPECIFIC_ROUTINE :
+                    case SchemaObject.TRIGGER :
                         SchemaObject object = getSchemaObject(name);
 
                         object.compile(session, null);
@@ -1750,6 +1752,14 @@ public class SchemaManager {
                 if (references.contains(column)) {
                     set.add(name);
                 }
+            }
+
+            it = referenceMap.get(column);
+
+            while (it.hasNext()) {
+                HsqlName name = (HsqlName) it.next();
+
+                set.add(name);
             }
 
             return set;

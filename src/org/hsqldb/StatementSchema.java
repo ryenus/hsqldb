@@ -363,11 +363,20 @@ public class StatementSchema extends Statement {
                         case SchemaObject.COLUMN :
                             HsqlName parent = object.getName().parent;
 
-                            schemaManager.checkColumnIsReferenced(
-                                parent, object.getName());
+                            schemaManager.checkObjectIsReferenced(parent);
 
                             Table table = schemaManager.getUserTable(session,
                                 parent);
+                            TriggerDef[] triggers = table.getTriggers();
+
+                            for (int i = 0; i < triggers.length; i++) {
+                                if (triggers[i] instanceof TriggerDefSQL) {
+                                    throw Error
+                                        .error(ErrorCode.X_42502, triggers[i]
+                                            .getName()
+                                            .getSchemaQualifiedStatementName());
+                                }
+                            }
 
                             table.renameColumn((ColumnSchema) object, newName);
                             break;

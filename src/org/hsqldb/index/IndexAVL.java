@@ -113,7 +113,7 @@ import org.hsqldb.types.Type;
  *
  * @author Thomas Mueller (Hypersonic SQL Group)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.1
+ * @version 2.3.2
  * @since Hypersonic SQL
  */
 public class IndexAVL implements Index {
@@ -851,26 +851,24 @@ public class IndexAVL implements Index {
 
     boolean hasNulls(Session session, Object[] rowData) {
 
-        if (colIndex.length == 1) {
-            return rowData[colIndex[0]] == null;
-        }
-
-        boolean normal = session == null ? true
-                                         : session.database.sqlUniqueNulls;
+        boolean  uniqueNulls = session== null || session.database.sqlUniqueNulls;
+        boolean  compareId   = false;
 
         for (int j = 0; j < colIndex.length; j++) {
             if (rowData[colIndex[j]] == null) {
-                if (normal) {
-                    return true;
+                compareId = true;
+
+                if (uniqueNulls) {
+                    break;
                 }
             } else {
-                if (!normal) {
-                    return false;
-                }
+                compareId = false;
+
+                break;
             }
         }
 
-        return !normal;
+        return compareId;
     }
 
     /**

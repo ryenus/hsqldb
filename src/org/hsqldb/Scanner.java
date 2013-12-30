@@ -62,7 +62,7 @@ import org.hsqldb.types.Types;
  * Scans for SQL tokens.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.0
+ * @version 2.3.2
  * @since 1.9.0
  */
 public class Scanner {
@@ -521,6 +521,8 @@ public class Scanner {
             }
 
             if (c == '0') {
+                map.unset(bitIndex);
+
                 bitIndex++;
             } else if (c == '1') {
                 map.set(bitIndex);
@@ -791,7 +793,7 @@ public class Scanner {
                         return;
                     }
 
-                    token.tokenType = Tokens.X_DELIMITED_IDENTIFIER;
+                    token.tokenType   = Tokens.X_DELIMITED_IDENTIFIER;
                     token.tokenString = charWriter.toString();
                     token.isDelimiter = true;
                 }
@@ -2475,6 +2477,8 @@ public class Scanner {
             int c = sqlString.charAt(currentPosition);
 
             if (c == '0') {
+                map.unset(bitIndex);
+
                 bitIndex++;
             } else if (c == '1') {
                 map.set(bitIndex);

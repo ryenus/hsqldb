@@ -143,6 +143,7 @@ public class RangeVariable implements Cloneable {
         switch (rangeType) {
 
             case TRANSITION_RANGE :
+                usedColumns = new boolean[variables.size()];
             case PARAMETER_RANGE :
             case VARIALBE_RANGE :
                 break;

@@ -38,7 +38,7 @@ import org.hsqldb.result.Result;
  * Implementation of SQL TRIGGER objects.<p>
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.0.1
+ * @version 2.3.2
  * @since 1.9.0
  */
 public class TriggerDefSQL extends TriggerDef {
@@ -66,7 +66,10 @@ public class TriggerDefSQL extends TriggerDef {
         return null;
     }
 
-    public void compile(Session session, SchemaObject parentObject) {}
+    public void compile(Session session, SchemaObject parentObject) {
+
+        routine.compile(session, null);
+    }
 
     public String getClassName() {
         return null;
