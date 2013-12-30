@@ -50,7 +50,7 @@ import org.hsqldb.types.Types;
  * existing table which may result in a new Table object
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.0.1
+ * @version 2.3.2
  * @since 1.7.0
  */
 public class TableWorks {
@@ -274,6 +274,16 @@ public class TableWorks {
                 && (!col.isNullable() || col.isPrimaryKey())
                 && !col.isIdentity()) {
             throw Error.error(ErrorCode.X_42531);
+        }
+
+        TriggerDef[] triggers = table.getTriggers();
+
+        for (int i = 0; i < triggers.length; i++) {
+            if (triggers[i] instanceof TriggerDefSQL) {
+                throw Error.error(
+                    ErrorCode.X_42502,
+                    triggers[i].getName().getSchemaQualifiedStatementName());
+            }
         }
     }
 
@@ -769,10 +779,19 @@ public class TableWorks {
         ColumnSchema   column       = table.getColumn(colIndex);
         HsqlName       columnName   = column.getName();
         OrderedHashSet referencingObjects =
-            database.schemaManager.getReferencesTo(table.getName(),
-                columnName);
+            database.schemaManager.getReferencesTo(table.getName());
 
         checkModifyTable();
+
+        TriggerDef[] triggers = table.getTriggers();
+
+        for (int i = 0; i < triggers.length; i++) {
+            if (triggers[i] instanceof TriggerDefSQL) {
+                throw Error.error(
+                    ErrorCode.X_42502,
+                    triggers[i].getName().getSchemaQualifiedStatementName());
+            }
+        }
 
         if (!cascade) {
             if (!cascadingConstraints.isEmpty()) {

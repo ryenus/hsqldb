@@ -76,7 +76,7 @@ import org.hsqldb.types.Type.TypedComparator;
  * Implementation of SQL sessions.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.1
+ * @version 2.3.2
  * @since 1.7.0
  */
 public class Session implements SessionInterface {
@@ -1206,10 +1206,25 @@ public class Session implements SessionInterface {
             return Result.newErrorResult(e);
         }
 
-        Result result = null;
+        Result   result         = null;
+        boolean  recompile      = false;
+        HsqlName originalSchema = getCurrentSchemaHsqlName();
 
         for (int i = 0; i < list.size(); i++) {
             Statement cs = (Statement) list.get(i);
+
+            if (cs.getCompileTimestamp()
+                    > database.txManager.getGlobalChangeTimestamp()) {
+                recompile = true;
+            }
+
+            if (cs.getSchemaName() != originalSchema) {
+                recompile = true;
+            }
+
+            if (recompile) {
+                cs = compileStatement(cs.getSQL(), cmd.getExecuteProperties());
+            }
 
             cs.setGeneratedColumnInfo(cmd.getGeneratedResultType(),
                                       cmd.getGeneratedResultMetaData());
@@ -1557,9 +1572,9 @@ public class Session implements SessionInterface {
             return Result.newErrorResult(Error.error(ErrorCode.X_24501));
         }
 
-        Object[]        pvals     = (Object[]) cmd.valueData;
-        Type[]          types     = cmd.metaData.columnTypes;
-        StatementQuery  statement = (StatementQuery) result.getStatement();
+        Object[]       pvals     = (Object[]) cmd.valueData;
+        Type[]         types     = cmd.metaData.columnTypes;
+        StatementQuery statement = (StatementQuery) result.getStatement();
 
         sessionContext.rowUpdateStatement.setRowActionProperties(result,
                 actionType, statement, types);
@@ -2051,7 +2066,6 @@ public class Session implements SessionInterface {
     }
 
     public void setZoneSeconds(int seconds) {
-
         timeZoneSeconds = seconds;
     }
 

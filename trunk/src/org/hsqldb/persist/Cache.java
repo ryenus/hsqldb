@@ -235,7 +235,6 @@ public class Cache extends BaseHashMap {
         int savecount    = 0;
 
         if (all) {
-            removeCount  = size();
             accessTarget = accessCount + 1;
         }
 
@@ -269,8 +268,6 @@ public class Cache extends BaseHashMap {
                     objectIterator.remove();
 
                     cacheBytesLength -= row.getStorageSize();
-
-                    removeCount--;
                 }
             }
 

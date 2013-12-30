@@ -1119,8 +1119,7 @@ public class Routine implements SchemaObject, RangeGroup, Cloneable {
                         routineRetType = Types.SQL_DECIMAL;
                     }
 
-                    if (methodReturnType.typeCode
-                            != routineRetType) {
+                    if (methodReturnType.typeCode != routineRetType) {
                         continue;
                     }
                 }

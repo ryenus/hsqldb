@@ -2042,7 +2042,7 @@ public class LobManager {
 
             getPartBytesCompressedInBuffer(aID, bParts[i], false);
 
-            int result = ArrayUtil.compare(aPartBytes, aPartLength,
+            int result = ArrayUtil.compare(aPartBytes, 0, aPartLength,
                                            byteBuffer, bPartLength);
 
             if (result != 0) {

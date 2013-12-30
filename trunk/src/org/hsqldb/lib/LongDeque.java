@@ -49,7 +49,7 @@ public class LongDeque {
 
     // can grow to fill list
     // if elementCount == 0 then firstindex == endindex
-    private static final int DEFAULT_INITIAL_CAPACITY = 10;
+    private static final int DEFAULT_INITIAL_CAPACITY = 8;
 
     public LongDeque() {
         list = new long[DEFAULT_INITIAL_CAPACITY];

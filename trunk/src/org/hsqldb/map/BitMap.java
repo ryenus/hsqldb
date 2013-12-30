@@ -36,7 +36,7 @@ package org.hsqldb.map;
  * manipulate int, byte and byte[] values as bit maps.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.0
+ * @version 2.3.2
  * @since 1.8.0
 */
 public class BitMap {
@@ -74,6 +74,11 @@ public class BitMap {
     }
 
     public void setSize(int size) {
+
+        while (size > capacity) {
+            doubleCapacity();
+        }
+
         limitPos = size;
     }
 
@@ -234,7 +239,9 @@ public class BitMap {
     }
 
     public int countSet(int pos, int count) {
+
         int set = 0;
+
         for (int i = pos; i < pos + count; i++) {
             if (isSet(i)) {
                 set++;
