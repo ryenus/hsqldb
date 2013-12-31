@@ -1752,8 +1752,8 @@
       calling these two functions. The return value for TIMESTAMPADD is of the
       same type as the datetime argument used. The return type for
       TIMESTAMPDIFF is always BIGINT, regardless of the type of arguments. The
-      two datetime arguments of TIMESTAMPDIFF should be of the same
-      type.</para>
+      two datetime arguments of TIMESTAMPDIFF should be of the same type. The
+      TIME type is not supported for the arguments to these functions.</para>
 
       <para><literal>TIMESTAMPDIFF</literal> is evaluated as &lt;datetime
       value expr 2&gt; - &lt;datetime value expr 1&gt;. (JDBC)</para>
@@ -1786,7 +1786,8 @@
       and &lt;datetime value expr&gt; - &lt;interval value expr&gt;. The
       functions are provided for compatibility with other databases. The
       supported interval units are the standard SQL interval unit listed in
-      other chapters of this guide. (HyperSQL)</para>
+      other chapters of this guide. The TIME type is supported for the
+      argument to these functions. (HyperSQL)</para>
 
       <programlisting> DATE_ADD ( DATE '2008-11-22', INTERVAL 3 MONTH )
 
@@ -1829,7 +1830,8 @@
       field parameter and return the number of days between two dates. This
       form is evaluated as <literal>&lt;datetime value expr 1&gt; -
       &lt;datetime value expr 2&gt;</literal>, which is different from the
-      main form. This form is compatible with some other database engines.
+      main form. This form is compatible with some other database engines. The
+      TIME type is not supported for the arguments to these functions.
       (HyperSQL}</para>
 
       <programlisting> DATEADD ( 'month', 3, DATE '2008-11-22' )

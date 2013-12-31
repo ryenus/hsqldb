@@ -1,3 +1,9 @@
+
+-- fixed bug with incomplete rollback of MVCC transaction that inserts and updates the same row
+-- fixed issue with parsing of long BIT strings in SQL
+-- fixed issue with SQL triggers when columns were added or dropped from a table with SQL triggers 
+-- improved ORA syntax compatibility mode
+
 08 October 2013 - version 2.3.1
 -- fixed several minor issues
 -- fixed bug with some queries using ORDER BY DESC on indexed columns used in conditions
@@ -5,6 +11,7 @@
 -- added support for LIKE with parametric escape character 
 -- added support for routine SIGNAL messages using variables
 -- fixed issue with NPE is some complex subqueries
+
 08 July 2013 - version 2.3.0
 -- improved data exception error messages
 05 July svn 5259 snapshot 52
