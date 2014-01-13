@@ -7575,7 +7575,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
                     row[is_grantable] =
                         right.getGrantee() == object.getOwner()
                         || grantableRight.isFull() ? Tokens.T_YES
-                                                   : Tokens.T_NO;;
+                                                   : Tokens.T_NO;
 
                     try {
                         t.insertSys(session, store, row);
@@ -7770,7 +7770,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
                     row[is_grantable] =
                         right.getGrantee() == object.getOwner()
                         || grantableRight.isFull() ? Tokens.T_YES
-                                                   : Tokens.T_NO;;
+                                                   : Tokens.T_NO;
 
                     try {
                         t.insertSys(session, store, row);
@@ -8486,13 +8486,13 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
                                                         : Tokens.T_NO;
             row[is_trigger_updatable] = table.isTriggerUpdatable()
                                         ? Tokens.T_YES
-                                        : Tokens.T_NO;;
+                                        : Tokens.T_NO;
             row[is_trigger_deletable] = table.isTriggerDeletable()
                                         ? Tokens.T_YES
-                                        : Tokens.T_NO;;
+                                        : Tokens.T_NO;
             row[is_trigger_insertable_into] = table.isTriggerInsertable()
                                               ? Tokens.T_YES
-                                              : Tokens.T_NO;;
+                                              : Tokens.T_NO;
 
             t.insertSys(session, store, row);
         }
@@ -8602,7 +8602,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
             granteeName   = granteeObject.getName().getNameString();
             roles         = granteeObject.getDirectRoles().iterator();
             isGrantable   = granteeObject.isAdmin() ? Tokens.T_YES
-                                                    : Tokens.T_NO;;
+                                                    : Tokens.T_NO;
 
             while (roles.hasNext()) {
                 Grantee role = (Grantee) roles.next();

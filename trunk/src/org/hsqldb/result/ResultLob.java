@@ -52,7 +52,7 @@ import org.hsqldb.rowio.RowOutputInterface;
  */
 public final class ResultLob extends Result {
 
-    public static interface LobResultTypes {
+    public interface LobResultTypes {
 
         int REQUEST_GET_BYTES                 = 1;
         int REQUEST_SET_BYTES                 = 2;

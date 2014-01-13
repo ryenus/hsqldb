@@ -377,7 +377,7 @@ public class JDBCBlob implements Blob {
             throw JDBCUtil.nullArgument("bytes");
         }
 
-        return (setBytes(pos, bytes, 0, bytes.length));
+        return setBytes(pos, bytes, 0, bytes.length);
     }
 
     /**

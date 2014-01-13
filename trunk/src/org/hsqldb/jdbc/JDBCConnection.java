@@ -3304,7 +3304,7 @@ public class JDBCConnection implements Connection {
 
         checkClosed();
 
-        return (new JDBCDatabaseMetaData(this)).getConnectionDefaultSchema();
+        return new JDBCDatabaseMetaData(this).getConnectionDefaultSchema();
     }
 
     /**

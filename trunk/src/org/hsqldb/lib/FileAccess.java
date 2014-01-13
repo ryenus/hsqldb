@@ -63,7 +63,7 @@ public interface FileAccess {
 
     void renameElement(java.lang.String oldName, java.lang.String newName);
 
-    public interface FileSync {
+    interface FileSync {
         void sync() throws java.io.IOException;
     }
 

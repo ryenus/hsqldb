@@ -513,7 +513,7 @@ public class JDBCResultSetMetaData implements ResultSetMetaData {
 
         checkColumn(column);
 
-        String name = resultMetaData.columns[--column].getSchemaNameString();;
+        String name = resultMetaData.columns[--column].getSchemaNameString();
 
         return name == null ? ""
                             : name;

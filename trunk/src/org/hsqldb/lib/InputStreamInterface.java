@@ -40,23 +40,23 @@ import java.io.IOException;
  */
 public interface InputStreamInterface {
 
-    public int read() throws IOException;
+    int read() throws IOException;
 
-    public int read(byte bytes[]) throws IOException;
+    int read(byte bytes[]) throws IOException;
 
-    public int read(byte bytes[], int offset, int length) throws IOException;
+    int read(byte bytes[], int offset, int length) throws IOException;
 
-    public long skip(long count) throws IOException;
+    long skip(long count) throws IOException;
 
-    public int available() throws IOException;
+    int available() throws IOException;
 
-    public void close() throws IOException;
+    void close() throws IOException;
 
-    public void setSizeLimit(long count);
+    void setSizeLimit(long count);
 
     /**
      * Invariant. Number of characters in stream, including any already read.
      * @return -1 if no explicit limit otherwise the limit
      */
-    public long getSizeLimit();
+    long getSizeLimit();
 }

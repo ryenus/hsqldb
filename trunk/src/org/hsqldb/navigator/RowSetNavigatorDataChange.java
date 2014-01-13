@@ -47,34 +47,32 @@ import org.hsqldb.types.Type;
  */
 public interface RowSetNavigatorDataChange {
 
-    public void release();
+    void release();
 
-    public int getSize();
+    int getSize();
 
-    public int getRowPosition();
+    int getRowPosition();
 
-    public boolean next();
+    boolean next();
 
-    public boolean beforeFirst();
+    boolean beforeFirst();
 
-    public Row getCurrentRow();
+    Row getCurrentRow();
 
-    public Object[] getCurrentChangedData();
+    Object[] getCurrentChangedData();
 
-    public int[] getCurrentChangedColumns();
+    int[] getCurrentChangedColumns();
 
-    public void write(RowOutputInterface out,
-                      ResultMetaData meta) throws IOException;
+    void write(RowOutputInterface out, ResultMetaData meta) throws IOException;
 
-    public void read(RowInputInterface in,
-                     ResultMetaData meta) throws IOException;
+    void read(RowInputInterface in, ResultMetaData meta) throws IOException;
 
-    public void endMainDataSet();
+    void endMainDataSet();
 
-    public boolean addRow(Row row);
+    boolean addRow(Row row);
 
-    public Object[] addRow(Session session, Row row, Object[] data,
-                           Type[] types, int[] columnMap);
+    Object[] addRow(Session session, Row row, Object[] data, Type[] types,
+                    int[] columnMap);
 
-    public boolean containsDeletedRow(Row row);
+    boolean containsDeletedRow(Row row);
 }

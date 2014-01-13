@@ -174,7 +174,7 @@ public class ParserBase {
 
     String getStatementForRoutine(int startPosition, short[] startTokens) {
 
-        int tokenIndex   = 0;;
+        int tokenIndex   = 0;
         int semiIndex    = -1;
         int semiPosition = -1;
 

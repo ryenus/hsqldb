@@ -64,46 +64,46 @@ public interface Index extends SchemaObject {
 
     RowIterator emptyIterator();
 
-    public int getPosition();
+    int getPosition();
 
-    public void setPosition(int position);
+    void setPosition(int position);
 
-    public long getPersistenceId();
+    long getPersistenceId();
 
     /**
      * Returns the count of visible columns used
      */
-    public int getColumnCount();
+    int getColumnCount();
 
     /**
      * Is this a UNIQUE index?
      */
-    public boolean isUnique();
+    boolean isUnique();
 
     /**
      * Does this index belong to a constraint?
      */
-    public boolean isConstraint();
+    boolean isConstraint();
 
     /**
      * Returns the array containing column indexes for index
      */
-    public int[] getColumns();
+    int[] getColumns();
 
     /**
      * Returns the array containing column indexes for index
      */
-    public Type[] getColumnTypes();
+    Type[] getColumnTypes();
 
     /**
      * Returns the count of visible columns used
      */
-    public boolean[] getColumnDesc();
+    boolean[] getColumnDesc();
 
     /**
      * Returns the array containing 0, 1, .. column indexes
      */
-    public int[] getDefaultColumnMap();
+    int[] getDefaultColumnMap();
 
     /**
      * Returns a value indicating the order of different types of index in
@@ -123,38 +123,40 @@ public interface Index extends SchemaObject {
      *
      * @return ordinal value
      */
-    public int getIndexOrderValue();
+    int getIndexOrderValue();
 
-    public boolean isForward();
+    boolean isForward();
 
-    public void setTable(TableBase table);
+    void setTable(TableBase table);
 
-    public void setClustered(boolean clustered);
+    void setClustered(boolean clustered);
 
-    public boolean isClustered();
+    boolean isClustered();
 
     /**
      * Returns the node count.
      */
-    public long size(Session session, PersistentStore store);
+    long size(Session session, PersistentStore store);
 
-    public long sizeUnique(PersistentStore store);
+    long sizeUnique(PersistentStore store);
 
-    public double[] searchCost(Session session, PersistentStore store);
+    double[] searchCost(Session session, PersistentStore store);
 
-    public boolean isEmpty(PersistentStore store);
+    long getNodeCount(Session session, PersistentStore store);
 
-    public void checkIndex(PersistentStore store);
+    boolean isEmpty(PersistentStore store);
+
+    void checkIndex(PersistentStore store);
 
     /**
      * Insert a node into the index
      */
-    public void insert(Session session, PersistentStore store, Row row);
+    void insert(Session session, PersistentStore store, Row row);
 
-    public void delete(Session session, PersistentStore store, Row row);
+    void delete(Session session, PersistentStore store, Row row);
 
-    public boolean existsParent(Session session, PersistentStore store,
-                                Object[] rowdata, int[] rowColMap);
+    boolean existsParent(Session session, PersistentStore store,
+                         Object[] rowdata, int[] rowColMap);
 
     /**
      * Return the first node equal to the indexdata object. The rowdata has
@@ -165,10 +167,10 @@ public interface Index extends SchemaObject {
      * @param matchCount count of columns to match
      * @return iterator
      */
-    public RowIterator findFirstRow(Session session, PersistentStore store,
-                                    Object[] rowdata, int matchCount,
-                                    int distinctCount, int compareType,
-                                    boolean reversed, boolean[] map);
+    RowIterator findFirstRow(Session session, PersistentStore store,
+                             Object[] rowdata, int matchCount,
+                             int distinctCount, int compareType,
+                             boolean reversed, boolean[] map);
 
     /**
      * Return the first node equal to the rowdata object.
@@ -179,8 +181,8 @@ public interface Index extends SchemaObject {
      * @param rowdata array containing table row data
      * @return iterator
      */
-    public RowIterator findFirstRow(Session session, PersistentStore store,
-                                    Object[] rowdata);
+    RowIterator findFirstRow(Session session, PersistentStore store,
+                             Object[] rowdata);
 
     /**
      * Return the first node equal to the rowdata object.
@@ -191,34 +193,33 @@ public interface Index extends SchemaObject {
      * @param rowdata array containing table row data
      * @return iterator
      */
-    public RowIterator findFirstRow(Session session, PersistentStore store,
-                                    Object[] rowdata, int[] rowColMap);
+    RowIterator findFirstRow(Session session, PersistentStore store,
+                             Object[] rowdata, int[] rowColMap);
 
     /**
      * Finds the first node where the data is not null.
      *
      * @return iterator
      */
-    public RowIterator findFirstRowNotNull(Session session,
-                                           PersistentStore store);
+    RowIterator findFirstRowNotNull(Session session, PersistentStore store);
 
-    public RowIterator firstRow(PersistentStore store);
+    RowIterator firstRow(PersistentStore store);
 
     /**
      * Returns the row for the first node of the index
      *
      * @return Iterator for first row
      */
-    public RowIterator firstRow(Session session, PersistentStore store,
-                                int distinctCount);
+    RowIterator firstRow(Session session, PersistentStore store,
+                         int distinctCount);
 
     /**
      * Returns the row for the last node of the index
      *
      * @return last row
      */
-    public RowIterator lastRow(Session session, PersistentStore store,
-                               int distinctCount);
+    RowIterator lastRow(Session session, PersistentStore store,
+                        int distinctCount);
 
     /**
      * Compares two table rows based on the columns of this index. The rowColMap
@@ -232,21 +233,21 @@ public interface Index extends SchemaObject {
      *
      * @return comparison result, -1,0,+1
      */
-    public int compareRowNonUnique(Session session, Object[] a, Object[] b,
-                                   int[] rowColMap);
+    int compareRowNonUnique(Session session, Object[] a, Object[] b,
+                            int[] rowColMap);
 
-    public int compareRowNonUnique(Session session, Object[] a, Object[] b,
-                                   int[] rowColMap, int fieldCount);
+    int compareRowNonUnique(Session session, Object[] a, Object[] b,
+                            int[] rowColMap, int fieldCount);
 
     /**
      * As above but use the index column data
      */
-    public int compareRowNonUnique(Session session, Object[] a, Object[] b,
-                                   int fieldcount);
+    int compareRowNonUnique(Session session, Object[] a, Object[] b,
+                            int fieldcount);
 
-    public int compareRow(Session session, Object[] a, Object[] b);
+    int compareRow(Session session, Object[] a, Object[] b);
 
-    public static class IndexUse {
+    class IndexUse {
 
         public Index index;
         public int   columnCount;

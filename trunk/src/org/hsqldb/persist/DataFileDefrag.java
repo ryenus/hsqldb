@@ -174,17 +174,15 @@ final class DataFileDefrag {
 
     long[] writeTableToDataFile(Table table) {
 
-        PersistentStore store =
-            table.database.persistentStoreCollection.getStore(table);
-        TableSpaceManager space =
-            dataFileOut.spaceManager.getTableSpace(table.getSpaceID());
+        RowStoreAVLDisk store =
+            (RowStoreAVLDisk) table.database.persistentStoreCollection.getStore(
+                table);
         long[] rootsArray = table.getIndexRootsArray();
 
         pointerLookup.clear();
         database.logger.logDetailEvent("lookup begins " + table.getName().name
                                        + " " + stopw.elapsedTime());
-        RowStoreAVLDisk.moveDataToSpace(store, dataFileOut, space,
-                                        pointerLookup);
+        store.moveDataToSpace(dataFileOut, pointerLookup);
 
         for (int i = 0; i < table.getIndexCount(); i++) {
             if (rootsArray[i] == -1) {

@@ -228,8 +228,9 @@ public final class Right {
             isFullDelete = false;
         }
 
-        if (!isFullSelect && selectColumnSet == null) {}
-        else if (right.isFullSelect) {
+        if (!isFullSelect && selectColumnSet == null) {
+            //
+        } else if (right.isFullSelect) {
             isFullSelect    = false;
             selectColumnSet = null;
         } else if (right.selectColumnSet != null) {
@@ -245,8 +246,9 @@ public final class Right {
             }
         }
 
-        if (!isFullInsert && insertColumnSet == null) {}
-        else if (right.isFullInsert) {
+        if (!isFullInsert && insertColumnSet == null) {
+            //
+        } else if (right.isFullInsert) {
             isFullInsert    = false;
             insertColumnSet = null;
         } else if (right.insertColumnSet != null) {
@@ -262,8 +264,9 @@ public final class Right {
             }
         }
 
-        if (!isFullUpdate && updateColumnSet == null) {}
-        else if (right.isFullUpdate) {
+        if (!isFullUpdate && updateColumnSet == null) {
+            //
+        } else if (right.isFullUpdate) {
             isFullUpdate    = false;
             updateColumnSet = null;
         } else if (right.updateColumnSet != null) {
@@ -279,8 +282,9 @@ public final class Right {
             }
         }
 
-        if (!isFullReferences && referencesColumnSet == null) {}
-        else if (right.isFullReferences) {
+        if (!isFullReferences && referencesColumnSet == null) {
+            //
+        } else if (right.isFullReferences) {
             isFullReferences    = false;
             referencesColumnSet = null;
         } else if (right.referencesColumnSet != null) {
@@ -296,8 +300,9 @@ public final class Right {
             }
         }
 
-        if (!isFullTrigger && triggerColumnSet == null) {}
-        else if (right.isFullTrigger) {
+        if (!isFullTrigger && triggerColumnSet == null) {
+            //
+        } else if (right.isFullTrigger) {
             isFullTrigger    = false;
             triggerColumnSet = null;
         } else if (right.triggerColumnSet != null) {

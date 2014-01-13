@@ -78,7 +78,9 @@ class JDBCBench {
                     }
 
                     if (DriverName.equals(
-                            "com.borland.datastore.jdbc.DataStoreDriver")) {}
+                            "com.borland.datastore.jdbc.DataStoreDriver")) {
+                        //
+                    }
 
                     if (DriverName.equals("com.mckoi.JDBCDriver")) {
                         ShutdownCommand = "SHUTDOWN";
@@ -747,7 +749,7 @@ class JDBCBench {
                 break;
         }
 
-        return (getRandomInt(min, max));
+        return getRandomInt(min, max);
     }
 
     public static Connection connect(String DBUrl, String DBUser,

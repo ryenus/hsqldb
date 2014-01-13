@@ -95,7 +95,7 @@ implements PersistentStoreCollection {
         rowStoreMap.clear();
     }
 
-    public void releaseStore(Table table) {
+    public void removeStore(Table table) {
 
         PersistentStore store =
             (PersistentStore) rowStoreMap.get(table.getPersistenceId());

@@ -67,7 +67,9 @@ public class TestSql extends TestBase {
         try {
             connection = super.newConnection();
             stmnt      = connection.createStatement();
-        } catch (Exception e) {}
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     public void testMetaData() {
@@ -291,7 +293,7 @@ public class TestSql extends TestBase {
                 rs.close();
 
                 rs = stmnt.executeQuery(
-                    "SELECT I, A, B, A \"aliasA\", B \"aliasB\", 1 FROM T;");;
+                    "SELECT I, A, B, A \"aliasA\", B \"aliasB\", 1 FROM T;");
                 rsmd = rs.getMetaData();
 
                 for (; rs.next(); ) {
@@ -911,9 +913,7 @@ public class TestSql extends TestBase {
         try {
             stmnt.execute("SHUTDOWN");
 
-            if (!isNetwork) {
                 connection.close();
-            }
         } catch (Exception e) {
             e.printStackTrace();
             System.out.println("TestSql.tearDown() error: " + e.getMessage());

@@ -457,8 +457,10 @@ public class HsqlDatabaseProperties extends HsqlProperties {
                    HsqlProperties.getMeta(hsqldb_large_data, SQL_PROPERTY,
                                           false));
         dbMeta.put(hsqldb_files_space,
-                   HsqlProperties.getMeta(hsqldb_files_space, SQL_PROPERTY,
-                                          0, 0, 64));
+                   HsqlProperties.getMeta(hsqldb_files_space, SQL_PROPERTY, 0,
+                                          new int[] {
+            0, 1, 2, 4, 8, 16, 32, 64
+        }));
         dbMeta.put(hsqldb_files_check,
                    HsqlProperties.getMeta(hsqldb_files_check, SQL_PROPERTY, 0,
                                           new int[] {

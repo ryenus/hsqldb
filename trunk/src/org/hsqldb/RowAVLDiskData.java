@@ -103,21 +103,11 @@ public class RowAVLDiskData extends RowAVL {
         Object[] data = rowData;
 
         if (data == null) {
-            store.writeLock();
+            store.get(this, true);
 
-            try {
-                store.get(this, false);
+            data = rowData;
 
-                data = rowData;
-
-                if (data == null) {
-                    store.get(this, false);
-
-                    data = rowData;
-                }
-            } finally {
-                store.writeUnlock();
-            }
+            this.keepInMemory(false);
         } else {
             accessCount++;
         }

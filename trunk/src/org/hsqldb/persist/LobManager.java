@@ -648,7 +648,7 @@ public class LobManager {
             long currentLength = lobStore.getLength();
 
             if (currentLength > sizeLimit) {
-                database.logger.logInfoEvent("lob file truncated to usage");;
+                database.logger.logInfoEvent("lob file truncated to usage");
                 lobStore.setLength(sizeLimit);
 
                 try {
@@ -656,7 +656,7 @@ public class LobManager {
                 } catch (Throwable t) {}
             } else if (currentLength < sizeLimit) {
                 database.logger.logInfoEvent(
-                    "lob file reported smaller than usage");;
+                    "lob file reported smaller than usage");
             }
 
             return Result.updateOneResult;
@@ -1408,7 +1408,7 @@ public class LobManager {
                 long currentBlockOffset =
                     (long) blockAddresses[i][LOBS.BLOCK_OFFSET] * lobBlockSize;
                 long currentBlockLength =
-                    (long) blockAddresses[i][LOBS.BLOCK_COUNT] * lobBlockSize;;
+                    (long) blockAddresses[i][LOBS.BLOCK_COUNT] * lobBlockSize;
                 long currentBlockPosition =
                     (long) blockAddresses[i][LOBS.BLOCK_ADDR] * lobBlockSize;
                 int padding = 0;

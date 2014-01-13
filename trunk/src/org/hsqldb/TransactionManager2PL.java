@@ -321,8 +321,6 @@ implements TransactionManager {
 
             transactionCount++;
         }
-
-        return;
     }
 
     public void removeTransactionInfo(long id) {}

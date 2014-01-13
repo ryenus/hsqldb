@@ -475,8 +475,8 @@ public class Expression implements Cloneable {
             case OpTypes.ARRAY_SUBQUERY :
             case OpTypes.ROW_SUBQUERY :
             case OpTypes.TABLE_SUBQUERY :
-                return (table.queryExpression.isEquivalent(
-                    other.table.queryExpression));
+                return table.queryExpression.isEquivalent(
+                    other.table.queryExpression);
 
             default :
                 return equals(nodes, other.nodes);

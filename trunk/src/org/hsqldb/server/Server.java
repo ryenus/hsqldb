@@ -1253,7 +1253,7 @@ public class Server implements HsqlSocketRequestHandler {
             serverProperties.getProperty(ServerProperties.sc_key_acl);
 
         if (aclFilepath != null) {
-            acl = new ServerAcl(new File(aclFilepath));;
+            acl = new ServerAcl(new File(aclFilepath));
 
             if (logWriter != null && !isSilent) {
                 acl.setPrintWriter(logWriter);
@@ -2101,7 +2101,6 @@ public class Server implements HsqlSocketRequestHandler {
 
         String s = getProductName() + " " + getProductVersion()
                    + " is online on port " + this.getPort();
-        ;
 
         printWithTimestamp(s);
         printResource("online.help");

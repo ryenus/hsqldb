@@ -77,10 +77,10 @@ public class TarFileOutputStream {
 
     public interface Compression {
 
-        public static final int NO_COMPRESSION            = 0;
-        public static final int GZIP_COMPRESSION          = 1;
-        public static final int DEFAULT_COMPRESSION       = NO_COMPRESSION;
-        public static final int DEFAULT_BLOCKS_PER_RECORD = 20;
+        int NO_COMPRESSION            = 0;
+        int GZIP_COMPRESSION          = 1;
+        int DEFAULT_COMPRESSION       = NO_COMPRESSION;
+        int DEFAULT_BLOCKS_PER_RECORD = 20;
     }
 
     public static boolean debug = Boolean.getBoolean("DEBUG");

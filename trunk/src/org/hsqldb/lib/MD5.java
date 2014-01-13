@@ -98,7 +98,7 @@ public final class MD5 {
      *      java.security.MessageDigest spi or the requested
      *      encoding is not available
      */
-    public static final String encode(String string,
+    public static String encode(String string,
             String encoding) throws RuntimeException {
         return StringConverter.byteArrayToHexString(digest(string,
                 encoding));
@@ -116,7 +116,7 @@ public final class MD5 {
      *      algorithm is not available through the
      *      java.security.MessageDigest spi
      */
-    public static final String digest(String string) throws RuntimeException {
+    public static String digest(String string) throws RuntimeException {
         return encode(string, "ISO-8859-1");
     }
     /**
@@ -134,7 +134,7 @@ public final class MD5 {
      *      java.security.MessageDigest spi or the requested
      *      encoding is not available
      */
-    public static final byte[] digest(String string,
+    public static byte[] digest(String string,
                                       String encoding)
                                       throws RuntimeException {
 
@@ -163,7 +163,7 @@ public final class MD5 {
      *       algorithm is not available through the
      *       java.security.MessageDigest spi
      */
-    public static final byte[] digest(byte[] data)
+    public static byte[] digest(byte[] data)
     throws RuntimeException {
 
         synchronized (MD5.class) {

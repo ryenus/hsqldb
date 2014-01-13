@@ -926,7 +926,7 @@ public class ParserDQL extends ParserBase {
                 readThis(Tokens.AS);
                 readThis(Tokens.OPENBRACKET);
 
-                TableDerived td;;
+                TableDerived td;
 
                 td = XreadTableNamedSubqueryBody(queryName, nameList,
                                                  recursive

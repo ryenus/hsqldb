@@ -116,6 +116,11 @@ public abstract class CachedObjectBase implements CachedObject {
         isInMemory = in;
     }
 
+    public boolean equals(Object other) {
+        return other instanceof CachedObjectBase
+               && ((CachedObjectBase) other).position == this.position;
+    }
+
     public int hashCode() {
         return (int) position;
     }

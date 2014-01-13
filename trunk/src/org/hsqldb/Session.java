@@ -1213,13 +1213,16 @@ public class Session implements SessionInterface {
         for (int i = 0; i < list.size(); i++) {
             Statement cs = (Statement) list.get(i);
 
-            if (cs.getCompileTimestamp()
-                    > database.txManager.getGlobalChangeTimestamp()) {
-                recompile = true;
-            }
+            if (i > 0) {
+                if (cs.getCompileTimestamp()
+                        > database.txManager.getGlobalChangeTimestamp()) {
+                    recompile = true;
+                }
 
-            if (cs.getSchemaName() != originalSchema) {
-                recompile = true;
+                if (cs.getSchemaName() != null
+                        && cs.getSchemaName() != originalSchema) {
+                    recompile = true;
+                }
             }
 
             if (recompile) {

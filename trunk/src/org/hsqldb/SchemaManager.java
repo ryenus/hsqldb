@@ -1009,7 +1009,7 @@ public class SchemaManager {
                     table, null);
             }
         } else {
-            database.persistentStoreCollection.releaseStore(table);
+            database.persistentStoreCollection.removeStore(table);
         }
     }
 
