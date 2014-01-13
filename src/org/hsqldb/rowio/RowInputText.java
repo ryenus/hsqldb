@@ -243,7 +243,7 @@ public class RowInputText extends RowInputBase implements RowInputInterface {
 
     protected String readChar(Type type) throws IOException {
 
-        String s = null;;
+        String s = null;
 
         switch (type.typeCode) {
 

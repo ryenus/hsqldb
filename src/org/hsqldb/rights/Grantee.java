@@ -416,8 +416,6 @@ public class Grantee implements SchemaObject {
         }
 
         updateAllRights();
-
-        return;
     }
 
     /**

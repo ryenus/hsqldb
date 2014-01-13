@@ -57,19 +57,20 @@ public class TestUpdatableResultSets extends TestBase {
             statement = connection.createStatement(ResultSet.TYPE_FORWARD_ONLY,
                                                    ResultSet.CONCUR_UPDATABLE);
         } catch (Exception e) {
-            System.out.println(e);
+            System.err.println(e);
         }
     }
 
     public void testUpdatable() {
 
         try {
+            statement.execute("SET DATABASE EVENT LOG SQL LEVEL 3");
             statement.execute("drop table t1 if exists");
             statement.execute(
                 "create table t1 (i int primary key, c varchar(10), t varbinary(3))");
 
             String            insert = "insert into t1 values(?,?,?)";
-            String            select = "select i, c, t from t1";
+            String            select = "select i, c, t from t1 where i > ?";
             PreparedStatement ps     = connection.prepareStatement(insert);
 
             for (int i = 0; i < 10; i++) {
@@ -81,9 +82,13 @@ public class TestUpdatableResultSets extends TestBase {
                 ps.execute();
             }
 
+            ps.close();
             connection.setAutoCommit(false);
 
-            ResultSet rs = statement.executeQuery(select);
+            ps =  connection.prepareStatement(select,
+                ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_UPDATABLE );
+            ps.setInt(1, -1);
+            ResultSet rs = ps.executeQuery();
 
             while (rs.next()) {
                 String s = rs.getString(2);
@@ -94,7 +99,7 @@ public class TestUpdatableResultSets extends TestBase {
 
             rs.close();
 
-            rs = statement.executeQuery(select);
+            rs = ps.executeQuery();
 
             while (rs.next()) {
                 String s = rs.getString(2);
@@ -104,7 +109,7 @@ public class TestUpdatableResultSets extends TestBase {
 
             connection.rollback();
 
-            rs = statement.executeQuery(select);
+            rs = ps.executeQuery();
 
             while (rs.next()) {
                 String s = rs.getString(2);

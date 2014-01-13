@@ -245,7 +245,7 @@ public class RowStoreAVLDiskData extends RowStoreAVL {
                 if (txModel == TransactionManager.LOCKS) {
                     delete(session, row);
                     remove(row);
-                } else {}
+                }
                 break;
 
             case RowAction.ACTION_INSERT_DELETE :

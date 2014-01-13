@@ -602,9 +602,13 @@ public class StatementDML extends StatementDMQL {
                             continue;
                         }
 
-                        data[colIndex] =
-                            targetTable.colDefaults[colIndex].getValue(
-                                session);
+                        if (targetTable.colDefaults[colIndex] == null) {
+                            data[colIndex] = null;
+                        } else {
+                            data[colIndex] =
+                                targetTable.colDefaults[colIndex].getValue(
+                                    session);
+                        }
 
                         continue;
                     }
@@ -634,8 +638,13 @@ public class StatementDML extends StatementDMQL {
                         continue;
                     }
 
-                    data[colIndex] =
-                        targetTable.colDefaults[colIndex].getValue(session);
+                    if (targetTable.colDefaults[colIndex] == null) {
+                        data[colIndex] = null;
+                    } else {
+                        data[colIndex] =
+                            targetTable.colDefaults[colIndex].getValue(
+                                session);
+                    }
 
                     i++;
 

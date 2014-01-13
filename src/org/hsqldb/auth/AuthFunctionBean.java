@@ -41,6 +41,7 @@ package org.hsqldb.auth;
  * @since 2.0.1
  */
 public interface AuthFunctionBean {
+
     /**
      * Return a list of authorized roles or null to indicate that the
      * implementation does not intend to produce a specific role list but only
@@ -57,6 +58,5 @@ public interface AuthFunctionBean {
      *         authentication function contract, except that the role/schema
      *         list is returned as a String[] instead of a java.sql.Array.
      */
-    public String[] authenticate(
-            String userName, String password) throws Exception;
+    String[] authenticate(String userName, String password) throws Exception;
 }

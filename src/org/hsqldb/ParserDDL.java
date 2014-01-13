@@ -809,7 +809,7 @@ public class ParserDDL extends ParserRoutine {
         String   sql  = getLastPart();
         Object[] args = new Object[] {
             object.getName(), ValuePool.getInt(SchemaObject.CONSTRAINT),
-            Boolean.valueOf(cascade), Boolean.valueOf(false)
+            Boolean.valueOf(cascade), Boolean.FALSE
         };
         HsqlName[] writeLockNames =
             database.schemaManager.getCatalogAndBaseTableNames(
@@ -849,7 +849,7 @@ public class ParserDDL extends ParserRoutine {
         SchemaObject object = table.getPrimaryConstraint();
         Object[]     args   = new Object[] {
             object.getName(), ValuePool.getInt(SchemaObject.CONSTRAINT),
-            Boolean.valueOf(cascade), Boolean.valueOf(false)
+            Boolean.valueOf(cascade), Boolean.FALSE
         };
         HsqlName[] writeLockNames =
             database.schemaManager.getCatalogAndBaseTableNames(
@@ -3821,7 +3821,7 @@ public class ParserDDL extends ParserRoutine {
         Object[] args = new Object[] {
             table.getColumn(colindex).getName(),
             ValuePool.getInt(SchemaObject.COLUMN), Boolean.valueOf(cascade),
-            Boolean.valueOf(false)
+            Boolean.FALSE
         };
         HsqlName[] writeLockNames =
             database.schemaManager.getCatalogAndBaseTableNames(

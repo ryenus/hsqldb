@@ -333,7 +333,7 @@ public abstract class RowStoreAVL implements PersistentStore {
         } else if (diff == 0) {
             throw Error.runtimeError(ErrorCode.U_S0500, "RowStoreAVL");
         } else if (diff == 1) {
-            ;
+            //
         } else {
             for (; position < limit; position++) {
                 if (indexList[position] != keys[position]) {
@@ -410,7 +410,7 @@ public abstract class RowStoreAVL implements PersistentStore {
         Index index = this.indexList[0];
 
         if (elementCount.get() < 0) {
-            elementCount.set(((IndexAVL) index).getNodeCount(null, this));
+            elementCount.set(index.getNodeCount(null, this));
         }
 
         return elementCount.get();
@@ -421,7 +421,7 @@ public abstract class RowStoreAVL implements PersistentStore {
         Index index = this.indexList[0];
 
         if (elementCount.get() < 0) {
-            elementCount.set(((IndexAVL) index).getNodeCount(session, this));
+            elementCount.set(index.getNodeCount(session, this));
         }
 
         if (session != null) {
@@ -433,7 +433,7 @@ public abstract class RowStoreAVL implements PersistentStore {
                     case TableBase.MEMORY_TABLE :
                     case TableBase.CACHED_TABLE :
                     case TableBase.TEXT_TABLE :
-                        return ((IndexAVL) index).getNodeCount(session, this);
+                        return index.getNodeCount(session, this);
 
                     default :
                 }
@@ -455,7 +455,7 @@ public abstract class RowStoreAVL implements PersistentStore {
         return false;
     }
 
-    public void moveDataToSpace() {}
+    public void moveDataToSpace(Session session) {}
 
     /**
      * Moves the data from an old store to new after changes to table

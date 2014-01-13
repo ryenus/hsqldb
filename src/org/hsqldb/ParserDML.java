@@ -99,15 +99,6 @@ public class ParserDML extends ParserDQL {
                                                       insertExpression });
                 columnCheckList = table.getNewColumnCheckList();
 
-                for (int i = 0; i < table.colDefaults.length; i++) {
-                    if (table.colDefaults[i] == null
-                            && table.identityColumn != i) {
-                        if (!table.getColumn(i).isGenerated()) {
-                            throw Error.error(ErrorCode.X_42544);
-                        }
-                    }
-                }
-
                 StatementDMQL cs = new StatementInsert(session, table,
                                                        columnMap,
                                                        insertExpression,
@@ -238,15 +229,14 @@ public class ParserDML extends ParserDQL {
                                         new ExpressionColumn(OpTypes.DEFAULT);
                                 }
                             }
-                        } else if (column.hasDefault()) {}
-                        else if (column.isGenerated()) {
+                        } else if (column.hasDefault()) {
+                            //
+                        } else if (column.isGenerated()) {
                             if (e.getType() != OpTypes.DEFAULT) {
                                 throw Error.error(ErrorCode.X_42541);
                             }
                         } else {
-                            if (e.getType() == OpTypes.DEFAULT) {
-                                throw Error.error(ErrorCode.X_42544);
-                            }
+                            // no explicit default
                         }
 
                         if (e.isUnresolvedParam()) {
@@ -690,11 +680,7 @@ public class ParserDML extends ParserDQL {
                         e.setAttributesAsColumn(
                             targetTable.getColumn(columnMap[i]), true);
                     } else if (e.getType() == OpTypes.DEFAULT) {
-                        if (targetTable.colDefaults[columnMap[i]] == null
-                                && targetTable.identityColumn
-                                   != columnMap[i]) {
-                            throw Error.error(ErrorCode.X_42544);
-                        }
+                        //
                     } else {
                         unresolved = expr.resolveColumnReferences(session,
                                 rangeGroup, rangeGroups, null);
@@ -733,10 +719,7 @@ public class ParserDML extends ParserDQL {
                     e.setAttributesAsColumn(
                         targetTable.getColumn(columnMap[i]), true);
                 } else if (e.getType() == OpTypes.DEFAULT) {
-                    if (targetTable.colDefaults[columnMap[i]] == null
-                            && targetTable.identityColumn != columnMap[i]) {
-                        throw Error.error(ErrorCode.X_42544);
-                    }
+                    //
                 } else {
                     unresolved = expr.resolveColumnReferences(session,
                             rangeGroup, rangeGroups, null);
@@ -1146,24 +1129,31 @@ public class ParserDML extends ParserDQL {
             if (routineSchema != null) {
                 read();
 
-                HsqlArrayList list = new HsqlArrayList();
+                HsqlArrayList list    = new HsqlArrayList();
+                boolean       bracket = true;
 
-                readThis(Tokens.OPENBRACKET);
-
-                if (token.tokenType == Tokens.CLOSEBRACKET) {
-                    read();
+                if (database.sqlSyntaxOra) {
+                    bracket = readIfThis(Tokens.OPENBRACKET);
                 } else {
-                    while (true) {
-                        Expression e = XreadValueExpression();
+                    readThis(Tokens.OPENBRACKET);
+                }
 
-                        list.add(e);
+                if (bracket) {
+                    if (token.tokenType == Tokens.CLOSEBRACKET) {
+                        read();
+                    } else {
+                        while (true) {
+                            Expression e = XreadValueExpression();
 
-                        if (token.tokenType == Tokens.COMMA) {
-                            read();
-                        } else {
-                            readThis(Tokens.CLOSEBRACKET);
+                            list.add(e);
 
-                            break;
+                            if (token.tokenType == Tokens.COMMA) {
+                                read();
+                            } else {
+                                readThis(Tokens.CLOSEBRACKET);
+
+                                break;
+                            }
                         }
                     }
                 }

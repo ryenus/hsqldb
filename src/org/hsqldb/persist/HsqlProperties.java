@@ -273,8 +273,6 @@ public class HsqlProperties {
 
         outDescriptor = null;
         fos           = null;
-
-        return;
     }
 
     /**

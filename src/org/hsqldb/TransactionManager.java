@@ -44,82 +44,79 @@ import org.hsqldb.persist.PersistentStore;
 public interface TransactionManager {
 
     //
-    public int LOCKS   = 0;
-    public int MVLOCKS = 1;
-    public int MVCC    = 2;
+    int LOCKS   = 0;
+    int MVLOCKS = 1;
+    int MVCC    = 2;
 
     //
-    public int ACTION_READ = 0;
-    public int ACTION_DUP  = 1;
-    public int ACTION_REF  = 2;
+    int ACTION_READ = 0;
+    int ACTION_DUP  = 1;
+    int ACTION_REF  = 2;
 
-    public long getGlobalChangeTimestamp();
+    long getGlobalChangeTimestamp();
 
-    public long getNextGlobalChangeTimestamp();
+    long getNextGlobalChangeTimestamp();
 
-    public RowAction addDeleteAction(Session session, Table table,
-                                     PersistentStore store, Row row,
-                                     int[] colMap);
+    RowAction addDeleteAction(Session session, Table table,
+                              PersistentStore store, Row row, int[] colMap);
 
-    public void addInsertAction(Session session, Table table,
-                                PersistentStore store, Row row,
-                                int[] changedColumns);
+    void addInsertAction(Session session, Table table, PersistentStore store,
+                         Row row, int[] changedColumns);
 
     /**
      * add session to the end of queue when a transaction starts
      * (depending on isolation mode)
      */
-    public void beginAction(Session session, Statement cs);
+    void beginAction(Session session, Statement cs);
 
-    public void beginActionResume(Session session);
+    void beginActionResume(Session session);
 
-    public void beginTransaction(Session session);
+    void beginTransaction(Session session);
 
     // functional unit - accessibility of rows
-    public boolean canRead(Session session, PersistentStore store, Row row,
-                           int mode, int[] colMap);
+    boolean canRead(Session session, PersistentStore store, Row row, int mode,
+                    int[] colMap);
 
-    public boolean canRead(Session session, PersistentStore store, long id,
-                           int mode);
+    boolean canRead(Session session, PersistentStore store, long id, int mode);
 
-    public boolean commitTransaction(Session session);
+    boolean commitTransaction(Session session);
 
-    public void completeActions(Session session);
+    void completeActions(Session session);
 
-    public int getTransactionControl();
+    int getTransactionControl();
 
-    public boolean isMVRows();
+    boolean isMVRows();
 
-    public boolean isMVCC();
+    boolean isMVCC();
 
-    public boolean prepareCommitActions(Session session);
+    boolean prepareCommitActions(Session session);
 
-    public void rollback(Session session);
+    void rollback(Session session);
 
-    public void rollbackAction(Session session);
+    void rollbackAction(Session session);
 
-    public void rollbackSavepoint(Session session, int index);
+    void rollbackSavepoint(Session session, int index);
 
-    public void rollbackPartial(Session session, int start, long timestamp);
+    void rollbackPartial(Session session, int start, long timestamp);
 
-    public void setTransactionControl(Session session, int mode);
+    void setTransactionControl(Session session, int mode);
 
     /**
      * store transaction info for a new row. called only
      * for CACHED tables
      */
-    public void addTransactionInfo(CachedObject object);
+    void addTransactionInfo(CachedObject object);
 
     /**
      * add transaction info to a row just loaded from the cache. called only
      * for CACHED tables
      */
-    public void setTransactionInfo(PersistentStore store, CachedObject object);
+    void setTransactionInfo(PersistentStore store, CachedObject object);
 
     /**
      * remove the transaction info
      */
-    public void removeTransactionInfo(CachedObject object);
+    void removeTransactionInfo(CachedObject object);
 
-    public void removeTransactionInfo(long id);
+    void removeTransactionInfo(long id);
 }

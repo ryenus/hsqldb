@@ -339,15 +339,6 @@ public class Logger {
                 database.databaseProperties.setProperty(
                     HsqlDatabaseProperties.hsqldb_lock_file, false);
             }
-
-            int value = database.urlProperties.getIntegerProperty(
-                HsqlDatabaseProperties.hsqldb_cache_free_count, -1);
-
-            if (value >= 512) {
-                database.databaseProperties.setProperty(
-                    HsqlDatabaseProperties.hsqldb_cache_free_count,
-                    ArrayUtil.getTwoPowerFloor(value));
-            }
         }
 
         setVariables();
@@ -481,7 +472,7 @@ public class Logger {
         propCheckPersistence = database.databaseProperties.getIntegerProperty(
             HsqlDatabaseProperties.hsqldb_files_check);
 
-        if (!database.urlProperties.isPropertyTrue(
+        if (!database.databaseProperties.isPropertyTrue(
                 HsqlDatabaseProperties.sql_pad_space, true)) {
             database.collation.setPadding(false);
         }
@@ -492,14 +483,6 @@ public class Logger {
 
         if (!isNewDatabase && !version18) {
             return;
-        }
-
-        // apply only when larger than 0
-        int fileSpace = database.urlProperties.getIntegerProperty(
-            HsqlDatabaseProperties.hsqldb_files_space, 0);
-
-        if (fileSpace != 0) {
-            propFileSpaceValue = fileSpace;
         }
 
         if (tempDirectoryPath != null) {
@@ -639,6 +622,14 @@ public class Logger {
         setDataFileScaleNoCheck(
             database.databaseProperties.getIntegerProperty(
                 HsqlDatabaseProperties.hsqldb_cache_file_scale));
+
+        // apply only when larger than 0 - match with FILES SCALE
+        int fileSpace = database.databaseProperties.getIntegerProperty(
+            HsqlDatabaseProperties.hsqldb_files_space, 0);
+
+        if (fileSpace != 0) {
+            setDataFileSpaces(fileSpace);
+        }
 
         propCacheDefragLimit = database.databaseProperties.getIntegerProperty(
             HsqlDatabaseProperties.hsqldb_defrag_limit);

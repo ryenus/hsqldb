@@ -84,7 +84,7 @@ final class RAFileNIO implements RandomAccessInterface {
                                         << largeBufferScale;
 
     RAFileNIO(Database database, String name, boolean readOnly,
-                    long requiredLength, long maxLength) throws IOException {
+              long requiredLength, long maxLength) throws IOException {
 
         this.database  = database;
         this.maxLength = maxLength;
@@ -98,8 +98,7 @@ final class RAFileNIO implements RandomAccessInterface {
                 requiredLength = tempFile.length();
             }
 
-            requiredLength =
-                RAFile.getBinaryNormalisedCeiling(requiredLength,
+            requiredLength = RAFile.getBinaryNormalisedCeiling(requiredLength,
                     largeBufferScale);
         }
 
@@ -268,12 +267,14 @@ final class RAFileNIO implements RandomAccessInterface {
 
     public void write(byte[] b, int offset, int length) throws IOException {
 
+        long transferLength;
+
         try {
             buffersModified = true;
 
             while (true) {
-                long transferLength = bufferPosition + bufferLength
-                                      - currentPosition;
+                transferLength = bufferPosition + bufferLength
+                                 - currentPosition;
 
                 if (transferLength > length) {
                     transferLength = length;
@@ -512,7 +513,7 @@ final class RAFileNIO implements RandomAccessInterface {
         // when moving to last position in file
         if (bufferIndex == buffers.length) {
             bufferIndex    = buffers.length - 1;
-            bufferPosition = largeBufferSize;
+            bufferPosition = bufferIndex * largeBufferSize;
             buffer         = buffers[bufferIndex];
 
             return;

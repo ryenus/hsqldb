@@ -437,7 +437,7 @@ public class BitMap {
 
     public static boolean isSet(byte[] map, int pos) {
 
-        int mask  = 0x00000080 >>> (pos & 0x07);;
+        int mask  = 0x00000080 >>> (pos & 0x07);
         int index = pos / 8;
 
         if (index >= map.length) {

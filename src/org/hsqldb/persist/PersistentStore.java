@@ -137,8 +137,7 @@ public interface PersistentStore {
 
     void setAccessor(Index key, long accessor);
 
-    public double searchCost(Session session, Index idx, int count,
-                             int opType);
+    double searchCost(Session session, Index idx, int count, int opType);
 
     long elementCount();
 
@@ -154,7 +153,7 @@ public interface PersistentStore {
 
     Index[] getAccessorKeys();
 
-    void moveDataToSpace();
+    void moveDataToSpace(Session session);
 
     void moveData(Session session, PersistentStore other, int colindex,
                   int adjust);

@@ -886,6 +886,10 @@ public class StatementCommand extends Statement {
                     session.checkAdmin();
                     session.checkDDLWrite();
 
+                    if (!session.database.logger.isFileDatabase()) {
+                        return Result.updateZeroResult;
+                    }
+
                     if (session.database.logger.getDataFileSpaces() == 0) {
                         throw Error.error(ErrorCode.ACCESS_IS_DENIED);
                     }

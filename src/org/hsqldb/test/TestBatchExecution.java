@@ -405,8 +405,10 @@ public class TestBatchExecution extends TestBase {
                 byteArray =
                     org.hsqldb.lib.StringConverter.hexStringToByteArray(
                         "c0a8000a30d110808130d18080880000");
-            } catch (Exception e) {}
-            ;
+            } catch (Exception e) {
+                //
+            }
+
 
             prep.setNull(1, java.sql.Types.VARCHAR);
             prep.setBytes(2, byteArray);

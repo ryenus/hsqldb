@@ -33,8 +33,8 @@ package org.hsqldb;
 
 public interface RangeGroup {
 
-    public static final RangeGroup emptyGroup = new RangeGroupEmpty();
-    public static final RangeGroup[] emptyArray = new RangeGroup[]{
+    RangeGroup emptyGroup = new RangeGroupEmpty();
+    RangeGroup[] emptyArray = new RangeGroup[]{
         emptyGroup };
 
     RangeVariable[] getRangeVariables();
@@ -43,7 +43,7 @@ public interface RangeGroup {
 
     boolean isVariable();
 
-    public static class RangeGroupSimple implements RangeGroup {
+    public class RangeGroupSimple implements RangeGroup {
 
         RangeVariable[] ranges;
         RangeGroup      baseGroup;
@@ -85,7 +85,7 @@ public interface RangeGroup {
         }
     }
 
-    public static class RangeGroupEmpty implements RangeGroup {
+    public class RangeGroupEmpty implements RangeGroup {
 
         RangeGroupEmpty() {
 

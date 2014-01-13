@@ -73,7 +73,7 @@ public class FileUtil implements FileAccess {
     }
 
     public boolean isStreamElement(java.lang.String elementName) {
-        return (new File(elementName)).exists();
+        return new File(elementName).exists();
     }
 
     public InputStream openInputStreamElement(java.lang.String streamName)
@@ -131,7 +131,7 @@ public class FileUtil implements FileAccess {
      * Delete the named file
      */
     public boolean delete(String filename) {
-        return (new File(filename)).delete();
+        return new File(filename).delete();
     }
 
     /**
@@ -157,7 +157,7 @@ public class FileUtil implements FileAccess {
      * Return true or false based on whether the named file exists.
      */
     public boolean exists(String filename) {
-        return (new File(filename)).exists();
+        return new File(filename).exists();
     }
 
     public boolean exists(String fileName, boolean resource, Class cla) {
@@ -206,7 +206,7 @@ public class FileUtil implements FileAccess {
      * @return the absolute path
      */
     public String absolutePath(String path) {
-        return (new File(path)).getAbsolutePath();
+        return new File(path).getAbsolutePath();
     }
 
     /**

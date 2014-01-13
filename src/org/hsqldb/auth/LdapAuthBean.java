@@ -80,12 +80,12 @@ import org.hsqldb.lib.FrameworkLogger;
  * Another AuthFunctionBean would have to be written if SASL/External is needed.
  * </P> <P>
  * To use instances of this class, you must use at least the methods
- * setLdapHost, setParentDn, initialize, plus 
+ * setLdapHost, setParentDn, initialize, plus
  * rolesSchemaAttribute and/or accessAttribute.
  * </P> <P>
  * For a user to be given HyperSQL catalog access, that user must either have
  * a value for accessAttribute if that property is set (optionally requiring
- * a match with accessValuePattern); or, if the accessAttribute is not set then 
+ * a match with accessValuePattern); or, if the accessAttribute is not set then
  * must have some (any) value for rolesSchemaAttribute (optionally requiring a
  * match with roleSchemaValuePattern).
  * Consequently, if you have set both accessAttribute and rolesSchemaAttribute,
@@ -128,16 +128,16 @@ public class LdapAuthBean implements AuthFunctionBean {
     private String rolesSchemaAttribute, accessAttribute;
     protected String[] attributeUnion;
 
+    public LdapAuthBean() {
+        // Intentionally empty
+    }
+
     /**
      * If this is set, then the entire (brief) transaction with the LDAP server
      * will be encrypted.
      */
     public void setStartTls(boolean isTls) {
         this.tls = isTls;
-    }
-
-    public LdapAuthBean() {
-        // Intentionally empty
     }
 
     public void setLdapPort(int ldapPort) {
@@ -478,7 +478,7 @@ public class LdapAuthBean implements AuthFunctionBean {
             }
 
             // A TLS/SSL secure channel has been established if you reach here.
-          
+
             // Assertion of client's authorization Identity -- Explicit way
             ctx.addToEnvironment(Context.SECURITY_AUTHENTICATION, mechanism);
             ctx.addToEnvironment(Context.SECURITY_PRINCIPAL,
@@ -489,7 +489,7 @@ public class LdapAuthBean implements AuthFunctionBean {
             if (saslRealm != null) {
                 env.put("java.naming.security.sasl.realm", saslRealm);
             }
-          
+
             // The Context.SECURITY_* authorizations are only applied when the
             // following statement executes.  (Or any other remote operations done
             // while the TLS connection is still open).
@@ -630,7 +630,7 @@ public class LdapAuthBean implements AuthFunctionBean {
      *   <UL>
      *     <LI>trustStore.  This is the only property without a corresponding
      *         setter method.  Setting this property has the same effect as
-     *         setting Java system property 
+     *         setting Java system property
      *         <CODE>'javax.net.ssl.trustStore'<CODE>.
      *     <LI>startTls.  Takes a boolean value according to
      *         method java.util.Boolean.parseBoolean.

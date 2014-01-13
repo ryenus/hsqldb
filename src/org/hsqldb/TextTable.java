@@ -220,7 +220,7 @@ public class TextTable extends Table {
                                  boolean isReversedNew, boolean createFile) {
 
         if (getTableType() == Table.TEMP_TEXT_TABLE) {
-            ;
+            //
         } else {
             session.getGrantee().checkSchemaUpdateOrGrantRights(
                 getSchemaName().name);

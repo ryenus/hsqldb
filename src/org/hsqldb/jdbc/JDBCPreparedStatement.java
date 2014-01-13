@@ -1469,8 +1469,6 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
         }
         parameterValues[parameterIndex - 1] = data;
         parameterSet[parameterIndex - 1]    = Boolean.TRUE;
-
-        return;
     }
 
     /**
