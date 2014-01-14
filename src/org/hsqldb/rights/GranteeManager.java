@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2011, The HSQL Development Group
+/* Copyright (c) 2001-2014, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,6 +31,10 @@
 
 package org.hsqldb.rights;
 
+import java.io.UnsupportedEncodingException;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+
 import org.hsqldb.Database;
 import org.hsqldb.HsqlNameManager;
 import org.hsqldb.HsqlNameManager.HsqlName;
@@ -48,6 +52,7 @@ import org.hsqldb.lib.IntValueHashMap;
 import org.hsqldb.lib.Iterator;
 import org.hsqldb.lib.OrderedHashSet;
 import org.hsqldb.lib.Set;
+import org.hsqldb.lib.StringConverter;
 
 /**
  * Contains a set of Grantee objects, and supports operations for creating,
@@ -104,6 +109,16 @@ public class GranteeManager {
      * schema authorizations.
      */
     Database database;
+
+    /**
+     * MessageDigest instance for database
+     */
+    private MessageDigest digester;
+
+    /**
+     * MessageDigest algorithm
+     */
+    private String digestAlgo;
 
     /**
      * The PUBLIC role.
@@ -806,5 +821,41 @@ public class GranteeManager {
         list.toArray(array);
 
         return array;
+    }
+
+    public void setDigestAlgo(String algo) {
+        digestAlgo = algo;
+    }
+
+    public String getDigestAlgo() {
+        return digestAlgo;
+    }
+
+    synchronized MessageDigest getDigester() {
+
+        if (digester == null) {
+            try {
+                digester = MessageDigest.getInstance(digestAlgo);
+            } catch (NoSuchAlgorithmException e) {
+                throw Error.error(ErrorCode.GENERAL_ERROR, e);
+            }
+        }
+
+        return digester;
+    }
+
+    String digest(String string) throws RuntimeException {
+
+        byte[] data;
+
+        try {
+            data = string.getBytes("ISO-8859-1");
+        } catch (UnsupportedEncodingException e) {
+            throw Error.error(ErrorCode.GENERAL_ERROR, e);
+        }
+
+        data = getDigester().digest(data);
+
+        return StringConverter.byteArrayToHexString(data);
     }
 }

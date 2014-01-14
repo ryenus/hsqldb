@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2011, The HSQL Development Group
+/* Copyright (c) 2001-2014, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -212,6 +212,7 @@ public interface StatementTypes {
     int SET_DATABASE_DEFAULT_ISOLATION_LEVEL   = 1053;
     int SET_DATABASE_TRANSACTION_CONFLICT      = 1054;
     int SET_DATABASE_UNIQUE_NAME               = 1055;
+    int SET_DATABASE_PASSWORD_DIGEST           = 1056;
 
     // hsqldb user settings
     int SET_USER_LOCAL          = 1060;
