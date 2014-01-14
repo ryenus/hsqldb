@@ -75,7 +75,6 @@ insert into "testac" values default, 8
 */select * from "testac" order by "a" desc;
 --
 alter table "testac" alter column "a" drop generated;
-/*e*/insert into "testac" values default, 9
 
 -- PK definition not allowed in alter column
 /*e*/alter table "testac" alter column "a" integer primary key;
