@@ -36,7 +36,6 @@ import org.hsqldb.HsqlNameManager.HsqlName;
 import org.hsqldb.Tokens;
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
-import org.hsqldb.lib.MD5;
 import org.hsqldb.lib.StringConverter;
 
 /**
@@ -182,18 +181,18 @@ public class User extends Grantee {
      * Returns the SQL string for setting password digest.
      *
      */
-    public static String getSetUserPasswordDigestSQL(User user,
-            String password, boolean isDigest) {
+    public String getSetUserPasswordDigestSQL(String password,
+            boolean isDigest) {
 
         if (!isDigest) {
-            password = MD5.encode(password, null);
+            password = granteeManager.digest(password);
         }
 
         StringBuffer sb = new StringBuffer(64);
 
         sb.append(Tokens.T_ALTER).append(' ');
         sb.append(Tokens.T_USER).append(' ');
-        sb.append(user.getName().getStatementName()).append(' ');
+        sb.append(getName().getStatementName()).append(' ');
         sb.append(Tokens.T_SET).append(' ');
         sb.append(Tokens.T_PASSWORD).append(' ').append(Tokens.T_DIGEST);
         sb.append(' ').append('\'').append(password).append('\'');
@@ -205,11 +204,11 @@ public class User extends Grantee {
      * Returns the SQL string for setting password digest.
      *
      */
-    public static String getSetCurrentPasswordDigestSQL(String password,
-            boolean isDigest) {
+    public static String getSetCurrentPasswordDigestSQL(GranteeManager manager,
+            String password, boolean isDigest) {
 
         if (!isDigest) {
-            password = MD5.encode(password, null);
+            password = manager.digest(password);
         }
 
         StringBuffer sb = new StringBuffer(64);

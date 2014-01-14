@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2011, The HSQL Development Group
+/* Copyright (c) 2001-2014, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -4384,8 +4384,8 @@ public class ParserDDL extends ParserRoutine {
                 Statement cs =
                     new StatementCommand(StatementTypes.SET_USER_PASSWORD,
                                          args);
-                String sql = userObject.getSetUserPasswordDigestSQL(userObject,
-                    password, isDigest);
+                String sql = userObject.getSetUserPasswordDigestSQL(password,
+                    isDigest);
 
                 cs.setSQL(sql);
 

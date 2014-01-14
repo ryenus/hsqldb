@@ -801,8 +801,8 @@ public class ParserCommand extends ParserDDL {
                 Statement cs =
                     new StatementCommand(StatementTypes.SET_USER_PASSWORD,
                                          args);
-                String sql = User.getSetCurrentPasswordDigestSQL(password,
-                    isDigest);
+                String sql = User.getSetCurrentPasswordDigestSQL(
+                    database.granteeManager, password, isDigest);
 
                 cs.setSQL(sql);
 
