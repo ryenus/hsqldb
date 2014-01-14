@@ -52,7 +52,7 @@ public class DbBackupMain {
  * file (for "save" mode) or tar file size (for other modes).
  * </P> <P>
  * Run<CODE><PRE>
- *     java -cp path/to/hsqldb.jar org.hsqldb.lib.tar.DbBackup
+ *     java -cp path/to/hsqldb.jar org.hsqldb.lib.tar.DbBackupMain
  * </PRE></CODE> for syntax help.
  * </P>
  */
