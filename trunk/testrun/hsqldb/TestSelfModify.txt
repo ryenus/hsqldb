@@ -16,6 +16,7 @@
 --
 --bug #824031 continued
 --scripting test for order of indexes
+/*c1*/SELECT * FROM APP WHERE VARIANT_ID = 51;
 /*c1*/SELECT * FROM APP WHERE APP_NAME = 'Eran';
 /*c1*/SELECT * FROM APP WHERE APP_NAME = 'Shelly';
 /*c2*/SELECT * FROM APP;
