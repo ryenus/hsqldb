@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2011, The HSQL Development Group
+/* Copyright (c) 2001-2014, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -1078,15 +1078,34 @@ public class ParserCommand extends ParserDDL {
             }
             case Tokens.PASSWORD : {
                 read();
-                readThis(Tokens.CHECK);
-                readThis(Tokens.FUNCTION);
 
-                Routine  routine = readCreatePasswordCheckFunction();
-                Object[] args    = new Object[]{ routine };
+                switch (token.tokenType) {
 
-                return new StatementCommand(
-                    StatementTypes.SET_DATABASE_PASSWORD_CHECK, args, null,
-                    null);
+                    case Tokens.CHECK : {
+                        read();
+                        readThis(Tokens.FUNCTION);
+
+                        Routine  routine = readCreatePasswordCheckFunction();
+                        Object[] args    = new Object[]{ routine };
+
+                        return new StatementCommand(
+                            StatementTypes.SET_DATABASE_PASSWORD_CHECK, args,
+                            null, null);
+                    }
+                    case Tokens.DIGEST : {
+                        read();
+
+                        name = readQuotedString();
+
+                        Object[] args = new Object[]{ name };
+
+                        return new StatementCommand(
+                            StatementTypes.SET_DATABASE_PASSWORD_DIGEST, args,
+                            null, null);
+                    }
+                    default :
+                        throw unexpectedToken();
+                }
             }
             case Tokens.REFERENTIAL : {
                 read();
@@ -1433,7 +1452,7 @@ public class ParserCommand extends ParserDDL {
 
                     read();
                 } else if (token.tokenType == Tokens.FALSE) {
-                    flag  = Boolean.FALSE;
+                    flag = Boolean.FALSE;
 
                     read();
                 } else {

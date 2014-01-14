@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2011, The HSQL Development Group
+/* Copyright (c) 2001-2014, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -124,6 +124,7 @@ public class Session implements SessionInterface {
     private final long sessionId;
     int                sessionTxId = -1;
     private boolean    ignoreCase;
+    private long       sessionStartTimestamp;
 
     // internal connection
     private JDBCConnection intConnection;
@@ -188,9 +189,10 @@ public class Session implements SessionInterface {
         setResultMemoryRowCount(database.getResultMaxMemoryRows());
         resetSchema();
 
-        sessionData      = new SessionData(database, this);
-        statementManager = new StatementManager(database);
-        timeoutManager   = new TimeoutManager();
+        sessionData           = new SessionData(database, this);
+        statementManager      = new StatementManager(database);
+        timeoutManager        = new TimeoutManager();
+        sessionStartTimestamp = System.currentTimeMillis();
     }
 
     void resetSchema() {

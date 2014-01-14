@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2011, The HSQL Development Group
+/* Copyright (c) 2001-2014, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -141,6 +141,7 @@ public class StatementCommand extends Statement {
             case StatementTypes.SET_DATABASE_FILES_SCRIPT_FORMAT :
             case StatementTypes.SET_DATABASE_AUTHENTICATION :
             case StatementTypes.SET_DATABASE_PASSWORD_CHECK :
+            case StatementTypes.SET_DATABASE_PASSWORD_DIGEST :
             case StatementTypes.SET_DATABASE_PROPERTY :
             case StatementTypes.SET_DATABASE_RESULT_MEMORY_ROWS :
             case StatementTypes.SET_DATABASE_SQL_REFERENTIAL_INTEGRITY :
@@ -599,6 +600,24 @@ public class StatementCommand extends Statement {
                     session.checkDDLWrite();
                     session.database.userManager.setPasswordCheckFunction(
                         routine);
+
+                    return Result.updateZeroResult;
+                } catch (HsqlException e) {
+                    return Result.newErrorResult(e, sql);
+                }
+            }
+            case StatementTypes.SET_DATABASE_PASSWORD_DIGEST : {
+                try {
+                    String algo = (String) parameters[0];
+
+                    session.checkAdmin();
+                    session.checkDDLWrite();
+
+                    if (!session.isProcessingScript()) {
+                        return Result.updateZeroResult;
+                    }
+
+                    session.database.granteeManager.setDigestAlgo(algo);
 
                     return Result.updateZeroResult;
                 } catch (HsqlException e) {
@@ -1349,6 +1368,8 @@ public class StatementCommand extends Statement {
                 if (statementReturnType == StatementTypes.RETURN_RESULT) {
                     return ResultMetaData.newSingleColumnMetaData("COMMANDS");
                 }
+
+            // fall through
             default :
                 return super.getResultMetaData();
         }

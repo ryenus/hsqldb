@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2011, The HSQL Development Group
+/* Copyright (c) 2001-2014, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -481,9 +481,19 @@ public class Logger {
             database.collation.setPadding(false);
         }
 
+        String temp = database.getProperties().getStringPropertyDefault(
+            HsqlDatabaseProperties.hsqldb_digest);
+
+        database.granteeManager.setDigestAlgo(temp);
+
         if (!isNewDatabase && !version18) {
             return;
         }
+
+        temp = database.databaseProperties.getStringProperty(
+            HsqlDatabaseProperties.hsqldb_digest);
+
+        database.granteeManager.setDigestAlgo(temp);
 
         if (tempDirectoryPath != null) {
             int rows = database.databaseProperties.getIntegerProperty(
@@ -1640,6 +1650,10 @@ public class Logger {
             return String.valueOf(propWriteDelay);
         }
 
+        if (HsqlDatabaseProperties.hsqldb_digest.equals(name)) {
+            return database.granteeManager.getDigestAlgo();
+        }
+
         if (HsqlDatabaseProperties.sql_avg_scale.equals(name)) {
             return String.valueOf(database.sqlAvgScale);
         }
@@ -1802,6 +1816,76 @@ public class Logger {
             sb.setLength(0);
         }
 
+        sb.append("SET DATABASE ").append(Tokens.T_TRANSACTION);
+        sb.append(' ').append(Tokens.T_CONTROL).append(' ');
+
+        switch (database.txManager.getTransactionControl()) {
+
+            case TransactionManager.MVCC :
+                sb.append(Tokens.T_MVCC);
+                break;
+
+            case TransactionManager.MVLOCKS :
+                sb.append(Tokens.T_MVLOCKS);
+                break;
+
+            case TransactionManager.LOCKS :
+                sb.append(Tokens.T_LOCKS);
+                break;
+        }
+
+        list.add(sb.toString());
+        sb.setLength(0);
+        sb.append("SET DATABASE ").append(Tokens.T_DEFAULT).append(' ');
+        sb.append(Tokens.T_ISOLATION).append(' ').append(Tokens.T_LEVEL);
+        sb.append(' ');
+
+        switch (database.defaultIsolationLevel) {
+
+            case SessionInterface.TX_READ_COMMITTED :
+                sb.append(Tokens.T_READ).append(' ').append(
+                    Tokens.T_COMMITTED);
+                break;
+
+            case SessionInterface.TX_SERIALIZABLE :
+                sb.append(Tokens.T_SERIALIZABLE);
+                break;
+        }
+
+        list.add(sb.toString());
+        sb.setLength(0);
+        sb.append("SET DATABASE ").append(Tokens.T_TRANSACTION);
+        sb.append(' ').append(Tokens.T_ROLLBACK).append(' ');
+        sb.append(Tokens.T_ON).append(' ');
+        sb.append(Tokens.T_CONFLICT).append(' ');
+        sb.append(database.txConflictRollback ? Tokens.T_TRUE
+                                              : Tokens.T_FALSE);
+        list.add(sb.toString());
+        sb.setLength(0);
+        sb.append("SET DATABASE ").append(Tokens.T_TEXT).append(' ');
+        sb.append(Tokens.T_TABLE).append(' ').append(Tokens.T_DEFAULTS);
+        sb.append(' ').append('\'');
+        sb.append(propTextSourceDefault).append('\'');
+        list.add(sb.toString());
+        sb.setLength(0);
+
+        String temp = database.getProperties().getStringPropertyDefault(
+            HsqlDatabaseProperties.hsqldb_digest);
+
+        if (!temp.equals(database.granteeManager.getDigestAlgo())) {
+            sb.append("SET DATABASE ").append(' ').append(Tokens.T_PASSWORD);
+            sb.append(' ').append(Tokens.T_DIGEST).append(' ').append('\'');
+            sb.append(database.granteeManager.getDigestAlgo()).append('\'');
+            list.add(sb.toString());
+            sb.setLength(0);
+        }
+
+        if (database.schemaManager.getDefaultTableType()
+                == TableBase.CACHED_TABLE) {
+            list.add("SET DATABASE DEFAULT TABLE TYPE CACHED");
+        }
+
+        //
         sb.append("SET DATABASE ").append(Tokens.T_SQL).append(' ');
         sb.append(Tokens.T_NAMES).append(' ');
         sb.append(database.sqlEnforceNames ? Tokens.T_TRUE
@@ -1984,64 +2068,7 @@ public class Logger {
             sb.setLength(0);
         }
 
-        sb.append("SET DATABASE ").append(Tokens.T_TRANSACTION);
-        sb.append(' ').append(Tokens.T_CONTROL).append(' ');
-
-        switch (database.txManager.getTransactionControl()) {
-
-            case TransactionManager.MVCC :
-                sb.append(Tokens.T_MVCC);
-                break;
-
-            case TransactionManager.MVLOCKS :
-                sb.append(Tokens.T_MVLOCKS);
-                break;
-
-            case TransactionManager.LOCKS :
-                sb.append(Tokens.T_LOCKS);
-                break;
-        }
-
-        list.add(sb.toString());
-        sb.setLength(0);
-        sb.append("SET DATABASE ").append(Tokens.T_DEFAULT).append(' ');
-        sb.append(Tokens.T_ISOLATION).append(' ').append(Tokens.T_LEVEL);
-        sb.append(' ');
-
-        switch (database.defaultIsolationLevel) {
-
-            case SessionInterface.TX_READ_COMMITTED :
-                sb.append(Tokens.T_READ).append(' ').append(
-                    Tokens.T_COMMITTED);
-                break;
-
-            case SessionInterface.TX_SERIALIZABLE :
-                sb.append(Tokens.T_SERIALIZABLE);
-                break;
-        }
-
-        list.add(sb.toString());
-        sb.setLength(0);
-        sb.append("SET DATABASE ").append(Tokens.T_TRANSACTION);
-        sb.append(' ').append(Tokens.T_ROLLBACK).append(' ');
-        sb.append(Tokens.T_ON).append(' ');
-        sb.append(Tokens.T_CONFLICT).append(' ');
-        sb.append(database.txConflictRollback ? Tokens.T_TRUE
-                                              : Tokens.T_FALSE);
-        list.add(sb.toString());
-        sb.setLength(0);
-        sb.append("SET DATABASE ").append(Tokens.T_TEXT).append(' ');
-        sb.append(Tokens.T_TABLE).append(' ').append(Tokens.T_DEFAULTS);
-        sb.append(' ').append('\'');
-        sb.append(propTextSourceDefault).append('\'');
-        list.add(sb.toString());
-        sb.setLength(0);
-
-        if (database.schemaManager.getDefaultTableType()
-                == TableBase.CACHED_TABLE) {
-            list.add("SET DATABASE DEFAULT TABLE TYPE CACHED");
-        }
-
+        //
         int     delay  = propWriteDelay;
         boolean millis = delay > 0 && delay < 1000;
 
@@ -2053,7 +2080,6 @@ public class Logger {
             delay /= 1000;
         }
 
-        sb.setLength(0);
         sb.append("SET FILES ").append(Tokens.T_WRITE).append(' ');
         sb.append(Tokens.T_DELAY).append(' ').append(delay);
 

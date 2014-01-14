@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2011, The HSQL Development Group
+/* Copyright (c) 2001-2014, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -47,7 +47,7 @@ import org.hsqldb.lib.StringConverter;
  * @author Fred Toussi (fredt@users dot sourceforge.net)
  * @author Blaine Simpson (blaine dot simpson at admc dot com)
  *
- * @version 2.1.1
+ * @version 2.3.2
  * @since 1.8.0
  */
 public class User extends Grantee {
@@ -91,7 +91,7 @@ public class User extends Grantee {
     public void setPassword(String password, boolean isDigest) {
 
         if (!isDigest) {
-            password = MD5.encode(password, null);
+            password = granteeManager.digest(password);
         }
 
         this.password = password;
@@ -103,7 +103,7 @@ public class User extends Grantee {
      */
     public void checkPassword(String value) {
 
-        String digest = MD5.encode(value, null);
+        String digest = granteeManager.digest(value);
 
         if (!digest.equals(password)) {
             throw Error.error(ErrorCode.X_28000);

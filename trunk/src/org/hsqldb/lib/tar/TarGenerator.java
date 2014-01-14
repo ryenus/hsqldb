@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2011, The HSQL Development Group
+/* Copyright (c) 2001-2014, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -56,32 +56,6 @@ import org.hsqldb.lib.StringUtil;
  * @author Blaine Simpson (blaine dot simpson at admc dot com)
  */
 public class TarGenerator {
-
-    /**
-     * Creates specified tar file to contain specified files, or stdin,
-     * using default blocks-per-record and replacing tar file if it already
-     * exists.
-     */
-    public static void main(String[] sa)
-            throws IOException, TarMalformatException {
-        if (sa.length < 1) {
-            System.out.println(
-                RB.TarGenerator_syntax.getString(DbBackup.class.getName()));
-            System.exit(0);
-        }
-
-        TarGenerator generator = new TarGenerator(new File(sa[0]), true, null);
-
-        if (sa.length == 1) {
-            generator.queueEntry("stdin", System.in, 10240);
-        } else {
-            for (int i = 1; i < sa.length; i++) {
-                generator.queueEntry(new File(sa[i]));
-            }
-        }
-
-        generator.write();
-    }
 
     protected TarFileOutputStream      archive;
     protected List<TarEntrySupplicant> entryQueue =

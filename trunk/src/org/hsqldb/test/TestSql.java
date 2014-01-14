@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2011, The HSQL Development Group
+/* Copyright (c) 2001-2014, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -912,8 +912,7 @@ public class TestSql extends TestBase {
 
         try {
             stmnt.execute("SHUTDOWN");
-
-                connection.close();
+            connection.close();
         } catch (Exception e) {
             e.printStackTrace();
             System.out.println("TestSql.tearDown() error: " + e.getMessage());

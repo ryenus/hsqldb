@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2011, The HSQL Development Group
+/* Copyright (c) 2001-2014, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -239,6 +239,11 @@ public class HsqlDatabaseProperties extends HsqlProperties {
     public static final String hsqldb_large_data  = "hsqldb.large_data";
     public static final String hsqldb_files_space = "hsqldb.files_space";
     public static final String hsqldb_files_check = "hsqldb.files_check";
+    public static final String hsqldb_digest      = "hsqldb.digest";
+
+    //
+    public static final String jdbc_translate_tti_types =
+        "jdbc.translate_tti_types";
 
     //
     public static final String sql_ref_integrity       = "sql.ref_integrity";
@@ -246,26 +251,24 @@ public class HsqlDatabaseProperties extends HsqlProperties {
     public static final String sql_enforce_size        = "sql.enforce_size";
     public static final String sql_enforce_strict_size =
         "sql.enforce_strict_size";    // synonym for sql_enforce_size
-    public static final String sql_enforce_refs  = "sql.enforce_refs";
-    public static final String sql_enforce_names = "sql.enforce_names";
-    public static final String sql_regular_names = "sql.regular_names";
-    public static final String sql_enforce_types = "sql.enforce_types";
-    public static final String sql_enforce_tdcd  = "sql.enforce_tdc_delete";
-    public static final String sql_enforce_tdcu  = "sql.enforce_tdc_update";
-    public static final String sql_concat_nulls  = "sql.concat_nulls";
-    public static final String sql_nulls_first   = "sql.nulls_first";
-    public static final String sql_nulls_order   = "sql.nulls_order";
-    public static final String sql_unique_nulls  = "sql.unique_nulls";
-    public static final String sql_convert_trunc = "sql.convert_trunc";
-    public static final String sql_avg_scale     = "sql.avg_scale";
-    public static final String sql_double_nan    = "sql.double_nan";
-    public static final String sql_syntax_db2    = "sql.syntax_db2";
-    public static final String sql_syntax_mss    = "sql.syntax_mss";
-    public static final String sql_syntax_mys    = "sql.syntax_mys";
-    public static final String sql_syntax_ora    = "sql.syntax_ora";
-    public static final String sql_syntax_pgs    = "sql.syntax_pgs";
-    public static final String jdbc_translate_tti_types =
-        "jdbc.translate_tti_types";
+    public static final String sql_enforce_refs   = "sql.enforce_refs";
+    public static final String sql_enforce_names  = "sql.enforce_names";
+    public static final String sql_regular_names  = "sql.regular_names";
+    public static final String sql_enforce_types  = "sql.enforce_types";
+    public static final String sql_enforce_tdcd   = "sql.enforce_tdc_delete";
+    public static final String sql_enforce_tdcu   = "sql.enforce_tdc_update";
+    public static final String sql_concat_nulls   = "sql.concat_nulls";
+    public static final String sql_nulls_first    = "sql.nulls_first";
+    public static final String sql_nulls_order    = "sql.nulls_order";
+    public static final String sql_unique_nulls   = "sql.unique_nulls";
+    public static final String sql_convert_trunc  = "sql.convert_trunc";
+    public static final String sql_avg_scale      = "sql.avg_scale";
+    public static final String sql_double_nan     = "sql.double_nan";
+    public static final String sql_syntax_db2     = "sql.syntax_db2";
+    public static final String sql_syntax_mss     = "sql.syntax_mss";
+    public static final String sql_syntax_mys     = "sql.syntax_mys";
+    public static final String sql_syntax_ora     = "sql.syntax_ora";
+    public static final String sql_syntax_pgs     = "sql.syntax_pgs";
     public static final String sql_longvar_is_lob = "sql.longvar_is_lob";
     public static final String sql_pad_space      = "sql.pad_space";
     public static final String sql_ignore_case    = "sql.ignore_case";
@@ -353,6 +356,8 @@ public class HsqlDatabaseProperties extends HsqlProperties {
         dbMeta.put(hsqldb_default_table_type,
                    HsqlProperties.getMeta(hsqldb_default_table_type,
                                           SQL_PROPERTY, "MEMORY"));
+        dbMeta.put(hsqldb_digest,
+                   HsqlProperties.getMeta(hsqldb_digest, SQL_PROPERTY, "MD5"));
 
         // boolean defaults for user defined props
         dbMeta.put(hsqldb_tx_conflict_rollback,
@@ -942,6 +947,17 @@ public class HsqlDatabaseProperties extends HsqlProperties {
         }
 
         return value.booleanValue();
+    }
+
+    public String getStringPropertyDefault(String key) {
+
+        Object[] metaData = (Object[]) dbMeta.get(key);
+
+        if (metaData == null) {
+            throw Error.error(ErrorCode.X_42555, key);
+        }
+
+        return (String) metaData[HsqlProperties.indexDefaultValue];
     }
 
     public String getStringProperty(String key) {
