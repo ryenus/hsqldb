@@ -480,7 +480,8 @@ examples:
     </target>
 
     <!-- compiles the auth classes -->
-    <target name="-auth" if="ant.java.iscjava15">
+    <target name="-auth" if="ant.java.iscjava15"
+            depends="lib, classes">
       <javac srcdir="${swsrc}"
              includeantruntime="false"
              encoding="${javac.encoding}"
