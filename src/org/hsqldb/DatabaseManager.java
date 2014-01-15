@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2011, The HSQL Development Group
+/* Copyright (c) 2001-2014, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -43,8 +43,7 @@ import org.hsqldb.lib.IntKeyHashMap;
 import org.hsqldb.lib.Iterator;
 import org.hsqldb.map.ValuePool;
 import org.hsqldb.persist.HsqlProperties;
-import org.hsqldb.server.Server;
-import org.hsqldb.server.ServerConstants;
+import org.hsqldb.lib.Notified;
 
 /**
  * Handles initial attempts to connect to HSQLDB databases within the JVM
@@ -58,7 +57,7 @@ import org.hsqldb.server.ServerConstants;
  * Maintains a reference to the timer used for file locks and logging.<p>
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.0.1
+ * @version 2.3.2
  * @since 1.7.2
  */
 public class DatabaseManager {
@@ -182,7 +181,7 @@ public class DatabaseManager {
     /**
      * Used by server to open or create a database
      */
-    public static int getDatabase(String type, String path, Server server,
+    public static int getDatabase(String type, String path, Notified server,
                                   HsqlProperties props) {
 
         Database db = getDatabase(type, path, props);
@@ -196,7 +195,7 @@ public class DatabaseManager {
         return (Database) databaseIDMap.get(id);
     }
 
-    public static void shutdownDatabases(Server server, int shutdownMode) {
+    public static void shutdownDatabases(Notified server, int shutdownMode) {
 
         Database[] dbArray;
 
@@ -437,7 +436,7 @@ public class DatabaseManager {
     /**
      * Deregisters a server completely.
      */
-    public static void deRegisterServer(Server server) {
+    public static void deRegisterServer(Notified server) {
 
         synchronized (serverMap) {
             serverMap.remove(server);
@@ -447,7 +446,7 @@ public class DatabaseManager {
     /**
      * Registers a server as serving a given database.
      */
-    private static void registerServer(Server server, Database db) {
+    private static void registerServer(Notified server, Database db) {
 
         synchronized (serverMap) {
             if (!serverMap.containsKey(server)) {
@@ -466,18 +465,18 @@ public class DatabaseManager {
      */
     private static void notifyServers(Database db) {
 
-        Server[] servers;
+        Notified[] servers;
 
         synchronized (serverMap) {
-            servers = new Server[serverMap.size()];
+            servers = new Notified[serverMap.size()];
 
             serverMap.keysToArray(servers);
         }
 
         for (int i = 0; i < servers.length; i++) {
-            Server  server = servers[i];
-            HashSet databases;
-            boolean removed = false;
+            Notified server = servers[i];
+            HashSet  databases;
+            boolean  removed = false;
 
             synchronized (serverMap) {
                 databases = (HashSet) serverMap.get(server);
@@ -490,8 +489,7 @@ public class DatabaseManager {
             }
 
             if (removed) {
-                server.notify(ServerConstants.SC_DATABASE_SHUTDOWN,
-                              db.databaseID);
+                server.notify(db.databaseID);
             }
         }
     }
@@ -501,8 +499,8 @@ public class DatabaseManager {
         Iterator it = serverMap.keySet().iterator();
 
         for (; it.hasNext(); ) {
-            Server  server    = (Server) it.next();
-            HashSet databases = (HashSet) serverMap.get(server);
+            Notified server    = (Notified) it.next();
+            HashSet  databases = (HashSet) serverMap.get(server);
 
             if (databases.contains(db)) {
                 return true;
