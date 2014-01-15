@@ -26,7 +26,7 @@
   -->
 
    <property file='build/build.properties'/>
-   <property name="hsqldb.version" value="2.3.1"/>
+   <property name="hsqldb.version" value="2.3.2"/>
 
    <tstamp>
        <format property="timestamp" pattern="yyyy/MM/dd-HH:mm:ss"
@@ -584,7 +584,7 @@ examples:
 
             description="Build the hsqldbmain.jar (no utilities) (use ant switch '-Dnoswing=true' to exclude swing classes)">
     -->
-    <target name="hsqldbmain" depends="classes16, -prep-license-files"
+    <target name="hsqldbmain" depends="classes16, -auth, -prep-license-files"
             description="Build the hsqldbmain.jar (no utilities)">
         <jar jarfile="lib/hsqldbmain.jar"
              basedir="classes"
@@ -603,14 +603,13 @@ examples:
          <exclude name="org/hsqldb/jmx/**"/>
          <exclude name="org/hsqldb/util/**"/>
          <exclude name="org/hsqldb/cmdline/**"/>
-         <exclude name="org/hsqldb/auth/**"/>
          <exclude name="org/hsqldb/test/**"/>
          <exclude name="org/hsqldb/sample/**"/>
       </jar>
     </target>
 
-    <target name="hsqldbmin" depends="classes16, -prep-license-files"
-            description="Build the hsqldbmin.jar (no connection pooling or servers)">
+    <target name="hsqldbmin" depends="classes16, -auth, -prep-license-files"
+            description="Build the hsqldbmin.jar (no servers)">
         <jar jarfile="lib/hsqldbmin.jar"
              basedir="classes"
          >
@@ -621,7 +620,7 @@ examples:
              <attribute name='Specification-Version' value='${hsqldb.version}'/>
              <attribute name='Specification-Vendor' value='${hsqldb.vendor}'/>
              <attribute name='Implementation-Title'
-                 value='Runtime without utilities, connection pooling and servers'/>
+                 value='Runtime without utilities and servers'/>
              <attribute name='Implementation-Version' value='${build.label}'/>
              <attribute name='Implementation-Vendor' value='${build.vendor}'/>
          </manifest>
@@ -629,11 +628,9 @@ examples:
               include nothing in the jar -->
          <include name="**/*"/>
          <!-- -->
-         <exclude name="org/hsqldb/jdbc/pool/**"/>
          <exclude name="org/hsqldb/jmx/**"/>
          <exclude name="org/hsqldb/util/**"/>
          <exclude name="org/hsqldb/cmdline/**"/>
-         <exclude name="org/hsqldb/auth/**"/>
          <exclude name="org/hsqldb/test/**"/>
          <exclude name="org/hsqldb/sample/**"/>
          <exclude name="org/hsqldb/resources/org_hsqldb_Server_messages.properties"/>
@@ -653,12 +650,13 @@ examples:
          <exclude name="org/hsqldb/server/ServerConfiguration.class"/>
          <exclude name="org/hsqldb/server/WebServer.class"/>
          <exclude name="org/hsqldb/server/WebServerConnection.class"/>
-         <exclude name="org/hsqldb/dbinfo/DatabaseInformationFull.class"/>
          <exclude name="org/hsqldb/rowio/RowInputLegacy.class"/>
          <exclude name="org/hsqldb/rowio/RowOutputLegacy.class"/>
-         <exclude name="org/hsqldb/dbinfo/DIProcedureInfo.class"/>
-         <exclude name="org/hsqldb/HSQLClientConnection.class"/>
-         <exclude name="org/hsqldb/HTTPClientConnection.class"/>
+         <!-- Exclude command-line classes -->		 
+         <exclude name="org/hsqldb/auth/LdapAuthBeanTester.class"/>
+         <exclude name="org/hsqldb/lib/tar/DbBackupMain.class"/>
+         <exclude name="org/hsqldb/lib/tar/TarGeneratorMain.class"/>
+         <exclude name="org/hsqldb/lib/tar/TarReaderMain.class"/>
        </jar>
     </target>
 
@@ -942,6 +940,7 @@ examples:
                         src/org/hsqldb/lib/FrameworkLogger.java,
                         src/org/hsqldb/lib/RCData.java,
                         src/org/hsqldb/lib/tar/DbBackup.java,
+                        src/org/hsqldb/lib/tar/DbBackupMain.java,
                         src/org/hsqldb/test/TestScriptRunner.java,
                         src/org/hsqldb/cmdline/SqlFile.java,
                         src/org/hsqldb/util/MainInvoker.java,
