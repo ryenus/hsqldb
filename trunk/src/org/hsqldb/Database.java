@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2011, The HSQL Development Group
+/* Copyright (c) 2001-2014, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -54,7 +54,6 @@ import org.hsqldb.types.Collation;
 
 // incorporates following contributions
 // boucherb@users - javadoc comments
-// Ocke Jansen (oj@openoffice dot org) - file access api
 
 /**
  * Database is the root class for HSQL Database Engine database. <p>

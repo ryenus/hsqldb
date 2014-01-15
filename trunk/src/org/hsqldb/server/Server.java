@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2011, The HSQL Development Group
+/* Copyright (c) 2001-2014, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -51,6 +51,7 @@ import org.hsqldb.lib.FileUtil;
 import org.hsqldb.lib.HashSet;
 import org.hsqldb.lib.IntKeyHashMap;
 import org.hsqldb.lib.Iterator;
+import org.hsqldb.lib.Notified;
 import org.hsqldb.lib.StopWatch;
 import org.hsqldb.lib.StringUtil;
 import org.hsqldb.lib.java.JavaSystem;
@@ -231,7 +232,7 @@ import org.hsqldb.result.ResultConstants;
  * is started as part of a larger framework. <p>
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.2.9
+ * @version 2.3.2
  * @since 1.7.2
  *
  * @jmx.mbean
@@ -240,7 +241,7 @@ import org.hsqldb.result.ResultConstants;
  *
  * @jboss.xmbean
  */
-public class Server implements HsqlSocketRequestHandler {
+public class Server implements HsqlSocketRequestHandler, Notified {
 
 //
     protected static final int serverBundleHandle =
@@ -1394,14 +1395,9 @@ public class Server implements HsqlSocketRequestHandler {
      *
      * @param action a code indicating what has happend
      */
-    public final void notify(int action, int id) {
+    public final void notify(int id) {
 
-        printWithThread("notifiy(" + action + "," + id + ") entered");
-
-        if (action != ServerConstants.SC_DATABASE_SHUTDOWN) {
-            return;
-        }
-
+        printWithThread("notifiy( database shutdown," + id + ") entered");
         releaseDatabase(id);
 
         boolean shutdown = true;

@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2011, The HSQL Development Group
+/* Copyright (c) 2001-2014, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,17 +31,18 @@
 
 package org.hsqldb.auth;
 
-import java.util.Map;
-import java.util.List;
-import java.util.HashMap;
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.sql.Connection;
-import java.sql.SQLException;
-import java.sql.ResultSet;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import org.hsqldb.jdbc.JDBCArrayBasic;
-import org.hsqldb.types.Type;
 import org.hsqldb.lib.FrameworkLogger;
+import org.hsqldb.types.Type;
 
 /**
  * This class provides a method which can be used directly as a HyperSQL static

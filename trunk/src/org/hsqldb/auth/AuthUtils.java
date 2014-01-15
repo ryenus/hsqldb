@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2011, The HSQL Development Group
+/* Copyright (c) 2001-2014, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,14 +31,12 @@
 
 package org.hsqldb.auth;
 
-import java.sql.Array;
 import java.sql.Connection;
-import java.util.Set;
-import java.sql.SQLException;
 import java.sql.ResultSet;
-import java.sql.Statement;
+import java.sql.SQLException;
 import java.util.HashSet;
-import org.hsqldb.jdbc.JDBCArrayBasic;
+import java.util.Set;
+
 import org.hsqldb.lib.FrameworkLogger;
 
 /**

@@ -32,29 +32,24 @@
 package org.hsqldb.auth;
 
 import java.io.IOException;
-import java.io.File;
-import java.io.FileInputStream;
-import java.util.List;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.regex.Pattern;
-import java.util.regex.Matcher;
 import java.util.Hashtable;
-import java.util.Properties;
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import javax.naming.AuthenticationException;
-import javax.naming.NamingException;
 import javax.naming.Context;
 import javax.naming.NamingEnumeration;
-import javax.naming.directory.SearchResult;
-import javax.naming.directory.BasicAttributes;
-import javax.naming.directory.Attributes;
+import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
+import javax.naming.directory.Attributes;
+import javax.naming.directory.BasicAttributes;
+import javax.naming.directory.SearchResult;
+import javax.naming.ldap.InitialLdapContext;
+import javax.naming.ldap.LdapContext;
 import javax.naming.ldap.StartTlsRequest;
 import javax.naming.ldap.StartTlsResponse;
-import javax.naming.ldap.LdapContext;
-import javax.naming.ldap.InitialLdapContext;
-import javax.naming.ldap.ExtendedRequest;
-import javax.naming.ldap.ExtendedResponse;
+
 import org.hsqldb.lib.FrameworkLogger;
 
 /**

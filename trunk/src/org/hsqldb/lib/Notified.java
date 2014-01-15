@@ -29,53 +29,8 @@
  */
 
 
-package org.hsqldb.server;
+package org.hsqldb.lib;
 
-/**
- * An enumeration of the property keys and default property values used by
- * HSQLDB servers
- *
- * @author  boucherb@users
- * @version 2.1.1
- * @since 1.7.2
- */
-public interface ServerConstants {
-
-    // server states
-    int SERVER_STATE_ONLINE   = 1;
-    int SERVER_STATE_OPENING  = 4;
-    int SERVER_STATE_CLOSING  = 8;
-    int SERVER_STATE_SHUTDOWN = 16;
-
-    // use default address for server socket
-    String SC_DEFAULT_ADDRESS = "0.0.0.0";
-
-    // default database name if non specified
-    String SC_DEFAULT_DATABASE = "test";
-
-    // default port for each protocol
-    int SC_DEFAULT_HSQL_SERVER_PORT  = 9001;
-    int SC_DEFAULT_HSQLS_SERVER_PORT = 554;
-    int SC_DEFAULT_HTTP_SERVER_PORT  = 80;
-    int SC_DEFAULT_HTTPS_SERVER_PORT = 443;
-    int SC_DEFAULT_BER_SERVER_PORT   = 9101;
-
-    // operation modes
-    boolean SC_DEFAULT_SERVER_AUTORESTART = false;
-    boolean SC_DEFAULT_NO_SYSTEM_EXIT     = true;
-    boolean SC_DEFAULT_SILENT             = true;
-    boolean SC_DEFAULT_TLS                = false;
-    boolean SC_DEFAULT_TRACE              = false;
-    boolean SC_DEFAULT_REMOTE_OPEN_DB     = false;
-    int     SC_DEFAULT_MAX_DATABASES      = 10;
-
-    // type of server
-    int SC_PROTOCOL_HTTP = 0;
-    int SC_PROTOCOL_HSQL = 1;
-    int SC_PROTOCOL_BER  = 2;
-
-    // web server page defaults
-    String SC_DEFAULT_WEB_MIME = "text/html";
-    String SC_DEFAULT_WEB_PAGE = "index.html";
-    String SC_DEFAULT_WEB_ROOT = ".";
+public interface Notified {
+    void notify(int id);
 }

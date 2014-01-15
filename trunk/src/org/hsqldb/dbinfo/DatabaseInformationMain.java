@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2011, The HSQL Development Group
+/* Copyright (c) 2001-2014, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -88,7 +88,7 @@ import org.hsqldb.types.Types;
  *
  * Provides definitions for some of HSQLDB's additional system view.
  *
- * The views supported in this class are exclusively those that are needed
+ * The views supported in this class are mainly those that are needed
  * to build the ResultSet objects that are returned by JDBC DatabaseMetaData
  * calls.<p>
  *
