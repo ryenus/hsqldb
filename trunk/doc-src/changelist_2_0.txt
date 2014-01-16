@@ -1,4 +1,5 @@
-
+16 January 2014 - svn 5321 snapshot
+-- added support for DEFAULT keyword in INSERT and UPDATE statements when column has no default value
 -- fixed bug with incomplete rollback of MVCC transaction that inserts and updates the same row
 -- fixed issue with parsing of long BIT strings in SQL
 -- fixed issue with SQL triggers when columns were added or dropped from a table with SQL triggers 
