@@ -466,7 +466,7 @@
       of backup performs a checkpoint immediately before backing up the
       files.</simpara>
 
-      <programlisting> BACKUP DATABASE TO &lt;directory name&gt; BLOCKING</programlisting>
+      <programlisting> BACKUP DATABASE TO &lt;directory name&gt; BLOCKING [ AS FILES ]</programlisting>
 
       <simpara>The <emphasis>directory name</emphasis> must end with a slash
       to distinguish it as a directory, and the whole string must be in single
@@ -477,7 +477,7 @@
       perform a checkpoint and allows access to the database while backup is
       in progress.</simpara>
 
-      <programlisting> BACKUP DATABASE TO &lt;directory name&gt; NOT BLOCKING</programlisting>
+      <programlisting> BACKUP DATABASE TO &lt;directory name&gt; NOT BLOCKING [ AS FILES ]</programlisting>
 
       <simpara>If you add AS FILES to the statements, the database files are
       backed up as separate files in the directory, without any gzip
@@ -497,7 +497,7 @@
       saved to a file named backup.tar in the tardir directory.<example>
           <title>Offline Backup Example</title>
 
-          <screen> java -cp hsqldb.jar org.hsqldb.lib.tar.DbBackup --save tardir/backup.tar dbdir/dbname</screen>
+          <screen> java -cp hsqldb.jar org.hsqldb.lib.tar.DbBackupMain --save tardir/backup.tar dbdir/dbname</screen>
         </example>where <filename>tardir/backup.tar</filename> is a file path
       to the <literal>*.tar</literal> or <literal>*.tar.gz</literal> file to
       be created in your file system, and <filename>dbdir/dbname</filename> is
@@ -515,7 +515,7 @@
       <example>
           <title>Listing a Backup with DbBackup</title>
 
-          <screen> java -cp hsqldb.jar org.hsqldb.lib.tar.DbBackup --list tardir/backup.tar</screen>
+          <screen> java -cp hsqldb.jar org.hsqldb.lib.tar.DbBackupMain --list tardir/backup.tar</screen>
         </example>You can also give regular expressions at the end of the
       command line if you are only interested in some of the file entries in
       the backup. Note that these are real regular expressions, not shell
@@ -534,7 +534,7 @@
       command line to restore a catalog from a backup. <example>
           <title>Restoring a Backup with DbBackup</title>
 
-          <screen> java -cp hsqldb.jar org.hsqldb.lib.tar.DbBackup --extract tardir/backup.tar dbdir</screen>
+          <screen> java -cp hsqldb.jar org.hsqldb.lib.tar.DbBackupMain --extract tardir/backup.tar dbdir</screen>
         </example>where <filename>tardir/backup.tar</filename> is a file path
       to the *.tar or *.tar.gz file to be read, and <filename>dbdir</filename>
       is the target directory to extract the catalog files into. Note that
