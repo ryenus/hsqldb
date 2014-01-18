@@ -4670,9 +4670,9 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         Session sys = database.sessionManager.newSysSession(
             SqlInvariants.INFORMATION_SCHEMA_HSQLNAME, session.getUser());
         Result rs = sys.executeDirectStatement(
-            "SELECT GRANTOR, GRANTEE, TABLE_CATALOG, TABLE_SCHEMA, TABLE_NAME, COLUMN_NAME, PRIVILEGE_TYPE, IS_GRANTABLE "
-            + "FROM INFORMATION_SCHEMA.COLUMN_PRIVILEGES "
-            + "JOIN INFORMATION_SCHEMA.APPLICABLE_ROLES ON GRANTEE = ROLE_NAME;");
+            "SELECT C.GRANTOR, C.GRANTEE, C.TABLE_CATALOG, C.TABLE_SCHEMA, C.TABLE_NAME, C.COLUMN_NAME, C.PRIVILEGE_TYPE, C.IS_GRANTABLE "
+            + "FROM INFORMATION_SCHEMA.COLUMN_PRIVILEGES C "
+            + "JOIN INFORMATION_SCHEMA.APPLICABLE_ROLES ON C.GRANTEE = ROLE_NAME;");
 
         t.insertSys(session, store, rs);
         sys.close();
@@ -4751,11 +4751,11 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         Session sys = database.sessionManager.newSysSession(
             SqlInvariants.INFORMATION_SCHEMA_HSQLNAME, session.getUser());
         Result rs = sys.executeDirectStatement(
-            "SELECT GRANTOR, GRANTEE, SPECIFIC_CATALOG, SPECIFIC_SCHEMA, "
-            + "SPECIFIC_NAME, ROUTINE_CATALOG, ROUTINE_SCHEMA, ROUTINE_NAME, "
-            + "PRIVILEGE_TYPE, IS_GRANTABLE "
-            + "FROM INFORMATION_SCHEMA.ROUTINE_PRIVILEGES "
-            + "JOIN INFORMATION_SCHEMA.APPLICABLE_ROLES ON GRANTEE = ROLE_NAME;");
+            "SELECT R.GRANTOR, R.GRANTEE, R.SPECIFIC_CATALOG, R.SPECIFIC_SCHEMA, "
+            + "R.SPECIFIC_NAME, R.ROUTINE_CATALOG, R.ROUTINE_SCHEMA, R.ROUTINE_NAME, "
+            + "R.PRIVILEGE_TYPE, R.IS_GRANTABLE "
+            + "FROM INFORMATION_SCHEMA.ROUTINE_PRIVILEGES R "
+            + "JOIN INFORMATION_SCHEMA.APPLICABLE_ROLES ON R.GRANTEE = ROLE_NAME;");
 
         t.insertSys(session, store, rs);
         sys.close();
@@ -4847,10 +4847,10 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         Session sys = database.sessionManager.newSysSession(
             SqlInvariants.INFORMATION_SCHEMA_HSQLNAME, session.getUser());
         Result rs = sys.executeDirectStatement(
-            "SELECT GRANTOR, GRANTEE, TABLE_CATALOG, TABLE_SCHEMA, TABLE_NAME, "
-            + "PRIVILEGE_TYPE, IS_GRANTABLE, 'NO' "
-            + "FROM INFORMATION_SCHEMA.TABLE_PRIVILEGES "
-            + "JOIN INFORMATION_SCHEMA.APPLICABLE_ROLES ON GRANTEE = ROLE_NAME;");
+            "SELECT T.GRANTOR, T.GRANTEE, T.TABLE_CATALOG, T.TABLE_SCHEMA, T.TABLE_NAME, "
+            + "T.PRIVILEGE_TYPE, T.IS_GRANTABLE, 'NO' "
+            + "FROM INFORMATION_SCHEMA.TABLE_PRIVILEGES T "
+            + "JOIN INFORMATION_SCHEMA.APPLICABLE_ROLES ON T.GRANTEE = ROLE_NAME;");
 
         t.insertSys(session, store, rs);
         sys.close();
@@ -4921,10 +4921,10 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         Session sys = database.sessionManager.newSysSession(
             SqlInvariants.INFORMATION_SCHEMA_HSQLNAME, session.getUser());
         Result rs = sys.executeDirectStatement(
-            "SELECT GRANTOR, GRANTEE, UDT_CATALOG, UDT_SCHEMA, UDT_NAME, "
-            + "PRIVILEGE_TYPE, IS_GRANTABLE "
-            + "FROM INFORMATION_SCHEMA.UDT_PRIVILEGES "
-            + "JOIN INFORMATION_SCHEMA.APPLICABLE_ROLES ON GRANTEE = ROLE_NAME;");
+            "SELECT U.GRANTOR, U.GRANTEE, U.UDT_CATALOG, U.UDT_SCHEMA, U.UDT_NAME, "
+            + "U.PRIVILEGE_TYPE, U.IS_GRANTABLE "
+            + "FROM INFORMATION_SCHEMA.UDT_PRIVILEGES U "
+            + "JOIN INFORMATION_SCHEMA.APPLICABLE_ROLES ON U.GRANTEE = ROLE_NAME;");
 
         t.insertSys(session, store, rs);
         sys.close();
@@ -5000,10 +5000,10 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         Session sys = database.sessionManager.newSysSession(
             SqlInvariants.INFORMATION_SCHEMA_HSQLNAME, session.getUser());
         Result rs = sys.executeDirectStatement(
-            "SELECT GRANTOR, GRANTEE, OBJECT_CATALOG, OBJECT_SCHEMA, OBJECT_NAME, "
-            + "OBJECT_TYPE, PRIVILEGE_TYPE, IS_GRANTABLE "
-            + "FROM INFORMATION_SCHEMA.USAGE_PRIVILEGES "
-            + "JOIN INFORMATION_SCHEMA.APPLICABLE_ROLES ON GRANTEE = ROLE_NAME;");
+            "SELECT U.GRANTOR, U.GRANTEE, U.OBJECT_CATALOG, U.OBJECT_SCHEMA, U.OBJECT_NAME, "
+            + "U.OBJECT_TYPE, U.PRIVILEGE_TYPE, U.IS_GRANTABLE "
+            + "FROM INFORMATION_SCHEMA.USAGE_PRIVILEGES U "
+            + "JOIN INFORMATION_SCHEMA.APPLICABLE_ROLES A ON U.GRANTEE = A.ROLE_NAME;");
 
         t.insertSys(session, store, rs);
         sys.close();

@@ -424,13 +424,11 @@ public class ExpressionColumn extends Expression {
                         }
                     } else {
                         if (resolveColumnReference(rangeVar, false)) {
-                            if (tableQualified) {
-                                return unresolvedSet;
-                            }
-
                             resolved = true;
 
-                            continue;
+                            if (!session.database.sqlEnforceRefs) {
+                                break;
+                            }
                         }
                     }
                 }
@@ -591,23 +589,21 @@ public class ExpressionColumn extends Expression {
             if (e != null) {
                 return false;
             }
-
-            switch (rangeVar.rangeType) {
-
-                case RangeVariable.PARAMETER_RANGE :
-                case RangeVariable.VARIALBE_RANGE :
-                case RangeVariable.TRANSITION_RANGE :
-                    return false;
-
-                default :
-                    int colIndex = rangeVar.findColumn(schema, tableName,
-                                                       columnName);
-
-                    return colIndex != -1;
-            }
         }
 
-        return false;
+        switch (rangeVar.rangeType) {
+
+            case RangeVariable.PARAMETER_RANGE :
+            case RangeVariable.VARIALBE_RANGE :
+            case RangeVariable.TRANSITION_RANGE :
+                return false;
+
+            default :
+                int colIndex = rangeVar.findColumn(schema, tableName,
+                                                   columnName);
+
+                return colIndex != -1;
+        }
     }
 
     public void resolveTypes(Session session, Expression parent) {
