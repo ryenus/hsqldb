@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2011, The HSQL Development Group
+/* Copyright (c) 2001-2014, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -1341,7 +1341,7 @@ public class SchemaManager {
         }
 
         if (schemaName == null) {
-            schemaName = session.getSchemaName(schemaName);
+            schemaName = session.getSchemaName(null);
         }
 
         return getSchemaObject(name, schemaName, SchemaObject.CHARSET);
@@ -1685,10 +1685,6 @@ public class SchemaManager {
     private void removeTableDependentReferences(Table table) {
 
         OrderedHashSet mainSet = table.getReferencesForDependents();
-
-        if (mainSet == null) {
-            return;
-        }
 
         for (int i = 0; i < mainSet.size(); i++) {
             HsqlName     name   = (HsqlName) mainSet.get(i);
@@ -2450,14 +2446,6 @@ public class SchemaManager {
         } finally {
             writeLock.unlock();
         }
-    }
-
-    public HsqlName getObjectName(String name, String schema, int type) {
-
-        SchemaObject object = getSchemaObject(name, schema, type);
-
-        return object == null ? null
-                              : object.getName();
     }
 
     public String[] getSQLArray() {

@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2011, The HSQL Development Group
+/* Copyright (c) 2001-2014, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -53,7 +53,7 @@ import org.hsqldb.types.Types;
 public class ParserBase {
 
     protected Scanner scanner;
-    protected Token token;
+    protected Token   token;
 
     //
     protected boolean       isRecording;

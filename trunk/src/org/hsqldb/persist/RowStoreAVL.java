@@ -384,7 +384,7 @@ public abstract class RowStoreAVL implements PersistentStore {
                                           int count, int opType) {
 
         if (opType != OpTypes.EQUAL) {
-            return elementCount.get() / 2;
+            return elementCount.get() / 2.0;
         }
 
         if (index.isUnique() && count == index.getColumnCount()) {

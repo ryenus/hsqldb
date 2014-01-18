@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2011, The HSQL Development Group
+/* Copyright (c) 2001-2014, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -167,7 +167,7 @@ public class ParserDML extends ParserDQL {
 
                         overridingSystem = true;
                     } else {
-                        unexpectedToken();
+                        throw unexpectedToken();
                     }
 
                     readThis(Tokens.VALUE);
@@ -247,7 +247,7 @@ public class ParserDML extends ParserDQL {
 
                 if (!assignsToIdentity
                         && (overridingUser || overridingSystem)) {
-                    unexpectedTokenRequire(Tokens.T_OVERRIDING);
+                    throw unexpectedTokenRequire(Tokens.T_OVERRIDING);
                 }
 
                 StatementDMQL cs = new StatementInsert(session, table,
@@ -294,7 +294,7 @@ public class ParserDML extends ParserDQL {
                 overrideIndex = enforcedDefaultIndex;
             }
         } else if (overridingUser || overridingSystem) {
-            unexpectedTokenRequire(Tokens.T_OVERRIDING);
+            throw unexpectedTokenRequire(Tokens.T_OVERRIDING);
         }
 
         Type[] types = new Type[columnMap.length];

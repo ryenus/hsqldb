@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2011, The HSQL Development Group
+/* Copyright (c) 2001-2014, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -269,7 +269,7 @@ import org.hsqldb.types.Type;
  *
  * @author Campbell Boucher-Burnet (boucherb@users dot sourceforge.net)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.0.1
+ * @version 2.3.2
  * @revised JDK 1.6, HSQLDB 2.0
  * @revised JDK 1.7, HSQLDB 2.0.1
  * @see org.hsqldb.dbinfo.DatabaseInformation
@@ -417,7 +417,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      */
     public boolean nullsAreSortedHigh() throws SQLException {
         setCurrentProperties();
-        return !nullsFirst & !nullsOrder;
+        return !nullsFirst && !nullsOrder;
     }
 
     /**
@@ -446,7 +446,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      */
     public boolean nullsAreSortedLow() throws SQLException {
         setCurrentProperties();
-        return nullsFirst & !nullsOrder;
+        return nullsFirst && !nullsOrder;
     }
 
     /**
@@ -470,7 +470,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      */
     public boolean nullsAreSortedAtStart() throws SQLException {
         setCurrentProperties();
-        return nullsFirst & nullsOrder;
+        return nullsFirst && nullsOrder;
     }
 
     /**
@@ -494,7 +494,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      */
     public boolean nullsAreSortedAtEnd() throws SQLException {
         setCurrentProperties();
-        return !nullsFirst & nullsOrder;
+        return !nullsFirst && nullsOrder;
     }
 
     /**
@@ -5919,7 +5919,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
     //----------------------- Internal Implementation --------------------------
 
     /** Used by getBestRowIdentifier to avoid extra object construction */
-    static final Integer INT_COLUMNS_NO_NULLS = new Integer(columnNoNulls);
+    static final Integer INT_COLUMNS_NO_NULLS = Integer.valueOf(columnNoNulls);
 
     // -----------------------------------------------------------------------
     // private attributes

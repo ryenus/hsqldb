@@ -2085,8 +2085,8 @@ public class ParserDDL extends ParserRoutine {
         }
 
         Expression      condition    = null;
-        String          oldTableName = null;
-        String          newTableName = null;
+        SimpleName      oldTableName = null;
+        SimpleName      newTableName = null;
         SimpleName      oldRowName   = null;
         SimpleName      newRowName   = null;
         Table[]         transitions  = new Table[4];
@@ -2123,9 +2123,10 @@ public class ParserDDL extends ParserRoutine {
                         checkIsSimpleName();
                         read();
 
-                        oldTableName = token.tokenString;
+                        oldTableName = HsqlNameManager.getSimpleName(
+                            token.tokenString, token.isDelimitedIdentifier);
 
-                        String n = oldTableName;
+                        SimpleName n = oldTableName;
 
                         if (n.equals(newTableName) || n.equals(oldRowName)
                                 || n.equals(newRowName)) {
@@ -2135,8 +2136,8 @@ public class ParserDDL extends ParserRoutine {
                         isForEachRow = Boolean.FALSE;
 
                         HsqlName hsqlName = database.nameManager.newHsqlName(
-                            table.getSchemaName(), n, isDelimitedIdentifier(),
-                            SchemaObject.TRANSITION);
+                            table.getSchemaName(), n.name,
+                            isDelimitedIdentifier(), SchemaObject.TRANSITION);
                         Table transition = new Table(table, hsqlName);
                         RangeVariable range = new RangeVariable(transition,
                             null, null, null, compileContext);
@@ -2158,7 +2159,7 @@ public class ParserDDL extends ParserRoutine {
 
                         read();
 
-                        String n = oldRowName.name;
+                        SimpleName n = oldRowName;
 
                         if (n.equals(newTableName) || n.equals(oldTableName)
                                 || n.equals(newRowName)) {
@@ -2194,13 +2195,14 @@ public class ParserDDL extends ParserRoutine {
                         readIfThis(Tokens.AS);
                         checkIsSimpleName();
 
-                        newTableName = token.tokenString;
+                        newTableName = HsqlNameManager.getSimpleName(
+                            token.tokenString, token.isDelimitedIdentifier);
 
                         read();
 
                         isForEachRow = Boolean.FALSE;
 
-                        String n = newTableName;
+                        SimpleName n = newTableName;
 
                         if (n.equals(oldTableName) || n.equals(oldRowName)
                                 || n.equals(newRowName)) {
@@ -2208,8 +2210,8 @@ public class ParserDDL extends ParserRoutine {
                         }
 
                         HsqlName hsqlName = database.nameManager.newHsqlName(
-                            table.getSchemaName(), n, isDelimitedIdentifier(),
-                            SchemaObject.TRANSITION);
+                            table.getSchemaName(), n.name,
+                            isDelimitedIdentifier(), SchemaObject.TRANSITION);
                         Table transition = new Table(table, hsqlName);
                         RangeVariable range = new RangeVariable(transition,
                             null, null, null, compileContext);
@@ -2231,7 +2233,7 @@ public class ParserDDL extends ParserRoutine {
 
                         read();
 
-                        String n = newRowName.name;
+                        SimpleName n = newRowName;
 
                         if (n.equals(oldTableName) || n.equals(newTableName)
                                 || n.equals(oldRowName)) {
@@ -3014,7 +3016,7 @@ public class ParserDDL extends ParserRoutine {
             }
             default : {
                 if (constName != null) {
-                    throw super.unexpectedToken();
+                    throw unexpectedToken();
                 }
             }
         }
@@ -3140,8 +3142,8 @@ public class ParserDDL extends ParserRoutine {
 
                         if (column.getName().name.equals(e.getColumnName())) {
                             if (e.getSchemaName() != null
-                                    && e.getSchemaName()
-                                       != table.getSchemaName().name) {
+                                    && !e.getSchemaName().equals(
+                                        table.getSchemaName().name)) {
                                 throw Error.error(ErrorCode.X_42505);
                             }
                         } else {
@@ -4259,7 +4261,7 @@ public class ParserDDL extends ParserRoutine {
                             break;
 
                         default :
-                            throw super.unexpectedToken();
+                            throw unexpectedToken();
                     }
                     break;
 

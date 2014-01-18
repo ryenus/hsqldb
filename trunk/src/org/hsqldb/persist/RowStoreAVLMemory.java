@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2011, The HSQL Development Group
+/* Copyright (c) 2001-2014, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -91,7 +91,7 @@ public class RowStoreAVLMemory extends RowStoreAVL implements PersistentStore {
     public void add(Session session, CachedObject object, boolean tx) {}
 
     public CachedObject get(RowInputInterface in) {
-        return null;
+        throw Error.runtimeError(ErrorCode.U_S0500, "RowStoreAVLMemory");
     }
 
     public CachedObject getNewCachedObject(Session session, Object object,

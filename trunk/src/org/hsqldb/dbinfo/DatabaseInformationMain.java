@@ -143,7 +143,7 @@ import org.hsqldb.types.Types;
  * (fredt@users) <p>
  * @author Campbell Boucher-Burnet (boucherb@users dot sourceforge.net)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.0
+ * @version 2.3.2
  * @since 1.7.2
  */
 class DatabaseInformationMain extends DatabaseInformation {
@@ -737,7 +737,8 @@ class DatabaseInformationMain extends DatabaseInformation {
 
             ti.setTable(table);
 
-            inKey = ValuePool.getBoolean(table.isBestRowIdentifiersStrict());
+            inKey        = table.isBestRowIdentifiersStrict() ? Boolean.TRUE
+                                                              : Boolean.FALSE;
             tableCatalog = table.getCatalogName().name;
             tableSchema  = table.getSchemaName().name;
             tableName    = table.getName().name;
@@ -2867,7 +2868,8 @@ class DatabaseInformationMain extends DatabaseInformation {
             user          = (User) users.get(i);
             initialSchema = user.getInitialSchema();
             row[0]        = user.getName().getNameString();
-            row[1]        = ValuePool.getBoolean(user.isAdmin());
+            row[1]        = user.isAdmin() ? Boolean.TRUE
+                                           : Boolean.FALSE;
             row[2]        = ((initialSchema == null) ? null
                                                      : initialSchema.name);
             row[3]        = user.isLocalOnly ? Tokens.T_LOCAL

@@ -2270,7 +2270,7 @@ public class Logger {
             if (compressed != nameImpliesCompress) {
                 throw Error.error(null, ErrorCode.COMPRESSION_SUFFIX_MISMATCH,
                                   0, new Object[] {
-                    new Boolean(compressed), archiveFile.getName()
+                    Boolean.valueOf(compressed), archiveFile.getName()
                 });
             }
 
@@ -2448,13 +2448,13 @@ public class Logger {
 
         closeTextCache(table);
 
-        source = getSecurePath(source, false, true);
+        String sourceName = getSecurePath(source, false, true);
 
-        if (source == null) {
+        if (sourceName == null) {
             throw (Error.error(ErrorCode.ACCESS_IS_DENIED, source));
         }
 
-        TextCache c = new TextCache(table, source);
+        TextCache c = new TextCache(table, sourceName);
 
         c.open(readOnlyData || database.isFilesReadOnly());
         textCacheList.put(table.getName(), c);

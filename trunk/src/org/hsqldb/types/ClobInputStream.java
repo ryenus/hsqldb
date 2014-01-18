@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2011, The HSQL Development Group
+/* Copyright (c) 2001-2014, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -40,7 +40,7 @@ import org.hsqldb.error.ErrorCode;
 import org.hsqldb.lib.java.JavaSystem;
 
 /**
- * This class is used as an InputStream to retrieve data from a Blob.
+ * This class is used as an InputStream to retrieve data from a Clob.
  * mark() and reset() are not supported.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)

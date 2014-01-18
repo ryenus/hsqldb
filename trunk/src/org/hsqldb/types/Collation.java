@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2011, The HSQL Development Group
+/* Copyright (c) 2001-2014, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -332,13 +332,13 @@ public class Collation implements SchemaObject {
         }
 
         if (index < limit) {
-            strength = Integer.valueOf(parts[index]);
+            strength = Integer.parseInt(parts[index]);
 
             index++;
         }
 
         if (index < limit) {
-            decomposition = Integer.valueOf(parts[index]);
+            decomposition = Integer.parseInt(parts[index]);
 
             index++;
         }
@@ -353,7 +353,7 @@ public class Collation implements SchemaObject {
             javaName = (String) nameToJavaName.get(dbName);
 
             if (javaName == null) {
-                throw Error.error(ErrorCode.X_42501, javaName);
+                throw Error.error(ErrorCode.X_42501, dbName);
             }
         }
 

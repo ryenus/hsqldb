@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2011, The HSQL Development Group
+/* Copyright (c) 2001-2014, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -681,7 +681,7 @@ public class RangeVariableResolver {
                     index = table.getIndexForColumn(session, colIndex);
 
                     if (index != null) {
-                        cost = table.getRowStore(session).elementCount() / 2;
+                        cost = table.getRowStore(session).elementCount() / 2.0;
 
                         if (colIndexSetOther.get(colIndex, 0) > 1) {
                             cost /= 2;

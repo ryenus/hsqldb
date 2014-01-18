@@ -1,7 +1,7 @@
 /*
  * For work developed by the HSQL Development Group:
  *
- * Copyright (c) 2001-2011, The HSQL Development Group
+ * Copyright (c) 2001-2014, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -474,7 +474,7 @@ public class IndexAVL implements Index {
                              + probeFactor(session, store, factors, false);
 
                 for (int i = 0; i < colIndex.length; i++) {
-                    factors[i] /= 2;
+                    factors[i] /= 2.0;
 
                     for (int j = 0; j < factors[i]; j++) {
                         changes[i] *= 2;
@@ -851,8 +851,9 @@ public class IndexAVL implements Index {
 
     boolean hasNulls(Session session, Object[] rowData) {
 
-        boolean  uniqueNulls = session== null || session.database.sqlUniqueNulls;
-        boolean  compareId   = false;
+        boolean uniqueNulls = session == null
+                              || session.database.sqlUniqueNulls;
+        boolean compareId = false;
 
         for (int j = 0; j < colIndex.length; j++) {
             if (rowData[colIndex[j]] == null) {

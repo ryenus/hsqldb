@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2011, The HSQL Development Group
+/* Copyright (c) 2001-2014, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -596,7 +596,7 @@ public class ParserRoutine extends ParserDML {
             read();
 
             if (token.tokenType == Tokens.PROCEDURE) {
-                throw super.unexpectedToken();
+                throw unexpectedToken();
             }
         }
 
@@ -745,7 +745,7 @@ public class ParserRoutine extends ParserDML {
             ColumnSchema newcolumn = readRoutineParameter(routine, false);
 
             if (newcolumn.getName() == null) {
-                throw super.unexpectedToken();
+                throw unexpectedToken();
             }
 
             table.addColumn(newcolumn);
@@ -1689,11 +1689,7 @@ public class ParserRoutine extends ParserDML {
         Expression e = XreadValueExpressionOrNull();
 
         if (e == null) {
-            checkIsValue();
-
-            if (token.tokenValue == null) {
-                e = new ExpressionValue(null, null);
-            }
+            throw unexpectedToken();
         }
 
         resolveOuterReferencesAndTypes(routine, context, e);
