@@ -1,17 +1,20 @@
-16 January 2014 - svn 5321 snapshot
--- added support for DEFAULT keyword in INSERT and UPDATE statements when column has no default value
+18 January 2014
+-- fixed several minor issues
 -- fixed bug with incomplete rollback of MVCC transaction that inserts and updates the same row
 -- fixed issue with parsing of long BIT strings in SQL
 -- fixed issue with SQL triggers when columns were added or dropped from a table with SQL triggers 
+-- added URL property hsqldb.digest which can be used with alternative secure hash algorithms for passwords
+-- changed the class used for offline backup and restore to org.hsqldb.lib.tar.DbBackupMain
+-- extended the scope of SET DATABASE SQL REFERENCES TRUE to catch ambiguity with identical table aliases
 -- improved ORA syntax compatibility mode
 
 08 October 2013 - version 2.3.1
 -- fixed several minor issues
 -- fixed bug with some queries using ORDER BY DESC on indexed columns used in conditions
+-- fixed issue with NPE is some complex subqueries
 -- improved JDBCPool to be created with DataSourceFactory
 -- added support for LIKE with parametric escape character 
 -- added support for routine SIGNAL messages using variables
--- fixed issue with NPE is some complex subqueries
 
 08 July 2013 - version 2.3.0
 -- improved data exception error messages
