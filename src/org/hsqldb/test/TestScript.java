@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2011, The HSQL Development Group
+/* Copyright (c) 2001-2014, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -35,6 +35,37 @@ import java.sql.Connection;
 
 public class TestScript extends TestBase {
 
+//    String path = "TestSelf00NewJoins.txt";
+//      String path = "TestSelf01AllNewFeatures.txt";
+//    String path = "TestSelf01Aggregates.txt";
+//    String path = "TestSelf01Cascade.txt";
+      String path = "TestSelf01DateTime.txt";
+//    String path = "TestSelf01Etc.txt";
+//    String path = "TestSelf01UDAggregates.txt";
+//    String path = "TestSelf01hsqldb_schema.txt";
+//    String path = "TestSelf01WithSubquery.txt";
+//    String path = "TestSelf01RecursiveQueries.txt";
+//    String path = "TestSelf01RoutineHandlers.txt";
+//    String path = "TestSelf01TempTables.txt";
+//    String path = "TestSelfTriggers2.txt";
+//    String path = "TestSelf01ForeignKeys.txt";
+//    String path = "TestSelf01Function.txt";
+//    String path = "TestSelf01IndexUse.txt";
+//    String path = "TestSelf01LimitOpt.txt";
+//    String path = "TestSelf01Procedure.txt";
+//    String path = "TestSelf01Problems.txt";
+//    String path = "TestSelf01Subquery.txt";
+//    String path = "TestSelf01TempTables.txt";
+//    String path = "TestSelf01Triggers.txt";
+//    String path = "TestSelf02Function.txt";
+//    String path = "TestSelf02UpdatableViews.txt";
+//    String path = "TestSelf02Merge.txt";
+//    String path = "TestSelf02UpdatableViews.txt";
+//    String path = "TestSelf04UnionCorresponding.txt";
+//    String path = "TestSelf07OrderLimitNulls.txt";
+//    String path = "TestSelf06Generated.txt";
+//    String path = "TestSelf08Collations.txt";
+//    String path = "TestAny.txt";
 //    String path = "TestSelf.txt";
 //    String path = "TestSelfArrays.txt";
 //    String path = "TestSelf3PartNames.txt";
@@ -75,7 +106,8 @@ public class TestScript extends TestBase {
 //    String path = "TestSelfSysTables.txt";
 //    String path = "TestSelfTempTable1.txt";
 //    String path = "TestSelfTransaction.txt";
-    String path = "TestSelfTriggers2.txt";
+//    String path = "TestSelfTriggers.txt";
+//    String path = "TestSelfTriggers2.txt";
 //    String path = "TestSelfUnions.txt";
 //    String path = "TestSelfUserFunction.txt";
 //    String path = "TestSelfViews.txt";
