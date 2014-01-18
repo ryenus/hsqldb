@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2011, The HSQL Development Group
+/* Copyright (c) 2001-2014, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -247,17 +247,15 @@ public class ExpressionArrayAggregate extends Expression {
 
     public boolean equals(Expression other) {
 
-        if (!(other instanceof ExpressionArrayAggregate)) {
-            return false;
-        }
+        if (other instanceof ExpressionArrayAggregate) {
+            ExpressionArrayAggregate o = (ExpressionArrayAggregate) other;
 
-        ExpressionArrayAggregate o = (ExpressionArrayAggregate) other;
-
-        if (opType == other.opType && exprSubType == other.exprSubType
-                && isDistinctAggregate == o.isDistinctAggregate
-                && separator.equals(o.separator)
-                && condition.equals(o.condition)) {
-            return super.equals(other);
+            if (opType == other.opType && exprSubType == other.exprSubType
+                    && isDistinctAggregate == o.isDistinctAggregate
+                    && separator.equals(o.separator)
+                    && condition.equals(o.condition)) {
+                return super.equals(other);
+            }
         }
 
         return false;

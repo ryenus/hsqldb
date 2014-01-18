@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2011, The HSQL Development Group
+/* Copyright (c) 2001-2014, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -102,7 +102,7 @@ import org.hsqldb.persist.HsqlDatabaseProperties;
  * @since JDK 1.4
  * @author Campbell Boucher-Burnet (boucherb@users dot sourceforge.net)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.2.5
+ * @version 2.3.2
  * @since 1.7.2
  */
 
@@ -142,10 +142,6 @@ public class JDBCDataSource extends JDBCCommonDataSource implements DataSource,
             }
 
             return getConnection(user, password);
-        }
-
-        if (connectionProps == null) {
-            return getConnection(url, new Properties());
         }
 
         return getConnection(url, connectionProps);

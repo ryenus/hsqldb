@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2011, The HSQL Development Group
+/* Copyright (c) 2001-2014, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -2089,9 +2089,10 @@ public class FunctionSQL extends Expression {
 
     public boolean equals(Expression other) {
 
-        if (other instanceof FunctionSQL
-                && funcType == ((FunctionSQL) other).funcType) {
-            return super.equals(other);
+        if (other instanceof FunctionSQL) {
+            if (funcType == ((FunctionSQL) other).funcType) {
+                return super.equals(other);
+            }
         }
 
         return false;

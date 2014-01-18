@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2011, The HSQL Development Group
+/* Copyright (c) 2001-2014, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -920,7 +920,7 @@ public class ParserDQL extends ParserBase {
                 if (token.tokenType == Tokens.OPENBRACKET) {
                     nameList = readColumnNames(queryName);
                 } else if (recursive) {
-                    super.unexpectedTokenRequire(Tokens.T_OPENBRACKET);
+                    throw unexpectedTokenRequire(Tokens.T_OPENBRACKET);
                 }
 
                 readThis(Tokens.AS);
@@ -1609,6 +1609,8 @@ public class ParserDQL extends ParserBase {
             }
 
             e1 = new ExpressionValue(ValuePool.INTEGER_0, Type.SQL_INTEGER);
+        } else {
+            throw unexpectedToken();
         }
 
         boolean valid = true;
@@ -3241,7 +3243,7 @@ public class ParserDQL extends ParserBase {
                                                compileContext);
 
                 if (function == null) {
-                    throw super.unexpectedToken();
+                    throw unexpectedToken();
                 }
 
                 Expression e = readSQLFunction(function);
@@ -3406,7 +3408,7 @@ public class ParserDQL extends ParserBase {
                                                compileContext);
 
                 if (function == null) {
-                    throw super.unexpectedToken();
+                    throw unexpectedToken();
                 }
 
                 return readSQLFunction(function);
@@ -3449,7 +3451,7 @@ public class ParserDQL extends ParserBase {
         }
 
         if (function == null) {
-            throw super.unexpectedToken();
+            throw unexpectedToken();
         }
 
         return readSQLFunction(function);
@@ -4415,7 +4417,7 @@ public class ParserDQL extends ParserBase {
                 return td;
             }
             default :
-                throw super.unexpectedToken();
+                throw unexpectedToken();
         }
     }
 
@@ -4850,7 +4852,7 @@ public class ParserDQL extends ParserBase {
                 && e.getType() != OpTypes.SQL_FUNCTION) {
             compileContext.decrementDepth();
 
-            throw this.unexpectedToken(Tokens.T_TABLE);
+            throw unexpectedToken(Tokens.T_TABLE);
         }
 
         readThis(Tokens.CLOSEBRACKET);
@@ -5772,7 +5774,6 @@ public class ParserDQL extends ParserBase {
                     }
 
                     if (initialExprIndex == exprList.size()) {
-
                         if (parseList[i] != Tokens.OPENBRACKET) {
                             exprList.add(null);
                         }
@@ -5954,11 +5955,7 @@ public class ParserDQL extends ParserBase {
                     break;
                 }
                 case SchemaObject.COLUMN : {
-                    if (token.namePrefix != null) {
-                        throw tooManyIdentifiers();
-                    }
-
-                    break;
+                    throw tooManyIdentifiers();
                 }
                 default : {
                     checkValidCatalogName(token.namePrePrefix);

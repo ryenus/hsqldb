@@ -462,7 +462,8 @@ public class Session implements SessionInterface {
         if (sessionContext.isAutoCommit.booleanValue() != autocommit) {
             commit(false);
 
-            sessionContext.isAutoCommit = ValuePool.getBoolean(autocommit);
+            sessionContext.isAutoCommit = autocommit ? Boolean.TRUE
+                                                     : Boolean.FALSE;
         }
     }
 

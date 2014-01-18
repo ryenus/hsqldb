@@ -3610,12 +3610,10 @@ public class JDBCConnection implements Connection {
             connProperties   = props;
             clientProperties = sessionProxy.getClientProperties();
 
-            if (connProperties != null) {
-                isCloseResultSet = connProperties.isPropertyTrue(
-                    HsqlDatabaseProperties.url_close_result, false);
-                isUseColumnName = connProperties.isPropertyTrue(
-                    HsqlDatabaseProperties.url_get_column_name, true);
-            }
+            isCloseResultSet = connProperties.isPropertyTrue(
+                HsqlDatabaseProperties.url_close_result, false);
+            isUseColumnName = connProperties.isPropertyTrue(
+                HsqlDatabaseProperties.url_get_column_name, true);
         } catch (HsqlException e) {
             throw JDBCUtil.sqlException(e);
         }

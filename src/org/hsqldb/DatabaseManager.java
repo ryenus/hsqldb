@@ -41,9 +41,9 @@ import org.hsqldb.lib.HashSet;
 import org.hsqldb.lib.HsqlTimer;
 import org.hsqldb.lib.IntKeyHashMap;
 import org.hsqldb.lib.Iterator;
+import org.hsqldb.lib.Notified;
 import org.hsqldb.map.ValuePool;
 import org.hsqldb.persist.HsqlProperties;
-import org.hsqldb.lib.Notified;
 
 /**
  * Handles initial attempts to connect to HSQLDB databases within the JVM
@@ -154,10 +154,6 @@ public class DatabaseManager {
                                      String zoneString, int timeZoneSeconds) {
 
         Database db = getDatabase(type, path, props);
-
-        if (db == null) {
-            return null;
-        }
 
         return db.connect(user, password, zoneString, timeZoneSeconds);
     }

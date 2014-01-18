@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2011, The HSQL Development Group
+/* Copyright (c) 2001-2014, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -255,8 +255,8 @@ public class ClobDataID implements ClobData {
 
     public boolean equals(Object other) {
 
-        if (other instanceof BlobDataID) {
-            return id == ((BlobDataID) other).id;
+        if (other instanceof ClobDataID) {
+            return id == ((ClobDataID) other).id;
         }
 
         return false;

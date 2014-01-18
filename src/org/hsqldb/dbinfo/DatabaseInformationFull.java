@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2011, The HSQL Development Group
+/* Copyright (c) 2001-2014, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -114,7 +114,7 @@ import org.hsqldb.types.Type;
  *
  * @author Campbell Boucher-Burnet (boucherb@users dot sourceforge.net)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.0
+ * @version 2.3.2
  * @since 1.7.2
  */
 final class DatabaseInformationFull
@@ -1098,7 +1098,8 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
             row[isid]      = ValuePool.getLong(s.getId());
             row[ict]       = new TimestampData(s.getConnectTime() / 1000);
             row[iuname]    = s.getUsername();
-            row[iis_admin] = ValuePool.getBoolean(s.isAdmin());
+            row[iis_admin] = s.isAdmin() ? Boolean.TRUE
+                                         : Boolean.FALSE;
             row[iautocmt]  = s.sessionContext.isAutoCommit;
             row[ireadonly] = s.isReadOnlyDefault;
 
@@ -1108,7 +1109,8 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
                 row[ilast_id] = ValuePool.getLong(lastId.longValue());
             }
 
-            row[it_tx]   = Boolean.valueOf(s.isInMidTransaction());
+            row[it_tx]   = s.isInMidTransaction() ? Boolean.TRUE
+                                                  : Boolean.FALSE;
             row[it_size] = ValuePool.getLong(s.getTransactionSize());
 
             HsqlName name = s.getCurrentSchemaHsqlName();
@@ -1282,9 +1284,12 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
                 row[ifs]       = textFileSettings.fs;
                 row[ivfs]      = textFileSettings.vs;
                 row[ilvfs]     = textFileSettings.lvs;
-                row[iif] = ValuePool.getBoolean(textFileSettings.ignoreFirst);
-                row[iiq] = ValuePool.getBoolean(textFileSettings.isQuoted);
-                row[iiaq] = ValuePool.getBoolean(textFileSettings.isAllQuoted);
+                row[iif]       = textFileSettings.ignoreFirst ? Boolean.TRUE
+                                                              : Boolean.FALSE;
+                row[iiq]       = textFileSettings.isQuoted ? Boolean.TRUE
+                                                           : Boolean.FALSE;
+                row[iiaq]      = textFileSettings.isAllQuoted ? Boolean.TRUE
+                                                              : Boolean.FALSE;
                 row[iid] = ((TextTable) table).isDescDataSource()
                            ? Boolean.TRUE
                            : Boolean.FALSE;

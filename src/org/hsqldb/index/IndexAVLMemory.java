@@ -1,7 +1,7 @@
 /*
  * For work developed by the HSQL Development Group:
  *
- * Copyright (c) 2001-2010, The HSQL Development Group
+ * Copyright (c) 2001-2014, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -552,7 +552,7 @@ public class IndexAVLMemory extends IndexAVL {
                 return;
             }
 
-            isleft = x.nParent == null || x == x.nParent.nLeft;
+            isleft = x == x.nParent.nLeft;
             x      = x.nParent;
         }
     }

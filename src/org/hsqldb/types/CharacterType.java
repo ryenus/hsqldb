@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2011, The HSQL Development Group
+/* Copyright (c) 2001-2014, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -638,7 +638,7 @@ public class CharacterType extends Type {
         } else if (a instanceof java.sql.Timestamp) {
             s = ((java.sql.Timestamp) a).toString();
         } else if (a instanceof java.util.Date) {
-            s = HsqlDateTime.getTimestampString(((java.sql.Date) a).getTime());
+            s = HsqlDateTime.getTimestampString(((java.util.Date) a).getTime());
         } else {
             throw Error.error(ErrorCode.X_42561);
         }

@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2011, The HSQL Development Group
+/* Copyright (c) 2001-2014, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -66,8 +66,8 @@ public class FunctionSQLInvoked extends Expression {
     }
 
     public HsqlList resolveColumnReferences(Session session,
-            RangeGroup rangeGroup, int rangeCount,
-            RangeGroup[] rangeGroups, HsqlList unresolvedSet, boolean acceptsSequences) {
+            RangeGroup rangeGroup, int rangeCount, RangeGroup[] rangeGroups,
+            HsqlList unresolvedSet, boolean acceptsSequences) {
 
         HsqlList conditionSet = condition.resolveColumnReferences(session,
             rangeGroup, rangeCount, rangeGroups, null, false);
@@ -85,7 +85,10 @@ public class FunctionSQLInvoked extends Expression {
 
             return unresolvedSet;
         } else {
-            return super.resolveColumnReferences(session, rangeGroup, rangeCount, rangeGroups, unresolvedSet, acceptsSequences);
+            return super.resolveColumnReferences(session, rangeGroup,
+                                                 rangeCount, rangeGroups,
+                                                 unresolvedSet,
+                                                 acceptsSequences);
         }
     }
 
@@ -268,15 +271,13 @@ public class FunctionSQLInvoked extends Expression {
 
     public boolean equals(Expression other) {
 
-        if (!(other instanceof FunctionSQLInvoked)) {
-            return false;
-        }
+        if (other instanceof FunctionSQLInvoked) {
+            FunctionSQLInvoked o = (FunctionSQLInvoked) other;
 
-        FunctionSQLInvoked o = (FunctionSQLInvoked) other;
-
-        if (opType == other.opType && routineSchema == o.routineSchema
-                && routine == o.routine && condition.equals(o.condition)) {
-            return super.equals(other);
+            if (opType == other.opType && routineSchema == o.routineSchema
+                    && routine == o.routine && condition.equals(o.condition)) {
+                return super.equals(other);
+            }
         }
 
         return false;

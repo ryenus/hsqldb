@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2011, The HSQL Development Group
+/* Copyright (c) 2001-2014, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -651,17 +651,17 @@ public class SessionData {
         }
     }
 
-    private File getFile(String filename) {
+    private File getFile(String name) {
 
         session.checkAdmin();
 
-        filename = database.logger.getSecurePath(filename, false, false);
+        String fileName = database.logger.getSecurePath(name, false, false);
 
-        if (filename == null) {
-            throw (Error.error(ErrorCode.ACCESS_IS_DENIED, filename));
+        if (fileName == null) {
+            throw (Error.error(ErrorCode.ACCESS_IS_DENIED, name));
         }
 
-        File    file   = new File(filename);
+        File    file   = new File(fileName);
         boolean exists = file.exists();
 
         if (!exists) {

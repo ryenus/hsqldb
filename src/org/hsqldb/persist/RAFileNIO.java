@@ -513,14 +513,14 @@ final class RAFileNIO implements RandomAccessInterface {
         // when moving to last position in file
         if (bufferIndex == buffers.length) {
             bufferIndex    = buffers.length - 1;
-            bufferPosition = bufferIndex * largeBufferSize;
+            bufferPosition = (long) bufferIndex * largeBufferSize;
             buffer         = buffers[bufferIndex];
 
             return;
         }
 
         buffer         = buffers[bufferIndex];
-        bufferPosition = offset &= largeBufferMask;
+        bufferPosition = offset & largeBufferMask;
     }
 
     /**

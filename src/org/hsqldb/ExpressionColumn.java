@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2011, The HSQL Development Group
+/* Copyright (c) 2001-2014, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -1111,7 +1111,7 @@ public class ExpressionColumn extends Expression {
     }
 
     /**
-     * SIMPLE_COLUMN expressions can be of different Java types
+     * SIMPLE_COLUMN expressions can be of different Expression subclass types
      */
     public boolean equals(Expression other) {
 
@@ -1214,19 +1214,19 @@ public class ExpressionColumn extends Expression {
                 if (operation == OpTypes.EQUAL) {
                     factor = 1;
                 } else {
-                    factor = store.elementCount() / 2;
+                    factor = store.elementCount() / 2.0;
                 }
                 break;
 
             case Index.INDEX_NON_UNIQUE :
                 if (operation == OpTypes.EQUAL) {
-                    factor = store.elementCount() / 8;
+                    factor = store.elementCount() / 8.0;
 
                     if (factor > 1024) {
                         factor = 1024;
                     }
                 } else {
-                    factor = store.elementCount() / 2;
+                    factor = store.elementCount() / 2.0;
                 }
                 break;
 

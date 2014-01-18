@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2011, The HSQL Development Group
+/* Copyright (c) 2001-2014, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -48,8 +48,8 @@ import org.hsqldb.types.RowType;
  */
 public class ExpressionAggregate extends Expression {
 
-    boolean    isDistinctAggregate;
-    ArrayType  arrayType;
+    boolean   isDistinctAggregate;
+    ArrayType arrayType;
 
     ExpressionAggregate(int type, boolean distinct, Expression e) {
 
@@ -202,8 +202,8 @@ public class ExpressionAggregate extends Expression {
     }
 
     public HsqlList resolveColumnReferences(Session session,
-            RangeGroup rangeGroup, int rangeCount,
-            RangeGroup[] rangeGroups, HsqlList unresolvedSet, boolean acceptsSequences) {
+            RangeGroup rangeGroup, int rangeCount, RangeGroup[] rangeGroups,
+            HsqlList unresolvedSet, boolean acceptsSequences) {
 
         HsqlList conditionSet = nodes[RIGHT].resolveColumnReferences(session,
             rangeGroup, rangeCount, rangeGroups, null, false);
@@ -255,14 +255,12 @@ public class ExpressionAggregate extends Expression {
 
     public boolean equals(Expression other) {
 
-        if (!(other instanceof ExpressionAggregate)) {
-            return false;
-        }
+        if (other instanceof ExpressionAggregate) {
+            ExpressionAggregate o = (ExpressionAggregate) other;
 
-        ExpressionAggregate o = (ExpressionAggregate) other;
-
-        if (isDistinctAggregate == o.isDistinctAggregate) {
-            return super.equals(other);
+            if (isDistinctAggregate == o.isDistinctAggregate) {
+                return super.equals(other);
+            }
         }
 
         return false;
