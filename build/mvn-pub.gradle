@@ -52,7 +52,7 @@ apply plugin: 'java'
 apply plugin: 'maven'
 apply plugin: 'signing'
 
-signing {
+if (project.hasProperty('signing.keyId')) signing {
     sign configurations.archives
 }
 
@@ -98,7 +98,7 @@ uploadArchives {
 
     repositories.mavenDeployer {
         configuration = configurations.deployJars
-        beforeDeployment {
+        if (project.hasProperty('signing.keyId')) beforeDeployment {
             MavenDeployment deployment -> signing.signPom(deployment)
         }
         if (project.hasProperty('mavenRepository.dest.url'))
