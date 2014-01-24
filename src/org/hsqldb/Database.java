@@ -897,13 +897,12 @@ public class Database {
                     }
 
                     boolean result = session.timeoutManager.checkTimeout();
-/*
+
                     if (result) {
                         synchronized (this) {
                             sessionList.remove(i);
                         }
                     }
-*/
                 }
             } catch (Throwable e) {
 

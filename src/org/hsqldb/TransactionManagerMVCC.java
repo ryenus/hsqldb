@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2011, The HSQL Development Group
+/* Copyright (c) 2001-2014, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -862,6 +862,8 @@ implements TransactionManager {
             current.latch.countDown();
         }
 
+        // waitedSessions is not empty if the latch is zeroed by a different session
+        session.waitedSessions.clear();
         session.waitingSessions.clear();
     }
 
@@ -889,8 +891,6 @@ implements TransactionManager {
         }
 
         Session nextSession = null;
-
-        session.waitingSessions.size();
 
         for (int i = 0; i < session.waitingSessions.size(); i++) {
             Session   current = (Session) session.waitingSessions.get(i);
@@ -986,5 +986,10 @@ implements TransactionManager {
         }
 
         return true;
+    }
+
+    public void resetSession(Session session, Session targetSession,
+                             int mode) {
+        super.resetSession(session, targetSession, mode);
     }
 }

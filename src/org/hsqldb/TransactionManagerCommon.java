@@ -825,4 +825,56 @@ class TransactionManagerCommon {
             writeLock.unlock();
         }
     }
+
+    void resetSession(Session session, Session targetSession, int mode) {
+
+        if (session == targetSession) {
+            return;
+        }
+
+        writeLock.lock();
+
+        try {
+            switch (mode) {
+
+                case TransactionManager.resetSessionResults :
+                    if (!targetSession.isInMidTransaction()) {
+                        targetSession.sessionData.closeAllNavigators();
+                    }
+                    break;
+
+                case TransactionManager.resetSessionTables :
+                    if (!targetSession.isInMidTransaction()) {
+                        targetSession.sessionData.persistentStoreCollection
+                            .clearAllTables();
+                    }
+                    break;
+
+                case TransactionManager.resetSessionResetAll :
+                    if (!targetSession.isInMidTransaction()) {
+                        targetSession.resetSession();
+                    }
+                    break;
+
+                case TransactionManager.resetSessionRollback :
+                    if (targetSession.latch.getCount() > 0) {
+                        targetSession.abortTransaction = true;
+
+                        targetSession.latch.setCount(0);
+                    } else {
+                        targetSession.rollbackNoCheck(true);
+                    }
+                    break;
+
+                case TransactionManager.resetSessionClose :
+                    if (targetSession.latch.getCount() == 0) {
+                        targetSession.rollbackNoCheck(true);
+                        targetSession.close();
+                    }
+                    break;
+            }
+        } finally {
+            writeLock.unlock();
+        }
+    }
 }

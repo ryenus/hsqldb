@@ -459,6 +459,10 @@ public class Session implements SessionInterface {
             return;
         }
 
+        if (sessionContext.depth > 0) {
+            return;
+        }
+
         if (sessionContext.isAutoCommit.booleanValue() != autocommit) {
             commit(false);
 
@@ -532,7 +536,7 @@ public class Session implements SessionInterface {
         if (!database.txManager.prepareCommitActions(this)) {
 
 //            tempActionHistory.add("commit aborts " + actionTimestamp);
-            rollback(false);
+            rollbackNoCheck(false);
 
             throw Error.error(ErrorCode.X_40001);
         }
@@ -566,7 +570,7 @@ public class Session implements SessionInterface {
         if (!database.txManager.commitTransaction(this)) {
 
 //            tempActionHistory.add("commit aborts " + actionTimestamp);
-            rollback(chain);
+            rollbackNoCheck(chain);
 
             throw Error.error(ErrorCode.X_40001);
         }
@@ -587,11 +591,16 @@ public class Session implements SessionInterface {
     public synchronized void rollback(boolean chain) {
 
         //        tempActionHistory.add("rollback " + actionTimestamp);
-        if (isClosed) {
+        if (sessionContext.depth > 0) {
             return;
         }
 
-        if (sessionContext.depth > 0) {
+        rollbackNoCheck(chain);
+    }
+
+    synchronized void rollbackNoCheck(boolean chain) {
+
+        if (isClosed) {
             return;
         }
 
@@ -601,6 +610,7 @@ public class Session implements SessionInterface {
 
     private void endTransaction(boolean commit, boolean chain) {
 
+        sessionContext.resetStack();
         sessionContext.savepoints.clear();
         sessionContext.savepointTimestamps.clear();
         rowActionList.clear();
@@ -642,7 +652,7 @@ public class Session implements SessionInterface {
             return;
         }
 
-        rollback(false);
+        rollbackNoCheck(false);
         sessionData.closeAllNavigators();
         sessionData.persistentStoreCollection.clearAllTables();
         sessionData.clearLobOps();
@@ -1265,7 +1275,7 @@ public class Session implements SessionInterface {
         Result r;
 
         if (abortTransaction) {
-            rollback(false);
+            rollbackNoCheck(false);
 
             return Result.newErrorResult(Error.error(ErrorCode.X_40001));
         }
@@ -1327,7 +1337,7 @@ public class Session implements SessionInterface {
             }
 
             if (abortTransaction) {
-                rollback(false);
+                rollbackNoCheck(false);
 
                 sessionContext.currentStatement = null;
 
@@ -1342,9 +1352,9 @@ public class Session implements SessionInterface {
                 abortTransaction = true;
             }
 
-            boolean abort = timeoutManager.endTimeout();
+            boolean abortAction = timeoutManager.endTimeout();
 
-            if (abort) {
+            if (abortAction) {
                 r = Result.newErrorResult(Error.error(ErrorCode.X_40502));
 
                 endAction(r);
@@ -1353,7 +1363,7 @@ public class Session implements SessionInterface {
             }
 
             if (abortTransaction) {
-                rollback(false);
+                rollbackNoCheck(false);
 
                 sessionContext.currentStatement = null;
 
@@ -1379,7 +1389,7 @@ public class Session implements SessionInterface {
             endAction(r);
 
             if (abortTransaction) {
-                rollback(false);
+                rollbackNoCheck(false);
 
                 sessionContext.currentStatement = null;
 
@@ -1405,7 +1415,7 @@ public class Session implements SessionInterface {
                     || cs.isAutoCommitStatement())) {
             try {
                 if (r.mode == ResultConstants.ERROR) {
-                    rollback(false);
+                    rollbackNoCheck(false);
                 } else {
                     commit(false);
                 }
@@ -2260,7 +2270,6 @@ public class Session implements SessionInterface {
     // timeouts
     class TimeoutManager {
 
-        boolean          added;
         volatile long    actionTimestamp;
         volatile int     currentTimeout;
         volatile boolean aborted;
@@ -2276,11 +2285,7 @@ public class Session implements SessionInterface {
             currentTimeout  = timeout;
             actionTimestamp = Session.this.actionTimestamp;
 
-            if (!added) {
-                database.timeoutRunner.addSession(Session.this);
-
-                added = true;
-            }
+            database.timeoutRunner.addSession(Session.this);
         }
 
         boolean endTimeout() {
@@ -2288,7 +2293,7 @@ public class Session implements SessionInterface {
             boolean aborted = this.aborted;
 
             currentTimeout = 0;
-            this.aborted   = false;
+            aborted        = false;
 
             return aborted;
         }

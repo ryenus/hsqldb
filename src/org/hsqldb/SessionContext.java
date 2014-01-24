@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2011, The HSQL Development Group
+/* Copyright (c) 2001-2014, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -49,7 +49,7 @@ import org.hsqldb.navigator.RowSetNavigatorDataChangeMemory;
  * Session execution context and temporary data structures
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.0
+ * @version 2.3.2
  * @since 1.9.0
  */
 public class SessionContext {
@@ -75,6 +75,7 @@ public class SessionContext {
     Object[]              dynamicArguments     = ValuePool.emptyObjectArray;
     Object[][]            triggerArguments     = null;
     public int            depth;
+    Boolean               isInRoutine;
 
     //
     Number         lastIdentity = ValuePool.INTEGER_0;
@@ -125,6 +126,14 @@ public class SessionContext {
         isAutoCommit = Boolean.FALSE;
         isReadOnly   = Boolean.FALSE;
         noSQL        = Boolean.FALSE;
+        isInRoutine  = Boolean.FALSE;
+    }
+
+    void resetStack() {
+
+        while (depth > 0) {
+            pop(isInRoutine.booleanValue());
+        }
     }
 
     public void push() {
@@ -155,6 +164,7 @@ public class SessionContext {
         stack.add(isAutoCommit);
         stack.add(isReadOnly);
         stack.add(noSQL);
+        stack.add(isInRoutine);
         stack.add(ValuePool.getInt(currentMaxRows));
         stack.add(ValuePool.getInt(rownum));
 
@@ -165,6 +175,7 @@ public class SessionContext {
         savepointTimestamps = new LongDeque();
         isAutoCommit        = Boolean.FALSE;
         currentMaxRows      = 0;
+        isInRoutine         = Boolean.valueOf(isRoutine);
 
         depth++;
     }
@@ -179,6 +190,7 @@ public class SessionContext {
 
         rownum = ((Integer) stack.remove(stack.size() - 1)).intValue();
         currentMaxRows = ((Integer) stack.remove(stack.size() - 1)).intValue();
+        isInRoutine          = (Boolean) stack.remove(stack.size() - 1);
         noSQL                = (Boolean) stack.remove(stack.size() - 1);
         isReadOnly           = (Boolean) stack.remove(stack.size() - 1);
         isAutoCommit         = (Boolean) stack.remove(stack.size() - 1);

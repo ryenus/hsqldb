@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2011, The HSQL Development Group
+/* Copyright (c) 2001-2014, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -543,6 +543,11 @@ implements TransactionManager {
         } finally {
             writeLock.unlock();
         }
+    }
+
+    public void resetSession(Session session, Session targetSession,
+                             int mode) {
+        super.resetSession(session, targetSession, mode);
     }
 
     /**
