@@ -46,9 +46,6 @@
  *          name (for auditing and so you can archive it and/or re-use it for
  *          future distribution builds), then copy it to "build.properties"
  *          in this directory.  (If on a good operating system, just sym-link).
- *          IMPORTANT QUIRK:  This file may not use ${} properties in values,
- *          since that feature is incompatible with the "-propertyfile"
- *          switch that we will use below.
  *          This file must set Ant properties "build.label", "build.vendor",
  *          "dbimage.path".  (See following section about optional properties).
  *       4: Run
