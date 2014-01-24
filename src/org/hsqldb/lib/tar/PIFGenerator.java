@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2011, The HSQL Development Group
+/* Copyright (c) 2001-2014, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -46,8 +46,8 @@ public class PIFGenerator extends ByteArrayOutputStream {
     OutputStreamWriter writer;
     String             name;
     int                fakePid;    // Only used by contructors
-    //char               typeFlag;  Serves no purpose.  What was orig. purpose?
 
+    //char               typeFlag;  Serves no purpose.  What was orig. purpose?
     public String getName() {
         return name;
     }
@@ -97,7 +97,6 @@ public class PIFGenerator extends ByteArrayOutputStream {
         this();
 
         //typeFlag = 'x';
-
         String parentPath = (file.getParentFile() == null) ? "."
                                                            : file.getParentFile()
                                                                .getPath();

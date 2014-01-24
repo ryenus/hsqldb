@@ -619,7 +619,7 @@ public class TarReader {
         public String toString() {
 
             StringBuffer sb = new StringBuffer(
-                    sdf.format(Long.valueOf(modTime * 1000L)) + ' ');
+                sdf.format(Long.valueOf(modTime * 1000L)) + ' ');
 
             sb.append((entryType == '\0') ? ' '
                                           : entryType);
