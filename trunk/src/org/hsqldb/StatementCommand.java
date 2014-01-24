@@ -1221,29 +1221,33 @@ public class StatementCommand extends Statement {
                     switch (action) {
 
                         case Tokens.ALL :
-                            targetSession.resetSession();
+                            session.database.txManager.resetSession(session,
+                                    targetSession,
+                                    TransactionManager.resetSessionResetAll);
                             break;
 
                         case Tokens.TABLE :
-                            targetSession.sessionData.persistentStoreCollection
-                                .clearAllTables();
+                            session.database.txManager.resetSession(session,
+                                    targetSession,
+                                    TransactionManager.resetSessionTables);
                             break;
 
                         case Tokens.RESULT :
-                            targetSession.sessionData.closeAllNavigators();
+                            session.database.txManager.resetSession(session,
+                                    targetSession,
+                                    TransactionManager.resetSessionResults);
                             break;
 
                         case Tokens.CLOSE :
-                            targetSession.abortTransaction = true;
-
-                            targetSession.latch.setCount(0);
-                            targetSession.close();
+                            session.database.txManager.resetSession(session,
+                                    targetSession,
+                                    TransactionManager.resetSessionClose);
                             break;
 
                         case Tokens.RELEASE :
-                            targetSession.abortTransaction = true;
-
-                            targetSession.latch.setCount(0);
+                            session.database.txManager.resetSession(session,
+                                    targetSession,
+                                    TransactionManager.resetSessionRollback);
                             break;
                     }
                 } catch (HsqlException e) {

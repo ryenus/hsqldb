@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2011, The HSQL Development Group
+/* Copyright (c) 2001-2014, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -30,6 +30,12 @@
 
 
 package org.hsqldb;
+
+/**
+ * @author Fred Toussi (fredt@users dot sourceforge.net)
+ * @version 2.3.2
+ * @since 2.2.9
+ */
 
 public interface RangeGroup {
 

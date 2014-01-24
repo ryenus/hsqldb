@@ -53,6 +53,13 @@ public interface TransactionManager {
     int ACTION_DUP  = 1;
     int ACTION_REF  = 2;
 
+    //
+    int resetSessionResults  = 1;
+    int resetSessionTables   = 2;
+    int resetSessionResetAll = 3;
+    int resetSessionRollback = 4;
+    int resetSessionClose    = 5;
+
     long getGlobalChangeTimestamp();
 
     long getNextGlobalChangeTimestamp();
@@ -119,4 +126,6 @@ public interface TransactionManager {
     void removeTransactionInfo(CachedObject object);
 
     void removeTransactionInfo(long id);
+
+    void resetSession(Session session, Session targetSession, int mode);
 }
