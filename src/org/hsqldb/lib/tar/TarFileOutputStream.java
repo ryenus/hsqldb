@@ -83,7 +83,7 @@ public class TarFileOutputStream {
         int DEFAULT_BLOCKS_PER_RECORD = 20;
     }
 
-    public static boolean debug = Boolean.getBoolean("DEBUG");
+    public static final boolean debug = Boolean.getBoolean("DEBUG");
     protected int         blocksPerRecord;
     protected long        bytesWritten = 0;
     private OutputStream  writeStream;
@@ -97,7 +97,7 @@ public class TarFileOutputStream {
      * array is a direct, optimally efficient byte array.  No setter because
      * the inside implementation of this class is intimately dependent upon
      * the nature of the write buffer. */
-    public static final byte[] ZERO_BLOCK = new byte[512];
+    static final byte[] ZERO_BLOCK = new byte[512];
 
     /**
      * Convenience wrapper to use default blocksPerRecord and compressionType.

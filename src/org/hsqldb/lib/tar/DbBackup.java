@@ -197,7 +197,7 @@ public class DbBackup {
         checkEssentialFiles();
 
         TarGenerator generator = new TarGenerator(archiveFile, overWrite,
-            new Integer(DbBackup.generateBufferBlockValue(componentFiles)));
+            Integer.valueOf(DbBackup.generateBufferBlockValue(componentFiles)));
 
         for (int i = 0; i < componentFiles.length; i++) {
             boolean exists = componentStreams[i] != null

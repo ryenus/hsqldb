@@ -366,13 +366,13 @@ public class Calculator {
             if (rhValObj != null)
                 throw new IllegalStateException(
                         "++ operator takes no right hand operand");
-            return ++outVal;
+            return 1 + outVal;
         }
         if (opStr.equals("--")) {
             if (rhValObj != null)
                 throw new IllegalStateException(
                         "++ operator takes no right hand operand");
-            return --outVal;
+            return outVal - 1;
         }
         if (rhValObj == null)
             throw new IllegalStateException(

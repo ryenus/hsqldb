@@ -46,7 +46,7 @@ public class PIFGenerator extends ByteArrayOutputStream {
     OutputStreamWriter writer;
     String             name;
     int                fakePid;    // Only used by contructors
-    char               typeFlag;
+    //char               typeFlag;  Serves no purpose.  What was orig. purpose?
 
     public String getName() {
         return name;
@@ -82,7 +82,7 @@ public class PIFGenerator extends ByteArrayOutputStream {
             throw new IllegalArgumentException("Sequence numbers start at 1");
         }
 
-        typeFlag = 'g';
+        //typeFlag = 'g';
         name = System.getProperty("java.io.tmpdir") + "/GlobalHead." + fakePid
                + '.' + sequenceNum;
     }
@@ -96,7 +96,7 @@ public class PIFGenerator extends ByteArrayOutputStream {
 
         this();
 
-        typeFlag = 'x';
+        //typeFlag = 'x';
 
         String parentPath = (file.getParentFile() == null) ? "."
                                                            : file.getParentFile()

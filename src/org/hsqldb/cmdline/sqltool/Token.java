@@ -117,10 +117,17 @@ public class Token {
             + " TYPE=" + getTypeString() + ", VALUE=(" + val + ')';
     }
 
+    public int hashCode() {
+        if (val == null) return 0;
+        return val.hashCode();
+    }
+
     /**
      * Equality ignores the line number
      */
-    public boolean equals(Token otherToken) {
+    public boolean equals(Object other) {
+        if (!(other instanceof Token)) return false;
+        Token otherToken = (Token) other;
         if (type != otherToken.type) return false;
         if (val == null && otherToken.val != null) return false;
         if (val != null && otherToken.val == null) return false;

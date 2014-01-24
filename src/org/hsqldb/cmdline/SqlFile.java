@@ -167,7 +167,7 @@ public class SqlFile {
     private boolean          htmlMode;
     private TokenList        history;
     /** Platform-specific line separator */
-    public static String     LS = System.getProperty("line.separator");
+    public static final String     LS = System.getProperty("line.separator");
     private int              maxHistoryLength = 1;
     // TODO:  Implement PL variable to interactively change history length.
     // Study to be sure this won't cause state inconsistencies.
@@ -958,9 +958,9 @@ public class SqlFile {
                                 try {
                                     rs = statement.getResultSet();
                                 } catch (SQLException se) {
+                                    assert statement != null;
                                     try {
-                                        if (statement != null)
-                                            statement.close();
+                                        statement.close();
                                     } catch (SQLException nse) {
                                         // Purposefully doing nothing
                                     } finally {
@@ -1010,8 +1010,9 @@ public class SqlFile {
                             try {
                                 rs = statement.getResultSet();
                             } catch (SQLException se) {
+                                assert statement != null;
                                 try {
-                                    if (statement != null) statement.close();
+                                    statement.close();
                                 } catch (SQLException nse) {
                                     // Purposefully doing nothing
                                 } finally {
@@ -1030,16 +1031,12 @@ public class SqlFile {
                 }
             } catch (BadSpecial bs) {
                 // BadSpecials ALWAYS have non-null getMessage().
-                if (token == null) {
-                    errprintln(SqltoolRB.errorat.getString(
-                            inputStreamLabel, "?", "?", bs.getMessage()));
-                } else {
-                    errprintln(SqltoolRB.errorat.getString(
-                            inputStreamLabel,
-                            Integer.toString(token.line),
-                            token.reconstitute(),
-                            bs.getMessage(), bs.getMessage()));
-                }
+                assert token != null;
+                errprintln(SqltoolRB.errorat.getString(
+                        inputStreamLabel,
+                        Integer.toString(token.line),
+                        token.reconstitute(),
+                        bs.getMessage(), bs.getMessage()));
                 Throwable cause = bs.getCause();
                 if (cause != null)
                     errprintln(SqltoolRB.causereport.getString(cause));
@@ -1047,10 +1044,9 @@ public class SqlFile {
                 if (!continueOnError) throw new SqlToolError(bs);
             } catch (SQLException se) {
                 //se.printStackTrace();
+                assert token != null;
                 errprintln("SQL " + SqltoolRB.errorat.getString(
-                        inputStreamLabel,
-                        ((token == null) ? "?"
-                                         : Integer.toString(token.line)),
+                        inputStreamLabel, Integer.toString(token.line),
                         lastSqlStatement,
                         se.getMessage()));
                 // It's possible that we could have
@@ -1087,6 +1083,7 @@ public class SqlFile {
             } catch (QuitNow qn) {
                 throw qn;
             } catch (SqlToolError ste) {
+                assert token != null;
                 StringBuffer sb = new StringBuffer(SqltoolRB.errorat.getString(
                     /* WARNING:  I have removed an extra LS appended to
                      * non-null ste.getMessages() below because I believe that
@@ -1095,18 +1092,12 @@ public class SqlFile {
                      * If I am wrong and this is needed for Scanner display or
                      * something, restore it.
                      */
-                    ((token == null)
-                            ? (new String[] {
-                                inputStreamLabel, "?", "?",
-                                ((ste.getMessage() == null)
-                                        ? "" : ste.getMessage())
-                              })
-                            : (new String[] {
-                                inputStreamLabel, Integer.toString(token.line),
-                                ((token.val == null) ? "" : token.reconstitute()),
-                                ((ste.getMessage() == null)
-                                        ? "" : ste.getMessage())
-                              }))
+                    (new String[] {
+                        inputStreamLabel, Integer.toString(token.line),
+                        ((token.val == null) ? "" : token.reconstitute()),
+                        ((ste.getMessage() == null)
+                                ? "" : ste.getMessage())
+                     })
                 ));
                 Throwable cause = ste.getCause();
                 errprintln((cause == null) ? sb.toString()
@@ -1178,7 +1169,7 @@ public class SqlFile {
      * Therefore, external users have no reason to specifically handle
      * QuitNow.
      */
-    private class QuitNow extends SqlToolError {
+    private static class QuitNow extends SqlToolError {
         static final long serialVersionUID = 1811094258670900488L;
 
         public QuitNow(String s) {
@@ -1197,7 +1188,7 @@ public class SqlFile {
      * Therefore, external users have no reason to specifically handle
      * BreakException.
      */
-    private class BreakException extends SqlToolError {
+    private static class BreakException extends SqlToolError {
         static final long serialVersionUID = 351150072817675994L;
 
         public BreakException() {
@@ -1216,7 +1207,7 @@ public class SqlFile {
      * Therefore, external users have no reason to specifically handle
      * ContinueException.
      */
-    private class ContinueException extends SqlToolError {
+    private static class ContinueException extends SqlToolError {
         static final long serialVersionUID = 5064604160827106014L;
 
         public ContinueException() {
@@ -1231,7 +1222,7 @@ public class SqlFile {
     /**
      * Utility nested Exception class for internal use only.
      */
-    private class BadSubst extends Exception {
+    private static class BadSubst extends Exception {
         static final long serialVersionUID = 7325933736897253269L;
 
         BadSubst(String s) {
@@ -1242,7 +1233,7 @@ public class SqlFile {
     /**
      * Utility nested Exception class for internal use only.
      */
-    private class RowError extends AppendableException {
+    private static class RowError extends AppendableException {
         static final long serialVersionUID = 754346434606022750L;
 
         RowError(String s) {
@@ -1466,7 +1457,7 @@ public class SqlFile {
                         + m.groupCount() + " groups";
                     String optionGroup = (
                             (m.groupCount() > 3 && m.group(4) != null)
-                            ? (new String(m.group(4))) : null);
+                            ? m.group(4) : null);
 
                     if (optionGroup != null) {
                         if (optionGroup.indexOf(';') > -1) {
@@ -1922,6 +1913,8 @@ public class SqlFile {
                         pwd = tokens[1];
                         url = tokens[2];
                         break;
+                    default:
+                        assert false;
                 }
                 if (tokens.length > 0) {
                     // Close current connection
@@ -2979,6 +2972,7 @@ public class SqlFile {
 
             case '_' :
                 silentFetch = true;
+                // Purposefully fall through to next case
             case '~' :
                 // TODO:  Condsider limiting fetchingVars to User variables
                 // (as opposed to *SYSTEM variables).
@@ -3562,10 +3556,7 @@ public class SqlFile {
                     rs = md.getTables(null, additionalSchema, null,
                                       types);
 
-                    if (rs == null)
-                        throw new BadSpecial(
-                                SqltoolRB.metadata_fetch_failfor.getString(
-                                additionalSchema));
+                    assert rs != null;
 
                     if (!rs.next()) continue;
 
@@ -3863,6 +3854,8 @@ public class SqlFile {
                         case java.sql.Types.LONGVARBINARY :
                         case java.sql.Types.LONGVARCHAR :
                             autonulls[insi] = false;
+                            break;
+                        default:
                             break;
                     }
 
@@ -4351,8 +4344,7 @@ public class SqlFile {
                     + "Attempted to add command type "
                     + newBuffer.getTypeString() + " to buffer";
         }
-        buffer = new Token(newBuffer.type, new String(newBuffer.val),
-                newBuffer.line);
+        buffer = new Token(newBuffer.type, newBuffer.val, newBuffer.line);
         // System.err.println("Buffer is now (" + buffer + ')');
         return true;
     }
@@ -5464,6 +5456,9 @@ public class SqlFile {
                     case org.hsqldb.types.Types.SQL_TIMESTAMP_WITH_TIME_ZONE:
                     case org.hsqldb.types.Types.SQL_TIME_WITH_TIME_ZONE:
                         parseDate[i] = true;
+                        break;
+                    default:
+                        break;
                 }
             }
         } catch (SQLException se) {
@@ -6097,7 +6092,7 @@ public class SqlFile {
                     while (templateM.find()) {
                         buffer.val += macroToken.val
                                 .substring(prevEnd, templateM.start());
-                        varNum = Integer.valueOf(
+                        varNum = Integer.parseInt(
                                 templateM.group(templateM.groupCount()));
                         varVal = (varNum > 0 && varNum <= splitVars.length)
                                 ? splitVars[varNum-1] : null;

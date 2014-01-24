@@ -57,7 +57,7 @@ import java.util.Date;
  */
 public class SqlToolSprayer {
 
-    public static String LS = System.getProperty("line.separator");
+    public static final String LS = System.getProperty("line.separator");
     private static String SYNTAX_MSG =
         "SYNTAX:  java [-D...] SqlToolSprayer 'SQL;' [urlid1 urlid2...]\n"
         + "System properties you may use [default values]:\n"
