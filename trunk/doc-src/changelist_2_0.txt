@@ -1,4 +1,4 @@
-18 January 2014
+24 January 2014 - svn 5332
 -- fixed several minor issues
 -- fixed bug with incomplete rollback of MVCC transaction that inserts and updates the same row
 -- fixed issue with parsing of long BIT strings in SQL
