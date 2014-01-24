@@ -952,12 +952,14 @@ public class SqlFile {
                         }
                         if (receivedType == Token.RAWEXEC_TYPE) {
                             historize();
-                            Statement statement = processSQL();
                             ResultSet rs = null;
+                            Statement statement = processSQL();
                             if (statement != null) {
                                 try {
                                     rs = statement.getResultSet();
-                                } catch (SQLException se) {
+                                    displaySqlResults(
+                                            statement, rs, null, null, true);
+                                } finally {
                                     assert statement != null;
                                     try {
                                         statement.close();
@@ -966,10 +968,7 @@ public class SqlFile {
                                     } finally {
                                         statement = null;
                                     }
-                                    throw se;  // rethrow
                                 }
-                                displaySqlResults(
-                                        statement, rs, null, null, true);
                             }
                         }
                         continue;
@@ -1004,12 +1003,14 @@ public class SqlFile {
                         if (token.val == null) token.val = "";
                         setBuf(token);
                         historize();
-                        Statement statement = processSQL();
                         ResultSet rs = null;
+                        Statement statement = processSQL();
                         if (statement != null) {
                             try {
                                 rs = statement.getResultSet();
-                            } catch (SQLException se) {
+                                displaySqlResults(
+                                        statement, rs, null, null, true);
+                            } finally {
                                 assert statement != null;
                                 try {
                                     statement.close();
@@ -1018,10 +1019,7 @@ public class SqlFile {
                                 } finally {
                                     statement = null;
                                 }
-                                throw se;  // rethrow
                             }
-                            displaySqlResults(
-                                    statement, rs, null, null, true);
                         }
                         continue;
                     default:
@@ -2435,12 +2433,12 @@ public class SqlFile {
                         + "immediately by an SQL statement");
             setBuf(queryToken);
             List<String[]> rowData = new ArrayList<String[]>();
-            Statement statement = processSQL();
             ResultSet rs = null;
+            int colCount = 0;
+            Statement statement = processSQL();
             if (statement == null)
                 // TODO: Define message
                 throw new BadSpecial("Failed to prepare SQL for loop");
-            int colCount = 0;
             try {
                 rs = statement.getResultSet();
                 ResultSetMetaData rsmd = rs.getMetaData();
@@ -2468,7 +2466,7 @@ public class SqlFile {
                     rs = null;
                 }
                 try {
-                    if (statement != null) statement.close();
+                    statement.close();
                 } catch (SQLException nse) {
                     // Purposefully doing nothing
                 } finally {
@@ -4767,9 +4765,8 @@ public class SqlFile {
      * As the name says...
      * This method always closes the input stream.
      */
-    public String streamToString(InputStream isIn, String cs)
+    public String streamToString(InputStream is, String cs)
             throws IOException {
-        InputStream is = isIn;  // Compiler warning, when we can null the ref
         byte[] ba = null;
         int bytesread = 0;
         int retval;
@@ -4802,7 +4799,9 @@ public class SqlFile {
             } catch (IOException ioe) {
                 // intentionally empty
             } finally {
-                is = null;  // Encourage GC of buffers
+                is = null;  // Encourage GC of buffers.
+                // Modification of input param will elicit a compiler warning.
+                // N.b. the caller reference will remain non-null.
             }
         }
     }

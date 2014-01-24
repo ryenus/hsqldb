@@ -236,8 +236,9 @@ public class DbBackup {
         byte[] writeBuffer = new byte[bufferSize];
 
         checkEssentialFiles();
+        FileOutputStream fileOut = null;
 
-        for (int i = 0; i < componentFiles.length; i++) {
+        for (int i = 0; i < componentFiles.length; i++) try {
             if (ignoreList[i]) {
                 continue;
             }
@@ -247,7 +248,7 @@ public class DbBackup {
             }
 
             File outFile = new File(archiveFile, componentFiles[i].getName());
-            FileOutputStream fileOut = new FileOutputStream(outFile);
+            fileOut = new FileOutputStream(outFile);
 
             if (componentStreams[i] == null) {
                 componentStreams[i] = new InputStreamWrapper(
@@ -269,7 +270,11 @@ public class DbBackup {
             instream.close();
             fileOut.flush();
             fileOut.getFD().sync();
-            fileOut.close();
+        } finally {
+            if (fileOut != null) {
+                fileOut.close();
+                fileOut = null;
+            }
         }
     }
 
