@@ -33,6 +33,7 @@ package org.hsqldb.lib;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.InputStream;
 import java.io.IOException;
 import java.lang.reflect.Method;
 import java.util.Enumeration;
@@ -255,6 +256,7 @@ public class FrameworkLogger {
         if (propVal != null && propVal.equalsIgnoreCase("false")) {
             return;
         }
+        InputStream istream = null;
 
         try {
             LogManager lm = LogManager.getLogManager();
@@ -269,8 +271,8 @@ public class FrameworkLogger {
                 consoleHandler.setFormatter(
                     new BasicTextJdkLogFormatter(false));
                 consoleHandler.setLevel(Level.INFO);
-                lm.readConfiguration(
-                    FrameworkLogger.class.getResourceAsStream(path));
+                istream = FrameworkLogger.class.getResourceAsStream(path);
+                lm.readConfiguration(istream);
 
                 Logger cmdlineLogger = Logger.getLogger("org.hsqldb.cmdline");
 
@@ -296,6 +298,13 @@ public class FrameworkLogger {
                 "<clinit> failure initializing JDK logging system.  "
                 + "Continuing without Application logging.");
             e.printStackTrace();
+        } finally {
+            if (istream != null) try {
+                istream.close();
+            } catch (IOException ioe) {
+                System.err.println(
+                    "Failed to close logging input stream: " + ioe);
+            }
         }
     }
 

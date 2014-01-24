@@ -34,6 +34,7 @@ package org.hsqldb.auth;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -103,8 +104,10 @@ public class AuthBeanMultiplexer {
     }
 
     protected static String getUniqueNameFor(Connection c) throws SQLException {
-        ResultSet rs = c.createStatement().executeQuery("CALL database_name()");
+        Statement st = c.createStatement();
+        ResultSet rs = null;
         try {
+            rs = st.executeQuery("CALL database_name()");
             if (!rs.next()) {
                 throw new SQLException(
                         "Engine did not reveal unique database name");
@@ -118,6 +121,13 @@ public class AuthBeanMultiplexer {
                         "Failed to close ResultSet for retrieving db name");
             }
             rs = null;  // Encourage GC
+            try {
+                st.close();
+            } catch (SQLException se) {
+                logger.error(
+                        "Failed to close Statement for retrieving db name");
+            }
+            st = null;  // Encourage GC
         }
     }
 
