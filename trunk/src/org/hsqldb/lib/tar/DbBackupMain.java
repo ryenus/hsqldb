@@ -98,7 +98,7 @@ public class DbBackupMain {
                 }
 
                 new TarReader(new File(sa[1]), TarReader
-                    .LIST_MODE, patternStrings, new Integer(DbBackup
+                    .LIST_MODE, patternStrings, Integer.valueOf(DbBackup
                         .generateBufferBlockValue(new File(sa[1]))), null)
                             .read();
             } else if (sa[0].equals("--extract")) {
@@ -128,7 +128,7 @@ public class DbBackupMain {
 
                 new TarReader(
                     tarFile, tarReaderMode, patternStrings,
-                    new Integer(DbBackup.generateBufferBlockValue(tarFile)),
+                    Integer.valueOf(DbBackup.generateBufferBlockValue(tarFile)),
                     new File(sa[firstPatInd - 1])).read();
             } else {
                 throw new IllegalArgumentException();

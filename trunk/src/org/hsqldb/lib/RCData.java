@@ -410,7 +410,7 @@ public class RCData {
      */
     public static String expandSysPropVars(String inString) {
 
-        String outString = new String(inString);
+        String outString = inString;
         int    varOffset, varEnd;
         String varVal, varName;
 

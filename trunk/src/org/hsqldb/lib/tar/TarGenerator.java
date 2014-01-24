@@ -237,10 +237,10 @@ public class TarGenerator {
      * @author Blaine Simpson (blaine dot simpson at admc dot com)
      */
     static protected class TarEntrySupplicant {
-        static protected byte[] HEADER_TEMPLATE =
+        static final byte[] HEADER_TEMPLATE =
             TarFileOutputStream.ZERO_BLOCK.clone();
         static Character              swapOutDelim = null;
-        final protected static byte[] ustarBytes   = {
+        final static byte[] ustarBytes   = {
             'u', 's', 't', 'a', 'r'
         };
 
@@ -248,7 +248,7 @@ public class TarGenerator {
             char c = System.getProperty("file.separator").charAt(0);
 
             if (c != '/') {
-                swapOutDelim = new Character(c);
+                swapOutDelim = Character.valueOf(c);
             }
 
             try {

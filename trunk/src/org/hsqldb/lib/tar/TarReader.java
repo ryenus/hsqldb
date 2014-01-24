@@ -618,8 +618,8 @@ public class TarReader {
          */
         public String toString() {
 
-            StringBuffer sb =
-                new StringBuffer(sdf.format(new Long(modTime * 1000L)) + ' ');
+            StringBuffer sb = new StringBuffer(
+                    sdf.format(Long.valueOf(modTime * 1000L)) + ' ');
 
             sb.append((entryType == '\0') ? ' '
                                           : entryType);
@@ -691,6 +691,9 @@ public class TarReader {
 
                 case -1 :
                     termIndex = stop - start;
+                    break;
+
+                default:
                     break;
             }
 

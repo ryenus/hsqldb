@@ -102,7 +102,7 @@ public class SqlTool {
     private static String CMDLINE_ID = "cmdline";
 
     /** Platform-specific line separator */
-    public static String LS = System.getProperty("line.separator");
+    public static final String LS = System.getProperty("line.separator");
 
     /** Utility nested class for internal use. */
     private static class BadCmdline extends Exception {

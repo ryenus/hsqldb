@@ -52,7 +52,7 @@ import java.util.logging.LogRecord;
  */
 public class BasicTextJdkLogFormatter extends Formatter {
     protected boolean withTime = true;
-    public static String LS = System.getProperty("line.separator");
+    public static final String LS = System.getProperty("line.separator");
 
     protected SimpleDateFormat sdf =
             new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
