@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2011, The HSQL Development Group
+/* Copyright (c) 2001-2014, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -133,7 +133,7 @@ public class TarFileInputStream {
 
         if (!sourceFile.canRead()) {
             throw new IOException(
-                    RB.read_denied.getString(sourceFile.getAbsolutePath()));
+                RB.read_denied.getString(sourceFile.getAbsolutePath()));
         }
 
         this.readBufferBlocks = readBufferBlocks;
@@ -222,7 +222,8 @@ public class TarFileInputStream {
                                 requiredBytes - bytesSoFar);
 
             if (i < 0) {
-                throw new EOFException(RB.decompression_ranout.getString(
+                throw new EOFException(
+                    RB.decompression_ranout.getString(
                         bytesSoFar, requiredBytes));
             }
 
@@ -295,13 +296,15 @@ public class TarFileInputStream {
      * @see java.io.Closeable
      */
     public void close() throws IOException {
+
         if (readStream == null) {
             return;
         }
+
         try {
             readStream.close();
         } finally {
-            readStream = null;  // Encourage buffer GC
+            readStream = null;    // Encourage buffer GC
         }
     }
 }
