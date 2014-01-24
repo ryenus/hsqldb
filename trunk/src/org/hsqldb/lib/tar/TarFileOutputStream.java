@@ -84,11 +84,11 @@ public class TarFileOutputStream {
     }
 
     public static final boolean debug = Boolean.getBoolean("DEBUG");
-    protected int         blocksPerRecord;
-    protected long        bytesWritten = 0;
-    private OutputStream  writeStream;
-    private File          targetFile;
-    private File          writeFile;
+    protected int               blocksPerRecord;
+    protected long              bytesWritten = 0;
+    private OutputStream        writeStream;
+    private File                targetFile;
+    private File                writeFile;
 
     /* This is not a "Writer", but the byte "Stream" that we write() to. */
     public byte[] writeBuffer;
@@ -136,24 +136,24 @@ public class TarFileOutputStream {
 
         if (this.writeFile.exists()) {
             throw new IOException(
-                    RB.move_work_file.getString(writeFile.getAbsolutePath()));
+                RB.move_work_file.getString(writeFile.getAbsolutePath()));
         }
 
         if (targetFile.exists() && !targetFile.canWrite()) {
             throw new IOException(
-                    RB.cant_overwrite.getString(targetFile.getAbsolutePath()));
+                RB.cant_overwrite.getString(targetFile.getAbsolutePath()));
         }
 
         File parentDir = targetFile.getAbsoluteFile().getParentFile();
 
         if (parentDir.exists() && parentDir.isDirectory()) {
             if (!parentDir.canWrite()) {
-                throw new IOException(RB.cant_write_dir.getString(
-                        parentDir.getAbsolutePath()));
+                throw new IOException(
+                    RB.cant_write_dir.getString(parentDir.getAbsolutePath()));
             }
         } else {
             throw new IOException(
-                    RB.no_parent_dir.getString(parentDir.getAbsolutePath()));
+                RB.no_parent_dir.getString(parentDir.getAbsolutePath()));
         }
 
         writeBuffer = new byte[blocksPerRecord * 512];
@@ -210,7 +210,7 @@ public class TarFileOutputStream {
     }
 
     /**
-     * Write a user-specified 512-byte block.  *
+     * Write a user-specified 512-byte block.
      * For efficiency, write(int) should be used when writing file body content.
      *
      * @see #write(int)
@@ -219,7 +219,7 @@ public class TarFileOutputStream {
 
         if (block.length != 512) {
             throw new IllegalArgumentException(
-                    RB.bad_block_write_len.getString(block.length));
+                RB.bad_block_write_len.getString(block.length));
         }
 
         write(block, block.length);
@@ -261,7 +261,7 @@ public class TarFileOutputStream {
         if (bytesLeftInBlock() != 0) {
             throw new IllegalArgumentException(
                 RB.illegal_block_boundary.getString(
-                        Long.toString(bytesWritten)));
+                    Long.toString(bytesWritten)));
         }
     }
 
@@ -311,11 +311,11 @@ public class TarFileOutputStream {
 
             if (!writeFile.delete()) {
                 throw new IOException(
-                        RB.workfile_delete_fail.getString(
+                    RB.workfile_delete_fail.getString(
                         writeFile.getAbsolutePath()));
             }
         } finally {
-            writeStream = null;  // Encourage buffer GC
+            writeStream = null;    // Encourage buffer GC
         }
     }
 
@@ -350,7 +350,7 @@ public class TarFileOutputStream {
 
             if (TarFileOutputStream.debug) {
                 System.out.println(
-                        RB.pad_block_write.getString(finalPadBlocks));
+                    RB.pad_block_write.getString(finalPadBlocks));
             }
 
             writePadBlocks(finalPadBlocks);
