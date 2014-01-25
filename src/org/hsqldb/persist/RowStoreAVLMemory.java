@@ -119,6 +119,7 @@ public class RowStoreAVLMemory extends RowStoreAVL implements PersistentStore {
     public void removeAll() {
 
         destroy();
+        setTimestamp(0);
         elementCount.set(0);
         ArrayUtil.fillArray(accessorList, null);
     }
@@ -193,7 +194,7 @@ public class RowStoreAVLMemory extends RowStoreAVL implements PersistentStore {
 
         destroy();
         setTimestamp(0);
-        ArrayUtil.fillArray(accessorList, null);
         elementCount.set(0);
+        ArrayUtil.fillArray(accessorList, null);
     }
 }

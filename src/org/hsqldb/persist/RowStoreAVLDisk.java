@@ -202,8 +202,8 @@ public class RowStoreAVLDisk extends RowStoreAVL implements PersistentStore {
     public void removeAll() {
 
         elementCount.set(0);
-        ArrayUtil.fillArray(accessorList, null);
         cache.spaceManager.freeTableSpace(tableSpace.getSpaceID());
+        ArrayUtil.fillArray(accessorList, null);
     }
 
     public void remove(CachedObject object) {
@@ -311,12 +311,12 @@ public class RowStoreAVLDisk extends RowStoreAVL implements PersistentStore {
 
     public void release() {
 
-        ArrayUtil.fillArray(accessorList, null);
         cache.adjustStoreCount(-1);
 
         cache = null;
 
         elementCount.set(0);
+        ArrayUtil.fillArray(accessorList, null);
     }
 
     public CachedObject getAccessor(Index key) {

@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2011, The HSQL Development Group
+/* Copyright (c) 2001-2014, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -64,7 +64,7 @@ implements PersistentStoreCollection {
         this.session = session;
     }
 
-    public void setStore(Object key, PersistentStore store) {
+    synchronized public void setStore(Object key, PersistentStore store) {
 
         TableBase table = (TableBase) key;
 
@@ -86,7 +86,7 @@ implements PersistentStoreCollection {
                 }
                 break;
 
-            // SYSTEM_TABLE + INFO_SCHEMA_TABLE
+            // TEMP TABLE default, SYSTEM_TABLE + INFO_SCHEMA_TABLE
             case TableBase.SCOPE_FULL :
             case TableBase.SCOPE_TRANSACTION :
                 if (store == null) {
@@ -111,11 +111,11 @@ implements PersistentStoreCollection {
         }
     }
 
-    public PersistentStore getViewStore(long persistenceId) {
+    synchronized public PersistentStore getViewStore(long persistenceId) {
         return (PersistentStore) rowStoreMapStatement.get(persistenceId);
     }
 
-    public PersistentStore getStore(Object key) {
+    synchronized public PersistentStore getStore(Object key) {
 
         TableBase       table = (TableBase) key;
         PersistentStore store;
@@ -144,7 +144,7 @@ implements PersistentStoreCollection {
 
                 return store;
 
-            // SYSTEM_TABLE + INFO_SCHEMA_TABLE
+            // TEMP TABLE default, SYSTEM_TABLE + INFO_SCHEMA_TABLE
             case TableBase.SCOPE_FULL :
             case TableBase.SCOPE_TRANSACTION :
                 store = (PersistentStore) rowStoreMapTransaction.get(
@@ -179,7 +179,7 @@ implements PersistentStoreCollection {
         }
     }
 
-    public void clearAllTables() {
+    synchronized public void clearAllTables() {
 
         clearSessionTables();
         clearTransactionTables();
@@ -188,7 +188,7 @@ implements PersistentStoreCollection {
         closeSessionDataCache();
     }
 
-    public void clearResultTables(long actionTimestamp) {
+    synchronized public void clearResultTables(long actionTimestamp) {
 
         if (rowStoreMapSession.isEmpty()) {
             return;
@@ -206,7 +206,7 @@ implements PersistentStoreCollection {
         }
     }
 
-    public void clearSessionTables() {
+    synchronized public void clearSessionTables() {
 
         if (rowStoreMapSession.isEmpty()) {
             return;
@@ -223,7 +223,7 @@ implements PersistentStoreCollection {
         rowStoreMapSession.clear();
     }
 
-    public void clearTransactionTables() {
+    synchronized public void clearTransactionTables() {
 
         if (rowStoreMapTransaction.isEmpty()) {
             return;
@@ -240,7 +240,7 @@ implements PersistentStoreCollection {
         rowStoreMapTransaction.clear();
     }
 
-    public void clearStatementTables() {
+    synchronized public void clearStatementTables() {
 
         if (rowStoreMapStatement.isEmpty()) {
             return;
@@ -257,7 +257,7 @@ implements PersistentStoreCollection {
         rowStoreMapStatement.clear();
     }
 
-    public void clearRoutineTables() {
+    synchronized public void clearRoutineTables() {
 
         if (rowStoreMapRoutine.isEmpty()) {
             return;
@@ -274,7 +274,7 @@ implements PersistentStoreCollection {
         rowStoreMapRoutine.clear();
     }
 
-    public void registerIndex(Session session, Table table) {
+    synchronized public void registerIndex(Session session, Table table) {
 
         PersistentStore store = findStore(table);
 
@@ -285,7 +285,7 @@ implements PersistentStoreCollection {
         store.resetAccessorKeys(session, table.getIndexList());
     }
 
-    public PersistentStore findStore(Table table) {
+    synchronized public PersistentStore findStore(Table table) {
 
         PersistentStore store = null;
 
@@ -301,7 +301,7 @@ implements PersistentStoreCollection {
                     table.getPersistenceId());
                 break;
 
-            // SYSTEM_TABLE + INFO_SCHEMA_TABLE
+            // TEMP TABLE default, SYSTEM_TABLE + INFO_SCHEMA_TABLE
             case TableBase.SCOPE_FULL :
             case TableBase.SCOPE_TRANSACTION :
                 store = (PersistentStore) rowStoreMapTransaction.get(
@@ -317,8 +317,8 @@ implements PersistentStoreCollection {
         return store;
     }
 
-    public void moveData(Table oldTable, Table newTable, int colIndex,
-                         int adjust) {
+    synchronized public void moveData(Table oldTable, Table newTable,
+                                      int colIndex, int adjust) {
 
         PersistentStore oldStore = findStore(oldTable);
 
@@ -340,7 +340,7 @@ implements PersistentStoreCollection {
         setStore(oldTable, null);
     }
 
-    public void push(boolean isRoutine) {
+    synchronized public void push(boolean isRoutine) {
 
         if (rowStoreListStack == null) {
             rowStoreListStack = new HsqlDeque();
@@ -359,7 +359,7 @@ implements PersistentStoreCollection {
         }
     }
 
-    public void pop(boolean isRoutine) {
+    synchronized public void pop(boolean isRoutine) {
 
         Object[] array;
 
@@ -390,7 +390,7 @@ implements PersistentStoreCollection {
 
     DataFileCacheSession resultCache;
 
-    public DataFileCacheSession getSessionDataCache() {
+    synchronized public DataFileCacheSession getSessionDataCache() {
 
         if (resultCache == null) {
             String path = session.database.logger.getTempDirectoryPath();
@@ -426,7 +426,7 @@ implements PersistentStoreCollection {
         }
     }
 
-    public void release() {
+    synchronized public void release() {
         clearAllTables();
     }
 }

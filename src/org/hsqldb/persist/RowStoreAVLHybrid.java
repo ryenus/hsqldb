@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2011, The HSQL Development Group
+/* Copyright (c) 2001-2014, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -318,8 +318,6 @@ public class RowStoreAVLHybrid extends RowStoreAVL implements PersistentStore {
             destroy();
         }
 
-        ArrayUtil.fillArray(accessorList, null);
-
         if (isCached) {
             cache.adjustStoreCount(-1);
 
@@ -329,6 +327,7 @@ public class RowStoreAVLHybrid extends RowStoreAVL implements PersistentStore {
 
         manager.setStore(table, null);
         elementCount.set(0);
+        ArrayUtil.fillArray(accessorList, null);
     }
 
     public void delete(Session session, Row row) {
