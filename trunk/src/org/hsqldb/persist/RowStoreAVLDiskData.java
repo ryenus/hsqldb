@@ -278,9 +278,10 @@ public class RowStoreAVLDiskData extends RowStoreAVL {
     public void release() {
 
         destroy();
-        ArrayUtil.fillArray(accessorList, null);
         table.database.logger.closeTextCache((Table) table);
 
         cache = null;
+
+        ArrayUtil.fillArray(accessorList, null);
     }
 }

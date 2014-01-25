@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2011, The HSQL Development Group
+/* Copyright (c) 2001-2014, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -118,9 +118,10 @@ public class Table extends TableBase implements SchemaObject {
                 break;
 
             case INFO_SCHEMA_TABLE :
+                persistenceScope = SCOPE_TRANSACTION;
                 isSessionBased = true;
+                break;
 
-            // fall through
             case SYSTEM_TABLE :
                 persistenceScope = SCOPE_FULL;
                 isSchemaBased    = true;

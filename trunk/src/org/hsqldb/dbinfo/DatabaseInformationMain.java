@@ -1299,7 +1299,7 @@ class DatabaseInformationMain extends DatabaseInformation {
                 SchemaObject.INDEX);
 
             t.createPrimaryKeyConstraint(name, new int[] {
-                0, 1, 2, 3, 4, 5, 7
+                0, 1, 2, 3, 4, 5, 7, 8
             }, false);
 
             return t;
