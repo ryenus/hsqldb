@@ -697,6 +697,12 @@ public class ParserDDL extends ParserRoutine {
                     case Tokens.UNIQUE :
                         read();
 
+                        if (database.sqlSyntaxMys) {
+                            if (!readIfThis(Tokens.INDEX)) {
+                                readIfThis(Tokens.KEY);
+                            }
+                        }
+
                         return compileAlterTableAddUniqueConstraint(t, cname);
 
                     case Tokens.CHECK :
@@ -1075,6 +1081,16 @@ public class ParserDDL extends ParserRoutine {
 
             read();
             readThis(Tokens.ROWS);
+        }
+
+        if (database.sqlSyntaxMys) {
+            if (readIfThis(Tokens.COMMENT)) {
+                readIfThis(Tokens.EQUALS);
+
+                String comment = readQuotedString();
+
+                table.getName().comment = comment;
+            }
         }
 
         OrderedHashSet names = new OrderedHashSet();
@@ -2963,6 +2979,12 @@ public class ParserDDL extends ParserRoutine {
                 }
 
                 read();
+
+                if (database.sqlSyntaxMys) {
+                    if (!readIfThis(Tokens.INDEX)) {
+                        readIfThis(Tokens.KEY);
+                    }
+                }
 
                 OrderedHashSet set = readColumnNames(false);
 
