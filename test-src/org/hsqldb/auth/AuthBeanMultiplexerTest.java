@@ -46,6 +46,7 @@ import junit.textui.TestRunner;
 import org.hsqldb.lib.FrameworkLogger;
 import org.hsqldb.testbase.BaseTestCase;
 import org.hsqldb.testbase.ForSubject;
+import org.hsqldb.lib.StringUtil;
 
 @ForSubject(AuthBeanMultiplexer.class)
 public class AuthBeanMultiplexerTest extends BaseTestCase {
@@ -117,11 +118,11 @@ public class AuthBeanMultiplexerTest extends BaseTestCase {
         }
         if (!AuthFunctionUtils.isWrapperFor(res, twoRoles)) {
             fail("2-role success test return success with roles: "
-                    + AuthFunctionUtils.toStrings(res));
+                    + StringUtil.arrayToString(AuthFunctionUtils.toStrings(res)));
         }
         if (!AuthFunctionUtils.isWrapperFor(res, twoRoles)) {
             fail("2-role success test return success with roles: "
-                    + AuthFunctionUtils.toStrings(res));
+                    + StringUtil.arrayToString(AuthFunctionUtils.toStrings(res)));
         }
         try {
             res = AuthBeanMultiplexer.authenticate("WRONG_NAME123456", "u", "p");
@@ -164,7 +165,7 @@ public class AuthBeanMultiplexerTest extends BaseTestCase {
         }
         if (!AuthFunctionUtils.isWrapperFor(res, twoRoles)) {
             fail("2-role success AFTER RTE test return success with roles: "
-                    + AuthFunctionUtils.toStrings(res));
+                    + StringUtil.arrayToString(AuthFunctionUtils.toStrings(res)));
         }
 
         plexer.clear();
