@@ -60,16 +60,12 @@ public class TestSql extends TestBase {
         super(name);
     }
 
-    protected void setUp() {
+    protected void setUp() throws Exception {
 
         super.setUp();
 
-        try {
-            connection = super.newConnection();
-            stmnt      = connection.createStatement();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        connection = super.newConnection();
+        stmnt      = connection.createStatement();
     }
 
     public void testMetaData() {

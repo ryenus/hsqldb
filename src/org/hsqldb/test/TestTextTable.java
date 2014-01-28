@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2011, The HSQL Development Group
+/* Copyright (c) 2001-2014, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -212,7 +212,7 @@ public class TestTextTable extends TestBase {
         }
     }
 
-    public void setUp() {
+    public void setUp() throws Exception {
 
         super.setUp();
         setupTextFiles();

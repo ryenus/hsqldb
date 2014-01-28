@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2011, The HSQL Development Group
+/* Copyright (c) 2001-2014, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -48,6 +48,10 @@ public class TestBug808460 extends TestBase {
 
     public TestBug808460(String name) {
         super(name);
+    }
+
+    public void setUp() throws Exception {
+        super.setUp();
     }
 
     /* Implements the TestBug808460 test */

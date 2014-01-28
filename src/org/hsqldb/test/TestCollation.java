@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2011, The HSQL Development Group
+/* Copyright (c) 2001-2014, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -61,15 +61,12 @@ public class TestCollation extends TestBase {
         super.isNetwork = false;
     }
 
-    protected void setUp() {
+    protected void setUp() throws Exception {
 
         super.setUp();
 
-        try {
-            connection = super.newConnection();
-            statement  = connection.createStatement();
-        } catch (Exception e) {}
-
+        connection     = super.newConnection();
+        statement      = connection.createStatement();
         collIterator   = Collation.getCollationsIterator();
         localeIterator = Collation.getLocalesIterator();
     }

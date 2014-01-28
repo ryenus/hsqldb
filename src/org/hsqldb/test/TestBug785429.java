@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2011, The HSQL Development Group
+/* Copyright (c) 2001-2014, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -53,17 +53,15 @@ public class TestBug785429 extends TestBase {
         super(name);
     }
 
-    protected void setUp() {
+    protected void setUp() throws Exception {
 
         super.setUp();
 
-        try {
-            conn = super.newConnection();
+        conn = super.newConnection();
 
-            conn.setAutoCommit(false);
+        conn.setAutoCommit(false);
 
-            stmt = conn.createStatement();
-        } catch (Exception e) {}
+        stmt = conn.createStatement();
     }
 
     public void test() throws Exception {

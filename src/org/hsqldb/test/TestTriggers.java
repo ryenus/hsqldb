@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2011, The HSQL Development Group
+/* Copyright (c) 2001-2014, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -50,7 +50,7 @@ public class TestTriggers extends TestBase {
         super(testName, "jdbc:hsqldb:file:/hsql/testtrig/trigs", false, false);
     }
 
-    public void setUp() {
+    public void setUp() throws Exception {
 
         super.setUp();
 

@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2011, The HSQL Development Group
+/* Copyright (c) 2001-2014, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -53,7 +53,7 @@ public class TestJavaFunctions extends TestBase {
         super("TestJavaFunction", "jdbc:hsqldb:file:test3", false, false);
     }
 
-    protected void setUp() {
+    protected void setUp() throws Exception {
 
         super.setUp();
 
