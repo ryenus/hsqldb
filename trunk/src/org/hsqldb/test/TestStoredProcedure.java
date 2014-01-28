@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2011, The HSQL Development Group
+/* Copyright (c) 2001-2014, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -53,6 +53,10 @@ public class TestStoredProcedure extends TestBase {
 
     public TestStoredProcedure(String name) {
         super(name);
+    }
+
+    protected void setUp() throws Exception {
+        super.setUp();
     }
 
     public void testOne() throws Exception {
@@ -336,7 +340,8 @@ public class TestStoredProcedure extends TestBase {
         boolean isResult = cs.execute();
 
         assertFalse(isResult);
-        cs.getMoreResults();
+
+        isResult = cs.getMoreResults();
 
         ResultSet rs = cs.getResultSet();
 
@@ -420,7 +425,7 @@ public class TestStoredProcedure extends TestBase {
             rs = ps.getResultSet();
 
             rs.next();
-            assertEquals("INFORMATION_SCHEMA",rs.getString(2));
+            assertEquals("INFORMATION_SCHEMA", rs.getString(2));
         }
 
     }
@@ -449,7 +454,8 @@ public class TestStoredProcedure extends TestBase {
     }
 
     public static void procWithResultTwo(Connection conn, Integer[] intparam,
-                                         ResultSet[] resultparamOne, ResultSet[] resultparamTwo)
+                                         ResultSet[] resultparamOne,
+                                         ResultSet[] resultparamTwo)
                                          throws SQLException {
 
         conn.setTransactionIsolation(Connection.TRANSACTION_READ_COMMITTED);
@@ -535,9 +541,7 @@ public class TestStoredProcedure extends TestBase {
         return false;
     }
 
-    public static void procTest3(Integer value)
-                                    throws java.sql.SQLException {
-    }
+    public static void procTest3(Integer value) throws java.sql.SQLException {}
 
     public static void main(String[] args) throws Exception {
 

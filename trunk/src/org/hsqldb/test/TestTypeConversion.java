@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2011, The HSQL Development Group
+/* Copyright (c) 2001-2014, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -53,16 +53,12 @@ public class TestTypeConversion extends TestBase {
 //       super(name, "jdbc:hsqldb:mem:test3", false, false);
     }
 
-    protected void setUp() {
+    protected void setUp() throws Exception {
 
         super.setUp();
 
-        try {
-            connection = super.newConnection();
-            statement  = connection.createStatement();
-        } catch (Exception e) {
-            System.out.println(e);
-        }
+        connection = super.newConnection();
+        statement  = connection.createStatement();
     }
 
     public void testStreams() {
@@ -82,31 +78,30 @@ public class TestTypeConversion extends TestBase {
         try {
             String            dml0 = "insert into bstream values(default, ?)";
             String            dql0 = "select * from bstream where a = ?";
-            PreparedStatement ps1   = connection.prepareStatement(dml0);
-            PreparedStatement ps2   = connection.prepareStatement(dql0);
+            PreparedStatement ps1  = connection.prepareStatement(dml0);
+            PreparedStatement ps2  = connection.prepareStatement(dql0);
             byte[]            data = new byte[] {
                 0x10, 0x11, 0x12, 0x13, 0x14, 0x15
             };
-            InputStream is = new ByteArrayInputStream(data);
-            ps1.setBinaryStream(1,  is);
-            ps1.execute();
+            InputStream       is   = new ByteArrayInputStream(data);
 
+            ps1.setBinaryStream(1, is);
+            ps1.execute();
             ps1.setObject(1, data);
             ps1.execute();
-
             ps2.setInt(1, 1);
+
             ResultSet rs = ps2.executeQuery();
 
             rs.next();
 
             InputStream isr = rs.getBinaryStream(2);
 
-            for(int i =0; i < data.length ; i++) {
+            for (int i = 0; i < data.length; i++) {
                 int val = isr.read();
 
                 assertTrue(val == data[i]);
             }
-
         } catch (Exception e) {
             e.printStackTrace();
             fail("dml failure");
@@ -179,25 +174,28 @@ public class TestTypeConversion extends TestBase {
     }
 
     public void testArrayA() {
+
         try {
             String ddl0 = "DROP TABLE ARRAYTEST IF EXISTS";
             String ddl1 = "CREATE TABLE ARRAYTEST(A INTEGER ARRAY)";
             String dml1 = "INSERT INTO ARRAYTEST VALUES(ARRAY[0,0])";
             String dml2 = "INSERT INTO ARRAYTEST VALUES ?";
+
             statement.execute(ddl0);
             statement.execute(ddl1);
             statement.execute(dml1);
-            PreparedStatement ps = connection.prepareStatement(dml2);
-            Object[] objects = new Object [] { "1", 3, 9};
+
+            PreparedStatement ps      = connection.prepareStatement(dml2);
+            Object[]          objects = new Object[] {
+                "1", 3, 9
+            };
             Array array = connection.createArrayOf("INTEGER", objects);
+
             ps.setArray(1, array);
             ps.execute();
-
         } catch (SQLException e) {
             e.printStackTrace();
             fail("array failure");
         }
-
-
     }
 }

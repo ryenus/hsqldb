@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2011, The HSQL Development Group
+/* Copyright (c) 2001-2014, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -58,7 +58,6 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-
 package org.hsqldb.test;
 
 import java.sql.Connection;
@@ -75,115 +74,141 @@ import junit.framework.TestResult;
  * being repeatedly opened for each SELECT that is executed. If Keep-Alive is
  * being used, this test will complete in a about 5 seconds on an ivy-bridge
  * class machine
- * 
+ *
  * @author Aart de Vries
  */
 public class TestHTTPKeepAlive extends TestBase {
-	static Integer failCount = 0;
-	static Integer executeCount = 0;
-	private Statement stmnt;
-	private Connection connection;
 
-	public TestHTTPKeepAlive(String name) {
-		super(name);
-	}
+    static Integer     failCount    = 0;
+    static Integer     executeCount = 0;
+    private Statement  stmnt;
+    private Connection connection;
 
-	protected void setUp() {
-		super.setUp();
+    public TestHTTPKeepAlive(String name) {
+        super(name);
+    }
 
-		try {
-			connection = newConnection();
-			stmnt = connection.createStatement();
-			stmnt.execute("CREATE TABLE IF NOT EXISTS link_table (id INTEGER PRIMARY KEY NOT NULL, other TINYINT NOT NULL)");
-			stmnt.execute("INSERT INTO link_table VALUES ((0, 1),(1, 2))");
-		} catch (Exception e) {
-		}
-	}
+    protected void setUp() throws Exception {
 
-	protected void tearDown() {
-		try {
-			stmnt.execute("DROP TABLE IF EXISTS link_table");
-			connection.close();
-		} catch (Exception e) {
-			e.printStackTrace();
-			System.out.println("TestSql.tearDown() error: " + e.getMessage());
-		}
+        super.setUp();
 
-		super.tearDown();
-	}
+        connection = newConnection();
+        stmnt      = connection.createStatement();
 
-	class KeepAliveThread extends Thread {
-		public void run() {
-			Connection c = null;
-			try {
-				c = newConnection();
-				final Statement statement = c.createStatement();
-				for (int i = 0; i <= 16500; i++) {
-					statement.executeQuery("SELECT * FROM link_table");
-					synchronized(executeCount) {
-						executeCount++;
-					}
-				}
-			} catch (SQLException e) {
-				e.printStackTrace(System.out);
-			}
-			finally {
-				try {
-					c.close();
-				} catch (SQLException e) {
-					e.printStackTrace();
-				}
-			}
-		}
-	}
-	
-	class TimeoutThread extends Thread {
-		public void run() {
-			Thread t = new KeepAliveThread();
-			t.start();
-			try {
-				t.join(15000);
-				if (t.isAlive()) { // If thread still running, then it's probably blocked because the ports are exhausted
-					synchronized(failCount) {
-						if(failCount==0) {
-							failCount++;
-							fail("Keep-Alive is probably not being used");
-						}
-					}
-				}
-			} 
-			catch (InterruptedException ex) { }
-		}
-	}
-	
-	public void testKeepAlive() {
-		Thread t1 = new TimeoutThread(); t1.start();
-		Thread t2 = new TimeoutThread(); t2.start();
-		Thread t3 = new TimeoutThread(); t3.start();
-		Thread t4 = new TimeoutThread(); t4.start();
-		try {
-			t1.join();
-			t2.join();
-			t3.join();
-			t4.join();
-		} 
-		catch (InterruptedException e) { }
-		System.out.println("testKeepAlive completed " + executeCount + "connections.\n");
-	}
+        stmnt.execute(
+            "CREATE TABLE IF NOT EXISTS link_table (id INTEGER PRIMARY KEY NOT NULL, other TINYINT NOT NULL)");
+        stmnt.execute("INSERT INTO link_table VALUES ((0, 1),(1, 2))");
+    }
 
-	public static void main(String[] argv) {
+    protected void tearDown() {
 
-		TestResult result = new TestResult();
-		TestCase testKeepAlive = new TestHTTPKeepAlive("testKeepAlive");
+        try {
+            stmnt.execute("DROP TABLE IF EXISTS link_table");
+            connection.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+            System.out.println("TestSql.tearDown() error: " + e.getMessage());
+        }
 
-		testKeepAlive.run(result);
+        super.tearDown();
+    }
 
-		System.out.println("TestKeepAlive error count: " + result.failureCount());
+    class KeepAliveThread extends Thread {
 
-		Enumeration e = result.failures();
+        public void run() {
 
-		while (e.hasMoreElements()) {
-			System.out.println(e.nextElement());
-		}
-	}
+            Connection c = null;
+
+            try {
+                c = newConnection();
+
+                final Statement statement = c.createStatement();
+
+                for (int i = 0; i <= 16500; i++) {
+                    statement.executeQuery("SELECT * FROM link_table");
+
+                    synchronized (executeCount) {
+                        executeCount++;
+                    }
+                }
+            } catch (SQLException e) {
+                e.printStackTrace(System.out);
+            } finally {
+                try {
+                    c.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+
+    class TimeoutThread extends Thread {
+
+        public void run() {
+
+            Thread t = new KeepAliveThread();
+
+            t.start();
+
+            try {
+                t.join(15000);
+
+                if (t.isAlive()) {    // If thread still running, then it's probably blocked because the ports are exhausted
+                    synchronized (failCount) {
+                        if (failCount == 0) {
+                            failCount++;
+
+                            fail("Keep-Alive is probably not being used");
+                        }
+                    }
+                }
+            } catch (InterruptedException ex) {}
+        }
+    }
+
+    public void testKeepAlive() {
+
+        Thread t1 = new TimeoutThread();
+
+        t1.start();
+
+        Thread t2 = new TimeoutThread();
+
+        t2.start();
+
+        Thread t3 = new TimeoutThread();
+
+        t3.start();
+
+        Thread t4 = new TimeoutThread();
+
+        t4.start();
+
+        try {
+            t1.join();
+            t2.join();
+            t3.join();
+            t4.join();
+        } catch (InterruptedException e) {}
+
+        System.out.println("testKeepAlive completed " + executeCount
+                           + "connections.\n");
+    }
+
+    public static void main(String[] argv) {
+
+        TestResult result        = new TestResult();
+        TestCase   testKeepAlive = new TestHTTPKeepAlive("testKeepAlive");
+
+        testKeepAlive.run(result);
+        System.out.println("TestKeepAlive error count: "
+                           + result.failureCount());
+
+        Enumeration e = result.failures();
+
+        while (e.hasMoreElements()) {
+            System.out.println(e.nextElement());
+        }
+    }
 }

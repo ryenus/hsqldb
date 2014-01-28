@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2011, The HSQL Development Group
+/* Copyright (c) 2001-2014, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -48,17 +48,13 @@ public class TestUpdatableResultSets extends TestBase {
         super(name);
     }
 
-    protected void setUp() {
+    protected void setUp() throws Exception {
 
         super.setUp();
 
-        try {
-            connection = super.newConnection();
-            statement = connection.createStatement(ResultSet.TYPE_FORWARD_ONLY,
-                                                   ResultSet.CONCUR_UPDATABLE);
-        } catch (Exception e) {
-            System.err.println(e);
-        }
+        connection = super.newConnection();
+        statement = connection.createStatement(ResultSet.TYPE_FORWARD_ONLY,
+                                               ResultSet.CONCUR_UPDATABLE);
     }
 
     public void testUpdatable() {
@@ -85,9 +81,12 @@ public class TestUpdatableResultSets extends TestBase {
             ps.close();
             connection.setAutoCommit(false);
 
-            ps =  connection.prepareStatement(select,
-                ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_UPDATABLE );
+            ps = connection.prepareStatement(select,
+                                             ResultSet.TYPE_SCROLL_INSENSITIVE,
+                                             ResultSet.CONCUR_UPDATABLE);
+
             ps.setInt(1, -1);
+
             ResultSet rs = ps.executeQuery();
 
             while (rs.next()) {
@@ -177,46 +176,54 @@ public class TestUpdatableResultSets extends TestBase {
         }
     }
 
-
     public void testDeletable2() {
 
         try {
-            Connection c = DriverManager.getConnection("jdbc:hsqldb:mem:mytestdb",
-                "SA", "");
+            Connection c =
+                DriverManager.getConnection("jdbc:hsqldb:mem:mytestdb", "SA",
+                                            "");
             String createSQL =
                 "create table test (num INTEGER PRIMARY KEY, str VARCHAR(25))";
             Statement createStmt = c.createStatement();
+
             createStmt.execute(createSQL);
             createStmt.close();
-            String ins = "insert into test (num,str) values (?,?)";
+
+            String            ins = "insert into test (num,str) values (?,?)";
             PreparedStatement pStmt = c.prepareStatement(ins);
+
             for (int i = 0; i < 100; i++) {
                 pStmt.setInt(1, i);
                 pStmt.setString(2, "String" + i);
                 pStmt.execute();
             }
+
             // there should now be 100 rows in the table
             String select = "SELECT * FROM test";
             PreparedStatement stmt = c.prepareStatement(select,
-                ResultSet.
-                TYPE_SCROLL_INSENSITIVE,
-                ResultSet.CONCUR_UPDATABLE);
+                ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_UPDATABLE);
             ResultSet rs = stmt.executeQuery();
+
             rs.beforeFirst();
+
             while (rs.next()) {
                 int num = rs.getInt("num");
-                if ( (num % 7) == 0) {
+
+                if ((num % 7) == 0) {
                     System.out.println("Deleting row:" + num);
                     rs.deleteRow();
                 }
             }
+
             Statement dropStmt = c.createStatement();
+
             dropStmt.execute("drop table test;");
             dropStmt.close();
-    } catch (SQLException e) {
-        e.printStackTrace();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
-    }
+
     public void testScrollable() {
 
         try {
