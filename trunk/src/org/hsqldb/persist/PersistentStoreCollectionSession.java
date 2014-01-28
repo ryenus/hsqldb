@@ -274,7 +274,7 @@ implements PersistentStoreCollection {
         rowStoreMapRoutine.clear();
     }
 
-    synchronized public void registerIndex(Session session, Table table) {
+    synchronized public void registerIndex(Session session, TableBase table) {
 
         PersistentStore store = findStore(table);
 
@@ -285,7 +285,7 @@ implements PersistentStoreCollection {
         store.resetAccessorKeys(session, table.getIndexList());
     }
 
-    synchronized public PersistentStore findStore(Table table) {
+    synchronized public PersistentStore findStore(TableBase table) {
 
         PersistentStore store = null;
 

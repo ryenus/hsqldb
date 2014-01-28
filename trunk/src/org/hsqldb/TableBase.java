@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2011, The HSQL Development Group
+/* Copyright (c) 2001-2014, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -45,7 +45,7 @@ import org.hsqldb.types.Type;
  * The  base of all HSQLDB table implementations.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.0
+ * @version 2.3.2
  * @since 1.7.2
  */
 public class TableBase {
@@ -445,6 +445,8 @@ public class TableBase {
      */
     public void dropIndex(Session session, int todrop) {
 
+        Index[] oldIndexList = indexList;
+
         indexList = (Index[]) ArrayUtil.toAdjustedArray(indexList, null,
                 todrop, -1);
 
@@ -452,11 +454,8 @@ public class TableBase {
             indexList[i].setPosition(i);
         }
 
+        resetAccessorKeys(session, indexList, oldIndexList);
         setBestRowIdentifiers();
-
-        if (store != null) {
-            store.resetAccessorKeys(session, indexList);
-        }
     }
 
     final void addIndex(Session session, Index index) {
@@ -473,6 +472,8 @@ public class TableBase {
             }
         }
 
+        Index[] oldIndexList = indexList;
+
         indexList = (Index[]) ArrayUtil.toAdjustedArray(indexList, index, i,
                 1);
 
@@ -480,14 +481,20 @@ public class TableBase {
             indexList[i].setPosition(i);
         }
 
+        resetAccessorKeys(session, indexList, oldIndexList);
+        setBestRowIdentifiers();
+    }
+
+    private void resetAccessorKeys(Session session, Index[] indexList,
+                                   Index[] oldIndexList) {
+
         if (store != null) {
             try {
                 store.resetAccessorKeys(session, indexList);
             } catch (HsqlException e) {
-                indexList = (Index[]) ArrayUtil.toAdjustedArray(indexList,
-                        null, index.getPosition(), -1);
+                indexList = oldIndexList;
 
-                for (i = 0; i < indexList.length; i++) {
+                for (int i = 0; i < indexList.length; i++) {
                     indexList[i].setPosition(i);
                 }
 
@@ -495,7 +502,34 @@ public class TableBase {
             }
         }
 
-        setBestRowIdentifiers();
+        if (session == null) {
+            return;
+        }
+
+        switch (tableType) {
+
+            case TableBase.INFO_SCHEMA_TABLE :
+            case TableBase.TEMP_TABLE : {
+                try {
+
+                    // session may be an unregisterd sys session
+                    session.sessionData.persistentStoreCollection
+                        .registerIndex(session, this);
+
+                    break;
+                } catch (HsqlException e) {
+                    indexList = oldIndexList;
+
+                    for (int i = 0; i < indexList.length; i++) {
+                        indexList[i].setPosition(i);
+                    }
+
+                    throw e;
+                }
+            }
+            case TableBase.SYSTEM_SUBQUERY :
+            case TableBase.SYSTEM_TABLE :
+        }
     }
 
     final void removeIndex(int position) {
