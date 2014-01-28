@@ -333,6 +333,7 @@ public abstract class RowStoreAVL implements PersistentStore {
         } else if (diff == 0) {
             throw Error.runtimeError(ErrorCode.U_S0500, "RowStoreAVL");
         } else if (diff == 1) {
+
             //
         } else {
             for (; position < limit; position++) {
@@ -393,13 +394,13 @@ public abstract class RowStoreAVL implements PersistentStore {
 
         int position = index.getPosition();
 
-        if (searchCost == null || searchCost.length <= position) {
+        if (searchCost == null || searchCost.length != indexList.length) {
             searchCost = new double[indexList.length][];
         }
 
         if (searchCost[position] == null) {
-            searchCost[index.getPosition()] =
-                indexList[index.getPosition()].searchCost(session, this);
+            searchCost[position] = indexList[position].searchCost(session,
+                    this);
         }
 
         return searchCost[index.getPosition()][count - 1];

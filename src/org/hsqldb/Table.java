@@ -62,7 +62,7 @@ import org.hsqldb.types.Type;
  * Holds the data structures and methods for creation of a named database table.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.0
+ * @version 2.3.2
  * @since 1.6.1
  */
 public class Table extends TableBase implements SchemaObject {
@@ -119,7 +119,7 @@ public class Table extends TableBase implements SchemaObject {
 
             case INFO_SCHEMA_TABLE :
                 persistenceScope = SCOPE_TRANSACTION;
-                isSessionBased = true;
+                isSessionBased   = true;
                 break;
 
             case SYSTEM_TABLE :
@@ -2176,21 +2176,6 @@ public class Table extends TableBase implements SchemaObject {
                                                false);
         } catch (Throwable t) {
             return null;
-        }
-
-        switch (tableType) {
-
-            case TableBase.INFO_SCHEMA_TABLE :
-            case TableBase.TEMP_TABLE : {
-
-                // session may be an unregisterd sys session
-                session.sessionData.persistentStoreCollection.registerIndex(
-                    session, this);
-
-                break;
-            }
-            case TableBase.SYSTEM_SUBQUERY :
-            case TableBase.SYSTEM_TABLE :
         }
 
         return index;

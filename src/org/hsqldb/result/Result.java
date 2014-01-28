@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2011, The HSQL Development Group
+/* Copyright (c) 2001-2014, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -70,7 +70,7 @@ import org.hsqldb.types.Type;
  *
  * @author Campbell Boucher-Burnet (boucherb@users dot sourceforge.net)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.0
+ * @version 2.3.2
  * @since 1.9.0
  */
 public class Result {
@@ -435,6 +435,7 @@ public class Result {
                     case ResultConstants.TX_ROLLBACK :
                     case ResultConstants.TX_COMMIT_AND_CHAIN :
                     case ResultConstants.TX_ROLLBACK_AND_CHAIN :
+                    case ResultConstants.PREPARECOMMIT :
                         break;
 
                     default :
@@ -1164,6 +1165,7 @@ public class Result {
                     case ResultConstants.TX_ROLLBACK :
                     case ResultConstants.TX_COMMIT_AND_CHAIN :
                     case ResultConstants.TX_ROLLBACK_AND_CHAIN :
+                    case ResultConstants.PREPARECOMMIT :
                         break;
 
                     default :

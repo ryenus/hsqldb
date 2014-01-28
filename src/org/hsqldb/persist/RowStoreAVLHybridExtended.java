@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2011, The HSQL Development Group
+/* Copyright (c) 2001-2014, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -46,7 +46,7 @@ import org.hsqldb.navigator.RowIterator;
  * Implementation of PersistentStore for information schema and temp tables.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.0
+ * @version 2.3.2
  * @since 2.0.1
  */
 public class RowStoreAVLHybridExtended extends RowStoreAVLHybrid {
@@ -112,16 +112,7 @@ public class RowStoreAVLHybridExtended extends RowStoreAVLHybrid {
 
     public void indexRow(Session session, Row row) {
 
-        NodeAVL node  = ((RowAVL) row).getNode(0);
-        int     count = 0;
-
-        while (node != null) {
-            count++;
-
-            node = node.nNext;
-        }
-
-        if (count != indexList.length) {
+        if (indexList != table.getIndexList()) {
             resetAccessorKeys(session, table.getIndexList());
             ((RowAVL) row).setNewNodes(this);
         }
