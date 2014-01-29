@@ -1,13 +1,14 @@
-24 January 2014 - svn 5332
+29 January 2014 - svn 5346
 -- fixed several minor issues
 -- fixed bug with incomplete rollback of MVCC transaction that inserts and updates the same row
 -- fixed issue with parsing of long BIT strings in SQL
 -- fixed issue with SQL triggers when columns were added or dropped from a table with SQL triggers
+-- fixed issue with an index added to a TEMP table with ON COMMIT PRESERVE ROWS and containing data
 -- added URL property hsqldb.digest which can be used with alternative secure hash algorithms for passwords
 -- changed the class used for offline backup and restore to org.hsqldb.lib.tar.DbBackupMain
 -- extended the scope of SET DATABASE SQL REFERENCES TRUE to catch ambiguity with identical table aliases
 -- extended support for the DEFAULT keyword used in INSERT and UPDATE to apply to columns with no default
--- improved ORA syntax compatibility mode
+-- improved ORA and MYS syntax compatibility modes
 
 08 October 2013 - version 2.3.1
 -- fixed several minor issues
