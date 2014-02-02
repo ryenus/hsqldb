@@ -4376,6 +4376,10 @@ public class ParserDDL extends ParserRoutine {
             throw Error.error(ErrorCode.X_42503);
         }
 
+        if (userName.name.equals(SqlInvariants.SYSTEM_AUTHORIZATION_NAME)) {
+            throw Error.error(ErrorCode.X_42503);
+        }
+
         readThis(Tokens.SET);
 
         switch (token.tokenType) {

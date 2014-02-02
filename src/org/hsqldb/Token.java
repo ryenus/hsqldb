@@ -33,6 +33,14 @@ package org.hsqldb;
 
 import org.hsqldb.types.Type;
 
+/**
+ * Token created by Scanner.<p>
+ *
+ * @author Fred Toussi (fredt@users dot sourceforge.net)
+ * @version 2.3.2
+ * @since 1.9.0
+ */
+
 public class Token {
 
     String  tokenString = "";
@@ -59,8 +67,9 @@ public class Token {
     boolean isMalformed;
 
     //
-    int    position;
-    Object expression;
+    int     position;
+    Object  expression;
+    boolean hasColumnList;
 
     void reset() {
 
@@ -74,7 +83,6 @@ public class Token {
         charsetSchema            = null;
         charsetName              = null;
         fullString               = null;
-        expression               = null;
         lobMultiplierType        = Tokens.X_UNKNOWN_TOKEN;
         isDelimiter              = false;
         isDelimitedIdentifier    = false;
@@ -87,6 +95,10 @@ public class Token {
         isCoreReservedIdentifier = false;
         isHostParameter          = false;
         isMalformed              = false;
+
+        //
+        expression    = null;
+        hasColumnList = false;
     }
 
     Token duplicate() {
@@ -125,6 +137,10 @@ public class Token {
 
     public void setExpression(Object expression) {
         this.expression = expression;
+    }
+
+    public void setWithColumnList() {
+        hasColumnList = true;
     }
 
     String getSQL() {
@@ -190,8 +206,19 @@ public class Token {
         } else if (expression instanceof SchemaObject) {
             isDelimiter = false;
 
-            return ((SchemaObject) expression).getName()
-                .getSchemaQualifiedStatementName();
+            String nameString =
+                ((SchemaObject) expression).getName()
+                    .getSchemaQualifiedStatementName();
+
+            if (hasColumnList) {
+                Table table = ((Table) expression);
+
+                nameString +=
+                    table.getColumnListSQL(table.defaultColumnMap,
+                                           table.defaultColumnMap.length);
+            }
+
+            return nameString;
         }
 
         if (namePrefix == null && isUndelimitedIdentifier) {

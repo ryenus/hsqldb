@@ -1508,8 +1508,9 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
             OrderedHashSet roles = role.getDirectRoles();
 
             for (int i = 0; i < roles.size(); i++) {
-                String   roleName = (String) roles.get(i);
-                Object[] row      = t.getEmptyRowData();
+                Grantee  currentRole = (Grantee) roles.get(i);
+                String   roleName    = currentRole.getName().getNameString();
+                Object[] row         = t.getEmptyRowData();
 
                 row[grantee]      = role.getName().getNameString();
                 row[role_name]    = roleName;
