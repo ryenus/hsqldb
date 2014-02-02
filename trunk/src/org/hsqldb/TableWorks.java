@@ -860,19 +860,6 @@ public class TableWorks {
                                         null, colIndex, -1, constraintNameSet,
                                         indexNameSet);
 
-        setNewTableInSchema(tn);
-
-        try {
-            database.schemaManager.recompileDependentObjects(tn);
-        } catch (HsqlException e) {
-            setNewTableInSchema(table);
-            database.schemaManager.recompileDependentObjects(table);
-
-            throw e;
-        }
-
-        setNewTableInSchema(table);
-        database.schemaManager.recompileDependentObjects(table);
         moveData(table, tn, colIndex, -1);
         database.schemaManager.removeSchemaObjects(referencingObjects);
         database.schemaManager.removeSchemaObjects(constraintNameSet);

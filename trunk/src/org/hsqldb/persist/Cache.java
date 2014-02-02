@@ -137,6 +137,11 @@ public class Cache extends BaseHashMap {
             if (size() >= capacity) {
                 cleanUp(true);
             }
+
+            if (size() >= capacity) {
+                throw Error.error(ErrorCode.DATA_CACHE_IS_FULL,
+                                  String.valueOf(capacity));
+            }
         }
 
         if (accessCount > ACCESS_MAX && updateAccess) {

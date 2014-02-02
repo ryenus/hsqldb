@@ -46,7 +46,7 @@ import org.hsqldb.types.Type;
  * Parser for DML statements
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.0
+ * @version 2.3.2
  * @since 1.9.0
  */
 public class ParserDML extends ParserDQL {
@@ -71,8 +71,11 @@ public class ParserDML extends ParserDQL {
         boolean       overridingUser    = false;
         boolean       overridingSystem  = false;
         boolean       assignsToIdentity = false;
+        Token         tableToken;
+        boolean       hasColumnList = false;
 
-        range = readRangeVariableForDataChange(StatementTypes.INSERT);
+        tableToken = getRecordedToken();
+        range      = readRangeVariableForDataChange(StatementTypes.INSERT);
 
         range.resolveRangeTableTypes(session, RangeVariable.emptyArray);
 
@@ -137,8 +140,9 @@ public class ParserDML extends ParserDQL {
                     readSimpleColumnNames(columnNames, range, withPrefix);
                     readThis(Tokens.CLOSEBRACKET);
 
-                    colCount  = columnNames.size();
-                    columnMap = table.getColumnIndexes(columnNames);
+                    colCount      = columnNames.size();
+                    columnMap     = table.getColumnIndexes(columnNames);
+                    hasColumnList = true;
 
                     if (token.tokenType != Tokens.VALUES
                             && token.tokenType != Tokens.OVERRIDING) {
@@ -230,12 +234,14 @@ public class ParserDML extends ParserDQL {
                                 }
                             }
                         } else if (column.hasDefault()) {
+
                             //
                         } else if (column.isGenerated()) {
                             if (e.getType() != OpTypes.DEFAULT) {
                                 throw Error.error(ErrorCode.X_42541);
                             }
                         } else {
+
                             // no explicit default
                         }
 
@@ -248,6 +254,10 @@ public class ParserDML extends ParserDQL {
                 if (!assignsToIdentity
                         && (overridingUser || overridingSystem)) {
                     throw unexpectedTokenRequire(Tokens.T_OVERRIDING);
+                }
+
+                if (!hasColumnList) {
+                    tableToken.setWithColumnList();
                 }
 
                 StatementDMQL cs = new StatementInsert(session, table,
@@ -309,6 +319,10 @@ public class ParserDML extends ParserDQL {
 
         if (colCount != queryExpression.getColumnCount()) {
             throw Error.error(ErrorCode.X_42546);
+        }
+
+        if (!hasColumnList) {
+            tableToken.setWithColumnList();
         }
 
         StatementDMQL cs = new StatementInsert(session, table, columnMap,
@@ -680,6 +694,7 @@ public class ParserDML extends ParserDQL {
                         e.setAttributesAsColumn(
                             targetTable.getColumn(columnMap[i]), true);
                     } else if (e.getType() == OpTypes.DEFAULT) {
+
                         //
                     } else {
                         unresolved = expr.resolveColumnReferences(session,
@@ -719,6 +734,7 @@ public class ParserDML extends ParserDQL {
                     e.setAttributesAsColumn(
                         targetTable.getColumn(columnMap[i]), true);
                 } else if (e.getType() == OpTypes.DEFAULT) {
+
                     //
                 } else {
                     unresolved = expr.resolveColumnReferences(session,
