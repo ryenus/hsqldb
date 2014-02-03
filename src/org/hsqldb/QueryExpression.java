@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2011, The HSQL Development Group
+/* Copyright (c) 2001-2014, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -56,7 +56,7 @@ import org.hsqldb.types.Types;
  * Implementation of an SQL query expression
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.0
+ * @version 2.3.2
  * @since 1.9.0
  */
 
@@ -694,6 +694,8 @@ public class QueryExpression implements RangeGroup {
                 break;
             }
 
+            int startSize = rowSet.getSize();
+
             switch (unionType) {
 
                 case UNION :
@@ -709,9 +711,13 @@ public class QueryExpression implements RangeGroup {
                                              "QueryExpression");
             }
 
+            if (startSize == rowSet.getSize()) {
+                break;
+            }
+
             recursiveTable.clearAllData(session);
-            tempNavigator.reset();
-            recursiveTable.insertIntoTable(session, tempResult);
+            rowSet.reset();
+            recursiveTable.insertIntoTable(session, result);
 
             if (round > 256) {
                 throw Error.error(ErrorCode.GENERAL_ERROR);

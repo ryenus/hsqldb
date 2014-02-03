@@ -4450,6 +4450,7 @@ public class ParserDQL extends ParserBase {
         QueryExpression queryExpression = new QueryExpression(compileContext,
             leftQuerySpecification);
 
+        rightQuerySpecification.isBaseMergeable = false;
         rightQuerySpecification.resolveReferences(session,
                 compileContext.getOuterRanges());
         queryExpression.addUnion(rightQuerySpecification, unionType);
