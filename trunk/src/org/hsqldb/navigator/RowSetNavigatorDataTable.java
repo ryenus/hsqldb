@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2011, The HSQL Development Group
+/* Copyright (c) 2001-2014, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -39,6 +39,7 @@ import org.hsqldb.QuerySpecification;
 import org.hsqldb.Row;
 import org.hsqldb.Session;
 import org.hsqldb.SortAndSlice;
+import org.hsqldb.Table;
 import org.hsqldb.TableBase;
 import org.hsqldb.index.Index;
 import org.hsqldb.lib.ArrayUtil;
@@ -51,7 +52,7 @@ import org.hsqldb.rowio.RowOutputInterface;
  * Implementation of RowSetNavigator using a table as the data store.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.2.9
+ * @version 2.3.2
  * @since 1.9.0
  */
 public class RowSetNavigatorDataTable extends RowSetNavigatorData {
@@ -130,7 +131,7 @@ public class RowSetNavigatorDataTable extends RowSetNavigatorData {
         fullIndex = queryExpression.fullIndex;
     }
 
-    public RowSetNavigatorDataTable(Session session, TableBase table) {
+    public RowSetNavigatorDataTable(Session session, Table table) {
 
         super(session);
 
@@ -138,9 +139,9 @@ public class RowSetNavigatorDataTable extends RowSetNavigatorData {
         maxMemoryRowCount  = session.getResultMemoryRowCount();
         this.table         = table;
         visibleColumnCount = table.getColumnCount();
-        store              = table.getRowStore(session);
         mainIndex          = table.getPrimaryIndex();
-        fullIndex          = table.getFullIndex();
+        fullIndex          = table.getFullIndex(session);
+        store              = table.getRowStore(session);
         this.size          = (int) mainIndex.size(session, store);
 
         reset();

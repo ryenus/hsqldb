@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2011, The HSQL Development Group
+/* Copyright (c) 2001-2014, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -165,7 +165,8 @@ public class DataFileCache {
         initBuffers();
 
         if (database.logger.getDataFileSpaces() > 0) {
-            spaceManager = new DataSpaceManagerBlocks(this);
+            spaceManager = new DataSpaceManagerBlocks(this,
+                    database.logger.getDataFileSpaces());
         } else {
             spaceManager = new DataSpaceManagerSimple(this);
         }
@@ -380,8 +381,9 @@ public class DataFileCache {
             cacheModified = false;
 
             if (spaceManagerPosition != 0
-                    || database.logger.getDataFileSpaces()>0) {
-                spaceManager = new DataSpaceManagerBlocks(this);
+                    || database.logger.getDataFileSpaces() > 0) {
+                spaceManager = new DataSpaceManagerBlocks(this,
+                        database.logger.getDataFileSpaces());
             } else {
                 spaceManager = new DataSpaceManagerSimple(this);
             }
@@ -403,7 +405,7 @@ public class DataFileCache {
         if (tableSpaceSize > 0 && spaceManagerPosition == 0) {
             spaceManager.reset();
 
-            spaceManager = new DataSpaceManagerBlocks(this);
+            spaceManager = new DataSpaceManagerBlocks(this, tableSpaceSize);
 
             return true;
         }

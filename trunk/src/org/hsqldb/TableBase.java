@@ -213,13 +213,6 @@ public class TableBase {
     }
 
     /**
-     * Returns an index on all the columns
-     */
-    public Index getFullIndex() {
-        return fullIndex;
-    }
-
-    /**
      *  Returns the Index object at the given index
      */
     public final Index getIndex(int i) {

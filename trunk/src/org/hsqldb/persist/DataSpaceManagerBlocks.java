@@ -82,11 +82,12 @@ public class DataSpaceManagerBlocks implements DataSpaceManager {
 
     DataSpaceManagerBlocks() {}
 
-    public DataSpaceManagerBlocks(DataFileCache dataFileCache) {
+    public DataSpaceManagerBlocks(DataFileCache dataFileCache,
+                                  int fileBlockSizeScale) {
 
         cache              = dataFileCache;
         dataFileScale      = cache.getDataFileScale();
-        fileBlockSize = cache.database.logger.propFileSpaceValue * 1024 * 1024;
+        fileBlockSize      = fileBlockSizeScale * 1024 * 1024;
         fileBlockItemCount = fileBlockSize / dataFileScale;
         bitmapIntSize      = fileBlockItemCount / 32;
         bitmapStorageSize  = BitMapCachedObject.fileSizeFactor * bitmapIntSize;
@@ -190,16 +191,25 @@ public class DataSpaceManagerBlocks implements DataSpaceManager {
 
     private long calculateDirectorySpaceBlocks(long blockCount) {
 
+        long currentSize   = calculateDirectorySpaceSize(blockCount);
+        long currentBlocks = currentSize / fileBlockSize + 1;
+
+        currentSize   += calculateDirectorySpaceSize(currentBlocks);
+        currentBlocks = currentSize / fileBlockSize + 1;
+
+        return currentBlocks;
+    }
+
+    private long calculateDirectorySpaceSize(long blockCount) {
+
         long blockLimit = ArrayUtil.getBinaryMultipleCeiling(blockCount + 1,
             blockSize);
         long currentSize = IntArrayCachedObject.fileSizeFactor * blockLimit;    // root
 
         currentSize += DirectoryBlockCachedObject.fileSizeFactor * blockLimit;    // directory
-        currentSize += bitmapStorageSize
-                       * ArrayUtil.getBinaryMultipleCeiling(blockCount + 1,
-                           64);                                                  // bitmaps
+        currentSize += bitmapStorageSize * (blockCount + 1);                      // bitmaps
 
-        return currentSize / fileBlockSize + 1;
+        return currentSize;
     }
 
     /**
@@ -224,7 +234,9 @@ public class DataSpaceManagerBlocks implements DataSpaceManager {
 
     private long getNewFileBlocks(int tableId, int blockCount) {
 
-        long dirObjectSize = (long) bitmapStorageSize * blockCount;
+        long dirObjectSize = (long) bitmapStorageSize * blockCount
+                             + DirectoryBlockCachedObject.fileSizeFactor
+                               * blockSize;
 
         if (!directorySpaceManager.hasFileRoom(dirObjectSize)) {
             long filePosition = getNewFileBlocksNoCheck(tableIdDirectory, 1);

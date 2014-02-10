@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2011, The HSQL Development Group
+/* Copyright (c) 2001-2014, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -1100,7 +1100,7 @@ public class ExpressionLogical extends Expression {
         }
 
         if (nodes[LEFT].nodes[0].dataType == null) {
-            nodes[LEFT].nodes[0].dataType =  Type.SQL_TIMESTAMP;
+            nodes[LEFT].nodes[0].dataType  = Type.SQL_TIMESTAMP;
             nodes[RIGHT].nodes[0].dataType = Type.SQL_TIMESTAMP;
         }
 
@@ -1724,7 +1724,7 @@ public class ExpressionLogical extends Expression {
 
         Table           table = td;
         boolean         empty = table.isEmpty(session);
-        Index           index = table.getFullIndex();
+        Index           index = table.getFullIndex(session);
         RowIterator     it;
         PersistentStore store = table.getRowStore(session);
         Row             firstrow;
