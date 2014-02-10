@@ -1,4 +1,4 @@
-29 January 2014 - svn 5346
+10 February 2014 - svn 5350
 -- fixed several minor issues
 -- fixed bug with incomplete rollback of MVCC transaction that inserts and updates the same row
 -- fixed issue with parsing of long BIT strings in SQL
@@ -8,6 +8,7 @@
 -- changed the class used for offline backup and restore to org.hsqldb.lib.tar.DbBackupMain
 -- extended the scope of SET DATABASE SQL REFERENCES TRUE to catch ambiguity with identical table aliases
 -- extended support for the DEFAULT keyword used in INSERT and UPDATE to apply to columns with no default
+-- improved support for recursive queries
 -- improved ORA and MYS syntax compatibility modes
 
 08 October 2013 - version 2.3.1
