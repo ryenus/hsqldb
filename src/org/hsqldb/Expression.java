@@ -1224,7 +1224,7 @@ public class Expression implements Cloneable {
                     throw Error.error(ErrorCode.X_42564);
                 }
 
-                dataType = new ArrayType(dataType, nodes.length);
+                dataType = new ArrayType(dataType, Integer.MAX_VALUE);
 
                 break;
             }

@@ -44,7 +44,6 @@ import org.hsqldb.lib.OrderedHashSet;
 import org.hsqldb.lib.OrderedIntHashSet;
 import org.hsqldb.lib.Set;
 import org.hsqldb.map.ValuePool;
-import org.hsqldb.navigator.RowIterator;
 import org.hsqldb.navigator.RowSetNavigatorData;
 import org.hsqldb.navigator.RowSetNavigatorDataTable;
 import org.hsqldb.result.Result;
@@ -450,6 +449,10 @@ public class QueryExpression implements RangeGroup {
         isPartOneResolved = true;
     }
 
+    void resolveTypesPartTwoRecursive(Session session) {
+        resolveTypesPartTwo(session);
+    }
+
     void resolveTypesPartTwo(Session session) {
 
         if (isPartTwoResolved) {
@@ -459,7 +462,22 @@ public class QueryExpression implements RangeGroup {
         ArrayUtil.projectRowReverse(leftQueryExpression.unionColumnTypes,
                                     leftQueryExpression.unionColumnMap,
                                     unionColumnTypes);
-        leftQueryExpression.resolveTypesPartTwo(session);
+
+        if (isRecursive) {
+            leftQueryExpression.resolveTypesPartTwoRecursive(session);
+
+            recursiveTable.colTypes = leftQueryExpression.getColumnTypes();
+
+            for (int i = 0; i < recursiveTable.colTypes.length; i++) {
+                recursiveTable.getColumn(i).setType(
+                    recursiveTable.colTypes[i]);
+            }
+
+            recursiveTable.getFullIndex(session);
+        } else {
+            leftQueryExpression.resolveTypesPartTwo(session);
+        }
+
         leftQueryExpression.resolveTypesPartThree(session);
         ArrayUtil.projectRowReverse(rightQueryExpression.unionColumnTypes,
                                     rightQueryExpression.unionColumnMap,
@@ -672,15 +690,12 @@ public class QueryExpression implements RangeGroup {
 
     Result getResultRecursive(Session session) {
 
-        Result              tempResult;
-        RowSetNavigatorData rowSet = new RowSetNavigatorData(session, this);
-        Result              result = Result.newResult(rowSet);
+        Result tempResult;
 
         recursiveTable.materialise(session);
 
-        RowIterator it = recursiveTable.rowIterator(session);
-
-        rowSet.copy(it, unionColumnMap);
+        RowSetNavigatorData recNav = recursiveTable.getNavigator(session);
+        Result              result = Result.newResult(recNav);
 
         result.metaData = resultMetaData;
 
@@ -694,16 +709,16 @@ public class QueryExpression implements RangeGroup {
                 break;
             }
 
-            int startSize = rowSet.getSize();
+            int startSize = recNav.getSize();
 
             switch (unionType) {
 
                 case UNION :
-                    rowSet.union(session, tempNavigator);
+                    recNav.union(session, tempNavigator);
                     break;
 
                 case UNION_ALL :
-                    rowSet.unionAll(session, tempNavigator);
+                    recNav.unionAll(session, tempNavigator);
                     break;
 
                 default :
@@ -711,21 +726,14 @@ public class QueryExpression implements RangeGroup {
                                              "QueryExpression");
             }
 
-            if (startSize == rowSet.getSize()) {
+            if (startSize == recNav.getSize()) {
                 break;
             }
-
-            recursiveTable.clearAllData(session);
-            rowSet.reset();
-            recursiveTable.insertIntoTable(session, result);
 
             if (round > 256) {
                 throw Error.error(ErrorCode.GENERAL_ERROR);
             }
         }
-
-        recursiveTable.clearAllData(session);
-        rowSet.reset();
 
         return result;
     }

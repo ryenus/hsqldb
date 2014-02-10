@@ -2512,6 +2512,22 @@ public class Table extends TableBase implements SchemaObject {
     }
 
     /**
+     * Returns an index on all the columns
+     */
+    public Index getFullIndex(Session session) {
+
+        if (fullIndex == null) {
+            fullIndex = getFullIndexForColumns(defaultColumnMap);
+
+            if (fullIndex == null) {
+                fullIndex = createIndexForColumns(session, defaultColumnMap);
+            }
+        }
+
+        return fullIndex;
+    }
+
+    /**
      *  Return the list of file pointers to root nodes for this table's
      *  indexes.
      */
