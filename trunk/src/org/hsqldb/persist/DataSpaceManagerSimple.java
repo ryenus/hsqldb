@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2011, The HSQL Development Group
+/* Copyright (c) 2001-2014, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -35,7 +35,7 @@ import org.hsqldb.lib.DoubleIntIndex;
 
 /**
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.0
+ * @version 2.3.2
  * @since 2.3.0
  */
 public class DataSpaceManagerSimple implements DataSpaceManager {
@@ -48,7 +48,7 @@ public class DataSpaceManagerSimple implements DataSpaceManager {
     DoubleIntIndex    lookup;
 
     /**
-     * Used for readonly, Text and Session data files
+     * Used for default, readonly, Text and Session data files
      */
     DataSpaceManagerSimple(DataFileCache cache) {
 
@@ -69,6 +69,8 @@ public class DataSpaceManagerSimple implements DataSpaceManager {
 
             cache.spaceManagerPosition = 0;
         }
+
+        totalFragmentSize = cache.lostSpaceSize;
     }
 
     public TableSpaceManager getDefaultTableSpace() {

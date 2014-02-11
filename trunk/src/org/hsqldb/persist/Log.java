@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2011, The HSQL Development Group
+/* Copyright (c) 2001-2014, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -74,7 +74,7 @@ import org.hsqldb.scriptio.ScriptWriterText;
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
  * @author Bob Preston (sqlbob@users dot sourceforge.net) - text table support
- * @version 2.2.9
+ * @version 2.3.2
  * @since 1.8.0
  */
 public class Log {
@@ -532,8 +532,6 @@ public class Log {
         }
 
         long lostSize = cache.getLostBlockSize();
-
-        cache.spaceManager.getLostBlocksSize();
 
         return lostSize > limit;
     }

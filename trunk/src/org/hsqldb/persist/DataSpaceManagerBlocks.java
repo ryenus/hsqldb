@@ -80,8 +80,6 @@ public class DataSpaceManagerBlocks implements DataSpaceManager {
     //
     BlockAccessor ba;
 
-    DataSpaceManagerBlocks() {}
-
     public DataSpaceManagerBlocks(DataFileCache dataFileCache,
                                   int fileBlockSizeScale) {
 
