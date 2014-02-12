@@ -578,6 +578,27 @@ examples:
       </jar>
     </target>
 
+    <target name="hsqldbserver" depends="classes16, -auth, -prep-license-files"
+            description="Build the hsqldserver.jar (no engin)">
+        <jar jarfile="lib/hsqldbserver.jar"
+             basedir="classes"
+         >
+         <metainf dir="doc" includes="*_lic.txt"/>
+         <service type="java.sql.Driver" provider="org.hsqldb.jdbc.JDBCDriver"/>
+         <manifest>
+             <attribute name='Implementation-Title' value='Server'/>
+             <attribute name='Specification-Version' value='${hsqldb.version}'/>
+             <attribute name='Specification-Vendor' value='${hsqldb.vendor}'/>
+             <attribute name='Implementation-Version' value='${build.label}'/>
+             <attribute name='Implementation-Vendor' value='${build.vendor}'/>
+             <attribute name='Main-Class' value='org.hsqldb.server.Server'/>
+         </manifest>
+         <include name="org/hsqldb/server/**"/>
+         <exclude name="org/hsqldb/server/Servlet*"/>
+         <exclude name="org/hsqldb/server/WebServer*"/>
+      </jar>
+    </target>
+
     <!--
             Sat Nov 19 17:52:33 EST 2005  Blaine changing this description,
             because I see no Swing classes in hsqldbmain.jar when I build
