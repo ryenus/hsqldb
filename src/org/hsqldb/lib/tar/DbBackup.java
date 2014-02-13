@@ -59,7 +59,7 @@ import org.hsqldb.lib.InputStreamWrapper;
  * @see <a href="../../../../../guide/management-chapt.html#mtc_backup"
  *      target="guide">
  *     The database backup section of the HyperSQL User Guide</a>
- * @see #main(String[])
+ * @see DbBackupMain#main(String[])
  * @see #setOverWrite(boolean)
  * @see #setAbortUponModify(boolean)
  * @author Blaine Simpson (blaine dot simpson at admc dot com)
