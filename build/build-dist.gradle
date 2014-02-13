@@ -27,7 +27,7 @@
  *      4. Update THIS_VERSION, THIS_FULL_VERSION, MAJOR, MINOR, REVISION, and
  *         perhaps THIS_CACHE_VERSION in
  *         "../src/org/hsqldb/persist/HsqlDatabaseProperties.java"; and
- *         DBMS_VERSION in "../src/org/hsqldb/resources/information-schema.sql".
+ *         DBMS VERSION in "../src/org/hsqldb/resources/information-schema.sql".
  *      5: Update property 'hsqldb.version' in file 'build.xml'.
  *      6: Execute task/target 'refresh-verbatim' to update code in our docs.
  *      7: Execute task/target 'update-readme' to substitute updated variables
