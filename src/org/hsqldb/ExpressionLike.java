@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2011, The HSQL Development Group
+/* Copyright (c) 2001-2014, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -43,7 +43,7 @@ import org.hsqldb.types.Types;
  *
  * @author Campbell Boucher-Burnet (boucherb@users dot sourceforge.net)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.2.9
+ * @version 2.3.3
  * @since 1.9.0
  */
 public final class ExpressionLike extends ExpressionLogical {
@@ -170,9 +170,7 @@ public final class ExpressionLike extends ExpressionLogical {
             group = Types.SQL_VARCHAR;
         }
 
-        if (nodes[RIGHT].dataType.typeComparisonGroup != group
-                || (nodes[ESCAPE] != null
-                    && nodes[ESCAPE].dataType.typeComparisonGroup != group)) {
+        if (nodes[RIGHT].dataType.typeComparisonGroup != group) {
             throw Error.error(ErrorCode.X_42563);
         }
 
@@ -193,6 +191,10 @@ public final class ExpressionLike extends ExpressionLogical {
                 nodes[ESCAPE].dataType = likeObject.isBinary
                                          ? Type.SQL_VARBINARY
                                          : Type.SQL_VARCHAR;
+            }
+
+            if (nodes[ESCAPE].dataType.typeComparisonGroup != group) {
+                throw Error.error(ErrorCode.X_42563);
             }
 
             nodes[ESCAPE].resolveTypes(session, this);
