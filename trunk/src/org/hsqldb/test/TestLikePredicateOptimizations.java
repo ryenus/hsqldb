@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2011, The HSQL Development Group
+/* Copyright (c) 2001-2014, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -277,6 +277,28 @@ public class TestLikePredicateOptimizations extends TestBase {
 
         sql   = "SELECT * FROM test1 WHERE ( col LIKE 'one' )";
         pstmt = conn.prepareStatement(sql);
+        rs    = pstmt.executeQuery();
+
+        if (rs.next()) {
+            result = rs.getString("COL");
+        }
+
+        assertEquals("\"" + sql + "\"", result, presult);
+
+        sql   = "SELECT * FROM test1 WHERE ( col LIKE 'one' ESCAPE CAST(? AS CHAR) )";
+        pstmt = conn.prepareStatement(sql);
+        pstmt.setString(1, "%");
+        rs    = pstmt.executeQuery();
+
+        if (rs.next()) {
+            result = rs.getString("COL");
+        }
+
+        assertEquals("\"" + sql + "\"", result, presult);
+
+        sql   = "SELECT * FROM test1 WHERE ( col LIKE 'one' ESCAPE ? )";
+        pstmt = conn.prepareStatement(sql);
+        pstmt.setString(1, "%");
         rs    = pstmt.executeQuery();
 
         if (rs.next()) {
