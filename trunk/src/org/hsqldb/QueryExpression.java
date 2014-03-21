@@ -213,17 +213,7 @@ public class QueryExpression implements RangeGroup {
                         Type[] targetTypes) {
 
         resolveReferences(session, rangeGroups);
-
-        if (unresolvedExpressions != null) {
-            for (int i = 0; i < unresolvedExpressions.size(); i++) {
-                Expression e = (Expression) unresolvedExpressions.get(i);
-                HsqlList list = e.resolveColumnReferences(session,
-                    RangeGroup.emptyGroup, rangeGroups, null);
-
-                ExpressionColumn.checkColumnsResolved(list);
-            }
-        }
-
+        ExpressionColumn.checkColumnsResolved(unresolvedExpressions);
         resolveTypesPartOne(session);
 
         if (targetTypes != null) {

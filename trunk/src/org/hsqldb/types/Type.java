@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2011, The HSQL Development Group
+/* Copyright (c) 2001-2014, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -776,11 +776,11 @@ public abstract class Type implements SchemaObject, Cloneable {
                                      DTIType.maxIntervalPrecision, 0);
     public static final IntervalType SQL_INTERVAL_SECOND_MAX_PRECISION =
         IntervalType.newIntervalType(Types.SQL_INTERVAL_SECOND,
-                                     DTIType.maxIntervalPrecision,
+                                     DTIType.maxIntervalSecondPrecision,
                                      DTIType.defaultIntervalFractionPrecision);
     public static final IntervalType SQL_INTERVAL_SECOND_MAX_FRACTION_MAX_PRECISION =
         IntervalType.newIntervalType(Types.SQL_INTERVAL_SECOND,
-                                     DTIType.maxIntervalPrecision,
+                                     DTIType.maxIntervalSecondPrecision,
                                      DTIType.maxFractionPrecision);
 
     //

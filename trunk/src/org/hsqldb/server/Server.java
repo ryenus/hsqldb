@@ -1392,6 +1392,8 @@ public class Server implements HsqlSocketRequestHandler, Notified {
     /**
      * This is called from org.hsqldb.DatabaseManager when a database is
      * shutdown. This shuts the server down if it is the last database
+     *
+     * @param id database id
      */
     public final void notify(int id) {
 
