@@ -378,6 +378,17 @@
     2&gt;)</literal>. (JDBC)</para>
 
     <indexterm significance="preferred" type="sql">
+      <primary>LOWER function</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">LOWER</emphasis></simpara>
+
+    <para><literal>LOWER ( &lt;char value expr&gt; ) </literal></para>
+
+    <para>Returns a character string that is the lower case version of the
+    <literal>&lt;char value expr&gt;</literal>. (Foundation)</para>
+
+    <indexterm significance="preferred" type="sql">
       <primary>LPAD function</primary>
     </indexterm>
 
@@ -1676,9 +1687,11 @@
 
       <para><literal>LAST_DAY ( &lt;datetime value expr&gt; )</literal></para>
 
-      <para>Returns the last day of the month for the given argument,
-      preserving the year, month, hour, minute and secend fields of the date.
-      The type of the result is always TIMESTAMP(0). (HyperSQL)</para>
+      <para>Returns the last day of the month for the given
+      <literal>&lt;datetime value expr&gt;</literal>. The returned value
+      preserves the year, month, hour, minute and secend fields of the
+      timestamp. The type of the result is always TIMESTAMP(0).
+      (HyperSQL)</para>
 
       <para><programlisting> VALUES LAST_DAY ( TIMESTAMP '2012-02-14 12:30:44')
 
@@ -1729,8 +1742,8 @@
       value expr 1&gt;, &lt;datetime value expr 2&gt;)</literal></para>
 
       <para><literal>&lt;tsi datetime field&gt; ::= SQL_TSI_FRAC_SECOND |
-      SQL_TSI_SECOND | SQL_TSI_MINUTE | SQL_TSI_HOUR | SQL_TSI_DAY |
-      SQL_TSI_WEEK | SQL_TSI_MONTH | SQL_TSI_QUARTER |
+      SQL_TSI_MILLI_SECOND | SQL_TSI_SECOND | SQL_TSI_MINUTE | SQL_TSI_HOUR |
+      SQL_TSI_DAY | SQL_TSI_WEEK | SQL_TSI_MONTH | SQL_TSI_QUARTER |
       SQL_TSI_YEAR</literal></para>
 
       <para>HyperSQL supports full SQL Standard datetime features. It supports
@@ -1746,14 +1759,21 @@
       the number of calendar months between the two dates.</para>
 
       <para>The two JDBC functions, <literal>TIMESTAMPADD </literal>and
-      <literal>TIMESTAMPDIFF</literal> perform the same function as above SQL
-      expressions. The field names are keywords and are different from those
-      used in the EXTRACT functions. These names are valid for use only when
-      calling these two functions. The return value for TIMESTAMPADD is of the
-      same type as the datetime argument used. The return type for
-      TIMESTAMPDIFF is always BIGINT, regardless of the type of arguments. The
-      two datetime arguments of TIMESTAMPDIFF should be of the same type. The
-      TIME type is not supported for the arguments to these functions.</para>
+      <literal>TIMESTAMPDIFF</literal> perform a similar function to the above
+      SQL expressions. The &lt;tsi datetime field&gt; names are keywords and
+      are different from those used in the EXTRACT functions. These names are
+      valid for use only when calling these two functions. With TIMESTAMPDIFF,
+      the names indicate the unit of time used to compute the difference
+      between two datetime fields. With TIMESTAMPADD they represent the unit
+      of time used for the &lt;numeric value expression&gt;. The unit of time
+      for each name is self-explanatory. In the case of SQL_TSI_FRAC_SECOND,
+      the unit is nanosecond.</para>
+
+      <para>The return value for TIMESTAMPADD is of the same type as the
+      datetime argument used. The return type for TIMESTAMPDIFF is always
+      BIGINT, regardless of the type of arguments. The two datetime arguments
+      of TIMESTAMPDIFF should be of the same type. The TIME type is not
+      supported for the arguments to these functions.</para>
 
       <para><literal>TIMESTAMPDIFF</literal> is evaluated as &lt;datetime
       value expr 2&gt; - &lt;datetime value expr 1&gt;. (JDBC)</para>
