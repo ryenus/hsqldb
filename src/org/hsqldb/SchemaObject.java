@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2011, The HSQL Development Group
+/* Copyright (c) 2001-2014, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -126,9 +126,9 @@ public interface SchemaObject {
 
     interface Deferable {
 
-        int NOT_DEFERRABLE = 0;
-        int INIT_DEFERRED  = 1;
-        int INIT_IMMEDIATE = 2;
+        int INIT_DEFERRED  = 5;
+        int INIT_IMMEDIATE = 6;
+        int NOT_DEFERRABLE = 7;
     }
 
     interface ViewCheckModes {

@@ -252,6 +252,8 @@ class TransactionManagerCommon {
 
         if (action.type == RowActionBase.ACTION_NONE) {
             action.store.postCommitAction(session, action);
+
+            return;
         }
 
         if (action.type == RowActionBase.ACTION_DELETE_FINAL

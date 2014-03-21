@@ -5849,26 +5849,36 @@ public class ParserDQL extends ParserBase {
 
         int position = getPosition();
 
-        if (token.tokenType == Tokens.NEXT) {
-            read();
+        switch (opType) {
 
-            if (token.tokenType != Tokens.VALUE) {
-                rewind(position);
+            case OpTypes.SEQUENCE :
+                if (token.tokenType == Tokens.NEXT) {
+                    read();
 
-                return null;
-            }
+                    if (token.tokenType != Tokens.VALUE) {
+                        rewind(position);
 
-            readThis(Tokens.VALUE);
-        } else if (database.sqlSyntaxDb2
-                   && token.tokenType == Tokens.NEXTVAL) {
-            read();
-        } else if (database.sqlSyntaxDb2
-                   && token.tokenType == Tokens.PREVVAL) {
-            read();
-        } else {
-            rewind(position);
+                        return null;
+                    }
 
-            return null;
+                    readThis(Tokens.VALUE);
+                } else if (database.sqlSyntaxDb2
+                           && token.tokenType == Tokens.NEXTVAL) {
+                    read();
+                } else if (database.sqlSyntaxDb2
+                           && token.tokenType == Tokens.PREVVAL) {
+                    read();
+                } else {
+                    rewind(position);
+
+                    return null;
+                }
+                break;
+
+            case OpTypes.SEQUENCE_CURRENT :
+                read();
+                readThis(Tokens.VALUE);
+                break;
         }
 
         readThis(Tokens.FOR);

@@ -141,13 +141,7 @@ public class RowStoreAVLDisk extends RowStoreAVL implements PersistentStore {
         object.setPos(pos);
 
         if (tx) {
-            Row row = (Row) object;
-            RowAction action = new RowAction(session, table,
-                                             RowAction.ACTION_INSERT, row,
-                                             null);
-
-            row.rowAction = action;
-
+            RowAction.addInsertAction(session, table, (Row) object);
             database.txManager.addTransactionInfo(object);
         }
 
