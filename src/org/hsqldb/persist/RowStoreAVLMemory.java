@@ -106,7 +106,7 @@ public class RowStoreAVLMemory extends RowStoreAVL implements PersistentStore {
         Row row = new RowAVL(table, (Object[]) object, id, this);
 
         if (tx) {
-            RowAction.addInsertAction(session, table, (Row) object);
+            RowAction.addInsertAction(session, table, row);
         }
 
         return row;
