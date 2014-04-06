@@ -862,7 +862,7 @@ public class IndexAVL implements Index {
                 if (uniqueNulls) {
                     break;
                 }
-            } else {
+            } else if (!uniqueNulls) {
                 compareId = false;
 
                 break;
