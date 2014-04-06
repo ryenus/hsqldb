@@ -1,3 +1,7 @@
+-- fixed regression in 2.3.2, multiple rows with partial null values could not be inserted in UNIQUE indexes
+-- fixed issue with getExportedKeys reporting wrong DEFERABILITY
+-- fixed issue with CURRENT VALUE FOR usage
+-- fixed issue with LIKE with parametric escape character
 12 February 2014 - version 2.3.2
 -- fixed several minor issues
 -- fixed bug with incomplete rollback of MVCC transaction that inserts and updates the same row
