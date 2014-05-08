@@ -62,7 +62,7 @@ import org.hsqldb.types.Type;
  * Holds the data structures and methods for creation of a named database table.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.2
+ * @version 2.3.3
  * @since 1.6.1
  */
 public class Table extends TableBase implements SchemaObject {
@@ -1513,22 +1513,24 @@ public class Table extends TableBase implements SchemaObject {
      */
     void resetDefaultsFlag() {
 
-        hasDefaultValues = false;
-
-        for (int i = 0; i < colDefaults.length; i++) {
-            hasDefaultValues |= colDefaults[i] != null;
-        }
-
+        hasDefaultValues   = false;
         hasGeneratedValues = false;
+        hasNotNullColumns  = false;
+        hasDomainColumns   = false;
+        hasLobColumn       = false;
 
-        for (int i = 0; i < colGenerated.length; i++) {
+        for (int i = 0; i < columnCount; i++) {
+            hasDefaultValues   |= colDefaults[i] != null;
             hasGeneratedValues |= colGenerated[i];
-        }
+            hasNotNullColumns  |= colNotNull[i];
 
-        hasNotNullColumns = false;
+            if (colTypes[i].isDomainType()) {
+                hasDomainColumns = true;
+            }
 
-        for (int i = 0; i < colNotNull.length; i++) {
-            hasNotNullColumns |= colNotNull[i];
+            if (colTypes[i].isLobType()) {
+                hasLobColumn = true;
+            }
         }
     }
 
@@ -1686,27 +1688,23 @@ public class Table extends TableBase implements SchemaObject {
         colNotNull       = new boolean[columnCount];
         colGenerated     = new boolean[columnCount];
         defaultColumnMap = new int[columnCount];
-        hasDomainColumns = false;
 
         for (int i = 0; i < columnCount; i++) {
-            setColumnTypeVars(i);
+            setSingleColumnTypeVars(i);
         }
 
         resetDefaultsFlag();
     }
 
     void setColumnTypeVars(int i) {
+        setSingleColumnTypeVars(i);
+        resetDefaultsFlag();
+    }
+
+    private void setSingleColumnTypeVars(int i) {
 
         ColumnSchema column   = getColumn(i);
         Type         dataType = column.getDataType();
-
-        if (dataType.isDomainType()) {
-            hasDomainColumns = true;
-        }
-
-        if (dataType.isLobType()) {
-            hasLobColumn = true;
-        }
 
         colTypes[i]         = dataType;
         colNotNull[i]       = column.isPrimaryKey() || !column.isNullable();
@@ -1716,13 +1714,12 @@ public class Table extends TableBase implements SchemaObject {
             identitySequence = column.getIdentitySequence();
             identityColumn   = i;
         } else if (identityColumn == i) {
-            identityColumn = -1;
+            identitySequence = null;
+            identityColumn   = -1;
         }
 
         colDefaults[i]  = column.getDefaultExpression();
         colGenerated[i] = column.isGenerated();
-
-        resetDefaultsFlag();
     }
 
     /**

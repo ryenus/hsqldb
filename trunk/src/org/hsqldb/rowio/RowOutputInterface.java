@@ -41,10 +41,12 @@ import org.hsqldb.types.Type;
  *
  * @author Bob Preston (sqlbob@users dot sourceforge.net)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.0.1
+ * @version 2.3.3
  * @since 1.7.0
  */
 public interface RowOutputInterface extends Cloneable {
+
+    void setStorageSize(int size);
 
     void writeEnd();
 

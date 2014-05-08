@@ -1626,7 +1626,8 @@ public class Logger {
         }
 
         if (HsqlDatabaseProperties.hsqldb_script_format.equals(name)) {
-            return ScriptWriterBase.LIST_SCRIPT_FORMATS[0].toLowerCase();
+            return ScriptWriterBase.LIST_SCRIPT_FORMATS[propScriptFormat]
+                .toLowerCase();
         }
 
         if (HsqlDatabaseProperties.hsqldb_temp_directory.equals(name)) {

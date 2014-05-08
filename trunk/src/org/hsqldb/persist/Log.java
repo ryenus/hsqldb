@@ -354,7 +354,7 @@ public class Log {
         return database.logger.isAnyTextCacheModified();
     }
 
-    void checkpoint() {
+    private void checkpoint() {
 
         if (filesReadOnly) {
             return;

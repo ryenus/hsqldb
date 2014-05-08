@@ -50,7 +50,7 @@ import org.hsqldb.types.Types;
  * existing table which may result in a new Table object
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.2
+ * @version 2.3.3
  * @since 1.7.0
  */
 public class TableWorks {
@@ -1073,6 +1073,11 @@ public class TableWorks {
 
         // 0 if only metadata change is required ; 1 if only check is required ; -1 if data conversion is required
         int checkData = newType.canMoveFrom(oldType);
+
+        if (newCol.isIdentity() && table.hasIdentityColumn()
+                && table.identityColumn != colIndex) {
+            throw Error.error(ErrorCode.X_42525);
+        }
 
         if (checkData == 0) {
             if (newCol.isIdentity()) {

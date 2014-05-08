@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2011, The HSQL Development Group
+/* Copyright (c) 2001-2014, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -87,7 +87,7 @@ public class TestUtil {
         FileUtil.deleteOrRenameDatabaseFiles(path);
     }
 
-    static boolean delete(String file) {
+    public static boolean delete(String file) {
         return new File(file).delete();
     }
 

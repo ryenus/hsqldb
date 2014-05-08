@@ -51,7 +51,7 @@ import org.hsqldb.types.Type;
  * Implementation of Statement for DDL statements.<p>
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.2
+ * @version 2.3.3
  * @since 1.9.0
  */
 public class StatementSchema extends Statement {
@@ -1180,6 +1180,10 @@ public class StatementSchema extends Statement {
 
                     if (statement != null) {
                         Result result = statement.execute(session);
+
+                        if (result.isError()) {
+                            return result;
+                        }
 
                         table.insertIntoTable(session, result);
                     }

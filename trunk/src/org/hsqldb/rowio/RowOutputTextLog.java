@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2011, The HSQL Development Group
+/* Copyright (c) 2001-2014, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -51,8 +51,7 @@ import org.hsqldb.types.Type;
 
 /**
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @since 2.0.0
- * @version 1.7.2
+ * @version 2.3.3
  */
 public class RowOutputTextLog extends RowOutputBase {
 
@@ -109,6 +108,8 @@ public class RowOutputTextLog extends RowOutputBase {
     protected void writeSmallint(Number o) {
         this.writeBytes(o.toString());
     }
+
+    public void setStorageSize(int size) {}
 
     public void writeEnd() {}
 

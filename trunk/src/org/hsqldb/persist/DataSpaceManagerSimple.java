@@ -35,7 +35,7 @@ import org.hsqldb.lib.DoubleIntIndex;
 
 /**
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.2
+ * @version 2.3.3
  * @since 2.3.0
  */
 public class DataSpaceManagerSimple implements DataSpaceManager {
@@ -171,6 +171,10 @@ public class DataSpaceManagerSimple implements DataSpaceManager {
 
     public boolean isMultiSpace() {
         return false;
+    }
+
+    public int getFileBlockItemCount() {
+        return 1024 * 64;
     }
 
     static boolean compactLookup(DoubleIntIndex lookup, int fileScale) {
