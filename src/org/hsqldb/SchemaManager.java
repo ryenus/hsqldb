@@ -55,7 +55,7 @@ import org.hsqldb.types.Type;
  * Manages all SCHEMA related database objects
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.2
+ * @version 2.3.3
  * @since 1.8.0
  */
 public class SchemaManager {
@@ -2014,6 +2014,10 @@ public class SchemaManager {
         }
 
         if (refName == null) {
+            return;
+        }
+
+        if (name.type == SchemaObject.CONSTRAINT) {
             return;
         }
 

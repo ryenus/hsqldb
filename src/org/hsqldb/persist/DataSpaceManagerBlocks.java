@@ -750,6 +750,10 @@ public class DataSpaceManagerBlocks implements DataSpaceManager {
         return true;
     }
 
+    public int getFileBlockItemCount() {
+        return fileBlockItemCount;
+    }
+
     private void initialiseTableSpace(TableSpaceManagerBlocks tableSpace) {
 
         int spaceId    = tableSpace.getSpaceID();

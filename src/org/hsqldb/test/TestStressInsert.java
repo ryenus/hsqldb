@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2011, The HSQL Development Group
+/* Copyright (c) 2001-2014, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -57,8 +57,8 @@ public class TestStressInsert {
 
         String driver = "org.hsqldb.jdbc.JDBCDriver";
         String url    = "jdbc:hsqldb:file:/hsql/stress/test";
-//        String url    = "jdbc:hsqldb:hsql://localhost/test";
 
+//        String url    = "jdbc:hsqldb:hsql://localhost/test";
         Class.forName(driver);
 
         con = DriverManager.getConnection(url, "sa", "");
@@ -71,7 +71,6 @@ public class TestStressInsert {
         try {
             stmt.execute("set files write delay 10000 millis");
             stmt.execute("set files log size " + 200);
-
             stmt.execute("set files backup increment true");
 
             DatabaseMetaData metaData = con.getMetaData();
@@ -120,7 +119,6 @@ public class TestStressInsert {
             int    length = getRandomLength(LOB_SIZE);
             byte[] array  = Arrays.copyOf(data, length);
 
-
             insertStmtA.setBytes(1, array);
             insertStmtA.setBytes(2, id);
             insertStmtA.execute();
@@ -135,7 +133,6 @@ public class TestStressInsert {
         try {
             int    length = getRandomLength(LOB_SIZE);
             byte[] array  = Arrays.copyOf(data, length);
-
 
             insertStmtB.setBytes(1, array);
             insertStmtB.setBytes(2, id);

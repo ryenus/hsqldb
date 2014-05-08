@@ -31,12 +31,14 @@
 
 package org.hsqldb.map;
 
+import org.hsqldb.lib.ArrayUtil;
+
 /**
  * Implementation of a bit map of any size, together with static methods to
  * manipulate int, byte and byte[] values as bit maps.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.2
+ * @version 2.3.3
  * @since 1.8.0
 */
 public class BitMap {
@@ -69,6 +71,22 @@ public class BitMap {
         extendCapacity  = false;
     }
 
+    private BitMap(boolean extend) {
+        extendCapacity = extend;
+    }
+
+    public BitMap duplicate() {
+
+        BitMap newMap = new BitMap(extendCapacity);
+
+        newMap.defaultCapacity = this.defaultCapacity;
+        newMap.capacity        = this.capacity;
+        newMap.limitPos        = this.limitPos;
+        newMap.map             = (int[]) ArrayUtil.duplicateArray(this.map);
+
+        return newMap;
+    }
+
     public int size() {
         return limitPos;
     }
@@ -97,6 +115,21 @@ public class BitMap {
         }
 
         limitPos = 0;
+    }
+
+    public int countSetMatches(BitMap other) {
+
+        int matchCount = 0;
+
+        for (int i = 0; i < map.length; i++) {
+            int matches = this.map[i] & other.map[i];
+
+            if (matches != 0) {
+                matchCount += Integer.bitCount(matches);
+            }
+        }
+
+        return matchCount;
     }
 
     public void setRange(int pos, int count) {
@@ -236,6 +269,13 @@ public class BitMap {
 
     public boolean isSet(int pos) {
         return get(pos) == 1;
+    }
+
+    public void set(BitMap other) {
+        for (int windex = 0; windex < map.length; windex++) {
+            int word = other.map[windex];
+            map[windex] |= word;
+        }
     }
 
     public int countSet(int pos, int count) {

@@ -58,7 +58,7 @@ import org.hsqldb.types.UserTypeModifier;
  * Parser for DDL statements
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.2
+ * @version 2.3.3
  * @since 1.9.0
  */
 public class ParserDDL extends ParserRoutine {
@@ -324,6 +324,18 @@ public class ParserDDL extends ParserRoutine {
             }
             case Tokens.ROUTINE : {
                 return compileAlterRoutine();
+            }
+            case Tokens.CONSTRAINT : {
+                read();
+
+                Constraint constraint =
+                    (Constraint) readSchemaObjectName(SchemaObject.CONSTRAINT);
+
+                readThis(Tokens.RENAME);
+                readThis(Tokens.TO);
+
+                return compileRenameObject(constraint.getName(),
+                                           SchemaObject.CONSTRAINT);
             }
             default : {
                 throw unexpectedToken();
@@ -742,8 +754,6 @@ public class ParserDDL extends ParserRoutine {
                 switch (token.tokenType) {
 
                     case Tokens.PRIMARY : {
-                        boolean cascade = false;
-
                         read();
                         readThis(Tokens.KEY);
 

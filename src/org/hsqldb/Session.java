@@ -76,7 +76,7 @@ import org.hsqldb.types.Type.TypedComparator;
  * Implementation of SQL sessions.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.2
+ * @version 2.3.3
  * @since 1.7.0
  */
 public class Session implements SessionInterface {
@@ -148,6 +148,9 @@ public class Session implements SessionInterface {
 
     //
     public StatementManager statementManager;
+
+    //
+    public Object special;
 
     /**
      * Constructs a new Session object.
@@ -2293,7 +2296,7 @@ public class Session implements SessionInterface {
             boolean aborted = this.aborted;
 
             currentTimeout = 0;
-            aborted        = false;
+            this.aborted   = false;
 
             return aborted;
         }
