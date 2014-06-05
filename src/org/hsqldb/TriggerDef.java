@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2011, The HSQL Development Group
+/* Copyright (c) 2001-2014, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -412,6 +412,14 @@ public class TriggerDef implements Runnable, SchemaObject {
 
     public boolean hasNewTable() {
         return false;
+    }
+
+    public boolean hasOldRow() {
+        return rangeVars[OLD_ROW] != null;
+    }
+
+    public boolean hasNewRow() {
+        return rangeVars[NEW_ROW] != null;
     }
 
     public String getOldTransitionRowName() {

@@ -464,7 +464,7 @@ public class Scanner {
 
     void scanBitString() {
 
-        BitMap map = new BitMap(32, true);
+        BitMap map = new BitMap(0, true);
 
         while (true) {
             scanBitStringPart(map);
@@ -2466,7 +2466,7 @@ public class Scanner {
 
     public synchronized BinaryData convertToBit(String s) {
 
-        BitMap map      = new BitMap(32, true);
+        BitMap map      = new BitMap(0, true);
         int    bitIndex = 0;
 
         reset(s);

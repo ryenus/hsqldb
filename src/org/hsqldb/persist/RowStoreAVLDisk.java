@@ -386,10 +386,6 @@ public class RowStoreAVLDisk extends RowStoreAVL implements PersistentStore {
             for (int i = 0; i < accessorList.length; i++) {
                 long pos = pointerLookup.lookup(accessorList[i].getPos());
 
-                if (pos == -1) {
-                    throw Error.error(ErrorCode.DATA_FILE_ERROR);
-                }
-
                 newAccessorList[i] = cache.get(pos, this, false);
             }
 

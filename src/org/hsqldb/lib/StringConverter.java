@@ -1,7 +1,7 @@
 /*
  * For work developed by the HSQL Development Group:
  *
- * Copyright (c) 2001-2011, The HSQL Development Group
+ * Copyright (c) 2001-2014, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -168,11 +168,8 @@ public class StringConverter {
 
     /**
      * Compacts a bit string into a BitMap
-     *
-     *
      * @param s bit string
-     *
-     * @return byte array for the hex string
+     * @return BitMap for the bit string
      * @throws IOException
      */
     public static BitMap sqlBitStringToBitMap(String s) throws IOException {
@@ -180,7 +177,7 @@ public class StringConverter {
         int    l = s.length();
         int    n;
         int    bitIndex = 0;
-        BitMap map      = new BitMap(l, true);
+        BitMap map      = new BitMap(0, true);
 
         for (int j = 0; j < l; j++) {
             char c = s.charAt(j);

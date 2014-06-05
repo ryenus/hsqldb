@@ -47,7 +47,7 @@ import org.hsqldb.lib.StringUtil;
  * Manages a .properties file for a database.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.2
+ * @version 2.3.3
  * @since 1.7.0
  */
 public class HsqlDatabaseProperties extends HsqlProperties {

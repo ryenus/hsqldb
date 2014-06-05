@@ -91,7 +91,7 @@ import org.hsqldb.types.Type;
  *  storage.<p>
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.2
+ * @version 2.3.3
  * @since 1.7.0
  */
 public class Logger {
@@ -118,6 +118,7 @@ public class Logger {
     boolean propNioDataFile;
     long    propNioMaxSize    = 256 * 1024 * 1024L;
     int     propMaxFreeBlocks = 512;
+    int     propMinReuse      = 0;
     int     propCacheMaxRows;
     long    propCacheMaxSize;
     int     propCacheDefragLimit;
@@ -633,7 +634,7 @@ public class Logger {
             database.databaseProperties.getIntegerProperty(
                 HsqlDatabaseProperties.hsqldb_cache_file_scale));
 
-        // apply only when larger than 0 - match with FILES SCALE
+        // linked with FILES SCALE
         int fileSpace = database.databaseProperties.getIntegerProperty(
             HsqlDatabaseProperties.hsqldb_files_space, 0);
 
@@ -1231,7 +1232,7 @@ public class Logger {
 
         if (hasCache()) {
             DataFileCache dataCache = getCache();
-            boolean       result    = dataCache.setTableSpaceManager(value);
+            boolean       result    = dataCache.setDataSpaceManager(value);
 
             if (!result) {
                 return;

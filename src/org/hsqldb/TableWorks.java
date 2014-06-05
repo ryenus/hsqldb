@@ -275,16 +275,6 @@ public class TableWorks {
                 && !col.isIdentity()) {
             throw Error.error(ErrorCode.X_42531);
         }
-
-        TriggerDef[] triggers = table.getTriggers();
-
-        for (int i = 0; i < triggers.length; i++) {
-            if (triggers[i] instanceof TriggerDefSQL) {
-                throw Error.error(
-                    ErrorCode.X_42502,
-                    triggers[i].getName().getSchemaQualifiedStatementName());
-            }
-        }
     }
 
     void addColumn(ColumnSchema column, int colIndex,
@@ -457,6 +447,14 @@ public class TableWorks {
         database.schemaManager.addSchemaObject(column);
         database.schemaManager.recompileDependentObjects(tn);
         tn.compile(session, null);
+
+        TriggerDef[] triggers = table.getTriggers();
+
+        for (int i = 0; i < triggers.length; i++) {
+            if (triggers[i] instanceof TriggerDefSQL) {
+                triggers[i].compile(session, null);
+            }
+        }
 
         table = tn;
     }
@@ -789,10 +787,15 @@ public class TableWorks {
         TriggerDef[] triggers = table.getTriggers();
 
         for (int i = 0; i < triggers.length; i++) {
-            if (triggers[i] instanceof TriggerDefSQL) {
+            TriggerDef trig = triggers[i];
+
+            if (trig instanceof TriggerDefSQL) {
+                if (trig.hasOldTable() || trig.hasNewTable()
+                        || trig.hasOldRow() || trig.hasNewRow()) {
                 throw Error.error(
                     ErrorCode.X_42502,
-                    triggers[i].getName().getSchemaQualifiedStatementName());
+                        trig.getName().getSchemaQualifiedStatementName());
+                }
             }
         }
 
@@ -1333,23 +1336,23 @@ public class TableWorks {
                     oldTable, newTable, colIndex, adjust);
             }
         } else {
+            PersistentStore oldStore =
+                database.persistentStoreCollection.getStore(oldTable);
             boolean newSpaceID = false;
 
             if (newTable.isCached()) {
                 newSpaceID = oldTable.getSpaceID()
                              != DataSpaceManager.tableIdDefault;
+
+                if (newSpaceID) {
+                    int tableSpaceID =
+                        database.logger.getCache().spaceManager
+                            .getNewTableSpaceID();
+
+                    newTable.setSpaceID(tableSpaceID);
+                }
             }
 
-            if (newSpaceID) {
-                int tableSpaceID =
-                    database.logger.getCache().spaceManager
-                        .getNewTableSpaceID();
-
-                newTable.setSpaceID(tableSpaceID);
-            }
-
-            PersistentStore oldStore =
-                database.persistentStoreCollection.getStore(oldTable);
             PersistentStore newStore =
                 database.persistentStoreCollection.getStore(newTable);
 

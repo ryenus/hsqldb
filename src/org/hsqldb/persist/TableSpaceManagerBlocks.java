@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2011, The HSQL Development Group
+/* Copyright (c) 2001-2014, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -41,15 +41,16 @@ import org.hsqldb.lib.DoubleIntIndex;
  * Maintains a list of free file blocks with fixed capacity.<p>
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.0
+ * @version 2.3.3
  * @since 2.3.0
  */
 public class TableSpaceManagerBlocks implements TableSpaceManager {
 
     DataSpaceManager  spaceManager;
     private final int scale;
-    int               mainBlockSize;
-    int               spaceID;
+    final int         mainBlockSize;
+    final int         spaceID;
+    final int         minReuse;
 
     //
     private DoubleIntIndex lookup;
@@ -70,12 +71,13 @@ public class TableSpaceManagerBlocks implements TableSpaceManager {
      */
     public TableSpaceManagerBlocks(DataSpaceManager spaceManager, int tableId,
                                    int fileBlockSize, int capacity,
-                                   int fileScale) {
+                                   int fileScale, int minReuse) {
 
         this.spaceManager  = spaceManager;
         this.scale         = fileScale;
         this.spaceID       = tableId;
         this.mainBlockSize = fileBlockSize;
+        this.minReuse      = minReuse;
         lookup             = new DoubleIntIndex(capacity, true);
 
         lookup.setValuesSearchTarget();
@@ -187,7 +189,7 @@ public class TableSpaceManagerBlocks implements TableSpaceManager {
         }
 
         if (pos < Integer.MAX_VALUE) {
-            lookup.add(pos, rowSize);
+            lookup.add(pos, rowSize / scale);
         }
     }
 
@@ -196,7 +198,7 @@ public class TableSpaceManagerBlocks implements TableSpaceManager {
      */
     synchronized public long getFilePosition(long rowSize, boolean asBlocks) {
 
-        if (capacity == 0) {
+        if (capacity == 0 || rowSize < minReuse) {
             return getNewBlock(rowSize, asBlocks);
         }
 
@@ -213,7 +215,7 @@ public class TableSpaceManagerBlocks implements TableSpaceManager {
             } else if (rowSize > Integer.MAX_VALUE) {
                 index = -1;
             } else {
-                index = lookup.findFirstGreaterEqualKeyIndex((int) rowSize);
+                index = lookup.findFirstGreaterEqualKeyIndex((int) (rowSize / scale));
             }
         }
 
@@ -240,9 +242,9 @@ public class TableSpaceManagerBlocks implements TableSpaceManager {
 
         requestSize += rowSize;
 
-        int length     = lookup.getValue(index);
-        int difference = length - (int) rowSize;
         int key        = lookup.getKey(index);
+        int units     = lookup.getValue(index);
+        int difference = units - (int) (rowSize / scale);
 
         lookup.remove(index);
 

@@ -39,7 +39,7 @@ import org.hsqldb.rights.Grantee;
  * SQL schema object interface
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 1.9.0
+ * @version 2.3.3
  * @since 1.9.0
  */
 public interface SchemaObject {

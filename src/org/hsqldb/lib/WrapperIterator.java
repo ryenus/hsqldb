@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2011, The HSQL Development Group
+/* Copyright (c) 2001-2014, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -176,7 +176,7 @@ public class WrapperIterator implements Iterator {
 
                 it2 = null;
 
-                next();
+                return next();
             } else {
                 if (it1.hasNext()) {
                     return it1.next();
@@ -184,7 +184,7 @@ public class WrapperIterator implements Iterator {
 
                 it1 = null;
 
-                next();
+                return next();
             }
         }
 

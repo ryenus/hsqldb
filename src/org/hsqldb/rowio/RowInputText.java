@@ -241,6 +241,11 @@ public class RowInputText extends RowInputBase implements RowInputInterface {
         return false;
     }
 
+    /**
+     * This does not check the length of the character string.
+     * The text file may contain strings that are longer than allowed by
+     * the declared type.
+     */
     protected String readChar(Type type) throws IOException {
 
         String s = null;

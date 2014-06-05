@@ -60,7 +60,7 @@ import org.hsqldb.rowio.RowOutputInterface;
  * Rewritten for 1.8.0 and 2.x
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.2
+ * @version 2.3.3
  * @since 1.7.2
  */
 public class DataFileCache {
@@ -77,7 +77,8 @@ public class DataFileCache {
     // file format fields
     static final int LONG_EMPTY_SIZE      = 4;        // empty space size
     static final int LONG_FREE_POS_POS    = 12;       // where iFreePos is saved
-    static final int INT_SPACE_LIST_POS   = 24;       // empty space index
+    static final int INT_SPACE_PROPS_POS  = 20;       // space properties
+    static final int INT_SPACE_LIST_POS   = 24;       // space list
     static final int FLAGS_POS            = 28;
     static final int MIN_INITIAL_FREE_POS = 32;
 
@@ -165,8 +166,7 @@ public class DataFileCache {
         initBuffers();
 
         if (database.logger.getDataFileSpaces() > 0) {
-            spaceManager = new DataSpaceManagerBlocks(this,
-                    database.logger.getDataFileSpaces());
+            spaceManager = new DataSpaceManagerBlocks(this);
         } else {
             spaceManager = new DataSpaceManagerSimple(this);
         }
@@ -382,8 +382,7 @@ public class DataFileCache {
 
             if (spaceManagerPosition != 0
                     || database.logger.getDataFileSpaces() > 0) {
-                spaceManager = new DataSpaceManagerBlocks(this,
-                        database.logger.getDataFileSpaces());
+                spaceManager = new DataSpaceManagerBlocks(this);
             } else {
                 spaceManager = new DataSpaceManagerSimple(this);
             }
@@ -400,17 +399,17 @@ public class DataFileCache {
         }
     }
 
-    boolean setTableSpaceManager(int tableSpaceSize) {
+    boolean setDataSpaceManager(int fileSpaceSize) {
 
-        if (tableSpaceSize > 0 && spaceManagerPosition == 0) {
+        if (fileSpaceSize > 0 && spaceManagerPosition == 0) {
             spaceManager.reset();
 
-            spaceManager = new DataSpaceManagerBlocks(this, tableSpaceSize);
+            spaceManager = new DataSpaceManagerBlocks(this);
 
             return true;
         }
 
-        if (tableSpaceSize == 0 && spaceManagerPosition != 0) {
+        if (fileSpaceSize == 0 && spaceManagerPosition != 0) {
             spaceManager.reset();
 
             spaceManager = new DataSpaceManagerSimple(this);
@@ -513,6 +512,13 @@ public class DataFileCache {
 
             dataFile.seek(LONG_FREE_POS_POS);
             dataFile.writeLong(fileFreePosition);
+            dataFile.seek(this.INT_SPACE_PROPS_POS);
+
+            int spaceProps = dataFileScale;
+
+            spaceProps |= (database.logger.getDataFileSpaces() << 16);
+
+            dataFile.writeInt(0);
 
             // set shadowed flag;
             int flags = 0;
@@ -761,9 +767,11 @@ public class DataFileCache {
             spaceManager.reset();
             cache.saveAll();
 
+            long lostSize = spaceManager.getLostBlocksSize();
+
             // set empty
             dataFile.seek(LONG_EMPTY_SIZE);
-            dataFile.writeLong(spaceManager.getLostBlocksSize());
+            dataFile.writeLong(lostSize);
 
             // set end
             dataFile.seek(LONG_FREE_POS_POS);
@@ -872,7 +880,6 @@ public class DataFileCache {
             database.getProperties().setDBModified(
                 HsqlDatabaseProperties.FILES_NOT_MODIFIED);
             open(false);
-            database.schemaManager.setIndexRoots(dfd.getIndexRoots());
 
             if (database.logger.log.dbLogWriter != null) {
                 database.logger.log.openLog();
@@ -1241,7 +1248,7 @@ public class DataFileCache {
         }
     }
 
-    public void releaseRange(long start, long limit) {
+    public void releaseRange(long startPos, long limitPos) {
 
         writeLock.lock();
 
@@ -1252,7 +1259,7 @@ public class DataFileCache {
                 CachedObject o   = (CachedObject) it.next();
                 long         pos = o.getPos();
 
-                if (pos >= start && pos < limit) {
+                if (pos >= startPos && pos < limitPos) {
                     o.setInMemory(false);
                     it.remove();
                 }
@@ -1557,14 +1564,7 @@ public class DataFileCache {
     }
 
     public long getLostBlockSize() {
-
-        readLock.lock();
-
-        try {
-            return spaceManager.getLostBlocksSize();
-        } finally {
-            readLock.unlock();
-        }
+        return spaceManager.getLostBlocksSize();
     }
 
     public long getFileFreePos() {

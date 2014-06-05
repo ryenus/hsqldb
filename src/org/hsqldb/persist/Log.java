@@ -74,7 +74,7 @@ import org.hsqldb.scriptio.ScriptWriterText;
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
  * @author Bob Preston (sqlbob@users dot sourceforge.net) - text table support
- * @version 2.3.2
+ * @version 2.3.3
  * @since 1.8.0
  */
 public class Log {
@@ -501,6 +501,7 @@ public class Log {
             DataFileDefrag dfd = cache.defrag();
 
             database.persistentStoreCollection.setNewTableSpaces();
+            database.schemaManager.setIndexRoots(dfd.getIndexRoots());
             database.sessionManager.resetLoggedSchemas();
         } catch (HsqlException e) {
             throw e;

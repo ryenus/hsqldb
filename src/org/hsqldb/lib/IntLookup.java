@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2011, The HSQL Development Group
+/* Copyright (c) 2001-2014, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -48,6 +48,8 @@ public interface IntLookup {
     int lookup(int key) throws NoSuchElementException;
 
     int lookup(int key, int def);
+
+    int size();
 
     void clear();
 }
