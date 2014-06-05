@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2011, The HSQL Development Group
+/* Copyright (c) 2001-2014, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -90,6 +90,28 @@ public class TestDatetimeSimple extends TestCase {
 
         pstmt = c.prepareStatement(
             "select to_number(to_char((select ? - c0  day from dual), 'YYYYMMDD')) from dual");
+
+        pstmt.setTimestamp(1, new Timestamp(System.currentTimeMillis()));
+
+        set = pstmt.executeQuery();
+
+        if (set.next()) {
+            System.out.println("pstmt res=" + set.getInt(1));
+        }
+
+        pstmt = c.prepareStatement(
+            "select extract(hour from ((localtimestamp + 26 hour) - ?) day to hour ) from dual");
+
+        pstmt.setTimestamp(1, new Timestamp(System.currentTimeMillis()));
+
+        set = pstmt.executeQuery();
+
+        if (set.next()) {
+            System.out.println("pstmt res=" + set.getInt(1));
+        }
+
+        pstmt = c.prepareStatement(
+            "select extract(hour from (localtimestamp + 27 hour) - cast(? as timestamp) ) from dual");
 
         pstmt.setTimestamp(1, new Timestamp(System.currentTimeMillis()));
 

@@ -46,8 +46,9 @@ import org.hsqldb.lib.tar.TarMalformatException;
 
 import junit.framework.Test;
 import junit.framework.TestSuite;
+import junit.framework.TestCase;
 
-public class TestDbBackup extends junit.framework.TestCase {
+public class TestDbBackup extends TestCase {
 
     public TestDbBackup() throws IOException, SQLException {}
 
