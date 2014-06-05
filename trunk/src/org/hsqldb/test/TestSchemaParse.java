@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2011, The HSQL Development Group
+/* Copyright (c) 2001-2014, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -37,7 +37,9 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 
-public class TestSchemaParse extends junit.framework.TestCase {
+import junit.framework.TestCase;
+
+public class TestSchemaParse extends TestCase {
 
     Connection                  con = null;
     Statement                   statement;
@@ -53,11 +55,12 @@ public class TestSchemaParse extends junit.framework.TestCase {
 
         execSQL("SET AUTOCOMMIT false", 0);
         execSQL("CREATE TABLE tsttbl (i INT, vc VARCHAR(100))", 0);
-        execSQL("CREATE TABLE bigtbl (i INT, vc VARCHAR(100), i101 INT, i102 INT, "
-                + "i103 INT, i104 INT, i105 INT, i106 INT, i107 INT, "
-                + "i108 INT, i109 INT, i110 INT, i111 INT, i112 INT, "
-                + "i113 INT, i114 INT, i115 INT, i116 INT, i117 INT, "
-                + "i118 INT, i119 INT)", 0);
+        execSQL(
+            "CREATE TABLE bigtbl (i INT, vc VARCHAR(100), i101 INT, i102 INT, "
+            + "i103 INT, i104 INT, i105 INT, i106 INT, i107 INT, "
+            + "i108 INT, i109 INT, i110 INT, i111 INT, i112 INT, "
+            + "i113 INT, i114 INT, i115 INT, i116 INT, i117 INT, "
+            + "i118 INT, i119 INT)", 0);
         execSQL("INSERT INTO tsttbl VALUES (1, 'one')", 1);
         execSQL("INSERT INTO tsttbl VALUES (2, 'two')", 1);
         execSQL("CREATE TABLE joinedtbl (i2 INT, vc2 VARCHAR(100))", 0);
@@ -119,7 +122,8 @@ public class TestSchemaParse extends junit.framework.TestCase {
         // Select commands
         assertEquals(2, queryRowCount("SELECT i FROM " + prefix
                                       + "tsttbl WHERE i IN (1, 2, 3)"));
-        execSQL("CREATE TABLE " + prefix + "newtbl AS (SELECT * FROM tsttbl) WITH DATA", 0);
+        execSQL("CREATE TABLE " + prefix
+                + "newtbl AS (SELECT * FROM tsttbl) WITH DATA", 0);
         assertEquals(2, queryRowCount("SELECT admin FROM " + ipref
                                       + "system_users"));
         assertEquals("Sub-query", 1,
@@ -138,10 +142,12 @@ public class TestSchemaParse extends junit.framework.TestCase {
             2, queryRowCount(
                 "SELECT ali.i FROM " + prefix
                 + "tsttbl ali WHERE ali.i IN (1, 2, 3)"));
-        execSQL("CREATE TABLE " + prefix + "newtbl2 AS (SELECT * FROM tsttbl) WITH DATA", 0);
-        execSQL("CREATE TABLE newtbl3 AS (SELECT * FROM " + prefix + "tsttbl ali) WITH DATA", 0);
-        execSQL("CREATE TABLE "+ prefix + "newtbl4 AS (SELECT * FROM " + prefix
+        execSQL("CREATE TABLE " + prefix
+                + "newtbl2 AS (SELECT * FROM tsttbl) WITH DATA", 0);
+        execSQL("CREATE TABLE newtbl3 AS (SELECT * FROM " + prefix
                 + "tsttbl ali) WITH DATA", 0);
+        execSQL("CREATE TABLE " + prefix + "newtbl4 AS (SELECT * FROM "
+                + prefix + "tsttbl ali) WITH DATA", 0);
         assertEquals(2, queryRowCount("SELECT ali.admin FROM " + ipref
                                       + "system_users ali"));
         assertEquals("Sub-query", 1,
@@ -169,9 +175,11 @@ public class TestSchemaParse extends junit.framework.TestCase {
                 + "playtbl", 0);
         execSQL("ALTER TABLE " + prefix
                 + "constrainedtbl ADD CONSTRAINT con1 CHECK (i6 > 4)", 0);
-        execSQL("ALTER TABLE " + prefix + "tsttbl ADD COLUMN vco1 VARCHAR(100)", 0);
+        execSQL("ALTER TABLE " + prefix
+                + "tsttbl ADD COLUMN vco1 VARCHAR(100)", 0);
         execSQL("ALTER TABLE " + prefix + "tsttbl DROP COLUMN vco1", 0);
-        execSQL("ALTER TABLE " + prefix + "tsttbl ADD COLUMN vco1 VARCHAR(100)", 0);
+        execSQL("ALTER TABLE " + prefix
+                + "tsttbl ADD COLUMN vco1 VARCHAR(100)", 0);
         execSQL("ALTER TABLE " + prefix
                 + "tsttbl ALTER COLUMN vco1 RENAME TO j1", 0);
         execSQL("ALTER TABLE " + prefix
@@ -192,7 +200,8 @@ public class TestSchemaParse extends junit.framework.TestCase {
         execSQL("SET TABLE " + prefix + "tsttbl READONLY false", 0);
 
         // Create table commands
-        execSQL("CREATE TABLE " + prefix + "tsttbly (i INT, vc VARCHAR(100))", 0);
+        execSQL("CREATE TABLE " + prefix + "tsttbly (i INT, vc VARCHAR(100))",
+                0);
         execSQL("CREATE CACHED TABLE " + prefix
                 + "tsttblx (i INT, vc VARCHAR(100))", 0);
         execSQL("CREATE TABLE constrz (i6 INT, vc6 VARCHAR(100), "
@@ -242,7 +251,8 @@ public class TestSchemaParse extends junit.framework.TestCase {
 
         // grant, revoke
         execSQL("GRANT ALL ON " + prefix + "tstview TO tstuser", 0);
-        execSQL("REVOKE ALL ON " + prefix + "tstview FROM tstuser RESTRICT", 0);
+        execSQL("REVOKE ALL ON " + prefix + "tstview FROM tstuser RESTRICT",
+                0);
 
         // drop
         execSQL("DROP VIEW tstview", 0);
@@ -268,11 +278,11 @@ public class TestSchemaParse extends junit.framework.TestCase {
                 + "CONSTRAINT " + prefix + "uconsw UNIQUE(vc12))", 0);
         execSQL("CREATE TABLE constbl2 (i11 INT, vc12 VARCHAR(100), "
                 + "CONSTRAINT " + prefix + "chk CHECK (i11 > 4))", 0);
-        execSQL("CREATE TABLE for2tbl (i7 INT, vc7 VARCHAR(100), " + "CONSTRAINT "
-                + prefix
+        execSQL("CREATE TABLE for2tbl (i7 INT, vc7 VARCHAR(100), "
+                + "CONSTRAINT " + prefix
                 + "tstfk2 FOREIGN KEY (i7) REFERENCES primarytbl (i8))", 0);
-        execSQL("CREATE TABLE for3tbl (i7 INT, vc7 VARCHAR(100), " + "CONSTRAINT "
-                + prefix + "tstpk2 PRIMARY KEY (i7))", 0);
+        execSQL("CREATE TABLE for3tbl (i7 INT, vc7 VARCHAR(100), "
+                + "CONSTRAINT " + prefix + "tstpk2 PRIMARY KEY (i7))", 0);
         execSQL("ALTER TABLE constrainedtbl ADD CONSTRAINT " + prefix
                 + "con1 CHECK (i6 > 4)", 0);
         execSQL("ALTER TABLE foreigntbl ADD CONSTRAINT " + prefix
@@ -305,14 +315,16 @@ public class TestSchemaParse extends junit.framework.TestCase {
 
         expect = SQL_ABORT;
 
-        execSQL("CREATE FUNCTION " + prefix + "tstalias(A VARCHAR(100)) "
-                + "RETURNS VARCHAR(100) "
-                + "LANGUAGE JAVA EXTERNAL NAME \'org.hsqldb.test.BlaineTrig.capitalize\'", 0);
+        execSQL(
+            "CREATE FUNCTION " + prefix + "tstalias(A VARCHAR(100)) "
+            + "RETURNS VARCHAR(100) "
+            + "LANGUAGE JAVA EXTERNAL NAME \'org.hsqldb.test.BlaineTrig.capitalize\'", 0);
 
         // Following should not throw an exception:
         assertEquals(
             1, queryRowCount(
-                "SELECT " + prefix + "tstalias('helo') FROM tsttbl WHERE i = 1"));
+                "SELECT " + prefix
+                + "tstalias('helo') FROM tsttbl WHERE i = 1"));
     }
 
     public void test2pTriggers() throws Exception {
@@ -487,6 +499,7 @@ public class TestSchemaParse extends junit.framework.TestCase {
     public void testTwoPartKeywords() throws Exception {
         multiPartKeywords("public.");
     }
+
     public void testInvalidTwoPartKeywords() throws Exception {
         multiPartKeywords("alpha.");
     }
@@ -515,7 +528,7 @@ public class TestSchemaParse extends junit.framework.TestCase {
         boolean manyParter = (pref.lastIndexOf('.') != pref.indexOf('.'));
 
         // Prep for we will attempt to drop later
-        execSQL("DROP VIEW tstview", 0);                              // Don't want dep. problems
+        execSQL("DROP VIEW tstview", 0);                                      // Don't want dep. problems
         execSQL("CREATE TABLE adroptbl (i INT, vc VARCHAR(100))", 0);
         execSQL("CREATE TABLE bdroptbl (i INT, vc VARCHAR(100))", 0);
         execSQL("CREATE UNIQUE INDEX adropind ON adroptbl (i)", 0);
@@ -528,8 +541,8 @@ public class TestSchemaParse extends junit.framework.TestCase {
                 + "org.hsqldb.test.BlaineTrig\"", 0);
         execSQL("CREATE VIEW adropviewx AS SELECT * FROM adroptbl", 0);
         execSQL("CREATE VIEW bdropviewx AS SELECT * FROM bdroptbl", 0);
-        execSQL("ALTER TABLE playtbl ADD COLUMN newc VARCHAR(100)", 0);    // prep
-        execSQL("SET TABLE tsttbl READONLY false", 0);                // reset
+        execSQL("ALTER TABLE playtbl ADD COLUMN newc VARCHAR(100)", 0);       // prep
+        execSQL("SET TABLE tsttbl READONLY false", 0);                        // reset
         execSQL("SET TABLE tsttbl READONLY " + pref + "true", expect);
         execSQL(pref + "CREATE SEQUENCE tstseqa", expect);
         execSQL(pref + "SET PROPERTY \"hsqldb.first_identity\" 4", expect);
@@ -553,14 +566,14 @@ public class TestSchemaParse extends junit.framework.TestCase {
         execSQL("INSERT INTO tsttbl VALUES (" + pref + "1, 'one')", expect);
         execSQL("CREATE VIEW tstviewx AS SELECT " + pref
                 + "* FROM tsttbl WHERE i < 10", expect);
-        execSQL("DROP VIEW tstviewx IF EXISTS", 0);                   // reset
+        execSQL("DROP VIEW tstviewx IF EXISTS", 0);                           // reset
         execSQL("INSERT INTO tsttbl VALUES (1, " + pref + "'one')", expect);
         execSQL("CREATE UNIQUE INDEX tstinda ON toindextbl (" + pref + "i10)",
                 expect);
-        execSQL("DROP INDEX tstinda IF EXISTS", 0);                   // reset
+        execSQL("DROP INDEX tstinda IF EXISTS", 0);                           // reset
         execSQL("CREATE VIEW tstviewx AS SELECT * FROM tsttbl WHERE i < "
                 + pref + "10", expect);
-        execSQL("DROP VIEW tstviewx IF EXISTS", 0);                   // reset
+        execSQL("DROP VIEW tstviewx IF EXISTS", 0);                           // reset
         execSQL("xDROP VIEW adropview", expect);
         execSQL("DROP xVIEW bdropview", expect);
         execSQL("xDROP TRIGGER adroptrig", expect);
@@ -590,7 +603,6 @@ public class TestSchemaParse extends junit.framework.TestCase {
                 + pref + "4)", expect);
         execSQL(pref + "INSERT INTO tsttbl VALUES (1, 'one')", expect);
         execSQL("INSERT " + pref + "INTO tsttbl VALUES (1, 'one')", expect);
-
         execSQL(pref + "DELETE FROM tsttbl WHERE i < 10", expect);
         execSQL(pref + "SELECT i FROM tsttbl", expect);
         execSQL("SELECT i " + pref + "FROM tsttbl", expect);
@@ -611,32 +623,30 @@ public class TestSchemaParse extends junit.framework.TestCase {
         execSQL("CREATE " + pref + "USER tstusera PASSWORD fake", expect);
         execSQL("CREATE VIEW tstviewx " + pref
                 + "AS SELECT * FROM tsttbl WHERE i < 10", expect);
-        execSQL("DROP VIEW tstviewx IF EXISTS", 0);    // reset
+        execSQL("DROP VIEW tstviewx IF EXISTS", 0);                           // reset
         execSQL("CREATE UNIQUE " + pref + "INDEX tstinda ON toindextbl (i10)",
                 expect);
-        execSQL("DROP INDEX tstinda IF EXISTS", 0);    // reset
+        execSQL("DROP INDEX tstinda IF EXISTS", 0);                           // reset
         execSQL("CREATE " + pref + "INDEX tstinda ON toindextbl (i10)",
                 expect);
-        execSQL("DROP INDEX tstinda IF EXISTS", 0);    // reset
+        execSQL("DROP INDEX tstinda IF EXISTS", 0);                           // reset
         execSQL("CREATE TRIGGER tsttrigy " + pref
                 + "AFTER INSERT ON triggedtbl CALL \""
                 + "org.hsqldb.test.BlaineTrig\"", expect);
         execSQL("CREATE USER tstuserb " + pref + "PASSWORD fake", expect);
         execSQL("CREATE VIEW tstviewx AS " + pref
                 + "SELECT * FROM tsttbl WHERE i < 10", expect);
-        execSQL("DROP VIEW tstviewx IF EXISTS", 0);    // reset
+        execSQL("DROP VIEW tstviewx IF EXISTS", 0);                           // reset
         execSQL("CREATE UNIQUE INDEX tstinda " + pref + "ON toindextbl (i10)",
                 expect);
-        execSQL("DROP INDEX tstinda IF EXISTS", 0);    // reset
+        execSQL("DROP INDEX tstinda IF EXISTS", 0);                           // reset
         execSQL("CREATE TRIGGER tsttrigz AFTER " + pref
                 + "INSERT ON triggedtbl CALL \""
                 + "org.hsqldb.test.BlaineTrig\"", expect);
         execSQL("CREATE VIEW tstviewx AS SELECT * " + pref
                 + "FROM tsttbl WHERE i < 10", expect);
-
         execSQL("CREATE USER tstuserc PASSWORD " + pref + "fake", expect);
-
-        execSQL("DROP VIEW tstviewx IF EXISTS", 0);    // reset
+        execSQL("DROP VIEW tstviewx IF EXISTS", 0);                           // reset
         execSQL("CREATE TRIGGER tsttriga AFTER INSERT " + pref
                 + "ON triggedtbl CALL \""
                 + "org.hsqldb.test.BlaineTrig\"", expect);
@@ -644,16 +654,16 @@ public class TestSchemaParse extends junit.framework.TestCase {
                 + "CALL \"" + "org.hsqldb.test.BlaineTrig\"", expect);
         execSQL("CREATE VIEW tstviewx AS SELECT * FROM tsttbl " + pref
                 + "WHERE i < 10", expect);
-        execSQL("DROP VIEW tstviewx IF EXISTS", 0);    // reset
+        execSQL("DROP VIEW tstviewx IF EXISTS", 0);                           // reset
         execSQL("CREATE TRIGGER tsttrigc AFTER INSERT ON triggedtbl CALL "
                 + pref + "\"org.hsqldb.test.BlaineTrig'", expect);
         execSQL("CREATE " + pref + "UNIQUE INDEX tstindx ON toindextbl (i10)",
                 expect);
-        execSQL("DROP INDEX tstinda IF EXISTS", 0);    // reset
+        execSQL("DROP INDEX tstinda IF EXISTS", 0);                           // reset
         execSQL(
             "CREATE " + pref
             + "VIEW tstviewx AS SELECT * FROM tsttbl WHERE i < 10", expect);
-        execSQL("DROP VIEW tstviewx IF EXISTS", 0);    // reset
+        execSQL("DROP VIEW tstviewx IF EXISTS", 0);                           // reset
         execSQL(pref + "CREATE USER tstuserd PASSWORD fake", expect);
         execSQL(pref
                 + "CREATE TRIGGER tsttrigd AFTER INSERT ON triggedtbl CALL \""
@@ -661,29 +671,27 @@ public class TestSchemaParse extends junit.framework.TestCase {
         execSQL(
             pref
             + "CREATE VIEW tstviewx AS SELECT * FROM tsttbl WHERE i < 10", expect);
-        execSQL("DROP VIEW tstviewx IF EXISTS", 0);    // reset
+        execSQL("DROP VIEW tstviewx IF EXISTS", 0);                           // reset
         execSQL(pref + "CREATE UNIQUE INDEX tstinda ON toindextbl (i10)",
                 expect);
-        execSQL("DROP INDEX tstinda IF EXISTS", 0);    // reset
+        execSQL("DROP INDEX tstinda IF EXISTS", 0);                           // reset
         execSQL("CREATE TABLE t1 (i " + pref + "INT, vc VARCHAR)", expect);
-        execSQL("DROP TABLE t1 IF EXISTS", 0);         // reset
+        execSQL("DROP TABLE t1 IF EXISTS", 0);                                // reset
         execSQL("CREATE TABLE t1 (i INT, vc " + pref + "VARCHAR)", expect);
-        execSQL("DROP TABLE t1 IF EXISTS", 0);         // reset
+        execSQL("DROP TABLE t1 IF EXISTS", 0);                                // reset
         execSQL(pref + "CREATE TABLE t1 (i INT, vc VARCHAR)", expect);
-        execSQL("DROP TABLE t1 IF EXISTS", 0);         // reset
+        execSQL("DROP TABLE t1 IF EXISTS", 0);                                // reset
         execSQL("CREATE " + pref + "TABLE t1 (i INT, vc VARCHAR)", expect);
-        execSQL("DROP TABLE t1 IF EXISTS", 0);         // reset
+        execSQL("DROP TABLE t1 IF EXISTS", 0);                                // reset
         execSQL("CREATE TABLE t1 (i " + pref + "INT, vc VARCHAR)", expect);
-        execSQL("DROP TABLE t1 IF EXISTS", 0);         // reset
+        execSQL("DROP TABLE t1 IF EXISTS", 0);                                // reset
         execSQL("CREATE TABLE t1 (i INT, vc " + pref + "VARCHAR)", expect);
-        execSQL("DROP TABLE t1 IF EXISTS", 0);         // reset
+        execSQL("DROP TABLE t1 IF EXISTS", 0);                                // reset
         execSQL("DELETE " + pref + "FROM tsttbl WHERE i < 10", expect);
-
         execSQL("DELETE FROM tsttbl " + pref + "WHERE i < 10", expect);
-
         execSQL(pref + "SET AUTOCOMMIT true", expect);
         execSQL("SET " + pref + "AUTOCOMMIT true", expect);
-        execSQL("SET AUTOCOMMIT false", 0);               // reset
+        execSQL("SET AUTOCOMMIT false", 0);                                   // reset
         execSQL(pref + "SET IGNORECASE true", expect);
         execSQL("SET " + pref + "IGNORECASE true", expect);
         execSQL(pref + "SET LOGSIZE 5", expect);
@@ -698,22 +706,22 @@ public class TestSchemaParse extends junit.framework.TestCase {
         execSQL("SET " + pref + "SCRIPTFORMAT text", expect);
         execSQL(pref + "SET TABLE tsttbl READONLY true", expect);
         execSQL("SET " + pref + "TABLE tsttbl READONLY true", expect);
-        execSQL("SET TABLE tsttbl READONLY false", 0);    // reset
+        execSQL("SET TABLE tsttbl READONLY false", 0);                        // reset
         execSQL(pref + "GRANT ALL ON playtbl TO tstuser", expect);
         execSQL("GRANT " + pref + "ALL ON playtbl TO tstuser", expect);
         execSQL("GRANT ALL " + pref + "ON playtbl TO tstuser", expect);
         execSQL("GRANT ALL ON playtbl " + pref + "TO tstuser", expect);
-
         execSQL("GRANT ALL ON playtbl TO " + pref + "tstuser", expect);
-
         execSQL(pref + "REVOKE ALL ON playtbl FROM tstuser RESTRICT", expect);
-        execSQL("REVOKE " + pref + "ALL ON playtbl FROM tstuser RESTRICT", expect);
-        execSQL("REVOKE ALL " + pref + "ON playtbl FROM tstuser RESTRICT", expect);
-        execSQL("REVOKE ALL ON playtbl " + pref + "FROM tstuser RESTRICT", expect);
-
-        execSQL("REVOKE ALL ON playtbl FROM " + pref + "tstuser RESTRICT", expect);
-
-        execSQL("GRANT ALL ON playtbl TO tstuser", 0);    // reset
+        execSQL("REVOKE " + pref + "ALL ON playtbl FROM tstuser RESTRICT",
+                expect);
+        execSQL("REVOKE ALL " + pref + "ON playtbl FROM tstuser RESTRICT",
+                expect);
+        execSQL("REVOKE ALL ON playtbl " + pref + "FROM tstuser RESTRICT",
+                expect);
+        execSQL("REVOKE ALL ON playtbl FROM " + pref + "tstuser RESTRICT",
+                expect);
+        execSQL("GRANT ALL ON playtbl TO tstuser", 0);                        // reset
         execSQL(pref + "COMMIT", expect);
         execSQL(pref + "ROLLBACK", expect);
         execSQL(pref + "UPDATE tsttbl SET vc = 'eleven' WHERE i = 1", expect);
@@ -985,11 +993,13 @@ public class TestSchemaParse extends junit.framework.TestCase {
      * unit tests, and without dealing with Ant or unrelated test suites.
      */
     public static void main(String[] sa) {
-            junit.textui.TestRunner runner = new junit.textui.TestRunner();
-            junit.framework.TestResult result =
-                runner.run(runner.getTest(TestSchemaParse.class.getName()));
 
-            System.exit(result.wasSuccessful() ? 0 : 1);
+        junit.textui.TestRunner runner = new junit.textui.TestRunner();
+        junit.framework.TestResult result =
+            runner.run(runner.getTest(TestSchemaParse.class.getName()));
+
+        System.exit(result.wasSuccessful() ? 0
+                                           : 1);
     }
 
     public static junit.framework.Test suite() {
