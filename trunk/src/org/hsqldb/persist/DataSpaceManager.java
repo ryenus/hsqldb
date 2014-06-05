@@ -42,6 +42,7 @@ public interface DataSpaceManager {
 
     int tableIdEmpty     = 0;
     int tableIdDirectory = 1;
+    int tableIdLookup    = 5;
     int tableIdDefault   = 7;
     int tableIdFirst     = 8;
 
@@ -58,8 +59,8 @@ public interface DataSpaceManager {
 
     void freeTableSpace(int spaceId);
 
-    void freeTableSpace(DoubleIntIndex spaceList, long offset,
-                               long limit, boolean full);
+    void freeTableSpace(DoubleIntIndex spaceList, long offset, long limit,
+                        boolean full);
 
     long getLostBlocksSize();
 

@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2011, The HSQL Development Group
+/* Copyright (c) 2001-2014, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -2622,7 +2622,7 @@ public class FunctionCustom extends FunctionSQL {
 
                 if (!nodes[0].dataType.isCharacterType()
                         || !nodes[1].dataType.isCharacterType()) {
-                    throw Error.error(ErrorCode.X_42567);
+                    throw Error.error(ErrorCode.X_42563);
                 }
 
                 dataType = funcType == FUNC_TO_DATE

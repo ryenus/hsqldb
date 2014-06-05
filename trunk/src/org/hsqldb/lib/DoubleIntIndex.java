@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2011, The HSQL Development Group
+/* Copyright (c) 2001-2014, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -35,11 +35,11 @@ import java.util.NoSuchElementException;
 
 /**
  * Maintains an ordered  integer->integer lookup table, consisting of two
- * columns, one for keys, the other for values.
+ * columns, one for keys, the other for values. Equal keys are allowed.
  *
  * The table is sorted on either the key or value column, depending on the calls to
  * setKeysSearchTarget() or setValuesSearchTarget(). By default, the table is
- * sorted on values.<p>
+ * sorted on values. Equal values are sorted by key.<p>
  *
  * findXXX() methods return the array index into the list
  * pair containing a matching key or value, or  or -1 if not found.<p>
@@ -48,7 +48,7 @@ import java.util.NoSuchElementException;
  * Non-recursive implementation of fast quicksort added by Sergio Bossa sbtourist@users dot sourceforge.net)
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.0
+ * @version 2.3.3
  * @since 1.8.0
  */
 public class DoubleIntIndex implements IntLookup, LongLookup {
@@ -767,7 +767,10 @@ public class DoubleIntIndex implements IntLookup, LongLookup {
         if (sortOnValues) {
             if (values[i] < values[j]) {
                 return true;
+            } else if (values[i] == values [j]) {
+                return keys[i] < keys[j];
             }
+
         } else {
             if (keys[i] < keys[j]) {
                 return true;
@@ -791,7 +794,10 @@ public class DoubleIntIndex implements IntLookup, LongLookup {
 
     public void removeRange(int start, int limit) {
 
-        moveRows(limit, start, count - limit);
+        ArrayUtil.adjustArray(ArrayUtil.CLASS_CODE_INT, keys, count, start,
+                              start - limit);
+        ArrayUtil.adjustArray(ArrayUtil.CLASS_CODE_INT, values, count, start,
+                              start - limit);
 
         count -= (limit - start);
     }

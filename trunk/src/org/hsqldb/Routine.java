@@ -86,7 +86,6 @@ public class Routine implements SchemaObject, RangeGroup, Cloneable {
     Type[]           parameterTypes;
     int              typeGroups;
     Type             returnType;
-    Type[]           tableType;
     Table            returnTable;
     final int        routineType;
     int              language   = LANGUAGE_SQL;
@@ -436,14 +435,6 @@ public class Routine implements SchemaObject, RangeGroup, Cloneable {
 
     public Type getReturnType() {
         return returnType;
-    }
-
-    public void setTableType(Type[] types) {
-        tableType = types;
-    }
-
-    public Type[] getTableType() {
-        return tableType;
     }
 
     public Table getTable() {

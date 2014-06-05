@@ -54,7 +54,7 @@ import org.hsqldb.types.Types;
  * Implementation of Statement for DML statements.<p>
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.0
+ * @version 2.3.3
  * @since 1.9.0
  */
 
@@ -817,6 +817,16 @@ public class StatementDML extends StatementDMQL {
 
         newData.beforeFirst();
 
+        if (baseTable.identityColumn != -1) {
+            while (newData.hasNext()) {
+                Object[] data = (Object[]) newData.getNext();
+
+                baseTable.setIdentityColumn(session, data);
+            }
+
+            newData.beforeFirst();
+        }
+
         if (baseTable.triggerLists[Trigger.INSERT_BEFORE_ROW].length > 0) {
             while (newData.hasNext()) {
                 Object[] data = (Object[]) newData.getNext();
@@ -877,6 +887,8 @@ public class StatementDML extends StatementDMQL {
     Result insertSingleRow(Session session, PersistentStore store,
                            Object[] data) {
 
+        baseTable.setIdentityColumn(session, data);
+
         if (baseTable.triggerLists[Trigger.INSERT_BEFORE_ROW].length > 0) {
             baseTable.fireTriggers(session, Trigger.INSERT_BEFORE_ROW, null,
                                    data, null);
@@ -902,6 +914,10 @@ public class StatementDML extends StatementDMQL {
             baseTable.fireTriggers(session, Trigger.INSERT_AFTER,
                                    (RowSetNavigator) null);
         }
+
+        session.sessionContext
+            .diagnosticsVariables[ExpressionColumn.idx_row_count] =
+                Integer.valueOf(1);
 
         return Result.updateOneResult;
     }
@@ -1022,7 +1038,8 @@ public class StatementDML extends StatementDMQL {
                 Object[] data = navigator.getCurrentChangedData();
 
                 performReferentialActions(session, table, navigator, row,
-                                          data, this.updateColumnMap, path);
+                                          data, this.updateColumnMap, path,
+                                          false);
                 path.clear();
             }
 
@@ -1245,17 +1262,35 @@ public class StatementDML extends StatementDMQL {
         if (table.fkMainConstraints.length > 0) {
             HashSet path = session.sessionContext.getConstraintPath();
 
+            if (table.cascadingDeletes > 0) {
             for (int i = 0; i < rowCount; i++) {
                 navigator.next();
 
                 Row row = navigator.getCurrentRow();
 
                 performReferentialActions(session, table, navigator, row,
-                                          null, null, path);
+                                              null, null, path, true);
                 path.clear();
             }
 
             navigator.beforeFirst();
+        }
+
+            if (table.fkMainConstraints.length > table.cascadingDeletes) {
+                int newCount = navigator.getSize();
+
+                for (int i = 0; i < newCount; i++) {
+                    navigator.next();
+
+                    Row row = navigator.getCurrentRow();
+
+                    performReferentialActions(session, table, navigator, row,
+                                              null, null, path, false);
+                    path.clear();
+                }
+
+                navigator.beforeFirst();
+            }
         }
 
         while (navigator.next()) {
@@ -1449,7 +1484,8 @@ public class StatementDML extends StatementDMQL {
     static void performReferentialActions(Session session, Table table,
                                           RowSetNavigatorDataChange navigator,
                                           Row row, Object[] data,
-                                          int[] changedCols, HashSet path) {
+                                          int[] changedCols, HashSet path,
+                                          boolean deleteCascade) {
 
         if (!session.database.isReferentialIntegrity()) {
             return;
@@ -1461,6 +1497,12 @@ public class StatementDML extends StatementDMQL {
             Constraint c      = table.fkMainConstraints[i];
             int        action = delete ? c.core.deleteAction
                                        : c.core.updateAction;
+
+            if (deleteCascade
+                    ^ (delete
+                       && action == SchemaObject.ReferentialAction.CASCADE)) {
+                continue;
+            }
 
             if (!delete) {
                 if (!ArrayUtil.haveCommonElement(changedCols,
@@ -1518,7 +1560,8 @@ public class StatementDML extends StatementDMQL {
                                 performReferentialActions(session,
                                                           c.core.refTable,
                                                           navigator, refRow,
-                                                          null, null, path);
+                                                          null, null, path,
+                                                          deleteCascade);
                             }
 
                             continue;
@@ -1612,7 +1655,7 @@ public class StatementDML extends StatementDMQL {
 
                 performReferentialActions(session, c.core.refTable, navigator,
                                           refRow, refData, c.core.refCols,
-                                          path);
+                                          path, deleteCascade);
                 path.remove(c);
             }
 

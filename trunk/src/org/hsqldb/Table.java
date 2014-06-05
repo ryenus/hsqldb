@@ -91,7 +91,8 @@ public class Table extends TableBase implements SchemaObject {
     private boolean hasGeneratedValues;        // shortcut for above
     boolean[]       colRefFK;                  // foreign key columns
     boolean[]       colMainFK;                 // columns referenced by foreign key
-    boolean         hasReferentialAction;      // has set null, set default or cascade
+    int             referentialActions;        // has set null, set default or cascade
+    int             cascadingDeletes;          // has on delete cascade
     boolean         isDropped;                 // has been dropped
     private boolean hasDomainColumns;          // shortcut
     private boolean hasNotNullColumns;         // shortcut
@@ -812,7 +813,8 @@ public class Table extends TableBase implements SchemaObject {
         int mainCount  = 0;
         int checkCount = 0;
 
-        hasReferentialAction = false;
+        referentialActions = 0;
+        cascadingDeletes   = 0;
 
         for (int i = 0; i < constraintList.length; i++) {
             switch (constraintList[i].getConstraintType()) {
@@ -866,7 +868,12 @@ public class Table extends TableBase implements SchemaObject {
                         constraintList[i].getMainColumns(), colMainFK);
 
                     if (constraintList[i].hasTriggeredAction()) {
-                        hasReferentialAction = true;
+                        referentialActions++;
+
+                        if (constraintList[i].getDeleteAction()
+                                == SchemaObject.ReferentialAction.CASCADE) {
+                            cascadingDeletes++;
+                        }
                     }
 
                     mainCount++;
@@ -2622,10 +2629,6 @@ public class Table extends TableBase implements SchemaObject {
      */
     Row insertSingleRow(Session session, PersistentStore store, Object[] data,
                         int[] changedCols) {
-
-        if (identityColumn != -1) {
-            setIdentityColumn(session, data);
-        }
 
         if (hasGeneratedValues) {
             setGeneratedColumns(session, data);

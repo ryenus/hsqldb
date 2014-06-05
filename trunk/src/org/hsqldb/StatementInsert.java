@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2011, The HSQL Development Group
+/* Copyright (c) 2001-2014, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -43,7 +43,7 @@ import org.hsqldb.types.Type;
  * Implementation of Statement for INSERT statements.<p>
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.2.6
+ * @version 2.3.3
  * @since 1.9.0
  */
 public class StatementInsert extends StatementDML {
@@ -152,6 +152,10 @@ public class StatementInsert extends StatementDML {
         if (count == 0) {
             session.addWarning(HsqlException.noDataCondition);
         }
+
+        session.sessionContext
+            .diagnosticsVariables[ExpressionColumn.idx_row_count] =
+                Integer.valueOf(count);
 
         return resultOut;
     }

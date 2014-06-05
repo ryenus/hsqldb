@@ -63,7 +63,7 @@ public class DataSpaceManagerSimple implements DataSpaceManager {
 
             defaultSpaceManager = new TableSpaceManagerBlocks(this,
                     DataSpaceManager.tableIdDefault, fileBlockSize, capacity,
-                    cache.dataFileScale);
+                    cache.dataFileScale, 0);
 
             initialiseSpaces();
 
@@ -92,7 +92,8 @@ public class DataSpaceManagerSimple implements DataSpaceManager {
 
     public long getFileBlocks(int tableId, int blockCount) {
 
-        long filePosition = cache.enlargeFileSpace((long)blockCount * fileBlockSize);
+        long filePosition = cache.enlargeFileSpace((long) blockCount
+            * fileBlockSize);
 
         return filePosition;
     }
@@ -123,7 +124,7 @@ public class DataSpaceManagerSimple implements DataSpaceManager {
                 spaceList.copyTo(lookup);
             }
         } else {
-            compactLookup(spaceList, cache.dataFileScale);
+            compactLookup(spaceList);
             spaceList.setValuesSearchTarget();
             spaceList.sort();
 
@@ -177,32 +178,29 @@ public class DataSpaceManagerSimple implements DataSpaceManager {
         return 1024 * 64;
     }
 
-    static boolean compactLookup(DoubleIntIndex lookup, int fileScale) {
-
-        lookup.setKeysSearchTarget();
-        lookup.sort();
+    static boolean compactLookup(DoubleIntIndex lookup) {
 
         if (lookup.size() == 0) {
             return false;
         }
+
+        lookup.setKeysSearchTarget();
+        lookup.sort();
 
         int[] keys   = lookup.getKeys();
         int[] values = lookup.getValues();
         int   base   = 0;
 
         for (int i = 1; i < lookup.size(); i++) {
-            int key   = keys[base];
-            int value = values[base];
+            long limit = keys[base] + values[base];
 
-            if (key + value / fileScale == keys[i]) {
+            if (limit == keys[i]) {
                 values[base] += values[i];    // base updated
             } else {
                 base++;
 
-                if (base != i) {
-                    keys[base]   = keys[i];
-                    values[base] = values[i];
-                }
+                keys[base]   = keys[i];
+                values[base] = values[i];
             }
         }
 

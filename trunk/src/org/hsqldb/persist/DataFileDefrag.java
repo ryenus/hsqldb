@@ -52,7 +52,7 @@ import org.hsqldb.lib.StringUtil;
  *  image after translating the old pointers to the new.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version    2.3.2
+ * @version    2.3.3
  * @since      1.7.2
  */
 final class DataFileDefrag {
