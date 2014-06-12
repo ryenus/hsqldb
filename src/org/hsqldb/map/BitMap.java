@@ -402,7 +402,7 @@ public class BitMap {
             throw new ArrayStoreException("BitMap extend");
         }
 
-        if (newSize < map.length * 32) {
+        if (newSize <= map.length * 32) {
             return;
         }
 

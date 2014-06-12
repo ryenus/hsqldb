@@ -747,8 +747,8 @@ public class DataFileCache {
     }
 
     public void reopen() {
-        spaceManager.initialiseSpaces();
         openShadowFile();
+        spaceManager.initialiseSpaces();
     }
 
     /**
