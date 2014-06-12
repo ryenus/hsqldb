@@ -124,7 +124,7 @@ public class DataSpaceManagerSimple implements DataSpaceManager {
                 spaceList.copyTo(lookup);
             }
         } else {
-            compactLookup(spaceList);
+            spaceList.compactLookupAsIntervals();
             spaceList.setValuesSearchTarget();
             spaceList.sort();
 
@@ -176,45 +176,5 @@ public class DataSpaceManagerSimple implements DataSpaceManager {
 
     public int getFileBlockItemCount() {
         return 1024 * 64;
-    }
-
-    static boolean compactLookup(DoubleIntIndex lookup) {
-
-        if (lookup.size() == 0) {
-            return false;
-        }
-
-        lookup.setKeysSearchTarget();
-        lookup.sort();
-
-        int[] keys   = lookup.getKeys();
-        int[] values = lookup.getValues();
-        int   base   = 0;
-
-        for (int i = 1; i < lookup.size(); i++) {
-            long limit = keys[base] + values[base];
-
-            if (limit == keys[i]) {
-                values[base] += values[i];    // base updated
-            } else {
-                base++;
-
-                keys[base]   = keys[i];
-                values[base] = values[i];
-            }
-        }
-
-        for (int i = base + 1; i < lookup.size(); i++) {
-            keys[i]   = 0;
-            values[i] = 0;
-        }
-
-        if (lookup.size() != base + 1) {
-            lookup.setSize(base + 1);
-
-            return true;
-        }
-
-        return false;
     }
 }
