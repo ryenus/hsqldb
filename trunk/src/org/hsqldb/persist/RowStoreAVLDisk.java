@@ -58,7 +58,7 @@ import org.hsqldb.rowio.RowOutputInterface;
  * Implementation of PersistentStore for CACHED tables.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.2
+ * @version 2.3.3
  * @since 1.9.0
  */
 public class RowStoreAVLDisk extends RowStoreAVL implements PersistentStore {
@@ -88,10 +88,7 @@ public class RowStoreAVLDisk extends RowStoreAVL implements PersistentStore {
         this.table        = table;
         this.indexList    = table.getIndexList();
         this.accessorList = new CachedObject[indexList.length];
-
-        manager.setStore(table, this);
-
-        largeData = database.logger.getDataFileFactor() > 1;
+        largeData         = database.logger.getDataFileFactor() > 1;
     }
 
     public boolean isMemory() {

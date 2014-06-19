@@ -72,7 +72,7 @@ import org.hsqldb.types.Type;
  * @author Fred Toussi (fredt@users dot sourceforge.net)
  * @author Blaine Simpson (blaine dot simpson at admc dot com)
  *
- * @version 2.0.1
+ * @version 2.3.3
  * @since 1.8.0
  */
 public class Grantee implements SchemaObject {
@@ -103,7 +103,7 @@ public class Grantee implements SchemaObject {
     /** map with database object identifier keys and access privileges values */
     private MultiValueHashMap directRightsMap;
 
-    /** contains righs granted direct, or via roles, expept those of PUBLIC */
+    /** contains righs granted direct, or via roles, except those of PUBLIC */
     HashMap fullRightsMap;
 
     /** These are the DIRECT roles.  Each of these may contain nested roles */
@@ -428,6 +428,44 @@ public class Grantee implements SchemaObject {
         directRightsMap.remove(name);
         grantedRightsMap.remove(name);
         fullRightsMap.remove(name);
+    }
+
+    /**
+     * Update own table column set rights to include a newly created column.<p?
+     */
+    void updateRightsForNewColumn(HsqlName tableName, HsqlName columnName) {
+
+        Iterator it       = directRightsMap.get(tableName);
+        Right    existing = null;
+
+        while (it.hasNext()) {
+            existing = (Right) it.next();
+        }
+
+        if (existing == null) {
+            return;
+        }
+
+        existing.addNewColumn(columnName);
+        updateAllRights();
+    }
+
+    /**
+     * Update granted rights to include a newly created column.<p?
+     */
+    void updateRightsForNewColumn(HsqlName tableName) {
+
+        Iterator it       = grantedRightsMap.get(tableName);
+        Right    existing = null;
+
+        while (it.hasNext()) {
+            existing = (Right) it.next();
+        }
+
+        if (existing == null) {
+            return;
+        }
+        updateAllRights();
     }
 
     /**

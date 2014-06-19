@@ -43,7 +43,7 @@ import org.hsqldb.types.RowType;
  * Implementation of aggregate operations
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.0
+ * @version 2.3.3
  * @since 1.9.0
  */
 public class ExpressionAggregate extends Expression {
@@ -217,6 +217,11 @@ public class ExpressionAggregate extends Expression {
         }
 
         unresolvedSet.add(this);
+
+        if (rangeGroup.getRangeVariables().length > 0) {
+            this.rangeGroups = rangeGroups;
+            this.rangeGroup  = rangeGroup;
+        }
 
         return unresolvedSet;
     }

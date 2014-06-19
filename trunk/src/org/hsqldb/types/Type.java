@@ -1034,7 +1034,6 @@ public abstract class Type implements SchemaObject, Cloneable {
             case Types.SQL_ALL_TYPES :
                 return SQL_ALL_TYPES;
 
-//                return SQL_ALL_TYPES; // needs changes to Expression type resolution
             case Types.SQL_CHAR :
             case Types.SQL_VARCHAR :
             case Types.SQL_CLOB :

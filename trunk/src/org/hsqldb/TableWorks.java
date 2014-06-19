@@ -73,14 +73,7 @@ public class TableWorks {
 
     void checkCreateForeignKey(Constraint c) {
 
-        boolean check =
-            c.core.updateAction == SchemaObject.ReferentialAction
-                .SET_DEFAULT || c.core.updateAction == SchemaObject
-                .ReferentialAction.SET_NULL || c.core
-                .updateAction == SchemaObject.ReferentialAction.CASCADE || c
-                .core.deleteAction == SchemaObject.ReferentialAction
-                .SET_DEFAULT || c.core.deleteAction == SchemaObject
-                .ReferentialAction.SET_NULL;
+        boolean check = c.hasTriggeredAction();
 
         if (check) {
             for (int i = 0; i < c.core.refCols.length; i++) {
@@ -100,8 +93,8 @@ public class TableWorks {
 
         // column defaults
         check =
-            c.core.updateAction == SchemaObject.ReferentialAction.SET_DEFAULT
-            || c.core.deleteAction
+            c.getUpdateAction() == SchemaObject.ReferentialAction.SET_DEFAULT
+            || c.getDeleteAction()
                == SchemaObject.ReferentialAction.SET_DEFAULT;
 
         if (check) {
@@ -315,7 +308,7 @@ public class TableWorks {
         for (int i = 1; i < constraints.size(); i++) {
             c = (Constraint) constraints.get(i);
 
-            switch (c.constType) {
+            switch (c.getConstraintType()) {
 
                 case SchemaObject.ConstraintTypes.UNIQUE : {
                     if (addUnique) {
@@ -457,6 +450,9 @@ public class TableWorks {
         }
 
         table = tn;
+
+        database.granteeManager.updateAddColumn(table.getName(),
+                column.getName());
     }
 
     void updateConstraints(OrderedHashSet tableSet,
@@ -792,8 +788,8 @@ public class TableWorks {
             if (trig instanceof TriggerDefSQL) {
                 if (trig.hasOldTable() || trig.hasNewTable()
                         || trig.hasOldRow() || trig.hasNewRow()) {
-                throw Error.error(
-                    ErrorCode.X_42502,
+                    throw Error.error(
+                        ErrorCode.X_42502,
                         trig.getName().getSchemaQualifiedStatementName());
                 }
             }
@@ -803,6 +799,11 @@ public class TableWorks {
             if (!cascadingConstraints.isEmpty()) {
                 Constraint c    = (Constraint) cascadingConstraints.get(0);
                 HsqlName   name = c.getName();
+
+                if (c.getConstraintType()
+                        == SchemaObject.ConstraintTypes.MAIN) {
+                    name = c.getRefName();
+                }
 
                 throw Error.error(ErrorCode.X_42536,
                                   name.getSchemaQualifiedStatementName());
@@ -840,14 +841,15 @@ public class TableWorks {
         for (int i = 0; i < dependentConstraints.size(); i++) {
             Constraint c = (Constraint) dependentConstraints.get(i);
 
-            if (c.constType == SchemaObject.ConstraintTypes.FOREIGN_KEY) {
+            if (c.getConstraintType()
+                    == SchemaObject.ConstraintTypes.FOREIGN_KEY) {
                 tableSet.add(c.getMain());
                 constraintNameSet.add(c.getMainName());
                 constraintNameSet.add(c.getRefName());
                 indexNameSet.add(c.getRefIndex().getName());
             }
 
-            if (c.constType == SchemaObject.ConstraintTypes.MAIN) {
+            if (c.getConstraintType() == SchemaObject.ConstraintTypes.MAIN) {
                 tableSet.add(c.getRef());
                 constraintNameSet.add(c.getMainName());
                 constraintNameSet.add(c.getRefName());
@@ -883,7 +885,7 @@ public class TableWorks {
         for (int i = 0; i < constraints.size(); i++) {
             Constraint c = (Constraint) constraints.get(i);
 
-            switch (c.constType) {
+            switch (c.getConstraintType()) {
 
                 case SchemaObject.ConstraintTypes.PRIMARY_KEY :
                 case SchemaObject.ConstraintTypes.UNIQUE :
@@ -915,10 +917,16 @@ public class TableWorks {
                 // throw if unique constraint is referenced by foreign key
                 if (!cascade && !dependentConstraints.isEmpty()) {
                     Constraint c = (Constraint) dependentConstraints.get(0);
+                    HsqlName   constraintName = c.getName();
+
+                    if (c.getConstraintType()
+                            == SchemaObject.ConstraintTypes.MAIN) {
+                        constraintName = c.getRefName();
+                    }
 
                     throw Error.error(
                         ErrorCode.X_42533,
-                        c.getName().getSchemaQualifiedStatementName());
+                        constraintName.getSchemaQualifiedStatementName());
                 }
 
                 OrderedHashSet tableSet          = new OrderedHashSet();

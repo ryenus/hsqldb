@@ -1005,8 +1005,8 @@ public class SchemaManager {
             Session sessions[] = database.sessionManager.getAllSessions();
 
             for (int i = 0; i < sessions.length; i++) {
-                sessions[i].sessionData.persistentStoreCollection.setStore(
-                    table, null);
+                sessions[i].sessionData.persistentStoreCollection.removeStore(
+                    table);
             }
         } else {
             database.persistentStoreCollection.removeStore(table);

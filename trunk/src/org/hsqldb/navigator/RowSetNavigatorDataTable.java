@@ -52,7 +52,7 @@ import org.hsqldb.rowio.RowOutputInterface;
  * Implementation of RowSetNavigator using a table as the data store.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.2
+ * @version 2.3.3
  * @since 1.9.0
  */
 public class RowSetNavigatorDataTable extends RowSetNavigatorData {
@@ -90,8 +90,9 @@ public class RowSetNavigatorDataTable extends RowSetNavigatorData {
         maxMemoryRowCount  = session.getResultMemoryRowCount();
         visibleColumnCount = select.indexLimitVisible;
         table              = select.resultTable.duplicate();
-        table.store = store = session.sessionData.getNewResultRowStore(table,
+        store = session.sessionData.getNewResultRowStore(table,
                 !select.isAggregated);
+        table.store       = store;
         isAggregate       = select.isAggregated;
         isSimpleAggregate = select.isAggregated && !select.isGrouped;
         reindexTable      = select.isGrouped;
@@ -125,10 +126,10 @@ public class RowSetNavigatorDataTable extends RowSetNavigatorData {
         maxMemoryRowCount  = session.getResultMemoryRowCount();
         table              = queryExpression.resultTable.duplicate();
         visibleColumnCount = table.getColumnCount();
-        table.store = store = session.sessionData.getNewResultRowStore(table,
-                true);
-        mainIndex = queryExpression.mainIndex;
-        fullIndex = queryExpression.fullIndex;
+        store = session.sessionData.getNewResultRowStore(table, true);
+        table.store        = store;
+        mainIndex          = queryExpression.mainIndex;
+        fullIndex          = queryExpression.fullIndex;
     }
 
     public RowSetNavigatorDataTable(Session session, Table table) {

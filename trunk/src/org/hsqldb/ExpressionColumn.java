@@ -50,7 +50,7 @@ import org.hsqldb.types.Type;
  * Implementation of column, variable, parameter, etc. access operations.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.0
+ * @version 2.3.3
  * @since 1.9.0
  */
 public class ExpressionColumn extends Expression {
@@ -388,14 +388,13 @@ public class ExpressionColumn extends Expression {
             case OpTypes.COLUMN :
             case OpTypes.PARAMETER :
             case OpTypes.VARIABLE : {
-                boolean resolved       = false;
-                boolean tableQualified = tableName != null;
+                boolean         resolved       = false;
+                boolean         tableQualified = tableName != null;
+                RangeVariable[] rangeVarArray = rangeGroup.getRangeVariables();
 
                 if (rangeVariable != null) {
                     return unresolvedSet;
                 }
-
-                RangeVariable[] rangeVarArray = rangeGroup.getRangeVariables();
 
                 for (int i = 0; i < rangeCount; i++) {
                     RangeVariable rangeVar = rangeVarArray[i];
@@ -479,29 +478,8 @@ public class ExpressionColumn extends Expression {
                     return unresolvedSet;
                 }
 
-                for (int idx = rangeGroups.length - 1; idx >= 0; idx--) {
-                    rangeVarArray = rangeGroups[idx].getRangeVariables();
-
-                    for (int i = 0; i < rangeVarArray.length; i++) {
-                        RangeVariable rangeVar = rangeVarArray[i];
-
-                        if (rangeVar == null) {
-                            continue;
-                        }
-
-                        if (resolveColumnReference(rangeVar, true)) {
-                            if (opType == OpTypes.COLUMN) {
-                                rangeGroup.setCorrelated();
-
-                                for (int idxx = rangeGroups.length - 1;
-                                        idxx > idx; idxx--) {
-                                    rangeGroups[idxx].setCorrelated();
-                                }
-                            }
-
-                            return unresolvedSet;
-                        }
-                    }
+                if (resolveCorrelated(rangeGroup, rangeGroups)) {
+                    return unresolvedSet;
                 }
 
                 if (unresolvedSet == null) {
@@ -513,6 +491,38 @@ public class ExpressionColumn extends Expression {
         }
 
         return unresolvedSet;
+    }
+
+    private boolean resolveCorrelated(RangeGroup rangeGroup,
+                                     RangeGroup[] rangeGroups) {
+
+        for (int idx = rangeGroups.length - 1; idx >= 0; idx--) {
+            RangeVariable[] rangeVarArray =
+                rangeGroups[idx].getRangeVariables();
+
+            for (int i = 0; i < rangeVarArray.length; i++) {
+                RangeVariable rangeVar = rangeVarArray[i];
+
+                if (rangeVar == null) {
+                    continue;
+                }
+
+                if (resolveColumnReference(rangeVar, true)) {
+                    if (opType == OpTypes.COLUMN) {
+                        rangeGroup.setCorrelated();
+
+                        for (int idxx = rangeGroups.length - 1; idxx > idx;
+                                idxx--) {
+                            rangeGroups[idxx].setCorrelated();
+                        }
+                    }
+
+                    return true;
+                }
+            }
+        }
+
+        return false;
     }
 
     private boolean resolveColumnReference(RangeVariable rangeVar,

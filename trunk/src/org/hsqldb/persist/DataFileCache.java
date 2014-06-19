@@ -401,23 +401,29 @@ public class DataFileCache {
 
     boolean setDataSpaceManager(int fileSpaceSize) {
 
-        if (fileSpaceSize > 0 && spaceManagerPosition == 0) {
-            spaceManager.reset();
+        writeLock.lock();
 
-            spaceManager = new DataSpaceManagerBlocks(this);
+        try {
+            if (fileSpaceSize > 0 && spaceManagerPosition == 0) {
+                spaceManager.reset();
 
-            return true;
+                spaceManager = new DataSpaceManagerBlocks(this);
+
+                return true;
+            }
+
+            if (fileSpaceSize == 0 && spaceManagerPosition != 0) {
+                spaceManager.reset();
+
+                spaceManager = new DataSpaceManagerSimple(this);
+
+                return true;
+            }
+
+            return false;
+        } finally {
+            writeLock.unlock();
         }
-
-        if (fileSpaceSize == 0 && spaceManagerPosition != 0) {
-            spaceManager.reset();
-
-            spaceManager = new DataSpaceManagerSimple(this);
-
-            return true;
-        }
-
-        return false;
     }
 
     void openStoredFileAccess(boolean readonly) {
@@ -747,8 +753,15 @@ public class DataFileCache {
     }
 
     public void reopen() {
-        openShadowFile();
-        spaceManager.initialiseSpaces();
+
+        writeLock.lock();
+
+        try {
+            openShadowFile();
+            spaceManager.initialiseSpaces();
+        } finally {
+            writeLock.unlock();
+        }
     }
 
     /**

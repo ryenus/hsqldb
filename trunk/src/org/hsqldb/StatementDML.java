@@ -1263,18 +1263,18 @@ public class StatementDML extends StatementDMQL {
             HashSet path = session.sessionContext.getConstraintPath();
 
             if (table.cascadingDeletes > 0) {
-            for (int i = 0; i < rowCount; i++) {
-                navigator.next();
+                for (int i = 0; i < rowCount; i++) {
+                    navigator.next();
 
-                Row row = navigator.getCurrentRow();
+                    Row row = navigator.getCurrentRow();
 
-                performReferentialActions(session, table, navigator, row,
+                    performReferentialActions(session, table, navigator, row,
                                               null, null, path, true);
-                path.clear();
-            }
+                    path.clear();
+                }
 
-            navigator.beforeFirst();
-        }
+                navigator.beforeFirst();
+            }
 
             if (table.fkMainConstraints.length > table.cascadingDeletes) {
                 int newCount = navigator.getSize();
@@ -1495,8 +1495,8 @@ public class StatementDML extends StatementDMQL {
 
         for (int i = 0, size = table.fkMainConstraints.length; i < size; i++) {
             Constraint c      = table.fkMainConstraints[i];
-            int        action = delete ? c.core.deleteAction
-                                       : c.core.updateAction;
+            int        action = delete ? c.getDeleteAction()
+                                       : c.getUpdateAction();
 
             if (deleteCascade
                     ^ (delete
@@ -1614,7 +1614,7 @@ public class StatementDML extends StatementDMQL {
 
                     // fall through
                     case SchemaObject.ReferentialAction.RESTRICT : {
-                        int errorCode = c.core.deleteAction
+                        int errorCode = c.getDeleteAction()
                                         == SchemaObject.ReferentialAction
                                             .NO_ACTION ? ErrorCode.X_23504
                                                        : ErrorCode.X_23001;

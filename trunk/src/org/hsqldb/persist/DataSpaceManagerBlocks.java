@@ -503,20 +503,26 @@ public class DataSpaceManagerBlocks implements DataSpaceManager {
             spaceIdSequence.set(spaceId + 1);
         }
 
-        TableSpaceManagerBlocks manager =
-            (TableSpaceManagerBlocks) spaceManagerList.get(spaceId);
+        cache.writeLock.lock();
 
-        if (manager == null) {
-            manager = new TableSpaceManagerBlocks(
-                this, spaceId, fileBlockSize,
-                cache.database.logger.propMaxFreeBlocks, dataFileScale,
-                cache.database.logger.propMinReuse);
+        try {
+            TableSpaceManagerBlocks manager =
+                (TableSpaceManagerBlocks) spaceManagerList.get(spaceId);
 
-            initialiseTableSpace(manager);
-            spaceManagerList.put(spaceId, manager);
+            if (manager == null) {
+                manager = new TableSpaceManagerBlocks(
+                    this, spaceId, fileBlockSize,
+                    cache.database.logger.propMaxFreeBlocks, dataFileScale,
+                    cache.database.logger.propMinReuse);
+
+                initialiseTableSpace(manager);
+                spaceManagerList.put(spaceId, manager);
+            }
+
+            return manager;
+        } finally {
+            cache.writeLock.unlock();
         }
-
-        return manager;
     }
 
     public int getNewTableSpaceID() {
@@ -529,17 +535,17 @@ public class DataSpaceManagerBlocks implements DataSpaceManager {
             return;
         }
 
-        TableSpaceManager tableSpace =
-            (TableSpaceManager) spaceManagerList.get(spaceId);
-
-        if (tableSpace != null) {
-            tableSpace.reset();
-            spaceManagerList.remove(spaceId);
-        }
-
         cache.writeLock.lock();
 
         try {
+            TableSpaceManager tableSpace =
+                (TableSpaceManager) spaceManagerList.get(spaceId);
+
+            if (tableSpace != null) {
+                tableSpace.reset();
+                spaceManagerList.remove(spaceId);
+            }
+
             ba.initialise(true);
 
             while (ba.nextBlockForTable(spaceId)) {
@@ -633,25 +639,31 @@ public class DataSpaceManagerBlocks implements DataSpaceManager {
         }
     }
 
-    int findTableSpace(long position) {
+    public int findTableSpace(long position) {
 
         int blockIndex = (int) (position / fileBlockItemCount);
 
-        ba.initialise(false);
+        cache.writeLock.lock();
 
-        boolean result = ba.moveToBlock(blockIndex);
+        try {
+            ba.initialise(false);
 
-        if (!result) {
+            boolean result = ba.moveToBlock(blockIndex);
+
+            if (!result) {
+                ba.reset();
+
+                return DataSpaceManager.tableIdDefault;
+            }
+
+            int id = ba.getTableId();
+
             ba.reset();
 
-            return DataSpaceManager.tableIdDefault;
+            return id;
+        } finally {
+            cache.writeLock.unlock();
         }
-
-        int id = ba.getTableId();
-
-        ba.reset();
-
-        return id;
     }
 
     public long getLostBlocksSize() {
@@ -699,25 +711,37 @@ public class DataSpaceManagerBlocks implements DataSpaceManager {
 
     public void initialiseSpaces() {
 
-        Iterator it = spaceManagerList.values().iterator();
+        cache.writeLock.lock();
 
-        while (it.hasNext()) {
-            TableSpaceManagerBlocks tableSpace =
-                (TableSpaceManagerBlocks) it.next();
+        try {
+            Iterator it = spaceManagerList.values().iterator();
 
-            initialiseTableSpace(tableSpace);
+            while (it.hasNext()) {
+                TableSpaceManagerBlocks tableSpace =
+                    (TableSpaceManagerBlocks) it.next();
+
+                initialiseTableSpace(tableSpace);
+            }
+        } finally {
+            cache.writeLock.unlock();
         }
     }
 
     public void reset() {
 
-        Iterator it = spaceManagerList.values().iterator();
+        cache.writeLock.lock();
 
-        while (it.hasNext()) {
-            TableSpaceManagerBlocks tableSpace =
-                (TableSpaceManagerBlocks) it.next();
+        try {
+            Iterator it = spaceManagerList.values().iterator();
 
-            tableSpace.reset();
+            while (it.hasNext()) {
+                TableSpaceManagerBlocks tableSpace =
+                    (TableSpaceManagerBlocks) it.next();
+
+                tableSpace.reset();
+            }
+        } finally {
+            cache.writeLock.unlock();
         }
     }
 

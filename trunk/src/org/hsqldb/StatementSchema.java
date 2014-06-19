@@ -914,8 +914,8 @@ public class StatementSchema extends Statement {
                     }
 
                     if (grant) {
-                        gm.grant(granteeList, schemaObject, right, grantor,
-                                 isGrantOption);
+                        gm.grant(session, granteeList, schemaObject, right,
+                                 grantor, isGrantOption);
                     } else {
                         gm.revoke(granteeList, schemaObject, right, grantor,
                                   isGrantOption, cascade);

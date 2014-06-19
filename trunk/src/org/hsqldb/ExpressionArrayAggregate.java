@@ -46,7 +46,7 @@ import org.hsqldb.types.Type;
  * Implementation of array aggregate operations
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.0
+ * @version 2.3.3
  * @since 2.0.1
  */
 public class ExpressionArrayAggregate extends Expression {
@@ -176,6 +176,11 @@ public class ExpressionArrayAggregate extends Expression {
         }
 
         unresolvedSet.add(this);
+
+        if (rangeGroup.getRangeVariables().length > 0) {
+            this.rangeGroups = rangeGroups;
+            this.rangeGroup  = rangeGroup;
+        }
 
         return unresolvedSet;
     }
