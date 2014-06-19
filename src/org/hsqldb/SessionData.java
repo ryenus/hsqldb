@@ -66,7 +66,7 @@ import org.hsqldb.types.LobData;
  * Session semi-persistent data structures
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.0
+ * @version 2.3.3
  * @since 1.9.0
  */
 public class SessionData {
@@ -106,8 +106,7 @@ public class SessionData {
             boolean isCached) {
 
         try {
-            PersistentStore store = session.database.logger.newStore(session,
-                persistentStoreCollection, table);
+            PersistentStore store = persistentStoreCollection.getStore(table);
 
             if (!isCached) {
                 store.setMemory(true);

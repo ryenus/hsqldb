@@ -1,7 +1,7 @@
 /*
  * For work developed by the HSQL Development Group:
  *
- * Copyright (c) 2001-2011, The HSQL Development Group
+ * Copyright (c) 2001-2014, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -260,6 +260,10 @@ public class NodeAVL implements CachedObject {
 
     public int getStorageSize() {
         return 0;
+    }
+
+    final public boolean isInvariable() {
+        return false;
     }
 
     final public boolean isBlock() {

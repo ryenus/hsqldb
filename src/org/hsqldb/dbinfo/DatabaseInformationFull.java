@@ -484,6 +484,10 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         Iterator      tables;
         Table         table;
 
+        if (!session.isAdmin()) {
+            return t;
+        }
+
         // Initialization
         cacheSet = new HashSet();
 
@@ -494,18 +498,27 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         while (tables.hasNext()) {
             table = (Table) tables.next();
 
+            if (!table.isText()) {
+                continue;
+            }
+
+            cache = null;
+
             PersistentStore currentStore = table.getRowStore(session);
 
-            if (session.getGrantee().isFullyAccessibleByRole(
-                    table.getName())) {
-                if (currentStore != null) {
-                    cache = currentStore.getCache();
-                }
-
-                if (cache != null) {
-                    cacheSet.add(cache);
-                }
+            if (currentStore != null) {
+                cache = currentStore.getCache();
             }
+
+            if (cache != null) {
+                cacheSet.add(cache);
+            }
+        }
+
+        if (database.logger.hasCache()) {
+            cache = database.logger.getCache();
+
+            cacheSet.add(cache);
         }
 
         caches = cacheSet.iterator();
@@ -1251,6 +1264,10 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         Table    table;
         Object[] row;
 
+        if (!session.isAdmin()) {
+            return t;
+        }
+
         // Initialization
         tables =
             database.schemaManager.databaseObjectIterator(SchemaObject.TABLE);
@@ -1259,11 +1276,11 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         while (tables.hasNext()) {
             table = (Table) tables.next();
 
-            PersistentStore currentStore = table.getRowStore(session);
-
-            if (!table.isText() || !isAccessibleTable(session, table)) {
+            if (!table.isText()) {
                 continue;
             }
+
+            PersistentStore currentStore = table.getRowStore(session);
 
             row               = t.getEmptyRowData();
             row[itable_cat]   = database.getCatalogName().name;
@@ -1342,17 +1359,16 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         final int used_space    = 6;
         final int used_memory   = 7;
 
+        if (!session.isAdmin()) {
+            return t;
+        }
+
         // Initialization
         tables = allTables();
 
         // Do it.
         while (tables.hasNext()) {
-            table = (Table) tables.next();
-
-            if (!isAccessibleTable(session, table)) {
-                continue;
-            }
-
+            table              = (Table) tables.next();
             row                = t.getEmptyRowData();
             row[table_catalog] = database.getCatalogName().name;
             row[table_schema]  = table.getSchemaName().name;
@@ -1360,13 +1376,13 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
 
             switch (table.getTableType()) {
 
-                case TableBase.INFO_SCHEMA_TABLE :
-                case TableBase.VIEW_TABLE :
-                case TableBase.TEMP_TABLE :
-                case TableBase.TEMP_TEXT_TABLE :
-                    continue;
-                default :
+                case TableBase.MEMORY_TABLE :
+                case TableBase.CACHED_TABLE :
+                case TableBase.TEXT_TABLE :
                     break;
+
+                default :
+                    continue;
             }
 
             PersistentStore tableStore = table.getRowStore(session);

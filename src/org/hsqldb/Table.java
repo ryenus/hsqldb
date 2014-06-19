@@ -867,7 +867,7 @@ public class Table extends TableBase implements SchemaObject {
                     ArrayUtil.intIndexesToBooleanArray(
                         constraintList[i].getMainColumns(), colMainFK);
 
-                    if (constraintList[i].hasTriggeredAction()) {
+                    if (constraintList[i].hasCoreTriggeredAction()) {
                         referentialActions++;
 
                         if (constraintList[i].getDeleteAction()
@@ -958,7 +958,7 @@ public class Table extends TableBase implements SchemaObject {
             if (columnMap == null) {
                 if (constraint.core.hasDeleteAction) {
                     int[] cols =
-                        constraint.core.deleteAction
+                        constraint.getDeleteAction()
                         == SchemaObject.ReferentialAction.CASCADE ? null
                                                                   : constraint
                                                                       .getRefColumns();
@@ -990,7 +990,7 @@ public class Table extends TableBase implements SchemaObject {
             if (columnMap == null) {
                 if (constraint.core.hasDeleteAction) {
                     int[] cols =
-                        constraint.core.deleteAction
+                        constraint.getDeleteAction()
                         == SchemaObject.ReferentialAction.CASCADE ? null
                                                                   : constraint
                                                                       .getRefColumns();
@@ -1190,7 +1190,7 @@ public class Table extends TableBase implements SchemaObject {
         boolean newPK = false;
 
         if (constraint != null
-                && constraint.constType
+                && constraint.getConstraintType()
                    == SchemaObject.ConstraintTypes.PRIMARY_KEY) {
             newPK = true;
         }
@@ -1322,7 +1322,7 @@ public class Table extends TableBase implements SchemaObject {
         for (int i = 0, size = constraintList.length; i < size; i++) {
             Constraint c = constraintList[i];
 
-            if (c.constType == SchemaObject.ConstraintTypes.CHECK
+            if (c.getConstraintType() == SchemaObject.ConstraintTypes.CHECK
                     && !c.isNotNull() && c.hasColumn(colIndex)) {
                 HsqlName name = c.getName();
 
@@ -1449,8 +1449,8 @@ public class Table extends TableBase implements SchemaObject {
         for (int i = 0, size = constraintList.length; i < size; i++) {
             Constraint c = constraintList[i];
 
-            if (c.constType == SchemaObject.ConstraintTypes.UNIQUE
-                    || c.constType
+            if (c.getConstraintType() == SchemaObject.ConstraintTypes.UNIQUE
+                    || c.getConstraintType()
                        == SchemaObject.ConstraintTypes.PRIMARY_KEY) {
                 set.add(c.getName());
             }
@@ -1597,7 +1597,8 @@ public class Table extends TableBase implements SchemaObject {
         for (int i = 0, count = constraintList.length; i < count; i++) {
             Constraint constraint = constraintList[i];
 
-            if (constraint.constType == SchemaObject.ConstraintTypes.UNIQUE) {
+            if (constraint.getConstraintType()
+                    == SchemaObject.ConstraintTypes.UNIQUE) {
                 int[] indexCols = constraint.getMainColumns();
 
                 if (ArrayUtil.areAllIntIndexesInBooleanArray(
@@ -1606,7 +1607,7 @@ public class Table extends TableBase implements SchemaObject {
                                 indexCols, usedColumns)) {
                     return indexCols;
                 }
-            } else if (constraint.constType
+            } else if (constraint.getConstraintType()
                        == SchemaObject.ConstraintTypes.PRIMARY_KEY) {
                 int[] indexCols = constraint.getMainColumns();
 

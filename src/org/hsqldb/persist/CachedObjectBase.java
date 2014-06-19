@@ -64,6 +64,10 @@ public abstract class CachedObjectBase implements CachedObject {
         return storageSize;
     }
 
+    final public boolean isInvariable() {
+        return false;
+    }
+
     final public boolean isBlock() {
         return true;
     }

@@ -52,7 +52,7 @@ import org.hsqldb.rowio.RowOutputInterface;
  * Implementation of PersistentStore for TEXT tables.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.0
+ * @version 2.3.3
  * @since 1.9.0
  */
 public class RowStoreAVLDiskData extends RowStoreAVL {
@@ -68,8 +68,6 @@ public class RowStoreAVLDiskData extends RowStoreAVL {
         this.table        = table;
         this.indexList    = table.getIndexList();
         this.accessorList = new CachedObject[indexList.length];
-
-        manager.setStore(table, this);
     }
 
     public CachedObject get(long key, boolean keep) {

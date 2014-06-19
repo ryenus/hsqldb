@@ -1334,7 +1334,7 @@ public class ParserDDL extends ParserRoutine {
         for (int i = 1; i < tempConstraints.size(); i++) {
             c = (Constraint) tempConstraints.get(i);
 
-            switch (c.constType) {
+            switch (c.getConstraintType()) {
 
                 case SchemaObject.ConstraintTypes.UNIQUE : {
                     c.setColumnsIndexes(table);
@@ -2963,7 +2963,7 @@ public class ParserDDL extends ParserRoutine {
 
                 mainConst = (Constraint) constraintList.get(0);
 
-                if (mainConst.constType
+                if (mainConst.getConstraintType()
                         == SchemaObject.ConstraintTypes.PRIMARY_KEY) {
                     throw Error.error(ErrorCode.X_42532);
                 }
@@ -3088,7 +3088,7 @@ public class ParserDDL extends ParserRoutine {
                     Constraint existingConst =
                         (Constraint) constraintList.get(0);
 
-                    if (existingConst.constType
+                    if (existingConst.getConstraintType()
                             == SchemaObject.ConstraintTypes.PRIMARY_KEY) {
                         throw Error.error(ErrorCode.X_42532);
                     }

@@ -47,7 +47,7 @@ import org.hsqldb.rowio.RowInputInterface;
  * Implementation of PersistentStore for MEMORY tables.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.2.9
+ * @version 2.3.3
  * @since 1.9.0
  */
 public class RowStoreAVLMemory extends RowStoreAVL implements PersistentStore {
@@ -62,8 +62,6 @@ public class RowStoreAVLMemory extends RowStoreAVL implements PersistentStore {
         this.table        = table;
         this.indexList    = table.getIndexList();
         this.accessorList = new CachedObject[indexList.length];
-
-        manager.setStore(table, this);
     }
 
     public boolean isMemory() {

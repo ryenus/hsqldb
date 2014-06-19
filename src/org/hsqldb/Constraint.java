@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2011, The HSQL Development Group
+/* Copyright (c) 2001-2014, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -49,7 +49,7 @@ import org.hsqldb.types.Type;
  * by the constraint.<p>
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.0
+ * @version 2.3.3
  * @since 1.6.0
  */
 public final class Constraint implements SchemaObject {
@@ -520,21 +520,28 @@ public final class Constraint implements SchemaObject {
     public boolean hasTriggeredAction() {
 
         if (constType == SchemaObject.ConstraintTypes.FOREIGN_KEY) {
-            switch (core.deleteAction) {
+            return hasCoreTriggeredAction();
+        }
 
-                case SchemaObject.ReferentialAction.CASCADE :
-                case SchemaObject.ReferentialAction.SET_DEFAULT :
-                case SchemaObject.ReferentialAction.SET_NULL :
-                    return true;
-            }
+        return false;
+    }
 
-            switch (core.updateAction) {
+    public boolean hasCoreTriggeredAction() {
 
-                case SchemaObject.ReferentialAction.CASCADE :
-                case SchemaObject.ReferentialAction.SET_DEFAULT :
-                case SchemaObject.ReferentialAction.SET_NULL :
-                    return true;
-            }
+        switch (core.deleteAction) {
+
+            case SchemaObject.ReferentialAction.CASCADE :
+            case SchemaObject.ReferentialAction.SET_DEFAULT :
+            case SchemaObject.ReferentialAction.SET_NULL :
+                return true;
+        }
+
+        switch (core.updateAction) {
+
+            case SchemaObject.ReferentialAction.CASCADE :
+            case SchemaObject.ReferentialAction.SET_DEFAULT :
+            case SchemaObject.ReferentialAction.SET_NULL :
+                return true;
         }
 
         return false;
@@ -586,13 +593,10 @@ public final class Constraint implements SchemaObject {
                        && core.mainCols[0] == colIndex;
 
             case SchemaObject.ConstraintTypes.MAIN :
-                return core.mainCols.length == 1
-                       && core.mainCols[0] == colIndex
-                       && core.mainTable == core.refTable;
+                return false;
 
             case SchemaObject.ConstraintTypes.FOREIGN_KEY :
-                return core.refCols.length == 1 && core.refCols[0] == colIndex
-                       && core.mainTable == core.refTable;
+                return core.refCols.length == 1 && core.refCols[0] == colIndex;
 
             default :
                 throw Error.runtimeError(ErrorCode.U_S0500, "Constraint");
@@ -613,14 +617,11 @@ public final class Constraint implements SchemaObject {
                        && ArrayUtil.find(core.mainCols, colIndex) != -1;
 
             case SchemaObject.ConstraintTypes.MAIN :
-                return ArrayUtil.find(core.mainCols, colIndex) != -1
-                       && (core.mainCols.length != 1
-                           || core.mainTable != core.refTable);
+                return ArrayUtil.find(core.mainCols, colIndex) != -1;
 
             case SchemaObject.ConstraintTypes.FOREIGN_KEY :
-                return ArrayUtil.find(core.refCols, colIndex) != -1
-                       && (core.mainCols.length != 1
-                           || core.mainTable != core.refTable);
+                return core.refCols.length != 1
+                          && ArrayUtil.find(core.refCols, colIndex) != -1;
 
             default :
                 throw Error.runtimeError(ErrorCode.U_S0500, "Constraint");

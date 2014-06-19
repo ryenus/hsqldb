@@ -941,7 +941,7 @@ public class Logger {
     /**
      * Returns true if Cache object exists.
      */
-    private boolean hasCache() {
+    public boolean hasCache() {
 
         if (log == null) {
             return false;

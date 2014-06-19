@@ -60,7 +60,7 @@ import org.hsqldb.types.Types;
  *
  * @author Campbell Boucher-Burnet (boucherb@users dot sourceforge.net)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.0
+ * @version 2.3.3
  * @since 1.9.0
  */
 public class Expression implements Cloneable {
@@ -206,7 +206,9 @@ public class Expression implements Cloneable {
     byte    nullability = SchemaObject.Nullability.NULLABLE_UNKNOWN;
 
     //
-    Collation collation;
+    Collation    collation;
+    RangeGroup[] rangeGroups;
+    RangeGroup   rangeGroup;
 
     Expression(int type) {
         opType = type;
@@ -1122,6 +1124,27 @@ public class Expression implements Cloneable {
         }
 
         return unresolvedSet;
+    }
+
+    public void setCorrelatedReferences(RangeGroup resolvedRangeGroup) {
+
+        if (rangeGroups == null) {
+            for (int i = 0; i < nodes.length; i++) {
+                if (nodes[i] != null) {
+                    nodes[i].setCorrelatedReferences(resolvedRangeGroup);
+                }
+            }
+        } else if (ArrayUtil.find(rangeGroups, resolvedRangeGroup) > -1) {
+            for (int idx = rangeGroups.length - 1; idx >= 0; idx--) {
+                if (rangeGroups[idx] == resolvedRangeGroup) {
+                    break;
+                }
+
+                rangeGroups[idx].setCorrelated();
+            }
+
+            rangeGroup.setCorrelated();
+        }
     }
 
     public OrderedHashSet getUnkeyedColumns(OrderedHashSet unresolvedSet) {
