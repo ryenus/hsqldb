@@ -56,10 +56,6 @@ public class IntArrayCachedObject extends CachedObjectBase {
         hasChanged  = true;
     }
 
-    public CachedObject newInstance(int size) {
-        return new IntArrayCachedObject(size);
-    }
-
     public void read(RowInputInterface in) {
 
         this.position = in.getPos();

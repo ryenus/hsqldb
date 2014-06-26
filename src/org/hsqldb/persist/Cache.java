@@ -34,6 +34,7 @@ package org.hsqldb.persist;
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
 import org.hsqldb.lib.ArraySort;
+import org.hsqldb.lib.IntIndex;
 import org.hsqldb.lib.Iterator;
 import org.hsqldb.lib.ObjectComparator;
 import org.hsqldb.lib.StopWatch;
@@ -53,6 +54,7 @@ import org.hsqldb.map.BaseHashMap;
  */
 public class Cache extends BaseHashMap {
 
+    private int                                reserveCount;
     final DataFileCache                        dataFileCache;
     private int                                capacity;         // number of Rows
     private long                               bytesCapacity;    // number of bytes
@@ -85,6 +87,9 @@ public class Cache extends BaseHashMap {
         objectIterator   = new BaseHashIterator(true);
         updateAccess     = true;
         comparator       = rowComparator;
+        reserveCount = dfc instanceof TextCache
+                       || dfc instanceof DataFileCacheSession ? 0
+                                                              : 8;
     }
 
     /**
@@ -128,28 +133,82 @@ public class Cache extends BaseHashMap {
 
         int storageSize = row.getStorageSize();
 
-        if (size() >= capacity
+        if (preparePut(storageSize)) {
+            putNoCheck(row);
+        } else {
+            long value = size() + reserveCount >= capacity ? capacity
+                                                           : bytesCapacity
+                                                             / 1024L;
+
+            throw Error.error(ErrorCode.DATA_CACHE_IS_FULL,
+                              String.valueOf(value));
+        }
+    }
+
+    /**
+     * reserve slots may be used and storage size may exceed bytesCapacity
+     */
+    void putUsingReserve(CachedObject row) {
+
+        int storageSize = row.getStorageSize();
+
+        preparePut(storageSize);
+
+        if (size() >= capacity) {
+            throw Error.error(ErrorCode.DATA_CACHE_IS_FULL,
+                              String.valueOf(capacity));
+        }
+
+        putNoCheck(row);
+    }
+
+    boolean preparePut(int storageSize) {
+
+        if (size() + reserveCount >= capacity
                 || storageSize + cacheBytesLength > bytesCapacity) {
             cleanUp(false);
 
-            if (size() >= capacity
+            if (size() + reserveCount >= capacity
                     || storageSize + cacheBytesLength > bytesCapacity) {
                 clearUnchanged();
+            } else {
+                return true;
             }
 
-            if (size() >= capacity
-                    || storageSize + cacheBytesLength > bytesCapacity) {
+            boolean exceedsCount = size() + reserveCount >= capacity;
+            boolean exceedsSize = storageSize + cacheBytesLength
+                                  > bytesCapacity;
+
+            if (exceedsCount) {
+                dataFileCache.logInfoEvent(
+                    "dataFileCache CACHE ROWS limit reached");
+            }
+
+            if (exceedsSize) {
+                dataFileCache.logInfoEvent(
+                    "dataFileCache CACHE SIZE limit reached");
+            }
+
+            if (exceedsCount || exceedsSize) {
                 cleanUp(true);
+            } else {
+                return true;
             }
 
-            if (size() >= capacity
+            if (size() + reserveCount >= capacity
                     || storageSize + cacheBytesLength > bytesCapacity) {
-                throw Error.error(ErrorCode.DATA_CACHE_IS_FULL,
-                                  String.valueOf(capacity));
+                return false;
+            } else {
+                return true;
             }
+        } else {
+            return true;
         }
+    }
 
-        if (accessCount > ACCESS_MAX && updateAccess) {
+    private void putNoCheck(CachedObject row) {
+
+        if (accessCount > ACCESS_MAX) {
             updateAccessCounts();
             resetAccessCount();
             updateObjectAccessCounts();
@@ -158,7 +217,7 @@ public class Cache extends BaseHashMap {
         super.addOrRemoveObject(row, row.getPos(), false);
         row.setInMemory(true);
 
-        cacheBytesLength += storageSize;
+        cacheBytesLength += row.getStorageSize();
     }
 
     /**
@@ -178,6 +237,25 @@ public class Cache extends BaseHashMap {
         r.setInMemory(false);
 
         return r;
+    }
+
+    public void releaseRange(IntIndex list, int fileBlockItemCount) {
+
+        objectIterator.reset();
+
+        while (objectIterator.hasNext()) {
+            CachedObject o     = (CachedObject) objectIterator.next();
+            long         pos   = o.getPos();
+            int          block = (int) (pos / fileBlockItemCount);
+            int          index = list.findFirstEqualKeyIndex(block);
+
+            if (index >= 0) {
+                o.setInMemory(false);
+                objectIterator.remove();
+
+                cacheBytesLength -= o.getStorageSize();
+            }
+        }
     }
 
     /**

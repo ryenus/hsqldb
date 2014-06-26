@@ -71,9 +71,12 @@ import org.hsqldb.lib.Set;
 import org.hsqldb.lib.WrapperIterator;
 import org.hsqldb.map.ValuePool;
 import org.hsqldb.persist.DataFileCache;
+import org.hsqldb.persist.DataSpaceManager;
+import org.hsqldb.persist.DirectoryBlockCachedObject;
 import org.hsqldb.persist.HsqlDatabaseProperties;
 import org.hsqldb.persist.HsqlProperties;
 import org.hsqldb.persist.PersistentStore;
+import org.hsqldb.persist.TableSpaceManager;
 import org.hsqldb.persist.TextCache;
 import org.hsqldb.persist.TextFileSettings;
 import org.hsqldb.result.Result;
@@ -114,7 +117,7 @@ import org.hsqldb.types.Type;
  *
  * @author Campbell Boucher-Burnet (boucherb@users dot sourceforge.net)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.2
+ * @version 2.3.3
  * @since 1.7.2
  */
 final class DatabaseInformationFull
@@ -1363,6 +1366,21 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
             return t;
         }
 
+        DataSpaceManager spaceManager = null;
+        DirectoryBlockCachedObject[] directoryList =
+            new DirectoryBlockCachedObject[0];
+        int cacheScale    = database.logger.getDataFileScale();
+        int fileBlockSize = 1024 * 1024 * cacheScale / 16;
+
+        if (database.logger.hasCache()) {
+            DataFileCache cache = database.logger.getCache();
+
+            spaceManager  = cache.spaceManager;
+            directoryList = cache.spaceManager.getDirectoryList();
+            cacheScale    = cache.getDataFileScale();
+            fileBlockSize = spaceManager.getFileBlockSize();
+        }
+
         // Initialization
         tables = allTables();
 
@@ -1390,9 +1408,42 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
             row[cardinality] = Long.valueOf(tableStore.elementCount());
 
             if (table.isCached()) {
-                row[space_id]    = Long.valueOf(table.getSpaceID());
+                int spaceId = table.getSpaceID();
+
+                row[space_id]    = Long.valueOf(spaceId);
+                row[alloc_space] = null;
                 row[used_space]  = null;
                 row[used_memory] = null;
+
+                if (spaceManager.isMultiSpace()
+                        && spaceId != DataSpaceManager.tableIdDefault) {
+                    long allocated = 0;
+                    long used      = 0;
+
+                    for (int i = 0; i < directoryList.length; i++) {
+                        int[] tableIdList = directoryList[i].getTableIdArray();
+                        char[] freeSpaceList =
+                            directoryList[i].getFreeSpaceArray();
+
+                        for (int j = 0; j < tableIdList.length; j++) {
+                            if (tableIdList[j] == spaceId) {
+                                allocated += fileBlockSize;
+                                used += fileBlockSize
+                                        - freeSpaceList[j] * cacheScale;
+                            }
+                        }
+                    }
+
+                    if (allocated > 0) {
+                        TableSpaceManager tableSpace =
+                            tableStore.getSpaceManager();
+
+                        used -= tableSpace.getLostBlocksSize();
+                    }
+
+                    row[alloc_space] = Long.valueOf(allocated);
+                    row[used_space]  = Long.valueOf(used);
+                }
             }
 
             t.insertSys(session, store, row);

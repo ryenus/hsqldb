@@ -43,7 +43,7 @@ import org.hsqldb.rowio.RowInputInterface;
  * Interface for a store for CachedObject objects.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.2
+ * @version 2.3.3
  * @since 1.9.0
  */
 public interface PersistentStore {
@@ -76,6 +76,8 @@ public interface PersistentStore {
     CachedObject get(CachedObject object, boolean keep);
 
     /** add new object */
+    void add(CachedObject object, boolean keep);
+
     void add(Session session, CachedObject object, boolean tx);
 
     boolean canRead(Session session, long key, int mode, int[] colMap);

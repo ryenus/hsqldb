@@ -46,7 +46,7 @@ import org.hsqldb.navigator.RowIterator;
  * Implementation of PersistentStore for information schema and temp tables.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.2
+ * @version 2.3.3
  * @since 2.0.1
  */
 public class RowStoreAVLHybridExtended extends RowStoreAVLHybrid {
@@ -93,7 +93,7 @@ public class RowStoreAVLHybridExtended extends RowStoreAVLHybrid {
                                           (Row) object);
             }
 
-            cache.add(object);
+            cache.add(object, false);
         } else {
             if (tx) {
                 RowAction.addInsertAction(session, (Table) table,

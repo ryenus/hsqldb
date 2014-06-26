@@ -165,7 +165,7 @@ public class RowStoreAVLHybrid extends RowStoreAVL implements PersistentStore {
             long pos = tableSpace.getFilePosition(size, false);
 
             object.setPos(pos);
-            cache.add(object);
+            cache.add(object, false);
         }
 
         Object[] data = ((Row) object).getData();

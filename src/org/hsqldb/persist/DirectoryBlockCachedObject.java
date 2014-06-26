@@ -63,10 +63,6 @@ public class DirectoryBlockCachedObject extends CachedObjectBase {
         hasChanged     = true;
     }
 
-    public CachedObject newInstance(int size) {
-        return new DirectoryBlockCachedObject(size);
-    }
-
     public void read(RowInputInterface in) {
 
         this.position = in.getPos();
