@@ -46,7 +46,8 @@ import org.hsqldb.rowio.RowInputInterface;
  * data is read from and written to a text format data file.
  *
  * @author Bob Preston (sqlbob@users dot sourceforge.net)
- * @version 2.3.0
+ * @author Fred Toussi (fredt@users dot sourceforge.net)
+ * @version 2.3.3
  */
 public class TextTable extends Table {
 
@@ -282,7 +283,8 @@ public class TextTable extends Table {
     public void checkDataReadOnly() {
 
         if (dataSource.length() == 0) {
-            throw Error.error(ErrorCode.TEXT_TABLE_UNKNOWN_DATA_SOURCE);
+            String name = getName().getSchemaQualifiedStatementName();
+            throw Error.error(ErrorCode.TEXT_TABLE_UNKNOWN_DATA_SOURCE, name);
         }
 
         if (isDataReadOnly()) {

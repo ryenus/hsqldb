@@ -414,10 +414,13 @@ public class Log {
         database.logger.logInfoEvent("checkpointClose start");
         synchLog();
         database.lobManager.synch();
+        database.logger.logInfoEvent("checkpointClose synched");
         deleteOldDataFiles();
 
         try {
             writeScript(false);
+
+            database.logger.logInfoEvent("checkpointClose script done");
 
             if (cache != null) {
                 cache.reset();

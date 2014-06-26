@@ -109,6 +109,8 @@ public abstract class RowStoreAVL implements PersistentStore {
 
     public abstract void add(Session session, CachedObject object, boolean tx);
 
+    public final void add(CachedObject object, boolean keep) {}
+
     public boolean canRead(Session session, long pos, int mode, int[] colMap) {
         return true;
     }

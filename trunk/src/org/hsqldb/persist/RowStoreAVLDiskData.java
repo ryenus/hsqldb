@@ -101,7 +101,7 @@ public class RowStoreAVLDiskData extends RowStoreAVL {
                 RowAction.addInsertAction(session, table, (Row) object);
             }
 
-            cache.add(object);
+            cache.add(object, false);
         } finally {
             cache.writeLock.unlock();
         }

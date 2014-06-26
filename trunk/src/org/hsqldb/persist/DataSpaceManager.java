@@ -75,4 +75,6 @@ public interface DataSpaceManager {
     boolean isMultiSpace();
 
     int getFileBlockItemCount();
+
+    public DirectoryBlockCachedObject[] getDirectoryList();
 }

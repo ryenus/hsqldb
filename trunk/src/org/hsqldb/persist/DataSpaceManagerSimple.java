@@ -63,7 +63,7 @@ public class DataSpaceManagerSimple implements DataSpaceManager {
 
             defaultSpaceManager = new TableSpaceManagerBlocks(this,
                     DataSpaceManager.tableIdDefault, fileBlockSize, capacity,
-                    cache.dataFileScale, 0);
+                    cache.getDataFileScale(), 0);
 
             initialiseSpaces();
 
@@ -143,7 +143,7 @@ public class DataSpaceManagerSimple implements DataSpaceManager {
     }
 
     public int getFileBlockSize() {
-        return Integer.MAX_VALUE;
+        return 1024 * 1024 * cache.getDataFileScale() / 16;
     }
 
     public boolean isModified() {
@@ -176,5 +176,9 @@ public class DataSpaceManagerSimple implements DataSpaceManager {
 
     public int getFileBlockItemCount() {
         return 1024 * 64;
+    }
+
+    public DirectoryBlockCachedObject[] getDirectoryList() {
+        return new DirectoryBlockCachedObject[0];
     }
 }

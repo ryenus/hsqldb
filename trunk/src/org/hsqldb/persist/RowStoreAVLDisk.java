@@ -142,7 +142,7 @@ public class RowStoreAVLDisk extends RowStoreAVL implements PersistentStore {
             database.txManager.addTransactionInfo(object);
         }
 
-        cache.add(object);
+        cache.add(object, false);
 
         storageSize += size;
     }

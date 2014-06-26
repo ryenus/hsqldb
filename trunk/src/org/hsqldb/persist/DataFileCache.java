@@ -42,6 +42,7 @@ import org.hsqldb.error.ErrorCode;
 import org.hsqldb.lib.FileAccess;
 import org.hsqldb.lib.FileArchiver;
 import org.hsqldb.lib.FileUtil;
+import org.hsqldb.lib.IntIndex;
 import org.hsqldb.lib.Iterator;
 import org.hsqldb.map.BitMap;
 import org.hsqldb.rowio.RowInputBinary180;
@@ -922,7 +923,7 @@ public class DataFileCache {
 
     public void removePersistence(CachedObject object) {}
 
-    public void add(CachedObject object) {
+    public void add(CachedObject object, boolean keep) {
 
         writeLock.lock();
 
@@ -930,6 +931,10 @@ public class DataFileCache {
             cacheModified = true;
 
             cache.put(object);
+
+            if (keep) {
+                object.keepInMemory(true);
+            }
 
             if (object.getStorageSize() > initIOBufferSize) {
                 rowOut.reset(object.getStorageSize());
@@ -1170,9 +1175,7 @@ public class DataFileCache {
                 }
             }
 
-            // for text tables with empty rows at the beginning,
-            // pos may move forward in readObject
-            cache.put(object);
+            cache.putUsingReserve(object);
 
             if (keep) {
                 object.keepInMemory(true);
@@ -1277,6 +1280,17 @@ public class DataFileCache {
                     it.remove();
                 }
             }
+        } finally {
+            writeLock.unlock();
+        }
+    }
+
+    public void releaseRange(IntIndex list, int fileBlockItemCount) {
+
+        writeLock.lock();
+
+        try {
+            cache.releaseRange(list, fileBlockItemCount);
         } finally {
             writeLock.unlock();
         }

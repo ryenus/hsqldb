@@ -41,7 +41,7 @@ import org.hsqldb.rowio.RowInputInterface;
 
 /**
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.2
+ * @version 2.3.3
  * @since 2.3.0
  */
 public class BlockObjectStore extends SimpleStore {
@@ -70,33 +70,22 @@ public class BlockObjectStore extends SimpleStore {
     }
 
     public CachedObject get(long i) {
-
-        try {
-            return cache.get(i, storageSize, this, false);
-        } catch (HsqlException e) {
-            return null;
-        }
+        return cache.get(i, storageSize, this, false);
     }
 
     public CachedObject get(CachedObject object, boolean keep) {
-
-        try {
-            return cache.get(object, this, keep);
-        } catch (HsqlException e) {
-            return null;
-        }
+        return cache.get(object, this, keep);
     }
 
     public CachedObject get(long i, boolean keep) {
-
-        try {
-            return cache.get(i, storageSize, this, keep);
-        } catch (HsqlException e) {
-            return null;
-        }
+        return cache.get(i, storageSize, this, keep);
     }
 
     public void add(Session session, CachedObject object, boolean tx) {
+        throw Error.runtimeError(ErrorCode.U_S0500, "BlockObjectStore");
+    }
+
+    public void add(CachedObject object, boolean keep) {
 
         int size = object.getRealSize(cache.rowOut);
 
@@ -111,12 +100,12 @@ public class BlockObjectStore extends SimpleStore {
         long pos = spaceManager.getFilePosition(size, true);
 
         object.setPos(pos);
-        cache.add(object);
+        cache.add(object, keep);
     }
 
     public CachedObject get(RowInputInterface in) {
 
-        CachedObject object = getNewInstance(blockSize);
+        CachedObject object = getNewInstance();
 
         object.read(in);
 
@@ -134,11 +123,15 @@ public class BlockObjectStore extends SimpleStore {
     }
 
     public CachedObject getNewInstance(int size) {
+        throw Error.runtimeError(ErrorCode.U_S0500, "BlockObjectStore");
+    }
+
+    private CachedObject getNewInstance() {
 
         try {
             CachedObject object =
                 (CachedObject) constructor.newInstance(new Object[]{
-                    Integer.valueOf(size) });
+                    Integer.valueOf(blockSize) });
 
             return object;
         } catch (Exception e) {
