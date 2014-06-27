@@ -2913,7 +2913,7 @@
     <para>Returns the current row number (from 1) being processed in a select
     statement. This has the same semantics as the ROWNUM pseudo-column in
     Oracle syntax mode, but can be used in any syntax mode. The function is
-    used in a SELECT of DELETE statement. The ROWNUM of a row is incremented
+    used in a SELECT or DELETE statement. The ROWNUM of a row is incremented
     as the rows are added to the result set. It is therefore possible to use a
     condition such as WHERE ROWNUM() &lt; 10, but not ROWNUM() &gt; 10 or
     ROWNUM = 10. The <literal>ROW_NUMBER() OVER()</literal> alternative
