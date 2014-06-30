@@ -2837,7 +2837,7 @@
       &lt;scale value&gt;</literal></simpara>
 
       <simpara>Changes the scale factor for the .data file. The default scale
-      is 8 and allows 16GB of data storage capacity. The scale can be
+      is 32 and allows 64GB of data storage capacity. The scale can be
       increased in order to increase the maximum data storage capacity. The
       scale values 8, 16, 32, 64, 128, 256, 512, 1024 are allowed. Scale value
       1024 allows a maximum capacity of 2 TB.</simpara>
