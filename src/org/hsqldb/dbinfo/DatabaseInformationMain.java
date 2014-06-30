@@ -817,7 +817,7 @@ class DatabaseInformationMain extends DatabaseInformation {
      * SCOPE_CATLOG      VARCHAR   catalog of REF attribute scope table
      * SCOPE_SCHEMA      VARCHAR   schema of REF attribute scope table
      * SCOPE_TABLE       VARCHAR   name of REF attribute scope table
-     * SOURCE_DATA_TYPE  VARCHAR   source type of REF attribute
+     * SOURCE_DATA_TYPE  SMALLINT  source type of REF attribute
      * TYPE_SUB          INTEGER   HSQLDB data subtype code
      * </pre> <p>
      *
@@ -853,7 +853,7 @@ class DatabaseInformationMain extends DatabaseInformation {
             addColumn(t, "SCOPE_CATALOG", SQL_IDENTIFIER);          // 18
             addColumn(t, "SCOPE_SCHEMA", SQL_IDENTIFIER);           // 19
             addColumn(t, "SCOPE_TABLE", SQL_IDENTIFIER);            // 20
-            addColumn(t, "SOURCE_DATA_TYPE", SQL_IDENTIFIER);       // 21
+            addColumn(t, "SOURCE_DATA_TYPE", Type.SQL_SMALLINT);    // 21
 
             // ----------------------------------------------------------------
             // JDBC 4.0 - added Mustang b86
@@ -1015,9 +1015,9 @@ class DatabaseInformationMain extends DatabaseInformation {
                 row[iis_nullable]      = column.isNullable() ? "YES"
                                                              : "NO";
 
-                if (type.isDistinctType()) {
-                    row[isource_data_type] =
-                        type.getName().getSchemaQualifiedStatementName();
+                if (type.isDistinctType() || type.isDomainType()) {
+                    row[itype_name]        = type.getTypeDefinition();
+                    row[isource_data_type] = row[idata_type];
                 }
 
                 // JDBC 4.0

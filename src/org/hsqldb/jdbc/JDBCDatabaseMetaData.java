@@ -3342,18 +3342,18 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      *  <LI><B>SOURCE_DATA_TYPE</B> short => source type of a distinct type or user-generated
      *      Ref type, SQL type from java.sql.Types (<code>null</code> if DATA_TYPE
      *      isn't DISTINCT or user-generated REF)
-     *   <LI><B>IS_AUTOINCREMENT</B> String  => Indicates whether this column is auto incremented
-     *       <UL>
-     *       <LI> YES           --- if the column is auto incremented
-     *       <LI> NO            --- if the column is not auto incremented
-     *       <LI> empty string  --- if it cannot be determined whether the column is auto incremented
-     *       </UL>
-     *   <LI(JDBC 4.1 New:)<B>IS_GENERATEDCOLUMN</B> String  => Indicates whether this is a generated column
-     *       <UL>
-     *       <LI> YES           --- if this a generated column
-     *       <LI> NO            --- if this not a generated column
-     *       <LI> empty string  --- if it cannot be determined whether this is a generated column
-     *       </UL>
+     *  <LI><B>IS_AUTOINCREMENT</B> String  => Indicates whether this column is auto incremented
+     *      <UL>
+     *      <LI> YES           --- if the column is auto incremented
+     *      <LI> NO            --- if the column is not auto incremented
+     *      <LI> empty string  --- if it cannot be determined whether the column is auto incremented
+     *      </UL>
+     *  <LI>(JDBC 4.1 New:)<B>IS_GENERATEDCOLUMN</B> String  => Indicates whether this is a generated column
+     *      <UL>
+     *      <LI> YES           --- if this a generated column
+     *      <LI> NO            --- if this not a generated column
+     *      <LI> empty string  --- if it cannot be determined whether this is a generated column
+     *      </UL>
      *  </OL>
      *
      * <p>(JDBC4 clarification:) The COLUMN_SIZE column represents the specified column size for the given column.

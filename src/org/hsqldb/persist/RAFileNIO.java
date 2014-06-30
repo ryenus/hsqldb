@@ -43,6 +43,7 @@ import java.nio.channels.FileChannel.MapMode;
 import org.hsqldb.Database;
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
+import org.hsqldb.lib.ArrayUtil;
 import org.hsqldb.lib.java.JavaSystem;
 
 /**
@@ -53,7 +54,7 @@ import org.hsqldb.lib.java.JavaSystem;
  * ScaledRAFile is used for data access.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version  2.3.2
+ * @version  2.3.3
  * @since 1.8.0.5
  */
 final class RAFileNIO implements RandomAccessInterface {
@@ -98,7 +99,7 @@ final class RAFileNIO implements RandomAccessInterface {
                 requiredLength = tempFile.length();
             }
 
-            requiredLength = RAFile.getBinaryNormalisedCeiling(requiredLength,
+            requiredLength = ArrayUtil.getBinaryNormalisedCeiling(requiredLength,
                     largeBufferScale);
         }
 

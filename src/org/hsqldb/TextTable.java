@@ -111,11 +111,12 @@ public class TextTable extends Table {
             reader = cache.getTextFileReader();
 
             // read and insert all the rows from the source file
-            Row row     = null;
+            Row  row     = null;
             long nextpos = 0;
 
             if (cache.isIgnoreFirstLine()) {
                 nextpos += reader.readHeaderLine();
+
                 cache.setHeaderInitialise(reader.getHeaderLine());
             }
 
@@ -218,9 +219,10 @@ public class TextTable extends Table {
      * Reassigns only if the data source or direction has changed.
      */
     void setDataSource(Session session, String dataSourceNew,
-                                 boolean isReversedNew, boolean createFile) {
+                       boolean isReversedNew, boolean createFile) {
 
         if (getTableType() == Table.TEMP_TEXT_TABLE) {
+
             //
         } else {
             session.getGrantee().checkSchemaUpdateOrGrantRights(
@@ -284,6 +286,7 @@ public class TextTable extends Table {
 
         if (dataSource.length() == 0) {
             String name = getName().getSchemaQualifiedStatementName();
+
             throw Error.error(ErrorCode.TEXT_TABLE_UNKNOWN_DATA_SOURCE, name);
         }
 

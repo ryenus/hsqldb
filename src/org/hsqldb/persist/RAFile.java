@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2011, The HSQL Development Group
+/* Copyright (c) 2001-2014, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -51,7 +51,7 @@ import org.hsqldb.lib.Storage;
  * CACHED table storage.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.0
+ * @version 2.3.3
  * @since  1.7.2
  */
 final class RAFile implements RandomAccessInterface {
@@ -228,8 +228,8 @@ final class RAFile implements RandomAccessInterface {
             bufferOffset = filePos;
         } catch (IOException e) {
             resetPointer();
-            database.logger.logWarningEvent(" " + filePos + " " + readLength,
-                                            e);
+            database.logger.logWarningEvent("Read Error " + filePos + " "
+                                            + readLength, e);
 
             throw e;
         }
@@ -423,8 +423,11 @@ final class RAFile implements RandomAccessInterface {
     }
 
     private int writeToBuffer(byte[] b, int off, int len) throws IOException {
-        return ArrayUtil.copyBytes(seekPosition - off, b, off, len,
-                                   bufferOffset, buffer, buffer.length);
+
+        int count = ArrayUtil.copyBytes(seekPosition - off, b, off, len,
+                                        bufferOffset, buffer, buffer.length);
+
+        return count;
     }
 
     private long getExtendLength(long position) {
@@ -445,7 +448,8 @@ final class RAFile implements RandomAccessInterface {
             scaleUp = 12;
         }
 
-        position = getBinaryNormalisedCeiling(position, bufferScale + scaleUp);
+        position = ArrayUtil.getBinaryNormalisedCeiling(position,
+                bufferScale + scaleUp);
 
         return position;
     }
@@ -482,20 +486,5 @@ final class RAFile implements RandomAccessInterface {
 
             readIntoBuffer();
         } catch (Throwable e) {}
-    }
-
-    /**
-     * uses 2**scale form and returns a multipe of this that is larger or equal to value
-     */
-    static long getBinaryNormalisedCeiling(long value, int scale) {
-
-        long mask    = 0xffffffffffffffffl << scale;
-        long newSize = value & mask;
-
-        if (newSize != value) {
-            newSize += 1 << scale;
-        }
-
-        return newSize;
     }
 }
