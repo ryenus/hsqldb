@@ -184,10 +184,7 @@ public class TableWorks {
 
         Constraint uniqueConstraint =
             c.core.mainTable.getUniqueConstraintForColumns(c.core.mainCols);
-        Index mainIndex = uniqueConstraint.getMainIndex();
-
-        uniqueConstraint.checkReferencedRows(session, table);
-
+        Index   mainIndex = uniqueConstraint.getMainIndex();
         boolean isForward = false;
 
         if (c.core.mainTable.getSchemaName() == table.getSchemaName()) {
@@ -218,6 +215,8 @@ public class TableWorks {
         c.core.refName    = c.getName();
         c.core.refIndex   = refIndex;
         c.isForward       = isForward;
+
+        c.checkReferencedRows(session, table);
 
         Table tn = table.moveDefinition(session, table.tableType, null, c,
                                         refIndex, -1, 0, emptySet, emptySet);

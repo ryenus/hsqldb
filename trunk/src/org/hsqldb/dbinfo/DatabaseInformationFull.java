@@ -60,6 +60,7 @@ import org.hsqldb.TextTable;
 import org.hsqldb.Tokens;
 import org.hsqldb.TriggerDef;
 import org.hsqldb.View;
+import org.hsqldb.index.Index;
 import org.hsqldb.lib.ArrayUtil;
 import org.hsqldb.lib.FileUtil;
 import org.hsqldb.lib.HashMappedList;
@@ -181,6 +182,9 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
             case SYSTEM_COMMENTS :
                 return SYSTEM_COMMENTS(session, store);
 
+            case SYSTEM_INDEXSTATS :
+                return SYSTEM_INDEXSTATS(session, store);
+
             case SYSTEM_SESSIONINFO :
                 return SYSTEM_SESSIONINFO(session, store);
 
@@ -190,11 +194,11 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
             case SYSTEM_SESSIONS :
                 return SYSTEM_SESSIONS(session, store);
 
-            case SYSTEM_TEXTTABLES :
-                return SYSTEM_TEXTTABLES(session, store);
-
             case SYSTEM_TABLESTATS :
                 return SYSTEM_TABLESTATS(session, store);
+
+            case SYSTEM_TEXTTABLES :
+                return SYSTEM_TEXTTABLES(session, store);
 
             // SQL views
             case ADMINISTRABLE_ROLE_AUTHORIZATIONS :
@@ -1447,6 +1451,105 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
             }
 
             t.insertSys(session, store, row);
+        }
+
+        return t;
+    }
+
+    /**
+     * Retrieves a <code>Table</code> object describing the visible
+     * <code>Index</code> objects for each accessible table defined
+     * within this database.<p>
+     *
+     * Each row is an index column description with the following
+     * columns: <p>
+     *
+     * <pre class="SqlCodeExample">
+     * TABLE_CATALOG    VARCHAR   table's catalog
+     * TABLE_SCHEMA     VARCHAR   simple name of table's schema
+     * TABLE_NAME       VARCHAR   simple name of the table using the index
+     * INDEX_NAME       VARCHAR   simple name of the index
+     * </pre> <p>
+     *
+     * @return a <code>Table</code> object describing the visible
+     *        <code>Index</code> objects for each accessible
+     *        table defined within this database.
+     */
+    final Table SYSTEM_INDEXSTATS(Session session, PersistentStore store) {
+
+        Table t = sysTables[SYSTEM_INDEXSTATS];
+
+        if (t == null) {
+            t = createBlankTable(sysTableHsqlNames[SYSTEM_INDEXSTATS]);
+
+            // JDBC
+            addColumn(t, "TABLE_CATALOG", SQL_IDENTIFIER);
+            addColumn(t, "TABLE_SCHEMA", SQL_IDENTIFIER);
+            addColumn(t, "TABLE_NAME", SQL_IDENTIFIER);    // NOT NULL
+            addColumn(t, "INDEX_NAME", SQL_IDENTIFIER);
+
+            // order: NON_UNIQUE, TYPE, INDEX_NAME, and ORDINAL_POSITION.
+            // added for unique: INDEX_QUALIFIER, TABLE_NAME
+            // false PK, as INDEX_QUALIFIER may be null
+            HsqlName name = HsqlNameManager.newInfoSchemaObjectName(
+                sysTableHsqlNames[SYSTEM_INDEXINFO].name, false,
+                SchemaObject.INDEX);
+
+            t.createPrimaryKeyConstraint(name, new int[] {
+                0, 1, 2, 3
+            }, false);
+
+            return t;
+        }
+
+        // calculated column values
+        String tableCatalog;
+        String tableSchema;
+        String tableName;
+        String indexName;
+
+        // Intermediate holders
+        Iterator tables;
+        Table    table;
+        int      indexCount;
+        Object[] row;
+
+        // column number mappings
+        final int itable_cat       = 0;
+        final int itable_schem     = 1;
+        final int itable_name      = 2;
+        final int iindex_name      = 3;
+
+        // Initialization
+        tables =
+            database.schemaManager.databaseObjectIterator(SchemaObject.TABLE);
+
+        // Do it.
+        while (tables.hasNext()) {
+            table = (Table) tables.next();
+
+            if (table.isView() || !isAccessibleTable(session, table)) {
+                continue;
+            }
+
+            tableCatalog = table.getCatalogName().name;
+            tableSchema  = table.getSchemaName().name;
+            tableName    = table.getName().name;
+            indexCount   = table.getIndexCount();
+
+            // process all of the visible indices for this table
+            for (int i = 0; i < indexCount; i++) {
+                Index index = table.getIndex(i);
+
+                indexName         = index.getName().name;
+                row               = t.getEmptyRowData();
+                row[itable_cat]   = tableCatalog;
+                row[itable_schem] = tableSchema;
+                row[itable_name]  = tableName;
+                row[iindex_name]  = indexName;
+
+                t.insertSys(session, store, row);
+            }
         }
 
         return t;

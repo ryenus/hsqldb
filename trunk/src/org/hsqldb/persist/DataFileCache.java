@@ -1564,7 +1564,7 @@ public class DataFileCache {
             boolean result = dataFile.ensureLength(position + delta);
 
             if (!result) {
-                logSevereEvent("data file cannot be enlarged - disk spacee "
+                logSevereEvent("data file cannot be enlarged - disk space "
                                + this.dataFileName, null);
 
                 throw Error.error(ErrorCode.DATA_FILE_IS_FULL);
