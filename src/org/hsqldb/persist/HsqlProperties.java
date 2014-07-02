@@ -50,7 +50,7 @@ import org.hsqldb.map.ValuePool;
  * allow saving and loading.<p>
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.2.9
+ * @version 2.3.3
  * @since 1.7.0
  */
 public class HsqlProperties {
@@ -414,6 +414,18 @@ public class HsqlProperties {
     public static final int indexValues       = 7;
     public static final int indexLimit        = 9;
 
+    public static Object[] getMeta(String name, int type) {
+
+        Object[] row = new Object[indexLimit];
+
+        row[indexName]         = name;
+        row[indexType]         = ValuePool.getInt(type);
+        row[indexClass]        = "Long";
+        row[indexDefaultValue] = Long.valueOf(0);
+
+        return row;
+    }
+
     public static Object[] getMeta(String name, int type,
                                    String defaultValue) {
 
@@ -488,6 +500,10 @@ public class HsqlProperties {
         }
 
         if (meta[indexClass].equals("String")) {
+            return null;
+        }
+
+        if (meta[indexClass].equals("Long")) {
             return null;
         }
 

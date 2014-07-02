@@ -50,7 +50,7 @@ import org.hsqldb.lib.OrderedHashSet;
  * Shared code for TransactionManager classes
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.2
+ * @version 2.3.3
  * @since 2.0.0
  */
 class TransactionManagerCommon {
@@ -231,11 +231,13 @@ class TransactionManagerCommon {
         }
 
         try {
+            session.logSequences();
+
             if (limit > 0 && writeCommit) {
                 database.logger.writeCommitStatement(session);
             }
         } catch (HsqlException e) {
-            database.logger.logWarningEvent("data commit failed", e);
+            database.logger.logWarningEvent("data commit logging failed", e);
         }
     }
 

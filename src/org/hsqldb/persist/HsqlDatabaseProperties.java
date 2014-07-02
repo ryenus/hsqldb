@@ -174,6 +174,9 @@ public class HsqlDatabaseProperties extends HsqlProperties {
     private static final String hsqldb_modified = "modified";
 
     //
+    public static final String tx_timestamp = "tx_timestamp";
+
+    //
     public static final String hsqldb_cache_version = "hsqldb.cache_version";
 
     //
@@ -358,6 +361,8 @@ public class HsqlDatabaseProperties extends HsqlProperties {
                                           SQL_PROPERTY, "MEMORY"));
         dbMeta.put(hsqldb_digest,
                    HsqlProperties.getMeta(hsqldb_digest, SQL_PROPERTY, "MD5"));
+        dbMeta.put(tx_timestamp,
+                   HsqlProperties.getMeta(tx_timestamp, SYSTEM_PROPERTY));
 
         // boolean defaults for user defined props
         dbMeta.put(hsqldb_tx_conflict_rollback,
@@ -632,6 +637,9 @@ public class HsqlDatabaseProperties extends HsqlProperties {
             }
 
             props.setProperty(hsqldb_version, THIS_VERSION);
+            props.setProperty(
+                tx_timestamp,
+                Long.toString(database.txManager.getGlobalChangeTimestamp()));
 
             if (database.logger.isStoredFileAccess()) {
                 if (!database.logger.isNewStoredFileAccess()) {
