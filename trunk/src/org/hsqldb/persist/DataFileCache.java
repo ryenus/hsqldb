@@ -1555,8 +1555,8 @@ public class DataFileCache {
             long position = fileFreePosition;
 
             if (position + delta > maxDataFileSize) {
-                logSevereEvent("data file reached maximum size "
-                               + this.dataFileName, null);
+                logSevereEvent("data file reached maximum allowed size: "
+                               + dataFileName + " " + maxDataFileSize, null);
 
                 throw Error.error(ErrorCode.DATA_FILE_IS_FULL);
             }
@@ -1564,8 +1564,9 @@ public class DataFileCache {
             boolean result = dataFile.ensureLength(position + delta);
 
             if (!result) {
-                logSevereEvent("data file cannot be enlarged - disk space "
-                               + this.dataFileName, null);
+                logSevereEvent("data file cannot be enlarged - disk space: "
+                               + dataFileName + " "
+                               + (position + delta), null);
 
                 throw Error.error(ErrorCode.DATA_FILE_IS_FULL);
             }
