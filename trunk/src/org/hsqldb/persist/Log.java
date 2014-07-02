@@ -419,7 +419,6 @@ public class Log {
 
         try {
             writeScript(false);
-
             database.logger.logInfoEvent("checkpointClose script done");
 
             if (cache != null) {

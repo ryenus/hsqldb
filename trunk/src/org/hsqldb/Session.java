@@ -623,8 +623,6 @@ public class Session implements SessionInterface {
 
         lockStatement = null;
 
-        logSequences();
-
         if (!chain) {
             sessionContext.isReadOnly = isReadOnlyDefault ? Boolean.TRUE
                                                           : Boolean.FALSE;

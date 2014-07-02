@@ -2197,7 +2197,7 @@ public class Logger {
         }
     }
 
-    private SimpleDateFormat backupFileFormat =
+    SimpleDateFormat backupFileFormat =
         new SimpleDateFormat("yyyyMMdd'T'HHmmss");
     private Character runtimeFileDelim =
         new Character(System.getProperty("file.separator").charAt(0));
