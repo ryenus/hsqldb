@@ -99,7 +99,8 @@ final class RAFileNIO implements RandomAccessInterface {
                 requiredLength = tempFile.length();
             }
 
-            requiredLength = ArrayUtil.getBinaryNormalisedCeiling(requiredLength,
+            requiredLength =
+                ArrayUtil.getBinaryNormalisedCeiling(requiredLength,
                     largeBufferScale);
         }
 
@@ -206,6 +207,8 @@ final class RAFileNIO implements RandomAccessInterface {
 
         try {
             while (true) {
+                checkBuffer();
+
                 long transferLength = bufferPosition + bufferLength
                                       - currentPosition;
 
@@ -274,6 +277,8 @@ final class RAFileNIO implements RandomAccessInterface {
             buffersModified = true;
 
             while (true) {
+                checkBuffer();
+
                 transferLength = bufferPosition + bufferLength
                                  - currentPosition;
 
@@ -522,6 +527,25 @@ final class RAFileNIO implements RandomAccessInterface {
 
         buffer         = buffers[bufferIndex];
         bufferPosition = offset & largeBufferMask;
+    }
+
+    /**
+     * checks for two types of potential errors before reads and writes and
+     * fixes them.
+     *
+     */
+    private void checkBuffer() {
+
+        int bufferIndex = (int) (currentPosition >> largeBufferScale);
+
+        if (currentPosition != bufferPosition + buffer.position()) {
+            buffer         = buffers[bufferIndex];
+            bufferPosition = currentPosition & largeBufferMask;
+
+            buffer.position((int) (currentPosition - bufferPosition));
+        } else if (buffer != buffers[bufferIndex]) {
+            buffer = buffers[bufferIndex];
+        }
     }
 
     /**

@@ -1959,11 +1959,11 @@ public class Session implements SessionInterface {
         return DatabaseURL.S_URL_PREFIX + database.getURI();
     }
 
-    boolean isProcessingScript() {
+    public boolean isProcessingScript() {
         return isProcessingScript;
     }
 
-    boolean isProcessingLog() {
+    public boolean isProcessingLog() {
         return isProcessingLog;
     }
 

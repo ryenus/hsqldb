@@ -1469,6 +1469,10 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
      * TABLE_SCHEMA     VARCHAR   simple name of table's schema
      * TABLE_NAME       VARCHAR   simple name of the table using the index
      * INDEX_NAME       VARCHAR   simple name of the index
+     * CARDINALITY      BIGINT    total number of rows
+     * ALLOCATED_ROWS   BIGINT    allocated row count
+     * ALLOCATED_SPACE  BIGINT    allocated bytes
+     * USED_SPACE       BIGINT    used bytes
      * </pre> <p>
      *
      * @return a <code>Table</code> object describing the visible
@@ -1487,6 +1491,11 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
             addColumn(t, "TABLE_SCHEMA", SQL_IDENTIFIER);
             addColumn(t, "TABLE_NAME", SQL_IDENTIFIER);    // NOT NULL
             addColumn(t, "INDEX_NAME", SQL_IDENTIFIER);
+            addColumn(t, "CARDINALITY", CARDINAL_NUMBER);
+            addColumn(t, "ALLOCATED_ROWS", CARDINAL_NUMBER);
+            addColumn(t, "USED_SPACE", CARDINAL_NUMBER);
+            addColumn(t, "ALLOCATED_SPACE", CARDINAL_NUMBER);
+            addColumn(t, "SPACE_ID", CARDINAL_NUMBER);
 
             // order: NON_UNIQUE, TYPE, INDEX_NAME, and ORDINAL_POSITION.
             // added for unique: INDEX_QUALIFIER, TABLE_NAME

@@ -113,32 +113,32 @@ public class Logger {
     private boolean  syncFile = false;
 
     //
-    boolean propIsFileDatabase;
-    boolean propIncrementBackup;
-    boolean propNioDataFile;
-    long    propNioMaxSize    = 256 * 1024 * 1024L;
-    int     propMaxFreeBlocks = 512;
-    int     propMinReuse      = 0;
-    int     propCacheMaxRows;
-    long    propCacheMaxSize;
-    int     propCacheDefragLimit;
-    int     propDataFileScale;
-    String  propTextSourceDefault = "";
-    boolean propTextAllowFullPath;
-    int     propWriteDelay;
-    int     propLogSize;
-    boolean propLogData = true;
-    int     propEventLogLevel;
-    int     propSqlLogLevel;
-    int     propGC;
-    int     propTxMode       = TransactionManager.LOCKS;
-    boolean propRefIntegrity = true;
-    int     propLobBlockSize = 32 * 1024;
-    boolean propCompressLobs;
-    int     propScriptFormat = 0;
-    boolean propLargeData;
-    int     propFileSpaceValue;
-    int     propCheckPersistence;
+    private boolean propIsFileDatabase;
+    boolean         propIncrementBackup;
+    boolean         propNioDataFile;
+    long            propNioMaxSize    = 256 * 1024 * 1024L;
+    int             propMaxFreeBlocks = 512;
+    int             propMinReuse      = 0;
+    private int     propCacheMaxRows;
+    private long    propCacheMaxSize;
+    int             propCacheDefragLimit;
+    private int     propDataFileScale;
+    String          propTextSourceDefault = "";
+    boolean         propTextAllowFullPath;
+    private int     propWriteDelay;
+    private int     propLogSize;
+    private boolean propLogData = true;
+    private int     propEventLogLevel;
+    int             propSqlLogLevel;
+    int             propGC;
+    int             propTxMode       = TransactionManager.LOCKS;
+    boolean         propRefIntegrity = true;
+    int             propLobBlockSize = 32 * 1024;
+    boolean         propCompressLobs;
+    int             propScriptFormat = 0;
+    boolean         propLargeData;
+    int             propFileSpaceValue;
+    int             propCheckPersistence;
 
     //
     Log               log;
@@ -1156,11 +1156,12 @@ public class Logger {
         propCacheMaxRows = value;
     }
 
-    public int getCacheRowsDefault() {
+    public int getCacheMaxRows() {
         return propCacheMaxRows;
     }
 
     public void setCacheSize(int value) {
+
         propCacheMaxSize = value * 1024L;
     }
 
