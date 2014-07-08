@@ -398,9 +398,11 @@ public class DataFileCache {
         }
     }
 
-    boolean setDataSpaceManager(int fileSpaceSize) {
+    boolean setDataSpaceManager() {
 
         writeLock.lock();
+
+        int fileSpaceSize = database.logger.propFileSpaceValue;
 
         try {
             if (fileSpaceSize > 0 && spaceManagerPosition == 0) {
