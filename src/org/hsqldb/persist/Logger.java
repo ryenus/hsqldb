@@ -1161,7 +1161,6 @@ public class Logger {
     }
 
     public void setCacheSize(int value) {
-
         propCacheMaxSize = value * 1024L;
     }
 
@@ -1231,9 +1230,11 @@ public class Logger {
             value = propDataFileScale / 16;
         }
 
+        propFileSpaceValue = value;
+
         if (hasCache()) {
             DataFileCache dataCache = getCache();
-            boolean       result    = dataCache.setDataSpaceManager(value);
+            boolean       result    = dataCache.setDataSpaceManager();
 
             if (!result) {
                 return;
@@ -1241,8 +1242,6 @@ public class Logger {
 
             database.persistentStoreCollection.setNewTableSpaces();
         }
-
-        propFileSpaceValue = value;
     }
 
     public int getDataFileSpaces() {
