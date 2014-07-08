@@ -65,11 +65,11 @@ public class Cache extends BaseHashMap {
 
 //
     private CachedObject[] rowTable;
-    long                   cacheBytesLength;
+    private long           cacheBytesLength;
 
     // for testing
     StopWatch saveAllTimer = new StopWatch(false);
-    StopWatch sortTimer    = new StopWatch(false);
+    StopWatch shadowTimer  = new StopWatch(false);
     int       saveRowCount = 0;
 
     Cache(DataFileCache dfc) {
@@ -214,7 +214,8 @@ public class Cache extends BaseHashMap {
             updateObjectAccessCounts();
         }
 
-        super.addOrRemoveObject(row, row.getPos(), false);
+        Object existing = super.addOrRemoveObject(row, row.getPos(), false);
+
         row.setInMemory(true);
 
         cacheBytesLength += row.getStorageSize();
@@ -256,16 +257,6 @@ public class Cache extends BaseHashMap {
                 cacheBytesLength -= o.getStorageSize();
             }
         }
-    }
-
-    /**
-     * Replace a row in the cache.
-     */
-    void replace(long key, CachedObject row) {
-
-        int lookup = super.getLookup(key);
-
-        objectKeyTable[lookup] = row;
     }
 
     private void updateAccessCounts() {
@@ -338,7 +329,6 @@ public class Cache extends BaseHashMap {
             boolean newRow = row.isNew()
                              && row.getStorageSize()
                                 >= DataFileCache.initIOBufferSize;
-
             boolean saveRow = row.hasChanged() && (oldRow || newRow);
 
             objectIterator.setAccessCount(accessTarget);
@@ -394,20 +384,11 @@ public class Cache extends BaseHashMap {
             return;
         }
 
-        long startTime = saveAllTimer.elapsedTime();
-
         rowComparator.setType(CachedObjectComparator.COMPARE_POSITION);
-        sortTimer.zero();
-        sortTimer.start();
         ArraySort.sort(rowTable, 0, count, rowComparator);
-        sortTimer.stop();
-        saveAllTimer.start();
         dataFileCache.saveRows(rowTable, 0, count);
 
         saveRowCount += count;
-
-        saveAllTimer.stop();
-        logSaveRowsEvent(count, startTime);
     }
 
     /**
@@ -440,13 +421,14 @@ public class Cache extends BaseHashMap {
 
     void logSaveRowsEvent(int saveCount, long startTime) {
 
-        StringBuffer sb = new StringBuffer();
+        long         time = saveAllTimer.elapsedTime();
+        StringBuffer sb   = new StringBuffer();
 
         sb.append("cache save rows [count,time] totals ");
         sb.append(saveRowCount);
-        sb.append(',').append(saveAllTimer.elapsedTime()).append(' ');
+        sb.append(',').append(time).append(' ');
         sb.append("operation ").append(saveCount).append(',');
-        sb.append(saveAllTimer.elapsedTime() - startTime).append(' ');
+        sb.append(time - startTime).append(' ');
 
 //
         sb.append("txts ");

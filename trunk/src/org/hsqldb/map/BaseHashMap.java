@@ -46,7 +46,7 @@ import org.hsqldb.lib.ObjectComparator;
  * Special getOrAddXXX() methods are used for object maps in some subclasses.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.0
+ * @version 2.3.3
  * @since 1.7.2
  */
 public class BaseHashMap {
@@ -824,9 +824,9 @@ public class BaseHashMap {
         for (; lookup >= 0;
                 lastLookup = lookup,
                 lookup = hashIndex.getNextLookup(lookup)) {
-            returnValue = objectKeyTable[lookup];
+            if (comparator.longKey(objectKeyTable[lookup]) == longKey) {
+                returnValue = objectKeyTable[lookup];
 
-            if (comparator.longKey(returnValue) == longKey) {
                 break;
             }
         }

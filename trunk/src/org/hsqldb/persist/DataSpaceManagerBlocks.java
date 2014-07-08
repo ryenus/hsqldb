@@ -422,7 +422,7 @@ public class DataSpaceManagerBlocks implements DataSpaceManager {
         }
 
         ba.reset();
-        spaceIdSequence.set(maxId + 1);
+        spaceIdSequence.set((maxId + 2) & -2);
     }
 
     private int getExistingBlockIndex(int tableId, int blockCount) {
@@ -475,7 +475,7 @@ public class DataSpaceManagerBlocks implements DataSpaceManager {
         }
 
         if (spaceId >= spaceIdSequence.get()) {
-            spaceIdSequence.set(spaceId + 1);
+            spaceIdSequence.set((spaceId + 2) & -2);
         }
 
         cache.writeLock.lock();
@@ -501,7 +501,7 @@ public class DataSpaceManagerBlocks implements DataSpaceManager {
     }
 
     public int getNewTableSpaceID() {
-        return spaceIdSequence.getAndIncrement();
+        return spaceIdSequence.getAndAdd(2);
     }
 
     public void freeTableSpace(int spaceId) {

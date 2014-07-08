@@ -189,6 +189,8 @@ class DatabaseInformationMain extends DatabaseInformation {
             nonCachedTablesSet.add("SYSTEM_SESSIONS");
             nonCachedTablesSet.add("SYSTEM_PROPERTIES");
             nonCachedTablesSet.add("SYSTEM_SEQUENCES");
+            nonCachedTablesSet.add("SYSTEM_INDEXSTATS");
+            nonCachedTablesSet.add("SYSTEM_TABLESTATS");
         }
     }
 

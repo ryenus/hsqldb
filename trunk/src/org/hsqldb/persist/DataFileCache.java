@@ -31,6 +31,7 @@
 
 package org.hsqldb.persist;
 
+import java.io.IOException;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
@@ -145,6 +146,9 @@ public class DataFileCache {
         cache = new Cache(this);
     }
 
+    /**
+     * used for defrag
+     */
     public DataFileCache(Database db, String baseFileName, boolean defrag) {
 
         initParams(db, baseFileName, true);
@@ -197,8 +201,8 @@ public class DataFileCache {
         }
 
         cacheReadonly = database.isFilesReadOnly();
-        maxCacheRows  = database.logger.propCacheMaxRows;
-        maxCacheBytes = database.logger.propCacheMaxSize;
+        maxCacheRows  = database.logger.getCacheMaxRows();
+        maxCacheBytes = database.logger.getCacheSize();
         maxDataFileSize = (long) Integer.MAX_VALUE * dataFileScale
                           * database.logger.getDataFileFactor();
 
@@ -242,9 +246,7 @@ public class DataFileCache {
                 dataFile = RAFile.newScaledRAFile(database, dataFileName,
                                                   readonly, fileType);
 
-                dataFile.seek(FLAGS_POS);
-
-                int flags = dataFile.readInt();
+                int flags = getFlags();
 
                 is180 = !BitMap.isSet(flags, FLAG_190);
 
@@ -279,9 +281,7 @@ public class DataFileCache {
                 boolean wrongVersion = false;
 
                 if (length > initialFreePos) {
-                    dataFile.seek(FLAGS_POS);
-
-                    int flags = dataFile.readInt();
+                    int flags = getFlags();
 
                     isSaved       = BitMap.isSet(flags, FLAG_ISSAVED);
                     isIncremental = BitMap.isSet(flags, FLAG_ISSHADOWED);
@@ -351,9 +351,7 @@ public class DataFileCache {
                                               readonly, fileType);
 
             if (preexists) {
-                dataFile.seek(FLAGS_POS);
-
-                int flags = dataFile.readInt();
+                int flags = getFlags();
 
                 is180 = !BitMap.isSet(flags, FLAG_190);
 
@@ -519,13 +517,13 @@ public class DataFileCache {
 
             dataFile.seek(LONG_FREE_POS_POS);
             dataFile.writeLong(fileFreePosition);
-            dataFile.seek(this.INT_SPACE_PROPS_POS);
 
             int spaceProps = dataFileScale;
 
             spaceProps |= (database.logger.getDataFileSpaces() << 16);
 
-            dataFile.writeInt(0);
+            dataFile.seek(INT_SPACE_PROPS_POS);
+            dataFile.writeInt(spaceProps);
 
             // set shadowed flag;
             int flags = 0;
@@ -537,9 +535,7 @@ public class DataFileCache {
             flags = BitMap.set(flags, FLAG_ISSAVED);
             flags = BitMap.set(flags, FLAG_190);
 
-            dataFile.seek(FLAGS_POS);
-            dataFile.writeInt(flags);
-            dataFile.synch();
+            setFlags(flags);
 
             is180 = false;
         } catch (Throwable t) {
@@ -561,9 +557,7 @@ public class DataFileCache {
         writeLock.lock();
 
         try {
-            dataFile.seek(FLAGS_POS);
-
-            int flags = dataFile.readInt();
+            int flags = getFlags();
 
             if (value) {
                 flags = BitMap.set(flags, FLAG_ISSHADOWED);
@@ -571,9 +565,7 @@ public class DataFileCache {
                 flags = BitMap.unset(flags, FLAG_ISSHADOWED);
             }
 
-            dataFile.seek(FLAGS_POS);
-            dataFile.writeInt(flags);
-            dataFile.synch();
+            setFlags(flags);
 
             fileModified = true;
         } catch (Throwable t) {
@@ -781,32 +773,37 @@ public class DataFileCache {
             spaceManager.reset();
             cache.saveAll();
 
+            // set empty
             long lostSize = spaceManager.getLostBlocksSize();
 
-            // set empty
             dataFile.seek(LONG_EMPTY_SIZE);
             dataFile.writeLong(lostSize);
 
             // set end
             dataFile.seek(LONG_FREE_POS_POS);
             dataFile.writeLong(fileFreePosition);
-            dataFile.seek(INT_SPACE_LIST_POS);
 
+            // set space props
+            int spaceProps = dataFileScale;
+
+            spaceProps |= (database.logger.getDataFileSpaces() << 16);
+
+            dataFile.seek(INT_SPACE_PROPS_POS);
+            dataFile.writeInt(spaceProps);
+
+            // set space list
             int pos = (int) (spaceManagerPosition
                              / DataSpaceManager.fixedBlockSizeUnit);
 
+            dataFile.seek(INT_SPACE_LIST_POS);
             dataFile.writeInt(pos);
 
             // set saved flag;
-            dataFile.seek(FLAGS_POS);
-
-            int flags = dataFile.readInt();
+            int flags = getFlags();
 
             flags = BitMap.set(flags, FLAG_ISSAVED);
 
-            dataFile.seek(FLAGS_POS);
-            dataFile.writeInt(flags);
-            dataFile.synch();
+            setFlags(flags);
             logDetailEvent("file sync end");
 
             fileModified          = false;
@@ -944,36 +941,6 @@ public class DataFileCache {
         }
     }
 
-    public int getStorageSize(long i) {
-
-        readLock.lock();
-
-        try {
-            CachedObject value = cache.get(i);
-
-            if (value != null) {
-                return value.getStorageSize();
-            }
-        } finally {
-            readLock.unlock();
-        }
-
-        return readSize(i);
-    }
-
-    public void replace(CachedObject object) {
-
-        writeLock.lock();
-
-        try {
-            long pos = object.getPos();
-
-            cache.replace(pos, object);
-        } finally {
-            writeLock.unlock();
-        }
-    }
-
     public CachedObject get(CachedObject object, PersistentStore store,
                             boolean keep) {
 
@@ -1096,10 +1063,11 @@ public class DataFileCache {
                     if (t instanceof OutOfMemoryError) {
                         cache.clearUnchanged();
                         System.gc();
-                        logSevereEvent(dataFileName
-                                       + " getFromFile out of mem " + pos, t);
 
                         if (j > 0) {
+                            logInfoEvent(dataFileName
+                                         + " getFromFile out of mem " + pos);
+
                             HsqlException ex =
                                 Error.error(ErrorCode.OUT_OF_MEMORY, t);
 
@@ -1166,10 +1134,12 @@ public class DataFileCache {
                 } catch (OutOfMemoryError err) {
                     cache.clearUnchanged();
                     System.gc();
-                    logSevereEvent(dataFileName + " getFromFile out of mem "
-                                   + pos, err);
 
                     if (j > 0) {
+                        logSevereEvent(dataFileName
+                                       + " getFromFile out of mem "
+                                       + pos, err);
+
                         throw err;
                     }
                 }
@@ -1193,31 +1163,14 @@ public class DataFileCache {
         }
     }
 
-    RowInputInterface getRaw(int i) {
+    RowInputInterface getRaw(long pos) {
 
         writeLock.lock();
 
         try {
-            readObject(i);
+            readObject(pos);
 
             return rowIn;
-        } finally {
-            writeLock.unlock();
-        }
-    }
-
-    private int readSize(long pos) {
-
-        writeLock.lock();
-
-        try {
-            dataFile.seek(pos * dataFileScale);
-
-            return dataFile.readInt();
-        } catch (Throwable t) {
-            logSevereEvent("DataFileCache.readSize", t, pos);
-
-            throw Error.error(ErrorCode.DATA_FILE_ERROR, t);
         } finally {
             writeLock.unlock();
         }
@@ -1314,6 +1267,10 @@ public class DataFileCache {
         }
 
         copyShadow(rows, offset, count);
+
+        long startTime = cache.saveAllTimer.elapsedTime();
+
+        cache.saveAllTimer.start();
         setFileModified();
 
         for (int i = offset; i < offset + count; i++) {
@@ -1323,6 +1280,9 @@ public class DataFileCache {
 
             rows[i] = null;
         }
+
+        cache.saveAllTimer.stop();
+        cache.logSaveRowsEvent(count, startTime);
     }
 
     /**
@@ -1373,8 +1333,10 @@ public class DataFileCache {
     protected void copyShadow(CachedObject[] rows, int offset, int count) {
 
         if (shadowFile != null) {
-            long time    = cache.saveAllTimer.elapsedTime();
+            long time    = cache.shadowTimer.elapsedTime();
             long seekpos = 0;
+
+            cache.shadowTimer.start();
 
             try {
                 for (int i = offset; i < offset + count; i++) {
@@ -1392,7 +1354,9 @@ public class DataFileCache {
                 throw Error.error(ErrorCode.DATA_FILE_ERROR, t);
             }
 
-            time = cache.saveAllTimer.elapsedTime() - time;
+            cache.shadowTimer.stop();
+
+            time = cache.shadowTimer.elapsedTime() - time;
 
             logDetailEvent("copyShadow [size, time] "
                            + shadowFile.getSavedLength() + " " + time);
@@ -1637,17 +1601,11 @@ public class DataFileCache {
             if (!fileModified) {
 
                 // unset saved flag;
-                long start = cache.saveAllTimer.elapsedTime();
-
-                dataFile.seek(FLAGS_POS);
-
-                int flags = dataFile.readInt();
+                int flags = getFlags();
 
                 flags = BitMap.unset(flags, FLAG_ISSAVED);
 
-                dataFile.seek(FLAGS_POS);
-                dataFile.writeInt(flags);
-                dataFile.synch();
+                setFlags(flags);
                 logDetailEvent("setFileModified flag set ");
 
                 fileModified = true;
@@ -1659,19 +1617,20 @@ public class DataFileCache {
         }
     }
 
-    public int getFlags() {
+    public int getFlags() throws IOException {
 
-        try {
-            dataFile.seek(FLAGS_POS);
+        dataFile.seek(FLAGS_POS);
 
-            int flags = dataFile.readInt();
+        int flags = dataFile.readInt();
 
-            return flags;
-        } catch (Throwable t) {
-            logSevereEvent("DataFileCache.setFlags", t);
-        }
+        return flags;
+    }
 
-        return 0;
+    private void setFlags(int flags) throws IOException {
+
+        dataFile.seek(FLAGS_POS);
+        dataFile.writeInt(flags);
+        dataFile.synch();
     }
 
     public boolean isDataReadOnly() {

@@ -102,8 +102,8 @@ public class Log {
 
     void initParams() {
 
-        maxLogSize     = database.logger.propLogSize * 1024L * 1024;
-        writeDelay     = database.logger.propWriteDelay;
+        maxLogSize     = database.logger.getLogSize() * 1024L * 1024;
+        writeDelay     = database.logger.getWriteDelay();
         filesReadOnly  = database.isFilesReadOnly();
         scriptFileName = fileName + Logger.scriptFileExtension;
     }
@@ -388,12 +388,6 @@ public class Log {
             defrag = true;
         }
 
-        // test code
-        /*
-        if (database.logger.isStoredFileAccess) {
-            defrag = false;
-        }
-        */
         if (defrag) {
             defrag();
         } else {
