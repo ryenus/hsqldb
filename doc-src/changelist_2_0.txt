@@ -6,7 +6,9 @@
 -- fixed issue with getExportedKeys reporting wrong DEFERABILITY
 -- fixed issue with CURRENT VALUE FOR usage
 -- fixed issue with LIKE with parametric escape character
+-- fixed several minor bugs
 -- added support for ALTER CONSTRAINT <name> RENAME TO <new name>
+-- improved reuse of disk space with CACHED tables
 
 12 February 2014 - version 2.3.2
 -- fixed several minor issues
