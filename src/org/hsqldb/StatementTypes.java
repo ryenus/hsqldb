@@ -291,8 +291,9 @@ public interface StatementTypes {
     int X_HSQLDB_SCHEMA_MANIPULATION = 2012;
     int X_HSQLDB_SETTING             = 2013;
     int X_HSQLDB_DATABASE_OPERATION  = 2014;
-    int X_HSQLDB_TRANSACTION         = 2015;
-    int X_DYNAMIC                    = 2016;
+    int X_HSQLDB_NONBLOCK_OPERATION  = 2015;
+    int X_HSQLDB_TRANSACTION         = 2016;
+    int X_DYNAMIC                    = 2017;
 
     // Expected types of Result returned for an SQL statement
     int RETURN_ANY    = 0;

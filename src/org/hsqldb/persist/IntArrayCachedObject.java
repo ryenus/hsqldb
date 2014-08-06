@@ -83,6 +83,13 @@ public class IntArrayCachedObject extends CachedObjectBase {
 
     public void write(RowOutputInterface out) {
 
+        write(out, null);
+
+        hasChanged = false;
+    }
+
+    public void write(RowOutputInterface out, LongLookup lookup) {
+
         int capacity = values.length;
 
         out.setStorageSize(storageSize);
@@ -94,10 +101,6 @@ public class IntArrayCachedObject extends CachedObjectBase {
         out.writeEnd();
 
         hasChanged = false;
-    }
-
-    public void write(RowOutputInterface out, LongLookup lookup) {
-        write(out);
     }
 
     public int[] getIntArray() {

@@ -1261,7 +1261,7 @@ public class BaseHashMap {
      */
     public int getAccessCountCeiling(int count, int margin) {
         return ArrayCounter.rank(accessTable, hashIndex.newNodePointer, count,
-                                 accessMin + 1, accessCount, margin);
+                                 accessMin, accessCount, margin);
     }
 
     /**
@@ -1308,17 +1308,18 @@ public class BaseHashMap {
             return;
         }
 
-        if (accessMin < Integer.MAX_VALUE - (1 << 24)) {
-            accessMin = Integer.MAX_VALUE - (1 << 24);
+        int    i      = accessTable.length;
+        double factor = (double) accessMin / accessCount;
+
+        if (factor < 0.5) {
+            factor = 0.5;
         }
 
-        int i = accessTable.length;
-
         while (--i >= 0) {
-            if (accessTable[i] <= accessMin) {
+            if (accessTable[i] < accessMin) {
                 accessTable[i] = 0;
             } else {
-                accessTable[i] -= accessMin;
+                accessTable[i] = (int) ((accessTable[i] - accessMin) * factor);
             }
         }
 

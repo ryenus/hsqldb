@@ -1234,8 +1234,8 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
             addColumn(t, "VARCHAR_SEPARATOR", CHARACTER_DATA);
             addColumn(t, "LONGVARCHAR_SEPARATOR", CHARACTER_DATA);
             addColumn(t, "IS_IGNORE_FIRST", Type.SQL_BOOLEAN);
-            addColumn(t, "IS_ALL_QUOTED", Type.SQL_BOOLEAN);
             addColumn(t, "IS_QUOTED", Type.SQL_BOOLEAN);
+            addColumn(t, "IS_ALL_QUOTED", Type.SQL_BOOLEAN);
             addColumn(t, "IS_DESC", Type.SQL_BOOLEAN);
 
             // ------------------------------------------------------------

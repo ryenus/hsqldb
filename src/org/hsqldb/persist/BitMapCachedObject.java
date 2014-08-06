@@ -85,6 +85,13 @@ public class BitMapCachedObject extends CachedObjectBase {
 
     public void write(RowOutputInterface out) {
 
+        write(out, null);
+
+        hasChanged = false;
+    }
+
+    public void write(RowOutputInterface out, LongLookup lookup) {
+
         int[] array    = bitMap.getIntArray();
         int   capacity = array.length;
 
@@ -95,12 +102,6 @@ public class BitMapCachedObject extends CachedObjectBase {
         }
 
         out.writeEnd();
-
-        hasChanged = false;
-    }
-
-    public void write(RowOutputInterface out, LongLookup lookup) {
-        write(out);
     }
 
     public BitMap getBitMap() {

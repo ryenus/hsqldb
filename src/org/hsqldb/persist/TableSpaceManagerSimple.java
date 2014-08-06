@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2011, The HSQL Development Group
+/* Copyright (c) 2001-2014, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -59,7 +59,7 @@ public class TableSpaceManagerSimple implements TableSpaceManager {
     /**
      * Returns the position of a free block or 0.
      */
-    public long getFilePosition(long rowSize, boolean asBlocks) {
+    public long getFilePosition(int rowSize, boolean asBlocks) {
 
         cache.writeLock.lock();
 

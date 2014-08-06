@@ -102,6 +102,13 @@ public class DirectoryBlockCachedObject extends CachedObjectBase {
 
     public void write(RowOutputInterface out) {
 
+        write(out, null);
+
+        hasChanged = false;
+    }
+
+    public void write(RowOutputInterface out, LongLookup lookup) {
+
         int capacity = tableIds.length;
 
         out.setStorageSize(storageSize);
@@ -123,12 +130,6 @@ public class DirectoryBlockCachedObject extends CachedObjectBase {
         }
 
         out.writeEnd();
-
-        hasChanged = false;
-    }
-
-    public void write(RowOutputInterface out, LongLookup lookup) {
-        write(out);
     }
 
     public int[] getTableIdArray() {

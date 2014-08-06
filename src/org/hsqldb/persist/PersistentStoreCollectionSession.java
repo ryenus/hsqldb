@@ -263,17 +263,6 @@ implements PersistentStoreCollection {
         rowStoreMapRoutine.clear();
     }
 
-    synchronized public void registerIndex(Session session, TableBase table) {
-
-        PersistentStore store = findStore(table);
-
-        if (store == null) {
-            return;
-        }
-
-        store.resetAccessorKeys(session, table.getIndexList());
-    }
-
     synchronized public PersistentStore findStore(TableBase table) {
 
         PersistentStore store = null;
@@ -306,19 +295,30 @@ implements PersistentStoreCollection {
         return store;
     }
 
+    synchronized public void resetAccessorKeys(Session session, Table table) {
+
+        PersistentStore store = findStore(table);
+
+        if (store == null) {
+            return;
+        }
+
+        store.resetAccessorKeys(session, table.getIndexList());
+    }
+
     synchronized public void moveData(Table oldTable, Table newTable,
                                       int colIndex, int adjust) {
 
-        PersistentStore oldStore = findStore(oldTable);
+        PersistentStore store = findStore(oldTable);
 
-        if (oldStore == null) {
+        if (store == null) {
             return;
         }
 
         PersistentStore newStore = getStore(newTable);
 
         try {
-            newStore.moveData(session, oldStore, colIndex, adjust);
+            newStore.moveData(session, store, colIndex, adjust);
         } catch (HsqlException e) {
             newStore.release();
             removeStore(newTable);

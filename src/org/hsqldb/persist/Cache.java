@@ -61,9 +61,8 @@ public class Cache extends BaseHashMap {
     private final CachedObjectComparator       rowComparator;
     private final BaseHashMap.BaseHashIterator objectIterator;
     private boolean                            updateAccess;
-    private long                               maxPositionOnCleanup;
 
-//
+    //
     private CachedObject[] rowTable;
     private long           cacheBytesLength;
 
@@ -92,12 +91,6 @@ public class Cache extends BaseHashMap {
                                                               : 8;
     }
 
-    /**
-     *  Structural initialisations take place here. This allows the Cache to
-     *  be resized while the database is in operation.
-     */
-    void resize(int capacity, long bytesCapacity) {}
-
     long getTotalCachedBlockSize() {
         return cacheBytesLength;
     }
@@ -107,7 +100,7 @@ public class Cache extends BaseHashMap {
      */
     public CachedObject get(long pos) {
 
-        if (accessCount > ACCESS_MAX && updateAccess) {
+        if (accessCount > ACCESS_MAX) {
             updateAccessCounts();
             resetAccessCount();
             updateObjectAccessCounts();
@@ -164,20 +157,32 @@ public class Cache extends BaseHashMap {
 
     boolean preparePut(int storageSize) {
 
-        if (size() + reserveCount >= capacity
-                || storageSize + cacheBytesLength > bytesCapacity) {
+        boolean exceedsCount = size() + reserveCount >= capacity;
+        boolean exceedsSize  = storageSize + cacheBytesLength > bytesCapacity;
+
+        if (exceedsCount || exceedsSize) {
             cleanUp(false);
 
-            if (size() + reserveCount >= capacity
-                    || storageSize + cacheBytesLength > bytesCapacity) {
+            exceedsCount = size() + reserveCount >= capacity;
+            exceedsSize  = storageSize + cacheBytesLength > bytesCapacity;
+
+            if (exceedsCount || exceedsSize) {
                 clearUnchanged();
             } else {
                 return true;
             }
 
-            boolean exceedsCount = size() + reserveCount >= capacity;
-            boolean exceedsSize = storageSize + cacheBytesLength
-                                  > bytesCapacity;
+            exceedsCount = size() + reserveCount >= capacity;
+            exceedsSize  = storageSize + cacheBytesLength > bytesCapacity;
+
+            if (exceedsCount || exceedsSize) {
+                cleanUp(true);
+            } else {
+                return true;
+            }
+
+            exceedsCount = size() + reserveCount >= capacity;
+            exceedsSize  = storageSize + cacheBytesLength > bytesCapacity;
 
             if (exceedsCount) {
                 dataFileCache.logInfoEvent(
@@ -190,20 +195,11 @@ public class Cache extends BaseHashMap {
             }
 
             if (exceedsCount || exceedsSize) {
-                cleanUp(true);
-            } else {
-                return true;
-            }
-
-            if (size() + reserveCount >= capacity
-                    || storageSize + cacheBytesLength > bytesCapacity) {
                 return false;
-            } else {
-                return true;
             }
-        } else {
-            return true;
         }
+
+        return true;
     }
 
     private void putNoCheck(CachedObject row) {
@@ -354,10 +350,9 @@ public class Cache extends BaseHashMap {
         }
 
         saveRows(savecount);
-        super.setAccessCountFloor(accessTarget);
+        setAccessCountFloor(accessTarget);
 
-        this.maxPositionOnCleanup = dataFileCache.fileFreePosition
-                                    / dataFileCache.dataFileScale;
+        accessCount++;
     }
 
     void clearUnchanged() {

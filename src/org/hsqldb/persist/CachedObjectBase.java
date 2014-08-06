@@ -88,6 +88,10 @@ public abstract class CachedObjectBase implements CachedObject {
         return hasChanged;
     }
 
+    final public void setChanged() {
+        hasChanged = true;
+    }
+
     public boolean isKeepInMemory() {
         return keepCount > 0;
     }

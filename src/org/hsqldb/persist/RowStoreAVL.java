@@ -333,7 +333,7 @@ public abstract class RowStoreAVL implements PersistentStore {
         } else if (diff == -1) {
             limit = keys.length;
         } else if (diff == 0) {
-            throw Error.runtimeError(ErrorCode.U_S0500, "RowStoreAVL");
+            return;
         } else if (diff == 1) {
 
             //

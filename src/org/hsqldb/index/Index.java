@@ -186,7 +186,7 @@ public interface Index extends SchemaObject {
 
     /**
      * Return the first node equal to the rowdata object.
-     * The rowdata has the column mapping privided in rowColMap.
+     * The rowdata has the column mapping provided in rowColMap.
      *
      * @param session session object
      * @param store store object

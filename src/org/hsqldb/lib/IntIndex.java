@@ -384,7 +384,7 @@ public class IntIndex {
         int found   = count;
 
         while (low < high) {
-            mid     = (low + high) / 2;
+            mid     = (low + high) >>> 1;
             compare = compare(mid);
 
             if (compare < 0) {
@@ -414,7 +414,7 @@ public class IntIndex {
         int compare = 0;
 
         while (low < high) {
-            mid     = (low + high) / 2;
+            mid     = (low + high) >>> 1;
             compare = compare(mid);
 
             if (compare <= 0) {
@@ -440,7 +440,7 @@ public class IntIndex {
         int compare = 0;
 
         while (low < high) {
-            mid     = (low + high) / 2;
+            mid     = (low + high) >>> 1;
             compare = compare(mid);
 
             if (compare < 0) {
@@ -476,7 +476,7 @@ public class IntIndex {
             indices.pop();
 
             if (end - start >= threshold) {
-                int pivot = partition(start, end, start + ((end - start) / 2));
+                int pivot = partition(start, end, start + ((end - start) >>> 1));
 
                 indices.push(start, pivot - 1);
                 indices.push(pivot + 1, end);
@@ -526,7 +526,7 @@ public class IntIndex {
         int v;
 
         if ((r - l) > M) {
-            i = (r + l) / 2;
+            i = (r + l) >>> 1;
 
             if (lessThan(i, l)) {
                 swap(l, i);    // Tri-Median Methode!

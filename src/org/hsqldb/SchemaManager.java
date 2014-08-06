@@ -968,12 +968,13 @@ public class SchemaManager {
             table.getUniquePKConstraintNames();
         TableWorks tw = new TableWorks(session, table);
 
-        tableSet = tw.makeNewTables(tableSet, constraintNameSet, indexNameSet);
+        tableSet = tw.dropConstraintsAndIndexes(tableSet, constraintNameSet,
+                indexNameSet);
 
         tw.setNewTablesInSchema(tableSet);
         tw.updateConstraints(tableSet, constraintNameSet);
         removeSchemaObjects(externalReferences);
-        removeTableDependentReferences(table);    //
+        removeTableDependentReferences(table);
         removeReferencesTo(uniqueConstraintNames);
         removeReferencesTo(table.getName());
         removeReferencesFrom(table);

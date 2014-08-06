@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2011, The HSQL Development Group
+/* Copyright (c) 2001-2014, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -55,26 +55,26 @@ public class ArrayCounter {
      * smaller sub-range than the rest.
      *
      */
-    public static int[] countSegments(int[] array, int elements,
-                                      int segments, int start, int limit) {
+    public static int[] countSegments(int[] array, int elementCount,
+                                      int segments, int interval, int start,
+                                      int limit) {
 
-        int[] counts   = new int[segments];
-        long  interval = calcInterval(segments, start, limit);
-        int   index    = 0;
-        int   element  = 0;
+        int[] counts = new int[segments];
+        int   index;
+        int   element;
 
         if (interval <= 0) {
             return counts;
         }
 
-        for (int i = 0; i < elements; i++) {
+        for (int i = 0; i < elementCount; i++) {
             element = array[i];
 
             if (element < start || element >= limit) {
                 continue;
             }
 
-            index = (int) ((element - start) / interval);
+            index = (element - start) / interval;
 
             counts[index]++;
         }
@@ -105,9 +105,9 @@ public class ArrayCounter {
         int       currentLimit = limit;
 
         for (;;) {
-            long interval = calcInterval(segments, start, currentLimit);
-            int[] counts = countSegments(array, elements, segments, start,
-                                         currentLimit);
+            int interval = calcInterval(segments, start, currentLimit);
+            int[] counts = countSegments(array, elements, segments, interval,
+                                         start, currentLimit);
 
             for (int i = 0; i < counts.length; i++) {
                 if (elementCount + counts[i] < target) {
@@ -136,11 +136,11 @@ public class ArrayCounter {
      * the cieling of ((limit - start) / segments) and accounts for invalid
      * start and limit combinations.
      */
-    static long calcInterval(int segments, int start, int limit) {
+    static int calcInterval(int segments, int start, int limit) {
 
-        long range = limit - start;
+        int range = limit - start;
 
-        if (range < 0) {
+        if (range <= 0) {
             return 0;
         }
 
