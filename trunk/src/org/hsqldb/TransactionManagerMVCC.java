@@ -305,6 +305,14 @@ implements TransactionManager {
 
                 int type = action.mergeRollback(session, timestamp, row);
 
+                if (action.type == RowActionBase.ACTION_DELETE_FINAL) {
+                    if (action.deleteComplete) {
+                        continue;
+                    }
+
+                    action.deleteComplete = true;
+                }
+
                 action.store.rollbackRow(session, row, type, txModel);
             } finally {
                 writeLock.unlock();
@@ -761,7 +769,8 @@ implements TransactionManager {
         writeLock.lock();
 
         try {
-            session.actionTimestamp = getNextGlobalChangeTimestamp();
+            session.actionTimestamp      = getNextGlobalChangeTimestamp();
+            session.actionStartTimestamp = session.actionTimestamp;
 
             if (!session.isTransaction) {
                 session.transactionTimestamp = session.actionTimestamp;

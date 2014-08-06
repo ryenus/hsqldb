@@ -206,8 +206,6 @@ public class Table extends TableBase implements SchemaObject {
 
         // type may have changed above for CACHED tables
         tableType         = type;
-        primaryKeyCols    = null;
-        primaryKeyTypes   = null;
         identityColumn    = -1;
         columnList        = new HashMappedList();
         indexList         = Index.emptyArray;
@@ -939,8 +937,8 @@ public class Table extends TableBase implements SchemaObject {
      *  Returns the primary constraint.
      */
     public Constraint getPrimaryConstraint() {
-        return primaryKeyCols.length == 0 ? null
-                                          : constraintList[0];
+        return hasPrimaryKey() ? constraintList[0]
+                               : null;
     }
 
     /** columnMap is null for deletes */
@@ -1122,10 +1120,6 @@ public class Table extends TableBase implements SchemaObject {
 
     public void addColumnNoCheck(ColumnSchema column) {
 
-        if (primaryKeyCols != null) {
-            throw Error.runtimeError(ErrorCode.U_S0500, "Table");
-        }
-
         columnList.add(column.getName().name, column);
 
         columnCount++;
@@ -1179,6 +1173,8 @@ public class Table extends TableBase implements SchemaObject {
     /**
      * For removal or addition of columns, constraints and indexes
      *
+     * HsqlName objects are used from the old tables but no object is reused.
+     *
      * Does not work in this form for FK's as Constraint.ConstraintCore
      * is not transfered to a referencing or referenced table
      */
@@ -1210,6 +1206,8 @@ public class Table extends TableBase implements SchemaObject {
             tn.persistenceScope = persistenceScope;
         }
 
+        tn.tableSpace = tableSpace;
+
         for (int i = 0; i < columnCount; i++) {
             ColumnSchema col = (ColumnSchema) columnList.get(i);
 
@@ -1223,6 +1221,9 @@ public class Table extends TableBase implements SchemaObject {
                 }
             }
 
+            col = col.duplicate();
+
+            col.setPrimaryKey(false);
             tn.addColumn(col);
         }
 
@@ -1235,7 +1236,7 @@ public class Table extends TableBase implements SchemaObject {
         if (hasPrimaryKey()
                 && !dropConstraints.contains(
                     getPrimaryConstraint().getName())) {
-            pkCols = primaryKeyCols;
+            pkCols = getPrimaryKey();
             pkCols = ArrayUtil.toAdjustedColumnArray(pkCols, colIndex, adjust);
         } else if (newPK) {
             pkCols = constraint.getMainColumns();
@@ -1259,11 +1260,11 @@ public class Table extends TableBase implements SchemaObject {
                                                    idx.isForward());
 
             newIdx.setClustered(idx.isClustered());
-            tn.addIndex(session, newIdx);
+            tn.addIndexStructure(newIdx);
         }
 
         if (index != null) {
-            tn.addIndex(session, index);
+            tn.addIndexStructure(index);
         }
 
         HsqlArrayList newList = new HsqlArrayList();
@@ -1639,10 +1640,6 @@ public class Table extends TableBase implements SchemaObject {
     public void createPrimaryKey(HsqlName indexName, int[] columns,
                                  boolean columnsNotNull) {
 
-        if (primaryKeyCols != null) {
-            throw Error.runtimeError(ErrorCode.U_S0500, "Table");
-        }
-
         if (columns == null) {
             columns = ValuePool.emptyIntArray;
         }
@@ -1651,17 +1648,11 @@ public class Table extends TableBase implements SchemaObject {
             getColumn(columns[i]).setPrimaryKey(true);
         }
 
-        primaryKeyCols = columns;
-
         setColumnStructures();
 
-        primaryKeyTypes = new Type[primaryKeyCols.length];
+        Type[] primaryKeyTypes = new Type[columns.length];
 
-        ArrayUtil.projectRow(colTypes, primaryKeyCols, primaryKeyTypes);
-
-        primaryKeyColsSequence = new int[primaryKeyCols.length];
-
-        ArrayUtil.fillSequence(primaryKeyColsSequence);
+        ArrayUtil.projectRow(colTypes, columns, primaryKeyTypes);
 
         HsqlName name = indexName;
 
@@ -1670,7 +1661,7 @@ public class Table extends TableBase implements SchemaObject {
                     getName(), SchemaObject.INDEX);
         }
 
-        createPrimaryIndex(primaryKeyCols, primaryKeyTypes, name);
+        createPrimaryIndex(columns, primaryKeyTypes, name);
         setBestRowIdentifiers();
     }
 
@@ -2319,7 +2310,7 @@ public class Table extends TableBase implements SchemaObject {
                 Constraint c = getNotNullConstraintForColumn(i);
 
                 if (c == null) {
-                    if (ArrayUtil.find(primaryKeyCols, i) > -1) {
+                    if (ArrayUtil.find(getPrimaryKey(), i) > -1) {
                         c = getPrimaryConstraint();
                     }
                 }
@@ -2873,8 +2864,10 @@ public class Table extends TableBase implements SchemaObject {
         PersistentStore store = getRowStore(session);
 
         if (hasPrimaryKey()) {
-            RowIterator it = getPrimaryIndex().findFirstRow(session, store,
-                data, primaryKeyColsSequence);
+            Index index        = getPrimaryIndex();
+            int[] colsSequence = index.getDefaultColumnMap();
+            RowIterator it = index.findFirstRow(session, store, data,
+                                                colsSequence);
 
             row = it.getNextRow();
 

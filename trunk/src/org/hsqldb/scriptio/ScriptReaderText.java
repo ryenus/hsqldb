@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2011, The HSQL Development Group
+/* Copyright (c) 2001-2014, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -149,8 +149,10 @@ public class ScriptReaderText extends ScriptReaderBase {
                     Error.error(result.getException(),
                                 ErrorCode.ERROR_IN_SCRIPT_FILE,
                                 ErrorCode.M_DatabaseScriptReader_read,
-                                new Object[] {database.getCanonicalPath(),
-                    new Integer(lineCount), result.getMainString()
+                                new Object[] {
+                    Integer.toString(lineCount) + " "
+                    + database.getCanonicalPath(),
+                    result.getMainString()
                 });
 
                 handleException(e);

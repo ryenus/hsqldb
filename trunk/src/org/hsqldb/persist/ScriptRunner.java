@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2011, The HSQL Development Group
+/* Copyright (c) 2001-2014, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -133,7 +133,7 @@ public class ScriptRunner {
         Statement dummy = new StatementDML(StatementTypes.UPDATE_CURSOR,
                                            StatementTypes.X_SQL_DATA_CHANGE,
                                            null);
-        String databaseFile = database.getPath();
+        String databaseFile = database.getCanonicalPath();
         boolean fullReplay = database.getURLProperties().isPropertyTrue(
             HsqlDatabaseProperties.hsqldb_full_log_replay);
 
@@ -272,7 +272,7 @@ public class ScriptRunner {
 
             // stop processing on bad log line
             String error = "statement error processing log " + databaseFile
-                           + "line: " + scr.getLineNumber();
+                           + " line: " + scr.getLineNumber();
 
             database.logger.logSevereEvent(error, e);
 
@@ -287,16 +287,23 @@ public class ScriptRunner {
             database.logger.logSevereEvent(error, e);
 
             throw Error.error(ErrorCode.OUT_OF_MEMORY);
-        } catch (Throwable e) {
+        } catch (Throwable t) {
+            HsqlException e =
+                Error.error(t, ErrorCode.ERROR_IN_SCRIPT_FILE,
+                            ErrorCode.M_DatabaseScriptReader_read,
+                            new Object[] {
+                Integer.toString(scr.getLineNumber()) + " " + databaseFile,
+                t.getMessage()
+            });
 
             // stop processing on bad script line
             String error = "statement error processing log " + databaseFile
-                           + "line: " + scr.getLineNumber();
+                           + " line: " + scr.getLineNumber();
 
             database.logger.logSevereEvent(error, e);
 
             if (fullReplay) {
-                throw Error.error(e, ErrorCode.ERROR_IN_SCRIPT_FILE, error);
+                throw e;
             }
         } finally {
             if (scr != null) {

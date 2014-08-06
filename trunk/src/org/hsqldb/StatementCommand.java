@@ -112,7 +112,12 @@ public class StatementCommand extends Statement {
                 break;
             }
             case StatementTypes.DATABASE_BACKUP :
-                group    = StatementTypes.X_HSQLDB_DATABASE_OPERATION;
+                group = StatementTypes.X_HSQLDB_DATABASE_OPERATION;
+
+                if (writeNames.length == 0) {
+                    group = StatementTypes.X_HSQLDB_NONBLOCK_OPERATION;
+                }
+
                 isLogged = false;
                 break;
 
@@ -952,17 +957,12 @@ public class StatementCommand extends Statement {
                     Table table =
                         session.database.schemaManager.getTable(session,
                             name.name, name.schema.name);
-                    DataFileCache cache = session.database.logger.getCache();
 
                     if (!session.isProcessingScript()) {
                         return Result.updateZeroResult;
                     }
 
                     if (table.getTableType() != TableBase.CACHED_TABLE) {
-                        return Result.updateZeroResult;
-                    }
-
-                    if (cache == null) {
                         return Result.updateZeroResult;
                     }
 
@@ -973,12 +973,21 @@ public class StatementCommand extends Statement {
 
                     table.setSpaceID(spaceid);
 
+                    if (table.store == null) {
+                        return Result.updateZeroResult;
+                    }
+
+                    DataFileCache cache = session.database.logger.getCache();
+
+                    if (cache == null) {
+                        return Result.updateZeroResult;
+                    }
+
                     DataSpaceManager dataSpace = cache.spaceManager;
                     TableSpaceManager tableSpace =
-                        dataSpace.getTableSpace(spaceid);
-                    PersistentStore store = table.getRowStore(session);
+                        dataSpace.getTableSpace(table.getSpaceID());
 
-                    store.setSpaceManager(tableSpace);
+                    table.store.setSpaceManager(tableSpace);
 
                     return Result.updateZeroResult;
                 } catch (HsqlException e) {

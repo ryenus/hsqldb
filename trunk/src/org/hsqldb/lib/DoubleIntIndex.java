@@ -193,9 +193,6 @@ public class DoubleIntIndex implements IntLookup, LongLookup {
             if (sortOnValues) {
                 if (value < values[count - 1]) {
                     sorted = false;
-                } else if (value == values[count - 1]
-                           && key < keys[count - 1]) {
-                    sorted = false;
                 }
             } else {
                 if (key < keys[count - 1]) {
@@ -209,6 +206,31 @@ public class DoubleIntIndex implements IntLookup, LongLookup {
         values[count] = value;
 
         count++;
+
+        return true;
+    }
+
+    public synchronized boolean addUnsorted(DoubleIntIndex other) {
+
+        if (count + other.count > capacity) {
+            if (fixedSize) {
+                return false;
+            } else {
+                while (count + other.count > capacity) {
+                    doubleCapacity();
+                }
+            }
+        }
+
+        sorted     = false;
+        hasChanged = true;
+
+        for (int i = 0; i < other.count; i++) {
+            keys[count]   = other.keys[i];
+            values[count] = other.values[i];
+
+            count++;
+        }
 
         return true;
     }
@@ -440,7 +462,7 @@ public class DoubleIntIndex implements IntLookup, LongLookup {
 
     public synchronized void setValuesSearchTarget() {
 
-        if (!sortOnValues) {
+        if (!sortOnValues && count > 1) {
             sorted = false;
         }
 
@@ -449,7 +471,7 @@ public class DoubleIntIndex implements IntLookup, LongLookup {
 
     public synchronized void setKeysSearchTarget() {
 
-        if (sortOnValues) {
+        if (sortOnValues && count > 1) {
             sorted = false;
         }
 
@@ -557,7 +579,7 @@ public class DoubleIntIndex implements IntLookup, LongLookup {
         int found   = count;
 
         while (low < high) {
-            mid     = (low + high) / 2;
+            mid     = (low + high) >>> 1;
             compare = compare(mid);
 
             if (compare < 0) {
@@ -587,7 +609,7 @@ public class DoubleIntIndex implements IntLookup, LongLookup {
         int compare = 0;
 
         while (low < high) {
-            mid     = (low + high) / 2;
+            mid     = (low + high) >>> 1;
             compare = compare(mid);
 
             if (compare <= 0) {
@@ -613,7 +635,7 @@ public class DoubleIntIndex implements IntLookup, LongLookup {
         int compare = 0;
 
         while (low < high) {
-            mid     = (low + high) / 2;
+            mid     = (low + high) >>> 1;
             compare = compare(mid);
 
             if (compare < 0) {
@@ -649,7 +671,8 @@ public class DoubleIntIndex implements IntLookup, LongLookup {
             indices.pop();
 
             if (end - start >= threshold) {
-                int pivot = partition(start, end, start + ((end - start) / 2));
+                int pivot = partition(start, end,
+                                      start + ((end - start) >>> 1));
 
                 indices.push(start, pivot - 1);
                 indices.push(pivot + 1, end);
@@ -791,6 +814,8 @@ public class DoubleIntIndex implements IntLookup, LongLookup {
                 return 1;
             } else if (targetSearchValue < values[i]) {
                 return -1;
+            } else {
+                return 0;
             }
         }
 
@@ -855,7 +880,8 @@ public class DoubleIntIndex implements IntLookup, LongLookup {
         ArrayUtil.clearArray(ArrayUtil.CLASS_CODE_INT, keys, 0, count);
         ArrayUtil.clearArray(ArrayUtil.CLASS_CODE_INT, values, 0, count);
 
-        count = 0;
+        count  = 0;
+        sorted = true;
     }
 
     public void copyTo(DoubleIntIndex other) {

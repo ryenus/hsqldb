@@ -318,9 +318,13 @@ public class RowAction extends RowActionBase {
         next            = null;
     }
 
-    public void setRowData(Row row, long rowId) {
-        this.memoryRow = row;
-        this.rowId     = rowId;
+    public void setRowId(long rowId) {
+
+        if (memoryRow != null) {
+            memoryRow.setPos(rowId);
+        }
+
+        this.rowId = rowId;
     }
 
     /** for two-phased pre-commit */

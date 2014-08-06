@@ -1,7 +1,7 @@
 /*
  * For work developed by the HSQL Development Group:
  *
- * Copyright (c) 2001-2011, The HSQL Development Group
+ * Copyright (c) 2001-2014, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -228,6 +228,11 @@ public class RowAVLDisk extends RowAVL {
         return hasNodesChanged || hasDataChanged;
     }
 
+    public void setChanged() {
+        hasNodesChanged = true;
+        hasDataChanged  = true;
+    }
+
     /**
      * Returns the Table to which this Row belongs.
      *
@@ -373,8 +378,6 @@ public class RowAVLDisk extends RowAVL {
 
         out.writeData(this, table.colTypes);
         out.writeEnd();
-
-        isNew = false;
     }
 
     /**

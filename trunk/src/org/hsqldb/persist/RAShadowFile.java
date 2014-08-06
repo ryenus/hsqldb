@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2011, The HSQL Development Group
+/* Copyright (c) 2001-2014, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -50,6 +50,7 @@ import org.hsqldb.map.BitMap;
  */
 public class RAShadowFile {
 
+    private static final int    headerSize = 12;
     final Database              database;
     final String                pathName;
     final RandomAccessInterface source;
@@ -79,22 +80,25 @@ public class RAShadowFile {
         }
 
         bitMap                = new BitMap(bitSize, false);
-        buffer                = new byte[pageSize + 12];
+        buffer                = new byte[pageSize + headerSize];
         byteArrayOutputStream = new HsqlByteArrayOutputStream(buffer);
     }
 
-    void copy(long fileOffset, int size) throws IOException {
+    int copy(long fileOffset, int size) throws IOException {
 
         // always copy the first page
+        int pageCount = 0;
+
         if (!zeroPageSet) {
-            copy(0);
+            pageCount += copy(0);
+
             bitMap.set(0);
 
             zeroPageSet = true;
         }
 
         if (fileOffset >= maxSize) {
-            return;
+            return pageCount;
         }
 
         long endOffset = fileOffset + size;
@@ -111,18 +115,21 @@ public class RAShadowFile {
         }
 
         for (; startPageOffset <= endPageOffset; startPageOffset++) {
-            copy(startPageOffset);
+            pageCount += copy(startPageOffset);
         }
+
+        return pageCount;
     }
 
-    private void copy(int pageOffset) throws IOException {
+    private int copy(int pageOffset) throws IOException {
 
         if (bitMap.set(pageOffset) == 1) {
-            return;
+            return 0;
         }
 
-        long position = (long) pageOffset * pageSize;
-        int  readSize = pageSize;
+        long position  = (long) pageOffset * pageSize;
+        int  readSize  = pageSize;
+        int  writeSize = buffer.length;
 
         if (maxSize - position < pageSize) {
             readSize = (int) (maxSize - position);
@@ -145,11 +152,13 @@ public class RAShadowFile {
             byteArrayOutputStream.writeInt(pageSize);
             byteArrayOutputStream.writeLong(position);
             source.seek(position);
-            source.read(buffer, 12, readSize);
+            source.read(buffer, headerSize, readSize);
             dest.seek(writePos);
-            dest.write(buffer, 0, buffer.length);
+            dest.write(buffer, 0, writeSize);
 
-            savedLength = writePos + buffer.length;
+            savedLength = writePos + writeSize;
+
+            return 1;
         } catch (Throwable t) {
             bitMap.unset(pageOffset);
             dest.seek(0);
@@ -189,9 +198,9 @@ public class RAShadowFile {
     public void synch() {
 
         if (dest != null) {
-            synchLength = savedLength;
-
             dest.synch();
+
+            synchLength = savedLength;
         }
     }
 

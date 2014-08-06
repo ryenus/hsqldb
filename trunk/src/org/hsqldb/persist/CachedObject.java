@@ -68,6 +68,8 @@ public interface CachedObject {
 
     boolean hasChanged();
 
+    void setChanged();
+
     boolean isKeepInMemory();
 
     boolean keepInMemory(boolean keep);

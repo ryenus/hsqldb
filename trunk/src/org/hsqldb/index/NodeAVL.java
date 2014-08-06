@@ -280,6 +280,9 @@ public class NodeAVL implements CachedObject {
         return false;
     }
 
+    public void setChanged() {}
+
+
     public boolean isKeepInMemory() {
         return false;
     }

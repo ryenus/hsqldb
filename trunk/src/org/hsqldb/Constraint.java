@@ -713,8 +713,6 @@ public final class Constraint implements SchemaObject {
                     core.mainTable.getIndex(core.mainIndex.getName().name);
                 core.mainCols = ArrayUtil.toAdjustedColumnArray(core.mainCols,
                         colIndex, adjust);
-
-                core.mainIndex.setTable(newTable);
             }
         }
 
@@ -726,8 +724,6 @@ public final class Constraint implements SchemaObject {
                     core.refTable.getIndex(core.refIndex.getName().name);
                 core.refCols = ArrayUtil.toAdjustedColumnArray(core.refCols,
                         colIndex, adjust);
-
-                core.refIndex.setTable(newTable);
             }
         }
 

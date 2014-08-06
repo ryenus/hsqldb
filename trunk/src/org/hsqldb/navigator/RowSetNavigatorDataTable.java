@@ -57,35 +57,19 @@ import org.hsqldb.rowio.RowOutputInterface;
  */
 public class RowSetNavigatorDataTable extends RowSetNavigatorData {
 
-    final Session          session;
     public TableBase       table;
     public PersistentStore store;
     RowIterator            iterator;
     Row                    currentRow;
     int                    maxMemoryRowCount;
     boolean                isClosed;
-    int                    visibleColumnCount;
-    boolean                isAggregate;
-    boolean                isSimpleAggregate;
-    Object[]               simpleAggregateData;
     Object[]               tempRowData;
-
-    //
-    boolean reindexTable;
-
-    //
-    private Index mainIndex;
-    private Index fullIndex;
-    private Index orderIndex;
-    private Index groupIndex;
-    private Index idIndex;
 
     public RowSetNavigatorDataTable(Session session,
                                     QuerySpecification select) {
 
         super(session);
 
-        this.session       = session;
         this.rangePosition = select.resultRangePosition;
         maxMemoryRowCount  = session.getResultMemoryRowCount();
         visibleColumnCount = select.indexLimitVisible;
@@ -122,7 +106,6 @@ public class RowSetNavigatorDataTable extends RowSetNavigatorData {
 
         super(session);
 
-        this.session       = session;
         maxMemoryRowCount  = session.getResultMemoryRowCount();
         table              = queryExpression.resultTable.duplicate();
         visibleColumnCount = table.getColumnCount();
@@ -136,7 +119,6 @@ public class RowSetNavigatorDataTable extends RowSetNavigatorData {
 
         super(session);
 
-        this.session       = session;
         maxMemoryRowCount  = session.getResultMemoryRowCount();
         this.table         = table;
         visibleColumnCount = table.getColumnCount();

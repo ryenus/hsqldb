@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2011, The HSQL Development Group
+/* Copyright (c) 2001-2014, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -201,14 +201,12 @@ public abstract class Statement {
                 if (writeTableNames.length == 0) {
                     return false;
                 }
-
             case StatementTypes.X_SQL_SCHEMA_DEFINITION :
             case StatementTypes.X_HSQLDB_SCHEMA_MANIPULATION :
-                return true;
-
             case StatementTypes.X_HSQLDB_DATABASE_OPERATION :
                 return true;
 
+            case StatementTypes.X_HSQLDB_NONBLOCK_OPERATION :
             default :
                 return false;
         }

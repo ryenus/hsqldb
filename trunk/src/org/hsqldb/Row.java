@@ -133,6 +133,8 @@ public class Row implements CachedObject {
         return false;
     }
 
+    public void setChanged() {}
+
     public boolean isKeepInMemory() {
         return true;
     }

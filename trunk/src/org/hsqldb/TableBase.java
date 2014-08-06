@@ -32,10 +32,9 @@
 package org.hsqldb;
 
 import org.hsqldb.HsqlNameManager.HsqlName;
-import org.hsqldb.error.Error;
-import org.hsqldb.error.ErrorCode;
 import org.hsqldb.index.Index;
 import org.hsqldb.lib.ArrayUtil;
+import org.hsqldb.map.ValuePool;
 import org.hsqldb.navigator.RowIterator;
 import org.hsqldb.persist.DataSpaceManager;
 import org.hsqldb.persist.PersistentStore;
@@ -78,12 +77,6 @@ public class TableBase {
     public long            persistenceId;
     int                    tableSpace = DataSpaceManager.tableIdDefault;
 
-    // columns in table
-    int[]  primaryKeyCols;                      // column numbers for primary key
-    Type[] primaryKeyTypes;
-    int[]  primaryKeyColsSequence;              // {0,1,2,...}
-
-    //
     //
     Index[]         indexList;                  // first index is the primary key index
     public Database database;
@@ -124,11 +117,9 @@ public class TableBase {
         this.database    = database;
         this.colTypes    = colTypes;
         columnCount      = colTypes.length;
-        primaryKeyCols   = new int[]{};
-        primaryKeyTypes  = Type.emptyArray;
         indexList        = Index.emptyArray;
 
-        createPrimaryIndex(primaryKeyCols, primaryKeyTypes, null);
+        createPrimaryIndex(ValuePool.emptyIntArray, Type.emptyArray, null);
     }
 
     public TableBase duplicate() {
@@ -142,8 +133,6 @@ public class TableBase {
         copy.database         = database;
         copy.colTypes         = colTypes;
         copy.columnCount      = columnCount;
-        copy.primaryKeyCols   = primaryKeyCols;
-        copy.primaryKeyTypes  = primaryKeyTypes;
         copy.indexList        = indexList;
 
         return copy;
@@ -194,15 +183,15 @@ public class TableBase {
     }
 
     public final Type[] getPrimaryKeyTypes() {
-        return primaryKeyTypes;
+        return indexList[0].getColumnTypes();
     }
 
     public final boolean hasPrimaryKey() {
-        return !(primaryKeyCols.length == 0);
+        return indexList[0].getColumnCount() > 0;
     }
 
     public final int[] getPrimaryKey() {
-        return primaryKeyCols;
+        return indexList[0].getColumns();
     }
 
     /**
@@ -382,14 +371,18 @@ public class TableBase {
     public final void createPrimaryIndex(int[] pkcols, Type[] pktypes,
                                          HsqlName name) {
 
-        long id = database.persistentStoreCollection.getNextId();
-        Index newIndex = database.logger.newIndex(name, id, this, pkcols,
-            null, null, pktypes, true, pkcols.length > 0, pkcols.length > 0,
-            false);
+        Index newIndex = getNewPrimaryIndex(pkcols, pktypes, name);
 
-        try {
-            addIndex(null, newIndex);
-        } catch (HsqlException e) {}
+        addIndexStructure(newIndex);
+    }
+
+    Index getNewPrimaryIndex(int[] pkcols, Type[] pktypes, HsqlName name) {
+
+        long id = database.persistentStoreCollection.getNextId();
+
+        return database.logger.newIndex(name, id, this, pkcols, null, null,
+                                        pktypes, true, pkcols.length > 0,
+                                        pkcols.length > 0, false);
     }
 
     public final Index createAndAddIndexStructure(Session session,
@@ -410,10 +403,6 @@ public class TableBase {
                                      boolean[] descending,
                                      boolean[] nullsLast, boolean unique,
                                      boolean constraint, boolean forward) {
-
-        if (primaryKeyCols == null) {
-            throw Error.runtimeError(ErrorCode.U_S0500, "createIndex");
-        }
 
         int    s     = columns.length;
         int[]  cols  = new int[s];
@@ -438,8 +427,6 @@ public class TableBase {
      */
     public void dropIndex(Session session, int todrop) {
 
-        Index[] oldIndexList = indexList;
-
         indexList = (Index[]) ArrayUtil.toAdjustedArray(indexList, null,
                 todrop, -1);
 
@@ -447,11 +434,11 @@ public class TableBase {
             indexList[i].setPosition(i);
         }
 
-        resetAccessorKeys(session, indexList, oldIndexList);
         setBestRowIdentifiers();
+        resetAccessorKeys(session);
     }
 
-    final void addIndex(Session session, Index index) {
+    final void addIndexStructure(Index index) {
 
         int i = 0;
 
@@ -465,8 +452,6 @@ public class TableBase {
             }
         }
 
-        Index[] oldIndexList = indexList;
-
         indexList = (Index[]) ArrayUtil.toAdjustedArray(indexList, index, i,
                 1);
 
@@ -474,28 +459,35 @@ public class TableBase {
             indexList[i].setPosition(i);
         }
 
-        resetAccessorKeys(session, indexList, oldIndexList);
         setBestRowIdentifiers();
     }
 
-    private void resetAccessorKeys(Session session, Index[] indexList,
-                                   Index[] oldIndexList) {
+    final void addIndex(Session session, Index index) {
+
+        Index[] oldIndexList = indexList;
+
+        addIndexStructure(index);
+
+        try {
+            resetAccessorKeys(session);
+        } catch (HsqlException e) {
+            indexList = oldIndexList;
+
+            for (int i = 0; i < indexList.length; i++) {
+                indexList[i].setPosition(i);
+            }
+
+            setBestRowIdentifiers();
+
+            throw e;
+        }
+    }
+
+    private void resetAccessorKeys(Session session) {
 
         if (store != null) {
-            try {
-                store.resetAccessorKeys(session, indexList);
-            } catch (HsqlException e) {
-                indexList = oldIndexList;
+            store.resetAccessorKeys(session, indexList);
 
-                for (int i = 0; i < indexList.length; i++) {
-                    indexList[i].setPosition(i);
-                }
-
-                throw e;
-            }
-        }
-
-        if (session == null) {
             return;
         }
 
@@ -503,22 +495,12 @@ public class TableBase {
 
             case TableBase.INFO_SCHEMA_TABLE :
             case TableBase.TEMP_TABLE : {
-                try {
 
-                    // session may be an unregisterd sys session
-                    session.sessionData.persistentStoreCollection
-                        .registerIndex(session, this);
+                // session may be an unregisterd sys session
+                session.sessionData.persistentStoreCollection
+                    .resetAccessorKeys(session, (Table) this);
 
-                    break;
-                } catch (HsqlException e) {
-                    indexList = oldIndexList;
-
-                    for (int i = 0; i < indexList.length; i++) {
-                        indexList[i].setPosition(i);
-                    }
-
-                    throw e;
-                }
+                break;
             }
             case TableBase.SYSTEM_SUBQUERY :
             case TableBase.SYSTEM_TABLE :

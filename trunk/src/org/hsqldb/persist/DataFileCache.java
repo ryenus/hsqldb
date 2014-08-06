@@ -280,7 +280,7 @@ public class DataFileCache {
                 long    length       = dataFile.length();
                 boolean wrongVersion = false;
 
-                if (length > initialFreePos) {
+                if (length >= initialFreePos) {
                     int flags = getFlags();
 
                     isSaved       = BitMap.isSet(flags, FLAG_ISSAVED);
@@ -316,15 +316,8 @@ public class DataFileCache {
                     boolean existsBackup = fa.isStreamElement(backupFileName);
 
                     if (existsBackup) {
-                        int dbState =
-                            database.databaseProperties.getDBModified();
-
-                        if (dbState == HsqlDatabaseProperties.FILES_MODIFIED) {
-                            isSaved = false;
-
-                            logInfoEvent(
-                                "data file was saved but inc backup exists - restoring");
-                        }
+                        logInfoEvent(
+                            "data file was not modified but inc backup exists");
                     }
                 }
             }
@@ -341,7 +334,18 @@ public class DataFileCache {
                 }
             } else {
                 if (isIncremental) {
-                    preexists = restoreBackupIncremental();
+                    if (preexists) {
+                        preexists = restoreBackupIncremental();
+
+                        if (!preexists) {
+                            database.logger.logSevereEvent(
+                                "DataFileCache data file modified but no backup exists",
+                                null);
+
+                            throw Error.error(
+                                ErrorCode.DATA_FILE_BACKUP_MISMATCH);
+                        }
+                    }
                 } else {
                     preexists = restoreBackup();
                 }
@@ -387,6 +391,8 @@ public class DataFileCache {
             }
 
             logInfoEvent("dataFileCache open end");
+        } catch (HsqlException e) {
+            throw e;
         } catch (Throwable t) {
             logSevereEvent("DataFileCache.open", t);
             release();
@@ -581,22 +587,6 @@ public class DataFileCache {
      * Restores a compressed backup or the .data file.
      */
     private boolean restoreBackup() {
-        return restoreBackup(database, dataFileName, backupFileName);
-    }
-
-    static boolean restoreBackupFile(Database database, String dataFileName,
-                                     String backupFileName) {
-
-        if (database.logger.propIncrementBackup) {
-            return restoreBackupIncremental(database, dataFileName,
-                                            backupFileName);
-        } else {
-            return restoreBackup(database, dataFileName, backupFileName);
-        }
-    }
-
-    static boolean restoreBackup(Database database, String dataFileName,
-                                 String backupFileName) {
 
         try {
             FileAccess fileAccess = database.logger.getFileAccess();
@@ -627,15 +617,6 @@ public class DataFileCache {
      * Restores in from an incremental backup
      */
     private boolean restoreBackupIncremental() {
-        return restoreBackupIncremental(database, dataFileName,
-                                        backupFileName);
-    }
-
-    /**
-     * Restores in from an incremental backup
-     */
-    static boolean restoreBackupIncremental(Database database,
-            String dataFileName, String backupFileName) {
 
         try {
             FileAccess fileAccess = database.logger.getFileAccess();
@@ -648,6 +629,8 @@ public class DataFileCache {
                 return true;
             }
 
+            // this is an anomaly where no backup exists but .data file
+            // modified flag has been set
             return false;
         } catch (Throwable e) {
             database.logger.logSevereEvent(
@@ -910,14 +893,7 @@ public class DataFileCache {
      * Adds the file space for the row to the list of free positions.
      */
     public void remove(CachedObject object) {
-
-        writeLock.lock();
-
-        try {
-            release(object.getPos());
-        } finally {
-            writeLock.unlock();
-        }
+        release(object.getPos());
     }
 
     public void removePersistence(CachedObject object) {}
@@ -1060,6 +1036,11 @@ public class DataFileCache {
 
                     object = store.get(rowIn);
 
+                    if (object == null) {
+                        throw Error.error(ErrorCode.GENERAL_IO_ERROR,
+                                          "position " + pos);
+                    }
+
                     break;
                 } catch (Throwable t) {
                     if (t instanceof OutOfMemoryError) {
@@ -1077,6 +1058,10 @@ public class DataFileCache {
 
                             throw ex;
                         }
+                    } else if (t instanceof HsqlException) {
+                        ((HsqlException) t).info = rowIn;
+
+                        throw (HsqlException) t;
                     } else {
                         HsqlException ex =
                             Error.error(ErrorCode.GENERAL_IO_ERROR, t);
@@ -1268,12 +1253,14 @@ public class DataFileCache {
             return;
         }
 
-        copyShadow(rows, offset, count);
-
+        int  pageCount = copyShadow(rows, offset, count);
         long startTime = cache.saveAllTimer.elapsedTime();
 
         cache.saveAllTimer.start();
-        setFileModified();
+
+        if (pageCount > 0) {
+            setFileModified();
+        }
 
         for (int i = offset; i < offset + count; i++) {
             CachedObject r = rows[i];
@@ -1326,13 +1313,16 @@ public class DataFileCache {
             dataFile.write(rowOut.getOutputStream().getBuffer(), 0,
                            rowOut.getOutputStream().size());
         } catch (Throwable t) {
+            row.setChanged();
             logSevereEvent("DataFileCache.saveRowNoLock", t, row.getPos());
 
             throw Error.error(ErrorCode.DATA_FILE_ERROR, t);
         }
     }
 
-    protected void copyShadow(CachedObject[] rows, int offset, int count) {
+    protected int copyShadow(CachedObject[] rows, int offset, int count) {
+
+        int pageCount = 0;
 
         if (shadowFile != null) {
             long time    = cache.shadowTimer.elapsedTime();
@@ -1345,11 +1335,13 @@ public class DataFileCache {
                     CachedObject row = rows[i];
 
                     seekpos = row.getPos() * dataFileScale;
-
-                    shadowFile.copy(seekpos, row.getStorageSize());
+                    pageCount += shadowFile.copy(seekpos,
+                                                 row.getStorageSize());
                 }
 
-                shadowFile.synch();
+                if (pageCount > 0) {
+                    shadowFile.synch();
+                }
             } catch (Throwable t) {
                 logSevereEvent("DataFileCache.copyShadow", t, seekpos);
 
@@ -1358,27 +1350,36 @@ public class DataFileCache {
 
             cache.shadowTimer.stop();
 
-            time = cache.shadowTimer.elapsedTime() - time;
+            if (pageCount > 0) {
+                time = cache.shadowTimer.elapsedTime() - time;
 
-            logDetailEvent("copyShadow [size, time] "
-                           + shadowFile.getSavedLength() + " " + time);
+                logDetailEvent("copyShadow [size, time] "
+                               + shadowFile.getSavedLength() + " " + time);
+            }
         }
+
+        return pageCount;
     }
 
-    protected void copyShadow(CachedObject row) {
+    protected int copyShadow(CachedObject row) {
 
         if (shadowFile != null) {
             long seekpos = row.getPos() * dataFileScale;
 
             try {
-                shadowFile.copy(seekpos, row.getStorageSize());
+                int pageCount = shadowFile.copy(seekpos, row.getStorageSize());
+
                 shadowFile.synch();
+
+                return pageCount;
             } catch (Throwable t) {
                 logSevereEvent("DataFileCache.copyShadow", t, row.getPos());
 
                 throw Error.error(ErrorCode.DATA_FILE_ERROR, t);
             }
         }
+
+        return 0;
     }
 
     /**
@@ -1487,7 +1488,7 @@ public class DataFileCache {
 
         FileAccess fileAccess = database.logger.getFileAccess();
 
-        // first attemp to delete
+        // first attempt to delete
         fileAccess.removeElement(fileName);
 
         if (database.logger.isStoredFileAccess()) {

@@ -1244,9 +1244,10 @@ public class QuerySpecification extends QueryExpression {
                     tempSet, Expression.columnExpressionSet,
                     Expression.aggregateFunctionSet);
 
-                if (!tempSet.isEmpty()) {
-                    throw Error.error(ErrorCode.X_42574,
-                                      ((Expression) tempSet.get(0)).getSQL());
+                for (int j = 0; j < tempSet.size(); j++) {
+                    Expression e = (Expression) tempSet.get(j);
+
+                    throw Error.error(ErrorCode.X_42574, e.getSQL());
                 }
             }
         }

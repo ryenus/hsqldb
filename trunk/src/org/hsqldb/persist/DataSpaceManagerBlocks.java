@@ -129,8 +129,6 @@ public class DataSpaceManagerBlocks implements DataSpaceManager {
             initialiseNewSpaceDirectory();
 
             cache.spaceManagerPosition = rootBlock.getPos() * dataFileScale;
-
-            cache.setFileModified();
         } else {
             long pos = cache.spaceManagerPosition / dataFileScale;
 
@@ -252,10 +250,10 @@ public class DataSpaceManagerBlocks implements DataSpaceManager {
         cache.writeLock.lock();
 
         try {
-            long index = getExistingBlockIndex(tableId, blockCount);
+            int index = getExistingBlockIndex(tableId, blockCount);
 
             if (index > 0) {
-                return index * fileBlockSize;
+                return (long) index * fileBlockSize;
             } else {
                 return getNewFileBlocks(tableId, blockCount);
             }
@@ -485,10 +483,12 @@ public class DataSpaceManagerBlocks implements DataSpaceManager {
                 (TableSpaceManagerBlocks) spaceManagerList.get(spaceId);
 
             if (manager == null) {
+                int minReuse = cache.database.logger.propMinReuse;
+
                 manager = new TableSpaceManagerBlocks(
                     this, spaceId, fileBlockSize,
                     cache.database.logger.propMaxFreeBlocks, dataFileScale,
-                    cache.database.logger.propMinReuse);
+                    minReuse);
 
                 initialiseTableSpace(manager);
                 spaceManagerList.put(spaceId, manager);

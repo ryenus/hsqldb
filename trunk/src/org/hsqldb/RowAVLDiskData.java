@@ -174,6 +174,10 @@ public class RowAVLDiskData extends RowAVL {
         return hasDataChanged;
     }
 
+    final public void setChanged() {
+        hasDataChanged = true;
+    }
+
     public void updateAccessCount(int count) {
         accessCount = count;
     }
