@@ -1608,8 +1608,15 @@ public class StatementDML extends StatementDMQL {
                         break;
                     }
                     case SchemaObject.ReferentialAction.NO_ACTION :
-                        if (navigator.containsDeletedRow(refRow)) {
-                            continue;
+
+                        if (delete) {
+                            if (navigator.containsDeletedRow(refRow)) {
+                                continue;
+                            }
+                        } else {
+                            if (navigator.containsUpdatedRow(row, refRow, c.core.mainCols)) {
+                                continue;
+                            }
                         }
 
                     // fall through

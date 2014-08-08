@@ -270,7 +270,10 @@ public class TableSpaceManagerBlocks implements TableSpaceManager {
     }
 
     public long getLostBlocksSize() {
-        return freshBlockLimit - freshBlockFreePos + lookup.getTotalValues();
+
+        long total = freshBlockLimit - freshBlockFreePos 
+                     + lookup.getTotalValues();
+        return total;
     }
 
     public boolean isDefaultSpace() {

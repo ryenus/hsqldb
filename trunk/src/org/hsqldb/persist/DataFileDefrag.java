@@ -125,8 +125,6 @@ final class DataFileDefrag {
                                                + t.getName().name);
             }
 
-            dataFileOut.fileModified = true;
-
             dataFileOut.close();
 
             dataFileOut = null;

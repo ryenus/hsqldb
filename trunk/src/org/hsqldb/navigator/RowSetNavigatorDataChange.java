@@ -42,7 +42,7 @@ import org.hsqldb.types.Type;
 
 /*
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.2.7
+ * @version 2.3.3
  * @since 2.2.7
  */
 public interface RowSetNavigatorDataChange {
@@ -75,4 +75,6 @@ public interface RowSetNavigatorDataChange {
                     int[] columnMap);
 
     boolean containsDeletedRow(Row row);
+
+    boolean containsUpdatedRow(Row row, Row refRow, int[] keys);
 }
