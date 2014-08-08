@@ -905,7 +905,6 @@ public class StatementCommand extends Statement {
                     Table table =
                         session.database.schemaManager.getTable(session,
                             name.name, name.schema.name);
-                    DataFileCache cache = session.database.logger.getCache();
 
                     session.checkAdmin();
                     session.checkDDLWrite();
@@ -922,6 +921,8 @@ public class StatementCommand extends Statement {
                             != DataSpaceManager.tableIdDefault) {
                         return Result.updateZeroResult;
                     }
+
+                    DataFileCache cache = session.database.logger.getCache();
 
                     // memory database
                     if (cache == null) {

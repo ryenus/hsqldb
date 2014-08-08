@@ -5626,10 +5626,12 @@ public class ParserDQL extends ParserBase {
                 break;
             }
 
+            Expression expressionNull = new ExpressionValue((Object) null,
+                (Type) null);
             Expression condition = new ExpressionLogical(OpTypes.IS_NULL,
                 current);
             Expression alternatives = new ExpressionOp(OpTypes.ALTERNATIVE,
-                new ExpressionValue((Object) null, (Type) null), current);
+                expressionNull, current);
             Expression casewhen = new ExpressionOp(OpTypes.CASEWHEN,
                                                    condition, alternatives);
 

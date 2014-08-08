@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2011, The HSQL Development Group
+/* Copyright (c) 2001-2014, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -49,7 +49,7 @@ import org.hsqldb.types.Types;
  *
  * @author Campbell Boucher-Burnet (boucherb@users dot sourceforge.net)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.0
+ * @version 2.3.3
  * @since 1.9.0
  */
 public class ExpressionOp extends Expression {
@@ -542,6 +542,43 @@ public class ExpressionOp extends Expression {
         Expression expr = this;
 
         while (expr.opType == OpTypes.CASEWHEN) {
+            dataType =
+                Type.getAggregateType(expr.nodes[RIGHT].nodes[LEFT].dataType,
+                                      dataType);
+            dataType =
+                Type.getAggregateType(expr.nodes[RIGHT].nodes[RIGHT].dataType,
+                                      dataType);
+
+            if (expr.nodes[RIGHT].nodes[RIGHT].opType == OpTypes.CASEWHEN) {
+                expr = expr.nodes[RIGHT].nodes[RIGHT];
+            } else {
+                expr = expr.nodes[RIGHT].nodes[LEFT];
+            }
+        }
+
+        expr = this;
+
+        while (expr.opType == OpTypes.CASEWHEN) {
+            if (expr.nodes[RIGHT].nodes[LEFT].dataType == null) {
+                expr.nodes[RIGHT].nodes[LEFT].dataType = dataType;
+            }
+
+            if (expr.nodes[RIGHT].nodes[RIGHT].dataType == null) {
+                expr.nodes[RIGHT].nodes[RIGHT].dataType = dataType;
+            }
+
+            expr.nodes[RIGHT].dataType = dataType;
+
+            if (expr.nodes[RIGHT].nodes[RIGHT].opType == OpTypes.CASEWHEN) {
+                expr = expr.nodes[RIGHT].nodes[RIGHT];
+            } else {
+                expr = expr.nodes[RIGHT].nodes[LEFT];
+            }
+        }
+
+        expr = this;
+
+        while (expr.opType == OpTypes.CASEWHEN) {
             expr.nodes[LEFT].resolveTypes(session, expr);
 
             if (expr.nodes[LEFT].isUnresolvedParam()) {
@@ -583,7 +620,12 @@ public class ExpressionOp extends Expression {
             dataType =
                 Type.getAggregateType(expr.nodes[RIGHT].nodes[RIGHT].dataType,
                                       dataType);
-            expr = expr.nodes[RIGHT].nodes[RIGHT];
+
+            if (expr.nodes[RIGHT].nodes[RIGHT].opType == OpTypes.CASEWHEN) {
+                expr = expr.nodes[RIGHT].nodes[RIGHT];
+            } else {
+                expr = expr.nodes[RIGHT].nodes[LEFT];
+            }
         }
 
         expr = this;
@@ -597,11 +639,13 @@ public class ExpressionOp extends Expression {
                 expr.nodes[RIGHT].nodes[RIGHT].dataType = dataType;
             }
 
-            if (expr.nodes[RIGHT].dataType == null) {
-                expr.nodes[RIGHT].dataType = dataType;
-            }
+            expr.nodes[RIGHT].dataType              = dataType;
 
-            expr = expr.nodes[RIGHT].nodes[RIGHT];
+            if (expr.nodes[RIGHT].nodes[RIGHT].opType == OpTypes.CASEWHEN) {
+                expr = expr.nodes[RIGHT].nodes[RIGHT];
+            } else {
+                expr = expr.nodes[RIGHT].nodes[LEFT];
+            }
         }
 
         if (dataType == null || dataType.typeCode == Types.SQL_ALL_TYPES) {

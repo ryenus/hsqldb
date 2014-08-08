@@ -67,6 +67,7 @@ public class DataSpaceManagerBlocks implements DataSpaceManager {
     //
     AtomicInteger spaceIdSequence = new AtomicInteger(tableIdFirst);
     IntIndex      emptySpaceList;
+    int           released = 0;
 
     //
     static final int blockSize               = 1024 * 2;
@@ -921,6 +922,8 @@ public class DataSpaceManagerBlocks implements DataSpaceManager {
             if (freeUnits == fileBlockItemCount) {
                 setTable(tableIdEmpty);
                 emptySpaceList.addUnique(currentBlockIndex);
+
+                released++;
 
                 return;
             }
