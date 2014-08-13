@@ -734,7 +734,11 @@ public class ExpressionColumn extends Expression {
                 return "*";
 
             case OpTypes.COALESCE :
-                return alias.getStatementName();
+                if (alias != null) {
+                    return alias.getStatementName();
+                } else {
+                    return Tokens.T_COALESCE;
+                }
 
             case OpTypes.DIAGNOSTICS_VARIABLE :
             case OpTypes.VARIABLE :

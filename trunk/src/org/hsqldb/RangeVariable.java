@@ -113,9 +113,6 @@ public class RangeVariable {
     //
     int rangePosition;
 
-    //
-    int parsePosition;
-
     // for variable and parameter lists
     HashMappedList variables;
 
