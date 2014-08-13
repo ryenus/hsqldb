@@ -190,7 +190,7 @@ public class TableSpaceManagerBlocks implements TableSpaceManager {
         }
 
         lookup.add(pos, rowSize / scale);
-        
+
     }
 
     /**
@@ -271,8 +271,8 @@ public class TableSpaceManagerBlocks implements TableSpaceManager {
 
     public long getLostBlocksSize() {
 
-        long total = freshBlockLimit - freshBlockFreePos 
-                     + lookup.getTotalValues();
+        long total = freshBlockLimit - freshBlockFreePos
+                     + lookup.getTotalValues() * scale;
         return total;
     }
 

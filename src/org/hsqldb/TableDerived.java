@@ -155,6 +155,8 @@ public class TableDerived extends Table {
             p.reset(sql);
             p.read();
 
+            p.compileContext.setCurrentSubquery(tableName.name);
+
             td = p.XreadSubqueryTableBody(tableName, OpTypes.TABLE_SUBQUERY);
 
             td.queryExpression.resolve(session);

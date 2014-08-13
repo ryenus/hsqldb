@@ -39,6 +39,7 @@ import org.hsqldb.lib.ArrayUtil;
 import org.hsqldb.lib.HashMappedList;
 import org.hsqldb.lib.HsqlArrayList;
 import org.hsqldb.lib.HsqlList;
+import org.hsqldb.lib.IntValueHashMap;
 import org.hsqldb.lib.Iterator;
 import org.hsqldb.lib.LongDeque;
 import org.hsqldb.lib.OrderedHashSet;
@@ -64,7 +65,7 @@ import org.hsqldb.types.Types;
  * Parser for DQL statements
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.2
+ * @version 2.3.3
  * @since 1.9.0
  */
 public class ParserDQL extends ParserBase {
@@ -80,9 +81,9 @@ public class ParserDQL extends ParserBase {
      * @param  session the connected context
      * @param  t the token source from which to parse commands
      */
-    ParserDQL(Session session, Scanner t, CompileContext baseContext) {
+    ParserDQL(Session session, Scanner scanner, CompileContext baseContext) {
 
-        super(t);
+        super(scanner);
 
         this.session        = session;
         this.database       = session.getDatabase();
@@ -916,6 +917,7 @@ public class ParserDQL extends ParserBase {
                 queryName.schema = SqlInvariants.SYSTEM_SCHEMA_HSQLNAME;
 
                 read();
+                compileContext.registerSubquery(queryName.name);
 
                 if (token.tokenType == Tokens.OPENBRACKET) {
                     nameList = readColumnNames(queryName);
@@ -4442,6 +4444,7 @@ public class ParserDQL extends ParserBase {
         compileContext.decrementDepth();
         td.prepareTable(columnNames);
         compileContext.initSubqueryNames();
+        compileContext.registerSubquery(name.name);
         compileContext.registerSubquery(name.name, td);
         checkIsThis(Tokens.UNION);
 
@@ -6350,20 +6353,22 @@ public class ParserDQL extends ParserBase {
         private HsqlArrayList namedSubqueries;
 
         //
-        private OrderedIntKeyHashMap parameters   = new OrderedIntKeyHashMap();
-        private HsqlArrayList usedSequences       = new HsqlArrayList(8, true);
+        private OrderedIntKeyHashMap parameters = new OrderedIntKeyHashMap();
+        private IntValueHashMap      parameterIndexes = new IntValueHashMap();
+        private HsqlArrayList usedSequences = new HsqlArrayList(8, true);
         private HsqlArrayList        usedRoutines = new HsqlArrayList(8, true);
-        private HsqlArrayList rangeVariables      = new HsqlArrayList(8, true);
-        private HsqlArrayList        usedObjects  = new HsqlArrayList(8, true);
-        Type                         currentDomain;
-        boolean                      contextuallyTypedExpression;
-        Routine                      callProcedure;
+        private OrderedIntKeyHashMap rangeVariables =
+            new OrderedIntKeyHashMap();
+        private HsqlArrayList usedObjects = new HsqlArrayList(8, true);
+        Type                  currentDomain;
+        boolean               contextuallyTypedExpression;
+        Routine               callProcedure;
 
         //
-        private RangeGroup[] outerRangeGroups;
+        private RangeGroup[] outerRangeGroups = RangeGroup.emptyArray;
 
         //
-        private int rangeVarIndex = 0;
+        private int rangeVarIndex = 1;
 
         public CompileContext(Session session) {
             this(session, null, null);
@@ -6376,21 +6381,20 @@ public class ParserDQL extends ParserBase {
             this.parser      = parser;
             this.baseContext = baseContext;
 
-            reset();
+            if (baseContext != null) {
+                rangeVarIndex = baseContext.getRangeVarCount();
+                subqueryDepth = baseContext.getDepth();
+            }
         }
 
         public void reset() {
 
-            if (baseContext == null) {
-                rangeVarIndex = 1;
-                subqueryDepth = 0;
-            } else {
-                rangeVarIndex = baseContext.getRangeVarCount();
-                subqueryDepth = baseContext.getDepth();
-            }
+            rangeVarIndex = 1;
+            subqueryDepth = 0;
 
             rangeVariables.clear();
             parameters.clear();
+            parameterIndexes.clear();
             usedSequences.clear();
             usedRoutines.clear();
 
@@ -6429,13 +6433,27 @@ public class ParserDQL extends ParserBase {
 
         public void rewind(int position) {
 
-            for (int i = rangeVariables.size() - 1; i >= 0; i--) {
-                RangeVariable range = (RangeVariable) rangeVariables.get(i);
+            if (baseContext != null) {
+                baseContext.rewindRangeVariables(position);
+                rewindParameters(position);
 
-                if (range.parsePosition > position) {
-                    rangeVariables.remove(i);
+                return;
+            }
+
+            rewindRangeVariables(position);
+            rewindParameters(position);
+        }
+
+        private void rewindRangeVariables(int position) {
+
+            for (int i = rangeVariables.size() - 1; i >= 0; i--) {
+                if (rangeVariables.getKey(i, -1) > position) {
+                    rangeVariables.removeKeyAndValue(i);
                 }
             }
+        }
+
+        private void rewindParameters(int position) {
 
             Iterator it = parameters.keySet().iterator();
 
@@ -6448,35 +6466,53 @@ public class ParserDQL extends ParserBase {
             }
         }
 
+        public void setCurrentSubquery(String name) {
+
+            int index = baseContext.parameterIndexes.get(name, 0);
+
+            for (int i = 0; i < index; i++) {
+                parameters.put(baseContext.parameters.getKey(i, -1),
+                               baseContext.parameters.getValue(i));
+            }
+        }
+
         public void registerRangeVariable(RangeVariable range) {
 
-            range.parsePosition = parser == null ? 0
-                                                 : parser.getPosition();
+            int parsePosition = parser == null ? 0
+                                               : parser.getPosition();
+
             range.rangePosition = getNextRangeVarIndex();
             range.level         = subqueryDepth;
 
-            rangeVariables.add(range);
+            rangeVariables.put(parsePosition, range);
         }
 
         public void setNextRangeVarIndex(int n) {
+
+            if (baseContext != null) {
+                baseContext.setNextRangeVarIndex(n);
+
+                return;
+            }
+
             rangeVarIndex = n;
         }
 
         public int getNextRangeVarIndex() {
 
-            int index;
-
             if (baseContext != null) {
-                index         = baseContext.getNextRangeVarIndex();
-                rangeVarIndex = index + 1;
-
-                return index;
-            } else {
-                return rangeVarIndex++;
+                return baseContext.getNextRangeVarIndex();
             }
+
+            return rangeVarIndex++;
         }
 
         public int getRangeVarCount() {
+
+            if (baseContext != null) {
+                return baseContext.getRangeVarCount();
+            }
+
             return rangeVarIndex;
         }
 
@@ -6484,7 +6520,7 @@ public class ParserDQL extends ParserBase {
 
             RangeVariable[] array = new RangeVariable[rangeVariables.size()];
 
-            rangeVariables.toArray(array);
+            rangeVariables.valuesToArray(array);
 
             return array;
         }
@@ -6558,15 +6594,25 @@ public class ParserDQL extends ParserBase {
             }
         }
 
-        private void registerSubquery(String name, TableDerived td) {
+        private void registerSubquery(String name) {
 
             HashMappedList set =
                 (HashMappedList) namedSubqueries.get(subqueryDepth);
-            boolean added = set.add(name, td);
+            boolean added = set.add(name, null);
 
             if (!added) {
                 throw Error.error(ErrorCode.X_42504);
             }
+
+            parameterIndexes.put(name, parameters.size());
+        }
+
+        private void registerSubquery(String name, TableDerived td) {
+
+            HashMappedList set =
+                (HashMappedList) namedSubqueries.get(subqueryDepth);
+
+            set.put(name, td);
         }
 
         private void unregisterSubqueries() {
@@ -6581,6 +6627,10 @@ public class ParserDQL extends ParserBase {
         }
 
         private TableDerived getNamedSubQuery(String name) {
+
+            if (baseContext != null) {
+                return baseContext.getNamedSubQuery(name);
+            }
 
             if (namedSubqueries == null) {
                 return null;
@@ -6645,10 +6695,6 @@ public class ParserDQL extends ParserBase {
             return result;
         }
 
-        void clearParameters() {
-            parameters.clear();
-        }
-
         public OrderedHashSet getSchemaObjectNames() {
 
             OrderedHashSet set = new OrderedHashSet();
@@ -6666,7 +6712,7 @@ public class ParserDQL extends ParserBase {
             }
 
             for (int i = 0; i < rangeVariables.size(); i++) {
-                RangeVariable range = (RangeVariable) rangeVariables.get(i);
+                RangeVariable range = (RangeVariable) rangeVariables.getValue(i);
                 HsqlName      name  = range.rangeTable.getName();
 
                 if (name.schema != SqlInvariants.SYSTEM_SCHEMA_HSQLNAME) {

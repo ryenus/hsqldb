@@ -72,9 +72,9 @@ public class ParserBase {
      *
      * @param t the token source from which to parse commands
      */
-    ParserBase(Scanner t) {
-        scanner = t;
-        token   = scanner.token;
+    ParserBase(Scanner scanner) {
+        this.scanner = scanner;
+        this.token   = scanner.token;
     }
 
     public Scanner getScanner() {
