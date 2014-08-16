@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2011, The HSQL Development Group
+/* Copyright (c) 2001-2014, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -46,7 +46,7 @@ import org.hsqldb.types.Type;
  * Implementation of Statement for PSM compound statements.
 
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.0
+ * @version 2.3.3
  * @since 1.9.0
  */
 public class StatementCompound extends Statement implements RangeGroup {
@@ -67,6 +67,9 @@ public class StatementCompound extends Statement implements RangeGroup {
     RangeVariable[]   rangeVariables = RangeVariable.emptyArray;
     Table[]           tables         = Table.emptyArray;
     HashMappedList    scopeTables;
+
+    //
+    int variablesOffset;
 
     //
     public static final StatementCompound[] emptyStatementArray =
@@ -801,24 +804,14 @@ public class StatementCompound extends Statement implements RangeGroup {
 
         HashMappedList list = new HashMappedList();
 
-        if (variables.length == 0) {
-            if (parent == null) {
-                rangeVariables = root.getRangeVariables();
-            } else {
-                rangeVariables = parent.rangeVariables;
-            }
-
-            scopeVariables = list;
-
-            return;
-        }
-
         if (parent != null && parent.scopeVariables != null) {
             for (int i = 0; i < parent.scopeVariables.size(); i++) {
                 list.add(parent.scopeVariables.getKey(i),
                          parent.scopeVariables.get(i));
             }
         }
+
+        variablesOffset = list.size();
 
         for (int i = 0; i < variables.length; i++) {
             String  name  = variables[i].getName().name;
@@ -956,13 +949,11 @@ public class StatementCompound extends Statement implements RangeGroup {
     private void initialiseVariables(Session session, Object[] data,
                                      int count) {
 
-        Object[] vars   = session.sessionContext.routineVariables;
-        int      offset = parent == null ? 0
-                                         : parent.scopeVariables.size();
+        Object[] vars = session.sessionContext.routineVariables;
 
         for (int i = 0; i < count; i++) {
             try {
-                vars[offset + i] = data[i];
+                vars[variablesOffset + i] = data[i];
             } catch (HsqlException e) {}
         }
     }
