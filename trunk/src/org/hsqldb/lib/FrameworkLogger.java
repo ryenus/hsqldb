@@ -256,6 +256,7 @@ public class FrameworkLogger {
         if (propVal != null && propVal.equalsIgnoreCase("false")) {
             return;
         }
+
         InputStream istream = null;
 
         try {
@@ -271,7 +272,9 @@ public class FrameworkLogger {
                 consoleHandler.setFormatter(
                     new BasicTextJdkLogFormatter(false));
                 consoleHandler.setLevel(Level.INFO);
+
                 istream = FrameworkLogger.class.getResourceAsStream(path);
+
                 lm.readConfiguration(istream);
 
                 Logger cmdlineLogger = Logger.getLogger("org.hsqldb.cmdline");
@@ -299,11 +302,13 @@ public class FrameworkLogger {
                 + "Continuing without Application logging.");
             e.printStackTrace();
         } finally {
-            if (istream != null) try {
-                istream.close();
-            } catch (IOException ioe) {
-                System.err.println(
-                    "Failed to close logging input stream: " + ioe);
+            if (istream != null) {
+                try {
+                    istream.close();
+                } catch (IOException ioe) {
+                    System.err.println("Failed to close logging input stream: "
+                                       + ioe);
+                }
             }
         }
     }
@@ -414,8 +419,13 @@ public class FrameworkLogger {
 
         if (log4jLogger == null) {
             StackTraceElement elements[] = new Throwable().getStackTrace();
-            String            c = elements[revertMethods].getClassName();
-            String            m = elements[revertMethods].getMethodName();
+            String            c          = "";
+            String            m          = "";
+
+            if (elements.length > revertMethods) {
+                c = elements[revertMethods].getClassName();
+                m = elements[revertMethods].getMethodName();
+            }
 
             if (t == null) {
                 jdkLogger.logp(level, c, m, message);

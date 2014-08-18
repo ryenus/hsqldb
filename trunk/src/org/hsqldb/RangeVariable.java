@@ -970,8 +970,7 @@ public class RangeVariable {
         }
 
         sb.append(b).append("cardinality=");
-        sb.append(conditions[0].rangeIndex.size(session,
-                rangeTable.getRowStore(session))).append("\n");
+        sb.append(rangeTable.getRowStore(session).elementCount()).append("\n");
 
         boolean fullScan = !conditions[0].hasIndexCondition();
 
