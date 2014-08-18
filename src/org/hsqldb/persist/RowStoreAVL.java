@@ -386,6 +386,10 @@ public abstract class RowStoreAVL implements PersistentStore {
     public synchronized double searchCost(Session session, Index index,
                                           int count, int opType) {
 
+        if (count == 0) {
+            return elementCount.get();
+        }
+
         if (opType != OpTypes.EQUAL) {
             return elementCount.get() / 2.0;
         }

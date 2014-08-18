@@ -572,8 +572,10 @@ public class HsqlDateTime {
     public static TimestampData toDate(String string, String pattern,
                                        SimpleDateFormat format) {
 
-        Date   date;
+        long   millis;
+        int    nanos       = 0;
         String javaPattern = HsqlDateTime.toJavaDatePattern(pattern);
+        String tempPattern = null;
         int    matchIndex  = javaPattern.indexOf("*IY");
 
         if (matchIndex >= 0) {
@@ -592,17 +594,46 @@ public class HsqlDateTime {
             throw Error.error(ErrorCode.X_22511);
         }
 
+        matchIndex = javaPattern.indexOf("S");
+
+        if (matchIndex >= 0) {
+            tempPattern = javaPattern;
+            javaPattern = javaPattern.substring(0, matchIndex)
+                          + javaPattern.substring(matchIndex + 1);
+        }
+
         try {
             format.applyPattern(javaPattern);
 
-            date = format.parse(string);
+            millis = format.parse(string).getTime();
         } catch (Exception e) {
             throw Error.error(ErrorCode.X_22007, e.toString());
         }
 
-        int nanos = ((int) (date.getTime() % 1000)) * 1000000;
+        if (matchIndex >= 0) {
+            javaPattern = tempPattern;
 
-        return new TimestampData(date.getTime() / 1000, nanos, 0);
+            try {
+                format.applyPattern(javaPattern);
+
+                long tempMillis = format.parse(string).getTime();
+                int  factor     = 1;
+
+                tempMillis -= millis;
+                nanos      = (int) tempMillis;
+
+                while (tempMillis > 1000) {
+                    tempMillis /= 10;
+                    factor     *= 10;
+                }
+
+                nanos *= (1000000 / factor);
+            } catch (Exception e) {
+                throw Error.error(ErrorCode.X_22007, e.toString());
+            }
+        }
+
+        return new TimestampData(millis / 1000, nanos, 0);
     }
 
     public static String toFormattedDate(Date date, String pattern,
