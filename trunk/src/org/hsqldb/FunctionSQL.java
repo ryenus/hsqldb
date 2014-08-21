@@ -745,7 +745,7 @@ public class FunctionSQL extends Expression {
 
                 // result type is the same as nodes[1]
                 Object value = ((NumberType) nodes[0].dataType).modulo(session,
-                    data[0], data[1], nodes[0].dataType);
+                    data[0], data[1], nodes[1].dataType);
 
                 return dataType.convertToType(session, value,
                                               nodes[0].dataType);
@@ -1385,10 +1385,16 @@ public class FunctionSQL extends Expression {
                     throw Error.error(ErrorCode.X_42563);
                 }
 
-                nodes[0].dataType =
-                    ((NumberType) nodes[0].dataType).getIntegralType();
-                nodes[1].dataType =
-                    ((NumberType) nodes[1].dataType).getIntegralType();
+                if (session.database.sqlSyntaxOra) {
+                    nodes[0].dataType =
+                        nodes[0].dataType.getAggregateType(nodes[1].dataType);
+                } else {
+                    nodes[0].dataType =
+                        ((NumberType) nodes[0].dataType).getIntegralType();
+                    nodes[1].dataType =
+                        ((NumberType) nodes[1].dataType).getIntegralType();
+                }
+
                 dataType = nodes[1].dataType;
 
                 break;
