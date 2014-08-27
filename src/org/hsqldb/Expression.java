@@ -691,12 +691,12 @@ public class Expression implements Cloneable {
             case OpTypes.VAR_POP :
             case OpTypes.VAR_SAMP :
                 return false;
+
             case OpTypes.FUNCTION :
             case OpTypes.SQL_FUNCTION :
                 if (nodes.length == 0) {
                     return true;
                 }
-
         }
 
 /*
@@ -715,7 +715,6 @@ public class Expression implements Cloneable {
         case OpCodes.TABLE_SUBQUERY :
         case OpCodes.ROW_SUBQUERY :
 */
-
         if (nodes.length == 0) {
             return false;
         }
@@ -2100,9 +2099,7 @@ public class Expression implements Cloneable {
         return false;
     }
 
-    RangeVariable[] getJoinRangeVariables(RangeVariable[] ranges) {
-        return RangeVariable.emptyArray;
-    }
+    void getJoinRangeVariables(RangeVariable[] ranges, HsqlList list) {}
 
     double costFactor(Session session, RangeVariable range, int operation) {
         return Index.minimumSelectivity;

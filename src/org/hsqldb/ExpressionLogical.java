@@ -34,6 +34,7 @@ package org.hsqldb;
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
 import org.hsqldb.index.Index;
+import org.hsqldb.lib.HsqlList;
 import org.hsqldb.lib.OrderedHashSet;
 import org.hsqldb.lib.OrderedIntHashSet;
 import org.hsqldb.navigator.RowIterator;
@@ -55,9 +56,6 @@ public class ExpressionLogical extends Expression {
     boolean noOptimisation;
     boolean isQuantified;
     boolean isTerminal;
-
-    //
-    RangeVariable[] rangeArray = RangeVariable.emptyArray;
 
     /**
      * For LIKE
@@ -2214,17 +2212,11 @@ public class ExpressionLogical extends Expression {
         return false;
     }
 
-    RangeVariable[] getJoinRangeVariables(RangeVariable[] ranges) {
+    void getJoinRangeVariables(RangeVariable[] ranges, HsqlList list) {
 
-        OrderedHashSet set = collectRangeVariables(ranges, null);
-
-        if (set != null) {
-            rangeArray = new RangeVariable[set.size()];
-
-            set.toArray(rangeArray);
+        for (int i = 0; i < nodes.length; i++) {
+            nodes[i].getJoinRangeVariables(ranges, list);
         }
-
-        return rangeArray;
     }
 
     double costFactor(Session session, RangeVariable rangeVar, int operation) {

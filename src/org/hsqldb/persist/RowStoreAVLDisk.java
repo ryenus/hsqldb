@@ -406,32 +406,41 @@ public class RowStoreAVLDisk extends RowStoreAVL implements PersistentStore {
     }
 
     public void moveDataToSpace(DataFileCache targetCache,
-                                LongLookup pointerLookup) {
+                                DoubleIntIndex pointerLookup) {
 
         int spaceId = table.getSpaceID();
         TableSpaceManager targetSpace =
             targetCache.spaceManager.getTableSpace(spaceId);
-        RowIterator it = rowIterator();
+
+        pointerLookup.setKeysSearchTarget();
+
+        RowIterator it = indexList[0].firstRow(this);
 
         while (it.hasNext()) {
             CachedObject row = it.getNextRow();
-            long newPos = targetSpace.getFilePosition(row.getStorageSize(),
-                false);
 
-            pointerLookup.addUnsorted(row.getPos(), newPos);
+            pointerLookup.addUnsorted(row.getPos(), row.getStorageSize());
         }
 
-        it = rowIterator();
+        pointerLookup.sort();
+
+        for (int i = 0; i < pointerLookup.size(); i++) {
+            long newPos =
+                targetSpace.getFilePosition(pointerLookup.getValue(i), false);
+
+            pointerLookup.setValue(i, (int) newPos);
+        }
+
+        it = indexList[0].firstRow(this);
 
         while (it.hasNext()) {
-            CachedObject row = it.getNextRow();
+            CachedObject row    = it.getNextRow();
+            long         newPos = pointerLookup.lookup(row.getPos());
 
+            // write
             targetCache.rowOut.reset();
-            row.write(targetCache.rowOut, pointerLookup);
-
-            long pos = pointerLookup.lookup(row.getPos());
-
-            targetCache.saveRowOutput(pos);
+            row.write(targetCache.rowOut, null);
+            targetCache.saveRowOutput(newPos);
         }
     }
 

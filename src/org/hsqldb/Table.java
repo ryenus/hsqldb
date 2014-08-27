@@ -1574,7 +1574,6 @@ public class Table extends TableBase implements SchemaObject {
 
         switch (tableType) {
 
-//            case TableBase.MEMORY_TABLE :
             case TableBase.FUNCTION_TABLE :
             case TableBase.SYSTEM_SUBQUERY :
             case TableBase.INFO_SCHEMA_TABLE :
@@ -2448,6 +2447,35 @@ public class Table extends TableBase implements SchemaObject {
     synchronized IndexUse[] getIndexForColumns(Session session,
             OrderedIntHashSet set, int opType, boolean ordered) {
 
+        IndexUse[] indexUse = findIndexForColumns(session, set, opType,
+            ordered);
+
+        if (indexUse.length == 0) {
+
+            // index is not full;
+            switch (tableType) {
+
+                case TableBase.FUNCTION_TABLE :
+                case TableBase.SYSTEM_SUBQUERY :
+                case TableBase.INFO_SCHEMA_TABLE :
+                case TableBase.VIEW_TABLE :
+                case TableBase.TEMP_TABLE : {
+                    Index selected = createIndexForColumns(session,
+                                                           set.toArray());
+
+                    if (selected != null) {
+                        indexUse = selected.asArray();
+                    }
+                }
+            }
+        }
+
+        return indexUse;
+    }
+
+    IndexUse[] findIndexForColumns(Session session, OrderedIntHashSet set,
+                                   int opType, boolean ordered) {
+
         IndexUse[] indexUse = Index.emptyUseArray;
 
         if (set.isEmpty()) {
@@ -2485,22 +2513,6 @@ public class Table extends TableBase implements SchemaObject {
                 newList[newList.length - 1] = new IndexUse(currentIndex,
                         matchCount);
                 indexUse = newList;
-            }
-        }
-
-        // index is not full;
-        switch (tableType) {
-
-            case TableBase.FUNCTION_TABLE :
-            case TableBase.SYSTEM_SUBQUERY :
-            case TableBase.INFO_SCHEMA_TABLE :
-            case TableBase.VIEW_TABLE :
-            case TableBase.TEMP_TABLE : {
-                Index selected = createIndexForColumns(session, set.toArray());
-
-                if (selected != null) {
-                    indexUse = selected.asArray();
-                }
             }
         }
 

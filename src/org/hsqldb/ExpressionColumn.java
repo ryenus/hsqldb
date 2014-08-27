@@ -494,7 +494,7 @@ public class ExpressionColumn extends Expression {
     }
 
     private boolean resolveCorrelated(RangeGroup rangeGroup,
-                                     RangeGroup[] rangeGroups) {
+                                      RangeGroup[] rangeGroups) {
 
         for (int idx = rangeGroups.length - 1; idx >= 0; idx--) {
             RangeVariable[] rangeVarArray =
@@ -739,7 +739,6 @@ public class ExpressionColumn extends Expression {
                 } else {
                     return Tokens.T_COALESCE;
                 }
-
             case OpTypes.DIAGNOSTICS_VARIABLE :
             case OpTypes.VARIABLE :
             case OpTypes.PARAMETER :
@@ -1194,13 +1193,17 @@ public class ExpressionColumn extends Expression {
         return isParam;
     }
 
-    RangeVariable[] getJoinRangeVariables(RangeVariable[] ranges) {
+    void getJoinRangeVariables(RangeVariable[] ranges, HsqlList list) {
 
         if (opType == OpTypes.COLUMN) {
-            return new RangeVariable[]{ rangeVariable };
-        }
+            for (int i = 0; i < ranges.length; i++) {
+                if (ranges[i] == rangeVariable) {
+                    list.add(rangeVariable);
 
-        return RangeVariable.emptyArray;
+                    return;
+                }
+            }
+        }
     }
 
     /**
