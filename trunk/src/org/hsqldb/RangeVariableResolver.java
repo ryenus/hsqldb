@@ -661,10 +661,9 @@ public class RangeVariableResolver {
             for (int j = 0; j < indexes.length; j++) {
                 index = indexes[j].index;
 
-                PersistentStore store = table.getRowStore(session);
-                double currentCost = store.searchCost(session, index,
-                                                      indexes[j].columnCount,
-                                                      OpTypes.EQUAL);
+                double currentCost = searchCost(session, table, index,
+                                                indexes[j].columnCount,
+                                                OpTypes.EQUAL);
 
                 if (currentCost < cost) {
                     cost     = currentCost;
@@ -795,12 +794,14 @@ public class RangeVariableResolver {
     int getJoinedRangePosition(Expression e, int position,
                                RangeVariable[] currentRanges) {
 
-        int             found  = -1;
-        RangeVariable[] ranges = e.getJoinRangeVariables(currentRanges);
+        int found = -1;
 
-        for (int i = 0; i < ranges.length; i++) {
+        tempSet.clear();
+        e.getJoinRangeVariables(currentRanges, tempSet);
+
+        for (int i = 0; i < tempSet.size(); i++) {
             for (int j = 0; j < currentRanges.length; j++) {
-                if (ranges[i] == currentRanges[j]) {
+                if (tempSet.get(i) == currentRanges[j]) {
                     if (j >= position) {
                         if (found > 0) {
                             return -1;
@@ -1558,4 +1559,17 @@ public class RangeVariableResolver {
             }
         }
     }
+
+    private double searchCost(Session session, Table table, Index index,
+                              int count, int opType) {
+
+        if (table instanceof TableDerived) {
+            return 1000;
+        } else {
+            return table.getRowStore(session).searchCost(session, index,
+                                     count, opType);
+        }
+    }
+
+
 }
