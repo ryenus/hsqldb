@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2011, The HSQL Development Group
+/* Copyright (c) 2001-2014, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -35,7 +35,7 @@ import java.util.Comparator;
 import java.util.Date;
 
 /**
- * Facility to schedule tasks for future execution in a background thread.  <p>
+ * Facility to schedule tasks for future execution in a background thread.<p>
  *
  * Tasks may be scheduled for one-time execution or for repeated execution at
  * regular intervals, using either fixed rate or fixed delay policy. <p>
@@ -105,8 +105,8 @@ public final class HsqlTimer implements Comparator, ThreadFactory {
      */
     public int compare(final Object a, final Object b) {
 
-        final long awhen = ((Task) (a)).getNextScheduled();
-        final long bwhen = ((Task) (b)).getNextScheduled();
+        final long awhen = ((Task) a).getNextScheduled();
+        final long bwhen = ((Task) b).getNextScheduled();
 
         return (awhen < bwhen) ? -1
                                : (awhen == bwhen) ? 0

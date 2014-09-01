@@ -458,8 +458,7 @@ public class BaseHashMap {
     }
 
     /**
-     * generic method for adding or removing key / values in multi-value
-     * maps
+     * Generic method for adding or removing key / values in multi-value maps.
      */
     protected Object addOrRemoveMultiVal(long longKey, long longValue,
                                          Object objectKey, Object objectValue,

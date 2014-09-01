@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2011, The HSQL Development Group
+/* Copyright (c) 2001-2014, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -35,7 +35,7 @@ import java.io.IOException;
 
 /**
  * An interface that is used by OpenOffice.org. New versions should use the
- * org.hsqldb.persist.RandomAccessInterface instead
+ * org.hsqldb.persist.RandomAccessInterface instead.
  *
  * @author Ocke Janssen oj@openoffice.org
  * @version 1.8.0

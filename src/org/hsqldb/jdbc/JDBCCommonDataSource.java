@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2011, The HSQL Development Group
+/* Copyright (c) 2001-2014, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -44,8 +44,23 @@ import javax.sql.CommonDataSource;
 /**
  * Common base for DataSource implementations.
  *
+ * This class implements the methods used for setting the properties for new
+ * connections.
+ *
+ * The setUrl() or setDatabase() methods are used to set the URL.
+ *
+ * It is possible to set all the rest of required properties in a Properties
+ * file and use the setProperties() method.
+ *
+ * Alternatively, the setXXX() methods for user and password can be used.
+ *
+ * It is best to use only one method for setting the properties.
+ *
+ * If setXXX() methods are used, the values override the values set in a
+ * call made to setProperties() before or after calling setXXX().
+ *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.0.1
+ * @version 2.3.3
  * @since JDK 1.2, HSQLDB 2.0
  * @revised JDK 1.7, HSQLDB 2.0.1
  */
@@ -250,6 +265,16 @@ public abstract class JDBCCommonDataSource implements Serializable {
     }
 
     /**
+     * Sets the jdbc database URL. <p>
+     *
+     * @param url the new value of this object's jdbc database connection
+     *      url attribute
+     */
+    public void setURL(String url) {
+        this.url = url;
+    }
+
+    /**
      * Sets the password for the user name.
      *
      * @param password the password
@@ -287,15 +312,15 @@ public abstract class JDBCCommonDataSource implements Serializable {
                                           : (Properties) props.clone();
 
         if (user != null) {
-            props.setProperty("user", user);
+            connectionProps.setProperty("user", user);
         }
 
         if (password != null) {
-            props.setProperty("password", password);
+            connectionProps.setProperty("password", password);
         }
 
         if (loginTimeout != 0) {
-            props.setProperty("loginTimeout", Integer.toString(loginTimeout));
+            connectionProps.setProperty("loginTimeout", Integer.toString(loginTimeout));
         }
     }
 

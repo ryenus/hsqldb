@@ -164,7 +164,7 @@ implements DataOutput {
 
         ensureRoom(1);
 
-        buffer[count++] = (byte) (v);
+        buffer[count++] = (byte) v;
     }
 
     public void writeChar(int v) {

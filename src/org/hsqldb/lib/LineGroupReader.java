@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2011, The HSQL Development Group
+/* Copyright (c) 2001-2014, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,13 +31,14 @@
 
 package org.hsqldb.lib;
 
+import java.io.IOException;
 import java.io.LineNumberReader;
 
 import org.hsqldb.map.ValuePool;
 
 /**
  * Uses a LineNumberReader and returns multiple consecutive lines which conform
- * to the specified group demarcation characteristics. Any IOException
+ * to the specified group demarcation characteristics. Any {@link IOException}
  * thrown while reading from the reader is handled internally.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)

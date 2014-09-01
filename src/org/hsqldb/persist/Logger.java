@@ -242,11 +242,11 @@ public class Logger {
                     (FileAccess) constructor.newInstance(new Object[]{
                         storagekey });
                 isStoredFileAccess = true;
-            } catch (java.lang.ClassNotFoundException e) {
+            } catch (ClassNotFoundException e) {
                 System.out.println("ClassNotFoundException");
-            } catch (java.lang.InstantiationException e) {
+            } catch (InstantiationException e) {
                 System.out.println("InstantiationException");
-            } catch (java.lang.IllegalAccessException e) {
+            } catch (IllegalAccessException e) {
                 System.out.println("IllegalAccessException");
             } catch (Exception e) {
                 System.out.println("Exception");

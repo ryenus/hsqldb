@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2011, The HSQL Development Group
+/* Copyright (c) 2001-2014, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -100,7 +100,7 @@ implements DataInput {
             throw new EOFException();
         }
 
-        return (ch != 0);
+        return ch != 0;
     }
 
     public final byte readByte() throws IOException {
@@ -136,7 +136,7 @@ implements DataInput {
         int ch1 = buffer[pos++] & 0xff;
         int ch2 = buffer[pos++] & 0xff;
 
-        return (short) ((ch1 << 8) + (ch2));
+        return (short) ((ch1 << 8) + ch2);
     }
 
     public final int readUnsignedShort() throws IOException {
@@ -148,7 +148,7 @@ implements DataInput {
             throw new EOFException();
         }
 
-        return (ch1 << 8) + (ch2);
+        return (ch1 << 8) + ch2;
     }
 
     public final char readChar() throws IOException {
@@ -160,7 +160,7 @@ implements DataInput {
             throw new EOFException();
         }
 
-        return (char) ((ch1 << 8) + (ch2));
+        return (char) ((ch1 << 8) + ch2);
     }
 
     public int readInt() throws IOException {
@@ -176,7 +176,7 @@ implements DataInput {
         int ch3 = buffer[pos++] & 0xff;
         int ch4 = buffer[pos++] & 0xff;
 
-        return ((ch1 << 24) + (ch2 << 16) + (ch3 << 8) + (ch4));
+        return ((ch1 << 24) + (ch2 << 16) + (ch3 << 8) + ch4);
     }
 
     public long readLong() throws IOException {
@@ -198,7 +198,7 @@ implements DataInput {
     public String readLine() throws IOException {
 
         /** @todo: this will probably be useful */
-        throw new java.lang.RuntimeException("not implemented.");
+        throw new java.lang.UnsupportedOperationException("not implemented");
     }
 
     public String readUTF() throws IOException {

@@ -51,8 +51,8 @@ import java.util.logging.LogRecord;
  * @author Blaine Simpson (blaine dot simpson at admc dot com)
  */
 public class BasicTextJdkLogFormatter extends Formatter {
-    protected boolean withTime = true;
     public static final String LS = System.getProperty("line.separator");
+    protected boolean withTime = true;
 
     protected SimpleDateFormat sdf =
             new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
