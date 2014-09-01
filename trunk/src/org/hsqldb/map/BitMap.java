@@ -439,6 +439,29 @@ public class BitMap {
     }
 
     /**
+     * count the unset bits at the high end
+     */
+    public static int countUnsetBitsStart(int map) {
+
+        int mask  = 0x80000000;
+        int count = 0;
+
+        if (map == 0) {
+            return 32;
+        }
+
+        for (; count < 32; count++) {
+            if ((map & mask) != 0) {
+                break;
+            }
+
+            mask >>>= 1;
+        }
+
+        return count;
+    }
+
+    /**
      * copy the byte value into the map at given position (0, 24)
      */
     public static int setByte(int map, byte value, int pos) {

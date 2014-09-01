@@ -72,12 +72,12 @@ public class FileUtil implements FileAccess {
                           : (FileAccess) fileUtil;
     }
 
-    public boolean isStreamElement(java.lang.String elementName) {
+    public boolean isStreamElement(String elementName) {
         return new File(elementName).exists();
     }
 
-    public InputStream openInputStreamElement(java.lang.String streamName)
-    throws java.io.IOException {
+    public InputStream openInputStreamElement(String streamName)
+    throws IOException {
 
         try {
             return new FileInputStream(new File(streamName));
@@ -97,13 +97,12 @@ public class FileUtil implements FileAccess {
         }
     }
 
-    public void renameElement(java.lang.String oldName,
-                              java.lang.String newName) {
+    public void renameElement(String oldName, String newName) {
         renameWithOverwrite(oldName, newName);
     }
 
-    public java.io.OutputStream openOutputStreamElement(
-            java.lang.String streamName) throws java.io.IOException {
+    public OutputStream openOutputStreamElement(String streamName)
+    throws IOException {
         return new FileOutputStream(new File(streamName));
     }
 
@@ -305,7 +304,7 @@ public class FileUtil implements FileAccess {
     }
 
     public FileAccess.FileSync getFileSync(java.io.OutputStream os)
-    throws java.io.IOException {
+    throws IOException {
         return new FileSync((FileOutputStream) os);
     }
 
@@ -375,14 +374,13 @@ public class FileUtil implements FileAccess {
             return fis;
         }
 
-        public void createParentDirs(java.lang.String filename) {}
+        public void createParentDirs(String filename) {}
 
-        public void removeElement(java.lang.String filename) {}
+        public void removeElement(String filename) {}
 
-        public void renameElement(java.lang.String oldName,
-                                  java.lang.String newName) {}
+        public void renameElement(String oldName, String newName) {}
 
-        public java.io.OutputStream openOutputStreamElement(String streamName)
+        public OutputStream openOutputStreamElement(String streamName)
         throws IOException {
             throw new IOException();
         }

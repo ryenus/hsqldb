@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2011, The HSQL Development Group
+/* Copyright (c) 2001-2014, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -165,7 +165,7 @@ public class CharArrayWriter {
 
         System.arraycopy(buffer, 0, newBuffer, 0, count);
 
-        return (char[]) newBuffer;
+        return newBuffer;
     }
 
     public char[] getBuffer() {

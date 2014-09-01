@@ -63,9 +63,4 @@ public interface Collection {
     boolean retainAll(Collection c);
 */
     void clear();
-
-/*
-    boolean equals(Object o);
-*/
-    int hashCode();
 }

@@ -162,11 +162,11 @@ public class DoubleIntIndex implements IntLookup, LongLookup {
     public synchronized boolean addUnsorted(long key, long value) {
 
         if (key > Integer.MAX_VALUE || key < Integer.MIN_VALUE) {
-            throw new java.lang.IllegalArgumentException();
+            throw new IllegalArgumentException();
         }
 
         if (value > Integer.MAX_VALUE || value < Integer.MIN_VALUE) {
-            throw new java.lang.IllegalArgumentException();
+            throw new IllegalArgumentException();
         }
 
         return addUnsorted((int) key, (int) value);
@@ -325,11 +325,11 @@ public class DoubleIntIndex implements IntLookup, LongLookup {
     public int add(long key, long value) {
 
         if (key > Integer.MAX_VALUE || key < Integer.MIN_VALUE) {
-            throw new java.lang.IllegalArgumentException();
+            throw new IllegalArgumentException();
         }
 
         if (value > Integer.MAX_VALUE || value < Integer.MIN_VALUE) {
-            throw new java.lang.IllegalArgumentException();
+            throw new IllegalArgumentException();
         }
 
         return add((int) key, (int) value);

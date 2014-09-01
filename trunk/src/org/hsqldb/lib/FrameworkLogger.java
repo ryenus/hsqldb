@@ -129,7 +129,7 @@ public class FrameworkLogger {
     static {
         try {
             reconfigure();
-        } catch (java.lang.SecurityException e) {}
+        } catch (SecurityException e) {}
     }
 
     /**
