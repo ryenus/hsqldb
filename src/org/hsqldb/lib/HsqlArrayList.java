@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2011, The HSQL Development Group
+/* Copyright (c) 2001-2014, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -37,11 +37,10 @@ import java.util.Comparator;
 // fredt@users - 1.8.0, 1.9.0 - enhancements
 
 /**
- * Intended as an asynchronous alternative to Vector.  Use HsqlLinkedList
- * instead if it's better suited.
+ * Intended as an asynchronous alternative to Vector.
  *
  * @author dnordahl@users
- * @version 1.9.0
+ * @version 2.3.3
  * @since 1.7.0
  */
 public class HsqlArrayList extends BaseList implements HsqlList {

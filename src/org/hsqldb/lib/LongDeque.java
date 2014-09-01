@@ -45,7 +45,7 @@ public class LongDeque {
     private long[] list;
     private int    firstindex = 0;    // index of first list element
     private int    endindex   = 0;    // index of last list element + 1
-    protected int  elementCount;
+    private int    elementCount;
 
     // can grow to fill list
     // if elementCount == 0 then firstindex == endindex
