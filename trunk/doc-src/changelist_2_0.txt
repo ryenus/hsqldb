@@ -7,7 +7,7 @@
 -- fixed issue with getExportedKeys reporting wrong DEFERABILITY
 -- fixed issue with CURRENT VALUE FOR usage
 -- fixed issue with LIKE with parametric escape character
--- fixed issue with CACHED table persistence
+-- fixed an issue with CACHED table persistence
 -- fixed several minor bugs
 -- improved ORA syntax compatibility mode
 -- added support for ALTER CONSTRAINT <name> RENAME TO <new name>
