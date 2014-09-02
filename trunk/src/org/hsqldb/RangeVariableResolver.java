@@ -580,17 +580,6 @@ public class RangeVariableResolver {
         array[index].add(e);
     }
 
-/**
- * if a tiny table is in the middle of the range list, then this will have no
- * effect on joins. therefore the larger tables should be put first, avoiding
- * multiple lookups
- *
- * the index selectivity should also account for the size, and account for
- * disk seek, which means finding a unique value in large tables takes a lot
- * more time than scanning a table with 10 rows.
- *
- *
- */
     void reorder() {
 
         if (!reorder) {
