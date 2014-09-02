@@ -1,14 +1,16 @@
+5395
 -- fixed reporting of DISTINCT and DOMAIN types in JDBC DatabaseMetaData getColumns results
 -- fixed issue with new FK constraints, existing rows are now checked
--- fixed issue with FK constraints with NO ACTION, all valid results are now allowed
+-- fixed restrictions with FK constraints with NO ACTION, all valid outcomes are now allowed
 -- fixed regression in 2.3.2, multiple rows with partial null values could not be inserted in UNIQUE indexes
 -- fixed issue with removal of IDENTITY when using ALTER COLUMN <name> <type>
 -- fixed issue with getExportedKeys reporting wrong DEFERABILITY
 -- fixed issue with CURRENT VALUE FOR usage
 -- fixed issue with LIKE with parametric escape character
+-- fixed issue with CACHED table persistence
 -- fixed several minor bugs
+-- improved ORA syntax compatibility mode
 -- added support for ALTER CONSTRAINT <name> RENAME TO <new name>
--- improved reuse of disk space with CACHED tables
 
 12 February 2014 - version 2.3.2
 -- fixed several minor issues
