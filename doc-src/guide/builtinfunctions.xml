@@ -1555,6 +1555,20 @@
       range of 0 - 86399. (HyperSQL)</para>
 
       <indexterm significance="preferred" type="sql">
+        <primary>UNIX_MILLIS function</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">UNIX_MILLIS</emphasis></simpara>
+
+      <para><literal>UNIX_MILLIS ( [ &lt;datetime value expression&gt; ] )
+      </literal></para>
+
+      <para>This function returns a BIGINT value. With no parameter, it
+      returns the number of milliseconds since 1970-01-01. With a DATE or TIMESTAMP
+      parameter, it converts the argument into number of milliseconds since
+      1970-01-01. (HyperSQL)</para>
+
+      <indexterm significance="preferred" type="sql">
         <primary>UNIX_TIMESTAMP function</primary>
       </indexterm>
 
