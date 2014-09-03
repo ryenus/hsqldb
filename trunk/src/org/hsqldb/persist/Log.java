@@ -528,6 +528,12 @@ public class Log {
             return false;
         }
 
+        long floor = database.logger.propFileSpaceValue * 1024L * 1024;
+
+        if (floor > limit) {
+            limit = floor;
+        }
+
         long lostSize = cache.getLostBlockSize();
 
         return lostSize > limit;

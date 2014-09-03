@@ -439,7 +439,7 @@ public class RowStoreAVLDisk extends RowStoreAVL implements PersistentStore {
 
             // write
             targetCache.rowOut.reset();
-            row.write(targetCache.rowOut, null);
+            row.write(targetCache.rowOut, pointerLookup);
             targetCache.saveRowOutput(newPos);
         }
     }
