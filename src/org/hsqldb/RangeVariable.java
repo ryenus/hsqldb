@@ -874,20 +874,29 @@ public class RangeVariable {
             return;
         }
 
+        OrderedHashSet subquerySet = null;
+
+        for (int i = 0; i < conditionsList.size(); i++) {
+            Expression e = (Expression) conditionsList.get(i);
+
+            subquerySet = e.collectAllSubqueries(subquerySet);
+
+            if (subquerySet != null) {
+                return;
+            }
+        }
+
         QueryExpression queryExpression = rangeTable.getQueryExpression();
 
         colExpr = ((QuerySpecification) queryExpression).exprColumns;
 
         for (int i = 0; i < conditionsList.size(); i++) {
             Expression     e   = (Expression) conditionsList.get(i);
-            OrderedHashSet set = e.collectRangeVariables(null);
 
             e = e.duplicate();
             e = e.replaceColumnReferences(this, colExpr);
 
-            if (e.collectAllSubqueries(null) != null) {
-                return;
-            }
+            OrderedHashSet set = e.collectRangeVariables(null);
 
             if (set != null) {
                 for (int j = 0; j < set.size(); j++) {
@@ -896,6 +905,8 @@ public class RangeVariable {
                     if (this != range
                             && range.rangeType == RangeVariable.TABLE_RANGE) {
                         queryExpression.setCorrelated();
+
+                        break;
                     }
                 }
             }

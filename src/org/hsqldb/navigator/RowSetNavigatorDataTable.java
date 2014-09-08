@@ -138,10 +138,6 @@ public class RowSetNavigatorDataTable extends RowSetNavigatorData {
 
         mainIndex = fullIndex;
 
-        if (iterator != null) {
-            iterator.release();
-        }
-
         reset();
     }
 
@@ -352,9 +348,12 @@ public class RowSetNavigatorDataTable extends RowSetNavigatorData {
 
                 add(currentData);
             }
+
+            it.release();
         }
 
         other.release();
+        reset();
     }
 
     public void intersect(Session session, RowSetNavigatorData other) {

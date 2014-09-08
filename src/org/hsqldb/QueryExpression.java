@@ -544,6 +544,10 @@ public class QueryExpression implements RangeGroup {
     void resolveTypesPartThree(Session session) {
         compileContext = null;
         isResolved     = true;
+
+        if (isRecursive) {
+            recursiveTable.queryExpression.isCorrelated = false;
+        }
     }
 
     public Object[] getValues(Session session) {
