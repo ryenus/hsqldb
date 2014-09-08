@@ -33,6 +33,7 @@ package org.hsqldb.jdbc.pool;
 
 import java.io.Serializable;
 import java.sql.SQLException;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import javax.naming.NamingException;
 import javax.naming.Reference;
@@ -69,7 +70,7 @@ import org.hsqldb.lib.Iterator;
  * The methods of the superclass, {@link org.hsqldb.jdbc.JDBCCommonDataSource},
  * are used for settings the HyperSQL server and user.<p>
  *
- * @version 2.2.9
+ * @version 2.3.3
  * @since 2.0.0
  * @author Blaine Simpson (blaine dot simpson at admc dot com)
  * @see javax.sql.XADataSource
@@ -151,9 +152,16 @@ implements XADataSource, Serializable, Referenceable
 
     // ------------------------ internal implementation ------------------------
     private HashMap resources = new HashMap();
+    private ReentrantReadWriteLock lock = new ReentrantReadWriteLock(true);
 
     public void addResource(Xid xid, JDBCXAResource xaResource) {
-        resources.put(xid, xaResource);
+        lock.writeLock().lock();
+
+        try {
+            resources.put(xid, xaResource);
+        } finally {
+            lock.writeLock().unlock();
+        }
     }
 
     public JDBCXADataSource() throws SQLException {
@@ -162,7 +170,13 @@ implements XADataSource, Serializable, Referenceable
     }
 
     public JDBCXAResource removeResource(Xid xid) {
-        return (JDBCXAResource) resources.remove(xid);
+        lock.writeLock().lock();
+
+        try{
+            return (JDBCXAResource) resources.remove(xid);
+        } finally{
+            lock.writeLock().unlock();
+        }
     }
 
     /**
@@ -175,24 +189,31 @@ implements XADataSource, Serializable, Referenceable
      */
     Xid[] getPreparedXids() {
 
-        Iterator it = resources.keySet().iterator();
-        Xid      curXid;
-        HashSet  preparedSet = new HashSet();
+        lock.writeLock().lock();
 
-        while (it.hasNext()) {
-            curXid = (Xid) it.next();
+        try {
 
-            if (((JDBCXAResource) resources.get(curXid)).state
+            Iterator it = resources.keySet().iterator();
+            Xid curXid;
+            HashSet preparedSet = new HashSet();
+
+            while (it.hasNext()) {
+                curXid = (Xid) it.next();
+
+                if ( ( (JDBCXAResource) resources.get(curXid)).state
                     == JDBCXAResource.XA_STATE_PREPARED) {
-                preparedSet.add(curXid);
+                    preparedSet.add(curXid);
+                }
             }
+
+            Xid[] array = new Xid[preparedSet.size()];
+
+            preparedSet.toArray(array);
+
+            return array;
+        } finally {
+            lock.writeLock().unlock();
         }
-
-        Xid[] array = new Xid[preparedSet.size()];
-
-        preparedSet.toArray(array);
-
-        return array;
     }
 
     /**
@@ -205,6 +226,12 @@ implements XADataSource, Serializable, Referenceable
      * @see javax.transaction.xa.XAResource#rollback(Xid)
      */
     JDBCXAResource getResource(Xid xid) {
-        return (JDBCXAResource) resources.get(xid);
+        lock.readLock().lock();
+
+        try {
+            return (JDBCXAResource) resources.get(xid);
+        } finally {
+            lock.readLock().unlock();
+        }
     }
 }
