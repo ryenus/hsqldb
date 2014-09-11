@@ -1183,7 +1183,8 @@ public class ParserDQL extends ParserBase {
 
         QuerySpecification select = XreadSelect();
 
-        if (!select.isValueList) {
+        if (!select.isValueList
+                && select.getCurrentRangeVariableCount() == 0) {
             XreadTableExpression(select);
         }
 
@@ -1246,42 +1247,15 @@ public class ParserDQL extends ParserBase {
             }
 
             if (token.tokenType == Tokens.CLOSEBRACKET
-                    || token.tokenType == Tokens.X_ENDPARSE) {
+                    || token.tokenType == Tokens.X_ENDPARSE
+                    || token.tokenType == Tokens.SEMICOLON) {
                 if (database.sqlSyntaxMss || database.sqlSyntaxMys
                         || database.sqlSyntaxPgs) {
-                    Expression[] exprList =
-                        new Expression[select.exprColumnList.size()];
+                    RangeVariable range =
+                        new RangeVariable(database.schemaManager.dualTable,
+                                          null, null, null, compileContext);
 
-                    select.exprColumnList.toArray(exprList);
-
-                    Expression row = new Expression(OpTypes.ROW, exprList);
-
-                    exprList = new Expression[]{ row };
-
-                    Expression valueList = new Expression(OpTypes.VALUELIST,
-                                                          exprList);
-
-                    compileContext.incrementDepth();
-
-                    HsqlName[] colNames = new HsqlName[row.getDegree()];
-
-                    for (int i = 0; i < colNames.length; i++) {
-                        SimpleName name = row.nodes[i].getSimpleName();
-
-                        if (name == null) {
-                            colNames[i] = HsqlNameManager.getAutoColumnName(i);
-                        } else {
-                            colNames[i] = HsqlNameManager.getColumnName(name);
-                        }
-                    }
-
-                    TableDerived td = prepareSubqueryTable(valueList,
-                                                           colNames);
-
-                    select = new QuerySpecification(session, td,
-                                                    compileContext, true);
-
-                    compileContext.decrementDepth();
+                    select.addRangeVariable(session, range);
 
                     return select;
                 }
@@ -2500,14 +2474,18 @@ public class ParserDQL extends ParserBase {
                             return null;
                         }
 
-                        if (td.queryExpression.isSingleColumn()) {
-                            e = new Expression(OpTypes.SCALAR_SUBQUERY, td);
-                        } else {
-                            e = new Expression(OpTypes.ROW_SUBQUERY, td);
+                        if (td.queryExpression != null) {
+                            if (td.queryExpression.isSingleColumn()) {
+                                e = new Expression(OpTypes.SCALAR_SUBQUERY,
+                                                   td);
+                            } else {
+                                e = new Expression(OpTypes.ROW_SUBQUERY, td);
+                            }
                         }
 
-                        return e;
-
+                        if (e != null) {
+                            return e;
+                        }
                     default :
                         rewind(position);
 
@@ -6712,8 +6690,9 @@ public class ParserDQL extends ParserBase {
             }
 
             for (int i = 0; i < rangeVariables.size(); i++) {
-                RangeVariable range = (RangeVariable) rangeVariables.getValue(i);
-                HsqlName      name  = range.rangeTable.getName();
+                RangeVariable range =
+                    (RangeVariable) rangeVariables.getValue(i);
+                HsqlName name = range.rangeTable.getName();
 
                 if (name.schema != SqlInvariants.SYSTEM_SCHEMA_HSQLNAME) {
                     set.add(range.rangeTable.getName());

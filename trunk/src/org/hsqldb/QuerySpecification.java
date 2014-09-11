@@ -201,6 +201,10 @@ public class QuerySpecification extends QueryExpression {
         return rangeVariables;
     }
 
+    public int getCurrentRangeVariableCount() {
+        return rangeVariableList.size();
+    }
+
     // range variable sub queries are resolves fully
     private void resolveRangeVariables(Session session,
                                        RangeGroup[] rangeGroups) {
