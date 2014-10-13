@@ -150,7 +150,7 @@ public abstract class TestBase extends TestCase {
         }
     }
 
-    Connection newConnection() throws SQLException {
+    protected Connection newConnection() throws SQLException {
         return DriverManager.getConnection(url, user, password);
     }
 
