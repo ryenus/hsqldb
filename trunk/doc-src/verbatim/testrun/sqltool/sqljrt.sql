@@ -12,6 +12,4 @@ create function dehex(VARCHAR(80), INTEGER)
 .;
 
 CALL dehex('12', 16);
-*if (*? != 18)
-    \q SQL/JRT function failed
-*end if
+*if (*? != 18) \q SQL/JRT function failed

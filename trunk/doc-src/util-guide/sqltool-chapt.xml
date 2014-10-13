@@ -272,54 +272,33 @@
                   SqlTool achieves several new benefits by purposefully
                   assigning the empty string for some purposes, and
                   distinctly unsetting for other purposes.
-                  One example of this is the new consistent and robust handling
+                  One example of this is the consistent and robust handling
                   of the PL variable <varname>?</varname>.
-                  Now, when <varname>?</varname> is unset (aka
-                  <emphasis>null</emphasis>), it always mean that the last
+                  When <varname>?</varname> is unset (aka
+                  <emphasis>null</emphasis>), it always means that the last
                   SQL command failed.
                   If this variable has the value of the empty string, it means
                   that the last cell returned had value of the empty string,
                   or the <literal>?</literal> was reset (for example due to
                   SqlTool startup).
                 </simpara> <simpara>
-                  When you run SqlTool interactively, you will see warnings
-                  about setting PL variables to nothing.
-                  If you don't do anything involving assignment or testing of
-                  unset or empty variables, then skip this item and ignore the
-                  new warnings.
-                  In an upcoming release, by default, setting a PL variable to
-                  nothing, like <literal>* name = Bruno</literal> will no
-                  longer unset/remove the variable but will instead assign an
-                  empty-string value.
-                  There are important use cases for empty-string values.
-                  In new scripts and interactively, from now on you should use
-                  the new PL command "<literal>* - VARNAME</literal>" if you
-                  really want to unset a variable.
-                  If you do not set Java system property
-                  '<literal>sqltool.REMOVE_EMPTY_VARS</literal>',
-                  everything behaves just like before (except that you will be
-                  able to use the new <literal>* - VARNAME</literal> command),
-                  but you will get the warnings.
-                  But if you do anything involving assignment or testing of
-                  unset or empty variables, you need to set this property.
+                  For now on (in accordance with years of warnings) by default,
+                  setting a PL variable to nothing, like
+                  <literal>* name =</literal> assigns an empty-string
+                  value instead of unsetting/removing the variable.
+                  To unset/remove a variable you should use the dedicated PL
+                  command "<literal>* - VARNAME</literal>".
+                  You can set Java system property
+                  '<literal>sqltool.REMOVE_EMPTY_VARS</literal>' to keep the
+                  inferior, legacy behavior where
+                  <literal>* name =</literal> will unset the variable
+                  (even with this setting you can still intermix this with
+                  the <literal>* - VARNAME</literal> command) .
+                  You should only use
+                  '<literal>sqltool.REMOVE_EMPTY_VARS</literal>' in conjunction
+                  with old scripts that you can't update.
                 </simpara> <simpara>
-                  For legacy scripts, you should set
-                  '<literal>sqltool.REMOVE_EMPTY_VARS</literal>' to
-                  <literal>true</literal> to quiet the messages, retaining the
-                  old behavior and protecting from the behavior change in the
-                  future.
-                  For maintained or new scripts, set the value of the property
-                  to <literal>false</literal>, and only use
-                  "<literal>* - VARNAME</literal>" to unset variables.
-                </simpara> <simpara>
-                  <literal>sqltool.REMOVE_EMPTY_VARS</literal> only effects the
-                  assignment operation <literal>* VARNAME =</literal>.
-                  Regardless of this setting, SqlTool itself will assign some
-                  SqlTool PL variables to the empty string and to null,
-                  and _ will assign nulls if the next call value retrieve is
-                  null,
-                  variables which have never been set will be equal to null,
-                  and you can use command line parameters
+                  You can use command line parameters
                   <literal>-P</literal> or <literal>--setVar</literal> to
                   assign PL variables to the empty String.
                   (For example
@@ -327,17 +306,6 @@
                 </simpara></listitem><listitem><simpara>
                   DSV input now accepts JDBC Timestamp format with date and
                   optionally time of day.
-                </simpara></listitem><listitem><simpara>
-                  The simplest PL command, just "<literal>*</literal>", has
-                  been deprecated.  It is now useless since the only time
-                  where variables are not expanded are in SQL commands if no
-                  user variable has been set.
-                  Since you obviously must set at least one variable value if
-                  you intend for variable substitution to succeed, the purpose
-                  of the old <literal>*</literal> command is satisfied
-                  intuitively and automatically now.
-                  (That purpose being to prevent modification of SQL text
-                  without the operator's knowledge).
                 </simpara></listitem><listitem><simpara>
                     The <literal>*</literal> command (just plain
                     "<literal>*</literal>") has
@@ -2091,23 +2059,12 @@
                 </simpara></important>
             </para>
             <warning><para>
-              With the current version of SqlTool, you can't use this
-              assignment command to set the value of a variable to the empty
-              string unless you set Java system property
+              You can use this assignment command to set the value of a
+              variable to the empty string (unless you set Java system property
               <literal>sqltool.REMOVE_EMPTY_VARS</literal>
-              to <literal>false</literal>.
+              to <literal>true</literal>).
               We are talking about assignments like the following:
                 <programlisting>    * VARNAME =</programlisting>
-              If <literal>sqltool.REMOVE_EMPTY_VARS</literal> is set to
-              <literal>false</literal>, then the assignment shown assigns
-              the empty string.
-              Otherwise, the assignment shown <emphasis>unsets</emphasis> the
-              variable (which is equivalent to setting it to be null).
-              You are encouraged to set
-              <literal>sqltool.REMOVE_EMPTY_VARS</literal>
-              to <literal>false</literal>, because this will become the default
-              behavior of SqlTool shortly (i.e. even if you don't set the
-              system property).
               Regardless of <literal>sqltool.REMOVE_EMPTY_VARS</literal>, you
               can always use the unset command (described next) to unset
               variables, and you can always use command line switches
@@ -2470,6 +2427,23 @@
                 If an error occurs when continue-on-error is false, the
                 script would abort immediately.
             </simpara>
+            <tip><para>
+                It can be very convenient to end-users to write SQL scripts
+                that take a parameter(s) but use default values if none is
+                specified.
+                <example>
+                  <title>Default parameter value with optional user-specified override</title>
+                  <screen>
+# User can specify a value like...
+java -jar .../sqltool.jar -Pvarname=override urlid script.sql
+# Or use the default varname value:
+java -jar .../sqltool.jar urlid script.sql</screen>
+                  <programlisting>
+-- In your script assign your default value like so:
+*if (*varname == **NUL) * varname = default value</programlisting>
+                </example>
+                This works in "auto.sql" file too.
+            </para></tip>
         </section>
         <section xml:id='sqltool_scripting-sect'>
             <title xml:id='scripting-title'>Piping and shell scripting</title>
@@ -3127,6 +3101,11 @@ OneTwo</screen>
         \p MYVAR is now an empty string
     * end if</screen></example>
             </para>
+            <simpara>
+              There's an example in this chapter showing how to leverage this
+              feature to set default values for optional user-specified
+              parameters.
+            </simpara>
             <simpara>
               Definitely study the
               <link xlink:href='#sqltool_specialqplus-ex' endterm='specialqplus-title'/>
