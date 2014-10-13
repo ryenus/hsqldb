@@ -11,6 +11,4 @@ CREATE TABLE t (i INT, r REAL, d DATE, t TIMESTAMP, v VARCHAR(80), b BOOLEAN);
 
 SELECT COUNT(*) FROM t;
 
-*if (*? != 2)
-    \q Should have imported 2 good DSV records, but imported *{?}
-*end if
+*if (*? != 2) \q Should have imported 2 good DSV records, but imported *{?}

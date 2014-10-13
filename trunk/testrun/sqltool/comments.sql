@@ -49,77 +49,51 @@ INSERT INTO t VALUES (9);
 
 /* Simple SQL-embedded traditional comments */
 SELECT * FROM  /* A simple traditional comment */ t;
-* if (*? != 9)
-    \q Hyphen-hyphen trailing SQL failed
-* end if
+* if (*? != 9) \q Hyphen-hyphen trailing SQL failed
 SELECT * FROM  /* A simple traditional
 comment */ t;
-* if (*? != 9)
-    \q Hyphen-hyphen trailing SQL failed
-* end if
+* if (*? != 9) \q Hyphen-hyphen trailing SQL failed
 SELECT * FROM  -- A simple single-line comment
 t;
-* if (*? != 9)
-    \q Hyphen-hyphen trailing SQL failed
-* end if
+* if (*? != 9) \q Hyphen-hyphen trailing SQL failed
 SELECT * FROM  -- Two simple single-line
 -- comments
 t;
-* if (*? != 9)
-    \q Hyphen-hyphen trailing SQL failed
-* end if
+* if (*? != 9) \q Hyphen-hyphen trailing SQL failed
 SELECT * FROM  -- Two simple single-line
   -- comments.  With leading white space
   t;
-* if (*? != 9)
-    \q Hyphen-hyphen trailing SQL failed
-* end if
+* if (*? != 9) \q Hyphen-hyphen trailing SQL failed
 
 /* Nesting different comments inside one another */
 /* -- The traditional comment should still close. */
 SELECT * FROM  /* Something -- single-line SQL-trailing comment */ t;
-* if (*? != 9)
-    \q Hyphen-hyphen trailing SQL failed
-* end if
+* if (*? != 9) \q Hyphen-hyphen trailing SQL failed
 
 /* Sanity check */
 * V1 = one
-* if (*V1 != one)
-  \q Failed sanity check for simple variable test
-* end if
+* if (*V1 != one) \q Failed sanity check for simple variable test
 
 /* Test single-line within PL command */
 * V2 = alpha--some crap
-* if (*V2 != alpha)
-  \q Failed single-line within PL command
-* end if
+* if (*V2 != alpha) \q Failed single-line within PL command
 
 /* Test traditional within PL command */
 * V3 = gamma/*some crap*/
-* if (*V3 != gamma)
-  \q Failed traditional within PL command
-* end if
+* if (*V3 != gamma) \q Failed traditional within PL command
 
 /* Test multiple traditionals within PL command */
 * V4 = de/*some crap*/l/*more*/ta
-* if (*V4 != delta)
-  \q Failed multiple traditional within PL command
-* end if
+* if (*V4 != delta) \q Failed multiple traditional within PL command
 
 /* Test single-line within PL command */
 * V5 = alpha--some crap /* with nested traditional */ there
-* if (*V5 != alpha)
-  \q Failed single-line within PL w/ nesting+trailing failed
-* end if
+* if (*V5 != alpha) \q Failed single-line within PL w/ nesting+trailing failed
 
 /* Test single-line within PL command */
 * V6 = alpha--some crap /* with nested traditional */
-* if (*V6 != alpha)
-  \q Failed single-line within PL w/ nesting failed
-* end if
+* if (*V6 != alpha) \q Failed single-line within PL w/ nesting failed
 
 /* Test single-line within PL command */
 * V7 = alpha--some crap /* with nested traditional
-* if (*V6 != alpha)
-  \q Failed single-line within PL w/ unclosed nesting failed
-* end if
+* if (*V6 != alpha) \q Failed single-line within PL w/ unclosed nesting failed

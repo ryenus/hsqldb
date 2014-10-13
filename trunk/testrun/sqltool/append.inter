@@ -15,29 +15,21 @@ INSERT INTO t (vc) VALUES('c');
 INSERT INTO t (vc) VALUES('b');
 
 SELECT count(*) FROM t
-*if (*? != 4)
-    \q Sanity check failed / 1
-*end if
+*if (*? != 4) \q Sanity check failed / 1
 
 SELECT count(*) FROM t WHERE vc = 'b';
-*if (*? != 2)
-    \q Sanity check failed / 2
-*end if
+*if (*? != 2) \q Sanity check failed / 2
 
 INSERT INTO t(vc) VALUES
 
 :a ('prefpost');
 
 SELECT count(*) FROM t
-*if (*? != 5)
-    \q Append + repl failed / 1
-*end if
+*if (*? != 5) \q Append + repl failed / 1
 
 SELECT vc FROM t;
 SELECT count(*) FROM t WHERE vc = 'prefpost';
-*if (*? != 1)
-    \q Append + repl failed / 2
-*end if
+*if (*? != 1) \q Append + repl failed / 2
 
 SELECT count(*) FROM t;
 
@@ -45,9 +37,7 @@ SELECT count(*) FROM t;
 :h
 :-2a WHERE vc = 'b';
 
-*if (*? != 2)
-    \q Recall + Append + exec failed / 1
-*end if
+*if (*? != 2) \q Recall + Append + exec failed / 1
 
 :-1
 :a AND
@@ -55,6 +45,4 @@ SELECT count(*) FROM t;
 = 1
 
 :;
-*if (*? != 1)
-    \q Recall + multi-line Append failed / 1
-*end if
+*if (*? != 1) \q Recall + multi-line Append failed / 1

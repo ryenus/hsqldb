@@ -9,37 +9,23 @@
 * - un1
 * - un2
 
-* if (*unsetA != *unsetB)
-    \q Two never-set vars differ
-* end if
-* if (*un1 != *un2)
-    \q Two explicitly unset variables differ
-* end if
-* if (*un1 != *unsetA)
-    \q Explicitly unset vs. neverset vars differ
-* end if
+* if (*unsetA != **NULL) \q Never used variable is not **NULL
+* if (*un1 != **NULL) \q Explicitly unset variable is not **NULL
+* if (*unsetA != *unsetB) \q Two never-set vars differ
+* if (*un1 != *un2) \q Two explicitly unset variables differ
+* if (*un1 != *unsetA) \q Explicitly unset vs. neverset vars differ
 
-* if (*mt1 != *mt2)
-    \q Two legacy-unset vars differ
-* end if
+* if (*mt1 != *mt2) \q Two legacy-unset vars differ
 
-* if (*mt1 != *mt3)
-    \q Two legacy-unset vars differ, one set to blanks
-* end if
+* if (*mt1 != *mt3) \q Two legacy-unset vars differ, one set to blanks
 
-* if (*mt1 == *unset)
-    \q Legacy-unset var != never-set var
-* end if
+* if (*mt1 == *unset) \q Legacy-unset var != never-set var
 
-* if (alpha != alpha)
-    \q Sanity constant comparison failed
-* end if
+* if (alpha != alpha) \q Sanity constant comparison failed
 
 * a = alpha
 * anotherA = alpha
-* if (*a != *anotherA)
-    \q To equivalant variable values differ
-* end if
+* if (*a != *anotherA) \q To equivalant variable values differ
 
 -- Following two have 2 trailing spaces:
 * wsTrailed1 = alpha  

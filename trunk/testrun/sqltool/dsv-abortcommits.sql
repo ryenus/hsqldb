@@ -11,9 +11,7 @@ CREATE TABLE t (i INT, r REAL, d DATE, t TIMESTAMP, v VARCHAR(80), b BOOLEAN);
 \a true
 \m dsv-rejects.dsv
 SELECT COUNT(*) FROM t;
-*if (*? != 1)
-    \q Should have imported 1 good DSV records, but imported *{?} (1)
-*end if
+*if (*? != 1) \q Should have imported 1 good DSV records, but imported *{?} (1)
 ROLLBACK;
 SELECT COUNT(*) FROM t;
 *if (*? != 1)
@@ -26,9 +24,7 @@ DELETE FROM t;
 COMMIT;
 \m dsv-rejects.dsv
 SELECT COUNT(*) FROM t;
-*if (*? != 1)
-    \q Should have imported 1 good DSV records, but imported *{?} (2)
-*end if
+*if (*? != 1) \q Should have imported 1 good DSV records, but imported *{?} (2)
 ROLLBACK;
 SELECT COUNT(*) FROM t;
 *if (*? != 0)
@@ -40,9 +36,7 @@ COMMIT;
 * *DSV_RECORDS_PER_COMMIT = 10
 \m dsv-rejects.dsv
 SELECT COUNT(*) FROM t;
-*if (*? != 1)
-    \q Should have imported 1 good DSV records, but imported *{?} (3)
-*end if
+*if (*? != 1) \q Should have imported 1 good DSV records, but imported *{?} (3)
 ROLLBACK;
 SELECT COUNT(*) FROM t;
 *if (*? != 1)

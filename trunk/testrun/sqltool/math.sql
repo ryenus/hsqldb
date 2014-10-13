@@ -3,23 +3,17 @@
  */
 
 *((x=1+2+3))
-* if (*x != 6)
-    \q Tight (non-whitespace) math expression failed
-* end if
+* if (*x != 6) \q Tight (non-whitespace) math expression failed
 
 *z = notanum
   *  ((  z  =  1  +  2  +  3  ))  
-* if (*z != 6)
-    \q Loose (much-whitespace) math expression failed
-* end if
+* if (*z != 6) \q Loose (much-whitespace) math expression failed
 
 -- Force an error with a non-integral variable
 -- *x=werd
 
 * ((y =(x*2)/3 -(2 + 2)))
-* if (*y != 0)
-    \q Math expression with parenthetical nesting failed
-* end if
+* if (*y != 0) \q Math expression with parenthetical nesting failed
 
 CREATE TABLE t(i INTEGER);
 
@@ -32,22 +26,16 @@ CREATE TABLE t(i INTEGER);
 
 * c _
 SELECT COUNT(*) FROM t;
-* if (*c != 5)
-    \q Loop failed to insert right number of records
-* end if
+* if (*c != 5) \q Loop failed to insert right number of records
 
 * r _
 SELECT COUNT(*) FROM t WHERE i = 4;
-* if (*r != 1)
-    \q Loop failed to insert record with i == 4
-* end if
+* if (*r != 1) \q Loop failed to insert record with i == 4
 
 *a = 3
 *((z=a*2))
 *(( z *= 1 + 1 ))
-* if (*z != 12)
-    \q Math op #1 failed
-* end if
+* if (*z != 12) \q Math op #1 failed
 
 -- Series of squares
 * sum = 0
@@ -56,19 +44,13 @@ SELECT COUNT(*) FROM t WHERE i = 4;
   * ((sum += i*i))
   * ((i++))
 * end while
-* if (*sum != 30)
-    \q Math summation failed
-* end if
+* if (*sum != 30) \q Math summation failed
 -- Count back down
 * while (*i > 0)
   * ((i-=1)) -- We do not support '--'
   * ((sum -= i*i))
 * end while
-* if (*sum != 0)
-    \q Reversion of summation failed.  *{sum} left over.
-* end if
+* if (*sum != 0) \q Reversion of summation failed.  *{sum} left over.
 
 * ((  v1 = (3 + 4) ^ (1 + 2) * 3  ))
-* if (*v1 != 1029)
-    \q Power operation failed
-* end if
+* if (*v1 != 1029) \q Power operation failed

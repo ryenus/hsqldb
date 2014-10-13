@@ -5,9 +5,7 @@
  */
 
 * if (1)
-    *if (2)
-        \q Forced error
-    *end if
+    *if (2) \q Forced error
     worse;
 * end if 
 

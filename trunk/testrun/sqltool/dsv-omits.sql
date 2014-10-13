@@ -10,9 +10,7 @@ CREATE TABLE t (i INT, a INT, b INT, c INT);
 SELECT COUNT(*) FROM t
 WHERE i IS NOT null AND a IS NOT null AND b IS NOT null AND c IS NOT null;
 
-*if (*? != 2)
-    \q Import using header line - column-skips failed
-*end if
+*if (*? != 2) \q Import using header line - column-skips failed
 
 /** Repeat test with some non-default DSV settings */
 * *DSV_SKIP_COLS =   c|   a 

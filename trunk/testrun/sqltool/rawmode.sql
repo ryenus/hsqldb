@@ -16,9 +16,7 @@ SELECT i FROM t
 
 .;
 
-*if (*? != 42)
-    \q Raw command failed
-*end if
+*if (*? != 42) \q Raw command failed
 
 -- To change results so we can be confident of getting 1 later on.
 INSERT INTO t values (43);

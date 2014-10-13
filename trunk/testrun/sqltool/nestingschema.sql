@@ -17,6 +17,4 @@ CREATE SCHEMA FELIX AUTHORIZATION DBA
     CREATE VIEW FELIXV2 AS SELECT AV1 AS C1, NEXT VALUE FOR FELIXS1 AS C2 FROM FELIXT1;
 
 SELECT count(*) FROM felix.felixv2;
-*if (*? != 0)
-    \q Nesting CREATE SCHEMA failed
-*end if
+*if (*? != 0) \q Nesting CREATE SCHEMA failed

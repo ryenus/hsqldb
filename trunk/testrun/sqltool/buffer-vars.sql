@@ -9,9 +9,7 @@ INSERT INTO t(i, a, d) VALUES (1, 149, null);
 -- 1-liner sanity check:
 * qpart1 = i FROM
 SELECT *{qpart1} t;
-* if (*? != 1)
-      \q 1-line query with internal PL variable failed
-* end if
+* if (*? != 1) \q 1-line query with internal PL variable failed
 
 -- Multi-line PL var:
 \.
@@ -20,9 +18,7 @@ a
 .
 * qpart2 :
 SELECT *{qpart2} t;
-* if (*? != 149)
-      \q 1-line query with multi-line internal PL variable failed
-* end if
+* if (*? != 149) \q 1-line query with multi-line internal PL variable failed
 
 * res1 ~
 SELECT
@@ -64,9 +60,7 @@ a
 .
 * qpart3 : 
 SELECT *{qpart3}t;
-* if (*? != 149)
-      \q White space inserted with middle appendage
-* end if
+* if (*? != 149) \q White space inserted with middle appendage
 
 -- With separating white space in the base
 \.
@@ -75,6 +69,4 @@ a
 .
 * qpart3 :
 SELECT *{qpart3}t;
-* if (*? != 149)
-      \q White space inserted with middle appendage
-* end if
+* if (*? != 149) \q White space inserted with middle appendage

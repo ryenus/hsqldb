@@ -26,25 +26,17 @@ INSERT INTO t(vc) VALUES('three');
 :;
 
 SELECT count(*) FROM t
-*if (*? != 6)
-    \q Recall and execs failed / 1
-*end if
+*if (*? != 6) \q Recall and execs failed / 1
 
 /* SELECT vc FROM t; */
 SELECT count(*) FROM t WHERE vc = 'two';
-*if (*? != 4)
-    \q Recall and execs failed / 2
-*end if
+*if (*? != 4) \q Recall and execs failed / 2
 
 :/ee/;
 
 SELECT count(*) FROM t;
-*if (*? != 7)
-    \q Regex Recall and execs failed / 1
-*end if
+*if (*? != 7) \q Regex Recall and execs failed / 1
 
 /* SELECT vc FROM t; */
 SELECT count(*) FROM t WHERE vc = 'three';
-*if (*? != 2)
-    \q Regex Recall and execs failed / 2
-*end if
+*if (*? != 2) \q Regex Recall and execs failed / 2

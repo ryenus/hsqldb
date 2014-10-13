@@ -41,34 +41,22 @@ CREATE TABLE t (
 
 \m nullrep.dsv
 SELECT count(*) FROM t WHERE id = 'wspaces' AND i IS null;
-*if (*? != 1)
-    \q Insertion of INTEGER space-embedded null-rep-token failed
-*end if
+*if (*? != 1) \q Insertion of INTEGER space-embedded null-rep-token failed
 
 SELECT count(*) FROM t WHERE id = 'wspaces' AND r IS null;
-*if (*? != 1)
-    \q Insertion of REAL space-embedded null-rep-token failed
-*end if
+*if (*? != 1) \q Insertion of REAL space-embedded null-rep-token failed
 
 SELECT count(*) FROM t WHERE id = 'wspaces' AND d IS null;
-*if (*? != 1)
-    \q Insertion of DATE space-embedded null-rep-token failed
-*end if
+*if (*? != 1) \q Insertion of DATE space-embedded null-rep-token failed
 
 SELECT count(*) FROM t WHERE id = 'wspaces' AND t IS null;
-*if (*? != 1)
-    \q Insertion of TIMESTAMP space-embedded null-rep-token failed
-*end if
+*if (*? != 1) \q Insertion of TIMESTAMP space-embedded null-rep-token failed
 
 SELECT count(*) FROM t WHERE id = 'wspaces' AND v = '  [null]  ';
-*if (*? != 1)
-    \q Insertion of VARCHAR w/ space-embedded null-rep-token failed
-*end if
+*if (*? != 1) \q Insertion of VARCHAR w/ space-embedded null-rep-token failed
 
 SELECT count(*) FROM t WHERE id = 'wspaces' AND b IS null;
-*if (*? != 1)
-    \q Insertion of BOOLEAN space-embedded null-rep-token failed
-*end if
+*if (*? != 1) \q Insertion of BOOLEAN space-embedded null-rep-token failed
 
 DELETE FROM t;
 
@@ -79,31 +67,19 @@ DELETE FROM t;
 
 \m nullrep-alt.dsv
 SELECT count(*) FROM t WHERE id = 'wspaces' AND i IS null;
-*if (*? != 1)
-    \q Insertion of INTEGER space-embedded null-rep-token failed
-*end if
+*if (*? != 1) \q Insertion of INTEGER space-embedded null-rep-token failed
 
 SELECT count(*) FROM t WHERE id = 'wspaces' AND r IS null;
-*if (*? != 1)
-    \q Insertion of REAL space-embedded null-rep-token failed
-*end if
+*if (*? != 1) \q Insertion of REAL space-embedded null-rep-token failed
 
 SELECT count(*) FROM t WHERE id = 'wspaces' AND d IS null;
-*if (*? != 1)
-    \q Insertion of DATE space-embedded null-rep-token failed
-*end if
+*if (*? != 1) \q Insertion of DATE space-embedded null-rep-token failed
 
 SELECT count(*) FROM t WHERE id = 'wspaces' AND t IS null;
-*if (*? != 1)
-    \q Insertion of TIMESTAMP space-embedded null-rep-token failed
-*end if
+*if (*? != 1) \q Insertion of TIMESTAMP space-embedded null-rep-token failed
 
 SELECT count(*) FROM t WHERE id = 'wspaces' AND v = '  %%  ';
-*if (*? != 1)
-    \q Insertion of VARCHAR w/ space-embedded null-rep-token failed
-*end if
+*if (*? != 1) \q Insertion of VARCHAR w/ space-embedded null-rep-token failed
 
 SELECT count(*) FROM t WHERE id = 'wspaces' AND b IS null;
-*if (*? != 1)
-    \q Insertion of BOOLEAN space-embedded null-rep-token failed
-*end if
+*if (*? != 1) \q Insertion of BOOLEAN space-embedded null-rep-token failed

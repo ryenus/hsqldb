@@ -4,60 +4,34 @@
  * Tests PL control flow.  if, foreach statements, etc.
  */
 
-*if (*UNSET)
-    \q Failed boolean test of an unset variable
-*end if
-*if (astring)
-   * y = something
-*end if
-*if (*X)
-    \q Failed boolean test of a simple string constant
-*end if
-*if (0)
-    \q Failed boolean test of zero constant
-*end if
-*if (!x)
-    \q Failed boolean test of a plain constant
-*end if
+*if (*UNSET) \q Failed boolean test of an unset variable
+*if (astring) * y = something
+*if (*X) \q Failed boolean test of a simple string constant
+*if (0) \q Failed boolean test of zero constant
+*if (!x) \q Failed boolean test of a plain constant
 
 
 /* Nested if tests */
 * if (1)
     * L1 = true
-    * if (2)
-        * L2 = true
-    * end if
+    * if (2) * L2 = true
     * L11 = true
 * end if
-*if (! *L1)
-    \q Pre-nest failure
-*end if
-*if (! *L2)
-    \q Inside-nest failure
-*end if
-*if (! *L11)
-    \q Post-nest failure
-*end if
+*if (! *L1) \q Pre-nest failure
+*if (! *L2) \q Inside-nest failure
+*if (! *L11) \q Post-nest failure
 * L1 =
 * L2 =
 * L11 =
 * if (1)
     * L1 = true
-    * if (2)
-        * L2 = true
-    * end if
+    * if (2) * L2 = true
     * L11 = true
 * end if
-*if (! *L1)
-    \q Pre-nest failure
-*end if
-*if (! *L2)
-    \q Inside-nest failure
-*end if
-*if (! *L11)
-    \q Post-nest failure
-*end if
-/* Test deep nesting of IFs, including negatives. */
+*if (! *L1) \q Pre-nest failure
+*if (! *L2) \q Inside-nest failure
+*if (! *L11) \q Post-nest failure
+/* Test deep nesting of IFs, including negatives.  No inlines. */
 * if (1)
     * L1 = true
     * if (0)
@@ -97,51 +71,21 @@
     * end if
     * L11 = true
 * end if
-*if (! *L1)
-    \q Pre-deep-nest failure 1
-*end if
-*if (! *L2)
-    \q Inside-deep-nest failure 2
-*end if
-*if (! *L11)
-    \q Post-deep-nest failure 11
-*end if
-*if (! *L3)
-    \q Pre-deep-nest failure 3
-*end if
-*if (! *L4)
-    \q Inside-deep-nest failure 4
-*end if
-*if (! *L31)
-    \q Post-deep-nest failure 31
-*end if
-*if (! *L5)
-    \q Pre-deep-nest failure 5
-*end if
-*if (! *L6)
-    \q Inside-deep-nest failure 6
-*end if
-*if (! *L51)
-    \q Post-deep-nest failure 51
-*end if
-*if (*N2)
-    \q Negative deep-nest failure 2
-*end if
-*if (*N3)
-    \q Negative deep-nest failure 3
-*end if
-*if (*N4)
-    \q Negative deep-nest failure 4
-*end if
-*if (*N5)
-    \q Negative deep-nest failure 5
-*end if
-*if (*N6)
-    \q Negative deep-nest failure 6
-*end if
-*if (*N7)
-    \q Negative deep-nest failure 7
-*end if
+*if (! *L1) \q Pre-deep-nest failure 1
+*if (! *L2) \q Inside-deep-nest failure 2
+*if (! *L11) \q Post-deep-nest failure 11
+*if (! *L3) \q Pre-deep-nest failure 3
+*if (! *L4) \q Inside-deep-nest failure 4
+*if (! *L31) \q Post-deep-nest failure 31
+*if (! *L5) \q Pre-deep-nest failure 5
+*if (! *L6) \q Inside-deep-nest failure 6
+*if (! *L51) \q Post-deep-nest failure 51
+*if (*N2) \q Negative deep-nest failure 2
+*if (*N3) \q Negative deep-nest failure 3
+*if (*N4) \q Negative deep-nest failure 4
+*if (*N5) \q Negative deep-nest failure 5
+*if (*N6) \q Negative deep-nest failure 6
+*if (*N7) \q Negative deep-nest failure 7
 
 /* Nested foreach tests */
 /* Initialize Results  to I */
@@ -163,9 +107,7 @@
 	  *foreach L2 (1 2 3 4)
 		  *if (*L2 != 3)
 			  *foreach L3 (a b c)
-				  *if (*L3 != b)
-					  * R = *{R}:*{L1}*{L2}*{L3}
-				  *end if
+				  *if (*L3 != b) * R = *{R}:*{L1}*{L2}*{L3}
 			  *end foreach
 		  *end if
 	  *end foreach
@@ -181,14 +123,10 @@
 *foreach L1 (A B C)
   *foreach L2 (1 2 3 4)
       *foreach L3 (a b)
-          *if (*L3 == a)
-            *continue
-          *end if
+          *if (*L3 == a) *continue
 	      * R = *{R}:*{L1}*{L2}*{L3}
 	  *end foreach
-      *if (*L2 == 3)
-        *break foreach
-      *end if
+      *if (*L2 == 3) *break foreach
   *end foreach
 *end foreach
 *if (*R != I:A1b:A2b:A3b:B1b:B2b:B3b:C1b:C2b:C3b)
@@ -204,9 +142,7 @@
        * subcum = *{subcum}Q
    *end while
    * accum = *{accum}*{subcum}
-   *if (*accum == LPMQQPMQQ)
-       *break while
-    *end if
+   *if (*accum == LPMQQPMQQ) *break while
 *end while
 
 *if (*accum != LPMQQPMQQ)

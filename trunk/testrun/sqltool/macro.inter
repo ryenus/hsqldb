@@ -30,12 +30,8 @@ SELECT count(*) FROM t
 
 /q i > 3;
 
-* if (*? != 2)
-    \q Query returned *{?} rows, should have returned 2.
-* end if
+* if (*? != 2) \q Query returned *{?} rows, should have returned 2.
 
 /q i > 2
 :;
-* if (*? != 3)
-    \q Query returned *{?} rows, should have returned 3.
-* end if
+* if (*? != 3) \q Query returned *{?} rows, should have returned 3.
