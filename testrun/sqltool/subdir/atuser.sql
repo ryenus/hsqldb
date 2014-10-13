@@ -9,6 +9,4 @@
 \m @/tblx.dsv
 
 SELECT COUNT(*) FROM tblx;
-*if (*? != 2)
-    \q Failed to load table deta from @ directory
-*end if
+*if (*? != 2) \q Failed to load table deta from @ directory

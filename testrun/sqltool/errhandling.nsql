@@ -5,9 +5,7 @@
  */
 
 * if (1)
-    *if (2)
-        \i errhandlingn.isql
-    *end if
+    *if (2) \i errhandlingn.isql
     worse;
 * end if 
 

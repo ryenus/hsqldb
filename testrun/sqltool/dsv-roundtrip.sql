@@ -16,23 +16,15 @@ INSERT INTO t(i, a, d) VALUES (2, null, '2007-06-24');
 \x t
 
 SELECT count(*) FROM t WHERE i = 1 AND a = 149 AND d IS null;
-*if (*? != 1)
-    \q Pre-check of inserted data failed (1)
-*end if
+*if (*? != 1) \q Pre-check of inserted data failed (1)
 SELECT count(*) FROM t WHERE i = 2 AND a IS NULL AND d = '2007-06-24';
-*if (*? != 1)
-    \q Pre-check of inserted data failed (2)
-*end if
+*if (*? != 1) \q Pre-check of inserted data failed (2)
 
 
 /* Import */
 \m *{*DSV_TARGET_FILE}
 
 SELECT count(*) FROM t WHERE i = 1 AND a = 149 AND d IS null;
-*if (*? != 2)
-    \q Post-check of imported data failed (1)
-*end if
+*if (*? != 2) \q Post-check of imported data failed (1)
 SELECT count(*) FROM t WHERE i = 2 AND a IS NULL AND d = '2007-06-24';
-*if (*? != 2)
-    \q Post-check of imported data failed (2)
-*end if
+*if (*? != 2) \q Post-check of imported data failed (2)

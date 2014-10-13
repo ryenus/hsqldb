@@ -13,15 +13,9 @@ INSERT INTO t VALUES(1);
 INSERT INTO t VALUES(2);
 
 SELECT * FROM t;  -- single-line SQL-trailing comment
-* if (*? != 2)
-    \q Hyphen-hyphen trailing SQL failed
-* end if
+* if (*? != 2) \q Hyphen-hyphen trailing SQL failed
 SELECT * FROM t;  /* traditional SQL-trailing comment */
-* if (*? != 2)
-    \q Traditional trailing SQL failed
-* end if
+* if (*? != 2) \q Traditional trailing SQL failed
 
 SELECT * FROM t;  /* Something -- single-line SQL-trailing comment */
-* if (*? != 2)
-    \q Hyphen-hyphen trailing SQL failed
-* end if
+* if (*? != 2) \q Hyphen-hyphen trailing SQL failed

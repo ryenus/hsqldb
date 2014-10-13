@@ -22,47 +22,27 @@ INSERT INTO t(i, v, d) VALUES (5, '"one,two"three,', '2007-06-24');
 \xq t
 
 SELECT count(*) FROM t WHERE i = 1 AND v = 'one two three' AND d IS null;
-*if (*? != 1)
-    \q Pre-check of inserted data failed (1)
-*end if
+*if (*? != 1) \q Pre-check of inserted data failed (1)
 SELECT count(*) FROM t WHERE i = 2 AND v IS NULL AND d = '2007-06-24';
-*if (*? != 1)
-    \q Pre-check of inserted data failed (2)
-*end if
+*if (*? != 1) \q Pre-check of inserted data failed (2)
 SELECT count(*) FROM t WHERE i = 3 AND v = 'one,two,,three' AND d = '2007-06-24';
-*if (*? != 1)
-    \q Pre-check of inserted data failed (3)
-*end if
+*if (*? != 1) \q Pre-check of inserted data failed (3)
 SELECT count(*) FROM t WHERE i = 4 AND v = '"one"two""three' AND d = '2007-06-24';
-*if (*? != 1)
-    \q Pre-check of inserted data failed (4)
-*end if
+*if (*? != 1) \q Pre-check of inserted data failed (4)
 SELECT count(*) FROM t WHERE i = 5 AND v = '"one,two"three,' AND d = '2007-06-24';
-*if (*? != 1)
-    \q Pre-check of inserted data failed (5)
-*end if
+*if (*? != 1) \q Pre-check of inserted data failed (5)
 
 
 /* Import */
 \mq *{*DSV_TARGET_FILE}
 
 SELECT count(*) FROM t WHERE i = 1 AND v = 'one two three' AND d IS null;
-*if (*? != 2)
-    \q Post-check of inserted data failed (1)
-*end if
+*if (*? != 2) \q Post-check of inserted data failed (1)
 SELECT count(*) FROM t WHERE i = 2 AND v IS NULL AND d = '2007-06-24';
-*if (*? != 2)
-    \q Post-check of inserted data failed (2)
-*end if
+*if (*? != 2) \q Post-check of inserted data failed (2)
 SELECT count(*) FROM t WHERE i = 3 AND v = 'one,two,,three' AND d = '2007-06-24';
-*if (*? != 2)
-    \q Post-check of inserted data failed (3)
-*end if
+*if (*? != 2) \q Post-check of inserted data failed (3)
 SELECT count(*) FROM t WHERE i = 4 AND v = '"one"two""three' AND d = '2007-06-24';
-*if (*? != 2)
-    \q Post-check of inserted data failed (4)
-*end if
+*if (*? != 2) \q Post-check of inserted data failed (4)
 SELECT count(*) FROM t WHERE i = 5 AND v = '"one,two"three,' AND d = '2007-06-24';
-*if (*? != 2)
-    \q Post-check of inserted data failed (5)
-*end if
+*if (*? != 2) \q Post-check of inserted data failed (5)

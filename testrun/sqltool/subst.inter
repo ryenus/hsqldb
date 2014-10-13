@@ -19,27 +19,19 @@ INSERT INTO t(vc) VALUES('one')
 /*Since this executes, command #3 in history will become "INSERT... 'oMMe'".*/
 
 SELECT count(*) FROM t;
-*if (*? != 1)
-    \q Blank lines not behaving right in Interactive mode
-*end if
+*if (*? != 1) \q Blank lines not behaving right in Interactive mode
 
 SELECT count(*) FROM t WHERE vc = 'oMMe';
-*if (*? != 1)
-    \q Simple substitution of edit buffer failed.
-*end if
+*if (*? != 1) \q Simple substitution of edit buffer failed.
 
 /* Tailing white space in line below, on purpose. */
 :3   s@M@.@g;  
 
 SELECT count(*) FROM t;
-*if (*? != 2)
-    \q Recall + subst. + exec failed / 1
-*end if
+*if (*? != 2) \q Recall + subst. + exec failed / 1
 
 SELECT count(*) FROM t WHERE vc = 'o..e';
-*if (*? != 1)
-    \q Recall + subst. + exec failed / 2
-*end if
+*if (*? != 1) \q Recall + subst. + exec failed / 2
 
 :3
 /* Purposeful trailing white space in following line */
@@ -47,14 +39,10 @@ SELECT count(*) FROM t WHERE vc = 'o..e';
 :;
 
 SELECT count(*) FROM t;
-*if (*? != 3)
-    \q Recall + subst., then exec failed / 1
-*end if
+*if (*? != 3) \q Recall + subst., then exec failed / 1
 
 SELECT count(*) FROM t WHERE vc = 'oxe';
-*if (*? != 1)
-    \q Recall + subst., then exec failed / 2
-*end if
+*if (*? != 1) \q Recall + subst., then exec failed / 2
 
 :/INSERT.*MM/
 :s/Me/End/;
@@ -62,16 +50,10 @@ SELECT count(*) FROM t WHERE vc = 'oxe';
 :/INSERT.*MM/s/(?-i)o/Begin/;
 
 SELECT count(*) FROM t;
-*if (*? != 5)
-    \q Regex Recall + subst., then exec failed / 1
-*end if
+*if (*? != 5) \q Regex Recall + subst., then exec failed / 1
 
 SELECT count(*) FROM t WHERE vc = 'oMEnd';
-*if (*? != 1)
-    \q Regex Recall + subst., then exec failed / 2
-*end if
+*if (*? != 1) \q Regex Recall + subst., then exec failed / 2
 
 SELECT count(*) FROM t WHERE vc = 'Begin..e';
-*if (*? != 1)
-    \q Regex Recall + subst., then exec failed / 3
-*end if
+*if (*? != 1) \q Regex Recall + subst., then exec failed / 3
