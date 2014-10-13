@@ -11,7 +11,7 @@ defaultTasks 'help'
  *                     definitely run gradle with '-i' switch and with
  *                     ratain.gradles true.
  *     allTasks   Used only by the 'tasks' task.  Setting this to 'true' is
- *                equivalent to the tas-specific switch '--all' for the
+ *                equivalent to the task-specific switch '--all' for the
  *                out-of-the-box 'tasks' task.  I.e., our
  *                'gradlew -PallTasks=true tasks'
  *                emulates out-of-the-box 'gradlew tasks --all'.
@@ -574,7 +574,7 @@ Usage:
    gradlew tasks            Display all invocable targets
    gradlew explainjars      List all targets which build jar files
    gradlew explainprops     Explain how to change build properties
-   gradlew ANYTHING ELSE    Run 'gradlew' for details
+   gradlew ANYTHING ELSE    'gradlew --help' and 'gradlew tasks' for details
 
 examples:
    gradlew hsqldb
