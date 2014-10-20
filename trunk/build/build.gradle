@@ -192,85 +192,8 @@ File[] resequenceAntDependencies(String fileNameInsertion,
         projectGpathRs << gPathR
     }
 
-    def targetsIn = [:]      // name -> Target.  Those CONTAINING multi-depends.
-    def dependListsIn = [:]  // name -> List<String>
-    def inProcessStack = []  // For cycle checking
-    def masterSeqList = []   // Sequential list of all ref'd targ names
-
-    // 1:  Determine new sequence 'masterSeqList'
-    projectGpathRs.each { pGpathR ->
-        pGpathR.target.findAll {
-            it.@depends != null && it.@depends.list().size() > 0
-        }.each { targ ->
-            List listEls = targ.@depends.text().split(/\s*,\s*/)
-            if (listEls.size() > 0 && listEls[0].size() < 1) listEls.remove(0)
-            if (listEls.size() < 2) return  // No precedence if 1:1 dep.
-            targetsIn[targ.@name.text()] = targ
-            dependListsIn[targ.@name.text()] = listEls
-        }
-    }
-    logger.debug(targetsIn.size()
-            + ''' name->Target's (just keys): ''' + targetsIn.keySet())
-    logger.debug(dependListsIn.size() + " name->List's: $dependListsIn")
-
-    dependListsIn.values().each { dl ->
-        dl.each { n ->
-            if (!masterSeqList.contains(n))
-                recursivePush(n,
-                        dependListsIn.values(), masterSeqList, inProcessStack)
-        }
-    }
-    if (masterSeqList.size() < 1)
-        logger.warn("Warning.  0 masterSeqList elements");
-    logger.debug "masterSeqList:  $masterSeqList"
-
-    // 2: Generate task-renaming maps 'renameMap' and 'prohibitionMap'
-    //    and ouput dep lists 'dependListsOut'
-    // Purposefully not declaring 'renameMap' and 'prohibitionMap'
-    // so they will make project.* so we can share them.
-    project.ext.set('renameMap', [:])      // String -> String
     project.ext.prohibitionMap = [:]
-    def dependListsOut = [:]  // name -> List<String>
-    def outList               // Strings
-
-    masterSeqList.each { n ->
-        renameMap[n] = String.format('%03d%s', renameMap.size() + 1, n)
-    }
-    if (renameMap.size() < 1) logger.warn("Warning.  0 renameMap elements");
-    dependListsIn.each { k, v ->
-        outList = []
-        dependListsOut[k] = outList
-        for (n in v) outList << (renameMap.containsKey(n) ? renameMap[n] : n)
-    }
-    logger.info "renameMap: $renameMap"
-
-    // 3: Modify Ant build file text
-    // Update 'target' attrs, target name attrs, target depends attrs
-    targetsIn.each { k, v -> v.@depends = dependListsOut[k].join(', ') }
-    projectGpathRs.each { pGpathR ->
-        pGpathR.'**'.findAll {
-            it.@target.list().size() > 0
-        }.each { targ ->
-            if (renameMap.containsKey(targ.@target.text()))
-                // { logger.debug 'Trying ' + targ.@target.text()
-                targ.@target = renameMap.get(targ.@target.text())
-        }
-        renameMap.each { e ->
-            pGpathR.target.find {it.@name.text() == e.key}.@name = e.value
-            // Following is for depends that did not contribute to sequencing,
-            // but which still contain mapped target names.
-            pGpathR.target.each {
-                def de = it.@depends
-                if (de.list().size() < 1) return
-                List depEls = de.text().split(/[\s,]+/)
-                int i = depEls.indexOf(e.key)
-                if (i < 0) return
-                depEls.remove(i)
-                depEls.add(i, e.value)
-                it.@depends = depEls.join(', ')
-            }
-        }
-    }
+    
     if (prohibitedTasks != null) projectGpathRs.each { pGpathR ->
         pGpathR.'**'.findAll {
             it.@target.list().size() > 0
@@ -355,8 +278,6 @@ project.ext.set('antBuildClosures', [{
         it.import.replaceNode {}
         // Global var because needed for our replacement task definition below
         project.ext.set('ivySetupTaskName', '-ivy-setup')
-        if (project.renameMap.containsKey(ivySetupTaskName))
-                ivySetupTaskName = project.renameMap.get(ivySetupTaskName)
         it.appendNode { target(name: ivySetupTaskName) }
     }
 ])
@@ -371,30 +292,9 @@ ant.importBuild(outFs[0].absolutePath)
 if (!ext.retainGradled) outFs.each { it.deleteOnExit() }
 version = ant.properties['hsqldb.version']  // Inherit version from "build.xml"
 
-// This block generates wrapper tasks for the sole purpose of preventing the
-// end user from seeing numbered task names.
-// Postnote:  Also removes descriptions from sub-project tasks + wrapped tasks.
-Pattern candidatePattern = Pattern.compile('\\d{3}([^-.][^.]*)')
-Matcher m
-def hidingWrappers = [:]  // From 0xxWrappee -> wrapper
-Task newTask
-def tasksToMake = [:]
+// This removes descriptions from sub-project tasks
 getTasks().each { t ->
-    if (t.description == null) return
-    if (t.name.indexOf('.') > 0) t.description = null
-    m = candidatePattern.matcher(t.name)
-    if (!m.matches()) return
-    if (project.mvnBuild && javaPluginTasks.contains(m.group(1)))
-        prohibitionMap[m.group(1)] = t.name
-    else
-        tasksToMake[t] = m.group(1)
-}
-tasksToMake.each { k, v ->
-    newTask = project.task(v)
-    newTask.dependsOn = [k]
-    newTask.description = k.description
-    k.description = null
-    hidingWrappers[k] = newTask
+    if (t.description != null && t.name.indexOf('.') > 0) t.description = null
 }
 
 task serialver(dependsOn: ['classes16', 'util']) << {
@@ -450,8 +350,7 @@ private def recursiveAggregator(additions, inMap, assemblage) {
     return assemblage
 }
 
-def hsqldbTask = renameMap.containsKey('hsqldb') ?
-        tasks[renameMap.get('hsqldb')] : tasks['hsqldb']
+def hsqldbTask = tasks['hsqldb']
 hsqldbTask.outputs.file file('../lib/hsqldb.jar')
 hsqldbTask.inputs.source fileTree (
     dir:'..',
@@ -459,8 +358,7 @@ hsqldbTask.inputs.source fileTree (
     includes: ['doc/*_lic.txt', 'classes/**']
 )
 
-def sqltoolTask = renameMap.containsKey('sqltool') ?
-        tasks[renameMap.get('sqltool')] : tasks['sqltool']
+def sqltoolTask = tasks['sqltool']
 sqltoolTask.outputs.file file('../lib/sqltool.jar')
 sqltoolTask.inputs.source fileTree (
     dir:'..',
@@ -468,8 +366,7 @@ sqltoolTask.inputs.source fileTree (
             'classes/org/hsqldb/lib/**', 'classes/org/hsqldb/resources/jdklog*']
 )
 
-def osgiTask = renameMap.containsKey('osgi') ?
-        tasks[renameMap.get('osgi')] : tasks['osgi']
+def osgiTask = tasks['osgi']
 osgiTask.outputs.file file('../lib/hsqldb-osgi.jar')
 osgiTask.inputs.files files(file('../lib/hsqldb.jar'), file('hsqldb.bnd'))
 
@@ -717,8 +614,6 @@ installDbImages.description = 'Install DocBook resources (minimal by defaul)'
  * Hides tasks without descriptions.
  * Hides Ant-subproject tasks because for tasks in sub-projects, Gradle always
  *  creates unqualified and one qualified to the sub-project.
- * Hide renamed tasks so that user will only see the "generated wrappers"
- *  created above for this purpose.
  *
  * Only problem here is that Gradle gives us no way to discern overridden
  * tasks, so that we could present both the sub-project target and the
@@ -771,16 +666,7 @@ Other tasks
     if (displayAll) {
         def dependOnMap = [:]
         def depList
-        def reverseWrappers = [:]  // Goes from wrapper -> wrappee
-        // Probably a cooler Groovy way to do this, but this works:
-        hidingWrappers.each { k, v -> reverseWrappers[v] = k }
-        assert hidingWrappers.size() == reverseWrappers.size():
-                'Seems we have a wrapper Task wrapping more than one Target'
         getTasks().each { t ->
-            if (hidingWrappers.containsValue(t)) return
-            // Excluding wrappers so that wrappees can be listed as top-level
-            // tasks.  (Because they would be if we didn't need the hack to
-            // work around Gradle sequencing bug).
             depList = []
             dependOnMap[t] = depList
             t.dependsOn.each { u ->
@@ -795,35 +681,13 @@ Other tasks
         getTasks().each { t ->
             if (!allDependees.contains(t)
                     && !hardTaskDescriptions.contains(t.name)) {
-                // t is now non-depended-upon, other than by wrappers
+                // t is now non-depended-upon
                 print t.name
                 if (t.description != null) print " - $t.description"
-                if (hidingWrappers.containsKey(t)) {
-                    print ' [Wrapped by ' + hidingWrappers[t].name
-                    if (hidingWrappers[t].description != null)
-                        print ' - ' + hidingWrappers[t].description
-                    print ']'
-                }
-                if (reverseWrappers.containsKey(t)) {
-                    println ' [Wrapper]'
-                    def u = reverseWrappers[t]
-                    print "    $u.name"
-                    if (u.description != null) print " - $u.description"
-                    assert !hidingWrappers.containsValue(u):
-                            'Wrappee is a wrapper too?'
-                }
                 println()
                 recursiveAggregator(dependOnMap[t], dependOnMap, []).each {
                     print "    $it.name"
                     if (it.description != null) print " - $it.description"
-                    if (hidingWrappers.containsKey(it)) {
-                        print ' [Wrapped by ' + hidingWrappers[it].name
-                        if (hidingWrappers[it].description != null)
-                            print ' - ' + hidingWrappers[it].description
-                        print ']'
-                    }
-                    assert !hidingWrappers.containsValue(it):
-                            'Wrapper is depended-up?'
                     println()
                 }
             }
