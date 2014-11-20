@@ -1017,9 +1017,10 @@ public class QuerySpecification extends QueryExpression {
 
     private void setRangeVariableConditions(Session session) {
 
-        RangeVariableResolver rangeResolver = new RangeVariableResolver(this);
+        RangeVariableResolver rangeResolver =
+            new RangeVariableResolver(session, this);
 
-        rangeResolver.processConditions(session);
+        rangeResolver.processConditions();
 
         rangeVariables = rangeResolver.rangeVariables;
     }

@@ -215,54 +215,55 @@ public interface StatementTypes {
     int SET_DATABASE_PASSWORD_DIGEST           = 1056;
 
     // hsqldb user settings
-    int SET_USER_LOCAL          = 1060;
-    int SET_USER_INITIAL_SCHEMA = 1061;
-    int SET_USER_PASSWORD       = 1062;
+    int SET_USER_LOCAL          = 1091;
+    int SET_USER_INITIAL_SCHEMA = 1092;
+    int SET_USER_PASSWORD       = 1093;
 
     // hsqldb session
-    int TRANSACTION_LOCK_TABLE         = 1063;
-    int SET_SESSION_AUTOCOMMIT         = 1064;
-    int SET_SESSION_RESULT_MAX_ROWS    = 1065;
-    int SET_SESSION_RESULT_MEMORY_ROWS = 1066;
-    int ROLLBACK_SAVEPOINT             = 1067;
-    int DECLARE_SESSION_TABLE          = 1068;
+    int TRANSACTION_LOCK_TABLE         = 1111;
+    int SET_SESSION_AUTOCOMMIT         = 1112;
+    int SET_SESSION_OPTIMIZATION       = 1113;
+    int SET_SESSION_RESULT_MAX_ROWS    = 1114;
+    int SET_SESSION_RESULT_MEMORY_ROWS = 1115;
+    int ROLLBACK_SAVEPOINT             = 1116;
+    int DECLARE_SESSION_TABLE          = 1117;
 
     // hsqldb schema
-    int ALTER_INDEX                 = 1069;
-    int ALTER_VIEW                  = 1070;
-    int COMMENT                     = 1071;
-    int CREATE_ALIAS                = 1072;
-    int CREATE_INDEX                = 1073;
-    int CREATE_USER                 = 1074;
-    int DECLARE_VARIABLE            = 1075;
-    int DROP_COLUMN                 = 1076;
-    int DROP_INDEX                  = 1077;
-    int DROP_CONSTRAINT             = 1078;
-    int DROP_USER                   = 1079;
-    int DROP_DEFAULT                = 1080;
-    int ADD_COLUMN                  = 1081;
-    int ADD_CONSTRAINT              = 1082;
-    int ADD_DEFAULT                 = 1083;
-    int ALTER_COLUMN_TYPE           = 1084;
-    int ALTER_COLUMN_SEQUENCE       = 1085;
-    int ALTER_COLUMN_NULL           = 1086;
-    int ALTER_COLUMN_DEFAULT        = 1087;
-    int ALTER_COLUMN_DROP_DEFAULT   = 1088;
-    int ALTER_COLUMN_DROP_GENERATED = 1089;
-    int ALTER_COLUMN_TYPE_IDENTITY  = 1090;
+    int ALTER_INDEX                 = 1121;
+    int ALTER_VIEW                  = 1122;
+    int COMMENT                     = 1123;
+    int CREATE_ALIAS                = 1124;
+    int CREATE_INDEX                = 1125;
+    int CREATE_USER                 = 1126;
+    int DECLARE_VARIABLE            = 1127;
+    int DROP_COLUMN                 = 1128;
+    int DROP_INDEX                  = 1129;
+    int DROP_CONSTRAINT             = 1130;
+    int DROP_USER                   = 1131;
+    int DROP_DEFAULT                = 1132;
+    int ADD_COLUMN                  = 1133;
+    int ADD_CONSTRAINT              = 1134;
+    int ADD_DEFAULT                 = 1135;
+    int ALTER_COLUMN_TYPE           = 1136;
+    int ALTER_COLUMN_SEQUENCE       = 1137;
+    int ALTER_COLUMN_NULL           = 1139;
+    int ALTER_COLUMN_DEFAULT        = 1140;
+    int ALTER_COLUMN_DROP_DEFAULT   = 1141;
+    int ALTER_COLUMN_DROP_GENERATED = 1142;
+    int ALTER_COLUMN_TYPE_IDENTITY  = 1143;
 
     //
-    int EXPLAIN_PLAN             = 1191;
-    int RENAME_OBJECT            = 1192;
-    int SET_TABLE_INDEX          = 1193;
-    int SET_TABLE_READONLY       = 1194;
-    int SET_TABLE_SOURCE         = 1195;
-    int SET_TABLE_SOURCE_HEADER  = 1196;
-    int SET_TABLE_TYPE           = 1197;
-    int SET_TABLE_CLUSTERED      = 1198;
-    int SET_TABLE_NEW_TABLESPACE = 1199;
-    int SET_TABLE_SET_TABLESPACE = 1200;
-    int LOG_SCHEMA_STATEMENT     = 1201;
+    int EXPLAIN_PLAN             = 1151;
+    int RENAME_OBJECT            = 1152;
+    int SET_TABLE_INDEX          = 1153;
+    int SET_TABLE_READONLY       = 1154;
+    int SET_TABLE_SOURCE         = 1155;
+    int SET_TABLE_SOURCE_HEADER  = 1156;
+    int SET_TABLE_TYPE           = 1157;
+    int SET_TABLE_CLUSTERED      = 1158;
+    int SET_TABLE_NEW_TABLESPACE = 1159;
+    int SET_TABLE_SET_TABLESPACE = 1160;
+    int LOG_SCHEMA_STATEMENT     = 1161;
 
     // hsqldb sql implementation
     int CONDITION = 1211;                         // element of IF

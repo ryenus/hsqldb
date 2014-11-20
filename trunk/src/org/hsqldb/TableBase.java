@@ -166,7 +166,7 @@ public class TableBase {
 
         PersistentStore store = getRowStore(session);
 
-        return getPrimaryIndex().firstRow(session, store, 0);
+        return getPrimaryIndex().firstRow(session, store, 0, null);
     }
 
     public final RowIterator rowIterator(PersistentStore store) {

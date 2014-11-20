@@ -543,7 +543,7 @@ public class IndexAVL implements Index {
         readLock.lock();
 
         try {
-            RowIterator it = firstRow(session, store, 0);
+            RowIterator it = firstRow(session, store, 0, null);
 
             while (it.hasNext()) {
                 it.getNextRow();
@@ -1255,7 +1255,7 @@ public class IndexAVL implements Index {
      * @return Iterator for first row
      */
     public RowIterator firstRow(Session session, PersistentStore store,
-                                int distinctCount) {
+                                int distinctCount, boolean[] map) {
 
         readLock.lock();
 
@@ -1320,7 +1320,7 @@ public class IndexAVL implements Index {
      * @return last row
      */
     public RowIterator lastRow(Session session, PersistentStore store,
-                               int distinctCount) {
+                               int distinctCount, boolean[] map) {
 
         readLock.lock();
 

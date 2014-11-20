@@ -1484,6 +1484,7 @@ public class BaseHashMap {
         int     lookup = -1;
         int     counter;
         boolean removed;
+        Object  oldKey;
 
         public MultiValueKeyIterator() {
             toNextLookup();
@@ -1510,6 +1511,7 @@ public class BaseHashMap {
 
             toNextLookup();
 
+            oldKey = value;
             return value;
         }
 
@@ -1522,7 +1524,7 @@ public class BaseHashMap {
         }
 
         public void remove() throws NoSuchElementException {
-            throw new NoSuchElementException("Hash Iterator");
+            addOrRemoveMultiVal(0, 0, oldKey, null, true, false);
         }
 
         public void setValue(Object value) {

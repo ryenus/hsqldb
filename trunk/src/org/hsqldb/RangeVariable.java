@@ -891,7 +891,7 @@ public class RangeVariable {
         colExpr = ((QuerySpecification) queryExpression).exprColumns;
 
         for (int i = 0; i < conditionsList.size(); i++) {
-            Expression     e   = (Expression) conditionsList.get(i);
+            Expression e = (Expression) conditionsList.get(i);
 
             e = e.duplicate();
             e = e.replaceColumnReferences(this, colExpr);
@@ -1280,10 +1280,10 @@ public class RangeVariable {
             if (conditions[condIndex].indexCond == null) {
                 if (conditions[condIndex].reversed) {
                     it = conditions[condIndex].rangeIndex.lastRow(session,
-                            store, rangeVar.indexDistinctCount);
+                            store, rangeVar.indexDistinctCount, null);
                 } else {
                     it = conditions[condIndex].rangeIndex.firstRow(session,
-                            store, rangeVar.indexDistinctCount);
+                            store, rangeVar.indexDistinctCount, null);
                 }
             } else {
                 getFirstRow();

@@ -539,8 +539,8 @@ public class DataSpaceManagerBlocks implements DataSpaceManager {
         }
     }
 
-    public void freeTableSpace(DoubleIntIndex spaceList, long offset,
-                               long limit, boolean full) {
+    public void freeTableSpace(int spaceId, DoubleIntIndex spaceList,
+                               long offset, long limit, boolean full) {
 
         if (spaceList.size() == 0 && offset == limit) {
             return;
@@ -751,24 +751,48 @@ public class DataSpaceManagerBlocks implements DataSpaceManager {
 
     private void initialiseTableSpace(TableSpaceManagerBlocks tableSpace) {
 
-        int spaceId    = tableSpace.getSpaceID();
-        int maxFree    = fileBlockItemCount / 1024;
-        int blockIndex = -1;
+        int spaceId        = tableSpace.getSpaceID();
+        int maxFree        = fileBlockItemCount / 1024;
+        int blockIndex     = -1;
+        int lastBlockIndex = tableSpace.getFileBlockIndex();
 
-        ba.initialise(false);
-
-        for (; ba.nextBlockForTable(spaceId); ) {
-
-            // find the largest free
-            int currentFree = ba.getFreeBlockValue();
-
-            if (currentFree > maxFree) {
-                blockIndex = ba.currentBlockIndex;
-                maxFree    = currentFree;
-            }
+        // test code
+        if (spaceId == tableIdDirectory) {
+            blockIndex = blockIndex;
         }
 
-        ba.reset();
+        if (lastBlockIndex >= 0) {
+            ba.initialise(false);
+
+            boolean result = ba.moveToBlock(lastBlockIndex);
+
+            if (result) {
+                if (ba.getTableId() == spaceId) {
+                    if (ba.getFreeBlockValue() > 0) {
+                        blockIndex = lastBlockIndex;
+                    }
+                }
+            }
+
+            ba.reset();
+        }
+
+        if (blockIndex < 0) {
+            ba.initialise(false);
+
+            for (; ba.nextBlockForTable(spaceId); ) {
+
+                // find the largest free
+                int currentFree = ba.getFreeBlockValue();
+
+                if (currentFree > maxFree) {
+                    blockIndex = ba.currentBlockIndex;
+                    maxFree    = currentFree;
+                }
+            }
+
+            ba.reset();
+        }
 
         if (blockIndex < 0) {
             return;

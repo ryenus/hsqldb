@@ -39,7 +39,7 @@ import org.hsqldb.lib.OrderedIntHashSet;
  * Defines and enumerates reserved and non-reserved SQL keywords.<p>
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.2
+ * @version 2.3.3
  * @since 1.7.2
  */
 public class Tokens {
@@ -713,6 +713,7 @@ public class Tokens {
     static final String        T_NVL2                 = "NVL2";
     static final String        T_OCTETLENGTH          = "OCTETLENGTH";
     static final String        T_OFF                  = "OFF";
+    static final String        T_OPTIMIZATION         = "OPTIMIZATION";
     public static final String T_OTHER                = "OTHER";
     public static final String T_ORA                  = "ORA";
     public static final String T_PASSWORD             = "PASSWORD";
@@ -1519,31 +1520,32 @@ public class Tokens {
     static final int NVARCHAR2      = 612;
     static final int NVL2           = 613;
     static final int OFF            = 614;
-    static final int PASSWORD       = 615;
-    static final int PLAN           = 616;
-    static final int PREVVAL        = 617;
-    static final int PROPERTY       = 618;
-    static final int RAW            = 619;
-    static final int READONLY       = 620;
-    static final int REFERENTIAL    = 621;
-    static final int REGULAR        = 622;
-    static final int RENAME         = 623;
-    static final int RESET          = 624;
-    static final int ROWNUM         = 625;
-    static final int SCRIPT         = 626;
-    static final int SEPARATOR      = 627;
-    static final int SHUTDOWN       = 628;
-    static final int SYNTAX         = 629;
-    static final int TDC            = 630;
-    static final int TEMP           = 631;
-    static final int TEXT           = 632;
-    static final int TTI            = 633;
-    static final int TYPES          = 634;
-    static final int VARCHAR2       = 635;
-    static final int WRITE_DELAY    = 636;
+    static final int OPTIMIZATION   = 615;
+    static final int PASSWORD       = 616;
+    static final int PLAN           = 617;
+    static final int PREVVAL        = 618;
+    static final int PROPERTY       = 619;
+    static final int RAW            = 620;
+    static final int READONLY       = 621;
+    static final int REFERENTIAL    = 622;
+    static final int REGULAR        = 623;
+    static final int RENAME         = 624;
+    static final int RESET          = 625;
+    static final int ROWNUM         = 626;
+    static final int SCRIPT         = 627;
+    static final int SEPARATOR      = 628;
+    static final int SHUTDOWN       = 629;
+    static final int SYNTAX         = 630;
+    static final int TDC            = 631;
+    static final int TEMP           = 632;
+    static final int TEXT           = 633;
+    static final int TTI            = 634;
+    static final int TYPES          = 635;
+    static final int VARCHAR2       = 636;
+    static final int WRITE_DELAY    = 637;
 
     //
-    static final int INDEXER = 637;
+    static final int INDEXER = 638;
 
     //
     static final int        ACOS                       = 640;
@@ -2245,6 +2247,7 @@ public class Tokens {
         commandSet.put(T_OBJECT, OBJECT);
         commandSet.put(T_OCTETS, OCTETS);
         commandSet.put(T_OFF, OFF);
+        commandSet.put(T_OPTIMIZATION, OPTIMIZATION);
         commandSet.put(T_OPTION, OPTION);
         commandSet.put(T_ORDINALITY, ORDINALITY);
         commandSet.put(T_OVERRIDING, OVERRIDING);

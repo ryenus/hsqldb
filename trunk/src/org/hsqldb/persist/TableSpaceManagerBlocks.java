@@ -64,6 +64,7 @@ public class TableSpaceManagerBlocks implements TableSpaceManager {
     //
     long freshBlockFreePos = 0;
     long freshBlockLimit   = 0;
+    int  fileBlockIndex    = -1;
 
     /**
      *
@@ -104,6 +105,7 @@ public class TableSpaceManagerBlocks implements TableSpaceManager {
 
         freshBlockFreePos = blockFreePos;
         freshBlockLimit   = blockLimit;
+        fileBlockIndex    = (int) (freshBlockFreePos / mainBlockSize);
 
         if (spaceList != null) {
             spaceList.copyTo(lookup);
@@ -262,8 +264,8 @@ public class TableSpaceManagerBlocks implements TableSpaceManager {
 
     public void reset() {
 
-        spaceManager.freeTableSpace(lookup, freshBlockFreePos,
-                                    freshBlockLimit, true);
+        spaceManager.freeTableSpace(spaceID, lookup,
+                                    freshBlockFreePos, freshBlockLimit, true);
 
         freshBlockFreePos = 0;
         freshBlockLimit   = 0;
@@ -280,9 +282,13 @@ public class TableSpaceManagerBlocks implements TableSpaceManager {
         return spaceID == DataSpaceManager.tableIdDefault;
     }
 
+    public int getFileBlockIndex() {
+        return fileBlockIndex;
+    }
+
     private void resetList() {
 
         // dummy args for file block release
-        spaceManager.freeTableSpace(lookup, 0, 0, false);
+        spaceManager.freeTableSpace(spaceID, lookup, 0, 0, false);
     }
 }

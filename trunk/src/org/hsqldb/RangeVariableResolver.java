@@ -53,7 +53,7 @@ import org.hsqldb.persist.PersistentStore;
  * processing and which indexes are used for table access.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.0
+ * @version 2.3.3
  * @since 1.9.0
  */
 public class RangeVariableResolver {
@@ -94,8 +94,9 @@ public class RangeVariableResolver {
     HashMap               tempMap          = new HashMap();
     MultiValueHashMap     tempMultiMap     = new MultiValueHashMap();
 
-    RangeVariableResolver(QuerySpecification select) {
+    RangeVariableResolver(Session session, QuerySpecification select) {
 
+        this.session        = session;
         this.select         = select;
         this.rangeVariables = select.rangeVariables;
         this.conditions     = select.queryCondition;
@@ -107,10 +108,11 @@ public class RangeVariableResolver {
         initialise();
     }
 
-    RangeVariableResolver(RangeVariable[] rangeVariables,
+    RangeVariableResolver(Session session, RangeVariable[] rangeVariables,
                           Expression conditions,
                           CompileContext compileContext, boolean reorder) {
 
+        this.session        = session;
         this.rangeVariables = rangeVariables;
         this.conditions     = conditions;
         this.compileContext = compileContext;
@@ -144,11 +146,16 @@ public class RangeVariableResolver {
         for (int i = 0; i < rangeVariables.length; i++) {
             whereExpressions[i] = new HsqlArrayList();
         }
+
+        queryConditions.clear();
     }
 
-    void processConditions(Session session) {
+    void processConditions() {
 
-        this.session = session;
+        if (session.sessionOptimization < 3) {
+            reorder = false;
+        }
+
 
         decomposeAndConditions(session, conditions, queryConditions);
 
