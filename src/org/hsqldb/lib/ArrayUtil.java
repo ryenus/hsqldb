@@ -181,7 +181,7 @@ public class ArrayUtil {
     public static void adjustArray(int type, Object array, int usedElements,
                                    int index, int count) {
 
-        if (index >= usedElements) {
+        if (index >= usedElements || count == 0) {
             return;
         }
 

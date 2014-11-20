@@ -50,7 +50,7 @@ import org.hsqldb.types.Types;
  * Parser for session and management statements
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.2
+ * @version 2.3.3
  * @since 1.9.0
  */
 public class ParserCommand extends ParserDDL {
@@ -1933,6 +1933,17 @@ public class ParserCommand extends ParserDDL {
 
                 return new StatementSession(
                     StatementTypes.SET_SESSION_RESULT_MEMORY_ROWS, args);
+            }
+            case Tokens.OPTIMIZATION : {
+                read();
+                Integer  level = readIntegerObject();
+                Object[] args = new Object[]{ level };
+
+                if (level.intValue() > 10) {
+                    throw Error.error(ErrorCode.X_42556);
+                }
+                return new StatementSession(
+                    StatementTypes.SET_SESSION_OPTIMIZATION, args);
             }
             default :
                 throw unexpectedToken();

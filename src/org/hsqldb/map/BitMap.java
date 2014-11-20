@@ -152,10 +152,6 @@ public class BitMap {
 
         ensureCapacity(pos + count);
 
-        if (pos + count > limitPos) {
-            limitPos = pos + count;
-        }
-
         int windex    = pos >> 5;
         int windexend = (pos + count - 1) >> 5;
         int mask      = 0xffffffff >>> (pos & 0x1F);
@@ -211,10 +207,6 @@ public class BitMap {
 
         ensureCapacity(pos + 1);
 
-        if (pos >= limitPos) {
-            limitPos = pos + 1;
-        }
-
         int windex = pos >> 5;
         int mask   = 0x80000000 >>> (pos & 0x1F);
         int word   = map[windex];
@@ -232,12 +224,6 @@ public class BitMap {
     public int unset(int pos) {
 
         ensureCapacity(pos + 1);
-
-        if (pos >= limitPos) {
-            limitPos = pos + 1;
-
-            return 0;
-        }
 
         int windex = pos >> 5;
         int mask   = 0x80000000 >>> (pos & 0x1F);
@@ -398,8 +384,14 @@ public class BitMap {
      */
     private void ensureCapacity(int newSize) {
 
-        if (!canChangeSize && newSize > limitPos) {
-            throw new ArrayStoreException("BitMap extend");
+        if (newSize > limitPos) {
+            if (canChangeSize) {
+                if (newSize > limitPos) {
+                    limitPos = newSize;
+                }
+            } else {
+                throw new ArrayStoreException("BitMap extend");
+            }
         }
 
         if (newSize <= map.length * 32) {

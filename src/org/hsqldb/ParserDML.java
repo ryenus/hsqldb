@@ -46,7 +46,7 @@ import org.hsqldb.types.Type;
  * Parser for DML statements
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.2
+ * @version 2.3.3
  * @since 1.9.0
  */
 public class ParserDML extends ParserDQL {
@@ -501,10 +501,10 @@ public class ParserDML extends ParserDQL {
             rangeVariables[0].addJoinCondition(condition);
 
             RangeVariableResolver resolver =
-                new RangeVariableResolver(rangeVariables, null,
-                                          compileContext, false);
+                new RangeVariableResolver(session, rangeVariables,
+                                          null, compileContext, false);
 
-            resolver.processConditions(session);
+            resolver.processConditions();
 
             rangeVariables = resolver.rangeVariables;
         }
@@ -620,10 +620,10 @@ public class ParserDML extends ParserDQL {
             rangeVariables[0].addJoinCondition(condition);
 
             RangeVariableResolver resolver =
-                new RangeVariableResolver(rangeVariables, null,
-                                          compileContext, false);
+                new RangeVariableResolver(session, rangeVariables,
+                                          null, compileContext, false);
 
-            resolver.processConditions(session);
+            resolver.processConditions();
 
             rangeVariables = resolver.rangeVariables;
         }
@@ -1011,10 +1011,10 @@ public class ParserDML extends ParserDQL {
         fullRangeVars[1].addJoinCondition(mergeCondition);
 
         RangeVariableResolver resolver =
-            new RangeVariableResolver(fullRangeVars, null, compileContext,
-                                      false);
+            new RangeVariableResolver(session, fullRangeVars, null,
+                                      compileContext, false);
 
-        resolver.processConditions(session);
+        resolver.processConditions();
 
         fullRangeVars = resolver.rangeVariables;
 

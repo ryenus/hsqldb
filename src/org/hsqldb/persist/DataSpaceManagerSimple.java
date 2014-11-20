@@ -100,8 +100,8 @@ public class DataSpaceManagerSimple implements DataSpaceManager {
 
     public void freeTableSpace(int spaceId) {}
 
-    public void freeTableSpace(DoubleIntIndex spaceList, long offset,
-                               long limit, boolean full) {
+    public void freeTableSpace(int spaceId, DoubleIntIndex spaceList,
+                               long offset, long limit, boolean full) {
 
         totalFragmentSize += spaceList.getTotalValues()
                              * cache.getDataFileScale();

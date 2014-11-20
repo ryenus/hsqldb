@@ -761,12 +761,15 @@ public class SchemaManager {
 
             if (schema == null) {
                 if (session.database.sqlSyntaxOra
-                        || session.database.sqlSyntaxDb2) {
+                        || session.database.sqlSyntaxDb2
+                        || session.isProcessingScript()) {
                     if (Tokens.T_DUAL.equals(name)) {
-                        return dualTable;
+                        t = dualTable;
                     }
                 }
+            }
 
+            if (t == null) {
                 t = findSessionTable(session, name);
             }
 

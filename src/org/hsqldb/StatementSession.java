@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2011, The HSQL Development Group
+/* Copyright (c) 2001-2014, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -46,7 +46,7 @@ import org.hsqldb.types.Type;
  * Implementation of Statement for SQL session statements.<p>
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.2.6
+ * @version 2.3.3
  * @since 1.9.0
  */
 public class StatementSession extends Statement {
@@ -175,11 +175,12 @@ public class StatementSession extends Statement {
             case StatementTypes.SET_CONNECTION :
             case StatementTypes.SET_CONSTRAINT :
             case StatementTypes.SET_DESCRIPTOR :
+            case StatementTypes.SET_SESSION_AUTOCOMMIT :
             case StatementTypes.SET_SESSION_CHARACTERISTICS :
-            case StatementTypes.SET_TRANSFORM_GROUP :
             case StatementTypes.SET_SESSION_RESULT_MAX_ROWS :
             case StatementTypes.SET_SESSION_RESULT_MEMORY_ROWS :
-            case StatementTypes.SET_SESSION_AUTOCOMMIT :
+            case StatementTypes.SET_SESSION_OPTIMIZATION :
+            case StatementTypes.SET_TRANSFORM_GROUP :
                 group = StatementTypes.X_HSQLDB_SESSION;
                 break;
 
@@ -635,6 +636,13 @@ public class StatementSession extends Statement {
                 } catch (HsqlException e) {
                     return Result.newErrorResult(e, sql);
                 }
+            }
+            case StatementTypes.SET_SESSION_OPTIMIZATION : {
+                int level = ((Integer) parameters[0]).intValue();
+
+                session.setOptimization(level);
+
+                return Result.updateZeroResult;
             }
             case StatementTypes.SET_SESSION_RESULT_MAX_ROWS : {
                 int size = ((Integer) parameters[0]).intValue();

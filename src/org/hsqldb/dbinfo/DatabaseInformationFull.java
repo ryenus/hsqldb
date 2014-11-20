@@ -1453,6 +1453,56 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
             t.insertSys(session, store, row);
         }
 
+        long allocated = 0;
+        long used      = 0;
+        long empty     = 0;
+        long system    = 0;
+
+        for (int i = 0; i < directoryList.length; i++) {
+            int[]  tableIdList   = directoryList[i].getTableIdArray();
+            char[] freeSpaceList = directoryList[i].getFreeSpaceArray();
+            int[]  bitMapList    = directoryList[i].getBitmapAddressArray();
+
+            for (int j = 0; j < tableIdList.length; j++) {
+                if (tableIdList[j] == DataSpaceManager.tableIdDefault) {
+                    allocated += fileBlockSize;
+                    used      += fileBlockSize - freeSpaceList[j] * cacheScale;
+                } else if (tableIdList[j] == DataSpaceManager.tableIdEmpty
+                           && bitMapList[j] != 0) {
+                    empty += fileBlockSize;
+                } else if (tableIdList[j]
+                           == DataSpaceManager.tableIdDirectory) {
+                    system += fileBlockSize;
+                }
+            }
+        }
+
+        if (database.logger.hasCache()) {
+            row              = t.getEmptyRowData();
+            row[table_name]  = "UNUSED_SPACE";
+            row[alloc_space] = Long.valueOf(empty);
+            row[used_space]  = Long.valueOf(0);
+            row[space_id]    = Long.valueOf(DataSpaceManager.tableIdEmpty);
+
+            t.insertSys(session, store, row);
+
+            row              = t.getEmptyRowData();
+            row[table_name]  = "COMMON_SPACE";
+            row[alloc_space] = Long.valueOf(allocated);
+            row[used_space]  = Long.valueOf(used);
+            row[space_id]    = Long.valueOf(DataSpaceManager.tableIdDefault);
+
+            t.insertSys(session, store, row);
+
+            row              = t.getEmptyRowData();
+            row[table_name]  = "SYSTEM_SPACE";
+            row[alloc_space] = Long.valueOf(system);
+            row[used_space]  = Long.valueOf(system);
+            row[space_id]    = Long.valueOf(DataSpaceManager.tableIdDirectory);
+
+            t.insertSys(session, store, row);
+        }
+
         return t;
     }
 
