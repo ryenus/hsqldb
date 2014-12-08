@@ -177,9 +177,9 @@ public class StatementSession extends Statement {
             case StatementTypes.SET_DESCRIPTOR :
             case StatementTypes.SET_SESSION_AUTOCOMMIT :
             case StatementTypes.SET_SESSION_CHARACTERISTICS :
+            case StatementTypes.SET_SESSION_FEATURE :
             case StatementTypes.SET_SESSION_RESULT_MAX_ROWS :
             case StatementTypes.SET_SESSION_RESULT_MEMORY_ROWS :
-            case StatementTypes.SET_SESSION_OPTIMIZATION :
             case StatementTypes.SET_TRANSFORM_GROUP :
                 group = StatementTypes.X_HSQLDB_SESSION;
                 break;
@@ -637,10 +637,11 @@ public class StatementSession extends Statement {
                     return Result.newErrorResult(e, sql);
                 }
             }
-            case StatementTypes.SET_SESSION_OPTIMIZATION : {
-                int level = ((Integer) parameters[0]).intValue();
+            case StatementTypes.SET_SESSION_FEATURE : {
+                String  feature = (String) parameters[0];
+                Boolean value   = (Boolean) parameters[1];
 
-                session.setOptimization(level);
+                session.setFeature(feature, value.booleanValue());
 
                 return Result.updateZeroResult;
             }

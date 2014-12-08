@@ -457,8 +457,7 @@ public class StatementCompound extends Statement implements RangeGroup {
                             break;
                     }
 
-                    Result actionResult = executeProtected(session,
-                                                           handler.statement);
+                    Result actionResult = executeProtected(session, handler);
 
                     if (actionResult.isError()) {
                         result = actionResult;

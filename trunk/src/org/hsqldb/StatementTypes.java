@@ -222,7 +222,7 @@ public interface StatementTypes {
     // hsqldb session
     int TRANSACTION_LOCK_TABLE         = 1111;
     int SET_SESSION_AUTOCOMMIT         = 1112;
-    int SET_SESSION_OPTIMIZATION       = 1113;
+    int SET_SESSION_FEATURE            = 1113;
     int SET_SESSION_RESULT_MAX_ROWS    = 1114;
     int SET_SESSION_RESULT_MEMORY_ROWS = 1115;
     int ROLLBACK_SAVEPOINT             = 1116;

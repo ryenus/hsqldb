@@ -831,6 +831,7 @@ public class StatementDML extends StatementDMQL {
             while (newData.hasNext()) {
                 Object[] data = (Object[]) newData.getNext();
 
+                session.sessionData.startRowProcessing();
                 baseTable.fireTriggers(session, Trigger.INSERT_BEFORE_ROW,
                                        null, data, null);
             }
@@ -1058,6 +1059,7 @@ public class StatementDML extends StatementDMQL {
 
             if (currentTable.triggerLists[Trigger.UPDATE_BEFORE_ROW].length
                     > 0) {
+                session.sessionData.startRowProcessing();
                 currentTable.fireTriggers(session, Trigger.UPDATE_BEFORE_ROW,
                                           row.getData(), data, changedColumns);
                 currentTable.enforceRowConstraints(session, data);
@@ -1608,13 +1610,13 @@ public class StatementDML extends StatementDMQL {
                         break;
                     }
                     case SchemaObject.ReferentialAction.NO_ACTION :
-
                         if (delete) {
                             if (navigator.containsDeletedRow(refRow)) {
                                 continue;
                             }
                         } else {
-                            if (navigator.containsUpdatedRow(row, refRow, c.core.mainCols)) {
+                            if (navigator.containsUpdatedRow(
+                                    row, refRow, c.core.mainCols)) {
                                 continue;
                             }
                         }

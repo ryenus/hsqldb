@@ -121,7 +121,7 @@ public class Session implements SessionInterface {
     int                timeZoneSeconds;
     boolean            isNetwork;
     private int        sessionMaxRows;
-    int                sessionOptimization = 10;
+    int                sessionOptimization = 8;
     private final long sessionId;
     int                sessionTxId = -1;
     private boolean    ignoreCase;
@@ -382,8 +382,15 @@ public class Session implements SessionInterface {
         sessionMaxRows = rows;
     }
 
-    void setOptimization(int level) {
-        sessionOptimization = level;
+    void setFeature(String feature, boolean value) {
+
+        int number = 8;
+
+        if (value) {
+            sessionOptimization |= number;
+        } else {
+            sessionOptimization &= ~number;
+        }
     }
 
     /**

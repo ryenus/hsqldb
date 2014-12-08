@@ -1373,10 +1373,11 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         DataSpaceManager spaceManager = null;
         DirectoryBlockCachedObject[] directoryList =
             new DirectoryBlockCachedObject[0];
-        int cacheScale    = database.logger.getDataFileScale();
-        int fileBlockSize = 1024 * 1024 * cacheScale / 16;
+        int     cacheScale    = database.logger.getDataFileScale();
+        int     fileBlockSize = 1024 * 1024 * cacheScale / 16;
+        boolean hasCache      = database.logger.hasCache();
 
-        if (database.logger.hasCache()) {
+        if (hasCache) {
             DataFileCache cache = database.logger.getCache();
 
             spaceManager  = cache.spaceManager;
@@ -1419,7 +1420,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
                 row[used_space]  = null;
                 row[used_memory] = null;
 
-                if (spaceManager.isMultiSpace()
+                if (hasCache && spaceManager.isMultiSpace()
                         && spaceId != DataSpaceManager.tableIdDefault) {
                     long allocated = 0;
                     long used      = 0;
@@ -1477,7 +1478,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
             }
         }
 
-        if (database.logger.hasCache()) {
+        if (hasCache) {
             row              = t.getEmptyRowData();
             row[table_name]  = "UNUSED_SPACE";
             row[alloc_space] = Long.valueOf(empty);
@@ -1574,10 +1575,10 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         Object[] row;
 
         // column number mappings
-        final int itable_cat       = 0;
-        final int itable_schem     = 1;
-        final int itable_name      = 2;
-        final int iindex_name      = 3;
+        final int itable_cat   = 0;
+        final int itable_schem = 1;
+        final int itable_name  = 2;
+        final int iindex_name  = 3;
 
         // Initialization
         tables =

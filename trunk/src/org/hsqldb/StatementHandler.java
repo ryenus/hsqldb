@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2011, The HSQL Development Group
+/* Copyright (c) 2001-2014, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -41,7 +41,7 @@ import org.hsqldb.result.Result;
  * Implementation of Statement for condition handler objects.<p>
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 1.9.0
+ * @version 2.3.3
  * @since 1.9.0
  */
 public class StatementHandler extends Statement {
@@ -61,9 +61,9 @@ public class StatementHandler extends Statement {
     public final int handlerType;
 
     //
-    OrderedIntHashSet conditionGroups = new OrderedIntHashSet();
-    OrderedHashSet    conditionStates = new OrderedHashSet();
-    Statement         statement;
+    private OrderedIntHashSet conditionGroups = new OrderedIntHashSet();
+    private OrderedHashSet    conditionStates = new OrderedHashSet();
+    private Statement         statement;
 
     //
     public static final StatementHandler[] emptyExceptionHandlerArray =
@@ -134,8 +134,11 @@ public class StatementHandler extends Statement {
     }
 
     public String[] getConditionStates() {
+
         String[] array = new String[conditionStates.size()];
+
         conditionStates.toArray(array);
+
         return array;
     }
 
