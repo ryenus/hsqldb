@@ -152,7 +152,7 @@ public class RangeVariableResolver {
 
     void processConditions() {
 
-        if (session.sessionOptimization < 3) {
+        if (session.sessionOptimization < 8) {
             reorder = false;
         }
 

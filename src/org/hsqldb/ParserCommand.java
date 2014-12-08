@@ -1921,7 +1921,7 @@ public class ParserCommand extends ParserDDL {
                 };
 
                 return new StatementSession(
-                    StatementTypes.SET_SESSION_AUTHORIZATION, args);
+                    StatementTypes.SET_SESSION_FEATURE, args);
             }
             case Tokens.RESULT : {
                 read();
@@ -1934,16 +1934,14 @@ public class ParserCommand extends ParserDDL {
                 return new StatementSession(
                     StatementTypes.SET_SESSION_RESULT_MEMORY_ROWS, args);
             }
-            case Tokens.OPTIMIZATION : {
+            case Tokens.FEATURE : {
                 read();
-                Integer  level = readIntegerObject();
-                Object[] args = new Object[]{ level };
+                String  feature = parseSQLFeatureValue();
+                Boolean value   = processTrueOrFalseObject();
+                Object[] args = new Object[]{ feature, value };
 
-                if (level.intValue() > 10) {
-                    throw Error.error(ErrorCode.X_42556);
-                }
                 return new StatementSession(
-                    StatementTypes.SET_SESSION_OPTIMIZATION, args);
+                    StatementTypes.SET_SESSION_FEATURE, args);
             }
             default :
                 throw unexpectedToken();
