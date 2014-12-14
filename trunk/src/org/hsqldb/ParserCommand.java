@@ -1921,7 +1921,7 @@ public class ParserCommand extends ParserDDL {
                 };
 
                 return new StatementSession(
-                    StatementTypes.SET_SESSION_FEATURE, args);
+                    StatementTypes.SET_SESSION_AUTHORIZATION, args);
             }
             case Tokens.RESULT : {
                 read();
