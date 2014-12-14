@@ -50,7 +50,7 @@ import org.hsqldb.types.Types;
  * Parser for SQL stored procedures and functions - PSM
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.1
+ * @version 2.3.3
  * @since 1.9.0
  */
 public class ParserRoutine extends ParserDML {
@@ -1310,7 +1310,7 @@ public class ParserRoutine extends ParserDML {
 
         String sqlState = token.tokenString;
 
-        if (token.tokenString.length() != 5) {
+        if (sqlState.length() != 5) {
             throw Error.parseError(ErrorCode.X_42607, null,
                                    scanner.getLineNumber());
         }
@@ -1318,6 +1318,28 @@ public class ParserRoutine extends ParserDML {
         read();
 
         return sqlState;
+    }
+
+    static String[] featureStrings = new String[]{ "H901_03" };
+
+    String parseSQLFeatureValue() {
+
+        if (!isUndelimitedSimpleName()) {
+            throw Error.parseError(ErrorCode.X_42555, token.tokenString,
+                                   scanner.getLineNumber());
+        }
+
+        String sqlFeature = token.tokenString;
+        int    index      = ArrayUtil.find(featureStrings, sqlFeature);
+
+        if (index < 0) {
+            throw Error.parseError(ErrorCode.X_42555, token.tokenString,
+                                   scanner.getLineNumber());
+        }
+
+        read();
+
+        return sqlFeature;
     }
 
     private Statement compileCompoundStatement(Routine routine,
@@ -1700,7 +1722,7 @@ public class ParserRoutine extends ParserDML {
                                    scanner.getLineNumber());
         }
 
-        if (routine.returnsTable() ) {
+        if (routine.returnsTable()) {
             if (e.getType() != OpTypes.TABLE_SUBQUERY) {
                 throw Error.parseError(ErrorCode.X_42611, null,
                                        scanner.getLineNumber());
