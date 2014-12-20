@@ -39,7 +39,6 @@ import org.hsqldb.Table;
 import org.hsqldb.TableBase;
 import org.hsqldb.index.Index;
 import org.hsqldb.index.NodeAVL;
-import org.hsqldb.index.NodeAVLDisk;
 import org.hsqldb.navigator.RowIterator;
 
 /*
@@ -62,8 +61,6 @@ public class RowStoreAVLHybridExtended extends RowStoreAVLHybrid {
         this.session = session;
     }
 
-    public void set(CachedObject object) {}
-
     public CachedObject getNewCachedObject(Session session, Object object,
                                            boolean tx) {
 
@@ -76,37 +73,10 @@ public class RowStoreAVLHybridExtended extends RowStoreAVLHybrid {
 
     public void add(Session session, CachedObject object, boolean tx) {
 
-        if (isCached) {
-            int size = object.getRealSize(cache.rowOut);
+        super.add(session, object, tx);
 
-            size += indexList.length * NodeAVLDisk.SIZE_IN_BYTE;
-            size = cache.rowOut.getStorageSize(size);
-
-            object.setStorageSize(size);
-
-            long pos = tableSpace.getFilePosition(size, false);
-
-            object.setPos(pos);
-
-            if (tx) {
-                RowAction.addInsertAction(session, (Table) table,
-                                          (Row) object);
-            }
-
-            cache.add(object, false);
-        } else {
-            if (tx) {
-                RowAction.addInsertAction(session, (Table) table,
-                                          (Row) object);
-            }
-        }
-
-        Object[] data = ((Row) object).getData();
-
-        for (int i = 0; i < nullsList.length; i++) {
-            if (data[i] == null) {
-                nullsList[i] = true;
-            }
+        if (tx) {
+            RowAction.addInsertAction(session, (Table) table, (Row) object);
         }
     }
 
@@ -118,57 +88,6 @@ public class RowStoreAVLHybridExtended extends RowStoreAVLHybrid {
         }
 
         super.indexRow(session, row);
-    }
-
-    public void commitRow(Session session, Row row, int changeAction,
-                          int txModel) {
-
-        switch (changeAction) {
-
-            case RowAction.ACTION_DELETE :
-                remove(row);
-                break;
-
-            case RowAction.ACTION_INSERT :
-                break;
-
-            case RowAction.ACTION_INSERT_DELETE :
-
-                // INSERT + DELEETE
-                remove(row);
-                break;
-
-            case RowAction.ACTION_DELETE_FINAL :
-                delete(session, row);
-                remove(row);
-                break;
-        }
-    }
-
-    public void rollbackRow(Session session, Row row, int changeAction,
-                            int txModel) {
-
-        switch (changeAction) {
-
-            case RowAction.ACTION_DELETE :
-                row = (Row) get(row, true);
-
-                ((RowAVL) row).setNewNodes(this);
-                row.keepInMemory(false);
-                indexRow(session, row);
-                break;
-
-            case RowAction.ACTION_INSERT :
-                delete(session, row);
-                remove(row);
-                break;
-
-            case RowAction.ACTION_INSERT_DELETE :
-
-                // INSERT + DELEETE
-                remove(row);
-                break;
-        }
     }
 
     /**

@@ -96,11 +96,12 @@ public class BitMap {
 
         ensureCapacity(newSize);
 
+        // if newSize is smaller
         if (limitPos > newSize) {
             unsetRange(newSize, limitPos - newSize);
-        }
 
-        limitPos = newSize;
+            limitPos = newSize;
+        }
     }
 
     /**
@@ -380,21 +381,21 @@ public class BitMap {
 
     /**
      * Ensures capacity by enlarging the array if necessary.
-     * Does not change the limitPos
+     * Sets limitPos if capacity is increased.
      */
     private void ensureCapacity(int newSize) {
 
         if (newSize > limitPos) {
-            if (canChangeSize) {
-                if (newSize > limitPos) {
-                    limitPos = newSize;
-                }
-            } else {
+            if (!canChangeSize) {
                 throw new ArrayStoreException("BitMap extend");
             }
         }
 
         if (newSize <= map.length * 32) {
+            if (newSize > limitPos) {
+                limitPos = newSize;
+            }
+
             return;
         }
 
@@ -408,7 +409,8 @@ public class BitMap {
 
         System.arraycopy(map, 0, newmap, 0, map.length);
 
-        map = newmap;
+        map      = newmap;
+        limitPos = newSize;
     }
 
     /**

@@ -260,6 +260,7 @@ public class HsqlProperties {
 
 // oj@openoffice.org
         fa.createParentDirs(fileString);
+        fa.removeElement(fileString);
 
         OutputStream        fos = fa.openOutputStreamElement(fileString);
         FileAccess.FileSync outDescriptor = fa.getFileSync(fos);

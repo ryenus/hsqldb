@@ -52,7 +52,7 @@ import org.hsqldb.lib.java.JavaSystem;
  * @author Campbell Boucher-Burnet (boucherb@users dot sourceforge.net)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
  * @author Ocke Janssen oj@openoffice.org
- * @version 2.3.0
+ * @version 2.3.3
  * @since 1.7.2
  */
 public class FileUtil implements FileAccess {
@@ -103,7 +103,7 @@ public class FileUtil implements FileAccess {
 
     public OutputStream openOutputStreamElement(String streamName)
     throws IOException {
-        return new FileOutputStream(new File(streamName));
+        return new FileOutputStream(new File(streamName), true);
     }
 
     // end of FileAccess implementation

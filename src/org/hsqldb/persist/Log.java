@@ -106,13 +106,7 @@ public class Log {
         writeDelay     = database.logger.getWriteDelay();
         filesReadOnly  = database.isFilesReadOnly();
         scriptFileName = fileName + Logger.scriptFileExtension;
-    }
-
-    void setupLogFile() {
-
-        if (logFileName == null) {
-            logFileName = fileName + Logger.logFileExtension;
-        }
+        logFileName    = fileName + Logger.logFileExtension;
     }
 
     /**
@@ -168,8 +162,10 @@ public class Log {
                     HsqlDatabaseProperties.FILES_NOT_MODIFIED);
 
             // continue as non-modified files
+            // delete log file as zero length file is possible
             // fall through
             case HsqlDatabaseProperties.FILES_NOT_MODIFIED :
+                fa.removeElement(logFileName);
                 database.logger.logInfoEvent(
                     "open start - state not modified");
 
@@ -338,7 +334,6 @@ public class Log {
     }
 
     void deleteLog() {
-        setupLogFile();
         fa.removeElement(logFileName);
     }
 
@@ -354,15 +349,14 @@ public class Log {
         return database.logger.isAnyTextCacheModified();
     }
 
-    private void checkpoint() {
+    private boolean checkpoint() {
 
         if (filesReadOnly) {
-            return;
+            return true;
         }
 
-        boolean result = checkpointClose();
-
-        checkpointReopen();
+        boolean result       = checkpointClose();
+        boolean reopenResult = checkpointReopen();
 
         if (result) {
             database.lobManager.deleteUnusedLobs();
@@ -370,6 +364,8 @@ public class Log {
             database.logger.logSevereEvent(
                 "checkpoint failed - see previous error", null);
         }
+
+        return reopenResult;
     }
 
     /**
@@ -691,11 +687,6 @@ public class Log {
             return;
         }
 
-        setupLogFile();
-
-        //now .log may be zero length with modified=no
-        deleteLog();
-
         Crypto crypto = database.logger.getCrypto();
 
         try {
@@ -809,8 +800,6 @@ public class Log {
      * Performs all the commands in the .log file.
      */
     private void processLog() {
-
-        setupLogFile();
 
         if (fa.isStreamElement(logFileName)) {
             ScriptRunner.runScript(database, logFileName);
