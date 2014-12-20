@@ -49,7 +49,6 @@ import org.hsqldb.index.NodeAVL;
 import org.hsqldb.index.NodeAVLDisk;
 import org.hsqldb.lib.ArrayUtil;
 import org.hsqldb.lib.DoubleIntIndex;
-import org.hsqldb.lib.LongLookup;
 import org.hsqldb.navigator.RowIterator;
 import org.hsqldb.rowio.RowInputInterface;
 import org.hsqldb.rowio.RowOutputInterface;
@@ -207,6 +206,28 @@ public class RowStoreAVLDisk extends RowStoreAVL implements PersistentStore {
 
     public void commitPersistence(CachedObject row) {}
 
+    public void postCommitAction(Session session, RowAction action) {
+
+        if (action.getType() == RowAction.ACTION_NONE) {
+            database.txManager.removeTransactionInfo(action.getPos());
+        } else if (action.getType() == RowAction.ACTION_DELETE_FINAL
+                   && !action.isDeleteComplete()) {
+            action.setDeleteComplete();
+
+            Row row = action.getRow();
+
+            if (row == null) {
+                row = (Row) get(action.getPos(), false);
+            }
+
+            delete(session, row);
+
+            // remove info after delete but before removing persistence
+            database.txManager.removeTransactionInfo(row);
+            remove(row);
+        }
+    }
+
     public void commitRow(Session session, Row row, int changeAction,
                           int txModel) {
 
@@ -237,12 +258,7 @@ public class RowStoreAVLDisk extends RowStoreAVL implements PersistentStore {
                 break;
 
             case RowAction.ACTION_DELETE_FINAL :
-                delete(session, row);
-
-                // remove info after delete but before removing persistence
-                database.txManager.removeTransactionInfo(row);
-                remove(row);
-                break;
+                throw Error.runtimeError(ErrorCode.U_S0500, "RowStore");
         }
     }
 
@@ -284,11 +300,6 @@ public class RowStoreAVLDisk extends RowStoreAVL implements PersistentStore {
         }
     }
 
-    public void postCommitAction(Session session, RowAction action) {
-        database.txManager.removeTransactionInfo(action.getPos());
-    }
-
-    //
     public DataFileCache getCache() {
         return cache;
     }

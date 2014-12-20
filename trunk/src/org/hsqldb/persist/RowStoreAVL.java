@@ -83,9 +83,19 @@ public abstract class RowStoreAVL implements PersistentStore {
     //
     PersistentStore[] subStores = PersistentStore.emptyArray;
 
+    public boolean isRowStore() {
+        return true;
+    }
+
+    public boolean isRowSet() {
+        return false;
+    }
+
     public TableBase getTable() {
         return table;
     }
+
+    public void setTable(TableBase table) {}
 
     public long getTimestamp() {
         return timestamp;
@@ -106,6 +116,14 @@ public abstract class RowStoreAVL implements PersistentStore {
     public abstract CachedObject get(long key, boolean keep);
 
     public abstract CachedObject get(CachedObject object, boolean keep);
+
+    public CachedObject getRow(long key, boolean[] usedColumnCheck) {
+        return get(key, false);
+    }
+
+    public int compare(Session session, long key) {
+        throw Error.runtimeError(ErrorCode.U_S0500, "RowStoreAVL");
+    }
 
     public abstract void add(Session session, CachedObject object, boolean tx);
 
@@ -150,7 +168,7 @@ public abstract class RowStoreAVL implements PersistentStore {
 
     public abstract void commitPersistence(CachedObject object);
 
-    public void postCommitAction(Session session, RowAction action) {}
+    public abstract void postCommitAction(Session session, RowAction action);
 
     public abstract DataFileCache getCache();
 

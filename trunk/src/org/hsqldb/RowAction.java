@@ -49,8 +49,8 @@ public class RowAction extends RowActionBase {
     //
     final TableBase       table;
     final PersistentStore store;
-    Row                   memoryRow;
-    long                  rowId;
+    final Row             memoryRow;
+    final long            rowId;
     boolean               isMemory;
     RowAction             updatedAction;
 
@@ -318,15 +318,6 @@ public class RowAction extends RowActionBase {
         next            = null;
     }
 
-    public void setRowId(long rowId) {
-
-        if (memoryRow != null) {
-            memoryRow.setPos(rowId);
-        }
-
-        this.rowId = rowId;
-    }
-
     /** for two-phased pre-commit */
     synchronized void prepareCommit(Session session) {
 
@@ -386,6 +377,14 @@ public class RowAction extends RowActionBase {
         } while (action != null);
 
         return false;
+    }
+
+    public boolean isDeleteComplete() {
+        return deleteComplete;
+    }
+
+    public void setDeleteComplete() {
+        deleteComplete = true;
     }
 
     /**
@@ -557,12 +556,12 @@ public class RowAction extends RowActionBase {
         return result;
     }
 
-    public synchronized long getPos() {
+    public long getPos() {
         return rowId;
     }
 
-    synchronized void setPos(long pos) {
-        rowId = pos;
+    public Row getRow() {
+        return memoryRow;
     }
 
     private int getRollbackType(Session session) {

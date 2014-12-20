@@ -246,7 +246,7 @@ class TransactionManagerCommon {
         for (int i = start; i < limit; i++) {
             RowAction action = (RowAction) list[i];
 
-            postCommitAction(session, action);
+            action.store.postCommitAction(session, action);
         }
     }
 

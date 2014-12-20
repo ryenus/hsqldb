@@ -251,6 +251,8 @@ public class RowStoreAVLHybrid extends RowStoreAVL implements PersistentStore {
 
     public void commitPersistence(CachedObject row) {}
 
+    public void postCommitAction(Session session, RowAction action) {}
+
     public void commitRow(Session session, Row row, int changeAction,
                           int txModel) {
 
@@ -270,9 +272,7 @@ public class RowStoreAVLHybrid extends RowStoreAVL implements PersistentStore {
                 break;
 
             case RowAction.ACTION_DELETE_FINAL :
-                delete(session, row);
-                remove(row);
-                break;
+                throw Error.runtimeError(ErrorCode.U_S0500, "RowStore");
         }
     }
 
@@ -327,10 +327,6 @@ public class RowStoreAVLHybrid extends RowStoreAVL implements PersistentStore {
         manager.removeStore(table);
         elementCount.set(0);
         ArrayUtil.fillArray(accessorList, null);
-    }
-
-    public void delete(Session session, Row row) {
-        super.delete(session, row);
     }
 
     public CachedObject getAccessor(Index key) {

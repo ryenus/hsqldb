@@ -124,6 +124,18 @@ public class RowStoreAVLMemory extends RowStoreAVL implements PersistentStore {
 
     public void commitPersistence(CachedObject row) {}
 
+    public void postCommitAction(Session session, RowAction action) {
+
+        if (action.getType() == RowAction.ACTION_DELETE_FINAL
+                && !action.isDeleteComplete()) {
+            action.setDeleteComplete();
+
+            Row row = action.getRow();
+
+            delete(session, row);
+        }
+    }
+
     public void commitRow(Session session, Row row, int changeAction,
                           int txModel) {
 
@@ -147,8 +159,7 @@ public class RowStoreAVLMemory extends RowStoreAVL implements PersistentStore {
                 break;
 
             case RowAction.ACTION_DELETE_FINAL :
-                delete(session, row);
-                break;
+                throw Error.runtimeError(ErrorCode.U_S0500, "RowStore");
         }
     }
 

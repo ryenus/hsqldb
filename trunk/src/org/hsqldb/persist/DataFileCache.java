@@ -383,8 +383,7 @@ public class DataFileCache {
             fileModified  = false;
             cacheModified = false;
 
-            if (spaceManagerPosition != 0
-                    || database.logger.getDataFileSpaces() > 0) {
+            if (database.logger.getDataFileSpaces() > 0) {
                 spaceManager = new DataSpaceManagerBlocks(this);
             } else {
                 spaceManager = new DataSpaceManagerSimple(this);
