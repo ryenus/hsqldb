@@ -105,7 +105,6 @@ public class TableSpaceManagerBlocks implements TableSpaceManager {
 
         freshBlockFreePos = blockFreePos;
         freshBlockLimit   = blockLimit;
-        fileBlockIndex    = (int) (freshBlockFreePos / mainBlockSize);
 
         if (spaceList != null) {
             spaceList.copyTo(lookup);
@@ -126,7 +125,6 @@ public class TableSpaceManagerBlocks implements TableSpaceManager {
             long released = freshBlockLimit - freshBlockFreePos;
 
             if (released > 0) {
-
                 release(freshBlockFreePos / scale, (int) released);
             }
 
@@ -135,6 +133,7 @@ public class TableSpaceManagerBlocks implements TableSpaceManager {
         }
 
         freshBlockLimit += blockSize;
+
         return true;
     }
 
@@ -192,7 +191,6 @@ public class TableSpaceManagerBlocks implements TableSpaceManager {
         }
 
         lookup.add(pos, rowSize / scale);
-
     }
 
     /**
@@ -264,8 +262,14 @@ public class TableSpaceManagerBlocks implements TableSpaceManager {
 
     public void reset() {
 
-        spaceManager.freeTableSpace(spaceID, lookup,
-                                    freshBlockFreePos, freshBlockLimit, true);
+        if (freshBlockFreePos == 0) {
+            fileBlockIndex = -1;
+        } else {
+            fileBlockIndex = (int) (freshBlockFreePos / mainBlockSize);
+        }
+
+        spaceManager.freeTableSpace(spaceID, lookup, freshBlockFreePos,
+                                    freshBlockLimit, true);
 
         freshBlockFreePos = 0;
         freshBlockLimit   = 0;
@@ -275,6 +279,7 @@ public class TableSpaceManagerBlocks implements TableSpaceManager {
 
         long total = freshBlockLimit - freshBlockFreePos
                      + lookup.getTotalValues() * scale;
+
         return total;
     }
 

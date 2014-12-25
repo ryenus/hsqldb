@@ -588,6 +588,7 @@ public class Log {
 
     /**
      * Various writeXXX() methods are used for logging statements.
+     * INSERT, DELETE and SEQUENCE statements do not check log size
      */
     void writeOtherStatement(Session session, String s) {
 
@@ -611,10 +612,6 @@ public class Log {
         } catch (IOException e) {
             throw Error.error(ErrorCode.FILE_IO_ERROR, logFileName);
         }
-
-        if (maxLogSize > 0 && dbLogWriter.size() > maxLogSize) {
-            database.logger.setCheckpointRequired();
-        }
     }
 
     void writeDeleteStatement(Session session, Table t, Object[] row) {
@@ -624,10 +621,6 @@ public class Log {
         } catch (IOException e) {
             throw Error.error(ErrorCode.FILE_IO_ERROR, logFileName);
         }
-
-        if (maxLogSize > 0 && dbLogWriter.size() > maxLogSize) {
-            database.logger.setCheckpointRequired();
-        }
     }
 
     void writeSequenceStatement(Session session, NumberSequence s) {
@@ -636,10 +629,6 @@ public class Log {
             dbLogWriter.writeSequenceStatement(session, s);
         } catch (IOException e) {
             throw Error.error(ErrorCode.FILE_IO_ERROR, logFileName);
-        }
-
-        if (maxLogSize > 0 && dbLogWriter.size() > maxLogSize) {
-            database.logger.setCheckpointRequired();
         }
 
         setModified();
@@ -707,7 +696,7 @@ public class Log {
         }
     }
 
-    synchronized void closeLog() {
+    void closeLog() {
 
         if (dbLogWriter != null) {
             database.logger.logDetailEvent("log close size: "

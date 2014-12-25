@@ -105,9 +105,6 @@ public class Logger {
 
     //
     private Database database;
-    public boolean   checkpointRequired;
-    public boolean   checkpointDue;
-    public boolean   checkpointDisabled;
     private boolean  logsStatements;    // false indicates Log is being opened
     private boolean  loggingEnabled;
     private boolean  syncFile = false;
@@ -160,7 +157,8 @@ public class Logger {
     public boolean isSingleFile;
 
     //
-    AtomicInteger backupState = new AtomicInteger();
+    AtomicInteger backupState     = new AtomicInteger();
+    AtomicInteger checkpointState = new AtomicInteger();
 
     //
     static final int largeDataFactor = 128;
@@ -169,6 +167,11 @@ public class Logger {
     static final int stateNormal     = 0;
     static final int stateBackup     = 1;
     static final int stateCheckpoint = 2;
+
+    //
+    static final int stateCheckpointNormal   = 0;
+    static final int stateCheckpointRequired = 1;
+    static final int stateCheckpointDue      = 2;
 
     //
     public static final String oldFileExtension        = ".old";
@@ -361,8 +364,9 @@ public class Logger {
             return;
         }
 
-        checkpointRequired = false;
-        logsStatements     = false;
+        checkpointState.set(stateCheckpointNormal);
+
+        logsStatements = false;
 
         boolean useLock = database.getProperties().isPropertyTrue(
             HsqlDatabaseProperties.hsqldb_lock_file);
@@ -1036,6 +1040,7 @@ public class Logger {
             checkpointInternal(mode);
         } finally {
             backupState.set(stateNormal);
+            checkpointState.set(stateCheckpointNormal);
         }
     }
 
@@ -1049,9 +1054,6 @@ public class Logger {
         } else if (!isFileDatabase()) {
             database.lobManager.deleteUnusedLobs();
         }
-
-        checkpointRequired = false;
-        checkpointDue      = false;
     }
 
     /**
@@ -1091,8 +1093,10 @@ public class Logger {
             return;
         }
 
-        propScriptFormat   = format;
-        checkpointRequired = true;
+        propScriptFormat = format;
+
+        checkpointState.compareAndSet(stateCheckpointNormal,
+                                      stateCheckpointRequired);
     }
 
     /**
@@ -1145,7 +1149,8 @@ public class Logger {
             log.setIncrementBackup(val);
 
             if (log.hasCache()) {
-                checkpointRequired = true;
+                checkpointState.compareAndSet(stateCheckpointNormal,
+                                              stateCheckpointRequired);
             }
         }
 
@@ -1367,20 +1372,14 @@ public class Logger {
         }
     }
 
-    public synchronized void setCheckpointRequired() {
-        checkpointRequired = true;
+    public void setCheckpointRequired() {
+        checkpointState.compareAndSet(stateCheckpointNormal,
+                                      stateCheckpointRequired);
     }
 
-    public synchronized boolean needsCheckpointReset() {
-
-        if (checkpointRequired && !checkpointDue && !checkpointDisabled) {
-            checkpointDue      = true;
-            checkpointRequired = false;
-
-            return true;
-        }
-
-        return false;
+    public boolean needsCheckpointReset() {
+        return checkpointState.compareAndSet(stateCheckpointRequired,
+                                             stateCheckpointDue);
     }
 
     public boolean hasLockFile() {

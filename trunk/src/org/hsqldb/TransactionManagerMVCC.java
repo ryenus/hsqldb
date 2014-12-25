@@ -960,6 +960,7 @@ implements TransactionManager {
                 session.tempSet.remove(session);
 
                 if (!session.tempSet.isEmpty()) {
+                    session.waitedSessions.addAll(session.tempSet);
                     setWaitingSessionTPL(session);
                 }
 
@@ -981,8 +982,6 @@ implements TransactionManager {
                     == SqlInvariants.LOBS_SCHEMA_HSQLNAME) {
                 return true;
             }
-        } else {
-            return true;
         }
 
         if (session.waitingSessions.contains(catalogWriteSession)) {
