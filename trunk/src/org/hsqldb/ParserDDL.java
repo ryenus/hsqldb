@@ -681,6 +681,21 @@ public class ParserDDL extends ParserRoutine {
 
             case Tokens.RENAME : {
                 read();
+
+                if (database.sqlSyntaxPgs) {
+                    if (token.tokenType == Tokens.COLUMN) {
+                        read();
+
+                        checkIsIdentifier();
+                        int columnIndex = t.getColumnIndex(token.tokenString);
+                        ColumnSchema column = t.getColumn(columnIndex);
+
+                        read();
+                        readThis(Tokens.TO);
+
+                        return compileAlterColumnRename(t, column);
+                    }
+                }
                 readThis(Tokens.TO);
 
                 return compileRenameObject(t.getName(), SchemaObject.TABLE);
@@ -4652,7 +4667,7 @@ public class ParserDDL extends ParserRoutine {
             boolean loop = true;
 
             while (loop) {
-                checkIsNotQuoted();
+                checkIsUndelimitedIdentifer();
 
                 int rightType =
                     GranteeManager.getCheckSingleRight(token.tokenString);
