@@ -66,7 +66,7 @@ import org.hsqldb.rowio.RowOutputTextLog;
  *
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.0
+ * @version 2.3.3
  * @since 1.7.2
  */
 public class ScriptWriterText extends ScriptWriterBase {
@@ -106,6 +106,10 @@ public class ScriptWriterText extends ScriptWriterBase {
             BYTES_SCHEMA       = "SET SCHEMA ".getBytes(ISO_8859_1);
         } catch (UnsupportedEncodingException e) {
             Error.runtimeError(ErrorCode.U_S0500, "ScriptWriterText");
+        }
+
+        if (BYTES_LINE_SEP[0] != 0x0A && BYTES_LINE_SEP[0] != 0x0D) {
+            BYTES_LINE_SEP = new byte[]{ 0x0A };
         }
     }
 
