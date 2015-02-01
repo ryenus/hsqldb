@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2011, The HSQL Development Group
+/* Copyright (c) 2001-2015, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -111,7 +111,7 @@ public class ExpressionTable extends Expression {
                 nodeDataTypes =
                     ((RowType) nodes[LEFT].dataType).getTypesArray();
 
-                table.prepareTable();
+                table.prepareTable(session);
 
                 table.columnList =
                     ((FunctionSQLInvoked) nodes[LEFT]).routine.getTable()
@@ -146,7 +146,7 @@ public class ExpressionTable extends Expression {
             nodeDataTypes[nodes.length] = Type.SQL_INTEGER;
         }
 
-        table.prepareTable();
+        table.prepareTable(session);
     }
 
     public Result getResult(Session session) {

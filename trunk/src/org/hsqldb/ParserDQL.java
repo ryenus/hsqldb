@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2014, The HSQL Development Group
+/* Copyright (c) 2001-2015, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -4358,7 +4358,7 @@ public class ParserDQL extends ParserBase {
 
         readThis(Tokens.CLOSEBRACKET);
         td.setSQL(getLastPart(position));
-        td.prepareTable();
+        td.prepareTable(session);
         compileContext.decrementDepth();
 
         return td;
@@ -4393,7 +4393,7 @@ public class ParserDQL extends ParserBase {
                     td.queryExpression.resolve(session);
                 }
 
-                td.prepareTable(columnNames);
+                td.prepareTable(session, columnNames);
 
                 return td;
             }
@@ -4420,7 +4420,7 @@ public class ParserDQL extends ParserBase {
                                            OpTypes.TABLE_SUBQUERY);
 
         compileContext.decrementDepth();
-        td.prepareTable(columnNames);
+        td.prepareTable(session, columnNames);
         compileContext.initSubqueryNames();
         compileContext.registerSubquery(name.name);
         compileContext.registerSubquery(name.name, td);
@@ -4445,7 +4445,7 @@ public class ParserDQL extends ParserBase {
         TableDerived maintd = newSubQueryTable(name, queryExpression,
                                                OpTypes.TABLE_SUBQUERY);
 
-        maintd.prepareTable(columnNames);
+        maintd.prepareTable(session, columnNames);
         maintd.setSQL(getLastPart(position));
         compileContext.decrementDepth();
 
@@ -4662,7 +4662,7 @@ public class ParserDQL extends ParserBase {
 
         TableDerived td = this.newSubQueryTable(e, OpTypes.VALUELIST);
 
-        td.prepareTable(colNames);
+        td.prepareTable(session, colNames);
 
         return td;
     }

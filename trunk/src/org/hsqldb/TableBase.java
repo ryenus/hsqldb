@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2014, The HSQL Development Group
+/* Copyright (c) 2001-2015, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -427,23 +427,33 @@ public class TableBase {
      */
     public void dropIndex(Session session, int todrop) {
 
-        indexList = (Index[]) ArrayUtil.toAdjustedArray(indexList, null,
+        Index[] list = (Index[]) ArrayUtil.toAdjustedArray(indexList, null,
                 todrop, -1);
 
-        for (int i = 0; i < indexList.length; i++) {
-            indexList[i].setPosition(i);
+        for (int i = 0; i < list.length; i++) {
+            list[i].setPosition(i);
         }
 
+        resetAccessorKeys(session, list);
+
+        indexList = list;
+
         setBestRowIdentifiers();
-        resetAccessorKeys(session);
     }
 
     final void addIndexStructure(Index index) {
 
+        indexList = getNewIndexArray(index, indexList);
+
+        setBestRowIdentifiers();
+    }
+
+    static Index[] getNewIndexArray(Index index, Index[] list) {
+
         int i = 0;
 
-        for (; i < indexList.length; i++) {
-            Index current = indexList[i];
+        for (; i < list.length; i++) {
+            Index current = list[i];
             int order = index.getIndexOrderValue()
                         - current.getIndexOrderValue();
 
@@ -452,41 +462,38 @@ public class TableBase {
             }
         }
 
-        indexList = (Index[]) ArrayUtil.toAdjustedArray(indexList, index, i,
-                1);
+        list = (Index[]) ArrayUtil.toAdjustedArray(list, index, i, 1);
 
-        for (i = 0; i < indexList.length; i++) {
-            indexList[i].setPosition(i);
+        for (i = 0; i < list.length; i++) {
+            list[i].setPosition(i);
         }
 
-        setBestRowIdentifiers();
+        return list;
     }
 
     final void addIndex(Session session, Index index) {
 
-        Index[] oldIndexList = indexList;
-
-        addIndexStructure(index);
+        Index[] list = getNewIndexArray(index, indexList);
 
         try {
-            resetAccessorKeys(session);
+            resetAccessorKeys(session, list);
         } catch (HsqlException e) {
-            indexList = oldIndexList;
-
             for (int i = 0; i < indexList.length; i++) {
                 indexList[i].setPosition(i);
             }
 
-            setBestRowIdentifiers();
-
             throw e;
         }
+
+        indexList = list;
+
+        setBestRowIdentifiers();
     }
 
-    private void resetAccessorKeys(Session session) {
+    private void resetAccessorKeys(Session session, Index[] indexes) {
 
         if (store != null) {
-            store.resetAccessorKeys(session, indexList);
+            store.resetAccessorKeys(session, indexes);
 
             return;
         }
@@ -498,12 +505,10 @@ public class TableBase {
 
                 // session may be an unregisterd sys session
                 session.sessionData.persistentStoreCollection
-                    .resetAccessorKeys(session, (Table) this);
+                    .resetAccessorKeys(session, (Table) this, indexes);
 
                 break;
             }
-            case TableBase.SYSTEM_SUBQUERY :
-            case TableBase.SYSTEM_TABLE :
         }
     }
 

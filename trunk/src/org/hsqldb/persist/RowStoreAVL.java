@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2014, The HSQL Development Group
+/* Copyright (c) 2001-2015, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -94,8 +94,6 @@ public abstract class RowStoreAVL implements PersistentStore {
     public TableBase getTable() {
         return table;
     }
-
-    public void setTable(TableBase table) {}
 
     public long getTimestamp() {
         return timestamp;

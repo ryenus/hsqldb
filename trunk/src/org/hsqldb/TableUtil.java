@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2011, The HSQL Development Group
+/* Copyright (c) 2001-2015, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -60,27 +60,6 @@ public class TableUtil {
                                          true);
 
         return table;
-    }
-
-    static void setTableIndexesForSubquery(Table table, boolean fullIndex,
-                                           boolean uniqueRows) {
-
-        int[] cols = null;
-
-        if (fullIndex) {
-            cols = new int[table.getColumnCount()];
-
-            ArrayUtil.fillSequence(cols);
-        }
-
-        table.createPrimaryKey(null, uniqueRows ? cols
-                                                : null, false);
-
-        if (uniqueRows) {
-            table.fullIndex = table.getPrimaryIndex();
-        } else if (fullIndex) {
-            table.fullIndex = table.createIndexForColumns(null, cols);
-        }
     }
 
     public static void addAutoColumns(Table table, Type[] colTypes) {

@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2014, The HSQL Development Group
+/* Copyright (c) 2001-2015, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -359,7 +359,7 @@ public class DoubleIntIndex implements IntLookup, LongLookup {
         targetSearchValue = sortOnValues ? value
                                          : key;
 
-        int i = binarySlotSearch();
+        int i = binarySlotSearch(true);
 
         if (i == -1) {
             return i;
@@ -562,7 +562,7 @@ public class DoubleIntIndex implements IntLookup, LongLookup {
 
         targetSearchValue = value;
 
-        return binarySlotSearch();
+        return binarySlotSearch(false);
     }
 
     /**
@@ -601,7 +601,7 @@ public class DoubleIntIndex implements IntLookup, LongLookup {
      * or count
      *     @return the index
      */
-    private int binarySlotSearch() {
+    private int binarySlotSearch(boolean fullCompare) {
 
         int low     = 0;
         int high    = count;
@@ -815,6 +815,27 @@ public class DoubleIntIndex implements IntLookup, LongLookup {
             } else if (targetSearchValue < values[i]) {
                 return -1;
             } else {
+                return 0;
+            }
+        }
+
+        if (targetSearchValue > keys[i]) {
+            return 1;
+        } else if (targetSearchValue < keys[i]) {
+            return -1;
+        }
+
+        return 0;
+    }
+
+    protected int compare(int i, boolean full) {
+
+        if (sortOnValues) {
+            if (targetSearchValue > values[i]) {
+                return 1;
+            } else if (targetSearchValue < values[i]) {
+                return -1;
+            } else if (!full) {
                 return 0;
             }
         }
