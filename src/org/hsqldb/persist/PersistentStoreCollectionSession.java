@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2014, The HSQL Development Group
+/* Copyright (c) 2001-2015, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -37,6 +37,7 @@ import org.hsqldb.Table;
 import org.hsqldb.TableBase;
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
+import org.hsqldb.index.Index;
 import org.hsqldb.lib.HsqlDeque;
 import org.hsqldb.lib.Iterator;
 import org.hsqldb.lib.LongKeyHashMap;
@@ -295,7 +296,8 @@ implements PersistentStoreCollection {
         return store;
     }
 
-    synchronized public void resetAccessorKeys(Session session, Table table) {
+    synchronized public void resetAccessorKeys(Session session, Table table,
+            Index[] indexes) {
 
         PersistentStore store = findStore(table);
 
@@ -303,7 +305,7 @@ implements PersistentStoreCollection {
             return;
         }
 
-        store.resetAccessorKeys(session, table.getIndexList());
+        store.resetAccessorKeys(session, indexes);
     }
 
     synchronized public void moveData(Table oldTable, Table newTable,

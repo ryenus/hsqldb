@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2014, The HSQL Development Group
+/* Copyright (c) 2001-2015, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -63,15 +63,11 @@ public class RowStoreAVLHybridExtended extends RowStoreAVLHybrid {
 
     public CachedObject getNewCachedObject(Session session, Object object,
                                            boolean tx) {
-
-        if (indexList != table.getIndexList()) {
-            resetAccessorKeys(session, table.getIndexList());
-        }
-
         return super.getNewCachedObject(session, object, tx);
     }
 
-    public void add(Session session, CachedObject object, boolean tx) {
+    public synchronized void add(Session session, CachedObject object,
+                                 boolean tx) {
 
         super.add(session, object, tx);
 
@@ -81,10 +77,17 @@ public class RowStoreAVLHybridExtended extends RowStoreAVLHybrid {
     }
 
     public void indexRow(Session session, Row row) {
+        NodeAVL node  = ((RowAVL) row).getNode(0);
+        int     count = 0;
 
-        if (indexList != table.getIndexList()) {
-            resetAccessorKeys(session, table.getIndexList());
-            ((RowAVL) row).setNewNodes(this);
+        while (node != null) {
+            count++;
+
+            node = node.nNext;
+        }
+
+        if ((isCached && row.isMemory()) || count != indexList.length) {
+            row = (Row) getNewCachedObject(session, row.getData(), true);
         }
 
         super.indexRow(session, row);
@@ -114,16 +117,7 @@ public class RowStoreAVLHybridExtended extends RowStoreAVLHybrid {
     }
 
     public CachedObject getAccessor(Index key) {
-
-        int position = key.getPosition();
-
-        if (position >= accessorList.length || indexList[position] != key) {
-            resetAccessorKeys(session, table.getIndexList());
-
-            return getAccessor(key);
-        }
-
-        return accessorList[position];
+        return super.getAccessor(key);
     }
 
     public synchronized void resetAccessorKeys(Session session, Index[] keys) {
@@ -136,7 +130,7 @@ public class RowStoreAVLHybridExtended extends RowStoreAVLHybrid {
         }
 
         if (isCached) {
-            resetAccessorKeysForCached();
+            resetAccessorKeysForCached(keys);
 
             return;
         }
@@ -144,10 +138,14 @@ public class RowStoreAVLHybridExtended extends RowStoreAVLHybrid {
         super.resetAccessorKeys(session, keys);
     }
 
-    private void resetAccessorKeysForCached() {
+    private void resetAccessorKeysForCached(Index[] keys) {
+
+        TableBase newTable = table.duplicate();
+
+        newTable.setIndexes(keys);
 
         RowStoreAVLHybrid tempStore = new RowStoreAVLHybridExtended(session,
-            manager, table, true);
+            manager, newTable, true);
 
         tempStore.changeToDiskTable(session);
 
@@ -161,7 +159,7 @@ public class RowStoreAVLHybridExtended extends RowStoreAVLHybrid {
             tempStore.indexRow(session, newRow);
         }
 
-        indexList    = tempStore.indexList;
+        indexList    = keys;
         accessorList = tempStore.accessorList;
     }
 }

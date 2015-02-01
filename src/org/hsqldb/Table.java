@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2014, The HSQL Development Group
+/* Copyright (c) 2001-2015, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -3001,7 +3001,7 @@ public class Table extends TableBase implements SchemaObject {
         return null;
     }
 
-    public void prepareTable() {}
+    public void prepareTable(Session session) {}
 
     public void materialise(Session session) {}
 

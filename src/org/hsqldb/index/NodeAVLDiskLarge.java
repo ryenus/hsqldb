@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2014, The HSQL Development Group
+/* Copyright (c) 2001-2015, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -540,7 +540,7 @@ public class NodeAVLDiskLarge extends NodeAVL {
         return false;
     }
 
-    public void setChanged() {}
+    public void setChanged(boolean flag) {}
 
     public boolean isKeepInMemory() {
         return false;

@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2014, The HSQL Development Group
+/* Copyright (c) 2001-2015, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -317,7 +317,7 @@ public class DataSpaceManagerBlocks implements DataSpaceManager {
 
         directory.getTableIdArray()[blockOffset]       = tableId;
         directory.getBitmapAddressArray()[blockOffset] = bitmapBlockPos;
-        directory.hasChanged                           = true;
+        directory.setChanged(true);
 
         directory.keepInMemory(false);
     }
@@ -353,7 +353,7 @@ public class DataSpaceManagerBlocks implements DataSpaceManager {
                                    / fixedBlockSizeUnit);
 
         rootBlock.getIntArray()[indexInRoot] = blockPosition;
-        rootBlock.hasChanged                 = true;
+        rootBlock.setChanged(true);
     }
 
     private int getBlockIndexLimit() {
@@ -897,14 +897,14 @@ public class DataSpaceManagerBlocks implements DataSpaceManager {
 
         int setRange(int offset, int currentUnits) {
 
-            currentBitMap.hasChanged = true;
+            currentBitMap.setChanged(true);
 
             return currentBitMap.bitMap.setRange(offset, currentUnits);
         }
 
         int unsetRange(int offset, int currentUnits) {
 
-            currentBitMap.hasChanged = true;
+            currentBitMap.setChanged(true);
 
             return currentBitMap.bitMap.unsetRange(offset, currentUnits);
         }
@@ -932,7 +932,7 @@ public class DataSpaceManagerBlocks implements DataSpaceManager {
                 return;
             }
 
-            if (!currentBitMap.hasChanged) {
+            if (!currentBitMap.hasChanged()) {
                 currentBitMap.keepInMemory(false);
 
                 return;
@@ -956,7 +956,7 @@ public class DataSpaceManagerBlocks implements DataSpaceManager {
                 (char) freeUnits;
             currentDir.getFreeBlockArray()[currentBlockOffset] =
                 (char) freeBlockUnits;
-            currentDir.hasChanged = true;
+            currentDir.setChanged(true);
         }
 
         void setTable(int tableId) {
@@ -964,11 +964,11 @@ public class DataSpaceManagerBlocks implements DataSpaceManager {
             currentDir.getTableIdArray()[currentBlockOffset]   = tableId;
             currentDir.getFreeSpaceArray()[currentBlockOffset] = (char) 0;
             currentDir.getFreeBlockArray()[currentBlockOffset] = (char) 0;
-            currentDir.hasChanged                              = true;
+            currentDir.setChanged(true);
 
             currentBitMap.bitMap.reset();
 
-            currentBitMap.hasChanged = true;
+            currentBitMap.setChanged(true);
         }
 
         int getTableId() {

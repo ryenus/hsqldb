@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2014, The HSQL Development Group
+/* Copyright (c) 2001-2015, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -87,8 +87,6 @@ public class Row implements CachedObject {
         return !action.canRead(session, TransactionManager.ACTION_READ);
     }
 
-    public void setChanged(boolean changed) {}
-
     public void setStorageSize(int size) {}
 
     public int getStorageSize() {
@@ -133,7 +131,7 @@ public class Row implements CachedObject {
         return false;
     }
 
-    public void setChanged() {}
+    public void setChanged(boolean flag) {}
 
     public boolean isKeepInMemory() {
         return true;

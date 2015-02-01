@@ -1,7 +1,7 @@
 /*
  * For work developed by the HSQL Development Group:
  *
- * Copyright (c) 2001-2014, The HSQL Development Group
+ * Copyright (c) 2001-2015, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -208,13 +208,6 @@ public class RowAVLDisk extends RowAVL {
         position = pos;
     }
 
-    /**
-     * Sets flag for row data change.
-     */
-    public synchronized void setChanged(boolean changed) {
-        hasDataChanged = changed;
-    }
-
     public boolean isNew() {
         return isNew;
     }
@@ -228,9 +221,10 @@ public class RowAVLDisk extends RowAVL {
         return hasNodesChanged || hasDataChanged;
     }
 
-    public void setChanged() {
-        hasNodesChanged = true;
-        hasDataChanged  = true;
+    public synchronized void setChanged(boolean flag) {
+        hasNodesChanged = flag;
+        hasDataChanged  = flag;
+        isNew           = flag;
     }
 
     /**
@@ -358,9 +352,6 @@ public class RowAVLDisk extends RowAVL {
         if (hasDataChanged) {
             out.writeData(this, table.colTypes);
             out.writeEnd();
-
-            hasDataChanged = false;
-            isNew          = false;
         }
     }
 
@@ -398,7 +389,5 @@ public class RowAVLDisk extends RowAVL {
 
             n = n.nNext;
         }
-
-        hasNodesChanged = false;
     }
 }
