@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2011, The HSQL Development Group
+/* Copyright (c) 2001-2015, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -42,6 +42,7 @@ import org.hsqldb.Database;
 import org.hsqldb.Session;
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
+import org.hsqldb.lib.java.JavaSystem;
 import org.hsqldb.lib.LineReader;
 import org.hsqldb.lib.StringConverter;
 import org.hsqldb.persist.Crypto;
@@ -50,39 +51,41 @@ import org.hsqldb.rowio.RowInputTextLog;
 /**
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.0.1
+ * @version 2.3.3
  * @since 1.9.0
  */
 public class ScriptReaderDecode extends ScriptReaderText {
 
     DataInputStream dataInput;
+    InputStream     cryptoStream;
     Crypto          crypto;
     byte[]          buffer = new byte[256];
 
     public ScriptReaderDecode(Database db, String fileName, Crypto crypto,
                               boolean forLog) throws IOException {
-        this(db, db.logger.getFileAccess().openInputStreamElement(fileName),
-             crypto, forLog);
-    }
-
-    public ScriptReaderDecode(Database db, InputStream inputStream,
-                              Crypto crypto,
-                              boolean forLog) throws IOException {
 
         super(db);
 
         this.crypto = crypto;
-        rowIn       = new RowInputTextLog();
 
-        if (forLog) {
-            dataInput =
-                new DataInputStream(new BufferedInputStream(inputStream));
-        } else {
-            InputStream stream =
-                crypto.getInputStream(new BufferedInputStream(inputStream));
+        try {
+            inputStream =
+                db.logger.getFileAccess().openInputStreamElement(fileName);
+            bufferedStream = new BufferedInputStream(inputStream);
+            rowIn          = new RowInputTextLog();
 
-            stream       = new GZIPInputStream(stream);
-            dataStreamIn = new LineReader(stream, ScriptWriterText.ISO_8859_1);
+            if (forLog) {
+                dataInput = new DataInputStream(bufferedStream);
+            } else {
+                cryptoStream = crypto.getInputStream(bufferedStream);
+                gzipStream   = new GZIPInputStream(cryptoStream);
+                dataStreamIn = new LineReader(gzipStream,
+                                              ScriptWriterText.ISO_8859_1);
+            }
+        } catch (Throwable t) {
+            close();
+
+            throw JavaSystem.toIOException(t);
         }
     }
 
@@ -136,7 +139,27 @@ public class ScriptReaderDecode extends ScriptReaderText {
             if (dataStreamIn != null) {
                 dataStreamIn.close();
             }
+        } catch (Exception e) {}
 
+        try {
+            if (gzipStream != null) {
+                gzipStream.close();
+            }
+        } catch (Exception e) {}
+
+        try {
+            if (cryptoStream != null) {
+                cryptoStream.close();
+            }
+        } catch (Exception e) {}
+
+        try {
+            if (inputStream != null) {
+                inputStream.close();
+            }
+        } catch (Exception e) {}
+
+        try {
             if (dataInput != null) {
                 dataInput.close();
             }

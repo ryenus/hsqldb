@@ -39,7 +39,7 @@ import org.hsqldb.rowio.RowOutputInterface;
  * Interface for an object stored in the memory cache.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.0
+ * @version 2.3.3
  * @since 1.8.0
  */
 public interface CachedObject {

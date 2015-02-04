@@ -45,7 +45,7 @@ import org.hsqldb.rowio.RowOutputInterface;
 /**
  *  Subclass of NodeAVL for huge databases.
  * @author Fred Toussi (fredt@users dot sourceforge dot net)
- * @version 2.2.9
+ * @version 2.3.3
  * @since 2.2.9
  */
 public class NodeAVLDiskLarge extends NodeAVL {

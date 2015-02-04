@@ -96,7 +96,7 @@ import org.hsqldb.rowio.RowInputInterface;
  *  New class derived from Hypersonic SQL code and enhanced in HSQLDB. <p>
  *
  * @author Thomas Mueller (Hypersonic SQL Group)
- * @version 1.9.0
+ * @version 2.3.3
  * @since Hypersonic SQL
  */
 public class NodeAVL implements CachedObject {

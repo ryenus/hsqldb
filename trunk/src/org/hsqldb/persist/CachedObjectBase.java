@@ -34,6 +34,12 @@ package org.hsqldb.persist;
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
 
+/**
+ * Base class for a stored object.
+ *
+ * @author Fred Toussi (fredt@users dot sourceforge dot net)
+ * @version 2.3.3
+ */
 public abstract class CachedObjectBase implements CachedObject {
 
     boolean isMemory;

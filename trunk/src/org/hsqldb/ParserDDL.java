@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2014, The HSQL Development Group
+/* Copyright (c) 2001-2015, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -1210,7 +1210,6 @@ public class ParserDDL extends ParserRoutine {
                     column.getName());
 
             column.setName(name);
-            column.setNullable(true);
             column.setPrimaryKey(false);
 
             if (identity) {

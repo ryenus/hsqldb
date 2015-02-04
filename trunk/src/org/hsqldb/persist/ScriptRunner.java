@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2014, The HSQL Development Group
+/* Copyright (c) 2001-2015, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -63,31 +63,10 @@ import org.hsqldb.types.Type;
  * logged to the application log. If memory runs out, an exception is thrown.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.2.7
+ * @version 2.3.3
  * @since 1.7.2
  */
 public class ScriptRunner {
-
-    public static void runScript(Database database, InputStream inputStream) {
-
-        Crypto           crypto = database.logger.getCrypto();
-        ScriptReaderBase scr;
-
-        if (crypto == null) {
-            scr = new ScriptReaderText(database, inputStream);
-        } else {
-            try {
-                scr = new ScriptReaderDecode(database, inputStream, crypto,
-                                             true);
-            } catch (Throwable e) {
-                database.logger.logSevereEvent("opening log file", e);
-
-                return;
-            }
-        }
-
-        runScript(database, scr);
-    }
 
     /**
      *  This is used to read the *.log file and manage any necessary
