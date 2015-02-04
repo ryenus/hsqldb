@@ -47,7 +47,7 @@ import org.hsqldb.rowio.RowOutputInterface;
  *
  * @author Bob Preston (sqlbob@users dot sourceforge.net)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.2.9
+ * @version 2.3.3
  * @version 1.7.0
  */
 public class RowAVLDiskData extends RowAVL {

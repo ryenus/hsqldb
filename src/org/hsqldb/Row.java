@@ -41,7 +41,7 @@ import org.hsqldb.rowio.RowOutputInterface;
  * Base class for a database row object.
  *
  * @author Fred Toussi (fredt@users dot sourceforge dot net)
- * @version 2.3.0
+ * @version 2.3.3
  */
 public class Row implements CachedObject {
 
