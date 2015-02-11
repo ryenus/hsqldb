@@ -1916,6 +1916,10 @@ public class ParserDQL extends ParserBase {
                     if (table == null) {
                         table = XreadTableSubqueryOrNull(true);
 
+                        if (table == null) {
+                            throw unexpectedToken();
+                        }
+
                         break;
                     }
 
