@@ -1,4 +1,4 @@
-svn 5419
+svn 5421
 -- fixed reporting of DISTINCT and DOMAIN types in JDBC DatabaseMetaData getColumns results
 -- fixed issue with new FK constraints, existing rows are now checked
 -- fixed restrictions with FK constraints with NO ACTION, all valid outcomes are now allowed
@@ -10,8 +10,7 @@ svn 5419
 -- fixed an issue with CACHED table persistence
 -- fixed issue with TEMP table with ON COMMIT PRESERVE ROWS and RESULT MEMORY ROWS setting
 -- fixed several minor bugs
--- improved ORA syntax compatibility mode
--- improved PGS syntax compatibility
+-- improved ORA and PGS syntax compatibility modes
 -- added support for ALTER CONSTRAINT <name> RENAME TO <new name>
 
 12 February 2014 - version 2.3.2
