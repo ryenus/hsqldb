@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2011, The HSQL Development Group
+/* Copyright (c) 2001-2015, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -313,6 +313,10 @@ public class ScriptWriterText extends ScriptWriterBase {
     }
 
     void writeRowOutToFile() throws IOException {
+
+        if (fileStreamOut == null) {
+            return;
+        }
 
         synchronized (fileStreamOut) {
             fileStreamOut.write(rowOut.getBuffer(), 0, rowOut.size());

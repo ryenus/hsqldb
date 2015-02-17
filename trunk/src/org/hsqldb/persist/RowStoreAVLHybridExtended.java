@@ -77,6 +77,7 @@ public class RowStoreAVLHybridExtended extends RowStoreAVLHybrid {
     }
 
     public void indexRow(Session session, Row row) {
+
         NodeAVL node  = ((RowAVL) row).getNode(0);
         int     count = 0;
 
@@ -141,6 +142,8 @@ public class RowStoreAVLHybridExtended extends RowStoreAVLHybrid {
     private void resetAccessorKeysForCached(Index[] keys) {
 
         TableBase newTable = table.duplicate();
+
+        newTable.persistenceId = table.persistenceId;
 
         newTable.setIndexes(keys);
 

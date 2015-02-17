@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2014, The HSQL Development Group
+/* Copyright (c) 2001-2015, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -227,75 +227,114 @@ public class ParserRoutine extends ParserDML {
             }
 
             return new ExpressionValue(value, convertType);
-        } else {
-            if (database.sqlSyntaxDb2) {
-                Object value = null;
+        }
 
-                switch (dataType.typeComparisonGroup) {
+        if (database.sqlSyntaxOra) {
+            e = XreadValueExpressionOrNull();
 
-                    case Types.SQL_VARCHAR :
-                        value = "";
-                        break;
+            if (e != null) {
+                if (e.getType() == OpTypes.ROW_SUBQUERY) {
+                    TableDerived t = (TableDerived) e.getTable();
+                    QuerySpecification qs =
+                        (QuerySpecification) t.getQueryExpression();
 
-                    case Types.SQL_VARBINARY :
-                        value = BinaryData.zeroLengthBinary;
-                        break;
-
-                    case Types.SQL_NUMERIC :
-                        value = Integer.valueOf(0);
-                        break;
-
-                    case Types.SQL_BOOLEAN :
-                        value = Boolean.FALSE;
-                        break;
-
-                    case Types.SQL_CLOB :
-                        value = "";
-
-                        return new ExpressionValue(value,
-                                                   Type.SQL_VARCHAR_DEFAULT);
-
-                    case Types.SQL_BLOB :
-                        value = BinaryData.zeroLengthBinary;
-
-                        return new ExpressionValue(value,
-                                                   Type.SQL_VARBINARY_DEFAULT);
-
-                    case Types.TIME : {
-                        FunctionSQL function =
-                            FunctionSQL.newSQLFunction(Tokens.T_CURRENT_TIME,
-                                                       compileContext);
-
-                        function.resolveTypes(session, null);
-
-                        return function;
-                    }
-                    case Types.DATE : {
-                        FunctionSQL function =
-                            FunctionSQL.newSQLFunction(Tokens.T_CURRENT_DATE,
-                                                       compileContext);
-
-                        function.resolveTypes(session, null);
-
-                        return function;
-                    }
-                    case Types.TIMESTAMP : {
-                        FunctionSQL function = FunctionSQL.newSQLFunction(
-                            Tokens.T_CURRENT_TIMESTAMP, compileContext);
-
-                        function.resolveTypes(session, null);
-
-                        return function;
-                    }
+                    qs.setReturningResult();
                 }
 
-                value = dataType.convertToDefaultType(session, value);
+                e.resolveColumnReferences(session, RangeGroup.emptyGroup, 0,
+                                          RangeGroup.emptyArray, null, true);
+                e.resolveTypes(session, null);
 
-                return new ExpressionValue(value, dataType);
+                if (e.getType() == OpTypes.ROW_SUBQUERY) {
+                    TableDerived t = (TableDerived) e.getTable();
+                    QuerySpecification qs =
+                        (QuerySpecification) t.getQueryExpression();
+                    Table d = qs.getRangeVariables()[0].getTable();
+
+                    if (d != session.database.schemaManager.dualTable ||
+                    qs.exprColumns.length != 1) {
+                        throw Error.error(ErrorCode.X_42565);
+                    }
+
+                    e = qs.exprColumns[0];
+                }
+
+                return e;
+            }
+        }
+
+        if (database.sqlSyntaxDb2) {
+            Object value = null;
+
+            switch (dataType.typeComparisonGroup) {
+
+                case Types.SQL_VARCHAR :
+                    value = "";
+                    break;
+
+                case Types.SQL_VARBINARY :
+                    value = BinaryData.zeroLengthBinary;
+                    break;
+
+                case Types.SQL_NUMERIC :
+                    value = Integer.valueOf(0);
+                    break;
+
+                case Types.SQL_BOOLEAN :
+                    value = Boolean.FALSE;
+                    break;
+
+                case Types.SQL_CLOB :
+                    value = "";
+
+                    return new ExpressionValue(value,
+                                               Type.SQL_VARCHAR_DEFAULT);
+
+                case Types.SQL_BLOB :
+                    value = BinaryData.zeroLengthBinary;
+
+                    return new ExpressionValue(value,
+                                               Type.SQL_VARBINARY_DEFAULT);
+
+                case Types.TIME : {
+                    FunctionSQL function =
+                        FunctionSQL.newSQLFunction(Tokens.T_CURRENT_TIME,
+                                                   compileContext);
+
+                    function.resolveTypes(session, null);
+
+                    return function;
+                }
+                case Types.DATE : {
+                    FunctionSQL function =
+                        FunctionSQL.newSQLFunction(Tokens.T_CURRENT_DATE,
+                                                   compileContext);
+
+                    function.resolveTypes(session, null);
+
+                    return function;
+                }
+                case Types.TIMESTAMP : {
+                    FunctionSQL function =
+                        FunctionSQL.newSQLFunction(Tokens.T_CURRENT_TIMESTAMP,
+                                                   compileContext);
+
+                    function.resolveTypes(session, null);
+
+                    return function;
+                }
             }
 
-            throw unexpectedToken();
+            value = dataType.convertToDefaultType(session, value);
+
+            return new ExpressionValue(value, dataType);
         }
+
+        if (inParens) {
+            readThis(Tokens.CLOSEBRACKET);
+        }
+
+        throw unexpectedToken();
     }
 
     Statement compileOpenCursorStatement(StatementCompound context) {

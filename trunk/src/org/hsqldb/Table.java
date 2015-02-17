@@ -2447,6 +2447,10 @@ public class Table extends TableBase implements SchemaObject {
     synchronized IndexUse[] getIndexForColumns(Session session,
             OrderedIntHashSet set, int opType, boolean ordered) {
 
+        if (set.isEmpty()) {
+            return Index.emptyUseArray;
+        }
+
         IndexUse[] indexUse = findIndexForColumns(session, set, opType,
             ordered);
 

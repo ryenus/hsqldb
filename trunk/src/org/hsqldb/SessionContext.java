@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2014, The HSQL Development Group
+/* Copyright (c) 2001-2015, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -283,6 +283,25 @@ public class SessionContext {
         }
 
         rangeIterators[position] = iterator;
+    }
+
+    public RangeIterator getRangeIterator(int position) {
+
+        RangeIterator[] ranges = rangeIterators;
+
+        if (stack != null) {
+            for (int i = 0; i < stack.size(); i++) {
+                Object o = stack.get(i);
+
+                if (o instanceof RangeIterator[]) {
+                    ranges = (RangeIterator[]) o;
+
+                    break;
+                }
+            }
+        }
+
+        return ranges[position];
     }
 
     public void unsetRangeIterator(RangeIterator iterator) {
