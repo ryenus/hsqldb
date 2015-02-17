@@ -32,14 +32,13 @@
 package org.hsqldb;
 
 import org.hsqldb.HsqlNameManager.HsqlName;
-import org.hsqldb.lib.ArrayUtil;
 import org.hsqldb.types.Type;
 
 /*
  * Utility functions to set up special tables.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.2.7
+ * @version 2.3.3
  * @since 1.9.0
  */
 public class TableUtil {

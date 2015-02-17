@@ -32,6 +32,8 @@
 package org.hsqldb;
 
 import org.hsqldb.HsqlNameManager.HsqlName;
+import org.hsqldb.error.Error;
+import org.hsqldb.error.ErrorCode;
 import org.hsqldb.index.Index;
 import org.hsqldb.lib.ArrayUtil;
 import org.hsqldb.map.ValuePool;
@@ -47,7 +49,7 @@ import org.hsqldb.types.Type;
  * @version 2.3.3
  * @since 1.7.2
  */
-public class TableBase {
+public class TableBase implements Cloneable {
 
     // types of table
     public static final int INFO_SCHEMA_TABLE = 1;
@@ -124,16 +126,16 @@ public class TableBase {
 
     public TableBase duplicate() {
 
-        TableBase copy = new TableBase();
+        TableBase copy;
 
-        copy.tableType        = tableType;
-        copy.persistenceScope = persistenceScope;
-        copy.isSessionBased   = isSessionBased;
+
+        try {
+            copy = (TableBase) super.clone();
+        } catch (CloneNotSupportedException ex) {
+            throw Error.runtimeError(ErrorCode.U_S0500, "Expression");
+        }
+
         copy.persistenceId    = database.persistentStoreCollection.getNextId();
-        copy.database         = database;
-        copy.colTypes         = colTypes;
-        copy.columnCount      = columnCount;
-        copy.indexList        = indexList;
 
         return copy;
     }

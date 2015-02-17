@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2014, The HSQL Development Group
+/* Copyright (c) 2001-2015, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -124,7 +124,6 @@ public class StatementSession extends Statement {
 
             case StatementTypes.DECLARE_VARIABLE :
                 group    = StatementTypes.X_HSQLDB_SESSION;
-                isLogged = true;
                 break;
 
             // cursor
@@ -180,13 +179,9 @@ public class StatementSession extends Statement {
             case StatementTypes.SET_SESSION_FEATURE :
             case StatementTypes.SET_SESSION_RESULT_MAX_ROWS :
             case StatementTypes.SET_SESSION_RESULT_MEMORY_ROWS :
+            case StatementTypes.SET_SESSION_SQL_IGNORECASE :
             case StatementTypes.SET_TRANSFORM_GROUP :
                 group = StatementTypes.X_HSQLDB_SESSION;
-                break;
-
-            case StatementTypes.SET_SESSION_SQL_IGNORECASE :
-                isLogged = true;
-                group    = StatementTypes.X_HSQLDB_SESSION;
                 break;
 
             // logged by session if necessary
