@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2014, The HSQL Development Group
+/* Copyright (c) 2001-2015, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -33,6 +33,7 @@ package org.hsqldb;
 
 import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
 import java.util.UUID;
@@ -68,8 +69,6 @@ import org.hsqldb.types.TimestampData;
 import org.hsqldb.types.Type;
 import org.hsqldb.types.Types;
 
-import java.util.Calendar;
-
 /**
  * Implementation of HSQLDB functions that are not defined by the
  * SQL standard.<p>
@@ -77,7 +76,7 @@ import java.util.Calendar;
  * Some functions are translated into equivalent SQL Standard functions.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.2
+ * @version 2.3.3
  * @since 1.9.0
  */
 public class FunctionCustom extends FunctionSQL {
@@ -727,21 +726,22 @@ public class FunctionCustom extends FunctionSQL {
         switch (funcType) {
 
             case FUNC_POSITION_CHAR : {
-
                 Expression[] newNodes = new Expression[4];
-                if(Tokens.T_LOCATE.equals(name)) {
-                    // LOCATE
 
+                if (Tokens.T_LOCATE.equals(name)) {
+
+                    // LOCATE
                     newNodes[0] = nodes[0];
                     newNodes[1] = nodes[1];
                     newNodes[3] = nodes[2];
-                    nodes = newNodes;
-                } else if(Tokens.T_INSTR.equals(name)) {
+                    nodes       = newNodes;
+                } else if (Tokens.T_INSTR.equals(name)) {
                     newNodes[0] = nodes[1];
                     newNodes[1] = nodes[0];
                     newNodes[3] = nodes[2];
-                    nodes = newNodes;
+                    nodes       = newNodes;
                 }
+
                 break;
             }
             case FUNC_OVERLAY_CHAR : {
@@ -3169,9 +3169,8 @@ public class FunctionCustom extends FunctionSQL {
                         ((ArrayType) nodes[1].dataType).collectionBaseType();
                 }
 
-                if (((ArrayType) nodes[1].dataType).collectionBaseType()
-                        .typeComparisonGroup != nodes[0].dataType
-                        .typeComparisonGroup) {
+                if (!((ArrayType) nodes[1].dataType).collectionBaseType()
+                        .canCompareDirect(nodes[0].dataType)) {
                     throw Error.error(ErrorCode.X_42563);
                 }
 
@@ -3507,7 +3506,6 @@ public class FunctionCustom extends FunctionSQL {
             case FUNC_SYSDATE :
             case FUNC_SYSTIMESTAMP :
                 return name;
-
 
             case FUNC_DATABASE :
             case FUNC_DATABASE_NAME :

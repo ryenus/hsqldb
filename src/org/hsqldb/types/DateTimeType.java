@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2011, The HSQL Development Group
+/* Copyright (c) 2001-2015, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -155,6 +155,10 @@ public final class DateTimeType extends DTIType {
 
     public String getNameString() {
         return nameString;
+    }
+
+    public boolean canCompareDirect(Type otherType) {
+        return typeCode == otherType.typeCode;
     }
 
     private String getNameStringPrivate() {
@@ -1916,6 +1920,7 @@ public final class DateTimeType extends DTIType {
                     }
 
                     SimpleDateFormat format = session.getSimpleDateFormatGMT();
+
                     return HsqlDateTime.toDate(s, pattern, format);
                 }
 

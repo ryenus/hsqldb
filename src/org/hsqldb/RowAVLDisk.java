@@ -222,6 +222,7 @@ public class RowAVLDisk extends RowAVL {
     }
 
     public synchronized void setChanged(boolean flag) {
+
         hasNodesChanged = flag;
         hasDataChanged  = flag;
         isNew           = flag;
@@ -253,31 +254,9 @@ public class RowAVLDisk extends RowAVL {
     /**
      * Only unlinks nodes. Is not a destroy() method
      */
-    public void delete(PersistentStore store) {
+    public void delete(PersistentStore store) {}
 
-        RowAVLDisk row = this;
-
-        if (!row.keepInMemory(true)) {
-            row = (RowAVLDisk) store.get(row, true);
-        }
-
-        super.delete(store);
-        row.keepInMemory(false);
-    }
-
-    public void destroy() {
-
-        NodeAVL n = nPrimaryNode;
-
-        while (n != null) {
-            NodeAVL last = n;
-
-            n          = n.nNext;
-            last.nNext = null;
-        }
-
-        nPrimaryNode = null;
-    }
+    public void destroy() {}
 
     public synchronized boolean keepInMemory(boolean keep) {
 

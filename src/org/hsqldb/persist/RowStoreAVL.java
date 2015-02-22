@@ -58,7 +58,7 @@ import org.hsqldb.types.Type;
  * Base implementation of PersistentStore for different table types.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.0
+ * @version 2.3.3
  * @since 1.9.0
  */
 public abstract class RowStoreAVL implements PersistentStore {
@@ -274,6 +274,18 @@ public abstract class RowStoreAVL implements PersistentStore {
             remove(row);
 
             throw e;
+        } catch (Throwable t) {
+            int count = i;
+
+            i = 0;
+
+            // unique index violation - rollback insert
+            for (; i < count; i++) {
+                indexList[i].delete(session, this, row);
+            }
+
+            // do not remove as there may be a dangling reference
+            throw Error.error(ErrorCode.GENERAL_ERROR, t);
         }
     }
 

@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2014, The HSQL Development Group
+/* Copyright (c) 2001-2015, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -290,6 +290,9 @@ public class HsqlDatabaseProperties extends HsqlProperties {
     public static final String textdb_vs           = "textdb.vs";
     public static final String textdb_lvs          = "textdb.lvs";
 
+    //
+    public static final String hsqldb_min_reuse = "hsqldb.min_reuse";
+
     static {
 
         // text table defaults
@@ -534,6 +537,9 @@ public class HsqlDatabaseProperties extends HsqlProperties {
         dbMeta.put(hsqldb_nio_max_size,
                    HsqlProperties.getMeta(hsqldb_nio_max_size, SQL_PROPERTY,
                                           256, 64, 262144));
+        dbMeta.put(hsqldb_min_reuse,
+                   HsqlProperties.getMeta(hsqldb_min_reuse, SQL_PROPERTY, 0,
+                                          0, 1024 * 1024));
     }
 
     private Database database;
