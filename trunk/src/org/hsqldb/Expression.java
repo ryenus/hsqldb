@@ -1694,8 +1694,7 @@ public class Expression implements Cloneable {
                               Type[] newType) {
 
         for (int i = 0; i < data.length; i++) {
-            if (dataType[i].typeComparisonGroup
-                    != newType[i].typeComparisonGroup) {
+            if (!dataType[i].canConvertFrom(newType[i])) {
                 data[i] = newType[i].convertToType(session, data[i],
                                                    dataType[i]);
             }

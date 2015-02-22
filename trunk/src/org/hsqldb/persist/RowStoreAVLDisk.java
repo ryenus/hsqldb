@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2014, The HSQL Development Group
+/* Copyright (c) 2001-2015, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -181,11 +181,12 @@ public class RowStoreAVLDisk extends RowStoreAVL implements PersistentStore {
             row = (Row) get(row, true);
 
             super.indexRow(session, row);
-            row.keepInMemory(false);
         } catch (HsqlException e) {
             database.txManager.removeTransactionInfo(row);
 
             throw e;
+        } finally {
+            row.keepInMemory(false);
         }
     }
 

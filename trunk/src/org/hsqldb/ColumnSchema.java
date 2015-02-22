@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2011, The HSQL Development Group
+/* Copyright (c) 2001-2015, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -142,8 +142,7 @@ public final class ColumnSchema extends ColumnBase implements SchemaObject {
             new RangeGroupSimple(((Table) table).getDefaultRanges(), false),
             false);
 
-        if (dataType.typeComparisonGroup
-                != generatingExpression.getDataType().typeComparisonGroup) {
+        if (!dataType.canBeAssignedFrom(generatingExpression.getDataType())) {
             throw Error.error(ErrorCode.X_42561);
         }
 

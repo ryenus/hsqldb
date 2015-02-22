@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2011, The HSQL Development Group
+/* Copyright (c) 2001-2015, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -44,7 +44,7 @@ import org.hsqldb.types.Types;
  *
  * @author Campbell Boucher-Burnet (boucherb@users dot sourceforge.net)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.0.1
+ * @version 2.3.3
  * @since 1.9.0
  */
 public class ExpressionArithmetic extends Expression {
@@ -429,6 +429,22 @@ public class ExpressionArithmetic extends Expression {
 
         if (nodes[LEFT].dataType == null || nodes[RIGHT].dataType == null) {
             throw Error.error(ErrorCode.X_42567);
+        }
+
+        if (opType == OpTypes.SUBTRACT) {
+            if (nodes[LEFT].dataType.isDateTimeType()
+                    && nodes[RIGHT].dataType.isDateTimeType()) {
+                if (nodes[LEFT].dataType.isDateTimeTypeWithZone()
+                        ^ nodes[RIGHT].dataType.isDateTimeTypeWithZone()) {
+                    if (nodes[LEFT].dataType.isDateTimeTypeWithZone()) {
+                        nodes[LEFT] = new ExpressionOp(nodes[LEFT]);
+                    }
+
+                    if (nodes[RIGHT].dataType.isDateTimeTypeWithZone()) {
+                        nodes[RIGHT] = new ExpressionOp(nodes[RIGHT]);
+                    }
+                }
+            }
         }
 
         // datetime subtract - type predetermined

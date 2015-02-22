@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2014, The HSQL Development Group
+/* Copyright (c) 2001-2015, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -212,7 +212,7 @@ public class TableSpaceManagerBlocks implements TableSpaceManager {
         int index    = -1;
         int rowUnits = rowSize / scale;
 
-        if (lookup.size() > 0) {
+        if ((minReuse == 0 || rowSize >= minReuse) && lookup.size() > 0) {
             if (lookup.getValue(0) >= rowUnits) {
                 index = 0;
             } else if (rowSize > Integer.MAX_VALUE) {

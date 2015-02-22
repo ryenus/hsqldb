@@ -183,8 +183,7 @@ public class ParserRoutine extends ParserDML {
         if (e != null) {
             e.resolveTypes(session, null);
 
-            if (dataType.typeComparisonGroup
-                    != e.getDataType().typeComparisonGroup) {
+            if (!dataType.canBeAssignedFrom(e.getDataType())) {
                 throw Error.parseError(ErrorCode.X_42562, null,
                                        scanner.getLineNumber());
             }
@@ -194,7 +193,8 @@ public class ParserRoutine extends ParserDML {
 
         boolean inParens = false;
 
-        if (database.sqlSyntaxMss && token.tokenType == Tokens.OPENBRACKET) {
+        if ((database.sqlSyntaxMss || database.sqlSyntaxPgs)
+                && token.tokenType == Tokens.OPENBRACKET) {
             read();
 
             inParens = true;
@@ -229,7 +229,7 @@ public class ParserRoutine extends ParserDML {
             return new ExpressionValue(value, convertType);
         }
 
-        if (database.sqlSyntaxOra) {
+        if (database.sqlSyntaxOra || database.sqlSyntaxPgs) {
             e = XreadValueExpressionOrNull();
 
             if (e != null) {
@@ -251,13 +251,17 @@ public class ParserRoutine extends ParserDML {
                         (QuerySpecification) t.getQueryExpression();
                     Table d = qs.getRangeVariables()[0].getTable();
 
-                    if (d != session.database.schemaManager.dualTable ||
-                    qs.exprColumns.length != 1) {
+                    if (d != session.database.schemaManager.dualTable
+                            || qs.exprColumns.length != 1) {
                         throw Error.error(ErrorCode.X_42565);
                     }
 
                     e = qs.exprColumns[0];
                 }
+
+                if (inParens) {
+                     readThis(Tokens.CLOSEBRACKET);
+                 }
 
                 return e;
             }

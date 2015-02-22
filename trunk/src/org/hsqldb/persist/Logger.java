@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2014, The HSQL Development Group
+/* Copyright (c) 2001-2015, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -664,6 +664,9 @@ public class Logger {
             HsqlDatabaseProperties.runtime_gc_interval);
         propRefIntegrity = database.databaseProperties.isPropertyTrue(
             HsqlDatabaseProperties.sql_ref_integrity);
+        setCacheMinReuseSize(
+            database.databaseProperties.getIntegerProperty(
+                HsqlDatabaseProperties.hsqldb_min_reuse));
     }
 
 // fredt@users 20020130 - patch 495484 by boucherb@users
@@ -1171,6 +1174,10 @@ public class Logger {
 
     public long getCacheSize() {
         return propCacheMaxSize;
+    }
+
+    public void setCacheMinReuseSize(int value) {
+        this.propMinReuse = ArrayUtil.getTwoPowerFloor(value);
     }
 
     public void setDataFileScale(int value) {
@@ -1745,6 +1752,10 @@ public class Logger {
 
         if (HsqlDatabaseProperties.jdbc_translate_tti_types.equals(name)) {
             return String.valueOf(database.sqlTranslateTTI);
+        }
+
+        if (HsqlDatabaseProperties.hsqldb_min_reuse.equals(name)) {
+            return String.valueOf(this.propMinReuse);
         }
 
 /*

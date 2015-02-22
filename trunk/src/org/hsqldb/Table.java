@@ -1142,31 +1142,22 @@ public class Table extends TableBase implements SchemaObject {
     }
 
     /**
-     * Match two valid, equal length, columns arrays for type of columns
+     * Match two valid, equal length, columns arrays for type of columns for
+     * referential constraints
      *
      * @param col column array from this Table
      * @param other the other Table object
      * @param othercol column array from the other Table
      */
-    void checkColumnsMatch(int[] col, Table other, int[] othercol) {
+    void checkReferentialColumnsMatch(int[] col, Table other, int[] othercol) {
 
         for (int i = 0; i < col.length; i++) {
             Type type      = colTypes[col[i]];
             Type otherType = other.colTypes[othercol[i]];
 
-            if (type.typeComparisonGroup != otherType.typeComparisonGroup) {
+            if (!type.canCompareDirect(otherType)) {
                 throw Error.error(ErrorCode.X_42562);
             }
-        }
-    }
-
-    void checkColumnsMatch(ColumnSchema column, int colIndex) {
-
-        Type type      = colTypes[colIndex];
-        Type otherType = column.getDataType();
-
-        if (type.typeComparisonGroup != otherType.typeComparisonGroup) {
-            throw Error.error(ErrorCode.X_42562);
         }
     }
 

@@ -900,8 +900,8 @@ public class ExpressionLogical extends Expression {
                 throw Error.error(ErrorCode.X_42567);
             }
 
-            if (nodes[LEFT].dataType.typeComparisonGroup
-                    != nodes[RIGHT].dataType.typeComparisonGroup) {
+            if (!nodes[LEFT].dataType.canCompareDirect(
+                    nodes[RIGHT].dataType)) {
                 if (convertDateTimeLiteral(session, nodes[LEFT],
                                            nodes[RIGHT])) {
 
