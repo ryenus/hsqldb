@@ -252,7 +252,7 @@ public class RowAVLDisk extends RowAVL {
     }
 
     /**
-     * Only unlinks nodes. Is not a destroy() method
+     * No action as references don't need to be removed
      */
     public void delete(PersistentStore store) {}
 

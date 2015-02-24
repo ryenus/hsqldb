@@ -748,7 +748,7 @@ public class DataSpaceManagerBlocks implements DataSpaceManager {
     private void initialiseTableSpace(TableSpaceManagerBlocks tableSpace) {
 
         int spaceId        = tableSpace.getSpaceID();
-        int maxFree        = fileBlockItemCount / 1024;
+        int maxFree        = 0;
         int blockIndex     = -1;
         int lastBlockIndex = tableSpace.getFileBlockIndex();
 
