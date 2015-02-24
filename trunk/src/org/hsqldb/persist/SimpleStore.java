@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2014, The HSQL Development Group
+/* Copyright (c) 2001-2015, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -190,6 +190,10 @@ public abstract class SimpleStore implements PersistentStore {
                          int adjust) {}
 
     public void setReadOnly(boolean readonly) {}
+
+    public void readLock() {}
+
+    public void readUnlock() {}
 
     public void writeLock() {}
 

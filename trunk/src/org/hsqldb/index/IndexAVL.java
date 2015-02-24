@@ -1,7 +1,7 @@
 /*
  * For work developed by the HSQL Development Group:
  *
- * Copyright (c) 2001-2014, The HSQL Development Group
+ * Copyright (c) 2001-2015, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -70,10 +70,6 @@
 
 package org.hsqldb.index;
 
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReadWriteLock;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
-
 import org.hsqldb.Constraint;
 import org.hsqldb.HsqlNameManager.HsqlName;
 import org.hsqldb.OpTypes;
@@ -89,7 +85,6 @@ import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
 import org.hsqldb.lib.ArrayUtil;
 import org.hsqldb.lib.OrderedHashSet;
-import org.hsqldb.lib.ReadWriteLockDummy;
 import org.hsqldb.navigator.RowIterator;
 import org.hsqldb.persist.PersistentStore;
 import org.hsqldb.rights.Grantee;
@@ -113,7 +108,7 @@ import org.hsqldb.types.Type;
  *
  * @author Thomas Mueller (Hypersonic SQL Group)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.2
+ * @version 2.3.3
  * @since Hypersonic SQL
  */
 public class IndexAVL implements Index {
@@ -144,11 +139,6 @@ public class IndexAVL implements Index {
 
     //
     Object[] nullData;
-
-    //
-    ReadWriteLock lock;
-    Lock          readLock;
-    Lock          writeLock;
 
     /**
      * Constructor declaration
@@ -204,23 +194,6 @@ public class IndexAVL implements Index {
         isSimpleOrder = simpleOrder;
         isSimple      = isSimpleOrder && colIndex.length == 1;
         nullData      = new Object[colIndex.length];
-
-        //
-        switch (table.getTableType()) {
-
-            case TableBase.MEMORY_TABLE :
-            case TableBase.CACHED_TABLE :
-            case TableBase.TEXT_TABLE :
-                lock = new ReentrantReadWriteLock();
-                break;
-
-            default :
-                lock = new ReadWriteLockDummy();
-                break;
-        }
-
-        readLock  = lock.readLock();
-        writeLock = lock.writeLock();
     }
 
     // SchemaObject implementation
@@ -397,23 +370,23 @@ public class IndexAVL implements Index {
      */
     public long size(Session session, PersistentStore store) {
 
-        readLock.lock();
+        store.readLock();
 
         try {
             return store.elementCount(session);
         } finally {
-            readLock.unlock();
+            store.readUnlock();
         }
     }
 
     public long sizeUnique(PersistentStore store) {
 
-        readLock.lock();
+        store.readLock();
 
         try {
             return store.elementCountUnique(this);
         } finally {
-            readLock.unlock();
+            store.readUnlock();
         }
     }
 
@@ -425,7 +398,7 @@ public class IndexAVL implements Index {
         int      depth       = 0;
         int[]    depths      = new int[1];
 
-        readLock.lock();
+        store.readLock();
 
         try {
             NodeAVL node = getAccessor(store);
@@ -505,7 +478,7 @@ public class IndexAVL implements Index {
 */
             return changes;
         } finally {
-            readLock.unlock();
+            store.readUnlock();
         }
     }
 
@@ -540,7 +513,7 @@ public class IndexAVL implements Index {
 
         long count = 0;
 
-        readLock.lock();
+        store.writeLock();
 
         try {
             RowIterator it = firstRow(session, store, 0, null);
@@ -553,18 +526,18 @@ public class IndexAVL implements Index {
 
             return count;
         } finally {
-            readLock.unlock();
+            store.writeUnlock();
         }
     }
 
     public boolean isEmpty(PersistentStore store) {
 
-        readLock.lock();
+        store.readLock();
 
         try {
             return getAccessor(store) == null;
         } finally {
-            readLock.unlock();
+            store.readUnlock();
         }
     }
 
@@ -573,24 +546,18 @@ public class IndexAVL implements Index {
      */
     public void unlinkNodes(NodeAVL primaryRoot) {
 
-        writeLock.lock();
+        NodeAVL x = primaryRoot;
+        NodeAVL l = x;
 
-        try {
-            NodeAVL x = primaryRoot;
-            NodeAVL l = x;
+        while (l != null) {
+            x = l;
+            l = x.getLeft(null);
+        }
 
-            while (l != null) {
-                x = l;
-                l = x.getLeft(null);
-            }
+        while (x != null) {
+            NodeAVL n = nextUnlink(x);
 
-            while (x != null) {
-                NodeAVL n = nextUnlink(x);
-
-                x = n;
-            }
-        } finally {
-            writeLock.unlock();
+            x = n;
         }
     }
 
@@ -636,7 +603,7 @@ public class IndexAVL implements Index {
 
     public void checkIndex(PersistentStore store) {
 
-        readLock.lock();
+        store.readLock();
 
         try {
             NodeAVL p = getAccessor(store);
@@ -658,7 +625,7 @@ public class IndexAVL implements Index {
                 f = next(store, f);
             }
         } finally {
-            readLock.unlock();
+            store.readUnlock();
         }
     }
 
@@ -883,7 +850,6 @@ public class IndexAVL implements Index {
         int     compare      = -1;
         boolean compareRowId = !isUnique || hasNulls(session, row.getData());
 
-        writeLock.lock();
         store.writeLock();
 
         try {
@@ -946,33 +912,24 @@ public class IndexAVL implements Index {
             throw e;
         } finally {
             store.writeUnlock();
-            writeLock.unlock();
         }
     }
 
     public void delete(Session session, PersistentStore store, Row row) {
 
+        store.writeLock();
+
         if (!row.isInMemory()) {
             row = (Row) store.get(row, false);
         }
 
-        NodeAVL node = ((RowAVL) row).getNode(position);
-
-        if (node != null) {
-            delete(store, node);
-        }
-    }
-
-    void delete(PersistentStore store, NodeAVL x) {
+        NodeAVL x = ((RowAVL) row).getNode(position);
 
         if (x == null) {
             return;
         }
 
         NodeAVL n;
-
-        writeLock.lock();
-        store.writeLock();
 
         try {
             if (x.getLeft(store) == null) {
@@ -1136,7 +1093,6 @@ public class IndexAVL implements Index {
             throw e;
         } finally {
             store.writeUnlock();
-            writeLock.unlock();
         }
     }
 
@@ -1257,7 +1213,7 @@ public class IndexAVL implements Index {
     public RowIterator firstRow(Session session, PersistentStore store,
                                 int distinctCount, boolean[] map) {
 
-        readLock.lock();
+        store.readLock();
 
         try {
             NodeAVL x = getAccessor(store);
@@ -1287,13 +1243,13 @@ public class IndexAVL implements Index {
             return new IndexRowIterator(session, store, this, x,
                                         distinctCount, false, false);
         } finally {
-            readLock.unlock();
+            store.readUnlock();
         }
     }
 
     public RowIterator firstRow(PersistentStore store) {
 
-        readLock.lock();
+        store.readLock();
 
         try {
             NodeAVL x = getAccessor(store);
@@ -1310,7 +1266,7 @@ public class IndexAVL implements Index {
 
             return new IndexRowIterator(null, store, this, x, 0, false, false);
         } finally {
-            readLock.unlock();
+            store.readUnlock();
         }
     }
 
@@ -1322,7 +1278,7 @@ public class IndexAVL implements Index {
     public RowIterator lastRow(Session session, PersistentStore store,
                                int distinctCount, boolean[] map) {
 
-        readLock.lock();
+        store.readLock();
 
         try {
             NodeAVL x = getAccessor(store);
@@ -1352,7 +1308,7 @@ public class IndexAVL implements Index {
             return new IndexRowIterator(session, store, this, x,
                                         distinctCount, false, true);
         } finally {
-            readLock.unlock();
+            store.readUnlock();
         }
     }
 
@@ -1632,7 +1588,7 @@ public class IndexAVL implements Index {
                      int[] rowColMap, int fieldCount, int compareType,
                      int readMode, boolean reversed) {
 
-        readLock.lock();
+        store.readLock();
 
         try {
             NodeAVL x          = getAccessor(store);
@@ -1786,14 +1742,14 @@ public class IndexAVL implements Index {
 
             return result;
         } finally {
-            readLock.unlock();
+            store.readUnlock();
         }
     }
 
     NodeAVL findDistinctNode(Session session, PersistentStore store,
                              NodeAVL node, int fieldCount, boolean reversed) {
 
-        readLock.lock();
+        store.readLock();
 
         try {
             NodeAVL  x          = getAccessor(store);
@@ -1853,7 +1809,7 @@ public class IndexAVL implements Index {
 
             return result;
         } finally {
-            readLock.unlock();
+            store.readUnlock();
         }
     }
 
@@ -1988,20 +1944,32 @@ public class IndexAVL implements Index {
             if (single) {
                 nextnode = null;
             } else {
-                index.readLock.lock();
-                store.writeLock();
+                store.readLock();
 
                 try {
-                    if (reversed) {
-                        nextnode = index.last(session, store, nextnode,
-                                              distinctCount);
-                    } else {
-                        nextnode = index.next(session, store, nextnode,
-                                              distinctCount);
+                    while (true) {
+                        if (reversed) {
+                            nextnode = index.last(session, store, nextnode,
+                                                  distinctCount);
+                        } else {
+                            nextnode = index.next(session, store, nextnode,
+                                                  distinctCount);
+                        }
+
+                        if (nextnode == null) {
+                            break;
+                        }
+
+                        Row row = nextnode.getRow(store);
+
+                        if (store.canRead(session, row,
+                                          TransactionManager.ACTION_READ,
+                                          null)) {
+                            break;
+                        }
                     }
                 } finally {
-                    store.writeUnlock();
-                    index.readLock.unlock();
+                    store.readUnlock();
                 }
             }
 

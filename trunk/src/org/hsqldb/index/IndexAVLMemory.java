@@ -1,7 +1,7 @@
 /*
  * For work developed by the HSQL Development Group:
  *
- * Copyright (c) 2001-2014, The HSQL Development Group
+ * Copyright (c) 2001-2015, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -122,7 +122,7 @@ public class IndexAVLMemory extends IndexAVL {
 
     public void checkIndex(PersistentStore store) {
 
-        readLock.lock();
+        store.readLock();
 
         try {
             NodeAVL p = getAccessor(store);
@@ -144,7 +144,7 @@ public class IndexAVLMemory extends IndexAVL {
                 f = next(store, f);
             }
         } finally {
-            readLock.unlock();
+            store.readUnlock();
         }
     }
 
@@ -183,7 +183,7 @@ public class IndexAVLMemory extends IndexAVL {
         boolean        compareRowId  = !isUnique || hasNulls(session, rowData);
         boolean        compareSimple = isSimple;
 
-        writeLock.lock();
+        store.writeLock();
 
         try {
             n = getAccessor(store);
@@ -254,7 +254,7 @@ public class IndexAVLMemory extends IndexAVL {
 
             balance(store, x, isleft);
         } finally {
-            writeLock.unlock();
+            store.writeUnlock();
         }
     }
 
@@ -266,7 +266,7 @@ public class IndexAVLMemory extends IndexAVL {
 
         NodeAVL n;
 
-        writeLock.lock();
+        store.writeLock();
 
         try {
             if (x.nLeft == null) {
@@ -429,7 +429,7 @@ public class IndexAVLMemory extends IndexAVL {
                 n      = x.nParent;
             }
         } finally {
-            writeLock.unlock();
+            store.writeUnlock();
         }
     }
 
