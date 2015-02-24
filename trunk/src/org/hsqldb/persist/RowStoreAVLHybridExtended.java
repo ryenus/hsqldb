@@ -87,7 +87,7 @@ public class RowStoreAVLHybridExtended extends RowStoreAVLHybrid {
             node = node.nNext;
         }
 
-        if ((isCached && row.isMemory()) || count != indexList.length) {
+        if ((isCached ^ !row.isMemory()) || count != indexList.length) {
             row = (Row) getNewCachedObject(session, row.getData(), true);
         }
 
@@ -108,7 +108,7 @@ public class RowStoreAVLHybridExtended extends RowStoreAVLHybrid {
             node = node.nNext;
         }
 
-        if ((isCached && row.isMemory()) || count != indexList.length) {
+        if ((isCached ^ !row.isMemory()) || count != indexList.length) {
             row = ((Table) table).getDeleteRowFromLog(session, row.getData());
         }
 
@@ -152,7 +152,7 @@ public class RowStoreAVLHybridExtended extends RowStoreAVLHybrid {
 
         tempStore.changeToDiskTable(session);
 
-        RowIterator iterator = table.rowIterator(this);
+        RowIterator iterator = rowIterator();
 
         while (iterator.hasNext()) {
             Row row = iterator.getNextRow();

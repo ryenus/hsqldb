@@ -138,7 +138,18 @@ public class NodeAVLDisk extends NodeAVL {
         iId = id;
     }
 
-    public void delete() {}
+    public void delete() {
+
+        iLeft    = NO_POS;
+        iRight   = NO_POS;
+        iParent  = NO_POS;
+        nLeft    = null;
+        nRight   = null;
+        nParent  = null;
+        iBalance = 0;
+
+        row.setNodesChanged();
+    }
 
     public boolean isInMemory() {
         return row.isInMemory();

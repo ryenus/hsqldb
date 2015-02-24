@@ -202,8 +202,6 @@ public abstract class RowStoreAVL implements PersistentStore {
      */
     public void delete(Session session, Row row) {
 
-        row = (Row) get(row, false);
-
         for (int i = 0; i < indexList.length; i++) {
             indexList[i].delete(session, this, row);
         }
