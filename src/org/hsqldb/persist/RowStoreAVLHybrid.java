@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2014, The HSQL Development Group
+/* Copyright (c) 2001-2015, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -222,9 +222,10 @@ public class RowStoreAVLHybrid extends RowStoreAVL implements PersistentStore {
             row = (Row) get(row, true);
 
             super.indexRow(session, row);
-            row.keepInMemory(false);
         } catch (HsqlException e) {
             throw e;
+        } finally {
+            row.keepInMemory(false);
         }
     }
 
@@ -369,33 +370,38 @@ public class RowStoreAVLHybrid extends RowStoreAVL implements PersistentStore {
 
         cache =
             ((PersistentStoreCollectionSession) manager).getSessionDataCache();
+        maxMemoryRowCount = Integer.MAX_VALUE;
 
-        if (cache != null) {
-            tableSpace = cache.spaceManager.getTableSpace(
-                DataSpaceManager.tableIdDefault);
-
-            IndexAVL    idx      = (IndexAVL) indexList[0];
-            NodeAVL     root     = (NodeAVL) accessorList[0];
-            RowIterator iterator = table.rowIterator(this);
-
-            ArrayUtil.fillArray(accessorList, null);
-            elementCount.set(0);
-
-            isCached = true;
-
-            cache.adjustStoreCount(1);
-
-            while (iterator.hasNext()) {
-                Row row = iterator.getNextRow();
-                Row newRow = (Row) getNewCachedObject(session, row.getData(),
-                                                      false);
-
-                indexRow(session, newRow);
-            }
-
-            idx.unlinkNodes(root);
+        if (cache == null) {
+            return;
         }
 
-        maxMemoryRowCount = Integer.MAX_VALUE;
+        tableSpace =
+            cache.spaceManager.getTableSpace(DataSpaceManager.tableIdDefault);
+        isCached = true;
+
+        cache.adjustStoreCount(1);
+
+        if (elementCount.get() == 0) {
+            return;
+        }
+
+        IndexAVL    idx      = (IndexAVL) indexList[0];
+        NodeAVL     root     = (NodeAVL) accessorList[0];
+        RowIterator iterator = table.rowIterator(this);
+
+        ArrayUtil.fillArray(accessorList, null);
+        ArrayUtil.fillArray(nullsList, false);
+        elementCount.set(0);
+
+        while (iterator.hasNext()) {
+            Row row = iterator.getNextRow();
+            Row newRow = (Row) getNewCachedObject(session, row.getData(),
+                                                  false);
+
+            indexRow(session, newRow);
+        }
+
+        idx.unlinkNodes(root);
     }
 }

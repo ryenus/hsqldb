@@ -919,9 +919,7 @@ public class IndexAVL implements Index {
 
         store.writeLock();
 
-        if (!row.isInMemory()) {
-            row = (Row) store.get(row, false);
-        }
+        row = (Row) store.get(row, false);
 
         NodeAVL x = ((RowAVL) row).getNode(position);
 
@@ -1962,9 +1960,10 @@ public class IndexAVL implements Index {
 
                         Row row = nextnode.getRow(store);
 
-                        if (store.canRead(session, row,
-                                          TransactionManager.ACTION_READ,
-                                          null)) {
+                        if (session == null
+                                || store.canRead(
+                                    session, row,
+                                    TransactionManager.ACTION_READ, null)) {
                             break;
                         }
                     }
