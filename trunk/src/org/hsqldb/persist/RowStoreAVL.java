@@ -284,7 +284,7 @@ public abstract class RowStoreAVL implements PersistentStore {
                 indexList[i].delete(session, this, row);
             }
 
-            // do not remove as there may be a dangling reference
+            // do not remove as there may be still be reference
             throw Error.error(ErrorCode.GENERAL_ERROR, t);
         }
     }
