@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2014, The HSQL Development Group
+/* Copyright (c) 2001-2015, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,6 +31,10 @@
 
 package org.hsqldb.persist;
 
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
+
 import org.hsqldb.Database;
 import org.hsqldb.Row;
 import org.hsqldb.RowAVL;
@@ -52,8 +56,11 @@ import org.hsqldb.rowio.RowInputInterface;
  */
 public class RowStoreAVLMemory extends RowStoreAVL implements PersistentStore {
 
-    Database database;
-    int      rowIdSequence = 0;
+    Database      database;
+    int           rowIdSequence = 0;
+    ReadWriteLock lock;
+    Lock          readLock;
+    Lock          writeLock;
 
     public RowStoreAVLMemory(PersistentStoreCollection manager, Table table) {
 
@@ -62,6 +69,9 @@ public class RowStoreAVLMemory extends RowStoreAVL implements PersistentStore {
         this.table        = table;
         this.indexList    = table.getIndexList();
         this.accessorList = new CachedObject[indexList.length];
+        lock              = new ReentrantReadWriteLock();
+        readLock          = lock.readLock();
+        writeLock         = lock.writeLock();
     }
 
     public boolean isMemory() {
@@ -201,5 +211,21 @@ public class RowStoreAVLMemory extends RowStoreAVL implements PersistentStore {
         setTimestamp(0);
         elementCount.set(0);
         ArrayUtil.fillArray(accessorList, null);
+    }
+
+    public void readLock() {
+        readLock.lock();
+    }
+
+    public void readUnlock() {
+        readLock.unlock();
+    }
+
+    public void writeLock() {
+        writeLock.lock();
+    }
+
+    public void writeUnlock() {
+        writeLock.unlock();
     }
 }

@@ -32,6 +32,8 @@
 package org.hsqldb.persist;
 
 import java.io.IOException;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReadWriteLock;
 
 import org.hsqldb.HsqlException;
 import org.hsqldb.Row;
@@ -53,6 +55,8 @@ import org.hsqldb.navigator.RowIterator;
 import org.hsqldb.rowio.RowInputInterface;
 import org.hsqldb.rowio.RowOutputInterface;
 
+import java.util.concurrent.locks.ReentrantReadWriteLock;
+
 /*
  * Implementation of PersistentStore for CACHED tables.
  *
@@ -65,6 +69,9 @@ public class RowStoreAVLDisk extends RowStoreAVL implements PersistentStore {
     DataFileCache      cache;
     RowOutputInterface rowOut;
     boolean            largeData;
+    ReadWriteLock      lock;
+    Lock               readLock;
+    Lock               writeLock;
 
     public RowStoreAVLDisk(PersistentStoreCollection manager,
                            DataFileCache cache, Table table) {
@@ -78,6 +85,9 @@ public class RowStoreAVLDisk extends RowStoreAVL implements PersistentStore {
 
         largeData  = database.logger.propLargeData;
         tableSpace = cache.spaceManager.getTableSpace(table.getSpaceID());
+        lock       = new ReentrantReadWriteLock();
+        readLock   = lock.readLock();
+        writeLock  = lock.writeLock();
     }
 
     protected RowStoreAVLDisk(PersistentStoreCollection manager, Table table) {
@@ -146,6 +156,7 @@ public class RowStoreAVLDisk extends RowStoreAVL implements PersistentStore {
         storageSize += size;
     }
 
+
     public CachedObject get(RowInputInterface in) {
 
         try {
@@ -175,7 +186,20 @@ public class RowStoreAVLDisk extends RowStoreAVL implements PersistentStore {
         return row;
     }
 
+    public void delete(Session session, Row row) {
+
+        writeLock();
+
+        try {
+            super.delete(session, row);
+        } finally {
+            writeUnlock();
+        }
+    }
+
     public void indexRow(Session session, Row row) {
+
+        writeLock();
 
         try {
             row = (Row) get(row, true);
@@ -187,6 +211,7 @@ public class RowStoreAVLDisk extends RowStoreAVL implements PersistentStore {
             throw e;
         } finally {
             row.keepInMemory(false);
+            writeUnlock();
         }
     }
 
@@ -384,7 +409,7 @@ public class RowStoreAVLDisk extends RowStoreAVL implements PersistentStore {
             false);
 
         pointerLookup.setKeysSearchTarget();
-        cache.writeLock.lock();
+        writeLock();
 
         try {
             moveDataToSpace(cache, pointerLookup);
@@ -410,7 +435,7 @@ public class RowStoreAVLDisk extends RowStoreAVL implements PersistentStore {
 
             accessorList = newAccessorList;
         } finally {
-            cache.writeLock.unlock();
+            writeUnlock();
         }
 
         database.logger.logDetailEvent("table written "
@@ -468,11 +493,19 @@ public class RowStoreAVLDisk extends RowStoreAVL implements PersistentStore {
         return row.getStorageSize() * elementCount.get();
     }
 
+    public void readLock() {
+        readLock.lock();
+    }
+
+    public void readUnlock() {
+        readLock.unlock();
+    }
+
     public void writeLock() {
-        cache.writeLock.lock();
+        writeLock.lock();
     }
 
     public void writeUnlock() {
-        cache.writeLock.unlock();
+        writeLock.unlock();
     }
 }
