@@ -1504,9 +1504,21 @@ public class QuerySpecification extends QueryExpression {
             PersistentStore store = table.getRowStore(session);
             long            count = store.elementCount(session);
 
-            data[0] = data[indexStartAggregates] = ValuePool.getLong(count);
+            data[indexStartAggregates] = ValuePool.getLong(count);
 
             navigator.add(data);
+            navigator.reset();
+            session.sessionContext.setRangeIterator(navigator);
+
+            if (navigator.next()) {
+                data = navigator.getCurrent();
+
+                for (int i = 0; i < indexStartAggregates; i++) {
+                    data[i] = exprColumns[i].getValue(session);
+                }
+            }
+
+            session.sessionContext.unsetRangeIterator(navigator);
 
             return result;
         }

@@ -378,7 +378,7 @@ implements TransactionManager {
                     if (actionSession != null) {
                         actionSession.waitingSessions.add(session);
                         session.waitedSessions.add(actionSession);
-                        session.latch.countUp();
+                        session.latch.setCount(session.waitedSessions.size());
                     }
 
                     redoCount++;
@@ -462,7 +462,7 @@ implements TransactionManager {
                 if (redoWait) {
                     actionSession.waitingSessions.add(session);
                     session.waitedSessions.add(actionSession);
-                    session.latch.countUp();
+                    session.latch.setCount(session.waitedSessions.size());
                 }
 
                 redoCount++;
@@ -868,7 +868,7 @@ implements TransactionManager {
             Session current = (Session) session.waitingSessions.get(i);
 
             current.waitedSessions.remove(session);
-            current.latch.countDown();
+            current.latch.setCount(current.waitedSessions.size());
         }
 
         // waitedSessions is not empty if the latch is zeroed by a different session
@@ -899,6 +899,7 @@ implements TransactionManager {
             return;
         }
 
+/*
         Session nextSession = null;
 
         for (int i = 0; i < session.waitingSessions.size(); i++) {
@@ -929,6 +930,8 @@ implements TransactionManager {
             catalogWriteSession = nextSession;
         }
 
+*/
+        isLockedMode    = false;
         unlockTxTs      = session.actionTimestamp;
         unlockSessionId = session.getId();
     }
@@ -990,7 +993,7 @@ implements TransactionManager {
 
         if (catalogWriteSession.waitingSessions.add(session)) {
             session.waitedSessions.add(catalogWriteSession);
-            session.latch.countUp();
+            session.latch.setCount(session.waitedSessions.size());
         }
 
         return true;
