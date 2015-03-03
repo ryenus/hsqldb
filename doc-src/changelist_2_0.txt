@@ -1,4 +1,4 @@
-svn 5424
+svn 5429
 -- fixed regression with comparison of TIMESTAMP values when one value is WITH TIME ZONE and the other WITHOUT
 -- fixed reporting of DISTINCT and DOMAIN types in JDBC DatabaseMetaData getColumns results
 -- fixed issue with new FK constraints, existing rows are now checked
@@ -11,7 +11,7 @@ svn 5424
 -- fixed an issue with CACHED table persistence
 -- fixed issue with TEMP table with ON COMMIT PRESERVE ROWS and RESULT MEMORY ROWS setting
 -- fixed several minor bugs
--- improved ORA and PGS syntax compatibility modes
+-- improved ORA, PGS and MYS syntax compatibility modes for CREATE TABLE
 -- added support for ALTER CONSTRAINT <name> RENAME TO <new name>
 
 12 February 2014 - version 2.3.2
