@@ -51,7 +51,6 @@ public abstract class SimpleStore implements PersistentStore {
 
     public DataFileCache        cache;
     protected TableSpaceManager spaceManager;
-    long                        storageSize;
     protected int               defaultObjectSize;
 
     public void set(CachedObject object) {}

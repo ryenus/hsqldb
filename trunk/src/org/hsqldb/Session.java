@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2014, The HSQL Development Group
+/* Copyright (c) 2001-2015, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -642,10 +642,11 @@ public class Session implements SessionInterface {
             setIsolation(isolationLevelDefault);
         }
 
-        Statement endTX = commit ? StatementSession.commitNoChainStatement
-                                 : StatementSession.rollbackNoChainStatement;
-
         if (database.logger.getSqlEventLogLevel() > 0) {
+            Statement endTX = commit ? StatementSession.commitNoChainStatement
+                                     : StatementSession
+                                         .rollbackNoChainStatement;
+
             database.logger.logStatementEvent(this, endTX, null,
                                               Result.updateZeroResult,
                                               SimpleLog.LOG_ERROR);

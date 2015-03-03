@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2014, The HSQL Development Group
+/* Copyright (c) 2001-2015, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -139,25 +139,8 @@ public class CountUpDownLatch {
      * Causes the current thread to wait until the latch has counted down to
      * zero, unless the thread is {@linkplain Thread#interrupt interrupted}.
      *
-     * <p>If the current count is zero then this method returns immediately.
-     *
-     * <p>If the current count is greater than zero then the current
-     * thread becomes disabled for thread scheduling purposes and lies
-     * dormant until one of two things happen:
-     * <ul>
-     * <li>The count reaches zero due to invocations of the
-     * {@link #countDown} method; or
-     * <li>Some other thread {@linkplain Thread#interrupt interrupts}
-     * the current thread.
-     * </ul>
-     *
-     * <p>If the current thread:
-     * <ul>
-     * <li>has its interrupted status set on entry to this method; or
-     * <li>is {@linkplain Thread#interrupt interrupted} while waiting,
-     * </ul>
-     * then {@link InterruptedException} is thrown and the current thread's
-     * interrupted status is cleared.
+     * <p>This method has the same semantics as the method of the same name in
+     * {@link java.util.concurrent.CountDownLatch}.
      *
      * @throws InterruptedException if the current thread is interrupted
      *         while waiting
@@ -171,34 +154,8 @@ public class CountUpDownLatch {
      * zero, unless the thread is {@linkplain Thread#interrupt interrupted},
      * or the specified waiting time elapses.
      *
-     * <p>If the current count is zero then this method returns immediately
-     * with the value {@code true}.
-     *
-     * <p>If the current count is greater than zero then the current
-     * thread becomes disabled for thread scheduling purposes and lies
-     * dormant until one of three things happen:
-     * <ul>
-     * <li>The count reaches zero due to invocations of the
-     * {@link #countDown} method; or
-     * <li>Some other thread {@linkplain Thread#interrupt interrupts}
-     * the current thread; or
-     * <li>The specified waiting time elapses.
-     * </ul>
-     *
-     * <p>If the count reaches zero then the method returns with the
-     * value {@code true}.
-     *
-     * <p>If the current thread:
-     * <ul>
-     * <li>has its interrupted status set on entry to this method; or
-     * <li>is {@linkplain Thread#interrupt interrupted} while waiting,
-     * </ul>
-     * then {@link InterruptedException} is thrown and the current thread's
-     * interrupted status is cleared.
-     *
-     * <p>If the specified waiting time elapses then the value {@code false}
-     * is returned.  If the time is less than or equal to zero, the method
-     * will not wait at all.
+     * <p>This method has the same semantics as the method of the same name in
+     * {@link java.util.concurrent.CountDownLatch}.
      *
      * @param timeout the maximum time to wait
      * @param unit the time unit of the {@code timeout} argument
@@ -251,6 +208,14 @@ public class CountUpDownLatch {
         return sync.getCount();
     }
 
+    /**
+     * Sets the current count.
+     *
+     * <p>If the new count is zero then all waiting threads are re-enabled for
+     * thread scheduling purposes.
+     *
+     * @param newCount the new count for the latch
+     */
     public void setCount(int newCount) {
         sync.releaseShared(newCount);
     }

@@ -685,8 +685,8 @@ public class ParserDDL extends ParserRoutine {
                 if (database.sqlSyntaxPgs) {
                     if (token.tokenType == Tokens.COLUMN) {
                         read();
-
                         checkIsIdentifier();
+
                         int columnIndex = t.getColumnIndex(token.tokenString);
                         ColumnSchema column = t.getColumn(columnIndex);
 
@@ -696,6 +696,7 @@ public class ParserDDL extends ParserRoutine {
                         return compileAlterColumnRename(t, column);
                     }
                 }
+
                 readThis(Tokens.TO);
 
                 return compileRenameObject(t.getName(), SchemaObject.TABLE);
@@ -988,6 +989,7 @@ public class ParserDDL extends ParserRoutine {
     StatementSchema compileCreateTableBody(Table table, boolean ifNot) {
 
         HsqlArrayList tempConstraints = new HsqlArrayList();
+        HsqlArrayList tempIndexes     = null;
 
         if (token.tokenType == Tokens.AS) {
             return readTableAsSubqueryDefinition(table);
@@ -1054,6 +1056,20 @@ public class ParserDDL extends ParserRoutine {
                     end = true;
                     break;
 
+                case Tokens.KEY :
+                case Tokens.INDEX :
+                    if (database.sqlSyntaxMys) {
+                        if (tempIndexes == null) {
+                            tempIndexes = new HsqlArrayList();
+                        }
+
+                        readIndex(table, tempIndexes);
+
+                        start     = false;
+                        startPart = false;
+
+                        break;
+                    }
                 default :
                     if (!startPart) {
                         throw unexpectedToken();
@@ -1138,7 +1154,7 @@ public class ParserDDL extends ParserRoutine {
 
         String     sql            = getLastPart();
         Object[]   args           = new Object[] {
-            table, tempConstraints, null, Boolean.valueOf(ifNot)
+            table, tempConstraints, tempIndexes, null, Boolean.valueOf(ifNot)
         };
         HsqlName[] writeLockNames = new HsqlName[names.size()];
 
@@ -1306,7 +1322,7 @@ public class ParserDDL extends ParserRoutine {
         }
 
         Object[]   args           = new Object[] {
-            table, new HsqlArrayList(), statement, Boolean.FALSE
+            table, new HsqlArrayList(), null, statement, Boolean.FALSE
         };
         String     sql            = getLastPart();
         HsqlName[] writeLockNames = database.schemaManager.catalogNameArray;
@@ -2695,7 +2711,7 @@ public class ParserDDL extends ParserRoutine {
                     read();
 
                     isIdentity = true;
-                    sequence   = new NumberSequence(null, 0, 1, typeObject);
+                    sequence   = new NumberSequence(null, 1, 1, typeObject);
                 }
             }
         }
@@ -3275,6 +3291,27 @@ public class ParserDDL extends ParserRoutine {
         readThis(Tokens.CLOSEBRACKET);
 
         c.check = condition;
+    }
+
+    private void readIndex(Table table, HsqlArrayList indexList) {
+
+        HsqlName indexHsqlName;
+
+        read();
+
+        indexHsqlName = readNewSchemaObjectName(SchemaObject.INDEX, true);
+
+        HsqlName tableSchema = table.getSchemaName();
+
+        indexHsqlName.schema = tableSchema;
+        indexHsqlName.parent = table.getName();
+        indexHsqlName.schema = table.getSchemaName();
+
+        int[] indexColumns = readColumnList(table, true);
+        Constraint c = new Constraint(indexHsqlName, table, indexColumns,
+                                      SchemaObject.INDEX);
+
+        indexList.add(c);
     }
 
     StatementSchema compileCreateIndex(boolean unique) {
