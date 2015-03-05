@@ -573,7 +573,7 @@ public class Session implements SessionInterface {
             return;
         }
 
-        if (!isTransaction && rowActionList.size() == 0) {
+        if (!isTransaction) {
             sessionContext.isReadOnly = isReadOnlyDefault ? Boolean.TRUE
                                                           : Boolean.FALSE;
 
@@ -616,6 +616,10 @@ public class Session implements SessionInterface {
     synchronized void rollbackNoCheck(boolean chain) {
 
         if (isClosed) {
+            return;
+        }
+
+        if (!isTransaction) {
             return;
         }
 
