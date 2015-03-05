@@ -57,12 +57,14 @@
     <para>SQL Statements are generally transactional statements. When a
     transactional statement is executed, it starts a transaction if no
     transaction is in progress. If SQL Data is modified during a transaction,
-    the change can be undone with a ROLLBACK statement. When a COMMIT
-    statement is executed, the transaction is ended. If a single statement
-    fails, the transaction is not normally terminated. However, some failures
-    are caused by execution of statements that are in conflict with statements
-    executed in other concurrent sessions. Such failures result in an implicit
-    ROLLBACK, in addition to the exception that is raised.</para>
+    the change can be undone with a ROLLBACK statement. When a COMMIT or 
+	ROLLBACK statement is executed, the transaction is ended. Each SQL 
+	statement works atomically: it either succeeds or fails without changing
+	any data. If a single statement fails, an error is raised but the
+	transaction is not normally terminated. However, some failures are caused 
+	by execution of statements that are in conflict with statements executed
+	in other concurrent sessions. Such failures result in an implicit 
+	ROLLBACK, in addition to the exception that is raised.</para>
 
     <para>Schema definition and manipulation statements are also transactional
     according to the SQL Standard. HyperSQL 2.0 performs automatic commits
@@ -88,13 +90,13 @@
     <simpara>The isolation level and / or the readonly mode of a transaction
     can also be modified using an SQL statement. You can use the statement to
     change only the isolation mode, only the read-only mode, or both at the
-    same time. This command can be issued only after a commit or
-    rollback.</simpara>
+    same time. This statement can be issued only before a transaction starts or
+	after a commit or rollback.</simpara>
 
     <simpara><literal>SET TRANSACTION &lt;transaction characteristic&gt; [
     &lt;comma&gt; &lt;transaction characteristic&gt; ]</literal></simpara>
 
-    <para>Details of the statement is described later in this chapter.</para>
+    <para>This statement is described in detail later in this chapter.</para>
   </section>
 
   <section xml:id="snc_session_attr_vars">
@@ -204,8 +206,8 @@
 
     <para>HyperSQL 2 supports three concurrency control models,
     two-phase-locking (2PL), which is the default, multiversion concurrency
-    control (MVCC) and a hybrid model, which is 2PL plus multiversion rows.
-    Within each model, it supports some of the 4 standard levels of
+    control (MVCC) and a hybrid model, which is 2PL plus multiversion rows
+    (MVLOCKS). Within each model, it supports some of the 4 standard levels of
     transaction isolation: READ UNCOMMITTED, READ COMMITTED, REPEATABLE READ
     and SERIALIZABLE. The concurrency control model is a strategy that governs
     all the sessions and is set for the database, as opposed for individual
@@ -218,7 +220,7 @@
     continue to work simultaneously and can fully utilise multi-core
     processors.</para>
 
-    <para>To concurrency control model of a live database can be changed. The
+    <para>The concurrency control model of a live database can be changed. The
     <literal>SET DATABASE TRANSACTION CONTROL { LOCKS | MVLOCKS | MVCC
     }</literal> can be used by a user with the DBA role.</para>
 
@@ -234,8 +236,8 @@
       locked by the other, if both locks are shared locks, it will go ahead.
       If either of the locks is an exclusive lock, the engine will put the
       session in wait until the other session commits or rolls back its
-      transaction. In some cases the engine will invalidate the transaction of
-      the current session, if the action would result in deadlock.</para>
+      transaction. The engine will throw an error if the action would result
+	  in deadlock.</para>
 
       <para>HyperSQL also supports explicit locking of a group of tables for
       the duration of the current transaction. Use of this command blocks
@@ -293,7 +295,7 @@
       transaction manager controls their activities. When each transaction
       performs only reads or writes on a single table, there is no contention.
       Each transaction waits until it can obtain a lock then performs the
-      operation and commits. All contentions occur when transactions perform
+      operation and commits. Contentions occur when transactions perform
       reads and writes on more than one table, or perform a read, followed by
       a write, on the same table.</para>
 
@@ -354,16 +356,15 @@
       transaction has committed. The transaction then continues automatically.
       This isolation level is called READ CONSISTENCY.</para>
 
-      <para>Deadlock is completely avoided. In theory conflict is possible if
+      <para>Deadlock is completely avoided. In theory, conflict is possible if
       each transaction is waiting for a different row modified by the other
       transaction. In this case, one of the transactions is immediately
       terminated (rolled back) unless the setting has been changed with the
       <literal>&lt;set database transaction rollback on conflict
       statement&gt;</literal>. When this setting is changed to FALSE, the
       session that avoided executing the deadlock-causing statement returns an
-      error, but without rolling back the previous actions. This will cause
-      the other transaction to wait for the current transaction. The property
-      should not be changed unless the application can quickly perform an
+      error, but without rolling back the previous actions. The application
+	  should quickly perform an
       alternative statement to continue or roll back the transaction. This
       allows maximum flexibility and compatibility with other database engines
       which do not roll back the transaction upon deadlock.</para>
@@ -376,7 +377,8 @@
       <para>In this mode, when the duration of two transactions overlaps, if
       one of the transactions has modified a row and the second transaction
       wants to modify the same row, the action of the second transaction will
-      fail. The engine will invalidate the second transaction and roll back
+      fail. This happens even if the first transaction has already committed.
+      The engine will invalidate the second transaction and roll back
       all its changes. If the setting is changed to false with the
       <literal>&lt;set database transaction rollback on conflict
       statement&gt;</literal>, then the second transaction will just return an
@@ -398,16 +400,17 @@
 
       <para>The SQL Standard defines the isolation levels as modes of
       operation that avoid the three unwanted phenomena, "dirty read", "fuzzy
-      read" and "phantom row". The "dirty read" phenomenon occurs when a
-      session can read a row that has been changed by another session. The
-      "fuzzy read" phenomenon occurs when a row that was read by a session is
-      modified by another session, then the first session reads the row again.
+      read" and "phantom row" during a transaction. The "dirty read" phenomenon 
+	  occurs when a session can read changes to a row made by another uncommitted 
+	  session. The "fuzzy read" phenomenon occurs when a session reads a row 
+	  and the row is modified by another session which commits, then the first
+	  session reads the row again.
       The "phantom row" phenomenon occurs when a session performs an operation
       that affects several rows, for example, counts the rows or modifies them
       using a search condition, then another session adds one or more rows
-      that fulfil the same search condition, then the first session performs
-      an operation that relies on the results of its last operation. According
-      to the Standard, the SERIALIZABLE isolation level avoids all three
+      that fulfil the same search condition and commits, then the first session
+	  performs an operation that relies on the results of its last operation.
+	  According to the Standard, the SERIALIZABLE isolation level avoids all three
       phenomena and also ensures that all the changes performed during a
       transaction can be considered as a series of uninterrupted changes to
       the database without any other transaction changing the database at all
@@ -442,7 +445,7 @@
       can be used. It is possible to switch the concurrency model while the
       database is operational. Therefore, the model can be changed for the
       duration of some special operations, such as synchronization with
-      another data source.</para>
+      another data source or performing bulk changes to table contents.</para>
 
       <para>All concurrency models are very fast in operation. When data
       change operations are mainly on the same tables, the MVCC model may be
@@ -530,20 +533,23 @@
     <simpara><literal>&lt;alter session statement&gt; ::= ALTER SESSION
     &lt;numeric literal&gt; { CLOSE | RELEASE }</literal></simpara>
 
-    <simpara><literal>&lt;alter current session statement&gt; ::= ALTER
-    SESSION RESET { ALL | RESULT SETS | TABLE DATA }</literal></simpara>
-
     <simpara>The &lt;alter session statement&gt; is used by an administrator
-    to close another session or to release the transaction in another session.
-    When a session is released, its current transaction is terminated with a
-    failure. The session remains open. This statement is different from the
-    other statements discussed in this chapter as it is not used for changing
-    the settings of the current session.</simpara>
+    to close another session or to rollback the transaction in another session.
+    This statement is different from the other statements discussed in this 
+	chapter as it is not used for changing the settings of the current session.
+	When RELEASE is used, the current transaction is terminated with a 
+	rollback. The session remains open. CLOSE should be used after RELEASE has
+	completed.
+	
+	</simpara>
 
     <simpara>The session ID is used as a <literal>&lt;numeric
     literal&gt;</literal> in this statement. The administrator can use the
     <literal>INFORMATION_SCHEMA.SYSTEM_SESSIONS</literal> table to find the
     session IDs of other sessions.</simpara>
+
+    <simpara><literal>&lt;alter current session statement&gt; ::= ALTER
+    SESSION RESET { ALL | RESULT SETS | TABLE DATA }</literal></simpara>
 
     <simpara>The &lt;alter current session statement&gt; is used to clear and
     reset different states of the current session. When ALL is specified, the
