@@ -642,7 +642,7 @@ public class DatabaseMetaDataDefaultValues {
     public int getJDBCMajorVersion() {
         final double javaVersion = javaVersion();
 
-        if (javaVersion > 1.7) {
+        if (javaVersion > 1.8) {
             throw new RuntimeException(
                     "JDBC Version is unknown for java version " + javaVersion);
         }
@@ -684,7 +684,13 @@ public class DatabaseMetaDataDefaultValues {
                 break;
             }
             case 4: {
-                minorVersion = (javaVersion() < 1.7) ? 0 : 1;
+                if (javaVersion() < 1.7) {
+                    minorVersion = 0;
+                } else if (javaVersion() < 1.8) {
+                    minorVersion = 1;
+                } else {
+                    minorVersion = 2;
+                }
             }
         }
 
