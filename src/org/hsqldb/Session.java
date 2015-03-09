@@ -573,21 +573,14 @@ public class Session implements SessionInterface {
             return;
         }
 
-        if (!isTransaction) {
-            sessionContext.isReadOnly = isReadOnlyDefault ? Boolean.TRUE
-                                                          : Boolean.FALSE;
+        if (isTransaction) {
+            if (!database.txManager.commitTransaction(this)) {
 
-            setIsolation(isolationLevelDefault);
+                // tempActionHistory.add("commit aborts " + actionTimestamp);
+                rollbackNoCheck(chain);
 
-            return;
-        }
-
-        if (!database.txManager.commitTransaction(this)) {
-
-//            tempActionHistory.add("commit aborts " + actionTimestamp);
-            rollbackNoCheck(chain);
-
-            throw Error.error(ErrorCode.X_40001);
+                throw Error.error(ErrorCode.X_40001);
+            }
         }
 
         endTransaction(true, chain);
@@ -619,11 +612,10 @@ public class Session implements SessionInterface {
             return;
         }
 
-        if (!isTransaction) {
-            return;
+        if (isTransaction) {
+            database.txManager.rollback(this);
         }
 
-        database.txManager.rollback(this);
         endTransaction(false, chain);
     }
 
@@ -2139,7 +2131,7 @@ public class Session implements SessionInterface {
     }
 
     // services
-    TypedComparator  typedComparator;
+    TypedComparator  typedComparator = Type.newComparator(this);
     Scanner          secondaryScanner;
     SimpleDateFormat simpleDateFormat;
     SimpleDateFormat simpleDateFormatGMT;
@@ -2148,11 +2140,6 @@ public class Session implements SessionInterface {
 
     //
     public TypedComparator getComparator() {
-
-        if (typedComparator == null) {
-            typedComparator = Type.newComparator(this);
-        }
-
         return typedComparator;
     }
 
