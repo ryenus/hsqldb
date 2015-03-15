@@ -44,6 +44,7 @@ import org.hsqldb.types.DTIType;
 import org.hsqldb.types.DateTimeType;
 import org.hsqldb.types.NumberType;
 import org.hsqldb.types.Type;
+import org.hsqldb.types.Types;
 
 /**
  * @author Campbell Boucher-Burnet (boucherb@users dot sourceforge.net)
@@ -982,6 +983,19 @@ public class ExpressionLogical extends Expression {
             if (nodes[LEFT].opType == OpTypes.VALUE
                     && nodes[RIGHT].opType == OpTypes.VALUE) {
                 setAsConstantValue(session, parent);
+            } else if (session.database.sqlSyntaxDb2) {
+                if (nodes[LEFT].dataType.typeComparisonGroup
+                        == Types.SQL_VARCHAR) {
+                    if (nodes[LEFT].opType == OpTypes.VALUE) {
+                        nodes[RIGHT].dataType.convertToTypeLimits(session,
+                                nodes[LEFT].valueData);
+                    }
+
+                    if (nodes[RIGHT].opType == OpTypes.VALUE) {
+                        nodes[LEFT].dataType.convertToTypeLimits(session,
+                                nodes[RIGHT].valueData);
+                    }
+                }
             }
         }
     }

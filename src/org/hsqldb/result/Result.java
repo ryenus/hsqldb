@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2014, The HSQL Development Group
+/* Copyright (c) 2001-2015, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -1273,7 +1273,7 @@ public class Result {
                 throw Error.runtimeError(ErrorCode.U_S0500, "Result");
         }
 
-        rowOut.writeIntData(rowOut.size() - startPos, startPos);
+        rowOut.writeSize(rowOut.size() - startPos);
         dataOut.write(rowOut.getOutputStream().getBuffer(), 0, rowOut.size());
 
         int    count   = getLobCount();

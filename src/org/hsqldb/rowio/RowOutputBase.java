@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2014, The HSQL Development Group
+/* Copyright (c) 2001-2015, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -105,8 +105,6 @@ implements RowOutputInterface {
 
     public abstract void writeType(int type);
 
-    public abstract void writeIntData(int i, int position);
-
     public abstract void writeString(String s);
 
 // fredt@users - comment - methods used for writing each SQL type
@@ -154,6 +152,7 @@ implements RowOutputInterface {
 
     protected abstract void writeArray(Object[] o, Type type);
 
+
     /**
      *  This method is called to write data for a table row.
      */
@@ -184,11 +183,11 @@ implements RowOutputInterface {
                 writeString(col.getName().statementName);
             }
 
-            writeData(t, o);
+            writeData(o, t);
         }
     }
 
-    public void writeData(Type t, Object o) {
+    public void writeData(Object o, Type t) {
 
         if (o == null) {
             writeNull(t);

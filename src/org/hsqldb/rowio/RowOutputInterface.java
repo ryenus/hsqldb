@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2014, The HSQL Development Group
+/* Copyright (c) 2001-2015, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -64,9 +64,9 @@ public interface RowOutputInterface extends Cloneable {
 
     void writeInt(int i);
 
-    void writeIntData(int i, int position);
-
     void writeLong(long i);
+
+    void writeData(Object object, Type type);
 
     void writeData(Row row, Type[] types);
 
