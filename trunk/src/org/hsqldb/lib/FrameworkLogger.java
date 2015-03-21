@@ -170,7 +170,6 @@ public class FrameworkLogger {
 
         loggerInstances.clear();
 
-        log4jLoggerClass = null;
         log4jGetLogger   = null;
         log4jLogMethod   = null;
 
