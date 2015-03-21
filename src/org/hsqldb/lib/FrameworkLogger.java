@@ -46,6 +46,7 @@ import java.util.logging.ConsoleHandler;
 import java.util.logging.Level;
 import java.util.logging.LogManager;
 import java.util.logging.Logger;
+import java.lang.reflect.InvocationTargetException;
 
 /**
  * A logging framework wrapper that supports java.util.logging and log4j.
@@ -162,80 +163,91 @@ public class FrameworkLogger {
         loggerInstances.keySet().removeAll(targetKeys);
     }
 
+    private static synchronized void
+            populateJdkToLog4jLevels(String classString)
+            throws ClassNotFoundException, IllegalAccessException,
+            NoSuchMethodException, InvocationTargetException {
+        Method log4jToLevel = Class.forName(classString).getMethod(
+            "toLevel", new Class[]{ String.class });
+
+        jdkToLog4jLevels.put(Level.ALL,
+                             log4jToLevel.invoke(null,
+                                 new Object[]{ "ALL" }));
+        jdkToLog4jLevels.put(Level.FINER,
+                             log4jToLevel.invoke(null,
+                                 new Object[]{ "DEBUG" }));
+        jdkToLog4jLevels.put(Level.WARNING,
+                             log4jToLevel.invoke(null,
+                                 new Object[]{ "ERROR" }));
+        jdkToLog4jLevels.put(Level.SEVERE,
+                             log4jToLevel.invoke(null,
+                                 new Object[]{ "FATAL" }));
+        jdkToLog4jLevels.put(Level.INFO,
+                             log4jToLevel.invoke(null,
+                                 new Object[]{ "INFO" }));
+        jdkToLog4jLevels.put(Level.OFF,
+                             log4jToLevel.invoke(null,
+                                 new Object[]{ "OFF" }));
+        jdkToLog4jLevels.put(Level.FINEST,
+                             log4jToLevel.invoke(null,
+                                 new Object[]{ "TRACE" }));
+        jdkToLog4jLevels.put(Level.WARNING,
+                             log4jToLevel.invoke(null,
+                                 new Object[]{ "WARN" }));
+    }
+
     static void reconfigure() {
 
         noopMode = false;
 
         Class log4jLoggerClass = null;
+        Class log4jManagerClass = null;
 
         loggerInstances.clear();
+        jdkToLog4jLevels.clear();
 
         log4jGetLogger   = null;
         log4jLogMethod   = null;
 
+        // Precedence:
+        //   1) Use log4j v2 if available and class initialization succeeds
+        //   2) Use log4j v1 if available and class initialization succeeds
+        //   3) JUL
         try {
+            // log4j v1 available?
             log4jLoggerClass = Class.forName("org.apache.log4j.Logger");
+            log4jManagerClass = log4jLoggerClass;
         } catch (Exception e) {
 
-            // The class will only load successfully if Log4j thinks it is
+            // The class will only load successfully if Log4j v1 thinks it is
             // in usable state.
             // Intentionally empty.
         }
 
-        // Try log4j first so we can fall back to JUL if anything goes wrong.
+        // Attempt to configure log4j v1
         if (log4jLoggerClass != null) {
             try {
-                if (jdkToLog4jLevels.size() < 1) {
-                    Method log4jToLevel = Class.forName(
-                        "org.apache.log4j.Level").getMethod(
-                        "toLevel", new Class[]{ String.class });
-
-                    jdkToLog4jLevels.put(Level.ALL,
-                                         log4jToLevel.invoke(null,
-                                             new Object[]{ "ALL" }));
-                    jdkToLog4jLevels.put(Level.FINER,
-                                         log4jToLevel.invoke(null,
-                                             new Object[]{ "DEBUG" }));
-                    jdkToLog4jLevels.put(Level.WARNING,
-                                         log4jToLevel.invoke(null,
-                                             new Object[]{ "ERROR" }));
-                    jdkToLog4jLevels.put(Level.SEVERE,
-                                         log4jToLevel.invoke(null,
-                                             new Object[]{ "FATAL" }));
-                    jdkToLog4jLevels.put(Level.INFO,
-                                         log4jToLevel.invoke(null,
-                                             new Object[]{ "INFO" }));
-                    jdkToLog4jLevels.put(Level.OFF,
-                                         log4jToLevel.invoke(null,
-                                             new Object[]{ "OFF" }));
-                    jdkToLog4jLevels.put(Level.FINEST,
-                                         log4jToLevel.invoke(null,
-                                             new Object[]{ "TRACE" }));
-                    jdkToLog4jLevels.put(Level.WARNING,
-                                         log4jToLevel.invoke(null,
-                                             new Object[]{ "WARN" }));
-                }
+                populateJdkToLog4jLevels("org.apache.log4j.Level");
 
                 log4jLogMethod = log4jLoggerClass.getMethod("log",
                         new Class[] {
                     String.class, Class.forName("org.apache.log4j.Priority"),
                     Object.class, Throwable.class
                 });
-                log4jGetLogger = log4jLoggerClass.getMethod("getLogger",
+                log4jGetLogger = log4jManagerClass.getMethod("getLogger",
                         new Class[]{ String.class });
-
                 // This last object is what we toggle on to generate either
                 // Log4j or Jdk Logger objects (to wrap).
-                return;    // Success for Log4j
-            } catch (Exception e) {
 
+                return;    // Success for Log4j v1
+            } catch (Exception e) {
                 // This is an unexpected  problem, because our Log4j try block will
                 // only be attempted if Log4j itself initialized (even if it
                 // successfully initialized with warnings due to bad config).
                 try {
                     System.err.println(
                         "<clinit> failure "
-                        + "instantiating configured Log4j system: " + e);
+                        + "instantiating configured Log4j v1 system: " + e);
 
                     // It's possible we don't have write access to System.err.
                 } catch (Throwable t) {
@@ -246,9 +258,12 @@ public class FrameworkLogger {
             }
         }
 
+        // Reset
         log4jLoggerClass = null;
+        log4jManagerClass = null;
         log4jLogMethod   = null;
         log4jGetLogger   = null;
+        jdkToLog4jLevels.clear();
 
         String propVal = System.getProperty("hsqldb.reconfig_logging");
 
