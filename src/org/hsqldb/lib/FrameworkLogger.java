@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2014, The HSQL Development Group
+/* Copyright (c) 2001-2015, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -85,7 +85,7 @@ import java.lang.reflect.InvocationTargetException;
  * configuration takes place.<p/>
  *
  * @author Blaine Simpson (blaine dot simpson at admc dot com)
- * @version 2.3.1
+ * @version 2.3.3
  * @since 1.9.0
  */
 public class FrameworkLogger {
