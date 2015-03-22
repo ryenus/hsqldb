@@ -212,7 +212,7 @@ public class TableSpaceManagerBlocks implements TableSpaceManager {
         int index    = -1;
         int rowUnits = rowSize / scale;
 
-        if ((minReuse == 0 || rowSize >= minReuse) && lookup.size() > 0) {
+        if (rowSize >= minReuse && lookup.size() > 0) {
             if (lookup.getValue(0) >= rowUnits) {
                 index = 0;
             } else if (rowSize > Integer.MAX_VALUE) {

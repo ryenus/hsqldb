@@ -70,7 +70,7 @@ import org.hsqldb.types.Type;
  *
  * @author Campbell Boucher-Burnet (boucherb@users dot sourceforge.net)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.2
+ * @version 2.3.3
  * @since 1.9.0
  */
 public class Result {

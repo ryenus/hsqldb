@@ -268,7 +268,7 @@ public class DataSpaceManagerBlocks implements DataSpaceManager {
 
     private long getNewFileBlocksNoCheck(int tableId, int blockCount) {
 
-        long index = getBlockIndexLimit();
+        long index        = getBlockIndexLimit();
         long filePosition = index * fileBlockSize;
         long delta = filePosition + ((long) blockCount * fileBlockSize)
                      - cache.getFileFreePos();
@@ -937,10 +937,9 @@ public class DataSpaceManagerBlocks implements DataSpaceManager {
             int freeUnits      = currentBitMap.bitMap.countSetBits();
             int freeBlockUnits = currentBitMap.bitMap.countSetBitsEnd();
 
-            currentBitMap.keepInMemory(false);
-
             if (freeUnits == fileBlockItemCount) {
                 setTable(tableIdEmpty);
+                currentBitMap.keepInMemory(false);
                 emptySpaceList.addUnique(currentBlockIndex);
 
                 released++;
@@ -954,6 +953,7 @@ public class DataSpaceManagerBlocks implements DataSpaceManager {
                 (char) freeBlockUnits;
 
             currentDir.setChanged(true);
+            currentBitMap.keepInMemory(false);
         }
 
         void setTable(int tableId) {

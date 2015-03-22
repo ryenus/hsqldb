@@ -1684,6 +1684,19 @@ public class ArrayUtil {
     }
 
     /**
+     * returns the largest value that is a power of 2 and larger or equal to value
+     */
+    public static long getBinaryNormalisedCeiling(long value) {
+
+        long newSize = 2;
+
+        while (newSize < value) {
+            newSize <<= 1;
+        }
+
+        return newSize;
+    }
+    /**
      * returns true if log2 n is in the range (0, max)
      */
     public static boolean isTwoPower(int n, int max) {

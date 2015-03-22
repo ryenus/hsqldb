@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2014, The HSQL Development Group
+/* Copyright (c) 2001-2015, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -35,7 +35,7 @@ package org.hsqldb;
  * Codes based on SQL Standards for different types of statement.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.2.7
+ * @version 2.3.3
  * @since 1.9.0
  */
 public interface StatementTypes {
@@ -220,13 +220,15 @@ public interface StatementTypes {
     int SET_USER_PASSWORD       = 1093;
 
     // hsqldb session
-    int TRANSACTION_LOCK_TABLE         = 1111;
-    int SET_SESSION_AUTOCOMMIT         = 1112;
-    int SET_SESSION_FEATURE            = 1113;
-    int SET_SESSION_RESULT_MAX_ROWS    = 1114;
-    int SET_SESSION_RESULT_MEMORY_ROWS = 1115;
-    int ROLLBACK_SAVEPOINT             = 1116;
-    int DECLARE_SESSION_TABLE          = 1117;
+    int TRANSACTION_LOCK_CATALOG       = 1111;
+    int TRANSACTION_UNLOCK_CATALOG     = 1112;
+    int TRANSACTION_LOCK_TABLE         = 1113;
+    int SET_SESSION_AUTOCOMMIT         = 1114;
+    int SET_SESSION_FEATURE            = 1115;
+    int SET_SESSION_RESULT_MAX_ROWS    = 1116;
+    int SET_SESSION_RESULT_MEMORY_ROWS = 1117;
+    int ROLLBACK_SAVEPOINT             = 1118;
+    int DECLARE_SESSION_TABLE          = 1119;
 
     // hsqldb schema
     int ALTER_INDEX                 = 1121;

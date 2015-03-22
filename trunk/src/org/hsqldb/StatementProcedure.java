@@ -46,7 +46,7 @@ import org.hsqldb.types.Type;
  * Implementation of Statement for callable procedures.<p>
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.0
+ * @version 2.3.3
  * @since 1.9.0
  */
 public class StatementProcedure extends StatementDMQL {
@@ -91,6 +91,9 @@ public class StatementProcedure extends StatementDMQL {
         if (procedure != null) {
             session.getGrantee().checkAccess(procedure);
         }
+
+        isTransactionStatement = readTableNames.length > 0 ||
+            writeTableNames.length > 0;
     }
 
     /**
@@ -112,6 +115,9 @@ public class StatementProcedure extends StatementDMQL {
         setDatabseObjects(session, compileContext);
         checkAccessRights(session);
         session.getGrantee().checkAccess(procedure);
+
+        isTransactionStatement = readTableNames.length > 0 ||
+            writeTableNames.length > 0;
     }
 
     Result getResult(Session session) {

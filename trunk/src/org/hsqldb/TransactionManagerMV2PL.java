@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2014, The HSQL Development Group
+/* Copyright (c) 2001-2015, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -44,7 +44,7 @@ import org.hsqldb.persist.PersistentStore;
  * Manages rows involved in transactions
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.2
+ * @version 2.3.3
  * @since 2.0.0
  */
 public class TransactionManagerMV2PL extends TransactionManagerCommon
@@ -315,6 +315,13 @@ implements TransactionManager {
         }
 
         store.indexRow(session, row);
+
+        if (table.persistenceScope == Table.SCOPE_ROUTINE) {
+            row.rowAction = null;
+
+            return;
+        }
+
         session.rowActionList.add(action);
     }
 
