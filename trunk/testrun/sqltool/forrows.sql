@@ -1,3 +1,9 @@
+/*
+ * $Id$
+ *
+ * Tests forrows iterator
+ */
+
 create table t(i int, vc varchar(25));
 insert into t values(1, 'one');
 insert into t values(2, 'two');
