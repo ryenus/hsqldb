@@ -610,6 +610,9 @@ public class Table extends TableBase implements SchemaObject {
         sb.append(getName().getSchemaQualifiedStatementName());
         sb.append(' ').append(Tokens.T_INDEX).append(' ').append('\'');
         sb.append(StringUtil.getList(roots, " ", ""));
+        sb.append(' ');
+        sb.append(StringUtil.getList(new long[indexList.length], " ", ""));
+        sb.append(' ').append(store.elementCount());
         sb.append('\'');
 
         return sb.toString();
@@ -2538,21 +2541,14 @@ public class Table extends TableBase implements SchemaObject {
 
         PersistentStore store =
             database.persistentStoreCollection.getStore(this);
-        long[] roots = new long[indexList.length * 2 + 1];
-        int    i     = 0;
+        long[] roots = new long[indexList.length];
 
         for (int index = 0; index < indexList.length; index++) {
             CachedObject accessor = store.getAccessor(indexList[index]);
 
-            roots[i++] = accessor == null ? -1
-                                          : accessor.getPos();
+            roots[index] = accessor == null ? -1
+                                            : accessor.getPos();
         }
-
-        for (int index = 0; index < indexList.length; index++) {
-            roots[i++] = indexList[index].sizeUnique(store);
-        }
-
-        roots[i] = indexList[0].size(null, store);
 
         return roots;
     }
@@ -2564,6 +2560,26 @@ public class Table extends TableBase implements SchemaObject {
      *  root signifies an empty table. Accordingly, all index roots should be
      *  null or all should be a valid file pointer/reference.
      */
+    public void setIndexRoots(long[] roots, long[] uniqueSize,
+                              long cardinality) {
+
+        if (!isCached) {
+            throw Error.error(ErrorCode.X_42501, tableName.name);
+        }
+
+        PersistentStore store =
+            database.persistentStoreCollection.getStore(this);
+
+        for (int index = 0; index < indexList.length; index++) {
+            store.setAccessor(indexList[index], roots[index]);
+        }
+
+        for (int index = 0; index < indexList.length; index++) {
+            store.setElementCount(indexList[index], cardinality,
+                                  uniqueSize[index]);
+        }
+    }
+
     public void setIndexRoots(long[] roots) {
 
         if (!isCached) {
@@ -2572,16 +2588,9 @@ public class Table extends TableBase implements SchemaObject {
 
         PersistentStore store =
             database.persistentStoreCollection.getStore(this);
-        int i = 0;
 
         for (int index = 0; index < indexList.length; index++) {
-            store.setAccessor(indexList[index], roots[i++]);
-        }
-
-        long size = roots[indexList.length * 2];
-
-        for (int index = 0; index < indexList.length; index++) {
-            store.setElementCount(indexList[index], size, roots[i++]);
+            store.setAccessor(indexList[index], roots[index]);
         }
     }
 
@@ -2594,32 +2603,34 @@ public class Table extends TableBase implements SchemaObject {
             throw Error.error(ErrorCode.X_42501, tableName.name);
         }
 
-        ParserDQL p     = new ParserDQL(session, new Scanner(s), null);
-        long[]    roots = new long[getIndexCount() * 2 + 1];
+        int       indexCount  = getIndexCount();
+        ParserDQL p           = new ParserDQL(session, new Scanner(s), null);
+        long[]    roots       = new long[indexCount];
+        long[]    uniqueSize  = new long[indexCount];
+        long      cardinality = -1;
 
         p.read();
 
-        int i = 0;
-
-        for (int index = 0; index < getIndexCount(); index++) {
+        for (int index = 0; index < indexCount; index++) {
             long v = p.readBigint();
 
-            roots[i++] = v;
+            roots[index] = v;
         }
 
         try {
-            for (int index = 0; index < getIndexCount() + 1; index++) {
+            for (int index = 0; index < indexCount; index++) {
                 long v = p.readBigint();
 
-                roots[i++] = v;
+                uniqueSize[index] = v;
             }
+
+            cardinality = p.readBigint();
         } catch (Exception e) {
-            for (i = getIndexCount(); i < roots.length; i++) {
-                roots[i] = -1;
-            }
+
+            // version 1.x database
         }
 
-        setIndexRoots(roots);
+        setIndexRoots(roots, uniqueSize, cardinality);
     }
 
     /**

@@ -1750,7 +1750,31 @@ public class ParserCommand extends ParserDDL {
     private Statement compileLock() {
 
         read();
-        readThis(Tokens.TABLE);
+
+        if (readIfThis(Tokens.CATALOG)) {
+            return compileLockCatalog();
+        } else {
+            readThis(Tokens.TABLE);
+
+            return compileLockTable();
+        }
+    }
+
+    private Statement compileLockCatalog() {
+
+        boolean isLock    = processTrueOrFalse();
+        int statementType = isLock ? StatementTypes.TRANSACTION_LOCK_CATALOG
+                                   : StatementTypes.TRANSACTION_UNLOCK_CATALOG;
+        HsqlName[] writeTableNames =
+            isLock ? database.schemaManager.getCatalogAndBaseTableNames()
+                   : null;
+        Statement cs = new StatementSession(statementType, null,
+                                            writeTableNames);
+
+        return cs;
+    }
+
+    private Statement compileLockTable() {
 
         OrderedHashSet readSet  = new OrderedHashSet();
         OrderedHashSet writeSet = new OrderedHashSet();
@@ -1936,12 +1960,15 @@ public class ParserCommand extends ParserDDL {
             }
             case Tokens.FEATURE : {
                 read();
-                String  feature = parseSQLFeatureValue();
-                Boolean value   = processTrueOrFalseObject();
-                Object[] args = new Object[]{ feature, value };
 
-                return new StatementSession(
-                    StatementTypes.SET_SESSION_FEATURE, args);
+                String   feature = parseSQLFeatureValue();
+                Boolean  value   = processTrueOrFalseObject();
+                Object[] args    = new Object[] {
+                    feature, value
+                };
+
+                return new StatementSession(StatementTypes.SET_SESSION_FEATURE,
+                                            args);
             }
             default :
                 throw unexpectedToken();

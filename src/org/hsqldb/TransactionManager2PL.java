@@ -232,6 +232,13 @@ implements TransactionManager {
         }
 
         store.indexRow(session, row);
+
+        if (table.persistenceScope == Table.SCOPE_ROUTINE) {
+            row.rowAction = null;
+
+            return;
+        }
+
         session.rowActionList.add(action);
 
         row.rowAction = null;

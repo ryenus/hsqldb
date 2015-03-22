@@ -425,6 +425,12 @@ implements TransactionManager {
         }
 
         if (!redoAction) {
+            if (table.persistenceScope == Table.SCOPE_ROUTINE) {
+                row.rowAction = null;
+
+                return;
+            }
+
             session.rowActionList.add(action);
 
             return;
@@ -722,8 +728,7 @@ implements TransactionManager {
     }
 
     /**
-     * add session to the end of queue when a transaction starts
-     * (depending on isolation mode)
+     * Update statement if out-of-date
      */
     public void beginAction(Session session, Statement cs) {
 
@@ -750,6 +755,10 @@ implements TransactionManager {
 
             session.isPreTransaction = true;
 
+            if (session.abortTransaction) {
+                return;
+            }
+
             if (!isLockedMode && !cs.isCatalogLock()) {
                 return;
             }
@@ -762,7 +771,6 @@ implements TransactionManager {
 
     /**
      * add session to the end of queue when a transaction starts
-     * (depending on isolation mode)
      */
     public void beginActionResume(Session session) {
 
@@ -871,7 +879,8 @@ implements TransactionManager {
             current.latch.setCount(current.waitedSessions.size());
         }
 
-        // waitedSessions is not empty if the latch is zeroed by a different session
+        // waitedSessions is not empty if the latch is zeroed by a
+        // different administrative session
         session.waitedSessions.clear();
         session.waitingSessions.clear();
     }
@@ -883,9 +892,7 @@ implements TransactionManager {
         for (int i = 0; i < sessions.length; i++) {
             long timestamp = sessions[i].getTransactionTimestamp();
 
-            if (liveTransactionTimestamps.contains(timestamp)) {
-                set.add(sessions[i]);
-            } else if (sessions[i].isPreTransaction) {
+            if (sessions[i].isPreTransaction) {
                 set.add(sessions[i]);
             } else if (sessions[i].isTransaction) {
                 set.add(sessions[i]);
@@ -899,7 +906,7 @@ implements TransactionManager {
             return;
         }
 
-/*
+        //
         Session nextSession = null;
 
         for (int i = 0; i < session.waitingSessions.size(); i++) {
@@ -923,28 +930,18 @@ implements TransactionManager {
                 if (current != nextSession) {
                     current.waitedSessions.add(nextSession);
                     nextSession.waitingSessions.add(current);
-                    current.latch.countUp();
+                    current.latch.setCount(current.waitedSessions.size());
                 }
             }
 
             catalogWriteSession = nextSession;
         }
 
-*/
-        isLockedMode    = false;
         unlockTxTs      = session.actionTimestamp;
         unlockSessionId = session.getId();
     }
 
     boolean beginActionTPL(Session session, Statement cs) {
-
-        if (cs == null) {
-            return true;
-        }
-
-        if (session.abortTransaction) {
-            return false;
-        }
 
         if (session == catalogWriteSession) {
             return true;

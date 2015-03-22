@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2014, The HSQL Development Group
+/* Copyright (c) 2001-2015, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -173,8 +173,8 @@ final class DataFileDefrag {
     long[] writeTableToDataFile(Table table) {
 
         RowStoreAVLDisk store =
-            (RowStoreAVLDisk) table.database.persistentStoreCollection.getStore(
-                table);
+            (RowStoreAVLDisk) table.database.persistentStoreCollection
+                .getStore(table);
         long[] rootsArray = table.getIndexRootsArray();
 
         pointerLookup.clear();
@@ -197,7 +197,7 @@ final class DataFileDefrag {
         }
 
         // log any discrepency in row count
-        long count = rootsArray[table.getIndexCount() * 2];
+        long count = store.elementCount();
 
         if (count != pointerLookup.size()) {
             database.logger.logSevereEvent("discrepency in row count "
@@ -205,9 +205,6 @@ final class DataFileDefrag {
                                            + count + " "
                                            + pointerLookup.size(), null);
         }
-
-        rootsArray[table.getIndexCount()]     = 0;
-        rootsArray[table.getIndexCount() * 2] = pointerLookup.size();
 
         database.logger.logDetailEvent("table written "
                                        + table.getName().name);

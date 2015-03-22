@@ -599,6 +599,10 @@ public class Session implements SessionInterface {
     public synchronized void rollback(boolean chain) {
 
         //        tempActionHistory.add("rollback " + actionTimestamp);
+        if (isClosed) {
+            return;
+        }
+
         if (sessionContext.depth > 0) {
             return;
         }
@@ -607,10 +611,6 @@ public class Session implements SessionInterface {
     }
 
     synchronized void rollbackNoCheck(boolean chain) {
-
-        if (isClosed) {
-            return;
-        }
 
         if (isTransaction) {
             database.txManager.rollback(this);

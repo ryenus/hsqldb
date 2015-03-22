@@ -250,37 +250,6 @@ class TransactionManagerCommon {
         }
     }
 
-    void postCommitAction(Session session, RowAction action) {
-
-        if (action.type == RowActionBase.ACTION_NONE) {
-            action.store.postCommitAction(session, action);
-
-            return;
-        }
-
-        if (action.type == RowActionBase.ACTION_DELETE_FINAL
-                && !action.deleteComplete) {
-            try {
-                action.deleteComplete = true;
-
-                if (action.table.getTableType() == TableBase.TEMP_TABLE) {
-                    return;
-                }
-
-                Row row = action.memoryRow;
-
-                if (row == null) {
-                    row = (Row) action.store.get(action.getPos(), false);
-                }
-
-                action.store.commitRow(session, row, action.type, txModel);
-            } catch (Exception e) {
-
-//                    throw unexpectedException(e.getMessage());
-            }
-        }
-    }
-
     /**
      * merge a transaction committed at a given timestamp.
      */
