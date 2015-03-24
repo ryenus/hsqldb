@@ -116,8 +116,10 @@ public class StatementProcedure extends StatementDMQL {
         checkAccessRights(session);
         session.getGrantee().checkAccess(procedure);
 
-        isTransactionStatement = readTableNames.length > 0 ||
-            writeTableNames.length > 0;
+        if (procedure.isPSM()) {
+            isTransactionStatement = readTableNames.length > 0 ||
+                writeTableNames.length > 0;
+        }
     }
 
     Result getResult(Session session) {

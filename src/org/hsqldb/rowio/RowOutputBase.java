@@ -152,7 +152,6 @@ implements RowOutputInterface {
 
     protected abstract void writeArray(Object[] o, Type type);
 
-
     /**
      *  This method is called to write data for a table row.
      */

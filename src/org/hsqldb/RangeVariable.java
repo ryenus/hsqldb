@@ -1401,36 +1401,40 @@ public class RangeVariable {
 
                 currentData = currentRow.getData();
 
-                if (conditions[condIndex].terminalCondition != null
-                        && !conditions[condIndex].terminalCondition
-                            .testCondition(session)) {
-                    break;
-                }
-
-                if (conditions[condIndex].indexEndCondition != null
-                        && !conditions[condIndex].indexEndCondition
-                            .testCondition(session)) {
-                    if (!conditions[condIndex].isJoin) {
-                        hasLeftOuterRow = false;
+                if (conditions[condIndex].terminalCondition != null) {
+                    if (!conditions[condIndex].terminalCondition.testCondition(
+                            session)) {
+                        break;
                     }
-
-                    break;
                 }
 
-                if (joinConditions[condIndex].nonIndexCondition != null
-                        && !joinConditions[condIndex].nonIndexCondition
-                            .testCondition(session)) {
-                    continue;
+                if (conditions[condIndex].indexEndCondition != null) {
+                    if (!conditions[condIndex].indexEndCondition.testCondition(
+                            session)) {
+                        if (!conditions[condIndex].isJoin) {
+                            hasLeftOuterRow = false;
+                        }
+
+                        break;
+                    }
                 }
 
-                if (whereConditions[condIndex].nonIndexCondition != null
-                        && !whereConditions[condIndex].nonIndexCondition
+                if (joinConditions[condIndex].nonIndexCondition != null) {
+                    if (!joinConditions[condIndex].nonIndexCondition
                             .testCondition(session)) {
-                    hasLeftOuterRow = false;
+                        continue;
+                    }
+                }
 
-                    addFoundRow();
+                if (whereConditions[condIndex].nonIndexCondition != null) {
+                    if (!whereConditions[condIndex].nonIndexCondition
+                            .testCondition(session)) {
+                        hasLeftOuterRow = false;
 
-                    continue;
+                        addFoundRow();
+
+                        continue;
+                    }
                 }
 
                 Expression e = conditions[condIndex].excludeConditions;
