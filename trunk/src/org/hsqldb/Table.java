@@ -2837,7 +2837,7 @@ public class Table extends TableBase implements SchemaObject {
                         session.sessionContext.getCheckIterator(
                             getDefaultRanges()[0]);
 
-                    range.currentData = data;
+                    range.setCurrent(data);
                     data[i]           = e.getValue(session, colTypes[i]);
                 }
             }
