@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2014, The HSQL Development Group
+/* Copyright (c) 2001-2015, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -48,7 +48,7 @@ import java.io.UnsupportedEncodingException;
  * @version 2.3.3
  * @since 1.7.0
  */
-public class HsqlByteArrayOutputStream extends java.io.OutputStream
+public class HsqlByteArrayOutputStream extends OutputStream
 implements DataOutput {
 
     protected byte[] buffer;

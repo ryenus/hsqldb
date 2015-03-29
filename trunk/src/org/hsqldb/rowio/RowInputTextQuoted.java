@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2011, The HSQL Development Group
+/* Copyright (c) 2001-2015, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,8 +31,6 @@
 
 package org.hsqldb.rowio;
 
-import java.io.IOException;
-
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
 
@@ -42,7 +40,7 @@ import org.hsqldb.error.ErrorCode;
  * case.
  *
  * @author Bob Preston (sqlbob@users dot sourceforge.net)
- * @version 2.2.9
+ * @version 2.3.3
  * @since 1.7.0
  */
 public class RowInputTextQuoted extends RowInputText {
@@ -64,8 +62,7 @@ public class RowInputTextQuoted extends RowInputText {
         qtext = text.toCharArray();
     }
 
-    protected String getField(String sep, int sepLen,
-                              boolean isEnd) throws IOException {
+    protected String getField(String sep, int sepLen, boolean isEnd) {
 
         //fredt - now the only supported behaviour is emptyIsNull
         String s = null;
@@ -138,13 +135,9 @@ public class RowInputTextQuoted extends RowInputText {
 
             s = sb.toString();
         } catch (Exception e) {
-            Object[] messages = new Object[] {
-                new Integer(field), e.toString()
-            };
+            String message = String.valueOf(field);
 
-            throw new IOException(
-                Error.getMessage(
-                    ErrorCode.M_TEXT_SOURCE_FIELD_ERROR, 0, messages));
+            throw Error.error(e, ErrorCode.M_TEXT_SOURCE_FIELD_ERROR, message);
         }
 
         return s;

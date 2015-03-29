@@ -31,8 +31,6 @@
 
 package org.hsqldb.rowio;
 
-import java.io.IOException;
-
 import org.hsqldb.types.Type;
 
 /**
@@ -49,23 +47,23 @@ public interface RowInputInterface {
 
     int getSize();
 
-    int readType() throws IOException;
+    int readType();
 
-    String readString() throws IOException;
+    String readString();
 
-    byte readByte() throws IOException;
+    byte readByte();
 
-    char readChar() throws IOException;
+    char readChar();
 
-    short readShort() throws IOException;
+    short readShort();
 
-    int readInt() throws IOException;
+    int readInt();
 
-    long readLong() throws IOException;
+    long readLong();
 
-    Object readData(Type type) throws IOException;
+    Object readData(Type type);
 
-    Object[] readData(Type[] colTypes) throws IOException;
+    Object[] readData(Type[] colTypes);
 
     void resetRow(long filePos, int size);
 

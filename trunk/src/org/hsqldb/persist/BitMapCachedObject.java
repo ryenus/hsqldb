@@ -64,12 +64,8 @@ public class BitMapCachedObject extends CachedObjectBase {
         int[] array    = bitMap.getIntArray();
         int   capacity = array.length;
 
-        try {
-            for (int i = 0; i < capacity; i++) {
-                array[i] = in.readInt();
-            }
-        } catch (IOException e) {
-            throw Error.error(ErrorCode.GENERAL_IO_ERROR, e);
+        for (int i = 0; i < capacity; i++) {
+            array[i] = in.readInt();
         }
 
         hasChanged = false;
@@ -84,7 +80,6 @@ public class BitMapCachedObject extends CachedObjectBase {
     }
 
     public void write(RowOutputInterface out) {
-
         write(out, null);
     }
 
