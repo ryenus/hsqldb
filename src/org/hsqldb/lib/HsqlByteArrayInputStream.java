@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2014, The HSQL Development Group
+/* Copyright (c) 2001-2015, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -41,7 +41,7 @@ import java.io.InputStream;
  * (without synchronization) and java.io.DataInputStream
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 1.9.0
+ * @version 2.3.3
  * @since 1.7.2
  */
 public class HsqlByteArrayInputStream extends InputStream
@@ -68,7 +68,7 @@ implements DataInput {
     }
 
     // methods that implement java.io.DataInput
-    public final void readFully(byte[] b) throws IOException {
+    public void readFully(byte[] b) throws IOException {
         readFully(b, 0, b.length);
     }
 
@@ -92,7 +92,7 @@ implements DataInput {
         }
     }
 
-    public final boolean readBoolean() throws IOException {
+    public boolean readBoolean() throws IOException {
 
         int ch = read();
 
@@ -103,7 +103,7 @@ implements DataInput {
         return ch != 0;
     }
 
-    public final byte readByte() throws IOException {
+    public byte readByte() throws IOException {
 
         int ch = read();
 
@@ -151,7 +151,7 @@ implements DataInput {
         return (ch1 << 8) + ch2;
     }
 
-    public final char readChar() throws IOException {
+    public char readChar() throws IOException {
 
         int ch1 = read();
         int ch2 = read();

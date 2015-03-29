@@ -291,11 +291,7 @@ public class ScriptReaderText extends ScriptReaderBase {
             colTypes = currentTable.getColumnTypes();
         }
 
-        try {
-            rowData = rowIn.readData(colTypes);
-        } catch (IOException e) {
-            throw Error.error(e, ErrorCode.FILE_IO_ERROR, null);
-        }
+        rowData = rowIn.readData(colTypes);
     }
 
     public void close() {

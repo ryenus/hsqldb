@@ -62,12 +62,8 @@ public class IntArrayCachedObject extends CachedObjectBase {
 
         int capacity = values.length;
 
-        try {
-            for (int i = 0; i < capacity; i++) {
-                values[i] = in.readInt();
-            }
-        } catch (IOException e) {
-            throw Error.error(ErrorCode.GENERAL_IO_ERROR, e);
+        for (int i = 0; i < capacity; i++) {
+            values[i] = in.readInt();
         }
 
         hasChanged = false;
@@ -82,7 +78,6 @@ public class IntArrayCachedObject extends CachedObjectBase {
     }
 
     public void write(RowOutputInterface out) {
-
         write(out, null);
     }
 
