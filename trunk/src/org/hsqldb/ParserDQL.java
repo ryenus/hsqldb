@@ -2003,6 +2003,12 @@ public class ParserDQL extends ParserBase {
             }
         }
 
+        if (database.sqlSyntaxMss) {
+            if (readIfThis(Tokens.WITH)) {
+                readNestedParanthesisedTokens();
+            }
+        }
+
         RangeVariable range;
 
         if (joinedTable) {
@@ -6310,6 +6316,25 @@ public class ParserDQL extends ParserBase {
         }
 
         return count;
+    }
+
+    void readNestedParanthesisedTokens() {
+
+        readThis(Tokens.OPENBRACKET);
+
+        do {
+            read();
+
+            if (token.tokenType == Tokens.OPENBRACKET) {
+                readNestedParanthesisedTokens();
+            }
+
+            if (token.tokenType == Tokens.X_ENDPARSE) {
+                throw unexpectedToken();
+            }
+        } while (token.tokenType != Tokens.CLOSEBRACKET);
+
+        read();
     }
 
     void checkValidCatalogName(String name) {
