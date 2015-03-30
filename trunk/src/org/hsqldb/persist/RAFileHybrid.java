@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2011, The HSQL Development Group
+/* Copyright (c) 2001-2015, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -45,7 +45,7 @@ import org.hsqldb.Database;
  * closed and a new one opened, up to the maximum size.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.0
+ * @version 2.3.3
  * @since 1.7.2
  */
 public final class RAFileHybrid implements RandomAccessInterface {
@@ -55,11 +55,11 @@ public final class RAFileHybrid implements RandomAccessInterface {
     final boolean         isReadOnly;
     boolean               preNio;
     boolean               isNio;
-    long initialMaxLength = RAFileNIO.largeBufferSize / 2;
+    long                  initialMaxLength = RAFileNIO.largeBufferSize / 2;
     RandomAccessInterface store;
 
     public RAFileHybrid(Database database, String name,
-                              boolean readOnly) throws IOException {
+                        boolean readOnly) throws IOException {
 
         this.database   = database;
         this.fileName   = name;
@@ -169,9 +169,9 @@ public final class RAFileHybrid implements RandomAccessInterface {
 
         if (preNio && initialMaxLength <= requiredPosition) {
             try {
-                store = new RAFileNIO(database, fileName, isReadOnly,
-                                            requiredPosition,
-                                            database.logger.propNioMaxSize);
+                store = new RAFileNIO(database.logger, fileName, isReadOnly,
+                                      requiredPosition,
+                                      database.logger.propNioMaxSize);
 
                 store.seek(currentPosition);
 
@@ -187,7 +187,7 @@ public final class RAFileHybrid implements RandomAccessInterface {
         }
 
         isNio = false;
-        store = new RAFile(database, fileName, isReadOnly, true, false);
+        store = new RAFile(database.logger, fileName, isReadOnly, true, false);
 
         store.seek(currentPosition);
     }

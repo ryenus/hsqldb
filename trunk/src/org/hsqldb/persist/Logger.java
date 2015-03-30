@@ -94,7 +94,7 @@ import org.hsqldb.types.Type;
  * @version 2.3.3
  * @since 1.7.0
  */
-public class Logger {
+public class Logger implements EventLogInterface {
 
     public SimpleLog appLog;
     public SimpleLog sqlLog;

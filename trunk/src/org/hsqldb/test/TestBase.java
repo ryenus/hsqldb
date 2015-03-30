@@ -39,6 +39,7 @@ import java.sql.SQLException;
 import org.hsqldb.Database;
 import org.hsqldb.server.Server;
 import org.hsqldb.server.WebServer;
+
 import junit.framework.TestCase;
 import junit.framework.TestResult;
 

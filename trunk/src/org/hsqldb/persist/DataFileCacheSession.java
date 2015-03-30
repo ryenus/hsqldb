@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2014, The HSQL Development Group
+/* Copyright (c) 2001-2015, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -77,7 +77,8 @@ public class DataFileCacheSession extends DataFileCache {
     public void open(boolean readonly) {
 
         try {
-            dataFile = new RAFile(database, dataFileName, false, false, false);
+            dataFile = new RAFile(database.logger, dataFileName, false, false,
+                                  false);
             fileFreePosition = initialFreePos;
 
             initBuffers();

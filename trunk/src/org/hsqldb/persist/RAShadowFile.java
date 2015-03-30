@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2014, The HSQL Development Group
+/* Copyright (c) 2001-2015, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -177,7 +177,7 @@ public class RAShadowFile {
             dest = RAFile.newScaledRAFile(database, pathName, false,
                                           RAFile.DATA_FILE_STORED);
         } else {
-            dest = new RAFileSimple(database, pathName, "rws");
+            dest = new RAFileSimple(database.logger, pathName, "rw");
         }
     }
 
@@ -220,7 +220,7 @@ public class RAShadowFile {
                                           openMode.equals("r"),
                                           RAFile.DATA_FILE_STORED);
         } else {
-            return new RAFileSimple(database, pathName, openMode);
+            return new RAFileSimple(database.logger, pathName, openMode);
         }
     }
 
