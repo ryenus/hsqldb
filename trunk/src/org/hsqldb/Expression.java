@@ -907,6 +907,10 @@ public class Expression implements Cloneable {
     Expression replaceAliasInOrderBy(Session session, Expression[] columns,
                                      int length) {
 
+        if (this.isSelfAggregate()) {
+            return this;
+        }
+
         for (int i = 0; i < nodes.length; i++) {
             if (nodes[i] == null) {
                 continue;
