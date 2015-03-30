@@ -49,7 +49,7 @@ import org.hsqldb.navigator.RowSetNavigatorDataChangeMemory;
  * Session execution context and temporary data structures
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.2
+ * @version 2.3.3
  * @since 1.9.0
  */
 public class SessionContext {
@@ -341,12 +341,13 @@ public class SessionContext {
         routineVariables[index] = variable.getDefaultValue(session);
     }
 
-    public void pushRoutineTables(HashMappedList map) {
+    public void pushRoutineTables() {
         popSessionTables = sessionTables;
-        sessionTables    = map;
+        sessionTables    = new HashMappedList();
     }
 
     public void popRoutineTables() {
+        sessionTables.clear();
         sessionTables = popSessionTables;
     }
 
