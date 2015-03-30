@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2014, The HSQL Development Group
+/* Copyright (c) 2001-2015, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -69,7 +69,7 @@ final class RAFile implements RandomAccessInterface {
     static final long bufferMask  = 0xffffffffffffffffl << bufferScale;
 
     //
-    final Database                  database;
+    final EventLogInterface         logger;
     final RandomAccessFile          file;
     final FileDescriptor            fileDescriptor;
     private final boolean           readOnly;
@@ -143,34 +143,30 @@ final class RAFile implements RandomAccessInterface {
         if (type == DATA_FILE_JAR) {
             return new RAFileInJar(name);
         } else if (type == DATA_FILE_TEXT) {
-            RAFile ra = new RAFile(database, name, readonly, false, true);
+            RAFile ra = new RAFile(database.logger, name, readonly, false,
+                                   true);
 
             return ra;
         } else if (type == DATA_FILE_RAF) {
-            return new RAFile(database, name, readonly, true, false);
+            return new RAFile(database.logger, name, readonly, true, false);
         } else {
             java.io.File fi     = new java.io.File(name);
             long         length = fi.length();
 
             if (length > database.logger.propNioMaxSize) {
-                return new RAFile(database, name, readonly, true, false);
+                return new RAFile(database.logger, name, readonly, true,
+                                  false);
             }
 
-            try {
-                Class.forName("java.nio.MappedByteBuffer");
-
-                return new RAFileHybrid(database, name, readonly);
-            } catch (Exception e) {
-                return new RAFile(database, name, readonly, true, false);
-            }
+            return new RAFileHybrid(database, name, readonly);
         }
     }
 
-    RAFile(Database database, String name, boolean readonly,
+    RAFile(EventLogInterface logger, String name, boolean readonly,
             boolean extendLengthToBlock,
             boolean commitOnChange) throws FileNotFoundException, IOException {
 
-        this.database     = database;
+        this.logger       = logger;
         this.fileName     = name;
         this.readOnly     = readonly;
         this.extendLength = extendLengthToBlock;
@@ -228,8 +224,8 @@ final class RAFile implements RandomAccessInterface {
             bufferOffset = filePos;
         } catch (IOException e) {
             resetPointer();
-            database.logger.logWarningEvent("Read Error " + filePos + " "
-                                            + readLength, e);
+            logger.logWarningEvent("Read Error " + filePos + " " + readLength,
+                                   e);
 
             throw e;
         }
@@ -256,7 +252,7 @@ final class RAFile implements RandomAccessInterface {
             return val;
         } catch (IOException e) {
             resetPointer();
-            database.logger.logWarningEvent("read failed", e);
+            logger.logWarningEvent("read failed", e);
 
             throw e;
         }
@@ -322,7 +318,7 @@ final class RAFile implements RandomAccessInterface {
             }
         } catch (IOException e) {
             resetPointer();
-            database.logger.logWarningEvent("failed to read a byte array", e);
+            logger.logWarningEvent("failed to read a byte array", e);
 
             throw e;
         }
@@ -347,7 +343,7 @@ final class RAFile implements RandomAccessInterface {
             }
         } catch (IOException e) {
             resetPointer();
-            database.logger.logWarningEvent("failed to write a byte array", e);
+            logger.logWarningEvent("failed to write a byte array", e);
 
             throw e;
         }
@@ -415,7 +411,7 @@ final class RAFile implements RandomAccessInterface {
             try {
                 fileDescriptor.sync();
             } catch (Throwable tt) {
-                database.logger.logSevereEvent("RA file sync error ", tt);
+                logger.logSevereEvent("RA file sync error ", tt);
 
                 throw Error.error(t, ErrorCode.FILE_IO_ERROR, null);
             }
@@ -470,8 +466,7 @@ final class RAFile implements RandomAccessInterface {
 
                 fileLength = newSize;
             } catch (IOException e) {
-                database.logger.logWarningEvent("data file enlarge failed ",
-                                                e);
+                logger.logWarningEvent("data file enlarge failed ", e);
 
                 throw e;
             }
