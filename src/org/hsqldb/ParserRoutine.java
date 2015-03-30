@@ -260,8 +260,8 @@ public class ParserRoutine extends ParserDML {
                 }
 
                 if (inParens) {
-                     readThis(Tokens.CLOSEBRACKET);
-                 }
+                    readThis(Tokens.CLOSEBRACKET);
+                }
 
                 return e;
             }
@@ -1044,19 +1044,24 @@ public class ParserRoutine extends ParserDML {
             }
         } else {
             startRecording();
+            session.sessionContext.pushRoutineTables();
 
-            Statement statement = compileSQLProcedureStatementOrNull(routine,
-                null);
+            try {
+                Statement statement =
+                    compileSQLProcedureStatementOrNull(routine, null);
 
-            if (statement == null) {
-                throw unexpectedToken();
+                if (statement == null) {
+                    throw unexpectedToken();
+                }
+
+                Token[] tokenisedStatement = getRecordedStatement();
+                String  sql                = Token.getSQL(tokenisedStatement);
+
+                statement.setSQL(sql);
+                routine.setProcedure(statement);
+            } finally {
+                session.sessionContext.popRoutineTables();
             }
-
-            Token[] tokenisedStatement = getRecordedStatement();
-            String  sql                = Token.getSQL(tokenisedStatement);
-
-            statement.setSQL(sql);
-            routine.setProcedure(statement);
         }
     }
 
@@ -1157,6 +1162,7 @@ public class ParserRoutine extends ParserDML {
 
             readTableDefinition(routine, table);
 
+            session.sessionContext.addSessionTable(table);
             return table;
         } else {
             rewind(position);
@@ -1419,17 +1425,11 @@ public class ParserRoutine extends ParserDML {
         Object[] declarations = readLocalDeclarationList(routine, context);
 
         statement.setLocalDeclarations(declarations);
-        session.sessionContext.pushRoutineTables(statement.scopeTables);
 
-        try {
-            Statement[] statements = compileSQLProcedureStatementList(routine,
-                statement);
+        Statement[] statements = compileSQLProcedureStatementList(routine,
+            statement);
 
-            statement.setStatements(statements);
-        } finally {
-            session.sessionContext.popRoutineTables();
-        }
-
+        statement.setStatements(statements);
         readThis(Tokens.END);
 
         if (isSimpleName() && !isReservedKey()) {

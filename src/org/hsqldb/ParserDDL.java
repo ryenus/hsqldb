@@ -2464,27 +2464,32 @@ public class ParserDDL extends ParserRoutine {
         Routine routine = new Routine(table, ranges, impact, beforeOrAfter,
                                       operation);
 
-        startRecording();
+        session.sessionContext.pushRoutineTables();
 
-        StatementCompound parent =
-            new StatementCompound(StatementTypes.BEGIN_END, null);
+        try {
+            startRecording();
 
-        parent.rangeVariables = ranges;
+            StatementCompound parent =
+                new StatementCompound(StatementTypes.BEGIN_END, null);
 
-        Statement statement = compileSQLProcedureStatementOrNull(routine,
-            null);
+            parent.rangeVariables = ranges;
 
-        if (statement == null) {
-            throw unexpectedToken();
+            Statement statement = compileSQLProcedureStatementOrNull(routine,
+                null);
+
+            if (statement == null) {
+                throw unexpectedToken();
+            }
+
+            Token[] tokenisedStatement = getRecordedStatement();
+            String sql = Token.getSQL(tokenisedStatement);
+
+            statement.setSQL(sql);
+            routine.setProcedure(statement);
+            routine.resolve(session);
+        } finally {
+            session.sessionContext.popRoutineTables();
         }
-
-        Token[] tokenisedStatement = getRecordedStatement();
-        String  sql                = Token.getSQL(tokenisedStatement);
-
-        statement.setSQL(sql);
-        routine.setProcedure(statement);
-        routine.resolve(session);
-
         return routine;
     }
 
