@@ -148,7 +148,8 @@ public class Logger implements EventLogInterface {
     String            tempDirectoryPath;
 
     //
-    private HashMap textCacheList = new HashMap();
+    public TextTableStorageManager textTableManager =
+        new TextTableStorageManager();
 
     //
     public boolean isNewDatabase;
@@ -664,6 +665,7 @@ public class Logger implements EventLogInterface {
             HsqlDatabaseProperties.runtime_gc_interval);
         propRefIntegrity = database.databaseProperties.isPropertyTrue(
             HsqlDatabaseProperties.sql_ref_integrity);
+
         setCacheMinReuseSize(
             database.databaseProperties.getIntegerProperty(
                 HsqlDatabaseProperties.hsqldb_min_reuse));
@@ -697,7 +699,7 @@ public class Logger implements EventLogInterface {
         boolean result = true;
 
         if (log == null) {
-            closeAllTextCaches(false);
+            textTableManager.closeAllTextCaches(false);
 
             return true;
         }
@@ -759,6 +761,10 @@ public class Logger implements EventLogInterface {
      */
     public boolean isLogged() {
         return propIsFileDatabase && !database.isFilesReadOnly();
+    }
+
+    public boolean isCurrentlyLogged() {
+        return loggingEnabled;
     }
 
     public boolean isAllowedFullPath() {
@@ -2448,73 +2454,6 @@ public class Logger implements EventLogInterface {
         }
 
         return path;
-    }
-
-    // fredt@users 20020221 - patch 513005 by sqlbob@users (RMP) - text tables
-
-    /**
-     *  Opens the TextCache object.
-     */
-    public DataFileCache openTextFilePersistence(Table table, String source,
-            boolean readOnlyData, boolean reversed) {
-
-        closeTextCache(table);
-
-        String sourceName = getSecurePath(source, false, true);
-
-        if (sourceName == null) {
-            throw (Error.error(ErrorCode.ACCESS_IS_DENIED, source));
-        }
-
-        TextCache c = new TextCache(table, sourceName);
-
-        c.open(readOnlyData || database.isFilesReadOnly());
-        textCacheList.put(table.getName(), c);
-
-        return c;
-    }
-
-    /**
-     *  Closes the TextCache object.
-     */
-    public void closeTextCache(Table table) {
-
-        TextCache c = (TextCache) textCacheList.remove(table.getName());
-
-        if (c != null) {
-            try {
-                c.close();
-            } catch (HsqlException e) {}
-        }
-    }
-
-    void closeAllTextCaches(boolean script) {
-
-        Iterator it = textCacheList.values().iterator();
-
-        while (it.hasNext()) {
-            TextCache textCache = ((TextCache) it.next());
-
-            // use textCache.table to cover both cache and table readonly
-            if (script && !textCache.table.isDataReadOnly()) {
-                textCache.purge();
-            } else {
-                textCache.close();
-            }
-        }
-    }
-
-    boolean isAnyTextCacheModified() {
-
-        Iterator it = textCacheList.values().iterator();
-
-        while (it.hasNext()) {
-            if (((TextCache) it.next()).isModified()) {
-                return true;
-            }
-        }
-
-        return false;
     }
 
     public boolean isNewDatabase() {

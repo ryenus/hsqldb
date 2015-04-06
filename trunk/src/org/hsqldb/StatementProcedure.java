@@ -92,8 +92,8 @@ public class StatementProcedure extends StatementDMQL {
             session.getGrantee().checkAccess(procedure);
         }
 
-        isTransactionStatement = readTableNames.length > 0 ||
-            writeTableNames.length > 0;
+        isTransactionStatement = readTableNames.length > 0
+                                 || writeTableNames.length > 0;
     }
 
     /**
@@ -117,8 +117,8 @@ public class StatementProcedure extends StatementDMQL {
         session.getGrantee().checkAccess(procedure);
 
         if (procedure.isPSM()) {
-            isTransactionStatement = readTableNames.length > 0 ||
-                writeTableNames.length > 0;
+            isTransactionStatement = readTableNames.length > 0
+                                     || writeTableNames.length > 0;
         }
     }
 
@@ -167,27 +167,31 @@ public class StatementProcedure extends StatementDMQL {
             }
         }
 
-        session.sessionContext.push();
+        session.sessionContext.pushRoutineInvocation();
 
-        session.sessionContext.routineArguments = data;
-        session.sessionContext.routineVariables = ValuePool.emptyObjectArray;
+        Result   result = Result.updateZeroResult;
+        Object[] callArguments;
 
-        Result result = Result.updateZeroResult;
+        try {
+            session.sessionContext.routineArguments = data;
+            session.sessionContext.routineVariables =
+                ValuePool.emptyObjectArray;
 
-        if (procedure.isPSM()) {
-            result = executePSMProcedure(session);
-        } else {
-            Connection connection = session.getInternalConnection();
+            if (procedure.isPSM()) {
+                result = executePSMProcedure(session);
+            } else {
+                Connection connection = session.getInternalConnection();
 
-            result = executeJavaProcedure(session, connection);
-        }
+                result = executeJavaProcedure(session, connection);
+            }
 
-        Object[] callArguments = session.sessionContext.routineArguments;
+            callArguments = session.sessionContext.routineArguments;
+        } finally {
+            session.sessionContext.popRoutineInvocation();
 
-        session.sessionContext.pop();
-
-        if (!procedure.isPSM()) {
-            session.releaseInternalConnection();
+            if (!procedure.isPSM()) {
+                session.releaseInternalConnection();
+            }
         }
 
         if (result.isError()) {

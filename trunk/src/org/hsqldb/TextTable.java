@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2014, The HSQL Development Group
+/* Copyright (c) 2001-2015, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -99,12 +99,19 @@ public class TextTable extends Table {
 
         this.store = store;
 
-        TextCache      cache  = null;
-        TextFileReader reader = null;
+        TextCache      cache    = null;
+        TextFileReader reader   = null;
+        boolean        readOnly = isReadOnly || database.isReadOnly();
+        String securePath = database.logger.getSecurePath(dataSource, false,
+            true);
+
+        if (securePath == null) {
+            throw (Error.error(ErrorCode.ACCESS_IS_DENIED, dataSource));
+        }
 
         try {
-            cache = (TextCache) database.logger.openTextFilePersistence(this,
-                    dataSource, withReadOnlyData, isReversed);
+            cache = (TextCache) database.logger.textTableManager.openTextFilePersistence(this,
+                    securePath, readOnly, isReversed);
 
             store.setCache(cache);
 
@@ -148,7 +155,7 @@ public class TextTable extends Table {
             clearAllData(session);
 
             if (cache != null) {
-                database.logger.closeTextCache(this);
+                database.logger.textTableManager.closeTextCache(this);
                 store.release();
             }
 
