@@ -2838,7 +2838,8 @@ public class Table extends TableBase implements SchemaObject {
                             getDefaultRanges()[0]);
 
                     range.setCurrent(data);
-                    data[i]           = e.getValue(session, colTypes[i]);
+
+                    data[i] = e.getValue(session, colTypes[i]);
                 }
             }
         }

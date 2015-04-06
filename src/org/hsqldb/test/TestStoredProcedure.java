@@ -46,7 +46,7 @@ import junit.framework.TestResult;
  * Tests for stored procedures.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.0.1
+ * @version 2.3.3
  * @since 2.0.1
  */
 public class TestStoredProcedure extends TestBase {
@@ -321,19 +321,21 @@ public class TestStoredProcedure extends TestBase {
         rs.close();
     }
 
+    String testSixProcedure =
+        "CREATE PROCEDURE get_columns_and_table(tname VARCHAR(128), sname VARCHAR(128)) "
+        + "READS SQL DATA DYNAMIC RESULT SETS 2 " + "BEGIN ATOMIC "
+        + "DECLARE result1 CURSOR FOR SELECT * FROM information_schema.columns "
+        + "WHERE table_name = tname AND table_schema = sname; "
+        + "DECLARE result2 CURSOR FOR SELECT * FROM information_schema.tables "
+        + "WHERE table_name = tname AND table_schema = sname; "
+        + "OPEN result1; " + "OPEN result2; " + "END";
+
     public void testSix() throws SQLException {
 
         Connection conn = newConnection();
         Statement  st   = conn.createStatement();
 
-        st.execute(
-            "CREATE PROCEDURE get_columns_and_table(tname VARCHAR(128), sname VARCHAR(128)) "
-            + "READS SQL DATA DYNAMIC RESULT SETS 2 " + "BEGIN ATOMIC "
-            + "DECLARE result1 CURSOR FOR SELECT * FROM information_schema.columns "
-            + "WHERE table_name = tname AND table_schema = sname; "
-            + "DECLARE result2 CURSOR FOR SELECT * FROM information_schema.tables "
-            + "WHERE table_name = tname AND table_schema = sname; "
-            + "OPEN result1; " + "OPEN result2; " + "END");
+        st.execute(testSixProcedure);
 
         CallableStatement cs = conn.prepareCall(
             "call get_columns_and_table('TABLES', 'INFORMATION_SCHEMA')");

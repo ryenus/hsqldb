@@ -203,7 +203,7 @@ public class Log {
         deleteOldTempFiles();
         deleteTempFileDirectory();
         writeScript(script);
-        database.logger.closeAllTextCaches(script);
+        database.logger.textTableManager.closeAllTextCaches(script);
 
         if (cache != null) {
             cache.close();
@@ -263,7 +263,7 @@ public class Log {
             cache.release();
         }
 
-        database.logger.closeAllTextCaches(false);
+        database.logger.textTableManager.closeAllTextCaches(false);
         closeLog();
     }
 
@@ -346,7 +346,7 @@ public class Log {
             return true;
         }
 
-        return database.logger.isAnyTextCacheModified();
+        return database.logger.textTableManager.isAnyTextCacheModified();
     }
 
     private boolean checkpoint() {
@@ -768,7 +768,7 @@ public class Log {
                     cache.release();
                 }
 
-                database.logger.closeAllTextCaches(false);
+                database.logger.textTableManager.closeAllTextCaches(false);
             }
 
             database.logger.logWarningEvent("Script processing failure", e);

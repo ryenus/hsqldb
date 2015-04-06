@@ -289,7 +289,7 @@ public class RowStoreAVLDiskData extends RowStoreAVL {
     public void release() {
 
         destroy();
-        table.database.logger.closeTextCache((Table) table);
+        table.database.logger.textTableManager.closeTextCache((Table) table);
 
         cache = null;
 

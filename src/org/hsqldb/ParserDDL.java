@@ -83,7 +83,7 @@ public class ParserDDL extends ParserRoutine {
 
     StatementSchema compileCreate() {
 
-        int     tableType   = TableBase.MEMORY_TABLE;
+        int     tableType;
         boolean isTable     = false;
         boolean isOrReplace = false;
 
@@ -121,7 +121,9 @@ public class ParserDDL extends ParserRoutine {
                 read();
                 readThis(Tokens.TABLE);
 
-                isTable = true;
+                isTable   = true;
+                tableType = TableBase.MEMORY_TABLE;
+
                 break;
 
             case Tokens.CACHED :
@@ -147,33 +149,34 @@ public class ParserDDL extends ParserRoutine {
                 tableType = database.schemaManager.getDefaultTableType();
                 break;
 
-            case Tokens.OR :
-                if (database.sqlSyntaxOra) {
-                    read();
-                    readThis(Tokens.REPLACE);
-
-                    switch (token.tokenType) {
-
-                        case Tokens.FUNCTION :
-                        case Tokens.PROCEDURE :
-                        case Tokens.TRIGGER :
-                        case Tokens.TYPE :
-                        case Tokens.VIEW :
-                            break;
-
-                        default :
-                            throw unexpectedToken(Tokens.T_OR);
-                    }
-
-                    isOrReplace = true;
-                }
-                break;
-
             default :
+                tableType = TableBase.MEMORY_TABLE;
         }
 
         if (isTable) {
             return compileCreateTable(tableType);
+        }
+
+        if (database.sqlSyntaxOra) {
+            if (token.tokenType == Tokens.OR) {
+                read();
+                readThis(Tokens.REPLACE);
+
+                switch (token.tokenType) {
+
+                    case Tokens.FUNCTION :
+                    case Tokens.PROCEDURE :
+                    case Tokens.TRIGGER :
+                    case Tokens.TYPE :
+                    case Tokens.VIEW :
+                        break;
+
+                    default :
+                        throw unexpectedToken(Tokens.T_OR);
+                }
+
+                isOrReplace = true;
+            }
         }
 
         switch (token.tokenType) {

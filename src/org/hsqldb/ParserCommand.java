@@ -430,11 +430,12 @@ public class ParserCommand extends ParserDDL {
                 read();
                 readThis(Tokens.TYPE);
 
-                int type = TableBase.MEMORY_TABLE;
+                int type;
 
                 switch (token.tokenType) {
 
                     case Tokens.MEMORY :
+                        type = TableBase.MEMORY_TABLE;
                         break;
 
                     case Tokens.CACHED :
@@ -725,11 +726,12 @@ public class ParserCommand extends ParserDDL {
                 readThis(Tokens.TABLE);
                 readThis(Tokens.TYPE);
 
-                int type = TableBase.MEMORY_TABLE;
+                int type;
 
                 switch (token.tokenType) {
 
                     case Tokens.MEMORY :
+                        type = TableBase.MEMORY_TABLE;
                         break;
 
                     case Tokens.CACHED :
@@ -921,12 +923,28 @@ public class ParserCommand extends ParserDDL {
 
                 int newType;
 
-                if (token.tokenType == Tokens.CACHED) {
-                    newType = TableBase.CACHED_TABLE;
-                } else if (token.tokenType == Tokens.MEMORY) {
-                    newType = TableBase.MEMORY_TABLE;
-                } else {
-                    throw unexpectedToken();
+                switch (token.tokenType) {
+
+                    case Tokens.MEMORY :
+                        newType = TableBase.MEMORY_TABLE;
+                        break;
+
+                    case Tokens.CACHED :
+                        newType = TableBase.CACHED_TABLE;
+                        break;
+
+                    default :
+                        throw unexpectedToken();
+                }
+
+                switch (table.getTableType()) {
+
+                    case TableBase.MEMORY_TABLE:
+                    case TableBase.CACHED_TABLE :
+                        break;
+
+                    default :
+                        throw unexpectedToken();
                 }
 
                 read();

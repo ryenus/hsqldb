@@ -153,7 +153,7 @@ public class TableWorks {
 
         // check after UNIQUE check
         c.core.mainTable.checkReferentialColumnsMatch(c.core.mainCols, table,
-                                           c.core.refCols);
+                c.core.refCols);
         ArrayUtil.reorderMaps(unique.getMainColumns(), c.getMainColumns(),
                               c.getRefColumns());
 
