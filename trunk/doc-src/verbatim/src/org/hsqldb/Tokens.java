@@ -39,7 +39,7 @@ import org.hsqldb.lib.OrderedIntHashSet;
  * Defines and enumerates reserved and non-reserved SQL keywords.<p>
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.2
+ * @version 2.3.3
  * @since 1.7.2
  */
 public class Tokens {
@@ -662,6 +662,7 @@ public class Tokens {
     static final String        T_DUAL                 = "DUAL";
     static final String        T_EXPLAIN              = "EXPLAIN";
     public static final String T_EVENT                = "EVENT";
+    static final String        T_FEATURE              = "FEATURE";
     static final String        T_FILE                 = "FILE";
     public static final String T_FILES                = "FILES";
     static final String        T_FOLD                 = "FOLD";
@@ -1493,57 +1494,58 @@ public class Tokens {
     static final int DIGEST         = 586;
     static final int EVENT          = 587;
     static final int EXPLAIN        = 588;
-    static final int FILE           = 589;
-    static final int FILES          = 590;
-    static final int FORMAT         = 591;
-    static final int GC             = 592;
-    static final int HEADER         = 593;
-    static final int IGNORECASE     = 594;
-    static final int IMMEDIATELY    = 595;
-    static final int INTEGRITY      = 596;
-    static final int INDEX          = 597;
-    static final int INITIAL        = 598;
-    static final int LASTVAL        = 599;
-    static final int LIMIT          = 600;
-    static final int LOCK           = 601;
-    static final int LOCKS          = 602;
-    static final int LONG           = 603;
-    static final int LONGVAR        = 604;
-    static final int MAXROWS        = 605;
-    static final int MEDIAN         = 606;
-    static final int MEMORY         = 607;
-    static final int MILLIS         = 608;
-    static final int MINUS_EXCEPT   = 609;
-    static final int NAN            = 610;
-    static final int NEXTVAL        = 611;
-    static final int NVARCHAR2      = 612;
-    static final int NVL2           = 613;
-    static final int OFF            = 614;
-    static final int PASSWORD       = 615;
-    static final int PLAN           = 616;
-    static final int PREVVAL        = 617;
-    static final int PROPERTY       = 618;
-    static final int RAW            = 619;
-    static final int READONLY       = 620;
-    static final int REFERENTIAL    = 621;
-    static final int REGULAR        = 622;
-    static final int RENAME         = 623;
-    static final int RESET          = 624;
-    static final int ROWNUM         = 625;
-    static final int SCRIPT         = 626;
-    static final int SEPARATOR      = 627;
-    static final int SHUTDOWN       = 628;
-    static final int SYNTAX         = 629;
-    static final int TDC            = 630;
-    static final int TEMP           = 631;
-    static final int TEXT           = 632;
-    static final int TTI            = 633;
-    static final int TYPES          = 634;
-    static final int VARCHAR2       = 635;
-    static final int WRITE_DELAY    = 636;
+    static final int FEATURE        = 589;
+    static final int FILE           = 590;
+    static final int FILES          = 591;
+    static final int FORMAT         = 592;
+    static final int GC             = 593;
+    static final int HEADER         = 594;
+    static final int IGNORECASE     = 595;
+    static final int IMMEDIATELY    = 596;
+    static final int INTEGRITY      = 597;
+    static final int INDEX          = 598;
+    static final int INITIAL        = 599;
+    static final int LASTVAL        = 600;
+    static final int LIMIT          = 601;
+    static final int LOCK           = 602;
+    static final int LOCKS          = 603;
+    static final int LONG           = 604;
+    static final int LONGVAR        = 605;
+    static final int MAXROWS        = 606;
+    static final int MEDIAN         = 607;
+    static final int MEMORY         = 608;
+    static final int MILLIS         = 609;
+    static final int MINUS_EXCEPT   = 610;
+    static final int NAN            = 611;
+    static final int NEXTVAL        = 612;
+    static final int NVARCHAR2      = 613;
+    static final int NVL2           = 614;
+    static final int OFF            = 615;
+    static final int PASSWORD       = 616;
+    static final int PLAN           = 617;
+    static final int PREVVAL        = 618;
+    static final int PROPERTY       = 619;
+    static final int RAW            = 620;
+    static final int READONLY       = 621;
+    static final int REFERENTIAL    = 622;
+    static final int REGULAR        = 623;
+    static final int RENAME         = 624;
+    static final int RESET          = 625;
+    static final int ROWNUM         = 626;
+    static final int SCRIPT         = 627;
+    static final int SEPARATOR      = 628;
+    static final int SHUTDOWN       = 629;
+    static final int SYNTAX         = 630;
+    static final int TDC            = 631;
+    static final int TEMP           = 632;
+    static final int TEXT           = 633;
+    static final int TTI            = 634;
+    static final int TYPES          = 635;
+    static final int VARCHAR2       = 636;
+    static final int WRITE_DELAY    = 637;
 
     //
-    static final int INDEXER = 637;
+    static final int INDEXER = 638;
 
     //
     static final int        ACOS                       = 640;
@@ -2172,6 +2174,7 @@ public class Tokens {
         commandSet.put(T_EVENT, EVENT);
         commandSet.put(T_EXCLUDING, EXCLUDING);
         commandSet.put(T_EXPLAIN, EXPLAIN);
+        commandSet.put(T_FEATURE, FEATURE);
         commandSet.put(T_FILE, FILE);
         commandSet.put(T_FILES, FILES);
         commandSet.put(T_FINAL, FINAL);
