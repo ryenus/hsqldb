@@ -70,7 +70,7 @@ public class ScriptReaderText extends ScriptReaderBase {
     RowInputTextLog rowIn;
     boolean         isInsert;
 
-    public ScriptReaderText(Database db) {
+    ScriptReaderText(Database db) {
         super(db);
     }
 
@@ -169,6 +169,8 @@ public class ScriptReaderText extends ScriptReaderBase {
                 if (statementType == SET_SCHEMA_STATEMENT) {
                     session.setSchema(currentSchema);
 
+                    tablename = null;
+
                     continue;
                 } else if (statementType == INSERT_STATEMENT) {
                     if (!rowIn.getTableName().equals(tablename)) {
@@ -198,7 +200,8 @@ public class ScriptReaderText extends ScriptReaderBase {
 
             database.setReferentialIntegrity(true);
         } catch (Throwable t) {
-            database.logger.logSevereEvent("readExistingData failed", t);
+            database.logger.logSevereEvent("readExistingData failed "
+                                           + lineCount, t);
 
             throw Error.error(t, ErrorCode.ERROR_IN_SCRIPT_FILE,
                               ErrorCode.M_DatabaseScriptReader_read,

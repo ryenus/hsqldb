@@ -135,7 +135,7 @@ public class Logger implements EventLogInterface {
     int             propScriptFormat = 0;
     boolean         propLargeData;
     int             propFileSpaceValue;
-    int             propCheckPersistence;
+    long            propCheckPersistence;
 
     //
     Log               log;
@@ -474,9 +474,6 @@ public class Logger implements EventLogInterface {
                 HsqlDatabaseProperties.hsqldb_large_data, false)) {
             propLargeData = true;
         }
-
-        propCheckPersistence = database.databaseProperties.getIntegerProperty(
-            HsqlDatabaseProperties.hsqldb_files_check);
 
         if (!database.databaseProperties.isPropertyTrue(
                 HsqlDatabaseProperties.sql_pad_space, true)) {
@@ -1266,11 +1263,12 @@ public class Logger implements EventLogInterface {
         return propFileSpaceValue;
     }
 
-    public void setFilesCheck(int value) {
+    public long getFilesCheck() {
+        return propCheckPersistence;
+    }
 
-        if (value == 1 || value == 0) {
-            propCheckPersistence = value;
-        }
+    public void setFilesCheck(long value) {
+        propCheckPersistence = value;
     }
 
     public void setLobFileScale(int value) {
@@ -1590,10 +1588,6 @@ public class Logger implements EventLogInterface {
 
         if (HsqlDatabaseProperties.hsqldb_defrag_limit.equals(name)) {
             return String.valueOf(propCacheDefragLimit);
-        }
-
-        if (HsqlDatabaseProperties.hsqldb_files_check.equals(name)) {
-            return String.valueOf(propCheckPersistence);
         }
 
         if (HsqlDatabaseProperties.hsqldb_files_space.equals(name)) {

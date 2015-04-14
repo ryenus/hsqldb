@@ -1423,6 +1423,25 @@ public class ParserCommand extends ParserDDL {
 
         switch (token.tokenType) {
 
+            case Tokens.CHECK : {
+                read();
+
+                long longValue = readBigint();
+
+                type  = StatementTypes.SET_DATABASE_FILES_CHECK;
+                names = database.schemaManager.getCatalogNameArray();
+
+                if (readIfThis(Tokens.COMMA)) {
+                    readBigint();
+                }
+
+                Object[] args = new Object[2];
+
+                args[0] = Long.valueOf(longValue);
+                args[1] = Long.valueOf(0);
+
+                return new StatementCommand(type, args, null, names);
+            }
             case Tokens.CACHE : {
                 read();
 
@@ -1441,15 +1460,6 @@ public class ParserCommand extends ParserDDL {
 
                     mode = Boolean.TRUE;
                 }
-
-                break;
-            }
-            case Tokens.CHECK : {
-                read();
-
-                value = readIntegerObject();
-                type  = StatementTypes.SET_DATABASE_FILES_CHECK;
-                names = database.schemaManager.getCatalogNameArray();
 
                 break;
             }
