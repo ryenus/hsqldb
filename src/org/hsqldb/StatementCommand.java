@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2014, The HSQL Development Group
+/* Copyright (c) 2001-2015, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -134,7 +134,6 @@ public class StatementCommand extends Statement {
             case StatementTypes.SET_DATABASE_DEFAULT_TABLE_TYPE :
             case StatementTypes.SET_DATABASE_FILES_CACHE_ROWS :
             case StatementTypes.SET_DATABASE_FILES_CACHE_SIZE :
-            case StatementTypes.SET_DATABASE_FILES_CHECK :
             case StatementTypes.SET_DATABASE_FILES_SCALE :
             case StatementTypes.SET_DATABASE_FILES_SPACE :
             case StatementTypes.SET_DATABASE_FILES_DEFRAG :
@@ -163,6 +162,11 @@ public class StatementCommand extends Statement {
                 group = StatementTypes.X_HSQLDB_SETTING;
                 break;
 
+            case StatementTypes.SET_DATABASE_FILES_CHECK :
+                group    = StatementTypes.X_HSQLDB_SETTING;
+                isLogged = false;
+                break;
+
             case StatementTypes.SET_TABLE_CLUSTERED :
             case StatementTypes.SET_TABLE_NEW_TABLESPACE :
             case StatementTypes.SET_TABLE_SET_TABLESPACE :
@@ -170,9 +174,10 @@ public class StatementCommand extends Statement {
                 break;
 
             case StatementTypes.SET_TABLE_SOURCE_HEADER :
+                group    = StatementTypes.X_HSQLDB_SCHEMA_MANIPULATION;
                 isLogged = false;
+                break;
 
-            // fall through
             case StatementTypes.SET_TABLE_SOURCE :
                 group = StatementTypes.X_HSQLDB_SCHEMA_MANIPULATION;
                 break;
@@ -366,11 +371,15 @@ public class StatementCommand extends Statement {
             }
             case StatementTypes.SET_DATABASE_FILES_CHECK : {
                 try {
-                    int value = ((Integer) parameters[0]).intValue();
+                    long value1 = ((Long) parameters[0]).longValue();
+                    long value2 = ((Long) parameters[1]).longValue();
 
                     session.checkAdmin();
                     session.checkDDLWrite();
-                    session.database.logger.setFilesCheck(value);
+
+                    if (session.isProcessingScript()) {
+                        session.database.logger.setFilesCheck(value1);
+                    }
 
                     return Result.updateZeroResult;
                 } catch (HsqlException e) {
