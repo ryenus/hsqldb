@@ -7,7 +7,7 @@ PROCEDURAL LANGUAGE ASSIGNMENT COMMANDS
 * VARNAME ~                     Set variable value to the value of the very
                                 next SQL value or count fetched (see details
                                 at the bottom of this listing).
-* VARNAME _                     Same as * VARNAME _, except the query is
+* VARNAME _                     Same as * VARNAME ~, except the query is
                                 done silently (i.e, no rows to screen).
 * VARNAME :[appendage]          Set variable value to the previous edit
                                 buffer contents.
