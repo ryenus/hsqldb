@@ -33,6 +33,7 @@ Auto. variable ? is set to the very latest SQL datum fetched (or update count).
     other:  Return status of the command
             (for updates this will be the number of rows updated).
     null/unset:  If the last SQL command failed, ? will be unset (aka null).
+Auto. variable # is set to rowcount of the last completed query.
 Inside of * forrows blocks only, *ROW will be set just like ? except if
  multiple columns, they will all be concatenated into *ROW.
 
