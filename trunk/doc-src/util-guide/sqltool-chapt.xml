@@ -393,6 +393,8 @@
             </simpara>
             <itemizedlist>
                 <listitem><simpara>
+                    Automatic variable # added.
+                </simpara></listitem><listitem><simpara>
                     You can (and if you use nested scripts, you probably
                     <emphasis>should</emphasis>) prefix relative paths given
                     inside of SqlTool with <literal>@/</literal>.
@@ -3518,6 +3520,17 @@ sql>]]></screen></example>
                     <filename>sample</filename> directory of your HyperSQL
                     distribution.
                   </para>
+            </section>
+            <section>
+              <title>PL # Variable</title>
+              <simpara>
+                # is an automatic variable just like ?.
+                The value is set to the rowcount of the last successful query.
+                Besides validation purposes in automation scripts, it's useful
+                for interactive situations where result set counts are not
+                displayed, such as when queries are run indirectly from invoked
+                scripts with \i.
+              </simpara>
             </section>
         </section>
         <section xml:id='sqltool_macro-sect'>
