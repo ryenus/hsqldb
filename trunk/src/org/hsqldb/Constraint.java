@@ -170,8 +170,7 @@ public final class Constraint implements SchemaObject {
     public Constraint(HsqlName uniqueName, HsqlName mainName,
                       HsqlName refName, Table mainTable, Table refTable,
                       int[] mainCols, int[] refCols, Index mainIndex,
-                      Index refIndex, int deleteAction,
-                      int updateAction) throws HsqlException {
+                      Index refIndex, int deleteAction, int updateAction) {
 
         this.name         = refName;
         constType         = SchemaObject.ConstraintTypes.FOREIGN_KEY;
@@ -621,7 +620,7 @@ public final class Constraint implements SchemaObject {
 
             case SchemaObject.ConstraintTypes.FOREIGN_KEY :
                 return core.refCols.length != 1
-                          && ArrayUtil.find(core.refCols, colIndex) != -1;
+                       && ArrayUtil.find(core.refCols, colIndex) != -1;
 
             default :
                 throw Error.runtimeError(ErrorCode.U_S0500, "Constraint");

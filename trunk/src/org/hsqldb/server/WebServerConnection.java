@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2011, The HSQL Development Group
+/* Copyright (c) 2001-2015, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -120,7 +120,7 @@ class WebServerConnection implements Runnable {
             BYTES_POST    = "POST".getBytes("ISO-8859-1");
             BYTES_CONTENT = "Content-Length: ".getBytes("ISO-8859-1");
         } catch (UnsupportedEncodingException e) {
-            Error.runtimeError(ErrorCode.U_S0500, "RowOutputTextLog");
+            throw Error.runtimeError(ErrorCode.U_S0500, "RowOutputTextLog");
         }
     }
 

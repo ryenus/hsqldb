@@ -1089,7 +1089,7 @@ public class RangeVariableResolver {
                     break;
                 }
                 default : {
-                    Error.runtimeError(ErrorCode.U_S0500,
+                    throw Error.runtimeError(ErrorCode.U_S0500,
                                        "RangeVariableResolver");
                 }
             }

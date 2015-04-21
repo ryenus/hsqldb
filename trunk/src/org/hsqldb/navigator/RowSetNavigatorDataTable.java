@@ -31,8 +31,6 @@
 
 package org.hsqldb.navigator;
 
-import java.io.IOException;
-
 import org.hsqldb.HsqlException;
 import org.hsqldb.QueryExpression;
 import org.hsqldb.QuerySpecification;
@@ -41,7 +39,6 @@ import org.hsqldb.Session;
 import org.hsqldb.SortAndSlice;
 import org.hsqldb.Table;
 import org.hsqldb.TableBase;
-import org.hsqldb.index.Index;
 import org.hsqldb.lib.ArrayUtil;
 import org.hsqldb.persist.PersistentStore;
 import org.hsqldb.result.ResultMetaData;
@@ -285,11 +282,9 @@ public class RowSetNavigatorDataTable extends RowSetNavigatorData {
         return store.isMemory();
     }
 
-    public void read(RowInputInterface in,
-                     ResultMetaData meta) throws IOException {}
+    public void read(RowInputInterface in, ResultMetaData meta) {}
 
-    public void write(RowOutputInterface out,
-                      ResultMetaData meta) throws IOException {
+    public void write(RowOutputInterface out, ResultMetaData meta) {
 
         reset();
         out.writeLong(id);

@@ -1912,7 +1912,7 @@ public class RangeVariable {
                     break;
                 }
                 default :
-                    Error.runtimeError(ErrorCode.U_S0500, "RangeVariable");
+                    throw Error.runtimeError(ErrorCode.U_S0500, "RangeVariable");
             }
 
             indexedColumnCount = colCount;

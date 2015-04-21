@@ -105,7 +105,7 @@ public class ScriptWriterText extends ScriptWriterBase {
             BYTES_C_ID_TERM    = "*/".getBytes(ISO_8859_1);
             BYTES_SCHEMA       = "SET SCHEMA ".getBytes(ISO_8859_1);
         } catch (UnsupportedEncodingException e) {
-            Error.runtimeError(ErrorCode.U_S0500, "ScriptWriterText");
+            throw Error.runtimeError(ErrorCode.U_S0500, "ScriptWriterText");
         }
 
         if (BYTES_LINE_SEP[0] != 0x0A && BYTES_LINE_SEP[0] != 0x0D) {
