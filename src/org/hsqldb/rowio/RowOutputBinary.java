@@ -85,8 +85,9 @@ public class RowOutputBinary extends RowOutputBase {
 
         super(buffer);
 
-        scale     = 1;
-        this.mask = ~(scale - 1);
+        this.scale        = 1;
+        this.mask         = ~(scale - 1);
+        this.sizePosition = -1;
     }
 
 // fredt@users - comment - methods for writing column type, name and data size
@@ -114,7 +115,7 @@ public class RowOutputBinary extends RowOutputBase {
     public void writeEnd() {
 
         if (count > storageSize) {
-            Error.runtimeError(ErrorCode.U_S0500, "RowOutputBinary");
+            throw Error.runtimeError(ErrorCode.U_S0500, "RowOutputBinary");
         }
 
         for (; count < storageSize; ) {

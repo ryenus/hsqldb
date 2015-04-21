@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2011, The HSQL Development Group
+/* Copyright (c) 2001-2015, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -124,5 +124,5 @@ public interface Trigger {
      * @throws HsqlException
      */
     void fire(int type, String trigName, String tabName, Object[] oldRow,
-              Object[] newRow) throws HsqlException;
+              Object[] newRow);
 }

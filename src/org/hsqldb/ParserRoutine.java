@@ -780,8 +780,7 @@ public class ParserRoutine extends ParserDML {
         return routine;
     }
 
-    private void readTableDefinition(Routine routine,
-                                     Table table) throws HsqlException {
+    private void readTableDefinition(Routine routine, Table table) {
 
         readThis(Tokens.OPENBRACKET);
 
@@ -1161,8 +1160,8 @@ public class ParserRoutine extends ParserDML {
             table.persistenceScope = TableBase.SCOPE_ROUTINE;
 
             readTableDefinition(routine, table);
-
             session.sessionContext.addSessionTable(table);
+
             return table;
         } else {
             rewind(position);

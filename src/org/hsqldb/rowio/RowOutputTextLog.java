@@ -71,7 +71,7 @@ public class RowOutputTextLog extends RowOutputBase {
             BYTES_IS    = " IS ".getBytes("ISO-8859-1");
             BYTES_ARRAY = " ARRAY[".getBytes("ISO-8859-1");
         } catch (UnsupportedEncodingException e) {
-            Error.runtimeError(ErrorCode.U_S0500, "RowOutputTextLog");
+            throw Error.runtimeError(ErrorCode.U_S0500, "RowOutputTextLog");
         }
     }
 

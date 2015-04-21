@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2011, The HSQL Development Group
+/* Copyright (c) 2001-2015, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -47,7 +47,7 @@ import org.hsqldb.rowio.RowOutputInterface;
  * object retreival.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.2.7
+ * @version 2.3.3
  * @since 1.9.0
  */
 public abstract class RowSetNavigator implements RangeIterator {
@@ -308,21 +308,17 @@ public abstract class RowSetNavigator implements RangeIterator {
         return size > 0 && currentPos == size;
     }
 
-    public void writeSimple(RowOutputInterface out,
-                            ResultMetaData meta) throws IOException {
+    public void writeSimple(RowOutputInterface out, ResultMetaData meta) {
         throw Error.runtimeError(ErrorCode.U_S0500, "RowSetNavigator");
     }
 
-    public void readSimple(RowInputInterface in,
-                           ResultMetaData meta) throws IOException {
+    public void readSimple(RowInputInterface in, ResultMetaData meta) {
         throw Error.runtimeError(ErrorCode.U_S0500, "RowSetNavigator");
     }
 
-    public abstract void write(RowOutputInterface out,
-                               ResultMetaData meta) throws IOException;
+    public abstract void write(RowOutputInterface out, ResultMetaData meta);
 
-    public abstract void read(RowInputInterface in,
-                              ResultMetaData meta) throws IOException;
+    public abstract void read(RowInputInterface in, ResultMetaData meta);
 
     public boolean isMemory() {
         return true;
