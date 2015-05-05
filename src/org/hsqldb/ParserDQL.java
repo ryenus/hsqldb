@@ -6636,7 +6636,11 @@ public class ParserDQL extends ParserBase {
         private TableDerived getNamedSubQuery(String name) {
 
             if (baseContext != null) {
-                return baseContext.getNamedSubQuery(name);
+                TableDerived td = baseContext.getNamedSubQuery(name);
+
+                if (td != null) {
+                    return td;
+                }
             }
 
             if (namedSubqueries == null) {
