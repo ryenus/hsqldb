@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2014, The HSQL Development Group
+/* Copyright (c) 2001-2015, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -143,7 +143,7 @@ import org.hsqldb.types.Types;
  * (fredt@users) <p>
  * @author Campbell Boucher-Burnet (boucherb@users dot sourceforge.net)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.2
+ * @version 2.3.3
  * @since 1.7.2
  */
 class DatabaseInformationMain extends DatabaseInformation {
@@ -1911,7 +1911,7 @@ class DatabaseInformationMain extends DatabaseInformation {
             addColumn(t, "DESCRIPTION", SQL_IDENTIFIER);      // not null
 
             HsqlName name = HsqlNameManager.newInfoSchemaObjectName(
-                sysTableHsqlNames[SYSTEM_PRIMARYKEYS].name, false,
+                sysTableHsqlNames[SYSTEM_CONNECTION_PROPERTIES].name, false,
                 SchemaObject.INDEX);
 
             t.createPrimaryKeyConstraint(name, new int[]{ 0 }, true);
@@ -3362,7 +3362,8 @@ class DatabaseInformationMain extends DatabaseInformation {
 
             //
             HsqlName name = HsqlNameManager.newInfoSchemaObjectName(
-                sysTableHsqlNames[SEQUENCES].name, false, SchemaObject.INDEX);
+                sysTableHsqlNames[TABLE_PRIVILEGES].name, false,
+                SchemaObject.INDEX);
 
             t.createPrimaryKeyConstraint(name, new int[] {
                 0, 1, 2, 3, 4, 5, 6
