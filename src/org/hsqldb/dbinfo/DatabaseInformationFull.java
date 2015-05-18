@@ -5141,7 +5141,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
             addColumn(t, "IS_GRANTABLE", YES_OR_NO);     // not null
 
             HsqlName name = HsqlNameManager.newInfoSchemaObjectName(
-                sysTableHsqlNames[ROLE_TABLE_GRANTS].name, false,
+                sysTableHsqlNames[ROLE_UDT_GRANTS].name, false,
                 SchemaObject.INDEX);
 
             t.createPrimaryKeyConstraint(name, null, false);
