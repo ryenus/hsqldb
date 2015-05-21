@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2014, The HSQL Development Group
+/* Copyright (c) 2001-2015, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -52,7 +52,7 @@ import org.hsqldb.types.Types;
  * Implementation of SQL standard function calls
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.1.1
+ * @version 2.3.3
  * @since 1.9.0
  */
 public class FunctionSQL extends Expression {
@@ -743,12 +743,17 @@ public class FunctionSQL extends Expression {
                     return null;
                 }
 
-                // result type is the same as nodes[1]
-                Object value = ((NumberType) nodes[0].dataType).modulo(session,
-                    data[0], data[1], nodes[1].dataType);
+                data[0] = nodeDataTypes[0].convertToType(session, data[0],
+                        nodes[0].dataType);
+                data[1] = nodeDataTypes[1].convertToType(session, data[1],
+                        nodes[1].dataType);
 
-                return dataType.convertToType(session, value,
-                                              nodes[0].dataType);
+                // result type is the same as nodes[1]
+                Object value =
+                    ((NumberType) nodeDataTypes[0])
+                        .modulo(session, data[0], data[1], nodeDataTypes[1]);
+
+                return value;
             }
             case FUNC_LN : {
                 if (data[0] == null) {
@@ -825,23 +830,26 @@ public class FunctionSQL extends Expression {
                     if (data[i] == null) {
                         return null;
                     }
+
+                    data[i] = nodeDataTypes[i].convertToType(session, data[i],
+                            nodes[i].dataType);
                 }
 
-                if (((NumberType) nodes[3].dataType).isNegative(data[3])) {
+                if (((NumberType) nodeDataTypes[3]).isNegative(data[3])) {
                     throw Error.error(ErrorCode.X_2201G);
                 }
 
-                int compare = nodes[1].dataType.compare(session, data[1],
-                    data[2]);
+                int compare = nodeDataTypes[1].compare(session, data[1],
+                                                       data[2]);
                 Type   subType;
                 Object temp;
                 Object temp2;
 
-                if (nodes[0].dataType.isNumberType()) {
-                    subType = nodes[0].dataType;
+                if (nodeDataTypes[0].isNumberType()) {
+                    subType = nodeDataTypes[0];
                 } else {
-                    subType = nodes[0].dataType.getCombinedType(session,
-                            nodes[0].dataType, OpTypes.SUBTRACT);
+                    subType = nodeDataTypes[0].getCombinedType(session,
+                            nodeDataTypes[0], OpTypes.SUBTRACT);
                 }
 
                 switch (compare) {
@@ -849,42 +857,42 @@ public class FunctionSQL extends Expression {
                     case 0 :
                         throw Error.error(ErrorCode.X_2201G);
                     case -1 : {
-                        if (nodes[0].dataType.compare(
-                                session, data[0], data[1]) < 0) {
+                        if (nodeDataTypes[0].compare(session, data[0], data[1])
+                                < 0) {
                             return ValuePool.INTEGER_0;
                         }
 
-                        if (nodes[0].dataType.compare(
-                                session, data[0], data[2]) >= 0) {
+                        if (nodeDataTypes[0].compare(session, data[0], data[2])
+                                >= 0) {
                             return dataType.add(session, data[3],
                                                 ValuePool.INTEGER_1,
                                                 Type.SQL_INTEGER);
                         }
 
                         temp = subType.subtract(session, data[0], data[1],
-                                                nodes[0].dataType);
+                                                nodeDataTypes[1]);
                         temp2 = subType.subtract(session, data[2], data[1],
-                                                 nodes[0].dataType);
+                                                 nodeDataTypes[1]);
 
                         break;
                     }
                     case 1 : {
-                        if (nodes[0].dataType.compare(
-                                session, data[0], data[1]) > 0) {
+                        if (nodeDataTypes[0].compare(session, data[0], data[1])
+                                > 0) {
                             return ValuePool.INTEGER_0;
                         }
 
-                        if (nodes[0].dataType.compare(
-                                session, data[0], data[2]) <= 0) {
+                        if (nodeDataTypes[0].compare(session, data[0], data[2])
+                                <= 0) {
                             return dataType.add(session, data[3],
                                                 ValuePool.INTEGER_1,
                                                 Type.SQL_INTEGER);
                         }
 
                         temp = subType.subtract(session, data[1], data[0],
-                                                nodes[0].dataType);
+                                                nodeDataTypes[0]);
                         temp2 = subType.subtract(session, data[1], data[2],
-                                                 nodes[0].dataType);
+                                                 nodeDataTypes[2]);
 
                         break;
                     }
@@ -1385,17 +1393,20 @@ public class FunctionSQL extends Expression {
                     throw Error.error(ErrorCode.X_42563);
                 }
 
+                nodeDataTypes = new Type[2];
+
                 if (session.database.sqlSyntaxOra) {
-                    nodes[0].dataType =
+                    nodeDataTypes[0] =
                         nodes[0].dataType.getAggregateType(nodes[1].dataType);
+                    nodeDataTypes[1] = nodes[1].dataType;
                 } else {
-                    nodes[0].dataType =
+                    nodeDataTypes[0] =
                         ((NumberType) nodes[0].dataType).getIntegralType();
-                    nodes[1].dataType =
+                    nodeDataTypes[1] =
                         ((NumberType) nodes[1].dataType).getIntegralType();
                 }
 
-                dataType = nodes[1].dataType;
+                dataType = nodeDataTypes[1];
 
                 break;
             }
@@ -1417,9 +1428,7 @@ public class FunctionSQL extends Expression {
                     throw Error.error(ErrorCode.X_42563);
                 }
 
-                nodes[0].dataType = Type.SQL_DOUBLE;
-                nodes[1].dataType = Type.SQL_DOUBLE;
-                dataType          = Type.SQL_DOUBLE;
+                dataType = Type.SQL_DOUBLE;
 
                 break;
             }
@@ -1434,8 +1443,7 @@ public class FunctionSQL extends Expression {
                     throw Error.error(ErrorCode.X_42563);
                 }
 
-                nodes[0].dataType = Type.SQL_DOUBLE;
-                dataType          = Type.SQL_DOUBLE;
+                dataType = Type.SQL_DOUBLE;
 
                 break;
             }
@@ -1472,22 +1480,31 @@ public class FunctionSQL extends Expression {
                 break;
             }
             case FUNC_WIDTH_BUCKET : {
-                nodes[0].dataType = Type.getAggregateType(nodes[0].dataType,
+                nodeDataTypes = new Type[4];
+                nodeDataTypes[0] = Type.getAggregateType(nodes[0].dataType,
                         nodes[1].dataType);
-                nodes[0].dataType = Type.getAggregateType(nodes[0].dataType,
+                nodeDataTypes[0] = Type.getAggregateType(nodeDataTypes[0],
                         nodes[2].dataType);
 
-                if (nodes[0].dataType == null) {
+                if (nodeDataTypes[0] == null) {
                     throw Error.error(ErrorCode.X_42567);
                 }
 
-                if (!nodes[0].dataType.isNumberType()
-                        && !nodes[0].dataType.isDateTimeType()) {
+                if (!nodeDataTypes[0].isNumberType()
+                        && !nodeDataTypes[0].isDateTimeType()) {
                     throw Error.error(ErrorCode.X_42563);
                 }
 
-                nodes[1].dataType = nodes[0].dataType;
-                nodes[2].dataType = nodes[0].dataType;
+                nodeDataTypes[1] = nodeDataTypes[0];
+                nodeDataTypes[2] = nodeDataTypes[0];
+
+                if (nodes[1].dataType == null) {
+                    nodes[1].dataType = nodeDataTypes[1];
+                }
+
+                if (nodes[2].dataType == null) {
+                    nodes[2].dataType = nodeDataTypes[2];
+                }
 
                 if (nodes[3].dataType == null) {
                     nodes[3].dataType = Type.SQL_INTEGER;
@@ -1497,7 +1514,8 @@ public class FunctionSQL extends Expression {
                     throw Error.error(ErrorCode.X_42563);
                 }
 
-                dataType = nodes[3].dataType;
+                nodeDataTypes[3] = nodes[3].dataType;
+                dataType         = nodes[3].dataType;
 
                 break;
             }
@@ -1526,9 +1544,6 @@ public class FunctionSQL extends Expression {
                     if (!nodes[2].dataType.isNumberType()) {
                         throw Error.error(ErrorCode.X_42563);
                     }
-
-                    nodes[2].dataType =
-                        ((NumberType) nodes[2].dataType).getIntegralType();
                 }
 
                 dataType = nodes[0].dataType;
@@ -1699,9 +1714,6 @@ public class FunctionSQL extends Expression {
                     throw Error.error(ErrorCode.X_42563);
                 }
 
-                nodes[2].dataType =
-                    ((NumberType) nodes[2].dataType).getIntegralType();
-
                 if (nodes[3] != null) {
                     if (nodes[3].dataType == null) {
                         nodes[3].dataType = Type.SQL_NUMERIC;
@@ -1710,9 +1722,6 @@ public class FunctionSQL extends Expression {
                     if (!nodes[3].dataType.isNumberType()) {
                         throw Error.error(ErrorCode.X_42563);
                     }
-
-                    nodes[3].dataType =
-                        ((NumberType) nodes[3].dataType).getIntegralType();
                 }
 
                 break;
