@@ -502,9 +502,8 @@ public class ParserDML extends ParserDQL {
         if (condition != null) {
             rangeVariables[0].addJoinCondition(condition);
 
-            RangeVariableResolver resolver =
-                new RangeVariableResolver(session, rangeVariables,
-                                          null, compileContext, false);
+            RangeVariableResolver resolver = new RangeVariableResolver(session,
+                rangeVariables, null, compileContext, false);
 
             resolver.processConditions();
 
@@ -623,9 +622,8 @@ public class ParserDML extends ParserDQL {
         if (condition != null) {
             rangeVariables[0].addJoinCondition(condition);
 
-            RangeVariableResolver resolver =
-                new RangeVariableResolver(session, rangeVariables,
-                                          null, compileContext, false);
+            RangeVariableResolver resolver = new RangeVariableResolver(session,
+                rangeVariables, null, compileContext, false);
 
             resolver.processConditions();
 
@@ -791,6 +789,11 @@ public class ParserDML extends ParserDQL {
                 rewind(position);
 
                 TableDerived td = XreadSubqueryTableBody(OpTypes.ROW_SUBQUERY);
+
+                QueryExpression qe =
+                    (QueryExpression) td.getQueryExpression();
+
+                qe.setReturningResult();
 
                 if (degree != td.queryExpression.getColumnCount()) {
                     throw Error.error(ErrorCode.X_42546);
@@ -1014,9 +1017,8 @@ public class ParserDML extends ParserDQL {
 
         fullRangeVars[1].addJoinCondition(mergeCondition);
 
-        RangeVariableResolver resolver =
-            new RangeVariableResolver(session, fullRangeVars, null,
-                                      compileContext, false);
+        RangeVariableResolver resolver = new RangeVariableResolver(session,
+            fullRangeVars, null, compileContext, false);
 
         resolver.processConditions();
 
@@ -1138,98 +1140,15 @@ public class ParserDML extends ParserDQL {
         read();
 
         if (isIdentifier()) {
-            checkValidCatalogName(token.namePrePrefix);
-
             RoutineSchema routineSchema =
                 (RoutineSchema) database.schemaManager.findSchemaObject(
-                    token.tokenString,
-                    session.getSchemaName(token.namePrefix),
-                    SchemaObject.PROCEDURE);
+                    session, token.tokenString, token.namePrefix,
+                    token.namePrePrefix, SchemaObject.PROCEDURE);
 
             if (routineSchema != null) {
                 read();
 
-                HsqlArrayList list    = new HsqlArrayList();
-                boolean       bracket = true;
-
-                if (database.sqlSyntaxOra) {
-                    bracket = readIfThis(Tokens.OPENBRACKET);
-                } else {
-                    readThis(Tokens.OPENBRACKET);
-                }
-
-                if (bracket) {
-                    if (token.tokenType == Tokens.CLOSEBRACKET) {
-                        read();
-                    } else {
-                        while (true) {
-                            Expression e = XreadValueExpression();
-
-                            list.add(e);
-
-                            if (token.tokenType == Tokens.COMMA) {
-                                read();
-                            } else {
-                                readThis(Tokens.CLOSEBRACKET);
-
-                                break;
-                            }
-                        }
-                    }
-                }
-
-                Expression[] arguments = new Expression[list.size()];
-
-                list.toArray(arguments);
-
-                Routine routine =
-                    routineSchema.getSpecificRoutine(arguments.length);
-
-                compileContext.addProcedureCall(routine);
-
-                HsqlList unresolved = null;
-
-                for (int i = 0; i < arguments.length; i++) {
-                    Expression e = arguments[i];
-
-                    if (e.isUnresolvedParam()) {
-                        e.setAttributesAsColumn(
-                            routine.getParameter(i),
-                            routine.getParameter(i).isWriteable());
-                    } else {
-                        int paramMode =
-                            routine.getParameter(i).getParameterMode();
-
-                        unresolved =
-                            arguments[i].resolveColumnReferences(session,
-                                RangeGroup.emptyGroup, rangeGroups,
-                                unresolved);
-
-                        if (paramMode
-                                != SchemaObject.ParameterModes.PARAM_IN) {
-                            if (e.getType() != OpTypes.VARIABLE) {
-                                throw Error.error(ErrorCode.X_42603);
-                            }
-                        }
-                    }
-                }
-
-                ExpressionColumn.checkColumnsResolved(unresolved);
-
-                for (int i = 0; i < arguments.length; i++) {
-                    arguments[i].resolveTypes(session, null);
-
-                    if (!routine.getParameter(
-                            i).getDataType().canBeAssignedFrom(
-                            arguments[i].getDataType())) {
-                        throw Error.error(ErrorCode.X_42561);
-                    }
-                }
-
-                StatementDMQL cs = new StatementProcedure(session, routine,
-                    arguments, compileContext);
-
-                return cs;
+                return compileProcedureCall(rangeGroups, routineSchema);
             }
         }
 
@@ -1245,6 +1164,85 @@ public class ParserDML extends ParserDQL {
         expression.resolveTypes(session, null);
 
         StatementDMQL cs = new StatementProcedure(session, expression,
+            compileContext);
+
+        return cs;
+    }
+
+    StatementDMQL compileProcedureCall(RangeGroup[] rangeGroups,
+                                       RoutineSchema routineSchema) {
+
+        HsqlArrayList list    = new HsqlArrayList();
+        boolean       bracket = true;
+
+        if (database.sqlSyntaxOra) {
+            bracket = readIfThis(Tokens.OPENBRACKET);
+        } else {
+            readThis(Tokens.OPENBRACKET);
+        }
+
+        if (bracket) {
+            if (token.tokenType == Tokens.CLOSEBRACKET) {
+                read();
+            } else {
+                while (true) {
+                    Expression e = XreadValueExpression();
+
+                    list.add(e);
+
+                    if (token.tokenType == Tokens.COMMA) {
+                        read();
+                    } else {
+                        readThis(Tokens.CLOSEBRACKET);
+
+                        break;
+                    }
+                }
+            }
+        }
+
+        Expression[] arguments = new Expression[list.size()];
+
+        list.toArray(arguments);
+
+        Routine routine = routineSchema.getSpecificRoutine(arguments.length);
+
+        compileContext.addProcedureCall(routine);
+
+        HsqlList unresolved = null;
+
+        for (int i = 0; i < arguments.length; i++) {
+            Expression e = arguments[i];
+
+            if (e.isUnresolvedParam()) {
+                e.setAttributesAsColumn(routine.getParameter(i),
+                                        routine.getParameter(i).isWriteable());
+            } else {
+                int paramMode = routine.getParameter(i).getParameterMode();
+
+                unresolved = arguments[i].resolveColumnReferences(session,
+                        RangeGroup.emptyGroup, rangeGroups, unresolved);
+
+                if (paramMode != SchemaObject.ParameterModes.PARAM_IN) {
+                    if (e.getType() != OpTypes.VARIABLE) {
+                        throw Error.error(ErrorCode.X_42603);
+                    }
+                }
+            }
+        }
+
+        ExpressionColumn.checkColumnsResolved(unresolved);
+
+        for (int i = 0; i < arguments.length; i++) {
+            arguments[i].resolveTypes(session, null);
+
+            if (!routine.getParameter(i).getDataType().canBeAssignedFrom(
+                    arguments[i].getDataType())) {
+                throw Error.error(ErrorCode.X_42561);
+            }
+        }
+
+        StatementDMQL cs = new StatementProcedure(session, routine, arguments,
             compileContext);
 
         return cs;

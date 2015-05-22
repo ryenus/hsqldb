@@ -230,7 +230,7 @@ public class TableWorks {
         database.schemaManager.addSchemaObject(c);
         setNewTableInSchema(tn);
 
-        Table mainTable = database.schemaManager.getTable(session,
+        Table mainTable = database.schemaManager.getUserTable(session,
             c.core.mainTable.getName().name,
             c.core.mainTable.getSchemaName().name);
 

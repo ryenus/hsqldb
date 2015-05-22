@@ -912,7 +912,7 @@ public class StatementCommand extends Statement {
                 try {
                     HsqlName name = (HsqlName) parameters[0];
                     Table table =
-                        session.database.schemaManager.getTable(session,
+                        session.database.schemaManager.getUserTable(session,
                             name.name, name.schema.name);
 
                     session.checkAdmin();
@@ -965,7 +965,7 @@ public class StatementCommand extends Statement {
                     HsqlName name    = (HsqlName) parameters[0];
                     int      spaceid = ((Integer) parameters[1]).intValue();
                     Table table =
-                        session.database.schemaManager.getTable(session,
+                        session.database.schemaManager.getUserTable(session,
                             name.name, name.schema.name);
 
                     if (!session.isProcessingScript()) {
@@ -1009,7 +1009,7 @@ public class StatementCommand extends Statement {
                     HsqlName name     = (HsqlName) parameters[0];
                     int[]    colIndex = (int[]) parameters[1];
                     Table table =
-                        session.database.schemaManager.getTable(session,
+                        session.database.schemaManager.getUserTable(session,
                             name.name, name.schema.name);
 
                     StatementSchema.checkSchemaUpdateAuthorisation(session,
@@ -1041,7 +1041,7 @@ public class StatementCommand extends Statement {
                     HsqlName name  = (HsqlName) parameters[0];
                     String   value = (String) parameters[1];
                     Table table =
-                        session.database.schemaManager.getTable(session,
+                        session.database.schemaManager.getUserTable(session,
                             name.name, name.schema.name);
 
                     if (session.isProcessingScript()) {
@@ -1057,7 +1057,7 @@ public class StatementCommand extends Statement {
                 try {
                     HsqlName name = (HsqlName) parameters[0];
                     Table table =
-                        session.database.schemaManager.getTable(session,
+                        session.database.schemaManager.getUserTable(session,
                             name.name, name.schema.name);
                     boolean mode = ((Boolean) parameters[1]).booleanValue();
 
@@ -1076,7 +1076,7 @@ public class StatementCommand extends Statement {
                 try {
                     HsqlName name = (HsqlName) parameters[0];
                     Table table =
-                        session.database.schemaManager.getTable(session,
+                        session.database.schemaManager.getUserTable(session,
                             name.name, name.schema.name);
 
                     StatementSchema.checkSchemaUpdateAuthorisation(session,
@@ -1145,14 +1145,20 @@ public class StatementCommand extends Statement {
                         session.database.schemaManager.getUserTable(session,
                             name.name, name.schema.name);
 
-                    if (name.schema != SqlInvariants.LOBS_SCHEMA_HSQLNAME) {
-                        StatementSchema.checkSchemaUpdateAuthorisation(session,
-                                table.getSchemaName());
+                    if (table.getTableType() == type) {
+                        return Result.updateZeroResult;
                     }
 
-                    TableWorks tw = new TableWorks(session, table);
+                    StatementSchema.checkSchemaUpdateAuthorisation(session,
+                            table.getSchemaName());
 
-                    tw.setTableType(session, type);
+                    TableWorks tw     = new TableWorks(session, table);
+                    boolean    result = tw.setTableType(session, type);
+
+                    if (!result) {
+                        throw Error.error(ErrorCode.GENERAL_IO_ERROR);
+                    }
+
                     session.database.schemaManager.setSchemaChangeTimestamp();
 
                     if (name.schema == SqlInvariants.LOBS_SCHEMA_HSQLNAME) {

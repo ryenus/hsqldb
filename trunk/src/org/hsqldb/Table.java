@@ -591,13 +591,17 @@ public class Table extends TableBase implements SchemaObject {
 
     public String[] getTriggerSQL() {
 
-        String[] array = new String[triggerList.length];
+        HsqlArrayList list = new HsqlArrayList();
 
         for (int i = 0; i < triggerList.length; i++) {
             if (!triggerList[i].isSystem()) {
-                array[i] = triggerList[i].getSQL();
+                list.add(triggerList[i].getSQL());
             }
         }
+
+        String[] array = new String[list.size()];
+
+        list.toArray(array);
 
         return array;
     }

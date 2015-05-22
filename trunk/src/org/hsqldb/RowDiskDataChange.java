@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2011, The HSQL Development Group
+/* Copyright (c) 2001-2015, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -89,9 +89,9 @@ public class RowDiskDataChange extends RowAVLDisk {
 
         super(t, in);
 
-        targetTable = t.database.schemaManager.getTable(session,
+        targetTable = t.database.schemaManager.findTable(session,
                 (String) rowData[COL_POS_TABLE_NAME],
-                (String) rowData[COL_POS_SCHEMA_NAME]);
+                (String) rowData[COL_POS_SCHEMA_NAME], null);
 
         if ((Boolean) rowData[COL_POS_IS_UPDATE]) {
             updateData = in.readData(targetTable.colTypes);
