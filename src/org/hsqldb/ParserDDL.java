@@ -225,6 +225,8 @@ public class ParserDDL extends ParserRoutine {
                 return compileCreateIndex(false);
 
             case Tokens.AGGREGATE :
+                return compileCreateProcedureOrFunction(isOrReplace);
+
             case Tokens.FUNCTION :
             case Tokens.PROCEDURE :
                 return compileCreateProcedureOrFunction(isOrReplace);

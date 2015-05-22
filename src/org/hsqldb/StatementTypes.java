@@ -150,6 +150,7 @@ public interface StatementTypes {
     int SIGNAL                           = 92;
     int CREATE_MODULE                    = 51;
     int WHILE                            = 97;
+    int NULL                             = 151;
 
     //
     int ALTER_FOREIGN_TABLE         = 104;

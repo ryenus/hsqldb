@@ -132,14 +132,10 @@ final class RAFileNIO implements RandomAccessInterface {
             logger.logWarningEvent(JVM_ERROR, e);
 
             throw e;
-        } catch (Throwable e) {
-            logger.logWarningEvent(JVM_ERROR, e);
+        } catch (Throwable t) {
+            logger.logWarningEvent(JVM_ERROR, t);
 
-            IOException io = new IOException(e.toString());
-
-            try {
-                io.initCause(e);
-            } catch (Throwable e1) {}
+            IOException io = JavaSystem.toIOException(t);
 
             throw io;
         }
@@ -169,14 +165,10 @@ final class RAFileNIO implements RandomAccessInterface {
 
         try {
             return currentPosition;
-        } catch (Throwable e) {
-            logger.logWarningEvent(JVM_ERROR, e);
+        } catch (Throwable t) {
+            logger.logWarningEvent(JVM_ERROR, t);
 
-            IOException io = new IOException(e.toString());
-
-            try {
-                io.initCause(e);
-            } catch (Throwable e1) {}
+            IOException io = JavaSystem.toIOException(t);
 
             throw io;
         }
@@ -190,14 +182,10 @@ final class RAFileNIO implements RandomAccessInterface {
             positionBufferMove(1);
 
             return value;
-        } catch (Throwable e) {
-            logger.logWarningEvent(JVM_ERROR, e);
+        } catch (Throwable t) {
+            logger.logWarningEvent(JVM_ERROR, t);
 
-            IOException io = new IOException(e.toString());
-
-            try {
-                io.initCause(e);
-            } catch (Throwable e1) {}
+            IOException io = JavaSystem.toIOException(t);
 
             throw io;
         }

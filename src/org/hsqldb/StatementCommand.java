@@ -378,7 +378,7 @@ public class StatementCommand extends Statement {
                     session.checkDDLWrite();
 
                     if (session.isProcessingScript()) {
-                        session.database.logger.setFilesCheck(value1);
+                        session.database.logger.setFilesTimestamp(value1);
                     }
 
                     return Result.updateZeroResult;
