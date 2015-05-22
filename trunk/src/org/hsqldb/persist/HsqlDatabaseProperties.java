@@ -639,7 +639,7 @@ public class HsqlDatabaseProperties extends HsqlProperties {
             props.setProperty(hsqldb_version, THIS_VERSION);
             props.setProperty(
                 tx_timestamp,
-                Long.toString(database.txManager.getGlobalChangeTimestamp()));
+                Long.toString(database.logger.getFilesTimestamp()));
 
             if (database.logger.isStoredFileAccess()) {
                 if (!database.logger.isNewStoredFileAccess()) {
