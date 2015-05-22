@@ -780,15 +780,16 @@ implements TransactionManager {
             session.actionTimestamp      = getNextGlobalChangeTimestamp();
             session.actionStartTimestamp = session.actionTimestamp;
 
-            if (!session.isTransaction) {
-                session.transactionTimestamp = session.actionTimestamp;
-                session.isTransaction        = true;
-
-                liveTransactionTimestamps.addLast(
-                    session.transactionTimestamp);
-
-                transactionCount++;
+            if (session.isTransaction) {
+                return;
             }
+
+            session.transactionTimestamp = session.actionTimestamp;
+            session.isTransaction        = true;
+
+            liveTransactionTimestamps.addLast(session.transactionTimestamp);
+
+            transactionCount++;
 
             session.isPreTransaction = false;
         } finally {

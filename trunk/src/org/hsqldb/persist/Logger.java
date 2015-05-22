@@ -132,7 +132,7 @@ public class Logger implements EventLogInterface {
     int             propScriptFormat = 0;
     boolean         propLargeData;
     int             propFileSpaceValue;
-    long            propCheckPersistence;
+    long            propFileTimestamp;
 
     //
     Log               log;
@@ -1260,12 +1260,12 @@ public class Logger implements EventLogInterface {
         return propFileSpaceValue;
     }
 
-    public long getFilesCheck() {
-        return propCheckPersistence;
+    public long getFilesTimestamp() {
+        return propFileTimestamp;
     }
 
-    public void setFilesCheck(long value) {
-        propCheckPersistence = value;
+    public void setFilesTimestamp(long value) {
+        propFileTimestamp = value;
     }
 
     public void setLobFileScale(int value) {
@@ -2167,9 +2167,9 @@ public class Logger implements EventLogInterface {
         list.add(sb.toString());
         sb.setLength(0);
 
-        if (propCheckPersistence != 0) {
+        if (propFileTimestamp != 0) {
             sb.append("SET FILES ").append(Tokens.T_CHECK).append(' ');
-            sb.append(propCheckPersistence);
+            sb.append(propFileTimestamp);
             list.add(sb.toString());
             sb.setLength(0);
         }

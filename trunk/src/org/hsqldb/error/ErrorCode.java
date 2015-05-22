@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2014, The HSQL Development Group
+/* Copyright (c) 2001-2015, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -616,6 +616,7 @@ public interface ErrorCode {
     int X_42609 = 5609;                            // routine signature not found for
     int X_42610 = 5610;                            // wrong arguments for AGGREGATE function
     int X_42611 = 5611;                            // type incompatible with declared return type
+    int X_42612 = 5612;                            // SQL exception already used
 
     // with check option violation - 200x
     int X_44000 = 5700;                            // with check option violation
