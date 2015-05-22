@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2011, The HSQL Development Group
+/* Copyright (c) 2001-2015, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -45,7 +45,7 @@ import org.hsqldb.map.ValuePool;
  * Collection of SQL schema objects of a specific type in a schema
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.0.1
+ * @version 2.3.3
  * @since 1.9.0
  */
 public class SchemaObjectSet {
@@ -129,7 +129,6 @@ public class SchemaObjectSet {
             case SchemaObject.FUNCTION :
             case SchemaObject.ASSERTION :
             case SchemaObject.TRIGGER :
-            case SchemaObject.COLUMN :
                 return (SchemaObject) map.get(name);
 
             default :
@@ -163,7 +162,7 @@ public class SchemaObjectSet {
         }
     }
 
-    public void add(SchemaObject object) {
+    public void add(SchemaObject object, boolean replace) {
 
         HsqlName name = object.getName();
 
@@ -171,7 +170,7 @@ public class SchemaObjectSet {
             name = ((Routine) object).getSpecificName();
         }
 
-        if (map.containsKey(name.name)) {
+        if (!replace && map.containsKey(name.name)) {
             int code = getAddErrorCode(name.type);
 
             throw Error.error(code, name.name);
@@ -180,6 +179,10 @@ public class SchemaObjectSet {
         Object value = object;
 
         switch (name.type) {
+
+            case SchemaObject.COLUMN :
+                value = name;
+                break;
 
             case SchemaObject.CONSTRAINT :
             case SchemaObject.INDEX :
@@ -235,7 +238,8 @@ public class SchemaObjectSet {
             case SchemaObject.DOMAIN :
             case SchemaObject.TYPE :
             case SchemaObject.ASSERTION :
-            case SchemaObject.TRIGGER : {
+            case SchemaObject.TRIGGER :
+            case SchemaObject.ROUTINE : {
                 int i = ((HashMappedList) map).getIndex(name.name);
 
                 if (i == -1) {
@@ -272,7 +276,6 @@ public class SchemaObjectSet {
 
             case SchemaObject.VIEW :
             case SchemaObject.TABLE :
-            case SchemaObject.COLUMN :
             case SchemaObject.SEQUENCE :
             case SchemaObject.CHARSET :
             case SchemaObject.DOMAIN :
@@ -281,10 +284,11 @@ public class SchemaObjectSet {
             case SchemaObject.PROCEDURE :
             case SchemaObject.FUNCTION :
             case SchemaObject.SPECIFIC_ROUTINE :
-            case SchemaObject.CONSTRAINT :
             case SchemaObject.ASSERTION :
-            case SchemaObject.INDEX :
             case SchemaObject.TRIGGER :
+            case SchemaObject.COLUMN :
+            case SchemaObject.CONSTRAINT :
+            case SchemaObject.INDEX :
                 code = ErrorCode.X_42504;
                 break;
 
@@ -303,19 +307,19 @@ public class SchemaObjectSet {
 
             case SchemaObject.VIEW :
             case SchemaObject.TABLE :
-            case SchemaObject.COLUMN :
             case SchemaObject.SEQUENCE :
             case SchemaObject.CHARSET :
             case SchemaObject.DOMAIN :
             case SchemaObject.TYPE :
-            case SchemaObject.CONSTRAINT :
             case SchemaObject.COLLATION :
             case SchemaObject.PROCEDURE :
             case SchemaObject.FUNCTION :
             case SchemaObject.SPECIFIC_ROUTINE :
             case SchemaObject.ASSERTION :
-            case SchemaObject.INDEX :
             case SchemaObject.TRIGGER :
+            case SchemaObject.COLUMN :
+            case SchemaObject.CONSTRAINT :
+            case SchemaObject.INDEX :
                 code = ErrorCode.X_42501;
                 break;
 

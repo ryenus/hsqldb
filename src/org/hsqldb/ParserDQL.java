@@ -124,6 +124,7 @@ public class ParserDQL extends ParserBase {
         boolean isCharacter    = false;
         boolean isIgnoreCase   = false;
         boolean readByteOrChar = false;
+        boolean enforceSize    = database.sqlEnforceSize;
 
         checkIsIdentifier();
 
@@ -143,10 +144,9 @@ public class ParserDQL extends ParserBase {
             if (includeUserTypes) {
                 checkIsSchemaObjectName();
 
-                String schemaName = session.getSchemaName(token.namePrefix);
-                Type type =
-                    database.schemaManager.getDomainOrUDT(token.tokenString,
-                        schemaName, false);
+                Type type = database.schemaManager.findDomainOrUDT(session,
+                    token.tokenString, token.namePrefix, token.namePrePrefix,
+                    token.namePrePrePrefix);
 
                 if (type != null) {
                     getRecordedToken().setExpression(type);
@@ -212,6 +212,7 @@ public class ParserDQL extends ParserBase {
 
                     case Tokens.VARCHAR2 :
                         readByteOrChar = true;
+                        enforceSize    = false;
                         typeNumber     = Types.SQL_VARCHAR;
                         break;
 
@@ -334,8 +335,8 @@ public class ParserDQL extends ParserBase {
         int scale = 0;
 
         if (Types.requiresPrecision(typeNumber)
-                && token.tokenType != Tokens.OPENBRACKET
-                && database.sqlEnforceSize && !session.isProcessingScript()) {
+                && token.tokenType != Tokens.OPENBRACKET && enforceSize
+                && !session.isProcessingScript()) {
             throw Error.error(ErrorCode.X_42599,
                               Type.getDefaultType(typeNumber).getNameString());
         }
@@ -5188,17 +5189,9 @@ public class ParserDQL extends ParserBase {
             return column;
         }
 
-        if (prePrePrefix != null) {
-            throw Error.error(ErrorCode.X_42551, prePrePrefix);
-        }
-
-        checkValidCatalogName(prePrefix);
-
-        prefix = session.getSchemaName(prefix);
-
         RoutineSchema routineSchema =
-            (RoutineSchema) database.schemaManager.findSchemaObject(name,
-                prefix, SchemaObject.FUNCTION);
+            (RoutineSchema) database.schemaManager.findSchemaObject(session,
+                name, prefix, prePrefix, SchemaObject.FUNCTION);
 
         if (routineSchema == null && isSimpleQuoted) {
             HsqlName schema =
@@ -6072,12 +6065,12 @@ public class ParserDQL extends ParserBase {
 
         checkIsIdentifier();
 
-        if (token.namePrePrefix != null) {
-            checkValidCatalogName(token.namePrePrefix);
-        }
+        Table table = database.schemaManager.findTable(session,
+            token.tokenString, token.namePrefix, token.namePrePrefix);
 
-        Table table = database.schemaManager.getTable(session,
-            token.tokenString, token.namePrefix);
+        if (table == null) {
+            throw Error.error(ErrorCode.X_42501, token.tokenString);
+        }
 
         getRecordedToken().setExpression(table);
         read();

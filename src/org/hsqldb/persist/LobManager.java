@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2014, The HSQL Development Group
+/* Copyright (c) 2001-2015, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -74,7 +74,7 @@ import org.hsqldb.types.Types;
 
 /**
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.0
+ * @version 2.3.3
  * @since 1.9.0
  */
 public class LobManager {
@@ -286,8 +286,8 @@ public class LobManager {
 
         HsqlName name =
             database.schemaManager.getSchemaHsqlName("SYSTEM_LOBS");
-        Table table = database.schemaManager.getTable(sysLobSession, "BLOCKS",
-            "SYSTEM_LOBS");
+        Table table = database.schemaManager.getUserTable(sysLobSession,
+            "BLOCKS", "SYSTEM_LOBS");
 
         compileStatements();
     }

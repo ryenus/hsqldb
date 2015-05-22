@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2011, The HSQL Development Group
+/* Copyright (c) 2001-2015, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -46,7 +46,7 @@ import org.hsqldb.rights.Grantee;
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
  *
- * @version 2.0.1
+ * @version 2.3.3
  * @since 1.9.0
 */
 public final class Schema implements SchemaObject {
@@ -354,6 +354,142 @@ public final class Schema implements SchemaObject {
             default :
                 throw Error.runtimeError(ErrorCode.U_S0500, "Schema");
         }
+    }
+
+    SchemaObject findSchemaObject(String name, int type) {
+
+        SchemaObjectSet set = null;
+        HsqlName        objectName;
+        Table           table;
+
+        switch (type) {
+
+            case SchemaObject.SEQUENCE :
+                return sequenceLookup.getObject(name);
+
+            case SchemaObject.TABLE :
+            case SchemaObject.VIEW :
+                return tableLookup.getObject(name);
+
+            case SchemaObject.CHARSET :
+                return charsetLookup.getObject(name);
+
+            case SchemaObject.COLLATION :
+                return collationLookup.getObject(name);
+
+            case SchemaObject.PROCEDURE :
+                return procedureLookup.getObject(name);
+
+            case SchemaObject.FUNCTION :
+                return functionLookup.getObject(name);
+
+            case SchemaObject.ROUTINE : {
+                SchemaObject object = procedureLookup.getObject(name);
+
+                if (object == null) {
+                    object = functionLookup.getObject(name);
+                }
+
+                return object;
+            }
+            case SchemaObject.SPECIFIC_ROUTINE :
+                return specificRoutineLookup.getObject(name);
+
+            case SchemaObject.DOMAIN :
+            case SchemaObject.TYPE :
+                return typeLookup.getObject(name);
+
+            case SchemaObject.INDEX :
+                set        = indexLookup;
+                objectName = set.getName(name);
+
+                if (objectName == null) {
+                    return null;
+                }
+
+                table = (Table) tableList.get(objectName.parent.name);
+
+                return table.getIndex(name);
+
+            case SchemaObject.CONSTRAINT :
+                set        = constraintLookup;
+                objectName = set.getName(name);
+
+                if (objectName == null) {
+                    return null;
+                }
+
+                table = (Table) tableList.get(objectName.parent.name);
+
+                if (table == null) {
+                    return null;
+                }
+
+                return table.getConstraint(name);
+
+            case SchemaObject.TRIGGER :
+                set        = indexLookup;
+                objectName = set.getName(name);
+
+                if (objectName == null) {
+                    return null;
+                }
+
+                table = (Table) tableList.get(objectName.parent.name);
+
+                return table.getTrigger(name);
+
+            default :
+                throw Error.runtimeError(ErrorCode.U_S0500, "SchemaManager");
+        }
+    }
+
+    public void addSchemaObject(HsqlNameManager nameManager,
+                                SchemaObject object, boolean replace) {
+
+        HsqlName        name = object.getName();
+        SchemaObjectSet set  = this.getObjectSet(name.type);
+
+        switch (name.type) {
+
+            case SchemaObject.PROCEDURE :
+            case SchemaObject.FUNCTION : {
+                RoutineSchema routine =
+                    (RoutineSchema) set.getObject(name.name);
+
+                if (routine == null) {
+                    routine = new RoutineSchema(name.type, name);
+
+                    routine.addSpecificRoutine(nameManager, (Routine) object,
+                                               replace);
+                    set.checkAdd(name);
+
+                    SchemaObjectSet specificSet =
+                        getObjectSet(SchemaObject.SPECIFIC_ROUTINE);
+
+                    specificSet.checkAdd(((Routine) object).getSpecificName());
+                    set.add(routine, replace);
+                    specificSet.add(object, replace);
+                } else {
+                    SchemaObjectSet specificSet =
+                        getObjectSet(SchemaObject.SPECIFIC_ROUTINE);
+                    HsqlName specificName =
+                        ((Routine) object).getSpecificName();
+
+                    if (specificName != null) {
+                        specificSet.checkAdd(specificName);
+                    }
+
+                    routine.addSpecificRoutine(nameManager, (Routine) object,
+                                               replace);
+                    specificSet.add(object, replace);
+                }
+
+                return;
+            }
+        }
+
+        set.add(object, replace);
     }
 
     void release() {

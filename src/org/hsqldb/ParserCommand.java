@@ -842,8 +842,6 @@ public class ParserCommand extends ParserDDL {
                 return compileSetProperty();
             }
             default : {
-                rewind(position);
-
                 return compileSetStatement(
                     session.sessionContext.sessionVariableRangeGroups,
                     session.sessionContext.sessionVariablesRange);
@@ -939,7 +937,7 @@ public class ParserCommand extends ParserDDL {
 
                 switch (table.getTableType()) {
 
-                    case TableBase.MEMORY_TABLE:
+                    case TableBase.MEMORY_TABLE :
                     case TableBase.CACHED_TABLE :
                         break;
 
