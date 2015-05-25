@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2014, The HSQL Development Group
+/* Copyright (c) 2001-2015, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -201,7 +201,7 @@ public class StatementCompound extends Statement implements RangeGroup {
         return sql;
     }
 
-    protected String describe(Session session, int blanks) {
+    String describe(Session session, int blanks) {
 
         StringBuffer sb = new StringBuffer();
 
@@ -216,7 +216,11 @@ public class StatementCompound extends Statement implements RangeGroup {
         return sb.toString();
     }
 
-    public void setLocalDeclarations(Object[] declarations) {
+    boolean isLoop() {
+        return isLoop;
+    }
+
+    void setLocalDeclarations(Object[] declarations) {
 
         int varCount     = 0;
         int handlerCount = 0;
@@ -286,7 +290,7 @@ public class StatementCompound extends Statement implements RangeGroup {
         setCursors();
     }
 
-    public void setLoopStatement(StatementQuery cursorStatement) {
+    void setLoopStatement(HsqlName name, StatementQuery cursorStatement) {
 
         loopCursor = cursorStatement;
 
@@ -314,7 +318,7 @@ public class StatementCompound extends Statement implements RangeGroup {
         this.statements = statements;
     }
 
-    public void setCondition(StatementExpression condition) {
+    void setCondition(StatementExpression condition) {
         this.condition = condition;
     }
 

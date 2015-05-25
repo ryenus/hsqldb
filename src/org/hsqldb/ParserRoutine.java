@@ -1718,7 +1718,7 @@ public class ParserRoutine extends ParserTable {
         forStatement.setAtomic(true);
         forStatement.setRoot(routine);
         forStatement.setParent(context);
-        forStatement.setLoopStatement(cursorStatement);
+        forStatement.setLoopStatement(null, cursorStatement);
 
         Statement[] statements = compileSQLProcedureStatementList(routine,
             forStatement);
@@ -1981,7 +1981,7 @@ public class ParserRoutine extends ParserTable {
             resolveOuterReferencesAndTypes(routine, context, message);
         }
 
-        StatementSimple cs = new StatementSimple(StatementTypes.SIGNAL,
+        StatementSignal cs = new StatementSignal(StatementTypes.SIGNAL,
             sqlState, message);
 
         return cs;
@@ -2013,7 +2013,7 @@ public class ParserRoutine extends ParserTable {
             }
         }
 
-        StatementSimple cs = new StatementSimple(StatementTypes.RESIGNAL,
+        StatementSignal cs = new StatementSignal(StatementTypes.RESIGNAL,
             sqlState, message);
 
         return cs;

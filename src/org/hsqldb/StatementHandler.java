@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2014, The HSQL Development Group
+/* Copyright (c) 2001-2015, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -83,7 +83,7 @@ public class StatementHandler extends Statement {
         result &= conditionGroups.isEmpty();
 
         if (!result) {
-            throw Error.error(ErrorCode.X_42604);
+            throw Error.error(ErrorCode.X_42612);
         }
     }
 
@@ -94,7 +94,7 @@ public class StatementHandler extends Statement {
         result &= conditionStates.isEmpty();
 
         if (!result) {
-            throw Error.error(ErrorCode.X_42604);
+            throw Error.error(ErrorCode.X_42612);
         }
     }
 

@@ -220,7 +220,7 @@ public class ParserBase {
         if (isRecording) {
             return (Token) recordedStatement.get(recordedStatement.size() - 1);
         } else {
-            return dummyToken;
+            return token.duplicate();
         }
     }
 
