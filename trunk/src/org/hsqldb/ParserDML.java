@@ -789,9 +789,7 @@ public class ParserDML extends ParserDQL {
                 rewind(position);
 
                 TableDerived td = XreadSubqueryTableBody(OpTypes.ROW_SUBQUERY);
-
-                QueryExpression qe =
-                    (QueryExpression) td.getQueryExpression();
+                QueryExpression qe = (QueryExpression) td.getQueryExpression();
 
                 qe.setReturningResult();
 

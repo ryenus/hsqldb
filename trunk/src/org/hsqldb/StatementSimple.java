@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2011, The HSQL Development Group
+/* Copyright (c) 2001-2015, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -41,18 +41,12 @@ import org.hsqldb.result.Result;
  * Implementation of Statement for simple PSM control statements.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.1
+ * @version 2.3.3
  * @since 1.9.0
  */
 public class StatementSimple extends Statement {
 
-    String     sqlState;
-    Expression messageExpression;
-    HsqlName   label;
-
-    //
-    ColumnSchema[] variables;
-    int[]          variableIndexes;
+    HsqlName label;
 
     StatementSimple(int type, HsqlName label) {
 
@@ -63,33 +57,11 @@ public class StatementSimple extends Statement {
         this.label             = label;
     }
 
-    StatementSimple(int type, String sqlState, Expression message) {
-
-        super(type, StatementTypes.X_SQL_CONTROL);
-
-        references             = new OrderedHashSet();
-        isTransactionStatement = false;
-        this.sqlState          = sqlState;
-        this.messageExpression = message;
-    }
-
     public String getSQL() {
 
         StringBuffer sb = new StringBuffer();
 
         switch (type) {
-
-            case StatementTypes.SIGNAL :
-                sb.append(Tokens.T_SIGNAL).append(' ');
-                sb.append(Tokens.T_SQLSTATE);
-                sb.append(' ').append('\'').append(sqlState).append('\'');
-                break;
-
-            case StatementTypes.RESIGNAL :
-                sb.append(Tokens.T_RESIGNAL).append(' ');
-                sb.append(Tokens.T_SQLSTATE);
-                sb.append(' ').append('\'').append(sqlState).append('\'');
-                break;
 
             case StatementTypes.ITERATE :
                 sb.append(Tokens.T_ITERATE).append(' ').append(label);
@@ -139,29 +111,13 @@ public class StatementSimple extends Statement {
 
         switch (type) {
 
-            /** @todo - check sqlState against allowed values */
-            case StatementTypes.SIGNAL :
-            case StatementTypes.RESIGNAL :
-                HsqlException ex = Error.error(getMessage(session), sqlState);
-
-                return Result.newErrorResult(ex);
-
             case StatementTypes.ITERATE :
             case StatementTypes.LEAVE :
                 return Result.newPSMResult(type, label.name, null);
 
             default :
-                throw Error.runtimeError(ErrorCode.U_S0500, "");
+                throw Error.runtimeError(ErrorCode.U_S0500, "StatementSimple");
         }
-    }
-
-    String getMessage(Session session) {
-
-        if (messageExpression == null) {
-            return null;
-        }
-
-        return (String) messageExpression.getValue(session);
     }
 
     public void resolve(Session session) {
@@ -169,11 +125,6 @@ public class StatementSimple extends Statement {
         boolean resolved = false;
 
         switch (type) {
-
-            case StatementTypes.SIGNAL :
-            case StatementTypes.RESIGNAL :
-                resolved = true;
-                break;
 
             case StatementTypes.ITERATE : {
                 StatementCompound statement = parent;
@@ -204,7 +155,7 @@ public class StatementSimple extends Statement {
                 break;
 
             default :
-                throw Error.runtimeError(ErrorCode.U_S0500, "");
+                throw Error.runtimeError(ErrorCode.U_S0500, "StatementSimple");
         }
 
         if (!resolved) {

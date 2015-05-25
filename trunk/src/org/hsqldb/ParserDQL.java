@@ -5128,9 +5128,6 @@ public class ParserDQL extends ParserBase {
 
         String  name           = token.tokenString;
         boolean isSimpleQuoted = isDelimitedSimpleName();
-        String  prefix         = token.namePrefix;
-        String  prePrefix      = token.namePrePrefix;
-        String  prePrePrefix   = token.namePrePrePrefix;
         Token   recordedToken  = getRecordedToken();
 
         checkIsIdentifier();
@@ -5182,16 +5179,19 @@ public class ParserDQL extends ParserBase {
         read();
 
         if (token.tokenType != Tokens.OPENBRACKET) {
-            checkValidCatalogName(prePrePrefix);
+            checkValidCatalogName(recordedToken.namePrePrePrefix);
 
-            Expression column = new ExpressionColumn(prePrefix, prefix, name);
+            Expression column =
+                new ExpressionColumn(recordedToken.namePrePrefix,
+                                     recordedToken.namePrefix, name);
 
             return column;
         }
 
         RoutineSchema routineSchema =
             (RoutineSchema) database.schemaManager.findSchemaObject(session,
-                name, prefix, prePrefix, SchemaObject.FUNCTION);
+                name, recordedToken.namePrefix, recordedToken.namePrePrefix,
+                SchemaObject.FUNCTION);
 
         if (routineSchema == null && isSimpleQuoted) {
             HsqlName schema =
