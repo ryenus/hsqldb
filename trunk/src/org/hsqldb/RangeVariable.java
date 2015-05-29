@@ -1092,6 +1092,10 @@ public class RangeVariable {
                 }
             }
 
+            if (session.abortTransaction) {
+                throw Error.error(ErrorCode.X_40000);
+            }
+
             currentRow = it.getNextRow();
 
             if (currentRow == null) {
@@ -1219,6 +1223,10 @@ public class RangeVariable {
         }
 
         public boolean next() {
+
+            if (session.abortTransaction) {
+                throw Error.error(ErrorCode.X_40000);
+            }
 
             while (condIndex < conditions.length) {
                 if (isBeforeFirst) {
@@ -1912,7 +1920,8 @@ public class RangeVariable {
                     break;
                 }
                 default :
-                    throw Error.runtimeError(ErrorCode.U_S0500, "RangeVariable");
+                    throw Error.runtimeError(ErrorCode.U_S0500,
+                                             "RangeVariable");
             }
 
             indexedColumnCount = colCount;

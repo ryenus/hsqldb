@@ -873,7 +873,7 @@ public class ParserRoutine extends ParserTable {
                     list.addAll((Object[]) var);
                 }
             } else if (objectType == cursor) {
-                var = compileDeclareCursor(rangeGroups, true);
+                var = compileDeclareCursorOrNull(rangeGroups, true);
 
                 if (var == null) {
                     objectType = handler;
@@ -926,9 +926,9 @@ public class ParserRoutine extends ParserTable {
 
     ColumnSchema[] readLocalVariableDeclarationOrNull() {
 
-        int        position = super.getPosition();
-        Type       type;
-        HsqlName[] names = HsqlName.emptyArray;
+        int           position = super.getPosition();
+        Type          type;
+        HsqlArrayList names = new HsqlArrayList();
 
         try {
             readThis(Tokens.DECLARE);
@@ -940,11 +940,16 @@ public class ParserRoutine extends ParserTable {
             }
 
             while (true) {
-                names = (HsqlName[]) ArrayUtil.resizeArray(names,
-                        names.length + 1);
-                names[names.length - 1] =
-                    super.readNewSchemaObjectName(SchemaObject.VARIABLE,
-                                                  false);
+                HsqlName name = readNewSchemaObjectName(SchemaObject.VARIABLE,
+                    false);
+
+                if (token.tokenType == Tokens.CONDITION) {
+                    rewind(position);
+
+                    return null;
+                }
+
+                names.add(name);
 
                 if (token.tokenType == Tokens.COMMA) {
                     read();
@@ -970,10 +975,11 @@ public class ParserRoutine extends ParserTable {
             def = readDefaultClause(type);
         }
 
-        ColumnSchema[] variable = new ColumnSchema[names.length];
+        ColumnSchema[] variable = new ColumnSchema[names.size()];
 
-        for (int i = 0; i < names.length; i++) {
-            variable[i] = new ColumnSchema(names[i], type, true, false, def);
+        for (int i = 0; i < names.size(); i++) {
+            variable[i] = new ColumnSchema((HsqlName) names.get(i), type,
+                                           true, false, def);
 
             variable[i].setParameterMode(
                 SchemaObject.ParameterModes.PARAM_INOUT);
@@ -1156,11 +1162,10 @@ public class ParserRoutine extends ParserTable {
         label = createLabelIfNull(context, label);
 
         StatementCompound statement =
-            new StatementCompound(StatementTypes.BEGIN_END, label);
+            new StatementCompound(StatementTypes.BEGIN_END, label, context);
 
         statement.setAtomic(atomic);
         statement.setRoot(routine);
-        statement.setParent(context);
 
         Object[] declarations = readLocalDeclarationList(routine, context);
 
@@ -1614,7 +1619,7 @@ public class ParserRoutine extends ParserTable {
         }
 
         StatementCompound statement =
-            new StatementCompound(StatementTypes.WHILE, label);
+            new StatementCompound(StatementTypes.WHILE, label, context);
 
         statement.setStatements(statements);
         statement.setCondition(condition);
@@ -1655,7 +1660,7 @@ public class ParserRoutine extends ParserTable {
         }
 
         StatementCompound statement =
-            new StatementCompound(StatementTypes.REPEAT, label);
+            new StatementCompound(StatementTypes.REPEAT, label, context);
 
         statement.setStatements(statements);
         statement.setCondition(condition);
@@ -1687,7 +1692,7 @@ public class ParserRoutine extends ParserTable {
         }
 
         StatementCompound result = new StatementCompound(StatementTypes.LOOP,
-            label);
+            label, context);
 
         result.setStatements(statements);
 
@@ -1713,11 +1718,10 @@ public class ParserRoutine extends ParserTable {
         readThis(Tokens.DO);
 
         StatementCompound forStatement =
-            new StatementCompound(StatementTypes.FOR, label);
+            new StatementCompound(StatementTypes.FOR, label, context);
 
         forStatement.setAtomic(true);
         forStatement.setRoot(routine);
-        forStatement.setParent(context);
         forStatement.setLoopStatement(null, cursorStatement);
 
         Statement[] statements = compileSQLProcedureStatementList(routine,
@@ -1810,7 +1814,7 @@ public class ParserRoutine extends ParserTable {
         list.toArray(statements);
 
         StatementCompound result = new StatementCompound(StatementTypes.IF,
-            null);
+            null, context);
 
         result.setStatements(statements);
 
@@ -1857,7 +1861,7 @@ public class ParserRoutine extends ParserTable {
         list.toArray(statements);
 
         StatementCompound result = new StatementCompound(StatementTypes.IF,
-            null);
+            null, context);
 
         result.setStatements(statements);
 
@@ -2532,7 +2536,7 @@ public class ParserRoutine extends ParserTable {
             startRecording();
 
             StatementCompound parent =
-                new StatementCompound(StatementTypes.BEGIN_END, null);
+                new StatementCompound(StatementTypes.BEGIN_END, null, null);
 
             parent.rangeVariables = ranges;
 

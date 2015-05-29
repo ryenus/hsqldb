@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2011, The HSQL Development Group
+/* Copyright (c) 2001-2015, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -43,10 +43,12 @@ import org.hsqldb.result.ResultProperties;
  * Implementation of Statement for query expressions.<p>
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.2.9
+ * @version 2.3.3
  * @since 1.9.0
  */
 public class StatementQuery extends StatementDMQL {
+
+    public static final StatementQuery[] emptyArray = new StatementQuery[]{};
 
     StatementQuery(Session session, QueryExpression queryExpression,
                    CompileContext compileContext) {

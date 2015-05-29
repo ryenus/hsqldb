@@ -6129,7 +6129,7 @@ public class ParserDQL extends ParserBase {
         return column;
     }
 
-    StatementQuery compileDeclareCursor(RangeGroup[] rangeGroups,
+    StatementQuery compileDeclareCursorOrNull(RangeGroup[] rangeGroups,
                                         boolean isRoutine) {
 
         int sensitivity   = ResultConstants.SQL_ASENSITIVE;

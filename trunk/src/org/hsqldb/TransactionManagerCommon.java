@@ -830,17 +830,19 @@ class TransactionManagerCommon {
                     break;
 
                 case TransactionManager.resetSessionRollback :
-                    if (targetSession.latch.getCount() > 0) {
-                        targetSession.abortTransaction = true;
+                    if (targetSession.isInMidTransaction()) {
+                        if (targetSession.latch.getCount() > 0) {
+                            targetSession.abortTransaction = true;
 
-                        targetSession.latch.setCount(0);
-                    } else {
-                        targetSession.rollbackNoCheck(true);
+                            targetSession.latch.setCount(0);
+                        } else {
+                            targetSession.abortTransaction = true;
+                        }
                     }
                     break;
 
                 case TransactionManager.resetSessionClose :
-                    if (targetSession.latch.getCount() == 0) {
+                    if (!targetSession.isInMidTransaction()) {
                         targetSession.rollbackNoCheck(true);
                         targetSession.close();
                     }
