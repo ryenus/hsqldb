@@ -337,7 +337,7 @@ public class ParserCommand extends ParserDDL {
             return cs;
         }
 
-        cs = compileDeclareCursor(RangeGroup.emptyArray, false);
+        cs = super.compileDeclareCursorOrNull(RangeGroup.emptyArray, false);
 
         if (cs == null) {
             throw lastError == null ? unexpectedToken()

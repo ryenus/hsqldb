@@ -75,7 +75,7 @@ public class StatementCompound extends Statement implements RangeGroup {
     public static final StatementCompound[] emptyStatementArray =
         new StatementCompound[]{};
 
-    StatementCompound(int type, HsqlName label) {
+    StatementCompound(int type, HsqlName label, StatementCompound parent) {
 
         super(type, StatementTypes.X_SQL_CONTROL);
 
@@ -100,6 +100,8 @@ public class StatementCompound extends Statement implements RangeGroup {
                 throw Error.runtimeError(ErrorCode.U_S0500,
                                          "StatementCompound");
         }
+
+        this.parent = parent;
     }
 
     public String getSQL() {

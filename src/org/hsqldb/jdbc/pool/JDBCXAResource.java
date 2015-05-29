@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2011, The HSQL Development Group
+/* Copyright (c) 2001-2015, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -73,7 +73,7 @@ import org.hsqldb.HsqlException;
  * N.b. The JDBC Spec does not state whether the prepare and forget
  * methods are XAResource-specific or XADataSource-specific.
  *
- * @version 2.3.0
+ * @version 2.3.3
  * @since 2.0.0
  * @author Blaine Simpson (blaine dot simpson at admc dot com)
  * @see javax.transaction.xa.XAResource
@@ -180,9 +180,9 @@ public class JDBCXAResource implements XAResource {
      *
      * @throws XAException generically, since the more specific exceptions
      *   require a JTA API to compile.
-      * @param onePhase boolean
-      */
-     public void commitThis(boolean onePhase) throws XAException {
+     * @param onePhase boolean
+     */
+    public void commitThis(boolean onePhase) throws XAException {
 
         if (onePhase && state == XA_STATE_PREPARED) {
             throw new XAException(
@@ -342,7 +342,7 @@ public class JDBCXAResource implements XAResource {
         try {
             connection.getSession().prepareCommit();
         } catch (HsqlException e) {
-            state = XA_STATE_PREPARED;  // ??? didn't prepare
+            state = XA_STATE_PREPARED;    // ??? didn't prepare
 
             throw new XAException(e.getMessage());
         }
@@ -434,7 +434,8 @@ public class JDBCXAResource implements XAResource {
 /*
         System.err.println("STARTING NEW Xid: " + xid);
 */
-        if (state != XA_STATE_INITIAL && state != XA_STATE_DISPOSED) {
+        if (state != XA_STATE_INITIAL && state != XA_STATE_DISPOSED
+                && state != XA_STATE_ENDED) {
             throw new XAException("Invalid XAResource state");
         }
 
@@ -451,17 +452,22 @@ public class JDBCXAResource implements XAResource {
         }
 
         try {
-            originalAutoCommitMode = connection.getAutoCommit();    // real/phys.
+            if (connection.getAutoCommit()) {
+                originalAutoCommitMode = true;      // real/phys.
 
-            connection.setAutoCommit(false);                        // real/phys.
+                connection.setAutoCommit(false);    // real/phys.
+            }
         } catch (SQLException se) {
             throw new XAException(se.toString());
         }
 
-        this.xid = xid;
-        state    = XA_STATE_STARTED;
+        if (!xid.equals(this.xid)) {
+            this.xid = xid;
 
-        xaDataSource.addResource(this.xid, this);
+            xaDataSource.addResource(this.xid, this);
+        }
+
+        state = XA_STATE_STARTED;
 
         // N.b.  The DataSource does not have this XAResource in its list
         // until right here.  We can't tell DataSource before our start()
