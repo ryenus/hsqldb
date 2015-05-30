@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2014, The HSQL Development Group
+/* Copyright (c) 2001-2015, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -1322,7 +1322,7 @@ public class BaseHashMap {
             }
         }
 
-        accessCount -= accessMin;
+        accessCount = (int) ((accessCount - accessMin) * factor);
         accessMin   = 0;
     }
 

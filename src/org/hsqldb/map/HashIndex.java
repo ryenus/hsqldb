@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2011, The HSQL Development Group
+/* Copyright (c) 2001-2015, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,6 +31,8 @@
 
 package org.hsqldb.map;
 
+import java.util.Arrays;
+
 /**
  * A chained bucket hash index implementation.
  *
@@ -50,7 +52,7 @@ package org.hsqldb.map;
  * as a node and their contents is not significant.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.2.9
+ * @version 2.3.3
  * @since 1.7.2
  */
 public class HashIndex {
@@ -89,17 +91,11 @@ public class HashIndex {
         hashTable = newHT;
         linkTable = newLT;
 
+        Arrays.fill(hashTable, -1);
         resetTables();
     }
 
     public void resetTables() {
-
-        int   to       = hashTable.length;
-        int[] intArray = hashTable;
-
-        while (--to >= 0) {
-            intArray[to] = -1;
-        }
 
         newNodePointer       = 0;
         elementCount         = 0;
@@ -112,13 +108,8 @@ public class HashIndex {
      */
     public void clear() {
 
-        int   to       = linkTable.length;
-        int[] intArray = linkTable;
-
-        while (--to >= 0) {
-            intArray[to] = 0;
-        }
-
+        Arrays.fill(linkTable, 0, newNodePointer, 0);
+        Arrays.fill(hashTable, -1);
         resetTables();
     }
 
@@ -157,13 +148,13 @@ public class HashIndex {
     }
 
     /**
-     * Link a new node to the end of the linked for a hash index.
+     * Link a new node into the linked list for a hash index.
      *
      * @param index an index into hashTable
      * @param lastLookup either -1 or the node to which the new node will be linked
      * @return the new node
      */
-    public int linkNode(int index, int lastLookup) {
+    public int linkNode(int index, final int lastLookup) {
 
         // get the first reclaimed slot
         int lookup = reclaimedNodePointer;
@@ -177,13 +168,17 @@ public class HashIndex {
         }
 
         // link the node
+        int nextLookup;;
+
         if (lastLookup == -1) {
+            nextLookup       = hashTable[index];
             hashTable[index] = lookup;
         } else {
+            nextLookup            = linkTable[lastLookup];
             linkTable[lastLookup] = lookup;
         }
 
-        linkTable[lookup] = -1;
+        linkTable[lookup] = nextLookup;
 
         elementCount++;
 
@@ -213,6 +208,11 @@ public class HashIndex {
         reclaimedNodePointer = lookup;
 
         elementCount--;
+
+        if (elementCount == 0) {
+            Arrays.fill(linkTable, 0, newNodePointer, 0);
+            resetTables();
+        }
     }
 
     /**
