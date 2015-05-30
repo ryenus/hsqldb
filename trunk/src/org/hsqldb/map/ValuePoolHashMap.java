@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2011, The HSQL Development Group
+/* Copyright (c) 2001-2015, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -51,17 +51,19 @@ import org.hsqldb.types.TimestampData;
  * range of java.lang.* objects.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 1.9.0
+ * @version 2.3.3
  * @since 1.7.2
  *
  */
 public class ValuePoolHashMap extends BaseHashMap {
 
+    long hits;
+
     public ValuePoolHashMap(int initialCapacity, int maxCapacity,
                             int purgePolicy) throws IllegalArgumentException {
 
-        super(initialCapacity, BaseHashMap.objectKeyOrValue, BaseHashMap.noKeyOrValue,
-              true);
+        super(initialCapacity, BaseHashMap.objectKeyOrValue,
+              BaseHashMap.noKeyOrValue, true);
 
         this.maxCapacity = maxCapacity;
         this.purgePolicy = purgePolicy;
@@ -110,14 +112,20 @@ public class ValuePoolHashMap extends BaseHashMap {
                 lookup = hashIndex.getNextLookup(lookup)) {
             testValue = (Integer) objectKeyTable[lookup];
 
-            if (testValue.intValue() == intKey) {
+            int keyValue = testValue.intValue();
+
+            if (keyValue == intKey) {
                 if (accessCount > ACCESS_MAX) {
                     resetAccessCount();
                 }
 
                 accessTable[lookup] = accessCount++;
 
+                hits++;
+
                 return testValue;
+            } else if (keyValue > intKey) {
+                break;
             }
         }
 
@@ -152,7 +160,9 @@ public class ValuePoolHashMap extends BaseHashMap {
                 lookup = hashIndex.getNextLookup(lookup)) {
             testValue = (Long) objectKeyTable[lookup];
 
-            if (testValue.longValue() == longKey) {
+            long keyValue = testValue.longValue();
+
+            if (keyValue == longKey) {
                 if (accessCount > ACCESS_MAX) {
                     resetAccessCount();
                 }
@@ -160,6 +170,8 @@ public class ValuePoolHashMap extends BaseHashMap {
                 accessTable[lookup] = accessCount++;
 
                 return testValue;
+            } else if (keyValue > longKey) {
+                break;
             }
         }
 
@@ -289,10 +301,10 @@ public class ValuePoolHashMap extends BaseHashMap {
     protected TimestampData getOrAddDate(long longKey) {
 
         TimestampData testValue;
-        int  hash       = (int) longKey ^ (int) (longKey >>> 32);
-        int  index      = hashIndex.getHashIndex(hash);
-        int  lookup     = hashIndex.hashTable[index];
-        int  lastLookup = -1;
+        int           hash       = (int) longKey ^ (int) (longKey >>> 32);
+        int           index      = hashIndex.getHashIndex(hash);
+        int           lookup     = hashIndex.hashTable[index];
+        int           lastLookup = -1;
 
         for (; lookup >= 0;
                 lastLookup = lookup,
