@@ -37,7 +37,7 @@
     </keywordset>
 
     <legalnotice>
-      <para>Copyright 2010-2012 Fred Toussi. Permission is granted to
+      <para>Copyright 2010-2015 Fred Toussi. Permission is granted to
       distribute this document without any alteration under the terms of the
       HSQLDB license. Additional permission is granted to the HSQL Development
       Group to distribute this document with or without alterations under the
@@ -124,6 +124,10 @@
   <para>Definition of routine signature and characteristics, name resolution
   and invocation are all implemented uniformly for routines written in SQL or
   Java.</para>
+
+  <para>Access to routines can be granted to users with GRANT EXECUTE or GRANT ALL.
+  For example <literal>GRANT EXECUTE ON myroutine TO PUBLIC</literal>.
+  </para>
 
   <section xml:id="src_routine_definition">
     <title>Routine Definition</title>
