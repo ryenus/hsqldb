@@ -316,7 +316,7 @@
   </section>
 
   <section xml:id="dpc_connection_props">
-    <title>Connection properties</title>
+    <title>Properties for Individual Connections</title>
 
     <para>Each JDBC Connection to a database can specify connection
     properties. The properties <property>user</property> and
@@ -613,7 +613,7 @@
   </section>
 
   <section xml:id="dpc_db_props_url">
-    <title>Database Properties in Connection URL and Properties</title>
+    <title>Properties for the Database</title>
 
     <para>Each database has several default settings (properties) that are
     listed in the <link endterm="management-title"

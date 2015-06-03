@@ -37,7 +37,7 @@
     </keywordset>
 
     <legalnotice>
-      <para>Copyright 2010-2012 Fred Toussi. Permission is granted to
+      <para>Copyright 2010-2015 Fred Toussi. Permission is granted to
       distribute this document without any alteration under the terms of the
       HSQLDB license. Additional permission is granted to the HSQL Development
       Group to distribute this document with or without alterations under the
@@ -3740,14 +3740,18 @@ SELECT firstname, lastname, a.c FROM customer, LATERAL(SELECT SUM(total) FROM in
       <simpara><literal>&lt;merge when clause&gt; ::= &lt;merge when matched
       clause&gt; | &lt;merge when not matched clause&gt;</literal></simpara>
 
-      <simpara><literal>&lt;merge when matched clause&gt; ::= WHEN MATCHED
-      THEN &lt;merge update specification&gt;</literal></simpara>
-
+      <simpara><literal>&lt;merge when matched clause&gt; ::= 
+	  WHEN MATCHED [ AND &lt;search condition&gt; ] THEN
+	  &lt;merge update or delete specification&gt;</literal></simpara>	  
+	  
       <simpara><literal>&lt;merge when not matched clause&gt; ::= WHEN NOT
-      MATCHED THEN &lt;merge insert specification&gt;</literal></simpara>
+      MATCHED [ AND &lt;search condition&gt; ] THEN &lt;merge insert specification&gt;</literal></simpara>
 
       <simpara><literal>&lt;merge update specification&gt; ::= UPDATE SET
       &lt;set clause list&gt;</literal></simpara>
+
+      <simpara><literal>&lt;merge delete specification&gt; ::= DELETE
+      </literal></simpara>
 
       <simpara><literal>&lt;merge insert specification&gt; ::= INSERT [
       &lt;left paren&gt; &lt;insert column list&gt; &lt;right paren&gt; ] [
@@ -3762,12 +3766,12 @@ SELECT firstname, lastname, a.c FROM customer, LATERAL(SELECT SUM(total) FROM in
       expression&gt; | &lt;contextually typed value
       specification&gt;</literal></simpara>
 
-      <simpara>Update rows, or insert new rows into the <literal>&lt;target
+      <simpara>Update rows, deletes rows or insert new rows into the <literal>&lt;target
       table&gt;</literal>. The MERGE statement uses a second table, specified
       by <literal>&lt;table reference&gt;</literal>, to determine the rows to
       be updated or inserted. It is possible to use the statement only to
-      update rows or to insert rows, but usually both update and insert are
-      specified.</simpara>
+      update rows, to delete rows or to insert rows, but usually both update and
+	  insert are specified.</simpara>
 
       <simpara>The <literal>&lt;search condition&gt;</literal> matches each
       row of the <literal>&lt;table reference&gt;</literal> with each row of
@@ -3776,7 +3780,7 @@ SELECT firstname, lastname, a.c FROM customer, LATERAL(SELECT SUM(total) FROM in
       table. Those rows of <literal>&lt;table reference&gt;</literal> that
       have no matching rows are then used to insert new rows into the
       <literal>&lt;target table&gt;</literal>. Therefore, a MERGE statement
-      can update between 0 and all the rows of the <literal>&lt;target
+      can update or delete between 0 and all the rows of the <literal>&lt;target
       table&gt;</literal> and can insert between 0 and the number of the rows
       in <literal>&lt;table reference&gt;</literal> into the
       <literal>&lt;target table&gt;</literal>. If any row in the
@@ -3786,7 +3790,7 @@ SELECT firstname, lastname, a.c FROM customer, LATERAL(SELECT SUM(total) FROM in
       table&gt;</literal> can match a single row in <literal>&lt;table
       reference&gt;</literal> without any error. The constraints and
       referential actions specified on the database tables are enforced the
-      same way as for an update and an insert statement.</simpara>
+      same way as for an update, a delete and an insert statement.</simpara>
 
       <simpara>The MERGE statement can be used with only the WHEN NOT MATCHED
       clause as a conditional INSERT statement that inserts a row if no
@@ -3806,7 +3810,7 @@ SELECT firstname, lastname, a.c FROM customer, LATERAL(SELECT SUM(total) FROM in
       <simpara>In the third example, a new row in inserted into the table only
       when the primary key for the new row does not exist. This example uses
       parameters and should be executed as a JDBC PreparedStatement. The
-      parameter is cast as INTEGER because the MERGE statement does not use
+      parameter is cast as INTEGER because the MERGE statement does not
       determine the types of values in the USING clause.</simpara>
 
       <programlisting> CREATE TABLE t (id INT PRIMARY KEY, description VARCHAR(100))
