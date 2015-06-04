@@ -75,6 +75,9 @@ public class StatementDML extends StatementDMQL {
     int            generatedType;
     ResultMetaData generatedInputMetaData;
 
+    //
+    int limit = Integer.MAX_VALUE;
+
     /** column indexes for generated values */
     int[] generatedIndexes;
 
@@ -91,7 +94,7 @@ public class StatementDML extends StatementDMQL {
     StatementDML(Session session, Table targetTable,
                  RangeVariable targetRange, RangeVariable[] rangeVars,
                  CompileContext compileContext, boolean restartIdentity,
-                 int type) {
+                 int type, SortAndSlice sortAndSlice) {
 
         super(StatementTypes.DELETE_WHERE, StatementTypes.X_SQL_DATA_CHANGE,
               session.getCurrentSchemaHsqlName());
@@ -102,6 +105,13 @@ public class StatementDML extends StatementDMQL {
                                                             .getBaseTable();
         this.targetRangeVariables = rangeVars;
         this.restartIdentity      = restartIdentity;
+
+        if (sortAndSlice != null) {
+            int[] limits = sortAndSlice.getLimits(session, null,
+                                                  Integer.MAX_VALUE);
+
+            limit = limits[1];
+        }
 
         setDatabseObjects(session, compileContext);
         checkAccessRights(session);
@@ -119,7 +129,8 @@ public class StatementDML extends StatementDMQL {
     StatementDML(Session session, Expression[] targets, Table targetTable,
                  RangeVariable targetRange, RangeVariable rangeVars[],
                  int[] updateColumnMap, Expression[] colExpressions,
-                 boolean[] checkColumns, CompileContext compileContext) {
+                 boolean[] checkColumns, CompileContext compileContext,
+                 SortAndSlice sortAndSlice) {
 
         super(StatementTypes.UPDATE_WHERE, StatementTypes.X_SQL_DATA_CHANGE,
               session.getCurrentSchemaHsqlName());
@@ -133,6 +144,13 @@ public class StatementDML extends StatementDMQL {
         this.updateExpressions    = colExpressions;
         this.updateCheckColumns   = checkColumns;
         this.targetRangeVariables = rangeVars;
+
+        if (sortAndSlice != null) {
+            int[] limits = sortAndSlice.getLimits(session, null,
+                                                  Integer.MAX_VALUE);
+
+            limit = limits[1];
+        }
 
         setupChecks();
         setDatabseObjects(session, compileContext);
@@ -518,6 +536,8 @@ public class StatementDML extends StatementDMQL {
 
         session.sessionContext.rownum = 1;
 
+        int rowCount = 0;
+
         while (it.next()) {
             session.sessionData.startRowProcessing();
 
@@ -543,6 +563,11 @@ public class StatementDML extends StatementDMQL {
             rowset.addRow(session, row, newData, colTypes, updateColumnMap);
 
             session.sessionContext.rownum++;
+            rowCount++;
+
+            if (rowCount == limit) {
+                break;
+            }
         }
 
         rowset.endMainDataSet();
@@ -1226,12 +1251,19 @@ public class StatementDML extends StatementDMQL {
 
         session.sessionContext.rownum = 1;
 
+        int rowCount = 0;
+
         while (it.next()) {
             Row currentRow = it.getCurrentRow();
 
             rowset.addRow(currentRow);
 
             session.sessionContext.rownum++;
+            rowCount++;
+
+            if (rowCount == limit) {
+                break;
+            }
         }
 
         it.release();
