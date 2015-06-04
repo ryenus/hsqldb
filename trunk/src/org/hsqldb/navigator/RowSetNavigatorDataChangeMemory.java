@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2014, The HSQL Development Group
+/* Copyright (c) 2001-2015, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -150,6 +150,20 @@ implements RowSetNavigatorDataChange {
         }
     }
 
+    public boolean addUpdate(Row row, Object[] data, int[] columnMap) {
+
+        int lookup = list.getLookup(row.getId());
+
+        if (lookup == -1) {
+            return false;
+        }
+
+        list.put(row.getId(), row, data);
+        list.setThirdValueByIndex(lookup, columnMap);
+
+        return true;
+    }
+
     public Object[] addRow(Session session, Row row, Object[] data,
                            Type[] types, int[] columnMap) {
 
@@ -248,5 +262,53 @@ implements RowSetNavigatorDataChange {
         }
 
         return false;
+    }
+
+    public Row getNextRow() {
+        return null;
+    }
+
+    public Object[] getNext() {
+        return null;
+    }
+
+    public boolean hasNext() {
+        return currentPos < size - 1;
+    }
+
+    public void removeCurrent() {}
+
+    public boolean setRowColumns(boolean[] columns) {
+        return false;
+    }
+
+    public long getRowId() {
+        return getCurrentRow().getId();
+    }
+
+    public boolean isBeforeFirst() {
+        return currentPos == -1;
+    }
+
+    public Object[] getCurrent() {
+        return getCurrentRow().getData();
+    }
+
+    public Object getCurrent(int i) {
+        return getCurrentRow().getData()[i];
+    }
+
+    public void setCurrent(Object[] data) {}
+
+    public Object getRowidObject() {
+        return Long.valueOf(getRowId());
+    }
+
+    public void reset() {
+        beforeFirst();
+    }
+
+    public int getRangePosition() {
+        return 1;
     }
 }

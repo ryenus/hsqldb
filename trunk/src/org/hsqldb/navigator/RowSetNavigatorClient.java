@@ -123,8 +123,18 @@ public class RowSetNavigatorClient extends RowSetNavigator {
         throw Error.runtimeError(ErrorCode.U_S0500, "RowSetNavigatorClient");
     }
 
+    /**
+     * Only for navigators for INSERT
+     */
     public void removeCurrent() {
-        throw Error.runtimeError(ErrorCode.U_S0500, "RowSetNavigatorClient");
+
+        System.arraycopy(table, currentPos + 1, table, currentPos,
+                         size - currentPos - 1);
+
+        table[size - 1] = null;
+
+        currentPos--;
+        size--;
     }
 
     public void add(Object[] data) {

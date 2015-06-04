@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2014, The HSQL Development Group
+/* Copyright (c) 2001-2015, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -63,6 +63,12 @@ public class StatementDML extends StatementDMQL {
 
     Expression[] targets;
     boolean      isTruncate;
+    boolean      isMergeDeleteFirst;
+
+    //
+    Expression mergeInsertCondition;
+    Expression mergeUpdateCondition;
+    Expression mergeDeleteCondition;
 
     //
     boolean        isSimpleInsert;
@@ -142,7 +148,9 @@ public class StatementDML extends StatementDMQL {
                  RangeVariable[] targetRangeVars, int[] insertColMap,
                  int[] updateColMap, boolean[] checkColumns,
                  Expression mergeCondition, Expression insertExpr,
-                 Expression[] updateExpr, CompileContext compileContext) {
+                 Expression[] updateExpr, boolean deleteFirst,
+                 Expression insertCondition, Expression updateCondition,
+                 Expression deleteCondition, CompileContext compileContext) {
 
         super(StatementTypes.MERGE, StatementTypes.X_SQL_DATA_CHANGE,
               session.getCurrentSchemaHsqlName());
@@ -160,6 +168,10 @@ public class StatementDML extends StatementDMQL {
         this.updateExpressions    = updateExpr;
         this.targetRangeVariables = targetRangeVars;
         this.condition            = mergeCondition;
+        this.mergeInsertCondition = insertCondition;
+        this.mergeUpdateCondition = updateCondition;
+        this.mergeDeleteCondition = deleteCondition;
+        this.isMergeDeleteFirst   = deleteFirst;
 
         setupChecks();
         setDatabseObjects(session, compileContext);
@@ -489,8 +501,7 @@ public class StatementDML extends StatementDMQL {
      */
     Result executeUpdateStatement(Session session) {
 
-        int          count          = 0;
-        Expression[] colExpressions = updateExpressions;
+        int count = 0;
         RowSetNavigatorDataChange rowset =
             session.sessionContext.getRowSetDataChange();
         Type[] colTypes = baseTable.getColumnTypes();
@@ -513,8 +524,9 @@ public class StatementDML extends StatementDMQL {
             Row      row  = it.getCurrentRow();
             Object[] data = row.getData();
             Object[] newData = getUpdatedData(session, targets, baseTable,
-                                              updateColumnMap, colExpressions,
-                                              colTypes, data);
+                                              updateColumnMap,
+                                              updateExpressions, colTypes,
+                                              data);
 
             if (updatableTableCheck != null) {
                 it.setCurrent(newData);
@@ -679,6 +691,8 @@ public class StatementDML extends StatementDMQL {
         Type[]          colTypes           = baseTable.getColumnTypes();
         Result          resultOut          = null;
         RowSetNavigator generatedNavigator = null;
+        boolean hasWhenMatched = mergeDeleteCondition != null
+                                 || updateExpressions.length != 0;
 
         if (generatedIndexes != null) {
             resultOut = Result.newUpdateCountResult(generatedResultMetaData,
@@ -722,7 +736,9 @@ public class StatementDML extends StatementDMQL {
                                       insertExpression.nodes[0].nodes);
 
                     if (data != null) {
-                        newData.add(data);
+                        if (mergeInsertCondition.testCondition(session)) {
+                            newData.add(data);
+                        }
                     }
                 }
 
@@ -734,19 +750,48 @@ public class StatementDML extends StatementDMQL {
             }
 
             // row matches!
-            if (updateExpressions.length != 0) {
+            if (hasWhenMatched) {
                 Row row = it.getCurrentRow();    // this is always the second iterator
 
                 session.sessionData.startRowProcessing();
 
-                Object[] data = getUpdatedData(session, targets, baseTable,
-                                               updateColumnMap,
-                                               updateExpressions, colTypes,
-                                               row.getData());
-
                 try {
-                    updateRowSet.addRow(session, row, data, colTypes,
-                                        updateColumnMap);
+                    boolean test = false;
+
+                    // process whichever WHEN MATCHED action is first and exclude
+                    // from subsequent WHEN MATCHED action if row was used
+                    if (isMergeDeleteFirst && mergeDeleteCondition != null) {
+                        test = mergeDeleteCondition.testCondition(session);
+
+                        if (test) {
+                            updateRowSet.addRow(row);
+                        }
+                    }
+
+                    if (!test && mergeUpdateCondition != null) {
+                        test = mergeUpdateCondition.testCondition(session);
+
+                        if (test) {
+                            Object[] data = getUpdatedData(session, targets,
+                                                           baseTable,
+                                                           updateColumnMap,
+                                                           updateExpressions,
+                                                           colTypes,
+                                                           row.getData());
+
+                            updateRowSet.addRow(session, row, data, colTypes,
+                                                updateColumnMap);
+                        }
+                    }
+
+                    if (!test && !isMergeDeleteFirst
+                            && mergeDeleteCondition != null) {
+                        test = mergeDeleteCondition.testCondition(session);
+
+                        if (test) {
+                            updateRowSet.addRow(row);
+                        }
+                    }
                 } catch (HsqlException e) {
                     for (int i = 0; i < joinRangeIterators.length; i++) {
                         rangeIterators[i].reset();
@@ -765,7 +810,7 @@ public class StatementDML extends StatementDMQL {
 
         // run the transaction as a whole, updating and inserting where needed
         // update any matched rows
-        if (updateExpressions.length != 0) {
+        if (hasWhenMatched) {
             count = update(session, baseTable, updateRowSet,
                            generatedNavigator);
         }

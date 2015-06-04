@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2014, The HSQL Development Group
+/* Copyright (c) 2001-2015, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -482,6 +482,8 @@ public class Tokens {
     static final String        T_GOTO                 = "GOTO";
     static final String        T_GRANTED              = "GRANTED";
     static final String        T_HIERARCHY            = "HIERARCHY";
+    static final String        T_IGNORE               = "IGNORE";
+    static final String        T_IMMEDIATE            = "IMMEDIATE";
     static final String        T_IMPLEMENTATION       = "IMPLEMENTATION";
     static final String        T_INCLUDING            = "INCLUDING";
     public static final String T_INCREMENT            = "INCREMENT";
@@ -660,6 +662,7 @@ public class Tokens {
     public static final String T_DELAY                = "DELAY";
     public static final String T_DIGEST               = "DIGEST";
     static final String        T_DUAL                 = "DUAL";
+    static final String        T_DUPLICATE            = "DUPLICATE";
     static final String        T_EXPLAIN              = "EXPLAIN";
     public static final String T_EVENT                = "EVENT";
     static final String        T_FEATURE              = "FEATURE";
@@ -1545,7 +1548,7 @@ public class Tokens {
     static final int WRITE_DELAY    = 637;
 
     //
-    static final int INDEXER = 638;
+    static final int INDEXER = 639;
 
     //
     static final int        ACOS                       = 640;
@@ -1689,6 +1692,7 @@ public class Tokens {
     static final int        MEDIUMTEXT                 = 795;
     static final int        TINYBLOB                   = 796;
     static final int        TINYTEXT                   = 797;
+    static final int        DUPLICATE                  = 798;
 
     //
     static final int        ASTERISK         = 801;
@@ -2115,7 +2119,7 @@ public class Tokens {
         reservedKeys.put(Tokens.T_YEAR, YEAR);
     }
 
-    private static final IntValueHashMap commandSet = new IntValueHashMap(299);
+    private static final IntValueHashMap commandSet = new IntValueHashMap(419);
 
     static {
         commandSet.put(T_ACTION, ACTION);
@@ -2165,6 +2169,7 @@ public class Tokens {
         commandSet.put(T_DATABASE, DATABASE);
         commandSet.put(T_DEADLOCK, DEADLOCK);
         commandSet.put(T_DEFAULTS, DEFAULTS);
+        commandSet.put(T_DEFINER, DEFINER);
         commandSet.put(T_DEFRAG, DEFRAG);
         commandSet.put(T_DELAY, DELAY);
         commandSet.put(T_DESC, DESC);
@@ -2188,6 +2193,7 @@ public class Tokens {
         commandSet.put(T_GROUP_CONCAT, GROUP_CONCAT);
         commandSet.put(T_HEADER, HEADER);
         commandSet.put(T_IF, Tokens.IF);
+        commandSet.put(T_IGNORE, IGNORE);
         commandSet.put(T_IGNORECASE, IGNORECASE);
         commandSet.put(T_IMMEDIATELY, IMMEDIATELY);
         commandSet.put(T_INCLUDING, INCLUDING);
@@ -2399,6 +2405,7 @@ public class Tokens {
         commandSet.put(T_DEGREES, DEGREES);
         commandSet.put(T_DIFFERENCE, DIFFERENCE);
         commandSet.put(T_DMOD, DMOD);
+        commandSet.put(T_DUPLICATE, DUPLICATE);
         commandSet.put(T_FROM_TZ, FROM_TZ);
         commandSet.put(T_GREATEST, GREATEST);
         commandSet.put(T_HEXTORAW, HEXTORAW);
