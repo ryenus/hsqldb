@@ -2779,8 +2779,6 @@ public class ParserDDL extends ParserRoutine {
                 }
 
                 objectType = SchemaObject.FUNCTION;
-                objectName = readNewSchemaObjectName(SchemaObject.FUNCTION,
-                                                     false);
                 break;
 
             case Tokens.SPECIFIC : {

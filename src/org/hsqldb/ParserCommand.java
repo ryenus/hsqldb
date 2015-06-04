@@ -186,6 +186,11 @@ public class ParserCommand extends ParserDDL {
 
                 break;
             }
+            case Tokens.REPLACE : {
+                cs = compileInsertStatement(RangeGroup.emptyArray);
+
+                break;
+            }
 
             // PROCEDURE
             case Tokens.CALL : {
@@ -337,7 +342,7 @@ public class ParserCommand extends ParserDDL {
             return cs;
         }
 
-        cs = super.compileDeclareCursorOrNull(RangeGroup.emptyArray, false);
+        cs = compileDeclareCursorOrNull(RangeGroup.emptyArray, false);
 
         if (cs == null) {
             throw lastError == null ? unexpectedToken()

@@ -442,6 +442,11 @@ public final class Constraint implements SchemaObject {
         return constType;
     }
 
+    public boolean isUniqueOrPK() {
+        return constType == SchemaObject.ConstraintTypes.UNIQUE
+               || constType == SchemaObject.ConstraintTypes.PRIMARY_KEY;
+    }
+
     /**
      *  Returns the main table
      */
@@ -896,6 +901,20 @@ public final class Constraint implements SchemaObject {
         PersistentStore store = core.refTable.getRowStore(session);
 
         return core.refIndex.findFirstRow(session, store, row, core.mainCols);
+    }
+
+    /**
+     * Finds a row matching the values in UNIQUE columns.
+     */
+    RowIterator findUniqueRows(Session session, Object[] row) {
+
+        if (row == null || ArrayUtil.hasNull(row, core.mainCols)) {
+            return core.mainIndex.emptyIterator();
+        }
+
+        PersistentStore store = core.mainTable.getRowStore(session);
+
+        return core.mainIndex.findFirstRow(session, store, row, core.mainCols);
     }
 
     /**

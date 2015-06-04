@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2014, The HSQL Development Group
+/* Copyright (c) 2001-2015, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -45,7 +45,7 @@ import org.hsqldb.types.Type;
  * @version 2.3.3
  * @since 2.2.7
  */
-public interface RowSetNavigatorDataChange {
+public interface RowSetNavigatorDataChange extends RangeIterator {
 
     void release();
 
@@ -73,6 +73,8 @@ public interface RowSetNavigatorDataChange {
 
     Object[] addRow(Session session, Row row, Object[] data, Type[] types,
                     int[] columnMap);
+
+    public boolean addUpdate(Row row, Object[] data, int[] columnMap);
 
     boolean containsDeletedRow(Row row);
 
