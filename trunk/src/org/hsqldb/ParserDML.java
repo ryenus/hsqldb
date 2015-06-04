@@ -506,7 +506,7 @@ public class ParserDML extends ParserDQL {
         Statement cs = new StatementDML(session, table, targetRange,
                                         rangeVariables, compileContext,
                                         restartIdentity,
-                                        StatementTypes.TRUNCATE);
+                                        StatementTypes.TRUNCATE, null);
 
         return cs;
     }
@@ -539,6 +539,12 @@ public class ParserDML extends ParserDQL {
 
             condition = XreadAndResolveBooleanValueExpression(rangeGroups,
                     rangeGroup);
+        }
+
+        SortAndSlice sortAndSlice = null;
+
+        if (token.tokenType == Tokens.LIMIT) {
+            sortAndSlice = XreadOrderByExpression();
         }
 
         Table baseTable = table.isTriggerDeletable() ? table
@@ -581,7 +587,8 @@ public class ParserDML extends ParserDQL {
         Statement cs = new StatementDML(session, table, targetRange,
                                         rangeVariables, compileContext,
                                         restartIdentity,
-                                        StatementTypes.DELETE_WHERE);
+                                        StatementTypes.DELETE_WHERE,
+                                        sortAndSlice);
 
         return cs;
     }
@@ -642,14 +649,10 @@ public class ParserDML extends ParserDQL {
                     rangeGroup);
         }
 
-        // read but not used
-        if (database.sqlSyntaxMys) {
-            SortAndSlice sortAndSlice = null;
+        SortAndSlice sortAndSlice = null;
 
-            if (token.tokenType == Tokens.ORDER
-                    || token.tokenType == Tokens.LIMIT) {
-                sortAndSlice = XreadOrderByExpression();
-            }
+        if (token.tokenType == Tokens.LIMIT) {
+            sortAndSlice = XreadOrderByExpression();
         }
 
         resolveUpdateExpressions(table, rangeGroup, columnMap,
@@ -713,7 +716,8 @@ public class ParserDML extends ParserDQL {
         StatementDMQL cs = new StatementDML(session, targets, table,
                                             targetRange, rangeVariables,
                                             columnMap, updateExpressions,
-                                            columnCheckList, compileContext);
+                                            columnCheckList, compileContext,
+                                            sortAndSlice);
 
         return cs;
     }
@@ -1055,6 +1059,7 @@ public class ParserDML extends ParserDQL {
                           updateList, targetRangeVars, sourceRange,
                           conditions);
         }
+
         if (conditions[1] == null && conditions[2] != null) {
             deleteFirst = true;
         }
@@ -1072,8 +1077,9 @@ public class ParserDML extends ParserDQL {
 
             setParameterTypes(insertExpression, table, insertColumnMap);
 
-            if (conditions[0] == null)
-            conditions[0] = Expression.EXPR_TRUE;
+            if (conditions[0] == null) {
+                conditions[0] = Expression.EXPR_TRUE;
+            }
         }
 
         if (updateList.size() > 0) {
@@ -1093,8 +1099,9 @@ public class ParserDML extends ParserDQL {
 
             updateColIndexList.toArray(updateColumnMap);
 
-            if (conditions[1] == null)
-            conditions[1] = Expression.EXPR_TRUE;
+            if (conditions[1] == null) {
+                conditions[1] = Expression.EXPR_TRUE;
+            }
         }
 
         if (updateExpressions.length != 0) {
