@@ -51,9 +51,9 @@
     <para>HyperSQL is used more than any other database engine for application
     testing and development targeted at other databases. Over the years, this
     usage resulted in developers finding and reporting many obscure bugs in
-    HyperSQL, which have all been fixed. HyperSQL
-    2 has been written to the SQL Standard and avoids the traps caused by
-    superficial imitations of some other RDBMS.</para>
+    HyperSQL, which have all been fixed. HyperSQL 2 has been written to the
+    SQL Standard and avoids the traps caused by superficial imitations of some
+    other RDBMS.</para>
 
     <para>HyperSQL has many property settings that relax conformance to the
     Standard in order to allow compatibility with other RDBMS, without
@@ -97,7 +97,7 @@
       </listitem>
     </itemizedlist>
 
-    <para>Support for compatibility with other RDBMS has been extended with 
+    <para>Support for compatibility with other RDBMS has been extended with
     each version of HyperSQL.</para>
 
     <section xml:id="coc_compatibility_postgres">
@@ -116,11 +116,11 @@
         </listitem>
 
         <listitem>
-          <para>Use MVCC if your application is multi-user</para>
+          <para>Use MVCC if your application is multi-user.</para>
         </listitem>
 
         <listitem>
-          <para>PostgreSQL functions are generally supported</para>
+          <para>PostgreSQL functions are generally supported.</para>
         </listitem>
 
         <listitem>
@@ -182,17 +182,17 @@
     <section xml:id="coc_compatibility_mysql">
       <title>MySQL Compatibility</title>
 
-      <para>The latest versions of MySQL have introduced greater Standard 
-	  compatibility but some of these
-      features have to be turned on via properties. You should therefore check
-      the current Standard compatibility settings of your MySQL database and
-      use the available HyperSQL properties to achieve closer results. If you
-      avoid the few anti-Standard features of MySQL you can port your
-      databases to HyperSQL.</para>
+      <para>The latest versions of MySQL have introduced greater Standard
+      compatibility but some of these features have to be turned on via
+      properties. You should therefore check the current Standard
+      compatibility settings of your MySQL database and use the available
+      HyperSQL properties to achieve closer results. If you avoid the few
+      anti-Standard features of MySQL, you can port your databases to
+      HyperSQL.</para>
 
       <para>Using HyperSQL during development and testing of MySQL apps helps
-	  to avoid data integrity issues that MySQL may ignore.</para>
-	  
+      to avoid data integrity issues that MySQL may ignore.</para>
+
       <para>HyperSQL does not have the following non-standard limitations of
       MySQL.</para>
 
@@ -214,8 +214,8 @@
         <listitem>
           <para>With HyperSQL INSERT or UPDATE statements either succeed or
           fail due to constraint violation. MySQL has the non-standard IGNORE
-          override to ignore violations and alter the data, which is not 
-		  accepted by HyperSQL.</para>
+          override to ignore violations and alter the data, which is not
+          accepted by HyperSQL.</para>
         </listitem>
 
         <listitem>
@@ -232,8 +232,8 @@
         <listitem>
           <para>Use <literal>&lt;set database sql syntax MYS
           statement&gt;</literal> to enable support for AUTO_INCREMENT and
-          TEXT data types and several other types. These type definitions 
-		  are translated into HyperSQL equivalents.</para>
+          TEXT data types and several other types. These type definitions are
+          translated into HyperSQL equivalents.</para>
         </listitem>
 
         <listitem>
@@ -299,28 +299,36 @@
           <literal>VALUES('A Test String')</literal>. In MYS syntax mode, this
           type of SELECT is supported.</para>
         </listitem>
+
         <listitem>
-		 <para>Indexes defined inside CREATE TABLE statements are accepted and
-		 created. The index names must be unique within the schema. 
+          <para>Indexes defined inside CREATE TABLE statements are accepted
+          and created. The index names must be unique within the
+          schema.</para>
         </listitem>
+
         <listitem>
-          <para>HyperSQL translates INSERT IGNORE, REPLACE and ON DUPLICATE KEY UPDATE
-		  variations of INSERT into predictable and error-free operations.</para> 
-		  <para>When INSERT IGNORE is used, if any of the inserted rows would violate a
-		  PRIMARY KEY or UNIQUE constraint, that row is not inserted. The 
-		  rest of the rows are then inserted only if there is no other violation
-		  such as long strings or type mismatch, otherwise the appropriate error
-		  is returned.</para>
-		  <para>When REPLACE or ON DUPLICATE KEY UPDATE is used, the rows that
-		  need replacing or updating are updated with the given values. This works
-		  exactly like an UPDATE statement for those rows. Referential
-		  constraints and other integrity checks are enforced and
-		  update triggers are activated. The row count returned is simply the 
-		  total number of rows inserted and updated.</para>
+          <para>HyperSQL translates INSERT IGNORE, REPLACE and ON DUPLICATE
+          KEY UPDATE variations of INSERT into predictable and error-free
+          operations.</para>
+
+          <para>When INSERT IGNORE is used, if any of the inserted rows would
+          violate a PRIMARY KEY or UNIQUE constraint, that row is not
+          inserted. The rest of the rows are then inserted only if there is no
+          other violation such as long strings or type mismatch, otherwise the
+          appropriate error is returned.</para>
+
+          <para>When REPLACE or ON DUPLICATE KEY UPDATE is used, the rows that
+          need replacing or updating are updated with the given values. This
+          works exactly like an UPDATE statement for those rows. Referential
+          constraints and other integrity checks are enforced and update
+          triggers are activated. The row count returned is simply the total
+          number of rows inserted and updated.</para>
         </listitem>
+
         <listitem>
-          <para>MySQL user-defined function and procedure syntax is very similar
-          to SQL Standard syntax. A few changes may still be required.</para>
+          <para>MySQL user-defined function and procedure syntax is very
+          similar to SQL Standard syntax. A few changes may still be
+          required.</para>
         </listitem>
       </itemizedlist>
     </section>
@@ -416,9 +424,9 @@
         </listitem>
 
         <listitem>
-          <para>Non-standard DEFAULT definitions for columns, such as the
-		  use of DUAL with a SEQUENCE function are supported and translated 
-		  in ORA syntax mode.</para>
+          <para>Non-standard DEFAULT definitions for columns, such as the use
+          of DUAL with a SEQUENCE function are supported and translated in ORA
+          syntax mode.</para>
         </listitem>
 
         <listitem>
@@ -452,9 +460,9 @@
     <section xml:id="coc_compatibility_db2">
       <title>DB2 Compatibility</title>
 
-      <para>DB2 is highly compatible with the SQL Standard (except its lack of
-      support for the INFORMATION_SCHEMA). Applications can be ported to
-      HyperSQL without difficulty.</para>
+      <para>DB2 is highly compatible with the SQL Standard (except for its
+      lack of support for the INFORMATION_SCHEMA). Applications can be ported
+      to HyperSQL without difficulty.</para>
 
       <itemizedlist>
         <listitem>

@@ -865,7 +865,7 @@
 
       <simpara>DEFAULT is used for assignments to table columns that have a
       default value, or to table columns that are generated either as an
-      IDENTITY value or as an expression. </simpara>
+      IDENTITY value or as an expression.</simpara>
 
       <simpara>NULL can be used only in a context where the type of the value
       is known. For example, a NULL can be assigned to a column of the table
@@ -3412,7 +3412,8 @@ SELECT firstname, lastname, a.c FROM customer, LATERAL(SELECT SUM(total) FROM in
 
       <simpara><literal>&lt;delete statement: searched&gt; ::= DELETE FROM
       &lt;target table&gt; [ [ AS ] &lt;correlation name&gt; ] [ WHERE
-      &lt;search condition&gt; ]</literal></simpara>
+      &lt;search condition&gt; ][ LIMIT &lt;fetch first row count&gt;
+      ]</literal></simpara>
 
       <simpara>Delete rows of a table. The search condition is a
       <literal>&lt;boolean value expression&gt;</literal> that is evaluated
@@ -3429,6 +3430,13 @@ SELECT firstname, lastname, a.c FROM customer, LATERAL(SELECT SUM(total) FROM in
       referential actions, then rows from those other tables that reference
       the deleted rows are either deleted, or updated, according to the
       specified referential actions.</simpara>
+
+      <simpara>The LIMIT clause, or alternatively the ROW_NUMBER() funtion in
+      the WHERE clause, can be used to limit the number of rows that are
+      deleted. This is useful when a very large number of rows needs to be
+      deleted. In this situation, you can perform the operation is chunks and
+      commit after each chunk to reduce memory usage and the total time of the
+      operation.</simpara>
 
       <simpara>In the second example below the rows that have the maximum
       value for column A are deleted;</simpara>
@@ -3633,7 +3641,8 @@ SELECT firstname, lastname, a.c FROM customer, LATERAL(SELECT SUM(total) FROM in
 
       <simpara><literal>&lt;update statement: searched&gt; ::= UPDATE
       &lt;target table&gt; [ [ AS ] &lt;correlation name&gt; ] SET &lt;set
-      clause list&gt; [ WHERE &lt;search condition&gt; ]</literal></simpara>
+      clause list&gt; [ WHERE &lt;search condition&gt; ][ LIMIT &lt;fetch
+      first row count&gt; ]</literal></simpara>
 
       <simpara>Update rows of a table. An UPDATE statement selects rows from
       the <literal>&lt;target table&gt;</literal> using an implicit SELECT
@@ -3659,6 +3668,13 @@ SELECT firstname, lastname, a.c FROM customer, LATERAL(SELECT SUM(total) FROM in
       <simpara>The rows that are updated are checked against all the
       constraints that have been declared on the table. The whole UPDATE
       operation fails if any row violates any constraint.</simpara>
+
+      <simpara>The LIMIT clause, or alternatively the ROW_NUMBER() funtion in
+      the WHERE clause, can be used to limit the number of rows that are
+      updated. This is useful when a very large number of rows needs to be
+      udated. In this situation, you can perform the operation is chunks and
+      commit after each chunk to reduce memory usage and the total time of the
+      operation.</simpara>
 
       <indexterm significance="preferred" type="sql">
         <primary>set clause in UPDATE and MERGE statements</primary>
@@ -3740,12 +3756,13 @@ SELECT firstname, lastname, a.c FROM customer, LATERAL(SELECT SUM(total) FROM in
       <simpara><literal>&lt;merge when clause&gt; ::= &lt;merge when matched
       clause&gt; | &lt;merge when not matched clause&gt;</literal></simpara>
 
-      <simpara><literal>&lt;merge when matched clause&gt; ::= 
-	  WHEN MATCHED [ AND &lt;search condition&gt; ] THEN
-	  &lt;merge update or delete specification&gt;</literal></simpara>	  
-	  
+      <simpara><literal>&lt;merge when matched clause&gt; ::= WHEN MATCHED [
+      AND &lt;search condition&gt; ] THEN &lt;merge update or delete
+      specification&gt;</literal></simpara>
+
       <simpara><literal>&lt;merge when not matched clause&gt; ::= WHEN NOT
-      MATCHED [ AND &lt;search condition&gt; ] THEN &lt;merge insert specification&gt;</literal></simpara>
+      MATCHED [ AND &lt;search condition&gt; ] THEN &lt;merge insert
+      specification&gt;</literal></simpara>
 
       <simpara><literal>&lt;merge update specification&gt; ::= UPDATE SET
       &lt;set clause list&gt;</literal></simpara>
@@ -3766,12 +3783,12 @@ SELECT firstname, lastname, a.c FROM customer, LATERAL(SELECT SUM(total) FROM in
       expression&gt; | &lt;contextually typed value
       specification&gt;</literal></simpara>
 
-      <simpara>Update rows, deletes rows or insert new rows into the <literal>&lt;target
-      table&gt;</literal>. The MERGE statement uses a second table, specified
-      by <literal>&lt;table reference&gt;</literal>, to determine the rows to
-      be updated or inserted. It is possible to use the statement only to
-      update rows, to delete rows or to insert rows, but usually both update and
-	  insert are specified.</simpara>
+      <simpara>Update rows, deletes rows or insert new rows into the
+      <literal>&lt;target table&gt;</literal>. The MERGE statement uses a
+      second table, specified by <literal>&lt;table reference&gt;</literal>,
+      to determine the rows to be updated or inserted. It is possible to use
+      the statement only to update rows, to delete rows or to insert rows, but
+      usually both update and insert are specified.</simpara>
 
       <simpara>The <literal>&lt;search condition&gt;</literal> matches each
       row of the <literal>&lt;table reference&gt;</literal> with each row of
@@ -3780,10 +3797,10 @@ SELECT firstname, lastname, a.c FROM customer, LATERAL(SELECT SUM(total) FROM in
       table. Those rows of <literal>&lt;table reference&gt;</literal> that
       have no matching rows are then used to insert new rows into the
       <literal>&lt;target table&gt;</literal>. Therefore, a MERGE statement
-      can update or delete between 0 and all the rows of the <literal>&lt;target
-      table&gt;</literal> and can insert between 0 and the number of the rows
-      in <literal>&lt;table reference&gt;</literal> into the
-      <literal>&lt;target table&gt;</literal>. If any row in the
+      can update or delete between 0 and all the rows of the
+      <literal>&lt;target table&gt;</literal> and can insert between 0 and the
+      number of the rows in <literal>&lt;table reference&gt;</literal> into
+      the <literal>&lt;target table&gt;</literal>. If any row in the
       <literal>&lt;target table&gt;</literal> matches more than one row in
       <literal>&lt;table reference&gt;</literal> a cardinality error is
       raised. On the other hand, several rows in the <literal>&lt;target
