@@ -43,7 +43,7 @@ import org.hsqldb.testbase.ForSubject;
 /**
  * Test of org.hsqldb.jdbc.JDBCBlobClient
  *
- * @author Campbell Boucher-Burnet (boucherb@users dot sourceforge.net)
+ * @author Campbell Burnet (boucherb@users dot sourceforge.net)
  */
 @ForSubject(JDBCBlobClient.class)
 public class JDBCBlobClientTest extends BaseBlobTestCase {

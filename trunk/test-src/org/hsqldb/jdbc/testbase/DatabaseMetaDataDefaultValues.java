@@ -51,9 +51,9 @@ import org.hsqldb.testbase.PropertyGetter;
  * pure accessor method default value lookup.
  *
  * This is a start toward upgrading the test suite to allow cross driver testing
- * with spi style bases and inheritance. 
+ * with spi style bases and inheritance.
  *
- * @author Campbell Boucher-Burnet (boucherb@users dot sourceforge.net)
+ * @author Campbell Burnet (boucherb@users dot sourceforge.net)
  * @version 2.1
  * @since HSQLDB 2.1
  */

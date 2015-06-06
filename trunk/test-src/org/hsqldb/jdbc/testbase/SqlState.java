@@ -136,7 +136,7 @@ import org.hsqldb.resources.ResourceBundleHandler;
  * </li>
  * </ul>
  *
- * @author Campbell Boucher-Burnet &lt;boucherb at users.sourceforge.net&gt;
+ * @author Campbell Burnet (boucherb@users dot sourceforge.net)
  */
 public abstract class SqlState implements Serializable {
 

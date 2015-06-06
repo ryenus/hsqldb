@@ -66,7 +66,7 @@ import org.hsqldb.testbase.ConnectionFactory.ConnectionFactoryEventListener;
 /**
  * Abstract HSQLDB-targeted JUnit 3.8 test case. <p>
  *
- * @author Campbell Boucher-Burnet (boucherb@users dot sourceforge.net)
+ * @author Campbell Burnet (boucherb@users dot sourceforge.net)
  * @version 2.0.1
  * @since 1.9.0
  */
@@ -675,7 +675,7 @@ public abstract class BaseTestCase extends junit.framework.TestCase {
                 translatePropertyKey(key),
                 defaultValue);
     }
-    
+
     /**
      * for the given key.
      *
@@ -687,7 +687,7 @@ public abstract class BaseTestCase extends junit.framework.TestCase {
         return PropertyGetter.getDoubleProperty(
                 translatePropertyKey(key),
                 defaultValue);
-    }    
+    }
 
     /**
      * as defined in system properties.
@@ -1054,7 +1054,7 @@ public abstract class BaseTestCase extends junit.framework.TestCase {
         return closer;
     }
 
-    // invoked on teardown to ensure that the built-in listeners always 
+    // invoked on teardown to ensure that the built-in listeners always
     // get notified *after* all subclass listener registrations.
     protected void activateConnectionFactoryListeners() {
         if (isCloseEmbeddedDatabasesOnTeardown()) {
@@ -1174,19 +1174,19 @@ public abstract class BaseTestCase extends junit.framework.TestCase {
         return getBooleanProperty("test.types.array", false);
     }
 
-        
+
     protected boolean isTestDISTINCT() {
         return getBooleanProperty("test.types.distinct", false);
     }
-    
+
     protected boolean isTestJAVA_OBJECT() {
         return getBooleanProperty("test.types.distinct", false);
-    } 
-    
+    }
+
     protected boolean isTestOTHER() {
         return getBooleanProperty("test.types.distinct", false);
-    }     
-    
+    }
+
     protected boolean isTestREF() {
         return getBooleanProperty("test.types.ref", false);
     }
@@ -1194,10 +1194,10 @@ public abstract class BaseTestCase extends junit.framework.TestCase {
     protected boolean isTestROWID() {
         return getBooleanProperty("test.types.rowid", false);
     }
-    
+
     protected boolean isTestSTRUCT() {
         return getBooleanProperty("test.types.struct", false);
-    }  
+    }
 
     protected boolean isTestSQLXML() {
         return getBooleanProperty("test.types.sqlxml", false);

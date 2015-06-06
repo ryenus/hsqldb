@@ -41,7 +41,7 @@ import org.hsqldb.testbase.BaseTestCase;
 /**
  * Abstract JDBC-focused Junit test case. <p>
  *
- * @author Campbell Boucher-Burnet (boucherb@users dot sourceforge.net)
+ * @author Campbell Burnet (boucherb@users dot sourceforge.net)
  * @version 1.9.0
  * @since 1.7.2
  */
@@ -115,7 +115,7 @@ public abstract class BaseJdbcTestCase extends BaseTestCase {
         "LONGVARBINARY",
         "DATE",
         "TIME",
-        "TIMESTAMP",        
+        "TIMESTAMP",
         "CLOB",  // ......................................................... 20
         "BLOB",
         "ARRAY",
@@ -354,7 +354,7 @@ public abstract class BaseJdbcTestCase extends BaseTestCase {
      */
     protected static Set getRequiredSetObject(int dataType) {
         return (Set) jdbcInverseSetObjectMap.get(dataType);
-    }    
+    }
 
     /**
      * Constructs a new JdbcTestCase.

@@ -43,7 +43,7 @@ import org.hsqldb.testbase.OfMethod;
 /**
  * Test of class org.hsqldb.jdbc.jdbcRowId.
  *
- * @author Campbell Boucher-Burnet (boucherb@users dot sourceforge.net)
+ * @author Campbell Burnet (boucherb@users dot sourceforge.net)
  */
 @ForSubject(RowId.class)
 public class JDBCRowIdTest extends BaseJdbcTestCase {

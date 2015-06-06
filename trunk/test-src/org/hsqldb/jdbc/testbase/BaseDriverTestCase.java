@@ -40,7 +40,7 @@ import org.hsqldb.testbase.OfMethod;
 
 /**
  *
- * @author Campbell Boucher-Burnet (boucherb@users dot sourceforge.net)
+ * @author Campbell Burnet (boucherb@users dot sourceforge.net)
  * @version 2.1.0
  * @since HSQLDB 2.1.0
  */
@@ -78,7 +78,7 @@ public abstract class BaseDriverTestCase extends BaseJdbcTestCase {
         final String url = getUrl();
         final Driver driver = newDriver();
 
-        assertEquals("driver.acceptsURL(" + url + ")", true, 
+        assertEquals("driver.acceptsURL(" + url + ")", true,
                 driver.acceptsURL(url));
 
         assertEquals("driver.acceptsURL(xyz:" + url + ")", false,

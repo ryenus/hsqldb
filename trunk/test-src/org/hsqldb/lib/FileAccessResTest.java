@@ -44,7 +44,7 @@ import junit.framework.TestSuite;
 
 /**
  *
- * @author Campbell Boucher-Burnet (boucherb@users dot sourceforge.net)
+ * @author Campbell Burnet (boucherb@users dot sourceforge.net)
  */
 @ForSubject(FileAccessRes.class)
 public class FileAccessResTest extends BaseTestCase {

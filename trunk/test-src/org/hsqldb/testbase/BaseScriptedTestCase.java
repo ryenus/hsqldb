@@ -48,7 +48,7 @@ import org.hsqldb.lib.StringUtil;
 /**
  * Initial port of org.hqldb.test.TestUtil.
  *
- * @author Campbell Boucher-Burnet (boucherb@users dot sourceforge.net)
+ * @author Campbell Burnet (boucherb@users dot sourceforge.net)
  */
 public abstract class BaseScriptedTestCase extends BaseTestCase {
 
@@ -420,7 +420,7 @@ public abstract class BaseScriptedTestCase extends BaseTestCase {
             StringBuilder sb = new StringBuilder();
 
             if (getMessage() != null) {
-			    sb.append('\n');
+                sb.append('\n');
                 sb.append(getMessage());
             }
             sb.append("\n");
@@ -492,7 +492,7 @@ public abstract class BaseScriptedTestCase extends BaseTestCase {
                 success = true;
             } catch (Exception x) {
                 java.io.StringWriter sw = new java.io.StringWriter();
-                java.io.PrintWriter pw = new java.io.PrintWriter(sw);				
+                java.io.PrintWriter pw = new java.io.PrintWriter(sw);
                 x.printStackTrace(pw);
                 m_message = sw.toString();
             }

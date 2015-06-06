@@ -46,18 +46,18 @@ import java.util.EventListener;
 import java.util.List;
 
 /**
- * For creating, tracking and closing the 
+ * For creating, tracking and closing the
  * JDBC objects used by this test suite. <p>
  *
  * Note that a facility is provided to notify parties interested in the {@link
  * EventListener#closedRegisteredObjects(org.hsqldb.testbase.ConnectionFactory)}
  * event. <p>
- * 
+ *
  * For example, this facility is used by the {@link BaseTestCase}
  * class to optionally register an action to close all embedded HSQLDB database
  * instances in response to test fixture tear down completion. <p>
- * 
- * @author Campbell Boucher-Burnet (boucherb@users dot sourceforge.net)
+ *
+ * @author Campbell Burnet (boucherb@users dot sourceforge.net)
  * @version 2.0.1
  * @since 1.9.0
  */
@@ -101,7 +101,7 @@ public final class ConnectionFactory {
 
     // </editor-fold>
 
-    // <editor-fold defaultstate="collapsed" desc="Event Listener Support">    
+    // <editor-fold defaultstate="collapsed" desc="Event Listener Support">
     /**
      * for event "closedRegisteredObjects".
      */
@@ -286,7 +286,7 @@ public final class ConnectionFactory {
 
         }
 
-        
+
     }
     // </editor-fold>
 
@@ -407,7 +407,7 @@ public final class ConnectionFactory {
      * using the given <tt>sql</tt> and statement object.
      *
      * The returned <tt>ResultSet</tt> is registered to be closed at teardown.
-     * 
+     *
      * @param sql to execute.
      * @param stmt against which to execute.
      * @throws java.lang.Exception when execution fails.

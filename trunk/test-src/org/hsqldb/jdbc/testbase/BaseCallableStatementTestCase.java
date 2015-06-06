@@ -14,7 +14,7 @@ import java.text.MessageFormat;
 /**
  * Provides...
  *
- * @author Campbell Boucher-Burnet <campbell.boucherburnet@gov.sk.ca>;
+ * @author Campbell Burnet (boucherb@users dot sourceforge.net)
  * @version 1.0
  * @since 1.0
  */

@@ -32,14 +32,12 @@ package org.hsqldb.server;
 
 import junit.framework.Test;
 import junit.framework.TestCase;
-
-
 import junit.framework.TestSuite;
 import junit.textui.TestRunner;
 
 /**
  *
- * @author Campbell Boucher-Burnet (boucherb@users dot sourceforge.net)
+ * @author Campbell Burnet (boucherb@users dot sourceforge.net)
  */
 public class ServerSuite extends TestCase {
 

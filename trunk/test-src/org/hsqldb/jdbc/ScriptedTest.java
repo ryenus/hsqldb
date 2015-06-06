@@ -37,7 +37,7 @@ import org.hsqldb.testbase.HsqldbEmbeddedDatabaseDeleter;
 
 /**
  *
- * @author Campbell Boucher-Burnet (boucherb@users dot sourceforge.net)
+ * @author Campbell Burnet (boucherb@users dot sourceforge.net)
  */
 public class ScriptedTest extends BaseScriptedTestCase {
 
@@ -79,7 +79,7 @@ public class ScriptedTest extends BaseScriptedTestCase {
     }
 
     /**
-     * 
+     *
      * @return
      */
     @SuppressWarnings("CallToThreadDumpStack")
@@ -103,7 +103,7 @@ public class ScriptedTest extends BaseScriptedTestCase {
 
     /**
      * @param args
-     * @throws java.lang.Exception 
+     * @throws java.lang.Exception
      */
     public static void main(String[] args) throws Exception {
         junit.textui.TestRunner.run(suite());

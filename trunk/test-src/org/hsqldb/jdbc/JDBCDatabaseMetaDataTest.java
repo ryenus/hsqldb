@@ -38,8 +38,8 @@ import org.hsqldb.testbase.ForSubject;
 
 /**
  * Test of class JDBCDatabaseMetaData.
- * 
- * @author Campbell Boucher-Burnet (boucherb@users dot sourceforge.net)
+ *
+ * @author Campbell Burnet (boucherb@users dot sourceforge.net)
  */
 @ForSubject(JDBCDatabaseMetaData.class)
 public class JDBCDatabaseMetaDataTest extends BaseDatabaseMetaDataTestCase {
@@ -47,11 +47,11 @@ public class JDBCDatabaseMetaDataTest extends BaseDatabaseMetaDataTestCase {
     public JDBCDatabaseMetaDataTest(String testName) {
         super(testName);
     }
-    
+
     public static Test suite() {
         return new TestSuite(JDBCDatabaseMetaDataTest.class);
     }
-    
+
     public static void main(java.lang.String[] argList) {
         junit.textui.TestRunner.run(suite());
     }
