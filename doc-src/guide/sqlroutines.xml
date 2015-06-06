@@ -46,7 +46,7 @@
   </info>
 
   <para>SQL-invoked routines are functions and procedures called from SQL.
-  HyperSQL 2.0 supports routines conforming to two parts of the SQL Standard.
+  HyperSQL 2.3 supports routines conforming to two parts of the SQL Standard.
   Routines written in the SQL language are supported in conformance to SQL/PSM
   (Persistent Stored Modules) specification. Routines written in Java are
   supported in broad conformance to SQL/JRT specification. In addition,
@@ -54,7 +54,7 @@
   prior method definition is retained and enhanced in the latest version by
   extending the SQL/JRT specification.</para>
 
-  <para>HyperSQL also supports user defined aggregate functions written in the
+  <para>HyperSQL also supports user-defined aggregate functions written in the
   SQL language or Java. This feature is an extension to the SQL
   Standard.</para>
 
@@ -125,9 +125,9 @@
   and invocation are all implemented uniformly for routines written in SQL or
   Java.</para>
 
-  <para>Access to routines can be granted to users with GRANT EXECUTE or GRANT ALL.
-  For example <literal>GRANT EXECUTE ON myroutine TO PUBLIC</literal>.
-  </para>
+  <para>Access to routines can be granted to users with GRANT EXECUTE or GRANT
+  ALL. For example <literal>GRANT EXECUTE ON myroutine TO
+  PUBLIC</literal>.</para>
 
   <section xml:id="src_routine_definition">
     <title>Routine Definition</title>
@@ -311,12 +311,12 @@
     <simpara><emphasis>external body reference</emphasis></simpara>
 
     <para>External name specifies the qualified name of the Java method
-    associated with this routine. Early releases of HyperSQL 2.0 only supports
-    Java methods within the classpath. The <literal>&lt;external Java
-    reference string&gt;</literal> is a quoted string which starts with
-    CLASSPATH: and is followed by the Java package, class and method names
-    separated with dots. HyperSQL does not currently support the optional
-    <literal>&lt;Java parameter declaration list&gt;</literal>.</para>
+    associated with this routine. HyperSQL 2.3 only supports Java methods
+    within the classpath. The <literal>&lt;external Java reference
+    string&gt;</literal> is a quoted string which starts with CLASSPATH: and
+    is followed by the Java package, class and method names separated with
+    dots. HyperSQL does not currently support the optional <literal>&lt;Java
+    parameter declaration list&gt;</literal>.</para>
 
     <simpara><literal>&lt;external body reference&gt; ::= EXTERNAL NAME
     &lt;external Java reference string&gt;</literal></simpara>
@@ -440,7 +440,7 @@
       <para>A <literal>CREATE PROCEDURE</literal> definition can use
       <literal>MODIFIES SQL DATA</literal>. This is not allowed in
       <literal>CREATE FUNCTION</literal>. Note that a PROCEDURE or a FUNCTION
-      may have internal tables or return a table which are populated by the
+      may have internal tables or return a table which is populated by the
       routine's statements. These tables are not considered SQL DATA,
       therefore there is no need to specify <literal>MODIFIES SQL
       DATA</literal> for such routines.</para>
@@ -483,7 +483,7 @@
       LEVEL</literal> is specified, savepoints that have been declared prior
       to calling the procedure become invisible within the body of the
       procedure. HyperSQL’s implementation accepts only <literal>NEW SAVEPOINT
-      LEVEL</literal>, which must be specified.</para>
+      LEVEL</literal>.</para>
 
       <simpara><literal>&lt;savepoint level indication&gt; ::= NEW SAVEPOINT
       LEVEL | OLD SAVEPOINT LEVEL</literal></simpara>
@@ -783,11 +783,11 @@
       <title>Cursors</title>
 
       <para>A <literal>&lt;declare cursor&gt;</literal> statement is used to
-      declare a SELECT statement. The current usage of this statement in early
-      versions of HyperSQL 2.0 is exclusively to return a result set from a
-      procedure. The result set is returned to the JDBC CallableStatement
-      object that calls the procedure. The getResultSet() method of
-      CallableStatement is then used to retrieve the JDBC ResultSet.</para>
+      declare a SELECT statement. The current usage of this statement in
+      HyperSQL 2.3 is exclusively to return a result set from a procedure. The
+      result set is returned to the JDBC CallableStatement object that calls
+      the procedure. The getResultSet() method of CallableStatement is then
+      used to retrieve the JDBC ResultSet.</para>
 
       <para>In the <literal>&lt;routine definition&gt;</literal>, the
       <literal>DYNAMIC RESULT SETS</literal> clause must be used to specify a
@@ -1795,13 +1795,13 @@
 
     <para>When the Java method of an SQL/JRT routine returns a value, it
     should be within the size and precision limits defined in the return type
-    of the SQL-invoked routine, otherwise an exception is raised. The scale
-    difference are ignored and corrected. For example, in the above example,
-    the <literal>RETURNS CHAR VARYING(100)</literal> clause limits the length
-    of the strings returned from the Java method to 100. But if the number of
-    digits after the decimal point (scale) of a returned BigDecimal value is
-    larger than the scale specified in the RETURNS clause, the decimal
-    fraction is silently truncated and no exception of warning is
+    of the SQL-invoked routine, otherwise an exception is raised. Any
+    difference in numeric scale is ignored and corrected. For example, in the
+    above example, the <literal>RETURNS CHAR VARYING(100)</literal> clause
+    limits the length of the strings returned from the Java method to 100. But
+    if the number of digits after the decimal point (scale) of a returned
+    BigDecimal value is larger than the scale specified in the RETURNS clause,
+    the decimal fraction is silently truncated and no exception of warning is
     raised.</para>
 
     <para>When the function is specified as RETURNS TABLE(...) the static Java
@@ -2082,7 +2082,7 @@
     </section>
 
     <section xml:id="src_jrt_access_control">
-      <title>Securing Access to Classes</title>
+      <title>Securing Access to Classes and Routines</title>
 
       <para>By default, the static methods of any class that is on the
       classpath are available to be used. This can compromise security in some
@@ -2106,11 +2106,14 @@
       property is not defined, no access control is performed at this
       level.</para>
 
+      <para>The user who creates a Java routine must have the relevant access
+      privileges on the tables that are used inside the Java method.</para>
+
       <para>Once the routine has been defined, the normal database access
-      control still applies. The routine can be executed only by the users who
-      have been granted EXECUTE privileges on it. The user who executes a Java
-      routine must also have the relevant access privileges on the tables that
-      are used inside the Java method.</para>
+      control applies to its user. The routine can be executed only by those
+      users who have been granted EXECUTE privileges on it. Access to routines
+      can be granted to users with GRANT EXECUTE or GRANT ALL. For example
+      <literal>GRANT EXECUTE ON myroutine TO PUBLIC</literal>.</para>
     </section>
 
     <section>
@@ -2132,24 +2135,24 @@
       accessible and will return "Error in script file". There is no need ever
       to execute the procedure. However, to avoid accidental use, you can
       ensure that it does not execute the SQL/JRT routines by adding a line
-      such as <literal>IF TRUE THEN RETURN;</literal> before any references to
-      the SQL/JRT routines.</para>
+      such as <literal>IF TRUE THEN SIGNAL SQLSTATE '45000';</literal> before
+      any references to the SQL/JRT routines.</para>
     </section>
   </section>
 
   <section xml:id="src_aggregate_functions">
-    <title>User Defined Aggregate Functions</title>
+    <title>User-Defined Aggregate Functions</title>
 
     <para>HyperSQL adds an extension to the SQL Standard to allow user-defined
     aggregate functions. A user-defined aggregate function has a single
     parameter when it is used in SQL statements. Unlike the predefined
-    aggregate functions, the keyword DISTINCT cannot be used when a user
-    defined aggregate function is invoked. Like all user-defined functions, an
-    aggregate function belongs to a schema and can be polymorphic (using
-    multiple function definitions with the same name but different parameter
-    types).</para>
+    aggregate functions, the keyword DISTINCT cannot be used when a
+    user-defined aggregate function is invoked. Like all user-defined
+    functions, an aggregate function belongs to a schema and can be
+    polymorphic (with multiple function definitions with the same name but
+    different parameter types).</para>
 
-    <para>A user defined aggregate function can be used in SQL statements
+    <para>A user-defined aggregate function can be used in SQL statements
     where a predefined aggregate function is allowed.</para>
 
     <section xml:id="src_aggregate_function_definition">
@@ -2160,7 +2163,7 @@
       invoked in SQL statements, the rest of the parameter are invisible to
       the invoking SQL statement. The type of the first parameter is user
       defined. The type of the second parameter must be BOOLEAN. The third and
-      fourth parameters have user defined types and must be defined as INOUT
+      fourth parameters have user-defined types and must be defined as INOUT
       parameters. The defined return type of the function determines the type
       of the value returned when the function is invoked.</para>
 
@@ -2228,7 +2231,7 @@
     <section xml:id="src_psm_aggregate_functions">
       <title>SQL PSM Aggregate Functions</title>
 
-      <para>The example below features a user defined version of the Standard
+      <para>The example below features a user-defined version of the Standard
       <literal>AVG(&lt;value expression&gt;)</literal> aggregate function for
       INTEGER input and output types. This function behaves differently from
       the Standard AVG function as it returns 0 when all the input values are
@@ -2242,14 +2245,14 @@
        RETURN addup / counter;
      ELSE
        SET counter = COALESCE(counter, 0) + 1;
-       SET addup = COALESCE(addup, 0) || COALESCE(x, 0);
+       SET addup = COALESCE(addup, 0) + COALESCE(x, 0);
        RETURN NULL;
      END IF;
    END
 
 </programlisting>
 
-      <para>The user defined aggregate function is used in a select statement
+      <para>The user-defined aggregate function is used in a select statement
       in the example below. Only the first parameter is visible and utilised
       in the select statement.</para>
 
