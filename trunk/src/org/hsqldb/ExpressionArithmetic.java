@@ -42,7 +42,7 @@ import org.hsqldb.types.Types;
 /**
  * Implementation of arithmetic and concatenation operations
  *
- * @author Campbell Boucher-Burnet (boucherb@users dot sourceforge.net)
+ * @author Campbell Burnet (boucherb@users dot sourceforge.net)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
  * @version 2.3.3
  * @since 1.9.0

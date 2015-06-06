@@ -52,7 +52,7 @@ import java.util.concurrent.locks.AbstractQueuedSynchronizer;
  * from zero, heap memory object burn rate is reduced.
  *
  *
- * @author Campbell Boucher-Burnet (boucherb@users dot sourceforge.net)
+ * @author Campbell Burnet (boucherb@users dot sourceforge.net)
  */
 public class CountUpDownLatch {
 

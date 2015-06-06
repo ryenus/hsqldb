@@ -116,7 +116,7 @@ import org.hsqldb.types.Type;
  * The definitions for the rest of system vies are provided by
  * DatabaseInformationMain, which this class extends. <p>
  *
- * @author Campbell Boucher-Burnet (boucherb@users dot sourceforge.net)
+ * @author Campbell Burnet (boucherb@users dot sourceforge.net)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
  * @version 2.3.3
  * @since 1.7.2
