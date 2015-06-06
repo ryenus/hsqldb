@@ -39,7 +39,7 @@ import org.hsqldb.Database;
  * class loader context that loaded the org.hsqldb.DatabaseManager class
  * that is visible from the calling thread.
  *
- * @author Campbell Boucher-Burnet (boucherb@users dot sourceforge.net)
+ * @author Campbell Burnet (boucherb@users dot sourceforge.net)
  * @version 2.0.1
  * @since 2.0.1
  */

@@ -38,7 +38,7 @@ import junit.framework.TestSuite;
 
 /**
  *
- * @author Campbell Boucher-Burnet (boucherb@users dot sourceforge.net)
+ * @author Campbell Burnet (boucherb@users dot sourceforge.net)
  */
 public class PoolSuite extends TestCase {
 

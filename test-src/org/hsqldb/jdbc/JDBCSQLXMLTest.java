@@ -61,7 +61,7 @@ import org.w3c.dom.NodeList;
 
 /**
  *
- * @author Campbell Boucher-Burnet (boucherb@users dot sourceforge.net)
+ * @author Campbell Burnet (boucherb@users dot sourceforge.net)
  */
 @ForSubject(SQLXML.class)
 public class JDBCSQLXMLTest extends BaseJdbcTestCase {
@@ -183,7 +183,7 @@ public class JDBCSQLXMLTest extends BaseJdbcTestCase {
             }
             transformer = transformerFactory.newTransformer();
         }
-        transformer.transform(source, result);        
+        transformer.transform(source, result);
     }
 
     public static Test suite() {

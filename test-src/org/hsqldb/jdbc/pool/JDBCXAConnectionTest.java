@@ -47,7 +47,7 @@ import org.hsqldb.testbase.OfMethod;
 
 /**
  *
- * @author Campbell Boucher-Burnet (boucherb@users dot sourceforge.net)
+ * @author Campbell Burnet (boucherb@users dot sourceforge.net)
  */
 @ForSubject(JDBCXAConnection.class)
 public class JDBCXAConnectionTest extends BaseJdbcTestCase {

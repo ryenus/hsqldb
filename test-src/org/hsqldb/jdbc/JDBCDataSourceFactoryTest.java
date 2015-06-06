@@ -41,7 +41,7 @@ import org.hsqldb.testbase.ForSubject;
 
 /**
  *
- * @author Campbell Boucher-Burnet (boucherb@users dot sourceforge.net)
+ * @author Campbell Burnet (boucherb@users dot sourceforge.net)
  */
 @ForSubject(JDBCDataSourceFactory.class)
 public class JDBCDataSourceFactoryTest extends BaseJdbcTestCase {

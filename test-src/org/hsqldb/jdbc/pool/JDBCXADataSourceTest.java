@@ -42,11 +42,11 @@ import org.hsqldb.testbase.OfMethod;
 
 /**
  *
- * @author Campbell Boucher-Burnet (boucherb@users dot sourceforge.net)
+ * @author Campbell Burnet (boucherb@users dot sourceforge.net)
  */
 @ForSubject(JDBCXADataSource.class)
 public class JDBCXADataSourceTest extends BaseJdbcTestCase {
-    
+
     public JDBCXADataSourceTest(String testName) {
         super(testName);
     }

@@ -45,14 +45,14 @@ import org.hsqldb.resources.ResourceBundleHandler;
  *   <li>(Properties file) CLASSPATH:/org/hsqldb/resources/test-dbmd-convert(locale_name).properties
  * </ol>
  *
- * @author Campbell Boucher-Burnet (boucherb@users dot sourceforge.net)
+ * @author Campbell Burnet (boucherb@users dot sourceforge.net)
  * @version 2.0.1
  * @since 2.0.1
  */
 public class PropertyGetter {
     public static final int BH_TEST = ResourceBundleHandler.getBundleHandle("test", null);
     public static final int BH_TEST_DBMD_CONVERT = ResourceBundleHandler.getBundleHandle("test-dbmd-convert", null);
-    
+
     /**
      * for the given key.
      *
@@ -79,8 +79,8 @@ public class PropertyGetter {
             value = defaultValue;
         }
         return value;
-    } 
-    
+    }
+
     public static boolean getBooleanProperty(final String key,
             final boolean defaultValue) {
         try {
@@ -99,8 +99,8 @@ public class PropertyGetter {
         } catch (SecurityException se) {
             return defaultValue;
         }
-    }    
-    
+    }
+
     public static int getIntProperty(final String key, final int defaultValue) {
         String propertyValue = PropertyGetter.getProperty(key, null);
         int rval = defaultValue;
@@ -118,7 +118,7 @@ public class PropertyGetter {
 
         return rval;
     }
-    
+
     public static double getDoubleProperty(final String key, final double defaultValue) {
         String propertyValue = PropertyGetter.getProperty(key, null);
         double rval = defaultValue;
@@ -135,7 +135,7 @@ public class PropertyGetter {
         }
 
         return rval;
-    }    
+    }
 
     /**
      * Construction disabled - pure utility class.

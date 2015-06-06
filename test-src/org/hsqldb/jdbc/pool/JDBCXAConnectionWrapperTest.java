@@ -44,7 +44,7 @@ import org.hsqldb.testbase.OfMethod;
 
 /**
  *
- * @author Campbell Boucher-Burnet (boucherb@users dot sourceforge.net)
+ * @author Campbell Burnet (boucherb@users dot sourceforge.net)
  */
 @ForSubject(JDBCXAConnectionWrapper.class)
 public class JDBCXAConnectionWrapperTest extends BaseJdbcTestCase {
@@ -57,7 +57,7 @@ public class JDBCXAConnectionWrapperTest extends BaseJdbcTestCase {
         TestSuite suite = new TestSuite(JDBCXAConnectionWrapperTest.class);
         return suite;
     }
-    
+
     public static void main(java.lang.String[] args) {
         junit.textui.TestRunner.run(suite());
     }

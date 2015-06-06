@@ -63,7 +63,7 @@ import org.hsqldb.testbase.OfMethod;
  * where <tt>${target-type-name}</tt> and <tt>${source-type-name}</tt> are values
  * returned from invocation of {@link #getSQLTypeName(int)}
  *
- * @author Campbell Boucher-Burnet (boucherb@users dot sourceforge.net)
+ * @author Campbell Burnet (boucherb@users dot sourceforge.net)
  * @version 2.2.9
  * @since HSQLDB 2.1.0
  */

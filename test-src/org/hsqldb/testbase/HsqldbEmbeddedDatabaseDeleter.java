@@ -40,7 +40,7 @@ import org.hsqldb.persist.Logger;
  * Provides support for deleting by database URL the files that compose an
  * HSQLDB database.
  *
- * @author Campbell Boucher-Burnet (boucherb@users dot sourceforge.net)
+ * @author Campbell Burnet (boucherb@users dot sourceforge.net)
  * @version 2.2.5
  * @since 2.0.1
  */
