@@ -49,7 +49,7 @@
     <title>Overview</title>
 
     <para>HyperSQL data access and data change statements are fully compatible
-    with the latest SQL:2008 Standard. There are a few extensions and some
+    with the latest SQL:2011 Standard. There are a few extensions and some
     relaxation of rules, but these do not affect statements that are written
     to the Standard syntax. There is full support for classic SQL, as
     specified by SQL-92, and many enhancements added in later versions of the
@@ -59,13 +59,13 @@
   <section xml:id="dac_jdbc_cursors_result_sets">
     <title>Cursors And Result Sets</title>
 
-    <para>An SQL statement can executed in two ways. One way is to use the
+    <para>An SQL statement can be executed in two ways. One way is to use the
     <classname>java.sql.Statement</classname> interface. The Statement object
     can be reused to execute completely different SQL statements.
     Alternatively a <classname>PreparedStatment</classname> can be used to
-    execute an SQL statement repeatedly, and the statements can be
-    parameterized. Using either form, if the SQL statement is a query
-    expression, a <classname>ResultSet</classname> is returned.</para>
+    execute an SQL statement repeatedly, and the statements can use
+    parameters. Using either form, if the SQL statement is a query expression,
+    a <classname>ResultSet</classname> is returned.</para>
 
     <para>In SQL, when a query expression (SELECT or similar SQL statement) is
     executed, an ephemeral table is created. When this table is returned to
@@ -86,16 +86,15 @@
     <section xml:id="dac_jdbc_columns_rows">
       <title>Columns and Rows</title>
 
-      <para>The columns of the rows of the result set are determined by the
-      query expression. The number of columns and the type and name
-      characteristics of each column are known when the query expression is
-      compiled and before its execution. This metadata information remains
-      constant regardless of changes to the contents of the tables used in the
-      query expression. The metadata for the JDBC
-      <classname>ResultSet</classname> is in the form of a
-      <classname>ResultSetMetaData</classname> object. Various methods of the
-      <classname>ResultSetMetaData</classname> interface return different
-      properties of each column of the
+      <para>The columns of the result set are determined by the query
+      expression. The number of columns and the type and name characteristics
+      of each column are known when the query expression is compiled and
+      before its execution. This metadata information remains constant
+      regardless of changes to the contents of the tables used in the query
+      expression. The metadata for the JDBC <classname>ResultSet</classname>
+      is in the form of a <classname>ResultSetMetaData</classname> object.
+      Various methods of the <classname>ResultSetMetaData</classname>
+      interface return different properties of each column of the
       <classname>ResultSet</classname>.</para>
 
       <para>A result set may contain 0 or more rows. The rows are determined
@@ -294,7 +293,7 @@
       parameters with String and BigDecimal Java types. HyperSQL ignores the
       limits when the parameter value is set, and only enforces the necessary
       limits when the PreparedStatement is executed. In all other cases,
-      parameter type limits are checked and enforce when the parameter is
+      parameter type limits are checked and enforced when the parameter is
       set.</para>
 
       <para>In the example below the setString() calls do not raise an
@@ -352,9 +351,9 @@
       <title>JDBC Callable Statement</title>
 
       <para>The JDBC CallableStatement interface is used to call Java or SQL
-      procedures that have been defined in the database. The SQL statement in
-      the form of CALL procedureName ( ... ) with constant value arguments or
-      with parameter markers. Note that you must use a parameter marker for
+      procedures that have been defined in the database. The SQL statement is
+      in the form of CALL procedureName ( ... ) with constant value arguments
+      or with parameter markers. Note that you must use a parameter marker for
       OUT and INOUT arguments of the procedure you are calling. The OUT
       arguments should not be set before executing the callable
       statement.</para>
@@ -389,8 +388,8 @@
       <title>Cursor Declaration</title>
 
       <para>The DECLARE CURSOR statement is used within an SQL PROCEDURE body.
-      In the early releases of HyperSQL 2.0, the cursor is used only to return
-      a result set from the procedure. Therefore the cursor must be declared
+      In the current version HyperSQL 2.3, the cursor is used only to return a
+      result set from the procedure. Therefore the cursor must be declared
       WITH RETURN and can only be READ ONLY.</para>
 
       <indexterm significance="preferred" type="sql">
@@ -1086,7 +1085,7 @@
 
       <simpara>Specify a conditional value. The result of a case expression is
       always a value. All the values introduced with THEN must be of the same
-      type.</simpara>
+      type or convertible to the same type.</simpara>
 
       <simpara>Some simple examples of the CASE expression are given below.
       The first two examples return 'Britain', 'Germany', or 'Other country'
@@ -1162,8 +1161,10 @@
       returned for each invocation. After evaluation of the particular row is
       complete, the sequence generator will return a different value from the
       old value. The new value is generated by the sequence generator by
-      adding the increment to the last value it generated. In the example
-      below the expression is used in an insert statement:</simpara>
+      adding the increment to the last value it generated. In SQL syntax
+      compatibility modes, variants of this expression in different SQL
+      dialects are supported. In the example below the expression is used in
+      an insert statement:</simpara>
 
       <programlisting>INSERT INTO MYTABLE(COL1, COL2) VALUES 2, NEXT VALUE FOR MYSEQUENCE
 </programlisting>
@@ -1180,9 +1181,9 @@
       &lt;sequence generator name&gt;</literal></simpara>
 
       <simpara>Return the latest value that was returned by the NEXT VALUE FOR
-      expression for a sequence generator. In the example below, the value
-      that was generated by the sequence for the first insert, is reused for
-      the second insert:</simpara>
+      expression for a sequence generator in this session. In the example
+      below, the value that was generated by the sequence for the first
+      insert, is reused for the second insert:</simpara>
 
       <programlisting> INSERT INTO MYTABLE(COL1, COL2) VALUES 2, NEXT VALUE FOR MYSEQUENCE;
  INSERT INTO CHILDTABLE(COL1, COL2) VALUES 10, CURRENT VALUE FOR MYSEQUENCE;
@@ -1981,8 +1982,8 @@
       returns the sum of values for <literal>acolumn</literal> in each
       group.</simpara>
 
-      <simpara>If all values are NULL, the aggregate function returns
-      NULL.</simpara>
+      <simpara>If all values are NULL, the aggregate function (except COUNT)
+      returns NULL.</simpara>
 
       <simpara>The SUM operations can be performed on numeric and interval
       expressions only. AVG and MEDIAN can be performed on numeric, interval
@@ -2013,7 +2014,7 @@
       STDDEV_POP, STDDEV_SAMP, VAR_SAMP, VAR_POP on numeric values. NULL
       values are ignored in calculations.</simpara>
 
-      <simpara>User defined aggregate functions can be defined and used
+      <simpara>User-defined aggregate functions can be defined and used
       instead of the built-in aggregate functions. Syntax and examples are
       given in the <link endterm="sqlroutines-title"
       xlink:href="#sqlroutines-chapt"></link> chapter.</simpara>
@@ -2056,7 +2057,7 @@
       GROUP_CONCAT. The CUSTOMER table that is included for tests in the
       DatabaseManager GUI app is the source of the data.</simpara>
 
-      <programlisting> SELECT LASTNAME, ARRAY_AGG(FIRSTNAME ORDER BY FIRSTNAME) FROM Customer  GROUP BY LASTNAME
+      <programlisting> SELECT LASTNAME, ARRAY_AGG(FIRSTNAME ORDER BY FIRSTNAME) FROM Customer GROUP BY LASTNAME
 
  LASTNAME  C2                                                         
  --------- ---------------------------------------------------------- 
@@ -2178,7 +2179,7 @@
     <title>Data Access Statements</title>
 
     <para>HyperSQL fully supports all of SQL-92 data access statements, plus
-    some additions from SQL:2008. Due to time constraints, the current version
+    some additions from SQL:2011. Due to time constraints, the current version
     of this Guide does not cover the subject fully. You are advised to consult
     an SQL book such as the recent O'Reilly title "SQL and Relational Theory"
     by C. J. Date.</para>
@@ -2280,9 +2281,10 @@
 
       <para>In data access statements, a table can be a database table (or
       view) or an ephemeral table formed for the duration of the query. Some
-      types of table are &lt;table primary&gt; and can participate in joins
-      without the use of extra parentheses. The BNF in the Table Primary
-      section below lists different types of &lt;table primary&gt;:</para>
+      types of table are <literal>&lt;table primary&gt;</literal> and can
+      participate in joins without the use of extra parentheses. The BNF in
+      the Table Primary section below lists different types of &lt;table
+      primary&gt;:</para>
 
       <para>Tables can also be formed by specifying the values that are
       contained in them:</para>
@@ -2516,15 +2518,15 @@
         <para><literal>&lt;lateral derived table&gt; ::= LATERAL &lt;table
         subquery&gt;</literal></para>
 
-        <para>The use of &lt;lateral derived table&gt; completely transforms
-        the way a query is written. For example, the two queries below are
-        equivalent, but with different forms. The query with LATERAL is
-        evaluated separately for each row of the first table that satisfies
-        the WHERE condition. The example below uses the tables that are
-        created and populated in DatabaseManagerSwing with the "Insert test
-        data" menu option. The first query uses a scalar subquery to compute
-        the sum of invoice values for each customer. The second query is
-        equivalent and uses a join with a LATERAL table.</para>
+        <para>The use of <literal>&lt;lateral derived table&gt;</literal>
+        completely transforms the way a query is written. For example, the two
+        queries below are equivalent, but with different forms. The query with
+        LATERAL is evaluated separately for each row of the first table that
+        satisfies the WHERE condition. The example below uses the tables that
+        are created and populated in DatabaseManagerSwing with the "Insert
+        test data" menu option. The first query uses a scalar subquery to
+        compute the sum of invoice values for each customer. The second query
+        is equivalent and uses a join with a LATERAL table.</para>
 
         <programlisting>SELECT firstname, lastname, (SELECT SUM(total) FROM invoice WHERE customerid = customer.id) s FROM customer
 
@@ -2546,7 +2548,7 @@ SELECT firstname, lastname, a.c FROM customer, LATERAL(SELECT SUM(total) FROM in
         expressions are converted into a table which has one column for each
         expression and contains the elements of the array. If WITH ORDINALITY
         is used, an extra column that contains the index of each element is
-        added to this table. The number or rows in the table equals the length
+        added to this table. The number of rows in the table equals the length
         of the largest arrays. The smaller arrays are padded with NULL values.
         If an &lt;array value expression&gt; evaluates to NULL, an empty array
         is used in its place. The array expression can contain references to
@@ -3431,11 +3433,11 @@ SELECT firstname, lastname, a.c FROM customer, LATERAL(SELECT SUM(total) FROM in
       the deleted rows are either deleted, or updated, according to the
       specified referential actions.</simpara>
 
-      <simpara>The LIMIT clause, or alternatively the ROW_NUMBER() funtion in
-      the WHERE clause, can be used to limit the number of rows that are
-      deleted. This is useful when a very large number of rows needs to be
-      deleted. In this situation, you can perform the operation is chunks and
-      commit after each chunk to reduce memory usage and the total time of the
+      <simpara>The LIMIT clause, or alternatively the ROWNUM() function in the
+      WHERE clause, can be used to limit the number of rows that are deleted.
+      This is useful when a very large number of rows needs to be deleted. In
+      this situation, you can perform the operation is chunks and commit after
+      each chunk to reduce memory usage and the total time of the
       operation.</simpara>
 
       <simpara>In the second example below the rows that have the maximum
@@ -3669,11 +3671,11 @@ SELECT firstname, lastname, a.c FROM customer, LATERAL(SELECT SUM(total) FROM in
       constraints that have been declared on the table. The whole UPDATE
       operation fails if any row violates any constraint.</simpara>
 
-      <simpara>The LIMIT clause, or alternatively the ROW_NUMBER() funtion in
-      the WHERE clause, can be used to limit the number of rows that are
-      updated. This is useful when a very large number of rows needs to be
-      udated. In this situation, you can perform the operation is chunks and
-      commit after each chunk to reduce memory usage and the total time of the
+      <simpara>The LIMIT clause, or alternatively the ROWNUM() function in the
+      WHERE clause, can be used to limit the number of rows that are updated.
+      This is useful when a very large number of rows needs to be updated. In
+      this situation, you can perform the operation is chunks and commit after
+      each chunk to reduce memory usage and the total time of the
       operation.</simpara>
 
       <indexterm significance="preferred" type="sql">
@@ -3808,6 +3810,10 @@ SELECT firstname, lastname, a.c FROM customer, LATERAL(SELECT SUM(total) FROM in
       reference&gt;</literal> without any error. The constraints and
       referential actions specified on the database tables are enforced the
       same way as for an update, a delete and an insert statement.</simpara>
+
+      <simpara>The optional <literal>&lt;search condition&gt;</literal> in
+      each WHEN clause can be used to filter (reduce) the rows for the
+      particular action.</simpara>
 
       <simpara>The MERGE statement can be used with only the WHEN NOT MATCHED
       clause as a conditional INSERT statement that inserts a row if no
