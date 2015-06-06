@@ -141,7 +141,7 @@ import org.hsqldb.types.Types;
  * object or it is out of date, the table contents are cleared and rebuilt. <p>
  *
  * (fredt@users) <p>
- * @author Campbell Boucher-Burnet (boucherb@users dot sourceforge.net)
+ * @author Campbell Burnet (boucherb@users dot sourceforge.net)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
  * @version 2.3.3
  * @since 1.7.2

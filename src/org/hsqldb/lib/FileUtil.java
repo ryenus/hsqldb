@@ -49,7 +49,7 @@ import org.hsqldb.lib.java.JavaSystem;
  * A collection of file management methods.<p>
  * Also provides the default FileAccess implementation
  *
- * @author Campbell Boucher-Burnet (boucherb@users dot sourceforge.net)
+ * @author Campbell Burnet (boucherb@users dot sourceforge.net)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
  * @author Ocke Janssen oj@openoffice.org
  * @version 2.3.3

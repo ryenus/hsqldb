@@ -47,7 +47,7 @@ import org.hsqldb.types.Type;
 import org.hsqldb.types.Types;
 
 /**
- * @author Campbell Boucher-Burnet (boucherb@users dot sourceforge.net)
+ * @author Campbell Burnet (boucherb@users dot sourceforge.net)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
  * @version 2.2.9
  * @since 1.9.0

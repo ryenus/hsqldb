@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2011, The HSQL Development Group
+/* Copyright (c) 2001-2015, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -47,7 +47,7 @@ import org.hsqldb.persist.HsqlDatabaseProperties;
  * or those defined by ansi/iso SQL 2003 otherwise. A type sub-identifer
  * has been added to differentiate HSQLDB-specific type specializations.
  *
- * @author Campbell Boucher-Burnet (boucherb@users dot sourceforge.net)
+ * @author Campbell Burnet (boucherb@users dot sourceforge.net)
  * @version 2.3.0
  * @since 1.7.2
  */
