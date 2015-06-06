@@ -1,4 +1,4 @@
-svn 5454
+ June 2014 - version 2.3.3
 -- extnsive review and improvement of concurrent updates
 -- fixed an issue with CHECKPOINT DEFRAG that could cause minor inconsistencies
 -- fixed a rarely occuring error immediately after CHECKPOINT
@@ -14,9 +14,12 @@ svn 5454
 -- fixed an issue with CACHED table persistence
 -- fixed issue with TEMP table with ON COMMIT PRESERVE ROWS and RESULT MEMORY ROWS setting
 -- fixed several minor bugs
--- improved ORA, PGS, MSS and MYS syntax compatibility modes for CREATE TABLE and other statements
 -- improved usage of DECLARE CURSOR and DECLARE TABLE in SQL routines
+-- improved ORA, PGS, MSS and MYS syntax compatibility modes for CREATE TABLE and other statements
+-- added support for MYS syntax INSERT IGNORE, REPLACE and ON DUPLICATE KEY UPDATE
 -- added support for ALTER CONSTRAINT <name> RENAME TO <new name>
+-- added support for LIMIT in DELETE and UPDATE statements
+-- added support for DELETE in MERGE statement
 
 12 February 2014 - version 2.3.2
 -- fixed several minor issues
