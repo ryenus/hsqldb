@@ -168,7 +168,7 @@ public class HashIndex {
         }
 
         // link the node
-        int nextLookup;;
+        int nextLookup;
 
         if (lastLookup == -1) {
             nextLookup       = hashTable[index];

@@ -1004,7 +1004,7 @@ public class ParserDML extends ParserDQL {
         RangeVariable[] targetRanges = new RangeVariable[]{ targetRange };
 
         sourceRange.resolveRangeTable(
-            session, new RangeGroupSimple(targetRanges, false), rangeGroups);;
+            session, new RangeGroupSimple(targetRanges, false), rangeGroups);
         sourceRange.resolveRangeTableTypes(session, targetRanges);
         compileContext.setOuterRanges(RangeGroup.emptyArray);
 
