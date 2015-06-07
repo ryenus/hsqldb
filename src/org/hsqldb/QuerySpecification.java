@@ -1261,7 +1261,7 @@ public class QuerySpecification extends QueryExpression {
                     Expression e = (Expression) tempSet.get(j);
 
                     for (int k = 0; k < rangeVariables.length; k++) {
-                        if (rangeVariables[i] == e.getRangeVariable()) {
+                        if (rangeVariables[k] == e.getRangeVariable()) {
                             throw Error.error(ErrorCode.X_42574, e.getSQL());
                         }
                     }
