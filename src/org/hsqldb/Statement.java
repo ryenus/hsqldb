@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2014, The HSQL Development Group
+/* Copyright (c) 2001-2015, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -84,7 +84,7 @@ public abstract class Statement {
     HsqlName[] readTableNames = HsqlName.emptyArray;
 
     /** table names written - for concurrency control */
-    HsqlName[] writeTableNames = HsqlName.emptyArray;;
+    HsqlName[] writeTableNames = HsqlName.emptyArray;
 
     //
     OrderedHashSet references;

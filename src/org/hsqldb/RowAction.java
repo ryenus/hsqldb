@@ -683,7 +683,7 @@ public class RowAction extends RowActionBase {
         }
 
         do {
-            boolean expired = false;;
+            boolean expired = false;
 
             if (action.commitTimestamp != 0) {
                 if (action.commitTimestamp <= timestamp) {
