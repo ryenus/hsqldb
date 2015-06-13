@@ -31,6 +31,7 @@
 
 package org.hsqldb.persist;
 
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
@@ -57,7 +58,7 @@ import org.hsqldb.rowio.RowInputInterface;
 public class RowStoreAVLMemory extends RowStoreAVL implements PersistentStore {
 
     Database      database;
-    int           rowIdSequence = 0;
+    AtomicInteger rowIdSequence = new AtomicInteger();
     ReadWriteLock lock;
     Lock          readLock;
     Lock          writeLock;
@@ -105,12 +106,7 @@ public class RowStoreAVLMemory extends RowStoreAVL implements PersistentStore {
     public CachedObject getNewCachedObject(Session session, Object object,
                                            boolean tx) {
 
-        int id;
-
-        synchronized (this) {
-            id = rowIdSequence++;
-        }
-
+        int id  = rowIdSequence.getAndIncrement();
         Row row = new RowAVL(table, (Object[]) object, id, this);
 
         if (tx) {
