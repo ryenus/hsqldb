@@ -2248,7 +2248,7 @@ public class Logger implements EventLogInterface {
 
             if (files == null || files.length != 0) {
                 throw Error.error(ErrorCode.BACKUP_ERROR,
-                                  "files exists in directory");
+                                  "files exist in directory");
             }
         } else {
             String defaultSuffix = compressed ? ".tar.gz"
