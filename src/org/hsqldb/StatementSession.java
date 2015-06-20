@@ -677,7 +677,7 @@ public class StatementSession extends Statement {
             case StatementTypes.DECLARE_SESSION_TABLE : {
                 Table         table           = (Table) parameters[0];
                 HsqlArrayList tempConstraints = (HsqlArrayList) parameters[1];
-                StatementDMQL statement       = (StatementDMQL) parameters[2];
+                StatementDMQL statement       = (StatementDMQL) parameters[3];
 
                 try {
                     if (tempConstraints.size() != 0) {

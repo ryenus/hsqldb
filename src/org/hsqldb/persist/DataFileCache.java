@@ -207,8 +207,8 @@ public class DataFileCache {
                           * database.logger.getDataFileFactor();
 
         if (defrag) {
-            this.dataFileName   = baseFileName + Logger.newFileExtension;
-            this.backupFileName = baseFileName + Logger.newFileExtension;
+            this.dataFileName   = dataFileName + Logger.newFileExtension;
+            this.backupFileName = backupFileName + Logger.newFileExtension;
             this.maxCacheRows   = 1024;
             this.maxCacheBytes  = 1024 * 4096;
         }
@@ -843,8 +843,7 @@ public class DataFileCache {
         try {
             cache.saveAll();
 
-            DataFileDefrag dfd = new DataFileDefrag(database, this,
-                dataFileName);
+            DataFileDefrag dfd = new DataFileDefrag(database, this);
 
             dfd.process();
             close();
