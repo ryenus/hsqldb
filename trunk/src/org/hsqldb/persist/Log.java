@@ -79,7 +79,7 @@ import org.hsqldb.scriptio.ScriptWriterText;
 public class Log {
 
     private HsqlDatabaseProperties properties;
-    private String                 fileName;
+    private String                 baseFileName;
     private Database               database;
     private FileAccess             fa;
     ScriptWriterBase               dbLogWriter;
@@ -93,10 +93,10 @@ public class Log {
 
     Log(Database db) {
 
-        database   = db;
-        fa         = db.logger.getFileAccess();
-        fileName   = db.getPath();
-        properties = db.getProperties();
+        database     = db;
+        fa           = db.logger.getFileAccess();
+        baseFileName = db.getPath();
+        properties   = db.getProperties();
     }
 
     void initParams() {
@@ -104,8 +104,8 @@ public class Log {
         maxLogSize     = database.logger.getLogSize() * 1024L * 1024;
         writeDelay     = database.logger.getWriteDelay();
         filesReadOnly  = database.isFilesReadOnly();
-        scriptFileName = fileName + Logger.scriptFileExtension;
-        logFileName    = fileName + Logger.logFileExtension;
+        scriptFileName = baseFileName + Logger.scriptFileExtension;
+        logFileName    = baseFileName + Logger.logFileExtension;
     }
 
     /**
@@ -272,32 +272,35 @@ public class Log {
     void deleteNewAndOldFiles() {
 
         deleteOldDataFiles();
-        fa.removeElement(fileName + Logger.dataFileExtension
+        fa.removeElement(baseFileName + Logger.dataFileExtension
                          + Logger.newFileExtension);
-        fa.removeElement(fileName + Logger.backupFileExtension
+        fa.removeElement(baseFileName + Logger.backupFileExtension
                          + Logger.newFileExtension);
         fa.removeElement(scriptFileName + Logger.newFileExtension);
     }
 
     void deleteBackup() {
-        fa.removeElement(fileName + Logger.backupFileExtension);
+        fa.removeElement(baseFileName + Logger.backupFileExtension);
     }
 
     void backupData() {
 
         DataFileCache.backupFile(database,
-                                 fileName + Logger.dataFileExtension,
-                                 fileName + Logger.backupFileExtension, false);
+                                 baseFileName + Logger.dataFileExtension,
+                                 baseFileName + Logger.backupFileExtension,
+                                 false);
     }
 
     void renameNewDataFile() {
         DataFileCache.renameDataFile(database,
-                                     fileName + Logger.dataFileExtension);
+                                     baseFileName + Logger.dataFileExtension);
     }
 
     void renameNewBackup() {
+
         DataFileCache.renameBackupFile(database,
-                                       fileName + Logger.backupFileExtension);
+                                       baseFileName
+                                       + Logger.backupFileExtension);
     }
 
     void renameNewScript() {
@@ -311,8 +314,8 @@ public class Log {
 
     boolean renameNewDataFileDone() {
 
-        return fa.isStreamElement(fileName + Logger.dataFileExtension)
-               && !fa.isStreamElement(fileName + Logger.dataFileExtension
+        return fa.isStreamElement(baseFileName + Logger.dataFileExtension)
+               && !fa.isStreamElement(baseFileName + Logger.dataFileExtension
                                       + Logger.newFileExtension);
     }
 
@@ -328,7 +331,7 @@ public class Log {
     }
 
     void deleteNewBackup() {
-        fa.removeElement(fileName + Logger.backupFileExtension
+        fa.removeElement(baseFileName + Logger.backupFileExtension
                          + Logger.newFileExtension);
     }
 
@@ -547,7 +550,7 @@ public class Log {
     DataFileCache getCache() {
 
         if (cache == null) {
-            cache = new DataFileCache(database, fileName);
+            cache = new DataFileCache(database, baseFileName);
 
             cache.open(filesReadOnly);
         }

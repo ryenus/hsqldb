@@ -66,12 +66,12 @@ final class DataFileDefrag {
     int            scale;
     DoubleIntIndex pointerLookup;
 
-    DataFileDefrag(Database db, DataFileCache cache, String dataFileName) {
+    DataFileDefrag(Database db, DataFileCache cache) {
 
         this.database     = db;
         this.dataCache    = cache;
         this.scale        = cache.getDataFileScale();
-        this.dataFileName = dataFileName;
+        this.dataFileName = cache.getFileName();
     }
 
     void process() {
@@ -105,8 +105,10 @@ final class DataFileDefrag {
         }
 
         try {
+            String baseFileName = database.getCanonicalPath();
+
             pointerLookup = new DoubleIntIndex((int) maxSize, false);
-            dataFileOut   = new DataFileCache(database, dataFileName, true);
+            dataFileOut   = new DataFileCache(database, baseFileName, true);
 
             pointerLookup.setKeysSearchTarget();
 
