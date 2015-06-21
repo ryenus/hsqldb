@@ -1,5 +1,5 @@
  June 2014 - version 2.3.3
--- extnsive review and improvement of concurrent updates
+-- extensive review and improvement of concurrent updates
 -- fixed an issue with CHECKPOINT DEFRAG that could cause minor inconsistencies
 -- fixed a rarely occuring error immediately after CHECKPOINT
 -- fixed regression with comparison of TIMESTAMP values when one value is WITH TIME ZONE and the other WITHOUT
