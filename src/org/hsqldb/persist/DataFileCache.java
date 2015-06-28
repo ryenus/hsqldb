@@ -161,7 +161,8 @@ public class DataFileCache {
                                                   false,
                                                   RAFile.DATA_FILE_STORED);
             } else {
-                dataFile = new RAFileSimple(database.logger, dataFileName, "rw");
+                dataFile = new RAFileSimple(database.logger, dataFileName,
+                                            "rw");
             }
         } catch (Throwable t) {
             throw Error.error(ErrorCode.FILE_IO_ERROR, t);
@@ -275,7 +276,8 @@ public class DataFileCache {
             boolean isSaved       = false;
 
             if (preexists) {
-                dataFile = new RAFileSimple(database.logger, dataFileName, "r");
+                dataFile = new RAFileSimple(database.logger, dataFileName,
+                                            "r");
 
                 long    length       = dataFile.length();
                 boolean wrongVersion = false;
