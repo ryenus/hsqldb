@@ -1262,6 +1262,7 @@ public class Table extends TableBase implements SchemaObject {
         }
 
         if (index != null) {
+            index.setTable(tn);
             tn.addIndexStructure(index);
         }
 
