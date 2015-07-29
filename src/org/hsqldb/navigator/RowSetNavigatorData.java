@@ -70,11 +70,10 @@ implements Comparator {
     Object[][] table = emptyTable;
 
     //
-    final Session session;
-    int           visibleColumnCount;
-    boolean       isAggregate;
-    boolean       isSimpleAggregate;
-    Object[]      simpleAggregateData;
+    int      visibleColumnCount;
+    boolean  isAggregate;
+    boolean  isSimpleAggregate;
+    Object[] simpleAggregateData;
 
     //
     boolean reindexTable;
@@ -240,6 +239,8 @@ implements Comparator {
         this.size  = 0;
 
         reset();
+
+        isClosed = true;
     }
 
     public void clear() {
@@ -705,6 +706,7 @@ implements Comparator {
     }
 
     public int compare(Object a, Object b) {
-        return mainIndex.compareRow(session, (Object[]) a, (Object[]) b);
+        return mainIndex.compareRow((Session) session, (Object[]) a,
+                                    (Object[]) b);
     }
 }

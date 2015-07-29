@@ -31,6 +31,7 @@
 
 package org.hsqldb;
 
+import org.hsqldb.HsqlNameManager.HsqlName;
 import org.hsqldb.ParserDQL.CompileContext;
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
@@ -117,4 +118,14 @@ public class StatementQuery extends StatementDMQL {
                ? ResultProperties.updatablePropsValue
                : ResultProperties.defaultPropsValue;
     }
+
+    public void setCursorName(HsqlName name) {
+        cursorName = name;
+    }
+
+    public HsqlName getCursorName() {
+        return cursorName;
+    }
+
+
 }

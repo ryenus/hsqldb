@@ -629,6 +629,9 @@ public class Logger implements EventLogInterface {
         setLobFileScaleNoCheck(
             database.databaseProperties.getIntegerProperty(
                 HsqlDatabaseProperties.hsqldb_lob_file_scale));
+        this.setLobFileCompressedNoCheck(
+            database.databaseProperties.isPropertyTrue(
+                HsqlDatabaseProperties.hsqldb_lob_file_compressed));
         setDataFileScaleNoCheck(
             database.databaseProperties.getIntegerProperty(
                 HsqlDatabaseProperties.hsqldb_cache_file_scale));

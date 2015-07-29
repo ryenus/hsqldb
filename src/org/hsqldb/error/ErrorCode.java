@@ -137,6 +137,7 @@ public interface ErrorCode {
     int DATA_FILE_IN_USE     = 469;                // S1000 Data file is in use
     int BACKUP_ERROR         = 470;                // S1000 Backup error
     int DATA_CACHE_IS_FULL   = 471;                // S1000 Data cache size limit is reached
+    int ERROR_IN_LOG_FILE    = 472;                // S1000 problem with log file
 
     // HSQLDB Text tables
     int TEXT_TABLE_UNKNOWN_DATA_SOURCE = 481;      // S1000 The table's data source for has not been defined

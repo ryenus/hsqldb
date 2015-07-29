@@ -810,14 +810,16 @@ public class QuerySpecification extends QueryExpression {
                         e.getLeftNode(), e.getRightNode()
                     }, name);
 
-                    range.addNamedJoinColumnExpression(name, col);
+                    range.addNamedJoinColumnExpression(name, col,
+                                                       leftPosition);
                 } else {
                     col.nodes = (Expression[]) ArrayUtil.resizeArray(col.nodes,
                             col.nodes.length + 1);
                     col.nodes[col.nodes.length - 1] = e.getRightNode();
                 }
 
-                rightRange.addNamedJoinColumnExpression(name, col);
+                rightRange.addNamedJoinColumnExpression(name, col,
+                        rightPosition);
             }
         }
 

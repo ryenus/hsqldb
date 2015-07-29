@@ -315,8 +315,8 @@ public class ParserDML extends ParserDQL {
                     targetSet.toArray(targets);
 
                     for (int i = 0; i < targets.length; i++) {
-                        this.resolveOuterReferencesAndTypes(rangeGroups,
-                                                            targets[i]);
+                        resolveReferencesAndTypes(rangeGroup, rangeGroups,
+                                                  targets[i]);
                     }
 
                     updateColumnCheckList =
@@ -632,7 +632,7 @@ public class ParserDML extends ParserDQL {
         targetSet.toArray(targets);
 
         for (int i = 0; i < targets.length; i++) {
-            this.resolveOuterReferencesAndTypes(rangeGroups, targets[i]);
+            resolveReferencesAndTypes(rangeGroup, rangeGroups, targets[i]);
         }
 
         columnCheckList   = table.getColumnCheckList(columnMap);
@@ -1002,9 +1002,9 @@ public class ParserDML extends ParserDQL {
         sourceRange = readTableOrSubquery();
 
         RangeVariable[] targetRanges = new RangeVariable[]{ targetRange };
+        RangeGroup      rangeGroup = new RangeGroupSimple(targetRanges, false);
 
-        sourceRange.resolveRangeTable(
-            session, new RangeGroupSimple(targetRanges, false), rangeGroups);
+        sourceRange.resolveRangeTable(session, rangeGroup, rangeGroups);
         sourceRange.resolveRangeTableTypes(session, targetRanges);
         compileContext.setOuterRanges(RangeGroup.emptyArray);
 
@@ -1088,7 +1088,7 @@ public class ParserDML extends ParserDQL {
             updateTargetSet.toArray(targets);
 
             for (int i = 0; i < targets.length; i++) {
-                this.resolveOuterReferencesAndTypes(rangeGroups, targets[i]);
+                resolveReferencesAndTypes(rangeGroup, rangeGroups, targets[i]);
             }
 
             updateExpressions = new Expression[updateList.size()];
@@ -1400,11 +1400,24 @@ public class ParserDML extends ParserDQL {
         return cs;
     }
 
+    void resolveReferencesAndTypes(RangeGroup rangeGroup,
+                                   RangeGroup[] rangeGroups, Expression e) {
+
+        HsqlList unresolved = e.resolveColumnReferences(session, rangeGroup,
+            rangeGroup.getRangeVariables().length, rangeGroups, null, false);
+
+        ExpressionColumn.checkColumnsResolved(unresolved);
+        e.resolveTypes(session, null);
+    }
+
+    /**
+     * Used in ROUTINE statements. Accepts NEXT VALUE FOR SEQUENCE
+     */
     void resolveOuterReferencesAndTypes(RangeGroup[] rangeGroups,
                                         Expression e) {
 
         HsqlList unresolved = e.resolveColumnReferences(session,
-            RangeGroup.emptyGroup, 0, rangeGroups, null, false);
+            RangeGroup.emptyGroup, rangeGroups, null);
 
         ExpressionColumn.checkColumnsResolved(unresolved);
         e.resolveTypes(session, null);

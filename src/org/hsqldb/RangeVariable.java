@@ -81,6 +81,7 @@ public class RangeVariable {
     boolean                hasKeyedColumnInGroupBy;
     boolean[]              usedColumns;
     boolean[]              updatedColumns;
+    boolean[]              namedJoinColumnCheck;
 
     //
     RangeVariableConditions[] joinConditions;
@@ -229,13 +230,20 @@ public class RangeVariable {
         }
     }
 
-    public void addNamedJoinColumnExpression(String name, Expression e) {
+    public void addNamedJoinColumnExpression(String name, Expression e,
+            int position) {
 
         if (namedJoinColumnExpressions == null) {
             namedJoinColumnExpressions = new HashMap();
         }
 
         namedJoinColumnExpressions.put(name, e);
+
+        if (namedJoinColumnCheck == null) {
+            namedJoinColumnCheck = rangeTable.getNewColumnCheckList();
+        }
+
+        namedJoinColumnCheck[position] = true;
     }
 
     public ExpressionColumn getColumnExpression(String name) {

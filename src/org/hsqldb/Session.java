@@ -232,17 +232,20 @@ public class Session implements SessionInterface {
         sessionData.persistentStoreCollection.release();
         statementManager.reset();
         database.sessionManager.removeSession(this);
-        database.closeIfLast();
 
         // keep sessionContext and sessionData
         rowActionList.clear();
 
-        database                    = null;
+        isClosed                    = true;
         user                        = null;
         sessionContext.savepoints   = null;
         sessionContext.lastIdentity = null;
         intConnection               = null;
-        isClosed                    = true;
+
+        // on server this call causes reentry to this method when shutdown=true
+        database.closeIfLast();
+
+        database = null;
     }
 
     /**

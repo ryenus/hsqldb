@@ -49,7 +49,6 @@ import org.hsqldb.types.Types;
  * @version 2.3.3
  * @since 1.9.0
  */
-
 public class ParserTable extends ParserDML {
 
     ParserTable(Session session, Scanner scanner) {
@@ -1501,14 +1500,20 @@ public class ParserTable extends ParserDML {
                     break;
             }
         } else if (dataType.isNumberType()) {
-            if (token.tokenType == Tokens.MINUS) {
-                read();
+            if (database.sqlSyntaxPgs && token.tokenType == Tokens.NEXTVAL) {
+                return readNextvalFunction();
+            }
 
-                minus = true;
+            if (database.sqlDoubleNaN
+                    && dataType.typeCode == Types.SQL_DOUBLE) {
+
+                // special for NaN
+                e = XreadNumericValueExpression();
             } else {
-                if (database.sqlSyntaxPgs
-                        && token.tokenType == Tokens.NEXTVAL) {
-                    return readNextvalFunction();
+                if (token.tokenType == Tokens.MINUS) {
+                    read();
+
+                    minus = true;
                 }
             }
         } else if (dataType.isCharacterType()) {
