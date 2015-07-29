@@ -61,6 +61,8 @@ public abstract class RowSetNavigator implements RangeIterator {
     boolean          isIterator;
     int              currentPos = -1;
     int              rangePosition;
+    boolean          hadNext;
+    boolean          isClosed;
 
     /**
      * Sets the id;
@@ -93,10 +95,6 @@ public abstract class RowSetNavigator implements RangeIterator {
     }
 
     public void setCurrent(Object[] data) {}
-
-    public long getRowid() {
-        return 0;
-    }
 
     public Object getRowidObject() {
         return null;
@@ -136,6 +134,10 @@ public abstract class RowSetNavigator implements RangeIterator {
      */
     public abstract void release();
 
+    public boolean isClosed() {
+        return isClosed;
+    }
+
     public void setSession(SessionInterface session) {
         this.session = session;
     }
@@ -162,15 +164,19 @@ public abstract class RowSetNavigator implements RangeIterator {
         if (hasNext()) {
             currentPos++;
 
+            hadNext = true;
+
             return true;
         } else if (size != 0) {
             currentPos = size;
         }
 
+        hadNext = false;
+
         return false;
     }
 
-    public boolean hasNext() {
+    final public boolean hasNext() {
         return currentPos < size - 1;
     }
 
@@ -184,6 +190,10 @@ public abstract class RowSetNavigator implements RangeIterator {
 
     public long getRowId() {
         throw Error.runtimeError(ErrorCode.U_S0500, "RowSetNavigator");
+    }
+
+    public boolean hadNext() {
+        return hadNext;
     }
 
     public boolean beforeFirst() {

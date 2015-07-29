@@ -158,6 +158,7 @@ public class RowSetNavigatorClient extends RowSetNavigator {
     public void release() {
         setData(emptyTable);
         reset();
+        isClosed = true;
     }
 
     public boolean absolute(int position) {

@@ -118,7 +118,7 @@ public abstract class StatementDMQL extends Statement {
     /**
      * Name of cursor
      */
-    SimpleName cursorName;
+    HsqlName cursorName;
 
     /**
      * Parse-order array of Expression objects, all of type PARAMETER ,
@@ -162,14 +162,6 @@ public abstract class StatementDMQL extends Statement {
         if (targetTable != baseTable) {
             baseColumnMap = targetTable.getBaseTableColumnMap();
         }
-    }
-
-    public void setCursorName(SimpleName name) {
-        cursorName = name;
-    }
-
-    public SimpleName getCursorName() {
-        return cursorName;
     }
 
     public Result execute(Session session) {

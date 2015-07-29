@@ -59,7 +59,6 @@ public class RowSetNavigatorDataTable extends RowSetNavigatorData {
     RowIterator            iterator;
     Row                    currentRow;
     int                    maxMemoryRowCount;
-    boolean                isClosed;
     Object[]               tempRowData;
 
     public RowSetNavigatorDataTable(Session session,
@@ -167,9 +166,10 @@ public class RowSetNavigatorDataTable extends RowSetNavigatorData {
     public void add(Object[] data) {
 
         try {
-            Row row = (Row) store.getNewCachedObject(session, data, false);
+            Row row = (Row) store.getNewCachedObject((Session) session, data,
+                false);
 
-            store.indexRow(session, row);
+            store.indexRow((Session) session, row);
 
             size++;
         } catch (HsqlException e) {}
@@ -199,7 +199,8 @@ public class RowSetNavigatorDataTable extends RowSetNavigatorData {
             return;
         }
 
-        RowIterator it = groupIndex.findFirstRow(session, store, oldData);
+        RowIterator it = groupIndex.findFirstRow((Session) session, store,
+            oldData);
 
         if (it.hasNext()) {
             Row row = it.getNextRow();
@@ -254,7 +255,7 @@ public class RowSetNavigatorDataTable extends RowSetNavigatorData {
             iterator.release();
         }
 
-        iterator = mainIndex.firstRow(session, store, 0, null);
+        iterator = mainIndex.firstRow((Session) session, store, 0, null);
     }
 
     public void release() {
@@ -306,7 +307,8 @@ public class RowSetNavigatorDataTable extends RowSetNavigatorData {
 
         tempRowData[0] = rowId;
 
-        RowIterator it = idIndex.findFirstRow(session, store, tempRowData,
+        RowIterator it = idIndex.findFirstRow((Session) session, store,
+                                              tempRowData,
                                               idIndex.getDefaultColumnMap());
 
         return it.getNext();
@@ -576,7 +578,8 @@ public class RowSetNavigatorDataTable extends RowSetNavigatorData {
             return simpleAggregateData;
         }
 
-        RowIterator it = groupIndex.findFirstRow(session, store, data);
+        RowIterator it = groupIndex.findFirstRow((Session) session, store,
+            data);
 
         if (it.hasNext()) {
             Row row = it.getNextRow();
@@ -593,8 +596,9 @@ public class RowSetNavigatorDataTable extends RowSetNavigatorData {
 
     boolean containsRow(Object[] data) {
 
-        RowIterator it     = mainIndex.findFirstRow(session, store, data);
-        boolean     result = it.hasNext();
+        RowIterator it = mainIndex.findFirstRow((Session) session, store,
+            data);
+        boolean result = it.hasNext();
 
         it.release();
 
@@ -602,6 +606,6 @@ public class RowSetNavigatorDataTable extends RowSetNavigatorData {
     }
 
     RowIterator findFirstRow(Object[] data) {
-        return mainIndex.findFirstRow(session, store, data);
+        return mainIndex.findFirstRow((Session) session, store, data);
     }
 }

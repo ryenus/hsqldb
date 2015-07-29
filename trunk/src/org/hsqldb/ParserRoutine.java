@@ -298,16 +298,6 @@ public class ParserRoutine extends ParserTable {
         return cs;
     }
 
-    void resolveOuterReferencesAndTypes(RangeGroup[] rangeGroups,
-                                        Expression e) {
-
-        HsqlList unresolved = e.resolveColumnReferences(session,
-            RangeGroup.emptyGroup, 0, rangeGroups, null, true);
-
-        ExpressionColumn.checkColumnsResolved(unresolved);
-        e.resolveTypes(session, null);
-    }
-
     StatementSchema compileAlterSpecificRoutine() {
 
         boolean restrict = false;

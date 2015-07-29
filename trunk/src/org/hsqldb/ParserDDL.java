@@ -2346,7 +2346,6 @@ public class ParserDDL extends ParserRoutine {
 
         sequence.checkValues();
 
-//        column.getIdentitySequence().reset(sequence);
         String   sql  = getLastPart();
         Object[] args = new Object[] {
             StatementTypes.ALTER_COLUMN_SEQUENCE, table, column, columnIndex,

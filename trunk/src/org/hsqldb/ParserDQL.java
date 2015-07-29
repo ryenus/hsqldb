@@ -226,14 +226,26 @@ public class ParserDQL extends ParserBase {
                 }
             }
 
-            if (database.sqlSyntaxMys || database.sqlSyntaxPgs) {
+            if (database.sqlSyntaxPgs) {
+                switch (token.tokenType) {
+
+                    case Tokens.TEXT :
+                        typeNumber     = Types.LONGVARCHAR;
+                        readByteOrChar = true;
+                        break;
+
+                    case Tokens.CITEXT :
+                        typeNumber = Types.VARCHAR_IGNORECASE;
+                        break;
+                }
+            }
+
+            if (database.sqlSyntaxMys) {
                 switch (token.tokenType) {
 
                     case Tokens.TINYTEXT :
-                        if (database.sqlSyntaxMys) {
-                            typeNumber     = Types.VARCHAR;
-                            readByteOrChar = true;
-                        }
+                        typeNumber     = Types.VARCHAR;
+                        readByteOrChar = true;
                         break;
 
                     case Tokens.TEXT :
@@ -243,29 +255,17 @@ public class ParserDQL extends ParserBase {
 
                     case Tokens.MEDIUMTEXT :
                     case Tokens.LONGTEXT :
-                        if (database.sqlSyntaxMys) {
-                            typeNumber     = Types.LONGVARCHAR;
-                            readByteOrChar = true;
-                        }
-                        break;
-
-                    case Tokens.CITEXT :
-                        if (database.sqlSyntaxPgs) {
-                            typeNumber = Types.VARCHAR_IGNORECASE;
-                        }
+                        typeNumber     = Types.LONGVARCHAR;
+                        readByteOrChar = true;
                         break;
 
                     case Tokens.TINYBLOB :
-                        if (database.sqlSyntaxMys) {
-                            typeNumber = Types.VARBINARY;
-                        }
+                        typeNumber = Types.VARBINARY;
                         break;
 
                     case Tokens.MEDIUMBLOB :
                     case Tokens.LONGBLOB :
-                        if (database.sqlSyntaxMys) {
-                            typeNumber = Types.LONGVARBINARY;
-                        }
+                        typeNumber = Types.LONGVARBINARY;
                         break;
                 }
             }
@@ -341,7 +341,21 @@ public class ParserDQL extends ParserBase {
                               Type.getDefaultType(typeNumber).getNameString());
         }
 
-        if (Types.acceptsPrecision(typeNumber)) {
+        boolean acceptsPrecision = Types.acceptsPrecision(typeNumber);
+
+        if (database.sqlSyntaxMys) {
+            switch (typeNumber) {
+
+                case Types.TINYINT :
+                case Types.SQL_INTEGER :
+                case Types.SQL_SMALLINT :
+                case Types.SQL_BIGINT :
+                    acceptsPrecision = true;
+                    break;
+            }
+        }
+
+        if (acceptsPrecision) {
             if (token.tokenType == Tokens.OPENBRACKET) {
                 int multiplier = 1;
 
@@ -438,7 +452,7 @@ public class ParserDQL extends ParserBase {
             } else if (typeNumber == Types.SQL_BLOB
                        || typeNumber == Types.SQL_CLOB) {
                 length = BlobType.defaultBlobSize;
-            } else if (database.sqlEnforceSize) {
+            } else if (enforceSize) {
 
                 // BIT is always BIT(1), regardless of sqlEnforceSize
                 if (typeNumber == Types.SQL_CHAR
@@ -572,7 +586,7 @@ public class ParserDQL extends ParserBase {
 
             case Types.SQL_DECIMAL :
             case Types.SQL_NUMERIC :
-                if (!hasLength && !hasScale && !database.sqlEnforceSize) {
+                if (!hasLength && !hasScale && !enforceSize) {
                     length = NumberType.defaultNumericPrecision;
                     scale  = NumberType.defaultNumericScale;
                 }
@@ -6130,7 +6144,7 @@ public class ParserDQL extends ParserBase {
     }
 
     StatementQuery compileDeclareCursorOrNull(RangeGroup[] rangeGroups,
-                                        boolean isRoutine) {
+            boolean isRoutine) {
 
         int sensitivity   = ResultConstants.SQL_ASENSITIVE;
         int scrollability = ResultConstants.SQL_NONSCROLLABLE;
@@ -6140,7 +6154,8 @@ public class ParserDQL extends ParserBase {
 
         readThis(Tokens.DECLARE);
 
-        SimpleName cursorName = readSimpleName();
+        HsqlName cursorName = readNewSchemaObjectName(SchemaObject.CURSOR,
+            false);
 
         switch (token.tokenType) {
 
