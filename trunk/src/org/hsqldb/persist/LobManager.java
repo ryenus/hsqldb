@@ -220,7 +220,7 @@ public class LobManager {
     private static final String deleteLobCallSQL =
         "CALL SYSTEM_LOBS.DELETE_LOB(?, ?)";
     private static final String deleteUnusedCallSQL =
-        "CALL SYSTEM_LOBS.DELETE_UNUSED_LOBS(?)";
+        "CALL SYSTEM_LOBS.DELETE_UNUSED_LOBS(?,?)";
     private static final String mergeUnusedSpaceSQL =
         "CALL SYSTEM_LOBS.MERGE_EMPTY_BLOCKS()";
     private static final String getLobUseLimitSQL =
@@ -596,7 +596,7 @@ public class LobManager {
                 }
             }
 
-            Object params[] = new Object[1];
+            Object params[] = new Object[2];
 
             params[0] = new Long(firstLobID);
 
@@ -606,6 +606,14 @@ public class LobManager {
 
             if (result.isError()) {
                 return result;
+            }
+
+            if (params[1] != null) {
+                int total = ((Number) params[1]).intValue();
+
+                if (total < 1) {
+                    return Result.updateZeroResult;
+                }
             }
 
             result = sysLobSession.executeCompiledStatement(mergeUnusedSpace,
@@ -1756,6 +1764,8 @@ public class LobManager {
 
         Result result = updateLobUsage.execute(session);
 
+        usageChanged = true;
+
         session.sessionContext.pop();
 
         return result;
@@ -1974,7 +1984,7 @@ public class LobManager {
         return blocks;
     }
 
-    void inflate(byte[] data, int length, boolean isClob) {
+    private void inflate(byte[] data, int length, boolean isClob) {
 
         if (cryptLobs) {
             length = database.logger.getCrypto().decode(data, 0, length, data,
@@ -2000,7 +2010,7 @@ public class LobManager {
         }
     }
 
-    int deflate(byte[] data, int offset, int length, boolean isClob) {
+    private int deflate(byte[] data, int offset, int length, boolean isClob) {
 
         deflater.setInput(data, offset, length);
         deflater.finish();
@@ -2171,24 +2181,28 @@ public class LobManager {
         return setBytesISCompressed(lobID, is, dataLength, isClob);
     }
 
+    /**
+     * Only for loading parts of the same lob, not for overwriting parts of existing lob
+     */
     private Result setBytesBACompressedPart(long lobID, long offset,
             byte[] dataBytes, int dataLength, boolean isClob) {
 
         // get block offset after existing blocks and conmpressed block
-        int    byteLength = deflate(dataBytes, 0, dataLength, isClob);
-        long[] lastPart   = getLastPart(lobID);
+        long[] lastPart = getLastPart(lobID);
         int blockOffset = (int) lastPart[ALLOC_PART.BLOCK_OFFSET]
                           + (int) lastPart[ALLOC_PART.BLOCK_COUNT];
-        int blockCount = (byteLength + lobBlockSize - 1) / lobBlockSize;
 
         // check position
         long limit = lastPart[ALLOC_PART.PART_OFFSET]
                      + lastPart[ALLOC_PART.PART_LENGTH];
 
         if (limit != offset || limit % largeLobBlockSize != 0) {
-            return Result.newErrorResult(Error.error(ErrorCode.X_0F502));
+            return Result.newErrorResult(Error.error(ErrorCode.X_0A501,
+                    "compressed lobs"));
         }
 
+        int byteLength = deflate(dataBytes, 0, dataLength, isClob);
+        int blockCount = (byteLength + lobBlockSize - 1) / lobBlockSize;
         Result result = createFullBlockAddresses(lobID, blockOffset,
             blockCount);
 
@@ -2241,9 +2255,9 @@ public class LobManager {
     private Result getPartBytesCompressedInBuffer(long lobID, long[] part,
             boolean isClob) {
 
-        int  blockOffset     = (int) part[ALLOC_PART.BLOCK_OFFSET];
+        long blockOffset     = part[ALLOC_PART.BLOCK_OFFSET];
         long partOffset      = part[ALLOC_PART.PART_OFFSET];
-        int  partLength      = (int) part[ALLOC_PART.PART_LENGTH];
+        long partLength      = part[ALLOC_PART.PART_LENGTH];
         int  partBytesLength = (int) part[ALLOC_PART.PART_BYTES];
         long blockByteOffset = blockOffset * lobBlockSize;
         Result result = getBytesNormal(lobID, blockByteOffset,

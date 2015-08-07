@@ -1430,22 +1430,22 @@ public class Logger implements EventLogInterface {
                     break;
                 }
 
-                return new RowStoreAVLDisk(collection, cache, (Table) table);
+                return new RowStoreAVLDisk(cache, (Table) table);
 
             case TableBase.MEMORY_TABLE :
             case TableBase.SYSTEM_TABLE :
-                return new RowStoreAVLMemory(collection, (Table) table);
+                return new RowStoreAVLMemory((Table) table);
 
             case TableBase.TEXT_TABLE :
-                return new RowStoreAVLDiskData(collection, (Table) table);
+                return new RowStoreAVLDiskData((Table) table);
 
             case TableBase.INFO_SCHEMA_TABLE :
-                return new RowStoreAVLHybridExtended(session, collection,
-                                                     table, false);
+                return new RowStoreAVLHybridExtended(session, table,
+                                                     false);
 
             case TableBase.TEMP_TABLE :
-                return new RowStoreAVLHybridExtended(session, collection,
-                                                     table, true);
+                return new RowStoreAVLHybridExtended(session, table,
+                                                     true);
 
             case TableBase.CHANGE_SET_TABLE :
                 return new RowStoreDataChange(session, collection, table);
@@ -1459,7 +1459,7 @@ public class Logger implements EventLogInterface {
                     return null;
                 }
 
-                return new RowStoreAVLHybrid(session, collection, table, true);
+                return new RowStoreAVLHybrid(session, table, true);
         }
 
         throw Error.runtimeError(ErrorCode.U_S0500, "Logger");

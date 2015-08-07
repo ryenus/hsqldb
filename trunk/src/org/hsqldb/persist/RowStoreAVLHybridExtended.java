@@ -52,11 +52,10 @@ public class RowStoreAVLHybridExtended extends RowStoreAVLHybrid {
 
     Session session;
 
-    public RowStoreAVLHybridExtended(Session session,
-                                     PersistentStoreCollection manager,
-                                     TableBase table, boolean diskBased) {
+    public RowStoreAVLHybridExtended(Session session, TableBase table,
+                                     boolean diskBased) {
 
-        super(session, manager, table, diskBased);
+        super(session, table, diskBased);
 
         this.session = session;
     }
@@ -148,7 +147,7 @@ public class RowStoreAVLHybridExtended extends RowStoreAVLHybrid {
         newTable.setIndexes(keys);
 
         RowStoreAVLHybrid tempStore = new RowStoreAVLHybridExtended(session,
-            manager, newTable, true);
+            newTable, true);
 
         tempStore.changeToDiskTable(session);
 

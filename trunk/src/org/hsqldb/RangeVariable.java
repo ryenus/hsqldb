@@ -1319,15 +1319,15 @@ public class RangeVariable {
                     new Object[conditions[condIndex].indexedColumnCount];
             }
 
+            int opType = conditions[condIndex].opType;
+
             for (int i = 0; i < conditions[condIndex].indexedColumnCount;
                     i++) {
-                int range = 0;
-                int opType = i == conditions[condIndex].indexedColumnCount - 1
-                             ? conditions[condIndex].opType
-                             : conditions[condIndex].indexCond[i].getType();
+                int range    = 0;
+                int tempType = conditions[condIndex].opTypes[i];
 
-                if (opType == OpTypes.IS_NULL || opType == OpTypes.NOT
-                        || opType == OpTypes.MAX) {
+                if (tempType == OpTypes.IS_NULL || tempType == OpTypes.NOT
+                        || tempType == OpTypes.MAX) {
                     currentJoinData[i] = null;
 
                     continue;
@@ -1365,7 +1365,8 @@ public class RangeVariable {
                             case OpTypes.GREATER :
                             case OpTypes.GREATER_EQUAL :
                             case OpTypes.GREATER_EQUAL_PRE :
-                                value = null;
+                                opType = OpTypes.NOT;
+                                value  = null;
                                 break;
 
                             default :
@@ -1381,6 +1382,14 @@ public class RangeVariable {
                                 value = null;
                                 break;
 
+                            case OpTypes.SMALLER :
+                            case OpTypes.SMALLER_EQUAL :
+                                if (conditions[condIndex].reversed) {
+                                    opType = OpTypes.MAX;
+                                    value  = null;
+
+                                    break;
+                                }
                             default :
                                 it = conditions[condIndex].rangeIndex
                                     .emptyIterator();
@@ -1395,7 +1404,7 @@ public class RangeVariable {
 
             it = conditions[condIndex].rangeIndex.findFirstRow(session, store,
                     currentJoinData, conditions[condIndex].indexedColumnCount,
-                    rangeVar.indexDistinctCount, conditions[condIndex].opType,
+                    rangeVar.indexDistinctCount, opType,
                     conditions[condIndex].reversed, null);
         }
 
@@ -1950,16 +1959,21 @@ public class RangeVariable {
             } else {
                 indexEndCondition = null;
 
-                for (int i = 0; i < indexedColumnCount; i++) {
-                    Expression e             = indexCond[i];
-                    int        opTypeCurrent = opTypes[i];
+                Expression[] temp = indexCond;
 
-                    indexCond[i]    = indexEndCond[i];
-                    indexEndCond[i] = e;
+                indexCond    = indexEndCond;
+                indexEndCond = temp;
+
+                int[] temptypes = opTypes;
+
+                opTypes    = opTypesEnd;
+                opTypesEnd = temptypes;
+
+                for (int i = 0; i < indexedColumnCount; i++) {
+                    Expression e = indexEndCond[i];
+
                     indexEndCondition =
                         ExpressionLogical.andExpressions(indexEndCondition, e);
-                    opTypes[i]    = opTypesEnd[i];
-                    opTypesEnd[i] = opTypeCurrent;
                 }
 
                 opType    = opTypes[indexedColumnCount - 1];

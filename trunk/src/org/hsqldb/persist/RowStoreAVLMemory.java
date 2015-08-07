@@ -63,10 +63,9 @@ public class RowStoreAVLMemory extends RowStoreAVL implements PersistentStore {
     Lock          readLock;
     Lock          writeLock;
 
-    public RowStoreAVLMemory(PersistentStoreCollection manager, Table table) {
+    public RowStoreAVLMemory(Table table) {
 
         this.database     = table.database;
-        this.manager      = manager;
         this.table        = table;
         this.indexList    = table.getIndexList();
         this.accessorList = new CachedObject[indexList.length];

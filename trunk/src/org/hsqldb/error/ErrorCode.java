@@ -359,6 +359,7 @@ public interface ErrorCode {
     int X_22501 = 3471;                            // value cannot be converted to target type
     int X_22511 = 3472;                            // invalid function argument
     int X_22521 = 3473;                            // object serialization failure
+    int X_22522 = 3474;                            // query execution reached limit of recursion
 
     // 04-PSM - xxxx
     int X_2202A = 3488;                            // data exception: null value in field reference

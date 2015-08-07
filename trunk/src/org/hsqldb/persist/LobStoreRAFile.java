@@ -37,24 +37,25 @@ import org.hsqldb.error.ErrorCode;
 
 /**
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.0
+ * @version 2.3.3
  * @since 1.9.0
  */
 public class LobStoreRAFile implements LobStore {
 
     final int             lobBlockSize;
+    String                fileName;
     RandomAccessInterface file;
     Database              database;
 
     public LobStoreRAFile(Database database, int lobBlockSize) {
 
-        this.lobBlockSize = lobBlockSize;
         this.database     = database;
+        this.lobBlockSize = lobBlockSize;
+        this.fileName     = database.getPath() + ".lobs";
 
         try {
-            String name = database.getPath() + ".lobs";
             boolean exists =
-                database.logger.getFileAccess().isStreamElement(name);
+                database.logger.getFileAccess().isStreamElement(fileName);
 
             if (exists) {
                 openFile();
@@ -67,15 +68,15 @@ public class LobStoreRAFile implements LobStore {
     private void openFile() {
 
         try {
-            String  name     = database.getPath() + ".lobs";
             boolean readonly = database.isFilesReadOnly();
 
             if (database.logger.isStoredFileAccess()) {
-                file = RAFile.newScaledRAFile(database, name, readonly,
+                file = RAFile.newScaledRAFile(database, fileName, readonly,
                                               RAFile.DATA_FILE_STORED);
             } else {
-                file = new RAFileSimple(database.logger, name, readonly ? "r"
-                                                                        : "rws");
+                file = new RAFileSimple(database.logger, fileName,
+                                        readonly ? "r"
+                                                 : "rws");
             }
         } catch (Throwable t) {
             throw Error.error(ErrorCode.DATA_FILE_ERROR, t);

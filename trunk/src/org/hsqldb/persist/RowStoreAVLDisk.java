@@ -73,10 +73,9 @@ public class RowStoreAVLDisk extends RowStoreAVL implements PersistentStore {
     Lock               readLock;
     Lock               writeLock;
 
-    public RowStoreAVLDisk(PersistentStoreCollection manager,
-                           DataFileCache cache, Table table) {
+    public RowStoreAVLDisk(DataFileCache cache, Table table) {
 
-        this(manager, table);
+        this(table);
 
         this.cache = cache;
         rowOut     = cache.rowOut.duplicate();
@@ -90,10 +89,9 @@ public class RowStoreAVLDisk extends RowStoreAVL implements PersistentStore {
         writeLock  = lock.writeLock();
     }
 
-    protected RowStoreAVLDisk(PersistentStoreCollection manager, Table table) {
+    protected RowStoreAVLDisk(Table table) {
 
         this.database     = table.database;
-        this.manager      = manager;
         this.table        = table;
         this.indexList    = table.getIndexList();
         this.accessorList = new CachedObject[indexList.length];
@@ -155,7 +153,6 @@ public class RowStoreAVLDisk extends RowStoreAVL implements PersistentStore {
 
         storageSize += size;
     }
-
 
     public CachedObject get(RowInputInterface in) {
 
