@@ -64,7 +64,6 @@ import org.hsqldb.types.Type;
 public abstract class RowStoreAVL implements PersistentStore {
 
     Database                  database;
-    PersistentStoreCollection manager;
     TableSpaceManager         tableSpace;
     Index[]                   indexList    = Index.emptyArray;
     CachedObject[]            accessorList = CachedObject.emptyArray;

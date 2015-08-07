@@ -60,11 +60,9 @@ public class RowStoreAVLDiskData extends RowStoreAVL {
     DataFileCache      cache;
     RowOutputInterface rowOut;
 
-    public RowStoreAVLDiskData(PersistentStoreCollection manager,
-                               Table table) {
+    public RowStoreAVLDiskData(Table table) {
 
         this.database     = table.database;
-        this.manager      = manager;
         this.table        = table;
         this.indexList    = table.getIndexList();
         this.accessorList = new CachedObject[indexList.length];

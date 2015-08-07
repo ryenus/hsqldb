@@ -726,7 +726,7 @@ public class QueryExpression implements RangeGroup {
             }
 
             if (round > 256) {
-                throw Error.error(ErrorCode.GENERAL_ERROR);
+                throw Error.error(ErrorCode.X_22522);
             }
         }
 

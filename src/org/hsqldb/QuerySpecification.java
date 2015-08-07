@@ -1036,14 +1036,11 @@ public class QuerySpecification extends QueryExpression {
         if (isAggregated) {
             return;
         }
-
         for (int i = 0; i < rangeVariables.length; i++) {
-            if (rangeVariables[i].isLateral || rangeVariables[i].isLeftJoin
-                    || rangeVariables[i].isRightJoin) {
+            if (rangeVariables[i].isRightJoin) {
                 return;
             }
         }
-
         RangeVariable range = null;
         int[]         colMap;
 
@@ -1088,6 +1085,10 @@ public class QuerySpecification extends QueryExpression {
             if (!isGrouped) {
                 colMap[i] = exprColumns[i].columnIndex;
             }
+        }
+
+        if (range != rangeVariables[0]) {
+            return;
         }
 
         boolean check = ArrayUtil.areAllIntIndexesAsBooleanArray(colMap,
@@ -1633,6 +1634,14 @@ public class QuerySpecification extends QueryExpression {
 
             if (groupData == null) {
                 navigator.add(data);
+
+                if (isSimpleDistinct) {
+                    for (int i = 1; i < rangeVariables.length; i++) {
+                        rangeIterators[i].reset();
+                    }
+
+                    currentIndex = 0;
+                }
             } else if (isAggregated) {
                 navigator.update(groupData, data);
             }
