@@ -1803,8 +1803,7 @@ public class ParserDQL extends ParserBase {
         Table      table = readTableName();
         SimpleName alias = null;
 
-        if (operation != StatementTypes.TRUNCATE
-                && operation != StatementTypes.INSERT) {
+        if (operation != StatementTypes.TRUNCATE) {
             if (token.tokenType == Tokens.AS) {
                 read();
                 checkIsNonCoreReservedIdentifier();
