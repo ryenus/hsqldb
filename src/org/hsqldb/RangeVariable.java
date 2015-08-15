@@ -1343,6 +1343,12 @@ public class RangeVariable {
                     conditions[condIndex].indexCond[i].getLeftNode()
                         .getDataType();
 
+                if (i == 0 && value == null) {
+                    it = conditions[condIndex].rangeIndex.emptyIterator();
+
+                    return;
+                }
+
                 if (targetType != valueType) {
                     range = targetType.compareToTypeRange(value);
 
