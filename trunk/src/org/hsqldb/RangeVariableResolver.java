@@ -184,8 +184,7 @@ public class RangeVariableResolver {
                     int index = rangeVarSet.getIndex(range);
 
                     if (index > 0) {
-                        rangeVariables[index].isLeftJoin      = false;
-                        rangeVariables[index - 1].isRightJoin = false;
+                        rangeVariables[index].isLeftJoin = false;
                     }
                 }
 
@@ -196,8 +195,7 @@ public class RangeVariableResolver {
                     int index = rangeVarSet.getIndex(range);
 
                     if (index > 0) {
-                        rangeVariables[index].isLeftJoin      = false;
-                        rangeVariables[index - 1].isRightJoin = false;
+                        rangeVariables[index].isLeftJoin = false;
                     }
                 }
             }
@@ -1090,7 +1088,7 @@ public class RangeVariableResolver {
                 }
                 default : {
                     throw Error.runtimeError(ErrorCode.U_S0500,
-                                       "RangeVariableResolver");
+                                             "RangeVariableResolver");
                 }
             }
         }
