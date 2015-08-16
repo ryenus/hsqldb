@@ -1934,8 +1934,8 @@ public class RangeVariable {
                             ExpressionLogical.andExpressions(indexEndCondition,
                                                              e);
                         opType        = e.opType;
-                        opTypes[0]    = e.opType;
-                        opTypesEnd[0] = e.opType;
+                        opTypes[i]    = e.opType;
+                        opTypesEnd[i] = e.opType;
                     }
 
                     opTypeEnd = opType;
