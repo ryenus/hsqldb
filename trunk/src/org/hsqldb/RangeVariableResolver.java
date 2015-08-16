@@ -1519,7 +1519,8 @@ public class RangeVariableResolver {
                 rangeVariables = newList;
 
                 // make two columns as arg
-                Expression[] exprList = new Expression[index.getColumnCount()];
+                Expression[] firstRowExpressions =
+                    new Expression[index.getColumnCount()];
 
                 for (int j = 0; j < indexedColCount; j++) {
                     int leftIndex  = index.getColumns()[j];
@@ -1528,7 +1529,7 @@ public class RangeVariableResolver {
                                                          newRangeVar,
                                                          rightIndex);
 
-                    exprList[j] = e;
+                    firstRowExpressions[j] = e;
                 }
 
                 boolean isOuter = rangeVariables[i].isLeftJoin
@@ -1537,7 +1538,8 @@ public class RangeVariableResolver {
                     !inInJoin[i] && isOuter ? rangeVar.whereConditions[0]
                                             : rangeVar.joinConditions[0];
 
-                conditions.addIndexCondition(exprList, index, indexedColCount);
+                conditions.addIndexCondition(firstRowExpressions, index,
+                                             indexedColCount);
 
                 for (int j = 0; j < set.size(); j++) {
                     int leftIndex  = set.get(j);
