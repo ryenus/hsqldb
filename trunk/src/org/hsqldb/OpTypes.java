@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2011, The HSQL Development Group
+/* Copyright (c) 2001-2015, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -58,7 +58,7 @@ public interface OpTypes {
         VALUELIST            = 26,
         FUNCTION             = 27,
         SQL_FUNCTION         = 28,
-        ROUTINE_FUNCTION     = 29,
+        STATE_FUNCTION       = 29,
         TABLE                = 30,
         NEGATE               = 31,    // arithmetic operations
         ADD                  = 32,

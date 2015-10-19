@@ -908,6 +908,18 @@ public class StatementCommand extends Statement {
                     return Result.newErrorResult(e, sql);
                 }
             }
+            case StatementTypes.CHECK_INDEX : {
+                try {
+                    HsqlName name = (HsqlName) parameters[0];
+                    Table table =
+                        session.database.schemaManager.getUserTable(session,
+                            name.name, name.schema.name);
+
+                    return Result.updateZeroResult;
+                } catch (HsqlException e) {
+                    return Result.newErrorResult(e, sql);
+                }
+            }
             case StatementTypes.SET_TABLE_NEW_TABLESPACE : {
                 try {
                     HsqlName name = (HsqlName) parameters[0];

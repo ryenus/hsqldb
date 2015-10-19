@@ -126,6 +126,4 @@ public class StatementQuery extends StatementDMQL {
     public HsqlName getCursorName() {
         return cursorName;
     }
-
-
 }

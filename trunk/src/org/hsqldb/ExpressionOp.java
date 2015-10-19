@@ -552,7 +552,8 @@ public class ExpressionOp extends Expression {
             if (expr.nodes[RIGHT].nodes[RIGHT].opType == OpTypes.CASEWHEN) {
                 expr = expr.nodes[RIGHT].nodes[RIGHT];
             } else {
-                expr.nodes[RIGHT].nodes[RIGHT].resolveTypes(session, null);
+                expr.nodes[RIGHT].nodes[RIGHT].resolveTypes(session,
+                        expr.nodes[RIGHT]);
 
                 expr = expr.nodes[RIGHT].nodes[LEFT];
             }

@@ -794,7 +794,7 @@ public class Database {
         return r;
     }
 
-    private static void addRows(Result r, String[] sql) {
+    static void addRows(Result r, String[] sql) {
 
         if (sql == null) {
             return;

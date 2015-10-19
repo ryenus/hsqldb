@@ -444,8 +444,7 @@ public class Session implements SessionInterface {
 
 //        tempActionHistory.add("add delete action " + actionTimestamp);
         if (abortTransaction) {
-
-//            throw Error.error(ErrorCode.X_40001);
+            throw Error.error(ErrorCode.X_40001);
         }
 
         database.txManager.addDeleteAction(this, table, store, row, colMap);
@@ -460,8 +459,7 @@ public class Session implements SessionInterface {
 
         // abort only after adding so that the new row gets removed from indexes
         if (abortTransaction) {
-
-//            throw Error.error(ErrorCode.X_40001);
+            throw Error.error(ErrorCode.X_40001);
         }
     }
 
