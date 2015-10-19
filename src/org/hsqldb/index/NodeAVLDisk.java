@@ -203,75 +203,51 @@ public class NodeAVLDisk extends NodeAVL {
 
     NodeAVL getLeft(PersistentStore store) {
 
-        NodeAVLDisk node = this;
-        RowAVLDisk  row  = this.row;
-
-        row  = (RowAVLDisk) store.get(this.row, false);
-        node = (NodeAVLDisk) row.getNode(iId);
-
-        if (node.iLeft == NO_POS) {
+        if (iLeft == NO_POS) {
             return null;
         }
 
-        NodeAVLDisk temp = findNode(store, node.iLeft);
+        NodeAVLDisk node = findNode(store, iLeft);
 
-        return temp;
+        if (node != null && node.iParent != this.getPos()) {
+            node = (NodeAVLDisk) node.setParent(store, this);
+        }
+
+        return node;
     }
 
     NodeAVL getRight(PersistentStore store) {
 
-        NodeAVLDisk node = this;
-        RowAVLDisk  row  = this.row;
-
-        row  = (RowAVLDisk) store.get(this.row, false);
-        node = (NodeAVLDisk) row.getNode(iId);
-
-        if (node.iRight == NO_POS) {
+        if (iRight == NO_POS) {
             return null;
         }
 
-        NodeAVLDisk temp = findNode(store, node.iRight);
+        NodeAVLDisk node = findNode(store, iRight);
 
-        return temp;
+        if (node != null && node.iParent != this.getPos()) {
+            node = (NodeAVLDisk) node.setParent(store, this);
+        }
+
+        return node;
     }
 
     NodeAVL getParent(PersistentStore store) {
 
-        NodeAVLDisk node = this;
-        RowAVLDisk  row  = this.row;
-
-        row  = (RowAVLDisk) store.get(this.row, false);
-        node = (NodeAVLDisk) row.getNode(iId);
-
-        if (node.iParent == NO_POS) {
+        if (iParent == NO_POS) {
             return null;
         }
 
-        NodeAVLDisk temp = findNode(store, iParent);
+        NodeAVLDisk node = findNode(store, iParent);
 
-        return temp;
+        return node;
     }
 
     public int getBalance(PersistentStore store) {
-
-        NodeAVLDisk node = this;
-        RowAVLDisk  row  = this.row;
-
-        row  = (RowAVLDisk) store.get(this.row, false);
-        node = (NodeAVLDisk) row.getNode(iId);
-
-        return node.iBalance;
+        return iBalance;
     }
 
     boolean isRoot(PersistentStore store) {
-
-        NodeAVLDisk node = this;
-        RowAVLDisk  row  = this.row;
-
-        row  = (RowAVLDisk) store.get(this.row, false);
-        node = (NodeAVLDisk) row.getNode(iId);
-
-        return node.iParent == NO_POS;
+        return iParent == NO_POS;
     }
 
     boolean isFromLeft(PersistentStore store) {

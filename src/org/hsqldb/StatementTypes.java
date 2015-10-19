@@ -174,6 +174,7 @@ public interface StatementTypes {
     int DATABASE_SHUTDOWN   = 1003;
     int DATABASE_SCRIPT     = 1004;
     int ALTER_SESSION       = 1005;
+    int CHECK_INDEX         = 1006;
 
     // hsqldb database settings
     int SET_DATABASE_FILES_BACKUP_INCREMENT    = 1011;

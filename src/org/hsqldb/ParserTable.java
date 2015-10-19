@@ -1627,7 +1627,7 @@ public class ParserTable extends ParserDML {
         }
 
         if (database.sqlSyntaxOra || database.sqlSyntaxPgs) {
-            e = XreadValueExpressionOrNull();
+            e = XreadSimpleValueExpressionPrimary();
 
             if (e != null) {
                 if (e.getType() == OpTypes.ROW_SUBQUERY) {

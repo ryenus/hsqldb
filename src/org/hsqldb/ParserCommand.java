@@ -296,6 +296,10 @@ public class ParserCommand extends ParserDDL {
                 cs = compileDeclare();
                 break;
 
+            case Tokens.PERFORM :
+                cs = compilePerform();
+                break;
+
             default :
                 throw unexpectedToken();
         }
@@ -2246,6 +2250,35 @@ public class ParserCommand extends ParserDDL {
                                             args, null, names);
 
         return cs;
+    }
+
+    private Statement compilePerform() {
+
+        read();
+
+        switch (token.tokenType) {
+
+            case Tokens.CHECK : {
+                read();
+                readThis(Tokens.TABLE);
+
+                Table    table = readTableName();
+
+                readThis(Tokens.INDEX);
+
+                Object[] args  = new Object[] {
+                    table.getName(), Integer.valueOf(1), null
+                };
+                HsqlName[] names =
+                    database.schemaManager.getCatalogAndBaseTableNames(
+                        table.getName());
+
+                return new StatementCommand(StatementTypes.CHECK_INDEX,
+                                            args, null, names);
+            }
+            default :
+                throw unexpectedToken();
+        }
     }
 
     private Statement compileCheckpoint() {

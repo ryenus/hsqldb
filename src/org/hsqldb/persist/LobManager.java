@@ -630,28 +630,25 @@ public class LobManager {
                 return result;
             }
 
+            // result is empty when there is no lob, or one row
             usageChanged = false;
 
+            long            sizeLimit = 0;
             RowSetNavigator navigator = result.getNavigator();
             boolean         next      = navigator.next();
 
-            if (!next) {
-                navigator.release();
+            if (next) {
+                Object[] data = navigator.getCurrent();
 
-                return Result.updateOneResult;
+                if (data[LOBS.BLOCK_ADDR] == null
+                        || data[LOBS.BLOCK_COUNT] == null) {
+                    return Result.updateOneResult;
+                }
+
+                sizeLimit = ((Integer) data[LOBS.BLOCK_ADDR]).intValue()
+                            + ((Integer) data[LOBS.BLOCK_COUNT]).intValue();
+                sizeLimit *= lobBlockSize;
             }
-
-            Object[] data = navigator.getCurrent();
-
-            if (data[LOBS.BLOCK_ADDR] == null
-                    || data[LOBS.BLOCK_COUNT] == null) {
-                return Result.updateOneResult;
-            }
-
-            long sizeLimit = ((Integer) data[LOBS.BLOCK_ADDR]).intValue()
-                             + ((Integer) data[LOBS.BLOCK_COUNT]).intValue();
-
-            sizeLimit *= lobBlockSize;
 
             long currentLength = lobStore.getLength();
 
