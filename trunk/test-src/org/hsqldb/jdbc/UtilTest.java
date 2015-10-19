@@ -52,7 +52,7 @@ import org.hsqldb.testbase.OfMethod;
 /**
  * Test of class {@link org.hsqldb.jdbc.Util}.
  *
- * @author Campbell Boucher-Burnet (boucherb@users dot sourceforge.net)
+ * @author Campbell Burnet (boucherb@users dot sourceforge.net)
  */
 @ForSubject(JDBCUtil.class)
 public class UtilTest extends BaseJdbcTestCase {
