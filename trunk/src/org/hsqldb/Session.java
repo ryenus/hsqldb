@@ -76,7 +76,7 @@ import org.hsqldb.types.Type.TypedComparator;
  * Implementation of SQL sessions.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.3
+ * @version 2.3.4
  * @since 1.7.0
  */
 public class Session implements SessionInterface {
@@ -188,7 +188,7 @@ public class Session implements SessionInterface {
                                                  : Boolean.FALSE;
         sessionContext.isReadOnly   = isReadOnlyDefault ? Boolean.TRUE
                                                         : Boolean.FALSE;
-        parser = new ParserCommand(this, new Scanner(database));
+        parser = new ParserCommand(this, new Scanner(this));
 
         setResultMemoryRowCount(database.getResultMaxMemoryRows());
         resetSchema();

@@ -95,7 +95,7 @@ public class RangeVariable {
     boolean isLateral;
     boolean isLeftJoin;     // table joined with LEFT / FULL OUTER JOIN
     boolean isRightJoin;    // table joined with RIGHT / FULL OUTER JOIN
-    boolean isBoundary;
+    boolean isJoin;
 
     //
     boolean hasLateral;
@@ -204,6 +204,7 @@ public class RangeVariable {
 
     public void setJoinType(boolean isLeft, boolean isRight) {
 
+        isJoin      = true;
         isLeftJoin  = isLeft;
         isRightJoin = isRight;
 
