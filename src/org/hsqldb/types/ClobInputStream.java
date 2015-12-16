@@ -107,7 +107,7 @@ public final class ClobInputStream extends Reader {
             len = (int) (availableLength - currentPosition);
         }
 
-        for (int i = off; i < off + len; i++) {
+        for (int i = off; i < off + len && i < cbuf.length; i++) {
             cbuf[i] = (char) read();
         }
 
