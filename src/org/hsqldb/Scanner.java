@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2014, The HSQL Development Group
+/* Copyright (c) 2001-2015, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -62,7 +62,7 @@ import org.hsqldb.types.Types;
  * Scans for SQL tokens.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.2
+ * @version 2.3.4
  * @since 1.9.0
  */
 public class Scanner {
@@ -204,9 +204,9 @@ public class Scanner {
 
     public Scanner() {}
 
-    public Scanner(Database database) {
+    public Scanner(Session session) {
 
-        if (database.sqlSyntaxMys) {
+        if (session.database.sqlSyntaxMys) {
             backtickQuoting = true;
         }
     }
@@ -1806,6 +1806,7 @@ public class Scanner {
 
                     break;
                 }
+            case '.' :
             case '0' :
             case '1' :
             case '2' :
@@ -1816,7 +1817,6 @@ public class Scanner {
             case '7' :
             case '8' :
             case '9' :
-            case '.' :
                 token.tokenType = Tokens.X_VALUE;
 
                 scanNumber();

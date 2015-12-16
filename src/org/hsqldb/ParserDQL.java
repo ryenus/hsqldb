@@ -1351,6 +1351,8 @@ public class ParserDQL extends ParserBase {
 
                     if (token.tokenType == Tokens.JOIN) {
                         read();
+                        left  = true;
+                        right = true;
 
                         break;
                     } else {
@@ -1407,6 +1409,7 @@ public class ParserDQL extends ParserBase {
 
             RangeVariable rightRange = readTableOrSubquery();
             Expression    condition  = null;
+            rightRange.setJoinType(left, right);
 
             switch (type) {
 
@@ -1418,7 +1421,6 @@ public class ParserDQL extends ParserBase {
                     condition = Expression.EXPR_FALSE;
 
                     rightRange.addJoinCondition(condition);
-                    rightRange.setJoinType(true, true);
                     select.addRangeVariable(session, rightRange);
                     break;
 
@@ -1428,7 +1430,6 @@ public class ParserDQL extends ParserBase {
                 case Tokens.FULL : {
                     boolean using = token.tokenType == Tokens.USING;
 
-                    rightRange.setJoinType(left, right);
 
                     if (natural || using) {
                         leftRange.resolveRangeTable(

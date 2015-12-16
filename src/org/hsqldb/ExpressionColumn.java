@@ -369,8 +369,10 @@ public class ExpressionColumn extends Expression {
                 }
                 break;
 
-            case OpTypes.ROWNUM :
             case OpTypes.MULTICOLUMN :
+                throw Error.error(ErrorCode.X_42581, "*");
+
+            case OpTypes.ROWNUM :
             case OpTypes.DYNAMIC_PARAM :
             case OpTypes.ASTERISK :
             case OpTypes.SIMPLE_COLUMN :

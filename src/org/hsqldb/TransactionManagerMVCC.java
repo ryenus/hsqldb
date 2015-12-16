@@ -238,6 +238,7 @@ implements TransactionManager {
 
             rollbackPartial(session, 0, session.transactionTimestamp);
             endTransaction(session);
+            session.logSequences();
             endTransactionTPL(session);
 
             session.isTransaction = false;

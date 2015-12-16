@@ -167,15 +167,6 @@ public class QuerySpecification extends QueryExpression {
         rangeVariableList.add(rangeVar);
     }
 
-    void addRangeSeparator() {
-
-        RangeVariable range =
-            (RangeVariable) rangeVariableList.get(rangeVariableList.size()
-                - 1);
-
-        range.isBoundary = true;
-    }
-
     public TableDerived getValueListTable() {
 
         if (isValueList) {
@@ -772,7 +763,7 @@ public class QuerySpecification extends QueryExpression {
         Expression     result          = null;
         OrderedHashSet joinColumnNames = new OrderedHashSet();
 
-        for (int i = 0; i < rangeVariableList.size(); i++) {
+        for (int i = rangeVariableList.size() - 1; i >= 0; i--) {
             RangeVariable  range = (RangeVariable) rangeVariableList.get(i);
             HashMappedList columnList = range.rangeTable.columnList;
 
@@ -800,9 +791,6 @@ public class QuerySpecification extends QueryExpression {
                 Expression e = new ExpressionLogical(range, leftPosition,
                                                      rightRange,
                                                      rightPosition);
-
-                result = ExpressionLogical.andExpressions(result, e);
-
                 ExpressionColumn col = range.getColumnExpression(name);
 
                 if (col == null) {
@@ -812,14 +800,30 @@ public class QuerySpecification extends QueryExpression {
 
                     range.addNamedJoinColumnExpression(name, col,
                                                        leftPosition);
-                } else {
+
+                    result = ExpressionLogical.andExpressions(result, e);
+
+                    rightRange.addNamedJoinColumnExpression(name, col,
+                            rightPosition);
+                } else if (rightRange.getColumnExpression(name) == null
+                           && (!range.isLeftJoin || range.isRightJoin)) {
+
+                    if (range.isLeftJoin && range.isRightJoin) {
+                        e = new ExpressionLogical(col, e.getRightNode());
+                    }
+
                     col.nodes = (Expression[]) ArrayUtil.resizeArray(col.nodes,
                             col.nodes.length + 1);
                     col.nodes[col.nodes.length - 1] = e.getRightNode();
-                }
+                    result = ExpressionLogical.andExpressions(result, e);
 
-                rightRange.addNamedJoinColumnExpression(name, col,
-                        rightPosition);
+                    rightRange.addNamedJoinColumnExpression(name, col,
+                            rightPosition);
+                }
+            }
+
+            if (!range.isJoin) {
+                break;
             }
         }
 
@@ -1036,11 +1040,13 @@ public class QuerySpecification extends QueryExpression {
         if (isAggregated) {
             return;
         }
+
         for (int i = 0; i < rangeVariables.length; i++) {
             if (rangeVariables[i].isRightJoin) {
                 return;
             }
         }
+
         RangeVariable range = null;
         int[]         colMap;
 
