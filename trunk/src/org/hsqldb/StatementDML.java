@@ -54,7 +54,7 @@ import org.hsqldb.types.Types;
  * Implementation of Statement for DML statements.<p>
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.4
+ * @version 2.3.3
  * @since 1.9.0
  */
 
@@ -1110,9 +1110,8 @@ public class StatementDML extends StatementDMQL {
                 Row      row  = navigator.getCurrentRow();
                 Object[] data = navigator.getCurrentChangedData();
 
-                performReferentialActions(session, table, navigator, row,
-                                          data, this.updateColumnMap, path,
-                                          false);
+                performReferentialActions(session, navigator, row, data,
+                                          this.updateColumnMap, path, false);
                 path.clear();
             }
 
@@ -1349,29 +1348,27 @@ public class StatementDML extends StatementDMQL {
 
                     Row row = navigator.getCurrentRow();
 
-                    performReferentialActions(session, table, navigator, row,
-                                              null, null, path, true);
+                    performReferentialActions(session, navigator, row, null,
+                                              null, path, true);
                     path.clear();
                 }
 
                 navigator.beforeFirst();
             }
 
-            if (table.fkMainConstraints.length > table.cascadingDeletes) {
-                int newCount = navigator.getSize();
+            int newCount = navigator.getSize();
 
-                for (int i = 0; i < newCount; i++) {
-                    navigator.next();
+            for (int i = 0; i < newCount; i++) {
+                navigator.next();
 
-                    Row row = navigator.getCurrentRow();
+                Row row = navigator.getCurrentRow();
 
-                    performReferentialActions(session, table, navigator, row,
-                                              null, null, path, false);
-                    path.clear();
-                }
-
-                navigator.beforeFirst();
+                performReferentialActions(session, navigator, row, null, null,
+                                          path, false);
+                path.clear();
             }
+
+            navigator.beforeFirst();
         }
 
         while (navigator.next()) {
@@ -1562,7 +1559,7 @@ public class StatementDML extends StatementDMQL {
         }
     }
 
-    static void performReferentialActions(Session session, Table table,
+    static void performReferentialActions(Session session,
                                           RowSetNavigatorDataChange navigator,
                                           Row row, Object[] data,
                                           int[] changedCols, HashSet path,
@@ -1573,6 +1570,7 @@ public class StatementDML extends StatementDMQL {
         }
 
         boolean delete = data == null;
+        Table   table  = (Table) row.getTable();
 
         for (int i = 0, size = table.fkMainConstraints.length; i < size; i++) {
             Constraint c      = table.fkMainConstraints[i];
@@ -1638,11 +1636,9 @@ public class StatementDML extends StatementDMQL {
                             }
 
                             if (result) {
-                                performReferentialActions(session,
-                                                          c.core.refTable,
-                                                          navigator, refRow,
-                                                          null, null, path,
-                                                          deleteCascade);
+                                performReferentialActions(session, navigator,
+                                                          refRow, null, null,
+                                                          path, deleteCascade);
                             }
 
                             continue;
@@ -1741,9 +1737,8 @@ public class StatementDML extends StatementDMQL {
                     continue;
                 }
 
-                performReferentialActions(session, c.core.refTable, navigator,
-                                          refRow, refData, c.core.refCols,
-                                          path, deleteCascade);
+                performReferentialActions(session, navigator, refRow, refData,
+                                          c.core.refCols, path, deleteCascade);
                 path.remove(c);
             }
 
